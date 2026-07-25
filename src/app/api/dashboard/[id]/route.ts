@@ -28,7 +28,16 @@ export async function GET(
       return NextResponse.json({ error: selError.message }, { status: 500 })
     }
 
-    return NextResponse.json({ profile, selections })
+    const { count: guestCount, error: guestError } = await supabaseAdmin
+      .from("guests")
+      .select("id", { count: "exact", head: true })
+      .eq("wedding_profile_id", id)
+
+    if (guestError) {
+      return NextResponse.json({ error: guestError.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ profile, selections, guest_count: guestCount || 0 })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

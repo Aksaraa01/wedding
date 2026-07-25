@@ -57,6 +57,7 @@ function DashboardInner({ id }: { id: string }) {
   const router = useRouter()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [selections, setSelections] = useState<Selections | null>(null)
+  const [guestCount, setGuestCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
@@ -69,6 +70,7 @@ function DashboardInner({ id }: { id: string }) {
       .then((data) => {
         setProfile(data.profile)
         setSelections(data.selections)
+        setGuestCount(data.guest_count ?? data.profile.estimated_guest_count ?? 0)
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
@@ -102,7 +104,6 @@ function DashboardInner({ id }: { id: string }) {
 
   const statusLabel = STATUS_LABEL[profile.payment_status] || "UNPAID"
   const statusColor = STATUS_COLOR[profile.payment_status] || "bg-gray-500"
-  const guestCount = profile.estimated_guest_count || 0
 
   const settingsParams = new URLSearchParams({
     user: searchParams.get("user") || profile.bride_name,
@@ -160,10 +161,13 @@ function DashboardInner({ id }: { id: string }) {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-4 text-primary group-hover:translate-x-2 transition-transform duration-300">
+              <button
+                onClick={() => router.push(`/dashboard/${id}/guests`)}
+                className="flex items-center gap-4 text-primary group-hover:translate-x-2 transition-transform duration-300"
+              >
                 <span className="font-label-md text-label-md uppercase tracking-widest">Kelola Daftar Tamu &amp; Pemetaan Meja</span>
                 <span className="material-symbols-outlined">east</span>
-              </div>
+              </button>
             </div>
           </div>
         </section>

@@ -93,3 +93,17 @@ CREATE TABLE IF NOT EXISTS product_selections (
 
 -- Add whatsapp_number to wedding_profiles
 ALTER TABLE wedding_profiles ADD COLUMN IF NOT EXISTS whatsapp_number VARCHAR(20);
+
+-- 6. Tabel Tamu (Guests)
+CREATE TABLE IF NOT EXISTS guests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    wedding_profile_id UUID REFERENCES wedding_profiles(id) ON DELETE CASCADE NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    whatsapp VARCHAR(20),
+    relation VARCHAR(100),
+    table_number VARCHAR(50),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_guests_wedding_profile ON guests(wedding_profile_id);

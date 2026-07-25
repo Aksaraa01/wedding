@@ -1,0 +1,45 @@
+import { NextRequest, NextResponse } from "next/server"
+import { supabaseAdmin } from "@/lib/supabase"
+import * as XLSX from "xlsx"
+
+export async function POST(req: NextRequest) {
+  try {
+    const formData = await req.formData()
+    const file = formData.get("file") as File | null
+    const weddingProfileId = formData.get("wedding_profile_id") as string | null
+
+    if (!file || !weddingProfileId) {
+      return NextResponse.json({ error: "Missing file or wedding_profile_id" }, { status: 400 })
+    }
+
+    const buf = Buffer.from(await file.arrayBuffer())
+    const wb = XLSX.read(buf, { type: "buffer" })
+    const ws = wb.Sheets[wb.SheetNames[0]]
+    const rows = XLSX.utils.sheet_to_json<Record<string, string>>(ws, { header: ["name", "whatsapp", "relation", "table_number"] })
+
+    const guests = rows
+      .slice(1)
+      .filter((r) => r.name?.trim())
+      .map((r) => ({
+        wedding_profile_id: weddingProfileId,
+        name: r.name.trim(),
+        whatsapp: (r.whatsapp || "").toString().trim(),
+        relation: (r.relation || "").toString().trim(),
+        table_number: (r.table_number || "").toString().trim(),
+      }))
+
+    if (guests.length === 0) {
+      return NextResponse.json({ error: "No valid data found in file" }, { status: 400 })
+    }
+
+    const { data, error } = await supabaseAdmin.from("guests").insert(guests).select()
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ guests: data, count: data.length })
+  } catch (err) {
+    return NextResponse.json({ error: String(err) }, { status: 500 })
+  }
+}
