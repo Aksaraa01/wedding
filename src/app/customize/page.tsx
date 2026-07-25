@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, Suspense } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 
 type Toggles = Record<
@@ -39,6 +39,9 @@ function Inner() {
   const partnerName = searchParams.get("partner") || ""
   const guestCount = Number(searchParams.get("guest") || "300")
 
+  const isEdit = searchParams.get("edit") === "true"
+  const editProfileId = searchParams.get("profile_id") || ""
+
   const [toggles, setToggles] = useState<Toggles>({
     premium_web: true,
     wish_wall: true,
@@ -50,6 +53,18 @@ function Inner() {
     undangan_fisik: false,
     wa_blast: true,
   })
+
+  const [loaded, setLoaded] = useState(!isEdit)
+
+  useEffect(() => {
+    if (!isEdit || !editProfileId) return
+    fetch(`/api/dashboard/${editProfileId}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setToggles(data.selections)
+        setLoaded(true)
+      })
+  }, [])
 
   const [modalOpen, setModalOpen] = useState(false)
   const [waNumber, setWaNumber] = useState("")
@@ -142,19 +157,53 @@ function Inner() {
     }
   }
 
+  const handleSave = async () => {
+    setSubmitting(true)
+    setSubmitError("")
+    try {
+      const res = await fetch(`/api/customize/${editProfileId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ toggles, total_project_cost: total }),
+      })
+      if (res.ok) {
+        router.push(`/dashboard/${editProfileId}`)
+      } else {
+        const err = await res.json()
+        setSubmitError(err.error || "Gagal menyimpan. Silakan coba lagi.")
+      }
+    } catch {
+      setSubmitError("Gagal terhubung ke server.")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  if (!loaded) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
   return (
     <div className="font-body-md text-on-background bg-background min-h-screen">
       <header className="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-md px-edge-margin-mobile h-20 flex justify-between items-center border-b border-outline-variant/30">
         <button
           onClick={() => {
-            const p = new URLSearchParams({
-              step: "3",
-              user: userName,
-              partner: partnerName,
-              date: searchParams.get("date") || "tentative",
-              guest: String(guestCount),
-            })
-            router.push(`/register?${p}`)
+            if (isEdit) {
+              router.push(`/dashboard/${editProfileId}`)
+            } else {
+              const p = new URLSearchParams({
+                step: "3",
+                user: userName,
+                partner: partnerName,
+                date: searchParams.get("date") || "tentative",
+                guest: String(guestCount),
+              })
+              router.push(`/register?${p}`)
+            }
           }}
           className="flex items-center gap-2 group hover:opacity-70 transition-opacity"
         >
@@ -274,12 +323,24 @@ function Inner() {
               )}
             </span>
           </div>
-          <button
-            onClick={() => setModalOpen(true)}
-            className="bg-primary text-on-primary font-label-md text-label-md uppercase tracking-[0.1em] px-12 py-5 transition-all duration-300 hover:bg-secondary active:scale-[0.98] w-full md:w-auto"
-          >
-            Kunci Kustomisasi &amp; Kirim ke Konsultan
-          </button>
+          {isEdit ? (
+            <button
+              onClick={handleSave}
+              disabled={submitting}
+              className={`bg-primary text-on-primary font-label-md text-label-md uppercase tracking-[0.1em] px-12 py-5 transition-all duration-300 hover:bg-secondary active:scale-[0.98] w-full md:w-auto ${
+                submitting ? "opacity-50" : ""
+              }`}
+            >
+              {submitting ? "Menyimpan..." : "Simpan"}
+            </button>
+          ) : (
+            <button
+              onClick={() => setModalOpen(true)}
+              className="bg-primary text-on-primary font-label-md text-label-md uppercase tracking-[0.1em] px-12 py-5 transition-all duration-300 hover:bg-secondary active:scale-[0.98] w-full md:w-auto"
+            >
+              Kunci Kustomisasi &amp; Kirim ke Konsultan
+            </button>
+          )}
         </div>
       </footer>
 

@@ -106,10 +106,12 @@ function DashboardInner({ id }: { id: string }) {
   const statusColor = STATUS_COLOR[profile.payment_status] || "bg-gray-500"
 
   const settingsParams = new URLSearchParams({
-    user: searchParams.get("user") || profile.bride_name,
-    partner: searchParams.get("partner") || profile.groom_name,
-    date: searchParams.get("date") || profile.estimated_wedding_date,
-    guest: searchParams.get("guest") || String(guestCount),
+    user: profile.bride_name,
+    partner: profile.groom_name,
+    date: profile.estimated_wedding_date,
+    guest: String(profile.estimated_guest_count ?? guestCount),
+    edit: "true",
+    profile_id: id,
   })
 
   const activeCards = CARDS.filter((card) => selections[card.key])
