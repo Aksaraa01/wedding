@@ -148,7 +148,10 @@ function DashboardInner({ id }: { id: string }) {
         </section>
 
         <section className="mb-20">
-          <div className="hairline-divider pb-12 group cursor-pointer hover:bg-surface-container-low transition-colors duration-300">
+          <div
+            onClick={() => router.push(`/dashboard/${id}/guests`)}
+            className="hairline-divider pb-12 group cursor-pointer hover:bg-surface-container-low transition-colors duration-300"
+          >
             <div className="flex justify-between items-end">
               <div>
                 <h2 className="font-headline-md text-headline-md mb-6">Pusat Data Tamu &amp; Denah Meja</h2>
@@ -163,13 +166,10 @@ function DashboardInner({ id }: { id: string }) {
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => router.push(`/dashboard/${id}/guests`)}
-                className="flex items-center gap-4 text-primary group-hover:translate-x-2 transition-transform duration-300"
-              >
+              <div className="flex items-center gap-4 text-primary group-hover:translate-x-2 transition-transform duration-300">
                 <span className="font-label-md text-label-md uppercase tracking-widest">Kelola Daftar Tamu &amp; Pemetaan Meja</span>
                 <span className="material-symbols-outlined">east</span>
-              </button>
+              </div>
             </div>
           </div>
         </section>

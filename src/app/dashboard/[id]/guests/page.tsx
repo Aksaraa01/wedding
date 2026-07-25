@@ -3,6 +3,7 @@
 import { useState, useEffect, use, useRef } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
+import * as XLSX from "xlsx"
 
 type Guest = {
   id: string
@@ -21,6 +22,20 @@ type FormData = {
 
 const EMPTY_FORM: FormData = { name: "", whatsapp: "", relation: "", table_number: "" }
 
+type VerifyRow = {
+  name: string
+  whatsapp: string
+  relation: string
+  table_number: string
+  duplicate: boolean
+}
+
+type VerifySummary = {
+  total: number
+  valid: number
+  duplicate: number
+}
+
 function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   const router = useRouter()
   const [guests, setGuests] = useState<Guest[]>([])
@@ -31,6 +46,11 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   const [form, setForm] = useState<FormData>(EMPTY_FORM)
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [view, setView] = useState<"list" | "verify">("list")
+  const [verifyRows, setVerifyRows] = useState<VerifyRow[]>([])
+  const [verifySummary, setVerifySummary] = useState<VerifySummary | null>(null)
+  const [verifySearch, setVerifySearch] = useState("")
+  const [importing, setImporting] = useState(false)
 
   const fetchGuests = async () => {
     const params = new URLSearchParams({ wedding_profile_id: weddingProfileId })
@@ -90,10 +110,37 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   }
 
   const handleFileUpload = async (file: File) => {
-    const fd = new FormData()
-    fd.set("file", file)
-    fd.set("wedding_profile_id", weddingProfileId)
-    await fetch("/api/guests/import", { method: "POST", body: fd })
+    const buf = await file.arrayBuffer()
+    const wb = XLSX.read(buf, { type: "array" })
+    const ws = wb.Sheets[wb.SheetNames[0]]
+    const raw = XLSX.utils.sheet_to_json<Record<string, string>>(ws, { header: ["name", "whatsapp", "relation", "table_number"] })
+    const rows = raw.slice(1).filter((r) => r.name?.trim())
+
+    const res = await fetch("/api/guests/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ wedding_profile_id: weddingProfileId, rows }),
+    })
+
+    if (res.ok) {
+      const data = await res.json()
+      setVerifyRows(data.rows)
+      setVerifySummary(data.summary)
+      setVerifySearch("")
+      setView("verify")
+    }
+  }
+
+  const handleVerifyImport = async () => {
+    setImporting(true)
+    const validRows = verifyRows.filter((r) => !r.duplicate)
+    await fetch("/api/guests/bulk", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ wedding_profile_id: weddingProfileId, rows: validRows }),
+    })
+    setImporting(false)
+    setView("list")
     fetchGuests()
   }
 
@@ -121,6 +168,120 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
       g.name.toLowerCase().includes(search.toLowerCase()) ||
       g.table_number?.toLowerCase().includes(search.toLowerCase())
   )
+
+  if (view === "verify" && verifySummary) {
+    const filteredVerify = verifyRows.filter(
+      (r) =>
+        !verifySearch ||
+        r.name.toLowerCase().includes(verifySearch.toLowerCase())
+    )
+
+    return (
+      <>
+        <PageTheme mode="light" />
+        <header className="w-full top-0 sticky z-40 bg-surface/95 backdrop-blur-md border-b border-outline-variant/30">
+          <div className="flex justify-between items-center px-6 py-4 w-full max-w-container-max mx-auto">
+            <button
+              onClick={() => setView("list")}
+              className="flex items-center gap-3 cursor-pointer active:opacity-70 group"
+            >
+              <span className="material-symbols-outlined text-primary group-hover:-translate-x-1 transition-transform">arrow_back</span>
+              <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Batal &amp; Kembali</span>
+            </button>
+            <div className="flex items-center gap-4">
+              <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
+                <span className="material-symbols-outlined text-on-primary-container text-sm">account_circle</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="min-h-screen pb-40 px-6 pt-8 max-w-lg mx-auto overflow-x-hidden">
+          <section className="mb-10">
+            <h1 className="font-headline-md text-headline-md text-primary mb-2">Verifikasi Unggahan</h1>
+            <p className="font-body-md text-body-md text-on-surface-variant">Pastikan daftar tamu Anda akurat sebelum diintegrasikan ke narasi acara.</p>
+          </section>
+
+          <section className="mb-8 grid grid-cols-3 gap-px bg-outline-variant/50 border border-outline-variant/50 overflow-hidden">
+            <div className="bg-surface p-4 flex flex-col items-center text-center">
+              <span className="text-[24px] font-headline-md text-primary mb-1">{verifySummary.total}</span>
+              <span className="font-label-md text-label-md text-on-surface-variant uppercase">Baris</span>
+            </div>
+            <div className="bg-surface p-4 flex flex-col items-center text-center border-x border-outline-variant/20">
+              <span className="text-[24px] font-headline-md text-secondary mb-1">{verifySummary.valid}</span>
+              <span className="font-label-md text-label-md text-on-surface-variant uppercase">Valid</span>
+            </div>
+            <div className="bg-surface p-4 flex flex-col items-center text-center">
+              <span className="text-[24px] font-headline-md text-error mb-1">{verifySummary.duplicate}</span>
+              <span className="font-label-md text-label-md text-on-surface-variant uppercase">Duplikat</span>
+            </div>
+          </section>
+
+          <div className="flex flex-col gap-6 mb-4">
+            <div className="flex justify-between items-end">
+              <h2 className="font-headline-md text-[24px] text-primary">Daftar Tamu Baru</h2>
+              <span className="font-label-md text-label-md text-on-surface-variant border-b border-outline-variant/50 pb-1">{verifySummary.valid} Tamu</span>
+            </div>
+            <div className="relative group">
+              <span className="absolute left-0 bottom-3 material-symbols-outlined text-on-surface-variant">search</span>
+              <input
+                className="w-full bg-transparent border-0 border-b border-primary/20 py-3 pl-8 focus:ring-0 focus:border-primary transition-colors font-label-md text-label-md tracking-widest placeholder:text-outline/60 uppercase"
+                placeholder="CARI NAMA TAMU..."
+                value={verifySearch}
+                onChange={(e) => setVerifySearch(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <section className="mt-8 border-t border-outline-variant/30">
+            <div className="overflow-x-auto no-scrollbar">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-outline-variant/30">
+                    <th className="py-5 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Nama</th>
+                    <th className="py-5 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">WhatsApp</th>
+                    <th className="py-5 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest text-right">Meja</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant/10">
+                  {filteredVerify.map((row, i) => (
+                    <tr key={i} className="group hover:bg-surface-container-low transition-colors duration-200">
+                      <td className="py-6 pr-4">
+                        <p className="font-headline-md text-[18px] text-primary leading-none">{row.name}</p>
+                        {row.relation && (
+                          <span className="font-label-md text-[10px] text-secondary-fixed-dim bg-secondary/5 px-1 rounded uppercase mt-1 inline-block">{row.relation}</span>
+                        )}
+                        {row.duplicate && (
+                          <span className="font-label-md text-[10px] text-error bg-error-container/20 px-1 rounded uppercase mt-1 inline-block ml-1">Duplikat</span>
+                        )}
+                      </td>
+                      <td className="py-6 font-body-md text-on-surface-variant text-[14px]">{row.whatsapp}</td>
+                      <td className="py-6 font-headline-md text-[18px] text-primary text-right italic">{row.table_number || "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+
+        <footer className="fixed bottom-0 left-0 w-full z-50 bg-surface border-t border-outline-variant/20 shadow-2xl shadow-primary/10">
+          <div className="max-w-lg mx-auto p-6 flex flex-col gap-4">
+            <button
+              onClick={handleVerifyImport}
+              disabled={importing || verifySummary.valid === 0}
+              className={`w-full bg-primary text-white py-5 px-6 font-label-md text-label-md uppercase tracking-[0.2em] transition-all hover:bg-secondary active:scale-[0.98] duration-300 flex items-center justify-center gap-3 ${
+                importing ? "opacity-50" : ""
+              }`}
+            >
+              {importing ? "Mengimpor..." : `Verifikasi & Impor ${verifySummary.valid} Tamu`}
+              <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </button>
+          </div>
+        </footer>
+      </>
+    )
+  }
 
   return (
     <>
