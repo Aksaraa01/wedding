@@ -42,9 +42,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
+    const digits = (whatsapp || "").replace(/\D/g, "")
+    const normalized = digits ? (digits.startsWith("62") ? `+${digits}` : `+62${digits}`) : ""
+
     const { data, error } = await supabaseAdmin
       .from("guests")
-      .insert({ wedding_profile_id, name, whatsapp, relation, table_number })
+      .insert({ wedding_profile_id, name, whatsapp: normalized, relation, table_number })
       .select()
       .single()
 

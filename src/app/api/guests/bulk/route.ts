@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 
+function normalizePhone(wa: string): string {
+  const digits = wa.replace(/\D/g, "")
+  if (!digits) return ""
+  if (digits.startsWith("62")) return `+${digits}`
+  return `+62${digits}`
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json()
@@ -13,7 +20,7 @@ export async function POST(req: Request) {
     const guests = rows.map((r: Record<string, string>) => ({
       wedding_profile_id: wedding_profile_id,
       name: (r.name || "").trim(),
-      whatsapp: (r.whatsapp || "").toString().trim(),
+      whatsapp: normalizePhone((r.whatsapp || "").toString()),
       relation: (r.relation || "").toString().trim(),
       table_number: (r.table_number || "").toString().trim(),
     })).filter((r: { name: string }) => r.name)

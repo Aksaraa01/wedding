@@ -25,15 +25,16 @@ export async function POST(req: NextRequest) {
 
     const result = rows.map((r: Record<string, string>) => {
       const name = (r.name || "").trim()
-      const whatsapp = (r.whatsapp || "").toString().trim()
-      const digits = whatsapp.replace(/\D/g, "")
+      const rawWa = (r.whatsapp || "").toString().trim()
+      const digits = rawWa.replace(/\D/g, "")
+      const normalizedWa = digits ? (digits.startsWith("62") ? `+${digits}` : `+62${digits}`) : ""
       const duplicate =
         (name && existingSet.has(name.toLowerCase())) ||
         (digits && existingSet.has(digits))
 
       return {
         name,
-        whatsapp,
+        whatsapp: normalizedWa,
         relation: (r.relation || "").toString().trim(),
         table_number: (r.table_number || "").toString().trim(),
         duplicate,

@@ -51,6 +51,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   const [verifySummary, setVerifySummary] = useState<VerifySummary | null>(null)
   const [verifySearch, setVerifySearch] = useState("")
   const [importing, setImporting] = useState(false)
+  const [waDigits, setWaDigits] = useState("")
 
   const fetchGuests = async () => {
     const params = new URLSearchParams({ wedding_profile_id: weddingProfileId })
@@ -74,29 +75,38 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   const openAdd = () => {
     setEditingId(null)
     setForm(EMPTY_FORM)
+    setWaDigits("")
     setModalOpen(true)
   }
 
   const openEdit = (g: Guest) => {
     setEditingId(g.id)
     setForm({ name: g.name, whatsapp: g.whatsapp || "", relation: g.relation || "", table_number: g.table_number || "" })
+    setWaDigits((g.whatsapp || "").replace(/\D/g, ""))
     setModalOpen(true)
   }
 
   const handleSave = async () => {
     if (!form.name.trim()) return
 
+    const data = {
+      name: form.name.trim(),
+      whatsapp: waDigits ? `+62${waDigits}` : "",
+      relation: form.relation.trim(),
+      table_number: form.table_number.trim(),
+    }
+
     if (editingId) {
       await fetch(`/api/guests/${editingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(data),
       })
     } else {
       await fetch("/api/guests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, wedding_profile_id: weddingProfileId }),
+        body: JSON.stringify({ ...data, wedding_profile_id: weddingProfileId }),
       })
     }
 
@@ -339,7 +349,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             </button>
           </div>
           <div className="mt-2 text-center">
-            <span className="text-[10px] uppercase tracking-widest text-on-surface-variant opacity-60">(Nama, WhatsApp, Relasi, Meja)</span>
+            <span className="text-[10px] uppercase tracking-widest text-on-surface-variant opacity-60">(Nama Tamu, No. WhatsApp — nomor saja tanpa +62/0, Relasi, Meja)</span>
           </div>
         </section>
 
@@ -470,12 +480,16 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Nomor WhatsApp</label>
-                  <input
-                    className="w-full bg-transparent border-b border-outline-variant py-2 focus:outline-none focus:border-primary transition-colors"
-                    placeholder="+62 812..."
-                    value={form.whatsapp}
-                    onChange={(e) => setForm((p) => ({ ...p, whatsapp: e.target.value }))}
-                  />
+                  <div className="flex border border-outline-variant/30 focus-within:border-primary transition-colors">
+                    <span className="px-4 py-3 bg-surface-container-highest font-body-md border-r border-outline-variant/30">+62</span>
+                    <input
+                      className="w-full px-4 py-3 bg-transparent font-body-md focus:outline-none"
+                      placeholder="8123456789"
+                      type="tel"
+                      value={waDigits}
+                      onChange={(e) => setWaDigits(e.target.value.replace(/\D/g, ""))}
+                    />
+                  </div>
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Relasi</label>
