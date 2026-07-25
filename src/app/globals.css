@@ -128,3 +128,7 @@
   display: inline-block;
   vertical-align: middle;
 }
+
+.hairline-divider {
+  border-bottom: 1px solid var(--color-outline-variant);
+}

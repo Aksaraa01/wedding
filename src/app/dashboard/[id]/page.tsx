@@ -115,108 +115,97 @@ function DashboardInner({ id }: { id: string }) {
 
   return (
     <>
-      <PageTheme mode="dark" />
-      <div className="font-body-md bg-background text-on-background min-h-screen">
-        {/* Header */}
-        <header className="w-full px-edge-margin-mobile lg:px-edge-margin-desktop flex items-center justify-between h-24 lg:h-28 border-b border-outline-variant/30">
-          <div className="font-label-md uppercase tracking-widest text-primary text-sm lg:text-base">Aksaraa</div>
-          <div className="flex items-center gap-4 lg:gap-6">
-            <button
-              onClick={() => router.push(`/customize?${settingsParams}`)}
-              className="font-label-md text-on-surface-variant hover:text-primary transition-colors tracking-wider flex items-center gap-1"
-            >
-              <span className="material-symbols-outlined text-base">settings</span>
-              Ubah Pilihan Fitur
-            </button>
-            <span className="material-symbols-outlined text-2xl text-on-surface-variant">account_circle</span>
+      <PageTheme mode="light" />
+      <header className="fixed top-0 w-full z-50 bg-background flex justify-between items-center px-edge-margin-mobile md:px-edge-margin-desktop h-20">
+        <div className="font-headline-md text-headline-md tracking-widest text-primary">AKSARAA</div>
+        <div className="flex items-center gap-6">
+          <button
+            onClick={() => router.push(`/customize?${settingsParams}`)}
+            className="flex items-center gap-2 hover:opacity-70 transition-opacity duration-300"
+          >
+            <span className="material-symbols-outlined text-primary">settings</span>
+            <span className="font-label-md text-label-md uppercase tracking-widest hidden md:block">Ubah Pilihan Fitur</span>
+          </button>
+          <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden">
+            <span className="material-symbols-outlined text-on-surface-variant">account_circle</span>
           </div>
-        </header>
+        </div>
+      </header>
 
-        {/* Main */}
-        <main className="px-edge-margin-mobile lg:px-edge-margin-desktop max-w-container-max mx-auto pt-10 lg:pt-16 pb-32">
-          {/* Welcome */}
-          <section className="mb-10 lg:mb-16">
-            <h1 className="font-headline-lg text-headline-lg lg:text-headline-xl text-primary mb-2">
-              Selamat Datang,{" "}
-              <span className="text-secondary">{profile.bride_name} & {profile.groom_name}</span>
-            </h1>
-            <div className="flex items-center gap-2 mt-2">
-              <span className={`inline-block w-2 h-2 rounded-full ${statusColor}`} />
-              <span className="font-label-md uppercase tracking-widest text-on-surface-variant">{statusLabel}</span>
-            </div>
-          </section>
+      <main className="mt-32 pb-32 px-edge-margin-mobile md:px-80 max-w-container-max mx-auto">
+        <section className="mb-16">
+          <h2 className="font-headline-md text-headline-md leading-tight">
+            Selamat Datang,<br />
+            {profile.bride_name} &amp; {profile.groom_name}
+          </h2>
+          <div className="flex items-center gap-3 mt-2">
+            <div className={`w-2 h-2 rounded-full ${statusColor}`} />
+            <span className="font-body-md text-on-surface-variant">{statusLabel}</span>
+          </div>
+        </section>
 
-          {/* Master Guest Hub Card */}
-          <section className="mb-10 lg:mb-16">
-            <div className="bg-surface-container-lowest border border-outline-variant/30 p-6 lg:p-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-              <div className="flex-1">
-                <h2 className="font-headline-md text-headline-md text-primary mb-2">Master Guest Hub</h2>
-                <p className="font-body-md text-on-surface-variant">Pusat Data Tamu &amp; Denah Meja</p>
-              </div>
-              <div className="flex items-center gap-8 lg:gap-16">
-                <div className="text-left">
-                  <p className="text-headline-md font-headline-md text-primary">{guestCount}</p>
-                  <p className="text-on-surface-variant text-sm">Nama Terinput</p>
-                </div>
-                <div className="text-left">
-                  <p className="text-headline-md font-headline-md text-primary">0</p>
-                  <p className="text-on-surface-variant text-sm">Meja Dialokasikan</p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Module Cards */}
-          <section className="space-y-4 lg:space-y-6">
-            {activeCards.length === 0 ? (
-              <div className="text-center py-20 border border-outline-variant/30">
-                <span className="material-symbols-outlined text-5xl text-on-surface-variant/40 mb-4">widgets</span>
-                <p className="font-body-md text-on-surface-variant">Belum ada fitur yang dipilih</p>
-                <button
-                  onClick={() => router.push(`/customize?${settingsParams}`)}
-                  className="mt-6 bg-primary text-on-primary font-label-md uppercase tracking-widest py-3 px-8 hover:bg-secondary transition-colors"
-                >
-                  Pilih Fitur
-                </button>
-              </div>
-            ) : (
-              activeCards.map((card) => (
-                <div
-                  key={card.key}
-                  className="group bg-surface-container-lowest border border-outline-variant/30 p-5 lg:p-7 flex items-center justify-between hover:border-primary/50 hover:shadow-sm transition-all cursor-pointer"
-                  onClick={() => {}}
-                >
-                  <div className="flex-1 pr-4">
-                    <div className="flex items-center gap-3 mb-1">
-                      <span className="font-label-md text-on-surface-variant/40 text-xs tracking-wider">{card.num}</span>
-                      <h3 className="font-headline-md text-headline-md text-primary">{card.title}</h3>
-                    </div>
-                    <p className="font-body-md text-on-surface-variant text-sm">—</p>
+        <section className="mb-20">
+          <div className="hairline-divider pb-12 group cursor-pointer hover:bg-surface-container-low transition-colors duration-300">
+            <div className="flex justify-between items-end">
+              <div>
+                <h2 className="font-headline-md text-headline-md mb-6">Pusat Data Tamu &amp; Denah Meja</h2>
+                <div className="flex flex-col md:flex-row gap-4 md:gap-12">
+                  <div>
+                    <p className="font-label-md text-label-md uppercase text-on-surface-variant mb-1">Total Input</p>
+                    <p className="font-body-lg text-body-lg">{guestCount} Nama Terinput</p>
                   </div>
-                  <span className="material-symbols-outlined text-on-surface-variant/40 group-hover:text-primary transition-all group-hover:translate-x-1">chevron_right</span>
-                </div>
-              ))
-            )}
-          </section>
-
-          {/* Editorial */}
-          <section className="mt-20 lg:mt-32">
-            <div className="relative w-full aspect-[4/3] lg:aspect-[21/9] bg-surface-container overflow-hidden">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center p-8">
-                  <p className="font-headline-md text-headline-md text-on-surface-variant/30 mb-4 italic tracking-wider">
-                    every love story deserves to be preserved
-                  </p>
-                  <span className="inline-block w-12 h-px bg-outline-variant/30" />
-                  <p className="font-label-md text-on-surface-variant/30 tracking-wider mt-4 uppercase">
-                    aksaraa — 2026
-                  </p>
+                  <div>
+                    <p className="font-label-md text-label-md uppercase text-on-surface-variant mb-1">Alokasi Ruang</p>
+                    <p className="font-body-lg text-body-lg">0 Meja Dialokasikan</p>
+                  </div>
                 </div>
               </div>
+              <div className="flex items-center gap-4 text-primary group-hover:translate-x-2 transition-transform duration-300">
+                <span className="font-label-md text-label-md uppercase tracking-widest">Kelola Daftar Tamu &amp; Pemetaan Meja</span>
+                <span className="material-symbols-outlined">east</span>
+              </div>
             </div>
-          </section>
-        </main>
-      </div>
+          </div>
+        </section>
+
+        <section className="grid grid-cols-1 gap-0">
+          <div className="mb-8">
+            <h3 className="font-label-md text-label-md uppercase tracking-[0.2em] text-on-surface-variant">Modul Perencanaan</h3>
+          </div>
+
+          {activeCards.length === 0 ? (
+            <div className="text-center py-20 hairline-divider">
+              <p className="font-body-md text-on-surface-variant">Belum ada modul yang dipilih</p>
+            </div>
+          ) : (
+            activeCards.map((card) => (
+              <div
+                key={card.key}
+                className="hairline-divider py-10 group cursor-pointer hover:bg-surface-container-low transition-colors duration-300 flex justify-between items-center"
+              >
+                <div className="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-8">
+                  <span className="font-label-md text-label-md text-on-surface-variant">{card.num}.</span>
+                  <div>
+                    <h4 className="font-headline-md text-headline-md text-2xl mb-2">{card.title}</h4>
+                    <p className="font-body-md text-secondary uppercase tracking-wider font-semibold">—</p>
+                  </div>
+                </div>
+                <span className="material-symbols-outlined group-hover:translate-x-2 transition-transform duration-300">chevron_right</span>
+              </div>
+            ))
+          )}
+        </section>
+
+        <section className="mt-section-gap grid grid-cols-1 md:grid-cols-12 gap-gutter items-center">
+          <div className="md:col-span-7">
+            <div className="aspect-[4/5] w-full overflow-hidden bg-surface-container" />
+          </div>
+          <div className="md:col-span-4 md:col-start-9">
+            <h3 className="font-headline-lg text-headline-lg mb-6 italic">&ldquo;Narasi perjalanan cinta yang terkurasi dengan sempurna.&rdquo;</h3>
+            <p className="font-body-md text-on-surface-variant">Setiap modul dirancang untuk mempermudah langkah Anda menuju hari bahagia, tanpa mengabaikan sentuhan estetika dan detail kriya yang personal.</p>
+          </div>
+        </section>
+      </main>
     </>
   )
 }

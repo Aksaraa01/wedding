@@ -104,13 +104,16 @@ function Inner() {
       const second = partnerName.trim().split(" ")[0].toLowerCase()
       const slug = `${first}-${second}`
 
+      const rawDate = searchParams.get("date")
+      const weddingDate = rawDate && rawDate !== "tentative" ? rawDate : "2099-12-31"
+
       const res = await fetch("/api/submit-registration", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           bride_name: userName.trim(),
           groom_name: partnerName.trim(),
-          estimated_wedding_date: searchParams.get("date") || "2025-12-31",
+          estimated_wedding_date: weddingDate,
           estimated_guest_count: guestCount,
           slug,
           whatsapp_number: `+62${cleaned}`,
@@ -124,7 +127,7 @@ function Inner() {
         const p = new URLSearchParams({
           user: userName.trim(),
           partner: partnerName.trim(),
-          date: searchParams.get("date") || "2025-12-31",
+          date: rawDate || "tentative",
           guest: String(guestCount),
         })
         router.push(`/dashboard/${data.wedding_profile_id}?${p}`)
