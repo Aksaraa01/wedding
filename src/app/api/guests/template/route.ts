@@ -4,7 +4,7 @@ import * as XLSX from "xlsx"
 export async function GET() {
   const wb = XLSX.utils.book_new()
   const data = [
-    ["Nama Tamu", "No. WhatsApp (nomor saja, tanpa +62/0)", "Relasi", "Meja"],
+    ["Nama Tamu", "No. WhatsApp (nomor saja, tanpa +62/0)", "Kategori", "Meja"],
     ["Contoh: Anindya Pramesti", "81234567890", "Keluarga", "MEJA VIP 01"],
   ]
   const ws = XLSX.utils.aoa_to_sheet(data)

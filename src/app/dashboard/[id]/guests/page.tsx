@@ -8,24 +8,24 @@ import * as XLSX from "xlsx"
 type Guest = {
   id: string
   name: string
-  whatsapp: string
-  relation: string
+  phone_number: string
+  category: string
   table_number: string
 }
 
 type FormData = {
   name: string
-  whatsapp: string
-  relation: string
+  phone_number: string
+  category: string
   table_number: string
 }
 
-const EMPTY_FORM: FormData = { name: "", whatsapp: "", relation: "", table_number: "" }
+const EMPTY_FORM: FormData = { name: "", phone_number: "", category: "", table_number: "" }
 
 type VerifyRow = {
   name: string
-  whatsapp: string
-  relation: string
+  phone_number: string
+  category: string
   table_number: string
   duplicate: boolean
 }
@@ -81,8 +81,8 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
 
   const openEdit = (g: Guest) => {
     setEditingId(g.id)
-    setForm({ name: g.name, whatsapp: g.whatsapp || "", relation: g.relation || "", table_number: g.table_number || "" })
-    setWaDigits((g.whatsapp || "").replace(/\D/g, ""))
+    setForm({ name: g.name, phone_number: g.phone_number || "", category: g.category || "", table_number: g.table_number || "" })
+    setWaDigits((g.phone_number || "").replace(/\D/g, ""))
     setModalOpen(true)
   }
 
@@ -91,8 +91,8 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
 
     const data = {
       name: form.name.trim(),
-      whatsapp: waDigits ? `+62${waDigits}` : "",
-      relation: form.relation.trim(),
+      phone_number: waDigits ? `+62${waDigits}` : "",
+      category: form.category.trim(),
       table_number: form.table_number.trim(),
     }
 
@@ -123,7 +123,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
     const buf = await file.arrayBuffer()
     const wb = XLSX.read(buf, { type: "array" })
     const ws = wb.Sheets[wb.SheetNames[0]]
-    const raw = XLSX.utils.sheet_to_json<Record<string, string>>(ws, { header: ["name", "whatsapp", "relation", "table_number"] })
+    const raw = XLSX.utils.sheet_to_json<Record<string, string>>(ws, { header: ["name", "phone_number", "category", "table_number"] })
     const rows = raw.slice(1).filter((r) => r.name?.trim())
 
     const res = await fetch("/api/guests/verify", {
@@ -249,7 +249,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                 <thead>
                   <tr className="border-b border-outline-variant/30">
                     <th className="py-5 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Nama</th>
-                    <th className="py-5 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">WhatsApp</th>
+                    <th className="py-5 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">No. WA</th>
                     <th className="py-5 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest text-right">Meja</th>
                   </tr>
                 </thead>
@@ -258,14 +258,14 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                     <tr key={i} className="group hover:bg-surface-container-low transition-colors duration-200">
                       <td className="py-6 pr-4">
                         <p className="font-headline-md text-[18px] text-primary leading-none">{row.name}</p>
-                        {row.relation && (
-                          <span className="font-label-md text-[10px] text-secondary-fixed-dim bg-secondary/5 px-1 rounded uppercase mt-1 inline-block">{row.relation}</span>
+                        {row.category && (
+                          <span className="font-label-md text-[10px] text-secondary-fixed-dim bg-secondary/5 px-1 rounded uppercase mt-1 inline-block">{row.category}</span>
                         )}
                         {row.duplicate && (
                           <span className="font-label-md text-[10px] text-error bg-error-container/20 px-1 rounded uppercase mt-1 inline-block ml-1">Duplikat</span>
                         )}
                       </td>
-                      <td className="py-6 font-body-md text-on-surface-variant text-[14px]">{row.whatsapp}</td>
+                      <td className="py-6 font-body-md text-on-surface-variant text-[14px]">{row.phone_number}</td>
                       <td className="py-6 font-headline-md text-[18px] text-primary text-right italic">{row.table_number || "—"}</td>
                     </tr>
                   ))}
@@ -349,7 +349,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             </button>
           </div>
           <div className="mt-2 text-center">
-            <span className="text-[10px] uppercase tracking-widest text-on-surface-variant opacity-60">(Nama Tamu, No. WhatsApp — nomor saja tanpa +62/0, Relasi, Meja)</span>
+            <span className="text-[10px] uppercase tracking-widest text-on-surface-variant opacity-60">(Nama Tamu, No. WhatsApp — nomor saja tanpa +62/0, Kategori, Meja)</span>
           </div>
         </section>
 
@@ -389,7 +389,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
           <section className="border-t border-outline-variant">
             <div className="grid grid-cols-12 py-4 px-2 bg-surface-container-lowest">
               <div className="col-span-4 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Nama</div>
-              <div className="col-span-3 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Relasi</div>
+              <div className="col-span-3 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Kategori</div>
               <div className="col-span-3 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Meja</div>
               <div className="col-span-2" />
             </div>
@@ -398,13 +398,13 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
               <div key={guest.id} className="grid grid-cols-12 py-5 px-2 items-center hairline-divider group">
                 <div className="col-span-4">
                   <p className="font-body-md font-semibold text-on-surface">{guest.name}</p>
-                  {guest.whatsapp && (
-                    <p className="font-label-md text-[11px] text-on-surface-variant opacity-70">{guest.whatsapp}</p>
+                  {guest.phone_number && (
+                    <p className="font-label-md text-[11px] text-on-surface-variant opacity-70">{guest.phone_number}</p>
                   )}
                 </div>
                 <div className="col-span-3">
                   <span className="text-[10px] uppercase tracking-widest text-on-surface-variant opacity-70">
-                    {guest.relation || "—"}
+                    {guest.category || "—"}
                   </span>
                 </div>
                 <div className="col-span-3">
@@ -479,7 +479,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Nomor WhatsApp</label>
+                  <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">No. WhatsApp</label>
                   <div className="flex border border-outline-variant/30 focus-within:border-primary transition-colors">
                     <span className="px-4 py-3 bg-surface-container-highest font-body-md border-r border-outline-variant/30">+62</span>
                     <input
@@ -492,12 +492,12 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Relasi</label>
+                  <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Kategori</label>
                   <input
                     className="w-full bg-transparent border-b border-outline-variant py-2 focus:outline-none focus:border-primary transition-colors"
                     placeholder="Contoh: Keluarga, Teman, Kerabat"
-                    value={form.relation}
-                    onChange={(e) => setForm((p) => ({ ...p, relation: e.target.value }))}
+                    value={form.category}
+                    onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
                   />
                 </div>
                 <div className="flex flex-col gap-2">

@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     const buf = Buffer.from(await file.arrayBuffer())
     const wb = XLSX.read(buf, { type: "buffer" })
     const ws = wb.Sheets[wb.SheetNames[0]]
-    const rows = XLSX.utils.sheet_to_json<Record<string, string>>(ws, { header: ["name", "whatsapp", "relation", "table_number"] })
+    const rows = XLSX.utils.sheet_to_json<Record<string, string>>(ws, { header: ["name", "phone_number", "category", "table_number"] })
 
     const guests = rows
       .slice(1)
@@ -23,8 +23,8 @@ export async function POST(req: NextRequest) {
       .map((r) => ({
         wedding_profile_id: weddingProfileId,
         name: r.name.trim(),
-        whatsapp: (r.whatsapp || "").toString().trim(),
-        relation: (r.relation || "").toString().trim(),
+        phone_number: (r.phone_number || "").toString().trim(),
+        category: (r.category || "").toString().trim(),
         table_number: (r.table_number || "").toString().trim(),
       }))
 

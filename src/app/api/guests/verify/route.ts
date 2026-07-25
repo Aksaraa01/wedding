@@ -12,20 +12,20 @@ export async function POST(req: NextRequest) {
 
     const { data: existing } = await supabaseAdmin
       .from("guests")
-      .select("name, whatsapp")
+      .select("name, phone_number")
       .eq("wedding_profile_id", wedding_profile_id)
 
     const existingSet = new Set<string>()
     if (existing) {
       for (const g of existing) {
         if (g.name) existingSet.add(g.name.toLowerCase())
-        if (g.whatsapp) existingSet.add(g.whatsapp.replace(/\D/g, ""))
+        if (g.phone_number) existingSet.add(g.phone_number.replace(/\D/g, ""))
       }
     }
 
     const result = rows.map((r: Record<string, string>) => {
       const name = (r.name || "").trim()
-      const rawWa = (r.whatsapp || "").toString().trim()
+      const rawWa = (r.phone_number || r.whatsapp || "").toString().trim()
       const digits = rawWa.replace(/\D/g, "")
       const normalizedWa = digits ? (digits.startsWith("62") ? `+${digits}` : `+62${digits}`) : ""
       const duplicate =
@@ -34,8 +34,8 @@ export async function POST(req: NextRequest) {
 
       return {
         name,
-        whatsapp: normalizedWa,
-        relation: (r.relation || "").toString().trim(),
+        phone_number: normalizedWa,
+        category: (r.category || r.relation || "").toString().trim(),
         table_number: (r.table_number || "").toString().trim(),
         duplicate,
       }

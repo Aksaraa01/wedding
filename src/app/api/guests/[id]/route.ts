@@ -8,11 +8,11 @@ export async function PUT(
   try {
     const { id } = await params
     const body = await req.json()
-    const { name, whatsapp, relation, table_number } = body
+    const { name, phone_number, category, table_number } = body
 
     const { data, error } = await supabaseAdmin
       .from("guests")
-      .update({ name, whatsapp, relation, table_number })
+      .update({ name, phone_number, category, table_number })
       .eq("id", id)
       .select()
       .single()
