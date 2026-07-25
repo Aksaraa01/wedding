@@ -19,9 +19,25 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
+    const { data: user, error: userError } = await supabaseAdmin
+      .from("users")
+      .insert({
+        email: whatsapp_number || `${slug}@aksaraa.com`,
+        password_hash: slug,
+        phone_number: whatsapp_number || slug,
+        role: "CLIENT",
+      })
+      .select("id")
+      .single()
+
+    if (userError) {
+      return NextResponse.json({ error: userError.message }, { status: 500 })
+    }
+
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("wedding_profiles")
       .insert({
+        user_id: user.id,
         bride_name,
         groom_name,
         estimated_wedding_date,
@@ -60,7 +76,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: selError.message }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true, wedding_profile_id: profile.id })
+    return NextResponse.json({ success: true, wedding_profile_id: profile.id, slug })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

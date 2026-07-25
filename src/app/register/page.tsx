@@ -1,20 +1,31 @@
 "use client"
 
-import { useState, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useRef, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 
 type Step = 1 | 2 | 3
 
 const PROGRESS: Record<Step, string> = { 1: "w-1/3", 2: "w-2/3", 3: "w-full" }
 
-export default function RegisterPage() {
+function RegisterInner() {
   const router = useRouter()
-  const [step, setStep] = useState<Step>(1)
-  const [userName, setUserName] = useState("")
-  const [partnerName, setPartnerName] = useState("")
-  const [weddingDate, setWeddingDate] = useState("")
-  const [isTentative, setIsTentative] = useState(false)
-  const [guestCount, setGuestCount] = useState(300)
+  const searchParams = useSearchParams()
+
+  const stepParam = searchParams.get("step")
+  const initialStep: Step = stepParam === "3" ? 3 : stepParam === "2" ? 2 : 1
+  const initialUser = searchParams.get("user") || ""
+  const initialPartner = searchParams.get("partner") || ""
+  const initialDate = searchParams.get("date")
+  const initialGuest = Number(searchParams.get("guest") || "300")
+
+  const [step, setStep] = useState<Step>(initialStep)
+  const [userName, setUserName] = useState(initialUser)
+  const [partnerName, setPartnerName] = useState(initialPartner)
+  const [weddingDate, setWeddingDate] = useState(
+    initialDate && initialDate !== "tentative" ? initialDate : ""
+  )
+  const [isTentative, setIsTentative] = useState(initialDate === "tentative")
+  const [guestCount, setGuestCount] = useState(initialGuest)
   const dateCardRef = useRef<HTMLDivElement>(null)
   const paxRef = useRef<HTMLSpanElement>(null)
 
@@ -343,5 +354,13 @@ export default function RegisterPage() {
 
       `}</style>
     </div>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense>
+      <RegisterInner />
+    </Suspense>
   )
 }

@@ -53,8 +53,6 @@ function Inner() {
 
   const [modalOpen, setModalOpen] = useState(false)
   const [waNumber, setWaNumber] = useState("")
-  const [submitted, setSubmitted] = useState(false)
-
   const subProductsOf = (main: string) =>
     (SUB_MAP[main] || []) as (keyof Toggles)[]
 
@@ -116,36 +114,33 @@ function Inner() {
     })
 
     if (res.ok) {
-      setSubmitted(true)
+      const data = await res.json()
+      const p = new URLSearchParams({
+        user: userName.trim(),
+        partner: partnerName.trim(),
+        date: searchParams.get("date") || "2025-12-31",
+        guest: String(guestCount),
+      })
+      router.push(`/dashboard/${data.wedding_profile_id}?${p}`)
     }
-  }
-
-  if (submitted) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-edge-margin-mobile">
-        <div className="text-center max-w-md animate-fade-in">
-          <div className="w-20 h-20 rounded-full bg-secondary/20 flex items-center justify-center mx-auto mb-8">
-            <span className="material-symbols-outlined text-4xl text-secondary">check</span>
-          </div>
-          <h1 className="font-headline-md text-headline-md text-primary mb-4">Terima Kasih!</h1>
-          <p className="font-body-md text-on-surface-variant mb-8">
-            Data Anda telah terkirim. Konsultan kami akan menghubungi Anda via WhatsApp dalam 1×24 jam.
-          </p>
-          <button
-            onClick={() => router.push("/hero")}
-            className="bg-primary text-on-primary font-label-md uppercase tracking-widest py-4 px-12 hover:bg-secondary transition-colors"
-          >
-            Kembali ke Beranda
-          </button>
-        </div>
-      </div>
-    )
   }
 
   return (
     <div className="font-body-md text-on-background bg-background min-h-screen">
       <header className="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-md px-edge-margin-mobile h-20 flex justify-between items-center border-b border-outline-variant/30">
-        <button onClick={() => router.back()} className="flex items-center gap-2 group hover:opacity-70 transition-opacity">
+        <button
+          onClick={() => {
+            const p = new URLSearchParams({
+              step: "3",
+              user: userName,
+              partner: partnerName,
+              date: searchParams.get("date") || "tentative",
+              guest: String(guestCount),
+            })
+            router.push(`/register?${p}`)
+          }}
+          className="flex items-center gap-2 group hover:opacity-70 transition-opacity"
+        >
           <span className="material-symbols-outlined text-primary">arrow_back</span>
         </button>
         <div className="font-display-lg text-headline-md tracking-widest uppercase text-primary">Aksara</div>
@@ -212,6 +207,7 @@ function Inner() {
               desc="Layanan cetak eksklusif dengan bahan premium."
               on={toggles.undangan_fisik}
               onToggle={() => setToggles((p) => ({ ...p, undangan_fisik: !p.undangan_fisik }))}
+              border={false}
             />
           </Section>
 
@@ -222,7 +218,26 @@ function Inner() {
               desc="Kirim undangan massal resmi via WhatsApp."
               on={toggles.wa_blast}
               onToggle={() => setToggles((p) => ({ ...p, wa_blast: !p.wa_blast }))}
+              border={false}
             />
+            <div className="mt-4 flex items-center justify-between text-sm text-on-surface-variant border-t border-outline-variant/10 pt-4">
+              <span>Jumlah tamu: <strong>{guestCount.toLocaleString("id-ID")}</strong> orang</span>
+              <button
+                onClick={() => {
+                  const p = new URLSearchParams({
+                    step: "3",
+                    user: userName,
+                    partner: partnerName,
+                    date: searchParams.get("date") || "tentative",
+                    guest: String(guestCount),
+                  })
+                  router.push(`/register?${p}`)
+                }}
+                className="font-label-md text-xs uppercase tracking-wider underline hover:text-secondary transition-colors"
+              >
+                Ubah
+              </button>
+            </div>
           </Section>
         </div>
       </main>
@@ -349,18 +364,20 @@ function HeaderRow({
   desc,
   on,
   onToggle,
+  border = true,
 }: {
   title: string
   desc: string
   on: boolean
   onToggle: () => void
+  border?: boolean
 }) {
   return (
-    <div className="flex items-center justify-between mb-8 pb-6 border-b border-outline-variant/30">
-      <div className="flex-1 pr-4">
+    <div className={`flex items-center justify-between${border ? " mb-8 pb-6 border-b border-outline-variant/30" : ""}`}>
+      <div className="flex-1 pr-4 group transition-all">
         <div className="flex items-center gap-2 mb-1">
           <h2 className="font-headline-md text-headline-md">{title}</h2>
-          <span className="material-symbols-outlined text-on-surface-variant/40 text-sm transition-colors">arrow_forward_ios</span>
+          <span className="material-symbols-outlined text-on-surface-variant/40 text-sm group-hover:text-primary transition-colors">arrow_forward_ios</span>
         </div>
         <p className="font-body-md text-on-surface-variant">{desc}</p>
       </div>
@@ -390,9 +407,9 @@ function SubRow({
 }) {
   return (
     <div className="flex items-center justify-between py-4 border-b border-outline-variant/10 last:border-b-0">
-      <div className="flex items-center gap-2 flex-1 pr-4">
+      <div className="flex-1 pr-4 group flex items-center justify-between">
         <span className="font-body-md">{label}</span>
-        <span className="material-symbols-outlined text-on-surface-variant/30 text-xs">chevron_right</span>
+        <span className="material-symbols-outlined text-on-surface-variant/30 text-xs group-hover:text-primary transition-colors mr-4">chevron_right</span>
       </div>
       <div
         className={`toggle-track w-12 h-6 rounded-full relative cursor-pointer ${
