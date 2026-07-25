@@ -53,6 +53,8 @@ function Inner() {
 
   const [modalOpen, setModalOpen] = useState(false)
   const [waNumber, setWaNumber] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState("")
   const subProductsOf = (main: string) =>
     (SUB_MAP[main] || []) as (keyof Toggles)[]
 
@@ -94,34 +96,46 @@ function Inner() {
     const cleaned = waNumber.replace(/\D/g, "")
     if (!cleaned) return
 
-    const first = userName.trim().split(" ")[0].toLowerCase()
-    const second = partnerName.trim().split(" ")[0].toLowerCase()
-    const slug = `${first}-${second}`
+    setSubmitting(true)
+    setSubmitError("")
 
-    const res = await fetch("/api/submit-registration", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        bride_name: userName.trim(),
-        groom_name: partnerName.trim(),
-        estimated_wedding_date: searchParams.get("date") || "2025-12-31",
-        estimated_guest_count: guestCount,
-        slug,
-        whatsapp_number: `+62${cleaned}`,
-        toggles,
-        total_project_cost: total,
-      }),
-    })
+    try {
+      const first = userName.trim().split(" ")[0].toLowerCase()
+      const second = partnerName.trim().split(" ")[0].toLowerCase()
+      const slug = `${first}-${second}`
 
-    if (res.ok) {
-      const data = await res.json()
-      const p = new URLSearchParams({
-        user: userName.trim(),
-        partner: partnerName.trim(),
-        date: searchParams.get("date") || "2025-12-31",
-        guest: String(guestCount),
+      const res = await fetch("/api/submit-registration", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bride_name: userName.trim(),
+          groom_name: partnerName.trim(),
+          estimated_wedding_date: searchParams.get("date") || "2025-12-31",
+          estimated_guest_count: guestCount,
+          slug,
+          whatsapp_number: `+62${cleaned}`,
+          toggles,
+          total_project_cost: total,
+        }),
       })
-      router.push(`/dashboard/${data.wedding_profile_id}?${p}`)
+
+      if (res.ok) {
+        const data = await res.json()
+        const p = new URLSearchParams({
+          user: userName.trim(),
+          partner: partnerName.trim(),
+          date: searchParams.get("date") || "2025-12-31",
+          guest: String(guestCount),
+        })
+        router.push(`/dashboard/${data.wedding_profile_id}?${p}`)
+      } else {
+        const err = await res.json()
+        setSubmitError(err.error || "Terjadi kesalahan. Silakan coba lagi.")
+      }
+    } catch (e) {
+      setSubmitError("Gagal terhubung ke server. Periksa koneksi Anda.")
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -296,23 +310,28 @@ function Inner() {
                     onChange={(e) => {
                       const digits = e.target.value.replace(/\D/g, "")
                       setWaNumber(digits)
+                      setSubmitError("")
                     }}
                   />
                 </div>
               </div>
+              {submitError && (
+                <p className="font-body-md text-sm text-red-400">{submitError}</p>
+              )}
               <div className="flex flex-col gap-4 pt-4">
                 <button
                   onClick={handleSubmit}
-                  disabled={!waNumber}
+                  disabled={!waNumber || submitting}
                   className={`bg-primary text-on-primary font-label-md uppercase tracking-widest py-4 transition-colors ${
-                    waNumber ? "hover:bg-secondary" : "opacity-50"
+                    waNumber && !submitting ? "hover:bg-secondary" : "opacity-50"
                   }`}
                 >
-                  Kirim ke Konsultan
+                  {submitting ? "Mengirim..." : "Kirim ke Konsultan"}
                 </button>
                 <button
                   onClick={() => setModalOpen(false)}
-                  className="text-on-surface-variant font-label-md uppercase tracking-widest py-2 hover:text-primary transition-colors"
+                  disabled={submitting}
+                  className="text-on-surface-variant font-label-md uppercase tracking-widest py-2 hover:text-primary transition-colors disabled:opacity-30"
                 >
                   Batal
                 </button>

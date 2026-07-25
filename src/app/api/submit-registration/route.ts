@@ -19,25 +19,45 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    const { data: user, error: userError } = await supabaseAdmin
-      .from("users")
-      .insert({
-        email: whatsapp_number || `${slug}@aksaraa.com`,
-        password_hash: slug,
-        phone_number: whatsapp_number || slug,
-        role: "CLIENT",
-      })
-      .select("id")
-      .single()
+    const userEmail = `${slug}@aksaraa.com`
 
-    if (userError) {
-      return NextResponse.json({ error: userError.message }, { status: 500 })
+    let userId = ""
+
+    if (whatsapp_number) {
+      const { data: existing } = await supabaseAdmin
+        .from("users")
+        .select("id")
+        .eq("phone_number", whatsapp_number)
+        .maybeSingle()
+
+      if (existing) {
+        userId = existing.id
+      }
+    }
+
+    if (!userId) {
+      const { data: user, error: userError } = await supabaseAdmin
+        .from("users")
+        .insert({
+          email: userEmail,
+          password_hash: slug,
+          phone_number: whatsapp_number || slug,
+          role: "CLIENT",
+        })
+        .select("id")
+        .single()
+
+      if (userError) {
+        return NextResponse.json({ error: userError.message }, { status: 500 })
+      }
+
+      userId = user.id
     }
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("wedding_profiles")
       .insert({
-        user_id: user.id,
+        user_id: userId,
         bride_name,
         groom_name,
         estimated_wedding_date,
