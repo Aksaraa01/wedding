@@ -118,6 +118,18 @@ CREATE TABLE package_matrix_rows (
     sort_order INTEGER DEFAULT 0
 );
 
+-- =====================================================
+-- 6. Indexes for guest queries
+-- =====================================================
+CREATE INDEX IF NOT EXISTS idx_guests_wedding_profile_id ON guests(wedding_profile_id);
+CREATE INDEX IF NOT EXISTS idx_guests_dup_check ON guests(wedding_profile_id, phone_number);
+
+-- =====================================================
+-- 7. Indexes for slug / registration queries
+-- =====================================================
+CREATE INDEX IF NOT EXISTS idx_wedding_profiles_slug ON wedding_profiles(slug);
+CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone_number);
+
 INSERT INTO package_matrix_rows (section_code, label, essential_value, essential_emphasis, signature_value, signature_emphasis, prestige_value, prestige_emphasis, sort_order) VALUES
     -- Core features
     ('core', 'Countdown & Add to Calendar', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 1),

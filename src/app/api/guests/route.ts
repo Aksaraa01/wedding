@@ -39,20 +39,24 @@ export async function POST(req: Request) {
     const { wedding_profile_id, name, phone_number, category, table_number } = body
 
     if (!wedding_profile_id || !name) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+      return NextResponse.json({ error: "Nama tamu wajib diisi" }, { status: 400 })
     }
 
-    const digits = (phone_number || "").replace(/\D/g, "")
+    const digits = (phone_number || "").replace(/\D/g, "").replace(/^0+/, "")
     const normalized = digits ? (digits.startsWith("62") ? `+${digits}` : `+62${digits}`) : ""
 
-    const { data: existing } = await supabaseAdmin
+    const nameMatch = name.trim()
+    let dupQuery = supabaseAdmin
       .from("guests")
       .select("id")
       .eq("wedding_profile_id", wedding_profile_id)
-      .ilike("name", name.trim())
-      .gte("phone_number", normalized || "")
-      .lte("phone_number", normalized || "")
-      .maybeSingle()
+      .ilike("name", nameMatch)
+
+    if (normalized) {
+      dupQuery = dupQuery.eq("phone_number", normalized)
+    }
+
+    const { data: existing } = await dupQuery.maybeSingle()
 
     if (existing) {
       return NextResponse.json({ error: "Tamu dengan nama dan nomor yang sama sudah ada", duplicate: true }, { status: 409 })
@@ -69,6 +73,29 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ guest: data })
+  } catch (err) {
+    return NextResponse.json({ error: String(err) }, { status: 500 })
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { wedding_profile_id } = await req.json()
+
+    if (!wedding_profile_id) {
+      return NextResponse.json({ error: "Parameter tidak lengkap" }, { status: 400 })
+    }
+
+    const { error } = await supabaseAdmin
+      .from("guests")
+      .delete()
+      .eq("wedding_profile_id", wedding_profile_id)
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

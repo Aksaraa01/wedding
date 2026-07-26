@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     const { wedding_profile_id, rows } = body
 
     if (!wedding_profile_id || !rows || !Array.isArray(rows)) {
-      return NextResponse.json({ error: "Missing wedding_profile_id or rows" }, { status: 400 })
+      return NextResponse.json({ error: "Parameter tidak lengkap" }, { status: 400 })
     }
 
     const { data: existing } = await supabaseAdmin
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     const result = rows.map((r: Record<string, string>) => {
       const name = (r.name || "").trim()
       const rawWa = (r.phone_number || r.whatsapp || "").toString().trim()
-      const digits = rawWa.replace(/\D/g, "")
+      const digits = rawWa.replace(/\D/g, "").replace(/^0+/, "")
       const normalizedWa = digits ? (digits.startsWith("62") ? `+${digits}` : `+62${digits}`) : ""
       const duplicate =
         (name && existingSet.has(name.toLowerCase())) ||

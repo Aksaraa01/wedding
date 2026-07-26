@@ -7,6 +7,7 @@ import {
   WA_TIER_PRICES,
   EXPRESS_FEE,
   calcTotal,
+  normalizePhone,
 } from "@/lib/packages"
 
 const WA_TIERS = [100, 200, 300] as const
@@ -124,11 +125,21 @@ function Inner() {
   const formatRp = (n: number) => "Rp " + n.toLocaleString("id-ID")
 
   const handleSubmit = async () => {
-    const cleaned = waNumber.replace(/\D/g, "")
+    const cleaned = waNumber.replace(/\D/g, "").replace(/^0+/, "")
     if (!cleaned) return
 
     setSubmitting(true)
     setSubmitError("")
+
+    const phone = normalizePhone(cleaned)
+
+    const phoneCheck = await fetch(`/api/check-phone?q=${encodeURIComponent(phone)}`)
+    const phoneResult = await phoneCheck.json()
+    if (phoneResult.exists) {
+      setSubmitError("Nomor WhatsApp sudah terdaftar. Gunakan nomor lain.")
+      setSubmitting(false)
+      return
+    }
 
     try {
       const first = userName.trim().split(" ")[0].toLowerCase()
@@ -148,7 +159,7 @@ function Inner() {
           estimated_wedding_date: weddingDate,
           estimated_guest_count: guestCount,
           slug,
-          whatsapp_number: `+62${cleaned}`,
+          whatsapp_number: phone,
           package_type: selectedPackage,
           wa_blast_tier: waBlastTier,
           express_service: expressService,

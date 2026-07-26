@@ -59,3 +59,10 @@ export function calcTotal(
   const expressPrice = expressService ? EXPRESS_FEE : 0
   return pkgPrice + waPrice + expressPrice
 }
+
+export function normalizePhone(wa: string): string {
+  const digits = wa.replace(/\D/g, "").replace(/^0+/, "")
+  if (!digits) return ""
+  if (digits.startsWith("62")) return `+${digits}`
+  return `+62${digits}`
+}

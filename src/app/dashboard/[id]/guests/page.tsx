@@ -53,6 +53,8 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   const [importing, setImporting] = useState(false)
   const [waDigits, setWaDigits] = useState("")
   const [duplicateError, setDuplicateError] = useState("")
+  const [uploadError, setUploadError] = useState("")
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false)
 
   const fetchGuests = async () => {
     const params = new URLSearchParams({ wedding_profile_id: weddingProfileId })
@@ -128,10 +130,32 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
     fetchGuests()
   }
 
+  const handleReset = async () => {
+    setResetConfirmOpen(false)
+    await fetch("/api/guests", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ wedding_profile_id: weddingProfileId }),
+    })
+    fetchGuests()
+  }
+
   const handleFileUpload = async (file: File) => {
+    setUploadError("")
+    if (!file.name.endsWith(".xlsx")) {
+      setUploadError("Hanya file .xlsx yang diperbolehkan")
+      return
+    }
     const buf = await file.arrayBuffer()
     const wb = XLSX.read(buf, { type: "array" })
     const ws = wb.Sheets[wb.SheetNames[0]]
+    const headerRow: string[][] = XLSX.utils.sheet_to_json(ws, { header: 1 })
+    const firstRow = headerRow[0] || []
+    const hasNama = firstRow.some((h: string) => /nama/i.test(String(h || "")))
+    if (!hasNama) {
+      setUploadError("Format berkas tidak sesuai. Silakan unduh template terlebih dahulu.")
+      return
+    }
     const raw = XLSX.utils.sheet_to_json<Record<string, string>>(ws, { header: ["name", "phone_number", "category", "table_number"] })
     const rows = raw.slice(1).filter((r) => r.name?.trim())
 
@@ -147,6 +171,9 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
       setVerifySummary(data.summary)
       setVerifySearch("")
       setView("verify")
+    } else {
+      const err = await res.json()
+      setUploadError(err.error || "Gagal memproses berkas")
     }
   }
 
@@ -215,13 +242,13 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
           </div>
         </header>
 
-        <main className="min-h-screen pb-40 px-6 pt-8 max-w-lg mx-auto overflow-x-hidden">
-          <section className="mb-10">
+        <main className="flex flex-col h-screen px-6 pt-8 max-w-lg mx-auto">
+          <section className="mb-8 shrink-0">
             <h1 className="font-headline-md text-headline-md text-primary mb-2">Verifikasi Unggahan</h1>
             <p className="font-body-md text-body-md text-on-surface-variant">Pastikan daftar tamu Anda akurat sebelum diintegrasikan ke narasi acara.</p>
           </section>
 
-          <section className="mb-8 grid grid-cols-3 gap-px bg-outline-variant/50 border border-outline-variant/50 overflow-hidden">
+          <section className="mb-6 shrink-0 grid grid-cols-3 gap-px bg-outline-variant/50 border border-outline-variant/50 overflow-hidden">
             <div className="bg-surface p-4 flex flex-col items-center text-center">
               <span className="text-[24px] font-headline-md text-primary mb-1">{verifySummary.total}</span>
               <span className="font-label-md text-label-md text-on-surface-variant uppercase">Baris</span>
@@ -236,9 +263,9 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             </div>
           </section>
 
-          <div className="flex flex-col gap-6 mb-4">
+          <div className="shrink-0 flex flex-col gap-4 mb-4">
             <div className="flex justify-between items-end">
-              <h2 className="font-headline-md text-[24px] text-primary">Daftar Tamu Baru</h2>
+              <h2 className="font-headline-md text-[20px] text-primary">Daftar Tamu Baru</h2>
               <span className="font-label-md text-label-md text-on-surface-variant border-b border-outline-variant/50 pb-1">{verifySummary.valid} Tamu</span>
             </div>
             <div className="relative group">
@@ -252,36 +279,38 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             </div>
           </div>
 
-          <section className="mt-8 border-t border-outline-variant/30">
-            <div className="overflow-x-auto no-scrollbar">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-outline-variant/30">
-                    <th className="py-5 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Nama</th>
-                    <th className="py-5 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">No. WA</th>
-                    <th className="py-5 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest text-right">Meja</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-outline-variant/10">
-                  {filteredVerify.map((row, i) => (
-                    <tr key={i} className="group hover:bg-surface-container-low transition-colors duration-200">
-                      <td className="py-6 pr-4">
-                        <p className="font-headline-md text-[18px] text-primary leading-none">{row.name}</p>
-                        {row.category && (
-                          <span className="font-label-md text-[10px] text-secondary-fixed-dim bg-secondary/5 px-1 rounded uppercase mt-1 inline-block">{row.category}</span>
-                        )}
-                        {row.duplicate && (
-                          <span className="font-label-md text-[10px] text-error bg-error-container/20 px-1 rounded uppercase mt-1 inline-block ml-1">Duplikat</span>
-                        )}
-                      </td>
-                      <td className="py-6 font-body-md text-on-surface-variant text-[14px]">{row.phone_number}</td>
-                      <td className="py-6 font-headline-md text-[18px] text-primary text-right italic">{row.table_number || "—"}</td>
+          <div className="flex-1 overflow-y-auto min-h-0 pb-40">
+            <section className="border-t border-outline-variant/30">
+              <div className="overflow-x-auto no-scrollbar">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-outline-variant/30 sticky top-0 z-10 bg-surface">
+                      <th className="py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Nama</th>
+                      <th className="py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">No. WA</th>
+                      <th className="py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest text-right">Meja</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+                  </thead>
+                  <tbody className="divide-y divide-outline-variant/10">
+                    {filteredVerify.map((row, i) => (
+                      <tr key={i} className="group hover:bg-surface-container-low transition-colors duration-200">
+                        <td className="py-5 pr-4">
+                          <p className="font-headline-md text-[18px] text-primary leading-none">{row.name}</p>
+                          {row.category && (
+                            <span className="font-label-md text-[10px] text-secondary-fixed-dim bg-secondary/5 px-1 rounded uppercase mt-1 inline-block">{row.category}</span>
+                          )}
+                          {row.duplicate && (
+                            <span className="font-label-md text-[10px] text-error bg-error-container/20 px-1 rounded uppercase mt-1 inline-block ml-1">Duplikat</span>
+                          )}
+                        </td>
+                        <td className="py-5 font-body-md text-on-surface-variant text-[14px]">{row.phone_number}</td>
+                        <td className="py-5 font-headline-md text-[18px] text-primary text-right italic">{row.table_number || "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
         </main>
 
         <footer className="fixed bottom-0 left-0 w-full z-50 bg-surface border-t border-outline-variant/20 shadow-2xl shadow-primary/10">
@@ -315,17 +344,26 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
         </button>
       </header>
 
-      <main className="pt-24 pb-40 px-edge-margin-mobile max-w-2xl mx-auto">
-        <section className="mb-12">
-          <h1 className="font-headline-md text-headline-md text-primary mb-3">Manajemen Daftar Tamu</h1>
+      <main className="flex flex-col h-screen pt-20 px-edge-margin-mobile max-w-2xl mx-auto">
+        <section className="mb-6">
+          <h1 className="font-headline-md text-headline-md text-primary mb-1">Manajemen Daftar Tamu</h1>
           <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
             Unggah, verifikasi, dan petakan nomor meja seluruh tamu kehormatan Anda secara terpusat.
           </p>
         </section>
 
-        <section className="mb-8">
+        <section className="mb-6 shrink-0">
+          {uploadError && (
+            <div className="mb-3 p-3 bg-error-container border border-error/30 flex items-center gap-3">
+              <span className="material-symbols-outlined text-error text-sm">error</span>
+              <p className="font-body-md text-body-md text-on-error-container flex-1">{uploadError}</p>
+              <button onClick={() => setUploadError("")} className="text-on-error-container/60 hover:text-on-error-container cursor-pointer">
+                <span className="material-symbols-outlined text-sm">close</span>
+              </button>
+            </div>
+          )}
           <div
-            className={`border-2 border-dashed p-10 flex flex-col items-center text-center transition-all duration-300 ${
+            className={`border-2 border-dashed p-6 flex flex-col items-center text-center transition-all duration-300 ${
               dragOver ? "drag-active border-secondary bg-surface-container-low" : "border-outline-variant bg-surface-container-low"
             }`}
             onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
@@ -333,15 +371,15 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
           >
-            <span className="material-symbols-outlined text-4xl mb-4 text-outline" style={{ fontVariationSettings: "'wght' 200" }}>description</span>
-            <p className="font-body-md text-body-md text-on-surface mb-6 px-4">
+            <span className="material-symbols-outlined text-2xl mb-2 text-outline" style={{ fontVariationSettings: "'wght' 200" }}>description</span>
+            <p className="font-body-md text-body-md text-on-surface mb-3 px-4">
               Seret berkas Excel / Spreadsheet Anda di sini atau{" "}
               <span className="font-semibold underline cursor-pointer">Ketuk untuk Unggah</span>
             </p>
             <input
               ref={fileInputRef}
               type="file"
-              accept=".xlsx,.xls,.csv"
+              accept=".xlsx"
               className="hidden"
               onChange={(e) => {
                 const file = e.target.files?.[0]
@@ -351,7 +389,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             />
             <button
               onClick={(e) => { e.stopPropagation(); handleDownloadTemplate() }}
-              className="flex items-center gap-2 px-6 py-3 border border-primary text-primary font-label-md text-label-md uppercase tracking-widest hover:bg-primary hover:text-white transition-all duration-300"
+              className="flex items-center gap-2 px-5 py-2.5 border border-primary text-primary font-label-md text-label-md uppercase tracking-widest hover:bg-primary hover:text-white transition-all duration-300"
             >
               <span className="material-symbols-outlined text-sm">download</span>
               Unduh Templat
@@ -362,15 +400,15 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
           </div>
         </section>
 
-        <section className="mb-6 flex justify-between items-end">
+        <section className="mb-3 flex justify-between items-end">
           <div>
-            <h2 className="font-headline-md text-[24px] text-primary">
+            <h2 className="font-headline-md text-[20px] text-primary">
               {loading ? "" : `${guests.length} Tamu Terverifikasi`}
             </h2>
           </div>
         </section>
 
-        <div className="mb-8 px-2">
+        <div className="mb-4 px-0">
           <div className="relative flex items-center">
             <span className="material-symbols-outlined absolute left-4 text-on-surface-variant opacity-50 text-[20px]">search</span>
             <input
@@ -378,11 +416,12 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
               placeholder="Cari nama tamu atau nomor meja..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-surface-container-low border border-[#eae3d5] py-4 pl-12 pr-4 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary transition-colors"
+              className="w-full bg-surface-container-low border border-[#eae3d5] py-3 pl-12 pr-4 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary transition-colors"
             />
           </div>
         </div>
 
+        <div className="flex-1 overflow-y-auto min-h-0 pb-48 scroll-area">
         {loading ? (
           <div className="text-center py-20">
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
@@ -396,7 +435,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
           </div>
         ) : (
           <section className="border-t border-outline-variant">
-            <div className="grid grid-cols-12 py-4 px-2 bg-surface-container-lowest">
+            <div className="grid grid-cols-12 py-4 px-2 bg-surface-container-lowest sticky top-0 z-10">
               <div className="col-span-4 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Nama</div>
               <div className="col-span-4 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Kategori</div>
               <div className="col-span-4 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Meja</div>
@@ -444,14 +483,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             ))}
           </section>
         )}
-
-        {filtered.length > 0 && (
-          <div className="mt-8 flex justify-center">
-            <button className="px-8 py-3 border border-outline text-on-surface-variant font-label-md text-label-md uppercase tracking-widest hover:bg-surface-container transition-colors">
-              Lihat Semua Tamu
-            </button>
-          </div>
-        )}
+        </div>
       </main>
 
       <button
@@ -463,10 +495,10 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
 
       <footer className="fixed bottom-0 left-0 w-full z-50 bg-background border-t border-outline-variant px-edge-margin-mobile py-6 flex flex-col gap-3 shadow-[0_-4px_24px_rgba(0,0,0,0.03)]">
         <button
-          onClick={() => { setForm(EMPTY_FORM); setSearch(""); fetchGuests() }}
-          className="w-full bg-transparent border border-primary text-primary py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-surface-container transition-colors"
+          onClick={() => setResetConfirmOpen(true)}
+          className="w-full bg-transparent border border-error text-error py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-error-container transition-colors"
         >
-          Batal &amp; Reset
+          Hapus Semua Data Tamu
         </button>
       </footer>
 
@@ -538,6 +570,37 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                   </button>
                 </div>
               </form>
+      </div>
+      </div>
+      </div>
+      )}
+
+      {resetConfirmOpen && (
+        <div className="fixed inset-0 z-[60]">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setResetConfirmOpen(false)} />
+          <div className="absolute inset-0 flex items-center justify-center p-6">
+            <div className="bg-background w-full max-w-md p-8 shadow-2xl border border-outline-variant text-center">
+              <div className="w-16 h-16 bg-error-container/30 text-error flex items-center justify-center rounded-full mx-auto mb-6">
+                <span className="material-symbols-outlined scale-150">delete_sweep</span>
+              </div>
+              <h2 className="font-headline-md text-headline-md text-primary mb-3">Hapus Semua Tamu?</h2>
+              <p className="font-body-md text-body-md text-on-surface-variant mb-8">
+                Semua data tamu akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.
+              </p>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={handleReset}
+                  className="w-full bg-error text-white py-4 font-label-md text-label-md uppercase tracking-widest active:scale-95 transition-transform"
+                >
+                  Ya, Hapus Semua
+                </button>
+                <button
+                  onClick={() => setResetConfirmOpen(false)}
+                  className="w-full bg-transparent border border-primary text-primary py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-surface-container transition-colors"
+                >
+                  Batal
+                </button>
+              </div>
             </div>
           </div>
         </div>

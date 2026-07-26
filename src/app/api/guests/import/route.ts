@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     const weddingProfileId = formData.get("wedding_profile_id") as string | null
 
     if (!file || !weddingProfileId) {
-      return NextResponse.json({ error: "Missing file or wedding_profile_id" }, { status: 400 })
+      return NextResponse.json({ error: "File atau parameter tidak lengkap" }, { status: 400 })
     }
 
     const buf = Buffer.from(await file.arrayBuffer())
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       }))
 
     if (guests.length === 0) {
-      return NextResponse.json({ error: "No valid data found in file" }, { status: 400 })
+      return NextResponse.json({ error: "Tidak ada data tamu dalam file" }, { status: 400 })
     }
 
     const { data, error } = await supabaseAdmin.from("guests").insert(guests).select()

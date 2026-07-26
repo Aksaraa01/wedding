@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { calcTotal } from "@/lib/packages"
+import { calcTotal, normalizePhone } from "@/lib/packages"
 
 export async function POST(req: Request) {
   try {
@@ -19,18 +19,20 @@ export async function POST(req: Request) {
     } = body
 
     if (!bride_name || !groom_name || !slug) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+      return NextResponse.json({ error: "Data pengantin tidak lengkap" }, { status: 400 })
     }
+
+    const normalizedPhone = normalizePhone(whatsapp_number || "")
 
     const userEmail = `${slug}@aksaraa.com`
 
     let userId = ""
 
-    if (whatsapp_number) {
+    if (normalizedPhone) {
       const { data: existing } = await supabaseAdmin
         .from("users")
         .select("id")
-        .eq("phone_number", whatsapp_number)
+        .eq("phone_number", normalizedPhone)
         .maybeSingle()
 
       if (existing) {
@@ -44,7 +46,7 @@ export async function POST(req: Request) {
         .insert({
           email: userEmail,
           password_hash: slug,
-          phone_number: whatsapp_number || slug,
+          phone_number: normalizedPhone || slug,
           role: "CLIENT",
         })
         .select("id")
@@ -68,7 +70,7 @@ export async function POST(req: Request) {
         estimated_wedding_date,
         estimated_guest_count,
         slug,
-        whatsapp_number,
+        whatsapp_number: normalizedPhone,
         package_type: package_type || "signature",
         wa_blast_tier: wa_blast_tier || 0,
         express_service: !!express_service,
@@ -81,7 +83,7 @@ export async function POST(req: Request) {
 
     if (profileError) {
       if (profileError.code === "23505") {
-        return NextResponse.json({ error: "Slug already taken" }, { status: 409 })
+        return NextResponse.json({ error: "Nama pasangan sudah digunakan" }, { status: 409 })
       }
       return NextResponse.json({ error: profileError.message }, { status: 500 })
     }

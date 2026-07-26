@@ -59,6 +59,7 @@ function DashboardInner({ id }: { id: string }) {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [selections, setSelections] = useState<Selections | null>(null)
   const [guestCount, setGuestCount] = useState(0)
+  const [tableCount, setTableCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
@@ -72,6 +73,7 @@ function DashboardInner({ id }: { id: string }) {
         setProfile(data.profile)
         setSelections(data.selections)
         setGuestCount(data.guest_count ?? data.profile.estimated_guest_count ?? 0)
+        setTableCount(data.table_count ?? 0)
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
@@ -159,11 +161,11 @@ function DashboardInner({ id }: { id: string }) {
                 <div className="flex flex-col md:flex-row gap-4 md:gap-12">
                   <div>
                     <p className="font-label-md text-label-md uppercase text-on-surface-variant mb-1">Total Input</p>
-                    <p className="font-body-lg text-body-lg">{guestCount} Nama Terinput</p>
+                    <p className="font-body-lg text-body-lg"><span className="text-secondary">{guestCount}</span> Nama Terinput</p>
                   </div>
                   <div>
                     <p className="font-label-md text-label-md uppercase text-on-surface-variant mb-1">Alokasi Ruang</p>
-                    <p className="font-body-lg text-body-lg">0 Meja Dialokasikan</p>
+                    <p className="font-body-lg text-body-lg"><span className="text-secondary">{tableCount}</span> Meja Dialokasikan</p>
                   </div>
                 </div>
               </div>

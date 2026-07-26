@@ -33,7 +33,18 @@ export async function GET(
       return NextResponse.json({ error: guestError.message }, { status: 500 })
     }
 
-    return NextResponse.json({ profile, selections, guest_count: guestCount || 0 })
+    const { data: tables } = await supabaseAdmin
+      .from("guests")
+      .select("table_number")
+      .eq("wedding_profile_id", id)
+      .not("table_number", "is", null)
+      .neq("table_number", "")
+
+    const tableCount = tables
+      ? new Set(tables.map(t => t.table_number?.toLowerCase().trim()).filter(Boolean)).size
+      : 0
+
+    return NextResponse.json({ profile, selections, guest_count: guestCount || 0, table_count: tableCount })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

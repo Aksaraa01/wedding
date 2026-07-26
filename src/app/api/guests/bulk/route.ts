@@ -1,12 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-
-function normalizePhone(wa: string): string {
-  const digits = wa.replace(/\D/g, "")
-  if (!digits) return ""
-  if (digits.startsWith("62")) return `+${digits}`
-  return `+62${digits}`
-}
+import { normalizePhone } from "@/lib/packages"
 
 export async function POST(req: Request) {
   try {
@@ -14,7 +8,7 @@ export async function POST(req: Request) {
     const { wedding_profile_id, rows } = body
 
     if (!wedding_profile_id || !rows || !Array.isArray(rows) || rows.length === 0) {
-      return NextResponse.json({ error: "Missing wedding_profile_id or rows" }, { status: 400 })
+      return NextResponse.json({ error: "Parameter tidak lengkap" }, { status: 400 })
     }
 
     const guests = rows.map((r: Record<string, string>) => ({
@@ -26,7 +20,7 @@ export async function POST(req: Request) {
     })).filter((r: { name: string }) => r.name)
 
     if (guests.length === 0) {
-      return NextResponse.json({ error: "No valid data to import" }, { status: 400 })
+      return NextResponse.json({ error: "Tidak ada data tamu untuk diimpor" }, { status: 400 })
     }
 
     const { data, error } = await supabaseAdmin.from("guests").insert(guests).select()
