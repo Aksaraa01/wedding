@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { deriveSelections } from "@/lib/packages"
 
 export async function GET(
   _req: Request,
@@ -18,15 +19,10 @@ export async function GET(
       return NextResponse.json({ error: "Wedding profile not found" }, { status: 404 })
     }
 
-    const { data: selections, error: selError } = await supabaseAdmin
-      .from("product_selections")
-      .select("*")
-      .eq("wedding_profile_id", id)
-      .single()
-
-    if (selError) {
-      return NextResponse.json({ error: selError.message }, { status: 500 })
-    }
+    const selections = deriveSelections(
+      profile.package_type || "signature",
+      !!profile.undangan_fisik
+    )
 
     const { count: guestCount, error: guestError } = await supabaseAdmin
       .from("guests")

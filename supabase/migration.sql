@@ -1,109 +1,140 @@
--- 1. Tabel Master Users
-CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email VARCHAR(150) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    phone_number VARCHAR(20) UNIQUE NOT NULL,
-    role VARCHAR(30) DEFAULT 'CLIENT' CHECK (role IN ('ADMIN', 'WORKER', 'CONSULTANT', 'CLIENT')),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
+-- =====================================================
+-- Drop old tables
+-- =====================================================
+DROP TABLE IF EXISTS package_matrix_rows CASCADE;
+DROP TABLE IF EXISTS package_matrix_sections CASCADE;
+DROP TABLE IF EXISTS package_features CASCADE;
+DROP TABLE IF EXISTS packages CASCADE;
+DROP TABLE IF EXISTS product_selections CASCADE;
+DROP TABLE IF EXISTS product_price_tiers CASCADE;
+DROP TABLE IF EXISTS product_catalog CASCADE;
 
--- 2. Tabel Wedding Profiles
-CREATE TABLE IF NOT EXISTS wedding_profiles (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    bride_name VARCHAR(100) NOT NULL,
-    groom_name VARCHAR(100) NOT NULL,
-    estimated_wedding_date DATE NOT NULL,
-    estimated_guest_count INTEGER NOT NULL CHECK (estimated_guest_count > 0),
-    slug VARCHAR(100) UNIQUE NOT NULL,
-    rekening_bank VARCHAR(100),
-    gift_shipping_address TEXT,
-    total_project_cost DECIMAL(15, 2) DEFAULT 0.00,
-    payment_status VARCHAR(30) DEFAULT 'UNPAID' CHECK (payment_status IN ('UNPAID', 'PARTIAL_DP', 'FULLY_PAID')),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- Index untuk pencarian slug cepat
-CREATE INDEX IF NOT EXISTS idx_wedding_profiles_slug ON wedding_profiles(slug);
-
--- 3. Tabel Product Catalog
-CREATE TABLE IF NOT EXISTS product_catalog (
-    code VARCHAR(50) PRIMARY KEY,
+-- =====================================================
+-- 1. Packages
+-- =====================================================
+CREATE TABLE packages (
+    code VARCHAR(20) PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description TEXT,
-    base_price DECIMAL(15, 2) NOT NULL DEFAULT 0,
-    is_tiered BOOLEAN DEFAULT FALSE,
-    is_sub_product BOOLEAN DEFAULT FALSE,
-    parent_code VARCHAR(50) REFERENCES product_catalog(code),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    base_price DECIMAL(15, 2) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
--- Seed main products
-INSERT INTO product_catalog (code, name, description, base_price, is_tiered) VALUES
-    ('premium_web', 'Premium Web Invitation', 'Desain undangan digital sinematik premium.', 1000000, FALSE),
-    ('qr_code_book', 'QR Code Book & Real-Time Attendance', 'Sistem check-in tamu otomatis di lokasi.', 500000, FALSE),
-    ('undangan_fisik', 'Undangan Fisik', 'Layanan cetak eksklusif dengan bahan premium.', 0, FALSE),
-    ('wa_blast', 'WhatsApp Blast Resmi', 'Kirim undangan massal resmi via WhatsApp.', 0, TRUE)
+INSERT INTO packages (code, name, description, base_price) VALUES
+    ('essential', 'Essential', 'Sederhana, anggun, dan esensial untuk momen hangat keluarga dekat', 249000),
+    ('signature', 'Signature', 'Keseimbangan sempurna antara estetika, kenyamanan tamu, dan fitur lengkap', 399000),
+    ('prestige', 'Prestige', 'Pengalaman narasi digital paling mewah dengan fitur VIP eksklusif', 499000)
 ON CONFLICT (code) DO NOTHING;
 
--- Seed sub-products
-INSERT INTO product_catalog (code, name, description, base_price, is_sub_product, parent_code) VALUES
-    ('wish_wall', 'Virtual Wish Wall', 'Dinding doa digital untuk tamu.', 0, TRUE, 'premium_web'),
-    ('reservation_automation', 'Reservation Automation', 'Otomatisasi RSVP tamu.', 0, TRUE, 'premium_web'),
-    ('kolom_direct_transfer', 'Kolom Direct Transfer', 'Transfer hadiah langsung.', 0, TRUE, 'premium_web'),
-    ('gift_marketplace', 'Aksara Gift Marketplace', 'Marketplace kado pernikahan.', 0, TRUE, 'premium_web'),
-    ('unique_link_generator', 'Unique Link Generator', 'Link undangan unik per tamu.', 0, TRUE, 'qr_code_book')
-ON CONFLICT (code) DO NOTHING;
-
--- 4. Tabel Price Tiers (WA Blast)
-CREATE TABLE IF NOT EXISTS product_price_tiers (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    product_code VARCHAR(50) REFERENCES product_catalog(code),
-    min_guest INTEGER NOT NULL,
-    max_guest INTEGER,
-    price DECIMAL(15, 2) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+-- =====================================================
+-- 2. Package Features
+-- =====================================================
+CREATE TABLE package_features (
+    package_code VARCHAR(20) REFERENCES packages(code) ON DELETE CASCADE,
+    feature_code VARCHAR(50) NOT NULL,
+    is_included BOOLEAN DEFAULT TRUE,
+    PRIMARY KEY (package_code, feature_code)
 );
 
-INSERT INTO product_price_tiers (product_code, min_guest, max_guest, price) VALUES
-    ('wa_blast', 0, 100, 200000),
-    ('wa_blast', 101, 500, 500000),
-    ('wa_blast', 501, NULL, 1000000)
+INSERT INTO package_features (package_code, feature_code, is_included) VALUES
+    ('essential', 'premium_web', true),
+    ('essential', 'reservation_automation', true),
+    ('essential', 'kolom_direct_transfer', true),
+    ('signature', 'premium_web', true),
+    ('signature', 'wish_wall', true),
+    ('signature', 'reservation_automation', true),
+    ('signature', 'kolom_direct_transfer', true),
+    ('prestige', 'premium_web', true),
+    ('prestige', 'wish_wall', true),
+    ('prestige', 'reservation_automation', true),
+    ('prestige', 'kolom_direct_transfer', true),
+    ('prestige', 'gift_marketplace', true),
+    ('prestige', 'qr_code_book', true),
+    ('prestige', 'unique_link_generator', true),
+    ('prestige', 'wa_blast', true)
 ON CONFLICT DO NOTHING;
 
--- 5. Tabel Product Selections (per wedding)
-CREATE TABLE IF NOT EXISTS product_selections (
+-- =====================================================
+-- 3. WA Blast Tiers
+-- =====================================================
+CREATE TABLE product_price_tiers (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    wedding_profile_id UUID REFERENCES wedding_profiles(id) ON DELETE CASCADE UNIQUE,
-    premium_web BOOLEAN DEFAULT TRUE,
-    wish_wall BOOLEAN DEFAULT TRUE,
-    reservation_automation BOOLEAN DEFAULT TRUE,
-    kolom_direct_transfer BOOLEAN DEFAULT TRUE,
-    gift_marketplace BOOLEAN DEFAULT TRUE,
-    qr_code_book BOOLEAN DEFAULT TRUE,
-    unique_link_generator BOOLEAN DEFAULT TRUE,
-    undangan_fisik BOOLEAN DEFAULT FALSE,
-    wa_blast BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    product_code VARCHAR(50) NOT NULL,
+    min_qty INTEGER NOT NULL,
+    max_qty INTEGER,
+    price DECIMAL(15, 2) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
--- Add whatsapp_number to wedding_profiles
-ALTER TABLE wedding_profiles ADD COLUMN IF NOT EXISTS whatsapp_number VARCHAR(20);
+TRUNCATE product_price_tiers;
 
--- 6. Tabel Tamu (Guests)
-CREATE TABLE IF NOT EXISTS guests (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    wedding_profile_id UUID REFERENCES wedding_profiles(id) ON DELETE CASCADE NOT NULL,
-    name VARCHAR(150) NOT NULL,
-    phone_number VARCHAR(20),
-    category VARCHAR(100),
-    table_number VARCHAR(50),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+INSERT INTO product_price_tiers (product_code, min_qty, max_qty, price) VALUES
+    ('wa_blast', 100, 100, 150000),
+    ('wa_blast', 200, 200, 250000),
+    ('wa_blast', 300, 300, 300000);
+
+-- =====================================================
+-- 4. Wedding Profiles — add package columns
+-- =====================================================
+ALTER TABLE wedding_profiles
+    ADD COLUMN IF NOT EXISTS package_type VARCHAR(20) DEFAULT 'signature',
+    ADD COLUMN IF NOT EXISTS express_service BOOLEAN DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS wa_blast_tier INTEGER DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS undangan_fisik BOOLEAN DEFAULT FALSE;
+
+ALTER TABLE wedding_profiles
+    DROP CONSTRAINT IF EXISTS fk_wedding_profiles_package_type;
+
+ALTER TABLE wedding_profiles
+    ADD CONSTRAINT fk_wedding_profiles_package_type
+        FOREIGN KEY (package_type) REFERENCES packages(code);
+
+-- =====================================================
+-- 5. Package Matrix (feature comparison data)
+-- =====================================================
+CREATE TABLE package_matrix_sections (
+    code VARCHAR(50) PRIMARY KEY,
+    label VARCHAR(200) NOT NULL,
+    sort_order INTEGER DEFAULT 0
 );
 
-CREATE INDEX IF NOT EXISTS idx_guests_wedding_profile ON guests(wedding_profile_id);
+INSERT INTO package_matrix_sections (code, label, sort_order) VALUES
+    ('core', 'Inti Pengalaman (Included in All)', 1),
+    ('exclusive', 'Fitur Eksklusif', 2),
+    ('limit', 'Limitasi Produksi', 3)
+ON CONFLICT (code) DO NOTHING;
+
+CREATE TABLE package_matrix_rows (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    section_code VARCHAR(50) REFERENCES package_matrix_sections(code) ON DELETE CASCADE,
+    label VARCHAR(200) NOT NULL,
+    essential_value VARCHAR(200) NOT NULL DEFAULT '—',
+    essential_emphasis VARCHAR(20) NOT NULL DEFAULT 'default',
+    signature_value VARCHAR(200) NOT NULL DEFAULT '—',
+    signature_emphasis VARCHAR(20) NOT NULL DEFAULT 'default',
+    prestige_value VARCHAR(200) NOT NULL DEFAULT '—',
+    prestige_emphasis VARCHAR(20) NOT NULL DEFAULT 'default',
+    sort_order INTEGER DEFAULT 0
+);
+
+INSERT INTO package_matrix_rows (section_code, label, essential_value, essential_emphasis, signature_value, signature_emphasis, prestige_value, prestige_emphasis, sort_order) VALUES
+    -- Core features
+    ('core', 'Countdown & Add to Calendar', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 1),
+    ('core', 'Digital RSVP & Wedding Wish', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 2),
+    ('core', 'Pilihan Lagu & Autoplay', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 3),
+    ('core', '1 PIC', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 4),
+    ('core', 'Maps', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 5),
+    ('core', 'Smart Dashboard', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 6),
+    ('core', 'Subdomain Nama Pasangan', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 7),
+    ('core', 'Unlimited Send (Manual)', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 8),
+    ('core', 'Amplop Digital (Rekening Based)', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 9),
+    -- Exclusive features
+    ('exclusive', 'Alamat Pengiriman Kado', '—', 'muted', '✓', 'secondary', '✓', 'gold', 1),
+    ('exclusive', 'Fitur Turut Mengundang', '—', 'muted', '✓', 'secondary', '✓', 'gold', 2),
+    ('exclusive', 'Love Story & Cinematic Video', '—', 'muted', '—', 'muted', '✓', 'gold', 3),
+    ('exclusive', 'Reminder Otomatis ke 100 Tamu VIP', '—', 'muted', '—', 'muted', '✓', 'gold', 4),
+    -- Production limits
+    ('limit', 'Kuota Foto', '15 Foto', 'default', '20 Foto', 'secondary', 'Unlimited', 'default', 1),
+    ('limit', 'Masa Aktif', '2 Bulan', 'default', '6 Bulan', 'secondary', '12 Bulan', 'default', 2),
+    ('limit', 'Batas Revisi', '2 Round', 'default', '3 Round', 'secondary', '5 Round', 'default', 3);

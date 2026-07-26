@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
+import Image from "next/image"
 import PageTheme from "@/components/PageTheme"
 
 type Selections = {
@@ -29,15 +30,15 @@ type Profile = {
 }
 
 const CARDS = [
-  { num: "01", key: "premium_web" as const, title: "Premium Web Invitation" },
-  { num: "02", key: "unique_link_generator" as const, title: "Unique Link Generator" },
-  { num: "03", key: "wish_wall" as const, title: "Virtual Wish Wall (Dinding Doa)" },
-  { num: "04", key: "undangan_fisik" as const, title: "Undangan Fisik Premium (Cetak)" },
-  { num: "05", key: "wa_blast" as const, title: "WhatsApp Blast Resmi" },
-  { num: "06", key: "reservation_automation" as const, title: "RSVP Automation" },
-  { num: "07", key: "qr_code_book" as const, title: "QR Code Guest Book & Absensi" },
-  { num: "08", key: "kolom_direct_transfer" as const, title: "Digital Angpao & E-Gift" },
-  { num: "09", key: "gift_marketplace" as const, title: "Aksara Gift Marketplace" },
+  { key: "premium_web" as const, title: "Premium Web Invitation" },
+  { key: "unique_link_generator" as const, title: "Unique Link Generator" },
+  { key: "wish_wall" as const, title: "Virtual Wish Wall (Dinding Doa)" },
+  { key: "undangan_fisik" as const, title: "Undangan Fisik Premium (Cetak)" },
+  { key: "wa_blast" as const, title: "WhatsApp Blast Resmi" },
+  { key: "reservation_automation" as const, title: "RSVP Automation" },
+  { key: "qr_code_book" as const, title: "QR Code Guest Book & Absensi" },
+  { key: "kolom_direct_transfer" as const, title: "Digital Angpao & E-Gift" },
+  { key: "gift_marketplace" as const, title: "Aksara Gift Marketplace" },
 ]
 
 const STATUS_LABEL: Record<string, string> = {
@@ -184,13 +185,13 @@ function DashboardInner({ id }: { id: string }) {
               <p className="font-body-md text-on-surface-variant">Belum ada modul yang dipilih</p>
             </div>
           ) : (
-            activeCards.map((card) => (
+            activeCards.map((card, i) => (
               <div
                 key={card.key}
                 className="hairline-divider py-10 group cursor-pointer hover:bg-surface-container-low transition-colors duration-300 flex justify-between items-center"
               >
                 <div className="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-8">
-                  <span className="font-label-md text-label-md text-on-surface-variant">{card.num}.</span>
+                  <span className="font-label-md text-label-md text-on-surface-variant">{String(i + 1).padStart(2, "0")}.</span>
                   <div>
                     <h4 className="font-headline-md text-headline-md text-2xl mb-2">{card.title}</h4>
                     <p className="font-body-md text-secondary uppercase tracking-wider font-semibold">—</p>
@@ -204,7 +205,9 @@ function DashboardInner({ id }: { id: string }) {
 
         <section className="mt-section-gap grid grid-cols-1 md:grid-cols-12 gap-gutter items-center">
           <div className="md:col-span-7">
-            <div className="aspect-[4/5] w-full overflow-hidden bg-surface-container" />
+            <div className="aspect-[4/5] w-full overflow-hidden bg-surface-container relative">
+              <Image src="/dashboard.png" alt="Aksaraa Dashboard" fill className="object-cover" />
+            </div>
           </div>
           <div className="md:col-span-4 md:col-start-9">
             <h3 className="font-headline-lg text-headline-lg mb-6 italic">&ldquo;Narasi perjalanan cinta yang terkurasi dengan sempurna.&rdquo;</h3>

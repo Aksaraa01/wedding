@@ -1,111 +1,127 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
+import React, { useState, useEffect, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
+import {
+  PACKAGE_PRICES,
+  WA_TIER_PRICES,
+  EXPRESS_FEE,
+  calcTotal,
+} from "@/lib/packages"
 
-type Toggles = Record<
-  | "premium_web" | "wish_wall" | "reservation_automation"
-  | "kolom_direct_transfer" | "gift_marketplace"
-  | "qr_code_book" | "unique_link_generator"
-  | "undangan_fisik" | "wa_blast",
-  boolean
->
+const WA_TIERS = [100, 200, 300] as const
 
-const MAIN_PRODUCTS = ["premium_web", "qr_code_book", "undangan_fisik", "wa_blast"] as const
-type MainProduct = (typeof MAIN_PRODUCTS)[number]
-
-const SUB_MAP: Record<string, string[]> = {
-  premium_web: ["wish_wall", "reservation_automation", "kolom_direct_transfer", "gift_marketplace"],
-  qr_code_book: ["unique_link_generator"],
+type MatrixRow = {
+  label: string
+  essential: { value: string; class: string }
+  signature: { value: string; class: string }
+  prestige: { value: string; class: string }
 }
 
-function waTierPrice(guest: number) {
-  if (guest <= 100) return 200_000
-  if (guest <= 500) return 500_000
-  return 1_000_000
+type MatrixSection = {
+  code: string
+  label: string
+  rows: MatrixRow[]
 }
 
-function toggleClass(on: boolean) {
-  return on ? "bg-secondary" : "bg-surface-container-highest"
-}
-function knobClass(on: boolean) {
-  return on ? "translate-x-6 bg-on-secondary" : "bg-on-surface-variant/60"
-}
+const PACKAGES = [
+  {
+    code: "essential",
+    name: "Essential",
+    badge: "Best for Intimate Weddings (< 100 Guests)",
+    desc: "Sederhana, anggun, dan esensial untuk momen hangat keluarga dekat",
+    tags: ["15 Foto Galeri", "2 Bulan Aktif", "2 Round Revisi"],
+    features: [
+      { icon: "check", text: "Web Invitation", accent: false, muted: false },
+      { icon: "check", text: "Amplop Digital", accent: false, muted: false },
+      { icon: "check", text: "RSVP", accent: false, muted: false },
+      { icon: "check", text: "Unlimited Manual Send", accent: false, muted: false },
+    ],
+    btnLabel: "Pilih Essential",
+    btnClass: "border border-primary hover:bg-primary hover:text-surface",
+  },
+  {
+    code: "signature",
+    name: "Signature",
+    badge: "Favorit 85% Pengantin Aksara",
+    badgeClass: "bg-secondary text-white px-3 py-1",
+    desc: "Keseimbangan sempurna antara estetika, kenyamanan tamu, dan fitur lengkap",
+    tags: ["20 Foto Galeri", "6 Bulan Aktif", "3 Round Revisi"],
+    features: [
+      { icon: "add", text: "Alamat Pengiriman Kado Fisik", accent: true, muted: false },
+      { icon: "add", text: "Fitur Turut Mengundang", accent: true, muted: false },
+      { icon: "check", text: "Semua Fitur Essential", accent: false, muted: true },
+    ],
+    btnLabel: "Pilih Signature Experience",
+    btnClass: "bg-secondary text-white border-secondary hover:bg-secondary-container hover:text-on-secondary-container",
+    isHero: true,
+  },
+  {
+    code: "prestige",
+    name: "Prestige",
+    badge: "Ultimate All-Inclusive VIP Experience",
+    badgeClass: "bg-[#d4af37] text-[#1c1c16] px-3 py-1",
+    desc: "Pengalaman narasi digital paling mewah dengan fitur VIP eksklusif",
+    tags: ["Unlimited Foto", "1 Tahun Aktif", "5 Round Revisi"],
+    features: [
+      { icon: "auto_awesome", text: "Love Story & Cinematic Video", accent: true, muted: false },
+      { icon: "notifications_active", text: "Reminder Otomatis WhatsApp", accent: true, muted: false },
+      { icon: "brush", text: "Custom Logo Wedding", accent: true, muted: false },
+      { icon: "check", text: "Semua Fitur Signature", accent: false, muted: true },
+    ],
+    btnLabel: "Pilih Prestige VIP",
+    btnClass: "text-on-surface bg-[#d4af37] border-[#d4af37] shadow-[rgba(212,175,55,0.3)_0px_4px_14px_0px] hover:opacity-90",
+    gold: true,
+  },
+]
+
+
 
 function Inner() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const userName = searchParams.get("user") || ""
   const partnerName = searchParams.get("partner") || ""
-  const guestCount = Number(searchParams.get("guest") || "300")
 
   const isEdit = searchParams.get("edit") === "true"
   const editProfileId = searchParams.get("profile_id") || ""
 
-  const [toggles, setToggles] = useState<Toggles>({
-    premium_web: true,
-    wish_wall: true,
-    reservation_automation: true,
-    kolom_direct_transfer: true,
-    gift_marketplace: true,
-    qr_code_book: true,
-    unique_link_generator: true,
-    undangan_fisik: false,
-    wa_blast: true,
-  })
+  const [selectedPackage, setSelectedPackage] = useState("signature")
+  const [waBlastTier, setWaBlastTier] = useState<number>(0)
+  const [expressService, setExpressService] = useState(false)
+  const [undanganFisik, setUndanganFisik] = useState(false)
+  const [matrix, setMatrix] = useState<MatrixSection[]>([])
 
   const [loaded, setLoaded] = useState(!isEdit)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [waNumber, setWaNumber] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState("")
+
+  useEffect(() => {
+    fetch("/api/packages/matrix")
+      .then((r) => r.json())
+      .then((data) => {
+        setMatrix(data.matrix || [])
+      })
+  }, [])
 
   useEffect(() => {
     if (!isEdit || !editProfileId) return
     fetch(`/api/dashboard/${editProfileId}`)
       .then((r) => r.json())
       .then((data) => {
-        setToggles(data.selections)
+        setSelectedPackage(data.profile.package_type || "signature")
+        setWaBlastTier(data.profile.wa_blast_tier || 0)
+        setExpressService(!!data.profile.express_service)
+        setUndanganFisik(!!data.profile.undangan_fisik)
         setLoaded(true)
       })
   }, [])
 
-  const [modalOpen, setModalOpen] = useState(false)
-  const [waNumber, setWaNumber] = useState("")
-  const [submitting, setSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState("")
-  const subProductsOf = (main: string) =>
-    (SUB_MAP[main] || []) as (keyof Toggles)[]
+  const total = calcTotal(selectedPackage, waBlastTier, expressService)
 
-  const allSubOff = (main: string) =>
-    subProductsOf(main).every((s) => !toggles[s])
-
-  const handleMainToggle = (key: MainProduct) => {
-    setToggles((prev) => {
-      const next = !prev[key]
-      const subs = subProductsOf(key)
-      const updated = { ...prev, [key]: next }
-      subs.forEach((s) => {
-        updated[s] = next
-      })
-      return updated
-    })
-  }
-
-  const handleSubToggle = (main: string, sub: keyof Toggles) => {
-    setToggles((prev) => {
-      if (!prev[main as keyof Toggles]) return prev
-      const updated = { ...prev, [sub]: !prev[sub] }
-      if (allSubOff(main)) {
-        updated[main as keyof Toggles] = false
-      }
-      return updated
-    })
-  }
-
-  const total =
-    (toggles.premium_web ? 1_000_000 : 0) +
-    (toggles.qr_code_book ? 500_000 : 0) +
-    (toggles.wa_blast ? waTierPrice(guestCount) : 0)
-
-  const formatRp = (n: number) =>
-    "Rp " + n.toLocaleString("id-ID")
+  const formatRp = (n: number) => "Rp " + n.toLocaleString("id-ID")
 
   const handleSubmit = async () => {
     const cleaned = waNumber.replace(/\D/g, "")
@@ -121,6 +137,7 @@ function Inner() {
 
       const rawDate = searchParams.get("date")
       const weddingDate = rawDate && rawDate !== "tentative" ? rawDate : "2099-12-31"
+      const guestCount = Number(searchParams.get("guest") || "300")
 
       const res = await fetch("/api/submit-registration", {
         method: "POST",
@@ -132,8 +149,10 @@ function Inner() {
           estimated_guest_count: guestCount,
           slug,
           whatsapp_number: `+62${cleaned}`,
-          toggles,
-          total_project_cost: total,
+          package_type: selectedPackage,
+          wa_blast_tier: waBlastTier,
+          express_service: expressService,
+          undangan_fisik: undanganFisik,
         }),
       })
 
@@ -150,8 +169,8 @@ function Inner() {
         const err = await res.json()
         setSubmitError(err.error || "Terjadi kesalahan. Silakan coba lagi.")
       }
-    } catch (e) {
-      setSubmitError("Gagal terhubung ke server. Periksa koneksi Anda.")
+    } catch {
+      setSubmitError("Gagal terhubung ke server.")
     } finally {
       setSubmitting(false)
     }
@@ -164,13 +183,18 @@ function Inner() {
       const res = await fetch(`/api/customize/${editProfileId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ toggles, total_project_cost: total }),
+        body: JSON.stringify({
+          package_type: selectedPackage,
+          wa_blast_tier: waBlastTier,
+          express_service: expressService,
+          undangan_fisik: undanganFisik,
+        }),
       })
       if (res.ok) {
         router.push(`/dashboard/${editProfileId}`)
       } else {
         const err = await res.json()
-        setSubmitError(err.error || "Gagal menyimpan. Silakan coba lagi.")
+        setSubmitError(err.error || "Gagal menyimpan.")
       }
     } catch {
       setSubmitError("Gagal terhubung ke server.")
@@ -188,155 +212,272 @@ function Inner() {
   }
 
   return (
-    <div className="font-body-md text-on-background bg-background min-h-screen">
-      <header className="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-md px-edge-margin-mobile h-20 flex justify-between items-center border-b border-outline-variant/30">
-        <button
-          onClick={() => {
-            if (isEdit) {
-              router.push(`/dashboard/${editProfileId}`)
-            } else {
-              const p = new URLSearchParams({
-                step: "3",
-                user: userName,
-                partner: partnerName,
-                date: searchParams.get("date") || "tentative",
-                guest: String(guestCount),
-              })
-              router.push(`/register?${p}`)
-            }
-          }}
-          className="flex items-center gap-2 group hover:opacity-70 transition-opacity"
-        >
-          <span className="material-symbols-outlined text-primary">arrow_back</span>
-        </button>
-        <div className="font-display-lg text-headline-md tracking-widest uppercase text-primary">Aksara</div>
-        <span className="material-symbols-outlined text-primary hover:opacity-70 transition-opacity">account_circle</span>
+    <div className="min-h-screen bg-background font-body-md text-on-surface selection:bg-secondary/20 overflow-x-hidden">
+      <style>{`
+        .paper-texture { background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png"); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+
+      <header className="fixed top-0 w-full z-[100] bg-surface/90 backdrop-blur-md border-b border-outline-variant/30 h-20">
+        <div className="max-w-container-max mx-auto px-edge-margin-mobile md:px-edge-margin-desktop h-full flex justify-between items-center">
+          <button
+            onClick={() => {
+              if (isEdit) {
+                router.push(`/dashboard/${editProfileId}`)
+              } else {
+                const p = new URLSearchParams({
+                  step: "3",
+                  user: userName,
+                  partner: partnerName,
+                  date: searchParams.get("date") || "tentative",
+                  guest: searchParams.get("guest") || "300",
+                })
+                router.push(`/register?${p}`)
+              }
+            }}
+            className="flex items-center gap-2 group text-on-surface-variant hover:text-primary transition-colors"
+          >
+            <span className="material-symbols-outlined">arrow_back</span>
+            <span className="font-label-md text-label-md uppercase tracking-widest hidden md:inline">Kembali</span>
+          </button>
+          <div className="font-headline-md text-headline-md tracking-tighter text-primary font-bold">AKSARA</div>
+          <div className="flex items-center gap-4">
+            <span className="material-symbols-outlined text-primary scale-110">person</span>
+          </div>
+        </div>
       </header>
 
-      <main className="pt-32 px-edge-margin-mobile max-w-container-max mx-auto pb-40">
-        <div className="max-w-4xl mb-20">
-          <h1 className="font-headline-xl text-display-lg-mobile mb-6 leading-tight text-primary">
-            Rancang Cerita Anda
-          </h1>
-          <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
-            Halo {userName} &amp; {partnerName}, silakan aktifkan atau matikan service di bawah sesuai kebutuhan
-            esensial pernikahan Anda.
-          </p>
-        </div>
+      <main className="pt-32 pb-40 px-edge-margin-mobile md:px-edge-margin-desktop max-w-container-max mx-auto">
+        <section className="mb-16 text-center max-w-3xl mx-auto">
+          <span className="font-label-md text-label-md text-secondary uppercase tracking-[0.2em] mb-4 block">Personalized Digital Atelier</span>
+          <h1 className="font-headline-xl text-headline-xl text-primary mb-6">Pilih Paket&nbsp;</h1>
+          <p className="font-body-lg text-body-lg text-on-surface-variant">Temukan pengalaman yang paling tepat untuk mengabadikan perayaan Anda. Setiap pilihan dikurasi secara mendalam demi hasil yang tanpa cela.</p>
+        </section>
 
-        <div className="space-y-12">
-          {/* Premium Web Invitation */}
-          <Section>
-            <HeaderRow
-              title="Premium Web Invitation"
-              desc="Desain undangan digital sinematik premium."
-              on={toggles.premium_web}
-              onToggle={() => handleMainToggle("premium_web")}
-            />
-            <div className="space-y-2 ml-4 md:ml-8">
-              {["wish_wall", "reservation_automation", "kolom_direct_transfer", "gift_marketplace"].map(
-                (sub) => (
-                  <SubRow
-                    key={sub}
-                    label={SUB_LABELS[sub]}
-                    on={toggles[sub as keyof Toggles]}
-                    disabled={!toggles.premium_web}
-                    onToggle={() => handleSubToggle("premium_web", sub as keyof Toggles)}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch mb-24">
+          {PACKAGES.map((pkg) => {
+            const isActive = selectedPackage === pkg.code
+            const isSignature = pkg.code === "signature"
+            const isPrestige = pkg.code === "prestige"
+
+            let cardClasses = "flex flex-col p-10 bg-surface transition-all duration-500 cursor-pointer relative overflow-hidden"
+            if (isActive) {
+              cardClasses += isPrestige
+                ? " border-2 border-[#d4af37] scale-105 z-10 shadow-2xl"
+                : " border-2 border-secondary scale-105 z-10 shadow-2xl shadow-secondary/10"
+            } else {
+              cardClasses += " border border-outline-variant hover:scale-[1.02]"
+            }
+
+            const badgeBg = pkg.badgeClass || "border border-on-surface-variant px-3 py-1"
+            const badgeText = pkg.badgeClass ? "" : "text-on-surface-variant"
+
+            return (
+              <div
+                key={pkg.code}
+                className={cardClasses}
+                onClick={() => {
+                  setSelectedPackage(pkg.code)
+                  if (pkg.code !== "prestige") setWaBlastTier(0)
+                }}
+              >
+                {isActive && isSignature && (
+                  <div className="absolute top-0 right-0 bg-secondary text-white px-6 py-2 font-label-md text-[10px] tracking-widest uppercase translate-y-4 translate-x-12 rotate-45">Favorit</div>
+                )}
+                <div className="mb-8 h-12">
+                  <span className={`inline-block ${badgeBg} font-label-md text-[10px] tracking-widest uppercase ${badgeText}`}>
+                    {pkg.badge}
+                  </span>
+                </div>
+                <div className="mb-6">
+                  <h3 className={`font-headline-md text-headline-md mb-2 ${isActive && isSignature ? "text-secondary" : ""}`}>{pkg.name}</h3>
+                  <p className="font-body-md italic text-on-surface-variant">{pkg.desc}</p>
+                </div>
+                <div className="mb-8">
+                  <div className={`flex items-baseline gap-1 ${isActive && isSignature ? "text-secondary" : ""}`}>
+                    <span className="text-label-md font-bold self-start mt-1">Rp</span>
+                    <span className="font-headline-lg text-headline-lg">{PACKAGE_PRICES[pkg.code].toLocaleString("id-ID")}</span>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-10">
+                  {pkg.tags.map((tag) => (
+                    <span key={tag} className={`font-label-md text-[10px] border px-2 py-1 uppercase ${isActive && isSignature ? "border-secondary text-secondary font-bold" : "border-outline-variant"}`}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <ul className="space-y-4 mb-12 flex-grow">
+                  {pkg.features.map((f) => (
+                    <li key={f.text} className={`flex items-center gap-3 ${f.accent ? "font-semibold" : ""} ${f.muted ? "text-on-surface-variant" : ""}`}>
+                      <span className={`material-symbols-outlined text-sm ${f.accent && isActive && isPrestige ? "text-[#d4af37]" : f.accent && isActive && isSignature ? "text-secondary" : ""}`}>
+                        {f.icon === "add" ? "add" : f.icon === "check" ? "check" : f.icon}
+                      </span>
+                      <span>{f.text}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  className={`w-full py-4 font-label-md uppercase tracking-widest transition-all ${pkg.btnClass}`}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setSelectedPackage(pkg.code)
+                    if (pkg.code !== "prestige") setWaBlastTier(0)
+                  }}
+                >
+                  {pkg.btnLabel}
+                </button>
+              </div>
+            )
+          })}
+        </section>
+
+        {selectedPackage === "prestige" && (
+          <section className="mb-24">
+            <div className="border border-outline-variant/30 p-6 md:p-8">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h4 className="font-headline-md text-xl md:text-2xl mb-1">Tambah Reminder Tamu VIP</h4>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-4">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={waBlastTier > 0}
+                    onChange={() => setWaBlastTier(waBlastTier > 0 ? 0 : 100)}
                   />
-                )
+                  <div className="w-14 h-8 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary" />
+                </label>
+              </div>
+              {waBlastTier > 0 && (
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {WA_TIERS.map((tier) => (
+                    <button
+                      key={tier}
+                      onClick={() => setWaBlastTier(tier)}
+                      className={`flex-1 min-w-[100px] p-4 border text-center transition-all ${
+                        waBlastTier === tier
+                          ? "border-secondary bg-secondary-fixed/30"
+                          : "border-outline-variant hover:border-secondary"
+                      }`}
+                    >
+                      <span className="font-headline-md text-lg block">{tier}</span>
+                      <span className="font-label-md text-[10px] uppercase tracking-wider text-on-surface-variant">Tamu</span>
+                      <span className="font-body-md text-[13px] text-on-surface-variant block mt-1">{formatRp(WA_TIER_PRICES[tier])}</span>
+                    </button>
+                  ))}
+                </div>
               )}
             </div>
-          </Section>
+          </section>
+        )}
 
-          {/* QR Code Book */}
-          <Section>
-            <HeaderRow
-              title="QR Code Book & Real-Time Attendance"
-              desc="Sistem check-in tamu otomatis di lokasi."
-              on={toggles.qr_code_book}
-              onToggle={() => handleMainToggle("qr_code_book")}
-            />
-            <div className="space-y-2 ml-4 md:ml-8">
-              <SubRow
-                label="Unique Link Generator"
-                on={toggles.unique_link_generator}
-                disabled={!toggles.qr_code_book}
-                onToggle={() => handleSubToggle("qr_code_book", "unique_link_generator")}
+        <section className="mb-24">
+          <div className="border border-secondary bg-secondary-fixed/30 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto">
+              <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-secondary text-white flex items-center justify-center shrink-0">
+                <span className="material-symbols-outlined scale-110 md:scale-125">bolt</span>
+              </div>
+              <div>
+                <h4 className="font-headline-md text-xl md:text-2xl mb-1">Yakin Esok Selesai (24 Hours)</h4>
+                <p className="font-body-md text-[14px] md:text-body-md text-on-surface-variant">Percepat produksi dari standar 4-6 hari menjadi hanya 24 jam saja.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 md:gap-8 w-full md:w-auto justify-between md:justify-end">
+              <div className="text-left md:text-right">
+                <span className="font-label-md text-secondary block uppercase tracking-tighter text-[10px] md:text-label-md">Layanan Kilat</span>
+                <span className="font-headline-md text-xl md:text-2xl">{formatRp(EXPRESS_FEE)}</span>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={expressService}
+                  onChange={() => setExpressService(!expressService)}
+                />
+                <div className="w-14 h-8 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary" />
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section className="mb-24">
+          <div className="border border-outline-variant/30 p-8 flex items-center justify-between">
+            <div>
+              <h4 className="font-headline-md text-2xl mb-1">Undangan Fisik Premium (Cetak)</h4>
+              <p className="font-body-md text-on-surface-variant">Layanan cetak eksklusif dengan bahan premium.</p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                checked={undanganFisik}
+                onChange={() => setUndanganFisik(!undanganFisik)}
               />
-            </div>
-          </Section>
+              <div className="w-14 h-8 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary" />
+            </label>
+          </div>
+        </section>
 
-          {/* Undangan Fisik */}
-          <Section>
-            <HeaderRow
-              title="Undangan Fisik"
-              desc="Layanan cetak eksklusif dengan bahan premium."
-              on={toggles.undangan_fisik}
-              onToggle={() => setToggles((p) => ({ ...p, undangan_fisik: !p.undangan_fisik }))}
-              border={false}
-            />
-          </Section>
-
-          {/* WhatsApp Blast Resmi */}
-          <Section>
-            <HeaderRow
-              title="WhatsApp Blast Resmi"
-              desc="Kirim undangan massal resmi via WhatsApp."
-              on={toggles.wa_blast}
-              onToggle={() => setToggles((p) => ({ ...p, wa_blast: !p.wa_blast }))}
-              border={false}
-            />
-            <div className="mt-4 flex items-center justify-between text-sm text-on-surface-variant border-t border-outline-variant/10 pt-4">
-              <span>Jumlah tamu: <strong>{guestCount.toLocaleString("id-ID")}</strong> orang</span>
-              <button
-                onClick={() => {
-                  const p = new URLSearchParams({
-                    step: "3",
-                    user: userName,
-                    partner: partnerName,
-                    date: searchParams.get("date") || "tentative",
-                    guest: String(guestCount),
-                  })
-                  router.push(`/register?${p}`)
-                }}
-                className="font-label-md text-xs uppercase tracking-wider underline hover:text-secondary transition-colors"
-              >
-                Ubah
-              </button>
-            </div>
-          </Section>
-        </div>
+        <section className="mb-32">
+          <h2 className="font-headline-lg text-headline-lg mb-12 text-center">Detail Komparasi Fitur</h2>
+          <div className="overflow-x-auto hide-scrollbar border-t border-outline">
+            <table className="w-full text-left min-w-[800px]">
+              <thead>
+                <tr className="font-label-md text-label-md uppercase tracking-widest border-b border-outline-variant">
+                  <th className="py-6 font-semibold w-1/4">Fitur Utama</th>
+                  <th className="py-6 text-center w-1/4">Essential</th>
+                  <th className="py-6 text-center w-1/4" style={{ color: selectedPackage === "signature" ? "#8d4d39" : undefined }}>Signature</th>
+                  <th className="py-6 text-center w-1/4">Prestige</th>
+                </tr>
+              </thead>
+              <tbody className="font-body-md">
+                {matrix.map((section) => (
+                  <React.Fragment key={section.code}>
+                    <tr className="border-b border-outline-variant/30 bg-surface-container-lowest/50">
+                      <td className="py-4 px-2 font-label-md text-[10px] text-on-surface-variant tracking-widest uppercase" colSpan={4}>{section.label}</td>
+                    </tr>
+                    {section.rows.map((row) => (
+                      <tr key={row.label} className="border-b border-outline-variant/30">
+                        <td className="py-4">{row.label}</td>
+                        <td className={`py-4 text-center ${row.essential.class || ""}`}>{row.essential.value}</td>
+                        <td className={`py-4 text-center ${row.signature.class || ""}`}>{row.signature.value}</td>
+                        <td className={`py-4 text-center ${row.prestige.class || ""}`}>{row.prestige.value}</td>
+                      </tr>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
       </main>
 
-      <footer className="fixed bottom-0 left-0 w-full bg-surface/95 backdrop-blur-md z-50 px-edge-margin-mobile py-6 border-t border-outline-variant/30">
-        <div className="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="flex flex-col">
-            <span className="font-label-md text-label-md uppercase tracking-[0.15em] text-on-surface-variant/60">
-              Estimasi Total
-            </span>
-            <span className="font-headline-md text-headline-md text-primary font-bold">
-              {formatRp(total)}
-              {toggles.undangan_fisik && (
-                <span className="block text-xs font-body-md text-on-surface-variant/60 font-normal">
-                  * belum termasuk undangan fisik
-                </span>
-              )}
-            </span>
+      <footer className="fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant px-edge-margin-mobile py-6 z-[90]">
+        <div className="max-w-container-max mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col items-center md:items-start">
+            <span className="font-label-md text-[10px] uppercase text-on-surface-variant tracking-widest">Estimasi Total</span>
+            <div className="flex items-center gap-3">
+              <span className="font-headline-md text-2xl">{PACKAGES.find((p) => p.code === selectedPackage)?.name} Experience</span>
+              <span className="text-on-surface-variant/30">|</span>
+              <span className="font-headline-md text-2xl text-secondary">{formatRp(total)}</span>
+            </div>
+            {undanganFisik && (
+              <span className="text-[10px] text-on-surface-variant/60 mt-1">* belum termasuk undangan fisik</span>
+            )}
           </div>
           {isEdit ? (
             <button
               onClick={handleSave}
               disabled={submitting}
-              className={`bg-primary text-on-primary font-label-md text-label-md uppercase tracking-[0.1em] px-12 py-5 transition-all duration-300 hover:bg-secondary active:scale-[0.98] w-full md:w-auto ${
-                submitting ? "opacity-50" : ""
-              }`}
+              className={`w-full md:w-auto px-12 py-4 bg-primary text-white font-label-md uppercase tracking-[0.2em] transition-all hover:bg-secondary ${submitting ? "opacity-50" : ""}`}
             >
               {submitting ? "Menyimpan..." : "Simpan"}
             </button>
           ) : (
             <button
               onClick={() => setModalOpen(true)}
-              className="bg-primary text-on-primary font-label-md text-label-md uppercase tracking-[0.1em] px-12 py-5 transition-all duration-300 hover:bg-secondary active:scale-[0.98] w-full md:w-auto"
+              className="w-full md:w-auto px-12 py-4 bg-primary text-white font-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all"
             >
               Kunci Kustomisasi &amp; Kirim ke Konsultan
             </button>
@@ -344,31 +485,30 @@ function Inner() {
         </div>
       </footer>
 
-      {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-edge-margin-mobile">
-          <div
-            className="absolute inset-0 bg-on-background/40 backdrop-blur-md"
-            onClick={() => setModalOpen(false)}
-          />
-          <div className="relative bg-background w-full max-w-md p-8 rounded-xl shadow-sm border border-outline-variant/30">
-            <h2 className="font-headline-md text-headline-md mb-4">Langkah Terakhir</h2>
-            <p className="font-body-md text-on-surface-variant mb-8">
-              Silakan masukkan nomor WhatsApp Anda agar Konsultan kami dapat segera menghubungi Anda untuk
-              memproses kustomisasi ini.
-            </p>
+        <div className="fixed inset-0 bg-primary/40 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+          <div className="bg-surface p-10 max-w-lg w-full border border-outline relative">
+            <button
+              onClick={() => setModalOpen(false)}
+              className="absolute top-4 right-4 text-on-surface-variant hover:text-primary"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+            <div className="text-center mb-10">
+              <div className="w-20 h-20 bg-secondary-container/20 text-secondary flex items-center justify-center rounded-full mx-auto mb-6">
+                <span className="material-symbols-outlined scale-[2]">mail</span>
+              </div>
+              <h2 className="font-headline-md text-headline-md mb-4">Langkah Terakhir</h2>
+              <p className="font-body-md text-on-surface-variant">Selesaikan pesanan Anda dengan menghubungkan WhatsApp. Konsultan kami akan membantu proses onboarding narasi Anda.</p>
+            </div>
             <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="font-label-md uppercase tracking-widest text-on-surface-variant/60">
-                  Nomor WhatsApp
-                </label>
+              <div>
+                <label className="font-label-md text-[10px] uppercase text-on-surface-variant block mb-2 tracking-widest">Nomor WhatsApp Aktif</label>
                 <div className="flex border border-outline-variant/30 focus-within:border-primary transition-colors">
-                  <span className="px-4 py-3 bg-surface-container-highest font-body-md border-r border-outline-variant/30">
-                    +62
-                  </span>
+                  <span className="px-4 py-4 bg-surface-container-highest font-body-md border-r border-outline-variant/30">+62</span>
                   <input
-                    className="w-full px-4 py-3 bg-transparent font-body-md focus:outline-none"
-                    placeholder="8123456789"
+                    className="w-full px-4 py-4 bg-transparent focus:outline-none text-xl font-headline-md placeholder:text-outline-variant"
+                    placeholder="812 XXXX XXXX"
                     type="tel"
                     value={waNumber}
                     onChange={(e) => {
@@ -382,38 +522,21 @@ function Inner() {
               {submitError && (
                 <p className="font-body-md text-sm text-red-400">{submitError}</p>
               )}
-              <div className="flex flex-col gap-4 pt-4">
-                <button
-                  onClick={handleSubmit}
-                  disabled={!waNumber || submitting}
-                  className={`bg-primary text-on-primary font-label-md uppercase tracking-widest py-4 transition-colors ${
-                    waNumber && !submitting ? "hover:bg-secondary" : "opacity-50"
-                  }`}
-                >
-                  {submitting ? "Mengirim..." : "Kirim ke Konsultan"}
-                </button>
-                <button
-                  onClick={() => setModalOpen(false)}
-                  disabled={submitting}
-                  className="text-on-surface-variant font-label-md uppercase tracking-widest py-2 hover:text-primary transition-colors disabled:opacity-30"
-                >
-                  Batal
-                </button>
-              </div>
+              <button
+                onClick={handleSubmit}
+                disabled={!waNumber || submitting}
+                className={`w-full py-5 bg-secondary text-white font-label-md uppercase tracking-[0.3em] flex items-center justify-center gap-3 transition-all hover:bg-on-secondary-fixed ${
+                  !waNumber || submitting ? "opacity-50" : ""
+                }`}
+              >
+                <span>{submitting ? "Mengirim..." : "Mulai Diskusi Narasi"}</span>
+                <span className="material-symbols-outlined">arrow_right_alt</span>
+              </button>
+              <p className="text-[10px] text-center uppercase tracking-tighter text-on-surface-variant">Tanpa biaya pendaftaran. Pembayaran dilakukan setelah draft pertama disetujui.</p>
             </div>
           </div>
         </div>
       )}
-
-      <style jsx>{`
-        .animate-fade-in {
-          animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   )
 }
@@ -423,92 +546,5 @@ export default function CustomizePage() {
     <Suspense>
       <Inner />
     </Suspense>
-  )
-}
-
-const SUB_LABELS: Record<string, string> = {
-  wish_wall: "Virtual Wish Wall",
-  reservation_automation: "Reservation Automation",
-  kolom_direct_transfer: "Kolom Direct Transfer",
-  gift_marketplace: "Aksara Gift Marketplace",
-  unique_link_generator: "Unique Link Generator",
-}
-
-function Section({ children }: { children: React.ReactNode }) {
-  return (
-    <section className="bg-surface-container-low/30 rounded-xl p-6 md:p-8 border border-outline-variant/30">
-      {children}
-    </section>
-  )
-}
-
-function HeaderRow({
-  title,
-  desc,
-  on,
-  onToggle,
-  border = true,
-}: {
-  title: string
-  desc: string
-  on: boolean
-  onToggle: () => void
-  border?: boolean
-}) {
-  return (
-    <div className={`flex items-center justify-between${border ? " mb-8 pb-6 border-b border-outline-variant/30" : ""}`}>
-      <div className="flex-1 pr-4 group transition-all">
-        <div className="flex items-center gap-2 mb-1">
-          <h2 className="font-headline-md text-headline-md">{title}</h2>
-          <span className="material-symbols-outlined text-on-surface-variant/40 text-sm group-hover:text-primary transition-colors">arrow_forward_ios</span>
-        </div>
-        <p className="font-body-md text-on-surface-variant">{desc}</p>
-      </div>
-      <div
-        className={`toggle-track w-12 h-6 rounded-full relative cursor-pointer ${toggleClass(on)}`}
-        onClick={(e) => {
-          e.stopPropagation()
-          onToggle()
-        }}
-      >
-        <div className={`toggle-knob absolute left-1 top-1 w-4 h-4 rounded-full shadow-sm ${knobClass(on)}`} />
-      </div>
-    </div>
-  )
-}
-
-function SubRow({
-  label,
-  on,
-  disabled,
-  onToggle,
-}: {
-  label: string
-  on: boolean
-  disabled: boolean
-  onToggle: () => void
-}) {
-  return (
-    <div className="flex items-center justify-between py-4 border-b border-outline-variant/10 last:border-b-0">
-      <div className="flex-1 pr-4 group flex items-center justify-between">
-        <span className="font-body-md">{label}</span>
-        <span className="material-symbols-outlined text-on-surface-variant/30 text-xs group-hover:text-primary transition-colors mr-4">chevron_right</span>
-      </div>
-      <div
-        className={`toggle-track w-12 h-6 rounded-full relative cursor-pointer ${
-          disabled ? "bg-surface-container-highest pointer-events-none" : toggleClass(on)
-        }`}
-        onClick={(e) => {
-          e.stopPropagation()
-          if (!disabled) onToggle()
-        }}
-      >
-        <div
-          className={`toggle-knob absolute left-1 top-1 w-4 h-4 rounded-full shadow-sm ${
-            disabled ? "bg-on-surface-variant/60" : knobClass(on)
-          }`}
-        />
-      </div>
-    </div>
   )
 }

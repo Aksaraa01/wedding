@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { calcTotal } from "@/lib/packages"
 
 export async function POST(req: Request) {
   try {
@@ -11,8 +12,10 @@ export async function POST(req: Request) {
       estimated_guest_count,
       slug,
       whatsapp_number,
-      toggles,
-      total_project_cost,
+      package_type,
+      wa_blast_tier,
+      express_service,
+      undangan_fisik,
     } = body
 
     if (!bride_name || !groom_name || !slug) {
@@ -54,6 +57,8 @@ export async function POST(req: Request) {
       userId = user.id
     }
 
+    const total = calcTotal(package_type || "signature", wa_blast_tier || 0, !!express_service)
+
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("wedding_profiles")
       .insert({
@@ -64,7 +69,11 @@ export async function POST(req: Request) {
         estimated_guest_count,
         slug,
         whatsapp_number,
-        total_project_cost,
+        package_type: package_type || "signature",
+        wa_blast_tier: wa_blast_tier || 0,
+        express_service: !!express_service,
+        undangan_fisik: !!undangan_fisik,
+        total_project_cost: total,
         payment_status: "UNPAID",
       })
       .select("id")
@@ -75,25 +84,6 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Slug already taken" }, { status: 409 })
       }
       return NextResponse.json({ error: profileError.message }, { status: 500 })
-    }
-
-    const { error: selError } = await supabaseAdmin
-      .from("product_selections")
-      .insert({
-        wedding_profile_id: profile.id,
-        premium_web: toggles.premium_web ?? true,
-        wish_wall: toggles.wish_wall ?? true,
-        reservation_automation: toggles.reservation_automation ?? true,
-        kolom_direct_transfer: toggles.kolom_direct_transfer ?? true,
-        gift_marketplace: toggles.gift_marketplace ?? true,
-        qr_code_book: toggles.qr_code_book ?? true,
-        unique_link_generator: toggles.unique_link_generator ?? true,
-        undangan_fisik: toggles.undangan_fisik ?? false,
-        wa_blast: toggles.wa_blast ?? true,
-      })
-
-    if (selError) {
-      return NextResponse.json({ error: selError.message }, { status: 500 })
     }
 
     return NextResponse.json({ success: true, wedding_profile_id: profile.id, slug })

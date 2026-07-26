@@ -45,6 +45,19 @@ export async function POST(req: Request) {
     const digits = (phone_number || "").replace(/\D/g, "")
     const normalized = digits ? (digits.startsWith("62") ? `+${digits}` : `+62${digits}`) : ""
 
+    const { data: existing } = await supabaseAdmin
+      .from("guests")
+      .select("id")
+      .eq("wedding_profile_id", wedding_profile_id)
+      .ilike("name", name.trim())
+      .gte("phone_number", normalized || "")
+      .lte("phone_number", normalized || "")
+      .maybeSingle()
+
+    if (existing) {
+      return NextResponse.json({ error: "Tamu dengan nama dan nomor yang sama sudah ada", duplicate: true }, { status: 409 })
+    }
+
     const { data, error } = await supabaseAdmin
       .from("guests")
       .insert({ wedding_profile_id, name, phone_number: normalized, category, table_number })

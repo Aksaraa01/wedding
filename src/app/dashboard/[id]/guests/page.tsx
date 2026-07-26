@@ -52,6 +52,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   const [verifySearch, setVerifySearch] = useState("")
   const [importing, setImporting] = useState(false)
   const [waDigits, setWaDigits] = useState("")
+  const [duplicateError, setDuplicateError] = useState("")
 
   const fetchGuests = async () => {
     const params = new URLSearchParams({ wedding_profile_id: weddingProfileId })
@@ -88,6 +89,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
 
   const handleSave = async () => {
     if (!form.name.trim()) return
+    setDuplicateError("")
 
     const data = {
       name: form.name.trim(),
@@ -97,17 +99,24 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
     }
 
     if (editingId) {
-      await fetch(`/api/guests/${editingId}`, {
+      const res = await fetch(`/api/guests/${editingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       })
+      if (!res.ok) return
     } else {
-      await fetch("/api/guests", {
+      const res = await fetch("/api/guests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...data, wedding_profile_id: weddingProfileId }),
       })
+      if (res.status === 409) {
+        const err = await res.json()
+        setDuplicateError(err.error || "Tamu sudah ada")
+        return
+      }
+      if (!res.ok) return
     }
 
     setModalOpen(false)
@@ -389,9 +398,8 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
           <section className="border-t border-outline-variant">
             <div className="grid grid-cols-12 py-4 px-2 bg-surface-container-lowest">
               <div className="col-span-4 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Nama</div>
-              <div className="col-span-3 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Kategori</div>
-              <div className="col-span-3 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Meja</div>
-              <div className="col-span-2" />
+              <div className="col-span-4 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Kategori</div>
+              <div className="col-span-4 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Meja</div>
             </div>
 
             {filtered.map((guest) => (
@@ -402,33 +410,35 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                     <p className="font-label-md text-[11px] text-on-surface-variant opacity-70">{guest.phone_number}</p>
                   )}
                 </div>
-                <div className="col-span-3">
+                <div className="col-span-4">
                   <span className="text-[10px] uppercase tracking-widest text-on-surface-variant opacity-70">
                     {guest.category || "—"}
                   </span>
                 </div>
-                <div className="col-span-3">
-                  {guest.table_number ? (
-                    <span className="font-label-md text-[11px] px-2 py-1 bg-surface-container border border-outline-variant text-on-surface">
-                      {guest.table_number}
-                    </span>
-                  ) : (
-                    <span className="text-[10px] text-on-surface-variant opacity-50">—</span>
-                  )}
-                </div>
-                <div className="col-span-2 flex justify-end gap-2">
-                  <button
-                    onClick={() => openEdit(guest)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <span className="material-symbols-outlined text-body-md">edit</span>
-                  </button>
-                  <button
-                    onClick={() => { if (confirm("Hapus tamu ini?")) handleDelete(guest.id) }}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-error"
-                  >
-                    <span className="material-symbols-outlined text-body-md">delete</span>
-                  </button>
+                <div className="col-span-4 flex items-center justify-between gap-2">
+                  <div>
+                    {guest.table_number ? (
+                      <span className="font-label-md text-[11px] px-2 py-1 bg-surface-container border border-outline-variant text-on-surface">
+                        {guest.table_number}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-on-surface-variant opacity-50">—</span>
+                    )}
+                  </div>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => openEdit(guest)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity leading-none"
+                    >
+                      <span className="material-symbols-outlined !text-[12px]">edit</span>
+                    </button>
+                    <button
+                      onClick={() => { if (confirm("Hapus tamu ini?")) handleDelete(guest.id) }}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity text-error leading-none"
+                    >
+                      <span className="material-symbols-outlined !text-[12px]">delete</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -510,6 +520,9 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                   />
                 </div>
                 <div className="flex flex-col gap-3 mt-4">
+                  {duplicateError && (
+                    <p className="font-body-md text-sm text-error text-center">{duplicateError}</p>
+                  )}
                   <button
                     type="submit"
                     className="w-full bg-primary text-white py-4 font-label-md text-label-md uppercase tracking-widest active:scale-95 transition-transform"
