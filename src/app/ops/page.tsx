@@ -1,0 +1,588 @@
+"use client"
+
+import { useState, useEffect, useCallback, useRef } from "react"
+import { useRouter } from "next/navigation"
+import PageTheme from "@/components/PageTheme"
+
+const PACKAGE_LABELS: Record<string, string> = {
+  essential: "Essential",
+  signature: "Signature",
+  prestige: "Prestige",
+}
+
+const FEATURE_LABELS: Record<string, string> = {
+  premium_web: "Undangan Digital",
+  wish_wall: "Wish Wall",
+  reservation_automation: "Reservasi Otomatis",
+  kolom_direct_transfer: "Kolom Transfer",
+  gift_marketplace: "Gift Marketplace",
+  qr_code_book: "Buku Tamu QR",
+  unique_link_generator: "QR Code Tamu",
+  undangan_fisik: "Undangan Fisik",
+  wa_blast: "WhatsApp Blast",
+}
+
+const PAYMENT_LABELS: Record<string, string> = {
+  UNPAID: "Belum Bayar",
+  PARTIAL_DP: "Parsial (DP)",
+  FULLY_PAID: "Lunas",
+}
+
+type QueueItem = {
+  id: string
+  status: string
+  sla_started_at: string
+  assigned_to: string | null
+  assigned_name: string | null
+  created_at: string
+  wedding_profile: {
+    id: string
+    bride_name: string
+    groom_name: string
+    slug: string
+    whatsapp_number: string
+    estimated_wedding_date: string
+    estimated_guest_count: number
+    package_type: string
+    total_project_cost: number
+    payment_status: string
+  }
+}
+
+type FeatureAction = {
+  id: string
+  ops_queue_id: string
+  wedding_profile_id: string
+  feature_key: string
+  status: string
+  client_note: string | null
+  image_url: string | null
+  created_at: string
+  updated_at: string
+}
+
+type Employee = {
+  id: string
+  name: string
+}
+
+type QueueDetail = {
+  queue: QueueItem
+  wedding_profile: QueueItem["wedding_profile"]
+  feature_actions: FeatureAction[]
+  employees: Employee[]
+  guest_stats: { total: number; with_token: number }
+}
+
+function formatCurrency(n: number): string {
+  return `Rp ${n.toLocaleString("id-ID")}`
+}
+
+function formatDate(dateStr: string): string {
+  if (!dateStr || dateStr === "2099-12-31") return "TBD"
+  const d = new Date(dateStr)
+  return d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
+}
+
+export default function OpsDashboardPage() {
+  const router = useRouter()
+  const [employee, setEmployee] = useState<{ id: string; name: string; role: string } | null>(null)
+  const [queue, setQueue] = useState<QueueItem[]>([])
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [detail, setDetail] = useState<QueueDetail | null>(null)
+  const [search, setSearch] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [paymentTotal, setPaymentTotal] = useState("")
+  const slaInegts = useRef<Record<string, NodeJS.Timeout>>({})
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const raw = sessionStorage.getItem("ops_employee")
+    if (!raw) {
+      router.replace("/ops/login")
+      return
+    }
+    setEmployee(JSON.parse(raw))
+  }, [router])
+
+  useEffect(() => {
+    if (!employee) return
+    fetchQueue()
+  }, [employee])
+
+  const fetchQueue = async () => {
+    try {
+      const res = await fetch("/api/ops/queue")
+      const data = await res.json()
+      setQueue(data.queue || [])
+    } catch (e) {
+      console.error("Failed to fetch queue", e)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const selectQueueItem = async (id: string) => {
+    setSelectedId(id)
+    setDetail(null)
+    try {
+      const res = await fetch(`/api/ops/queue/${id}`)
+      const data = await res.json()
+      setDetail(data)
+      setPaymentTotal(String(data.wedding_profile.total_project_cost || 0))
+    } catch (e) {
+      console.error("Failed to fetch detail", e)
+    }
+  }
+
+  const assignConsultant = async (employeeId: string) => {
+    if (!selectedId) return
+    await fetch(`/api/ops/queue/${selectedId}/assign`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ employee_id: employeeId || null }),
+    })
+    if (detail) {
+      setDetail({ ...detail, queue: { ...detail.queue, assigned_to: employeeId || null } })
+    }
+    fetchQueue()
+  }
+
+  const updatePayment = async (status: string) => {
+    if (!selectedId) return
+    const res = await fetch(`/api/ops/queue/${selectedId}/payment`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        payment_status: status,
+        total_cost: paymentTotal ? Number(paymentTotal) : undefined,
+      }),
+    })
+    const data = await res.json()
+    if (data.success && detail) {
+      setDetail({
+        ...detail,
+        wedding_profile: { ...detail.wedding_profile, payment_status: data.payment_status },
+      })
+      fetchQueue()
+    }
+  }
+
+  const updateFeature = async (key: string, status: string) => {
+    if (!selectedId) return
+    await fetch(`/api/ops/queue/${selectedId}/feature/${key}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    })
+    if (detail) {
+      setDetail({
+        ...detail,
+        feature_actions: detail.feature_actions.map((f) =>
+          f.feature_key === key ? { ...f, status, updated_at: new Date().toISOString() } : f
+        ),
+      })
+      fetchQueue()
+    }
+  }
+
+  const completeAll = async () => {
+    if (!selectedId) return
+    await fetch(`/api/ops/queue/${selectedId}/complete-all`, { method: "PUT" })
+    if (detail) {
+      setDetail({
+        ...detail,
+        feature_actions: detail.feature_actions.map((f) => ({
+          ...f,
+          status: "selesai",
+          updated_at: new Date().toISOString(),
+        })),
+      })
+      fetchQueue()
+    }
+  }
+
+  const filteredQueue = queue.filter((item) => {
+    if (!search) return true
+    const q = search.toLowerCase()
+    const name = `${item.wedding_profile.bride_name} ${item.wedding_profile.groom_name}`.toLowerCase()
+    return name.includes(q)
+  })
+
+  function SlaTimer({ startedAt }: { startedAt: string }) {
+    const [elapsed, setElapsed] = useState("")
+    useEffect(() => {
+      const tick = () => {
+        const diff = Date.now() - new Date(startedAt).getTime()
+        if (diff < 0) { setElapsed("00:00:00"); return }
+        const h = Math.floor(diff / 3600000)
+        const m = Math.floor((diff % 3600000) / 60000)
+        const s = Math.floor((diff % 60000) / 1000)
+        setElapsed(
+          `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+        )
+      }
+      tick()
+      const interval = setInterval(tick, 1000)
+      return () => clearInterval(interval)
+    }, [startedAt])
+    return <span>{elapsed}</span>
+  }
+
+  if (!employee) return null
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-background font-body-md">
+        <div className="animate-spin material-symbols-outlined text-4xl text-primary">sync</div>
+      </div>
+    )
+  }
+
+  const currentWp = detail?.wedding_profile
+  const isSelected = selectedId && detail
+
+  return (
+    <>
+      <PageTheme mode="light" />
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f2ede4; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1c1c16; }
+        .animate-pulse { animation: pulse-fade 2s infinite; }
+        @keyframes pulse-fade {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 0.3; }
+        }
+      `}</style>
+
+      <div className="flex flex-col h-screen bg-background text-on-surface antialiased font-body-md">
+        {/* Fixed Header */}
+        <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 md:px-12 h-20 bg-background border-b border-outline-variant">
+          <div className="flex items-center gap-4">
+            <h1 className="font-display-lg text-headline-md tracking-widest text-primary uppercase">Aksaraa</h1>
+            <span className="text-xs font-label-md tracking-widest bg-primary text-white px-2 py-1 ml-2">CORE OPS</span>
+          </div>
+          <div className="flex items-center gap-8">
+            <nav className="hidden md:flex gap-10">
+              <a className="font-label-md text-label-md uppercase tracking-widest text-primary font-semibold border-b-2 border-primary">Antrian</a>
+              <a className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant transition-colors">Laporan</a>
+            </nav>
+            <div className="flex items-center gap-3">
+              <div className="text-right hidden sm:block">
+                <p className="font-label-md text-[10px] uppercase opacity-60">Petugas Aktif</p>
+                <p className="font-body-md font-semibold text-sm">{employee.name}</p>
+              </div>
+              <div className="w-10 h-10 bg-surface-container-highest border border-outline-variant flex items-center justify-center">
+                <span className="material-symbols-outlined">person</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content Layout */}
+        <main className="pt-20 flex flex-1 overflow-hidden">
+          {/* LEFT PANEL - ANTRIAN */}
+          <aside className="w-80 md:w-96 flex-shrink-0 border-r border-outline-variant bg-surface-container-low flex flex-col">
+            <div className="p-6 border-b border-outline-variant">
+              <h2 className="font-headline-md text-2xl mb-4 text-primary">Antrian Tindakan Aktif</h2>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Cari nama pengantin..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full bg-white border border-outline-variant px-4 py-3 text-sm focus:ring-0 focus:border-primary outline-none transition-all font-body-md"
+                />
+                <span className="material-symbols-outlined absolute right-3 top-3 opacity-40">search</span>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              {filteredQueue.length === 0 && (
+                <div className="p-12 text-center opacity-30 italic font-body-md text-sm">
+                  Tidak ada antrian
+                </div>
+              )}
+              {filteredQueue.map((item) => {
+                const wp = item.wedding_profile
+                const name = `${wp.bride_name} & ${wp.groom_name}`
+                const isActive = selectedId === item.id
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => selectQueueItem(item.id)}
+                    className={`p-6 border-b border-outline-variant transition-all cursor-pointer hover:bg-surface ${
+                      isActive ? "bg-white border-l-4 border-secondary" : "border-l-4 border-transparent opacity-80 hover:opacity-100"
+                    }`}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-display-lg text-xl">{name}</h3>
+                      <span className={`font-mono text-sm font-bold ${isActive ? "text-secondary" : "text-on-surface-variant"}`}>
+                        <SlaTimer startedAt={item.sla_started_at} />
+                      </span>
+                    </div>
+                    <div className="space-y-1 opacity-70">
+                      <div className="flex items-center gap-2 text-xs uppercase tracking-wider font-label-md">
+                        <span className="material-symbols-outlined text-sm">call</span>
+                        {wp.whatsapp_number}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs uppercase tracking-wider font-label-md">
+                        <span className="material-symbols-outlined text-sm">calendar_today</span>
+                        {formatDate(wp.estimated_wedding_date)} &bull; {wp.estimated_guest_count} Tamu
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </aside>
+
+          {/* RIGHT PANEL - DETAIL */}
+          <section className="flex-1 overflow-y-auto custom-scrollbar bg-background p-8 md:p-12">
+            {!isSelected ? (
+              <div className="h-full flex items-center justify-center">
+                <div className="text-center opacity-30">
+                  <span className="material-symbols-outlined text-6xl mb-4">chevron_left</span>
+                  <p className="font-body-md italic">Pilih antrian dari panel kiri</p>
+                </div>
+              </div>
+            ) : detail && currentWp ? (
+              <>
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b border-outline-variant pb-8">
+                  <div>
+                    <span className="font-label-md text-xs uppercase tracking-[0.2em] text-secondary mb-2 block">
+                      Ruang Kerja Klien
+                    </span>
+                    <h2 className="font-display-lg text-5xl">{currentWp.bride_name} &amp; {currentWp.groom_name}</h2>
+                    <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 font-body-md text-sm text-on-surface-variant">
+                      <div className="flex items-center gap-2">
+                        <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">Tanggal:</span>
+                        <span className="font-bold text-primary">{formatDate(currentWp.estimated_wedding_date)}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">Estimasi:</span>
+                        <span className="font-bold text-primary">{currentWp.estimated_guest_count} Tamu</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">Paket:</span>
+                        <span className="font-bold text-primary">{PACKAGE_LABELS[currentWp.package_type] || currentWp.package_type}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">Estimasi Biaya:</span>
+                        <span className="font-bold text-primary">{formatCurrency(currentWp.total_project_cost)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-4 items-center">
+                    <div className="flex flex-col">
+                      <label className="font-label-md text-[10px] uppercase tracking-widest mb-1">Petugas Konsultan</label>
+                      <select
+                        value={detail.queue.assigned_to || ""}
+                        onChange={(e) => assignConsultant(e.target.value)}
+                        className="bg-surface-container border border-outline-variant text-sm py-2 px-4 focus:ring-0 focus:border-primary font-body-md"
+                      >
+                        <option value="">— Pilih —</option>
+                        {detail.employees.map((emp) => (
+                          <option key={emp.id} value={emp.id}>{emp.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="bg-secondary-container text-on-secondary-container px-6 py-4 border border-secondary flex flex-col items-center justify-center">
+                      <span className="font-label-md text-[10px] uppercase tracking-widest opacity-80">Status SLA Aktif</span>
+                      <span className="font-mono text-xl font-bold">
+                        <SlaTimer startedAt={detail.queue.sla_started_at} />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Financial Panel */}
+                <section className="mb-16 border border-primary p-8 bg-surface-container-low relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-2 opacity-5 pointer-events-none">
+                    <span className="material-symbols-outlined text-[120px]">account_balance_wallet</span>
+                  </div>
+                  <h3 className="font-headline-md text-xl mb-6 flex items-center gap-3">
+                    <span className="material-symbols-outlined">payments</span>
+                    Pusat Hitung Manual &amp; Validasi Keuangan
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+                    <div>
+                      <label className="font-label-md text-xs uppercase tracking-widest mb-3 block">
+                        Total Biaya Rekalkulasi Proyek (IDR)
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold opacity-40">Rp</span>
+                        <input
+                          type="number"
+                          value={paymentTotal}
+                          onChange={(e) => setPaymentTotal(e.target.value)}
+                          className="w-full pl-12 pr-4 py-4 text-2xl font-body-md border-b-2 border-primary bg-transparent focus:ring-0 focus:border-secondary outline-none transition-all"
+                        />
+                      </div>
+                      <p className="mt-3 text-xs opacity-50 font-body-md italic">
+                        *Pastikan angka sudah termasuk pajak dan biaya layanan tambahan.
+                      </p>
+                    </div>
+                    <div className="space-y-4">
+                      <label className="font-label-md text-xs uppercase tracking-widest block">Status Pembayaran</label>
+                      <div className="flex flex-wrap gap-3">
+                        {(["UNPAID", "PARTIAL_DP", "FULLY_PAID"] as const).map((st) => {
+                          const isActive = currentWp.payment_status === st
+                          return (
+                            <button
+                              key={st}
+                              onClick={() => updatePayment(st)}
+                              className={`px-6 py-3 text-xs font-label-md uppercase tracking-widest transition-all ${
+                                isActive
+                                  ? "border border-secondary bg-secondary-container text-on-secondary-container"
+                                  : "border border-outline-variant opacity-40 hover:opacity-100"
+                              }`}
+                            >
+                              {PAYMENT_LABELS[st]}
+                            </button>
+                          )
+                        })}
+                      </div>
+                      <div className="mt-4 p-4 bg-white border border-outline-variant text-sm font-body-md flex items-center gap-3">
+                        <span className="material-symbols-outlined text-secondary">info</span>
+                        Status: <strong>{PAYMENT_LABELS[currentWp.payment_status]}</strong>
+                        &nbsp;&bull;&nbsp; QR Tamu: {detail.guest_stats.with_token}/{detail.guest_stats.total}
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Feature Cards */}
+                <div className="mb-12 flex justify-between items-center">
+                  <h3 className="font-headline-md text-2xl">Fitur Pernikahan</h3>
+                  <div className="flex gap-2">
+                    <button className="w-10 h-10 border border-outline-variant flex items-center justify-center hover:bg-surface-container-highest transition-colors">
+                      <span className="material-symbols-outlined">grid_view</span>
+                    </button>
+                    <button className="w-10 h-10 border border-outline-variant flex items-center justify-center hover:bg-surface-container-highest transition-colors opacity-40">
+                      <span className="material-symbols-outlined">view_list</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 mb-16">
+                  {detail.feature_actions.length === 0 && (
+                    <div className="col-span-full text-center opacity-30 italic font-body-md text-sm py-12">
+                      Tidak ada fitur untuk paket ini
+                    </div>
+                  )}
+                  {detail.feature_actions.map((fa) => {
+                    const isSelesai = fa.status === "selesai"
+                    const isButuh = fa.status === "butuh_tindakan"
+                    const statusBadgeClass = isButuh
+                      ? "bg-error-container text-on-error-container"
+                      : isSelesai
+                      ? "bg-tertiary-container text-on-tertiary-container"
+                      : "bg-surface-container-highest text-on-surface-variant"
+                    const statusLabel = fa.status === "butuh_tindakan"
+                      ? "Butuh Tindakan"
+                      : fa.status === "selesai"
+                      ? "Selesai"
+                      : "Aktif"
+                    const waUrl = currentWp.whatsapp_number
+                      ? `https://wa.me/${currentWp.whatsapp_number.replace(/[^0-9]/g, "")}?text=Halo%20${encodeURIComponent(currentWp.bride_name)}%20%26%20${encodeURIComponent(currentWp.groom_name)}%2C%20saya%20dari%20Aksaraa%20CORE%20OPS%20terkait%20${encodeURIComponent(FEATURE_LABELS[fa.feature_key] || fa.feature_key)}`
+                      : "#"
+
+                    return (
+                      <div
+                        key={fa.id}
+                        className="bg-white border border-outline-variant p-6 flex flex-col justify-between hover:border-primary transition-colors group"
+                      >
+                        <div>
+                          <div className="flex justify-between items-start mb-4">
+                            <h4 className="font-display-lg text-lg">
+                              {FEATURE_LABELS[fa.feature_key] || fa.feature_key}
+                            </h4>
+                            <span className={`text-[10px] px-2 py-1 uppercase font-bold tracking-widest ${statusBadgeClass}`}>
+                              {statusLabel}
+                            </span>
+                          </div>
+
+                          {fa.client_note && (
+                            <p className="text-sm italic font-body-md opacity-60 mb-6 leading-relaxed">
+                              &ldquo;{fa.client_note}&rdquo;
+                            </p>
+                          )}
+
+                          {fa.image_url ? (
+                            <div className="mb-6 border border-outline-variant overflow-hidden bg-surface-container">
+                              <img
+                                src={fa.image_url}
+                                alt={`Gambar ${FEATURE_LABELS[fa.feature_key]}`}
+                                className="w-full h-32 object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <div className="mb-6 border border-dashed border-outline-variant h-32 flex items-center justify-center bg-surface-container-low">
+                              <span className="text-[10px] uppercase tracking-widest opacity-30 font-label-md">Tambah Gambar</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex gap-2">
+                          {isSelesai ? (
+                            <>
+                              <button
+                                disabled
+                                className="flex-1 py-3 border border-outline-variant text-[10px] font-bold uppercase tracking-widest opacity-40 cursor-not-allowed"
+                              >
+                                Hubungi WA
+                              </button>
+                              <button className="flex-1 py-3 bg-primary text-white text-[10px] font-bold uppercase tracking-widest cursor-default">
+                                Selesai
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <a
+                                href={waUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-1 py-3 border border-primary text-[10px] font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all text-center block"
+                              >
+                                Hubungi WA
+                              </a>
+                              <button
+                                onClick={() => updateFeature(fa.feature_key, "selesai")}
+                                className="flex-1 py-3 border border-outline-variant text-[10px] font-bold uppercase tracking-widest hover:border-primary transition-all"
+                              >
+                                Selesaikan
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Workspace Footer */}
+                <footer className="w-full py-12 flex flex-col md:flex-row justify-between items-center gap-8 border-t border-outline-variant">
+                  <div className="flex items-center gap-3 opacity-60">
+                    <span className="material-symbols-outlined animate-pulse text-secondary">sync</span>
+                    <p className="font-label-md text-xs uppercase tracking-widest">
+                      Sinkronisasi real-time database pengantin Aksara Studio
+                    </p>
+                  </div>
+                  <button
+                    onClick={completeAll}
+                    className="bg-primary text-white px-12 py-5 font-label-md text-sm uppercase tracking-[0.3em] hover:bg-secondary transition-all active:scale-95 shadow-xl"
+                  >
+                    Selesaikan Semua Fitur
+                  </button>
+                </footer>
+              </>
+            ) : null}
+          </section>
+        </main>
+      </div>
+    </>
+  )
+}

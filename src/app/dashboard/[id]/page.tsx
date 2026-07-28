@@ -31,12 +31,12 @@ type Profile = {
 
 const CARDS = [
   { key: "premium_web" as const, title: "Premium Web Invitation" },
-  { key: "unique_link_generator" as const, title: "Unique Link Generator" },
+  { key: "unique_link_generator" as const, title: "QR Code Tamu" },
   { key: "wish_wall" as const, title: "Virtual Wish Wall (Dinding Doa)" },
   { key: "undangan_fisik" as const, title: "Undangan Fisik Premium (Cetak)" },
-  { key: "wa_blast" as const, title: "WhatsApp Blast Resmi" },
+  { key: "wa_blast" as const, title: "Reminder Tamu VIP" },
   { key: "reservation_automation" as const, title: "RSVP Automation" },
-  { key: "qr_code_book" as const, title: "QR Code Guest Book & Absensi" },
+  { key: "qr_code_book" as const, title: "Guest Book & Absensi" },
   { key: "kolom_direct_transfer" as const, title: "Digital Angpao & E-Gift" },
   { key: "gift_marketplace" as const, title: "Aksara Gift Marketplace" },
 ]
@@ -60,20 +60,31 @@ function DashboardInner({ id }: { id: string }) {
   const [selections, setSelections] = useState<Selections | null>(null)
   const [guestCount, setGuestCount] = useState(0)
   const [tableCount, setTableCount] = useState(0)
+  const [templateName, setTemplateName] = useState("")
+  const [qrWithToken, setQrWithToken] = useState(0)
+  const [qrCheckedIn, setQrCheckedIn] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
   useEffect(() => {
-    fetch(`/api/dashboard/${id}`)
-      .then((r) => {
-        if (!r.ok) throw new Error("Dashboard tidak ditemukan")
-        return r.json()
-      })
-      .then((data) => {
-        setProfile(data.profile)
-        setSelections(data.selections)
-        setGuestCount(data.guest_count ?? data.profile.estimated_guest_count ?? 0)
-        setTableCount(data.table_count ?? 0)
+    Promise.all([
+      fetch(`/api/dashboard/${id}`),
+      fetch(`/api/dashboard/${id}/web-invitation`).then(r => r.ok ? r.json() : null),
+      fetch(`/api/dashboard/${id}/qr-guestbook`).then(r => r.ok ? r.json() : null),
+    ])
+      .then(([dashboardRes, invData, qrData]) => {
+        if (!dashboardRes.ok) throw new Error("Dashboard tidak ditemukan")
+        return dashboardRes.json().then((data) => {
+          setProfile(data.profile)
+          setSelections(data.selections)
+          setGuestCount(data.guest_count ?? data.profile.estimated_guest_count ?? 0)
+          setTableCount(data.table_count ?? 0)
+          if (invData?.template?.name) setTemplateName(invData.template.name)
+          if (qrData?.stats) {
+            setQrWithToken(qrData.stats.with_token)
+            setQrCheckedIn(qrData.stats.checked_in)
+          }
+        })
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
@@ -190,13 +201,27 @@ function DashboardInner({ id }: { id: string }) {
             activeCards.map((card, i) => (
               <div
                 key={card.key}
+                onClick={() => {
+                  const routes: Record<string, string> = {
+                    premium_web: `/dashboard/${id}/web-invitation`,
+                    unique_link_generator: `/dashboard/${id}/qr-guestbook`,
+                    qr_code_book: `/dashboard/${id}/qr-guestbook/live`,
+                  }
+                  const route = routes[card.key]
+                  if (route) router.push(route)
+                }}
                 className="hairline-divider py-10 group cursor-pointer hover:bg-surface-container-low transition-colors duration-300 flex justify-between items-center"
               >
                 <div className="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-8">
                   <span className="font-label-md text-label-md text-on-surface-variant">{String(i + 1).padStart(2, "0")}.</span>
                   <div>
                     <h4 className="font-headline-md text-headline-md text-2xl mb-2">{card.title}</h4>
-                    <p className="font-body-md text-secondary uppercase tracking-wider font-semibold">—</p>
+                    <p className="font-body-md text-secondary uppercase tracking-wider font-semibold">
+                      {card.key === "premium_web" && templateName ? templateName
+                        : card.key === "unique_link_generator" ? `${qrWithToken} QR Aktif`
+                        : card.key === "qr_code_book" ? `${qrCheckedIn} Tamu Sudah Hadir`
+                        : "—"}
+                    </p>
                   </div>
                 </div>
                 <span className="material-symbols-outlined group-hover:translate-x-2 transition-transform duration-300">chevron_right</span>

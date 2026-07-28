@@ -150,3 +150,56 @@ INSERT INTO package_matrix_rows (section_code, label, essential_value, essential
     ('limit', 'Kuota Foto', '15 Foto', 'default', '20 Foto', 'secondary', 'Unlimited', 'default', 1),
     ('limit', 'Masa Aktif', '2 Bulan', 'default', '6 Bulan', 'secondary', '12 Bulan', 'default', 2),
     ('limit', 'Batas Revisi', '2 Round', 'default', '3 Round', 'secondary', '5 Round', 'default', 3);
+
+-- =====================================================
+-- 8. Web Invitation Templates
+-- =====================================================
+CREATE TABLE IF NOT EXISTS web_templates (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(200) NOT NULL,
+    description TEXT,
+    preview_image_url TEXT,
+    demo_url TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    sort_order INTEGER DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO web_templates (code, name, description, preview_image_url, demo_url, sort_order) VALUES
+    ('parallax-sinematik', 'Parallax Sinematik', 'Tata letak gulir vertikal kontinu dengan transisi gambar paralaks dramatis dan fade-in teks yang elegan.', 'https://lh3.googleusercontent.com/aida-public/AB6AXuAZI0UVuf0E3q4oKByJNY9fsVdzmfQhLxE9PMmGhOvu2z0sjo9G7m9nFqz1nBm1lo4UKaC6VMP8CmZZD1P7n_0XZ1yPqO1mE02wzOhhpIg3VA-k_KEzGV9TW5ns9AjreSP0kal7WDLWMz7liPU1HrmNfVgzlmU7hUzRaMjptnN-dCzt5m_oi_DMfBt3JVNqMel8ZWjTNH5Ta15OHWJORPquuMFetQsYkxAKSNZ8hZvalK6ZS7Beh8s8', 'https://ayomarried.com/valdo-debora', 1),
+    ('editorial-modern', 'Editorial Modern', 'Desain editorial tipografi high-fashion dengan aksen monokrom bersih, tajuk serif besar, dan whitespace terstruktur.', 'https://lh3.googleusercontent.com/aida-public/AB6AXuCS4mFpWKZ0Z4PMV0O91judgZpPD_DCyfnmB7UoNBlkwkoY8OkTBIvyx0OonNVhdaGxfiaWxB5EI3zbMQl__ANqhTf_6HBbf2uhou3abYZi0odXyyZsYCzm_4Sn7EcHrmwlycROSPSHucLVopSVU8c8y-oSLhUqr9SAauFSEAzTxV3Q4vzAT4DyFPeju3jXUfAD9vaVyEXTomSs5eeeceqEJapXlAGAy0UWE-0GrZ1l2iO5mnyUGFLt', 'https://ayomarried.com/raja-tya', 2),
+    ('animasi-watercolor', 'Animasi Watercolor', 'Desain romantis dengan ilustrasi bunga pastel lembut yang mengapung dan berputar anggun saat pengguna menggulir.', 'https://lh3.googleusercontent.com/aida-public/AB6AXuAm6a6jW4mlyVUHnAfHdfXfivWDAQ1CQqriIHT_UTmfsT41uM8m9bKaF25WqGjNHGfwBTIy76IGGbWbw0uuW-F68NOWUmtD1qJWgzdOpouYNgWiXZv7HqZhqRC50YzEKEJThw_9VA9wWKTkei9O27xezyEMXpbCQdrWpOM6VQNtNzlIZhp2LhjLPPMoBRFqNaho-PRSYxJpzvXnHGHfnxFZcnK8xCg9i0fW9i5tuP1jTAfaK6Iu_y4p', 'https://ayomarried.com/reinhard-maici', 3),
+    ('heritage-dinamis', 'Heritage Dinamis', 'Representasi digital motif budaya, seperti garis Gorga atau Songket hasil render vektor yang mengembang secara interaktif.', 'https://lh3.googleusercontent.com/aida-public/AB6AXuAZhlkLMb7KgIeX0IJBgXEk9b9Uajk9GlBb3lpaG6Rn3f-zAv09FGBBpnX2iv5uNZHNEeWtOFLEQhUNNy8DhP6q1oauba17E9zmb3lARxWGLhtfhZ7zZI1ZtLtqcR2aT59fD1gebhhUz1EVi2uRCLH2X6etulVRG5RWcvOiFRe2xhWpgBpdEfM1KOtmxRp85jRsgrroVyddyYtGoHsuZ7C-3csGO_h9Qt4AIYWcPZrdAYo2WExYyVgq', 'https://ayomarried.com/james-enna', 4)
+ON CONFLICT (code) DO NOTHING;
+
+-- =====================================================
+-- 9. Music Tracks
+-- =====================================================
+CREATE TABLE IF NOT EXISTS web_tracks (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(200) NOT NULL,
+    artist VARCHAR(200),
+    mood_category VARCHAR(50) NOT NULL,
+    audio_url TEXT NOT NULL DEFAULT '',
+    is_active BOOLEAN DEFAULT TRUE,
+    sort_order INTEGER DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO web_tracks (title, artist, mood_category, audio_url, sort_order) VALUES
+    ('White Moment', 'Instrumental Modern', 'klasik-abad', 'https://drive.usercontent.google.com/download?id=1gyl4IppTKVm7jAldtHwvXWbQ8GO7jY20&export=download', 1),
+    ('Perfect', 'Instrumental Acoustic', 'klasik-abad', 'https://drive.usercontent.google.com/download?id=1B0PawYUvYMyRpx-lk9J593hzge5tcxCp&export=download', 2),
+    ('Women in White', 'Orchestra Minimalist', 'klasik-abad', 'https://drive.usercontent.google.com/download?id=1aluJd9AVsl7UL55gsXnRJpnZ6L6HEMH8&export=download', 3),
+    ('Can''t Help Falling in Love', 'Acoustic Cover', 'modern-romantis', '', 4),
+    ('Rewrite the Stars', 'Pop Instrumental', 'modern-romantis', '', 5),
+    ('Yang Terdalam', 'Peterpan', 'nusantara-heritage', '', 6),
+    ('Hasian', 'Original Song', 'nusantara-heritage', '', 7)
+ON CONFLICT DO NOTHING;
+
+-- =====================================================
+-- 10. Wedding Profile — add template & track selection
+-- =====================================================
+ALTER TABLE wedding_profiles
+    ADD COLUMN IF NOT EXISTS selected_template_id UUID REFERENCES web_templates(id),
+    ADD COLUMN IF NOT EXISTS selected_track_id UUID REFERENCES web_tracks(id);

@@ -1,8 +1,10 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 export default function Navigation() {
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
 
   const toggleMenu = () => {
@@ -92,7 +94,10 @@ export default function Navigation() {
           </nav>
 
           <div className="hidden md:block">
-            <button className="px-8 py-2.5 bg-on-surface text-background font-label-md text-label-md uppercase tracking-widest border border-on-surface hover:bg-secondary hover:border-secondary transition-all duration-500">
+            <button
+              onClick={() => router.push("/login")}
+              className="px-8 py-2.5 bg-on-surface text-background font-label-md text-label-md uppercase tracking-widest border border-on-surface hover:bg-secondary hover:border-secondary transition-all duration-500"
+            >
               Masuk
             </button>
           </div>
@@ -144,7 +149,10 @@ export default function Navigation() {
             </a>
           </nav>
           <div className="mt-auto flex flex-col gap-6 pb-12">
-            <button className="w-full py-5 bg-on-surface text-background font-label-md text-label-md uppercase tracking-widest">
+            <button
+              onClick={() => router.push("/login")}
+              className="w-full py-5 bg-on-surface text-background font-label-md text-label-md uppercase tracking-widest"
+            >
               Masuk
             </button>
             <div className="flex justify-center gap-6">

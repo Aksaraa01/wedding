@@ -45,7 +45,7 @@ export default function FeaturesSection() {
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6JvU3E1i7nY3fG6fUkWjfs-rVnrXu7a8Pd5-tN3mGj0dBAd2GaY-4VgqlJg74SOGmFyZD2ssWBvnvDhS8eLBm1PvLi0dHxyE2bWGwhdYeygfNjsNl25xqJJYeyyRLDKn_gX7UiWfUUEMsuhW-8Scbfy58lRjfpRMDJsnyS3rcYoovgJfhpgyYfFDBuOAT_JVFezW7VqhYjppOeYSDyFBJJvSK6YPU5J73e0RJVMuzbGluy5x0FLnw"
               />
             </div>
-            <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 z-20 bg-gradient-to-t from-on-surface/90 to-transparent text-white">
+            <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 z-20 bg-gradient-to-t from-black/80 via-black/30 to-transparent text-white">
               <span className="font-label-md text-label-md uppercase tracking-widest opacity-80 mb-2 block">
                 Experience
               </span>

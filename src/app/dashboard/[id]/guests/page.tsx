@@ -212,6 +212,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
     (g) =>
       !search ||
       g.name.toLowerCase().includes(search.toLowerCase()) ||
+      g.phone_number?.toLowerCase().includes(search.toLowerCase()) ||
       g.table_number?.toLowerCase().includes(search.toLowerCase())
   )
 
@@ -395,15 +396,12 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
               Unduh Templat
             </button>
           </div>
-          <div className="mt-2 text-center">
-            <span className="text-[10px] uppercase tracking-widest text-on-surface-variant opacity-60">(Nama Tamu, No. WhatsApp — nomor saja tanpa +62/0, Kategori, Meja)</span>
-          </div>
         </section>
 
         <section className="mb-3 flex justify-between items-end">
           <div>
             <h2 className="font-headline-md text-[20px] text-primary">
-              {loading ? "" : `${guests.length} Tamu Terverifikasi`}
+              {loading ? "" : <><span className="text-secondary">{guests.length}</span> Tamu Terverifikasi</>}
             </h2>
           </div>
         </section>
@@ -413,10 +411,10 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             <span className="material-symbols-outlined absolute left-4 text-on-surface-variant opacity-50 text-[20px]">search</span>
             <input
               type="text"
-              placeholder="Cari nama tamu atau nomor meja..."
+              placeholder="Cari Nama, No. HP atau Nomor Meja"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-surface-container-low border border-[#eae3d5] py-3 pl-12 pr-4 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary transition-colors"
+              className="w-full bg-surface-container-low border border-[#eae3d5] py-3 pl-12 pr-4 font-body-md text-body-md text-on-surface placeholder:text-[12px] placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary transition-colors"
             />
           </div>
         </div>
