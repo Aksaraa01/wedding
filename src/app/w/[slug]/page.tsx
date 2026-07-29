@@ -14,13 +14,24 @@ export default async function WeddingInvitation({
 
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id, bride_name, groom_name, estimated_wedding_date, selected_template_id, display_name, couple_illustration_url, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram")
+    .select("id, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, sessions, quote_text, quote_source, stories, gallery_photos")
     .eq("slug", slug)
     .single()
 
   if (!profile) notFound()
 
   const guestName = to || "Tamu Undangan"
+
+  const [giftAcctsRes, giftAddrRes, trackRes] = await Promise.all([
+    supabaseAdmin.from("gift_accounts").select("provider_name, account_number, account_name, type").eq("wedding_profile_id", profile.id).eq("is_active", true),
+    supabaseAdmin.from("gift_addresses").select("full_address").eq("wedding_profile_id", profile.id).eq("is_active", true).single(),
+    profile.selected_track_id
+      ? supabaseAdmin.from("web_tracks").select("audio_url").eq("id", profile.selected_track_id).single()
+      : Promise.resolve({ data: null }),
+  ])
+  const giftAccounts = giftAcctsRes.data?.filter(a => a.type === "bank" || a.type === "ewallet") || []
+  const giftAddress = giftAddrRes.data?.full_address || undefined
+  const trackUrl = trackRes.data?.audio_url || undefined
 
   // Resolve template code and render via registry
   let templateCode: string | null = null
@@ -52,6 +63,14 @@ export default async function WeddingInvitation({
         groom_parents={profile.groom_parents || undefined}
         bride_parents={profile.bride_parents || undefined}
         groom_instagram={profile.groom_instagram || undefined}
+        sessions={profile.sessions || undefined}
+        quote_text={profile.quote_text || undefined}
+        quote_source={profile.quote_source || undefined}
+        stories={profile.stories || undefined}
+        gallery_photos={profile.gallery_photos || undefined}
+        gift_accounts={giftAccounts.length > 0 ? giftAccounts : undefined}
+        gift_address={giftAddress}
+        track_url={trackUrl}
       />
     )
   }

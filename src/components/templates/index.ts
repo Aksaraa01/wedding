@@ -22,6 +22,28 @@ export interface TemplateProps {
   groom_parents?: string
   bride_parents?: string
   groom_instagram?: string
+  sessions?: {
+    name: string
+    date: string
+    time: string
+    timezone: string
+    venue: string
+    address: string
+    maps_url: string
+  }[]
+  quote_text?: string
+  quote_source?: string
+  stories?: {
+    year: string
+    title: string
+    description: string
+    image_url: string
+  }[]
+  gallery_photos?: string[]
+  gift_accounts?: { provider_name: string; account_number: string; account_name: string; type: string }[]
+  gift_address?: string
+  track_url?: string
+  auto_play?: boolean
 }
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {

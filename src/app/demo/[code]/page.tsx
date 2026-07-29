@@ -25,6 +25,27 @@ export default async function DemoPage({
       bride_photo_url="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face"
       groom_parents="Bapak Hendra & Ibu Sari"
       bride_parents="Bapak Wijaya & Ibu Dewi"
+      sessions={[
+        { name: "Akad Nikah", date: "2026-12-31", time: "08:00 - 10:00", timezone: "WIB", venue: "Masjid Ramlie Musyaddad", address: "Jl. Contoh No. 123", maps_url: "https://maps.google.com" },
+        { name: "Resepsi Pernikahan", date: "2026-12-31", time: "11:00 - 14:00", timezone: "WIB", venue: "Grand Ballroom", address: "Jl. Contoh No. 456", maps_url: "https://maps.google.com" },
+      ]}
+      quote_text="Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu isteri-isteri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya; dan dijadikan-Nya diantaramu rasa kasih dan sayang."
+      quote_source="QS. Ar-Rum: 21"
+      stories={[
+        { year: "2018", title: "Pertama Kali Bertemu", description: "Sebuah senyum di kedai kopi yang mengubah segalanya.", image_url: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=400&h=400&fit=crop" },
+        { year: "2024", title: "Pertanyaan Besar", description: "Di bawah langit senja, janji suci pun terucap.", image_url: "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&h=400&fit=crop" },
+      ]}
+      gallery_photos={[
+        "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&h=800&fit=crop",
+        "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=800&fit=crop",
+        "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=800&fit=crop",
+      ]}
+      gift_accounts={[
+        { provider_name: "BANK MANDIRI", account_number: "338001052747530", account_name: "TRIA AMANDA SARI", type: "bank" },
+        { provider_name: "SHOPEEPAY", account_number: "082361944259", account_name: "TRIA AMANDA SARI", type: "ewallet" },
+      ]}
+      gift_address="Jl. Contoh Alamat No. 123, Jakarta Selatan, DKI Jakarta 12345"
+      track_url="https://drive.usercontent.google.com/download?id=1gyl4IppTKVm7jAldtHwvXWbQ8GO7jY20&export=download"
     />
   )
 }

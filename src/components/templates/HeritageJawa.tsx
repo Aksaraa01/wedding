@@ -21,6 +21,15 @@ interface Props {
   groom_parents?: string
   bride_parents?: string
   groom_instagram?: string
+  sessions?: { name: string; date: string; time: string; timezone: string; venue: string; address: string; maps_url: string }[]
+  quote_text?: string
+  quote_source?: string
+  stories?: { year: string; title: string; description: string; image_url: string }[]
+  gallery_photos?: string[]
+  gift_accounts?: { provider_name: string; account_number: string; account_name: string; type: string }[]
+  gift_address?: string
+  track_url?: string
+  auto_play?: boolean
 }
 
 const IMG = {
@@ -140,17 +149,27 @@ export default function HeritageJawa({
   groom_photo_url, bride_photo_url,
   groom_parents, bride_parents,
   groom_instagram,
+  sessions,
+  quote_text,
+  quote_source,
+  stories,
+  gallery_photos,
+  gift_accounts,
+  gift_address,
+  track_url,
+  auto_play: autoPlayProp,
 }: Props) {
-  const countdown = useCountdown(estimated_wedding_date)
+  const eventDate = sessions?.[0]?.date || estimated_wedding_date
+  const countdown = useCountdown(eventDate)
   const [activeNav, setActiveNav] = useState("home")
   const [playing, setPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
 
-  const weddingDateFormatted = estimated_wedding_date
-    ? new Date(estimated_wedding_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
+  const weddingDateFormatted = eventDate
+    ? new Date(eventDate).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
     : ""
   const daysOfWeek = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
-  const dayName = estimated_wedding_date ? daysOfWeek[new Date(estimated_wedding_date).getDay()] : ""
+  const dayName = eventDate ? daysOfWeek[new Date(eventDate).getDay()] : ""
 
   const coupleDisplay = display_name || `${bride_name} & ${groom_name}`
   const groomDisplayName = groom_full_name || groom_name
@@ -172,6 +191,20 @@ export default function HeritageJawa({
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  useEffect(() => {
+    if (!audioRef.current || !track_url) return
+    audioRef.current.src = track_url
+    if (autoPlayProp) {
+      const play = () => {
+        audioRef.current?.play().catch(() => {})
+        document.removeEventListener("click", play)
+        document.removeEventListener("touchstart", play)
+      }
+      document.addEventListener("click", play, { once: true })
+      document.addEventListener("touchstart", play, { once: true })
+    }
+  }, [track_url, autoPlayProp])
 
   const toggleMusic = () => {
     if (!audioRef.current) return
@@ -260,9 +293,11 @@ export default function HeritageJawa({
             <div className="flex flex-col items-center">
               <Gunungan className="w-16 h-auto mb-6" style={{ color: "#C1A05Ecc", opacity: 0.8 }} />
               <p className="font-['EB_Garamond'] text-[18px] italic leading-relaxed max-w-sm mx-auto px-4" style={{ color: "#472A1Ce6" }}>
-                &ldquo;Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang.&rdquo;
+                &ldquo;{quote_text || "Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang."}&rdquo;
               </p>
-              <p className="text-[12px] tracking-[0.1em] font-bold mt-6" style={{ color: "#C1A05E", fontWeight: 700 }}>- QS. Ar-Rum : 21 -</p>
+              {quote_source && (
+                <p className="text-[12px] tracking-[0.1em] font-bold mt-6" style={{ color: "#C1A05E", fontWeight: 700 }}>- {quote_source} -</p>
+              )}
               <div className="w-16 h-px mt-8" style={{ backgroundColor: "#C1A05E55" }} />
             </div>
           </section>
@@ -351,48 +386,85 @@ export default function HeritageJawa({
               ))}
             </div>
             <div className="space-y-10 relative z-10">
-              {/* Akad */}
-              <div className="bg-[#F9F6F0] p-8 rounded-3xl border shadow-xl relative overflow-hidden group" style={{ borderColor: "#C1A05E33" }}>
-                <div className="absolute -right-16 -top-16 opacity-10 transition-transform group-hover:scale-110 duration-700">
-                  <Motif className="w-48" style={{ color: "#C1A05E" }} />
-                </div>
-                <span className="text-[12px] tracking-widest block mb-4 pb-2 border-b font-semibold" style={{ color: "#C1A05E", borderColor: "#C1A05E1a" }}>AKAD NIKAH</span>
-                <h4 className="font-['EB_Garamond'] text-[24px] mb-2" style={{ color: "#472A1C", fontWeight: 500 }}>{dayName}, {weddingDateFormatted}</h4>
-                <p className="text-[16px] mb-6 italic leading-relaxed" style={{ color: "#50443f" }}>Pukul 09:00 WIB - Selesai</p>
-                <div className="space-y-1 mb-8">
-                  <p className="text-[16px] font-bold" style={{ color: "#472A1C" }}>Lokasi</p>
-                  <p className="text-[16px] text-sm leading-relaxed" style={{ color: "#50443f" }}>Jl. Blok 1 Dusun 1 Desa Wonosari<br/>Kecamatan Tanjung Morawa</p>
-                </div>
-                <a href="https://maps.app.goo.gl/JxDdCyvpvjbsQenAA" target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-[12px] tracking-[0.1em] shadow-lg transition-all font-semibold"
-                  style={{ backgroundColor: "#472A1C", color: "#F9F6F0" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#C1A05E" }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#472A1C" }}>
-                  <span className="material-symbols-outlined text-[18px]">location_on</span>
-                  LIHAT LOKASI
-                </a>
-              </div>
-              {/* Resepsi */}
-              <div className="bg-[#F9F6F0] p-8 rounded-3xl border shadow-xl relative overflow-hidden group" style={{ borderColor: "#C1A05E33" }}>
-                <div className="absolute -left-16 -bottom-16 opacity-10 transition-transform group-hover:scale-110 duration-700">
-                  <Motif className="w-48 rotate-180" style={{ color: "#C1A05E" }} />
-                </div>
-                <span className="text-[12px] tracking-widest block mb-4 pb-2 border-b font-semibold" style={{ color: "#C1A05E", borderColor: "#C1A05E1a" }}>RESEPSI</span>
-                <h4 className="font-['EB_Garamond'] text-[24px] mb-2" style={{ color: "#472A1C", fontWeight: 500 }}>{dayName}, {weddingDateFormatted}</h4>
-                <p className="text-[16px] mb-6 italic leading-relaxed" style={{ color: "#50443f" }}>Pukul 11:00 WIB - Selesai</p>
-                <div className="space-y-1 mb-8">
-                  <p className="text-[16px] font-bold" style={{ color: "#472A1C" }}>Lokasi</p>
-                  <p className="text-[16px] text-sm leading-relaxed" style={{ color: "#50443f" }}>Jl. Blok 1 Dusun 1 Desa Wonoasari<br/>Kecamatan Tanjung Morawa</p>
-                </div>
-                <a href="https://maps.app.goo.gl/JxDdCyvpvjbsQenAA" target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-[12px] tracking-[0.1em] shadow-lg transition-all font-semibold"
-                  style={{ backgroundColor: "#472A1C", color: "#F9F6F0" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#C1A05E" }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#472A1C" }}>
-                  <span className="material-symbols-outlined text-[18px]">location_on</span>
-                  LIHAT LOKASI
-                </a>
-              </div>
+              {sessions && sessions.length > 0 ? sessions.map((session, i) => {
+                const sessionDate = session.date
+                  ? new Date(session.date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
+                  : ""
+                const sessionDay = session.date
+                  ? daysOfWeek[new Date(session.date).getDay()]
+                  : ""
+                return (
+                  <div key={i} className="bg-[#F9F6F0] p-8 rounded-3xl border shadow-xl relative overflow-hidden group" style={{ borderColor: "#C1A05E33" }}>
+                    <div className={`absolute ${i % 2 === 0 ? '-right-16 -top-16' : '-left-16 -bottom-16'} opacity-10 transition-transform group-hover:scale-110 duration-700`}>
+                      <Motif className={`w-48 ${i % 2 === 1 ? 'rotate-180' : ''}`} style={{ color: "#C1A05E" }} />
+                    </div>
+                    <span className="text-[12px] tracking-widest block mb-4 pb-2 border-b font-semibold" style={{ color: "#C1A05E", borderColor: "#C1A05E1a" }}>{session.name.toUpperCase()}</span>
+                    <h4 className="font-['EB_Garamond'] text-[24px] mb-2" style={{ color: "#472A1C", fontWeight: 500 }}>{sessionDay ? `${sessionDay}, ${sessionDate}` : weddingDateFormatted ? `${dayName}, ${weddingDateFormatted}` : ""}</h4>
+                    <p className="text-[16px] mb-6 italic leading-relaxed" style={{ color: "#50443f" }}>{session.time ? `Pukul ${session.time} ${session.timezone || ''}` : ''}</p>
+                    <div className="space-y-1 mb-8">
+                      <p className="text-[16px] font-bold" style={{ color: "#472A1C" }}>Lokasi</p>
+                      <p className="text-[16px] text-sm leading-relaxed" style={{ color: "#50443f" }}>
+                        {session.venue}{session.venue && session.address ? <br /> : null}{session.address}
+                      </p>
+                    </div>
+                    {session.maps_url ? (
+                      <a href={session.maps_url} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-[12px] tracking-[0.1em] shadow-lg transition-all font-semibold"
+                        style={{ backgroundColor: "#472A1C", color: "#F9F6F0" }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#C1A05E" }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#472A1C" }}>
+                        <span className="material-symbols-outlined text-[18px]">location_on</span>
+                        LIHAT LOKASI
+                      </a>
+                    ) : null}
+                  </div>
+                )
+              }) : (
+                <>
+                  {/* Akad fallback */}
+                  <div className="bg-[#F9F6F0] p-8 rounded-3xl border shadow-xl relative overflow-hidden group" style={{ borderColor: "#C1A05E33" }}>
+                    <div className="absolute -right-16 -top-16 opacity-10 transition-transform group-hover:scale-110 duration-700">
+                      <Motif className="w-48" style={{ color: "#C1A05E" }} />
+                    </div>
+                    <span className="text-[12px] tracking-widest block mb-4 pb-2 border-b font-semibold" style={{ color: "#C1A05E", borderColor: "#C1A05E1a" }}>AKAD NIKAH</span>
+                    <h4 className="font-['EB_Garamond'] text-[24px] mb-2" style={{ color: "#472A1C", fontWeight: 500 }}>{dayName}, {weddingDateFormatted}</h4>
+                    <p className="text-[16px] mb-6 italic leading-relaxed" style={{ color: "#50443f" }}>Pukul 08:00 WIB - Selesai</p>
+                    <div className="space-y-1 mb-8">
+                      <p className="text-[16px] font-bold" style={{ color: "#472A1C" }}>Lokasi</p>
+                      <p className="text-[16px] text-sm leading-relaxed" style={{ color: "#50443f" }}>Jl. Blok 1 Dusun 1 Desa Wonosari<br/>Kecamatan Tanjung Morawa</p>
+                    </div>
+                    <a href="https://maps.app.goo.gl/JxDdCyvpvjbsQenAA" target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-[12px] tracking-[0.1em] shadow-lg transition-all font-semibold"
+                      style={{ backgroundColor: "#472A1C", color: "#F9F6F0" }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#C1A05E" }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#472A1C" }}>
+                      <span className="material-symbols-outlined text-[18px]">location_on</span>
+                      LIHAT LOKASI
+                    </a>
+                  </div>
+                  {/* Resepsi fallback */}
+                  <div className="bg-[#F9F6F0] p-8 rounded-3xl border shadow-xl relative overflow-hidden group" style={{ borderColor: "#C1A05E33" }}>
+                    <div className="absolute -left-16 -bottom-16 opacity-10 transition-transform group-hover:scale-110 duration-700">
+                      <Motif className="w-48 rotate-180" style={{ color: "#C1A05E" }} />
+                    </div>
+                    <span className="text-[12px] tracking-widest block mb-4 pb-2 border-b font-semibold" style={{ color: "#C1A05E", borderColor: "#C1A05E1a" }}>RESEPSI</span>
+                    <h4 className="font-['EB_Garamond'] text-[24px] mb-2" style={{ color: "#472A1C", fontWeight: 500 }}>{dayName}, {weddingDateFormatted}</h4>
+                    <p className="text-[16px] mb-6 italic leading-relaxed" style={{ color: "#50443f" }}>Pukul 11:00 WIB - Selesai</p>
+                    <div className="space-y-1 mb-8">
+                      <p className="text-[16px] font-bold" style={{ color: "#472A1C" }}>Lokasi</p>
+                      <p className="text-[16px] text-sm leading-relaxed" style={{ color: "#50443f" }}>Jl. Blok 1 Dusun 1 Desa Wonoasari<br/>Kecamatan Tanjung Morawa</p>
+                    </div>
+                    <a href="https://maps.app.goo.gl/JxDdCyvpvjbsQenAA" target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-[12px] tracking-[0.1em] shadow-lg transition-all font-semibold"
+                      style={{ backgroundColor: "#472A1C", color: "#F9F6F0" }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#C1A05E" }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#472A1C" }}>
+                      <span className="material-symbols-outlined text-[18px]">location_on</span>
+                      LIHAT LOKASI
+                    </a>
+                  </div>
+                </>
+              )}
             </div>
           </section>
 
@@ -408,7 +480,7 @@ export default function HeritageJawa({
               </div>
             </div>
             <div className="relative border-l-2 ml-4 space-y-12" style={{ borderColor: "#C1A05E33" }}>
-              {STORY_DATA.map((s, i) => (
+              {(stories && stories.length > 0 ? stories : STORY_DATA).map((s: any, i: number) => (
                 <div key={i} className="relative pl-10">
                   <div className="absolute -left-[11px] top-0 w-5 h-5 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F9F6F0", borderColor: "#C1A05E", borderWidth: 2 }}>
                     <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "#C1A05E" }} />
@@ -417,11 +489,11 @@ export default function HeritageJawa({
                     <span className="text-[12px] tracking-widest mb-2 block font-bold" style={{ color: "#C1A05E" }}>{s.year}</span>
                     <div className="mb-4 flex justify-center">
                       <div className="w-40 h-40 rounded-full overflow-hidden border-2 shadow-lg relative" style={{ borderColor: "#C1A05E55" }}>
-                        <img alt={s.title} className="w-full h-full object-cover" src={IMG.story[i]} />
+                        <img alt={s.title} className="w-full h-full object-cover" src={s.image_url || IMG.story[i] || IMG.story[0]} />
                       </div>
                     </div>
                     <h5 className="font-['EB_Garamond'] text-lg mb-3" style={{ color: "#472A1C" }}>{s.title}</h5>
-                    <p className="text-[16px] text-sm leading-relaxed" style={{ color: "#50443f" }}>{s.desc}</p>
+                    <p className="text-[16px] text-sm leading-relaxed" style={{ color: "#50443f" }}>{s.description || s.desc}</p>
                   </div>
                 </div>
               ))}
@@ -437,16 +509,16 @@ export default function HeritageJawa({
             </div>
             <div className="relative w-full">
               <div className="flex overflow-x-auto snap-x snap-mandatory hj-no-scrollbar gap-4 px-6 pb-8">
-                {IMG.gallery.map((url, i) => (
+                {(gallery_photos && gallery_photos.length > 0 ? gallery_photos : IMG.gallery).map((url: string, i: number) => (
                   <div key={i} className="snap-center shrink-0 w-4/5 aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl border-4 relative group" style={{ borderColor: "rgba(255,255,255,0.5)" }}>
                     <img alt={`Gallery Image ${i + 1}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={url} />
                   </div>
                 ))}
               </div>
               <div className="flex justify-center gap-2 mt-4">
-                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "#472A1C99" }} />
-                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "#C1A05E55" }} />
-                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "#C1A05E55" }} />
+                {(gallery_photos && gallery_photos.length > 0 ? gallery_photos : IMG.gallery).map((_: any, i: number) => (
+                  <div key={i} className={`w-1.5 h-1.5 rounded-full ${i === 0 ? "" : ""}`} style={{ backgroundColor: i === 0 ? "#472A1C99" : "#C1A05E55" }} />
+                ))}
               </div>
             </div>
           </section>
@@ -459,9 +531,43 @@ export default function HeritageJawa({
               Doa restu Anda adalah karunia terindah bagi kami. Namun jika Anda ingin memberi tanda kasih, kami menyediakan:
             </p>
             <div className="space-y-8 relative z-10">
-              <GiftCard label="BANK MANDIRI" name="A/N TRIA AMANDA SARI" number="338001052747530" bg="#472A1C" accent="#C1A05E" dark="#472A1C" />
-              <GiftCard label="SHOPEEPAY" name="A/N TRIA AMANDA SARI" number="082361944259" bg="#C1A05E" accent="#C1A05E" dark="#472A1C" />
+              {gift_accounts && gift_accounts.length > 0 ? gift_accounts.map((acc, i) => (
+                <GiftCard
+                  key={i}
+                  label={acc.provider_name?.toUpperCase() || (acc.type === "ewallet" ? "E-WALLET" : "BANK")}
+                  name={`A/N ${acc.account_name?.toUpperCase() || ""}`}
+                  number={acc.account_number || ""}
+                  bg="#472A1C"
+                  accent="#C1A05E"
+                  dark="#472A1C"
+                />
+              )) : (
+                <>
+                  <GiftCard label="BANK MANDIRI" name="A/N TRIA AMANDA SARI" number="338001052747530" bg="#472A1C" accent="#C1A05E" dark="#472A1C" />
+                  <GiftCard label="SHOPEEPAY" name="A/N TRIA AMANDA SARI" number="082361944259" bg="#C1A05E" accent="#C1A05E" dark="#472A1C" />
+                </>
+              )}
             </div>
+            {gift_address && (
+              <div className="mt-8 relative z-10">
+                <button
+                  onClick={() => {
+                    const el = document.getElementById("gift-address")
+                    if (el) el.classList.toggle("hidden")
+                  }}
+                  className="bg-white border-2 px-6 py-2.5 rounded-full text-[11px] text-[#472A1C] hover:text-white transition-all"
+                  style={{ borderColor: "#C1A05E" }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#C1A05E"; (e.currentTarget as HTMLElement).style.color = '#ffffff' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'white'; (e.currentTarget as HTMLElement).style.color = '#472A1C' }}
+                >
+                  <span className="material-symbols-outlined text-[16px] align-middle mr-1">local_shipping</span>
+                  LIHAT ALAMAT PENGIRIMAN
+                </button>
+                <div id="gift-address" className="hidden mt-4 p-6 rounded-2xl border text-left" style={{ backgroundColor: "rgba(255,255,255,0.6)", borderColor: "#C1A05E33" }}>
+                  <p className="font-['EB_Garamond'] text-lg whitespace-pre-line" style={{ color: "#472A1C" }}>{gift_address}</p>
+                </div>
+              </div>
+            )}
           </section>
 
           {/* WISHES & RSVP */}
