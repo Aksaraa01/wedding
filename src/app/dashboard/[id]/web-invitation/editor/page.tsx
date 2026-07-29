@@ -72,10 +72,9 @@ function EditorInner({ id }: { id: string }) {
         setProfile(res.profile)
         setTemplate(res.template)
         const p = res.profile
-        const display = p.bride_name && p.groom_name ? `${p.bride_name} & ${p.groom_name}` : ""
         setData({
           ...p,
-          display_name: display,
+          display_name: p.display_name || (p.bride_name && p.groom_name ? `${p.bride_name} & ${p.groom_name}` : ""),
         })
       })
   }, [id])
