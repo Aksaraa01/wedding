@@ -10,7 +10,7 @@ export async function GET(
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("id, bride_name, groom_name, slug, selected_template_id, selected_track_id")
+      .select("id, bride_name, groom_name, slug, selected_template_id, selected_track_id, couple_illustration_url, grayscale, is_published, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, estimated_wedding_date")
       .eq("id", id)
       .single()
 
@@ -44,6 +44,17 @@ export async function GET(
         bride_name: profile.bride_name,
         groom_name: profile.groom_name,
         slug: profile.slug,
+        couple_illustration_url: profile.couple_illustration_url,
+        grayscale: profile.grayscale,
+        is_published: profile.is_published,
+        groom_full_name: profile.groom_full_name,
+        bride_full_name: profile.bride_full_name,
+        groom_photo_url: profile.groom_photo_url,
+        bride_photo_url: profile.bride_photo_url,
+        groom_parents: profile.groom_parents,
+        bride_parents: profile.bride_parents,
+        groom_instagram: profile.groom_instagram,
+        estimated_wedding_date: profile.estimated_wedding_date,
         invitation_url: `https://${profile.slug}.aksaraa.com`,
       },
       template,
@@ -61,11 +72,18 @@ export async function PUT(
   try {
     const { id } = await params
     const body = await req.json()
-    const { selected_template_id, selected_track_id } = body
+    const allowed = [
+      "selected_template_id", "selected_track_id",
+      "couple_illustration_url", "grayscale", "is_published",
+      "groom_full_name", "bride_full_name",
+      "groom_photo_url", "bride_photo_url",
+      "groom_parents", "bride_parents", "groom_instagram",
+    ]
 
-    const updates: Record<string, string | null> = {}
-    if (selected_template_id !== undefined) updates.selected_template_id = selected_template_id
-    if (selected_track_id !== undefined) updates.selected_track_id = selected_track_id
+    const updates: Record<string, any> = {}
+    for (const key of allowed) {
+      if (body[key] !== undefined) updates[key] = body[key]
+    }
 
     const { error } = await supabaseAdmin
       .from("wedding_profiles")

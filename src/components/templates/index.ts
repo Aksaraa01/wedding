@@ -12,6 +12,15 @@ export interface TemplateProps {
   estimated_wedding_date: string
   slug: string
   guest_name: string
+  couple_illustration_url?: string
+  grayscale?: boolean
+  groom_full_name?: string
+  bride_full_name?: string
+  groom_photo_url?: string
+  bride_photo_url?: string
+  groom_parents?: string
+  bride_parents?: string
+  groom_instagram?: string
 }
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
