@@ -59,6 +59,7 @@ function EditorInner({ id }: { id: string }) {
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error">("saved")
   const [guestPreview, setGuestPreview] = useState("")
   const [activeSection, setActiveSection] = useState<string>("sampul")
+  const [showMobilePreview, setShowMobilePreview] = useState(false)
   const saveTimer = useRef<ReturnType<typeof setTimeout>>(null)
 
   const coverFileRef = useRef<HTMLInputElement>(null)
@@ -418,11 +419,11 @@ function EditorInner({ id }: { id: string }) {
               GANTI TEMA
             </button>
 
-            {/* Konfirmasi */}
+            {/* Konfirmasi — desktop only */}
             <button
               onClick={handlePublish}
               disabled={isPublished}
-              className={`px-8 py-3 font-label-md text-label-md transition-all active:scale-95 ${
+              className={`hidden md:flex px-8 py-3 font-label-md text-label-md transition-all active:scale-95 ${
                 isPublished
                   ? "bg-surface-container-high text-on-surface-variant cursor-default border border-outline-variant"
                   : "bg-secondary text-on-secondary hover:opacity-90 border border-secondary"
@@ -442,6 +443,59 @@ function EditorInner({ id }: { id: string }) {
             </div>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4">
+              {/* Mobile preview toggle */}
+              {showMobilePreview ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="iphone-frame w-[390px] h-[780px] bg-white overflow-hidden relative shadow-2xl scale-[0.72] origin-top">
+                    <div className="absolute top-0 inset-x-0 h-10 px-8 flex justify-between items-end pb-1 z-[100] text-black pointer-events-none">
+                      <span className="text-[12px] font-bold">9:41</span>
+                      <div className="flex gap-1 items-center">
+                        <span className="material-symbols-outlined text-[14px]">signal_cellular_4_bar</span>
+                        <span className="material-symbols-outlined text-[14px]">wifi</span>
+                        <span className="material-symbols-outlined text-[14px]">battery_full</span>
+                      </div>
+                    </div>
+                    <div className="absolute top-3 left-1/2 -translate-x-1/2 w-28 h-7 bg-tertiary rounded-full z-[101]" />
+                    <div className="h-full w-full overflow-y-auto custom-scrollbar">
+                      {(() => {
+                        const LiveComp = template?.code ? getTemplateComponent(template.code) : null
+                        return LiveComp ? (
+                          <LiveComp
+                            bride_name={data.bride_name || ""}
+                            groom_name={data.groom_name || ""}
+                            estimated_wedding_date={data.estimated_wedding_date || ""}
+                            slug={data.slug || ""}
+                            guest_name={guestPreview || "Tamu Undangan"}
+                            display_name={data.display_name || undefined}
+                            sessions={sessions.length > 0 ? sessions : undefined}
+                            quote_text={data.quote_text || undefined}
+                            quote_source={data.quote_source || undefined}
+                            stories={stories.length > 0 ? stories : undefined}
+                            gallery_photos={galleryPhotos.length > 0 ? galleryPhotos : undefined}
+                            couple_illustration_url={data.couple_illustration_url || undefined}
+                            grayscale={data.grayscale}
+                            groom_full_name={data.groom_full_name || undefined}
+                            bride_full_name={data.bride_full_name || undefined}
+                            groom_photo_url={data.groom_photo_url || undefined}
+                            bride_photo_url={data.bride_photo_url || undefined}
+                            groom_parents={data.groom_parents || undefined}
+                            bride_parents={data.bride_parents || undefined}
+                            gift_accounts={giftAccounts.length > 0 ? giftAccounts.map(a => ({ provider_name: a.provider_name, account_number: a.account_number, account_name: a.account_name, type: a.type })) : undefined}
+                            gift_address={giftShowAddress ? giftAddressText || undefined : undefined}
+                            track_url={selectedTrack?.audio_url || undefined}
+                            auto_play={autoPlay || undefined}
+                          />
+                        ) : (
+                          <div className="h-full flex items-center justify-center text-on-surface-variant font-body-md">
+                            Pilih template untuk melihat pratinjau
+                          </div>
+                        )
+                      })()}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+              <>
               {renderSection("sampul", "photo_album", "SAMPUL",
                 <div className="mt-6 space-y-8">
                   <div className="space-y-4">
@@ -791,6 +845,7 @@ function EditorInner({ id }: { id: string }) {
                 </div>
               </>)}
               {renderCollapsed("mail", "RSVP")}
+              </>)}
             </div>
           </aside>
 
@@ -859,18 +914,28 @@ function EditorInner({ id }: { id: string }) {
 
         {/* MOBILE BOTTOM BAR */}
         <div className="md:hidden fixed bottom-0 left-0 w-full px-4 pb-6 pt-3 bg-surface/90 backdrop-blur-sm z-50 border-t border-outline-variant">
-          <button
-            onClick={handlePublish}
-            disabled={isPublished}
-            className={`w-full py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform ${
-              isPublished
-                ? "bg-surface-container-high text-on-surface-variant cursor-default"
-                : "bg-secondary text-on-secondary"
-            }`}
-          >
-            {isPublished ? "TERKONFIRMASI" : "KONFIRMASI"}
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowMobilePreview(prev => !prev)}
+              className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-surface-container-high text-on-surface-variant"
+            >
+              {showMobilePreview ? "EDIT" : "PRATINJAU"}
+            </button>
+            <button
+              onClick={handlePublish}
+              disabled={isPublished}
+              className={`flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform ${
+                isPublished
+                  ? "bg-surface-container-high text-on-surface-variant cursor-default"
+                  : "bg-secondary text-on-secondary"
+              }`}
+            >
+              {isPublished ? "TERKONFIRMASI" : "KONFIRMASI"}
+            </button>
+          </div>
         </div>
+
+        {/* MOBILE BOTTOM BAR */}
       </div>
 
       <style>{`
