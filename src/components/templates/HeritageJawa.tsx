@@ -11,6 +11,7 @@ interface Props {
   slug: string
   guest_name: string
   theme?: TemplateTheme
+  display_name?: string
   couple_illustration_url?: string
   grayscale?: boolean
   groom_full_name?: string
@@ -24,7 +25,6 @@ interface Props {
 
 const IMG = {
   parchment: "https://lh3.googleusercontent.com/aida-public/AB6AXuDrV_0lYgYUkE4VlvVBI8uKfbS0s-GuC6g52rlYebAdp0DCqHYlZwTiIVkkkT8WmZouCHy4L8pBmhpT-mgEz5hv88N4bFTKtBBL5hxHddm0wfFHT0_zMJ2TbbaeqhHN0SKqXZayappZDK82zHV3uPHdEBVYHoRRZPIm9tssJGXCHK668NZnoY4D_o7rhjYvylJUNs9-k2o4YEYvzXn_hijhzKA_IkcUlVLDTtks9zt95s2n1f3Zjn7Ltq74tNeD3vakaG8",
-  ornament: "https://lh3.googleusercontent.com/aida/AP1WRLvkcSFZqRoDX24aX7SY4xewW7yfW0zd9d1Kk4qvWrM0k_iPZdwJI10TiIo-8yENsp81hqNcUyxY0XM45d0d3I2UDF9TaVxqW4LeKNplyocnHDcJDpp5McucTXdQ8O6Wmy4zSCQboovQQl5sGtBno6ZRv_NGkr26UBr7_1MylUdzXqIiikAfNtns_7EWLZUMNGrbq_jxQ0JTWGhXkn21j_nK1I-uHYXTMlP0Fk5X0lvEC_f6EkgcDEoW77ty",
   heroBg: "https://lh3.googleusercontent.com/aida-public/AB6AXuCtauSat3IABhE81EPzyujWU2U08RAlwTNnWVZU54NK155Bngz7kkwULzyUcB8DhyIvj_nFHW4azPl9ecqIL_vsTY7lPYE1aIl3hkEhimh_bu62fzNfFVj2sjOIuKNiwZRPYNcvc3MFXz8MNEh2o3trTyNUW8V9N3XRrQ-wcahIGKKX21dtbd6Hhff4TTooFbzzYHS5Fdjjfz2qY2XIFtttLT3wk5ug_4uljOKTyY3kgoiaWD92Ph0UeobRUmeJ28XrOC4",
   groomFrame: "https://lh3.googleusercontent.com/aida-public/AB6AXuBtyVbbVHfQmirQaXKgujvUj9Ilr6U_cTJPClLt74tzGX5oCuMH3y2g4MN5Hpbyb4qVRX4VB7Xj1c6A6h1R-mkgTKHtm40w1cJ7UoIGnjHlByg3VF-UkMK2tqz6Xrb7OIW_gwzVORQYZ3yS3yrihf-kw2fsQCQ0E1k3ai8tVbQweir5ykHIk0Zh5cNyXGHwWZmrIAv6-pL0rrBfGHOtwTJbfvK8DRJZSJrfNef4GgsE9SwWE_-d_gFvJLljXQ5LSi0bf9A",
   brideFrame: "https://lh3.googleusercontent.com/aida-public/AB6AXuCcNMbjTZJMg4Z5Dwn2OJ6KjYPq_SIY-RV_CsMY97HAeNNldN-1XMW9VtgkgX4FQ2gwjCI*NdOrijgt9-ftXteim4fA6A863MxA6wAFZsU1AcXFDJRVP2qpZtBDHiI3cnE8rj8Rc7MJwnuyol_-sWdLtB_1_KHGPfoleuvNMG_0dfHFv2ui9rjewifHZBDIYANfoclIO2j9XQy1bT_g7mrJJwhSNLL1qadVdfEEvxgEui4DaWrGeRWo-D-9EdZj4kL9--4",
@@ -68,8 +68,39 @@ function useCountdown(targetDate: string) {
   return time
 }
 
-function GiftCard({ label, name, number, bg, accent, dark, ornament }: {
-  label: string; name: string; number: string; bg: string; accent: string; dark: string; ornament: string
+function Gunungan({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
+  return (
+    <svg className={className} viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={style}>
+      <path d="M50 0C50 0 35 30 20 40C10 47 2 55 2 70C2 90 15 105 28 112C38 117 50 120 50 120C50 120 62 117 72 112C85 105 98 90 98 70C98 55 90 47 80 40C65 30 50 0 50 0Z" fill="currentColor" opacity="0.08"/>
+      <path d="M50 8C50 8 38 33 26 41C17 47 10 54 10 66C10 83 21 95 32 101C40 106 50 108 50 108C50 108 60 106 68 101C79 95 90 83 90 66C90 54 83 47 74 41C62 33 50 8 50 8Z" fill="currentColor" opacity="0.05"/>
+    </svg>
+  )
+}
+
+function Floral({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
+  return (
+    <svg className={className} viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg" style={style}>
+      <path d="M60 0C60 0 50 10 40 14C32 17 26 20 26 28C26 36 34 40 60 40C86 40 94 36 94 28C94 20 88 17 80 14C70 10 60 0 60 0Z" fill="currentColor" opacity="0.06"/>
+      <path d="M60 4C60 4 52 12 44 15C38 18 33 20 33 26C33 33 39 36 60 36C81 36 87 33 87 26C87 20 82 18 76 15C68 12 60 4 60 4Z" fill="currentColor" opacity="0.04"/>
+      <circle cx="60" cy="20" r="2" fill="currentColor" opacity="0.06"/>
+      <path d="M30 20L40 14L40 26L30 20Z" fill="currentColor" opacity="0.03"/>
+      <path d="M90 20L80 14L80 26L90 20Z" fill="currentColor" opacity="0.03"/>
+    </svg>
+  )
+}
+
+function Motif({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
+  return (
+    <svg className={className} viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg" style={style}>
+      <path d="M96 10C96 10 82 40 64 52C48 62 32 74 32 96C32 134 60 152 96 182C132 152 160 134 160 96C160 74 144 62 128 52C110 40 96 10 96 10Z" fill="currentColor" opacity="0.06"/>
+      <path d="M96 20C96 20 85 44 70 54C56 63 42 73 42 96C42 128 68 144 96 168C124 144 150 128 150 96C150 73 136 63 122 54C107 44 96 20 96 20Z" fill="currentColor" opacity="0.04"/>
+      <circle cx="96" cy="96" r="4" fill="currentColor" opacity="0.05"/>
+    </svg>
+  )
+}
+
+function GiftCard({ label, name, number, bg, accent, dark }: {
+  label: string; name: string; number: string; bg: string; accent: string; dark: string
 }) {
   const [copied, setCopied] = useState(false)
   const copyNum = () => {
@@ -77,7 +108,7 @@ function GiftCard({ label, name, number, bg, accent, dark, ornament }: {
   }
   return (
     <div className="bg-[#F9F6F0] p-8 rounded-3xl shadow-lg border flex flex-col items-center group overflow-hidden relative" style={{ borderColor: `${accent}44` }}>
-      <img alt="motif" className="absolute -top-10 -right-10 w-32 opacity-5 rotate-45 scale-125" src={ornament} />
+      <Motif className="absolute -top-10 -right-10 w-32 opacity-[0.05] rotate-45 scale-125" />
       <div className="px-4 py-1 mb-6 rounded text-white font-bold tracking-widest text-[10px]" style={{ backgroundColor: bg }}>{label}</div>
       <p className="text-[10px] uppercase mb-1 tracking-widest" style={{ color: accent }}>{name}</p>
       <p className="font-['EB_Garamond'] text-2xl mb-8 tracking-widest" style={{ color: dark }}>{number}</p>
@@ -103,7 +134,7 @@ const STORY_DATA = [
 
 export default function HeritageJawa({
   bride_name, groom_name, estimated_wedding_date, guest_name,
-  theme: _theme,
+  theme: _theme, display_name,
   couple_illustration_url, grayscale: grayscaleProp,
   groom_full_name, bride_full_name,
   groom_photo_url, bride_photo_url,
@@ -121,7 +152,7 @@ export default function HeritageJawa({
   const daysOfWeek = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
   const dayName = estimated_wedding_date ? daysOfWeek[new Date(estimated_wedding_date).getDay()] : ""
 
-  const coupleDisplay = `${bride_name} & ${groom_name}`
+  const coupleDisplay = display_name || `${bride_name} & ${groom_name}`
   const groomDisplayName = groom_full_name || groom_name
   const brideDisplayName = bride_full_name || bride_name
 
@@ -188,9 +219,9 @@ export default function HeritageJawa({
           {/* HERO */}
           <section id="home" className="relative h-screen flex flex-col items-center justify-center px-6 pt-16 overflow-hidden" style={{ backgroundImage: `url(${IMG.heroBg})`, backgroundSize: "cover", backgroundPosition: "center" }}>
             <div className="absolute inset-0" style={{ backgroundColor: "#F9F6F0", opacity: 0.6, backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)" }} />
-            <div className="relative z-10 space-y-4 text-right w-full">
-              <p className="text-[12px] uppercase tracking-[0.3em] text-right" style={{ color: "#472A1Ccc" }}>The Wedding of</p>
-              <h2 className="font-['Pinyon_Script'] text-[64px] leading-none mb-4 text-right" style={{ color: "#472A1C" }}>{coupleDisplay}</h2>
+            <div className="relative z-10 space-y-4 text-center w-full">
+              <p className="text-[12px] uppercase tracking-[0.3em] text-center" style={{ color: "#472A1Ccc" }}>The Wedding of</p>
+              <h2 className="font-['Pinyon_Script'] text-[64px] leading-none mb-4 text-center" style={{ color: "#472A1C" }}>{coupleDisplay}</h2>
               <div className="relative w-full max-w-[200px] mx-auto my-8 hj-float border-2 rounded-full p-4 shadow-2xl" style={{ borderColor: "#C1A05E33", backgroundColor: "rgba(255,255,255,0.1)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}>
                 <div className="absolute inset-0 rounded-full scale-105 blur-xl" style={{ backgroundColor: "#C1A05E1a" }} />
                 {couple_illustration_url ? (
@@ -203,16 +234,16 @@ export default function HeritageJawa({
               </div>
               <div className="space-y-1">
                 <p className="font-['EB_Garamond'] text-[24px] italic" style={{ color: "#472A1C", fontWeight: 500 }}>{dayName}, {weddingDateFormatted}</p>
-                <div className="flex items-center gap-3 justify-end">
+                <div className="flex items-center gap-3 justify-center">
                   <div className="h-px w-8" style={{ backgroundColor: "#C1A05E88" }} />
                   <span className="text-[10px] tracking-[0.1em]" style={{ color: "#C1A05E", fontWeight: 600 }}>SAVE THE DATE</span>
                   <div className="h-px w-8" style={{ backgroundColor: "#C1A05E88" }} />
                 </div>
               </div>
-              <div className="pt-8 text-right">
+              <div className="pt-8 text-center">
                 <button
                   onClick={() => scrollTo("events")}
-                  className="px-10 py-3 rounded-full text-[12px] uppercase tracking-[0.1em] flex items-center gap-3 transition-all active:scale-95 shadow-xl ml-auto font-semibold"
+                  className="px-10 py-3 rounded-full text-[12px] uppercase tracking-[0.1em] flex items-center gap-3 transition-all active:scale-95 shadow-xl mx-auto font-semibold"
                   style={{ backgroundColor: "#472A1C", color: "#F9F6F0" }}
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#C1A05E" }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#472A1C" }}
@@ -227,7 +258,7 @@ export default function HeritageJawa({
           {/* QUOTE */}
           <section className="py-20 px-6 text-center space-y-6 relative overflow-hidden" style={{ backgroundColor: "rgba(255,255,255,0.4)" }}>
             <div className="flex flex-col items-center">
-              <img alt="Gunungan Accent" className="w-16 h-auto mb-6 opacity-80" src={IMG.ornament} />
+              <Gunungan className="w-16 h-auto mb-6" style={{ color: "#C1A05Ecc", opacity: 0.8 }} />
               <p className="font-['EB_Garamond'] text-[18px] italic leading-relaxed max-w-sm mx-auto px-4" style={{ color: "#472A1Ce6" }}>
                 &ldquo;Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang.&rdquo;
               </p>
@@ -268,10 +299,9 @@ export default function HeritageJawa({
               </div>
 
               <div className="flex items-center justify-center py-4">
-                <img alt="Floral Accent" className="w-24 opacity-50" src={IMG.ornament} />
-              </div>
-
-              {/* Bride */}
+              <Floral className="w-24 opacity-50" style={{ color: "#C1A05E" }} />
+            </div>
+            {/* Bride */}
               <div className="flex flex-col items-center text-center group">
                 <div className="relative mb-8">
                   <div className="w-56 h-56 rounded-full border-2 flex items-center justify-center relative p-1" style={{ borderColor: "#C1A05E55" }}>
@@ -297,7 +327,7 @@ export default function HeritageJawa({
           {/* TURUT MENGUNDANG */}
           <section className="py-20 px-6 relative" style={{ backgroundColor: "rgba(255,255,255,0.4)" }}>
             <div className="text-center space-y-8 relative z-10">
-              <img alt="Floral Accent" className="w-24 opacity-50 mx-auto" src={IMG.ornament} />
+              <Floral className="w-24 opacity-50 mx-auto" style={{ color: "#C1A05E" }} />
               <h3 className="font-['EB_Garamond'] text-[32px]" style={{ color: "#472A1C", fontWeight: 600 }}>Turut Mengundang</h3>
               <div className="space-y-4 text-[16px] leading-relaxed" style={{ color: "#50443f" }}>
                 <p className="italic">Keluarga Besar Bpk. Ariffin (Alm)</p>
@@ -324,7 +354,7 @@ export default function HeritageJawa({
               {/* Akad */}
               <div className="bg-[#F9F6F0] p-8 rounded-3xl border shadow-xl relative overflow-hidden group" style={{ borderColor: "#C1A05E33" }}>
                 <div className="absolute -right-16 -top-16 opacity-10 transition-transform group-hover:scale-110 duration-700">
-                  <img alt="motif" className="w-48" src={IMG.ornament} />
+                  <Motif className="w-48" style={{ color: "#C1A05E" }} />
                 </div>
                 <span className="text-[12px] tracking-widest block mb-4 pb-2 border-b font-semibold" style={{ color: "#C1A05E", borderColor: "#C1A05E1a" }}>AKAD NIKAH</span>
                 <h4 className="font-['EB_Garamond'] text-[24px] mb-2" style={{ color: "#472A1C", fontWeight: 500 }}>{dayName}, {weddingDateFormatted}</h4>
@@ -345,7 +375,7 @@ export default function HeritageJawa({
               {/* Resepsi */}
               <div className="bg-[#F9F6F0] p-8 rounded-3xl border shadow-xl relative overflow-hidden group" style={{ borderColor: "#C1A05E33" }}>
                 <div className="absolute -left-16 -bottom-16 opacity-10 transition-transform group-hover:scale-110 duration-700">
-                  <img alt="motif" className="w-48 rotate-180" src={IMG.ornament} />
+                  <Motif className="w-48 rotate-180" style={{ color: "#C1A05E" }} />
                 </div>
                 <span className="text-[12px] tracking-widest block mb-4 pb-2 border-b font-semibold" style={{ color: "#C1A05E", borderColor: "#C1A05E1a" }}>RESEPSI</span>
                 <h4 className="font-['EB_Garamond'] text-[24px] mb-2" style={{ color: "#472A1C", fontWeight: 500 }}>{dayName}, {weddingDateFormatted}</h4>
@@ -401,7 +431,7 @@ export default function HeritageJawa({
           {/* GALLERY */}
           <section className="py-20 px-0 relative overflow-hidden" id="gallery">
             <div className="text-center mb-12 px-6">
-              <img alt="Gunungan Accent" className="w-16 h-auto mx-auto mb-4 opacity-80" src={IMG.ornament} />
+              <Gunungan className="w-16 h-auto mx-auto mb-4" style={{ color: "#C1A05Ecc", opacity: 0.8 }} />
               <h3 className="font-['EB_Garamond'] text-[32px]" style={{ color: "#472A1C", fontWeight: 600 }}>Galeri</h3>
               <div className="w-12 h-px mx-auto mt-4" style={{ backgroundColor: "#C1A05E55" }} />
             </div>
@@ -429,8 +459,8 @@ export default function HeritageJawa({
               Doa restu Anda adalah karunia terindah bagi kami. Namun jika Anda ingin memberi tanda kasih, kami menyediakan:
             </p>
             <div className="space-y-8 relative z-10">
-              <GiftCard label="BANK MANDIRI" name="A/N TRIA AMANDA SARI" number="338001052747530" bg="#472A1C" accent="#C1A05E" dark="#472A1C" ornament={IMG.ornament} />
-              <GiftCard label="SHOPEEPAY" name="A/N TRIA AMANDA SARI" number="082361944259" bg="#C1A05E" accent="#C1A05E" dark="#472A1C" ornament={IMG.ornament} />
+              <GiftCard label="BANK MANDIRI" name="A/N TRIA AMANDA SARI" number="338001052747530" bg="#472A1C" accent="#C1A05E" dark="#472A1C" />
+              <GiftCard label="SHOPEEPAY" name="A/N TRIA AMANDA SARI" number="082361944259" bg="#C1A05E" accent="#C1A05E" dark="#472A1C" />
             </div>
           </section>
 
@@ -477,7 +507,7 @@ export default function HeritageJawa({
               <img alt="Background pattern" className="w-full h-full object-cover scale-110" src={IMG.closingBg} />
             </div>
             <div className="relative z-10 space-y-10">
-              <img alt="Decorative ornament" className="w-20 mx-auto opacity-80" src={IMG.ornament} />
+              <Motif className="w-20 mx-auto" style={{ color: "#C1A05Ecc", opacity: 0.8 }} />
               <p className="font-['EB_Garamond'] text-lg italic leading-relaxed px-6" style={{ color: "rgba(249,246,240,0.8)" }}>
                 Suatu kebahagiaan &amp; kehormatan bagi kami, apabila Bapak/Ibu/Saudara/i, berkenan hadir dan memberikan do'a restu kepada kami.
               </p>
@@ -513,7 +543,7 @@ export default function HeritageJawa({
           </nav>
 
           {/* MUSIC BUTTON */}
-          <audio ref={audioRef} src="" loop />
+          <audio ref={audioRef} loop />
           <button
             onClick={toggleMusic}
             className="fixed bottom-24 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-2xl hj-float border" style={{ backgroundColor: "#472A1C", color: "#C1A05E", borderColor: "#C1A05E55", right: "24px" }}>

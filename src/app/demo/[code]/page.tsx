@@ -18,6 +18,7 @@ export default async function DemoPage({
       estimated_wedding_date="2026-12-31"
       slug="demo"
       guest_name="Sahabat"
+      display_name="Alexa & Reza"
       groom_full_name="Reza Pratama"
       bride_full_name="Alexa Amanda"
       groom_photo_url="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face"

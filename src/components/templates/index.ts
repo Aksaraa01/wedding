@@ -12,6 +12,7 @@ export interface TemplateProps {
   estimated_wedding_date: string
   slug: string
   guest_name: string
+  display_name?: string
   couple_illustration_url?: string
   grayscale?: boolean
   groom_full_name?: string

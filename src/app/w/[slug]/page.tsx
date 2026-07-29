@@ -14,7 +14,7 @@ export default async function WeddingInvitation({
 
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id, bride_name, groom_name, estimated_wedding_date, selected_template_id, couple_illustration_url, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram")
+    .select("id, bride_name, groom_name, estimated_wedding_date, selected_template_id, display_name, couple_illustration_url, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram")
     .eq("slug", slug)
     .single()
 
@@ -43,6 +43,7 @@ export default async function WeddingInvitation({
         slug={slug}
         guest_name={guestName}
         couple_illustration_url={profile.couple_illustration_url || undefined}
+        display_name={profile.display_name || undefined}
         grayscale={profile.grayscale || undefined}
         groom_full_name={profile.groom_full_name || undefined}
         bride_full_name={profile.bride_full_name || undefined}

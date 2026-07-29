@@ -334,6 +334,7 @@ function EditorInner({ id }: { id: string }) {
                       estimated_wedding_date={data.estimated_wedding_date || ""}
                       slug={data.slug || ""}
                       guest_name={guestPreview || "Tamu Undangan"}
+                      display_name={data.display_name || undefined}
                       couple_illustration_url={data.couple_illustration_url || undefined}
                       grayscale={data.grayscale}
                       groom_full_name={data.groom_full_name || undefined}
