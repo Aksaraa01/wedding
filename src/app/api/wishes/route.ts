@@ -1,0 +1,75 @@
+import { NextRequest, NextResponse } from "next/server"
+import { supabaseAdmin } from "@/lib/supabase"
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url)
+    const weddingProfileId = searchParams.get("wedding_profile_id")
+    const status = searchParams.get("status")
+    const guestId = searchParams.get("guest_id")
+
+    if (!weddingProfileId) {
+      return NextResponse.json({ error: "wedding_profile_id diperlukan" }, { status: 400 })
+    }
+
+    let query = supabaseAdmin
+      .from("wishes")
+      .select("*")
+      .eq("wedding_profile_id", weddingProfileId)
+      .order("is_pinned", { ascending: false })
+      .order("created_at", { ascending: false })
+
+    if (status) {
+      query = query.eq("status", status)
+    }
+
+    if (guestId) {
+      query = query.eq("guest_id", guestId)
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ wishes: data })
+  } catch (err) {
+    return NextResponse.json({ error: String(err) }, { status: 500 })
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const { wedding_profile_id, guest_id, name, message } = await req.json()
+
+    if (!wedding_profile_id || !name || !message) {
+      return NextResponse.json({ error: "Data tidak lengkap" }, { status: 400 })
+    }
+
+    if (guest_id) {
+      const { count: existing } = await supabaseAdmin
+        .from("wishes")
+        .select("id", { count: "exact", head: true })
+        .eq("guest_id", guest_id)
+
+      if (existing && existing > 0) {
+        return NextResponse.json({ error: "Anda sudah mengirimkan doa dan harapan sebelumnya. Setiap tamu hanya dapat mengirim satu kali." }, { status: 409 })
+      }
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from("wishes")
+      .insert({ wedding_profile_id, guest_id, name, message, status: "pending" })
+      .select()
+      .single()
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ wish: data })
+  } catch (err) {
+    return NextResponse.json({ error: String(err) }, { status: 500 })
+  }
+}

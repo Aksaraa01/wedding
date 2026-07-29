@@ -44,7 +44,26 @@ export async function GET(
       ? new Set(tables.map(t => t.table_number?.toLowerCase().trim()).filter(Boolean)).size
       : 0
 
-    return NextResponse.json({ profile, selections, guest_count: guestCount || 0, table_count: tableCount })
+    const { count: pendingWishes, error: pendingError } = await supabaseAdmin
+      .from("wishes")
+      .select("id", { count: "exact", head: true })
+      .eq("wedding_profile_id", id)
+      .eq("status", "pending")
+
+    if (pendingError) {
+      console.error("pending wishes count error:", pendingError)
+    }
+
+    const { count: totalWishes, error: totalError } = await supabaseAdmin
+      .from("wishes")
+      .select("id", { count: "exact", head: true })
+      .eq("wedding_profile_id", id)
+
+    if (totalError) {
+      console.error("total wishes count error:", totalError)
+    }
+
+    return NextResponse.json({ profile, selections, guest_count: guestCount || 0, table_count: tableCount, pending_wishes: pendingWishes || 0, total_wishes: totalWishes || 0 })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

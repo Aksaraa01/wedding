@@ -68,6 +68,7 @@ const PACKAGES = [
       { icon: "auto_awesome", text: "Love Story & Cinematic Video", accent: true, muted: false },
       { icon: "notifications_active", text: "Reminder Otomatis WhatsApp", accent: true, muted: false },
       { icon: "brush", text: "Custom Logo Wedding", accent: true, muted: false },
+      { icon: "photo_library", text: "Galeri Kenangan Tamu", accent: true, muted: false },
       { icon: "check", text: "Semua Fitur Signature", accent: false, muted: true },
     ],
     btnLabel: "Pilih Prestige VIP",
@@ -120,6 +121,12 @@ function Inner() {
       })
   }, [])
 
+  const PKG_COLORS: Record<string, string> = {
+    essential: "text-primary",
+    signature: "text-secondary",
+    prestige: "text-[#d4af37]",
+  }
+
   const total = calcTotal(selectedPackage, waBlastTier, expressService)
 
   const formatRp = (n: number) => "Rp " + n.toLocaleString("id-ID")
@@ -147,7 +154,8 @@ function Inner() {
       const slug = `${first}-${second}`
 
       const rawDate = searchParams.get("date")
-      const weddingDate = rawDate && rawDate !== "tentative" ? rawDate : "2099-12-31"
+      const endOfYear = `${new Date().getFullYear()}-12-31`
+      const weddingDate = rawDate && rawDate !== "tentative" ? rawDate : endOfYear
       const guestCount = Number(searchParams.get("guest") || "300")
 
       const res = await fetch("/api/submit-registration", {
@@ -271,6 +279,7 @@ function Inner() {
             const isActive = selectedPackage === pkg.code
             const isSignature = pkg.code === "signature"
             const isPrestige = pkg.code === "prestige"
+            const pkgColor = PKG_COLORS[pkg.code] || ""
 
             let cardClasses = "flex flex-col p-10 bg-surface transition-all duration-500 cursor-pointer relative overflow-hidden"
             if (isActive) {
@@ -302,18 +311,18 @@ function Inner() {
                   </span>
                 </div>
                 <div className="mb-6">
-                  <h3 className={`font-headline-md text-headline-md mb-2 ${isActive && isSignature ? "text-secondary" : ""}`}>{pkg.name}</h3>
+                  <h3 className={`font-headline-md text-headline-md mb-2 ${isActive ? pkgColor : ""}`}>{pkg.name}</h3>
                   <p className="font-body-md italic text-on-surface-variant">{pkg.desc}</p>
                 </div>
                 <div className="mb-8">
-                  <div className={`flex items-baseline gap-1 ${isActive && isSignature ? "text-secondary" : ""}`}>
+                  <div className={`flex items-baseline gap-1 ${isActive ? pkgColor : ""}`}>
                     <span className="text-label-md font-bold self-start mt-1">Rp</span>
                     <span className="font-headline-lg text-headline-lg">{PACKAGE_PRICES[pkg.code].toLocaleString("id-ID")}</span>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2 mb-10">
                   {pkg.tags.map((tag) => (
-                    <span key={tag} className={`font-label-md text-[10px] border px-2 py-1 uppercase ${isActive && isSignature ? "border-secondary text-secondary font-bold" : "border-outline-variant"}`}>
+                    <span key={tag} className={`font-label-md text-[10px] border px-2 py-1 uppercase ${isActive ? `${pkgColor} border-current font-bold` : "border-outline-variant"}`}>
                       {tag}
                     </span>
                   ))}
@@ -321,10 +330,10 @@ function Inner() {
                 <ul className="space-y-4 mb-12 flex-grow">
                   {pkg.features.map((f) => (
                     <li key={f.text} className={`flex items-center gap-3 ${f.accent ? "font-semibold" : ""} ${f.muted ? "text-on-surface-variant" : ""}`}>
-                      <span className={`material-symbols-outlined text-sm ${f.accent && isActive && isPrestige ? "text-[#d4af37]" : f.accent && isActive && isSignature ? "text-secondary" : ""}`}>
+                      <span className={`material-symbols-outlined text-sm ${f.accent ? pkgColor : ""} ${f.muted ? "text-on-surface-variant" : ""}`}>
                         {f.icon === "add" ? "add" : f.icon === "check" ? "check" : f.icon}
                       </span>
-                      <span>{f.text}</span>
+                      <span className={`${f.accent ? pkgColor : ""}`}>{f.text}</span>
                     </li>
                   ))}
                 </ul>
@@ -437,9 +446,9 @@ function Inner() {
               <thead>
                 <tr className="font-label-md text-label-md uppercase tracking-widest border-b border-outline-variant">
                   <th className="py-6 font-semibold w-1/4">Fitur Utama</th>
-                  <th className="py-6 text-center w-1/4">Essential</th>
-                  <th className="py-6 text-center w-1/4" style={{ color: selectedPackage === "signature" ? "#8d4d39" : undefined }}>Signature</th>
-                  <th className="py-6 text-center w-1/4">Prestige</th>
+                  <th className={`py-6 text-center w-1/4 ${selectedPackage === "essential" ? "text-primary" : ""}`}>Essential</th>
+                  <th className={`py-6 text-center w-1/4 ${selectedPackage === "signature" ? "text-secondary" : ""}`}>Signature</th>
+                  <th className={`py-6 text-center w-1/4 ${selectedPackage === "prestige" ? "text-[#d4af37]" : ""}`}>Prestige</th>
                 </tr>
               </thead>
               <tbody className="font-body-md">

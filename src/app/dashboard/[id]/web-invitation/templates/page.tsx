@@ -135,6 +135,7 @@ function TemplatesInner({ id }: { id: string }) {
         <TemplatePreviewModal
           name={previewTpl.name}
           demoUrl={previewTpl.demo_url}
+          code={previewTpl.code}
           onClose={() => setPreviewTpl(null)}
         />
       )}

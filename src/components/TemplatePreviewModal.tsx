@@ -5,13 +5,16 @@ import { useState, useRef, useEffect, useCallback } from "react"
 type Props = {
   name: string
   demoUrl: string
+  code?: string
   onClose: () => void
 }
 
-export default function TemplatePreviewModal({ name, demoUrl, onClose }: Props) {
+export default function TemplatePreviewModal({ name, demoUrl, code, onClose }: Props) {
   const [status, setStatus] = useState<"loading" | "loaded" | "errored">("loading")
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const safetyRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const src = demoUrl || (code ? `/demo/${code}` : "")
 
   useEffect(() => {
     safetyRef.current = setTimeout(() => {
@@ -32,9 +35,9 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose }: Props) 
   }, [])
 
   const openTab = useCallback(() => {
-    window.open(demoUrl, "_blank", "noopener,noreferrer")
+    window.open(src, "_blank", "noopener,noreferrer")
     onClose()
-  }, [demoUrl, onClose])
+  }, [src, onClose])
 
   return (
     <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm" onClick={onClose}>
@@ -72,7 +75,7 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose }: Props) 
 
           <iframe
             ref={iframeRef}
-            src={demoUrl}
+            src={src}
             className={`w-full border-0 ${status === "loaded" ? "block h-full" : "invisible absolute"}`}
             title={`Pratinjau ${name}`}
             allow="autoplay; encrypted-media"

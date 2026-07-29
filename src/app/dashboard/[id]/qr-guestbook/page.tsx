@@ -32,7 +32,7 @@ type Stats = {
 function GuestCard({ guest, slug, onCopy, onDownload, copiedId }: {
   guest: Guest
   slug: string
-  onCopy: (token: string) => void
+  onCopy: (token: string, name: string) => void
   onDownload: (token: string, name: string) => void
   copiedId: string | null
 }) {
@@ -72,7 +72,7 @@ function GuestCard({ guest, slug, onCopy, onDownload, copiedId }: {
 
       <div className="flex gap-4">
         <button
-          onClick={() => hasToken && onCopy(guest.qr_token!)}
+          onClick={() => hasToken && onCopy(guest.qr_token!, guest.name)}
           disabled={!hasToken}
           className="flex items-center gap-2 text-[11px] font-label-md uppercase tracking-wider text-on-surface-variant hover:text-secondary disabled:opacity-30 disabled:hover:text-on-surface-variant transition-colors py-1"
         >
@@ -148,9 +148,10 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
     }
   }
 
-  const handleCopy = async (token: string) => {
+  const handleCopy = async (token: string, name?: string) => {
     if (!profile) return
-    const url = `https://${profile.slug}.aksaraa.com/q/${token}`
+    const slugifiedName = name ? "/" + name.toLowerCase().replace(/&/g, "dan").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") : ""
+    const url = `https://${profile.slug}.aksaraa.com/qr/${token}${slugifiedName}`
     try {
       await navigator.clipboard.writeText(url)
       setCopiedId(guests.find(g => g.qr_token === token)?.id || null)

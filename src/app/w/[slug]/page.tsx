@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { notFound } from "next/navigation"
+import { getTemplateComponent } from "@/components/templates"
 
 export default async function WeddingInvitation({
   params,
@@ -21,6 +22,31 @@ export default async function WeddingInvitation({
 
   const guestName = to || "Tamu Undangan"
 
+  // Resolve template code and render via registry
+  let templateCode: string | null = null
+  if (profile.selected_template_id) {
+    const { data: tmpl } = await supabaseAdmin
+      .from("web_templates")
+      .select("code")
+      .eq("id", profile.selected_template_id)
+      .single()
+    if (tmpl) templateCode = tmpl.code
+  }
+
+  const Template = getTemplateComponent(templateCode)
+  if (Template) {
+    return (
+      <Template
+        bride_name={profile.bride_name}
+        groom_name={profile.groom_name}
+        estimated_wedding_date={profile.estimated_wedding_date}
+        slug={slug}
+        guest_name={guestName}
+      />
+    )
+  }
+
+  // Default fallback layout
   const weddingDate = profile.estimated_wedding_date
     ? new Date(profile.estimated_wedding_date).toLocaleDateString("id-ID", {
         day: "numeric",

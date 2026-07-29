@@ -8,7 +8,7 @@ export async function ensureBucket() {
   await supabaseAdmin.storage.createBucket(BUCKET, {
     public: true,
     fileSizeLimit: 20 * 1024 * 1024, // 20 MB
-    allowedMimeTypes: ["image/jpeg", "image/png", "image/webp", "audio/mpeg", "audio/wav", "audio/ogg"],
+    allowedMimeTypes: ["image/jpeg", "image/png", "image/webp", "image/svg+xml", "audio/mpeg", "audio/wav", "audio/ogg"],
   })
 }
 

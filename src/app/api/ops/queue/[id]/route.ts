@@ -64,6 +64,46 @@ export async function GET(
     const totalGuests = guests?.length || 0
     const withToken = guests?.filter((g) => g.qr_token).length || 0
 
+    // Feature-specific counts (parallel)
+    const [
+      { count: wishCount },
+      { count: photoCount },
+      { count: accountCount },
+      { count: addressCount },
+      { count: checkedInCount },
+    ] = await Promise.all([
+      supabaseAdmin.from("wishes").select("*", { count: "exact", head: true }).eq("wedding_profile_id", wp.id),
+      supabaseAdmin.from("guest_photos").select("*", { count: "exact", head: true }).eq("wedding_profile_id", wp.id),
+      supabaseAdmin.from("gift_accounts").select("*", { count: "exact", head: true }).eq("wedding_profile_id", wp.id),
+      supabaseAdmin.from("gift_addresses").select("*", { count: "exact", head: true }).eq("wedding_profile_id", wp.id),
+      supabaseAdmin.from("guests").select("*", { count: "exact", head: true }).eq("wedding_profile_id", wp.id).eq("is_checked_in", true),
+    ])
+
+    // Template + track name for premium_web
+    let webTemplateName: string | null = null
+    let webTrackName: string | null = null
+    const { data: webProfile } = await supabaseAdmin
+      .from("wedding_profiles")
+      .select("selected_template_id, selected_track_id")
+      .eq("id", wp.id)
+      .single()
+    if (webProfile?.selected_template_id) {
+      const { data: tmpl } = await supabaseAdmin
+        .from("web_templates")
+        .select("name")
+        .eq("id", webProfile.selected_template_id)
+        .single()
+      if (tmpl) webTemplateName = tmpl.name
+    }
+    if (webProfile?.selected_track_id) {
+      const { data: trk } = await supabaseAdmin
+        .from("web_tracks")
+        .select("title")
+        .eq("id", webProfile.selected_track_id)
+        .single()
+      if (trk) webTrackName = trk.title
+    }
+
     return NextResponse.json({
       queue: {
         id: queueItem.id,
@@ -90,6 +130,15 @@ export async function GET(
       feature_actions: featureActions || [],
       employees: allEmployees || [],
       guest_stats: { total: totalGuests, with_token: withToken },
+      feature_stats: {
+        wish_count: wishCount ?? 0,
+        photo_count: photoCount ?? 0,
+        account_count: accountCount ?? 0,
+        address_count: addressCount ?? 0,
+        checked_in_count: checkedInCount ?? 0,
+        template_name: webTemplateName,
+        track_name: webTrackName,
+      },
     })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })

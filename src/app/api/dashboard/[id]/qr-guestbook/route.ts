@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-
-function generateToken(): string {
-  const part = () => crypto.randomUUID().replace(/-/g, "").slice(0, 8)
-  return `AKS-${part()}-${part()}`
-}
+import { generateUniqueToken } from "@/lib/qr"
 
 export async function GET(
   _req: Request,
@@ -75,15 +71,11 @@ export async function POST(
       return NextResponse.json({ generated: 0, message: "Semua tamu sudah memiliki QR" })
     }
 
-    const records = guests.map((g) => ({
-      id: g.id,
-      qr_token: generateToken(),
-    }))
-
     const results = await Promise.all(
-      records.map((r) =>
-        supabaseAdmin.from("guests").update({ qr_token: r.qr_token }).eq("id", r.id)
-      )
+      guests.map(async (g) => {
+        const token = await generateUniqueToken()
+        return supabaseAdmin.from("guests").update({ qr_token: token }).eq("id", g.id)
+      })
     )
 
     const firstError = results.find((r) => r.error)
@@ -91,7 +83,7 @@ export async function POST(
       return NextResponse.json({ error: firstError.error!.message }, { status: 500 })
     }
 
-    return NextResponse.json({ generated: records.length })
+    return NextResponse.json({ generated: results.length })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

@@ -51,7 +51,6 @@ function WebInvitationInner({ id }: { id: string }) {
   const [allTracks, setAllTracks] = useState<Track[]>([])
   const [activeMood, setActiveMood] = useState("")
   const [playingId, setPlayingId] = useState<string | null>(null)
-  const [feedbackOpen, setFeedbackOpen] = useState(false)
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
@@ -150,7 +149,7 @@ function WebInvitationInner({ id }: { id: string }) {
                       </span>
                     </button>
                     <button
-                      onClick={() => setFeedbackOpen(true)}
+                      onClick={() => router.push(`/dashboard/${id}/web-invitation/feedback`)}
                       className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors"
                     >
                       Lihat Riwayat Feedback
@@ -251,31 +250,11 @@ function WebInvitationInner({ id }: { id: string }) {
         </button>
       </div>
 
-      {feedbackOpen && (
-        <div className="fixed inset-0 z-[60]">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setFeedbackOpen(false)} />
-          <div className="absolute inset-0 flex items-center justify-center p-6">
-            <div className="bg-background w-full max-w-md p-8 shadow-2xl border border-outline-variant text-center">
-              <span className="material-symbols-outlined text-5xl text-outline/50 mb-4">inbox</span>
-              <h2 className="font-headline-md text-headline-md text-primary mb-3">Riwayat Feedback</h2>
-              <p className="font-body-md text-body-md text-on-surface-variant mb-8">
-                Belum ada riwayat feedback. Hubungi konsultan Aksara untuk memulai diskusi revisi undangan Anda.
-              </p>
-              <button
-                onClick={() => setFeedbackOpen(false)}
-                className="w-full bg-primary text-on-primary py-4 font-label-md text-label-md uppercase tracking-widest"
-              >
-                Tutup
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {previewTemplate && (
         <TemplatePreviewModal
           name={previewTemplate.name}
           demoUrl={previewTemplate.demo_url}
+          code={previewTemplate.code}
           onClose={() => setPreviewTemplate(null)}
         />
       )}

@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-
-function generateToken(): string {
-  const part = () => crypto.randomUUID().replace(/-/g, "").slice(0, 8)
-  return `AKS-${part()}-${part()}`
-}
+import { generateUniqueToken } from "@/lib/qr"
 
 export async function PUT(
   req: Request,
@@ -62,20 +58,16 @@ export async function PUT(
         .is("qr_token", null)
 
       if (guests && guests.length > 0) {
-        const records = guests.map((g: any) => ({
-          id: g.id,
-          qr_token: generateToken(),
-        }))
-
         const results = await Promise.all(
-          records.map((r) =>
-            supabaseAdmin.from("guests").update({ qr_token: r.qr_token }).eq("id", r.id)
-          )
+          guests.map(async (g: any) => {
+            const token = await generateUniqueToken()
+            return supabaseAdmin.from("guests").update({ qr_token: token }).eq("id", g.id)
+          })
         )
 
         const allOk = results.every((r) => !r.error)
         if (allOk) {
-          qrGenerated = records.length
+          qrGenerated = results.length
         }
       }
     }

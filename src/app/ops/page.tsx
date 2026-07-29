@@ -14,12 +14,12 @@ const FEATURE_LABELS: Record<string, string> = {
   premium_web: "Undangan Digital",
   wish_wall: "Wish Wall",
   reservation_automation: "Reservasi Otomatis",
-  kolom_direct_transfer: "Kolom Transfer",
-  gift_marketplace: "Gift Marketplace",
+  kolom_direct_transfer: "Amplop Digital & Alamat Kado",
+  gift_marketplace: "Galeri Kenangan Tamu",
   qr_code_book: "Buku Tamu QR",
   unique_link_generator: "QR Code Tamu",
   undangan_fisik: "Undangan Fisik",
-  wa_blast: "WhatsApp Blast",
+  wa_blast: "Reminder Otomatis",
 }
 
 const PAYMENT_LABELS: Record<string, string> = {
@@ -66,12 +66,32 @@ type Employee = {
   name: string
 }
 
+type FeedbackSubmission = {
+  id: string
+  template_name: string
+  area: string | null
+  description: string
+  image_url: string | null
+  round_number: number
+  status: string
+  created_at: string
+}
+
 type QueueDetail = {
   queue: QueueItem
   wedding_profile: QueueItem["wedding_profile"]
   feature_actions: FeatureAction[]
   employees: Employee[]
   guest_stats: { total: number; with_token: number }
+  feature_stats: {
+    wish_count: number
+    photo_count: number
+    account_count: number
+    address_count: number
+    checked_in_count: number
+    template_name: string | null
+    track_name: string | null
+  }
 }
 
 function formatCurrency(n: number): string {
@@ -79,7 +99,7 @@ function formatCurrency(n: number): string {
 }
 
 function formatDate(dateStr: string): string {
-  if (!dateStr || dateStr === "2099-12-31") return "TBD"
+  if (!dateStr) return "TBD"
   const d = new Date(dateStr)
   return d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
 }
@@ -91,6 +111,7 @@ export default function OpsDashboardPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [detail, setDetail] = useState<QueueDetail | null>(null)
   const [search, setSearch] = useState("")
+  const [feedbackSubmissions, setFeedbackSubmissions] = useState<FeedbackSubmission[]>([])
   const [loading, setLoading] = useState(true)
   const [paymentTotal, setPaymentTotal] = useState("")
   const slaInegts = useRef<Record<string, NodeJS.Timeout>>({})
@@ -125,11 +146,20 @@ export default function OpsDashboardPage() {
   const selectQueueItem = async (id: string) => {
     setSelectedId(id)
     setDetail(null)
+    setFeedbackSubmissions([])
     try {
       const res = await fetch(`/api/ops/queue/${id}`)
       const data = await res.json()
       setDetail(data)
       setPaymentTotal(String(data.wedding_profile.total_project_cost || 0))
+      const wpId = data.wedding_profile?.id
+      if (wpId) {
+        const fbRes = await fetch(`/api/feedback-submissions?wedding_profile_id=${wpId}`)
+        if (fbRes.ok) {
+          const fbData = await fbRes.json()
+          setFeedbackSubmissions(fbData.submissions || [])
+        }
+      }
     } catch (e) {
       console.error("Failed to fetch detail", e)
     }
@@ -467,7 +497,7 @@ export default function OpsDashboardPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 mb-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-16">
                   {detail.feature_actions.length === 0 && (
                     <div className="col-span-full text-center opacity-30 italic font-body-md text-sm py-12">
                       Tidak ada fitur untuk paket ini
@@ -493,49 +523,112 @@ export default function OpsDashboardPage() {
                     return (
                       <div
                         key={fa.id}
-                        className="bg-white border border-outline-variant p-6 flex flex-col justify-between hover:border-primary transition-colors group"
+                        className="bg-white border border-outline-variant p-6 flex flex-col hover:border-primary/50 transition-all duration-300"
                       >
-                        <div>
-                          <div className="flex justify-between items-start mb-4">
-                            <h4 className="font-display-lg text-lg">
-                              {FEATURE_LABELS[fa.feature_key] || fa.feature_key}
-                            </h4>
-                            <span className={`text-[10px] px-2 py-1 uppercase font-bold tracking-widest ${statusBadgeClass}`}>
-                              {statusLabel}
-                            </span>
-                          </div>
-
-                          {fa.client_note && (
-                            <p className="text-sm italic font-body-md opacity-60 mb-6 leading-relaxed">
-                              &ldquo;{fa.client_note}&rdquo;
-                            </p>
-                          )}
-
-                          {fa.image_url ? (
-                            <div className="mb-6 border border-outline-variant overflow-hidden bg-surface-container">
-                              <img
-                                src={fa.image_url}
-                                alt={`Gambar ${FEATURE_LABELS[fa.feature_key]}`}
-                                className="w-full h-32 object-cover"
-                              />
-                            </div>
-                          ) : (
-                            <div className="mb-6 border border-dashed border-outline-variant h-32 flex items-center justify-center bg-surface-container-low">
-                              <span className="text-[10px] uppercase tracking-widest opacity-30 font-label-md">Tambah Gambar</span>
-                            </div>
-                          )}
+                        <div className="flex items-start justify-between mb-4">
+                          <h4 className="font-display-lg text-base leading-tight">
+                            {FEATURE_LABELS[fa.feature_key] || fa.feature_key}
+                          </h4>
+                          <span className={`text-[9px] px-2 py-0.5 uppercase font-bold tracking-widest shrink-0 ml-3 ${statusBadgeClass}`}>
+                            {statusLabel}
+                          </span>
                         </div>
 
-                        <div className="flex gap-2">
+                        {(() => {
+                          const subtitle = fa.feature_key === "premium_web"
+                            ? [detail.feature_stats.template_name, detail.feature_stats.track_name].filter(Boolean).join(" / ") || null
+                            : fa.feature_key === "unique_link_generator"
+                            ? `${detail.guest_stats.with_token} QR Aktif`
+                            : fa.feature_key === "qr_code_book"
+                            ? `${detail.feature_stats.checked_in_count} Tamu Sudah Hadir`
+                            : fa.feature_key === "wish_wall"
+                            ? `${detail.feature_stats.wish_count} Wish Sudah Masuk`
+                            : fa.feature_key === "galeri_kenangan"
+                            ? `${detail.feature_stats.photo_count} Foto Terunggah`
+                            : fa.feature_key === "kolom_direct_transfer"
+                            ? `${detail.feature_stats.account_count} Rek, ${detail.feature_stats.address_count} Alm`
+                            : null
+                          return subtitle ? (
+                            <div className="mb-4 py-2 px-3 bg-secondary-container/60 border border-secondary/15">
+                              <p className="font-body-md text-secondary font-semibold text-xs uppercase tracking-wider">
+                                {subtitle}
+                              </p>
+                            </div>
+                          ) : null
+                        })()}
+
+                        {fa.client_note && (
+                          <p className="text-xs italic font-body-md opacity-60 mb-4 leading-relaxed">
+                            &ldquo;{fa.client_note}&rdquo;
+                          </p>
+                        )}
+
+                        {fa.image_url && (
+                          <div className="mb-4 border border-outline-variant overflow-hidden bg-surface-container">
+                            <img
+                              src={fa.image_url}
+                              alt={`Gambar ${FEATURE_LABELS[fa.feature_key]}`}
+                              className="w-full h-28 object-cover"
+                            />
+                          </div>
+                        )}
+
+                        {fa.feature_key === "premium_web" && feedbackSubmissions.length > 0 && (
+                          <div className="mb-4 space-y-2">
+                            <h5 className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">
+                              Feedback Terbaru
+                            </h5>
+                            {feedbackSubmissions.slice(0, 2).map((fb) => {
+                              const images = (() => {
+                                if (!fb.image_url) return []
+                                try { const p = JSON.parse(fb.image_url); return Array.isArray(p) ? p : [fb.image_url] }
+                                catch { return [fb.image_url] }
+                              })()
+                              return (
+                                <div key={fb.id} className="bg-surface-container-low p-2.5 border-l-2 border-secondary">
+                                  <div className="flex justify-between items-start gap-2 mb-0.5">
+                                    <p className="font-body-md text-[10px] font-semibold">{fb.template_name || "Draf"} <span className="font-label-md text-[8px] text-on-surface-variant/60 font-normal">R{fb.round_number}</span></p>
+                                    <span className={`text-[7px] font-bold uppercase px-1 py-0.5 shrink-0 ${fb.status === "resolved" ? "bg-emerald-100 text-emerald-800" : fb.status === "in_progress" ? "bg-amber-100 text-amber-800" : "bg-blue-100 text-blue-800"}`}>
+                                      {fb.status === "resolved" ? "Selesai" : fb.status === "in_progress" ? "Proses" : "Tunggu"}
+                                    </span>
+                                  </div>
+                                  <p className="font-body-md text-[10px] italic text-on-surface-variant/80 leading-relaxed">
+                                    &ldquo;{fb.description.length > 80 ? `${fb.description.slice(0, 80)}...` : fb.description}&rdquo;
+                                  </p>
+                                  {images.length > 0 && (
+                                    <div className="flex gap-1 mt-1.5">
+                                      {images.map((imgUrl, imgIdx) => (
+                                        <a
+                                          key={imgIdx}
+                                          href={imgUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="w-8 h-8 border border-outline-variant overflow-hidden rounded block hover:opacity-80 transition-opacity"
+                                        >
+                                          <img src={imgUrl} alt={`img ${imgIdx + 1}`} className="w-full h-full object-cover" />
+                                        </a>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
+                            {feedbackSubmissions.length > 2 && (
+                              <p className="font-label-md text-[8px] text-on-surface-variant/50 text-center">+{feedbackSubmissions.length - 2} lainnya</p>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="mt-auto flex gap-2 pt-4 border-t border-outline-variant/40">
                           {isSelesai ? (
                             <>
                               <button
                                 disabled
-                                className="flex-1 py-3 border border-outline-variant text-[10px] font-bold uppercase tracking-widest opacity-40 cursor-not-allowed"
+                                className="flex-1 py-2.5 border border-outline-variant text-[9px] font-bold uppercase tracking-widest opacity-40 cursor-not-allowed"
                               >
                                 Hubungi WA
                               </button>
-                              <button className="flex-1 py-3 bg-primary text-white text-[10px] font-bold uppercase tracking-widest cursor-default">
+                              <button className="flex-1 py-2.5 bg-primary text-white text-[9px] font-bold uppercase tracking-widest cursor-default">
                                 Selesai
                               </button>
                             </>
@@ -545,13 +638,13 @@ export default function OpsDashboardPage() {
                                 href={waUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex-1 py-3 border border-primary text-[10px] font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all text-center block"
+                                className="flex-1 py-2.5 border border-primary text-[9px] font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all text-center block"
                               >
                                 Hubungi WA
                               </a>
                               <button
                                 onClick={() => updateFeature(fa.feature_key, "selesai")}
-                                className="flex-1 py-3 border border-outline-variant text-[10px] font-bold uppercase tracking-widest hover:border-primary transition-all"
+                                className="flex-1 py-2.5 border border-outline-variant text-[9px] font-bold uppercase tracking-widest hover:border-primary transition-all"
                               >
                                 Selesaikan
                               </button>

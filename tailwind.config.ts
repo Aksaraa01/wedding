@@ -9,6 +9,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        brand: {
+          cream: '#FBF8F3',
+          card: '#FFFFFF',
+          charcoal: '#1A1817',
+          terracotta: '#8D4D39',
+          gold: '#B89058',
+          goldMuted: '#D4C5B9',
+          slate: '#5C5854',
+          border: 'rgba(26, 24, 23, 0.08)',
+        },
         "surface-tint": "var(--color-surface-tint)",
         "background": "var(--color-background)",
         "surface-dim": "var(--color-surface-dim)",

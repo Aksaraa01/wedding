@@ -108,7 +108,7 @@ export async function GET(req: NextRequest) {
 
     const { data: guest, error: guestErr } = await supabaseAdmin
       .from("guests")
-      .select("id, name, wedding_profile_id")
+      .select("id, name, table_number, category, guest_count, qr_token, wedding_profile_id, is_checked_in")
       .eq("qr_token", qrToken)
       .maybeSingle()
 
@@ -116,11 +116,15 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "QR tidak valid" }, { status: 404 })
     }
 
-    const { data: profile } = await supabaseAdmin
+    const { data: profile, error: profileErr } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("bride_name, groom_name")
+      .select("bride_name, groom_name, slug, estimated_wedding_date, venue_name, venue_address, event_time")
       .eq("id", guest.wedding_profile_id)
       .single()
+
+    if (profileErr || !profile) {
+      return NextResponse.json({ error: "Profil tidak ditemukan" }, { status: 404 })
+    }
 
     return NextResponse.json({ guest, profile })
   } catch (err) {

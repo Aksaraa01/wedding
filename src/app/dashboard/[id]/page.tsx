@@ -10,7 +10,7 @@ type Selections = {
   wish_wall: boolean
   reservation_automation: boolean
   kolom_direct_transfer: boolean
-  gift_marketplace: boolean
+  galeri_kenangan: boolean
   qr_code_book: boolean
   unique_link_generator: boolean
   undangan_fisik: boolean
@@ -38,7 +38,7 @@ const CARDS = [
   { key: "reservation_automation" as const, title: "RSVP Automation" },
   { key: "qr_code_book" as const, title: "Guest Book & Absensi" },
   { key: "kolom_direct_transfer" as const, title: "Digital Angpao & E-Gift" },
-  { key: "gift_marketplace" as const, title: "Aksara Gift Marketplace" },
+  { key: "galeri_kenangan" as const, title: "Galeri Kenangan Tamu" },
 ]
 
 const STATUS_LABEL: Record<string, string> = {
@@ -61,18 +61,27 @@ function DashboardInner({ id }: { id: string }) {
   const [guestCount, setGuestCount] = useState(0)
   const [tableCount, setTableCount] = useState(0)
   const [templateName, setTemplateName] = useState("")
+  const [trackName, setTrackName] = useState("")
   const [qrWithToken, setQrWithToken] = useState(0)
   const [qrCheckedIn, setQrCheckedIn] = useState(0)
+  const [pendingWishes, setPendingWishes] = useState(0)
+  const [totalWishes, setTotalWishes] = useState(0)
+  const [photoCount, setPhotoCount] = useState(0)
+  const [accountCount, setAccountCount] = useState(0)
+  const [addressCount, setAddressCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
   useEffect(() => {
     Promise.all([
-      fetch(`/api/dashboard/${id}`),
-      fetch(`/api/dashboard/${id}/web-invitation`).then(r => r.ok ? r.json() : null),
-      fetch(`/api/dashboard/${id}/qr-guestbook`).then(r => r.ok ? r.json() : null),
-    ])
-      .then(([dashboardRes, invData, qrData]) => {
+        fetch(`/api/dashboard/${id}`),
+        fetch(`/api/dashboard/${id}/web-invitation`).then(r => r.ok ? r.json() : null),
+        fetch(`/api/dashboard/${id}/qr-guestbook`).then(r => r.ok ? r.json() : null),
+        fetch(`/api/guest-photos?wedding_profile_id=${id}`).then(r => r.ok ? r.json() : null),
+        fetch(`/api/gift-accounts?wedding_profile_id=${id}`).then(r => r.ok ? r.json() : null),
+        fetch(`/api/gift-addresses?wedding_profile_id=${id}`).then(r => r.ok ? r.json() : null),
+      ])
+      .then(([dashboardRes, invData, qrData, photoData, accData, addrData]) => {
         if (!dashboardRes.ok) throw new Error("Dashboard tidak ditemukan")
         return dashboardRes.json().then((data) => {
           setProfile(data.profile)
@@ -80,10 +89,16 @@ function DashboardInner({ id }: { id: string }) {
           setGuestCount(data.guest_count ?? data.profile.estimated_guest_count ?? 0)
           setTableCount(data.table_count ?? 0)
           if (invData?.template?.name) setTemplateName(invData.template.name)
+          if (invData?.track?.title) setTrackName(invData.track.title)
           if (qrData?.stats) {
             setQrWithToken(qrData.stats.with_token)
             setQrCheckedIn(qrData.stats.checked_in)
           }
+          setPendingWishes(data.pending_wishes ?? 0)
+          setTotalWishes(data.total_wishes ?? 0)
+          if (photoData?.photos) setPhotoCount(photoData.photos.length)
+          if (accData?.accounts) setAccountCount(accData.accounts.length)
+          if (addrData?.addresses) setAddressCount(addrData.addresses.length)
         })
       })
       .catch((e) => setError(e.message))
@@ -149,7 +164,7 @@ function DashboardInner({ id }: { id: string }) {
         </div>
       </header>
 
-      <main className="mt-32 pb-32 px-edge-margin-mobile md:px-80 max-w-container-max mx-auto">
+      <main className="pt-24 pb-32 px-edge-margin-mobile md:px-80 max-w-container-max mx-auto">
         <section className="mb-16">
           <h2 className="font-headline-md text-headline-md leading-tight">
             Selamat Datang,<br />
@@ -202,11 +217,14 @@ function DashboardInner({ id }: { id: string }) {
               <div
                 key={card.key}
                 onClick={() => {
-                  const routes: Record<string, string> = {
-                    premium_web: `/dashboard/${id}/web-invitation`,
-                    unique_link_generator: `/dashboard/${id}/qr-guestbook`,
-                    qr_code_book: `/dashboard/${id}/qr-guestbook/live`,
-                  }
+          const routes: Record<string, string> = {
+            premium_web: `/dashboard/${id}/web-invitation`,
+            unique_link_generator: `/dashboard/${id}/qr-guestbook`,
+            qr_code_book: `/dashboard/${id}/qr-guestbook/live`,
+            wish_wall: `/dashboard/${id}/wish-wall`,
+            galeri_kenangan: `/dashboard/${id}/galeri-kenangan`,
+            kolom_direct_transfer: `/dashboard/${id}/amplop-digital`,
+          }
                   const route = routes[card.key]
                   if (route) router.push(route)
                 }}
@@ -217,9 +235,13 @@ function DashboardInner({ id }: { id: string }) {
                   <div>
                     <h4 className="font-headline-md text-headline-md text-2xl mb-2">{card.title}</h4>
                     <p className="font-body-md text-secondary uppercase tracking-wider font-semibold">
-                      {card.key === "premium_web" && templateName ? templateName
+                      {card.key === "premium_web"
+                          ? [templateName, trackName].filter(Boolean).join(" / ") || "—"
                         : card.key === "unique_link_generator" ? `${qrWithToken} QR Aktif`
                         : card.key === "qr_code_book" ? `${qrCheckedIn} Tamu Sudah Hadir`
+                        : card.key === "wish_wall" ? `${totalWishes} Wish Sudah Masuk`
+                        : card.key === "galeri_kenangan" ? `${photoCount} Foto Terunggah`
+                        : card.key === "kolom_direct_transfer" ? `${accountCount} Rekening, ${addressCount} Alamat`
                         : "—"}
                     </p>
                   </div>
