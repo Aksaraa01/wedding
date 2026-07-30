@@ -25,6 +25,7 @@ export const metadata: Metadata = {
   title: "Aksaraa Wedding — Platform Pernikahan Naratif",
   description:
     "Aksaraa: Mengubah janji suci dan perjalanan cinta Anda menjadi kisah digital interaktif yang memikat.",
+  icons: { icon: "/icon.svg" },
 }
 
 export default function RootLayout({
