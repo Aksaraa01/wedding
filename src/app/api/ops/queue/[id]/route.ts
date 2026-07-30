@@ -80,6 +80,15 @@ export async function GET(
       supabaseAdmin.from("guests").select("*", { count: "exact", head: true }).eq("wedding_profile_id", wp.id).eq("is_checked_in", true),
     ])
 
+    // WA Blast schedule
+    const { data: waBlastSchedule } = await supabaseAdmin
+      .from("wa_blast_schedules")
+      .select("*")
+      .eq("wedding_profile_id", wp.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
     // Template + track name for premium_web
     let webTemplateName: string | null = null
     let webTrackName: string | null = null
@@ -141,6 +150,7 @@ export async function GET(
         template_name: webTemplateName,
         track_name: webTrackName,
       },
+      wa_blast_schedule: waBlastSchedule || null,
     })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })

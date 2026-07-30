@@ -94,6 +94,24 @@ type QueueDetail = {
     template_name: string | null
     track_name: string | null
   }
+  wa_blast_schedule: {
+    id: string
+    template_type: string
+    message_text: string
+    scheduled_date: string
+    scheduled_time: string
+    status: string
+    total_guests: number
+    created_at: string
+  } | null
+}
+
+const WA_BLAST_LABELS: Record<string, string> = {
+  formal: "Formal & Resmi",
+  hangat: "Hangat & Personal",
+  singkat: "Singkat & Padat",
+  islami: "Islami",
+  mewah: "Mewah & Eksklusif",
 }
 
 function formatCurrency(n: number): string {
@@ -123,6 +141,7 @@ export default function OpsDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [paymentTotal, setPaymentTotal] = useState("")
   const slaInegts = useRef<Record<string, NodeJS.Timeout>>({})
+  const [waBlastSchedule, setWaBlastSchedule] = useState<any>(null)
   const [showInvCard, setShowInvCard] = useState(false)
   const [invitationData, setInvitationData] = useState<any>(null)
   const [invLoading, setInvLoading] = useState(false)
@@ -164,6 +183,7 @@ export default function OpsDashboardPage() {
       const data = await res.json()
       setDetail(data)
       setPaymentTotal(String(data.wedding_profile.total_project_cost || 0))
+      setWaBlastSchedule(data.wa_blast_schedule || null)
       const wpId = data.wedding_profile?.id
       if (wpId) {
         const fbRes = await fetch(`/api/feedback-submissions?wedding_profile_id=${wpId}`)
@@ -588,6 +608,8 @@ export default function OpsDashboardPage() {
                             ? `${detail.feature_stats.photo_count} Foto Terunggah`
                             : fa.feature_key === "kolom_direct_transfer"
                             ? `${detail.feature_stats.account_count} Rek, ${detail.feature_stats.address_count} Alm`
+                            : fa.feature_key === "wa_blast" && waBlastSchedule
+                            ? `${WA_BLAST_LABELS[waBlastSchedule.template_type] || waBlastSchedule.template_type} • ${formatDate(waBlastSchedule.scheduled_date)} ${waBlastSchedule.scheduled_time?.slice(0, 5) || ""}`
                             : null
                           return subtitle ? (
                             <div className="mb-4 py-2 px-3 bg-secondary-container/60 border border-secondary/15">
@@ -597,6 +619,22 @@ export default function OpsDashboardPage() {
                             </div>
                           ) : null
                         })()}
+
+                        {fa.feature_key === "wa_blast" && waBlastSchedule?.message_text && (
+                          <div className="mb-4 bg-surface rounded-lg p-4 border border-outline-variant/40 shadow-inner">
+                            <div className="flex items-center gap-2 mb-2 pb-2 border-b border-outline-variant/20">
+                              <span className="font-label-md text-[9px] uppercase tracking-widest text-secondary font-semibold">{WA_BLAST_LABELS[waBlastSchedule.template_type] || waBlastSchedule.template_type}</span>
+                              <span className="w-1 h-1 rounded-full bg-outline-variant/50" />
+                              <span className="font-label-md text-[8px] uppercase tracking-wider text-on-surface-variant/60">{waBlastSchedule.total_guests} Tamu</span>
+                              <span className={`ml-auto text-[8px] font-bold uppercase px-1.5 py-0.5 rounded ${waBlastSchedule.status === "scheduled" ? "bg-amber-100 text-amber-800" : waBlastSchedule.status === "sent" ? "bg-emerald-100 text-emerald-800" : "bg-surface-container-highest text-on-surface-variant"}`}>
+                                {waBlastSchedule.status === "scheduled" ? "Terjadwal" : waBlastSchedule.status === "sent" ? "Terkirim" : waBlastSchedule.status}
+                              </span>
+                            </div>
+                            <p className="font-body-md text-sm text-on-surface/90 leading-relaxed whitespace-pre-wrap">
+                              {waBlastSchedule.message_text}
+                            </p>
+                          </div>
+                        )}
 
                         {fa.client_note && (
                           <p className="text-xs italic font-body-md opacity-60 mb-4 leading-relaxed">

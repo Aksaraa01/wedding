@@ -80,6 +80,9 @@ module.exports = {
         "gutter": "32px",
         "container-max": "1440px",
         "edge-margin-mobile": "24px",
+        "margin-desktop": "64px",
+        "margin-mobile": "20px",
+        "unit": "8px",
       },
       fontFamily: {
         "body-md": ["Inter", ...fontFamily.sans],
@@ -91,6 +94,7 @@ module.exports = {
         "headline-xl": ["Playfair Display", ...fontFamily.serif],
         "quote-display": ["Playfair Display", ...fontFamily.serif],
         "display-lg": ["Playfair Display", ...fontFamily.serif],
+        "label-caps": ["Inter"],
       },
       fontSize: {
         "body-md": ["16px", { lineHeight: "28px", fontWeight: "400" }],
@@ -102,6 +106,7 @@ module.exports = {
         "headline-xl": ["60px", { lineHeight: "72px", letterSpacing: "-0.01em", fontWeight: "400" }],
         "quote-display": ["32px", { lineHeight: "44px", fontWeight: "400" }],
         "display-lg": ["84px", { lineHeight: "96px", letterSpacing: "-0.02em", fontWeight: "400" }],
+        "label-caps": ["12px", { lineHeight: "1", letterSpacing: "0.1em", fontWeight: "600" }],
       },
       maxWidth: {
         "container-max": "1440px",

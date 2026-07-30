@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import { ASSETS } from "@/lib/assets"
 
 export default function FeaturesSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
@@ -42,7 +43,7 @@ export default function FeaturesSection() {
               <img
                 alt="Premium Digital Invitation Experience"
                 className="w-full h-full object-cover transition-transform duration-[1500ms] group-hover:scale-110"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6JvU3E1i7nY3fG6fUkWjfs-rVnrXu7a8Pd5-tN3mGj0dBAd2GaY-4VgqlJg74SOGmFyZD2ssWBvnvDhS8eLBm1PvLi0dHxyE2bWGwhdYeygfNjsNl25xqJJYeyyRLDKn_gX7UiWfUUEMsuhW-8Scbfy58lRjfpRMDJsnyS3rcYoovgJfhpgyYfFDBuOAT_JVFezW7VqhYjppOeYSDyFBJJvSK6YPU5J73e0RJVMuzbGluy5x0FLnw"
+                src={ASSETS.features.img1}
               />
             </div>
             <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 z-20 bg-gradient-to-t from-black/80 via-black/30 to-transparent text-white">
@@ -91,7 +92,7 @@ export default function FeaturesSection() {
               <img
                 alt="Detail of premium stationery texture"
                 className="w-full h-full object-cover"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1GWVTUwBLSqgL7tsxpyFVk1CRKFGqtWF2db4xgNA2s1pkUWKdZGEZIq_7wkX45tihHNn6LnCYqUDgW4Hwn6Myiv4XPcAC6uFfmLNcxUo_ZdgmaQ4Lk7IdXxyF_IKqwA-ixzLeL464WNVxgtZnMkn5gfl59JbMapLk5w7UXZ1siObXHGf9zqLl80_hPwQNoYivHJsqxHqvUe-Ko5YBvEGJ6g5vM1xU4S1t0W_rPxkIvlFLZrJwYpXi"
+                src={ASSETS.features.img2}
               />
               <div className="absolute inset-0 border-[8px] md:border-[12px] border-white/10 pointer-events-none" />
             </div>

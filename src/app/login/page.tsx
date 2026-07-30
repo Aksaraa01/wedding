@@ -59,7 +59,7 @@ export default function LoginPage() {
       <div className="h-screen flex flex-col overflow-hidden bg-background text-on-surface antialiased font-body-md text-body-md">
         <header className="fixed top-0 w-full z-50 bg-surface border-b border-outline-variant/20 h-20 flex justify-between items-center px-edge-margin-mobile md:px-edge-margin-desktop">
           <div
-            onClick={() => router.back()}
+            onClick={() => router.push("/hero")}
             className="flex items-center cursor-pointer active:scale-95 transition-all w-10"
           >
             <span className="material-symbols-outlined text-primary">arrow_back</span>

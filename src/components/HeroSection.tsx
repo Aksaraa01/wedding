@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useRef } from "react"
+import { ASSETS } from "@/lib/assets"
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
@@ -65,7 +66,9 @@ export default function HeroSection() {
             </Link>
             <a
               className="font-label-md text-label-md uppercase tracking-[0.15em] border-b border-on-surface/20 pb-1 hover:border-on-surface transition-all text-on-surface whitespace-nowrap"
-              href="#"
+              href="https://wa.me/6281224459435"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               Konsultasi Gratis
             </a>
@@ -80,7 +83,7 @@ export default function HeroSection() {
               <img
                 alt="Editorial wedding portrait with artistic line art elements"
                 className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0DYfYwo0ZUARPITdqj0iXDKoNYCcqDa8r82uv_nV-iy494JamGgbP5FwQG8capdukywo-TUWVF49tg7maxWpHHO9AToSAG-R3MSEvtiL9XrLkHOB56T8qBLUfygG1YW902i-HReyW6_byssCUz_ze16TVy1EsQAVpktSVYBpn3w4pYaA_QMs8O2Lq3vizgrqbE3ErcGmOHNEbZhsOK0UiNJXYH3lBgv7rnz7ZcHpt4fmr3Dzxk3xhuc8dnMj2wsAQAYxJZoz0wr9qVQ"
+                src={ASSETS.hero.bg}
               />
               <div className="absolute inset-0 bg-secondary/5 mix-blend-multiply" />
             </div>

@@ -3,9 +3,19 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
+const PRODUCTS = [
+  { label: "Premium Web Invitation", href: "/premium-web-invitation" },
+  { label: "QR dan Digital Buku Tamu", href: "/qr-digital-buku-tamu" },
+  { label: "Undangan Fisik Premium", href: "#" },
+  { label: "Virtual Wish Wall", href: "#" },
+  { label: "Galeri Kenangan Tamu", href: "#" },
+  { label: "Reminder Tamu VIP", href: "#" },
+]
+
 export default function Navigation() {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
+  const [showProducts, setShowProducts] = useState(false)
 
   const toggleMenu = () => {
     setIsOpen((prev) => !prev)
@@ -46,36 +56,15 @@ export default function Navigation() {
               </button>
               <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute top-full left-0 mt-4 w-72 bg-white border border-outline-variant/30 shadow-xl py-6 z-50 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
                 <div className="grid grid-cols-1 gap-1">
-                  <a
-                    className="px-8 py-3 hover:bg-surface-container-low transition-colors font-label-md text-[10px] text-on-surface"
-                    href="#"
-                  >
-                    Premium Web Invitation
-                  </a>
-                  <a
-                    className="px-8 py-3 hover:bg-surface-container-low transition-colors font-label-md text-[10px] text-on-surface"
-                    href="#"
-                  >
-                    QR Code Book &amp; Attendance
-                  </a>
-                  <a
-                    className="px-8 py-3 hover:bg-surface-container-low transition-colors font-label-md text-[10px] text-on-surface"
-                    href="#"
-                  >
-                    Undangan Fisik Premium
-                  </a>
-                  <a
-                    className="px-8 py-3 hover:bg-surface-container-low transition-colors font-label-md text-[10px] text-on-surface"
-                    href="#"
-                  >
-                    Virtual Wish Wall
-                  </a>
-                  <a
-                    className="px-8 py-3 hover:bg-surface-container-low transition-colors font-label-md text-[10px] text-on-surface"
-                    href="#"
-                  >
-                    WhatsApp Blast Resmi
-                  </a>
+                  {PRODUCTS.map((p) => (
+                    <a
+                      key={p.label}
+                      className="px-8 py-3 hover:bg-surface-container-low transition-colors font-label-md text-[10px] text-on-surface"
+                      href={p.href}
+                    >
+                      {p.label}
+                    </a>
+                  ))}
                 </div>
               </div>
             </div>
@@ -126,13 +115,31 @@ export default function Navigation() {
             </button>
           </div>
           <nav className="flex flex-col gap-8 mt-12 font-headline-md text-[28px] text-on-surface">
-            <a
-              className="border-b border-outline-variant/20 pb-4"
-              href="#"
-              onClick={closeMenu}
-            >
-              Untuk Anda
-            </a>
+            <div className="border-b border-outline-variant/20 pb-4">
+              <button
+                className="flex items-center justify-between w-full text-left"
+                onClick={() => setShowProducts(!showProducts)}
+              >
+                <span>Untuk Anda</span>
+                <span className="material-symbols-outlined text-2xl transition-transform duration-300" style={{ transform: showProducts ? 'rotate(45deg)' : 'rotate(0deg)' }}>
+                  add
+                </span>
+              </button>
+              {showProducts && (
+                <div className="mt-4 flex flex-col gap-1">
+                  {PRODUCTS.map((p) => (
+                    <a
+                      key={p.label}
+                      className="block pl-4 py-3 font-headline-md text-lg text-on-surface/70 hover:text-on-surface transition-colors"
+                      href={p.href}
+                      onClick={closeMenu}
+                    >
+                      {p.label}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
             <a
               className="border-b border-outline-variant/20 pb-4"
               href="#"

@@ -3,6 +3,7 @@
 import { useState, useEffect, use, useRef } from "react"
 import { useRouter } from "next/navigation"
 import QRCode from "qrcode"
+import { ASSETS } from "@/lib/assets"
 
 type Guest = {
   id: string
@@ -193,7 +194,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       {/* Background Texture */}
       <div className="fixed inset-0 -z-10 pointer-events-none opacity-[0.03] select-none">
         <img
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEL3b2tP3ixaYDgjH1ck0NU8K6oGa8Ok9uqR7rQ_-5oA6dWz0SfprkjJ-hj6jXGWENwNwQdN1wQuieSyO-9U2oA5ZQqvBmxZfwIWHuiGQigjVswbr9yygOxGYHa1bdWPCSJrB6wm6IxPvzqj6qhOyPTCRD-PPhV0A8EJTcmtsSqYhA2tVZjfx6BubpdWl96Y5Jb9_GpdY9o_bbDqkD1stn1kuvs24ubZc9t9CV6SEvMmnNtY_6gnlk"
+          src={ASSETS.qrGuestbook.bg}
           alt=""
           className="w-full h-full object-cover"
         />

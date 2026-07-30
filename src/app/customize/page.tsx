@@ -268,9 +268,9 @@ function Inner() {
 
       <main className="pt-32 pb-40 px-edge-margin-mobile md:px-edge-margin-desktop max-w-container-max mx-auto">
         <section className="mb-16 text-center max-w-3xl mx-auto">
-          <span className="font-label-md text-label-md text-secondary uppercase tracking-[0.2em] mb-4 block">Personalized Digital Atelier</span>
+          <span className="font-label-md text-label-md text-secondary uppercase tracking-[0.2em] mb-4 block">Paket Terbaik untuk Anda</span>
           <h1 className="font-headline-xl text-headline-xl text-primary mb-6">Pilih Paket&nbsp;</h1>
-          <p className="font-body-lg text-body-lg text-on-surface-variant">Temukan pengalaman yang paling tepat untuk mengabadikan perayaan Anda. Setiap pilihan dikurasi secara mendalam demi hasil yang tanpa cela.</p>
+          <p className="font-body-lg text-body-lg max-md:text-[14px] text-on-surface-variant">Temukan pengalaman yang paling tepat untuk mengabadikan perayaan Anda. Setiap pilihan dikurasi secara mendalam demi hasil yang tanpa cela.</p>
         </section>
 
         <section className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch mb-24">
@@ -310,11 +310,11 @@ function Inner() {
                   </span>
                 </div>
                 <div className="mb-6">
-                  <h3 className={`font-headline-md text-headline-md mb-2 ${isActive ? pkgColor : ""}`}>{pkg.name}</h3>
+                  <h3 className={`font-headline-md text-headline-md mb-2 ${isActive || pkg.code === "signature" || pkg.code === "prestige" ? pkgColor : ""}`}>{pkg.name}</h3>
                   <p className="font-body-md italic text-on-surface-variant">{pkg.desc}</p>
                 </div>
                 <div className="mb-8">
-                  <div className={`flex items-baseline gap-1 ${isActive ? pkgColor : ""}`}>
+                  <div className={`flex items-baseline gap-1 ${isActive || pkg.code === "signature" || pkg.code === "prestige" ? pkgColor : ""}`}>
                     <span className="text-label-md font-bold self-start mt-1">Rp</span>
                     <span className="font-headline-lg text-headline-lg">{PACKAGE_PRICES[pkg.code].toLocaleString("id-ID")}</span>
                   </div>

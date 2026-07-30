@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import { getTemplateComponent } from "@/components/templates"
+import { ASSETS } from "@/lib/assets"
 
 export default async function DemoPage({
   params,
@@ -21,8 +22,8 @@ export default async function DemoPage({
       display_name="Alexa & Reza"
       groom_full_name="Reza Pratama"
       bride_full_name="Alexa Amanda"
-      groom_photo_url="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face"
-      bride_photo_url="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face"
+      groom_photo_url={ASSETS.demo.groomPhoto}
+      bride_photo_url={ASSETS.demo.bridePhoto}
       groom_parents="Bapak Hendra & Ibu Sari"
       bride_parents="Bapak Wijaya & Ibu Dewi"
       sessions={[
@@ -32,20 +33,20 @@ export default async function DemoPage({
       quote_text="Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu isteri-isteri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya; dan dijadikan-Nya diantaramu rasa kasih dan sayang."
       quote_source="QS. Ar-Rum: 21"
       stories={[
-        { year: "2018", title: "Pertama Kali Bertemu", description: "Sebuah senyum di kedai kopi yang mengubah segalanya.", image_url: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=400&h=400&fit=crop" },
-        { year: "2024", title: "Pertanyaan Besar", description: "Di bawah langit senja, janji suci pun terucap.", image_url: "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&h=400&fit=crop" },
+        { year: "2018", title: "Pertama Kali Bertemu", description: "Sebuah senyum di kedai kopi yang mengubah segalanya.", image_url: ASSETS.demo.story1 },
+        { year: "2024", title: "Pertanyaan Besar", description: "Di bawah langit senja, janji suci pun terucap.", image_url: ASSETS.demo.story2 },
       ]}
       gallery_photos={[
-        "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&h=800&fit=crop",
-        "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=800&fit=crop",
-        "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&h=800&fit=crop",
+        ASSETS.demo.gallery[0],
+        ASSETS.demo.gallery[1],
+        ASSETS.demo.gallery[2],
       ]}
       gift_accounts={[
         { provider_name: "BANK MANDIRI", account_number: "338001052747530", account_name: "TRIA AMANDA SARI", type: "bank" },
         { provider_name: "SHOPEEPAY", account_number: "082361944259", account_name: "TRIA AMANDA SARI", type: "ewallet" },
       ]}
       gift_address="Jl. Contoh Alamat No. 123, Jakarta Selatan, DKI Jakarta 12345"
-      track_url="https://drive.usercontent.google.com/download?id=1gyl4IppTKVm7jAldtHwvXWbQ8GO7jY20&export=download"
+      track_url={ASSETS.demoAudio}
       inviting_families={["Bpk. Hendra & Ibu Sari", "Bpk. Wijaya & Ibu Dewi"]}
     />
   )

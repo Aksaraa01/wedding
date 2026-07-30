@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import { ASSETS } from "@/lib/assets"
 
 export default function SolutionSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
@@ -39,7 +40,7 @@ export default function SolutionSection() {
           className="w-full h-full bg-cover bg-center"
           style={{
             backgroundImage:
-              "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAaGj74j83onRJK8-W3eN89UfcAlyfcTX_gBLEqhmDPPbDFdu8E1BKm-0JmFNUg1JTDaRenCUptWGk_Dz18w3mIboLtWntN7XvUe0OoGjQ9va6b2IAQyrAuB_pRzO2JxRJu6ugieD7gn7rV3OoBoGfSihXweo1cORDGytuOtM2UtPnubOhaRqmffT4TdP9hYhr1u2-LJPfg_dLxzCulGlDUT79SGRjaZYRangi3UklDEpHaOOZ5c5tD')",
+              `url('${ASSETS.solution.bg}')`,
           }}
         />
       </div>

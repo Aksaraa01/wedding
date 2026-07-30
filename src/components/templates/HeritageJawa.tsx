@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import type { TemplateTheme } from "@/types/template"
 import ThemeInjector from "./shared/ThemeInjector"
+import { ASSETS } from "@/lib/assets"
 
 interface Props {
   bride_name: string
@@ -34,26 +35,26 @@ interface Props {
 }
 
 const IMG = {
-  parchment: "https://lh3.googleusercontent.com/aida-public/AB6AXuDrV_0lYgYUkE4VlvVBI8uKfbS0s-GuC6g52rlYebAdp0DCqHYlZwTiIVkkkT8WmZouCHy4L8pBmhpT-mgEz5hv88N4bFTKtBBL5hxHddm0wfFHT0_zMJ2TbbaeqhHN0SKqXZayappZDK82zHV3uPHdEBVYHoRRZPIm9tssJGXCHK668NZnoY4D_o7rhjYvylJUNs9-k2o4YEYvzXn_hijhzKA_IkcUlVLDTtks9zt95s2n1f3Zjn7Ltq74tNeD3vakaG8",
-  heroBg: "https://lh3.googleusercontent.com/aida-public/AB6AXuCtauSat3IABhE81EPzyujWU2U08RAlwTNnWVZU54NK155Bngz7kkwULzyUcB8DhyIvj_nFHW4azPl9ecqIL_vsTY7lPYE1aIl3hkEhimh_bu62fzNfFVj2sjOIuKNiwZRPYNcvc3MFXz8MNEh2o3trTyNUW8V9N3XRrQ-wcahIGKKX21dtbd6Hhff4TTooFbzzYHS5Fdjjfz2qY2XIFtttLT3wk5ug_4uljOKTyY3kgoiaWD92Ph0UeobRUmeJ28XrOC4",
-  groomFrame: "https://lh3.googleusercontent.com/aida-public/AB6AXuBtyVbbVHfQmirQaXKgujvUj9Ilr6U_cTJPClLt74tzGX5oCuMH3y2g4MN5Hpbyb4qVRX4VB7Xj1c6A6h1R-mkgTKHtm40w1cJ7UoIGnjHlByg3VF-UkMK2tqz6Xrb7OIW_gwzVORQYZ3yS3yrihf-kw2fsQCQ0E1k3ai8tVbQweir5ykHIk0Zh5cNyXGHwWZmrIAv6-pL0rrBfGHOtwTJbfvK8DRJZSJrfNef4GgsE9SwWE_-d_gFvJLljXQ5LSi0bf9A",
-  brideFrame: "https://lh3.googleusercontent.com/aida-public/AB6AXuCcNMbjTZJMg4Z5Dwn2OJ6KjYPq_SIY-RV_CsMY97HAeNNldN-1XMW9VtgkgX4FQ2gwjCI*NdOrijgt9-ftXteim4fA6A863MxA6wAFZsU1AcXFDJRVP2qpZtBDHiI3cnE8rj8Rc7MJwnuyol_-sWdLtB_1_KHGPfoleuvNMG_0dfHFv2ui9rjewifHZBDIYANfoclIO2j9XQy1bT_g7mrJJwhSNLL1qadVdfEEvxgEui4DaWrGeRWo-D-9EdZj4kL9--4",
-  eventsTexture: "https://lh3.googleusercontent.com/aida-public/AB6AXuBqtYoGFRapKObd6D3UFaZxuFaECJcYVbAt-6plfsDCIVoMEAzQBHGaRsuNXJBUKCJplBUox4lwYMm_K8Nr1OSZ_3oHn89bA_OgXiqqqC6HGgNxxrGIj1dUBSUPzs8jWSUGk2ZuNrhLrLFkkJIxyM-4VUfLBxPyVwbCycU7LqtG3IKe-TbKQTP0pkbpFbV6v-OVWS1MdYncvq2ILlyvTaDymiV8iiruledMuUf06qJtUb4TqdaPYic2hpSC0GD6oHEiWBo",
-  storyBg: "https://lh3.googleusercontent.com/aida-public/AB6AXuDMU6e-AOh9daqdJcdPtyYpoTO8WDTdpVIlBuVOzBwSJYz1FHUudacmPuYoNB7fCTxpOQLy-W4zPYVRmbfO_oZ5qHQym7vd9YzrQhP77xjLq85dlKfne-bU6FPVO9q_jOMXZH80g06wrNi0yOoV47KfauZ0fgoFsW3V70NAEtM6Y6Duh2__AuA37HRVFMbl7kWxJCJaPstuRCtRjQZDUYMOpgEIBfGQ_5TpB4cr8is1WuWh7OYRbEe0vG8k4w8nmfpg_jI",
-  giftBg: "https://lh3.googleusercontent.com/aida-public/AB6AXuBa5Xt9kvWEBKNIHCN9yXDaE94Rh7Jbb2h6D3o-pCQYmNiTCtDh39RMA5n5zujVe5_MJJVDl20sdE8cRWLeafeXxVfCVJy9zvXdOcw8p2QilXLMJkPuc9SOp1YMXwhSTUc6ukSiOd514gwmebjo17zAT-goAKhaSye74vAS1Mm0xmycN0V4koOtdYUfsll6HV-HXJof3CJWBvCPVXoQOwCDD421IjFqp8d4h7s_K2jLPUMK6OgRmRwyCr2qawVra3tBmFU",
-  closingBg: "https://lh3.googleusercontent.com/aida-public/AB6AXuAeVtV5TcCt1d5ddpteUVdd3e_dzNLMzsaHMtw7DyLEfbATKl_w3tsRvF-PPxKFqJM7HXAflqg4jxjq4Fv7QC4269i5cdHC0ROL5hW26JwlDl4zRV4s4ruxfSBuMU-s9nE1vZcLMfKDDDdh2KTCh3PjYsz0wB9Jpb-BI76soy8OiUU2aapAHjSGfRyL7Cy2ho3j8UU-7a-Tuhz7xMittGuaU5xNDk2_av8LsIiF7iqpOs2G8zQ81CN6e-wKluN1R-Ir6rw",
+  parchment: ASSETS.heritageJawa.parchment,
+  heroBg: ASSETS.heritageJawa.heroBg,
+  groomFrame: ASSETS.heritageJawa.groomFrame,
+  brideFrame: ASSETS.heritageJawa.brideFrame,
+  eventsTexture: ASSETS.heritageJawa.eventsTexture,
+  storyBg: ASSETS.heritageJawa.storyBg,
+  giftBg: ASSETS.heritageJawa.giftBg,
+  closingBg: ASSETS.heritageJawa.closingBg,
   gallery: [
-    "https://lh3.googleusercontent.com/aida/AP1WRLurXrYx9c-UIVnKpMOIr2_OJrVxbvnlf51h85eBjeTObYFBRzeUeprIoU0jkX_aUmjNUy_S3KN870yZ3UYxpfKj5x6z73Hmb6NVdBPSM3P7uv_u4MvVuoHVHAbMlhzYIy2V-6HAk2k1bzCeYPMxEF6soMvqeeA3AaRWPFZg_dZVyYbPBl-xo-SQo1MWE8XNByxjmF8hYj2la6ytTne5of-s8YVU61nHYjixRuXLpm2EgsYOeRoFis7Wtxd-",
-    "https://lh3.googleusercontent.com/aida/AP1WRLtdUdv0_ZZ4KZzwcqIchHavkoqu0Z97hzllK0PtuMTrUclGYn0YtTmSttZuW1UKUwWCiQUIHuEZqRyfM7hB3dkgotI1J-HrbmicCIpHA-PMvBV65FpKHFovig46ie76J8EObHKpPgCiOfXkLHPrmXshM2HH4eU4xRRyap8Hbti6GsmhaCMvRAixKhpDndBx1mXIRhlnVL0LQmsCTQwECUe8mF0hTAAymy465ReKc0640sVDD-W8Yx2ziT4",
-    "https://lh3.googleusercontent.com/aida/AP1WRLs5MFdcLfOnJ67JNfcnEtlhc91W2gB5ddsCYDuOpLX7c5QJhkaGAjKWHP_YBL-A-_Wh2ztjCi8zi138U0ZQYS0YCYWG6vM-bYAJnSX6XBT9RsavMS2FWj5iQDEFhwZ3ajpn_dudYW_8AJ2e4RxYgoPbUsB4KZR7X-c_89FB5eDHHDNciLoqgnfIcMzd5EhfLhbxGYw3RZAhW9UN2IEEPnRoKgoZPNIXHxcTSfusMo9__-esT-QTE7G9Uoc",
-    "https://lh3.googleusercontent.com/aida/AP1WRLt-Hp53pSkwoBUyyPo7vimrzSdDYagPSmX-XIpYeJeuGWr3dzBODvshnn18eDrGLecbAyzrTqN5O2iJSkJrwziAPKOWn1xr_q3rDulmU2LrpE44A-HXB132sUwm4DTYhZfKC9u1loEN203go15_1AKF3HQIculcIAj8XdGj4RaK69mq862cgGgpUsK0HhXoU4TeB67BcY8OuZJGdJSuQdS_bM1WwFB9rgO7q9vd9FdwicHhiBSdBeU2tJkM",
-    "https://lh3.googleusercontent.com/aida/AP1WRLvxEaLuKHVfB9uLYrC-c1I8qLzn8abx7YZtevngLA99cV3tbLBEsSM4FoDW7GMpNtYE0of89OJMpe0699aSS3e7VOC6PPFWBzAtcQ6utQ69Bii9Bwg0J4UqxtYm14H_dYOvLhs_S_aXqx2g2PBrJw8JDJbPWUAMnjJdgBYVlr00GuLZD-LVI810d3-P6_DChT3PLBuaUdC2gdiV6WTOB65Frhuy5pWUVD8nvxUgIIxAez1r80zUpU5nf0PI",
-    "https://lh3.googleusercontent.com/aida/AP1WRLvxEaLuKHVfB9uLYrC-c1I8qLzn8abx7YZtevngLA99cV3tbLBEsSM4FoDW7GMpNtYE0of89OJMpe0699aSS3e7VOC6PPFWBzAtcQ6utQ69Bii9Bwg0J4UqxtYm14H_dYOvLhs_S_aXqx2g2PBrJw8JDJbPWUAMnjJdgBYVlr00GuLZD-LVI810d3-P6_DChT3PLBuaUdC2gdiV6WTOB65Frhuy5pWUVD8nvxUgIIxAez1r80zUpU5nf0PI",
+    ASSETS.defaultGallery[0],
+    ASSETS.defaultGallery[1],
+    ASSETS.defaultGallery[2],
+    ASSETS.defaultGallery[3],
+    ASSETS.defaultGallery[4],
+    ASSETS.defaultGallery[4],
   ],
   story: [
-    "https://lh3.googleusercontent.com/aida/AP1WRLvxEaLuKHVfB9uLYrC-c1I8qLzn8abx7YZtevngLA99cV3tbLBEsSM4FoDW7GMpNtYE0of89OJMpe0699aSS3e7VOC6PPFWBzAtcQ6utQ69Bii9Bwg0J4UqxtYm14H_dYOvLhs_S_aXqx2g2PBrJw8JDJbPWUAMnjJdgBYVlr00GuLZD-LVI810d3-P6_DChT3PLBuaUdC2gdiV6WTOB65Frhuy5pWUVD8nvxUgIIxAez1r80zUpU5nf0PI",
-    "https://lh3.googleusercontent.com/aida/AP1WRLvxEaLuKHVfB9uLYrC-c1I8qLzn8abx7YZtevngLA99cV3tbLBEsSM4FoDW7GMpNtYE0of89OJMpe0699aSS3e7VOC6PPFWBzAtcQ6utQ69Bii9Bwg0J4UqxtYm14H_dYOvLhs_S_aXqx2g2PBrJw8JDJbPWUAMnjJdgBYVlr00GuLZD-LVI810d3-P6_DChT3PLBuaUdC2gdiV6WTOB65Frhuy5pWUVD8nvxUgIIxAez1r80zUpU5nf0PI",
-    "https://lh3.googleusercontent.com/aida/AP1WRLs5MFdcLfOnJ67JNfcnEtlhc91W2gB5ddsCYDuOpLX7c5QJhkaGAjKWHP_YBL-A-_Wh2ztjCi8zi138U0ZQYS0YCYWG6vM-bYAJnSX6XBT9RsavMS2FWj5iQDEFhwZ3ajpn_dudYW_8AJ2e4RxYgoPbUsB4KZR7X-c_89FB5eDHHDNciLoqgnfIcMzd5EhfLhbxGYw3RZAhW9UN2IEEPnRoKgoZPNIXHxcTSfusMo9__-esT-QTE7G9Uoc",
+    ASSETS.defaultStory[0],
+    ASSETS.defaultStory[1],
+    ASSETS.defaultStory[2],
   ],
   naturalPaper: "https://www.transparenttextures.com/patterns/natural-paper.png",
 }
@@ -339,7 +340,7 @@ export default function HeritageJawa({
               <div className="flex flex-col items-center text-center group">
                 <div className="relative mb-8">
                   <div className="w-56 h-56 rounded-full border-2 flex items-center justify-center relative p-1" style={{ borderColor: "#C1A05E55" }}>
-                    <div className="absolute inset-0 rounded-full opacity-40 pointer-events-none scale-125" style={{ backgroundImage: `url(${IMG.groomFrame})`, backgroundSize: "contain", backgroundPosition: "center" }} />
+                    <div className="absolute inset-0 rounded-full opacity-20 pointer-events-none scale-125 border-2 border-dashed" style={{ borderColor: "#C1A05E" }} />
                     <div className="w-48 h-48 rounded-full overflow-hidden shadow-2xl relative z-10">
                       {groom_photo_url ? (
                         <img alt="Portrait of Groom" className="w-full h-full object-cover" src={groom_photo_url} />
@@ -366,7 +367,7 @@ export default function HeritageJawa({
               <div className="flex flex-col items-center text-center group">
                 <div className="relative mb-8">
                   <div className="w-56 h-56 rounded-full border-2 flex items-center justify-center relative p-1" style={{ borderColor: "#C1A05E55" }}>
-                    <div className="absolute inset-0 rounded-full opacity-40 pointer-events-none scale-125" style={{ backgroundImage: `url(${IMG.brideFrame})`, backgroundSize: "contain", backgroundPosition: "center", transform: "rotate(180deg)" }} />
+                    <div className="absolute inset-0 rounded-full opacity-20 pointer-events-none scale-125 border-2 border-dashed" style={{ borderColor: "#C1A05E" }} />
                     <div className="w-48 h-48 rounded-full overflow-hidden shadow-2xl relative z-10">
                       {bride_photo_url ? (
                         <img alt="Portrait of Bride" className="w-full h-full object-cover" src={bride_photo_url} />

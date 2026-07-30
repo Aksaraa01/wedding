@@ -2,6 +2,7 @@
 
 import { useState, useRef, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { ASSETS } from "@/lib/assets"
 
 type Step = 1 | 2 | 3
 
@@ -231,8 +232,8 @@ function RegisterInner() {
               <div
                 className="w-full h-full grayscale"
                 style={{
-                  backgroundImage:
-                    "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBj8xA01bPW2frcxd8AppILq6T5pdT3osSbWCleCUQfX6nGvmA4RJdlYgwshBghZM9yl5kclVR4mn_xtccVgBwKQq0_04j2WE5PeVVOhlMotREKUEXbMVeOQyIWlzmHSiKhCyOXy97-sm4h7Sv2zFyWQSTB93VAd3rUyfS9D8Ddd-17YQYn0XwHPzgaWxBVtNaDdOtBjpY9R6t5enSLcAuaYH330jRTDjYvN79xa68CWZ_ovTtuwHY1')",
+                    backgroundImage:
+                      `url('${ASSETS.register.bg}')`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                 }}
