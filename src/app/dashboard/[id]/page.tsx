@@ -364,6 +364,7 @@ function DashboardInner({ id }: { id: string }) {
                         wish_wall: `/dashboard/${id}/wish-wall`,
                         galeri_kenangan: `/dashboard/${id}/galeri-kenangan`,
                         kolom_direct_transfer: `/dashboard/${id}/amplop-digital`,
+                        wa_blast: `/dashboard/${id}/reminder-tamu-vip`,
                       }
                       const route = routes[card.key]
                       if (route) router.push(route)

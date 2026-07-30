@@ -1,0 +1,266 @@
+"use client"
+
+import { useState, useEffect, use } from "react"
+import { useRouter } from "next/navigation"
+import PageTheme from "@/components/PageTheme"
+
+const MESSAGE_TEMPLATES: Record<string, { label: string; text: string }> = {
+  formal: {
+    label: "Formal & Resmi",
+    text: "Kepada Yth. {Nama Tamu},\n\nTanpa mengurangi rasa hormat, kami mengundang Bapak/Ibu/Saudara/i untuk berkenan hadir pada acara pernikahan kami.\n\nSimak detail undangan digital Anda melalui tautan berikut:\n{Tautan Unik}\n\nJangan lupa simpan QR Code akses masuk Anda.\n\nMerupakan suatu kehormatan apabila Anda berkenan hadir meluangkan waktu.\n\nHormat kami,\n{Nama Pengantin}",
+  },
+  hangat: {
+    label: "Hangat & Personal",
+    text: "Halo {Nama Tamu}! 🥂\n\nKami tidak sabar untuk merayakan hari spesial kami bersama Anda. Terima kasih telah menjadi bagian dari cerita cinta kami.\n\nSilakan akses undangan digital dan konfirmasi kehadiran Anda di:\n{Tautan Unik}\n\nQR Code masuk sudah menanti — jangan sampai ketinggalan ya!\n\nSampai jumpa di hari bahagia kami!\n{Nama Pengantin} ❤️",
+  },
+  singkat: {
+    label: "Singkat & Padat",
+    text: "{Nama Tamu},\n\nInformasi pernikahan kami:\n\n📅 {Tanggal}\n📍 {Lokasi}\n🔗 {Tautan Unik}\n\nQR Code akses: simpan untuk masuk.\nNomor Meja: {Nomor Meja}\n\nSampai jumpa!\n{Nama Pengantin}",
+  },
+  islami: {
+    label: "Islami",
+    text: "Assalamu'alaikum Warahmatullahi Wabarakatuh,\n\nKepada Yth. {Nama Tamu},\n\nDengan memohon ridha dan rahmat Allah SWT, kami mengundang Anda untuk menghadiri akad nikah dan resepsi putra-putri kami.\n\nSemoga kehadiran Anda menjadi keberkahan bagi kami. Detail acara:\n{Tautan Unik}\n\nWassalamu'alaikum Warahmatullahi Wabarakatuh.\n\n{Nama Pengantin}",
+  },
+  mewah: {
+    label: "Mewah & Eksklusif",
+    text: "Dear {Nama Tamu},\n\nAn affair of timeless elegance awaits. We are delighted to invite you to witness the beginning of our forever.\n\nYour exclusive digital invitation:\n{Tautan Unik}\n\nKindly present your QR Code for a seamless entrance.\nTable: {Nomor Meja}\n\nWe look forward to celebrating with you.\n\nWith love,\n{Nama Pengantin}",
+  },
+}
+
+function formatDate(d: Date): string {
+  return d.toISOString().split("T")[0]
+}
+
+function formatTime(d: Date): string {
+  return d.toTimeString().slice(0, 5)
+}
+
+export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
+  const router = useRouter()
+
+  const [selectedTemplate, setSelectedTemplate] = useState("formal")
+  const [messageText, setMessageText] = useState(MESSAGE_TEMPLATES.formal.text)
+  const [scheduledDate, setScheduledDate] = useState(formatDate(new Date()))
+  const [scheduledTime, setScheduledTime] = useState("09:00")
+  const [totalGuests, setTotalGuests] = useState(0)
+  const [waBlastTier, setWaBlastTier] = useState(0)
+  const [packageType, setPackageType] = useState("signature")
+  const [editing, setEditing] = useState(false)
+  const [editText, setEditText] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    fetch(`/api/dashboard/${id}/wa-blast`)
+      .then(r => r.json())
+      .then(data => {
+        setTotalGuests(data.total_guests || 0)
+        setWaBlastTier(data.wa_blast_tier || 0)
+        setPackageType(data.package_type || "signature")
+        if (data.schedule) {
+          setSelectedTemplate(data.schedule.template_type || "formal")
+          setMessageText(data.schedule.message_text || MESSAGE_TEMPLATES.formal.text)
+          setScheduledDate(data.schedule.scheduled_date || formatDate(new Date()))
+          setScheduledTime(data.schedule.scheduled_time?.slice(0, 5) || "09:00")
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false))
+  }, [id])
+
+  function handleTemplateChange(val: string) {
+    setSelectedTemplate(val)
+    const template = MESSAGE_TEMPLATES[val]
+    if (template) {
+      setMessageText(template.text)
+      setEditText(template.text)
+    }
+  }
+
+  function handleSave() {
+    setSaving(true)
+    setSaved(false)
+    fetch(`/api/dashboard/${id}/wa-blast`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        template_type: selectedTemplate,
+        message_text: editing ? editText : messageText,
+        scheduled_date: scheduledDate,
+        scheduled_time: scheduledTime,
+        total_guests: totalGuests,
+      }),
+    })
+      .then(r => r.json())
+      .then(() => setSaved(true))
+      .catch(console.error)
+      .finally(() => setSaving(false))
+  }
+
+  const displayText = editing ? editText : messageText
+
+  const packageBase = packageType === "prestige" ? 100 : 0
+  const totalQuota = packageBase + waBlastTier
+  const quotaLabel = totalQuota > 0 ? `Kuota: ${Math.min(totalGuests, totalQuota)}/${totalQuota}` : `${totalGuests} Tamu`
+
+  return (
+    <>
+      <PageTheme mode="light" />
+      <div className="min-h-screen bg-background text-on-surface font-body-md antialiased pb-32">
+        <main className="w-full max-w-2xl mx-auto px-6 pt-10 flex flex-col gap-8">
+          <header className="flex flex-col gap-5">
+            <nav>
+              <button
+                onClick={() => router.push(`/dashboard/${id}`)}
+                className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors group"
+              >
+                <span className="material-symbols-outlined text-base group-hover:-translate-x-0.5 transition-transform">arrow_back</span>
+                <span className="font-label-md text-[11px] uppercase tracking-[0.2em] font-medium">Kembali</span>
+              </button>
+            </nav>
+            <div className="flex flex-col gap-2">
+              <h1 className="font-headline-lg text-3xl md:text-4xl text-primary leading-tight tracking-tight">Reminder Tamu VIP</h1>
+            </div>
+            <div className="h-px bg-outline-variant/40 mt-2" />
+          </header>
+
+          <section className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-6 shadow-sm flex flex-col gap-6">
+            <div className="flex items-center justify-between border-b border-outline-variant/30 pb-4">
+              <div className="flex items-center gap-2.5">
+                <span className="material-symbols-outlined text-secondary text-xl">auto_stories</span>
+                <h2 className="font-headline-md text-xl font-medium text-primary">Konfigurasi Pesan</h2>
+              </div>
+            </div>
+            <div className="flex flex-col gap-5">
+              <div className="relative flex flex-col gap-2">
+                <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wider font-semibold">Pilih Tipe Pesan</label>
+                <div className="relative">
+                  <select
+                    value={selectedTemplate}
+                    onChange={e => handleTemplateChange(e.target.value)}
+                    className="w-full border border-outline-variant/60 rounded-lg bg-surface-container-lowest px-4 py-3.5 font-body-md text-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary transition-all appearance-none cursor-pointer pr-10 shadow-sm"
+                  >
+                    {Object.entries(MESSAGE_TEMPLATES).map(([key, t]) => (
+                      <option key={key} value={key}>{t.label}</option>
+                    ))}
+                  </select>
+                  <span className="material-symbols-outlined absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/70 pointer-events-none">expand_more</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wider font-semibold">Pratinjau Pesan</label>
+                {editing ? (
+                  <textarea
+                    value={editText}
+                    onChange={e => setEditText(e.target.value)}
+                    className="bg-surface rounded-lg p-5 font-body-md text-sm text-on-surface/90 leading-relaxed border border-outline-variant/40 min-h-[220px] resize-y focus:ring-1 focus:ring-secondary focus:border-secondary"
+                  />
+                ) : (
+                  <div className="bg-surface rounded-lg p-5 font-body-md text-sm text-on-surface/90 leading-relaxed whitespace-pre-wrap border border-outline-variant/40 shadow-inner min-h-[160px]">
+                    {displayText}
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </section>
+
+          <section className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-6 shadow-sm flex flex-col gap-6">
+            <div className="flex justify-between items-center border-b border-outline-variant/30 pb-4">
+              <div className="flex items-center gap-2.5">
+                <span className="material-symbols-outlined text-secondary text-xl">calendar_month</span>
+                <h3 className="font-headline-md text-xl font-medium text-primary">Jadwal Pengiriman</h3>
+              </div>
+              <div className="flex items-center gap-1.5 bg-surface-container border border-outline-variant/40 px-3 py-1 rounded-md text-on-surface-variant">
+                <span className="material-symbols-outlined text-sm">local_offer</span>
+                <span className="font-label-md text-[10px] uppercase tracking-wider font-medium">{quotaLabel}</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="flex flex-col gap-2">
+                <label className="text-[11px] font-label-md uppercase tracking-wider text-on-surface-variant font-semibold">Tanggal</label>
+                <input
+                  type="date"
+                  value={scheduledDate}
+                  onChange={e => setScheduledDate(e.target.value)}
+                  className="w-full bg-surface-container-lowest border border-outline-variant/60 rounded-lg px-4 py-3 font-body-md text-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm transition-colors"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-[11px] font-label-md uppercase tracking-wider text-on-surface-variant font-semibold">Waktu Eksekusi (WIB)</label>
+                <input
+                  type="time"
+                  value={scheduledTime}
+                  onChange={e => setScheduledTime(e.target.value)}
+                  className="w-full bg-surface-container-lowest border border-outline-variant/60 rounded-lg px-4 py-3 font-body-md text-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm transition-colors"
+                />
+              </div>
+            </div>
+          </section>
+
+          <section className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-6 shadow-sm flex flex-col gap-6">
+            <div className="flex items-center justify-between border-b border-outline-variant/30 pb-4">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-secondary text-xl">sensors</span>
+                <h2 className="font-headline-md text-xl font-medium text-primary">Status Broadcast</h2>
+                <div className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse ring-4 ring-emerald-600/20" />
+              </div>
+              <span className="text-xs font-label-md bg-emerald-50 text-emerald-700 border border-emerald-200/50 px-2.5 py-0.5 rounded font-medium uppercase tracking-wider">Live Active</span>
+            </div>
+
+            <div className="bg-surface p-4 rounded-xl border border-outline-variant/30 flex flex-col gap-3">
+              <div className="flex justify-between items-center">
+                <span className="font-label-md text-[11px] uppercase tracking-wider text-on-surface-variant font-semibold">Aktivitas Progres Antrean</span>
+                <span className="font-headline-md text-lg font-bold text-secondary">0%</span>
+              </div>
+              <div className="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden shadow-inner">
+                <div className="h-full bg-secondary rounded-full transition-all duration-1000 ease-out shadow-sm" style={{ width: "0%" }} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="border border-outline-variant/50 bg-surface-container-lowest p-4 rounded-lg flex sm:flex-col justify-between sm:justify-start items-center sm:items-start gap-2 shadow-sm">
+                <div className="flex items-center gap-2.5 text-emerald-700">
+                  <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                  <span className="font-body-md text-sm font-medium text-on-surface-variant">Terkirim</span>
+                </div>
+                <span className="font-headline-md text-2xl font-semibold text-primary sm:mt-1">0 <span className="text-[10px] font-label-md uppercase text-on-surface-variant/70 tracking-normal ml-0.5">Pesan</span></span>
+              </div>
+
+              <div className="border border-outline-variant/50 bg-surface-container-lowest p-4 rounded-lg flex sm:flex-col justify-between sm:justify-start items-center sm:items-start gap-2 shadow-sm">
+                <div className="flex items-center gap-2.5 text-amber-600">
+                  <span className="material-symbols-outlined text-xl">hourglass_empty</span>
+                  <span className="font-body-md text-sm font-medium text-on-surface-variant">Antrean</span>
+                </div>
+                <span className="font-headline-md text-2xl font-semibold text-primary sm:mt-1">{totalGuests} <span className="text-[10px] font-label-md uppercase text-on-surface-variant/70 tracking-normal ml-0.5">Pesan</span></span>
+              </div>
+
+              <div className="border border-outline-variant/50 bg-surface-container-low/40 p-4 rounded-lg flex sm:flex-col justify-between sm:justify-start items-center sm:items-start gap-2 opacity-60">
+                <div className="flex items-center gap-2.5 text-error">
+                  <span className="material-symbols-outlined text-xl">error_outline</span>
+                  <span className="font-body-md text-sm font-medium text-on-surface-variant">Gagal</span>
+                </div>
+                <span className="font-headline-md text-2xl font-semibold text-primary sm:mt-1">0 <span className="text-[10px] font-label-md uppercase text-on-surface-variant/70 tracking-normal ml-0.5">Pesan</span></span>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <div className="fixed bottom-0 inset-x-0 bg-background/90 backdrop-blur-md border-t border-outline-variant/60 py-4 px-6 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
+          <div className="max-w-2xl mx-auto flex items-center justify-end">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="w-full sm:w-44 bg-primary text-on-primary py-4 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] transition-all duration-200 active:scale-[0.98] hover:bg-primary/95 shadow-md font-semibold disabled:opacity-50"
+            >
+              {saving ? "Menyimpan..." : saved ? "Tersimpan" : "Simpan Jadwal"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
