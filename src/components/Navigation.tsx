@@ -15,6 +15,7 @@ export default function Navigation() {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [showProducts, setShowProducts] = useState(false)
+  const [snackbar, setSnackbar] = useState<string | null>(null)
 
   const toggleMenu = () => {
     setIsOpen((prev) => !prev)
@@ -26,8 +27,25 @@ export default function Navigation() {
     document.body.classList.remove("mobile-menu-open")
   }
 
+  const showComingSoon = (label: string) => {
+    setSnackbar(label)
+    setTimeout(() => setSnackbar(null), 2000)
+  }
+
   return (
     <>
+      {snackbar && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[70] bg-on-surface text-background px-6 py-4 shadow-2xl flex items-center gap-3 animate-[slideUp_0.3s_ease-out]">
+          <span className="material-symbols-outlined text-sm">construction</span>
+          <span className="font-label-md text-label-md uppercase tracking-widest">{snackbar} — Coming Soon</span>
+        </div>
+      )}
+      <style>{`
+        @keyframes slideUp {
+          from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+          to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+      `}</style>
       <header className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-outline-variant/20">
         <div className="flex justify-between items-center w-full px-edge-margin-mobile md:px-edge-margin-desktop max-w-container-max mx-auto py-4 md:py-6">
           <div className="flex items-center gap-1 shrink-0">
@@ -67,18 +85,18 @@ export default function Navigation() {
                 </div>
               </div>
             </div>
-            <a
+            <button
+              onClick={() => showComingSoon("Portofolio")}
               className="text-on-surface/70 hover:text-on-surface transition-colors"
-              href="#"
             >
               Portofolio
-            </a>
-            <a
+            </button>
+            <button
+              onClick={() => showComingSoon("Tentang Kami")}
               className="text-on-surface/70 hover:text-on-surface transition-colors"
-              href="#"
             >
               Tentang Kami
-            </a>
+            </button>
           </nav>
 
           <div className="hidden md:block">
@@ -139,20 +157,18 @@ export default function Navigation() {
                 </div>
               )}
             </div>
-            <a
-              className="border-b border-outline-variant/20 pb-4"
-              href="#"
-              onClick={closeMenu}
+            <button
+              className="border-b border-outline-variant/20 pb-4 text-left"
+              onClick={() => { closeMenu(); showComingSoon("Portofolio") }}
             >
               Portofolio
-            </a>
-            <a
-              className="border-b border-outline-variant/20 pb-4"
-              href="#"
-              onClick={closeMenu}
+            </button>
+            <button
+              className="border-b border-outline-variant/20 pb-4 text-left"
+              onClick={() => { closeMenu(); showComingSoon("Tentang Kami") }}
             >
               Tentang Kami
-            </a>
+            </button>
           </nav>
           <div className="mt-auto flex flex-col gap-6 pb-12">
             <button

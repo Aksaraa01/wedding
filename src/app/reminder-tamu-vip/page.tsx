@@ -268,12 +268,7 @@ export default function ReminderTamuVIPPage() {
           </div>
         </section>
 
-        {/* Spacer for fixed footer */}
-        <div className="h-32 md:h-24" />
       </main>
-
-      {/* Sticky Footer */}
-      <footer className="fixed bottom-0 w-full z-50 bg-primary h-24 md:h-20 shadow-2xl" />
     </>
   )
 }
