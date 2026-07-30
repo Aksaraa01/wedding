@@ -37,12 +37,12 @@ export default function PremiumWebInvitationPage() {
       `}</style>
 
       <nav className="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-md border-b-[0.5px] border-outline-variant">
-        <div className="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-6 w-full max-w-container-max mx-auto">
-          <div className="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary tracking-tighter">
+        <div className="flex items-center gap-4 px-margin-mobile md:px-margin-desktop py-6 w-full max-w-container-max mx-auto">
+          <button onClick={() => router.back()}>
+            <span className="material-symbols-outlined text-primary">arrow_back</span>
+          </button>
+          <div className="font-headline-md text-[24px] md:text-headline-md text-primary tracking-tight">
             Aksaraa
-          </div>
-          <div className="md:hidden">
-            <span className="material-symbols-outlined text-primary">menu</span>
           </div>
         </div>
       </nav>

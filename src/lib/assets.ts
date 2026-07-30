@@ -73,6 +73,20 @@ export const ASSETS = {
     s("tracks/perfect.mp3"),
     s("tracks/women-in-white.mp3"),
   ],
+  guestGallery: {
+    heroSide1: s("guest-gallery/hero-side-1.jpg"),
+    heroSide2: s("guest-gallery/hero-side-2.jpg"),
+    heroSide3: s("guest-gallery/hero-side-3.jpg"),
+    heroSide4: s("guest-gallery/hero-side-4.jpg"),
+    card1: s("guest-gallery/card-1.jpg"),
+    card2: s("guest-gallery/card-2.jpg"),
+    card3: s("guest-gallery/card-3.jpg"),
+    card4: s("guest-gallery/card-4.jpg"),
+  },
+  wishWall: {
+    venueProjection: s("wish-wall/venue-projection.jpg"),
+    dashboardInterface: s("wish-wall/dashboard-interface.jpg"),
+  },
   qrDigital: {
     hero: s("qr-digital/hero-reception.jpg"),
     tablet: s("qr-digital/tablet-dashboard.jpg"),

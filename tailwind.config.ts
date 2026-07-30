@@ -95,6 +95,8 @@ module.exports = {
         "quote-display": ["Playfair Display", ...fontFamily.serif],
         "display-lg": ["Playfair Display", ...fontFamily.serif],
         "label-caps": ["Inter"],
+        "label-sm": ["Inter"],
+        "headline-lg-mobile": ["Playfair Display", ...fontFamily.serif],
       },
       fontSize: {
         "body-md": ["16px", { lineHeight: "28px", fontWeight: "400" }],
@@ -107,6 +109,8 @@ module.exports = {
         "quote-display": ["32px", { lineHeight: "44px", fontWeight: "400" }],
         "display-lg": ["84px", { lineHeight: "96px", letterSpacing: "-0.02em", fontWeight: "400" }],
         "label-caps": ["12px", { lineHeight: "1", letterSpacing: "0.1em", fontWeight: "600" }],
+        "label-sm": ["12px", { lineHeight: "1.0", letterSpacing: "0.1em", fontWeight: "600" }],
+        "headline-lg-mobile": ["32px", { lineHeight: "1.2", fontWeight: "600" }],
       },
       maxWidth: {
         "container-max": "1440px",

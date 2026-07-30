@@ -76,7 +76,7 @@ export default function QrDigitalBukuTamuPage() {
         <button onClick={() => router.back()} className="flex items-center">
           <span className="material-symbols-outlined text-primary">arrow_back</span>
         </button>
-        <div className="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg tracking-tighter text-primary">
+        <div className="font-headline-md text-[24px] md:text-headline-md tracking-tight text-primary">
           AKSARAA
         </div>
         <div className="flex items-center w-6" />
