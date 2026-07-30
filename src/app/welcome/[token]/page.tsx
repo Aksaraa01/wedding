@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from "react"
 import QRCode from "qrcode"
+import ProfileMenu from "@/components/ProfileMenu"
 
 function formatDate(dateStr: string): string {
   if (!dateStr) return ""
@@ -178,9 +179,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
             <span className="material-symbols-outlined text-2xl" data-icon="menu">menu</span>
           </button>
           <div className="font-headline-md text-xl tracking-wide font-semibold text-primary">Aksaraa</div>
-          <button className="w-10 h-10 flex items-center justify-end text-primary active:scale-95 transition-transform" aria-label="Profil Akun">
-            <span className="material-symbols-outlined text-2xl" data-icon="account_circle">account_circle</span>
-          </button>
+          <ProfileMenu />
         </div>
       </header>
 

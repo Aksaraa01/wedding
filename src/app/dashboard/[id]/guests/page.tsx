@@ -3,6 +3,7 @@
 import { useState, useEffect, use, useRef } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
+import ProfileMenu from "@/components/ProfileMenu"
 import * as XLSX from "xlsx"
 
 type Guest = {
@@ -235,11 +236,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
               <span className="material-symbols-outlined text-primary group-hover:-translate-x-1 transition-transform">arrow_back</span>
               <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Batal &amp; Kembali</span>
             </button>
-            <div className="flex items-center gap-4">
-              <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
-                <span className="material-symbols-outlined text-on-primary-container text-sm">account_circle</span>
-              </div>
-            </div>
+            <ProfileMenu />
           </div>
         </header>
 

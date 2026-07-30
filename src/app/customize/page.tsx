@@ -9,6 +9,7 @@ import {
   calcTotal,
   normalizePhone,
 } from "@/lib/packages"
+import ProfileMenu from "@/components/ProfileMenu"
 
 const WA_TIERS = [100, 200, 300] as const
 
@@ -260,10 +261,8 @@ function Inner() {
             <span className="material-symbols-outlined">arrow_back</span>
             <span className="font-label-md text-label-md uppercase tracking-widest hidden md:inline">Kembali</span>
           </button>
-          <div className="font-headline-md text-headline-md tracking-tighter text-primary font-bold">AKSARA</div>
-          <div className="flex items-center gap-4">
-            <span className="material-symbols-outlined text-primary scale-110">person</span>
-          </div>
+          <div className="font-headline-md text-headline-md tracking-tighter text-primary font-bold">AKSARAA</div>
+          <ProfileMenu />
         </div>
       </header>
 
@@ -345,7 +344,7 @@ function Inner() {
                     if (pkg.code !== "prestige") setWaBlastTier(0)
                   }}
                 >
-                  {pkg.btnLabel}
+                  {isActive ? "Terpilih" : pkg.btnLabel}
                 </button>
               </div>
             )
@@ -353,7 +352,7 @@ function Inner() {
         </section>
 
         {selectedPackage === "prestige" && (
-          <section className="mb-24">
+          <section className="mb-6">
             <div className="border border-outline-variant/30 p-6 md:p-8">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
@@ -392,7 +391,7 @@ function Inner() {
           </section>
         )}
 
-        <section className="mb-24">
+        <section className="mb-6">
           <div className="border border-secondary bg-secondary-fixed/30 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto">
               <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-secondary text-white flex items-center justify-center shrink-0">
@@ -421,8 +420,8 @@ function Inner() {
           </div>
         </section>
 
-        <section className="mb-24">
-          <div className="border border-outline-variant/30 p-8 flex items-center justify-between">
+        <section className="mb-6">
+          <div className="border border-outline-variant/30 p-6 md:p-8 flex items-center justify-between">
             <div>
               <h4 className="font-headline-md text-2xl mb-1">Undangan Fisik Premium (Cetak)</h4>
               <p className="font-body-md text-on-surface-variant">Layanan cetak eksklusif dengan bahan premium.</p>

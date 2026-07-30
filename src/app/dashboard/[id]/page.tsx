@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import Image from "next/image"
 import PageTheme from "@/components/PageTheme"
+import ProfileMenu from "@/components/ProfileMenu"
 
 type Selections = {
   premium_web: boolean
@@ -264,9 +265,7 @@ function DashboardInner({ id }: { id: string }) {
           >
             <span className="material-symbols-outlined text-[20px]">settings</span>
           </button>
-          <div className="w-10 h-10 rounded-full border border-outline overflow-hidden">
-            <span className="material-symbols-outlined text-on-surface-variant w-full h-full flex items-center justify-center">account_circle</span>
-          </div>
+          <ProfileMenu />
         </div>
       </header>
 
