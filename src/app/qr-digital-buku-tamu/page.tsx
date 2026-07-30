@@ -243,13 +243,13 @@ export default function QrDigitalBukuTamuPage() {
       </main>
 
       <footer className="fixed bottom-0 left-0 w-full z-50 bg-inverse-surface py-4 px-margin-mobile md:px-margin-desktop flex justify-center items-center shadow-2xl">
-        <a
+        <button
+          onClick={() => router.push("/register")}
           className="w-full max-w-4xl flex items-center justify-center gap-3 bg-secondary text-on-secondary font-label-caps text-label-caps uppercase py-4 rounded-sm tracking-widest hover:opacity-90 transition-all active:scale-[0.98]"
-          href="https://wa.me/aksara"
         >
           <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>chat</span>
           Integrasikan QR Buku Tamu ke Acara Anda
-        </a>
+        </button>
       </footer>
     </>
   )
