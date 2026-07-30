@@ -59,7 +59,7 @@ function FeedbackInner({ id }: { id: string }) {
     )
   }
 
-  const reversed = [...submissions].reverse()
+  const items = submissions
 
   return (
     <>
@@ -96,8 +96,8 @@ function FeedbackInner({ id }: { id: string }) {
                 </div>
               </div>
             ) : (
-              reversed.map((sub, i) => {
-                const isLatest = i === reversed.length - 1
+              items.map((sub, i) => {
+                const isLatest = i === items.length - 1
                 const images = parseImages(sub.image_url)
                 const areaLabel = sub.area === "Tipografi & Huruf" ? "Tipografi & Huruf"
                   : sub.area === "Foto & Visual" ? "Foto & Visual"
@@ -175,7 +175,7 @@ function FeedbackInner({ id }: { id: string }) {
               Batas revisi ({limit.max_revisions} putaran) telah tercapai.
             </p>
             <p className="font-label-md text-label-md text-on-surface-variant">
-              Hubungi konsultan Aksara untuk opsi penambahan revisi.
+              Hubungi konsultan Aksaraa untuk opsi penambahan revisi.
             </p>
           </div>
         ) : (

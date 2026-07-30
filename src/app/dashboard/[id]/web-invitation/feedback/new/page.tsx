@@ -31,7 +31,7 @@ function FeedbackNewInner({ id }: { id: string }) {
         setTemplate(profData.template)
         setLimit(limitData)
         if (limitData.is_locked) {
-          setError(`Batas revisi (${limitData.max_revisions} putaran) telah tercapai. Silakan hubungi konsultan Aksara.`)
+          setError(`Batas revisi (${limitData.max_revisions} putaran) telah tercapai. Silakan hubungi konsultan Aksaraa.`)
         }
       })
       .catch(() => {})

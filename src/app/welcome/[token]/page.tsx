@@ -177,7 +177,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
           <button className="w-10 h-10 flex items-center justify-start text-primary active:scale-95 transition-transform" aria-label="Menu">
             <span className="material-symbols-outlined text-2xl" data-icon="menu">menu</span>
           </button>
-          <div className="font-headline-md text-xl tracking-wide font-semibold text-primary">Aksara</div>
+          <div className="font-headline-md text-xl tracking-wide font-semibold text-primary">Aksaraa</div>
           <button className="w-10 h-10 flex items-center justify-end text-primary active:scale-95 transition-transform" aria-label="Profil Akun">
             <span className="material-symbols-outlined text-2xl" data-icon="account_circle">account_circle</span>
           </button>

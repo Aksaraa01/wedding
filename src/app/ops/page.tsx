@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
+import html2canvas from "html2canvas"
 
 const PACKAGE_LABELS: Record<string, string> = {
   essential: "Essential",
@@ -42,6 +43,7 @@ type QueueItem = {
     slug: string
     whatsapp_number: string
     estimated_wedding_date: string
+    sessions: any
     estimated_guest_count: number
     package_type: string
     total_project_cost: number
@@ -104,6 +106,12 @@ function formatDate(dateStr: string): string {
   return d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
 }
 
+function getWeddingDate(profile: { estimated_wedding_date?: string; sessions?: any }): string {
+  const sessions = Array.isArray(profile.sessions) ? profile.sessions : []
+  if (sessions.length > 0 && sessions[0]?.date) return sessions[0].date
+  return profile.estimated_wedding_date || ""
+}
+
 export default function OpsDashboardPage() {
   const router = useRouter()
   const [employee, setEmployee] = useState<{ id: string; name: string; role: string } | null>(null)
@@ -115,6 +123,10 @@ export default function OpsDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [paymentTotal, setPaymentTotal] = useState("")
   const slaInegts = useRef<Record<string, NodeJS.Timeout>>({})
+  const [showInvCard, setShowInvCard] = useState(false)
+  const [invitationData, setInvitationData] = useState<any>(null)
+  const [invLoading, setInvLoading] = useState(false)
+  const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -232,6 +244,21 @@ export default function OpsDashboardPage() {
     }
   }
 
+  const fetchInvitationData = async (wpId: string) => {
+    setInvLoading(true)
+    try {
+      const res = await fetch(`/api/dashboard/${wpId}/web-invitation`)
+      if (!res.ok) return
+      const data = await res.json()
+      setInvitationData(data)
+      setShowInvCard(true)
+    } catch (e) {
+      console.error("Failed to fetch invitation", e)
+    } finally {
+      setInvLoading(false)
+    }
+  }
+
   const filteredQueue = queue.filter((item) => {
     if (!search) return true
     const q = search.toLowerCase()
@@ -271,6 +298,20 @@ export default function OpsDashboardPage() {
 
   const currentWp = detail?.wedding_profile
   const isSelected = selectedId && detail
+
+  const downloadImage = async (url: string, filename: string) => {
+    try {
+      const res = await fetch(url, { mode: "cors" })
+      const blob = await res.blob()
+      const link = document.createElement("a")
+      link.href = URL.createObjectURL(blob)
+      link.download = filename
+      link.click()
+      URL.revokeObjectURL(link.href)
+    } catch {
+      window.open(url, "_blank")
+    }
+  }
 
   return (
     <>
@@ -359,7 +400,7 @@ export default function OpsDashboardPage() {
                       </div>
                       <div className="flex items-center gap-2 text-xs uppercase tracking-wider font-label-md">
                         <span className="material-symbols-outlined text-sm">calendar_today</span>
-                        {formatDate(wp.estimated_wedding_date)} &bull; {wp.estimated_guest_count} Tamu
+                        {formatDate(getWeddingDate(wp))} &bull; {wp.estimated_guest_count} Tamu
                       </div>
                     </div>
                   </div>
@@ -389,7 +430,7 @@ export default function OpsDashboardPage() {
                     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 font-body-md text-sm text-on-surface-variant">
                       <div className="flex items-center gap-2">
                         <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">Tanggal:</span>
-                        <span className="font-bold text-primary">{formatDate(currentWp.estimated_wedding_date)}</span>
+                        <span className="font-bold text-primary">{formatDate(getWeddingDate(currentWp))}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">Estimasi:</span>
@@ -619,6 +660,16 @@ export default function OpsDashboardPage() {
                           </div>
                         )}
 
+                        {fa.feature_key === "premium_web" && (
+                          <button
+                            onClick={() => fetchInvitationData(fa.wedding_profile_id)}
+                            disabled={invLoading}
+                            className="w-full mb-4 py-3 border border-secondary text-secondary text-[9px] font-bold uppercase tracking-widest hover:bg-secondary hover:text-on-secondary transition-all disabled:opacity-40"
+                          >
+                            {invLoading ? "Memuat..." : "Lihat Undangan Digital"}
+                          </button>
+                        )}
+
                         <div className="mt-auto flex gap-2 pt-4 border-t border-outline-variant/40">
                           {isSelesai ? (
                             <>
@@ -661,7 +712,7 @@ export default function OpsDashboardPage() {
                   <div className="flex items-center gap-3 opacity-60">
                     <span className="material-symbols-outlined animate-pulse text-secondary">sync</span>
                     <p className="font-label-md text-xs uppercase tracking-widest">
-                      Sinkronisasi real-time database pengantin Aksara Studio
+                      Sinkronisasi real-time database pengantin Aksaraa Studio
                     </p>
                   </div>
                   <button
@@ -676,6 +727,299 @@ export default function OpsDashboardPage() {
           </section>
         </main>
       </div>
+
+      {/* INVITATION CARD MODAL */}
+      {showInvCard && invitationData && (
+        <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8">
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white shadow-2xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-white border-b border-outline-variant">
+              <h2 className="font-display-lg text-lg">Undangan Digital — {invitationData.profile?.bride_name || ""} & {invitationData.profile?.groom_name || ""}</h2>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    if (!cardRef.current) return
+                    html2canvas(cardRef.current, { scale: 2, useCORS: true }).then((canvas) => {
+                      const link = document.createElement("a")
+                      link.download = `undangan-${invitationData.profile?.slug || "card"}.png`
+                      link.href = canvas.toDataURL("image/png")
+                      link.click()
+                    })
+                  }}
+                  className="px-4 py-2 bg-secondary text-on-secondary text-[9px] font-bold uppercase tracking-widest hover:opacity-90 transition-all flex items-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[16px]">download</span>
+                  Download
+                </button>
+                <button onClick={() => { setShowInvCard(false); setInvitationData(null) }} className="p-2 hover:bg-surface-container-low transition-colors">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 sm:p-10">
+              <div ref={cardRef} className="max-w-md mx-auto bg-white border border-outline-variant shadow-lg overflow-hidden">
+                {/* Cover */}
+                {invitationData.profile?.couple_illustration_url && (
+                  <div className="relative h-64 sm:h-80 bg-surface-dim overflow-hidden">
+                    <img
+                      src={invitationData.profile.couple_illustration_url}
+                      alt="Cover"
+                      className={`w-full h-full object-cover ${invitationData.profile.grayscale ? "grayscale" : ""}`}
+                      crossOrigin="anonymous"
+                    />
+                    <button
+                      onClick={() => downloadImage(invitationData.profile.couple_illustration_url!, `cover-${invitationData.profile.slug || "photo"}.jpg`)}
+                      className="absolute top-3 right-3 w-8 h-8 bg-white/90 border border-outline-variant flex items-center justify-center shadow-sm hover:bg-white transition-colors z-10"
+                      title="Download"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">download</span>
+                    </button>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                      <h3 className="font-display-lg text-3xl sm:text-4xl">{invitationData.profile.display_name || `${invitationData.profile.bride_name} & ${invitationData.profile.groom_name}`}</h3>
+                      <p className="font-body-md text-sm opacity-80 mt-1">We Are Getting Married</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="p-6 space-y-6">
+                  {/* Couple Info */}
+                  <div>
+                    <p className="font-display-lg text-2xl text-center text-primary">{invitationData.profile.display_name || `${invitationData.profile.bride_name} & ${invitationData.profile.groom_name}`}</p>
+
+                    {(invitationData.profile.groom_photo_url || invitationData.profile.bride_photo_url) && (
+                      <div className="flex justify-center gap-6 mt-4">
+                        {invitationData.profile.groom_photo_url && (
+                          <div className="relative group">
+                            <div className="w-20 h-20 rounded-full border-2 border-primary overflow-hidden bg-surface-dim">
+                              <img src={invitationData.profile.groom_photo_url} alt="Groom" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                            </div>
+                            <button
+                              onClick={() => downloadImage(invitationData.profile.groom_photo_url!, `groom-${invitationData.profile.slug || "photo"}.jpg`)}
+                              className="absolute -top-1 -right-1 w-6 h-6 bg-white border border-outline-variant flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                              title="Download"
+                            >
+                              <span className="material-symbols-outlined text-[14px]">download</span>
+                            </button>
+                          </div>
+                        )}
+                        {invitationData.profile.bride_photo_url && (
+                          <div className="relative group">
+                            <div className="w-20 h-20 rounded-full border-2 border-secondary overflow-hidden bg-surface-dim">
+                              <img src={invitationData.profile.bride_photo_url} alt="Bride" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                            </div>
+                            <button
+                              onClick={() => downloadImage(invitationData.profile.bride_photo_url!, `bride-${invitationData.profile.slug || "photo"}.jpg`)}
+                              className="absolute -top-1 -right-1 w-6 h-6 bg-white border border-outline-variant flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                              title="Download"
+                            >
+                              <span className="material-symbols-outlined text-[14px]">download</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {(invitationData.profile.bride_full_name || invitationData.profile.groom_full_name) && (
+                      <div className="grid grid-cols-2 gap-4 mt-4 text-center">
+                        <div>
+                          <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Mempelai Pria</p>
+                          <p className="font-body-md text-sm font-semibold mt-0.5">{invitationData.profile.groom_full_name || invitationData.profile.groom_name}</p>
+                          {invitationData.profile.groom_parents && (
+                            <p className="font-body-md text-[10px] text-on-surface-variant mt-0.5">Putra dari {invitationData.profile.groom_parents}</p>
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Mempelai Wanita</p>
+                          <p className="font-body-md text-sm font-semibold mt-0.5">{invitationData.profile.bride_full_name || invitationData.profile.bride_name}</p>
+                          {invitationData.profile.bride_parents && (
+                            <p className="font-body-md text-[10px] text-on-surface-variant mt-0.5">Putri dari {invitationData.profile.bride_parents}</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {Array.isArray(invitationData.profile.inviting_families) && invitationData.profile.inviting_families.filter(Boolean).length > 0 && (
+                      <div className="mt-4 text-center border-t border-outline-variant/40 pt-4">
+                        <p className="font-label-md text-[9px] uppercase tracking-widest text-secondary mb-2">Turut Mengundang</p>
+                        {invitationData.profile.inviting_families.filter(Boolean).map((f: string, i: number) => (
+                          <p key={i} className="font-body-md text-[10px] italic text-on-surface-variant">Keluarga Besar {f}</p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t border-outline-variant/40" />
+
+                  {/* Wedding Date / Sessions */}
+                  <div>
+                    <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary mb-3">Acara Pernikahan</h4>
+                    {getWeddingDate(invitationData.profile) && (
+                      <p className="font-display-lg text-lg text-primary">{formatDate(getWeddingDate(invitationData.profile))}</p>
+                    )}
+                    {Array.isArray(invitationData.profile.sessions) && invitationData.profile.sessions.length > 0 && (
+                      <div className="mt-4 space-y-4">
+                        {invitationData.profile.sessions.map((s: any, i: number) => (
+                          <div key={i} className="border-l-2 border-secondary pl-4">
+                            <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary">{s.name || `Sesi ${i + 1}`}</p>
+                            <p className="font-body-md text-sm mt-0.5">{s.date}{s.time ? ` | ${s.time}` : ""}{s.timezone ? ` ${s.timezone}` : ""}</p>
+                            {s.venue && <p className="font-body-md text-xs text-on-surface-variant mt-0.5">{s.venue}</p>}
+                            {s.address && <p className="font-body-md text-[10px] text-on-surface-variant mt-0.5">{s.address}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Quote */}
+                  {invitationData.profile.quote_text && (
+                    <>
+                      <div className="border-t border-outline-variant/40" />
+                      <div className="text-center italic">
+                        <p className="font-body-md text-sm leading-relaxed">&ldquo;{invitationData.profile.quote_text}&rdquo;</p>
+                        {invitationData.profile.quote_source && (
+                          <p className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant mt-2">&mdash; {invitationData.profile.quote_source}</p>
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  {/* Love Story */}
+                  {Array.isArray(invitationData.profile.stories) && invitationData.profile.stories.length > 0 && (
+                    <>
+                      <div className="border-t border-outline-variant/40" />
+                      <div>
+                        <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary mb-3">Our Story</h4>
+                        <div className="space-y-4">
+                          {invitationData.profile.stories.map((st: any, i: number) => (
+                            <div key={i} className="flex gap-4">
+                              {st.image_url && (
+                                <div className="relative group w-16 h-16 shrink-0 bg-surface-dim border border-outline-variant overflow-hidden">
+                                  <img src={st.image_url} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                                  <button
+                                    onClick={() => downloadImage(st.image_url, `story-${invitationData.profile.slug || "photo"}-${i}.jpg`)}
+                                    className="absolute top-0.5 right-0.5 w-5 h-5 bg-white/80 border border-outline-variant flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                    title="Download"
+                                  >
+                                    <span className="material-symbols-outlined text-[11px]">download</span>
+                                  </button>
+                                </div>
+                              )}
+                              <div>
+                                {st.year && <p className="font-label-md text-[9px] text-secondary uppercase tracking-widest">{st.year}</p>}
+                                {st.title && <p className="font-body-md text-sm font-semibold">{st.title}</p>}
+                                {st.description && <p className="font-body-md text-[10px] text-on-surface-variant mt-0.5">{st.description}</p>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Gallery */}
+                  {Array.isArray(invitationData.profile.gallery_photos) && invitationData.profile.gallery_photos.length > 0 && (
+                    <>
+                      <div className="border-t border-outline-variant/40" />
+                      <div>
+                        <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary mb-3">Galeri</h4>
+                        <div className="grid grid-cols-3 gap-2">
+                          {invitationData.profile.gallery_photos.map((url: string, i: number) => (
+                            <div key={i} className="relative group aspect-square bg-surface-dim border border-outline-variant overflow-hidden">
+                              <img src={url} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" crossOrigin="anonymous" />
+                              <button
+                                onClick={() => downloadImage(url, `gallery-${invitationData.profile.slug || "photo"}-${i + 1}.jpg`)}
+                                className="absolute top-0.5 right-0.5 w-5 h-5 bg-white/80 border border-outline-variant flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                title="Download"
+                              >
+                                <span className="material-symbols-outlined text-[11px]">download</span>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Template Info */}
+                  {invitationData.template && (
+                    <>
+                      <div className="border-t border-outline-variant/40" />
+                      <div>
+                        <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary mb-3">Template</h4>
+                        <div className="flex items-center gap-4">
+                          {invitationData.template.preview_image_url && (
+                            <div className="relative group w-20 h-20 shrink-0 bg-surface-dim border border-outline-variant overflow-hidden">
+                              <img src={invitationData.template.preview_image_url} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                              <button
+                                onClick={() => downloadImage(invitationData.template.preview_image_url, `template-${invitationData.template.code || "preview"}.jpg`)}
+                                className="absolute top-0.5 right-0.5 w-5 h-5 bg-white/80 border border-outline-variant flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                title="Download"
+                              >
+                                <span className="material-symbols-outlined text-[11px]">download</span>
+                              </button>
+                            </div>
+                          )}
+                          <div>
+                            <p className="font-body-md text-sm font-semibold">{invitationData.template.name}</p>
+                            {invitationData.template.description && (
+                              <p className="font-body-md text-[10px] text-on-surface-variant mt-0.5">{invitationData.template.description}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Music */}
+                  {invitationData.track && (
+                    <>
+                      <div className="border-t border-outline-variant/40" />
+                      <div className="flex items-center gap-3">
+                        <span className="material-symbols-outlined text-secondary">music_note</span>
+                        <div>
+                          <p className="font-body-md text-sm font-semibold">{invitationData.track.title}</p>
+                          {invitationData.track.artist && <p className="font-body-md text-[10px] text-on-surface-variant">{invitationData.track.artist}</p>}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Gift Info — only if we have additional fields */}
+                  {invitationData.gift_accounts && (Array.isArray(invitationData.gift_accounts) && invitationData.gift_accounts.length > 0) && (
+                    <>
+                      <div className="border-t border-outline-variant/40" />
+                      <div>
+                        <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary mb-3">Transfer & Kado</h4>
+                        <div className="space-y-2">
+                          {invitationData.gift_accounts.map((a: any, i: number) => (
+                            <div key={i} className="flex justify-between border-b border-outline-variant/20 pb-2 text-sm">
+                              <span className="font-body-md">{a.provider_name}</span>
+                              <span className="font-body-md font-semibold">{a.account_number} — {a.account_name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Invitation Link */}
+                  {invitationData.profile?.invitation_url && (
+                    <>
+                      <div className="border-t border-outline-variant/40" />
+                      <div className="bg-surface-container-low p-4 text-center">
+                        <p className="font-label-md text-[8px] uppercase tracking-widest text-on-surface-variant mb-1">Link Undangan</p>
+                        <a href={invitationData.profile.invitation_url} target="_blank" rel="noopener noreferrer" className="font-body-md text-sm text-primary underline break-all">
+                          {invitationData.profile.invitation_url}
+                        </a>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

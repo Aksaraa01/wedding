@@ -449,7 +449,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-secondary text-xl">qr_code_scanner</span>
           <div>
-            <h1 className="font-serif text-base font-semibold text-primary tracking-wide">Aksara Concierge</h1>
+            <h1 className="font-serif text-base font-semibold text-primary tracking-wide">Aksaraa Concierge</h1>
             <p className="text-[9px] uppercase tracking-widest text-on-surface-variant/70 font-medium">
               Gate 1 &bull; {eventInfo?.bride_name} &amp; {eventInfo?.groom_name}
             </p>
@@ -746,7 +746,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                 <span className="font-label-md text-[11px] text-secondary uppercase tracking-[0.25em] block mb-2 font-semibold">Manajemen Undangan</span>
                 <h2 className="font-headline-lg text-3xl text-primary font-medium tracking-tight">Detail Kehadiran Tamu</h2>
                 <p className="font-body-md text-sm text-on-surface-variant mt-3 max-w-md leading-relaxed">
-                  Silakan masukkan informasi tamu secara manual untuk dicatat ke dalam daftar undangan resmi Aksara.
+                  Silakan masukkan informasi tamu secara manual untuk dicatat ke dalam daftar undangan resmi Aksaraa.
                 </p>
               </div>
 

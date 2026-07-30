@@ -305,7 +305,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
         {/* Footer */}
         <footer className="mt-12 flex flex-col items-center justify-center text-center opacity-30 select-none">
           <div className="w-16 h-[1px] bg-on-surface-variant mb-4" />
-          <p className="font-headline-md text-xs tracking-[0.2em] uppercase italic text-on-surface-variant">Aksara Management</p>
+          <p className="font-headline-md text-xs tracking-[0.2em] uppercase italic text-on-surface-variant">Aksaraa Management</p>
         </footer>
       </main>
     </div>

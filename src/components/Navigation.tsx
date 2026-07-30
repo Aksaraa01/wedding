@@ -113,7 +113,7 @@ export default function Navigation() {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center gap-1">
               <span className="font-headline-md text-[24px] font-normal text-on-surface">
-                Aksara.
+                Aksaraa.
               </span>
               <div className="w-1.5 h-1.5 bg-secondary rounded-full" />
             </div>

@@ -46,6 +46,7 @@ export default async function DemoPage({
       ]}
       gift_address="Jl. Contoh Alamat No. 123, Jakarta Selatan, DKI Jakarta 12345"
       track_url="https://drive.usercontent.google.com/download?id=1gyl4IppTKVm7jAldtHwvXWbQ8GO7jY20&export=download"
+      inviting_families={["Bpk. Hendra & Ibu Sari", "Bpk. Wijaya & Ibu Dewi"]}
     />
   )
 }

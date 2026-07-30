@@ -23,6 +23,7 @@ type Profile = {
   estimated_wedding_date: string | null
   sessions: Session[] | null
   display_name: string | null
+  inviting_families: string[] | null
 }
 
 type Session = {
@@ -76,6 +77,7 @@ function EditorInner({ id }: { id: string }) {
         setData({
           ...p,
           display_name: p.display_name || (p.bride_name && p.groom_name ? `${p.bride_name} & ${p.groom_name}` : ""),
+          inviting_families: Array.isArray(p.inviting_families) ? p.inviting_families : [],
         })
       })
   }, [id])
@@ -185,9 +187,7 @@ function EditorInner({ id }: { id: string }) {
 
   type GiftAccount = { id?: string; provider_name: string; account_number: string; account_name: string; type: string }
   const [giftAccounts, setGiftAccounts] = useState<GiftAccount[]>([])
-  const [giftShowAddress, setGiftShowAddress] = useState(false)
   const [giftAddressText, setGiftAddressText] = useState("")
-  const [giftAddressId, setGiftAddressId] = useState<string | null>(null)
 
   const loadGiftData = useCallback(async () => {
     const [acctRes, addrRes] = await Promise.all([
@@ -202,96 +202,12 @@ function EditorInner({ id }: { id: string }) {
       const { addresses } = await addrRes.json()
       const active = addresses.find((a: any) => a.is_active)
       if (active) {
-        setGiftShowAddress(true)
         setGiftAddressText(active.full_address)
-        setGiftAddressId(active.id)
       }
     }
   }, [id])
 
   useEffect(() => { loadGiftData() }, [loadGiftData])
-
-  const addGiftAccount = async () => {
-    const res = await fetch("/api/gift-accounts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        wedding_profile_id: id,
-        type: "bank",
-        provider_name: "BCA",
-        account_number: "",
-        account_name: "",
-        is_active: true,
-      }),
-    })
-    if (res.ok) {
-      const { account } = await res.json()
-      setGiftAccounts(prev => [...prev, account])
-    }
-  }
-
-  const deleteGiftAccount = async (acctId: string) => {
-    const res = await fetch(`/api/gift-accounts/${acctId}`, { method: "DELETE" })
-    if (res.ok) setGiftAccounts(prev => prev.filter(a => a.id !== acctId))
-  }
-
-  const updateGiftAccount = async (acctId: string, field: string, value: string) => {
-    setGiftAccounts(prev => prev.map(a => a.id === acctId ? { ...a, [field]: value } : a))
-    await fetch(`/api/gift-accounts/${acctId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ [field]: value }),
-    })
-  }
-
-  const saveGiftAddress = async (address: string) => {
-    setGiftAddressText(address)
-    if (giftAddressId) {
-      await fetch(`/api/gift-addresses/${giftAddressId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ full_address: address }),
-      })
-    }
-  }
-
-  const toggleGiftAddress = async () => {
-    if (giftShowAddress) {
-      if (giftAddressId) {
-        await fetch(`/api/gift-addresses/${giftAddressId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ is_active: false }),
-        })
-      }
-      setGiftShowAddress(false)
-    } else {
-      if (!giftAddressId) {
-        const res = await fetch("/api/gift-addresses", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            wedding_profile_id: id,
-            label: "Rumah",
-            recipient_name: "",
-            full_address: "",
-            is_active: true,
-          }),
-        })
-        if (res.ok) {
-          const { address } = await res.json()
-          setGiftAddressId(address.id)
-        }
-      } else {
-        await fetch(`/api/gift-addresses/${giftAddressId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ is_active: true }),
-        })
-      }
-      setGiftShowAddress(true)
-    }
-  }
 
   type Track = { id: string; title: string; artist: string | null; mood_category: string; audio_url: string }
   const [allTracks, setAllTracks] = useState<Track[]>([])
@@ -314,8 +230,6 @@ function EditorInner({ id }: { id: string }) {
   const handleSelectTrack = (trackId: string) => {
     updateField("selected_track_id", data.selected_track_id === trackId ? null : trackId)
   }
-
-  const BANK_OPTIONS = ["BCA", "Mandiri", "BNI", "BRI", "CIMB Niaga", "BSI", "Permata", "Danamon", "Maybank", "OCBC NISP", "SeaBank", "Bank Jago", "ShopeePay", "GoPay", "OVO", "DANA", "LinkAja"]
 
   const handlePublish = async () => {
     await fetch(`/api/dashboard/${id}/web-invitation`, {
@@ -405,18 +319,16 @@ function EditorInner({ id }: { id: string }) {
 
             {/* Tool icons */}
             <div className="flex items-center gap-4 text-on-surface-variant">
-              <button className="hover:text-primary transition-colors hidden sm:flex"><span className="material-symbols-outlined">devices</span></button>
-              <button className="hover:text-primary transition-colors"><span className="material-symbols-outlined">undo</span></button>
-              <button className="hover:text-primary transition-colors"><span className="material-symbols-outlined">redo</span></button>
+              <button onClick={() => setShowMobilePreview(prev => !prev)} className="hover:text-primary transition-colors hidden sm:flex"><span className="material-symbols-outlined">devices</span></button>
             </div>
 
             {/* Ganti Tema */}
             <button
               onClick={() => router.push(`/dashboard/${id}/web-invitation/templates`)}
-              className="hidden md:flex items-center gap-2 px-6 py-3 border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary transition-all font-label-md text-label-md active:scale-95"
+              className="flex items-center gap-2 px-6 py-3 border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary transition-all font-label-md text-label-md active:scale-95"
             >
               <span className="material-symbols-outlined text-[20px]">palette</span>
-              GANTI TEMA
+              <span className="hidden sm:inline">GANTI TEMA</span>
             </button>
 
             {/* Konfirmasi — desktop only */}
@@ -437,65 +349,12 @@ function EditorInner({ id }: { id: string }) {
         {/* MAIN */}
         <main className="flex-1 flex overflow-hidden">
           {/* SIDEBAR */}
-          <aside className="w-full md:w-[440px] bg-surface-container-low border-r border-outline-variant flex flex-col h-full z-40 shrink-0">
+          <aside className={`${showMobilePreview ? 'hidden' : 'flex'} md:flex w-full md:w-[440px] bg-surface-container-low border-r border-outline-variant flex-col h-full z-40 shrink-0`}>
             <div className="flex border-b border-outline-variant">
               <button className="flex-1 py-4 font-label-md text-label-md text-primary border-b-2 border-primary text-center">KONTEN</button>
             </div>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4">
-              {/* Mobile preview toggle */}
-              {showMobilePreview ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="iphone-frame w-[390px] h-[780px] bg-white overflow-hidden relative shadow-2xl scale-[0.72] origin-top">
-                    <div className="absolute top-0 inset-x-0 h-10 px-8 flex justify-between items-end pb-1 z-[100] text-black pointer-events-none">
-                      <span className="text-[12px] font-bold">9:41</span>
-                      <div className="flex gap-1 items-center">
-                        <span className="material-symbols-outlined text-[14px]">signal_cellular_4_bar</span>
-                        <span className="material-symbols-outlined text-[14px]">wifi</span>
-                        <span className="material-symbols-outlined text-[14px]">battery_full</span>
-                      </div>
-                    </div>
-                    <div className="absolute top-3 left-1/2 -translate-x-1/2 w-28 h-7 bg-tertiary rounded-full z-[101]" />
-                    <div className="h-full w-full overflow-y-auto custom-scrollbar">
-                      {(() => {
-                        const LiveComp = template?.code ? getTemplateComponent(template.code) : null
-                        return LiveComp ? (
-                          <LiveComp
-                            bride_name={data.bride_name || ""}
-                            groom_name={data.groom_name || ""}
-                            estimated_wedding_date={data.estimated_wedding_date || ""}
-                            slug={data.slug || ""}
-                            guest_name={guestPreview || "Tamu Undangan"}
-                            display_name={data.display_name || undefined}
-                            sessions={sessions.length > 0 ? sessions : undefined}
-                            quote_text={data.quote_text || undefined}
-                            quote_source={data.quote_source || undefined}
-                            stories={stories.length > 0 ? stories : undefined}
-                            gallery_photos={galleryPhotos.length > 0 ? galleryPhotos : undefined}
-                            couple_illustration_url={data.couple_illustration_url || undefined}
-                            grayscale={data.grayscale}
-                            groom_full_name={data.groom_full_name || undefined}
-                            bride_full_name={data.bride_full_name || undefined}
-                            groom_photo_url={data.groom_photo_url || undefined}
-                            bride_photo_url={data.bride_photo_url || undefined}
-                            groom_parents={data.groom_parents || undefined}
-                            bride_parents={data.bride_parents || undefined}
-                            gift_accounts={giftAccounts.length > 0 ? giftAccounts.map(a => ({ provider_name: a.provider_name, account_number: a.account_number, account_name: a.account_name, type: a.type })) : undefined}
-                            gift_address={giftShowAddress ? giftAddressText || undefined : undefined}
-                            track_url={selectedTrack?.audio_url || undefined}
-                            auto_play={autoPlay || undefined}
-                          />
-                        ) : (
-                          <div className="h-full flex items-center justify-center text-on-surface-variant font-body-md">
-                            Pilih template untuk melihat pratinjau
-                          </div>
-                        )
-                      })()}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-              <>
               {renderSection("sampul", "photo_album", "SAMPUL",
                 <div className="mt-6 space-y-8">
                   <div className="space-y-4">
@@ -542,6 +401,10 @@ function EditorInner({ id }: { id: string }) {
                         <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Lengkap Pria</p>
                       </div>
                     </div>
+                    <div className="mt-3">
+                      <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.groom_parents || ""} onChange={e => updateField("groom_parents", e.target.value)} placeholder="Nama Orang Tua Pria" />
+                      <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: Bapak Hendra & Ibu Sari</p>
+                    </div>
                   </div>
                   <div className="space-y-4">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Mempelai Wanita</label>
@@ -557,6 +420,53 @@ function EditorInner({ id }: { id: string }) {
                         <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Lengkap Wanita</p>
                       </div>
                     </div>
+                    <div className="mt-3">
+                      <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.bride_parents || ""} onChange={e => updateField("bride_parents", e.target.value)} placeholder="Nama Orang Tua Wanita" />
+                      <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: Bapak Wijaya & Ibu Dewi</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4 pt-4 border-t border-outline-variant/30">
+                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Turut Mengundang</label>
+                    <p className="text-[11px] text-on-surface-variant italic">Masukkan nama keluarga yang turut mengundang</p>
+                    <div className="space-y-3">
+                      {(Array.isArray(data.inviting_families) ? data.inviting_families : []).map((f, i) => (
+                        <div key={i} className="flex gap-2 items-center">
+                          <input
+                            className="input-editorial w-full font-headline-md text-[16px]"
+                            type="text"
+                            value={f || ""}
+                            onChange={e => {
+                              const arr = [...(Array.isArray(data.inviting_families) ? data.inviting_families : [])]
+                              arr[i] = e.target.value
+                              updateField("inviting_families", arr)
+                            }}
+                            placeholder={`Keluarga ${i + 1}`}
+                          />
+                          <button
+                            onClick={() => {
+                              const arr = (Array.isArray(data.inviting_families) ? data.inviting_families : []).filter((_, idx) => idx !== i)
+                              updateField("inviting_families", arr)
+                            }}
+                            className="text-red-400 hover:text-red-600 transition-colors shrink-0"
+                          >
+                            <span className="material-symbols-outlined text-[20px]">remove_circle</span>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    {(Array.isArray(data.inviting_families) ? data.inviting_families : []).length < 5 && (
+                      <button
+                        onClick={() => {
+                          const arr = [...(Array.isArray(data.inviting_families) ? data.inviting_families : []), ""]
+                          updateField("inviting_families", arr)
+                        }}
+                        className="flex items-center gap-2 text-secondary font-label-md text-label-md uppercase tracking-widest hover:opacity-70 transition-opacity"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">add_circle</span>
+                        Tambah Keluarga
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
@@ -730,67 +640,33 @@ function EditorInner({ id }: { id: string }) {
               )}
               {renderSection("gift", "featured_seasonal_and_gifts", "GIFT", <>
                 <div className="space-y-4">
-                  <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">DAFTAR REKENING / E-WALLET</label>
-                  {giftAccounts.length === 0 && (
-                    <p className="font-body-md text-sm text-on-surface-variant">Belum ada rekening ditambahkan.</p>
-                  )}
-                  {giftAccounts.map(acc => (
-                    <div key={acc.id} className="p-3 border border-outline-variant rounded-lg space-y-2 relative">
-                      <button
-                        onClick={() => deleteGiftAccount(acc.id!)}
-                        className="absolute top-2 right-2 text-on-surface-variant hover:text-red-500 transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">close</span>
-                      </button>
-                      <select
-                        className="w-full border-b border-outline-variant py-1 font-body-md text-sm"
-                        value={acc.provider_name}
-                        onChange={e => updateGiftAccount(acc.id!, "provider_name", e.target.value)}
-                      >
-                        <option value="">Pilih Bank/E-Wallet</option>
-                        {BANK_OPTIONS.map(b => <option key={b} value={b}>{b}</option>)}
-                      </select>
-                      <input
-                        className="w-full border-b border-outline-variant py-1 font-body-md text-sm"
-                        placeholder="Nomor Rekening"
-                        value={acc.account_number}
-                        onChange={e => updateGiftAccount(acc.id!, "account_number", e.target.value)}
-                      />
-                      <input
-                        className="w-full border-b border-outline-variant py-1 font-body-md text-sm"
-                        placeholder="Atas Nama"
-                        value={acc.account_name}
-                        onChange={e => updateGiftAccount(acc.id!, "account_name", e.target.value)}
-                      />
-                    </div>
-                  ))}
-                  <button
-                    onClick={addGiftAccount}
-                    className="text-primary font-label-md text-[11px] tracking-widest uppercase flex items-center gap-1 hover:opacity-70 transition-opacity"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">add</span>
-                    + TAMBAH REKENING
-                  </button>
-                  <hr className="border-outline-variant" />
-                  <div className="space-y-2">
-                    <label className="flex items-center justify-between">
-                      <span className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Tampilkan Alamat Pengiriman</span>
-                      <button
-                        onClick={toggleGiftAddress}
-                        className={`w-10 h-5 rounded-full transition-colors relative ${giftShowAddress ? "bg-primary" : "bg-outline-variant"}`}
-                      >
-                        <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${giftShowAddress ? "translate-x-5 left-0" : "left-0.5"}`} />
-                      </button>
-                    </label>
-                    {giftShowAddress && (
-                      <textarea
-                        className="input-editorial w-full font-body-md text-[14px] h-24 resize-none"
-                        placeholder="Masukkan alamat pengiriman..."
-                        value={giftAddressText}
-                        onChange={e => saveGiftAddress(e.target.value)}
-                      />
+                  <div className="space-y-3">
+                    <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">DAFTAR REKENING / E-WALLET</label>
+                    {giftAccounts.length === 0 ? (
+                      <p className="font-body-md text-sm text-on-surface-variant">Belum ada rekening ditambahkan.</p>
+                    ) : (
+                      giftAccounts.map(acc => (
+                        <div key={acc.id} className="p-3 border border-outline-variant rounded-lg space-y-1">
+                          <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary">{acc.provider_name}</p>
+                          <p className="font-body-md text-sm font-semibold">{acc.account_number}</p>
+                          <p className="font-body-md text-[11px] text-on-surface-variant">a.n. {acc.account_name}</p>
+                        </div>
+                      ))
                     )}
+                    <button
+                      onClick={() => router.push(`/dashboard/${id}/amplop-digital`)}
+                      className="w-full py-3 border border-primary text-primary font-label-md text-[11px] tracking-widest uppercase hover:bg-primary hover:text-on-primary transition-all flex items-center justify-center gap-2 active:scale-95"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">edit</span>
+                      Atur Amplop Digital
+                    </button>
                   </div>
+                  {giftAddressText && (
+                    <div className="p-3 border border-outline-variant rounded-lg space-y-1">
+                      <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary">Alamat Pengiriman</p>
+                      <p className="font-body-md text-sm whitespace-pre-line">{giftAddressText}</p>
+                    </div>
+                  )}
                 </div>
               </>)}
               {renderSection("music", "music_note", "MUSIC", <>
@@ -845,21 +721,20 @@ function EditorInner({ id }: { id: string }) {
                 </div>
               </>)}
               {renderCollapsed("mail", "RSVP")}
-              </>)}
             </div>
           </aside>
 
           {/* CANVAS */}
-          <section className="hidden md:flex flex-1 bg-surface relative overflow-hidden items-center justify-center p-12"
+          <section className={`${showMobilePreview ? 'flex' : 'hidden'} md:flex flex-1 bg-surface relative overflow-hidden items-center justify-center`}
             style={{ backgroundImage: "linear-gradient(#e5e1d8 1px, transparent 1px), linear-gradient(90deg, #e5e1d8 1px, transparent 1px)", backgroundSize: "40px 40px" }}
           >
-            <div className="absolute bottom-8 right-8 flex flex-col gap-2 z-10">
-              <button className="w-12 h-12 bg-white border border-outline-variant shadow-sm flex items-center justify-center hover:bg-surface-container-low transition-colors"><span className="material-symbols-outlined">zoom_in</span></button>
-              <button className="w-12 h-12 bg-white border border-outline-variant shadow-sm flex items-center justify-center hover:bg-surface-container-low transition-colors"><span className="material-symbols-outlined">zoom_out</span></button>
-              <button className="w-12 h-12 bg-white border border-outline-variant shadow-sm flex items-center justify-center hover:bg-surface-container-low transition-colors"><span className="material-symbols-outlined">center_focus_strong</span></button>
+            <div className="hidden md:block absolute bottom-8 right-8 flex-col gap-2 z-10">
+              <button className="block w-12 h-12 bg-white border border-outline-variant shadow-sm flex items-center justify-center hover:bg-surface-container-low transition-colors"><span className="material-symbols-outlined">zoom_in</span></button>
+              <button className="block w-12 h-12 bg-white border border-outline-variant shadow-sm flex items-center justify-center hover:bg-surface-container-low transition-colors"><span className="material-symbols-outlined">zoom_out</span></button>
+              <button className="block w-12 h-12 bg-white border border-outline-variant shadow-sm flex items-center justify-center hover:bg-surface-container-low transition-colors"><span className="material-symbols-outlined">center_focus_strong</span></button>
             </div>
 
-            <div className="iphone-frame w-[390px] h-[780px] bg-white overflow-hidden relative shadow-2xl scale-95 origin-center">
+            <div className="hidden md:block iphone-frame w-[390px] h-[780px] bg-white overflow-hidden relative shadow-2xl scale-95 origin-center">
               <div className="absolute top-0 inset-x-0 h-10 px-8 flex justify-between items-end pb-1 z-[100] text-black pointer-events-none">
                 <span className="text-[12px] font-bold">9:41</span>
                 <div className="flex gap-1 items-center">
@@ -896,8 +771,9 @@ function EditorInner({ id }: { id: string }) {
                         bride_photo_url={data.bride_photo_url || undefined}
                         groom_parents={data.groom_parents || undefined}
                         bride_parents={data.bride_parents || undefined}
+                        inviting_families={Array.isArray(data.inviting_families) ? data.inviting_families.filter(Boolean) : undefined}
                         gift_accounts={giftAccounts.length > 0 ? giftAccounts.map(a => ({ provider_name: a.provider_name, account_number: a.account_number, account_name: a.account_name, type: a.type })) : undefined}
-                        gift_address={giftShowAddress ? giftAddressText || undefined : undefined}
+                        gift_address={giftAddressText || undefined}
                         track_url={selectedTrack?.audio_url || undefined}
                         auto_play={autoPlay || undefined}
                       />
@@ -909,6 +785,48 @@ function EditorInner({ id }: { id: string }) {
                 })()}
               </div>
             </div>
+
+            {showMobilePreview && (
+              <div className="md:hidden w-full h-full overflow-y-auto custom-scrollbar">
+                {template?.demo_url ? (
+                  <iframe src={template.demo_url} className="w-full h-full border-0" title="Demo" />
+                ) : (() => {
+                  const LiveComp = template?.code ? getTemplateComponent(template.code) : null
+                  return LiveComp ? (
+                    <LiveComp
+                      bride_name={data.bride_name || ""}
+                      groom_name={data.groom_name || ""}
+                      estimated_wedding_date={data.estimated_wedding_date || ""}
+                      slug={data.slug || ""}
+                      guest_name={guestPreview || "Tamu Undangan"}
+                      display_name={data.display_name || undefined}
+                      sessions={sessions.length > 0 ? sessions : undefined}
+                      quote_text={data.quote_text || undefined}
+                      quote_source={data.quote_source || undefined}
+                      stories={stories.length > 0 ? stories : undefined}
+                      gallery_photos={galleryPhotos.length > 0 ? galleryPhotos : undefined}
+                      couple_illustration_url={data.couple_illustration_url || undefined}
+                      grayscale={data.grayscale}
+                      groom_full_name={data.groom_full_name || undefined}
+                      bride_full_name={data.bride_full_name || undefined}
+                      groom_photo_url={data.groom_photo_url || undefined}
+                      bride_photo_url={data.bride_photo_url || undefined}
+                      groom_parents={data.groom_parents || undefined}
+                      bride_parents={data.bride_parents || undefined}
+                      inviting_families={Array.isArray(data.inviting_families) ? data.inviting_families.filter(Boolean) : undefined}
+                      gift_accounts={giftAccounts.length > 0 ? giftAccounts.map(a => ({ provider_name: a.provider_name, account_number: a.account_number, account_name: a.account_name, type: a.type })) : undefined}
+                      gift_address={giftAddressText || undefined}
+                      track_url={selectedTrack?.audio_url || undefined}
+                      auto_play={autoPlay || undefined}
+                    />
+                  ) : (
+                    <div className="h-full flex items-center justify-center text-on-surface-variant font-body-md p-6">
+                      Pilih template untuk melihat pratinjau
+                    </div>
+                  )
+                })()}
+              </div>
+            )}
           </section>
         </main>
 

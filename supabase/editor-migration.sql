@@ -14,3 +14,13 @@ ALTER TABLE wedding_profiles
 -- Template media bucket
 INSERT INTO storage.buckets (id, name, public) VALUES ('template-media', 'template-media', true)
 ON CONFLICT (id) DO NOTHING;
+
+-- Stories JSONB column for love story milestones
+ALTER TABLE wedding_profiles
+    ADD COLUMN IF NOT EXISTS stories JSONB DEFAULT '[]'::jsonb;
+
+-- Gallery photos array (max 5MB per photo) + drop video_url
+ALTER TABLE wedding_profiles
+    ADD COLUMN IF NOT EXISTS gallery_photos JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE wedding_profiles
+    DROP COLUMN IF EXISTS gallery_video_url;

@@ -16,8 +16,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Hanya file gambar yang diizinkan" }, { status: 400 })
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: "Maksimal 10MB" }, { status: 400 })
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: "Maksimal 5MB" }, { status: 400 })
     }
 
     const name = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`

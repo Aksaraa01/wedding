@@ -44,6 +44,7 @@ export interface TemplateProps {
   gift_address?: string
   track_url?: string
   auto_play?: boolean
+  inviting_families?: string[]
 }
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {

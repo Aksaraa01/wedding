@@ -14,7 +14,7 @@ export default function Footer() {
             Lifetime Memories.
           </p>
           <p className="font-label-md text-[10px] md:text-[11px] uppercase tracking-widest text-on-surface/40">
-            &copy; 2026 Aksara Wedding Group.
+            &copy; 2026 Aksaraa Wedding Group.
           </p>
         </div>
         <div className="flex flex-col md:flex-row items-center gap-6 md:gap-16 font-label-md text-[10px] md:text-label-md uppercase tracking-[0.2em]">

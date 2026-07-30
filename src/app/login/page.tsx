@@ -65,7 +65,7 @@ export default function LoginPage() {
             <span className="material-symbols-outlined text-primary">arrow_back</span>
           </div>
           <div className="font-headline-md text-headline-md text-primary tracking-[0.2em] uppercase">
-            Aksara
+            Aksaraa
           </div>
           <div className="w-10" />
         </header>
@@ -74,7 +74,7 @@ export default function LoginPage() {
           <div className="absolute inset-0 z-0">
             <div className="absolute inset-0 bg-surface/60 z-10" />
             <img
-              alt="Aksara Editorial Background"
+              alt="Aksaraa Editorial Background"
               className="w-full h-full object-cover object-center grayscale-[10%]"
               src="/images/login.png"
             />
@@ -173,7 +173,7 @@ export default function LoginPage() {
 
         <div className="fixed bottom-6 left-0 w-full z-50 flex justify-center pointer-events-none">
           <div className="text-on-surface-variant font-label-md text-[10px] uppercase tracking-widest opacity-40">
-            Aksara — Client Portal
+            Aksaraa — Client Portal
           </div>
         </div>
       </div>

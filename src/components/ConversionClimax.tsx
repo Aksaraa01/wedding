@@ -127,10 +127,10 @@ export default function ConversionClimax() {
         </div>
       </div>
 
-      {/* Tanya Aksara Floating Button */}
+      {/* Tanya Aksaraa Floating Button */}
       <div className="fixed bottom-24 right-edge-margin-mobile z-50">
         <button className="flex items-center gap-3 bg-primary text-on-primary py-3 px-5 rounded-full shadow-xl hover:bg-secondary transition-colors duration-300">
-          <span className="font-label-md uppercase tracking-widest text-[10px]">Tanya Aksara</span>
+          <span className="font-label-md uppercase tracking-widest text-[10px]">Tanya Aksaraa</span>
           <span className="material-symbols-outlined">auto_fix_high</span>
         </button>
       </div>

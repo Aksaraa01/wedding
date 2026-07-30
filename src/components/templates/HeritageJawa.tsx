@@ -30,6 +30,7 @@ interface Props {
   gift_address?: string
   track_url?: string
   auto_play?: boolean
+  inviting_families?: string[]
 }
 
 const IMG = {
@@ -158,6 +159,7 @@ export default function HeritageJawa({
   gift_address,
   track_url,
   auto_play: autoPlayProp,
+  inviting_families,
 }: Props) {
   const eventDate = sessions?.[0]?.date || estimated_wedding_date
   const countdown = useCountdown(eventDate)
@@ -194,10 +196,20 @@ export default function HeritageJawa({
 
   useEffect(() => {
     if (!audioRef.current || !track_url) return
-    audioRef.current.src = track_url
-    if (autoPlayProp) {
+    const audio = audioRef.current
+    const wasPlaying = playing
+    audio.src = track_url
+    audio.load()
+    if (wasPlaying) {
+      const resumeAfterLoad = () => {
+        audio.play().then(() => setPlaying(true)).catch(() => {})
+        audio.removeEventListener("canplaythrough", resumeAfterLoad)
+      }
+      audio.addEventListener("canplaythrough", resumeAfterLoad)
+    }
+    if (autoPlayProp && !wasPlaying) {
       const play = () => {
-        audioRef.current?.play().catch(() => {})
+        audio.play().catch(() => {})
         document.removeEventListener("click", play)
         document.removeEventListener("touchstart", play)
       }
@@ -207,9 +219,23 @@ export default function HeritageJawa({
   }, [track_url, autoPlayProp])
 
   const toggleMusic = () => {
-    if (!audioRef.current) return
-    if (playing) { audioRef.current.pause() } else { audioRef.current.play().catch(() => {}) }
-    setPlaying(!playing)
+    const audio = audioRef.current
+    if (!audio) return
+    if (playing) {
+      audio.pause()
+      setPlaying(false)
+    } else {
+      audio.play().then(() => setPlaying(true)).catch(() => {
+        if (audio.readyState < 2) {
+          audio.load()
+          const onReady = () => {
+            audio.play().then(() => setPlaying(true)).catch(() => {})
+            audio.removeEventListener("canplaythrough", onReady)
+          }
+          audio.addEventListener("canplaythrough", onReady)
+        }
+      })
+    }
   }
 
   const scrollTo = useCallback((id: string) => {
@@ -251,14 +277,14 @@ export default function HeritageJawa({
 
           {/* HERO */}
           <section id="home" className="relative h-screen flex flex-col items-center justify-center px-6 pt-16 overflow-hidden" style={{ backgroundImage: `url(${IMG.heroBg})`, backgroundSize: "cover", backgroundPosition: "center" }}>
-            <div className="absolute inset-0" style={{ backgroundColor: "#F9F6F0", opacity: 0.6, backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)" }} />
+            <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: "#F9F6F0", opacity: 0.6, backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)" }} />
             <div className="relative z-10 space-y-4 text-center w-full">
               <p className="text-[12px] uppercase tracking-[0.3em] text-center" style={{ color: "#472A1Ccc" }}>The Wedding of</p>
               <h2 className="font-['Pinyon_Script'] text-[64px] leading-none mb-4 text-center" style={{ color: "#472A1C" }}>{coupleDisplay}</h2>
               <div className="relative w-full max-w-[200px] mx-auto my-8 hj-float border-2 rounded-full p-4 shadow-2xl" style={{ borderColor: "#C1A05E33", backgroundColor: "rgba(255,255,255,0.1)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}>
                 <div className="absolute inset-0 rounded-full scale-105 blur-xl" style={{ backgroundColor: "#C1A05E1a" }} />
                 {couple_illustration_url ? (
-                  <img alt="" className="w-full h-auto object-contain drop-shadow-2xl relative" src={couple_illustration_url} />
+                  <img alt="" className="w-full h-auto object-contain drop-shadow-2xl relative" src={couple_illustration_url} style={{ filter: grayscaleProp ? "grayscale(100%)" : undefined }} />
                 ) : (
                   <div className="w-full aspect-square rounded-full overflow-hidden flex items-center justify-center" style={{ backgroundColor: "#fcf9f344" }}>
                     <svg className="w-20 h-24" viewBox="0 0 100 120" fill="none"><path d="M50 0C50 0 35 30 20 40C10 47 2 55 2 70C2 90 15 105 28 112C38 117 50 120 50 120C50 120 62 117 72 112C85 105 98 90 98 70C98 55 90 47 80 40C65 30 50 0 50 0Z" fill="#C1A05E" opacity="0.4"/></svg>
@@ -365,9 +391,17 @@ export default function HeritageJawa({
               <Floral className="w-24 opacity-50 mx-auto" style={{ color: "#C1A05E" }} />
               <h3 className="font-['EB_Garamond'] text-[32px]" style={{ color: "#472A1C", fontWeight: 600 }}>Turut Mengundang</h3>
               <div className="space-y-4 text-[16px] leading-relaxed" style={{ color: "#50443f" }}>
-                <p className="italic">Keluarga Besar Bpk. Ariffin (Alm)</p>
-                <p className="italic">Keluarga Besar Bpk. Syahrum (Alm)</p>
-                <p className="italic">Serta segenap keluarga &amp; kerabat</p>
+                {inviting_families && inviting_families.filter(Boolean).length > 0 ? (
+                  inviting_families.filter(Boolean).map((f, i) => (
+                    <p key={i} className="italic">Keluarga Besar {f}</p>
+                  ))
+                ) : (
+                  <>
+                    <p className="italic">Keluarga Besar Bpk. Ariffin (Alm)</p>
+                    <p className="italic">Keluarga Besar Bpk. Syahrum (Alm)</p>
+                    <p className="italic">Serta segenap keluarga &amp; kerabat</p>
+                  </>
+                )}
               </div>
               <div className="w-16 h-px mx-auto mt-8" style={{ backgroundColor: "#C1A05E55" }} />
             </div>
@@ -625,38 +659,39 @@ export default function HeritageJawa({
             </div>
           </section>
 
-          {/* BOTTOM NAV */}
-          <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-50 flex justify-around items-center px-4 py-3 hj-glass-nav rounded-t-[32px] shadow-[0_-10px_30px_rgba(0,0,0,0.1)] border-t" style={{ borderColor: "#C1A05E1a" }}>
-            {[
-              { id: "home", icon: "home", target: "home" },
-              { id: "events", icon: "calendar_today", target: "events" },
-              { id: "story", icon: "auto_stories", target: "story" },
-              { id: "gift", icon: "card_giftcard", target: "gift" },
-            ].map(nav => (
-              <button
-                key={nav.id}
-                onClick={() => scrollTo(nav.target)}
-                className="flex flex-col items-center justify-center transition-all w-12 h-12"
-                style={{
-                  backgroundColor: activeNav === nav.id ? "#C1A05E1a" : "transparent",
-                  color: activeNav === nav.id ? "#472A1C" : "#50443f",
-                  borderRadius: activeNav === nav.id ? "9999px" : "0",
-                }}
-              >
-                <span className="material-symbols-outlined text-[20px]">{nav.icon}</span>
-              </button>
-            ))}
-          </nav>
-
-          {/* MUSIC BUTTON */}
-          <audio ref={audioRef} loop />
-          <button
-            onClick={toggleMusic}
-            className="fixed bottom-24 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-2xl hj-float border" style={{ backgroundColor: "#472A1C", color: "#C1A05E", borderColor: "#C1A05E55", right: "24px" }}>
-            <span className="material-symbols-outlined">{playing ? "music_note" : "music_off"}</span>
-          </button>
         </div>
       </main>
+
+      {/* BOTTOM NAV — outside main to avoid iOS fixed-position clipping */}
+      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-50 flex justify-around items-center px-4 py-3 hj-glass-nav rounded-t-[32px] shadow-[0_-10px_30px_rgba(0,0,0,0.1)] border-t" style={{ borderColor: "#C1A05E1a" }}>
+        {[
+          { id: "home", icon: "home", target: "home" },
+          { id: "events", icon: "calendar_today", target: "events" },
+          { id: "story", icon: "auto_stories", target: "story" },
+          { id: "gift", icon: "card_giftcard", target: "gift" },
+        ].map(nav => (
+          <button
+            key={nav.id}
+            onClick={() => scrollTo(nav.target)}
+            className="flex flex-col items-center justify-center transition-all w-12 h-12"
+            style={{
+              backgroundColor: activeNav === nav.id ? "#C1A05E1a" : "transparent",
+              color: activeNav === nav.id ? "#472A1C" : "#50443f",
+              borderRadius: activeNav === nav.id ? "9999px" : "0",
+            }}
+          >
+            <span className="material-symbols-outlined text-[20px]">{nav.icon}</span>
+          </button>
+        ))}
+      </nav>
+
+      {/* MUSIC BUTTON — outside main to avoid iOS fixed-position clipping */}
+      <audio ref={audioRef} loop />
+      <button
+        onClick={toggleMusic}
+        className="fixed bottom-24 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-2xl hj-float border" style={{ backgroundColor: "#472A1C", color: "#C1A05E", borderColor: "#C1A05E55", right: "24px" }}>
+        <span className="material-symbols-outlined">{playing ? "music_note" : "music_off"}</span>
+      </button>
     </ThemeInjector>
   )
 }

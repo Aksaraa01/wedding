@@ -44,7 +44,7 @@ const PACKAGES = [
   {
     code: "signature",
     name: "Signature",
-    badge: "Favorit 85% Pengantin Aksara",
+    badge: "Favorit 85% Pengantin Aksaraa",
     badgeClass: "bg-secondary text-white px-3 py-1",
     desc: "Keseimbangan sempurna antara estetika, kenyamanan tamu, dan fitur lengkap",
     tags: ["20 Foto Galeri", "6 Bulan Aktif", "3 Round Revisi"],

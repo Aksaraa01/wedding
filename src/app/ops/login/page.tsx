@@ -124,7 +124,7 @@ export default function OpsLoginPage() {
             >
               <div className="text-center">
                 <h1 className="font-headline-lg text-headline-lg mb-2">Login Petugas</h1>
-                <p className="text-on-surface-variant/60 font-body-md text-sm">Aksara CORE OPS — Internal Board</p>
+                <p className="text-on-surface-variant/60 font-body-md text-sm">Aksaraa CORE OPS — Internal Board</p>
               </div>
 
               <form className="space-y-8" onSubmit={handleSubmit}>

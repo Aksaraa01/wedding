@@ -48,12 +48,9 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
         <div className="flex items-center justify-between px-edge-margin-mobile md:px-edge-margin-desktop h-full w-full max-w-container-max mx-auto">
           <div className="flex items-center gap-4 hover:opacity-70 transition-opacity duration-300 cursor-pointer" onClick={() => router.back()}>
             <span className="material-symbols-outlined text-primary">arrow_back</span>
-            <span className="font-headline-md text-headline-md text-primary uppercase tracking-widest">Aksara</span>
+            <span className="font-headline-md text-[20px] md:text-headline-md text-primary uppercase tracking-widest">Aksaraa</span>
           </div>
           <h1 className="hidden md:block font-headline-md text-headline-md text-primary">Galeri Kenangan</h1>
-          <div className="flex items-center gap-4">
-            <span className="material-symbols-outlined text-primary hover:opacity-70 transition-opacity duration-300 cursor-pointer">more_vert</span>
-          </div>
         </div>
       </header>
 
@@ -61,12 +58,12 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
         <section className="mb-16 fade-in" style={{ animation: "fadeIn 0.8s ease-out forwards" }}>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-outline-variant pb-8">
             <div className="max-w-2xl">
-              <h2 className="font-headline-xl text-headline-xl text-primary mb-4">Galeri Kenangan Tamu</h2>
-              <p className="font-body-lg text-body-lg text-on-surface-variant">Melihat hari bahagia Anda melalui lensa para tamu terkasih.</p>
+              <h2 className="font-headline-xl text-[28px] md:text-headline-xl text-primary mb-4">Galeri Kenangan Tamu</h2>
+              <p className="font-body-lg text-body-md md:text-body-lg text-on-surface-variant">Melihat hari bahagia Anda melalui lensa para tamu terkasih.</p>
             </div>
             <div className="flex flex-col items-start md:items-end">
               <span className="font-label-md text-label-md uppercase text-secondary tracking-widest mb-1">Total Dokumentasi</span>
-              <span className="font-headline-lg text-headline-lg text-primary">{loading ? "..." : `${photos.length} Momen Terunggah`}</span>
+              <span className="font-headline-lg text-[24px] md:text-headline-lg text-primary">{loading ? "..." : `${photos.length} Momen Terunggah`}</span>
             </div>
           </div>
         </section>

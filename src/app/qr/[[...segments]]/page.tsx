@@ -32,9 +32,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
   const [qrToken, setQrToken] = useState("")
   const [slug, setSlug] = useState("")
   const [estimatedDate, setEstimatedDate] = useState("")
-  const [venueName, setVenueName] = useState("")
-  const [venueAddress, setVenueAddress] = useState("")
-  const [eventTime, setEventTime] = useState("")
+  const [sessions, setSessions] = useState<any[]>([])
   const [qrDataUrl, setQrDataUrl] = useState("")
   const [error, setError] = useState("")
   const [downloading, setDownloading] = useState(false)
@@ -64,9 +62,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
         setQrToken(data.guest.qr_token || token)
         setSlug(data.profile.slug || "")
         setEstimatedDate(data.profile.estimated_wedding_date || "")
-        setVenueName(data.profile.venue_name || "")
-        setVenueAddress(data.profile.venue_address || "")
-        setEventTime(data.profile.event_time || "18.00 WIB - Selesai")
+        setSessions(data.profile.sessions || [])
         const qrContent = data.profile.slug
           ? `${window.location.protocol}//${data.profile.slug}.${window.location.hostname}${window.location.port ? ":" + window.location.port : ""}/welcome/${data.guest.qr_token || token}`
           : data.guest.qr_token || token
@@ -141,7 +137,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
 
       <main className="w-full max-w-md flex flex-col items-center">
         <div className="text-center mb-6">
-          <p className="text-[11px] uppercase tracking-[0.25em] text-[#8D4D39] font-semibold mb-1">Aksara Guestbook Pass</p>
+          <p className="text-[11px] uppercase tracking-[0.25em] text-[#8D4D39] font-semibold mb-1">Aksaraa Guestbook Pass</p>
           <h1 className="font-serif text-3xl sm:text-4xl text-[#1A1817] font-medium" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Kartu Masuk Digital</h1>
           <p className="text-xs text-[#5C5854] mt-1 max-w-[260px] mx-auto">Tunjukkan kode QR ini kepada meja penerima tamu di lokasi resepsi.</p>
         </div>
@@ -212,7 +208,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
                   <span className="block text-[10px] uppercase tracking-wider text-[#5C5854]/70">Waktu &amp; Tanggal</span>
                   <p className="text-xs font-medium text-[#1A1817] mt-0.5">
                     {estimatedDate ? `${formatDate(estimatedDate)}` : "—"}
-                    <br /><span className="text-[#5C5854] font-normal">{eventTime}</span>
+                    <br /><span className="text-[#5C5854] font-normal">{sessions[0]?.time || ""}</span>
                   </p>
                 </div>
               </div>
@@ -221,14 +217,14 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
                 <div>
                   <span className="block text-[10px] uppercase tracking-wider text-[#5C5854]/70">Lokasi Acara</span>
                   <p className="text-xs font-medium text-[#1A1817] mt-0.5">
-                    {venueName || "—"}
-                    {venueAddress && <br />}
-                    {venueAddress && <span className="text-[#5C5854] font-normal">{venueAddress}</span>}
+                    {sessions[0]?.venue || "—"}
+                    {sessions[0]?.address && <br />}
+                    {sessions[0]?.address && <span className="text-[#5C5854] font-normal">{sessions[0].address}</span>}
                   </p>
                 </div>
               </div>
             </div>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-[#5C5854]/60 font-medium">Aksara Digital Guestbook Platform</p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-[#5C5854]/60 font-medium">Aksaraa Digital Guestbook Platform</p>
           </div>
         </div>
 
@@ -251,13 +247,13 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
 
           <p className="text-center text-[11px] text-[#5C5854]/60 flex items-center justify-center gap-1.5 pt-2">
             <span className="material-symbols-outlined text-sm">verified_user</span>
-            Terenkripsi &amp; Terverifikasi oleh Aksara System
+            Terenkripsi &amp; Terverifikasi oleh Aksaraa System
           </p>
         </div>
       </main>
 
       <footer className="mt-8 text-center text-[11px] text-[#5C5854]/50">
-        <p>&copy; 2026 Aksara Wedding Experience. All rights reserved.</p>
+        <p>&copy; 2026 Aksaraa Wedding Experience. All rights reserved.</p>
       </footer>
 
       {qrModalOpen && (

@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
 
     if (existingCount !== null && existingCount >= maxRevisions) {
       return NextResponse.json({
-        error: `Anda telah mencapai batas maksimal revisi (${maxRevisions} putaran). Silakan hubungi konsultan Aksara untuk opsi penambahan revisi.`
+        error: `Anda telah mencapai batas maksimal revisi (${maxRevisions} putaran). Silakan hubungi konsultan Aksaraa untuk opsi penambahan revisi.`
       }, { status: 403 })
     }
 

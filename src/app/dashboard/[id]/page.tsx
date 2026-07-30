@@ -27,19 +27,34 @@ type Profile = {
   whatsapp_number: string
   payment_status: "UNPAID" | "PARTIAL_DP" | "FULLY_PAID"
   total_project_cost: number
+  akad_date?: string | null
+  resepsi_date?: string | null
+  sessions?: { date: string }[] | null
 }
 
 const CARDS = [
   { key: "premium_web" as const, title: "Premium Web Invitation" },
-  { key: "unique_link_generator" as const, title: "QR Code Tamu" },
-  { key: "wish_wall" as const, title: "Virtual Wish Wall (Dinding Doa)" },
-  { key: "undangan_fisik" as const, title: "Undangan Fisik Premium (Cetak)" },
+  { key: "unique_link_generator" as const, title: "QR Tamu" },
+  { key: "wish_wall" as const, title: "Virtual Wish Wall" },
+  { key: "undangan_fisik" as const, title: "Undangan Fisik Premium" },
   { key: "wa_blast" as const, title: "Reminder Tamu VIP" },
   { key: "reservation_automation" as const, title: "RSVP Automation" },
-  { key: "qr_code_book" as const, title: "Guest Book & Absensi" },
+  { key: "qr_code_book" as const, title: "QR Guest Book" },
   { key: "kolom_direct_transfer" as const, title: "Digital Angpao & E-Gift" },
   { key: "galeri_kenangan" as const, title: "Galeri Kenangan Tamu" },
 ]
+
+const ICON_MAP: Record<string, string> = {
+  premium_web: "language",
+  unique_link_generator: "link",
+  wish_wall: "favorite",
+  undangan_fisik: "mail",
+  wa_blast: "chat_bubble",
+  reservation_automation: "how_to_reg",
+  qr_code_book: "qr_code_2",
+  kolom_direct_transfer: "redeem",
+  galeri_kenangan: "photo_library",
+}
 
 const STATUS_LABEL: Record<string, string> = {
   UNPAID: "UNPAID",
@@ -47,10 +62,47 @@ const STATUS_LABEL: Record<string, string> = {
   FULLY_PAID: "FULLY PAID",
 }
 
-const STATUS_COLOR: Record<string, string> = {
-  UNPAID: "bg-red-500",
-  PARTIAL_DP: "bg-yellow-500",
-  FULLY_PAID: "bg-green-500",
+function getModuleStatus(key: string, vals: {
+  templateName: string; trackName: string; qrWithToken: number; qrCheckedIn: number;
+  totalWishes: number; photoCount: number; accountCount: number;
+  rsvpStats: { hadir: number; belum_respon: number } | null;
+}): { label: string; active: boolean } {
+  switch (key) {
+    case "premium_web":
+      return vals.templateName
+        ? { label: `${vals.templateName}${vals.trackName ? ` - ${vals.trackName}` : ""}`, active: true }
+        : { label: "Draf", active: false }
+    case "unique_link_generator":
+      return vals.qrWithToken > 0
+        ? { label: `${vals.qrWithToken} QR Aktif`, active: true }
+        : { label: "Belum Aktif", active: false }
+    case "qr_code_book":
+      return vals.qrCheckedIn > 0
+        ? { label: `${vals.qrCheckedIn} Sudah Hadir`, active: true }
+        : { label: "Belum Aktif", active: false }
+    case "wish_wall":
+      return vals.totalWishes > 0
+        ? { label: `${vals.totalWishes} Wish Sudah Masuk`, active: true }
+        : { label: "Belum Aktif", active: false }
+    case "galeri_kenangan":
+      return vals.photoCount > 0
+        ? { label: `${vals.photoCount} Momen Terunggah`, active: true }
+        : { label: "Belum Aktif", active: false }
+    case "kolom_direct_transfer":
+      return vals.accountCount > 0
+        ? { label: `${vals.accountCount} Rekening`, active: true }
+        : { label: "Belum Aktif", active: false }
+    case "reservation_automation":
+      return vals.rsvpStats
+        ? { label: `${vals.rsvpStats.hadir} Hadir, ${vals.rsvpStats.belum_respon} Belum Respon`, active: true }
+        : { label: "Belum Aktif", active: false }
+    case "undangan_fisik":
+      return { label: "Draf", active: false }
+    case "wa_blast":
+      return { label: "Aktif", active: true }
+    default:
+      return { label: "—", active: false }
+  }
 }
 
 function DashboardInner({ id }: { id: string }) {
@@ -69,19 +121,26 @@ function DashboardInner({ id }: { id: string }) {
   const [photoCount, setPhotoCount] = useState(0)
   const [accountCount, setAccountCount] = useState(0)
   const [addressCount, setAddressCount] = useState(0)
+  const [rsvpStats, setRsvpStats] = useState<{ hadir: number; belum_respon: number } | null>(null)
+  const [checkedInCount, setCheckedInCount] = useState(0)
+  const [checkedInPax, setCheckedInPax] = useState(0)
+  const [rsvpHadirCount, setRsvpHadirCount] = useState(0)
+  const [rsvpHadirPax, setRsvpHadirPax] = useState(0)
+  const [rsvpTotalPax, setRsvpTotalPax] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
   useEffect(() => {
     Promise.all([
-        fetch(`/api/dashboard/${id}`),
-        fetch(`/api/dashboard/${id}/web-invitation`).then(r => r.ok ? r.json() : null),
-        fetch(`/api/dashboard/${id}/qr-guestbook`).then(r => r.ok ? r.json() : null),
-        fetch(`/api/guest-photos?wedding_profile_id=${id}`).then(r => r.ok ? r.json() : null),
-        fetch(`/api/gift-accounts?wedding_profile_id=${id}`).then(r => r.ok ? r.json() : null),
-        fetch(`/api/gift-addresses?wedding_profile_id=${id}`).then(r => r.ok ? r.json() : null),
-      ])
-      .then(([dashboardRes, invData, qrData, photoData, accData, addrData]) => {
+      fetch(`/api/dashboard/${id}`),
+      fetch(`/api/dashboard/${id}/web-invitation`).then(r => r.ok ? r.json() : null),
+      fetch(`/api/dashboard/${id}/qr-guestbook`).then(r => r.ok ? r.json() : null),
+      fetch(`/api/guest-photos?wedding_profile_id=${id}`).then(r => r.ok ? r.json() : null),
+      fetch(`/api/gift-accounts?wedding_profile_id=${id}`).then(r => r.ok ? r.json() : null),
+      fetch(`/api/gift-addresses?wedding_profile_id=${id}`).then(r => r.ok ? r.json() : null),
+      fetch(`/api/dashboard/${id}/reservation-automation`).then(r => r.ok ? r.json() : null),
+    ])
+      .then(([dashboardRes, invData, qrData, photoData, accData, addrData, rsvpData]) => {
         if (!dashboardRes.ok) throw new Error("Dashboard tidak ditemukan")
         return dashboardRes.json().then((data) => {
           setProfile(data.profile)
@@ -99,6 +158,12 @@ function DashboardInner({ id }: { id: string }) {
           if (photoData?.photos) setPhotoCount(photoData.photos.length)
           if (accData?.accounts) setAccountCount(accData.accounts.length)
           if (addrData?.addresses) setAddressCount(addrData.addresses.length)
+          if (rsvpData?.stats) setRsvpStats(rsvpData.stats)
+          setCheckedInCount(data.checked_in_count ?? 0)
+          setCheckedInPax(data.checked_in_pax ?? 0)
+          setRsvpHadirCount(data.rsvp_hadir_count ?? 0)
+          setRsvpHadirPax(data.rsvp_hadir_pax ?? 0)
+          setRsvpTotalPax(data.rsvp_total_pax ?? 0)
         })
       })
       .catch((e) => setError(e.message))
@@ -115,7 +180,7 @@ function DashboardInner({ id }: { id: string }) {
 
   if (error || !profile || !selections) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-edge-margin-mobile">
+      <div className="min-h-screen bg-background flex items-center justify-center px-6">
         <div className="text-center">
           <span className="material-symbols-outlined text-6xl text-on-surface-variant mb-6">error_outline</span>
           <h1 className="font-headline-md text-headline-md text-primary mb-4">Dashboard Tidak Ditemukan</h1>
@@ -131,8 +196,31 @@ function DashboardInner({ id }: { id: string }) {
     )
   }
 
+  function getClosestDate(p: Profile): string {
+    const now = Date.now()
+    const sessionDates = Array.isArray(p.sessions) ? p.sessions.map(s => s.date).filter(Boolean) : []
+    const candidates = [...sessionDates, p.akad_date, p.resepsi_date, p.estimated_wedding_date].filter(Boolean) as string[]
+    if (candidates.length === 0) return p.estimated_wedding_date
+    let closest = candidates[0]
+    let closestDiff = Math.abs(new Date(closest).getTime() - now)
+    for (const d of candidates) {
+      const diff = Math.abs(new Date(d).getTime() - now)
+      if (diff < closestDiff) {
+        closestDiff = diff
+        closest = d
+      }
+    }
+    return closest
+  }
+
+  const displayDate = getClosestDate(profile)
   const statusLabel = STATUS_LABEL[profile.payment_status] || "UNPAID"
-  const statusColor = STATUS_COLOR[profile.payment_status] || "bg-gray-500"
+  const daysLeft = Math.max(0, Math.ceil((new Date(displayDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+  const formattedDate = new Date(displayDate).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
 
   const settingsParams = new URLSearchParams({
     user: profile.bride_name,
@@ -145,122 +233,189 @@ function DashboardInner({ id }: { id: string }) {
 
   const activeCards = CARDS.filter((card) => selections[card.key])
 
+  const moduleVals = {
+    templateName,
+    trackName,
+    qrWithToken,
+    qrCheckedIn,
+    totalWishes,
+    photoCount,
+    accountCount,
+    rsvpStats,
+  }
+
+  const statusColor = profile.payment_status === "FULLY_PAID" ? "bg-green-500" : profile.payment_status === "PARTIAL_DP" ? "bg-yellow-500" : "bg-red-500"
+
   return (
     <>
       <PageTheme mode="light" />
-      <header className="fixed top-0 w-full z-50 bg-background flex justify-between items-center px-edge-margin-mobile md:px-edge-margin-desktop h-20">
-        <div className="font-headline-md text-headline-md tracking-widest text-primary">AKSARAA</div>
-        <div className="flex items-center gap-6">
+      <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-outline-variant h-20 flex items-center justify-between px-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+            <span className="text-on-primary font-['Playfair_Display'] text-xl">A</span>
+          </div>
+          <span className="font-['Playfair_Display'] text-xl tracking-widest font-bold">AKSARAA</span>
+        </div>
+        <div className="flex items-center gap-4">
           <button
             onClick={() => router.push(`/customize?${settingsParams}`)}
-            className="flex items-center gap-2 hover:opacity-70 transition-opacity duration-300"
+            className="text-on-surface-variant"
+            title="Ubah Pilihan Fitur"
           >
-            <span className="material-symbols-outlined text-primary">settings</span>
-            <span className="font-label-md text-label-md uppercase tracking-widest hidden md:block">Ubah Pilihan Fitur</span>
+            <span className="material-symbols-outlined text-[20px]">settings</span>
           </button>
-          <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden">
-            <span className="material-symbols-outlined text-on-surface-variant">account_circle</span>
+          <div className="w-10 h-10 rounded-full border border-outline overflow-hidden">
+            <span className="material-symbols-outlined text-on-surface-variant w-full h-full flex items-center justify-center">account_circle</span>
           </div>
         </div>
       </header>
 
-      <main className="pt-24 pb-32 px-edge-margin-mobile md:px-80 max-w-container-max mx-auto">
-        <section className="mb-16">
-          <h2 className="font-headline-md text-headline-md leading-tight">
-            Selamat Datang,<br />
-            {profile.bride_name} &amp; {profile.groom_name}
-          </h2>
-          <div className="flex items-center gap-3 mt-2">
-            <div className={`w-2 h-2 rounded-full ${statusColor}`} />
-            <span className="font-body-md text-on-surface-variant">{statusLabel}</span>
-          </div>
-        </section>
-
-        <section className="mb-20">
-          <div
-            onClick={() => router.push(`/dashboard/${id}/guests`)}
-            className="hairline-divider pb-12 group cursor-pointer hover:bg-surface-container-low transition-colors duration-300"
-          >
-            <div className="flex justify-between items-end">
+      <main className="pt-24 pb-32 lg:max-w-[75%] lg:mx-auto">
+        <section className="px-6 mb-10">
+          <div className="bg-[#1A1817] rounded-3xl p-8 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-secondary opacity-10 blur-[100px] pointer-events-none" />
+            <div className="inline-flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full mb-6">
+              <span className={`w-2 h-2 rounded-full ${statusColor} animate-[pulse-animation_2s_ease-in-out_infinite]`} />
+              <span className="text-[10px] font-semibold tracking-widest uppercase">{statusLabel} &bull; {formattedDate}</span>
+            </div>
+            <h1 className="font-['Playfair_Display'] text-[48px] md:text-[56px] leading-tight mb-8">
+              {profile.bride_name} &amp; {profile.groom_name}
+            </h1>
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 flex justify-between items-center">
               <div>
-                <h2 className="font-headline-md text-headline-md mb-6">Pusat Data Tamu &amp; Denah Meja</h2>
-                <div className="flex flex-col md:flex-row gap-4 md:gap-12">
-                  <div>
-                    <p className="font-label-md text-label-md uppercase text-on-surface-variant mb-1">Total Input</p>
-                    <p className="font-body-lg text-body-lg"><span className="text-secondary">{guestCount}</span> Nama Terinput</p>
-                  </div>
-                  <div>
-                    <p className="font-label-md text-label-md uppercase text-on-surface-variant mb-1">Alokasi Ruang</p>
-                    <p className="font-body-lg text-body-lg"><span className="text-secondary">{tableCount}</span> Meja Dialokasikan</p>
-                  </div>
-                </div>
+                <p className="text-[10px] uppercase tracking-widest opacity-60 mb-1">Menuju Hari Bahagia</p>
+                <p className="font-['Playfair_Display'] text-3xl">{daysLeft} Hari Lagi</p>
               </div>
-              <div className="flex items-center gap-4 text-primary group-hover:translate-x-2 transition-transform duration-300">
-                <span className="font-label-md text-label-md uppercase tracking-widest">Kelola Daftar Tamu &amp; Pemetaan Meja</span>
-                <span className="material-symbols-outlined">east</span>
-              </div>
+              <span className="material-symbols-outlined text-secondary/80">calendar_today</span>
             </div>
           </div>
         </section>
 
-        <section className="grid grid-cols-1 gap-0">
-          <div className="mb-8">
-            <h3 className="font-label-md text-label-md uppercase tracking-[0.2em] text-on-surface-variant">Modul Perencanaan</h3>
-          </div>
-
-          {activeCards.length === 0 ? (
-            <div className="text-center py-20 hairline-divider">
-              <p className="font-body-md text-on-surface-variant">Belum ada modul yang dipilih</p>
+        <section className="px-6 mb-12">
+          <div className="bg-white border border-outline-variant rounded-2xl overflow-hidden shadow-sm">
+            <div className="p-6 border-b border-outline-variant flex justify-between items-end">
+              <h2 className="font-['Playfair_Display'] text-2xl mb-1">Master Guest Hub</h2>
+              <span className="material-symbols-outlined text-secondary">analytics</span>
             </div>
-          ) : (
-            activeCards.map((card, i) => (
-              <div
-                key={card.key}
-                onClick={() => {
-          const routes: Record<string, string> = {
-            premium_web: `/dashboard/${id}/web-invitation`,
-            unique_link_generator: `/dashboard/${id}/qr-guestbook`,
-            qr_code_book: `/dashboard/${id}/qr-guestbook/live`,
-            wish_wall: `/dashboard/${id}/wish-wall`,
-            galeri_kenangan: `/dashboard/${id}/galeri-kenangan`,
-            kolom_direct_transfer: `/dashboard/${id}/amplop-digital`,
-          }
-                  const route = routes[card.key]
-                  if (route) router.push(route)
-                }}
-                className="hairline-divider py-10 group cursor-pointer hover:bg-surface-container-low transition-colors duration-300 flex justify-between items-center"
-              >
-                <div className="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-8">
-                  <span className="font-label-md text-label-md text-on-surface-variant">{String(i + 1).padStart(2, "0")}.</span>
-                  <div>
-                    <h4 className="font-headline-md text-headline-md text-2xl mb-2">{card.title}</h4>
-                    <p className="font-body-md text-secondary uppercase tracking-wider font-semibold">
-                      {card.key === "premium_web"
-                          ? [templateName, trackName].filter(Boolean).join(" / ") || "—"
-                        : card.key === "unique_link_generator" ? `${qrWithToken} QR Aktif`
-                        : card.key === "qr_code_book" ? `${qrCheckedIn} Tamu Sudah Hadir`
-                        : card.key === "wish_wall" ? `${totalWishes} Wish Sudah Masuk`
-                        : card.key === "galeri_kenangan" ? `${photoCount} Foto Terunggah`
-                        : card.key === "kolom_direct_transfer" ? `${accountCount} Rekening, ${addressCount} Alamat`
-                        : "—"}
-                    </p>
-                  </div>
+            <div className="grid grid-cols-2 gap-px bg-outline-variant">
+              <div className="bg-white p-5">
+                <p className="text-[10px] uppercase tracking-wider text-on-surface-variant mb-1">Total Tamu</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-semibold">{guestCount}</span>
                 </div>
-                <span className="material-symbols-outlined group-hover:translate-x-2 transition-transform duration-300">chevron_right</span>
               </div>
-            ))
-          )}
+              <div className="bg-white p-5">
+                <p className="text-[10px] uppercase tracking-wider text-on-surface-variant mb-1">Meja</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-semibold">{tableCount}</span>
+                </div>
+              </div>
+              <div className="bg-white p-5">
+                <p className="text-[10px] uppercase tracking-wider text-on-surface-variant mb-1">Reservasi Tamu</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-semibold">{rsvpHadirCount}</span>
+                  <span className="text-sm text-on-surface-variant opacity-60">{rsvpHadirPax} Pax</span>
+                </div>
+                <div className="mt-2 w-full h-1 bg-surface-container rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-secondary transition-all duration-500"
+                    style={{ width: `${rsvpTotalPax > 0 ? (rsvpHadirPax / rsvpTotalPax) * 100 : 0}%` }}
+                  />
+                </div>
+              </div>
+              <div className="bg-white p-5">
+                <p className="text-[10px] uppercase tracking-wider text-on-surface-variant mb-1">Checkin Tamu</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-semibold">{checkedInCount}</span>
+                  <span className="text-sm text-on-surface-variant opacity-60">{checkedInPax} Pax</span>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => router.push(`/dashboard/${id}/guests`)}
+              className="w-full py-5 bg-primary text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+            >
+              Kelola Tamu &amp; Meja
+              <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+            </button>
+          </div>
         </section>
 
-        <section className="mt-section-gap grid grid-cols-1 md:grid-cols-12 gap-gutter items-center">
-          <div className="md:col-span-7">
-            <div className="aspect-[4/5] w-full overflow-hidden bg-surface-container relative">
-              <Image src="/dashboard.png" alt="Aksaraa Dashboard" fill className="object-cover" />
-            </div>
+        <section className="mb-12">
+          <div className="px-6 flex justify-between items-center mb-6">
+            <h2 className="font-['Playfair_Display'] text-2xl">Modul Perencanaan</h2>
           </div>
-          <div className="md:col-span-4 md:col-start-9">
-            <h3 className="font-headline-lg text-headline-lg mb-6 italic">&ldquo;Narasi perjalanan cinta yang terkurasi dengan sempurna.&rdquo;</h3>
-            <p className="font-body-md text-on-surface-variant">Setiap modul dirancang untuk mempermudah langkah Anda menuju hari bahagia, tanpa mengabaikan sentuhan estetika dan detail kriya yang personal.</p>
+          <div className="px-6 space-y-4">
+            {activeCards.length === 0 ? (
+              <div className="text-center py-20 bg-white border border-outline-variant rounded-2xl">
+                <p className="font-body-md text-on-surface-variant">Belum ada modul yang dipilih</p>
+              </div>
+            ) : (
+              activeCards.map((card, i) => {
+                const status = getModuleStatus(card.key, moduleVals)
+                return (
+                  <div
+                    key={card.key}
+                    onClick={() => {
+                      const routes: Record<string, string> = {
+                        premium_web: `/dashboard/${id}/web-invitation`,
+                        reservation_automation: `/dashboard/${id}/reservation-automation`,
+                        unique_link_generator: `/dashboard/${id}/qr-guestbook`,
+                        qr_code_book: `/dashboard/${id}/qr-guestbook/live`,
+                        wish_wall: `/dashboard/${id}/wish-wall`,
+                        galeri_kenangan: `/dashboard/${id}/galeri-kenangan`,
+                        kolom_direct_transfer: `/dashboard/${id}/amplop-digital`,
+                      }
+                      const route = routes[card.key]
+                      if (route) router.push(route)
+                    }}
+                    className="group bg-white p-6 border border-outline-variant rounded-2xl flex items-center justify-between active:bg-surface-container transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-5">
+                      <div className="w-12 h-12 bg-surface-container rounded-xl flex items-center justify-center text-secondary">
+                        <span className="material-symbols-outlined">{ICON_MAP[card.key]}</span>
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="text-[10px] font-bold text-on-surface-variant opacity-50">
+                            {String(i + 1).padStart(2, "0")}
+                          </span>
+                          <span
+                            className={`px-1.5 py-0.5 text-[9px] font-bold rounded uppercase ${
+                              status.active
+                                ? "bg-green-100 text-green-700"
+                                : "bg-outline-variant text-on-surface-variant"
+                            }`}
+                          >
+                            {status.label}
+                          </span>
+                        </div>
+                        <h3 className="font-semibold">{card.title}</h3>
+                      </div>
+                    </div>
+                    <span className="material-symbols-outlined text-outline group-active:translate-x-1 transition-transform">
+                      arrow_forward_ios
+                    </span>
+                  </div>
+                )
+              })
+            )}
+          </div>
+        </section>
+
+        <section className="px-6">
+          <div className="relative rounded-3xl overflow-hidden mb-8 h-[500px]">
+            <Image src="/dashboard.png" alt="Aksaraa Dashboard" fill className="object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+            <div className="absolute bottom-10 left-10 right-10 text-center">
+              <blockquote className="font-['Playfair_Display'] italic text-white text-2xl mb-6">
+                &ldquo;Narasi perjalanan cinta yang terkurasi dengan sempurna.&rdquo;
+              </blockquote>
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
+                <span className="material-symbols-outlined text-white text-[16px]">verified_user</span>
+                <span className="text-[10px] font-semibold text-white tracking-widest uppercase">AES-256 Encrypted Data</span>
+              </div>
+            </div>
           </div>
         </section>
       </main>
