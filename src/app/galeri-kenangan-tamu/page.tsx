@@ -98,9 +98,6 @@ export default function GaleriKenanganTamuPage() {
           </button>
           <div className="font-headline-md text-[24px] md:text-headline-md tracking-tight text-primary">AKSARAA</div>
         </div>
-        <button className="bg-primary text-on-primary px-6 py-3 font-label-sm text-label-sm uppercase tracking-widest hover:bg-on-surface-variant transition-colors duration-300">
-          UNGGAH FOTO DEMO
-        </button>
       </header>
 
       <main className="pt-[80px]" ref={mainRef}>
@@ -116,8 +113,12 @@ export default function GaleriKenanganTamuPage() {
             <p className="font-body-lg text-body-lg text-secondary max-w-lg">
               Transformasi album pernikahan konvensional menjadi ekosistem digital interaktif. Biarkan tamu mengabadikan kedekatan tanpa perlu aplikasi tambahan.
             </p>
-            <button className="bg-primary text-on-primary px-10 py-5 font-label-sm text-label-sm uppercase tracking-[0.3em] hover:scale-[0.98] transition-transform">
+            <button
+              onClick={() => router.push("/register")}
+              className="bg-primary text-on-primary px-10 py-5 font-label-sm text-label-sm uppercase tracking-[0.3em] hover:scale-[0.98] transition-transform flex items-center gap-3"
+            >
               Aktifkan Galeri Tamu
+              <span className="material-symbols-outlined">arrow_forward</span>
             </button>
           </div>
           <div className="w-full md:w-1/2 relative bg-primary-container overflow-hidden min-h-[500px]">

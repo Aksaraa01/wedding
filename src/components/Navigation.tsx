@@ -8,7 +8,7 @@ const PRODUCTS = [
   { label: "QR dan Digital Buku Tamu", href: "/qr-digital-buku-tamu" },
   { label: "Virtual Wish Wall", href: "/virtual-wish-wall" },
   { label: "Galeri Kenangan Tamu", href: "/galeri-kenangan-tamu" },
-  { label: "Reminder Tamu VIP", href: "#" },
+  { label: "Reminder Tamu VIP", href: "/reminder-tamu-vip" },
 ]
 
 export default function Navigation() {

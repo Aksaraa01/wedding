@@ -102,6 +102,10 @@ export const ASSETS = {
     cinematic: s("premium-web/cinematic-video-bg.jpg"),
     dashboard: s("premium-web/dashboard-screenshot.jpg"),
   },
+  reminderVip: {
+    chat: s("reminder-vip/whatsapp-chat.jpg"),
+    dashboard: s("reminder-vip/dispatch-dashboard.jpg"),
+  },
   textures: {
     naturalPaper: "https://www.transparenttextures.com/patterns/natural-paper.png",
     felt: "https://www.transparenttextures.com/patterns/felt.png",
