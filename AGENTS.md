@@ -7,6 +7,15 @@
 - **Database:** PostgreSQL (Supabase)
 - **Auth:** Supabase (anon key + service role key)
 - **Fonts:** Playfair Display (headlines), Inter (body), Cormorant Garamond (accent)
+- **Supabase CLI:** v2.110.0 (local dev, migrations)
+
+## Supabase Environments
+
+| Environment | Project Ref | URL | How to Start |
+|---|---|---|---|
+| **Local** | — | `http://127.0.0.1:54321` | `npx supabase start` |
+| **Staging** | `jclolnjkjhyjilvymagr` | `https://jclolnjkjhyjilvymagr.supabase.co` | `supabase link --project-ref jclolnjkjhyjilvymagr` |
+| **Production** | `ylmfgorryxzpdckkebnr` | `https://ylmfgorryxzpdckkebnr.supabase.co` | `supabase link --project-ref ylmfgorryxzpdckkebnr` |
 
 ## Key Conventions
 
@@ -31,7 +40,9 @@
 - `inviting_families` is `TEXT` type (not JSONB) — `JSON.parse` on read, return `[]` if empty
 - `wa_blast_tier` is cumulative additional capacity on top of package base (Prestige: 100)
 - `rekening_bank` and `gift_shipping_address` deprecated — do not reference
-- All migrations in `supabase/` directory
+- All migrations in `supabase/migrations/` directory
+- Full schema defined in `20260730000000_init.sql`
+- Seed data (packages, templates, tracks, etc.) in `supabase/seed.sql`
 
 ### Deployment
 - Server: `103.93.135.176` (Biznet VPS, Ubuntu 22.04)
@@ -65,6 +76,34 @@
 2. Export HTTP method functions
 3. Use `supabaseAdmin` for DB access
 
+### Add a database schema change
+
+1. Make changes in local Supabase Studio (`http://127.0.0.1:54323`) or via SQL
+2. Generate migration:
+   ```bash
+   npx supabase db diff -f describe_change
+   ```
+3. Test locally:
+   ```bash
+   npx supabase db reset
+   ```
+4. Push to staging first:
+   ```bash
+   npx supabase link --project-ref jclolnjkjhyjilvymagr
+   npx supabase db push
+   ```
+5. Verify on staging, then push to production:
+   ```bash
+   npx supabase link --project-ref ylmfgorryxzpdckkebnr
+   npx supabase db push
+   ```
+6. Commit migration file:
+   ```bash
+   git add supabase/migrations/
+   git commit -m "feat: add feature_x"
+   git push
+   ```
+
 ### Deploy
 ```bash
 cd /var/www/aksara-wedding
@@ -72,3 +111,12 @@ npm run build
 pm2 restart aksara-wedding --update-env
 pm2 save
 ```
+
+### Start local development
+
+```bash
+npx supabase start
+npm run dev
+```
+
+Requires Docker Desktop running. Local Supabase Studio at `http://127.0.0.1:54323`.
