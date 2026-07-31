@@ -11,7 +11,7 @@ type Selections = {
   wish_wall: boolean
   reservation_automation: boolean
   kolom_direct_transfer: boolean
-  galeri_kenangan: boolean
+  galeri_foto_tamu: boolean
   qr_code_book: boolean
   unique_link_generator: boolean
   undangan_fisik: boolean
@@ -42,7 +42,7 @@ const CARDS = [
   { key: "reservation_automation" as const, title: "RSVP Automation" },
   { key: "qr_code_book" as const, title: "QR Guest Book" },
   { key: "kolom_direct_transfer" as const, title: "Digital Angpao & E-Gift" },
-  { key: "galeri_kenangan" as const, title: "Galeri Kenangan Tamu" },
+  { key: "galeri_foto_tamu" as const, title: "Galeri Kenangan Tamu" },
 ]
 
 const ICON_MAP: Record<string, string> = {
@@ -54,7 +54,7 @@ const ICON_MAP: Record<string, string> = {
   reservation_automation: "how_to_reg",
   qr_code_book: "qr_code_2",
   kolom_direct_transfer: "redeem",
-  galeri_kenangan: "photo_library",
+  galeri_foto_tamu: "photo_library",
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -66,7 +66,7 @@ const STATUS_LABEL: Record<string, string> = {
 function getModuleStatus(key: string, vals: {
   templateName: string; trackName: string; qrWithToken: number; qrCheckedIn: number;
   totalWishes: number; photoCount: number; accountCount: number;
-  rsvpStats: { hadir: number; belum_respon: number } | null;
+  rsvpStats: { hadir: number; belum_dibuka: number } | null;
   paymentStatus: string;
 }): { label: string; active: boolean } {
   switch (key) {
@@ -86,7 +86,7 @@ function getModuleStatus(key: string, vals: {
       return vals.totalWishes > 0
         ? { label: `${vals.totalWishes} Wish Sudah Masuk`, active: true }
         : { label: "Belum Aktif", active: false }
-    case "galeri_kenangan":
+    case "galeri_foto_tamu":
       return vals.photoCount > 0
         ? { label: `${vals.photoCount} Momen Terunggah`, active: true }
         : { label: "Belum Aktif", active: false }
@@ -96,7 +96,7 @@ function getModuleStatus(key: string, vals: {
         : { label: "Belum Aktif", active: false }
     case "reservation_automation":
       return vals.rsvpStats
-        ? { label: `${vals.rsvpStats.hadir} Hadir, ${vals.rsvpStats.belum_respon} Belum Respon`, active: true }
+        ? { label: `${vals.rsvpStats.hadir} Hadir, ${vals.rsvpStats.belum_dibuka} Belum Dibuka`, active: true }
         : { label: "Belum Aktif", active: false }
     case "undangan_fisik":
       return { label: "Draf", active: false }
@@ -125,7 +125,7 @@ function DashboardInner({ id }: { id: string }) {
   const [photoCount, setPhotoCount] = useState(0)
   const [accountCount, setAccountCount] = useState(0)
   const [addressCount, setAddressCount] = useState(0)
-  const [rsvpStats, setRsvpStats] = useState<{ hadir: number; belum_respon: number } | null>(null)
+  const [rsvpStats, setRsvpStats] = useState<{ hadir: number; belum_dibuka: number } | null>(null)
   const [checkedInCount, setCheckedInCount] = useState(0)
   const [checkedInPax, setCheckedInPax] = useState(0)
   const [rsvpHadirCount, setRsvpHadirCount] = useState(0)
@@ -366,7 +366,7 @@ function DashboardInner({ id }: { id: string }) {
                         unique_link_generator: `/dashboard/${id}/qr-guestbook`,
                         qr_code_book: `/dashboard/${id}/qr-guestbook/live`,
                         wish_wall: `/dashboard/${id}/wish-wall`,
-                        galeri_kenangan: `/dashboard/${id}/galeri-kenangan`,
+                        galeri_foto_tamu: `/dashboard/${id}/galeri-kenangan`,
                         kolom_direct_transfer: `/dashboard/${id}/amplop-digital`,
                         wa_blast: `/dashboard/${id}/reminder-tamu-vip`,
                       }

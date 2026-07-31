@@ -49,7 +49,7 @@ INSERT INTO package_features (package_code, feature_code, is_included) VALUES
     ('prestige', 'wish_wall', true),
     ('prestige', 'reservation_automation', true),
     ('prestige', 'kolom_direct_transfer', true),
-    ('prestige', 'gift_marketplace', true),
+    ('prestige', 'galeri_foto_tamu', true),
     ('prestige', 'qr_code_book', true),
     ('prestige', 'unique_link_generator', true),
     ('prestige', 'wa_blast', true)

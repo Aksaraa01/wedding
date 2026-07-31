@@ -16,7 +16,7 @@ const FEATURE_LABELS: Record<string, string> = {
   wish_wall: "Wish Wall",
   reservation_automation: "Reservasi Otomatis",
   kolom_direct_transfer: "Amplop Digital & Alamat Kado",
-  gift_marketplace: "Galeri Kenangan Tamu",
+  galeri_foto_tamu: "Galeri Kenangan Tamu",
   qr_code_book: "Buku Tamu QR",
   unique_link_generator: "QR Code Tamu",
   undangan_fisik: "Undangan Fisik",
@@ -604,7 +604,7 @@ export default function OpsDashboardPage() {
                             ? `${detail.feature_stats.checked_in_count} Tamu Sudah Hadir`
                             : fa.feature_key === "wish_wall"
                             ? `${detail.feature_stats.wish_count} Wish Sudah Masuk`
-                            : fa.feature_key === "galeri_kenangan"
+                            : fa.feature_key === "galeri_foto_tamu"
                             ? `${detail.feature_stats.photo_count} Foto Terunggah`
                             : fa.feature_key === "kolom_direct_transfer"
                             ? `${detail.feature_stats.account_count} Rek, ${detail.feature_stats.address_count} Alm`

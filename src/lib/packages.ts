@@ -17,7 +17,7 @@ const PACKAGE_FEATURES: Record<string, string[]> = {
   signature: ["premium_web", "wish_wall", "reservation_automation", "kolom_direct_transfer"],
   prestige: [
     "premium_web", "wish_wall", "reservation_automation",
-    "kolom_direct_transfer", "galeri_kenangan",
+    "kolom_direct_transfer", "galeri_foto_tamu",
     "qr_code_book", "unique_link_generator", "wa_blast",
   ],
 }
@@ -27,7 +27,7 @@ export type Selections = {
   wish_wall: boolean
   reservation_automation: boolean
   kolom_direct_transfer: boolean
-  galeri_kenangan: boolean
+  galeri_foto_tamu: boolean
   qr_code_book: boolean
   unique_link_generator: boolean
   undangan_fisik: boolean
@@ -41,7 +41,7 @@ export function deriveSelections(packageType: string, undanganFisik: boolean): S
     wish_wall: included.includes("wish_wall"),
     reservation_automation: included.includes("reservation_automation"),
     kolom_direct_transfer: included.includes("kolom_direct_transfer"),
-    galeri_kenangan: included.includes("galeri_kenangan"),
+    galeri_foto_tamu: included.includes("galeri_foto_tamu"),
     qr_code_book: included.includes("qr_code_book"),
     unique_link_generator: included.includes("unique_link_generator"),
     wa_blast: included.includes("wa_blast"),
