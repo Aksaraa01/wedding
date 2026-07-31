@@ -46,13 +46,13 @@ export async function GET(
 
     const { data: checkedInData } = await supabaseAdmin
       .from("guests")
-      .select("id, guest_count")
+      .select("id, guest_count, rsvp_pax_count")
       .eq("wedding_profile_id", id)
       .eq("is_checked_in", true)
 
     const checkedInGuests = checkedInData || []
     const checkedInCount = checkedInGuests.length
-    const checkedInPax = checkedInGuests.reduce((sum, g) => sum + (g.guest_count || 1), 0)
+    const checkedInPax = checkedInGuests.reduce((sum, g) => sum + (g.rsvp_pax_count || g.guest_count || 1), 0)
 
     const { data: rsvpData } = await supabaseAdmin
       .from("guests")

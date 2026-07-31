@@ -65,6 +65,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
   const [showNameInput, setShowNameInput] = useState(false)
   const [scanResult, setScanResult] = useState<ScanResult | null>(null)
   const [logEntries, setLogEntries] = useState<GuestRecord[]>([])
+  const [allGuests, setAllGuests] = useState<GuestRecord[]>([])
   const [pendingSync, setPendingSync] = useState(0)
   const [manualQuery, setManualQuery] = useState("")
   const [manualResults, setManualResults] = useState<GuestRecord[]>([])
@@ -202,6 +203,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
             souvenir_claimed: false,
           }))
           await cacheGuests(records)
+          setAllGuests(records)
           setLogEntries(records.filter((g) => g.is_checked_in).sort((a, b) => {
             if (!a.checkin_timestamp || !b.checkin_timestamp) return 0
             return b.checkin_timestamp.localeCompare(a.checkin_timestamp)
@@ -375,8 +377,8 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
     return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")} WIB`
   }
 
-  const presentCount = logEntries.filter(g => g.is_checked_in).length
-  const totalGuests = eventInfo?.guest_count ?? 0
+  const presentCount = logEntries.filter(g => g.is_checked_in).reduce((sum, g) => sum + paxCount(g), 0)
+  const totalGuests = allGuests.reduce((sum, g) => sum + paxCount(g), 0)
   const coupleDisplay = eventInfo
     ? (eventInfo.display_name || `${eventInfo.bride_name} & ${eventInfo.groom_name}`)
     : ""
