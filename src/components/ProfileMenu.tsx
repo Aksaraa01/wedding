@@ -29,7 +29,7 @@ export default function ProfileMenu() {
           <button
             onClick={() => {
               setOpen(false)
-              router.push("/login")
+              router.push("/hero")
             }}
             className="w-full flex items-center gap-3 px-4 py-3 text-left font-label-md text-label-md text-on-surface hover:bg-surface-container-low transition-colors"
           >

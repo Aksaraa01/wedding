@@ -157,9 +157,20 @@ export default function LoginPage() {
                 </div>
               </form>
 
-              <div className="pt-8 border-t border-outline-variant/30 text-center">
+              <div className="pt-8 border-t border-outline-variant/30 text-center space-y-4">
+                <div>
+                  <span className="text-on-surface-variant font-body-md text-body-md mr-1">
+                    Belum punya akun?
+                  </span>
+                  <button
+                    onClick={() => router.push("/register")}
+                    className="text-primary font-label-md text-label-md uppercase tracking-widest underline underline-offset-4 hover:opacity-80 transition-opacity"
+                  >
+                    Daftar Sekarang
+                  </button>
+                </div>
                 <a
-                  className="text-on-surface-variant font-label-md text-label-md uppercase tracking-widest border-b border-transparent hover:border-primary transition-all duration-300"
+                  className="block text-on-surface-variant font-label-md text-label-md uppercase tracking-widest border-b border-transparent hover:border-primary transition-all duration-300"
                   href="https://wa.me/6281224459435"
                   target="_blank"
                   rel="noopener noreferrer"
