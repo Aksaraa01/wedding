@@ -58,9 +58,9 @@ function EditorInner({ id }: { id: string }) {
   const [template, setTemplate] = useState<Template | null>(null)
   const [data, setData] = useState<Record<string, any>>({})
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error">("saved")
-  const [guestPreview, setGuestPreview] = useState("")
   const [activeSection, setActiveSection] = useState<string>("sampul")
   const [showMobilePreview, setShowMobilePreview] = useState(false)
+  const [previewDevice, setPreviewDevice] = useState<"mobile" | "desktop">("mobile")
   const saveTimer = useRef<ReturnType<typeof setTimeout>>(null)
 
   const coverFileRef = useRef<HTMLInputElement>(null)
@@ -283,6 +283,48 @@ function EditorInner({ id }: { id: string }) {
   const saveStatusColor = saveStatus === "saving" ? "bg-amber-500" : saveStatus === "error" ? "bg-red-500" : "bg-emerald-500"
   const isPublished = data.is_published === true
 
+  const renderPreviewBody = () => {
+    if (template?.demo_url) {
+      return <iframe src={template.demo_url} className="w-full h-full border-0" title="Demo" />
+    }
+    const LiveComp = template?.code ? getTemplateComponent(template.code) : null
+    if (!LiveComp) {
+      return (
+        <div className="h-full flex items-center justify-center text-on-surface-variant font-body-md">
+          Pilih template untuk melihat pratinjau
+        </div>
+      )
+    }
+    return (
+      <LiveComp
+        bride_name={data.bride_name || ""}
+        groom_name={data.groom_name || ""}
+        estimated_wedding_date={data.estimated_wedding_date || ""}
+        slug={data.slug || ""}
+        guest_name="Tamu Undangan"
+        display_name={data.display_name || undefined}
+        sessions={sessions.length > 0 ? sessions : undefined}
+        quote_text={data.quote_text || undefined}
+        quote_source={data.quote_source || undefined}
+        stories={stories.length > 0 ? stories : undefined}
+        gallery_photos={galleryPhotos.length > 0 ? galleryPhotos : undefined}
+        couple_illustration_url={data.couple_illustration_url || undefined}
+        grayscale={data.grayscale}
+        groom_full_name={data.groom_full_name || undefined}
+        bride_full_name={data.bride_full_name || undefined}
+        groom_photo_url={data.groom_photo_url || undefined}
+        bride_photo_url={data.bride_photo_url || undefined}
+        groom_parents={data.groom_parents || undefined}
+        bride_parents={data.bride_parents || undefined}
+        inviting_families={Array.isArray(data.inviting_families) ? data.inviting_families.filter(Boolean) : undefined}
+        gift_accounts={giftAccounts.length > 0 ? giftAccounts.map(a => ({ provider_name: a.provider_name, account_number: a.account_number, account_name: a.account_name, type: a.type })) : undefined}
+        gift_address={giftAddressText || undefined}
+        track_url={selectedTrack?.audio_url || undefined}
+        auto_play={autoPlay || undefined}
+      />
+    )
+  }
+
   return (
     <>
       <PageTheme mode="light" />
@@ -306,20 +348,9 @@ function EditorInner({ id }: { id: string }) {
           </div>
 
           <div className="flex items-center gap-8">
-            {/* Guest preview — desktop only */}
-            <div className="hidden xl:flex items-center gap-2 bg-surface-container-low px-4 py-2 border border-outline-variant">
-              <span className="material-symbols-outlined text-[20px] text-on-surface-variant">person</span>
-              <input
-                className="bg-transparent border-none focus:ring-0 font-label-md text-label-md w-40 text-on-surface"
-                placeholder="Tes Nama Tamu..."
-                value={guestPreview}
-                onChange={e => setGuestPreview(e.target.value)}
-              />
-            </div>
-
             {/* Tool icons */}
             <div className="flex items-center gap-4 text-on-surface-variant">
-              <button onClick={() => setShowMobilePreview(prev => !prev)} className="hover:text-primary transition-colors hidden sm:flex"><span className="material-symbols-outlined">devices</span></button>
+              <button onClick={() => setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile")} className="hover:text-primary transition-colors hidden sm:flex"><span className="material-symbols-outlined">devices</span></button>
             </div>
 
             {/* Ganti Tema */}
@@ -728,103 +759,47 @@ function EditorInner({ id }: { id: string }) {
           <section className={`${showMobilePreview ? 'flex' : 'hidden'} md:flex flex-1 bg-surface relative overflow-hidden items-center justify-center`}
             style={{ backgroundImage: "linear-gradient(#e5e1d8 1px, transparent 1px), linear-gradient(90deg, #e5e1d8 1px, transparent 1px)", backgroundSize: "40px 40px" }}
           >
-            <div className="hidden md:block absolute bottom-8 right-8 flex-col gap-2 z-10">
-              <button className="block w-12 h-12 bg-white border border-outline-variant shadow-sm flex items-center justify-center hover:bg-surface-container-low transition-colors"><span className="material-symbols-outlined">zoom_in</span></button>
-              <button className="block w-12 h-12 bg-white border border-outline-variant shadow-sm flex items-center justify-center hover:bg-surface-container-low transition-colors"><span className="material-symbols-outlined">zoom_out</span></button>
-              <button className="block w-12 h-12 bg-white border border-outline-variant shadow-sm flex items-center justify-center hover:bg-surface-container-low transition-colors"><span className="material-symbols-outlined">center_focus_strong</span></button>
-            </div>
+            {previewDevice === "mobile" ? (
+              <div className="hidden md:block iphone-frame w-[390px] h-[780px] bg-white overflow-hidden relative shadow-2xl scale-95 origin-center">
+                <div className="absolute top-0 inset-x-0 h-10 px-8 flex justify-between items-end pb-1 z-[100] text-black pointer-events-none">
+                  <span className="text-[12px] font-bold">9:41</span>
+                  <div className="flex gap-1 items-center">
+                    <span className="material-symbols-outlined text-[14px]">signal_cellular_4_bar</span>
+                    <span className="material-symbols-outlined text-[14px]">wifi</span>
+                    <span className="material-symbols-outlined text-[14px]">battery_full</span>
+                  </div>
+                </div>
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 w-28 h-7 bg-tertiary rounded-full z-[101]" />
 
-            <div className="hidden md:block iphone-frame w-[390px] h-[780px] bg-white overflow-hidden relative shadow-2xl scale-95 origin-center">
-              <div className="absolute top-0 inset-x-0 h-10 px-8 flex justify-between items-end pb-1 z-[100] text-black pointer-events-none">
-                <span className="text-[12px] font-bold">9:41</span>
-                <div className="flex gap-1 items-center">
-                  <span className="material-symbols-outlined text-[14px]">signal_cellular_4_bar</span>
-                  <span className="material-symbols-outlined text-[14px]">wifi</span>
-                  <span className="material-symbols-outlined text-[14px]">battery_full</span>
+                <div className="h-full w-full overflow-y-auto custom-scrollbar">
+                  {renderPreviewBody()}
                 </div>
               </div>
-              <div className="absolute top-3 left-1/2 -translate-x-1/2 w-28 h-7 bg-tertiary rounded-full z-[101]" />
-
-              <div className="h-full w-full overflow-y-auto custom-scrollbar">
-                {template?.demo_url ? (
-                  <iframe src={template.demo_url} className="w-full h-full border-0" title="Demo" />
-                ) : (() => {
-                  const LiveComp = template?.code ? getTemplateComponent(template.code) : null
-                  return LiveComp ? (
-                      <LiveComp
-                        bride_name={data.bride_name || ""}
-                        groom_name={data.groom_name || ""}
-                        estimated_wedding_date={data.estimated_wedding_date || ""}
-                        slug={data.slug || ""}
-                        guest_name={guestPreview || "Tamu Undangan"}
-                        display_name={data.display_name || undefined}
-                        sessions={sessions.length > 0 ? sessions : undefined}
-                        quote_text={data.quote_text || undefined}
-                        quote_source={data.quote_source || undefined}
-                        stories={stories.length > 0 ? stories : undefined}
-                        gallery_photos={galleryPhotos.length > 0 ? galleryPhotos : undefined}
-                        couple_illustration_url={data.couple_illustration_url || undefined}
-                        grayscale={data.grayscale}
-                        groom_full_name={data.groom_full_name || undefined}
-                        bride_full_name={data.bride_full_name || undefined}
-                        groom_photo_url={data.groom_photo_url || undefined}
-                        bride_photo_url={data.bride_photo_url || undefined}
-                        groom_parents={data.groom_parents || undefined}
-                        bride_parents={data.bride_parents || undefined}
-                        inviting_families={Array.isArray(data.inviting_families) ? data.inviting_families.filter(Boolean) : undefined}
-                        gift_accounts={giftAccounts.length > 0 ? giftAccounts.map(a => ({ provider_name: a.provider_name, account_number: a.account_number, account_name: a.account_name, type: a.type })) : undefined}
-                        gift_address={giftAddressText || undefined}
-                        track_url={selectedTrack?.audio_url || undefined}
-                        auto_play={autoPlay || undefined}
-                      />
-                  ) : (
-                    <div className="h-full flex items-center justify-center text-on-surface-variant font-body-md">
-                      Pilih template untuk melihat pratinjau
+            ) : (
+              <div className="hidden md:block w-full h-full p-8 flex items-center justify-center">
+                <div className="w-full h-full max-w-[1200px] bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col">
+                  <div className="flex items-center gap-3 px-4 h-11 bg-surface-container-high border-b border-outline-variant shrink-0">
+                    <div className="flex gap-1.5">
+                      <span className="w-3 h-3 rounded-full bg-[#FF5F57]" />
+                      <span className="w-3 h-3 rounded-full bg-[#FEBC2E]" />
+                      <span className="w-3 h-3 rounded-full bg-[#28C840]" />
                     </div>
-                  )
-                })()}
+                    <div className="flex-1 flex justify-center">
+                      <span className="text-[11px] font-label-md px-4 py-1 rounded-full bg-surface-container-low border border-outline-variant truncate max-w-[60%] text-on-surface-variant">
+                        https://{data.slug || "wedding"}.wedding.aksaraa.com
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-1 overflow-y-auto custom-scrollbar">
+                    {renderPreviewBody()}
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
 
             {showMobilePreview && (
               <div className="md:hidden w-full h-full overflow-y-auto custom-scrollbar">
-                {template?.demo_url ? (
-                  <iframe src={template.demo_url} className="w-full h-full border-0" title="Demo" />
-                ) : (() => {
-                  const LiveComp = template?.code ? getTemplateComponent(template.code) : null
-                  return LiveComp ? (
-                    <LiveComp
-                      bride_name={data.bride_name || ""}
-                      groom_name={data.groom_name || ""}
-                      estimated_wedding_date={data.estimated_wedding_date || ""}
-                      slug={data.slug || ""}
-                      guest_name={guestPreview || "Tamu Undangan"}
-                      display_name={data.display_name || undefined}
-                      sessions={sessions.length > 0 ? sessions : undefined}
-                      quote_text={data.quote_text || undefined}
-                      quote_source={data.quote_source || undefined}
-                      stories={stories.length > 0 ? stories : undefined}
-                      gallery_photos={galleryPhotos.length > 0 ? galleryPhotos : undefined}
-                      couple_illustration_url={data.couple_illustration_url || undefined}
-                      grayscale={data.grayscale}
-                      groom_full_name={data.groom_full_name || undefined}
-                      bride_full_name={data.bride_full_name || undefined}
-                      groom_photo_url={data.groom_photo_url || undefined}
-                      bride_photo_url={data.bride_photo_url || undefined}
-                      groom_parents={data.groom_parents || undefined}
-                      bride_parents={data.bride_parents || undefined}
-                      inviting_families={Array.isArray(data.inviting_families) ? data.inviting_families.filter(Boolean) : undefined}
-                      gift_accounts={giftAccounts.length > 0 ? giftAccounts.map(a => ({ provider_name: a.provider_name, account_number: a.account_number, account_name: a.account_name, type: a.type })) : undefined}
-                      gift_address={giftAddressText || undefined}
-                      track_url={selectedTrack?.audio_url || undefined}
-                      auto_play={autoPlay || undefined}
-                    />
-                  ) : (
-                    <div className="h-full flex items-center justify-center text-on-surface-variant font-body-md p-6">
-                      Pilih template untuk melihat pratinjau
-                    </div>
-                  )
-                })()}
+                {renderPreviewBody()}
               </div>
             )}
           </section>
