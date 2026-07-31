@@ -62,7 +62,7 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
 
   const belumKonfirmasi = Math.max(0, stats.total - stats.hadir - stats.tidak_hadir)
   const openPct = stats.total ? Math.round((stats.dibuka / stats.total) * 100) : 0
-  const hadirPct = stats.total ? Math.round((stats.hadir / stats.total) * 100) : 0
+  const conversionPct = stats.dibuka > 0 ? Math.round((stats.hadir / stats.dibuka) * 100) : 0
 
   if (loading) {
     return (
@@ -78,6 +78,16 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
       <style>{`
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .conversion-line::before {
+          content: '';
+          position: absolute;
+          left: 24px;
+          top: 40px;
+          bottom: 40px;
+          width: 1px;
+          background-color: #e6e2d9;
+          z-index: 0;
+        }
       `}</style>
 
       <div className="min-h-screen bg-surface text-on-surface font-body-md overflow-x-hidden">
@@ -103,42 +113,67 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
             <div className="lg:col-span-5 space-y-12">
               <section className="border border-[#c4c7c7]/20 p-8 bg-surface-container-low lg:sticky lg:top-32">
                 <h2 className="font-label-md text-label-md uppercase mb-10 opacity-60 tracking-[0.2em]">Ringkasan Statistik</h2>
-                <div className="flex flex-col gap-8">
-                  <div className="flex flex-col gap-7">
-                    {/* Stage 1: Total Undangan */}
-                    <div>
-                      <div className="flex items-end justify-between mb-2">
-                        <span className="font-label-md text-[11px] uppercase tracking-[0.2em] text-[#1a1a1a]">Total Undangan</span>
-                        <span className="font-headline-md text-[28px] leading-none text-[#1a1a1a]">{stats.total}</span>
+                <div className="relative conversion-line">
+                  {/* Stage 1: Total Undangan */}
+                  <div className="relative z-10 flex items-start gap-6 mb-12">
+                    <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center border-4 border-background shrink-0">
+                      <span className="material-symbols-outlined text-[20px]">groups</span>
+                    </div>
+                    <div className="flex-1 bg-surface-container-low p-6 border border-[#c4c7c7]/30">
+                      <p className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant mb-2">Total Undangan</p>
+                      <div className="flex items-baseline gap-3">
+                        <span className="font-headline-lg text-headline-lg">{stats.total}</span>
+                        <span className="text-on-surface-variant text-sm">Guests</span>
                       </div>
-                      <div className="bg-[#c4c7c7]/30 w-full h-10" />
-                      <div className="flex justify-between mt-1 px-2">
-                        <span className="text-[10px] font-label-md opacity-40">BASE</span>
-                        <span className="text-[10px] font-label-md">100%</span>
+                      <div className="mt-4 h-1 w-full bg-surface-variant">
+                        <div className="h-full bg-primary" style={{ width: "100%" }} />
+                      </div>
+                      <p className="mt-2 font-label-md text-[10px] text-on-surface-variant">100% BASE CAPACITY</p>
+                    </div>
+                  </div>
+
+                  {/* Stage 2: Dibuka */}
+                  <div className="relative z-10 flex items-start gap-6 mb-12">
+                    <div className="w-12 h-12 rounded-full bg-white border border-outline-variant flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-primary text-[20px]">mark_email_read</span>
+                    </div>
+                    <div className="flex-1 bg-white p-6 border border-outline-variant">
+                      <p className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant mb-2">Dibuka</p>
+                      <div className="flex items-baseline justify-between">
+                        <div className="flex items-baseline gap-3">
+                          <span className="font-headline-lg text-headline-lg">{stats.dibuka}</span>
+                          <span className="text-on-surface-variant text-sm">Undangan</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="font-bold text-lg">{openPct}%</span>
+                          <p className="text-[10px] uppercase tracking-tighter text-on-surface-variant">Open Rate</p>
+                        </div>
+                      </div>
+                      <div className="mt-4 h-1 w-full bg-surface-variant overflow-hidden">
+                        <div className="h-full bg-secondary-container" style={{ width: `${Math.max(openPct, 4)}%` }} />
                       </div>
                     </div>
-                    {/* Stage 2: Undangan Dibuka */}
-                    <div>
-                      <div className="flex items-end justify-between mb-2">
-                        <span className="font-label-md text-[11px] uppercase tracking-[0.2em] text-[#1a1a1a]">Dibuka</span>
-                        <span className="font-headline-md text-[28px] leading-none text-[#1a1a1a]">{stats.dibuka}</span>
-                      </div>
-                      <div className="bg-primary h-10 mx-auto" style={{ width: `${openPct}%` }} />
-                      <div className="flex justify-between mt-1" style={{ paddingLeft: `${(100 - openPct) / 2}%`, paddingRight: `${(100 - openPct) / 2}%` }}>
-                        <span className="text-[10px] font-label-md opacity-40">OPEN RATE</span>
-                        <span className="text-[10px] font-label-md">{openPct}%</span>
-                      </div>
+                  </div>
+
+                  {/* Stage 3: Konfirmasi Hadir */}
+                  <div className="relative z-10 flex items-start gap-6">
+                    <div className="w-12 h-12 rounded-full bg-white border border-outline-variant flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-primary text-[20px]">check_circle</span>
                     </div>
-                    {/* Stage 3: Konfirmasi Hadir */}
-                    <div>
-                      <div className="flex items-end justify-between mb-2">
-                        <span className="font-label-md text-[11px] uppercase tracking-[0.2em] text-[#1a1a1a]">Hadir</span>
-                        <span className="font-headline-md text-[28px] leading-none text-[#1a1a1a]">{stats.hadir}</span>
+                    <div className="flex-1 bg-primary text-white p-6">
+                      <p className="font-label-md text-label-md uppercase tracking-widest text-white mb-2">Konfirmasi Hadir</p>
+                      <div className="flex items-baseline justify-between">
+                        <div className="flex items-baseline gap-3">
+                          <span className="font-headline-lg text-headline-lg text-white">{stats.hadir}</span>
+                          <span className="text-white text-sm">Confirmed</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="font-bold text-lg text-white">{conversionPct}%</span>
+                          <p className="text-[10px] uppercase tracking-tighter text-white">Conversion</p>
+                        </div>
                       </div>
-                      <div className="bg-secondary h-10 mx-auto" style={{ width: `${hadirPct}%` }} />
-                      <div className="flex justify-between mt-1" style={{ paddingLeft: `${(100 - hadirPct) / 2}%`, paddingRight: `${(100 - hadirPct) / 2}%` }}>
-                        <span className="text-[10px] font-label-md opacity-40">RSVP RATE</span>
-                        <span className="text-[10px] font-label-md">{hadirPct}%</span>
+                      <div className="mt-4 h-1 w-full bg-white/30">
+                        <div className="h-full bg-white" style={{ width: `${Math.max(conversionPct, 4)}%` }} />
                       </div>
                     </div>
                   </div>
