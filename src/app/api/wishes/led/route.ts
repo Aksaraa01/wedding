@@ -15,7 +15,6 @@ export async function GET(req: NextRequest) {
       .select("id, name, message, is_pinned, status, created_at, guest_id, guests(category)")
       .eq("wedding_profile_id", weddingProfileId)
       .eq("status", "approved")
-      .eq("source", "invitation")
       .order("is_pinned", { ascending: false })
       .order("created_at", { ascending: false })
 
