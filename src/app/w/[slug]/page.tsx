@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { getTemplateComponent } from "@/components/templates"
 
 export default async function WeddingInvitation({
@@ -38,10 +38,13 @@ export default async function WeddingInvitation({
   if (profile.selected_template_id) {
     const { data: tmpl } = await supabaseAdmin
       .from("web_templates")
-      .select("code")
+      .select("code, demo_url")
       .eq("id", profile.selected_template_id)
       .single()
     if (tmpl) templateCode = tmpl.code
+    if (tmpl?.demo_url) {
+      redirect(tmpl.demo_url)
+    }
   }
 
   const Template = getTemplateComponent(templateCode)
