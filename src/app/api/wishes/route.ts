@@ -7,6 +7,7 @@ export async function GET(req: NextRequest) {
     const weddingProfileId = searchParams.get("wedding_profile_id")
     const status = searchParams.get("status")
     const guestId = searchParams.get("guest_id")
+    const source = searchParams.get("source")
 
     if (!weddingProfileId) {
       return NextResponse.json({ error: "wedding_profile_id diperlukan" }, { status: 400 })
@@ -27,6 +28,10 @@ export async function GET(req: NextRequest) {
       query = query.eq("guest_id", guestId)
     }
 
+    if (source) {
+      query = query.eq("source", source)
+    }
+
     const { data, error } = await query
 
     if (error) {
@@ -41,11 +46,13 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { wedding_profile_id, guest_id, name, message } = await req.json()
+    const { wedding_profile_id, guest_id, name, message, source } = await req.json()
 
     if (!wedding_profile_id || !name || !message) {
       return NextResponse.json({ error: "Data tidak lengkap" }, { status: 400 })
     }
+
+    const wishSource = source === "welcome" ? "welcome" : "invitation"
 
     if (guest_id) {
       const { count: existing } = await supabaseAdmin
@@ -60,7 +67,7 @@ export async function POST(req: NextRequest) {
 
     const { data, error } = await supabaseAdmin
       .from("wishes")
-      .insert({ wedding_profile_id, guest_id, name, message, status: "pending" })
+      .insert({ wedding_profile_id, guest_id, name, message, status: "pending", source: wishSource })
       .select()
       .single()
 

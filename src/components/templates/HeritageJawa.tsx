@@ -278,6 +278,7 @@ export default function HeritageJawa({
         guest_id: guest_id || undefined,
         name: rsvpName,
         message: rsvpMessage,
+        source: "invitation",
       }),
     })
     return res

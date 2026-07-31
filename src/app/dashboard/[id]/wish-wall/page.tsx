@@ -29,7 +29,7 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
   const [copied, setCopied] = useState(false)
 
   const fetchWishes = async () => {
-    const base = `/api/wishes?wedding_profile_id=${id}`
+    const base = `/api/wishes?wedding_profile_id=${id}&source=invitation`
     const res = await fetch(base)
     if (!res.ok) return
     const data = await res.json()

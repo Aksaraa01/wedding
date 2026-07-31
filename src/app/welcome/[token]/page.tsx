@@ -136,6 +136,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
           guest_id: guestId || null,
           name: guestName,
           message: wishMessage.trim(),
+          source: "welcome",
         }),
       })
       if (res.ok) {
