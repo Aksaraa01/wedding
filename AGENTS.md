@@ -105,12 +105,24 @@
    ```
 
 ### Deploy
-```bash
-cd /var/www/aksara-wedding
-npm run build
-pm2 restart aksara-wedding --update-env
-pm2 save
-```
+The VPS has 2GB RAM and CANNOT run `next build`. Build locally, rsync the standalone output, then restart PM2 on the server.
+
+1. Build locally:
+   ```bash
+   npm run build
+   ```
+2. Rsync standalone output to server (always run all three, or chunks/static will 404):
+   ```bash
+   rsync -avz --delete .next/standalone/ askaraa@103.93.135.176:/var/www/aksara-wedding/.next/standalone/
+   rsync -avz --delete .next/static/ askaraa@103.93.135.176:/var/www/aksara-wedding/.next/static/
+   rsync -avz --delete public/ askaraa@103.93.135.176:/var/www/aksara-wedding/public/
+   ```
+3. Restart PM2 on the server:
+   ```bash
+   ssh askaraa@103.93.135.176
+   pm2 restart aksara-wedding --update-env
+   pm2 save
+   ```
 
 ### Start local development
 

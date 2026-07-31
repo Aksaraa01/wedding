@@ -21,7 +21,7 @@ export function middleware(req: NextRequest) {
       url.pathname = `/scanner/${slug}`
     } else if (url.pathname === "/led" || url.pathname === "/led/") {
       url.pathname = `/led/${slug}`
-    } else if (url.pathname.startsWith("/qr/") || url.pathname.startsWith("/welcome/")) {
+    } else if (url.pathname.startsWith("/qr/") || url.pathname.startsWith("/welcome/") || url.pathname.startsWith("/scanner/") || url.pathname.startsWith("/led/") || url.pathname.startsWith("/q/")) {
       // pass through as-is
     } else {
       url.pathname = `/w/${slug}${url.pathname === "/" ? "/" : url.pathname}`
@@ -48,7 +48,7 @@ export function middleware(req: NextRequest) {
       url.pathname = `/scanner/${slug}`
     } else if (url.pathname === "/led" || url.pathname === "/led/") {
       url.pathname = `/led/${slug}`
-    } else if (url.pathname.startsWith("/qr/") || url.pathname.startsWith("/welcome/")) {
+    } else if (url.pathname.startsWith("/qr/") || url.pathname.startsWith("/welcome/") || url.pathname.startsWith("/scanner/") || url.pathname.startsWith("/led/") || url.pathname.startsWith("/q/")) {
       // pass through as-is
     } else {
       url.pathname = `/w/${slug}${url.pathname === "/" ? "/" : url.pathname}`
@@ -62,5 +62,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next|_static|_vercel|favicon|icon|w/|dashboard|qr|welcome).*)"],
+  matcher: ["/((?!api|_next|_static|_vercel|favicon|icon|w/|dashboard|qr|q|welcome).*)"],
 }
