@@ -101,18 +101,51 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const qrToken = searchParams.get("qr_token")
+    const slug = searchParams.get("slug")
 
-    if (!qrToken) {
-      return NextResponse.json({ error: "QR token diperlukan" }, { status: 400 })
+    if (!qrToken && !slug) {
+      return NextResponse.json({ error: "QR token atau slug diperlukan" }, { status: 400 })
     }
 
-    const { data: guest, error: guestErr } = await supabaseAdmin
-      .from("guests")
-      .select("id, name, table_number, category, guest_count, qr_token, wedding_profile_id, is_checked_in")
-      .eq("qr_token", qrToken)
-      .maybeSingle()
+    let guest
+    if (qrToken) {
+      const { data, error: guestErr } = await supabaseAdmin
+        .from("guests")
+        .select("id, name, slug, table_number, category, guest_count, qr_token, wedding_profile_id, is_checked_in")
+        .eq("qr_token", qrToken)
+        .maybeSingle()
+      if (guestErr) {
+        return NextResponse.json({ error: guestErr.message }, { status: 500 })
+      }
+      guest = data
+    } else {
+      const host = req.headers.get("host") || ""
+      const subdomain = host.split(":")[0].split(".")[0]
+      const { data: profile } = await supabaseAdmin
+        .from("wedding_profiles")
+        .select("id")
+        .eq("slug", subdomain)
+        .maybeSingle()
+      if (profile) {
+        const { data: g } = await supabaseAdmin
+          .from("guests")
+          .select("id, name, slug, table_number, category, guest_count, qr_token, wedding_profile_id, is_checked_in")
+          .eq("wedding_profile_id", profile.id)
+          .eq("slug", slug)
+          .maybeSingle()
+        guest = g
+      }
+      if (!guest) {
+        const { data: g } = await supabaseAdmin
+          .from("guests")
+          .select("id, name, slug, table_number, category, guest_count, qr_token, wedding_profile_id, is_checked_in")
+          .eq("slug", slug)
+          .maybeSingle()
+        guest = g
+      }
+    }
 
-    if (guestErr || !guest) {
+    if (!guest) {
       return NextResponse.json({ error: "QR tidak valid" }, { status: 404 })
     }
 

@@ -3,9 +3,13 @@
 import { use, useEffect, useState, useRef } from "react"
 import QRCode from "qrcode"
 
-function getTokenFromSegments(segments: string[] | undefined): string | null {
+function getSegment(segments: string[] | undefined): string | null {
   if (!segments || segments.length === 0) return null
   return segments[0]
+}
+
+function isToken(value: string): boolean {
+  return value.startsWith("AKS-")
 }
 
 function slugify(name: string): string {
@@ -22,7 +26,7 @@ function formatDate(dateStr: string): string {
 
 export default function DigitalPassPage({ params }: { params: Promise<{ segments?: string[] }> }) {
   const { segments } = use(params)
-  const token = getTokenFromSegments(segments)
+  const segment = getSegment(segments)
 
   const [guestName, setGuestName] = useState("")
   const [coupleName, setCoupleName] = useState("")
@@ -40,17 +44,22 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
   const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!token) { setError("Token tidak ditemukan"); return }
+    if (!segment) { setError("Token tidak ditemukan"); return }
 
     ;(async () => {
       try {
-        const res = await fetch(`/api/check-in?qr_token=${encodeURIComponent(token)}`)
+        const isTok = isToken(segment)
+        const query = isTok
+          ? `qr_token=${encodeURIComponent(segment)}`
+          : `slug=${encodeURIComponent(segment)}`
+        const res = await fetch(`/api/check-in?${query}`)
         if (!res.ok) throw new Error("QR tidak valid")
         const data = await res.json()
         if (!data.guest || !data.profile) throw new Error("Data tidak ditemukan")
 
         if (data.guest.is_checked_in) {
-          window.location.replace(`/welcome/${data.guest.qr_token || token}`)
+          const guestSlug = data.guest.slug || data.guest.qr_token || segment
+          window.location.replace(`/welcome/${guestSlug}`)
           return
         }
 
@@ -59,13 +68,13 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
         setTableNumber(data.guest.table_number || "")
         setCategory(data.guest.category || "")
         setGuestCount(data.guest.guest_count || 1)
-        setQrToken(data.guest.qr_token || token)
+        setQrToken(data.guest.qr_token || segment)
         setSlug(data.profile.slug || "")
         setEstimatedDate(data.profile.estimated_wedding_date || "")
         setSessions(data.profile.sessions || [])
         const qrContent = data.profile.slug
-          ? `https://${data.profile.slug}.wedding.aksaraa.com/welcome/${data.guest.qr_token || token}`
-          : data.guest.qr_token || token
+          ? `https://${data.profile.slug}.wedding.aksaraa.com/welcome/${data.guest.qr_token || segment}`
+          : data.guest.qr_token || segment
         const url = await QRCode.toDataURL(qrContent, {
           width: 400,
           margin: 2,
@@ -76,7 +85,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
         setError(e.message)
       }
     })()
-  }, [token])
+  }, [segment])
 
   const fallbackCode = qrToken.slice(0, 11)
 

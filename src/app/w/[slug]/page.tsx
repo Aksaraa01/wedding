@@ -21,7 +21,7 @@ export default async function WeddingInvitation({
   if (!profile) notFound()
 
   const guestContext = await (async () => {
-    const fields = "id, name, table_number, qr_token, rsvp_status, rsvp_pax_count, rsvp_message"
+    const fields = "id, name, slug, table_number, qr_token, rsvp_status, rsvp_pax_count, rsvp_message"
     if (to) {
       const bySlug = await supabaseAdmin
         .from("guests")
@@ -101,8 +101,8 @@ export default async function WeddingInvitation({
         wedding_profile_id={profile.id}
         guest_id={guestContext?.id}
         guest_qr_token={guestContext?.qr_token || undefined}
-        guest_qr_url={guestContext?.qr_token ? `/qr/${guestContext.qr_token}` : undefined}
-        guest_qr_content={guestContext?.qr_token ? `/welcome/${guestContext.qr_token}` : undefined}
+        guest_qr_url={guestContext?.qr_token ? `/qr/${guestContext.slug || guestContext.qr_token}` : undefined}
+        guest_qr_content={guestContext?.qr_token ? `/welcome/${guestContext.slug || guestContext.qr_token}` : undefined}
         guest_table_number={guestContext?.table_number || undefined}
         guest_rsvp_status={guestContext?.rsvp_status || undefined}
       />

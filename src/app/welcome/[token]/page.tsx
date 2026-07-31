@@ -14,6 +14,7 @@ function formatDate(dateStr: string): string {
 
 export default function WelcomePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = use(params)
+  const ref = token
 
   const [guestName, setGuestName] = useState("")
   const [coupleName, setCoupleName] = useState("")
@@ -28,21 +29,28 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
   const [submittedWish, setSubmittedWish] = useState("")
   const [weddingProfileId, setWeddingProfileId] = useState("")
   const [guestId, setGuestId] = useState("")
+  const [guestQrToken, setGuestQrToken] = useState("")
   const [photoUploaded, setPhotoUploaded] = useState(false)
   const [photoUploading, setPhotoUploading] = useState(false)
   const [photoUrl, setPhotoUrl] = useState("")
 
   useEffect(() => {
-    if (!token) { setError("Token tidak ditemukan"); return }
+    if (!ref) { setError("Token tidak ditemukan"); return }
 
     ;(async () => {
       try {
-        const res = await fetch(`/api/check-in?qr_token=${encodeURIComponent(token)}`)
+        const isTok = ref.startsWith("AKS-")
+        const query = isTok
+          ? `qr_token=${encodeURIComponent(ref)}`
+          : `slug=${encodeURIComponent(ref)}`
+        const res = await fetch(`/api/check-in?${query}`)
         if (!res.ok) throw new Error("QR tidak valid")
         const data = await res.json()
         if (!data.guest || !data.profile) throw new Error("Data tidak ditemukan")
+        const guestToken = data.guest.qr_token || ref
         setGuestName(data.guest.name)
         setGuestId(data.guest.id)
+        setGuestQrToken(guestToken)
         setCoupleName(`${data.profile.bride_name} & ${data.profile.groom_name}`)
         setTableNumber(data.guest.table_number || null)
         setCategory(data.guest.category || null)
@@ -53,7 +61,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
           await fetch("/api/check-in", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ qr_token: token }),
+            body: JSON.stringify({ qr_token: guestToken }),
           })
         }
 
@@ -74,7 +82,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
           }
         }
 
-        const url = `${window.location.origin}/welcome/${token}`
+        const url = `${window.location.origin}/welcome/${guestToken}`
         const qrUrl = await QRCode.toDataURL(url, {
           width: 240,
           margin: 1,
@@ -85,7 +93,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
         setError(e.message)
       }
     })()
-  }, [token])
+  }, [ref])
 
   const handleUploadPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -242,7 +250,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
                   Verified Access
                 </div>
                 <p className="text-[10px] font-mono tracking-wider text-on-surface-variant/70 mt-1.5 bg-surface-container-high px-1.5 py-0.5 rounded inline-block">
-                  ID: AKSR-{token.slice(-6)}
+                  ID: AKSR-{guestQrToken.slice(-6)}
                 </p>
               </div>
             </div>

@@ -33,7 +33,7 @@ type Stats = {
 function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, copiedId, copiedKind }: {
   guest: Guest
   slug: string
-  onCopyQr: (token: string) => void
+  onCopyQr: (token: string, slug: string | null) => void
   onCopyUndangan: (guest: Guest) => void
   copiedId: string | null
   copiedKind: "qr" | "undangan" | null
@@ -75,7 +75,7 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, copiedId, copiedKind
 
       <div className="flex gap-4">
         <button
-          onClick={() => hasToken && onCopyQr(guest.qr_token!)}
+          onClick={() => hasToken && onCopyQr(guest.qr_token!, guest.slug)}
           disabled={!hasToken}
           className="flex items-center gap-2 text-[11px] font-label-md uppercase tracking-wider text-on-surface-variant hover:text-secondary disabled:opacity-30 disabled:hover:text-on-surface-variant transition-colors py-1"
         >
@@ -161,9 +161,9 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
     }
   }
 
-  const handleCopyQr = async (token: string) => {
+  const handleCopyQr = async (token: string, slug: string | null) => {
     if (!profile) return
-    const url = `https://${profile.slug}.wedding.aksaraa.com/qr/${token}`
+    const url = `https://${profile.slug}.wedding.aksaraa.com/qr/${slug || token}`
     try {
       await navigator.clipboard.writeText(url)
       setCopiedId(guests.find(g => g.qr_token === token)?.id || null)
