@@ -70,19 +70,21 @@ function getModuleStatus(key: string, vals: {
   rsvpStats: { hadir: number; belum_dibuka: number } | null;
   paymentStatus: string;
 }): { label: string; active: boolean } {
+  if (key === "premium_web") {
+    return vals.templateName
+      ? { label: `${vals.templateName}${vals.trackName ? ` - ${vals.trackName}` : ""}`, active: true }
+      : { label: "Draf", active: false }
+  }
+  if (vals.paymentStatus === "UNPAID") {
+    return { label: "Belum Aktif", active: false }
+  }
   switch (key) {
-    case "premium_web":
-      return vals.templateName
-        ? { label: `${vals.templateName}${vals.trackName ? ` - ${vals.trackName}` : ""}`, active: true }
-        : { label: "Draf", active: false }
     case "unique_link_generator":
       return vals.qrWithToken > 0
         ? { label: `${vals.qrWithToken} QR Aktif`, active: true }
         : { label: "Belum Aktif", active: false }
     case "qr_code_book":
-      return vals.paymentStatus === "UNPAID"
-        ? { label: "Belum Aktif", active: false }
-        : { label: `${vals.qrCheckedIn} Hadir`, active: true }
+      return { label: `${vals.qrCheckedIn} Hadir`, active: true }
     case "wish_wall":
       return vals.totalWishes > 0
         ? { label: `${vals.totalWishes} Wish Sudah Masuk`, active: true }
@@ -100,11 +102,9 @@ function getModuleStatus(key: string, vals: {
         ? { label: `${vals.rsvpStats.hadir} Hadir, ${vals.rsvpStats.belum_dibuka} Belum Dibuka`, active: true }
         : { label: "Belum Aktif", active: false }
     case "undangan_fisik":
-      return { label: "Draf", active: false }
+      return { label: "Konsultasi", active: false }
     case "wa_blast":
-      return vals.paymentStatus === "UNPAID"
-        ? { label: "Belum Aktif", active: false }
-        : { label: "Aktif", active: true }
+      return { label: "Aktif", active: true }
     default:
       return { label: "—", active: false }
   }
@@ -132,6 +132,7 @@ function DashboardInner({ id }: { id: string }) {
   const [rsvpHadirCount, setRsvpHadirCount] = useState(0)
   const [rsvpHadirPax, setRsvpHadirPax] = useState(0)
   const [rsvpTotalPax, setRsvpTotalPax] = useState(0)
+  const [showFisikInfo, setShowFisikInfo] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
@@ -372,6 +373,10 @@ function DashboardInner({ id }: { id: string }) {
                   <div
                     key={card.key}
                     onClick={() => {
+                      if (card.key === "undangan_fisik") {
+                        setShowFisikInfo(true)
+                        return
+                      }
                       const routes: Record<string, string> = {
                         premium_web: `/dashboard/${id}/web-invitation`,
                         reservation_automation: `/dashboard/${id}/reservation-automation`,
@@ -435,6 +440,37 @@ function DashboardInner({ id }: { id: string }) {
           </div>
         </section>
       </main>
+
+      {showFisikInfo && (
+        <div
+          className="fixed inset-0 z-[80] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6"
+          onClick={() => setShowFisikInfo(false)}
+        >
+          <div
+            className="relative bg-white max-w-sm w-full p-8 shadow-2xl text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowFisikInfo(false)}
+              className="absolute top-4 right-4 text-on-surface-variant hover:text-on-surface p-1"
+              aria-label="Tutup"
+            >
+              <span className="material-symbols-outlined text-2xl">close</span>
+            </button>
+            <span className="material-symbols-outlined text-5xl text-secondary mb-4 block">mail</span>
+            <h3 className="font-['Playfair_Display'] text-2xl mb-3">Undangan Fisik Premium</h3>
+            <p className="font-body-md text-on-surface-variant">
+              Konsultan Aksaraa akan menghubungi kamu segera untuk detail nya.
+            </p>
+            <button
+              onClick={() => setShowFisikInfo(false)}
+              className="w-full mt-8 bg-primary text-on-primary py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-secondary transition-colors"
+            >
+              Mengerti
+            </button>
+          </div>
+        </div>
+      )}
     </>
   )
 }
