@@ -44,6 +44,12 @@ function relativeTime(iso: string): string {
   return `${Math.floor(hours / 24)} hari lalu`
 }
 
+function formatTableNumber(t: string | null | undefined): string {
+  if (!t) return ""
+  const trimmed = t.trim()
+  return /^meja\s/i.test(trimmed) ? trimmed : `Meja ${trimmed}`
+}
+
 export default function ScannerPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params)
 
@@ -546,7 +552,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                 >
                   <h4 className="font-medium text-primary text-xs">{g.name}</h4>
                   <p className="text-[10px] text-on-surface-variant/60 font-mono">
-                    {g.table_number ? `Meja ${g.table_number}` : ""} &bull; {g.guest_count || 1} Pax
+                    {formatTableNumber(g.table_number)} &bull; {g.guest_count || 1} Pax
                   </p>
                 </button>
               ))}
@@ -573,7 +579,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                       {g.category && <span className="text-[10px] text-secondary font-bold font-serif pl-1">{g.category}</span>}
                     </h4>
                     <p className="text-[10px] text-on-surface-variant/60 font-mono">
-                      {g.table_number ? `Meja ${g.table_number}` : ""}{g.table_number ? " • " : ""}{g.guest_count || 1} Pax • {formatWIB(g.checkin_timestamp)}
+                      {formatTableNumber(g.table_number)}{g.table_number ? " • " : ""}{g.guest_count || 1} Pax • {formatWIB(g.checkin_timestamp)}
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
@@ -630,12 +636,12 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                 </div>
                 <div>
                   <span className="text-[9px] text-on-surface-variant/60 uppercase tracking-wider block">Status Kuota</span>
-                  <strong className="text-primary font-medium text-sm">1 Pax Terdaftar</strong>
+                  <strong className="text-primary font-medium text-sm">{scanResult.guest.guest_count || 1} Pax Terdaftar</strong>
                 </div>
                 <div className="pt-2">
                   <span className="text-[9px] text-on-surface-variant/60 uppercase tracking-wider block">Alokasi Meja</span>
                   <strong className="text-secondary font-serif text-sm font-bold">
-                    {scanResult.guest.table_number ? `Meja ${scanResult.guest.table_number}` : "-"}
+                    {formatTableNumber(scanResult.guest.table_number) || "-"}
                   </strong>
                 </div>
                 <div className="pt-2">
@@ -683,7 +689,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                 <div>
                   <span className="text-[9px] text-on-surface-variant/60 uppercase tracking-wider block font-semibold">Alokasi Meja</span>
                   <strong className="text-secondary font-serif text-sm font-bold">
-                    {selectedGuest.table_number ? `Meja ${selectedGuest.table_number}` : "-"}
+                    {formatTableNumber(selectedGuest.table_number) || "-"}
                   </strong>
                 </div>
                 <div>

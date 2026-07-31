@@ -42,6 +42,8 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
   const [downloading, setDownloading] = useState(false)
   const [copyOk, setCopyOk] = useState(false)
   const [isPreview, setIsPreview] = useState(false)
+  const [pollToken, setPollToken] = useState("")
+  const [pollRedirect, setPollRedirect] = useState("")
   const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -115,11 +117,29 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
           color: { dark: "#1A1817", light: "#ffffff" },
         })
         setQrDataUrl(url)
+
+        setPollToken(data.guest.qr_token || segment)
+        setPollRedirect(data.guest.slug || data.guest.qr_token || segment)
       } catch (e: any) {
         setError(e.message)
       }
     })()
   }, [segment])
+
+  useEffect(() => {
+    if (!pollToken) return
+    const id = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/check-in?qr_token=${encodeURIComponent(pollToken)}`)
+        if (!res.ok) return
+        const data = await res.json()
+        if (data.guest?.is_checked_in) {
+          ;(window.top || window).location.replace(`/welcome/${pollRedirect}`)
+        }
+      } catch {}
+    }, 5000)
+    return () => clearInterval(id)
+  }, [pollToken, pollRedirect])
 
   const fallbackCode = qrToken.slice(0, 11)
 
