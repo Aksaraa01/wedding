@@ -73,40 +73,30 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, copiedId, copiedKind
 
       <div className="h-px bg-outline-variant/30" />
 
-      <div className="flex gap-4">
+      <div className="grid grid-cols-2 gap-3">
         <button
           onClick={() => hasToken && onCopyQr(guest.qr_token!, guest.slug)}
           disabled={!hasToken}
-          className="flex items-center gap-2 text-[11px] font-label-md uppercase tracking-wider text-on-surface-variant hover:text-secondary disabled:opacity-30 disabled:hover:text-on-surface-variant transition-colors py-1"
+          className="flex flex-col items-center justify-center gap-1.5 px-3 py-4 rounded-xl border border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant hover:border-secondary hover:text-secondary disabled:opacity-30 disabled:hover:border-outline-variant/60 disabled:hover:text-on-surface-variant transition-colors"
         >
-          {isCopiedQr ? (
-            <>
-              <span className="material-symbols-outlined text-base text-emerald-600">check</span>
-              <span className="text-emerald-700 font-semibold">TAUTAN QR TERSALIN</span>
-            </>
-          ) : (
-            <>
-              <span className="material-symbols-outlined text-base">qr_code_2</span>
-              SALIN TAUTAN QR
-            </>
-          )}
+          <span className={`material-symbols-outlined text-xl ${isCopiedQr ? "text-emerald-600" : ""}`}>
+            {isCopiedQr ? "check" : "qr_code_2"}
+          </span>
+          <span className={`font-label-md text-[10px] uppercase tracking-wider font-semibold text-center leading-tight ${isCopiedQr ? "text-emerald-700" : ""}`}>
+            {isCopiedQr ? "TAUTAN QR TERSALIN" : "SALIN TAUTAN QR"}
+          </span>
         </button>
         <button
           onClick={() => hasToken && onCopyUndangan(guest)}
           disabled={!hasToken}
-          className="flex items-center gap-2 text-[11px] font-label-md uppercase tracking-wider text-on-surface-variant hover:text-secondary disabled:opacity-30 disabled:hover:text-on-surface-variant transition-colors py-1"
+          className="flex flex-col items-center justify-center gap-1.5 px-3 py-4 rounded-xl border border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant hover:border-secondary hover:text-secondary disabled:opacity-30 disabled:hover:border-outline-variant/60 disabled:hover:text-on-surface-variant transition-colors"
         >
-          {isCopiedUndangan ? (
-            <>
-              <span className="material-symbols-outlined text-base text-emerald-600">check</span>
-              <span className="text-emerald-700 font-semibold">TAUTAN UNDANGAN TERSALIN</span>
-            </>
-          ) : (
-            <>
-              <span className="material-symbols-outlined text-base">link</span>
-              SALIN TAUTAN UNDANGAN
-            </>
-          )}
+          <span className={`material-symbols-outlined text-xl ${isCopiedUndangan ? "text-emerald-600" : ""}`}>
+            {isCopiedUndangan ? "check" : "link"}
+          </span>
+          <span className={`font-label-md text-[10px] uppercase tracking-wider font-semibold text-center leading-tight ${isCopiedUndangan ? "text-emerald-700" : ""}`}>
+            {isCopiedUndangan ? "TAUTAN UNDANGAN TERSALIN" : "SALIN TAUTAN UNDANGAN"}
+          </span>
         </button>
       </div>
     </div>
