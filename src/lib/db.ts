@@ -6,6 +6,8 @@ export interface GuestRecord {
   table_number: string | null
   category: string | null
   guest_count: number
+  rsvp_status?: string | null
+  rsvp_pax_count?: number | null
   qr_token: string | null
   is_checked_in: boolean
   checkin_timestamp: string | null
