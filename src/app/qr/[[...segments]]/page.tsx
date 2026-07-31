@@ -67,7 +67,10 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
         setCoupleName(`${data.profile.bride_name} & ${data.profile.groom_name}`)
         setTableNumber(data.guest.table_number || "")
         setCategory(data.guest.category || "")
-        setGuestCount(data.guest.guest_count || 1)
+        const pax = data.guest.rsvp_status === "HADIR" && data.guest.rsvp_pax_count
+          ? data.guest.rsvp_pax_count
+          : 2
+        setGuestCount(pax)
         setQrToken(data.guest.qr_token || segment)
         setSlug(data.profile.slug || "")
         setEstimatedDate(data.profile.estimated_wedding_date || "")

@@ -111,7 +111,7 @@ export async function GET(req: NextRequest) {
     if (qrToken) {
       const { data, error: guestErr } = await supabaseAdmin
         .from("guests")
-        .select("id, name, slug, table_number, category, guest_count, qr_token, wedding_profile_id, is_checked_in")
+        .select("id, name, slug, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, wedding_profile_id, is_checked_in")
         .eq("qr_token", qrToken)
         .maybeSingle()
       if (guestErr) {
@@ -129,7 +129,7 @@ export async function GET(req: NextRequest) {
       if (profile) {
         const { data: g } = await supabaseAdmin
           .from("guests")
-          .select("id, name, slug, table_number, category, guest_count, qr_token, wedding_profile_id, is_checked_in")
+          .select("id, name, slug, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, wedding_profile_id, is_checked_in")
           .eq("wedding_profile_id", profile.id)
           .eq("slug", slug)
           .maybeSingle()
@@ -138,7 +138,7 @@ export async function GET(req: NextRequest) {
       if (!guest) {
         const { data: g } = await supabaseAdmin
           .from("guests")
-          .select("id, name, slug, table_number, category, guest_count, qr_token, wedding_profile_id, is_checked_in")
+          .select("id, name, slug, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, wedding_profile_id, is_checked_in")
           .eq("slug", slug)
           .maybeSingle()
         guest = g
