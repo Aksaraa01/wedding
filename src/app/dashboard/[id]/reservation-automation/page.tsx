@@ -16,6 +16,7 @@ type RsvpGuest = {
   rsvp_message: string | null
   rsvp_responded_at: string | null
   is_checked_in: boolean
+  invitation_opened_at: string | null
 }
 
 type Stats = {
@@ -23,13 +24,15 @@ type Stats = {
   hadir: number
   tidak_hadir: number
   belum_respon: number
+  dibuka: number
+  belum_dibuka: number
 }
 
 export default function ReservationAutomationPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const router = useRouter()
   const [guests, setGuests] = useState<RsvpGuest[]>([])
-  const [stats, setStats] = useState<Stats>({ total: 0, hadir: 0, tidak_hadir: 0, belum_respon: 0 })
+  const [stats, setStats] = useState<Stats>({ total: 0, hadir: 0, tidak_hadir: 0, belum_respon: 0, dibuka: 0, belum_dibuka: 0 })
   const [wishByGuestId, setWishByGuestId] = useState<Record<string, string>>({})
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState<string | null>(null)
@@ -51,21 +54,15 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
     if (filter === "HADIR" && g.rsvp_status !== "HADIR") return false
     if (filter === "TIDAK_HADIR" && g.rsvp_status !== "TIDAK_HADIR") return false
     if (filter === "BELUM_RESPON" && (g.rsvp_status === "HADIR" || g.rsvp_status === "TIDAK_HADIR")) return false
+    if (filter === "DIBUKA" && !g.invitation_opened_at) return false
+    if (filter === "BELUM_DIBUKA" && g.invitation_opened_at) return false
     if (search && !g.name.toLowerCase().includes(search.toLowerCase())) return false
     return true
   })
 
   const belumResponCount = stats.belum_respon
-
-  function donutSegments() {
-    const total = stats.total || 1
-    const h = (stats.hadir / total) * 100
-    const th = (stats.tidak_hadir / total) * 100
-    const br = (stats.belum_respon / total) * 100
-    return { h, th, br }
-  }
-
-  const segs = donutSegments()
+  const openRate = stats.total ? Math.round((stats.dibuka / stats.total) * 100) : 0
+  const rsvpRate = stats.total ? Math.round((stats.hadir / stats.total) * 100) : 0
 
   if (loading) {
     return (
@@ -75,6 +72,9 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
     )
   }
 
+  const openPct = openRate
+  const hadirPct = rsvpRate
+
   return (
     <>
       <PageTheme mode="light" />
@@ -83,157 +83,191 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      <div className="min-h-screen bg-surface text-on-surface font-body-md">
+      <div className="min-h-screen bg-surface text-on-surface font-body-md overflow-x-hidden">
         {/* Top AppBar */}
-        <header className="fixed top-0 w-full z-50 border-b border-outline-variant/30 h-20 flex items-center px-6 md:px-12 bg-surface">
-          <button onClick={() => router.push(`/dashboard/${id}`)} className="flex items-center gap-2 text-primary group transition-all active:scale-95">
-            <span className="material-symbols-outlined text-[20px]">arrow_back</span>
-            <span className="font-label-md text-label-md uppercase tracking-widest">Kembali</span>
-          </button>
+        <header className="fixed top-0 w-full z-50 border-b border-outline-variant/30 h-20 flex items-center px-edge-margin-mobile lg:px-edge-margin-desktop bg-surface/95 backdrop-blur-md">
+          <div className="max-w-container-max mx-auto w-full">
+            <button onClick={() => router.push(`/dashboard/${id}`)} className="flex items-center gap-2 text-primary group transition-all active:scale-95">
+              <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+              <span className="font-label-md text-label-md uppercase tracking-widest">Kembali</span>
+            </button>
+          </div>
         </header>
 
-        <main className="pt-32 pb-40 px-6 md:px-12 max-w-3xl mx-auto">
+        <main className="pt-32 pb-40 px-edge-margin-mobile lg:px-edge-margin-desktop max-w-container-max mx-auto">
           {/* Title */}
           <section className="mb-12">
             <h1 className="font-headline-xl text-display-lg-mobile md:text-headline-xl leading-tight mb-2">Reservasi</h1>
           </section>
 
-          {/* Stats Donut */}
-          <section className="mb-12 border border-outline-variant/20 p-8 bg-surface-container-low">
-            <h2 className="font-label-md text-label-md uppercase mb-8 opacity-60 tracking-[0.2em]">Ringkasan Statistik</h2>
-            <div className="flex flex-col items-center gap-10">
-              <div className="relative w-48 h-48">
-                <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-                  <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#e6e2d9" strokeWidth="3" />
-                  <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#c8c6c3" strokeWidth="3" strokeDasharray={`${segs.br + segs.th} ${segs.h}`} />
-                  <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#747878" strokeWidth="3" strokeDasharray={`${segs.br} ${segs.h + segs.th}`} />
-                  <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#8d4d39" strokeWidth="3" strokeDasharray={`${segs.h} ${segs.th + segs.br}`} />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="font-headline-md text-headline-md leading-none">{stats.total}</span>
-                  <span className="font-label-md text-[10px] uppercase tracking-tighter opacity-60">Total Tamu</span>
+          {/* Desktop Grid Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+            {/* Left Column: Statistics & Action */}
+            <div className="lg:col-span-5 space-y-12">
+              <section className="border border-outline-variant/20 p-8 bg-surface-container-low lg:sticky lg:top-32">
+                <h2 className="font-label-md text-label-md uppercase mb-10 opacity-60 tracking-[0.2em]">Ringkasan Statistik</h2>
+                <div className="flex flex-col gap-8">
+                  <div className="flex flex-col gap-2">
+                    {/* Stage 1: Total Undangan */}
+                    <div className="relative">
+                      <div className="bg-outline-variant/30 w-full flex items-center relative overflow-hidden">
+                        <div className="flex flex-col items-center justify-center py-4 w-full">
+                          <span className="font-label-md text-[10px] uppercase tracking-[0.2em] opacity-60 mb-1">Total Undangan</span>
+                          <span className="font-headline-md text-[32px] leading-none">{stats.total}</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between mt-1 px-2">
+                        <span className="text-[10px] font-label-md opacity-40">BASE</span>
+                        <span className="text-[10px] font-label-md">100%</span>
+                      </div>
+                    </div>
+                    {/* Stage 2: Undangan Dibuka */}
+                    <div className="relative">
+                      <div className="bg-primary mx-auto flex items-center relative text-on-primary" style={{ width: `${openPct}%` }}>
+                        <div className="flex flex-col items-center justify-center py-4 w-full">
+                          <span className="font-label-md text-[10px] uppercase tracking-[0.2em] opacity-40 mb-1 text-white">Dibuka</span>
+                          <span className="font-headline-md text-[32px] leading-none">{stats.dibuka}</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between mt-1" style={{ paddingLeft: `${(100 - openPct) / 2}%`, paddingRight: `${(100 - openPct) / 2}%` }}>
+                        <span className="text-[10px] font-label-md opacity-40">OPEN RATE</span>
+                        <span className="text-[10px] font-label-md">{openPct}%</span>
+                      </div>
+                    </div>
+                    {/* Stage 3: Konfirmasi Hadir */}
+                    <div className="relative">
+                      <div className="bg-secondary mx-auto flex items-center relative text-on-primary" style={{ width: `${hadirPct}%` }}>
+                        <div className="flex flex-col items-center justify-center py-4 w-full">
+                          <span className="font-label-md text-[10px] uppercase tracking-[0.2em] opacity-40 mb-1 text-white">Hadir</span>
+                          <span className="font-headline-md text-[32px] leading-none">{stats.hadir}</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between mt-1" style={{ paddingLeft: `${(100 - hadirPct) / 2}%`, paddingRight: `${(100 - hadirPct) / 2}%` }}>
+                        <span className="text-[10px] font-label-md opacity-40">RSVP RATE</span>
+                        <span className="text-[10px] font-label-md">{hadirPct}%</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </section>
 
-              <div className="w-full grid grid-cols-1 gap-4">
-                {[
-                  { label: "Hadir", color: "bg-secondary", value: stats.hadir, pct: stats.total ? Math.round((stats.hadir / stats.total) * 100) : 0 },
-                  { label: "Tidak Hadir", color: "bg-[#747878]", value: stats.tidak_hadir, pct: stats.total ? Math.round((stats.tidak_hadir / stats.total) * 100) : 0 },
-                  { label: "Belum Respon", color: "bg-[#c8c6c3]", value: stats.belum_respon, pct: stats.total ? Math.round((stats.belum_respon / stats.total) * 100) : 0 },
-                ].map(item => (
-                  <div key={item.label} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-2 h-2 ${item.color}`} />
-                      <span className="font-body-md">{item.label}</span>
-                    </div>
-                    <span className="font-label-md">{item.value} Orang ({item.pct}%)</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* Action Banner */}
-          <section className="mb-16 space-y-6">
-            <div className="bg-primary-container p-8 text-on-primary">
-              <p className="font-body-md italic mb-6 leading-relaxed opacity-90">
-                {belumResponCount > 0
-                  ? `"${belumResponCount} tamu kehormatan yang belum memberikan konfirmasi kehadiran."`
-                  : `"${stats.total} tamu undangan telah diinput. Kelola tautan unik dan kirim pengingat sesuai kebutuhan Anda."`}
-              </p>
-              <button
-                onClick={() => router.push(`/dashboard/${id}/reminder-tamu-vip`)}
-                className="w-full bg-on-primary text-primary py-5 px-6 font-label-md text-label-md uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-secondary transition-colors duration-300"
-              >
-                <span className="material-symbols-outlined text-[18px]">notifications_active</span>
-                Kirim Pengingat via WhatsApp
-              </button>
-            </div>
-            <button
-              onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)}
-              className="w-full border border-primary/40 text-primary py-5 px-6 font-label-md text-label-md uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-primary hover:text-on-primary transition-colors duration-300"
-            >
-              <span className="material-symbols-outlined text-[18px]">qr_code_2</span>
-              Kelola QR &amp; Tautan Tamu
-            </button>
-          </section>
-
-          {/* Guest List */}
-          <section className="space-y-8">
-            <div className="flex flex-col gap-6">
-              <div className="relative border-b border-primary/20 pb-2 flex items-center">
-                <span className="material-symbols-outlined absolute left-0 text-on-surface-variant">search</span>
-                <input
-                  type="text"
-                  placeholder="Cari nama tamu..."
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  className="w-full pl-8 bg-transparent border-none focus:ring-0 text-body-md placeholder:italic placeholder:opacity-40 outline-none"
-                />
-              </div>
-
-              <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2">
-                {[
-                  { key: null, label: `Semua (${stats.total})` },
-                  { key: "HADIR", label: `Hadir (${stats.hadir})` },
-                  { key: "TIDAK_HADIR", label: `Tidak Hadir (${stats.tidak_hadir})` },
-                  { key: "BELUM_RESPON", label: `Belum Respon (${stats.belum_respon})` },
-                ].map(chip => (
+              {/* Action Banner */}
+              <section className="space-y-6">
+                <div className="bg-primary-container p-8 text-on-primary">
+                  <p className="font-body-md italic mb-6 leading-relaxed opacity-90">
+                    {belumResponCount > 0
+                      ? `"${belumResponCount} tamu kehormatan yang belum memberikan konfirmasi kehadiran."`
+                      : `"${stats.total} tamu undangan telah diinput. Kelola tautan unik dan kirim pengingat sesuai kebutuhan Anda."`}
+                  </p>
                   <button
-                    key={chip.key || "all"}
-                    onClick={() => setFilter(chip.key)}
-                    className={`whitespace-nowrap px-6 py-2 font-label-md text-[11px] uppercase tracking-wider transition-colors ${
-                      filter === chip.key
-                        ? "border border-primary bg-primary text-on-primary"
-                        : "border border-outline-variant text-on-surface-variant hover:border-primary"
-                    }`}
+                    onClick={() => router.push(`/dashboard/${id}/reminder-tamu-vip`)}
+                    className="w-full bg-on-primary text-primary py-5 px-6 font-label-md text-label-md uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-secondary transition-colors duration-300"
                   >
-                    {chip.label}
+                    <span className="material-symbols-outlined text-[18px]">notifications_active</span>
+                    Kirim Pengingat via WhatsApp
                   </button>
-                ))}
-              </div>
+                </div>
+                <button
+                  onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)}
+                  className="w-full border border-primary/40 text-primary py-5 px-6 font-label-md text-label-md uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-primary hover:text-on-primary transition-colors duration-300"
+                >
+                  <span className="material-symbols-outlined text-[18px]">qr_code_2</span>
+                  Kelola QR &amp; Tautan Tamu
+                </button>
+              </section>
             </div>
 
-            <div className="divide-y divide-outline-variant/30">
-              {filtered.length === 0 && (
-                <p className="py-12 text-center font-body-md italic opacity-40">Tidak ada tamu ditemukan.</p>
-              )}
-              {filtered.map(guest => {
-                const statusBadge = guest.rsvp_status === "HADIR"
-                  ? { label: "Hadir", class: "bg-secondary/10 text-secondary border-secondary/20" }
-                  : guest.rsvp_status === "TIDAK_HADIR"
-                  ? { label: "Tidak Hadir", class: "bg-[#747878]/10 text-[#747878] border-[#747878]/20" }
-                  : { label: "Belum Respon", class: "bg-[#c8c6c3]/30 text-on-surface-variant border-[#c8c6c3]/50" }
-
-                const pax = guest.rsvp_pax_count ?? guest.guest_count ?? 1
-                const wishMessage = wishByGuestId[guest.id]
-
-                return (
-                  <div key={guest.id} className="py-8 flex flex-col gap-3 group transition-all">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-headline-md text-[20px] mb-1">{guest.name}</h3>
-                        <p className="font-label-md text-[12px] opacity-60 tracking-wider">{guest.phone_number}</p>
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <span className={`px-3 py-1 border font-label-md text-[10px] uppercase tracking-widest ${statusBadge.class}`}>
-                          {statusBadge.label}
-                        </span>
-                        {guest.rsvp_status === "HADIR" && (
-                          <span className="px-3 py-1 border border-outline-variant/50 text-on-surface-variant font-label-md text-[10px] uppercase tracking-widest">
-                            {pax} Pax
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    {wishMessage && (
-                      <p className="font-body-md italic text-on-surface-variant/70 leading-relaxed">&ldquo;{wishMessage}&rdquo;</p>
-                    )}
+            {/* Right Column: Guest List */}
+            <div className="lg:col-span-7">
+              <section className="space-y-12">
+                <div className="flex flex-col gap-8 bg-surface-container/30 p-8 border border-outline-variant/10">
+                  {/* Search Bar */}
+                  <div className="relative border-b pb-4 flex items-center border-primary/20 focus-within:border-primary transition-colors">
+                    <span className="material-symbols-outlined absolute left-0 text-on-surface-variant">search</span>
+                    <input
+                      className="w-full pl-10 bg-transparent border-none focus:ring-0 text-[14px] placeholder:italic placeholder:opacity-30 outline-none"
+                      placeholder="Cari nama tamu..."
+                      type="text"
+                      value={search}
+                      onChange={e => setSearch(e.target.value)}
+                    />
                   </div>
-                )
-              })}
+
+                  {/* Filter Chips */}
+                  <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+                    {[
+                      { key: null, label: `Semua (${stats.total})` },
+                      { key: "HADIR", label: `Hadir (${stats.hadir})` },
+                      { key: "TIDAK_HADIR", label: `Tidak Hadir (${stats.tidak_hadir})` },
+                      { key: "BELUM_RESPON", label: `Belum Respon (${stats.belum_respon})` },
+                      { key: "DIBUKA", label: `Dibuka (${stats.dibuka})` },
+                      { key: "BELUM_DIBUKA", label: `Belum Dibuka (${stats.belum_dibuka})` },
+                    ].map(chip => (
+                      <button
+                        key={chip.key || "all"}
+                        onClick={() => setFilter(chip.key)}
+                        className={`whitespace-nowrap px-8 py-3 border font-label-md text-[11px] uppercase tracking-wider transition-all ${
+                          filter === chip.key
+                            ? "border-primary bg-primary text-on-primary"
+                            : "border-outline-variant text-on-surface-variant hover:bg-surface-container"
+                        }`}
+                      >
+                        {chip.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* List Rows */}
+                <div className="divide-y divide-outline-variant/20 border-t border-outline-variant/20">
+                  {filtered.length === 0 && (
+                    <p className="py-16 text-center font-body-md italic opacity-40">Tidak ada tamu ditemukan.</p>
+                  )}
+                  {filtered.map(guest => {
+                    const openBadge = guest.invitation_opened_at
+                      ? { label: "Dibuka", class: "bg-primary/10 text-primary border-primary/20" }
+                      : { label: "Belum Dibuka", class: "bg-outline-variant/10 text-outline border-outline-variant/30" }
+
+                    const rsvpBadge = guest.rsvp_status === "HADIR"
+                      ? { label: "Hadir", class: "bg-secondary/10 text-secondary border-secondary/20" }
+                      : guest.rsvp_status === "TIDAK_HADIR"
+                      ? { label: "Tidak Hadir", class: "bg-[#747878]/10 text-[#747878] border-[#747878]/20" }
+                      : { label: "Belum Respon", class: "bg-[#c8c6c3]/30 text-on-surface-variant border-[#c8c6c3]/50" }
+
+                    const pax = guest.rsvp_pax_count ?? guest.guest_count ?? 1
+                    const wishMessage = wishByGuestId[guest.id]
+
+                    return (
+                      <div key={guest.id} className="flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:bg-surface-container-low transition-colors px-4 md:px-8 py-10">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-headline-md text-[24px] mb-1 truncate">{guest.name}</h3>
+                          <p className="font-label-md text-[12px] tracking-widest opacity-40">{guest.phone_number}</p>
+                          {wishMessage && (
+                            <p className="mt-3 font-body-md italic text-on-surface-variant/70 leading-relaxed">&ldquo;{wishMessage}&rdquo;</p>
+                          )}
+                        </div>
+                        <div className="flex flex-row md:flex-col items-center md:items-end gap-3 shrink-0">
+                          <span className={`px-4 py-2 border font-label-md text-[10px] uppercase tracking-widest whitespace-nowrap ${openBadge.class}`}>
+                            {openBadge.label}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className={`px-4 py-2 border font-label-md text-[10px] uppercase tracking-widest whitespace-nowrap ${rsvpBadge.class}`}>
+                              {rsvpBadge.label}
+                            </span>
+                            {guest.rsvp_status === "HADIR" && (
+                              <span className="px-4 py-2 border border-outline-variant/50 text-on-surface-variant font-label-md text-[10px] uppercase tracking-widest whitespace-nowrap">
+                                {pax} Pax
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
             </div>
-          </section>
+          </div>
         </main>
       </div>
     </>

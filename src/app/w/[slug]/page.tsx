@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { notFound, redirect } from "next/navigation"
 import { getTemplateComponent } from "@/components/templates"
+import InvitationOpenedTracker from "@/components/InvitationOpenedTracker"
 
 export default async function WeddingInvitation({
   params,
@@ -73,7 +74,9 @@ export default async function WeddingInvitation({
   const Template = getTemplateComponent(templateCode)
   if (Template) {
     return (
-      <Template
+      <>
+        <InvitationOpenedTracker guestId={guestContext?.id} />
+        <Template
         bride_name={profile.bride_name}
         groom_name={profile.groom_name}
         estimated_wedding_date={profile.estimated_wedding_date}
@@ -107,6 +110,7 @@ export default async function WeddingInvitation({
         guest_rsvp_status={guestContext?.rsvp_status || undefined}
         rsvp_max_pax={profile.rsvp_max_pax ?? undefined}
       />
+      </>
     )
   }
 

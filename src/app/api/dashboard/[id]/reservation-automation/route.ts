@@ -10,7 +10,7 @@ export async function GET(
 
     const { data: guests, error } = await supabaseAdmin
       .from("guests")
-      .select("id, name, phone_number, category, table_number, guest_count, rsvp_status, rsvp_pax_count, rsvp_message, rsvp_responded_at, is_checked_in")
+      .select("id, name, phone_number, category, table_number, guest_count, rsvp_status, rsvp_pax_count, rsvp_message, rsvp_responded_at, is_checked_in, invitation_opened_at")
       .eq("wedding_profile_id", id)
       .order("created_at", { ascending: true })
 
@@ -37,6 +37,8 @@ export async function GET(
     const hadir = guests?.filter(g => g.rsvp_status === "HADIR").length || 0
     const tidakHadir = guests?.filter(g => g.rsvp_status === "TIDAK_HADIR").length || 0
     const belumRespon = guests?.filter(g => g.rsvp_status === "BELUM_RESPON" || !g.rsvp_status).length || 0
+    const dibuka = guests?.filter(g => g.invitation_opened_at).length || 0
+    const belumDibuka = total - dibuka
 
     return NextResponse.json({
       guests,
@@ -46,6 +48,8 @@ export async function GET(
         hadir,
         tidak_hadir: tidakHadir,
         belum_respon: belumRespon,
+        dibuka,
+        belum_dibuka: belumDibuka,
       },
     })
   } catch (err) {
