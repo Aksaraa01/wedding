@@ -6,7 +6,7 @@ const MODULES = [
   {
     icon: "language",
     title: "Web Invitation & RSVP",
-    desc: "Manjakan tamu Anda dengan desain web sinematik dan sapaan nama personal. Dapatkan kepastian RSVP secara real-time untuk perencanaan katering dan acara yang presisi.",
+    desc: "Manjakan tamu dengan undangan sinematik personal, lengkap dengan RSVP real-time untuk katering dan acara presisi",
   },
   {
     icon: "qr_code_2",
@@ -16,12 +16,12 @@ const MODULES = [
   {
     icon: "settings_input_component",
     title: "Virtual Wish Wall",
-    desc: "Hadirkan pengalaman interaktif di mana pesan dan ucapan selamat dari HP tamu tayang seketika di layar LED venue, menciptakan momen yang tak terlupakan",
+    desc: "Hadirkan pengalaman interaktif, ucapan dari HP tamu tayang seketika di layar LED venue, menciptakan momen tak terlupakan",
   },
   {
     icon: "chat_bubble_outline",
     title: "Auto-Reminder WhatsApp",
-    desc: "Pastikan tamu-tamu penting Anda hadir tepat waktu dengan persiapan matang. Mereka akan menerima undangan digital berisi detail lokasi, waktu, dan akses masuk cepat (QR Pass) secara otomatis.",
+    desc: "Pastikan tamu penting hadir melalui reminder dan undangan digital otomatis berisi lokasi, waktu, dan QR Pass cepat.",
   },
 ]
 
