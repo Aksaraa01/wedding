@@ -7,10 +7,10 @@ export default async function WeddingInvitation({
   searchParams,
 }: {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ to?: string }>
+  searchParams: Promise<{ to?: string; qr_token?: string }>
 }) {
   const { slug } = await params
-  const { to } = await searchParams
+  const { to, qr_token } = await searchParams
 
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
@@ -20,7 +20,17 @@ export default async function WeddingInvitation({
 
   if (!profile) notFound()
 
-  const guestName = to || "Tamu Undangan"
+  const guestContext = qr_token
+    ? await supabaseAdmin
+        .from("guests")
+        .select("id, name, table_number, qr_token, rsvp_status, rsvp_pax_count, rsvp_message")
+        .eq("wedding_profile_id", profile.id)
+        .eq("qr_token", qr_token)
+        .maybeSingle()
+        .then(res => res.data || null)
+    : null
+
+  const guestName = guestContext?.name || to || "Tamu Undangan"
 
   const [giftAcctsRes, giftAddrRes, trackRes] = await Promise.all([
     supabaseAdmin.from("gift_accounts").select("provider_name, account_number, account_name, type").eq("wedding_profile_id", profile.id).eq("is_active", true),
@@ -75,6 +85,13 @@ export default async function WeddingInvitation({
         gift_address={giftAddress}
         track_url={trackUrl}
         inviting_families={profile.inviting_families ? (typeof profile.inviting_families === "string" ? JSON.parse(profile.inviting_families) : profile.inviting_families) : undefined}
+        wedding_profile_id={profile.id}
+        guest_id={guestContext?.id}
+        guest_qr_token={guestContext?.qr_token || undefined}
+        guest_qr_url={guestContext?.qr_token ? `/qr/${guestContext.qr_token}` : undefined}
+        guest_qr_content={guestContext?.qr_token ? `/welcome/${guestContext.qr_token}` : undefined}
+        guest_table_number={guestContext?.table_number || undefined}
+        guest_rsvp_status={guestContext?.rsvp_status || undefined}
       />
     )
   }

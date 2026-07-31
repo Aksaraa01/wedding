@@ -134,19 +134,29 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
           </section>
 
           {/* Action Banner */}
-          {belumResponCount > 0 && (
-            <section className="mb-16">
-              <div className="bg-primary-container p-8 text-on-primary">
-                <p className="font-body-md italic mb-6 leading-relaxed opacity-90">
-                  &quot;{belumResponCount} tamu kehormatan yang belum memberikan konfirmasi kehadiran.&quot;
-                </p>
-                <button className="w-full bg-on-primary text-primary py-5 px-6 font-label-md text-label-md uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-secondary transition-colors duration-300">
-                  <span className="material-symbols-outlined text-[18px]">notifications_active</span>
-                  Kirim Pengingat via WhatsApp
-                </button>
-              </div>
-            </section>
-          )}
+          <section className="mb-16 space-y-6">
+            <div className="bg-primary-container p-8 text-on-primary">
+              <p className="font-body-md italic mb-6 leading-relaxed opacity-90">
+                {belumResponCount > 0
+                  ? `"${belumResponCount} tamu kehormatan yang belum memberikan konfirmasi kehadiran."`
+                  : `"${stats.total} tamu undangan telah diinput. Kelola tautan unik dan kirim pengingat sesuai kebutuhan Anda."`}
+              </p>
+              <button
+                onClick={() => router.push(`/dashboard/${id}/reminder-tamu-vip`)}
+                className="w-full bg-on-primary text-primary py-5 px-6 font-label-md text-label-md uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-secondary transition-colors duration-300"
+              >
+                <span className="material-symbols-outlined text-[18px]">notifications_active</span>
+                Kirim Pengingat via WhatsApp
+              </button>
+            </div>
+            <button
+              onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)}
+              className="w-full border border-primary/40 text-primary py-5 px-6 font-label-md text-label-md uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-primary hover:text-on-primary transition-colors duration-300"
+            >
+              <span className="material-symbols-outlined text-[18px]">qr_code_2</span>
+              Kelola QR &amp; Tautan Tamu
+            </button>
+          </section>
 
           {/* Guest List */}
           <section className="space-y-8">

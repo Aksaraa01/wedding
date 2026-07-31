@@ -32,6 +32,13 @@ interface Props {
   track_url?: string
   auto_play?: boolean
   inviting_families?: string[]
+  wedding_profile_id?: string
+  guest_id?: string
+  guest_qr_token?: string
+  guest_qr_url?: string
+  guest_qr_content?: string
+  guest_table_number?: string
+  guest_rsvp_status?: string
 }
 
 const IMG = {
@@ -144,7 +151,7 @@ const STORY_DATA = [
 ]
 
 export default function HeritageJawa({
-  bride_name, groom_name, estimated_wedding_date, guest_name,
+  bride_name, groom_name, estimated_wedding_date, guest_name, slug,
   theme: _theme, display_name,
   couple_illustration_url, grayscale: grayscaleProp,
   groom_full_name, bride_full_name,
@@ -161,6 +168,13 @@ export default function HeritageJawa({
   track_url,
   auto_play: autoPlayProp,
   inviting_families,
+  wedding_profile_id,
+  guest_id,
+  guest_qr_token,
+  guest_qr_url,
+  guest_qr_content,
+  guest_table_number,
+  guest_rsvp_status,
 }: Props) {
   const eventDate = sessions?.[0]?.date || estimated_wedding_date
   const countdown = useCountdown(eventDate)
@@ -168,6 +182,19 @@ export default function HeritageJawa({
   const [playing, setPlaying] = useState(false)
   const [audioMounted, setAudioMounted] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
+
+  const [rsvpName, setRsvpName] = useState(guest_name)
+  const [rsvpAttend, setRsvpAttend] = useState(guest_rsvp_status === "HADIR" ? "HADIR" : guest_rsvp_status === "TIDAK_HADIR" ? "TIDAK_HADIR" : "HADIR")
+  const [rsvpPax, setRsvpPax] = useState("1")
+  const [rsvpMessage, setRsvpMessage] = useState("")
+  const [formStatus, setFormStatus] = useState<"idle" | "submitting" | "done" | "error">("idle")
+  const [formError, setFormError] = useState("")
+  const [wishSent, setWishSent] = useState(false)
+
+  const [qrModalOpen, setQrModalOpen] = useState(false)
+  const [qrDataUrl, setQrDataUrl] = useState("")
+
+  const isIdentified = Boolean(guest_id && guest_qr_token)
 
   const weddingDateFormatted = eventDate
     ? new Date(eventDate).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
@@ -243,6 +270,85 @@ export default function HeritageJawa({
   const scrollTo = useCallback((id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
   }, [])
+
+  useEffect(() => {
+    if (!qrModalOpen || !guest_qr_content) return
+    let cancelled = false
+    const absoluteUrl = `https://${slug}.wedding.aksaraa.com${guest_qr_content}`
+    import("qrcode").then((QRCode) =>
+      QRCode.toDataURL(absoluteUrl, {
+        width: 400,
+        margin: 2,
+        color: { dark: "#1A1817", light: "#ffffff" },
+      })
+    ).then((url) => {
+      if (!cancelled) setQrDataUrl(url)
+    }).catch(() => {
+      if (!cancelled) setQrDataUrl("")
+    })
+    return () => { cancelled = true }
+  }, [qrModalOpen, guest_qr_content, slug])
+
+  const submitWishes = async () => {
+    const res = await fetch("/api/wishes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        wedding_profile_id,
+        guest_id: guest_id || undefined,
+        name: rsvpName,
+        message: rsvpMessage,
+      }),
+    })
+    return res
+  }
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!rsvpName.trim()) {
+      setFormError("Nama lengkap wajib diisi")
+      setFormStatus("error")
+      return
+    }
+    setFormStatus("submitting")
+    setFormError("")
+
+    try {
+      if (isIdentified) {
+        const rsvpStatus = rsvpAttend === "TIDAK_HADIR" ? "TIDAK_HADIR" : "HADIR"
+        const res = await fetch(`/api/guests/${guest_id}/rsvp`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            rsvp_status: rsvpStatus,
+            rsvp_pax_count: rsvpStatus === "HADIR" ? Number(rsvpPax) : undefined,
+            rsvp_message: rsvpMessage.trim() || undefined,
+          }),
+        })
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}))
+          throw new Error(data.error || "Gagal menyimpan kehadiran")
+        }
+      }
+
+      if (rsvpMessage.trim()) {
+        const res = await submitWishes()
+        if (res.status === 409) {
+          setWishSent(true)
+        } else if (!res.ok) {
+          const data = await res.json().catch(() => ({}))
+          throw new Error(data.error || "Gagal mengirim ucapan")
+        } else {
+          setWishSent(true)
+        }
+      }
+
+      setFormStatus("done")
+    } catch (err) {
+      setFormStatus("error")
+      setFormError(err instanceof Error ? err.message : String(err))
+    }
+  }
 
   return (
     <ThemeInjector display="EB Garamond" script="Pinyon Script" body="Be Vietnam Pro">
@@ -609,38 +715,114 @@ export default function HeritageJawa({
           {/* WISHES & RSVP */}
           <section className="py-20 px-6 relative">
             <h3 className="font-['EB_Garamond'] text-[32px] mb-8 text-center" style={{ color: "#472A1C", fontWeight: 600 }}>Wishes &amp; RSVP</h3>
-            <form className="space-y-6 text-left p-8 rounded-3xl border" style={{ backgroundColor: "rgba(255,255,255,0.6)", borderColor: "#C1A05E33", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }} onSubmit={e => e.preventDefault()}>
-              <div>
-                <label className="text-[10px] block mb-2 tracking-[0.2em] font-bold" style={{ color: "#C1A05E" }}>NAMA LENGKAP</label>
-                <input className="w-full bg-transparent border-0 border-b-2 px-0 py-2 font-['EB_Garamond'] text-base outline-none focus:outline-none" style={{ borderColor: "#C1A05E33", color: "#472A1C" }} placeholder="Masukan nama anda" type="text" />
+
+            {isIdentified && (
+              <div className="mb-8 text-center p-6 rounded-3xl border" style={{ backgroundColor: "rgba(255,255,255,0.6)", borderColor: "#C1A05E33", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+                <p className="text-[11px] uppercase tracking-[0.2em] font-bold mb-1" style={{ color: "#C1A05E" }}>Kartu QR Masuk</p>
+                <p className="font-['EB_Garamond'] text-lg mb-1" style={{ color: "#472A1C" }}>{guest_name}</p>
+                {guest_table_number && guest_table_number !== "TBA" && (
+                  <p className="text-[13px] mb-4" style={{ color: "#50443f" }}>Nomor Meja: <span className="font-semibold">{guest_table_number}</span></p>
+                )}
+                <button
+                  onClick={() => setQrModalOpen(true)}
+                  className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-[12px] tracking-[0.1em] shadow-lg transition-all active:scale-95 font-semibold"
+                  style={{ backgroundColor: "#472A1C", color: "#F9F6F0" }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#C1A05E" }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#472A1C" }}
+                >
+                  <span className="material-symbols-outlined text-[18px]">qr_code_scanner</span>
+                  LIHAT QR KARTU MASUK
+                </button>
               </div>
-              <div className="grid grid-cols-2 gap-6">
+            )}
+
+            {formStatus === "done" ? (
+              <div className="text-center p-8 rounded-3xl border" style={{ backgroundColor: "rgba(255,255,255,0.6)", borderColor: "#C1A05E33", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+                <span className="material-symbols-outlined text-4xl mb-3 inline-block" style={{ color: "#059669" }}>task_alt</span>
+                <p className="font-['EB_Garamond'] text-xl mb-2" style={{ color: "#472A1C" }}>Terima kasih, {rsvpName}!</p>
+                <p className="text-[14px] leading-relaxed" style={{ color: "#50443f" }}>
+                  {isIdentified
+                    ? `Kehadiran Anda telah kami catat sebagai ${rsvpAttend === "TIDAK_HADIR" ? "Tidak Hadir" : "Hadir"}.`
+                    : "Ucapan Anda telah terkirim."}
+                </p>
+                {isIdentified && rsvpMessage.trim() && (
+                  <p className="text-[13px] mt-2" style={{ color: "#50443f" }}>Doa &amp; ucapan Anda telah kami terima.</p>
+                )}
+              </div>
+            ) : (
+              <form className="space-y-6 text-left p-8 rounded-3xl border" style={{ backgroundColor: "rgba(255,255,255,0.6)", borderColor: "#C1A05E33", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }} onSubmit={handleFormSubmit}>
+                {!isIdentified && (
+                  <p className="text-[13px] leading-relaxed text-center pb-2" style={{ color: "#50443f" }}>
+                    Untuk mengonfirmasi kehadiran, gunakan tautan undangan pribadi yang Anda terima dari kami.
+                  </p>
+                )}
                 <div>
-                  <label className="text-[10px] block mb-2 tracking-[0.2em] font-bold" style={{ color: "#C1A05E" }}>KEHADIRAN</label>
-                  <select className="w-full bg-transparent border-0 border-b-2 px-0 py-2 font-['EB_Garamond'] text-base outline-none focus:outline-none" style={{ borderColor: "#C1A05E33", color: "#472A1C" }}>
-                    <option>Hadir</option>
-                    <option>Tidak Hadir</option>
-                    <option>Ragu-ragu</option>
-                  </select>
+                  <label className="text-[10px] block mb-2 tracking-[0.2em] font-bold" style={{ color: "#C1A05E" }}>NAMA LENGKAP</label>
+                  <input
+                    className="w-full bg-transparent border-0 border-b-2 px-0 py-2 font-['EB_Garamond'] text-base outline-none focus:outline-none"
+                    style={{ borderColor: "#C1A05E33", color: "#472A1C" }}
+                    placeholder="Masukan nama anda"
+                    type="text"
+                    value={rsvpName}
+                    onChange={e => setRsvpName(e.target.value)}
+                  />
                 </div>
+                {isIdentified && (
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-[10px] block mb-2 tracking-[0.2em] font-bold" style={{ color: "#C1A05E" }}>KEHADIRAN</label>
+                      <select
+                        className="w-full bg-transparent border-0 border-b-2 px-0 py-2 font-['EB_Garamond'] text-base outline-none focus:outline-none"
+                        style={{ borderColor: "#C1A05E33", color: "#472A1C" }}
+                        value={rsvpAttend}
+                        onChange={e => setRsvpAttend(e.target.value)}
+                      >
+                        <option value="HADIR">Hadir</option>
+                        <option value="TIDAK_HADIR">Tidak Hadir</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[10px] block mb-2 tracking-[0.2em] font-bold" style={{ color: "#C1A05E" }}>JUMLAH TAMU</label>
+                      <select
+                        className="w-full bg-transparent border-0 border-b-2 px-0 py-2 font-['EB_Garamond'] text-base outline-none focus:outline-none"
+                        style={{ borderColor: "#C1A05E33", color: "#472A1C" }}
+                        value={rsvpPax}
+                        onChange={e => setRsvpPax(e.target.value)}
+                        disabled={rsvpAttend === "TIDAK_HADIR"}
+                      >
+                        {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
+                          <option key={n} value={String(n)}>{n} orang</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                )}
                 <div>
-                  <label className="text-[10px] block mb-2 tracking-[0.2em] font-bold" style={{ color: "#C1A05E" }}>JUMLAH TAMU</label>
-                  <select className="w-full bg-transparent border-0 border-b-2 px-0 py-2 font-['EB_Garamond'] text-base outline-none focus:outline-none" style={{ borderColor: "#C1A05E33", color: "#472A1C" }}>
-                    <option>1 orang</option>
-                    <option>2 orang</option>
-                  </select>
+                  <label className="text-[10px] block mb-2 tracking-[0.2em] font-bold" style={{ color: "#C1A05E" }}>DOA &amp; UCAPAN</label>
+                  <textarea
+                    className="w-full bg-transparent border-0 border-b-2 px-0 py-2 outline-none focus:outline-none"
+                    style={{ borderColor: "#C1A05E33", color: "#472A1C", fontFamily: "Be Vietnam Pro, sans-serif" }}
+                    placeholder="Tulis ucapan anda..."
+                    rows={3}
+                    value={rsvpMessage}
+                    onChange={e => setRsvpMessage(e.target.value)}
+                  />
                 </div>
-              </div>
-              <div>
-                <label className="text-[10px] block mb-2 tracking-[0.2em] font-bold" style={{ color: "#C1A05E" }}>DOA &amp; UCAPAN</label>
-                <textarea className="w-full bg-transparent border-0 border-b-2 px-0 py-2 outline-none focus:outline-none" style={{ borderColor: "#C1A05E33", color: "#472A1C", fontFamily: "Be Vietnam Pro, sans-serif" }} placeholder="Tulis ucapan anda..." rows={3} />
-              </div>
-              <button type="submit" className="w-full py-4 rounded-full text-sm tracking-[0.2em] shadow-xl transition-all active:scale-95 font-semibold" style={{ backgroundColor: "#472A1C", color: "#F9F6F0" }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#2f1609" }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#472A1C" }}>
-                KIRIM UCAPAN
-              </button>
-            </form>
+                {formStatus === "error" && (
+                  <p className="text-[13px] text-red-600 text-center">{formError}</p>
+                )}
+                <button
+                  type="submit"
+                  disabled={formStatus === "submitting"}
+                  className="w-full py-4 rounded-full text-sm tracking-[0.2em] shadow-xl transition-all active:scale-95 font-semibold disabled:opacity-60"
+                  style={{ backgroundColor: "#472A1C", color: "#F9F6F0" }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#2f1609" }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#472A1C" }}
+                >
+                  {formStatus === "submitting" ? "MENGIRIM..." : "KIRIM UCAPAN"}
+                </button>
+              </form>
+            )}
           </section>
 
           {/* CLOSING */}
@@ -700,6 +882,60 @@ export default function HeritageJawa({
         className="fixed bottom-24 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-2xl hj-float border" style={{ backgroundColor: "#472A1C", color: "#C1A05E", borderColor: "#C1A05E55", right: "24px" }}>
         <span className="material-symbols-outlined">{playing ? "music_note" : "music_off"}</span>
       </button>
+
+      {/* QR MODAL */}
+      {qrModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] flex items-center justify-center p-6" style={{ animation: "hj-qr-zoom 0.2s ease" }}>
+          <div className="bg-white p-6 rounded-3xl max-w-xs w-full text-center flex flex-col items-center shadow-2xl relative" style={{ fontFamily: "'Be Vietnam Pro', sans-serif" }}>
+            <button onClick={() => setQrModalOpen(false)} className="absolute top-4 right-4 text-[#5C5854] hover:text-[#1A1817] p-1" aria-label="Tutup">
+              <span className="material-symbols-outlined text-2xl">close</span>
+            </button>
+            <span className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-1" style={{ color: "#C1A05E" }}>Pindai di Meja Resepsi</span>
+            <h4 className="font-['EB_Garamond'] text-2xl mb-1" style={{ color: "#472A1C" }}>{guest_name}</h4>
+            {guest_table_number && guest_table_number !== "TBA" && (
+              <p className="text-xs mb-4" style={{ color: "#50443f" }}>Nomor Meja: <span className="font-semibold">{guest_table_number}</span></p>
+            )}
+            <div className="bg-white p-3 border rounded-2xl shadow-inner mb-4" style={{ borderColor: "rgba(26,24,23,0.08)" }}>
+              {qrDataUrl ? (
+                <img src={qrDataUrl} alt="Kartu QR Masuk" className="w-60 h-60 object-contain" />
+              ) : (
+                <div className="w-60 h-60 flex items-center justify-center">
+                  <div className="w-8 h-8 border-2 border-[#1A1817] border-t-transparent rounded-full animate-spin" />
+                </div>
+              )}
+            </div>
+            <p className="text-xs mb-4" style={{ color: "#5C5854" }}>Tunjukkan QR ini ke penerima tamu saat acara berlangsung.</p>
+            {guest_qr_url && (
+              <a
+                href={guest_qr_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 mb-2 transition-colors"
+                style={{ backgroundColor: "#472A1C", color: "#F9F6F0" }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#C1A05E" }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#472A1C" }}
+              >
+                <span className="material-symbols-outlined text-base">open_in_new</span>
+                BUKA HALAMAN QR PENUH
+              </a>
+            )}
+            <button
+              onClick={() => setQrModalOpen(false)}
+              className="w-full py-3 rounded-xl text-xs font-medium transition-colors"
+              style={{ backgroundColor: "#FBF8F3", color: "#472A1C", border: "1px solid rgba(26,24,23,0.08)" }}
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes hj-qr-zoom {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
     </ThemeInjector>
   )
 }

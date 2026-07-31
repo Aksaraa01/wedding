@@ -35,7 +35,7 @@ type Profile = {
 
 const CARDS = [
   { key: "premium_web" as const, title: "Premium Web Invitation" },
-  { key: "unique_link_generator" as const, title: "QR Tamu" },
+  { key: "unique_link_generator" as const, title: "Undangan dan QR Tamu" },
   { key: "wish_wall" as const, title: "Virtual Wish Wall" },
   { key: "undangan_fisik" as const, title: "Undangan Fisik Premium" },
   { key: "wa_blast" as const, title: "Reminder Tamu VIP" },

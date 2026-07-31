@@ -45,6 +45,13 @@ export interface TemplateProps {
   track_url?: string
   auto_play?: boolean
   inviting_families?: string[]
+  wedding_profile_id?: string
+  guest_id?: string
+  guest_qr_token?: string
+  guest_qr_url?: string
+  guest_qr_content?: string
+  guest_table_number?: string
+  guest_rsvp_status?: string
 }
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {

@@ -9,7 +9,7 @@ export async function GET(
 
   const { data: guest } = await supabaseAdmin
     .from("guests")
-    .select("name, wedding_profile_id")
+    .select("name, wedding_profile_id, qr_token")
     .eq("qr_token", token)
     .maybeSingle()
 
@@ -28,8 +28,11 @@ export async function GET(
   }
 
   const encodedName = encodeURIComponent(guest.name)
+  const encodedToken = encodeURIComponent(guest.qr_token || "")
+  const host = _req.headers.get("host") || `${profile.slug}.wedding.aksaraa.com`
+  const proto = _req.headers.get("x-forwarded-proto") || "https"
   return NextResponse.redirect(
-    new URL(`/w/${profile.slug}?to=${encodedName}`, _req.url),
+    `${proto}://${host}/w/${profile.slug}?to=${encodedName}&qr_token=${encodedToken}`,
     302
   )
 }

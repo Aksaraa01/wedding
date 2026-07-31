@@ -1,8 +1,7 @@
 "use client"
 
-import { useState, useEffect, use, useRef } from "react"
+import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
-import QRCode from "qrcode"
 import { ASSETS } from "@/lib/assets"
 
 type Guest = {
@@ -30,15 +29,17 @@ type Stats = {
   checked_in: number
 }
 
-function GuestCard({ guest, slug, onCopy, onDownload, copiedId }: {
+function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, copiedId, copiedKind }: {
   guest: Guest
   slug: string
-  onCopy: (token: string, name: string) => void
-  onDownload: (token: string, name: string) => void
+  onCopyQr: (token: string) => void
+  onCopyUndangan: (token: string, name: string) => void
   copiedId: string | null
+  copiedKind: "qr" | "undangan" | null
 }) {
-  const isCopied = copiedId === guest.id
   const hasToken = !!guest.qr_token
+  const isCopiedQr = copiedId === guest.id && copiedKind === "qr"
+  const isCopiedUndangan = copiedId === guest.id && copiedKind === "undangan"
 
   return (
     <div className="bg-surface-container-lowest border border-outline-variant/50 hover:border-outline rounded-xl p-5 shadow-sm transition-all duration-200 flex flex-col gap-4 group">
@@ -73,29 +74,38 @@ function GuestCard({ guest, slug, onCopy, onDownload, copiedId }: {
 
       <div className="flex gap-4">
         <button
-          onClick={() => hasToken && onCopy(guest.qr_token!, guest.name)}
+          onClick={() => hasToken && onCopyQr(guest.qr_token!)}
           disabled={!hasToken}
           className="flex items-center gap-2 text-[11px] font-label-md uppercase tracking-wider text-on-surface-variant hover:text-secondary disabled:opacity-30 disabled:hover:text-on-surface-variant transition-colors py-1"
         >
-          {isCopied ? (
+          {isCopiedQr ? (
             <>
               <span className="material-symbols-outlined text-base text-emerald-600">check</span>
-              <span className="text-emerald-700 font-semibold">TAUTAN TERSALIN</span>
+              <span className="text-emerald-700 font-semibold">TAUTAN QR TERSALIN</span>
             </>
           ) : (
             <>
-              <span className="material-symbols-outlined text-base">link</span>
-              SALIN TAUTAN
+              <span className="material-symbols-outlined text-base">qr_code_2</span>
+              SALIN TAUTAN QR
             </>
           )}
         </button>
         <button
-          onClick={() => hasToken && onDownload(guest.qr_token!, guest.name)}
+          onClick={() => hasToken && onCopyUndangan(guest.qr_token!, guest.name)}
           disabled={!hasToken}
           className="flex items-center gap-2 text-[11px] font-label-md uppercase tracking-wider text-on-surface-variant hover:text-secondary disabled:opacity-30 disabled:hover:text-on-surface-variant transition-colors py-1"
         >
-          <span className="material-symbols-outlined text-base">qr_code_2</span>
-          UNDUH QR
+          {isCopiedUndangan ? (
+            <>
+              <span className="material-symbols-outlined text-base text-emerald-600">check</span>
+              <span className="text-emerald-700 font-semibold">TAUTAN UNDANGAN TERSALIN</span>
+            </>
+          ) : (
+            <>
+              <span className="material-symbols-outlined text-base">link</span>
+              SALIN TAUTAN UNDANGAN
+            </>
+          )}
         </button>
       </div>
     </div>
@@ -113,6 +123,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   const [generating, setGenerating] = useState(false)
   const [search, setSearch] = useState("")
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [copiedKind, setCopiedKind] = useState<"qr" | "undangan" | null>(null)
 
   const fetchData = async () => {
     try {
@@ -149,24 +160,26 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
     }
   }
 
-  const handleCopy = async (token: string, name?: string) => {
+  const handleCopyQr = async (token: string) => {
     if (!profile) return
-    const slugifiedName = name ? "/" + name.toLowerCase().replace(/&/g, "dan").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") : ""
-    const url = `https://${profile.slug}.wedding.aksaraa.com/qr/${token}${slugifiedName}`
+    const url = `https://${profile.slug}.wedding.aksaraa.com/qr/${token}`
     try {
       await navigator.clipboard.writeText(url)
       setCopiedId(guests.find(g => g.qr_token === token)?.id || null)
-      setTimeout(() => setCopiedId(null), 2000)
+      setCopiedKind("qr")
+      setTimeout(() => { setCopiedId(null); setCopiedKind(null) }, 2000)
     } catch {}
   }
 
-  const handleDownload = async (token: string, name: string) => {
-    const canvas = document.createElement("canvas")
-    await QRCode.toCanvas(canvas, token, { width: 400, margin: 2, color: { dark: "#1a1a1a", light: "#ffffff" } })
-    const link = document.createElement("a")
-    link.download = `QR-${name.replace(/\s+/g, "-")}.png`
-    link.href = canvas.toDataURL()
-    link.click()
+  const handleCopyUndangan = async (token: string, name: string) => {
+    if (!profile) return
+    const url = `https://${profile.slug}.wedding.aksaraa.com/w/${profile.slug}?to=${encodeURIComponent(name)}&qr_token=${encodeURIComponent(token)}`
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopiedId(guests.find(g => g.qr_token === token)?.id || null)
+      setCopiedKind("undangan")
+      setTimeout(() => { setCopiedId(null); setCopiedKind(null) }, 2000)
+    } catch {}
   }
 
   const isUnpaid = profile?.payment_status === "UNPAID"
@@ -293,9 +306,10 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
                 key={g.id}
                 guest={g}
                 slug={profile?.slug || ""}
-                onCopy={handleCopy}
-                onDownload={handleDownload}
+                onCopyQr={handleCopyQr}
+                onCopyUndangan={handleCopyUndangan}
                 copiedId={copiedId}
+                copiedKind={copiedKind}
               />
             ))
           )}
