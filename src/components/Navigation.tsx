@@ -3,18 +3,9 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
-const PRODUCTS = [
-  { label: "Premium Web Invitation", href: "/premium-web-invitation" },
-  { label: "QR dan Digital Buku Tamu", href: "/qr-digital-buku-tamu" },
-  { label: "Virtual Wish Wall", href: "/virtual-wish-wall" },
-  { label: "Galeri Kenangan Tamu", href: "/galeri-kenangan-tamu" },
-  { label: "Reminder Tamu VIP", href: "/reminder-tamu-vip" },
-]
-
 export default function Navigation() {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
-  const [showProducts, setShowProducts] = useState(false)
   const [snackbar, setSnackbar] = useState<string | null>(null)
 
   const toggleMenu = () => {
@@ -35,7 +26,7 @@ export default function Navigation() {
   return (
     <>
       {snackbar && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[70] bg-on-surface text-background px-6 py-4 shadow-2xl flex items-center gap-3 animate-[slideUp_0.3s_ease-out]">
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[70] bg-[#1c1b1e] text-[#f2ca50] px-6 py-4 shadow-2xl flex items-center gap-3 animate-[slideUp_0.3s_ease-out] border border-white/10">
           <span className="material-symbols-outlined text-sm">construction</span>
           <span className="font-label-md text-label-md uppercase tracking-widest">{snackbar} — Coming Soon</span>
         </div>
@@ -46,145 +37,92 @@ export default function Navigation() {
           to { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
       `}</style>
-      <header className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-outline-variant/20">
-        <div className="flex justify-between items-center w-full px-edge-margin-mobile md:px-edge-margin-desktop max-w-container-max mx-auto py-4 md:py-6">
-          <div className="flex items-center gap-1 shrink-0">
-            <span className="font-headline-md text-[24px] md:text-headline-md font-normal text-on-surface tracking-tight">
-              Aksaraa.Wedding
+      <header className="fixed top-0 w-full z-50 bg-[#131315]/90 backdrop-blur-xl border-b border-white/5">
+        <nav className="max-w-container-max mx-auto px-edge-margin-mobile md:px-edge-margin-desktop h-20 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="font-display-lg text-2xl tracking-tighter text-[#f2ca50]">
+              WEDDING.AKSAR<span className="italic font-normal">AA</span>
             </span>
-            <div className="w-1.5 h-1.5 bg-secondary rounded-full mt-1.5 md:mt-2" />
           </div>
 
-          <button
-            className="md:hidden flex items-center p-2 text-on-surface"
-            onClick={toggleMenu}
-            aria-label="Toggle menu"
-          >
-            <span className="material-symbols-outlined text-3xl">menu</span>
-          </button>
-
-          <nav className="hidden md:flex items-center gap-10 font-label-md text-label-md uppercase tracking-widest">
-            <div className="group relative">
-              <button className="flex items-center gap-1 text-on-surface/70 hover:text-on-surface transition-colors duration-300">
-                UNTUK ANDA
-                <span className="material-symbols-outlined text-sm">
-                  expand_more
-                </span>
-              </button>
-              <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute top-full left-0 mt-4 w-72 bg-white border border-outline-variant/30 shadow-xl py-6 z-50 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                <div className="grid grid-cols-1 gap-1">
-                  {PRODUCTS.map((p) => (
-                    <a
-                      key={p.label}
-                      className="px-8 py-3 hover:bg-surface-container-low transition-colors font-label-md text-[10px] text-on-surface"
-                      href={p.href}
-                    >
-                      {p.label}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
+          <div className="hidden md:flex items-center gap-10">
+            <button
+              onClick={() => showComingSoon("Fitur Utama")}
+              className="font-label-md text-label-md uppercase tracking-widest text-[#e5e1e4] hover:text-[#f2ca50] transition-colors"
+            >
+              Fitur Utama
+            </button>
             <button
               onClick={() => showComingSoon("Portofolio")}
-              className="text-on-surface/70 hover:text-on-surface transition-colors"
+              className="font-label-md text-label-md uppercase tracking-widest text-[#e5e1e4] hover:text-[#f2ca50] transition-colors"
             >
               Portofolio
             </button>
             <button
               onClick={() => showComingSoon("Tentang Kami")}
-              className="text-on-surface/70 hover:text-on-surface transition-colors"
+              className="font-label-md text-label-md uppercase tracking-widest text-[#e5e1e4] hover:text-[#f2ca50] transition-colors"
             >
               Tentang Kami
             </button>
-          </nav>
-
-          <div className="hidden md:block">
             <button
               onClick={() => router.push("/login")}
-              className="px-8 py-2.5 bg-on-surface text-background font-label-md text-label-md uppercase tracking-widest border border-on-surface hover:bg-secondary hover:border-secondary transition-all duration-500"
+              className="px-6 py-2 border border-[#f2ca50]/30 rounded-full font-label-md text-label-md uppercase tracking-widest text-[#f2ca50] hover:bg-[#f2ca50] hover:text-[#3c2f00] transition-all duration-300"
             >
               Masuk
             </button>
           </div>
-        </div>
+
+          <button
+            className="md:hidden text-[#e5e1e4] p-1"
+            onClick={toggleMenu}
+            aria-label="Toggle menu"
+          >
+            <span className="material-symbols-outlined text-3xl">menu</span>
+          </button>
+        </nav>
       </header>
 
       <div
-        className={`fixed inset-0 z-[60] bg-background transition-transform duration-[0.4s] ease-[cubic-bezier(0.4,0,0.2,1)] md:hidden ${
+        className={`fixed inset-0 z-[60] bg-[#131315] transition-transform duration-[0.4s] ease-[cubic-bezier(0.4,0,0.2,1)] md:hidden ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div className="flex flex-col h-full p-edge-margin-mobile">
           <div className="flex justify-between items-center py-4">
-            <div className="flex items-center gap-1">
-              <span className="font-headline-md text-[24px] font-normal text-on-surface">
-                Aksaraa.
-              </span>
-              <div className="w-1.5 h-1.5 bg-secondary rounded-full" />
-            </div>
-            <button
-              className="p-2 text-on-surface"
-              onClick={closeMenu}
-              aria-label="Close menu"
-            >
+            <span className="font-display-lg text-xl tracking-tighter text-[#f2ca50]">
+              WEDDING.AKSAR<span className="italic font-normal">AA</span>
+            </span>
+            <button className="p-2 text-[#e5e1e4]" onClick={closeMenu} aria-label="Close menu">
               <span className="material-symbols-outlined text-3xl">close</span>
             </button>
           </div>
-          <nav className="flex flex-col gap-8 mt-12 font-headline-md text-[28px] text-on-surface">
-            <div className="border-b border-outline-variant/20 pb-4">
-              <button
-                className="flex items-center justify-between w-full text-left"
-                onClick={() => setShowProducts(!showProducts)}
-              >
-                <span>Untuk Anda</span>
-                <span className="material-symbols-outlined text-2xl transition-transform duration-300" style={{ transform: showProducts ? 'rotate(45deg)' : 'rotate(0deg)' }}>
-                  add
-                </span>
-              </button>
-              {showProducts && (
-                <div className="mt-4 flex flex-col gap-1">
-                  {PRODUCTS.map((p) => (
-                    <a
-                      key={p.label}
-                      className="block pl-4 py-3 font-headline-md text-lg text-on-surface/70 hover:text-on-surface transition-colors"
-                      href={p.href}
-                      onClick={closeMenu}
-                    >
-                      {p.label}
-                    </a>
-                  ))}
-                </div>
-              )}
-            </div>
+          <nav className="flex flex-col gap-8 mt-12 font-headline-md text-[28px] text-[#e5e1e4]">
             <button
-              className="border-b border-outline-variant/20 pb-4 text-left"
+              className="border-b border-white/10 pb-4 text-left"
+              onClick={() => { closeMenu(); showComingSoon("Fitur Utama") }}
+            >
+              Fitur Utama
+            </button>
+            <button
+              className="border-b border-white/10 pb-4 text-left"
               onClick={() => { closeMenu(); showComingSoon("Portofolio") }}
             >
               Portofolio
             </button>
             <button
-              className="border-b border-outline-variant/20 pb-4 text-left"
+              className="border-b border-white/10 pb-4 text-left"
               onClick={() => { closeMenu(); showComingSoon("Tentang Kami") }}
             >
               Tentang Kami
             </button>
           </nav>
-          <div className="mt-auto flex flex-col gap-6 pb-12">
+          <div className="mt-auto pb-12">
             <button
               onClick={() => router.push("/login")}
-              className="w-full py-5 bg-on-surface text-background font-label-md text-label-md uppercase tracking-widest"
+              className="w-full py-4 border border-[#f2ca50]/30 rounded-full text-[#f2ca50] font-label-md text-label-md uppercase tracking-widest"
             >
               Masuk
             </button>
-            <div className="flex justify-center gap-6">
-              <a className="text-on-surface/60 font-label-md uppercase tracking-widest text-[12px]" href="#">
-                Instagram
-              </a>
-              <a className="text-on-surface/60 font-label-md uppercase tracking-widest text-[12px]" href="#">
-                WhatsApp
-              </a>
-            </div>
           </div>
         </div>
       </div>

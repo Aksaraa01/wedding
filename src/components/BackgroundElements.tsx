@@ -3,17 +3,15 @@ export default function BackgroundElements() {
     <>
       <div className="fixed inset-0 pointer-events-none z-0">
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.05]"
           style={{
             backgroundImage:
-              "radial-gradient(#1a1a1a 0.5px, transparent 0.5px)",
-            backgroundSize: "24px 24px",
+              "radial-gradient(#f2ca50 0.5px, transparent 0.5px)",
+            backgroundSize: "32px 32px",
           }}
         />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#131315]/20 to-[#131315]" />
       </div>
-      <div className="artistic-frame fixed top-0 left-edge-margin-desktop bottom-0 w-[1px] hidden md:block bg-on-surface/5" />
-      <div className="artistic-frame fixed top-0 right-edge-margin-desktop bottom-0 w-[1px] hidden md:block bg-on-surface/5" />
-      <div className="artistic-frame absolute top-[80px] md:top-[100px] left-0 right-0 h-[1px] opacity-20 bg-on-surface" />
     </>
   )
 }

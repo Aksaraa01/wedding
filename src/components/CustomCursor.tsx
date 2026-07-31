@@ -8,7 +8,7 @@ export default function CustomCursor() {
     cursor.id = "cursor"
     cursor.className = "custom-cursor hidden md:block"
     cursor.style.cssText =
-      "transform: translate(-50%, -50%) scale(1); background-color: transparent; position: fixed; width: 32px; height: 32px; border: 1px solid #1a1a1a; border-radius: 50%; pointer-events: none; z-index: 9999;"
+      "transform: translate(-50%, -50%) scale(1); background-color: transparent; position: fixed; width: 24px; height: 24px; border: 1px solid #f2ca50; border-radius: 50%; pointer-events: none; z-index: 9999; transition: transform 0.2s, background-color 0.2s;"
     document.body.appendChild(cursor)
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -20,8 +20,9 @@ export default function CustomCursor() {
 
     const handleMouseEnter = () => {
       if (window.innerWidth > 768) {
-        cursor.style.transform = "translate(-50%, -50%) scale(1.5)"
-        cursor.style.backgroundColor = "rgba(26, 26, 26, 0.05)"
+        cursor.style.transform = "translate(-50%, -50%) scale(2.5)"
+        cursor.style.backgroundColor = "rgba(242, 202, 80, 0.15)"
+        cursor.style.borderColor = "#f2ca50"
       }
     }
 
@@ -29,6 +30,7 @@ export default function CustomCursor() {
       if (window.innerWidth > 768) {
         cursor.style.transform = "translate(-50%, -50%) scale(1)"
         cursor.style.backgroundColor = "transparent"
+        cursor.style.borderColor = "#f2ca50"
       }
     }
 
