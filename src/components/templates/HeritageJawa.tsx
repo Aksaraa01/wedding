@@ -166,6 +166,7 @@ export default function HeritageJawa({
   const countdown = useCountdown(eventDate)
   const [activeNav, setActiveNav] = useState("home")
   const [playing, setPlaying] = useState(false)
+  const [audioMounted, setAudioMounted] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
 
   const weddingDateFormatted = eventDate
@@ -217,7 +218,7 @@ export default function HeritageJawa({
       document.addEventListener("click", play, { once: true })
       document.addEventListener("touchstart", play, { once: true })
     }
-  }, [track_url, autoPlayProp])
+  }, [track_url, autoPlayProp, audioMounted])
 
   const toggleMusic = () => {
     const audio = audioRef.current
@@ -687,7 +688,13 @@ export default function HeritageJawa({
       </nav>
 
       {/* MUSIC BUTTON — outside main to avoid iOS fixed-position clipping */}
-      <audio ref={audioRef} loop />
+      <audio
+        ref={(el) => {
+          audioRef.current = el
+          if (el && !audioMounted) setAudioMounted(true)
+        }}
+        loop
+      />
       <button
         onClick={toggleMusic}
         className="fixed bottom-24 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-2xl hj-float border" style={{ backgroundColor: "#472A1C", color: "#C1A05E", borderColor: "#C1A05E55", right: "24px" }}>
