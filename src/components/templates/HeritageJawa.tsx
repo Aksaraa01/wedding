@@ -151,7 +151,7 @@ const STORY_DATA = [
 ]
 
 export default function HeritageJawa({
-  bride_name, groom_name, estimated_wedding_date, guest_name, slug,
+  bride_name, groom_name, estimated_wedding_date, guest_name,
   theme: _theme, display_name,
   couple_illustration_url, grayscale: grayscaleProp,
   groom_full_name, bride_full_name,
@@ -172,7 +172,6 @@ export default function HeritageJawa({
   guest_id,
   guest_qr_token,
   guest_qr_url,
-  guest_qr_content,
   guest_table_number,
   guest_rsvp_status,
 }: Props) {
@@ -192,7 +191,6 @@ export default function HeritageJawa({
   const [wishSent, setWishSent] = useState(false)
 
   const [qrModalOpen, setQrModalOpen] = useState(false)
-  const [qrDataUrl, setQrDataUrl] = useState("")
 
   const isIdentified = Boolean(guest_id && guest_qr_token)
 
@@ -270,24 +268,6 @@ export default function HeritageJawa({
   const scrollTo = useCallback((id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
   }, [])
-
-  useEffect(() => {
-    if (!qrModalOpen || !guest_qr_content) return
-    let cancelled = false
-    const absoluteUrl = `https://${slug}.wedding.aksaraa.com${guest_qr_content}`
-    import("qrcode").then((QRCode) =>
-      QRCode.toDataURL(absoluteUrl, {
-        width: 400,
-        margin: 2,
-        color: { dark: "#1A1817", light: "#ffffff" },
-      })
-    ).then((url) => {
-      if (!cancelled) setQrDataUrl(url)
-    }).catch(() => {
-      if (!cancelled) setQrDataUrl("")
-    })
-    return () => { cancelled = true }
-  }, [qrModalOpen, guest_qr_content, slug])
 
   const submitWishes = async () => {
     const res = await fetch("/api/wishes", {
@@ -883,49 +863,21 @@ export default function HeritageJawa({
         <span className="material-symbols-outlined">{playing ? "music_note" : "music_off"}</span>
       </button>
 
-      {/* QR MODAL */}
+      {/* QR MODAL — full digital pass embedded */}
       {qrModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] flex items-center justify-center p-6" style={{ animation: "hj-qr-zoom 0.2s ease" }}>
-          <div className="bg-white p-6 rounded-3xl max-w-xs w-full text-center flex flex-col items-center shadow-2xl relative" style={{ fontFamily: "'Be Vietnam Pro', sans-serif" }}>
-            <button onClick={() => setQrModalOpen(false)} className="absolute top-4 right-4 text-[#5C5854] hover:text-[#1A1817] p-1" aria-label="Tutup">
-              <span className="material-symbols-outlined text-2xl">close</span>
-            </button>
-            <span className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-1" style={{ color: "#C1A05E" }}>Pindai di Meja Resepsi</span>
-            <h4 className="font-['EB_Garamond'] text-2xl mb-1" style={{ color: "#472A1C" }}>{guest_name}</h4>
-            {guest_table_number && guest_table_number !== "TBA" && (
-              <p className="text-xs mb-4" style={{ color: "#50443f" }}>Nomor Meja: <span className="font-semibold">{guest_table_number}</span></p>
-            )}
-            <div className="bg-white p-3 border rounded-2xl shadow-inner mb-4" style={{ borderColor: "rgba(26,24,23,0.08)" }}>
-              {qrDataUrl ? (
-                <img src={qrDataUrl} alt="Kartu QR Masuk" className="w-60 h-60 object-contain" />
-              ) : (
-                <div className="w-60 h-60 flex items-center justify-center">
-                  <div className="w-8 h-8 border-2 border-[#1A1817] border-t-transparent rounded-full animate-spin" />
-                </div>
-              )}
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[60] flex items-center justify-center" style={{ animation: "hj-qr-zoom 0.2s ease" }}>
+          <div className="relative w-full max-w-md h-[100dvh] md:h-[94vh] md:rounded-3xl overflow-hidden shadow-2xl bg-white flex flex-col">
+            <div className="flex items-center justify-between px-5 py-3 border-b z-10" style={{ backgroundColor: "#FBF8F3", borderColor: "rgba(26,24,23,0.08)" }}>
+              <span className="text-[11px] uppercase tracking-[0.2em] font-semibold" style={{ color: "#8D4D39" }}>Kartu QR Masuk</span>
+              <button onClick={() => setQrModalOpen(false)} className="text-[#5C5854] hover:text-[#1A1817] p-1" aria-label="Tutup">
+                <span className="material-symbols-outlined text-2xl">close</span>
+              </button>
             </div>
-            <p className="text-xs mb-4" style={{ color: "#5C5854" }}>Tunjukkan QR ini ke penerima tamu saat acara berlangsung.</p>
-            {guest_qr_url && (
-              <a
-                href={guest_qr_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 mb-2 transition-colors"
-                style={{ backgroundColor: "#472A1C", color: "#F9F6F0" }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#C1A05E" }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = "#472A1C" }}
-              >
-                <span className="material-symbols-outlined text-base">open_in_new</span>
-                BUKA HALAMAN QR PENUH
-              </a>
-            )}
-            <button
-              onClick={() => setQrModalOpen(false)}
-              className="w-full py-3 rounded-xl text-xs font-medium transition-colors"
-              style={{ backgroundColor: "#FBF8F3", color: "#472A1C", border: "1px solid rgba(26,24,23,0.08)" }}
-            >
-              Tutup
-            </button>
+            <iframe
+              src={guest_qr_url}
+              title="Kartu QR Masuk"
+              className="flex-1 w-full border-0"
+            />
           </div>
         </div>
       )}
