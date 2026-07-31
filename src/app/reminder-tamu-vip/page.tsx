@@ -10,6 +10,22 @@ export default function ReminderTamuVIPPage() {
   const mainRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLElement>(null)
   const [simState, setSimState] = useState<"idle" | "loading" | "success">("idle")
+  const [guestName, setGuestName] = useState("")
+  const [category, setCategory] = useState("")
+  const [tableNo, setTableNo] = useState("")
+
+  const SIM_TEMPLATE = {
+    label: "Singkat & Padat",
+    text: "{Nama Tamu},\n\nInformasi pernikahan kami:\n\n📅 {Tanggal}\n📍 {Lokasi}\n🔗 {Tautan Unik}\n\nQR Code akses: simpan untuk masuk.\nNomor Meja: {Nomor Meja}\n\nSampai jumpa!\n{Nama Pengantin}",
+  }
+
+  const previewMessage = SIM_TEMPLATE.text
+    .replace("{Nama Tamu}", guestName.trim() || "Bpk. Robert J. Oppenheimer")
+    .replace("{Tanggal}", "Sabtu, 14 Februari 2027")
+    .replace("{Lokasi}", "The Ritz-Carlton Jakarta Ballroom")
+    .replace("{Tautan Unik}", "dela.wedding.aksaraa.com/tamu/rahasia-2027")
+    .replace("{Nomor Meja}", tableNo.trim() || "Emerald - 01")
+    .replace("{Nama Pengantin}", "Dela & Dela")
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -159,6 +175,8 @@ export default function ReminderTamuVIPPage() {
                       className="w-full bg-transparent border-t-0 border-x-0 border-b border-primary/20 py-4 text-body-lg font-body-lg focus:border-b-2 focus:border-primary outline-none transition-colors placeholder:text-on-surface-variant/40"
                       placeholder="Contoh: Bpk. Robert J. Oppenheimer"
                       type="text"
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
                     />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -168,6 +186,8 @@ export default function ReminderTamuVIPPage() {
                         className="w-full bg-transparent border-t-0 border-x-0 border-b border-primary/20 py-4 text-body-lg font-body-lg focus:border-b-2 focus:border-primary outline-none transition-colors placeholder:text-on-surface-variant/40"
                         placeholder="Contoh: VIP Jakarta"
                         type="text"
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
                       />
                     </div>
                     <div className="relative group">
@@ -176,6 +196,8 @@ export default function ReminderTamuVIPPage() {
                         className="w-full bg-transparent border-t-0 border-x-0 border-b border-primary/20 py-4 text-body-lg font-body-lg focus:border-b-2 focus:border-primary outline-none transition-colors placeholder:text-on-surface-variant/40"
                         placeholder="Contoh: Emerald - 01"
                         type="text"
+                        value={tableNo}
+                        onChange={(e) => setTableNo(e.target.value)}
                       />
                     </div>
                   </div>
@@ -206,6 +228,45 @@ export default function ReminderTamuVIPPage() {
                     </button>
                   </div>
                 </form>
+
+                {simState === "success" && (
+                  <div className="mt-12">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="font-label-sm text-label-sm uppercase tracking-widest text-secondary">
+                        Template: {SIM_TEMPLATE.label}
+                      </span>
+                      <span className="flex items-center gap-1.5 text-green-700 font-label-sm text-[10px] uppercase tracking-widest">
+                        <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                        Terkirim ke WhatsApp
+                      </span>
+                    </div>
+
+                    <div className="rounded-2xl overflow-hidden border border-primary/10 shadow-xl max-w-md lg:ml-auto">
+                      {/* WhatsApp header */}
+                      <div className="bg-[#075E54] px-5 py-4 flex items-center gap-3 text-white">
+                        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                          <span className="material-symbols-outlined">person</span>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold leading-tight">Dela &amp; Dela</p>
+                          <p className="text-[11px] opacity-80 truncate">
+                            Reminder Otomatis{category ? ` • ${category}` : ""}
+                          </p>
+                        </div>
+                        <span className="ml-auto flex items-center gap-1 text-[10px] shrink-0">
+                          ✓✓ Terbaca
+                        </span>
+                      </div>
+                      {/* Chat body */}
+                      <div className="bg-[#E5DDD5] p-4 min-h-[220px]">
+                        <div className="bg-white rounded-lg rounded-tl-none px-4 py-3 shadow max-w-[88%] text-[14px] leading-relaxed whitespace-pre-line">
+                          {previewMessage}
+                          <span className="block text-right text-[10px] text-gray-400 mt-2">09:00 ✓✓</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
