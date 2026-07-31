@@ -28,6 +28,7 @@ type Profile = {
   whatsapp_number: string
   payment_status: "UNPAID" | "PARTIAL_DP" | "FULLY_PAID"
   total_project_cost: number
+  express_service?: boolean | null
   akad_date?: string | null
   resepsi_date?: string | null
   sessions?: { date: string }[] | null
@@ -36,13 +37,13 @@ type Profile = {
 const CARDS = [
   { key: "premium_web" as const, title: "Premium Web Invitation" },
   { key: "unique_link_generator" as const, title: "Undangan dan QR Tamu" },
-  { key: "wish_wall" as const, title: "Virtual Wish Wall" },
-  { key: "undangan_fisik" as const, title: "Undangan Fisik Premium" },
-  { key: "wa_blast" as const, title: "Reminder Tamu VIP" },
   { key: "reservation_automation" as const, title: "RSVP Automation" },
+  { key: "wa_blast" as const, title: "Reminder Tamu VIP" },
   { key: "qr_code_book" as const, title: "QR Guest Book" },
-  { key: "kolom_direct_transfer" as const, title: "Digital Angpao & E-Gift" },
+  { key: "wish_wall" as const, title: "Virtual Wish Wall" },
   { key: "galeri_foto_tamu" as const, title: "Galeri Kenangan Tamu" },
+  { key: "kolom_direct_transfer" as const, title: "Digital Angpao & E-Gift" },
+  { key: "undangan_fisik" as const, title: "Undangan Fisik Premium" },
 ]
 
 const ICON_MAP: Record<string, string> = {
@@ -348,6 +349,17 @@ function DashboardInner({ id }: { id: string }) {
           <div className="px-6 flex justify-between items-center mb-6">
             <h2 className="font-['Playfair_Display'] text-2xl">Modul Perencanaan</h2>
           </div>
+          {profile.express_service && (
+            <div className="mx-6 mb-6 bg-amber-50 border border-amber-300 rounded-xl p-4 flex items-start gap-3">
+              <span className="material-symbols-outlined text-amber-600 flex-shrink-0">bolt</span>
+              <div>
+                <p className="font-body-md text-body-md text-amber-800 font-semibold">Layanan Kilat 24 Jam Aktif</p>
+                <p className="font-body-sm text-body-sm text-amber-700 mt-1">
+                  Proses pengerjaan undangan Anda dipercepat dengan layanan kilat 24 jam.
+                </p>
+              </div>
+            </div>
+          )}
           <div className="px-6 space-y-4">
             {activeCards.length === 0 ? (
               <div className="text-center py-20 bg-white border border-outline-variant rounded-2xl">
