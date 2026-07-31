@@ -6,22 +6,22 @@ const MODULES = [
   {
     icon: "language",
     title: "Web Invitation & RSVP",
-    desc: "Link personal untuk setiap tamu, manajemen denah duduk, dan filter alergi makanan dalam satu dasbor.",
+    desc: "Manjakan tamu Anda dengan desain web sinematik dan sapaan nama personal. Dapatkan kepastian RSVP secara real-time untuk perencanaan katering dan acara yang presisi.",
   },
   {
     icon: "qr_code_2",
     title: "VIP Reception QR Pass",
-    desc: "Check-in tamu kurang dari 2 detik. Hilangkan antrean panjang dan sambut tamu VIP Anda dengan elegan.",
+    desc: "Berikan kesan pertama yang mewah dan istimewa bagi tamu undangan Anda dengan proses masuk yang super cepat dan elegan",
   },
   {
     icon: "settings_input_component",
     title: "Virtual Wish Wall",
-    desc: "Sinkronisasi ucapan tamu dari smartphone langsung ke layar utama venue secara real-time.",
+    desc: "Hadirkan pengalaman interaktif di mana pesan dan ucapan selamat dari HP tamu tayang seketika di layar LED venue, menciptakan momen yang tak terlupakan",
   },
   {
     icon: "chat_bubble_outline",
     title: "Auto-Reminder WhatsApp",
-    desc: "Broadcast otomatis H-1 untuk tamu VIP. Pengingat lokasi, waktu, dan akses QR Pass digital.",
+    desc: "Pastikan tamu-tamu penting Anda hadir tepat waktu dengan persiapan matang. Mereka akan menerima undangan digital berisi detail lokasi, waktu, dan akses masuk cepat (QR Pass) secara otomatis.",
   },
 ]
 
@@ -48,7 +48,7 @@ export default function FeaturesSection() {
             </h2>
           </div>
           <p className="font-body-md text-body-md text-on-surface-variant max-w-xs italic border-l border-secondary pl-6">
-            Setiap modul dirancang untuk menghapus hambatan logistik, memberikan ruang bagi narasi cinta Anda untuk bersinar.
+            Setiap fitur hadir untuk melancarkan seluruh rangkaian acara, sehingga Anda dan pasangan bisa menikmati pernikahan tanpa beban.
           </p>
         </div>
 
@@ -66,7 +66,7 @@ export default function FeaturesSection() {
                   {m.title}
                 </h3>
               </div>
-              <p className="font-body-md text-on-surface-variant group-hover:text-on-primary/70 transition-colors">
+              <p className="font-body-md text-on-surface-variant group-hover:text-[#ffffff]/70 transition-colors">
                 {m.desc}
               </p>
             </div>
