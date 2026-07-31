@@ -36,9 +36,8 @@ export async function GET(
     const total = guests?.length || 0
     const hadir = guests?.filter(g => g.rsvp_status === "HADIR").length || 0
     const tidakHadir = guests?.filter(g => g.rsvp_status === "TIDAK_HADIR").length || 0
-    const belumRespon = guests?.filter(g => g.rsvp_status === "BELUM_RESPON" || !g.rsvp_status).length || 0
     const dibuka = guests?.filter(g => g.invitation_opened_at).length || 0
-    const belumDibuka = total - dibuka
+    const belumDibuka = Math.max(0, total - dibuka)
 
     return NextResponse.json({
       guests,
@@ -47,7 +46,6 @@ export async function GET(
         total,
         hadir,
         tidak_hadir: tidakHadir,
-        belum_respon: belumRespon,
         dibuka,
         belum_dibuka: belumDibuka,
       },
