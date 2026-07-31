@@ -111,13 +111,14 @@ The VPS has 2GB RAM and CANNOT run `next build`. Build locally, rsync the standa
    ```bash
    npm run build
    ```
-2. Rsync standalone output to server (always run all three, or chunks/static will 404):
+2. Rsync standalone output to server (always run all four, or chunks/static will 404):
    ```bash
    rsync -avz --delete .next/standalone/ askaraa@103.93.135.176:/var/www/aksara-wedding/.next/standalone/
    rsync -avz --delete .next/static/ askaraa@103.93.135.176:/var/www/aksara-wedding/.next/static/
+   rsync -avz --delete .next/static/ askaraa@103.93.135.176:/var/www/aksara-wedding/.next/standalone/.next/static/
    rsync -avz --delete public/ askaraa@103.93.135.176:/var/www/aksara-wedding/public/
    ```
-3. Restart PM2 on the server:
+3. Restart PM2 on the server (restart is REQUIRED — the standalone server indexes the static folder at boot, so static synced after startup returns 404 until restart):
    ```bash
    ssh askaraa@103.93.135.176
    pm2 restart aksara-wedding --update-env
