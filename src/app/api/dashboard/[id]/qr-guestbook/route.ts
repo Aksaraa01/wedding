@@ -60,9 +60,9 @@ export async function POST(
 
     const { data: guests, error: fetchError } = await supabaseAdmin
       .from("guests")
-      .select("id, name")
+      .select("id, name, qr_token")
       .eq("wedding_profile_id", id)
-      .is("qr_token", null)
+      .or("qr_token.is.null,slug.is.null")
 
     if (fetchError) {
       return NextResponse.json({ error: fetchError.message }, { status: 500 })
@@ -74,9 +74,12 @@ export async function POST(
 
     const results = await Promise.all(
       guests.map(async (g) => {
-        const token = await generateUniqueToken()
+        const token = g.qr_token || (await generateUniqueToken())
         const slug = await generateUniqueSlug(id, g.name)
-        return supabaseAdmin.from("guests").update({ qr_token: token, slug }).eq("id", g.id)
+        return supabaseAdmin
+          .from("guests")
+          .update({ ...(g.qr_token ? {} : { qr_token: token }), slug })
+          .eq("id", g.id)
       })
     )
 
