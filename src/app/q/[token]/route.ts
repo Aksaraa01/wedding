@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { slugifyName } from "@/lib/guest-link"
 
 export async function GET(
   _req: Request,
@@ -9,7 +10,7 @@ export async function GET(
 
   const { data: guest } = await supabaseAdmin
     .from("guests")
-    .select("name, wedding_profile_id, qr_token")
+    .select("name, slug, wedding_profile_id, qr_token")
     .eq("qr_token", token)
     .maybeSingle()
 
@@ -27,12 +28,12 @@ export async function GET(
     return NextResponse.json({ error: "Undangan tidak ditemukan" }, { status: 404 })
   }
 
-  const encodedName = encodeURIComponent(guest.name)
-  const encodedToken = encodeURIComponent(guest.qr_token || "")
+  const guestSlug = guest.slug || slugifyName(guest.name)
+  const encodedSlug = encodeURIComponent(guestSlug)
   const host = _req.headers.get("host") || `${profile.slug}.wedding.aksaraa.com`
   const proto = _req.headers.get("x-forwarded-proto") || "https"
   return NextResponse.redirect(
-    `${proto}://${host}/w/${profile.slug}?to=${encodedName}&qr_token=${encodedToken}`,
+    `${proto}://${host}/?to=${encodedSlug}`,
     302
   )
 }

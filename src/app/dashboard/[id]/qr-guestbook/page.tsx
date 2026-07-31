@@ -11,6 +11,7 @@ type Guest = {
   table_number: string | null
   category: string | null
   qr_token: string | null
+  slug: string | null
   is_checked_in: boolean
   checkin_timestamp: string | null
   souvenir_claimed: boolean
@@ -33,7 +34,7 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, copiedId, copiedKind
   guest: Guest
   slug: string
   onCopyQr: (token: string) => void
-  onCopyUndangan: (token: string, name: string) => void
+  onCopyUndangan: (guest: Guest) => void
   copiedId: string | null
   copiedKind: "qr" | "undangan" | null
 }) {
@@ -91,7 +92,7 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, copiedId, copiedKind
           )}
         </button>
         <button
-          onClick={() => hasToken && onCopyUndangan(guest.qr_token!, guest.name)}
+          onClick={() => hasToken && onCopyUndangan(guest)}
           disabled={!hasToken}
           className="flex items-center gap-2 text-[11px] font-label-md uppercase tracking-wider text-on-surface-variant hover:text-secondary disabled:opacity-30 disabled:hover:text-on-surface-variant transition-colors py-1"
         >
@@ -171,12 +172,14 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
     } catch {}
   }
 
-  const handleCopyUndangan = async (token: string, name: string) => {
+  const handleCopyUndangan = async (guest: Guest) => {
     if (!profile) return
-    const url = `https://${profile.slug}.wedding.aksaraa.com/w/${profile.slug}?to=${encodeURIComponent(name)}&qr_token=${encodeURIComponent(token)}`
+    const url = guest.slug
+      ? `https://${profile.slug}.wedding.aksaraa.com/?to=${guest.slug}`
+      : `https://${profile.slug}.wedding.aksaraa.com/w/${profile.slug}?to=${encodeURIComponent(guest.name)}&qr_token=${encodeURIComponent(guest.qr_token || "")}`
     try {
       await navigator.clipboard.writeText(url)
-      setCopiedId(guests.find(g => g.qr_token === token)?.id || null)
+      setCopiedId(guest.id)
       setCopiedKind("undangan")
       setTimeout(() => { setCopiedId(null); setCopiedKind(null) }, 2000)
     } catch {}

@@ -20,15 +20,28 @@ export default async function WeddingInvitation({
 
   if (!profile) notFound()
 
-  const guestContext = qr_token
-    ? await supabaseAdmin
+  const guestContext = await (async () => {
+    const fields = "id, name, table_number, qr_token, rsvp_status, rsvp_pax_count, rsvp_message"
+    if (to) {
+      const bySlug = await supabaseAdmin
         .from("guests")
-        .select("id, name, table_number, qr_token, rsvp_status, rsvp_pax_count, rsvp_message")
+        .select(fields)
+        .eq("wedding_profile_id", profile.id)
+        .eq("slug", to)
+        .maybeSingle()
+      if (bySlug.data) return bySlug.data
+    }
+    if (qr_token) {
+      const byToken = await supabaseAdmin
+        .from("guests")
+        .select(fields)
         .eq("wedding_profile_id", profile.id)
         .eq("qr_token", qr_token)
         .maybeSingle()
-        .then(res => res.data || null)
-    : null
+      return byToken.data || null
+    }
+    return null
+  })()
 
   const guestName = guestContext?.name || to || "Tamu Undangan"
 

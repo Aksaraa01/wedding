@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { generateUniqueToken } from "@/lib/qr"
+import { generateUniqueSlug } from "@/lib/guest-link"
 
 export async function GET(
   _req: Request,
@@ -11,7 +12,7 @@ export async function GET(
 
     const { data: guests, error } = await supabaseAdmin
       .from("guests")
-      .select("id, name, phone_number, table_number, category, qr_token, is_checked_in, checkin_timestamp, souvenir_claimed")
+      .select("id, name, phone_number, table_number, category, qr_token, slug, is_checked_in, checkin_timestamp, souvenir_claimed")
       .eq("wedding_profile_id", id)
       .order("name", { ascending: true })
 
@@ -59,7 +60,7 @@ export async function POST(
 
     const { data: guests, error: fetchError } = await supabaseAdmin
       .from("guests")
-      .select("id")
+      .select("id, name")
       .eq("wedding_profile_id", id)
       .is("qr_token", null)
 
@@ -74,7 +75,8 @@ export async function POST(
     const results = await Promise.all(
       guests.map(async (g) => {
         const token = await generateUniqueToken()
-        return supabaseAdmin.from("guests").update({ qr_token: token }).eq("id", g.id)
+        const slug = await generateUniqueSlug(id, g.name)
+        return supabaseAdmin.from("guests").update({ qr_token: token, slug }).eq("id", g.id)
       })
     )
 
