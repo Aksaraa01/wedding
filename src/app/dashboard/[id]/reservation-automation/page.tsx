@@ -85,7 +85,7 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
 
       <div className="min-h-screen bg-surface text-on-surface font-body-md overflow-x-hidden">
         {/* Top AppBar */}
-        <header className="fixed top-0 w-full z-50 border-b border-outline-variant/30 h-20 flex items-center px-edge-margin-mobile lg:px-edge-margin-desktop bg-surface/95 backdrop-blur-md">
+        <header className="fixed top-0 w-full z-50 border-b border-[#c4c7c7]/30 h-20 flex items-center px-edge-margin-mobile lg:px-edge-margin-desktop bg-surface/95 backdrop-blur-md">
           <div className="max-w-container-max mx-auto w-full">
             <button onClick={() => router.push(`/dashboard/${id}`)} className="flex items-center gap-2 text-primary group transition-all active:scale-95">
               <span className="material-symbols-outlined text-[20px]">arrow_back</span>
@@ -104,13 +104,13 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
             {/* Left Column: Statistics & Action */}
             <div className="lg:col-span-5 space-y-12">
-              <section className="border border-outline-variant/20 p-8 bg-surface-container-low lg:sticky lg:top-32">
+              <section className="border border-[#c4c7c7]/20 p-8 bg-surface-container-low lg:sticky lg:top-32">
                 <h2 className="font-label-md text-label-md uppercase mb-10 opacity-60 tracking-[0.2em]">Ringkasan Statistik</h2>
                 <div className="flex flex-col gap-8">
                   <div className="flex flex-col gap-2">
                     {/* Stage 1: Total Undangan */}
                     <div className="relative">
-                      <div className="bg-outline-variant/30 w-full flex items-center relative overflow-hidden">
+                      <div className="bg-[#c4c7c7]/30 w-full flex items-center relative overflow-hidden">
                         <div className="flex flex-col items-center justify-center py-4 w-full">
                           <span className="font-label-md text-[10px] uppercase tracking-[0.2em] opacity-60 mb-1">Total Undangan</span>
                           <span className="font-headline-md text-[32px] leading-none">{stats.total}</span>
@@ -167,10 +167,10 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
                     Kirim Pengingat via WhatsApp
                   </button>
                 </div>
-                <button
-                  onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)}
-                  className="w-full border border-primary/40 text-primary py-5 px-6 font-label-md text-label-md uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-primary hover:text-on-primary transition-colors duration-300"
-                >
+                  <button
+                    onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)}
+                    className="w-full border border-[#1a1a1a]/40 text-primary py-5 px-6 font-label-md text-label-md uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-primary hover:text-on-primary transition-colors duration-300"
+                  >
                   <span className="material-symbols-outlined text-[18px]">qr_code_2</span>
                   Kelola QR &amp; Tautan Tamu
                 </button>
@@ -180,9 +180,9 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
             {/* Right Column: Guest List */}
             <div className="lg:col-span-7">
               <section className="space-y-12">
-                <div className="flex flex-col gap-8 bg-surface-container/30 p-8 border border-outline-variant/10">
+                <div className="flex flex-col gap-8 bg-[#f2ede4]/30 p-8 border border-[#c4c7c7]/10">
                   {/* Search Bar */}
-                  <div className="relative border-b pb-4 flex items-center border-primary/20 focus-within:border-primary transition-colors">
+                  <div className="relative border-b pb-4 flex items-center border-[#1a1a1a]/20 focus-within:border-primary transition-colors">
                     <span className="material-symbols-outlined absolute left-0 text-on-surface-variant">search</span>
                     <input
                       className="w-full pl-10 bg-transparent border-none focus:ring-0 text-[14px] placeholder:italic placeholder:opacity-30 outline-none"
@@ -219,17 +219,17 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
                 </div>
 
                 {/* List Rows */}
-                <div className="divide-y divide-outline-variant/20 border-t border-outline-variant/20">
+                <div className="divide-y divide-[#c4c7c7]/20 border-t border-[#c4c7c7]/20">
                   {filtered.length === 0 && (
                     <p className="py-16 text-center font-body-md italic opacity-40">Tidak ada tamu ditemukan.</p>
                   )}
                   {filtered.map(guest => {
                     const openBadge = guest.invitation_opened_at
-                      ? { label: "Dibuka", class: "bg-primary/10 text-primary border-primary/20" }
-                      : { label: "Belum Dibuka", class: "bg-outline-variant/10 text-outline border-outline-variant/30" }
+                      ? { label: "Dibuka", class: "bg-[#1a1a1a]/10 text-primary border-[#1a1a1a]/20" }
+                      : { label: "Belum Dibuka", class: "bg-[#c4c7c7]/10 text-outline border-[#c4c7c7]/30" }
 
                     const rsvpBadge = guest.rsvp_status === "HADIR"
-                      ? { label: "Hadir", class: "bg-secondary/10 text-secondary border-secondary/20" }
+                      ? { label: "Hadir", class: "bg-[#8d4d39]/10 text-secondary border-[#8d4d39]/20" }
                       : guest.rsvp_status === "TIDAK_HADIR"
                       ? { label: "Tidak Hadir", class: "bg-[#747878]/10 text-[#747878] border-[#747878]/20" }
                       : { label: "Belum Respon", class: "bg-[#c8c6c3]/30 text-on-surface-variant border-[#c8c6c3]/50" }
@@ -255,7 +255,7 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
                               {rsvpBadge.label}
                             </span>
                             {guest.rsvp_status === "HADIR" && (
-                              <span className="px-4 py-2 border border-outline-variant/50 text-on-surface-variant font-label-md text-[10px] uppercase tracking-widest whitespace-nowrap">
+                              <span className="px-4 py-2 border border-[#c4c7c7]/50 text-on-surface-variant font-label-md text-[10px] uppercase tracking-widest whitespace-nowrap">
                                 {pax} Pax
                               </span>
                             )}
