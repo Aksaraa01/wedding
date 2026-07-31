@@ -164,7 +164,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
   }
 
   return (
-    <div className={isPreview ? "min-h-full flex flex-col items-center py-6 px-4 sm:px-6" : "min-h-screen flex flex-col justify-between items-center py-6 px-4 sm:px-6"} style={{ backgroundColor: "#FBF8F3", color: "#1A1817", fontFamily: "'Plus Jakarta Sans', sans-serif", WebkitFontSmoothing: "antialiased" }}>
+    <div className={isPreview ? "min-h-full flex flex-col" : "min-h-screen flex flex-col justify-between items-center py-6 px-4 sm:px-6"} style={{ backgroundColor: "#FBF8F3", color: "#1A1817", fontFamily: "'Plus Jakarta Sans', sans-serif", WebkitFontSmoothing: "antialiased" }}>
       {!isPreview && (
         <header className="w-full max-w-md flex items-center justify-between mb-6 md:justify-center md:gap-8">
           <button onClick={() => history.back()} className="w-10 h-10 rounded-full bg-white border border-[rgba(26,24,23,0.08)] flex items-center justify-center text-[#1A1817] hover:bg-[#FBF8F3] transition-all active:scale-95 md:fixed md:top-6 md:left-6 md:z-30 md:shadow-md">
@@ -180,7 +180,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
         </header>
       )}
 
-      <main className="w-full max-w-md flex flex-col items-center">
+      <main className={isPreview ? "w-full flex flex-col" : "w-full max-w-md flex flex-col items-center"}>
         {!isPreview && (
           <div className="text-center mb-6">
             <p className="text-[11px] uppercase tracking-[0.25em] text-[#8D4D39] font-semibold mb-1">Aksaraa Guestbook Pass</p>

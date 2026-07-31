@@ -800,7 +800,7 @@ function EditorInner({ id }: { id: string }) {
               </div>
             ) : (
               <div className="hidden md:block w-full h-full p-8 flex items-center justify-center">
-                <div className="w-full h-full max-w-[1200px] bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col">
+                <div className="w-full h-full max-w-[1200px] bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col" style={{ transform: "scale(1)" }}>
                   <div className="flex items-center gap-3 px-4 h-11 bg-surface-container-high border-b border-outline-variant shrink-0">
                     <div className="flex gap-1.5">
                       <span className="w-3 h-3 rounded-full bg-[#FF5F57]" />
