@@ -63,6 +63,8 @@ function EditorInner({ id }: { id: string }) {
   const [showMobilePreview, setShowMobilePreview] = useState(false)
   const [previewDevice, setPreviewDevice] = useState<"mobile" | "desktop">("mobile")
   const [rsvpMaxDraft, setRsvpMaxDraft] = useState<string | null>(null)
+  const [showPublishConfirm, setShowPublishConfirm] = useState(false)
+  const [showH3Reminder, setShowH3Reminder] = useState(false)
   const saveTimer = useRef<ReturnType<typeof setTimeout>>(null)
 
   const coverFileRef = useRef<HTMLInputElement>(null)
@@ -81,6 +83,12 @@ function EditorInner({ id }: { id: string }) {
           display_name: p.display_name || (p.bride_name && p.groom_name ? `${p.bride_name} & ${p.groom_name}` : ""),
           inviting_families: Array.isArray(p.inviting_families) ? p.inviting_families : [],
         })
+        const sessions = Array.isArray(p.sessions) ? p.sessions.map((s: any) => s?.date).filter(Boolean) : []
+        const weddingDate = sessions[0] || p.estimated_wedding_date || ""
+        if (weddingDate) {
+          const days = Math.ceil((new Date(`${weddingDate}T00:00:00`).getTime() - Date.now()) / 86400000)
+          if (days >= 0 && days <= 3) setShowH3Reminder(true)
+        }
       })
   }, [id])
 
@@ -242,6 +250,27 @@ function EditorInner({ id }: { id: string }) {
     setData(prev => ({ ...prev, is_published: true }))
   }
 
+  const getEmptyContent = () => {
+    let families: any[] = []
+    try {
+      const f = typeof data.inviting_families === "string" ? JSON.parse(data.inviting_families) : data.inviting_families
+      families = Array.isArray(f) ? f : []
+    } catch {}
+    const items = [
+      { label: "Nama Mempelai (Nama yang ditampilkan)", filled: !!data.display_name },
+      { label: "Foto Sampul", filled: !!data.couple_illustration_url },
+      { label: "Foto Mempelai", filled: !!(data.groom_photo_url && data.bride_photo_url) },
+      { label: "Nama Lengkap Mempelai", filled: !!(data.groom_full_name && data.bride_full_name) },
+      { label: "Nama Orang Tua Mempelai", filled: !!(data.groom_parents && data.bride_parents) },
+      { label: "Tanggal & Sesi Acara", filled: Array.isArray(data.sessions) && data.sessions.length > 0 },
+      { label: "Kisah Cinta", filled: Array.isArray(data.stories) && data.stories.length > 0 },
+      { label: "Galeri Foto", filled: Array.isArray(data.gallery_photos) && data.gallery_photos.length > 0 },
+      { label: "Turut Mengundang", filled: families.length > 0 },
+      { label: "Kutipan", filled: !!data.quote_text },
+    ]
+    return items.filter(i => !i.filled).map(i => i.label)
+  }
+
   const handleSectionToggle = (section: string) => {
     setActiveSection(prev => prev === section ? prev : section)
   }
@@ -355,7 +384,7 @@ function EditorInner({ id }: { id: string }) {
 
             {/* Konfirmasi — desktop only */}
             <button
-              onClick={handlePublish}
+              onClick={() => setShowPublishConfirm(true)}
               disabled={isPublished}
               className={`hidden md:flex px-8 py-3 font-label-md text-label-md transition-all active:scale-95 ${
                 isPublished
@@ -838,7 +867,7 @@ function EditorInner({ id }: { id: string }) {
               {showMobilePreview ? "EDIT" : "PRATINJAU"}
             </button>
             <button
-              onClick={handlePublish}
+              onClick={() => setShowPublishConfirm(true)}
               disabled={isPublished}
               className={`flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform ${
                 isPublished
@@ -862,6 +891,80 @@ function EditorInner({ id }: { id: string }) {
         .input-editorial { border: none; border-bottom: 1px solid #1A1A1A; background: transparent; padding: 8px 0; border-radius: 0; outline: none; transition: border-width 0.1s ease; width: 100%; font-family: 'Playfair Display', serif; font-size: 18px; }
         .input-editorial:focus { border-bottom-width: 2px; box-shadow: none; outline: none; }
       `}</style>
+
+      {showPublishConfirm && (
+        <div className="fixed inset-0 z-[90] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => setShowPublishConfirm(false)}>
+          <div className="bg-white w-full max-w-md rounded-2xl border border-outline-variant shadow-2xl p-8" onClick={(e) => e.stopPropagation()}>
+            <span className="material-symbols-outlined text-4xl text-secondary mb-4 block">check_circle</span>
+            <h3 className="font-headline-md text-xl font-medium text-primary mb-3">Konfirmasi Undangan?</h3>
+            {(() => {
+              const empty = getEmptyContent()
+              return (
+                <div className="mb-6">
+                  {empty.length > 0 ? (
+                    <>
+                      <p className="text-sm text-on-surface-variant mb-2">Beberapa konten berikut masih kosong atau belum diisi:</p>
+                      <ul className="mb-3 space-y-1">
+                        {empty.map((label) => (
+                          <li key={label} className="text-sm text-red-600 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[16px]">error</span> {label}
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="text-sm text-on-surface-variant">Pastikan seluruh konten terisi sebelum mengonfirmasi undangan.</p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-on-surface-variant">Seluruh konten undangan sudah terisi. Siap untuk dikonfirmasi.</p>
+                  )}
+                  <p className="text-sm text-secondary font-semibold mt-3">Setelah dikonfirmasi, konten undangan tidak dapat diubah.</p>
+                </div>
+              )
+            })()}
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={async () => { await handlePublish(); setShowPublishConfirm(false) }}
+                className="w-full py-3.5 bg-secondary text-on-secondary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity"
+              >
+                Ya, Konfirmasi Undangan
+              </button>
+              <button
+                onClick={() => setShowPublishConfirm(false)}
+                className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+              >
+                Kembali
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showH3Reminder && (
+        <div className="fixed inset-0 z-[95] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => setShowH3Reminder(false)}>
+          <div className="bg-white w-full max-w-md rounded-2xl border border-outline-variant shadow-2xl p-8" onClick={(e) => e.stopPropagation()}>
+            <span className="material-symbols-outlined text-4xl text-amber-500 mb-4 block">schedule</span>
+            <h3 className="font-headline-md text-xl font-medium text-primary mb-3">Undangan Mendekati Hari H</h3>
+            <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
+              Acara pernikahan Anda tinggal <span className="font-semibold text-primary">H-3 atau kurang</span>.
+              Pastikan seluruh konten undangan sudah <span className="font-semibold">final dan dikonfirmasi</span> agar dapat
+              dieksekusi oleh sistem Aksaraa tepat waktu.
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => { setShowH3Reminder(false); setShowPublishConfirm(true) }}
+                className="w-full py-3.5 bg-secondary text-on-secondary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity"
+              >
+                Finalisasi Sekarang
+              </button>
+              <button
+                onClick={() => setShowH3Reminder(false)}
+                className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+              >
+                Nanti Saja
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

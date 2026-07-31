@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import html2canvas from "html2canvas"
+import * as XLSX from "xlsx"
 
 const PACKAGE_LABELS: Record<string, string> = {
   essential: "Essential",
@@ -106,7 +107,7 @@ type QueueDetail = {
     created_at: string
   } | null
   wa_blast_quota?: number
-  vip_guests?: { id: string; name: string; phone_number: string; table_number: string; created_at: string }[]
+  vip_guests?: { id: string; name: string; phone_number: string; table_number: string; category?: string; created_at: string }[]
 }
 
 const WA_BLAST_LABELS: Record<string, string> = {
@@ -149,6 +150,19 @@ export default function OpsDashboardPage() {
   const [invitationData, setInvitationData] = useState<any>(null)
   const [invLoading, setInvLoading] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
+  const [showVipModal, setShowVipModal] = useState(false)
+  const [vipSearch, setVipSearch] = useState("")
+  const [showQrModal, setShowQrModal] = useState(false)
+  const [qrSearch, setQrSearch] = useState("")
+  const [qrGuests, setQrGuests] = useState<any[]>([])
+  const [qrLoading, setQrLoading] = useState(false)
+
+  const downloadExcel = (filename: string, sheet: string, header: string[], rows: (string | number)[][]) => {
+    const wb = XLSX.utils.book_new()
+    const ws = XLSX.utils.aoa_to_sheet([header, ...rows])
+    XLSX.utils.book_append_sheet(wb, ws, sheet)
+    XLSX.writeFile(wb, filename)
+  }
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -321,6 +335,53 @@ export default function OpsDashboardPage() {
 
   const currentWp = detail?.wedding_profile
   const isSelected = selectedId && detail
+
+  const profileSlug = currentWp?.slug || ""
+  const guestInvUrl = (g: { slug?: string | null; name?: string; qr_token?: string | null }) =>
+    g.slug ? `https://${profileSlug}.wedding.aksaraa.com/?to=${g.slug}` : ""
+  const guestQrUrl = (g: { slug?: string | null; qr_token?: string | null }) =>
+    g.slug || g.qr_token ? `https://${profileSlug}.wedding.aksaraa.com/qr/${g.slug || g.qr_token}` : ""
+
+  const openQrModal = async () => {
+    if (!currentWp) return
+    setShowQrModal(true)
+    setQrSearch("")
+    setQrLoading(true)
+    try {
+      const res = await fetch(`/api/dashboard/${currentWp.id}/qr-guestbook`)
+      if (res.ok) {
+        const data = await res.json()
+        setQrGuests(data.guests || [])
+      }
+    } finally {
+      setQrLoading(false)
+    }
+  }
+
+  const downloadVipExcel = () => {
+    const header = ["Nama Tamu", "No. WhatsApp (nomor saja, tanpa +62/0)", "Kategori", "Meja", "VIP (isi YA jika VIP)"]
+    const rows = (detail?.vip_guests || []).map(g => [
+      g.name,
+      (g.phone_number || "").replace(/[^0-9]/g, ""),
+      g.category || "",
+      g.table_number || "",
+      "YA",
+    ])
+    downloadExcel(`daftar-tamu-vip-${profileSlug}.xlsx`, "Tamu VIP", header, rows)
+  }
+
+  const downloadQrExcel = () => {
+    const header = ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Link QR", "Link Undangan"]
+    const rows = qrGuests.map(g => [
+      g.name,
+      g.phone_number || "",
+      g.category || "",
+      g.table_number || "",
+      guestQrUrl(g),
+      guestInvUrl(g),
+    ])
+    downloadExcel(`daftar-qr-tamu-${profileSlug}.xlsx`, "QR Tamu", header, rows)
+  }
 
   const downloadImage = async (url: string, filename: string) => {
     try {
@@ -636,6 +697,19 @@ export default function OpsDashboardPage() {
                           ) : null
                         })()}
 
+                        {fa.feature_key === "unique_link_generator" && (
+                          <div className="mb-4 flex items-center gap-3">
+                            <button
+                              onClick={openQrModal}
+                              className="px-4 py-2.5 border border-primary text-primary font-label-md text-[10px] uppercase tracking-widest hover:bg-primary hover:text-on-primary transition-colors flex items-center gap-2"
+                            >
+                              <span className="material-symbols-outlined text-sm">qr_code_2</span>
+                              Lihat Daftar Tamu &amp; Link
+                            </button>
+                            <span className="text-[10px] text-on-surface-variant">{detail.guest_stats.with_token}/{detail.guest_stats.total} QR Aktif</span>
+                          </div>
+                        )}
+
                         {fa.feature_key === "wa_blast" && waBlastSchedule?.message_text && (
                           <div className="mb-4 bg-surface rounded-lg p-4 border border-outline-variant/40 shadow-inner">
                             <div className="flex items-center gap-2 mb-2 pb-2 border-b border-outline-variant/20">
@@ -654,36 +728,33 @@ export default function OpsDashboardPage() {
 
                         {fa.feature_key === "wa_blast" && (detail.wa_blast_quota || 0) > 0 && (
                           <div className="mb-4 bg-surface rounded-lg p-4 border border-outline-variant/40">
-                            <div className="flex items-center justify-between mb-2 pb-2 border-b border-outline-variant/20">
-                              <span className="font-label-md text-[9px] uppercase tracking-widest text-secondary font-semibold">Kuota Pengiriman</span>
-                              <span className="font-label-md text-[10px] font-bold text-primary">{detail.wa_blast_quota}</span>
-                            </div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant font-semibold">Tamu VIP Termasuk Kuota</span>
-                              <span className="ml-auto text-[10px] font-bold text-primary">
-                                {Math.min((detail.vip_guests || []).length, detail.wa_blast_quota || 0)} / {detail.wa_blast_quota}
-                              </span>
-                            </div>
-                            {(detail.vip_guests || []).length > 0 ? (
-                              <div className="max-h-40 overflow-y-auto custom-scrollbar divide-y divide-outline-variant/10">
-                                {(detail.vip_guests || []).slice(0, detail.wa_blast_quota).map((g) => (
-                                  <div key={g.id} className="py-1.5 flex items-center justify-between gap-2">
-                                    <span className="text-xs font-medium text-on-surface truncate flex items-center gap-1.5">
-                                      {g.name}
-                                      <span className="material-symbols-outlined text-[#b8860b] text-[13px]">star</span>
-                                    </span>
-                                    {g.table_number && <span className="text-[10px] text-on-surface-variant shrink-0">{g.table_number}</span>}
-                                  </div>
-                                ))}
+                            <div className="flex items-center justify-between gap-3">
+                              <div>
+                                <p className="font-label-md text-[9px] uppercase tracking-widest text-secondary font-semibold">Kuota Pengiriman</p>
+                                <p className="text-lg font-bold text-primary mt-0.5">{detail.wa_blast_quota}</p>
+                                <p className="text-[10px] text-on-surface-variant mt-0.5">
+                                  {Math.min((detail.vip_guests || []).length, detail.wa_blast_quota || 0)} dari {(detail.vip_guests || []).length} tamu VIP termasuk kuota
+                                  {(detail.vip_guests || []).length > (detail.wa_blast_quota || 0) && (
+                                    <span className="text-red-600"> &bull; {(detail.vip_guests || []).length - (detail.wa_blast_quota || 0)} dikecualikan</span>
+                                  )}
+                                </p>
                               </div>
-                            ) : (
-                              <p className="text-[11px] text-on-surface-variant italic">Belum ada tamu VIP yang ditandai.</p>
-                            )}
-                            {(detail.vip_guests || []).length > (detail.wa_blast_quota || 0) && (
-                              <p className="mt-2 text-[10px] text-red-600 font-medium">
-                                {(detail.vip_guests || []).length - (detail.wa_blast_quota || 0)} tamu VIP lainnya dikecualikan dari kuota.
-                              </p>
-                            )}
+                              <div className="flex flex-col gap-2 shrink-0">
+                                <button
+                                  onClick={() => setShowVipModal(true)}
+                                  className="px-4 py-2 border border-primary text-primary font-label-md text-[10px] uppercase tracking-widest hover:bg-primary hover:text-on-primary transition-colors"
+                                >
+                                  Lihat Daftar Tamu VIP
+                                </button>
+                                <button
+                                  onClick={downloadVipExcel}
+                                  disabled={(detail.vip_guests || []).length === 0}
+                                  className="px-4 py-2 border border-outline text-on-surface font-label-md text-[10px] uppercase tracking-widest hover:bg-surface-container transition-colors disabled:opacity-40"
+                                >
+                                  Download Excel
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         )}
 
@@ -1109,6 +1180,121 @@ export default function OpsDashboardPage() {
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showVipModal && (
+        <div className="fixed inset-0 z-[90] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => setShowVipModal(false)}>
+          <div className="bg-surface-container-lowest w-full max-w-2xl rounded-2xl border border-outline-variant/50 shadow-2xl flex flex-col overflow-hidden max-h-[80vh]" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant/30">
+              <div>
+                <h3 className="font-display-lg text-lg font-medium text-primary">Daftar Tamu VIP</h3>
+                <p className="text-[11px] text-on-surface-variant">{(detail?.vip_guests || []).length} tamu VIP &bull; Kuota {detail?.wa_blast_quota || 0}</p>
+              </div>
+              <button onClick={() => setShowVipModal(false)} className="text-on-surface-variant hover:text-on-surface p-1" aria-label="Tutup">
+                <span className="material-symbols-outlined text-2xl">close</span>
+              </button>
+            </div>
+            <div className="px-6 py-4 border-b border-outline-variant/20 flex gap-3">
+              <input
+                type="text"
+                value={vipSearch}
+                onChange={(e) => setVipSearch(e.target.value)}
+                placeholder="Cari nama / no. HP / meja..."
+                className="flex-1 bg-surface rounded-lg border border-outline-variant/50 px-4 py-2.5 text-sm focus:ring-1 focus:ring-secondary focus:border-secondary outline-none"
+              />
+              <button onClick={downloadVipExcel} className="px-4 py-2 border border-primary text-primary font-label-md text-[10px] uppercase tracking-widest hover:bg-primary hover:text-on-primary transition-colors shrink-0">
+                Download Excel
+              </button>
+            </div>
+            <div className="overflow-y-auto divide-y divide-outline-variant/15">
+              {(detail?.vip_guests || [])
+                .filter((g) => !vipSearch || g.name.toLowerCase().includes(vipSearch.toLowerCase()) || (g.phone_number || "").includes(vipSearch) || (g.table_number || "").toLowerCase().includes(vipSearch.toLowerCase()))
+                .map((g, i) => {
+                  const isExcluded = (detail?.wa_blast_quota || 0) > 0 && i >= (detail?.wa_blast_quota || 0)
+                  return (
+                    <div key={g.id} className={`px-6 py-3 flex items-center gap-3 ${isExcluded ? "bg-red-50/60" : ""}`}>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-on-surface truncate flex items-center gap-1.5">
+                          {g.name}
+                          <span className="material-symbols-outlined text-[#b8860b] text-[14px]">star</span>
+                        </p>
+                        <p className="text-[11px] text-on-surface-variant/70">
+                          {g.phone_number || "—"}
+                          {g.category ? ` • ${g.category}` : ""}
+                          {g.table_number ? ` • ${g.table_number}` : ""}
+                        </p>
+                      </div>
+                      {isExcluded ? (
+                        <span className="shrink-0 text-[10px] font-label-md uppercase tracking-wider text-red-600 bg-red-100 border border-red-200 px-2 py-0.5 rounded-full">Dikecualikan</span>
+                      ) : (
+                        <span className="shrink-0 text-[10px] font-label-md uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">Termasuk</span>
+                      )}
+                    </div>
+                  )
+                })}
+              {(detail?.vip_guests || []).length === 0 && (
+                <p className="py-12 text-center text-sm text-on-surface-variant italic">Belum ada tamu VIP.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showQrModal && (
+        <div className="fixed inset-0 z-[90] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => setShowQrModal(false)}>
+          <div className="bg-surface-container-lowest w-full max-w-3xl rounded-2xl border border-outline-variant/50 shadow-2xl flex flex-col overflow-hidden max-h-[80vh]" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant/30">
+              <div>
+                <h3 className="font-display-lg text-lg font-medium text-primary">Daftar Tamu &amp; Link QR</h3>
+                <p className="text-[11px] text-on-surface-variant">{qrGuests.length} tamu</p>
+              </div>
+              <button onClick={() => setShowQrModal(false)} className="text-on-surface-variant hover:text-on-surface p-1" aria-label="Tutup">
+                <span className="material-symbols-outlined text-2xl">close</span>
+              </button>
+            </div>
+            <div className="px-6 py-4 border-b border-outline-variant/20 flex gap-3">
+              <input
+                type="text"
+                value={qrSearch}
+                onChange={(e) => setQrSearch(e.target.value)}
+                placeholder="Cari nama / meja..."
+                className="flex-1 bg-surface rounded-lg border border-outline-variant/50 px-4 py-2.5 text-sm focus:ring-1 focus:ring-secondary focus:border-secondary outline-none"
+              />
+              <button onClick={downloadQrExcel} className="px-4 py-2 border border-primary text-primary font-label-md text-[10px] uppercase tracking-widest hover:bg-primary hover:text-on-primary transition-colors shrink-0">
+                Download Excel
+              </button>
+            </div>
+            <div className="overflow-y-auto divide-y divide-outline-variant/15">
+              {qrLoading ? (
+                <p className="py-12 text-center text-sm text-on-surface-variant italic">Memuat...</p>
+              ) : (
+                qrGuests
+                  .filter((g) => !qrSearch || g.name?.toLowerCase().includes(qrSearch.toLowerCase()) || (g.table_number || "").toLowerCase().includes(qrSearch.toLowerCase()))
+                  .map((g) => (
+                    <div key={g.id} className="px-6 py-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-on-surface truncate">{g.name}</p>
+                          <p className="text-[11px] text-on-surface-variant/70">
+                            {g.phone_number || "—"}
+                            {g.category ? ` • ${g.category}` : ""}
+                            {g.table_number ? ` • ${g.table_number}` : ""}
+                          </p>
+                        </div>
+                        <span className={`shrink-0 text-[10px] font-label-md uppercase tracking-wider px-2 py-0.5 rounded-full ${g.qr_token ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-outline-variant/30 text-on-surface-variant border border-outline-variant"}`}>
+                          {g.qr_token ? "QR Aktif" : "Belum QR"}
+                        </span>
+                      </div>
+                      <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-1 text-[11px]">
+                        <a href={guestQrUrl(g)} target="_blank" rel="noopener noreferrer" className="truncate text-secondary underline break-all">{guestQrUrl(g) || "—"}</a>
+                        <a href={guestInvUrl(g)} target="_blank" rel="noopener noreferrer" className="truncate text-primary underline break-all">{guestInvUrl(g) || "—"}</a>
+                      </div>
+                    </div>
+                  ))
+              )}
             </div>
           </div>
         </div>

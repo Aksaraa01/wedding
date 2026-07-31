@@ -54,6 +54,9 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
   const [vipGuests, setVipGuests] = useState<{ id: string; name: string; phone_number: string; table_number: string; created_at: string }[]>([])
   const [showVipModal, setShowVipModal] = useState(false)
   const [vipSearch, setVipSearch] = useState("")
+  const [weddingDate, setWeddingDate] = useState("")
+  const [locked, setLocked] = useState(false)
+  const [showSaveConfirm, setShowSaveConfirm] = useState(false)
 
   useEffect(() => {
     fetch(`/api/dashboard/${id}/wa-blast`)
@@ -62,8 +65,10 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
         setTotalGuests(data.total_guests || 0)
         setWaBlastTier(data.wa_blast_tier || 0)
         setPackageType(data.package_type || "signature")
+        setWeddingDate(data.wedding_date || "")
         setVipGuests(data.vip_guests || [])
         if (data.schedule) {
+          setLocked(true)
           setSelectedTemplate(data.schedule.template_type || "formal")
           setMessageText(data.schedule.message_text || MESSAGE_TEMPLATES.formal.text)
           setScheduledDate(data.schedule.scheduled_date || formatDate(new Date()))
@@ -98,7 +103,7 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
       }),
     })
       .then(r => r.json())
-      .then(() => setSaved(true))
+      .then(() => { setSaved(true); setLocked(true); setShowSaveConfirm(false) })
       .catch(console.error)
       .finally(() => setSaving(false))
   }
@@ -107,7 +112,16 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
 
   const packageBase = packageType === "prestige" ? 100 : 0
   const totalQuota = packageBase + waBlastTier
-  const quotaLabel = totalQuota > 0 ? `Kuota: ${Math.min(totalGuests, totalQuota)}/${totalQuota}` : `${totalGuests} Tamu`
+  const quotaLabel = totalQuota > 0 ? `Kuota: ${Math.min(vipGuests.length, totalQuota)}/${totalQuota}` : `${vipGuests.length} Tamu VIP`
+
+  function addDays(dateStr: string, days: number): string {
+    const d = new Date(dateStr)
+    d.setDate(d.getDate() + days)
+    return d.toISOString().split("T")[0]
+  }
+  const weddingDateFormatted = weddingDate
+    ? new Date(weddingDate + "T00:00:00").toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
+    : ""
 
   const filteredVip = vipGuests.filter(
     (g) =>
@@ -132,9 +146,14 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
         </header>
         <main className="w-full max-w-2xl mx-auto px-6 pt-28 flex flex-col gap-8">
           <div className="flex flex-col gap-5">
-            <div className="flex flex-col gap-2">
-              <h1 className="font-headline-lg text-3xl md:text-4xl text-primary leading-tight tracking-tight">Reminder Tamu VIP</h1>
-            </div>
+          <div className="flex flex-col gap-2">
+            <h1 className="font-headline-lg text-3xl md:text-4xl text-primary leading-tight tracking-tight">Reminder Tamu VIP</h1>
+            {weddingDateFormatted && (
+              <p className="text-sm text-on-surface-variant">
+                Tanggal Pernikahan: <span className="font-semibold text-secondary">{weddingDateFormatted}</span>
+              </p>
+            )}
+          </div>
             <div className="h-px bg-outline-variant/40 mt-2" />
           </div>
 
@@ -146,36 +165,37 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
               </div>
             </div>
             <div className="flex flex-col gap-5">
-              <div className="relative flex flex-col gap-2">
-                <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wider font-semibold">Pilih Tipe Pesan</label>
-                <div className="relative">
-                  <select
-                    value={selectedTemplate}
-                    onChange={e => handleTemplateChange(e.target.value)}
-                    className="w-full border border-outline-variant/60 rounded-lg bg-surface-container-lowest px-4 py-3.5 font-body-md text-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary transition-all appearance-none cursor-pointer pr-10 shadow-sm"
-                  >
-                    {Object.entries(MESSAGE_TEMPLATES).map(([key, t]) => (
-                      <option key={key} value={key}>{t.label}</option>
-                    ))}
-                  </select>
-                  <span className="material-symbols-outlined absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/70 pointer-events-none">expand_more</span>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wider font-semibold">Pratinjau Pesan</label>
-                {editing ? (
-                  <textarea
-                    value={editText}
-                    onChange={e => setEditText(e.target.value)}
-                    className="bg-surface rounded-lg p-5 font-body-md text-sm text-on-surface/90 leading-relaxed border border-outline-variant/40 min-h-[220px] resize-y focus:ring-1 focus:ring-secondary focus:border-secondary"
-                  />
-                ) : (
-                  <div className="bg-surface rounded-lg p-5 font-body-md text-sm text-on-surface/90 leading-relaxed whitespace-pre-wrap border border-outline-variant/40 shadow-inner min-h-[160px]">
-                    {displayText}
+                <div className="relative flex flex-col gap-2">
+                  <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wider font-semibold">Pilih Tipe Pesan</label>
+                  <div className="relative">
+                    <select
+                      value={selectedTemplate}
+                      onChange={e => handleTemplateChange(e.target.value)}
+                      disabled={locked}
+                      className="w-full border border-outline-variant/60 rounded-lg bg-surface-container-lowest px-4 py-3.5 font-body-md text-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary transition-all appearance-none cursor-pointer pr-10 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {Object.entries(MESSAGE_TEMPLATES).map(([key, t]) => (
+                        <option key={key} value={key}>{t.label}</option>
+                      ))}
+                    </select>
+                    <span className="material-symbols-outlined absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/70 pointer-events-none">expand_more</span>
                   </div>
-                )}
-              </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-wider font-semibold">Pratinjau Pesan</label>
+                  {editing && !locked ? (
+                    <textarea
+                      value={editText}
+                      onChange={e => setEditText(e.target.value)}
+                      className="bg-surface rounded-lg p-5 font-body-md text-sm text-on-surface/90 leading-relaxed border border-outline-variant/40 min-h-[220px] resize-y focus:ring-1 focus:ring-secondary focus:border-secondary"
+                    />
+                  ) : (
+                    <div className="bg-surface rounded-lg p-5 font-body-md text-sm text-on-surface/90 leading-relaxed whitespace-pre-wrap border border-outline-variant/40 shadow-inner min-h-[160px]">
+                      {displayText}
+                    </div>
+                  )}
+                </div>
 
             </div>
           </section>
@@ -202,8 +222,28 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
                   type="date"
                   value={scheduledDate}
                   onChange={e => setScheduledDate(e.target.value)}
-                  className="w-full bg-surface-container-lowest border border-outline-variant/60 rounded-lg px-4 py-3 font-body-md text-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm transition-colors"
+                  disabled={locked}
+                  max={weddingDate || undefined}
+                  className="w-full bg-surface-container-lowest border border-outline-variant/60 rounded-lg px-4 py-3 font-body-md text-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 />
+                {!locked && weddingDate && (
+                  <div className="flex gap-2 mt-1">
+                    <button
+                      type="button"
+                      onClick={() => setScheduledDate(addDays(weddingDate, -1))}
+                      className="text-[10px] font-label-md uppercase tracking-wider px-2.5 py-1 border border-outline-variant/50 rounded text-on-surface-variant hover:border-secondary hover:text-secondary transition-colors"
+                    >
+                      Rekomendasi H-1
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setScheduledDate(addDays(weddingDate, -3))}
+                      className="text-[10px] font-label-md uppercase tracking-wider px-2.5 py-1 border border-outline-variant/50 rounded text-on-surface-variant hover:border-secondary hover:text-secondary transition-colors"
+                    >
+                      Rekomendasi H-3
+                    </button>
+                  </div>
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-[11px] font-label-md uppercase tracking-wider text-on-surface-variant font-semibold">Waktu Eksekusi (WIB)</label>
@@ -211,7 +251,8 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
                   type="time"
                   value={scheduledTime}
                   onChange={e => setScheduledTime(e.target.value)}
-                  className="w-full bg-surface-container-lowest border border-outline-variant/60 rounded-lg px-4 py-3 font-body-md text-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm transition-colors"
+                  disabled={locked}
+                  className="w-full bg-surface-container-lowest border border-outline-variant/60 rounded-lg px-4 py-3 font-body-md text-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -268,14 +309,43 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
         <div className="fixed bottom-0 inset-x-0 bg-background/90 backdrop-blur-md border-t border-outline-variant/60 py-4 px-6 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
           <div className="max-w-2xl mx-auto flex items-center justify-end">
             <button
-              onClick={handleSave}
-              disabled={saving}
-              className="w-full sm:w-44 bg-primary text-on-primary py-4 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] transition-all duration-200 active:scale-[0.98] hover:bg-primary/95 shadow-md font-semibold disabled:opacity-50"
+              onClick={() => setShowSaveConfirm(true)}
+              disabled={saving || locked}
+              className="w-full sm:w-44 bg-primary text-on-primary py-4 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] transition-all duration-200 active:scale-[0.98] hover:bg-primary/95 shadow-md font-semibold disabled:opacity-60"
             >
-              {saving ? "Menyimpan..." : saved ? "Tersimpan" : "Simpan Jadwal"}
+              {locked ? "Tersimpan" : saving ? "Menyimpan..." : "Simpan"}
             </button>
           </div>
         </div>
+
+        {showSaveConfirm && (
+          <div className="fixed inset-0 z-[80] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => setShowSaveConfirm(false)}>
+            <div className="bg-surface-container-lowest w-full max-w-sm rounded-2xl border border-outline-variant/50 shadow-2xl p-8 text-center" onClick={(e) => e.stopPropagation()}>
+              <span className="material-symbols-outlined text-4xl text-secondary mb-4 block">calendar_month</span>
+              <h3 className="font-headline-md text-xl font-medium text-primary mb-3">Simpan Jadwal Pengiriman?</h3>
+              <p className="text-sm text-on-surface-variant leading-relaxed mb-8">
+                Apakah Anda yakin ingin menyimpan jadwal pengiriman reminder ini?<br />
+                <span className="font-semibold text-secondary">Setelah disimpan, jadwal tidak dapat diubah.</span>
+              </p>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="w-full py-3.5 bg-primary text-on-primary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+                >
+                  {saving ? "Menyimpan..." : "Ya, Simpan"}
+                </button>
+                <button
+                  onClick={() => setShowSaveConfirm(false)}
+                  disabled={saving}
+                  className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors disabled:opacity-50"
+                >
+                  Batal
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {showVipModal && (
           <div className="fixed inset-0 z-[70] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => setShowVipModal(false)}>

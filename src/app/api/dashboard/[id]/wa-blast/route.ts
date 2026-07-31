@@ -15,9 +15,12 @@ export async function GET(
 
     const { data: profile } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("wa_blast_tier, package_type")
+      .select("wa_blast_tier, package_type, estimated_wedding_date, sessions")
       .eq("id", id)
       .single()
+
+    const sessionDates = (profile?.sessions || []).map((s: any) => s?.date).filter(Boolean) as string[]
+    const weddingDate = sessionDates[0] || profile?.estimated_wedding_date || ""
 
     const { data: schedule } = await supabaseAdmin
       .from("wa_blast_schedules")
@@ -38,6 +41,7 @@ export async function GET(
       total_guests: totalGuests || 0,
       wa_blast_tier: profile?.wa_blast_tier || 0,
       package_type: profile?.package_type || "signature",
+      wedding_date: weddingDate,
       schedule: schedule || null,
       vip_guests: vipGuests || [],
       vip_count: vipGuests?.length || 0,

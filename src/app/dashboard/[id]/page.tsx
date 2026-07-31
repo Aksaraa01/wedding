@@ -66,7 +66,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 function getModuleStatus(key: string, vals: {
   templateName: string; trackName: string; qrWithToken: number; qrCheckedIn: number;
-  totalWishes: number; photoCount: number; accountCount: number;
+  totalWishes: number; photoCount: number; accountCount: number; addressCount: number;
   rsvpStats: { hadir: number; belum_dibuka: number } | null;
   paymentStatus: string;
 }): { label: string; active: boolean } {
@@ -94,9 +94,7 @@ function getModuleStatus(key: string, vals: {
         ? { label: `${vals.photoCount} Momen Terunggah`, active: true }
         : { label: "Belum Aktif", active: false }
     case "kolom_direct_transfer":
-      return vals.accountCount > 0
-        ? { label: `${vals.accountCount} Rekening`, active: true }
-        : { label: "Belum Aktif", active: false }
+      return { label: `${vals.accountCount} Rek, ${vals.addressCount} Alm`, active: true }
     case "reservation_automation":
       return vals.rsvpStats
         ? { label: `${vals.rsvpStats.hadir} Hadir, ${vals.rsvpStats.belum_dibuka} Belum Dibuka`, active: true }
@@ -247,6 +245,7 @@ function DashboardInner({ id }: { id: string }) {
     totalWishes,
     photoCount,
     accountCount,
+    addressCount,
     rsvpStats,
     paymentStatus: profile.payment_status,
   }

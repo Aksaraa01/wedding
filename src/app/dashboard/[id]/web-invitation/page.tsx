@@ -13,6 +13,8 @@ type Profile = {
   grayscale: boolean
   is_published: boolean
   invitation_url: string
+  estimated_wedding_date?: string | null
+  sessions?: { date: string }[] | null
 }
 
 type Template = {
@@ -28,6 +30,7 @@ function WebInvitationInner({ id }: { id: string }) {
   const router = useRouter()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [template, setTemplate] = useState<Template | null>(null)
+  const [showH3Reminder, setShowH3Reminder] = useState(false)
 
   useEffect(() => {
     fetch(`/api/dashboard/${id}/web-invitation`)
@@ -35,6 +38,13 @@ function WebInvitationInner({ id }: { id: string }) {
       .then(data => {
         setProfile(data.profile)
         setTemplate(data.template)
+        const p = data.profile
+        const sessions = Array.isArray(p.sessions) ? p.sessions.map((s: any) => s?.date).filter(Boolean) : []
+        const weddingDate = sessions[0] || p.estimated_wedding_date || ""
+        if (weddingDate) {
+          const days = Math.ceil((new Date(`${weddingDate}T00:00:00`).getTime() - Date.now()) / 86400000)
+          if (days >= 0 && days <= 3) setShowH3Reminder(true)
+        }
       })
   }, [id])
 
@@ -139,6 +149,33 @@ function WebInvitationInner({ id }: { id: string }) {
           )}
         </main>
 
+        {showH3Reminder && (
+          <div className="fixed inset-0 z-[90] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => setShowH3Reminder(false)}>
+            <div className="bg-white w-full max-w-md rounded-2xl border border-outline-variant shadow-2xl p-8" onClick={(e) => e.stopPropagation()}>
+              <span className="material-symbols-outlined text-4xl text-amber-500 mb-4 block">schedule</span>
+              <h3 className="font-headline-md text-xl font-medium text-primary mb-3">Undangan Mendekati Hari H</h3>
+              <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
+                Acara pernikahan Anda tinggal <span className="font-semibold text-primary">H-3 atau kurang</span>.
+                Pastikan seluruh konten undangan sudah <span className="font-semibold">final dan dikonfirmasi</span> agar dapat
+                dieksekusi oleh sistem Aksaraa tepat waktu.
+              </p>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)}
+                  className="w-full py-3.5 bg-secondary text-on-secondary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity"
+                >
+                  OK, Ke Editor
+                </button>
+                <button
+                  onClick={() => setShowH3Reminder(false)}
+                  className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+                >
+                  Nanti Saja
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   )
