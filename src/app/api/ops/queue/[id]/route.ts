@@ -27,7 +27,8 @@ export async function GET(
           estimated_guest_count,
           package_type,
           total_project_cost,
-          payment_status
+          payment_status,
+          express_service
         ),
         employees!left (
           id,
@@ -137,6 +138,7 @@ export async function GET(
         package_type: wp.package_type,
         total_project_cost: wp.total_project_cost,
         payment_status: wp.payment_status,
+        express_service: wp.express_service,
       },
       feature_actions: featureActions || [],
       employees: allEmployees || [],

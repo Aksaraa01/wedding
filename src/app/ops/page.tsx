@@ -48,6 +48,7 @@ type QueueItem = {
     package_type: string
     total_project_cost: number
     payment_status: string
+    express_service?: boolean | null
   }
 }
 
@@ -408,7 +409,12 @@ export default function OpsDashboardPage() {
                     }`}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-display-lg text-xl">{name}</h3>
+                      <h3 className="font-display-lg text-xl flex items-center gap-2">
+                        {name}
+                        {wp.express_service && (
+                          <span className="material-symbols-outlined text-amber-600 text-lg" title="Layanan Kilat 24 Jam">bolt</span>
+                        )}
+                      </h3>
                       <span className={`font-mono text-sm font-bold ${isActive ? "text-secondary" : "text-on-surface-variant"}`}>
                         <SlaTimer startedAt={item.sla_started_at} />
                       </span>
@@ -464,6 +470,14 @@ export default function OpsDashboardPage() {
                         <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">Estimasi Biaya:</span>
                         <span className="font-bold text-primary">{formatCurrency(currentWp.total_project_cost)}</span>
                       </div>
+                      {currentWp.express_service && (
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-300 text-amber-800 font-label-md text-[10px] uppercase tracking-widest rounded-full">
+                            <span className="material-symbols-outlined text-[14px]">bolt</span>
+                            Layanan Kilat 24 Jam
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-4 items-center">
