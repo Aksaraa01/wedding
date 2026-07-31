@@ -868,9 +868,9 @@ export default function HeritageJawa({
 
       {/* QR MODAL — full digital pass embedded */}
       {qrModalOpen && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[60] flex items-center justify-center" style={{ animation: "hj-qr-zoom 0.2s ease" }}>
-          <div className="relative w-full max-w-md h-[92dvh] rounded-3xl overflow-hidden shadow-2xl bg-white flex flex-col">
-            <div className="flex items-center justify-between px-5 py-3 border-b z-10" style={{ backgroundColor: "#FBF8F3", borderColor: "rgba(26,24,23,0.08)" }}>
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[60] flex items-center justify-center p-4 sm:p-6" style={{ animation: "hj-qr-zoom 0.2s ease" }}>
+          <div className="relative w-full max-w-md h-auto max-h-[92dvh] rounded-3xl overflow-hidden shadow-2xl bg-white flex flex-col">
+            <div className="flex items-center justify-between px-5 py-3 border-b z-10 shrink-0" style={{ backgroundColor: "#FBF8F3", borderColor: "rgba(26,24,23,0.08)" }}>
               <span className="text-[11px] uppercase tracking-[0.2em] font-semibold" style={{ color: "#8D4D39" }}>Kartu QR Masuk</span>
               <button onClick={() => setQrModalOpen(false)} className="text-[#5C5854] hover:text-[#1A1817] p-1" aria-label="Tutup">
                 <span className="material-symbols-outlined text-2xl">close</span>
@@ -879,7 +879,7 @@ export default function HeritageJawa({
             <iframe
               src={guest_qr_url}
               title="Kartu QR Masuk"
-              className="flex-1 w-full border-0"
+              className="w-full h-[680px] max-h-[calc(92dvh-56px)] border-0 flex-none"
             />
           </div>
         </div>
