@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import { ASSETS } from "@/lib/assets"
@@ -50,6 +50,11 @@ const galleryCards = [
 export default function GaleriKenanganTamuPage() {
   const router = useRouter()
   const mainRef = useRef<HTMLDivElement>(null)
+  const [guestName, setGuestName] = useState("")
+  const [guestMessage, setGuestMessage] = useState("")
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [livePhotos, setLivePhotos] = useState<{ id: number; img: string; uploader: string; time: string; message: string }[]>([])
+  const liveIdRef = useRef(0)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -195,21 +200,36 @@ export default function GaleriKenanganTamuPage() {
                 <div className="space-y-6">
                   <div className="relative group">
                     <label className="absolute -top-3 left-0 bg-surface px-2 font-label-sm text-label-sm text-primary uppercase tracking-widest">Nama Lengkap</label>
-                    <input className="w-full border-0 border-b border-outline bg-transparent py-4 focus:ring-0 focus:border-primary placeholder:text-outline-variant transition-colors" placeholder="Masukkan nama Anda..." type="text" />
+                    <input className="w-full border-0 border-b border-outline bg-transparent py-4 focus:ring-0 focus:border-primary placeholder:text-outline-variant transition-colors" placeholder="Masukkan nama Anda..." type="text" value={guestName} onChange={(e) => setGuestName(e.target.value)} />
                   </div>
                   <div className="relative group">
                     <label className="absolute -top-3 left-0 bg-surface px-2 font-label-sm text-label-sm text-primary uppercase tracking-widest">Pesan untuk Pengantin</label>
-                    <input className="w-full border-0 border-b border-outline bg-transparent py-4 focus:ring-0 focus:border-primary placeholder:text-outline-variant transition-colors" placeholder="Tuliskan ucapan Anda..." type="text" />
+                    <input className="w-full border-0 border-b border-outline bg-transparent py-4 focus:ring-0 focus:border-primary placeholder:text-outline-variant transition-colors" placeholder="Tuliskan ucapan Anda..." type="text" value={guestMessage} onChange={(e) => setGuestMessage(e.target.value)} />
                   </div>
                   <div className="border-2 border-dashed border-outline-variant p-12 text-center group hover:border-primary transition-colors cursor-pointer relative overflow-hidden">
-                    <input className="absolute inset-0 opacity-0 cursor-pointer" type="file" />
+                    <input className="absolute inset-0 opacity-0 cursor-pointer" type="file" accept="image/*" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} />
                     <div className="space-y-4">
                       <span className="material-symbols-outlined text-5xl text-outline-variant group-hover:text-primary transition-colors">add_photo_alternate</span>
-                      <p className="font-label-sm text-label-sm uppercase tracking-widest">Pilih Foto dari Galeri Anda</p>
+                      <p className="font-label-sm text-label-sm uppercase tracking-widest">
+                        {selectedFile ? `Terpilih: ${selectedFile.name}` : "Pilih Foto dari Galeri Anda"}
+                      </p>
                     </div>
                   </div>
                 </div>
-                <button className="w-full bg-primary text-on-primary py-6 font-label-sm text-label-sm uppercase tracking-[0.4em] hover:bg-on-surface-variant transition-all flex items-center justify-center gap-4">
+                <button
+                  onClick={() => {
+                    if (!selectedFile) return
+                    const img = URL.createObjectURL(selectedFile)
+                    setLivePhotos((prev) => [
+                      { id: liveIdRef.current++, img, uploader: guestName.trim() || "Kamu", time: "Baru saja", message: guestMessage.trim() },
+                      ...prev,
+                    ])
+                    setSelectedFile(null)
+                  }}
+                  className={`w-full py-6 font-label-sm text-label-sm uppercase tracking-[0.4em] transition-all flex items-center justify-center gap-4 ${
+                    selectedFile ? "bg-primary text-on-primary hover:bg-on-surface-variant" : "bg-surface-container text-on-surface-variant cursor-not-allowed"
+                  }`}
+                >
                   Unggah Foto ke Galeri Live <span className="material-symbols-outlined">send</span>
                 </button>
               </div>
@@ -232,6 +252,39 @@ export default function GaleriKenanganTamuPage() {
               </div>
             </div>
             <div className="masonry-grid">
+              {livePhotos.map((photo, i) => (
+                <div
+                  key={photo.id}
+                  className={`masonry-item ${i % 2 === 0 ? "tall" : "short"} bg-surface border border-primary group flex flex-col overflow-hidden reveal-item`}
+                >
+                  <div className="flex-grow relative overflow-hidden">
+                    <img
+                      className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700"
+                      alt="Uploaded live photo"
+                      src={photo.img}
+                    />
+                    <div className="absolute top-4 left-4 bg-primary text-on-primary px-2 py-0.5 font-label-sm text-[9px] uppercase tracking-widest flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                      Live
+                    </div>
+                  </div>
+                  <div className="p-6 space-y-3 bg-surface">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-label-sm text-[10px] text-primary uppercase font-bold tracking-widest">Unggahan: {photo.uploader}</p>
+                        <p className="text-[10px] text-secondary uppercase tracking-tighter">{photo.time}</p>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm">favorite</span>
+                        <span className="text-xs font-bold">0</span>
+                      </div>
+                    </div>
+                    {photo.message && (
+                      <p className="font-body-md text-sm italic text-secondary leading-relaxed">&ldquo;{photo.message}&rdquo;</p>
+                    )}
+                  </div>
+                </div>
+              ))}
               {galleryCards.map((card, i) => (
                 <div
                   key={i}
