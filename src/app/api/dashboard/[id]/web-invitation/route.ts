@@ -10,7 +10,7 @@ export async function GET(
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("id, bride_name, groom_name, slug, selected_template_id, selected_track_id, couple_illustration_url, grayscale, is_published, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, estimated_wedding_date, sessions, display_name, quote_text, quote_source, stories, gallery_photos, inviting_families")
+      .select("id, bride_name, groom_name, slug, selected_template_id, selected_track_id, couple_illustration_url, grayscale, is_published, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, estimated_wedding_date, sessions, display_name, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax")
       .eq("id", id)
       .single()
 
@@ -63,6 +63,7 @@ export async function GET(
         gallery_photos: profile.gallery_photos,
         invitation_url: `https://${profile.slug}.wedding.aksaraa.com`,
         inviting_families: profile.inviting_families ? (typeof profile.inviting_families === "string" ? JSON.parse(profile.inviting_families) : profile.inviting_families) : [],
+        rsvp_max_pax: profile.rsvp_max_pax,
       },
       template,
       track,
@@ -86,7 +87,7 @@ export async function PUT(
       "groom_photo_url", "bride_photo_url",
       "groom_parents", "bride_parents", "groom_instagram",
       "display_name", "sessions", "quote_text", "quote_source", "stories",
-      "gallery_photos", "inviting_families",
+      "gallery_photos", "inviting_families", "rsvp_max_pax",
     ]
 
     const updates: Record<string, any> = {}

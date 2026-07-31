@@ -44,6 +44,35 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
   const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get("preview") === "1") {
+      ;(async () => {
+        const slug = params.get("slug") || "preview"
+        const couple = params.get("couple") || "Tamu & Keluarga"
+        const time = params.get("time") || ""
+        const venue = params.get("venue") || ""
+        const address = params.get("address") || ""
+        const sessions = time || venue || address ? [{ time, venue, address }] : []
+        setGuestName("Tamu Undangan")
+        setCoupleName(couple)
+        setTableNumber("Meja 5")
+        setCategory("")
+        setGuestCount(2)
+        setQrToken(`AKS-PREVIEW-${slug}`)
+        setSlug(slug)
+        setEstimatedDate(params.get("date") || "")
+        setSessions(sessions)
+        const qrContent = `https://${slug}.wedding.aksaraa.com/welcome/preview`
+        const url = await QRCode.toDataURL(qrContent, {
+          width: 400,
+          margin: 2,
+          color: { dark: "#1A1817", light: "#ffffff" },
+        })
+        setQrDataUrl(url)
+      })()
+      return
+    }
+
     if (!segment) { setError("Token tidak ditemukan"); return }
 
     ;(async () => {

@@ -14,7 +14,7 @@ export default async function WeddingInvitation({
 
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families")
+    .select("id, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax")
     .eq("slug", slug)
     .single()
 
@@ -105,6 +105,7 @@ export default async function WeddingInvitation({
         guest_qr_content={guestContext?.qr_token ? `/welcome/${guestContext.slug || guestContext.qr_token}` : undefined}
         guest_table_number={guestContext?.table_number || undefined}
         guest_rsvp_status={guestContext?.rsvp_status || undefined}
+        rsvp_max_pax={profile.rsvp_max_pax ?? undefined}
       />
     )
   }

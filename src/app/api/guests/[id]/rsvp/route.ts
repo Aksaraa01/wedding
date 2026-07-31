@@ -16,6 +16,22 @@ export async function POST(
       return NextResponse.json({ error: "Kehadiran tidak valid" }, { status: 400 })
     }
 
+    let maxPax = 2
+    const { data: guestRow } = await supabaseAdmin
+      .from("guests")
+      .select("wedding_profile_id")
+      .eq("id", id)
+      .single()
+
+    if (guestRow?.wedding_profile_id) {
+      const { data: profileRow } = await supabaseAdmin
+        .from("wedding_profiles")
+        .select("rsvp_max_pax")
+        .eq("id", guestRow.wedding_profile_id)
+        .single()
+      if (profileRow?.rsvp_max_pax != null) maxPax = profileRow.rsvp_max_pax
+    }
+
     const updates: Record<string, string | number | null> = {
       rsvp_status,
       rsvp_responded_at: new Date().toISOString(),
@@ -23,7 +39,8 @@ export async function POST(
 
     if (rsvp_status === "HADIR") {
       const pax = Number(rsvp_pax_count)
-      updates.rsvp_pax_count = Number.isFinite(pax) && pax > 0 ? pax : 1
+      const raw = Number.isFinite(pax) && pax > 0 ? pax : 1
+      updates.rsvp_pax_count = Math.max(1, Math.min(maxPax, raw))
       updates.rsvp_message = typeof rsvp_message === "string" && rsvp_message.trim() ? rsvp_message.trim() : null
     } else {
       updates.rsvp_pax_count = null

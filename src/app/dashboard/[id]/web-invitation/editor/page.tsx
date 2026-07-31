@@ -24,6 +24,7 @@ type Profile = {
   sessions: Session[] | null
   display_name: string | null
   inviting_families: string[] | null
+  rsvp_max_pax: number | null
 }
 
 type Session = {
@@ -61,6 +62,7 @@ function EditorInner({ id }: { id: string }) {
   const [activeSection, setActiveSection] = useState<string>("sampul")
   const [showMobilePreview, setShowMobilePreview] = useState(false)
   const [previewDevice, setPreviewDevice] = useState<"mobile" | "desktop">("mobile")
+  const [rsvpMaxDraft, setRsvpMaxDraft] = useState<string | null>(null)
   const saveTimer = useRef<ReturnType<typeof setTimeout>>(null)
 
   const coverFileRef = useRef<HTMLInputElement>(null)
@@ -263,22 +265,6 @@ function EditorInner({ id }: { id: string }) {
     )
   }
 
-  const renderCollapsed = (icon: string, label: string) => {
-    const key = label.toLowerCase()
-    return (
-      <button
-        onClick={() => handleSectionToggle(key)}
-        className="w-full flex justify-between items-center py-4 px-2 border-b border-outline-variant text-on-surface-variant hover:text-primary transition-colors"
-      >
-        <span className="font-label-md text-label-md flex items-center gap-3">
-          <span className="material-symbols-outlined text-[18px]">{icon}</span>
-          {label}
-        </span>
-        <span className="material-symbols-outlined">expand_more</span>
-      </button>
-    )
-  }
-
   const saveStatusLabel = saveStatus === "saving" ? "Menyimpan..." : saveStatus === "error" ? "Gagal menyimpan" : "Tersimpan Otomatis"
   const saveStatusColor = saveStatus === "saving" ? "bg-amber-500" : saveStatus === "error" ? "bg-red-500" : "bg-emerald-500"
   const isPublished = data.is_published === true
@@ -302,6 +288,10 @@ function EditorInner({ id }: { id: string }) {
         estimated_wedding_date={data.estimated_wedding_date || ""}
         slug={data.slug || ""}
         guest_name="Tamu Undangan"
+        guest_id="preview"
+        guest_qr_token="preview"
+        guest_table_number="Meja 5"
+        guest_qr_url={`/qr/preview?preview=1&slug=${encodeURIComponent(data.slug || "")}&couple=${encodeURIComponent(data.display_name || `${data.bride_name || ""} & ${data.groom_name || ""}`)}&date=${encodeURIComponent(data.estimated_wedding_date || "")}&time=${encodeURIComponent(sessions[0]?.time || "")}&venue=${encodeURIComponent(sessions[0]?.venue || "")}&address=${encodeURIComponent(sessions[0]?.address || "")}`}
         display_name={data.display_name || undefined}
         sessions={sessions.length > 0 ? sessions : undefined}
         quote_text={data.quote_text || undefined}
@@ -321,6 +311,7 @@ function EditorInner({ id }: { id: string }) {
         gift_address={giftAddressText || undefined}
         track_url={selectedTrack?.audio_url || undefined}
         auto_play={autoPlay || undefined}
+        rsvp_max_pax={data.rsvp_max_pax ?? 2}
       />
     )
   }
@@ -385,7 +376,7 @@ function EditorInner({ id }: { id: string }) {
               <button className="flex-1 py-4 font-label-md text-label-md text-primary border-b-2 border-primary text-center">KONTEN</button>
             </div>
 
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 pb-32 space-y-4 md:pb-6">
               {renderSection("sampul", "photo_album", "SAMPUL",
                 <div className="mt-6 space-y-8">
                   <div className="space-y-4">
@@ -751,7 +742,39 @@ function EditorInner({ id }: { id: string }) {
                   </div>
                 </div>
               </>)}
-              {renderCollapsed("mail", "RSVP")}
+              {renderSection("rsvp", "mail", "RSVP",
+                <div className="mt-6 space-y-4">
+                  <div className="space-y-2">
+                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Batas Maksimum Pax</label>
+                    <input
+                      className="input-editorial w-full font-body-md"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={2}
+                      value={rsvpMaxDraft ?? String(data.rsvp_max_pax ?? 2)}
+                      onFocus={e => e.target.select()}
+                      onChange={e => {
+                        const raw = e.target.value.replace(/\D/g, "").slice(0, 2)
+                        if (raw === "") {
+                          setRsvpMaxDraft("")
+                          return
+                        }
+                        const n = Math.min(10, Math.max(1, parseInt(raw, 10)))
+                        setRsvpMaxDraft(null)
+                        updateField("rsvp_max_pax", n)
+                      }}
+                      onBlur={() => {
+                        if (rsvpMaxDraft === "") {
+                          setRsvpMaxDraft(null)
+                          updateField("rsvp_max_pax", 2)
+                        }
+                      }}
+                    />
+                    <p className="text-[11px] text-on-surface-variant italic">Jumlah maksimum tamu yang dapat hadir dalam satu undangan.</p>
+                  </div>
+                </div>
+              )}
             </div>
           </aside>
 

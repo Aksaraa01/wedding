@@ -39,6 +39,7 @@ interface Props {
   guest_qr_content?: string
   guest_table_number?: string
   guest_rsvp_status?: string
+  rsvp_max_pax?: number
 }
 
 const IMG = {
@@ -174,6 +175,7 @@ export default function HeritageJawa({
   guest_qr_url,
   guest_table_number,
   guest_rsvp_status,
+  rsvp_max_pax,
 }: Props) {
   const eventDate = sessions?.[0]?.date || estimated_wedding_date
   const countdown = useCountdown(eventDate)
@@ -771,7 +773,7 @@ export default function HeritageJawa({
                         onChange={e => setRsvpPax(e.target.value)}
                         disabled={rsvpAttend === "TIDAK_HADIR"}
                       >
-                        {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
+                        {Array.from({ length: Math.max(1, Math.min(10, rsvp_max_pax ?? 2)) }, (_, i) => i + 1).map(n => (
                           <option key={n} value={String(n)}>{n} orang</option>
                         ))}
                       </select>

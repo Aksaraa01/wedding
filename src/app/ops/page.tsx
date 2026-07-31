@@ -686,10 +686,10 @@ export default function OpsDashboardPage() {
                                         >
                                           <img src={imgUrl} alt={`img ${imgIdx + 1}`} className="w-full h-full object-cover" />
                                         </a>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                               )
                             })}
                             {feedbackSubmissions.length > 2 && (
@@ -906,6 +906,10 @@ export default function OpsDashboardPage() {
                         ))}
                       </div>
                     )}
+                    <div className="mt-4 flex items-center gap-2">
+                      <span className="font-label-md text-[10px] uppercase tracking-widest text-secondary">Batas Maksimum Pax:</span>
+                      <span className="font-body-md text-sm font-semibold text-on-surface">{invitationData?.profile?.rsvp_max_pax ?? 2}</span>
+                    </div>
                   </div>
 
                   {/* Quote */}
