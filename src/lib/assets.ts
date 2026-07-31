@@ -7,7 +7,7 @@ function s(path: string): string {
 
 export const ASSETS = {
   hero: {
-    mockup: s("hero/hero-mockup-dark.png"),
+    mockup: s("hero/hero-portrait.jpg"),
   },
   heritageJawa: {
     parchment: s("heritage-jawa/parchment.jpg"),

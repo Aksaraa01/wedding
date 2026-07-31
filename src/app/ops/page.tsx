@@ -105,6 +105,8 @@ type QueueDetail = {
     total_guests: number
     created_at: string
   } | null
+  wa_blast_quota?: number
+  vip_guests?: { id: string; name: string; phone_number: string; table_number: string; created_at: string }[]
 }
 
 const WA_BLAST_LABELS: Record<string, string> = {
@@ -647,6 +649,41 @@ export default function OpsDashboardPage() {
                             <p className="font-body-md text-sm text-on-surface/90 leading-relaxed whitespace-pre-wrap">
                               {waBlastSchedule.message_text}
                             </p>
+                          </div>
+                        )}
+
+                        {fa.feature_key === "wa_blast" && (detail.wa_blast_quota || 0) > 0 && (
+                          <div className="mb-4 bg-surface rounded-lg p-4 border border-outline-variant/40">
+                            <div className="flex items-center justify-between mb-2 pb-2 border-b border-outline-variant/20">
+                              <span className="font-label-md text-[9px] uppercase tracking-widest text-secondary font-semibold">Kuota Pengiriman</span>
+                              <span className="font-label-md text-[10px] font-bold text-primary">{detail.wa_blast_quota}</span>
+                            </div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant font-semibold">Tamu VIP Termasuk Kuota</span>
+                              <span className="ml-auto text-[10px] font-bold text-primary">
+                                {Math.min((detail.vip_guests || []).length, detail.wa_blast_quota || 0)} / {detail.wa_blast_quota}
+                              </span>
+                            </div>
+                            {(detail.vip_guests || []).length > 0 ? (
+                              <div className="max-h-40 overflow-y-auto custom-scrollbar divide-y divide-outline-variant/10">
+                                {(detail.vip_guests || []).slice(0, detail.wa_blast_quota).map((g) => (
+                                  <div key={g.id} className="py-1.5 flex items-center justify-between gap-2">
+                                    <span className="text-xs font-medium text-on-surface truncate flex items-center gap-1.5">
+                                      {g.name}
+                                      <span className="material-symbols-outlined text-[#b8860b] text-[13px]">star</span>
+                                    </span>
+                                    {g.table_number && <span className="text-[10px] text-on-surface-variant shrink-0">{g.table_number}</span>}
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-[11px] text-on-surface-variant italic">Belum ada tamu VIP yang ditandai.</p>
+                            )}
+                            {(detail.vip_guests || []).length > (detail.wa_blast_quota || 0) && (
+                              <p className="mt-2 text-[10px] text-red-600 font-medium">
+                                {(detail.vip_guests || []).length - (detail.wa_blast_quota || 0)} tamu VIP lainnya dikecualikan dari kuota.
+                              </p>
+                            )}
                           </div>
                         )}
 

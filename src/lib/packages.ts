@@ -66,3 +66,9 @@ export function normalizePhone(wa: string): string {
   if (digits.startsWith("62")) return `+${digits}`
   return `+62${digits}`
 }
+
+export function parseVip(value: unknown): boolean {
+  if (value == null) return false
+  const s = String(value).trim().toLowerCase()
+  return s === "y" || s === "ya" || s === "yes" || s === "true" || s === "1" || s === "✓"
+}

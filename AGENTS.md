@@ -104,6 +104,31 @@
    git push
    ```
 
+### Staging smoke test (BEFORE deploying to VPS)
+Run a local standalone build pointed at the **staging** Supabase and smoke test it before resyncing to the VPS. Staging data is duplicated from production (script: `/var/folders/h9/00699n8j5_72btn55c8dfg400000gn/T/opencode/musictest/copy-to-staging.mjs` — copies reference tables + profiles + guests + wishes + ops data; `wedding_profiles.user_id` is nulled since `auth.users` isn't in staging).
+
+1. Apply migrations to staging (and local) first:
+   ```bash
+   npx supabase db reset   # local
+   export SUPABASE_ACCESS_TOKEN=...
+   npx supabase link --project-ref jclolnjkjhyjilvymagr && npx supabase db push
+   ```
+2. Build with the staging env:
+   ```bash
+   set -a; source .env.staging; set +a; npm run build
+   cp -r .next/static .next/standalone/.next/static
+   cp -r public .next/standalone/public
+   ```
+3. Run the standalone server locally (server secrets are read from the process env at runtime, so the env must be sourced):
+   ```bash
+   set -a; source .env.staging; set +a; PORT=3100 HOSTNAME=127.0.0.1 node .next/standalone/server.js
+   ```
+4. Smoke test against `http://127.0.0.1:3100` (APIs + key pages). If anything fails, fix and re-run.
+5. After smoke passes, rebuild with the prod env and deploy (see Deploy below):
+   ```bash
+   set -a; source .env.local.prod; set +a; npm run build
+   ```
+
 ### Deploy
 The VPS has 2GB RAM and CANNOT run `next build`. Build locally, rsync the standalone output, then restart PM2 on the server.
 

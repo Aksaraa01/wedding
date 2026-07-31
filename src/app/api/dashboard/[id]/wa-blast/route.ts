@@ -27,11 +27,20 @@ export async function GET(
       .limit(1)
       .single()
 
+    const { data: vipGuests } = await supabaseAdmin
+      .from("guests")
+      .select("id, name, phone_number, table_number, created_at")
+      .eq("wedding_profile_id", id)
+      .eq("is_vip", true)
+      .order("created_at", { ascending: true })
+
     return NextResponse.json({
       total_guests: totalGuests || 0,
       wa_blast_tier: profile?.wa_blast_tier || 0,
       package_type: profile?.package_type || "signature",
       schedule: schedule || null,
+      vip_guests: vipGuests || [],
+      vip_count: vipGuests?.length || 0,
     })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })

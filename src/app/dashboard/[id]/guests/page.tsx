@@ -12,6 +12,7 @@ type Guest = {
   phone_number: string
   category: string
   table_number: string
+  is_vip: boolean
 }
 
 type FormData = {
@@ -19,15 +20,17 @@ type FormData = {
   phone_number: string
   category: string
   table_number: string
+  is_vip: boolean
 }
 
-const EMPTY_FORM: FormData = { name: "", phone_number: "", category: "", table_number: "" }
+const EMPTY_FORM: FormData = { name: "", phone_number: "", category: "", table_number: "", is_vip: false }
 
 type VerifyRow = {
   name: string
   phone_number: string
   category: string
   table_number: string
+  is_vip: boolean
   duplicate: boolean
 }
 
@@ -56,6 +59,13 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   const [duplicateError, setDuplicateError] = useState("")
   const [uploadError, setUploadError] = useState("")
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false)
+  const [waBlastEnabled, setWaBlastEnabled] = useState(false)
+
+  useEffect(() => {
+    fetch(`/api/dashboard/${weddingProfileId}`).then(r => r.json()).then(data => {
+      setWaBlastEnabled(!!data?.selections?.wa_blast)
+    }).catch(() => {})
+  }, [weddingProfileId])
 
   const fetchGuests = async () => {
     const params = new URLSearchParams({ wedding_profile_id: weddingProfileId })
@@ -85,7 +95,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
 
   const openEdit = (g: Guest) => {
     setEditingId(g.id)
-    setForm({ name: g.name, phone_number: g.phone_number || "", category: g.category || "", table_number: g.table_number || "" })
+    setForm({ name: g.name, phone_number: g.phone_number || "", category: g.category || "", table_number: g.table_number || "", is_vip: !!g.is_vip })
     setWaDigits((g.phone_number || "").replace(/\D/g, ""))
     setModalOpen(true)
   }
@@ -99,6 +109,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
       phone_number: waDigits ? `+62${waDigits}` : "",
       category: form.category.trim(),
       table_number: form.table_number.trim(),
+      is_vip: waBlastEnabled && form.is_vip,
     }
 
     if (editingId) {
@@ -157,7 +168,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
       setUploadError("Format berkas tidak sesuai. Silakan unduh template terlebih dahulu.")
       return
     }
-    const raw = XLSX.utils.sheet_to_json<Record<string, string>>(ws, { header: ["name", "phone_number", "category", "table_number"] })
+    const raw = XLSX.utils.sheet_to_json<Record<string, string>>(ws, { header: ["name", "phone_number", "category", "table_number", "vip"] })
     const rows = raw.slice(1).filter((r) => r.name?.trim())
 
     const res = await fetch("/api/guests/verify", {
@@ -292,7 +303,15 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                     {filteredVerify.map((row, i) => (
                       <tr key={i} className="group hover:bg-surface-container-low transition-colors duration-200">
                         <td className="py-5 pr-4">
-                          <p className="font-headline-md text-[18px] text-primary leading-none">{row.name}</p>
+                          <p className="font-headline-md text-[18px] text-primary leading-none flex items-center gap-2">
+                            {row.name}
+                            {row.is_vip && (
+                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#f2ca50]/20 border border-[#f2ca50]/40 text-[#574500] font-label-md text-[9px] uppercase tracking-wider rounded-full">
+                                <span className="material-symbols-outlined text-[10px]">star</span>
+                                VIP
+                              </span>
+                            )}
+                          </p>
                           {row.category && (
                             <span className="font-label-md text-[10px] text-secondary-fixed-dim bg-secondary/5 px-1 rounded uppercase mt-1 inline-block">{row.category}</span>
                           )}
@@ -439,7 +458,15 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             {filtered.map((guest) => (
               <div key={guest.id} className="grid grid-cols-12 py-5 px-2 items-center hairline-divider group">
                 <div className="col-span-4">
-                  <p className="font-body-md font-semibold text-on-surface">{guest.name}</p>
+                  <p className="font-body-md font-semibold text-on-surface flex items-center gap-2">
+                    {guest.name}
+                    {guest.is_vip && (
+                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#f2ca50]/20 border border-[#f2ca50]/40 text-[#574500] font-label-md text-[9px] uppercase tracking-wider rounded-full">
+                        <span className="material-symbols-outlined text-[10px]">star</span>
+                        VIP
+                      </span>
+                    )}
+                  </p>
                   {guest.phone_number && (
                     <p className="font-label-md text-[11px] text-on-surface-variant opacity-70">{guest.phone_number}</p>
                   )}
@@ -545,6 +572,33 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                     value={form.table_number}
                     onChange={(e) => setForm((p) => ({ ...p, table_number: e.target.value }))}
                   />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Reminder Tamu VIP</label>
+                  {waBlastEnabled ? (
+                    <button
+                      type="button"
+                      onClick={() => setForm((p) => ({ ...p, is_vip: !p.is_vip }))}
+                      className={`flex items-center gap-3 border py-2.5 px-3 transition-colors ${
+                        form.is_vip ? "border-[#f2ca50] bg-[#f2ca50]/10" : "border-outline-variant"
+                      }`}
+                    >
+                      <span
+                        className={`w-4 h-4 border flex items-center justify-center transition-colors ${
+                          form.is_vip ? "bg-[#f2ca50] border-[#f2ca50]" : "border-outline"
+                        }`}
+                      >
+                        {form.is_vip && <span className="material-symbols-outlined text-[12px] text-[#574500]">check</span>}
+                      </span>
+                      <span className="font-body-md text-sm text-on-surface">
+                        Tandai sebagai tamu VIP (dapat reminder WhatsApp otomatis)
+                      </span>
+                    </button>
+                  ) : (
+                    <p className="font-body-md text-[12px] italic text-on-surface-variant/70 leading-relaxed border border-outline-variant/40 bg-surface-container/60 py-3 px-3">
+                      Ubah paket, pengingat tamu VIP
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-col gap-3 mt-4">
                   {duplicateError && (

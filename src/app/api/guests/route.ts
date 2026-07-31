@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { wedding_profile_id, name, phone_number, category, table_number, guest_count } = body
+    const { wedding_profile_id, name, phone_number, category, table_number, guest_count, is_vip } = body
 
     if (!wedding_profile_id || !name) {
       return NextResponse.json({ error: "Nama tamu wajib diisi" }, { status: 400 })
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
     const pax = Math.max(1, Number(guest_count) || 1)
     const { data, error } = await supabaseAdmin
       .from("guests")
-      .insert({ wedding_profile_id, name, phone_number: normalized, category, table_number, guest_count: pax })
+      .insert({ wedding_profile_id, name, phone_number: normalized, category, table_number, guest_count: pax, is_vip: !!is_vip })
       .select()
       .single()
 

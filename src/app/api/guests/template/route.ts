@@ -4,8 +4,8 @@ import * as XLSX from "xlsx"
 export async function GET() {
   const wb = XLSX.utils.book_new()
   const data = [
-    ["Nama Tamu", "No. WhatsApp (nomor saja, tanpa +62/0)", "Kategori", "Meja"],
-    ["Contoh: Anindya Pramesti", "81234567890", "Keluarga", "MEJA VIP 01"],
+    ["Nama Tamu", "No. WhatsApp (nomor saja, tanpa +62/0)", "Kategori", "Meja", "VIP (isi YA jika VIP)"],
+    ["Contoh: Anindya Pramesti", "81234567890", "Keluarga", "MEJA VIP 01", "YA"],
   ]
   const ws = XLSX.utils.aoa_to_sheet(data)
 
@@ -14,6 +14,7 @@ export async function GET() {
     { wch: 35 },
     { wch: 20 },
     { wch: 15 },
+    { wch: 22 },
   ]
 
   XLSX.utils.book_append_sheet(wb, ws, "Template")

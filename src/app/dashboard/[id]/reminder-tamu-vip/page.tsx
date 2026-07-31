@@ -51,6 +51,9 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [vipGuests, setVipGuests] = useState<{ id: string; name: string; phone_number: string; table_number: string; created_at: string }[]>([])
+  const [showVipModal, setShowVipModal] = useState(false)
+  const [vipSearch, setVipSearch] = useState("")
 
   useEffect(() => {
     fetch(`/api/dashboard/${id}/wa-blast`)
@@ -59,6 +62,7 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
         setTotalGuests(data.total_guests || 0)
         setWaBlastTier(data.wa_blast_tier || 0)
         setPackageType(data.package_type || "signature")
+        setVipGuests(data.vip_guests || [])
         if (data.schedule) {
           setSelectedTemplate(data.schedule.template_type || "formal")
           setMessageText(data.schedule.message_text || MESSAGE_TEMPLATES.formal.text)
@@ -104,6 +108,14 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
   const packageBase = packageType === "prestige" ? 100 : 0
   const totalQuota = packageBase + waBlastTier
   const quotaLabel = totalQuota > 0 ? `Kuota: ${Math.min(totalGuests, totalQuota)}/${totalQuota}` : `${totalGuests} Tamu`
+
+  const filteredVip = vipGuests.filter(
+    (g) =>
+      !vipSearch ||
+      g.name.toLowerCase().includes(vipSearch.toLowerCase()) ||
+      (g.phone_number || "").includes(vipSearch) ||
+      (g.table_number || "").toLowerCase().includes(vipSearch.toLowerCase())
+  )
 
   return (
     <>
@@ -174,10 +186,14 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
                 <span className="material-symbols-outlined text-secondary text-xl">calendar_month</span>
                 <h3 className="font-headline-md text-xl font-medium text-primary">Jadwal Pengiriman</h3>
               </div>
-              <div className="flex items-center gap-1.5 bg-surface-container border border-outline-variant/40 px-3 py-1 rounded-md text-on-surface-variant">
+              <button
+                onClick={() => setShowVipModal(true)}
+                className="flex items-center gap-1.5 bg-surface-container border border-outline-variant/40 px-3 py-1 rounded-md text-on-surface-variant hover:border-secondary hover:text-secondary transition-colors"
+                title="Lihat daftar tamu VIP"
+              >
                 <span className="material-symbols-outlined text-sm">local_offer</span>
                 <span className="font-label-md text-[10px] uppercase tracking-wider font-medium">{quotaLabel}</span>
-              </div>
+              </button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div className="flex flex-col gap-2">
@@ -260,6 +276,68 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
             </button>
           </div>
         </div>
+
+        {showVipModal && (
+          <div className="fixed inset-0 z-[70] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => setShowVipModal(false)}>
+            <div className="bg-surface-container-lowest w-full max-w-md rounded-2xl border border-outline-variant/50 shadow-2xl flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant/30">
+                <div>
+                  <h3 className="font-headline-md text-lg font-medium text-primary">Daftar Tamu VIP</h3>
+                  <p className="text-[11px] text-on-surface-variant">
+                    {vipGuests.length} tamu VIP &bull; Kuota {totalQuota}
+                    {vipGuests.length > totalQuota && totalQuota > 0 && (
+                      <span className="text-error"> &bull; {vipGuests.length - totalQuota} dikecualikan</span>
+                    )}
+                  </p>
+                </div>
+                <button onClick={() => setShowVipModal(false)} className="text-on-surface-variant hover:text-on-surface p-1" aria-label="Tutup">
+                  <span className="material-symbols-outlined text-2xl">close</span>
+                </button>
+              </div>
+              <div className="px-6 py-4 border-b border-outline-variant/20">
+                <input
+                  type="text"
+                  value={vipSearch}
+                  onChange={(e) => setVipSearch(e.target.value)}
+                  placeholder="Cari nama / no. HP / meja..."
+                  className="w-full bg-surface rounded-lg border border-outline-variant/50 px-4 py-2.5 text-sm focus:ring-1 focus:ring-secondary focus:border-secondary outline-none"
+                />
+              </div>
+              <div className="max-h-[320px] overflow-y-auto divide-y divide-outline-variant/15">
+                {filteredVip.length === 0 && (
+                  <p className="py-12 text-center text-sm text-on-surface-variant italic">Tidak ada tamu VIP ditemukan.</p>
+                )}
+                {filteredVip.map((g) => {
+                  const originalIndex = vipGuests.findIndex((x) => x.id === g.id)
+                  const isExcluded = totalQuota > 0 && originalIndex >= totalQuota
+                  return (
+                    <div key={g.id} className={`px-6 py-3 flex items-center gap-3 ${isExcluded ? "bg-red-50/60" : ""}`}>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-on-surface truncate flex items-center gap-1.5">
+                          {g.name}
+                          <span className="material-symbols-outlined text-[#b8860b] text-[14px]">star</span>
+                        </p>
+                        <p className="text-[11px] text-on-surface-variant/70">
+                          {g.phone_number || "—"}
+                          {g.table_number ? ` • Meja ${g.table_number}` : ""}
+                        </p>
+                      </div>
+                      {isExcluded ? (
+                        <span className="shrink-0 text-[10px] font-label-md uppercase tracking-wider text-red-600 bg-red-100 border border-red-200 px-2 py-0.5 rounded-full">
+                          Dikecualikan
+                        </span>
+                      ) : (
+                        <span className="shrink-0 text-[10px] font-label-md uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                          Termasuk
+                        </span>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   )

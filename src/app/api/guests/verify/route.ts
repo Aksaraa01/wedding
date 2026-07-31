@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { parseVip } from "@/lib/packages"
 
 export async function POST(req: NextRequest) {
   try {
@@ -37,6 +38,7 @@ export async function POST(req: NextRequest) {
         phone_number: normalizedWa,
         category: (r.category || r.relation || "").toString().trim(),
         table_number: (r.table_number || "").toString().trim(),
+        is_vip: parseVip(r.vip),
         duplicate,
       }
     })

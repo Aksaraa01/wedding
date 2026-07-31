@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import * as XLSX from "xlsx"
 import { autoGenerateGuestLinks } from "@/lib/guest-link"
+import { parseVip } from "@/lib/packages"
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
     const buf = Buffer.from(await file.arrayBuffer())
     const wb = XLSX.read(buf, { type: "buffer" })
     const ws = wb.Sheets[wb.SheetNames[0]]
-    const rows = XLSX.utils.sheet_to_json<Record<string, string>>(ws, { header: ["name", "phone_number", "category", "table_number"] })
+    const rows = XLSX.utils.sheet_to_json<Record<string, string>>(ws, { header: ["name", "phone_number", "category", "table_number", "vip"] })
 
     const guests = rows
       .slice(1)
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest) {
         phone_number: (r.phone_number || "").toString().trim(),
         category: (r.category || "").toString().trim(),
         table_number: (r.table_number || "").toString().trim(),
+        is_vip: parseVip(r.vip),
       }))
 
     if (guests.length === 0) {

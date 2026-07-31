@@ -28,7 +28,8 @@ export async function GET(
           package_type,
           total_project_cost,
           payment_status,
-          express_service
+          express_service,
+          wa_blast_tier
         ),
         employees!left (
           id,
@@ -90,6 +91,15 @@ export async function GET(
       .limit(1)
       .maybeSingle()
 
+    // VIP guests for the Reminder Tamu VIP (WA blast) feature
+    const { data: vipGuests } = await supabaseAdmin
+      .from("guests")
+      .select("id, name, phone_number, table_number, created_at")
+      .eq("wedding_profile_id", wp.id)
+      .eq("is_vip", true)
+      .order("created_at", { ascending: true })
+    const waBlastQuota = (wp.package_type === "prestige" ? 100 : 0) + (wp.wa_blast_tier || 0)
+
     // Template + track name for premium_web
     let webTemplateName: string | null = null
     let webTrackName: string | null = null
@@ -139,6 +149,7 @@ export async function GET(
         total_project_cost: wp.total_project_cost,
         payment_status: wp.payment_status,
         express_service: wp.express_service,
+        wa_blast_tier: wp.wa_blast_tier || 0,
       },
       feature_actions: featureActions || [],
       employees: allEmployees || [],
@@ -153,6 +164,8 @@ export async function GET(
         track_name: webTrackName,
       },
       wa_blast_schedule: waBlastSchedule || null,
+      wa_blast_quota: waBlastQuota,
+      vip_guests: vipGuests || [],
     })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })

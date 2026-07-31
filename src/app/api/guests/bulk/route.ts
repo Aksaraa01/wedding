@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { normalizePhone } from "@/lib/packages"
+import { normalizePhone, parseVip } from "@/lib/packages"
 import { autoGenerateGuestLinks } from "@/lib/guest-link"
 
 export async function POST(req: Request) {
@@ -18,6 +18,7 @@ export async function POST(req: Request) {
       phone_number: normalizePhone((r.phone_number || r.whatsapp || "").toString()),
       category: (r.category || r.relation || "").toString().trim(),
       table_number: (r.table_number || "").toString().trim(),
+      is_vip: parseVip(r.vip),
     })).filter((r: { name: string }) => r.name)
 
     if (guests.length === 0) {
