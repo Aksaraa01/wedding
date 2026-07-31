@@ -27,7 +27,7 @@ type AssetEntry = {
 
 const ASSETS: AssetEntry[] = [
   // --- hero ---
-  { source: "https://lh3.googleusercontent.com/aida-public/AB6AXuD0DYfYwo0ZUARPITdqj0iXDKoNYCcqDa8r82uv_nV-iy494JamGgbP5FwQG8capdukywo-TUWVF49tg7maxWpHHO9AToSAG-R3MSEvtiL9XrLkHOB56T8qBLUfygG1YW902i-HReyW6_byssCUz_ze16TVy1EsQAVpktSVYBpn3w4pYaA_QMs8O2Lq3vizgrqbE3ErcGmOHNEbZhsOK0UiNJXYH3lBgv7rnz7ZcHpt4fmr3Dzxk3xhuc8dnMj2wsAQAYxJZoz0wr9qVQ", folder: "hero", name: "hero-portrait.jpg" },
+  { source: "https://lh3.googleusercontent.com/aida-public/AB6AXuDLWSCn1yfgdr0RgCsppBta2T-ngg0tCkU_PCs8UGT4qP7awh1JuyctI4SiMn03jsTzUVa75G2l0z4fzn1zjHRerYrAeNxGFT4UNGxmMtrKM0Y4f7BlrDWAWONAT_SYFCae1nu7kwYqlgK1BoLNp4Gjn_Jfnm5wCt-MAbHJh7lWT3kQnAatvAdQUL6DZYEcXR6WFJOP1ZytakCvpg4m8yUtSRMzRv6Vp9_LHPAc47u_ADrDRx7MOeMHmiNMjxAxXTXlAG4VS4DWfzKrjw", folder: "hero", name: "hero-mockup.png" },
 
   // --- heritage jawa ---
   { source: "https://lh3.googleusercontent.com/aida-public/AB6AXuDrV_0lYgYUkE4VlvVBI8uKfbS0s-GuC6g52rlYebAdp0DCqHYlZwTiIVkkkT8WmZouCHy4L8pBmhpT-mgEz5hv88N4bFTKtBBL5hxHddm0wfFHT0_zMJ2TbbaeqhHN0SKqXZayappZDK82zHV3uPHdEBVYHoRRZPIm9tssJGXCHK668NZnoY4D_o7rhjYvylJUNs9-k2o4YEYvzXn_hijhzKA_IkcUlVLDTtks9zt95s2n1f3Zjn7Ltq74tNeD3vakaG8", folder: "heritage-jawa", name: "parchment.jpg" },

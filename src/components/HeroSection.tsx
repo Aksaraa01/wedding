@@ -28,31 +28,32 @@ export default function HeroSection() {
   }, [])
 
   return (
-    <section className="min-h-screen flex flex-col justify-center px-edge-margin-mobile md:px-edge-margin-desktop max-w-container-max mx-auto py-24 md:py-20">
+    <section className="min-h-screen flex flex-col justify-center px-edge-margin-mobile md:px-edge-margin-desktop max-w-container-max mx-auto py-20">
       <div
         ref={sectionRef}
-        className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-gutter items-center transition-all duration-1000 ease-out opacity-0 translate-y-10"
+        className="grid grid-cols-1 md:grid-cols-12 gap-gutter items-center transition-all duration-1000 ease-out opacity-0 translate-y-10"
       >
-        <div className="md:col-span-7 flex flex-col items-start gap-8 md:gap-10">
+        <div className="md:col-span-6 flex flex-col items-start gap-10">
           <div className="flex items-center gap-4">
-            <div className="h-[1px] w-8 md:w-12 bg-secondary/50" />
-            <span className="font-label-md text-[10px] md:text-label-md uppercase tracking-[0.2em] text-secondary">
-              Platform Pernikahan Naratif
+            <div className="h-[1px] w-12 bg-secondary/50" />
+            <span className="font-label-md text-label-md uppercase tracking-[0.2em] text-secondary">
+              The Digital Wedding Ecosystem
             </span>
           </div>
 
-          <h1 className="font-display-lg text-[42px] leading-[1.1] md:text-display-lg-mobile lg:text-display-lg md:leading-[1.1] tracking-tight text-on-surface">
-            Ukir Janji Suci,
+          <h1 className="font-display-lg text-display-lg-mobile md:text-[72px] leading-[1.05] tracking-tight text-on-surface">
+            Solusi Digital
             <br />
-            <span className="italic text-secondary">Rayakan Momen Abadi.</span>
+            <span className="italic text-secondary">untuk Pernikahan Anda.</span>
           </h1>
 
-          <p className="font-body-lg text-[18px] md:text-body-lg text-on-surface/80 max-w-xl font-light leading-relaxed">
-            Aksaraa: Mengubah janji suci dan perjalanan cinta Anda menjadi
-            kisah digital interaktif yang memikat
+          <p className="font-body-lg text-body-lg text-on-surface/80 max-w-xl font-light leading-relaxed">
+            Aksara merancang pengalaman tamu yang seamless—dari pesan WhatsApp yang elegan
+            hingga check-in eksklusif dengan QR Pass. Satu platform untuk seluruh perjalanan
+            hari bahagia Anda.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center gap-6 md:gap-8 mt-2 md:mt-4 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row items-center gap-8 mt-4 w-full sm:w-auto">
             <Link
               href="/problem"
               className="w-full sm:w-auto group flex items-center justify-center gap-4 px-10 py-5 bg-on-surface text-background rounded-full hover:bg-secondary transition-all duration-500 shadow-xl shadow-on-surface/10"
@@ -61,7 +62,7 @@ export default function HeroSection() {
                 Mulai Cerita Anda
               </span>
               <span className="material-symbols-outlined transition-transform group-hover:translate-x-1">
-                menu_book
+                arrow_forward
               </span>
             </Link>
             <a
@@ -75,26 +76,31 @@ export default function HeroSection() {
           </div>
         </div>
 
-        <div className="md:col-span-5 flex flex-col items-center md:items-end justify-center relative mt-12 md:mt-0">
-          <div className="relative group w-full max-w-[420px] md:w-auto">
-            <div className="absolute -inset-4 md:-inset-6 border border-on-surface/10 scale-95 group-hover:scale-100 transition-transform duration-1000 hidden sm:block" />
+        <div className="hidden md:col-span-6 md:flex flex-col items-end justify-center relative mt-12 md:mt-0">
+          <div className="relative group">
+            <div className="absolute -inset-8 border border-on-surface/5 scale-95 group-hover:scale-100 transition-transform duration-1000" />
 
-            <div className="w-full md:w-[420px] aspect-[3/4] overflow-hidden shadow-2xl relative">
+            <div className="w-[520px] max-w-full aspect-[4/5] overflow-hidden shadow-2xl relative bg-white">
               <img
-                alt="Editorial wedding portrait with artistic line art elements"
+                alt="Premium Web Invitation Cinematic Mockup"
                 className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105"
-                src={ASSETS.hero.bg}
+                src={ASSETS.hero.mockup}
               />
               <div className="absolute inset-0 bg-secondary/5 mix-blend-multiply" />
+              <div className="absolute top-8 right-8 flex flex-col gap-2">
+                <div className="w-12 h-12 rounded-full bg-white/90 backdrop-blur flex items-center justify-center shadow-lg">
+                  <span className="material-symbols-outlined text-secondary">touch_app</span>
+                </div>
+              </div>
             </div>
 
-            <div className="absolute -bottom-6 -left-4 md:-bottom-12 md:-left-12 bg-white/95 backdrop-blur p-6 md:p-8 max-w-[220px] md:max-w-[260px] border border-outline-variant/30 shadow-lg z-20">
-              <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary mb-2 md:mb-3">
-                Editor&apos;s Note
+            <div className="absolute -bottom-6 -left-12 bg-white/95 backdrop-blur p-8 max-w-[280px] border border-outline-variant/30 shadow-lg z-20">
+              <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary mb-3">
+                Product Spotlight
               </p>
-              <p className="font-body-md text-[13px] md:text-[14px] italic leading-relaxed text-on-surface">
-                &ldquo;Setiap detil adalah baris kalimat dalam puisi cinta
-                Anda.&rdquo;
+              <p className="font-body-md text-[14px] italic leading-relaxed text-on-surface">
+                &ldquo;Desain interaktif yang memadukan estetika editorial dengan teknologi
+                terkini.&rdquo;
               </p>
             </div>
           </div>
