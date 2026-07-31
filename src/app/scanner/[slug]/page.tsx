@@ -16,6 +16,7 @@ type EventInfo = {
   wedding_profile_id: string
   bride_name: string
   groom_name: string
+  display_name?: string
   guest_count: number
   has_pin: boolean
 }
@@ -362,6 +363,9 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
   const presentCount = logEntries.filter(g => g.is_checked_in).length
   const totalGuests = eventInfo?.guest_count ?? 0
+  const coupleDisplay = eventInfo
+    ? (eventInfo.display_name || `${eventInfo.bride_name} & ${eventInfo.groom_name}`)
+    : ""
 
   if (!pinVerified) {
     return (
@@ -371,7 +375,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
             <span className="material-symbols-outlined text-5xl text-primary mb-4">lock</span>
             <h1 className="font-headline-md text-headline-md text-primary mb-2">Scanner Concierge</h1>
             {eventInfo && (
-              <p className="font-body-md text-on-surface-variant">{eventInfo.bride_name} &amp; {eventInfo.groom_name}</p>
+              <p className="font-body-md text-on-surface-variant">{coupleDisplay}</p>
             )}
             <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">Masukkan PIN untuk mengakses scanner</p>
           </div>
@@ -451,7 +455,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
           <div>
             <h1 className="font-serif text-base font-semibold text-primary tracking-wide">Aksaraa Concierge</h1>
             <p className="text-[9px] uppercase tracking-widest text-on-surface-variant/70 font-medium">
-              Gate 1 &bull; {eventInfo?.bride_name} &amp; {eventInfo?.groom_name}
+              Gate 1 &bull; {coupleDisplay}
             </p>
           </div>
         </div>

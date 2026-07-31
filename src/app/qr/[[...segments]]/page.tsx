@@ -95,7 +95,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
         }
 
         setGuestName(data.guest.name)
-        setCoupleName(`${data.profile.bride_name} & ${data.profile.groom_name}`)
+        setCoupleName(data.profile.display_name || `${data.profile.bride_name} & ${data.profile.groom_name}`)
         setTableNumber(data.guest.table_number || "")
         setCategory(data.guest.category || "")
         const pax = data.guest.rsvp_status === "HADIR" && data.guest.rsvp_pax_count

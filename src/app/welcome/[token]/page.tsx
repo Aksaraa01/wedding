@@ -51,7 +51,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
         setGuestName(data.guest.name)
         setGuestId(data.guest.id)
         setGuestQrToken(guestToken)
-        setCoupleName(`${data.profile.bride_name} & ${data.profile.groom_name}`)
+        setCoupleName(data.profile.display_name || `${data.profile.bride_name} & ${data.profile.groom_name}`)
         setTableNumber(data.guest.table_number || null)
         setCategory(data.guest.category || null)
         setEventDate(formatDate(data.profile.estimated_wedding_date || ""))
