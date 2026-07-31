@@ -14,18 +14,25 @@ export default function ReminderTamuVIPPage() {
   const [category, setCategory] = useState("")
   const [tableNo, setTableNo] = useState("")
 
+  const guestSlug = (guestName.trim() || "tamu-undangan")
+    .toLowerCase()
+    .replace(/&/g, "dan")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "") || "tamu-undangan"
+
   const SIM_TEMPLATE = {
     label: "Singkat & Padat",
-    text: "{Nama Tamu},\n\nInformasi pernikahan kami:\n\n📅 {Tanggal}\n📍 {Lokasi}\n🔗 {Tautan Unik}\n\nQR Code akses: simpan untuk masuk.\nNomor Meja: {Nomor Meja}\n\nSampai jumpa!\n{Nama Pengantin}",
+    text: "{Nama Tamu},\n\nInformasi pernikahan kami:\n\n📅 {Tanggal}\n📍 {Lokasi}\n🔗 {Tautan Unik}\n\nQR Code akses: {QR Akses}\nNomor Meja: {Nomor Meja}\n\nSampai jumpa!\n{Nama Pengantin}",
   }
 
   const previewMessage = SIM_TEMPLATE.text
     .replace("{Nama Tamu}", guestName.trim() || "Bpk. Robert J. Oppenheimer")
     .replace("{Tanggal}", "Sabtu, 14 Februari 2027")
     .replace("{Lokasi}", "The Ritz-Carlton Jakarta Ballroom")
-    .replace("{Tautan Unik}", "dela.wedding.aksaraa.com/tamu/rahasia-2027")
+    .replace("{Tautan Unik}", `https://dela.wedding.aksaraa.com/?to=${guestSlug}`)
+    .replace("{QR Akses}", `https://dela.wedding.aksaraa.com/qr/${guestSlug}`)
     .replace("{Nomor Meja}", tableNo.trim() || "Emerald - 01")
-    .replace("{Nama Pengantin}", "Dela & Dela")
+    .replace("{Nama Pengantin}", "Aksaraa")
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -248,7 +255,7 @@ export default function ReminderTamuVIPPage() {
                           <span className="material-symbols-outlined">person</span>
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold leading-tight">Dela &amp; Dela</p>
+                          <p className="text-sm font-semibold leading-tight">Aksaraa</p>
                           <p className="text-[11px] opacity-80 truncate">
                             Reminder Otomatis{category ? ` • ${category}` : ""}
                           </p>
