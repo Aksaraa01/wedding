@@ -41,11 +41,13 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
   const [error, setError] = useState("")
   const [downloading, setDownloading] = useState(false)
   const [copyOk, setCopyOk] = useState(false)
+  const [isPreview, setIsPreview] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     if (params.get("preview") === "1") {
+      setIsPreview(true)
       ;(async () => {
         const slug = params.get("slug") || "preview"
         const couple = params.get("couple") || "Tamu & Keluarga"
@@ -162,26 +164,30 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-between items-center py-6 px-4 sm:px-6" style={{ backgroundColor: "#FBF8F3", color: "#1A1817", fontFamily: "'Plus Jakarta Sans', sans-serif", WebkitFontSmoothing: "antialiased" }}>
-      <header className="w-full max-w-md flex items-center justify-between mb-6 md:justify-center md:gap-8">
-        <button onClick={() => history.back()} className="w-10 h-10 rounded-full bg-white border border-[rgba(26,24,23,0.08)] flex items-center justify-center text-[#1A1817] hover:bg-[#FBF8F3] transition-all active:scale-95 md:fixed md:top-6 md:left-6 md:z-30 md:shadow-md">
-          <span className="material-symbols-outlined text-xl">arrow_back</span>
-        </button>
-        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200/60 px-3 py-1 rounded-full text-[11px] font-medium text-emerald-800">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          Tersimpan Offline
-        </div>
-        <button onClick={() => window.location.reload()} className="w-10 h-10 rounded-full bg-white border border-[rgba(26,24,23,0.08)] flex items-center justify-center text-[#1A1817] hover:bg-[#FBF8F3] transition-all active:scale-95">
-          <span className="material-symbols-outlined text-xl">refresh</span>
-        </button>
-      </header>
+    <div className={isPreview ? "min-h-full flex flex-col items-center py-6 px-4 sm:px-6" : "min-h-screen flex flex-col justify-between items-center py-6 px-4 sm:px-6"} style={{ backgroundColor: "#FBF8F3", color: "#1A1817", fontFamily: "'Plus Jakarta Sans', sans-serif", WebkitFontSmoothing: "antialiased" }}>
+      {!isPreview && (
+        <header className="w-full max-w-md flex items-center justify-between mb-6 md:justify-center md:gap-8">
+          <button onClick={() => history.back()} className="w-10 h-10 rounded-full bg-white border border-[rgba(26,24,23,0.08)] flex items-center justify-center text-[#1A1817] hover:bg-[#FBF8F3] transition-all active:scale-95 md:fixed md:top-6 md:left-6 md:z-30 md:shadow-md">
+            <span className="material-symbols-outlined text-xl">arrow_back</span>
+          </button>
+          <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200/60 px-3 py-1 rounded-full text-[11px] font-medium text-emerald-800">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            Tersimpan Offline
+          </div>
+          <button onClick={() => window.location.reload()} className="w-10 h-10 rounded-full bg-white border border-[rgba(26,24,23,0.08)] flex items-center justify-center text-[#1A1817] hover:bg-[#FBF8F3] transition-all active:scale-95">
+            <span className="material-symbols-outlined text-xl">refresh</span>
+          </button>
+        </header>
+      )}
 
       <main className="w-full max-w-md flex flex-col items-center">
-        <div className="text-center mb-6">
-          <p className="text-[11px] uppercase tracking-[0.25em] text-[#8D4D39] font-semibold mb-1">Aksaraa Guestbook Pass</p>
-          <h1 className="font-serif text-3xl sm:text-4xl text-[#1A1817] font-medium" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Kartu Masuk Digital</h1>
-          <p className="text-xs text-[#5C5854] mt-1 max-w-[260px] mx-auto">Tunjukkan kode QR ini kepada meja penerima tamu di lokasi resepsi.</p>
-        </div>
+        {!isPreview && (
+          <div className="text-center mb-6">
+            <p className="text-[11px] uppercase tracking-[0.25em] text-[#8D4D39] font-semibold mb-1">Aksaraa Guestbook Pass</p>
+            <h1 className="font-serif text-3xl sm:text-4xl text-[#1A1817] font-medium" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Kartu Masuk Digital</h1>
+            <p className="text-xs text-[#5C5854] mt-1 max-w-[260px] mx-auto">Tunjukkan kode QR ini kepada meja penerima tamu di lokasi resepsi.</p>
+          </div>
+        )}
 
         <div ref={cardRef} id="wedding-pass-card" className="w-full rounded-2xl overflow-hidden border border-[rgba(26,24,23,0.08)] relative" style={{ background: "#FFFFFF", boxShadow: "0 16px 40px -12px rgba(26, 24, 23, 0.08), 0 4px 12px -2px rgba(26, 24, 23, 0.03)" }}>
           <div className="absolute w-6 h-6 bg-[#FBF8F3] rounded-full top-[58%] -translate-y-1/2 z-20 left-[-12px]" style={{ boxShadow: "inset -3px 0 4px rgba(26, 24, 23, 0.05)" }} />
@@ -269,7 +275,8 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
           </div>
         </div>
 
-        <div className="w-full mt-6 space-y-3">
+        {!isPreview && (
+          <div className="w-full mt-6 space-y-3">
           <button onClick={downloadPass} disabled={downloading} className="w-full h-12 bg-[#1A1817] text-white rounded-xl text-xs uppercase tracking-[0.15em] font-semibold hover:bg-[#8D4D39] transition-all duration-300 active:scale-[0.98] shadow-md flex items-center justify-center gap-2">
             <span className="material-symbols-outlined text-base">download</span>
             <span>{downloading ? "MEMPROSES GAMBAR..." : "Simpan ke Galeri (PNG)"}</span>
@@ -290,12 +297,15 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
             <span className="material-symbols-outlined text-sm">verified_user</span>
             Terenkripsi &amp; Terverifikasi oleh Aksaraa System
           </p>
-        </div>
+          </div>
+        )}
       </main>
 
-      <footer className="mt-8 text-center text-[11px] text-[#5C5854]/50">
-        <p>&copy; 2026 Aksaraa Wedding Experience. All rights reserved.</p>
-      </footer>
+      {!isPreview && (
+        <footer className="mt-8 text-center text-[11px] text-[#5C5854]/50">
+          <p>&copy; 2026 Aksaraa Wedding Experience. All rights reserved.</p>
+        </footer>
+      )}
 
       {qrModalOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex-col items-center justify-center p-6 flex" style={{ animation: "zoomIn 0.2s ease" }}>
