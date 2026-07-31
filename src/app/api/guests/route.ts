@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { autoGenerateGuestLinks } from "@/lib/guest-link"
 
 export async function GET(req: NextRequest) {
   try {
@@ -73,7 +74,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ guest: data })
+    const linksGenerated = await autoGenerateGuestLinks(wedding_profile_id, [data])
+
+    let guest = data
+    if (linksGenerated > 0) {
+      const { data: updated } = await supabaseAdmin
+        .from("guests")
+        .select()
+        .eq("id", data.id)
+        .single()
+      if (updated) guest = updated
+    }
+
+    return NextResponse.json({ guest, links_generated: linksGenerated })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

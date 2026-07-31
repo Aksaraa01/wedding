@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import * as XLSX from "xlsx"
+import { autoGenerateGuestLinks } from "@/lib/guest-link"
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,7 +39,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ guests: data, count: data.length })
+    const linksGenerated = await autoGenerateGuestLinks(weddingProfileId, data)
+
+    return NextResponse.json({ guests: data, count: data.length, links_generated: linksGenerated })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
