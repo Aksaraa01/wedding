@@ -152,7 +152,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   const handleCopy = async (token: string, name?: string) => {
     if (!profile) return
     const slugifiedName = name ? "/" + name.toLowerCase().replace(/&/g, "dan").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") : ""
-    const url = `https://${profile.slug}.aksaraa.com/qr/${token}${slugifiedName}`
+    const url = `https://${profile.slug}.wedding.aksaraa.com/qr/${token}${slugifiedName}`
     try {
       await navigator.clipboard.writeText(url)
       setCopiedId(guests.find(g => g.qr_token === token)?.id || null)
@@ -201,21 +201,19 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       </div>
 
       {/* Header */}
-      <header className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-md border-b border-outline-variant/40 px-6 py-4">
-        <div className="max-w-2xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <nav className="flex flex-col gap-1">
-            <button
-              onClick={() => router.push(`/dashboard/${id}`)}
-              className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors group font-label-md text-[11px] uppercase tracking-wider font-semibold"
-            >
-              <span className="material-symbols-outlined text-base group-hover:-translate-x-0.5 transition-transform">arrow_back</span>
-              Kembali ke Dasbor
-            </button>
-            <h1 className="font-headline-md text-xl md:text-2xl font-medium tracking-tight text-primary mt-1">
-              Panel Kontrol Tautan &amp; QR
-            </h1>
-          </nav>
-        </div>
+      <header className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-md border-b border-outline-variant/40 px-6 md:px-12 py-4">
+        <nav className="flex flex-col gap-1 max-w-2xl">
+          <button
+            onClick={() => router.push(`/dashboard/${id}`)}
+            className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors group font-label-md text-[11px] uppercase tracking-wider font-semibold"
+          >
+            <span className="material-symbols-outlined text-base group-hover:-translate-x-0.5 transition-transform">arrow_back</span>
+            Kembali ke Dasbor
+          </button>
+          <h1 className="font-headline-md text-xl md:text-2xl font-medium tracking-tight text-primary mt-1">
+            Panel Kontrol Tautan &amp; QR
+          </h1>
+        </nav>
       </header>
 
       {/* Main */}

@@ -93,8 +93,7 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
   }, [fetchAll, loading])
 
   const buildScannerUrl = (slug: string) => {
-    const { protocol, hostname, port } = window.location
-    return `${protocol}//${slug}.${hostname}${port ? `:${port}` : ""}/scanner`
+    return `https://${slug}.wedding.aksaraa.com/scanner`
   }
 
   const handleCopyLink = async () => {

@@ -71,7 +71,7 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
     if (res.ok) fetchWishes()
   }
 
-  const ledUrl = coupleSlug ? `https://${coupleSlug}.aksaraa.com/led` : ""
+  const ledUrl = coupleSlug ? `https://${coupleSlug}.wedding.aksaraa.com/led` : ""
 
   const copyLedUrl = () => {
     if (!ledUrl) return

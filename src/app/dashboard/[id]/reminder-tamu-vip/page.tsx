@@ -109,22 +109,22 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
     <>
       <PageTheme mode="light" />
       <div className="min-h-screen bg-background text-on-surface font-body-md antialiased pb-32">
-        <main className="w-full max-w-2xl mx-auto px-6 pt-10 flex flex-col gap-8">
-          <header className="flex flex-col gap-5">
-            <nav>
-              <button
-                onClick={() => router.push(`/dashboard/${id}`)}
-                className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors group"
-              >
-                <span className="material-symbols-outlined text-base group-hover:-translate-x-0.5 transition-transform">arrow_back</span>
-                <span className="font-label-md text-[11px] uppercase tracking-[0.2em] font-medium">Kembali</span>
-              </button>
-            </nav>
+        <header className="fixed top-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-md border-b border-outline-variant/30 flex items-center px-6 md:px-12 h-16">
+          <button
+            onClick={() => router.push(`/dashboard/${id}`)}
+            className="flex items-center gap-2 text-on-surface hover:opacity-70 transition-opacity"
+          >
+            <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+            <span className="font-label-md text-label-md uppercase tracking-widest">Kembali</span>
+          </button>
+        </header>
+        <main className="w-full max-w-2xl mx-auto px-6 pt-28 flex flex-col gap-8">
+          <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
               <h1 className="font-headline-lg text-3xl md:text-4xl text-primary leading-tight tracking-tight">Reminder Tamu VIP</h1>
             </div>
             <div className="h-px bg-outline-variant/40 mt-2" />
-          </header>
+          </div>
 
           <section className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-6 shadow-sm flex flex-col gap-6">
             <div className="flex items-center justify-between border-b border-outline-variant/30 pb-4">

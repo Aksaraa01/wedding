@@ -61,7 +61,7 @@ export async function GET(
         quote_source: profile.quote_source,
         stories: profile.stories,
         gallery_photos: profile.gallery_photos,
-        invitation_url: `https://${profile.slug}.aksaraa.com`,
+        invitation_url: `https://${profile.slug}.wedding.aksaraa.com`,
         inviting_families: profile.inviting_families ? (typeof profile.inviting_families === "string" ? JSON.parse(profile.inviting_families) : profile.inviting_families) : [],
       },
       template,

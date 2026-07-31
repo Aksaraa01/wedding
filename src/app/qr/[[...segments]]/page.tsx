@@ -64,7 +64,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
         setEstimatedDate(data.profile.estimated_wedding_date || "")
         setSessions(data.profile.sessions || [])
         const qrContent = data.profile.slug
-          ? `${window.location.protocol}//${data.profile.slug}.${window.location.hostname}${window.location.port ? ":" + window.location.port : ""}/welcome/${data.guest.qr_token || token}`
+          ? `https://${data.profile.slug}.wedding.aksaraa.com/welcome/${data.guest.qr_token || token}`
           : data.guest.qr_token || token
         const url = await QRCode.toDataURL(qrContent, {
           width: 400,
@@ -122,8 +122,8 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
 
   return (
     <div className="min-h-screen flex flex-col justify-between items-center py-6 px-4 sm:px-6" style={{ backgroundColor: "#FBF8F3", color: "#1A1817", fontFamily: "'Plus Jakarta Sans', sans-serif", WebkitFontSmoothing: "antialiased" }}>
-      <header className="w-full max-w-md flex items-center justify-between mb-6">
-        <button onClick={() => history.back()} className="w-10 h-10 rounded-full bg-white border border-[rgba(26,24,23,0.08)] flex items-center justify-center text-[#1A1817] hover:bg-[#FBF8F3] transition-all active:scale-95">
+      <header className="w-full max-w-md flex items-center justify-between mb-6 md:justify-center md:gap-8">
+        <button onClick={() => history.back()} className="w-10 h-10 rounded-full bg-white border border-[rgba(26,24,23,0.08)] flex items-center justify-center text-[#1A1817] hover:bg-[#FBF8F3] transition-all active:scale-95 md:fixed md:top-6 md:left-6 md:z-30 md:shadow-md">
           <span className="material-symbols-outlined text-xl">arrow_back</span>
         </button>
         <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200/60 px-3 py-1 rounded-full text-[11px] font-medium text-emerald-800">

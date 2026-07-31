@@ -55,20 +55,18 @@ function WebInvitationInner({ id }: { id: string }) {
   return (
     <>
       <PageTheme mode="light" />
-      <div className="max-w-[500px] mx-auto min-h-screen flex flex-col relative pb-32">
-        <header className="sticky top-0 z-50 bg-surface flex items-center w-full px-6 py-6 border-b border-outline-variant/30 transition-all">
-          <div className="flex items-center gap-4 w-full">
-            <button
-              onClick={() => router.push(`/dashboard/${id}`)}
-              className="flex items-center gap-2 text-primary hover:opacity-70 transition-opacity"
-            >
-              <span className="material-symbols-outlined">arrow_back</span>
-              <span className="font-label-md text-label-md uppercase">Kembali</span>
-            </button>
-          </div>
+      <div className="min-h-screen flex flex-col relative pb-32">
+        <header className="fixed top-0 left-0 right-0 z-50 bg-surface flex items-center w-full px-6 md:px-12 h-16 border-b border-outline-variant/30 transition-all">
+          <button
+            onClick={() => router.push(`/dashboard/${id}`)}
+            className="flex items-center gap-2 text-primary hover:opacity-70 transition-opacity"
+          >
+            <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+            <span className="font-label-md text-label-md uppercase">Kembali</span>
+          </button>
         </header>
 
-        <main className="flex-1 px-6 pt-8">
+        <main className="flex-1 w-full max-w-[500px] mx-auto px-6 pt-24">
           <h1 className="font-headline-md text-headline-md mb-10 leading-tight">
             Undangan Digital Anda
           </h1>
