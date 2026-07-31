@@ -67,6 +67,7 @@ function getModuleStatus(key: string, vals: {
   templateName: string; trackName: string; qrWithToken: number; qrCheckedIn: number;
   totalWishes: number; photoCount: number; accountCount: number;
   rsvpStats: { hadir: number; belum_respon: number } | null;
+  paymentStatus: string;
 }): { label: string; active: boolean } {
   switch (key) {
     case "premium_web":
@@ -78,9 +79,9 @@ function getModuleStatus(key: string, vals: {
         ? { label: `${vals.qrWithToken} QR Aktif`, active: true }
         : { label: "Belum Aktif", active: false }
     case "qr_code_book":
-      return vals.qrCheckedIn > 0
-        ? { label: `${vals.qrCheckedIn} Sudah Hadir`, active: true }
-        : { label: "Belum Aktif", active: false }
+      return vals.paymentStatus === "UNPAID"
+        ? { label: "Belum Aktif", active: false }
+        : { label: `${vals.qrCheckedIn} Hadir`, active: true }
     case "wish_wall":
       return vals.totalWishes > 0
         ? { label: `${vals.totalWishes} Wish Sudah Masuk`, active: true }
@@ -100,7 +101,9 @@ function getModuleStatus(key: string, vals: {
     case "undangan_fisik":
       return { label: "Draf", active: false }
     case "wa_blast":
-      return { label: "Aktif", active: true }
+      return vals.paymentStatus === "UNPAID"
+        ? { label: "Belum Aktif", active: false }
+        : { label: "Aktif", active: true }
     default:
       return { label: "—", active: false }
   }
@@ -243,6 +246,7 @@ function DashboardInner({ id }: { id: string }) {
     photoCount,
     accountCount,
     rsvpStats,
+    paymentStatus: profile.payment_status,
   }
 
   const statusColor = profile.payment_status === "FULLY_PAID" ? "bg-green-500" : profile.payment_status === "PARTIAL_DP" ? "bg-yellow-500" : "bg-red-500"
