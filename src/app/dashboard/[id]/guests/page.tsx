@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, use, useRef } from "react"
+import { useState, useEffect, use, useRef, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import ProfileMenu from "@/components/ProfileMenu"
@@ -228,6 +228,34 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
       g.table_number?.toLowerCase().includes(search.toLowerCase())
   )
 
+  const chartData = useMemo(() => {
+    const byTable = new Map<string, Map<string, number>>()
+    for (const g of guests) {
+      const table = g.table_number?.trim() || "Tanpa Meja"
+      const category = g.category?.trim() || "Tanpa Kategori"
+      if (!byTable.has(table)) byTable.set(table, new Map())
+      const cats = byTable.get(table)!
+      cats.set(category, (cats.get(category) || 0) + 1)
+    }
+    const rows = [...byTable.entries()].map(([table, cats]) => ({
+      table,
+      total: [...cats.values()].reduce((a, b) => a + b, 0),
+      cats: [...cats.entries()].sort((a, b) => b[1] - a[1]),
+    }))
+    rows.sort((a, b) => a.table.localeCompare(b.table, "id", { numeric: true }))
+    return rows
+  }, [guests])
+
+  const chartCategories = useMemo(() => {
+    const set = new Set<string>()
+    for (const row of chartData) for (const [cat] of row.cats) set.add(cat)
+    return [...set].sort((a, b) => a.localeCompare(b, "id"))
+  }, [chartData])
+
+  const CATEGORY_COLORS = ["#b8860b", "#8d4d39", "#4a6f8a", "#5a8a4a", "#8a6a4a", "#7a4a8a", "#4a8a7a", "#a4a4a4"]
+  const categoryColor = (cat: string) => CATEGORY_COLORS[chartCategories.indexOf(cat) % CATEGORY_COLORS.length]
+  const maxTableTotal = Math.max(1, ...chartData.map((r) => r.total))
+
   if (view === "verify" && verifySummary) {
     const filteredVerify = verifyRows.filter(
       (r) =>
@@ -369,6 +397,49 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
           </p>
         </section>
 
+        {chartData.length > 0 && (
+          <section className="mb-6 shrink-0">
+            <div className="border border-outline-variant bg-surface-container-low rounded-lg p-5">
+              <div className="flex justify-between items-baseline mb-4">
+                <h2 className="font-headline-md text-[16px] text-primary">Sebaran Tamu per Meja</h2>
+                <span className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">
+                  {guests.length} tamu
+                </span>
+              </div>
+              <div className="flex flex-col gap-3">
+                {chartData.map((row) => (
+                  <div key={row.table} className="flex items-center gap-3">
+                    <span className="w-16 shrink-0 font-label-md text-[10px] uppercase tracking-wider text-on-surface-variant truncate">
+                      {row.table}
+                    </span>
+                    <div className="flex-1 h-4 bg-surface-container-highest rounded-sm overflow-hidden flex">
+                      {row.cats.map(([cat, count]) => (
+                        <div
+                          key={cat}
+                          style={{ width: `${(count / maxTableTotal) * 100}%`, backgroundColor: categoryColor(cat) }}
+                          title={`${cat}: ${count}`}
+                          className="h-full min-w-[4px]"
+                        />
+                      ))}
+                    </div>
+                    <span className="w-7 shrink-0 text-right font-body-md text-[12px] font-semibold text-primary">
+                      {row.total}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 border-t border-outline-variant/40 pt-3">
+                {chartCategories.map((cat) => (
+                  <span key={cat} className="flex items-center gap-1.5 font-label-md text-[9px] uppercase tracking-wider text-on-surface-variant">
+                    <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: categoryColor(cat) }} />
+                    {cat}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
         <section className="mb-6 shrink-0">
           {uploadError && (
             <div className="mb-3 p-3 bg-error-container border border-error/30 flex items-center gap-3">
@@ -380,7 +451,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             </div>
           )}
           <div
-            className={`border-2 border-dashed p-6 flex flex-col items-center text-center transition-all duration-300 ${
+            className={`border-2 border-dashed p-4 flex flex-col items-center text-center transition-all duration-300 ${
               dragOver ? "drag-active border-secondary bg-surface-container-low" : "border-outline-variant bg-surface-container-low"
             }`}
             onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
@@ -388,9 +459,9 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
           >
-            <span className="material-symbols-outlined text-2xl mb-2 text-outline" style={{ fontVariationSettings: "'wght' 200" }}>description</span>
-            <p className="font-body-md text-body-md text-on-surface mb-3 px-4">
-              Seret berkas Excel / Spreadsheet Anda di sini atau{" "}
+            <span className="material-symbols-outlined text-xl mb-1.5 text-outline" style={{ fontVariationSettings: "'wght' 200" }}>description</span>
+            <p className="font-body-md text-body-sm text-on-surface mb-2.5 px-2">
+              Seret berkas Excel di sini atau{" "}
               <span className="font-semibold underline cursor-pointer">Ketuk untuk Unggah</span>
             </p>
             <input
@@ -406,9 +477,9 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             />
             <button
               onClick={(e) => { e.stopPropagation(); handleDownloadTemplate() }}
-              className="flex items-center gap-2 px-5 py-2.5 border border-primary text-primary font-label-md text-label-md uppercase tracking-widest hover:bg-primary hover:text-white transition-all duration-300"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 border border-primary text-primary font-label-md text-label-sm uppercase tracking-widest hover:bg-primary hover:text-white transition-all duration-300"
             >
-              <span className="material-symbols-outlined text-sm">download</span>
+              <span className="material-symbols-outlined text-[14px]">download</span>
               Unduh Templat
             </button>
           </div>

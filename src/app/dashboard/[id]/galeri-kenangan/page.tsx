@@ -16,6 +16,42 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
   const router = useRouter()
   const [photos, setPhotos] = useState<GuestPhoto[]>([])
   const [loading, setLoading] = useState(true)
+  const [downloadingAll, setDownloadingAll] = useState(false)
+
+  const downloadSingle = async (url: string, filename: string) => {
+    try {
+      const res = await fetch(url)
+      const blob = await res.blob()
+      const link = document.createElement("a")
+      link.href = URL.createObjectURL(blob)
+      link.download = filename
+      link.click()
+      URL.revokeObjectURL(link.href)
+    } catch {
+      window.open(url, "_blank")
+    }
+  }
+
+  const downloadAll = async () => {
+    if (downloadingAll) return
+    setDownloadingAll(true)
+    try {
+      const res = await fetch(`/api/guest-photos/download-all?wedding_profile_id=${id}`)
+      if (!res.ok) {
+        const text = await res.text()
+        alert(text || "Gagal mengunduh")
+        return
+      }
+      const blob = await res.blob()
+      const link = document.createElement("a")
+      link.href = URL.createObjectURL(blob)
+      link.download = "galeri-kenangan.zip"
+      link.click()
+      URL.revokeObjectURL(link.href)
+    } finally {
+      setDownloadingAll(false)
+    }
+  }
 
   useEffect(() => {
     fetch(`/api/guest-photos?wedding_profile_id=${id}`)
@@ -44,15 +80,14 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
 
   return (
     <div className="min-h-screen bg-surface text-on-surface font-body-md antialiased">
-      <header className="fixed top-0 w-full z-50 bg-surface border-b border-outline-variant h-20 transition-all duration-300 ease-in-out">
-        <div className="flex items-center justify-between px-edge-margin-mobile md:px-edge-margin-desktop h-full w-full max-w-container-max mx-auto">
-          <div className="flex items-center gap-4 hover:opacity-70 transition-opacity duration-300 cursor-pointer" onClick={() => router.back()}>
-            <span className="material-symbols-outlined text-primary">arrow_back</span>
-            <span className="font-headline-md text-[20px] md:text-headline-md text-primary uppercase tracking-widest">Aksaraa</span>
+        <header className="fixed top-0 w-full z-50 bg-surface border-b border-outline-variant h-20 transition-all duration-300 ease-in-out">
+          <div className="flex items-center justify-between px-edge-margin-mobile md:px-edge-margin-desktop h-full w-full max-w-container-max mx-auto">
+            <div className="flex items-center gap-4 hover:opacity-70 transition-opacity duration-300 cursor-pointer" onClick={() => router.back()}>
+              <span className="material-symbols-outlined text-primary">arrow_back</span>
+              <span className="font-headline-md text-[20px] md:text-headline-md text-primary uppercase tracking-widest">Aksaraa</span>
+            </div>
           </div>
-          <h1 className="hidden md:block font-headline-md text-headline-md text-primary">Galeri Kenangan</h1>
-        </div>
-      </header>
+        </header>
 
       <main className="pt-32 pb-32 max-w-container-max mx-auto px-edge-margin-mobile md:px-edge-margin-desktop">
         <section className="mb-16 fade-in" style={{ animation: "fadeIn 0.8s ease-out forwards" }}>
@@ -61,9 +96,21 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
               <h2 className="font-headline-xl text-[28px] md:text-headline-xl text-primary mb-4">Galeri Kenangan Tamu</h2>
               <p className="font-body-lg text-body-md md:text-body-lg text-on-surface-variant">Melihat hari bahagia Anda melalui lensa para tamu terkasih.</p>
             </div>
-            <div className="flex flex-col items-start md:items-end">
-              <span className="font-label-md text-label-md uppercase text-secondary tracking-widest mb-1">Total Dokumentasi</span>
-              <span className="font-headline-lg text-[24px] md:text-headline-lg text-primary">{loading ? "..." : `${photos.length} Momen Terunggah`}</span>
+            <div className="flex flex-col items-start md:items-end gap-4">
+              <div className="flex flex-col items-start md:items-end">
+                <span className="font-label-md text-label-md uppercase text-secondary tracking-widest mb-1">Total Dokumentasi</span>
+                <span className="font-headline-lg text-[24px] md:text-headline-lg text-primary">{loading ? "..." : `${photos.length} Momen Terunggah`}</span>
+              </div>
+              {!loading && photos.length > 0 && (
+                <button
+                  onClick={downloadAll}
+                  disabled={downloadingAll}
+                  className="flex items-center gap-2 border border-primary text-primary font-label-md text-label-md uppercase tracking-widest px-5 py-3 hover:bg-primary hover:text-white transition-colors duration-300 disabled:opacity-50"
+                >
+                  <span className="material-symbols-outlined text-[18px]">{downloadingAll ? "hourglass_empty" : "archive"}</span>
+                  {downloadingAll ? "Menyiapkan ZIP..." : `Unduh Semua (${photos.length})`}
+                </button>
+              )}
             </div>
           </div>
         </section>
@@ -107,16 +154,23 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                       Oleh: {photo.guests?.name || "Tamu"}
                       {photo.guests?.category ? <span className="text-on-surface-variant/50 ml-1">({photo.guests.category})</span> : null}
                     </span>
-                    <span
-                      className="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-secondary transition-colors select-none"
-                      style={{ fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}
-                      onClick={(e) => {
-                        const el = e.currentTarget
-                        const filled = el.style.fontVariationSettings.includes("'FILL' 1")
-                        el.style.fontVariationSettings = filled ? "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" : "'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24"
-                        el.style.color = filled ? "" : "#8d4d39"
-                      }}
-                    >favorite</span>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors select-none"
+                        title="Unduh foto ini"
+                        onClick={() => downloadSingle(photo.image_url, `${photo.guests?.name || "tamu"}-${photo.id}.jpg`)}
+                      >download</span>
+                      <span
+                        className="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-secondary transition-colors select-none"
+                        style={{ fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}
+                        onClick={(e) => {
+                          const el = e.currentTarget
+                          const filled = el.style.fontVariationSettings.includes("'FILL' 1")
+                          el.style.fontVariationSettings = filled ? "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" : "'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24"
+                          el.style.color = filled ? "" : "#8d4d39"
+                        }}
+                      >favorite</span>
+                    </div>
                   </div>
                 </div>
               )

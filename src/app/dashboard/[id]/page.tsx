@@ -69,6 +69,8 @@ function getModuleStatus(key: string, vals: {
   totalWishes: number; photoCount: number; accountCount: number; addressCount: number;
   rsvpStats: { hadir: number; belum_dibuka: number } | null;
   paymentStatus: string;
+  waBlastSchedule: { scheduled_date: string } | null;
+  waBlastIncluded: number;
 }): { label: string; active: boolean } {
   if (key === "premium_web") {
     return vals.templateName
@@ -102,7 +104,14 @@ function getModuleStatus(key: string, vals: {
     case "undangan_fisik":
       return { label: "Konsultasi", active: false }
     case "wa_blast":
-      return { label: "Aktif", active: true }
+      if (vals.waBlastSchedule) {
+        const d = new Date(vals.waBlastSchedule.scheduled_date + "T00:00:00")
+        const dateStr = isNaN(d.getTime())
+          ? vals.waBlastSchedule.scheduled_date
+          : d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })
+        return { label: `Dijadwalkan ${dateStr} ke ${vals.waBlastIncluded} Tamu VIP`, active: true }
+      }
+      return { label: "Jadwal Belum Disimpan", active: false }
     default:
       return { label: "—", active: false }
   }
@@ -130,6 +139,8 @@ function DashboardInner({ id }: { id: string }) {
   const [rsvpHadirCount, setRsvpHadirCount] = useState(0)
   const [rsvpHadirPax, setRsvpHadirPax] = useState(0)
   const [rsvpTotalPax, setRsvpTotalPax] = useState(0)
+  const [waBlastSchedule, setWaBlastSchedule] = useState<{ scheduled_date: string } | null>(null)
+  const [waBlastIncluded, setWaBlastIncluded] = useState(0)
   const [showFisikInfo, setShowFisikInfo] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -143,8 +154,9 @@ function DashboardInner({ id }: { id: string }) {
       fetch(`/api/gift-accounts?wedding_profile_id=${id}`).then(r => r.ok ? r.json() : null),
       fetch(`/api/gift-addresses?wedding_profile_id=${id}`).then(r => r.ok ? r.json() : null),
       fetch(`/api/dashboard/${id}/reservation-automation`).then(r => r.ok ? r.json() : null),
+      fetch(`/api/dashboard/${id}/wa-blast`).then(r => r.ok ? r.json() : null),
     ])
-      .then(([dashboardRes, invData, qrData, photoData, accData, addrData, rsvpData]) => {
+      .then(([dashboardRes, invData, qrData, photoData, accData, addrData, rsvpData, waBlastData]) => {
         if (!dashboardRes.ok) throw new Error("Dashboard tidak ditemukan")
         return dashboardRes.json().then((data) => {
           setProfile(data.profile)
@@ -168,6 +180,12 @@ function DashboardInner({ id }: { id: string }) {
           setRsvpHadirCount(data.rsvp_hadir_count ?? 0)
           setRsvpHadirPax(data.rsvp_hadir_pax ?? 0)
           setRsvpTotalPax(data.rsvp_total_pax ?? 0)
+          if (waBlastData?.schedule) setWaBlastSchedule(waBlastData.schedule)
+          const wpPackage = data.profile?.package_type || "signature"
+          const waBlastTier = waBlastData?.wa_blast_tier || 0
+          const quota = (wpPackage === "prestige" ? 100 : 0) + waBlastTier
+          const vipCount = waBlastData?.vip_count || 0
+          setWaBlastIncluded(quota > 0 ? Math.min(vipCount, quota) : vipCount)
         })
       })
       .catch((e) => setError(e.message))
@@ -248,6 +266,8 @@ function DashboardInner({ id }: { id: string }) {
     addressCount,
     rsvpStats,
     paymentStatus: profile.payment_status,
+    waBlastSchedule,
+    waBlastIncluded,
   }
 
   const statusColor = profile.payment_status === "FULLY_PAID" ? "bg-green-500" : profile.payment_status === "PARTIAL_DP" ? "bg-yellow-500" : "bg-red-500"

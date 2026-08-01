@@ -95,6 +95,7 @@ type QueueDetail = {
     checked_in_count: number
     template_name: string | null
     track_name: string | null
+    web_published?: boolean
   }
   wa_blast_schedule: {
     id: string
@@ -695,6 +696,25 @@ export default function OpsDashboardPage() {
                               </p>
                             </div>
                           ) : null
+                        })()}
+
+                        {(fa.feature_key === "premium_web" || fa.feature_key === "wa_blast") && (() => {
+                          const confirmed = fa.feature_key === "premium_web"
+                            ? detail.feature_stats.web_published === true
+                            : !!waBlastSchedule
+                          const label = fa.feature_key === "premium_web"
+                            ? (confirmed ? "Undangan Terkonfirmasi dari Editor" : "Undangan Belum Dikonfirmasi dari Editor")
+                            : (confirmed ? "Jadwal Reminder Sudah Disimpan" : "Jadwal Reminder Belum Disimpan")
+                          return (
+                            <div className={`mb-4 inline-flex items-center gap-2 px-2.5 py-1 border text-[9px] font-bold uppercase tracking-widest ${
+                              confirmed
+                                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                : "border-amber-200 bg-amber-50 text-amber-700"
+                            }`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${confirmed ? "bg-emerald-500" : "bg-amber-500"}`} />
+                              {label}
+                            </div>
+                          )
                         })()}
 
                         {fa.feature_key === "unique_link_generator" && (

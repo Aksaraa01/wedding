@@ -103,9 +103,10 @@ export async function GET(
     // Template + track name for premium_web
     let webTemplateName: string | null = null
     let webTrackName: string | null = null
+    let webPublished = false
     const { data: webProfile } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("selected_template_id, selected_track_id")
+      .select("selected_template_id, selected_track_id, is_published")
       .eq("id", wp.id)
       .single()
     if (webProfile?.selected_template_id) {
@@ -124,6 +125,7 @@ export async function GET(
         .single()
       if (trk) webTrackName = trk.title
     }
+    webPublished = webProfile?.is_published === true
 
     return NextResponse.json({
       queue: {
@@ -162,6 +164,7 @@ export async function GET(
         checked_in_count: checkedInCount ?? 0,
         template_name: webTemplateName,
         track_name: webTrackName,
+        web_published: webPublished,
       },
       wa_blast_schedule: waBlastSchedule || null,
       wa_blast_quota: waBlastQuota,
