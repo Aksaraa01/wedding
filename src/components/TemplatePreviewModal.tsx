@@ -25,6 +25,14 @@ export default function TemplatePreviewModal({ name, demoUrl, code, onClose }: P
     }
   }, [])
 
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [])
+
   const handleLoad = useCallback(() => {
     if (safetyRef.current) clearTimeout(safetyRef.current)
     setStatus("loaded")
