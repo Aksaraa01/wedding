@@ -59,6 +59,7 @@ export async function POST(req: NextRequest) {
         .from("wishes")
         .select("id", { count: "exact", head: true })
         .eq("guest_id", guest_id)
+        .eq("source", wishSource)
 
       if (existing && existing > 0) {
         return NextResponse.json({ error: "Anda sudah mengirimkan doa dan harapan sebelumnya. Setiap tamu hanya dapat mengirim satu kali." }, { status: 409 })

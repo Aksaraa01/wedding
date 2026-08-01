@@ -353,7 +353,7 @@ function EditorInner({ id }: { id: string }) {
         {/* TOP BAR */}
         <header className="bg-surface border-b border-outline-variant flex justify-between items-center px-6 lg:px-12 w-full h-20 z-50 shrink-0">
           <div className="flex items-center gap-6">
-            <button onClick={() => router.push(`/dashboard/${id}/web-invitation`)} className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors">
+            <button onClick={() => router.push(`/dashboard/${id}`)} className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors">
               <span className="material-symbols-outlined">arrow_back</span>
               <span className="font-label-md text-label-md hidden sm:inline">DASHBOARD</span>
             </button>

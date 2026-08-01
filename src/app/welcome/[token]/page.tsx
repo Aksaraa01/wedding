@@ -66,7 +66,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
         }
 
         if (data.guest.id) {
-          const wishCheck = await fetch(`/api/wishes?wedding_profile_id=${data.guest.wedding_profile_id}&guest_id=${data.guest.id}`)
+          const wishCheck = await fetch(`/api/wishes?wedding_profile_id=${data.guest.wedding_profile_id}&guest_id=${data.guest.id}&source=welcome`)
           const wishData = await wishCheck.json()
           if (wishData.wishes && wishData.wishes.length > 0) {
             setWishSent(true)

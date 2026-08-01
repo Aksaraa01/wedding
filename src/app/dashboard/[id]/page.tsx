@@ -377,7 +377,7 @@ function DashboardInner({ id }: { id: string }) {
                         return
                       }
                       const routes: Record<string, string> = {
-                        premium_web: `/dashboard/${id}/web-invitation`,
+                        premium_web: `/dashboard/${id}/web-invitation/editor`,
                         reservation_automation: `/dashboard/${id}/reservation-automation`,
                         unique_link_generator: `/dashboard/${id}/qr-guestbook`,
                         qr_code_book: `/dashboard/${id}/qr-guestbook/live`,

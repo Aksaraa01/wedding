@@ -22,7 +22,7 @@ export async function generateUniqueSlug(weddingProfileId: string, name: string)
 
 export async function autoGenerateGuestLinks(
   weddingProfileId: string,
-  guests: { id: string; name: string }[]
+  guests: { id: string; name: string; qr_token?: string | null }[]
 ): Promise<number> {
   if (guests.length === 0) return 0
 
@@ -36,11 +36,11 @@ export async function autoGenerateGuestLinks(
 
   let generated = 0
   for (const g of guests) {
-    const token = await generateUniqueToken()
+    const token = g.qr_token || (await generateUniqueToken())
     const slug = await generateUniqueSlug(weddingProfileId, g.name)
     const { error } = await supabaseAdmin
       .from("guests")
-      .update({ qr_token: token, slug })
+      .update({ ...(g.qr_token ? {} : { qr_token: token }), slug })
       .eq("id", g.id)
     if (!error) generated += 1
   }
