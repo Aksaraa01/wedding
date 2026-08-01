@@ -87,7 +87,7 @@ function TemplatesInner({ id }: { id: string }) {
           </div>
         </section>
 
-        <div className="grid grid-cols-2 gap-x-4 gap-y-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-10">
           {filtered.map(tpl => (
             <article key={tpl.id} className="group flex flex-col">
               <div
