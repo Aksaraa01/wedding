@@ -107,8 +107,8 @@ export default function ReminderTamuVIPPage() {
               <span className="inline-block px-4 py-1 border border-primary/20 font-label-sm text-label-sm uppercase tracking-[0.2em] mb-8 reveal-item">
                 Modul Pengingat Otomatis
               </span>
-              <h1 className="font-display-lg text-headline-lg-mobile md:text-display-lg mb-8 leading-[1.1] reveal-item">
-                Pastikan Kehadiran Tamu Kehormatan dengan Sentuhan Personal.
+              <h1 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[44px] md:text-[72px] leading-[1.05] text-primary mb-8 reveal-item">
+                Pastikan Kehadiran <span className="italic text-secondary">Tamu Kehormatan</span> dengan Sentuhan Personal.
               </h1>
               <button
                 onClick={() => router.push("/register")}
@@ -145,19 +145,19 @@ export default function ReminderTamuVIPPage() {
           <div className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
             <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-primary/10">
               <div className="px-8 py-4 text-center lg:text-left">
-                <p className="font-display-lg text-headline-lg mb-2">100</p>
+                <p className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[36px] md:text-[44px] mb-2 text-primary">100</p>
                 <p className="font-label-sm text-label-sm uppercase tracking-widest text-secondary">Tamu VIP</p>
               </div>
               <div className="px-8 py-4 text-center lg:text-left">
-                <p className="font-display-lg text-headline-lg mb-2">H-n</p>
+                <p className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[36px] md:text-[44px] mb-2 text-primary">H-n</p>
                 <p className="font-label-sm text-label-sm uppercase tracking-widest text-secondary">Pemicu</p>
               </div>
               <div className="px-8 py-4 text-center lg:text-left">
-                <p className="font-display-lg text-headline-lg mb-2">QR</p>
+                <p className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[36px] md:text-[44px] mb-2 text-primary">QR</p>
                 <p className="font-label-sm text-label-sm uppercase tracking-widest text-secondary">Personal Pass</p>
               </div>
               <div className="px-8 py-4 text-center lg:text-left">
-                <p className="font-display-lg text-headline-lg mb-2">LIVE</p>
+                <p className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[36px] md:text-[44px] mb-2 text-primary">LIVE</p>
                 <p className="font-label-sm text-label-sm uppercase tracking-widest text-secondary">Tracking</p>
               </div>
             </div>
@@ -169,7 +169,7 @@ export default function ReminderTamuVIPPage() {
           <div className="bg-surface border border-primary p-8 md:p-16 reveal-item">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
               <div className="lg:col-span-5">
-                <h2 className="font-headline-lg text-headline-lg mb-6">Interactive Preview</h2>
+                <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[38px] md:text-[48px] mb-6 text-primary">Interactive <span className="italic text-secondary">Preview</span></h2>
                 <p className="font-body-md text-body-md text-on-surface-variant mb-12">
                   Rasakan pengalaman pengiriman pesan secara langsung. Isi data di bawah untuk melihat bagaimana sistem kami memformat undangan personal tamu Anda.
                 </p>
@@ -282,7 +282,7 @@ export default function ReminderTamuVIPPage() {
         {/* Workflow */}
         <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto py-32">
           <div className="text-center mb-24 reveal-item">
-            <h2 className="font-headline-lg text-headline-lg mb-4">Langkah Kerja Modular</h2>
+            <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[38px] md:text-[48px] mb-4 text-primary">Langkah Kerja <span className="italic text-secondary">Modular</span></h2>
             <div className="w-24 h-[1px] bg-primary mx-auto mb-8" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -297,7 +297,7 @@ export default function ReminderTamuVIPPage() {
                 className="p-10 border border-primary/10 flex flex-col h-full bg-surface-container-low reveal-item"
               >
                 <span className="material-symbols-outlined text-4xl mb-8">{card.icon}</span>
-                <h3 className="font-headline-md text-headline-md mb-4">{card.title}</h3>
+                <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[26px] mb-4 text-primary">{card.title}</h3>
                 <p className="text-on-surface-variant font-body-md">{card.desc}</p>
               </div>
             ))}
@@ -309,7 +309,7 @@ export default function ReminderTamuVIPPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-8 bg-primary text-on-primary p-12 flex flex-col justify-end relative overflow-hidden reveal-item">
               <div className="relative z-10">
-                <h2 className="font-display-lg text-headline-lg md:text-display-lg mb-6">Efisiensi Waktu Tanpa Batas</h2>
+                <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[40px] md:text-[56px] mb-6 text-on-primary">Efisiensi Waktu <span className="italic">Tanpa Batas</span></h2>
                 <p className="text-on-primary/70 font-body-lg max-w-lg mb-8">
                   Fokuslah pada momen berharga Anda, biar sistem kami yang mengelola komunikasi VIP dengan presisi milidetik.
                 </p>
@@ -320,7 +320,7 @@ export default function ReminderTamuVIPPage() {
                 <span className="material-symbols-outlined text-on-primary text-3xl">qr_code_2</span>
               </div>
               <div>
-                <h3 className="font-headline-md text-headline-md mb-4">Link &amp; QR Tamu</h3>
+                <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[26px] mb-4 text-primary">Link &amp; <span className="italic text-secondary">QR Tamu</span></h3>
                 <p className="text-on-surface-variant">Setiap pesan dilengkapi dengan QR unik untuk digital guest book</p>
               </div>
             </div>
@@ -329,7 +329,7 @@ export default function ReminderTamuVIPPage() {
                 <span className="material-symbols-outlined text-primary text-3xl">directions</span>
               </div>
               <div>
-                <h3 className="font-headline-md text-headline-md mb-4">Petunjuk Arah Maps</h3>
+                <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[26px] mb-4 text-primary">Petunjuk <span className="italic text-secondary">Arah Maps</span></h3>
                 <p className="text-on-surface-variant">Navigasi presisi disematkan langsung dalam pesan untuk meminimalisir kendala kedatangan.</p>
               </div>
             </div>

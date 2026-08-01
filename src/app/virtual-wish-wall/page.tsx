@@ -186,8 +186,8 @@ export default function VirtualWishWallPage() {
               <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
               MODUL DINDING DOA &amp; UCAPAN DIGITAL
             </div>
-            <h1 className="font-display-lg text-[44px] md:text-display-lg text-primary leading-[1.1]">
-              Abadikan Doa <br />dalam Karya <span className="italic text-secondary">Visual Elegan.</span>
+            <h1 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[44px] md:text-[72px] lg:text-[84px] leading-[1.05] text-primary">
+              Abadikan Doa <br />dalam <span className="italic font-medium text-secondary">Karya Visual</span> Elegan.
             </h1>
             <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl leading-relaxed">
               Transformasikan ucapan tamu menjadi instalasi digital artistik. Terhubung secara instan dari smartphone tamu langsung ke layar LED venue utama dalam hitungan milidetik.
@@ -307,7 +307,7 @@ export default function VirtualWishWallPage() {
             ].map((m) => (
               <div key={m.title} className="bg-white/5 border border-white/10 p-8 rounded-lg hover:border-secondary transition-all group">
                 <span className="material-symbols-outlined text-secondary text-[32px] mb-4">{m.icon}</span>
-                <h4 className="text-white font-display-lg text-[24px] mb-1">{m.title}</h4>
+                <h4 className="text-white font-[family-name:var(--font-cormorant)] font-semibold text-[26px] mb-1">{m.title}</h4>
                 <p className="text-white/50 font-label-caps text-[10px] tracking-widest">{m.desc}</p>
               </div>
             ))}
@@ -318,7 +318,7 @@ export default function VirtualWishWallPage() {
         <section className="py-24 bg-surface-container-low" id="sandbox">
           <div className="max-w-4xl mx-auto px-margin-mobile sandbox-card">
             <div className="text-center mb-12 space-y-4">
-              <h2 className="font-display-lg text-[36px] md:text-[48px] text-primary leading-tight">Coba Simulasi Interaktif</h2>
+              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[36px] md:text-[48px] text-primary leading-tight">Coba <span className="italic text-secondary">Simulasi Interaktif</span></h2>
               <p className="text-on-surface-variant font-body-md max-w-lg mx-auto">Tulis pesan Anda di bawah ini dan lihat bagaimana pesan tersebut tampil secara instan di &quot;Wish Wall&quot; kami.</p>
             </div>
             <div className="bg-white editorial-shadow rounded-xl p-8 border border-outline-variant/30">
@@ -381,7 +381,7 @@ export default function VirtualWishWallPage() {
         <section className="py-24 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
             <div className="space-y-4">
-              <h2 className="font-headline-md text-primary text-[40px]">Live Wish Feed</h2>
+              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[38px] md:text-[48px] text-primary text-[40px]">Live <span className="italic text-secondary">Wish Feed</span></h2>
               <p className="text-on-surface-variant font-body-md max-w-md">Eksplorasi doa-doa yang telah masuk dan disetujui oleh moderator.</p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -450,7 +450,7 @@ export default function VirtualWishWallPage() {
         <section className="py-24 bg-[#1a1817]">
           <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
             <div className="text-center mb-20 space-y-6">
-              <h2 className="font-display-lg text-white text-[40px] md:text-[56px]">The Aksaraa Experience</h2>
+              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-white text-[44px] md:text-[60px]">The Aksaraa <span className="italic text-secondary">Experience</span></h2>
               <p className="text-white/60 max-w-lg mx-auto">Untuk momen yang hanya terjadi sekali seumur hidup.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-12 md:grid-rows-2 gap-gutter h-auto md:h-[700px]">
@@ -466,7 +466,7 @@ export default function VirtualWishWallPage() {
                     <span className="w-12 h-[1px] bg-secondary" />
                     <span className="font-label-caps text-secondary text-[12px] tracking-[0.3em]">IMMERSIVE ART</span>
                   </div>
-                  <h3 className="font-display-lg text-white text-[32px] mb-4">Venue Cinematic Projection</h3>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-white text-[34px] mb-4">Venue Cinematic <span className="italic text-secondary">Projection</span></h3>
                   <p className="text-white/60 max-w-md">Ubah dinding polos ballroom menjadi kanvas digital yang menceritakan cinta melalui ucapan-ucapan hangat dari tamu spesial Anda.</p>
                 </div>
               </div>
@@ -480,7 +480,7 @@ export default function VirtualWishWallPage() {
                       <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> MODERATOR ONLINE
                     </div>
                   </div>
-                  <h3 className="font-display-lg text-white text-[24px] mb-4">Moderation Mastery</h3>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-white text-[26px] mb-4">Moderation <span className="italic text-secondary">Mastery</span></h3>
                   <p className="text-white/40 text-[14px] mb-8 leading-relaxed">Kendali penuh di tangan Anda atau wedding organizer. Setujui pesan secara instan sebelum muncul di layar utama.</p>
                 </div>
                 <div className="mt-auto relative rounded-lg border border-white/10 bg-black/40 p-4 transform transition-all group-hover:-translate-y-2">
@@ -491,7 +491,7 @@ export default function VirtualWishWallPage() {
               <div className="md:col-span-4 bg-[#F5ECE1] p-10 rounded-xl border border-outline-variant/20 flex flex-col justify-between group bento-item">
                 <span className="material-symbols-outlined text-secondary text-[40px] group-hover:rotate-12 transition-transform">auto_stories</span>
                 <div>
-                  <h3 className="font-display-lg text-primary text-[24px] mb-2">Memory Export</h3>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-primary text-[26px] mb-2">Memory <span className="italic text-secondary">Export</span></h3>
                   <p className="text-on-surface-variant text-[14px]">Dapatkan bundel digital lengkap berupa PDF dari semua ucapan di akhir acara.</p>
                 </div>
               </div>
@@ -504,7 +504,7 @@ export default function VirtualWishWallPage() {
                   ))}
                 </div>
                 <div>
-                  <h3 className="font-display-lg text-white text-[24px] mb-2">Live Reactions</h3>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-white text-[26px] mb-2">Live <span className="italic text-secondary">Reactions</span></h3>
                   <p className="text-white/70 text-[14px]">Interaksi dua arah yang hidup dengan fitur &apos;Like&apos; yang membuat tamu merasa pesan mereka dihargai.</p>
                 </div>
               </div>

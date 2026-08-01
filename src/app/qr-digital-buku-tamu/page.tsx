@@ -87,10 +87,10 @@ export default function QrDigitalBukuTamuPage() {
         <section className="px-margin-mobile md:px-margin-desktop mb-24 md:mb-32">
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
             <h1
-              className="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary mb-8"
+              className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[44px] md:text-[72px] lg:text-[84px] leading-[1.05] text-primary mb-8"
               style={{ animationDelay: "0.2s" }}
             >
-              Bebas Antrean, Sambut Tamu dengan Anggun &amp; Presisi.
+              Bebas Antrean, Sambut Tamu dengan <span className="italic font-medium text-secondary">Anggun &amp; Presisi.</span>
             </h1>
             <div
               className="w-full relative overflow-hidden rounded-sm shadow-2xl"
@@ -109,8 +109,8 @@ export default function QrDigitalBukuTamuPage() {
         <section className="px-margin-mobile md:px-margin-desktop mb-32 max-w-5xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
             <div className="sticky top-32">
-              <h2 className="font-headline-md text-headline-md text-primary mb-4 italic">
-                Alur Absensi Modern
+              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold text-[36px] md:text-[44px] text-primary mb-4">
+                <span className="italic text-secondary">Alur</span> Absensi Modern
               </h2>
               <p className="font-body-lg text-body-lg text-on-surface-variant max-w-md">
                 Mengubah kerumitan registrasi menjadi momen penyambutan yang hangat dan instan.
@@ -123,7 +123,7 @@ export default function QrDigitalBukuTamuPage() {
                   01
                 </div>
                 <div>
-                  <h3 className="font-headline-md text-2xl text-primary mb-2">Terima QR Pass</h3>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[26px] text-primary mb-2">Terima QR Pass</h3>
                   <p className="font-body-md text-on-surface-variant">
                     Setiap tamu menerima kode unik personal melalui WhatsApp atau undangan web digital sebelum hari H.
                   </p>
@@ -134,7 +134,7 @@ export default function QrDigitalBukuTamuPage() {
                   02
                 </div>
                 <div>
-                  <h3 className="font-headline-md text-2xl text-primary mb-2">Scan &lt; 3 Detik</h3>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[26px] text-primary mb-2">Scan &lt; 3 Detik</h3>
                   <p className="font-body-md text-on-surface-variant">
                     Cukup tunjukkan ponsel. Resepsionis melakukan pemindaian kilat melalui tablet yang elegan.
                   </p>
@@ -145,7 +145,7 @@ export default function QrDigitalBukuTamuPage() {
                   03
                 </div>
                 <div>
-                  <h3 className="font-headline-md text-2xl text-primary mb-2">Info Meja &amp; Souvenir</h3>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[26px] text-primary mb-2">Info Meja &amp; Souvenir</h3>
                   <p className="font-body-md text-on-surface-variant">
                     Nomor meja dan status pengambilan souvenir muncul otomatis untuk memandu tamu dengan presisi.
                   </p>
@@ -156,7 +156,7 @@ export default function QrDigitalBukuTamuPage() {
                   04
                 </div>
                 <div>
-                  <h3 className="font-headline-md text-2xl text-primary mb-2">Live Attendance Sync</h3>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[26px] text-primary mb-2">Live Attendance Sync</h3>
                   <p className="font-body-md text-on-surface-variant">
                     Data kehadiran langsung tercatat di dashboard pusat untuk pemantauan katering dan logistik secara real-time.
                   </p>
@@ -184,8 +184,8 @@ export default function QrDigitalBukuTamuPage() {
                 <span className="font-label-caps text-label-caps uppercase text-secondary mb-4 block">
                   Antarmuka Resepsionis
                 </span>
-                <h2 className="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary mb-6 italic leading-tight">
-                  Presisi dalam Tiap Ketukan.
+                <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[40px] md:text-[56px] leading-tight text-primary mb-6">
+                  Presisi dalam <span className="italic text-secondary">Tiap Ketukan.</span>
                 </h2>
                 <p className="font-body-lg text-body-lg text-on-surface-variant mb-8 max-w-md">
                   Dashboard &apos;Aksara Reception&apos; dirancang untuk kenyamanan kru di lapangan. Visual jernih, navigasi minimalis, dan verifikasi data tanpa celah.
@@ -206,7 +206,9 @@ export default function QrDigitalBukuTamuPage() {
         {/* Advantages */}
         <section className="px-margin-mobile md:px-margin-desktop mb-32">
           <div className="mb-16 text-center">
-            <h2 className="font-headline-md text-headline-md text-primary mb-4">Keunggulan Aksara QR Pass</h2>
+            <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[36px] md:text-[48px] text-primary mb-4">
+              Keunggulan Aksara <span className="italic text-secondary">QR Pass</span>
+            </h2>
             <div className="w-12 h-0.5 bg-secondary mx-auto" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -214,28 +216,28 @@ export default function QrDigitalBukuTamuPage() {
               <div className="w-12 h-12 bg-secondary/10 flex items-center justify-center rounded-full mb-6">
                 <span className="material-symbols-outlined text-secondary">speed</span>
               </div>
-              <h3 className="font-headline-md text-xl mb-4">Anti-Antrean Resepsi</h3>
+              <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[24px] mb-4">Anti-Antrean Resepsi</h3>
               <p className="font-body-md text-on-surface-variant">Memproses hingga 20 tamu per menit. Tidak ada lagi penumpukan di pintu masuk utama.</p>
             </div>
             <div className="bento-card p-10 flex flex-col items-start hover-lift" style={{ opacity: 0 }}>
               <div className="w-12 h-12 bg-secondary/10 flex items-center justify-center rounded-full mb-6">
                 <span className="material-symbols-outlined text-secondary">grid_view</span>
               </div>
-              <h3 className="font-headline-md text-xl mb-4">Pemetaan Meja Otomatis</h3>
+              <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[24px] mb-4">Pemetaan Meja Otomatis</h3>
               <p className="font-body-md text-on-surface-variant">Tamu mendapatkan informasi posisi duduk instan saat check-in, mengurangi kebingungan usher.</p>
             </div>
             <div className="bento-card p-10 flex flex-col items-start hover-lift" style={{ opacity: 0 }}>
               <div className="w-12 h-12 bg-secondary/10 flex items-center justify-center rounded-full mb-6">
                 <span className="material-symbols-outlined text-secondary">redeem</span>
               </div>
-              <h3 className="font-headline-md text-xl mb-4">Manajemen Souvenir</h3>
+              <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[24px] mb-4">Manajemen Souvenir</h3>
               <p className="font-body-md text-on-surface-variant">Validasi digital untuk setiap pengambilan souvenir, mencegah duplikasi dan kekurangan stok.</p>
             </div>
             <div className="bento-card p-10 flex flex-col items-start hover-lift" style={{ opacity: 0 }}>
               <div className="w-12 h-12 bg-secondary/10 flex items-center justify-center rounded-full mb-6">
                 <span className="material-symbols-outlined text-secondary">analytics</span>
               </div>
-              <h3 className="font-headline-md text-xl mb-4">Dashboard Real-time</h3>
+              <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[24px] mb-4">Dashboard Real-time</h3>
               <p className="font-body-md text-on-surface-variant">Pantau grafik kedatangan dan profil tamu VIP langsung dari gawai Anda di mana saja.</p>
             </div>
           </div>

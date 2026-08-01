@@ -112,8 +112,8 @@ export default function GaleriKenanganTamuPage() {
             <span className="inline-block border border-primary px-4 py-1 font-label-sm text-label-sm uppercase tracking-[0.2em]">
               Modul Galeri &amp; Candid Photo
             </span>
-            <h1 className="font-display-lg text-headline-lg-mobile md:text-display-lg max-w-xl">
-              Tangkap Setiap Momen Bahagia dari Sudut Pandang Tamu Anda.
+            <h1 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[44px] md:text-[72px] leading-[1.05] text-primary max-w-xl">
+              Tangkap Setiap <span className="italic text-secondary">Momen Bahagia</span> dari Sudut Pandang Tamu Anda.
             </h1>
             <p className="font-body-lg text-body-lg text-secondary max-w-lg">
               Transformasi album pernikahan konvensional menjadi ekosistem digital interaktif. Biarkan tamu mengabadikan kedekatan tanpa perlu aplikasi tambahan.
@@ -133,7 +133,7 @@ export default function GaleriKenanganTamuPage() {
                   <div className="w-16 h-16 border border-primary mx-auto flex items-center justify-center">
                     <span className="material-symbols-outlined text-4xl">qr_code_2</span>
                   </div>
-                  <h3 className="font-display-lg text-headline-md">Pindai QR Meja</h3>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[28px] text-primary">Pindai QR Meja</h3>
                   <p className="text-[10px] uppercase tracking-widest font-bold">Unggah Foto Momen Anda</p>
                   <div className="pt-8 grid grid-cols-2 gap-2">
                     <div className="aspect-square bg-outline-variant" />
@@ -183,7 +183,9 @@ export default function GaleriKenanganTamuPage() {
         <section className="py-24 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
             <div className="lg:col-span-5 space-y-8 reveal-item">
-              <h2 className="font-display-lg text-headline-lg">Rasakan Kemudahannya Sekarang.</h2>
+              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[36px] md:text-[48px] text-primary">
+                Rasakan <span className="italic text-secondary">Kemudahannya</span> Sekarang.
+              </h2>
               <p className="font-body-lg text-body-lg text-secondary">
                 Sandbox interaktif kami memungkinkan Anda mencoba proses unggah foto seolah Anda adalah tamu di hari pernikahan Anda.
               </p>
@@ -242,7 +244,9 @@ export default function GaleriKenanganTamuPage() {
           <div className="max-w-container-max mx-auto space-y-16">
             <div className="flex flex-col md:flex-row justify-between items-end gap-8 reveal-item">
               <div className="space-y-4">
-                <h2 className="font-display-lg text-headline-lg">Arsip Kenangan Live</h2>
+                <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[36px] md:text-[48px] text-primary">
+                  Arsip <span className="italic text-secondary">Kenangan Live</span>
+                </h2>
                 <p className="text-secondary uppercase tracking-[0.2em] text-xs font-bold">Aksara Wedding: Rian &amp; Amira - 12.10.2024</p>
               </div>
               <div className="flex flex-wrap gap-4">

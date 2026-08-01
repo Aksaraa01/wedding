@@ -52,9 +52,9 @@ export default function PremiumWebInvitationPage() {
         <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mb-32" id="experience">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-6 space-y-8">
-              <h1 className="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg leading-[1.1] text-primary">
+              <h1 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[44px] md:text-[72px] lg:text-[84px] leading-[1.05] text-primary">
                 Abadikan Cerita Cintamu dengan{" "}
-                <span className="italic text-secondary">Undangan Digital Premium</span> kami
+                <span className="italic font-medium text-secondary">Undangan Digital Premium</span> kami
               </h1>
               <p className="font-body-lg text-body-lg max-w-lg text-on-surface">
                 Didesain eksklusif, undangan digital kami memadukan cerita sinematik dengan kemudahan
@@ -97,13 +97,15 @@ export default function PremiumWebInvitationPage() {
           <div className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
             <div className="mb-24 space-y-4">
               <span className="font-label-caps text-label-caps text-secondary text-center block">THE EXPERIENCE</span>
-              <h2 className="font-display-lg text-center text-primary">Perjalanan Tamu</h2>
+              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-center text-[40px] md:text-[56px] leading-tight text-primary">
+                Perjalanan <span className="italic text-secondary">Tamu</span>
+              </h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter items-start">
               <div className="md:col-span-7 bento-card bg-surface p-10 rounded-lg space-y-10">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-headline-md text-primary mb-2">Kedatangan</h3>
+                    <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[28px] text-primary mb-2">Kedatangan</h3>
                     <p className="font-body-md text-on-surface">Sapaan personal untuk setiap tamu spesial.</p>
                   </div>
                   <div className="flex gap-2 bg-surface-container-high p-1 rounded-full">
@@ -142,7 +144,7 @@ export default function PremiumWebInvitationPage() {
               </div>
 
               <div className="md:col-span-5 bento-card bg-surface p-10 rounded-lg space-y-6">
-                <h3 className="font-headline-md text-primary">Lokasi Acara</h3>
+                <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[28px] text-primary">Lokasi Acara</h3>
                 <div className="h-64 rounded-sm overflow-hidden relative">
                   <img
                     className="w-full h-full object-cover"
@@ -180,21 +182,23 @@ export default function PremiumWebInvitationPage() {
           <div className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
             <div className="flex flex-col md:flex-row gap-24 items-center">
               <div className="w-full md:w-1/2 space-y-12">
-                <div className="space-y-4">
-                  <h2 className="font-display-lg text-primary">Cerita Kami</h2>
-                  <div className="editorial-divider" />
-                </div>
+                  <div className="space-y-4">
+                    <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[40px] md:text-[56px] leading-tight text-primary">
+                      Cerita <span className="italic text-secondary">Kami</span>
+                    </h2>
+                    <div className="editorial-divider" />
+                  </div>
                 <div className="relative pl-12 space-y-16 border-l-[0.5px] border-outline-variant">
                   <div className="relative">
                     <div className="absolute -left-[51px] top-1 bg-secondary w-2 h-2 rotate-45" />
                     <span className="font-label-caps text-label-caps text-secondary mb-2 block">MUSIM SEMI 2021</span>
-                    <h4 className="font-headline-md text-primary mb-4">Pertemuan Pertama</h4>
+                    <h4 className="font-[family-name:var(--font-cormorant)] font-semibold text-[26px] text-primary mb-4">Pertemuan Pertama</h4>
                     <p className="font-body-md text-on-surface">Di pusat kota Florence, di mana bayang-bayang Duomo memanjang dengan indahnya, langkah kaki kami bertemu secara tak sengaja di sebuah toko buku tua yang nyaman.</p>
                   </div>
                   <div className="relative">
                     <div className="absolute -left-[51px] top-1 bg-outline w-2 h-2 rotate-45" />
                     <span className="font-label-caps text-label-caps text-on-surface-variant mb-2 block">MUSIM GUGUR 2023</span>
-                    <h4 className="font-headline-md text-primary mb-4">Satu Janji</h4>
+                    <h4 className="font-[family-name:var(--font-cormorant)] font-semibold text-[26px] text-primary mb-4">Satu Janji</h4>
                     <p className="font-body-md text-on-surface">Di bawah langit berbintang pesisir Amalfi, sebuah janji terucap untuk merajut lembar demi lembar kehidupan bersama, diikat oleh kecintaan pada momen yang abadi.</p>
                   </div>
                 </div>
@@ -254,7 +258,9 @@ export default function PremiumWebInvitationPage() {
             <div className="lg:col-span-5 space-y-12">
               <div className="space-y-4">
                 <span className="font-label-caps text-label-caps text-secondary block">RESERVASI</span>
-                <h2 className="font-display-lg text-primary">Konfirmasi Kehadiran</h2>
+                <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[40px] md:text-[56px] leading-tight text-primary">
+                  Konfirmasi <span className="italic text-secondary">Kehadiran</span>
+                </h2>
                 <p className="font-body-md text-on-surface">Mohon lakukan RSVP sebelum tanggal 15 Juni. Kehadiran Anda adalah kado terindah bagi kami.</p>
               </div>
               <form className="space-y-10" onSubmit={(e) => e.preventDefault()}>
@@ -289,7 +295,7 @@ export default function PremiumWebInvitationPage() {
             <div className="lg:col-span-7 space-y-16" id="registry">
               <div className="space-y-8">
                 <div className="flex justify-between items-end">
-                  <h3 className="font-headline-md text-primary">Doa &amp; Harapan</h3>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[28px] text-primary">Doa &amp; Harapan</h3>
                   <a className="font-label-caps text-[10px] text-secondary border-b border-secondary pb-1 uppercase" href="#">Lihat Semua</a>
                 </div>
                 <div className="flex gap-6 overflow-x-auto pb-8 snap-x">
@@ -310,7 +316,7 @@ export default function PremiumWebInvitationPage() {
                 </div>
               </div>
               <div className="bg-primary-container p-12 rounded-lg text-on-primary-container space-y-8">
-                <h3 className="font-headline-md text-on-primary-fixed">Kirim Kado</h3>
+                <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[28px] text-on-primary-fixed">Kirim Kado</h3>
                 <p className="font-body-md text-on-primary">Jika Anda ingin memberikan tanda kasih, kami telah menyediakan informasi kado digital dan alamat pengiriman di bawah ini.</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="bg-surface/5 border border-on-primary-fixed/20 p-6 rounded-sm space-y-4">
@@ -347,7 +353,9 @@ export default function PremiumWebInvitationPage() {
             <div className="lg:col-span-5 order-1 lg:order-2 space-y-12">
               <div className="space-y-4">
                 <span className="font-label-caps text-label-caps text-secondary block">DASHBOARD</span>
-                <h2 className="font-display-lg text-primary">Logistik Pintar untuk Pasangan Modern</h2>
+                <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[40px] md:text-[56px] leading-tight text-primary">
+                  Logistik Pintar untuk <span className="italic text-secondary">Pasangan Modern</span>
+                </h2>
                 <p className="font-body-md text-on-surface">Kelola perayaan Anda dengan praktis dan presisi melalui portal khusus pasangan kami.</p>
               </div>
               <ul className="space-y-8">
@@ -380,8 +388,8 @@ export default function PremiumWebInvitationPage() {
         {/* Final CTA */}
         <section className="py-32 bg-primary text-on-primary text-center">
           <div className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto space-y-12">
-            <h2 className="font-display-lg-mobile md:font-display-lg max-w-3xl mx-auto">
-              Siap untuk merancang mahakarya Anda?
+            <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[40px] md:text-[56px] max-w-3xl mx-auto leading-tight">
+              Siap untuk merancang <span className="italic text-secondary">mahakarya</span> Anda?
             </h2>
             <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
               <button
