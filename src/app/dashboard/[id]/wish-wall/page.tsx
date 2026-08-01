@@ -1,9 +1,6 @@
 "use client"
 
-import { use, useEffect, useRef, useState } from "react"
-
-const LED_DESIGN_W = 1280
-const LED_DESIGN_H = 720
+import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
 type Wish = {
@@ -44,18 +41,6 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
   const [coupleSlug, setCoupleSlug] = useState("")
   const [copied, setCopied] = useState(false)
   const [visible, setVisible] = useState(6)
-  const [ledScale, setLedScale] = useState(1)
-  const ledPreviewRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const el = ledPreviewRef.current
-    if (!el) return
-    const update = () => setLedScale(el.clientWidth / LED_DESIGN_W)
-    update()
-    const ro = new ResizeObserver(update)
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [])
 
   const fetchWishes = async () => {
     const res = await fetch(`/api/wishes?wedding_profile_id=${id}`)
@@ -156,45 +141,15 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
           </div>
 
           {ledUrl && (
-            <div className="w-full lg:max-w-xl">
-              <div className="flex flex-col gap-1 mb-4">
+            <div className="w-full lg:max-w-md">
+              <div className="flex flex-col gap-1 mb-3">
                 <span className="font-label-md text-[11px] text-secondary uppercase tracking-widest">Tautan Layar Proyeksi LED Ballroom</span>
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
                   <span className="font-label-md text-[10px] text-secondary uppercase tracking-widest">Siap Tayang</span>
                 </div>
               </div>
-
-              <div className="bg-black border border-[#1c1c16]/20 p-2 shadow-xl">
-                <div
-                  ref={ledPreviewRef}
-                  className="relative aspect-video overflow-hidden bg-[#0a0a0a]"
-                >
-                  <div
-                    className="absolute top-0 left-0"
-                    style={{
-                      width: LED_DESIGN_W,
-                      height: LED_DESIGN_H,
-                      transform: `scale(${ledScale})`,
-                      transformOrigin: "top left",
-                    }}
-                  >
-                    <iframe
-                      src={`/led/${coupleSlug}`}
-                      title="Pratinjau Layar LED"
-                      className="block w-full h-full border-0"
-                      style={{ pointerEvents: "none" }}
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2.5 py-1 bg-black/70 text-white/80 rounded-sm">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37] animate-pulse" />
-                    <span className="font-label-md text-[9px] uppercase tracking-widest">Pratinjau Live</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-3 flex items-center justify-between gap-4 p-3 bg-white border border-[#8d4d39]/10">
+              <div className="flex items-center justify-between gap-4 p-3 bg-white border border-[#8d4d39]/10">
                 <span className="font-body-md text-on-surface-variant truncate text-sm">{ledUrl}</span>
                 <div className="flex gap-1 shrink-0">
                   <button onClick={copyLedUrl} className="p-2 hover:bg-surface-container-low transition-colors text-secondary" title="Salin">
@@ -208,6 +163,32 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
             </div>
           )}
         </section>
+
+        {/* Live LED Preview */}
+        {ledUrl && (
+          <section className="mb-12">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="w-8 h-[1px] bg-secondary" />
+                <span className="font-label-md text-label-md text-secondary uppercase tracking-widest">Pratinjau Layar LED</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+                <span className="font-label-md text-[10px] text-secondary uppercase tracking-widest">Live &bull; Auto-refresh</span>
+              </div>
+            </div>
+            <div className="bg-black border border-[#1c1c16]/20 p-2 md:p-3 shadow-xl">
+              <div className="relative w-full overflow-hidden bg-[#0a0a0a]" style={{ aspectRatio: "16 / 9" }}>
+                <iframe
+                  src={`/led/${coupleSlug}`}
+                  title="Pratinjau Layar LED"
+                  className="absolute inset-0 w-full h-full border-0"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Metrics Grid */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
