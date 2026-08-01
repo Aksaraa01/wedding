@@ -1,6 +1,9 @@
 "use client"
 
-import { use, useEffect, useState } from "react"
+import { use, useEffect, useRef, useState } from "react"
+
+const LED_DESIGN_W = 1280
+const LED_DESIGN_H = 720
 import { useRouter } from "next/navigation"
 
 type Wish = {
@@ -41,6 +44,18 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
   const [coupleSlug, setCoupleSlug] = useState("")
   const [copied, setCopied] = useState(false)
   const [visible, setVisible] = useState(6)
+  const [ledScale, setLedScale] = useState(1)
+  const ledPreviewRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = ledPreviewRef.current
+    if (!el) return
+    const update = () => setLedScale(el.clientWidth / LED_DESIGN_W)
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   const fetchWishes = async () => {
     const res = await fetch(`/api/wishes?wedding_profile_id=${id}`)
@@ -151,14 +166,27 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
               </div>
 
               <div className="bg-black border border-[#1c1c16]/20 p-2 shadow-xl">
-                <div className="relative aspect-video overflow-hidden bg-[#0a0a0a]">
-                  <iframe
-                    src={`/led/${coupleSlug}`}
-                    title="Pratinjau Layar LED"
-                    className="absolute inset-0 w-full h-full"
-                    style={{ pointerEvents: "none" }}
-                    loading="lazy"
-                  />
+                <div
+                  ref={ledPreviewRef}
+                  className="relative aspect-video overflow-hidden bg-[#0a0a0a]"
+                >
+                  <div
+                    className="absolute top-0 left-0"
+                    style={{
+                      width: LED_DESIGN_W,
+                      height: LED_DESIGN_H,
+                      transform: `scale(${ledScale})`,
+                      transformOrigin: "top left",
+                    }}
+                  >
+                    <iframe
+                      src={`/led/${coupleSlug}`}
+                      title="Pratinjau Layar LED"
+                      className="block w-full h-full border-0"
+                      style={{ pointerEvents: "none" }}
+                      loading="lazy"
+                    />
+                  </div>
                   <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2.5 py-1 bg-black/70 text-white/80 rounded-sm">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37] animate-pulse" />
                     <span className="font-label-md text-[9px] uppercase tracking-widest">Pratinjau Live</span>
