@@ -60,6 +60,15 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   const [uploadError, setUploadError] = useState("")
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false)
   const [waBlastEnabled, setWaBlastEnabled] = useState(false)
+  const [chartExpanded, setChartExpanded] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)")
+    const update = () => setChartExpanded(mq.matches)
+    update()
+    mq.addEventListener("change", update)
+    return () => mq.removeEventListener("change", update)
+  }, [])
 
   useEffect(() => {
     fetch(`/api/dashboard/${weddingProfileId}`).then(r => r.json()).then(data => {
@@ -389,57 +398,76 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
         </button>
       </header>
 
-      <main className="flex flex-col h-screen pt-20 px-edge-margin-mobile max-w-2xl mx-auto">
-        <section className="mb-6">
+      <main className="h-screen pt-20 px-edge-margin-mobile md:px-edge-margin-desktop max-w-2xl md:max-w-6xl mx-auto flex flex-col">
+        <section className="mb-6 shrink-0">
           <h1 className="font-headline-md text-headline-md text-primary mb-1">Manajemen Daftar Tamu</h1>
           <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
             Unggah, verifikasi, dan petakan nomor meja seluruh tamu kehormatan Anda secara terpusat.
           </p>
         </section>
 
+        <div className="flex-1 min-h-0 md:grid md:grid-cols-[320px_minmax(0,1fr)] md:gap-10">
+        <aside className="md:overflow-y-auto md:min-h-0 md:pr-1 mb-6 md:mb-0">
         {chartData.length > 0 && (
-          <section className="mb-6 shrink-0">
-            <div className="border border-outline-variant bg-surface-container-low rounded-lg p-5">
-              <div className="flex justify-between items-baseline mb-4">
-                <h2 className="font-headline-md text-[16px] text-primary">Sebaran Tamu per Meja</h2>
-                <span className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">
-                  {guests.length} tamu
-                </span>
-              </div>
-              <div className="flex flex-col gap-3">
-                {chartData.map((row) => (
-                  <div key={row.table} className="flex items-center gap-3">
-                    <span className="w-16 shrink-0 font-label-md text-[10px] uppercase tracking-wider text-on-surface-variant truncate">
-                      {row.table}
-                    </span>
-                    <div className="flex-1 h-4 bg-surface-container-highest rounded-sm overflow-hidden flex">
-                      {row.cats.map(([cat, count]) => (
-                        <div
-                          key={cat}
-                          style={{ width: `${(count / maxTableTotal) * 100}%`, backgroundColor: categoryColor(cat) }}
-                          title={`${cat}: ${count}`}
-                          className="h-full min-w-[4px]"
-                        />
-                      ))}
-                    </div>
-                    <span className="w-7 shrink-0 text-right font-body-md text-[12px] font-semibold text-primary">
-                      {row.total}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 border-t border-outline-variant/40 pt-3">
-                {chartCategories.map((cat) => (
-                  <span key={cat} className="flex items-center gap-1.5 font-label-md text-[9px] uppercase tracking-wider text-on-surface-variant">
-                    <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: categoryColor(cat) }} />
-                    {cat}
+          <section className="md:mb-0 shrink-0">
+            <div className="border border-outline-variant bg-surface-container-low rounded-lg overflow-hidden">
+              <button
+                onClick={() => setChartExpanded(v => !v)}
+                className="w-full flex items-center justify-between p-5 hover:bg-surface-container transition-colors text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-secondary text-[18px]">bar_chart</span>
+                  <h2 className="font-headline-md text-[16px] text-primary">Sebaran Tamu per Meja</h2>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">
+                    {guests.length} tamu
                   </span>
-                ))}
-              </div>
+                  <span className={`material-symbols-outlined text-on-surface-variant transition-transform duration-300 ${chartExpanded ? "rotate-180" : ""}`}>
+                    expand_more
+                  </span>
+                </div>
+              </button>
+              {chartExpanded && (
+                <div className="px-5 pb-5">
+                  <div className="flex flex-col gap-3">
+                    {chartData.map((row) => (
+                      <div key={row.table} className="flex items-center gap-3">
+                        <span className="w-16 shrink-0 font-label-md text-[10px] uppercase tracking-wider text-on-surface-variant truncate">
+                          {row.table}
+                        </span>
+                        <div className="flex-1 h-4 bg-surface-container-highest rounded-sm overflow-hidden flex">
+                          {row.cats.map(([cat, count]) => (
+                            <div
+                              key={cat}
+                              style={{ width: `${(count / maxTableTotal) * 100}%`, backgroundColor: categoryColor(cat) }}
+                              title={`${cat}: ${count}`}
+                              className="h-full min-w-[4px]"
+                            />
+                          ))}
+                        </div>
+                        <span className="w-7 shrink-0 text-right font-body-md text-[12px] font-semibold text-primary">
+                          {row.total}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 border-t border-outline-variant/40 pt-3">
+                    {chartCategories.map((cat) => (
+                      <span key={cat} className="flex items-center gap-1.5 font-label-md text-[9px] uppercase tracking-wider text-on-surface-variant">
+                        <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: categoryColor(cat) }} />
+                        {cat}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </section>
         )}
+        </aside>
 
+        <div className="flex flex-col min-h-0">
         <section className="mb-6 shrink-0">
           {uploadError && (
             <div className="mb-3 p-3 bg-error-container border border-error/30 flex items-center gap-3">
@@ -576,6 +604,8 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             ))}
           </section>
         )}
+        </div>
+        </div>
         </div>
       </main>
 
