@@ -247,7 +247,7 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
                 </div>
 
                 {/* List Rows */}
-                <div className="divide-y divide-[#c4c7c7]/20 border-t border-[#c4c7c7]/20">
+                <div className="divide-y divide-[#c4c7c7]/20 border border-[#c4c7c7]/20 bg-white">
                   {filtered.length === 0 && (
                     <p className="py-16 text-center font-body-md italic opacity-40">Tidak ada tamu ditemukan.</p>
                   )}

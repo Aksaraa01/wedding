@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
+import * as XLSX from "xlsx"
 import { ASSETS } from "@/lib/assets"
 
 type Guest = {
@@ -115,6 +116,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   const [search, setSearch] = useState("")
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [copiedKind, setCopiedKind] = useState<"qr" | "undangan" | null>(null)
+  const [exporting, setExporting] = useState(false)
 
   const fetchData = async () => {
     try {
@@ -173,6 +175,51 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       setCopiedKind("undangan")
       setTimeout(() => { setCopiedId(null); setCopiedKind(null) }, 2000)
     } catch {}
+  }
+
+  const guestQrUrl = (guest: Guest) =>
+    guest.qr_token
+      ? `https://${profile?.slug}.wedding.aksaraa.com/qr/${guest.slug || guest.qr_token}`
+      : ""
+
+  const guestUndanganUrl = (guest: Guest) => {
+    if (!profile) return ""
+    return guest.slug
+      ? `https://${profile.slug}.wedding.aksaraa.com/?to=${guest.slug}`
+      : guest.qr_token
+      ? `https://${profile.slug}.wedding.aksaraa.com/w/${profile.slug}?to=${encodeURIComponent(guest.name)}&qr_token=${encodeURIComponent(guest.qr_token)}`
+      : ""
+  }
+
+  const handleExportExcel = async () => {
+    if (!profile || guests.length === 0) return
+    setExporting(true)
+    try {
+      const header = ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Tautan QR", "Tautan Undangan"]
+      const rows = guests.map((g) => [g.name, g.phone_number || "", g.category || "", g.table_number || "", guestQrUrl(g), guestUndanganUrl(g)])
+      const ws = XLSX.utils.aoa_to_sheet([header, ...rows])
+      ws["!cols"] = [
+        { wch: 28 },
+        { wch: 18 },
+        { wch: 16 },
+        { wch: 12 },
+        { wch: 55 },
+        { wch: 55 },
+      ]
+      for (let r = 2; r <= rows.length + 1; r++) {
+        const qrRef = XLSX.utils.encode_cell({ r: r - 1, c: 4 })
+        const undRef = XLSX.utils.encode_cell({ r: r - 1, c: 5 })
+        const qrVal = ws[qrRef]?.v
+        const undVal = ws[undRef]?.v
+        if (qrVal) ws[qrRef].l = { Target: String(qrVal), Tooltip: String(qrVal) }
+        if (undVal) ws[undRef].l = { Target: String(undVal), Tooltip: String(undVal) }
+      }
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, "Tautan & QR Tamu")
+      XLSX.writeFile(wb, "tautan-qr-tamu.xlsx")
+    } finally {
+      setExporting(false)
+    }
   }
 
   const isUnpaid = profile?.payment_status === "UNPAID"
@@ -260,6 +307,20 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
                 {generating ? "Memproses..." : "Generate QR untuk Semua Tamu"}
               </button>
             )}
+
+            {/* Export Button */}
+            <button
+              onClick={handleExportExcel}
+              disabled={exporting || guests.length === 0}
+              className="inline-flex items-center gap-2 px-5 py-2.5 border border-outline-variant/60 text-on-surface font-label-md text-[11px] uppercase tracking-wider rounded-full hover:border-secondary hover:text-secondary transition-colors disabled:opacity-40 shadow-sm"
+            >
+              {exporting ? (
+                <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <span className="material-symbols-outlined text-sm">download</span>
+              )}
+              {exporting ? "Membuat File..." : "Download Excel"}
+            </button>
           </section>
 
           {/* UNPAID Banner */}
