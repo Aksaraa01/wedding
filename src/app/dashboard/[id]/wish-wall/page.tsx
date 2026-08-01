@@ -141,7 +141,7 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
           </div>
 
           {ledUrl && (
-            <div className="w-full lg:max-w-md p-6 bg-[#8d4d39]/5 border border-[#8d4d39]/20">
+            <div className="w-full lg:max-w-xl">
               <div className="flex flex-col gap-1 mb-4">
                 <span className="font-label-md text-[11px] text-secondary uppercase tracking-widest">Tautan Layar Proyeksi LED Ballroom</span>
                 <div className="flex items-center gap-2">
@@ -149,7 +149,24 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
                   <span className="font-label-md text-[10px] text-secondary uppercase tracking-widest">Siap Tayang</span>
                 </div>
               </div>
-              <div className="flex items-center justify-between gap-4 p-3 bg-white border border-[#8d4d39]/10">
+
+              <div className="bg-black border border-[#1c1c16]/20 p-2 shadow-xl">
+                <div className="relative aspect-video overflow-hidden bg-[#0a0a0a]">
+                  <iframe
+                    src={`/led/${coupleSlug}`}
+                    title="Pratinjau Layar LED"
+                    className="absolute inset-0 w-full h-full"
+                    style={{ pointerEvents: "none" }}
+                    loading="lazy"
+                  />
+                  <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2.5 py-1 bg-black/70 text-white/80 rounded-sm">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37] animate-pulse" />
+                    <span className="font-label-md text-[9px] uppercase tracking-widest">Pratinjau Live</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-3 flex items-center justify-between gap-4 p-3 bg-white border border-[#8d4d39]/10">
                 <span className="font-body-md text-on-surface-variant truncate text-sm">{ledUrl}</span>
                 <div className="flex gap-1 shrink-0">
                   <button onClick={copyLedUrl} className="p-2 hover:bg-surface-container-low transition-colors text-secondary" title="Salin">
