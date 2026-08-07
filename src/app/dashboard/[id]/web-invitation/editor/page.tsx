@@ -824,7 +824,6 @@ function EditorInner({ id }: { id: string }) {
                       <p className="font-label-md text-label-md text-on-surface-variant">
                         {feedbackLoading ? "Memuat..." : feedbackCount === 0 ? "Belum ada feedback." : `${feedbackCount} feedback tercatat untuk undangan Anda.`}
                       </p>
-                      <p className="font-body-md text-[13px] sm:text-body-md text-on-surface-variant/80 leading-relaxed">Kelola, tambah, dan lihat riwayat masukan dari tim Aksaraa.</p>
                     </div>
                   </div>
                   <button
