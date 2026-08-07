@@ -15,7 +15,7 @@ export async function GET(
 
     const { data: profile } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("wa_blast_tier, package_type, estimated_wedding_date, sessions")
+      .select("wa_blast_tier, package_type, estimated_wedding_date, sessions, is_published")
       .eq("id", id)
       .single()
 
@@ -45,6 +45,7 @@ export async function GET(
       schedule: schedule || null,
       vip_guests: vipGuests || [],
       vip_count: vipGuests?.length || 0,
+      is_published: profile?.is_published === true,
     })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
@@ -58,6 +59,19 @@ export async function POST(
   try {
     const { id } = await params
     const body = await req.json()
+
+    const { data: profile } = await supabaseAdmin
+      .from("wedding_profiles")
+      .select("is_published")
+      .eq("id", id)
+      .single()
+
+    if (!profile || profile.is_published !== true) {
+      return NextResponse.json(
+        { error: "Undangan belum dikonfirmasi. Konfirmasi undangan terlebih dahulu sebelum menyimpan Reminder VIP." },
+        { status: 403 }
+      )
+    }
 
     const { data: existing } = await supabaseAdmin
       .from("wa_blast_schedules")

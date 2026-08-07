@@ -330,7 +330,7 @@ function AmplopDigitalInner({ id }: { id: string }) {
     <>
       <PageTheme mode="light" />
 
-      <header className="fixed top-0 w-full z-40 bg-brand-cream/90 backdrop-blur-md border-b border-brand-border h-16 flex items-center px-4 sm:px-8 justify-between">
+      <header className="fixed top-0 w-full z-40 bg-brand-cream/90 backdrop-blur-md border-b border-brand-border h-16 flex items-center px-5 sm:px-8 justify-between">
         <button onClick={() => router.back()} className="inline-flex items-center gap-2 text-brand-charcoal hover:text-brand-terracotta transition-colors group">
           <span className="material-symbols-outlined text-xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
           <span className="text-xs uppercase tracking-[0.2em] font-semibold">Kembali</span>
@@ -341,7 +341,7 @@ function AmplopDigitalInner({ id }: { id: string }) {
         </div>
       </header>
 
-      <main className="flex-grow pt-24 pb-12 px-4 sm:px-8 max-w-4xl mx-auto w-full">
+      <main className="flex-grow pt-24 pb-12 px-5 sm:px-8 max-w-4xl mx-auto w-full">
         <div className="mb-8 text-left">
           <p className="text-xs uppercase tracking-[0.25em] text-brand-terracotta font-semibold mb-1">Fitur Amplop Digital & Gift</p>
           <p className="text-xs sm:text-sm text-brand-slate mt-2 leading-relaxed max-w-2xl">
@@ -349,12 +349,12 @@ function AmplopDigitalInner({ id }: { id: string }) {
           </p>
         </div>
 
-        <div className="flex border-b border-brand-border mb-8 gap-8">
+        <div className="flex border-b border-brand-border mb-8 gap-3 sm:gap-8 overflow-x-auto">
           <button
             onClick={() => setActiveTab("digital")}
-            className={`pb-3 text-xs sm:text-sm font-semibold uppercase tracking-[0.15em] border-b-2 transition-all flex items-center gap-2 ${activeTab === "digital" ? "border-brand-terracotta text-brand-terracotta" : "border-transparent text-brand-slate hover:text-brand-charcoal"}`}
+            className={`pb-3 text-xs sm:text-sm font-semibold uppercase tracking-[0.15em] border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === "digital" ? "border-brand-terracotta text-brand-terracotta" : "border-transparent text-brand-slate hover:text-brand-charcoal"}`}
           >
-            <span className="material-symbols-outlined text-lg">account_balance</span>
+            <span className="material-symbols-outlined text-lg shrink-0">account_balance</span>
             Rekening & E-Wallet
             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${activeTab === "digital" ? "bg-brand-terracotta/10 text-brand-terracotta" : "bg-brand-slate/10 text-brand-slate"}`}>{accounts.length}</span>
           </button>
@@ -362,9 +362,9 @@ function AmplopDigitalInner({ id }: { id: string }) {
           {canShowPhysical && (
             <button
               onClick={() => setActiveTab("physical")}
-              className={`pb-3 text-xs sm:text-sm font-semibold uppercase tracking-[0.15em] border-b-2 transition-all flex items-center gap-2 ${activeTab === "physical" ? "border-brand-terracotta text-brand-terracotta" : "border-transparent text-brand-slate hover:text-brand-charcoal"}`}
+              className={`pb-3 text-xs sm:text-sm font-semibold uppercase tracking-[0.15em] border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === "physical" ? "border-brand-terracotta text-brand-terracotta" : "border-transparent text-brand-slate hover:text-brand-charcoal"}`}
             >
-              <span className="material-symbols-outlined text-lg">local_shipping</span>
+              <span className="material-symbols-outlined text-lg shrink-0">local_shipping</span>
               Alamat Kado Fisik
               <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${activeTab === "physical" ? "bg-brand-terracotta/10 text-brand-terracotta" : "bg-brand-slate/10 text-brand-slate"}`}>{addresses.length}</span>
             </button>
@@ -386,7 +386,7 @@ function AmplopDigitalInner({ id }: { id: string }) {
 
             {accounts.length === 0 ? (
               <div className="text-center py-16 bg-white border border-brand-border rounded-2xl">
-                <span className="material-symbols-outlined text-4xl text-brand-slate/40 mb-3">account_balance</span>
+                <span className="material-symbols-outlined text-3xl sm:text-4xl text-brand-slate/40 mb-3">account_balance</span>
                 <p className="text-sm text-brand-slate">Belum ada rekening atau QRIS yang ditambahkan.</p>
               </div>
             ) : (
@@ -394,9 +394,9 @@ function AmplopDigitalInner({ id }: { id: string }) {
                 <div key={acc.id} className="bg-white border border-brand-border rounded-2xl p-6 sm:p-7 relative overflow-hidden shadow-[0_10px_30px_-10px_rgba(26,24,23,0.04)] hover:border-brand-terracotta/25 hover:shadow-[0_14px_36px_-10px_rgba(26,24,23,0.08)] transition-all duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-start gap-4">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${acc.type === "bank" ? "bg-blue-50 border border-blue-100" : acc.type === "ewallet" ? "bg-green-50 border border-green-100" : "bg-amber-50 border border-amber-200/60"}`}>
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 ${acc.type === "bank" ? "bg-blue-50 border border-blue-100" : acc.type === "ewallet" ? "bg-green-50 border border-green-100" : "bg-amber-50 border border-amber-200/60"}`}>
                         {acc.type === "qris" ? (
-                          <span className="material-symbols-outlined text-amber-800 text-2xl">qr_code_2</span>
+                          <span className="material-symbols-outlined text-amber-800 text-xl sm:text-2xl">qr_code_2</span>
                         ) : (
                           <span className={`font-bold text-xs tracking-tighter ${acc.type === "bank" ? "text-blue-800" : "text-green-800"}`}>
                             {acc.type === "bank" ? (acc.provider_name?.slice(0, 3).toUpperCase() || "BNK") : (acc.provider_name?.slice(0, 3).toUpperCase() || "EWL")}
@@ -404,8 +404,8 @@ function AmplopDigitalInner({ id }: { id: string }) {
                         )}
                       </div>
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-2xl font-semibold text-brand-charcoal" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{acc.provider_name || (acc.type === "qris" ? "QRIS All Payment" : "Rekening Bank")}</h3>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-xl sm:text-2xl font-semibold text-brand-charcoal" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{acc.provider_name || (acc.type === "qris" ? "QRIS All Payment" : "Rekening Bank")}</h3>
                           <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase border ${acc.is_active ? "bg-emerald-50 text-emerald-800 border-emerald-200" : "bg-gray-50 text-gray-500 border-gray-200"}`}>{acc.is_active ? "Aktif" : "Tidak Aktif"}</span>
                         </div>
                         {acc.type !== "qris" && acc.account_number && (
@@ -460,7 +460,7 @@ function AmplopDigitalInner({ id }: { id: string }) {
 
             {addresses.length === 0 ? (
               <div className="text-center py-16 bg-white border border-brand-border rounded-2xl">
-                <span className="material-symbols-outlined text-4xl text-brand-slate/40 mb-3">local_shipping</span>
+                <span className="material-symbols-outlined text-3xl sm:text-4xl text-brand-slate/40 mb-3">local_shipping</span>
                 <p className="text-sm text-brand-slate">Belum ada alamat pengiriman kado yang ditambahkan.</p>
               </div>
             ) : (
@@ -468,12 +468,12 @@ function AmplopDigitalInner({ id }: { id: string }) {
                 <div key={addr.id} className="bg-white border border-brand-border rounded-2xl p-6 sm:p-7 relative overflow-hidden shadow-[0_10px_30px_-10px_rgba(26,24,23,0.04)] hover:border-brand-terracotta/25 hover:shadow-[0_14px_36px_-10px_rgba(26,24,23,0.08)] transition-all duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}>
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-brand-cream border border-brand-border flex items-center justify-center shrink-0">
-                        <span className="material-symbols-outlined text-brand-terracotta text-2xl">{addr.label?.toLowerCase().includes("kantor") ? "business" : "home_pin"}</span>
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-brand-cream border border-brand-border flex items-center justify-center shrink-0">
+                        <span className="material-symbols-outlined text-brand-terracotta text-xl sm:text-2xl">{addr.label?.toLowerCase().includes("kantor") ? "business" : "home_pin"}</span>
                       </div>
                       <div className="space-y-1.5 max-w-md">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-2xl text-brand-charcoal font-semibold" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{addr.label}{addr.recipient_name ? ` (${addr.recipient_name})` : ""}</h3>
+                          <h3 className="text-xl sm:text-2xl text-brand-charcoal font-semibold" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{addr.label}{addr.recipient_name ? ` (${addr.recipient_name})` : ""}</h3>
                           {addr.is_primary && (
                             <span className="bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase">Utama</span>
                           )}

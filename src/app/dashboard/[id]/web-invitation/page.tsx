@@ -30,7 +30,7 @@ function WebInvitationInner({ id }: { id: string }) {
   const router = useRouter()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [template, setTemplate] = useState<Template | null>(null)
-  const [showH3Reminder, setShowH3Reminder] = useState(false)
+  const [showH30Reminder, setShowH3Reminder] = useState(false)
 
   useEffect(() => {
     fetch(`/api/dashboard/${id}/web-invitation`)
@@ -43,7 +43,7 @@ function WebInvitationInner({ id }: { id: string }) {
         const weddingDate = sessions[0] || p.estimated_wedding_date || ""
         if (weddingDate) {
           const days = Math.ceil((new Date(`${weddingDate}T00:00:00`).getTime() - Date.now()) / 86400000)
-          if (days >= 0 && days <= 3) setShowH3Reminder(true)
+          if (days >= 0 && days <= 30) setShowH3Reminder(true)
         }
       })
   }, [id])
@@ -149,13 +149,13 @@ function WebInvitationInner({ id }: { id: string }) {
           )}
         </main>
 
-        {showH3Reminder && (
+        {showH30Reminder && (
           <div className="fixed inset-0 z-[90] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => setShowH3Reminder(false)}>
             <div className="bg-white w-full max-w-md rounded-2xl border border-outline-variant shadow-2xl p-8" onClick={(e) => e.stopPropagation()}>
               <span className="material-symbols-outlined text-4xl text-amber-500 mb-4 block">schedule</span>
               <h3 className="font-headline-md text-xl font-medium text-primary mb-3">Undangan Mendekati Hari H</h3>
               <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
-                Acara pernikahan Anda tinggal <span className="font-semibold text-primary">H-3 atau kurang</span>.
+                Acara pernikahan Anda tinggal <span className="font-semibold text-primary">H-30 atau kurang</span>.
                 Pastikan seluruh konten undangan sudah <span className="font-semibold">final dan dikonfirmasi</span> agar dapat
                 dieksekusi oleh sistem Aksaraa tepat waktu.
               </p>
