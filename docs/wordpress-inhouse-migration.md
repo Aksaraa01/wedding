@@ -7,31 +7,17 @@
 
 ## 1. Masalah (Bukti)
 
-- Undangan asli pasangan **tidak dirender in-house**; `/w/[slug]` me-`redirect` (307) ke situs WordPress `ayomarried.com/*`.
+- Undangan asli pasangan **tidak dirender in-house**; `/w/[slug]` me-`redirect` (307) ke `ayomarried.com/*`.
 
   ```
   GET https://dela-dela.wedding.aksaraa.com/           → 307 https://ayomarried.com/james-enna
   GET https://dela-dela.wedding.aksaraa.com/?to=...   → 307 https://ayomarried.com/james-enna
   ```
 
-- Di prod ada **10 template**, 8 di antaranya `demo_url` = `ayomarried.com/*`; hanya 5 punya komponen React in-house.
-
-| code | demo_url (prod) | Komponen in-house |
-|---|---|---|
-| `heritage-jawa` | (kosong) | ✅ |
-| `parallax-sinematik` | valdo-debora | ✅ |
-| `editorial-modern` | raja-tya | ✅ |
-| `animasi-watercolor` | reinhard-maici | ✅ |
-| `heritage-dinamis` | james-enna | ✅ |
-| `sinematik-editorial` | dinda-semi | ❌ |
-| `Minang` | aisyah-bagas | ❌ |
-| `batak` | jimmi-johanna | ❌ |
-| `sinematik` | weni-bagas | ❌ |
-| `heritage` | jones-edwika | ❌ |
-
-**Akibat:** pasangan memilih template, tapi tamunya dibawa ke situs pihak ketiga (WP), tidak sinkron dgn data `wedding_profiles`, tidak bisa diedit/dipersonalisasi, dan kunci profil ke ekosistem luar.
-
----
+- **Hanya 1 komponen yang benar-benar in-house & lengkap → `HeritageJawa` (896 baris).**
+- 4 komponen lain di `TEMPLATE_MAP` adalah **stub** — section terhardcode, belum mengonsumsi data `wedding_profiles` penuh:
+  - `ParallaxSinematik.tsx` 64 baris · `EditorialModern.tsx` 62 · `AnimasiWatercolor.tsx` 62 · `HeritageDinamis.tsx` 77.
+- **Skala sebenarnya: konversi ±100 template WordPress** (bukan memindahkan 5 komponen). Semua template produksi (`demo_url = ayomarried.com/*`) perlu direimplementasikan sebagai komponen React in-house yang hidup dari data user.
 
 ## 2. Tujuan
 
@@ -60,7 +46,7 @@ Kolom/asal data saat ini yang **sudah** didukung editor & menjadi input template
 | Alamat kirim | `gift_addresses.full_address` | child |
 | Musik | `selected_track_id` → `web_tracks.audio_url` | FK |
 
-**Per konteks: semua konten undangan sudah living di DB in-house.** Tidak ada konten WP "baru" — yang belum in-house hanyalah **tampilan/komponen** untuk satu `set` template.
+**Kesimpulan: semua konten undangan sudah hidup di DB in-house.** Yang perlu dikonversi hanyalah **bagian tampilan** — membangun komponen React per template (±100) yang memetakan data ini. Konten ulang di editor tidak perlu kerja DB baru.
 
 ---
 
@@ -86,45 +72,54 @@ Mirror pola existing:
 
 ## 5. Strategi Migrasi (paling mudah → urut)
 
-### Tahap 0 — Baselines & Kewaspadaan
-- Ambil `document` statis setiap WP demo (`ayomarried.com/{slug}`) sebagai referensi section order & visual.
-- karena milik: (a) konten=profile, (b) tampilan=komponen React.
+> **Skala: ±100 template.** Karena bukan sekadar 5, strategi memakai **komponen bersama (shared section) + presets tema**, bukan menulis 100 komponen dari nol — sehingga tiap port = ringan dan konsisten.
 
-### Tahap 1 — Clear redirect (mempercepat, tanpa binaan baru template)
-- `UPDATE web_templates SET demo_url = '' WHERE code IN (semua)`
-- Membuat semua pasangan dengan template in-house **langsung render**.
-- Template yg belum ada komponen → fallback (tidak `redirect` ke luar).
+### Tahap 0 — Socio resource: profil tiap WP preset
+- Ambil `document` statis tiap `ayomarried.com/{slug}` sebagai referensi: urutan section & gaya visual.
+- Klasifikasi tiap template → **polar kelas**: (a) konten = `profile`; (b) tampilan = komponen React + tema.
 
-> 5 template bereksisting (heritage-jawa, parallax, editorial, watercolor, heritage-dinamis) **langsung aman** setelah `demo_url=''` karena komponen ada.
+### Tahap 1 — Clear redirect (berhenti kirim tamu ke luar, cepat)
+- `UPDATE web_templates SET demo_url = ''`.
+- Setelah ini semua `/w/[slug]` render in-house; template tanpa komponen → fallback HTML (bukan redirect).
+- `heritage-jawa` sudah penuh; 4 stub akan tetap render (belum penuh) sampai T2 — ini transisi aman, tanpa kirim ke WP.
 
-### Tahap 2 — Buat komponen in-house untuk remaining 5 code
-- `src/components/templates/{code}.tsx`, register di `TEMPLATE_MAP` + `TEMPLATE_CONFIGS` di `index.ts`.
-- Langganan terhadap `TemplateProps` yang sama (`TemplateProps` ssdh memuat data editor).
-- Urutan seksi mengikuti snapshot WP: cover → countdown → the couple → kisa cinta → acara/resepsi → galeri → gift → RSVP/ucapan → footer/musik (default), menyesuaikan tiap tema.
+### Tahap 2 — Bangun fondasi reusable (kunci utk skala 100)
+Buat **komponen section shared** sekali, dipakai semua template:
+- `TemplateSection/*`: Cover, Countdown, TheCouple, LoveStory, Events/Sessions, Gallery, Gift, Rsvp, Wishes, Footer, MusicPlayer — masing-masing menerima bagian `TemplateProps` & `theme`.
+- Ini **inti biaya tetap** → setelah ada, tiap template = komposisi section + tema, bukan tulis ulang.
 
-### Tahap 3 — Pastikan editor bisa ubah seluruh konten
-- Editor (`editor/page.tsx`) sudah mensubsuk semua field. Render `create` template perlu mengonsumsi prop yang sama; tidak ada kerja DB tambahan.
-- Bila template tambahan butuh konten baru (contoh: countdown durasi, warna aksen, ekstra seksi) → **tambah field opsional** di editor + `TemplateProps` (opsional), tanpa Wajib.
+### Tahap 3 — Port template (per template, ±100)
+- Tiap template WP → 1 file `src/components/templates/{code}.tsx` = **assembly shared sections** + tema/ornamen preset.
+- Register di `TEMPLATE_MAP` + `TEMPLATE_CONFIGS` (`index.ts`), isi `web_templates.{code,name,description,theme}`.
+- Urutan seksi contoh: cover → countdown → couple → kisa cinta → acara/resepsi → galeri → gift → RSVP/wishes → footer → musik.
+- **Ganti stub** existing (parallax/editorial/watercolor/dinamis) dengan assembly penuh.
 
-### Tahap 4 — QA (regresi)
-- Puppeteer: render setiap undangan di prod/staging untuk pasangan (desktop+mobile): semua section tampil, data pasangan benar.
-- **Tidak boleh ada `redirect` ke `ayomarried.com`** (assert `307` hilang; 200 timeout).
-- Uji edit: ubah nama/tanggal/kisah/galeri lewat editor → halaman live update.
+### Tahap 4 — Editor (pasangan ubah konten)
+- Semua template mengonsumsi `TemplateProps` yang sama; editor (`editor/page.tsx`) sudah menyokong amatir field. Tidak ada kerja DB baru.
+- Bila tema butuh param ekstra (countdown durasi, accent, extra section) → field **opsional**+`TemplateProps`; tanpa wajib.
 
-### Tahap 5 — Deploy
-- Build lokal (env prod) → rsync → `pm2 restart`. (update `demo_url` via DB).
+### Tahap 5 — QA (regresi)
+- Puppeteer render tiap undangan (desktop+mobile): semua section tampil, data pasangan benar.
+- **Assert tidak ada `redirect` ke `ayomarried.com`** (`307` hilang).
+- Uji edit: nama/tanggal/kisah/galeri → halaman live update.
+
+### Tahap 6 — Deploy
+- Build lokal (env prod) → rsync → `pm2 restart`. (`demo_url` sudah kosong via migration.)
 
 ---
 
 ## 6. Prioritas / Effort
 
+> Biaya dominan = **fondasi shared sections** (Tahap 2, sekali). Setelah itu tiap template = port murah.
+
 | Tahap | Effort | Bisnis impact |
 |---|---|---|
-| **T1 Clear redirect** | rendah (1 migration) | tinggi — hentikan redirect, semua in-house mulai |
-| **T2 Komponen untuk 5 code WP-only** | sedang (5 komponen) | tinggi — buka full template list in-house |
-| **T3 / (dict) edit & QA** | sedang | tinggi — pemastian |
+| **T1 Clear redirect** | rendah (1 migration) | tinggi — berhenti kirim tamu ke WP |
+| **T2 Fondasi shared sections + tema engine** | sedang-besar (sekali) | kunci agar 100 template feasible |
+| **T3 Port per template** | per-template: rendah (assembly) | tinggi — full in-house catalog |
+| **T4–T6 edit, QA, deploy** | sedang | jaminan kualitas |
 
-> Rekomendasi: **kerjakan Tahap 1 dulu** (netralisasi redirect). Lalu Tahap 2 untuk 3–5 template paling digunakan (cek usage di `web_templates` by `selected_template_id`) sebelum pasang sisanya.
+> Rekomendasi: **Tahap 1 dulu** (netralisasi redirect). Lalu **Tahap 2** (fondasi shared sections) — tanpa ini 100 template mustahil dikelola. Port template mengikuti prioritas yang paling digunakan (cek `web_templates` by `selected_template_id`).
 
 ---
 
