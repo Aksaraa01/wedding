@@ -39,9 +39,9 @@ function WebInvitationInner({ id }: { id: string }) {
         setProfile(data.profile)
         setTemplate(data.template)
         const p = data.profile
-        const sessions = Array.isArray(p.sessions) ? p.sessions.map((s: any) => s?.date).filter(Boolean) : []
+const sessions = Array.isArray(p.sessions) ? p.sessions.map((s: any) => s?.date).filter(Boolean) : []
         const weddingDate = sessions[0] || p.estimated_wedding_date || ""
-        if (weddingDate) {
+        if (weddingDate && p.is_published !== true) {
           const days = Math.ceil((new Date(`${weddingDate}T00:00:00`).getTime() - Date.now()) / 86400000)
           if (days >= 0 && days <= 30) setShowH3Reminder(true)
         }
