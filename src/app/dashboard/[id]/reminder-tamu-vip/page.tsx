@@ -327,7 +327,7 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
                   setShowSaveConfirm(true)
                 }
               }}
-              disabled={saving || locked}
+              disabled={saving || (locked && isPublished)}
               className="w-full sm:w-44 bg-primary text-on-primary py-4 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] transition-all duration-200 active:scale-[0.98] hover:bg-primary/95 shadow-md font-semibold disabled:opacity-60"
             >
               {locked ? "Tersimpan" : saving ? "Menyimpan..." : "Simpan"}
@@ -367,7 +367,7 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
         {showNoVipModal && (
           <div className="fixed inset-0 z-[80] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => setShowNoVipModal(false)}>
             <div className="bg-surface-container-lowest w-full max-w-sm rounded-2xl border border-outline-variant/50 shadow-2xl p-8 text-center" onClick={(e) => e.stopPropagation()}>
-              <span className="material-symbols-outlined text-4xl text-error mb-4 block">groups_off</span>
+              <span className="material-symbols-outlined text-4xl text-error mb-4 block">groups</span>
               <h3 className="font-headline-md text-xl font-medium text-primary mb-3">Belum Ada Tamu VIP</h3>
               <p className="text-sm text-on-surface-variant leading-relaxed mb-8">
                 Reminder hanya dikirim ke tamu bertanda VIP. Tandai minimal satu tamu sebagai VIP sebelum menyimpan jadwal.
