@@ -153,22 +153,23 @@ Bucket `media`/`template-media` **public** + `fileSizeLimit 20MB`, **RLS 0 polic
 
 ---
 
-## 9. Download Galeri — REDESIGN WAJIB (hot-spot egress + OOM)
+## 9. Download Galeri — DONE (client-side ZIP, 07 Aug 2026)
 
-Route `GET /api/guest-photos/download-all` **server-side ZIP** — **BURUK**, 3 masalah:
+**Masalah lama yang diperbaiki** (server-side ZIP `GET /api/guest-photos/download-all`):
+1. **OOM pada VPS.** ZIP ±0.75GB (250×3MB) dibangun di memori/disk VPS yang available hanya ±1.1GB → risiko **Linux OOM-killer mematikan PM2**.
+2. **Egress ganda.** Foto: Supabase→VPS (egress S) lalu VPS→user (bandwidth VPS).
+3. **Mono CDN.** Smart CDN tidak men-cache endpoint API dinamis; ZIP dinamis ≠ aset CDN.
 
-1. **OOM pada VPS.** ZIP ±0.75GB (250×3MB) dibangun di memori/disk VPS yang available hanya ±1.1GB → risiko **Linux OOM-killer mematikan PM2** (hanya bertahan swap 2GB, bukan solusi).
-2. **Egress ganda.** Foto: Supabase→VPS (egress S) lalu VPS→user (bandwidth VPS) — dua kali transit.
-3. **Mono CDN.** Smart CDN tidak men-cache endpoint API dinamis (`/api/...`) secara otomatis. ZIP dinamis ≠ aset CDN.
-
-**Redesign (pilih satu):**
-- **A — Client-side ZIP (recommended, 0 server memory):** endpoint hanya bikin daftar [presigned/public URLs]; browser pakai **JSZip** download foto langsung dari CDN & zip di device user. Egress hanya sekali (Supabase/CDN→user, masuk Smart CDN bila URL dikirim dari Supabase). RAM/CUM VPS = ~0.
-- **B — Presigned streaming tanpa ZIP:** bila ZIP benar dibutuhkan server-side, pakai **presigned URL ke objek** (bukan server-assemble), atau **background worker** terpisah (bukan event-loop Next.js) → tanpa smart CDN benefit.
+**Implementasi (dipilih — client-side, 0 server memory):**
+- **Endpoint `download-all`** kini hanya **manifest JSON `{ photos: [{ url, name }] }`** dari `guest_photos` (id + `guests.name`) — **tanpa ZIP server, tanpa `archiver`** (zip client via `fflate`).
+- **Browser** fetch manifest → **download tiap foto langsung dari Supabase CDN** (satu kali egress, masuk Smart CDN) → **zip di device user** via **`fflate`** (`import()` dynamic, chunk terpisah).
+- **Hapus dependensi `archiver`** (+41 package), tambah `fflate`.
+- Tidak ada transit VPS → **0 RAM/CPU video, egress tunggal**.
 
 **Estimasi egress tetap** (dari CDN, tak sentuh VPS):
 - Per unduhan ≈ 0.75GB (250×3MB) → 20 unduhan/bln ≈ 15GB/bln (dari budget 250GB Pro → aman).
 
-> **Aksi:** pindah ke skema client-side zip; tambah throttle/batas unduhan per couple & `Cache-Control` bila ZIP di-cache CDN.
+> **Tindak lanjut opsional:** throttle/batas unduhan per couple; `Cache-Control` bila ZIP di-cache CDN. (DONE commit `45d4135`, deployed prod.)
 
 **Retensi 3 bulan — TIDAK dihapus otomatis (keputusan: skip hard-delete cron).**
 - **Tanpa cron auto-hapus**, volume foto akan **tumbuh linear** ±15–25GB/bulan → menembus 100GB Pro dalam **±5–6 bulan** (4–5× skenario di §5).
@@ -198,7 +199,7 @@ Route `GET /api/guest-photos/download-all` **server-side ZIP** — **BURUK**, 3 
 | Egress (undangan + download) | ±1–2GB | ±17–40GB |
 | VPS RAM proc | 126MB | ~640MB total (OK) |
 | VPS disk | 51MB static | +100–500MB (template) |
-| **Download galeri** | server-side ZIP (batal) | **client-side zip → 0 RAM VPS** |
+| **Download galeri** | client-side zip (done) | **client-side zip → 0 RAM VPS, egress tunggal CDN** |
 
 ---
 
@@ -207,7 +208,7 @@ Route `GET /api/guest-photos/download-all` **server-side ZIP** — **BURUK**, 3 
 1. **Naikkan Supabase Free → Pro ($25/bln)** sebagai langkah pertama — menyelesaikan storage, egress, backup, dan **Smart CDN** (performa naik, tanpa rework).
 2. **Jangan kompresi** foto (keputusan bisnis) — cukup andalkan **Pro CDN** untuk kecepatan (upload tetap max 5MB).
 3. **Retensi 3 bulan — SKIP hard-delete otomatis (keputusan user).** Upload foto ±15–25GB/bln → wajib **monitor manual** storage/egress (dashboard); rencana **cold storage/arsip** bila mendekati 100GB (terjadi ±5–6 bln tanpa clean-up).
-4. **Download galeri** → **client-side zip** (JSZip, URL CDN), **tanpa VPS-assemble** — menyelesaikan OOM & egress ganda.
+4. **Download galeri** → **DONE**: client-side zip (**`fflate`**, URL CDN, tanpa VPS-assemble) — menyelesaikan OOM & egress ganda (commit `45d4135`).
 5. **RLS/storage policy** → aktifkan minimal (RLS tabel sensitif + policy insert/delete bucket) untuk menutup eksposur bucket publik.
 6. **Template in-house** → pilot 10 template dulu, ukur RAM `next start` & standalone, sebelum scale ke 100.
 7. **VPS** — swap **2GB aktif** (jaring pengaman OOM); jangan build di server; **load test k6/Locust** utk skenario spike 1.000 concurrent sebelum jam sibuk.
