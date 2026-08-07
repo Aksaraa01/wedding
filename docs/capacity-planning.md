@@ -101,12 +101,15 @@ Dengan retention 3 bulan → pasangan aktif bersamaan ≈ 60 (20×3).
 |---|---|
 | **Storage (foto) tersimpan** | ~20 × 0.75GB × 3 bln ≈ **45GB** (maks ~75GB) |
 | Storage (couple media) | ~60 × 45MB ≈ 2.7GB |
+| Storage (template in-house, ±100, sekali) | **~20MB** (lihat §7) — negligible, tidak diper-time-counter |
 | **Postgres** | 20 × ~0.75MB ≈ **15MB/bln**, 3bln ≈ 45MB |
 | **Egress — undangan dilihat** | 20 pasangan × 500 tamu × aset terlihat ≈ 2–15GB/bln |
 | **Egress — download galeri** | 20 × ~0.75GB ≈ **15GB/bln** bila semua unduh |
 | **Egress total** | **±17–30GB/bln** |
 
 > **Verdict Free:** Storage 45GB >> 1GB, Egress 30GB > 5GB → **Free tidak cukup sejak bulan #1. Pro wajib.**
+
+> **Catatan template:** 100+ template in-house = **sekali bayar ~20MB Supabase**, tidak tumbuh per pasangan (aset demo/texture shared antar semua template lewat `ASSETS`). Jadi tidak menambah angka monthly di atas.
 
 ---
 
@@ -147,10 +150,10 @@ Route `GET /api/guest-photos/download-all` server-side mengumpulkan seluruh foto
 
 | Item | Tipe Biaya | Impact | Aksi |
 |---|---|---|---|
-| **Template in-house (±100)** | build/disk sekali | static +100–500MB, RAM build | **pilot 10 → ukur → batch** |
-| **WordPress → in-house** | build sekali / preview route | SSR `/demo/[code]` per tpl | implement `/demo` route (sudah ada fallback `demoUrl || /demo/{code}`) |
-| **Download galeri** | egress repetitif | ~15–25GB/bln | offload ke Smart CDN (Pro) / rate-limit |
-| **Reminder berbasis quota** | CPU mungil | tier (`wa_blast_tier`) sudah support | monitoring `wa_blast_schedules` |
+| **Template in-house (±100)** | build/disk sekali + ~20MB Supabase | static +100–500MB (VPS disk), RAM build | **pilot 10 → ukur → batch** |
+| **WordPress → in-house** | build sekali / preview route | SSR `/demo/[code]` per tpl | isi `/demo/[code]`. Sudah **ada** fallback `demoUrl || /demo/{code}` di modal |
+
+> **Detail WordPress → in-house:** `src/app/demo/[code]/page.tsx` sudah tersedia & merender tiap template dgn data contoh; `TemplatePreviewModal` fallback otomatis ke `/demo/{code}` saat `demo_url` kosong. Karena itu cukup kosongkan `demo_url` (di seed/schema) → semua demo langsung in-house via `/demo`. Tidak ada kode penyimpan gambar baru; demo asset `ASSETS.demo` ±7 jpg + 1 audio ≈ shared ~0.4MB.
 
 ---
 
