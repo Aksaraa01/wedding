@@ -42,7 +42,40 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
         alert(text || "Gagal mengunduh")
         return
       }
-      const blob = await res.blob()
+      const { photos: manifest } = await res.json()
+      if (!manifest || manifest.length === 0) {
+        alert("Belum ada foto untuk diunduh")
+        return
+      }
+
+      const { zip } = await import("fflate")
+      const output = new Map<string, Uint8Array>()
+      const files: Record<string, Uint8Array> = {}
+
+      for (const item of manifest) {
+        try {
+          const imgRes = await fetch(item.url)
+          if (!imgRes.ok) throw new Error(`HTTP ${imgRes.status}`)
+          files[item.name] = new Uint8Array(await imgRes.arrayBuffer())
+        } catch {
+          // lewati file yang gagal
+        }
+      }
+
+      if (Object.keys(files).length === 0) {
+        alert("Tidak ada foto yang berhasil diunduh")
+        return
+      }
+
+      await new Promise<void>((resolve, reject) => {
+        zip(files, { level: 6 }, (err, data) => {
+          if (err) return reject(err)
+          output.set("zip", data)
+          resolve()
+        })
+      })
+
+      const blob = new Blob([output.get("zip")!], { type: "application/zip" })
       const link = document.createElement("a")
       link.href = URL.createObjectURL(blob)
       link.download = "galeri-kenangan.zip"
