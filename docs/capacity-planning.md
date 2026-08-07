@@ -24,8 +24,10 @@
 | Komponen | Nilai |
 |---|---|
 | VPS `103.93.135.176` | 2 vCPU, 1.9GiB RAM, disk 58GB (44GB free), **swap 2GB (aktif 07 Aug 2026, persist `/etc/fstab`)** |
-| PM2 processes | 5 processes ±640MB total (`aksara-wedding` 139MB, `whatsapp` 65MB, `whatsapp-cron` 73MB, `aksaraa` 166MB, `pencatatan` 195MB) — available RAM ±1.1GB |
+| **Biaya VPS** | **Rp109.000/bulan** (monthly) |
+| PM2 processes | 5 processes ±640MB total (`aksara-wedding` 142MB, `whatsapp` 64MB, `whatsapp-cron` 73MB, `aksaraa` 166MB, `pencatatan` 195MB) — available RAM ±1.1GB |
 | OOM history | **0 kejadian** (belum pernah ter-kill, dmesg kosong) |
+| **Monitoring** | **BELUM ADA** dashboard/pemantauan sistem (CPU/RAM/disk/egress/storage) — lihat §10 |
 | Standalone `.next` | 51MB (5 template saat ini) |
 | Supabase bucket `media` | public, fileSizeLimit 20MB, MIME: jpeg/png/webp/svg/mp3/wav/ogg |
 | Supabase bucket `template-media` | public, tanpa limit |
@@ -180,6 +182,7 @@ Route `GET /api/guest-photos/download-all` **server-side ZIP** — **BURUK**, 3 
 |---|---|---|---|
 | **Template in-house (±100)** | build/disk sekali + ~20MB Supabase | static +100–500MB (VPS disk), RAM build | **pilot 10 → ukur → batch** |
 | **WordPress → in-house** | build sekali / preview route | SSR `/demo/[code]` per tpl | isi `/demo/[code]`. Sudah **ada** fallback `demoUrl || /demo/{code}` di modal |
+| **System monitoring dashboard** | **BELUM ADA** | tanpa pemantauan CPU/RAM/disk/egress/storage → buta saat spike/OOM/kuota | pasang dashboard (uptime + resource VPS + Supabase storage/egress) & alert |
 
 > **Detail WordPress → in-house:** `src/app/demo/[code]/page.tsx` sudah tersedia & merender tiap template dgn data contoh; `TemplatePreviewModal` fallback otomatis ke `/demo/{code}` saat `demo_url` kosong. Karena itu cukup kosongkan `demo_url` (di seed/schema) → semua demo langsung in-house via `/demo`. Tidak ada kode penyimpan gambar baru; demo asset `ASSETS.demo` ±7 jpg + 1 audio ≈ shared ~0.4MB.
 
@@ -208,3 +211,4 @@ Route `GET /api/guest-photos/download-all` **server-side ZIP** — **BURUK**, 3 
 5. **RLS/storage policy** → aktifkan minimal (RLS tabel sensitif + policy insert/delete bucket) untuk menutup eksposur bucket publik.
 6. **Template in-house** → pilot 10 template dulu, ukur RAM `next start` & standalone, sebelum scale ke 100.
 7. **VPS** — swap **2GB aktif** (jaring pengaman OOM); jangan build di server; **load test k6/Locust** utk skenario spike 1.000 concurrent sebelum jam sibuk.
+8. **Biaya bulanan fixed** — **VPS Rp109.000/bln** + **Supabase Pro $25/bln (≈Rp400rb/bln)**, + overage storage/egress bila lewat budget. **Monitoring dashboard** (CPU/RAM/disk VPS + storage/egress Supabase) **belum ada** → prioritas pasang agar spike/OOM/kuota terdeteksi (lihat §10).
