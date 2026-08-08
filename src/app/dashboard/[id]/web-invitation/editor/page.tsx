@@ -393,7 +393,12 @@ function EditorInner({ id }: { id: string }) {
             {/* Ganti Tema */}
             <button
               onClick={() => router.push(`/dashboard/${id}/web-invitation/templates`)}
-              className="flex items-center gap-2 px-6 py-3 border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary transition-all font-label-md text-label-md active:scale-95"
+              disabled={isPublished}
+              className={`flex items-center gap-2 px-6 py-3 border font-label-md text-label-md transition-all active:scale-95 ${
+                isPublished
+                  ? "border-outline-variant text-on-surface-variant/50 cursor-not-allowed"
+                  : "border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary"
+              }`}
             >
               <span className="material-symbols-outlined text-[20px]">palette</span>
               <span className="hidden sm:inline">GANTI TEMA</span>
