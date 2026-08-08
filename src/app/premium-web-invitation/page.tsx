@@ -354,7 +354,7 @@ export default function PremiumWebInvitationPage() {
               <div className="space-y-4">
                 <span className="font-label-caps text-label-caps text-secondary block">DASHBOARD</span>
                 <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[40px] md:text-[56px] leading-tight text-primary">
-                  Logistik Pintar untuk <span className="italic text-secondary">Pasangan Modern</span>
+                  Dasbor Pintar untuk <span className="italic text-secondary">Pasangan Modern</span>
                 </h2>
                 <p className="font-body-md text-on-surface">Kelola perayaan Anda dengan praktis dan presisi melalui portal khusus pasangan kami.</p>
               </div>
@@ -389,7 +389,7 @@ export default function PremiumWebInvitationPage() {
         <section className="py-32 bg-primary text-on-primary text-center">
           <div className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto space-y-12">
             <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[40px] md:text-[56px] max-w-3xl mx-auto leading-tight">
-              Siap untuk merancang <span className="italic text-secondary">mahakarya</span> Anda?
+              Siap untuk merancang <span className="italic text-secondary">Undangan</span> Anda?
             </h2>
             <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
               <button
