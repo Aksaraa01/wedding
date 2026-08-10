@@ -9,19 +9,25 @@ export async function GET(req: NextRequest) {
   const scope = searchParams.get("scope")
 
   try {
-    // Admin / OPS view: all custom (uploaded) tracks with owner info
+    // Admin / OPS view: all tracks (system + uploaded) with owner info
     if (scope === "custom") {
       const { data, error } = await supabaseAdmin
         .from("web_tracks")
         .select("id, title, artist, mood_category, audio_url, is_active, sort_order, created_at, is_custom, uploaded_by, uploaded_by_name, is_public")
-        .eq("is_custom", true)
-        .order("created_at", { ascending: false })
 
       if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 })
       }
 
-      return NextResponse.json({ tracks: data || [] })
+      const sorted = (data || []).sort((a, b) => {
+        const aCustom = a.is_custom === true ? 1 : 0
+        const bCustom = b.is_custom === true ? 1 : 0
+        if (aCustom !== bCustom) return bCustom - aCustom
+        if (aCustom === 1) return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        return (a.sort_order ?? 0) - (b.sort_order ?? 0)
+      })
+
+      return NextResponse.json({ tracks: sorted })
     }
 
     // Client view: system tracks + own customs + public customs

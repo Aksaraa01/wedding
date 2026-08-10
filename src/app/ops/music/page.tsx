@@ -8,6 +8,7 @@ type Track = {
   id: string
   title: string
   artist: string | null
+  mood_category: string
   audio_url: string
   created_at: string
   is_custom: boolean
@@ -146,9 +147,9 @@ export default function OpsMusicPage() {
               <span className="font-label-md text-xs uppercase tracking-[0.2em] text-secondary mb-2 block">
                 Manajemen Musik
               </span>
-              <h1 className="font-display-lg text-4xl md:text-5xl">Lagu Unggahan</h1>
+              <h1 className="font-display-lg text-4xl md:text-5xl">Kelola Musik</h1>
               <p className="font-body-md text-sm text-on-surface-variant mt-3 max-w-xl">
-                Kelola musik yang diunggah oleh pengguna dan staf. Ubah judul atau publikasikan agar dapat dipilih oleh semua user.
+                Semua musik: lagu unggahan pengguna &amp; staf dapat diubah judul atau dipublikasikan; lagu sistem ditandai Sistem.
               </p>
             </div>
             <div className="flex flex-col items-stretch md:items-end gap-2">
@@ -184,13 +185,15 @@ export default function OpsMusicPage() {
               </div>
             ) : tracks.length === 0 ? (
               <div className="py-16 text-center opacity-40 italic font-body-md text-sm border border-dashed border-outline-variant">
-                Belum ada lagu unggahan
+                Belum ada musik
               </div>
             ) : (
-              tracks.map((track) => (
-                <div key={track.id} className="bg-white border border-outline-variant p-5 flex flex-col md:flex-row md:items-center gap-4 hover:border-primary/40 transition-colors">
-                  <div className="flex-none w-12 h-12 bg-surface-container-high flex items-center justify-center">
-                    <span className="material-symbols-outlined text-primary">music_note</span>
+              tracks.map((track) => {
+                const isCustom = track.is_custom === true
+                return (
+                  <div key={track.id} className={`bg-white border p-5 flex flex-col md:flex-row md:items-center gap-4 transition-colors ${isCustom ? "border-outline-variant hover:border-primary/40" : "border-outline-variant/40 opacity-70"}`}>
+                    <div className="flex-none w-12 h-12 bg-surface-container-high flex items-center justify-center">
+                    <span className="material-symbols-outlined text-primary">{isCustom ? "music_note" : "library_music"}</span>
                   </div>
 
                   <div className="flex-1 min-w-0">
@@ -213,45 +216,65 @@ export default function OpsMusicPage() {
                       </div>
                     ) : (
                       <div className="flex items-center gap-3 min-w-0">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest shrink-0 ${
+                          isCustom
+                            ? "bg-secondary-container/70 text-on-secondary-container border border-secondary/30"
+                            : "bg-surface-container-highest text-on-surface-variant border border-outline-variant"
+                        }`}>
+                          {isCustom ? "Unggahan" : "Sistem"}
+                        </span>
                         <h3 className="font-display-lg text-base truncate">{track.title}</h3>
-                        <button
-                          onClick={() => { setEditingId(track.id); setEditingTitle(track.title) }}
-                          className="text-on-surface-variant hover:text-primary transition-colors shrink-0"
-                          title="Ubah judul"
-                        >
-                          <span className="material-symbols-outlined text-[16px]">edit</span>
-                        </button>
+                        {isCustom && (
+                          <button
+                            onClick={() => { setEditingId(track.id); setEditingTitle(track.title) }}
+                            className="text-on-surface-variant hover:text-primary transition-colors shrink-0"
+                            title="Ubah judul"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">edit</span>
+                          </button>
+                        )}
                       </div>
                     )}
                     <p className="text-[11px] text-on-surface-variant mt-1 font-mono">
-                      Upload oleh: <span className="font-semibold">{track.uploaded_by_name || (track.uploaded_by ? "Pengguna" : "—")}</span>
-                      <span className="mx-2">•</span>
-                      {formatDate(track.created_at)}
+                      {isCustom ? (
+                        <>Upload oleh: <span className="font-semibold">{track.uploaded_by_name || (track.uploaded_by ? "Pengguna" : "—")}</span> <span className="mx-2">•</span> {formatDate(track.created_at)}</>
+                      ) : (
+                        <>Artis: <span className="font-semibold">{track.artist || "—"}</span> <span className="mx-2">•</span> Mood: {track.mood_category}</>
+                      )}
                     </p>
                   </div>
 
                   <div className="flex items-center gap-4 shrink-0">
                     <audio controls preload="none" src={track.audio_url} className="h-9 w-56" />
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest ${
-                      track.is_public
-                        ? "bg-emerald-100 text-emerald-700 border border-emerald-300"
-                        : "bg-amber-100 text-amber-700 border border-amber-300"
-                    }`}>
-                      {track.is_public ? "Publik" : "Privat"}
-                    </span>
-                    <button
-                      onClick={() => togglePublic(track)}
-                      className={`px-4 py-2.5 text-[10px] uppercase tracking-widest font-bold border transition-colors ${
-                        track.is_public
-                          ? "border-outline-variant text-on-surface-variant hover:bg-surface-container"
-                          : "border-primary text-primary hover:bg-primary hover:text-white"
-                      }`}
-                    >
-                      {track.is_public ? "Sembunyikan" : "Publikasikan"}
-                    </button>
+                    {isCustom ? (
+                      <>
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest ${
+                          track.is_public
+                            ? "bg-emerald-100 text-emerald-700 border border-emerald-300"
+                            : "bg-amber-100 text-amber-700 border border-amber-300"
+                        }`}>
+                          {track.is_public ? "Publik" : "Privat"}
+                        </span>
+                        <button
+                          onClick={() => togglePublic(track)}
+                          className={`px-4 py-2.5 text-[10px] uppercase tracking-widest font-bold border transition-colors ${
+                            track.is_public
+                              ? "border-outline-variant text-on-surface-variant hover:bg-surface-container"
+                              : "border-primary text-primary hover:bg-primary hover:text-white"
+                          }`}
+                        >
+                          {track.is_public ? "Sembunyikan" : "Publikasikan"}
+                        </button>
+                      </>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest bg-surface-container-highest text-on-surface-variant border border-outline-variant">
+                        Default
+                      </span>
+                    )}
                   </div>
                 </div>
-              ))
+                )
+              })
             )}
           </div>
         </main>
