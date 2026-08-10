@@ -158,7 +158,7 @@ export default function OpsMusicPage() {
                 disabled={uploading}
                 className="inline-flex items-center justify-center gap-2 bg-primary text-white px-6 py-3.5 font-label-md text-xs uppercase tracking-widest hover:bg-secondary transition-all disabled:opacity-50"
               >
-                <span className="material-symbols-outlined text-[18px]">
+                <span className={`material-symbols-outlined text-[18px] ${uploading ? "animate-spin" : ""}`}>
                   {uploading ? "progress_activity" : "upload_file"}
                 </span>
                 {uploading ? "Mengunggah..." : "Upload MP3"}

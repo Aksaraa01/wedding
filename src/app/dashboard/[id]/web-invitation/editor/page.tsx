@@ -841,7 +841,7 @@ function EditorInner({ id }: { id: string }) {
                       disabled={data.is_published === true || musicUploading}
                       className="w-full py-3 border border-dashed border-secondary text-secondary font-label-md text-[11px] tracking-widest uppercase hover:bg-secondary-container/20 transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                     >
-                      <span className="material-symbols-outlined text-[18px]">
+                      <span className={`material-symbols-outlined text-[18px] ${musicUploading ? "animate-spin" : ""}`}>
                         {musicUploading ? "progress_activity" : "upload_file"}
                       </span>
                       {musicUploading ? "Mengunggah..." : "Unggah MP3"}
