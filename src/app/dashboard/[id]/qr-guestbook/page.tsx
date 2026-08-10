@@ -117,6 +117,8 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [copiedKind, setCopiedKind] = useState<"qr" | "undangan" | null>(null)
   const [exporting, setExporting] = useState(false)
+  const [qrCodeBook, setQrCodeBook] = useState(true)
+  const [showLimitModal, setShowLimitModal] = useState(false)
 
   const fetchData = async () => {
     try {
@@ -128,6 +130,9 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       const profileData = await profileRes.json()
       const guestsData = await guestsRes.json()
       setProfile(profileData.profile)
+      if (profileData.feature_set && Array.isArray(profileData.feature_set)) {
+        setQrCodeBook(profileData.feature_set.includes("qr_code_book"))
+      }
       setGuests(guestsData.guests)
       setStats(guestsData.stats)
     } catch {}
@@ -155,6 +160,10 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
 
   const handleCopyQr = async (token: string, slug: string | null) => {
     if (!profile) return
+    if (!qrCodeBook) {
+      setShowLimitModal(true)
+      return
+    }
     const url = `https://${profile.slug}.wedding.aksaraa.com/qr/${slug || token}`
     try {
       await navigator.clipboard.writeText(url)
@@ -381,6 +390,27 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
           </footer>
         </div>
       </main>
+
+      {/* Prestige-only Modal */}
+      {showLimitModal && (
+        <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-secondary text-2xl">workspace_premium</span>
+              </div>
+              <h3 className="font-headline-md text-lg font-medium text-primary">Hanya tersedia pada paket Prestige</h3>
+              <p className="text-sm text-on-surface-variant">Upgrade paket kamu untuk mengaktifkan fitur QR Guest Book.</p>
+              <button
+                onClick={() => setShowLimitModal(false)}
+                className="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
+              >
+                OK, Mengerti
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
