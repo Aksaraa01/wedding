@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
         checked_in_by: checked_in_by || null,
       })
       .eq("id", guest.id)
-      .select("id, name, table_number, is_checked_in, checkin_timestamp, checked_in_by, souvenir_claimed")
+      .select("id, name, table_number, is_checked_in, checkin_timestamp, checked_in_by, souvenir_claimed, added_manually")
       .single()
 
     if (updateErr) {
@@ -112,7 +112,7 @@ export async function GET(req: NextRequest) {
     if (qrToken) {
       const { data, error: guestErr } = await supabaseAdmin
         .from("guests")
-        .select("id, name, slug, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, wedding_profile_id, is_checked_in")
+        .select("id, name, slug, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, wedding_profile_id, is_checked_in, added_manually")
         .eq("qr_token", qrToken)
         .maybeSingle()
       if (guestErr) {
@@ -130,7 +130,7 @@ export async function GET(req: NextRequest) {
       if (profile) {
         const { data: g } = await supabaseAdmin
           .from("guests")
-          .select("id, name, slug, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, wedding_profile_id, is_checked_in")
+          .select("id, name, slug, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, wedding_profile_id, is_checked_in, added_manually")
           .eq("wedding_profile_id", profile.id)
           .eq("slug", slug)
           .maybeSingle()
@@ -139,7 +139,7 @@ export async function GET(req: NextRequest) {
       if (!guest) {
         const { data: g } = await supabaseAdmin
           .from("guests")
-          .select("id, name, slug, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, wedding_profile_id, is_checked_in")
+          .select("id, name, slug, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, wedding_profile_id, is_checked_in, added_manually")
           .eq("slug", slug)
           .maybeSingle()
         guest = g

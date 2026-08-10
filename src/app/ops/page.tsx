@@ -228,6 +228,22 @@ export default function OpsDashboardPage() {
     fetchQueue()
   }
 
+  const updatePackage = async (packageType: string) => {
+    if (!selectedId) return
+    const res = await fetch(`/api/ops/queue/${selectedId}/package`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ package_type: packageType }),
+    })
+    const data = await res.json()
+    if (data.success) {
+      await selectQueueItem(selectedId)
+      fetchQueue()
+    } else {
+      alert(data.error || "Gagal mengubah paket")
+    }
+  }
+
   const updatePayment = async (status: string) => {
     if (!selectedId) return
     const res = await fetch(`/api/ops/queue/${selectedId}/payment`, {
@@ -422,7 +438,7 @@ export default function OpsDashboardPage() {
           <div className="flex items-center gap-8">
             <nav className="hidden md:flex gap-10">
               <a className="font-label-md text-label-md uppercase tracking-widest text-primary font-semibold border-b-2 border-primary">Antrian</a>
-              <a className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant transition-colors">Laporan</a>
+              <a href="/ops/music" className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary">Music</a>
             </nav>
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
@@ -528,7 +544,15 @@ export default function OpsDashboardPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">Paket:</span>
-                        <span className="font-bold text-primary">{PACKAGE_LABELS[currentWp.package_type] || currentWp.package_type}</span>
+                        <select
+                          value={currentWp.package_type}
+                          onChange={(e) => updatePackage(e.target.value)}
+                          className="bg-white border border-outline-variant text-sm font-bold text-primary py-1 px-2 focus:ring-0 focus:border-primary font-body-md cursor-pointer"
+                        >
+                          <option value="essential">Essential</option>
+                          <option value="signature">Signature</option>
+                          <option value="prestige">Prestige</option>
+                        </select>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">Estimasi Biaya:</span>

@@ -30,7 +30,7 @@ export async function GET() {
           name
         )
       `)
-      .order("sla_started_at", { ascending: true })
+      .order("created_at", { ascending: false })
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })

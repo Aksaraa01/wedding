@@ -17,6 +17,7 @@ type CheckinRecord = {
   table_number: string | null
   checkin_timestamp: string
   souvenir_claimed: boolean
+  added_manually?: boolean
 }
 
 type Stats = {
@@ -233,7 +234,14 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
                     </div>
                     <div className="flex-grow space-y-1">
                       <div className="flex justify-between items-start">
-                        <h4 className="font-headline-md text-[20px] leading-tight">{c.name}</h4>
+                        <h4 className="font-headline-md text-[20px] leading-tight">
+                        {c.name}
+                        {c.added_manually && (
+                          <span className="ml-2 inline-block align-middle text-[9px] font-label-md font-semibold uppercase tracking-wider text-amber-700 bg-amber-100 border border-amber-300 rounded px-1.5 py-0.5">
+                            Manual
+                          </span>
+                        )}
+                      </h4>
                         <span className="font-label-md text-[10px] text-on-surface-variant">
                           {formatWIB(c.checkin_timestamp)}
                         </span>

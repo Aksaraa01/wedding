@@ -243,16 +243,21 @@ function EditorInner({ id }: { id: string }) {
 
   useEffect(() => { loadGiftData() }, [loadGiftData])
 
-  type Track = { id: string; title: string; artist: string | null; mood_category: string; audio_url: string }
+  type Track = { id: string; title: string; artist: string | null; mood_category: string; audio_url: string; is_custom?: boolean; is_public?: boolean; uploaded_by?: string | null }
   const [allTracks, setAllTracks] = useState<Track[]>([])
   const [trackSearch, setTrackSearch] = useState("")
   const [autoPlay, setAutoPlay] = useState(false)
+  const [musicUploading, setMusicUploading] = useState(false)
+  const [musicUploadError, setMusicUploadError] = useState("")
+  const [showMusicConfirm, setShowMusicConfirm] = useState(false)
+  const [pendingMusicFile, setPendingMusicFile] = useState<File | null>(null)
+  const musicFileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    fetch("/api/tracks").then(r => r.ok && r.json()).then(res => {
+    fetch(`/api/tracks?wedding_profile_id=${id}`).then(r => r.ok && r.json()).then(res => {
       if (res?.tracks) setAllTracks(res.tracks)
     })
-  }, [])
+  }, [id])
 
   const filteredTracks = allTracks.filter(t =>
     t.title.toLowerCase().includes(trackSearch.toLowerCase()) ||
@@ -261,9 +266,69 @@ function EditorInner({ id }: { id: string }) {
 
   const selectedTrack = allTracks.find(t => t.id === data.selected_track_id)
 
+  const myCustomTrack = allTracks.find(t => t.is_custom === true && t.uploaded_by === id && t.is_public !== true)
+
   const handleSelectTrack = (trackId: string) => {
     if (data.is_published === true) return
     updateField("selected_track_id", data.selected_track_id === trackId ? null : trackId)
+  }
+
+  const handleMusicFilePick = (file: File) => {
+    if (data.is_published === true) return
+    setMusicUploadError("")
+    if (myCustomTrack) {
+      setPendingMusicFile(file)
+      setShowMusicConfirm(true)
+    } else {
+      uploadMusic(file)
+    }
+  }
+
+  const uploadMusic = async (file: File) => {
+    if (data.is_published === true) return
+    setMusicUploading(true)
+    setMusicUploadError("")
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      formData.append("wedding_profile_id", id)
+      const res = await fetch("/api/tracks", { method: "POST", body: formData })
+      const dataRes = await res.json()
+      if (!res.ok) {
+        setMusicUploadError(dataRes.error || "Gagal mengunggah lagu")
+        return
+      }
+      const track: Track = dataRes.track
+      setAllTracks(prev => [track, ...prev.filter(t => t.id !== track.id)])
+      updateField("selected_track_id", track.id)
+    } catch {
+      setMusicUploadError("Gagal mengunggah lagu. Periksa koneksi.")
+    } finally {
+      setMusicUploading(false)
+    }
+  }
+
+  const confirmMusicReplace = async () => {
+    setShowMusicConfirm(false)
+    if (pendingMusicFile) uploadMusic(pendingMusicFile)
+    setPendingMusicFile(null)
+  }
+
+  const cancelMusicReplace = () => {
+    setShowMusicConfirm(false)
+    setPendingMusicFile(null)
+  }
+
+  const handleDeleteCustomTrack = async (trackId: string) => {
+    if (data.is_published === true) return
+    const res = await fetch(`/api/tracks/${trackId}`, { method: "DELETE" })
+    if (!res.ok) {
+      const d = await res.json()
+      setMusicUploadError(d.error || "Gagal menghapus lagu")
+      return
+    }
+    setAllTracks(prev => prev.filter(t => t.id !== trackId))
+    if (data.selected_track_id === trackId) updateField("selected_track_id", null)
   }
 
   const handlePublish = async () => {
@@ -767,6 +832,37 @@ function EditorInner({ id }: { id: string }) {
               </>)}
               {renderSection("music", "music_note", "MUSIC", <>
                 <div className="space-y-4">
+                  {musicUploadError && (
+                    <p className="text-[11px] text-error font-medium">{musicUploadError}</p>
+                  )}
+                  <div>
+                    <button
+                      onClick={() => musicFileRef.current?.click()}
+                      disabled={data.is_published === true || musicUploading}
+                      className="w-full py-3 border border-dashed border-secondary text-secondary font-label-md text-[11px] tracking-widest uppercase hover:bg-secondary-container/20 transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">
+                        {musicUploading ? "progress_activity" : "upload_file"}
+                      </span>
+                      {musicUploading ? "Mengunggah..." : "Unggah MP3"}
+                    </button>
+                    <input
+                      ref={musicFileRef}
+                      type="file"
+                      accept="audio/*,.mp3"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) handleMusicFilePick(file)
+                        e.target.value = ""
+                      }}
+                    />
+                    <p className="text-[10px] text-on-surface-variant mt-2">
+                      {myCustomTrack
+                        ? "Kamu memiliki 1 lagu unggahan. Unggah lagi akan mengganti lagu tersebut."
+                        : "Maksimal 1 lagu unggahan. Lagu unggahan akan tampil di atas daftar."}
+                    </p>
+                  </div>
                   <div className="flex items-center gap-2 bg-surface-container-low px-3 py-2 border border-outline-variant">
                     <span className="material-symbols-outlined text-[20px] text-on-surface-variant">search</span>
                     <input
@@ -779,6 +875,9 @@ function EditorInner({ id }: { id: string }) {
                   <div className="space-y-1 max-h-64 overflow-y-auto custom-scrollbar -mx-4 px-4">
                     {filteredTracks.map(track => {
                       const isSelected = track.id === data.selected_track_id
+                      const isCustom = track.is_custom === true
+                      const isMine = isCustom && track.uploaded_by === id
+                      const deletable = isMine && track.is_public !== true
                       return (
                         <div
                           key={track.id}
@@ -787,15 +886,28 @@ function EditorInner({ id }: { id: string }) {
                             isSelected
                               ? "bg-secondary-container/20 border border-secondary"
                               : "border border-transparent hover:bg-surface-container-low"
-                          }`}
+                          } ${isCustom ? "border-l-2 border-l-secondary" : ""}`}
                         >
                           <div className="flex flex-col">
                             <span className="font-label-md text-primary">{track.title}</span>
-                            <span className="text-[10px] text-on-surface-variant">{track.artist || "Instrumental"}</span>
+                            <span className="text-[10px] text-on-surface-variant">
+                              {isCustom ? "★ Lagu Saya" : (track.artist || "Instrumental")}
+                            </span>
                           </div>
-                          <span className={`material-symbols-outlined ${isSelected ? "text-secondary" : "text-on-surface-variant"}`}>
-                            {isSelected ? "pause" : "play_arrow"}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            {isMine && track.is_public !== true && (
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleDeleteCustomTrack(track.id) }}
+                                className="text-on-surface-variant hover:text-error transition-colors"
+                                title="Hapus lagu unggahan"
+                              >
+                                <span className="material-symbols-outlined text-[16px]">delete</span>
+                              </button>
+                            )}
+                            <span className={`material-symbols-outlined ${isSelected ? "text-secondary" : "text-on-surface-variant"}`}>
+                              {isSelected ? "pause" : "play_arrow"}
+                            </span>
+                          </div>
                         </div>
                       )
                     })}
@@ -998,6 +1110,32 @@ function EditorInner({ id }: { id: string }) {
                 className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
               >
                 Kembali
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showMusicConfirm && (
+        <div className="fixed inset-0 z-[95] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6">
+          <div className="bg-white w-full max-w-md rounded-2xl border border-outline-variant shadow-2xl p-8">
+            <span className="material-symbols-outlined text-4xl text-secondary mb-4 block">music_note</span>
+            <h3 className="font-headline-md text-xl font-medium text-primary mb-3">Ganti Lagu?</h3>
+            <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
+              Upload hanya mendukung satu lagu. Lagu yang kamu unggah sebelumnya akan dihapus dan digantikan dengan lagu yang baru.
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={confirmMusicReplace}
+                className="w-full py-3.5 bg-secondary text-on-secondary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity"
+              >
+                Ganti &amp; Upload
+              </button>
+              <button
+                onClick={cancelMusicReplace}
+                className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+              >
+                Batal
               </button>
             </div>
           </div>

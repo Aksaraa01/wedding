@@ -125,6 +125,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
           checkin_timestamp: null,
           checked_in_by: null,
           souvenir_claimed: false,
+          added_manually: data.guest.added_manually || false,
         }
         await cacheGuests([serverGuest])
         await markCheckedIn(serverGuest.id, token, operatorName)
@@ -198,10 +199,11 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
             rsvp_pax_count: g.rsvp_pax_count || null,
             qr_token: g.qr_token || null,
             is_checked_in: g.is_checked_in || false,
-            checkin_timestamp: g.checkin_timestamp || null,
-            checked_in_by: null,
-            souvenir_claimed: false,
-          }))
+checkin_timestamp: g.checkin_timestamp || null,
+          checked_in_by: null,
+          souvenir_claimed: false,
+          added_manually: g.added_manually || false,
+        }))
           await cacheGuests(records)
           setAllGuests(records)
           setLogEntries(records.filter((g) => g.is_checked_in).sort((a, b) => {
@@ -322,6 +324,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
           guest_count: addGuestForm.guest_count,
           category: addGuestForm.category,
           table_number: addGuestForm.table_number,
+          added_manually: true,
         }),
       })
 
@@ -586,6 +589,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                   <div className="space-y-0.5">
                     <h4 className="font-medium text-primary">
                       {g.name}
+                      {g.added_manually && <span className="text-[10px] text-amber-600 font-bold font-serif pl-1">[Manual]</span>}
                       {g.category && <span className="text-[10px] text-secondary font-bold font-serif pl-1">{g.category}</span>}
                     </h4>
                     <p className="text-[10px] text-on-surface-variant/60 font-mono">
@@ -714,6 +718,12 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                   <span className="text-[9px] text-on-surface-variant/60 uppercase tracking-wider block font-semibold">Status</span>
                   <strong className={`font-medium text-sm ${selectedGuest.is_checked_in ? "text-[#2e7d32]" : "text-secondary"}`}>
                     {selectedGuest.is_checked_in ? "Sudah Check-in" : "Belum Check-in"}
+                  </strong>
+                </div>
+                <div className="pt-2">
+                  <span className="text-[9px] text-on-surface-variant/60 uppercase tracking-wider block font-semibold">Sumber</span>
+                  <strong className={`font-medium text-sm ${selectedGuest.added_manually ? "text-amber-600" : "text-primary"}`}>
+                    {selectedGuest.added_manually ? "Ditambahkan Manual" : "Undangan QR"}
                   </strong>
                 </div>
                 <div className="pt-2">

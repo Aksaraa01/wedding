@@ -13,6 +13,7 @@ export interface GuestRecord {
   checkin_timestamp: string | null
   checked_in_by: string | null
   souvenir_claimed: boolean
+  added_manually?: boolean
 }
 
 interface SyncAction {

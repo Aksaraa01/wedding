@@ -29,7 +29,8 @@ export async function GET(
           total_project_cost,
           payment_status,
           express_service,
-          wa_blast_tier
+          wa_blast_tier,
+          undangan_fisik
         ),
         employees!left (
           id,
@@ -152,6 +153,7 @@ export async function GET(
         payment_status: wp.payment_status,
         express_service: wp.express_service,
         wa_blast_tier: wp.wa_blast_tier || 0,
+        undangan_fisik: wp.undangan_fisik === true,
       },
       feature_actions: featureActions || [],
       employees: allEmployees || [],

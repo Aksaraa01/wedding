@@ -29,7 +29,7 @@ export async function GET(
 
     const { data: recentCheckins, error: recentErr } = await supabaseAdmin
       .from("guests")
-      .select("id, name, table_number, checkin_timestamp, souvenir_claimed, is_checked_in")
+      .select("id, name, table_number, checkin_timestamp, souvenir_claimed, is_checked_in, added_manually")
       .eq("wedding_profile_id", id)
       .eq("is_checked_in", true)
       .not("checkin_timestamp", "is", null)
