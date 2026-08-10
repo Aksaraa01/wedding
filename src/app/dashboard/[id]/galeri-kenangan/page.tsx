@@ -11,12 +11,18 @@ type GuestPhoto = {
   guests: { name: string; category: string } | null
 }
 
+function formatDeletionDate(date: string): string {
+  const [y, m, d] = date.split("-")
+  return `${d}-${m}-${y}`
+}
+
 export default function GaleriKenangan({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const router = useRouter()
   const [photos, setPhotos] = useState<GuestPhoto[]>([])
   const [loading, setLoading] = useState(true)
   const [downloadingAll, setDownloadingAll] = useState(false)
+  const [retention, setRetention] = useState<{ hasEventDate: boolean; latestEventDate: string | null; deletionDate: string | null }>({ hasEventDate: false, latestEventDate: null, deletionDate: null })
 
   const downloadSingle = async (url: string, filename: string) => {
     try {
@@ -91,6 +97,9 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
       .then((r) => r.ok ? r.json() : null)
       .then((data) => {
         if (data?.photos) setPhotos(data.photos)
+        if (data?.hasEventDate !== undefined) {
+          setRetention({ hasEventDate: data.hasEventDate, latestEventDate: data.latestEventDate, deletionDate: data.deletionDate })
+        }
       })
       .finally(() => setLoading(false))
   }, [id])
@@ -123,6 +132,34 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
         </header>
 
       <main className="pt-32 pb-32 max-w-container-max mx-auto px-edge-margin-mobile md:px-edge-margin-desktop">
+        {!loading && retention.hasEventDate && retention.deletionDate && (
+          <div className="mb-10 flex items-start gap-3 bg-secondary-container/40 border border-secondary/30 px-5 py-4">
+            <span className="material-symbols-outlined text-secondary shrink-0 mt-0.5">info</span>
+            <p className="font-body-md text-[13px] text-on-surface">
+              Foto kenangan tamu akan dihapus otomatis 7 hari setelah acara,{" "}
+              <span className="font-semibold">{formatDeletionDate(retention.deletionDate)}</span> (tanggal penghapusan).
+              Segera download foto sebelum tanggal tersebut.
+            </p>
+          </div>
+        )}
+
+        {!loading && !retention.hasEventDate && (
+          <div className="mb-10 flex flex-col md:flex-row md:items-center items-start gap-4 bg-surface-container-highest border border-outline-variant px-5 py-4">
+            <div className="flex items-start gap-3 flex-1">
+              <span className="material-symbols-outlined text-on-surface-variant shrink-0 mt-0.5">schedule</span>
+              <p className="font-body-md text-[13px] text-on-surface">
+                Tanggal acara belum diatur pada editor undangan. Atur tanggal acara agar foto kenangan tamu dikelola otomatis.
+              </p>
+            </div>
+            <button
+              onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)}
+              className="shrink-0 border border-primary text-primary font-label-md text-[11px] uppercase tracking-widest px-5 py-3 hover:bg-primary hover:text-white transition-colors duration-300"
+            >
+              Buka Editor
+            </button>
+          </div>
+        )}
+
         <section className="mb-16 fade-in" style={{ animation: "fadeIn 0.8s ease-out forwards" }}>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-outline-variant pb-8">
             <div className="max-w-2xl">

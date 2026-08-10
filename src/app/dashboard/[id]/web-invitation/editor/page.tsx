@@ -299,7 +299,7 @@ function EditorInner({ id }: { id: string }) {
         return
       }
       const track: Track = dataRes.track
-      setAllTracks(prev => [track, ...prev.filter(t => t.id !== track.id)])
+      setAllTracks(prev => [track, ...prev.filter(t => !(t.is_custom === true && t.uploaded_by === id && t.is_public !== true))])
       updateField("selected_track_id", track.id)
     } catch {
       setMusicUploadError("Gagal mengunggah lagu. Periksa koneksi.")
@@ -886,12 +886,12 @@ function EditorInner({ id }: { id: string }) {
                             isSelected
                               ? "bg-secondary-container/20 border border-secondary"
                               : "border border-transparent hover:bg-surface-container-low"
-                          } ${isCustom ? "border-l-2 border-l-secondary" : ""}`}
+                          } ${isMine ? "border-l-2 border-l-secondary" : ""}`}
                         >
                           <div className="flex flex-col">
                             <span className="font-label-md text-primary">{track.title}</span>
                             <span className="text-[10px] text-on-surface-variant">
-                              {isCustom ? "★ Lagu Saya" : (track.artist || "Instrumental")}
+                              {isMine ? "★ Lagu Saya" : (track.artist || "Instrumental")}
                             </span>
                           </div>
                           <div className="flex items-center gap-2">

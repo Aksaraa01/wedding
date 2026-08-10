@@ -49,12 +49,12 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Custom (pinned) tracks first, most recent first; system tracks follow by sort_order
+    // Own uploads pinned first (most recent first); system + others follow by sort_order
     const sorted = (data || []).sort((a, b) => {
-      const aCustom = a.is_custom === true ? 1 : 0
-      const bCustom = b.is_custom === true ? 1 : 0
-      if (aCustom !== bCustom) return bCustom - aCustom
-      if (aCustom === 1) return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      const aMine = a.is_custom === true && a.uploaded_by === weddingProfileId ? 1 : 0
+      const bMine = b.is_custom === true && b.uploaded_by === weddingProfileId ? 1 : 0
+      if (aMine !== bMine) return bMine - aMine
+      if (aMine === 1) return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       return (a.sort_order ?? 0) - (b.sort_order ?? 0)
     })
 
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
       .from("web_tracks")
       .insert({
         title: titleBase || "Lagu Saya",
-        artist: "Lagu Saya",
+        artist: isAdmin ? (ownerName || "Aksaraa") : "Lagu Saya",
         mood_category: "custom",
         audio_url: url,
         is_active: true,

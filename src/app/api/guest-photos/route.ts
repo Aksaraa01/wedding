@@ -30,8 +30,37 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ photos: data })
+    const retention = await getRetention(weddingProfileId)
+
+    return NextResponse.json({ photos: data, ...retention })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
+  }
+}
+
+async function getRetention(weddingProfileId: string) {
+  const { data: profile } = await supabaseAdmin
+    .from("wedding_profiles")
+    .select("sessions")
+    .eq("id", weddingProfileId)
+    .single()
+
+  const sessions = Array.isArray(profile?.sessions) ? (profile.sessions as { date?: string }[]) : []
+  const dates = sessions.map(s => s.date).filter((d): d is string => !!d && /^\d{4}-\d{2}-\d{2}$/.test(d))
+  const latest = dates.length ? dates.map(d => new Date(d)).sort((a, b) => a.getTime() - b.getTime()).pop() : null
+
+  if (!latest) {
+    return { hasEventDate: false, latestEventDate: null, deletionDate: null }
+  }
+
+  const deletion = new Date(latest)
+  deletion.setDate(deletion.getDate() + 7)
+  deletion.setHours(23, 59, 0, 0)
+
+  const iso = (d: Date) => d.toISOString().slice(0, 10)
+  return {
+    hasEventDate: true,
+    latestEventDate: iso(latest),
+    deletionDate: iso(deletion),
   }
 }
