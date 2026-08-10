@@ -37,6 +37,8 @@ export async function GET() {
       code: s.code,
       label: s.label,
       rows: rows.filter((r) => r.section_code === s.code).map((r) => ({
+        id: r.id,
+        code: r.code || undefined,
         label: r.label,
         essential: mapCell(r.essential_value, r.essential_emphasis),
         signature: mapCell(r.signature_value, r.signature_emphasis),

@@ -2,6 +2,7 @@ import { supabaseAdmin } from "@/lib/supabase"
 import { notFound, redirect } from "next/navigation"
 import { getTemplateComponent } from "@/components/templates"
 import InvitationOpenedTracker from "@/components/InvitationOpenedTracker"
+import { getRowGates, getFeatureIncluded } from "@/lib/featureGates"
 
 export default async function WeddingInvitation({
   params,
@@ -15,11 +16,16 @@ export default async function WeddingInvitation({
 
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax")
+    .select("id, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type")
     .eq("slug", slug)
     .single()
 
   if (!profile) notFound()
+
+  const [rowGates, featureSet] = await Promise.all([
+    getRowGates(profile.package_type || "signature"),
+    getFeatureIncluded(profile.package_type || "signature"),
+  ])
 
   const guestContext = await (async () => {
     const fields = "id, name, slug, table_number, qr_token, rsvp_status, rsvp_pax_count, rsvp_message"
@@ -95,20 +101,26 @@ export default async function WeddingInvitation({
         sessions={profile.sessions || undefined}
         quote_text={profile.quote_text || undefined}
         quote_source={profile.quote_source || undefined}
-        stories={profile.stories || undefined}
+        stories={rowGates.story ? profile.stories || undefined : undefined}
         gallery_photos={profile.gallery_photos || undefined}
         gift_accounts={giftAccounts.length > 0 ? giftAccounts : undefined}
-        gift_address={giftAddress}
+        gift_address={rowGates.gift_address ? giftAddress : undefined}
         track_url={trackUrl}
-        inviting_families={profile.inviting_families ? (typeof profile.inviting_families === "string" ? JSON.parse(profile.inviting_families) : profile.inviting_families) : undefined}
+        inviting_families={rowGates.inviting_families ? (profile.inviting_families ? (typeof profile.inviting_families === "string" ? JSON.parse(profile.inviting_families) : profile.inviting_families) : undefined) : undefined}
         wedding_profile_id={profile.id}
         guest_id={guestContext?.id}
-        guest_qr_token={guestContext?.qr_token || undefined}
-        guest_qr_url={guestContext?.qr_token ? `/qr/${guestContext.slug || guestContext.qr_token}` : undefined}
-        guest_qr_content={guestContext?.qr_token ? `/welcome/${guestContext.slug || guestContext.qr_token}` : undefined}
+        guest_qr_token={featureSet.has("qr_code_book") ? (guestContext?.qr_token || undefined) : undefined}
+        guest_qr_url={featureSet.has("qr_code_book") && guestContext?.qr_token ? `/qr/${guestContext.slug || guestContext.qr_token}` : undefined}
+        guest_qr_content={featureSet.has("qr_code_book") && guestContext?.qr_token ? `/welcome/${guestContext.slug || guestContext.qr_token}` : undefined}
         guest_table_number={guestContext?.table_number || undefined}
         guest_rsvp_status={guestContext?.rsvp_status || undefined}
         rsvp_max_pax={profile.rsvp_max_pax ?? undefined}
+        feature_gates={{
+          story: rowGates.story,
+          gift_address: rowGates.gift_address,
+          inviting_families: rowGates.inviting_families,
+          qr_code_book: featureSet.has("qr_code_book"),
+        }}
       />
       </>
     )

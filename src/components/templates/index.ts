@@ -53,6 +53,12 @@ export interface TemplateProps {
   guest_table_number?: string
   guest_rsvp_status?: string
   rsvp_max_pax?: number
+  feature_gates?: {
+    story?: boolean
+    gift_address?: boolean
+    inviting_families?: boolean
+    qr_code_book?: boolean
+  }
 }
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {

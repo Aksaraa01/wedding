@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { getFeatureIncluded } from "@/lib/featureGates"
 
 export async function POST(req: NextRequest) {
   try {
@@ -151,7 +152,7 @@ export async function GET(req: NextRequest) {
 
     const { data: profile, error: profileErr } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("bride_name, groom_name, display_name, slug, estimated_wedding_date, sessions")
+      .select("bride_name, groom_name, display_name, slug, estimated_wedding_date, sessions, package_type")
       .eq("id", guest.wedding_profile_id)
       .single()
 
@@ -159,7 +160,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Profil tidak ditemukan" }, { status: 404 })
     }
 
-    return NextResponse.json({ guest, profile })
+    const features = await getFeatureIncluded(profile.package_type || "signature")
+    const gates = {
+      wish_wall: features.has("wish_wall"),
+      galeri_foto_tamu: features.has("galeri_foto_tamu"),
+    }
+
+    return NextResponse.json({ guest, profile, gates })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

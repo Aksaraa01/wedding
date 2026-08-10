@@ -33,6 +33,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
   const [photoUploaded, setPhotoUploaded] = useState(false)
   const [photoUploading, setPhotoUploading] = useState(false)
   const [photoUrl, setPhotoUrl] = useState("")
+  const [gates, setGates] = useState<{ wish_wall: boolean; galeri_foto_tamu: boolean }>({ wish_wall: true, galeri_foto_tamu: true })
 
   useEffect(() => {
     if (!ref) { setError("Token tidak ditemukan"); return }
@@ -56,6 +57,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
         setCategory(data.guest.category || null)
         setEventDate(formatDate(data.profile.estimated_wedding_date || ""))
         setWeddingProfileId(data.guest.wedding_profile_id)
+        if (data.gates) setGates(data.gates)
 
         if (!data.guest.is_checked_in) {
           await fetch("/api/check-in", {
@@ -258,6 +260,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
           </section>
         </div>
 
+        {gates.wish_wall && (
         <section className="fade-in-up stagger-3 w-full mt-8 bg-surface-container-low border border-outline-variant/40 rounded-xl p-6 shadow-sm">
           <div className="text-center mb-4">
             <h3 className="font-headline-md text-xl font-medium text-primary">Tulis Doa &amp; Harapan</h3>
@@ -294,7 +297,9 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
             </div>
           )}
         </section>
+        )}
 
+        {gates.galeri_foto_tamu && (
         <section className="fade-in-up stagger-4 w-full mt-8 bg-surface-container-low border border-outline-variant/40 rounded-xl p-6 shadow-sm">
           <div className="text-center mb-6">
             <h3 className="font-headline-md text-xl font-medium text-primary">Galeri Kenangan Tamu</h3>
@@ -326,6 +331,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
             </div>
           )}
         </section>
+        )}
       </main>
 
       <style jsx global>{`

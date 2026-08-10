@@ -40,6 +40,12 @@ interface Props {
   guest_table_number?: string
   guest_rsvp_status?: string
   rsvp_max_pax?: number
+  feature_gates?: {
+    story?: boolean
+    gift_address?: boolean
+    inviting_families?: boolean
+    qr_code_book?: boolean
+  }
 }
 
 const IMG = {
@@ -176,6 +182,7 @@ export default function HeritageJawa({
   guest_table_number,
   guest_rsvp_status,
   rsvp_max_pax,
+  feature_gates,
 }: Props) {
   const eventDate = sessions?.[0]?.date || estimated_wedding_date
   const countdown = useCountdown(eventDate)
@@ -477,6 +484,7 @@ export default function HeritageJawa({
           </section>
 
           {/* TURUT MENGUNDANG */}
+          {feature_gates?.inviting_families !== false && (
           <section className="py-20 px-6 relative" style={{ backgroundColor: "rgba(255,255,255,0.4)" }}>
             <div className="text-center space-y-8 relative z-10">
               <Floral className="w-24 opacity-50 mx-auto" style={{ color: "#C1A05E" }} />
@@ -497,6 +505,7 @@ export default function HeritageJawa({
               <div className="w-16 h-px mx-auto mt-8" style={{ backgroundColor: "#C1A05E55" }} />
             </div>
           </section>
+          )}
 
           {/* EVENTS */}
           <section id="events" className="py-20 px-6 relative overflow-hidden" style={{ backgroundColor: "#f0eee8" }}>
@@ -594,6 +603,7 @@ export default function HeritageJawa({
           </section>
 
           {/* STORY */}
+          {feature_gates?.story !== false && (
           <section id="story" className="py-20 px-6 relative">
             <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: `url(${IMG.storyBg})`, backgroundSize: "cover" }} />
             <div className="text-center mb-16 relative">
@@ -624,6 +634,7 @@ export default function HeritageJawa({
               ))}
             </div>
           </section>
+          )}
 
           {/* GALLERY */}
           <section className="py-20 px-0 relative overflow-hidden" id="gallery">
@@ -699,7 +710,7 @@ export default function HeritageJawa({
           <section className="py-20 px-6 relative">
             <h3 className="font-['EB_Garamond'] text-[32px] mb-8 text-center" style={{ color: "#472A1C", fontWeight: 600 }}>Wishes &amp; RSVP</h3>
 
-            {isIdentified && (
+            {isIdentified && feature_gates?.qr_code_book !== false && (
               <div className="mb-8 text-center p-6 rounded-3xl border" style={{ backgroundColor: "rgba(255,255,255,0.6)", borderColor: "#C1A05E33", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
                 <p className="text-[11px] uppercase tracking-[0.2em] font-bold mb-1" style={{ color: "#C1A05E" }}>Kartu QR Masuk</p>
                 <p className="font-['EB_Garamond'] text-lg mb-1" style={{ color: "#472A1C" }}>{guest_name}</p>
@@ -867,7 +878,7 @@ export default function HeritageJawa({
       </button>
 
       {/* QR MODAL — full digital pass embedded */}
-      {qrModalOpen && (
+      {qrModalOpen && feature_gates?.qr_code_book !== false && (
         <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[60] flex items-center justify-center p-4 sm:p-6" style={{ animation: "hj-qr-zoom 0.2s ease" }}>
           <div className={`relative rounded-3xl overflow-hidden shadow-2xl bg-white flex flex-col ${guest_id === "preview" ? "w-[min(90%,430px)] h-[80%] max-h-[700px]" : "w-full max-w-md h-auto max-h-[92dvh]"}`}>
             <div className="flex items-center justify-between px-5 py-3 border-b z-10 shrink-0" style={{ backgroundColor: "#FBF8F3", borderColor: "rgba(26,24,23,0.08)" }}>

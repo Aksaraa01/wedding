@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { deriveSelections } from "@/lib/packages"
+import { getRowGates } from "@/lib/featureGates"
 
 export async function GET(
   _req: Request,
@@ -18,6 +19,9 @@ export async function GET(
     if (profileError || !profile) {
       return NextResponse.json({ error: "Wedding profile not found" }, { status: 404 })
     }
+
+    const packageType = profile.package_type || "signature"
+    const packageGates = await getRowGates(packageType)
 
     const selections = deriveSelections(
       profile.package_type || "signature",
@@ -86,6 +90,7 @@ export async function GET(
     return NextResponse.json({
       profile,
       selections,
+      package_gates: packageGates,
       guest_count: guestCount || 0,
       table_count: tableCount,
       pending_wishes: pendingWishes || 0,

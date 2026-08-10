@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { getFeatureIncluded } from "@/lib/featureGates"
 
 export async function GET(
   _req: NextRequest,
@@ -37,6 +38,8 @@ export async function GET(
       .eq("is_vip", true)
       .order("created_at", { ascending: true })
 
+    const features = await getFeatureIncluded(profile?.package_type || "signature")
+
     return NextResponse.json({
       total_guests: totalGuests || 0,
       wa_blast_tier: profile?.wa_blast_tier || 0,
@@ -46,6 +49,7 @@ export async function GET(
       vip_guests: vipGuests || [],
       vip_count: vipGuests?.length || 0,
       is_published: profile?.is_published === true,
+      qr_code_book: features.has("qr_code_book"),
     })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })

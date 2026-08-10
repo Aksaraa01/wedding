@@ -36,6 +36,10 @@ type Profile = {
   groom_name: string
 }
 
+type PackageGates = {
+  gift_address: boolean
+}
+
 function showToast(toastFn: (t: { show: boolean; message: string }) => void, msg: string) {
   toastFn({ show: true, message: msg })
   setTimeout(() => toastFn({ show: false, message: "" }), 3000)
@@ -44,6 +48,7 @@ function showToast(toastFn: (t: { show: boolean; message: string }) => void, msg
 function AmplopDigitalInner({ id }: { id: string }) {
   const router = useRouter()
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [packageGates, setPackageGates] = useState<PackageGates>({ gift_address: true })
   const [accounts, setAccounts] = useState<Account[]>([])
   const [addresses, setAddresses] = useState<Address[]>([])
   const [activeTab, setActiveTab] = useState("digital")
@@ -73,7 +78,7 @@ function AmplopDigitalInner({ id }: { id: string }) {
 
   const [toast, setToast] = useState({ show: false, message: "" })
 
-  const canShowPhysical = profile?.package_type !== "essential"
+  const canShowPhysical = packageGates.gift_address
 
   useEffect(() => {
     Promise.all([
@@ -86,6 +91,7 @@ function AmplopDigitalInner({ id }: { id: string }) {
       )
       .then(([dashData, accData, addrData]) => {
         setProfile(dashData.profile)
+        if (dashData.package_gates) setPackageGates(dashData.package_gates)
         setAccounts(accData.accounts || [])
         setAddresses(addrData.addresses || [])
       })

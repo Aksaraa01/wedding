@@ -67,6 +67,12 @@ function EditorInner({ id }: { id: string }) {
   const [showH3Reminder, setShowH3Reminder] = useState(false)
   const [feedbackCount, setFeedbackCount] = useState<number | null>(null)
   const [feedbackLoading, setFeedbackLoading] = useState(true)
+  const [gates, setGates] = useState<{ gift_address: boolean; inviting_families: boolean; story: boolean }>({
+    gift_address: true,
+    inviting_families: true,
+    story: true,
+  })
+  const [featureSet, setFeatureSet] = useState<Set<string>>(new Set())
   const saveTimer = useRef<ReturnType<typeof setTimeout>>(null)
 
   const coverFileRef = useRef<HTMLInputElement>(null)
@@ -79,6 +85,8 @@ function EditorInner({ id }: { id: string }) {
       .then(res => {
         setProfile(res.profile)
         setTemplate(res.template)
+        if (res.profile?.package_gates) setGates(res.profile.package_gates)
+        if (res.profile?.feature_set) setFeatureSet(new Set(res.profile.feature_set))
         const p = res.profile
         setData({
           ...p,
@@ -280,9 +288,9 @@ function EditorInner({ id }: { id: string }) {
       { label: "Nama Lengkap Mempelai", filled: !!(data.groom_full_name && data.bride_full_name) },
       { label: "Nama Orang Tua Mempelai", filled: !!(data.groom_parents && data.bride_parents) },
       { label: "Tanggal & Sesi Acara", filled: Array.isArray(data.sessions) && data.sessions.length > 0 },
-      { label: "Kisah Cinta", filled: Array.isArray(data.stories) && data.stories.length > 0 },
+      { label: "Kisah Cinta", filled: !(gates.story) || (Array.isArray(data.stories) && data.stories.length > 0) },
       { label: "Galeri Foto", filled: Array.isArray(data.gallery_photos) && data.gallery_photos.length > 0 },
-      { label: "Turut Mengundang", filled: families.length > 0 },
+      { label: "Turut Mengundang", filled: !(gates.inviting_families) || families.length > 0 },
       { label: "Kutipan", filled: !!data.quote_text },
     ]
     return items.filter(i => !i.filled).map(i => i.label)
@@ -335,14 +343,14 @@ function EditorInner({ id }: { id: string }) {
         slug={data.slug || ""}
         guest_name="Tamu Undangan"
         guest_id="preview"
-        guest_qr_token="preview"
+        guest_qr_token={featureSet.has("qr_code_book") ? "preview" : undefined}
         guest_table_number="Meja 5"
-        guest_qr_url={`/qr/preview?preview=1&slug=${encodeURIComponent(data.slug || "")}&couple=${encodeURIComponent(data.display_name || `${data.bride_name || ""} & ${data.groom_name || ""}`)}&date=${encodeURIComponent(data.estimated_wedding_date || "")}&time=${encodeURIComponent(sessions[0]?.time || "")}&venue=${encodeURIComponent(sessions[0]?.venue || "")}&address=${encodeURIComponent(sessions[0]?.address || "")}`}
+        guest_qr_url={featureSet.has("qr_code_book") ? `/qr/preview?preview=1&slug=${encodeURIComponent(data.slug || "")}&couple=${encodeURIComponent(data.display_name || `${data.bride_name || ""} & ${data.groom_name || ""}`)}&date=${encodeURIComponent(data.estimated_wedding_date || "")}&time=${encodeURIComponent(sessions[0]?.time || "")}&venue=${encodeURIComponent(sessions[0]?.venue || "")}&address=${encodeURIComponent(sessions[0]?.address || "")}` : undefined}
         display_name={data.display_name || undefined}
         sessions={sessions.length > 0 ? sessions : undefined}
         quote_text={data.quote_text || undefined}
         quote_source={data.quote_source || undefined}
-        stories={stories.length > 0 ? stories : undefined}
+        stories={gates.story && stories.length > 0 ? stories : undefined}
         gallery_photos={galleryPhotos.length > 0 ? galleryPhotos : undefined}
         couple_illustration_url={data.couple_illustration_url || undefined}
         grayscale={data.grayscale}
@@ -352,12 +360,18 @@ function EditorInner({ id }: { id: string }) {
         bride_photo_url={data.bride_photo_url || undefined}
         groom_parents={data.groom_parents || undefined}
         bride_parents={data.bride_parents || undefined}
-        inviting_families={Array.isArray(data.inviting_families) ? data.inviting_families.filter(Boolean) : undefined}
+        inviting_families={gates.inviting_families && Array.isArray(data.inviting_families) ? data.inviting_families.filter(Boolean) : undefined}
         gift_accounts={giftAccounts.length > 0 ? giftAccounts.map(a => ({ provider_name: a.provider_name, account_number: a.account_number, account_name: a.account_name, type: a.type })) : undefined}
-        gift_address={giftAddressText || undefined}
+        gift_address={gates.gift_address ? giftAddressText || undefined : undefined}
         track_url={selectedTrack?.audio_url || undefined}
         auto_play={autoPlay || undefined}
         rsvp_max_pax={data.rsvp_max_pax ?? 2}
+        feature_gates={{
+          story: gates.story,
+          gift_address: gates.gift_address,
+          inviting_families: gates.inviting_families,
+          qr_code_book: featureSet.has("qr_code_book"),
+        }}
       />
     )
   }
@@ -506,6 +520,7 @@ function EditorInner({ id }: { id: string }) {
                     </div>
                   </div>
                   
+                  {gates.inviting_families && (
                   <div className="space-y-4 pt-4 border-t border-outline-variant/30">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Turut Mengundang</label>
                     <p className="text-[11px] text-on-surface-variant italic">Masukkan nama keluarga yang turut mengundang</p>
@@ -548,6 +563,7 @@ function EditorInner({ id }: { id: string }) {
                       </button>
                     )}
                   </div>
+                  )}
                 </div>
               )}
 
@@ -658,7 +674,7 @@ function EditorInner({ id }: { id: string }) {
                   </div>
                 </div>
               )}
-              {renderSection("story", "auto_stories", "STORY",
+              {gates.story && renderSection("story", "auto_stories", "STORY",
                 <div className="mt-6 space-y-8">
                   <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest block">CURATE YOUR LOVE STORY</label>
                   {stories.map((story: any, i: number) => (
@@ -741,7 +757,7 @@ function EditorInner({ id }: { id: string }) {
                       Atur Amplop Digital
                     </button>
                   </div>
-                  {giftAddressText && (
+                  {gates.gift_address && giftAddressText && (
                     <div className="p-3 border border-outline-variant rounded-lg space-y-1">
                       <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary">Alamat Pengiriman</p>
                       <p className="font-body-md text-sm whitespace-pre-line">{giftAddressText}</p>

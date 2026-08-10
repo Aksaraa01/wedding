@@ -39,26 +39,26 @@ INSERT INTO package_matrix_sections (code, label, sort_order) VALUES
 ON CONFLICT (code) DO NOTHING;
 
 -- Package Matrix Rows
-INSERT INTO package_matrix_rows (section_code, label, essential_value, essential_emphasis, signature_value, signature_emphasis, prestige_value, prestige_emphasis, sort_order) VALUES
+INSERT INTO package_matrix_rows (code, section_code, label, essential_value, essential_emphasis, signature_value, signature_emphasis, prestige_value, prestige_emphasis, sort_order) VALUES
     -- Core features
-    ('core', 'Countdown & Add to Calendar', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 1),
-    ('core', 'Digital RSVP & Wedding Wish', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 2),
-    ('core', 'Pilihan Lagu & Autoplay', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 3),
-    ('core', '1 PIC', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 4),
-    ('core', 'Maps', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 5),
-    ('core', 'Smart Dashboard', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 6),
-    ('core', 'Subdomain Nama Pasangan', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 7),
-    ('core', 'Unlimited Send (Manual)', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 8),
-    ('core', 'Amplop Digital (Rekening Based)', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 9),
+    (NULL, 'core', 'Countdown & Add to Calendar', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 1),
+    (NULL, 'core', 'Digital RSVP & Wedding Wish', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 2),
+    (NULL, 'core', 'Pilihan Lagu & Autoplay', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 3),
+    (NULL, 'core', '1 PIC', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 4),
+    (NULL, 'core', 'Maps', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 5),
+    (NULL, 'core', 'Smart Dashboard', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 6),
+    (NULL, 'core', 'Subdomain Nama Pasangan', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 7),
+    (NULL, 'core', 'Unlimited Send (Manual)', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 8),
+    (NULL, 'core', 'Amplop Digital (Rekening Based)', '✓', 'primary', '✓', 'secondary', '✓', 'gold', 9),
     -- Exclusive features
-    ('exclusive', 'Alamat Pengiriman Kado', '—', 'muted', '✓', 'secondary', '✓', 'gold', 1),
-    ('exclusive', 'Fitur Turut Mengundang', '—', 'muted', '✓', 'secondary', '✓', 'gold', 2),
-    ('exclusive', 'Love Story & Cinematic Video', '—', 'muted', '—', 'muted', '✓', 'gold', 3),
-    ('exclusive', 'Reminder Otomatis ke 100 Tamu VIP', '—', 'muted', '—', 'muted', '✓', 'gold', 4),
+    ('gift_address', 'exclusive', 'Alamat Pengiriman Kado', '—', 'muted', '✓', 'secondary', '✓', 'gold', 1),
+    ('inviting_families', 'exclusive', 'Fitur Turut Mengundang', '—', 'muted', '✓', 'secondary', '✓', 'gold', 2),
+    ('story', 'exclusive', 'Love Story & Cinematic Video', '—', 'muted', '—', 'muted', '✓', 'gold', 3),
+    (NULL, 'exclusive', 'Reminder Otomatis ke 100 Tamu VIP', '—', 'muted', '—', 'muted', '✓', 'gold', 4),
     -- Production limits
-    ('limit', 'Kuota Foto', '15 Foto', 'default', '20 Foto', 'secondary', 'Unlimited', 'default', 1),
-    ('limit', 'Masa Aktif', '2 Bulan', 'default', '6 Bulan', 'secondary', '12 Bulan', 'default', 2),
-    ('limit', 'Batas Revisi', '2 Round', 'default', '3 Round', 'secondary', '5 Round', 'default', 3)
+    (NULL, 'limit', 'Kuota Foto', '15 Foto', 'default', '20 Foto', 'secondary', 'Unlimited', 'default', 1),
+    (NULL, 'limit', 'Masa Aktif', '2 Bulan', 'default', '6 Bulan', 'secondary', '12 Bulan', 'default', 2),
+    (NULL, 'limit', 'Batas Revisi', '2 Round', 'default', '3 Round', 'secondary', '5 Round', 'default', 3)
 ON CONFLICT DO NOTHING;
 
 -- Web Templates

@@ -27,6 +27,18 @@ const MESSAGE_TEMPLATES: Record<string, { label: string; text: string }> = {
   },
 }
 
+function stripQrLines(text: string): string {
+  return text
+    .split("\n")
+    .filter(line => {
+      const lower = line.toLowerCase()
+      return !lower.includes("qr code") && !lower.includes("qr-card")
+    })
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
+}
+
 function formatDate(d: Date): string {
   return d.toISOString().split("T")[0]
 }
@@ -60,6 +72,7 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
   const [showNoVipModal, setShowNoVipModal] = useState(false)
   const [isPublished, setIsPublished] = useState(false)
   const [showConfirmFirstModal, setShowConfirmFirstModal] = useState(false)
+  const [qrCodeBook, setQrCodeBook] = useState(true)
 
   useEffect(() => {
     fetch(`/api/dashboard/${id}/wa-blast`)
@@ -71,10 +84,12 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
         setWeddingDate(data.wedding_date || "")
         setVipGuests(data.vip_guests || [])
           setIsPublished(data.is_published === true)
+        if (typeof data.qr_code_book === "boolean") setQrCodeBook(data.qr_code_book)
         if (data.schedule) {
           setLocked(true)
           setSelectedTemplate(data.schedule.template_type || "formal")
-          setMessageText(data.schedule.message_text || MESSAGE_TEMPLATES.formal.text)
+          const savedText = data.schedule.message_text || MESSAGE_TEMPLATES.formal.text
+          setMessageText(qrCodeBook ? savedText : stripQrLines(savedText))
           setScheduledDate(data.schedule.scheduled_date || formatDate(new Date()))
           setScheduledTime(data.schedule.scheduled_time?.slice(0, 5) || "09:00")
         }
@@ -87,8 +102,9 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
     setSelectedTemplate(val)
     const template = MESSAGE_TEMPLATES[val]
     if (template) {
-      setMessageText(template.text)
-      setEditText(template.text)
+      const text = qrCodeBook ? template.text : stripQrLines(template.text)
+      setMessageText(text)
+      setEditText(text)
     }
   }
 

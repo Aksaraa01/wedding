@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { getRowGates, getFeatureIncluded } from "@/lib/featureGates"
 
 export async function GET(
   _req: NextRequest,
@@ -10,13 +11,17 @@ export async function GET(
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("id, bride_name, groom_name, slug, selected_template_id, selected_track_id, couple_illustration_url, grayscale, is_published, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, estimated_wedding_date, sessions, display_name, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax")
+      .select("id, bride_name, groom_name, slug, package_type, selected_template_id, selected_track_id, couple_illustration_url, grayscale, is_published, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, estimated_wedding_date, sessions, display_name, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax")
       .eq("id", id)
       .single()
 
     if (profileError || !profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 })
     }
+
+    const packageType = profile.package_type || "signature"
+    const gates = await getRowGates(packageType)
+    const features = await getFeatureIncluded(packageType)
 
     let template = null
     if (profile.selected_template_id) {
@@ -44,6 +49,9 @@ export async function GET(
         bride_name: profile.bride_name,
         groom_name: profile.groom_name,
         slug: profile.slug,
+        package_type: packageType,
+        package_gates: gates,
+        feature_set: Array.from(features),
         couple_illustration_url: profile.couple_illustration_url,
         grayscale: profile.grayscale,
         is_published: profile.is_published,
