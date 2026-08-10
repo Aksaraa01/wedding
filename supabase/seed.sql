@@ -9,10 +9,12 @@ ON CONFLICT (code) DO NOTHING;
 INSERT INTO package_features (package_code, feature_code, is_included) VALUES
     ('essential', 'premium_web', true),
     ('essential', 'reservation_automation', true),
+    ('essential', 'unique_link_generator', true),
     ('essential', 'kolom_direct_transfer', true),
     ('signature', 'premium_web', true),
     ('signature', 'wish_wall', true),
     ('signature', 'reservation_automation', true),
+    ('signature', 'unique_link_generator', true),
     ('signature', 'kolom_direct_transfer', true),
     ('prestige', 'premium_web', true),
     ('prestige', 'wish_wall', true),
