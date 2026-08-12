@@ -110,6 +110,7 @@ export default function OpsTemplatesPage() {
 
   const [uploading, setUploading] = useState(false)
   const previewFileRef = useRef<HTMLInputElement>(null)
+  const [wpCheck, setWpCheck] = useState<{ checking: boolean; ok?: boolean; title?: string; msg?: string }>({ checking: false })
 
   // mapping state
   const [showMapping, setShowMapping] = useState(false)
@@ -187,6 +188,18 @@ export default function OpsTemplatesPage() {
     } finally {
       setUploading(false)
     }
+  }
+
+  const handleCheckWpSlug = async () => {
+    if (!employee) return
+    if (!form.wp_master_slug.trim()) {
+      setWpCheck({ checking: false, ok: false, msg: "Isi WP Master Slug terlebih dahulu." })
+      return
+    }
+    setWpCheck({ checking: true })
+    const res = await fetch(`/api/ops/templates/check-wp-slug?slug=${encodeURIComponent(form.wp_master_slug)}`, { headers: opsHeaders(employee) })
+    const data = await res.json()
+    setWpCheck({ checking: false, ...data })
   }
 
   const handleSave = async () => {
@@ -468,7 +481,23 @@ export default function OpsTemplatesPage() {
                   </div>
                   <div>
                     <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">WP Master Slug</label>
-                    <input className="input-editorial w-full font-label-md text-[14px]" value={form.wp_master_slug} onChange={(e) => setForm({ ...form, wp_master_slug: e.target.value })} placeholder="marry-with-you" />
+                    <div className="flex gap-2">
+                      <input className="input-editorial w-full font-label-md text-[14px]" value={form.wp_master_slug} onChange={(e) => setForm({ ...form, wp_master_slug: e.target.value })} placeholder="marry-with-you" />
+                      <button
+                        type="button"
+                        onClick={handleCheckWpSlug}
+                        disabled={wpCheck.checking}
+                        className="px-4 py-2 border border-secondary text-secondary font-label-md text-[11px] uppercase tracking-widest hover:bg-secondary-container/20 transition-colors shrink-0 disabled:opacity-50"
+                      >
+                        {wpCheck.checking ? "Mengecek..." : "Cek ke WP"}
+                      </button>
+                    </div>
+                    {wpCheck.msg && (
+                      <p className={`text-[11px] mt-1 ${wpCheck.ok ? "text-emerald-600" : "text-error"}`}>{wpCheck.msg}</p>
+                    )}
+                    <p className="text-[11px] text-on-surface-variant mt-1">
+                      Slug postingan master template di WordPress — bagian dari URL, contoh: <span className="font-mono">https://wp.aksaraa.com/marry-with-you/</span> → slug <span className="font-mono">marry-with-you</span>.
+                    </p>
                   </div>
                   <div>
                     <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-2">Eligibilitas Paket (pilih satu)</label>
