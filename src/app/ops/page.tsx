@@ -439,6 +439,9 @@ export default function OpsDashboardPage() {
             <nav className="hidden md:flex gap-10">
               <a className="font-label-md text-label-md uppercase tracking-widest text-primary font-semibold border-b-2 border-primary">Antrian</a>
               <a href="/ops/music" className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary">Music</a>
+              {employee.role === "admin" && (
+                <a href="/ops/templates" className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary">Template</a>
+              )}
             </nav>
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
