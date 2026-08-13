@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { generateUniqueToken } from "@/lib/qr"
+import { getFeatureIncluded } from "@/lib/featureGates"
 
 export function slugifyName(name: string): string {
   return name.toLowerCase().replace(/&/g, "dan").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
@@ -33,10 +34,11 @@ export async function autoGenerateGuestLinks(
     .single()
 
   // The invitation slug is only generated for PAID profiles. The QR token is a
-  // separate fallback identifier (not part of the slug), generated only for paid
-  // PRESTIGE profiles.
+  // separate fallback identifier (not part of the slug), generated only when the
+  // profile's package includes the qr_code_book feature (from package_features).
   if (!profile || profile.payment_status === "UNPAID") return 0
-  const generateQr = profile.package_type === "prestige"
+  const features = await getFeatureIncluded(profile.package_type)
+  const generateQr = features.has("qr_code_book")
 
   let generated = 0
   for (const g of guests) {
