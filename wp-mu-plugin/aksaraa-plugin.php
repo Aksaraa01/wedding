@@ -670,7 +670,13 @@ class AksaraaPlugin
         $cache_key = 'aksaraa_sideload_' . md5($url);
         $cached = get_transient($cache_key);
         if (is_array($cached) && isset($cached['id'])) {
-            return ['id' => (int) $cached['id'], 'url' => $cached['url'] ?: $url];
+            $cached_id = (int) $cached['id'];
+            // Verify the cached attachment still exists — cleanup_orphaned_media may
+            // have deleted it, and reusing a dead id would leave a broken (404) image.
+            if (get_post($cached_id) && wp_get_attachment_url($cached_id)) {
+                return ['id' => $cached_id, 'url' => $cached['url'] ?: $url];
+            }
+            delete_transient($cache_key);
         }
 
         require_once ABSPATH . 'wp-admin/includes/file.php';
