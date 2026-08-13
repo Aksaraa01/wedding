@@ -644,15 +644,6 @@ function EditorInner({ id }: { id: string }) {
         {/* TOP BAR */}
         <header className="bg-surface border-b border-outline-variant flex justify-between items-center px-6 lg:px-12 w-full h-20 z-50 shrink-0">
           <div className="flex items-center gap-6">
-            {/* Perbarui Pratinjau — far left, gold to distinguish from Konfirmasi */}
-            <button
-              onClick={handleUpdatePreview}
-              disabled={updatingPreview}
-              className="hidden sm:flex items-center gap-2 px-6 py-3 font-label-md text-label-md bg-brand-gold text-white transition-all active:scale-95 hover:opacity-90 disabled:opacity-50"
-            >
-              <span className="material-symbols-outlined text-[18px]">{updatingPreview ? "hourglass_top" : "refresh"}</span>
-              <span>{updatingPreview ? "Memperbarui..." : "Perbarui Pratinjau"}</span>
-            </button>
             <button onClick={() => router.push(`/dashboard/${id}`)} className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors">
               <span className="material-symbols-outlined">arrow_back</span>
               <span className="font-label-md text-label-md hidden sm:inline">DASHBOARD</span>
@@ -666,6 +657,16 @@ function EditorInner({ id }: { id: string }) {
               </p>
             </div>
           </div>
+
+          {/* Perbarui Pratinjau — center, gold to distinguish from Konfirmasi */}
+          <button
+            onClick={handleUpdatePreview}
+            disabled={updatingPreview}
+            className="hidden sm:flex items-center gap-2 px-6 py-3 font-label-md text-label-md bg-brand-gold text-white transition-all active:scale-95 hover:opacity-90 disabled:opacity-50"
+          >
+            <span className="material-symbols-outlined text-[18px]">{updatingPreview ? "hourglass_top" : "refresh"}</span>
+            <span>{updatingPreview ? "Memperbarui..." : "Perbarui Pratinjau"}</span>
+          </button>
 
           <div className="flex items-center gap-8">
             {/* Tool icons */}
