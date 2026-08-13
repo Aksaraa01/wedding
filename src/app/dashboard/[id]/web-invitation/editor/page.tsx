@@ -51,6 +51,7 @@ type Template = {
   description: string
   preview_image_url: string
   demo_url: string
+  wp_manifest: Record<string, any> | null
 }
 
 function formatDate(dateStr: string) {
@@ -92,7 +93,6 @@ function EditorInner({ id }: { id: string }) {
   const [activeSection, setActiveSection] = useState<string>("sampul")
   const [showMobilePreview, setShowMobilePreview] = useState(false)
   const [previewDevice, setPreviewDevice] = useState<"mobile" | "desktop">("mobile")
-  const [rsvpMaxDraft, setRsvpMaxDraft] = useState<string | null>(null)
   const [showPublishConfirm, setShowPublishConfirm] = useState(false)
   const [showH3Reminder, setShowH3Reminder] = useState(false)
   const [feedbackCount, setFeedbackCount] = useState<number | null>(null)
@@ -111,7 +111,6 @@ function EditorInner({ id }: { id: string }) {
   const [updatingPreview, setUpdatingPreview] = useState(false)
   const [coverReplaceIndex, setCoverReplaceIndex] = useState<number | null>(null)
 
-  const coverFileRef = useRef<HTMLInputElement>(null)
   const coverReplaceRef = useRef<HTMLInputElement>(null)
   const groomPhotoRef = useRef<HTMLInputElement>(null)
   const bridePhotoRef = useRef<HTMLInputElement>(null)
@@ -229,7 +228,9 @@ function EditorInner({ id }: { id: string }) {
     updateField(field, url)
   }
 
-  const handleCoverUpload = async (file: File) => {
+  // Upload a cover into a specific slot (pads empty slots so the couple can fill
+  // any of the template's cover slots in any order).
+  const setCoverAt = async (index: number, file: File) => {
     if (data.is_published === true) return
     const formData = new FormData()
     formData.append("file", file)
@@ -237,26 +238,15 @@ function EditorInner({ id }: { id: string }) {
     if (!res.ok) return
     const { url } = await res.json()
     const covers = [...(Array.isArray(data.cover_photos) ? data.cover_photos : [])]
-    if (!covers.includes(url)) covers.push(url)
+    while (covers.length <= index) covers.push("")
+    covers[index] = url
     setData(prev => ({ ...prev, cover_photos: covers, couple_illustration_url: covers[0] || prev.couple_illustration_url }))
     save({ cover_photos: covers, couple_illustration_url: covers[0] || data.couple_illustration_url })
   }
 
-  const replaceCoverPhoto = async (index: number, file: File) => {
+  const clearCoverAt = (index: number) => {
     if (data.is_published === true) return
-    const formData = new FormData()
-    formData.append("file", file)
-    const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
-    if (!res.ok) return
-    const { url } = await res.json()
-    const covers = (Array.isArray(data.cover_photos) ? data.cover_photos : []).map((c, i) => i === index ? url : c)
-    setData(prev => ({ ...prev, cover_photos: covers, couple_illustration_url: covers[0] || prev.couple_illustration_url }))
-    save({ cover_photos: covers, couple_illustration_url: covers[0] || data.couple_illustration_url })
-  }
-
-  const removeCoverPhoto = (index: number) => {
-    if (data.is_published === true) return
-    const covers = (Array.isArray(data.cover_photos) ? data.cover_photos : []).filter((_, i) => i !== index)
+    const covers = (Array.isArray(data.cover_photos) ? data.cover_photos : []).map((c, i) => i === index ? "" : c)
     setData(prev => ({ ...prev, cover_photos: covers, couple_illustration_url: covers[0] || "" }))
     save({ cover_photos: covers, couple_illustration_url: covers[0] || "" })
   }
@@ -319,6 +309,13 @@ function EditorInner({ id }: { id: string }) {
 
   const galleryPhotos: string[] = Array.isArray(data.gallery_photos) ? data.gallery_photos : []
 
+  // Number of cover slots the template expects (from the /ops mapping). Falls back
+  // to the couple's current cover count for legacy templates without a manifest.
+  const coverSlotCount = Array.isArray(template?.wp_manifest?.cover_photos)
+    ? template.wp_manifest.cover_photos.length
+    : (Array.isArray(data.cover_photos) ? data.cover_photos.length : 0)
+  const coverSlots = Array.from({ length: Math.max(coverSlotCount, Array.isArray(data.cover_photos) ? data.cover_photos.length : 0) })
+
   const addGalleryPhoto = async (file: File) => {
     if (data.is_published === true) return
     if (galleryPhotos.length >= 10) return
@@ -339,6 +336,7 @@ function EditorInner({ id }: { id: string }) {
   type GiftAccount = { id?: string; provider_name: string; account_number: string; account_name: string; type: string }
   const [giftAccounts, setGiftAccounts] = useState<GiftAccount[]>([])
   const [giftAddressText, setGiftAddressText] = useState("")
+  const [giftAddressName, setGiftAddressName] = useState("")
 
   const loadGiftData = useCallback(async () => {
     const [acctRes, addrRes] = await Promise.all([
@@ -354,6 +352,7 @@ function EditorInner({ id }: { id: string }) {
       const active = addresses.find((a: any) => a.is_active)
       if (active) {
         setGiftAddressText(active.full_address)
+        setGiftAddressName(active.recipient_name || "")
       }
     }
   }, [id])
@@ -653,36 +652,55 @@ function EditorInner({ id }: { id: string }) {
                 <div className="mt-6 space-y-8">
                   <div className="space-y-3">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Foto Sampul</label>
-                    <p className="text-[11px] text-on-surface-variant italic">Unggah satu atau lebih foto sampul.</p>
+                    <p className="text-[11px] text-on-surface-variant italic">
+                      {coverSlotCount > 0
+                        ? `${coverSlotCount} slot foto sampul tersedia pada template. Isi setiap slot untuk mengganti foto.`
+                        : "Unggah satu atau lebih foto sampul."}
+                    </p>
                     <div className="grid grid-cols-2 gap-3">
-                      {(Array.isArray(data.cover_photos) ? data.cover_photos : []).map((url: string, i: number) => (
-                        <div key={i} className="relative aspect-video bg-surface-dim border border-outline-variant overflow-hidden group">
-                          <div className={`absolute inset-0 bg-cover bg-center ${data.grayscale ? "grayscale" : ""}`} style={{ backgroundImage: `url(${url})` }} />
-                          <span className="absolute top-1 left-1 w-6 h-6 bg-black/60 text-white rounded-sm flex items-center justify-center text-[11px] font-bold">{i + 1}</span>
-                          <button
+                      {coverSlots.map((_, i) => {
+                        const url = (Array.isArray(data.cover_photos) ? data.cover_photos : [])[i]
+                        if (url) {
+                          return (
+                            <div key={i} className="relative aspect-video bg-surface-dim border border-outline-variant overflow-hidden group">
+                              <div className={`absolute inset-0 bg-cover bg-center ${data.grayscale ? "grayscale" : ""}`} style={{ backgroundImage: `url(${url})` }} />
+                              <span className="absolute top-1 left-1 w-6 h-6 bg-black/60 text-white rounded-sm flex items-center justify-center text-[11px] font-bold">{i + 1}</span>
+                              <button
+                                onClick={() => { setCoverReplaceIndex(i); coverReplaceRef.current?.click() }}
+                                className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100"
+                                title="Ganti foto ini"
+                              >
+                                <span className="material-symbols-outlined text-white text-[24px] drop-shadow-md">edit</span>
+                              </button>
+                              <button
+                                onClick={() => clearCoverAt(i)}
+                                className="absolute top-1 right-1 w-6 h-6 bg-black/60 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                title="Hapus foto ini"
+                              >
+                                <span className="material-symbols-outlined text-[14px]">close</span>
+                              </button>
+                            </div>
+                          )
+                        }
+                        return (
+                          <div
+                            key={i}
                             onClick={() => { setCoverReplaceIndex(i); coverReplaceRef.current?.click() }}
-                            className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100"
-                            title="Ganti foto ini"
+                            className="relative aspect-video bg-surface-dim border border-dashed border-outline-variant flex flex-col items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors"
                           >
-                            <span className="material-symbols-outlined text-white text-[24px] drop-shadow-md">edit</span>
-                          </button>
-                          <button
-                            onClick={() => removeCoverPhoto(i)}
-                            className="absolute top-1 right-1 w-6 h-6 bg-black/60 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <span className="material-symbols-outlined text-[14px]">close</span>
-                          </button>
-                        </div>
-                      ))}
-                      <div
-                        onClick={() => coverFileRef.current?.click()}
-                        className="aspect-video bg-surface-dim border border-dashed border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-on-surface-variant">add_photo_alternate</span>
-                      </div>
+                            <span className="absolute top-1 left-1 w-6 h-6 bg-black/60 text-white rounded-sm flex items-center justify-center text-[11px] font-bold">{i + 1}</span>
+                            <span className="material-symbols-outlined text-on-surface-variant">add_photo_alternate</span>
+                            <span className="text-[9px] text-on-surface-variant mt-1">Slot {i + 1}</span>
+                          </div>
+                        )
+                      })}
                     </div>
-                    <input ref={coverFileRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleCoverUpload(f) }} />
-                    <input ref={coverReplaceRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f && coverReplaceIndex !== null) { replaceCoverPhoto(coverReplaceIndex, f); setCoverReplaceIndex(null) } e.target.value = "" }} />
+                    <input ref={coverReplaceRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f && coverReplaceIndex !== null) { setCoverAt(coverReplaceIndex, f); setCoverReplaceIndex(null) } e.target.value = "" }} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Tanggal Acara</label>
+                    <input className="input-editorial w-full font-headline-md text-[16px]" type="date" value={data.estimated_wedding_date || ""} onChange={e => updateField("estimated_wedding_date", e.target.value)} />
+                    <p className="text-[11px] text-on-surface-variant mt-1 italic">Tanggal utama yang tampil pada sampul undangan.</p>
                   </div>
                   <div className="space-y-2">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Nama Mempelai</label>
@@ -993,36 +1011,47 @@ function EditorInner({ id }: { id: string }) {
                 </div>
               )}
               {renderSection("gift", "featured_seasonal_and_gifts", "GIFT", <>
-                <div className="space-y-4">
+                <div className="space-y-6">
+                  <button
+                    onClick={() => router.push(`/dashboard/${id}/amplop-digital`)}
+                    className="w-full py-3 border border-primary text-primary font-label-md text-[11px] tracking-widest uppercase hover:bg-primary hover:text-on-primary transition-all flex items-center justify-center gap-2 active:scale-95"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">edit</span>
+                    Atur Amplop Digital
+                  </button>
+
                   <div className="space-y-3">
-                    <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">DAFTAR REKENING / E-WALLET</label>
+                    <p className="font-label-md text-[11px] uppercase tracking-widest text-secondary">Daftar Rekening / E-Wallet</p>
                     {giftAccounts.length === 0 ? (
                       <p className="font-body-md text-sm text-on-surface-variant">Belum ada rekening ditambahkan.</p>
                     ) : (
                       giftAccounts.map(acc => (
-                        <div key={acc.id} className="p-3 border border-outline-variant rounded-lg space-y-1">
+                        <div key={acc.id} className="p-3 border border-outline-variant rounded-lg space-y-1 bg-surface-container-lowest">
                           <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary">{acc.provider_name}</p>
                           <p className="font-body-md text-sm font-semibold">{acc.account_number}</p>
                           <p className="font-body-md text-[11px] text-on-surface-variant">a.n. {acc.account_name}</p>
                         </div>
                       ))
                     )}
-                    <button
-                      onClick={() => router.push(`/dashboard/${id}/amplop-digital`)}
-                      className="w-full py-3 border border-primary text-primary font-label-md text-[11px] tracking-widest uppercase hover:bg-primary hover:text-on-primary transition-all flex items-center justify-center gap-2 active:scale-95"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">edit</span>
-                      Atur Amplop Digital
-                    </button>
                   </div>
-                  {gates.gift_address.included ? (
-                    <div className="p-3 border border-outline-variant rounded-lg space-y-1">
-                      <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary">Alamat Pengiriman</p>
-                      <p className="font-body-md text-sm whitespace-pre-line">{giftAddressText || "—"}</p>
-                    </div>
-                  ) : (
-                    <LockedNotice availableIn={gates.gift_address.availableIn} />
-                  )}
+
+                  <div className="space-y-3">
+                    <p className="font-label-md text-[11px] uppercase tracking-widest text-secondary">Alamat Pengiriman Kado</p>
+                    {gates.gift_address.included ? (
+                      <div className="p-3 border border-outline-variant rounded-lg space-y-2 bg-surface-container-lowest">
+                        <div>
+                          <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Atas Nama</p>
+                          <p className="font-body-md text-sm font-semibold">{giftAddressName || "—"}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Alamat</p>
+                          <p className="font-body-md text-sm whitespace-pre-line">{giftAddressText || "—"}</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <LockedNotice availableIn={gates.gift_address.availableIn} />
+                    )}
+                  </div>
                 </div>
               </>)}
               {renderSection("music", "music_note", "MUSIC", <>
@@ -1131,39 +1160,6 @@ function EditorInner({ id }: { id: string }) {
                   </div>
                 </div>
               </>)}
-              {renderSection("rsvp", "mail", "RSVP",
-                <div className="mt-6 space-y-4">
-                  <div className="space-y-2">
-                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Batas Maksimum Pax</label>
-                    <input
-                      className="input-editorial w-full font-body-md"
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={2}
-                      value={rsvpMaxDraft ?? String(data.rsvp_max_pax ?? 2)}
-                      onFocus={e => e.target.select()}
-                      onChange={e => {
-                        const raw = e.target.value.replace(/\D/g, "").slice(0, 2)
-                        if (raw === "") {
-                          setRsvpMaxDraft("")
-                          return
-                        }
-                        const n = Math.min(10, Math.max(1, parseInt(raw, 10)))
-                        setRsvpMaxDraft(null)
-                        updateField("rsvp_max_pax", n)
-                      }}
-                      onBlur={() => {
-                        if (rsvpMaxDraft === "") {
-                          setRsvpMaxDraft(null)
-                          updateField("rsvp_max_pax", 2)
-                        }
-                      }}
-                    />
-                    <p className="text-[11px] text-on-surface-variant italic">Jumlah maksimum tamu yang dapat hadir dalam satu undangan.</p>
-                  </div>
-                </div>
-              )}
               {renderSection("feedback", "rate_review", "TAMBAH LAINNYA",
                 <div className="mt-6 space-y-4">
                   <div className="flex items-start gap-4">

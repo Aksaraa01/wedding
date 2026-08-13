@@ -153,7 +153,10 @@ class AksaraaPlugin
                 return is_string($h) ? mb_substr(strip_tags($h), 0, 60) : '(html)';
             case 'button':
                 $b = $settings['text'] ?? '';
-                return is_string($b) ? strip_tags($b) : '(tombol)';
+                $text = is_string($b) && $b !== '' ? strip_tags($b) : '(tombol)';
+                $link = $settings['link'] ?? [];
+                $url = is_array($link) && !empty($link['url']) ? $link['url'] : '';
+                return $url ? $text . ' → ' . $url : $text;
             case 'video':
                 $u = $settings['youtube_url'] ?? $settings['embed_url'] ?? $settings['link'] ?? '';
                 $url = is_array($u) ? ($u['url'] ?? '') : (is_string($u) ? $u : '');

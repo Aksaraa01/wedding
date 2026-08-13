@@ -38,6 +38,8 @@ const PACKAGES = [
   { code: "prestige", label: "Prestige" },
 ]
 
+const ALL_PACKAGES = PACKAGES.map(p => p.code)
+
 // Aksara fields that can be mapped to a WP element
 const AKSARA_FIELDS = [
   "guest_name",
@@ -57,6 +59,7 @@ const AKSARA_FIELDS = [
   "gallery_photos",
   "gift_accounts",
   "gift_address",
+  "gift_address_name",
   "stories",
   "video_url",
   "quote_text",
@@ -156,7 +159,11 @@ export default function OpsTemplatesPage() {
   }, [showMapping])
 
   const togglePackage = (code: string) => {
-    setForm((f) => ({ ...f, package_eligibility: [code] }))
+    setForm((f) => {
+      const cur = Array.isArray(f.package_eligibility) ? f.package_eligibility : []
+      if (cur.includes(code)) return { ...f, package_eligibility: cur.filter(c => c !== code) }
+      return { ...f, package_eligibility: [...cur, code] }
+    })
   }
 
   const normalizeManifest = (raw: any): Record<string, any> => {
@@ -197,7 +204,7 @@ export default function OpsTemplatesPage() {
     setManifest({})
     setElements([])
     setPopups([])
-    setForm({ code: "", name: "", description: "", preview_image_url: "", demo_url: "", is_active: true, sort_order: templates.length, package_eligibility: [], wp_master_slug: "" })
+    setForm({ code: "", name: "", description: "", preview_image_url: "", demo_url: "", is_active: true, sort_order: templates.length, package_eligibility: [...ALL_PACKAGES], wp_master_slug: "" })
   }
 
   const startEdit = (t: Template, openMapping = false) => {
@@ -216,7 +223,7 @@ export default function OpsTemplatesPage() {
       demo_url: t.demo_url || "",
       is_active: t.is_active,
       sort_order: t.sort_order,
-      package_eligibility: t.package_eligibility || [],
+      package_eligibility: t.package_eligibility && t.package_eligibility.length > 0 ? t.package_eligibility : [...ALL_PACKAGES],
       wp_master_slug: t.wp_master_slug || "",
     })
   }
@@ -717,19 +724,20 @@ export default function OpsTemplatesPage() {
                     </p>
                   </div>
                   <div>
-                    <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-2">Eligibilitas Paket (pilih satu)</label>
+                    <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-2">Eligibilitas Paket (pilih semua yang berlaku)</label>
                     <div className="flex flex-wrap gap-3">
                       {PACKAGES.map((p) => (
                         <button
                           key={p.code}
                           type="button"
                           onClick={() => togglePackage(p.code)}
-                          className={`px-4 py-2 border font-label-md text-[11px] uppercase tracking-wider ${form.package_eligibility[0] === p.code ? "bg-primary text-white border-primary" : "border-outline-variant text-on-surface-variant hover:border-primary"}`}
+                          className={`px-4 py-2 border font-label-md text-[11px] uppercase tracking-wider ${form.package_eligibility.includes(p.code) ? "bg-primary text-white border-primary" : "border-outline-variant text-on-surface-variant hover:border-primary"}`}
                         >
                           {p.label}
                         </button>
                       ))}
                     </div>
+                    <p className="text-[11px] text-on-surface-variant mt-1">Template tampil untuk semua paket yang dipilih.</p>
                   </div>
                   <div className="flex items-center gap-3 pt-2">
                     <label className="flex items-center gap-2 text-sm cursor-pointer">

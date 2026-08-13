@@ -52,11 +52,12 @@ export async function POST(req: Request) {
     // Gift shipping address (optional, gated by package)
     const { data: giftAddr } = await supabaseAdmin
       .from("gift_addresses")
-      .select("full_address")
+      .select("full_address, recipient_name")
       .eq("wedding_profile_id", profile.id)
       .eq("is_active", true)
       .maybeSingle()
     const giftAddress = giftAddr?.full_address || ""
+    const giftAddressName = giftAddr?.recipient_name || ""
 
     const parseList = (v: unknown): any[] => {
       if (Array.isArray(v)) return v
@@ -101,6 +102,7 @@ export async function POST(req: Request) {
       quote_text: profile.quote_text || "",
       quote_source: profile.quote_source || "",
       gift_address: giftAddress,
+      gift_address_name: giftAddressName,
       date_upper: profile.estimated_wedding_date ? formatDateUpper(profile.estimated_wedding_date) : "",
       sessions,
       gallery_photos: parseList(profile.gallery_photos).filter(Boolean),

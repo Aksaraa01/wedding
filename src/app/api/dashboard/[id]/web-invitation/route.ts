@@ -102,6 +102,7 @@ export async function PUT(
       "groom_parents", "bride_parents", "groom_instagram", "bride_instagram", "video_url",
       "display_name", "sessions", "quote_text", "quote_source", "stories",
       "gallery_photos", "inviting_families", "rsvp_max_pax",
+      "estimated_wedding_date",
     ]
 
     const updates: Record<string, any> = {}

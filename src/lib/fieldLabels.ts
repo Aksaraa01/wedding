@@ -17,6 +17,7 @@ export const FIELD_LABELS: Record<string, string> = {
   gallery_photos: "Galeri Foto",
   gift_accounts: "Rekening Hadiah",
   gift_address: "Alamat Pengiriman Kado",
+  gift_address_name: "Atas Nama (Kado)",
   stories: "Kisah Cinta",
   video_url: "Video",
   quote_text: "Kutipan",
