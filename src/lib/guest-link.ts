@@ -32,15 +32,21 @@ export async function autoGenerateGuestLinks(
     .eq("id", weddingProfileId)
     .single()
 
-  if (!profile || profile.payment_status === "UNPAID") return 0
+  // The name-based invitation slug is ALWAYS generated (every couple needs a
+  // guest link). The QR token is a paid feature, so it is only generated once the
+  // profile is paid.
+  const paid = !!profile && profile.payment_status !== "UNPAID"
 
   let generated = 0
   for (const g of guests) {
-    const token = g.qr_token || (await generateUniqueToken())
     const slug = await generateUniqueSlug(weddingProfileId, g.name)
+    const update: Record<string, string> = { slug }
+    if (paid && !g.qr_token) {
+      update.qr_token = await generateUniqueToken()
+    }
     const { error } = await supabaseAdmin
       .from("guests")
-      .update({ ...(g.qr_token ? {} : { qr_token: token }), slug })
+      .update(update)
       .eq("id", g.id)
     if (!error) generated += 1
   }
