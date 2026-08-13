@@ -456,58 +456,13 @@ class AksaraaPlugin
             self::regen_elementor_css($popup->ID);
         }
 
-        // Clean up sideloaded media no longer referenced by any post.
-        self::cleanup_orphaned_media();
+        // NOTE: sideloaded media is intentionally NOT garbage-collected here. An
+        // automatic "delete orphaned attachments" step proved to delete still-
+        // referenced images (covers, slideshow slides) and cause broken layouts.
+        // Unused media accumulates harmlessly; manual cleanup can be added later
+        // as an explicit /ops action with a long grace period.
 
         return ['patched' => $updated];
-    }
-
-    // Delete Aksaraa-sideloaded attachments that are no longer referenced in any
-    // post's _elementor_data (e.g. the couple removed/replaced an image). Older
-    // than 1 hour only, to avoid racing an in-flight PATCH.
-    private static function cleanup_orphaned_media()
-    {
-        global $wpdb;
-
-        $referenced = [];
-        $rows = $wpdb->get_col("SELECT meta_value FROM {$wpdb->postmeta} WHERE meta_key = '_elementor_data'");
-        foreach ($rows as $json) {
-            $data = json_decode($json, true);
-            if (is_array($data)) self::collect_image_ids($data, $referenced);
-        }
-        $referenced = array_values(array_filter(array_unique(array_map('intval', $referenced))));
-
-        if (empty($referenced)) return;
-
-        $orphans = $wpdb->get_col(
-            "SELECT p.ID FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} m ON p.ID = m.post_id AND m.meta_key = '_aksaraa_sideloaded'
-             WHERE p.post_type = 'attachment'
-             AND p.post_date < (NOW() - INTERVAL 1 HOUR)"
-        );
-
-        foreach ($orphans as $o) {
-            $id = (int) $o;
-            if (!in_array($id, $referenced, true)) {
-                wp_delete_attachment($id, true);
-            }
-        }
-    }
-
-    private static function collect_image_ids(array $elements, array &$ids)
-    {
-        foreach ($elements as $el) {
-            $s = $el['settings'] ?? [];
-            if (!empty($s['background_image']['id'])) $ids[] = $s['background_image']['id'];
-            if (!empty($s['image']['id'])) $ids[] = $s['image']['id'];
-            if (!empty($s['gallery']) && is_array($s['gallery'])) {
-                foreach ($s['gallery'] as $img) if (!empty($img['id'])) $ids[] = $img['id'];
-            }
-            if (!empty($s['background_slideshow_gallery']) && is_array($s['background_slideshow_gallery'])) {
-                foreach ($s['background_slideshow_gallery'] as $img) if (!empty($img['id'])) $ids[] = $img['id'];
-            }
-            if (!empty($el['elements'])) self::collect_image_ids($el['elements'], $ids);
-        }
     }
 
     private static function apply_fields_to_post(int $target_id, array $fields, array $manifest, array &$updated)
@@ -666,17 +621,16 @@ class AksaraaPlugin
         $site = parse_url(site_url(), PHP_URL_HOST);
         if (strpos($url, $site) !== false) return ['id' => 0, 'url' => $url];
 
-        // Reuse a previously-sideloaded attachment (avoid duplicates on repeated PATCH).
-        $cache_key = 'aksaraa_sideload_' . md5($url);
-        $cached = get_transient($cache_key);
-        if (is_array($cached) && isset($cached['id'])) {
-            $cached_id = (int) $cached['id'];
-            // Verify the cached attachment still exists — cleanup_orphaned_media may
-            // have deleted it, and reusing a dead id would leave a broken (404) image.
-            if (get_post($cached_id) && wp_get_attachment_url($cached_id)) {
-                return ['id' => $cached_id, 'url' => $cached['url'] ?: $url];
-            }
-            delete_transient($cache_key);
+        // Reuse a previously-sideloaded attachment via a PERSISTENT postmeta mapping
+        // (source URL -> attachment id), instead of a transient that can expire or go
+        // stale after an attachment is deleted.
+        global $wpdb;
+        $existing_id = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_aksaraa_source_url' AND meta_value = %s LIMIT 1",
+            $url
+        ));
+        if ($existing_id && get_post($existing_id) && wp_get_attachment_url($existing_id)) {
+            return ['id' => $existing_id, 'url' => wp_get_attachment_url($existing_id) ?: $url];
         }
 
         require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -695,13 +649,13 @@ class AksaraaPlugin
 
         if (is_wp_error($id)) return ['id' => 0, 'url' => $url];
 
-        // Mark as Aksaraa-sideloaded so orphaned copies can be cleaned up later.
+        // Persist the source URL so repeated PATCHes reuse this attachment without a
+        // transient cache (and without ever referencing a dead id).
         update_post_meta($id, '_aksaraa_sideloaded', 1);
+        update_post_meta($id, '_aksaraa_source_url', $url);
 
         $new_url = wp_get_attachment_url($id);
-        $result = ['id' => (int) $id, 'url' => $new_url ?: $url];
-        set_transient($cache_key, $result, DAY_IN_SECONDS);
-        return $result;
+        return ['id' => (int) $id, 'url' => $new_url ?: $url];
     }
 
     // Object arrays (sessions, gift_accounts, stories):
