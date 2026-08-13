@@ -121,19 +121,21 @@ class AksaraaPlugin
                 if ($node['_preview'] === '' && $widgetType === '') {
                     $bg = $el['settings']['background_image'] ?? [];
                     $slides = $el['settings']['background_slideshow_gallery'] ?? [];
-                    if (is_array($bg) && !empty($bg['url'])) {
-                        $node['_preview'] = 'bg: ' . self::image_name($bg);
-                    } elseif (is_array($slides) && !empty($slides)) {
-                        $first = is_array($slides[0]) ? $slides[0] : [];
-                        if (!empty($first['url'])) {
-                            $names = [];
-                            foreach ($slides as $s) {
-                                if (is_array($s) && !empty($s['url'])) $names[] = self::image_name($s);
-                            }
+                    $bgType = $el['settings']['background_background'] ?? '';
+                    // Honor background_background first: a "slideshow" section may still
+                    // carry a leftover background_image, which must not mask the slideshow.
+                    if ($bgType === 'slideshow' && is_array($slides) && !empty($slides)) {
+                        $names = [];
+                        foreach ($slides as $s) {
+                            if (is_array($s) && !empty($s['url'])) $names[] = self::image_name($s);
+                        }
+                        if (!empty($names)) {
                             // Label slideshows with their slide count so the mapper knows
                             // this element expects 2 photos (a/b).
                             $node['_preview'] = 'slideshow (' . count($names) . '): ' . implode(' + ', array_slice($names, 0, 2));
                         }
+                    } elseif (is_array($bg) && !empty($bg['url'])) {
+                        $node['_preview'] = 'bg: ' . self::image_name($bg);
                     }
                     if ($node['_preview'] !== '') {
                         // Append the first heading text so the mapper can tell which
