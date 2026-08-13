@@ -117,11 +117,19 @@ class AksaraaPlugin
                 $node['settings_keys'] = array_keys($el['settings']);
                 $widgetType = $el['widgetType'] ?? '';
                 $node['_preview'] = self::preview_text($widgetType, $el['settings']);
-                // For containers/sections without widgetType, show background image
-                if ($node['_preview'] === '' && isset($el['settings']['background_image'])) {
-                    $bg = $el['settings']['background_image'];
+                // For containers/sections without widgetType, show background image.
+                if ($node['_preview'] === '' && $widgetType === '') {
+                    $bg = $el['settings']['background_image'] ?? [];
+                    $slides = $el['settings']['background_slideshow_gallery'] ?? [];
                     if (is_array($bg) && !empty($bg['url'])) {
                         $node['_preview'] = 'bg: ' . self::image_name($bg);
+                    } elseif (is_array($slides) && !empty($slides)) {
+                        $first = is_array($slides[0]) ? $slides[0] : [];
+                        if (!empty($first['url'])) {
+                            $node['_preview'] = 'slideshow: ' . self::image_name($first);
+                        }
+                    }
+                    if ($node['_preview'] !== '') {
                         // Append the first heading text so the mapper can tell which
                         // section this container is (e.g. bride vs groom vs ceremony).
                         $heading = self::first_heading_text($el['elements'] ?? []);
@@ -489,6 +497,9 @@ class AksaraaPlugin
             if (!empty($s['gallery']) && is_array($s['gallery'])) {
                 foreach ($s['gallery'] as $img) if (!empty($img['id'])) $ids[] = $img['id'];
             }
+            if (!empty($s['background_slideshow_gallery']) && is_array($s['background_slideshow_gallery'])) {
+                foreach ($s['background_slideshow_gallery'] as $img) if (!empty($img['id'])) $ids[] = $img['id'];
+            }
             if (!empty($el['elements'])) self::collect_image_ids($el['elements'], $ids);
         }
     }
@@ -722,6 +733,18 @@ class AksaraaPlugin
                 }
                 $lastKey = end($settingsPath);
                 $parentKey = $settingsPath[0] ?? '';
+
+                // Background slideshow: the value is a single image URL that becomes
+                // the sole slide of the section's background slideshow.
+                if ($lastKey === 'background_slideshow_gallery') {
+                    if ($value === null || $value === '') return false;
+                    $imported = self::sideload_image((string) $value);
+                    if ($imported['id'] <= 0) return false;
+                    $target['background_slideshow_gallery'] = [['id' => $imported['id'], 'url' => $imported['url']]];
+                    $target['background_background'] = 'slideshow';
+                    return true;
+                }
+
                 $isImageUrl = $lastKey === 'url' && ($parentKey === 'background_image' || $parentKey === 'image');
                 if ($isImageUrl) {
                     // Sideload the external image into the WP media library so Elementor

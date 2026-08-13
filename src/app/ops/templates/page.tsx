@@ -379,6 +379,7 @@ export default function OpsTemplatesPage() {
   const defaultSettingsPath = (widgetType: string | null, field?: string): string => {
     if (!widgetType) return "title"
     if (widgetType === "container-bg") return "background_image.url"
+    if (widgetType === "container-slideshow") return "background_slideshow_gallery"
     // URL/link fields on a button map to the button's link URL, not its label.
     if (widgetType === "button" && field && (field.includes("url") || field === "maps_url")) {
       return "link.url"
@@ -483,13 +484,15 @@ export default function OpsTemplatesPage() {
 
   // Build flat list of mappable elements (widgets + containers with background images).
   // Exclude structural/no-content widgets: spacer, divider, and empty containers.
-  const EXCLUDED_WIDGETS = new Set(["spacer", "divider"])
+  const EXCLUDED_WIDGETS = new Set(["spacer", "divider", "icon", "icon-box"])
   const mappableElements = useCallback(() => {
     const result: { id: string; widgetType: string; source: string; settingsKeys: string[]; _preview?: string }[] = []
     const collect = (elms: ElementNode[], source: string) => {
       for (const el of elms) {
         const keys = el.settings_keys || []
-        const hasBackground = (el._preview || "").startsWith("bg: ")
+        const preview = el._preview || ""
+        const hasBackground = preview.startsWith("bg: ")
+        const hasSlideshow = preview.startsWith("slideshow: ")
         const isWidget = !!el.widgetType
         const excluded = isWidget && EXCLUDED_WIDGETS.has(el.widgetType!)
         // Only map content-bearing elements: non-excluded widgets, or containers with a bg image.
@@ -505,6 +508,14 @@ export default function OpsTemplatesPage() {
           result.push({
             id: el.id,
             widgetType: "container-bg",
+            source,
+            settingsKeys: keys,
+            _preview: el._preview,
+          })
+        } else if (!isWidget && hasSlideshow) {
+          result.push({
+            id: el.id,
+            widgetType: "container-slideshow",
             source,
             settingsKeys: keys,
             _preview: el._preview,
