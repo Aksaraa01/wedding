@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { generateUniqueToken } from "@/lib/qr"
-import { generateUniqueSlug } from "@/lib/guest-link"
+import { autoGenerateGuestLinks } from "@/lib/guest-link"
 
 export async function GET(
   _req: Request,
@@ -72,23 +71,9 @@ export async function POST(
       return NextResponse.json({ generated: 0, message: "Semua tamu sudah memiliki QR" })
     }
 
-    const results = await Promise.all(
-      guests.map(async (g) => {
-        const token = g.qr_token || (await generateUniqueToken())
-        const slug = await generateUniqueSlug(id, g.name)
-        return supabaseAdmin
-          .from("guests")
-          .update({ ...(g.qr_token ? {} : { qr_token: token }), slug })
-          .eq("id", g.id)
-      })
-    )
+    const generated = await autoGenerateGuestLinks(id, guests)
 
-    const firstError = results.find((r) => r.error)
-    if (firstError) {
-      return NextResponse.json({ error: firstError.error!.message }, { status: 500 })
-    }
-
-    return NextResponse.json({ generated: results.length })
+    return NextResponse.json({ generated })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

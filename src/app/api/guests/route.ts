@@ -12,16 +12,23 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Missing wedding_profile_id" }, { status: 400 })
     }
 
-    // Lazily backfill missing slugs/tokens (slug always; QR token only when paid).
-    const { data: missing, error: missingError } = await supabaseAdmin
-      .from("guests")
-      .select("id, name, qr_token")
-      .eq("wedding_profile_id", weddingProfileId)
-      .or("qr_token.is.null,slug.is.null")
-      .limit(500)
+    const { data: profile } = await supabaseAdmin
+      .from("wedding_profiles")
+      .select("payment_status")
+      .eq("id", weddingProfileId)
+      .single()
 
-    if (!missingError && missing && missing.length > 0) {
-      await autoGenerateGuestLinks(weddingProfileId, missing)
+    if (profile && profile.payment_status !== "UNPAID") {
+      const { data: missing, error: missingError } = await supabaseAdmin
+        .from("guests")
+        .select("id, name, qr_token")
+        .eq("wedding_profile_id", weddingProfileId)
+        .or("qr_token.is.null,slug.is.null")
+        .limit(500)
+
+      if (!missingError && missing && missing.length > 0) {
+        await autoGenerateGuestLinks(weddingProfileId, missing)
+      }
     }
 
     let query = supabaseAdmin
