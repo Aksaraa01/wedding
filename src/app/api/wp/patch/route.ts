@@ -20,7 +20,7 @@ export async function POST(req: Request) {
 
     const { data: profile } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("id, bride_name, groom_name, slug, selected_template_id, active_wp_post_id, couple_illustration_url, cover_photos, couple_initials, display_name, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax")
+      .select("id, bride_name, groom_name, slug, selected_template_id, selected_track_id, active_wp_post_id, couple_illustration_url, cover_photos, couple_initials, display_name, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax")
       .eq("id", profile_id)
       .maybeSingle()
 
@@ -30,6 +30,18 @@ export async function POST(req: Request) {
 
     if (!profile.active_wp_post_id) {
       return NextResponse.json({ error: "Belum ada postingan WordPress aktif. Pilih template terlebih dahulu." }, { status: 400 })
+    }
+
+    // Resolve the couple's selected track so the WP post audio stays in sync even
+    // when the track is changed after the template was duplicated.
+    let trackUrl = ""
+    if (profile.selected_track_id) {
+      const { data: tr } = await supabaseAdmin
+        .from("web_tracks")
+        .select("audio_url")
+        .eq("id", profile.selected_track_id)
+        .maybeSingle()
+      trackUrl = tr?.audio_url || ""
     }
 
     // Load template manifest
@@ -121,7 +133,7 @@ export async function POST(req: Request) {
         "X-Aksaraa-Secret": WP_SECRET,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ fields, manifest }),
+      body: JSON.stringify({ fields, manifest, track_url: trackUrl }),
     })
 
     if (!res.ok) {

@@ -415,6 +415,17 @@ class AksaraaPlugin
 
         $updated = [];
 
+        // Keep the audio track in sync with the couple's selection (present even if
+        // empty, so deselecting a track removes the audio).
+        if (array_key_exists('track_url', $body)) {
+            $track_url = trim((string) $body['track_url']);
+            if ($track_url === '') {
+                delete_post_meta($post_id, '_aksaraa_track_url');
+            } else {
+                update_post_meta($post_id, '_aksaraa_track_url', $track_url);
+            }
+        }
+
         // PATCH the post's _elementor_data
         self::apply_fields_to_post($post_id, $fields, $manifest, $updated);
 
