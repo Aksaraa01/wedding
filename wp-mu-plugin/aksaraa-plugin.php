@@ -122,6 +122,10 @@ class AksaraaPlugin
                     $bg = $el['settings']['background_image'];
                     if (is_array($bg) && !empty($bg['url'])) {
                         $node['_preview'] = 'bg: ' . self::image_name($bg);
+                        // Append the first heading text so the mapper can tell which
+                        // section this container is (e.g. bride vs groom vs ceremony).
+                        $heading = self::first_heading_text($el['elements'] ?? []);
+                        if ($heading !== '') $node['_preview'] .= ' · ' . $heading;
                     }
                 }
             }
@@ -131,6 +135,30 @@ class AksaraaPlugin
             $result[] = $node;
         }
         return $result;
+    }
+
+    // First heading text in an element subtree (used to label container sections).
+    // Skips trivial headings (punctuation/symbols like "&", "-", "|") so the first
+    // meaningful name (e.g. groom/bride name) labels the container.
+    private static function first_heading_text(array $elements): string
+    {
+        foreach ($elements as $el) {
+            if (!is_array($el)) continue;
+            if (($el['widgetType'] ?? '') === 'heading') {
+                $t = $el['settings']['title'] ?? '';
+                if (is_string($t) && $t !== '') {
+                    $clean = trim(strip_tags($t));
+                    if ($clean !== '' && preg_match('/\p{L}\p{L}*/u', $clean) === 1) {
+                        return $clean;
+                    }
+                }
+            }
+            if (!empty($el['elements'])) {
+                $sub = self::first_heading_text($el['elements']);
+                if ($sub !== '') return $sub;
+            }
+        }
+        return '';
     }
 
     private static function preview_text(string $widgetType, array $settings): string
@@ -682,7 +710,9 @@ class AksaraaPlugin
                     $target = &$target[$key];
                 }
                 $lastKey = end($settingsPath);
-                if ($lastKey === 'url') {
+                $parentKey = $settingsPath[0] ?? '';
+                $isImageUrl = $lastKey === 'url' && ($parentKey === 'background_image' || $parentKey === 'image');
+                if ($isImageUrl) {
                     // Sideload the external image into the WP media library so Elementor
                     // can resolve it via a real attachment id (image/background widgets).
                     $imported = self::sideload_image((string) $value);
@@ -693,8 +723,7 @@ class AksaraaPlugin
                     // Elementor renders as separate CSS rules. Patch them too, otherwise
                     // the couple's image only shows on desktop and the template's
                     // placeholder image still appears on tablet/mobile.
-                    $parentKey = $settingsPath[0] ?? '';
-                    if (($parentKey === 'background_image' || $parentKey === 'image') && count($settingsPath) === 2) {
+                    if (count($settingsPath) === 2) {
                         foreach (['_tablet', '_mobile'] as $suffix) {
                             $variantKey = $parentKey . $suffix;
                             if (isset($el['settings'][$variantKey]) && is_array($el['settings'][$variantKey])) {
@@ -704,6 +733,8 @@ class AksaraaPlugin
                         }
                     }
                 } else {
+                    // Non-image values (e.g. button link.url, heading title, editor html)
+                    // are written verbatim — never sideloaded.
                     $target[$lastKey] = $value;
                 }
                 return true;
@@ -752,6 +783,11 @@ add_action('wp_footer', function () {
     $track = get_post_meta(get_the_ID(), '_aksaraa_track_url', true);
     if ($track) {
         echo '<audio id="song" src="' . esc_url($track) . '" loop></audio>';
+        // The popup's "Buka Undangan" button calls playAudio()/pauseAudio() with a
+        // stale `x` captured before this footer tag existed. Redefine them to resolve
+        // #song at call time so the music actually starts on click.
+        echo '<script>window.playAudio=function(){var s=document.getElementById("song");if(s)s.play().catch(function(){});};'
+           . 'window.pauseAudio=function(){var s=document.getElementById("song");if(s)s.pause();};</script>';
     }
 });
 

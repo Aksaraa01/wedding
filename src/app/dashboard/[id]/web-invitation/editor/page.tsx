@@ -314,7 +314,7 @@ function EditorInner({ id }: { id: string }) {
   const coverSlotCount = Array.isArray(template?.wp_manifest?.cover_photos)
     ? template.wp_manifest.cover_photos.length
     : (Array.isArray(data.cover_photos) ? data.cover_photos.length : 0)
-  const coverSlots = Array.from({ length: Math.max(coverSlotCount, Array.isArray(data.cover_photos) ? data.cover_photos.length : 0) })
+  const coverSlots = Array.from({ length: coverSlotCount })
 
   const addGalleryPhoto = async (file: File) => {
     if (data.is_published === true) return

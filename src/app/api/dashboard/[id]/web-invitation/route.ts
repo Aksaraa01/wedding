@@ -52,6 +52,7 @@ export async function GET(
         package_type: packageType,
         package_gates: gates,
         feature_set: Array.from(features),
+        selected_track_id: profile.selected_track_id,
         couple_illustration_url: profile.couple_illustration_url,
         cover_photos: profile.cover_photos,
         couple_initials: profile.couple_initials,

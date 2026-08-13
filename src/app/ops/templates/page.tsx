@@ -342,6 +342,25 @@ export default function OpsTemplatesPage() {
         })
       }
     }
+    // Safety net: URL sub-fields mapped to a button must target the button's link
+    // (link.url), never its label (text). Otherwise the couple's maps link would
+    // overwrite the "Buka Lokasi" / "Google Maps" button title.
+    for (const field of Object.keys(OBJECT_ARRAY_FIELDS)) {
+      const slots = sorted[field]
+      if (!Array.isArray(slots)) continue
+      for (const slot of slots) {
+        if (!slot || typeof slot !== "object") continue
+        for (const subField of Object.keys(slot)) {
+          const sm = slot[subField]
+          if (!sm || typeof sm !== "object" || !sm.elementId) continue
+          if (subField !== "maps_url") continue
+          const el = mappable.find(x => x.id === sm.elementId)
+          if (el && el.widgetType === "button" && (sm.settings || []).join(".") !== "link.url") {
+            sm.settings = ["link", "url"]
+          }
+        }
+      }
+    }
     const res = await fetch(`/api/ops/templates/${editing.id}`, {
       method: "PUT",
       headers: opsHeaders(employee),
@@ -470,7 +489,7 @@ export default function OpsTemplatesPage() {
     const collect = (elms: ElementNode[], source: string) => {
       for (const el of elms) {
         const keys = el.settings_keys || []
-        const hasBackground = keys.includes("background_image")
+        const hasBackground = (el._preview || "").startsWith("bg: ")
         const isWidget = !!el.widgetType
         const excluded = isWidget && EXCLUDED_WIDGETS.has(el.widgetType!)
         // Only map content-bearing elements: non-excluded widgets, or containers with a bg image.
