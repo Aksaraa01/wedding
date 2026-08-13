@@ -67,8 +67,18 @@ export async function DELETE(
     if (fetchError || !track) {
       return NextResponse.json({ error: "Lagu tidak ditemukan" }, { status: 404 })
     }
-    if (track.is_custom !== true || track.is_public === true) {
-      return NextResponse.json({ error: "Lagu yang sudah dipublikasikan tidak dapat dihapus" }, { status: 403 })
+    if (track.is_custom !== true) {
+      return NextResponse.json({ error: "Hanya lagu upload yang dapat dihapus" }, { status: 403 })
+    }
+
+    // Unset selected_track_id on any profile still referencing this track so no
+    // couple keeps pointing at a deleted track.
+    const { data: refs, error: refError } = await supabaseAdmin
+      .from("wedding_profiles")
+      .select("id")
+      .eq("selected_track_id", id)
+    if (!refError && refs && refs.length > 0) {
+      await supabaseAdmin.from("wedding_profiles").update({ selected_track_id: null }).eq("selected_track_id", id)
     }
 
     const path = extractStoragePath(track.audio_url)
@@ -81,7 +91,10 @@ export async function DELETE(
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({
+      success: true,
+      unsetFrom: refs?.map((r) => r.id) || [],
+    })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
