@@ -80,7 +80,18 @@ export default async function WeddingInvitation({
     const wpUrl = guestName
       ? `${profile.active_wp_post_url}?to=${encodeURIComponent(guestName)}`
       : profile.active_wp_post_url
-    redirect(wpUrl)
+    // Embed the couple's WP invitation in a full-viewport iframe so the guest
+    // URL stays on wedding.aksaraa.com instead of redirecting to wp.aksaraa.com.
+    return (
+      <div style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh", background: "#fff" }}>
+        <iframe
+          src={wpUrl}
+          title="Undangan Pernikahan"
+          allow="autoplay; fullscreen"
+          style={{ width: "100%", height: "100%", border: "none", display: "block" }}
+        />
+      </div>
+    )
   }
 
   // Resolve template code and render via registry
