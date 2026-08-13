@@ -492,7 +492,7 @@ export default function OpsTemplatesPage() {
         const keys = el.settings_keys || []
         const preview = el._preview || ""
         const hasBackground = preview.startsWith("bg: ")
-        const hasSlideshow = preview.startsWith("slideshow: ")
+        const hasSlideshow = preview.startsWith("slideshow")
         const isWidget = !!el.widgetType
         const excluded = isWidget && EXCLUDED_WIDGETS.has(el.widgetType!)
         // Only map content-bearing elements: non-excluded widgets, or containers with a bg image.
