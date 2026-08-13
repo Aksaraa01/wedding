@@ -126,7 +126,13 @@ class AksaraaPlugin
                     } elseif (is_array($slides) && !empty($slides)) {
                         $first = is_array($slides[0]) ? $slides[0] : [];
                         if (!empty($first['url'])) {
-                            $node['_preview'] = 'slideshow: ' . self::image_name($first);
+                            $names = [];
+                            foreach ($slides as $s) {
+                                if (is_array($s) && !empty($s['url'])) $names[] = self::image_name($s);
+                            }
+                            // Label slideshows with their slide count so the mapper knows
+                            // this element expects 2 photos (a/b).
+                            $node['_preview'] = 'slideshow (' . count($names) . '): ' . implode(' + ', array_slice($names, 0, 2));
                         }
                     }
                     if ($node['_preview'] !== '') {
