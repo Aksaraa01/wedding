@@ -102,7 +102,12 @@ function EditorInner({ id }: { id: string }) {
   const router = useRouter()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [template, setTemplate] = useState<Template | null>(null)
-  const [data, setData] = useState<Record<string, any>>({})
+  const [data, setData] = useState<Record<string, any>>({
+    groom_photo_url: [],
+    bride_photo_url: [],
+    cover_photos: [],
+    inviting_families: [],
+  })
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error">("saved")
   const [activeSection, setActiveSection] = useState<string>("sampul")
   const [showMobilePreview, setShowMobilePreview] = useState(false)
