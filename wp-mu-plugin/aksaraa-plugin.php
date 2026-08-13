@@ -534,7 +534,9 @@ class AksaraaPlugin
 
     // Flat arrays (inviting_families, cover_photos): manifest[field] = [{elementId, settings}],
     // fields[field] = [value0, value1, ...] — index i maps to mapping i.
-    // Unused slots (beyond the couple's items) are cleared so deleted images don't linger.
+    // Slots beyond the couple's items are left untouched (template placeholder), so
+    // e.g. the popup/footer cover is NOT blanked when the couple uploads fewer covers
+    // than the template has cover slots.
     private static function extract_simple_array_fields(array $fields, array $manifest): array
     {
         $result = [];
@@ -555,17 +557,6 @@ class AksaraaPlugin
                         'elementId' => $m['elementId'],
                         'settings' => is_array($m['settings']) ? $m['settings'] : [],
                         'value' => $value,
-                    ];
-                }
-            }
-            // Clear remaining mapped slots (the couple removed items).
-            for ($i = count($items); $i < count($mapping); $i++) {
-                $m = $mapping[$i];
-                if (is_array($m) && isset($m['elementId'])) {
-                    $result[] = [
-                        'elementId' => $m['elementId'],
-                        'settings' => is_array($m['settings']) ? $m['settings'] : [],
-                        'value' => '',
                     ];
                 }
             }

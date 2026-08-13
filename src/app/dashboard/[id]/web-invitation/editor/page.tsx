@@ -376,10 +376,16 @@ function EditorInner({ id }: { id: string }) {
     })
   }, [id])
 
-  const filteredTracks = allTracks.filter(t =>
-    t.title.toLowerCase().includes(trackSearch.toLowerCase()) ||
-    (t.artist && t.artist.toLowerCase().includes(trackSearch.toLowerCase()))
-  )
+  const filteredTracks = [...allTracks]
+    .filter(t =>
+      t.title.toLowerCase().includes(trackSearch.toLowerCase()) ||
+      (t.artist && t.artist.toLowerCase().includes(trackSearch.toLowerCase()))
+    )
+    .sort((a, b) => {
+      const aSel = a.id === data.selected_track_id ? 0 : 1
+      const bSel = b.id === data.selected_track_id ? 0 : 1
+      return aSel - bSel
+    })
 
   const selectedTrack = allTracks.find(t => t.id === data.selected_track_id)
 
@@ -1073,12 +1079,20 @@ function EditorInner({ id }: { id: string }) {
                           onClick={() => handleSelectTrack(track.id)}
                           className={`flex items-center justify-between p-3 cursor-pointer transition-colors ${
                             isSelected
-                              ? "bg-secondary-container/20 border border-secondary"
+                              ? "bg-secondary-container/30 border border-secondary ring-1 ring-secondary"
                               : "border border-transparent hover:bg-surface-container-low"
                           } ${isMine ? "border-l-2 border-l-secondary" : ""}`}
                         >
                           <div className="flex flex-col">
-                            <span className="font-label-md text-primary">{track.title}</span>
+                            <span className="font-label-md text-primary flex items-center gap-2">
+                              {track.title}
+                              {isSelected && (
+                                <span className="inline-flex items-center gap-1 bg-secondary text-white text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 shrink-0">
+                                  <span className="material-symbols-outlined text-[11px]">check</span>
+                                  Dipilih
+                                </span>
+                              )}
+                            </span>
                             <span className="text-[10px] text-on-surface-variant">
                               {isMine ? "★ Lagu Saya" : (track.artist || "Instrumental")}
                             </span>
