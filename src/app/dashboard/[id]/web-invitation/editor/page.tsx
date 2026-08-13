@@ -114,6 +114,8 @@ function EditorInner({ id }: { id: string }) {
   const coverReplaceRef = useRef<HTMLInputElement>(null)
   const groomPhotoRef = useRef<HTMLInputElement>(null)
   const bridePhotoRef = useRef<HTMLInputElement>(null)
+  const groomPhotoSlotRef = useRef<(HTMLInputElement | null)[]>([])
+  const bridePhotoSlotRef = useRef<(HTMLInputElement | null)[]>([])
 
   useEffect(() => {
     fetch(`/api/dashboard/${id}/web-invitation`)
@@ -228,6 +230,20 @@ function EditorInner({ id }: { id: string }) {
     updateField(field, url)
   }
 
+  // Upload a photo into a specific slide slot (index 0/1) for slideshow fields.
+  const handlePhotoSlideUpload = async (file: File, field: string, index: number) => {
+    if (data.is_published === true) return
+    const formData = new FormData()
+    formData.append("file", file)
+    const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
+    if (!res.ok) return
+    const { url } = await res.json()
+    const arr = Array.isArray(data[field]) ? [...data[field]] : (data[field] ? [data[field]] : [])
+    while (arr.length <= index) arr.push("")
+    arr[index] = url
+    updateField(field, arr)
+  }
+
   // Upload a cover into a specific slot (pads empty slots so the couple can fill
   // any of the template's cover slots in any order).
   const setCoverAt = async (index: number, file: File) => {
@@ -315,6 +331,13 @@ function EditorInner({ id }: { id: string }) {
     ? template.wp_manifest.cover_photos.length
     : (Array.isArray(data.cover_photos) ? data.cover_photos.length : 0)
   const coverSlots = Array.from({ length: coverSlotCount })
+
+  // Whether a field maps to a background slideshow (which needs 2 photos/slides).
+  const isSlideshowField = (field: string): boolean => {
+    const mapping = template?.wp_manifest?.[field]
+    const m = Array.isArray(mapping) ? mapping[0] : mapping
+    return Array.isArray(m?.settings) && m.settings.join(".") === "background_slideshow_gallery"
+  }
 
   const addGalleryPhoto = async (file: File) => {
     if (data.is_published === true) return
@@ -727,11 +750,29 @@ function EditorInner({ id }: { id: string }) {
                   <div className="space-y-4">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Mempelai Pria</label>
                     <div className="flex gap-4 items-end">
-                      <div onClick={() => groomPhotoRef.current?.click()} className="w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors relative overflow-hidden shrink-0">
-                        {data.groom_photo_url && <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${data.groom_photo_url})` }} />}
-                        {!data.groom_photo_url && <span className="material-symbols-outlined text-on-surface-variant">add_a_photo</span>}
-                        {data.groom_photo_url && <span className="material-symbols-outlined text-white relative z-10 drop-shadow-md">edit</span>}
-                      </div>
+                      {isSlideshowField("groom_photo_url") ? (
+                        <div className="flex gap-2 shrink-0">
+                          {[0, 1].map(i => {
+                            const url = Array.isArray(data.groom_photo_url) ? data.groom_photo_url[i] : (i === 0 ? data.groom_photo_url : "")
+                            return (
+                              <div key={i} className="flex flex-col items-center gap-1">
+                                <div onClick={() => groomPhotoSlotRef.current[i]?.click()} className="w-16 h-16 bg-surface-dim border border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors relative overflow-hidden">
+                                  {url ? <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${url})` }} /> : <span className="material-symbols-outlined text-on-surface-variant text-[18px]">add_a_photo</span>}
+                                  {url && <span className="material-symbols-outlined text-white text-[14px] absolute bottom-0 right-0 drop-shadow-md">edit</span>}
+                                </div>
+                                <span className="text-[9px] text-on-surface-variant">Foto {i + 1}</span>
+                                <input ref={el => { groomPhotoSlotRef.current[i] = el }} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handlePhotoSlideUpload(f, "groom_photo_url", i); e.target.value = "" }} />
+                              </div>
+                            )
+                          })}
+                        </div>
+                      ) : (
+                        <div onClick={() => groomPhotoRef.current?.click()} className="w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors relative overflow-hidden shrink-0">
+                          {data.groom_photo_url && !Array.isArray(data.groom_photo_url) && <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${data.groom_photo_url})` }} />}
+                          {!(data.groom_photo_url && !Array.isArray(data.groom_photo_url)) && <span className="material-symbols-outlined text-on-surface-variant">add_a_photo</span>}
+                          {data.groom_photo_url && !Array.isArray(data.groom_photo_url) && <span className="material-symbols-outlined text-white relative z-10 drop-shadow-md">edit</span>}
+                        </div>
+                      )}
                       <input ref={groomPhotoRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, "groom_photo_url") }} />
                       <div className="flex-1">
                         <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_full_name || ""} onChange={e => updateField("groom_full_name", e.target.value)} placeholder="Nama Lengkap Pria" />
@@ -750,11 +791,29 @@ function EditorInner({ id }: { id: string }) {
                   <div className="space-y-4">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Mempelai Wanita</label>
                     <div className="flex gap-4 items-end">
-                      <div onClick={() => bridePhotoRef.current?.click()} className="w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors relative overflow-hidden shrink-0">
-                        {data.bride_photo_url && <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${data.bride_photo_url})` }} />}
-                        {!data.bride_photo_url && <span className="material-symbols-outlined text-on-surface-variant">add_a_photo</span>}
-                        {data.bride_photo_url && <span className="material-symbols-outlined text-white relative z-10 drop-shadow-md">edit</span>}
-                      </div>
+                      {isSlideshowField("bride_photo_url") ? (
+                        <div className="flex gap-2 shrink-0">
+                          {[0, 1].map(i => {
+                            const url = Array.isArray(data.bride_photo_url) ? data.bride_photo_url[i] : (i === 0 ? data.bride_photo_url : "")
+                            return (
+                              <div key={i} className="flex flex-col items-center gap-1">
+                                <div onClick={() => bridePhotoSlotRef.current[i]?.click()} className="w-16 h-16 bg-surface-dim border border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors relative overflow-hidden">
+                                  {url ? <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${url})` }} /> : <span className="material-symbols-outlined text-on-surface-variant text-[18px]">add_a_photo</span>}
+                                  {url && <span className="material-symbols-outlined text-white text-[14px] absolute bottom-0 right-0 drop-shadow-md">edit</span>}
+                                </div>
+                                <span className="text-[9px] text-on-surface-variant">Foto {i + 1}</span>
+                                <input ref={el => { bridePhotoSlotRef.current[i] = el }} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handlePhotoSlideUpload(f, "bride_photo_url", i); e.target.value = "" }} />
+                              </div>
+                            )
+                          })}
+                        </div>
+                      ) : (
+                        <div onClick={() => bridePhotoRef.current?.click()} className="w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors relative overflow-hidden shrink-0">
+                          {data.bride_photo_url && !Array.isArray(data.bride_photo_url) && <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${data.bride_photo_url})` }} />}
+                          {!(data.bride_photo_url && !Array.isArray(data.bride_photo_url)) && <span className="material-symbols-outlined text-on-surface-variant">add_a_photo</span>}
+                          {data.bride_photo_url && !Array.isArray(data.bride_photo_url) && <span className="material-symbols-outlined text-white relative z-10 drop-shadow-md">edit</span>}
+                        </div>
+                      )}
                       <input ref={bridePhotoRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, "bride_photo_url") }} />
                       <div className="flex-1">
                         <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_full_name || ""} onChange={e => updateField("bride_full_name", e.target.value)} placeholder="Nama Lengkap Wanita" />

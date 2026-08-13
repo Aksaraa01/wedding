@@ -569,6 +569,7 @@ class AksaraaPlugin
             if (in_array($field, $skip, true)) continue;
             if (!array_key_exists($field, $fields)) continue;
             if ($fields[$field] === null || $fields[$field] === '') continue;
+            if (is_array($fields[$field]) && empty($fields[$field])) continue;
 
             $mappings = is_array($mapping) && isset($mapping['elementId']) ? [$mapping] : $mapping;
             if (!is_array($mappings)) continue;
@@ -734,13 +735,18 @@ class AksaraaPlugin
                 $lastKey = end($settingsPath);
                 $parentKey = $settingsPath[0] ?? '';
 
-                // Background slideshow: the value is a single image URL that becomes
-                // the sole slide of the section's background slideshow.
+                // Background slideshow: needs 2 slides to render. Accept an array of
+                // {id,url} slides or a single URL (duplicated to 2 slides).
                 if ($lastKey === 'background_slideshow_gallery') {
-                    if ($value === null || $value === '') return false;
-                    $imported = self::sideload_image((string) $value);
-                    if ($imported['id'] <= 0) return false;
-                    $target['background_slideshow_gallery'] = [['id' => $imported['id'], 'url' => $imported['url']]];
+                    $urls = is_array($value) ? $value : [$value];
+                    $slides = [];
+                    foreach ($urls as $u) {
+                        $imported = self::sideload_image((string) $u);
+                        if ($imported['id'] > 0) $slides[] = ['id' => $imported['id'], 'url' => $imported['url']];
+                    }
+                    if (count($slides) === 1) $slides[] = $slides[0]; // keep 2 slides
+                    if (count($slides) < 2) return false;
+                    $target['background_slideshow_gallery'] = $slides;
                     $target['background_background'] = 'slideshow';
                     return true;
                 }
@@ -749,7 +755,9 @@ class AksaraaPlugin
                 if ($isImageUrl) {
                     // Sideload the external image into the WP media library so Elementor
                     // can resolve it via a real attachment id (image/background widgets).
-                    $imported = self::sideload_image((string) $value);
+                    // A field may provide an array (2 slides); a single image uses the first.
+                    $imgValue = is_array($value) ? (reset($value) ?: '') : $value;
+                    $imported = self::sideload_image((string) $imgValue);
                     $target['url'] = $imported['url'];
                     $target['id'] = $imported['id'];
 
