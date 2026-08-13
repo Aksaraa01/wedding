@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { generateUniqueToken } from "@/lib/qr"
+import { autoGenerateGuestLinks } from "@/lib/guest-link"
 
 export async function PUT(
   req: Request,
@@ -53,22 +53,12 @@ export async function PUT(
     if (wasUnpaid && nowPaid) {
       const { data: guests } = await supabaseAdmin
         .from("guests")
-        .select("id")
+        .select("id, name, qr_token")
         .eq("wedding_profile_id", profileId)
-        .is("qr_token", null)
+        .or("qr_token.is.null,slug.is.null")
 
       if (guests && guests.length > 0) {
-        const results = await Promise.all(
-          guests.map(async (g: any) => {
-            const token = await generateUniqueToken()
-            return supabaseAdmin.from("guests").update({ qr_token: token }).eq("id", g.id)
-          })
-        )
-
-        const allOk = results.every((r) => !r.error)
-        if (allOk) {
-          qrGenerated = results.length
-        }
+        qrGenerated = await autoGenerateGuestLinks(profileId, guests)
       }
     }
 
