@@ -98,6 +98,7 @@ export default async function WeddingInvitation({
           <InvitationOverlay
             guestId={guestContext.id}
             guestName={guestName}
+            weddingProfileId={profile.id}
             guestQrUrl={
               guestContext.slug || guestContext.qr_token
                 ? `/qr/${guestContext.slug || guestContext.qr_token}`
@@ -105,6 +106,7 @@ export default async function WeddingInvitation({
             }
             guestTableNumber={guestContext.table_number}
             guestRsvpStatus={guestContext.rsvp_status}
+            guestRsvpMessage={guestContext.rsvp_message}
             rsvpMaxPax={profile.rsvp_max_pax ?? 2}
             qrEnabled={featureSet.has("qr_code_book")}
           />

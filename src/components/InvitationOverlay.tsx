@@ -5,9 +5,11 @@ import { useState, type FormEvent } from "react"
 interface InvitationOverlayProps {
   guestId: string
   guestName: string
+  weddingProfileId: string
   guestQrUrl?: string
   guestTableNumber?: string
   guestRsvpStatus?: string
+  guestRsvpMessage?: string
   rsvpMaxPax?: number
   qrEnabled: boolean
 }
@@ -15,22 +17,28 @@ interface InvitationOverlayProps {
 export default function InvitationOverlay({
   guestId,
   guestName,
+  weddingProfileId,
   guestQrUrl,
   guestTableNumber,
   guestRsvpStatus,
+  guestRsvpMessage,
   rsvpMaxPax,
   qrEnabled,
 }: InvitationOverlayProps) {
   const [qrOpen, setQrOpen] = useState(false)
   const [rsvpOpen, setRsvpOpen] = useState(false)
 
+  const alreadyResponded = guestRsvpStatus === "HADIR" || guestRsvpStatus === "TIDAK_HADIR"
+
   const [rsvpName, setRsvpName] = useState(guestName)
   const [rsvpAttend, setRsvpAttend] = useState<string>(
     guestRsvpStatus === "HADIR" || guestRsvpStatus === "TIDAK_HADIR" ? guestRsvpStatus : "HADIR"
   )
   const [rsvpPax, setRsvpPax] = useState("1")
-  const [rsvpMessage, setRsvpMessage] = useState("")
-  const [rsvpStatus, setRsvpStatus] = useState<"idle" | "saving" | "done" | "error">("idle")
+  const [rsvpMessage, setRsvpMessage] = useState(guestRsvpMessage || "")
+  const [rsvpStatus, setRsvpStatus] = useState<"idle" | "saving" | "done" | "error">(
+    alreadyResponded ? "done" : "idle"
+  )
   const [rsvpError, setRsvpError] = useState("")
 
   const maxPax = Math.max(1, Math.min(10, rsvpMaxPax ?? 2))
@@ -54,6 +62,26 @@ export default function InvitationOverlay({
         setRsvpError("Gagal menyimpan kehadiran. Silakan coba lagi.")
         setRsvpStatus("error")
         return
+      }
+      // Also save the comment to the wish wall (source: invitation), same as the
+      // React templates. 409 = already sent earlier, treat as success.
+      if (rsvpMessage.trim()) {
+        const wish = await fetch("/api/wishes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            wedding_profile_id: weddingProfileId,
+            guest_id: guestId,
+            name: rsvpName.trim(),
+            message: rsvpMessage.trim(),
+            source: "invitation",
+          }),
+        })
+        if (wish.status !== 409 && !wish.ok) {
+          setRsvpError("Kehadiran tersimpan, namun ucapan gagal dikirim.")
+          setRsvpStatus("error")
+          return
+        }
       }
       setRsvpStatus("done")
     } catch {
@@ -148,6 +176,12 @@ export default function InvitationOverlay({
                 <p className="font-headline-md text-xl text-on-surface mb-2">Terima kasih, {rsvpName}!</p>
                 <p className="font-body-md text-sm text-on-surface-variant">
                   Kehadiran Anda telah kami catat sebagai {rsvpAttend === "TIDAK_HADIR" ? "Tidak Hadir" : "Hadir"}.
+                </p>
+                {rsvpMessage.trim() && (
+                  <p className="font-body-md text-sm text-on-surface-variant mt-2 italic">“{rsvpMessage.trim()}”</p>
+                )}
+                <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary mt-4">
+                  Konfirmasi kehadiran Anda sudah diterima
                 </p>
               </div>
             ) : (
