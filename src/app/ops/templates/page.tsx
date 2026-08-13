@@ -361,6 +361,21 @@ export default function OpsTemplatesPage() {
         }
       }
     }
+    // Safety net: any field mapped to a slideshow element must target
+    // background_slideshow_gallery (not background_image.url) — otherwise the couple's
+    // photo would patch the leftover background_image and the slideshow stays static.
+    const objectArray = Object.keys(OBJECT_ARRAY_FIELDS)
+    for (const [field, val] of Object.entries(sorted)) {
+      if (objectArray.includes(field)) continue
+      const mappings = Array.isArray(val) ? val : []
+      for (const m of mappings) {
+        if (!m || !m.elementId) continue
+        const el = mappable.find(x => x.id === m.elementId)
+        if (el && el.widgetType === "container-slideshow" && (m.settings || []).join(".") !== "background_slideshow_gallery") {
+          m.settings = ["background_slideshow_gallery"]
+        }
+      }
+    }
     const res = await fetch(`/api/ops/templates/${editing.id}`, {
       method: "PUT",
       headers: opsHeaders(employee),
