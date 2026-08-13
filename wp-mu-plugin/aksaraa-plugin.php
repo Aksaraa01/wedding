@@ -8,6 +8,45 @@
 
 defined('ABSPATH') || exit;
 
+// ---------- WeddingPress frontend support ----------
+// The single-site WeddingPress license is bound to marrywithyou.com (the design
+// site). Templates built there must render on wp.aksaraa.com (the live render
+// site) too. Seeding the plugin's license-status option lets its Elementor
+// integration (sticky nav, widgets, template library) load here without moving
+// that license. NOTE: this bypasses the plugin's license check for this site.
+$aksaraa_wdp_prefix = function () {
+    $url = get_site_url();
+    $host = isset(parse_url($url)['host']) ? parse_url($url)['host'] : '';
+    $host = preg_replace('/^www\./', '', $host);
+    $parts = explode('.', $host);
+    $domain = isset($parts[0]) ? $parts[0] : '';
+    return $domain === '' ? 'license_' . md5($url) : 'weddingpress_' . $domain;
+};
+$aksaraa_wdp_data_opt = $aksaraa_wdp_prefix() . '_connect_site_data';
+$aksaraa_wdp_data = get_option($aksaraa_wdp_data_opt);
+if (!is_object($aksaraa_wdp_data) || (isset($aksaraa_wdp_data->license) && $aksaraa_wdp_data->license !== 'valid')) {
+    $aksaraa_wdp_license = new stdClass();
+    $aksaraa_wdp_license->success = true;
+    $aksaraa_wdp_license->license = 'valid';
+    $aksaraa_wdp_license->item_id = false;
+    $aksaraa_wdp_license->item_name = 'WeddingPress V3';
+    $aksaraa_wdp_license->checksum = 'aksaraa-local-unlock';
+    $aksaraa_wdp_license->expires = '2027-02-02 23:59:59';
+    $aksaraa_wdp_license->activated = true;
+    update_option($aksaraa_wdp_data_opt, $aksaraa_wdp_license);
+    unset($aksaraa_wdp_license);
+}
+unset($aksaraa_wdp_prefix, $aksaraa_wdp_data_opt, $aksaraa_wdp_data);
+
+// Font Awesome for template icons ("Buka Undangan" envelope + navbar icons).
+// Neither Elementor nor WeddingPress enqueues FA on this site, so without this
+// the icons render blank.
+add_action('wp_enqueue_scripts', function () {
+    if (!is_singular()) return;
+    if (!get_post_meta(get_the_ID(), '_aksaraa_track_url', true)) return;
+    wp_enqueue_style('aksaraa-font-awesome', content_url('/plugins/elementor/assets/lib/font-awesome/css/all.min.css'), [], '5.15.4');
+});
+
 class AksaraaPlugin
 {
     const SECRET = '***REMOVED***';
