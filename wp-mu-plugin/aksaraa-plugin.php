@@ -870,7 +870,7 @@ add_action('wp_footer', function () {
         // Floating pause/resume music toggle (Font Awesome icons, loaded via the
         // aksaraa-font-awesome enqueue above).
         echo '<button id="aksaraa-music-toggle" type="button" aria-label="Putar atau jeda musik" title="Putar / Jeda musik"'
-           . ' style="position:fixed;top:16px;right:16px;z-index:100000;width:46px;height:46px;border-radius:50%;border:none;'
+           . ' style="position:fixed;top:calc(50% - 76px);right:16px;z-index:100000;width:46px;height:46px;border-radius:50%;border:none;'
            . 'background:rgba(17,17,17,.55);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;'
            . 'box-shadow:0 2px 10px rgba(0,0,0,.35);-webkit-tap-highlight-color:transparent;">'
            . '<i class="fas fa-volume-up" aria-hidden="true" style="font-size:20px;line-height:1"></i></button>';

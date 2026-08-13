@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { notFound, redirect } from "next/navigation"
 import { getTemplateComponent } from "@/components/templates"
+import InvitationOverlay from "@/components/InvitationOverlay"
 import InvitationOpenedTracker from "@/components/InvitationOpenedTracker"
 import { getRowGates, getFeatureIncluded } from "@/lib/featureGates"
 
@@ -82,15 +83,33 @@ export default async function WeddingInvitation({
       : profile.active_wp_post_url
     // Embed the couple's WP invitation in a full-viewport iframe so the guest
     // URL stays on wedding.aksaraa.com instead of redirecting to wp.aksaraa.com.
+    // A floating QR (Prestige qr_code_book) + RSVP dock overlays it for the guest.
     return (
-      <div style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh", background: "#fff" }}>
-        <iframe
-          src={wpUrl}
-          title="Undangan Pernikahan"
-          allow="autoplay; fullscreen"
-          style={{ width: "100%", height: "100%", border: "none", display: "block" }}
-        />
-      </div>
+      <>
+        <div style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh", background: "#fff" }}>
+          <iframe
+            src={wpUrl}
+            title="Undangan Pernikahan"
+            allow="autoplay; fullscreen"
+            style={{ width: "100%", height: "100%", border: "none", display: "block" }}
+          />
+        </div>
+        {guestContext?.id && (
+          <InvitationOverlay
+            guestId={guestContext.id}
+            guestName={guestName}
+            guestQrUrl={
+              guestContext.slug || guestContext.qr_token
+                ? `/qr/${guestContext.slug || guestContext.qr_token}`
+                : undefined
+            }
+            guestTableNumber={guestContext.table_number}
+            guestRsvpStatus={guestContext.rsvp_status}
+            rsvpMaxPax={profile.rsvp_max_pax ?? 2}
+            qrEnabled={featureSet.has("qr_code_book")}
+          />
+        )}
+      </>
     )
   }
 

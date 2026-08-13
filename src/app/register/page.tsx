@@ -30,8 +30,34 @@ function RegisterInner() {
   const dateCardRef = useRef<HTMLDivElement>(null)
   const paxRef = useRef<HTMLSpanElement>(null)
 
+  const [nameChecking, setNameChecking] = useState(false)
+  const [nameError, setNameError] = useState("")
+
   const step1Valid = userName.trim().length > 0 && partnerName.trim().length > 0
   const step2Valid = weddingDate.length > 0 || isTentative
+
+  const handleNextStep1 = async () => {
+    if (!step1Valid || nameChecking) return
+    setNameChecking(true)
+    setNameError("")
+    try {
+      const res = await fetch(
+        `/api/check-couple?name1=${encodeURIComponent(userName.trim())}&name2=${encodeURIComponent(partnerName.trim())}`
+      )
+      const data = await res.json()
+      if (data?.exists) {
+        setNameError("Nama pasangan sudah terdaftar. Hubungi konsultan jika ini pasangan Anda.")
+        return
+      }
+      setStep(2)
+    } catch {
+      // On network failure don't block registration; the customize check +
+      // server-side guard still protect against duplicates.
+      setStep(2)
+    } finally {
+      setNameChecking(false)
+    }
+  }
 
   const handleNextStep2 = () => {
     if (!step2Valid) {
@@ -86,7 +112,7 @@ function RegisterInner() {
                 <input
                   autoComplete="off"
                   value={userName}
-                  onChange={(e) => setUserName(e.target.value)}
+                  onChange={(e) => { setUserName(e.target.value); setNameError("") }}
                   className="w-full bg-transparent border-none border-b border-outline-variant py-4 px-0 font-display-lg-mobile text-headline-md focus:ring-0 focus:border-primary placeholder:text-outline-variant transition-all duration-300 outline-none"
                   placeholder="Nama Anda"
                   type="text"
@@ -97,7 +123,7 @@ function RegisterInner() {
                 <input
                   autoComplete="off"
                   value={partnerName}
-                  onChange={(e) => setPartnerName(e.target.value)}
+                  onChange={(e) => { setPartnerName(e.target.value); setNameError("") }}
                   className="w-full bg-transparent border-none border-b border-outline-variant py-4 px-0 font-display-lg-mobile text-headline-md focus:ring-0 focus:border-primary placeholder:text-outline-variant transition-all duration-300 outline-none"
                   placeholder="Nama Pasangan"
                   type="text"
@@ -105,6 +131,9 @@ function RegisterInner() {
                 <div className="absolute bottom-0 left-0 h-[1px] w-full bg-outline-variant/30 group-focus-within:bg-primary transition-all duration-500" />
               </div>
             </div>
+            {nameError && (
+              <p className={`font-body-md text-sm text-error mt-6 animate-fade-in ${nameChecking ? "" : ""}`}>{nameError}</p>
+            )}
           </div>
         )}
 
@@ -248,12 +277,13 @@ function RegisterInner() {
         <footer className="sticky bottom-0 left-0 w-full px-edge-margin-mobile pb-10 pt-4 bg-gradient-to-t from-background via-background to-transparent">
           <div className="max-w-md mx-auto">
             <button
-              onClick={() => step1Valid && setStep(2)}
+              onClick={handleNextStep1}
+              disabled={!step1Valid || nameChecking}
               className={`w-full bg-primary text-on-primary flex items-center justify-center gap-3 py-5 rounded-none font-label-md text-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all duration-300 active:scale-95 group ${
-                step1Valid ? "opacity-100" : "opacity-50"
+                step1Valid && !nameChecking ? "opacity-100" : "opacity-50"
               }`}
             >
-              Lanjutkan
+              {nameChecking ? "Memeriksa..." : "Lanjutkan"}
               <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
             </button>
             <p className="mt-6 text-[10px] text-on-surface-variant/40 text-center tracking-widest font-label-md">
