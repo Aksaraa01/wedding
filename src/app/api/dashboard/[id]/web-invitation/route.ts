@@ -60,8 +60,8 @@ export async function GET(
         is_published: profile.is_published,
         groom_full_name: profile.groom_full_name,
         bride_full_name: profile.bride_full_name,
-        groom_photo_url: profile.groom_photo_url,
-        bride_photo_url: profile.bride_photo_url,
+        groom_photo_url: profile.groom_photo_url ? (Array.isArray(profile.groom_photo_url) ? profile.groom_photo_url : (() => { try { const p = JSON.parse(profile.groom_photo_url); return Array.isArray(p) ? p : [profile.groom_photo_url] } catch { return [profile.groom_photo_url] } })()) : [],
+        bride_photo_url: profile.bride_photo_url ? (Array.isArray(profile.bride_photo_url) ? profile.bride_photo_url : (() => { try { const p = JSON.parse(profile.bride_photo_url); return Array.isArray(p) ? p : [profile.bride_photo_url] } catch { return [profile.bride_photo_url] } })()) : [],
         groom_parents: profile.groom_parents,
         bride_parents: profile.bride_parents,
         groom_instagram: profile.groom_instagram,
@@ -108,7 +108,15 @@ export async function PUT(
 
     const updates: Record<string, any> = {}
     for (const key of allowed) {
-      if (body[key] !== undefined) updates[key] = body[key]
+      if (body[key] !== undefined) {
+        // groom/bride photos are stored as JSON strings in text columns so they can
+        // hold multiple slides (slideshow backgrounds).
+        if ((key === "groom_photo_url" || key === "bride_photo_url") && Array.isArray(body[key])) {
+          updates[key] = JSON.stringify(body[key].filter(Boolean))
+        } else {
+          updates[key] = body[key]
+        }
+      }
     }
 
     const { error } = await supabaseAdmin

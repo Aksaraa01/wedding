@@ -61,6 +61,20 @@ function formatDate(dateStr: string) {
   return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`
 }
 
+// Normalize a photo field (string URL, JSON array, or array) to a string array.
+function parsePhotoList(v: unknown): string[] {
+  if (Array.isArray(v)) return v.filter(Boolean)
+  if (typeof v === "string" && v.trim()) {
+    try {
+      const p = JSON.parse(v)
+      return Array.isArray(p) ? p.filter(Boolean) : [v]
+    } catch {
+      return [v]
+    }
+  }
+  return []
+}
+
 const PACKAGE_NAMES: Record<string, string> = {
   essential: "Essential",
   signature: "Signature",
@@ -110,8 +124,10 @@ function EditorInner({ id }: { id: string }) {
   const [previewVersion, setPreviewVersion] = useState(0)
   const [updatingPreview, setUpdatingPreview] = useState(false)
   const [coverReplaceIndex, setCoverReplaceIndex] = useState<number | null>(null)
+  const [coverSlideTarget, setCoverSlideTarget] = useState<{ slot: number; slide: number } | null>(null)
 
   const coverReplaceRef = useRef<HTMLInputElement>(null)
+  const coverSlideRef = useRef<HTMLInputElement>(null)
   const groomPhotoRef = useRef<HTMLInputElement>(null)
   const bridePhotoRef = useRef<HTMLInputElement>(null)
   const groomPhotoSlotRef = useRef<(HTMLInputElement | null)[]>([])
@@ -131,6 +147,8 @@ function EditorInner({ id }: { id: string }) {
           display_name: p.display_name || (p.bride_name && p.groom_name ? `${p.bride_name} & ${p.groom_name}` : ""),
           inviting_families: Array.isArray(p.inviting_families) ? p.inviting_families : [],
           cover_photos: Array.isArray(p.cover_photos) ? p.cover_photos : [],
+          groom_photo_url: parsePhotoList(p.groom_photo_url),
+          bride_photo_url: parsePhotoList(p.bride_photo_url),
         })
         const sessions = Array.isArray(p.sessions) ? p.sessions.map((s: any) => s?.date).filter(Boolean) : []
         const weddingDate = sessions[0] || p.estimated_wedding_date || ""
@@ -227,7 +245,7 @@ function EditorInner({ id }: { id: string }) {
     const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
     if (!res.ok) return
     const { url } = await res.json()
-    updateField(field, url)
+    updateField(field, [url])
   }
 
   // Upload a photo into a specific slide slot (index 0/1) for slideshow fields.
@@ -265,6 +283,26 @@ function EditorInner({ id }: { id: string }) {
     const covers = (Array.isArray(data.cover_photos) ? data.cover_photos : []).map((c, i) => i === index ? "" : c)
     setData(prev => ({ ...prev, cover_photos: covers, couple_illustration_url: covers[0] || "" }))
     save({ cover_photos: covers, couple_illustration_url: covers[0] || "" })
+  }
+
+  // Upload a photo into a slide of a slideshow cover slot (2 slides per slot).
+  const setCoverSlideAt = async (slotIndex: number, slideIndex: number, file: File) => {
+    if (data.is_published === true) return
+    const formData = new FormData()
+    formData.append("file", file)
+    const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
+    if (!res.ok) return
+    const { url } = await res.json()
+    const covers = [...(Array.isArray(data.cover_photos) ? data.cover_photos : [])]
+    while (covers.length <= slotIndex) covers.push("")
+    const cur = covers[slotIndex]
+    const arr = Array.isArray(cur) ? [...cur] : (typeof cur === "string" && cur !== "" ? [cur] : [])
+    while (arr.length <= slideIndex) arr.push("")
+    arr[slideIndex] = url
+    covers[slotIndex] = arr
+    const firstUrl = typeof covers[0] === "string" ? covers[0] : (Array.isArray(covers[0]) ? covers[0][0] || "" : "")
+    setData(prev => ({ ...prev, cover_photos: covers, couple_illustration_url: firstUrl || prev.couple_illustration_url }))
+    save({ cover_photos: covers, couple_illustration_url: firstUrl || data.couple_illustration_url })
   }
 
   const sessions: Session[] = Array.isArray(data.sessions) ? data.sessions : []
@@ -337,6 +375,11 @@ function EditorInner({ id }: { id: string }) {
     const mapping = template?.wp_manifest?.[field]
     const m = Array.isArray(mapping) ? mapping[0] : mapping
     return Array.isArray(m?.settings) && m.settings.join(".") === "background_slideshow_gallery"
+  }
+
+  const isCoverSlideshowSlot = (i: number): boolean => {
+    const mapping = template?.wp_manifest?.cover_photos?.[i]
+    return Array.isArray(mapping?.settings) && mapping.settings.join(".") === "background_slideshow_gallery"
   }
 
   const addGalleryPhoto = async (file: File) => {
@@ -682,7 +725,35 @@ function EditorInner({ id }: { id: string }) {
                     </p>
                     <div className="grid grid-cols-2 gap-3">
                       {coverSlots.map((_, i) => {
-                        const url = (Array.isArray(data.cover_photos) ? data.cover_photos : [])[i]
+                        const slotValue = (Array.isArray(data.cover_photos) ? data.cover_photos : [])[i]
+                        if (isCoverSlideshowSlot(i)) {
+                          const slides = Array.isArray(slotValue) ? slotValue : (typeof slotValue === "string" && slotValue !== "" ? [slotValue] : [])
+                          return (
+                            <div key={i} className="col-span-2 border border-outline-variant rounded p-2 bg-surface-container-lowest">
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-secondary">Slot {i + 1} — Slideshow (2 foto)</span>
+                              <div className="grid grid-cols-2 gap-2 mt-2">
+                                {[0, 1].map(s => {
+                                  const url = slides[s]
+                                  return url ? (
+                                    <div key={s} className="relative aspect-video bg-surface-dim border border-outline-variant overflow-hidden group">
+                                      <div className={`absolute inset-0 bg-cover bg-center ${data.grayscale ? "grayscale" : ""}`} style={{ backgroundImage: `url(${url})` }} />
+                                      <span className="absolute top-1 left-1 w-6 h-6 bg-black/60 text-white rounded-sm flex items-center justify-center text-[11px] font-bold">{i + 1}.{s === 0 ? "a" : "b"}</span>
+                                      <button onClick={() => { setCoverSlideTarget({ slot: i, slide: s }); coverSlideRef.current?.click() }} className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100" title="Ganti foto">
+                                        <span className="material-symbols-outlined text-white text-[24px] drop-shadow-md">edit</span>
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <div key={s} onClick={() => { setCoverSlideTarget({ slot: i, slide: s }); coverSlideRef.current?.click() }} className="relative aspect-video bg-surface-dim border border-dashed border-outline-variant flex flex-col items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors">
+                                      <span className="absolute top-1 left-1 w-6 h-6 bg-black/60 text-white rounded-sm flex items-center justify-center text-[11px] font-bold">{i + 1}.{s === 0 ? "a" : "b"}</span>
+                                      <span className="material-symbols-outlined text-on-surface-variant">add_photo_alternate</span>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          )
+                        }
+                        const url = typeof slotValue === "string" ? slotValue : (Array.isArray(slotValue) ? slotValue[0] : "")
                         if (url) {
                           return (
                             <div key={i} className="relative aspect-video bg-surface-dim border border-outline-variant overflow-hidden group">
@@ -719,6 +790,7 @@ function EditorInner({ id }: { id: string }) {
                       })}
                     </div>
                     <input ref={coverReplaceRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f && coverReplaceIndex !== null) { setCoverAt(coverReplaceIndex, f); setCoverReplaceIndex(null) } e.target.value = "" }} />
+                    <input ref={coverSlideRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f && coverSlideTarget !== null) { setCoverSlideAt(coverSlideTarget.slot, coverSlideTarget.slide, f); setCoverSlideTarget(null) } e.target.value = "" }} />
                   </div>
                   <div className="space-y-2">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Tanggal Acara</label>
@@ -753,7 +825,7 @@ function EditorInner({ id }: { id: string }) {
                       {isSlideshowField("groom_photo_url") ? (
                         <div className="flex gap-2 shrink-0">
                           {[0, 1].map(i => {
-                            const url = Array.isArray(data.groom_photo_url) ? data.groom_photo_url[i] : (i === 0 ? data.groom_photo_url : "")
+                            const url = data.groom_photo_url[i]
                             return (
                               <div key={i} className="flex flex-col items-center gap-1">
                                 <div onClick={() => groomPhotoSlotRef.current[i]?.click()} className="w-16 h-16 bg-surface-dim border border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors relative overflow-hidden">
@@ -768,9 +840,8 @@ function EditorInner({ id }: { id: string }) {
                         </div>
                       ) : (
                         <div onClick={() => groomPhotoRef.current?.click()} className="w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors relative overflow-hidden shrink-0">
-                          {data.groom_photo_url && !Array.isArray(data.groom_photo_url) && <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${data.groom_photo_url})` }} />}
-                          {!(data.groom_photo_url && !Array.isArray(data.groom_photo_url)) && <span className="material-symbols-outlined text-on-surface-variant">add_a_photo</span>}
-                          {data.groom_photo_url && !Array.isArray(data.groom_photo_url) && <span className="material-symbols-outlined text-white relative z-10 drop-shadow-md">edit</span>}
+                          {data.groom_photo_url[0] ? <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${data.groom_photo_url[0]})` }} /> : <span className="material-symbols-outlined text-on-surface-variant">add_a_photo</span>}
+                          {data.groom_photo_url[0] && <span className="material-symbols-outlined text-white relative z-10 drop-shadow-md">edit</span>}
                         </div>
                       )}
                       <input ref={groomPhotoRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, "groom_photo_url") }} />
@@ -794,7 +865,7 @@ function EditorInner({ id }: { id: string }) {
                       {isSlideshowField("bride_photo_url") ? (
                         <div className="flex gap-2 shrink-0">
                           {[0, 1].map(i => {
-                            const url = Array.isArray(data.bride_photo_url) ? data.bride_photo_url[i] : (i === 0 ? data.bride_photo_url : "")
+                            const url = data.bride_photo_url[i]
                             return (
                               <div key={i} className="flex flex-col items-center gap-1">
                                 <div onClick={() => bridePhotoSlotRef.current[i]?.click()} className="w-16 h-16 bg-surface-dim border border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors relative overflow-hidden">
@@ -809,9 +880,8 @@ function EditorInner({ id }: { id: string }) {
                         </div>
                       ) : (
                         <div onClick={() => bridePhotoRef.current?.click()} className="w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors relative overflow-hidden shrink-0">
-                          {data.bride_photo_url && !Array.isArray(data.bride_photo_url) && <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${data.bride_photo_url})` }} />}
-                          {!(data.bride_photo_url && !Array.isArray(data.bride_photo_url)) && <span className="material-symbols-outlined text-on-surface-variant">add_a_photo</span>}
-                          {data.bride_photo_url && !Array.isArray(data.bride_photo_url) && <span className="material-symbols-outlined text-white relative z-10 drop-shadow-md">edit</span>}
+                          {data.bride_photo_url[0] ? <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${data.bride_photo_url[0]})` }} /> : <span className="material-symbols-outlined text-on-surface-variant">add_a_photo</span>}
+                          {data.bride_photo_url[0] && <span className="material-symbols-outlined text-white relative z-10 drop-shadow-md">edit</span>}
                         </div>
                       )}
                       <input ref={bridePhotoRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, "bride_photo_url") }} />
