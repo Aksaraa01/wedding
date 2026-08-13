@@ -98,7 +98,7 @@ export async function PUT(
     const allowed = [
       "selected_template_id", "selected_track_id",
       "couple_illustration_url", "cover_photos", "couple_initials", "grayscale", "is_published",
-      "groom_full_name", "bride_full_name",
+      "groom_full_name", "bride_full_name", "groom_name", "bride_name",
       "groom_photo_url", "bride_photo_url",
       "groom_parents", "bride_parents", "groom_instagram", "bride_instagram", "video_url",
       "display_name", "sessions", "quote_text", "quote_source", "stories",

@@ -815,11 +815,17 @@ add_action('wp_footer', function () {
     $track = get_post_meta(get_the_ID(), '_aksaraa_track_url', true);
     if ($track) {
         echo '<audio id="song" src="' . esc_url($track) . '" loop></audio>';
-        // The popup's "Buka Undangan" button calls playAudio()/pauseAudio() with a
-        // stale `x` captured before this footer tag existed. Redefine them to resolve
-        // #song at call time so the music actually starts on click.
-        echo '<script>window.playAudio=function(){var s=document.getElementById("song");if(s)s.play().catch(function(){});};'
-           . 'window.pauseAudio=function(){var s=document.getElementById("song");if(s)s.pause();};</script>';
+        // The template popup's inline script redefines a broken global playAudio()
+        // (with a null `x`) and it runs AFTER this footer, clobbering any override.
+        // So we listen directly on document in the capture phase instead — it plays
+        // #song and closes the popup on ".button-undangan" click, immune to that.
+        echo '<script>(function(){var s=document.getElementById("song");'
+           . 'document.addEventListener("click",function(e){var t=e.target;var b=(t&&t.closest)?t.closest(".button-undangan"):null;'
+           . 'if(!b)return;if(s)s.play().catch(function(){});'
+           . 'if(window.elementorProFrontend&&window.elementorProFrontend.modules&&window.elementorProFrontend.modules.popup){try{window.elementorProFrontend.modules.popup.closePopup({},e);}catch(err){}}'
+           . '},true);'
+           . 'window.pauseAudio=function(){if(s)s.pause();};'
+           . '})();</script>';
     }
 });
 

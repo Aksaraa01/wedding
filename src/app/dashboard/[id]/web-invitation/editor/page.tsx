@@ -644,6 +644,15 @@ function EditorInner({ id }: { id: string }) {
         {/* TOP BAR */}
         <header className="bg-surface border-b border-outline-variant flex justify-between items-center px-6 lg:px-12 w-full h-20 z-50 shrink-0">
           <div className="flex items-center gap-6">
+            {/* Perbarui Pratinjau — far left, gold to distinguish from Konfirmasi */}
+            <button
+              onClick={handleUpdatePreview}
+              disabled={updatingPreview}
+              className="hidden sm:flex items-center gap-2 px-6 py-3 font-label-md text-label-md bg-brand-gold text-white transition-all active:scale-95 hover:opacity-90 disabled:opacity-50"
+            >
+              <span className="material-symbols-outlined text-[18px]">{updatingPreview ? "hourglass_top" : "refresh"}</span>
+              <span>{updatingPreview ? "Memperbarui..." : "Perbarui Pratinjau"}</span>
+            </button>
             <button onClick={() => router.push(`/dashboard/${id}`)} className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors">
               <span className="material-symbols-outlined">arrow_back</span>
               <span className="font-label-md text-label-md hidden sm:inline">DASHBOARD</span>
@@ -689,16 +698,6 @@ function EditorInner({ id }: { id: string }) {
               }`}
             >
               {isPublished ? "TERKONFIRMASI" : "KONFIRMASI"}
-            </button>
-
-            {/* Perbarui Pratinjau — always visible */}
-            <button
-              onClick={handleUpdatePreview}
-              disabled={updatingPreview}
-              className="hidden sm:flex items-center gap-2 px-6 py-3 font-label-md text-label-md border border-primary text-primary transition-all active:scale-95 hover:bg-primary hover:text-on-primary disabled:opacity-50"
-            >
-              <span className="material-symbols-outlined text-[18px]">{updatingPreview ? "hourglass_top" : "refresh"}</span>
-              <span>{updatingPreview ? "Memperbarui..." : "Perbarui Pratinjau"}</span>
             </button>
           </div>
         </header>
@@ -811,14 +810,6 @@ function EditorInner({ id }: { id: string }) {
                     <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.couple_initials || ""} onChange={e => updateField("couple_initials", e.target.value)} placeholder="WD" />
                     <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: WD, AC — inisial singkat pasangan pada sampul.</p>
                   </div>
-                  <div className="space-y-4 pt-4 border-t border-outline-variant">
-                    <div className="flex justify-between items-center">
-                      <span className="font-label-md text-label-md">Filter Black &amp; White</span>
-                      <button onClick={() => updateField("grayscale", !data.grayscale)} className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${data.grayscale ? "bg-secondary" : "bg-outline-variant"}`}>
-                        <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-transform ${data.grayscale ? "right-1" : "left-1"}`} />
-                      </button>
-                    </div>
-                  </div>
                 </div>
               )}
 
@@ -851,7 +842,9 @@ function EditorInner({ id }: { id: string }) {
                       )}
                       <input ref={groomPhotoRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, "groom_photo_url") }} />
                       <div className="flex-1">
-                        <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_full_name || ""} onChange={e => updateField("groom_full_name", e.target.value)} placeholder="Nama Lengkap Pria" />
+                        <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_name || ""} onChange={e => updateField("groom_name", e.target.value)} placeholder="Nama Pria" />
+                        <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Pria</p>
+                        <input className="input-editorial w-full font-headline-md text-[18px] mt-3" type="text" value={data.groom_full_name || ""} onChange={e => updateField("groom_full_name", e.target.value)} placeholder="Nama Lengkap Pria" />
                         <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Lengkap Pria</p>
                       </div>
                     </div>
@@ -891,7 +884,9 @@ function EditorInner({ id }: { id: string }) {
                       )}
                       <input ref={bridePhotoRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, "bride_photo_url") }} />
                       <div className="flex-1">
-                        <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_full_name || ""} onChange={e => updateField("bride_full_name", e.target.value)} placeholder="Nama Lengkap Wanita" />
+                        <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_name || ""} onChange={e => updateField("bride_name", e.target.value)} placeholder="Nama Wanita" />
+                        <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Wanita</p>
+                        <input className="input-editorial w-full font-headline-md text-[18px] mt-3" type="text" value={data.bride_full_name || ""} onChange={e => updateField("bride_full_name", e.target.value)} placeholder="Nama Lengkap Wanita" />
                         <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Lengkap Wanita</p>
                       </div>
                     </div>
@@ -1388,7 +1383,7 @@ function EditorInner({ id }: { id: string }) {
             <button
               onClick={handleUpdatePreview}
               disabled={updatingPreview}
-              className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-secondary text-white disabled:opacity-50"
+              className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-brand-gold text-white disabled:opacity-50"
             >
               {updatingPreview ? "MEMPERBARUI..." : "PERBARUI"}
             </button>

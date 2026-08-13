@@ -627,9 +627,9 @@ export default function OpsTemplatesPage() {
               Belum ada template. Klik "Tambah Template" untuk memulai.
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {templates.map((t) => (
-                <div key={t.id} className={`bg-white border p-5 flex flex-col gap-3 ${t.is_active ? "border-outline-variant" : "border-outline-variant/40 opacity-60"}`}>
+                <div key={t.id} className={`bg-white border p-3 flex flex-col gap-2 ${t.is_active ? "border-outline-variant" : "border-outline-variant/40 opacity-60"}`}>
                   {t.preview_image_url && (
                     <div className="aspect-[3/4] overflow-hidden bg-surface-container-low border border-outline-variant/30 rounded-sm">
                       <img src={t.preview_image_url} alt={t.name} className="w-full h-full object-cover" />
@@ -637,31 +637,31 @@ export default function OpsTemplatesPage() {
                   )}
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <h3 className="font-headline-md text-[16px] text-primary font-bold">{t.name}</h3>
-                      <p className="font-mono text-[11px] text-on-surface-variant">{t.code}</p>
+                      <h3 className="font-headline-md text-[13px] text-primary font-bold leading-tight">{t.name}</h3>
+                      <p className="font-mono text-[10px] text-on-surface-variant">{t.code}</p>
                     </div>
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 ${t.is_active ? "bg-emerald-100 text-emerald-700" : "bg-surface-dim text-on-surface-variant"}`}>
+                    <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 shrink-0 ${t.is_active ? "bg-emerald-100 text-emerald-700" : "bg-surface-dim text-on-surface-variant"}`}>
                       {t.is_active ? "Aktif" : "Nonaktif"}
                     </span>
                   </div>
-                  {t.description && <p className="text-xs text-on-surface-variant line-clamp-2">{t.description}</p>}
+                  {t.description && <p className="text-[11px] text-on-surface-variant line-clamp-2">{t.description}</p>}
                   <div className="flex flex-wrap gap-1">
                     {t.package_eligibility?.map((p) => (
-                      <span key={p} className="text-[10px] uppercase tracking-wider px-2 py-0.5 bg-surface-container-low border border-outline-variant">{p}</span>
+                      <span key={p} className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-surface-container-low border border-outline-variant">{p}</span>
                     ))}
                   </div>
                   {t.wp_master_slug && (
-                    <p className="text-[11px] text-secondary font-mono">WP: /{t.wp_master_slug}/</p>
+                    <p className="text-[10px] text-secondary font-mono truncate">WP: /{t.wp_master_slug}/</p>
                   )}
-                  <div className="flex gap-2 mt-auto pt-2 border-t border-outline-variant/30">
+                  <div className="flex flex-wrap gap-2 mt-auto pt-2 border-t border-outline-variant/30">
                     {t.demo_url && (
-                      <a href={t.demo_url} target="_blank" rel="noopener noreferrer" className="text-[11px] font-label-md uppercase tracking-wider text-on-surface-variant hover:text-primary">
+                      <a href={t.demo_url} target="_blank" rel="noopener noreferrer" className="text-[10px] font-label-md uppercase tracking-wider text-on-surface-variant hover:text-primary">
                         Preview
                       </a>
                     )}
-                    <button onClick={() => startEdit(t, false)} className="text-[11px] font-label-md uppercase tracking-wider text-primary hover:underline">Edit</button>
-                    <button onClick={() => startEdit(t, true)} className="text-[11px] font-label-md uppercase tracking-wider text-secondary hover:underline">Mapping</button>
-                    <button onClick={() => handleDelete(t)} className="text-[11px] font-label-md uppercase tracking-wider text-error hover:underline ml-auto">Nonaktifkan</button>
+                    <button onClick={() => startEdit(t, false)} className="text-[10px] font-label-md uppercase tracking-wider text-primary hover:underline">Edit</button>
+                    <button onClick={() => startEdit(t, true)} className="text-[10px] font-label-md uppercase tracking-wider text-secondary hover:underline">Mapping</button>
+                    <button onClick={() => handleDelete(t)} className="text-[10px] font-label-md uppercase tracking-wider text-error hover:underline ml-auto">Nonaktifkan</button>
                   </div>
                 </div>
               ))}
