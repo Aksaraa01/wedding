@@ -22,6 +22,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Data pengantin tidak lengkap" }, { status: 400 })
     }
 
+    const firstNamePart = (name: string) => (name || "").trim().split(/\s+/)[0]?.toLowerCase() || ""
+    const brideFirst = firstNamePart(bride_name)
+    const groomFirst = firstNamePart(groom_name)
+    if (brideFirst && groomFirst) {
+      const { data: dupCouple } = await supabaseAdmin
+        .from("wedding_profiles")
+        .select("id")
+        .in("slug", [`${brideFirst}-${groomFirst}`, `${groomFirst}-${brideFirst}`])
+        .maybeSingle()
+
+      if (dupCouple) {
+        return NextResponse.json({ error: "Nama pasangan sudah digunakan" }, { status: 409 })
+      }
+    }
+
     const normalizedPhone = normalizePhone(whatsapp_number || "")
 
     const userEmail = `${slug}@aksaraa.com`

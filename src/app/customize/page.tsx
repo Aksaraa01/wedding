@@ -150,6 +150,16 @@ function Inner() {
       return
     }
 
+    const coupleCheck = await fetch(
+      `/api/check-couple?name1=${encodeURIComponent(userName.trim())}&name2=${encodeURIComponent(partnerName.trim())}`
+    )
+    const coupleResult = await coupleCheck.json()
+    if (coupleResult.exists) {
+      setSubmitError("Nama pasangan sudah terdaftar. Hubungi konsultan jika ini pasangan Anda.")
+      setSubmitting(false)
+      return
+    }
+
     try {
       const first = userName.trim().split(" ")[0].toLowerCase()
       const second = partnerName.trim().split(" ")[0].toLowerCase()

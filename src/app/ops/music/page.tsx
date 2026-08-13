@@ -32,6 +32,7 @@ export default function OpsMusicPage() {
   const [uploadError, setUploadError] = useState("")
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState("")
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -103,6 +104,25 @@ export default function OpsMusicPage() {
     if (res.ok) {
       setEditingId(null)
       await fetchTracks()
+    }
+  }
+
+  const handleDelete = async (track: Track) => {
+    if (!window.confirm(`Hapus lagu "${track.title}"? Tindakan ini tidak dapat dibatalkan.`)) return
+    setDeletingId(track.id)
+    setUploadError("")
+    try {
+      const res = await fetch(`/api/tracks/${track.id}`, { method: "DELETE" })
+      const data = await res.json()
+      if (!res.ok) {
+        setUploadError(data.error || "Gagal menghapus lagu")
+        return
+      }
+      await fetchTracks()
+    } catch {
+      setUploadError("Gagal menghapus lagu")
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -267,6 +287,13 @@ export default function OpsMusicPage() {
                           }`}
                         >
                           {track.is_public ? "Sembunyikan" : "Publikasikan"}
+                        </button>
+                        <button
+                          onClick={() => handleDelete(track)}
+                          disabled={deletingId === track.id}
+                          className="px-4 py-2.5 text-[10px] uppercase tracking-widest font-bold border border-red-300 text-red-600 hover:bg-red-600 hover:text-white transition-colors disabled:opacity-50"
+                        >
+                          {deletingId === track.id ? "Menghapus..." : "Hapus"}
                         </button>
                       </>
                     ) : (

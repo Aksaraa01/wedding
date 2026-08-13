@@ -512,18 +512,6 @@ function EditorInner({ id }: { id: string }) {
     setPendingMusicFile(null)
   }
 
-  const handleDeleteCustomTrack = async (trackId: string) => {
-    if (data.is_published === true) return
-    const res = await fetch(`/api/tracks/${trackId}`, { method: "DELETE" })
-    if (!res.ok) {
-      const d = await res.json()
-      setMusicUploadError(d.error || "Gagal menghapus lagu")
-      return
-    }
-    setAllTracks(prev => prev.filter(t => t.id !== trackId))
-    if (data.selected_track_id === trackId) updateField("selected_track_id", null)
-  }
-
   const handlePublish = async () => {
     await fetch(`/api/dashboard/${id}/web-invitation`, {
       method: "PUT",
@@ -1268,8 +1256,7 @@ function EditorInner({ id }: { id: string }) {
                     {filteredTracks.map(track => {
                       const isSelected = track.id === data.selected_track_id
                       const isCustom = track.is_custom === true
-                      const isMine = isCustom && track.uploaded_by === id
-                      const deletable = isMine && track.is_public !== true
+                      const isMine = isCustom && track.uploaded_by === id && track.is_public !== true
                       return (
                         <div
                           key={track.id}
@@ -1295,15 +1282,6 @@ function EditorInner({ id }: { id: string }) {
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
-                            {isMine && track.is_public !== true && (
-                              <button
-                                onClick={(e) => { e.stopPropagation(); handleDeleteCustomTrack(track.id) }}
-                                className="text-on-surface-variant hover:text-error transition-colors"
-                                title="Hapus lagu unggahan"
-                              >
-                                <span className="material-symbols-outlined text-[16px]">delete</span>
-                              </button>
-                            )}
                             <span className={`material-symbols-outlined ${isSelected ? "text-secondary" : "text-on-surface-variant"}`}>
                               {isSelected ? "pause" : "play_arrow"}
                             </span>
