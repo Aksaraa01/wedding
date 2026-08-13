@@ -63,6 +63,35 @@
 - Commit directly to `origin main`
 - No PR workflow
 
+### WordPress Integration (Live WP as Source of Truth)
+WP hosts the Elementor template masters. Each couple gets a **duplicate** of the master (post + linked popups) that is patched with their data via the mu-plugin REST API.
+
+- **WP instance:** `https://wp.aksaraa.com` (VPS `103.93.135.176`, path `/var/www/wp/`, PHP 8.1-FPM + MariaDB, Caddy block `wp.aksaraa.com` → PHP-FPM). WP-CLI: `sudo -u www-data wp --path=/var/www/wp ...`.
+- **mu-plugin:** `wp-mu-plugin/aksaraa-plugin.php` (deployed to `/var/www/wp/wp-content/mu-plugins/`). REST routes under `/wp-json/aksaraa/v1/`:
+  - `GET  /post/{slug}` — post lookup
+  - `GET  /post/{slug}/elements` — element tree (post + popups) with `_preview` content hints
+  - `POST /templates/{slug}/duplicate` — duplicate post + popups, inject `track_url` audio, sequential slug (`-01`, `-02`)
+  - `PATCH /posts/{id}/elements` — apply manifest field values into `_elementor_data` + regen CSS
+  - `DELETE /posts/{id}?force=1` — delete post + linked popups
+- **Auth:** all routes require header `X-Aksaraa-Secret` = `WP_INTERNAL_SECRET` (set in `.env.staging`, must match the constant in the mu-plugin).
+- **DB columns:** `web_templates.wp_master_slug`, `wp_manifest`, `package_eligibility`, `demo_url`; `wedding_profiles.active_wp_post_id` + `active_wp_post_url`.
+- **Mapping manifest:** `wp_manifest` maps Aksaraa fields → `[{elementId, settings[]}]` (array — one field can map to multiple WP elements). Fields + Bahasa labels in `src/lib/fieldLabels.ts`.
+- **Guest name:** popup heading uses Elementor `request-arg` dynamic tag reading `?to=`; `w/[slug]` redirects to `active_wp_post_url?to={guestName}`. Do NOT patch guest name into the manifest — it stays dynamic.
+
+### WordPress duplicate — corruption pitfalls (HARD LESSONS)
+When duplicating Elementor posts/popups, the following will silently corrupt data. The mu-plugin already handles these; do NOT reintroduce them.
+
+1. **Copy post meta RAW, not via `get_post_meta`/`update_post_meta`.** The WP slashing round-trip strips backslashes from `_elementor_data` (`\n` → `n`), corrupting JSON by ~13KB. Use `$wpdb->get_results` + `$wpdb->insert` to copy `meta_value` byte-for-byte.
+2. **Pass `_elementor_conditions` as an array, never `serialize()` it.** `maybe_serialize` re-serializes already-serialized strings, producing `s:45:"a:1:{...}"` double-encoding. `update_post_meta($id, '_elementor_conditions', ['include/singular/{type}/{post_id}'])`.
+3. **Copy the `elementor_library_type` taxonomy term** (`wp_set_object_terms($id, ['popup'], 'elementor_library_type')`) — without it the popup won't appear in the Elementor admin list nor render on the frontend.
+4. **Register the popup in the theme-builder conditions cache** (`elementor_pro_theme_builder_conditions` option) after duplicate, or `elementor_theme_do_location('popup')` finds nothing. Directly add `$option['popup'][$popup_id] = [...]`; `Conditions_Cache::regenerate()` is unreliable inside a REST request (cold document cache).
+5. **Never run `\Elementor\Plugin::$instance->files_manager->clear_cache()` casually.** It deletes `_elementor_element_cache`, `_elementor_page_assets`, all post CSS files, AND the `elementor_pro_theme_builder_conditions` option — breaking popup rendering site-wide until the conditions cache is rebuilt.
+6. **Never mutate the master template directly** (no SQL `REPLACE`/`UPDATE` on the master's `_elementor_data` for one-off fixes). All per-couple changes must go through the duplicate + PATCH flow.
+7. **Always generate Elementor CSS explicitly after duplicate/PATCH.** Use `\Elementor\Core\Files\CSS\Post::create($post_id)->update()` (the same safe method `files_manager->generate_css()` uses internally) for the new/patched post + its popups. Do NOT rely on Elementor's "lazy" frontend regen — it does not fire reliably for programmatically-created posts, leaving them unstyled ("messy" raw render). Batch regenerate everything with `files_manager->generate_css()` after a `clear_cache()`-induced wipe.
+8. **After PATCHing `_elementor_data`, clear `_elementor_element_cache` + `_elementor_page_assets` for THAT post.** Otherwise the frontend serves the stale cached HTML (old names/dates) even though `_elementor_data` is correct. Delete these three meta keys per-post (not site-wide): `_elementor_css`, `_elementor_element_cache`, `_elementor_page_assets`.
+9. **Images MUST be sideloaded into the WP media library.** Elementor resolves image/background/gallery sources by attachment `id` (via `wp_get_attachment_image_src` / `Group_Control_Image_Size`), NOT by `url`. A bare external URL (Supabase) with `id: 0` renders nothing. `AksaraaPlugin::sideload_image()` downloads the Aksaraa URL and `media_handle_sideload()`s it to get a real attachment id + `wp.aksaraa.com` URL (cached in a transient to avoid duplicates). Apply this for every image field (cover `background_image.url`, photos `image.url`, gallery `settings.gallery[]`).
+10. **After writing `_elementor_data` with `$wpdb`, call `wp_cache_delete($post_id, 'post_meta')`.** WordPress caches post meta per-request; the CSS regen in the same request otherwise reads the stale pre-write `_elementor_data` and regenerates old CSS.
+
 ## Common Tasks
 
 ### Add a new page route

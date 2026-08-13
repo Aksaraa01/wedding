@@ -4,6 +4,7 @@ import { useState, useEffect, use, useRef, useCallback, ComponentType } from "re
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import { getTemplateComponent } from "@/components/templates"
+import { RowGates } from "@/lib/featureGates"
 
 type Profile = {
   id: string
@@ -11,6 +12,8 @@ type Profile = {
   groom_name: string
   slug: string
   couple_illustration_url: string | null
+  cover_photos: string[] | null
+  couple_initials: string | null
   grayscale: boolean
   is_published: boolean
   groom_full_name: string | null
@@ -20,11 +23,15 @@ type Profile = {
   groom_parents: string | null
   bride_parents: string | null
   groom_instagram: string | null
+  bride_instagram: string | null
+  video_url: string | null
   estimated_wedding_date: string | null
   sessions: Session[] | null
   display_name: string | null
   inviting_families: string[] | null
   rsvp_max_pax: number | null
+  active_wp_post_id: number | null
+  active_wp_post_url: string | null
 }
 
 type Session = {
@@ -53,6 +60,29 @@ function formatDate(dateStr: string) {
   return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`
 }
 
+const PACKAGE_NAMES: Record<string, string> = {
+  essential: "Essential",
+  signature: "Signature",
+  prestige: "Prestige",
+}
+
+function upgradeMessage(availableIn: string[]): string {
+  const names = availableIn.map(p => PACKAGE_NAMES[p] || p).join(" & ")
+  return `Fitur ini tersedia untuk paket ${names}. Silakan upgrade paket untuk mengakses fitur ini.`
+}
+
+function LockedNotice({ availableIn }: { availableIn: string[] }) {
+  return (
+    <div className="flex items-start gap-3 p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+      <span className="material-symbols-outlined text-[20px] text-secondary">lock</span>
+      <div>
+        <p className="font-label-md text-label-md uppercase tracking-widest text-secondary">Fitur Terkunci</p>
+        <p className="font-body-md text-sm text-on-surface-variant mt-1">{upgradeMessage(availableIn)}</p>
+      </div>
+    </div>
+  )
+}
+
 function EditorInner({ id }: { id: string }) {
   const router = useRouter()
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -67,15 +97,22 @@ function EditorInner({ id }: { id: string }) {
   const [showH3Reminder, setShowH3Reminder] = useState(false)
   const [feedbackCount, setFeedbackCount] = useState<number | null>(null)
   const [feedbackLoading, setFeedbackLoading] = useState(true)
-  const [gates, setGates] = useState<{ gift_address: boolean; inviting_families: boolean; story: boolean }>({
-    gift_address: true,
-    inviting_families: true,
-    story: true,
+  const [gates, setGates] = useState<RowGates>({
+    gift_address: { included: true, availableIn: ["essential", "signature", "prestige"] },
+    inviting_families: { included: true, availableIn: ["essential", "signature", "prestige"] },
+    story: { included: true, availableIn: ["essential", "signature", "prestige"] },
+    cinematic_video: { included: true, availableIn: ["essential", "signature", "prestige"] },
   })
   const [featureSet, setFeatureSet] = useState<Set<string>>(new Set())
   const saveTimer = useRef<ReturnType<typeof setTimeout>>(null)
+  const patchTimer = useRef<ReturnType<typeof setTimeout>>(null)
+  const pendingUpdates = useRef<Record<string, any>>({})
+  const [previewVersion, setPreviewVersion] = useState(0)
+  const [updatingPreview, setUpdatingPreview] = useState(false)
+  const [coverReplaceIndex, setCoverReplaceIndex] = useState<number | null>(null)
 
   const coverFileRef = useRef<HTMLInputElement>(null)
+  const coverReplaceRef = useRef<HTMLInputElement>(null)
   const groomPhotoRef = useRef<HTMLInputElement>(null)
   const bridePhotoRef = useRef<HTMLInputElement>(null)
 
@@ -92,6 +129,7 @@ function EditorInner({ id }: { id: string }) {
           ...p,
           display_name: p.display_name || (p.bride_name && p.groom_name ? `${p.bride_name} & ${p.groom_name}` : ""),
           inviting_families: Array.isArray(p.inviting_families) ? p.inviting_families : [],
+          cover_photos: Array.isArray(p.cover_photos) ? p.cover_photos : [],
         })
         const sessions = Array.isArray(p.sessions) ? p.sessions.map((s: any) => s?.date).filter(Boolean) : []
         const weddingDate = sessions[0] || p.estimated_wedding_date || ""
@@ -112,20 +150,67 @@ function EditorInner({ id }: { id: string }) {
 
   const save = useCallback((updates: Record<string, any>) => {
     setSaveStatus("saving")
+    // Accumulate changes within the debounce window so multi-field edits
+    // (e.g. the quote picker setting quote_text + quote_source) are not lost.
+    pendingUpdates.current = { ...pendingUpdates.current, ...updates }
     if (saveTimer.current) clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(async () => {
+      const all = pendingUpdates.current
+      pendingUpdates.current = {}
       try {
         const res = await fetch(`/api/dashboard/${id}/web-invitation`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updates),
+          body: JSON.stringify(all),
         })
         if (!res.ok) throw new Error("Save failed")
         setSaveStatus("saved")
+        // Push updated content to the couple's WP post (invisible server-side sync).
+        if (patchTimer.current) clearTimeout(patchTimer.current)
+        patchTimer.current = setTimeout(() => {
+          fetch(`/api/wp/patch`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ profile_id: id }),
+          }).catch(() => {})
+        }, 1200)
       } catch {
         setSaveStatus("error")
       }
     }, 600)
+  }, [id])
+
+  // Manual preview update: flush pending save + sync to WP, then refresh the iframe.
+  const handleUpdatePreview = useCallback(async () => {
+    setSaveStatus("saving")
+    setUpdatingPreview(true)
+    // Flush any pending (debounced) changes immediately.
+    const all = { ...pendingUpdates.current }
+    pendingUpdates.current = {}
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    if (patchTimer.current) clearTimeout(patchTimer.current)
+    try {
+      if (Object.keys(all).length > 0) {
+        const res = await fetch(`/api/dashboard/${id}/web-invitation`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(all),
+        })
+        if (!res.ok) throw new Error("Save failed")
+      }
+      setSaveStatus("saved")
+      // Sync to the couple's WP post and refresh the iframe once it's done.
+      await fetch(`/api/wp/patch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profile_id: id }),
+      }).catch(() => {})
+      setPreviewVersion(v => v + 1)
+    } catch {
+      setSaveStatus("error")
+    } finally {
+      setUpdatingPreview(false)
+    }
   }, [id])
 
   const updateField = (field: string, value: any) => {
@@ -142,6 +227,38 @@ function EditorInner({ id }: { id: string }) {
     if (!res.ok) return
     const { url } = await res.json()
     updateField(field, url)
+  }
+
+  const handleCoverUpload = async (file: File) => {
+    if (data.is_published === true) return
+    const formData = new FormData()
+    formData.append("file", file)
+    const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
+    if (!res.ok) return
+    const { url } = await res.json()
+    const covers = [...(Array.isArray(data.cover_photos) ? data.cover_photos : [])]
+    if (!covers.includes(url)) covers.push(url)
+    setData(prev => ({ ...prev, cover_photos: covers, couple_illustration_url: covers[0] || prev.couple_illustration_url }))
+    save({ cover_photos: covers, couple_illustration_url: covers[0] || data.couple_illustration_url })
+  }
+
+  const replaceCoverPhoto = async (index: number, file: File) => {
+    if (data.is_published === true) return
+    const formData = new FormData()
+    formData.append("file", file)
+    const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
+    if (!res.ok) return
+    const { url } = await res.json()
+    const covers = (Array.isArray(data.cover_photos) ? data.cover_photos : []).map((c, i) => i === index ? url : c)
+    setData(prev => ({ ...prev, cover_photos: covers, couple_illustration_url: covers[0] || prev.couple_illustration_url }))
+    save({ cover_photos: covers, couple_illustration_url: covers[0] || data.couple_illustration_url })
+  }
+
+  const removeCoverPhoto = (index: number) => {
+    if (data.is_published === true) return
+    const covers = (Array.isArray(data.cover_photos) ? data.cover_photos : []).filter((_, i) => i !== index)
+    setData(prev => ({ ...prev, cover_photos: covers, couple_illustration_url: covers[0] || "" }))
+    save({ cover_photos: covers, couple_illustration_url: covers[0] || "" })
   }
 
   const sessions: Session[] = Array.isArray(data.sessions) ? data.sessions : []
@@ -353,9 +470,9 @@ function EditorInner({ id }: { id: string }) {
       { label: "Nama Lengkap Mempelai", filled: !!(data.groom_full_name && data.bride_full_name) },
       { label: "Nama Orang Tua Mempelai", filled: !!(data.groom_parents && data.bride_parents) },
       { label: "Tanggal & Sesi Acara", filled: Array.isArray(data.sessions) && data.sessions.length > 0 },
-      { label: "Kisah Cinta", filled: !(gates.story) || (Array.isArray(data.stories) && data.stories.length > 0) },
+      { label: "Kisah Cinta", filled: !(gates.story.included) || (Array.isArray(data.stories) && data.stories.length > 0) },
       { label: "Galeri Foto", filled: Array.isArray(data.gallery_photos) && data.gallery_photos.length > 0 },
-      { label: "Turut Mengundang", filled: !(gates.inviting_families) || families.length > 0 },
+      { label: "Turut Mengundang", filled: !(gates.inviting_families.included) || families.length > 0 },
       { label: "Kutipan", filled: !!data.quote_text },
     ]
     return items.filter(i => !i.filled).map(i => i.label)
@@ -389,8 +506,10 @@ function EditorInner({ id }: { id: string }) {
   const isPublished = data.is_published === true
 
   const renderPreviewBody = () => {
-    if (template?.demo_url) {
-      return <iframe src={template.demo_url} className="w-full h-full border-0" title="Demo" />
+    // Prefer the couple's own duplicated WP post; fall back to the master demo.
+    const previewUrl = data.active_wp_post_url || template?.demo_url
+    if (previewUrl) {
+      return <iframe key={`${previewUrl}-${previewVersion}`} src={previewUrl} className="w-full h-full border-0" title="Pratinjau" />
     }
     const LiveComp = template?.code ? getTemplateComponent(template.code) : null
     if (!LiveComp) {
@@ -415,7 +534,7 @@ function EditorInner({ id }: { id: string }) {
         sessions={sessions.length > 0 ? sessions : undefined}
         quote_text={data.quote_text || undefined}
         quote_source={data.quote_source || undefined}
-        stories={gates.story && stories.length > 0 ? stories : undefined}
+        stories={gates.story.included && stories.length > 0 ? stories : undefined}
         gallery_photos={galleryPhotos.length > 0 ? galleryPhotos : undefined}
         couple_illustration_url={data.couple_illustration_url || undefined}
         grayscale={data.grayscale}
@@ -425,16 +544,16 @@ function EditorInner({ id }: { id: string }) {
         bride_photo_url={data.bride_photo_url || undefined}
         groom_parents={data.groom_parents || undefined}
         bride_parents={data.bride_parents || undefined}
-        inviting_families={gates.inviting_families && Array.isArray(data.inviting_families) ? data.inviting_families.filter(Boolean) : undefined}
+        inviting_families={gates.inviting_families.included && Array.isArray(data.inviting_families) ? data.inviting_families.filter(Boolean) : undefined}
         gift_accounts={giftAccounts.length > 0 ? giftAccounts.map(a => ({ provider_name: a.provider_name, account_number: a.account_number, account_name: a.account_name, type: a.type })) : undefined}
-        gift_address={gates.gift_address ? giftAddressText || undefined : undefined}
+        gift_address={gates.gift_address.included ? giftAddressText || undefined : undefined}
         track_url={selectedTrack?.audio_url || undefined}
         auto_play={autoPlay || undefined}
         rsvp_max_pax={data.rsvp_max_pax ?? 2}
         feature_gates={{
-          story: gates.story,
-          gift_address: gates.gift_address,
-          inviting_families: gates.inviting_families,
+          story: gates.story.included,
+          gift_address: gates.gift_address.included,
+          inviting_families: gates.inviting_families.included,
           qr_code_book: featureSet.has("qr_code_book"),
         }}
       />
@@ -495,6 +614,16 @@ function EditorInner({ id }: { id: string }) {
             >
               {isPublished ? "TERKONFIRMASI" : "KONFIRMASI"}
             </button>
+
+            {/* Perbarui Pratinjau — always visible */}
+            <button
+              onClick={handleUpdatePreview}
+              disabled={updatingPreview}
+              className="hidden sm:flex items-center gap-2 px-6 py-3 font-label-md text-label-md border border-primary text-primary transition-all active:scale-95 hover:bg-primary hover:text-on-primary disabled:opacity-50"
+            >
+              <span className="material-symbols-outlined text-[18px]">{updatingPreview ? "hourglass_top" : "refresh"}</span>
+              <span>{updatingPreview ? "Memperbarui..." : "Perbarui Pratinjau"}</span>
+            </button>
           </div>
         </header>
 
@@ -516,22 +645,47 @@ function EditorInner({ id }: { id: string }) {
             <div className="flex-1 overflow-y-auto custom-scrollbar p-6 pb-32 space-y-4 md:pb-6">
               {renderSection("sampul", "photo_album", "SAMPUL",
                 <div className="mt-6 space-y-8">
-                  <div className="space-y-4">
-                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Foto Sampul Utama</label>
-                    <div
-                      onClick={() => coverFileRef.current?.click()}
-                      className="w-full aspect-video bg-surface-dim border border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors relative overflow-hidden"
-                    >
-                      {(data.couple_illustration_url) && (
-                        <div className={`absolute inset-0 bg-cover bg-center ${data.grayscale ? "grayscale" : ""}`} style={{ backgroundImage: `url(${data.couple_illustration_url})` }} />
-                      )}
-                      <span className="material-symbols-outlined text-white relative z-10 drop-shadow-md">edit</span>
+                  <div className="space-y-3">
+                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Foto Sampul</label>
+                    <p className="text-[11px] text-on-surface-variant italic">Unggah satu atau lebih foto sampul.</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {(Array.isArray(data.cover_photos) ? data.cover_photos : []).map((url: string, i: number) => (
+                        <div key={i} className="relative aspect-video bg-surface-dim border border-outline-variant overflow-hidden group">
+                          <div className={`absolute inset-0 bg-cover bg-center ${data.grayscale ? "grayscale" : ""}`} style={{ backgroundImage: `url(${url})` }} />
+                          <span className="absolute top-1 left-1 w-6 h-6 bg-black/60 text-white rounded-sm flex items-center justify-center text-[11px] font-bold">{i + 1}</span>
+                          <button
+                            onClick={() => { setCoverReplaceIndex(i); coverReplaceRef.current?.click() }}
+                            className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100"
+                            title="Ganti foto ini"
+                          >
+                            <span className="material-symbols-outlined text-white text-[24px] drop-shadow-md">edit</span>
+                          </button>
+                          <button
+                            onClick={() => removeCoverPhoto(i)}
+                            className="absolute top-1 right-1 w-6 h-6 bg-black/60 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">close</span>
+                          </button>
+                        </div>
+                      ))}
+                      <div
+                        onClick={() => coverFileRef.current?.click()}
+                        className="aspect-video bg-surface-dim border border-dashed border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-on-surface-variant">add_photo_alternate</span>
+                      </div>
                     </div>
-                    <input ref={coverFileRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, "couple_illustration_url") }} />
+                    <input ref={coverFileRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleCoverUpload(f) }} />
+                    <input ref={coverReplaceRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f && coverReplaceIndex !== null) { replaceCoverPhoto(coverReplaceIndex, f); setCoverReplaceIndex(null) } e.target.value = "" }} />
                   </div>
                   <div className="space-y-2">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Nama Mempelai</label>
                     <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.display_name || ""} onChange={e => updateField("display_name", e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Singkatan Pasangan</label>
+                    <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.couple_initials || ""} onChange={e => updateField("couple_initials", e.target.value)} placeholder="WD" />
+                    <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: WD, AC — inisial singkat pasangan pada sampul.</p>
                   </div>
                   <div className="space-y-4 pt-4 border-t border-outline-variant">
                     <div className="flex justify-between items-center">
@@ -564,6 +718,10 @@ function EditorInner({ id }: { id: string }) {
                       <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.groom_parents || ""} onChange={e => updateField("groom_parents", e.target.value)} placeholder="Nama Orang Tua Pria" />
                       <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: Bapak Hendra & Ibu Sari</p>
                     </div>
+                    <div className="mt-3">
+                      <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.groom_instagram || ""} onChange={e => updateField("groom_instagram", e.target.value)} placeholder="Instagram Pria" />
+                      <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: @amospurba</p>
+                    </div>
                   </div>
                   <div className="space-y-4">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Mempelai Wanita</label>
@@ -583,52 +741,60 @@ function EditorInner({ id }: { id: string }) {
                       <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.bride_parents || ""} onChange={e => updateField("bride_parents", e.target.value)} placeholder="Nama Orang Tua Wanita" />
                       <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: Bapak Wijaya & Ibu Dewi</p>
                     </div>
+                    <div className="mt-3">
+                      <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.bride_instagram || ""} onChange={e => updateField("bride_instagram", e.target.value)} placeholder="Instagram Wanita" />
+                      <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: @claudiamnrg</p>
+                    </div>
                   </div>
                   
-                  {gates.inviting_families && (
                   <div className="space-y-4 pt-4 border-t border-outline-variant/30">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Turut Mengundang</label>
-                    <p className="text-[11px] text-on-surface-variant italic">Masukkan nama keluarga yang turut mengundang</p>
-                    <div className="space-y-3">
-                      {(Array.isArray(data.inviting_families) ? data.inviting_families : []).map((f, i) => (
-                        <div key={i} className="flex gap-2 items-center">
-                          <input
-                            className="input-editorial w-full font-headline-md text-[16px]"
-                            type="text"
-                            value={f || ""}
-                            onChange={e => {
-                              const arr = [...(Array.isArray(data.inviting_families) ? data.inviting_families : [])]
-                              arr[i] = e.target.value
-                              updateField("inviting_families", arr)
-                            }}
-                            placeholder={`Keluarga ${i + 1}`}
-                          />
+                    {gates.inviting_families.included ? (
+                      <>
+                        <p className="text-[11px] text-on-surface-variant italic">Masukkan nama keluarga yang turut mengundang</p>
+                        <div className="space-y-3">
+                          {(Array.isArray(data.inviting_families) ? data.inviting_families : []).map((f, i) => (
+                            <div key={i} className="flex gap-2 items-center">
+                              <input
+                                className="input-editorial w-full font-headline-md text-[16px]"
+                                type="text"
+                                value={f || ""}
+                                onChange={e => {
+                                  const arr = [...(Array.isArray(data.inviting_families) ? data.inviting_families : [])]
+                                  arr[i] = e.target.value
+                                  updateField("inviting_families", arr)
+                                }}
+                                placeholder={`Keluarga ${i + 1}`}
+                              />
+                              <button
+                                onClick={() => {
+                                  const arr = (Array.isArray(data.inviting_families) ? data.inviting_families : []).filter((_, idx) => idx !== i)
+                                  updateField("inviting_families", arr)
+                                }}
+                                className="text-red-400 hover:text-red-600 transition-colors shrink-0"
+                              >
+                                <span className="material-symbols-outlined text-[20px]">remove_circle</span>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        {(Array.isArray(data.inviting_families) ? data.inviting_families : []).length < 5 && (
                           <button
                             onClick={() => {
-                              const arr = (Array.isArray(data.inviting_families) ? data.inviting_families : []).filter((_, idx) => idx !== i)
+                              const arr = [...(Array.isArray(data.inviting_families) ? data.inviting_families : []), ""]
                               updateField("inviting_families", arr)
                             }}
-                            className="text-red-400 hover:text-red-600 transition-colors shrink-0"
+                            className="flex items-center gap-2 text-secondary font-label-md text-label-md uppercase tracking-widest hover:opacity-70 transition-opacity"
                           >
-                            <span className="material-symbols-outlined text-[20px]">remove_circle</span>
+                            <span className="material-symbols-outlined text-[18px]">add_circle</span>
+                            Tambah Keluarga
                           </button>
-                        </div>
-                      ))}
-                    </div>
-                    {(Array.isArray(data.inviting_families) ? data.inviting_families : []).length < 5 && (
-                      <button
-                        onClick={() => {
-                          const arr = [...(Array.isArray(data.inviting_families) ? data.inviting_families : []), ""]
-                          updateField("inviting_families", arr)
-                        }}
-                        className="flex items-center gap-2 text-secondary font-label-md text-label-md uppercase tracking-widest hover:opacity-70 transition-opacity"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">add_circle</span>
-                        Tambah Keluarga
-                      </button>
+                        )}
+                      </>
+                    ) : (
+                      <LockedNotice availableIn={gates.inviting_families.availableIn} />
                     )}
                   </div>
-                  )}
                 </div>
               )}
 
@@ -739,41 +905,62 @@ function EditorInner({ id }: { id: string }) {
                   </div>
                 </div>
               )}
-              {gates.story && renderSection("story", "auto_stories", "STORY",
-                <div className="mt-6 space-y-8">
-                  <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest block">CURATE YOUR LOVE STORY</label>
-                  {stories.map((story: any, i: number) => (
-                    <div key={i} className="p-4 bg-surface-container-low border border-outline-variant space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="font-bold text-[10px] text-secondary uppercase">MILESTONE {i + 1}</span>
-                        <button onClick={() => removeStory(i)} className="text-red-500 hover:text-red-700 transition-colors">
-                          <span className="material-symbols-outlined text-[18px]">delete</span>
-                        </button>
-                      </div>
-                      <div className="flex gap-4">
-                        <div
-                          onClick={() => storyFileRefs.current[i]?.click()}
-                          className="w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors relative overflow-hidden shrink-0"
-                        >
-                          {story.image_url ? (
-                            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${story.image_url})` }} />
-                          ) : (
-                            <span className="material-symbols-outlined text-on-surface-variant">add_a_photo</span>
-                          )}
+              {renderSection("video", "movie", "VIDEO",
+                gates.cinematic_video.included ? (
+                  <div className="mt-6 space-y-2">
+                    <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">URL Video (YouTube)</label>
+                    <input
+                      className="input-editorial w-full font-body-md text-[14px]"
+                      type="url"
+                      value={data.video_url || ""}
+                      onChange={e => updateField("video_url", e.target.value)}
+                      placeholder="https://youtu.be/..."
+                    />
+                    <p className="text-[11px] text-on-surface-variant mt-1 italic">Tautan video (mis. "OUR FOOTAGE") yang tampil pada undangan.</p>
+                  </div>
+                ) : (
+                  <div className="mt-6"><LockedNotice availableIn={gates.cinematic_video.availableIn} /></div>
+                )
+              )}
+              {renderSection("story", "auto_stories", "STORY",
+                gates.story.included ? (
+                  <div className="mt-6 space-y-8">
+                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest block">CURATE YOUR LOVE STORY</label>
+                    {stories.map((story: any, i: number) => (
+                      <div key={i} className="p-4 bg-surface-container-low border border-outline-variant space-y-4">
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-[10px] text-secondary uppercase">MILESTONE {i + 1}</span>
+                          <button onClick={() => removeStory(i)} className="text-red-500 hover:text-red-700 transition-colors">
+                            <span className="material-symbols-outlined text-[18px]">delete</span>
+                          </button>
                         </div>
-                        <input ref={el => { storyFileRefs.current[i] = el }} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleStoryImageUpload(f, i) }} />
-                        <div className="flex-1 space-y-3">
-                          <input className="input-editorial w-full font-label-md text-[14px]" placeholder="Tahun" type="text" value={story.year} onChange={e => updateStory(i, "year", e.target.value)} />
-                          <input className="input-editorial w-full font-headline-md text-[18px]" placeholder="Judul Cerita" type="text" value={story.title} onChange={e => updateStory(i, "title", e.target.value)} />
+                        <div className="flex gap-4">
+                          <div
+                            onClick={() => storyFileRefs.current[i]?.click()}
+                            className="w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors relative overflow-hidden shrink-0"
+                          >
+                            {story.image_url ? (
+                              <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${story.image_url})` }} />
+                            ) : (
+                              <span className="material-symbols-outlined text-on-surface-variant">add_a_photo</span>
+                            )}
+                          </div>
+                          <input ref={el => { storyFileRefs.current[i] = el }} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleStoryImageUpload(f, i) }} />
+                          <div className="flex-1 space-y-3">
+                            <input className="input-editorial w-full font-label-md text-[14px]" placeholder="Tahun" type="text" value={story.year} onChange={e => updateStory(i, "year", e.target.value)} />
+                            <input className="input-editorial w-full font-headline-md text-[18px]" placeholder="Judul Cerita" type="text" value={story.title} onChange={e => updateStory(i, "title", e.target.value)} />
+                          </div>
                         </div>
+                        <textarea className="input-editorial w-full font-body-md text-[14px] h-20 resize-none" placeholder="Ceritakan momen ini..." value={story.description} onChange={e => updateStory(i, "description", e.target.value)} />
                       </div>
-                      <textarea className="input-editorial w-full font-body-md text-[14px] h-20 resize-none" placeholder="Ceritakan momen ini..." value={story.description} onChange={e => updateStory(i, "description", e.target.value)} />
-                    </div>
-                  ))}
-                  <button onClick={addStory} className="w-full py-3 border border-dashed border-outline-variant text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-highest transition-colors">
-                    + TAMBAH MILESTONE BARU
-                  </button>
-                </div>
+                    ))}
+                    <button onClick={addStory} className="w-full py-3 border border-dashed border-outline-variant text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-highest transition-colors">
+                      + TAMBAH MILESTONE BARU
+                    </button>
+                  </div>
+                ) : (
+                  <div className="mt-6"><LockedNotice availableIn={gates.story.availableIn} /></div>
+                )
               )}
               {renderSection("galeri", "collections", "GALERI",
                 <div className="mt-6 space-y-8">
@@ -822,11 +1009,13 @@ function EditorInner({ id }: { id: string }) {
                       Atur Amplop Digital
                     </button>
                   </div>
-                  {gates.gift_address && giftAddressText && (
+                  {gates.gift_address.included ? (
                     <div className="p-3 border border-outline-variant rounded-lg space-y-1">
                       <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary">Alamat Pengiriman</p>
-                      <p className="font-body-md text-sm whitespace-pre-line">{giftAddressText}</p>
+                      <p className="font-body-md text-sm whitespace-pre-line">{giftAddressText || "—"}</p>
                     </div>
+                  ) : (
+                    <LockedNotice availableIn={gates.gift_address.availableIn} />
                   )}
                 </div>
               </>)}
@@ -1019,6 +1208,14 @@ function EditorInner({ id }: { id: string }) {
                         https://{data.slug || "wedding"}.wedding.aksaraa.com
                       </span>
                     </div>
+                    <button
+                      onClick={handleUpdatePreview}
+                      disabled={updatingPreview}
+                      className="shrink-0 flex items-center gap-1.5 text-[11px] font-label-md px-3 py-1.5 rounded-md bg-secondary text-white hover:opacity-90 disabled:opacity-50 transition-opacity"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">{updatingPreview ? "hourglass_top" : "refresh"}</span>
+                      {updatingPreview ? "Memperbarui..." : "Perbarui"}
+                    </button>
                   </div>
                   <div className="flex-1 overflow-y-auto custom-scrollbar">
                     {renderPreviewBody()}
@@ -1043,6 +1240,13 @@ function EditorInner({ id }: { id: string }) {
               className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-surface-container-high text-on-surface-variant"
             >
               {showMobilePreview ? "EDIT" : "PRATINJAU"}
+            </button>
+            <button
+              onClick={handleUpdatePreview}
+              disabled={updatingPreview}
+              className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-secondary text-white disabled:opacity-50"
+            >
+              {updatingPreview ? "MEMPERBARUI..." : "PERBARUI"}
             </button>
             <button
               onClick={() => setShowPublishConfirm(true)}

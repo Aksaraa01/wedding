@@ -55,8 +55,9 @@ INSERT INTO package_matrix_rows (code, section_code, label, essential_value, ess
     -- Exclusive features
     ('gift_address', 'exclusive', 'Alamat Pengiriman Kado', '—', 'muted', '✓', 'secondary', '✓', 'gold', 1),
     ('inviting_families', 'exclusive', 'Fitur Turut Mengundang', '—', 'muted', '✓', 'secondary', '✓', 'gold', 2),
-    ('story', 'exclusive', 'Love Story & Cinematic Video', '—', 'muted', '—', 'muted', '✓', 'gold', 3),
-    (NULL, 'exclusive', 'Reminder Otomatis ke 100 Tamu VIP', '—', 'muted', '—', 'muted', '✓', 'gold', 4),
+    ('story', 'exclusive', 'Love Story', '—', 'muted', '—', 'muted', '✓', 'gold', 3),
+    ('cinematic_video', 'exclusive', 'Cinematic Video', '—', 'muted', '—', 'muted', '✓', 'gold', 4),
+    (NULL, 'exclusive', 'Reminder Otomatis ke 100 Tamu VIP', '—', 'muted', '—', 'muted', '✓', 'gold', 5),
     -- Production limits
     (NULL, 'limit', 'Kuota Foto', '15 Foto', 'default', '20 Foto', 'secondary', 'Unlimited', 'default', 1),
     (NULL, 'limit', 'Masa Aktif', '2 Bulan', 'default', '6 Bulan', 'secondary', '12 Bulan', 'default', 2),

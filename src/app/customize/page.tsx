@@ -457,7 +457,7 @@ function Inner() {
                       <td className="py-4 px-2 font-label-md text-[10px] text-on-surface-variant tracking-widest uppercase" colSpan={4}>{section.label}</td>
                     </tr>
                     {section.rows.map((row) => (
-                      <tr key={row.label} className="border-b border-outline-variant/30">
+                      <tr key={`${section.code}-${row.label}`} className="border-b border-outline-variant/30">
                         <td className="py-4">{row.label}</td>
                         <td className={`py-4 text-center ${row.essential.class || ""}`}>{row.essential.value}</td>
                         <td className={`py-4 text-center ${row.signature.class || ""}`}>{row.signature.value}</td>

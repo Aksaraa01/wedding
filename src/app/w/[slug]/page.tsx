@@ -16,7 +16,7 @@ export default async function WeddingInvitation({
 
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type")
+    .select("id, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, active_wp_post_id, active_wp_post_url")
     .eq("slug", slug)
     .single()
 
@@ -63,6 +63,26 @@ export default async function WeddingInvitation({
   const giftAddress = giftAddrRes.data?.full_address || undefined
   const trackUrl = trackRes.data?.audio_url || undefined
 
+  // Redirect to WP if this couple has an active duplicated WP post.
+  // Verify the post still exists first; if it was deleted, fall back to demo URL.
+  const wpPostAlive = await (async () => {
+    if (!profile.active_wp_post_url) return false
+    try {
+      const check = await fetch(profile.active_wp_post_url, { method: "HEAD", cache: "no-store" })
+      return check.status < 400
+    } catch {
+      return false
+    }
+  })()
+
+  if (profile.active_wp_post_url && wpPostAlive) {
+    const guestName = guestContext?.name || to || ""
+    const wpUrl = guestName
+      ? `${profile.active_wp_post_url}?to=${encodeURIComponent(guestName)}`
+      : profile.active_wp_post_url
+    redirect(wpUrl)
+  }
+
   // Resolve template code and render via registry
   let templateCode: string | null = null
   if (profile.selected_template_id) {
@@ -72,8 +92,13 @@ export default async function WeddingInvitation({
       .eq("id", profile.selected_template_id)
       .single()
     if (tmpl) templateCode = tmpl.code
-    if (tmpl?.demo_url) {
-      redirect(tmpl.demo_url)
+    // Fallback: redirect to WP template demo URL (for templates without a live active dup)
+    if (tmpl?.demo_url && !wpPostAlive) {
+      const guestName = guestContext?.name || to || ""
+      const wpUrl = guestName
+        ? `${tmpl.demo_url}?to=${encodeURIComponent(guestName)}`
+        : tmpl.demo_url
+      redirect(wpUrl)
     }
   }
 
@@ -101,12 +126,12 @@ export default async function WeddingInvitation({
         sessions={profile.sessions || undefined}
         quote_text={profile.quote_text || undefined}
         quote_source={profile.quote_source || undefined}
-        stories={rowGates.story ? profile.stories || undefined : undefined}
+        stories={rowGates.story.included ? profile.stories || undefined : undefined}
         gallery_photos={profile.gallery_photos || undefined}
         gift_accounts={giftAccounts.length > 0 ? giftAccounts : undefined}
-        gift_address={rowGates.gift_address ? giftAddress : undefined}
+        gift_address={rowGates.gift_address.included ? giftAddress : undefined}
         track_url={trackUrl}
-        inviting_families={rowGates.inviting_families ? (profile.inviting_families ? (typeof profile.inviting_families === "string" ? JSON.parse(profile.inviting_families) : profile.inviting_families) : undefined) : undefined}
+        inviting_families={rowGates.inviting_families.included ? (profile.inviting_families ? (typeof profile.inviting_families === "string" ? JSON.parse(profile.inviting_families) : profile.inviting_families) : undefined) : undefined}
         wedding_profile_id={profile.id}
         guest_id={guestContext?.id}
         guest_qr_token={featureSet.has("qr_code_book") ? (guestContext?.qr_token || undefined) : undefined}
@@ -116,9 +141,9 @@ export default async function WeddingInvitation({
         guest_rsvp_status={guestContext?.rsvp_status || undefined}
         rsvp_max_pax={profile.rsvp_max_pax ?? undefined}
         feature_gates={{
-          story: rowGates.story,
-          gift_address: rowGates.gift_address,
-          inviting_families: rowGates.inviting_families,
+          story: rowGates.story.included,
+          gift_address: rowGates.gift_address.included,
+          inviting_families: rowGates.inviting_families.included,
           qr_code_book: featureSet.has("qr_code_book"),
         }}
       />

@@ -20,6 +20,22 @@ export async function PUT(req: Request, ctx: { params: Promise<{ id: string }> }
 
   const demoUrl = typeof body.demo_url === "string" ? body.demo_url.trim() : (existing.data.demo_url || "")
 
+  // code uniqueness if changed
+  const newCode = typeof body.code === "string" ? body.code.trim() : existing.data.code
+  if (newCode && newCode !== existing.data.code) {
+    const { data: dupCode } = await supabaseAdmin
+      .from("web_templates")
+      .select("id, name")
+      .eq("code", newCode)
+      .maybeSingle()
+    if (dupCode) {
+      return NextResponse.json(
+        { error: "Kode template \"" + newCode + "\" sudah digunakan oleh template lain. Mohon gunakan kode yang berbeda." },
+        { status: 409 },
+      )
+    }
+  }
+
   if (demoUrl) {
     const { data: dup } = await supabaseAdmin
       .from("web_templates")
@@ -42,7 +58,6 @@ export async function PUT(req: Request, ctx: { params: Promise<{ id: string }> }
   if ("demo_url" in body) patch.demo_url = demoUrl || null
   if ("is_active" in body) patch.is_active = body.is_active !== false
   if ("sort_order" in body) patch.sort_order = typeof body.sort_order === "number" ? body.sort_order : 0
-  if ("category" in body) patch.category = body.category || null
   if ("package_eligibility" in body) patch.package_eligibility = Array.isArray(body.package_eligibility) ? body.package_eligibility : []
   if ("wp_master_slug" in body) patch.wp_master_slug = body.wp_master_slug || null
   if ("wp_manifest" in body) patch.wp_manifest = body.wp_manifest && typeof body.wp_manifest === "object" ? body.wp_manifest : null

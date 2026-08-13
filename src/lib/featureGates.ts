@@ -1,10 +1,19 @@
 import { supabaseAdmin } from "@/lib/supabase"
 
-export type RowGates = {
-  gift_address: boolean
-  inviting_families: boolean
-  story: boolean
+export type GateInfo = {
+  included: boolean
+  availableIn: string[]
 }
+
+export type RowGates = {
+  gift_address: GateInfo
+  inviting_families: GateInfo
+  story: GateInfo
+  cinematic_video: GateInfo
+}
+
+const GATE_CODES = ["gift_address", "inviting_families", "story", "cinematic_video"] as const
+const PACKAGES = ["essential", "signature", "prestige"] as const
 
 function rowIncluded(value: string | null, emphasis: string | null): boolean {
   return (value ?? "—") !== "—" && (emphasis ?? "") !== "muted"
@@ -14,24 +23,36 @@ export async function getRowGates(packageType: string): Promise<RowGates> {
   const { data, error } = await supabaseAdmin
     .from("package_matrix_rows")
     .select("code, essential_value, essential_emphasis, signature_value, signature_emphasis, prestige_value, prestige_emphasis")
-    .in("code", ["gift_address", "inviting_families", "story"])
+    .in("code", GATE_CODES as unknown as string[])
 
-  if (error) {
-    return { gift_address: true, inviting_families: true, story: true }
+  const fallback: RowGates = {
+    gift_address: { included: true, availableIn: [...PACKAGES] },
+    inviting_families: { included: true, availableIn: [...PACKAGES] },
+    story: { included: true, availableIn: [...PACKAGES] },
+    cinematic_video: { included: true, availableIn: [...PACKAGES] },
   }
 
-  const col = (row: { [k: string]: string | null }, suffix: string) =>
-    row[`${packageType}_${suffix}`] ?? row[`signature_${suffix}`]
+  if (error) return fallback
 
-  const gates: RowGates = { gift_address: true, inviting_families: true, story: true }
-  for (const row of data || []) {
-    const value = col(row as any, "value")
-    const emphasis = col(row as any, "emphasis")
-    const included = rowIncluded(value, emphasis)
-    if (row.code === "gift_address") gates.gift_address = included
-    else if (row.code === "inviting_families") gates.inviting_families = included
-    else if (row.code === "story") gates.story = included
+  const col = (row: Record<string, string | null>, pkg: string, suffix: string) =>
+    row[`${pkg}_${suffix}`] ?? row[`signature_${suffix}`]
+
+  const gates: RowGates = { ...fallback }
+  for (const row of (data || []) as Record<string, string | null>[]) {
+    const code = row.code
+    if (!code || !GATE_CODES.includes(code as typeof GATE_CODES[number])) continue
+
+    const availableIn: string[] = []
+    for (const pkg of PACKAGES) {
+      const value = col(row, pkg, "value")
+      const emphasis = col(row, pkg, "emphasis")
+      if (rowIncluded(value, emphasis)) availableIn.push(pkg)
+    }
+    const included = availableIn.includes(packageType)
+
+    gates[code as keyof RowGates] = { included, availableIn }
   }
+
   return gates
 }
 

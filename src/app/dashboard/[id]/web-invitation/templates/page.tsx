@@ -10,7 +10,6 @@ type Template = {
   code: string
   name: string
   description: string
-  category: string | null
   preview_image_url: string
   demo_url: string
 }
@@ -21,7 +20,6 @@ function TemplatesInner({ id }: { id: string }) {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [previewTpl, setPreviewTpl] = useState<Template | null>(null)
-  const [activeCategory, setActiveCategory] = useState("Semua")
 
   useEffect(() => {
     Promise.all([
@@ -36,21 +34,17 @@ function TemplatesInner({ id }: { id: string }) {
     })
   }, [id])
 
-  const categories = ["Semua", ...new Set(
-    templates.map(t => t.category).filter((c): c is string => !!c)
-  )]
-
-  const filtered = activeCategory === "Semua"
-    ? templates
-    : templates.filter(t => t.category === activeCategory)
-
   const handleSelect = async (templateId: string) => {
     setSaving(true)
-    await fetch(`/api/dashboard/${id}/web-invitation`, {
-      method: "PUT",
+    const res = await fetch(`/api/wp/duplicate`, {
+      method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ selected_template_id: templateId }),
+      body: JSON.stringify({ template_id: templateId, profile_id: id }),
     })
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      console.error("[templates] duplicate failed", data.error || res.statusText)
+    }
     setSelectedId(templateId)
     setSaving(false)
     router.back()
@@ -72,26 +66,8 @@ function TemplatesInner({ id }: { id: string }) {
           <h1 className="font-headline-lg text-[28px] leading-tight mb-3">Pilih Undangan Digital Anda</h1>
         </section>
 
-        <section className="mb-8 fade-in -mx-edge-margin-mobile">
-          <div className="flex overflow-x-auto no-scrollbar gap-2 px-edge-margin-mobile pb-2">
-            {categories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`whitespace-nowrap px-5 py-2.5 font-label-md text-[11px] uppercase tracking-wider transition-colors ${
-                  activeCategory === cat
-                    ? "bg-primary text-on-primary"
-                    : "border border-outline-variant text-on-surface-variant hover:bg-surface-container"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </section>
-
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10">
-          {filtered.map(tpl => (
+          {templates.map(tpl => (
             <article key={tpl.id} className="group flex flex-col">
               <div
                 className="relative mb-4 overflow-hidden aspect-[3/4] bg-surface-container shadow-sm cursor-pointer"
@@ -111,11 +87,6 @@ function TemplatesInner({ id }: { id: string }) {
               </div>
 
               <div className="flex flex-col flex-grow">
-                {tpl.category && (
-                  <span className="font-label-md text-[9px] uppercase tracking-[0.15em] text-on-surface-variant mb-1">
-                    {tpl.category}
-                  </span>
-                )}
                 <h2 className="font-headline-md text-[16px] leading-tight mb-3">{tpl.name}</h2>
                 <button
                   onClick={() => handleSelect(tpl.id)}
