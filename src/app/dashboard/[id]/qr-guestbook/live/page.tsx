@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, use, useCallback } from "react"
+import { use, useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 
 type Profile = {
@@ -15,43 +15,38 @@ type CheckinRecord = {
   id: string
   name: string
   table_number: string | null
-  checkin_timestamp: string
+  checkin_timestamp: string | null
   souvenir_claimed: boolean
+  is_checked_in: boolean
   added_manually?: boolean
 }
 
 type Stats = {
   total: number
   checked_in: number
+  checked_in_manual: number
   percentage: number
   recent_checkins: CheckinRecord[]
 }
 
-function formatWIB(iso: string): string {
+function formatWIB(iso: string | null): string {
+  if (!iso) return ""
   const d = new Date(iso)
   return d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta" }) + " WIB"
 }
 
-function CircularProgress({ percentage }: { percentage: number }) {
-  const r = 15.915
-  const circumference = 2 * Math.PI * r
-  const filled = (percentage / 100) * circumference
-
+function Donut({ qrPct, manualPct, percentage }: { qrPct: number; manualPct: number; percentage: number }) {
+  const qr = Math.max(0, Math.min(100, qrPct))
+  const manual = Math.max(0, Math.min(100, manualPct))
+  const background = `conic-gradient(#8d4d39 0% ${qr}%, #f2a33c ${qr}% ${qr + manual}%, #f2ede4 ${qr + manual}% 100%)`
   return (
-    <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90">
-      <circle cx="18" cy="18" r={r} fill="none" stroke="#f2ede4" strokeWidth="2" />
-      {percentage > 0 && (
-        <circle
-          cx="18" cy="18" r={r}
-          fill="none"
-          stroke="#8d4d39"
-          strokeWidth="2"
-          strokeDasharray={`${filled} ${circumference - filled}`}
-          strokeDashoffset="0"
-          className="transition-all duration-700"
-        />
-      )}
-    </svg>
+    <div className="relative w-full h-full">
+      <div className="w-full h-full rounded-full" style={{ background }} />
+      <div className="absolute inset-[9%] rounded-full bg-white flex flex-col items-center justify-center">
+        <span className="font-headline-md text-[32px] text-primary">{percentage}%</span>
+        <span className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Hadir</span>
+      </div>
+    </div>
   )
 }
 
@@ -61,15 +56,18 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
 
   const [profile, setProfile] = useState<Profile | null>(null)
   const [stats, setStats] = useState<Stats | null>(null)
+  const [guests, setGuests] = useState<CheckinRecord[]>([])
+  const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(true)
   const [generatingPin, setGeneratingPin] = useState(false)
   const [copied, setCopied] = useState(false)
 
   const fetchAll = useCallback(async () => {
     try {
-      const [profileRes, statsRes] = await Promise.all([
+      const [profileRes, statsRes, guestsRes] = await Promise.all([
         fetch(`/api/dashboard/${id}`),
         fetch(`/api/dashboard/${id}/qr-guestbook/stats`),
+        fetch(`/api/dashboard/${id}/qr-guestbook`),
       ])
       if (profileRes.ok) {
         const p = await profileRes.json()
@@ -78,6 +76,10 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
       if (statsRes.ok) {
         const s = await statsRes.json()
         setStats(s)
+      }
+      if (guestsRes.ok) {
+        const g = await guestsRes.json()
+        setGuests((g.guests || []).filter((x: any) => x.is_checked_in))
       }
     } catch {}
   }, [id])
@@ -135,13 +137,21 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
     )
   }
 
+  const total = stats?.total ?? 0
+  const checkedIn = stats?.checked_in ?? 0
+  const checkedManual = stats?.checked_in_manual ?? 0
+  const checkedQr = Math.max(0, checkedIn - checkedManual)
+  const notChecked = Math.max(0, total - checkedIn)
   const percentage = stats?.percentage ?? 0
-  const notChecked = (stats?.total ?? 0) - (stats?.checked_in ?? 0)
   const scannerUrl = profile ? buildScannerUrl(profile.slug) : ""
+  const qrPct = total ? (checkedQr / total) * 100 : 0
+  const manualPct = total ? (checkedManual / total) * 100 : 0
+
+  const filtered = guests.filter((g) => g.name.toLowerCase().includes(search.trim().toLowerCase()))
 
   return (
-    <div className="min-h-screen bg-background font-body-md text-body-md mb-32">
-      <header className="px-edge-margin-mobile py-8 space-y-4">
+    <div className="min-h-screen bg-background font-body-md text-body-md">
+      <header className="px-edge-margin-mobile md:px-edge-margin-desktop py-8 space-y-4">
         <button
           onClick={() => router.push(`/dashboard/${id}`)}
           className="inline-flex items-center gap-2 font-label-md text-label-md uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors"
@@ -154,33 +164,34 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
         </h1>
       </header>
 
-      <main className="space-y-12">
-        {/* Stats Section */}
-        <section className="px-edge-margin-mobile">
-          <div className="mb-6 text-center">
-            <p className="font-label-md text-label-md uppercase tracking-[0.2em] text-on-surface-variant mb-1">
-              Statistik Kehadiran
-            </p>
-          </div>
-
-          <div className="relative aspect-[3/4] bg-white p-8 flex flex-col items-center justify-center shadow-sm border border-[#eae3d5] overflow-hidden md:max-w-[400px] md:max-h-[533px] mx-auto">
+      <main className="px-edge-margin-mobile md:px-edge-margin-desktop pb-16 space-y-10 md:space-y-0 md:grid md:grid-cols-12 md:gap-8 max-w-[1400px] mx-auto">
+        {/* LEFT — pie chart + scanner card */}
+        <div className="md:col-span-5 space-y-10">
+          <div className="bg-white p-8 shadow-sm border border-[#eae3d5] relative overflow-hidden">
             <div className="absolute inset-4 border border-[#eae3d5]/50 pointer-events-none" />
-            <div className="z-10 w-full space-y-8">
-              <div className="relative w-48 h-48 mx-auto">
-                <CircularProgress percentage={percentage} />
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="font-headline-md text-[32px] text-primary">{percentage}%</span>
-                  <span className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Hadir</span>
-                </div>
+            <div className="relative z-10">
+              <div className="mb-6 text-center">
+                <p className="font-label-md text-label-md uppercase tracking-[0.2em] text-on-surface-variant">
+                  Statistik Kehadiran
+                </p>
               </div>
-
-              <div className="space-y-4">
+              <div className="w-48 h-48 mx-auto">
+                <Donut qrPct={qrPct} manualPct={manualPct} percentage={percentage} />
+              </div>
+              <div className="mt-8 space-y-4">
                 <div className="flex items-center justify-between border-b border-outline-variant/20 pb-2">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-secondary" />
                     <span className="font-body-md text-sm">Hadir</span>
                   </div>
-                  <span className="font-label-md text-primary">{stats?.checked_in || 0}</span>
+                  <span className="font-label-md text-primary">{checkedQr}</span>
+                </div>
+                <div className="flex items-center justify-between border-b border-outline-variant/20 pb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-amber-500" />
+                    <span className="font-body-md text-sm">Hadir-Manual</span>
+                  </div>
+                  <span className="font-label-md text-amber-600">{checkedManual}</span>
                 </div>
                 <div className="flex items-center justify-between border-b border-outline-variant/20 pb-2">
                   <div className="flex items-center gap-2">
@@ -191,147 +202,141 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
                 </div>
                 <div className="flex items-center justify-between pt-2">
                   <span className="font-label-md text-[10px] uppercase tracking-widest">Total Undangan</span>
-                  <span className="font-headline-md text-[18px]">{stats?.total || 0}</span>
+                  <span className="font-headline-md text-[18px]">{total}</span>
                 </div>
               </div>
             </div>
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/felt.png')]" />
           </div>
 
+          {/* Scanner card */}
+          <div className="bg-surface-container-lowest border border-outline-variant/30 p-8 space-y-6">
+            <div className="flex flex-col gap-3">
+              <span className="font-label-md text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mb-2 block">
+                Tautan Scanner Live
+              </span>
+              <div className="flex flex-col gap-6">
+                <code className="font-body-md text-primary break-all text-[18px] leading-relaxed">{scannerUrl}</code>
 
-        </section>
-
-        {/* Live Feed Section */}
-        <section className="px-edge-margin-mobile">
-          <div className="flex justify-between items-end mb-8">
-            <h2 className="font-label-md text-label-md uppercase tracking-[0.2em] text-on-surface-variant">Live Feed</h2>
-            <span className="text-[10px] font-label-md text-on-surface-variant uppercase italic">Update otomatis</span>
-          </div>
-
-          <div className="space-y-0">
-            {!stats?.recent_checkins || stats.recent_checkins.length === 0 ? (
-              <div className="py-12 text-center">
-                <span className="material-symbols-outlined text-3xl text-outline-variant mb-3">qr_code_scanner</span>
-                <p className="font-body-md text-sm text-on-surface-variant">Belum ada tamu yang check-in</p>
-                <p className="font-body-md text-xs text-on-surface-variant mt-1">Scan QR tamu di venue untuk memulai</p>
-              </div>
-            ) : (
-              stats.recent_checkins.map((c, i) => (
-                <div
-                  key={c.id}
-                  className="py-6"
-                  style={{
-                    borderTop: "0.5px solid #eae3d5",
-                    opacity: 1,
-                    transform: "translateY(0)",
-                    transition: "0.6s cubic-bezier(0.16, 1, 0.3, 1)",
-                    transitionDelay: `${i * 100}ms`,
-                  }}
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-10 h-10 bg-surface-container-highest flex items-center justify-center">
-                      <span className="material-symbols-outlined text-primary font-light text-[20px]">person</span>
-                    </div>
-                    <div className="flex-grow space-y-1">
-                      <div className="flex justify-between items-start">
-                        <h4 className="font-headline-md text-[20px] leading-tight">
-                        {c.name}
-                        {c.added_manually && (
-                          <span className="ml-2 inline-block align-middle text-[9px] font-label-md font-semibold uppercase tracking-wider text-amber-700 bg-amber-100 border border-amber-300 rounded px-1.5 py-0.5">
-                            Manual
-                          </span>
-                        )}
-                      </h4>
-                        <span className="font-label-md text-[10px] text-on-surface-variant">
-                          {formatWIB(c.checkin_timestamp)}
-                        </span>
-                      </div>
-                      <p className="font-body-md text-on-surface-variant text-sm">
-                        {c.table_number ? `Meja ${c.table_number} • ` : ""}
-                        <span className="text-secondary italic">Hadir</span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-        </section>
-
-        {/* Scanner Sync Section */}
-        <section className="px-edge-margin-mobile pb-12">
-          <h2 className="font-label-md text-label-md uppercase tracking-[0.2em] mb-6 text-on-surface-variant">
-            Sinkronisasi Scanner
-          </h2>
-          <div className="space-y-4">
-            <div className="bg-surface-container-lowest border border-outline-variant/30 p-8 space-y-6">
-              <div className="flex flex-col gap-3">
-                <span className="font-label-md text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mb-2 block">
-                  Tautan Scanner Live
-                </span>
-                <div className="flex flex-col gap-6">
-                  <code className="font-body-md text-primary break-all text-[18px] leading-relaxed">{scannerUrl}</code>
-
-                  <div className="flex items-center gap-8 pt-4 border-t border-outline-variant/20">
-                    <button
-                      onClick={handleCopyLink}
-                      className="flex items-center gap-2 font-label-md text-[10px] text-on-surface-variant uppercase tracking-widest hover:text-primary transition-colors"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">
-                        {copied ? "check" : "content_copy"}
-                      </span>
-                      {copied ? "Tersalin" : "Salin Tautan"}
-                    </button>
-                    <a
-                      href={scannerUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 font-label-md text-[10px] text-on-surface-variant uppercase tracking-widest hover:text-primary transition-colors"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">open_in_new</span>
-                      Buka Scanner
-                    </a>
-                  </div>
+                <div className="flex items-center gap-8 pt-4 border-t border-outline-variant/20">
+                  <button
+                    onClick={handleCopyLink}
+                    className="flex items-center gap-2 font-label-md text-[10px] text-on-surface-variant uppercase tracking-widest hover:text-primary transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">
+                      {copied ? "check" : "content_copy"}
+                    </span>
+                    {copied ? "Tersalin" : "Salin Tautan"}
+                  </button>
+                  <a
+                    href={scannerUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 font-label-md text-[10px] text-on-surface-variant uppercase tracking-widest hover:text-primary transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">open_in_new</span>
+                    Buka Scanner
+                  </a>
                 </div>
               </div>
+            </div>
 
-              {/* PIN */}
-              <div className="flex items-center gap-4 pt-4 border-t border-outline-variant/20">
-                {profile?.scanner_pin ? (
-                  <div className="flex items-center gap-3">
-                    <span className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">PIN:</span>
-                    <span className="font-headline-md text-[20px] tracking-[0.15em] text-primary">{profile.scanner_pin}</span>
-                    <button
-                      onClick={handleGeneratePin}
-                      disabled={generatingPin}
-                      className="text-on-surface-variant hover:text-primary transition-colors"
-                      title="Generate ulang PIN"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">refresh</span>
-                    </button>
-                  </div>
-                ) : (
+            <div className="flex items-center gap-4 pt-4 border-t border-outline-variant/20">
+              {profile?.scanner_pin ? (
+                <div className="flex items-center gap-3">
+                  <span className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">PIN:</span>
+                  <span className="font-headline-md text-[20px] tracking-[0.15em] text-primary">{profile.scanner_pin}</span>
                   <button
                     onClick={handleGeneratePin}
                     disabled={generatingPin}
-                    className="flex items-center gap-2 font-label-md text-[10px] text-secondary uppercase tracking-widest hover:text-primary transition-colors"
+                    className="text-on-surface-variant hover:text-primary transition-colors"
+                    title="Generate ulang PIN"
                   >
-                    {generatingPin ? (
-                      <span className="w-3 h-3 border-2 border-secondary border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <span className="material-symbols-outlined text-[16px]">lock</span>
-                    )}
-                    {generatingPin ? "Memproses..." : "Buat PIN Scanner"}
+                    <span className="material-symbols-outlined text-[16px]">refresh</span>
                   </button>
-                )}
-              </div>
+                </div>
+              ) : (
+                <button
+                  onClick={handleGeneratePin}
+                  disabled={generatingPin}
+                  className="flex items-center gap-2 font-label-md text-[10px] text-secondary uppercase tracking-widest hover:text-primary transition-colors"
+                >
+                  {generatingPin ? (
+                    <span className="w-3 h-3 border-2 border-secondary border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <span className="material-symbols-outlined text-[16px]">lock</span>
+                  )}
+                  {generatingPin ? "Memproses..." : "Buat PIN Scanner"}
+                </button>
+              )}
             </div>
           </div>
-        </section>
-      </main>
+        </div>
 
-      <div className="fixed bottom-0 left-0 w-full px-edge-margin-mobile pb-8 pt-4 bg-gradient-to-t from-surface via-surface to-transparent z-50" />
+        {/* RIGHT — search + live list */}
+        <div className="md:col-span-7">
+          <div className="flex justify-between items-end mb-4">
+            <h2 className="font-label-md text-label-md uppercase tracking-[0.2em] text-on-surface-variant">
+              Live Feed &amp; Daftar Hadir
+            </h2>
+            <span className="text-[10px] font-label-md text-on-surface-variant uppercase italic">Update otomatis</span>
+          </div>
+
+          <div className="mb-4 flex items-center border border-outline-variant/60 focus-within:border-secondary rounded-xl bg-white px-4 py-3 gap-3 shadow-sm transition-colors">
+            <span className="material-symbols-outlined text-on-surface-variant text-xl">search</span>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Cari nama tamu..."
+              className="w-full bg-transparent border-0 p-0 focus:ring-0 text-sm text-primary placeholder:text-on-surface-variant/50"
+            />
+            {search && (
+              <button onClick={() => setSearch("")} className="text-on-surface-variant hover:text-primary transition-colors" aria-label="Bersihkan">
+                <span className="material-symbols-outlined text-lg">close</span>
+              </button>
+            )}
+          </div>
+
+          <div className="bg-white border border-[#eae3d5] shadow-sm overflow-hidden">
+            {filtered.length === 0 ? (
+              <div className="py-12 text-center">
+                <span className="material-symbols-outlined text-3xl text-outline-variant mb-3">qr_code_scanner</span>
+                <p className="font-body-md text-sm text-on-surface-variant">
+                  {search ? "Tidak ada tamu yang cocok" : "Belum ada tamu yang check-in"}
+                </p>
+                <p className="font-body-md text-xs text-on-surface-variant mt-1">
+                  {search ? "Coba kata kunci lain" : "Scan QR tamu di venue untuk memulai"}
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-[#eae3d5]/70">
+                {filtered.map((c) => (
+                  <div key={c.id} className="px-4 py-3.5 flex items-center gap-4 hover:bg-[#faf6ee] transition-colors">
+                    <div className="flex-shrink-0 w-10 h-10 bg-surface-container-highest flex items-center justify-center rounded-full">
+                      <span className="material-symbols-outlined text-primary font-light text-[20px]">person</span>
+                    </div>
+                    <div className="flex-grow min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-headline-md text-[17px] leading-tight truncate">{c.name}</h4>
+                        {c.added_manually && (
+                          <span className="shrink-0 inline-block align-middle text-[9px] font-label-md font-semibold uppercase tracking-wider text-amber-700 bg-amber-100 border border-amber-300 rounded px-1.5 py-0.5">
+                            Ditambahkan Manual
+                          </span>
+                        )}
+                      </div>
+                      <p className="font-body-md text-on-surface-variant text-[13px]">
+                        {c.table_number ? `Meja ${c.table_number} • ` : ""}
+                        <span className="text-secondary italic">Hadir</span>
+                        <span className="text-on-surface-variant/60"> • {formatWIB(c.checkin_timestamp)}</span>
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
     </div>
   )
 }

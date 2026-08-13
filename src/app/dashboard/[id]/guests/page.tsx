@@ -13,6 +13,7 @@ type Guest = {
   category: string
   table_number: string
   is_vip: boolean
+  added_manually?: boolean
 }
 
 type FormData = {
@@ -563,6 +564,11 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                       <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#f2ca50]/20 border border-[#f2ca50]/40 text-[#574500] font-label-md text-[9px] uppercase tracking-wider rounded-full">
                         <span className="material-symbols-outlined text-[10px]">star</span>
                         VIP
+                      </span>
+                    )}
+                    {guest.added_manually && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 bg-amber-100 border border-amber-300 text-amber-700 font-label-md text-[9px] uppercase tracking-wider rounded-full">
+                        Ditambahkan Manual
                       </span>
                     )}
                   </p>

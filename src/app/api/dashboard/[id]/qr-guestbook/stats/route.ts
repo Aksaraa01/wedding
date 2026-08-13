@@ -27,6 +27,17 @@ export async function GET(
       return NextResponse.json({ error: checkErr.message }, { status: 500 })
     }
 
+    const { count: checkedInManual, error: manualErr } = await supabaseAdmin
+      .from("guests")
+      .select("id", { count: "exact", head: true })
+      .eq("wedding_profile_id", id)
+      .eq("is_checked_in", true)
+      .eq("added_manually", true)
+
+    if (manualErr) {
+      return NextResponse.json({ error: manualErr.message }, { status: 500 })
+    }
+
     const { data: recentCheckins, error: recentErr } = await supabaseAdmin
       .from("guests")
       .select("id, name, table_number, checkin_timestamp, souvenir_claimed, is_checked_in, added_manually")
@@ -42,10 +53,12 @@ export async function GET(
 
     const totalNum = total || 0
     const checkedNum = checkedIn || 0
+    const checkedManualNum = checkedInManual || 0
 
     return NextResponse.json({
       total: totalNum,
       checked_in: checkedNum,
+      checked_in_manual: checkedManualNum,
       percentage: totalNum > 0 ? Math.round((checkedNum / totalNum) * 100) : 0,
       recent_checkins: recentCheckins || [],
     })

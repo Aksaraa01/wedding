@@ -16,6 +16,7 @@ type Guest = {
   is_checked_in: boolean
   checkin_timestamp: string | null
   souvenir_claimed: boolean
+  added_manually?: boolean
 }
 
 type Profile = {
@@ -50,6 +51,11 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, copiedId, copiedKind
           <h2 className="font-headline-md text-lg md:text-xl font-medium text-primary">{guest.name}</h2>
           {guest.phone_number && (
             <p className="font-body-md text-xs text-on-surface-variant tracking-wide font-medium">{guest.phone_number}</p>
+          )}
+          {guest.added_manually && (
+            <span className="inline-flex items-center self-start px-2 py-0.5 bg-amber-100 border border-amber-300 text-amber-700 font-label-md text-[9px] uppercase tracking-wider rounded-full mt-1">
+              Ditambahkan Manual
+            </span>
           )}
         </div>
         <div className="flex flex-col items-end gap-1.5">
@@ -204,8 +210,8 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
     if (!profile || guests.length === 0) return
     setExporting(true)
     try {
-      const header = ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Tautan QR", "Tautan Undangan"]
-      const rows = guests.map((g) => [g.name, g.phone_number || "", g.category || "", g.table_number || "", guestQrUrl(g), guestUndanganUrl(g)])
+      const header = ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Tautan QR", "Tautan Undangan", "Sumber"]
+      const rows = guests.map((g) => [g.name, g.phone_number || "", g.category || "", g.table_number || "", guestQrUrl(g), guestUndanganUrl(g), g.added_manually ? "Ditambahkan Manual" : "Undangan QR"])
       const ws = XLSX.utils.aoa_to_sheet([header, ...rows])
       ws["!cols"] = [
         { wch: 28 },

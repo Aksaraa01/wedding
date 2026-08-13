@@ -325,6 +325,7 @@ checkin_timestamp: g.checkin_timestamp || null,
           category: addGuestForm.category,
           table_number: addGuestForm.table_number,
           added_manually: true,
+          checked_in_by: operatorName,
         }),
       })
 
@@ -336,6 +337,30 @@ checkin_timestamp: g.checkin_timestamp || null,
           setAddGuestError(data.error || "Gagal menambah tamu")
         }
         return
+      }
+
+      const data = await res.json()
+      const g = data.guest
+      if (g) {
+        const record: GuestRecord = {
+          id: g.id,
+          wedding_profile_id: eventInfo.wedding_profile_id,
+          name: g.name,
+          phone_number: g.phone_number || null,
+          table_number: g.table_number || null,
+          category: g.category || null,
+          guest_count: g.guest_count || 1,
+          rsvp_status: g.rsvp_status || null,
+          rsvp_pax_count: g.rsvp_pax_count || null,
+          qr_token: g.qr_token || null,
+          is_checked_in: true,
+          checkin_timestamp: g.checkin_timestamp || null,
+          checked_in_by: operatorName || null,
+          souvenir_claimed: false,
+          added_manually: true,
+        }
+        setAllGuests((prev) => (prev.some((x) => x.id === record.id) ? prev : [record, ...prev]))
+        setLogEntries((prev) => (prev.some((x) => x.id === record.id) ? prev : [record, ...prev]))
       }
 
       setAddGuestSuccess(true)
@@ -382,6 +407,8 @@ checkin_timestamp: g.checkin_timestamp || null,
 
   const presentCount = logEntries.filter(g => g.is_checked_in).reduce((sum, g) => sum + paxCount(g), 0)
   const totalGuests = allGuests.reduce((sum, g) => sum + paxCount(g), 0)
+  const presentGuestRows = logEntries.filter(g => g.is_checked_in).length
+  const totalGuestRows = allGuests.length
   const coupleDisplay = eventInfo
     ? (eventInfo.display_name || `${eventInfo.bride_name} & ${eventInfo.groom_name}`)
     : ""
@@ -493,9 +520,10 @@ checkin_timestamp: g.checkin_timestamp || null,
             <div className="space-y-0.5">
               <span className="text-[10px] uppercase tracking-wider text-on-surface-variant/70 font-semibold">Kehadiran Tamu</span>
               <div className="flex items-baseline gap-1">
-                <span className="font-serif text-3xl font-bold text-secondary">{presentCount}</span>
-                <span className="text-sm text-on-surface-variant/60">/ {totalGuests} pax</span>
+                <span className="font-serif text-3xl font-bold text-secondary">{presentGuestRows}</span>
+                <span className="text-sm text-on-surface-variant/60">/ {totalGuestRows} Tamu</span>
               </div>
+              <p className="text-[10px] text-on-surface-variant/60">{presentCount} / {totalGuests} pax</p>
             </div>
             <div className="text-right">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-secondary/10 text-secondary border border-secondary/20 rounded-full text-[10px] font-bold uppercase tracking-wider">
@@ -589,7 +617,7 @@ checkin_timestamp: g.checkin_timestamp || null,
                   <div className="space-y-0.5">
                     <h4 className="font-medium text-primary">
                       {g.name}
-                      {g.added_manually && <span className="text-[10px] text-amber-600 font-bold font-serif pl-1">[Manual]</span>}
+                      {g.added_manually && <span className="text-[10px] text-amber-600 font-bold font-serif pl-1">[Ditambahkan Manual]</span>}
                       {g.category && <span className="text-[10px] text-secondary font-bold font-serif pl-1">{g.category}</span>}
                     </h4>
                     <p className="text-[10px] text-on-surface-variant/60 font-mono">

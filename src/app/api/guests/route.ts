@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { wedding_profile_id, name, phone_number, category, table_number, guest_count, is_vip, added_manually } = body
+    const { wedding_profile_id, name, phone_number, category, table_number, guest_count, is_vip, added_manually, checked_in_by } = body
 
     if (!wedding_profile_id || !name) {
       return NextResponse.json({ error: "Nama tamu wajib diisi" }, { status: 400 })
@@ -83,9 +83,23 @@ export async function POST(req: Request) {
     }
 
     const pax = Math.max(1, Number(guest_count) || 1)
+    const isManual = !!added_manually
     const { data, error } = await supabaseAdmin
       .from("guests")
-      .insert({ wedding_profile_id, name, phone_number: normalized, category, table_number, guest_count: pax, is_vip: !!is_vip, added_manually: !!added_manually })
+      .insert({
+        wedding_profile_id,
+        name,
+        phone_number: normalized,
+        category,
+        table_number,
+        guest_count: pax,
+        is_vip: !!is_vip,
+        added_manually: isManual,
+        // A manually added guest is physically present, so check them in immediately.
+        is_checked_in: isManual,
+        checkin_timestamp: isManual ? new Date().toISOString() : null,
+        checked_in_by: isManual ? (checked_in_by || "Manual") : null,
+      })
       .select()
       .single()
 

@@ -108,7 +108,7 @@ type QueueDetail = {
     created_at: string
   } | null
   wa_blast_quota?: number
-  vip_guests?: { id: string; name: string; phone_number: string; table_number: string; category?: string; created_at: string }[]
+  vip_guests?: { id: string; name: string; phone_number: string; table_number: string; category?: string; created_at: string; added_manually?: boolean }[]
 }
 
 const WA_BLAST_LABELS: Record<string, string> = {
@@ -401,19 +401,20 @@ export default function OpsDashboardPage() {
   }
 
   const downloadVipExcel = () => {
-    const header = ["Nama Tamu", "No. WhatsApp (nomor saja, tanpa +62/0)", "Kategori", "Meja", "VIP (isi YA jika VIP)"]
+    const header = ["Nama Tamu", "No. WhatsApp (nomor saja, tanpa +62/0)", "Kategori", "Meja", "VIP (isi YA jika VIP)", "Sumber"]
     const rows = (detail?.vip_guests || []).map(g => [
       g.name,
       (g.phone_number || "").replace(/[^0-9]/g, ""),
       g.category || "",
       g.table_number || "",
       "YA",
+      g.added_manually ? "Ditambahkan Manual" : "Undangan QR",
     ])
     downloadExcel(`daftar-tamu-vip-${profileSlug}.xlsx`, "Tamu VIP", header, rows)
   }
 
   const downloadQrExcel = () => {
-    const header = ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Link QR", "Link Undangan"]
+    const header = ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Link QR", "Link Undangan", "Sumber"]
     const rows = qrGuests.map(g => [
       g.name,
       g.phone_number || "",
@@ -421,6 +422,7 @@ export default function OpsDashboardPage() {
       g.table_number || "",
       guestQrUrl(g),
       guestInvUrl(g),
+      g.added_manually ? "Ditambahkan Manual" : "Undangan QR",
     ])
     downloadExcel(`daftar-qr-tamu-${profileSlug}.xlsx`, "QR Tamu", header, rows)
   }

@@ -95,7 +95,7 @@ export async function GET(
     // VIP guests for the Reminder Tamu VIP (WA blast) feature
     const { data: vipGuests } = await supabaseAdmin
       .from("guests")
-      .select("id, name, phone_number, table_number, category, created_at")
+      .select("id, name, phone_number, table_number, category, created_at, added_manually")
       .eq("wedding_profile_id", wp.id)
       .eq("is_vip", true)
       .order("created_at", { ascending: true })
