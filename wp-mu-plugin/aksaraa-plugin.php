@@ -335,6 +335,12 @@ class AksaraaPlugin
             add_post_meta($new_id, '_aksaraa_track_url', $track_url);
         }
 
+        // Write the couple's content fields as post meta for dynamic-tag templates.
+        $fields = $body['fields'] ?? [];
+        if (is_array($fields) && !empty($fields)) {
+            self::write_fields_meta($new_id, $fields);
+        }
+
         // Register the new popup in the theme-builder conditions cache so it
         // renders on the new post. Direct option update is more reliable than
         // Conditions_Cache::regenerate() (which depends on a warmed document cache).
@@ -440,6 +446,10 @@ class AksaraaPlugin
             }
         }
 
+        // Write the couple's fields as post meta (e.g. _aksaraa_bride_name) so the
+        // template can read them via Elementor "Post Custom Field" dynamic tags.
+        self::write_fields_meta($post_id, $fields);
+
         // PATCH the post's _elementor_data
         self::apply_fields_to_post($post_id, $fields, $manifest, $updated);
 
@@ -463,6 +473,20 @@ class AksaraaPlugin
         // as an explicit /ops action with a long grace period.
 
         return ['patched' => $updated];
+    }
+
+    // Store each content field as post meta `_aksaraa_{field}` so templates can read
+    // values via Elementor "Post Custom Field" dynamic tags (scalars as-is, arrays as
+    // JSON strings).
+    private static function write_fields_meta(int $post_id, array $fields)
+    {
+        foreach ($fields as $key => $value) {
+            if (!is_string($key) || $key === '') continue;
+            if (is_array($value) || is_object($value)) {
+                $value = wp_json_encode($value);
+            }
+            update_post_meta($post_id, '_aksaraa_' . $key, (string) $value);
+        }
     }
 
     private static function apply_fields_to_post(int $target_id, array $fields, array $manifest, array &$updated)

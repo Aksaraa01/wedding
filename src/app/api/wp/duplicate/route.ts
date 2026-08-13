@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { buildProfileFields } from "@/lib/buildProfileFields"
 
 const WP_ORIGIN = process.env.NEXT_PUBLIC_WP_ORIGIN || ""
 const WP_SECRET = process.env.WP_INTERNAL_SECRET || ""
@@ -28,16 +29,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Template tidak memiliki wp_master_slug" }, { status: 400 })
     }
 
-    // Get profile info (incl. any existing active WP post to delete first)
-    const { data: profile } = await supabaseAdmin
-      .from("wedding_profiles")
-      .select("bride_name, groom_name, slug, selected_track_id, active_wp_post_id")
-      .eq("id", profile_id)
-      .maybeSingle()
-
-    if (!profile) {
+    // Get profile + full content fields (also written as post meta for dynamic tags).
+    const built = await buildProfileFields(profile_id)
+    if (!built) {
       return NextResponse.json({ error: "Profil tidak ditemukan" }, { status: 404 })
     }
+    const { profile, fields } = built
 
     // If this couple already has a duplicated WP post (theme-switch), delete it first.
     // BUT never delete the master template — resolve its post ID first and skip if equal.
@@ -79,7 +76,7 @@ export async function POST(req: Request) {
     const title = `${profile.bride_name} & ${profile.groom_name} — ${tpl.name}`
     const newSlug = profile.slug ? profile.slug : undefined
 
-    const wpBody: Record<string, string> = { title }
+    const wpBody: Record<string, any> = { title, fields }
     if (newSlug) wpBody.new_slug = newSlug
     if (resolvedTrackUrl) wpBody.track_url = resolvedTrackUrl
 
