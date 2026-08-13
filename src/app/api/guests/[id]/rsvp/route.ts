@@ -41,11 +41,12 @@ export async function POST(
       const pax = Number(rsvp_pax_count)
       const raw = Number.isFinite(pax) && pax > 0 ? pax : 1
       updates.rsvp_pax_count = Math.max(1, Math.min(maxPax, raw))
-      updates.rsvp_message = typeof rsvp_message === "string" && rsvp_message.trim() ? rsvp_message.trim() : null
     } else {
       updates.rsvp_pax_count = null
-      updates.rsvp_message = null
     }
+
+    // Store the guest's message for both HADIR and TIDAK_HADIR responses.
+    updates.rsvp_message = typeof rsvp_message === "string" && rsvp_message.trim() ? rsvp_message.trim() : null
 
     const { data, error } = await supabaseAdmin
       .from("guests")

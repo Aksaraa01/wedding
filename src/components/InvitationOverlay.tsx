@@ -66,7 +66,7 @@ export default function InvitationOverlay({
     <>
       {/* Floating dock — right-center column (WP music toggle sits above) */}
       <div
-        className="fixed right-4 z-[90] flex flex-col items-center gap-4"
+        className="fixed right-4 z-[90] flex flex-col items-end gap-3"
         style={{ top: "50%", transform: "translateY(-50%)" }}
       >
         {qrEnabled && guestQrUrl && (
@@ -75,9 +75,10 @@ export default function InvitationOverlay({
             onClick={() => setQrOpen(true)}
             aria-label="Kartu QR Masuk"
             title="Kartu QR Masuk"
-            className="w-12 h-12 rounded-full bg-[#1c1c16]/80 text-[#f5f0e7] flex items-center justify-center shadow-xl hover:bg-[#1c1c16] transition-colors"
+            className="flex items-center gap-2 h-12 pl-4 pr-3 rounded-full bg-[#B88A2D] text-white shadow-xl hover:bg-[#C9A227] transition-colors"
           >
-            <span className="material-symbols-outlined text-[22px]">qr_code_2</span>
+            <span className="font-label-md text-[10px] uppercase tracking-widest whitespace-nowrap">QR Masuk</span>
+            <span className="material-symbols-outlined text-[20px]">qr_code_2</span>
           </button>
         )}
         <button
@@ -85,16 +86,17 @@ export default function InvitationOverlay({
           onClick={() => setRsvpOpen(true)}
           aria-label="Konfirmasi Kehadiran"
           title="Konfirmasi Kehadiran"
-          className="w-12 h-12 rounded-full bg-[#8d4d39]/90 text-white flex items-center justify-center shadow-xl hover:bg-[#8d4d39] transition-colors"
+          className="flex items-center gap-2 h-12 pl-4 pr-3 rounded-full bg-[#B88A2D] text-white shadow-xl hover:bg-[#C9A227] transition-colors"
         >
-          <span className="material-symbols-outlined text-[22px]">event_available</span>
+          <span className="font-label-md text-[10px] uppercase tracking-widest whitespace-nowrap">RSVP</span>
+          <span className="material-symbols-outlined text-[20px]">event_available</span>
         </button>
       </div>
 
       {/* QR modal — digital pass */}
       {qrOpen && (
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#fdf9f0] w-full max-w-md flex flex-col max-h-[92dvh] overflow-hidden">
+          <div className="bg-[#fdf9f0] w-full max-w-md h-[85dvh] max-h-[820px] flex flex-col overflow-hidden">
             <div className="flex items-center justify-between px-5 py-3 border-b border-outline-variant/40 shrink-0">
               <span className="font-label-md text-[10px] uppercase tracking-[0.2em] font-semibold text-secondary">
                 Kartu QR Masuk
@@ -111,7 +113,7 @@ export default function InvitationOverlay({
                 </p>
               )}
             </div>
-            <iframe src={guestQrUrl} title="Kartu QR Masuk" className="w-full border-0 flex-1 min-h-[420px]" />
+            <iframe src={guestQrUrl} title="Kartu QR Masuk" className="w-full border-0 flex-1" />
             <div className="px-5 py-3 flex justify-center shrink-0">
               <a
                 href={guestQrUrl}
