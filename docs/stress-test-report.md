@@ -213,10 +213,10 @@ Phase 2 recap: RSVP 100%, wish 100%; `open` failed 4,382× (96% of open attempts
    - **Serialize per-couple edits** — a per-profile lock/queue so repeated patches for one couple never compete with each other (in the current client, 6 edits per user fire serially so they self-queue; the risk is many couples at once).
    - **Defer CSS regen** — `regen_elementor_css()` runs synchronously 2× per patch. Off-load to a delayed job (or skip when `_elementor_data` didn't change) to shrink each request's PHP wall time.
    - **Right-size the pool** — raise `pm.max_children` carefully on the 1.9 GB box (each Elementor CSS regen can peak 100+ MB PHP); budget RAM first.
-4. **Cache the WP post-validity HEAD** (from P1 below) also reduces WP origin traffic that competes with edit operations on the same box.
+4. ✅ **DONE — WP post-validity HEAD cached.** `w/[slug]` now uses `src/lib/wpPostCache.ts` (in-memory TTL, single PM2 fork): "alive" cached 5 min (repeat views skip the WP HEAD entirely), "dead" cached 30s (a freshly-confirmed post is detected quickly). Measured on prod: cold render 1.6s (HEAD fires) → warm renders ~0.7–0.9s. Removes the per-render WP origin round-trip that competed with editing.
 
 ### P2 — sustain the publish/render envelope
-5. **Eliminate the per-render `cache: no-store` WP HEAD.** The `w/[slug]` page does a WP HEAD before every iframe render. Cache the WP post validity (e.g., last verified date) so repeat views within a window skip the WP HEAD round-trip. This dominates p50 under load and reduces contention with WP editing.
+5. ✅ **DONE — per-render `cache: no-store` WP HEAD eliminated.** `w/[slug]` caches WP post validity in `src/lib/wpPostCache.ts` (5 min alive / 30s dead); repeat views within the window skip the WP HEAD round-trip (cold 1.6s → warm ~0.7–0.9s on prod).
 6. **Reduce Supabase read fan-out on `w/[slug]`** (5–8 reads/view). Batch into a single RPC/join or add a lightweight edge-cache for profile+feature-set data.
 7. **Bump/instrument Node connection pool.** p95 ~9s at 500 VU is queueing behind a bounded pool on one vCPU. Give Node more workers/UV threads or front the box with a proper CDN/edge cache to absorb repeat reads.
 
