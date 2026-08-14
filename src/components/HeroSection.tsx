@@ -6,14 +6,14 @@ import Link from "next/link"
 const PROD_MEDIA = "https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media"
 
 const FAN_CARDS = [
-  { src: `${PROD_MEDIA}/templates/Template%201.png`, transform: "translate(calc(-50% - 400%), 45%) rotate(-28deg)", z: 10 },
-  { src: `${PROD_MEDIA}/templates/Template%202.png`, transform: "translate(calc(-50% - 286%), 18%) rotate(-20deg)", z: 20 },
-  { src: `${PROD_MEDIA}/templates/Template%203.png`, transform: "translate(calc(-50% - 171%), 5%) rotate(-12deg)", z: 30 },
+  { src: `${PROD_MEDIA}/templates/Template%201.png`, transform: "translate(calc(-50% - 400%), 160%) rotate(-28deg)", z: 10 },
+  { src: `${PROD_MEDIA}/templates/Template%202.png`, transform: "translate(calc(-50% - 286%), 110%) rotate(-20deg)", z: 20 },
+  { src: `${PROD_MEDIA}/templates/Template%203.png`, transform: "translate(calc(-50% - 171%), 35%) rotate(-12deg)", z: 30 },
   { src: `${PROD_MEDIA}/templates/Template%204.png`, transform: "translate(calc(-50% - 57%), 0) rotate(-4deg)", z: 40 },
   { src: `${PROD_MEDIA}/templates/Template%205.png`, transform: "translate(calc(-50% + 57%), 0) rotate(4deg)", z: 35 },
-  { src: `${PROD_MEDIA}/templates/Template%206.png`, transform: "translate(calc(-50% + 171%), 5%) rotate(12deg)", z: 30 },
-  { src: `${PROD_MEDIA}/templates/Template%207.png`, transform: "translate(calc(-50% + 286%), 18%) rotate(20deg)", z: 20 },
-  { src: `${PROD_MEDIA}/templates/Template%209.png`, transform: "translate(calc(-50% + 400%), 45%) rotate(28deg)", z: 10 },
+  { src: `${PROD_MEDIA}/templates/Template%206.png`, transform: "translate(calc(-50% + 171%), 35%) rotate(12deg)", z: 30 },
+  { src: `${PROD_MEDIA}/templates/Template%207.png`, transform: "translate(calc(-50% + 286%), 110%) rotate(20deg)", z: 20 },
+  { src: `${PROD_MEDIA}/templates/Template%209.png`, transform: "translate(calc(-50% + 400%), 160%) rotate(28deg)", z: 10 },
 ]
 
 const SOCIAL_AVATARS = [
@@ -49,7 +49,7 @@ export default function HeroSection() {
       {/* Fan cards gallery (rounded box, same size) */}
       <div
         aria-hidden="true"
-        className="relative w-full h-[220px] sm:h-[260px] md:h-[320px] max-w-6xl mx-auto flex justify-center items-end mb-24"
+        className="relative w-full h-[220px] sm:h-[260px] md:h-[320px] max-w-6xl mx-auto flex justify-center items-end mb-4"
       >
         {FAN_CARDS.map((card, i) => {
           const hasBadge = i === 3
@@ -74,7 +74,7 @@ export default function HeroSection() {
       </div>
 
       {/* Typography */}
-      <div className="text-center max-w-3xl mx-auto relative z-50 mt-12">
+      <div className="text-center max-w-3xl mx-auto relative z-50 mt-4">
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-medium text-[#FAF7F2] leading-[1.1] mb-6 drop-shadow-xl [font-family:var(--font-playfair)]">
           Setiap Aksara<br />
           Bercerita Tentang<br />
