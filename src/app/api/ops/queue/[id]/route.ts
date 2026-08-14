@@ -20,6 +20,7 @@ export async function GET(
           id,
           bride_name,
           groom_name,
+          display_name,
           slug,
           whatsapp_number,
           estimated_wedding_date,
@@ -95,7 +96,7 @@ export async function GET(
     // VIP guests for the Reminder Tamu VIP (WA blast) feature
     const { data: vipGuests } = await supabaseAdmin
       .from("guests")
-      .select("id, name, phone_number, table_number, category, created_at, added_manually")
+      .select("id, name, phone_number, table_number, category, created_at, added_manually, slug, qr_token")
       .eq("wedding_profile_id", wp.id)
       .eq("is_vip", true)
       .order("created_at", { ascending: true })
@@ -143,6 +144,7 @@ export async function GET(
         id: wp.id,
         bride_name: wp.bride_name,
         groom_name: wp.groom_name,
+        display_name: wp.display_name,
         slug: wp.slug,
         whatsapp_number: wp.whatsapp_number,
         estimated_wedding_date: wp.estimated_wedding_date,

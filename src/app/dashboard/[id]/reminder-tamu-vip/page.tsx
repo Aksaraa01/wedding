@@ -3,29 +3,7 @@
 import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
-
-const MESSAGE_TEMPLATES: Record<string, { label: string; text: string }> = {
-  formal: {
-    label: "Formal & Resmi",
-    text: "Kepada Yth. {Nama Tamu},\n\nTanpa mengurangi rasa hormat, kami mengundang Bapak/Ibu/Saudara/i untuk berkenan hadir pada acara pernikahan kami.\n\nSimak detail undangan digital Anda melalui tautan berikut:\n{Tautan Unik}\n\nJangan lupa simpan QR Code akses masuk Anda.\n\nMerupakan suatu kehormatan apabila Anda berkenan hadir meluangkan waktu.\n\nHormat kami,\n{Nama Pengantin}",
-  },
-  hangat: {
-    label: "Hangat & Personal",
-    text: "Halo {Nama Tamu}! 🥂\n\nKami tidak sabar untuk merayakan hari spesial kami bersama Anda. Terima kasih telah menjadi bagian dari cerita cinta kami.\n\nSilakan akses undangan digital dan konfirmasi kehadiran Anda di:\n{Tautan Unik}\n\nQR Code masuk sudah menanti — jangan sampai ketinggalan ya!\n\nSampai jumpa di hari bahagia kami!\n{Nama Pengantin} ❤️",
-  },
-  singkat: {
-    label: "Singkat & Padat",
-    text: "{Nama Tamu},\n\nInformasi pernikahan kami:\n\n📅 {Tanggal}\n📍 {Lokasi}\n🔗 {Tautan Unik}\n\nQR Code akses: simpan untuk masuk.\nNomor Meja: {Nomor Meja}\n\nSampai jumpa!\n{Nama Pengantin}",
-  },
-  islami: {
-    label: "Islami",
-    text: "Assalamu'alaikum Warahmatullahi Wabarakatuh,\n\nKepada Yth. {Nama Tamu},\n\nDengan memohon ridha dan rahmat Allah SWT, kami mengundang Anda untuk menghadiri akad nikah dan resepsi putra-putri kami.\n\nSemoga kehadiran Anda menjadi keberkahan bagi kami. Detail acara:\n{Tautan Unik}\n\nWassalamu'alaikum Warahmatullahi Wabarakatuh.\n\n{Nama Pengantin}",
-  },
-  mewah: {
-    label: "Mewah & Eksklusif",
-    text: "Dear {Nama Tamu},\n\nAn affair of timeless elegance awaits. We are delighted to invite you to witness the beginning of our forever.\n\nYour exclusive digital invitation:\n{Tautan Unik}\n\nKindly present your QR Code for a seamless entrance.\nTable: {Nomor Meja}\n\nWe look forward to celebrating with you.\n\nWith love,\n{Nama Pengantin}",
-  },
-}
+import { MESSAGE_TEMPLATES } from "@/lib/reminderTemplates"
 
 function stripQrLines(text: string): string {
   return text
@@ -169,7 +147,7 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
             <span className="font-label-md text-label-md uppercase tracking-widest">Kembali</span>
           </button>
         </header>
-        <main className="w-full max-w-2xl mx-auto px-6 pt-28 flex flex-col gap-8">
+        <main className="w-full max-w-6xl mx-auto px-6 pt-28 flex flex-col gap-8">
           <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
             <h1 className="font-headline-lg text-3xl md:text-4xl text-primary leading-tight tracking-tight">Reminder Tamu VIP</h1>
@@ -182,6 +160,8 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
             <div className="h-px bg-outline-variant/40 mt-2" />
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            <div className="space-y-8">
           <section className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-6 shadow-sm flex flex-col gap-6">
             <div className="flex items-center justify-between border-b border-outline-variant/30 pb-4">
               <div className="flex items-center gap-2.5">
@@ -224,7 +204,9 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
 
             </div>
           </section>
+            </div>
 
+            <div className="space-y-8">
           <section className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-6 shadow-sm flex flex-col gap-6">
             <div className="flex justify-between items-center border-b border-outline-variant/30 pb-4">
               <div className="flex items-center gap-2.5">
@@ -329,10 +311,12 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
               </div>
             </div>
           </section>
+            </div>
+          </div>
         </main>
 
         <div className="fixed bottom-0 inset-x-0 bg-background/90 backdrop-blur-md border-t border-outline-variant/60 py-4 px-6 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
-          <div className="max-w-2xl mx-auto flex items-center justify-end">
+          <div className="max-w-6xl mx-auto flex items-center justify-end">
             <button
               onClick={() => {
                 if (!isPublished) {

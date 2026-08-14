@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import html2canvas from "html2canvas"
 import * as XLSX from "xlsx"
+import { MESSAGE_TEMPLATES, renderReminderMessage, getCoupleDisplayName } from "@/lib/reminderTemplates"
 
 const PACKAGE_LABELS: Record<string, string> = {
   essential: "Essential",
@@ -41,6 +42,7 @@ type QueueItem = {
     id: string
     bride_name: string
     groom_name: string
+    display_name?: string | null
     slug: string
     whatsapp_number: string
     estimated_wedding_date: string
@@ -108,7 +110,7 @@ type QueueDetail = {
     created_at: string
   } | null
   wa_blast_quota?: number
-  vip_guests?: { id: string; name: string; phone_number: string; table_number: string; category?: string; created_at: string; added_manually?: boolean }[]
+  vip_guests?: { id: string; name: string; phone_number: string; table_number: string; category?: string; created_at: string; added_manually?: boolean; slug?: string | null; qr_token?: string | null }[]
 }
 
 const WA_BLAST_LABELS: Record<string, string> = {
@@ -401,7 +403,17 @@ export default function OpsDashboardPage() {
   }
 
   const downloadVipExcel = () => {
-    const header = ["Nama Tamu", "No. WhatsApp (nomor saja, tanpa +62/0)", "Kategori", "Meja", "VIP (isi YA jika VIP)", "Sumber"]
+    const header = ["Nama Tamu", "No. WhatsApp (nomor saja, tanpa +62/0)", "Kategori", "Meja", "VIP (isi YA jika VIP)", "Sumber", "Pesan"]
+    // The Pesan column is populated only when the couple has selected & saved a
+    // message (wa_blast_schedule); otherwise it stays empty.
+    const scheduleText = detail?.wa_blast_schedule?.message_text || ""
+    const coupleName = currentWp ? getCoupleDisplayName({ display_name: currentWp.display_name, bride_name: currentWp.bride_name, groom_name: currentWp.groom_name }) : ""
+    const sessions = (currentWp?.sessions || []) as Array<{ venue?: string; address?: string }>
+    const firstSession = sessions[0] || {}
+    const weddingDate = currentWp?.estimated_wedding_date
+      ? new Date(currentWp.estimated_wedding_date + "T00:00:00").toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
+      : ""
+    const venue = [firstSession.venue, firstSession.address].filter(Boolean).join(", ") || ""
     const rows = (detail?.vip_guests || []).map(g => [
       g.name,
       (g.phone_number || "").replace(/[^0-9]/g, ""),
@@ -409,6 +421,17 @@ export default function OpsDashboardPage() {
       g.table_number || "",
       "YA",
       g.added_manually ? "Ditambahkan Manual" : "Undangan QR",
+      scheduleText
+        ? renderReminderMessage(scheduleText, {
+            NamaTamu: g.name,
+            TautanUnik: g.slug ? `https://${profileSlug}.wedding.aksaraa.com/?to=${g.slug}` : "",
+            QRAkses: g.slug || g.qr_token ? `https://${profileSlug}.wedding.aksaraa.com/qr/${g.slug || g.qr_token}` : "",
+            NamaPengantin: coupleName,
+            NomorMeja: g.table_number || "",
+            Tanggal: weddingDate,
+            Lokasi: venue,
+          })
+        : "",
     ])
     downloadExcel(`daftar-tamu-vip-${profileSlug}.xlsx`, "Tamu VIP", header, rows)
   }
