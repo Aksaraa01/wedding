@@ -6,14 +6,14 @@ import Link from "next/link"
 const PROD_MEDIA = "https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media"
 
 const FAN_CARDS = [
-  { src: `${PROD_MEDIA}/templates/Template%201.png`, transform: "translate(calc(-50% - 250%), 130%) rotate(-48deg)", z: 10 },
-  { src: `${PROD_MEDIA}/templates/Template%202.png`, transform: "translate(calc(-50% - 170%), 60%) rotate(-32deg)", z: 20 },
-  { src: `${PROD_MEDIA}/templates/Template%203.png`, transform: "translate(calc(-50% - 95%), 12%) rotate(-16deg)", z: 30 },
-  { src: `${PROD_MEDIA}/templates/Template%204.png`, transform: "translate(calc(-50% - 28%), 0) rotate(-5deg)", z: 40 },
-  { src: `${PROD_MEDIA}/templates/Template%205.png`, transform: "translate(calc(-50% + 28%), 0) rotate(5deg)", z: 35 },
-  { src: `${PROD_MEDIA}/templates/Template%206.png`, transform: "translate(calc(-50% + 95%), 12%) rotate(16deg)", z: 30 },
-  { src: `${PROD_MEDIA}/templates/Template%207.png`, transform: "translate(calc(-50% + 170%), 60%) rotate(32deg)", z: 20 },
-  { src: `${PROD_MEDIA}/templates/Template%209.png`, transform: "translate(calc(-50% + 250%), 130%) rotate(48deg)", z: 10 },
+  { src: `${PROD_MEDIA}/templates/Template%201.png`, transform: "translate(calc(-50% - 400%), 45%) rotate(-28deg)", z: 10 },
+  { src: `${PROD_MEDIA}/templates/Template%202.png`, transform: "translate(calc(-50% - 286%), 18%) rotate(-20deg)", z: 20 },
+  { src: `${PROD_MEDIA}/templates/Template%203.png`, transform: "translate(calc(-50% - 171%), 5%) rotate(-12deg)", z: 30 },
+  { src: `${PROD_MEDIA}/templates/Template%204.png`, transform: "translate(calc(-50% - 57%), 0) rotate(-4deg)", z: 40 },
+  { src: `${PROD_MEDIA}/templates/Template%205.png`, transform: "translate(calc(-50% + 57%), 0) rotate(4deg)", z: 35 },
+  { src: `${PROD_MEDIA}/templates/Template%206.png`, transform: "translate(calc(-50% + 171%), 5%) rotate(12deg)", z: 30 },
+  { src: `${PROD_MEDIA}/templates/Template%207.png`, transform: "translate(calc(-50% + 286%), 18%) rotate(20deg)", z: 20 },
+  { src: `${PROD_MEDIA}/templates/Template%209.png`, transform: "translate(calc(-50% + 400%), 45%) rotate(28deg)", z: 10 },
 ]
 
 const SOCIAL_AVATARS = [
@@ -23,7 +23,7 @@ const SOCIAL_AVATARS = [
   `${PROD_MEDIA}/templates/Template%204.png`,
 ]
 
-const CARD_SIZE = "w-28 sm:w-32 md:w-40"
+const CARD_SIZE = "w-20 sm:w-24 md:w-28"
 
 export default function HeroSection() {
   return (
@@ -49,7 +49,7 @@ export default function HeroSection() {
       {/* Fan cards gallery (rounded box, same size) */}
       <div
         aria-hidden="true"
-        className="relative w-full h-[250px] sm:h-[300px] md:h-[400px] max-w-6xl mx-auto flex justify-center items-end mb-10"
+        className="relative w-full h-[220px] sm:h-[260px] md:h-[320px] max-w-6xl mx-auto flex justify-center items-end mb-24"
       >
         {FAN_CARDS.map((card, i) => {
           const hasBadge = i === 3
@@ -74,15 +74,15 @@ export default function HeroSection() {
       </div>
 
       {/* Typography */}
-      <div className="text-center max-w-3xl mx-auto relative z-50 mt-10">
-        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-medium text-[#FAF7F2] leading-[1.1] mb-6 drop-shadow-xl [font-family:var(--font-playfair)]">
-          Every Moment<br />
-          Deserves an<br />
-          <span className="italic">Opening Act.</span>
+      <div className="text-center max-w-3xl mx-auto relative z-50 mt-12">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-medium text-[#FAF7F2] leading-[1.1] mb-6 drop-shadow-xl [font-family:var(--font-playfair)]">
+          Setiap Aksara<br />
+          Bercerita Tentang<br />
+          <span className="italic">Hari Bahagia Kami.</span>
         </h1>
         <p className="text-base sm:text-lg text-[#B09BA6] max-w-2xl mx-auto mb-10 leading-relaxed font-light drop-shadow-md">
-          Lebih dari sekadar undangan digital. Aksara adalah simfoni visual yang memadukan estetika editorial dengan
-          teknologi mutakhir, mengabadikan setiap detik perjalanan cinta Anda dalam satu ekosistem yang utuh.
+          Bagikan momen spesial Anda dengan undangan website berdesain menawan, dilengkapi sistem RSVP dan buku tamu
+          digital yang berkesan.
         </p>
 
         {/* Call to actions */}
