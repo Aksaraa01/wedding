@@ -94,6 +94,9 @@ export default async function WeddingInvitation({
             style={{ width: "100%", height: "100%", border: "none", display: "block" }}
           />
         </div>
+        {/* Count the invitation as "dibuka" for identified guests when the page
+            loads (covers popup-based and future popup-less invitations). */}
+        <InvitationOpenedTracker guestId={guestContext?.id} />
         {guestContext?.id && (
           <InvitationOverlay
             guestId={guestContext.id}

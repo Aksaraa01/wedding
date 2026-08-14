@@ -150,7 +150,7 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
                         </div>
                       </div>
                       <div className="mt-4 h-1 w-full bg-surface-variant overflow-hidden">
-                        <div className="h-full bg-secondary-container" style={{ width: `${Math.max(openPct, 4)}%` }} />
+                        <div className="h-full bg-secondary-container" style={{ width: `${Math.min(Math.max(openPct, 4), 100)}%` }} />
                       </div>
                     </div>
                   </div>
@@ -172,8 +172,8 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
                           <p className="text-[10px] uppercase tracking-tighter text-white">Conversion</p>
                         </div>
                       </div>
-                      <div className="mt-4 h-1 w-full bg-white/30">
-                        <div className="h-full bg-white" style={{ width: `${Math.max(conversionPct, 4)}%` }} />
+                      <div className="mt-4 h-1 w-full bg-white/30 overflow-hidden">
+                        <div className="h-full bg-white" style={{ width: `${Math.min(Math.max(conversionPct, 4), 100)}%` }} />
                       </div>
                     </div>
                   </div>
@@ -207,9 +207,8 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
             </div>
 
             {/* Right Column: Guest List */}
-            <div className="lg:col-span-7">
-              <section className="space-y-12">
-                <div className="flex flex-col gap-8 bg-[#f2ede4]/30 p-8 border border-[#c4c7c7]/10">
+            <div className="lg:col-span-7 lg:h-[calc(100vh-9rem)] lg:flex lg:flex-col lg:gap-8">
+                <div className="flex flex-col gap-8 bg-[#f2ede4]/30 p-8 border border-[#c4c7c7]/10 shrink-0">
                   {/* Search Bar */}
                   <div className="relative border-b pb-4 flex items-center border-[#1a1a1a]/20 focus-within:border-primary transition-colors">
                     <span className="material-symbols-outlined absolute left-0 text-on-surface-variant">search</span>
@@ -247,7 +246,7 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
                 </div>
 
                 {/* List Rows */}
-                <div className="divide-y divide-[#c4c7c7]/20 border border-[#c4c7c7]/20 bg-white">
+                <div className="flex-1 overflow-y-auto divide-y divide-[#c4c7c7]/20 border border-[#c4c7c7]/20 bg-white hide-scrollbar">
                   {filtered.length === 0 && (
                     <p className="py-16 text-center font-body-md italic opacity-40">Tidak ada tamu ditemukan.</p>
                   )}
@@ -288,7 +287,6 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
                     )
                   })}
                 </div>
-              </section>
             </div>
           </div>
         </main>
