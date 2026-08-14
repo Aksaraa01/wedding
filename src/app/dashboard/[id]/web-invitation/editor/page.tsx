@@ -16,6 +16,7 @@ type Profile = {
   couple_initials: string | null
   grayscale: boolean
   is_published: boolean
+  published_at?: string | null
   groom_full_name: string | null
   bride_full_name: string | null
   groom_photo_url: string | null
@@ -59,6 +60,21 @@ function formatDate(dateStr: string) {
   const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
   const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
   return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`
+}
+
+// Local date & time of the confirmation, e.g. "14 Agu 2026, 09:30".
+function formatConfirmedAt(iso?: string | null): string {
+  if (!iso) return ""
+  try {
+    const d = new Date(iso)
+    return (
+      d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) +
+      " " +
+      d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })
+    )
+  } catch {
+    return ""
+  }
 }
 
 // Normalize a photo field (string URL, JSON array, or array) to a string array.
@@ -646,14 +662,14 @@ function EditorInner({ id }: { id: string }) {
             </div>
           </div>
 
-          {/* Perbarui Pratinjau — center, gold to distinguish from Konfirmasi */}
+          {/* Perbarui undangan — center, gold to distinguish from Konfirmasi */}
           <button
             onClick={handleUpdatePreview}
-            disabled={updatingPreview}
+            disabled={updatingPreview || isPublished}
             className="hidden sm:flex items-center gap-2 px-6 py-3 font-label-md text-label-md bg-brand-gold text-white transition-all active:scale-95 hover:opacity-90 disabled:opacity-50"
           >
             <span className="material-symbols-outlined text-[18px]">{updatingPreview ? "hourglass_top" : "refresh"}</span>
-            <span>{updatingPreview ? "Memperbarui..." : "Perbarui Pratinjau"}</span>
+            <span>{updatingPreview ? "Memperbarui..." : "Perbarui undangan"}</span>
           </button>
 
           <div className="flex items-center gap-8">
@@ -680,13 +696,25 @@ function EditorInner({ id }: { id: string }) {
             <button
               onClick={() => setShowPublishConfirm(true)}
               disabled={isPublished}
-              className={`hidden md:flex px-8 py-3 font-label-md text-label-md transition-all active:scale-95 ${
+              className={`hidden md:flex px-6 py-2 font-label-md text-label-md transition-all active:scale-95 ${
                 isPublished
-                  ? "bg-surface-container-high text-on-surface-variant cursor-default border border-outline-variant"
-                  : "bg-secondary text-on-secondary hover:opacity-90 border border-secondary"
+                  ? "flex-col items-center justify-center bg-emerald-600 text-white cursor-default border border-emerald-600 shadow-lg shadow-emerald-600/20"
+                  : "items-center bg-secondary text-on-secondary hover:opacity-90 border border-secondary"
               }`}
             >
-              {isPublished ? "TERKONFIRMASI" : "KONFIRMASI"}
+              {isPublished ? (
+                <>
+                  <span className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[16px]">verified</span>
+                    TERKONFIRMASI
+                  </span>
+                  <span className="text-[9px] opacity-90 font-normal tracking-normal">
+                    {formatConfirmedAt(data.published_at)}
+                  </span>
+                </>
+              ) : (
+                "KONFIRMASI"
+              )}
             </button>
           </div>
         </header>
@@ -1399,7 +1427,7 @@ function EditorInner({ id }: { id: string }) {
             </button>
             <button
               onClick={handleUpdatePreview}
-              disabled={updatingPreview}
+              disabled={updatingPreview || isPublished}
               className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-brand-gold text-white disabled:opacity-50"
             >
               {updatingPreview ? "MEMPERBARUI..." : "PERBARUI"}
@@ -1407,13 +1435,25 @@ function EditorInner({ id }: { id: string }) {
             <button
               onClick={() => setShowPublishConfirm(true)}
               disabled={isPublished}
-              className={`flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform ${
+              className={`flex-1 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform flex items-center justify-center ${
                 isPublished
-                  ? "bg-surface-container-high text-on-surface-variant cursor-default"
-                  : "bg-secondary text-on-secondary"
+                  ? "py-2 flex-col gap-0.5 bg-emerald-600 text-white cursor-default"
+                  : "py-4 bg-secondary text-on-secondary"
               }`}
             >
-              {isPublished ? "TERKONFIRMASI" : "KONFIRMASI"}
+              {isPublished ? (
+                <>
+                  <span className="flex items-center gap-1 text-[11px]">
+                    <span className="material-symbols-outlined text-[14px]">verified</span>
+                    TERKONFIRMASI
+                  </span>
+                  <span className="text-[8px] opacity-90 font-normal tracking-normal">
+                    {formatConfirmedAt(data.published_at)}
+                  </span>
+                </>
+              ) : (
+                "KONFIRMASI"
+              )}
             </button>
           </div>
         </div>

@@ -31,12 +31,14 @@ export default function DashboardShell({ id, children }: { id: string; children:
     })
   }
 
+  // Sidebar is desktop-only, so the content offset must be lg+ only (inline
+  // padding would push mobile content right).
+  const paddingClass = isEditor ? "lg:pl-0" : collapsed ? "lg:pl-[76px]" : "lg:pl-[280px]"
+
   return (
     <>
       {!isEditor && <DashboardSidebar id={id} collapsed={collapsed} onToggle={toggle} />}
-      <div className="transition-[padding-left] duration-300" style={{ paddingLeft: `${width}px` }}>
-        {children}
-      </div>
+      <div className={`transition-[padding-left] duration-300 ${paddingClass}`}>{children}</div>
     </>
   )
 }

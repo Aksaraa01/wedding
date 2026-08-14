@@ -11,7 +11,7 @@ export async function GET(
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("id, bride_name, groom_name, slug, package_type, selected_template_id, selected_track_id, couple_illustration_url, cover_photos, couple_initials, grayscale, is_published, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, display_name, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, active_wp_post_id, active_wp_post_url")
+      .select("id, bride_name, groom_name, slug, package_type, selected_template_id, selected_track_id, couple_illustration_url, cover_photos, couple_initials, grayscale, is_published, published_at, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, display_name, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, active_wp_post_id, active_wp_post_url")
       .eq("id", id)
       .single()
 
@@ -74,6 +74,7 @@ export async function GET(
         couple_initials: profile.couple_initials,
         grayscale: profile.grayscale,
         is_published: profile.is_published,
+        published_at: profile.published_at,
         groom_full_name: profile.groom_full_name,
         bride_full_name: profile.bride_full_name,
         groom_photo_url: profile.groom_photo_url ? (Array.isArray(profile.groom_photo_url) ? profile.groom_photo_url : (() => { try { const p = JSON.parse(profile.groom_photo_url); return Array.isArray(p) ? p : [profile.groom_photo_url] } catch { return [profile.groom_photo_url] } })()) : [],
@@ -136,6 +137,11 @@ export async function PUT(
           updates[key] = body[key]
         }
       }
+    }
+
+    // Record the confirmation time when the invitation is first published.
+    if (body.is_published === true) {
+      updates.published_at = new Date().toISOString()
     }
 
     const { error } = await supabaseAdmin
