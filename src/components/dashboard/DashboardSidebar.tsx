@@ -117,30 +117,39 @@ export default function DashboardSidebar({
         collapsed ? "w-[76px]" : "w-[280px]"
       }`}
     >
-      {/* Brand + collapse toggle */}
-      <div className="flex items-center justify-between px-4 h-16 border-b border-white/10 shrink-0">
-        {!collapsed && (
+      {/* Brand + collapse/extend toggle (always visible so the rail can be reopened) */}
+      {!collapsed ? (
+        <div className="flex items-center justify-between px-4 h-16 border-b border-white/10 shrink-0">
           <div className="flex items-center gap-2 min-w-0">
             <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0">
               <span className="text-[#f5f0e7] font-['Playfair_Display'] text-sm font-bold">A</span>
             </div>
             <span className="font-['Playfair_Display'] text-[17px] tracking-widest font-bold truncate">AKSARAA</span>
           </div>
-        )}
-        {collapsed && (
-          <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center mx-auto shrink-0">
+          <button
+            onClick={onToggle}
+            className="p-2 rounded-full hover:bg-white/10 transition-colors text-[#f5f0e7]/70"
+            title="Ciutkan"
+            aria-label="Ciutkan"
+          >
+            <span className="material-symbols-outlined text-[20px]">menu</span>
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-2 py-4 border-b border-white/10 shrink-0">
+          <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0">
             <span className="text-[#f5f0e7] font-['Playfair_Display'] text-sm font-bold">A</span>
           </div>
-        )}
-        <button
-          onClick={onToggle}
-          className={`p-2 rounded-full hover:bg-white/10 transition-colors text-[#f5f0e7]/70 ${collapsed ? "hidden" : ""}`}
-          title={collapsed ? "Perluas" : "Ciutkan"}
-          aria-label="Ciutkan"
-        >
-          <span className="material-symbols-outlined text-[20px]">menu</span>
-        </button>
-      </div>
+          <button
+            onClick={onToggle}
+            className="p-2 rounded-full hover:bg-white/10 transition-colors text-[#f5f0e7]/70"
+            title="Perluas"
+            aria-label="Perluas"
+          >
+            <span className="material-symbols-outlined text-[20px]">menu_open</span>
+          </button>
+        </div>
+      )}
 
       {/* Couple name */}
       {!collapsed && coupleName && (

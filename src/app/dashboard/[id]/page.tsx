@@ -387,7 +387,7 @@ function DashboardInner({ id }: { id: string }) {
               </div>
             </div>
           )}
-          <div className="px-6 space-y-4">
+          <div className="px-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             {activeCards.length === 0 ? (
               <div className="text-center py-20 bg-white border border-outline-variant rounded-2xl">
                 <p className="font-body-md text-on-surface-variant">Belum ada modul yang dipilih</p>
@@ -416,15 +416,15 @@ function DashboardInner({ id }: { id: string }) {
                       const route = routes[card.key]
                       if (route) router.push(route)
                     }}
-                    className="group bg-white p-6 border border-outline-variant rounded-2xl flex items-center justify-between active:bg-surface-container transition-colors cursor-pointer"
+                    className="group bg-white p-4 md:p-6 border border-outline-variant rounded-2xl flex items-center justify-between active:bg-surface-container transition-colors cursor-pointer"
                   >
-                    <div className="flex items-center gap-5">
-                      <div className="w-12 h-12 bg-surface-container rounded-xl flex items-center justify-center text-secondary">
+                    <div className="flex items-center gap-3 md:gap-5 min-w-0">
+                      <div className="w-12 h-12 bg-surface-container rounded-xl flex items-center justify-center text-secondary shrink-0">
                         <span className="material-symbols-outlined">{ICON_MAP[card.key]}</span>
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-[10px] font-bold text-on-surface-variant opacity-50">
+                          <span className="text-[10px] font-bold text-on-surface-variant opacity-50 shrink-0">
                             {String(i + 1).padStart(2, "0")}
                           </span>
                           <span
@@ -437,7 +437,7 @@ function DashboardInner({ id }: { id: string }) {
                             {status.label}
                           </span>
                         </div>
-                        <h3 className="font-semibold">{card.title}</h3>
+                        <h3 className="font-semibold truncate">{card.title}</h3>
                       </div>
                     </div>
                     <span className="material-symbols-outlined text-outline group-active:translate-x-1 transition-transform">
