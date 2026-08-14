@@ -368,7 +368,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
           </div>
         </main>
 
-        <footer className="fixed bottom-0 left-0 w-full z-50 bg-surface border-t border-outline-variant/20 shadow-2xl shadow-primary/10">
+        <footer className="fixed bottom-0 left-0 right-0 z-50 lg:left-[var(--dash-sidebar-w)] bg-surface border-t border-outline-variant/20 shadow-2xl shadow-primary/10">
           <div className="max-w-lg mx-auto p-6 flex flex-col gap-4">
             <button
               onClick={handleVerifyImport}
@@ -622,7 +622,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
         <span className="material-symbols-outlined text-[24px]">add</span>
       </button>
 
-      <footer className="fixed bottom-0 left-0 w-full z-50 bg-background border-t border-outline-variant px-edge-margin-mobile py-6 flex flex-col gap-3 shadow-[0_-4px_24px_rgba(0,0,0,0.03)]">
+      <footer className="fixed bottom-0 left-0 right-0 z-50 lg:left-[var(--dash-sidebar-w)] bg-background border-t border-outline-variant px-edge-margin-mobile py-6 flex flex-col gap-3 shadow-[0_-4px_24px_rgba(0,0,0,0.03)]">
         <button
           onClick={() => setResetConfirmOpen(true)}
           className="w-full bg-transparent border border-error text-error py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-error-container transition-colors"

@@ -315,7 +315,7 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
           </div>
         </main>
 
-        <div className="fixed bottom-0 inset-x-0 bg-background/90 backdrop-blur-md border-t border-outline-variant/60 py-4 px-6 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
+        <div className="fixed bottom-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] bg-background/90 backdrop-blur-md border-t border-outline-variant/60 py-4 px-6 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
           <div className="max-w-6xl mx-auto flex items-center justify-end">
             <button
               onClick={() => {
