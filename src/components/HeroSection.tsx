@@ -1,31 +1,45 @@
 "use client"
 
 import Link from "next/link"
-import { ASSETS } from "@/lib/assets"
+
+// Template images live in the prod Supabase bucket (the staging bucket is missing
+// most seeded files), so the public hero points at prod directly.
+const PROD_MEDIA = "https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/seeded"
 
 const FAN_CARDS = [
-  { src: ASSETS.guestGallery.card1, cls: "w-20 sm:w-24 md:w-32", transform: "translate(calc(-50% - 320%), 150%) rotate(-45deg)", z: 10 },
-  { src: ASSETS.guestGallery.card2, cls: "w-24 sm:w-28 md:w-36", transform: "translate(calc(-50% - 220%), 65%) rotate(-30deg)", z: 20 },
-  { src: ASSETS.premiumWeb.story1, cls: "w-28 sm:w-32 md:w-40", transform: "translate(calc(-50% - 110%), 15%) rotate(-15deg)", z: 30 },
-  { src: ASSETS.premiumWeb.hero, cls: "w-32 sm:w-40 md:w-48", transform: "translate(-50%, 0) rotate(0deg)", z: 40 },
-  { src: ASSETS.reminderVip.chat, cls: "w-28 sm:w-32 md:w-40", transform: "translate(calc(-50% + 110%), 15%) rotate(15deg)", z: 30 },
-  { src: ASSETS.qrDigital.hero, cls: "w-24 sm:w-28 md:w-36", transform: "translate(calc(-50% + 220%), 65%) rotate(30deg)", z: 20 },
-  { src: ASSETS.wishWall.venueProjection, cls: "w-20 sm:w-24 md:w-32", transform: "translate(calc(-50% + 320%), 150%) rotate(45deg)", z: 10 },
+  { src: `${PROD_MEDIA}/guest-gallery/card-1.jpg`, cls: "w-20 sm:w-24 md:w-32", transform: "translate(calc(-50% - 320%), 150%) rotate(-45deg)", z: 10 },
+  { src: `${PROD_MEDIA}/guest-gallery/card-2.jpg`, cls: "w-24 sm:w-28 md:w-36", transform: "translate(calc(-50% - 220%), 65%) rotate(-30deg)", z: 20 },
+  { src: `${PROD_MEDIA}/premium-web/story-couple-walking.jpg`, cls: "w-28 sm:w-32 md:w-40", transform: "translate(calc(-50% - 110%), 15%) rotate(-15deg)", z: 30 },
+  { src: `${PROD_MEDIA}/premium-web/hero-mockup.jpg`, cls: "w-32 sm:w-40 md:w-48", transform: "translate(-50%, 0) rotate(0deg)", z: 40 },
+  { src: `${PROD_MEDIA}/reminder-vip/whatsapp-chat.jpg`, cls: "w-28 sm:w-32 md:w-40", transform: "translate(calc(-50% + 110%), 15%) rotate(15deg)", z: 30 },
+  { src: `${PROD_MEDIA}/qr-digital/hero-reception.jpg`, cls: "w-24 sm:w-28 md:w-36", transform: "translate(calc(-50% + 220%), 65%) rotate(30deg)", z: 20 },
+  { src: `${PROD_MEDIA}/wish-wall/venue-projection.jpg`, cls: "w-20 sm:w-24 md:w-32", transform: "translate(calc(-50% + 320%), 150%) rotate(45deg)", z: 10 },
 ]
 
 const SOCIAL_AVATARS = [
-  ASSETS.guestGallery.card1,
-  ASSETS.guestGallery.card2,
-  ASSETS.wishWall.venueProjection,
-  ASSETS.qrDigital.hero,
+  `${PROD_MEDIA}/guest-gallery/card-1.jpg`,
+  `${PROD_MEDIA}/guest-gallery/card-2.jpg`,
+  `${PROD_MEDIA}/wish-wall/venue-projection.jpg`,
+  `${PROD_MEDIA}/qr-digital/hero-reception.jpg`,
 ]
 
 export default function HeroSection() {
   return (
-    <section className="relative pt-12 pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center justify-center min-h-screen text-[#EFEAE1] [font-family:var(--font-inter)] antialiased bg-[radial-gradient(circle_at_center,#592259_0%,#3A153A_100%)]">
+    <section className="relative pt-12 pb-24 px-4 sm:px-6 lg:px-8 w-full flex flex-col items-center justify-center min-h-screen text-[#EFEAE1] [font-family:var(--font-inter)] antialiased bg-[radial-gradient(circle_at_center,#592259_0%,#3A153A_100%)]">
       <style>{`
-        .card-fan { transition: transform 0.3s ease, z-index 0s; }
-        .card-fan:hover { transform: scale(1.05) translateY(-10px) rotate(0deg) !important; z-index: 50 !important; }
+        /* Static fan position lives on the outer wrapper; only the inner card
+           lifts/scales on hover, so the motion stays smooth (no sweep/shatter). */
+        .fan-outer { transition: z-index 0s; }
+        .fan-outer:hover { z-index: 50 !important; }
+        .fan-card {
+          transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.7s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+          will-change: transform;
+        }
+        .fan-outer:hover .fan-card {
+          transform: scale(1.06) translateY(-14px);
+          box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.65);
+          border-color: rgba(255, 255, 255, 0.4);
+        }
         .badge-float { animation: float 3s ease-in-out infinite; }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0px); } }
       `}</style>
@@ -40,16 +54,18 @@ export default function HeroSection() {
           return (
             <div
               key={i}
-              className={`card-fan absolute ${card.cls} aspect-[3/4] rounded-2xl overflow-hidden border border-white/20 shadow-2xl`}
+              className="fan-outer absolute"
               style={{ transform: card.transform, left: "50%", transformOrigin: "bottom center", zIndex: card.z }}
             >
-              <img alt="Galeri" className="w-full h-full object-cover" src={card.src} />
-              {isCenter && (
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-max bg-black/60 backdrop-blur-md border border-white/10 rounded-full px-3 py-1 flex items-center gap-2 badge-float">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                  <span className="text-[10px] font-medium tracking-wider text-white uppercase">200+ Animated Designs</span>
-                </div>
-              )}
+              <div className={`fan-card relative ${card.cls} aspect-[3/4] rounded-2xl overflow-hidden border border-white/20 shadow-2xl`}>
+                <img alt="Galeri" className="w-full h-full object-cover" src={card.src} />
+                {isCenter && (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-max bg-black/60 backdrop-blur-md border border-white/10 rounded-full px-3 py-1 flex items-center gap-2 badge-float">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                    <span className="text-[10px] font-medium tracking-wider text-white uppercase">200+ Animated Designs</span>
+                  </div>
+                )}
+              </div>
             </div>
           )
         })}
