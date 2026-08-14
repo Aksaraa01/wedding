@@ -142,7 +142,7 @@ function EditorInner({ id }: { id: string }) {
   })
   const [featureSet, setFeatureSet] = useState<Set<string>>(new Set())
   const saveTimer = useRef<ReturnType<typeof setTimeout>>(null)
-  const patchTimer = useRef<ReturnType<typeof setTimeout>>(null)
+
   const pendingUpdates = useRef<Record<string, any>>({})
   const [previewVersion, setPreviewVersion] = useState(0)
   const [updatingPreview, setUpdatingPreview] = useState(false)
@@ -231,16 +231,11 @@ function EditorInner({ id }: { id: string }) {
         })
         if (!res.ok) throw new Error("Save failed")
         setSaveStatus("saved")
-        // Push updated content to the couple's WP post (invisible server-side sync).
-        if (patchTimer.current) clearTimeout(patchTimer.current)
-        patchTimer.current = setTimeout(() => {
-          syncToWp().catch(() => {})
-        }, 1200)
       } catch {
         setSaveStatus("error")
       }
     }, 600)
-  }, [id, syncToWp])
+  }, [id])
 
   // Manual preview update: flush pending save + sync to WP, then refresh the iframe.
   const handleUpdatePreview = useCallback(async () => {
@@ -250,7 +245,6 @@ function EditorInner({ id }: { id: string }) {
     const all = { ...pendingUpdates.current }
     pendingUpdates.current = {}
     if (saveTimer.current) clearTimeout(saveTimer.current)
-    if (patchTimer.current) clearTimeout(patchTimer.current)
     try {
       if (Object.keys(all).length > 0) {
         const res = await fetch(`/api/dashboard/${id}/web-invitation`, {
@@ -547,12 +541,29 @@ function EditorInner({ id }: { id: string }) {
   }
 
   const handlePublish = async () => {
-    await fetch(`/api/dashboard/${id}/web-invitation`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ is_published: true }),
-    })
-    setData(prev => ({ ...prev, is_published: true }))
+    setSaveStatus("saving")
+    setUpdatingPreview(true)
+    // Flush any pending (debounced) edits together with the confirmation.
+    const all = { ...pendingUpdates.current }
+    pendingUpdates.current = {}
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    try {
+      const res = await fetch(`/api/dashboard/${id}/web-invitation`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_published: true, ...all }),
+      })
+      if (!res.ok) throw new Error("Save failed")
+      setData(prev => ({ ...prev, ...all, is_published: true }))
+      setSaveStatus("saved")
+      // Ensure the couple's WP post carries everything from the editor.
+      await syncToWp()
+      setPreviewVersion(v => v + 1)
+    } catch {
+      setSaveStatus("error")
+    } finally {
+      setUpdatingPreview(false)
+    }
   }
 
   const getEmptyContent = () => {
