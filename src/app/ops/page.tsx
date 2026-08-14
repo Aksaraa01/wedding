@@ -31,6 +31,24 @@ const PAYMENT_LABELS: Record<string, string> = {
   FULLY_PAID: "Lunas",
 }
 
+// Content features where the couple fills the content themselves; ops only needs
+// to contact them via WhatsApp (no "Butuh Tindakan" flag, no "Selesaikan").
+const NO_ACTION_KEYS = new Set([
+  "wish_wall",
+  "reservation_automation",
+  "kolom_direct_transfer",
+  "galeri_foto_tamu",
+  "qr_code_book",
+  "unique_link_generator",
+])
+
+// Cards that need ops action are pinned first.
+const CARD_PRIORITY: Record<string, number> = {
+  premium_web: 0,
+  unique_link_generator: 1,
+  wa_blast: 2,
+}
+
 type QueueItem = {
   id: string
   status: string
@@ -110,6 +128,12 @@ type QueueDetail = {
     created_at: string
   } | null
   wa_blast_quota?: number
+  reservation_stats?: {
+    total: number
+    hadir: number
+    belum_respon: number
+    belum_dibuka: number
+  }
   vip_guests?: { id: string; name: string; phone_number: string; table_number: string; category?: string; created_at: string; added_manually?: boolean; slug?: string | null; qr_token?: string | null }[]
 }
 
@@ -184,6 +208,7 @@ export default function OpsDashboardPage() {
   const [qrSearch, setQrSearch] = useState("")
   const [qrGuests, setQrGuests] = useState<any[]>([])
   const [qrLoading, setQrLoading] = useState(false)
+  const [qrGenerating, setQrGenerating] = useState(false)
 
   const downloadExcel = (filename: string, sheet: string, header: string[], rows: (string | number)[][]) => {
     const wb = XLSX.utils.book_new()
@@ -400,6 +425,16 @@ export default function OpsDashboardPage() {
     } finally {
       setQrLoading(false)
     }
+  }
+
+  const handleGenerateQr = async () => {
+    if (!currentWp || !selectedId || qrGenerating) return
+    setQrGenerating(true)
+    try {
+      await fetch(`/api/dashboard/${currentWp.id}/qr-guestbook`, { method: "POST" })
+    } catch {}
+    await selectQueueItem(selectedId)
+    setQrGenerating(false)
   }
 
   const downloadVipExcel = () => {
@@ -719,9 +754,16 @@ export default function OpsDashboardPage() {
                       Tidak ada fitur untuk paket ini
                     </div>
                   )}
-                  {detail.feature_actions.map((fa) => {
+                  {[...detail.feature_actions]
+                    .sort((a, b) => {
+                      const pa = CARD_PRIORITY[a.feature_key] ?? 99
+                      const pb = CARD_PRIORITY[b.feature_key] ?? 99
+                      return pa - pb
+                    })
+                    .map((fa) => {
                     const isSelesai = fa.status === "selesai"
                     const isButuh = fa.status === "butuh_tindakan"
+                    const noAction = NO_ACTION_KEYS.has(fa.feature_key)
                     const statusBadgeClass = isButuh
                       ? "bg-error-container text-on-error-container"
                       : isSelesai
@@ -745,9 +787,11 @@ export default function OpsDashboardPage() {
                           <h4 className="font-display-lg text-base leading-tight">
                             {FEATURE_LABELS[fa.feature_key] || fa.feature_key}
                           </h4>
-                          <span className={`text-[9px] px-2 py-0.5 uppercase font-bold tracking-widest shrink-0 ml-3 ${statusBadgeClass}`}>
-                            {statusLabel}
-                          </span>
+                          {!noAction && (
+                            <span className={`text-[9px] px-2 py-0.5 uppercase font-bold tracking-widest shrink-0 ml-3 ${statusBadgeClass}`}>
+                              {statusLabel}
+                            </span>
+                          )}
                         </div>
 
                         {(() => {
@@ -763,6 +807,8 @@ export default function OpsDashboardPage() {
                             ? `${detail.feature_stats.photo_count} Foto Terunggah`
                             : fa.feature_key === "kolom_direct_transfer"
                             ? `${detail.feature_stats.account_count} Rek, ${detail.feature_stats.address_count} Alm`
+                            : fa.feature_key === "reservation_automation" && detail.reservation_stats
+                            ? `${detail.reservation_stats.hadir} Hadir • ${detail.reservation_stats.belum_respon} Belum Respon • ${detail.reservation_stats.belum_dibuka} Belum Dibuka`
                             : fa.feature_key === "wa_blast" && waBlastSchedule
                             ? `${WA_BLAST_LABELS[waBlastSchedule.template_type] || waBlastSchedule.template_type} • ${formatDate(waBlastSchedule.scheduled_date)} ${waBlastSchedule.scheduled_time?.slice(0, 5) || ""}`
                             : null
@@ -928,7 +974,36 @@ export default function OpsDashboardPage() {
                         )}
 
                         <div className="mt-auto flex gap-2 pt-4 border-t border-outline-variant/40">
-                          {isSelesai ? (
+                          {noAction ? (
+                            fa.feature_key === "unique_link_generator" ? (
+                              <>
+                                <a
+                                  href={waUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex-1 py-2.5 border border-primary text-[9px] font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all text-center block"
+                                >
+                                  Hubungi WA
+                                </a>
+                                <button
+                                  onClick={handleGenerateQr}
+                                  disabled={qrGenerating}
+                                  className="flex-1 py-2.5 border border-outline-variant text-[9px] font-bold uppercase tracking-widest hover:border-primary transition-all disabled:opacity-50"
+                                >
+                                  {qrGenerating ? "Membuat..." : "Generate QR"}
+                                </button>
+                              </>
+                            ) : (
+                              <a
+                                href={waUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-1 py-2.5 border border-primary text-[9px] font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all text-center block"
+                              >
+                                Hubungi WA
+                              </a>
+                            )
+                          ) : isSelesai ? (
                             <>
                               <button
                                 disabled

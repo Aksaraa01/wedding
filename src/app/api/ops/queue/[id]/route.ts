@@ -63,11 +63,17 @@ export async function GET(
 
     const { data: guests } = await supabaseAdmin
       .from("guests")
-      .select("id, name, qr_token")
+      .select("id, name, qr_token, rsvp_status, invitation_opened_at")
       .eq("wedding_profile_id", wp.id)
 
     const totalGuests = guests?.length || 0
     const withToken = guests?.filter((g) => g.qr_token).length || 0
+    const reservationStats = {
+      total: totalGuests,
+      hadir: guests?.filter((g) => g.rsvp_status === "HADIR").length || 0,
+      belum_respon: guests?.filter((g) => g.rsvp_status === "BELUM_RESPON").length || 0,
+      belum_dibuka: Math.max(0, totalGuests - (guests?.filter((g) => g.invitation_opened_at).length || 0)),
+    }
 
     // Feature-specific counts (parallel)
     const [
@@ -102,7 +108,7 @@ export async function GET(
       .order("created_at", { ascending: true })
     const waBlastQuota = (wp.package_type === "prestige" ? 100 : 0) + (wp.wa_blast_tier || 0)
 
-    // Template + track name for premium_web
+    // Template + track name for premium_web (parallel)
     let webTemplateName: string | null = null
     let webTrackName: string | null = null
     let webPublished = false
@@ -111,22 +117,16 @@ export async function GET(
       .select("selected_template_id, selected_track_id, is_published")
       .eq("id", wp.id)
       .single()
-    if (webProfile?.selected_template_id) {
-      const { data: tmpl } = await supabaseAdmin
-        .from("web_templates")
-        .select("name")
-        .eq("id", webProfile.selected_template_id)
-        .single()
-      if (tmpl) webTemplateName = tmpl.name
-    }
-    if (webProfile?.selected_track_id) {
-      const { data: trk } = await supabaseAdmin
-        .from("web_tracks")
-        .select("title")
-        .eq("id", webProfile.selected_track_id)
-        .single()
-      if (trk) webTrackName = trk.title
-    }
+    const [tmplRes, trkRes] = await Promise.all([
+      webProfile?.selected_template_id
+        ? supabaseAdmin.from("web_templates").select("name").eq("id", webProfile.selected_template_id).single()
+        : Promise.resolve({ data: null }),
+      webProfile?.selected_track_id
+        ? supabaseAdmin.from("web_tracks").select("title").eq("id", webProfile.selected_track_id).single()
+        : Promise.resolve({ data: null }),
+    ])
+    if (tmplRes?.data) webTemplateName = tmplRes.data.name
+    if (trkRes?.data) webTrackName = trkRes.data.title
     webPublished = webProfile?.is_published === true
 
     return NextResponse.json({
@@ -173,6 +173,7 @@ export async function GET(
       wa_blast_schedule: waBlastSchedule || null,
       wa_blast_quota: waBlastQuota,
       vip_guests: vipGuests || [],
+      reservation_stats: reservationStats,
     })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
