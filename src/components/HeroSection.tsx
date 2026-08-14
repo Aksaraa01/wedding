@@ -6,14 +6,14 @@ import Link from "next/link"
 const PROD_MEDIA = "https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media"
 
 const FAN_CARDS = [
-  { src: `${PROD_MEDIA}/templates/Template%201.png`, transform: "translate(calc(-50% - 400%), 160%) rotate(-28deg)", z: 10 },
-  { src: `${PROD_MEDIA}/templates/Template%202.png`, transform: "translate(calc(-50% - 286%), 110%) rotate(-20deg)", z: 20 },
-  { src: `${PROD_MEDIA}/templates/Template%203.png`, transform: "translate(calc(-50% - 171%), 35%) rotate(-12deg)", z: 30 },
+  { src: `${PROD_MEDIA}/templates/Template%201.png`, transform: "translate(calc(-50% - 380%), 133%) rotate(-28deg)", z: 10 },
+  { src: `${PROD_MEDIA}/templates/Template%202.png`, transform: "translate(calc(-50% - 272%), 95%) rotate(-20deg)", z: 20 },
+  { src: `${PROD_MEDIA}/templates/Template%203.png`, transform: "translate(calc(-50% - 162%), 28%) rotate(-12deg)", z: 30 },
   { src: `${PROD_MEDIA}/templates/Template%204.png`, transform: "translate(calc(-50% - 57%), 0) rotate(-4deg)", z: 40 },
   { src: `${PROD_MEDIA}/templates/Template%205.png`, transform: "translate(calc(-50% + 57%), 0) rotate(4deg)", z: 35 },
-  { src: `${PROD_MEDIA}/templates/Template%206.png`, transform: "translate(calc(-50% + 171%), 35%) rotate(12deg)", z: 30 },
-  { src: `${PROD_MEDIA}/templates/Template%207.png`, transform: "translate(calc(-50% + 286%), 110%) rotate(20deg)", z: 20 },
-  { src: `${PROD_MEDIA}/templates/Template%209.png`, transform: "translate(calc(-50% + 400%), 160%) rotate(28deg)", z: 10 },
+  { src: `${PROD_MEDIA}/templates/Template%206.png`, transform: "translate(calc(-50% + 162%), 28%) rotate(12deg)", z: 30 },
+  { src: `${PROD_MEDIA}/templates/Template%207.png`, transform: "translate(calc(-50% + 272%), 95%) rotate(20deg)", z: 20 },
+  { src: `${PROD_MEDIA}/templates/Template%209.png`, transform: "translate(calc(-50% + 380%), 133%) rotate(28deg)", z: 10 },
 ]
 
 const SOCIAL_AVATARS = [
@@ -23,7 +23,7 @@ const SOCIAL_AVATARS = [
   `${PROD_MEDIA}/templates/Template%204.png`,
 ]
 
-const CARD_SIZE = "w-20 sm:w-24 md:w-28"
+const CARD_SIZE = "w-24 sm:w-28 md:w-36"
 
 export default function HeroSection() {
   return (
