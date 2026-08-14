@@ -4,6 +4,7 @@ import { getTemplateComponent } from "@/components/templates"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import InvitationOpenedTracker from "@/components/InvitationOpenedTracker"
 import { getRowGates, getFeatureIncluded } from "@/lib/featureGates"
+import { getWpPostAlive } from "@/lib/wpPostCache"
 
 export default async function WeddingInvitation({
   params,
@@ -65,16 +66,11 @@ export default async function WeddingInvitation({
   const trackUrl = trackRes.data?.audio_url || undefined
 
   // Redirect to WP if this couple has an active duplicated WP post.
-  // Verify the post still exists first; if it was deleted, fall back to demo URL.
-  const wpPostAlive = await (async () => {
-    if (!profile.active_wp_post_url) return false
-    try {
-      const check = await fetch(profile.active_wp_post_url, { method: "HEAD", cache: "no-store" })
-      return check.status < 400
-    } catch {
-      return false
-    }
-  })()
+  // Verify the post still exists (cached for 5 min, so repeat views skip the
+  // WP HEAD round-trip that competed with editing); if deleted, fall back to demo URL.
+  const wpPostAlive = profile.active_wp_post_url
+    ? await getWpPostAlive(profile.active_wp_post_url)
+    : false
 
   if (profile.active_wp_post_url && wpPostAlive) {
     const guestName = guestContext?.name || to || ""
