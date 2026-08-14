@@ -161,9 +161,23 @@ Run a local standalone build pointed at the **staging** Supabase and smoke test 
 ### Deploy
 The VPS has 2GB RAM and CANNOT run `next build`. Build locally, rsync the standalone output, then restart PM2 on the server.
 
-1. Build locally:
+> **CRITICAL — verify baked env BEFORE deploying.** `NEXT_PUBLIC_*` values are
+> baked into the bundle at build time. If the wrong env file is sourced (or none
+> is), the build silently points at the wrong Supabase project and every DB read
+> on prod fails with `TypeError: fetch failed` (login *masks* this — its "user
+> not found" 401 is the `!user` branch when the query errors). This happened on
+> 2026-08-14: the deployed bundle baked `127.0.0.1:54321` + the local `supabase-demo`
+> anon key. After every `npm run build`, BEFORE rsyncing, assert the correct URL:
+> ```bash
+> grep -o "127.0.0.1:54321\|<PROJECT_REF>.supabase.co\|supabase-demo" \
+>   .next/standalone/.next/server/chunks/src_lib_supabase_ts_0_m2_rm._.js | sort | uniq -c
+> ```
+> Only `<PROJECT_REF>.supabase.co` should appear. If it also shows the local URL/key,
+> rebuild with the correct env sourced (`set -a; source .env.local.prod; set +a; npm run build`).
+
+1. Build locally (env MUST be sourced, see critical note above):
    ```bash
-   npm run build
+   set -a; source .env.local.prod; set +a; npm run build
    ```
 2. Rsync standalone output to server (always run all five, or chunks/static/public will 404):
    ```bash

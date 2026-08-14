@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import TemplatePreviewModal from "@/components/TemplatePreviewModal"
+import { pollWpJob } from "@/lib/wpJobPoll"
 
 type Template = {
   id: string
@@ -19,6 +20,7 @@ function TemplatesInner({ id }: { id: string }) {
   const [templates, setTemplates] = useState<Template[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [previewTpl, setPreviewTpl] = useState<Template | null>(null)
 
   useEffect(() => {
@@ -36,18 +38,26 @@ function TemplatesInner({ id }: { id: string }) {
 
   const handleSelect = async (templateId: string) => {
     setSaving(true)
-    const res = await fetch(`/api/wp/duplicate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ template_id: templateId, profile_id: id }),
-    })
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}))
-      console.error("[templates] duplicate failed", data.error || res.statusText)
+    setError(null)
+    try {
+      const res = await fetch(`/api/wp/duplicate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ template_id: templateId, profile_id: id }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || res.statusText)
+      }
+      const { job_id } = await res.json()
+      await pollWpJob(job_id)
+      setSelectedId(templateId)
+      router.back()
+    } catch (err) {
+      console.error("[templates] duplicate failed", err)
+      setError(err instanceof Error ? err.message : "Gagal menyimpan template")
+      setSaving(false)
     }
-    setSelectedId(templateId)
-    setSaving(false)
-    router.back()
   }
 
   return (
@@ -103,6 +113,13 @@ function TemplatesInner({ id }: { id: string }) {
             </article>
           ))}
         </div>
+
+        {error && (
+          <div className="mt-8 p-4 border border-error bg-error/10 text-on-surface">
+            <p className="font-label-md text-[11px] uppercase tracking-widest text-error mb-1">Sinkronisasi Gagal</p>
+            <p className="text-[13px]">{error}</p>
+          </div>
+        )}
       </main>
 
       {previewTpl && (

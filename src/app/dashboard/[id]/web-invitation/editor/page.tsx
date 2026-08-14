@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import { getTemplateComponent } from "@/components/templates"
 import { RowGates } from "@/lib/featureGates"
+import { pollWpJob } from "@/lib/wpJobPoll"
 
 type Profile = {
   id: string
@@ -125,6 +126,7 @@ function EditorInner({ id }: { id: string }) {
     inviting_families: [],
   })
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error">("saved")
+  const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "error">("idle")
   const [activeSection, setActiveSection] = useState<string>("sampul")
   const [showMobilePreview, setShowMobilePreview] = useState(false)
   const [previewDevice, setPreviewDevice] = useState<"mobile" | "desktop">("mobile")
@@ -188,6 +190,30 @@ function EditorInner({ id }: { id: string }) {
       .finally(() => setFeedbackLoading(false))
   }, [id])
 
+  // Enqueue a WP patch and poll until it finishes. Coalesced server-side: rapid
+  // saves share one job, so polling the same job_id is safe.
+  const syncToWp = useCallback(async () => {
+    setSyncStatus("syncing")
+    try {
+      const res = await fetch(`/api/wp/patch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profile_id: id }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || res.statusText)
+      }
+      const { job_id } = await res.json()
+      await pollWpJob(job_id)
+      setSyncStatus("idle")
+    } catch (err) {
+      console.error("[editor] wp sync failed", err)
+      setSyncStatus("error")
+      throw err
+    }
+  }, [id])
+
   const save = useCallback((updates: Record<string, any>) => {
     setSaveStatus("saving")
     // Accumulate changes within the debounce window so multi-field edits
@@ -208,17 +234,13 @@ function EditorInner({ id }: { id: string }) {
         // Push updated content to the couple's WP post (invisible server-side sync).
         if (patchTimer.current) clearTimeout(patchTimer.current)
         patchTimer.current = setTimeout(() => {
-          fetch(`/api/wp/patch`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ profile_id: id }),
-          }).catch(() => {})
+          syncToWp().catch(() => {})
         }, 1200)
       } catch {
         setSaveStatus("error")
       }
     }, 600)
-  }, [id])
+  }, [id, syncToWp])
 
   // Manual preview update: flush pending save + sync to WP, then refresh the iframe.
   const handleUpdatePreview = useCallback(async () => {
@@ -240,18 +262,14 @@ function EditorInner({ id }: { id: string }) {
       }
       setSaveStatus("saved")
       // Sync to the couple's WP post and refresh the iframe once it's done.
-      await fetch(`/api/wp/patch`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profile_id: id }),
-      }).catch(() => {})
+      await syncToWp()
       setPreviewVersion(v => v + 1)
     } catch {
       setSaveStatus("error")
     } finally {
       setUpdatingPreview(false)
     }
-  }, [id])
+  }, [id, syncToWp])
 
   const updateField = (field: string, value: any) => {
     if (data.is_published === true) return
@@ -581,8 +599,16 @@ function EditorInner({ id }: { id: string }) {
     )
   }
 
-  const saveStatusLabel = saveStatus === "saving" ? "Menyimpan..." : saveStatus === "error" ? "Gagal menyimpan" : "Tersimpan Otomatis"
-  const saveStatusColor = saveStatus === "saving" ? "bg-amber-500" : saveStatus === "error" ? "bg-red-500" : "bg-emerald-500"
+  const saveStatusLabel =
+    syncStatus === "syncing" ? "Menyinkronkan..." :
+    syncStatus === "error" ? "Sinkronisasi gagal" :
+    saveStatus === "saving" ? "Menyimpan..." :
+    saveStatus === "error" ? "Gagal menyimpan" : "Tersimpan Otomatis"
+  const saveStatusColor =
+    syncStatus === "syncing" ? "bg-brand-gold" :
+    syncStatus === "error" ? "bg-red-500" :
+    saveStatus === "saving" ? "bg-amber-500" :
+    saveStatus === "error" ? "bg-red-500" : "bg-emerald-500"
   const isPublished = data.is_published === true
 
   const renderPreviewBody = () => {
