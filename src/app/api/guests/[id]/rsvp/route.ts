@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { checkRateLimit, getClientIp, rateLimited } from "@/lib/rateLimit"
 
 const ALLOWED = new Set(["HADIR", "TIDAK_HADIR"])
 
@@ -15,6 +16,9 @@ export async function POST(
     if (typeof rsvp_status !== "string" || !ALLOWED.has(rsvp_status)) {
       return NextResponse.json({ error: "Kehadiran tidak valid" }, { status: 400 })
     }
+
+    const rl = checkRateLimit(`rsvp:${getClientIp(req)}:${id}`, 10, 60_000)
+    if (!rl.ok) return rateLimited(rl.retryAfterMs!)
 
     let maxPax = 2
     const { data: guestRow } = await supabaseAdmin

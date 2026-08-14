@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { checkRateLimit, getClientIp, rateLimited } from "@/lib/rateLimit"
 
 export async function GET(req: NextRequest) {
   try {
@@ -51,6 +52,9 @@ export async function POST(req: NextRequest) {
     if (!wedding_profile_id || !name || !message) {
       return NextResponse.json({ error: "Data tidak lengkap" }, { status: 400 })
     }
+
+    const rl = checkRateLimit(`wish:${getClientIp(req)}:${wedding_profile_id}`, 30, 60_000)
+    if (!rl.ok) return rateLimited(rl.retryAfterMs!)
 
     const wishSource = source === "welcome" ? "welcome" : "invitation"
 
