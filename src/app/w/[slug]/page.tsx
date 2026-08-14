@@ -5,6 +5,7 @@ import InvitationOverlay from "@/components/InvitationOverlay"
 import InvitationOpenedTracker from "@/components/InvitationOpenedTracker"
 import { getRowGates, getFeatureIncluded } from "@/lib/featureGates"
 import { getWpPostAlive } from "@/lib/wpPostCache"
+import { cachedRead } from "@/lib/refCache"
 
 export default async function WeddingInvitation({
   params,
@@ -58,7 +59,15 @@ export default async function WeddingInvitation({
     supabaseAdmin.from("gift_accounts").select("provider_name, account_number, account_name, type").eq("wedding_profile_id", profile.id).eq("is_active", true),
     supabaseAdmin.from("gift_addresses").select("full_address").eq("wedding_profile_id", profile.id).eq("is_active", true).single(),
     profile.selected_track_id
-      ? supabaseAdmin.from("web_tracks").select("audio_url").eq("id", profile.selected_track_id).single()
+      ? (async () => {
+          // Static reference data — cached so repeat views skip this read.
+          const audioUrl = await cachedRead(`track:${profile.selected_track_id}`, 10 * 60_000, async () => {
+            const { data, error } = await supabaseAdmin.from("web_tracks").select("audio_url").eq("id", profile.selected_track_id).single()
+            if (error) return null
+            return data?.audio_url || null
+          })
+          return { data: { audio_url: audioUrl } }
+        })()
       : Promise.resolve({ data: null }),
   ])
   const giftAccounts = giftAcctsRes.data?.filter(a => a.type === "bank" || a.type === "ewallet") || []
@@ -117,11 +126,16 @@ export default async function WeddingInvitation({
   // Resolve template code and render via registry
   let templateCode: string | null = null
   if (profile.selected_template_id) {
-    const { data: tmpl } = await supabaseAdmin
-      .from("web_templates")
-      .select("code, demo_url")
-      .eq("id", profile.selected_template_id)
-      .single()
+    // Static reference data — cached so repeat views skip this read.
+    const tmpl = await cachedRead<{ code: string | null; demo_url: string | null } | null>(`template:${profile.selected_template_id}`, 10 * 60_000, async () => {
+      const { data, error } = await supabaseAdmin
+        .from("web_templates")
+        .select("code, demo_url")
+        .eq("id", profile.selected_template_id)
+        .single()
+      if (error) return null
+      return { code: data?.code || null, demo_url: data?.demo_url || null }
+    })
     if (tmpl) templateCode = tmpl.code
     // Fallback: redirect to WP template demo URL (for templates without a live active dup)
     if (tmpl?.demo_url && !wpPostAlive) {
