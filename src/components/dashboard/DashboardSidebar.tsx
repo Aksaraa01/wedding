@@ -113,7 +113,7 @@ export default function DashboardSidebar({
 
   return (
     <aside
-      className={`fixed left-0 top-20 bottom-0 z-40 hidden lg:flex flex-col bg-[#1A1817] text-[#f5f0e7] transition-[width] duration-300 overflow-hidden ${
+      className={`fixed left-0 top-0 bottom-0 z-40 hidden lg:flex flex-col bg-[#1A1817] text-[#f5f0e7] transition-[width] duration-300 overflow-hidden ${
         collapsed ? "w-[76px]" : "w-[280px]"
       }`}
     >

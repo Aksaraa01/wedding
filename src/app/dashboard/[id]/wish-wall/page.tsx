@@ -114,11 +114,8 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
       `}</style>
 
       {/* Top Navigation Bar */}
-      <header className="fixed top-0 inset-x-0 z-50 bg-[#fdf9f0]/80 backdrop-blur-md border-b border-[#c4c7c7]/30 flex justify-between items-center px-6 lg:px-10 h-16">
-        <button onClick={() => router.push(`/dashboard/${id}`)} className="flex items-center gap-2 text-on-surface hover:opacity-70 transition-opacity">
-          <span className="material-symbols-outlined text-[20px]">arrow_back</span>
-          <span className="font-label-md text-label-md tracking-widest uppercase">Kembali</span>
-        </button>
+      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-[#fdf9f0]/80 backdrop-blur-md border-b border-[#c4c7c7]/30 flex justify-between items-center px-6 lg:px-10 h-16">
+        <span className="font-label-md text-label-md tracking-widest uppercase text-on-surface-variant">Wish Wall</span>
         <div className="hidden lg:flex items-center gap-4">
           <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">Admin Mode</span>
           <ProfileMenu />

@@ -296,13 +296,9 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       {/* Header */}
       <header className="shrink-0 bg-background/95 backdrop-blur-md border-b border-outline-variant/40 px-6 md:px-12 py-4">
         <nav className="max-w-2xl flex items-center justify-between">
-          <button
-            onClick={() => router.push(`/dashboard/${id}`)}
-            className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors group font-label-md text-[11px] uppercase tracking-wider font-semibold"
-          >
-            <span className="material-symbols-outlined text-base group-hover:-translate-x-0.5 transition-transform">arrow_back</span>
-            Kembali
-          </button>
+          <span className="inline-flex items-center gap-2 text-on-surface-variant font-label-md text-[11px] uppercase tracking-wider font-semibold">
+            Panel Kontrol Tautan &amp; QR
+          </span>
           <ProfileMenu />
         </nav>
       </header>

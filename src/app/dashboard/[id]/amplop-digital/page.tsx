@@ -337,11 +337,8 @@ function AmplopDigitalInner({ id }: { id: string }) {
     <>
       <PageTheme mode="light" />
 
-      <header className="fixed top-0 inset-x-0 z-40 bg-brand-cream/90 backdrop-blur-md border-b border-brand-border h-16 flex items-center px-5 sm:px-8 justify-between">
-        <button onClick={() => router.push(`/dashboard/${id}`)} className="inline-flex items-center gap-2 text-brand-charcoal hover:text-brand-terracotta transition-colors group">
-          <span className="material-symbols-outlined text-xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
-          <span className="text-xs uppercase tracking-[0.2em] font-semibold">Kembali</span>
-        </button>
+      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-40 bg-brand-cream/90 backdrop-blur-md border-b border-brand-border h-16 flex items-center px-5 sm:px-8 justify-between">
+        <span className="text-xs uppercase tracking-[0.2em] font-semibold text-brand-charcoal">Amplop Digital &amp; E-Gift</span>
         <div className="flex items-center gap-3">
           <span className="w-2 h-2 rounded-full bg-emerald-500" />
           <span className="text-xs text-brand-slate font-medium hidden sm:inline">Perubahan Otomatis Disimpan</span>

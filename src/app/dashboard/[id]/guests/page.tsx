@@ -389,14 +389,8 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   return (
     <>
       <PageTheme mode="light" />
-      <header className="fixed top-0 inset-x-0 z-50 bg-background/90 backdrop-blur-md px-edge-margin-mobile py-6 flex items-center justify-between">
-        <button
-          onClick={() => router.push(`/dashboard/${weddingProfileId}`)}
-          className="flex items-center gap-2 text-primary hover:opacity-70 transition-opacity"
-        >
-          <span className="material-symbols-outlined text-body-md">arrow_back</span>
-          <span className="font-label-md text-label-md">KEMBALI</span>
-        </button>
+      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-background/90 backdrop-blur-md px-edge-margin-mobile py-6 flex items-center justify-between">
+        <span className="font-label-md text-label-md text-primary uppercase tracking-widest">Manajemen Daftar Tamu</span>
         <ProfileMenu />
       </header>
 
