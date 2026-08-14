@@ -291,7 +291,7 @@ function Inner() {
             const isPrestige = pkg.code === "prestige"
             const pkgColor = PKG_COLORS[pkg.code] || ""
 
-            let cardClasses = "flex flex-col p-10 bg-surface transition-all duration-500 cursor-pointer relative overflow-hidden"
+            let cardClasses = "flex flex-col p-10 bg-white transition-all duration-500 cursor-pointer relative overflow-hidden"
             if (isActive) {
               cardClasses += isPrestige
                 ? " border-2 border-[#d4af37] scale-105 z-10 shadow-2xl"
@@ -364,7 +364,7 @@ function Inner() {
 
         {selectedPackage === "prestige" && (
           <section className="mb-6">
-            <div className="border border-outline-variant/30 p-6 md:p-8">
+            <div className={`border p-6 md:p-8 bg-white transition-colors ${waBlastTier > 0 ? "border-secondary" : "border-outline-variant/30"}`}>
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <h4 className="font-headline-md text-xl md:text-2xl mb-1">Tambah Reminder Tamu VIP</h4>
@@ -403,7 +403,7 @@ function Inner() {
         )}
 
         <section className="mb-6">
-          <div className="border border-secondary bg-secondary-fixed/30 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className={`border p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 bg-white transition-colors ${expressService ? "border-secondary" : "border-outline-variant/30"}`}>
             <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto">
               <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-secondary text-white flex items-center justify-center shrink-0">
                 <span className="material-symbols-outlined scale-110 md:scale-125">bolt</span>
@@ -432,7 +432,7 @@ function Inner() {
         </section>
 
         <section className="mb-6">
-          <div className="border border-outline-variant/30 p-6 md:p-8 flex items-center justify-between">
+          <div className={`border p-6 md:p-8 flex items-center justify-between bg-white transition-colors ${undanganFisik ? "border-secondary" : "border-outline-variant/30"}`}>
             <div>
               <h4 className="font-headline-md text-2xl mb-1">Undangan Fisik Premium (Cetak)</h4>
               <p className="font-body-md text-on-surface-variant">Layanan cetak eksklusif dengan bahan premium.</p>
@@ -451,14 +451,14 @@ function Inner() {
 
         <section className="mb-32">
           <h2 className="font-headline-lg text-headline-lg mb-12 text-center">Detail Komparasi Fitur</h2>
-          <div className="overflow-x-auto hide-scrollbar border-t border-outline">
+          <div className="overflow-x-auto hide-scrollbar border-t border-outline bg-white">
             <table className="w-full text-left min-w-[800px]">
               <thead>
                 <tr className="font-label-md text-label-md uppercase tracking-widest border-b border-outline-variant">
                   <th className="py-6 font-semibold w-1/4">Fitur Utama</th>
                   <th className={`py-6 text-center w-1/4 ${selectedPackage === "essential" ? "text-primary" : ""}`}>Essential</th>
                   <th className={`py-6 text-center w-1/4 ${selectedPackage === "signature" ? "text-secondary" : ""}`}>Signature</th>
-                  <th className={`py-6 text-center w-1/4 ${selectedPackage === "prestige" ? "text-[#d4af37]" : ""}`}>Prestige</th>
+                  <th className="py-6 text-center w-1/4 text-[#d4af37]">Prestige</th>
                 </tr>
               </thead>
               <tbody className="font-body-md">
@@ -472,7 +472,7 @@ function Inner() {
                         <td className="py-4">{row.label}</td>
                         <td className={`py-4 text-center ${row.essential.class || ""}`}>{row.essential.value}</td>
                         <td className={`py-4 text-center ${row.signature.class || ""}`}>{row.signature.value}</td>
-                        <td className={`py-4 text-center ${row.prestige.class || ""}`}>{row.prestige.value}</td>
+                        <td className="py-4 text-center text-[#d4af37]">{row.prestige.value}</td>
                       </tr>
                     ))}
                   </React.Fragment>
