@@ -11,7 +11,7 @@
 
 - **Read path OK under realistic load.** QR redirect + check-in + invitation render hold up to ~140 req/s (500 VU) with sub-second p50 and 0% errors at that level. The write paths (RSVP, wishes) are **100% reliable** even at 500 VUs for 10 minutes.
 - **Capacity ceiling is the Node/VPS box and the synchronous Supabase/WP round-trips, not the DB.** At >300 VU the render path degrades steeply (request timeouts, ~63% errors at 1000 VU peak) because every `w/[slug]` view issues 5–8 Supabase reads + a `cache: no-store` WP HEAD per request.
-- **CONFIRMED PROD BUG (not load-induced):** `POST /api/guests/{id}/open` returns **HTTP 500 on every call** (`Cannot coerce the result to a single JSON object`) because `route.ts` calls `.single()` on a filtered update that matches 0 rows. This broke 23,170/23,170 open attempts in Phase 3. Fix required (Section 7).
+- **CONFIRMED PROD BUG (not load-induced):** `POST /api/guests/{id}/open` returns **HTTP 500 on every call** (`Cannot coerce the result to a single JSON object`) because `route.ts` calls `.single()` on a filtered update that matches 0 rows. This broke 23,170/23,170 open attempts in Phase 3. **✅ FIXED after the test** (Section 5 + 7).
 - **Memory/segfault behavior:** Phase 1 (1000 VU peak, slow requests pile-up) ballooned Node RSS to ~788 MB and tripped repeated PM2 restarts; Node itself kept recovering. Phase 3 at 500 VU plateaued at ~225 MB RSS with no OOM — the box is memory-safe for the sustaining envelope, fragile above it.
 - **Data integrity preserved:** only the dedicated test couple was touched; all real profiles/guests/wishes intact after cleanup (Section 6).
 - **WP template creation/edit path is the critical capacity bottleneck.** Phase 5 (60 concurrent couples each duplicating + repeatedly patching a WP template) saturates the WordPress PHP-FPM pool (`pm.max_children = 5`). Average request latency ballooned to **26.9s** with 5/5 workers pinned and 300+ queued Node connections; 72 proxied 502s + 99 client timeouts. Node itself stayed lean (~164 MB RSS) — **WordPress, not Next.js or Supabase, is what cannot handle concurrency** (Section 4.4, recommendations Section 7).
@@ -160,6 +160,7 @@ Phase 2 recap: RSVP 100%, wish 100%; `open` failed 4,382× (96% of open attempts
 
   When the guest's `invitation_opened_at` is already set (second open), the `.is(..., null)` filter matches **zero rows**, and PostgREST cannot coerce an empty result set into a single JSON object → error. (First open works only if nothing raced; under any repeat visit it 500s.)
 - **Impact on every production invitation page:** the visitor-side open tracker fires on every page view and gets a guaranteed 500 after the first visit; also inflates error telemetry and adds a wasted request per view.
+- **Status: ✅ FIXED 2026-08-14** — switched to `.maybeSingle()`; both first-open and already-opened return 200 (verified on prod).
 - **Fix (recommended):** use `.maybeSingle()` and treat the no-row case as an idempotent no-op, or drop `.single()` and return `{ guest: data?.[0] ?? null }`:
 
   ```ts
@@ -203,8 +204,8 @@ Phase 2 recap: RSVP 100%, wish 100%; `open` failed 4,382× (96% of open attempts
 ## 7. Recommendations (prioritized)
 
 ### P0 — fix now
-1. **Fix `open` route** (Section 5) — `.maybeSingle()`. One-line change; removes a guaranteed 500 from every couple's invitation.
-2. **Add rate limiting.** `k6` shows any client can hammer `POST /api/wishes` / `POST .../rsvp` / `open` unrestricted. Add a per-IP + per-profile limiter in middleware (`src/middleware.ts` — currently none exists) using Supabase tokens or the Next server.
+1. ✅ **DONE — `open` route fixed.** `.single()` → `.maybeSingle()` (Section 5). Both first-open and already-opened now return HTTP 200; verified on prod (fresh guest returns the row and persists `invitation_opened_at`; repeat visit returns `{ guest: null }` without error). Deployed 2026-08-14.
+2. ✅ **DONE — rate limiting added.** In-memory sliding-window limiter (`src/lib/rateLimit.ts`, reliable on the single PM2 fork): `POST /api/guests/{id}/open` 60/min per IP; `POST .../rsvp` 10/min per IP+guest; `POST /api/wishes` 30/min per IP+wedding_profile (per-profile key so a NAT'd venue isn't blocked). Returns 429 + `Retry-After`. Verified on prod: 35 rapid wish POSTs → 30 accepted then 429. Deployed 2026-08-14.
 
 ### P1 — WordPress template capacity (Blockers for concurrent editing)
 3. **Do not rely on 5 PHP-FPM workers for concurrent edits.** Phase 5 shows ~5-6 concurrent duplicate/patch ops saturate WordPress (`pm.max_children = 5`): avg 27s, 502/timeouts beyond that. ✅ **DONE (Phase 5b): the work is now queued** — `/api/wp/duplicate` + `/api/wp/patch` enqueue into a `wp_sync_jobs` table and return 202; an in-process worker (concurrency 2) calls WP serially. Same 60-VU load now runs at 271ms avg / 0% errors with PHP-FPM peaking at 3/5 workers (Section 4.6). Remaining options if WP load keeps growing:
