@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import { MESSAGE_TEMPLATES } from "@/lib/reminderTemplates"
+import ProfileMenu from "@/components/ProfileMenu"
 
 function stripQrLines(text: string): string {
   return text
@@ -138,14 +139,17 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
     <>
       <PageTheme mode="light" />
       <div className="min-h-screen bg-background text-on-surface font-body-md antialiased pb-32">
-        <header className="fixed top-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-md border-b border-outline-variant/30 flex items-center px-6 md:px-12 h-16">
-          <button
-            onClick={() => router.push(`/dashboard/${id}`)}
-            className="flex items-center gap-2 text-on-surface hover:opacity-70 transition-opacity"
-          >
-            <span className="material-symbols-outlined text-[20px]">arrow_back</span>
-            <span className="font-label-md text-label-md uppercase tracking-widest">Kembali</span>
-          </button>
+        <header className="fixed top-0 inset-x-0 z-50 bg-surface/95 backdrop-blur-md border-b border-outline-variant/30 flex items-center px-6 md:px-12 h-16">
+          <div className="w-full flex items-center justify-between">
+            <button
+              onClick={() => router.push(`/dashboard/${id}`)}
+              className="flex items-center gap-2 text-on-surface hover:opacity-70 transition-opacity"
+            >
+              <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+              <span className="font-label-md text-label-md uppercase tracking-widest">Kembali</span>
+            </button>
+            <ProfileMenu />
+          </div>
         </header>
         <main className="w-full max-w-6xl mx-auto px-6 pt-28 flex flex-col gap-8">
           <div className="flex flex-col gap-5">

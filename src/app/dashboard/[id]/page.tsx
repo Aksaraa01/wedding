@@ -282,7 +282,7 @@ function DashboardInner({ id }: { id: string }) {
   return (
     <>
       <PageTheme mode="light" />
-      <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-outline-variant h-20 flex items-center justify-between px-6">
+      <header className="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-md border-b border-outline-variant h-20 flex items-center justify-between px-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
             <span className="text-on-primary font-['Playfair_Display'] text-xl">A</span>

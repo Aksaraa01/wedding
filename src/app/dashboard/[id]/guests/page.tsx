@@ -389,7 +389,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   return (
     <>
       <PageTheme mode="light" />
-      <header className="fixed top-0 left-0 w-full z-50 bg-background/90 backdrop-blur-md px-edge-margin-mobile py-6 flex items-center">
+      <header className="fixed top-0 inset-x-0 z-50 bg-background/90 backdrop-blur-md px-edge-margin-mobile py-6 flex items-center justify-between">
         <button
           onClick={() => router.push(`/dashboard/${weddingProfileId}`)}
           className="flex items-center gap-2 text-primary hover:opacity-70 transition-opacity"
@@ -397,6 +397,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
           <span className="material-symbols-outlined text-body-md">arrow_back</span>
           <span className="font-label-md text-label-md">KEMBALI</span>
         </button>
+        <ProfileMenu />
       </header>
 
       <main className="h-screen pt-20 px-edge-margin-mobile md:px-edge-margin-desktop max-w-2xl md:max-w-6xl mx-auto flex flex-col">

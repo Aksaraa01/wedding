@@ -6,6 +6,7 @@ import PageTheme from "@/components/PageTheme"
 import { getTemplateComponent } from "@/components/templates"
 import { RowGates } from "@/lib/featureGates"
 import { pollWpJob } from "@/lib/wpJobPoll"
+import ProfileMenu from "@/components/ProfileMenu"
 
 type Profile = {
   id: string
@@ -714,6 +715,8 @@ function EditorInner({ id }: { id: string }) {
             <div className="flex items-center gap-4 text-on-surface-variant">
               <button onClick={() => setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile")} className="hover:text-primary transition-colors hidden sm:flex"><span className="material-symbols-outlined">devices</span></button>
             </div>
+
+            <ProfileMenu />
 
             {/* Ganti Tema */}
             <button

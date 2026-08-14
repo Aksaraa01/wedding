@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import ProfileMenu from "@/components/ProfileMenu"
 
 type GuestPhoto = {
   id: string
@@ -122,12 +123,13 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
 
   return (
     <div className="min-h-screen bg-surface text-on-surface font-body-md antialiased">
-        <header className="fixed top-0 w-full z-50 bg-surface border-b border-outline-variant h-20 transition-all duration-300 ease-in-out">
+        <header className="fixed top-0 inset-x-0 z-50 bg-surface border-b border-outline-variant h-20 transition-all duration-300 ease-in-out">
           <div className="flex items-center justify-between px-edge-margin-mobile md:px-edge-margin-desktop h-full w-full max-w-container-max mx-auto">
-            <div className="flex items-center gap-4 hover:opacity-70 transition-opacity duration-300 cursor-pointer" onClick={() => router.back()}>
+            <button onClick={() => router.push(`/dashboard/${id}`)} className="flex items-center gap-2 hover:opacity-70 transition-opacity duration-300 cursor-pointer">
               <span className="material-symbols-outlined text-primary">arrow_back</span>
-              <span className="font-headline-md text-[20px] md:text-headline-md text-primary uppercase tracking-widest">Aksaraa</span>
-            </div>
+              <span className="font-label-md text-label-md text-primary uppercase tracking-widest">Kembali</span>
+            </button>
+            <ProfileMenu />
           </div>
         </header>
 

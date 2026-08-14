@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
+import ProfileMenu from "@/components/ProfileMenu"
 
 type Profile = {
   id: string
@@ -66,14 +67,17 @@ const sessions = Array.isArray(p.sessions) ? p.sessions.map((s: any) => s?.date)
     <>
       <PageTheme mode="light" />
       <div className="min-h-screen flex flex-col relative pb-32">
-        <header className="fixed top-0 left-0 right-0 z-50 bg-surface flex items-center w-full px-6 md:px-12 h-16 border-b border-outline-variant/30 transition-all">
-          <button
-            onClick={() => router.push(`/dashboard/${id}`)}
-            className="flex items-center gap-2 text-primary hover:opacity-70 transition-opacity"
-          >
-            <span className="material-symbols-outlined text-[20px]">arrow_back</span>
-            <span className="font-label-md text-label-md uppercase">Kembali</span>
-          </button>
+        <header className="fixed top-0 inset-x-0 z-50 bg-surface flex items-center w-full px-6 md:px-12 h-16 border-b border-outline-variant/30 transition-all">
+          <div className="w-full flex items-center justify-between">
+            <button
+              onClick={() => router.push(`/dashboard/${id}`)}
+              className="flex items-center gap-2 text-primary hover:opacity-70 transition-opacity"
+            >
+              <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+              <span className="font-label-md text-label-md uppercase">Kembali</span>
+            </button>
+            <ProfileMenu />
+          </div>
         </header>
 
         <main className="flex-1 w-full max-w-[500px] mx-auto px-6 pt-24">

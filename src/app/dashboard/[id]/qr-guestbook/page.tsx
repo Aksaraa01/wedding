@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import * as XLSX from "xlsx"
 import { ASSETS } from "@/lib/assets"
+import ProfileMenu from "@/components/ProfileMenu"
 
 type Guest = {
   id: string
@@ -21,6 +22,7 @@ type Guest = {
 
 type Profile = {
   payment_status: "UNPAID" | "PARTIAL_DP" | "FULLY_PAID"
+  is_published: boolean
   slug: string
   bride_name: string
   groom_name: string
@@ -32,17 +34,23 @@ type Stats = {
   checked_in: number
 }
 
-function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, copiedId, copiedKind }: {
+function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, copiedId, copiedKind, gated, isFirstGuest, onGatedClick }: {
   guest: Guest
   slug: string
   onCopyQr: (token: string, slug: string | null) => void
   onCopyUndangan: (guest: Guest) => void
   copiedId: string | null
   copiedKind: "qr" | "undangan" | null
+  gated: boolean
+  isFirstGuest: boolean
+  onGatedClick: () => void
 }) {
   const hasToken = !!guest.qr_token
   const isCopiedQr = copiedId === guest.id && copiedKind === "qr"
   const isCopiedUndangan = copiedId === guest.id && copiedKind === "undangan"
+
+  const blocked = gated && !isFirstGuest
+  const blockAction = (fn: () => void) => (blocked ? onGatedClick : fn)
 
   return (
     <div className="bg-surface-container-lowest border border-outline-variant/50 hover:border-outline rounded-xl p-5 shadow-sm transition-all duration-200 flex flex-col gap-4 group">
@@ -82,27 +90,27 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, copiedId, copiedKind
 
       <div className="grid grid-cols-2 gap-3">
         <button
-          onClick={() => hasToken && onCopyQr(guest.qr_token!, guest.slug)}
-          disabled={!hasToken}
+          onClick={() => blockAction(() => hasToken && onCopyQr(guest.qr_token!, guest.slug))()}
+          disabled={!blocked && !hasToken}
           className="flex flex-col items-center justify-center gap-1.5 px-3 py-4 rounded-xl border border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant hover:border-secondary hover:text-secondary disabled:opacity-30 disabled:hover:border-outline-variant/60 disabled:hover:text-on-surface-variant transition-colors"
         >
           <span className={`material-symbols-outlined text-xl ${isCopiedQr ? "text-emerald-600" : ""}`}>
-            {isCopiedQr ? "check" : "qr_code_2"}
+            {isCopiedQr ? "check" : blocked ? "lock" : "qr_code_2"}
           </span>
           <span className={`font-label-md text-[10px] uppercase tracking-wider font-semibold text-center leading-tight ${isCopiedQr ? "text-emerald-700" : ""}`}>
-            {isCopiedQr ? "TAUTAN QR TERSALIN" : "SALIN TAUTAN QR"}
+            {blocked ? "KUNCI — LENGKAPI UNDANGAN" : isCopiedQr ? "TAUTAN QR TERSALIN" : "SALIN TAUTAN QR"}
           </span>
         </button>
         <button
-          onClick={() => hasToken && onCopyUndangan(guest)}
-          disabled={!hasToken}
+          onClick={() => blockAction(() => hasToken && onCopyUndangan(guest))()}
+          disabled={!blocked && !hasToken}
           className="flex flex-col items-center justify-center gap-1.5 px-3 py-4 rounded-xl border border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant hover:border-secondary hover:text-secondary disabled:opacity-30 disabled:hover:border-outline-variant/60 disabled:hover:text-on-surface-variant transition-colors"
         >
           <span className={`material-symbols-outlined text-xl ${isCopiedUndangan ? "text-emerald-600" : ""}`}>
-            {isCopiedUndangan ? "check" : "link"}
+            {isCopiedUndangan ? "check" : blocked ? "lock" : "link"}
           </span>
           <span className={`font-label-md text-[10px] uppercase tracking-wider font-semibold text-center leading-tight ${isCopiedUndangan ? "text-emerald-700" : ""}`}>
-            {isCopiedUndangan ? "TAUTAN UNDANGAN TERSALIN" : "SALIN TAUTAN UNDANGAN"}
+            {blocked ? "KUNCI — LENGKAPI UNDANGAN" : isCopiedUndangan ? "TAUTAN UNDANGAN TERSALIN" : "SALIN TAUTAN UNDANGAN"}
           </span>
         </button>
       </div>
@@ -125,6 +133,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   const [exporting, setExporting] = useState(false)
   const [qrCodeBook, setQrCodeBook] = useState(true)
   const [showLimitModal, setShowLimitModal] = useState(false)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
 
   const fetchData = async () => {
     try {
@@ -149,10 +158,18 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
     fetchData().finally(() => setLoading(false))
   }, [id])
 
+  const gated = !!profile && profile.payment_status !== "UNPAID" && profile.is_published !== true
+  const firstGuestId = guests[0]?.id || null
+
   const handleGenerate = async () => {
     setGenerating(true)
     try {
-      const res = await fetch(`/api/dashboard/${id}/qr-guestbook`, { method: "POST" })
+      const body = gated ? JSON.stringify({ guest_id: firstGuestId }) : undefined
+      const res = await fetch(`/api/dashboard/${id}/qr-guestbook`, {
+        method: "POST",
+        headers: body ? { "Content-Type": "application/json" } : undefined,
+        body,
+      })
       const data = await res.json()
       if (res.ok) {
         await fetchData()
@@ -208,6 +225,10 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
 
   const handleExportExcel = async () => {
     if (!profile || guests.length === 0) return
+    if (gated) {
+      setShowConfirmModal(true)
+      return
+    }
     setExporting(true)
     try {
       const header = ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Tautan QR", "Tautan Undangan", "Sumber"]
@@ -238,7 +259,11 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   }
 
   const isUnpaid = profile?.payment_status === "UNPAID"
+  const firstGuestHasToken = !!guests[0]?.qr_token
   const needsGenerate = !isUnpaid && stats.total > 0 && stats.with_token < stats.total
+  const gatedGenerate = gated
+    ? stats.total > 0 && !firstGuestHasToken
+    : needsGenerate
   const filtered = guests.filter((g) => {
     if (!search) return true
     const q = search.toLowerCase()
@@ -270,14 +295,15 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
 
       {/* Header */}
       <header className="shrink-0 bg-background/95 backdrop-blur-md border-b border-outline-variant/40 px-6 md:px-12 py-4">
-        <nav className="max-w-2xl">
+        <nav className="max-w-2xl flex items-center justify-between">
           <button
             onClick={() => router.push(`/dashboard/${id}`)}
             className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors group font-label-md text-[11px] uppercase tracking-wider font-semibold"
           >
             <span className="material-symbols-outlined text-base group-hover:-translate-x-0.5 transition-transform">arrow_back</span>
-            Kembali ke Dasbor
+            Kembali
           </button>
+          <ProfileMenu />
         </nav>
       </header>
 
@@ -308,7 +334,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
             </div>
 
             {/* Generate Button */}
-            {needsGenerate && (
+            {gatedGenerate && (
               <button
                 onClick={handleGenerate}
                 disabled={generating}
@@ -319,8 +345,15 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
                 ) : (
                   <span className="material-symbols-outlined text-sm">add</span>
                 )}
-                {generating ? "Memproses..." : "Generate QR untuk Semua Tamu"}
+                {generating ? "Memproses..." : gated ? "Aktifkan QR Tamu Pertama" : "Generate QR untuk Semua Tamu"}
               </button>
+            )}
+
+            {gated && (
+              <p className="text-[11px] text-on-surface-variant max-w-sm text-center">
+                Konfirmasi undangan terlebih dahulu untuk mengaktifkan QR seluruh tamu. QR tamu pertama
+                dapat disalin sekarang.
+              </p>
             )}
 
             {/* Export Button */}
@@ -384,6 +417,9 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
                   onCopyUndangan={handleCopyUndangan}
                   copiedId={copiedId}
                   copiedKind={copiedKind}
+                  gated={gated}
+                  isFirstGuest={g.id === firstGuestId}
+                  onGatedClick={() => setShowConfirmModal(true)}
                 />
               ))
             )}
@@ -412,6 +448,36 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
                 className="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
               >
                 OK, Mengerti
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Paid-but-unconfirmed Modal — invitation must be completed & confirmed first */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-primary text-2xl">edit_calendar</span>
+              </div>
+              <h3 className="font-headline-md text-lg font-medium text-primary">Lengkapi &amp; Konfirmasi Undangan Dulu</h3>
+              <p className="text-sm text-on-surface-variant">
+                QR dan tautan undangan untuk tamu lainnya belum dapat diaktifkan sebelum undangan Anda
+                diisi lengkap dan dikonfirmasi. Selesaikan konten undangan di editor, lalu konfirmasi.
+              </p>
+              <button
+                onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)}
+                className="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
+              >
+                Lengkapi di Editor
+              </button>
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="w-full border border-outline-variant text-on-surface-variant py-3 rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+              >
+                Nanti Saja
               </button>
             </div>
           </div>

@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import ProfileMenu from "@/components/ProfileMenu"
 
 type Wish = {
   id: string
@@ -113,16 +114,14 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
       `}</style>
 
       {/* Top Navigation Bar */}
-      <header className="fixed top-0 w-full z-50 bg-[#fdf9f0]/80 backdrop-blur-md border-b border-[#c4c7c7]/30 flex justify-between items-center px-6 lg:px-10 h-16">
+      <header className="fixed top-0 inset-x-0 z-50 bg-[#fdf9f0]/80 backdrop-blur-md border-b border-[#c4c7c7]/30 flex justify-between items-center px-6 lg:px-10 h-16">
         <button onClick={() => router.push(`/dashboard/${id}`)} className="flex items-center gap-2 text-on-surface hover:opacity-70 transition-opacity">
           <span className="material-symbols-outlined text-[20px]">arrow_back</span>
           <span className="font-label-md text-label-md tracking-widest uppercase">Kembali</span>
         </button>
         <div className="hidden lg:flex items-center gap-4">
           <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">Admin Mode</span>
-          <div className="w-8 h-8 rounded-full bg-[#ece8df] flex items-center justify-center">
-            <span className="material-symbols-outlined text-[18px]">person</span>
-          </div>
+          <ProfileMenu />
         </div>
       </header>
 

@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
+import ProfileMenu from "@/components/ProfileMenu"
 
 type Profile = {
   id: string
@@ -152,13 +153,16 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
   return (
     <div className="min-h-screen bg-background font-body-md text-body-md">
       <header className="px-edge-margin-mobile md:px-edge-margin-desktop py-8 space-y-4">
-        <button
-          onClick={() => router.push(`/dashboard/${id}`)}
-          className="inline-flex items-center gap-2 font-label-md text-label-md uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors"
-        >
-          <span className="material-symbols-outlined text-[18px]">west</span>
-          Kembali ke Dasbor
-        </button>
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => router.push(`/dashboard/${id}`)}
+            className="inline-flex items-center gap-2 font-label-md text-label-md uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors"
+          >
+            <span className="material-symbols-outlined text-[18px]">west</span>
+            Kembali ke Dasbor
+          </button>
+          <ProfileMenu />
+        </div>
         <h1 className="font-headline-md text-[32px] leading-tight text-on-surface">
           Buku Tamu QR &amp; <br />Absensi Live
         </h1>

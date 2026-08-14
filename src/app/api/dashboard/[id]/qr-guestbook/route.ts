@@ -34,15 +34,17 @@ export async function GET(
 }
 
 export async function POST(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params
+    const body = await req.json().catch(() => ({}))
+    const requestedGuestId = typeof body.guest_id === "string" ? body.guest_id : null
 
     const { data: profile } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("payment_status")
+      .select("payment_status, is_published")
       .eq("id", id)
       .single()
 
@@ -57,11 +59,22 @@ export async function POST(
       )
     }
 
-    const { data: guests, error: fetchError } = await supabaseAdmin
+    // Paid but not confirmed: the invitation content isn't final, so only the
+    // first guest's QR may be activated. The client passes the first guest's id.
+    const gated = profile.is_published !== true && !!requestedGuestId
+
+    let query = supabaseAdmin
       .from("guests")
       .select("id, name, qr_token")
       .eq("wedding_profile_id", id)
       .or("qr_token.is.null,slug.is.null")
+      .order("created_at", { ascending: true })
+
+    if (gated) {
+      query = query.eq("id", requestedGuestId)
+    }
+
+    const { data: guests, error: fetchError } = await query
 
     if (fetchError) {
       return NextResponse.json({ error: fetchError.message }, { status: 500 })
@@ -73,7 +86,7 @@ export async function POST(
 
     const generated = await autoGenerateGuestLinks(id, guests)
 
-    return NextResponse.json({ generated })
+    return NextResponse.json({ generated, gated })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
