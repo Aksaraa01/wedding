@@ -217,7 +217,7 @@ Phase 2 recap: RSVP 100%, wish 100%; `open` failed 4,382× (96% of open attempts
 
 ### P2 — sustain the publish/render envelope
 5. ✅ **DONE — per-render `cache: no-store` WP HEAD eliminated.** `w/[slug]` caches WP post validity in `src/lib/wpPostCache.ts` (5 min alive / 30s dead); repeat views within the window skip the WP HEAD round-trip (cold 1.6s → warm ~0.7–0.9s on prod).
-6. **Reduce Supabase read fan-out on `w/[slug]`** (5–8 reads/view). Batch into a single RPC/join or add a lightweight edge-cache for profile+feature-set data.
+6. ✅ **DONE — `w/[slug]` Supabase read fan-out reduced.** Static reference reads (package matrix/features, web tracks, web templates) now go through `src/lib/refCache.ts` (in-memory TTL, 10 min, single PM2 fork) — identical across couples, so they leave the per-view hot path. Remaining per-view reads: profile + guest + gift_accounts + gift_addresses (gift reads already parallelized). Smoke-tested on prod: WP-iframe path, template-render path, bogus-slug 404, guest `?to=` path, `open`/wishes/web-templates/login all 200; warm render ~0.8–0.9s.
 7. **Bump/instrument Node connection pool.** p95 ~9s at 500 VU is queueing behind a bounded pool on one vCPU. Give Node more workers/UV threads or front the box with a proper CDN/edge cache to absorb repeat reads.
 
 ### P3 — capacity/monitoring
