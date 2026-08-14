@@ -5,15 +5,17 @@ import Link from "next/link"
 // Template screenshots live in the prod bucket's `templates/` folder.
 const PROD_MEDIA = "https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media"
 
-const FAN_CARDS = [
-  { src: `${PROD_MEDIA}/templates/Template%201.png`, transform: "translate(calc(-50% - 380%), 133%) rotate(-28deg)", z: 10 },
-  { src: `${PROD_MEDIA}/templates/Template%202.png`, transform: "translate(calc(-50% - 272%), 95%) rotate(-20deg)", z: 20 },
-  { src: `${PROD_MEDIA}/templates/Template%203.png`, transform: "translate(calc(-50% - 162%), 28%) rotate(-12deg)", z: 30 },
-  { src: `${PROD_MEDIA}/templates/Template%204.png`, transform: "translate(calc(-50% - 57%), 0) rotate(-4deg)", z: 40 },
-  { src: `${PROD_MEDIA}/templates/Template%205.png`, transform: "translate(calc(-50% + 57%), 0) rotate(4deg)", z: 35 },
-  { src: `${PROD_MEDIA}/templates/Template%206.png`, transform: "translate(calc(-50% + 162%), 28%) rotate(12deg)", z: 30 },
-  { src: `${PROD_MEDIA}/templates/Template%207.png`, transform: "translate(calc(-50% + 272%), 95%) rotate(20deg)", z: 20 },
-  { src: `${PROD_MEDIA}/templates/Template%209.png`, transform: "translate(calc(-50% + 380%), 133%) rotate(28deg)", z: 10 },
+// 8 square cards in a top arch, mirroring the reference layout.
+// Sizes ladder: edges 130px → center 156px. Rotations ∓36° → ∓4°.
+const ARCH_PHOTOS = [
+  { src: `${PROD_MEDIA}/templates/Template%201.png`, left: "4%", top: "72%", size: 130, rotate: -36, z: 10 },
+  { src: `${PROD_MEDIA}/templates/Template%202.png`, left: "13%", top: "42%", size: 140, rotate: -24, z: 20 },
+  { src: `${PROD_MEDIA}/templates/Template%203.png`, left: "24%", top: "16%", size: 148, rotate: -13, z: 30 },
+  { src: `${PROD_MEDIA}/templates/Template%204.png`, left: "37%", top: "4%", size: 156, rotate: -4, z: 40 },
+  { src: `${PROD_MEDIA}/templates/Template%205.png`, left: "51%", top: "4%", size: 156, rotate: 4, z: 35 },
+  { src: `${PROD_MEDIA}/templates/Template%206.png`, left: "64%", top: "16%", size: 148, rotate: 13, z: 30 },
+  { src: `${PROD_MEDIA}/templates/Template%207.png`, left: "76%", top: "42%", size: 140, rotate: 24, z: 20 },
+  { src: `${PROD_MEDIA}/templates/Template%209.png`, left: "85%", top: "72%", size: 130, rotate: 36, z: 10 },
 ]
 
 const SOCIAL_AVATARS = [
@@ -23,70 +25,72 @@ const SOCIAL_AVATARS = [
   `${PROD_MEDIA}/templates/Template%204.png`,
 ]
 
-const CARD_SIZE = "w-24 sm:w-28 md:w-36"
-
 export default function HeroSection() {
   return (
-    <section className="relative pt-12 pb-24 px-4 sm:px-6 lg:px-8 w-full flex flex-col items-center justify-center min-h-screen text-[#EFEAE1] [font-family:var(--font-inter)] antialiased bg-[radial-gradient(circle_at_center,#592259_0%,#3A153A_100%)]">
+    <section className="relative min-h-screen w-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 text-[#EFEAE1] [font-family:var(--font-inter)] antialiased overflow-hidden bg-[radial-gradient(circle_at_center,#592259_0%,#3A153A_100%)]">
       <style>{`
-        /* Static fan position lives on the outer wrapper; only the inner card
-           lifts/scales on hover, so the motion stays smooth (no sweep/shatter). */
-        .fan-outer { transition: z-index 0s; }
-        .fan-outer:hover { z-index: 50 !important; }
-        .fan-card {
+        .arch-photo { position: absolute; }
+        .arch-photo:hover { z-index: 50 !important; }
+        .arch-photo img {
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          box-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.55);
           transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.7s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.7s cubic-bezier(0.16, 1, 0.3, 1);
           will-change: transform;
         }
-        .fan-outer:hover .fan-card {
-          transform: scale(1.06) translateY(-14px);
+        .arch-photo:hover img {
+          transform: scale(1.06) translateY(-8px);
           box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.65);
           border-color: rgba(255, 255, 255, 0.4);
         }
-        .badge-float { animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0px); } }
       `}</style>
 
-      {/* Fan cards gallery (rounded box, same size) */}
-      <div
-        aria-hidden="true"
-        className="relative w-full h-[220px] sm:h-[260px] md:h-[320px] max-w-6xl mx-auto flex justify-center items-end mb-4"
-      >
-        {FAN_CARDS.map((card, i) => {
-          const hasBadge = i === 3
-          return (
-            <div
-              key={i}
-              className="fan-outer absolute"
-              style={{ transform: card.transform, left: "50%", transformOrigin: "bottom center", zIndex: card.z }}
-            >
-              <div className={`fan-card relative ${CARD_SIZE} aspect-[3/4] rounded-2xl overflow-hidden border border-white/20 shadow-2xl`}>
-                <img alt="Galeri" className="w-full h-full object-cover" src={card.src} />
-                {hasBadge && (
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-max bg-black/60 backdrop-blur-md border border-white/10 rounded-full px-3 py-1 flex items-center gap-2 badge-float">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                    <span className="text-[10px] font-medium tracking-wider text-white uppercase">200+ Animated Designs</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )
-        })}
+      {/* Top arch gallery (mirrors reference positioning) */}
+      <div className="absolute top-24 left-1/2 -translate-x-1/2 w-full max-w-[1100px] h-[380px] pointer-events-none px-4 z-5">
+        {ARCH_PHOTOS.map((photo, i) => (
+          <div
+            key={i}
+            className="arch-photo pointer-events-auto"
+            style={{
+              left: photo.left,
+              top: photo.top,
+              width: photo.size,
+              height: photo.size,
+              transform: `rotate(${photo.rotate}deg)`,
+              zIndex: photo.z,
+            }}
+          >
+            <img
+              src={photo.src}
+              alt="Galeri"
+              width={photo.size}
+              height={photo.size}
+              className="w-full h-full object-cover rounded-2xl"
+            />
+          </div>
+        ))}
       </div>
 
-      {/* Typography */}
-      <div className="text-center max-w-3xl mx-auto relative z-50 mt-4">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-medium text-[#FAF7F2] leading-[1.1] mb-6 drop-shadow-xl [font-family:var(--font-playfair)]">
-          Setiap Aksara<br />
-          Bercerita Tentang<br />
+      {/* Hero content below the arch */}
+      <div className="relative z-10 max-w-4xl mx-auto text-center mt-40 sm:mt-[200px] px-2">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 sm:mb-8 text-[11px] sm:text-xs font-bold tracking-widest uppercase bg-[#C5A85D]/15 border border-[#C5A85D]/40 text-[#C5A85D]">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#C5A85D] animate-pulse" />
+          100+ Animated Designs
+        </div>
+
+        <h1 className="[font-family:var(--font-playfair)] text-[clamp(2rem,5.5vw,4.2rem)] font-bold leading-[1.08] tracking-tight text-[#FAF7F2] mb-6 drop-shadow-xl">
+          Setiap Aksara
+          <br />
+          Bercerita Tentang
+          <br />
           <span className="italic">Hari Bahagia Kami.</span>
         </h1>
-        <p className="text-base sm:text-lg text-[#B09BA6] max-w-2xl mx-auto mb-10 leading-relaxed font-light drop-shadow-md">
-          Bagikan momen spesial Anda dengan undangan website berdesain menawan, dilengkapi sistem RSVP dan buku tamu
-          digital yang berkesan.
+
+        <p className="text-base md:text-lg text-[#B09BA6] max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-10 font-light drop-shadow-md">
+          Bagikan momen spesial Anda dengan undangan website berdesain menawan, dilengkapi sistem RSVP
+          dan buku tamu digital yang berkesan.
         </p>
 
-        {/* Call to actions */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center items-center">
           <Link
             href="/problem"
             className="w-full sm:w-auto bg-[#C5A85D] hover:bg-[#D4B86A] text-black font-semibold py-3.5 px-8 rounded-full transition-colors text-center"
@@ -102,23 +106,23 @@ export default function HeroSection() {
             Konsultasi Gratis
           </a>
         </div>
-      </div>
 
-      {/* Social proof footer */}
-      <div className="mt-16 flex flex-col items-center gap-3">
-        <div className="flex -space-x-2">
-          {SOCIAL_AVATARS.map((src, i) => (
-            <div key={i} className="w-8 h-8 rounded-full border-2 border-[#3A153A] overflow-hidden">
-              <img src={src} alt="Tamu" className="w-full h-full object-cover" />
+        {/* Social proof */}
+        <div className="flex items-center justify-center gap-3 mt-10">
+          <div className="flex -space-x-2">
+            {SOCIAL_AVATARS.map((src, i) => (
+              <div key={i} className="w-8 h-8 rounded-full border-2 border-[#3A153A] overflow-hidden">
+                <img src={src} alt="Tamu" className="w-full h-full object-cover" />
+              </div>
+            ))}
+            <div className="w-8 h-8 rounded-full border-2 border-[#3A153A] bg-[#592259] flex items-center justify-center text-xs text-white">
+              +
             </div>
-          ))}
-          <div className="w-8 h-8 rounded-full border-2 border-[#3A153A] bg-[#592259] flex items-center justify-center text-xs text-white">
-            +
           </div>
+          <p className="text-sm text-[#B09BA6]">
+            <span className="text-[#C5A85D] font-bold">1000+</span> undangan terkirim minggu ini
+          </p>
         </div>
-        <p className="text-sm text-[#B09BA6]">
-          <span className="text-[#C5A85D] font-medium">48,200+</span> invitations sent this week
-        </p>
       </div>
     </section>
   )
