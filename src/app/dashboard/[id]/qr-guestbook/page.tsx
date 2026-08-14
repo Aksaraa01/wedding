@@ -295,12 +295,12 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
 
       {/* Header */}
       <header className="shrink-0 bg-background/95 backdrop-blur-md border-b border-outline-variant/40 px-6 md:px-12 py-4">
-        <nav className="max-w-2xl flex items-center justify-between">
+        <div className="w-full flex items-center justify-between">
           <span className="inline-flex items-center gap-2 text-on-surface-variant font-label-md text-[11px] uppercase tracking-wider font-semibold">
             Panel Kontrol Tautan &amp; QR
           </span>
           <ProfileMenu />
-        </nav>
+        </div>
       </header>
 
       {/* Main */}

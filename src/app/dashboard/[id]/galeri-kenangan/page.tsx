@@ -124,7 +124,7 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
   return (
     <div className="min-h-screen bg-surface text-on-surface font-body-md antialiased">
         <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-surface border-b border-outline-variant h-20 transition-all duration-300 ease-in-out">
-          <div className="flex items-center justify-between px-edge-margin-mobile md:px-edge-margin-desktop h-full w-full max-w-container-max mx-auto">
+          <div className="flex items-center justify-between px-edge-margin-mobile md:px-edge-margin-desktop h-full w-full">
             <span className="font-label-md text-label-md text-primary uppercase tracking-widest">Galeri Kenangan</span>
             <ProfileMenu />
           </div>

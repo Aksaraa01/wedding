@@ -277,7 +277,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
       <>
         <PageTheme mode="light" />
         <header className="w-full top-0 sticky z-40 bg-surface/95 backdrop-blur-md border-b border-outline-variant/30">
-          <div className="flex justify-between items-center px-6 py-4 w-full max-w-container-max mx-auto">
+          <div className="flex justify-between items-center px-6 py-4 w-full">
             <button
               onClick={() => setView("list")}
               className="flex items-center gap-3 cursor-pointer active:opacity-70 group"

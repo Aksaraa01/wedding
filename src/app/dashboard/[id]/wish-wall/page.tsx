@@ -116,8 +116,8 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
       {/* Top Navigation Bar */}
       <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-[#fdf9f0]/80 backdrop-blur-md border-b border-[#c4c7c7]/30 flex justify-between items-center px-6 lg:px-10 h-16">
         <span className="font-label-md text-label-md tracking-widest uppercase text-on-surface-variant">Wish Wall</span>
-        <div className="hidden lg:flex items-center gap-4">
-          <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">Admin Mode</span>
+        <div className="flex items-center gap-4">
+          <span className="hidden lg:inline font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">Admin Mode</span>
           <ProfileMenu />
         </div>
       </header>

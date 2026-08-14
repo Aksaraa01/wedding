@@ -93,11 +93,9 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
 
       <div className="min-h-screen bg-surface text-on-surface font-body-md overflow-x-hidden">
         {/* Top AppBar */}
-        <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 border-b border-[#c4c7c7]/30 h-20 flex items-center px-edge-margin-mobile lg:px-edge-margin-desktop bg-surface/95 backdrop-blur-md">
-          <div className="max-w-container-max mx-auto w-full flex items-center justify-between">
-            <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">RSVP Automation</span>
-            <ProfileMenu />
-          </div>
+        <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 border-b border-[#c4c7c7]/30 h-20 flex items-center justify-between px-edge-margin-mobile lg:px-edge-margin-desktop bg-surface/95 backdrop-blur-md">
+          <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">RSVP Automation</span>
+          <ProfileMenu />
         </header>
 
         <main className="pt-32 pb-40 px-edge-margin-mobile lg:px-edge-margin-desktop max-w-container-max mx-auto">
