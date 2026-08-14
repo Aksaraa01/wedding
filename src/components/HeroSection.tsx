@@ -2,26 +2,28 @@
 
 import Link from "next/link"
 
-// Template images live in the prod Supabase bucket (the staging bucket is missing
-// most seeded files), so the public hero points at prod directly.
-const PROD_MEDIA = "https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/seeded"
+// Template screenshots live in the prod bucket's `templates/` folder.
+const PROD_MEDIA = "https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media"
 
 const FAN_CARDS = [
-  { src: `${PROD_MEDIA}/guest-gallery/card-1.jpg`, cls: "w-20 sm:w-24 md:w-32", transform: "translate(calc(-50% - 320%), 150%) rotate(-45deg)", z: 10 },
-  { src: `${PROD_MEDIA}/guest-gallery/card-2.jpg`, cls: "w-24 sm:w-28 md:w-36", transform: "translate(calc(-50% - 220%), 65%) rotate(-30deg)", z: 20 },
-  { src: `${PROD_MEDIA}/premium-web/story-couple-walking.jpg`, cls: "w-28 sm:w-32 md:w-40", transform: "translate(calc(-50% - 110%), 15%) rotate(-15deg)", z: 30 },
-  { src: `${PROD_MEDIA}/premium-web/hero-mockup.jpg`, cls: "w-32 sm:w-40 md:w-48", transform: "translate(-50%, 0) rotate(0deg)", z: 40 },
-  { src: `${PROD_MEDIA}/reminder-vip/whatsapp-chat.jpg`, cls: "w-28 sm:w-32 md:w-40", transform: "translate(calc(-50% + 110%), 15%) rotate(15deg)", z: 30 },
-  { src: `${PROD_MEDIA}/qr-digital/hero-reception.jpg`, cls: "w-24 sm:w-28 md:w-36", transform: "translate(calc(-50% + 220%), 65%) rotate(30deg)", z: 20 },
-  { src: `${PROD_MEDIA}/wish-wall/venue-projection.jpg`, cls: "w-20 sm:w-24 md:w-32", transform: "translate(calc(-50% + 320%), 150%) rotate(45deg)", z: 10 },
+  { src: `${PROD_MEDIA}/templates/Template%201.png`, transform: "translate(calc(-50% - 250%), 130%) rotate(-48deg)", z: 10 },
+  { src: `${PROD_MEDIA}/templates/Template%202.png`, transform: "translate(calc(-50% - 170%), 60%) rotate(-32deg)", z: 20 },
+  { src: `${PROD_MEDIA}/templates/Template%203.png`, transform: "translate(calc(-50% - 95%), 12%) rotate(-16deg)", z: 30 },
+  { src: `${PROD_MEDIA}/templates/Template%204.png`, transform: "translate(calc(-50% - 28%), 0) rotate(-5deg)", z: 40 },
+  { src: `${PROD_MEDIA}/templates/Template%205.png`, transform: "translate(calc(-50% + 28%), 0) rotate(5deg)", z: 35 },
+  { src: `${PROD_MEDIA}/templates/Template%206.png`, transform: "translate(calc(-50% + 95%), 12%) rotate(16deg)", z: 30 },
+  { src: `${PROD_MEDIA}/templates/Template%207.png`, transform: "translate(calc(-50% + 170%), 60%) rotate(32deg)", z: 20 },
+  { src: `${PROD_MEDIA}/templates/Template%209.png`, transform: "translate(calc(-50% + 250%), 130%) rotate(48deg)", z: 10 },
 ]
 
 const SOCIAL_AVATARS = [
-  `${PROD_MEDIA}/guest-gallery/card-1.jpg`,
-  `${PROD_MEDIA}/guest-gallery/card-2.jpg`,
-  `${PROD_MEDIA}/wish-wall/venue-projection.jpg`,
-  `${PROD_MEDIA}/qr-digital/hero-reception.jpg`,
+  `${PROD_MEDIA}/templates/Template%201.png`,
+  `${PROD_MEDIA}/templates/Template%202.png`,
+  `${PROD_MEDIA}/templates/Template%203.png`,
+  `${PROD_MEDIA}/templates/Template%204.png`,
 ]
+
+const CARD_SIZE = "w-28 sm:w-32 md:w-40"
 
 export default function HeroSection() {
   return (
@@ -44,22 +46,22 @@ export default function HeroSection() {
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0px); } }
       `}</style>
 
-      {/* Fan cards gallery (rounded box) */}
+      {/* Fan cards gallery (rounded box, same size) */}
       <div
         aria-hidden="true"
-        className="relative w-full h-[250px] sm:h-[300px] md:h-[380px] max-w-5xl mx-auto flex justify-center items-end mb-10"
+        className="relative w-full h-[250px] sm:h-[300px] md:h-[400px] max-w-6xl mx-auto flex justify-center items-end mb-10"
       >
         {FAN_CARDS.map((card, i) => {
-          const isCenter = i === 3
+          const hasBadge = i === 3
           return (
             <div
               key={i}
               className="fan-outer absolute"
               style={{ transform: card.transform, left: "50%", transformOrigin: "bottom center", zIndex: card.z }}
             >
-              <div className={`fan-card relative ${card.cls} aspect-[3/4] rounded-2xl overflow-hidden border border-white/20 shadow-2xl`}>
+              <div className={`fan-card relative ${CARD_SIZE} aspect-[3/4] rounded-2xl overflow-hidden border border-white/20 shadow-2xl`}>
                 <img alt="Galeri" className="w-full h-full object-cover" src={card.src} />
-                {isCenter && (
+                {hasBadge && (
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-max bg-black/60 backdrop-blur-md border border-white/10 rounded-full px-3 py-1 flex items-center gap-2 badge-float">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
                     <span className="text-[10px] font-medium tracking-wider text-white uppercase">200+ Animated Designs</span>
@@ -74,9 +76,9 @@ export default function HeroSection() {
       {/* Typography */}
       <div className="text-center max-w-3xl mx-auto relative z-50 mt-10">
         <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-medium text-[#FAF7F2] leading-[1.1] mb-6 drop-shadow-xl [font-family:var(--font-playfair)]">
-          Solusi Digital,<br />
-          Sejuta Memori<br />
-          <span className="italic">Abadi.</span>
+          Every Moment<br />
+          Deserves an<br />
+          <span className="italic">Opening Act.</span>
         </h1>
         <p className="text-base sm:text-lg text-[#B09BA6] max-w-2xl mx-auto mb-10 leading-relaxed font-light drop-shadow-md">
           Lebih dari sekadar undangan digital. Aksara adalah simfoni visual yang memadukan estetika editorial dengan
