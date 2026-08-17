@@ -13,6 +13,7 @@ type Step = {
   route: (id: string) => string
   phase: string
   always?: boolean
+  prePayment?: boolean
 }
 
 type Selections = {
@@ -47,6 +48,31 @@ const AVAILABLE_IN: Record<string, string[]> = {
 
 const STEPS: Step[] = [
   {
+    key: "kelola_tamu",
+    icon: "group",
+    title: "Kelola Tamu & Meja",
+    phase: "Fase 1: Persiapan Awal",
+    prePayment: true,
+    bullets: [
+      "Tambahkan data tamu (Excel atau satu per satu).",
+      "Tandai tamu VIP untuk fitur pengingat khusus.",
+    ],
+    route: (id) => `/dashboard/${id}/guests`,
+  },
+  {
+    key: "premium_web",
+    icon: "web",
+    title: "Premium Web Invitation",
+    phase: "Fase 1: Persiapan Awal",
+    prePayment: true,
+    bullets: [
+      "Edit konten dan narasi undangan digital.",
+      "Pilih tema yang sesuai karakter Anda.",
+      "Konfirmasi draf sebelum dikirim ke tamu.",
+    ],
+    route: (id) => `/dashboard/${id}/web-invitation/editor`,
+  },
+  {
     key: "pembayaran",
     icon: "credit_card",
     title: "Lakukan Pembayaran",
@@ -57,18 +83,6 @@ const STEPS: Step[] = [
       "Hubungi konsultan untuk aktivasi fitur lanjutan.",
     ],
     route: (id) => `/dashboard/${id}`,
-  },
-  {
-    key: "premium_web",
-    icon: "web",
-    title: "Premium Web Invitation",
-    phase: "Fase 1: Persiapan Awal",
-    bullets: [
-      "Edit konten dan narasi undangan digital.",
-      "Pilih tema yang sesuai karakter Anda.",
-      "Konfirmasi draf sebelum dikirim ke tamu.",
-    ],
-    route: (id) => `/dashboard/${id}/web-invitation/editor`,
   },
   {
     key: "unique_link_generator",
@@ -237,12 +251,15 @@ function InstructionInner({ id }: { id: string }) {
                 </div>
 
                 {phase.steps.map((step, i) => {
-                  // Payment gates everything below it: unpaid -> every module greyed out.
+                  // Step order: pre-payment basics (kelola tamu, premium web) are
+                  // always active. Pembayaran gates everything below it.
                   const isPembayaran = step.key === "pembayaran"
                   const paymentActive = paymentStatus !== "UNPAID"
-                  const isActive = isPembayaran
-                    ? paymentActive
-                    : paymentActive && (step.always || activeKeys.has(step.key))
+                  const isActive = step.prePayment
+                    ? true
+                    : isPembayaran
+                      ? paymentActive
+                      : paymentActive && (step.always || activeKeys.has(step.key))
                   const even = i % 2 === 0
                   return (
                     <div key={`${step.key}-${pi}-${i}`} className={`flex flex-col md:flex-row items-center w-full mb-10 md:mb-14 ${even ? "md:flex-row" : "md:flex-row-reverse"}`}>
