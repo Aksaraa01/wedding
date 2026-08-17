@@ -159,6 +159,7 @@ function InstructionInner({ id }: { id: string }) {
   const router = useRouter()
   const [selections, setSelections] = useState<Selections | null>(null)
   const [packageType, setPackageType] = useState("signature")
+  const [paymentStatus, setPaymentStatus] = useState<string>("UNPAID")
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -168,6 +169,7 @@ function InstructionInner({ id }: { id: string }) {
         if (!data) return
         setSelections(data.selections || {})
         setPackageType(data.profile?.package_type || "signature")
+        setPaymentStatus(data.profile?.payment_status || "UNPAID")
       })
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -235,10 +237,15 @@ function InstructionInner({ id }: { id: string }) {
                 </div>
 
                 {phase.steps.map((step, i) => {
-                  const isActive = step.always || activeKeys.has(step.key)
+                  // Payment gates everything below it: unpaid -> every module greyed out.
+                  const isPembayaran = step.key === "pembayaran"
+                  const paymentActive = paymentStatus !== "UNPAID"
+                  const isActive = isPembayaran
+                    ? paymentActive
+                    : paymentActive && (step.always || activeKeys.has(step.key))
                   const even = i % 2 === 0
                   return (
-                    <div key={`${step.key}-${pi}-${i}`} className="flex flex-col md:flex-row items-center w-full mb-10 md:mb-14">
+                    <div key={`${step.key}-${pi}-${i}`} className={`flex flex-col md:flex-row items-center w-full mb-10 md:mb-14 ${even ? "md:flex-row" : "md:flex-row-reverse"}`}>
                       <div className={`w-full md:w-1/2 ${even ? "md:pr-16" : "md:pl-16"} ${even ? "md:flex md:justify-end" : "md:flex md:justify-start"}`}>
                         <div
                           className={`w-full max-w-sm p-6 md:p-8 border bg-surface-container-lowest relative ${
@@ -250,7 +257,7 @@ function InstructionInner({ id }: { id: string }) {
                           {isActive && (
                             <div className="absolute -top-3 -left-3 bg-secondary text-on-secondary px-3 py-1 rounded-full font-label-md text-label-md border border-secondary flex items-center gap-1 shadow-sm">
                               <span className="material-symbols-outlined text-[14px]">check_circle</span>
-                              Aktif
+                              {isPembayaran ? "Terbayar" : "Aktif"}
                             </div>
                           )}
 
@@ -269,9 +276,11 @@ function InstructionInner({ id }: { id: string }) {
 
                           {!isActive && (
                             <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container border border-outline-variant rounded-full">
-                              <span className="material-symbols-outlined text-[14px] text-on-surface-variant">workspace_premium</span>
+                              <span className="material-symbols-outlined text-[14px] text-on-surface-variant">lock</span>
                               <span className="font-label-md text-[10px] uppercase tracking-wider text-on-surface-variant">
-                                Tersedia di Paket {AVAILABLE_IN[step.key]?.map((p) => PACKAGE_LABEL[p]).join(" & ")}
+                                {isPembayaran
+                                  ? paymentStatus === "UNPAID" ? "Menunggu Pembayaran" : "Belum Tersedia"
+                                  : `Tersedia di Paket ${AVAILABLE_IN[step.key]?.map((p) => PACKAGE_LABEL[p]).join(" & ")}`}
                               </span>
                             </div>
                           )}
@@ -279,8 +288,22 @@ function InstructionInner({ id }: { id: string }) {
                           <ul className="mb-6 flex flex-col gap-2.5">
                             {step.bullets.map((b) => (
                               <li key={b} className="flex items-start gap-3">
-                                <span className="w-1.5 h-1.5 shrink-0 mt-2 rounded-full bg-on-secondary-fixed-variant" />
-                                <span className="text-sm text-on-surface-variant font-body-md leading-relaxed">{b}</span>
+                                {isPembayaran ? (
+                                  <span className={`mt-0.5 w-4 h-4 shrink-0 rounded-sm border flex items-center justify-center ${
+                                    paymentActive
+                                      ? "bg-secondary border-secondary text-on-secondary"
+                                      : "bg-surface-container-highest border-outline-variant text-outline"
+                                  }`}>
+                                    {paymentActive && (
+                                      <span className="material-symbols-outlined text-[13px]">check</span>
+                                    )}
+                                  </span>
+                                ) : (
+                                  <span className="w-1.5 h-1.5 shrink-0 mt-2 rounded-full bg-on-secondary-fixed-variant" />
+                                )}
+                                <span className={`text-sm font-body-md leading-relaxed ${
+                                  isPembayaran && !paymentActive ? "text-outline" : "text-on-surface-variant"
+                                }`}>{b}</span>
                               </li>
                             ))}
                           </ul>
