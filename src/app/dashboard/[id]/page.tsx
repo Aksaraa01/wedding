@@ -5,7 +5,6 @@ import { useSearchParams, useRouter } from "next/navigation"
 import Image from "next/image"
 import PageTheme from "@/components/PageTheme"
 import ProfileMenu from "@/components/ProfileMenu"
-import InstructionModal from "@/components/dashboard/InstructionModal"
 
 type Selections = {
   premium_web: boolean
@@ -150,7 +149,6 @@ function DashboardInner({ id }: { id: string }) {
   const [waBlastSchedule, setWaBlastSchedule] = useState<{ scheduled_date: string } | null>(null)
   const [waBlastIncluded, setWaBlastIncluded] = useState(0)
   const [showFisikInfo, setShowFisikInfo] = useState(false)
-  const [showInstruction, setShowInstruction] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
@@ -287,32 +285,29 @@ function DashboardInner({ id }: { id: string }) {
       <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-white/80 backdrop-blur-md border-b border-outline-variant h-20 flex items-center justify-end px-6">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => setShowInstruction(true)}
-            className="hidden sm:inline-flex items-center gap-2 px-6 py-3 bg-secondary text-on-secondary font-label-md text-label-md uppercase tracking-widest shadow-sm hover:opacity-90 transition-opacity"
-            title="Panduan & Instruksi Perencanaan"
+            onClick={() => router.push(`/dashboard/${id}/instruksi`)}
+            className="relative group w-11 h-11 flex items-center justify-center bg-secondary text-on-secondary shadow-sm hover:opacity-90 transition-opacity"
+            aria-label="Instruksi"
           >
-            <span className="material-symbols-outlined text-[18px]">menu_book</span>
-            Instruksi
+            <span className="material-symbols-outlined text-[22px]">menu_book</span>
+            <span className="pointer-events-none absolute top-full right-0 mt-2 whitespace-nowrap bg-on-surface text-on-primary px-3 py-1.5 font-label-md text-label-md uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity z-50">
+              Instruksi
+            </span>
           </button>
           <button
             onClick={() => router.push(`/customize?${settingsParams}`)}
-            className="text-on-surface-variant"
-            title="Ubah Pilihan Fitur"
+            className="relative group w-11 h-11 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"
+            title="Ganti Paket"
+            aria-label="Ganti Paket"
           >
-            <span className="material-symbols-outlined text-[20px]">settings</span>
+            <span className="material-symbols-outlined text-[22px]">settings</span>
+            <span className="pointer-events-none absolute top-full right-0 mt-2 whitespace-nowrap bg-on-surface text-on-primary px-3 py-1.5 font-label-md text-label-md uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity z-50">
+              Ganti Paket
+            </span>
           </button>
           <ProfileMenu />
         </div>
       </header>
-
-      {showInstruction && (
-        <InstructionModal
-          id={id}
-          selections={selections}
-          packageType={profile.package_type || "signature"}
-          onClose={() => setShowInstruction(false)}
-        />
-      )}
 
       <main className="pt-24 pb-32 lg:max-w-[75%] lg:mx-auto">
         <section className="px-6 mb-10">

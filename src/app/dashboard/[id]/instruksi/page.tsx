@@ -1,6 +1,9 @@
 "use client"
 
+import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import PageTheme from "@/components/PageTheme"
+import ProfileMenu from "@/components/ProfileMenu"
 
 type Step = {
   key: string
@@ -9,6 +12,7 @@ type Step = {
   bullets: string[]
   route: (id: string) => string
   phase: string
+  always?: boolean
 }
 
 type Selections = {
@@ -43,15 +47,16 @@ const AVAILABLE_IN: Record<string, string[]> = {
 
 const STEPS: Step[] = [
   {
-    key: "unique_link_generator",
-    icon: "group",
-    title: "Kelola Tamu & Meja",
+    key: "pembayaran",
+    icon: "credit_card",
+    title: "Lakukan Pembayaran",
     phase: "Fase 1: Persiapan Awal",
+    always: true,
     bullets: [
-      "Tambahkan data tamu (Excel atau satu per satu).",
-      "Tandai tamu VIP untuk fitur pengingat khusus.",
+      "Selesaikan pembayaran paket pilihan.",
+      "Hubungi konsultan untuk aktivasi fitur lanjutan.",
     ],
-    route: (id) => `/dashboard/${id}/guests`,
+    route: (id) => `/dashboard/${id}`,
   },
   {
     key: "premium_web",
@@ -64,17 +69,6 @@ const STEPS: Step[] = [
       "Konfirmasi draf sebelum dikirim ke tamu.",
     ],
     route: (id) => `/dashboard/${id}/web-invitation/editor`,
-  },
-  {
-    key: "undangan_fisik",
-    icon: "credit_card",
-    title: "Undangan Fisik & Pembayaran",
-    phase: "Fase 1: Persiapan Awal",
-    bullets: [
-      "Selesaikan pembayaran paket pilihan.",
-      "Hubungi konsultan untuk aktivasi fitur lanjutan.",
-    ],
-    route: (id) => `/dashboard/${id}`,
   },
   {
     key: "unique_link_generator",
@@ -161,21 +155,26 @@ const STEPS: Step[] = [
   },
 ]
 
-export default function InstructionModal({
-  id,
-  selections,
-  packageType,
-  onClose,
-}: {
-  id: string
-  selections: Selections
-  packageType: string
-  onClose: () => void
-}) {
+function InstructionInner({ id }: { id: string }) {
   const router = useRouter()
+  const [selections, setSelections] = useState<Selections | null>(null)
+  const [packageType, setPackageType] = useState("signature")
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch(`/api/dashboard/${id}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data) return
+        setSelections(data.selections || {})
+        setPackageType(data.profile?.package_type || "signature")
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [id])
 
   const activeKeys = new Set(
-    Object.entries(selections)
+    Object.entries(selections || {})
       .filter(([, v]) => v === true)
       .map(([k]) => k)
   )
@@ -203,29 +202,31 @@ export default function InstructionModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[95] bg-black/50 backdrop-blur-sm flex items-center justify-center p-0 md:p-6">
-      <div className="bg-background text-on-background w-full md:max-w-5xl max-h-screen md:max-h-[90vh] overflow-y-auto relative shadow-2xl">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"
-          aria-label="Tutup"
-        >
-          <span className="material-symbols-outlined text-[20px]">close</span>
-        </button>
+    <>
+      <PageTheme mode="light" />
+      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-surface border-b border-outline-variant h-16 flex items-center px-6 md:px-12">
+        <div className="w-full flex items-center justify-between">
+          <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">Instruksi</span>
+          <ProfileMenu />
+        </div>
+      </header>
 
-        <main className="w-full max-w-container-max mx-auto px-edge-margin-mobile md:px-edge-margin-desktop pt-16 md:pt-20 pb-16 relative">
-          <div className="text-center mb-12 md:mb-16 max-w-2xl mx-auto">
-            <h1 className="font-headline-xl text-headline-xl text-primary mb-6">Instruksi</h1>
-            <p className="font-body-md text-on-surface-variant">
-              Ikuti langkah-langkah perencanaan sesuai modul yang aktif pada paket Anda.
-            </p>
-          </div>
+      <main className="w-full max-w-container-max mx-auto px-edge-margin-mobile md:px-edge-margin-desktop pt-28 pb-20 relative">
+        <div className="text-center mb-12 md:mb-16 max-w-2xl mx-auto">
+          <h1 className="font-headline-xl text-headline-xl text-primary mb-6">Instruksi</h1>
+          <p className="font-body-md text-on-surface-variant">
+            Ikuti langkah-langkah perencanaan sesuai modul yang aktif pada paket Anda.
+          </p>
+        </div>
 
+        {loading ? (
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+        ) : (
           <div className="relative w-full max-w-5xl mx-auto">
             {/* Central Line */}
             <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-surface-variant md:translate-x-[-0.5px] z-0" />
 
-            {phases.map((phase) => (
+            {phases.map((phase, pi) => (
               <div key={phase.label}>
                 <div className="mb-10 md:mb-14 text-center relative z-20">
                   <span className="inline-block px-4 py-2 bg-surface-container rounded-full border border-outline-variant font-label-md text-label-md uppercase tracking-widest text-on-surface">
@@ -234,10 +235,10 @@ export default function InstructionModal({
                 </div>
 
                 {phase.steps.map((step, i) => {
-                  const isActive = activeKeys.has(step.key)
+                  const isActive = step.always || activeKeys.has(step.key)
                   const even = i % 2 === 0
                   return (
-                    <div key={`${step.key}-${i}`} className="flex flex-col md:flex-row items-center w-full mb-10 md:mb-14">
+                    <div key={`${step.key}-${pi}-${i}`} className="flex flex-col md:flex-row items-center w-full mb-10 md:mb-14">
                       <div className={`w-full md:w-1/2 ${even ? "md:pr-16" : "md:pl-16"} ${even ? "md:flex md:justify-end" : "md:flex md:justify-start"}`}>
                         <div
                           className={`w-full max-w-sm p-6 md:p-8 border bg-surface-container-lowest relative ${
@@ -332,18 +333,23 @@ export default function InstructionModal({
               </div>
             ))}
           </div>
+        )}
 
-          <div className="mt-10 text-center">
-            <button
-              onClick={goToCustomize}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-secondary text-on-secondary font-label-md text-label-md uppercase tracking-widest hover:opacity-90 transition-opacity"
-            >
-              <span className="material-symbols-outlined text-[18px]">tune</span>
-              Atur di Pilih Paket
-            </button>
-          </div>
-        </main>
-      </div>
-    </div>
+        <div className="mt-10 text-center">
+          <button
+            onClick={goToCustomize}
+            className="inline-flex items-center gap-2 px-8 py-4 bg-secondary text-on-secondary font-label-md text-label-md uppercase tracking-widest hover:opacity-90 transition-opacity"
+          >
+            <span className="material-symbols-outlined text-[18px]">tune</span>
+            Atur di Pilih Paket
+          </button>
+        </div>
+      </main>
+    </>
   )
+}
+
+export default function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
+  return <InstructionInner id={id} />
 }
