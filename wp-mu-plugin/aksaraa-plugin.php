@@ -1134,23 +1134,45 @@ class AksaraaPlugin
         });
     }
 
-    // F8 — self-heal broken template backgrounds. Some template containers were
-    // shipped with `background_background: "gradient"` but no gradient colors defined
-    // (color/color_b/stops all empty), while still carrying a `background_image`.
-    // Elementor renders the empty gradient as BLACK and ignores the image. Flip these
-    // to `classic` so the intended image shows. Only touches genuinely-broken
-    // containers (gradient has no colors AND an image is present).
+    // F8 — self-heal broken template backgrounds. Template containers ship with:
+    //   1. `background_background: "gradient"` but no gradient colors (renders BLACK and
+    //      ignores background_image), OR
+    //   2. a `background_image.url` on an external domain (e.g. the original template
+    //      kit's host) whose attachment `id` does NOT exist in this WP's media library,
+    //      so Elementor's wp_get_attachment_image_src() fails and emits no
+    //      background-image CSS -> black.
+    // Fix both: flip empty gradient -> classic, and sideload external background
+    // images into the local media library (setting a valid id + wp.aksaraa.com url).
     private static function normalize_backgrounds(array $elements): array
     {
         $walk = function (array &$nodes) use (&$walk) {
             foreach ($nodes as &$el) {
                 $s = $el['settings'] ?? null;
-                if (is_array($s)
-                    && ($s['background_background'] ?? '') === 'gradient'
+                if (!is_array($s)) { if (!empty($el['elements'])) $walk($el['elements']); continue; }
+
+                // Sideload external background image into this WP so Elementor can
+                // resolve it by attachment id (pitfall #9). Covers background_image,
+                // background_image_tablet and background_image_mobile variants.
+                foreach (['background_image', 'background_image_tablet', 'background_image_mobile'] as $key) {
+                    $bg = $s[$key] ?? null;
+                    if (is_array($bg) && !empty($bg['url'])) {
+                        $url = (string) $bg['url'];
+                        $imported = self::sideload_image($url);
+                        if (!empty($imported['id']) && $imported['id'] > 0 && !empty($imported['url'])) {
+                            $s[$key]['url'] = $imported['url'];
+                            $s[$key]['id'] = $imported['id'];
+                        }
+                    }
+                }
+
+                // Broken gradient (no colors) with an image -> classic so the image shows.
+                if (($s['background_background'] ?? '') === 'gradient'
                     && self::gradient_is_empty($s)
                     && !empty($s['background_image']['url'])) {
-                    $el['settings']['background_background'] = 'classic';
+                    $s['background_background'] = 'classic';
                 }
+
+                $el['settings'] = $s;
                 if (!empty($el['elements'])) $walk($el['elements']);
             }
         };
