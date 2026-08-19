@@ -515,23 +515,13 @@ export default function OpsTemplatesPage() {
         const hasSlideshow = preview.startsWith("slideshow")
         const isWidget = !!el.widgetType
         const excluded = isWidget && EXCLUDED_WIDGETS.has(el.widgetType!)
-        // Plain sections/containers (no bg) are only selectable for whole-section
-        // targets (e.g. gift_section). ElementSelect gates their visibility via
-        // `allowContainers`; here we just make them resolvable for defaultSettings.
-        const isPlainContainer = !isWidget && (el.elType === "section" || el.elType === "container")
-        // Only map content-bearing elements: non-excluded widgets, or containers with a bg image.
+        // Order matters: bg/slideshow containers must be classified BEFORE plain
+        // containers, otherwise a cover/photo container (which is also a section/
+        // container) would fall through to `container` and default to `title`.
         if (isWidget && !excluded) {
           result.push({
             id: el.id,
             widgetType: el.widgetType || "",
-            source,
-            settingsKeys: keys,
-            _preview: el._preview,
-          })
-        } else if (isPlainContainer) {
-          result.push({
-            id: el.id,
-            widgetType: "container",
             source,
             settingsKeys: keys,
             _preview: el._preview,
@@ -548,6 +538,17 @@ export default function OpsTemplatesPage() {
           result.push({
             id: el.id,
             widgetType: "container-slideshow",
+            source,
+            settingsKeys: keys,
+            _preview: el._preview,
+          })
+        } else if (!isWidget && (el.elType === "section" || el.elType === "container")) {
+          // Plain sections/containers (no bg) — only selectable for whole-section
+          // targets (e.g. gift_section). ElementSelect gates their visibility via
+          // `allowContainers`; here we just make them resolvable for defaultSettings.
+          result.push({
+            id: el.id,
+            widgetType: "container",
             source,
             settingsKeys: keys,
             _preview: el._preview,
