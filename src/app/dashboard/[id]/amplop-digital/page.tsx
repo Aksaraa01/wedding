@@ -4,31 +4,29 @@ import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import ProfileMenu from "@/components/ProfileMenu"
+import BankSelect from "@/components/dashboard/BankSelect"
+import { bankLogoUrl, getBankBySlug, getBankByName } from "@/lib/bankList"
 
 type Account = {
   id: string
   wedding_profile_id: string
   type: "bank" | "ewallet" | "qris"
   provider_name: string
+  provider_logo_url: string | null
   account_number: string
   account_name: string
   qris_image_url: string | null
-  is_active: boolean
   sort_order: number
 }
 
 type Address = {
   id: string
   wedding_profile_id: string
-  label: string
   recipient_name: string
   phone: string
   full_address: string
   city: string | null
   postal_code: string | null
-  courier_note: string | null
-  is_primary: boolean
-  is_active: boolean
 }
 
 type Profile = {
@@ -57,24 +55,18 @@ function AmplopDigitalInner({ id }: { id: string }) {
 
   const [accountModal, setAccountModal] = useState(false)
   const [editingAccount, setEditingAccount] = useState<Account | null>(null)
-  const [accType, setAccType] = useState<"bank" | "ewallet" | "qris">("bank")
   const [accProvider, setAccProvider] = useState("")
   const [accNumber, setAccNumber] = useState("")
   const [accOwner, setAccOwner] = useState("")
-  const [accQrisPreview, setAccQrisPreview] = useState("")
-  const [accActive, setAccActive] = useState(true)
   const [accSaving, setAccSaving] = useState(false)
 
   const [addressModal, setAddressModal] = useState(false)
   const [editingAddress, setEditingAddress] = useState<Address | null>(null)
-  const [addrLabel, setAddrLabel] = useState("")
   const [addrRecipient, setAddrRecipient] = useState("")
   const [addrPhone, setAddrPhone] = useState("")
   const [addrAddress, setAddrAddress] = useState("")
   const [addrCity, setAddrCity] = useState("")
   const [addrPostal, setAddrPostal] = useState("")
-  const [addrNote, setAddrNote] = useState("")
-  const [addrActive, setAddrActive] = useState(true)
   const [addrSaving, setAddrSaving] = useState(false)
 
   const [toast, setToast] = useState({ show: false, message: "" })
@@ -103,60 +95,49 @@ function AmplopDigitalInner({ id }: { id: string }) {
   function resetAccountForm(account?: Account | null) {
     if (account) {
       setEditingAccount(account)
-      setAccType(account.type)
       setAccProvider(account.provider_name || "")
       setAccNumber(account.account_number || "")
       setAccOwner(account.account_name || "")
-      setAccQrisPreview(account.qris_image_url || "")
-      setAccActive(account.is_active)
     } else {
       setEditingAccount(null)
-      setAccType("bank")
       setAccProvider("")
       setAccNumber("")
       setAccOwner("")
-      setAccQrisPreview("")
-      setAccActive(true)
     }
   }
 
   function resetAddressForm(address?: Address | null) {
     if (address) {
       setEditingAddress(address)
-      setAddrLabel(address.label || "")
       setAddrRecipient(address.recipient_name || "")
       setAddrPhone(address.phone || "")
       setAddrAddress(address.full_address || "")
       setAddrCity(address.city || "")
       setAddrPostal(address.postal_code || "")
-      setAddrNote(address.courier_note || "")
-      setAddrActive(address.is_active)
     } else {
       setEditingAddress(null)
-      setAddrLabel("")
       setAddrRecipient("")
       setAddrPhone("")
       setAddrAddress("")
       setAddrCity("")
       setAddrPostal("")
-      setAddrNote("")
-      setAddrActive(true)
     }
   }
 
   async function handleAccountSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!profile) return
+    if (!profile || !accProvider.trim()) return
     setAccSaving(true)
     try {
+      const bank = getBankBySlug(accProvider) || getBankByName(accProvider)
+      const type = bank?.type || (editingAccount?.type === "ewallet" ? "ewallet" : "bank")
       const body: Record<string, unknown> = {
         wedding_profile_id: id,
-        type: accType,
-        provider_name: accProvider,
+        type,
+        provider_name: bank?.name || accProvider,
+        provider_logo_url: bank ? bankLogoUrl(bank.slug) : "",
         account_number: accNumber,
         account_name: accOwner,
-        is_active: accActive,
-        ...(accQrisPreview && accType === "qris" ? { qris_image_url: accQrisPreview } : {}),
       }
 
       let res
@@ -200,14 +181,11 @@ function AmplopDigitalInner({ id }: { id: string }) {
     try {
       const body: Record<string, unknown> = {
         wedding_profile_id: id,
-        label: addrLabel,
         recipient_name: addrRecipient,
         phone: addrPhone,
         full_address: addrAddress,
         city: addrCity || null,
         postal_code: addrPostal || null,
-        courier_note: addrNote || null,
-        is_active: addrActive,
       }
 
       let res
@@ -266,38 +244,6 @@ function AmplopDigitalInner({ id }: { id: string }) {
     }
   }
 
-  async function toggleAccount(acc: Account, active: boolean) {
-    try {
-      const res = await fetch(`/api/gift-accounts/${acc.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ is_active: active }),
-      })
-      if (!res.ok) throw new Error("Gagal mengubah status")
-      const data = await res.json()
-      setAccounts(prev => prev.map(a => a.id === data.account.id ? data.account : a))
-      showToast(setToast, `${acc.provider_name} sekarang ${active ? "ditampilkan" : "disembunyikan"} di undangan.`)
-    } catch (err) {
-      showToast(setToast, String(err))
-    }
-  }
-
-  async function toggleAddress(addr: Address, active: boolean) {
-    try {
-      const res = await fetch(`/api/gift-addresses/${addr.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ is_active: active }),
-      })
-      if (!res.ok) throw new Error("Gagal mengubah status")
-      const data = await res.json()
-      setAddresses(prev => prev.map(a => a.id === data.address.id ? data.address : a))
-      showToast(setToast, `${addr.label} sekarang ${active ? "ditampilkan" : "disembunyikan"} di undangan.`)
-    } catch (err) {
-      showToast(setToast, String(err))
-    }
-  }
-
   async function copyText(text: string, label: string) {
     try {
       await navigator.clipboard.writeText(text)
@@ -307,12 +253,10 @@ function AmplopDigitalInner({ id }: { id: string }) {
     }
   }
 
-  function handleQrisUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = ev => setAccQrisPreview(ev.target?.result as string)
-    reader.readAsDataURL(file)
+  function accountLogo(acc: Account): string {
+    if (acc.provider_logo_url) return acc.provider_logo_url
+    const bank = getBankByName(acc.provider_name || "")
+    return bank ? bankLogoUrl(bank.slug) : ""
   }
 
   if (loading) {
@@ -379,13 +323,13 @@ function AmplopDigitalInner({ id }: { id: string }) {
         {activeTab === "digital" && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <p className="text-xs uppercase tracking-wider text-brand-slate font-semibold">Daftar Rekening & QRIS Aktif</p>
+              <p className="text-xs uppercase tracking-wider text-brand-slate font-semibold">Daftar Rekening & E-Wallet</p>
               <button
                 onClick={() => { resetAccountForm(); setAccountModal(true) }}
                 className="inline-flex items-center gap-2 bg-brand-charcoal text-white px-4 py-2.5 rounded-xl text-xs uppercase tracking-[0.12em] font-semibold hover:bg-brand-terracotta transition-all active:scale-95 shadow-sm"
               >
                 <span className="material-symbols-outlined text-sm">add</span>
-                Tambah Rekening / QRIS
+                Tambah Rekening / E-Wallet
               </button>
             </div>
 
@@ -399,20 +343,19 @@ function AmplopDigitalInner({ id }: { id: string }) {
                 <div key={acc.id} className="bg-white border border-brand-border rounded-2xl p-6 sm:p-7 relative overflow-hidden shadow-[0_10px_30px_-10px_rgba(26,24,23,0.04)] hover:border-brand-terracotta/25 hover:shadow-[0_14px_36px_-10px_rgba(26,24,23,0.08)] transition-all duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-start gap-4">
-                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 ${acc.type === "bank" ? "bg-blue-50 border border-blue-100" : acc.type === "ewallet" ? "bg-green-50 border border-green-100" : "bg-amber-50 border border-amber-200/60"}`}>
+                      <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl bg-brand-cream border border-brand-border flex items-center justify-center shrink-0 overflow-hidden">
                         {acc.type === "qris" ? (
-                          <span className="material-symbols-outlined text-amber-800 text-xl sm:text-2xl">qr_code_2</span>
+                          <span className="material-symbols-outlined text-brand-slate text-xl sm:text-2xl">qr_code_2</span>
+                        ) : accountLogo(acc) ? (
+                          <img src={accountLogo(acc)} alt={acc.provider_name || ""} className="w-full h-full object-contain p-1.5" />
                         ) : (
                           <span className={`font-bold text-xs tracking-tighter ${acc.type === "bank" ? "text-blue-800" : "text-green-800"}`}>
-                            {acc.type === "bank" ? (acc.provider_name?.slice(0, 3).toUpperCase() || "BNK") : (acc.provider_name?.slice(0, 3).toUpperCase() || "EWL")}
+                            {(acc.provider_name || "").slice(0, 3).toUpperCase() || (acc.type === "bank" ? "BNK" : "EWL")}
                           </span>
                         )}
                       </div>
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-xl sm:text-2xl font-semibold text-brand-charcoal" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{acc.provider_name || (acc.type === "qris" ? "QRIS All Payment" : "Rekening Bank")}</h3>
-                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase border ${acc.is_active ? "bg-emerald-50 text-emerald-800 border-emerald-200" : "bg-gray-50 text-gray-500 border-gray-200"}`}>{acc.is_active ? "Aktif" : "Tidak Aktif"}</span>
-                        </div>
+                        <h3 className="text-xl sm:text-2xl font-semibold text-brand-charcoal" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{acc.provider_name || (acc.type === "qris" ? "QRIS All Payment" : "Rekening Bank")}</h3>
                         {acc.type !== "qris" && acc.account_number && (
                           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                             <span className="font-mono text-base tracking-wider text-brand-charcoal font-semibold break-all">{acc.account_number}</span>
@@ -428,11 +371,6 @@ function AmplopDigitalInner({ id }: { id: string }) {
                       </div>
                     </div>
                     <div className="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 pt-4 sm:pt-0 border-brand-border gap-3">
-                      <label className="inline-flex items-center cursor-pointer gap-2">
-                        <span className="text-[11px] text-brand-slate font-medium">Tampilkan di Undangan</span>
-                        <input type="checkbox" checked={acc.is_active} className="sr-only peer" onChange={e => toggleAccount(acc, e.target.checked)} />
-                        <div className="relative w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-terracotta" />
-                      </label>
                       <div className="flex items-center gap-3 text-xs font-semibold">
                         <button onClick={() => { resetAccountForm(acc); setAccountModal(true) }} className="text-brand-charcoal hover:text-brand-terracotta transition-colors inline-flex items-center gap-1">
                           <span className="material-symbols-outlined text-sm">edit</span> Edit
@@ -474,34 +412,19 @@ function AmplopDigitalInner({ id }: { id: string }) {
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div className="flex items-start gap-4">
                       <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-brand-cream border border-brand-border flex items-center justify-center shrink-0">
-                        <span className="material-symbols-outlined text-brand-terracotta text-xl sm:text-2xl">{addr.label?.toLowerCase().includes("kantor") ? "business" : "home_pin"}</span>
+                        <span className="material-symbols-outlined text-brand-terracotta text-xl sm:text-2xl">home_pin</span>
                       </div>
                       <div className="space-y-1.5 max-w-md">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-xl sm:text-2xl text-brand-charcoal font-semibold" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{addr.label}{addr.recipient_name ? ` (${addr.recipient_name})` : ""}</h3>
-                          {addr.is_primary && (
-                            <span className="bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase">Utama</span>
-                          )}
-                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase border ${addr.is_active ? "bg-emerald-50 text-emerald-800 border-emerald-200" : "bg-gray-50 text-gray-500 border-gray-200"}`}>{addr.is_active ? "Aktif" : "Tidak Aktif"}</span>
+                          <h3 className="text-xl sm:text-2xl text-brand-charcoal font-semibold" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{addr.recipient_name || "Penerima Kado"}</h3>
                         </div>
                         <p className="text-xs sm:text-sm text-brand-charcoal leading-relaxed">{addr.full_address}{addr.city ? `, ${addr.city}` : ""}{addr.postal_code ? `, ${addr.postal_code}` : ""}</p>
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-brand-slate pt-1">
-                          <span>Penerima: <strong>{addr.recipient_name}</strong></span>
-                          {addr.phone && <><span>•</span><span>Telepon: <strong>{addr.phone}</strong></span></>}
+                          {addr.phone && <><span>Telepon: <strong>{addr.phone}</strong></span></>}
                         </div>
-                        {addr.courier_note && (
-                          <div className="bg-brand-cream p-2.5 rounded-lg border border-brand-border text-[11px] text-brand-slate mt-2 italic">
-                            &ldquo;{addr.courier_note}&rdquo;
-                          </div>
-                        )}
                       </div>
                     </div>
                     <div className="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 pt-4 sm:pt-0 border-brand-border gap-3">
-                      <label className="inline-flex items-center cursor-pointer gap-2">
-                        <span className="text-[11px] text-brand-slate font-medium">Tampilkan di Undangan</span>
-                        <input type="checkbox" checked={addr.is_active} className="sr-only peer" onChange={e => toggleAddress(addr, e.target.checked)} />
-                        <div className="relative w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-terracotta" />
-                      </label>
                       <div className="flex items-center gap-3 text-xs font-semibold">
                         <button onClick={() => { resetAddressForm(addr); setAddressModal(true) }} className="text-brand-charcoal hover:text-brand-terracotta transition-colors inline-flex items-center gap-1">
                           <span className="material-symbols-outlined text-sm">edit</span> Edit
@@ -539,66 +462,25 @@ function AmplopDigitalInner({ id }: { id: string }) {
 
               <form onSubmit={handleAccountSubmit} className="space-y-6">
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-brand-slate font-semibold mb-2">Jenis Penerimaan</label>
-                  <select
-                    value={accType}
-                    onChange={e => setAccType(e.target.value as "bank" | "ewallet" | "qris")}
-                    className="w-full bg-brand-cream border border-brand-border rounded-xl p-3 text-xs font-semibold text-brand-charcoal focus:ring-1 focus:ring-brand-terracotta outline-none"
-                  >
-                    <option value="bank">Transfer Bank (BCA, Mandiri, BRI, dll)</option>
-                    <option value="ewallet">E-Wallet (GoPay, OVO, Dana, ShopeePay)</option>
-                    <option value="qris">Gambar QRIS All Payment</option>
-                  </select>
+                  <label className="block text-xs uppercase tracking-wider text-brand-slate font-semibold mb-1">Bank / E-Wallet</label>
+                  <BankSelect
+                    value={getBankByName(accProvider)?.slug || ""}
+                    name={accProvider}
+                    onChange={(slug, displayName) => setAccProvider(slug || displayName)}
+                  />
                 </div>
 
-                {accType !== "qris" && (
-                  <>
-                    <div>
-                      <label className="block text-xs uppercase tracking-wider text-brand-slate font-semibold mb-1">Nama Bank / E-Wallet</label>
-                      <input
-                        type="text"
-                        value={accProvider}
-                        onChange={e => setAccProvider(e.target.value)}
-                        placeholder="Contoh: Bank Central Asia (BCA)"
-                        className="w-full bg-transparent border-b border-brand-border py-2.5 text-sm text-brand-charcoal placeholder:text-brand-slate/40 focus:outline-none focus:border-brand-terracotta"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs uppercase tracking-wider text-brand-slate font-semibold mb-1">{accType === "bank" ? "Nomor Rekening" : "Nomor HP E-Wallet"}</label>
-                      <input
-                        type="text"
-                        value={accNumber}
-                        onChange={e => setAccNumber(e.target.value)}
-                        placeholder={accType === "bank" ? "Contoh: 8830123456" : "Contoh: 081234567890"}
-                        className="w-full bg-transparent border-b border-brand-border py-2.5 text-sm font-mono text-brand-charcoal placeholder:text-brand-slate/40 focus:outline-none focus:border-brand-terracotta"
-                        required
-                      />
-                    </div>
-                  </>
-                )}
-
-                {accType === "qris" && (
-                  <div>
-                    <label className="block text-xs uppercase tracking-wider text-brand-slate font-semibold mb-2">Unggah Gambar QRIS (PNG/JPG)</label>
-                    <div className="border-2 border-dashed border-brand-border rounded-2xl p-6 text-center bg-brand-cream/50 hover:bg-brand-cream transition-colors cursor-pointer relative">
-                      <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleQrisUpload} />
-                      {accQrisPreview ? (
-                        <div className="space-y-2">
-                          <img src={accQrisPreview} alt="QRIS preview" className="w-32 h-32 mx-auto object-contain rounded-lg border border-brand-border" />
-                          <p className="text-xs font-semibold text-brand-charcoal">QRIS siap digunakan</p>
-                          <button type="button" onClick={() => setAccQrisPreview("")} className="text-[10px] text-rose-700 underline">Hapus gambar</button>
-                        </div>
-                      ) : (
-                        <>
-                          <span className="material-symbols-outlined text-3xl text-brand-terracotta mb-2">cloud_upload</span>
-                          <p className="text-xs font-semibold text-brand-charcoal">Klik untuk unggah gambar QRIS</p>
-                          <p className="text-[10px] text-brand-slate mt-1">Maksimal resolusi 2000x2000px (Max 3MB)</p>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                )}
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-brand-slate font-semibold mb-1">Nomor Rekening / HP E-Wallet</label>
+                  <input
+                    type="text"
+                    value={accNumber}
+                    onChange={e => setAccNumber(e.target.value)}
+                    placeholder="Contoh: 8830123456"
+                    className="w-full bg-transparent border-b border-brand-border py-2.5 text-sm font-mono text-brand-charcoal placeholder:text-brand-slate/40 focus:outline-none focus:border-brand-terracotta"
+                    required
+                  />
+                </div>
 
                 <div>
                   <label className="block text-xs uppercase tracking-wider text-brand-slate font-semibold mb-1">Nama Pemilik Rekening (a.n)</label>
@@ -612,21 +494,10 @@ function AmplopDigitalInner({ id }: { id: string }) {
                   />
                 </div>
 
-                <div className="pt-2 border-t border-brand-border flex items-center justify-between">
-                  <div>
-                    <span className="text-xs font-semibold text-brand-charcoal block">Tampilkan Langsung di Undangan</span>
-                    <span className="text-[11px] text-brand-slate">Aktifkan untuk langsung menampilkan kartu ini pada tamu.</span>
-                  </div>
-                  <label className="inline-flex items-center cursor-pointer">
-                    <input type="checkbox" checked={accActive} onChange={e => setAccActive(e.target.checked)} className="sr-only peer" />
-                    <div className="relative w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-terracotta" />
-                  </label>
-                </div>
-
                 <div className="pt-4">
                   <button
                     type="submit"
-                    disabled={accSaving}
+                    disabled={accSaving || !accProvider.trim()}
                     className="w-full py-4 bg-brand-charcoal text-white rounded-xl font-semibold text-xs uppercase tracking-[0.18em] hover:bg-brand-terracotta transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     <span className="material-symbols-outlined text-base">save</span>
@@ -655,17 +526,6 @@ function AmplopDigitalInner({ id }: { id: string }) {
               </div>
 
               <form onSubmit={handleAddressSubmit} className="space-y-6">
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-brand-slate font-semibold mb-1">Label Alamat</label>
-                  <input
-                    type="text"
-                    value={addrLabel}
-                    onChange={e => setAddrLabel(e.target.value)}
-                    placeholder="Contoh: Rumah Utama / Kantor Mempelai Pria"
-                    className="w-full bg-transparent border-b border-brand-border py-2.5 text-sm text-brand-charcoal placeholder:text-brand-slate/40 focus:outline-none focus:border-brand-terracotta"
-                    required
-                  />
-                </div>
                 <div>
                   <label className="block text-xs uppercase tracking-wider text-brand-slate font-semibold mb-1">Nama Penerima Paket</label>
                   <input
@@ -719,27 +579,6 @@ function AmplopDigitalInner({ id }: { id: string }) {
                       className="w-full bg-transparent border-b border-brand-border py-2.5 text-sm text-brand-charcoal placeholder:text-brand-slate/40 focus:outline-none focus:border-brand-terracotta"
                     />
                   </div>
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-brand-slate font-semibold mb-1">Catatan Tambahan Kurir (Opsional)</label>
-                  <input
-                    type="text"
-                    value={addrNote}
-                    onChange={e => setAddrNote(e.target.value)}
-                    placeholder="Contoh: Titipkan di pos satpam komplek"
-                    className="w-full bg-transparent border-b border-brand-border py-2.5 text-sm text-brand-charcoal placeholder:text-brand-slate/40 focus:outline-none focus:border-brand-terracotta"
-                  />
-                </div>
-
-                <div className="pt-2 border-t border-brand-border flex items-center justify-between">
-                  <div>
-                    <span className="text-xs font-semibold text-brand-charcoal block">Tampilkan di Undangan</span>
-                    <span className="text-[11px] text-brand-slate">Aktifkan untuk menampilkan alamat ini pada tamu.</span>
-                  </div>
-                  <label className="inline-flex items-center cursor-pointer">
-                    <input type="checkbox" checked={addrActive} onChange={e => setAddrActive(e.target.checked)} className="sr-only peer" />
-                    <div className="relative w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-terracotta" />
-                  </label>
                 </div>
 
                 <div className="pt-4">

@@ -48,7 +48,6 @@ export async function GET(
       .from("gift_accounts")
       .select("provider_name, account_number, account_name, type")
       .eq("wedding_profile_id", profile.id)
-      .eq("is_active", true)
     const gift_accounts = (giftAccts || []).filter(a => a.type === "bank" || a.type === "ewallet")
 
     // Gift shipping address
@@ -56,7 +55,6 @@ export async function GET(
       .from("gift_addresses")
       .select("full_address, recipient_name")
       .eq("wedding_profile_id", profile.id)
-      .eq("is_active", true)
       .maybeSingle()
 
     return NextResponse.json({

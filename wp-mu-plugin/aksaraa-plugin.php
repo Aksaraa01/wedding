@@ -540,6 +540,10 @@ class AksaraaPlugin
         $elements = json_decode($data, true);
         if (!is_array($elements)) return;
 
+        // F2 — dynamic bank/e-wallet cards: clone/trim containers to match the
+        // couple's rekening rows BEFORE patching, and extend the manifest slots.
+        [$elements, $manifest] = self::reconcile_gift_containers($elements, $fields, $manifest);
+
         $changed = false;
         $fields_to_apply = array_merge(
             self::extract_simple_fields($fields, $manifest),
@@ -849,6 +853,223 @@ class AksaraaPlugin
             update_option('elementor_pro_theme_builder_conditions', $option);
         }
     }
+
+    // F2 — dynamic bank/e-wallet cards. The template ships ONE bank-card container
+    // (manifest gift_accounts[0], the container holding the provider-logo image). When
+    // a couple adds more rekening rows, clone that container N-1 times (fresh
+    // elementIds, dynamic manifest slot per clone, clone tagged `_aksaraa_bank_clone`).
+    // When rows are deleted, remove surplus clones (master is never removed).
+    private static function reconcile_gift_containers(array $elements, array $fields, array $manifest): array
+    {
+        $slots = $manifest['gift_accounts'] ?? [];
+        $baseSlot = is_array($slots) && isset($slots[0]) ? $slots[0] : null;
+        if (!is_array($baseSlot)) return [$elements, $manifest];
+
+        $subKeys = ['provider_name', 'account_number', 'account_name'];
+        $baseIds = [];
+        foreach ($subKeys as $k) {
+            if (isset($baseSlot[$k]['elementId'])) $baseIds[$k] = $baseSlot[$k]['elementId'];
+        }
+        if (empty($baseIds['provider_name']) || (empty($baseIds['account_number']) && empty($baseIds['account_name']))) {
+            return [$elements, $manifest];
+        }
+
+        // Master card = the container holding the base provider-logo image element.
+        $masterId = self::find_element_parent_id($elements, $baseIds['provider_name']);
+        if (!$masterId) return [$elements, $manifest];
+
+        // Desired count = number of non-empty gift_accounts rows (min 1 = master card).
+        $desired = 0;
+        if (isset($fields['gift_accounts']) && is_array($fields['gift_accounts'])) {
+            foreach ($fields['gift_accounts'] as $g) {
+                if (is_array($g)) {
+                    foreach (['provider_name', 'account_number', 'account_name'] as $k) {
+                        if (!empty($g[$k])) { $desired++; break; }
+                    }
+                }
+            }
+        }
+        if ($desired === 0) $desired = 1;
+
+        // Existing clones = containers tagged `_aksaraa_bank_clone`.
+        $cloneIds = self::find_clone_ids($elements);
+
+        // Clone / trim.
+        if (count($cloneIds) + 1 < $desired) {
+            $master = self::find_node($elements, $masterId);
+            for ($i = count($cloneIds) + 1; $i < $desired; $i++) {
+                $clone = self::tag_clone(self::clone_subtree($master));
+                // Insert AFTER master (sibling) so the master stays first in layout.
+                $elements = self::insert_after($elements, $masterId, $clone);
+            }
+        } elseif (count($cloneIds) + 1 > $desired) {
+            // Remove surplus clones (never the master).
+            $excess = array_slice($cloneIds, $desired - 1);
+            if (!empty($excess)) $elements = self::remove_nodes_by_id($elements, $excess);
+        }
+
+        // Rebuild manifest slots: slot 0 = master (base ids), then one per clone in order.
+        $newSlots = [];
+        $master = self::find_node($elements, $masterId);
+        if ($master) {
+            $imageId = self::find_descendant_widget_id($master, 'image');
+            $headings = self::find_descendant_headings($master);
+            $newSlots[] = [
+                'provider_name' => ['elementId' => $imageId ?: $baseIds['provider_name'], 'settings' => ['image', 'url']],
+                'account_number' => ['elementId' => $headings[0] ?? $baseIds['account_number'], 'settings' => ['title']],
+                'account_name' => ['elementId' => $headings[1] ?? $baseIds['account_name'], 'settings' => ['title']],
+            ];
+        } else {
+            $newSlots[] = $baseSlot;
+        }
+
+        $cloneIds = self::find_clone_ids($elements);
+        foreach ($cloneIds as $cid) {
+            $clone = self::find_node($elements, $cid);
+            if (!$clone) { $newSlots[] = $baseSlot; continue; }
+            $imageId = self::find_descendant_widget_id($clone, 'image');
+            $headings = self::find_descendant_headings($clone);
+            $newSlots[] = [
+                'provider_name' => ['elementId' => $imageId ?: $baseIds['provider_name'], 'settings' => ['image', 'url']],
+                'account_number' => ['elementId' => $headings[0] ?? $baseIds['account_number'], 'settings' => ['title']],
+                'account_name' => ['elementId' => $headings[1] ?? $baseIds['account_name'], 'settings' => ['title']],
+            ];
+        }
+        while (count($newSlots) < $desired) $newSlots[] = $baseSlot;
+        $manifest['gift_accounts'] = array_slice($newSlots, 0, $desired);
+
+        return [$elements, $manifest];
+    }
+
+    // Return the smallest container id whose subtree holds $elementId.
+    private static function find_element_parent_id(array $elements, string $id): string
+    {
+        foreach ($elements as $el) {
+            if (self::subtree_contains_id($el, $id)) {
+                if (in_array($el['elType'] ?? '', ['section', 'container'], true)) {
+                    $child = self::find_element_parent_id($el['elements'] ?? [], $id);
+                    return $child ?: ($el['id'] ?? '');
+                }
+                return self::find_element_parent_id($el['elements'] ?? [], $id);
+            }
+        }
+        return '';
+    }
+
+    private static function subtree_contains_id(array $node, string $id): bool
+    {
+        if (($node['id'] ?? '') === $id) return true;
+        foreach ($node['elements'] ?? [] as $c) {
+            if (self::subtree_contains_id($c, $id)) return true;
+        }
+        return false;
+    }
+
+    // Find ids of previously-cloned bank containers (tagged `_aksaraa_bank_clone`).
+    private static function find_clone_ids(array $elements): array
+    {
+        $ids = [];
+        $walk = function (array $nodes) use (&$walk, &$ids) {
+            foreach ($nodes as $el) {
+                if (in_array($el['elType'] ?? '', ['section', 'container'], true)
+                    && !empty($el['settings']['_aksaraa_bank_clone'])) {
+                    $ids[] = $el['id'] ?? '';
+                }
+                if (!empty($el['elements'])) $walk($el['elements']);
+            }
+        };
+        $walk($elements);
+        return $ids;
+    }
+
+    private static function tag_clone(array $node): array
+    {
+        if (!isset($node['settings'])) $node['settings'] = [];
+        $node['settings']['_aksaraa_bank_clone'] = true;
+        return $node;
+    }
+
+    private static function find_node(array $elements, string $id): ?array
+    {
+        foreach ($elements as $el) {
+            if (($el['id'] ?? '') === $id) return $el;
+            $found = self::find_node($el['elements'] ?? [], $id);
+            if ($found) return $found;
+        }
+        return null;
+    }
+
+    private static function clone_subtree(array $node): array
+    {
+        $map = [];
+        return self::deep_clone($node, $map);
+    }
+
+    private static function deep_clone(array $node, array &$map): array
+    {
+        if (isset($node['id'])) {
+            $newId = 'a' . strtolower(wp_generate_password(8, false, false));
+            $map[$node['id']] = $newId;
+            $node['id'] = $newId;
+        }
+        if (!empty($node['elements'])) {
+            foreach ($node['elements'] as $i => $child) {
+                $node['elements'][$i] = self::deep_clone($child, $map);
+            }
+        }
+        return $node;
+    }
+
+    private static function insert_after(array $elements, string $targetId, array $node): array
+    {
+        $out = [];
+        foreach ($elements as $el) {
+            $out[] = $el;
+            if (($el['id'] ?? '') === $targetId) {
+                $out[] = $node;
+            } elseif (!empty($el['elements']) && self::subtree_contains_id($el, $targetId)) {
+                $el['elements'] = self::insert_after($el['elements'], $targetId, $node);
+                $out[count($out) - 1] = $el;
+            }
+        }
+        return $out;
+    }
+
+    private static function remove_nodes_by_id(array $elements, array $ids): array
+    {
+        $out = [];
+        foreach ($elements as $el) {
+            if (in_array($el['id'] ?? '', $ids, true)) continue;
+            if (!empty($el['elements'])) $el['elements'] = self::remove_nodes_by_id($el['elements'], $ids);
+            $out[] = $el;
+        }
+        return $out;
+    }
+
+    private static function find_descendant_widget_id(array $node, string $widgetType): string
+    {
+        foreach ($node['elements'] ?? [] as $child) {
+            if (($child['widgetType'] ?? '') === $widgetType) return $child['id'] ?? '';
+            if (!empty($child['elements'])) {
+                $id = self::find_descendant_widget_id($child, $widgetType);
+                if ($id) return $id;
+            }
+        }
+        return '';
+    }
+
+    private static function find_descendant_headings(array $node): array
+    {
+        $out = [];
+        foreach ($node['elements'] ?? [] as $child) {
+            if (($child['widgetType'] ?? '') === 'heading') $out[] = $child['id'] ?? '';
+            if (!empty($child['elements'])) {
+                foreach (self::find_descendant_headings($child) as $h) $out[] = $h;
+            }
+        }
+        return $out;
+    }
+
 }
 
 // Output audio tag for posts with _aksaraa_track_url

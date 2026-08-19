@@ -56,8 +56,8 @@ export default async function WeddingInvitation({
   const guestName = guestContext?.name || to || "Tamu Undangan"
 
   const [giftAcctsRes, giftAddrRes, trackRes] = await Promise.all([
-    supabaseAdmin.from("gift_accounts").select("provider_name, account_number, account_name, type").eq("wedding_profile_id", profile.id).eq("is_active", true),
-    supabaseAdmin.from("gift_addresses").select("full_address").eq("wedding_profile_id", profile.id).eq("is_active", true).single(),
+    supabaseAdmin.from("gift_accounts").select("provider_name, account_number, account_name, type").eq("wedding_profile_id", profile.id),
+    supabaseAdmin.from("gift_addresses").select("full_address").eq("wedding_profile_id", profile.id).single(),
     profile.selected_track_id
       ? (async () => {
           // Static reference data — cached so repeat views skip this read.

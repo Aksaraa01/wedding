@@ -8,14 +8,16 @@ export async function PUT(
   try {
     const { id } = await params
     const body = await req.json()
-    const { provider_name, account_number, account_name, qris_image_url, is_active, sort_order } = body
+    const { provider_name, provider_logo_url, account_number, account_name, qris_image_url, sort_order } = body
+    const { type } = body
 
     const updateData: Record<string, unknown> = {}
     if (provider_name !== undefined) updateData.provider_name = provider_name
+    if (provider_logo_url !== undefined) updateData.provider_logo_url = provider_logo_url
     if (account_number !== undefined) updateData.account_number = account_number
     if (account_name !== undefined) updateData.account_name = account_name
     if (qris_image_url !== undefined) updateData.qris_image_url = qris_image_url
-    if (is_active !== undefined) updateData.is_active = is_active
+    if (type !== undefined) updateData.type = type
     if (sort_order !== undefined) updateData.sort_order = sort_order
 
     const { data, error } = await supabaseAdmin

@@ -449,7 +449,7 @@ function EditorInner({ id }: { id: string }) {
     }
     if (addrRes.ok) {
       const { addresses } = await addrRes.json()
-      const active = addresses.find((a: any) => a.is_active)
+      const active = addresses?.[0]
       if (active) {
         setGiftAddressText(active.full_address)
         setGiftAddressName(active.recipient_name || "")

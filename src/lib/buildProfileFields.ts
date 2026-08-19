@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { formatDateUpper } from "@/lib/formatDate"
+import { resolveBankLogo } from "@/lib/bankList"
 
 const PROFILE_SELECT =
   "id, bride_name, groom_name, slug, selected_template_id, selected_track_id, active_wp_post_id, couple_illustration_url, cover_photos, couple_initials, display_name, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax"
@@ -25,16 +26,14 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
 
   const { data: giftAccts } = await supabaseAdmin
     .from("gift_accounts")
-    .select("provider_name, account_number, account_name, type")
+    .select("provider_name, provider_logo_url, account_number, account_name, type")
     .eq("wedding_profile_id", profile.id)
-    .eq("is_active", true)
   const giftAccounts = (giftAccts || []).filter(a => a.type === "bank" || a.type === "ewallet")
 
   const { data: giftAddr } = await supabaseAdmin
     .from("gift_addresses")
     .select("full_address, recipient_name")
     .eq("wedding_profile_id", profile.id)
-    .eq("is_active", true)
     .maybeSingle()
 
   const sessions = parseList(profile.sessions).map((s: any) => ({
@@ -78,7 +77,8 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
     gallery_photos: parseList(profile.gallery_photos).filter(Boolean),
     inviting_families: parseList(profile.inviting_families).filter(Boolean),
     gift_accounts: giftAccounts.map(a => ({
-      provider_name: a.provider_name,
+      // provider_name maps to the WP bank **image** element, so send the logo URL.
+      provider_name: a.provider_logo_url || resolveBankLogo(a.provider_name),
       account_number: a.account_number,
       account_name: a.account_name,
     })),

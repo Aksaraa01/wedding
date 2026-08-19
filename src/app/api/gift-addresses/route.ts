@@ -14,7 +14,6 @@ export async function GET(req: NextRequest) {
       .from("gift_addresses")
       .select("*")
       .eq("wedding_profile_id", weddingProfileId)
-      .order("is_primary", { ascending: false })
       .order("created_at", { ascending: true })
 
     if (error) {
@@ -30,15 +29,15 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { wedding_profile_id, label, recipient_name, phone, full_address, city, postal_code, courier_note, is_active } = body
+    const { wedding_profile_id, recipient_name, phone, full_address, city, postal_code } = body
 
-    if (!wedding_profile_id || !label || !recipient_name || !full_address) {
+    if (!wedding_profile_id || !recipient_name || !full_address) {
       return NextResponse.json({ error: "Data tidak lengkap" }, { status: 400 })
     }
 
     const { data, error } = await supabaseAdmin
       .from("gift_addresses")
-      .insert({ wedding_profile_id, label, recipient_name, phone, full_address, city, postal_code, courier_note, is_active })
+      .insert({ wedding_profile_id, recipient_name, phone, full_address, city, postal_code })
       .select()
       .single()
 

@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { wedding_profile_id, type, provider_name, account_number, account_name, qris_image_url, is_active } = body
+    const { wedding_profile_id, type, provider_name, provider_logo_url, account_number, account_name, qris_image_url } = body
 
     if (!wedding_profile_id || !type) {
       return NextResponse.json({ error: "Data tidak lengkap" }, { status: 400 })
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
     const { data, error } = await supabaseAdmin
       .from("gift_accounts")
-      .insert({ wedding_profile_id, type, provider_name, account_number, account_name, qris_image_url, is_active })
+      .insert({ wedding_profile_id, type, provider_name, provider_logo_url, account_number, account_name, qris_image_url })
       .select()
       .single()
 
