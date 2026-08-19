@@ -222,14 +222,14 @@ function InstructionInner({ id }: { id: string }) {
       <PageTheme mode="light" />
       <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-surface border-b border-outline-variant h-16 flex items-center px-6 md:px-12">
         <div className="w-full flex items-center justify-between">
-          <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">Instruksi</span>
+          <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">Cara Memulai</span>
           <ProfileMenu />
         </div>
       </header>
 
       <main className="w-full max-w-container-max mx-auto px-edge-margin-mobile md:px-edge-margin-desktop pt-28 pb-20 relative">
         <div className="text-center mb-12 md:mb-16 max-w-2xl mx-auto">
-          <h1 className="font-headline-xl text-headline-xl text-primary mb-6">Instruksi</h1>
+          <h1 className="font-headline-xl text-headline-xl text-primary mb-6">Cara Memulai</h1>
           <p className="font-body-md text-on-surface-variant">
             Ikuti langkah-langkah perencanaan sesuai modul yang aktif pada paket Anda.
           </p>

@@ -286,17 +286,17 @@ function DashboardInner({ id }: { id: string }) {
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.push(`/dashboard/${id}/instruksi`)}
-            className="relative group w-11 h-11 flex items-center justify-center bg-secondary text-on-secondary shadow-sm hover:opacity-90 transition-opacity"
-            aria-label="Instruksi"
+            className="relative group w-11 h-11 flex items-center justify-center text-secondary hover:opacity-80 transition-opacity"
+            aria-label="Cara Memulai"
           >
             <span className="material-symbols-outlined text-[22px]">menu_book</span>
             <span className="pointer-events-none absolute top-full right-0 mt-2 whitespace-nowrap bg-on-surface text-on-primary px-3 py-1.5 font-label-md text-label-md uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity z-50">
-              Instruksi
+              Cara Memulai
             </span>
           </button>
           <button
             onClick={() => router.push(`/customize?${settingsParams}`)}
-            className="relative group w-11 h-11 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"
+            className="relative group w-11 h-11 flex items-center justify-center text-brand-gold hover:opacity-80 transition-opacity"
             title="Ganti Paket"
             aria-label="Ganti Paket"
           >

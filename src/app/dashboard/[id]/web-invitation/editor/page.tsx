@@ -618,14 +618,60 @@ function EditorInner({ id }: { id: string }) {
     return items.filter(i => !i.filled).map(i => i.label)
   }
 
+  // Per-accordion completeness: a section is incomplete when its core content is
+  // empty. Hidden (toggle off) or locked (not in package) sections count as complete.
+  const sectionIncomplete = (key: string): boolean => {
+    const hasArr = (v: any) => Array.isArray(v) && v.filter(Boolean).length > 0
+    const hasStr = (v: any) => typeof v === "string" && v.trim() !== ""
+    switch (key) {
+      case "sampul":
+        return !hasArr(data.cover_photos) && !hasStr(data.couple_illustration_url)
+      case "pembuka":
+        return !hasStr(data.opening_title) && !hasStr(data.opening_description)
+      case "profile":
+        return !hasStr(data.display_name) || !hasStr(data.groom_full_name) || !hasStr(data.bride_full_name)
+      case "inviting":
+        if (!gates.inviting_families.included) return false
+        if (data.inviting_families_visible === false) return false
+        return !hasArr(data.inviting_families)
+      case "acara":
+        return !hasArr(data.sessions)
+      case "kutipan":
+        return !hasStr(data.quote_text)
+      case "video":
+        if (!gates.cinematic_video.included) return false
+        if (data.video_section_visible === false) return false
+        return !hasStr(data.video_url)
+      case "story":
+        if (!gates.story.included) return false
+        if (data.story_visible === false) return false
+        return !hasArr(data.stories)
+      case "galeri":
+        return !hasArr(data.gallery_photos)
+      case "gift":
+        if (data.gift_section_visible === false) return false
+        return !hasStr(giftAddressText) && giftAccounts.length === 0
+      default:
+        return false
+    }
+  }
+
   const handleSectionToggle = (section: string) => {
     setActiveSection(prev => prev === section ? prev : section)
   }
 
+  // When the open accordion changes, scroll it into view inside the sidebar so a
+  // long accordion above doesn't leave the newly-opened one hidden above the fold.
+  useEffect(() => {
+    if (!activeSection) return
+    const el = document.querySelector(`[data-section="${activeSection}"]`)
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" })
+  }, [activeSection])
+
   const renderSection = (key: string, icon: string, label: string, content: React.ReactNode) => {
     const isActive = activeSection === key
     return (
-      <div className={` border border-outline-variant ${isActive ? "bg-white" : "opacity-60"}`}>
+      <div data-section={key} className={`scroll-mt-6 border border-outline-variant ${isActive ? "bg-white" : "opacity-60"}`}>
         <button
           onClick={() => handleSectionToggle(key)}
           className={`w-full flex justify-between items-center py-4 px-4 transition-colors ${isActive ? "text-primary" : "text-on-surface-variant hover:text-primary"}`}
@@ -633,6 +679,9 @@ function EditorInner({ id }: { id: string }) {
           <span className="font-label-md text-label-md flex items-center gap-3">
             <span className="material-symbols-outlined text-[18px]">{icon}</span>
             {label}
+            {sectionIncomplete(key) && (
+              <span className="material-symbols-outlined text-[15px] text-amber-500/80" title="Konten belum lengkap">flag</span>
+            )}
           </span>
           <span className="material-symbols-outlined">{isActive ? "expand_less" : "expand_more"}</span>
         </button>
@@ -746,8 +795,6 @@ function EditorInner({ id }: { id: string }) {
               <button onClick={() => setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile")} className="hover:text-primary transition-colors hidden sm:flex"><span className="material-symbols-outlined">devices</span></button>
             </div>
 
-            <ProfileMenu />
-
             {/* Ganti Tema */}
             <button
               onClick={() => router.push(`/dashboard/${id}/web-invitation/templates`)}
@@ -766,7 +813,7 @@ function EditorInner({ id }: { id: string }) {
             <button
               onClick={() => setShowPublishConfirm(true)}
               disabled={isPublished}
-              className={`hidden md:flex px-6 py-2 font-label-md text-label-md transition-all active:scale-95 ${
+              className={`hidden md:flex px-6 py-3 font-label-md text-label-md transition-all active:scale-95 ${
                 isPublished
                   ? "flex-col items-center justify-center bg-emerald-600 text-white cursor-default border border-emerald-600 shadow-lg shadow-emerald-600/20"
                   : "items-center bg-secondary text-on-secondary hover:opacity-90 border border-secondary"
@@ -786,6 +833,8 @@ function EditorInner({ id }: { id: string }) {
                 "KONFIRMASI"
               )}
             </button>
+
+            <ProfileMenu />
           </div>
         </header>
 
@@ -944,8 +993,8 @@ function EditorInner({ id }: { id: string }) {
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_name || ""} onChange={e => updateField("groom_name", e.target.value)} placeholder="Mempelai Pertama" />
-                          <p className="text-[11px] text-on-surface-variant italic">Mempelai Pertama</p>
+                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_name || ""} onChange={e => updateField("groom_name", e.target.value)} placeholder="Nama Mempelai Pertama" />
+                          <p className="text-[11px] text-on-surface-variant italic">Nama Mempelai Pertama</p>
                         </div>
                         <div className="space-y-2">
                           <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_full_name || ""} onChange={e => updateField("groom_full_name", e.target.value)} placeholder="Nama Lengkap Mempelai Pertama" />
@@ -960,8 +1009,8 @@ function EditorInner({ id }: { id: string }) {
                         </div>
                         <input ref={groomPhotoRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, "groom_photo_url") }} />
                         <div className="flex-1">
-                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_name || ""} onChange={e => updateField("groom_name", e.target.value)} placeholder="Mempelai Pertama" />
-                          <p className="text-[11px] text-on-surface-variant mt-1 italic">Mempelai Pertama</p>
+                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_name || ""} onChange={e => updateField("groom_name", e.target.value)} placeholder="Nama Mempelai Pertama" />
+                          <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Mempelai Pertama</p>
                           <input className="input-editorial w-full font-headline-md text-[18px] mt-3" type="text" value={data.groom_full_name || ""} onChange={e => updateField("groom_full_name", e.target.value)} placeholder="Nama Lengkap Mempelai Pertama" />
                           <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Lengkap Mempelai Pertama</p>
                         </div>
@@ -1005,8 +1054,8 @@ function EditorInner({ id }: { id: string }) {
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_name || ""} onChange={e => updateField("bride_name", e.target.value)} placeholder="Mempelai Kedua" />
-                          <p className="text-[11px] text-on-surface-variant italic">Mempelai Kedua</p>
+                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_name || ""} onChange={e => updateField("bride_name", e.target.value)} placeholder="Nama Mempelai Kedua" />
+                          <p className="text-[11px] text-on-surface-variant italic">Nama Mempelai Kedua</p>
                         </div>
                         <div className="space-y-2">
                           <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_full_name || ""} onChange={e => updateField("bride_full_name", e.target.value)} placeholder="Nama Lengkap Mempelai Kedua" />
@@ -1021,8 +1070,8 @@ function EditorInner({ id }: { id: string }) {
                         </div>
                         <input ref={bridePhotoRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, "bride_photo_url") }} />
                         <div className="flex-1">
-                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_name || ""} onChange={e => updateField("bride_name", e.target.value)} placeholder="Mempelai Kedua" />
-                          <p className="text-[11px] text-on-surface-variant mt-1 italic">Mempelai Kedua</p>
+                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_name || ""} onChange={e => updateField("bride_name", e.target.value)} placeholder="Nama Mempelai Kedua" />
+                          <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Mempelai Kedua</p>
                           <input className="input-editorial w-full font-headline-md text-[18px] mt-3" type="text" value={data.bride_full_name || ""} onChange={e => updateField("bride_full_name", e.target.value)} placeholder="Nama Lengkap Mempelai Kedua" />
                           <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Lengkap Mempelai Kedua</p>
                         </div>
