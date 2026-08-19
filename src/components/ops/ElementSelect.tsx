@@ -30,9 +30,10 @@ function elementLabel(el: ElementNode): string {
 }
 
 function searchableText(el: ElementNode): string {
-  return [el.id, el.widgetType || "", el.elType || "", el._preview || "", (el.settings_keys || []).join(" ")]
-    .join(" ")
-    .toLowerCase()
+  // Only human-readable text — element id / widget type / el type / preview.
+  // settings_keys are excluded so internal keys like `eae_slider_cover` don't
+  // make unrelated elements match searches like "cover".
+  return [el.id, el.widgetType || "", el.elType || "", el._preview || ""].join(" ").toLowerCase()
 }
 
 export default function ElementSelect({
@@ -80,14 +81,16 @@ export default function ElementSelect({
   const currentLabel = current ? elementLabel(current) : null
 
   const q = search.trim().toLowerCase()
-  const selectable = (id: string) => id === value || !usedIds.has(id)
+  // An element may be selected here only if it's the current value of this
+  // dropdown or it's not mapped to another field yet. Mapped-elsewhere elements
+  // are hidden entirely (tree + search) so they can't be double-mapped.
+  const isSelectable = (id: string) => id === value || !usedIds.has(id)
 
   const Row = ({ id, indent }: { id: string; indent: number }) => {
     const el = flatById.get(id)!
     return (
       <button
         type="button"
-        disabled={!selectable(id)}
         onClick={() => {
           onChange(id)
           setOpen(false)
@@ -95,7 +98,7 @@ export default function ElementSelect({
         }}
         title={elementLabel(el)}
         className={`w-full text-left px-2 py-1 font-mono text-[10px] border-b border-outline-variant/20 truncate ${
-          id === value ? "bg-primary text-on-primary" : selectable(id) ? "hover:bg-surface-container-high cursor-pointer" : "text-on-surface-variant/30 cursor-not-allowed"
+          id === value ? "bg-primary text-on-primary" : "hover:bg-surface-container-high cursor-pointer"
         }`}
         style={{ paddingLeft: 8 + indent * 14 }}
       >
@@ -105,12 +108,13 @@ export default function ElementSelect({
   }
 
   // Non-search mode: render the tree, showing containers as group headers and
-  // only displaying subtrees that contain at least one mappable element.
+  // only displaying subtrees that contain at least one selectable element.
   const renderTree = (nodes: ElementNode[], indent: number): React.ReactNode => {
     return nodes.map((n) => {
       const mappable = isMappable(n)
       const kids = n.children?.length ? renderTree(n.children, indent + 1) : null
       const kidsNonEmpty = Array.isArray(kids) && kids.some((k) => k !== null)
+      if (mappable && !isSelectable(n.id)) return kids || null
       return (
         <div key={n.id}>
           {mappable ? <Row id={n.id} indent={indent} /> : kidsNonEmpty ? (
@@ -127,13 +131,14 @@ export default function ElementSelect({
     })
   }
 
-  // Search mode: walk tree and collect every node whose text matches the query.
+  // Search mode: walk tree and collect every node whose text matches the query
+  // and is still selectable (not mapped to another field).
   const searchHits = useMemo(() => {
     if (!q) return []
     const hits: { id: string; indent: number }[] = []
     const walk = (nodes: ElementNode[], indent: number) => {
       for (const n of nodes) {
-        if (isMappable(n) && searchableText(n).includes(q)) hits.push({ id: n.id, indent })
+        if (isMappable(n) && isSelectable(n.id) && searchableText(n).includes(q)) hits.push({ id: n.id, indent })
         if (n.children?.length) walk(n.children, indent + 1)
       }
     }
@@ -167,7 +172,7 @@ export default function ElementSelect({
     const hits: { id: string; indent: number }[] = []
     const walk = (list: ElementNode[], indent: number) => {
       for (const n of list) {
-        if (isMappable(n) && searchableText(n).includes(q)) hits.push({ id: n.id, indent })
+        if (isMappable(n) && isSelectable(n.id) && searchableText(n).includes(q)) hits.push({ id: n.id, indent })
         if (n.children?.length) walk(n.children, indent + 1)
       }
     }
