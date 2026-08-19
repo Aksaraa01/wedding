@@ -916,7 +916,7 @@ function EditorInner({ id }: { id: string }) {
               {renderSection("profile", "group", "PROFILE MEMPELAI",
                 <div className="mt-6 space-y-8">
                   <div className="space-y-4">
-                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Mempelai Pria</label>
+                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Mempelai Pertama</label>
                     {isSlideshowField("groom_photo_url") ? (
                       <div className="space-y-3">
                         <div className="border border-outline-variant rounded p-2 bg-surface-container-lowest">
@@ -944,12 +944,12 @@ function EditorInner({ id }: { id: string }) {
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_name || ""} onChange={e => updateField("groom_name", e.target.value)} placeholder="Nama Pria" />
-                          <p className="text-[11px] text-on-surface-variant italic">Nama Pria</p>
+                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_name || ""} onChange={e => updateField("groom_name", e.target.value)} placeholder="Mempelai Pertama" />
+                          <p className="text-[11px] text-on-surface-variant italic">Mempelai Pertama</p>
                         </div>
                         <div className="space-y-2">
-                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_full_name || ""} onChange={e => updateField("groom_full_name", e.target.value)} placeholder="Nama Lengkap Pria" />
-                          <p className="text-[11px] text-on-surface-variant italic">Nama Lengkap Pria</p>
+                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_full_name || ""} onChange={e => updateField("groom_full_name", e.target.value)} placeholder="Nama Lengkap Mempelai Pertama" />
+                          <p className="text-[11px] text-on-surface-variant italic">Nama Lengkap Mempelai Pertama</p>
                         </div>
                       </div>
                     ) : (
@@ -960,10 +960,10 @@ function EditorInner({ id }: { id: string }) {
                         </div>
                         <input ref={groomPhotoRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, "groom_photo_url") }} />
                         <div className="flex-1">
-                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_name || ""} onChange={e => updateField("groom_name", e.target.value)} placeholder="Nama Pria" />
-                          <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Pria</p>
-                          <input className="input-editorial w-full font-headline-md text-[18px] mt-3" type="text" value={data.groom_full_name || ""} onChange={e => updateField("groom_full_name", e.target.value)} placeholder="Nama Lengkap Pria" />
-                          <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Lengkap Pria</p>
+                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_name || ""} onChange={e => updateField("groom_name", e.target.value)} placeholder="Mempelai Pertama" />
+                          <p className="text-[11px] text-on-surface-variant mt-1 italic">Mempelai Pertama</p>
+                          <input className="input-editorial w-full font-headline-md text-[18px] mt-3" type="text" value={data.groom_full_name || ""} onChange={e => updateField("groom_full_name", e.target.value)} placeholder="Nama Lengkap Mempelai Pertama" />
+                          <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Lengkap Mempelai Pertama</p>
                         </div>
                       </div>
                     )}
@@ -977,7 +977,7 @@ function EditorInner({ id }: { id: string }) {
                     </div>
                   </div>
                   <div className="space-y-4">
-                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Mempelai Wanita</label>
+                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Mempelai Kedua</label>
                     {isSlideshowField("bride_photo_url") ? (
                       <div className="space-y-3">
                         <div className="border border-outline-variant rounded p-2 bg-surface-container-lowest">
@@ -1005,12 +1005,12 @@ function EditorInner({ id }: { id: string }) {
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_name || ""} onChange={e => updateField("bride_name", e.target.value)} placeholder="Nama Wanita" />
-                          <p className="text-[11px] text-on-surface-variant italic">Nama Wanita</p>
+                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_name || ""} onChange={e => updateField("bride_name", e.target.value)} placeholder="Mempelai Kedua" />
+                          <p className="text-[11px] text-on-surface-variant italic">Mempelai Kedua</p>
                         </div>
                         <div className="space-y-2">
-                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_full_name || ""} onChange={e => updateField("bride_full_name", e.target.value)} placeholder="Nama Lengkap Wanita" />
-                          <p className="text-[11px] text-on-surface-variant italic">Nama Lengkap Wanita</p>
+                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_full_name || ""} onChange={e => updateField("bride_full_name", e.target.value)} placeholder="Nama Lengkap Mempelai Kedua" />
+                          <p className="text-[11px] text-on-surface-variant italic">Nama Lengkap Mempelai Kedua</p>
                         </div>
                       </div>
                     ) : (
@@ -1021,10 +1021,10 @@ function EditorInner({ id }: { id: string }) {
                         </div>
                         <input ref={bridePhotoRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, "bride_photo_url") }} />
                         <div className="flex-1">
-                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_name || ""} onChange={e => updateField("bride_name", e.target.value)} placeholder="Nama Wanita" />
-                          <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Wanita</p>
-                          <input className="input-editorial w-full font-headline-md text-[18px] mt-3" type="text" value={data.bride_full_name || ""} onChange={e => updateField("bride_full_name", e.target.value)} placeholder="Nama Lengkap Wanita" />
-                          <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Lengkap Wanita</p>
+                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_name || ""} onChange={e => updateField("bride_name", e.target.value)} placeholder="Mempelai Kedua" />
+                          <p className="text-[11px] text-on-surface-variant mt-1 italic">Mempelai Kedua</p>
+                          <input className="input-editorial w-full font-headline-md text-[18px] mt-3" type="text" value={data.bride_full_name || ""} onChange={e => updateField("bride_full_name", e.target.value)} placeholder="Nama Lengkap Mempelai Kedua" />
+                          <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Lengkap Mempelai Kedua</p>
                         </div>
                       </div>
                     )}
