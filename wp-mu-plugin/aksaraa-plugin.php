@@ -562,6 +562,12 @@ class AksaraaPlugin
         // submitted account number / address so guests copy the real value.
         $elements = self::reconcile_copy_buttons($elements, $fields, $manifest);
 
+        // F8 — self-heal broken template backgrounds: containers shipped with
+        // background_background=gradient but NO gradient colors, yet carrying a
+        // background_image, render BLACK (Elementor ignores the image for a gradient).
+        // Flip them to classic so the intended image shows.
+        $elements = self::normalize_backgrounds($elements);
+
         $changed = $tree_before !== wp_json_encode($elements, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         $fields_to_apply = array_merge(
             self::extract_simple_fields($fields, $manifest),
@@ -1126,6 +1132,38 @@ class AksaraaPlugin
             $node['settings'] = $node['settings'] ?? [];
             $node['settings']['dce_clipboard_text'] = $value;
         });
+    }
+
+    // F8 — self-heal broken template backgrounds. Some template containers were
+    // shipped with `background_background: "gradient"` but no gradient colors defined
+    // (color/color_b/stops all empty), while still carrying a `background_image`.
+    // Elementor renders the empty gradient as BLACK and ignores the image. Flip these
+    // to `classic` so the intended image shows. Only touches genuinely-broken
+    // containers (gradient has no colors AND an image is present).
+    private static function normalize_backgrounds(array $elements): array
+    {
+        $walk = function (array &$nodes) use (&$walk) {
+            foreach ($nodes as &$el) {
+                $s = $el['settings'] ?? null;
+                if (is_array($s)
+                    && ($s['background_background'] ?? '') === 'gradient'
+                    && self::gradient_is_empty($s)
+                    && !empty($s['background_image']['url'])) {
+                    $el['settings']['background_background'] = 'classic';
+                }
+                if (!empty($el['elements'])) $walk($el['elements']);
+            }
+        };
+        $walk($elements);
+        return $elements;
+    }
+
+    // A gradient is "empty" (renders black) when neither color stop is set.
+    private static function gradient_is_empty(array $s): bool
+    {
+        $a = trim((string) ($s['color'] ?? ''));
+        $b = trim((string) ($s['color_b'] ?? ''));
+        return $a === '' && $b === '';
     }
 
     // Return the smallest container id whose subtree holds $elementId.
