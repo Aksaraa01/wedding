@@ -61,6 +61,7 @@ const AKSARA_FIELDS = [
   "gift_accounts",
   "gift_address",
   "gift_address_name",
+  "gift_section",
   "stories",
   "video_url",
   "quote_text",
@@ -396,6 +397,9 @@ export default function OpsTemplatesPage() {
     if (!widgetType) return "title"
     if (widgetType === "container-bg") return "background_image.url"
     if (widgetType === "container-slideshow") return "background_slideshow_gallery"
+    // Whole-section container has no content field to patch; hide/show is driven
+    // by a _css_classes marker in the mu-plugin.
+    if (widgetType === "container" && field === "gift_section") return ""
     // URL/link fields on a button map to the button's link URL, not its label.
     if (widgetType === "button" && field && (field.includes("url") || field === "maps_url")) {
       return "link.url"
@@ -511,11 +515,23 @@ export default function OpsTemplatesPage() {
         const hasSlideshow = preview.startsWith("slideshow")
         const isWidget = !!el.widgetType
         const excluded = isWidget && EXCLUDED_WIDGETS.has(el.widgetType!)
+        // Plain sections/containers (no bg) are only selectable for whole-section
+        // targets (e.g. gift_section). ElementSelect gates their visibility via
+        // `allowContainers`; here we just make them resolvable for defaultSettings.
+        const isPlainContainer = !isWidget && (el.elType === "section" || el.elType === "container")
         // Only map content-bearing elements: non-excluded widgets, or containers with a bg image.
         if (isWidget && !excluded) {
           result.push({
             id: el.id,
             widgetType: el.widgetType || "",
+            source,
+            settingsKeys: keys,
+            _preview: el._preview,
+          })
+        } else if (isPlainContainer) {
+          result.push({
+            id: el.id,
+            widgetType: "container",
             source,
             settingsKeys: keys,
             _preview: el._preview,
@@ -916,6 +932,7 @@ export default function OpsTemplatesPage() {
                                     popups={popups}
                                     usedIds={usedIds}
                                     placeholder="— belum dipetakan —"
+                                    allowContainers={field === "gift_section"}
                                     onChange={(elId) => {
                                       if (!elId) return
                                       const el = mappable.find(x => x.id === elId)
@@ -944,6 +961,7 @@ export default function OpsTemplatesPage() {
                                     elements={elements}
                                     popups={popups}
                                     usedIds={usedIds}
+                                    allowContainers={field === "gift_section"}
                                     onChange={(elId) => {
                                       if (!elId) { removeMapping(field, idx); return }
                                       const el = mappable.find(x => x.id === elId)
@@ -982,6 +1000,7 @@ export default function OpsTemplatesPage() {
                                     popups={popups}
                                     usedIds={usedIds}
                                     placeholder="— pilih elemen —"
+                                    allowContainers={field === "gift_section"}
                                     onChange={(elId) => {
                                       if (!elId) return
                                       const el = mappable.find(x => x.id === elId)

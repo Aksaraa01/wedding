@@ -16,10 +16,12 @@ type Popup = { popup_title: string; popup_id: number; elements: ElementNode[] }
 
 const EXCLUDED_WIDGETS = new Set(["spacer", "divider", "icon", "icon-box"])
 
-function isMappable(el: ElementNode): boolean {
+function isMappable(el: ElementNode, allowContainers: boolean): boolean {
   const preview = el._preview || ""
   const isWidget = !!el.widgetType
   const excluded = isWidget && EXCLUDED_WIDGETS.has(el.widgetType!)
+  // Section/container that should be targetable (e.g. a whole gift section to hide).
+  if (!isWidget && allowContainers && (el.elType === "section" || el.elType === "container")) return true
   if (isWidget && !excluded) return true
   if (!isWidget && (preview.startsWith("bg: ") || preview.startsWith("slideshow"))) return true
   return false
@@ -43,6 +45,7 @@ export default function ElementSelect({
   popups,
   usedIds,
   placeholder = "— pilih elemen —",
+  allowContainers = false,
 }: {
   value: string
   onChange: (id: string) => void
@@ -50,6 +53,7 @@ export default function ElementSelect({
   popups: Popup[]
   usedIds: Set<string>
   placeholder?: string
+  allowContainers?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
@@ -111,7 +115,7 @@ export default function ElementSelect({
   // only displaying subtrees that contain at least one selectable element.
   const renderTree = (nodes: ElementNode[], indent: number): React.ReactNode => {
     return nodes.map((n) => {
-      const mappable = isMappable(n)
+      const mappable = isMappable(n, allowContainers)
       const kids = n.children?.length ? renderTree(n.children, indent + 1) : null
       const kidsNonEmpty = Array.isArray(kids) && kids.some((k) => k !== null)
       if (mappable && !isSelectable(n.id)) return kids || null
@@ -138,14 +142,14 @@ export default function ElementSelect({
     const hits: { id: string; indent: number }[] = []
     const walk = (nodes: ElementNode[], indent: number) => {
       for (const n of nodes) {
-        if (isMappable(n) && isSelectable(n.id) && searchableText(n).includes(q)) hits.push({ id: n.id, indent })
+        if (isMappable(n, allowContainers) && isSelectable(n.id) && searchableText(n).includes(q)) hits.push({ id: n.id, indent })
         if (n.children?.length) walk(n.children, indent + 1)
       }
     }
     walk(elements, 0)
     for (const p of popups) walk(p.elements, 0)
     return hits
-  }, [q, elements, popups])
+  }, [q, elements, popups, allowContainers])
 
   const renderSource = (title: string, nodes: ElementNode[]) => {
     if (q) {
@@ -172,7 +176,7 @@ export default function ElementSelect({
     const hits: { id: string; indent: number }[] = []
     const walk = (list: ElementNode[], indent: number) => {
       for (const n of list) {
-        if (isMappable(n) && isSelectable(n.id) && searchableText(n).includes(q)) hits.push({ id: n.id, indent })
+        if (isMappable(n, allowContainers) && isSelectable(n.id) && searchableText(n).includes(q)) hits.push({ id: n.id, indent })
         if (n.children?.length) walk(n.children, indent + 1)
       }
     }

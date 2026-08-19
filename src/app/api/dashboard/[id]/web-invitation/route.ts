@@ -11,7 +11,7 @@ export async function GET(
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("id, bride_name, groom_name, slug, package_type, selected_template_id, selected_track_id, couple_illustration_url, cover_photos, couple_initials, grayscale, is_published, published_at, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, display_name, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, active_wp_post_id, active_wp_post_url")
+      .select("id, bride_name, groom_name, slug, package_type, selected_template_id, selected_track_id, couple_illustration_url, cover_photos, couple_initials, grayscale, is_published, published_at, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, display_name, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, gift_section_visible, active_wp_post_id, active_wp_post_url")
       .eq("id", id)
       .single()
 
@@ -92,6 +92,7 @@ export async function GET(
         invitation_url: `https://${profile.slug}.wedding.aksaraa.com`,
         inviting_families: profile.inviting_families ? (typeof profile.inviting_families === "string" ? JSON.parse(profile.inviting_families) : profile.inviting_families) : [],
         rsvp_max_pax: profile.rsvp_max_pax,
+        gift_section_visible: profile.gift_section_visible !== false,
         active_wp_post_id: profile.active_wp_post_id,
         active_wp_post_url: profile.active_wp_post_url,
       },
@@ -121,7 +122,7 @@ export async function PUT(
       "groom_parents", "bride_parents", "groom_instagram", "bride_instagram", "video_url",
       "display_name", "sessions", "quote_text", "quote_source", "stories",
       "gallery_photos", "inviting_families", "rsvp_max_pax",
-      "estimated_wedding_date",
+      "estimated_wedding_date", "gift_section_visible",
     ]
 
     const updates: Record<string, any> = {}

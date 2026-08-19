@@ -540,6 +540,11 @@ class AksaraaPlugin
         $elements = json_decode($data, true);
         if (!is_array($elements)) return;
 
+        // Snapshot pre-reconcile tree so purely structural/visibility changes (e.g. the
+        // gift_section hide marker or copy-button text) trigger a DB write even when no
+        // mapped field value changed ($changed would otherwise stay false).
+        $tree_before = wp_json_encode($elements, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
         // F2 — dynamic bank/e-wallet cards: clone/trim containers to match the
         // couple's rekening rows BEFORE patching, and extend the manifest slots.
         [$elements, $manifest] = self::reconcile_gift_containers($elements, $fields, $manifest);
@@ -548,7 +553,16 @@ class AksaraaPlugin
         // (single container). Reappears automatically once an address is set.
         $elements = self::reconcile_gift_address($elements, $fields, $manifest);
 
-        $changed = false;
+        // F6 — hide/show the whole gift (Hadiah/Amplop) section via the mapped
+        // parent container, driven by the couple's dashboard toggle.
+        $elements = self::reconcile_gift_section($elements, $fields, $manifest);
+
+        // F7 — auto-fill copy buttons: each bank/address card may carry a
+        // `weddingpress-copy-text` widget whose `dce_clipboard_text` should hold the
+        // submitted account number / address so guests copy the real value.
+        $elements = self::reconcile_copy_buttons($elements, $fields, $manifest);
+
+        $changed = $tree_before !== wp_json_encode($elements, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         $fields_to_apply = array_merge(
             self::extract_simple_fields($fields, $manifest),
             self::extract_simple_array_fields($fields, $manifest),
@@ -1041,6 +1055,79 @@ class AksaraaPlugin
         });
     }
 
+    // F6 — hide/show the whole gift (Hadiah/Amplop) section. The /ops mapping UI
+    // assigns `gift_section` to the parent container wrapping the rekening + alamat
+    // cards. When the couple's "gift_section_hidden" field is true, mark that
+    // container `aksaraa-hidden` (the wp_head hook emits display:none); otherwise
+    // remove the marker so it shows again. Reversible on the next patch.
+    private static function reconcile_gift_section(array $elements, array $fields, array $manifest): array
+    {
+        $mapping = $manifest['gift_section'] ?? null;
+        if (!is_array($mapping)) return $elements;
+        $slot = isset($mapping['elementId']) ? $mapping : ($mapping[0] ?? null);
+        if (!is_array($slot) || empty($slot['elementId'])) return $elements;
+
+        $hidden = !empty($fields['gift_section_hidden']);
+        return self::apply_to_node($elements, (string) $slot['elementId'], function (array &$container) use ($hidden) {
+            $container['settings'] = $container['settings'] ?? [];
+            $classes = trim((string) ($container['settings']['_css_classes'] ?? ''));
+            $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-hidden'));
+            if ($hidden) {
+                $tokens[] = 'aksaraa-hidden';
+            }
+            $container['settings']['_css_classes'] = implode(' ', $tokens);
+        });
+    }
+
+    // F7 — auto-fill copy buttons. Each bank/ewallet card container may hold a
+    // `weddingpress-copy-text` widget whose `dce_clipboard_text` is what gets copied
+    // on click. Set it to the submitted account number (per slot) and the address card's
+    // to the real address. Skips silently if a card has no such widget (safe no-op).
+    private static function reconcile_copy_buttons(array $elements, array $fields, array $manifest): array
+    {
+        // Bank/e-wallet cards.
+        $slots = $manifest['gift_accounts'] ?? [];
+        $accts = $fields['gift_accounts'] ?? [];
+        if (is_array($slots) && is_array($accts)) {
+            foreach ($slots as $i => $slot) {
+                if (!is_array($slot) || empty($slot['provider_name']['elementId'])) continue;
+                $cardId = self::find_element_parent_id($elements, (string) $slot['provider_name']['elementId']);
+                if (!$cardId) continue;
+                $item = $accts[$i] ?? null;
+                $val = is_array($item) ? ((string) ($item['account_number'] ?? '')) : '';
+                if ($val === '') $val = is_array($item) ? ((string) ($item['account_name'] ?? '')) : '';
+                $elements = self::set_copy_widget($elements, $cardId, $val);
+            }
+        }
+
+        // Address card.
+        $am = $manifest['gift_address'] ?? null;
+        $addrSlot = isset($am['elementId']) ? $am : ($am[0] ?? null);
+        if (is_array($addrSlot) && !empty($addrSlot['elementId'])) {
+            $containerId = self::find_element_parent_id($elements, (string) $addrSlot['elementId']);
+            if ($containerId) {
+                $elements = self::set_copy_widget($elements, $containerId, (string) ($fields['gift_address'] ?? ''));
+            }
+        }
+
+        return $elements;
+    }
+
+    // Set dce_clipboard_text on the first `weddingpress-copy-text` descendant of a
+    // card container. No-op if the card has no copy widget or value is empty.
+    private static function set_copy_widget(array $elements, string $containerId, string $value): array
+    {
+        if ($value === '') return $elements;
+        $card = self::find_node($elements, $containerId);
+        if (!$card) return $elements;
+        $copyId = self::find_descendant_widget_id($card, 'weddingpress-copy-text');
+        if (!$copyId) return $elements;
+        return self::apply_to_node($elements, $copyId, function (array &$node) use ($value) {
+            $node['settings'] = $node['settings'] ?? [];
+            $node['settings']['dce_clipboard_text'] = $value;
+        });
+    }
+
     // Return the smallest container id whose subtree holds $elementId.
     private static function find_element_parent_id(array $elements, string $id): string
     {
@@ -1213,27 +1300,34 @@ add_filter('upload_mimes', function ($mimes) {
 
 // Hide Hestia page title on template pages (only Elementor content should show)
 add_action('wp_head', function () {
-    // Alamat pengiriman card is hidden on WP until the couple sets an address.
-    // Elementor doesn't apply the `_css_classes` setting to a section/container's
-    // rendered class, so target the hidden container by its element-id class instead.
+    // Hide containers flagged via a `_css_classes` marker (e.g. empty alamat card
+    // or a whole gift section toggled off in the dashboard). Elementor doesn't apply
+    // `_css_classes` to a section/container's rendered class, so target the hidden
+    // container by its element-id class instead.
     if (is_singular()) {
         $post_id = get_the_ID();
         $raw = get_post_meta($post_id, '_elementor_data', true);
         $tree = is_string($raw) ? json_decode($raw, true) : (is_array($raw) ? $raw : null);
         if (is_array($tree)) {
             $hidden = [];
-            $walk = function (array $nodes) use (&$walk, &$hidden) {
+            $markers = ['aksaraa-addr-hidden', 'aksaraa-hidden'];
+            $walk = function (array $nodes) use (&$walk, &$hidden, $markers) {
                 foreach ($nodes as $el) {
                     $classes = (string) ($el['settings']['_css_classes'] ?? '');
-                    if (is_array($el['settings'] ?? null) && strpos($classes, 'aksaraa-addr-hidden') !== false && !empty($el['id'])) {
-                        $hidden[] = $el['id'];
+                    if (is_array($el['settings'] ?? null) && !empty($el['id'])) {
+                        foreach ($markers as $marker) {
+                            if (strpos($classes, $marker) !== false) {
+                                $hidden[] = $el['id'];
+                                break;
+                            }
+                        }
                     }
                     if (!empty($el['elements'])) $walk($el['elements']);
                 }
             };
             $walk($tree);
             if ($hidden) {
-                $sel = implode(',', array_map(fn($id) => '.elementor-element-' . $id, $hidden));
+                $sel = implode(',', array_map(fn($id) => '.elementor-element-' . $id, array_unique($hidden)));
                 echo '<style>' . $sel . '{ display: none !important; }</style>';
             }
         }
