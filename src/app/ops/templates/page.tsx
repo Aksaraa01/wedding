@@ -801,8 +801,8 @@ export default function OpsTemplatesPage() {
           )}
 
           {showMapping && editing && (
-            <div className="fixed inset-0 z-40 bg-black/50 flex items-start justify-center overflow-y-auto py-10">
-              <div className="bg-surface w-full max-w-3xl p-8 my-10 shadow-xl border border-outline-variant">
+            <div className="fixed inset-0 z-40 bg-black/50 flex items-start justify-center overflow-y-auto py-10 px-4">
+              <div className="bg-surface w-full max-w-5xl p-6 md:p-8 my-10 shadow-xl border border-outline-variant">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-headline-md text-[20px] text-primary font-bold">Mapping Elemen — {editing.name}</h3>
                   <button onClick={() => setShowMapping(false)} className="text-on-surface-variant hover:text-primary"><span className="material-symbols-outlined">close</span></button>
@@ -840,7 +840,7 @@ export default function OpsTemplatesPage() {
 
                     {/* Field mapping table */}
                     <div className="border border-outline-variant bg-white">
-                      <div className="grid grid-cols-[150px_1fr_100px_24px] gap-2 px-3 py-2 border-b border-outline-variant bg-surface-container-lowest text-[10px] font-label-md uppercase tracking-wider text-on-surface-variant">
+                      <div className="grid grid-cols-[minmax(150px,220px)_minmax(0,1fr)_minmax(100px,140px)_24px] gap-2 px-3 py-2 border-b border-outline-variant bg-surface-container-lowest text-[10px] font-label-md uppercase tracking-wider text-on-surface-variant">
                         <span>Konten Aksaraa</span>
                         <span>Elemen WP</span>
                         <span title="Path properti Elementor yg akan di-update (contoh: image.url, title, html)">Settings ⓘ</span>
@@ -870,18 +870,20 @@ export default function OpsTemplatesPage() {
                                       return (
                                         <div key={subField} className="grid grid-cols-[90px_1fr_90px_24px] gap-2 px-1 py-1 items-start">
                                           <span className="text-[10px] text-on-surface-variant pt-1.5 truncate" title={subField}>{SUBFIELD_LABELS[subField] || subField}</span>
-                                          <ElementSelect
-                                            value={sub?.elementId || ""}
-                                            elements={elements}
-                                            popups={popups}
-                                            usedIds={usedIds}
-                                            placeholder="— belum —"
-                                            onChange={(elId) => {
-                                              if (!elId) { removeSubMapping(field, slotIdx, subField); return }
-                                              const el = mappable.find(x => x.id === elId)
-                                              if (el) setSubMapping(field, slotIdx, subField, elId, el.widgetType)
-                                            }}
-                                          />
+                                          <div className="min-w-0">
+                                            <ElementSelect
+                                              value={sub?.elementId || ""}
+                                              elements={elements}
+                                              popups={popups}
+                                              usedIds={usedIds}
+                                              placeholder="— belum —"
+                                              onChange={(elId) => {
+                                                if (!elId) { removeSubMapping(field, slotIdx, subField); return }
+                                                const el = mappable.find(x => x.id === elId)
+                                                if (el) setSubMapping(field, slotIdx, subField, elId, el.widgetType)
+                                              }}
+                                            />
+                                          </div>
                                           {sub ? (
                                             <input
                                               className="text-[10px] font-mono border border-outline-variant px-1 py-0.5 w-full bg-background"
@@ -905,26 +907,28 @@ export default function OpsTemplatesPage() {
                         return (
                           <div key={field}>
                             {rows.length === 0 ? (
-                              <div className="grid grid-cols-[150px_1fr_100px_24px] gap-2 px-3 py-1.5 border-b border-outline-variant/30 items-start">
+                              <div className="grid grid-cols-[minmax(150px,220px)_minmax(0,1fr)_minmax(100px,140px)_24px] gap-2 px-3 py-1.5 border-b border-outline-variant/30 items-start">
                                 <span className="text-[11px] font-body-md text-on-surface truncate pt-1.5" title={field}>{FIELD_LABELS[field] || field}</span>
-                                <ElementSelect
-                                  value=""
-                                  elements={elements}
-                                  popups={popups}
-                                  usedIds={usedIds}
-                                  placeholder="— belum dipetakan —"
-                                  onChange={(elId) => {
-                                    if (!elId) return
-                                    const el = mappable.find(x => x.id === elId)
-                                    if (el) addMapping(field, elId, el.widgetType)
-                                  }}
-                                />
+                                <div className="min-w-0">
+                                  <ElementSelect
+                                    value=""
+                                    elements={elements}
+                                    popups={popups}
+                                    usedIds={usedIds}
+                                    placeholder="— belum dipetakan —"
+                                    onChange={(elId) => {
+                                      if (!elId) return
+                                      const el = mappable.find(x => x.id === elId)
+                                      if (el) addMapping(field, elId, el.widgetType)
+                                    }}
+                                  />
+                                </div>
                                 <span className="text-[10px] text-on-surface-variant/40 pt-1.5">—</span>
                                 <button disabled className="text-xs pt-1.5 text-on-surface-variant/20 cursor-default">+</button>
                               </div>
                             ) : (
                               rows.map((mapped: any, idx: number) => (
-                                <div key={`${field}-${idx}`} className="grid grid-cols-[150px_1fr_100px_24px] gap-2 px-3 py-1.5 border-b border-outline-variant/30 items-start hover:bg-surface-container-lowest/50">
+                                <div key={`${field}-${idx}`} className="grid grid-cols-[minmax(150px,220px)_minmax(0,1fr)_minmax(100px,140px)_24px] gap-2 px-3 py-1.5 border-b border-outline-variant/30 items-start hover:bg-surface-container-lowest/50">
                                   {SIMPLE_ARRAY_FIELDS.includes(field) ? (
                                     <span className="text-[10px] font-body-md text-on-surface truncate pt-1.5">
                                       {idx === 0 ? `${FIELD_LABELS[field] || field} 1` : `${FIELD_LABELS[field] || field} ${idx + 1}`}
@@ -934,6 +938,7 @@ export default function OpsTemplatesPage() {
                                   ) : (
                                     <span className="text-[10px] text-on-surface-variant/40 pt-1.5">↳</span>
                                   )}
+<div className="min-w-0">
                                   <ElementSelect
                                     value={mapped.elementId}
                                     elements={elements}
@@ -950,6 +955,7 @@ export default function OpsTemplatesPage() {
                                       }
                                     }}
                                   />
+                                </div>
                                   <div className="flex items-center gap-0.5 pt-0.5">
                                     <input
                                       className="text-[10px] font-mono border border-outline-variant px-1 py-0.5 w-full bg-background"
@@ -967,30 +973,22 @@ export default function OpsTemplatesPage() {
                               ))
                             )}
                             {addingField === field && (
-                              <div className="grid grid-cols-[150px_1fr_100px_24px] gap-2 px-3 py-1.5 border-b border-outline-variant/30 items-start bg-surface-container-lowest/30">
+                              <div className="grid grid-cols-[minmax(150px,220px)_minmax(0,1fr)_minmax(100px,140px)_24px] gap-2 px-3 py-1.5 border-b border-outline-variant/30 items-start bg-surface-container-lowest/30">
                                 <span className="text-[10px] text-on-surface-variant/40 pt-1.5">↳ tambah</span>
-                                <select
-                                  className="text-[10px] border border-primary px-1.5 py-1 bg-background w-full font-mono"
-                                  value=""
-                                  onChange={(e) => {
-                                    const elId = e.target.value
-                                    if (!elId) return
-                                    const el = mappable.find(x => x.id === elId)
-                                    if (el) { addMapping(field, elId, el.widgetType); setAddingField(null) }
-                                  }}
-                                >
-                                  <option value="">— pilih elemen —</option>
-                                  {mappable.filter(el => !usedIds.has(el.id) && el.source === "Post").map((el) => (
-                                    <option key={el.id} value={el.id}>{el.id} · {el.widgetType}{el._preview ? ` — ${el._preview}` : ""}</option>
-                                  ))}
-                                  {mappable.filter(el => !usedIds.has(el.id) && el.source !== "Post").length > 0 && (
-                                    <optgroup label="Popups">
-                                      {mappable.filter(el => !usedIds.has(el.id) && el.source !== "Post").map((el) => (
-                                        <option key={el.id} value={el.id}>{el.id} · {el.widgetType}{el._preview ? ` — ${el._preview}` : ""}</option>
-                                      ))}
-                                    </optgroup>
-                                  )}
-                                </select>
+                                <div className="min-w-0">
+                                  <ElementSelect
+                                    value=""
+                                    elements={elements}
+                                    popups={popups}
+                                    usedIds={usedIds}
+                                    placeholder="— pilih elemen —"
+                                    onChange={(elId) => {
+                                      if (!elId) return
+                                      const el = mappable.find(x => x.id === elId)
+                                      if (el) { addMapping(field, elId, el.widgetType); setAddingField(null) }
+                                    }}
+                                  />
+                                </div>
                                 <span className="text-[10px] text-on-surface-variant/40 pt-1.5">—</span>
                                 <span></span>
                               </div>
