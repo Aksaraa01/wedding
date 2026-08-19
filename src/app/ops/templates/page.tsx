@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import { FIELD_LABELS, WIDGET_SETTINGS } from "@/lib/fieldLabels"
 import { OBJECT_ARRAY_FIELDS, SIMPLE_ARRAY_FIELDS, SUBFIELD_LABELS } from "@/lib/manifest"
+import ElementSelect from "@/components/ops/ElementSelect"
 
 type Template = {
   id: string
@@ -869,21 +870,18 @@ export default function OpsTemplatesPage() {
                                       return (
                                         <div key={subField} className="grid grid-cols-[90px_1fr_90px_24px] gap-2 px-1 py-1 items-start">
                                           <span className="text-[10px] text-on-surface-variant pt-1.5 truncate" title={subField}>{SUBFIELD_LABELS[subField] || subField}</span>
-                                          <select
-                                            className="text-[10px] border border-outline-variant px-1.5 py-1 bg-background w-full font-mono"
+                                          <ElementSelect
                                             value={sub?.elementId || ""}
-                                            onChange={(e) => {
-                                              const elId = e.target.value
+                                            elements={elements}
+                                            popups={popups}
+                                            usedIds={usedIds}
+                                            placeholder="— belum —"
+                                            onChange={(elId) => {
                                               if (!elId) { removeSubMapping(field, slotIdx, subField); return }
                                               const el = mappable.find(x => x.id === elId)
                                               if (el) setSubMapping(field, slotIdx, subField, elId, el.widgetType)
                                             }}
-                                          >
-                                            <option value="">— belum —</option>
-                                            {mappable.filter(el => el.id === sub?.elementId || !usedIds.has(el.id)).map((el) => (
-                                              <option key={el.id} value={el.id}>{el.id} · {el.widgetType}{el._preview ? ` — ${el._preview}` : ""}</option>
-                                            ))}
-                                          </select>
+                                          />
                                           {sub ? (
                                             <input
                                               className="text-[10px] font-mono border border-outline-variant px-1 py-0.5 w-full bg-background"
@@ -909,32 +907,18 @@ export default function OpsTemplatesPage() {
                             {rows.length === 0 ? (
                               <div className="grid grid-cols-[150px_1fr_100px_24px] gap-2 px-3 py-1.5 border-b border-outline-variant/30 items-start">
                                 <span className="text-[11px] font-body-md text-on-surface truncate pt-1.5" title={field}>{FIELD_LABELS[field] || field}</span>
-                                <select
-                                  className="text-[10px] border border-outline-variant px-1.5 py-1 bg-background w-full font-mono"
+                                <ElementSelect
                                   value=""
-                                  onChange={(e) => {
-                                    const elId = e.target.value
+                                  elements={elements}
+                                  popups={popups}
+                                  usedIds={usedIds}
+                                  placeholder="— belum dipetakan —"
+                                  onChange={(elId) => {
                                     if (!elId) return
                                     const el = mappable.find(x => x.id === elId)
                                     if (el) addMapping(field, elId, el.widgetType)
                                   }}
-                                >
-                                  <option value="">— belum dipetakan —</option>
-                                  {["Post", ...new Set(mappable.map(el => el.source))].filter(s => s !== "Post" || mappable.some(el => el.source === "Post")).slice(0, 1).length > 0 && (
-                                    <optgroup label="Post">
-                                      {mappable.filter(el => el.source === "Post" && !usedIds.has(el.id)).map((el) => (
-                                        <option key={el.id} value={el.id}>{el.id} · {el.widgetType}{el._preview ? ` — ${el._preview}` : ""}</option>
-                                      ))}
-                                    </optgroup>
-                                  )}
-                                  {mappable.filter(el => el.source !== "Post" && !usedIds.has(el.id)).length > 0 && (
-                                    <optgroup label="Popups">
-                                      {mappable.filter(el => el.source !== "Post" && !usedIds.has(el.id)).map((el) => (
-                                        <option key={el.id} value={el.id}>{el.id} · {el.widgetType}{el._preview ? ` — ${el._preview}` : ""}</option>
-                                      ))}
-                                    </optgroup>
-                                  )}
-                                </select>
+                                />
                                 <span className="text-[10px] text-on-surface-variant/40 pt-1.5">—</span>
                                 <button disabled className="text-xs pt-1.5 text-on-surface-variant/20 cursor-default">+</button>
                               </div>
@@ -950,11 +934,12 @@ export default function OpsTemplatesPage() {
                                   ) : (
                                     <span className="text-[10px] text-on-surface-variant/40 pt-1.5">↳</span>
                                   )}
-                                  <select
-                                    className="text-[10px] border border-outline-variant px-1.5 py-1 bg-background w-full font-mono"
+                                  <ElementSelect
                                     value={mapped.elementId}
-                                    onChange={(e) => {
-                                      const elId = e.target.value
+                                    elements={elements}
+                                    popups={popups}
+                                    usedIds={usedIds}
+                                    onChange={(elId) => {
                                       if (!elId) { removeMapping(field, idx); return }
                                       const el = mappable.find(x => x.id === elId)
                                       if (el) {
@@ -964,22 +949,7 @@ export default function OpsTemplatesPage() {
                                         }))
                                       }
                                     }}
-                                  >
-                                    <option value={mapped.elementId}>{mapped.elementId} · {mappable.find(el => el.id === mapped.elementId)?.widgetType || "?"}{(() => { const p = mappable.find(el => el.id === mapped.elementId)?._preview; return p ? ` — ${p}` : "" })()}</option>
-                                    {(mappable.filter(el => el.id !== mapped.elementId && !usedIds.has(el.id) && el.source === "Post").length > 0 || mappable.filter(el => el.id !== mapped.elementId && !usedIds.has(el.id) && el.source !== "Post").length > 0) && (
-                                      <option value="">— pilih elemen lain —</option>
-                                    )}
-                                    {mappable.filter(el => el.id !== mapped.elementId && !usedIds.has(el.id) && el.source === "Post").map((el) => (
-                                      <option key={el.id} value={el.id}>{el.id} · {el.widgetType}{el._preview ? ` — ${el._preview}` : ""}</option>
-                                    ))}
-                                    {mappable.filter(el => el.id !== mapped.elementId && !usedIds.has(el.id) && el.source !== "Post").length > 0 && (
-                                      <optgroup label="Popups">
-                                        {mappable.filter(el => el.id !== mapped.elementId && !usedIds.has(el.id) && el.source !== "Post").map((el) => (
-                                          <option key={el.id} value={el.id}>{el.id} · {el.widgetType}{el._preview ? ` — ${el._preview}` : ""}</option>
-                                        ))}
-                                      </optgroup>
-                                    )}
-                                  </select>
+                                  />
                                   <div className="flex items-center gap-0.5 pt-0.5">
                                     <input
                                       className="text-[10px] font-mono border border-outline-variant px-1 py-0.5 w-full bg-background"
