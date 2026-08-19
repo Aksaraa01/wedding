@@ -544,6 +544,10 @@ class AksaraaPlugin
         // couple's rekening rows BEFORE patching, and extend the manifest slots.
         [$elements, $manifest] = self::reconcile_gift_containers($elements, $fields, $manifest);
 
+        // F4 — hide the alamat pengiriman card when the couple has no address
+        // (single container). Reappears automatically once an address is set.
+        $elements = self::reconcile_gift_address($elements, $fields, $manifest);
+
         $changed = false;
         $fields_to_apply = array_merge(
             self::extract_simple_fields($fields, $manifest),
@@ -938,7 +942,103 @@ class AksaraaPlugin
         while (count($newSlots) < $desired) $newSlots[] = $baseSlot;
         $manifest['gift_accounts'] = array_slice($newSlots, 0, $desired);
 
+        // F5 — normalize the bank card's mobile layout on the master card AND every
+        // clone (clones inherit the master's settings verbatim): scale the logo down
+        // and clear the negative mobile margins that cause the account text to
+        // overlap the logo on small screens.
+        $elements = self::normalize_bank_card_mobile($elements, $masterId, self::find_clone_ids($elements));
+
         return [$elements, $manifest];
+    }
+
+    // F5 — fix mobile layout on bank/e-wallet cards: bound the logo width so it
+    // scales on mobile, and zero the negative mobile margins that make the account
+    // number/name overlap the logo. Applied to the master card + all clones.
+    private static function normalize_bank_card_mobile(array $elements, string $masterId, array $cloneIds): array
+    {
+        $cardIds = array_values(array_unique(array_merge([$masterId], $cloneIds)));
+        foreach ($cardIds as $cid) {
+            $card = self::find_node($elements, $cid);
+            if (!$card) continue;
+
+            $imageId = self::find_descendant_widget_id($card, 'image');
+            $headings = self::find_descendant_headings($card);
+
+            // Bound the logo width on mobile so it scales down instead of overflowing.
+            if ($imageId) {
+                $elements = self::apply_to_node($elements, $imageId, function (array &$node) {
+                    $node['settings'] = $node['settings'] ?? [];
+                    // Leave desktop size alone; only cap the mobile width.
+                    $node['settings']['width_mobile'] = ['size' => 80, 'unit' => 'px'];
+                    // Clear the negative bottom margin that pulls text over the logo.
+                    if (isset($node['settings']['_margin_mobile']['bottom'])
+                        && $node['settings']['_margin_mobile']['bottom'] < 0) {
+                        $node['settings']['_margin_mobile']['bottom'] = 0;
+                    }
+                });
+            }
+
+            // Clear negative top margins on the account number/name headings.
+            foreach (array_slice($headings, 0, 2) as $hid) {
+                $elements = self::apply_to_node($elements, $hid, function (array &$node) {
+                    if (isset($node['settings']['_margin_mobile']['top'])
+                        && $node['settings']['_margin_mobile']['top'] < 0) {
+                        $node['settings']['_margin_mobile']['top'] = 0;
+                    }
+                });
+            }
+        }
+        return $elements;
+    }
+
+    // Apply $fn to the element with id $nodeId (in place) by reference, recursing.
+    private static function apply_to_node(array $elements, string $nodeId, callable $fn): array
+    {
+        foreach ($elements as $i => &$el) {
+            if (($el['id'] ?? '') === $nodeId) {
+                $fn($el);
+                break;
+            }
+            if (!empty($el['elements'])) {
+                $el['elements'] = self::apply_to_node($el['elements'], $nodeId, $fn);
+            }
+        }
+        unset($el);
+        return $elements;
+    }
+
+    // F4 — single alamat pengiriman container. Unlike rekening (dynamic cards), the
+    // address lives in ONE container (the one holding the manifest gift_address
+    // element). When the couple has no address, hide that container (add CSS class)
+    // so the WP post does not keep showing a deleted/empty address; it reappears
+    // automatically once an address is set.
+    private static function reconcile_gift_address(array $elements, array $fields, array $manifest): array
+    {
+        $mapping = $manifest['gift_address'] ?? null;
+        if (!is_array($mapping)) return $elements;
+
+        // Normalize to a single {elementId, settings} mapping.
+        $slot = isset($mapping['elementId']) ? $mapping : ($mapping[0] ?? null);
+        if (!is_array($slot) || empty($slot['elementId'])) return $elements;
+
+        $addrId = $slot['elementId'];
+        $containerId = self::find_element_parent_id($elements, (string) $addrId);
+        if (!$containerId) return $elements;
+
+        $hasAddress = isset($fields['gift_address'])
+            && is_string($fields['gift_address'])
+            && trim($fields['gift_address']) !== '';
+
+        return self::apply_to_node($elements, $containerId, function (array &$container) use ($hasAddress) {
+            $settings = $container['settings'] ?? [];
+            $classes = trim((string) ($settings['_css_classes'] ?? ''));
+            $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-addr-hidden'));
+            if (!$hasAddress) {
+                $tokens[] = 'aksaraa-addr-hidden';
+            }
+            $settings['_css_classes'] = implode(' ', $tokens);
+            $container['settings'] = $settings;
+        });
     }
 
     // Return the smallest container id whose subtree holds $elementId.
@@ -1113,6 +1213,31 @@ add_filter('upload_mimes', function ($mimes) {
 
 // Hide Hestia page title on template pages (only Elementor content should show)
 add_action('wp_head', function () {
+    // Alamat pengiriman card is hidden on WP until the couple sets an address.
+    // Elementor doesn't apply the `_css_classes` setting to a section/container's
+    // rendered class, so target the hidden container by its element-id class instead.
+    if (is_singular()) {
+        $post_id = get_the_ID();
+        $raw = get_post_meta($post_id, '_elementor_data', true);
+        $tree = is_string($raw) ? json_decode($raw, true) : (is_array($raw) ? $raw : null);
+        if (is_array($tree)) {
+            $hidden = [];
+            $walk = function (array $nodes) use (&$walk, &$hidden) {
+                foreach ($nodes as $el) {
+                    $classes = (string) ($el['settings']['_css_classes'] ?? '');
+                    if (is_array($el['settings'] ?? null) && strpos($classes, 'aksaraa-addr-hidden') !== false && !empty($el['id'])) {
+                        $hidden[] = $el['id'];
+                    }
+                    if (!empty($el['elements'])) $walk($el['elements']);
+                }
+            };
+            $walk($tree);
+            if ($hidden) {
+                $sel = implode(',', array_map(fn($id) => '.elementor-element-' . $id, $hidden));
+                echo '<style>' . $sel . '{ display: none !important; }</style>';
+            }
+        }
+    }
     if (is_singular() && get_post_meta(get_the_ID(), '_wp_page_template', true) === 'default') {
         echo '<style>.hestia-title { display: none !important; }</style>';
     }
