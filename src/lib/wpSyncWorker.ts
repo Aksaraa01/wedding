@@ -134,7 +134,10 @@ async function runPatch(jobId: string, profileId: string) {
     .eq("id", profile.selected_template_id)
     .maybeSingle()
 
-  const manifest = tpl?.wp_manifest || {}
+  let manifest: any = tpl?.wp_manifest || {}
+  if (typeof manifest === "string") {
+    try { manifest = JSON.parse(manifest) } catch { manifest = {} }
+  }
 
   const res = await wpFetch(
     `${WP_ORIGIN}/wp-json/aksaraa/v1/posts/${profile.active_wp_post_id}/elements`,

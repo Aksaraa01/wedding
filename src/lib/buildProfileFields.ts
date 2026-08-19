@@ -4,7 +4,7 @@ import { resolveBankLogo } from "@/lib/bankList"
 import { getRowGates } from "@/lib/featureGates"
 
 const PROFILE_SELECT =
-  "id, bride_name, groom_name, slug, package_type, selected_template_id, selected_track_id, active_wp_post_id, couple_illustration_url, cover_photos, couple_initials, display_name, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, gift_section_visible, video_section_visible, inviting_families_visible, story_visible"
+  "id, bride_name, groom_name, slug, package_type, selected_template_id, selected_track_id, active_wp_post_id, couple_illustration_url, cover_photos, couple_initials, display_name, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, opening_title, opening_description"
 
 function parseList(v: unknown): any[] {
   if (Array.isArray(v)) return v
@@ -73,6 +73,9 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
     video_url: profile.video_url || "",
     quote_text: profile.quote_text || "",
     quote_source: profile.quote_source || "",
+    opening_title: profile.opening_title || "",
+    opening_description: profile.opening_description || "",
+    countdown: profile.estimated_wedding_date ? `${profile.estimated_wedding_date} 00:00` : "",
     gift_address: giftAddr?.full_address || "",
     gift_address_name: giftAddr?.recipient_name || "",
     gift_section_hidden: profile.gift_section_visible === false,

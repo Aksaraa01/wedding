@@ -29,6 +29,9 @@ export const FIELD_LABELS: Record<string, string> = {
   groom_instagram: "Instagram Pria",
   bride_instagram: "Instagram Wanita",
   inviting_families: "Turut Mengundang",
+  countdown: "Hitung Mundur (Tanggal Acara)",
+  opening_title: "Kalimat Pembuka — Judul",
+  opening_description: "Kalimat Pembuka — Deskripsi",
 }
 
 // Helper: suggest settings path based on widget type (used in dropdown auto-select)
@@ -45,7 +48,7 @@ export const WIDGET_SETTINGS: Record<string, string> = {
   divider: "",
   spacer: "",
   counter: "",
-  "weddingpress-countdown": "",
+  "weddingpress-countdown": "wpkoi_elements_countdown_due_time",
   "weddingpress-audio": "",
   "weddingpress-kit2": "",
   "weddingpress-copy-text": "",

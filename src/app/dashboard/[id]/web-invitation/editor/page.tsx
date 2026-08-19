@@ -141,6 +141,7 @@ function EditorInner({ id }: { id: string }) {
   })
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error">("saved")
   const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "error">("idle")
+  const [photoQuota, setPhotoQuota] = useState<number | null>(null)
   const [activeSection, setActiveSection] = useState<string>("sampul")
   const [showMobilePreview, setShowMobilePreview] = useState(false)
   const [previewDevice, setPreviewDevice] = useState<"mobile" | "desktop">("mobile")
@@ -178,6 +179,7 @@ function EditorInner({ id }: { id: string }) {
         setTemplate(res.template)
         if (res.profile?.package_gates) setGates(res.profile.package_gates)
         if (res.profile?.feature_set) setFeatureSet(new Set(res.profile.feature_set))
+        if (res.photo_quota !== undefined) setPhotoQuota(res.photo_quota)
         const p = res.profile
         setData({
           ...p,
@@ -410,6 +412,14 @@ function EditorInner({ id }: { id: string }) {
 
   const galleryPhotos: string[] = Array.isArray(data.gallery_photos) ? data.gallery_photos : []
 
+  // Photo quota ("Kuota Foto"): gallery's own cap = quota − cover − groom − bride.
+  // Each slideshow (cover slot / groom / bride) counts as 1.
+  const coverPhotoCount = Array.isArray(data.cover_photos) ? data.cover_photos.length : 0
+  const groomPhotoCount = Array.isArray(data.groom_photo_url) && data.groom_photo_url.length > 0 ? 1 : 0
+  const bridePhotoCount = Array.isArray(data.bride_photo_url) && data.bride_photo_url.length > 0 ? 1 : 0
+  const galleryMax = photoQuota == null ? null : Math.max(0, photoQuota - coverPhotoCount - groomPhotoCount - bridePhotoCount)
+  const canAddGallery = galleryMax == null || galleryPhotos.length < galleryMax
+
   // Number of cover slots the template expects (from the /ops mapping). Falls back
   // to the couple's current cover count for legacy templates without a manifest.
   const coverSlotCount = Array.isArray(template?.wp_manifest?.cover_photos)
@@ -431,7 +441,7 @@ function EditorInner({ id }: { id: string }) {
 
   const addGalleryPhoto = async (file: File) => {
     if (data.is_published === true) return
-    if (galleryPhotos.length >= 10) return
+    if (galleryMax != null && galleryPhotos.length >= galleryMax) return
     const formData = new FormData()
     formData.append("file", file)
     const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
@@ -890,6 +900,19 @@ function EditorInner({ id }: { id: string }) {
                 </div>
               )}
 
+              {renderSection("pembuka", "chat_bubble_outline", "KALIMAT PEMBUKA",
+                <div className="mt-6 space-y-4">
+                  <div className="space-y-2">
+                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Judul</label>
+                    <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.opening_title || ""} onChange={e => updateField("opening_title", e.target.value)} placeholder="Perkenankanlah kami mengundang" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Deskripsi</label>
+                    <textarea className="input-editorial w-full font-body-md text-[14px] h-24 resize-none" value={data.opening_description || ""} onChange={e => updateField("opening_description", e.target.value)} placeholder="Merupakan suatu kehormatan dan kebahagiaan bagi kami…" />
+                  </div>
+                </div>
+              )}
+
               {renderSection("profile", "group", "PROFILE MEMPELAI",
                 <div className="mt-6 space-y-8">
                   <div className="space-y-4">
@@ -1263,7 +1286,9 @@ function EditorInner({ id }: { id: string }) {
               {renderSection("galeri", "collections", "GALERI",
                 <div className="mt-6 space-y-8">
                   <div className="space-y-4">
-                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">GALERI FOTO (MAKS. 10 FOTO)</label>
+                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">
+                      {galleryMax == null ? "GALERI FOTO" : `GALERI FOTO (MAKS. ${galleryMax} FOTO)`}
+                    </label>
                     <div className="grid grid-cols-4 gap-2">
                       {galleryPhotos.map((url, i) => (
                         <div key={i} className="aspect-square bg-surface-dim border border-outline-variant relative group">
@@ -1273,7 +1298,7 @@ function EditorInner({ id }: { id: string }) {
                           </button>
                         </div>
                       ))}
-                      {galleryPhotos.length < 10 && (
+                      {canAddGallery && (
                         <div onClick={() => galleryFileRef.current?.click()} className="aspect-square border border-dashed border-outline flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-highest cursor-pointer transition-colors">
                           <span className="material-symbols-outlined text-[18px]">add</span>
                           <span className="text-[8px] font-bold mt-1">TAMBAH</span>

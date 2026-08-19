@@ -41,37 +41,17 @@ const PACKAGES = [
 
 const ALL_PACKAGES = PACKAGES.map(p => p.code)
 
-// Aksara fields that can be mapped to a WP element
-const AKSARA_FIELDS = [
-  "guest_name",
-  "cover_photos",
-  "couple_initials",
-  "display_name",
-  "groom_name",
-  "bride_name",
-  "groom_full_name",
-  "bride_full_name",
-  "groom_photo_url",
-  "bride_photo_url",
-  "groom_parents",
-  "bride_parents",
-  "date_upper",
-  "sessions",
-  "gallery_photos",
-  "gift_accounts",
-  "gift_address",
-  "gift_address_name",
-  "gift_section",
-  "video_section",
-  "inviting_families_section",
-  "story_section",
-  "stories",
-  "video_url",
-  "quote_text",
-  "quote_source",
-  "groom_instagram",
-  "bride_instagram",
-  "inviting_families",
+// Aksara fields grouped by the editor's accordion sections (same order).
+const MAPPING_GROUPS: { key: string; label: string; fields: string[] }[] = [
+  { key: "sampul", label: "Sampul", fields: ["guest_name", "cover_photos", "couple_initials", "opening_title", "opening_description"] },
+  { key: "profile", label: "Profile Mempelai", fields: ["display_name", "groom_name", "bride_name", "groom_full_name", "bride_full_name", "groom_photo_url", "bride_photo_url", "groom_parents", "bride_parents", "groom_instagram", "bride_instagram"] },
+  { key: "inviting", label: "Turut Mengundang", fields: ["inviting_families", "inviting_families_section"] },
+  { key: "acara", label: "Acara", fields: ["date_upper", "countdown", "sessions"] },
+  { key: "kutipan", label: "Kutipan", fields: ["quote_text", "quote_source"] },
+  { key: "video", label: "Video", fields: ["video_url", "video_section"] },
+  { key: "story", label: "Story", fields: ["stories", "story_section"] },
+  { key: "galeri", label: "Galeri", fields: ["gallery_photos"] },
+  { key: "gift", label: "Gift", fields: ["gift_accounts", "gift_address", "gift_address_name", "gift_section"] },
 ]
 
 function useOpsSession() {
@@ -172,6 +152,11 @@ export default function OpsTemplatesPage() {
   }
 
   const normalizeManifest = (raw: any): Record<string, any> => {
+    // wp_manifest is jsonb (object), but be defensive: if it was ever written as a
+    // double-encoded JSON string, parse it so the mapping UI never blanks.
+    if (typeof raw === "string") {
+      try { raw = JSON.parse(raw) } catch { return {} }
+    }
     if (!raw || typeof raw !== "object") return {}
     const out: Record<string, any> = {}
     const objectArray = Object.keys(OBJECT_ARRAY_FIELDS)
@@ -869,7 +854,10 @@ export default function OpsTemplatesPage() {
                         <span title="Path properti Elementor yg akan di-update (contoh: image.url, title, html)">Settings ⓘ</span>
                         <span></span>
                       </div>
-                      {AKSARA_FIELDS.map((field) => {
+                      {MAPPING_GROUPS.map((group) => (
+                        <div key={group.key}>
+                          <div className="px-3 py-2 border-b border-outline-variant/20 bg-surface-container-low text-[10px] font-label-md uppercase tracking-wider text-secondary font-semibold">{group.label}</div>
+                          {group.fields.map((field) => {
                         if (isObjectArrayField(field)) {
                           const slots = manifest[field] || []
                           const subFields = OBJECT_ARRAY_FIELDS[field]
@@ -1021,7 +1009,9 @@ export default function OpsTemplatesPage() {
                             )}
                           </div>
                         )
-                      })}
+                          })}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}

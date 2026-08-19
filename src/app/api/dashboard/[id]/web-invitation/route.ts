@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { getRowGates, getFeatureIncluded } from "@/lib/featureGates"
+import { getRowGates, getFeatureIncluded, getPhotoQuota } from "@/lib/featureGates"
 
 export async function GET(
   _req: NextRequest,
@@ -22,6 +22,7 @@ export async function GET(
     const packageType = profile.package_type || "signature"
     const gates = await getRowGates(packageType)
     const features = await getFeatureIncluded(packageType)
+    const photoQuota = await getPhotoQuota(packageType)
 
     let template = null
     if (profile.selected_template_id) {
@@ -101,6 +102,7 @@ export async function GET(
       gift_accounts,
       gift_address: giftAddr?.full_address || "",
       gift_address_name: giftAddr?.recipient_name || "",
+      photo_quota: photoQuota,
     })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
@@ -123,6 +125,7 @@ export async function PUT(
       "display_name", "sessions", "quote_text", "quote_source", "stories",
       "gallery_photos", "inviting_families", "rsvp_max_pax",
       "estimated_wedding_date", "gift_section_visible",
+      "opening_title", "opening_description",
     ]
 
     const updates: Record<string, any> = {}
