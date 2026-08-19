@@ -52,8 +52,6 @@ function AmplopDigitalInner({ id }: { id: string }) {
   const [addresses, setAddresses] = useState<Address[]>([])
   const [activeTab, setActiveTab] = useState("digital")
   const [loading, setLoading] = useState(true)
-  const [giftSectionVisible, setGiftSectionVisible] = useState(true)
-  const [giftSectionSaving, setGiftSectionSaving] = useState(false)
 
   const [accountModal, setAccountModal] = useState(false)
   const [editingAccount, setEditingAccount] = useState<Account | null>(null)
@@ -80,17 +78,15 @@ function AmplopDigitalInner({ id }: { id: string }) {
       fetch(`/api/dashboard/${id}`),
       fetch(`/api/gift-accounts?wedding_profile_id=${id}`),
       fetch(`/api/gift-addresses?wedding_profile_id=${id}`),
-      fetch(`/api/dashboard/${id}/web-invitation`),
     ])
-      .then(([dashRes, accRes, addrRes, wiRes]) =>
-        Promise.all([dashRes.json(), accRes.json(), addrRes.json(), wiRes.ok ? wiRes.json() : null])
+      .then(([dashRes, accRes, addrRes]) =>
+        Promise.all([dashRes.json(), accRes.json(), addrRes.json()])
       )
-      .then(([dashData, accData, addrData, wiData]) => {
+      .then(([dashData, accData, addrData]) => {
         setProfile(dashData.profile)
         if (dashData.package_gates) setPackageGates(dashData.package_gates)
         setAccounts(accData.accounts || [])
         setAddresses(addrData.addresses || [])
-        if (wiData?.profile?.gift_section_visible !== undefined) setGiftSectionVisible(wiData.profile.gift_section_visible)
       })
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -257,31 +253,6 @@ function AmplopDigitalInner({ id }: { id: string }) {
     }
   }
 
-  async function handleToggleGiftSection() {
-    const next = !giftSectionVisible
-    setGiftSectionSaving(true)
-    try {
-      const res = await fetch(`/api/dashboard/${id}/web-invitation`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gift_section_visible: next }),
-      })
-      if (!res.ok) throw new Error("Gagal menyimpan")
-      setGiftSectionVisible(next)
-      showToast(setToast, next ? "Bagian Hadiah akan ditampilkan di undangan." : "Bagian Hadiah akan disembunyikan di undangan.")
-      // Push the change to WordPress (async worker applies on next patch).
-      fetch(`/api/wp/patch`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profile_id: id }),
-      }).catch(() => {})
-    } catch (err) {
-      showToast(setToast, String(err))
-    } finally {
-      setGiftSectionSaving(false)
-    }
-  }
-
   function accountLogo(acc: Account): string {
     if (acc.provider_logo_url) return acc.provider_logo_url
     const bank = getBankByName(acc.provider_name || "")
@@ -351,18 +322,6 @@ function AmplopDigitalInner({ id }: { id: string }) {
 
         {activeTab === "digital" && (
           <div className="space-y-6">
-            <div className="bg-white border border-brand-border rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h3 className="text-base sm:text-lg font-semibold text-brand-charcoal" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Bagian Hadiah di Undangan</h3>
-                <p className="text-xs text-brand-slate mt-1">Tampilkan atau sembunyikan seluruh bagian Hadiah (rekening & alamat) di undangan WordPress.</p>
-              </div>
-              <label className="inline-flex items-center cursor-pointer shrink-0 gap-2">
-                <span className="text-[11px] font-medium text-brand-slate">{giftSectionVisible ? "Tampil" : "Tersembunyi"}</span>
-                <input type="checkbox" checked={giftSectionVisible} className="sr-only peer" onChange={handleToggleGiftSection} disabled={giftSectionSaving} />
-                <div className="relative w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-terracotta disabled:opacity-50" />
-              </label>
-            </div>
-
             <div className="flex items-center justify-between">
               <p className="text-xs uppercase tracking-wider text-brand-slate font-semibold">Daftar Rekening & E-Wallet</p>
               <button

@@ -459,6 +459,21 @@ function EditorInner({ id }: { id: string }) {
 
   useEffect(() => { loadGiftData() }, [loadGiftData])
 
+  const [giftSaving, setGiftSaving] = useState(false)
+  const handleToggleGiftSection = async () => {
+    const next = !data.gift_section_visible
+    setGiftSaving(true)
+    try {
+      save({ gift_section_visible: next })
+      setData(prev => ({ ...prev, gift_section_visible: next }))
+      await syncToWp()
+    } catch {
+      // syncToWp sets syncStatus error; keep optimistic toggle
+    } finally {
+      setGiftSaving(false)
+    }
+  }
+
   type Track = { id: string; title: string; artist: string | null; mood_category: string; audio_url: string; is_custom?: boolean; is_public?: boolean; uploaded_by?: string | null }
   const [allTracks, setAllTracks] = useState<Track[]>([])
   const [trackSearch, setTrackSearch] = useState("")
@@ -1236,6 +1251,18 @@ function EditorInner({ id }: { id: string }) {
               )}
               {renderSection("gift", "featured_seasonal_and_gifts", "GIFT", <>
                 <div className="space-y-6">
+                  <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-label-md text-[11px] uppercase tracking-widest text-secondary">Tampilkan Bagian Hadiah</p>
+                      <p className="font-body-md text-[11px] text-on-surface-variant">Sembunyikan seluruh bagian Hadiah (rekening & alamat) pada undangan WordPress.</p>
+                    </div>
+                    <label className="inline-flex items-center cursor-pointer shrink-0 gap-2">
+                      <span className="font-label-md text-[10px] text-on-surface-variant">{data.gift_section_visible !== false ? "Tampil" : "Tersembunyi"}</span>
+                      <input type="checkbox" checked={data.gift_section_visible !== false} className="sr-only peer" onChange={handleToggleGiftSection} disabled={giftSaving || data.is_published === true} />
+                      <div className="relative w-10 h-5 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary disabled:opacity-50" />
+                    </label>
+                  </div>
+
                   <button
                     onClick={() => router.push(`/dashboard/${id}/amplop-digital`)}
                     className="w-full py-3 border border-primary text-primary font-label-md text-[11px] tracking-widest uppercase hover:bg-primary hover:text-on-primary transition-all flex items-center justify-center gap-2 active:scale-95"

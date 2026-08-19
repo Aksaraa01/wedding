@@ -18,7 +18,7 @@ export const FIELD_LABELS: Record<string, string> = {
   gift_accounts: "Rekening Hadiah",
   gift_address: "Alamat Pengiriman Kado",
   gift_address_name: "Atas Nama (Kado)",
-  gift_section: "Bagian Hadiah (Sembunyikan/Tampilkan)",
+  gift_section: "Bagian Hadiah (kontainer yg disembunyikan saat toggle OFF)",
   stories: "Kisah Cinta",
   video_url: "Video",
   quote_text: "Kutipan",
