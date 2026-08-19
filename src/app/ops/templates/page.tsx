@@ -62,6 +62,9 @@ const AKSARA_FIELDS = [
   "gift_address",
   "gift_address_name",
   "gift_section",
+  "video_section",
+  "inviting_families_section",
+  "story_section",
   "stories",
   "video_url",
   "quote_text",
@@ -393,13 +396,16 @@ export default function OpsTemplatesPage() {
     fetchTemplates()
   }
 
+  const isSectionField = (field: string) =>
+    field === "gift_section" || field === "video_section" || field === "inviting_families_section" || field === "story_section"
+
   const defaultSettingsPath = (widgetType: string | null, field?: string): string => {
     if (!widgetType) return "title"
     if (widgetType === "container-bg") return "background_image.url"
     if (widgetType === "container-slideshow") return "background_slideshow_gallery"
     // Whole-section container has no content field to patch; hide/show is driven
     // by a _css_classes marker in the mu-plugin.
-    if (widgetType === "container" && field === "gift_section") return ""
+    if (widgetType === "container" && field && isSectionField(field)) return ""
     // URL/link fields on a button map to the button's link URL, not its label.
     if (widgetType === "button" && field && (field.includes("url") || field === "maps_url")) {
       return "link.url"
@@ -933,7 +939,7 @@ export default function OpsTemplatesPage() {
                                     popups={popups}
                                     usedIds={usedIds}
                                     placeholder="— belum dipetakan —"
-                                    allowContainers={field === "gift_section"}
+                                    allowContainers={isSectionField(field)}
                                     onChange={(elId) => {
                                       if (!elId) return
                                       const el = mappable.find(x => x.id === elId)
@@ -962,7 +968,7 @@ export default function OpsTemplatesPage() {
                                     elements={elements}
                                     popups={popups}
                                     usedIds={usedIds}
-                                    allowContainers={field === "gift_section"}
+                                    allowContainers={isSectionField(field)}
                                     onChange={(elId) => {
                                       if (!elId) { removeMapping(field, idx); return }
                                       const el = mappable.find(x => x.id === elId)
@@ -1001,7 +1007,7 @@ export default function OpsTemplatesPage() {
                                     popups={popups}
                                     usedIds={usedIds}
                                     placeholder="— pilih elemen —"
-                                    allowContainers={field === "gift_section"}
+                                    allowContainers={isSectionField(field)}
                                     onChange={(elId) => {
                                       if (!elId) return
                                       const el = mappable.find(x => x.id === elId)

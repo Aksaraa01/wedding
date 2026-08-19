@@ -553,9 +553,10 @@ class AksaraaPlugin
         // (single container). Reappears automatically once an address is set.
         $elements = self::reconcile_gift_address($elements, $fields, $manifest);
 
-        // F6 — hide/show the whole gift (Hadiah/Amplop) section via the mapped
-        // parent container, driven by the couple's dashboard toggle.
-        $elements = self::reconcile_gift_section($elements, $fields, $manifest);
+        // F6 — hide/show whole sections (gift, video, turut mengundang, kisah cinta)
+        // via the mapped parent container, driven by the couple's dashboard toggles
+        // and package gates.
+        $elements = self::reconcile_section_visibility($elements, $fields, $manifest);
 
         // F7 — auto-fill copy buttons: each bank/address card may carry a
         // `weddingpress-copy-text` widget whose `dce_clipboard_text` should hold the
@@ -1048,12 +1049,14 @@ class AksaraaPlugin
         $hasAddress = isset($fields['gift_address'])
             && is_string($fields['gift_address'])
             && trim($fields['gift_address']) !== '';
+        // Also hide when the couple's package does not include alamat pengiriman.
+        $locked = !empty($fields['gift_address_hidden']);
 
-        return self::apply_to_node($elements, $containerId, function (array &$container) use ($hasAddress) {
+        return self::apply_to_node($elements, $containerId, function (array &$container) use ($hasAddress, $locked) {
             $settings = $container['settings'] ?? [];
             $classes = trim((string) ($settings['_css_classes'] ?? ''));
             $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-addr-hidden'));
-            if (!$hasAddress) {
+            if (!$hasAddress || $locked) {
                 $tokens[] = 'aksaraa-addr-hidden';
             }
             $settings['_css_classes'] = implode(' ', $tokens);
@@ -1061,28 +1064,39 @@ class AksaraaPlugin
         });
     }
 
-    // F6 — hide/show the whole gift (Hadiah/Amplop) section. The /ops mapping UI
-    // assigns `gift_section` to the parent container wrapping the rekening + alamat
-    // cards. When the couple's "gift_section_hidden" field is true, mark that
-    // container `aksaraa-hidden` (the wp_head hook emits display:none); otherwise
-    // remove the marker so it shows again. Reversible on the next patch.
-    private static function reconcile_gift_section(array $elements, array $fields, array $manifest): array
+    // F6 — hide/show whole sections. The /ops mapping UI assigns a manifest field
+    // (e.g. gift_section, video_section, inviting_families_section, story_section)
+    // to the parent container wrapping that section. When the corresponding fields
+    // flag is true, mark the container `aksaraa-hidden` (wp_head emits display:none);
+    // otherwise remove the marker so it shows again. Reversible on the next patch.
+    private static function reconcile_section_visibility(array $elements, array $fields, array $manifest): array
     {
-        $mapping = $manifest['gift_section'] ?? null;
-        if (!is_array($mapping)) return $elements;
-        $slot = isset($mapping['elementId']) ? $mapping : ($mapping[0] ?? null);
-        if (!is_array($slot) || empty($slot['elementId'])) return $elements;
+        $sections = [
+            'gift_section' => 'gift_section_hidden',
+            'video_section' => 'video_section_hidden',
+            'inviting_families_section' => 'inviting_families_hidden',
+            'story_section' => 'story_hidden',
+        ];
 
-        $hidden = !empty($fields['gift_section_hidden']);
-        return self::apply_to_node($elements, (string) $slot['elementId'], function (array &$container) use ($hidden) {
-            $container['settings'] = $container['settings'] ?? [];
-            $classes = trim((string) ($container['settings']['_css_classes'] ?? ''));
-            $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-hidden'));
-            if ($hidden) {
-                $tokens[] = 'aksaraa-hidden';
-            }
-            $container['settings']['_css_classes'] = implode(' ', $tokens);
-        });
+        foreach ($sections as $manifestKey => $hiddenField) {
+            $mapping = $manifest[$manifestKey] ?? null;
+            if (!is_array($mapping)) continue;
+            $slot = isset($mapping['elementId']) ? $mapping : ($mapping[0] ?? null);
+            if (!is_array($slot) || empty($slot['elementId'])) continue;
+
+            $hidden = !empty($fields[$hiddenField]);
+            $elements = self::apply_to_node($elements, (string) $slot['elementId'], function (array &$container) use ($hidden) {
+                $container['settings'] = $container['settings'] ?? [];
+                $classes = trim((string) ($container['settings']['_css_classes'] ?? ''));
+                $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-hidden'));
+                if ($hidden) {
+                    $tokens[] = 'aksaraa-hidden';
+                }
+                $container['settings']['_css_classes'] = implode(' ', $tokens);
+            });
+        }
+
+        return $elements;
     }
 
     // F7 — auto-fill copy buttons. Each bank/ewallet card container may hold a

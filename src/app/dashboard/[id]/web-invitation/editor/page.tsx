@@ -116,6 +116,19 @@ function LockedNotice({ availableIn }: { availableIn: string[] }) {
   )
 }
 
+function SectionToggle({ label, checked, onChange, disabled = false }: { label: string; checked: boolean; onChange: () => void; disabled?: boolean }) {
+  return (
+    <div className="flex items-center justify-between gap-3 py-2">
+      <span className="font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant">{label}</span>
+      <label className="inline-flex items-center cursor-pointer shrink-0 gap-2">
+        <span className="font-label-md text-[10px] text-on-surface-variant">{checked ? "Tampil" : "Sembunyi"}</span>
+        <input type="checkbox" checked={checked} className="sr-only peer" onChange={onChange} disabled={disabled} />
+        <div className={`relative w-10 h-5 ${disabled ? "opacity-50" : ""} bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary`} />
+      </label>
+    </div>
+  )
+}
+
 function EditorInner({ id }: { id: string }) {
   const router = useRouter()
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -459,19 +472,11 @@ function EditorInner({ id }: { id: string }) {
 
   useEffect(() => { loadGiftData() }, [loadGiftData])
 
-  const [giftSaving, setGiftSaving] = useState(false)
-  const handleToggleGiftSection = async () => {
-    const next = !data.gift_section_visible
-    setGiftSaving(true)
-    try {
-      save({ gift_section_visible: next })
-      setData(prev => ({ ...prev, gift_section_visible: next }))
-      await syncToWp()
-    } catch {
-      // syncToWp sets syncStatus error; keep optimistic toggle
-    } finally {
-      setGiftSaving(false)
-    }
+  // Visibility toggles only persist to Supabase (debounced save). The WP patch is
+  // NOT triggered here — it fires only when the user clicks "Perbarui undangan".
+  const handleToggleVisibility = (field: string, next: boolean) => {
+    setData(prev => ({ ...prev, [field]: next }))
+    save({ [field]: next })
   }
 
   type Track = { id: string; title: string; artist: string | null; mood_category: string; audio_url: string; is_custom?: boolean; is_public?: boolean; uploaded_by?: string | null }
@@ -1010,54 +1015,64 @@ function EditorInner({ id }: { id: string }) {
                     </div>
                   </div>
                   
-                  <div className="space-y-4 pt-4 border-t border-outline-variant/30">
-                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Turut Mengundang</label>
-                    {gates.inviting_families.included ? (
-                      <>
-                        <p className="text-[11px] text-on-surface-variant italic">Masukkan nama keluarga yang turut mengundang</p>
-                        <div className="space-y-3">
-                          {(Array.isArray(data.inviting_families) ? data.inviting_families : []).map((f, i) => (
-                            <div key={i} className="flex gap-2 items-center">
-                              <input
-                                className="input-editorial w-full font-headline-md text-[16px]"
-                                type="text"
-                                value={f || ""}
-                                onChange={e => {
-                                  const arr = [...(Array.isArray(data.inviting_families) ? data.inviting_families : [])]
-                                  arr[i] = e.target.value
-                                  updateField("inviting_families", arr)
-                                }}
-                                placeholder={`Keluarga ${i + 1}`}
-                              />
-                              <button
-                                onClick={() => {
-                                  const arr = (Array.isArray(data.inviting_families) ? data.inviting_families : []).filter((_, idx) => idx !== i)
-                                  updateField("inviting_families", arr)
-                                }}
-                                className="text-red-400 hover:text-red-600 transition-colors shrink-0"
-                              >
-                                <span className="material-symbols-outlined text-[20px]">remove_circle</span>
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                        {(Array.isArray(data.inviting_families) ? data.inviting_families : []).length < 5 && (
-                          <button
-                            onClick={() => {
-                              const arr = [...(Array.isArray(data.inviting_families) ? data.inviting_families : []), ""]
-                              updateField("inviting_families", arr)
-                            }}
-                            className="flex items-center gap-2 text-secondary font-label-md text-label-md uppercase tracking-widest hover:opacity-70 transition-opacity"
-                          >
-                            <span className="material-symbols-outlined text-[18px]">add_circle</span>
-                            Tambah Keluarga
-                          </button>
-                        )}
-                      </>
-                    ) : (
-                      <LockedNotice availableIn={gates.inviting_families.availableIn} />
-                    )}
-                  </div>
+                </div>
+              )}
+
+              {renderSection("inviting", "group", "TURUT MENGUNDANG",
+                <div className="mt-6 space-y-4">
+                  {gates.inviting_families.included ? (
+                    <>
+                      <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+                        <SectionToggle
+                          label="Tampilkan Turut Mengundang"
+                          checked={data.inviting_families_visible !== false}
+                          disabled={data.is_published === true}
+                          onChange={() => handleToggleVisibility("inviting_families_visible", data.inviting_families_visible === false)}
+                        />
+                      </div>
+                      <p className="text-[11px] text-on-surface-variant italic">Masukkan nama keluarga yang turut mengundang</p>
+                      <div className="space-y-3">
+                        {(Array.isArray(data.inviting_families) ? data.inviting_families : []).map((f, i) => (
+                          <div key={i} className="flex gap-2 items-center">
+                            <input
+                              className="input-editorial w-full font-headline-md text-[16px]"
+                              type="text"
+                              value={f || ""}
+                              onChange={e => {
+                                const arr = [...(Array.isArray(data.inviting_families) ? data.inviting_families : [])]
+                                arr[i] = e.target.value
+                                updateField("inviting_families", arr)
+                              }}
+                              placeholder={`Keluarga ${i + 1}`}
+                            />
+                            <button
+                              onClick={() => {
+                                const arr = (Array.isArray(data.inviting_families) ? data.inviting_families : []).filter((_, idx) => idx !== i)
+                                updateField("inviting_families", arr)
+                              }}
+                              className="text-red-400 hover:text-red-600 transition-colors shrink-0"
+                            >
+                              <span className="material-symbols-outlined text-[20px]">remove_circle</span>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      {(Array.isArray(data.inviting_families) ? data.inviting_families : []).length < 5 && (
+                        <button
+                          onClick={() => {
+                            const arr = [...(Array.isArray(data.inviting_families) ? data.inviting_families : []), ""]
+                            updateField("inviting_families", arr)
+                          }}
+                          className="flex items-center gap-2 text-secondary font-label-md text-label-md uppercase tracking-widest hover:opacity-70 transition-opacity"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">add_circle</span>
+                          Tambah Keluarga
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <LockedNotice availableIn={gates.inviting_families.availableIn} />
+                  )}
                 </div>
               )}
 
@@ -1170,16 +1185,26 @@ function EditorInner({ id }: { id: string }) {
               )}
               {renderSection("video", "movie", "VIDEO",
                 gates.cinematic_video.included ? (
-                  <div className="mt-6 space-y-2">
-                    <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">URL Video (YouTube)</label>
-                    <input
-                      className="input-editorial w-full font-body-md text-[14px]"
-                      type="url"
-                      value={data.video_url || ""}
-                      onChange={e => updateField("video_url", e.target.value)}
-                      placeholder="https://youtu.be/..."
-                    />
-                    <p className="text-[11px] text-on-surface-variant mt-1 italic">Tautan video (mis. "OUR FOOTAGE") yang tampil pada undangan.</p>
+                  <div className="mt-6 space-y-4">
+                    <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+                      <SectionToggle
+                        label="Tampilkan Video"
+                        checked={data.video_section_visible !== false}
+                        disabled={data.is_published === true}
+                        onChange={() => handleToggleVisibility("video_section_visible", data.video_section_visible === false)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">URL Video (YouTube)</label>
+                      <input
+                        className="input-editorial w-full font-body-md text-[14px]"
+                        type="url"
+                        value={data.video_url || ""}
+                        onChange={e => updateField("video_url", e.target.value)}
+                        placeholder="https://youtu.be/..."
+                      />
+                      <p className="text-[11px] text-on-surface-variant mt-1 italic">Tautan video (mis. "OUR FOOTAGE") yang tampil pada undangan.</p>
+                    </div>
                   </div>
                 ) : (
                   <div className="mt-6"><LockedNotice availableIn={gates.cinematic_video.availableIn} /></div>
@@ -1187,8 +1212,17 @@ function EditorInner({ id }: { id: string }) {
               )}
               {renderSection("story", "auto_stories", "STORY",
                 gates.story.included ? (
-                  <div className="mt-6 space-y-8">
-                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest block">CURATE YOUR LOVE STORY</label>
+                  <div className="mt-6 space-y-6">
+                    <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+                      <SectionToggle
+                        label="Tampilkan Kisah Cinta"
+                        checked={data.story_visible !== false}
+                        disabled={data.is_published === true}
+                        onChange={() => handleToggleVisibility("story_visible", data.story_visible === false)}
+                      />
+                    </div>
+                    <div className="space-y-8">
+                      <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest block">CURATE YOUR LOVE STORY</label>
                     {stories.map((story: any, i: number) => (
                       <div key={i} className="p-4 bg-surface-container-low border border-outline-variant space-y-4">
                         <div className="flex justify-between items-center">
@@ -1220,6 +1254,7 @@ function EditorInner({ id }: { id: string }) {
                     <button onClick={addStory} className="w-full py-3 border border-dashed border-outline-variant text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-highest transition-colors">
                       + TAMBAH MILESTONE BARU
                     </button>
+                    </div>
                   </div>
                 ) : (
                   <div className="mt-6"><LockedNotice availableIn={gates.story.availableIn} /></div>
@@ -1251,16 +1286,13 @@ function EditorInner({ id }: { id: string }) {
               )}
               {renderSection("gift", "featured_seasonal_and_gifts", "GIFT", <>
                 <div className="space-y-6">
-                  <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest flex items-center justify-between gap-3">
-                    <div>
-                      <p className="font-label-md text-[11px] uppercase tracking-widest text-secondary">Tampilkan Bagian Hadiah</p>
-                      <p className="font-body-md text-[11px] text-on-surface-variant">Sembunyikan seluruh bagian Hadiah (rekening & alamat) pada undangan WordPress.</p>
-                    </div>
-                    <label className="inline-flex items-center cursor-pointer shrink-0 gap-2">
-                      <span className="font-label-md text-[10px] text-on-surface-variant">{data.gift_section_visible !== false ? "Tampil" : "Tersembunyi"}</span>
-                      <input type="checkbox" checked={data.gift_section_visible !== false} className="sr-only peer" onChange={handleToggleGiftSection} disabled={giftSaving || data.is_published === true} />
-                      <div className="relative w-10 h-5 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary disabled:opacity-50" />
-                    </label>
+                  <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+                    <SectionToggle
+                      label="Tampilkan Bagian Hadiah"
+                      checked={data.gift_section_visible !== false}
+                      disabled={data.is_published === true}
+                      onChange={() => handleToggleVisibility("gift_section_visible", data.gift_section_visible === false)}
+                    />
                   </div>
 
                   <button

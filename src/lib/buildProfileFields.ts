@@ -1,9 +1,10 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { formatDateUpper } from "@/lib/formatDate"
 import { resolveBankLogo } from "@/lib/bankList"
+import { getRowGates } from "@/lib/featureGates"
 
 const PROFILE_SELECT =
-  "id, bride_name, groom_name, slug, selected_template_id, selected_track_id, active_wp_post_id, couple_illustration_url, cover_photos, couple_initials, display_name, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, gift_section_visible"
+  "id, bride_name, groom_name, slug, package_type, selected_template_id, selected_track_id, active_wp_post_id, couple_illustration_url, cover_photos, couple_initials, display_name, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, gift_section_visible, video_section_visible, inviting_families_visible, story_visible"
 
 function parseList(v: unknown): any[] {
   if (Array.isArray(v)) return v
@@ -35,6 +36,8 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
     .select("full_address, recipient_name")
     .eq("wedding_profile_id", profile.id)
     .maybeSingle()
+
+  const gates = await getRowGates(profile.package_type || "signature")
 
   const sessions = parseList(profile.sessions).map((s: any) => ({
     name: s?.name || "",
@@ -73,6 +76,10 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
     gift_address: giftAddr?.full_address || "",
     gift_address_name: giftAddr?.recipient_name || "",
     gift_section_hidden: profile.gift_section_visible === false,
+    video_section_hidden: !gates.cinematic_video.included || profile.video_section_visible === false,
+    inviting_families_hidden: !gates.inviting_families.included || profile.inviting_families_visible === false,
+    story_hidden: !gates.story.included || profile.story_visible === false,
+    gift_address_hidden: !gates.gift_address.included,
     date_upper: profile.estimated_wedding_date ? formatDateUpper(profile.estimated_wedding_date) : "",
     sessions,
     gallery_photos: parseList(profile.gallery_photos).filter(Boolean),
