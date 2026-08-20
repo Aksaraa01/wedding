@@ -32,58 +32,82 @@ type MatrixCol = {
   label: string
 }
 
+type CardFeature = {
+  icon: string
+  text: string
+  accent?: boolean
+  pt?: boolean
+  divider?: boolean
+}
+
 type CardDef = {
   code: string
   name: string
   tagline: string
-  badge?: string
   style: "sage" | "secondary" | "gold"
-  features: { text: string; included: boolean; accent?: boolean }[]
+  included?: { icon: string; text: string }
+  features: CardFeature[]
+  details?: { label: string; items: string[] }
 }
+
+const ESSENTIAL_DETAILS = [
+  "1 PIC",
+  "Greetings / Sapa Tamu",
+  "Maps",
+  "Countdown",
+  "Add to Calendar (Reminder)",
+  "Smart Dashboard",
+  "Pilihan lagu dan AutoPlay",
+  "Subdomain (nama pasangan)",
+  "Unlimited Send (Manual)",
+  "RSVP",
+  "Wedding Wish",
+  "Amplop Digital (Rekening Based)",
+]
+
+const SIGNATURE_DETAILS = [...ESSENTIAL_DETAILS, "Love Story", "Video Embed", "Alamat Kado", "Turut Mengundang"]
 
 const UNDANGAN_CARDS: CardDef[] = [
   {
     code: "essential",
     name: "Essential",
-    tagline: "Sederhana dan anggun untuk momen hangat keluarga dekat",
-    features: [
-      { text: "Undangan Digital & Smart Dashboard", included: true },
-      { text: "Amplop Digital (Rekening Based)", included: true },
-      { text: "RSVP & Wedding Wish", included: true },
-      { text: "Pilihan Lagu, Subdomain & Pilihan Bahasa", included: true },
-      { text: "Alamat Pengiriman Kado", included: false },
-      { text: "Love Story & Cinematic Video", included: false },
-    ],
+    tagline: "Fitur dasar untuk undangan digital",
     style: "sage",
+    included: { icon: "add_circle", text: "Termasuk fitur dasar" },
+    features: [
+      { icon: "check", text: "2 Round Revisi" },
+      { icon: "check", text: "15 Foto Gallery" },
+      { icon: "check", text: "3 Bulan Masa Aktif" },
+    ],
+    details: { label: "Lihat Fitur Dasar", items: ESSENTIAL_DETAILS },
   },
   {
     code: "signature",
     name: "Signature",
-    tagline: "Favorit 85% pasangan — keseimbangan estetika & fitur",
-    badge: "Paling Populer",
-    features: [
-      { text: "Semua fitur Essential", included: true },
-      { text: "Alamat Pengiriman Kado", included: true, accent: true },
-      { text: "Fitur Turut Mengundang", included: true, accent: true },
-      { text: "3 Round Revisi & 20 Foto Galeri", included: true },
-      { text: "Love Story & Cinematic Video", included: false },
-    ],
+    tagline: "Pilihan terpopuler",
     style: "secondary",
+    included: { icon: "check_circle", text: "Termasuk semua fitur Essential" },
+    features: [
+      { icon: "check", text: "3 Round Revisi" },
+      { icon: "check", text: "20 Foto Gallery" },
+      { icon: "check", text: "6 Bulan Masa Aktif" },
+      { icon: "auto_awesome", text: "Love Story, Video Embed, Alamat Kado, Turut Mengundang", accent: true, pt: true },
+    ],
+    details: { label: "Lihat Fitur Essential", items: SIGNATURE_DETAILS },
   },
   {
     code: "prestige",
     name: "Prestige",
-    tagline: "Pengalaman narasi digital paling mewah dengan fitur VIP",
-    badge: "VIP",
-    features: [
-      { text: "Semua fitur Signature", included: true },
-      { text: "Love Story & Cinematic Video", included: true, accent: true },
-      { text: "Custom Logo Wedding", included: true, accent: true },
-      { text: "Reminder otomatis ke 100 Tamu VIP", included: true, accent: true },
-      { text: "5 Round Revisi & Foto Galeri Unlimited", included: true },
-      { text: "QR Guest Book & Galeri Kenangan Tamu (lewat Buku Tamu Digital)", included: false },
-    ],
+    tagline: "Fitur premium lengkap",
     style: "gold",
+    included: { icon: "add_circle", text: "Termasuk semua fitur Signature" },
+    features: [
+      { icon: "check", text: "5 Round Revisi" },
+      { icon: "check", text: "Unlimited Foto Gallery" },
+      { icon: "check", text: "1 Tahun Masa Aktif" },
+      { icon: "workspace_premium", text: "Custom Logo & Auto-Reminder VIP", accent: true, pt: true },
+    ],
+    details: { label: "Lihat Fitur Signature", items: SIGNATURE_DETAILS },
   },
 ]
 
@@ -91,82 +115,80 @@ const DGB_CARDS: CardDef[] = [
   {
     code: "dgb_sistem",
     name: "Sistem",
-    tagline: "Buku tamu digital esensial untuk hari bahagia Anda",
-    features: [
-      { text: "QR Digital System & Check-in Tamu", included: true },
-      { text: "Photo by Guest (2 foto / tamu)", included: true },
-      { text: "Wedding Wish & RSVP", included: true },
-      { text: "Subdomain Nama Pasangan", included: true },
-      { text: "Reminder otomatis ke 100 Tamu VIP", included: true },
-    ],
+    tagline: "Sistem dasar buku tamu",
     style: "sage",
+    features: [
+      { icon: "qr_code_scanner", text: "QR System" },
+      { icon: "image", text: "2 Photo/guest" },
+      { icon: "check_circle", text: "Termasuk Semua Fitur Undangan Digital Prestige", divider: true },
+    ],
   },
   {
     code: "dgb_pro",
     name: "Pro",
-    tagline: "Layanan usher profesional untuk kelancaran acara",
-    badge: "Paling Populer",
-    features: [
-      { text: "Semua fitur Sistem", included: true },
-      { text: "Ushers (2) & Devices (2 Tablet/HP)", included: true, accent: true },
-      { text: "Incl. Undangan Digital & Smart Dashboard", included: true },
-      { text: "Amplop Digital & Galeri Kenangan Tamu", included: true },
-    ],
+    tagline: "Pilihan terpopuler",
     style: "secondary",
+    features: [
+      { icon: "devices", text: "2 Devices" },
+      { icon: "groups", text: "2 Ushers" },
+      { icon: "image", text: "2 Photo/guest" },
+      { icon: "check_circle", text: "Termasuk Semua Fitur Undangan Digital Prestige dan QR Sistem", accent: true, divider: true },
+    ],
   },
   {
     code: "dgb_premium",
     name: "Premium",
-    tagline: "Kapasitas lebih besar untuk perayaan yang meriah",
-    badge: "Premium",
-    features: [
-      { text: "Semua fitur Pro", included: true },
-      { text: "Ushers (3) & Devices (3 Tablet/HP)", included: true, accent: true },
-      { text: "Photo by Guest (3 foto / tamu)", included: true, accent: true },
-      { text: "Reminder otomatis ke 100 Tamu VIP", included: true },
-    ],
+    tagline: "Fitur buku tamu terlengkap",
     style: "gold",
+    features: [
+      { icon: "devices", text: "3 Devices" },
+      { icon: "groups", text: "3 Ushers" },
+      { icon: "image", text: "3 Photo/guest" },
+      { icon: "check_circle", text: "Termasuk Semua Fitur Undangan Digital Prestige dan QR Sistem", divider: true },
+    ],
   },
   {
     code: "dgb_prestige",
     name: "Prestige",
-    tagline: "Layanan konci untuk acara berskala besar",
-    badge: "VIP",
-    features: [
-      { text: "Semua fitur Premium", included: true },
-      { text: "Ushers (4) & Devices (4 Tablet/HP)", included: true, accent: true },
-      { text: "Photo by Guest (4 foto / tamu)", included: true, accent: true },
-      { text: "Amplop Digital & Galeri Kenangan Tamu", included: true },
-      { text: "Reminder otomatis ke 100 Tamu VIP", included: true },
-    ],
+    tagline: "Paket buku tamu paling eksklusif",
     style: "gold",
+    features: [
+      { icon: "devices", text: "4 Devices" },
+      { icon: "groups", text: "4 Ushers" },
+      { icon: "image", text: "4 Photo/guest" },
+      { icon: "check_circle", text: "Termasuk Semua Fitur Undangan Digital Prestige dan QR Sistem", divider: true },
+    ],
   },
 ]
 
-const CARD_STYLES = {
+const STYLES = {
   sage: {
-    accent: "text-[#4a6b57]",
-    badgeBg: "bg-[#4a6b57]/10 text-[#3d5a48]",
-    border: "border-[#4a6b57]/30",
-    hoverBorder: "hover:border-[#4a6b57]",
-    activeBorder: "border-[#4a6b57]",
-    price: "text-[#3d5a48]",
+    gradient:
+      "bg-[linear-gradient(135deg,rgba(227,235,226,0.4)_0%,rgba(227,235,226,1)_100%)]",
+    includedBox: "bg-surface-container-low/50 rounded-xl p-3 mb-4",
+    includedIcon: "text-sage-green",
+    accent: "text-primary",
+    dot: "bg-primary",
+    divider: "border-outline-variant/30",
+    button: "bg-surface-container text-primary border border-outline-variant/30 hover:bg-surface-variant hover:border-outline-variant",
   },
   secondary: {
+    gradient: "bg-[linear-gradient(135deg,rgba(255,219,208,0.4)_0%,rgba(255,219,208,1)_100%)]",
+    includedBox: "bg-secondary/10 rounded-xl p-3 mb-4",
+    includedIcon: "text-secondary",
     accent: "text-secondary",
-    badgeBg: "bg-secondary text-on-secondary border-secondary",
-    border: "border-secondary",
-    hoverBorder: "hover:border-secondary",
-    activeBorder: "border-secondary",
-    price: "text-secondary",
+    dot: "bg-secondary",
+    divider: "border-secondary/20",
+    button: "bg-surface-container text-primary border border-outline-variant/30 hover:bg-surface-variant hover:border-outline-variant",
   },
   gold: {
-    accent: "text-[#a9802f]",
-    badgeBg: "bg-[#d4af37]/15 text-[#8a6d1f] border-[#d4af37]/50",
-    border: "border-[#d4af37]",
-    hoverBorder: "hover:border-[#d4af37]",
-    activeBorder: "border-[#d4af37]",
-    price: "text-[#a9802f]",
+    gradient: "bg-[linear-gradient(135deg,rgba(243,238,229,0.4)_0%,rgba(243,238,229,1)_100%)]",
+    includedBox: "bg-surface-container-low/50 rounded-xl p-3 mb-4",
+    includedIcon: "text-[#d4af37]",
+    accent: "text-[#d4af37]",
+    dot: "bg-primary",
+    divider: "border-outline-variant/30",
+    button: "bg-surface-container text-primary border border-outline-variant/30 hover:bg-surface-variant hover:border-outline-variant",
   },
 }
 
@@ -232,9 +254,14 @@ function Inner() {
     setWaBlastTier(0)
   }
 
-  const isDgb = selectedPackage.startsWith("dgb_")
-  const showWaTier = !isDgb || isDgb // WA Blast VIP reminder is part of Prestige & every Buku Tamu tier
+  const showWaTier = true // WA Blast VIP reminder is part of Prestige & every Buku Tamu tier
   const activeCards = activeTab === "undangan" ? UNDANGAN_CARDS : DGB_CARDS
+  const matrixVisibleCols = matrixCols.filter((col) => col.code !== "cetak_undangan_bonus")
+
+  const selectPackage = (code: string) => {
+    setSelectedPackage(code)
+    setWaBlastTier(0)
+  }
 
   const handleSubmit = async () => {
     const cleaned = waNumber.replace(/\D/g, "").replace(/^0+/, "")
@@ -289,19 +316,11 @@ function Inner() {
           undangan_fisik: undanganFisik,
         }),
       })
-
+      const data = await res.json().catch(() => ({}))
       if (res.ok) {
-        const data = await res.json()
-        const p = new URLSearchParams({
-          user: userName.trim(),
-          partner: partnerName.trim(),
-          date: rawDate || "tentative",
-          guest: String(guestCount),
-        })
-        router.push(`/dashboard/${data.wedding_profile_id}?${p}`)
+        router.push(`/register?step=4&profile_id=${data.profile_id || ""}`)
       } else {
-        const err = await res.json()
-        setSubmitError(err.error || "Terjadi kesalahan. Silakan coba lagi.")
+        setSubmitError(data.error || "Terjadi kesalahan. Silakan coba lagi.")
       }
     } catch {
       setSubmitError("Gagal terhubung ke server.")
@@ -346,9 +365,15 @@ function Inner() {
   }
 
   return (
-    <div className="min-h-screen bg-background font-body-md text-on-surface selection:bg-secondary/20 overflow-x-hidden">
-      <header className="fixed top-0 w-full z-[100] bg-surface/90 backdrop-blur-md border-b border-outline-variant/30 h-20">
-        <div className="max-w-container-max mx-auto px-edge-margin-mobile md:px-edge-margin-desktop h-full flex justify-between items-center">
+    <div className="min-h-screen bg-[#f0f4f8] text-on-surface font-body-md antialiased selection:bg-secondary-container selection:text-on-secondary-container overflow-x-hidden relative">
+      {/* Background decorative elements */}
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-100/50 blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-sage-green/50 blur-[120px]" />
+      </div>
+
+      <header className="fixed top-0 w-full bg-[rgba(253,249,240,0.6)] backdrop-blur-[20px] border-b border-outline-variant/30 h-20 z-50 transition-all duration-300 ease-in-out">
+        <div className="max-w-[1200px] mx-auto px-edge-margin-mobile md:px-edge-margin-desktop h-full flex justify-between items-center">
           <button
             onClick={() => {
               if (isEdit) {
@@ -374,23 +399,27 @@ function Inner() {
         </div>
       </header>
 
-      <main className="pt-32 pb-40 px-edge-margin-mobile md:px-edge-margin-desktop max-w-container-max mx-auto">
-        <section className="mb-12 text-center max-w-3xl mx-auto">
-          <span className="font-label-md text-label-md text-secondary uppercase tracking-[0.2em] mb-4 block">Pilih Paket Undangan Anda</span>
-          <h1 className="font-headline-xl text-headline-xl text-primary mb-6">Pilih Paket</h1>
-          <p className="font-body-lg text-body-lg max-md:text-[14px] text-on-surface-variant">Temukan pengalaman yang paling tepat untuk mengabadikan perayaan Anda. Setiap pilihan dikurasi secara mendalam demi hasil yang tanpa cela.</p>
+      <main className="pt-20 pb-20 px-edge-margin-mobile md:px-edge-margin-desktop max-w-[1200px] mx-auto">
+        {/* Header Section */}
+        <section className="text-center mb-8 max-w-2xl mx-auto">
+          <h2 className="font-headline-lg text-headline-lg md:font-headline-xl md:text-headline-xl mb-2 text-primary tracking-tight">
+            Pilih Paket
+          </h2>
+          <p className="font-body-lg text-body-lg text-on-surface-variant font-light">
+            Temukan paket terbaik yang sesuai dengan kebutuhan pernikahan impian Anda
+          </p>
         </section>
 
-        {/* Segmented control */}
-        <div className="flex justify-center mb-14">
-          <div className="inline-flex rounded-full border border-outline-variant/50 bg-white p-1.5 shadow-sm">
+        {/* Segmented Toggle */}
+        <div className="sticky top-24 z-40 py-2 mb-8 flex justify-center">
+          <div className="inline-flex rounded-full bg-surface-container-low/80 backdrop-blur-md p-1.5 shadow-sm border border-outline-variant/20">
             {(["undangan", "dgbook"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => switchTab(tab)}
-                className={`px-6 md:px-10 py-3 rounded-full font-label-md text-label-md uppercase tracking-widest transition-all ${
+                className={`px-8 py-2.5 rounded-full font-label-md text-label-md uppercase tracking-widest transition-all duration-300 ${
                   activeTab === tab
-                    ? "bg-primary text-on-primary shadow"
+                    ? "bg-white text-primary shadow-md"
                     : "text-on-surface-variant hover:text-primary"
                 }`}
               >
@@ -401,84 +430,133 @@ function Inner() {
         </div>
 
         {/* Package cards */}
-        <section className={`grid grid-cols-1 gap-8 items-stretch mb-10 ${activeTab === "undangan" ? "md:grid-cols-3" : "md:grid-cols-2 xl:grid-cols-4"}`}>
+        <div
+          className={`grid grid-cols-1 gap-4 md:gap-6 ${
+            activeTab === "undangan" ? "lg:grid-cols-3" : "lg:grid-cols-4"
+          }`}
+        >
           {activeCards.map((pkg) => {
             const isActive = selectedPackage === pkg.code
-            const style = CARD_STYLES[pkg.style]
+            const st = STYLES[pkg.style]
+            const popular = pkg.style === "secondary"
             const oldPrice = PACKAGE_OLD_PRICES[pkg.code]
             const price = PACKAGE_PRICES[pkg.code]
 
             return (
               <div
                 key={pkg.code}
-                onClick={() => {
-                  setSelectedPackage(pkg.code)
-                  setWaBlastTier(0)
-                }}
-                className={`relative flex flex-col p-8 bg-white border-2 rounded-2xl transition-all duration-500 cursor-pointer overflow-hidden ${
-                  isActive ? scaleClasses(pkg.style) : `border-outline-variant/40 ${style.hoverBorder}`
+                onClick={() => selectPackage(pkg.code)}
+                className={`flex flex-col rounded-3xl bg-surface-container-lowest p-6 card-shadow transition-transform duration-500 hover:-translate-y-2 border relative overflow-hidden group cursor-pointer ${
+                  isActive
+                    ? "border-2 border-secondary scale-[1.02] z-10 shadow-xl shadow-secondary/20"
+                    : popular
+                      ? "border-2 border-secondary/30 lg:-mt-4 lg:mb-4 lg:shadow-xl shadow-lg shadow-secondary/20 z-10"
+                      : "border border-outline-variant/20"
                 }`}
               >
-                {pkg.badge && (
-                  <div className={`absolute top-4 right-4 px-3 py-1.5 rounded-full font-label-md text-[9px] uppercase tracking-widest border ${style.badgeBg}`}>
-                    {pkg.badge}
+                <div className={`absolute inset-0 ${st.gradient} opacity-30 group-hover:opacity-50 transition-opacity duration-500`} />
+                {popular && <div className="absolute top-0 right-0 w-32 h-32 bg-pattern opacity-20" />}
+                <div className="relative z-10 flex flex-col h-full">
+                  <div className="flex flex-col h-full">
+                    {popular ? (
+                      <div className="flex justify-between items-center mb-1">
+                        <h3 className="font-headline-md text-headline-md text-primary">{pkg.name}</h3>
+                        <span className="material-symbols-outlined text-secondary">stars</span>
+                      </div>
+                    ) : (
+                      <h3 className="font-headline-md text-headline-md mb-2 text-primary">{pkg.name}</h3>
+                    )}
+                    <p className="text-on-surface-variant text-sm mb-2 font-medium">{pkg.tagline}</p>
+                    <div className="mt-4 mb-4">
+                      <div className="text-on-surface-variant line-through text-sm mb-1 font-medium">
+                        {oldPrice != null ? formatRp(oldPrice) : ""}
+                      </div>
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-headline-lg text-4xl text-primary font-semibold">{formatRp(price)}</span>
+                      </div>
+                    </div>
+                    {pkg.included && (
+                      <div className={`${st.includedBox}`}>
+                        <div className="flex items-center gap-3 text-sm font-medium">
+                          <span className={`material-symbols-outlined ${st.includedIcon}`} style={{ fontVariationSettings: "'FILL' 1" }}>
+                            {pkg.included.icon}
+                          </span>
+                          <span>{pkg.included.text}</span>
+                        </div>
+                      </div>
+                    )}
+                    <ul className="space-y-3 mb-4">
+                      {pkg.features.map((f) => (
+                        <li
+                          key={f.text}
+                          className={`flex items-start gap-4 ${f.pt ? "pt-2" : ""} ${
+                            f.divider ? `pt-3 border-t ${st.divider} mt-3` : ""
+                          }`}
+                        >
+                          <span
+                            className={`material-symbols-outlined text-[20px] ${f.accent ? st.accent : "text-primary"}`}
+                            style={{ fontVariationSettings: "'FILL' 1" }}
+                          >
+                            {f.icon}
+                          </span>
+                          <span className={`font-body-md text-body-md text-on-surface-variant ${f.divider ? "text-sm font-medium" : ""}`}>
+                            {f.text}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    {pkg.details && (
+                      <details
+                        className="group/details border-t border-outline-variant/30 pt-4 mt-4 flex-grow"
+                        open
+                      >
+                        <summary className="flex justify-between items-center cursor-pointer font-label-md text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors list-none">
+                          <span>{pkg.details.label}</span>
+                          <span className="material-symbols-outlined text-sm transition-transform group-open/details:rotate-180">
+                            expand_more
+                          </span>
+                        </summary>
+                        <div className="mt-3 pl-2">
+                          <ul className="space-y-2 font-body-md text-sm text-on-surface-variant/80">
+                            {pkg.details.items.map((item) => (
+                              <li key={item} className="flex items-start gap-3">
+                                <span className={`w-1 h-1 rounded-full ${st.dot} mt-2.5 shrink-0`} />
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </details>
+                    )}
+                    <div className="flex-grow" />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        selectPackage(pkg.code)
+                      }}
+                      className={`w-full mt-6 py-3 rounded-xl font-label-md text-sm font-semibold tracking-wider transition-all duration-300 ${
+                        isActive
+                          ? "bg-primary text-on-primary shadow-lg shadow-primary/20 hover:bg-primary/90"
+                          : `${st.button}`
+                      }`}
+                    >
+                      {isActive ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="material-symbols-outlined text-sm">check</span>
+                          <span>Paket Terpilih</span>
+                        </div>
+                      ) : (
+                        "Pilih Paket Ini"
+                      )}
+                    </button>
                   </div>
-                )}
-                <div className="mb-4">
-                  <h3 className={`font-headline-md text-headline-md mb-1 ${isActive ? style.accent : ""}`}>{pkg.name}</h3>
-                  <p className="font-body-md text-[13px] text-on-surface-variant leading-relaxed">{pkg.tagline}</p>
                 </div>
-                <div className="mb-6 flex items-baseline gap-2">
-                  {oldPrice != null && (
-                    <span className="text-sm text-on-surface-variant/50 line-through">{formatRp(oldPrice)}</span>
-                  )}
-                  <span className={`font-headline-lg text-headline-lg font-bold ${style.price}`}>{formatRp(price)}</span>
-                </div>
-                <div className="h-px bg-outline-variant/30 mb-6" />
-                <ul className="space-y-3 mb-6 flex-grow">
-                  {pkg.features.map((f) => (
-                    <li key={f.text} className={`flex items-start gap-2.5 text-sm ${f.included ? "" : "text-on-surface-variant/45"}`}>
-                      <span className={`material-symbols-outlined text-[16px] shrink-0 ${f.included ? (f.accent ? style.accent : "text-on-surface-variant") : "text-outline-variant"}`} style={{ fontVariationSettings: "'FILL' 1" }}>
-                        {f.included ? "check" : "close"}
-                      </span>
-                      <span className={f.accent ? `font-semibold ${style.accent}` : ""}>{f.text}</span>
-                    </li>
-                  ))}
-                </ul>
-                <details className="group mb-6">
-                  <summary className="cursor-pointer list-none flex items-center justify-between font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">
-                    Lihat Fitur Dasar
-                    <span className="material-symbols-outlined text-[16px] group-open:rotate-180 transition-transform">expand_more</span>
-                  </summary>
-                  <ul className="mt-3 space-y-2 text-[13px] text-on-surface-variant">
-                    {baseFeatures(activeTab).map((b) => (
-                      <li key={b} className="flex items-center gap-2">
-                        <span className={`material-symbols-outlined text-[14px] ${style.price}`} style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
-                        {b}
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setSelectedPackage(pkg.code)
-                    setWaBlastTier(0)
-                  }}
-                  className={`w-full py-4 rounded-xl font-label-md uppercase tracking-widest transition-all ${
-                    isActive
-                      ? `${style.badgeBg} border ${style.border} bg-transparent`
-                      : `bg-primary text-on-primary hover:bg-secondary`
-                  }`}
-                >
-                  {isActive ? "Terpilih" : "Pilih Paket Ini"}
-                </button>
               </div>
             )
           })}
-        </section>
+        </div>
 
-        <div className="text-center mb-14">
+        <div className="text-center mb-14 mt-12">
           <button onClick={() => setMatrixOpen(true)} className="inline-flex items-center gap-2 font-label-md text-label-md uppercase tracking-widest text-secondary border-b border-secondary/40 pb-1 hover:border-secondary transition-colors">
             <span className="material-symbols-outlined text-[18px]">grid_view</span>
             Lihat Detail Komparasi Fitur
@@ -574,8 +652,8 @@ function Inner() {
         </section>
       </main>
 
-      <footer className="fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant px-edge-margin-mobile py-6 z-[90]">
-        <div className="max-w-container-max mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <footer className="fixed bottom-0 left-0 w-full bg-[rgba(253,249,240,0.85)] backdrop-blur-md border-t border-outline-variant px-edge-margin-mobile py-6 z-[90]">
+        <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex flex-col items-center md:items-start">
             <span className="font-label-md text-[10px] uppercase text-on-surface-variant tracking-widest">Estimasi Total</span>
             <div className="flex items-center gap-3">
@@ -661,8 +739,8 @@ function Inner() {
 
       {matrixOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] flex items-start justify-center p-4 py-10 overflow-y-auto">
-          <div className="bg-surface w-full max-w-5xl border border-outline relative">
-            <div className="sticky top-0 bg-surface border-b border-outline-variant px-6 py-5 flex items-center justify-between z-10">
+          <div className="bg-[#f0f4f8] w-full max-w-5xl border border-outline relative">
+            <div className="sticky top-0 bg-[#f0f4f8] border-b border-outline-variant px-6 py-5 flex items-center justify-between z-10">
               <h3 className="font-headline-md text-headline-md text-primary">Detail Komparasi Fitur</h3>
               <button onClick={() => setMatrixOpen(false)} className="text-on-surface-variant hover:text-primary">
                 <span className="material-symbols-outlined">close</span>
@@ -670,10 +748,10 @@ function Inner() {
             </div>
             <div className="overflow-x-auto max-h-[70vh]">
               <table className="w-full text-left min-w-[900px] text-sm">
-                <thead className="sticky top-[61px] z-10 bg-surface">
+                <thead className="sticky top-[61px] z-10 bg-[#f0f4f8]">
                   <tr className="font-label-md text-label-md uppercase tracking-widest border-b border-outline-variant">
                     <th className="py-5 px-4 font-semibold text-left">FITUR</th>
-                    {matrixCols.map((col) => (
+                    {matrixVisibleCols.map((col) => (
                       <th key={col.code} className={`py-5 px-3 text-center font-semibold ${selectedPackage === col.code ? "text-secondary" : ""}`}>
                         {col.label}
                       </th>
@@ -683,13 +761,15 @@ function Inner() {
                 <tbody>
                   {matrix.map((section) => (
                     <React.Fragment key={section.code}>
-                      <tr className="border-b border-outline-variant/30 bg-surface-container-lowest/50">
-                        <td className="py-3 px-4 font-label-md text-[10px] text-on-surface-variant tracking-widest uppercase" colSpan={8}>{section.label}</td>
+                      <tr className="border-b border-outline-variant/30 bg-surface-container-lowest">
+                        <td className="py-3 px-4 font-label-md text-[10px] text-on-surface-variant tracking-widest uppercase" colSpan={matrixVisibleCols.length + 1}>
+                          {section.label}
+                        </td>
                       </tr>
                       {section.rows.map((row) => (
                         <tr key={row.id} className="border-b border-outline-variant/20">
                           <td className="py-3.5 px-4">{row.label}</td>
-                          {matrixCols.map((col) => {
+                          {matrixVisibleCols.map((col) => {
                             const cell = row.columns[col.code]
                             return (
                               <td key={col.code} className={`py-3.5 px-3 text-center ${cell?.class || ""} ${selectedPackage === col.code ? "font-semibold" : ""}`}>
@@ -709,18 +789,6 @@ function Inner() {
       )}
     </div>
   )
-}
-
-function scaleClasses(style: "sage" | "secondary" | "gold"): string {
-  if (style === "secondary") return "border-secondary scale-[1.02] shadow-xl shadow-secondary/10 z-10"
-  if (style === "gold") return "border-[#d4af37] scale-[1.02] shadow-xl shadow-[#d4af37]/10 z-10"
-  return "border-[#4a6b57] shadow-lg"
-}
-
-function baseFeatures(tab: "undangan" | "dgbook"): string[] {
-  return tab === "undangan"
-    ? ["PIC & Smart Dashboard", "Maps, Countdown & Add to Calendar", "Pilihan Lagu & Autoplay", "Subdomain Nama Pasangan", "Pilihan Bahasa", "Unlimited Send (Manual)"]
-    : ["QR Digital System", "Check-in Tamu realtime", "Wedding Wish & RSVP", "Subdomain Nama Pasangan", "Amplop Digital & E-Gift", "Reminder otomatis ke 100 Tamu VIP"]
 }
 
 export default function CustomizePage() {
