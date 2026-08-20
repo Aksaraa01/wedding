@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { resolveDerivedStatus } from "@/lib/opsStatus"
 
 export async function GET() {
   try {
@@ -23,7 +24,11 @@ export async function GET() {
           package_type,
           total_project_cost,
           payment_status,
-          express_service
+          express_service,
+          created_at,
+          users!left (
+            created_at
+          )
         ),
         employees!left (
           id,
@@ -36,13 +41,14 @@ export async function GET() {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    const queue = (data || []).map((item: any) => {
+    const rawQueue = (data || []).map((item: any) => {
       const wp = Array.isArray(item.wedding_profiles)
         ? item.wedding_profiles[0]
         : item.wedding_profiles
       const emp = Array.isArray(item.employees)
         ? item.employees[0]
         : item.employees
+      const user = Array.isArray(wp?.users) ? wp.users[0] : wp?.users
       return {
         id: item.id,
         status: item.status,
@@ -50,6 +56,7 @@ export async function GET() {
         assigned_to: item.assigned_to,
         assigned_name: emp?.name || null,
         created_at: item.created_at,
+        registration_date: user?.created_at || wp?.created_at || item.created_at || null,
         wedding_profile: {
           id: wp.id,
           bride_name: wp.bride_name,
@@ -67,7 +74,44 @@ export async function GET() {
       }
     })
 
-    return NextResponse.json({ queue })
+    // Latest feedback status per profile (for derived board column).
+    const profileIds = rawQueue.map((q: any) => q.wedding_profile.id)
+    const latestFeedbackByProfile: Record<string, string> = {}
+    if (profileIds.length > 0) {
+      const { data: fbRows } = await supabaseAdmin
+        .from("feedback_submissions")
+        .select("wedding_profile_id, status")
+        .in("wedding_profile_id", profileIds)
+        .order("created_at", { ascending: false })
+      for (const row of fbRows || []) {
+        if (!latestFeedbackByProfile[row.wedding_profile_id]) {
+          latestFeedbackByProfile[row.wedding_profile_id] = row.status
+        }
+      }
+    }
+
+    const queue = rawQueue
+      .map((item: any) => ({
+        ...item,
+        derived_status: resolveDerivedStatus({
+          storedStatus: item.status,
+          paymentStatus: item.wedding_profile.payment_status,
+          latestFeedbackStatus: latestFeedbackByProfile[item.wedding_profile.id] || null,
+        }),
+      }))
+      .sort((a: any, b: any) => {
+        const ta = a.registration_date ? new Date(a.registration_date).getTime() : 0
+        const tb = b.registration_date ? new Date(b.registration_date).getTime() : 0
+        return tb - ta
+      })
+
+    const { data: allEmployees } = await supabaseAdmin
+      .from("employees")
+      .select("id, name")
+      .eq("is_active", true)
+      .order("name", { ascending: true })
+
+    return NextResponse.json({ queue, employees: allEmployees || [] })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

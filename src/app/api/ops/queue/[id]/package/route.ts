@@ -67,7 +67,7 @@ export async function PUT(
     // Reset queue status so OPS knows there's new work
     await supabaseAdmin
       .from("ops_queue")
-      .update({ status: "pending" })
+      .update({ status: "belum_bayar" })
       .eq("id", id)
 
     return NextResponse.json({ success: true, package_type, total_project_cost: total })

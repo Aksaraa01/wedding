@@ -60,10 +60,10 @@ export async function PUT(
         await supabaseAdmin.from("feature_actions").insert(featureRows)
       }
 
-      // Reset queue status to pending so OPS knows there's new work
+      // Reset queue status to belum_bayar so OPS knows there's new work
       await supabaseAdmin
         .from("ops_queue")
-        .update({ status: "pending" })
+        .update({ status: "belum_bayar" })
         .eq("id", queueData.id)
     }
 

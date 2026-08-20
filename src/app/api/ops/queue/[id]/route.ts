@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { resolveDerivedStatus } from "@/lib/opsStatus"
 
 export async function GET(
   _req: Request,
@@ -129,6 +130,49 @@ export async function GET(
     if (trkRes?.data) webTrackName = trkRes.data.title
     webPublished = webProfile?.is_published === true
 
+    // Latest feedback status (for derived board column) + status audit log
+    const { data: latestFb } = await supabaseAdmin
+      .from("feedback_submissions")
+      .select("status")
+      .eq("wedding_profile_id", wp.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    const derivedStatus = resolveDerivedStatus({
+      storedStatus: queueItem.status,
+      paymentStatus: wp.payment_status,
+      latestFeedbackStatus: latestFb?.status || null,
+    })
+
+    const { data: statusLog } = await supabaseAdmin
+      .from("ops_queue_status_log")
+      .select(`
+        id,
+        previous_status,
+        new_status,
+        created_at,
+        employees!left (
+          id,
+          name
+        )
+      `)
+      .eq("ops_queue_id", id)
+      .order("created_at", { ascending: false })
+      .limit(50)
+
+    const mappedStatusLog = (statusLog || []).map((log: any) => {
+      const emp = Array.isArray(log.employees) ? log.employees[0] : log.employees
+      return {
+        id: log.id,
+        previous_status: log.previous_status,
+        new_status: log.new_status,
+        created_at: log.created_at,
+        changed_by_employee_id: emp?.id || null,
+        changed_by_name: emp?.name || null,
+      }
+    })
+
     return NextResponse.json({
       queue: {
         id: queueItem.id,
@@ -174,6 +218,8 @@ export async function GET(
       wa_blast_quota: waBlastQuota,
       vip_guests: vipGuests || [],
       reservation_stats: reservationStats,
+      derived_status: derivedStatus,
+      status_log: mappedStatusLog,
     })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })

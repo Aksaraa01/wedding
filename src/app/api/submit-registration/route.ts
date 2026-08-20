@@ -112,7 +112,7 @@ export async function POST(req: Request) {
       .from("ops_queue")
       .insert({
         wedding_profile_id: profile.id,
-        status: "pending",
+        status: "belum_bayar",
         sla_started_at: new Date().toISOString(),
       })
       .select("id")
