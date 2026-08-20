@@ -170,6 +170,7 @@ const STYLES = {
     accent: "text-primary",
     dot: "bg-primary",
     divider: "border-outline-variant/30",
+    summaryHover: "hover:text-primary",
     button: "bg-surface-container text-primary border border-outline-variant/30 hover:bg-surface-variant hover:border-outline-variant",
   },
   secondary: {
@@ -179,6 +180,7 @@ const STYLES = {
     accent: "text-secondary",
     dot: "bg-secondary",
     divider: "border-secondary/20",
+    summaryHover: "hover:text-secondary",
     button: "bg-surface-container text-primary border border-outline-variant/30 hover:bg-surface-variant hover:border-outline-variant",
   },
   gold: {
@@ -188,6 +190,7 @@ const STYLES = {
     accent: "text-[#d4af37]",
     dot: "bg-primary",
     divider: "border-outline-variant/30",
+    summaryHover: "hover:text-primary",
     button: "bg-surface-container text-primary border border-outline-variant/30 hover:bg-surface-variant hover:border-outline-variant",
   },
 }
@@ -432,7 +435,7 @@ function Inner() {
         {/* Package cards */}
         <div
           className={`grid grid-cols-1 gap-4 md:gap-6 ${
-            activeTab === "undangan" ? "lg:grid-cols-3" : "lg:grid-cols-4"
+            activeTab === "undangan" ? "lg:grid-cols-3" : "md:grid-cols-2 xl:grid-cols-4"
           }`}
         >
           {activeCards.map((pkg) => {
@@ -457,99 +460,148 @@ function Inner() {
                 <div className={`absolute inset-0 ${st.gradient} opacity-30 group-hover:opacity-50 transition-opacity duration-500`} />
                 {popular && <div className="absolute top-0 right-0 w-32 h-32 bg-pattern opacity-20" />}
                 <div className="relative z-10 flex flex-col h-full">
-                  <div className="flex flex-col h-full">
-                    {popular ? (
+                  {popular ? (
+                    <div className="flex flex-col h-full">
                       <div className="flex justify-between items-center mb-1">
                         <h3 className="font-headline-md text-headline-md text-primary">{pkg.name}</h3>
                         <span className="material-symbols-outlined text-secondary">stars</span>
                       </div>
-                    ) : (
-                      <h3 className="font-headline-md text-headline-md mb-2 text-primary">{pkg.name}</h3>
-                    )}
-                    <p className="text-on-surface-variant text-sm mb-2 font-medium">{pkg.tagline}</p>
-                    <div className="mt-4 mb-4">
-                      <div className="text-on-surface-variant line-through text-sm mb-1 font-medium">
-                        {oldPrice != null ? formatRp(oldPrice) : ""}
-                      </div>
-                      <div className="flex items-baseline gap-2">
-                        <span className="font-headline-lg text-4xl text-primary font-semibold">{formatRp(price)}</span>
-                      </div>
-                    </div>
-                    {pkg.included && (
-                      <div className={`${st.includedBox}`}>
-                        <div className="flex items-center gap-3 text-sm font-medium">
-                          <span className={`material-symbols-outlined ${st.includedIcon}`} style={{ fontVariationSettings: "'FILL' 1" }}>
-                            {pkg.included.icon}
-                          </span>
-                          <span>{pkg.included.text}</span>
+                      <p className="text-on-surface-variant text-sm mb-2 font-medium">{pkg.tagline}</p>
+                      <div className="mt-4 mb-4">
+                        <div className="text-on-surface-variant line-through text-sm mb-1 font-medium whitespace-nowrap">
+                          {oldPrice != null ? formatRp(oldPrice) : ""}
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-headline-lg text-4xl text-primary font-semibold whitespace-nowrap">{formatRp(price)}</span>
                         </div>
                       </div>
-                    )}
-                    <ul className="space-y-3 mb-4">
-                      {pkg.features.map((f) => (
-                        <li
-                          key={f.text}
-                          className={`flex items-start gap-4 ${f.pt ? "pt-2" : ""} ${
-                            f.divider ? `pt-3 border-t ${st.divider} mt-3` : ""
-                          }`}
-                        >
-                          <span
-                            className={`material-symbols-outlined text-[20px] ${f.accent ? st.accent : "text-primary"}`}
-                            style={{ fontVariationSettings: "'FILL' 1" }}
-                          >
-                            {f.icon}
-                          </span>
-                          <span className={`font-body-md text-body-md text-on-surface-variant ${f.divider ? "text-sm font-medium" : ""}`}>
-                            {f.text}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                    {pkg.details && (
-                      <details
-                        className="group/details border-t border-outline-variant/30 pt-4 mt-4 flex-grow"
-                        open
-                      >
-                        <summary className="flex justify-between items-center cursor-pointer font-label-md text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors list-none">
-                          <span>{pkg.details.label}</span>
-                          <span className="material-symbols-outlined text-sm transition-transform group-open/details:rotate-180">
-                            expand_more
-                          </span>
-                        </summary>
-                        <div className="mt-3 pl-2">
-                          <ul className="space-y-2 font-body-md text-sm text-on-surface-variant/80">
-                            {pkg.details.items.map((item) => (
-                              <li key={item} className="flex items-start gap-3">
-                                <span className={`w-1 h-1 rounded-full ${st.dot} mt-2.5 shrink-0`} />
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
+                      {pkg.included && (
+                        <div className={`${st.includedBox}`}>
+                          <div className="flex items-center gap-3 text-sm font-medium">
+                            <span className={`material-symbols-outlined ${st.includedIcon}`}>{pkg.included.icon}</span>
+                            <span>{pkg.included.text}</span>
+                          </div>
                         </div>
-                      </details>
-                    )}
-                    <div className="flex-grow" />
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        selectPackage(pkg.code)
-                      }}
-                      className={`w-full mt-6 py-3 rounded-xl font-label-md text-sm font-semibold tracking-wider transition-all duration-300 ${
-                        isActive
-                          ? "bg-primary text-on-primary shadow-lg shadow-primary/20 hover:bg-primary/90"
-                          : `${st.button}`
-                      }`}
-                    >
-                      {isActive ? (
-                        <div className="flex items-center justify-center gap-2">
-                          <span className="material-symbols-outlined text-sm">check</span>
-                          <span>Paket Terpilih</span>
-                        </div>
-                      ) : (
-                        "Pilih Paket Ini"
                       )}
-                    </button>
-                  </div>
+                      <ul className={`space-y-3 mb-4 ${pkg.details ? "" : "flex-grow"}`}>
+                        {pkg.features.map((f) => (
+                          <li
+                            key={f.text}
+                            className={`flex items-start gap-4 ${f.pt ? "pt-2" : ""} ${
+                              f.divider ? `pt-3 border-t ${st.divider} mt-3` : ""
+                            }`}
+                          >
+                            <span className={`material-symbols-outlined text-[20px] ${f.accent ? st.accent : "text-primary"}`}>
+                              {f.icon}
+                            </span>
+                            <span className={`font-body-md text-body-md text-on-surface-variant ${f.divider ? "text-sm font-medium" : ""}`}>
+                              {f.text}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                      {pkg.details && (
+                        <details className={`group/details border-t ${st.divider} pt-4 mt-4 flex-grow`}>
+                          <summary className={`flex justify-between items-center cursor-pointer font-label-md text-sm font-semibold uppercase tracking-wider text-on-surface-variant ${st.summaryHover} transition-colors list-none`}>
+                            <span>{pkg.details.label}</span>
+                            <span className="material-symbols-outlined text-sm transition-transform group-open/details:rotate-180">
+                              expand_more
+                            </span>
+                          </summary>
+                          <div className="mt-3 pl-2">
+                            <ul className="space-y-2 font-body-md text-sm text-on-surface-variant/80">
+                              {pkg.details.items.map((item) => (
+                                <li key={item} className="flex items-start gap-3">
+                                  <span className={`w-1 h-1 rounded-full ${st.dot} mt-2.5 shrink-0`} />
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </details>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="mb-6 flex-grow">
+                      <h3 className="font-headline-md text-headline-md mb-2 text-primary">{pkg.name}</h3>
+                      <p className="text-on-surface-variant text-sm mb-2 font-medium">{pkg.tagline}</p>
+                      <div className="mt-4 mb-4">
+                        <div className="text-on-surface-variant line-through text-sm mb-1 font-medium whitespace-nowrap">
+                          {oldPrice != null ? formatRp(oldPrice) : ""}
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-headline-lg text-4xl text-primary font-semibold whitespace-nowrap">{formatRp(price)}</span>
+                        </div>
+                      </div>
+                      {pkg.included && (
+                        <div className={`${st.includedBox}`}>
+                          <div className="flex items-center gap-3 text-sm font-medium">
+                            <span className={`material-symbols-outlined ${st.includedIcon}`}>{pkg.included.icon}</span>
+                            <span>{pkg.included.text}</span>
+                          </div>
+                        </div>
+                      )}
+                      <ul className="space-y-3 mb-4">
+                        {pkg.features.map((f) => (
+                          <li
+                            key={f.text}
+                            className={`flex items-start gap-4 ${f.pt ? "pt-2" : ""} ${
+                              f.divider ? `pt-3 border-t ${st.divider} mt-3` : ""
+                            }`}
+                          >
+                            <span className={`material-symbols-outlined text-[20px] ${f.accent ? st.accent : "text-primary"}`}>
+                              {f.icon}
+                            </span>
+                            <span className={`font-body-md text-body-md text-on-surface-variant ${f.divider ? "text-sm font-medium" : ""}`}>
+                              {f.text}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                      {pkg.details && (
+                        <details className={`group/details border-t ${st.divider} pt-4 mt-4`}>
+                          <summary className={`flex justify-between items-center cursor-pointer font-label-md text-sm font-semibold uppercase tracking-wider text-on-surface-variant ${st.summaryHover} transition-colors list-none`}>
+                            <span>{pkg.details.label}</span>
+                            <span className="material-symbols-outlined text-sm transition-transform group-open/details:rotate-180">
+                              expand_more
+                            </span>
+                          </summary>
+                          <div className="mt-3 pl-2">
+                            <ul className="space-y-2 font-body-md text-sm text-on-surface-variant/80">
+                              {pkg.details.items.map((item) => (
+                                <li key={item} className="flex items-start gap-3">
+                                  <span className={`w-1 h-1 rounded-full ${st.dot} mt-2.5 shrink-0`} />
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </details>
+                      )}
+                    </div>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      selectPackage(pkg.code)
+                    }}
+                    className={`w-full py-3 rounded-xl font-label-md text-sm font-semibold tracking-wider transition-all duration-300 ${
+                      popular ? "mt-6" : ""
+                    } ${
+                      isActive
+                        ? "bg-primary text-on-primary shadow-lg shadow-primary/20 hover:bg-primary/90"
+                        : `${st.button}`
+                    }`}
+                  >
+                    {isActive ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <span className="material-symbols-outlined text-sm">check</span>
+                        <span>Paket Terpilih</span>
+                      </div>
+                    ) : (
+                      "Pilih Paket Ini"
+                    )}
+                  </button>
                 </div>
               </div>
             )
@@ -738,8 +790,14 @@ function Inner() {
       )}
 
       {matrixOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] flex items-start justify-center p-4 py-10 overflow-y-auto">
-          <div className="bg-[#f0f4f8] w-full max-w-5xl border border-outline relative">
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] flex items-start justify-center p-4 py-10 overflow-y-auto"
+          onClick={() => setMatrixOpen(false)}
+        >
+          <div
+            className="bg-[#f0f4f8] w-full max-w-5xl border border-outline relative"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="sticky top-0 bg-[#f0f4f8] border-b border-outline-variant px-6 py-5 flex items-center justify-between z-10">
               <h3 className="font-headline-md text-headline-md text-primary">Detail Komparasi Fitur</h3>
               <button onClick={() => setMatrixOpen(false)} className="text-on-surface-variant hover:text-primary">
