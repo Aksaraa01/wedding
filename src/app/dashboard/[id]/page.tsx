@@ -373,10 +373,20 @@ function DashboardInner({ id }: { id: string }) {
               </div>
               <div className="bg-white p-5">
                 <p className="text-[10px] uppercase tracking-wider text-on-surface-variant mb-1">Checkin Tamu</p>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-semibold">{checkedInCount}</span>
-                  <span className="text-sm text-on-surface-variant opacity-60">{checkedInPax} Pax</span>
-                </div>
+                {selections.qr_code_book ? (
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-semibold">{checkedInCount}</span>
+                    <span className="text-sm text-on-surface-variant opacity-60">{checkedInPax} Pax</span>
+                  </div>
+                ) : (
+                  <div className="relative group inline-flex items-center gap-2 pt-0.5">
+                    <span className="material-symbols-outlined text-xl text-on-surface-variant/50">lock</span>
+                    <span className="text-sm text-on-surface-variant/60">Tidak Aktif</span>
+                    <div className="hidden group-hover:block absolute bottom-full left-0 mb-2 w-max max-w-[220px] bg-black/85 text-white text-[11px] leading-relaxed px-3 py-2 rounded-lg shadow-xl z-20">
+                      Fitur ini aktif untuk paket Buku Tamu Digital
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             <button

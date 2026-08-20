@@ -6,7 +6,10 @@ import DashboardSidebar from "@/components/dashboard/DashboardSidebar"
 
 export default function DashboardShell({ id, children }: { id: string; children: React.ReactNode }) {
   const pathname = usePathname()
-  const isEditor = pathname.includes("/web-invitation/editor")
+  const hideSidebar =
+    pathname.includes("/web-invitation/editor") ||
+    pathname.includes("/web-invitation/feedback") ||
+    pathname.includes("/guests")
   const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {
@@ -15,7 +18,7 @@ export default function DashboardShell({ id, children }: { id: string; children:
     } catch {}
   }, [id])
 
-  const width = isEditor ? 0 : collapsed ? 76 : 280
+  const width = hideSidebar ? 0 : collapsed ? 76 : 280
 
   useEffect(() => {
     document.documentElement.style.setProperty("--dash-sidebar-w", `${width}px`)
@@ -33,11 +36,11 @@ export default function DashboardShell({ id, children }: { id: string; children:
 
   // Sidebar is desktop-only, so the content offset must be lg+ only (inline
   // padding would push mobile content right).
-  const paddingClass = isEditor ? "lg:pl-0" : collapsed ? "lg:pl-[76px]" : "lg:pl-[280px]"
+  const paddingClass = hideSidebar ? "lg:pl-0" : collapsed ? "lg:pl-[76px]" : "lg:pl-[280px]"
 
   return (
     <>
-      {!isEditor && <DashboardSidebar id={id} collapsed={collapsed} onToggle={toggle} />}
+      {!hideSidebar && <DashboardSidebar id={id} collapsed={collapsed} onToggle={toggle} />}
       <div className={`transition-[padding-left] duration-300 ${paddingClass}`}>{children}</div>
     </>
   )

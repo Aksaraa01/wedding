@@ -186,22 +186,6 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
           </section>
         )}
 
-        {/* Metrics Grid */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-surface-container-low border border-[#c4c7c7]/30 p-8 flex flex-col items-center text-center transition-transform hover:-translate-y-1">
-            <span className="font-label-md text-label-md text-on-surface-variant mb-2 uppercase tracking-[0.2em]">Total Pesan</span>
-            <span className="font-headline-md text-headline-lg">{stats.total}</span>
-          </div>
-          <div className="bg-[#8d4d39]/5 border border-[#8d4d39]/20 p-8 flex flex-col items-center text-center transition-transform hover:-translate-y-1">
-            <span className="font-label-md text-label-md text-secondary mb-2 uppercase tracking-[0.2em]">Menunggu</span>
-            <span className="font-headline-md text-headline-lg text-secondary">{stats.pending}</span>
-          </div>
-          <div className="bg-surface-container-low border border-[#c4c7c7]/30 p-8 flex flex-col items-center text-center transition-transform hover:-translate-y-1">
-            <span className="font-label-md text-label-md text-on-surface-variant mb-2 uppercase tracking-[0.2em]">Aktif Ditampilkan</span>
-            <span className="font-headline-md text-headline-lg">{stats.approved}</span>
-          </div>
-        </section>
-
         <div className="flex flex-col lg:flex-row gap-10">
           {/* Left Sidebar: Filters */}
           <aside className="lg:w-64 shrink-0">

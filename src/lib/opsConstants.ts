@@ -9,7 +9,7 @@ export const FEATURE_LABELS: Record<string, string> = {
   kolom_direct_transfer: "Amplop Digital & Alamat Kado",
   galeri_foto_tamu: "Galeri Kenangan Tamu",
   qr_code_book: "Buku Tamu QR",
-  unique_link_generator: "QR Code Tamu",
+  unique_link_generator: "Undangan dan QR Tamu",
   undangan_fisik: "Undangan Fisik",
   wa_blast: "Reminder Otomatis",
 }

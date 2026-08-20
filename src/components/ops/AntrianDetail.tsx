@@ -20,6 +20,7 @@ import {
   photoList,
   coverPhotos,
 } from "@/lib/opsConstants"
+import { PACKAGE_FEATURES } from "@/lib/packages"
 import {
   OPS_COLUMNS,
   OPS_STATUS_LABELS,
@@ -218,6 +219,11 @@ export default function AntrianDetail({ id }: { id: string }) {
 
   const currentWp = detail?.wedding_profile
 
+  // QR Guest Book (Buku Tamu Digital) module: only active on DGB tiers.
+  const qrActive = currentWp?.package_type
+    ? (PACKAGE_FEATURES[currentWp.package_type]?.includes("qr_code_book") ?? false)
+    : true
+
   const derived = detail && currentWp
     ? resolveDerivedStatus({
         storedStatus: detail.queue.status,
@@ -367,16 +373,29 @@ export default function AntrianDetail({ id }: { id: string }) {
   }
 
   const downloadQrExcel = () => {
-    const header = ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Link QR", "Link Undangan", "Sumber"]
-    const rows = qrGuests.map((g) => [
-      g.name,
-      g.phone_number || "",
-      g.category || "",
-      g.table_number || "",
-      guestQrUrl(g),
-      guestInvUrl(g),
-      g.added_manually ? "Ditambahkan Manual" : "Undangan QR",
-    ])
+    const header = qrActive
+      ? ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Link QR", "Link Undangan", "Sumber"]
+      : ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Link Undangan", "Sumber"]
+    const rows = qrGuests.map((g) =>
+      qrActive
+        ? [
+            g.name,
+            g.phone_number || "",
+            g.category || "",
+            g.table_number || "",
+            guestQrUrl(g),
+            guestInvUrl(g),
+            g.added_manually ? "Ditambahkan Manual" : "Undangan QR",
+          ]
+        : [
+            g.name,
+            g.phone_number || "",
+            g.category || "",
+            g.table_number || "",
+            guestInvUrl(g),
+            g.added_manually ? "Ditambahkan Manual" : "Undangan QR",
+          ]
+    )
     downloadExcel(`daftar-qr-tamu-${profileSlug}.xlsx`, "QR Tamu", header, rows)
   }
 
@@ -620,7 +639,9 @@ export default function AntrianDetail({ id }: { id: string }) {
                       const subtitle = fa.feature_key === "premium_web"
                         ? [detail.feature_stats.template_name, detail.feature_stats.track_name].filter(Boolean).join(" / ") || null
                         : fa.feature_key === "unique_link_generator"
-                          ? `${detail.guest_stats.with_token} QR Aktif`
+                          ? qrActive
+                            ? `${detail.guest_stats.with_token} QR Aktif`
+                            : null
                           : fa.feature_key === "qr_code_book"
                             ? `${detail.feature_stats.checked_in_count} Tamu Sudah Hadir`
                             : fa.feature_key === "wish_wall"
@@ -669,14 +690,20 @@ export default function AntrianDetail({ id }: { id: string }) {
                           <span className="material-symbols-outlined text-sm">qr_code_2</span>
                           Lihat Daftar Tamu &amp; Link
                         </button>
-                        <button
-                          onClick={handleGenerateQr}
-                          disabled={qrGenerating}
-                          className="px-4 py-2.5 border border-outline-variant text-[9px] font-bold uppercase tracking-widest hover:border-primary transition-all disabled:opacity-50"
-                        >
-                          {qrGenerating ? "Membuat..." : "Generate QR"}
-                        </button>
-                        <span className="text-[10px] text-on-surface-variant">{detail.guest_stats.with_token}/{detail.guest_stats.total} QR Aktif</span>
+                        {qrActive ? (
+                          <>
+                            <button
+                              onClick={handleGenerateQr}
+                              disabled={qrGenerating}
+                              className="px-4 py-2.5 border border-outline-variant text-[9px] font-bold uppercase tracking-widest hover:border-primary transition-all disabled:opacity-50"
+                            >
+                              {qrGenerating ? "Membuat..." : "Generate QR"}
+                            </button>
+                            <span className="text-[10px] text-on-surface-variant">{detail.guest_stats.with_token}/{detail.guest_stats.total} QR Aktif</span>
+                          </>
+                        ) : (
+                          <span className="text-[10px] text-on-surface-variant/70 italic">QR Tamu tidak tersedia untuk paket ini</span>
+                        )}
                       </div>
                     )}
 
@@ -1326,12 +1353,16 @@ export default function AntrianDetail({ id }: { id: string }) {
                             {g.table_number ? ` • ${g.table_number}` : ""}
                           </p>
                         </div>
-                        <span className={`shrink-0 text-[10px] font-label-md uppercase tracking-wider px-2 py-0.5 rounded-full ${g.qr_token ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-outline-variant/30 text-on-surface-variant border border-outline-variant"}`}>
-                          {g.qr_token ? "QR Aktif" : "Belum QR"}
-                        </span>
+                        {qrActive && (
+                          <span className={`shrink-0 text-[10px] font-label-md uppercase tracking-wider px-2 py-0.5 rounded-full ${g.qr_token ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-outline-variant/30 text-on-surface-variant border border-outline-variant"}`}>
+                            {g.qr_token ? "QR Aktif" : "Belum QR"}
+                          </span>
+                        )}
                       </div>
                       <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-1 text-[11px]">
-                        <a href={guestQrUrl(g)} target="_blank" rel="noopener noreferrer" className="truncate text-secondary underline break-all">{guestQrUrl(g) || "—"}</a>
+                        {qrActive && (
+                          <a href={guestQrUrl(g)} target="_blank" rel="noopener noreferrer" className="truncate text-secondary underline break-all">{guestQrUrl(g) || "—"}</a>
+                        )}
                         <a href={guestInvUrl(g)} target="_blank" rel="noopener noreferrer" className="truncate text-primary underline break-all">{guestInvUrl(g) || "—"}</a>
                       </div>
                     </div>

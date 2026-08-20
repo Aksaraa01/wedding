@@ -89,27 +89,37 @@ export default function DashboardSidebar({
     fetch(`/api/dashboard/${id}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (cancelled || !data) return
-        setSelections(data.selections || {})
-        const p = data.profile
+        if (cancelled) return
+        setSelections((data && data.selections) || {})
+        const p = data && data.profile
         if (p) setCoupleName([p.bride_name, p.groom_name].filter(Boolean).join(" & "))
       })
-      .catch(() => {})
+      .catch(() => {
+        if (!cancelled) setSelections({})
+      })
     return () => {
       cancelled = true
     }
   }, [id])
 
-  const items = [
-    { key: "dasbor", label: "Dasbor", icon: "space_dashboard", route: `/dashboard/${id}`, active: pathname === `/dashboard/${id}` },
-    ...MODULES.filter((m) => !selections || selections[m.key] === true).map((m) => ({
-      key: m.key,
-      label: m.label,
-      icon: m.icon,
-      route: m.route(id),
-      active: m.match(pathname, id),
-    })),
-  ]
+  const loaded = selections !== null
+  const moduleItems = loaded
+    ? MODULES.filter((m) => selections[m.key] === true).map((m) => ({
+        key: m.key,
+        label: m.label,
+        icon: m.icon,
+        route: m.route(id),
+        active: m.match(pathname, id),
+      }))
+    : []
+
+  const dasborItem = {
+    key: "dasbor",
+    label: "Dasbor",
+    icon: "space_dashboard",
+    route: `/dashboard/${id}`,
+    active: pathname === `/dashboard/${id}`,
+  }
 
   return (
     <aside
@@ -161,21 +171,47 @@ export default function DashboardSidebar({
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-        {items.map((item) => (
-          <button
-            key={item.key}
-            onClick={() => router.push(item.route)}
-            title={collapsed ? item.label : undefined}
-            className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group ${
-              item.active
-                ? "bg-secondary text-white shadow-lg shadow-secondary/20"
-                : "text-[#f5f0e7]/65 hover:bg-white/10 hover:text-white"
-            } ${collapsed ? "justify-center" : ""}`}
-          >
-            <span className="material-symbols-outlined text-[20px] shrink-0">{item.icon}</span>
-            {!collapsed && <span className="text-[13px] font-medium truncate">{item.label}</span>}
-          </button>
-        ))}
+        <button
+          onClick={() => router.push(dasborItem.route)}
+          title={collapsed ? dasborItem.label : undefined}
+          className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group ${
+            dasborItem.active
+              ? "bg-secondary text-white shadow-lg shadow-secondary/20"
+              : "text-[#f5f0e7]/65 hover:bg-white/10 hover:text-white"
+          } ${collapsed ? "justify-center" : ""}`}
+        >
+          <span className="material-symbols-outlined text-[20px] shrink-0">{dasborItem.icon}</span>
+          {!collapsed && <span className="text-[13px] font-medium truncate">{dasborItem.label}</span>}
+        </button>
+
+        {!loaded ? (
+          <div className="space-y-1 mt-1">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div key={i} className={`flex items-center gap-3 px-3 py-3 ${collapsed ? "justify-center" : ""}`}>
+                <div className="w-5 h-5 rounded-md bg-white/10 animate-pulse shrink-0" />
+                {!collapsed && (
+                  <div className="h-3 rounded bg-white/10 animate-pulse" style={{ width: `${50 + (i % 3) * 18}%` }} />
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          moduleItems.map((item) => (
+            <button
+              key={item.key}
+              onClick={() => router.push(item.route)}
+              title={collapsed ? item.label : undefined}
+              className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group ${
+                item.active
+                  ? "bg-secondary text-white shadow-lg shadow-secondary/20"
+                  : "text-[#f5f0e7]/65 hover:bg-white/10 hover:text-white"
+              } ${collapsed ? "justify-center" : ""}`}
+            >
+              <span className="material-symbols-outlined text-[20px] shrink-0">{item.icon}</span>
+              {!collapsed && <span className="text-[13px] font-medium truncate">{item.label}</span>}
+            </button>
+          ))
+        )}
       </nav>
 
       {/* Footer */}

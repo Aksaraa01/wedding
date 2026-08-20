@@ -6,6 +6,7 @@ import {
   PACKAGE_PRICES,
   PACKAGE_OLD_PRICES,
   PACKAGE_LABELS,
+  PACKAGE_FEATURES,
   WA_TIER_PRICES,
   EXPRESS_FEE,
   calcTotal,
@@ -257,7 +258,7 @@ function Inner() {
     setWaBlastTier(0)
   }
 
-  const showWaTier = true // WA Blast VIP reminder is part of Prestige & every Buku Tamu tier
+  const showWaTier = PACKAGE_FEATURES[selectedPackage]?.includes("wa_blast") ?? false
   const activeCards = activeTab === "undangan" ? UNDANGAN_CARDS : DGB_CARDS
   const matrixVisibleCols = matrixCols.filter((col) => col.code !== "cetak_undangan_bonus")
 
