@@ -125,7 +125,11 @@ export default function OpsBoardPage() {
   }
 
   const filteredQueue = queue.filter((item) => {
-    if (petugas && item.assigned_to !== petugas) return false
+    if (petugas === "unassigned") {
+      if (item.assigned_to) return false
+    } else if (petugas && item.assigned_to !== petugas) {
+      return false
+    }
     if (!search) return true
     const q = search.toLowerCase()
     const wp = item.wedding_profile
@@ -162,7 +166,7 @@ export default function OpsBoardPage() {
           <div className="px-6 md:px-10 py-6 border-b border-outline-variant bg-surface-container-low">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
               <div>
-                <h2 className="font-headline-md text-2xl text-primary">Antrian Pembuatan Undangan</h2>
+                <h2 className="font-headline-md text-2xl text-primary">Antrian Proyek</h2>
                 <p className="text-xs text-on-surface-variant mt-1">
                   {queue.length} total &bull; {filteredQueue.length} tampil &bull; memperbarui otomatis tiap 20 detik
                 </p>
@@ -176,6 +180,7 @@ export default function OpsBoardPage() {
                     className="w-full sm:w-48 bg-white border border-outline-variant pl-9 pr-4 py-2.5 text-sm focus:ring-0 focus:border-primary font-body-md outline-none"
                   >
                     <option value="">Semua Petugas</option>
+                    <option value="unassigned">Tanpa Petugas</option>
                     {employees.map((emp) => (
                       <option key={emp.id} value={emp.id}>{emp.name}</option>
                     ))}

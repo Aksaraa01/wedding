@@ -12,7 +12,6 @@ import {
   PACKAGE_LABELS,
   FEATURE_LABELS,
   WA_BLAST_LABELS,
-  NO_ACTION_KEYS,
   CARD_PRIORITY,
   formatCurrency,
   formatDate,
@@ -278,15 +277,6 @@ export default function AntrianDetail({ id }: { id: string }) {
     }
   }
 
-  const updateFeature = async (key: string, status: string) => {
-    await fetch(`/api/ops/queue/${id}/feature/${key}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    })
-    fetchAll()
-  }
-
   const fetchInvitationData = async (wpId: string) => {
     setInvLoading(true)
     try {
@@ -310,6 +300,9 @@ export default function AntrianDetail({ id }: { id: string }) {
   }
 
   const profileSlug = currentWp?.slug || ""
+  const waCustomerUrl = currentWp?.whatsapp_number
+    ? `https://wa.me/${currentWp.whatsapp_number.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Halo ${currentWp.bride_name} & ${currentWp.groom_name}, saya dari Aksaraa CORE OPS terkait proyek undangan Anda`)}`
+    : "#"
   const guestInvUrl = (g: { slug?: string | null; name?: string; qr_token?: string | null }) =>
     g.slug ? `https://${profileSlug}.wedding.aksaraa.com/?to=${g.slug}` : ""
   const guestQrUrl = (g: { slug?: string | null; qr_token?: string | null }) =>
@@ -494,6 +487,14 @@ export default function AntrianDetail({ id }: { id: string }) {
               </div>
             </div>
             <div className="flex flex-wrap gap-4 items-center">
+              <a
+                href={waCustomerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-5 py-3 bg-primary text-on-primary text-[10px] font-bold uppercase tracking-widest hover:bg-secondary transition-colors"
+              >
+                Hubungi Customer
+              </a>
               <div className="flex flex-col">
                 <label className="font-label-md text-[10px] uppercase tracking-widest mb-1">Petugas Konsultan</label>
                 <select
@@ -604,23 +605,6 @@ export default function AntrianDetail({ id }: { id: string }) {
                 return pa - pb
               })
               .map((fa) => {
-                const isSelesai = fa.status === "selesai"
-                const isButuh = fa.status === "butuh_tindakan"
-                const noAction = NO_ACTION_KEYS.has(fa.feature_key)
-                const statusBadgeClass = isButuh
-                  ? "bg-error-container text-on-error-container"
-                  : isSelesai
-                    ? "bg-tertiary-container text-on-tertiary-container"
-                    : "bg-surface-container-highest text-on-surface-variant"
-                const statusLabel = fa.status === "butuh_tindakan"
-                  ? "Butuh Tindakan"
-                  : fa.status === "selesai"
-                    ? "Selesai"
-                    : "Aktif"
-                const waUrl = currentWp.whatsapp_number
-                  ? `https://wa.me/${currentWp.whatsapp_number.replace(/[^0-9]/g, "")}?text=Halo%20${encodeURIComponent(currentWp.bride_name)}%20%26%20${encodeURIComponent(currentWp.groom_name)}%2C%20saya%20dari%20Aksaraa%20CORE%20OPS%20terkait%20${encodeURIComponent(FEATURE_LABELS[fa.feature_key] || fa.feature_key)}`
-                  : "#"
-
                 return (
                   <div
                     key={fa.id}
@@ -630,11 +614,6 @@ export default function AntrianDetail({ id }: { id: string }) {
                       <h4 className="font-display-lg text-base leading-tight">
                         {FEATURE_LABELS[fa.feature_key] || fa.feature_key}
                       </h4>
-                      {!noAction && (
-                        <span className={`text-[9px] px-2 py-0.5 uppercase font-bold tracking-widest shrink-0 ml-3 ${statusBadgeClass}`}>
-                          {statusLabel}
-                        </span>
-                      )}
                     </div>
 
                     {(() => {
@@ -682,13 +661,20 @@ export default function AntrianDetail({ id }: { id: string }) {
                     })()}
 
                     {fa.feature_key === "unique_link_generator" && (
-                      <div className="mb-4 flex items-center gap-3">
+                      <div className="mb-4 flex flex-wrap items-center gap-3">
                         <button
                           onClick={openQrModal}
                           className="px-4 py-2.5 border border-primary text-primary font-label-md text-[10px] uppercase tracking-widest hover:bg-primary hover:text-on-primary transition-colors flex items-center gap-2"
                         >
                           <span className="material-symbols-outlined text-sm">qr_code_2</span>
                           Lihat Daftar Tamu &amp; Link
+                        </button>
+                        <button
+                          onClick={handleGenerateQr}
+                          disabled={qrGenerating}
+                          className="px-4 py-2.5 border border-outline-variant text-[9px] font-bold uppercase tracking-widest hover:border-primary transition-all disabled:opacity-50"
+                        >
+                          {qrGenerating ? "Membuat..." : "Generate QR"}
                         </button>
                         <span className="text-[10px] text-on-surface-variant">{detail.guest_stats.with_token}/{detail.guest_stats.total} QR Aktif</span>
                       </div>
@@ -777,8 +763,8 @@ export default function AntrianDetail({ id }: { id: string }) {
                                   {fb.status === "resolved" ? "Selesai" : fb.status === "in_progress" ? "Proses" : "Tunggu"}
                                 </span>
                               </div>
-                              <p className="font-body-md text-[10px] italic text-on-surface-variant/80 leading-relaxed">
-                                &ldquo;{fb.description.length > 80 ? `${fb.description.slice(0, 80)}...` : fb.description}&rdquo;
+                              <p className="font-body-md text-[10px] italic text-on-surface-variant/80 leading-relaxed whitespace-pre-wrap break-words">
+                                &ldquo;{fb.description}&rdquo;
                               </p>
                               {images.length > 0 && (
                                 <div className="flex gap-1 mt-1.5">
@@ -810,71 +796,10 @@ export default function AntrianDetail({ id }: { id: string }) {
                         disabled={invLoading}
                         className="w-full mb-4 py-3 border border-secondary text-secondary text-[9px] font-bold uppercase tracking-widest hover:bg-secondary hover:text-on-secondary transition-all disabled:opacity-40"
                       >
-                        {invLoading ? "Memuat..." : "Lihat Undangan Digital"}
+                        {invLoading ? "Memuat..." : "Detail Undangan Digital"}
                       </button>
                     )}
 
-                    <div className="mt-auto flex gap-2 pt-4 border-t border-outline-variant/40">
-                      {noAction ? (
-                        fa.feature_key === "unique_link_generator" ? (
-                          <>
-                            <a
-                              href={waUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex-1 py-2.5 border border-primary text-[9px] font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all text-center block"
-                            >
-                              Hubungi WA
-                            </a>
-                            <button
-                              onClick={handleGenerateQr}
-                              disabled={qrGenerating}
-                              className="flex-1 py-2.5 border border-outline-variant text-[9px] font-bold uppercase tracking-widest hover:border-primary transition-all disabled:opacity-50"
-                            >
-                              {qrGenerating ? "Membuat..." : "Generate QR"}
-                            </button>
-                          </>
-                        ) : (
-                          <a
-                            href={waUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex-1 py-2.5 border border-primary text-[9px] font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all text-center block"
-                          >
-                            Hubungi WA
-                          </a>
-                        )
-                      ) : isSelesai ? (
-                        <>
-                          <button
-                            disabled
-                            className="flex-1 py-2.5 border border-outline-variant text-[9px] font-bold uppercase tracking-widest opacity-40 cursor-not-allowed"
-                          >
-                            Hubungi WA
-                          </button>
-                          <button className="flex-1 py-2.5 bg-primary text-white text-[9px] font-bold uppercase tracking-widest cursor-default">
-                            Selesai
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <a
-                            href={waUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex-1 py-2.5 border border-primary text-[9px] font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all text-center block"
-                          >
-                            Hubungi WA
-                          </a>
-                          <button
-                            onClick={() => updateFeature(fa.feature_key, "selesai")}
-                            className="flex-1 py-2.5 border border-outline-variant text-[9px] font-bold uppercase tracking-widest hover:border-primary transition-all"
-                          >
-                            Selesaikan
-                          </button>
-                        </>
-                      )}
-                    </div>
                   </div>
                 )
               })}
@@ -1279,6 +1204,18 @@ export default function AntrianDetail({ id }: { id: string }) {
                         <p className="font-label-md text-[8px] uppercase tracking-widest text-on-surface-variant mb-1">Link Undangan</p>
                         <a href={invitationData.profile.invitation_url} target="_blank" rel="noopener noreferrer" className="font-body-md text-sm text-primary underline break-all">
                           {invitationData.profile.invitation_url}
+                        </a>
+                      </div>
+                    </>
+                  )}
+
+                  {invitationData.profile?.active_wp_post_url && (
+                    <>
+                      <div className="border-t border-outline-variant/40" />
+                      <div className="bg-surface-container-low p-4 text-center">
+                        <p className="font-label-md text-[8px] uppercase tracking-widest text-on-surface-variant mb-1">Link Post WordPress</p>
+                        <a href={invitationData.profile.active_wp_post_url} target="_blank" rel="noopener noreferrer" className="font-body-md text-sm text-primary underline break-all">
+                          {invitationData.profile.active_wp_post_url}
                         </a>
                       </div>
                     </>

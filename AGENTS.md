@@ -160,6 +160,10 @@ Run a local standalone build pointed at the **staging** Supabase and smoke test 
    set -a; source .env.local.prod; set +a; npm run build
    ```
 
+### Production testing policy
+- Testing on **production** must ONLY touch the rafi-novi couple (profile `wedding_profiles.id` `6a7ad151-c3b4-43e8-8429-0b58b4d0736b`, queue `ops_queue.id` `39936c3e-a136-405f-a39b-e469b3e7997c`, WA `+62823`, slug `rafi-novi`). Do NOT modify data of any other user/couple on prod.
+- Prod testing sometimes requires DB changes (status flips, feedback_submissions updates, payment flags, etc.). Apply them to the rafi-novi profile only, ideally via one-off scripts using `SUPABASE_SERVICE_ROLE_KEY` from `.env.local.prod`, and revert afterwards when the test is for a one-way action (e.g. status transitions with audit-log side-effects).
+
 ### Deploy
 The VPS has 2GB RAM and CANNOT run `next build`. Build locally, rsync the standalone output, then restart PM2 on the server.
 

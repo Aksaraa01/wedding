@@ -125,8 +125,8 @@ function FeedbackInner({ id }: { id: string }) {
                       </div>
 
                       {isLatest ? (
-                        <div className="bg-surface-container-low p-6 border-l-2 border-secondary">
-                          <p className="font-body-md text-body-md italic text-on-surface-variant leading-relaxed">
+                        <div className="bg-surface-container-low p-6 border-l-2 border-secondary overflow-hidden">
+                          <p className="font-body-md text-body-md italic text-on-surface-variant leading-relaxed whitespace-pre-wrap break-words min-w-0">
                             &ldquo;{sub.description}&rdquo;
                           </p>
                           {areaLabel && (
@@ -144,7 +144,7 @@ function FeedbackInner({ id }: { id: string }) {
                         </div>
                       ) : (
                         <div className="space-y-4">
-                          <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">{sub.description}</p>
+                          <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed whitespace-pre-wrap break-words min-w-0">{sub.description}</p>
                           {areaLabel && (
                             <p className="font-label-md text-label-md text-outline uppercase tracking-tighter">Area: {areaLabel}</p>
                           )}

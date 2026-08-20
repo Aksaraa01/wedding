@@ -95,12 +95,11 @@ export async function PUT(
         await autoGenerateGuestLinks(profileId, guests)
       }
     } else if (status === "feedback_progress" || status === "feedback_selesai") {
-      if (latestFb) {
-        const patch = status === "feedback_selesai"
-          ? { status: "resolved", resolved_at: new Date().toISOString() }
-          : { status: "in_progress" }
-        await supabaseAdmin.from("feedback_submissions").update(patch).eq("id", latestFb.id)
-      }
+      const patch = { status: status === "feedback_selesai" ? "resolved" : "in_progress" }
+      await supabaseAdmin
+        .from("feedback_submissions")
+        .update(patch)
+        .eq("wedding_profile_id", profileId)
     }
 
     const phone = req.headers.get("x-ops-phone") || ""
