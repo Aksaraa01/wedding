@@ -30,9 +30,9 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
   const [weddingProfileId, setWeddingProfileId] = useState("")
   const [guestId, setGuestId] = useState("")
   const [guestQrToken, setGuestQrToken] = useState("")
-  const [photoUploaded, setPhotoUploaded] = useState(false)
   const [photoUploading, setPhotoUploading] = useState(false)
-  const [photoUrl, setPhotoUrl] = useState("")
+  const [photoUrls, setPhotoUrls] = useState<string[]>([])
+  const [photoQuota, setPhotoQuota] = useState(0)
   const [gates, setGates] = useState<{ wish_wall: boolean; galeri_foto_tamu: boolean }>({ wish_wall: true, galeri_foto_tamu: true })
 
   useEffect(() => {
@@ -58,6 +58,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
         setEventDate(formatDate(data.profile.estimated_wedding_date || ""))
         setWeddingProfileId(data.guest.wedding_profile_id)
         if (data.gates) setGates(data.gates)
+        if (typeof data.photoQuota === "number") setPhotoQuota(data.photoQuota)
 
         if (!data.guest.is_checked_in) {
           await fetch("/api/check-in", {
@@ -76,12 +77,8 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
           }
           const photoCheck = await fetch(`/api/guest-photos?guest_id=${data.guest.id}`)
           const photoData = await photoCheck.json()
-          if (photoData.exists) {
-            setPhotoUploaded(true)
-          }
-          if (photoData.photo?.image_url) {
-            setPhotoUrl(photoData.photo.image_url)
-          }
+          const photos = Array.isArray(photoData.photos) ? photoData.photos.map((p: { image_url: string }) => p.image_url).filter(Boolean) : []
+          setPhotoUrls(photos)
         }
 
         const url = `${window.location.origin}/welcome/${guestToken}`
@@ -98,31 +95,40 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
   }, [ref])
 
   const handleUploadPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file || !guestId || !weddingProfileId) return
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0 || !guestId || !weddingProfileId) return
 
-    if (!file.type.startsWith("image/")) { alert("File harus berupa gambar"); return }
-    if (file.size > 5 * 1024 * 1024) { alert("Ukuran file maksimal 5MB"); return }
+    const quota = Math.max(photoQuota, 1)
+    const remaining = Math.max(0, quota - photoUrls.length)
+    if (remaining <= 0) { alert("Kuota foto Anda sudah terpenuhi"); return }
 
     setPhotoUploading(true)
     try {
-      const formData = new FormData()
-      formData.append("file", file)
-      formData.append("guest_id", guestId)
-      formData.append("wedding_profile_id", weddingProfileId)
-      const res = await fetch("/api/guest-photos/upload", { method: "POST", body: formData })
-      if (res.ok) {
-        const result = await res.json()
-        setPhotoUrl(result.photo?.image_url || "")
-        setPhotoUploaded(true)
-      } else {
-        const err = await res.json()
-        alert(err.error || "Gagal mengunggah foto")
+      const accepted = files.slice(0, remaining)
+      for (const file of accepted) {
+        if (!file.type.startsWith("image/")) { alert(`"${file.name}" bukan gambar`); continue }
+        if (file.size > 5 * 1024 * 1024) { alert(`"${file.name}" melebihi 5MB`); continue }
+        const formData = new FormData()
+        formData.append("file", file)
+        formData.append("guest_id", guestId)
+        formData.append("wedding_profile_id", weddingProfileId)
+        const res = await fetch("/api/guest-photos/upload", { method: "POST", body: formData })
+        if (res.ok) {
+          const result = await res.json()
+          if (result.photo?.image_url) {
+            setPhotoUrls((prev) => [...prev, result.photo.image_url])
+          }
+        } else {
+          const err = await res.json()
+          alert(err.error || "Gagal mengunggah foto")
+          break
+        }
       }
     } catch {
       alert("Gagal mengunggah foto")
     } finally {
       setPhotoUploading(false)
+      if (e.target) e.target.value = ""
     }
   }
 
@@ -306,28 +312,38 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
             <p className="text-xs text-on-surface-variant mt-1">Bagikan momen berharga hari ini dari sudut pandang Anda.</p>
           </div>
 
-          {photoUploaded ? (
+          {photoUrls.length > 0 && (
+            <div className="grid grid-cols-3 gap-2 mb-6">
+              {photoUrls.map((url, i) => (
+                <div key={i} className="relative aspect-square rounded-lg overflow-hidden shadow-sm border border-white/20 bg-surface-container-lowest">
+                  <img src={url} alt={`Momen ${i + 1}`} className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {photoQuota > 0 && photoUrls.length >= photoQuota && (
             <div className="flex flex-col items-center text-center py-4">
               <div className="w-16 h-16 rounded-full bg-emerald-600/10 flex items-center justify-center mb-6">
                 <span className="material-symbols-outlined text-emerald-700 text-3xl" style={{ fontVariationSettings: "'wght' 400" }}>check_circle</span>
               </div>
-              <h4 className="font-headline-md text-xl text-primary mb-2">Momen Anda Berhasil Terkirim</h4>
+              <h4 className="font-headline-md text-xl text-primary mb-2">Semua Momen Berhasil Terkirim</h4>
               <p className="text-sm text-on-surface-variant mb-8">Terima kasih telah berbagi kebahagiaan hari ini.</p>
-              {photoUrl && (
-                <div className="flex justify-center mb-8 w-full">
-                  <div className="relative w-40 aspect-[3/4] rounded-lg overflow-hidden shadow-lg border border-white/20 rotate-2">
-                    <img src={photoUrl} alt="Uploaded moment" className="w-full h-full object-cover" />
-                  </div>
-                </div>
-              )}
             </div>
-          ) : (
+          )}
+
+          {photoUrls.length < Math.max(photoQuota, 1) && (
             <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-outline-variant/30 rounded-xl bg-surface-container-lowest/50">
               <label className="flex flex-col items-center gap-3 px-8 py-6 rounded-xl border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-95 group cursor-pointer">
-                <input type="file" accept="image/*" className="hidden" onChange={handleUploadPhoto} disabled={photoUploading} />
+                <input type="file" accept="image/*" multiple className="hidden" onChange={handleUploadPhoto} disabled={photoUploading} />
                 <span className="material-symbols-outlined text-4xl text-secondary transition-transform group-hover:scale-110">{photoUploading ? "hourglass_top" : "add_a_photo"}</span>
-                <span className="font-label-md text-xs uppercase tracking-widest">{photoUploading ? "Mengunggah..." : "Unggah Foto Momen"}</span>
+                <span className="font-label-md text-xs uppercase tracking-widest">{photoUploading ? "Mengunggah..." : photoUrls.length > 0 ? "Unggah Lagi" : "Unggah Foto Momen"}</span>
               </label>
+              {photoQuota > 0 && photoUrls.length < photoQuota && (
+                <p className="text-[10px] text-on-surface-variant mt-3 uppercase tracking-wider">
+                  {photoUrls.length} / {photoQuota} foto terunggah
+                </p>
+              )}
             </div>
           )}
         </section>

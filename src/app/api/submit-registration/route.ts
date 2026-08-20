@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { calcTotal, deriveSelections, normalizePhone } from "@/lib/packages"
+import { calcTotal, deriveSelections, normalizePhone, PACKAGE_CODES } from "@/lib/packages"
 
 export async function POST(req: Request) {
   try {
@@ -20,6 +20,10 @@ export async function POST(req: Request) {
 
     if (!bride_name || !groom_name || !slug) {
       return NextResponse.json({ error: "Data pengantin tidak lengkap" }, { status: 400 })
+    }
+
+    if (package_type && !PACKAGE_CODES.includes(package_type)) {
+      return NextResponse.json({ error: "Paket tidak valid" }, { status: 400 })
     }
 
     const firstNamePart = (name: string) => (name || "").trim().split(/\s+/)[0]?.toLowerCase() || ""

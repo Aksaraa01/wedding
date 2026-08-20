@@ -97,7 +97,14 @@ const PACKAGE_NAMES: Record<string, string> = {
   essential: "Essential",
   signature: "Signature",
   prestige: "Prestige",
+  cetak_undangan_bonus: "BONUS",
+  dgb_sistem: "Sistem",
+  dgb_pro: "Pro",
+  dgb_premium: "Premium",
+  dgb_prestige: "Prestige",
 }
+
+const INITIAL_AVAILABLE_IN = ["essential", "signature", "prestige", "cetak_undangan_bonus", "dgb_sistem", "dgb_pro", "dgb_premium", "dgb_prestige"]
 
 function upgradeMessage(availableIn: string[]): string {
   const names = availableIn.map(p => PACKAGE_NAMES[p] || p).join(" & ")
@@ -150,10 +157,10 @@ function EditorInner({ id }: { id: string }) {
   const [feedbackCount, setFeedbackCount] = useState<number | null>(null)
   const [feedbackLoading, setFeedbackLoading] = useState(true)
   const [gates, setGates] = useState<RowGates>({
-    gift_address: { included: true, availableIn: ["essential", "signature", "prestige"] },
-    inviting_families: { included: true, availableIn: ["essential", "signature", "prestige"] },
-    story: { included: true, availableIn: ["essential", "signature", "prestige"] },
-    cinematic_video: { included: true, availableIn: ["essential", "signature", "prestige"] },
+    gift_address: { included: true, availableIn: [...INITIAL_AVAILABLE_IN] },
+    inviting_families: { included: true, availableIn: [...INITIAL_AVAILABLE_IN] },
+    story: { included: true, availableIn: [...INITIAL_AVAILABLE_IN] },
+    cinematic_video: { included: true, availableIn: [...INITIAL_AVAILABLE_IN] },
   })
   const [featureSet, setFeatureSet] = useState<Set<string>>(new Set())
   const saveTimer = useRef<ReturnType<typeof setTimeout>>(null)

@@ -1,8 +1,6 @@
-export const PACKAGE_LABELS: Record<string, string> = {
-  essential: "Essential",
-  signature: "Signature",
-  prestige: "Prestige",
-}
+import { PACKAGE_LABELS as PACKAGE_LABELS_MAP } from "@/lib/packages"
+
+export const PACKAGE_LABELS: Record<string, string> = PACKAGE_LABELS_MAP
 
 export const FEATURE_LABELS: Record<string, string> = {
   premium_web: "Undangan Digital",

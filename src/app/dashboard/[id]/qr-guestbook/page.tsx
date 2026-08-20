@@ -26,6 +26,8 @@ type Profile = {
   slug: string
   bride_name: string
   groom_name: string
+  estimated_wedding_date: string | null
+  estimated_guest_count: number | null
 }
 
 type Stats = {
@@ -231,24 +233,38 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
     }
     setExporting(true)
     try {
-      const header = ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Tautan QR", "Tautan Undangan", "Sumber"]
-      const rows = guests.map((g) => [g.name, g.phone_number || "", g.category || "", g.table_number || "", guestQrUrl(g), guestUndanganUrl(g), g.added_manually ? "Ditambahkan Manual" : "Undangan QR"])
+      const header = qrCodeBook
+        ? ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Tautan QR", "Tautan Undangan", "Sumber"]
+        : ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Tautan Undangan", "Sumber"]
+      const rows = guests.map((g) => qrCodeBook
+        ? [g.name, g.phone_number || "", g.category || "", g.table_number || "", guestQrUrl(g), guestUndanganUrl(g), g.added_manually ? "Ditambahkan Manual" : "Undangan QR"]
+        : [g.name, g.phone_number || "", g.category || "", g.table_number || "", guestUndanganUrl(g), g.added_manually ? "Ditambahkan Manual" : "Undangan QR"])
       const ws = XLSX.utils.aoa_to_sheet([header, ...rows])
-      ws["!cols"] = [
-        { wch: 28 },
-        { wch: 18 },
-        { wch: 16 },
-        { wch: 12 },
-        { wch: 55 },
-        { wch: 55 },
-      ]
+      ws["!cols"] = qrCodeBook
+        ? [
+            { wch: 28 },
+            { wch: 18 },
+            { wch: 16 },
+            { wch: 12 },
+            { wch: 55 },
+            { wch: 55 },
+          ]
+        : [
+            { wch: 28 },
+            { wch: 18 },
+            { wch: 16 },
+            { wch: 12 },
+            { wch: 55 },
+          ]
       for (let r = 2; r <= rows.length + 1; r++) {
-        const qrRef = XLSX.utils.encode_cell({ r: r - 1, c: 4 })
-        const undRef = XLSX.utils.encode_cell({ r: r - 1, c: 5 })
-        const qrVal = ws[qrRef]?.v
+        const undRef = XLSX.utils.encode_cell({ r: r - 1, c: qrCodeBook ? 5 : 4 })
         const undVal = ws[undRef]?.v
-        if (qrVal) ws[qrRef].l = { Target: String(qrVal), Tooltip: String(qrVal) }
         if (undVal) ws[undRef].l = { Target: String(undVal), Tooltip: String(undVal) }
+        if (qrCodeBook) {
+          const qrRef = XLSX.utils.encode_cell({ r: r - 1, c: 4 })
+          const qrVal = ws[qrRef]?.v
+          if (qrVal) ws[qrRef].l = { Target: String(qrVal), Tooltip: String(qrVal) }
+        }
       }
       const wb = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(wb, ws, "Tautan & QR Tamu")
@@ -429,21 +445,29 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
         </div>
       </main>
 
-      {/* Prestige-only Modal */}
+      {/* QR book feature limit — only Buku Tamu Digital packages include it */}
       {showLimitModal && (
         <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
             <div className="flex flex-col items-center text-center gap-4">
               <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-secondary text-2xl">workspace_premium</span>
+                <span className="material-symbols-outlined text-secondary text-2xl">qr_code_scanner</span>
               </div>
-              <h3 className="font-headline-md text-lg font-medium text-primary">Hanya tersedia pada paket Prestige</h3>
-              <p className="text-sm text-on-surface-variant">Upgrade paket kamu untuk mengaktifkan fitur QR Guest Book.</p>
+              <h3 className="font-headline-md text-lg font-medium text-primary">Fitur Buku Tamu Digital</h3>
+              <p className="text-sm text-on-surface-variant">
+                QR tamu dan QR Guest Book hanya tersedia pada paket Buku Tamu Digital. Ubah paket Anda untuk mengaktifkan fitur ini.
+              </p>
               <button
-                onClick={() => setShowLimitModal(false)}
+                onClick={() => router.push(`/customize?edit=true&tab=dgbook&user=${encodeURIComponent(profile?.bride_name || "")}&partner=${encodeURIComponent(profile?.groom_name || "")}&date=${encodeURIComponent(profile?.estimated_wedding_date || "")}&guest=${encodeURIComponent(String(profile?.estimated_guest_count || 300))}&profile_id=${id}`)}
                 className="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
               >
-                OK, Mengerti
+                Ubah ke Buku Tamu Digital
+              </button>
+              <button
+                onClick={() => setShowLimitModal(false)}
+                className="w-full border border-outline-variant text-on-surface-variant py-3 rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+              >
+                Nanti Saja
               </button>
             </div>
           </div>

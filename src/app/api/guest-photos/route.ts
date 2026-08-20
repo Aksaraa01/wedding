@@ -12,8 +12,9 @@ export async function GET(req: NextRequest) {
         .from("guest_photos")
         .select("id, image_url")
         .eq("guest_id", guestId)
-        .maybeSingle()
-      return NextResponse.json({ exists: !!data, photo: data || null })
+        .order("created_at", { ascending: true })
+      const photos = data || []
+      return NextResponse.json({ exists: photos.length > 0, photos })
     }
 
     if (!weddingProfileId) {

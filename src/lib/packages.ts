@@ -1,7 +1,57 @@
 export const PACKAGE_PRICES: Record<string, number> = {
-  essential: 249000,
-  signature: 399000,
+  cetak_undangan_bonus: 100000,
+  essential: 199000,
+  signature: 299000,
   prestige: 499000,
+  dgb_sistem: 699000,
+  dgb_pro: 1699000,
+  dgb_premium: 2199000,
+  dgb_prestige: 2699000,
+}
+
+export const PACKAGE_OLD_PRICES: Record<string, number | null> = {
+  cetak_undangan_bonus: null,
+  essential: 299000,
+  signature: 450000,
+  prestige: 750000,
+  dgb_sistem: 999000,
+  dgb_pro: 2275000,
+  dgb_premium: 2950000,
+  dgb_prestige: 3600000,
+}
+
+export const PACKAGE_LABELS: Record<string, string> = {
+  cetak_undangan_bonus: "BONUS (Cetak Undangan)",
+  essential: "Essential",
+  signature: "Signature",
+  prestige: "Prestige",
+  dgb_sistem: "Sistem",
+  dgb_pro: "Pro",
+  dgb_premium: "Premium",
+  dgb_prestige: "Prestige",
+}
+
+export const PACKAGE_CODES = [
+  "essential",
+  "signature",
+  "prestige",
+  "cetak_undangan_bonus",
+  "dgb_sistem",
+  "dgb_pro",
+  "dgb_premium",
+  "dgb_prestige",
+] as const
+
+export type PackageCode = (typeof PACKAGE_CODES)[number]
+
+// Packages that ship with the base 100-VIP reminder quota (prestige + all Buku
+// Tamu Digital tiers; per matrix "Reminder otomatis ke 100 Customers VIP").
+export function hasVipQuotaBase(packageType: string): boolean {
+  return packageType === "prestige" || packageType.startsWith("dgb_")
+}
+
+export function matrixColumnForPackage(packageType: string, suffix: "value" | "emphasis"): string {
+  return `${packageType}_${suffix}`
 }
 
 export const WA_TIER_PRICES: Record<number, number> = {
@@ -12,13 +62,38 @@ export const WA_TIER_PRICES: Record<number, number> = {
 
 export const EXPRESS_FEE = 250000
 
-const PACKAGE_FEATURES: Record<string, string[]> = {
+export const PACKAGE_FEATURES: Record<string, string[]> = {
   essential: ["premium_web", "reservation_automation", "unique_link_generator", "kolom_direct_transfer"],
   signature: ["premium_web", "wish_wall", "reservation_automation", "unique_link_generator", "kolom_direct_transfer"],
   prestige: [
     "premium_web", "wish_wall", "reservation_automation",
-    "kolom_direct_transfer", "galeri_foto_tamu",
-    "qr_code_book", "unique_link_generator", "wa_blast",
+    "kolom_direct_transfer", "unique_link_generator", "wa_blast",
+  ],
+  // BONUS (cetak undangan, assigned via OPS) = Signature-minus.
+  cetak_undangan_bonus: [
+    "premium_web", "wish_wall", "reservation_automation",
+    "unique_link_generator", "kolom_direct_transfer",
+  ],
+  // Buku Tamu Digital tiers carry the full set (prestige + QR book + gallery).
+  dgb_sistem: [
+    "premium_web", "wish_wall", "reservation_automation",
+    "unique_link_generator", "kolom_direct_transfer",
+    "galeri_foto_tamu", "qr_code_book", "wa_blast",
+  ],
+  dgb_pro: [
+    "premium_web", "wish_wall", "reservation_automation",
+    "unique_link_generator", "kolom_direct_transfer",
+    "galeri_foto_tamu", "qr_code_book", "wa_blast",
+  ],
+  dgb_premium: [
+    "premium_web", "wish_wall", "reservation_automation",
+    "unique_link_generator", "kolom_direct_transfer",
+    "galeri_foto_tamu", "qr_code_book", "wa_blast",
+  ],
+  dgb_prestige: [
+    "premium_web", "wish_wall", "reservation_automation",
+    "unique_link_generator", "kolom_direct_transfer",
+    "galeri_foto_tamu", "qr_code_book", "wa_blast",
   ],
 }
 

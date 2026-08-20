@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { calcTotal, deriveSelections } from "@/lib/packages"
+import { calcTotal, deriveSelections, PACKAGE_CODES } from "@/lib/packages"
 
 export async function PUT(
   req: Request,
@@ -10,6 +10,10 @@ export async function PUT(
     const { profile_id } = await params
     const body = await req.json()
     const { package_type, wa_blast_tier, express_service, undangan_fisik } = body
+
+    if (package_type && !PACKAGE_CODES.includes(package_type)) {
+      return NextResponse.json({ error: "Paket tidak valid" }, { status: 400 })
+    }
 
     const total = calcTotal(
       package_type || "signature",

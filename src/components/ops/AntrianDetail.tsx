@@ -467,9 +467,9 @@ export default function AntrianDetail({ id }: { id: string }) {
                     onChange={(e) => updatePackage(e.target.value)}
                     className="bg-white border border-outline-variant text-sm font-bold text-primary py-1 px-2 focus:ring-0 focus:border-primary font-body-md cursor-pointer"
                   >
-                    <option value="essential">Essential</option>
-                    <option value="signature">Signature</option>
-                    <option value="prestige">Prestige</option>
+                    {Object.entries(PACKAGE_LABELS).map(([code, label]) => (
+                      <option key={code} value={code}>{label}</option>
+                    ))}
                   </select>
                 </div>
                 <div className="flex items-center gap-2">

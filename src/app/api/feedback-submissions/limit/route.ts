@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { matrixColumnForPackage } from "@/lib/packages"
 
 export async function GET(req: NextRequest) {
   try {
@@ -26,11 +27,9 @@ export async function GET(req: NextRequest) {
       .eq("label", "Batas Revisi")
       .single()
 
-    const packageCol = profile.package_type === "essential" ? "essential_value"
-      : profile.package_type === "signature" ? "signature_value"
-      : "prestige_value"
+    const packageCol = matrixColumnForPackage(profile.package_type, "value")
 
-    const limitRaw = matrixRow?.[packageCol as keyof typeof matrixRow] as string || "2 Round"
+    const limitRaw = matrixRow?.[packageCol] as string || "2 Round"
     const maxRevisions = parseInt(limitRaw) || 2
 
     const { count: existingCount } = await supabaseAdmin

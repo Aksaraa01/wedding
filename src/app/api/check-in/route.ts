@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { getFeatureIncluded } from "@/lib/featureGates"
+import { getFeatureIncluded, getGuestPhotoQuota } from "@/lib/featureGates"
 
 export async function POST(req: NextRequest) {
   try {
@@ -165,8 +165,9 @@ export async function GET(req: NextRequest) {
       wish_wall: features.has("wish_wall"),
       galeri_foto_tamu: features.has("galeri_foto_tamu"),
     }
+    const photoQuota = await getGuestPhotoQuota(profile.package_type || "signature")
 
-    return NextResponse.json({ guest, profile, gates })
+    return NextResponse.json({ guest, profile, gates, photoQuota })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

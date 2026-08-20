@@ -4,6 +4,7 @@ import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import ProfileMenu from "@/components/ProfileMenu"
+import { PACKAGE_CODES, PACKAGE_FEATURES, PACKAGE_LABELS as PACKAGE_LABEL } from "@/lib/packages"
 
 type Step = {
   key: string
@@ -28,22 +29,12 @@ type Selections = {
   wa_blast: boolean
 }
 
-const PACKAGE_LABEL: Record<string, string> = {
-  essential: "Essential",
-  signature: "Signature",
-  prestige: "Prestige",
-}
-
-// feature_code -> packages that include it (source of truth: packages.ts)
-const AVAILABLE_IN: Record<string, string[]> = {
-  premium_web: ["essential", "signature", "prestige"],
-  reservation_automation: ["essential", "signature", "prestige"],
-  unique_link_generator: ["essential", "signature", "prestige"],
-  kolom_direct_transfer: ["essential", "signature", "prestige"],
-  wish_wall: ["signature", "prestige"],
-  galeri_foto_tamu: ["prestige"],
-  qr_code_book: ["prestige"],
-  wa_blast: ["prestige"],
+// feature_code -> packages that include it (derived from single source of truth: packages.ts)
+const AVAILABLE_IN: Record<string, string[]> = {}
+for (const pkg of PACKAGE_CODES) {
+  for (const feat of PACKAGE_FEATURES[pkg] || []) {
+    ;(AVAILABLE_IN[feat] = AVAILABLE_IN[feat] || []).push(pkg)
+  }
 }
 
 const STEPS: Step[] = [

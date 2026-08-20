@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { cachedRead } from "@/lib/refCache"
+import { matrixColumnForPackage } from "@/lib/packages"
 
 export type GateInfo = {
   included: boolean
@@ -14,7 +15,16 @@ export type RowGates = {
 }
 
 const GATE_CODES = ["gift_address", "inviting_families", "story", "cinematic_video"] as const
-const PACKAGES = ["essential", "signature", "prestige"] as const
+const PACKAGES = [
+  "essential",
+  "signature",
+  "prestige",
+  "cetak_undangan_bonus",
+  "dgb_sistem",
+  "dgb_pro",
+  "dgb_premium",
+  "dgb_prestige",
+] as const
 
 function rowIncluded(value: string | null, emphasis: string | null): boolean {
   return (value ?? "—") !== "—" && (emphasis ?? "") !== "muted"
@@ -85,9 +95,27 @@ export async function getPhotoQuota(packageType: string): Promise<number | null>
       .maybeSingle()
 
     if (!data) return null
-    const value = (data as Record<string, unknown>)[`${packageType}_value`]
+    const value = (data as Record<string, unknown>)[matrixColumnForPackage(packageType, "value")]
     if (value === null || value === undefined) return null
     const m = String(value).match(/(\d+)/)
     return m ? parseInt(m[1], 10) : null
+  })
+}
+
+// Photo-by-guest quota ("Photo by Guest" matrix row): how many photos a single
+// guest may upload via /welcome. 0 = feature not included in the package.
+export async function getGuestPhotoQuota(packageType: string): Promise<number> {
+  return cachedRead(`guest-photo-quota:${packageType}`, 10 * 60_000, async () => {
+    const { data } = await supabaseAdmin
+      .from("package_matrix_rows")
+      .select("*")
+      .eq("label", "Photo by Guest")
+      .maybeSingle()
+
+    if (!data) return 0
+    const value = (data as Record<string, unknown>)[matrixColumnForPackage(packageType, "value")]
+    if (value === null || value === undefined) return 0
+    const m = String(value).match(/(\d+)/)
+    return m ? parseInt(m[1], 10) : 0
   })
 }

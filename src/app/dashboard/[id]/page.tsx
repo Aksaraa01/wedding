@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation"
 import Image from "next/image"
 import PageTheme from "@/components/PageTheme"
 import ProfileMenu from "@/components/ProfileMenu"
+import { PACKAGE_LABELS as PACKAGE_LABEL } from "@/lib/packages"
 
 type Selections = {
   premium_web: boolean
@@ -63,12 +64,6 @@ const STATUS_LABEL: Record<string, string> = {
   UNPAID: "UNPAID",
   PARTIAL_DP: "PARTIAL DP",
   FULLY_PAID: "FULLY PAID",
-}
-
-const PACKAGE_LABEL: Record<string, string> = {
-  essential: "Essential",
-  signature: "Signature",
-  prestige: "Prestige",
 }
 
 function getModuleStatus(key: string, vals: {
@@ -294,17 +289,31 @@ function DashboardInner({ id }: { id: string }) {
               Cara Memulai
             </span>
           </button>
-          <button
-            onClick={() => router.push(`/customize?${settingsParams}`)}
-            className="relative group w-11 h-11 flex items-center justify-center text-brand-gold hover:opacity-80 transition-opacity"
-            title="Ganti Paket"
-            aria-label="Ganti Paket"
-          >
-            <span className="material-symbols-outlined text-[22px]">settings</span>
-            <span className="pointer-events-none absolute top-full right-0 mt-2 whitespace-nowrap bg-on-surface text-on-primary px-3 py-1.5 font-label-md text-label-md uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity z-50">
-              Ganti Paket
-            </span>
-          </button>
+          {profile.package_type === "cetak_undangan_bonus" ? (
+            <button
+              onClick={() => router.push(`/dashboard/${id}/instruksi`)}
+              className="relative group w-11 h-11 flex items-center justify-center text-on-surface-variant hover:opacity-80 transition-opacity"
+              title="Paket BONUS — hubungi konsultan untuk ubah paket"
+              aria-label="Paket BONUS"
+            >
+              <span className="material-symbols-outlined text-[22px]">lock</span>
+              <span className="pointer-events-none absolute top-full right-0 mt-2 whitespace-nowrap bg-on-surface text-on-primary px-3 py-1.5 font-label-md text-label-md uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                Paket BONUS — hubungi konsultan
+              </span>
+            </button>
+          ) : (
+            <button
+              onClick={() => router.push(`/customize?${settingsParams}`)}
+              className="relative group w-11 h-11 flex items-center justify-center text-brand-gold hover:opacity-80 transition-opacity"
+              title="Ganti Paket"
+              aria-label="Ganti Paket"
+            >
+              <span className="material-symbols-outlined text-[22px]">settings</span>
+              <span className="pointer-events-none absolute top-full right-0 mt-2 whitespace-nowrap bg-on-surface text-on-primary px-3 py-1.5 font-label-md text-label-md uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                Ganti Paket
+              </span>
+            </button>
+          )}
           <ProfileMenu />
         </div>
       </header>

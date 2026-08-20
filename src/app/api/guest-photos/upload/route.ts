@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { ensureBucket, uploadFile } from "@/lib/storage"
+import { getGuestPhotoQuota } from "@/lib/featureGates"
 
 const MAX_SIZE = 5 * 1024 * 1024
 
@@ -25,14 +26,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Ukuran file maksimal 5MB" }, { status: 400 })
     }
 
-    const { data: existing } = await supabaseAdmin
-      .from("guest_photos")
-      .select("id")
-      .eq("guest_id", guest_id)
-      .maybeSingle()
+    // Per-guest photo quota follows the selected Buku Tamu Digital package
+    // ("Photo by Guest" matrix row: Sistem 2 / Pro 2 / Premium 3 / Prestige 4).
+    const { data: profile } = await supabaseAdmin
+      .from("wedding_profiles")
+      .select("package_type")
+      .eq("id", wedding_profile_id)
+      .single()
 
-    if (existing) {
-      return NextResponse.json({ error: "Anda sudah mengunggah foto sebelumnya. Setiap tamu hanya dapat mengunggah satu foto." }, { status: 409 })
+    const quota = await getGuestPhotoQuota(profile?.package_type || "signature")
+    if (quota <= 0) {
+      return NextResponse.json({ error: "Fitur galeri foto tamu tidak tersedia untuk paket ini." }, { status: 403 })
+    }
+
+    const { count: existingCount } = await supabaseAdmin
+      .from("guest_photos")
+      .select("id", { count: "exact", head: true })
+      .eq("guest_id", guest_id)
+
+    if ((existingCount || 0) >= quota) {
+      return NextResponse.json(
+        { error: `Batas unggah foto Anda adalah ${quota} foto. Silakan hubungi pasangan untuk kuota tambahan.` },
+        { status: 409 }
+      )
     }
 
     const ext = file.name.split(".").pop() || "jpg"
