@@ -1,13 +1,14 @@
 "use client"
 
 import Link from "next/link"
+import { TAB_ROLES } from "@/lib/opsRoles"
 
 type OpsEmployee = { name: string; role: string }
 
-const NAV_ITEMS: { key: "antrian" | "music" | "template"; label: string; href: string; adminOnly?: boolean }[] = [
+const NAV_ITEMS: { key: "antrian" | "music" | "template"; label: string; href: string }[] = [
   { key: "antrian", label: "Antrian", href: "/ops" },
   { key: "music", label: "Music", href: "/ops/music" },
-  { key: "template", label: "Template", href: "/ops/templates", adminOnly: true },
+  { key: "template", label: "Template", href: "/ops/templates" },
 ]
 
 export default function OpsHeader({
@@ -26,7 +27,8 @@ export default function OpsHeader({
       <div className="flex items-center gap-8">
         <nav className="hidden md:flex gap-10">
           {NAV_ITEMS.map((item) => {
-            if (item.adminOnly && employee.role !== "admin") return null
+            const allowed = TAB_ROLES[item.key]
+            if (allowed && !allowed.includes(employee.role as any)) return null
             return (
               <Link
                 key={item.key}

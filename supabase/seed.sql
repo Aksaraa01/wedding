@@ -156,7 +156,13 @@ ON CONFLICT DO NOTHING;
 INSERT INTO storage.buckets (id, name, public) VALUES ('template-media', 'template-media', true)
 ON CONFLICT (id) DO NOTHING;
 
--- Default admin employee
+-- Default employees (admin, sales, creative)
 INSERT INTO employees (name, phone_number, pin, role)
 SELECT 'Admin', '+628123456789', '123456', 'admin'
 WHERE NOT EXISTS (SELECT 1 FROM employees WHERE phone_number = '+628123456789');
+INSERT INTO employees (name, phone_number, pin, role)
+SELECT 'Sales', '+628100000011', '111111', 'sales'
+WHERE NOT EXISTS (SELECT 1 FROM employees WHERE phone_number = '+628100000011');
+INSERT INTO employees (name, phone_number, pin, role)
+SELECT 'Creative', '+628100000022', '222222', 'creative'
+WHERE NOT EXISTS (SELECT 1 FROM employees WHERE phone_number = '+628100000022');

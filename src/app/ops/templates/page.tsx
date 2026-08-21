@@ -66,7 +66,7 @@ function useOpsSession() {
     }
     const emp = JSON.parse(raw)
     setEmployee(emp)
-    if (emp.role !== "admin") {
+    if (!["admin", "creative"].includes(emp.role)) {
       router.replace("/ops")
       return
     }

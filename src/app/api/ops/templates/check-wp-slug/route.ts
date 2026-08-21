@@ -7,7 +7,7 @@ const WP_SECRET = process.env.WP_INTERNAL_SECRET || ""
 // GET /api/ops/templates/check-wp-slug?slug=marry-with-you
 // Validates that a WP master post exists for the given slug (returns post title).
 export async function GET(req: Request) {
-  const guard = await requireOpsEmployee(req, { allowedRoles: ["admin"] })
+  const guard = await requireOpsEmployee(req, { allowedRoles: ["admin", "creative"] })
   if (!guard.ok) return guard.res
 
   const url = new URL(req.url)

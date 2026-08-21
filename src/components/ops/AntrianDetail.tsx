@@ -27,6 +27,7 @@ import {
   allowedNextStatuses,
   resolveDerivedStatus,
 } from "@/lib/opsStatus"
+import { canChangeStatus, unauthorizedStatusMessage } from "@/lib/opsRoles"
 
 type QueueItem = {
   id: string
@@ -158,6 +159,8 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [waBlastSchedule, setWaBlastSchedule] = useState<any>(null)
   const [statusSaving, setStatusSaving] = useState(false)
   const [statusError, setStatusError] = useState("")
+  const [showRoleGate, setShowRoleGate] = useState(false)
+  const [roleGateMessage, setRoleGateMessage] = useState("")
   const [showInvCard, setShowInvCard] = useState(false)
   const [invitationData, setInvitationData] = useState<any>(null)
   const [invLoading, setInvLoading] = useState(false)
@@ -232,9 +235,15 @@ export default function AntrianDetail({ id }: { id: string }) {
       })
     : null
   const allowed = derived ? allowedNextStatuses(derived) : []
+  const roleCanChange = derived && employee ? canChangeStatus(employee.role, derived) : true
 
   const changeStatus = async (target: string) => {
     if (!employee) return
+    if (derived && !canChangeStatus(employee.role, derived)) {
+      setRoleGateMessage(unauthorizedStatusMessage(employee.role, derived))
+      setShowRoleGate(true)
+      return
+    }
     setStatusSaving(true)
     setStatusError("")
     try {
@@ -592,6 +601,9 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )
                   })}
                 </select>
+                {!roleCanChange && derived && (
+                  <p className="text-xs text-amber-600">{unauthorizedStatusMessage(employee?.role || "", derived)}</p>
+                )}
                 {statusSaving && <p className="text-xs text-secondary">Menyimpan...</p>}
                 {statusError && <p className="text-xs text-red-600">{statusError}</p>}
               </div>
@@ -1369,6 +1381,17 @@ export default function AntrianDetail({ id }: { id: string }) {
                   ))
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {showRoleGate && (
+        <div className="fixed inset-0 z-[95] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => setShowRoleGate(false)}>
+          <div className="bg-white w-full max-w-md rounded-2xl border border-outline-variant shadow-2xl p-8" onClick={(e) => e.stopPropagation()}>
+            <span className="material-symbols-outlined text-4xl text-amber-500 mb-4 block">block</span>
+            <h3 className="font-headline-md text-xl font-medium text-primary mb-3">Akses Terbatas</h3>
+            <p className="text-sm text-on-surface-variant leading-relaxed mb-6">{roleGateMessage}</p>
+            <button onClick={() => setShowRoleGate(false)} className="w-full py-3 bg-primary text-white rounded-lg font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity">Mengerti</button>
           </div>
         </div>
       )}

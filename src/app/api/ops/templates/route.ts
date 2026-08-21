@@ -4,7 +4,7 @@ import { requireOpsEmployee } from "@/lib/ops-auth"
 
 // GET /api/ops/templates — all templates (active + inactive), for ops management
 export async function GET(req: Request) {
-  const guard = await requireOpsEmployee(req, { allowedRoles: ["admin"] })
+  const guard = await requireOpsEmployee(req, { allowedRoles: ["admin", "creative"] })
   if (!guard.ok) return guard.res
 
   const { data, error } = await supabaseAdmin
@@ -17,7 +17,7 @@ export async function GET(req: Request) {
 
 // POST /api/ops/templates — create template with demo_url uniqueness check
 export async function POST(req: Request) {
-  const guard = await requireOpsEmployee(req, { allowedRoles: ["admin"] })
+  const guard = await requireOpsEmployee(req, { allowedRoles: ["admin", "creative"] })
   if (!guard.ok) return guard.res
 
   let body: Record<string, unknown>

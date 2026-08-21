@@ -42,7 +42,12 @@ export default function OpsMusicPage() {
       router.replace("/ops/login")
       return
     }
-    setEmployee(JSON.parse(raw))
+    const emp = JSON.parse(raw)
+    if (emp.role === "sales") {
+      router.replace("/ops")
+      return
+    }
+    setEmployee(emp)
   }, [router])
 
   const fetchTracks = async () => {
@@ -148,7 +153,7 @@ export default function OpsMusicPage() {
             <nav className="hidden md:flex gap-10">
               <a href="/ops" className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary">Antrian</a>
               <a className="font-label-md text-label-md uppercase tracking-widest text-primary font-semibold border-b-2 border-primary">Music</a>
-              {employee.role === "admin" && (
+              {["admin", "creative"].includes(employee.role) && (
                 <a href="/ops/templates" className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary">Template</a>
               )}
             </nav>

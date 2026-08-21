@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase"
 import { requireOpsEmployee } from "@/lib/ops-auth"
 import { allowedNextStatuses, isOpsStatusKey, OPS_STATUS_LABELS, resolveDerivedStatus } from "@/lib/opsStatus"
 import { autoGenerateGuestLinks } from "@/lib/guest-link"
+import { canChangeStatus, unauthorizedStatusMessage } from "@/lib/opsRoles"
 
 export async function PUT(
   req: Request,
@@ -55,6 +56,13 @@ export async function PUT(
       latestFeedbackStatus: latestFb?.status || null,
     })
 
+    const phone = req.headers.get("x-ops-phone") || ""
+    const { data: empRole } = await supabaseAdmin.from("employees").select("role").eq("phone_number", phone).maybeSingle()
+    const role = empRole?.role || req.headers.get("x-ops-role") || ""
+    if (!canChangeStatus(role, derived)) {
+      return NextResponse.json({ error: unauthorizedStatusMessage(role, derived) }, { status: 403 })
+    }
+
     const allowed = allowedNextStatuses(derived)
     if (!allowed.includes(status)) {
       return NextResponse.json(
@@ -102,7 +110,6 @@ export async function PUT(
         .eq("wedding_profile_id", profileId)
     }
 
-    const phone = req.headers.get("x-ops-phone") || ""
     const { data: emp } = await supabaseAdmin
       .from("employees")
       .select("id")

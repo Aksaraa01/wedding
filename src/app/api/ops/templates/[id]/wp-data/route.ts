@@ -8,7 +8,7 @@ const WP_SECRET = process.env.WP_INTERNAL_SECRET || ""
 // GET /api/ops/templates/[id]/wp-data — fetch WP master post element tree for mapping UI.
 // Calls the WP mu-plugin endpoint: GET {wp}/wp-json/aksaraa/v1/post/{slug}/elements
 export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }) {
-  const guard = await requireOpsEmployee(req, { allowedRoles: ["admin"] })
+  const guard = await requireOpsEmployee(req, { allowedRoles: ["admin", "creative"] })
   if (!guard.ok) return guard.res
 
   const { id } = await ctx.params

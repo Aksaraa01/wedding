@@ -4,7 +4,7 @@ import { requireOpsEmployee } from "@/lib/ops-auth"
 
 // PUT /api/ops/templates/[id] — update template (demo_url uniqueness enforced)
 export async function PUT(req: Request, ctx: { params: Promise<{ id: string }> }) {
-  const guard = await requireOpsEmployee(req, { allowedRoles: ["admin"] })
+  const guard = await requireOpsEmployee(req, { allowedRoles: ["admin", "creative"] })
   if (!guard.ok) return guard.res
 
   const { id } = await ctx.params
@@ -73,7 +73,7 @@ export async function PUT(req: Request, ctx: { params: Promise<{ id: string }> }
 
 // DELETE /api/ops/templates/[id] — soft delete (is_active=false)
 export async function DELETE(req: Request, ctx: { params: Promise<{ id: string }> }) {
-  const guard = await requireOpsEmployee(req, { allowedRoles: ["admin"] })
+  const guard = await requireOpsEmployee(req, { allowedRoles: ["admin", "creative"] })
   if (!guard.ok) return guard.res
 
   const { id } = await ctx.params

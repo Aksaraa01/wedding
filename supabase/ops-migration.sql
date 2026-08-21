@@ -39,3 +39,9 @@ ALTER TABLE guests ADD COLUMN IF NOT EXISTS guest_count INTEGER DEFAULT 1;
 INSERT INTO employees (name, phone_number, pin, role)
 SELECT 'Admin', '+628123456789', '123456', 'admin'
 WHERE NOT EXISTS (SELECT 1 FROM employees WHERE phone_number = '+628123456789');
+INSERT INTO employees (name, phone_number, pin, role)
+SELECT 'Sales', '+628100000011', '111111', 'sales'
+WHERE NOT EXISTS (SELECT 1 FROM employees WHERE phone_number = '+628100000011');
+INSERT INTO employees (name, phone_number, pin, role)
+SELECT 'Creative', '+628100000022', '222222', 'creative'
+WHERE NOT EXISTS (SELECT 1 FROM employees WHERE phone_number = '+628100000022');
