@@ -34,8 +34,7 @@ export default function OpsHeader({
     sessionStorage.removeItem("ops_employee")
     router.replace("/ops/login")
   }
-  const roleLabel = employee.role ? employee.role.charAt(0).toUpperCase() + employee.role.slice(1) : ""
-  const displayName = employee.name.toLowerCase().includes(employee.role.toLowerCase()) ? employee.name : `${employee.name} - ${roleLabel}`
+  const displayName = `${employee.name}.${employee.role}`
   return (
     <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 md:px-12 h-20 bg-background border-b border-outline-variant">
       <div className="flex items-center gap-4">

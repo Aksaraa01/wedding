@@ -94,8 +94,7 @@ export default function OpsTemplatesPage() {
     document.addEventListener("mousedown", onClick)
     return () => document.removeEventListener("mousedown", onClick)
   }, [])
-  const roleLabel = employee ? employee.role.charAt(0).toUpperCase() + employee.role.slice(1) : ""
-  const displayName = employee && employee.name.toLowerCase().includes(employee.role.toLowerCase()) ? employee.name : employee ? `${employee.name} - ${roleLabel}` : ""
+  const displayName = employee ? `${employee.name}.${employee.role}` : ""
 
   const [templates, setTemplates] = useState<Template[]>([])
   const [loading, setLoading] = useState(true)
