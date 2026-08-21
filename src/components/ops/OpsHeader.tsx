@@ -35,6 +35,7 @@ export default function OpsHeader({
     router.replace("/ops/login")
   }
   const roleLabel = employee.role ? employee.role.charAt(0).toUpperCase() + employee.role.slice(1) : ""
+  const displayName = employee.name.toLowerCase().includes(employee.role.toLowerCase()) ? employee.name : `${employee.name} - ${roleLabel}`
   return (
     <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 md:px-12 h-20 bg-background border-b border-outline-variant">
       <div className="flex items-center gap-4">
@@ -64,7 +65,7 @@ export default function OpsHeader({
         <div className="flex items-center gap-3 relative" ref={menuRef}>
           <div className="text-right hidden sm:block">
             <p className="font-label-md text-[10px] uppercase opacity-60">Petugas Aktif</p>
-            <p className="font-body-md font-semibold text-sm">{employee.name} - {roleLabel}</p>
+            <p className="font-body-md font-semibold text-sm">{displayName}</p>
           </div>
           <button
             onClick={() => setOpen((v) => !v)}
@@ -76,7 +77,7 @@ export default function OpsHeader({
           {open && (
             <div className="absolute right-0 top-12 w-44 bg-white border border-outline-variant shadow-lg py-2 z-50">
               <div className="px-4 py-2 border-b border-outline-variant/50 sm:hidden">
-                <p className="font-body-md font-semibold text-sm truncate">{employee.name} - {roleLabel}</p>
+                <p className="font-body-md font-semibold text-sm truncate">{displayName}</p>
                 <p className="font-label-md text-[10px] uppercase opacity-60">Petugas Aktif</p>
               </div>
               <button

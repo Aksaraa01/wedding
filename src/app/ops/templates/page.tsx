@@ -95,6 +95,7 @@ export default function OpsTemplatesPage() {
     return () => document.removeEventListener("mousedown", onClick)
   }, [])
   const roleLabel = employee ? employee.role.charAt(0).toUpperCase() + employee.role.slice(1) : ""
+  const displayName = employee && employee.name.toLowerCase().includes(employee.role.toLowerCase()) ? employee.name : employee ? `${employee.name} - ${roleLabel}` : ""
 
   const [templates, setTemplates] = useState<Template[]>([])
   const [loading, setLoading] = useState(true)
@@ -626,7 +627,7 @@ export default function OpsTemplatesPage() {
             <div className="flex items-center gap-3 relative" ref={menuRef}>
               <div className="text-right hidden sm:block">
                 <p className="font-label-md text-[10px] uppercase opacity-60">Petugas Aktif</p>
-                <p className="font-body-md font-semibold text-sm">{employee ? `${employee.name} - ${roleLabel}` : ""}</p>
+                <p className="font-body-md font-semibold text-sm">{displayName}</p>
               </div>
               <button
                 onClick={() => setMenuOpen((v) => !v)}
@@ -638,7 +639,7 @@ export default function OpsTemplatesPage() {
               {menuOpen && (
                 <div className="absolute right-0 top-12 w-44 bg-white border border-outline-variant shadow-lg py-2 z-50">
                   <div className="px-4 py-2 border-b border-outline-variant/50 sm:hidden">
-                    <p className="font-body-md font-semibold text-sm truncate">{employee ? `${employee.name} - ${roleLabel}` : ""}</p>
+                    <p className="font-body-md font-semibold text-sm truncate">{displayName}</p>
                     <p className="font-label-md text-[10px] uppercase opacity-60">Petugas Aktif</p>
                   </div>
                   <button
