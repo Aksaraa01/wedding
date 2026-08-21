@@ -225,6 +225,9 @@ function Inner() {
   const [waNumber, setWaNumber] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState("")
+  const [originalPackage, setOriginalPackage] = useState<string>("")
+  const [packageChangeModalOpen, setPackageChangeModalOpen] = useState(false)
+  const [profilePaymentStatus, setProfilePaymentStatus] = useState<"UNPAID" | "PARTIAL_DP" | "FULLY_PAID">("UNPAID")
 
   useEffect(() => {
     fetch("/api/packages/matrix")
@@ -242,6 +245,8 @@ function Inner() {
       .then((data) => {
         const pkg = data.profile.package_type || "signature"
         setSelectedPackage(pkg)
+        setOriginalPackage(pkg)
+        setProfilePaymentStatus(data.profile.payment_status || "UNPAID")
         setActiveTab(pkg.startsWith("dgb_") ? "dgbook" : "undangan")
         setWaBlastTier(data.profile.wa_blast_tier || 0)
         setExpressService(!!data.profile.express_service)
@@ -336,6 +341,12 @@ function Inner() {
   }
 
   const handleSave = async () => {
+    // Check if package changed and payment status is not UNPAID
+    if (isEdit && selectedPackage !== originalPackage && profilePaymentStatus !== "UNPAID") {
+      setPackageChangeModalOpen(true)
+      return
+    }
+
     setSubmitting(true)
     setSubmitError("")
     try {
@@ -788,6 +799,45 @@ function Inner() {
                 <span className="material-symbols-outlined">arrow_right_alt</span>
               </button>
               <p className="text-[10px] text-center uppercase tracking-tighter text-on-surface-variant">Tanpa biaya pendaftaran. Pembayaran dilakukan setelah draft pertama disetujui.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {packageChangeModalOpen && (
+        <div className="fixed inset-0 bg-primary/40 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+          <div className="bg-surface p-10 max-w-lg w-full border border-outline relative">
+            <button
+              onClick={() => setPackageChangeModalOpen(false)}
+              className="absolute top-4 right-4 text-on-surface-variant hover:text-primary"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+            <div className="text-center mb-10">
+              <div className="w-20 h-20 bg-amber-100 text-amber-700 flex items-center justify-center rounded-full mx-auto mb-6">
+                <span className="material-symbols-outlined scale-[2]">warning</span>
+              </div>
+              <h2 className="font-headline-md text-headline-md mb-4">Paket Berbeda dari yang Dibayar</h2>
+              <p className="font-body-md text-on-surface-variant">Paket yang Anda pilih berbeda dari paket yang sudah dibayar. Perubahan paket memerlukan konfirmasi dan bantuan konsultan.</p>
+            </div>
+            <div className="space-y-4">
+              <button
+                onClick={() => window.open("https://wa.me/6281224459435", "_blank")}
+                className="w-full py-4 bg-secondary text-white font-label-md uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all hover:bg-on-secondary-fixed"
+              >
+                <span className="material-symbols-outlined">chat</span>
+                <span>Kontak Konsultan</span>
+              </button>
+              <button
+                onClick={() => {
+                  setPackageChangeModalOpen(false)
+                  router.push(`/dashboard/${editProfileId}`)
+                }}
+                className="w-full py-4 border border-outline-variant text-on-surface font-label-md uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all hover:bg-surface-container"
+              >
+                <span className="material-symbols-outlined">dashboard</span>
+                <span>Dasbor</span>
+              </button>
             </div>
           </div>
         </div>

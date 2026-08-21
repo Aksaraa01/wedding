@@ -42,6 +42,21 @@ export const PACKAGE_CODES = [
   "dgb_prestige",
 ] as const
 
+export const PACKAGE_CATEGORY: Record<string, "undangan" | "dgbook"> = {
+  essential: "undangan",
+  signature: "undangan",
+  prestige: "undangan",
+  cetak_undangan_bonus: "undangan",
+  dgb_sistem: "dgbook",
+  dgb_pro: "dgbook",
+  dgb_premium: "dgbook",
+  dgb_prestige: "dgbook",
+}
+
+export function getPackageCategory(packageType: string): "Undangan Digital" | "Buku Tamu Digital" {
+  return PACKAGE_CATEGORY[packageType] === "undangan" ? "Undangan Digital" : "Buku Tamu Digital"
+}
+
 export type PackageCode = (typeof PACKAGE_CODES)[number]
 
 // Packages that ship with the base 100-VIP reminder quota (prestige + all Buku

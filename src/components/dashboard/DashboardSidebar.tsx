@@ -83,6 +83,7 @@ export default function DashboardSidebar({
   const pathname = usePathname()
   const [selections, setSelections] = useState<Record<string, boolean> | null>(null)
   const [coupleName, setCoupleName] = useState("")
+  const [hoveredKey, setHoveredKey] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -173,6 +174,8 @@ export default function DashboardSidebar({
       <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
         <button
           onClick={() => router.push(dasborItem.route)}
+          onMouseEnter={() => collapsed && setHoveredKey(dasborItem.key)}
+          onMouseLeave={() => setHoveredKey(null)}
           title={collapsed ? dasborItem.label : undefined}
           className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group ${
             dasborItem.active
@@ -200,6 +203,8 @@ export default function DashboardSidebar({
             <button
               key={item.key}
               onClick={() => router.push(item.route)}
+              onMouseEnter={() => collapsed && setHoveredKey(item.key)}
+              onMouseLeave={() => setHoveredKey(null)}
               title={collapsed ? item.label : undefined}
               className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group ${
                 item.active
@@ -213,6 +218,23 @@ export default function DashboardSidebar({
           ))
         )}
       </nav>
+
+      {/* Hover flyout for collapsed mode */}
+      {collapsed && hoveredKey && (
+        <div
+          className="fixed left-[76px] z-50"
+          style={{ top: `calc(var(--dash-sidebar-w, 76px) + 16px)` }}
+        >
+          <div className="bg-[#1A1817] border border-white/10 rounded-r-lg rounded-l-none px-4 py-3 shadow-xl animate-in fade-in slide-in-from-left-2 duration-150">
+            <span className="text-[13px] font-medium text-[#f5f0e7] whitespace-nowrap">
+              {hoveredKey === "dasbor"
+                ? "Dasbor"
+                : moduleItems.find((m) => m.key === hoveredKey)?.label ||
+                  (dasborItem.key === hoveredKey ? dasborItem.label : "")}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <div className="shrink-0 px-5 py-4 border-t border-white/10">

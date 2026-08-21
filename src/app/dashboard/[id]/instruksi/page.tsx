@@ -4,7 +4,7 @@ import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import ProfileMenu from "@/components/ProfileMenu"
-import { PACKAGE_CODES, PACKAGE_FEATURES, PACKAGE_LABELS as PACKAGE_LABEL } from "@/lib/packages"
+import { PACKAGE_CODES, PACKAGE_FEATURES, PACKAGE_LABELS as PACKAGE_LABEL, PACKAGE_CATEGORY } from "@/lib/packages"
 
 type Step = {
   key: string
@@ -283,14 +283,37 @@ function InstructionInner({ id }: { id: string }) {
                           <h3 className="font-headline-md text-headline-md text-primary mb-3">{step.title}</h3>
 
                           {!isActive && (
-                            <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container border border-outline-variant rounded-full">
-                              <span className="material-symbols-outlined text-[14px] text-on-surface-variant">lock</span>
-                              <span className="font-label-md text-[10px] uppercase tracking-wider text-on-surface-variant">
-                                {isPembayaran
-                                  ? paymentStatus === "UNPAID" ? "Menunggu Pembayaran" : "Belum Tersedia"
-                                  : `Tersedia di Paket ${AVAILABLE_IN[step.key]?.map((p) => PACKAGE_LABEL[p]).join(" & ")}`}
-                              </span>
-                            </div>
+                            isPembayaran ? (
+                              <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container border border-outline-variant rounded-full">
+                                <span className="material-symbols-outlined text-[14px] text-on-surface-variant">lock</span>
+                                <span className="font-label-md text-[10px] uppercase tracking-wider text-on-surface-variant">
+                                  {paymentStatus === "UNPAID" ? "Menunggu Pembayaran" : "Belum Tersedia"}
+                                </span>
+                              </div>
+                            ) : (
+                              (() => {
+                                const pkgs = AVAILABLE_IN[step.key] || []
+                                const grouped: Record<string, string[]> = {}
+                                for (const p of pkgs) {
+                                  const cat = PACKAGE_CATEGORY[p] === "dgbook" ? "Buku Tamu Digital" : "Undangan Digital"
+                                  if (!grouped[cat]) grouped[cat] = []
+                                  grouped[cat].push(PACKAGE_LABEL[p] || p)
+                                }
+                                return (
+                                  <div className="mb-4 inline-flex flex-col gap-1 px-3 py-2 bg-surface-container border border-outline-variant rounded-xl">
+                                    <span className="inline-flex items-center gap-1.5 font-label-md text-[10px] uppercase tracking-wider text-on-surface-variant">
+                                      <span className="material-symbols-outlined text-[14px]">lock</span>
+                                      Tersedia di Paket:
+                                    </span>
+                                    {Object.entries(grouped).map(([cat, labels]) => (
+                                      <span key={cat} className="font-label-md text-[10px] uppercase tracking-wider text-on-surface-variant ml-5">
+                                        • {cat}: {labels.join(", ")}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )
+                              })()
+                            )
                           )}
 
                           <ul className="mb-6 flex flex-col gap-2.5">

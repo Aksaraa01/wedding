@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation"
 import Image from "next/image"
 import PageTheme from "@/components/PageTheme"
 import ProfileMenu from "@/components/ProfileMenu"
-import { PACKAGE_LABELS as PACKAGE_LABEL } from "@/lib/packages"
+import { PACKAGE_LABELS as PACKAGE_LABEL, getPackageCategory } from "@/lib/packages"
 
 type Selections = {
   premium_web: boolean
@@ -324,7 +324,10 @@ function DashboardInner({ id }: { id: string }) {
             <div className="absolute top-0 right-0 w-64 h-64 bg-secondary opacity-10 blur-[100px] pointer-events-none" />
             <div className="inline-flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full mb-6">
               <span className={`w-2 h-2 rounded-full ${statusColor} animate-[pulse-animation_2s_ease-in-out_infinite]`} />
-              <span className="text-[10px] font-semibold tracking-widest uppercase">Paket {PACKAGE_LABEL[profile.package_type || ""] || "Essential"} &bull; {statusLabel} &bull; {formattedDate}</span>
+              <span className="text-[10px] font-semibold tracking-widest uppercase">Paket {PACKAGE_LABEL[profile.package_type || ""] || "Essential"} Experience</span>
+              <span className="px-2 py-0.5 text-[9px] font-label-md uppercase bg-white/10 text-white/80 rounded">{getPackageCategory(profile.package_type || "")}</span>
+              <span className="text-white/50">•</span>
+              <span className="text-[10px] font-semibold tracking-widest uppercase">{statusLabel} • {formattedDate}</span>
             </div>
             <h1 className="font-['Playfair_Display'] text-[48px] md:text-[56px] leading-tight mb-8">
               {profile.bride_name} &amp; {profile.groom_name}
