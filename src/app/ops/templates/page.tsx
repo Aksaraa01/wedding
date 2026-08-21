@@ -85,6 +85,16 @@ function opsHeaders(employee: Employee): Record<string, string> {
 export default function OpsTemplatesPage() {
   const router = useRouter()
   const employee = useOpsSession()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false)
+    }
+    document.addEventListener("mousedown", onClick)
+    return () => document.removeEventListener("mousedown", onClick)
+  }, [])
+  const roleLabel = employee ? employee.role.charAt(0).toUpperCase() + employee.role.slice(1) : ""
 
   const [templates, setTemplates] = useState<Template[]>([])
   const [loading, setLoading] = useState(true)
@@ -613,14 +623,36 @@ export default function OpsTemplatesPage() {
               <a href="/ops/music" className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary">Music</a>
               <a className="font-label-md text-label-md uppercase tracking-widest text-primary font-semibold border-b-2 border-primary">Template</a>
             </nav>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 relative" ref={menuRef}>
               <div className="text-right hidden sm:block">
                 <p className="font-label-md text-[10px] uppercase opacity-60">Petugas Aktif</p>
-                <p className="font-body-md font-semibold text-sm">{employee.name}</p>
+                <p className="font-body-md font-semibold text-sm">{employee ? `${employee.name} - ${roleLabel}` : ""}</p>
               </div>
-              <div className="w-10 h-10 bg-surface-container-highest border border-outline-variant flex items-center justify-center">
+              <button
+                onClick={() => setMenuOpen((v) => !v)}
+                className="w-10 h-10 bg-surface-container-highest border border-outline-variant flex items-center justify-center hover:bg-surface-container transition-colors"
+                aria-label="Menu profil"
+              >
                 <span className="material-symbols-outlined">person</span>
-              </div>
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 top-12 w-44 bg-white border border-outline-variant shadow-lg py-2 z-50">
+                  <div className="px-4 py-2 border-b border-outline-variant/50 sm:hidden">
+                    <p className="font-body-md font-semibold text-sm truncate">{employee ? `${employee.name} - ${roleLabel}` : ""}</p>
+                    <p className="font-label-md text-[10px] uppercase opacity-60">Petugas Aktif</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      sessionStorage.removeItem("ops_employee")
+                      router.replace("/ops/login")
+                    }}
+                    className="w-full text-left px-4 py-2.5 font-label-md text-xs uppercase tracking-widest hover:bg-surface-container-low flex items-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">logout</span>
+                    Keluar
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </header>

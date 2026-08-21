@@ -602,7 +602,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                   })}
                 </select>
                 {!roleCanChange && derived && (
-                  <p className="text-xs text-amber-600">{unauthorizedStatusMessage(employee?.role || "", derived)}</p>
+                  <p className="text-xs text-amber-600 max-w-[260px] whitespace-normal break-words leading-relaxed">{unauthorizedStatusMessage(employee?.role || "", derived)}</p>
                 )}
                 {statusSaving && <p className="text-xs text-secondary">Menyimpan...</p>}
                 {statusError && <p className="text-xs text-red-600">{statusError}</p>}
