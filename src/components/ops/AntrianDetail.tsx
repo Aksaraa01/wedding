@@ -271,18 +271,36 @@ export default function AntrianDetail({ id }: { id: string }) {
   }
 
   const assignConsultant = async (employeeId: string) => {
+    if (employee?.role === "creative") {
+      setRoleGateMessage("Perubahan petugas hanya dapat dilakukan oleh Admin atau Sales. Peran Anda saat ini: Creative.")
+      setShowRoleGate(true)
+      return
+    }
     await fetch(`/api/ops/queue/${id}/assign`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-ops-phone": employee?.phone_number || "",
+        "x-ops-role": employee?.role || "",
+      },
       body: JSON.stringify({ employee_id: employeeId || null }),
     })
     fetchAll()
   }
 
   const updatePackage = async (packageType: string) => {
+    if (employee?.role === "creative") {
+      setRoleGateMessage("Perubahan paket hanya dapat dilakukan oleh Admin atau Sales. Peran Anda saat ini: Creative.")
+      setShowRoleGate(true)
+      return
+    }
     const res = await fetch(`/api/ops/queue/${id}/package`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-ops-phone": employee?.phone_number || "",
+        "x-ops-role": employee?.role || "",
+      },
       body: JSON.stringify({ package_type: packageType }),
     })
     const data = await res.json()
@@ -494,7 +512,8 @@ export default function AntrianDetail({ id }: { id: string }) {
                   <select
                     value={currentWp.package_type}
                     onChange={(e) => updatePackage(e.target.value)}
-                    className="bg-white border border-outline-variant text-sm font-bold text-primary py-1 px-2 focus:ring-0 focus:border-primary font-body-md cursor-pointer"
+                    disabled={employee?.role === "creative"}
+                    className="bg-white border border-outline-variant text-sm font-bold text-primary py-1 px-2 focus:ring-0 focus:border-primary font-body-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <optgroup label="Undangan Digital">
                       {Object.entries(PACKAGE_LABELS)
@@ -540,7 +559,8 @@ export default function AntrianDetail({ id }: { id: string }) {
                 <select
                   value={detail.queue.assigned_to || ""}
                   onChange={(e) => assignConsultant(e.target.value)}
-                  className="bg-surface-container border border-outline-variant text-sm py-2 px-4 focus:ring-0 focus:border-primary font-body-md"
+                  disabled={employee?.role === "creative"}
+                  className="bg-surface-container border border-outline-variant text-sm py-2 px-4 focus:ring-0 focus:border-primary font-body-md disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">— Pilih —</option>
                   {detail.employees.map((emp) => (

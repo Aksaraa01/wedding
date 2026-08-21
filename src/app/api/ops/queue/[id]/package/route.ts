@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { requireOpsEmployee } from "@/lib/ops-auth"
 import { calcTotal, deriveSelections, PACKAGE_CODES } from "@/lib/packages"
 
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireOpsEmployee(req as unknown as Request, { allowedRoles: ["admin", "sales"] })
+  if (!auth.ok) return auth.res
   try {
     const { id } = await params
     const { package_type } = await req.json()
