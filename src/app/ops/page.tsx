@@ -248,7 +248,7 @@ export default function OpsBoardPage() {
                               <div className="flex items-center gap-1.5 flex-wrap">
                                 <span className="material-symbols-outlined text-[13px] opacity-60">workspace_premium</span>
                                 <span>{PACKAGE_LABELS[wp.package_type] || wp.package_type}</span>
-                                <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold uppercase tracking-widest border shrink-0 ${wp.package_type.startsWith("dgb_") ? "bg-secondary-container text-secondary border-secondary/20" : "bg-primary-container text-primary border-primary/20"}`}>
+                                <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold uppercase tracking-widest border shrink-0 ${wp.package_type.startsWith("dgb_") ? "bg-surface-container-low text-secondary border-secondary/20" : "bg-surface-container-low text-primary border-primary/20"}`}>
                                   {getPackageCategory(wp.package_type)}
                                 </span>
                               </div>
