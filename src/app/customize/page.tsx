@@ -261,6 +261,8 @@ function Inner() {
   const showWaTier = PACKAGE_FEATURES[selectedPackage]?.includes("wa_blast") ?? false
   const activeCards = activeTab === "undangan" ? UNDANGAN_CARDS : DGB_CARDS
   const matrixVisibleCols = matrixCols.filter((col) => col.code !== "cetak_undangan_bonus")
+  const matrixUndanganCols = matrixVisibleCols.filter((c) => !c.code.startsWith("dgb_"))
+  const matrixDgbCols = matrixVisibleCols.filter((c) => c.code.startsWith("dgb_"))
 
   const selectPackage = (code: string) => {
     setSelectedPackage(code)
@@ -809,10 +811,27 @@ function Inner() {
             <div className="overflow-x-auto max-h-[70vh]">
               <table className="w-full text-left min-w-[900px] text-sm">
                 <thead className="sticky top-[61px] z-10 bg-[#f0f4f8]">
+                  <tr className="font-label-md text-[10px] uppercase tracking-[0.18em] border-b border-outline-variant/40 text-on-surface-variant">
+                    <th className="py-2 px-4 font-semibold text-left" rowSpan={2}>
+                      FITUR
+                    </th>
+                    {matrixUndanganCols.length > 0 && (
+                      <th colSpan={matrixUndanganCols.length} className="py-2 px-3 text-center font-semibold border-l border-outline-variant/20">
+                        Undangan Digital
+                      </th>
+                    )}
+                    {matrixDgbCols.length > 0 && (
+                      <th colSpan={matrixDgbCols.length} className="py-2 px-3 text-center font-semibold border-l border-outline-variant/30 bg-secondary/5">
+                        Buku Tamu Digital
+                      </th>
+                    )}
+                  </tr>
                   <tr className="font-label-md text-label-md uppercase tracking-widest border-b border-outline-variant">
-                    <th className="py-5 px-4 font-semibold text-left">FITUR</th>
                     {matrixVisibleCols.map((col) => (
-                      <th key={col.code} className={`py-5 px-3 text-center font-semibold ${selectedPackage === col.code ? "text-secondary" : ""}`}>
+                      <th
+                        key={col.code}
+                        className={`py-3 px-3 text-center font-semibold border-l border-outline-variant/10 first:border-l-0 ${selectedPackage === col.code ? "text-secondary" : ""} ${col.code.startsWith("dgb_") ? "bg-secondary/5" : ""}`}
+                      >
                         {col.label}
                       </th>
                     ))}
