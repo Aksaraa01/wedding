@@ -19,6 +19,7 @@ type Profile = {
   grayscale: boolean
   is_published: boolean
   published_at?: string | null
+  payment_status?: string | null
   groom_full_name: string | null
   bride_full_name: string | null
   groom_photo_url: string | null
@@ -136,6 +137,28 @@ function SectionToggle({ label, checked, onChange, disabled = false }: { label: 
   )
 }
 
+function AttentionIcon({ size = 18 }: { size?: number }) {
+  return (
+    <span className="inline-flex items-center justify-center shrink-0" style={{ width: size, height: size }} aria-hidden>
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" stroke="#ffffff" strokeWidth="0.5" opacity="0.35">
+          <animate attributeName="r" dur="3s" repeatCount="indefinite" values="10;11.5;10" />
+          <animate attributeName="opacity" dur="3s" repeatCount="indefinite" values="0.35;0.08;0.35" />
+        </circle>
+        <circle cx="12" cy="12" r="8" stroke="#ffffff" strokeWidth="1" opacity="0.6">
+          <animate attributeName="stroke-dasharray" dur="4s" repeatCount="indefinite" values="0,31.4;31.4,0;0,31.4" />
+        </circle>
+        <g className="attention-icon">
+          <path d="M12 8V13M12 16H12.01" stroke="#ffffff" strokeLinecap="round" strokeWidth="1.5">
+            <animate attributeName="opacity" dur="1.5s" repeatCount="indefinite" values="1;0.4;1" />
+          </path>
+        </g>
+        <style>{`@keyframes subtle-float{0%{transform:translateY(0px)}50%{transform:translateY(-1px)}100%{transform:translateY(0px)}} .attention-icon{transform-origin:center;animation:subtle-float 2s infinite ease-in-out}`}</style>
+      </svg>
+    </span>
+  )
+}
+
 function EditorInner({ id }: { id: string }) {
   const router = useRouter()
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -156,6 +179,7 @@ function EditorInner({ id }: { id: string }) {
   const [showH3Reminder, setShowH3Reminder] = useState(false)
   const [feedbackCount, setFeedbackCount] = useState<number | null>(null)
   const [feedbackLoading, setFeedbackLoading] = useState(true)
+  const [showPaymentGate, setShowPaymentGate] = useState(false)
   const [gates, setGates] = useState<RowGates>({
     gift_address: { included: true, availableIn: [...INITIAL_AVAILABLE_IN] },
     inviting_families: { included: true, availableIn: [...INITIAL_AVAILABLE_IN] },
@@ -578,6 +602,18 @@ function EditorInner({ id }: { id: string }) {
     setPendingMusicFile(null)
   }
 
+  const handleFeedbackClick = () => {
+    if ((profile as any)?.payment_status === "UNPAID") {
+      setShowPaymentGate(true)
+      return
+    }
+    if ((data as any)?.payment_status === "UNPAID") {
+      setShowPaymentGate(true)
+      return
+    }
+    router.push(`/dashboard/${id}/web-invitation/feedback`)
+  }
+
   const handlePublish = async () => {
     setSaveStatus("saving")
     setUpdatingPreview(true)
@@ -678,21 +714,23 @@ function EditorInner({ id }: { id: string }) {
   const renderSection = (key: string, icon: string, label: string, content: React.ReactNode) => {
     const isActive = activeSection === key
     return (
-      <div data-section={key} className={`scroll-mt-6 border border-outline-variant ${isActive ? "bg-white" : "opacity-60"}`}>
+      <div data-section={key} className={`scroll-mt-6 border ${isActive ? "bg-[#8d4d39] border-[#8d4d39] shadow-sm" : "bg-[#8d4d39] border-[#8d4d39] opacity-90"}`}>
         <button
           onClick={() => handleSectionToggle(key)}
-          className={`w-full flex justify-between items-center py-4 px-4 transition-colors ${isActive ? "text-primary" : "text-on-surface-variant hover:text-primary"}`}
+          className={`w-full flex justify-between items-center py-4 px-4 transition-colors ${isActive ? "text-white" : "text-white/80 hover:text-white"}`}
         >
           <span className="font-label-md text-label-md flex items-center gap-3">
             <span className="material-symbols-outlined text-[18px]">{icon}</span>
             {label}
             {sectionIncomplete(key) && (
-              <span className="material-symbols-outlined text-[15px] text-amber-500/80" title="Konten belum lengkap">flag</span>
+              <span title="Konten belum lengkap" className="inline-flex">
+                <AttentionIcon size={18} />
+              </span>
             )}
           </span>
           <span className="material-symbols-outlined">{isActive ? "expand_less" : "expand_more"}</span>
         </button>
-        {isActive && <div className="px-4 pb-6">{content}</div>}
+        {isActive && <div className="px-4 pb-6 bg-[#8d4d39] text-white">{content}</div>}
       </div>
     )
   }
@@ -770,15 +808,15 @@ function EditorInner({ id }: { id: string }) {
       <div className="h-screen flex flex-col bg-surface text-on-surface font-body-md overflow-hidden">
 
         {/* TOP BAR */}
-        <header className="bg-surface border-b border-outline-variant flex justify-between items-center px-6 lg:px-12 w-full h-20 z-50 shrink-0">
-          <div className="flex items-center gap-6">
+        <header className="bg-surface border-b border-outline-variant flex items-center px-6 lg:px-8 w-full h-20 z-50 shrink-0 gap-4">
+          <div className="flex items-center gap-4 shrink-0">
             <button onClick={() => router.push(`/dashboard/${id}`)} className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors">
               <span className="material-symbols-outlined">arrow_back</span>
               <span className="font-label-md text-label-md hidden sm:inline">DASHBOARD</span>
             </button>
             <div className="h-8 w-px bg-outline-variant hidden sm:block" />
-            <div className="hidden sm:block">
-              <h1 className="font-headline-md text-[20px] text-primary tracking-tight font-bold">{data.display_name || "Undangan"}</h1>
+            <div className="hidden sm:block min-w-0">
+              <h1 className="font-headline-md text-[18px] lg:text-[20px] text-primary tracking-tight font-bold truncate max-w-[180px] xl:max-w-none">{data.display_name || "Undangan"}</h1>
               <p className="font-label-md text-[10px] text-on-surface-variant flex items-center gap-1">
                 <span className={`w-1.5 h-1.5 rounded-full ${saveStatusColor}`} />
                 {saveStatusLabel}
@@ -786,43 +824,35 @@ function EditorInner({ id }: { id: string }) {
             </div>
           </div>
 
-          {/* Perbarui undangan — center, gold to distinguish from Konfirmasi */}
-          <button
-            onClick={handleUpdatePreview}
-            disabled={updatingPreview || isPublished}
-            className="hidden sm:flex items-center gap-2 px-6 py-3 font-label-md text-label-md bg-brand-gold text-white transition-all active:scale-95 hover:opacity-90 disabled:opacity-50"
-          >
-            <span className="material-symbols-outlined text-[18px]">{updatingPreview ? "hourglass_top" : "refresh"}</span>
-            <span>{updatingPreview ? "Memperbarui..." : "Perbarui undangan"}</span>
-          </button>
+          <div className="flex-1 flex justify-center items-center gap-2 lg:gap-3">
+            <button
+              onClick={handleUpdatePreview}
+              disabled={updatingPreview || isPublished}
+              className="hidden md:inline-flex items-center gap-2 px-4 lg:px-5 py-2.5 font-label-md text-label-md bg-brand-gold text-white rounded-full transition-all active:scale-95 hover:opacity-90 disabled:opacity-50 shadow-sm"
+            >
+              <span className="material-symbols-outlined text-[18px]">{updatingPreview ? "hourglass_top" : "refresh"}</span>
+              <span>{updatingPreview ? "Memperbarui..." : "Perbarui undangan"}</span>
+            </button>
 
-          <div className="flex items-center gap-8">
-            {/* Tool icons */}
-            <div className="flex items-center gap-4 text-on-surface-variant">
-              <button onClick={() => setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile")} className="hover:text-primary transition-colors hidden sm:flex"><span className="material-symbols-outlined">devices</span></button>
-            </div>
-
-            {/* Ganti Tema */}
             <button
               onClick={() => router.push(`/dashboard/${id}/web-invitation/templates`)}
               disabled={isPublished}
-              className={`flex items-center gap-2 px-6 py-3 border font-label-md text-label-md transition-all active:scale-95 ${
+              className={`hidden md:inline-flex items-center gap-2 px-4 lg:px-5 py-2.5 border font-label-md text-label-md rounded-full transition-all active:scale-95 ${
                 isPublished
-                  ? "border-outline-variant text-on-surface-variant/50 cursor-not-allowed"
-                  : "border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary"
+                  ? "border-outline-variant text-on-surface-variant/50 cursor-not-allowed bg-surface"
+                  : "border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary bg-white"
               }`}
             >
-              <span className="material-symbols-outlined text-[20px]">palette</span>
-              <span className="hidden sm:inline">GANTI TEMA</span>
+              <span className="material-symbols-outlined text-[18px]">palette</span>
+              <span>GANTI TEMA</span>
             </button>
 
-            {/* Konfirmasi — desktop only */}
             <button
               onClick={() => setShowPublishConfirm(true)}
               disabled={isPublished}
-              className={`hidden md:flex px-6 py-3 font-label-md text-label-md transition-all active:scale-95 ${
+              className={`hidden md:inline-flex px-5 py-2.5 font-label-md text-label-md rounded-full transition-all active:scale-95 shadow-sm ${
                 isPublished
-                  ? "flex-col items-center justify-center bg-emerald-600 text-white cursor-default border border-emerald-600 shadow-lg shadow-emerald-600/20"
+                  ? "flex-col items-center justify-center bg-emerald-600 text-white cursor-default border border-emerald-600 py-1.5 px-4 leading-none"
                   : "items-center bg-secondary text-on-secondary hover:opacity-90 border border-secondary"
               }`}
             >
@@ -840,7 +870,10 @@ function EditorInner({ id }: { id: string }) {
                 "KONFIRMASI"
               )}
             </button>
+          </div>
 
+          <div className="flex items-center gap-3 shrink-0">
+            <button onClick={() => setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile")} className="hover:text-primary transition-colors hidden md:flex p-2 text-on-surface-variant" title="Ganti tampilan pratinjau"><span className="material-symbols-outlined">devices</span></button>
             <ProfileMenu />
           </div>
         </header>
@@ -1527,7 +1560,7 @@ function EditorInner({ id }: { id: string }) {
                     </div>
                   </div>
                   <button
-                    onClick={() => router.push(`/dashboard/${id}/web-invitation/feedback`)}
+                    onClick={handleFeedbackClick}
                     className="w-full inline-flex items-center justify-center gap-2 border border-outline-variant text-on-surface font-label-md text-label-md uppercase tracking-widest py-3.5 hover:border-primary hover:text-primary transition-colors"
                   >
                     <span className="material-symbols-outlined text-[18px]">rate_review</span>
@@ -1744,6 +1777,34 @@ function EditorInner({ id }: { id: string }) {
                 className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
               >
                 Nanti Saja
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPaymentGate && (
+        <div className="fixed inset-0 z-[95] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => setShowPaymentGate(false)}>
+          <div className="bg-white w-full max-w-md rounded-2xl border border-outline-variant shadow-2xl p-8" onClick={(e) => e.stopPropagation()}>
+            <span className="material-symbols-outlined text-4xl text-amber-500 mb-4 block">payments</span>
+            <h3 className="font-headline-md text-xl font-medium text-primary mb-3">Pembayaran Diperlukan</h3>
+            <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
+              Silakan selesaikan pembayaran terlebih dahulu untuk membuka fitur <span className="font-semibold text-primary">Feedback</span>. Setelah pembayaran terverifikasi, fitur ini akan otomatis terbuka.
+            </p>
+            <div className="flex flex-col gap-3">
+              <a
+                href="https://wa.me/6281224459435?text=Halo%20Aksaraa%2C%20saya%20ingin%20menyelesaikan%20pembayaran%20untuk%20membuka%20fitur%20Feedback"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3.5 bg-[#8d4d39] text-white rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity text-center"
+              >
+                Kontak Konsultan
+              </a>
+              <button
+                onClick={() => setShowPaymentGate(false)}
+                className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+              >
+                Tutup
               </button>
             </div>
           </div>
