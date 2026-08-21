@@ -19,6 +19,7 @@ import {
   getWeddingDate,
   photoList,
   coverPhotos,
+  getPackageCategory,
 } from "@/lib/opsConstants"
 import { PACKAGE_FEATURES } from "@/lib/packages"
 import {
@@ -495,9 +496,20 @@ export default function AntrianDetail({ id }: { id: string }) {
                     onChange={(e) => updatePackage(e.target.value)}
                     className="bg-white border border-outline-variant text-sm font-bold text-primary py-1 px-2 focus:ring-0 focus:border-primary font-body-md cursor-pointer"
                   >
-                    {Object.entries(PACKAGE_LABELS).map(([code, label]) => (
-                      <option key={code} value={code}>{label}</option>
-                    ))}
+                    <optgroup label="Undangan Digital">
+                      {Object.entries(PACKAGE_LABELS)
+                        .filter(([code]) => !code.startsWith("dgb_"))
+                        .map(([code, label]) => (
+                          <option key={code} value={code}>{label} — {getPackageCategory(code)}</option>
+                        ))}
+                    </optgroup>
+                    <optgroup label="Buku Tamu Digital">
+                      {Object.entries(PACKAGE_LABELS)
+                        .filter(([code]) => code.startsWith("dgb_"))
+                        .map(([code, label]) => (
+                          <option key={code} value={code}>{label} — {getPackageCategory(code)}</option>
+                        ))}
+                    </optgroup>
                   </select>
                 </div>
                 <div className="flex items-center gap-2">

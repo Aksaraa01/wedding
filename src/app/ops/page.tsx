@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import OpsHeader from "@/components/ops/OpsHeader"
-import { PACKAGE_LABELS, formatDate } from "@/lib/opsConstants"
+import { PACKAGE_LABELS, formatDate, getPackageCategory } from "@/lib/opsConstants"
 import { OPS_COLUMNS } from "@/lib/opsStatus"
 
 type QueueItem = {
@@ -245,9 +245,12 @@ export default function OpsBoardPage() {
                                 <span className="material-symbols-outlined text-[13px] opacity-60">event</span>
                                 {formatDate(item.registration_date || "")}
                               </div>
-                              <div className="flex items-center gap-1.5">
+                              <div className="flex items-center gap-1.5 flex-wrap">
                                 <span className="material-symbols-outlined text-[13px] opacity-60">workspace_premium</span>
-                                {PACKAGE_LABELS[wp.package_type] || wp.package_type}
+                                <span>{PACKAGE_LABELS[wp.package_type] || wp.package_type}</span>
+                                <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold uppercase tracking-widest border shrink-0 ${wp.package_type.startsWith("dgb_") ? "bg-secondary-container text-secondary border-secondary/20" : "bg-primary-container text-primary border-primary/20"}`}>
+                                  {getPackageCategory(wp.package_type)}
+                                </span>
                               </div>
                               <div className="flex items-center gap-1.5">
                                 <span className="material-symbols-outlined text-[13px] opacity-60">person</span>

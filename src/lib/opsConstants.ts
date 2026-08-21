@@ -2,6 +2,16 @@ import { PACKAGE_LABELS as PACKAGE_LABELS_MAP } from "@/lib/packages"
 
 export const PACKAGE_LABELS: Record<string, string> = PACKAGE_LABELS_MAP
 
+export function getPackageCategory(code: string): string {
+  if (code.startsWith("dgb_")) return "Buku Tamu Digital"
+  return "Undangan Digital"
+}
+
+export function getPackageDisplay(code: string): string {
+  const label = PACKAGE_LABELS[code] || code
+  return `${label} — ${getPackageCategory(code)}`
+}
+
 export const FEATURE_LABELS: Record<string, string> = {
   premium_web: "Undangan Digital",
   wish_wall: "Wish Wall",
