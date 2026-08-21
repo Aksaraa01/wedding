@@ -56,11 +56,14 @@ export async function GET(
       .eq("ops_queue_id", id)
       .order("created_at", { ascending: true })
 
-    const { data: allEmployees } = await supabaseAdmin
+    const { data: salesEmployees } = await supabaseAdmin
       .from("employees")
       .select("id, name")
       .eq("is_active", true)
+      .eq("role", "sales")
       .order("name", { ascending: true })
+
+    const allEmployees = salesEmployees || []
 
     const { data: guests } = await supabaseAdmin
       .from("guests")
