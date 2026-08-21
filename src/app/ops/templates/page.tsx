@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
+import OpsHeader from "@/components/ops/OpsHeader"
 import { FIELD_LABELS, WIDGET_SETTINGS } from "@/lib/fieldLabels"
 import { OBJECT_ARRAY_FIELDS, SIMPLE_ARRAY_FIELDS, SUBFIELD_LABELS } from "@/lib/manifest"
 import ElementSelect from "@/components/ops/ElementSelect"
@@ -85,16 +86,6 @@ function opsHeaders(employee: Employee): Record<string, string> {
 export default function OpsTemplatesPage() {
   const router = useRouter()
   const employee = useOpsSession()
-  const [menuOpen, setMenuOpen] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const onClick = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false)
-    }
-    document.addEventListener("mousedown", onClick)
-    return () => document.removeEventListener("mousedown", onClick)
-  }, [])
-  const displayName = employee ? `${employee.name}.${employee.role}` : ""
 
   const [templates, setTemplates] = useState<Template[]>([])
   const [loading, setLoading] = useState(true)
@@ -612,50 +603,7 @@ export default function OpsTemplatesPage() {
     <>
       <PageTheme mode="light" />
       <div className="min-h-screen bg-background text-on-surface font-body-md">
-        <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 md:px-12 h-20 bg-background border-b border-outline-variant">
-          <div className="flex items-center gap-4">
-            <h1 className="font-headline-md text-headline-md tracking-widest text-primary uppercase">Aksaraa</h1>
-            <span className="text-xs font-label-md tracking-widest bg-primary text-white px-2 py-1 ml-2">CORE OPS</span>
-          </div>
-          <div className="flex items-center gap-8">
-            <nav className="hidden md:flex gap-10">
-              <a href="/ops" className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary">Antrian</a>
-              <a href="/ops/music" className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary">Music</a>
-              <a className="font-label-md text-label-md uppercase tracking-widest text-primary font-semibold border-b-2 border-primary">Template</a>
-            </nav>
-            <div className="flex items-center gap-3 relative" ref={menuRef}>
-              <div className="text-right hidden sm:block min-w-0">
-                <p className="font-label-md text-[10px] uppercase opacity-60">Petugas Aktif</p>
-                <p className="font-body-md font-semibold text-sm max-w-[220px] truncate" title={displayName}>{displayName}</p>
-              </div>
-              <button
-                onClick={() => setMenuOpen((v) => !v)}
-                className="w-10 h-10 bg-surface-container-highest border border-outline-variant flex items-center justify-center hover:bg-surface-container transition-colors"
-                aria-label="Menu profil"
-              >
-                <span className="material-symbols-outlined">person</span>
-              </button>
-              {menuOpen && (
-                <div className="absolute right-0 top-12 w-44 bg-white border border-outline-variant shadow-lg py-2 z-50">
-                  <div className="px-4 py-2 border-b border-outline-variant/50 sm:hidden">
-                    <p className="font-body-md font-semibold text-sm truncate" title={displayName}>{displayName}</p>
-                    <p className="font-label-md text-[10px] uppercase opacity-60">Petugas Aktif</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      sessionStorage.removeItem("ops_employee")
-                      router.replace("/ops/login")
-                    }}
-                    className="w-full text-left px-4 py-2.5 font-label-md text-xs uppercase tracking-widest hover:bg-surface-container-low flex items-center gap-2"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">logout</span>
-                    Keluar
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
+        <OpsHeader employee={employee} activeKey="template" />
 
         <main className="pt-20 px-6 md:px-12 pb-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pt-8">

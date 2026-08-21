@@ -36,6 +36,7 @@ export default function OpsBoardPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [petugas, setPetugas] = useState("")
+  const [mobileColumn, setMobileColumn] = useState<string>("belum_bayar")
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -163,45 +164,62 @@ export default function OpsBoardPage() {
 
         <main className="pt-20 flex-1 overflow-hidden flex flex-col">
           {/* Filters */}
-          <div className="px-6 md:px-10 py-6 border-b border-outline-variant bg-surface-container-low">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-              <div>
-                <h2 className="font-headline-md text-2xl text-primary">Antrian Proyek</h2>
-                <p className="text-xs text-on-surface-variant mt-1">
-                  {queue.length} total &bull; {filteredQueue.length} tampil &bull; memperbarui otomatis tiap 20 detik
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 opacity-40 text-[18px]">person_search</span>
-                  <select
-                    value={petugas}
-                    onChange={(e) => { setPetugas(e.target.value); persistFilters(search, e.target.value) }}
-                    className="w-full sm:w-48 bg-white border border-outline-variant pl-9 pr-4 py-2.5 text-sm focus:ring-0 focus:border-primary font-body-md outline-none"
-                  >
-                    <option value="">Semua Petugas</option>
-                    <option value="unassigned">Tanpa Petugas</option>
-                    {employees.map((emp) => (
-                      <option key={emp.id} value={emp.id}>{emp.name}</option>
-                    ))}
-                  </select>
+          <div className="px-4 md:px-10 py-4 md:py-6 border-b border-outline-variant bg-surface-container-low">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+                <div>
+                  <h2 className="font-headline-md text-xl md:text-2xl text-primary leading-tight">Antrian Proyek</h2>
+                  <p className="text-[11px] md:text-xs text-on-surface-variant mt-1">
+                    {queue.length} total &bull; {filteredQueue.length} tampil &bull; auto 20s
+                  </p>
                 </div>
-                <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 opacity-40 text-[18px]">search</span>
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => { setSearch(e.target.value); persistFilters(e.target.value, petugas) }}
-                    placeholder="Cari nama / no. WA..."
-                    className="w-full sm:w-64 bg-white border border-outline-variant pl-9 pr-4 py-2.5 text-sm focus:ring-0 focus:border-primary font-body-md outline-none"
-                  />
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+                  <div className="relative flex-1 sm:flex-none">
+                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 opacity-40 text-[18px]">person_search</span>
+                    <select
+                      value={petugas}
+                      onChange={(e) => { setPetugas(e.target.value); persistFilters(search, e.target.value) }}
+                      className="w-full sm:w-44 bg-white border border-outline-variant pl-9 pr-3 py-2.5 text-sm focus:ring-0 focus:border-primary font-body-md outline-none"
+                    >
+                      <option value="">Semua Petugas</option>
+                      <option value="unassigned">Tanpa Petugas</option>
+                      {employees.map((emp) => (
+                        <option key={emp.id} value={emp.id}>{emp.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="relative flex-1 sm:flex-none">
+                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 opacity-40 text-[18px]">search</span>
+                    <input
+                      type="text"
+                      value={search}
+                      onChange={(e) => { setSearch(e.target.value); persistFilters(e.target.value, petugas) }}
+                      placeholder="Cari nama / WA..."
+                      className="w-full sm:w-56 bg-white border border-outline-variant pl-9 pr-3 py-2.5 text-sm focus:ring-0 focus:border-primary font-body-md outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="lg:hidden">
+                <div className="flex gap-2 overflow-x-auto custom-scrollbar pb-1 -mx-1 px-1">
+                  {columns.map((col) => (
+                    <button
+                      key={col.key}
+                      onClick={() => setMobileColumn(col.key)}
+                      className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full border text-[11px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors ${mobileColumn === col.key ? "bg-primary text-white border-primary" : "bg-white text-on-surface-variant border-outline-variant"}`}
+                    >
+                      <span className="material-symbols-outlined text-[14px]">{col.icon}</span>
+                      {col.label}
+                      <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${mobileColumn === col.key ? "bg-white/20 text-white" : "bg-surface-container-high text-on-surface-variant"}`}>{col.items.length}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Board */}
-          <div className="flex-1 overflow-x-auto custom-scrollbar">
+          {/* Board — desktop horizontal scroll */}
+          <div className="hidden lg:flex flex-1 overflow-x-auto custom-scrollbar">
             <div className="flex h-full min-w-max items-stretch gap-4 p-6 md:p-10">
               {columns.map((col) => (
                 <div key={col.key} className="w-72 sm:w-80 flex flex-col bg-surface-container-low border border-outline-variant rounded-lg shadow-sm">
@@ -265,6 +283,70 @@ export default function OpsBoardPage() {
                 </div>
               ))}
             </div>
+          </div>
+          {/* Board — mobile single column */}
+          <div className="lg:hidden flex-1 overflow-y-auto">
+            {(() => {
+              const activeCol = columns.find((c) => c.key === mobileColumn) || columns[0]
+              if (!activeCol) return null
+              return (
+                <div className="p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
+                      <span className="material-symbols-outlined text-[16px] text-secondary">{activeCol.icon}</span>
+                      {activeCol.label}
+                    </div>
+                    <span className="text-xs font-bold text-on-surface-variant bg-white border border-outline-variant px-2 py-0.5 rounded-full">{activeCol.items.length}</span>
+                  </div>
+                  {activeCol.items.length === 0 ? (
+                    <div className="text-center italic text-xs text-on-surface-variant/50 py-12 bg-surface-container-low border border-dashed border-outline-variant rounded-lg">
+                      Belum ada antrian di tahap ini
+                    </div>
+                  ) : (
+                    activeCol.items.map((item) => {
+                      const wp = item.wedding_profile
+                      return (
+                        <div
+                          key={item.id}
+                          onClick={() => router.push(`/ops/antrian/${item.id}`)}
+                          className="bg-white border border-outline-variant p-4 shadow-sm active:scale-[0.99] transition-transform cursor-pointer"
+                        >
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <p className="font-display-lg text-[15px] leading-tight">
+                              {wp.bride_name} &amp; {wp.groom_name}
+                            </p>
+                            {wp.express_service && (
+                              <span className="material-symbols-outlined text-amber-600 text-base shrink-0">bolt</span>
+                            )}
+                          </div>
+                          <div className="space-y-1 text-[11px] text-on-surface-variant">
+                            <div className="flex items-center gap-1.5">
+                              <span className="material-symbols-outlined text-[13px] opacity-60">call</span>
+                              <span className="truncate">{wp.whatsapp_number || "—"}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="material-symbols-outlined text-[13px] opacity-60">event</span>
+                              {formatDate(item.registration_date || "")}
+                            </div>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="material-symbols-outlined text-[13px] opacity-60">workspace_premium</span>
+                              <span>{PACKAGE_LABELS[wp.package_type] || wp.package_type}</span>
+                              <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold uppercase tracking-widest border shrink-0 ${wp.package_type.startsWith("dgb_") ? "bg-surface-container-low text-secondary border-secondary/20" : "bg-surface-container-low text-primary border-primary/20"}`}>
+                                {getPackageCategory(wp.package_type)}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="material-symbols-outlined text-[13px] opacity-60">person</span>
+                              <span className="truncate">{item.assigned_name || "—"}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
+              )
+            })()}
           </div>
         </main>
       </div>

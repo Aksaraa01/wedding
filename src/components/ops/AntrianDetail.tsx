@@ -482,7 +482,7 @@ export default function AntrianDetail({ id }: { id: string }) {
       <div className="flex flex-col h-screen bg-background text-on-surface antialiased font-body-md">
         <OpsHeader employee={employee} activeKey="antrian" />
 
-        <main className="pt-20 flex-1 overflow-y-auto custom-scrollbar bg-background p-8 md:p-12">
+        <main className="pt-20 flex-1 overflow-y-auto custom-scrollbar bg-background p-4 md:p-12">
           <Link
             href="/ops"
             className="inline-flex items-center gap-2 text-sm font-label-md uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors mb-6"
@@ -492,12 +492,12 @@ export default function AntrianDetail({ id }: { id: string }) {
           </Link>
 
           {/* Header Section */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b border-outline-variant pb-8">
-            <div>
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-8 md:mb-12 border-b border-outline-variant pb-6 md:pb-8">
+            <div className="min-w-0">
               <span className="font-label-md text-xs uppercase tracking-[0.2em] text-secondary mb-2 block">
                 Ruang Kerja Klien
               </span>
-              <h2 className="font-display-lg text-5xl">{currentWp.bride_name} &amp; {currentWp.groom_name}</h2>
+              <h2 className="font-display-lg text-3xl md:text-5xl leading-tight break-words">{currentWp.bride_name} &amp; {currentWp.groom_name}</h2>
               <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 font-body-md text-sm text-on-surface-variant">
                 <div className="flex items-center gap-2">
                   <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">Tanggal:</span>
@@ -507,13 +507,13 @@ export default function AntrianDetail({ id }: { id: string }) {
                   <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">Estimasi:</span>
                   <span className="font-bold text-primary">{currentWp.estimated_guest_count} Tamu</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">Paket:</span>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 w-full sm:w-auto">
+                  <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60 shrink-0">Paket:</span>
                   <select
                     value={currentWp.package_type}
                     onChange={(e) => updatePackage(e.target.value)}
                     disabled={employee?.role === "creative"}
-                    className="bg-white border border-outline-variant text-sm font-bold text-primary py-1 px-2 focus:ring-0 focus:border-primary font-body-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-white border border-outline-variant text-sm font-bold text-primary py-1 px-2 focus:ring-0 focus:border-primary font-body-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
                   >
                     <optgroup label="Undangan Digital">
                       {Object.entries(PACKAGE_LABELS)
@@ -545,22 +545,22 @@ export default function AntrianDetail({ id }: { id: string }) {
                 )}
               </div>
             </div>
-            <div className="flex flex-wrap gap-4 items-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-end w-full lg:w-auto">
               <a
                 href={waCustomerUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center px-5 py-3 bg-primary text-on-primary text-[10px] font-bold uppercase tracking-widest hover:bg-secondary transition-colors"
+                className="inline-flex items-center justify-center px-5 py-3 bg-primary text-on-primary text-[10px] font-bold uppercase tracking-widest hover:bg-secondary transition-colors w-full sm:w-auto text-center"
               >
                 Hubungi Customer
               </a>
-              <div className="flex flex-col">
+              <div className="flex flex-col flex-1 sm:flex-none min-w-0">
                 <label className="font-label-md text-[10px] uppercase tracking-widest mb-1">Petugas Konsultan</label>
                 <select
                   value={detail.queue.assigned_to || ""}
                   onChange={(e) => assignConsultant(e.target.value)}
                   disabled={employee?.role === "creative"}
-                  className="bg-surface-container border border-outline-variant text-sm py-2 px-4 focus:ring-0 focus:border-primary font-body-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-surface-container border border-outline-variant text-sm py-2 px-4 focus:ring-0 focus:border-primary font-body-md disabled:opacity-50 disabled:cursor-not-allowed w-full sm:min-w-[180px]"
                 >
                   <option value="">— Pilih —</option>
                   {detail.employees.map((emp) => (
@@ -568,7 +568,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                   ))}
                 </select>
               </div>
-              <div className="bg-secondary-container text-on-secondary-container px-6 py-4 border border-secondary flex flex-col items-center justify-center">
+              <div className="bg-secondary-container text-on-secondary-container px-6 py-4 border border-secondary flex flex-col items-center justify-center w-full sm:w-auto">
                 <span className="font-label-md text-[10px] uppercase tracking-widest opacity-80">Status SLA Aktif</span>
                 <span className="font-mono text-xl font-bold">
                   <SlaTimer startedAt={detail.queue.sla_started_at} />
@@ -578,7 +578,7 @@ export default function AntrianDetail({ id }: { id: string }) {
           </div>
 
           {/* Status Pipeline Panel */}
-          <section className="mb-16 border border-primary p-8 bg-surface-container-low relative overflow-hidden">
+          <section className="mb-8 md:mb-16 border border-primary p-4 md:p-8 bg-surface-container-low relative overflow-hidden">
             <div className="absolute top-0 right-0 p-2 opacity-5 pointer-events-none">
               <span className="material-symbols-outlined text-[120px]">account_tree</span>
             </div>
@@ -615,13 +615,13 @@ export default function AntrianDetail({ id }: { id: string }) {
                   dilakukan kapan saja; alur feedback berjalan berurutan.
                 </p>
               </div>
-              <div className="flex flex-col gap-2 min-w-[260px]">
+              <div className="flex flex-col gap-2 w-full sm:min-w-[260px] sm:w-auto">
                 <label className="font-label-md text-xs uppercase tracking-widest">Ubah Status</label>
                 <select
                   value=""
                   onChange={(e) => e.target.value && changeStatus(e.target.value)}
                   disabled={statusSaving}
-                  className="bg-white border border-outline-variant text-sm py-3 px-3 focus:ring-0 focus:border-primary font-body-md cursor-pointer disabled:opacity-50"
+                  className="bg-white border border-outline-variant text-sm py-3 px-3 focus:ring-0 focus:border-primary font-body-md cursor-pointer disabled:opacity-50 w-full"
                 >
                   <option value="">— Pilih status —</option>
                   {OPS_COLUMNS.map((col) => {
@@ -655,7 +655,7 @@ export default function AntrianDetail({ id }: { id: string }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-16">
             {detail.feature_actions.length === 0 && (
               <div className="col-span-full text-center opacity-30 italic font-body-md text-sm py-12">
                 Tidak ada fitur untuk paket ini
@@ -671,7 +671,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                 return (
                   <div
                     key={fa.id}
-                    className="bg-white border border-outline-variant p-6 flex flex-col hover:border-primary/50 transition-all duration-300"
+                    className="bg-white border border-outline-variant p-4 md:p-6 flex flex-col hover:border-primary/50 transition-all duration-300"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <h4 className="font-display-lg text-base leading-tight">
@@ -882,11 +882,11 @@ export default function AntrianDetail({ id }: { id: string }) {
               <span className="material-symbols-outlined">history</span>
               Riwayat Status
             </h3>
-            <div className="border border-outline-variant bg-white">
+            <div className="border border-outline-variant bg-white overflow-x-auto">
               {detail.status_log.length === 0 ? (
                 <p className="p-6 text-sm opacity-50 italic text-center">Belum ada perubahan status.</p>
               ) : (
-                <table className="w-full text-sm">
+                <table className="w-full text-sm min-w-[520px]">
                   <thead>
                     <tr className="border-b border-outline-variant text-left font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">
                       <th className="px-4 py-3">Waktu</th>

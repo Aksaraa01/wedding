@@ -22,10 +22,13 @@ export default function OpsHeader({
 }) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  const mobileRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpen(false)
+      if (mobileRef.current && !mobileRef.current.contains(e.target as Node)) setMobileNavOpen(false)
     }
     document.addEventListener("mousedown", onClick)
     return () => document.removeEventListener("mousedown", onClick)
@@ -41,7 +44,14 @@ export default function OpsHeader({
         <h1 className="font-display-lg text-headline-md tracking-widest text-primary uppercase">Aksaraa</h1>
         <span className="text-xs font-label-md tracking-widest bg-primary text-white px-2 py-1 ml-2">CORE OPS</span>
       </div>
-      <div className="flex items-center gap-8">
+      <div className="flex items-center gap-4 md:gap-8">
+        <button
+          onClick={() => setMobileNavOpen((v) => !v)}
+          className="md:hidden w-10 h-10 flex items-center justify-center border border-outline-variant bg-surface hover:bg-surface-container-low"
+          aria-label="Menu navigasi"
+        >
+          <span className="material-symbols-outlined">{mobileNavOpen ? "close" : "menu"}</span>
+        </button>
         <nav className="hidden md:flex gap-10">
           {NAV_ITEMS.map((item) => {
             const allowed = TAB_ROLES[item.key]
@@ -64,7 +74,7 @@ export default function OpsHeader({
         <div className="flex items-center gap-3 relative" ref={menuRef}>
           <div className="text-right hidden sm:block min-w-0">
             <p className="font-label-md text-[10px] uppercase opacity-60">Petugas Aktif</p>
-            <p className="font-body-md font-semibold text-sm max-w-[220px] truncate" title={displayName}>{displayName}</p>
+            <p className="font-body-md font-semibold text-sm max-w-[160px] lg:max-w-[220px] truncate" title={displayName}>{displayName}</p>
           </div>
           <button
             onClick={() => setOpen((v) => !v)}
@@ -90,6 +100,40 @@ export default function OpsHeader({
           )}
         </div>
       </div>
+      {mobileNavOpen && (
+        <div ref={mobileRef} className="md:hidden absolute top-20 left-0 w-full bg-background border-b border-outline-variant shadow-lg z-40">
+          <nav className="flex flex-col py-2">
+            {NAV_ITEMS.map((item) => {
+              const allowed = TAB_ROLES[item.key]
+              if (allowed && !allowed.includes(employee.role as any)) return null
+              const active = activeKey === item.key
+              return (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  onClick={() => setMobileNavOpen(false)}
+                  className={`px-6 py-4 font-label-md text-xs uppercase tracking-widest flex items-center justify-between ${active ? "text-primary bg-surface-container-low font-semibold" : "text-on-surface-variant"}`}
+                >
+                  {item.label}
+                  {active && <span className="material-symbols-outlined text-[16px]">chevron_right</span>}
+                </Link>
+              )
+            })}
+            <div className="mx-6 my-2 border-t border-outline-variant/30 pt-3 flex items-center gap-3 sm:hidden">
+              <div className="w-8 h-8 bg-surface-container-highest border border-outline-variant flex items-center justify-center shrink-0">
+                <span className="material-symbols-outlined text-[18px]">person</span>
+              </div>
+              <div className="min-w-0">
+                <p className="font-body-md font-semibold text-sm truncate" title={displayName}>{displayName}</p>
+                <p className="font-label-md text-[10px] uppercase opacity-60">Petugas Aktif</p>
+              </div>
+            </div>
+            <button onClick={handleLogout} className="mx-6 mt-2 mb-2 flex items-center justify-center gap-2 py-3 border border-outline-variant font-label-md text-xs uppercase tracking-widest">
+              <span className="material-symbols-outlined text-[16px]">logout</span> Keluar
+            </button>
+          </nav>
+        </div>
+      )}
     </header>
   )
 }

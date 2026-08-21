@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
+import OpsHeader from "@/components/ops/OpsHeader"
 
 type Track = {
   id: string
@@ -34,16 +35,7 @@ export default function OpsMusicPage() {
   const [editingTitle, setEditingTitle] = useState("")
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const onClick = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false)
-    }
-    document.addEventListener("mousedown", onClick)
-    return () => document.removeEventListener("mousedown", onClick)
-  }, [])
-  const displayName = employee ? `${employee.name}.${employee.role}` : ""
+
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -153,53 +145,7 @@ export default function OpsMusicPage() {
       `}</style>
 
       <div className="min-h-screen bg-background text-on-surface antialiased font-body-md">
-        {/* Fixed Header */}
-        <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 md:px-12 h-20 bg-background border-b border-outline-variant">
-          <div className="flex items-center gap-4">
-            <h1 className="font-display-lg text-headline-md tracking-widest text-primary uppercase">Aksaraa</h1>
-            <span className="text-xs font-label-md tracking-widest bg-primary text-white px-2 py-1 ml-2">CORE OPS</span>
-          </div>
-          <div className="flex items-center gap-8">
-            <nav className="hidden md:flex gap-10">
-              <a href="/ops" className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary">Antrian</a>
-              <a className="font-label-md text-label-md uppercase tracking-widest text-primary font-semibold border-b-2 border-primary">Music</a>
-              {["admin", "creative"].includes(employee.role) && (
-                <a href="/ops/templates" className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary">Template</a>
-              )}
-            </nav>
-            <div className="flex items-center gap-3 relative" ref={menuRef}>
-              <div className="text-right hidden sm:block min-w-0">
-                <p className="font-label-md text-[10px] uppercase opacity-60">Petugas Aktif</p>
-                <p className="font-body-md font-semibold text-sm max-w-[220px] truncate" title={displayName}>{displayName}</p>
-              </div>
-              <button
-                onClick={() => setMenuOpen((v) => !v)}
-                className="w-10 h-10 bg-surface-container-highest border border-outline-variant flex items-center justify-center hover:bg-surface-container transition-colors"
-                aria-label="Menu profil"
-              >
-                <span className="material-symbols-outlined">person</span>
-              </button>
-              {menuOpen && (
-                <div className="absolute right-0 top-12 w-44 bg-white border border-outline-variant shadow-lg py-2 z-50">
-                  <div className="px-4 py-2 border-b border-outline-variant/50 sm:hidden">
-                    <p className="font-body-md font-semibold text-sm truncate" title={displayName}>{displayName}</p>
-                    <p className="font-label-md text-[10px] uppercase opacity-60">Petugas Aktif</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      sessionStorage.removeItem("ops_employee")
-                      router.replace("/ops/login")
-                    }}
-                    className="w-full text-left px-4 py-2.5 font-label-md text-xs uppercase tracking-widest hover:bg-surface-container-low flex items-center gap-2"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">logout</span>
-                    Keluar
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
+        <OpsHeader employee={employee} activeKey="music" />
 
         <main className="pt-24 pb-20 px-6 md:px-12 max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
@@ -251,7 +197,7 @@ export default function OpsMusicPage() {
               tracks.map((track) => {
                 const isCustom = track.is_custom === true
                 return (
-                  <div key={track.id} className={`bg-white border p-5 flex flex-col md:flex-row md:items-center gap-4 transition-colors ${isCustom ? "border-outline-variant hover:border-primary/40" : "border-outline-variant/40 opacity-70"}`}>
+                  <div key={track.id} className={`bg-white border p-4 md:p-5 flex flex-col gap-4 transition-colors ${isCustom ? "border-outline-variant hover:border-primary/40" : "border-outline-variant/40 opacity-70"}`}>
                     <div className="flex-none w-12 h-12 bg-surface-container-high flex items-center justify-center">
                     <span className="material-symbols-outlined text-primary">{isCustom ? "music_note" : "library_music"}</span>
                   </div>
@@ -304,8 +250,8 @@ export default function OpsMusicPage() {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-4 shrink-0">
-                    <audio controls preload="none" src={track.audio_url} className="h-9 w-56" />
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 w-full">
+                    <audio controls preload="none" src={track.audio_url} className="h-9 w-full sm:w-56" />
                     {isCustom ? (
                       <>
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest ${
