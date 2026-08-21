@@ -64,12 +64,6 @@ export async function PUT(
       await supabaseAdmin.from("feature_actions").insert(featureRows)
     }
 
-    // Reset queue status so OPS knows there's new work
-    await supabaseAdmin
-      .from("ops_queue")
-      .update({ status: "belum_bayar" })
-      .eq("id", id)
-
     return NextResponse.json({ success: true, package_type, total_project_cost: total })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })

@@ -137,19 +137,19 @@ function SectionToggle({ label, checked, onChange, disabled = false }: { label: 
   )
 }
 
-function AttentionIcon({ size = 18 }: { size?: number }) {
+function AttentionIcon({ size = 36 }: { size?: number }) {
   return (
-    <span className="inline-flex items-center justify-center shrink-0" style={{ width: size, height: size }} aria-hidden>
+    <span className="inline-flex items-center justify-center shrink-0 text-current" style={{ width: size, height: size }} aria-hidden>
       <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12" cy="12" r="10" stroke="#ffffff" strokeWidth="0.5" opacity="0.35">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="0.5" opacity="0.35">
           <animate attributeName="r" dur="3s" repeatCount="indefinite" values="10;11.5;10" />
           <animate attributeName="opacity" dur="3s" repeatCount="indefinite" values="0.35;0.08;0.35" />
         </circle>
-        <circle cx="12" cy="12" r="8" stroke="#ffffff" strokeWidth="1" opacity="0.6">
+        <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1" opacity="0.6">
           <animate attributeName="stroke-dasharray" dur="4s" repeatCount="indefinite" values="0,31.4;31.4,0;0,31.4" />
         </circle>
         <g className="attention-icon">
-          <path d="M12 8V13M12 16H12.01" stroke="#ffffff" strokeLinecap="round" strokeWidth="1.5">
+          <path d="M12 8V13M12 16H12.01" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5">
             <animate attributeName="opacity" dur="1.5s" repeatCount="indefinite" values="1;0.4;1" />
           </path>
         </g>
@@ -714,23 +714,23 @@ function EditorInner({ id }: { id: string }) {
   const renderSection = (key: string, icon: string, label: string, content: React.ReactNode) => {
     const isActive = activeSection === key
     return (
-      <div data-section={key} className={`scroll-mt-6 border ${isActive ? "bg-[#8d4d39] border-[#8d4d39] shadow-sm" : "bg-[#8d4d39] border-[#8d4d39] opacity-90"}`}>
+      <div data-section={key} className={`scroll-mt-6 border ${isActive ? "bg-white border-outline-variant" : "bg-[#8d4d39] border-[#8d4d39]"}`}>
         <button
           onClick={() => handleSectionToggle(key)}
-          className={`w-full flex justify-between items-center py-4 px-4 transition-colors ${isActive ? "text-white" : "text-white/80 hover:text-white"}`}
+          className={`w-full flex justify-between items-center py-4 px-4 transition-colors ${isActive ? "text-primary" : "text-white/90 hover:text-white"}`}
         >
           <span className="font-label-md text-label-md flex items-center gap-3">
             <span className="material-symbols-outlined text-[18px]">{icon}</span>
             {label}
             {sectionIncomplete(key) && (
-              <span title="Konten belum lengkap" className="inline-flex">
-                <AttentionIcon size={18} />
+              <span title="Konten belum lengkap" className={`inline-flex ${isActive ? "text-[#8d4d39]" : "text-white"}`}>
+                <AttentionIcon size={36} />
               </span>
             )}
           </span>
           <span className="material-symbols-outlined">{isActive ? "expand_less" : "expand_more"}</span>
         </button>
-        {isActive && <div className="px-4 pb-6 bg-[#8d4d39] text-white">{content}</div>}
+        {isActive && <div className="px-4 pb-6 bg-white">{content}</div>}
       </div>
     )
   }
@@ -870,10 +870,10 @@ function EditorInner({ id }: { id: string }) {
                 "KONFIRMASI"
               )}
             </button>
+            <button onClick={() => setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile")} className="hidden md:inline-flex items-center justify-center w-10 h-10 rounded-full border border-outline-variant bg-white text-on-surface-variant hover:text-primary hover:border-primary transition-colors" title="Ganti tampilan pratinjau"><span className="material-symbols-outlined text-[20px]">devices</span></button>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
-            <button onClick={() => setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile")} className="hover:text-primary transition-colors hidden md:flex p-2 text-on-surface-variant" title="Ganti tampilan pratinjau"><span className="material-symbols-outlined">devices</span></button>
+          <div className="flex items-center shrink-0">
             <ProfileMenu />
           </div>
         </header>
