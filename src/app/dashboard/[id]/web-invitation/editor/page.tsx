@@ -847,6 +847,8 @@ function EditorInner({ id }: { id: string }) {
               <span>GANTI TEMA</span>
             </button>
 
+            <button onClick={() => setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile")} className="hidden md:inline-flex items-center justify-center w-10 h-10 rounded-full border border-outline-variant bg-white text-on-surface-variant hover:text-primary hover:border-primary transition-colors" title="Ganti tampilan pratinjau"><span className="material-symbols-outlined text-[20px]">devices</span></button>
+
             <button
               onClick={() => setShowPublishConfirm(true)}
               disabled={isPublished}
@@ -870,7 +872,6 @@ function EditorInner({ id }: { id: string }) {
                 "KONFIRMASI"
               )}
             </button>
-            <button onClick={() => setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile")} className="hidden md:inline-flex items-center justify-center w-10 h-10 rounded-full border border-outline-variant bg-white text-on-surface-variant hover:text-primary hover:border-primary transition-colors" title="Ganti tampilan pratinjau"><span className="material-symbols-outlined text-[20px]">devices</span></button>
           </div>
 
           <div className="flex items-center shrink-0">
