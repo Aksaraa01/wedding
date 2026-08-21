@@ -159,6 +159,40 @@ function AttentionIcon({ size = 36 }: { size?: number }) {
   )
 }
 
+function SidebarShimmer() {
+  return (
+    <div className="space-y-3 p-1 animate-pulse">
+      {[1,2,3,4,5,6].map(i => (
+        <div key={i} className="border border-outline-variant/30 p-4 space-y-3">
+          <div className="h-4 bg-surface-container-high rounded w-1/2" />
+          <div className="h-3 bg-surface-container-high rounded w-full" />
+          <div className="h-3 bg-surface-container-high rounded w-5/6" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function PreviewShimmer() {
+  return (
+    <div className="absolute inset-0 bg-surface flex flex-col items-center justify-center gap-4 z-10">
+      <div className="w-full max-w-sm p-6 space-y-4 animate-pulse">
+        <div className="h-48 bg-surface-container-high rounded-xl" />
+        <div className="h-6 bg-surface-container-high rounded w-3/4 mx-auto" />
+        <div className="h-4 bg-surface-container-high rounded w-1/2 mx-auto" />
+        <div className="space-y-2 pt-4">
+          <div className="h-3 bg-surface-container-high rounded" />
+          <div className="h-3 bg-surface-container-high rounded w-5/6" />
+        </div>
+      </div>
+      <div className="flex items-center gap-2 text-on-surface-variant text-sm">
+        <span className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        Memuat pratinjau...
+      </div>
+    </div>
+  )
+}
+
 function EditorInner({ id }: { id: string }) {
   const router = useRouter()
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -180,6 +214,7 @@ function EditorInner({ id }: { id: string }) {
   const [feedbackCount, setFeedbackCount] = useState<number | null>(null)
   const [feedbackLoading, setFeedbackLoading] = useState(true)
   const [showPaymentGate, setShowPaymentGate] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
   const [gates, setGates] = useState<RowGates>({
     gift_address: { included: true, availableIn: [...INITIAL_AVAILABLE_IN] },
     inviting_families: { included: true, availableIn: [...INITIAL_AVAILABLE_IN] },
@@ -203,6 +238,7 @@ function EditorInner({ id }: { id: string }) {
   const bridePhotoSlotRef = useRef<(HTMLInputElement | null)[]>([])
 
   useEffect(() => {
+    setInitialLoading(true)
     fetch(`/api/dashboard/${id}/web-invitation`)
       .then(r => r.json())
       .then(res => {
@@ -227,6 +263,7 @@ function EditorInner({ id }: { id: string }) {
           if (days >= 0 && days <= 30) setShowH3Reminder(true)
         }
       })
+      .finally(() => setInitialLoading(false))
   }, [id])
 
   useEffect(() => {
@@ -816,18 +853,36 @@ function EditorInner({ id }: { id: string }) {
             </button>
             <div className="h-8 w-px bg-outline-variant hidden sm:block" />
             <div className="hidden sm:block min-w-0">
-              <h1 className="font-headline-md text-[18px] lg:text-[20px] text-primary tracking-tight font-bold truncate max-w-[180px] xl:max-w-none">{data.display_name || "Undangan"}</h1>
-              <p className="font-label-md text-[10px] text-on-surface-variant flex items-center gap-1">
-                <span className={`w-1.5 h-1.5 rounded-full ${saveStatusColor}`} />
-                {saveStatusLabel}
-              </p>
+              {initialLoading ? (
+                <div className="space-y-2 animate-pulse">
+                  <div className="h-5 w-32 bg-surface-container-high rounded" />
+                  <div className="h-3 w-24 bg-surface-container-high rounded" />
+                </div>
+              ) : (
+                <>
+                  <h1 className="font-headline-md text-[18px] lg:text-[20px] text-primary tracking-tight font-bold truncate max-w-[180px] xl:max-w-none">{data.display_name || "Undangan"}</h1>
+                  <p className="font-label-md text-[10px] text-on-surface-variant flex items-center gap-1">
+                    <span className={`w-1.5 h-1.5 rounded-full ${saveStatusColor}`} />
+                    {saveStatusLabel}
+                  </p>
+                </>
+              )}
             </div>
           </div>
 
           <div className="flex-1 flex justify-center items-center gap-2 lg:gap-3">
+            {initialLoading ? (
+              <div className="hidden md:flex items-center gap-2 animate-pulse">
+                <div className="h-10 w-32 bg-surface-container-high rounded-full" />
+                <div className="h-10 w-28 bg-surface-container-high rounded-full" />
+                <div className="h-10 w-10 bg-surface-container-high rounded-full" />
+                <div className="h-10 w-28 bg-surface-container-high rounded-full" />
+              </div>
+            ) : (
+              <>
             <button
               onClick={handleUpdatePreview}
-              disabled={updatingPreview || isPublished}
+              disabled={updatingPreview || isPublished || initialLoading}
               className="hidden md:inline-flex items-center gap-2 px-4 lg:px-5 py-2.5 font-label-md text-label-md bg-brand-gold text-white rounded-full transition-all active:scale-95 hover:opacity-90 disabled:opacity-50 shadow-sm"
             >
               <span className="material-symbols-outlined text-[18px]">{updatingPreview ? "hourglass_top" : "refresh"}</span>
@@ -836,7 +891,7 @@ function EditorInner({ id }: { id: string }) {
 
             <button
               onClick={() => router.push(`/dashboard/${id}/web-invitation/templates`)}
-              disabled={isPublished}
+              disabled={isPublished || initialLoading}
               className={`hidden md:inline-flex items-center gap-2 px-4 lg:px-5 py-2.5 border font-label-md text-label-md rounded-full transition-all active:scale-95 ${
                 isPublished
                   ? "border-outline-variant text-on-surface-variant/50 cursor-not-allowed bg-surface"
@@ -847,11 +902,11 @@ function EditorInner({ id }: { id: string }) {
               <span>GANTI TEMA</span>
             </button>
 
-            <button onClick={() => setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile")} className="hidden md:inline-flex items-center justify-center w-10 h-10 rounded-full border border-outline-variant bg-white text-on-surface-variant hover:text-primary hover:border-primary transition-colors" title="Ganti tampilan pratinjau"><span className="material-symbols-outlined text-[20px]">devices</span></button>
+            <button onClick={() => setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile")} disabled={initialLoading} className="hidden md:inline-flex items-center justify-center w-10 h-10 rounded-full border border-outline-variant bg-white text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-50" title="Ganti tampilan pratinjau"><span className="material-symbols-outlined text-[20px]">devices</span></button>
 
             <button
               onClick={() => setShowPublishConfirm(true)}
-              disabled={isPublished}
+              disabled={isPublished || initialLoading}
               className={`hidden md:inline-flex px-5 py-2.5 font-label-md text-label-md rounded-full transition-all active:scale-95 shadow-sm ${
                 isPublished
                   ? "flex-col items-center justify-center bg-emerald-600 text-white cursor-default border border-emerald-600 py-1.5 px-4 leading-none"
@@ -872,6 +927,8 @@ function EditorInner({ id }: { id: string }) {
                 "KONFIRMASI"
               )}
             </button>
+              </>
+            )}
           </div>
 
           <div className="flex items-center shrink-0">
@@ -895,6 +952,10 @@ function EditorInner({ id }: { id: string }) {
             )}
 
             <div className="flex-1 overflow-y-auto custom-scrollbar p-6 pb-32 space-y-4 md:pb-6">
+              {initialLoading ? (
+                <SidebarShimmer />
+              ) : (
+                <>
               {renderSection("sampul", "photo_album", "SAMPUL",
                 <div className="mt-6 space-y-8">
                   <div className="space-y-3">
@@ -1569,6 +1630,8 @@ function EditorInner({ id }: { id: string }) {
                   </button>
                 </div>
               )}
+                </>
+              )}
             </div>
           </aside>
 
@@ -1576,6 +1639,16 @@ function EditorInner({ id }: { id: string }) {
           <section className={`${showMobilePreview ? 'flex' : 'hidden'} md:flex flex-1 bg-surface relative overflow-hidden items-center justify-center`}
             style={{ backgroundImage: "linear-gradient(#e5e1d8 1px, transparent 1px), linear-gradient(90deg, #e5e1d8 1px, transparent 1px)", backgroundSize: "40px 40px" }}
           >
+            {(initialLoading || updatingPreview || syncStatus === "syncing") && (
+              <div className="absolute inset-0 bg-surface/90 backdrop-blur-sm z-30 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-3">
+                  <span className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  <span className="font-label-md text-label-md text-on-surface-variant animate-pulse">
+                    {initialLoading ? "Memuat pratinjau..." : updatingPreview || syncStatus === "syncing" ? "Menyinkronkan..." : "Memuat..."}
+                  </span>
+                </div>
+              </div>
+            )}
             {previewDevice === "mobile" ? (
               <div className="hidden md:block iphone-frame w-[390px] h-[780px] bg-white overflow-hidden relative shadow-2xl" style={{ transform: "scale(0.95)", transformOrigin: "center" }}>
                 <div className="absolute top-0 inset-x-0 h-10 px-8 flex justify-between items-end pb-1 z-[100] text-black pointer-events-none">
