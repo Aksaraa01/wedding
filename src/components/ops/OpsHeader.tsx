@@ -62,9 +62,9 @@ export default function OpsHeader({
           })}
         </nav>
         <div className="flex items-center gap-3 relative" ref={menuRef}>
-          <div className="text-right hidden sm:block">
+          <div className="text-right hidden sm:block min-w-0">
             <p className="font-label-md text-[10px] uppercase opacity-60">Petugas Aktif</p>
-            <p className="font-body-md font-semibold text-sm">{displayName}</p>
+            <p className="font-body-md font-semibold text-sm max-w-[220px] truncate" title={displayName}>{displayName}</p>
           </div>
           <button
             onClick={() => setOpen((v) => !v)}
@@ -76,7 +76,7 @@ export default function OpsHeader({
           {open && (
             <div className="absolute right-0 top-12 w-44 bg-white border border-outline-variant shadow-lg py-2 z-50">
               <div className="px-4 py-2 border-b border-outline-variant/50 sm:hidden">
-                <p className="font-body-md font-semibold text-sm truncate">{displayName}</p>
+                <p className="font-body-md font-semibold text-sm truncate" title={displayName}>{displayName}</p>
                 <p className="font-label-md text-[10px] uppercase opacity-60">Petugas Aktif</p>
               </div>
               <button
