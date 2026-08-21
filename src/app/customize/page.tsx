@@ -94,7 +94,7 @@ const UNDANGAN_CARDS: CardDef[] = [
       { icon: "check", text: "6 Bulan Masa Aktif" },
       { icon: "auto_awesome", text: "Love Story, Video Embed, Alamat Kado, Turut Mengundang", accent: true, pt: true },
     ],
-    details: { label: "Lihat Fitur Essential", items: SIGNATURE_DETAILS },
+    details: { label: "Lihat Fitur Essential", items: ESSENTIAL_DETAILS },
   },
   {
     code: "prestige",
