@@ -25,7 +25,7 @@ interface Props {
   sessions?: { name: string; date: string; time: string; timezone: string; venue: string; address: string; maps_url: string }[]
   quote_text?: string
   quote_source?: string
-  stories?: { year: string; title: string; description: string; image_url: string }[]
+  stories?: { title: string; description: string; image_url: string }[]
   gallery_photos?: string[]
   gift_accounts?: { provider_name: string; account_number: string; account_name: string; type: string }[]
   gift_address?: string
@@ -621,7 +621,6 @@ export default function HeritageJawa({
                     <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "#C1A05E" }} />
                   </div>
                   <div className="p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: "rgba(255,255,255,0.7)", borderColor: "#C1A05E1a", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}>
-                    <span className="text-[12px] tracking-widest mb-2 block font-bold" style={{ color: "#C1A05E" }}>{s.year}</span>
                     <div className="mb-4 flex justify-center">
                       <div className="w-40 h-40 rounded-full overflow-hidden border-2 shadow-lg relative" style={{ borderColor: "#C1A05E55" }}>
                         <img alt={s.title} className="w-full h-full object-cover" src={s.image_url || IMG.story[i] || IMG.story[0]} />

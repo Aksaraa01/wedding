@@ -254,6 +254,19 @@ class AksaraaPlugin
                 return is_string($it) ? strip_tags($it) : '(icon)';
             case 'divider': return '(pembatas)';
             case 'spacer': return '(spasi)';
+            case 'nested-accordion':
+                $items = $settings['items'] ?? [];
+                if (is_array($items) && !empty($items)) {
+                    $titles = [];
+                    foreach ($items as $it) {
+                        $t = trim((string) ($it['item_title'] ?? ''));
+                        if ($t !== '') $titles[] = $t;
+                    }
+                    $count = count($items);
+                    if (!empty($titles)) return 'accordion (' . $count . '): ' . implode(' | ', array_slice($titles, 0, 3));
+                    return 'accordion (' . $count . ')';
+                }
+                return 'accordion';
             default: return '';
         }
     }
@@ -549,6 +562,9 @@ class AksaraaPlugin
         // couple's rekening rows BEFORE patching, and extend the manifest slots.
         [$elements, $manifest] = self::reconcile_gift_containers($elements, $fields, $manifest);
 
+        // F2b — dynamic Love Story accordion: sync nested-accordion items + children to stories count.
+        [$elements, $manifest] = self::reconcile_story_accordion($elements, $fields, $manifest);
+
         // F4 — hide the alamat pengiriman card when the couple has no address
         // (single container). Reappears automatically once an address is set.
         $elements = self::reconcile_gift_address($elements, $fields, $manifest);
@@ -563,11 +579,9 @@ class AksaraaPlugin
         // submitted account number / address so guests copy the real value.
         $elements = self::reconcile_copy_buttons($elements, $fields, $manifest);
 
-        // F8 — self-heal broken template backgrounds: containers shipped with
-        // background_background=gradient but NO gradient colors, yet carrying a
-        // background_image, render BLACK (Elementor ignores the image for a gradient).
-        // Flip them to classic so the intended image shows.
-        $elements = self::normalize_backgrounds($elements);
+        // F8 — self-heal broken template backgrounds (scoped to mapped elements only —
+        // outside mapped elements must stay byte-identical to master).
+        $elements = self::normalize_backgrounds($elements, $manifest);
 
         $changed = $tree_before !== wp_json_encode($elements, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         $fields_to_apply = array_merge(
@@ -789,10 +803,18 @@ class AksaraaPlugin
                 $target = &$el['settings'];
                 for ($i = 0; $i < count($settingsPath) - 1; $i++) {
                     $key = $settingsPath[$i];
-                    if (!isset($target[$key])) $target[$key] = [];
+                    if (is_numeric($key) && is_array($target)) $key = (int) $key;
+                    if (!isset($target[$key]) || !is_array($target[$key])) {
+                        if (is_int($key)) {
+                            while (count($target) <= $key) $target[] = [];
+                        } else {
+                            $target[$key] = [];
+                        }
+                    }
                     $target = &$target[$key];
                 }
                 $lastKey = end($settingsPath);
+                if (is_numeric($lastKey) && is_array($target)) $lastKey = (int) $lastKey;
                 $parentKey = $settingsPath[0] ?? '';
 
                 // Background slideshow: needs 2 slides to render. Accept an array of
@@ -877,6 +899,104 @@ class AksaraaPlugin
             unset($option['popup'][$popup_id]);
             update_option('elementor_pro_theme_builder_conditions', $option);
         }
+    }
+
+    private static function find_first_widget_id(array $elements, string $widgetType): string
+    {
+        foreach ($elements as $el) {
+            if (($el['widgetType'] ?? '') === $widgetType) return $el['id'] ?? '';
+            if (!empty($el['elements'])) {
+                $found = self::find_first_widget_id($el['elements'], $widgetType);
+                if ($found) return $found;
+            }
+        }
+        return '';
+    }
+
+    private static function reconcile_story_accordion(array $elements, array $fields, array $manifest): array
+    {
+        $slots = $manifest['stories'] ?? [];
+        $baseSlot = is_array($slots) && isset($slots[0]) ? $slots[0] : null;
+        if (!is_array($baseSlot)) return [$elements, $manifest];
+        $accordionId = $baseSlot['title']['elementId'] ?? $baseSlot['description']['elementId'] ?? $baseSlot['image_url']['elementId'] ?? null;
+        if (!is_string($accordionId) || $accordionId === '') {
+            $accordionId = self::find_first_widget_id($elements, 'nested-accordion');
+        } else {
+            $test = self::find_node($elements, $accordionId);
+            if (!$test || ($test['widgetType'] ?? '') !== 'nested-accordion') {
+                $found = self::find_first_widget_id($elements, 'nested-accordion');
+                if ($found) $accordionId = $found;
+            }
+        }
+        if (!$accordionId) return [$elements, $manifest];
+        $desired = 0;
+        if (isset($fields['stories']) && is_array($fields['stories'])) {
+            foreach ($fields['stories'] as $s) {
+                if (!is_array($s)) continue;
+                $t = trim((string) ($s['title'] ?? ''));
+                $d = trim((string) ($s['description'] ?? ''));
+                $im = trim((string) ($s['image_url'] ?? ''));
+                if ($t !== '' || $d !== '' || $im !== '') $desired++;
+            }
+        }
+        if ($desired === 0) $desired = 1;
+
+        $updated = false;
+        $elements = self::apply_to_node($elements, $accordionId, function (array &$acc) use ($desired, &$updated) {
+            $items = $acc['settings']['items'] ?? [];
+            if (!is_array($items)) $items = [];
+            $children = $acc['elements'] ?? [];
+            if (!is_array($children)) $children = [];
+            $cur = count($items);
+            if ($cur < $desired) {
+                $templateItem = $items[0] ?? ['item_title' => '', '_id' => ''];
+                $templateChild = $children[0] ?? null;
+                for ($i = $cur; $i < $desired; $i++) {
+                    $newItem = is_array($templateItem) ? $templateItem : [];
+                    $newItem['_id'] = substr(md5(uniqid((string) mt_rand(), true)), 0, 7);
+                    $newItem['item_title'] = '';
+                    $items[] = $newItem;
+                    if ($templateChild) {
+                        $map = [];
+                        $clone = self::deep_clone($templateChild, $map);
+                        $children[] = $clone;
+                    }
+                    $updated = true;
+                }
+            } elseif ($cur > $desired) {
+                $items = array_slice($items, 0, $desired);
+                $children = array_slice($children, 0, $desired);
+                $updated = true;
+            }
+            $acc['settings']['items'] = array_values($items);
+            $acc['elements'] = array_values($children);
+        });
+
+        if (!$updated) {
+            $accNode = self::find_node($elements, $accordionId);
+            if (!$accNode) return [$elements, $manifest];
+        }
+        $accNode = self::find_node($elements, $accordionId);
+        if (!$accNode) return [$elements, $manifest];
+        $children = $accNode['elements'] ?? [];
+        $newSlots = [];
+        foreach (array_keys(array_slice($children, 0, $desired)) as $i) {
+            $child = $children[$i] ?? null;
+            if (!$child) continue;
+            $imageId = self::find_descendant_widget_id($child, 'image');
+            $textId = self::find_descendant_widget_id($child, 'text-editor');
+            if (!$imageId) $imageId = self::find_descendant_widget_id($child, 'image');
+            $newSlots[] = [
+                'title' => ['elementId' => $accordionId, 'settings' => ['items', (string) $i, 'item_title']],
+                'description' => $textId ? ['elementId' => $textId, 'settings' => ['editor']] : ($baseSlot['description'] ?? ['elementId' => $accordionId, 'settings' => ['items', (string) $i, 'item_title']]),
+                'image_url' => $imageId ? ['elementId' => $imageId, 'settings' => ['image', 'url']] : ($baseSlot['image_url'] ?? ['elementId' => $accordionId, 'settings' => ['items', (string) $i, 'item_title']]),
+            ];
+        }
+        while (count($newSlots) < $desired) {
+            $newSlots[] = $baseSlot;
+        }
+        $manifest['stories'] = array_slice($newSlots, 0, $desired);
+        return [$elements, $manifest];
     }
 
     // F2 — dynamic bank/e-wallet cards. The template ships ONE bank-card container
@@ -1157,33 +1277,47 @@ class AksaraaPlugin
     //      background-image CSS -> black.
     // Fix both: flip empty gradient -> classic, and sideload external background
     // images into the local media library (setting a valid id + wp.aksaraa.com url).
-    private static function normalize_backgrounds(array $elements): array
+    private static function normalize_backgrounds(array $elements, array $manifest = []): array
     {
-        $walk = function (array &$nodes) use (&$walk) {
-            foreach ($nodes as &$el) {
-                $s = $el['settings'] ?? null;
-                if (!is_array($s)) { if (!empty($el['elements'])) $walk($el['elements']); continue; }
-
-                // Sideload external background image into this WP so Elementor can
-                // resolve it by attachment id (pitfall #9). Covers background_image,
-                // background_image_tablet and background_image_mobile variants.
-                foreach (['background_image', 'background_image_tablet', 'background_image_mobile'] as $key) {
-                    $bg = $s[$key] ?? null;
-                    if (is_array($bg) && !empty($bg['url'])) {
-                        $url = (string) $bg['url'];
-                        $imported = self::sideload_image($url);
-                        if (!empty($imported['id']) && $imported['id'] > 0 && !empty($imported['url'])) {
-                            $s[$key]['url'] = $imported['url'];
-                            $s[$key]['id'] = $imported['id'];
+        $mapped = [];
+        foreach ($manifest as $field => $val) {
+            if (is_array($val) && isset($val['elementId'])) {
+                $mapped[$val['elementId']] = true;
+            } elseif (is_array($val)) {
+                foreach ($val as $entry) {
+                    if (is_array($entry) && isset($entry['elementId'])) {
+                        $mapped[$entry['elementId']] = true;
+                    } elseif (is_array($entry)) {
+                        foreach ($entry as $sub) {
+                            if (is_array($sub) && isset($sub['elementId'])) $mapped[$sub['elementId']] = true;
                         }
                     }
                 }
+            }
+        }
+        $walk = function (array &$nodes) use (&$walk, $mapped) {
+            foreach ($nodes as &$el) {
+                $s = $el['settings'] ?? null;
+                if (!is_array($s)) { if (!empty($el['elements'])) $walk($el['elements']); continue; }
+                $isMapped = isset($mapped[$el['id'] ?? '']);
 
-                // Broken gradient (no colors) with an image -> classic so the image shows.
-                if (($s['background_background'] ?? '') === 'gradient'
-                    && self::gradient_is_empty($s)
-                    && !empty($s['background_image']['url'])) {
-                    $s['background_background'] = 'classic';
+                if ($isMapped) {
+                    foreach (['background_image', 'background_image_tablet', 'background_image_mobile'] as $key) {
+                        $bg = $s[$key] ?? null;
+                        if (is_array($bg) && !empty($bg['url'])) {
+                            $url = (string) $bg['url'];
+                            $imported = self::sideload_image($url);
+                            if (!empty($imported['id']) && $imported['id'] > 0 && !empty($imported['url'])) {
+                                $s[$key]['url'] = $imported['url'];
+                                $s[$key]['id'] = $imported['id'];
+                            }
+                        }
+                    }
+                    if (($s['background_background'] ?? '') === 'gradient'
+                        && self::gradient_is_empty($s)
+                        && !empty($s['background_image']['url'])) {
+                        $s['background_background'] = 'classic';
+                    }
                 }
 
                 $el['settings'] = $s;

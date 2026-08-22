@@ -33,8 +33,8 @@ export default async function DemoPage({
       quote_text="Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu isteri-isteri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya; dan dijadikan-Nya diantaramu rasa kasih dan sayang."
       quote_source="QS. Ar-Rum: 21"
       stories={[
-        { year: "2018", title: "Pertama Kali Bertemu", description: "Sebuah senyum di kedai kopi yang mengubah segalanya.", image_url: ASSETS.demo.story1 },
-        { year: "2024", title: "Pertanyaan Besar", description: "Di bawah langit senja, janji suci pun terucap.", image_url: ASSETS.demo.story2 },
+        { title: "Pertama Kali Bertemu", description: "Sebuah senyum di kedai kopi yang mengubah segalanya.", image_url: ASSETS.demo.story1 },
+        { title: "Pertanyaan Besar", description: "Di bawah langit senja, janji suci pun terucap.", image_url: ASSETS.demo.story2 },
       ]}
       gallery_photos={[
         ASSETS.demo.gallery[0],

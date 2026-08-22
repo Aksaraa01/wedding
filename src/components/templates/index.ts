@@ -34,7 +34,6 @@ export interface TemplateProps {
   quote_text?: string
   quote_source?: string
   stories?: {
-    year: string
     title: string
     description: string
     image_url: string

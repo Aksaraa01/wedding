@@ -459,7 +459,7 @@ function EditorInner({ id }: { id: string }) {
 
   const addStory = () => {
     if (data.is_published === true) return
-    updateField("stories", [...stories, { year: "", title: "", description: "", image_url: "" }])
+    updateField("stories", [...stories, { title: "", description: "", image_url: "" }])
   }
 
   const removeStory = (index: number) => {
@@ -1418,7 +1418,6 @@ function EditorInner({ id }: { id: string }) {
                           </div>
                           <input ref={el => { storyFileRefs.current[i] = el }} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleStoryImageUpload(f, i) }} />
                           <div className="flex-1 space-y-3">
-                            <input className="input-editorial w-full font-label-md text-[14px]" placeholder="Tahun" type="text" value={story.year} onChange={e => updateStory(i, "year", e.target.value)} />
                             <input className="input-editorial w-full font-headline-md text-[18px]" placeholder="Judul Cerita" type="text" value={story.title} onChange={e => updateStory(i, "title", e.target.value)} />
                           </div>
                         </div>
