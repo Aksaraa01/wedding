@@ -100,14 +100,14 @@ function TemplatesInner({ id }: { id: string }) {
                 <h2 className="font-headline-md text-[16px] leading-tight mb-3">{tpl.name}</h2>
                 <button
                   onClick={() => handleSelect(tpl.id)}
-                  disabled={saving || selectedId === tpl.id}
+                  disabled={saving}
                   className={`mt-auto w-full py-3 font-label-md text-[10px] uppercase tracking-widest border transition-all duration-300 ${
                     selectedId === tpl.id
-                      ? "border-primary/30 text-on-surface-variant bg-surface-container cursor-default"
+                      ? "border-secondary text-secondary hover:bg-secondary hover:text-white"
                       : "border-primary text-primary hover:bg-primary hover:text-on-primary"
                   }`}
                 >
-                  {selectedId === tpl.id ? "Terpilih" : saving ? "Menyimpan..." : "Pilih"}
+                  {saving ? "Menyimpan..." : selectedId === tpl.id ? "Pilih Ulang" : "Pilih"}
                 </button>
               </div>
             </article>
