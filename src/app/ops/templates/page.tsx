@@ -6,6 +6,7 @@ import PageTheme from "@/components/PageTheme"
 import OpsHeader from "@/components/ops/OpsHeader"
 import { FIELD_LABELS, WIDGET_SETTINGS } from "@/lib/fieldLabels"
 import { OBJECT_ARRAY_FIELDS, SIMPLE_ARRAY_FIELDS, SUBFIELD_LABELS } from "@/lib/manifest"
+import { PACKAGE_LABELS, PACKAGE_CATEGORY, PACKAGE_CODES } from "@/lib/packages"
 import ElementSelect from "@/components/ops/ElementSelect"
 
 type Template = {
@@ -33,14 +34,6 @@ type ElementNode = {
 }
 
 type Employee = { id: string; name: string; role: string; phone_number: string }
-
-const PACKAGES = [
-  { code: "essential", label: "Essential" },
-  { code: "signature", label: "Signature" },
-  { code: "prestige", label: "Prestige" },
-]
-
-const ALL_PACKAGES = PACKAGES.map(p => p.code)
 
 // Aksara fields grouped by the editor's accordion sections (same order).
 const MAPPING_GROUPS: { key: string; label: string; fields: string[] }[] = [
@@ -195,7 +188,7 @@ export default function OpsTemplatesPage() {
     setManifest({})
     setElements([])
     setPopups([])
-    setForm({ code: "", name: "", description: "", preview_image_url: "", demo_url: "", is_active: true, sort_order: templates.length, package_eligibility: [...ALL_PACKAGES], wp_master_slug: "" })
+    setForm({ code: "", name: "", description: "", preview_image_url: "", demo_url: "", is_active: true, sort_order: templates.length, package_eligibility: [...PACKAGE_CODES], wp_master_slug: "" })
   }
 
   const startEdit = (t: Template, openMapping = false) => {
@@ -214,7 +207,7 @@ export default function OpsTemplatesPage() {
       demo_url: t.demo_url || "",
       is_active: t.is_active,
       sort_order: t.sort_order,
-      package_eligibility: t.package_eligibility && t.package_eligibility.length > 0 ? t.package_eligibility : [...ALL_PACKAGES],
+      package_eligibility: t.package_eligibility && t.package_eligibility.length > 0 ? t.package_eligibility : [...PACKAGE_CODES],
       wp_master_slug: t.wp_master_slug || "",
     })
   }
@@ -759,17 +752,36 @@ export default function OpsTemplatesPage() {
                   </div>
                   <div>
                     <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-2">Eligibilitas Paket (pilih semua yang berlaku)</label>
-                    <div className="flex flex-wrap gap-3">
-                      {PACKAGES.map((p) => (
-                        <button
-                          key={p.code}
-                          type="button"
-                          onClick={() => togglePackage(p.code)}
-                          className={`px-4 py-2 border font-label-md text-[11px] uppercase tracking-wider ${form.package_eligibility.includes(p.code) ? "bg-primary text-white border-primary" : "border-outline-variant text-on-surface-variant hover:border-primary"}`}
-                        >
-                          {p.label}
-                        </button>
-                      ))}
+                    <div className="space-y-4">
+                      {(() => {
+                        const groups = {
+                          "Undangan Digital": PACKAGE_CODES.filter((c) => PACKAGE_CATEGORY[c] === "undangan"),
+                          "Buku Tamu Digital": PACKAGE_CODES.filter((c) => PACKAGE_CATEGORY[c] === "dgbook"),
+                        }
+                        return Object.entries(groups).map(([category, codes]) => (
+                          <div key={category} className="w-full">
+                            <p className="text-[10px] font-label-md uppercase tracking-wider text-secondary mb-2">
+                              {category}
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {codes.map((code) => (
+                                <button
+                                  key={code}
+                                  type="button"
+                                  onClick={() => togglePackage(code)}
+                                  className={`px-4 py-2 border font-label-md text-[11px] uppercase tracking-wider ${
+                                    form.package_eligibility.includes(code)
+                                      ? "bg-primary text-white border-primary"
+                                      : "border-outline-variant text-on-surface-variant hover:border-primary"
+                                  }`}
+                                >
+                                  {PACKAGE_LABELS[code] || code}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ))
+                      })()}
                     </div>
                     <p className="text-[11px] text-on-surface-variant mt-1">Template tampil untuk semua paket yang dipilih.</p>
                   </div>
