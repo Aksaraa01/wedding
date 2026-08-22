@@ -805,38 +805,31 @@ function Inner() {
       )}
 
       {packageChangeModalOpen && (
-        <div className="fixed inset-0 bg-primary/40 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
-          <div className="bg-surface p-10 max-w-lg w-full border border-outline relative">
-            <button
-              onClick={() => setPackageChangeModalOpen(false)}
-              className="absolute top-4 right-4 text-on-surface-variant hover:text-primary"
-            >
-              <span className="material-symbols-outlined">close</span>
-            </button>
-            <div className="text-center mb-10">
-              <div className="w-20 h-20 bg-amber-100 text-amber-700 flex items-center justify-center rounded-full mx-auto mb-6">
-                <span className="material-symbols-outlined scale-[2]">warning</span>
+        <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-primary text-2xl">swap_horiz</span>
               </div>
-              <h2 className="font-headline-md text-headline-md mb-4">Paket Berbeda dari yang Dibayar</h2>
-              <p className="font-body-md text-on-surface-variant">Paket yang Anda pilih berbeda dari paket yang sudah dibayar. Perubahan paket memerlukan konfirmasi dan bantuan konsultan.</p>
-            </div>
-            <div className="space-y-4">
+              <h3 className="font-headline-md text-lg font-medium text-primary">Paket Berbeda dari yang Dibayar</h3>
+              <p className="text-sm text-on-surface-variant">
+                Paket yang Anda pilih berbeda dari paket yang sudah dibayar. Perubahan paket memerlukan konfirmasi dan bantuan konsultan.
+              </p>
               <button
                 onClick={() => window.open("https://wa.me/6281224459435", "_blank")}
-                className="w-full py-4 bg-secondary text-white font-label-md uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all hover:bg-on-secondary-fixed"
+                className="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
               >
-                <span className="material-symbols-outlined">chat</span>
-                <span>Kontak Konsultan</span>
+                <span className="material-symbols-outlined text-[16px] mr-2">chat</span>
+                Kontak Konsultan
               </button>
               <button
                 onClick={() => {
                   setPackageChangeModalOpen(false)
                   router.push(`/dashboard/${editProfileId}`)
                 }}
-                className="w-full py-4 border border-outline-variant text-on-surface font-label-md uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all hover:bg-surface-container"
+                className="w-full border border-outline-variant text-on-surface-variant py-3 rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
               >
-                <span className="material-symbols-outlined">dashboard</span>
-                <span>Dasbor</span>
+                Dasbor
               </button>
             </div>
           </div>
