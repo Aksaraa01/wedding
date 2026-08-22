@@ -585,6 +585,9 @@ class AksaraaPlugin
         // F2b — dynamic Love Story accordion: sync nested-accordion items + children to stories count.
         [$elements, $manifest] = self::reconcile_story_accordion($elements, $fields, $manifest);
 
+        // F2c — dynamic sessions: hide second session container if only one session.
+        $elements = self::reconcile_sessions($elements, $fields, $manifest);
+
         // F4 — hide the alamat pengiriman card when the couple has no address
         // (single container). Reappears automatically once an address is set.
         $elements = self::reconcile_gift_address($elements, $fields, $manifest);
@@ -1019,6 +1022,44 @@ class AksaraaPlugin
         return [$elements, $manifest];
     }
 
+    private static function reconcile_sessions(array $elements, array $fields, array $manifest): array
+    {
+        $slots = $manifest['sessions'] ?? [];
+        if (!is_array($slots) || count($slots) < 2) return $elements;
+        $secondSlot = $slots[1] ?? null;
+        if (!is_array($secondSlot)) return $elements;
+        $probeId = $secondSlot['name']['elementId'] ?? $secondSlot['venue']['elementId'] ?? $secondSlot['date']['elementId'] ?? null;
+        if (!$probeId) {
+            foreach ($secondSlot as $v) {
+                if (is_array($v) && !empty($v['elementId'])) { $probeId = $v['elementId']; break; }
+            }
+        }
+        if (!$probeId) return $elements;
+        $containerId = self::find_element_parent_id($elements, (string) $probeId);
+        if (!$containerId) return $elements;
+
+        $desired = 0;
+        if (isset($fields['sessions']) && is_array($fields['sessions'])) {
+            foreach ($fields['sessions'] as $s) {
+                if (!is_array($s)) continue;
+                foreach (['name', 'venue', 'address', 'date', 'time'] as $k) {
+                    if (!empty(trim((string) ($s[$k] ?? '')))) { $desired++; break; }
+                }
+            }
+        }
+        if ($desired === 0) $desired = 1;
+        $hide = $desired < 2;
+
+        return self::apply_to_node($elements, $containerId, function (array &$container) use ($hide) {
+            $settings = $container['settings'] ?? [];
+            $classes = trim((string) ($settings['_css_classes'] ?? ''));
+            $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-hidden' && $c !== 'aksaraa-session-hidden'));
+            if ($hide) $tokens[] = 'aksaraa-session-hidden';
+            $settings['_css_classes'] = implode(' ', $tokens);
+            $container['settings'] = $settings;
+        });
+    }
+
     // F2 — dynamic bank/e-wallet cards. The template ships ONE bank-card container
     // (manifest gift_accounts[0], the container holding the provider-logo image). When
     // a couple adds more rekening rows, clone that container N-1 times (fresh
@@ -1112,43 +1153,9 @@ class AksaraaPlugin
         return [$elements, $manifest];
     }
 
-    // F5 — fix mobile layout on bank/e-wallet cards: bound the logo width so it
-    // scales on mobile, and zero the negative mobile margins that make the account
-    // number/name overlap the logo. Applied to the master card + all clones.
+    // F5 — keep bank card mobile layout exactly as template (do not overwrite).
     private static function normalize_bank_card_mobile(array $elements, string $masterId, array $cloneIds): array
     {
-        $cardIds = array_values(array_unique(array_merge([$masterId], $cloneIds)));
-        foreach ($cardIds as $cid) {
-            $card = self::find_node($elements, $cid);
-            if (!$card) continue;
-
-            $imageId = self::find_descendant_widget_id($card, 'image');
-            $headings = self::find_descendant_headings($card);
-
-            // Bound the logo width on mobile so it scales down instead of overflowing.
-            if ($imageId) {
-                $elements = self::apply_to_node($elements, $imageId, function (array &$node) {
-                    $node['settings'] = $node['settings'] ?? [];
-                    // Leave desktop size alone; only cap the mobile width.
-                    $node['settings']['width_mobile'] = ['size' => 80, 'unit' => 'px'];
-                    // Clear the negative bottom margin that pulls text over the logo.
-                    if (isset($node['settings']['_margin_mobile']['bottom'])
-                        && $node['settings']['_margin_mobile']['bottom'] < 0) {
-                        $node['settings']['_margin_mobile']['bottom'] = 0;
-                    }
-                });
-            }
-
-            // Clear negative top margins on the account number/name headings.
-            foreach (array_slice($headings, 0, 2) as $hid) {
-                $elements = self::apply_to_node($elements, $hid, function (array &$node) {
-                    if (isset($node['settings']['_margin_mobile']['top'])
-                        && $node['settings']['_margin_mobile']['top'] < 0) {
-                        $node['settings']['_margin_mobile']['top'] = 0;
-                    }
-                });
-            }
-        }
         return $elements;
     }
 
@@ -1348,12 +1355,20 @@ class AksaraaPlugin
         return $elements;
     }
 
-    // A gradient is "empty" (renders black) when neither color stop is set.
+    // A gradient is "empty" when no gradient colors are set (renders black and ignores image).
+    // Check all possible gradient color keys for containers/sections and widgets.
     private static function gradient_is_empty(array $s): bool
     {
-        $a = trim((string) ($s['color'] ?? ''));
-        $b = trim((string) ($s['color_b'] ?? ''));
-        return $a === '' && $b === '';
+        $keys = ['color', 'color_b', 'background_color', 'background_color_b', 'gradient_color', 'gradient_color_b'];
+        foreach ($keys as $k) {
+            if (trim((string) ($s[$k] ?? '')) !== '') return false;
+        }
+        if (!empty($s['gradient_color_list']) && is_array($s['gradient_color_list'])) {
+            foreach ($s['gradient_color_list'] as $item) {
+                if (!empty($item['eae_animated_gradient_color']) || !empty($item['color'])) return false;
+            }
+        }
+        return true;
     }
 
     // Return the smallest container id whose subtree holds $elementId.
@@ -1538,7 +1553,7 @@ add_action('wp_head', function () {
         $tree = is_string($raw) ? json_decode($raw, true) : (is_array($raw) ? $raw : null);
         if (is_array($tree)) {
             $hidden = [];
-            $markers = ['aksaraa-addr-hidden', 'aksaraa-hidden'];
+            $markers = ['aksaraa-addr-hidden', 'aksaraa-hidden', 'aksaraa-session-hidden'];
             $walk = function (array $nodes) use (&$walk, &$hidden, $markers) {
                 foreach ($nodes as $el) {
                     $classes = (string) ($el['settings']['_css_classes'] ?? '');

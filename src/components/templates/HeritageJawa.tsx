@@ -532,7 +532,7 @@ export default function HeritageJawa({
                     <div className={`absolute ${i % 2 === 0 ? '-right-16 -top-16' : '-left-16 -bottom-16'} opacity-10 transition-transform group-hover:scale-110 duration-700`}>
                       <Motif className={`w-48 ${i % 2 === 1 ? 'rotate-180' : ''}`} style={{ color: "#C1A05E" }} />
                     </div>
-                    <span className="text-[12px] tracking-widest block mb-4 pb-2 border-b font-semibold" style={{ color: "#C1A05E", borderColor: "#C1A05E1a" }}>{session.name.toUpperCase()}</span>
+                    <span className="text-[12px] tracking-widest block mb-4 pb-2 border-b font-semibold" style={{ color: "#C1A05E", borderColor: "#C1A05E1a" }}>{session.name}</span>
                     <h4 className="font-['EB_Garamond'] text-[24px] mb-2" style={{ color: "#472A1C", fontWeight: 500 }}>{sessionDay ? `${sessionDay}, ${sessionDate}` : weddingDateFormatted ? `${dayName}, ${weddingDateFormatted}` : ""}</h4>
                     <p className="text-[16px] mb-6 italic leading-relaxed" style={{ color: "#50443f" }}>{session.time ? `Pukul ${session.time} ${session.timezone || ''}` : ''}</p>
                     <div className="space-y-1 mb-8">
