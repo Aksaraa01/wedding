@@ -184,9 +184,26 @@ class AksaraaPlugin
                     }
                 }
             }
+            $children = [];
             if (!empty($el['elements'])) {
-                $node['children'] = self::simplify_elements($el['elements']);
+                $children = self::simplify_elements($el['elements']);
             }
+            if ($widgetType === 'nested-accordion' && isset($el['settings']['items']) && is_array($el['settings']['items'])) {
+                $virtual = [];
+                foreach ($el['settings']['items'] as $idx => $item) {
+                    $title = trim((string) ($item['item_title'] ?? ''));
+                    $virtual[] = [
+                        'id' => $el['id'] . '_item_' . $idx,
+                        'elType' => 'widget',
+                        'widgetType' => 'nested-accordion-item',
+                        'settings_keys' => ['item_title', '_id'],
+                        '_preview' => $title !== '' ? $title : '(judul kosong ' . ($idx + 1) . ')',
+                        'children' => [],
+                    ];
+                }
+                $children = array_merge($virtual, $children);
+            }
+            if (!empty($children)) $node['children'] = $children;
             $result[] = $node;
         }
         return $result;
@@ -267,6 +284,9 @@ class AksaraaPlugin
                     return 'accordion (' . $count . ')';
                 }
                 return 'accordion';
+            case 'nested-accordion-item':
+                $t = trim((string) ($settings['item_title'] ?? ''));
+                return $t !== '' ? $t : '(judul item kosong)';
             default: return '';
         }
     }

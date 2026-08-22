@@ -435,6 +435,31 @@ export default function OpsTemplatesPage() {
 
   const setSubMapping = (field: string, slotIdx: number, subField: string, elementId: string, widgetType: string) => {
     if (!elementId || !widgetType) return
+    if (widgetType === "nested-accordion-item" && elementId.includes("_item_")) {
+      const sep = elementId.lastIndexOf("_item_")
+      const baseId = elementId.slice(0, sep)
+      const idx = elementId.slice(sep + 6)
+      setManifest((m) => {
+        const slots = [...(m[field] || [])]
+        slots[slotIdx] = {
+          ...(slots[slotIdx] || {}),
+          [subField]: { elementId: baseId, settings: ["items", idx, "item_title"] },
+        }
+        return { ...m, [field]: slots }
+      })
+      return
+    }
+    if (widgetType === "nested-accordion" && field === "stories" && subField === "title") {
+      setManifest((m) => {
+        const slots = [...(m[field] || [])]
+        slots[slotIdx] = {
+          ...(slots[slotIdx] || {}),
+          [subField]: { elementId, settings: ["items", String(slotIdx), "item_title"] },
+        }
+        return { ...m, [field]: slots }
+      })
+      return
+    }
     setManifest((m) => {
       const slots = [...(m[field] || [])]
       slots[slotIdx] = {
