@@ -590,7 +590,15 @@ function EditorInner({ id }: { id: string }) {
 
   const handleSelectTrack = (trackId: string) => {
     if (data.is_published === true) return
-    updateField("selected_track_id", data.selected_track_id === trackId ? null : trackId)
+    const newId = data.selected_track_id === trackId ? null : trackId
+    setData(prev => ({ ...prev, selected_track_id: newId }))
+    pendingUpdates.current = { ...pendingUpdates.current, selected_track_id: newId }
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    fetch(`/api/dashboard/${id}/web-invitation`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ selected_track_id: newId }),
+    }).then(() => setSaveStatus("saved")).catch(() => setSaveStatus("error"))
   }
 
   const handleMusicFilePick = (file: File) => {
@@ -683,13 +691,19 @@ function EditorInner({ id }: { id: string }) {
       const f = typeof data.inviting_families === "string" ? JSON.parse(data.inviting_families) : data.inviting_families
       families = Array.isArray(f) ? f : []
     } catch {}
+    const isSessionComplete = (s: any) => {
+      if (!s || typeof s !== 'object') return false
+      const required = ['name', 'date', 'venue', 'address', 'maps_url']
+      return required.every(k => typeof s[k] === 'string' && s[k].trim() !== '')
+    }
+    const sessionsComplete = Array.isArray(data.sessions) && data.sessions.length > 0 && data.sessions.every(isSessionComplete)
     const items = [
       { label: "Nama Mempelai (Nama yang ditampilkan)", filled: !!data.display_name },
       { label: "Foto Sampul", filled: !!data.couple_illustration_url },
       { label: "Foto Mempelai", filled: !!(data.groom_photo_url && data.bride_photo_url) },
       { label: "Nama Lengkap Mempelai", filled: !!(data.groom_full_name && data.bride_full_name) },
       { label: "Nama Orang Tua Mempelai", filled: !!(data.groom_parents && data.bride_parents) },
-      { label: "Tanggal & Sesi Acara", filled: Array.isArray(data.sessions) && data.sessions.length > 0 },
+      { label: "Tanggal & Sesi Acara", filled: sessionsComplete },
       { label: "Kisah Cinta", filled: !(gates.story.included) || (Array.isArray(data.stories) && data.stories.length > 0) },
       { label: "Galeri Foto", filled: Array.isArray(data.gallery_photos) && data.gallery_photos.length > 0 },
       { label: "Turut Mengundang", filled: !(gates.inviting_families.included) || families.length > 0 },
@@ -714,8 +728,11 @@ function EditorInner({ id }: { id: string }) {
         if (!gates.inviting_families.included) return false
         if (data.inviting_families_visible === false) return false
         return !hasArr(data.inviting_families)
-      case "acara":
-        return !hasArr(data.sessions)
+      case "acara": {
+        if (!hasArr(data.sessions)) return true
+        const isComplete = (s: any) => s && typeof s === 'object' && ['name', 'date', 'venue', 'address', 'maps_url'].every(k => typeof s[k] === 'string' && s[k].trim() !== '')
+        return !data.sessions.every(isComplete)
+      }
       case "kutipan":
         return !hasStr(data.quote_text)
       case "video":
