@@ -585,8 +585,8 @@ class AksaraaPlugin
         // F2b — dynamic Love Story accordion: sync nested-accordion items + children to stories count.
         [$elements, $manifest] = self::reconcile_story_accordion($elements, $fields, $manifest);
 
-        // F2c — dynamic sessions: hide second session container if only one session.
-        $elements = self::reconcile_sessions($elements, $fields, $manifest);
+        // F2c — dynamic sessions: 1-5 sessions via cloning second container.
+        [$elements, $manifest] = self::reconcile_sessions($elements, $fields, $manifest);
 
         // F4 — hide the alamat pengiriman card when the couple has no address
         // (single container). Reappears automatically once an address is set.
@@ -1025,123 +1025,43 @@ class AksaraaPlugin
     private static function reconcile_sessions(array $elements, array $fields, array $manifest): array
     {
         $slots = $manifest['sessions'] ?? [];
-        if (!is_array($slots) || empty($slots)) return $elements;
-        $firstSlot = $slots[0] ?? null;
-        if (!is_array($firstSlot)) return $elements;
-        $probeId = $firstSlot['name']['elementId'] ?? $firstSlot['venue']['elementId'] ?? $firstSlot['date']['elementId'] ?? null;
+        if (!is_array($slots) || count($slots) < 2) return [$elements, $manifest];
+        $secondSlot = $slots[1] ?? null;
+        if (!is_array($secondSlot)) return [$elements, $manifest];
+        $probeId = $secondSlot['name']['elementId'] ?? $secondSlot['venue']['elementId'] ?? $secondSlot['date']['elementId'] ?? null;
         if (!$probeId) {
-            foreach ($firstSlot as $v) {
+            foreach ($secondSlot as $v) {
                 if (is_array($v) && !empty($v['elementId'])) { $probeId = $v['elementId']; break; }
             }
         }
-        if (!$probeId) return $elements;
-        $masterId = self::find_element_parent_id($elements, (string) $probeId);
-        if (!$masterId) return $elements;
+        if (!$probeId) return [$elements, $manifest];
+        $containerId = self::find_element_parent_id($elements, (string) $probeId);
+        if (!$containerId) return [$elements, $manifest];
 
         $desired = 0;
         if (isset($fields['sessions']) && is_array($fields['sessions'])) {
             foreach ($fields['sessions'] as $s) {
                 if (!is_array($s)) continue;
-                foreach (['name', 'venue', 'address', 'date', 'time', 'maps_url'] as $k) {
+                foreach (['name', 'venue', 'address', 'date', 'time'] as $k) {
                     if (!empty(trim((string) ($s[$k] ?? '')))) { $desired++; break; }
                 }
             }
         }
         if ($desired === 0) $desired = 1;
-        if ($desired > 5) $desired = 5;
+        $hide = $desired < 2;
 
-        $allSessionIds = [];
-        $master = self::find_node($elements, $masterId);
-        if ($master) $allSessionIds[] = $masterId;
-        foreach ($slots as $idx => $slot) {
-            if ($idx === 0) continue;
-            $pid = null;
-            foreach ($slot as $v) {
-                if (is_array($v) && !empty($v['elementId'])) { $pid = self::find_element_parent_id($elements, (string) $v['elementId']); break; }
-            }
-            if ($pid && $pid !== $masterId && !in_array($pid, $allSessionIds, true)) $allSessionIds[] = $pid;
-        }
-        $cloneIds = array_values(array_filter(self::find_clone_ids($elements), fn($id) => in_array($id, $allSessionIds, true) || strpos((self::find_node($elements, $id)['settings']['_css_classes'] ?? ''), 'aksaraa-session') !== false));
-        $existingIds = array_unique(array_merge($allSessionIds, $cloneIds));
-        $currentCount = count($existingIds);
-
-        if ($currentCount < $desired) {
-            $masterNode = self::find_node($elements, $masterId);
-            if ($masterNode) {
-                for ($i = $currentCount; $i < $desired; $i++) {
-                    $clone = self::tag_clone(self::clone_subtree($masterNode), 'session');
-                    $elements = self::insert_after($elements, $masterId, $clone);
-                    $allSessionIds[] = $clone['id'];
-                }
-            }
-        } elseif ($currentCount > $desired) {
-            $toHide = array_slice($allSessionIds, $desired);
-            foreach ($toHide as $hid) {
-                $elements = self::apply_to_node($elements, $hid, function (array &$container) {
-                    $settings = $container['settings'] ?? [];
-                    $classes = trim((string) ($settings['_css_classes'] ?? ''));
-                    $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-hidden' && $c !== 'aksaraa-session-hidden'));
-                    $tokens[] = 'aksaraa-session-hidden';
-                    $settings['_css_classes'] = implode(' ', $tokens);
-                    $container['settings'] = $settings;
-                });
-            }
-            $toShow = array_slice($allSessionIds, 0, $desired);
-            foreach ($toShow as $sid) {
-                $elements = self::apply_to_node($elements, $sid, function (array &$container) {
-                    $settings = $container['settings'] ?? [];
-                    $classes = trim((string) ($settings['_css_classes'] ?? ''));
-                    $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-hidden' && $c !== 'aksaraa-session-hidden'));
-                    $settings['_css_classes'] = implode(' ', $tokens);
-                    $container['settings'] = $settings;
-                });
-            }
-            return $elements;
-        }
-
-        foreach ($allSessionIds as $sid) {
-            $elements = self::apply_to_node($elements, $sid, function (array &$container) {
-                $settings = $container['settings'] ?? [];
-                $classes = trim((string) ($settings['_css_classes'] ?? ''));
-                $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-hidden' && $c !== 'aksaraa-session-hidden'));
-                $settings['_css_classes'] = implode(' ', $tokens);
-                $container['settings'] = $settings;
-            });
-        }
-
-        $newSlots = [];
-        $sessionContainers = [];
-        foreach (array_slice($allSessionIds, 0, $desired) as $cid) {
-            $node = self::find_node($elements, $cid);
-            if ($node) $sessionContainers[] = $node;
-        }
-        foreach ($sessionContainers as $container) {
-            $slot = [];
-            foreach (['name', 'date', 'time', 'timezone', 'venue', 'address', 'maps_url'] as $sub) {
-                $orig = $firstSlot[$sub] ?? null;
-                if (!is_array($orig) || empty($orig['elementId'])) continue;
-                $widgetType = $orig['settings'][0] ?? 'title';
-                $newId = '';
-                if ($sub === 'maps_url') {
-                    $newId = self::find_descendant_widget_id($container, 'button');
-                    if (!$newId) $newId = self::find_descendant_widget_id($container, 'heading');
-                } elseif (in_array($sub, ['name', 'venue', 'address', 'date', 'time', 'timezone'])) {
-                    $headings = self::find_descendant_headings($container);
-                    $idxMap = ['name' => 0, 'venue' => 1, 'address' => 2, 'date' => 0, 'time' => 1, 'timezone' => 1];
-                    $hIdx = $idxMap[$sub] ?? 0;
-                    $newId = $headings[$hIdx] ?? $headings[0] ?? '';
-                    if ($sub === 'date' && count($headings) > 0) $newId = $headings[0];
-                    if ($sub === 'venue' && count($headings) > 1) $newId = $headings[1];
-                }
-                if (!$newId) $newId = $orig['elementId'];
-                $slot[$sub] = ['elementId' => $newId, 'settings' => $orig['settings']];
-            }
-            if (!empty($slot)) $newSlots[] = $slot;
-        }
-        while (count($newSlots) < $desired) $newSlots[] = $firstSlot;
-        $manifest['sessions'] = array_slice($newSlots, 0, $desired);
+        $elements = self::apply_to_node($elements, $containerId, function (array &$container) use ($hide) {
+            $settings = $container['settings'] ?? [];
+            $classes = trim((string) ($settings['_css_classes'] ?? ''));
+            $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-hidden' && $c !== 'aksaraa-session-hidden'));
+            if ($hide) $tokens[] = 'aksaraa-session-hidden';
+            $settings['_css_classes'] = implode(' ', $tokens);
+            $container['settings'] = $settings;
+        });
         return [$elements, $manifest];
     }
+
+    // F2 — dynamic bank
 
     // F2 — dynamic bank/e-wallet cards. The template ships ONE bank-card container
     // (manifest gift_accounts[0], the container holding the provider-logo image). When
@@ -1478,14 +1398,14 @@ class AksaraaPlugin
         return false;
     }
 
-    // Find ids of previously-cloned containers (bank or session).
+    // Find ids of previously-cloned bank containers (tagged `_aksaraa_bank_clone`).
     private static function find_clone_ids(array $elements): array
     {
         $ids = [];
         $walk = function (array $nodes) use (&$walk, &$ids) {
             foreach ($nodes as $el) {
                 if (in_array($el['elType'] ?? '', ['section', 'container'], true)
-                    && (!empty($el['settings']['_aksaraa_bank_clone']) || !empty($el['settings']['_aksaraa_session_clone']))) {
+                    && !empty($el['settings']['_aksaraa_bank_clone'])) {
                     $ids[] = $el['id'] ?? '';
                 }
                 if (!empty($el['elements'])) $walk($el['elements']);
@@ -1495,14 +1415,10 @@ class AksaraaPlugin
         return $ids;
     }
 
-    private static function tag_clone(array $node, string $type = 'bank'): array
+    private static function tag_clone(array $node): array
     {
         if (!isset($node['settings'])) $node['settings'] = [];
-        if ($type === 'session') {
-            $node['settings']['_aksaraa_session_clone'] = true;
-        } else {
-            $node['settings']['_aksaraa_bank_clone'] = true;
-        }
+        $node['settings']['_aksaraa_bank_clone'] = true;
         return $node;
     }
 

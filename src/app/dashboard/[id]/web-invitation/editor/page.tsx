@@ -431,6 +431,7 @@ function EditorInner({ id }: { id: string }) {
 
   const addSession = () => {
     if (data.is_published === true) return
+    if (sessions.length >= 2) return
     updateField("sessions", [...sessions, {
       name: `Sesi ${sessions.length + 1}`,
       date: "",
@@ -1221,45 +1222,29 @@ function EditorInner({ id }: { id: string }) {
                           onChange={() => handleToggleVisibility("inviting_families_visible", data.inviting_families_visible === false)}
                         />
                       </div>
-                      <p className="text-[11px] text-on-surface-variant italic">Masukkan nama keluarga yang turut mengundang</p>
-                      <div className="space-y-3">
-                        {(Array.isArray(data.inviting_families) ? data.inviting_families : []).map((f, i) => (
-                          <div key={i} className="flex gap-2 items-center">
-                            <input
-                              className="input-editorial w-full font-headline-md text-[16px]"
-                              type="text"
-                              value={f || ""}
-                              onChange={e => {
-                                const arr = [...(Array.isArray(data.inviting_families) ? data.inviting_families : [])]
-                                arr[i] = e.target.value
-                                updateField("inviting_families", arr)
-                              }}
-                              placeholder={`Keluarga ${i + 1}`}
-                            />
-                            <button
-                              onClick={() => {
-                                const arr = (Array.isArray(data.inviting_families) ? data.inviting_families : []).filter((_, idx) => idx !== i)
-                                updateField("inviting_families", arr)
-                              }}
-                              className="text-red-400 hover:text-red-600 transition-colors shrink-0"
-                            >
-                              <span className="material-symbols-outlined text-[20px]">remove_circle</span>
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                      {(Array.isArray(data.inviting_families) ? data.inviting_families : []).length < 5 && (
-                        <button
-                          onClick={() => {
-                            const arr = [...(Array.isArray(data.inviting_families) ? data.inviting_families : []), ""]
+                      <p className="text-[11px] text-on-surface-variant italic">Masukkan nama keluarga yang turut mengundang, pisahkan dengan enter</p>
+                      <textarea
+                        className="input-editorial w-full font-headline-md text-[16px] min-h-[120px] resize-none"
+                        value={(Array.isArray(data.inviting_families) ? data.inviting_families : []).join("\n")}
+                        onChange={e => {
+                          const lines = e.target.value.split("\n").map(s => s.trim()).filter(Boolean)
+                          const originalLines = e.target.value.split("\n")
+                          const hasTrailingEmpty = originalLines.length > 0 && originalLines[originalLines.length - 1] === ""
+                          const result = hasTrailingEmpty ? [...lines, ""] : lines
+                          if (e.target.value === "") {
+                            updateField("inviting_families", [])
+                          } else {
+                            const arr = e.target.value.split("\n")
                             updateField("inviting_families", arr)
-                          }}
-                          className="flex items-center gap-2 text-secondary font-label-md text-label-md uppercase tracking-widest hover:opacity-70 transition-opacity"
-                        >
-                          <span className="material-symbols-outlined text-[18px]">add_circle</span>
-                          Tambah Keluarga
-                        </button>
-                      )}
+                          }
+                        }}
+                        onBlur={e => {
+                          const arr = e.target.value.split("\n").map(s => s.trim()).filter(Boolean)
+                          updateField("inviting_families", arr)
+                        }}
+                        placeholder={"Keluarga Bapak H. Sulaiman & Ibu Hj. Fatimah\nKeluarga Bapak Drs. Wijaya & Ibu Dra. Siti\nKeluarga Besar Kedua Mempelai"}
+                        rows={4}
+                      />
                     </>
                   ) : (
                     <LockedNotice availableIn={gates.inviting_families.availableIn} />
@@ -1321,9 +1306,11 @@ function EditorInner({ id }: { id: string }) {
                       </div>
                     </div>
                   ))}
-                  <button onClick={addSession} className="w-full py-4 border border-dashed border-outline-variant text-secondary font-label-md text-label-md uppercase tracking-wider hover:bg-surface-container-lowest transition-colors">
-                    + TAMBAH SESI ACARA LAIN
-                  </button>
+                  {sessions.length < 2 && (
+                    <button onClick={addSession} className="w-full py-4 border border-dashed border-outline-variant text-secondary font-label-md text-label-md uppercase tracking-wider hover:bg-surface-container-lowest transition-colors">
+                      + TAMBAH SESI ACARA LAIN
+                    </button>
+                  )}
                 </div>
               )}
 
