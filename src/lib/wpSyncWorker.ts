@@ -9,7 +9,7 @@ const STALE_MS = 5 * 60 * 1000
 const MAX_ATTEMPTS = 3
 const WP_FETCH_TIMEOUT = 120_000
 
-export type WpJobKind = "duplicate" | "patch"
+export type WpJobKind = "duplicate" | "patch" | "cleanup"
 
 function wpHeaders() {
   return { "X-Aksaraa-Secret": WP_SECRET, "Content-Type": "application/json" }
@@ -38,8 +38,6 @@ async function runDuplicate(jobId: string, profileId: string, templateId: string
   }
   const { profile, fields } = built
 
-  // If this couple already has a duplicated WP post (theme-switch), delete it first.
-  // BUT never delete the master template — resolve its post ID first and skip if equal.
   let masterPostId: number | null = null
   try {
     const masterRes = await wpFetch(`${WP_ORIGIN}/wp-json/aksaraa/v1/post/${encodeURIComponent(tpl.wp_master_slug)}`)
@@ -51,13 +49,7 @@ async function runDuplicate(jobId: string, profileId: string, templateId: string
     console.error("[wpSync] resolve master failed", e)
   }
 
-  if (profile.active_wp_post_id && profile.active_wp_post_id !== masterPostId) {
-    try {
-      await wpFetch(`${WP_ORIGIN}/wp-json/aksaraa/v1/posts/${profile.active_wp_post_id}?force=1`, { method: "DELETE" })
-    } catch (e) {
-      console.error("[wpSync] delete old post failed", e)
-    }
-  }
+  const oldPostId = profile.active_wp_post_id && profile.active_wp_post_id !== masterPostId ? profile.active_wp_post_id : null
 
   let resolvedTrackUrl = ""
   if (profile.selected_track_id) {
@@ -75,6 +67,7 @@ async function runDuplicate(jobId: string, profileId: string, templateId: string
   const wpBody: Record<string, any> = { title, fields }
   if (newSlug) wpBody.new_slug = newSlug
   if (resolvedTrackUrl) wpBody.track_url = resolvedTrackUrl
+  if (resolvedTrackUrl) fields.track_url = resolvedTrackUrl
 
   const res = await wpFetch(
     `${WP_ORIGIN}/wp-json/aksaraa/v1/templates/${encodeURIComponent(tpl.wp_master_slug)}/duplicate`,
@@ -104,7 +97,44 @@ async function runDuplicate(jobId: string, profileId: string, templateId: string
     throw new Error(updateErr.message)
   }
 
-  return { post_id: data.post_id, post_url: postUrl }
+  if (oldPostId) {
+    await enqueueCleanup(profileId, oldPostId, profile.slug || "")
+  }
+
+  return { post_id: data.post_id, post_url: postUrl, cleaned_old: oldPostId }
+}
+
+async function runCleanup(jobId: string, profileId: string, payload: any) {
+  const oldPostId = payload?.old_post_id as number | undefined
+  const baseSlug = payload?.base_slug as string | undefined
+  const { data: profile } = await supabaseAdmin.from("wedding_profiles").select("slug, active_wp_post_id").eq("id", profileId).maybeSingle()
+  const activeId = profile?.active_wp_post_id
+  const slug = baseSlug || profile?.slug || ""
+  if (oldPostId && activeId && oldPostId === activeId) return { skipped: "old equals active" }
+  if (slug) {
+    const res = await wpFetch(`${WP_ORIGIN}/wp-json/aksaraa/v1/cleanup`, {
+      method: "POST",
+      body: JSON.stringify({ base_slug: slug, keep_post_id: activeId, old_post_id: oldPostId }),
+    })
+    if (!res.ok) {
+      const t = await res.text()
+      throw new Error(`Cleanup failed HTTP ${res.status}: ${t.slice(0, 500)}`)
+    }
+    const data = await res.json()
+    if (data.kept_url && activeId) {
+      await supabaseAdmin.from("wedding_profiles").update({ active_wp_post_url: data.kept_url }).eq("id", profileId).eq("active_wp_post_id", activeId)
+    }
+    return data
+  }
+  if (oldPostId) {
+    const res = await wpFetch(`${WP_ORIGIN}/wp-json/aksaraa/v1/posts/${oldPostId}?force=1`, { method: "DELETE" })
+    if (!res.ok && res.status !== 404) {
+      const t = await res.text()
+      throw new Error(`Delete old post ${oldPostId} failed HTTP ${res.status}: ${t.slice(0, 300)}`)
+    }
+    return { deleted: oldPostId }
+  }
+  return { skipped: "no slug nor old_post_id" }
 }
 
 async function runPatch(jobId: string, profileId: string) {
@@ -127,6 +157,7 @@ async function runPatch(jobId: string, profileId: string) {
       .maybeSingle()
     trackUrl = tr?.audio_url || ""
   }
+  if (trackUrl) fields.track_url = trackUrl
 
   const { data: tpl } = await supabaseAdmin
     .from("web_templates")
@@ -193,8 +224,6 @@ export async function enqueueDuplicate(profileId: string, templateId: string): P
 }
 
 export async function enqueuePatch(profileId: string): Promise<EnqueueResult> {
-  // Coalesce: one patch job per profile at a time (the worker re-reads the latest
-  // Supabase state at run time, so a single pending job always applies newest data).
   const { data: existing } = await supabaseAdmin
     .from("wp_sync_jobs")
     .select("id, status")
@@ -223,11 +252,20 @@ export async function enqueuePatch(profileId: string): Promise<EnqueueResult> {
   return { job_id: data.id, status: data.status }
 }
 
+export async function enqueueCleanup(profileId: string, oldPostId: number, baseSlug: string): Promise<EnqueueResult> {
+  const { data, error } = await supabaseAdmin
+    .from("wp_sync_jobs")
+    .insert({ wedding_profile_id: profileId, kind: "cleanup", status: "queued", payload: { old_post_id: oldPostId, base_slug: baseSlug } })
+    .select("id, status")
+    .single()
+  if (error) throw new Error(error.message)
+  return { job_id: data.id, status: data.status }
+}
+
 // ---------- Worker ----------
 
-async function claimNext(): Promise<{ id: string; wedding_profile_id: string; kind: WpJobKind; template_id: string | null } | null> {
+async function claimNext(): Promise<{ id: string; wedding_profile_id: string; kind: WpJobKind; template_id: string | null; payload: any | null } | null> {
   const now = new Date()
-  // Reclaim jobs stuck in processing (process restarted mid-job).
   await supabaseAdmin
     .from("wp_sync_jobs")
     .update({ status: "queued", started_at: null, updated_at: now.toISOString() })
@@ -244,14 +282,12 @@ async function claimNext(): Promise<{ id: string; wedding_profile_id: string; ki
 
   if (!oldest) return null
 
-  // Conditional claim: only win if it's still queued (guards against a
-  // concurrent claim or a coalesced re-queue racing us).
   const { data, error } = await supabaseAdmin
     .from("wp_sync_jobs")
     .update({ status: "processing", started_at: now.toISOString(), updated_at: now.toISOString() })
     .eq("id", oldest.id)
     .eq("status", "queued")
-    .select("id, wedding_profile_id, kind, template_id")
+    .select("id, wedding_profile_id, kind, template_id, payload")
     .maybeSingle()
 
   if (error || !data) return null
@@ -259,12 +295,14 @@ async function claimNext(): Promise<{ id: string; wedding_profile_id: string; ki
 }
 
 async function processJob(job: NonNullable<Awaited<ReturnType<typeof claimNext>>>) {
-  const { id, wedding_profile_id, kind, template_id } = job
+  const { id, wedding_profile_id, kind, template_id, payload } = job
   try {
     let result: any
     if (kind === "duplicate") {
       if (!template_id) throw new Error("template_id hilang untuk job duplicate")
       result = await runDuplicate(id, wedding_profile_id, template_id)
+    } else if (kind === "cleanup") {
+      result = await runCleanup(id, wedding_profile_id, payload)
     } else {
       result = await runPatch(id, wedding_profile_id)
     }

@@ -49,7 +49,7 @@ export const WIDGET_SETTINGS: Record<string, string> = {
   spacer: "",
   counter: "",
   "weddingpress-countdown": "wpkoi_elements_countdown_due_time",
-  "weddingpress-audio": "",
+  "weddingpress-audio": "audio_url",
   "weddingpress-kit2": "",
   "weddingpress-copy-text": "",
   gallery: "",

@@ -97,6 +97,13 @@ class AksaraaPlugin
             'callback' => [self::class, 'delete_post'],
             'permission_callback' => [self::class, 'auth'],
         ]);
+
+        // POST cleanup orphans for a couple slug
+        register_rest_route('aksaraa/v1', '/cleanup', [
+            'methods' => 'POST',
+            'callback' => [self::class, 'cleanup_orphans'],
+            'permission_callback' => [self::class, 'auth'],
+        ]);
     }
 
     // ---------- GET /post/{slug} ----------
@@ -323,17 +330,6 @@ class AksaraaPlugin
             '_elementor_conditions', 'elementor_library', 'publish',
             '%/' . $post_id . '%'
         ));
-
-        if (empty($results)) {
-            $results = $wpdb->get_results($wpdb->prepare(
-                "SELECT p.ID, p.post_title FROM {$wpdb->posts} p
-                 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = %s
-                 WHERE p.post_type = %s AND p.post_status = %s
-                 AND pm.meta_value LIKE %s",
-                '_elementor_conditions', 'elementor_library', 'publish',
-                '%include/general%'
-            ));
-        }
 
         return $results ?: [];
     }
@@ -613,6 +609,54 @@ class AksaraaPlugin
             self::extract_object_array_fields($fields, $manifest),
             self::extract_gallery_field($fields, $manifest)
         );
+
+        // Fallback: if track_url is provided but not in manifest, find and patch
+        // any weddingpress-audio widget in the post/popup.
+        if (isset($fields['track_url']) && $fields['track_url'] !== '') {
+            $audio_id = self::find_first_widget_id($elements, 'weddingpress-audio');
+            if ($audio_id) {
+                // Patch both audio_url (fallback) and audio_upload (widget's primary source)
+                // audio_upload needs id=0 for external URLs to work
+                $fields_to_apply[] = [
+                    'elementId' => $audio_id,
+                    'settings' => ['audio_url'],
+                    'value' => $fields['track_url'],
+                ];
+                $fields_to_apply[] = [
+                    'elementId' => $audio_id,
+                    'settings' => ['audio_upload', 'url'],
+                    'value' => $fields['track_url'],
+                ];
+                $fields_to_apply[] = [
+                    'elementId' => $audio_id,
+                    'settings' => ['audio_upload', 'id'],
+                    'value' => 0,
+                ];
+            }
+        }
+
+        // Fallback: sideload Lottie JSON files for any lottie widget using external URLs.
+        // This ensures the animation loads on wp.aksaraa.com (external attachment IDs don't exist here).
+        $lottie_ids = self::find_all_widget_ids($elements, 'lottie');
+        foreach ($lottie_ids as $lottie_id) {
+            $lottie_node = self::find_node($elements, $lottie_id);
+            if ($lottie_node && isset($lottie_node['settings']['source_json']['url'])) {
+                $external_url = $lottie_node['settings']['source_json']['url'];
+                $imported = self::sideload_lottie($external_url);
+                if ($imported['id'] > 0 && $imported['url']) {
+                    $fields_to_apply[] = [
+                        'elementId' => $lottie_id,
+                        'settings' => ['source_json', 'url'],
+                        'value' => $imported['url'],
+                    ];
+                    $fields_to_apply[] = [
+                        'elementId' => $lottie_id,
+                        'settings' => ['source_json', 'id'],
+                        'value' => $imported['id'],
+                    ];
+                }
+            }
+        }
 
         foreach ($fields_to_apply as $entry) {
             if (self::set_element_settings($elements, $entry['elementId'], $entry['settings'], $entry['value'])) {
@@ -913,6 +957,93 @@ class AksaraaPlugin
         if (!$result) return new WP_Error('failed', 'Delete failed', ['status' => 500]);
 
         return ['deleted' => $post_id, 'popups_also_deleted' => count($popups)];
+    }
+
+    public static function cleanup_orphans(WP_REST_Request $request)
+    {
+        $body = $request->get_json_params();
+        $base_slug = sanitize_title($body['base_slug'] ?? '');
+        $keep_post_id = (int) ($body['keep_post_id'] ?? 0);
+        $old_post_id = (int) ($body['old_post_id'] ?? 0);
+        global $wpdb;
+        $deleted_posts = 0;
+        $deleted_popups = 0;
+
+        if ($old_post_id && $old_post_id !== $keep_post_id) {
+            $exists = $wpdb->get_var($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE ID = %d", $old_post_id));
+            if ($exists) {
+                $popups = self::find_linked_popups($old_post_id);
+                foreach ($popups as $popup) {
+                    wp_delete_post($popup->ID, true);
+                    self::unregister_popup_condition($popup->ID);
+                    $deleted_popups++;
+                }
+                $res = wp_delete_post($old_post_id, true);
+                if ($res) $deleted_posts++;
+            }
+        }
+
+        if ($base_slug) {
+            $like = $wpdb->esc_like($base_slug) . '%';
+            $candidates = $wpdb->get_col($wpdb->prepare(
+                "SELECT ID FROM {$wpdb->posts} WHERE post_name LIKE %s AND post_type IN ('post','page') AND post_status IN ('publish','trash')",
+                $like
+            ));
+            foreach ($candidates as $cid) {
+                $cid = (int) $cid;
+                if ($cid === $keep_post_id) continue;
+                if ($old_post_id && $cid === $old_post_id) continue;
+                $pname = $wpdb->get_var($wpdb->prepare("SELECT post_name FROM {$wpdb->posts} WHERE ID = %d", $cid));
+                if (strpos($pname, $base_slug) !== 0) continue;
+                $popups = self::find_linked_popups($cid);
+                foreach ($popups as $popup) {
+                    wp_delete_post($popup->ID, true);
+                    self::unregister_popup_condition($popup->ID);
+                    $deleted_popups++;
+                }
+                $res = wp_delete_post($cid, true);
+                if ($res) $deleted_posts++;
+            }
+            $orphan_popups = $wpdb->get_results($wpdb->prepare(
+                "SELECT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s",
+                '_elementor_conditions'
+            ));
+            foreach ($orphan_popups as $row) {
+                if (preg_match('#/(\d+)#', $row->meta_value, $m)) {
+                    $pid = (int) $m[1];
+                    if ($pid === $keep_post_id) continue;
+                    $pname = $wpdb->get_var($wpdb->prepare("SELECT post_name FROM {$wpdb->posts} WHERE ID = %d", $pid));
+                    if (!$pname) {
+                        wp_delete_post($row->post_id, true);
+                        self::unregister_popup_condition($row->post_id);
+                        $deleted_popups++;
+                    } elseif (strpos($pname, $base_slug) === 0 && $pid !== $keep_post_id) {
+                        $parent_exists = $wpdb->get_var($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE ID = %d AND post_status IN ('publish','trash')", $pid));
+                        if (!$parent_exists || $pid !== $keep_post_id) {
+                            $still_exists = $wpdb->get_var($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE ID = %d", $row->post_id));
+                            if ($still_exists) {
+                                wp_delete_post($row->post_id, true);
+                                self::unregister_popup_condition($row->post_id);
+                                $deleted_popups++;
+                            }
+                        }
+                    }
+                }
+            }
+            if ($keep_post_id) {
+                $keep_name = $wpdb->get_var($wpdb->prepare("SELECT post_name FROM {$wpdb->posts} WHERE ID = %d", $keep_post_id));
+                if ($keep_name && $keep_name !== $base_slug) {
+                    $exists = $wpdb->get_var($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE post_name = %s AND post_type IN ('post','page') LIMIT 1", $base_slug));
+                    if (!$exists) {
+                        $wpdb->update($wpdb->posts, ['post_name' => $base_slug], ['ID' => $keep_post_id]);
+                        clean_post_cache($keep_post_id);
+                    }
+                }
+            }
+        }
+
+        $new_url = $keep_post_id ? get_permalink($keep_post_id) : "";
+        return ['deleted_posts' => $deleted_posts, 'deleted_popups' => $deleted_popups, 'kept' => $keep_post_id, 'kept_url' => $new_url];
     }
 
     private static function unregister_popup_condition(int $popup_id)
@@ -1489,6 +1620,63 @@ class AksaraaPlugin
             }
         }
         return '';
+    }
+
+    private static function find_all_widget_ids(array $elements, string $widgetType): array
+    {
+        $ids = [];
+        $walk = function (array $nodes) use (&$walk, &$ids, $widgetType) {
+            foreach ($nodes as $el) {
+                if (($el['widgetType'] ?? '') === $widgetType) {
+                    $ids[] = $el['id'] ?? '';
+                }
+                if (!empty($el['elements'])) $walk($el['elements']);
+            }
+        };
+        $walk($elements);
+        return $ids;
+    }
+
+    private static function sideload_lottie(string $url): array
+    {
+        $url = trim($url);
+        if ($url === '') return ['id' => 0, 'url' => $url];
+
+        // Already on this WP — no need to re-import.
+        $site = parse_url(site_url(), PHP_URL_HOST);
+        if (strpos($url, $site) !== false) return ['id' => 0, 'url' => $url];
+
+        // Reuse a previously-sideloaded attachment.
+        global $wpdb;
+        $existing_id = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_aksaraa_source_url' AND meta_value = %s LIMIT 1",
+            $url
+        ));
+        if ($existing_id && get_post($existing_id) && wp_get_attachment_url($existing_id)) {
+            return ['id' => $existing_id, 'url' => wp_get_attachment_url($existing_id) ?: $url];
+        }
+
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        require_once ABSPATH . 'wp-admin/includes/media.php';
+        require_once ABSPATH . 'wp-admin/includes/image.php';
+
+        $tmp = download_url($url);
+        if (is_wp_error($tmp)) return ['id' => 0, 'url' => $url];
+
+        $name = basename(parse_url($url, PHP_URL_PATH));
+        if (!$name || $name === '.' || $name === '/') $name = 'aksaraa-lottie-' . time() . '.json';
+
+        $file_array = ['name' => $name, 'tmp_name' => $tmp];
+        $id = media_handle_sideload($file_array, 0, null);
+        @unlink($tmp);
+
+        if (is_wp_error($id)) return ['id' => 0, 'url' => $url];
+
+        update_post_meta($id, '_aksaraa_sideloaded', 1);
+        update_post_meta($id, '_aksaraa_source_url', $url);
+
+        $new_url = wp_get_attachment_url($id);
+        return ['id' => (int) $id, 'url' => $new_url ?: $url];
     }
 
     private static function find_descendant_headings(array $node): array
