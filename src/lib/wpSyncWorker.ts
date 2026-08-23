@@ -122,9 +122,6 @@ async function runCleanup(jobId: string, profileId: string, payload: any) {
       throw new Error(`Cleanup failed HTTP ${res.status}: ${t.slice(0, 500)}`)
     }
     const data = await res.json()
-    if (data.kept_url && activeId) {
-      await supabaseAdmin.from("wedding_profiles").update({ active_wp_post_url: data.kept_url }).eq("id", profileId).eq("active_wp_post_id", activeId)
-    }
     return data
   }
   if (oldPostId) {

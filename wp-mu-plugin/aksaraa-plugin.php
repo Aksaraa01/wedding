@@ -1114,20 +1114,9 @@ class AksaraaPlugin
                     }
                 }
             }
-            if ($keep_post_id) {
-                $keep_name = $wpdb->get_var($wpdb->prepare("SELECT post_name FROM {$wpdb->posts} WHERE ID = %d", $keep_post_id));
-                if ($keep_name && $keep_name !== $base_slug) {
-                    $exists = $wpdb->get_var($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE post_name = %s AND post_type IN ('post','page') LIMIT 1", $base_slug));
-                    if (!$exists) {
-                        $wpdb->update($wpdb->posts, ['post_name' => $base_slug], ['ID' => $keep_post_id]);
-                        clean_post_cache($keep_post_id);
-                    }
-                }
-            }
         }
 
-        $new_url = $keep_post_id ? get_permalink($keep_post_id) : "";
-        return ['deleted_posts' => $deleted_posts, 'deleted_popups' => $deleted_popups, 'kept' => $keep_post_id, 'kept_url' => $new_url];
+        return ['deleted_posts' => $deleted_posts, 'deleted_popups' => $deleted_popups, 'kept' => $keep_post_id];
     }
 
     private static function unregister_popup_condition(int $popup_id)
