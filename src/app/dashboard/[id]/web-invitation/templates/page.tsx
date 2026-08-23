@@ -52,6 +52,7 @@ function TemplatesInner({ id }: { id: string }) {
       const { job_id } = await res.json()
       await pollWpJob(job_id)
       setSelectedId(templateId)
+      router.refresh()
       router.back()
     } catch (err) {
       console.error("[templates] duplicate failed", err)

@@ -354,9 +354,10 @@ class AksaraaPlugin
         $new_title = sanitize_text_field($body['title'] ?? $master->post_title . ' Copy');
         $track_url = esc_url_raw($body['track_url'] ?? '');
         $base_slug = sanitize_title($body['new_slug'] ?? '');
+        $exclude_post_id = (int) ($body['exclude_post_id'] ?? 0);
 
         // Generate a numbered slug like {base}-01, {base}-02, ...
-        $new_slug = self::next_numbered_slug($base_slug ?: $slug);
+        $new_slug = self::next_numbered_slug($base_slug ?: $slug, $exclude_post_id);
 
         // Duplicate the post
         $new_id = wp_insert_post([
@@ -441,14 +442,23 @@ class AksaraaPlugin
         update_option('elementor_pro_theme_builder_conditions', $option);
     }
 
-    private static function next_numbered_slug(string $base): string
+    private static function next_numbered_slug(string $base, int $exclude_post_id = 0): string
     {
         global $wpdb;
-        $existing = $wpdb->get_col($wpdb->prepare(
-            "SELECT post_name FROM {$wpdb->posts} WHERE post_name = %s OR post_name LIKE %s",
-            $base,
-            $wpdb->esc_like($base) . '-%'
-        ));
+        if ($exclude_post_id) {
+            $existing = $wpdb->get_col($wpdb->prepare(
+                "SELECT post_name FROM {$wpdb->posts} WHERE (post_name = %s OR post_name LIKE %s) AND ID != %d",
+                $base,
+                $wpdb->esc_like($base) . '-%',
+                $exclude_post_id
+            ));
+        } else {
+            $existing = $wpdb->get_col($wpdb->prepare(
+                "SELECT post_name FROM {$wpdb->posts} WHERE post_name = %s OR post_name LIKE %s",
+                $base,
+                $wpdb->esc_like($base) . '-%'
+            ));
+        }
 
         if (!in_array($base, $existing)) {
             return $base;

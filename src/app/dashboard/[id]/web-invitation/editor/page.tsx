@@ -237,9 +237,8 @@ function EditorInner({ id }: { id: string }) {
   const groomPhotoSlotRef = useRef<(HTMLInputElement | null)[]>([])
   const bridePhotoSlotRef = useRef<(HTMLInputElement | null)[]>([])
 
-  useEffect(() => {
-    setInitialLoading(true)
-    fetch(`/api/dashboard/${id}/web-invitation`)
+  const fetchProfile = useCallback(() => {
+    return fetch(`/api/dashboard/${id}/web-invitation`, { cache: "no-store" })
       .then(r => r.json())
       .then(res => {
         setProfile(res.profile)
@@ -248,14 +247,15 @@ function EditorInner({ id }: { id: string }) {
         if (res.profile?.feature_set) setFeatureSet(new Set(res.profile.feature_set))
         if (res.photo_quota !== undefined) setPhotoQuota(res.photo_quota)
         const p = res.profile
-        setData({
+        setData(prev => ({
+          ...prev,
           ...p,
           display_name: p.display_name || (p.bride_name && p.groom_name ? `${p.bride_name} & ${p.groom_name}` : ""),
           inviting_families: Array.isArray(p.inviting_families) ? p.inviting_families : [],
           cover_photos: Array.isArray(p.cover_photos) ? p.cover_photos : [],
           groom_photo_url: parsePhotoList(p.groom_photo_url),
           bride_photo_url: parsePhotoList(p.bride_photo_url),
-        })
+        }))
         const sessions = Array.isArray(p.sessions) ? p.sessions.map((s: any) => s?.date).filter(Boolean) : []
         const weddingDate = sessions[0] || p.estimated_wedding_date || ""
         if (weddingDate && p.is_published !== true) {
@@ -263,8 +263,29 @@ function EditorInner({ id }: { id: string }) {
           if (days >= 0 && days <= 30) setShowH3Reminder(true)
         }
       })
-      .finally(() => setInitialLoading(false))
   }, [id])
+
+  useEffect(() => {
+    setInitialLoading(true)
+    fetchProfile().finally(() => setInitialLoading(false))
+  }, [fetchProfile])
+
+  useEffect(() => {
+    const onFocus = () => { if (document.visibilityState === "visible") fetchProfile() }
+    const onPageShow = () => fetchProfile()
+    window.addEventListener("focus", onFocus)
+    window.addEventListener("pageshow", onPageShow)
+    document.addEventListener("visibilitychange", onFocus)
+    return () => {
+      window.removeEventListener("focus", onFocus)
+      window.removeEventListener("pageshow", onPageShow)
+      document.removeEventListener("visibilitychange", onFocus)
+    }
+  }, [fetchProfile])
+
+  useEffect(() => {
+    if (previewVersion > 0) fetchProfile()
+  }, [previewVersion, fetchProfile])
 
   useEffect(() => {
     fetch(`/api/feedback-submissions?wedding_profile_id=${id}`)

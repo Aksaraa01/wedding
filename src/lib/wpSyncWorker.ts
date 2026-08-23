@@ -68,6 +68,7 @@ async function runDuplicate(jobId: string, profileId: string, templateId: string
   if (newSlug) wpBody.new_slug = newSlug
   if (resolvedTrackUrl) wpBody.track_url = resolvedTrackUrl
   if (resolvedTrackUrl) fields.track_url = resolvedTrackUrl
+  if (oldPostId) wpBody.exclude_post_id = oldPostId
 
   const res = await wpFetch(
     `${WP_ORIGIN}/wp-json/aksaraa/v1/templates/${encodeURIComponent(tpl.wp_master_slug)}/duplicate`,
