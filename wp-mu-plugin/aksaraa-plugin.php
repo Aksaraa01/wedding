@@ -1371,14 +1371,18 @@ class AksaraaPlugin
             if ($imageId) {
                 $elements = self::apply_to_node($elements, $imageId, function (array &$node) {
                     $node['settings'] = $node['settings'] ?? [];
-                    $node['settings']['width_mobile'] = ['size' => 65, 'unit' => 'px'];
-                    $node['settings']['width_tablet'] = ['size' => 80, 'unit' => 'px'];
-                    $node['settings']['_margin_mobile'] = $node['settings']['_margin_mobile'] ?? [];
-                    $node['settings']['_margin_mobile']['top'] = 0;
-                    $node['settings']['_margin_mobile']['bottom'] = 0;
-                    if (isset($node['settings']['space_mobile'])) {
-                        $node['settings']['space_mobile'] = ['size' => 12, 'unit' => 'px'];
-                    }
+                    $node['settings']['width'] = ['size' => 140, 'unit' => 'px'];
+                    $node['settings']['width_tablet'] = ['size' => 110, 'unit' => 'px'];
+                    $node['settings']['width_mobile'] = ['size' => 90, 'unit' => 'px'];
+                    $node['settings']['_margin'] = ['unit' => 'px', 'top' => '0', 'right' => '0', 'bottom' => '0', 'left' => '0', 'isLinked' => false];
+                    $node['settings']['_margin_mobile'] = ['unit' => 'px', 'top' => '0', 'right' => '0', 'bottom' => '8', 'left' => '0', 'isLinked' => false];
+                    $node['settings']['_margin_tablet'] = ['unit' => 'px', 'top' => '0', 'right' => '0', 'bottom' => '0', 'left' => '0', 'isLinked' => false];
+                    $node['settings']['space'] = ['unit' => 'px', 'size' => 16, 'sizes' => []];
+                    $node['settings']['space_mobile'] = ['unit' => 'px', 'size' => 12, 'sizes' => []];
+                    $node['settings']['space_tablet'] = ['unit' => 'px', 'size' => 14, 'sizes' => []];
+                    $node['settings']['align'] = 'center';
+                    $node['settings']['align_mobile'] = 'center';
+                    $node['settings']['align_tablet'] = 'center';
                 });
             }
             foreach (array_slice($headings, 0, 2) as $hid) {
