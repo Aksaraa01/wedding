@@ -791,10 +791,21 @@ function EditorInner({ id }: { id: string }) {
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" })
   }, [activeSection])
 
+  const isSectionHidden = (key: string) => {
+    switch (key) {
+      case "inviting": return data.inviting_families_visible === false
+      case "video": return data.video_section_visible === false
+      case "story": return data.story_visible === false
+      case "gift": return data.gift_section_visible === false
+      default: return false
+    }
+  }
+
   const renderSection = (key: string, icon: string, label: string, content: React.ReactNode) => {
     const isActive = activeSection === key
+    const hidden = isSectionHidden(key)
     return (
-      <div data-section={key} className={`scroll-mt-6 border ${isActive ? "bg-white border-outline-variant" : "bg-[#8d4d39] border-[#8d4d39]"}`}>
+      <div data-section={key} className={`scroll-mt-6 border ${isActive ? "bg-white border-outline-variant" : hidden ? "bg-[#b89a7e] border-[#b89a7e]" : "bg-[#8d4d39] border-[#8d4d39]"}`}>
         <button
           onClick={() => handleSectionToggle(key)}
           className={`w-full flex justify-between items-center py-4 px-4 transition-colors ${isActive ? "text-primary" : "text-white/90 hover:text-white"}`}
@@ -802,7 +813,13 @@ function EditorInner({ id }: { id: string }) {
           <span className="font-label-md text-label-md flex items-center gap-3">
             <span className="material-symbols-outlined text-[18px]">{icon}</span>
             {label}
-            {sectionIncomplete(key) && (
+            {hidden && (
+              <span className="group relative inline-flex">
+                <span className={`material-symbols-outlined text-[18px] ${isActive ? "text-[#8d4d39]" : "text-white/90"}`}>visibility_off</span>
+                <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-primary text-white text-[11px] px-3 py-1.5 rounded whitespace-nowrap z-10 shadow-lg">Konten disembunyikan - tidak tampil di undangan</span>
+              </span>
+            )}
+            {!hidden && sectionIncomplete(key) && (
               <span title="Konten belum lengkap" className={`inline-flex ${isActive ? "text-[#8d4d39]" : "text-white"}`}>
                 <AttentionIcon size={36} />
               </span>
