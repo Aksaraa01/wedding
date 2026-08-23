@@ -761,21 +761,19 @@ class AksaraaPlugin
         $result = [];
         if (!isset($fields['gallery_photos']) || !is_array($fields['gallery_photos'])) return $result;
         $mapping = $manifest['gallery_photos'] ?? [];
-        // Accept single mapping or array-of-mappings (take the first).
         $m = is_array($mapping) && isset($mapping['elementId']) ? $mapping : (is_array($mapping) && isset($mapping[0]) ? $mapping[0] : null);
         if (!$m || !is_array($m) || !isset($m['elementId'])) return $result;
 
+        $urls = array_values(array_filter(array_map('strval', $fields['gallery_photos'])));
+        if (empty($urls)) return $result;
+        $imported_map = self::sideload_images_parallel($urls);
         $images = [];
-        foreach ($fields['gallery_photos'] as $url) {
-            if ($url) {
-                $imported = self::sideload_image((string) $url);
-                $images[] = ['id' => $imported['id'], 'url' => $imported['url']];
-            }
+        foreach ($urls as $url) {
+            $imported = $imported_map[$url] ?? ['id' => 0, 'url' => $url];
+            $images[] = ['id' => $imported['id'], 'url' => $imported['url']];
         }
         if (empty($images)) return $result;
 
-        // The gallery widget always targets settings.gallery (an array of {id,url}),
-        // regardless of what settings path was saved in the manifest.
         $result[] = [
             'elementId' => $m['elementId'],
             'settings' => ['gallery'],
@@ -784,17 +782,93 @@ class AksaraaPlugin
         return $result;
     }
 
+    private static function sideload_images_parallel(array $urls): array
+    {
+        $result = [];
+        $to_download = [];
+        global $wpdb;
+        $site = parse_url(site_url(), PHP_URL_HOST);
+        foreach ($urls as $url) {
+            $url = trim((string) $url);
+            if ($url === '') { $result[$url] = ['id' => 0, 'url' => $url]; continue; }
+            if (strpos($url, $site) !== false) { $result[$url] = ['id' => 0, 'url' => $url]; continue; }
+            $existing_id = (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_aksaraa_source_url' AND meta_value = %s LIMIT 1",
+                $url
+            ));
+            if ($existing_id && get_post($existing_id) && wp_get_attachment_url($existing_id)) {
+                $result[$url] = ['id' => $existing_id, 'url' => wp_get_attachment_url($existing_id) ?: $url];
+            } else {
+                $to_download[$url] = $url;
+            }
+        }
+        if (empty($to_download)) return $result;
+
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        require_once ABSPATH . 'wp-admin/includes/media.php';
+        require_once ABSPATH . 'wp-admin/includes/image.php';
+
+        $mh = curl_multi_init();
+        $handles = [];
+        $tmp_files = [];
+        foreach ($to_download as $url) {
+            $tmp = wp_tempnam(basename(parse_url($url, PHP_URL_PATH)) ?: 'aksaraa');
+            $fp = fopen($tmp, 'w');
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_FILE, $fp);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+            curl_multi_add_handle($mh, $ch);
+            $handles[$url] = ['ch' => $ch, 'fp' => $fp, 'tmp' => $tmp];
+        }
+        $running = null;
+        do { curl_multi_exec($mh, $running); curl_multi_select($mh, 0.5); } while ($running > 0);
+        foreach ($handles as $url => $h) {
+            $code = curl_getinfo($h['ch'], CURLINFO_HTTP_CODE);
+            fclose($h['fp']);
+            curl_multi_remove_handle($mh, $h['ch']);
+            curl_close($h['ch']);
+            if ($code < 200 || $code >= 300 || !filesize($h['tmp'])) {
+                @unlink($h['tmp']);
+                $result[$url] = ['id' => 0, 'url' => $url];
+                continue;
+            }
+            $tmp_files[$url] = $h['tmp'];
+        }
+        curl_multi_close($mh);
+
+        foreach ($tmp_files as $url => $tmp) {
+            $name = basename(parse_url($url, PHP_URL_PATH));
+            if (!$name || $name === '.' || $name === '/') $name = 'aksaraa-' . time() . '.jpg';
+            $file_array = ['name' => $name, 'tmp_name' => $tmp];
+            $id = media_handle_sideload($file_array, 0, null);
+            @unlink($tmp);
+            if (is_wp_error($id)) {
+                $result[$url] = ['id' => 0, 'url' => $url];
+            } else {
+                update_post_meta($id, '_aksaraa_sideloaded', 1);
+                update_post_meta($id, '_aksaraa_source_url', $url);
+                $new_url = wp_get_attachment_url($id);
+                $result[$url] = ['id' => (int) $id, 'url' => $new_url ?: $url];
+            }
+        }
+        return $result;
+    }
+
     // Download an external image URL and sideload it into the WP media library,
     // returning ['id' => attachment_id, 'url' => wp_url]. On failure, falls back
     // to the original URL with id 0.
     private static function sideload_image(string $url): array
     {
+        static $mem = [];
         $url = trim($url);
         if ($url === '') return ['id' => 0, 'url' => $url];
+        if (isset($mem[$url])) return $mem[$url];
 
         // Already on this WP — no need to re-import.
         $site = parse_url(site_url(), PHP_URL_HOST);
-        if (strpos($url, $site) !== false) return ['id' => 0, 'url' => $url];
+        if (strpos($url, $site) !== false) return $mem[$url] = ['id' => 0, 'url' => $url];
 
         // Reuse a previously-sideloaded attachment via a PERSISTENT postmeta mapping
         // (source URL -> attachment id), instead of a transient that can expire or go
@@ -805,15 +879,15 @@ class AksaraaPlugin
             $url
         ));
         if ($existing_id && get_post($existing_id) && wp_get_attachment_url($existing_id)) {
-            return ['id' => $existing_id, 'url' => wp_get_attachment_url($existing_id) ?: $url];
+            return $mem[$url] = ['id' => $existing_id, 'url' => wp_get_attachment_url($existing_id) ?: $url];
         }
 
         require_once ABSPATH . 'wp-admin/includes/file.php';
         require_once ABSPATH . 'wp-admin/includes/media.php';
         require_once ABSPATH . 'wp-admin/includes/image.php';
 
-        $tmp = download_url($url);
-        if (is_wp_error($tmp)) return ['id' => 0, 'url' => $url];
+        $tmp = download_url($url, 15);
+        if (is_wp_error($tmp)) return $mem[$url] = ['id' => 0, 'url' => $url];
 
         $name = basename(parse_url($url, PHP_URL_PATH));
         if (!$name || $name === '.' || $name === '/') $name = 'aksaraa-' . time() . '.jpg';
@@ -822,7 +896,7 @@ class AksaraaPlugin
         $id = media_handle_sideload($file_array, 0, null);
         @unlink($tmp);
 
-        if (is_wp_error($id)) return ['id' => 0, 'url' => $url];
+        if (is_wp_error($id)) return $mem[$url] = ['id' => 0, 'url' => $url];
 
         // Persist the source URL so repeated PATCHes reuse this attachment without a
         // transient cache (and without ever referencing a dead id).
@@ -830,7 +904,7 @@ class AksaraaPlugin
         update_post_meta($id, '_aksaraa_source_url', $url);
 
         $new_url = wp_get_attachment_url($id);
-        return ['id' => (int) $id, 'url' => $new_url ?: $url];
+        return $mem[$url] = ['id' => (int) $id, 'url' => $new_url ?: $url];
     }
 
     // Object arrays (sessions, gift_accounts, stories):

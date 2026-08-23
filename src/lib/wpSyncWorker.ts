@@ -3,7 +3,7 @@ import { buildProfileFields } from "@/lib/buildProfileFields"
 
 const WP_ORIGIN = process.env.NEXT_PUBLIC_WP_ORIGIN || ""
 const WP_SECRET = process.env.WP_INTERNAL_SECRET || ""
-const CONCURRENCY = Math.max(1, parseInt(process.env.WP_QUEUE_CONCURRENCY || "2", 10))
+const CONCURRENCY = Math.max(1, parseInt(process.env.WP_QUEUE_CONCURRENCY || "4", 10))
 const POLL_MS = 2500
 const STALE_MS = 5 * 60 * 1000
 const MAX_ATTEMPTS = 3
