@@ -1371,20 +1371,22 @@ class AksaraaPlugin
             if ($imageId) {
                 $elements = self::apply_to_node($elements, $imageId, function (array &$node) {
                     $node['settings'] = $node['settings'] ?? [];
-                    $node['settings']['width_mobile'] = ['size' => 80, 'unit' => 'px'];
-                    if (isset($node['settings']['_margin_mobile']['bottom']) && $node['settings']['_margin_mobile']['bottom'] < 0) {
-                        $node['settings']['_margin_mobile']['bottom'] = 0;
+                    $node['settings']['width_mobile'] = ['size' => 65, 'unit' => 'px'];
+                    $node['settings']['width_tablet'] = ['size' => 80, 'unit' => 'px'];
+                    $node['settings']['_margin_mobile'] = $node['settings']['_margin_mobile'] ?? [];
+                    $node['settings']['_margin_mobile']['top'] = 0;
+                    $node['settings']['_margin_mobile']['bottom'] = 0;
+                    if (isset($node['settings']['space_mobile'])) {
+                        $node['settings']['space_mobile'] = ['size' => 12, 'unit' => 'px'];
                     }
                 });
             }
             foreach (array_slice($headings, 0, 2) as $hid) {
                 $elements = self::apply_to_node($elements, $hid, function (array &$node) {
-                    if (isset($node['settings']['_margin_mobile']['top']) && $node['settings']['_margin_mobile']['top'] < 0) {
-                        $node['settings']['_margin_mobile']['top'] = 0;
-                    }
-                    if (isset($node['settings']['_margin_mobile']['bottom']) && $node['settings']['_margin_mobile']['bottom'] < 0) {
-                        $node['settings']['_margin_mobile']['bottom'] = 0;
-                    }
+                    $node['settings']['_margin_mobile'] = $node['settings']['_margin_mobile'] ?? [];
+                    $node['settings']['_margin_mobile']['top'] = 6;
+                    $node['settings']['_margin_mobile']['bottom'] = 2;
+                    $node['settings']['_margin_mobile']['isLinked'] = false;
                 });
             }
         }
