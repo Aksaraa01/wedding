@@ -1360,9 +1360,34 @@ class AksaraaPlugin
         return [$elements, $manifest];
     }
 
-    // F5 — keep bank card mobile layout exactly as template (do not overwrite).
     private static function normalize_bank_card_mobile(array $elements, string $masterId, array $cloneIds): array
     {
+        $cardIds = array_values(array_unique(array_merge([$masterId], $cloneIds)));
+        foreach ($cardIds as $cid) {
+            $card = self::find_node($elements, $cid);
+            if (!$card) continue;
+            $imageId = self::find_descendant_widget_id($card, 'image');
+            $headings = self::find_descendant_headings($card);
+            if ($imageId) {
+                $elements = self::apply_to_node($elements, $imageId, function (array &$node) {
+                    $node['settings'] = $node['settings'] ?? [];
+                    $node['settings']['width_mobile'] = ['size' => 80, 'unit' => 'px'];
+                    if (isset($node['settings']['_margin_mobile']['bottom']) && $node['settings']['_margin_mobile']['bottom'] < 0) {
+                        $node['settings']['_margin_mobile']['bottom'] = 0;
+                    }
+                });
+            }
+            foreach (array_slice($headings, 0, 2) as $hid) {
+                $elements = self::apply_to_node($elements, $hid, function (array &$node) {
+                    if (isset($node['settings']['_margin_mobile']['top']) && $node['settings']['_margin_mobile']['top'] < 0) {
+                        $node['settings']['_margin_mobile']['top'] = 0;
+                    }
+                    if (isset($node['settings']['_margin_mobile']['bottom']) && $node['settings']['_margin_mobile']['bottom'] < 0) {
+                        $node['settings']['_margin_mobile']['bottom'] = 0;
+                    }
+                });
+            }
+        }
         return $elements;
     }
 
