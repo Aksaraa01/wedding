@@ -223,6 +223,7 @@ function EditorInner({ id }: { id: string }) {
   })
   const [featureSet, setFeatureSet] = useState<Set<string>>(new Set())
   const saveTimer = useRef<ReturnType<typeof setTimeout>>(null)
+  const hasCheckedH3 = useRef(false)
 
   const pendingUpdates = useRef<Record<string, any>>({})
   const [previewVersion, setPreviewVersion] = useState(0)
@@ -256,11 +257,14 @@ function EditorInner({ id }: { id: string }) {
           groom_photo_url: parsePhotoList(p.groom_photo_url),
           bride_photo_url: parsePhotoList(p.bride_photo_url),
         }))
-        const sessions = Array.isArray(p.sessions) ? p.sessions.map((s: any) => s?.date).filter(Boolean) : []
-        const weddingDate = sessions[0] || p.estimated_wedding_date || ""
-        if (weddingDate && p.is_published !== true) {
-          const days = Math.ceil((new Date(`${weddingDate}T00:00:00`).getTime() - Date.now()) / 86400000)
-          if (days >= 0 && days <= 30) setShowH3Reminder(true)
+        if (!hasCheckedH3.current) {
+          hasCheckedH3.current = true
+          const sessions = Array.isArray(p.sessions) ? p.sessions.map((s: any) => s?.date).filter(Boolean) : []
+          const weddingDate = sessions[0] || p.estimated_wedding_date || ""
+          if (weddingDate && p.is_published !== true) {
+            const days = Math.ceil((new Date(`${weddingDate}T00:00:00`).getTime() - Date.now()) / 86400000)
+            if (days >= 0 && days <= 30) setShowH3Reminder(true)
+          }
         }
       })
   }, [id])
