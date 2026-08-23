@@ -333,6 +333,42 @@ async function processJob(job: NonNullable<Awaited<ReturnType<typeof claimNext>>
 let workerStarted = false
 let running = 0
 
+function scheduleNightlyReaper() {
+  const run = async () => {
+    try {
+      const { data: profiles } = await supabaseAdmin
+        .from("wedding_profiles")
+        .select("id, slug, active_wp_post_id")
+        .not("slug", "is", null)
+        .not("active_wp_post_id", "is", null)
+      for (const p of profiles || []) {
+        if (!p.slug || !p.active_wp_post_id) continue
+        await wpFetch(`${WP_ORIGIN}/wp-json/aksaraa/v1/cleanup`, {
+          method: "POST",
+          body: JSON.stringify({ base_slug: p.slug, keep_post_id: p.active_wp_post_id }),
+        }).catch(() => {})
+        await new Promise((r) => setTimeout(r, 150))
+      }
+      console.log(`[wpSync] nightly reaper scanned ${profiles?.length || 0} profiles`)
+    } catch (e) {
+      console.error("[wpSync] reaper failed", e)
+    }
+  }
+  const msUntilNext3amWIB = () => {
+    const now = new Date()
+    const wibNow = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Jakarta" }))
+    const next = new Date(wibNow)
+    next.setHours(3, 0, 0, 0)
+    if (next <= wibNow) next.setDate(next.getDate() + 1)
+    return next.getTime() - wibNow.getTime()
+  }
+  setTimeout(() => {
+    run()
+    setInterval(run, 24 * 60 * 60 * 1000)
+  }, msUntilNext3amWIB())
+  console.log(`[wpSync] reaper scheduled in ${Math.round(msUntilNext3amWIB() / 60000)}m (03:00 WIB daily)`)
+}
+
 export function startWpSyncWorker() {
   if (workerStarted) return
   if (!WP_ORIGIN || !WP_SECRET) {
@@ -362,4 +398,5 @@ export function startWpSyncWorker() {
     setTimeout(loop, POLL_MS)
   }
   loop()
+  scheduleNightlyReaper()
 }
