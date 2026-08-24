@@ -259,11 +259,17 @@ function EditorInner({ id }: { id: string }) {
         }))
         if (!hasCheckedH3.current) {
           hasCheckedH3.current = true
+          let fromTemplates = false
+          try {
+            fromTemplates = sessionStorage.getItem('from_templates_' + id) === '1'
+            if (fromTemplates) sessionStorage.removeItem('from_templates_' + id)
+          } catch {}
+          if (fromTemplates) return
           const sessions = Array.isArray(p.sessions) ? p.sessions.map((s: any) => s?.date).filter(Boolean) : []
           const weddingDate = sessions[0] || p.estimated_wedding_date || ""
           if (weddingDate && p.is_published !== true) {
             const days = Math.ceil((new Date(`${weddingDate}T00:00:00`).getTime() - Date.now()) / 86400000)
-            if (days >= 0 && days <= 30) setShowH3Reminder(true)
+            if (days >= 0 && days <= 14) setShowH3Reminder(true)
           }
         }
       })
@@ -950,7 +956,10 @@ function EditorInner({ id }: { id: string }) {
             </button>
 
             <button
-              onClick={() => router.push(`/dashboard/${id}/web-invitation/templates`)}
+              onClick={() => {
+                try { sessionStorage.setItem('from_templates_' + id, '1') } catch {}
+                router.push(`/dashboard/${id}/web-invitation/templates`)
+              }}
               disabled={isPublished || initialLoading}
               className={`hidden md:inline-flex items-center gap-2 px-4 lg:px-5 py-2.5 border font-label-md text-label-md rounded-full transition-all active:scale-95 ${
                 isPublished
