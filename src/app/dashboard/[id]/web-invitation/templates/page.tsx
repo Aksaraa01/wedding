@@ -91,7 +91,7 @@ function TemplatesInner({ id }: { id: string }) {
                 )}
                 <img
                   alt={tpl.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-contain bg-surface-container-lowest p-2 transition-transform duration-700 group-hover:scale-105"
                   src={tpl.preview_image_url}
                 />
                 <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors pointer-events-none" />

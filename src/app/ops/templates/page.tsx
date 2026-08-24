@@ -654,7 +654,7 @@ export default function OpsTemplatesPage() {
                 <div key={t.id} className={`bg-white border p-3 flex flex-col gap-2 ${t.is_active ? "border-outline-variant" : "border-outline-variant/40 opacity-60"}`}>
                   {t.preview_image_url && (
                     <div className="aspect-[3/4] overflow-hidden bg-surface-container-low border border-outline-variant/30 rounded-sm">
-                      <img src={t.preview_image_url} alt={t.name} className="w-full h-full object-cover" />
+                      <img src={t.preview_image_url} alt={t.name} className="w-full h-full object-contain bg-surface-container-lowest p-2" />
                     </div>
                   )}
                   <div className="flex items-start justify-between gap-2">
