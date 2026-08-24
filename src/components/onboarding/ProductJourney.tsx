@@ -113,21 +113,22 @@ export default function ProductJourney({ profileId }: Props) {
   const currentRoute = pathname.includes("/editor") ? "editor" : pathname.includes("/templates") ? "templates" : "dashboard"
   if (current.route !== currentRoute) return null
 
+  const isTopHalf = targetRect ? targetRect.top < window.innerHeight * 0.45 : false
   const modal = (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleClose} />
+    <div className={`fixed inset-0 z-[100] flex justify-center p-4 ${isTopHalf ? "items-end pb-8" : "items-start pt-20 md:pt-24"}`}>
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-0" onClick={handleClose} />
       {targetRect && (
         <div
-          className="absolute border-2 border-violet-600 rounded-xl shadow-2xl pointer-events-none transition-all duration-300"
+          className="absolute z-10 border-[3px] border-violet-600 rounded-2xl shadow-[0_0_0_4px_rgba(124,58,237,0.15),0_12px_40px_rgba(124,58,237,0.25)] pointer-events-none transition-all duration-300"
           style={{
-            top: targetRect.top - 8,
-            left: targetRect.left - 8,
-            width: targetRect.width + 16,
-            height: targetRect.height + 16,
+            top: targetRect.top - 6,
+            left: targetRect.left - 6,
+            width: targetRect.width + 12,
+            height: targetRect.height + 12,
           }}
         />
       )}
-      <div className="relative bg-white rounded-[24px] shadow-2xl max-w-[520px] w-full overflow-hidden border border-violet-100 animate-[fadeIn_0.4s_ease]">
+      <div className="relative z-20 bg-white rounded-[24px] shadow-2xl max-w-[520px] w-full overflow-hidden border border-violet-100 animate-[fadeIn_0.4s_ease] max-h-[85vh] overflow-y-auto">
         <div className="h-1 w-full bg-[#592259]" />
         <button onClick={handleClose} className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors" aria-label="Tutup">
           <span className="material-symbols-outlined text-[20px] text-on-surface-variant">close</span>
@@ -146,7 +147,7 @@ export default function ProductJourney({ profileId }: Props) {
           </div>
         </div>
       </div>
-      <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}} .tour-highlight{position:relative;z-index:101;box-shadow:0 0 0 4px #7c3aed, 0 8px 32px rgba(124,58,237,0.25);border-radius:12px;transition:box-shadow 0.3s ease;}`}</style>
+      <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}} .tour-highlight{position:relative;z-index:5;box-shadow:0 0 0 3px #7c3aed, 0 8px 24px rgba(124,58,237,0.2);border-radius:16px;transition:box-shadow 0.3s ease;}`}</style>
     </div>
   )
 
