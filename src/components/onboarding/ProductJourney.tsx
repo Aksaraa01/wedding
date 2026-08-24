@@ -53,11 +53,43 @@ export default function ProductJourney({ profileId }: Props) {
     if (!current) return
     const isMobile = typeof window !== "undefined" && window.innerWidth < 768
     const selector = isMobile && (current as any).targetMobile ? (current as any).targetMobile : current.target
-    const candidates = Array.from(document.querySelectorAll(selector)) as HTMLElement[]
-    let el = candidates.find((c) => (c as HTMLElement).offsetParent !== null) || candidates[0] as HTMLElement | null
-    if (!el && isMobile && current.target === "[data-tour='konten']") {
-      const fallback = document.querySelector("[data-tour='konten-mobile']") as HTMLElement | null
-      if (fallback && fallback.offsetParent !== null) el = fallback
+    const tryFind = () => {
+      const candidates = Array.from(document.querySelectorAll(selector)) as HTMLElement[]
+      let el = candidates.find((c) => (c as HTMLElement).offsetParent !== null) || candidates[0] as HTMLElement | null
+      if (!el && isMobile && current.target === "[data-tour='konten']") {
+        const fallback = document.querySelector("[data-tour='konten-mobile']") as HTMLElement | null
+        if (fallback && (fallback as HTMLElement).offsetParent !== null) el = fallback
+      }
+      if (!el && current.target === "[data-tour='feedback']") {
+        const sec = document.querySelector("[data-section='feedback']") as HTMLElement | null
+        if (sec) {
+          window.dispatchEvent(new CustomEvent("tour_open_section", { detail: "feedback" }))
+          const inner = sec.querySelector("[data-tour='feedback']") as HTMLElement | null
+          if (inner) el = inner
+          else el = sec
+        }
+      }
+      if (current.target === "[data-tour='konten']" && isMobile) {
+        const aside = document.querySelector("[data-tour='konten']") as HTMLElement | null
+        if (aside && (aside as HTMLElement).offsetParent === null) {
+          const editBtn = document.querySelector("[data-tour='konten-mobile']") as HTMLElement | null
+          if (editBtn) el = editBtn
+        }
+      }
+      return el
+    }
+    let el = tryFind()
+    if (!el) {
+      const t = setTimeout(() => {
+        const retry = tryFind()
+        if (retry) {
+          const r = retry.getBoundingClientRect()
+          setTargetRect(r)
+          retry.scrollIntoView({ behavior: "smooth", block: "center" })
+          retry.classList.add("tour-highlight")
+        }
+      }, 300)
+      return () => clearTimeout(t)
     }
     if (el) {
       const r = el.getBoundingClientRect()
@@ -125,12 +157,12 @@ export default function ProductJourney({ profileId }: Props) {
     <div className={`fixed inset-0 z-[100] flex justify-center p-4 ${isTopHalf ? "items-end pb-8" : "items-start pt-20 md:pt-24"}`}>
       {targetRect ? (
         <>
-          <div className="absolute bg-black/50 backdrop-blur-sm z-0" style={{ top: 0, left: 0, right: 0, height: targetRect.top - 6 }} onClick={handleClose} />
-          <div className="absolute bg-black/50 backdrop-blur-sm z-0" style={{ top: targetRect.bottom + 6, left: 0, right: 0, bottom: 0 }} onClick={handleClose} />
-          <div className="absolute bg-black/50 backdrop-blur-sm z-0" style={{ top: targetRect.top - 6, left: 0, width: targetRect.left - 6, height: targetRect.height + 12 }} onClick={handleClose} />
-          <div className="absolute bg-black/50 backdrop-blur-sm z-0" style={{ top: targetRect.top - 6, left: targetRect.right + 6, right: 0, height: targetRect.height + 12 }} onClick={handleClose} />
+          <div className="absolute bg-black/40 z-0" style={{ top: 0, left: 0, right: 0, height: targetRect.top - 6 }} onClick={handleClose} />
+          <div className="absolute bg-black/40 z-0" style={{ top: targetRect.bottom + 6, left: 0, right: 0, bottom: 0 }} onClick={handleClose} />
+          <div className="absolute bg-black/40 z-0" style={{ top: targetRect.top - 6, left: 0, width: targetRect.left - 6, height: targetRect.height + 12 }} onClick={handleClose} />
+          <div className="absolute bg-black/40 z-0" style={{ top: targetRect.top - 6, left: targetRect.right + 6, right: 0, height: targetRect.height + 12 }} onClick={handleClose} />
           <div
-            className="absolute z-10 border-[3px] border-violet-600 rounded-2xl shadow-[0_0_0_4px_rgba(124,58,237,0.15),0_12px_40px_rgba(124,58,237,0.25)] pointer-events-none transition-all duration-300"
+            className="absolute z-10 border-[3px] border-violet-600 rounded-2xl shadow-[0_0_0_4px_rgba(124,58,237,0.15),0_12px_40px_rgba(124,58,237,0.25)] pointer-events-none transition-all duration-300 bg-transparent"
             style={{
               top: targetRect.top - 6,
               left: targetRect.left - 6,
@@ -140,7 +172,7 @@ export default function ProductJourney({ profileId }: Props) {
           />
         </>
       ) : (
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-0" onClick={handleClose} />
+        <div className="absolute inset-0 bg-black/40 z-0" onClick={handleClose} />
       )}
       <div className="relative z-20 bg-white rounded-[24px] shadow-2xl max-w-[280px] md:max-w-[520px] w-full overflow-hidden border border-violet-100 animate-[fadeIn_0.4s_ease] max-h-[85vh] overflow-y-auto">
         <div className="h-1 w-full bg-[#592259]" />

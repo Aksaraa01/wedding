@@ -798,6 +798,18 @@ function EditorInner({ id }: { id: string }) {
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" })
   }, [activeSection])
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail
+      if (typeof detail === "string") {
+        setActiveSection(detail)
+        setShowMobilePreview(false)
+      }
+    }
+    window.addEventListener("tour_open_section", handler as EventListener)
+    return () => window.removeEventListener("tour_open_section", handler as EventListener)
+  }, [])
+
   const isSectionHidden = (key: string) => {
     switch (key) {
       case "inviting": return data.inviting_families_visible === false
