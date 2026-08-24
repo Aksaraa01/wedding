@@ -811,7 +811,7 @@ function EditorInner({ id }: { id: string }) {
     const isActive = activeSection === key
     const hidden = isSectionHidden(key)
     return (
-      <div data-section={key} className={`scroll-mt-6 border ${isActive ? "bg-white border-outline-variant" : hidden ? "bg-[#b89a7e] border-[#b89a7e]" : "bg-[#8d4d39] border-[#8d4d39]"}`}>
+      <div data-section={key} className={`scroll-mt-6 border rounded-xl overflow-hidden ${isActive ? "bg-white border-outline-variant" : hidden ? "bg-[#b89a7e] border-[#b89a7e]" : "bg-[#8d4d39] border-[#8d4d39]"}`}>
         <button
           onClick={() => handleSectionToggle(key)}
           className={`w-full flex justify-between items-center py-4 px-4 transition-colors ${isActive ? "text-primary" : "text-white/90 hover:text-white"}`}
