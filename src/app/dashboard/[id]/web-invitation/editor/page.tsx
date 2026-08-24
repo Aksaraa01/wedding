@@ -7,6 +7,7 @@ import { getTemplateComponent } from "@/components/templates"
 import { RowGates } from "@/lib/featureGates"
 import { pollWpJob } from "@/lib/wpJobPoll"
 import ProfileMenu from "@/components/ProfileMenu"
+import ProductJourney from "@/components/onboarding/ProductJourney"
 
 type Profile = {
   id: string
@@ -811,7 +812,7 @@ function EditorInner({ id }: { id: string }) {
     const isActive = activeSection === key
     const hidden = isSectionHidden(key)
     return (
-      <div data-section={key} className={`scroll-mt-6 border rounded-xl overflow-hidden ${isActive ? "bg-white border-outline-variant" : hidden ? "bg-[#b89a7e] border-[#b89a7e]" : "bg-[#8d4d39] border-[#8d4d39]"}`}>
+      <div data-section={key} data-tour={key} className={`scroll-mt-6 border rounded-xl overflow-hidden ${isActive ? "bg-white border-outline-variant" : hidden ? "bg-[#b89a7e] border-[#b89a7e]" : "bg-[#8d4d39] border-[#8d4d39]"}`}>
         <button
           onClick={() => handleSectionToggle(key)}
           className={`w-full flex justify-between items-center py-4 px-4 transition-colors ${isActive ? "text-primary" : "text-white/90 hover:text-white"}`}
@@ -908,6 +909,7 @@ function EditorInner({ id }: { id: string }) {
   return (
     <>
       <PageTheme mode="light" />
+      <ProductJourney profileId={id} />
       <div className="h-screen flex flex-col bg-surface text-on-surface font-body-md overflow-hidden">
 
         {/* TOP BAR */}
@@ -947,6 +949,7 @@ function EditorInner({ id }: { id: string }) {
             ) : (
               <>
             <button
+              data-tour="perbarui"
               onClick={handleUpdatePreview}
               disabled={updatingPreview || isPublished || initialLoading}
               className="hidden md:inline-flex items-center gap-2 px-4 lg:px-5 py-2.5 font-label-md text-label-md bg-brand-gold text-white rounded-full transition-all active:scale-95 hover:opacity-90 disabled:opacity-50 shadow-sm"
@@ -956,6 +959,7 @@ function EditorInner({ id }: { id: string }) {
             </button>
 
             <button
+              data-tour="ganti-tema"
               onClick={() => {
                 try { sessionStorage.setItem('from_templates_' + id, '1') } catch {}
                 router.push(`/dashboard/${id}/web-invitation/templates`)
@@ -974,6 +978,7 @@ function EditorInner({ id }: { id: string }) {
             <button onClick={() => setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile")} disabled={initialLoading} className="hidden md:inline-flex items-center justify-center w-10 h-10 rounded-full border border-outline-variant bg-white text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-50" title="Ganti tampilan pratinjau"><span className="material-symbols-outlined text-[20px]">devices</span></button>
 
             <button
+              data-tour="konfirmasi"
               onClick={() => setShowPublishConfirm(true)}
               disabled={isPublished || initialLoading}
               className={`hidden md:inline-flex px-5 py-2.5 font-label-md text-label-md rounded-full transition-all active:scale-95 shadow-sm ${
@@ -1008,7 +1013,7 @@ function EditorInner({ id }: { id: string }) {
         {/* MAIN */}
         <main className="flex-1 flex overflow-hidden">
           {/* SIDEBAR */}
-          <aside className={`${showMobilePreview ? 'hidden' : 'flex'} md:flex w-full md:w-[440px] bg-surface-container-low border-r border-outline-variant flex-col h-full z-40 shrink-0`}>
+            <aside data-tour="konten" className={`${showMobilePreview ? 'hidden' : 'flex'} md:flex w-full md:w-[440px] bg-surface-container-low border-r border-outline-variant flex-col h-full z-40 shrink-0`}>
             <div className="flex border-b border-outline-variant">
               <button className="flex-1 py-4 font-label-md text-label-md text-primary border-b-2 border-primary text-center">KONTEN</button>
             </div>

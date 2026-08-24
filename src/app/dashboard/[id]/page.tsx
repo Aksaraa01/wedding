@@ -6,6 +6,7 @@ import Image from "next/image"
 import PageTheme from "@/components/PageTheme"
 import ProfileMenu from "@/components/ProfileMenu"
 import { PACKAGE_LABELS as PACKAGE_LABEL, getPackageCategory } from "@/lib/packages"
+import ProductJourney, { startTour } from "@/components/onboarding/ProductJourney"
 
 type Selections = {
   premium_web: boolean
@@ -188,6 +189,16 @@ function DashboardInner({ id }: { id: string }) {
           const quota = (wpPackage === "prestige" ? 100 : 0) + waBlastTier
           const vipCount = waBlastData?.vip_count || 0
           setWaBlastIncluded(quota > 0 ? Math.min(vipCount, quota) : vipCount)
+          const hasSeen = (data.profile as any)?.has_seen_tour === true
+          const localSeen = typeof window !== "undefined" && localStorage.getItem(`tour_seen_${id}`) === "1"
+          const tourActive = typeof window !== "undefined" && localStorage.getItem(`tour_active_${id}`) === "1"
+          if (!hasSeen && !localSeen && !tourActive && !data.profile.is_published) {
+            setTimeout(() => {
+              localStorage.setItem(`tour_active_${id}`, "1")
+              localStorage.setItem(`tour_step_${id}`, "1")
+              window.dispatchEvent(new Event("tour_start"))
+            }, 800)
+          }
         })
       })
       .catch((e) => setError(e.message))
@@ -277,8 +288,20 @@ function DashboardInner({ id }: { id: string }) {
   return (
     <>
       <PageTheme mode="light" />
+      <ProductJourney profileId={id} />
       <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-white/80 backdrop-blur-md border-b border-outline-variant h-20 flex items-center justify-end px-6">
         <div className="flex items-center gap-4">
+          <button
+            onClick={() => startTour(id)}
+            className="relative group w-11 h-11 flex items-center justify-center text-violet-600 hover:opacity-80 transition-opacity"
+            aria-label="Jalankan Tur"
+            data-tour="replay"
+          >
+            <span className="material-symbols-outlined text-[22px]">school</span>
+            <span className="pointer-events-none absolute top-full right-0 mt-2 whitespace-nowrap bg-on-surface text-on-primary px-3 py-1.5 font-label-md text-label-md uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity z-50">
+              Jalankan Tur
+            </span>
+          </button>
           <button
             onClick={() => router.push(`/dashboard/${id}/instruksi`)}
             className="relative group w-11 h-11 flex items-center justify-center text-secondary hover:opacity-80 transition-opacity"
@@ -428,6 +451,7 @@ function DashboardInner({ id }: { id: string }) {
                 return (
                   <div
                     key={card.key}
+                    data-tour={card.key === "premium_web" ? "premium-web" : undefined}
                     onClick={() => {
                       if (card.key === "undangan_fisik") {
                         setShowFisikInfo(true)

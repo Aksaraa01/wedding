@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import TemplatePreviewModal from "@/components/TemplatePreviewModal"
 import { pollWpJob } from "@/lib/wpJobPoll"
+import ProductJourney from "@/components/onboarding/ProductJourney"
 
 type Template = {
   id: string
@@ -77,10 +78,12 @@ function TemplatesInner({ id }: { id: string }) {
           <h1 className="font-headline-lg text-[28px] leading-tight mb-3">Pilih Undangan Digital Anda</h1>
         </section>
 
+        <ProductJourney profileId={id} />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10">
-          {templates.map(tpl => (
+          {templates.map((tpl, idx) => (
             <article key={tpl.id} className="group flex flex-col">
               <div
+                data-tour={idx === 0 ? "template-preview" : undefined}
                 className="relative mb-4 overflow-hidden aspect-[3/4] bg-surface-container shadow-sm cursor-pointer"
                 onClick={() => setPreviewTpl(tpl)}
               >
@@ -100,6 +103,7 @@ function TemplatesInner({ id }: { id: string }) {
               <div className="flex flex-col flex-grow">
                 <h2 className="font-headline-md text-[16px] leading-tight mb-3">{tpl.name}</h2>
                 <button
+                  data-tour={idx === 0 ? "pilih-koleksi" : undefined}
                   onClick={() => handleSelect(tpl.id)}
                   disabled={saving}
                   className={`mt-auto w-full py-3 font-label-md text-[10px] uppercase tracking-widest border transition-all duration-300 ${

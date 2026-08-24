@@ -125,7 +125,7 @@ export async function PUT(
     const { id } = await params
     const body = await req.json()
     const allowed = [
-      "selected_template_id", "selected_track_id",
+      "selected_template_id", "selected_track_id", "has_seen_tour",
       "couple_illustration_url", "cover_photos", "couple_initials", "grayscale", "is_published",
       "groom_full_name", "bride_full_name", "groom_name", "bride_name",
       "groom_photo_url", "bride_photo_url",
