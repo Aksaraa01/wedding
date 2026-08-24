@@ -116,17 +116,24 @@ export default function ProductJourney({ profileId }: Props) {
   const isTopHalf = targetRect ? targetRect.top < window.innerHeight * 0.45 : false
   const modal = (
     <div className={`fixed inset-0 z-[100] flex justify-center p-4 ${isTopHalf ? "items-end pb-8" : "items-start pt-20 md:pt-24"}`}>
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-0" onClick={handleClose} />
-      {targetRect && (
-        <div
-          className="absolute z-10 border-[3px] border-violet-600 rounded-2xl shadow-[0_0_0_4px_rgba(124,58,237,0.15),0_12px_40px_rgba(124,58,237,0.25)] pointer-events-none transition-all duration-300"
-          style={{
-            top: targetRect.top - 6,
-            left: targetRect.left - 6,
-            width: targetRect.width + 12,
-            height: targetRect.height + 12,
-          }}
-        />
+      {targetRect ? (
+        <>
+          <div className="absolute bg-black/50 backdrop-blur-sm z-0" style={{ top: 0, left: 0, right: 0, height: targetRect.top - 6 }} onClick={handleClose} />
+          <div className="absolute bg-black/50 backdrop-blur-sm z-0" style={{ top: targetRect.bottom + 6, left: 0, right: 0, bottom: 0 }} onClick={handleClose} />
+          <div className="absolute bg-black/50 backdrop-blur-sm z-0" style={{ top: targetRect.top - 6, left: 0, width: targetRect.left - 6, height: targetRect.height + 12 }} onClick={handleClose} />
+          <div className="absolute bg-black/50 backdrop-blur-sm z-0" style={{ top: targetRect.top - 6, left: targetRect.right + 6, right: 0, height: targetRect.height + 12 }} onClick={handleClose} />
+          <div
+            className="absolute z-10 border-[3px] border-violet-600 rounded-2xl shadow-[0_0_0_4px_rgba(124,58,237,0.15),0_12px_40px_rgba(124,58,237,0.25)] pointer-events-none transition-all duration-300"
+            style={{
+              top: targetRect.top - 6,
+              left: targetRect.left - 6,
+              width: targetRect.width + 12,
+              height: targetRect.height + 12,
+            }}
+          />
+        </>
+      ) : (
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-0" onClick={handleClose} />
       )}
       <div className="relative z-20 bg-white rounded-[24px] shadow-2xl max-w-[520px] w-full overflow-hidden border border-violet-100 animate-[fadeIn_0.4s_ease] max-h-[85vh] overflow-y-auto">
         <div className="h-1 w-full bg-[#592259]" />
