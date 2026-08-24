@@ -54,73 +54,124 @@ export default function ProductJourney({ profileId }: Props) {
     const isMobile = typeof window !== "undefined" && window.innerWidth < 768
     const selector = isMobile && (current as any).targetMobile ? (current as any).targetMobile : current.target
     const tryFind = () => {
-      const candidates = Array.from(document.querySelectorAll(selector)) as HTMLElement[]
-      let el = candidates.find((c) => {
-        const style = window.getComputedStyle(c as HTMLElement)
-        return style.display !== "none" && style.visibility !== "hidden" && (c as HTMLElement).offsetParent !== null
-      }) || candidates.find((c) => (c as HTMLElement).getBoundingClientRect().width > 0) || candidates[0] as HTMLElement | null
-      if (!el && isMobile && current.target === "[data-tour='konten']") {
-        const fallback = document.querySelector("[data-tour='konten-mobile']") as HTMLElement | null
-        if (fallback) el = fallback as HTMLElement
-      }
-      if (!el && current.target === "[data-tour='feedback']") {
-        const sec = document.querySelector("[data-section='feedback']") as HTMLElement | null
+      if (current.target === "[data-tour='konfirmasi']" || current.target === "[data-tour='feedback']") {
+        const secName = current.target.includes("konfirmasi") ? "konfirmasi" : "feedback"
+        const sec = document.querySelector(`[data-section='${secName}']`) as HTMLElement | null
         if (sec) {
-          window.dispatchEvent(new CustomEvent("tour_open_section", { detail: "feedback" }))
-          const inner = sec.querySelector("[data-tour='feedback']") as HTMLElement | null
-          if (inner) el = inner
-          else el = sec as HTMLElement
+          const collapsed = sec.getAttribute("data-collapsed") === "true" || sec.querySelector("[data-collapsed='true']")
+          if (collapsed) window.dispatchEvent(new CustomEvent("tour_open_section", { detail: secName }))
         }
+      }
+      const pickVisible = (cands: HTMLElement[]) =>
+        cands.find((c) => {
+          const s = window.getComputedStyle(c)
+          const r = c.getBoundingClientRect()
+          return s.display !== "none" && s.visibility !== "hidden" && r.width > 0 && r.height > 0
+        }) || cands.find((c) => { const r = c.getBoundingClientRect(); return r.width > 0 && r.height > 0 }) || cands[0] || null
+      let cands = Array.from(document.querySelectorAll(selector)) as HTMLElement[]
+      let el: HTMLElement | null = cands.length ? pickVisible(cands) : null
+      if (!el && isMobile && current.target === "[data-tour='konten']") {
+        const fb = document.querySelector("[data-tour='konten-mobile']") as HTMLElement | null
+        if (fb) el = fb
       }
       if (current.target === "[data-tour='konten']" && isMobile) {
         const aside = document.querySelector("[data-tour='konten']") as HTMLElement | null
         if (aside) {
-          const style = window.getComputedStyle(aside as HTMLElement)
-          if (style.display === "none" || (aside as HTMLElement).offsetParent === null) {
-            const editBtn = document.querySelector("[data-tour='konten-mobile']") as HTMLElement | null
-            if (editBtn) el = editBtn as HTMLElement
+          const st = window.getComputedStyle(aside)
+          if (st.display === "none" || aside.offsetParent === null) {
+            const eb = document.querySelector("[data-tour='konten-mobile']") as HTMLElement | null
+            if (eb) el = eb
           }
+        }
+      }
+      if (!el && (current.target === "[data-tour='feedback']" || current.target === "[data-tour='konfirmasi']")) {
+        const secName = current.target.includes("konfirmasi") ? "konfirmasi" : "feedback"
+        const sec = document.querySelector(`[data-section='${secName}']`) as HTMLElement | null
+        if (sec) {
+          const inner = sec.querySelector(selector) as HTMLElement | null
+          if (inner) el = pickVisible([inner] as HTMLElement[]) || inner
+          else el = sec
         }
       }
       if (!el && current.target === "[data-tour='ganti-tema']") {
         const all = Array.from(document.querySelectorAll("[data-tour='ganti-tema']")) as HTMLElement[]
-        el = all.find((c) => c.getBoundingClientRect().width > 0) || all[0] as HTMLElement | null
+        el = pickVisible(all)
+      }
+      if (el) {
+        const r = el.getBoundingClientRect()
+        if (r.width === 0 && r.height === 0) {
+          const inner = el.querySelector("button, a, [role='button']") as HTMLElement | null
+          if (inner && inner.getBoundingClientRect().width > 0) el = inner
+          else {
+            const vis = cands.length ? pickVisible(cands.filter((c) => c !== el)) : null
+            if (vis) el = vis
+          }
+        }
       }
       return el
     }
-    let el = tryFind()
-    if (!el) {
-      const t = setTimeout(() => {
-        const retry = tryFind()
-        if (retry) {
-          const r = retry.getBoundingClientRect()
-          setTargetRect(r)
-          retry.scrollIntoView({ behavior: "smooth", block: "center" })
-          retry.classList.add("tour-highlight")
-        }
-      }, 400)
-      return () => clearTimeout(t)
-    }
-    if (el) {
+    let el: HTMLElement | null = tryFind()
+    let ro: ResizeObserver | null = null
+    let iv: ReturnType<typeof setInterval> | null = null
+    let mo: MutationObserver | null = null
+    const attach = (target: HTMLElement) => {
       const updateRect = () => {
-        const r = el!.getBoundingClientRect()
-        setTargetRect({ ...r } as DOMRect)
+        const r = target.getBoundingClientRect()
+        if (r.width > 0 || r.height > 0) setTargetRect({ ...r } as DOMRect)
       }
       updateRect()
-      el.scrollIntoView({ behavior: "smooth", block: "center" })
-      el.classList.add("tour-highlight")
-      const ro = new ResizeObserver(updateRect)
-      ro.observe(el)
+      target.scrollIntoView({ behavior: "smooth", block: "center" })
+      target.classList.add("tour-highlight")
+      ro = new ResizeObserver(updateRect)
+      ro.observe(target)
       window.addEventListener("resize", updateRect)
       window.addEventListener("scroll", updateRect, true)
       return () => {
-        el!.classList.remove("tour-highlight")
-        ro.disconnect()
+        target.classList.remove("tour-highlight")
+        ro?.disconnect()
         window.removeEventListener("resize", updateRect)
         window.removeEventListener("scroll", updateRect, true)
       }
+    }
+    let detach: (() => void) | null = null
+    if (el && el.getBoundingClientRect().width > 0) {
+      detach = attach(el)
     } else {
       setTargetRect(null)
+      let tries = 0
+      iv = setInterval(() => {
+        tries++
+        const found = tryFind()
+        if (found && found.getBoundingClientRect().width > 0) {
+          if (iv) clearInterval(iv)
+          mo?.disconnect()
+          el = found
+          detach = attach(found)
+        } else if (tries > 20) {
+          if (iv) clearInterval(iv)
+          mo?.disconnect()
+          if (found) {
+            el = found
+            detach = attach(found)
+          }
+        }
+      }, 300)
+      mo = new MutationObserver(() => {
+        const found = tryFind()
+        if (found && found.getBoundingClientRect().width > 0) {
+          if (iv) clearInterval(iv)
+          mo?.disconnect()
+          el = found
+          detach = attach(found)
+        }
+      })
+      mo.observe(document.body, { childList: true, subtree: true, attributes: true })
+    }
+    return () => {
+      if (iv) clearInterval(iv)
+      mo?.disconnect()
+      if (detach) detach()
+      else if (el) (el as HTMLElement).classList.remove("tour-highlight")
     }
   }, [step, pathname, isActive])
 
@@ -203,7 +254,7 @@ export default function ProductJourney({ profileId }: Props) {
         </button>
         <div className="p-4 md:p-8">
           <div className="flex items-center gap-3 mb-3 md:mb-4">
-            <span className="text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase text-violet-600">Langkah {String(current.id).padStart(2, "0")} / 08</span>
+            <span className="text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase text-violet-600">Langkah {String(current.id).padStart(2, "0")} / 09</span>
             <span className="flex-1 h-px bg-violet-100" />
           </div>
           <h2 className="font-['Playfair_Display'] text-[18px] md:text-[28px] leading-tight font-bold text-[#1A1817] mb-2 md:mb-3">{current.title}</h2>

@@ -1,19 +1,25 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
+function withSecurityHeaders(res: NextResponse) {
+  res.headers.set("x-frame-options", "SAMEORIGIN")
+  res.headers.set("x-content-type-options", "nosniff")
+  res.headers.set("referrer-policy", "strict-origin-when-cross-origin")
+  res.headers.set("permissions-policy", "camera=(), microphone=(), geolocation=()")
+  return res
+}
+
 export function proxy(req: NextRequest) {
   const hostname = req.nextUrl.hostname
 
-  // --- wedding.aksaraa.com ---
-
   if (hostname === "wedding.aksaraa.com") {
-    return NextResponse.next()
+    return withSecurityHeaders(NextResponse.next())
   }
 
   const weddingMatch = hostname.match(/^(.+?)\.wedding\.aksaraa\.com$/)
   if (weddingMatch) {
     const slug = weddingMatch[1]
-    if (slug === "www") return NextResponse.next()
+    if (slug === "www") return withSecurityHeaders(NextResponse.next())
 
     const url = new URL(req.url)
 
@@ -22,25 +28,22 @@ export function proxy(req: NextRequest) {
     } else if (url.pathname === "/led" || url.pathname === "/led/") {
       url.pathname = `/led/${slug}`
     } else if (url.pathname.startsWith("/qr/") || url.pathname.startsWith("/welcome/") || url.pathname.startsWith("/scanner/") || url.pathname.startsWith("/led/") || url.pathname.startsWith("/q/")) {
-      // pass through as-is
     } else {
       url.pathname = `/w/${slug}${url.pathname === "/" ? "/" : url.pathname}`
     }
 
     url.search = req.nextUrl.search
-    return NextResponse.rewrite(url)
+    return withSecurityHeaders(NextResponse.rewrite(url))
   }
-
-  // --- original aksaraa.com / localhost logic ---
 
   const appDomains = ["aksaraa.com", "aksaraa.app", "localhost", "127.0.0.1"]
   const isAppDomain = appDomains.some(d => hostname === d || hostname.endsWith(`.${d}`))
-  if (!isAppDomain) return NextResponse.next()
+  if (!isAppDomain) return withSecurityHeaders(NextResponse.next())
 
   const match = hostname.match(/^(.+?)\.(aksaraa\.com|aksaraa\.app|localhost)$/)
   if (match) {
     const slug = match[1]
-    if (slug === "www") return NextResponse.next()
+    if (slug === "www") return withSecurityHeaders(NextResponse.next())
 
     const url = new URL(req.url)
 
@@ -49,16 +52,15 @@ export function proxy(req: NextRequest) {
     } else if (url.pathname === "/led" || url.pathname === "/led/") {
       url.pathname = `/led/${slug}`
     } else if (url.pathname.startsWith("/qr/") || url.pathname.startsWith("/welcome/") || url.pathname.startsWith("/scanner/") || url.pathname.startsWith("/led/") || url.pathname.startsWith("/q/")) {
-      // pass through as-is
     } else {
       url.pathname = `/w/${slug}${url.pathname === "/" ? "/" : url.pathname}`
     }
 
     url.search = req.nextUrl.search
-    return NextResponse.rewrite(url)
+    return withSecurityHeaders(NextResponse.rewrite(url))
   }
 
-  return NextResponse.next()
+  return withSecurityHeaders(NextResponse.next())
 }
 
 export const config = {

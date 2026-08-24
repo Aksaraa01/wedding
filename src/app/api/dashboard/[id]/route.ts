@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { requireAuth } from "@/lib/requireAuth"
 import { deriveSelections } from "@/lib/packages"
 import { getRowGates, getFeatureIncluded } from "@/lib/featureGates"
 
@@ -7,6 +8,8 @@ export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth(_req)
+  if (auth) return auth
   try {
     const { id } = await params
 

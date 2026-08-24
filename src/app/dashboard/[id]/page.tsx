@@ -306,6 +306,7 @@ function DashboardInner({ id }: { id: string }) {
             onClick={() => router.push(`/dashboard/${id}/instruksi`)}
             className="relative group w-11 h-11 flex items-center justify-center text-secondary hover:opacity-80 transition-opacity"
             aria-label="Cara Memulai"
+            data-tour="cara-memulai"
           >
             <span className="material-symbols-outlined text-[22px]">menu_book</span>
             <span className="pointer-events-none absolute top-full right-0 mt-2 whitespace-nowrap bg-on-surface text-on-primary px-3 py-1.5 font-label-md text-label-md uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity z-50">

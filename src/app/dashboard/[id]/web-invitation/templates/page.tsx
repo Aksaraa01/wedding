@@ -65,15 +65,7 @@ function TemplatesInner({ id }: { id: string }) {
   return (
     <>
       <PageTheme mode="light" />
-      <header className="fixed top-0 w-full z-50 bg-background/90 backdrop-blur-sm h-16 flex items-center justify-between px-edge-margin-mobile border-b border-outline-variant/30">
-        <button onClick={() => router.back()} className="flex items-center gap-2 text-on-surface hover:opacity-70 transition-opacity">
-          <span className="material-symbols-outlined text-[20px]">arrow_back</span>
-          <span className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Kembali</span>
-        </button>
-        <div className="w-8" />
-      </header>
-
-      <main className="pt-24 pb-32 px-edge-margin-mobile max-w-container-max mx-auto bg-background">
+      <main className="pt-8 pb-32 px-edge-margin-mobile max-w-container-max mx-auto bg-background">
         <section className="mb-10 fade-in">
           <h1 className="font-headline-lg text-[28px] leading-tight mb-3">Pilih Undangan Digital Anda</h1>
         </section>

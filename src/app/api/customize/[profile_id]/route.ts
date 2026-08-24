@@ -15,6 +15,23 @@ export async function PUT(
       return NextResponse.json({ error: "Paket tidak valid" }, { status: 400 })
     }
 
+    const { data: existing } = await supabaseAdmin
+      .from("wedding_profiles")
+      .select("payment_status, package_type, wa_blast_tier, express_service, undangan_fisik")
+      .eq("id", profile_id)
+      .single()
+
+    if (existing && existing.payment_status !== "UNPAID") {
+      const changed =
+        (package_type && package_type !== existing.package_type) ||
+        (wa_blast_tier ?? 0) !== (existing.wa_blast_tier ?? 0) ||
+        !!express_service !== !!existing.express_service ||
+        !!undangan_fisik !== !!existing.undangan_fisik
+      if (changed) {
+        return NextResponse.json({ error: "Perubahan paket/add-on setelah pembayaran hubungi konsultan" }, { status: 403 })
+      }
+    }
+
     const total = calcTotal(
       package_type || "signature",
       wa_blast_tier || 0,

@@ -1351,10 +1351,6 @@ class AksaraaPlugin
         while (count($newSlots) < $desired) $newSlots[] = $baseSlot;
         $manifest['gift_accounts'] = array_slice($newSlots, 0, $desired);
 
-        // F5 — normalize the bank card's mobile layout on the master card AND every
-        // clone (clones inherit the master's settings verbatim): scale the logo down
-        // and clear the negative mobile margins that cause the account text to
-        // overlap the logo on small screens.
         $elements = self::normalize_bank_card_mobile($elements, $masterId, self::find_clone_ids($elements));
 
         return [$elements, $manifest];
@@ -1366,25 +1362,7 @@ class AksaraaPlugin
         foreach ($cardIds as $cid) {
             $card = self::find_node($elements, $cid);
             if (!$card) continue;
-            $imageId = self::find_descendant_widget_id($card, 'image');
             $headings = self::find_descendant_headings($card);
-            if ($imageId) {
-                $elements = self::apply_to_node($elements, $imageId, function (array &$node) {
-                    $node['settings'] = $node['settings'] ?? [];
-                    $node['settings']['width'] = ['size' => 140, 'unit' => 'px'];
-                    $node['settings']['width_tablet'] = ['size' => 110, 'unit' => 'px'];
-                    $node['settings']['width_mobile'] = ['size' => 90, 'unit' => 'px'];
-                    $node['settings']['_margin'] = ['unit' => 'px', 'top' => '0', 'right' => '0', 'bottom' => '0', 'left' => '0', 'isLinked' => false];
-                    $node['settings']['_margin_mobile'] = ['unit' => 'px', 'top' => '0', 'right' => '0', 'bottom' => '8', 'left' => '0', 'isLinked' => false];
-                    $node['settings']['_margin_tablet'] = ['unit' => 'px', 'top' => '0', 'right' => '0', 'bottom' => '0', 'left' => '0', 'isLinked' => false];
-                    $node['settings']['space'] = ['unit' => 'px', 'size' => 16, 'sizes' => []];
-                    $node['settings']['space_mobile'] = ['unit' => 'px', 'size' => 12, 'sizes' => []];
-                    $node['settings']['space_tablet'] = ['unit' => 'px', 'size' => 14, 'sizes' => []];
-                    $node['settings']['align'] = 'center';
-                    $node['settings']['align_mobile'] = 'center';
-                    $node['settings']['align_tablet'] = 'center';
-                });
-            }
             foreach (array_slice($headings, 0, 2) as $hid) {
                 $elements = self::apply_to_node($elements, $hid, function (array &$node) {
                     $node['settings']['_margin_mobile'] = $node['settings']['_margin_mobile'] ?? [];

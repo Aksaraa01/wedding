@@ -226,6 +226,9 @@ function Inner() {
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState("")
   const [originalPackage, setOriginalPackage] = useState<string>("")
+  const [originalWaTier, setOriginalWaTier] = useState(0)
+  const [originalExpress, setOriginalExpress] = useState(false)
+  const [originalFisik, setOriginalFisik] = useState(false)
   const [packageChangeModalOpen, setPackageChangeModalOpen] = useState(false)
   const [profilePaymentStatus, setProfilePaymentStatus] = useState<"UNPAID" | "PARTIAL_DP" | "FULLY_PAID">("UNPAID")
 
@@ -249,8 +252,11 @@ function Inner() {
         setProfilePaymentStatus(data.profile.payment_status || "UNPAID")
         setActiveTab(pkg.startsWith("dgb_") ? "dgbook" : "undangan")
         setWaBlastTier(data.profile.wa_blast_tier || 0)
+        setOriginalWaTier(data.profile.wa_blast_tier || 0)
         setExpressService(!!data.profile.express_service)
+        setOriginalExpress(!!data.profile.express_service)
         setUndanganFisik(!!data.profile.undangan_fisik)
+        setOriginalFisik(!!data.profile.undangan_fisik)
         setLoaded(true)
       })
   }, [editProfileId, isEdit])
@@ -341,8 +347,12 @@ function Inner() {
   }
 
   const handleSave = async () => {
-    // Check if package changed and payment status is not UNPAID
-    if (isEdit && selectedPackage !== originalPackage && profilePaymentStatus !== "UNPAID") {
+    const hasChanged =
+      selectedPackage !== originalPackage ||
+      waBlastTier !== originalWaTier ||
+      expressService !== originalExpress ||
+      undanganFisik !== originalFisik
+    if (isEdit && hasChanged && profilePaymentStatus !== "UNPAID") {
       setPackageChangeModalOpen(true)
       return
     }

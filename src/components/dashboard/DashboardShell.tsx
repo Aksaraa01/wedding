@@ -8,6 +8,7 @@ export default function DashboardShell({ id, children }: { id: string; children:
   const pathname = usePathname()
   const hideSidebar =
     pathname.includes("/web-invitation/editor") ||
+    pathname.includes("/web-invitation/templates") ||
     pathname.includes("/web-invitation/feedback") ||
     pathname.includes("/guests")
   const [collapsed, setCollapsed] = useState(false)

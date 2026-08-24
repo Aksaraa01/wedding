@@ -11,27 +11,27 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: 1,
     title: "Edit Undangan Web",
-    description: "Mulailah perjalanan Anda di sini. Koleksi undangan web premium kami dirancang dengan estetika quiet luxury — setiap detail mencerminkan keanggunan yang abadi.",
+    description: "Mulai perjalanan Anda di sini. Temukan koleksi undangan web premium dengan desain terbaik dan ubah sesuai dengan pernikahan Anda",
     target: "[data-tour='premium-web']",
     route: "dashboard",
   },
   {
     id: 2,
-    title: "Lihat Pilihan Tema",
-    description: "Jelajahi kurasi eksklusif kami. Setiap tema adalah mahakarya editorial yang dirancang untuk merayakan kisah cinta Anda dengan kemewahan yang tenang.",
+    title: "Pilih Tema",
+    description: "Temukan berbagai pilihan tema yang telah kami pilih khusus untuk Anda. Setiap tema dirancang dengan tampilan elegan, sederhana, dan berkelas untuk membuat momen spesial Anda semakin berkesan.",
     target: "[data-tour='ganti-tema']",
     route: "editor",
   },
   {
     id: 3,
     title: "Pratinjau Tema",
-    description: "Sentuh untuk merasakan kehalusan setiap detail. Pratinjau interaktif memungkinkan Anda menelusuri setiap lekuk desain sebelum menentukan pilihan.",
+    description: "Ketuk untuk melihat tampilan tema secara langsung. Dengan pratinjau interaktif, Anda bisa melihat dan menjelajahi setiap detail desain sebelum memilih tema yang Anda suka.",
     target: "[data-tour='template-preview']",
     route: "templates",
   },
   {
     id: 4,
-    title: "Pilih Koleksi Ini",
+    title: "Pilih Tema",
     description: "Ketika hati telah memilih, konfirmasikan koleksi yang paling selaras dengan visi hari bahagia Anda.",
     target: "[data-tour='pilih-koleksi']",
     route: "templates",
@@ -39,7 +39,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: 5,
     title: "Lengkapi Konten",
-    description: "Sempurnakan narasi Anda. Isi setiap detail pernikahan — dari sampul hingga kisah cinta — untuk undangan yang benar-benar personal.",
+    description: "Lengkapi informasi pernikahan Anda, mulai dari nama, tanggal, lokasi, hingga kisah cinta. Isi setiap detail agar undangan terasa lebih personal dan sesuai dengan cerita Anda",
     target: "[data-tour='konten']",
     targetMobile: "[data-tour='konten-mobile']",
     route: "editor",
@@ -47,7 +47,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: 6,
     title: "Perbarui Undangan",
-    description: "Setiap pembaruan Anda simpan dengan presisi. Pastikan setiap sentuhan tersimpan sempurna sebelum melangkah ke konfirmasi akhir.",
+    description: "Periksa kembali setiap informasi yang sudah Anda isi. Pastikan semua perubahan tersimpan dengan baik sebelum melanjutkan ke tahap konfirmasi akhir.",
     target: "[data-tour='perbarui']",
     targetMobile: "[data-tour='perbarui']",
     route: "editor",
@@ -55,7 +55,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: 7,
     title: "Konfirmasi Akhir",
-    description: "Tinjauan terakhir sebelum karya Anda diproses. Pastikan setiap aksara telah terukir dengan sempurna untuk hari yang dinanti.",
+    description: "Periksa kembali semua informasi sebelum undangan diproses. Pastikan nama, tanggal, lokasi, dan detail lainnya sudah benar agar undangan siap digunakan untuk hari spesial Anda.",
     target: "[data-tour='konfirmasi']",
     targetMobile: "[data-tour='konfirmasi']",
     route: "editor",
@@ -63,9 +63,16 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: 8,
     title: "Umpan Balik Tambahan",
-    description: "Ruang khusus untuk permintaan istimewa Anda. Bagikan visi bespoke agar tim kurator kami dapat menyempurnakan undangan sesuai impian Anda.",
+    description: "Punya permintaan atau keinginan khusus? Sampaikan kepada kami agar tim dapat menyesuaikan undangan sesuai dengan kebutuhan dan impian Anda.",
     target: "[data-tour='feedback']",
     targetMobile: "[data-tour='feedback']",
     route: "editor",
+  },
+  {
+    id: 9,
+    title: "Tahapan Lainnya",
+    description: "Temukan informasi lainnya untuk membantu anda sampai hari bahagia Anda",
+    target: "[data-tour='cara-memulai']",
+    route: "dashboard",
   },
 ]

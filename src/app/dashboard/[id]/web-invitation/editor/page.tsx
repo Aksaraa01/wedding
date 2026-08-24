@@ -970,34 +970,34 @@ function EditorInner({ id }: { id: string }) {
               <span>{updatingPreview ? "Memperbarui..." : "Perbarui undangan"}</span>
             </button>
 
-            <button
-              data-tour="ganti-tema"
-              onClick={() => {
-                try { sessionStorage.setItem('from_templates_' + id, '1') } catch {}
-                router.push(`/dashboard/${id}/web-invitation/templates`)
-              }}
-              disabled={isPublished || initialLoading}
-              className="inline-flex md:hidden items-center justify-center w-10 h-10 rounded-full border border-outline-variant bg-white text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-50"
-              aria-label="Ganti Tema"
-            >
-              <span className="material-symbols-outlined text-[20px]">palette</span>
-            </button>
-            <button
-              data-tour="ganti-tema"
-              onClick={() => {
-                try { sessionStorage.setItem('from_templates_' + id, '1') } catch {}
-                router.push(`/dashboard/${id}/web-invitation/templates`)
-              }}
-              disabled={isPublished || initialLoading}
-              className={`hidden md:inline-flex items-center gap-2 px-4 lg:px-5 py-2.5 border font-label-md text-label-md rounded-full transition-all active:scale-95 ${
-                isPublished
-                  ? "border-outline-variant text-on-surface-variant/50 cursor-not-allowed bg-surface"
-                  : "border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary bg-white"
-              }`}
-            >
-              <span className="material-symbols-outlined text-[18px]">palette</span>
-              <span>GANTI TEMA</span>
-            </button>
+            <div data-tour="ganti-tema" className="inline-flex items-center">
+              <button
+                onClick={() => {
+                  try { sessionStorage.setItem('from_templates_' + id, '1') } catch {}
+                  router.push(`/dashboard/${id}/web-invitation/templates`)
+                }}
+                disabled={isPublished || initialLoading}
+                className="inline-flex md:hidden items-center justify-center w-10 h-10 rounded-full border border-outline-variant bg-white text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-50"
+                aria-label="Ganti Tema"
+              >
+                <span className="material-symbols-outlined text-[20px]">palette</span>
+              </button>
+              <button
+                onClick={() => {
+                  try { sessionStorage.setItem('from_templates_' + id, '1') } catch {}
+                  router.push(`/dashboard/${id}/web-invitation/templates`)
+                }}
+                disabled={isPublished || initialLoading}
+                className={`hidden md:inline-flex items-center gap-2 px-4 lg:px-5 py-2.5 border font-label-md text-label-md rounded-full transition-all active:scale-95 ${
+                  isPublished
+                    ? "border-outline-variant text-on-surface-variant/50 cursor-not-allowed bg-surface"
+                    : "border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary bg-white"
+                }`}
+              >
+                <span className="material-symbols-outlined text-[18px]">palette</span>
+                <span>GANTI TEMA</span>
+              </button>
+            </div>
 
             <button onClick={() => setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile")} disabled={initialLoading} className="hidden md:inline-flex items-center justify-center w-10 h-10 rounded-full border border-outline-variant bg-white text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-50" title="Ganti tampilan pratinjau"><span className="material-symbols-outlined text-[20px]">devices</span></button>
 
