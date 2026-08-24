@@ -3,6 +3,7 @@ export type TourStep = {
   title: string
   description: string
   target: string
+  targetMobile?: string
   route: string
 }
 
@@ -40,6 +41,7 @@ export const TOUR_STEPS: TourStep[] = [
     title: "Lengkapi Konten",
     description: "Sempurnakan narasi Anda. Isi setiap detail pernikahan — dari sampul hingga kisah cinta — untuk undangan yang benar-benar personal.",
     target: "[data-tour='konten']",
+    targetMobile: "[data-tour='konten-mobile']",
     route: "editor",
   },
   {
@@ -47,6 +49,7 @@ export const TOUR_STEPS: TourStep[] = [
     title: "Perbarui Undangan",
     description: "Setiap pembaruan Anda simpan dengan presisi. Pastikan setiap sentuhan tersimpan sempurna sebelum melangkah ke konfirmasi akhir.",
     target: "[data-tour='perbarui']",
+    targetMobile: "[data-tour='perbarui']",
     route: "editor",
   },
   {
@@ -54,6 +57,7 @@ export const TOUR_STEPS: TourStep[] = [
     title: "Konfirmasi Akhir",
     description: "Tinjauan terakhir sebelum karya Anda diproses. Pastikan setiap aksara telah terukir dengan sempurna untuk hari yang dinanti.",
     target: "[data-tour='konfirmasi']",
+    targetMobile: "[data-tour='konfirmasi']",
     route: "editor",
   },
   {
@@ -61,6 +65,7 @@ export const TOUR_STEPS: TourStep[] = [
     title: "Umpan Balik Tambahan",
     description: "Ruang khusus untuk permintaan istimewa Anda. Bagikan visi bespoke agar tim kurator kami dapat menyempurnakan undangan sesuai impian Anda.",
     target: "[data-tour='feedback']",
+    targetMobile: "[data-tour='feedback']",
     route: "editor",
   },
 ]

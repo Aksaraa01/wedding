@@ -965,6 +965,18 @@ function EditorInner({ id }: { id: string }) {
                 router.push(`/dashboard/${id}/web-invitation/templates`)
               }}
               disabled={isPublished || initialLoading}
+              className="inline-flex md:hidden items-center justify-center w-10 h-10 rounded-full border border-outline-variant bg-white text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-50"
+              aria-label="Ganti Tema"
+            >
+              <span className="material-symbols-outlined text-[20px]">palette</span>
+            </button>
+            <button
+              data-tour="ganti-tema"
+              onClick={() => {
+                try { sessionStorage.setItem('from_templates_' + id, '1') } catch {}
+                router.push(`/dashboard/${id}/web-invitation/templates`)
+              }}
+              disabled={isPublished || initialLoading}
               className={`hidden md:inline-flex items-center gap-2 px-4 lg:px-5 py-2.5 border font-label-md text-label-md rounded-full transition-all active:scale-95 ${
                 isPublished
                   ? "border-outline-variant text-on-surface-variant/50 cursor-not-allowed bg-surface"
@@ -1766,12 +1778,14 @@ function EditorInner({ id }: { id: string }) {
         <div className="md:hidden fixed bottom-0 left-0 w-full px-4 pb-6 pt-3 bg-surface/90 backdrop-blur-sm z-50 border-t border-outline-variant">
           <div className="flex gap-3">
             <button
+              data-tour="konten-mobile"
               onClick={() => setShowMobilePreview(prev => !prev)}
               className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-surface-container-high text-on-surface-variant"
             >
               {showMobilePreview ? "EDIT" : "PRATINJAU"}
             </button>
             <button
+              data-tour="perbarui"
               onClick={handleUpdatePreview}
               disabled={updatingPreview || isPublished}
               className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-brand-gold text-white disabled:opacity-50"
@@ -1779,6 +1793,7 @@ function EditorInner({ id }: { id: string }) {
               {updatingPreview ? "MEMPERBARUI..." : "PERBARUI"}
             </button>
             <button
+              data-tour="konfirmasi"
               onClick={() => setShowPublishConfirm(true)}
               disabled={isPublished}
               className={`flex-1 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform flex items-center justify-center ${

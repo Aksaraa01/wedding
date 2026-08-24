@@ -51,7 +51,14 @@ export default function ProductJourney({ profileId }: Props) {
     if (step === null || !isActive()) return
     const current = TOUR_STEPS.find((s) => s.id === step)
     if (!current) return
-    const el = document.querySelector(current.target) as HTMLElement | null
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768
+    const selector = isMobile && (current as any).targetMobile ? (current as any).targetMobile : current.target
+    const candidates = Array.from(document.querySelectorAll(selector)) as HTMLElement[]
+    let el = candidates.find((c) => (c as HTMLElement).offsetParent !== null) || candidates[0] as HTMLElement | null
+    if (!el && isMobile && current.target === "[data-tour='konten']") {
+      const fallback = document.querySelector("[data-tour='konten-mobile']") as HTMLElement | null
+      if (fallback && fallback.offsetParent !== null) el = fallback
+    }
     if (el) {
       const r = el.getBoundingClientRect()
       setTargetRect(r)
@@ -135,20 +142,20 @@ export default function ProductJourney({ profileId }: Props) {
       ) : (
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-0" onClick={handleClose} />
       )}
-      <div className="relative z-20 bg-white rounded-[24px] shadow-2xl max-w-[520px] w-full overflow-hidden border border-violet-100 animate-[fadeIn_0.4s_ease] max-h-[85vh] overflow-y-auto">
+      <div className="relative z-20 bg-white rounded-[24px] shadow-2xl max-w-[280px] md:max-w-[520px] w-full overflow-hidden border border-violet-100 animate-[fadeIn_0.4s_ease] max-h-[85vh] overflow-y-auto">
         <div className="h-1 w-full bg-[#592259]" />
         <button onClick={handleClose} className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors" aria-label="Tutup">
           <span className="material-symbols-outlined text-[20px] text-on-surface-variant">close</span>
         </button>
-        <div className="p-8">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-violet-600">Langkah {String(current.id).padStart(2, "0")} / 08</span>
+        <div className="p-4 md:p-8">
+          <div className="flex items-center gap-3 mb-3 md:mb-4">
+            <span className="text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase text-violet-600">Langkah {String(current.id).padStart(2, "0")} / 08</span>
             <span className="flex-1 h-px bg-violet-100" />
           </div>
-          <h2 className="font-['Playfair_Display'] text-[28px] leading-tight font-bold text-[#1A1817] mb-3">{current.title}</h2>
-          <p className="font-['Inter'] text-[14px] leading-relaxed text-[#6B5B73] font-light mb-8">{current.description}</p>
+          <h2 className="font-['Playfair_Display'] text-[18px] md:text-[28px] leading-tight font-bold text-[#1A1817] mb-2 md:mb-3">{current.title}</h2>
+          <p className="font-['Inter'] text-[12px] md:text-[14px] leading-relaxed text-[#6B5B73] font-light mb-6 md:mb-8">{current.description}</p>
           <div className="flex justify-end">
-            <button onClick={handleNext} className="bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-semibold px-8 py-3 rounded-full transition-colors text-[13px] tracking-widest uppercase shadow-lg shadow-violet-600/20">
+            <button onClick={handleNext} className="bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-semibold px-6 py-2.5 md:px-8 md:py-3 rounded-full transition-colors text-[12px] md:text-[13px] tracking-widest uppercase shadow-lg shadow-violet-600/20">
               Lanjutkan
             </button>
           </div>
