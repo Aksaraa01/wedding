@@ -55,10 +55,13 @@ export default function ProductJourney({ profileId }: Props) {
     const selector = isMobile && (current as any).targetMobile ? (current as any).targetMobile : current.target
     const tryFind = () => {
       const candidates = Array.from(document.querySelectorAll(selector)) as HTMLElement[]
-      let el = candidates.find((c) => (c as HTMLElement).offsetParent !== null) || candidates[0] as HTMLElement | null
+      let el = candidates.find((c) => {
+        const style = window.getComputedStyle(c as HTMLElement)
+        return style.display !== "none" && style.visibility !== "hidden" && (c as HTMLElement).offsetParent !== null
+      }) || candidates.find((c) => (c as HTMLElement).getBoundingClientRect().width > 0) || candidates[0] as HTMLElement | null
       if (!el && isMobile && current.target === "[data-tour='konten']") {
         const fallback = document.querySelector("[data-tour='konten-mobile']") as HTMLElement | null
-        if (fallback && (fallback as HTMLElement).offsetParent !== null) el = fallback
+        if (fallback) el = fallback as HTMLElement
       }
       if (!el && current.target === "[data-tour='feedback']") {
         const sec = document.querySelector("[data-section='feedback']") as HTMLElement | null
@@ -66,15 +69,22 @@ export default function ProductJourney({ profileId }: Props) {
           window.dispatchEvent(new CustomEvent("tour_open_section", { detail: "feedback" }))
           const inner = sec.querySelector("[data-tour='feedback']") as HTMLElement | null
           if (inner) el = inner
-          else el = sec
+          else el = sec as HTMLElement
         }
       }
       if (current.target === "[data-tour='konten']" && isMobile) {
         const aside = document.querySelector("[data-tour='konten']") as HTMLElement | null
-        if (aside && (aside as HTMLElement).offsetParent === null) {
-          const editBtn = document.querySelector("[data-tour='konten-mobile']") as HTMLElement | null
-          if (editBtn) el = editBtn
+        if (aside) {
+          const style = window.getComputedStyle(aside as HTMLElement)
+          if (style.display === "none" || (aside as HTMLElement).offsetParent === null) {
+            const editBtn = document.querySelector("[data-tour='konten-mobile']") as HTMLElement | null
+            if (editBtn) el = editBtn as HTMLElement
+          }
         }
+      }
+      if (!el && current.target === "[data-tour='ganti-tema']") {
+        const all = Array.from(document.querySelectorAll("[data-tour='ganti-tema']")) as HTMLElement[]
+        el = all.find((c) => c.getBoundingClientRect().width > 0) || all[0] as HTMLElement | null
       }
       return el
     }
@@ -88,15 +98,27 @@ export default function ProductJourney({ profileId }: Props) {
           retry.scrollIntoView({ behavior: "smooth", block: "center" })
           retry.classList.add("tour-highlight")
         }
-      }, 300)
+      }, 400)
       return () => clearTimeout(t)
     }
     if (el) {
-      const r = el.getBoundingClientRect()
-      setTargetRect(r)
+      const updateRect = () => {
+        const r = el!.getBoundingClientRect()
+        setTargetRect({ ...r } as DOMRect)
+      }
+      updateRect()
       el.scrollIntoView({ behavior: "smooth", block: "center" })
       el.classList.add("tour-highlight")
-      return () => el.classList.remove("tour-highlight")
+      const ro = new ResizeObserver(updateRect)
+      ro.observe(el)
+      window.addEventListener("resize", updateRect)
+      window.addEventListener("scroll", updateRect, true)
+      return () => {
+        el!.classList.remove("tour-highlight")
+        ro.disconnect()
+        window.removeEventListener("resize", updateRect)
+        window.removeEventListener("scroll", updateRect, true)
+      }
     } else {
       setTargetRect(null)
     }
