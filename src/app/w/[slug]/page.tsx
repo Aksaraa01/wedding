@@ -7,6 +7,8 @@ import { getRowGates, getFeatureIncluded } from "@/lib/featureGates"
 import { getWpPostAlive } from "@/lib/wpPostCache"
 import { cachedRead } from "@/lib/refCache"
 
+export const revalidate = 60
+
 export default async function WeddingInvitation({
   params,
   searchParams,

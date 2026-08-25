@@ -10,19 +10,27 @@ export async function requireOpsEmployee(
 ): Promise<{ ok: true } | { ok: false; res: NextResponse }> {
   const phone = req.headers.get("x-ops-phone") || ""
   const role = req.headers.get("x-ops-role") || ""
+  const pinHeader = req.headers.get("x-ops-pin") || ""
   if (!phone) {
     return { ok: false, res: NextResponse.json({ error: "Sesi ops tidak valid. Silakan login ulang." }, { status: 401 }) }
   }
 
   const { data: employee } = await supabaseAdmin
     .from("employees")
-    .select("id, phone_number, role")
+    .select("id, phone_number, role, pin")
     .eq("phone_number", phone)
     .eq("is_active", true)
     .maybeSingle()
 
   if (!employee) {
     return { ok: false, res: NextResponse.json({ error: "Sesi ops tidak valid. Silakan login ulang." }, { status: 401 }) }
+  }
+
+  if (pinHeader) {
+    const stored = String((employee as any).pin || "")
+    if (stored.length !== pinHeader.length || !timingSafeEqual(stored, pinHeader)) {
+      return { ok: false, res: NextResponse.json({ error: "Sesi ops tidak valid. Silakan login ulang." }, { status: 401 }) }
+    }
   }
 
   // trust the role claim matching the stored employee role (prevents spoofing via header alone)
@@ -37,4 +45,15 @@ export async function requireOpsEmployee(
   }
 
   return { ok: true }
+}
+
+function timingSafeEqual(a: string, b: string): boolean {
+  let mismatch = a.length === b.length ? 0 : 1
+  const len = Math.max(a.length, b.length)
+  for (let i = 0; i < len; i++) {
+    const ca = a.charCodeAt(i) || 0
+    const cb = b.charCodeAt(i) || 0
+    mismatch |= ca ^ cb
+  }
+  return mismatch === 0
 }

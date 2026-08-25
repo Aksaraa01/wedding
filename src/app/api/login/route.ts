@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { normalizePhone } from "@/lib/packages"
+import { checkRateLimit, getClientIp, rateLimited } from "@/lib/rateLimit"
 
 export async function POST(req: Request) {
+  const ip = getClientIp(req)
+  const rl = checkRateLimit(`login:${ip}`, 10)
+  if (!rl.ok) return rateLimited(rl.retryAfterMs!)
   try {
     const { phone, slug } = await req.json()
 

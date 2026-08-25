@@ -17,10 +17,19 @@ export function getPublicUrl(path: string) {
   return data.publicUrl
 }
 
+export function getTransformedUrl(path: string, width = 640, quality = 75) {
+  const base = getPublicUrl(path)
+  if (base.includes("supabase.co/storage")) {
+    return `${base.replace("/object/public/", "/render/image/public/")}?width=${width}&quality=${quality}&resize=contain`
+  }
+  return base
+}
+
 export async function uploadFile(file: File, folder: string, name: string) {
+  if (file.size > 5 * 1024 * 1024) throw new Error("File too large (max 5MB)")
   const path = `${folder}/${name}`
   const { error } = await supabaseAdmin.storage.from(BUCKET).upload(path, file, {
-    upsert: true,
+    upsert: false,
     contentType: file.type,
   })
   if (error) throw error

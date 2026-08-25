@@ -14,6 +14,11 @@ function parseList(v: unknown): any[] {
   return []
 }
 
+function esc(v: unknown): string {
+  if (typeof v !== "string") return typeof v === "number" ? String(v) : ""
+  return v.replace(/<[^>]*>/g, "").replace(/javascript:/gi, "").slice(0, 500)
+}
+
 // Gather a couple's content into a flat `fields` object (the same shape the WP
 // mu-plugin consumes for PATCH / duplicate). Returns null if the profile is missing.
 export async function buildProfileFields(profileId: string): Promise<{ profile: any; fields: Record<string, any> } | null> {
@@ -39,45 +44,45 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
 
   const gates = await getRowGates(profile.package_type || "signature")
 
-  const sessions = parseList(profile.sessions).map((s: any) => ({
-    name: s?.name || "",
-    date: s?.date ? formatDateUpper(s.date) : "",
-    time: s?.time || "",
-    timezone: s?.timezone || "",
-    venue: s?.venue || "",
-    address: s?.address || "",
-    maps_url: s?.maps_url || "",
+  const sessions = parseList(profile.sessions).map((r: any) => ({
+    name: esc(r?.name),
+    date: r?.date ? formatDateUpper(r.date) : "",
+    time: esc(r?.time),
+    timezone: esc(r?.timezone),
+    venue: esc(r?.venue),
+    address: esc(r?.address),
+    maps_url: r?.maps_url || "",
   }))
 
-  const stories = parseList(profile.stories).map((s: any) => ({
-    title: s?.title || "",
-    description: s?.description || "",
-    image_url: s?.image_url || "",
+  const stories = parseList(profile.stories).map((r: any) => ({
+    title: esc(r?.title),
+    description: esc(r?.description),
+    image_url: r?.image_url || "",
   }))
 
   const fields: Record<string, any> = {
     couple_illustration_url: profile.couple_illustration_url || "",
     cover_photos: parseList(profile.cover_photos).filter(Boolean),
-    couple_initials: profile.couple_initials || "",
-    display_name: profile.display_name || (profile.bride_name && profile.groom_name ? `${profile.bride_name} & ${profile.groom_name}` : ""),
-    groom_name: profile.groom_name || "",
-    bride_name: profile.bride_name || "",
-    groom_full_name: profile.groom_full_name || "",
-    bride_full_name: profile.bride_full_name || "",
+    couple_initials: esc(profile.couple_initials),
+    display_name: esc(profile.display_name || (profile.bride_name && profile.groom_name ? `${profile.bride_name} & ${profile.groom_name}` : "")),
+    groom_name: esc(profile.groom_name),
+    bride_name: esc(profile.bride_name),
+    groom_full_name: esc(profile.groom_full_name),
+    bride_full_name: esc(profile.bride_full_name),
     groom_photo_url: parseList(profile.groom_photo_url).filter(Boolean),
     bride_photo_url: parseList(profile.bride_photo_url).filter(Boolean),
-    groom_parents: profile.groom_parents || "",
-    bride_parents: profile.bride_parents || "",
-    groom_instagram: profile.groom_instagram || "",
-    bride_instagram: profile.bride_instagram || "",
+    groom_parents: esc(profile.groom_parents),
+    bride_parents: esc(profile.bride_parents),
+    groom_instagram: esc(profile.groom_instagram),
+    bride_instagram: esc(profile.bride_instagram),
     video_url: profile.video_url || "",
-    quote_text: profile.quote_text || "",
-    quote_source: profile.quote_source || "",
-    opening_title: profile.opening_title || "",
-    opening_description: profile.opening_description || "",
+    quote_text: esc(profile.quote_text),
+    quote_source: esc(profile.quote_source),
+    opening_title: esc(profile.opening_title),
+    opening_description: esc(profile.opening_description),
     countdown: profile.estimated_wedding_date ? `${profile.estimated_wedding_date} 00:00` : "",
-    gift_address: giftAddr?.full_address || "",
-    gift_address_name: giftAddr?.recipient_name || "",
+    gift_address: esc(giftAddr?.full_address),
+    gift_address_name: esc(giftAddr?.recipient_name),
     gift_section_hidden: profile.gift_section_visible === false,
     video_section_hidden: !gates.cinematic_video.included || profile.video_section_visible === false,
     inviting_families_hidden: !gates.inviting_families.included || profile.inviting_families_visible === false,
@@ -86,12 +91,11 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
     date_upper: profile.estimated_wedding_date ? formatDateUpper(profile.estimated_wedding_date) : "",
     sessions,
     gallery_photos: parseList(profile.gallery_photos).filter(Boolean),
-    inviting_families: parseList(profile.inviting_families).filter(Boolean),
+    inviting_families: parseList(profile.inviting_families).filter(Boolean).map(esc),
     gift_accounts: giftAccounts.map(a => ({
-      // provider_name maps to the WP bank **image** element, so send the logo URL.
       provider_name: a.provider_logo_url || resolveBankLogo(a.provider_name),
-      account_number: a.account_number,
-      account_name: a.account_name,
+      account_number: esc(a.account_number),
+      account_name: esc(a.account_name),
     })),
     stories,
   }

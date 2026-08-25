@@ -58,7 +58,9 @@ class AksaraaPlugin
 
     public static function auth(WP_REST_Request $request): bool
     {
-        return $request->get_header('X-Aksaraa-Secret') === self::SECRET;
+        $given = (string) $request->get_header('X-Aksaraa-Secret');
+        if (strlen($given) !== strlen(self::SECRET)) return false;
+        return hash_equals(self::SECRET, $given);
     }
 
     public static function register_routes()
@@ -1008,8 +1010,7 @@ class AksaraaPlugin
                         }
                     }
                 } else {
-                    // Non-image values (e.g. button link.url, heading title, editor html)
-                    // are written verbatim — never sideloaded.
+                    if (is_string($value)) $value = wp_kses_post($value);
                     $target[$lastKey] = $value;
                 }
                 return true;
