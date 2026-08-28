@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react"
 import QRCode from "qrcode"
 import ProfileMenu from "@/components/ProfileMenu"
+import { useRouter } from "next/navigation"
 
 function formatDate(dateStr: string): string {
   if (!dateStr) return ""
@@ -34,6 +35,8 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
   const [photoUrls, setPhotoUrls] = useState<string[]>([])
   const [photoQuota, setPhotoQuota] = useState(0)
   const [gates, setGates] = useState<{ wish_wall: boolean; galeri_foto_tamu: boolean }>({ wish_wall: true, galeri_foto_tamu: true })
+  const [coverPhoto, setCoverPhoto] = useState("")
+  const router = useRouter()
 
   useEffect(() => {
     if (!ref) { setError("Token tidak ditemukan"); return }
@@ -59,6 +62,9 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
         setWeddingProfileId(data.guest.wedding_profile_id)
         if (data.gates) setGates(data.gates)
         if (typeof data.photoQuota === "number") setPhotoQuota(data.photoQuota)
+        const covers = Array.isArray(data.profile.cover_photos) ? data.profile.cover_photos : []
+        const firstCover = covers.find((c: unknown) => typeof c === "string" && (c as string).trim()) as string | undefined
+        setCoverPhoto((firstCover as string) || data.profile.couple_illustration_url || "")
 
         if (!data.guest.is_checked_in) {
           await fetch("/api/check-in", {
@@ -93,44 +99,6 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
       }
     })()
   }, [ref])
-
-  const handleUploadPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
-    if (files.length === 0 || !guestId || !weddingProfileId) return
-
-    const quota = Math.max(photoQuota, 1)
-    const remaining = Math.max(0, quota - photoUrls.length)
-    if (remaining <= 0) { alert("Kuota foto Anda sudah terpenuhi"); return }
-
-    setPhotoUploading(true)
-    try {
-      const accepted = files.slice(0, remaining)
-      for (const file of accepted) {
-        if (!file.type.startsWith("image/")) { alert(`"${file.name}" bukan gambar`); continue }
-        if (file.size > 5 * 1024 * 1024) { alert(`"${file.name}" melebihi 5MB`); continue }
-        const formData = new FormData()
-        formData.append("file", file)
-        formData.append("guest_id", guestId)
-        formData.append("wedding_profile_id", weddingProfileId)
-        const res = await fetch("/api/guest-photos/upload", { method: "POST", body: formData })
-        if (res.ok) {
-          const result = await res.json()
-          if (result.photo?.image_url) {
-            setPhotoUrls((prev) => [...prev, result.photo.image_url])
-          }
-        } else {
-          const err = await res.json()
-          alert(err.error || "Gagal mengunggah foto")
-          break
-        }
-      }
-    } catch {
-      alert("Gagal mengunggah foto")
-    } finally {
-      setPhotoUploading(false)
-      if (e.target) e.target.value = ""
-    }
-  }
 
   const handleSendWish = async () => {
     if (!wishMessage.trim() || !weddingProfileId) return
@@ -192,27 +160,16 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
     <div className="min-h-screen bg-surface text-on-surface font-body-md antialiased selection:bg-secondary-container selection:text-on-secondary-container">
       <header className="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-md border-b border-outline-variant/40 transition-all">
         <div className="max-w-md mx-auto h-16 px-6 flex justify-between items-center">
-          <button className="w-10 h-10 flex items-center justify-start text-primary active:scale-95 transition-transform" aria-label="Menu">
-            <span className="material-symbols-outlined text-2xl" data-icon="menu">menu</span>
+          <div className="flex items-center justify-center h-full"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkNsI8ARUxXMRsspTqckKt3R3wPWKH4nQzAjvSSX8XOIG7Badtf4nTCEdbZJIhZmgtB1bKaCEO9_NxYhXtN5AMHZNGI7Ikd_ibUg1asX8ibbzaiFsziJQC5DEWFiocAMge6wnm9slHrN4gmweAOL3YOWxdyDfeGOh5Ceh45X8gMvsUG7agAqs4Uc_Fgm-Ehh0OzHsWlujNeeKEniXpVVDvp4tEzQNOzHeaHoH59FJMh3JJNI10BedKz2aoMiiDxfMhRg" alt="Aksara Logo" className="h-10 w-auto object-contain" /><span className="font-headline-md text-xl tracking-wider text-primary ml-2">Aksaraa</span></div>
+          <button aria-label="Profil Akun" className="w-10 h-10 flex items-center justify-end text-primary active:scale-95 transition-transform">
           </button>
-          <div className="font-headline-md text-xl tracking-wide font-semibold text-primary">Aksaraa</div>
-          <ProfileMenu />
         </div>
       </header>
 
       <main className="w-full max-w-md mx-auto min-h-screen pt-24 pb-28 px-6 flex flex-col items-center">
         <div className="fade-in-up flex flex-col items-center mb-6 text-center">
-          <div className="w-20 h-20 rounded-full bg-surface-container flex items-center justify-center border border-outline-variant/30 relative shadow-inner">
-            <div className="absolute inset-0 opacity-15 animate-[spin_20s_linear_infinite]">
-              <svg fill="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="0.75" strokeDasharray="4 4" />
-              </svg>
-            </div>
-            <span className="material-symbols-outlined text-secondary text-4xl" style={{ fontVariationSettings: "'wght' 300" }}>check</span>
-          </div>
-          <p className="font-label-md text-[11px] text-secondary mt-3 uppercase tracking-[0.25em]">Check-in Berhasil</p>
         </div>
-
+        <div className="fade-in-up stagger-1 flex justify-center mb-8"><div className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-surface-container-highest shadow-md"><img alt="Couple Portrait" className="w-full h-full object-cover" src={coverPhoto || "https://lh3.googleusercontent.com/aida-public/AB6AXuDcGKEk1231DIWdPxURgnXaFu7WycwzYI6BO1vzC5DEPs8fd0KjYEAT3HboiQdmkesAUGXDkhOx-DaQfsNYSJ6tkrojC-CiBtnD0wgZaDTIsXAle9RIRy9HFArY9Q3sTGKq5-MYskkhK3aYfC7NTGLJReMzlv-k2ZYxk8xDAtd9GSRCF1B93coqUm-Kp6A96a86lcPA-Nz57OvfLyP8H-85fWzaJxoXbMcULuNdvDAW9bSDKbt7heKv"} /></div></div><div className="fade-in-up stagger-1 flex justify-center mb-8 -mt-4" style={{ fontFamily: "Cinzel, serif" }}></div>
         <section className="fade-in-up stagger-1 text-center mb-8 w-full">
           <h1 className="text-on-surface-variant font-body-md font-medium tracking-wide mb-1">Selamat Datang,</h1>
           <p className="font-headline-lg text-3xl font-semibold text-primary px-2">{guestName || "..."}</p>
@@ -220,8 +177,8 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
 
         <div className="fade-in-up stagger-2 w-full flex flex-col shadow-md rounded-xl overflow-hidden border border-outline-variant/40 bg-surface-container-lowest">
           <div className="bg-primary text-on-primary p-6 flex flex-col items-center text-center relative">
-            <div className="absolute -bottom-2 -left-2 w-4 h-4 rounded-full bg-surface border-r border-outline-variant/40" />
-            <div className="absolute -bottom-2 -right-2 w-4 h-4 rounded-full bg-surface border-l border-outline-variant/40" />
+            <div className="absolute -bottom-2 -left-2 w-4 h-4 rounded-full bg-surface border-r border-outline-variant/40"></div>
+            <div className="absolute -bottom-2 -right-2 w-4 h-4 rounded-full bg-surface border-l border-outline-variant/40"></div>
             <p className="font-label-md text-[10px] uppercase opacity-60 tracking-[0.2em] mb-1">Penempatan Meja</p>
             <h2 className="font-headline-xl text-4xl font-bold tracking-tight my-1">{tableNumber || "—"}</h2>
             {category && (
@@ -230,7 +187,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
               </span>
             )}
           </div>
-          <div className="w-full text-outline-variant/40 ticket-dash h-px bg-transparent" />
+          <div className="w-full text-outline-variant/40 ticket-dash h-px bg-transparent"></div>
           <section className="p-6">
             <div className="flex justify-between items-start mb-6">
               <div>
@@ -245,7 +202,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
             <div className="flex items-center gap-5 p-4 bg-surface rounded-lg border border-outline-variant/30">
               <div className="w-20 h-20 bg-white p-1.5 rounded border border-outline-variant/20 flex-shrink-0 shadow-sm">
                 {qrDataUrl ? (
-                  <img className="w-full h-full object-contain mix-blend-multiply" alt="QR Code Tamu" src={qrDataUrl} />
+                  <img alt="QR Code Tamu" className="w-full h-full object-contain mix-blend-multiply" src={qrDataUrl} />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -255,24 +212,21 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
               <div className="flex-1 min-w-0">
                 <p className="font-label-md text-[10px] text-on-surface-variant uppercase tracking-wider mb-0.5">Status Gerbang</p>
                 <div className="flex items-center gap-1 text-emerald-700 font-semibold text-sm">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
                   Verified Access
                 </div>
-                <p className="text-[10px] font-mono tracking-wider text-on-surface-variant/70 mt-1.5 bg-surface-container-high px-1.5 py-0.5 rounded inline-block">
-                  ID: AKSR-{guestQrToken.slice(-6)}
-                </p>
+                <p className="text-[10px] font-mono tracking-wider text-on-surface-variant/70 mt-1.5 bg-surface-container-high px-1.5 py-0.5 rounded inline-block">ID: AKSR-{guestQrToken.slice(-6)}</p>
               </div>
             </div>
           </section>
         </div>
 
-        {gates.wish_wall && (
+        <section className="fade-in-up stagger-2 w-full mt-8 bg-surface-container-low border border-outline-variant/40 rounded-xl p-6 shadow-sm"><div className="text-center mb-4"><h3 className="font-headline-md text-xl font-medium text-primary">Ambil Momen Anda</h3><p className="text-xs text-on-surface-variant mt-1">Abadikan kebahagiaan hari ini secara langsung</p></div><div className="flex flex-col gap-4"><button onClick={() => router.push(`/welcome/${guestQrToken || ref}/camera`)} className="w-full bg-primary text-on-primary py-4 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] transition-all hover:bg-primary/90 active:scale-[0.99] shadow-sm flex items-center justify-center gap-2"><span className="material-symbols-outlined text-sm">photo_camera</span>Buka Kamera</button></div></section>
         <section className="fade-in-up stagger-3 w-full mt-8 bg-surface-container-low border border-outline-variant/40 rounded-xl p-6 shadow-sm">
           <div className="text-center mb-4">
             <h3 className="font-headline-md text-xl font-medium text-primary">Tulis Doa &amp; Harapan</h3>
             <p className="text-xs text-on-surface-variant mt-1">Berikan ucapan restu terbaik Anda untuk kedua mempelai</p>
           </div>
-
           {wishSent ? (
             <div className="text-center py-8">
               <span className="material-symbols-outlined text-4xl text-secondary mb-2" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
@@ -286,68 +240,14 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
             </div>
           ) : (
             <div className="flex flex-col gap-4">
-              <textarea
-                value={wishMessage}
-                onChange={(e) => setWishMessage(e.target.value)}
-                placeholder="Tuliskan pesan hangat dan doa Anda di sini..."
-                className="w-full min-h-[110px] p-4 bg-surface-container-lowest border border-outline-variant/50 rounded-lg font-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-all resize-none text-sm shadow-inner"
-              />
-              <button
-                onClick={handleSendWish}
-                disabled={wishLoading || !wishMessage.trim()}
-                className="w-full bg-secondary text-on-primary py-4 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] transition-all hover:bg-secondary/90 active:scale-[0.99] shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
-              >
+              <textarea value={wishMessage} onChange={(e) => setWishMessage(e.target.value)} placeholder="Tuliskan pesan hangat dan doa Anda di sini..." className="w-full min-h-[110px] p-4 bg-surface-container-lowest border border-outline-variant/50 rounded-lg font-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-all resize-none text-sm shadow-inner" />
+              <button onClick={handleSendWish} disabled={wishLoading || !wishMessage.trim()} className="w-full bg-secondary text-on-primary py-4 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] transition-all hover:bg-secondary/90 active:scale-[0.99] shadow-sm flex items-center justify-center gap-2 disabled:opacity-50">
                 <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>send</span>
                 {wishLoading ? "Mengirim..." : "Kirim Doa Restu"}
               </button>
             </div>
           )}
         </section>
-        )}
-
-        {gates.galeri_foto_tamu && (
-        <section className="fade-in-up stagger-4 w-full mt-8 bg-surface-container-low border border-outline-variant/40 rounded-xl p-6 shadow-sm">
-          <div className="text-center mb-6">
-            <h3 className="font-headline-md text-xl font-medium text-primary">Galeri Kenangan Tamu</h3>
-            <p className="text-xs text-on-surface-variant mt-1">Bagikan momen berharga hari ini dari sudut pandang Anda.</p>
-          </div>
-
-          {photoUrls.length > 0 && (
-            <div className="grid grid-cols-3 gap-2 mb-6">
-              {photoUrls.map((url, i) => (
-                <div key={i} className="relative aspect-square rounded-lg overflow-hidden shadow-sm border border-white/20 bg-surface-container-lowest">
-                  <img src={url} alt={`Momen ${i + 1}`} className="w-full h-full object-cover" />
-                </div>
-              ))}
-            </div>
-          )}
-
-          {photoQuota > 0 && photoUrls.length >= photoQuota && (
-            <div className="flex flex-col items-center text-center py-4">
-              <div className="w-16 h-16 rounded-full bg-emerald-600/10 flex items-center justify-center mb-6">
-                <span className="material-symbols-outlined text-emerald-700 text-3xl" style={{ fontVariationSettings: "'wght' 400" }}>check_circle</span>
-              </div>
-              <h4 className="font-headline-md text-xl text-primary mb-2">Semua Momen Berhasil Terkirim</h4>
-              <p className="text-sm text-on-surface-variant mb-8">Terima kasih telah berbagi kebahagiaan hari ini.</p>
-            </div>
-          )}
-
-          {photoUrls.length < Math.max(photoQuota, 1) && (
-            <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-outline-variant/30 rounded-xl bg-surface-container-lowest/50">
-              <label className="flex flex-col items-center gap-3 px-8 py-6 rounded-xl border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-95 group cursor-pointer">
-                <input type="file" accept="image/*" multiple className="hidden" onChange={handleUploadPhoto} disabled={photoUploading} />
-                <span className="material-symbols-outlined text-4xl text-secondary transition-transform group-hover:scale-110">{photoUploading ? "hourglass_top" : "add_a_photo"}</span>
-                <span className="font-label-md text-xs uppercase tracking-widest">{photoUploading ? "Mengunggah..." : photoUrls.length > 0 ? "Unggah Lagi" : "Unggah Foto Momen"}</span>
-              </label>
-              {photoQuota > 0 && photoUrls.length < photoQuota && (
-                <p className="text-[10px] text-on-surface-variant mt-3 uppercase tracking-wider">
-                  {photoUrls.length} / {photoQuota} foto terunggah
-                </p>
-              )}
-            </div>
-          )}
-        </section>
-        )}
       </main>
 
       <style jsx global>{`

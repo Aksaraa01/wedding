@@ -1,6 +1,5 @@
 import { ComponentType } from "react"
 import type { TemplateConfig } from "@/types/template"
-import HeritageJawa from "./HeritageJawa"
 import ParallaxSinematik from "./ParallaxSinematik"
 import EditorialModern from "./EditorialModern"
 import AnimasiWatercolor from "./AnimasiWatercolor"
@@ -61,7 +60,6 @@ export interface TemplateProps {
 }
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
-  "heritage-jawa": HeritageJawa,
   "parallax-sinematik": ParallaxSinematik,
   "editorial-modern": EditorialModern,
   "animasi-watercolor": AnimasiWatercolor,
@@ -69,17 +67,6 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
-  {
-    code: "heritage-jawa",
-    name: "Heritage Jawa",
-    description: "Nuansa tradisional Jawa dengan ornamen gunungan dan palet warna hangat",
-    theme: {
-      fonts: { display: "Cormorant Infant", script: "Alex Brush", body: "Plus Jakarta Sans" },
-      colors: { surface: "#fdf9f0", text: "#1c1c16", accent: "#d4af37", accentMuted: "#8d4d39", overlay: "#1c1a15", dark: "#1c1a15" },
-      ornaments: { divider: "gunungan", border: "ornate", frame: "arch" },
-      motion: { enabled: true, duration: 0.6, stagger: 0.15 },
-    },
-  },
   {
     code: "parallax-sinematik",
     name: "Parallax Sinematik",

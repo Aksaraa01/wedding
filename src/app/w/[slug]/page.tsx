@@ -139,13 +139,32 @@ export default async function WeddingInvitation({
       return { code: data?.code || null, demo_url: data?.demo_url || null }
     })
     if (tmpl) templateCode = tmpl.code
-    // Fallback: redirect to WP template demo URL (for templates without a live active dup)
     if (tmpl?.demo_url && !wpPostAlive) {
       const guestName = guestContext?.name || to || ""
       const wpUrl = guestName
         ? `${tmpl.demo_url}?to=${encodeURIComponent(guestName)}`
         : tmpl.demo_url
-      redirect(wpUrl)
+      return (
+        <>
+          <div style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh", background: "#fff" }}>
+            <iframe src={wpUrl} title="Undangan Pernikahan" allow="autoplay; fullscreen" style={{ width: "100%", height: "100%", border: "none", display: "block" }} />
+          </div>
+          <InvitationOpenedTracker guestId={guestContext?.id} />
+          {guestContext?.id && (
+            <InvitationOverlay
+              guestId={guestContext.id}
+              guestName={guestName}
+              weddingProfileId={profile.id}
+              guestQrUrl={guestContext.slug || guestContext.qr_token ? `/qr/${guestContext.slug || guestContext.qr_token}` : undefined}
+              guestTableNumber={guestContext.table_number}
+              guestRsvpStatus={guestContext.rsvp_status}
+              guestRsvpMessage={guestContext.rsvp_message}
+              rsvpMaxPax={profile.rsvp_max_pax ?? 2}
+              qrEnabled={featureSet.has("qr_code_book")}
+            />
+          )}
+        </>
+      )
     }
   }
 

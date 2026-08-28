@@ -38,6 +38,19 @@ if (!is_object($aksaraa_wdp_data) || (isset($aksaraa_wdp_data->license) && $aksa
 }
 unset($aksaraa_wdp_prefix, $aksaraa_wdp_data_opt, $aksaraa_wdp_data);
 
+add_action('send_headers', function () {
+    if (is_singular()) {
+        header('Content-Security-Policy: frame-ancestors https://*.wedding.aksaraa.com https://wedding.aksaraa.com https://*.aksaraa.com');
+        header_remove('X-Frame-Options');
+    }
+});
+add_action('template_redirect', function () {
+    if (is_singular()) {
+        header('Content-Security-Policy: frame-ancestors https://*.wedding.aksaraa.com https://wedding.aksaraa.com https://*.aksaraa.com');
+        header_remove('X-Frame-Options');
+    }
+}, 0);
+
 // Font Awesome for template icons ("Buka Undangan" envelope + navbar icons).
 // Neither Elementor nor WeddingPress enqueues FA on this site, so without this
 // the icons render blank.
