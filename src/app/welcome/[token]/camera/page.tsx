@@ -144,6 +144,16 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
       const ctx = canvas.getContext("2d")
       if (!ctx) return
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+      const frameH = Math.round(canvas.height * 0.12)
+      ctx.fillStyle = "rgba(0,0,0,0.35)"
+      ctx.fillRect(0, canvas.height - frameH, canvas.width, frameH)
+      ctx.fillStyle = "rgba(248,245,240,0.95)"
+      ctx.textAlign = "center"
+      ctx.font = `${Math.round(canvas.width * 0.045)}px 'Playfair Display', serif`
+      ctx.fillText(coupleName, canvas.width / 2, canvas.height - frameH * 0.55)
+      ctx.fillStyle = "rgba(248,245,240,0.75)"
+      ctx.font = `${Math.round(canvas.width * 0.022)}px 'Playfair Display', serif`
+      ctx.fillText(endDate, canvas.width / 2, canvas.height - frameH * 0.22)
       const blob = await new Promise<Blob | null>(res => canvas.toBlob(b => res(b), "image/jpeg", 0.85))
       if (!blob) return
       const file = new File([blob], `guest-${Date.now()}.jpg`, { type: "image/jpeg" })
@@ -184,6 +194,20 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
           <div className="w-full h-full rounded-[2.5rem] border-3 overflow-hidden relative z-10 flex items-center justify-center" style={{ borderColor: "#d8b4fe", backgroundColor: "#000" }}>
             <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
             <canvas ref={canvasRef} className="hidden" />
+            <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-6 z-20">
+              <div className="flex justify-between">
+                <div className="w-8 h-8 border-t border-l border-white/30 rounded-tl-lg"></div>
+                <div className="w-8 h-8 border-t border-r border-white/30 rounded-tr-lg"></div>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <div className="font-serif text-white/70 text-lg tracking-widest uppercase" style={{ fontFamily: "Playfair Display" }}>{coupleName}</div>
+                <div className="font-serif text-white/70 text-xs tracking-widest">{endDate}</div>
+                <div className="flex justify-between w-full mt-1">
+                  <div className="w-8 h-8 border-b border-l border-white/30 rounded-bl-lg"></div>
+                  <div className="w-8 h-8 border-b border-r border-white/30 rounded-br-lg"></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 bg-charcoal-900/80 backdrop-blur-md rounded-full px-4 py-2 flex gap-4 items-center border border-gray-700 z-30" style={{ backgroundColor: "rgba(17,17,17,0.8)" }}>
