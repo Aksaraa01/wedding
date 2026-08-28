@@ -102,7 +102,7 @@ export default function GalleryPage({ params }: { params: Promise<{ token: strin
         )}
       </main>
       <div className="fixed bottom-0 left-0 w-full z-50 flex justify-center items-center pb-8 pt-4 bg-gradient-to-t from-[#0d0c11] via-[#0d0c11]/80 to-transparent">
-        <button onClick={() => router.push(`/welcome/${token}/camera`)} className="px-8 py-4 rounded-full font-label-md text-label-md uppercase tracking-widest flex items-center space-x-2 hover:opacity-90 transition-opacity" style={{ backgroundColor: "#DFA88D", color: "#0d0c11" }}>
+        <button onClick={() => window.open(`/welcome/${token}/camera`, '_blank')} className="px-8 py-4 rounded-full font-label-md text-label-md uppercase tracking-widest flex items-center space-x-2 hover:opacity-90 transition-opacity" style={{ backgroundColor: "#DFA88D", color: "#0d0c11" }}>
           <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>photo_camera</span>
           <span>Buka Kamera</span>
         </button>
