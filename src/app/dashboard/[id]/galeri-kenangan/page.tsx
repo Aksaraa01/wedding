@@ -194,23 +194,15 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
             <p className="font-body-md text-on-surface-variant">Belum ada foto dari tamu</p>
           </div>
         ) : (
-          <section className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-gutter">
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {photos.map((photo, i) => {
-              let colSpan = "md:col-span-6"
-              let aspect = "aspect-[4/3]"
-              if (i === 0) { colSpan = "md:col-span-8"; aspect = "aspect-[16/10]" }
-              else if (i === 1) { colSpan = "md:col-span-4"; aspect = "aspect-[3/4]" }
-              else if (i === 2) { colSpan = "md:col-span-4"; aspect = "aspect-square" }
-              else if (i === 3) { colSpan = "md:col-span-8"; aspect = "aspect-[16/9]" }
-              else { colSpan = "md:col-span-6"; aspect = "aspect-[4/3]" }
-
               return (
-                <div key={photo.id} className={`${colSpan} group`} style={{ animation: `fadeIn 0.8s ease-out forwards`, animationDelay: `${0.2 + i * 0.1}s`, opacity: 0 }}>
-                  <div className={`${aspect} overflow-hidden bg-surface-container mb-4`}>
+                <div key={photo.id} className="group" style={{ animation: `fadeIn 0.8s ease-out forwards`, animationDelay: `${0.2 + i * 0.1}s`, opacity: 0 }}>
+                  <div className="overflow-hidden bg-surface-container mb-4 rounded-xl border border-outline-variant/30 flex items-center justify-center">
                     <img
                       src={photo.image_url}
                       alt={`Foto oleh ${photo.guests?.name || "Tamu"}`}
-                      className="w-full h-full object-cover editorial-img cursor-pointer"
+                      className="w-full h-auto max-h-[520px] object-contain cursor-pointer"
                       style={{ transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)" }}
                       onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.02)" }}
                       onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)" }}
