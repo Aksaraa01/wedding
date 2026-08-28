@@ -201,7 +201,7 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
             <div className="w-full h-full rounded-full" style={{ backgroundColor: taking ? "#4b2c4b" : "#8b5cf6" }}></div>
           </button>
           <button onClick={() => router.push(`/welcome/${token}/gallery`)} className="w-20 h-20 rounded-[1.5rem] border flex items-center justify-center text-gray-300 hover:bg-gray-700 transition-colors" style={{ backgroundColor: "#2d1b2d", borderColor: "#4b2c4b" }}>
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25A2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 15.75V18a2.25 2.25 0 0 1-2.25 2.25H18A2.25 2.25 0 0 1 13.5 18v-2.25Z" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+            <span className="material-symbols-outlined text-[28px]">photo_library</span>
           </button>
         </div>
       </footer>
