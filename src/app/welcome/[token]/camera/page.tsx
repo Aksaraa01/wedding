@@ -80,13 +80,15 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
     document.documentElement.style.overflow = ""
   }, [])
 
+  const [torchSupported, setTorchSupported] = useState(false)
   useEffect(() => {
     const track = streamRef.current?.getVideoTracks()[0] as any
-    if (!track || typeof track.getCapabilities !== "function") return
+    if (!track || typeof track.getCapabilities !== "function") { setTorchSupported(false); return }
     const caps = track.getCapabilities()
+    setTorchSupported(!!caps.torch)
     if (!caps.torch) return
     track.applyConstraints({ advanced: [{ torch: flash } as any] }).catch(() => {})
-  }, [flash])
+  }, [flash, facing])
 
   const startCamera = async (mode: "environment" | "user") => {
     try {
@@ -165,15 +167,28 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
       const pad = Math.round(canvas.width * 0.04)
       const cs = Math.round(canvas.width * 0.06)
       const bw = Math.max(2, Math.round(canvas.width * 0.006))
+      const r = Math.round(cs * 0.35)
       ctx.strokeStyle = "rgba(255,255,255,0.35)"
       ctx.lineWidth = bw
       ctx.lineCap = "round"
-      ctx.beginPath()
-      ctx.moveTo(pad, pad + cs); ctx.lineTo(pad, pad); ctx.lineTo(pad + cs, pad)
-      ctx.moveTo(canvas.width - pad - cs, pad); ctx.lineTo(canvas.width - pad, pad); ctx.lineTo(canvas.width - pad, pad + cs)
-      ctx.moveTo(pad, canvas.height - pad - cs); ctx.lineTo(pad, canvas.height - pad); ctx.lineTo(pad + cs, canvas.height - pad)
-      ctx.moveTo(canvas.width - pad - cs, canvas.height - pad); ctx.lineTo(canvas.width - pad, canvas.height - pad); ctx.lineTo(canvas.width - pad, canvas.height - pad - cs)
-      ctx.stroke()
+      ctx.lineJoin = "round"
+      const drawCorner = (x: number, y: number, horiz: number, vert: number) => {
+        ctx.beginPath()
+        if (horiz === 1 && vert === 1) {
+          ctx.moveTo(x, y + r); ctx.arcTo(x, y, x + r, y, r); ctx.lineTo(x + cs - r, y); ctx.moveTo(x, y + r); ctx.lineTo(x, y + cs - r)
+        } else if (horiz === -1 && vert === 1) {
+          ctx.moveTo(x, y + r); ctx.arcTo(x, y, x - r, y, r); ctx.lineTo(x - cs + r, y); ctx.moveTo(x, y + r); ctx.lineTo(x, y + cs - r)
+        } else if (horiz === 1 && vert === -1) {
+          ctx.moveTo(x, y - r); ctx.arcTo(x, y, x + r, y, r); ctx.lineTo(x + cs - r, y); ctx.moveTo(x, y - r); ctx.lineTo(x, y - cs + r)
+        } else {
+          ctx.moveTo(x, y - r); ctx.arcTo(x, y, x - r, y, r); ctx.lineTo(x - cs + r, y); ctx.moveTo(x, y - r); ctx.lineTo(x, y - cs + r)
+        }
+        ctx.stroke()
+      }
+      drawCorner(pad, pad, 1, 1)
+      drawCorner(canvas.width - pad, pad, -1, 1)
+      drawCorner(pad, canvas.height - pad, 1, -1)
+      drawCorner(canvas.width - pad, canvas.height - pad, -1, -1)
       const blob = await new Promise<Blob | null>(res => canvas.toBlob(b => res(b), "image/jpeg", 0.85))
       if (!blob) return
       const file = new File([blob], `guest-${Date.now()}.jpg`, { type: "image/jpeg" })
@@ -181,12 +196,12 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
       form.append("file", file)
       form.append("guest_id", guestId)
       form.append("wedding_profile_id", weddingProfileId)
-      const r = await fetch("/api/guest-photos/upload", { method: "POST", body: form })
-      if (r.ok) {
+      const uploadRes = await fetch("/api/guest-photos/upload", { method: "POST", body: form })
+      if (uploadRes.ok) {
         setPhotoCount(c => c + 1)
         if (flash && navigator.vibrate) navigator.vibrate(50)
       } else {
-        const err = await r.json()
+        const err = await uploadRes.json()
         alert(err.error || "Gagal mengunggah foto")
       }
     } finally {
@@ -239,7 +254,7 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
 
       <footer className="w-full z-10 flex flex-col gap-6">
         <div className="flex justify-between items-center px-4 w-full">
-          <button onClick={() => setFlash(v => !v)} className={`w-12 h-12 rounded-full border flex items-center justify-center transition-colors ${flash ? "bg-white text-black border-white" : "border-gray-700 text-gray-300 hover:bg-gray-800"}`}>
+          <button onClick={() => torchSupported && setFlash(v => !v)} disabled={!torchSupported} className={`w-12 h-12 rounded-full border flex items-center justify-center transition-colors ${!torchSupported ? "opacity-40 cursor-not-allowed border-gray-700 text-gray-500" : flash ? "bg-white text-black border-white" : "border-gray-700 text-gray-300 hover:bg-gray-800"}`}>
             <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M11.412 15.655 9.75 21.75l3.745-4.012M9.257 13.5H3.75l2.659-2.849m2.048-2.194L14.25 2.25 12 10.5h8.25l-4.707 5.043M8.457 8.457 3 3m5.457 5.457 7.086 7.086m0 0L21 21" strokeLinecap="round" strokeLinejoin="round"></path></svg>
           </button>
           <span className="text-gray-400 text-xs tracking-[0.2em] font-medium uppercase">Kamera {facing === "environment" ? "Belakang" : "Depan"}</span>

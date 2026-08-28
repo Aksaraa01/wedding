@@ -27,6 +27,7 @@ export default function GalleryPage({ params }: { params: Promise<{ token: strin
   const [quota, setQuota] = useState(0)
   const [filter, setFilter] = useState("all")
   const [loading, setLoading] = useState(true)
+  const [selected, setSelected] = useState<Photo | null>(null)
 
   useEffect(() => {
     ;(async () => {
@@ -90,13 +91,13 @@ export default function GalleryPage({ params }: { params: Promise<{ token: strin
         ) : (
           <section className="grid grid-cols-2 gap-4">
             {filtered.map(p => (
-              <div key={p.id} className="aspect-[3/4] rounded-[24px] overflow-hidden relative group border border-[#2a2a2a]">
+              <div key={p.id} onClick={() => setSelected(p)} className="aspect-[3/4] rounded-[24px] overflow-hidden relative group border border-[#2a2a2a] cursor-pointer active:scale-[0.98] transition-transform">
                 <img className="w-full h-full object-cover" src={p.image_url} alt="Momen" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-100"></div>
                 <div className="absolute bottom-4 right-4 date-stamp text-sm" style={{ fontFamily: "'Courier New', monospace", fontWeight: "bold", color: "#d1b89a", letterSpacing: "0.1em", textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>{formatStamp(p.created_at)}</div>
-                <a href={p.image_url} download target="_blank" className="absolute top-4 right-4 bg-black/40 backdrop-blur-sm p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity border border-white/20">
+                <span className="absolute top-4 right-4 bg-black/40 backdrop-blur-sm p-2 rounded-full opacity-0 group-hover:opacity-100 md:group-hover:opacity-100 transition-opacity border border-white/20 hidden md:flex">
                   <span className="material-symbols-outlined text-white text-sm">download</span>
-                </a>
+                </span>
               </div>
             ))}
             {filtered.length === 0 && (
@@ -111,6 +112,22 @@ export default function GalleryPage({ params }: { params: Promise<{ token: strin
           <span>Buka Kamera</span>
         </button>
       </div>
+      {selected && (
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setSelected(null)}>
+          <div className="relative w-full max-w-md max-h-[85vh] flex flex-col bg-black rounded-[24px] overflow-hidden border border-white/10" onClick={e => e.stopPropagation()}>
+            <img src={selected.image_url} alt="Momen" className="w-full h-auto max-h-[70vh] object-contain" />
+            <div className="p-4 flex justify-between items-center bg-[#0d0c11]">
+              <span className="text-sm" style={{ fontFamily: "'Courier New', monospace", color: "#d1b89a" }}>{formatStamp(selected.created_at)}</span>
+              <a href={selected.image_url} download={`momen-${selected.id}.jpg`} target="_blank" rel="noreferrer" className="px-6 py-2 bg-white text-black rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-white/90">
+                <span className="material-symbols-outlined text-sm">download</span> Download
+              </a>
+            </div>
+            <button onClick={() => setSelected(null)} className="absolute top-3 right-3 w-8 h-8 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/70">
+              <span className="material-symbols-outlined text-lg">close</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
