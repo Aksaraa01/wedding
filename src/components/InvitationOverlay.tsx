@@ -133,14 +133,6 @@ export default function InvitationOverlay({
                 <span className="material-symbols-outlined text-2xl">close</span>
               </button>
             </div>
-            <div className="text-center px-5 pt-4 pb-2">
-              <p className="font-headline-md text-lg text-on-surface">{guestName}</p>
-              {guestTableNumber && guestTableNumber !== "TBA" && (
-                <p className="font-body-md text-[13px] text-on-surface-variant">
-                  Nomor Meja: <span className="font-semibold">{guestTableNumber}</span>
-                </p>
-              )}
-            </div>
             <iframe src={guestQrUrl} title="Kartu QR Masuk" className="w-full border-0 flex-1" />
             <div className="px-5 py-3 flex justify-center shrink-0">
               <a
