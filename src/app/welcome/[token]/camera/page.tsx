@@ -47,6 +47,8 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
   const [flash, setFlash] = useState(false)
   const [taking, setTaking] = useState(false)
   const [zoom, setZoom] = useState("1×")
+  const [loading, setLoading] = useState(true)
+  const zoomMap: Record<string, number> = { "0.5": 0.5, "1×": 1, "2": 2, "3": 3 }
 
   useEffect(() => {
     ;(async () => {
@@ -69,8 +71,19 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
           setPhotoCount(photos.length)
         }
       } catch {}
+      setLoading(false)
     })()
   }, [token])
+
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    document.documentElement.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = prev
+      document.documentElement.style.overflow = ""
+    }
+  }, [])
 
   const startCamera = async (mode: "environment" | "user") => {
     try {
@@ -88,6 +101,23 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
     startCamera(facing)
     return () => { if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop()) }
   }, [facing])
+
+  useEffect(() => {
+    const v = videoRef.current
+    if (!v) return
+    const scale = zoomMap[zoom] || 1
+    v.style.transform = `scale(${scale})`
+    v.style.transformOrigin = "center"
+    v.style.transition = "transform 0.2s ease"
+    const track = streamRef.current?.getVideoTracks()[0] as any
+    if (track && typeof track.getCapabilities === "function") {
+      const caps = track.getCapabilities()
+      if (caps.zoom) {
+        const zoomVal = scale === 0.5 ? caps.zoom.min : scale === 1 ? caps.zoom.min + (caps.zoom.max - caps.zoom.min) * 0.25 : scale === 2 ? caps.zoom.min + (caps.zoom.max - caps.zoom.min) * 0.6 : caps.zoom.max
+        track.applyConstraints({ advanced: [{ zoom: zoomVal } as any] }).catch(() => {})
+      }
+    }
+  }, [zoom])
 
   const remaining = Math.max(0, photoQuota - photoCount)
 
@@ -131,8 +161,8 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
           <img alt="Aksara Logo" className="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOYBQKeEkh398GPxusyxyyIIpudHaBYGcxDefI-Nc5f1VpbxNlbv26Ultv-mY7KaQTTr5if4eZjm1F7P-RUBmaFCbBe08cDvd54h8E9qsy4JUG9MqQotGPVjgqdeCAJ66BB6IyuChC9dGSPm1dInQnX-XiUpxnbuftXobE5M0KCX4I6eYIsUtjDP2kBW7-3SgAyqvmbDYSRQgX9BQeRnmLCaJ3zNsgGp-RQ7ha3P8CbMS48vr9iN_Tsal5-CK5kmRREw" />
         </div>
         <div className="text-center flex-1">
-          <h3 className="font-headline-md text-xl font-medium mt-2" style={{ fontFamily: "Playfair Display", color: "#F8F5F0" }}>{coupleName}</h3>
-          {endDate && <p className="text-gray-400 text-xs mt-0.5">berakhir {endDate}</p>}
+          {loading ? (<div className="h-6 bg-white/10 rounded animate-pulse w-32 mx-auto" />) : (<h3 className="font-headline-md text-xl font-medium mt-2" style={{ fontFamily: "Playfair Display", color: "#F8F5F0" }}>{coupleName}</h3>)}
+          {loading ? (<div className="h-3 bg-white/10 rounded animate-pulse w-24 mx-auto mt-1" />) : endDate && (<p className="text-gray-400 text-xs mt-0.5">berakhir {endDate}</p>)}
         </div>
         <div className="w-8" />
       </header>
@@ -164,14 +194,14 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
         </div>
         <div className="flex justify-between items-center px-2">
           <div className="w-20 h-20 rounded-[1.5rem] border flex flex-col items-center justify-center p-2" style={{ backgroundColor: "#2d1b2d", borderColor: "#a855f7" }}>
-            <span className="font-bold text-2xl leading-none" style={{ color: "#d8b4fe" }}>{remaining}</span>
+            {loading ? (<div className="w-8 h-8 bg-white/10 rounded animate-pulse" />) : (<span className="font-bold text-2xl leading-none" style={{ color: "#d8b4fe" }}>{remaining}</span>)}
             <span className="text-gray-400 text-[10px] tracking-widest mt-1 uppercase">Sisa</span>
           </div>
           <button aria-label="Take photo" onClick={handleTake} disabled={taking || remaining <= 0} className="w-24 h-24 rounded-full border-4 border-gray-700 p-1 flex items-center justify-center active:scale-95 transition-transform disabled:opacity-50">
             <div className="w-full h-full rounded-full" style={{ backgroundColor: taking ? "#4b2c4b" : "#8b5cf6" }}></div>
           </button>
           <button onClick={() => router.push(`/welcome/${token}/gallery`)} className="w-20 h-20 rounded-[1.5rem] border flex items-center justify-center text-gray-300 hover:bg-gray-700 transition-colors" style={{ backgroundColor: "#2d1b2d", borderColor: "#4b2c4b" }}>
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H18A2.25 2.25 0 0 1 13.5 18v-2.25Z" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25A2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 15.75V18a2.25 2.25 0 0 1-2.25 2.25H18A2.25 2.25 0 0 1 13.5 18v-2.25Z" strokeLinecap="round" strokeLinejoin="round"></path></svg>
           </button>
         </div>
       </footer>

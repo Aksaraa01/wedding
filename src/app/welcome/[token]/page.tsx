@@ -36,6 +36,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
   const [photoQuota, setPhotoQuota] = useState(0)
   const [gates, setGates] = useState<{ wish_wall: boolean; galeri_foto_tamu: boolean }>({ wish_wall: true, galeri_foto_tamu: true })
   const [coverPhoto, setCoverPhoto] = useState("")
+  const [loading, setLoading] = useState(true)
   const router = useRouter()
   const searchParams = useSearchParams()
   const isModal = searchParams.get("modal") === "1"
@@ -98,6 +99,8 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
         setQrDataUrl(qrUrl)
       } catch (e: any) {
         setError(e.message)
+      } finally {
+        setLoading(false)
       }
     })()
   }, [ref])
@@ -173,13 +176,13 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
       <main className={`w-full max-w-md mx-auto min-h-screen ${isModal ? "pt-6" : "pt-24"} pb-28 px-6 flex flex-col items-center`}>
         <div className="fade-in-up flex flex-col items-center mb-6 text-center">
         </div>
-        <div className="fade-in-up stagger-1 flex justify-center mb-8"><div className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-surface-container-highest shadow-md"><img alt="Couple Portrait" className="w-full h-full object-cover" src={coverPhoto || "https://lh3.googleusercontent.com/aida-public/AB6AXuDcGKEk1231DIWdPxURgnXaFu7WycwzYI6BO1vzC5DEPs8fd0KjYEAT3HboiQdmkesAUGXDkhOx-DaQfsNYSJ6tkrojC-CiBtnD0wgZaDTIsXAle9RIRy9HFArY9Q3sTGKq5-MYskkhK3aYfC7NTGLJReMzlv-k2ZYxk8xDAtd9GSRCF1B93coqUm-Kp6A96a86lcPA-Nz57OvfLyP8H-85fWzaJxoXbMcULuNdvDAW9bSDKbt7heKv"} /></div></div><div className="fade-in-up stagger-1 flex justify-center mb-8 -mt-4" style={{ fontFamily: "Cinzel, serif" }}></div>
+        <div className="fade-in-up stagger-1 flex justify-center mb-8"><div className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-surface-container-highest shadow-md">{loading ? (<div className="w-full h-full bg-surface-container-high animate-pulse" />) : (<img alt="Couple Portrait" className="w-full h-full object-cover" src={coverPhoto || "https://lh3.googleusercontent.com/aida-public/AB6AXuDcGKEk1231DIWdPxURgnXaFu7WycwzYI6BO1vzC5DEPs8fd0KjYEAT3HboiQdmkesAUGXDkhOx-DaQfsNYSJ6tkrojC-CiBtnD0wgZaDTIsXAle9RIRy9HFArY9Q3sTGKq5-MYskkhK3aYfC7NTGLJReMzlv-k2ZYxk8xDAtd9GSRCF1B93coqUm-Kp6A96a86lcPA-Nz57OvfLyP8H-85fWzaJxoXbMcULuNdvDAW9bSDKbt7heKv"} />)}</div></div><div className="fade-in-up stagger-1 flex justify-center mb-8 -mt-4" style={{ fontFamily: "Cinzel, serif" }}></div>
         <section className="fade-in-up stagger-1 text-center mb-8 w-full">
           <h1 className="text-on-surface-variant font-body-md font-medium tracking-wide mb-1">Selamat Datang,</h1>
-          <p className="font-headline-lg text-3xl font-semibold text-primary px-2">{guestName || "..."}</p>
+          {loading ? (<div className="h-8 bg-surface-container-high rounded animate-pulse w-48 mx-auto" />) : (<p className="font-headline-lg text-3xl font-semibold text-primary px-2">{guestName || "..."}</p>)}
         </section>
 
-        <section className="fade-in-up stagger-2 w-full bg-surface-container-low border border-outline-variant/40 rounded-xl p-6 shadow-sm"><div className="text-center mb-4"><h3 className="font-headline-md text-xl font-medium text-primary">Ambil Momen Anda</h3><p className="text-xs text-on-surface-variant mt-1">Abadikan kebahagiaan hari ini secara langsung</p></div><div className="flex flex-col gap-4"><button onClick={() => router.push(`/welcome/${guestQrToken || ref}/camera`)} className="w-full bg-primary text-on-primary py-4 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] transition-all hover:bg-primary/90 active:scale-[0.99] shadow-sm flex items-center justify-center gap-2"><span className="material-symbols-outlined text-sm">photo_camera</span>Buka Kamera</button>{photoUrls.length > 0 && (<button onClick={() => router.push(`/welcome/${guestQrToken || ref}/gallery`)} className="w-full bg-surface-container-high text-primary py-3 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] border border-outline-variant/30 flex items-center justify-center gap-2 hover:bg-surface-container-highest transition-colors"><span className="material-symbols-outlined text-sm">photo_library</span>Lihat {photoUrls.length} Foto ({photoQuota ? `${photoQuota - photoUrls.length} sisa` : ""})</button>)}</div></section>
+        <section className="fade-in-up stagger-2 w-full bg-surface-container-low border border-outline-variant/40 rounded-xl p-6 shadow-sm"><div className="text-center mb-4"><h3 className="font-headline-md text-xl font-medium text-primary">Ambil Momen Anda</h3><p className="text-xs text-on-surface-variant mt-1">Abadikan kebahagiaan hari ini secara langsung</p></div><div className="flex flex-col gap-4"><button onClick={() => window.open(`/welcome/${guestQrToken || ref}/camera`, '_blank')} className="w-full bg-primary text-on-primary py-4 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] transition-all hover:bg-primary/90 active:scale-[0.99] shadow-sm flex items-center justify-center gap-2"><span className="material-symbols-outlined text-sm">photo_camera</span>Buka Kamera</button>{photoUrls.length > 0 && (<button onClick={() => router.push(`/welcome/${guestQrToken || ref}/gallery`)} className="w-full bg-surface-container-high text-primary py-3 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] border border-outline-variant/30 flex items-center justify-center gap-2 hover:bg-surface-container-highest transition-colors"><span className="material-symbols-outlined text-sm">photo_library</span>Lihat {photoUrls.length} Foto ({photoQuota ? `${photoQuota - photoUrls.length} sisa` : ""})</button>)}</div></section>
         <section className="fade-in-up stagger-3 w-full mt-8 bg-surface-container-low border border-outline-variant/40 rounded-xl p-6 shadow-sm">
           <div className="text-center mb-4">
             <h3 className="font-headline-md text-xl font-medium text-primary">Tulis Doa &amp; Harapan</h3>
@@ -212,8 +215,8 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
             <div className="absolute -bottom-2 -left-2 w-4 h-4 rounded-full bg-surface border-r border-outline-variant/40"></div>
             <div className="absolute -bottom-2 -right-2 w-4 h-4 rounded-full bg-surface border-l border-outline-variant/40"></div>
             <p className="font-label-md text-[10px] uppercase opacity-60 tracking-[0.2em] mb-1">Penempatan Meja</p>
-            <h2 className="font-headline-xl text-4xl font-bold tracking-tight my-1">{tableNumber || "—"}</h2>
-            {category && (
+            {loading ? (<div className="h-8 bg-white/20 rounded animate-pulse w-24 mx-auto" />) : (<h2 className="font-headline-xl text-4xl font-bold tracking-tight my-1">{tableNumber || "—"}</h2>)}
+            {!loading && category && (
               <span className="inline-block px-3 py-1 bg-on-primary/10 rounded-full text-xs font-medium tracking-wide italic opacity-95 mt-1 border border-on-primary/10">
                 {category}
               </span>
@@ -224,8 +227,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
             <div className="flex justify-between items-start mb-6">
               <div>
                 <span className="inline-block font-label-md text-[9px] bg-secondary/10 text-secondary px-2 py-0.5 rounded uppercase tracking-wider">E-Pass Access</span>
-                <h3 className="font-headline-md text-xl font-medium text-primary mt-2">{coupleName || "..."}</h3>
-                <p className="text-xs text-on-surface-variant/80 mt-0.5">{eventDate}</p>
+                {loading ? (<div className="mt-2 space-y-2"><div className="h-5 bg-surface-container-high rounded animate-pulse w-32" /><div className="h-3 bg-surface-container-high rounded animate-pulse w-24" /></div>) : (<><h3 className="font-headline-md text-xl font-medium text-primary mt-2">{coupleName || "..."}</h3><p className="text-xs text-on-surface-variant/80 mt-0.5">{eventDate}</p></>)}
               </div>
               <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-surface border border-outline-variant/30 text-on-surface-variant/70">
                 <span className="material-symbols-outlined text-xl" data-icon="qr_code_2">qr_code_2</span>
