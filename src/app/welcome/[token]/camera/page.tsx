@@ -48,7 +48,7 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
   const [taking, setTaking] = useState(false)
   const [zoom, setZoom] = useState("1×")
   const [loading, setLoading] = useState(true)
-  const zoomMap: Record<string, number> = { "0.5": 0.5, "1×": 1, "2": 2, "3": 3 }
+  const zoomMap: Record<string, number> = { "1×": 1, "2": 2, "3": 3 }
 
   useEffect(() => {
     ;(async () => {
@@ -79,6 +79,14 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
     document.body.style.overflow = ""
     document.documentElement.style.overflow = ""
   }, [])
+
+  useEffect(() => {
+    const track = streamRef.current?.getVideoTracks()[0] as any
+    if (!track || typeof track.getCapabilities !== "function") return
+    const caps = track.getCapabilities()
+    if (!caps.torch) return
+    track.applyConstraints({ advanced: [{ torch: flash } as any] }).catch(() => {})
+  }, [flash])
 
   const startCamera = async (mode: "environment" | "user") => {
     try {
@@ -154,6 +162,18 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
       ctx.fillStyle = "rgba(248,245,240,0.75)"
       ctx.font = `${Math.round(canvas.width * 0.022)}px 'Playfair Display', serif`
       ctx.fillText(endDate, canvas.width / 2, canvas.height - frameH * 0.22)
+      const pad = Math.round(canvas.width * 0.04)
+      const cs = Math.round(canvas.width * 0.06)
+      const bw = Math.max(2, Math.round(canvas.width * 0.006))
+      ctx.strokeStyle = "rgba(255,255,255,0.35)"
+      ctx.lineWidth = bw
+      ctx.lineCap = "round"
+      ctx.beginPath()
+      ctx.moveTo(pad, pad + cs); ctx.lineTo(pad, pad); ctx.lineTo(pad + cs, pad)
+      ctx.moveTo(canvas.width - pad - cs, pad); ctx.lineTo(canvas.width - pad, pad); ctx.lineTo(canvas.width - pad, pad + cs)
+      ctx.moveTo(pad, canvas.height - pad - cs); ctx.lineTo(pad, canvas.height - pad); ctx.lineTo(pad + cs, canvas.height - pad)
+      ctx.moveTo(canvas.width - pad - cs, canvas.height - pad); ctx.lineTo(canvas.width - pad, canvas.height - pad); ctx.lineTo(canvas.width - pad, canvas.height - pad - cs)
+      ctx.stroke()
       const blob = await new Promise<Blob | null>(res => canvas.toBlob(b => res(b), "image/jpeg", 0.85))
       if (!blob) return
       const file = new File([blob], `guest-${Date.now()}.jpg`, { type: "image/jpeg" })
@@ -211,7 +231,7 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
           </div>
         </div>
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 bg-charcoal-900/80 backdrop-blur-md rounded-full px-4 py-2 flex gap-4 items-center border border-gray-700 z-30" style={{ backgroundColor: "rgba(17,17,17,0.8)" }}>
-          {["0.5", "1×", "2", "3"].map(z => (
+          {["1×", "2", "3"].map(z => (
             <button key={z} onClick={() => setZoom(z)} className={zoom === z ? "bg-white text-black text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center" : "text-gray-300 text-sm font-medium hover:text-white transition-colors"}>{z}</button>
           ))}
         </div>
