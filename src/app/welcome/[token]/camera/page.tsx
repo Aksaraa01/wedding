@@ -100,18 +100,34 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
   useEffect(() => {
     const v = videoRef.current
     if (!v) return
-    const scale = zoomMap[zoom] || 1
-    v.style.transform = `scale(${scale})`
-    v.style.transformOrigin = "center"
-    v.style.transition = "transform 0.2s ease"
+    const target = zoomMap[zoom] || 1
     const track = streamRef.current?.getVideoTracks()[0] as any
+    let usedTrackZoom = false
     if (track && typeof track.getCapabilities === "function") {
       const caps = track.getCapabilities()
-      if (caps.zoom) {
-        const zoomVal = scale === 0.5 ? caps.zoom.min : scale === 1 ? caps.zoom.min + (caps.zoom.max - caps.zoom.min) * 0.25 : scale === 2 ? caps.zoom.min + (caps.zoom.max - caps.zoom.min) * 0.6 : caps.zoom.max
-        track.applyConstraints({ advanced: [{ zoom: zoomVal } as any] }).catch(() => {})
+      if (caps.zoom && typeof caps.zoom.min === "number" && typeof caps.zoom.max === "number") {
+        const min = caps.zoom.min, max = caps.zoom.max
+        if (target >= min && target <= max) {
+          track.applyConstraints({ advanced: [{ zoom: target } as any] }).catch(() => {})
+          usedTrackZoom = true
+          v.style.transform = "scale(1)"
+        } else if (target < min) {
+          const cssScale = target / min
+          v.style.transform = `scale(${cssScale})`
+          track.applyConstraints({ advanced: [{ zoom: min } as any] }).catch(() => {})
+        } else {
+          const clamped = Math.min(target, max)
+          track.applyConstraints({ advanced: [{ zoom: clamped } as any] }).catch(() => {})
+          usedTrackZoom = true
+          v.style.transform = "scale(1)"
+        }
       }
     }
+    if (!usedTrackZoom) {
+      v.style.transform = `scale(${target})`
+    }
+    v.style.transformOrigin = "center"
+    v.style.transition = "transform 0.2s ease"
   }, [zoom])
 
   const remaining = Math.max(0, photoQuota - photoCount)
