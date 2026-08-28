@@ -76,13 +76,8 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
   }, [token])
 
   useEffect(() => {
-    const prev = document.body.style.overflow
-    document.body.style.overflow = "hidden"
-    document.documentElement.style.overflow = "hidden"
-    return () => {
-      document.body.style.overflow = prev
-      document.documentElement.style.overflow = ""
-    }
+    document.body.style.overflow = ""
+    document.documentElement.style.overflow = ""
   }, [])
 
   const startCamera = async (mode: "environment" | "user") => {
@@ -154,7 +149,7 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
   }
 
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-between py-6 px-4 relative max-w-md mx-auto sm:border sm:border-gray-800" style={{ backgroundColor: "#1a0b1a", color: "#F8F5F0", overflow: "hidden" }}>
+    <div className="min-h-screen w-full flex flex-col items-center justify-between py-6 px-4 relative max-w-md mx-auto sm:border sm:border-gray-800" style={{ backgroundColor: "#1a0b1a", color: "#F8F5F0", overflow: "auto" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');`}</style>
       <header className="w-full flex justify-between items-center z-10 px-2">
         <div className="flex items-center gap-1">

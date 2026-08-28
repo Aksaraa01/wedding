@@ -5,7 +5,7 @@ function withSecurityHeaders(res: NextResponse) {
   res.headers.set("x-frame-options", "SAMEORIGIN")
   res.headers.set("x-content-type-options", "nosniff")
   res.headers.set("referrer-policy", "strict-origin-when-cross-origin")
-  res.headers.set("permissions-policy", "camera=(), microphone=(), geolocation=()")
+  res.headers.set("permissions-policy", "camera=(self), microphone=(self), geolocation=(self)")
   return res
 }
 
