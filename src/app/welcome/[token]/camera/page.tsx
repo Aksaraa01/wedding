@@ -224,7 +224,7 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
       </header>
 
       <main className="w-full flex-1 min-h-0 my-[1vh] relative flex justify-center items-center">
-        <div className="w-full h-full max-h-[52dvh] max-[375px]:max-h-[48dvh] aspect-[9/16] max-w-[min(100%,52dvh*0.5625)] mx-auto rounded-[clamp(1.5rem,8vw,3rem)] p-[clamp(4px,1.5vw,8px)] shadow-inner relative overflow-hidden flex items-center justify-center" style={{ backgroundColor: "#2d1b2d" }}>
+        <div className="w-[92vw] max-w-[380px] aspect-[9/16] max-h-[60dvh] rounded-[clamp(1.5rem,8vw,3rem)] p-[clamp(4px,1.5vw,8px)] shadow-inner relative overflow-hidden flex items-center justify-center shrink-0" style={{ backgroundColor: "#2d1b2d" }}>
           <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px)" }}></div>
           <div className="w-full h-full rounded-[clamp(1.5rem,6vw,2.5rem)] border-3 overflow-hidden relative z-10 flex items-center justify-center" style={{ borderColor: "#d8b4fe", backgroundColor: "#000" }}>
             <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
