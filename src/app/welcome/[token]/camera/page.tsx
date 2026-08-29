@@ -210,7 +210,7 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
   }
 
   return (
-    <div className="h-[90dvh] min-h-[90dvh] max-h-[90dvh] w-full flex flex-col items-center justify-between py-[2vh] px-4 relative max-w-md mx-auto sm:border sm:border-gray-800 overflow-hidden" style={{ backgroundColor: "#1a0b1a", color: "#F8F5F0" }}>
+    <div className="h-[100dvh] min-h-[100dvh] max-h-[100dvh] w-full flex flex-col items-center justify-between px-4 relative max-w-md mx-auto sm:border sm:border-gray-800 overflow-hidden" style={{ backgroundColor: "#1a0b1a", color: "#F8F5F0", paddingTop: "max(8px, env(safe-area-inset-top))", paddingBottom: "max(12px, env(safe-area-inset-bottom))", paddingLeft: "max(16px, env(safe-area-inset-left))", paddingRight: "max(16px, env(safe-area-inset-right))" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');`}</style>
       <header className="w-full flex justify-between items-center z-10 px-2 shrink-0" style={{ height: "clamp(32px,5vh,40px)" }}>
         <div className="flex items-center gap-1">
