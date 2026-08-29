@@ -177,14 +177,14 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
         <div className="fade-in-up flex flex-col items-center mb-6 text-center">
         </div>
         <div className="fade-in-up stagger-1 relative w-full max-w-md mx-auto mb-10 flex flex-col items-center">
-          <div className="relative w-64 h-64 flex items-center justify-center">
-            <img src="/frames/flower-frame.svg" alt="" className="absolute inset-0 w-full h-full object-contain pointer-events-none" style={{ transform: "scale(1.35)" }} />
+          <div className="relative w-72 h-72 flex items-center justify-center">
+            <img src="/frames/flower-frame.svg" alt="" className="absolute inset-0 w-full h-full object-contain pointer-events-none" style={{ transform: "scale(1.45)" }} />
             <div className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-surface-container-highest shadow-md bg-surface-container-lowest">
               {loading ? (<div className="w-full h-full bg-surface-container-high animate-pulse" />) : (<img alt="Couple Portrait" className="w-full h-full object-cover" src={coverPhoto || "https://lh3.googleusercontent.com/aida-public/AB6AXuDcGKEk1231DIWdPxURgnXaFu7WycwzYI6BO1vzC5DEPs8fd0KjYEAT3HboiQdmkesAUGXDkhOx-DaQfsNYSJ6tkrojC-CiBtnD0wgZaDTIsXAle9RIRy9HFArY9Q3sTGKq5-MYskkhK3aYfC7NTGLJReMzlv-k2ZYxk8xDAtd9GSRCF1B93coqUm-Kp6A96a86lcPA-Nz57OvfLyP8H-85fWzaJxoXbMcULuNdvDAW9bSDKbt7heKv"} />)}
             </div>
           </div>
-          <div className="relative mt-6 text-center w-full">
-            <img src="/frames/flower-frame.svg" alt="" className="absolute -top-8 left-1/2 -translate-x-1/2 w-[280px] h-[80px] object-contain pointer-events-none opacity-60" style={{ transform: "translateX(-50%) scaleY(-1)" }} />
+          <div className="relative mt-8 text-center w-full">
+            <img src="/frames/flower-frame.svg" alt="" className="absolute -top-8 left-1/2 -translate-x-1/2 w-[300px] h-[90px] object-contain pointer-events-none opacity-80" style={{ transform: "translateX(-50%) scaleY(-1)" }} />
             <h1 className="text-on-surface-variant font-body-md font-medium tracking-wide mb-1 relative z-10">Selamat Datang,</h1>
             {loading ? (<div className="h-8 bg-surface-container-high rounded animate-pulse w-48 mx-auto relative z-10" />) : (<p className="font-headline-lg text-3xl font-semibold text-primary px-2 relative z-10" style={{ fontFamily: "Cinzel, serif" }}>{guestName || "..."}</p>)}
           </div>
@@ -222,7 +222,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
           <div className="bg-primary text-on-primary p-6 flex flex-col items-center text-center relative">
             <div className="absolute -bottom-2 -left-2 w-4 h-4 rounded-full bg-surface border-r border-outline-variant/40"></div>
             <div className="absolute -bottom-2 -right-2 w-4 h-4 rounded-full bg-surface border-l border-outline-variant/40"></div>
-            <p className="font-label-md text-[10px] uppercase opacity-60 tracking-[0.2em] mb-1">Penempatan Meja</p>
+            <p className="font-label-md text-[10px] uppercase opacity-80 tracking-[0.2em] mb-1">Penempatan Meja</p>
             {loading ? (<div className="h-8 bg-white/20 rounded animate-pulse w-24 mx-auto" />) : (<h2 className="font-headline-xl text-4xl font-bold tracking-tight my-1">{tableNumber || "—"}</h2>)}
             {!loading && category && (
               <span className="inline-block px-3 py-1 bg-on-primary/10 rounded-full text-xs font-medium tracking-wide italic opacity-95 mt-1 border border-on-primary/10">
