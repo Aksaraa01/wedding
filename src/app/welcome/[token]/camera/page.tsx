@@ -210,7 +210,7 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
   }
 
   return (
-    <div className="h-[100dvh] min-h-[100dvh] max-h-[100dvh] w-full flex flex-col items-center justify-between px-4 relative max-w-md mx-auto sm:border sm:border-gray-800 overflow-hidden" style={{ backgroundColor: "#1a0b1a", color: "#F8F5F0", paddingTop: "max(8px, env(safe-area-inset-top))", paddingBottom: "max(12px, env(safe-area-inset-bottom))", paddingLeft: "max(16px, env(safe-area-inset-left))", paddingRight: "max(16px, env(safe-area-inset-right))" }}>
+    <div className="h-[100dvh] min-h-[100dvh] max-h-[100dvh] w-full flex flex-col items-center justify-between px-4 py-[1vh] relative max-w-md mx-auto sm:border sm:border-gray-800 overflow-hidden" style={{ backgroundColor: "#1a0b1a", color: "#F8F5F0", paddingTop: "max(8px, env(safe-area-inset-top))", paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');`}</style>
       <header className="w-full flex justify-between items-center z-10 px-2 shrink-0" style={{ height: "clamp(32px,5vh,40px)" }}>
         <div className="flex items-center gap-1">
@@ -223,8 +223,8 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
         <div className="w-8" />
       </header>
 
-      <main className="w-full flex-1 min-h-0 my-[1.5vh] relative flex justify-center items-center">
-        <div className="w-full h-full max-h-[44dvh] max-[375px]:max-h-[40dvh] rounded-[clamp(1.5rem,8vw,3rem)] p-[clamp(4px,1.5vw,8px)] shadow-inner relative overflow-hidden flex items-center justify-center" style={{ backgroundColor: "#2d1b2d" }}>
+      <main className="w-full flex-1 min-h-0 my-[1vh] relative flex justify-center items-center">
+        <div className="w-full h-full max-h-[52dvh] max-[375px]:max-h-[48dvh] aspect-[9/16] max-w-[min(100%,52dvh*0.5625)] mx-auto rounded-[clamp(1.5rem,8vw,3rem)] p-[clamp(4px,1.5vw,8px)] shadow-inner relative overflow-hidden flex items-center justify-center" style={{ backgroundColor: "#2d1b2d" }}>
           <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px)" }}></div>
           <div className="w-full h-full rounded-[clamp(1.5rem,6vw,2.5rem)] border-3 overflow-hidden relative z-10 flex items-center justify-center" style={{ borderColor: "#d8b4fe", backgroundColor: "#000" }}>
             <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
