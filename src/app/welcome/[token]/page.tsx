@@ -176,11 +176,19 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
       <main className={`w-full max-w-md mx-auto min-h-screen ${isModal ? "pt-6" : "pt-16"} pb-28 px-6 flex flex-col items-center`}>
         <div className="fade-in-up flex flex-col items-center mb-6 text-center">
         </div>
-        <div className="fade-in-up stagger-1 flex justify-center mb-8"><div className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-surface-container-highest shadow-md">{loading ? (<div className="w-full h-full bg-surface-container-high animate-pulse" />) : (<img alt="Couple Portrait" className="w-full h-full object-cover" src={coverPhoto || "https://lh3.googleusercontent.com/aida-public/AB6AXuDcGKEk1231DIWdPxURgnXaFu7WycwzYI6BO1vzC5DEPs8fd0KjYEAT3HboiQdmkesAUGXDkhOx-DaQfsNYSJ6tkrojC-CiBtnD0wgZaDTIsXAle9RIRy9HFArY9Q3sTGKq5-MYskkhK3aYfC7NTGLJReMzlv-k2ZYxk8xDAtd9GSRCF1B93coqUm-Kp6A96a86lcPA-Nz57OvfLyP8H-85fWzaJxoXbMcULuNdvDAW9bSDKbt7heKv"} />)}</div></div><div className="fade-in-up stagger-1 flex justify-center mb-8 -mt-4" style={{ fontFamily: "Cinzel, serif" }}></div>
-        <section className="fade-in-up stagger-1 text-center mb-8 w-full">
-          <h1 className="text-on-surface-variant font-body-md font-medium tracking-wide mb-1">Selamat Datang,</h1>
-          {loading ? (<div className="h-8 bg-surface-container-high rounded animate-pulse w-48 mx-auto" />) : (<p className="font-headline-lg text-3xl font-semibold text-primary px-2">{guestName || "..."}</p>)}
-        </section>
+        <div className="fade-in-up stagger-1 relative w-full max-w-md mx-auto mb-10 flex flex-col items-center">
+          <div className="relative w-64 h-64 flex items-center justify-center">
+            <img src="/frames/flower-frame.svg" alt="" className="absolute inset-0 w-full h-full object-contain pointer-events-none" style={{ transform: "scale(1.35)" }} />
+            <div className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-surface-container-highest shadow-md bg-surface-container-lowest">
+              {loading ? (<div className="w-full h-full bg-surface-container-high animate-pulse" />) : (<img alt="Couple Portrait" className="w-full h-full object-cover" src={coverPhoto || "https://lh3.googleusercontent.com/aida-public/AB6AXuDcGKEk1231DIWdPxURgnXaFu7WycwzYI6BO1vzC5DEPs8fd0KjYEAT3HboiQdmkesAUGXDkhOx-DaQfsNYSJ6tkrojC-CiBtnD0wgZaDTIsXAle9RIRy9HFArY9Q3sTGKq5-MYskkhK3aYfC7NTGLJReMzlv-k2ZYxk8xDAtd9GSRCF1B93coqUm-Kp6A96a86lcPA-Nz57OvfLyP8H-85fWzaJxoXbMcULuNdvDAW9bSDKbt7heKv"} />)}
+            </div>
+          </div>
+          <div className="relative mt-6 text-center w-full">
+            <img src="/frames/flower-frame.svg" alt="" className="absolute -top-8 left-1/2 -translate-x-1/2 w-[280px] h-[80px] object-contain pointer-events-none opacity-60" style={{ transform: "translateX(-50%) scaleY(-1)" }} />
+            <h1 className="text-on-surface-variant font-body-md font-medium tracking-wide mb-1 relative z-10">Selamat Datang,</h1>
+            {loading ? (<div className="h-8 bg-surface-container-high rounded animate-pulse w-48 mx-auto relative z-10" />) : (<p className="font-headline-lg text-3xl font-semibold text-primary px-2 relative z-10" style={{ fontFamily: "Cinzel, serif" }}>{guestName || "..."}</p>)}
+          </div>
+        </div>
 
         <section className="fade-in-up stagger-2 w-full bg-surface-container-low border border-outline-variant/40 rounded-xl p-6 shadow-sm"><div className="text-center mb-4"><h3 className="font-headline-md text-xl font-medium text-primary">Ambil Momen Anda</h3><p className="text-xs text-on-surface-variant mt-1">Abadikan kebahagiaan hari ini secara langsung</p></div><div className="flex flex-col gap-4"><button onClick={() => window.open(`/welcome/${guestQrToken || ref}/camera`, '_blank')} className="w-full bg-primary text-on-primary py-4 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] transition-all hover:bg-primary/90 active:scale-[0.99] shadow-sm flex items-center justify-center gap-2"><span className="material-symbols-outlined text-sm">photo_camera</span>Buka Kamera</button>{photoUrls.length > 0 && (<button onClick={() => router.push(`/welcome/${guestQrToken || ref}/gallery`)} className="w-full bg-surface-container-high text-primary py-3 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] border border-outline-variant/30 flex items-center justify-center gap-2 hover:bg-surface-container-highest transition-colors"><span className="material-symbols-outlined text-sm">photo_library</span>Lihat {photoUrls.length} Foto ({photoQuota ? `${photoQuota - photoUrls.length} sisa` : ""})</button>)}</div></section>
         <section className="fade-in-up stagger-3 w-full mt-8 bg-surface-container-low border border-outline-variant/40 rounded-xl p-6 shadow-sm">
