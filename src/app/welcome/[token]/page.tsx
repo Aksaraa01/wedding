@@ -165,15 +165,15 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
     <div className="min-h-screen bg-surface text-on-surface font-body-md antialiased selection:bg-secondary-container selection:text-on-secondary-container">
       {!isModal && (
         <header className="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-md border-b border-outline-variant/40 transition-all">
-          <div className="max-w-md mx-auto h-12 px-4 flex justify-between items-center">
-            <div className="flex items-center justify-center h-full gap-1.5"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkNsI8ARUxXMRsspTqckKt3R3wPWKH4nQzAjvSSX8XOIG7Badtf4nTCEdbZJIhZmgtB1bKaCEO9_NxYhXtN5AMHZNGI7Ikd_ibUg1asX8ibbzaiFsziJQC5DEWFiocAMge6wnm9slHrN4gmweAOL3YOWxdyDfeGOh5Ceh45X8gMvsUG7agAqs4Uc_Fgm-Ehh0OzHsWlujNeeKEniXpVVDvp4tEzQNOzHeaHoH59FJMh3JJNI10BedKz2aoMiiDxfMhRg" alt="Aksara Logo" className="h-8 w-auto object-contain" /><span className="font-headline-md text-lg tracking-wider text-primary">Aksaraa</span></div>
+          <div className="max-w-md mx-auto h-10 px-4 flex justify-between items-center">
+            <div className="flex items-center justify-center h-full gap-1"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkNsI8ARUxXMRsspTqckKt3R3wPWKH4nQzAjvSSX8XOIG7Badtf4nTCEdbZJIhZmgtB1bKaCEO9_NxYhXtN5AMHZNGI7Ikd_ibUg1asX8ibbzaiFsziJQC5DEWFiocAMge6wnm9slHrN4gmweAOL3YOWxdyDfeGOh5Ceh45X8gMvsUG7agAqs4Uc_Fgm-Ehh0OzHsWlujNeeKEniXpVVDvp4tEzQNOzHeaHoH59FJMh3JJNI10BedKz2aoMiiDxfMhRg" alt="Aksara Logo" className="h-7 w-auto object-contain" /><span className="font-headline-md text-base tracking-wider text-primary">Aksaraa</span></div>
             <button aria-label="Profil Akun" className="w-8 h-8 flex items-center justify-end text-primary active:scale-95 transition-transform">
             </button>
           </div>
         </header>
       )}
 
-      <main className={`w-full max-w-md mx-auto min-h-screen ${isModal ? "pt-6" : "pt-16"} pb-28 px-6 flex flex-col items-center`}>
+      <main className={`w-full max-w-md mx-auto min-h-screen ${isModal ? "pt-6" : "pt-12"} pb-28 px-6 flex flex-col items-center`}>
         <div className="fade-in-up flex flex-col items-center mb-6 text-center">
         </div>
         <section className="relative w-full aspect-square max-w-md mx-auto mb-6 flex flex-col items-center justify-center">
