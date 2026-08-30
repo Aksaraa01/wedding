@@ -149,11 +149,23 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
     try {
       const video = videoRef.current
       const canvas = canvasRef.current
-      canvas.width = video.videoWidth || 1280
-      canvas.height = video.videoHeight || 720
+      const vw = video.videoWidth || 1280
+      const vh = video.videoHeight || 720
+      const targetAspect = 9 / 16
+      const videoAspect = vw / vh
+      let sx = 0, sy = 0, sw = vw, sh = vh
+      if (videoAspect > targetAspect) {
+        sw = Math.round(vh * targetAspect)
+        sx = Math.round((vw - sw) / 2)
+      } else {
+        sh = Math.round(vw / targetAspect)
+        sy = Math.round((vh - sh) / 2)
+      }
+      canvas.width = 720
+      canvas.height = 1280
       const ctx = canvas.getContext("2d")
       if (!ctx) return
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+      ctx.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height)
       const frameH = Math.round(canvas.height * 0.12)
       ctx.fillStyle = "rgba(0,0,0,0.35)"
       ctx.fillRect(0, canvas.height - frameH, canvas.width, frameH)
