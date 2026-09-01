@@ -177,7 +177,7 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
       ctx.font = `${Math.round(canvas.width * 0.022)}px 'Playfair Display', serif`
       ctx.fillText(endDate, canvas.width / 2, canvas.height - frameH * 0.22)
       const flowerImg = new Image()
-      flowerImg.src = "/frames/flower-corner.png"
+      flowerImg.src = "https://wedding.aksaraa.com/frames/flower-corner.png"
       await new Promise<void>(res => { if (flowerImg.complete) res(); else { flowerImg.onload = () => res(); flowerImg.onerror = () => res() } })
       const fSize = Math.round(canvas.width * 0.18)
       const fPad = Math.round(canvas.width * 0.02)
@@ -234,16 +234,16 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
             <canvas ref={canvasRef} className="hidden" />
             <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-2 z-20">
               <div className="flex justify-between -m-3">
-                <img src="/frames/flower-corner.png" alt="" className="w-24 h-24 object-contain" />
-                <img src="/frames/flower-corner.png" alt="" className="w-24 h-24 object-contain" style={{ transform: "scaleX(-1)" }} />
+                <img src="https://wedding.aksaraa.com/frames/flower-corner.png" alt="" className="w-24 h-24 object-contain" />
+                <img src="https://wedding.aksaraa.com/frames/flower-corner.png" alt="" className="w-24 h-24 object-contain" style={{ transform: "scaleX(-1)" }} />
               </div>
               <div className="flex flex-col items-center gap-1 mb-12">
                 <div className="font-serif text-white/90 text-base tracking-widest uppercase" style={{ fontFamily: "Playfair Display" }}>{coupleName}</div>
                 <div className="font-serif text-white/80 text-[10px] tracking-widest">{endDate}</div>
               </div>
               <div className="flex justify-between -m-3">
-                <img src="/frames/flower-corner.png" alt="" className="w-24 h-24 object-contain" style={{ transform: "scaleY(-1)" }} />
-                <img src="/frames/flower-corner.png" alt="" className="w-24 h-24 object-contain" style={{ transform: "scale(-1)" }} />
+                <img src="https://wedding.aksaraa.com/frames/flower-corner.png" alt="" className="w-24 h-24 object-contain" style={{ transform: "scaleY(-1)" }} />
+                <img src="https://wedding.aksaraa.com/frames/flower-corner.png" alt="" className="w-24 h-24 object-contain" style={{ transform: "scale(-1)" }} />
               </div>
             </div>
           </div>
