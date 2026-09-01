@@ -237,13 +237,12 @@ const zoomMap: Record<string, number> = { "1×": 1, "2": 2, "3": 3 }
           <div className="w-full h-full rounded-[clamp(1.5rem,6vw,2.5rem)] border-3 overflow-hidden relative z-10 flex items-center justify-center" style={{ borderColor: "#d8b4fe", backgroundColor: "#000" }}>
             <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" style={{ transform: "scale(1)", objectPosition: "center" }} />
             <canvas ref={canvasRef} className="hidden" />
-            <div className="absolute inset-0 pointer-events-none z-20 flex flex-col p-2">
-              <div className="flex justify-between">
-                <img src={FLOWER_DATA} alt="" className="w-24 h-24 object-contain" />
-                <img src={FLOWER_DATA} alt="" className="w-24 h-24 object-contain" style={{ transform: "scaleX(-1)" }} />
-              </div>
-              <div className="flex-1" />
-              <div className="flex flex-col items-center gap-1 pb-[92px]">
+            <div className="absolute inset-0 pointer-events-none z-20">
+              <img src={FLOWER_DATA} alt="" className="absolute top-0 left-0 w-20 h-20 object-contain" />
+              <img src={FLOWER_DATA} alt="" className="absolute top-0 right-0 w-20 h-20 object-contain" style={{ transform: "scaleX(-1)" }} />
+              <img src={FLOWER_DATA} alt="" className="absolute bottom-0 left-0 w-20 h-20 object-contain" style={{ transform: "scaleY(-1)" }} />
+              <img src={FLOWER_DATA} alt="" className="absolute bottom-0 right-0 w-20 h-20 object-contain" style={{ transform: "scale(-1,-1)" }} />
+              <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center gap-0.5 pb-5">
                 {loading ? (
                   <>
                     <div className="h-4 w-36 bg-white/10 rounded animate-pulse" />
@@ -251,19 +250,15 @@ const zoomMap: Record<string, number> = { "1×": 1, "2": 2, "3": 3 }
                   </>
                 ) : (
                   <>
-                    <div className="font-serif text-white/90 text-base tracking-widest uppercase" style={{ fontFamily: "Playfair Display" }}>{coupleName}</div>
-                    <div className="font-serif text-white/80 text-[10px] tracking-widest">{endDate}</div>
+                    <div className="font-serif text-white text-lg tracking-widest uppercase" style={{ fontFamily: "Playfair Display" }}>{coupleName}</div>
+                    <div className="font-serif text-white/85 text-[11px] tracking-widest">{endDate}</div>
                   </>
                 )}
-              </div>
-              <div className="flex justify-between">
-                <img src={FLOWER_DATA} alt="" className="w-24 h-24 object-contain" style={{ transform: "scaleY(-1)" }} />
-                <img src={FLOWER_DATA} alt="" className="w-24 h-24 object-contain" style={{ transform: "scale(-1,-1)" }} />
               </div>
             </div>
           </div>
         </div>
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 bg-charcoal-900/80 backdrop-blur-md rounded-full px-4 py-2 flex gap-4 items-center border border-gray-700 z-30" style={{ backgroundColor: "rgba(17,17,17,0.8)" }}>
+        <div className="absolute bottom-[120px] left-1/2 -translate-x-1/2 bg-charcoal-900/80 backdrop-blur-md rounded-full px-4 py-2 flex gap-4 items-center border border-gray-700 z-30" style={{ backgroundColor: "rgba(17,17,17,0.8)" }}>
           {["1×", "2", "3"].map(z => (
             <button key={z} onClick={() => setZoom(z)} className={zoom === z ? "bg-white text-black text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center" : "text-gray-300 text-sm font-medium hover:text-white transition-colors"}>{z}</button>
           ))}
