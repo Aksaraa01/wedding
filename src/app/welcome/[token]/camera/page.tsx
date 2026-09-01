@@ -231,22 +231,22 @@ const zoomMap: Record<string, number> = { "1×": 1, "2": 2, "3": 3 }
       </header>
 
       <main className="w-full flex-1 min-h-0 my-[1vh] relative flex justify-center items-center">
-        <div className="w-[92vw] max-w-[380px] aspect-[9/16] max-h-[60dvh] rounded-[clamp(1.5rem,8vw,3rem)] p-[clamp(4px,1.5vw,8px)] shadow-inner relative overflow-hidden flex items-center justify-center shrink-0" style={{ backgroundColor: "#2d1b2d" }}>
+        <div className="w-[92vw] max-w-[380px] max-h-[64dvh] rounded-[clamp(1.5rem,8vw,3rem)] p-[clamp(4px,1.5vw,8px)] shadow-inner relative overflow-hidden flex items-center justify-center shrink-0" style={{ backgroundColor: "#2d1b2d" }}>
           <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px)" }}></div>
           <div className="w-full h-full rounded-[clamp(1.5rem,6vw,2.5rem)] border-3 overflow-hidden relative z-10 flex items-center justify-center" style={{ borderColor: "#d8b4fe", backgroundColor: "#000" }}>
-            <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+            <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" style={{ transform: "scale(1)", objectPosition: "center" }} />
             <canvas ref={canvasRef} className="hidden" />
-            <div className="absolute inset-0 pointer-events-none z-20">
-              <div className="absolute top-0 left-0">
+            <div className="absolute inset-0 pointer-events-none z-20 flex flex-col justify-between p-2">
+              <div className="flex justify-between">
                 <img src={FLOWER_DATA} alt="" className="w-24 h-24 object-contain" />
-              </div>
-              <div className="absolute top-0 right-0">
                 <img src={FLOWER_DATA} alt="" className="w-24 h-24 object-contain" style={{ transform: "scaleX(-1)" }} />
               </div>
-              <div className="absolute bottom-0 left-0">
-                <img src={FLOWER_DATA} alt="" className="w-24 h-24 object-contain" style={{ transform: "scaleY(-1)" }} />
+              <div className="flex flex-col items-center gap-1">
+                <div className="font-serif text-white/90 text-base tracking-widest uppercase" style={{ fontFamily: "Playfair Display" }}>{coupleName}</div>
+                <div className="font-serif text-white/80 text-[10px] tracking-widest">{endDate}</div>
               </div>
-              <div className="absolute bottom-0 right-0">
+              <div className="flex justify-between">
+                <img src={FLOWER_DATA} alt="" className="w-24 h-24 object-contain" style={{ transform: "scaleY(-1)" }} />
                 <img src={FLOWER_DATA} alt="" className="w-24 h-24 object-contain" style={{ transform: "scale(-1)" }} />
               </div>
             </div>

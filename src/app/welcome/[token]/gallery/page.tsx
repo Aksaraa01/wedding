@@ -85,13 +85,13 @@ export default function GalleryPage({ params }: { params: Promise<{ token: strin
         {loading ? (
           <section className="grid grid-cols-2 gap-4">
             {[1,2,3,4].map(i => (
-              <div key={i} className="aspect-[3/4] rounded-[24px] overflow-hidden border border-[#2a2a2a] bg-white/5 animate-pulse" />
+              <div key={i} className="aspect-[9/16] rounded-[24px] overflow-hidden border border-[#2a2a2a] bg-white/5 animate-pulse" />
             ))}
           </section>
         ) : (
           <section className="grid grid-cols-2 gap-4">
             {filtered.map(p => (
-              <div key={p.id} onClick={() => setSelected(p)} className="aspect-[3/4] rounded-[24px] overflow-hidden relative group border border-[#2a2a2a] cursor-pointer active:scale-[0.98] transition-transform">
+              <div key={p.id} onClick={() => setSelected(p)} className="aspect-[9/16] rounded-[24px] overflow-hidden relative group border border-[#2a2a2a] cursor-pointer active:scale-[0.98] transition-transform">
                 <img className="w-full h-full object-cover" src={p.image_url} alt="Momen" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-100"></div>
                 <div className="absolute bottom-4 right-4 date-stamp text-sm" style={{ fontFamily: "'Courier New', monospace", fontWeight: "bold", color: "#d1b89a", letterSpacing: "0.1em", textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>{formatStamp(p.created_at)}</div>
