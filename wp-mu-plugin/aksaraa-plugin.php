@@ -441,6 +441,19 @@ class AksaraaPlugin
             self::regen_elementor_css($new_popup_id);
         }
 
+        // Clear Elementor render caches for the duplicated post + popups. The
+        // master's cached HTML/CSS references the master's element IDs and width
+        // settings (e.g. 100vw full-screen popup); serving the copied cache would
+        // render the popup at the wrong size (left half-screen) until the next
+        // lazy regeneration. Rebuilding on next frontend visit applies the real
+        // page_settings (width vw 100) for each duplicate.
+        global $wpdb;
+        foreach (array_merge([$new_id], array_values($popup_map)) as $cache_post_id) {
+            foreach (['_elementor_css', '_elementor_element_cache', '_elementor_page_assets'] as $cache_key) {
+                $wpdb->delete($wpdb->postmeta, ['post_id' => $cache_post_id, 'meta_key' => $cache_key]);
+            }
+        }
+
         return [
             'post_id' => $new_id,
             'post_url' => get_permalink($new_id),
