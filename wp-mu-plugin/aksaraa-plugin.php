@@ -1253,8 +1253,10 @@ class AksaraaPlugin
             }
         }
         if (!$probeId) return [$elements, $manifest];
-        $containerId = self::find_element_parent_id($elements, (string) $probeId);
-        if (!$containerId) return [$elements, $manifest];
+        $innerId = self::find_element_parent_id($elements, (string) $probeId);
+        if (!$innerId) return [$elements, $manifest];
+        $outerId = self::find_element_parent_id($elements, $innerId);
+        $containerId = $outerId ?: $innerId;
 
         $desired = 0;
         if (isset($fields['sessions']) && is_array($fields['sessions'])) {

@@ -521,11 +521,9 @@ function EditorInner({ id }: { id: string }) {
   const galleryMax = photoQuota == null ? null : Math.max(0, photoQuota - coverPhotoCount - groomPhotoCount - bridePhotoCount)
   const canAddGallery = galleryMax == null || galleryPhotos.length < galleryMax
 
-  // Number of cover slots the template expects (from the /ops mapping). Falls back
-  // to the couple's current cover count for legacy templates without a manifest.
   const coverSlotCount = Array.isArray(template?.wp_manifest?.cover_photos)
     ? template.wp_manifest.cover_photos.length
-    : (Array.isArray(data.cover_photos) ? data.cover_photos.length : 0)
+    : 0
   const coverSlots = Array.from({ length: coverSlotCount })
 
   // Whether a field maps to a background slideshow (which needs 2 photos/slides).
@@ -1061,7 +1059,7 @@ function EditorInner({ id }: { id: string }) {
                     <p className="text-[11px] text-on-surface-variant italic">
                       {coverSlotCount > 0
                         ? `${coverSlotCount} slot foto sampul tersedia pada template. Isi setiap slot untuk mengganti foto.`
-                        : "Unggah satu atau lebih foto sampul."}
+                        : "Pilih template lain dengan foto sampul"}
                     </p>
                     <div className="grid grid-cols-2 gap-3">
                       {coverSlots.map((_, i) => {
