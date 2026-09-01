@@ -237,13 +237,13 @@ const zoomMap: Record<string, number> = { "1×": 1, "2": 2, "3": 3 }
           <div className="w-full h-full rounded-[clamp(1.5rem,6vw,2.5rem)] border-3 overflow-hidden relative z-10 flex items-center justify-center" style={{ borderColor: "#d8b4fe", backgroundColor: "#000" }}>
             <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" style={{ transform: "scale(1)", objectPosition: "center" }} />
             <canvas ref={canvasRef} className="hidden" />
-            <div className="absolute inset-0 pointer-events-none z-20 flex flex-col justify-between p-2">
+            <div className="absolute inset-0 pointer-events-none z-20 flex flex-col p-2">
               <div className="flex justify-between">
                 <img src={FLOWER_DATA} alt="" className="w-24 h-24 object-contain" />
                 <img src={FLOWER_DATA} alt="" className="w-24 h-24 object-contain" style={{ transform: "scaleX(-1)" }} />
               </div>
-              <div />
-              <div className="flex flex-col items-center gap-1 mb-1">
+              <div className="flex-1" />
+              <div className="flex flex-col items-center gap-1 pb-[92px]">
                 {loading ? (
                   <>
                     <div className="h-4 w-36 bg-white/10 rounded animate-pulse" />
