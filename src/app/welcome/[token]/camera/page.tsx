@@ -176,31 +176,22 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
       ctx.fillStyle = "rgba(248,245,240,0.75)"
       ctx.font = `${Math.round(canvas.width * 0.022)}px 'Playfair Display', serif`
       ctx.fillText(endDate, canvas.width / 2, canvas.height - frameH * 0.22)
-      const pad = Math.round(canvas.width * 0.04)
-      const cs = Math.round(canvas.width * 0.06)
-      const bw = Math.max(2, Math.round(canvas.width * 0.006))
-      const r = Math.round(cs * 0.35)
-      ctx.strokeStyle = "rgba(255,255,255,0.35)"
-      ctx.lineWidth = bw
-      ctx.lineCap = "round"
-      ctx.lineJoin = "round"
-      const drawCorner = (x: number, y: number, horiz: number, vert: number) => {
-        ctx.beginPath()
-        if (horiz === 1 && vert === 1) {
-          ctx.moveTo(x, y + r); ctx.arcTo(x, y, x + r, y, r); ctx.lineTo(x + cs - r, y); ctx.moveTo(x, y + r); ctx.lineTo(x, y + cs - r)
-        } else if (horiz === -1 && vert === 1) {
-          ctx.moveTo(x, y + r); ctx.arcTo(x, y, x - r, y, r); ctx.lineTo(x - cs + r, y); ctx.moveTo(x, y + r); ctx.lineTo(x, y + cs - r)
-        } else if (horiz === 1 && vert === -1) {
-          ctx.moveTo(x, y - r); ctx.arcTo(x, y, x + r, y, r); ctx.lineTo(x + cs - r, y); ctx.moveTo(x, y - r); ctx.lineTo(x, y - cs + r)
-        } else {
-          ctx.moveTo(x, y - r); ctx.arcTo(x, y, x - r, y, r); ctx.lineTo(x - cs + r, y); ctx.moveTo(x, y - r); ctx.lineTo(x, y - cs + r)
-        }
-        ctx.stroke()
+      const flowerImg = new Image()
+      flowerImg.src = "/frames/flower-corner.png"
+      await new Promise<void>(res => { if (flowerImg.complete) res(); else { flowerImg.onload = () => res(); flowerImg.onerror = () => res() } })
+      const fSize = Math.round(canvas.width * 0.18)
+      const fPad = Math.round(canvas.width * 0.02)
+      const drawFlower = (x: number, y: number, rot: number) => {
+        ctx.save()
+        ctx.translate(x, y)
+        ctx.rotate((rot * Math.PI) / 180)
+        ctx.drawImage(flowerImg, -fSize / 2, -fSize / 2, fSize, fSize)
+        ctx.restore()
       }
-      drawCorner(pad, pad, 1, 1)
-      drawCorner(canvas.width - pad, pad, -1, 1)
-      drawCorner(pad, canvas.height - pad, 1, -1)
-      drawCorner(canvas.width - pad, canvas.height - pad, -1, -1)
+      drawFlower(fPad + fSize / 2, fPad + fSize / 2, 0)
+      drawFlower(canvas.width - fPad - fSize / 2, fPad + fSize / 2, 90)
+      drawFlower(fPad + fSize / 2, canvas.height - fPad - fSize / 2, -90)
+      drawFlower(canvas.width - fPad - fSize / 2, canvas.height - fPad - fSize / 2, 180)
       const blob = await new Promise<Blob | null>(res => canvas.toBlob(b => res(b), "image/jpeg", 0.85))
       if (!blob) return
       const file = new File([blob], `guest-${Date.now()}.jpg`, { type: "image/jpeg" })
@@ -241,17 +232,17 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
           <div className="w-full h-full rounded-[clamp(1.5rem,6vw,2.5rem)] border-3 overflow-hidden relative z-10 flex items-center justify-center" style={{ borderColor: "#d8b4fe", backgroundColor: "#000" }}>
             <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
             <canvas ref={canvasRef} className="hidden" />
-            <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-6 z-20">
+            <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-4 z-20">
               <div className="flex justify-between">
-                <div className="w-8 h-8 border-t border-l border-white/30 rounded-tl-lg"></div>
-                <div className="w-8 h-8 border-t border-r border-white/30 rounded-tr-lg"></div>
+                <img src="/frames/flower-corner.png" alt="" className="w-14 h-14 object-contain" />
+                <img src="/frames/flower-corner.png" alt="" className="w-14 h-14 object-contain" style={{ transform: "scaleX(-1)" }} />
               </div>
-              <div className="flex flex-col items-center gap-2">
-                <div className="font-serif text-white/70 text-lg tracking-widest uppercase" style={{ fontFamily: "Playfair Display" }}>{coupleName}</div>
-                <div className="font-serif text-white/70 text-xs tracking-widest">{endDate}</div>
+              <div className="flex flex-col items-center gap-1">
+                <div className="font-serif text-white/80 text-base tracking-widest uppercase" style={{ fontFamily: "Playfair Display" }}>{coupleName}</div>
+                <div className="font-serif text-white/70 text-[10px] tracking-widest">{endDate}</div>
                 <div className="flex justify-between w-full mt-1">
-                  <div className="w-8 h-8 border-b border-l border-white/30 rounded-bl-lg"></div>
-                  <div className="w-8 h-8 border-b border-r border-white/30 rounded-br-lg"></div>
+                  <img src="/frames/flower-corner.png" alt="" className="w-14 h-14 object-contain" style={{ transform: "scaleY(-1)" }} />
+                  <img src="/frames/flower-corner.png" alt="" className="w-14 h-14 object-contain" style={{ transform: "scale(-1)" }} />
                 </div>
               </div>
             </div>
@@ -282,8 +273,8 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
           <button aria-label="Take photo" onClick={handleTake} disabled={taking || remaining <= 0} className="w-[clamp(64px,18vw,96px)] h-[clamp(64px,18vw,96px)] rounded-full border-4 border-gray-700 p-1 flex items-center justify-center active:scale-95 transition-transform disabled:opacity-50 shrink-0">
             <div className="w-full h-full rounded-full" style={{ backgroundColor: taking ? "#4b2c4b" : "#8b5cf6" }}></div>
           </button>
-          <button onClick={() => router.push(`/welcome/${token}/gallery`)} className="w-[clamp(48px,16vw,80px)] h-[clamp(48px,16vw,80px)] rounded-[1.5rem] border flex items-center justify-center text-gray-300 hover:bg-gray-700 transition-colors shrink-0" style={{ backgroundColor: "#2d1b2d", borderColor: "#4b2c4b" }}>
-            <span className="material-symbols-outlined text-[22px] sm:text-[28px]">photo_library</span>
+          <button onClick={() => router.push(`/welcome/${token}/gallery`)} aria-label="Buka Galeri" className="w-[clamp(48px,16vw,80px)] h-[clamp(48px,16vw,80px)] rounded-[1.5rem] border flex items-center justify-center text-gray-300 hover:bg-gray-700 transition-colors shrink-0" style={{ backgroundColor: "#2d1b2d", borderColor: "#4b2c4b" }}>
+            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm0 4v10h14V7H5Zm3 3 1.5 2-2.5 3H17l-3-4-2 2.5-1-1-1.5 2H8Z"/></svg>
           </button>
         </div>
       </footer>
