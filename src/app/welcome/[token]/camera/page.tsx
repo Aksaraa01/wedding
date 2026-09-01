@@ -232,18 +232,18 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
           <div className="w-full h-full rounded-[clamp(1.5rem,6vw,2.5rem)] border-3 overflow-hidden relative z-10 flex items-center justify-center" style={{ borderColor: "#d8b4fe", backgroundColor: "#000" }}>
             <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
             <canvas ref={canvasRef} className="hidden" />
-            <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-4 z-20">
-              <div className="flex justify-between">
-                <img src="/frames/flower-corner.png" alt="" className="w-14 h-14 object-contain" />
-                <img src="/frames/flower-corner.png" alt="" className="w-14 h-14 object-contain" style={{ transform: "scaleX(-1)" }} />
+            <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-2 z-20">
+              <div className="flex justify-between -m-3">
+                <img src="/frames/flower-corner.png" alt="" className="w-24 h-24 object-contain" />
+                <img src="/frames/flower-corner.png" alt="" className="w-24 h-24 object-contain" style={{ transform: "scaleX(-1)" }} />
               </div>
-              <div className="flex flex-col items-center gap-1">
-                <div className="font-serif text-white/80 text-base tracking-widest uppercase" style={{ fontFamily: "Playfair Display" }}>{coupleName}</div>
-                <div className="font-serif text-white/70 text-[10px] tracking-widest">{endDate}</div>
-                <div className="flex justify-between w-full mt-1">
-                  <img src="/frames/flower-corner.png" alt="" className="w-14 h-14 object-contain" style={{ transform: "scaleY(-1)" }} />
-                  <img src="/frames/flower-corner.png" alt="" className="w-14 h-14 object-contain" style={{ transform: "scale(-1)" }} />
-                </div>
+              <div className="flex flex-col items-center gap-1 mb-12">
+                <div className="font-serif text-white/90 text-base tracking-widest uppercase" style={{ fontFamily: "Playfair Display" }}>{coupleName}</div>
+                <div className="font-serif text-white/80 text-[10px] tracking-widest">{endDate}</div>
+              </div>
+              <div className="flex justify-between -m-3">
+                <img src="/frames/flower-corner.png" alt="" className="w-24 h-24 object-contain" style={{ transform: "scaleY(-1)" }} />
+                <img src="/frames/flower-corner.png" alt="" className="w-24 h-24 object-contain" style={{ transform: "scale(-1)" }} />
               </div>
             </div>
           </div>
