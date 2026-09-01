@@ -37,7 +37,7 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
 
-  const [coupleName, setCoupleName] = useState("Dimas & Kirana")
+  const [coupleName, setCoupleName] = useState("")
   const [endDate, setEndDate] = useState("")
   const [guestId, setGuestId] = useState("")
   const [weddingProfileId, setWeddingProfileId] = useState("")
@@ -181,20 +181,21 @@ const zoomMap: Record<string, number> = { "1×": 1, "2": 2, "3": 3 }
       const flowerImg = new Image()
       flowerImg.src = FLOWER_DATA
       await new Promise<void>(res => { if (flowerImg.complete) res(); else { flowerImg.onload = () => res(); flowerImg.onerror = () => res() } })
-      const fSize = Math.round(canvas.width * 0.18)
+      const fSize = Math.round(canvas.width * 0.22)
       const fPad = Math.round(canvas.width * 0.02)
       if (flowerImg.width > 0) {
-        const drawFlower = (x: number, y: number, rot: number) => {
+        const drawFlower = (x: number, y: number, flipX: boolean, flipY: boolean) => {
           ctx.save()
           ctx.translate(x, y)
-          ctx.rotate((rot * Math.PI) / 180)
+          if (flipX) ctx.scale(-1, 1)
+          if (flipY) ctx.scale(1, -1)
           ctx.drawImage(flowerImg, -fSize / 2, -fSize / 2, fSize, fSize)
           ctx.restore()
         }
-        drawFlower(fPad + fSize / 2, fPad + fSize / 2, 0)
-        drawFlower(canvas.width - fPad - fSize / 2, fPad + fSize / 2, 270)
-        drawFlower(fPad + fSize / 2, canvas.height - fPad - fSize / 2, 90)
-        drawFlower(canvas.width - fPad - fSize / 2, canvas.height - fPad - fSize / 2, 180)
+        drawFlower(fPad + fSize / 2, fPad + fSize / 2, false, false)
+        drawFlower(canvas.width - fPad - fSize / 2, fPad + fSize / 2, true, false)
+        drawFlower(fPad + fSize / 2, canvas.height - fPad - fSize / 2, false, true)
+        drawFlower(canvas.width - fPad - fSize / 2, canvas.height - fPad - fSize / 2, true, true)
       }
       const blob = await new Promise<Blob | null>(res => canvas.toBlob(b => res(b), "image/jpeg", 0.85))
       if (!blob) return
@@ -241,13 +242,23 @@ const zoomMap: Record<string, number> = { "1×": 1, "2": 2, "3": 3 }
                 <img src={FLOWER_DATA} alt="" className="w-24 h-24 object-contain" />
                 <img src={FLOWER_DATA} alt="" className="w-24 h-24 object-contain" style={{ transform: "scaleX(-1)" }} />
               </div>
-              <div className="flex flex-col items-center gap-1">
-                <div className="font-serif text-white/90 text-base tracking-widest uppercase" style={{ fontFamily: "Playfair Display" }}>{coupleName}</div>
-                <div className="font-serif text-white/80 text-[10px] tracking-widest">{endDate}</div>
+              <div />
+              <div className="flex flex-col items-center gap-1 mb-1">
+                {loading ? (
+                  <>
+                    <div className="h-4 w-36 bg-white/10 rounded animate-pulse" />
+                    <div className="h-3 w-24 bg-white/10 rounded animate-pulse" />
+                  </>
+                ) : (
+                  <>
+                    <div className="font-serif text-white/90 text-base tracking-widest uppercase" style={{ fontFamily: "Playfair Display" }}>{coupleName}</div>
+                    <div className="font-serif text-white/80 text-[10px] tracking-widest">{endDate}</div>
+                  </>
+                )}
               </div>
               <div className="flex justify-between">
                 <img src={FLOWER_DATA} alt="" className="w-24 h-24 object-contain" style={{ transform: "scaleY(-1)" }} />
-                <img src={FLOWER_DATA} alt="" className="w-24 h-24 object-contain" style={{ transform: "scale(-1)" }} />
+                <img src={FLOWER_DATA} alt="" className="w-24 h-24 object-contain" style={{ transform: "scale(-1,-1)" }} />
               </div>
             </div>
           </div>
