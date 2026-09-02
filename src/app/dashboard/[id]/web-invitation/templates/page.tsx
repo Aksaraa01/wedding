@@ -79,7 +79,7 @@ function TemplatesInner({ id }: { id: string }) {
       <PageTheme mode="light" />
       <main className="pt-8 pb-32 px-edge-margin-mobile max-w-container-max mx-auto bg-background">
         <section className="mb-10 fade-in">
-          <h1 className="font-headline-lg text-[28px] leading-tight mb-3">Pilih Undangan Digital Anda</h1>
+          <h1 className="font-headline-lg text-[18px] sm:text-[28px] leading-tight mb-3">Pilih Undangan Digital Anda</h1>
         </section>
 
         <ProductJourney profileId={id} />
@@ -105,7 +105,7 @@ function TemplatesInner({ id }: { id: string }) {
             <article key={tpl.id} className="group flex flex-col shrink-0 snap-start w-[72vw] max-w-[300px] lg:w-auto lg:max-w-none">
               <div
                 data-tour={idx === 0 ? "template-preview" : undefined}
-                className="relative mb-4 overflow-hidden rounded-2xl border-2 border-brand-charcoal aspect-[3/4] bg-surface-container shadow-sm cursor-pointer"
+                className="relative mb-4 overflow-hidden rounded-2xl border-2 border-brand-charcoal aspect-[9/19] bg-surface-container shadow-sm cursor-pointer"
                 onClick={() => setPreviewTpl(tpl)}
               >
                 {selectedId === tpl.id && (
@@ -126,7 +126,7 @@ function TemplatesInner({ id }: { id: string }) {
                 <div className="mt-auto flex items-center gap-2">
                   <button
                     onClick={() => setPreviewTpl(tpl)}
-                    className="flex-1 py-3 font-label-md text-[10px] uppercase tracking-widest border border-brand-charcoal text-brand-charcoal hover:bg-brand-cream transition-colors"
+                    className="flex-1 py-3 font-label-md text-[10px] uppercase tracking-widest rounded-full border border-brand-charcoal text-brand-charcoal hover:bg-brand-cream transition-colors"
                   >
                     Lihat Template
                   </button>
@@ -134,7 +134,7 @@ function TemplatesInner({ id }: { id: string }) {
                     data-tour={idx === 0 ? "pilih-koleksi" : undefined}
                     onClick={() => handleSelect(tpl.id)}
                     disabled={saving}
-                    className={`flex-1 py-3 font-label-md text-[10px] uppercase tracking-widest border transition-all duration-300 ${
+                    className={`flex-1 py-3 font-label-md text-[10px] uppercase tracking-widest rounded-full border transition-all duration-300 ${
                       selectedId === tpl.id
                         ? "bg-secondary border-secondary text-white"
                         : "bg-brand-charcoal border-brand-charcoal text-brand-cream hover:bg-secondary hover:border-secondary hover:text-white"
