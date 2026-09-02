@@ -23,10 +23,12 @@ export async function POST(req: Request) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  let queued = 0
+  let scanned = 0
   let cleaned = 0
+  let queued = 0
   for (const p of profiles || []) {
     if (!p.slug || !p.active_wp_post_id) continue
+    scanned++
     const res = await fetch(`${WP_ORIGIN}/wp-json/aksaraa/v1/cleanup`, {
       method: "POST",
       headers: wpHeaders(),
@@ -40,9 +42,8 @@ export async function POST(req: Request) {
     if (queued % 20 === 0) await new Promise((r) => setTimeout(r, 200))
   }
 
-  return NextResponse.json({ scanned: profiles?.length || 0, cleaned_profiles: cleaned })
+  return NextResponse.json({ scanned, cleaned_profiles: cleaned })
 }
-
 export async function GET(req: Request) {
   return POST(req)
 }

@@ -1100,12 +1100,18 @@ class AksaraaPlugin
                 "SELECT ID FROM {$wpdb->posts} WHERE post_name LIKE %s AND post_type IN ('post','page') AND post_status IN ('publish','trash')",
                 $like
             ));
+            $age_guard = strtotime('-2 days');
             foreach ($candidates as $cid) {
                 $cid = (int) $cid;
                 if ($cid === $keep_post_id) continue;
                 if ($old_post_id && $cid === $old_post_id) continue;
                 $pname = $wpdb->get_var($wpdb->prepare("SELECT post_name FROM {$wpdb->posts} WHERE ID = %d", $cid));
                 if (strpos($pname, $base_slug) !== 0) continue;
+                // Age guard: never delete a recently-duplicated post that isn't yet
+                // recorded as active_wp_post_id (reaper can race a just-finished
+                // duplicate). Only sweep orphans older than 2 days.
+                $created = strtotime($wpdb->get_var($wpdb->prepare("SELECT post_date FROM {$wpdb->posts} WHERE ID = %d", $cid)));
+                if ($created !== false && $created > $age_guard) continue;
                 $popups = self::find_linked_popups($cid);
                 foreach ($popups as $popup) {
                     wp_delete_post($popup->ID, true);
