@@ -44,8 +44,8 @@ export default function HeroSection() {
         }
       `}</style>
 
-      {/* Top arch gallery (mirrors reference positioning) */}
-      <div className="absolute top-24 left-1/2 -translate-x-1/2 w-full max-w-[1100px] h-[380px] pointer-events-none px-4 z-5">
+      {/* Top arch gallery (mirrors reference positioning) — desktop only */}
+      <div className="hidden md:block absolute top-24 left-1/2 -translate-x-1/2 w-full max-w-[1100px] h-[380px] pointer-events-none px-4 z-5">
         {ARCH_PHOTOS.map((photo, i) => (
           <div
             key={i}
@@ -70,8 +70,23 @@ export default function HeroSection() {
         ))}
       </div>
 
+      {/* Mobile: horizontal snap carousel of the template frames (no overlap with text) */}
+      <div className="md:hidden w-full max-w-[1100px] mx-auto mb-6 mt-6">
+        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 no-scrollbar px-4">
+          {ARCH_PHOTOS.map((photo, i) => (
+            <div key={i} className="shrink-0 snap-start w-[200px]">
+              <img
+                src={photo.src}
+                alt="Galeri"
+                className="w-full aspect-[9/19] object-cover rounded-2xl border border-white/20 shadow-[0_24px_48px_-16px_rgba(0,0,0,0.55)]"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Hero content below the arch */}
-      <div className="relative z-10 max-w-4xl mx-auto text-center mt-40 sm:mt-[200px] px-2">
+      <div className="relative z-10 max-w-4xl mx-auto text-center mt-6 md:mt-[200px] px-2">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 sm:mb-8 text-[11px] sm:text-xs font-bold tracking-widest uppercase bg-[#C5A85D]/15 border border-[#C5A85D]/40 text-[#C5A85D]">
           <span className="w-1.5 h-1.5 rounded-full bg-[#C5A85D] animate-pulse" />
           100+ Animated Designs
