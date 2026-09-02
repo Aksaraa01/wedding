@@ -133,12 +133,12 @@ INSERT INTO package_matrix_rows (
     (NULL, 'dgbook', 'Ushers', 4, '—','muted', '—','muted', '—','muted', '—','muted', '—','muted', '2','secondary', '3','secondary', '4','gold');
 
 -- Web Templates
-INSERT INTO web_templates (code, name, description, preview_image_url, demo_url, sort_order) VALUES
-    ('parallax-sinematik', 'Parallax Sinematik', 'Tata letak gulir vertikal kontinu dengan transisi gambar paralaks dramatis dan fade-in teks yang elegan.', 'https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/seeded/templates/parallax-sinematik.jpg', 'https://ayomarried.com/valdo-debora', 1),
-    ('editorial-modern', 'Editorial Modern', 'Desain editorial tipografi high-fashion dengan aksen monokrom bersih, tajuk serif besar, dan whitespace terstruktur.', 'https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/seeded/templates/editorial-modern.jpg', 'https://ayomarried.com/raja-tya', 2),
-    ('animasi-watercolor', 'Animasi Watercolor', 'Desain romantis dengan ilustrasi bunga pastel lembut yang mengapung dan berputar anggun saat pengguna menggulir.', 'https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/seeded/templates/animasi-watercolor.jpg', 'https://ayomarried.com/reinhard-maici', 3),
-    ('heritage-dinamis', 'Heritage Dinamis', 'Representasi digital motif budaya, seperti garis Gorga atau Songket hasil render vektor yang mengembang secara interaktif.', 'https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/seeded/templates/heritage-dinamis.jpg', 'https://ayomarried.com/james-enna', 4),
-    ('heritage-jawa', 'Heritage Jawa', 'Desain pernikahan adat Jawa yang elegan dengan ornamen tradisional, motif Gunungan, dan palet warna emas & krem.', '', '', 5)
+INSERT INTO web_templates (code, name, description, preview_image_url, demo_url, sort_order, category) VALUES
+    ('parallax-sinematik', 'Parallax Sinematik', 'Tata letak gulir vertikal kontinu dengan transisi gambar paralaks dramatis dan fade-in teks yang elegan.', 'https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/seeded/templates/parallax-sinematik.jpg', 'https://ayomarried.com/valdo-debora', 1, 'Nasional'),
+    ('editorial-modern', 'Editorial Modern', 'Desain editorial tipografi high-fashion dengan aksen monokrom bersih, tajuk serif besar, dan whitespace terstruktur.', 'https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/seeded/templates/editorial-modern.jpg', 'https://ayomarried.com/raja-tya', 2, 'Budaya'),
+    ('animasi-watercolor', 'Animasi Watercolor', 'Desain romantis dengan ilustrasi bunga pastel lembut yang mengapung dan berputar anggun saat pengguna menggulir.', 'https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/seeded/templates/animasi-watercolor.jpg', 'https://ayomarried.com/reinhard-maici', 3, 'Nasional'),
+    ('heritage-dinamis', 'Heritage Dinamis', 'Representasi digital motif budaya, seperti garis Gorga atau Songket hasil render vektor yang mengembang secara interaktif.', 'https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/seeded/templates/heritage-dinamis.jpg', 'https://ayomarried.com/james-enna', 4, 'Budaya'),
+    ('heritage-jawa', 'Heritage Jawa', 'Desain pernikahan adat Jawa yang elegan dengan ornamen tradisional, motif Gunungan, dan palet warna emas & krem.', '', '', 5, 'Budaya')
 ON CONFLICT (code) DO NOTHING;
 
 -- Music Tracks

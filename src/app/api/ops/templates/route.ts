@@ -60,6 +60,7 @@ export async function POST(req: Request) {
       is_active: body.is_active !== false,
       sort_order: typeof body.sort_order === "number" ? body.sort_order : 0,
       package_eligibility: Array.isArray(body.package_eligibility) ? body.package_eligibility : [],
+      category: body.category ? String(body.category).trim() : null,
       wp_master_slug: body.wp_master_slug || null,
       wp_manifest: body.wp_manifest && typeof body.wp_manifest === "object" ? body.wp_manifest : null,
     })

@@ -7,6 +7,12 @@ import TemplatePreviewModal from "@/components/TemplatePreviewModal"
 import { pollWpJob } from "@/lib/wpJobPoll"
 import ProductJourney from "@/components/onboarding/ProductJourney"
 
+const CATEGORY_FILTERS = [
+  { id: "semua", label: "Semua" },
+  { id: "nasional", label: "Nasional" },
+  { id: "budaya", label: "Budaya" },
+]
+
 type Template = {
   id: string
   code: string
@@ -14,6 +20,7 @@ type Template = {
   description: string
   preview_image_url: string
   demo_url: string
+  category?: string | null
 }
 
 function TemplatesInner({ id }: { id: string }) {
@@ -23,6 +30,11 @@ function TemplatesInner({ id }: { id: string }) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [previewTpl, setPreviewTpl] = useState<Template | null>(null)
+  const [categoryFilter, setCategoryFilter] = useState<string>("semua")
+
+  const visibleTemplates = categoryFilter === "semua"
+    ? templates
+    : templates.filter((t) => (t.category || "").toLowerCase() === categoryFilter)
 
   useEffect(() => {
     Promise.all([
@@ -71,12 +83,29 @@ function TemplatesInner({ id }: { id: string }) {
         </section>
 
         <ProductJourney profileId={id} />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10">
-          {templates.map((tpl, idx) => (
-            <article key={tpl.id} className="group flex flex-col">
+
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar mb-8 pb-1">
+          {CATEGORY_FILTERS.map((f) => (
+            <button
+              key={f.id}
+              onClick={() => setCategoryFilter(f.id)}
+              className={`shrink-0 rounded-full border px-5 py-2 font-label-md text-[11px] uppercase tracking-widest transition-colors ${
+                categoryFilter === f.id
+                  ? "bg-brand-charcoal border-brand-charcoal text-brand-cream"
+                  : "border-outline-variant text-on-surface-variant hover:border-brand-charcoal hover:text-on-surface"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 no-scrollbar lg:grid lg:grid-cols-4 xl:grid-cols-5 lg:gap-x-4 lg:gap-y-10 lg:overflow-visible">
+          {visibleTemplates.map((tpl, idx) => (
+            <article key={tpl.id} className="group flex flex-col shrink-0 snap-start w-[72vw] max-w-[300px] lg:w-auto lg:max-w-none">
               <div
                 data-tour={idx === 0 ? "template-preview" : undefined}
-                className="relative mb-4 overflow-hidden aspect-[3/4] bg-surface-container shadow-sm cursor-pointer"
+                className="relative mb-4 overflow-hidden rounded-2xl border-2 border-brand-charcoal aspect-[3/4] bg-surface-container shadow-sm cursor-pointer"
                 onClick={() => setPreviewTpl(tpl)}
               >
                 {selectedId === tpl.id && (
@@ -86,7 +115,7 @@ function TemplatesInner({ id }: { id: string }) {
                 )}
                 <img
                   alt={tpl.name}
-                  className="w-full h-full object-contain bg-surface-container-lowest p-2 transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   src={tpl.preview_image_url}
                 />
                 <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors pointer-events-none" />
@@ -94,18 +123,26 @@ function TemplatesInner({ id }: { id: string }) {
 
               <div className="flex flex-col flex-grow">
                 <h2 className="font-headline-md text-[16px] leading-tight mb-3">{tpl.name}</h2>
-                <button
-                  data-tour={idx === 0 ? "pilih-koleksi" : undefined}
-                  onClick={() => handleSelect(tpl.id)}
-                  disabled={saving}
-                  className={`mt-auto w-full py-3 font-label-md text-[10px] uppercase tracking-widest border transition-all duration-300 ${
-                    selectedId === tpl.id
-                      ? "border-secondary text-secondary hover:bg-secondary hover:text-white"
-                      : "border-primary text-primary hover:bg-primary hover:text-on-primary"
-                  }`}
-                >
-                  {saving ? "Menyimpan..." : selectedId === tpl.id ? "Pilih Ulang" : "Pilih"}
-                </button>
+                <div className="mt-auto flex items-center gap-2">
+                  <button
+                    onClick={() => setPreviewTpl(tpl)}
+                    className="flex-1 py-3 font-label-md text-[10px] uppercase tracking-widest border border-brand-charcoal text-brand-charcoal hover:bg-brand-cream transition-colors"
+                  >
+                    Lihat Template
+                  </button>
+                  <button
+                    data-tour={idx === 0 ? "pilih-koleksi" : undefined}
+                    onClick={() => handleSelect(tpl.id)}
+                    disabled={saving}
+                    className={`flex-1 py-3 font-label-md text-[10px] uppercase tracking-widest border transition-all duration-300 ${
+                      selectedId === tpl.id
+                        ? "bg-secondary border-secondary text-white"
+                        : "bg-brand-charcoal border-brand-charcoal text-brand-cream hover:bg-secondary hover:border-secondary hover:text-white"
+                    }`}
+                  >
+                    {saving ? "Menyimpan..." : selectedId === tpl.id ? "Pilih Ulang" : "Pilih"}
+                  </button>
+                </div>
               </div>
             </article>
           ))}

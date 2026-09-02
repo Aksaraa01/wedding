@@ -59,6 +59,7 @@ export async function PUT(req: Request, ctx: { params: Promise<{ id: string }> }
   if ("is_active" in body) patch.is_active = body.is_active !== false
   if ("sort_order" in body) patch.sort_order = typeof body.sort_order === "number" ? body.sort_order : 0
   if ("package_eligibility" in body) patch.package_eligibility = Array.isArray(body.package_eligibility) ? body.package_eligibility : []
+  if ("category" in body) patch.category = body.category ? String(body.category).trim() : null
   if ("wp_master_slug" in body) patch.wp_master_slug = body.wp_master_slug || null
   if ("wp_manifest" in body) patch.wp_manifest = body.wp_manifest && typeof body.wp_manifest === "object" ? body.wp_manifest : null
 

@@ -19,6 +19,7 @@ type Template = {
   is_active: boolean
   sort_order: number
   package_eligibility: string[]
+  category: string | null
   wp_master_slug: string | null
   wp_manifest: Record<string, any> | null
 }
@@ -98,6 +99,7 @@ export default function OpsTemplatesPage() {
     is_active: true,
     sort_order: 0,
     package_eligibility: [] as string[],
+    category: "",
     wp_master_slug: "",
   })
 
@@ -188,7 +190,7 @@ export default function OpsTemplatesPage() {
     setManifest({})
     setElements([])
     setPopups([])
-    setForm({ code: "", name: "", description: "", preview_image_url: "", demo_url: "", is_active: true, sort_order: templates.length, package_eligibility: [...PACKAGE_CODES], wp_master_slug: "" })
+    setForm({ code: "", name: "", description: "", preview_image_url: "", demo_url: "", is_active: true, sort_order: templates.length, package_eligibility: [...PACKAGE_CODES], category: "", wp_master_slug: "" })
   }
 
   const startEdit = (t: Template, openMapping = false) => {
@@ -208,6 +210,7 @@ export default function OpsTemplatesPage() {
       is_active: t.is_active,
       sort_order: t.sort_order,
       package_eligibility: t.package_eligibility && t.package_eligibility.length > 0 ? t.package_eligibility : [...PACKAGE_CODES],
+      category: t.category || "",
       wp_master_slug: t.wp_master_slug || "",
     })
   }
@@ -257,6 +260,7 @@ export default function OpsTemplatesPage() {
       description: form.description || null,
       preview_image_url: form.preview_image_url || null,
       demo_url: form.demo_url || null,
+      category: form.category || null,
       wp_master_slug: form.wp_master_slug || null,
     }
     const url = isNew ? "/api/ops/templates" : `/api/ops/templates/${editing!.id}`
@@ -665,6 +669,9 @@ export default function OpsTemplatesPage() {
                     <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 shrink-0 ${t.is_active ? "bg-emerald-100 text-emerald-700" : "bg-surface-dim text-on-surface-variant"}`}>
                       {t.is_active ? "Aktif" : "Nonaktif"}
                     </span>
+                    {t.category && (
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-brand-goldMuted/40 text-brand-charcoal shrink-0">{t.category}</span>
+                    )}
                   </div>
                   {t.description && <p className="text-[11px] text-on-surface-variant line-clamp-2">{t.description}</p>}
                   <div className="flex flex-wrap gap-1">
@@ -711,6 +718,12 @@ export default function OpsTemplatesPage() {
                   <div>
                     <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Nama Template</label>
                     <input className="input-editorial w-full font-label-md text-[14px]" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Marry With You" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">
+                      Kategori <span className="normal-case text-on-surface-variant/60">(Nasional / Budaya)</span>
+                    </label>
+                    <input className="input-editorial w-full font-label-md text-[14px]" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Nasional" />
                   </div>
                   <div>
                     <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Deskripsi</label>
