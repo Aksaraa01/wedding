@@ -434,24 +434,25 @@ class AksaraaPlugin
             self::register_popup_condition($new_popup_id, $master->post_type, $new_id);
         }
 
+        // Clear Elementor render caches FIRST (before CSS regen) so regeneration
+        // reads the fresh _elementor_data, not stale cached meta/html. Without this,
+        // regen can produce CSS missing the mobile overrides (e.g. 26e4970 45vh),
+        // which manifests as the SAFSWFRS hero zoomed on mobile.
+        global $wpdb;
+        foreach (array_merge([$new_id], array_values($popup_map)) as $cache_post_id) {
+            wp_cache_delete((int) $cache_post_id, 'post_meta');
+            foreach (['_elementor_css', '_elementor_element_cache', '_elementor_page_assets'] as $cache_key) {
+                $wpdb->delete($wpdb->postmeta, ['post_id' => $cache_post_id, 'meta_key' => $cache_key]);
+            }
+            $cache_file = WP_CONTENT_DIR . '/uploads/elementor/css/post-' . $cache_post_id . '.css';
+            if (file_exists($cache_file)) @unlink($cache_file);
+        }
+
         // Generate CSS for the new post + popups so the frontend is styled
         // immediately (no reliance on lazy regeneration).
         self::regen_elementor_css($new_id);
         foreach ($popup_map as $new_popup_id) {
             self::regen_elementor_css($new_popup_id);
-        }
-
-        // Clear Elementor render caches for the duplicated post + popups. The
-        // master's cached HTML/CSS references the master's element IDs and width
-        // settings (e.g. 100vw full-screen popup); serving the copied cache would
-        // render the popup at the wrong size (left half-screen) until the next
-        // lazy regeneration. Rebuilding on next frontend visit applies the real
-        // page_settings (width vw 100) for each duplicate.
-        global $wpdb;
-        foreach (array_merge([$new_id], array_values($popup_map)) as $cache_post_id) {
-            foreach (['_elementor_css', '_elementor_element_cache', '_elementor_page_assets'] as $cache_key) {
-                $wpdb->delete($wpdb->postmeta, ['post_id' => $cache_post_id, 'meta_key' => $cache_key]);
-            }
         }
 
         return [
@@ -731,6 +732,10 @@ class AksaraaPlugin
             foreach (['_elementor_css', '_elementor_element_cache', '_elementor_page_assets'] as $cache_key) {
                 $wpdb->delete($wpdb->postmeta, ['post_id' => $target_id, 'meta_key' => $cache_key]);
             }
+            // Also delete the generated CSS file (stale file baked at an earlier
+            // zoomed/tall state keeps serving even after meta is cleared).
+            $cache_file = WP_CONTENT_DIR . '/uploads/elementor/css/post-' . $target_id . '.css';
+            if (file_exists($cache_file)) @unlink($cache_file);
         }
     }
 
