@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
-type Photo = { id: string; image_url: string; created_at: string }
+type Photo = { id: string; image_url: string; created_at: string; source?: string | null }
 
 function formatStamp(dateStr: string): string {
   if (!dateStr) return ""
@@ -42,7 +42,7 @@ export default function GalleryPage({ params }: { params: Promise<{ token: strin
           const photoRes = await fetch(`/api/guest-photos?guest_id=${guestId}`)
           const photoData = await photoRes.json()
           const list = Array.isArray(photoData.photos) ? photoData.photos : []
-          setPhotos(list.map((p: any) => ({ id: p.id, image_url: p.image_url, created_at: p.created_at })))
+          setPhotos(list.map((p: any) => ({ id: p.id, image_url: p.image_url, created_at: p.created_at, source: p.source })))
         }
       } catch {}
       setLoading(false)
@@ -94,6 +94,12 @@ export default function GalleryPage({ params }: { params: Promise<{ token: strin
               <div key={p.id} onClick={() => setSelected(p)} className="aspect-[9/16] rounded-[24px] overflow-hidden relative group border border-[#2a2a2a] cursor-pointer active:scale-[0.98] transition-transform">
                 <img className="w-full h-full object-cover" src={p.image_url} alt="Momen" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-100"></div>
+                {p.source === "selfie" && (
+                  <span className="absolute top-3 left-3 inline-flex items-center gap-1 text-[9px] font-bold bg-black/40 backdrop-blur-sm px-2 py-1 rounded-full uppercase tracking-wider border border-white/20" style={{ color: "#DFA88D" }}>
+                    <span className="material-symbols-outlined text-[10px]">photo_camera</span>
+                    Foto Check-in
+                  </span>
+                )}
                 <div className="absolute bottom-4 right-4 date-stamp text-sm" style={{ fontFamily: "'Courier New', monospace", fontWeight: "bold", color: "#d1b89a", letterSpacing: "0.1em", textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>{formatStamp(p.created_at)}</div>
                 <span className="absolute top-4 right-4 bg-black/40 backdrop-blur-sm p-2 rounded-full opacity-0 group-hover:opacity-100 md:group-hover:opacity-100 transition-opacity border border-white/20 hidden md:flex">
                   <span className="material-symbols-outlined text-white text-sm">download</span>

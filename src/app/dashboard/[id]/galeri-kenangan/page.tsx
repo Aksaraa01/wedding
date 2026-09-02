@@ -9,7 +9,8 @@ type GuestPhoto = {
   image_url: string
   created_at: string
   guest_id: string
-  guests: { name: string; category: string } | null
+  source?: string | null
+  guests: { name: string; category: string; is_checked_in?: boolean | null } | null
 }
 
 function formatDeletionDate(date: string): string {
@@ -214,6 +215,12 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                       onMouseLeave={(e) => { e.currentTarget.style.color = "#444748" }}>
                       Oleh: {photo.guests?.name || "Tamu"}
                       {photo.guests?.category ? <span className="text-on-surface-variant/50 ml-1">({photo.guests.category})</span> : null}
+                      {photo.source === "selfie" && (
+                        <span className="ml-2 inline-flex items-center gap-1 text-[9px] font-bold text-secondary bg-secondary/10 border border-secondary/20 rounded-full px-2 py-0.5 uppercase tracking-wider">
+                          <span className="material-symbols-outlined text-[10px]">photo_camera</span>
+                          Foto Check-in
+                        </span>
+                      )}
                     </span>
                     <div className="flex items-center gap-2">
                       <span

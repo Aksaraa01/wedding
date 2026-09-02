@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use, useRef, useCallback } from "react"
 import NativeQrReader from "@/components/scanner/NativeQrReader"
+import SelfieModal from "@/components/scanner/SelfieModal"
 import {
   cacheGuests,
   getGuestByToken,
@@ -19,6 +20,7 @@ type EventInfo = {
   display_name?: string
   guest_count: number
   has_pin: boolean
+  end_date?: string
 }
 
 type ScanResult = {
@@ -79,6 +81,11 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
   const [addGuestSuccess, setAddGuestSuccess] = useState(false)
   const [selectedGuest, setSelectedGuest] = useState<GuestRecord | null>(null)
 
+  const [selfieGuest, setSelfieGuest] = useState<GuestRecord | null>(null)
+  const [selfieAfter, setSelfieAfter] = useState<"checkin" | "recovery">("checkin")
+  const [selfieGuestIds, setSelfieGuestIds] = useState<Set<string>>(new Set())
+  const [selfieDoneToast, setSelfieDoneToast] = useState<string | null>(null)
+
   const bufferRef = useRef("")
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
@@ -92,17 +99,22 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
     const cached = await getGuestByToken(token)
 
     if (cached && cached.is_checked_in) {
-      setScanResult({ type: "already", guest: cached, message: `${cached.name} sudah check-in` })
+      if (selfieGuestIds.has(cached.id)) {
+        setScanResult({ type: "already", guest: cached, message: `${cached.name} sudah check-in` })
+      } else {
+        openSelfieRecovery(cached)
+      }
       return
     }
 
     if (cached) {
       await markCheckedIn(cached.id, token, operatorName)
       const updated = await getGuestByToken(token)
-      setScanResult({ type: "success", guest: updated || cached, message: `Selamat datang, ${cached.name}!` })
-      setLogEntries((prev) => [updated || cached, ...prev.filter((g) => g.id !== cached.id)])
+      const g = updated || cached
+      setLogEntries((prev) => [g, ...prev.filter((x) => x.id !== g.id)])
       updatePending()
       trySync()
+      openSelfieCheckin(g)
       return
     }
 
@@ -130,17 +142,18 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
         await cacheGuests([serverGuest])
         await markCheckedIn(serverGuest.id, token, operatorName)
         const updated = await getGuestByToken(token)
-        setScanResult({ type: "success", guest: updated || serverGuest, message: `Selamat datang, ${serverGuest.name}!` })
-        setLogEntries((prev) => [updated || serverGuest, ...prev])
+        const g = updated || serverGuest
+        setLogEntries((prev) => [g, ...prev])
         updatePending()
         trySync()
+        openSelfieCheckin(g)
       } else {
         setScanResult({ type: "error", message: "Tamu tidak ditemukan" })
       }
     } catch {
       setScanResult({ type: "error", message: "Gagal terhubung ke server. Periksa koneksi." })
     }
-  }, [operatorName, eventInfo])
+  }, [operatorName, eventInfo, selfieGuestIds, openSelfieCheckin, openSelfieRecovery])
 
   const trySync = useCallback(async () => {
     if (!eventInfo) return
@@ -157,6 +170,64 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
     const count = await getPendingCount()
     setPendingSync(count)
   }, [])
+
+  const selfieOpen = selfieGuest !== null
+
+  function openSelfieCheckin(guest: GuestRecord) {
+    setSelfieGuest(guest)
+    setSelfieAfter("checkin")
+    setScanResult(null)
+  }
+
+  function openSelfieRecovery(guest: GuestRecord) {
+    setSelfieGuest(guest)
+    setSelfieAfter("recovery")
+    setScanResult(null)
+  }
+
+  const simulateSuccess = () => {
+    if (!eventInfo) return
+    const fake: GuestRecord = {
+      id: `sim-${Date.now()}`,
+      wedding_profile_id: eventInfo.wedding_profile_id,
+      name: "Bramantyo Agung",
+      phone_number: null,
+      table_number: "Meja 09",
+      category: "Reguler",
+      guest_count: 2,
+      rsvp_status: "HADIR",
+      rsvp_pax_count: null,
+      qr_token: `AKS-SIM-${Date.now()}`,
+      is_checked_in: true,
+      checkin_timestamp: new Date().toISOString(),
+      checked_in_by: operatorName,
+      souvenir_claimed: false,
+      added_manually: false,
+    }
+    setAllGuests((prev) => (prev.some((x) => x.id === fake.id) ? prev : [fake, ...prev]))
+    setLogEntries((prev) => [fake, ...prev])
+    openSelfieCheckin(fake)
+  }
+
+  const selfieAfterRef = useRef<"checkin" | "recovery">("checkin")
+  useEffect(() => {
+    selfieAfterRef.current = selfieAfter
+  }, [selfieAfter])
+
+  const handleSelfieDone = useCallback((uploaded: boolean, _error?: string) => {
+    const guest = selfieGuest
+    setSelfieGuest(null)
+    if (guest) {
+      if (uploaded) {
+        setSelfieGuestIds((prev) => new Set(prev).add(guest.id))
+        setSelfieDoneToast(`Foto check-in ${guest.name} berhasil disimpan`)
+        setTimeout(() => setSelfieDoneToast(null), 3000)
+      }
+      if (selfieAfterRef.current === "checkin") {
+        setScanResult({ type: "success", guest, message: `Selamat datang, ${guest.name}!` })
+      }
+    }
+  }, [selfieGuest])
 
   useEffect(() => {
     fetch(`/api/scanner/${slug}`).then((r) => r.json()).then((data) => {
@@ -199,11 +270,11 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
             rsvp_pax_count: g.rsvp_pax_count || null,
             qr_token: g.qr_token || null,
             is_checked_in: g.is_checked_in || false,
-checkin_timestamp: g.checkin_timestamp || null,
-          checked_in_by: null,
-          souvenir_claimed: false,
-          added_manually: g.added_manually || false,
-        }))
+            checkin_timestamp: g.checkin_timestamp || null,
+            checked_in_by: null,
+            souvenir_claimed: false,
+            added_manually: g.added_manually || false,
+          }))
           await cacheGuests(records)
           setAllGuests(records)
           setLogEntries(records.filter((g) => g.is_checked_in).sort((a, b) => {
@@ -211,6 +282,17 @@ checkin_timestamp: g.checkin_timestamp || null,
             return b.checkin_timestamp.localeCompare(a.checkin_timestamp)
           }))
         }
+      try {
+        const photoRes = await fetch(`/api/guest-photos?wedding_profile_id=${eventInfo.wedding_profile_id}`)
+        if (photoRes.ok) {
+          const photoData = await photoRes.json()
+          const ids = new Set<string>()
+          for (const p of Array.isArray(photoData.photos) ? photoData.photos : []) {
+            if (p.source === "selfie" && p.guest_id) ids.add(p.guest_id)
+          }
+          if (ids.size) setSelfieGuestIds(ids)
+        }
+      } catch {}
       } catch {
         setOffline(true)
       }
@@ -366,10 +448,18 @@ checkin_timestamp: g.checkin_timestamp || null,
       setAddGuestSuccess(true)
       setAddGuestForm({ name: "", phone: "", guest_count: 1, category: "", table_number: "", notes: "" })
       if (manualQuery.trim()) handleManualSearch(manualQuery)
-      setTimeout(() => {
-        setAddGuestSuccess(false)
-        setShowAddGuest(false)
-      }, 2000)
+      if (g) {
+        setTimeout(() => {
+          setAddGuestSuccess(false)
+          setShowAddGuest(false)
+          openSelfieCheckin(g)
+        }, 1200)
+      } else {
+        setTimeout(() => {
+          setAddGuestSuccess(false)
+          setShowAddGuest(false)
+        }, 1200)
+      }
     } catch {
       setAddGuestError("Gagal terhubung ke server")
     } finally {
@@ -385,18 +475,23 @@ checkin_timestamp: g.checkin_timestamp || null,
 
   const handleManualCheckin = async (guest: GuestRecord) => {
     if (guest.is_checked_in) {
-      setScanResult({ type: "already", guest, message: `${guest.name} sudah check-in` })
+      if (!selfieGuestIds.has(guest.id)) {
+        openSelfieRecovery(guest)
+      } else {
+        setScanResult({ type: "already", guest, message: `${guest.name} sudah check-in` })
+      }
       return
     }
     await cacheGuests([guest])
     await markCheckedIn(guest.id, guest.qr_token || "", operatorName)
     const updated = await getGuestByToken(guest.qr_token || "")
-    setScanResult({ type: "success", guest: updated || guest, message: `Selamat datang, ${guest.name}!` })
-    setLogEntries((prev) => [updated || guest, ...prev])
+    const g = updated || guest
+    setLogEntries((prev) => [g, ...prev])
     setManualQuery("")
     setManualResults([])
     updatePending()
     trySync()
+    openSelfieCheckin(g)
   }
 
   const formatWIB = (iso: string | null | undefined) => {
@@ -536,7 +631,7 @@ checkin_timestamp: g.checkin_timestamp || null,
         <section className="space-y-3">
           <div className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden shadow-inner flex flex-col items-center justify-center border-2 border-outline-variant/40">
             <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_center,#444_1px,transparent_1px)] [background-size:16px_16px]"></div>
-            <NativeQrReader onScan={processScan} isPaused={!!scanResult} />
+            <NativeQrReader onScan={processScan} isPaused={!!scanResult || selfieOpen} />
             <div className="absolute top-8 left-8 w-8 h-8 border-t-2 border-l-2 border-surface-container-high rounded-tl-md"></div>
             <div className="absolute top-8 right-8 w-8 h-8 border-t-2 border-r-2 border-surface-container-high rounded-tr-md"></div>
             <div className="absolute bottom-8 left-8 w-8 h-8 border-b-2 border-l-2 border-surface-container-high rounded-bl-md"></div>
@@ -549,7 +644,7 @@ checkin_timestamp: g.checkin_timestamp || null,
             </div>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => processScan("AKS-SIMULASI-SUKSES")} className="flex-1 bg-background/90 hover:bg-surface-container text-primary border border-outline-variant px-3 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold shadow-sm transition-all active:scale-95">
+            <button onClick={simulateSuccess} className="flex-1 bg-background/90 hover:bg-surface-container text-primary border border-outline-variant px-3 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold shadow-sm transition-all active:scale-95">
               Simulasi Sukses
             </button>
             <button onClick={() => setScanResult({ type: "error", message: "QR tidak valid / expired" })} className="flex-1 bg-background/90 hover:bg-surface-container text-secondary border border-outline-variant px-3 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold shadow-sm transition-all active:scale-95">
@@ -625,6 +720,15 @@ checkin_timestamp: g.checkin_timestamp || null,
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
+                    {g.is_checked_in && !selfieGuestIds.has(g.id) && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); openSelfieRecovery(g) }}
+                        title="Ambil foto check-in"
+                        className="text-primary hover:text-secondary mr-1"
+                      >
+                        <span className="material-symbols-outlined text-sm">photo_camera</span>
+                      </button>
+                    )}
                     {!g.souvenir_claimed && (
                       <button
                         onClick={(e) => { e.stopPropagation(); handleClaimSouvenir(g.id) }}
@@ -646,8 +750,8 @@ checkin_timestamp: g.checkin_timestamp || null,
       </main>
 
       {scanResult && (
-        <div id="statusModal" className="fixed inset-0 z-50 bg-primary/40 backdrop-blur-sm flex items-center justify-center p-6 transition-all duration-300">
-          <div className="bg-background border border-outline-variant w-full max-w-sm rounded-2xl p-6 shadow-2xl text-center space-y-6 relative">
+        <div id="statusModal" className="fixed inset-0 z-50 bg-primary/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
+          <div className="bg-background border border-outline-variant w-full max-w-[min(92vw,26rem)] rounded-2xl p-6 shadow-2xl text-center space-y-5 relative max-h-[90dvh] overflow-y-auto flex flex-col justify-center">
             <div className={`absolute inset-x-0 top-0 h-1.5 rounded-t-2xl ${
               scanResult.type === "success" ? "bg-[#2e7d32]" : "bg-secondary"
             }`} id="modalStatusBar"></div>
@@ -701,6 +805,15 @@ checkin_timestamp: g.checkin_timestamp || null,
                 Ambil Souvenir
               </button>
             )}
+            {scanResult.type !== "error" && scanResult.guest && scanResult.guest.is_checked_in && !selfieGuestIds.has(scanResult.guest.id) && (
+              <button
+                onClick={() => openSelfieRecovery(scanResult.guest!)}
+                className="w-full bg-surface-container-high text-primary py-3 rounded-xl font-sans text-[11px] uppercase tracking-widest font-bold transition-all hover:bg-surface-container-hover flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined text-lg">photo_camera</span>
+                Ambil Foto Check-in
+              </button>
+            )}
             <button
               onClick={() => setScanResult(null)}
               className="w-full bg-primary hover:bg-secondary text-surface py-3.5 rounded-xl font-sans text-[11px] uppercase tracking-widest font-bold transition-all"
@@ -708,6 +821,24 @@ checkin_timestamp: g.checkin_timestamp || null,
               Lanjutkan Scan Berikutnya
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Selfie Modal */}
+      <SelfieModal
+        open={selfieOpen}
+        guestName={selfieGuest?.name || ""}
+        coupleName={coupleDisplay}
+        endDate={eventInfo?.end_date || ""}
+        guestId={selfieGuest?.id || null}
+        weddingProfileId={eventInfo?.wedding_profile_id || null}
+        onDone={handleSelfieDone}
+      />
+
+      {selfieDoneToast && (
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-inverse-surface/95 backdrop-blur-sm text-inverse-on-surface px-6 py-3.5 rounded-xl shadow-xl border border-outline-variant/20 flex items-center gap-3 max-w-sm">
+          <span className="material-symbols-outlined text-secondary-container text-xl">check_circle</span>
+          <span className="font-label-md text-[11px] uppercase tracking-wider font-semibold">{selfieDoneToast}</span>
         </div>
       )}
 

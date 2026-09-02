@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
     const file = formData.get("file") as File | null
     const wedding_profile_id = formData.get("wedding_profile_id") as string | null
     const guest_id = formData.get("guest_id") as string | null
+    const source = formData.get("source") as string | null
 
     if (!file || !wedding_profile_id || !guest_id) {
       return NextResponse.json({ error: "Data tidak lengkap" }, { status: 400 })
@@ -28,27 +29,33 @@ export async function POST(req: NextRequest) {
 
     // Per-guest photo quota follows the selected Buku Tamu Digital package
     // ("Photo by Guest" matrix row: Sistem 2 / Pro 2 / Premium 3 / Prestige 4).
+    // Concierge check-in selfies (source="selfie") are operator-initiated and
+    // bypass the guest-facing quota so a Foto Check-in is always captured.
     const { data: profile } = await supabaseAdmin
       .from("wedding_profiles")
       .select("package_type")
       .eq("id", wedding_profile_id)
       .single()
 
-    const quota = await getGuestPhotoQuota(profile?.package_type || "signature")
-    if (quota <= 0) {
-      return NextResponse.json({ error: "Fitur galeri foto tamu tidak tersedia untuk paket ini." }, { status: 403 })
-    }
+    const isSelfie = source === "selfie"
 
-    const { count: existingCount } = await supabaseAdmin
-      .from("guest_photos")
-      .select("id", { count: "exact", head: true })
-      .eq("guest_id", guest_id)
+    if (!isSelfie) {
+      const quota = await getGuestPhotoQuota(profile?.package_type || "signature")
+      if (quota <= 0) {
+        return NextResponse.json({ error: "Fitur galeri foto tamu tidak tersedia untuk paket ini." }, { status: 403 })
+      }
 
-    if ((existingCount || 0) >= quota) {
-      return NextResponse.json(
-        { error: `Batas unggah foto Anda adalah ${quota} foto. Silakan hubungi pasangan untuk kuota tambahan.` },
-        { status: 409 }
-      )
+      const { count: existingCount } = await supabaseAdmin
+        .from("guest_photos")
+        .select("id", { count: "exact", head: true })
+        .eq("guest_id", guest_id)
+
+      if ((existingCount || 0) >= quota) {
+        return NextResponse.json(
+          { error: `Batas unggah foto Anda adalah ${quota} foto. Silakan hubungi pasangan untuk kuota tambahan.` },
+          { status: 409 }
+        )
+      }
     }
 
     const ext = file.name.split(".").pop() || "jpg"
@@ -61,8 +68,9 @@ export async function POST(req: NextRequest) {
         wedding_profile_id,
         guest_id,
         image_url: imageUrl,
+        source: isSelfie ? "selfie" : "gallery",
       })
-      .select("id, image_url")
+      .select("id, image_url, source")
       .single()
 
     if (error) {

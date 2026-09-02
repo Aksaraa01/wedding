@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     if (guestId) {
       const { data } = await supabaseAdmin
         .from("guest_photos")
-        .select("id, image_url")
+        .select("id, image_url, source")
         .eq("guest_id", guestId)
         .order("created_at", { ascending: true })
       const photos = data || []
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
 
     const { data, error } = await supabaseAdmin
       .from("guest_photos")
-      .select("id, image_url, created_at, guest_id, guests(name, category)")
+      .select("id, image_url, created_at, guest_id, source, guests(name, category, is_checked_in)")
       .eq("wedding_profile_id", weddingProfileId)
       .order("created_at", { ascending: false })
 

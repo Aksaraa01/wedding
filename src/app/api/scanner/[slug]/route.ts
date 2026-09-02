@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { formatEndDate, getEndDate } from "@/lib/selfieOverlay"
 
 export async function GET(
   _req: Request,
@@ -10,7 +11,7 @@ export async function GET(
 
     const { data: profile, error: profileErr } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("id, bride_name, groom_name, display_name, scanner_pin")
+      .select("id, bride_name, groom_name, display_name, scanner_pin, sessions, estimated_wedding_date")
       .eq("slug", slug)
       .single()
 
@@ -30,6 +31,7 @@ export async function GET(
       display_name: profile.display_name,
       guest_count: guestCount || 0,
       has_pin: !!profile.scanner_pin,
+      end_date: formatEndDate(getEndDate(profile)),
     })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })

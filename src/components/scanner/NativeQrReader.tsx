@@ -23,6 +23,22 @@ export default function NativeQrReader({ onScan, isPaused = false }: NativeQrRea
   const [camError, setCamError] = useState<string | null>(null)
   const [camLoading, setCamLoading] = useState(true)
   const [hasCamera, setHasCamera] = useState(true)
+  const [facing, setFacing] = useState<"environment" | "user">("environment")
+  const facingCacheRef = useRef<"environment" | "user">("environment")
+  const restartRef = useRef<((retry?: boolean) => void) | null>(null)
+
+  useEffect(() => {
+    facingCacheRef.current = facing
+  }, [facing])
+
+  const switchCamera = () => {
+    setFacing((f) => {
+      const next = f === "environment" ? "user" : "environment"
+      facingCacheRef.current = next
+      if (restartRef.current) restartRef.current(true)
+      return next
+    })
+  }
 
   const handleFileScan = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -53,26 +69,6 @@ export default function NativeQrReader({ onScan, isPaused = false }: NativeQrRea
     let barcodeDetector: any = null
     const useBarcodeDetector = typeof window !== "undefined" && "BarcodeDetector" in window
 
-    const getStreamWithFallback = async (): Promise<MediaStream> => {
-      const tries: MediaStreamConstraints[] = [
-        { video: { facingMode: { exact: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } } },
-        { video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } } },
-        { video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } } },
-        { video: true },
-      ]
-      let lastErr: any = null
-      for (const c of tries) {
-        try {
-          const s = await navigator.mediaDevices.getUserMedia(c)
-          return s
-        } catch (e: any) {
-          lastErr = e
-          if (e?.name === "NotAllowedError") throw e
-        }
-      }
-      throw lastErr || new Error("Camera not available")
-    }
-
     const startCamera = async (isRetry = false) => {
       if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
         setCamError("Kamera tidak didukung di browser ini. Gunakan file upload di bawah.")
@@ -88,7 +84,23 @@ export default function NativeQrReader({ onScan, isPaused = false }: NativeQrRea
             barcodeDetector = new (window as any).BarcodeDetector({ formats: ["qr_code"] })
           } catch { barcodeDetector = null }
         }
-        stream = await getStreamWithFallback()
+        const tries: MediaStreamConstraints[] = [
+          { video: { facingMode: { exact: facingCacheRef.current }, width: { ideal: 1280 }, height: { ideal: 720 } } },
+          { video: { facingMode: facingCacheRef.current, width: { ideal: 1280 }, height: { ideal: 720 } } },
+          { video: true },
+        ]
+        let lastErr: any = null
+        stream = null
+        for (const c of tries) {
+          try {
+            stream = await navigator.mediaDevices.getUserMedia(c)
+            break
+          } catch (e: any) {
+            lastErr = e
+            if (e?.name === "NotAllowedError") throw e
+          }
+        }
+        if (!stream) throw lastErr || new Error("Camera not available")
         if (!isMounted || !videoRef.current) return
         videoRef.current.srcObject = stream
         await videoRef.current.play().catch(() => {})
@@ -144,6 +156,11 @@ export default function NativeQrReader({ onScan, isPaused = false }: NativeQrRea
     }
 
     startCamera()
+    restartRef.current = (retry = false) => {
+      if (stream) stream.getTracks().forEach((t) => t.stop())
+      stream = null
+      startCamera(retry)
+    }
 
     const onVis = () => {
       if (document.visibilityState === "visible" && stream?.getTracks().some(t => t.readyState === "live")) {
@@ -163,15 +180,23 @@ export default function NativeQrReader({ onScan, isPaused = false }: NativeQrRea
   const retry = () => {
     setCamError(null)
     setCamLoading(true)
-    const v = videoRef.current
-    if (v?.srcObject) (v.srcObject as MediaStream).getTracks().forEach(t => t.stop())
-    window.location.reload()
+    restartRef.current?.(true)
   }
 
   return (
     <>
       <video ref={videoRef} className="absolute inset-0 h-full w-full object-cover" playsInline muted autoPlay />
       <canvas ref={canvasRef} className="hidden" />
+      {!camError && !camLoading && hasCamera && (
+        <button
+          onClick={switchCamera}
+          title="Ganti kamera"
+          aria-label="Ganti kamera"
+          className="absolute top-3 right-3 z-30 p-2.5 bg-black/40 hover:bg-black/70 backdrop-blur-sm rounded-full text-white border border-white/20 transition-colors"
+        >
+          <span className="material-symbols-outlined text-lg">cameraswitch</span>
+        </button>
+      )}
       {camLoading && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm gap-3">
           <span className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
