@@ -1860,8 +1860,8 @@ add_action('wp_head', function () {
         $raw = get_post_meta($post_id, '_elementor_data', true);
         $tree = is_string($raw) ? json_decode($raw, true) : (is_array($raw) ? $raw : null);
         if (is_array($tree)) {
-            $hidden = [];
             $markers = ['aksaraa-addr-hidden', 'aksaraa-hidden', 'aksaraa-session-hidden'];
+            $hidden = [];
             $walk = function (array $nodes) use (&$walk, &$hidden, $markers) {
                 foreach ($nodes as $el) {
                     $classes = (string) ($el['settings']['_css_classes'] ?? '');
@@ -1882,6 +1882,14 @@ add_action('wp_head', function () {
                 echo '<style>' . $sel . '{ display: none !important; }</style>';
             }
         }
+    }
+    if (is_singular()) {
+        // Mobile fix: `background-attachment: fixed` makes Elementor section/container
+        // backgrounds render zoomed on iOS Safari + Android (bg attached to tall doc,
+        // `cover` scales to the whole page height). Force scroll on mobile so the
+        // SAFSWFSR-style hero images show full instead of cropped/zoomed. Layout-only,
+        // not a content change — applies to master + all duplicated couple posts.
+        echo '<style>@media (max-width: 767px) { .elementor-section > .elementor-background-video-container::before, .elementor-section.elementor-motion-effects-element-type-background > .elementor-motion-effects-container > .elementor-motion-effects-layer, .elementor-section > .elementor-background-slideshow, .e-con > .elementor-motion-effects-container > .elementor-motion-effects-layer, .e-con.elementor-motion-effects-element-type-background, .e-con.e-con-full { background-attachment: scroll !important; } }</style>';
     }
     if (is_singular() && get_post_meta(get_the_ID(), '_wp_page_template', true) === 'default') {
         echo '<style>.hestia-title { display: none !important; }</style>';
