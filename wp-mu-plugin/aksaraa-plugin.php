@@ -1632,7 +1632,13 @@ class AksaraaPlugin
     {
         foreach ($elements as $el) {
             if (self::subtree_contains_id($el, $id)) {
-                if (in_array($el['elType'] ?? '', ['section', 'container'], true)) {
+                // Treat `column` as a hideable boundary too. Section/Column-based
+                // templates (e.g. template-6/8) wrap each session in its own column
+                // under a SHARED section; without `column` this walks past the
+                // per-session column up to the shared section and hides both
+                // sessions' columns at once. Container layouts (template-4) are
+                // unaffected (no columns in their chains).
+                if (in_array($el['elType'] ?? '', ['section', 'container', 'column'], true)) {
                     $child = self::find_element_parent_id($el['elements'] ?? [], $id);
                     return $child ?: ($el['id'] ?? '');
                 }
