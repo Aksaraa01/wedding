@@ -80,13 +80,13 @@ export default function LoginPage() {
             />
           </div>
 
-          <div className="relative z-20 w-full max-w-md px-edge-margin-mobile">
+          <div className="relative z-20 w-full max-w-md px-4 md:px-edge-margin-mobile">
             <div
-              className="bg-surface p-8 md:p-12 shadow-2xl space-y-12 stagger-in"
+              className="bg-surface p-6 md:p-12 shadow-2xl space-y-6 md:space-y-12 stagger-in max-h-[90dvh] overflow-y-auto"
               style={{ animationDelay: "100ms" }}
             >
               <div className="text-center">
-                <h1 className="font-headline-lg text-headline-lg mb-2">
+                <h1 className="font-headline-lg text-[22px] md:text-headline-lg mb-2">
                   Masuk ke Dasbor
                 </h1>
               </div>
