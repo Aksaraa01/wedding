@@ -126,7 +126,7 @@ export default function Navigation() {
               <span className="material-symbols-outlined text-3xl">close</span>
             </button>
           </div>
-          <nav className="flex flex-col gap-8 mt-12 font-headline-md text-[28px] text-[#e5e1e4]">
+          <nav className="flex flex-col gap-6 mt-8 font-headline-md text-[20px] text-[#e5e1e4]">
             <div className="border-b border-white/10 pb-4">
               <button
                 className="flex items-center justify-between w-full text-left"
