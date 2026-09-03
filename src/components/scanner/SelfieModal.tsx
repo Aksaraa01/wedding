@@ -179,9 +179,9 @@ export default function SelfieModal({
         </button>
       </header>
 
-      <main className="flex-1 min-h-0 flex flex-col items-center justify-center px-4 py-2 w-full max-w-md mx-auto sm:max-w-lg lg:max-w-xl">
+      <main className="flex-1 min-h-0 flex flex-col items-center justify-center px-3 sm:px-4 py-2 w-full max-w-[92vw] sm:max-w-[420px] md:max-w-[520px] lg:max-w-[560px] mx-auto">
         {!capturedSrc ? (
-          <div className="relative w-full max-h-[58dvh] aspect-[3/4] bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl flex items-center justify-center">
+          <div className="relative w-full aspect-[3/4] bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl flex items-center justify-center max-h-[68dvh] sm:max-h-[70dvh] md:max-h-[72dvh]">
             <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
             <canvas ref={canvasRef} className="hidden" />
             {countdown !== null ? (
@@ -207,13 +207,13 @@ export default function SelfieModal({
             </div>
           </div>
         ) : (
-          <div className="relative w-full max-h-[58dvh] aspect-[3/4] bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+          <div className="relative w-full aspect-[3/4] bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl max-h-[68dvh] sm:max-h-[70dvh] md:max-h-[72dvh]">
             <img src={capturedSrc} alt="Foto check-in" className="w-full h-full object-cover" />
           </div>
         )}
       </main>
 
-      <footer className="w-full shrink-0 px-4 pb-2 pt-3 flex flex-col gap-2 max-w-md mx-auto sm:max-w-lg lg:max-w-xl">
+      <footer className="w-full shrink-0 px-3 sm:px-4 pb-3 sm:pb-4 pt-3 flex flex-col gap-2 max-w-[92vw] sm:max-w-[420px] md:max-w-[520px] lg:max-w-[560px] mx-auto">
         {uploadError && <p className="text-red-400 text-xs text-center font-medium">{uploadError}</p>}
         {!capturedSrc ? (
           <>

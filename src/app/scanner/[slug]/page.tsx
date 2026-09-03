@@ -716,7 +716,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
             <span className="text-[10px] uppercase tracking-wider text-on-surface-variant/70 font-semibold">Log Riwayat Masuk</span>
             <span className="text-[9px] text-on-surface-variant/50 font-mono">Diperbarui Baru Saja</span>
           </div>
-          <div id="logContainer" className="divide-y divide-outline-variant/30 border border-outline-variant/40 rounded-xl bg-surface-container-low/50 overflow-hidden">
+          <div id="logContainer" className="divide-y divide-outline-variant/30 border border-outline-variant rounded-xl bg-surface shadow-sm overflow-hidden">
             {logEntries.length === 0 ? (
               <div className="p-6 text-center">
                 <p className="text-[10px] text-on-surface-variant/60">Belum ada check-in</p>
