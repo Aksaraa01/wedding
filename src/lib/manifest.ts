@@ -7,7 +7,6 @@ export type SessionSlot = {
   name?: FieldMapping
   date?: FieldMapping
   time?: FieldMapping
-  timezone?: FieldMapping
   venue?: FieldMapping
   address?: FieldMapping
   maps_url?: FieldMapping
@@ -27,7 +26,7 @@ export type StorySlot = {
 
 // Array fields whose items are objects (each item has sub-fields).
 export const OBJECT_ARRAY_FIELDS: Record<string, string[]> = {
-  sessions: ["name", "date", "time", "timezone", "venue", "address", "maps_url"],
+  sessions: ["name", "date", "time", "venue", "address", "maps_url"],
   gift_accounts: ["provider_name", "account_number", "account_name"],
   stories: ["title", "description", "image_url"],
 }
@@ -40,7 +39,6 @@ export const SUBFIELD_LABELS: Record<string, string> = {
   name: "Nama",
   date: "Tanggal",
   time: "Jam",
-  timezone: "Zona Waktu",
   venue: "Venue",
   address: "Alamat",
   maps_url: "Link Maps",

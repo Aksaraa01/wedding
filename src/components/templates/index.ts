@@ -25,7 +25,6 @@ export interface TemplateProps {
     name: string
     date: string
     time: string
-    timezone: string
     venue: string
     address: string
     maps_url: string

@@ -27,8 +27,8 @@ export default async function DemoPage({
       groom_parents="Bapak Hendra & Ibu Sari"
       bride_parents="Bapak Wijaya & Ibu Dewi"
       sessions={[
-        { name: "Akad Nikah", date: "2026-12-31", time: "08:00 - 10:00", timezone: "WIB", venue: "Masjid Ramlie Musyaddad", address: "Jl. Contoh No. 123", maps_url: "https://maps.google.com" },
-        { name: "Resepsi Pernikahan", date: "2026-12-31", time: "11:00 - 14:00", timezone: "WIB", venue: "Grand Ballroom", address: "Jl. Contoh No. 456", maps_url: "https://maps.google.com" },
+        { name: "Akad Nikah", date: "2026-12-31", time: "08:00 - 10:00", venue: "Masjid Ramlie Musyaddad", address: "Jl. Contoh No. 123", maps_url: "https://maps.google.com" },
+        { name: "Resepsi Pernikahan", date: "2026-12-31", time: "11:00 - 14:00", venue: "Grand Ballroom", address: "Jl. Contoh No. 456", maps_url: "https://maps.google.com" },
       ]}
       quote_text="Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu isteri-isteri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya; dan dijadikan-Nya diantaramu rasa kasih dan sayang."
       quote_source="QS. Ar-Rum: 21"

@@ -48,7 +48,6 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
     name: esc(r?.name),
     date: r?.date ? formatDateUpper(r.date) : "",
     time: esc(r?.time),
-    timezone: esc(r?.timezone),
     venue: esc(r?.venue),
     address: esc(r?.address),
     maps_url: r?.maps_url || "",

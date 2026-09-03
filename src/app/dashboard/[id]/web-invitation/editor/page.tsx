@@ -43,7 +43,6 @@ type Session = {
   name: string
   date: string
   time: string
-  timezone: string
   venue: string
   address: string
   maps_url: string
@@ -468,7 +467,6 @@ function EditorInner({ id }: { id: string }) {
       name: `Sesi ${sessions.length + 1}`,
       date: "",
       time: "",
-      timezone: "WIB",
       venue: "",
       address: "",
       maps_url: "",
@@ -1358,14 +1356,6 @@ function EditorInner({ id }: { id: string }) {
                           <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Waktu</label>
                           <input className="input-editorial w-full font-label-md text-[14px]" type="text" value={session.time} onChange={e => updateSession(i, "time", e.target.value)} placeholder="08:00 - 10:00" />
                         </div>
-                      </div>
-                      <div>
-                        <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Zona Waktu</label>
-                        <select className="input-editorial w-full font-label-md text-[14px] appearance-none" value={session.timezone} onChange={e => updateSession(i, "timezone", e.target.value)}>
-                          <option value="WIB">WIB</option>
-                          <option value="WITA">WITA</option>
-                          <option value="WIT">WIT</option>
-                        </select>
                       </div>
                       <div>
                         <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Nama Tempat</label>
