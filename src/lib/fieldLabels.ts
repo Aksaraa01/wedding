@@ -32,6 +32,7 @@ export const FIELD_LABELS: Record<string, string> = {
   countdown: "Hitung Mundur (Tanggal Acara)",
   opening_title: "Kalimat Pembuka — Judul",
   opening_description: "Kalimat Pembuka — Deskripsi",
+  calendar_link: "Link Google Calendar",
 }
 
 // Helper: suggest settings path based on widget type (used in dropdown auto-select)

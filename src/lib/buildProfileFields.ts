@@ -44,7 +44,8 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
 
   const gates = await getRowGates(profile.package_type || "signature")
 
-  const sessions = parseList(profile.sessions).map((r: any) => ({
+  const rawSessions: any[] = parseList(profile.sessions)
+  const sessions = rawSessions.map((r: any) => ({
     name: esc(r?.name),
     date: r?.date ? formatDateUpper(r.date) : "",
     time: esc(r?.time),
@@ -52,6 +53,12 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
     address: esc(r?.address),
     maps_url: r?.maps_url || "",
   }))
+
+  const calendar_link = buildCalendarLink(
+    rawSessions[0] as any,
+    esc(profile.groom_name) || esc(profile.display_name?.split("&")[0]?.trim()),
+    esc(profile.bride_name) || esc(profile.display_name?.split("&")[1]?.trim())
+  )
 
   const stories = parseList(profile.stories).map((r: any) => ({
     title: esc(r?.title),
@@ -89,6 +96,7 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
     gift_address_hidden: !gates.gift_address.included,
     date_upper: profile.estimated_wedding_date ? formatDateUpper(profile.estimated_wedding_date) : "",
     sessions,
+    calendar_link,
     gallery_photos: parseList(profile.gallery_photos).filter(Boolean),
     inviting_families: parseList(profile.inviting_families).filter(Boolean).map(esc),
     gift_accounts: giftAccounts.map(a => ({
@@ -100,4 +108,68 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
   }
 
   return { profile, fields }
+}
+
+function parseStartTime(raw: string | undefined): { h: number; m: number } {
+  if (!raw || typeof raw !== "string") return { h: 8, m: 0 }
+  const t = raw.trim()
+  const hm = t.match(/(\d{1,2})\s*[:.]\s*(\d{2})/)
+  if (hm) {
+    const h = parseInt(hm[1], 10)
+    const m = parseInt(hm[2], 10)
+    if (h >= 0 && h <= 23 && m >= 0 && m <= 59) return { h, m }
+  }
+  const hourOnly = t.match(/\b(\d{1,2})\b/)
+  if (hourOnly) {
+    const h = parseInt(hourOnly[1], 10)
+    if (h >= 0 && h <= 23) return { h, m: 0 }
+  }
+  return { h: 8, m: 0 }
+}
+
+function buildCalendarLink(
+  rawSession: any,
+  groom: string,
+  bride: string
+): string {
+  if (!rawSession || typeof rawSession !== "object") return ""
+  const iso = String(rawSession.date || "").trim()
+  const dm = iso.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (!dm) return ""
+  const yyyy = dm[1], mm = dm[2], dd = dm[3]
+  const groomName = (groom || "").trim()
+  const brideName = (bride || "").trim()
+  const titleCore = groomName && brideName ? `${groomName}-${brideName}` : (groomName || brideName || "Mempelai")
+  const title = `The Wedding OF ${titleCore}`
+
+  const { h, m } = parseStartTime(rawSession.time as string | undefined)
+
+  const pad = (n: number) => String(n).padStart(2, "0")
+  const startStr = `${yyyy}${mm}${dd}T${pad(h)}${pad(m)}00`
+  let endH = h + 2
+  let endY = yyyy, endM = mm, endD = dd
+  if (endH >= 24) {
+    endH -= 24
+    const d = new Date(`${yyyy}-${mm}-${dd}T00:00:00+07:00`)
+    d.setDate(d.getDate() + 1)
+    endY = String(d.getFullYear())
+    endM = String(d.getMonth() + 1).padStart(2, "0")
+    endD = String(d.getDate()).padStart(2, "0")
+  }
+  const endStr = `${endY}${endM}${endD}T${pad(endH)}${pad(m)}00`
+
+  const venue = String(rawSession.venue || "").trim()
+  const address = String(rawSession.address || "").trim()
+  const location = [venue, address].filter(Boolean).join(", ")
+
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: title,
+    dates: `${startStr}/${endStr}`,
+    ctz: "Asia/Jakarta",
+  })
+  if (location) params.set("location", location)
+  const detailsName = String(rawSession.name || "").trim()
+  if (detailsName) params.set("details", detailsName)
+  return `https://www.google.com/calendar/render?${params.toString()}`
 }

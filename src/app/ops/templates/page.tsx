@@ -41,7 +41,7 @@ const MAPPING_GROUPS: { key: string; label: string; fields: string[] }[] = [
   { key: "sampul", label: "Sampul", fields: ["guest_name", "cover_photos", "couple_initials", "opening_title", "opening_description"] },
   { key: "profile", label: "Profile Mempelai", fields: ["display_name", "groom_name", "bride_name", "groom_full_name", "bride_full_name", "groom_photo_url", "bride_photo_url", "groom_parents", "bride_parents", "groom_instagram", "bride_instagram"] },
   { key: "inviting", label: "Turut Mengundang", fields: ["inviting_families", "inviting_families_section"] },
-  { key: "acara", label: "Acara", fields: ["date_upper", "countdown", "sessions"] },
+  { key: "acara", label: "Acara", fields: ["date_upper", "countdown", "sessions", "calendar_link"] },
   { key: "kutipan", label: "Kutipan", fields: ["quote_text", "quote_source"] },
   { key: "video", label: "Video", fields: ["video_url", "video_section"] },
   { key: "story", label: "Story", fields: ["stories", "story_section"] },
@@ -390,7 +390,7 @@ export default function OpsTemplatesPage() {
     // by a _css_classes marker in the mu-plugin.
     if (widgetType === "container" && field && isSectionField(field)) return ""
     // URL/link fields on a button map to the button's link URL, not its label.
-    if (widgetType === "button" && field && (field.includes("url") || field === "maps_url")) {
+    if (widgetType === "button" && field && (field.includes("url") || field.includes("link") || field === "maps_url")) {
       return "link.url"
     }
     return WIDGET_SETTINGS[widgetType] || "title"
