@@ -21,6 +21,7 @@ type EventInfo = {
   guest_count: number
   has_pin: boolean
   end_date?: string
+  cover_photo?: string | null
 }
 
 type ScanResult = {
@@ -597,20 +598,26 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
   return (
     <>
       <style>{`@keyframes laserMove{0%{top:0%;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:100%;opacity:0}}.scanner-laser{animation:laserMove 2s infinite linear}`}</style>
-      <div className="font-sans text-on-surface bg-background min-h-screen antialiased flex flex-col items-center">
-      <header className="w-full bg-surface-container/80 backdrop-blur-md border-b border-outline-variant/30 sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
+      <div className={`font-sans min-h-screen antialiased flex flex-col items-center relative ${eventInfo?.cover_photo ? "text-white" : "text-on-surface bg-background"}`}>
+        {eventInfo?.cover_photo && (
+          <>
+            <img src={eventInfo.cover_photo} alt="" className="fixed inset-0 w-full h-full object-cover -z-10" />
+            <div className="fixed inset-0 bg-black/55 backdrop-blur-[2px] -z-10" />
+          </>
+        )}
+      <header className={`w-full backdrop-blur-md border-b sticky top-0 z-40 px-4 py-3 flex items-center justify-between ${eventInfo?.cover_photo ? "bg-black/30 border-white/10 text-white" : "bg-surface-container/80 border-outline-variant/30 text-on-surface"}`}>
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-secondary text-xl">qr_code_scanner</span>
+          <span className={`material-symbols-outlined text-xl ${eventInfo?.cover_photo ? "text-white" : "text-secondary"}`}>qr_code_scanner</span>
           <div>
-            <h1 className="font-serif text-base font-semibold text-primary tracking-wide">Aksaraa Concierge</h1>
-            <p className="text-[9px] uppercase tracking-widest text-on-surface-variant/70 font-medium">
+            <h1 className={`font-serif text-base font-semibold tracking-wide ${eventInfo?.cover_photo ? "text-white" : "text-primary"}`}>Aksaraa Concierge</h1>
+            <p className={`text-[9px] uppercase tracking-widest font-medium ${eventInfo?.cover_photo ? "text-white/70" : "text-on-surface-variant/70"}`}>
               Gate 1 &bull; {coupleDisplay}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <span className={`w-2 h-2 rounded-full ${offline ? "bg-red-500" : pendingSync > 0 ? "bg-yellow-500" : "bg-green-500"}`} />
-          <button onClick={() => window.location.reload()} className="p-2 hover:bg-surface-container-high rounded-full transition-colors text-on-surface-variant">
+          <button onClick={() => window.location.reload()} className={`p-2 hover:bg-white/10 rounded-full transition-colors ${eventInfo?.cover_photo ? "text-white/80" : "text-on-surface-variant"}`}>
             <span className="material-symbols-outlined text-lg">sync</span>
           </button>
         </div>

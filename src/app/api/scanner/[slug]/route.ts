@@ -11,7 +11,7 @@ export async function GET(
 
     const { data: profile, error: profileErr } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("id, bride_name, groom_name, display_name, scanner_pin, sessions, estimated_wedding_date")
+      .select("id, bride_name, groom_name, display_name, scanner_pin, sessions, estimated_wedding_date, cover_photos, couple_illustration_url")
       .eq("slug", slug)
       .single()
 
@@ -32,6 +32,11 @@ export async function GET(
       guest_count: guestCount || 0,
       has_pin: !!profile.scanner_pin,
       end_date: formatEndDate(getEndDate(profile)),
+      cover_photo: (() => {
+        const covers = Array.isArray((profile as any).cover_photos) ? (profile as any).cover_photos : []
+        const first = covers.find((c: unknown) => typeof c === "string" && (c as string).trim()) as string | undefined
+        return (first as string) || (profile as any).couple_illustration_url || null
+      })(),
     })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
