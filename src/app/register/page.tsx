@@ -79,7 +79,7 @@ function RegisterInner() {
   }
 
   return (
-    <div className="relative min-h-screen bg-background text-on-surface antialiased flex flex-col overflow-x-hidden">
+    <div className="relative h-[100dvh] md:min-h-screen bg-background text-on-surface antialiased flex flex-col overflow-hidden md:overflow-x-hidden">
       {/* Progress Bar */}
       <div className="fixed top-0 left-0 w-full h-[2px] bg-outline-variant/30 z-[100]">
         <div
@@ -88,8 +88,8 @@ function RegisterInner() {
       </div>
 
       {/* Header */}
-      <header className="fixed top-0 w-full z-50 h-16 flex justify-center items-center px-edge-margin-mobile bg-surface/80 backdrop-blur-md">
-        <span className="font-headline-md text-headline-md tracking-tighter text-primary">Aksaraa</span>
+      <header className="fixed top-0 w-full z-50 h-12 md:h-16 flex justify-center items-center px-4 md:px-edge-margin-mobile bg-surface/80 backdrop-blur-md">
+        <span className="font-headline-md text-[20px] md:text-headline-md tracking-tighter text-primary">Aksaraa</span>
       </header>
 
       {/* Atmospheric Circle */}
@@ -98,16 +98,16 @@ function RegisterInner() {
       </div>
 
       {/* Main */}
-      <main className="flex-1 min-h-0 overflow-y-auto flex flex-col items-center justify-start md:justify-center px-4 md:px-edge-margin-mobile pt-24 pb-40 text-center">
+      <main className="flex-1 min-h-0 overflow-hidden flex flex-col items-center justify-center px-4 md:px-edge-margin-mobile pt-16 md:pt-24 pb-4 md:pb-40 text-center">
         {step === 1 && (
-          <div className="animate-fade-in w-[90%] max-w-[340px] mx-auto">
-            <h1 className="font-headline-md text-headline-md mb-4 text-on-surface leading-tight">
+          <div className="animate-fade-in w-[90%] max-w-[340px] mx-auto flex flex-col justify-center">
+            <h1 className="font-headline-md text-[20px] md:text-headline-md mb-2 md:mb-4 text-on-surface leading-tight">
               Selamat datang di Aksaraa. Mari mulai cerita Anda.
             </h1>
-            <p className="font-body-md text-body-md text-on-surface-variant mb-16 opacity-80 italic">
+            <p className="font-body-md text-sm md:text-body-md text-on-surface-variant mb-6 md:mb-16 opacity-80 italic">
               Siapa nama Anda dan pasangan?
             </p>
-            <div className="space-y-12 w-full">
+            <div className="space-y-6 md:space-y-12 w-full">
               <div className="relative group">
                 <input
                   autoComplete="off"
@@ -138,19 +138,19 @@ function RegisterInner() {
         )}
 
         {step === 2 && (
-          <div className="w-[90%] max-w-md mx-auto space-y-12 animate-fade-in">
-            <div className="text-center space-y-4">
-              <h1 className="font-headline-md text-[32px] leading-tight text-primary">
+          <div className="w-[90%] max-w-md mx-auto space-y-6 md:space-y-12 animate-fade-in flex flex-col justify-center">
+            <div className="text-center space-y-2 md:space-y-4">
+              <h1 className="font-headline-md text-[24px] md:text-[32px] leading-tight text-primary">
                 Kapan pernikahan akan digelar?
               </h1>
-              <p className="font-body-md text-on-surface-variant max-w-[280px] mx-auto">
+              <p className="font-body-md text-sm md:text-body-md text-on-surface-variant max-w-[280px] mx-auto">
                 Pilih estimasi tanggal agar kami bisa menyusun linimasa perhitungan mundur.
               </p>
             </div>
 
             <div
               ref={dateCardRef}
-              className="bg-[#FAF5EB] p-8 rounded-none border border-outline-variant/20 shadow-sm transition-all duration-500 hover:border-outline-variant"
+              className="bg-[#FAF5EB] p-4 md:p-8 rounded-none border border-outline-variant/20 shadow-sm transition-all duration-500 hover:border-outline-variant"
               style={{ opacity: isTentative ? 0.4 : 1, pointerEvents: isTentative ? "none" : "auto" }}
             >
               <label
@@ -195,21 +195,21 @@ function RegisterInner() {
         )}
 
         {step === 3 && (
-          <>
-            <div className="text-center mb-10 animate-fade-in w-[90%] max-w-md mx-auto" style={{ animationDelay: "0.1s" }}>
-              <h2 className="font-headline-md text-[32px] leading-tight text-primary mb-4">
+          <div className="w-[90%] max-w-md mx-auto flex flex-col justify-center flex-1 min-h-0 py-2">
+            <div className="text-center mb-4 md:mb-10 animate-fade-in w-full" style={{ animationDelay: "0.1s" }}>
+              <h2 className="font-headline-md text-[24px] md:text-[32px] leading-tight text-primary mb-2 md:mb-4">
                 Perkiraan jumlah undangan?
               </h2>
-              <p className="font-body-md text-on-surface-variant max-w-[320px] mx-auto">
+              <p className="font-body-md text-sm md:text-body-md text-on-surface-variant max-w-[320px] mx-auto">
                 Ini membantu menghitung kuota server RSVP, Undangan, QR Code tamu, dan alokasi meja VIP.
               </p>
             </div>
 
             <div
-              className="w-[90%] max-w-md mx-auto bg-[#FAF5EB] p-8 border border-outline-variant/30 animate-fade-in"
+              className="w-full bg-[#FAF5EB] p-4 md:p-8 border border-outline-variant/30 animate-fade-in"
               style={{ animationDelay: "0.2s" }}
             >
-              <div className="text-center mb-12">
+              <div className="text-center mb-6 md:mb-12">
                 <div className="font-label-md text-label-md text-secondary uppercase tracking-[0.2em] mb-4">
                   ESTIMASI KAPASITAS
                 </div>
@@ -257,7 +257,7 @@ function RegisterInner() {
               </div>
             </div>
 
-            <div className="mt-12 w-full max-w-[200px] aspect-[4/5] opacity-80 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+            <div className="mt-4 md:mt-12 w-[90%] max-w-[140px] md:max-w-[200px] aspect-[4/5] max-h-[22dvh] md:max-h-none mx-auto opacity-80 animate-fade-in" style={{ animationDelay: "0.3s" }}>
               <div
                 className="w-full h-full grayscale"
                 style={{
@@ -268,25 +268,25 @@ function RegisterInner() {
                 }}
               />
             </div>
-          </>
+          </div>
         )}
       </main>
 
       {/* Footer */}
       {step === 1 && (
-        <footer className="sticky bottom-0 left-0 w-full px-edge-margin-mobile pb-10 pt-4 bg-gradient-to-t from-background via-background to-transparent">
+        <footer className="sticky bottom-0 left-0 w-full px-4 md:px-edge-margin-mobile pb-4 md:pb-10 pt-2 md:pt-4 bg-gradient-to-t from-background via-background to-transparent">
           <div className="max-w-md mx-auto">
             <button
               onClick={handleNextStep1}
               disabled={!step1Valid || nameChecking}
-              className={`w-full bg-primary text-on-primary flex items-center justify-center gap-3 py-5 rounded-none font-label-md text-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all duration-300 active:scale-95 group ${
+              className={`w-full bg-primary text-on-primary flex items-center justify-center gap-3 py-3 md:py-5 rounded-none font-label-md text-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all duration-300 active:scale-95 group ${
                 step1Valid && !nameChecking ? "opacity-100" : "opacity-50"
               }`}
             >
               {nameChecking ? "Memeriksa..." : "Lanjutkan"}
               <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
             </button>
-            <p className="mt-6 text-[10px] text-on-surface-variant/40 text-center tracking-widest font-label-md">
+            <p className="mt-3 md:mt-6 text-[10px] text-on-surface-variant/40 text-center tracking-widest font-label-md">
               LANGKAH 1 DARI 3
             </p>
           </div>
@@ -294,17 +294,17 @@ function RegisterInner() {
       )}
 
       {step === 2 && (
-        <nav className="fixed bottom-0 w-full bg-surface/90 backdrop-blur-xl border-t border-outline-variant/10 px-edge-margin-mobile py-6 z-50">
-          <div className="max-w-md mx-auto flex items-center justify-between gap-6">
+        <nav className="fixed bottom-0 w-full bg-surface/90 backdrop-blur-xl border-t border-outline-variant/10 px-4 md:px-edge-margin-mobile py-3 md:py-6 z-50">
+          <div className="max-w-md mx-auto flex items-center justify-between gap-3 md:gap-6">
             <button
               onClick={() => setStep(1)}
-              className="flex-1 py-4 border border-outline-variant text-primary font-label-md uppercase tracking-[0.1em] hover:bg-surface-variant transition-colors"
+              className="flex-1 py-3 md:py-4 border border-outline-variant text-primary font-label-md uppercase tracking-[0.1em] hover:bg-surface-variant transition-colors"
             >
               Kembali
             </button>
             <button
               onClick={handleNextStep2}
-              className="flex-[1.5] py-4 bg-primary text-on-primary font-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all duration-300 active:scale-95"
+              className="flex-[1.5] py-3 md:py-4 bg-primary text-on-primary font-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all duration-300 active:scale-95"
             >
               Lanjutkan
             </button>
@@ -313,11 +313,11 @@ function RegisterInner() {
       )}
 
       {step === 3 && (
-        <footer className="fixed bottom-0 w-full z-50 bg-surface border-t border-outline-variant/20 p-edge-margin-mobile">
-          <div className="max-w-md mx-auto flex gap-4">
+        <footer className="fixed bottom-0 w-full z-50 bg-surface border-t border-outline-variant/20 px-4 md:px-edge-margin-mobile py-3 md:py-4">
+          <div className="max-w-md mx-auto flex gap-3 md:gap-4">
             <button
               onClick={() => setStep(2)}
-              className="flex-1 py-4 border border-primary font-label-md text-label-md uppercase tracking-widest text-primary hover:bg-surface-container transition-colors duration-300"
+              className="flex-1 py-3 md:py-4 border border-primary font-label-md text-label-md uppercase tracking-widest text-primary hover:bg-surface-container transition-colors duration-300"
             >
               Kembali
             </button>
@@ -331,12 +331,12 @@ function RegisterInner() {
                 })
                 router.push(`/customize?${params}`)
               }}
-              className="flex-[1.5] py-4 bg-primary text-on-primary font-label-md text-label-md uppercase tracking-widest hover:bg-secondary transition-all duration-300 active:scale-[0.98]"
+              className="flex-[1.5] py-3 md:py-4 bg-primary text-on-primary font-label-md text-label-md uppercase tracking-widest hover:bg-secondary transition-all duration-300 active:scale-[0.98]"
             >
               Selesaikan
             </button>
           </div>
-          <p className="mt-3 text-[10px] text-on-surface-variant/40 text-center tracking-widest font-label-md">
+          <p className="mt-2 md:mt-3 text-[10px] text-on-surface-variant/40 text-center tracking-widest font-label-md">
             LANGKAH 3 DARI 3
           </p>
         </footer>
