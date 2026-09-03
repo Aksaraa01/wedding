@@ -173,13 +173,27 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
   const selfieOpen = selfieGuest !== null
 
+  const selfieGuestRef = useRef<GuestRecord | null>(null)
+  useEffect(() => {
+    selfieGuestRef.current = selfieGuest
+  }, [selfieGuest])
+
+  const selfieAfterRef = useRef<"checkin" | "recovery">("checkin")
+  useEffect(() => {
+    selfieAfterRef.current = selfieAfter
+  }, [selfieAfter])
+
   function openSelfieCheckin(guest: GuestRecord) {
+    selfieGuestRef.current = guest
+    selfieAfterRef.current = "checkin"
     setSelfieGuest(guest)
     setSelfieAfter("checkin")
     setScanResult(null)
   }
 
   function openSelfieRecovery(guest: GuestRecord) {
+    selfieGuestRef.current = guest
+    selfieAfterRef.current = "recovery"
     setSelfieGuest(guest)
     setSelfieAfter("recovery")
     setScanResult(null)
@@ -209,25 +223,19 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
     openSelfieCheckin(fake)
   }
 
-  const selfieAfterRef = useRef<"checkin" | "recovery">("checkin")
-  useEffect(() => {
-    selfieAfterRef.current = selfieAfter
-  }, [selfieAfter])
-
   const handleSelfieDone = useCallback((uploaded: boolean, _error?: string) => {
-    const guest = selfieGuest
+    const guest = selfieGuestRef.current
     setSelfieGuest(null)
+    selfieGuestRef.current = null
     if (guest) {
       if (uploaded) {
         setSelfieGuestIds((prev) => new Set(prev).add(guest.id))
         setSelfieDoneToast(`Foto check-in ${guest.name} berhasil disimpan`)
         setTimeout(() => setSelfieDoneToast(null), 3000)
       }
-      if (selfieAfterRef.current === "checkin") {
-        setScanResult({ type: "success", guest, message: `Selamat datang, ${guest.name}!` })
-      }
+      setScanResult({ type: "success", guest, message: `Selamat datang, ${guest.name}!` })
     }
-  }, [selfieGuest])
+  }, [])
 
   useEffect(() => {
     fetch(`/api/scanner/${slug}`).then((r) => r.json()).then((data) => {
