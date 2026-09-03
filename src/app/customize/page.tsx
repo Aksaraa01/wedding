@@ -429,10 +429,10 @@ function Inner() {
       <main className="pt-20 pb-20 px-edge-margin-mobile md:px-edge-margin-desktop max-w-[1200px] mx-auto">
         {/* Header Section */}
         <section className="text-center mb-8 max-w-2xl mx-auto">
-          <h2 className="font-headline-lg text-headline-lg md:font-headline-xl md:text-headline-xl mb-2 text-primary tracking-tight">
+          <h2 className="font-headline-lg text-[22px] md:text-headline-lg lg:text-headline-xl mb-2 text-primary tracking-tight">
             Pilih Paket
           </h2>
-          <p className="font-body-lg text-body-lg text-on-surface-variant font-light">
+          <p className="text-sm md:font-body-lg md:text-body-lg text-on-surface-variant font-light">
             Temukan paket terbaik yang sesuai dengan kebutuhan pernikahan impian Anda
           </p>
         </section>
@@ -729,33 +729,30 @@ function Inner() {
         </section>
       </main>
 
-      <footer className="fixed bottom-0 left-0 w-full bg-[rgba(253,249,240,0.85)] backdrop-blur-md border-t border-outline-variant px-edge-margin-mobile py-6 z-[90]">
-        <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex flex-col items-center md:items-start">
-            <span className="font-label-md text-[10px] uppercase text-on-surface-variant tracking-widest">Estimasi Total</span>
-            <div className="flex items-center gap-3">
-              <span className="font-headline-md text-2xl">{PACKAGE_LABELS[selectedPackage] || "Paket"} Experience</span>
-              <span className="text-on-surface-variant/30">|</span>
-              <span className="font-headline-md text-2xl text-secondary">{formatRp(total)}</span>
+      <footer className="fixed bottom-0 left-0 w-full bg-[rgba(253,249,240,0.85)] backdrop-blur-md border-t border-outline-variant px-4 md:px-edge-margin-desktop py-3 md:py-6 z-[90]">
+        <div className="max-w-[1200px] mx-auto flex flex-row items-center justify-between gap-3 md:gap-4">
+          <div className="flex flex-col items-start min-w-0 flex-1">
+            <span className="font-label-md text-[10px] uppercase text-on-surface-variant tracking-widest hidden md:block">Estimasi Total</span>
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="font-headline-md text-[14px] md:text-2xl truncate">{PACKAGE_LABELS[selectedPackage] || "Paket"} Experience</span>
+              <span className="text-on-surface-variant/30 hidden sm:inline">|</span>
+              <span className="font-headline-md text-[14px] md:text-2xl text-secondary whitespace-nowrap">{formatRp(total)}</span>
             </div>
-            {undanganFisik && (
-              <span className="text-[10px] text-on-surface-variant/60 mt-1">* belum termasuk undangan fisik</span>
-            )}
           </div>
           {isEdit ? (
             <button
               onClick={handleSave}
               disabled={submitting}
-              className={`w-full md:w-auto px-12 py-4 bg-primary text-white font-label-md uppercase tracking-[0.2em] transition-all hover:bg-secondary ${submitting ? "opacity-50" : ""}`}
+              className={`shrink-0 px-6 md:px-12 py-3 md:py-4 bg-primary text-white font-label-md text-[11px] md:text-label-md uppercase tracking-[0.2em] transition-all hover:bg-secondary rounded-full md:rounded-none ${submitting ? "opacity-50" : ""}`}
             >
               {submitting ? "Menyimpan..." : "Simpan"}
             </button>
           ) : (
             <button
               onClick={() => setModalOpen(true)}
-              className="w-full md:w-auto px-12 py-4 bg-primary text-white font-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all"
+              className="shrink-0 px-6 md:px-12 py-3 md:py-4 bg-primary text-white font-label-md text-[11px] md:text-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all rounded-full md:rounded-none"
             >
-              Kunci Kustomisasi &amp; Kirim ke Konsultan
+              Lanjut
             </button>
           )}
         </div>
