@@ -98,9 +98,9 @@ function RegisterInner() {
       </div>
 
       {/* Main */}
-      <main className="flex-grow flex flex-col items-center justify-center px-edge-margin-mobile pt-24 pb-40 text-center">
+      <main className="flex-1 min-h-0 overflow-y-auto flex flex-col items-center justify-start md:justify-center px-4 md:px-edge-margin-mobile pt-24 pb-40 text-center">
         {step === 1 && (
-          <div className="animate-fade-in max-w-[340px]">
+          <div className="animate-fade-in w-[90%] max-w-[340px] mx-auto">
             <h1 className="font-headline-md text-headline-md mb-4 text-on-surface leading-tight">
               Selamat datang di Aksaraa. Mari mulai cerita Anda.
             </h1>
@@ -138,7 +138,7 @@ function RegisterInner() {
         )}
 
         {step === 2 && (
-          <div className="w-full max-w-md space-y-12 animate-fade-in">
+          <div className="w-[90%] max-w-md mx-auto space-y-12 animate-fade-in">
             <div className="text-center space-y-4">
               <h1 className="font-headline-md text-[32px] leading-tight text-primary">
                 Kapan pernikahan akan digelar?
@@ -196,7 +196,7 @@ function RegisterInner() {
 
         {step === 3 && (
           <>
-            <div className="text-center mb-10 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+            <div className="text-center mb-10 animate-fade-in w-[90%] max-w-md mx-auto" style={{ animationDelay: "0.1s" }}>
               <h2 className="font-headline-md text-[32px] leading-tight text-primary mb-4">
                 Perkiraan jumlah undangan?
               </h2>
@@ -206,7 +206,7 @@ function RegisterInner() {
             </div>
 
             <div
-              className="w-full max-w-md bg-[#FAF5EB] p-8 border border-outline-variant/30 animate-fade-in"
+              className="w-[90%] max-w-md mx-auto bg-[#FAF5EB] p-8 border border-outline-variant/30 animate-fade-in"
               style={{ animationDelay: "0.2s" }}
             >
               <div className="text-center mb-12">
