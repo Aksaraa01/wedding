@@ -147,86 +147,90 @@ export default function SelfieModal({
 
   if (!open) return null
 
+  if (!open) return null
+
   return (
-    <div
-      className="fixed inset-0 z-[90] flex flex-col w-full overflow-hidden"
-      style={{ backgroundColor: "#1a0b1a", color: "#F8F5F0", height: "100dvh", paddingTop: "max(8px, env(safe-area-inset-top))", paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}
-    >
+    <div className="fixed inset-0 z-[90] w-full h-[100dvh] overflow-hidden bg-black flex flex-col" style={{ color: "#F8F5F0" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');`}</style>
 
-      <header className="w-full flex items-center justify-between px-4 py-3 shrink-0">
+      {/* Full-bleed camera */}
+      <div className="absolute inset-0 w-full h-full">
+        {!capturedSrc ? (
+          <>
+            <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover" />
+            <canvas ref={canvasRef} className="hidden" />
+          </>
+        ) : (
+          <img src={capturedSrc} alt="Foto check-in" className="absolute inset-0 w-full h-full object-cover" />
+        )}
+        {/* Viewfinder frame corners */}
+        <div className="absolute inset-0 pointer-events-none z-10">
+          <div className="absolute top-[max(16px,env(safe-area-inset-top))] left-4 w-10 h-10 border-t-2 border-l-2 border-white/60 rounded-tl-lg" />
+          <div className="absolute top-[max(16px,env(safe-area-inset-top))] right-4 w-10 h-10 border-t-2 border-r-2 border-white/60 rounded-tr-lg" />
+          <div className="absolute bottom-[max(120px,calc(env(safe-area-inset-bottom)+96px))] left-4 w-10 h-10 border-b-2 border-l-2 border-white/60 rounded-bl-lg" />
+          <div className="absolute bottom-[max(120px,calc(env(safe-area-inset-bottom)+96px))] right-4 w-10 h-10 border-b-2 border-r-2 border-white/60 rounded-br-lg" />
+        </div>
+        {/* Countdown overlay */}
+        {countdown !== null && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/55 z-20">
+            <span className="text-8xl font-serif text-white font-bold animate-pulse">{countdown}</span>
+          </div>
+        )}
+        {!capturedSrc && countdown === null && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+            <span className="material-symbols-outlined text-6xl text-white/50 animate-pulse">face</span>
+          </div>
+        )}
+        {/* Couple name/date band (preview) */}
+        <div className="absolute bottom-[max(96px,calc(env(safe-area-inset-bottom)+72px))] left-0 right-0 bg-black/45 backdrop-blur-sm px-4 py-2.5 flex flex-col items-center gap-0.5 z-10">
+          <span className="font-serif text-white text-sm tracking-widest" style={{ fontFamily: "Playfair Display" }}>
+            {coupleName || "Aksaraa"}
+          </span>
+          <span className="text-white/70 text-[10px] tracking-widest">{endDate}</span>
+        </div>
+      </div>
+
+      {/* Header overlay */}
+      <header className="absolute top-0 inset-x-0 z-30 flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/70 via-black/30 to-transparent" style={{ paddingTop: "max(12px, env(safe-area-inset-top))" }}>
         <button
           onClick={() => onDone(false)}
-          className="w-9 h-9 rounded-full border border-white/15 flex items-center justify-center text-white/80 hover:bg-white/10 transition-colors"
+          className="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white/25 transition-colors"
           aria-label="Tutup"
         >
           <span className="material-symbols-outlined text-lg">close</span>
         </button>
-        <div className="text-center flex-1 px-4">
-          <h3 className="font-serif text-[15px] font-bold text-white tracking-wide" style={{ fontFamily: "Playfair Display" }}>
+        <div className="text-center flex-1 px-3">
+          <h3 className="font-serif text-[14px] font-bold text-white tracking-wide" style={{ fontFamily: "Playfair Display" }}>
             Foto Check-in
           </h3>
-          <p className="text-[11px] text-white/60">
-            {guestName ? <span className="font-semibold text-white">{guestName}</span> : "Tamu"} • {coupleName || "Aksaraa"}
+          <p className="text-[10px] text-white/70 truncate">
+            {guestName ? <span className="font-semibold text-white">{guestName}</span> : "Tamu"}
           </p>
         </div>
         <button
           onClick={() => setFacing((f) => (f === "user" ? "environment" : "user"))}
-          className="w-9 h-9 rounded-full border border-white/15 flex items-center justify-center text-white/80 hover:bg-white/10 transition-colors"
+          className="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white/25 transition-colors"
           aria-label="Ganti kamera"
         >
           <span className="material-symbols-outlined text-lg">cameraswitch</span>
         </button>
       </header>
 
-      <main className="flex-1 min-h-0 flex flex-col items-center justify-center px-3 sm:px-4 py-2 w-full max-w-[92vw] sm:max-w-[420px] md:max-w-[520px] lg:max-w-[560px] mx-auto">
-        {!capturedSrc ? (
-          <div className="relative w-full aspect-[3/4] bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl flex items-center justify-center max-h-[68dvh] sm:max-h-[70dvh] md:max-h-[72dvh]">
-            <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
-            <canvas ref={canvasRef} className="hidden" />
-            {countdown !== null ? (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-10">
-                <span className="text-7xl font-serif text-white font-bold animate-pulse">{countdown}</span>
-              </div>
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/30 text-white z-10 pointer-events-none">
-                <span className="material-symbols-outlined text-5xl text-white/60 animate-pulse">face</span>
-              </div>
-            )}
-            <div className="absolute inset-0 pointer-events-none z-20">
-              <div className="absolute top-3 left-3 w-8 h-8 border-t-2 border-l-2 border-white/50 rounded-tl-md" />
-              <div className="absolute top-3 right-3 w-8 h-8 border-t-2 border-r-2 border-white/50 rounded-tr-md" />
-              <div className="absolute bottom-3 left-3 w-8 h-8 border-b-2 border-l-2 border-white/50 rounded-bl-md" />
-              <div className="absolute bottom-3 right-3 w-8 h-8 border-b-2 border-r-2 border-white/50 rounded-br-md" />
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 bg-black/45 backdrop-blur-sm px-4 py-2 flex flex-col items-center gap-0.5">
-              <span className="font-serif text-white text-sm tracking-widest" style={{ fontFamily: "Playfair Display" }}>
-                {coupleName}
-              </span>
-              <span className="text-white/70 text-[10px] tracking-widest">{endDate}</span>
-            </div>
-          </div>
-        ) : (
-          <div className="relative w-full aspect-[3/4] bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl max-h-[68dvh] sm:max-h-[70dvh] md:max-h-[72dvh]">
-            <img src={capturedSrc} alt="Foto check-in" className="w-full h-full object-cover" />
-          </div>
-        )}
-      </main>
-
-      <footer className="w-full shrink-0 px-3 sm:px-4 pb-3 sm:pb-4 pt-3 flex flex-col gap-2 max-w-[92vw] sm:max-w-[420px] md:max-w-[520px] lg:max-w-[560px] mx-auto">
-        {uploadError && <p className="text-red-400 text-xs text-center font-medium">{uploadError}</p>}
+      {/* Footer overlay */}
+      <footer className="absolute bottom-0 inset-x-0 z-30 px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-4 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col gap-2">
+        {uploadError && <p className="text-red-400 text-xs text-center font-medium bg-black/50 rounded-full px-3 py-1 mx-auto">{uploadError}</p>}
         {!capturedSrc ? (
           <>
             <button
               onClick={beginCountdown}
               disabled={countdown !== null}
-              className="w-full bg-white text-black py-4 rounded-full font-sans text-[11px] uppercase tracking-widest font-bold flex justify-center items-center gap-2 disabled:opacity-50 shadow-lg"
+              className="w-full max-w-md mx-auto bg-white text-black py-4 rounded-full font-sans text-[11px] uppercase tracking-widest font-bold flex justify-center items-center gap-2 disabled:opacity-50 shadow-xl"
             >
               <span className="material-symbols-outlined text-sm">photo_camera</span> Ambil Foto
             </button>
             <button
               onClick={() => onDone(false)}
-              className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20 py-3 rounded-full font-sans text-[11px] uppercase tracking-widest font-bold transition-colors"
+              className="w-full max-w-md mx-auto bg-white/15 backdrop-blur-md text-white border border-white/20 py-3 rounded-full font-sans text-[11px] uppercase tracking-widest font-bold hover:bg-white/25 transition-colors"
             >
               Lewati Langkah Ini
             </button>
@@ -236,7 +240,7 @@ export default function SelfieModal({
             <button
               onClick={submit}
               disabled={uploading}
-              className="w-full bg-white text-black py-4 rounded-full font-sans text-[11px] uppercase tracking-widest font-bold flex justify-center items-center gap-2 disabled:opacity-50 shadow-lg"
+              className="w-full max-w-md mx-auto bg-white text-black py-4 rounded-full font-sans text-[11px] uppercase tracking-widest font-bold flex justify-center items-center gap-2 disabled:opacity-50 shadow-xl"
             >
               {uploading ? (
                 <>
@@ -252,7 +256,7 @@ export default function SelfieModal({
             <button
               onClick={retake}
               disabled={uploading}
-              className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20 py-3 rounded-full font-sans text-[11px] uppercase tracking-widest font-bold transition-colors disabled:opacity-50"
+              className="w-full max-w-md mx-auto bg-white/15 backdrop-blur-md text-white border border-white/20 py-3 rounded-full font-sans text-[11px] uppercase tracking-widest font-bold hover:bg-white/25 transition-colors disabled:opacity-50"
             >
               Ulangi
             </button>

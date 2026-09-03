@@ -509,6 +509,13 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
     return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")} WIB`
   }
 
+  const formatTanggalWIB = (iso: string | null | undefined) => {
+    if (!iso) return ""
+    const d = new Date(iso)
+    const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}, ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")} WIB`
+  }
+
   const presentCount = logEntries.filter(g => g.is_checked_in).reduce((sum, g) => sum + paxCount(g), 0)
   const totalGuests = allGuests.reduce((sum, g) => sum + paxCount(g), 0)
   const presentGuestRows = logEntries.filter(g => g.is_checked_in).length
@@ -650,7 +657,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
             <div className="absolute top-8 left-8 w-8 h-8 border-t-2 border-l-2 border-surface-container-high rounded-tl-md"></div>
             <div className="absolute top-8 right-8 w-8 h-8 border-t-2 border-r-2 border-surface-container-high rounded-tr-md"></div>
             <div className="absolute bottom-8 left-8 w-8 h-8 border-b-2 border-l-2 border-surface-container-high rounded-bl-md"></div>
-            <div className="absolute bottom-8 right-8 w-8 h-8 border-b-2 border-l-2 border-surface-container-high rounded-br-md"></div>
+            <div className="absolute bottom-8 right-8 w-8 h-8 border-b-2 border-r-2 border-surface-container-high rounded-br-md"></div>
             <div className="scanner-laser absolute left-6 right-6 h-0.5 bg-secondary shadow-[0_0_8px_#8d4d39] z-10"></div>
             <div className="text-center z-20 space-y-1.5 px-8 pointer-events-none">
               <span className="material-symbols-outlined text-3xl text-surface-container-high/80 animate-pulse">photo_camera</span>
@@ -731,7 +738,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                       {g.category && <span className="text-[10px] text-secondary font-bold font-serif pl-1">{g.category}</span>}
                     </h4>
                     <p className="text-[10px] text-on-surface-variant/60 font-mono">
-                      {formatTableNumber(g.table_number)}{g.table_number ? " • " : ""}{paxCount(g)} Pax • {formatWIB(g.checkin_timestamp)}
+                      {formatTableNumber(g.table_number)}{g.table_number ? " • " : ""}{paxCount(g)} Pax • {formatTanggalWIB(g.checkin_timestamp)}
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
