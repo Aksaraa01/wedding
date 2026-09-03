@@ -737,7 +737,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                       {g.added_manually && <span className="text-[10px] text-amber-600 font-bold font-serif pl-1">[Ditambahkan Manual]</span>}
                       {g.category && <span className="text-[10px] text-secondary font-bold font-serif pl-1">{g.category}</span>}
                     </h4>
-                    <p className="text-[10px] text-on-surface-variant/60 font-mono">
+                    <p className="text-[10px] text-on-surface-variant font-mono">
                       {formatTableNumber(g.table_number)}{g.table_number ? " • " : ""}{paxCount(g)} Pax • {formatTanggalWIB(g.checkin_timestamp)}
                     </p>
                   </div>
