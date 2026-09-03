@@ -511,12 +511,11 @@ function EditorInner({ id }: { id: string }) {
 
   const galleryPhotos: string[] = Array.isArray(data.gallery_photos) ? data.gallery_photos : []
 
-  // Photo quota ("Kuota Foto"): gallery's own cap = quota − cover − groom − bride.
-  // Each slideshow (cover slot / groom / bride) counts as 1.
-  const coverPhotoCount = Array.isArray(data.cover_photos) ? data.cover_photos.length : 0
+  // Photo quota ("Kuota Foto"): gallery's own cap = quota − groom − bride (cover excluded).
+  // Each slideshow (groom / bride) counts as 1.
   const groomPhotoCount = Array.isArray(data.groom_photo_url) && data.groom_photo_url.length > 0 ? 1 : 0
   const bridePhotoCount = Array.isArray(data.bride_photo_url) && data.bride_photo_url.length > 0 ? 1 : 0
-  const galleryMax = photoQuota == null ? null : Math.max(0, photoQuota - coverPhotoCount - groomPhotoCount - bridePhotoCount)
+  const galleryMax = photoQuota == null ? null : Math.max(0, photoQuota - groomPhotoCount - bridePhotoCount)
   const canAddGallery = galleryMax == null || galleryPhotos.length < galleryMax
 
   const coverSlotCount = Array.isArray(template?.wp_manifest?.cover_photos)
@@ -819,6 +818,14 @@ function EditorInner({ id }: { id: string }) {
   const renderSection = (key: string, icon: string, label: string, content: React.ReactNode) => {
     const isActive = activeSection === key
     const hidden = isSectionHidden(key)
+    const lockedInfo: string[] | null = (() => {
+      if (key === "gift" && !gates.gift_address.included) return gates.gift_address.availableIn
+      if (key === "inviting" && !gates.inviting_families.included) return gates.inviting_families.availableIn
+      if (key === "video" && !gates.cinematic_video.included) return gates.cinematic_video.availableIn
+      if (key === "story" && !gates.story.included) return gates.story.availableIn
+      return null
+    })()
+    const isLocked = lockedInfo !== null
     return (
       <div data-section={key} data-tour={key} className={`scroll-mt-6 border rounded-xl overflow-hidden ${isActive ? "bg-white border-outline-variant" : hidden ? "bg-[#b89a7e] border-[#b89a7e]" : "bg-[#8d4d39] border-[#8d4d39]"}`}>
         <button
@@ -828,13 +835,19 @@ function EditorInner({ id }: { id: string }) {
           <span className="font-label-md text-label-md flex items-center gap-3">
             <span className="material-symbols-outlined text-[18px]">{icon}</span>
             {label}
-            {hidden && (
+            {isLocked && (
+              <span className="group relative inline-flex ml-1">
+                <span className="material-symbols-outlined text-[18px] text-brand-gold">lock</span>
+                <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-primary text-white text-[11px] px-3 py-1.5 rounded whitespace-nowrap z-10 shadow-lg">{upgradeMessage(lockedInfo!)}</span>
+              </span>
+            )}
+            {hidden && !isLocked && (
               <span className="group relative inline-flex">
                 <span className={`material-symbols-outlined text-[18px] ${isActive ? "text-[#8d4d39]" : "text-white/90"}`}>visibility_off</span>
                 <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-primary text-white text-[11px] px-3 py-1.5 rounded whitespace-nowrap z-10 shadow-lg">Konten disembunyikan - tidak tampil di undangan</span>
               </span>
             )}
-            {!hidden && sectionIncomplete(key) && (
+            {!hidden && !isLocked && sectionIncomplete(key) && (
               <span title="Konten belum lengkap" className={`inline-flex ${isActive ? "text-[#8d4d39]" : "text-white"}`}>
                 <AttentionIcon size={36} />
               </span>

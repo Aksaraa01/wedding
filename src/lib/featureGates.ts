@@ -87,7 +87,7 @@ export async function getFeatureIncluded(packageType: string): Promise<Set<strin
 }
 
 // Photo quota ("Kuota Foto" matrix row): number of photos, or null = Unlimited.
-// The editor uses this to cap gallery photos = quota − cover − groom − bride.
+// The editor uses this to cap gallery photos = quota − groom − bride (cover excluded).
 export async function getPhotoQuota(packageType: string): Promise<number | null> {
   return cachedRead(`photo-quota:${packageType}`, 10 * 60_000, async () => {
     const { data } = await supabaseAdmin
