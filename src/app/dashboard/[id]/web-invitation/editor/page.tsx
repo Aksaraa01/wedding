@@ -819,18 +819,18 @@ function EditorInner({ id }: { id: string }) {
     const isActive = activeSection === key
     const hidden = isSectionHidden(key)
     const lockedInfo: string[] | null = (() => {
-      if (key === "gift" && !gates.gift_address.included) return gates.gift_address.availableIn
       if (key === "inviting" && !gates.inviting_families.included) return gates.inviting_families.availableIn
       if (key === "video" && !gates.cinematic_video.included) return gates.cinematic_video.availableIn
       if (key === "story" && !gates.story.included) return gates.story.availableIn
       return null
     })()
     const isLocked = lockedInfo !== null
+    const collapsedBg = isLocked ? "bg-[#3a3a3a] border-[#3a3a3a]" : hidden ? "bg-[#b89a7e] border-[#b89a7e]" : "bg-[#8d4d39] border-[#8d4d39]"
     return (
-      <div data-section={key} data-tour={key} className={`scroll-mt-6 border rounded-xl overflow-hidden ${isActive ? "bg-white border-outline-variant" : hidden ? "bg-[#b89a7e] border-[#b89a7e]" : "bg-[#8d4d39] border-[#8d4d39]"}`}>
+      <div data-section={key} data-tour={key} className={`scroll-mt-6 border rounded-xl ${isActive ? "bg-white border-outline-variant overflow-hidden" : `${collapsedBg} overflow-visible`} `}>
         <button
           onClick={() => handleSectionToggle(key)}
-          className={`w-full flex justify-between items-center py-4 px-4 transition-colors ${isActive ? "text-primary" : "text-white/90 hover:text-white"}`}
+          className={`w-full flex justify-between items-center py-4 px-4 transition-colors ${isActive ? "text-primary" : "text-white/90 hover:text-white"} ${!isActive ? "rounded-xl" : "rounded-t-xl"}`}
         >
           <span className="font-label-md text-label-md flex items-center gap-3">
             <span className="material-symbols-outlined text-[18px]">{icon}</span>
@@ -838,13 +838,13 @@ function EditorInner({ id }: { id: string }) {
             {isLocked && (
               <span className="group relative inline-flex ml-1">
                 <span className="material-symbols-outlined text-[18px] text-brand-gold">lock</span>
-                <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-primary text-white text-[11px] px-3 py-1.5 rounded whitespace-nowrap z-10 shadow-lg">{upgradeMessage(lockedInfo!)}</span>
+                <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-primary text-white text-[11px] px-3 py-1.5 rounded whitespace-nowrap z-50 shadow-lg">{upgradeMessage(lockedInfo!)}</span>
               </span>
             )}
             {hidden && !isLocked && (
               <span className="group relative inline-flex">
                 <span className={`material-symbols-outlined text-[18px] ${isActive ? "text-[#8d4d39]" : "text-white/90"}`}>visibility_off</span>
-                <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-primary text-white text-[11px] px-3 py-1.5 rounded whitespace-nowrap z-10 shadow-lg">Konten disembunyikan - tidak tampil di undangan</span>
+                <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-primary text-white text-[11px] px-3 py-1.5 rounded whitespace-nowrap z-50 shadow-lg">Konten disembunyikan - tidak tampil di undangan</span>
               </span>
             )}
             {!hidden && !isLocked && sectionIncomplete(key) && (
@@ -855,7 +855,7 @@ function EditorInner({ id }: { id: string }) {
           </span>
           <span className="material-symbols-outlined">{isActive ? "expand_less" : "expand_more"}</span>
         </button>
-        {isActive && <div className="px-4 pb-6 bg-white">{content}</div>}
+        {isActive && <div className="px-4 pb-6 bg-white rounded-b-xl overflow-hidden">{content}</div>}
       </div>
     )
   }
@@ -986,10 +986,10 @@ function EditorInner({ id }: { id: string }) {
                   router.push(`/dashboard/${id}/web-invitation/templates`)
                 }}
                 disabled={isPublished || initialLoading}
-                className="inline-flex md:hidden items-center justify-center w-10 h-10 rounded-full border border-outline-variant bg-white text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-50"
-                aria-label="Ganti Tema"
+                className="inline-flex md:hidden items-center gap-2 px-4 py-2.5 border font-label-md text-label-md rounded-full transition-all active:scale-95 border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary bg-white disabled:opacity-50"
               >
-                <span className="material-symbols-outlined text-[20px]">palette</span>
+                <span className="material-symbols-outlined text-[18px]">palette</span>
+                <span>GANTI TEMA</span>
               </button>
               <button
                 onClick={() => {
@@ -1793,23 +1793,25 @@ function EditorInner({ id }: { id: string }) {
             <button
               data-tour="konten-mobile"
               onClick={() => setShowMobilePreview(prev => !prev)}
-              className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-surface-container-high text-on-surface-variant"
+              className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-surface-container-high text-on-surface-variant rounded-full flex items-center justify-center gap-1.5"
             >
+              <span className="material-symbols-outlined text-[18px]">{showMobilePreview ? "edit" : "visibility"}</span>
               {showMobilePreview ? "EDIT" : "PRATINJAU"}
             </button>
             <button
               data-tour="perbarui"
               onClick={handleUpdatePreview}
               disabled={updatingPreview || isPublished}
-              className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-brand-gold text-white disabled:opacity-50"
+              className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-brand-gold text-white disabled:opacity-50 rounded-full flex items-center justify-center gap-1.5"
             >
+              <span className="material-symbols-outlined text-[18px]">refresh</span>
               {updatingPreview ? "MEMPERBARUI..." : "PERBARUI"}
             </button>
             <button
               data-tour="konfirmasi"
               onClick={() => setShowPublishConfirm(true)}
               disabled={isPublished}
-              className={`flex-1 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform flex items-center justify-center ${
+              className={`flex-1 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5 rounded-full ${
                 isPublished
                   ? "py-2 flex-col gap-0.5 bg-emerald-600 text-white cursor-default"
                   : "py-4 bg-secondary text-on-secondary"
@@ -1826,7 +1828,10 @@ function EditorInner({ id }: { id: string }) {
                   </span>
                 </>
               ) : (
-                "KONFIRMASI"
+                <>
+                  <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                  KONFIRMASI
+                </>
               )}
             </button>
           </div>
