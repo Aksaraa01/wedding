@@ -581,6 +581,7 @@ function EditorInner({ id }: { id: string }) {
 
   const uploadGalleryFiles = async (files: FileList | File[]) => {
     if (data.is_published === true) return
+    if (galleryUploading) return
     const list = Array.from(files).filter(f => f.type.startsWith("image/"))
     if (list.length === 0) return
     const quota = galleryMax == null ? list.length : Math.max(0, galleryMax - galleryPhotos.length)
@@ -1616,10 +1617,20 @@ function EditorInner({ id }: { id: string }) {
                           </button>
                         </div>
                       ))}
-                      {canAddGallery && (
+                      {galleryUploading && (
+                        <div className="aspect-square border border-outline flex items-center justify-center bg-surface-dim">
+                          <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+                        </div>
+                      )}
+                      {canAddGallery && !galleryUploading && (
                         <div onClick={() => galleryFileRef.current?.click()} className="aspect-square border border-dashed border-outline flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-highest cursor-pointer transition-colors">
                           <span className="material-symbols-outlined text-[18px]">add</span>
                           <span className="text-[8px] font-bold mt-1">TAMBAH</span>
+                        </div>
+                      )}
+                      {!canAddGallery && galleryUploading && (
+                        <div className="aspect-square border border-outline flex items-center justify-center bg-surface-dim">
+                          <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
                         </div>
                       )}
                     </div>

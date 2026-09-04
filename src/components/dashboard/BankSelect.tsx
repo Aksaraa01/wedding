@@ -1,10 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useMemo, useRef, useState, useEffect } from "react"
 import { BANKS, bankLogoUrl } from "@/lib/bankList"
-
-// Searchable bank/e-wallet picker with logo preview. Selecting a bank sets its
-// slug+name; "Lainnya (Kustom)" lets a free-text provider be entered.
 
 export default function BankSelect({
   value,
@@ -12,24 +9,14 @@ export default function BankSelect({
   onChange,
   showLogo = true,
 }: {
-  value: string // selected slug, or "" for custom
-  name: string // display name (custom text when value === "")
+  value: string
+  name: string
   onChange: (slug: string, displayName: string) => void
   showLogo?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState("")
-  const [mode, setMode] = useState<"pick" | "custom">(value ? "pick" : "custom")
-  const [custom, setCustom] = useState(name)
   const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (value) setMode("pick")
-  }, [value])
-
-  useEffect(() => {
-    setCustom(name || "")
-  }, [name])
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -52,7 +39,7 @@ export default function BankSelect({
     ]
   }, [query])
 
-  const displayName = mode === "custom" ? custom : selected?.name || name
+  const displayName = selected?.name || name
 
   return (
     <div className="relative" ref={ref}>
@@ -84,46 +71,6 @@ export default function BankSelect({
             />
           </div>
 
-          <button
-            type="button"
-            onClick={() => { setMode("custom"); setCustom(name || ""); setOpen(true) }}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-brand-terracotta hover:bg-brand-cream"
-          >
-            <span className="material-symbols-outlined text-[16px]">edit</span>
-            Lainnya (Kustom)
-          </button>
-
-          {mode === "custom" && (
-            <div className="px-3 py-2 border-b border-brand-border">
-              <label className="block text-[10px] uppercase tracking-wider text-brand-slate mb-1">Nama Bank / E-Wallet</label>
-              <input
-                value={custom}
-                onChange={(e) => {
-                  const v = e.target.value
-                  setCustom(v)
-                  onChange("", v)
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault()
-                    setOpen(false)
-                    onChange("", custom)
-                  }
-                }}
-                placeholder="Contoh: Bank XYZ"
-                className="w-full bg-white border border-brand-border rounded-lg px-2 py-1.5 text-sm text-brand-charcoal outline-none focus:border-brand-terracotta"
-                onFocus={(e) => e.stopPropagation()}
-              />
-              <button
-                type="button"
-                onClick={() => { setOpen(false); onChange("", custom) }}
-                className="mt-1.5 w-full py-1.5 bg-brand-charcoal text-white rounded-lg text-[10px] uppercase tracking-wider font-semibold hover:bg-brand-terracotta"
-              >
-                Gunakan Nama Kustom
-              </button>
-            </div>
-          )}
-
           {groups.map((g) =>
             g.items.length === 0 ? null : (
               <div key={g.label}>
@@ -133,8 +80,6 @@ export default function BankSelect({
                     key={b.slug}
                     type="button"
                     onClick={() => {
-                      setMode("pick")
-                      setCustom(b.name)
                       setOpen(false)
                       onChange(b.slug, b.name)
                     }}
@@ -150,7 +95,7 @@ export default function BankSelect({
           )}
 
           {query && groups.every((g) => g.items.length === 0) && (
-            <p className="px-3 py-2 text-xs text-brand-slate">Tidak ada hasil. Gunakan &ldquo;Lainnya (Kustom)&rdquo;.</p>
+            <p className="px-3 py-2 text-xs text-brand-slate">Tidak ada hasil.</p>
           )}
         </div>
       )}

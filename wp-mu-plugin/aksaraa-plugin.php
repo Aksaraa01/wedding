@@ -1361,6 +1361,24 @@ class AksaraaPlugin
             return [$elements, $manifest];
         }
 
+        $elements = self::apply_to_node($elements, $masterId, function (array &$c) {
+            $s = $c['settings'] ?? [];
+            $classes = trim((string) ($s['_css_classes'] ?? ''));
+            $tokens = array_values(array_filter(explode(' ', $classes), fn($t) => $t !== '' && $t !== 'aksaraa-hidden' && $t !== 'aksaraa-addr-hidden'));
+            $s['_css_classes'] = implode(' ', $tokens);
+            $c['settings'] = $s;
+        });
+        $preCloneIds = self::find_clone_ids($elements);
+        foreach ($preCloneIds as $cid) {
+            $elements = self::apply_to_node($elements, $cid, function (array &$c) {
+                $s = $c['settings'] ?? [];
+                $classes = trim((string) ($s['_css_classes'] ?? ''));
+                $tokens = array_values(array_filter(explode(' ', $classes), fn($t) => $t !== '' && $t !== 'aksaraa-hidden' && $t !== 'aksaraa-addr-hidden'));
+                $s['_css_classes'] = implode(' ', $tokens);
+                $c['settings'] = $s;
+            });
+        }
+
         // Existing clones = containers tagged `_aksaraa_bank_clone`.
         $cloneIds = self::find_clone_ids($elements);
 
@@ -1469,10 +1487,18 @@ class AksaraaPlugin
         $hasAddress = isset($fields['gift_address'])
             && is_string($fields['gift_address'])
             && trim($fields['gift_address']) !== '';
-        // Also hide when the couple's package does not include alamat pengiriman.
         $locked = !empty($fields['gift_address_hidden']);
 
-        return self::apply_to_node($elements, $containerId, function (array &$container) use ($hasAddress, $locked) {
+        $bankMasterId = null;
+        if (!empty($manifest['gift_accounts']) && is_array($manifest['gift_accounts'][0] ?? null) && !empty($manifest['gift_accounts'][0]['provider_name']['elementId'])) {
+            $bankMasterId = self::find_element_parent_id($elements, (string) $manifest['gift_accounts'][0]['provider_name']['elementId']);
+        }
+        $targetId = $containerId;
+        if ($bankMasterId && $containerId === $bankMasterId) {
+            $targetId = (string) $addrId;
+        }
+
+        return self::apply_to_node($elements, $targetId, function (array &$container) use ($hasAddress, $locked) {
             $settings = $container['settings'] ?? [];
             $classes = trim((string) ($settings['_css_classes'] ?? ''));
             $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-addr-hidden'));
