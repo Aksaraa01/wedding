@@ -936,7 +936,7 @@ function EditorInner({ id }: { id: string }) {
     })()
     const isLocked = lockedInfo !== null
     return (
-      <div data-section={key} data-tour={key} className={`scroll-mt-6 border rounded-xl overflow-hidden ${isActive ? "bg-[#B34E3F] border-[#B34E3F]" : "bg-white border-[#E2D9CF]"} `}>
+      <div data-section={key} data-tour={key} className={`scroll-mt-6 border rounded-xl overflow-visible ${isActive ? "bg-[#B34E3F] border-[#B34E3F]" : "bg-white border-[#E2D9CF]"} `}>
         <button
           onClick={() => handleSectionToggle(key)}
           className={`w-full flex justify-between items-center py-4 px-4 transition-colors ${isActive ? "text-white hover:text-white/90" : "text-[#2C2A29] hover:text-[#B34E3F]"} ${!isActive ? "rounded-xl" : "rounded-t-xl"}`}
@@ -947,19 +947,19 @@ function EditorInner({ id }: { id: string }) {
             {isLocked && (
               <span className="group relative inline-flex ml-1">
                 <span className={`material-symbols-outlined text-[18px] ${isActive ? "text-white" : "text-[#6B7280]"}`}>lock</span>
-                <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-primary text-white text-[11px] px-3 py-1.5 rounded whitespace-nowrap z-50 shadow-lg">{upgradeMessage(lockedInfo!)}</span>
+                <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-white text-[#2C2A29] border border-[#B34E3F] text-[11px] px-3 py-2 rounded-lg max-w-[200px] whitespace-normal text-center leading-tight z-50 shadow-lg">{upgradeMessage(lockedInfo!)}</span>
               </span>
             )}
             {hidden && !isLocked && (
               <span className="group relative inline-flex">
                 <span className={`material-symbols-outlined text-[18px] ${isActive ? "text-white/90" : "text-[#6B7280]"}`}>visibility_off</span>
-                <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-primary text-white text-[11px] px-3 py-1.5 rounded whitespace-nowrap z-50 shadow-lg">Konten disembunyikan - tidak tampil di undangan</span>
+                <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-white text-[#2C2A29] border border-[#B34E3F] text-[11px] px-3 py-2 rounded-lg max-w-[200px] whitespace-normal text-center leading-tight z-50 shadow-lg">Konten<br/>disembunyikan - tidak<br/>tampil di undangan</span>
               </span>
             )}
             {!hidden && !isLocked && sectionIncomplete(key) && (
               <span className="group relative inline-flex ml-1 items-center" tabIndex={0}>
                 <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#D97706] text-white text-[11px] font-bold leading-none">!</span>
-                <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block group-focus-within:block group-active:block active:block bg-primary text-white text-[11px] px-3 py-1.5 rounded whitespace-nowrap z-50 shadow-lg pointer-events-none">Konten belum lengkap — silakan lengkapi bagian {label}</span>
+                <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block group-focus-within:block group-active:block active:block bg-white text-[#2C2A29] border border-[#B34E3F] text-[11px] px-3 py-2 rounded-lg max-w-[180px] whitespace-normal text-center leading-tight z-50 shadow-lg pointer-events-none">Konten belum<br/>lengkap — silakan<br/>lengkapi bagian {label}</span>
               </span>
             )}
           </span>
@@ -1159,7 +1159,7 @@ function EditorInner({ id }: { id: string }) {
         {/* MAIN */}
         <main className="flex-1 flex overflow-hidden">
           {/* SIDEBAR */}
-            <aside data-tour="konten" className={`${showMobilePreview ? 'hidden' : 'flex'} md:flex w-full md:w-[440px] bg-surface-container-low border-r border-outline-variant flex-col h-full z-40 shrink-0`}>
+            <aside data-tour="konten" className={`${showMobilePreview ? 'hidden' : 'flex'} md:flex w-full md:w-[440px] bg-[#F3F4F6] border-r border-outline-variant flex-col h-full z-40 shrink-0`}>
             <div className="flex border-b border-outline-variant">
               <button className="flex-1 py-4 font-label-md text-label-md text-primary border-b-2 border-primary text-center">KONTEN</button>
             </div>
