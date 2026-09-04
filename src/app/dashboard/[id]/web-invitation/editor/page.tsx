@@ -935,40 +935,37 @@ function EditorInner({ id }: { id: string }) {
       return null
     })()
     const isLocked = lockedInfo !== null
-    const collapsedBg = isLocked ? "bg-[#3a3a3a] border-[#3a3a3a]" : hidden ? "bg-[#b89a7e] border-[#b89a7e]" : "bg-[#8d4d39] border-[#8d4d39]"
     return (
-      <div data-section={key} data-tour={key} className={`scroll-mt-6 border rounded-xl ${isActive ? "bg-white border-outline-variant overflow-hidden" : `${collapsedBg} overflow-visible`} `}>
+      <div data-section={key} data-tour={key} className={`scroll-mt-6 border rounded-xl overflow-hidden ${isActive ? "bg-[#B34E3F] border-[#B34E3F]" : "bg-white border-[#E2D9CF]"} `}>
         <button
           onClick={() => handleSectionToggle(key)}
-          className={`w-full flex justify-between items-center py-4 px-4 transition-colors ${isActive ? "text-primary" : "text-white/90 hover:text-white"} ${!isActive ? "rounded-xl" : "rounded-t-xl"}`}
+          className={`w-full flex justify-between items-center py-4 px-4 transition-colors ${isActive ? "text-white hover:text-white/90" : "text-[#2C2A29] hover:text-[#B34E3F]"} ${!isActive ? "rounded-xl" : "rounded-t-xl"}`}
         >
-          <span className="font-label-md text-label-md flex items-center gap-3">
-            <span className="material-symbols-outlined text-[18px]">{icon}</span>
+          <span className="font-label-md text-label-md flex items-center gap-3 min-h-[24px]">
+            <span className="material-symbols-outlined text-[18px] leading-none">{icon}</span>
             {label}
             {isLocked && (
               <span className="group relative inline-flex ml-1">
-                <span className="material-symbols-outlined text-[18px] text-brand-gold">lock</span>
+                <span className={`material-symbols-outlined text-[18px] ${isActive ? "text-white" : "text-[#6B7280]"}`}>lock</span>
                 <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-primary text-white text-[11px] px-3 py-1.5 rounded whitespace-nowrap z-50 shadow-lg">{upgradeMessage(lockedInfo!)}</span>
               </span>
             )}
             {hidden && !isLocked && (
               <span className="group relative inline-flex">
-                <span className={`material-symbols-outlined text-[18px] ${isActive ? "text-[#8d4d39]" : "text-white/90"}`}>visibility_off</span>
+                <span className={`material-symbols-outlined text-[18px] ${isActive ? "text-white/90" : "text-[#6B7280]"}`}>visibility_off</span>
                 <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-primary text-white text-[11px] px-3 py-1.5 rounded whitespace-nowrap z-50 shadow-lg">Konten disembunyikan - tidak tampil di undangan</span>
               </span>
             )}
             {!hidden && !isLocked && sectionIncomplete(key) && (
-              <span className="group relative inline-flex ml-1" tabIndex={0}>
-                <span className={`${isActive ? "text-[#8d4d39]" : "text-white"}`}>
-                  <AttentionIcon size={36} />
-                </span>
+              <span className="group relative inline-flex ml-1 items-center" tabIndex={0}>
+                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#D97706] text-white text-[11px] font-bold leading-none">!</span>
                 <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block group-focus-within:block group-active:block active:block bg-primary text-white text-[11px] px-3 py-1.5 rounded whitespace-nowrap z-50 shadow-lg pointer-events-none">Konten belum lengkap — silakan lengkapi bagian {label}</span>
               </span>
             )}
           </span>
-          <span className="material-symbols-outlined">{isActive ? "expand_less" : "expand_more"}</span>
+          <span className={`material-symbols-outlined leading-none ${isActive ? "text-white" : "text-[#2C2A29]"}`}>{isActive ? "expand_less" : "expand_more"}</span>
         </button>
-        {isActive && <div className="px-4 pb-6 bg-white rounded-b-xl overflow-hidden">{content}</div>}
+        {isActive && <div className="px-4 pb-6 bg-white rounded-b-xl overflow-hidden border-t border-[#E2D9CF]">{content}</div>}
       </div>
     )
   }
@@ -1086,7 +1083,7 @@ function EditorInner({ id }: { id: string }) {
               data-tour="perbarui"
               onClick={handleUpdatePreview}
               disabled={updatingPreview || isPublished || initialLoading}
-              className="hidden md:inline-flex items-center gap-2 px-4 lg:px-5 py-2.5 font-label-md text-label-md bg-brand-gold text-white rounded-full transition-all active:scale-95 hover:opacity-90 disabled:opacity-50 shadow-sm"
+              className="hidden md:inline-flex items-center gap-2 px-4 lg:px-5 py-2.5 font-label-md text-label-md bg-[#E8DFD8] text-[#9E3B2D] border border-[#E8DFD8] rounded-full transition-all active:scale-95 hover:bg-[#E2D9CF] hover:border-[#E2D9CF] disabled:opacity-50 shadow-sm"
             >
               <span className="material-symbols-outlined text-[18px]">{updatingPreview ? "hourglass_top" : "refresh"}</span>
               <span>{updatingPreview ? "Memperbarui..." : "Perbarui undangan"}</span>
@@ -1121,7 +1118,10 @@ function EditorInner({ id }: { id: string }) {
               </button>
             </div>
 
-            <button onClick={() => setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile")} disabled={initialLoading} className="hidden md:inline-flex items-center justify-center w-10 h-10 rounded-full border border-outline-variant bg-white text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-50" title="Ganti tampilan pratinjau"><span className="material-symbols-outlined text-[20px]">devices</span></button>
+            <span className="hidden md:inline-flex relative group">
+              <button onClick={() => setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile")} disabled={initialLoading} className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-outline-variant bg-white text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-50" aria-label="Ganti tampilan pratinjau"><span className="material-symbols-outlined text-[20px]">devices</span></button>
+              <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-primary text-white text-[11px] px-3 py-1.5 rounded whitespace-nowrap z-50 shadow-lg pointer-events-none">Ganti tampilan pratinjau</span>
+            </span>
 
             <button
               data-tour="konfirmasi"
@@ -1130,7 +1130,7 @@ function EditorInner({ id }: { id: string }) {
               className={`hidden md:inline-flex px-5 py-2.5 font-label-md text-label-md rounded-full transition-all active:scale-95 shadow-sm ${
                 isPublished
                   ? "flex-col items-center justify-center bg-emerald-600 text-white cursor-default border border-emerald-600 py-1.5 px-4 leading-none"
-                  : "items-center bg-secondary text-on-secondary hover:opacity-90 border border-secondary"
+                  : "items-center bg-[#9E3B2D] text-white hover:bg-[#8d2e20] border border-[#9E3B2D]"
               }`}
             >
               {isPublished ? (
