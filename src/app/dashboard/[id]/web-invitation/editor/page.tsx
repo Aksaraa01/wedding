@@ -230,6 +230,8 @@ function EditorInner({ id }: { id: string }) {
     return () => window.removeEventListener("tour_show_konten", onShowKonten as EventListener)
   }, [])
   const [showPublishConfirm, setShowPublishConfirm] = useState(false)
+  const [pubState, setPubState] = useState<"ask" | "working" | "done" | "error">("ask")
+  const [pubError, setPubError] = useState("")
   const [showH3Reminder, setShowH3Reminder] = useState(false)
   const [feedbackCount, setFeedbackCount] = useState<number | null>(null)
   const [feedbackLoading, setFeedbackLoading] = useState(true)
@@ -726,7 +728,7 @@ function EditorInner({ id }: { id: string }) {
     router.push(`/dashboard/${id}/web-invitation/feedback`)
   }
 
-  const handlePublish = async () => {
+  const handlePublish = async (): Promise<boolean> => {
     setSaveStatus("saving")
     setUpdatingPreview(true)
     // Flush any pending (debounced) edits together with the confirmation.
@@ -745,10 +747,30 @@ function EditorInner({ id }: { id: string }) {
       // Ensure the couple's WP post carries everything from the editor.
       await syncToWp()
       setPreviewVersion(v => v + 1)
+      return true
     } catch {
       setSaveStatus("error")
+      return false
     } finally {
       setUpdatingPreview(false)
+    }
+  }
+
+  const openPublishConfirm = () => {
+    setPubError("")
+    setPubState("ask")
+    setShowPublishConfirm(true)
+  }
+
+  const runPublish = async () => {
+    setPubState("working")
+    const ok = await handlePublish()
+    if (ok) {
+      setPubState("done")
+      setTimeout(() => router.push(`/dashboard/${id}/qr-guestbook`), 1200)
+    } else {
+      setPubError("Gagal mengonfirmasi undangan. Periksa koneksi Anda, lalu coba lagi.")
+      setPubState("error")
     }
   }
 
@@ -1051,7 +1073,7 @@ function EditorInner({ id }: { id: string }) {
 
             <button
               data-tour="konfirmasi"
-              onClick={() => setShowPublishConfirm(true)}
+              onClick={openPublishConfirm}
               disabled={isPublished || initialLoading}
               className={`hidden md:inline-flex px-5 py-2.5 font-label-md text-label-md rounded-full transition-all active:scale-95 shadow-sm ${
                 isPublished
@@ -1848,7 +1870,7 @@ function EditorInner({ id }: { id: string }) {
             </button>
             <button
               data-tour="konfirmasi"
-              onClick={() => setShowPublishConfirm(true)}
+              onClick={openPublishConfirm}
               disabled={isPublished}
               className={`flex-1 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5 rounded-full ${
                 isPublished
@@ -1889,47 +1911,87 @@ function EditorInner({ id }: { id: string }) {
       `}</style>
 
       {showPublishConfirm && (
-        <div className="fixed inset-0 z-[90] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => setShowPublishConfirm(false)}>
-          <div className="bg-white w-full max-w-md rounded-2xl border border-outline-variant shadow-2xl p-8" onClick={(e) => e.stopPropagation()}>
-            <span className="material-symbols-outlined text-4xl text-secondary mb-4 block">check_circle</span>
-            <h3 className="font-headline-md text-xl font-medium text-primary mb-3">Konfirmasi Undangan?</h3>
-            {(() => {
+        <div
+          className="fixed inset-0 z-[90] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6"
+          onClick={() => { if (pubState === "ask" || pubState === "error") setShowPublishConfirm(false) }}
+        >
+          <div className="bg-white w-full max-w-md rounded-2xl border border-outline-variant shadow-2xl p-8 text-center" onClick={(e) => e.stopPropagation()}>
+            {pubState === "ask" && (() => {
               const empty = getEmptyContent()
               return (
-                <div className="mb-6">
-                  {empty.length > 0 ? (
-                    <>
-                      <p className="text-sm text-on-surface-variant mb-2">Beberapa konten berikut masih kosong atau belum diisi:</p>
-                      <ul className="mb-3 space-y-1">
-                        {empty.map((label) => (
-                          <li key={label} className="text-sm text-red-600 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-[16px]">error</span> {label}
-                          </li>
-                        ))}
-                      </ul>
-                      <p className="text-sm text-on-surface-variant">Pastikan seluruh konten terisi sebelum mengonfirmasi undangan.</p>
-                    </>
-                  ) : (
-                    <p className="text-sm text-on-surface-variant">Seluruh konten undangan sudah terisi. Siap untuk dikonfirmasi.</p>
-                  )}
-                  <p className="text-sm text-secondary font-semibold mt-3">Setelah dikonfirmasi, konten undangan tidak dapat diubah.</p>
-                </div>
+                <>
+                  <span className="material-symbols-outlined text-4xl text-secondary mb-4 block">check_circle</span>
+                  <h3 className="font-headline-md text-xl font-medium text-primary mb-3">Konfirmasi Undangan?</h3>
+                  <div className="mb-6 text-left">
+                    {empty.length > 0 ? (
+                      <>
+                        <p className="text-sm text-on-surface-variant mb-2">Beberapa konten berikut masih kosong atau belum diisi:</p>
+                        <ul className="mb-3 space-y-1">
+                          {empty.map((label) => (
+                            <li key={label} className="text-sm text-red-600 flex items-center gap-2">
+                              <span className="material-symbols-outlined text-[16px]">error</span> {label}
+                            </li>
+                          ))}
+                        </ul>
+                        <p className="text-sm text-on-surface-variant">Pastikan seluruh konten terisi sebelum mengonfirmasi undangan.</p>
+                      </>
+                    ) : null}
+                    <p className="text-sm text-secondary font-semibold mt-3">Setelah dikonfirmasi, konten undangan tidak dapat diubah.</p>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <button
+                      onClick={runPublish}
+                      className="w-full py-3.5 bg-secondary text-on-secondary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity"
+                    >
+                      Ya, Konfirmasi Undangan
+                    </button>
+                    <button
+                      onClick={() => setShowPublishConfirm(false)}
+                      className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+                    >
+                      Kembali
+                    </button>
+                  </div>
+                </>
               )
             })()}
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={async () => { await handlePublish(); setShowPublishConfirm(false) }}
-                className="w-full py-3.5 bg-secondary text-on-secondary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity"
-              >
-                Ya, Konfirmasi Undangan
-              </button>
-              <button
-                onClick={() => setShowPublishConfirm(false)}
-                className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
-              >
-                Kembali
-              </button>
-            </div>
+
+            {pubState === "working" && (
+              <div className="flex flex-col items-center justify-center gap-4 py-6">
+                <span className="w-10 h-10 rounded-full border-[3px] border-secondary border-t-transparent animate-spin" />
+                <p className="font-label-md text-sm text-on-surface-variant uppercase tracking-widest">Mengonfirmasi undangan…</p>
+              </div>
+            )}
+
+            {pubState === "done" && (
+              <div className="flex flex-col items-center justify-center gap-4 py-6">
+                <span className="success-pop material-symbols-outlined text-6xl text-emerald-500 block" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                <h3 className="font-headline-md text-xl font-medium text-primary">Undangan Terkonfirmasi</h3>
+                <p className="text-sm text-on-surface-variant">Mengarahkan ke Tautan Undangan &amp; QR Tamu…</p>
+              </div>
+            )}
+
+            {pubState === "error" && (
+              <div className="flex flex-col items-center gap-4 py-2">
+                <span className="material-symbols-outlined text-5xl text-red-500 block">error</span>
+                <h3 className="font-headline-md text-xl font-medium text-primary">Konfirmasi Gagal</h3>
+                <p className="text-sm text-on-surface-variant text-left">{pubError || "Terjadi kesalahan. Silakan coba lagi."}</p>
+                <div className="flex flex-col gap-3 w-full mt-2">
+                  <button
+                    onClick={() => { setPubError(""); setPubState("ask") }}
+                    className="w-full py-3.5 bg-secondary text-on-secondary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity"
+                  >
+                    Coba Lagi
+                  </button>
+                  <button
+                    onClick={() => setShowPublishConfirm(false)}
+                    className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+                  >
+                    Kembali
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1972,7 +2034,7 @@ function EditorInner({ id }: { id: string }) {
             </p>
             <div className="flex flex-col gap-3">
               <button
-                onClick={() => { setShowH3Reminder(false); setShowPublishConfirm(true) }}
+                onClick={() => { setShowH3Reminder(false); openPublishConfirm() }}
                 className="w-full py-3.5 bg-secondary text-on-secondary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity"
               >
                 Finalisasi Sekarang

@@ -289,10 +289,10 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
           </div>
         </header>
 
-        <main className="flex flex-col h-screen px-6 pt-8 pb-28 md:pb-0 max-w-lg mx-auto">
-          <section className="mb-8 shrink-0">
-            <h1 className="font-headline-md text-headline-md text-primary mb-2">Verifikasi Unggahan</h1>
-            <p className="font-body-md text-body-md text-on-surface-variant">Pastikan daftar tamu Anda akurat sebelum diintegrasikan ke narasi acara.</p>
+        <main className="flex flex-col h-screen px-5 md:px-6 pt-6 md:pt-8 pb-28 md:pb-0 max-w-lg mx-auto">
+          <section className="mb-6 md:mb-8 shrink-0">
+            <h1 className="font-headline-md text-xl md:text-2xl text-primary mb-2">Verifikasi Unggahan</h1>
+            <p className="font-body-md text-sm md:text-body-md text-on-surface-variant">Pastikan daftar tamu Anda akurat sebelum diintegrasikan ke narasi acara.</p>
           </section>
 
           <section className="mb-6 shrink-0 grid grid-cols-3 gap-px bg-outline-variant/50 border border-outline-variant/50 overflow-hidden">
@@ -332,33 +332,33 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-outline-variant/30 sticky top-0 z-10 bg-surface">
-                      <th className="py-4 md:py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Nama</th>
-                      <th className="py-4 md:py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">No. WA</th>
-                      <th className="py-4 md:py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest text-right">Meja</th>
+                      <th className="py-3 md:py-4 font-label-md text-[11px] md:text-label-md text-on-surface-variant uppercase tracking-widest whitespace-nowrap">Nama</th>
+                      <th className="py-3 md:py-4 font-label-md text-[11px] md:text-label-md text-on-surface-variant uppercase tracking-widest whitespace-nowrap">No. WA</th>
+                      <th className="py-3 md:py-4 font-label-md text-[11px] md:text-label-md text-on-surface-variant uppercase tracking-widest text-right whitespace-nowrap">Meja</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-outline-variant/10">
                     {filteredVerify.map((row, i) => (
                       <tr key={i} className="group hover:bg-surface-container-low transition-colors duration-200">
-                        <td className="py-4 md:py-5 pr-3 md:pr-4">
-                          <p className="font-headline-md text-[18px] text-primary leading-none flex items-center gap-2">
+                        <td className="py-3 md:py-5 pr-2 md:pr-4 align-top">
+                          <p className="font-headline-md text-[16px] md:text-[18px] text-primary leading-none flex items-center gap-2 break-words">
                             {row.name}
                             {row.is_vip && (
-                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#f2ca50]/20 border border-[#f2ca50]/40 text-[#574500] font-label-md text-[9px] uppercase tracking-wider rounded-full">
+                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#f2ca50]/20 border border-[#f2ca50]/40 text-[#574500] font-label-md text-[10px] uppercase tracking-wider rounded-full shrink-0">
                                 <span className="material-symbols-outlined text-[10px]">star</span>
                                 VIP
                               </span>
                             )}
                           </p>
                           {row.category && (
-                            <span className="font-label-md text-[10px] text-secondary-fixed-dim bg-secondary/5 px-1 rounded uppercase mt-1 inline-block">{row.category}</span>
+                            <span className="font-label-md text-[11px] text-secondary-fixed-dim bg-secondary/5 px-1 rounded uppercase mt-1 inline-block">{row.category}</span>
                           )}
                           {row.duplicate && (
-                            <span className="font-label-md text-[10px] text-error bg-error-container/20 px-1 rounded uppercase mt-1 inline-block ml-1">Duplikat</span>
+                            <span className="font-label-md text-[11px] text-error bg-error-container/20 px-1 rounded uppercase mt-1 inline-block ml-1">Duplikat</span>
                           )}
                         </td>
-                        <td className="py-4 md:py-5 font-body-md text-on-surface-variant text-[14px]">{row.phone_number}</td>
-                        <td className="py-4 md:py-5 font-headline-md text-[18px] text-primary text-right italic">{row.table_number || "—"}</td>
+                        <td className="py-3 md:py-5 font-body-md text-on-surface-variant text-[13px] md:text-[14px] break-all">{row.phone_number}</td>
+                        <td className="py-3 md:py-5 font-headline-md text-[16px] md:text-[18px] text-primary text-right italic whitespace-nowrap">{row.table_number || "—"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -377,7 +377,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                 importing ? "opacity-50" : ""
               }`}
             >
-              {importing ? "Mengimpor..." : `Verifikasi & Impor ${verifySummary.valid} Tamu`}
+              {importing ? "Mengimpor..." : `Lanjut (${verifySummary.valid} Tamu)`}
               <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
             </button>
           </div>
@@ -389,15 +389,20 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   return (
     <>
       <PageTheme mode="light" />
-      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-background/90 backdrop-blur-md px-edge-margin-mobile py-6 flex items-center justify-between">
-        <span className="font-label-md text-label-md text-primary uppercase tracking-widest">Manajemen Daftar Tamu</span>
+      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-background/90 backdrop-blur-md px-edge-margin-mobile md:px-edge-margin-desktop py-3 md:py-6 flex items-center justify-between">
+        <div className="flex items-center gap-3 min-w-0">
+          <button onClick={() => router.push(`/dashboard/${weddingProfileId}`)} aria-label="Kembali ke dasbor" className="flex items-center justify-center w-11 h-11 -ml-2 rounded-full text-on-surface-variant hover:text-primary active:bg-surface-container transition-colors">
+            <span className="material-symbols-outlined">arrow_back</span>
+          </button>
+          <span className="font-label-md text-label-md text-primary uppercase tracking-widest truncate">Manajemen Daftar Tamu</span>
+        </div>
         <ProfileMenu />
       </header>
 
-      <main className="h-screen pt-20 pb-28 md:pb-0 px-edge-margin-mobile md:px-edge-margin-desktop max-w-2xl md:max-w-6xl mx-auto flex flex-col">
-        <section className="mb-6 shrink-0">
-          <h1 className="font-headline-md text-headline-md text-primary mb-1">Manajemen Daftar Tamu</h1>
-          <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+      <main className="h-screen pt-16 md:pt-20 pb-28 md:pb-0 px-edge-margin-mobile md:px-edge-margin-desktop max-w-2xl md:max-w-6xl mx-auto flex flex-col">
+        <section className="mb-5 md:mb-6 shrink-0">
+          <h1 className="font-headline-md text-xl md:text-2xl text-primary mb-1">Manajemen Daftar Tamu</h1>
+          <p className="font-body-md text-sm md:text-body-md text-on-surface-variant leading-relaxed">
             Unggah, verifikasi, dan petakan nomor meja seluruh tamu kehormatan Anda secara terpusat.
           </p>
         </section>
@@ -450,7 +455,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                   </div>
                   <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 border-t border-outline-variant/40 pt-3">
                     {chartCategories.map((cat) => (
-                      <span key={cat} className="flex items-center gap-1.5 font-label-md text-[9px] uppercase tracking-wider text-on-surface-variant">
+                      <span key={cat} className="flex items-center gap-1.5 font-label-md text-[10px] uppercase tracking-wider text-on-surface-variant">
                         <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: categoryColor(cat) }} />
                         {cat}
                       </span>
@@ -511,7 +516,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
 
         <section className="mb-3 flex justify-between items-end">
           <div>
-            <h2 className="font-headline-md text-[20px] text-primary">
+            <h2 className="font-headline-md text-[18px] md:text-[20px] text-primary">
               {loading ? "" : <><span className="text-secondary">{guests.length}</span> Tamu Terverifikasi</>}
             </h2>
           </div>
@@ -525,12 +530,12 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
               placeholder="Cari Nama, No. HP atau Nomor Meja"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-12 md:h-10 bg-surface-container-low border border-[#eae3d5] py-3 pl-12 pr-4 font-body-md text-body-md text-on-surface placeholder:text-[12px] placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary transition-colors"
+              className="w-full h-12 md:h-10 bg-surface-container-low border border-[#eae3d5] py-3 pl-12 pr-4 font-body-md text-[14px] md:text-body-md text-on-surface placeholder:text-[13px] placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary transition-colors"
             />
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto min-h-0 pb-48 scroll-area">
+        <div className="flex-1 overflow-y-auto min-h-0 pb-40 scroll-area">
         {loading ? (
           <div className="text-center py-20">
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
@@ -544,65 +549,111 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
           </div>
         ) : (
           <section className="border-t border-outline-variant">
-            <div className="grid grid-cols-12 py-4 px-2 bg-surface-container-lowest sticky top-0 z-10">
-              <div className="col-span-4 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Nama</div>
+            <div className="hidden md:grid md:grid-cols-12 py-4 px-2 bg-surface-container-lowest sticky top-0 z-10">
+              <div className="col-span-5 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Nama</div>
               <div className="col-span-4 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Kategori</div>
-              <div className="col-span-4 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Meja</div>
+              <div className="col-span-3 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant text-right">Meja</div>
             </div>
 
-            {filtered.map((guest) => (
-              <div key={guest.id} className="grid grid-cols-12 py-4 md:py-5 px-3 md:px-2 min-h-[44px] items-center hairline-divider group">
-                <div className="col-span-4">
-                  <p className="font-body-md font-semibold text-on-surface flex items-center gap-2">
-                    {guest.name}
-                    {guest.is_vip && (
-                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#f2ca50]/20 border border-[#f2ca50]/40 text-[#574500] font-label-md text-[9px] uppercase tracking-wider rounded-full">
-                        <span className="material-symbols-outlined text-[10px]">star</span>
-                        VIP
-                      </span>
-                    )}
-                    {guest.added_manually && (
-                      <span className="inline-flex items-center px-1.5 py-0.5 bg-amber-100 border border-amber-300 text-amber-700 font-label-md text-[9px] uppercase tracking-wider rounded-full">
-                        Ditambahkan Manual
-                      </span>
-                    )}
+            {filtered.map((guest) => {
+              const nameBadges = (
+                <span className="flex flex-wrap items-center gap-1.5 ml-1">
+                  {guest.is_vip && (
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#f2ca50]/20 border border-[#f2ca50]/40 text-[#574500] font-label-md text-[10px] uppercase tracking-wider rounded-full">
+                      <span className="material-symbols-outlined text-[11px]">star</span>
+                      VIP
+                    </span>
+                  )}
+                  {guest.added_manually && (
+                    <span className="inline-flex items-center px-1.5 py-0.5 bg-amber-100 border border-amber-300 text-amber-700 font-label-md text-[10px] uppercase tracking-wider rounded-full">
+                      Manual
+                    </span>
+                  )}
+                </span>
+              )
+              const nameBlock = (
+                <>
+                  <p className="font-body-md font-semibold text-[15px] text-on-surface flex items-start gap-1 leading-snug">
+                    <span className="break-words min-w-0">{guest.name}</span>
+                    {nameBadges}
                   </p>
                   {guest.phone_number && (
-                    <p className="font-label-md text-[11px] text-on-surface-variant opacity-70">{guest.phone_number}</p>
+                    <p className="font-label-md text-[12px] text-on-surface-variant opacity-70 mt-0.5">{guest.phone_number}</p>
                   )}
-                </div>
-                <div className="col-span-4">
-                  <span className="text-[10px] uppercase tracking-widest text-on-surface-variant opacity-70 min-h-[44px] md:min-h-0 inline-flex items-center px-1">
-                    {guest.category || "—"}
-                  </span>
-                </div>
-                <div className="col-span-4 flex items-center justify-between gap-2">
-                  <div>
-                    {guest.table_number ? (
-                      <span className="font-label-md text-[11px] px-2 py-1 min-h-[44px] md:min-h-0 inline-flex items-center bg-surface-container border border-outline-variant text-on-surface">
-                        {guest.table_number}
+                </>
+              )
+              return (
+                <div key={guest.id} className="py-3.5 md:py-5 px-1 md:px-2 hairline-divider group">
+                  {/* Mobile stacked layout */}
+                  <div className="md:hidden flex flex-col gap-2">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">{nameBlock}</div>
+                      <div className="flex items-center gap-0.5 shrink-0">
+                        <button
+                          onClick={() => openEdit(guest)}
+                          aria-label="Edit tamu"
+                          className="w-10 h-10 min-h-[44px] min-w-[44px] -mr-2 flex items-center justify-center text-on-surface-variant active:bg-surface-container rounded-full"
+                        >
+                          <span className="material-symbols-outlined !text-[20px]">edit</span>
+                        </button>
+                        <button
+                          onClick={() => { if (confirm("Hapus tamu ini?")) handleDelete(guest.id) }}
+                          aria-label="Hapus tamu"
+                          className="w-10 h-10 min-h-[44px] min-w-[44px] -ml-2 flex items-center justify-center text-error active:bg-error-container/20 rounded-full"
+                        >
+                          <span className="material-symbols-outlined !text-[20px]">delete</span>
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 pl-1">
+                      <span className="inline-flex items-center px-2.5 py-1 bg-surface-container border border-outline-variant text-on-surface font-label-md text-[12px] rounded-md">
+                        {guest.category || "Umum"}
                       </span>
-                    ) : (
-                      <span className="text-[10px] text-on-surface-variant opacity-50">—</span>
-                    )}
+                      {guest.table_number ? (
+                        <span className="inline-flex items-center px-2.5 py-1 bg-surface-container border border-outline-variant text-on-surface font-label-md text-[12px] rounded-md">
+                          Meja {guest.table_number}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-1 bg-surface-container border border-outline-variant/50 text-on-surface-variant/60 font-label-md text-[12px] rounded-md">
+                          Meja —
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => openEdit(guest)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity leading-none min-h-[44px] min-w-[44px] flex items-center justify-center md:min-h-0 md:min-w-0"
-                    >
-                      <span className="material-symbols-outlined !text-[12px]">edit</span>
-                    </button>
-                    <button
-                      onClick={() => { if (confirm("Hapus tamu ini?")) handleDelete(guest.id) }}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity text-error leading-none min-h-[44px] min-w-[44px] flex items-center justify-center md:min-h-0 md:min-w-0"
-                    >
-                      <span className="material-symbols-outlined !text-[12px]">delete</span>
-                    </button>
+
+                  {/* Desktop grid layout */}
+                  <div className="hidden md:grid md:grid-cols-12 md:items-center">
+                    <div className="col-span-5 pr-3">{nameBlock}</div>
+                    <div className="col-span-4">
+                      <span className="text-[11px] uppercase tracking-widest text-on-surface-variant opacity-80 inline-flex items-center px-1">
+                        {guest.category || "—"}
+                      </span>
+                    </div>
+                    <div className="col-span-3 flex items-center justify-end gap-1">
+                      {guest.table_number ? (
+                        <span className="font-label-md text-[11px] px-2 py-1 bg-surface-container border border-outline-variant text-on-surface inline-flex items-center">
+                          {guest.table_number}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-on-surface-variant opacity-50">—</span>
+                      )}
+                      <button
+                        onClick={() => openEdit(guest)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity leading-none min-h-[44px] min-w-[44px] flex items-center justify-center md:min-h-0 md:min-w-0"
+                      >
+                        <span className="material-symbols-outlined !text-[12px]">edit</span>
+                      </button>
+                      <button
+                        onClick={() => { if (confirm("Hapus tamu ini?")) handleDelete(guest.id) }}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-error leading-none min-h-[44px] min-w-[44px] flex items-center justify-center md:min-h-0 md:min-w-0"
+                      >
+                        <span className="material-symbols-outlined !text-[12px]">delete</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </section>
         )}
         </div>
@@ -610,19 +661,20 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
         </div>
       </main>
 
-      <button
-        onClick={openAdd}
-        className="fixed bottom-44 right-6 w-14 h-14 min-h-[44px] min-w-[44px] bg-primary text-white flex items-center justify-center shadow-lg z-40 active:scale-95 transition-transform duration-200"
-      >
-        <span className="material-symbols-outlined text-[24px]">add</span>
-      </button>
-
-      <footer className="fixed bottom-0 left-0 right-0 z-50 lg:left-[var(--dash-sidebar-w)] bg-background border-t border-outline-variant px-edge-margin-mobile py-6 flex flex-col gap-3 shadow-[0_-4px_24px_rgba(0,0,0,0.03)]">
+      <footer className="fixed bottom-0 left-0 right-0 z-50 lg:left-[var(--dash-sidebar-w)] bg-background border-t border-outline-variant px-edge-margin-mobile py-4 md:py-6 flex items-center gap-3 md:justify-end shadow-[0_-4px_24px_rgba(0,0,0,0.03)]">
+        <button
+          onClick={openAdd}
+          className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-primary text-white rounded-full px-4 md:px-8 py-3.5 md:py-4 min-h-[48px] font-label-md text-label-md uppercase tracking-widest hover:bg-secondary transition-colors active:scale-[0.98]"
+        >
+          <span className="material-symbols-outlined text-[20px]">person_add</span>
+          Tambah Tamu
+        </button>
         <button
           onClick={() => setResetConfirmOpen(true)}
-          className="w-full bg-transparent border border-error text-error py-4 min-h-[44px] font-label-md text-label-md uppercase tracking-widest hover:bg-error-container transition-colors"
+          className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-transparent border border-error text-error rounded-full px-4 md:px-8 py-3.5 md:py-4 min-h-[48px] font-label-md text-label-md uppercase tracking-widest hover:bg-error-container transition-colors"
         >
-          Hapus Semua Data Tamu
+          <span className="material-symbols-outlined text-[20px]">delete_sweep</span>
+          Hapus Semua
         </button>
       </footer>
 

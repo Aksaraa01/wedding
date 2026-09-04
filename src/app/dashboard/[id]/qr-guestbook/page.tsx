@@ -313,7 +313,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       <header className="shrink-0 bg-background/95 backdrop-blur-md border-b border-outline-variant/40 px-6 md:px-12 py-4">
         <div className="w-full flex items-center justify-between">
           <span className="inline-flex items-center gap-2 text-on-surface-variant font-label-md text-[11px] uppercase tracking-wider font-semibold">
-            Buku Tamu Digital
+            Tautan Undangan dan QR Tamu
           </span>
           <ProfileMenu />
         </div>
@@ -324,7 +324,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
         {/* Fixed Top Content */}
         <div className="shrink-0 w-full max-w-2xl mx-auto px-6 pt-6">
           <h1 className="font-headline-md text-xl md:text-2xl font-medium tracking-tight text-primary">
-            Buku Tamu Digital
+            Tautan Undangan dan QR Tamu
           </h1>
 
           {/* Stats Pill */}
@@ -415,9 +415,22 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
             {filtered.length === 0 ? (
               <div className="text-center py-16 bg-surface-container-lowest border border-outline-variant/50 rounded-xl">
                 <span className="material-symbols-outlined text-4xl text-outline-variant mb-3">people_outline</span>
-                <p className="font-body-md text-sm text-on-surface-variant">
-                  {search ? "Tidak ada tamu yang cocok" : "Belum ada tamu. Tambahkan tamu terlebih dahulu."}
-                </p>
+                {search ? (
+                  <p className="font-body-md text-sm text-on-surface-variant">Tidak ada tamu yang cocok</p>
+                ) : (
+                  <>
+                    <p className="font-body-md text-sm text-on-surface-variant mb-5">
+                      Belum ada tamu. Tambahkan tamu terlebih dahulu.
+                    </p>
+                    <button
+                      onClick={() => router.push(`/dashboard/${id}/guests`)}
+                      className="inline-flex items-center justify-center gap-2 bg-secondary text-white px-8 py-4 min-h-[48px] rounded-xl font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity shadow-md"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">person_add</span>
+                      Tambahkan Tamu
+                    </button>
+                  </>
+                )}
               </div>
             ) : (
               filtered.map((g) => (

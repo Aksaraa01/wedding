@@ -369,47 +369,47 @@ function DashboardInner({ id }: { id: string }) {
 
         <section className="px-6 mb-12">
           <div className="bg-white border border-outline-variant rounded-2xl overflow-hidden shadow-sm">
-            <div className="p-6 border-b border-outline-variant flex justify-between items-end">
-              <h2 className="font-['Playfair_Display'] text-2xl mb-1">Master Guest Hub</h2>
-              <span className="material-symbols-outlined text-secondary">analytics</span>
+            <div className="p-4 md:p-6 border-b border-outline-variant flex justify-between items-center md:items-end">
+              <h2 className="font-['Playfair_Display'] text-lg md:text-2xl mb-1">Master Guest Hub</h2>
+              <span className="material-symbols-outlined text-secondary md:text-2xl">analytics</span>
             </div>
             <div className="grid grid-cols-2 gap-px bg-outline-variant">
-              <div className="bg-white p-5">
-                <p className="text-[10px] uppercase tracking-wider text-on-surface-variant mb-1">Total Tamu</p>
+              <div className="bg-white p-3 md:p-5">
+                <p className="text-[11px] uppercase tracking-wider text-on-surface-variant mb-1">Total Tamu</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-semibold">{guestCount}</span>
+                  <span className="text-lg md:text-2xl font-semibold">{guestCount}</span>
                 </div>
               </div>
-              <div className="bg-white p-5">
-                <p className="text-[10px] uppercase tracking-wider text-on-surface-variant mb-1">Meja</p>
+              <div className="bg-white p-3 md:p-5">
+                <p className="text-[11px] uppercase tracking-wider text-on-surface-variant mb-1">Meja</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-semibold">{tableCount}</span>
+                  <span className="text-lg md:text-2xl font-semibold">{tableCount}</span>
                 </div>
               </div>
-              <div className="bg-white p-5">
-                <p className="text-[10px] uppercase tracking-wider text-on-surface-variant mb-1">Reservasi Tamu</p>
+              <div className="bg-white p-3 md:p-5">
+                <p className="text-[11px] uppercase tracking-wider text-on-surface-variant mb-1">Reservasi Tamu</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-semibold">{rsvpHadirCount}</span>
-                  <span className="text-sm text-on-surface-variant opacity-60">{rsvpHadirPax} Pax</span>
+                  <span className="text-lg md:text-2xl font-semibold">{rsvpHadirCount}</span>
+                  <span className="text-xs md:text-sm text-on-surface-variant opacity-60">{rsvpHadirPax} Pax</span>
                 </div>
-                <div className="mt-2 w-full h-1 bg-surface-container rounded-full overflow-hidden">
+                <div className="mt-1.5 md:mt-2 w-full h-1 bg-surface-container rounded-full overflow-hidden">
                   <div
                     className="h-full bg-secondary transition-all duration-500"
                     style={{ width: `${rsvpTotalPax > 0 ? (rsvpHadirPax / rsvpTotalPax) * 100 : 0}%` }}
                   />
                 </div>
               </div>
-              <div className="bg-white p-5">
-                <p className="text-[10px] uppercase tracking-wider text-on-surface-variant mb-1">Checkin Tamu</p>
+              <div className="bg-white p-3 md:p-5">
+                <p className="text-[11px] uppercase tracking-wider text-on-surface-variant mb-1">Checkin Tamu</p>
                 {selections.qr_code_book ? (
                   <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-semibold">{checkedInCount}</span>
-                    <span className="text-sm text-on-surface-variant opacity-60">{checkedInPax} Pax</span>
+                    <span className="text-lg md:text-2xl font-semibold">{checkedInCount}</span>
+                    <span className="text-xs md:text-sm text-on-surface-variant opacity-60">{checkedInPax} Pax</span>
                   </div>
                 ) : (
                   <div className="relative group inline-flex items-center gap-2 pt-0.5">
-                    <span className="material-symbols-outlined text-xl text-on-surface-variant/50">lock</span>
-                    <span className="text-sm text-on-surface-variant/60">Tidak Aktif</span>
+                    <span className="material-symbols-outlined text-lg md:text-xl text-on-surface-variant/50">lock</span>
+                    <span className="text-xs md:text-sm text-on-surface-variant/60">Tidak Aktif</span>
                     <div className="hidden group-hover:block absolute bottom-full left-0 mb-2 w-max max-w-[220px] bg-black/85 text-white text-[11px] leading-relaxed px-3 py-2 rounded-lg shadow-xl z-20">
                       Fitur ini aktif untuk paket Buku Tamu Digital
                     </div>
@@ -419,7 +419,7 @@ function DashboardInner({ id }: { id: string }) {
             </div>
             <button
               onClick={() => router.push(`/dashboard/${id}/guests`)}
-              className="w-full py-5 bg-primary text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+              className="w-full py-3.5 md:py-5 bg-primary text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
             >
               Kelola Tamu &amp; Meja
               <span className="material-symbols-outlined text-[18px]">chevron_right</span>
@@ -436,7 +436,7 @@ function DashboardInner({ id }: { id: string }) {
               <span className="material-symbols-outlined text-amber-600 flex-shrink-0">bolt</span>
               <div>
                 <p className="font-body-md text-body-md text-amber-800 font-semibold">Layanan Kilat 24 Jam Aktif</p>
-                <p className="font-body-sm text-body-sm text-amber-700 mt-1">
+                <p className="font-body-sm text-body-sm text-amber-700 mt-1 hidden md:block">
                   Proses pengerjaan undangan Anda dipercepat dengan layanan kilat 24 jam.
                 </p>
               </div>

@@ -13,14 +13,14 @@ const CATEGORY_FILTERS = [
 ]
 
 const FEATURES = [
-  { title: "Reservasi (RSVP)", text: "Manajemen kehadiran digital yang terkurasi dengan elegan dan terorganisir." },
-  { title: "Lokasi", text: "Google Maps untuk kemudahan akses tamu kehormatan." },
-  { title: "Turut Mengundang", text: "Menampilkan keluarga besar yang turut mengundang." },
-  { title: "Countdown", text: "Penanda waktu visual yang memberi semangat menuju hari bahagia." },
-  { title: "Love Story", text: "Kanvas digital untuk menarasikan perjalanan cinta Anda yang indah." },
-  { title: "Gallery", text: "Visual eksklusif dari momen-momen pra-pernikahan Anda." },
-  { title: "Video", text: "Video sinematik tentang perjalanan cinta Anda, dapat dilihat dan dipuji oleh para undangan." },
-  { title: "++ Fitur menarik lainnya", text: "" },
+  { icon: "event_available", title: "Reservasi (RSVP)", text: "Manajemen kehadiran digital yang terkurasi dengan elegan dan terorganisir." },
+  { icon: "location_on", title: "Lokasi", text: "Google Maps untuk kemudahan akses tamu kehormatan." },
+  { icon: "groups", title: "Turut Mengundang", text: "Menampilkan keluarga besar yang turut mengundang." },
+  { icon: "schedule", title: "Countdown", text: "Penanda waktu visual yang memberi semangat menuju hari bahagia." },
+  { icon: "favorite", title: "Love Story", text: "Kanvas digital untuk menarasikan perjalanan cinta Anda yang indah." },
+  { icon: "photo_library", title: "Gallery", text: "Visual eksklusif dari momen-momen pra-pernikahan Anda." },
+  { icon: "play_circle", title: "Video", text: "Video sinematik tentang perjalanan cinta Anda, dapat dilihat dan dipuji oleh para undangan." },
+  { icon: "auto_awesome", title: "++ Fitur menarik lainnya", text: "" },
 ]
 
 type Template = {
@@ -90,12 +90,12 @@ export default function PremiumWebInvitationPage() {
 
       <main className="pt-24 md:pt-32 pb-40" ref={mainRef}>
         {/* The Aksara Experience */}
-        <section className="bg-surface-container-low py-20 px-margin-mobile md:px-margin-desktop border-b border-outline-variant/30">
+        <section className="bg-surface-container-low py-12 md:py-20 px-margin-mobile md:px-margin-desktop border-b border-outline-variant/30">
           <div className="max-w-container-max mx-auto">
-            <h2 className="font-headline-lg text-[28px] md:text-headline-lg text-primary mb-16 text-center transition-all duration-700 opacity-100 translate-y-0">
+            <h2 className="font-headline-lg text-[28px] md:text-headline-lg text-primary mb-8 md:mb-16 text-center transition-all duration-700 opacity-100 translate-y-0">
               Buat Undangan Cepat &amp; Lengkap
             </h2>
-            <div className="mb-20 flex flex-col items-center">
+            <div className="mb-10 md:mb-20 flex flex-col items-center">
               <div className="w-full max-w-2xl mx-auto rounded-xl overflow-hidden border border-outline-variant/30 shadow-xl transition-all duration-700 opacity-100 translate-y-0">
                 <img
                   src={ASSETS.premiumWeb.dashboard}
@@ -104,16 +104,19 @@ export default function PremiumWebInvitationPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-12">
               {FEATURES.map((f, i) => (
                 <div
                   key={f.title}
-                  className="border-t border-outline-variant/50 pt-6 transition-all duration-700 feature-item opacity-100 translate-y-0"
+                  className="bg-white border border-outline-variant/30 rounded-2xl p-5 shadow-[0_12px_30px_rgba(26,24,23,0.06)] md:bg-transparent md:border-x-0 md:border-b-0 md:border-t md:border-outline-variant/50 md:rounded-none md:shadow-none md:p-0 md:pt-6 transition-all duration-700 feature-item opacity-100 translate-y-0"
                   style={{ transitionDelay: `${(i % 4) * 100}ms` }}
                 >
-                  <h3 className="font-headline-md text-xl text-primary mb-3">{f.title}</h3>
+                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-brand-charcoal text-brand-cream md:hidden">
+                    <span className="material-symbols-outlined text-[22px]">{f.icon}</span>
+                  </div>
+                  <h3 className="font-headline-md text-lg md:text-xl text-primary mb-2 md:mb-3">{f.title}</h3>
                   {f.text && (
-                    <p className="font-body-md text-on-surface-variant leading-relaxed opacity-100 translate-y-0">{f.text}</p>
+                    <p className="font-body-md text-sm md:text-base text-on-surface-variant leading-relaxed opacity-100 translate-y-0">{f.text}</p>
                   )}
                 </div>
               ))}

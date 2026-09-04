@@ -167,7 +167,7 @@ export default function Navigation() {
           </nav>
           <div className="mt-auto pb-12">
             <button
-              onClick={() => router.push("/login")}
+              onClick={() => { closeMenu(); router.push("/login") }}
               className="w-full py-4 border border-[#f2ca50]/30 rounded-full text-[#f2ca50] font-label-md text-label-md uppercase tracking-widest"
             >
               Masuk

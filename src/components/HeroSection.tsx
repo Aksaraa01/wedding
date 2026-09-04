@@ -107,7 +107,7 @@ export default function HeroSection() {
 
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center items-center">
           <Link
-            href="/problem"
+            href="/register"
             className="w-full sm:w-auto bg-[#C5A85D] hover:bg-[#D4B86A] text-black font-semibold py-3.5 px-8 rounded-full transition-colors text-center"
           >
             Mulai Cerita Anda

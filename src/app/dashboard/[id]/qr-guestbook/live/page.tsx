@@ -41,10 +41,10 @@ function Donut({ qrPct, manualPct, percentage }: { qrPct: number; manualPct: num
   const manual = Math.max(0, Math.min(100, manualPct))
   const background = `conic-gradient(#8d4d39 0% ${qr}%, #f2a33c ${qr}% ${qr + manual}%, #f2ede4 ${qr + manual}% 100%)`
   return (
-    <div className="relative w-full h-full">
+      <div className="relative w-full h-full">
       <div className="w-full h-full rounded-full" style={{ background }} />
       <div className="absolute inset-[9%] rounded-full bg-white flex flex-col items-center justify-center">
-        <span className="font-headline-md text-[32px] text-primary">{percentage}%</span>
+        <span className="font-headline-md text-[22px] md:text-[32px] text-primary">{percentage}%</span>
         <span className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Hadir</span>
       </div>
     </div>
@@ -152,30 +152,30 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="min-h-screen bg-background font-body-md text-body-md">
-      <header className="px-edge-margin-mobile md:px-edge-margin-desktop py-8 space-y-4">
+      <header className="px-edge-margin-mobile md:px-edge-margin-desktop py-5 md:py-8 space-y-3 md:space-y-4">
         <div className="flex items-center justify-between">
           <span className="inline-flex items-center gap-2 font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">
             Buku Tamu QR &amp; Absensi Live
           </span>
           <ProfileMenu />
         </div>
-        <h1 className="font-headline-md text-[32px] leading-tight text-on-surface">
+        <h1 className="font-headline-md text-[24px] md:text-[32px] leading-tight text-on-surface">
           Buku Tamu QR &amp; <br />Absensi Live
         </h1>
       </header>
 
-      <main className="px-edge-margin-mobile md:px-edge-margin-desktop pb-16 space-y-10 md:space-y-0 md:grid md:grid-cols-12 md:gap-8 max-w-[1400px] mx-auto">
+      <main className="px-edge-margin-mobile md:px-edge-margin-desktop pb-16 space-y-8 md:space-y-0 md:grid md:grid-cols-12 md:gap-8 max-w-[1400px] mx-auto">
         {/* LEFT — pie chart + scanner card */}
-        <div className="md:col-span-5 space-y-10">
-          <div className="bg-white p-8 shadow-sm border border-[#eae3d5] relative overflow-hidden">
-            <div className="absolute inset-4 border border-[#eae3d5]/50 pointer-events-none" />
+        <div className="md:col-span-5 space-y-6 md:space-y-10">
+          <div className="bg-white p-5 md:p-8 shadow-sm border border-[#eae3d5] relative overflow-hidden">
+            <div className="absolute inset-3 md:inset-4 border border-[#eae3d5]/50 pointer-events-none" />
             <div className="relative z-10">
-              <div className="mb-6 text-center">
+              <div className="mb-5 md:mb-6 text-center">
                 <p className="font-label-md text-label-md uppercase tracking-[0.2em] text-on-surface-variant">
                   Statistik Kehadiran
                 </p>
               </div>
-              <div className="w-48 h-48 mx-auto">
+              <div className="w-40 h-40 md:w-48 md:h-48 mx-auto">
                 <Donut qrPct={qrPct} manualPct={manualPct} percentage={percentage} />
               </div>
               <div className="mt-8 space-y-4">
@@ -209,18 +209,18 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
           </div>
 
           {/* Scanner card */}
-          <div className="bg-surface-container-lowest border border-outline-variant/30 p-8 space-y-6">
+          <div className="bg-surface-container-lowest border border-outline-variant/30 p-5 md:p-8 space-y-6">
             <div className="flex flex-col gap-3">
-              <span className="font-label-md text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mb-2 block">
+              <span className="font-label-md text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-on-surface-variant mb-1 md:mb-2 block">
                 Tautan Scanner Live
               </span>
-              <div className="flex flex-col gap-6">
-                <code className="font-body-md text-primary break-all text-[18px] leading-relaxed">{scannerUrl}</code>
+              <div className="flex flex-col gap-4 md:gap-6">
+                <code className="font-body-md text-primary break-all text-[15px] md:text-[18px] leading-relaxed">{scannerUrl}</code>
 
-                <div className="flex items-center gap-8 pt-4 border-t border-outline-variant/20">
+                <div className="flex items-center gap-4 md:gap-8 pt-4 border-t border-outline-variant/20 flex-wrap">
                   <button
                     onClick={handleCopyLink}
-                    className="flex items-center gap-2 font-label-md text-[10px] text-on-surface-variant uppercase tracking-widest hover:text-primary transition-colors"
+                    className="flex items-center gap-2 font-label-md text-[11px] md:text-[10px] text-on-surface-variant uppercase tracking-widest hover:text-primary transition-colors py-2.5"
                   >
                     <span className="material-symbols-outlined text-[18px]">
                       {copied ? "check" : "content_copy"}
@@ -231,7 +231,7 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
                     href={scannerUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 font-label-md text-[10px] text-on-surface-variant uppercase tracking-widest hover:text-primary transition-colors"
+                    className="flex items-center gap-2 font-label-md text-[11px] md:text-[10px] text-on-surface-variant uppercase tracking-widest hover:text-primary transition-colors py-2.5"
                   >
                     <span className="material-symbols-outlined text-[18px]">open_in_new</span>
                     Buka Scanner
@@ -243,25 +243,25 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
             <div className="flex items-center gap-4 pt-4 border-t border-outline-variant/20">
               {profile?.scanner_pin ? (
                 <div className="flex items-center gap-3">
-                  <span className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">PIN:</span>
-                  <span className="font-headline-md text-[20px] tracking-[0.15em] text-primary">{profile.scanner_pin}</span>
+                  <span className="font-label-md text-[10px] md:text-[11px] uppercase tracking-widest text-on-surface-variant">PIN:</span>
+                  <span className="font-headline-md text-[18px] md:text-[20px] tracking-[0.15em] text-primary">{profile.scanner_pin}</span>
                   <button
                     onClick={handleGeneratePin}
                     disabled={generatingPin}
-                    className="text-on-surface-variant hover:text-primary transition-colors"
+                    className="text-on-surface-variant hover:text-primary transition-colors p-2"
                     title="Generate ulang PIN"
                   >
-                    <span className="material-symbols-outlined text-[16px]">refresh</span>
+                    <span className="material-symbols-outlined text-[18px]">refresh</span>
                   </button>
                 </div>
               ) : (
                 <button
                   onClick={handleGeneratePin}
                   disabled={generatingPin}
-                  className="flex items-center gap-2 font-label-md text-[10px] text-secondary uppercase tracking-widest hover:text-primary transition-colors"
+                  className="flex items-center gap-2 font-label-md text-[11px] md:text-[10px] text-secondary uppercase tracking-widest hover:text-primary transition-colors py-2.5"
                 >
                   {generatingPin ? (
-                    <span className="w-3 h-3 border-2 border-secondary border-t-transparent rounded-full animate-spin" />
+                    <span className="w-3.5 h-3.5 border-2 border-secondary border-t-transparent rounded-full animate-spin" />
                   ) : (
                     <span className="material-symbols-outlined text-[16px]">lock</span>
                   )}
@@ -281,7 +281,7 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
             <span className="text-[10px] font-label-md text-on-surface-variant uppercase italic">Update otomatis</span>
           </div>
 
-          <div className="mb-4 flex items-center border border-outline-variant/60 focus-within:border-secondary rounded-xl bg-white px-4 py-3 gap-3 shadow-sm transition-colors">
+          <div className="mb-4 flex items-center border border-outline-variant/60 focus-within:border-secondary rounded-xl bg-white px-4 py-2.5 md:py-3 gap-3 shadow-sm transition-colors min-h-[48px]">
             <span className="material-symbols-outlined text-on-surface-variant text-xl">search</span>
             <input
               type="text"

@@ -1859,6 +1859,32 @@ add_action('wp_footer', function () {
     }
 });
 
+// Generic comment fix: the guestbook (CUI) comment form is built MANUALLY (it never calls
+// comment_form()), and ships no `email` field. WP's `require_name_email` gate runs in
+// wp_handle_comment_submission BEFORE preprocess_comment, so it wp_dies "Please fill the required
+// fields." CUI renders each field via apply_filters("comment_form_field_{$name}", ...) — append the
+// intended anonymous email to the author field so EVERY CUI comment form carries it (site-wide).
+add_filter('comment_form_field_author', function ($field) {
+    if (false === strpos($field, 'name="email"')) {
+        $field .= '<p class="comment-form-email" style="display:none!important">'
+            . '<input name="email" type="hidden" value="anonymous@wordpress.com" autocomplete="off" />'
+            . '</p>';
+    }
+    return $field;
+}, 99);
+
+// Secondary net for any form rendered through comment_form() (non-CUI) so email is never missing.
+add_filter('comment_form_fields', function ($fields) {
+    if (empty($fields['email'])) {
+        $fields['email'] = '<p class="comment-form-email" style="display:none!important">'
+            . '<input name="email" type="hidden" value="anonymous@wordpress.com" autocomplete="off" />'
+            . '</p>';
+    }
+    return $fields;
+}, 99);
+
+// Safety net (belt): preprocess_comment runs inside wp_new_comment AFTER the require_name_email gate,
+// so it cannot satisfy that gate — it only guarantees a non-empty author/email reach the DB.
 add_filter('preprocess_comment', function ($commentdata) {
     if (empty($commentdata['comment_author']) && isset($_GET['to']) && is_string($_GET['to']) && $_GET['to'] !== '') {
         $commentdata['comment_author'] = sanitize_text_field(wp_unslash($_GET['to']));
@@ -1872,10 +1898,12 @@ add_filter('preprocess_comment', function ($commentdata) {
     return $commentdata;
 }, 10, 1);
 
-// Prefill `nama tamu` (Elementor Form + CUI author) from ?to= so required validation passes on invitation
+// Prefill `nama tamu` (Elementor Form + CUI author) from ?to= so the required author/name field is
+// never empty on the invitation; also append a hidden `email` as a client-side belt in case a form
+// bypasses the comment_form_default_fields filter above.
 add_action('wp_footer', function () {
     if (!is_singular()) return;
-    echo '<script>(function(){function fillNamaTamu(){var to=new URLSearchParams(location.search).get("to");if(!to)return;try{to=decodeURIComponent(to.toString().replace(/\+/g," "))}catch(e){}var sels=["input[name=\"author\"]","#author","input.cui-input[name=\"author\"]","input[name*=\"nama_tamu\"]","input[name*=\"nama tamu\"]","input[id*=\"nama_tamu\"]","input[id*=\"nama\"]","textarea[name*=\"nama_tamu\"]","input[name=\"form_fields[nama_tamu]\"]","input[name=\"form_fields[name]\"]","#form-field-nama_tamu","#form-field-nama","#form-field-author"];var found=false;for(var i=0;i<sels.length;i++){try{var els=document.querySelectorAll(sels[i]);for(var j=0;j<els.length;j++){var el=els[j];if(el&&!el.value){el.value=to;el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}));found=true;}}}catch(e){}}return found;}function fillOnSubmit(e){var form=e.target;if(!form||!form.matches)return;if(!form.matches("form[id^=\"commentform\"]"))return;var to=new URLSearchParams(location.search).get("to");if(!to)return;try{to=decodeURIComponent(to.replace(/\+/g," "))}catch(e){}var author=form.querySelector("input[name=\"author\"]");if(author&&!author.value.trim()){author.value=to;}}fillNamaTamu();document.addEventListener("DOMContentLoaded",fillNamaTamu);document.addEventListener("submit",fillOnSubmit,true);var obs=new MutationObserver(function(){fillNamaTamu();});try{obs.observe(document.body,{childList:true,subtree:true});}catch(e){}if(window.jQuery){jQuery(document).on("elementor/popup/show",function(){setTimeout(fillNamaTamu,200);});}document.addEventListener("click",function(e){var t=e.target;if(t&&t.closest&&t.closest(".elementor-button,.cui-link,.cui-button")){setTimeout(fillNamaTamu,120);}},true);})();</script>';
+    echo '<script>(function(){function g(){try{return decodeURIComponent((new URLSearchParams(location.search).get("to")||"").replace(/\+/g," "))}catch(e){return""}}function fillName(){var to=g();if(!to)return;var sels=["input[name=\"author\"]","#author","input.cui-input[name=\"author\"]","input[name*=\"nama_tamu\"]","input[name*=\"nama tamu\"]","input[id*=\"nama_tamu\"]","input[id*=\"nama\"]","textarea[name*=\"nama_tamu\"]","input[name=\"form_fields[nama_tamu]\"]","input[name=\"form_fields[name]\"]","#form-field-nama_tamu","#form-field-nama","#form-field-author"];for(var i=0;i<sels.length;i++){try{var els=document.querySelectorAll(sels[i]);for(var j=0;j<els.length;j++){var el=els[j];if(el&&!el.value){el.value=to;el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}));}}}catch(e){}}}function ensureFields(e){var form=e&&e.target;if(!form||!form.matches||!form.matches("form[id^=\"commentform\"]"))return;var to=g();var a=form.querySelector("input[name=\"author\"]");if(a&&!a.value.trim()&&to){a.value=to;}if(!form.querySelector("input[name=\"email\"]")){var h=document.createElement("input");h.type="hidden";h.name="email";h.value="anonymous@wordpress.com";h.setAttribute("autocomplete","off");form.appendChild(h);}}fillName();document.addEventListener("DOMContentLoaded",fillName);document.addEventListener("submit",ensureFields,true);var obs=new MutationObserver(function(){fillName();});try{obs.observe(document.body,{childList:true,subtree:true});}catch(e){}if(window.jQuery){jQuery(document).on("elementor/popup/show",function(){setTimeout(fillName,200);});}document.addEventListener("click",function(e){var t=e.target;if(t&&t.closest&&t.closest(".elementor-button,.cui-link,.cui-button")){setTimeout(fillName,120);}},true);})();</script>';
 });
 
 // Allow JSON uploads for Lottie animations
@@ -1929,8 +1957,10 @@ add_action('wp_head', function () {
     if (is_singular() && get_post_meta(get_the_ID(), '_wp_page_template', true) === 'default') {
         echo '<style>.hestia-title { display: none !important; }</style>';
     }
-    // Guard for Elementor Pro popup + audio duplication when template contains two audio widgets (post+popup)
-    echo '<script>window.elementorProFrontend=window.elementorProFrontend||{modules:{popup:{showPopup:function(){},closePopup:function(){},popupPopped:false}}};window.elementorFrontend=window.elementorFrontend||{storage:{get:function(){},set:function(){}}};</script>';
+    // Guard for Elementor Pro popup + audio duplication when template contains two audio widgets (post+popup).
+    // Templates baked before the fix reference `document.elementorProFrontend` and call `closePopup("{}, event")`
+    // (string instead of object). Alias the guard onto document too so those scripts no longer throw at runtime.
+    echo '<script>(function(){var P=window.elementorProFrontend=window.elementorProFrontend||{modules:{popup:{showPopup:function(){},closePopup:function(){},popupPopped:false}}};window.elementorFrontend=window.elementorFrontend||{storage:{get:function(){},set:function(){}}};try{document.elementorProFrontend=P;}catch(e){}})();</script>';
 });
 
 AksaraaPlugin::init();
