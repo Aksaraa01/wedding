@@ -94,7 +94,7 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, copiedId, copiedKind
         <button
           onClick={() => blockAction(() => hasToken && onCopyQr(guest.qr_token!, guest.slug))()}
           disabled={!blocked && !hasToken}
-          className="flex flex-col items-center justify-center gap-1.5 px-3 py-4 rounded-xl border border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant hover:border-secondary hover:text-secondary disabled:opacity-30 disabled:hover:border-outline-variant/60 disabled:hover:text-on-surface-variant transition-colors"
+          className="flex flex-col items-center justify-center gap-1.5 px-3 py-3.5 md:py-4 min-h-[44px] rounded-xl border border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant hover:border-secondary hover:text-secondary disabled:opacity-30 disabled:hover:border-outline-variant/60 disabled:hover:text-on-surface-variant transition-colors"
         >
           <span className={`material-symbols-outlined text-xl ${isCopiedQr ? "text-emerald-600" : ""}`}>
             {isCopiedQr ? "check" : blocked ? "lock" : "qr_code_2"}
@@ -106,7 +106,7 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, copiedId, copiedKind
         <button
           onClick={() => blockAction(() => hasToken && onCopyUndangan(guest))()}
           disabled={!blocked && !hasToken}
-          className="flex flex-col items-center justify-center gap-1.5 px-3 py-4 rounded-xl border border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant hover:border-secondary hover:text-secondary disabled:opacity-30 disabled:hover:border-outline-variant/60 disabled:hover:text-on-surface-variant transition-colors"
+          className="flex flex-col items-center justify-center gap-1.5 px-3 py-3.5 md:py-4 min-h-[44px] rounded-xl border border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant hover:border-secondary hover:text-secondary disabled:opacity-30 disabled:hover:border-outline-variant/60 disabled:hover:text-on-surface-variant transition-colors"
         >
           <span className={`material-symbols-outlined text-xl ${isCopiedUndangan ? "text-emerald-600" : ""}`}>
             {isCopiedUndangan ? "check" : blocked ? "lock" : "link"}
@@ -313,23 +313,23 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       <header className="shrink-0 bg-background/95 backdrop-blur-md border-b border-outline-variant/40 px-6 md:px-12 py-4">
         <div className="w-full flex items-center justify-between">
           <span className="inline-flex items-center gap-2 text-on-surface-variant font-label-md text-[11px] uppercase tracking-wider font-semibold">
-            Panel Kontrol Tautan &amp; QR
+            Buku Tamu Digital
           </span>
           <ProfileMenu />
         </div>
       </header>
 
       {/* Main */}
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden pb-28 md:pb-0">
         {/* Fixed Top Content */}
         <div className="shrink-0 w-full max-w-2xl mx-auto px-6 pt-6">
           <h1 className="font-headline-md text-xl md:text-2xl font-medium tracking-tight text-primary">
-            Panel Kontrol Tautan &amp; QR
+            Buku Tamu Digital
           </h1>
 
           {/* Stats Pill */}
           <section className="mt-5 flex flex-col items-center gap-4">
-            <div className="inline-flex flex-wrap justify-center items-center gap-4 py-2.5 px-5 bg-surface-container-low/90 border border-outline-variant/30 rounded-full shadow-sm">
+            <div className="inline-flex flex-wrap justify-center items-center gap-3 md:gap-4 py-3 md:py-2.5 min-h-[44px] px-5 bg-surface-container-low/90 border border-outline-variant/30 rounded-full shadow-sm">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-sm text-secondary">link</span>
                 <span className="font-label-md text-[11px] uppercase tracking-wider text-on-surface-variant font-medium">
@@ -350,7 +350,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
               <button
                 onClick={handleGenerate}
                 disabled={generating}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-on-primary font-label-md text-[11px] uppercase tracking-wider rounded-full hover:opacity-90 transition-opacity disabled:opacity-40 shadow-sm"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 md:py-2.5 min-h-[44px] bg-primary text-on-primary font-label-md text-[11px] uppercase tracking-wider rounded-full hover:opacity-90 transition-opacity disabled:opacity-40 shadow-sm"
               >
                 {generating ? (
                   <span className="w-3.5 h-3.5 border-2 border-on-primary border-t-transparent rounded-full animate-spin" />
@@ -372,7 +372,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
             <button
               onClick={handleExportExcel}
               disabled={exporting || guests.length === 0}
-              className="inline-flex items-center gap-2 px-5 py-2.5 border border-outline-variant/60 text-on-surface font-label-md text-[11px] uppercase tracking-wider rounded-full hover:border-secondary hover:text-secondary transition-colors disabled:opacity-40 shadow-sm"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3.5 md:py-2.5 min-h-[44px] border border-outline-variant/60 text-on-surface font-label-md text-[11px] uppercase tracking-wider rounded-full hover:border-secondary hover:text-secondary transition-colors disabled:opacity-40 shadow-sm"
             >
               {exporting ? (
                 <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -385,7 +385,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
 
           {/* UNPAID Banner */}
           {isUnpaid && (
-            <div className="mt-5 bg-yellow-50 border border-yellow-300 rounded-xl p-4 flex items-start gap-3">
+            <div className="mt-6 md:mt-5 bg-yellow-50 border border-yellow-300 rounded-xl p-4 md:p-4 flex items-start gap-3 min-h-[44px]">
               <span className="material-symbols-outlined text-yellow-600 flex-shrink-0">info</span>
               <div>
                 <p className="font-body-md text-body-md text-yellow-800 font-semibold">Pembayaran Belum Selesai</p>
@@ -397,14 +397,14 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
           )}
 
           {/* Search */}
-          <div className="mt-5 bg-surface-container-lowest border border-outline-variant/60 rounded-xl px-4 py-1 flex items-center gap-3 shadow-sm focus-within:ring-1 focus-within:ring-secondary focus-within:border-secondary transition-all">
+          <div className="mt-6 md:mt-5 bg-surface-container-lowest border border-outline-variant/60 rounded-xl px-4 h-12 flex items-center gap-3 shadow-sm focus-within:ring-1 focus-within:ring-secondary focus-within:border-secondary transition-all">
             <span className="material-symbols-outlined text-on-surface-variant/70 text-xl">search</span>
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari nama tamu..."
-              className="bg-transparent border-none focus:ring-0 w-full py-3 font-body-md text-sm text-on-surface placeholder:text-outline-variant/80 outline-none"
+              className="bg-transparent border-none focus:ring-0 w-full h-12 py-3.5 font-body-md text-sm text-on-surface placeholder:text-outline-variant/80 outline-none"
             />
           </div>
         </div>
@@ -459,13 +459,13 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
               </p>
               <button
                 onClick={() => router.push(`/customize?edit=true&tab=dgbook&user=${encodeURIComponent(profile?.bride_name || "")}&partner=${encodeURIComponent(profile?.groom_name || "")}&date=${encodeURIComponent(profile?.estimated_wedding_date || "")}&guest=${encodeURIComponent(String(profile?.estimated_guest_count || 300))}&profile_id=${id}`)}
-                className="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
+                className="w-full bg-primary text-on-primary py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
               >
                 Ubah ke Buku Tamu Digital
               </button>
               <button
                 onClick={() => setShowLimitModal(false)}
-                className="w-full border border-outline-variant text-on-surface-variant py-3 rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+                className="w-full border border-outline-variant text-on-surface-variant py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
               >
                 Nanti Saja
               </button>
@@ -489,13 +489,13 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
               </p>
               <button
                 onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)}
-                className="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
+                className="w-full bg-primary text-on-primary py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
               >
                 Lengkapi di Editor
               </button>
               <button
                 onClick={() => setShowConfirmModal(false)}
-                className="w-full border border-outline-variant text-on-surface-variant py-3 rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+                className="w-full border border-outline-variant text-on-surface-variant py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
               >
                 Nanti Saja
               </button>

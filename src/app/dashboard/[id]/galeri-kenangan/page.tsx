@@ -24,7 +24,9 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
   const [photos, setPhotos] = useState<GuestPhoto[]>([])
   const [loading, setLoading] = useState(true)
   const [downloadingAll, setDownloadingAll] = useState(false)
+  const [search, setSearch] = useState("")
   const [retention, setRetention] = useState<{ hasEventDate: boolean; latestEventDate: string | null; deletionDate: string | null }>({ hasEventDate: false, latestEventDate: null, deletionDate: null })
+  const filteredPhotos = photos.filter((p) => !search.trim() || (p.guests?.name || "").toLowerCase().includes(search.trim().toLowerCase()))
 
   const downloadSingle = async (url: string, filename: string) => {
     try {
@@ -131,14 +133,12 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
           </div>
         </header>
 
-      <main className="pt-32 pb-32 max-w-container-max mx-auto px-edge-margin-mobile md:px-edge-margin-desktop">
+      <main className="pt-32 pb-28 md:pb-32 max-w-container-max mx-auto px-edge-margin-mobile md:px-edge-margin-desktop">
         {!loading && retention.hasEventDate && retention.deletionDate && (
-          <div className="mb-10 flex items-start gap-3 bg-secondary-container/40 border border-secondary/30 px-5 py-4">
+          <div className="mb-10 flex items-start gap-3 bg-white border border-outline-variant px-5 py-4 shadow-sm">
             <span className="material-symbols-outlined text-secondary shrink-0 mt-0.5">info</span>
             <p className="font-body-md text-[13px] text-on-surface">
-              Foto kenangan tamu akan dihapus otomatis 7 hari setelah acara,{" "}
-              <span className="font-semibold">{formatDeletionDate(retention.deletionDate)}</span> (tanggal penghapusan).
-              Segera download foto sebelum tanggal tersebut.
+              Foto tersedia sampai {formatDeletionDate(retention.deletionDate)}, jangan lupa di download
             </p>
           </div>
         )}
@@ -153,7 +153,7 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
             </div>
             <button
               onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)}
-              className="shrink-0 border border-primary text-primary font-label-md text-[11px] uppercase tracking-widest px-5 py-3 hover:bg-primary hover:text-white transition-colors duration-300"
+              className="shrink-0 border border-primary text-primary font-label-md text-[11px] uppercase tracking-widest px-5 py-3 min-h-[44px] inline-flex items-center justify-center hover:bg-primary hover:text-white transition-colors duration-300"
             >
               Buka Editor
             </button>
@@ -168,14 +168,13 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
             </div>
             <div className="flex flex-col items-start md:items-end gap-4">
               <div className="flex flex-col items-start md:items-end">
-                <span className="font-label-md text-label-md uppercase text-secondary tracking-widest mb-1">Total Dokumentasi</span>
-                <span className="font-headline-lg text-[24px] md:text-headline-lg text-primary">{loading ? "..." : `${photos.length} Momen Terunggah`}</span>
+                <span className="font-headline-lg text-[24px] md:text-headline-lg text-secondary">{loading ? "..." : `${photos.length} Momen Terunggah`}</span>
               </div>
               {!loading && photos.length > 0 && (
                 <button
                   onClick={downloadAll}
                   disabled={downloadingAll}
-                  className="flex items-center gap-2 border border-primary text-primary font-label-md text-label-md uppercase tracking-widest px-5 py-3 hover:bg-primary hover:text-white transition-colors duration-300 disabled:opacity-50"
+                  className="flex items-center gap-2 border border-primary text-primary font-label-md text-label-md uppercase tracking-widest px-5 py-3 min-h-[44px] hover:bg-primary hover:text-white transition-colors duration-300 disabled:opacity-50"
                 >
                   <span className="material-symbols-outlined text-[18px]">{downloadingAll ? "hourglass_empty" : "archive"}</span>
                   {downloadingAll ? "Menyiapkan ZIP..." : `Unduh Semua (${photos.length})`}
@@ -184,6 +183,19 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
             </div>
           </div>
         </section>
+
+        {!loading && photos.length > 0 && (
+          <div className="mb-6 bg-white border border-outline-variant rounded-xl px-4 py-1 flex items-center gap-3 shadow-sm">
+            <span className="material-symbols-outlined text-on-surface-variant/70 text-xl">search</span>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Cari nama tamu..."
+              className="flex-1 bg-transparent border-none focus:ring-0 py-3 text-sm text-on-surface placeholder:text-outline-variant/80 outline-none"
+            />
+          </div>
+        )}
 
         {loading ? (
           <div className="flex items-center justify-center py-32">
@@ -194,9 +206,13 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
             <span className="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4">photo_library</span>
             <p className="font-body-md text-on-surface-variant">Belum ada foto dari tamu</p>
           </div>
+        ) : filteredPhotos.length === 0 ? (
+          <div className="text-center py-16 bg-white border border-outline-variant/50 rounded-xl">
+            <p className="font-body-md text-sm text-on-surface-variant">Tidak ada foto untuk “{search}”</p>
+          </div>
         ) : (
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {photos.map((photo, i) => {
+            {filteredPhotos.map((photo, i) => {
               return (
                 <div key={photo.id} className="group" style={{ animation: `fadeIn 0.8s ease-out forwards`, animationDelay: `${0.2 + i * 0.1}s`, opacity: 0 }}>
                   <div className="overflow-hidden bg-surface-container mb-4 rounded-xl border border-outline-variant/30 flex items-center justify-center">
@@ -224,12 +240,12 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                     </span>
                     <div className="flex items-center gap-2">
                       <span
-                        className="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors select-none"
+                        className="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors select-none min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
                         title="Unduh foto ini"
                         onClick={() => downloadSingle(photo.image_url, `${photo.guests?.name || "tamu"}-${photo.id}.jpg`)}
                       >download</span>
                       <span
-                        className="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-secondary transition-colors select-none"
+                        className="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-secondary transition-colors select-none min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
                         style={{ fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}
                         onClick={(e) => {
                           const el = e.currentTarget

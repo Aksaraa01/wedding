@@ -30,10 +30,11 @@ export async function POST(req: Request) {
     const brideFirst = firstNamePart(bride_name)
     const groomFirst = firstNamePart(groom_name)
     if (brideFirst && groomFirst) {
+      const dupSlug = `${brideFirst}-${groomFirst}`
       const { data: dupCouple } = await supabaseAdmin
         .from("wedding_profiles")
         .select("id")
-        .in("slug", [`${brideFirst}-${groomFirst}`, `${groomFirst}-${brideFirst}`])
+        .eq("slug", dupSlug)
         .maybeSingle()
 
       if (dupCouple) {

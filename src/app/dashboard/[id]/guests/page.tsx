@@ -280,7 +280,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
           <div className="flex justify-between items-center px-6 py-4 w-full">
             <button
               onClick={() => setView("list")}
-              className="flex items-center gap-3 cursor-pointer active:opacity-70 group"
+              className="flex items-center gap-3 cursor-pointer active:opacity-70 group min-h-[44px]"
             >
               <span className="material-symbols-outlined text-primary group-hover:-translate-x-1 transition-transform">arrow_back</span>
               <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Batal &amp; Kembali</span>
@@ -289,7 +289,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
           </div>
         </header>
 
-        <main className="flex flex-col h-screen px-6 pt-8 max-w-lg mx-auto">
+        <main className="flex flex-col h-screen px-6 pt-8 pb-28 md:pb-0 max-w-lg mx-auto">
           <section className="mb-8 shrink-0">
             <h1 className="font-headline-md text-headline-md text-primary mb-2">Verifikasi Unggahan</h1>
             <p className="font-body-md text-body-md text-on-surface-variant">Pastikan daftar tamu Anda akurat sebelum diintegrasikan ke narasi acara.</p>
@@ -318,7 +318,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             <div className="relative group">
               <span className="absolute left-0 bottom-3 material-symbols-outlined text-on-surface-variant">search</span>
               <input
-                className="w-full bg-transparent border-0 border-b border-primary/20 py-3 pl-8 focus:ring-0 focus:border-primary transition-colors font-label-md text-label-md tracking-widest placeholder:text-outline/60 uppercase"
+                className="w-full h-12 md:h-auto bg-transparent border-0 border-b border-primary/20 py-3 pl-8 focus:ring-0 focus:border-primary transition-colors font-label-md text-label-md tracking-widest placeholder:text-outline/60 uppercase"
                 placeholder="CARI NAMA TAMU..."
                 value={verifySearch}
                 onChange={(e) => setVerifySearch(e.target.value)}
@@ -332,15 +332,15 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-outline-variant/30 sticky top-0 z-10 bg-surface">
-                      <th className="py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Nama</th>
-                      <th className="py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">No. WA</th>
-                      <th className="py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest text-right">Meja</th>
+                      <th className="py-4 md:py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Nama</th>
+                      <th className="py-4 md:py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">No. WA</th>
+                      <th className="py-4 md:py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-widest text-right">Meja</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-outline-variant/10">
                     {filteredVerify.map((row, i) => (
                       <tr key={i} className="group hover:bg-surface-container-low transition-colors duration-200">
-                        <td className="py-5 pr-4">
+                        <td className="py-4 md:py-5 pr-3 md:pr-4">
                           <p className="font-headline-md text-[18px] text-primary leading-none flex items-center gap-2">
                             {row.name}
                             {row.is_vip && (
@@ -357,8 +357,8 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                             <span className="font-label-md text-[10px] text-error bg-error-container/20 px-1 rounded uppercase mt-1 inline-block ml-1">Duplikat</span>
                           )}
                         </td>
-                        <td className="py-5 font-body-md text-on-surface-variant text-[14px]">{row.phone_number}</td>
-                        <td className="py-5 font-headline-md text-[18px] text-primary text-right italic">{row.table_number || "—"}</td>
+                        <td className="py-4 md:py-5 font-body-md text-on-surface-variant text-[14px]">{row.phone_number}</td>
+                        <td className="py-4 md:py-5 font-headline-md text-[18px] text-primary text-right italic">{row.table_number || "—"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -373,7 +373,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             <button
               onClick={handleVerifyImport}
               disabled={importing || verifySummary.valid === 0}
-              className={`w-full bg-primary text-white py-5 px-6 font-label-md text-label-md uppercase tracking-[0.2em] transition-all hover:bg-secondary active:scale-[0.98] duration-300 flex items-center justify-center gap-3 ${
+              className={`w-full bg-primary text-white py-5 px-6 min-h-[44px] font-label-md text-label-md uppercase tracking-[0.2em] transition-all hover:bg-secondary active:scale-[0.98] duration-300 flex items-center justify-center gap-3 ${
                 importing ? "opacity-50" : ""
               }`}
             >
@@ -394,7 +394,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
         <ProfileMenu />
       </header>
 
-      <main className="h-screen pt-20 px-edge-margin-mobile md:px-edge-margin-desktop max-w-2xl md:max-w-6xl mx-auto flex flex-col">
+      <main className="h-screen pt-20 pb-28 md:pb-0 px-edge-margin-mobile md:px-edge-margin-desktop max-w-2xl md:max-w-6xl mx-auto flex flex-col">
         <section className="mb-6 shrink-0">
           <h1 className="font-headline-md text-headline-md text-primary mb-1">Manajemen Daftar Tamu</h1>
           <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
@@ -501,7 +501,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             />
             <button
               onClick={(e) => { e.stopPropagation(); handleDownloadTemplate() }}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 border border-primary text-primary font-label-md text-label-sm uppercase tracking-widest hover:bg-primary hover:text-white transition-all duration-300"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 min-h-[44px] md:min-h-0 border border-primary text-primary font-label-md text-label-sm uppercase tracking-widest hover:bg-primary hover:text-white transition-all duration-300"
             >
               <span className="material-symbols-outlined text-[14px]">download</span>
               Unduh Templat
@@ -525,7 +525,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
               placeholder="Cari Nama, No. HP atau Nomor Meja"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-surface-container-low border border-[#eae3d5] py-3 pl-12 pr-4 font-body-md text-body-md text-on-surface placeholder:text-[12px] placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary transition-colors"
+              className="w-full h-12 md:h-10 bg-surface-container-low border border-[#eae3d5] py-3 pl-12 pr-4 font-body-md text-body-md text-on-surface placeholder:text-[12px] placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary transition-colors"
             />
           </div>
         </div>
@@ -551,7 +551,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             </div>
 
             {filtered.map((guest) => (
-              <div key={guest.id} className="grid grid-cols-12 py-5 px-2 items-center hairline-divider group">
+              <div key={guest.id} className="grid grid-cols-12 py-4 md:py-5 px-3 md:px-2 min-h-[44px] items-center hairline-divider group">
                 <div className="col-span-4">
                   <p className="font-body-md font-semibold text-on-surface flex items-center gap-2">
                     {guest.name}
@@ -572,14 +572,14 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                   )}
                 </div>
                 <div className="col-span-4">
-                  <span className="text-[10px] uppercase tracking-widest text-on-surface-variant opacity-70">
+                  <span className="text-[10px] uppercase tracking-widest text-on-surface-variant opacity-70 min-h-[44px] md:min-h-0 inline-flex items-center px-1">
                     {guest.category || "—"}
                   </span>
                 </div>
                 <div className="col-span-4 flex items-center justify-between gap-2">
                   <div>
                     {guest.table_number ? (
-                      <span className="font-label-md text-[11px] px-2 py-1 bg-surface-container border border-outline-variant text-on-surface">
+                      <span className="font-label-md text-[11px] px-2 py-1 min-h-[44px] md:min-h-0 inline-flex items-center bg-surface-container border border-outline-variant text-on-surface">
                         {guest.table_number}
                       </span>
                     ) : (
@@ -589,13 +589,13 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                   <div className="flex gap-1">
                     <button
                       onClick={() => openEdit(guest)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity leading-none"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity leading-none min-h-[44px] min-w-[44px] flex items-center justify-center md:min-h-0 md:min-w-0"
                     >
                       <span className="material-symbols-outlined !text-[12px]">edit</span>
                     </button>
                     <button
                       onClick={() => { if (confirm("Hapus tamu ini?")) handleDelete(guest.id) }}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity text-error leading-none"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity text-error leading-none min-h-[44px] min-w-[44px] flex items-center justify-center md:min-h-0 md:min-w-0"
                     >
                       <span className="material-symbols-outlined !text-[12px]">delete</span>
                     </button>
@@ -612,7 +612,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
 
       <button
         onClick={openAdd}
-        className="fixed bottom-44 right-6 w-14 h-14 bg-primary text-white flex items-center justify-center shadow-lg z-40 active:scale-95 transition-transform duration-200"
+        className="fixed bottom-44 right-6 w-14 h-14 min-h-[44px] min-w-[44px] bg-primary text-white flex items-center justify-center shadow-lg z-40 active:scale-95 transition-transform duration-200"
       >
         <span className="material-symbols-outlined text-[24px]">add</span>
       </button>
@@ -620,7 +620,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
       <footer className="fixed bottom-0 left-0 right-0 z-50 lg:left-[var(--dash-sidebar-w)] bg-background border-t border-outline-variant px-edge-margin-mobile py-6 flex flex-col gap-3 shadow-[0_-4px_24px_rgba(0,0,0,0.03)]">
         <button
           onClick={() => setResetConfirmOpen(true)}
-          className="w-full bg-transparent border border-error text-error py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-error-container transition-colors"
+          className="w-full bg-transparent border border-error text-error py-4 min-h-[44px] font-label-md text-label-md uppercase tracking-widest hover:bg-error-container transition-colors"
         >
           Hapus Semua Data Tamu
         </button>
@@ -681,7 +681,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                     <button
                       type="button"
                       onClick={() => setForm((p) => ({ ...p, is_vip: !p.is_vip }))}
-                      className={`flex items-center gap-3 border py-2.5 px-3 transition-colors ${
+                      className={`flex items-center gap-3 border py-2.5 px-3 min-h-[44px] transition-colors ${
                         form.is_vip ? "border-[#f2ca50] bg-[#f2ca50]/10" : "border-outline-variant"
                       }`}
                     >
@@ -708,14 +708,14 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                   )}
                   <button
                     type="submit"
-                    className="w-full bg-primary text-white py-4 font-label-md text-label-md uppercase tracking-widest active:scale-95 transition-transform"
+                    className="w-full bg-primary text-white py-4 min-h-[44px] font-label-md text-label-md uppercase tracking-widest active:scale-95 transition-transform"
                   >
                     Simpan
                   </button>
                   <button
                     type="button"
                     onClick={() => setModalOpen(false)}
-                    className="w-full bg-transparent border border-primary text-primary py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-surface-container transition-colors"
+                    className="w-full bg-transparent border border-primary text-primary py-4 min-h-[44px] font-label-md text-label-md uppercase tracking-widest hover:bg-surface-container transition-colors"
                   >
                     Batal
                   </button>
@@ -741,13 +741,13 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
               <div className="flex flex-col gap-3">
                 <button
                   onClick={handleReset}
-                  className="w-full bg-error text-white py-4 font-label-md text-label-md uppercase tracking-widest active:scale-95 transition-transform"
+                  className="w-full bg-error text-white py-4 min-h-[44px] font-label-md text-label-md uppercase tracking-widest active:scale-95 transition-transform"
                 >
                   Ya, Hapus Semua
                 </button>
                 <button
                   onClick={() => setResetConfirmOpen(false)}
-                  className="w-full bg-transparent border border-primary text-primary py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-surface-container transition-colors"
+                  className="w-full bg-transparent border border-primary text-primary py-4 min-h-[44px] font-label-md text-label-md uppercase tracking-widest hover:bg-surface-container transition-colors"
                 >
                   Batal
                 </button>

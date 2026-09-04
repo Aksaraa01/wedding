@@ -10,7 +10,7 @@ export type WpJob = {
   updated_at: string
 }
 
-const DEFAULT_INTERVAL = 1500
+const DEFAULT_INTERVAL = 800
 const DEFAULT_TIMEOUT = 3 * 60 * 1000
 
 export async function fetchWpJob(jobId: string): Promise<WpJob | null> {

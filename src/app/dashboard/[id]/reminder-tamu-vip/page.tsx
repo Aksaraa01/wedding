@@ -145,7 +145,7 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
             <ProfileMenu />
           </div>
         </header>
-        <main className="w-full max-w-6xl mx-auto px-6 pt-28 flex flex-col gap-8">
+        <main className="w-full max-w-6xl mx-auto px-6 pt-28 pb-28 md:pb-0 flex flex-col gap-8">
           <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
             <h1 className="font-headline-lg text-3xl md:text-4xl text-primary leading-tight tracking-tight">Reminder Tamu VIP</h1>
@@ -175,7 +175,7 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
                       value={selectedTemplate}
                       onChange={e => handleTemplateChange(e.target.value)}
                       disabled={locked}
-                      className="w-full border border-outline-variant/60 rounded-lg bg-surface-container-lowest px-4 py-3.5 font-body-md text-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary transition-all appearance-none cursor-pointer pr-10 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="w-full min-h-[44px] border border-outline-variant/60 rounded-lg bg-surface-container-lowest px-4 py-3.5 font-body-md text-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary transition-all appearance-none cursor-pointer pr-10 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       {Object.entries(MESSAGE_TEMPLATES).map(([key, t]) => (
                         <option key={key} value={key}>{t.label}</option>
@@ -213,7 +213,7 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
               </div>
               <button
                 onClick={() => setShowVipModal(true)}
-                className="flex items-center gap-1.5 bg-surface-container border border-outline-variant/40 px-3 py-1 rounded-md text-on-surface-variant hover:border-secondary hover:text-secondary transition-colors"
+                className="flex items-center gap-1.5 bg-surface-container border border-outline-variant/40 px-3 min-h-[44px] rounded-md text-on-surface-variant hover:border-secondary hover:text-secondary transition-colors"
                 title="Lihat daftar tamu VIP"
               >
                 <span className="material-symbols-outlined text-sm">local_offer</span>
@@ -229,21 +229,21 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
                   onChange={e => setScheduledDate(e.target.value)}
                   disabled={locked}
                   max={weddingDate || undefined}
-                  className="w-full bg-surface-container-lowest border border-outline-variant/60 rounded-lg px-4 py-3 font-body-md text-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full min-h-[44px] bg-surface-container-lowest border border-outline-variant/60 rounded-lg px-4 py-3 font-body-md text-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 />
                 {!locked && weddingDate && (
                   <div className="flex gap-2 mt-1">
                     <button
                       type="button"
                       onClick={() => setScheduledDate(addDays(weddingDate, -1))}
-                      className="text-[10px] font-label-md uppercase tracking-wider px-2.5 py-1 border border-outline-variant/50 rounded text-on-surface-variant hover:border-secondary hover:text-secondary transition-colors"
+                      className="text-[10px] font-label-md uppercase tracking-wider px-2.5 min-h-[44px] py-2 border border-outline-variant/50 rounded text-on-surface-variant hover:border-secondary hover:text-secondary transition-colors"
                     >
                       Rekomendasi H-1
                     </button>
                     <button
                       type="button"
                       onClick={() => setScheduledDate(addDays(weddingDate, -3))}
-                      className="text-[10px] font-label-md uppercase tracking-wider px-2.5 py-1 border border-outline-variant/50 rounded text-on-surface-variant hover:border-secondary hover:text-secondary transition-colors"
+                      className="text-[10px] font-label-md uppercase tracking-wider px-2.5 min-h-[44px] py-2 border border-outline-variant/50 rounded text-on-surface-variant hover:border-secondary hover:text-secondary transition-colors"
                     >
                       Rekomendasi H-3
                     </button>
@@ -257,7 +257,7 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
                   value={scheduledTime}
                   onChange={e => setScheduledTime(e.target.value)}
                   disabled={locked}
-                  className="w-full bg-surface-container-lowest border border-outline-variant/60 rounded-lg px-4 py-3 font-body-md text-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full min-h-[44px] bg-surface-container-lowest border border-outline-variant/60 rounded-lg px-4 py-3 font-body-md text-sm text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -326,7 +326,7 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
                 }
               }}
               disabled={saving || (locked && isPublished)}
-              className="w-full sm:w-44 bg-primary text-on-primary py-4 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] transition-all duration-200 active:scale-[0.98] hover:bg-primary/95 shadow-md font-semibold disabled:opacity-60"
+              className="w-full sm:w-44 min-h-[44px] bg-primary text-on-primary py-4 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] transition-all duration-200 active:scale-[0.98] hover:bg-primary/95 shadow-md font-semibold disabled:opacity-60"
             >
               {locked ? "Tersimpan" : saving ? "Menyimpan..." : "Simpan"}
             </button>
@@ -346,14 +346,14 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="w-full py-3.5 bg-primary text-on-primary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+                  className="w-full min-h-[44px] py-3.5 bg-primary text-on-primary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
                   {saving ? "Menyimpan..." : "Ya, Simpan"}
                 </button>
                 <button
                   onClick={() => setShowSaveConfirm(false)}
                   disabled={saving}
-                  className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors disabled:opacity-50"
+                  className="w-full min-h-[44px] py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors disabled:opacity-50"
                 >
                   Batal
                 </button>
@@ -373,13 +373,13 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
               <div className="flex flex-col gap-3">
                 <button
                   onClick={() => router.push(`/dashboard/${id}/guests`)}
-                  className="w-full py-3.5 bg-primary text-on-primary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity"
+                  className="w-full min-h-[44px] py-3.5 bg-primary text-on-primary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity"
                 >
                   Kelola Daftar Tamu
                 </button>
                 <button
                   onClick={() => setShowNoVipModal(false)}
-                  className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+                  className="w-full min-h-[44px] py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
                 >
                   Nanti Saja
                 </button>
@@ -399,13 +399,13 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
               <div className="flex flex-col gap-3">
                 <button
                   onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)}
-                  className="w-full py-3.5 bg-primary text-on-primary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity"
+                  className="w-full min-h-[44px] py-3.5 bg-primary text-on-primary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity"
                 >
                   Konfirmasi Sekarang
                 </button>
                 <button
                   onClick={() => setShowConfirmFirstModal(false)}
-                  className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+                  className="w-full min-h-[44px] py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
                 >
                   Nanti Saja
                 </button>
@@ -427,7 +427,7 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
                     )}
                   </p>
                 </div>
-                <button onClick={() => setShowVipModal(false)} className="text-on-surface-variant hover:text-on-surface p-1" aria-label="Tutup">
+                <button onClick={() => setShowVipModal(false)} className="text-on-surface-variant hover:text-on-surface min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg" aria-label="Tutup">
                   <span className="material-symbols-outlined text-2xl">close</span>
                 </button>
               </div>
@@ -437,7 +437,7 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
                   value={vipSearch}
                   onChange={(e) => setVipSearch(e.target.value)}
                   placeholder="Cari nama / no. HP / meja..."
-                  className="w-full bg-surface rounded-lg border border-outline-variant/50 px-4 py-2.5 text-sm focus:ring-1 focus:ring-secondary focus:border-secondary outline-none"
+                  className="w-full min-h-[44px] bg-surface rounded-lg border border-outline-variant/50 px-4 py-2.5 text-sm focus:ring-1 focus:ring-secondary focus:border-secondary outline-none"
                 />
               </div>
               <div className="max-h-[320px] overflow-y-auto divide-y divide-outline-variant/15">

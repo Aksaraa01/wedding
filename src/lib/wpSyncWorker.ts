@@ -3,8 +3,9 @@ import { buildProfileFields } from "@/lib/buildProfileFields"
 
 const WP_ORIGIN = process.env.NEXT_PUBLIC_WP_ORIGIN || ""
 const WP_SECRET = process.env.WP_INTERNAL_SECRET || ""
-const CONCURRENCY = Math.max(1, parseInt(process.env.WP_QUEUE_CONCURRENCY || "4", 10))
-const POLL_MS = 2500
+const CONCURRENCY = Math.max(1, parseInt(process.env.WP_QUEUE_CONCURRENCY || "6", 10))
+const POLL_MS = Math.max(200, parseInt(process.env.WP_POLL_MS || "800", 10))
+const POLL_MS_IDLE = 2000
 const STALE_MS = 5 * 60 * 1000
 const MAX_ATTEMPTS = 3
 const WP_FETCH_TIMEOUT = 120_000
@@ -341,23 +342,27 @@ export function startWpSyncWorker() {
   console.log(`[wpSync] worker started (concurrency=${CONCURRENCY}, poll=${POLL_MS}ms)`)
 
   const tick = async () => {
+    let claimed = 0
     while (running < CONCURRENCY) {
       const job = await claimNext()
       if (!job) break
+      claimed++
       running++
       processJob(job).finally(() => {
         running--
       })
     }
+    return claimed
   }
 
   const loop = async () => {
+    let claimed = 0
     try {
-      await tick()
+      claimed = await tick()
     } catch (err) {
       console.error("[wpSync] poll error", err)
     }
-    setTimeout(loop, POLL_MS)
+    setTimeout(loop, claimed > 0 ? POLL_MS : POLL_MS_IDLE)
   }
   loop()
 }

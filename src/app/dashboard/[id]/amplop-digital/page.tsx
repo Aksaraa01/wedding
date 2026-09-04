@@ -323,7 +323,7 @@ function AmplopDigitalInner({ id }: { id: string }) {
         {activeTab === "digital" && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <p className="text-xs uppercase tracking-wider text-brand-slate font-semibold">Daftar Rekening & E-Wallet</p>
+              <p className="hidden md:block text-xs uppercase tracking-wider text-brand-slate font-semibold">Daftar Rekening & E-Wallet</p>
               <button
                 onClick={() => { resetAccountForm(); setAccountModal(true) }}
                 className="inline-flex items-center gap-2 bg-brand-charcoal text-white px-4 py-2.5 rounded-xl text-xs uppercase tracking-[0.12em] font-semibold hover:bg-brand-terracotta transition-all active:scale-95 shadow-sm"
@@ -391,7 +391,7 @@ function AmplopDigitalInner({ id }: { id: string }) {
         {activeTab === "physical" && canShowPhysical && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <p className="text-xs uppercase tracking-wider text-brand-slate font-semibold">Alamat Penerimaan Kado Fisik</p>
+              <p className="hidden md:block text-xs uppercase tracking-wider text-brand-slate font-semibold">Alamat Penerimaan Kado Fisik</p>
               <button
                 onClick={() => { resetAddressForm(); setAddressModal(true) }}
                 className="inline-flex items-center gap-2 bg-brand-charcoal text-white px-4 py-2.5 rounded-xl text-xs uppercase tracking-[0.12em] font-semibold hover:bg-brand-terracotta transition-all active:scale-95 shadow-sm"

@@ -114,7 +114,7 @@ const STEPS: Step[] = [
   {
     key: "qr_code_book",
     icon: "how_to_reg",
-    title: "QR Guest Book",
+    title: "Buku Tamu Digital",
     phase: "Fase 3: Hari Bahagia",
     bullets: [
       "Gunakan HP usher untuk scan (tanpa alat tambahan).",
@@ -218,10 +218,10 @@ function InstructionInner({ id }: { id: string }) {
         </div>
       </header>
 
-      <main className="w-full max-w-container-max mx-auto px-edge-margin-mobile md:px-edge-margin-desktop pt-28 pb-20 relative">
-        <div className="text-center mb-12 md:mb-16 max-w-2xl mx-auto">
-          <h1 className="font-headline-xl text-headline-xl text-primary mb-6">Cara Memulai</h1>
-          <p className="font-body-md text-on-surface-variant">
+      <main className="w-full max-w-container-max mx-auto px-5 md:px-edge-margin-desktop pt-24 md:pt-28 pb-28 md:pb-20 relative">
+        <div className="text-center mb-8 md:mb-16 max-w-2xl mx-auto px-2">
+          <h1 className="font-headline-xl text-[26px] md:text-headline-xl text-primary mb-3 md:mb-6 leading-tight">Cara Memulai</h1>
+          <p className="font-body-md text-sm md:text-body-md text-on-surface-variant leading-relaxed">
             Ikuti langkah-langkah perencanaan sesuai modul yang aktif pada paket Anda.
           </p>
         </div>
@@ -231,12 +231,12 @@ function InstructionInner({ id }: { id: string }) {
         ) : (
           <div className="relative w-full max-w-5xl mx-auto">
             {/* Central Line */}
-            <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-surface-variant md:translate-x-[-0.5px] z-0" />
+            <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-px bg-surface-variant md:translate-x-[-0.5px] z-0" />
 
             {phases.map((phase, pi) => (
               <div key={phase.label}>
-                <div className="mb-10 md:mb-14 text-center relative z-20">
-                  <span className="inline-block px-4 py-2 bg-surface-container rounded-full border border-outline-variant font-label-md text-label-md uppercase tracking-widest text-on-surface">
+                <div className="mb-8 md:mb-14 text-center relative z-20">
+                  <span className="inline-block px-4 py-2.5 bg-surface-container rounded-full border border-outline-variant font-label-md text-[11px] md:text-label-md uppercase tracking-widest text-on-surface">
                     {phase.label}
                   </span>
                 </div>
@@ -253,10 +253,10 @@ function InstructionInner({ id }: { id: string }) {
                       : paymentActive && (step.always || activeKeys.has(step.key))
                   const even = i % 2 === 0
                   return (
-                    <div key={`${step.key}-${pi}-${i}`} className={`flex flex-col md:flex-row items-center w-full mb-10 md:mb-14 ${even ? "md:flex-row" : "md:flex-row-reverse"}`}>
+                    <div key={`${step.key}-${pi}-${i}`} className={`flex flex-col md:flex-row items-center w-full mb-8 md:mb-14 pl-6 md:pl-0 ${even ? "md:flex-row" : "md:flex-row-reverse"}`}>
                       <div className={`w-full md:w-1/2 ${even ? "md:pr-16" : "md:pl-16"} ${even ? "md:flex md:justify-end" : "md:flex md:justify-start"}`}>
                         <div
-                          className={`w-full max-w-sm p-6 md:p-8 border bg-surface-container-lowest relative ${
+                          className={`w-full max-w-sm p-5 md:p-8 border rounded-2xl bg-surface-container-lowest relative ${
                             isActive
                               ? "border-secondary shadow-[0_4px_24px_rgba(141,77,57,0.08)]"
                               : "border-outline-variant opacity-70"
@@ -277,10 +277,10 @@ function InstructionInner({ id }: { id: string }) {
                             <span className={`material-symbols-outlined ${isActive ? "text-secondary" : "text-outline"}`}>{step.icon}</span>
                           </div>
 
-                          <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest block mb-2">
+                          <span className="font-label-md text-[11px] md:text-label-md text-on-surface-variant uppercase tracking-widest block mb-2">
                             Step {i + 1}
                           </span>
-                          <h3 className="font-headline-md text-headline-md text-primary mb-3">{step.title}</h3>
+                          <h3 className="font-headline-md text-[18px] md:text-headline-md text-primary mb-3 leading-tight">{step.title}</h3>
 
                           {!isActive && (
                             isPembayaran ? (
@@ -332,7 +332,7 @@ function InstructionInner({ id }: { id: string }) {
                                 ) : (
                                   <span className="w-1.5 h-1.5 shrink-0 mt-2 rounded-full bg-on-secondary-fixed-variant" />
                                 )}
-                                <span className={`text-sm font-body-md leading-relaxed ${
+                                <span className={`text-[13px] md:text-sm font-body-md leading-relaxed ${
                                   isPembayaran && !paymentActive ? "text-outline" : "text-on-surface-variant"
                                 }`}>{b}</span>
                               </li>
@@ -348,9 +348,9 @@ function InstructionInner({ id }: { id: string }) {
                               }
                             }}
                             disabled={!isActive}
-                            className={`w-full py-3 font-label-md text-label-md uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${
+                            className={`w-full py-4 min-h-[48px] font-label-md text-[13px] md:text-label-md uppercase tracking-widest flex items-center justify-center gap-2 transition-colors rounded-xl ${
                               isActive
-                                ? "bg-primary text-on-primary border border-primary hover:bg-secondary hover:border-secondary"
+                                ? "bg-primary text-on-primary border border-primary hover:bg-secondary hover:border-secondary active:scale-[0.98]"
                                 : "bg-transparent border border-outline-variant text-outline cursor-not-allowed"
                             }`}
                           >
@@ -389,10 +389,10 @@ function InstructionInner({ id }: { id: string }) {
           </div>
         )}
 
-        <div className="mt-10 text-center">
+        <div className="mt-10 text-center pb-4">
           <button
             onClick={goToCustomize}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-secondary text-on-secondary font-label-md text-label-md uppercase tracking-widest hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 px-8 py-4 min-h-[48px] bg-secondary text-on-secondary font-label-md text-[13px] md:text-label-md uppercase tracking-widest hover:opacity-90 transition-opacity rounded-full active:scale-[0.98]"
           >
             <span className="material-symbols-outlined text-[18px]">tune</span>
             Atur di Pilih Paket

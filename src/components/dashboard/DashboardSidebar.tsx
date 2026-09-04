@@ -42,7 +42,7 @@ const MODULES: ModuleDef[] = [
   },
   {
     key: "qr_code_book",
-    label: "QR Guest Book",
+    label: "Buku Tamu Digital",
     icon: "qr_code_2",
     route: (id) => `/dashboard/${id}/qr-guestbook/live`,
     match: (p, id) => p === `/dashboard/${id}/qr-guestbook/live`,

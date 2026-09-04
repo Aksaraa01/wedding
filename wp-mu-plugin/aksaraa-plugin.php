@@ -559,20 +559,22 @@ class AksaraaPlugin
         // template can read them via Elementor "Post Custom Field" dynamic tags.
         self::write_fields_meta($post_id, $fields);
 
-        // PATCH the post's _elementor_data
-        self::apply_fields_to_post($post_id, $fields, $manifest, $updated);
+        // PATCH the post's _elementor_data — hash-gated CSS regen
+        $postChanged = self::apply_fields_to_post($post_id, $fields, $manifest, $updated);
 
         // Also patch linked popups
         $popups = self::find_linked_popups($post_id);
+        $popupChanged = [];
         foreach ($popups as $popup) {
-            self::apply_fields_to_post($popup->ID, $fields, $manifest, $updated);
+            $popupChanged[$popup->ID] = self::apply_fields_to_post($popup->ID, $fields, $manifest, $updated);
         }
 
-        // Regenerate CSS for the patched post + popups (explicit, safe — no
-        // clear_cache() which would break the conditions cache).
-        self::regen_elementor_css($post_id);
+        // Regenerate CSS only for changed posts/popups (hash gated + sideload)
+        if ($postChanged) self::regen_elementor_css($post_id);
+        else error_log('[aksaraa] css regen skipped for ' . $post_id);
         foreach ($popups as $popup) {
-            self::regen_elementor_css($popup->ID);
+            if (!empty($popupChanged[$popup->ID])) self::regen_elementor_css($popup->ID);
+            else error_log('[aksaraa] css regen skipped for ' . $popup->ID);
         }
 
         // NOTE: sideloaded media is intentionally NOT garbage-collected here. An
@@ -598,15 +600,15 @@ class AksaraaPlugin
         }
     }
 
-    private static function apply_fields_to_post(int $target_id, array $fields, array $manifest, array &$updated)
+    private static function apply_fields_to_post(int $target_id, array $fields, array $manifest, array &$updated): bool
     {
         global $wpdb;
 
         $data = get_post_meta($target_id, '_elementor_data', true);
-        if (!$data) return;
+        if (!$data) return false;
 
         $elements = json_decode($data, true);
-        if (!is_array($elements)) return;
+        if (!is_array($elements)) return false;
 
         // Snapshot pre-reconcile tree so purely structural/visibility changes (e.g. the
         // gift_section hide marker or copy-button text) trigger a DB write even when no
@@ -737,6 +739,7 @@ class AksaraaPlugin
             $cache_file = WP_CONTENT_DIR . '/uploads/elementor/css/post-' . $target_id . '.css';
             if (file_exists($cache_file)) @unlink($cache_file);
         }
+        return $changed;
     }
 
     // Simple (scalar) fields: manifest[field] = [{elementId, settings}] or {elementId, settings}.
@@ -851,35 +854,37 @@ class AksaraaPlugin
         require_once ABSPATH . 'wp-admin/includes/media.php';
         require_once ABSPATH . 'wp-admin/includes/image.php';
 
-        $mh = curl_multi_init();
-        $handles = [];
-        $tmp_files = [];
-        foreach ($to_download as $url) {
-            $tmp = wp_tempnam(basename(parse_url($url, PHP_URL_PATH)) ?: 'aksaraa');
-            $fp = fopen($tmp, 'w');
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_FILE, $fp);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-            curl_multi_add_handle($mh, $ch);
-            $handles[$url] = ['ch' => $ch, 'fp' => $fp, 'tmp' => $tmp];
-        }
-        $running = null;
-        do { curl_multi_exec($mh, $running); curl_multi_select($mh, 0.5); } while ($running > 0);
-        foreach ($handles as $url => $h) {
-            $code = curl_getinfo($h['ch'], CURLINFO_HTTP_CODE);
-            fclose($h['fp']);
-            curl_multi_remove_handle($mh, $h['ch']);
-            curl_close($h['ch']);
-            if ($code < 200 || $code >= 300 || !filesize($h['tmp'])) {
-                @unlink($h['tmp']);
-                $result[$url] = ['id' => 0, 'url' => $url];
-                continue;
+        $chunks = array_chunk($to_download, 6, true);
+        foreach ($chunks as $chunk) {
+            $mh = curl_multi_init();
+            $handles = [];
+            foreach ($chunk as $url) {
+                $tmp = wp_tempnam(basename(parse_url($url, PHP_URL_PATH)) ?: 'aksaraa');
+                $fp = fopen($tmp, 'w');
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_FILE, $fp);
+                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+                curl_multi_add_handle($mh, $ch);
+                $handles[$url] = ['ch' => $ch, 'fp' => $fp, 'tmp' => $tmp];
             }
-            $tmp_files[$url] = $h['tmp'];
+            $running = null;
+            do { curl_multi_exec($mh, $running); curl_multi_select($mh, 0.5); } while ($running > 0);
+            foreach ($handles as $url => $h) {
+                $code = curl_getinfo($h['ch'], CURLINFO_HTTP_CODE);
+                fclose($h['fp']);
+                curl_multi_remove_handle($mh, $h['ch']);
+                curl_close($h['ch']);
+                if ($code < 200 || $code >= 300 || !filesize($h['tmp'])) {
+                    @unlink($h['tmp']);
+                    $result[$url] = ['id' => 0, 'url' => $url];
+                    continue;
+                }
+                $tmp_files[$url] = $h['tmp'];
+            }
+            curl_multi_close($mh);
         }
-        curl_multi_close($mh);
 
         foreach ($tmp_files as $url => $tmp) {
             $name = basename(parse_url($url, PHP_URL_PATH));
@@ -1854,6 +1859,25 @@ add_action('wp_footer', function () {
     }
 });
 
+add_filter('preprocess_comment', function ($commentdata) {
+    if (empty($commentdata['comment_author']) && isset($_GET['to']) && is_string($_GET['to']) && $_GET['to'] !== '') {
+        $commentdata['comment_author'] = sanitize_text_field(wp_unslash($_GET['to']));
+    }
+    if (empty($commentdata['comment_author_email'])) {
+        $commentdata['comment_author_email'] = 'anonymous@wordpress.com';
+    }
+    if (empty($commentdata['comment_author_url'])) {
+        $commentdata['comment_author_url'] = '';
+    }
+    return $commentdata;
+}, 10, 1);
+
+// Prefill `nama tamu` (Elementor Form + CUI author) from ?to= so required validation passes on invitation
+add_action('wp_footer', function () {
+    if (!is_singular()) return;
+    echo '<script>(function(){function fillNamaTamu(){var to=new URLSearchParams(location.search).get("to");if(!to)return;try{to=decodeURIComponent(to.toString().replace(/\+/g," "))}catch(e){}var sels=["input[name=\"author\"]","#author","input.cui-input[name=\"author\"]","input[name*=\"nama_tamu\"]","input[name*=\"nama tamu\"]","input[id*=\"nama_tamu\"]","input[id*=\"nama\"]","textarea[name*=\"nama_tamu\"]","input[name=\"form_fields[nama_tamu]\"]","input[name=\"form_fields[name]\"]","#form-field-nama_tamu","#form-field-nama","#form-field-author"];var found=false;for(var i=0;i<sels.length;i++){try{var els=document.querySelectorAll(sels[i]);for(var j=0;j<els.length;j++){var el=els[j];if(el&&!el.value){el.value=to;el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}));found=true;}}}catch(e){}}return found;}function fillOnSubmit(e){var form=e.target;if(!form||!form.matches)return;if(!form.matches("form[id^=\"commentform\"]"))return;var to=new URLSearchParams(location.search).get("to");if(!to)return;try{to=decodeURIComponent(to.replace(/\+/g," "))}catch(e){}var author=form.querySelector("input[name=\"author\"]");if(author&&!author.value.trim()){author.value=to;}}fillNamaTamu();document.addEventListener("DOMContentLoaded",fillNamaTamu);document.addEventListener("submit",fillOnSubmit,true);var obs=new MutationObserver(function(){fillNamaTamu();});try{obs.observe(document.body,{childList:true,subtree:true});}catch(e){}if(window.jQuery){jQuery(document).on("elementor/popup/show",function(){setTimeout(fillNamaTamu,200);});}document.addEventListener("click",function(e){var t=e.target;if(t&&t.closest&&t.closest(".elementor-button,.cui-link,.cui-button")){setTimeout(fillNamaTamu,120);}},true);})();</script>';
+});
+
 // Allow JSON uploads for Lottie animations
 add_filter('upload_mimes', function ($mimes) {
     $mimes['json'] = 'application/json';
@@ -1905,6 +1929,8 @@ add_action('wp_head', function () {
     if (is_singular() && get_post_meta(get_the_ID(), '_wp_page_template', true) === 'default') {
         echo '<style>.hestia-title { display: none !important; }</style>';
     }
+    // Guard for Elementor Pro popup + audio duplication when template contains two audio widgets (post+popup)
+    echo '<script>window.elementorProFrontend=window.elementorProFrontend||{modules:{popup:{showPopup:function(){},closePopup:function(){},popupPopped:false}}};window.elementorFrontend=window.elementorFrontend||{storage:{get:function(){},set:function(){}}};</script>';
 });
 
 AksaraaPlugin::init();

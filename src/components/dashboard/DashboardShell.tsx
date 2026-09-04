@@ -42,7 +42,7 @@ export default function DashboardShell({ id, children }: { id: string; children:
   return (
     <>
       {!hideSidebar && <DashboardSidebar id={id} collapsed={collapsed} onToggle={toggle} />}
-      <div className={`transition-[padding-left] duration-300 ${paddingClass}`}>{children}</div>
+      <div className={`transition-[padding-left] duration-300 ${paddingClass} min-h-screen overflow-visible`}>{children}</div>
     </>
   )
 }

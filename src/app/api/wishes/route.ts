@@ -47,9 +47,15 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { wedding_profile_id, guest_id, name, message, source } = await req.json()
+    let { wedding_profile_id, guest_id, name, message, source } = await req.json()
 
-    if (!wedding_profile_id || !name || !message) {
+    if (guest_id === "" || guest_id === "null" || guest_id === "undefined") guest_id = null
+    if (guest_id && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(guest_id))) guest_id = null
+    name = (name || "").toString().trim()
+    message = (message || "").toString().trim()
+    if (!name) name = "Tamu Undangan"
+
+    if (!wedding_profile_id || !message) {
       return NextResponse.json({ error: "Data tidak lengkap" }, { status: 400 })
     }
 

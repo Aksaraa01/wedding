@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, use, useRef, useCallback, ComponentType } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import { getTemplateComponent } from "@/components/templates"
 import { RowGates } from "@/lib/featureGates"
@@ -209,6 +209,26 @@ function EditorInner({ id }: { id: string }) {
   const [activeSection, setActiveSection] = useState<string>("sampul")
   const [showMobilePreview, setShowMobilePreview] = useState(false)
   const [previewDevice, setPreviewDevice] = useState<"mobile" | "desktop">("mobile")
+  const searchParams = useSearchParams()
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener("resize", check)
+    return () => window.removeEventListener("resize", check)
+  }, [])
+
+  useEffect(() => {
+    if (searchParams.get("preview") === "1" && typeof window !== "undefined" && window.innerWidth < 768) {
+      setShowMobilePreview(true)
+    }
+  }, [searchParams])
+
+  useEffect(() => {
+    const onShowKonten = () => setShowMobilePreview(false)
+    window.addEventListener("tour_show_konten", onShowKonten as EventListener)
+    return () => window.removeEventListener("tour_show_konten", onShowKonten as EventListener)
+  }, [])
   const [showPublishConfirm, setShowPublishConfirm] = useState(false)
   const [showH3Reminder, setShowH3Reminder] = useState(false)
   const [feedbackCount, setFeedbackCount] = useState<number | null>(null)
@@ -226,6 +246,14 @@ function EditorInner({ id }: { id: string }) {
   const hasCheckedH3 = useRef(false)
 
   const pendingUpdates = useRef<Record<string, any>>({})
+  const lastSentRef = useRef<string>("")
+  const wpAbortRef = useRef<AbortController | null>(null)
+  function canonicalize(obj: Record<string, any>): string {
+    const keys = Object.keys(obj).sort()
+    const sorted: Record<string, any> = {}
+    for (const k of keys) sorted[k] = obj[k]
+    return JSON.stringify(sorted)
+  }
   const [previewVersion, setPreviewVersion] = useState(0)
   const [updatingPreview, setUpdatingPreview] = useState(false)
   const [coverReplaceIndex, setCoverReplaceIndex] = useState<number | null>(null)
@@ -309,20 +337,25 @@ function EditorInner({ id }: { id: string }) {
   // saves share one job, so polling the same job_id is safe.
   const syncToWp = useCallback(async () => {
     setSyncStatus("syncing")
+    if (wpAbortRef.current) wpAbortRef.current.abort()
+    const ctrl = new AbortController()
+    wpAbortRef.current = ctrl
     try {
       const res = await fetch(`/api/wp/patch`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ profile_id: id }),
+        signal: ctrl.signal,
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
         throw new Error(data.error || res.statusText)
       }
       const { job_id } = await res.json()
-      await pollWpJob(job_id)
+      await pollWpJob(job_id, { interval: 800 })
       setSyncStatus("idle")
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.name === "AbortError") return
       console.error("[editor] wp sync failed", err)
       setSyncStatus("error")
       throw err
@@ -331,13 +364,17 @@ function EditorInner({ id }: { id: string }) {
 
   const save = useCallback((updates: Record<string, any>) => {
     setSaveStatus("saving")
-    // Accumulate changes within the debounce window so multi-field edits
-    // (e.g. the quote picker setting quote_text + quote_source) are not lost.
     pendingUpdates.current = { ...pendingUpdates.current, ...updates }
     if (saveTimer.current) clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(async () => {
       const all = pendingUpdates.current
       pendingUpdates.current = {}
+      const canon = canonicalize(all)
+      if (canon === lastSentRef.current || Object.keys(all).length === 0) {
+        setSaveStatus("saved")
+        return
+      }
+      lastSentRef.current = canon
       try {
         const res = await fetch(`/api/dashboard/${id}/web-invitation`, {
           method: "PUT",
@@ -349,7 +386,7 @@ function EditorInner({ id }: { id: string }) {
       } catch {
         setSaveStatus("error")
       }
-    }, 600)
+    }, 1200)
   }, [id])
 
   // Manual preview update: flush pending save + sync to WP, then refresh the iframe.
@@ -373,12 +410,14 @@ function EditorInner({ id }: { id: string }) {
       // Sync to the couple's WP post and refresh the iframe once it's done.
       await syncToWp()
       setPreviewVersion(v => v + 1)
+      const mobile = typeof window !== "undefined" ? window.innerWidth < 768 : isMobile
+      if (mobile) setShowMobilePreview(true)
     } catch {
       setSaveStatus("error")
     } finally {
       setUpdatingPreview(false)
     }
-  }, [id, syncToWp])
+  }, [id, syncToWp, isMobile])
 
   const updateField = (field: string, value: any) => {
     if (data.is_published === true) return
@@ -1733,7 +1772,7 @@ function EditorInner({ id }: { id: string }) {
                 </div>
               </div>
             )}
-            {previewDevice === "mobile" ? (
+            {!isMobile && previewDevice === "mobile" ? (
               <div className="hidden md:block iphone-frame w-[390px] h-[780px] bg-white overflow-hidden relative shadow-2xl" style={{ transform: "scale(0.95)", transformOrigin: "center" }}>
                 <div className="absolute top-0 inset-x-0 h-10 px-8 flex justify-between items-end pb-1 z-[100] text-black pointer-events-none">
                   <span className="text-[12px] font-bold">9:41</span>
@@ -1749,7 +1788,7 @@ function EditorInner({ id }: { id: string }) {
                   {renderPreviewBody()}
                 </div>
               </div>
-            ) : (
+            ) : !isMobile ? (
               <div className="hidden md:block w-full h-full p-8 flex items-center justify-center">
                 <div className="w-full h-full max-w-[1200px] bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col" style={{ transform: "scale(1)" }}>
                   <div className="flex items-center gap-3 px-4 h-11 bg-surface-container-high border-b border-outline-variant shrink-0">
@@ -1777,9 +1816,9 @@ function EditorInner({ id }: { id: string }) {
                   </div>
                 </div>
               </div>
-            )}
+            ) : null}
 
-            {showMobilePreview && (
+            {isMobile && showMobilePreview && (
               <div className="md:hidden w-full h-full overflow-y-auto custom-scrollbar">
                 {renderPreviewBody()}
               </div>
@@ -1804,7 +1843,7 @@ function EditorInner({ id }: { id: string }) {
               disabled={updatingPreview || isPublished}
               className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-brand-gold text-white disabled:opacity-50 rounded-full flex items-center justify-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-[18px]">refresh</span>
+              <span className={`material-symbols-outlined text-[18px] ${updatingPreview ? "animate-spin" : ""}`}>{updatingPreview ? "progress_activity" : "refresh"}</span>
               {updatingPreview ? "MEMPERBARUI..." : "PERBARUI"}
             </button>
             <button

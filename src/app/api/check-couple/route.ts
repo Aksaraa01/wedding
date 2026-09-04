@@ -16,14 +16,13 @@ export async function GET(req: Request) {
     return NextResponse.json({ exists: false })
   }
 
-  const slugA = `${first1}-${first2}`
-  const slugB = `${first2}-${first1}`
+  const slug = `${first1}-${first2}`
 
   try {
     const { data } = await supabaseAdmin
       .from("wedding_profiles")
       .select("slug")
-      .in("slug", [slugA, slugB])
+      .eq("slug", slug)
       .limit(1)
 
     return NextResponse.json({ exists: !!(data && data.length > 0) })

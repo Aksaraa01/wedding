@@ -42,7 +42,7 @@ const CARDS = [
   { key: "unique_link_generator" as const, title: "Undangan dan QR Tamu" },
   { key: "reservation_automation" as const, title: "RSVP Automation" },
   { key: "wa_blast" as const, title: "Reminder Tamu VIP" },
-  { key: "qr_code_book" as const, title: "QR Guest Book" },
+  { key: "qr_code_book" as const, title: "Buku Tamu Digital" },
   { key: "wish_wall" as const, title: "Virtual Wish Wall" },
   { key: "galeri_foto_tamu" as const, title: "Galeri Kenangan Tamu" },
   { key: "kolom_direct_transfer" as const, title: "Digital Angpao & E-Gift" },
@@ -342,20 +342,21 @@ function DashboardInner({ id }: { id: string }) {
         </div>
       </header>
 
-      <main className="pt-24 pb-32 lg:max-w-[75%] lg:mx-auto">
+      <main className="pt-24 pb-32 lg:max-w-[75%] lg:mx-auto min-h-screen overflow-visible touch-pan-y">
         <section className="px-6 mb-10">
           <div className="bg-[#1A1817] rounded-3xl p-8 text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-secondary opacity-10 blur-[100px] pointer-events-none" />
-            <div className="inline-flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full mb-6">
-              <span className={`w-2 h-2 rounded-full ${statusColor} animate-[pulse-animation_2s_ease-in-out_infinite]`} />
-              <span className="text-[10px] font-semibold tracking-widest uppercase">Paket {PACKAGE_LABEL[profile.package_type || ""] || "Essential"} Experience</span>
-              <span className="px-2 py-0.5 text-[9px] font-label-md uppercase bg-white/10 text-white/80 rounded">{getPackageCategory(profile.package_type || "")}</span>
-              <span className="text-white/50">•</span>
-              <span className="text-[10px] font-semibold tracking-widest uppercase">{statusLabel} • {formattedDate}</span>
+            <div className="inline-flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-full mb-6 max-w-full overflow-hidden flex-nowrap">
+              <span className={`w-2 h-2 rounded-full shrink-0 ${statusColor} animate-[pulse-animation_2s_ease-in-out_infinite]`} />
+              <span className="text-[10px] font-semibold tracking-widest uppercase truncate">Paket {PACKAGE_LABEL[profile.package_type || ""] || "Essential"}</span>
+              <span className="px-2 py-0.5 text-[9px] font-label-md uppercase bg-white/10 text-white/80 rounded shrink-0">{getPackageCategory(profile.package_type || "")}</span>
+              <span className="text-white/50 shrink-0">•</span>
+              <span className="text-[10px] font-semibold tracking-widest uppercase shrink-0">{statusLabel}</span>
             </div>
-            <h1 className="font-['Playfair_Display'] text-[48px] md:text-[56px] leading-tight mb-8">
+            <h1 className="font-['Playfair_Display'] text-[48px] md:text-[56px] leading-tight mb-2">
               {profile.bride_name} &amp; {profile.groom_name}
             </h1>
+            <p className="text-sm md:text-base text-white/70 tracking-wide mb-8">{formattedDate}</p>
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 flex justify-between items-center">
               <div>
                 <p className="text-[10px] uppercase tracking-widest opacity-60 mb-1">Menuju Hari Bahagia</p>

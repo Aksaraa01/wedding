@@ -199,7 +199,6 @@ export default function PremiumWebInvitationPage() {
         <TemplatePreviewModal
           name={previewTpl.name}
           demoUrl={previewTpl.demo_url}
-          code={previewTpl.code}
           onClose={() => setPreviewTpl(null)}
         />
       )}

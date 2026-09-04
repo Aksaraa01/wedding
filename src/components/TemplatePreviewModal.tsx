@@ -5,16 +5,15 @@ import { useState, useRef, useEffect, useCallback } from "react"
 type Props = {
   name: string
   demoUrl: string
-  code?: string
   onClose: () => void
 }
 
-export default function TemplatePreviewModal({ name, demoUrl, code, onClose }: Props) {
+export default function TemplatePreviewModal({ name, demoUrl, onClose }: Props) {
   const [status, setStatus] = useState<"loading" | "loaded" | "errored">("loading")
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const safetyRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const src = demoUrl || (code ? `/demo/${code}` : "")
+  const src = demoUrl
 
   useEffect(() => {
     safetyRef.current = setTimeout(() => {

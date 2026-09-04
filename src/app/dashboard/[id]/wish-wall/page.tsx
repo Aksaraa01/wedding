@@ -1,6 +1,6 @@
 "use client"
 
-import { use, useEffect, useState } from "react"
+import { use, useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import ProfileMenu from "@/components/ProfileMenu"
 
@@ -42,6 +42,19 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
   const [coupleSlug, setCoupleSlug] = useState("")
   const [copied, setCopied] = useState(false)
   const [visible, setVisible] = useState(6)
+  const ledWrapRef = useRef<HTMLDivElement>(null)
+  const [ledScale, setLedScale] = useState(1)
+
+  useEffect(() => {
+    const el = ledWrapRef.current
+    if (!el) return
+    const ro = new ResizeObserver(([entry]) => {
+      const w = entry.contentRect.width
+      setLedScale(w / 1280)
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [coupleSlug])
 
   const fetchWishes = async () => {
     const res = await fetch(`/api/wishes?wedding_profile_id=${id}`)
@@ -126,24 +139,16 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
         {/* Page Header */}
         <section className="mb-12 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
           <div className="max-w-2xl">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="w-8 h-[1px] bg-secondary" />
-              <span className="font-label-md text-label-md text-secondary uppercase tracking-widest">Dasbor Pernikahan</span>
-            </div>
-            <h2 className="font-headline-xl text-headline-lg lg:text-headline-xl leading-tight mb-3">Moderasi Dinding Doa</h2>
-            <p className="text-on-surface-variant font-body-lg opacity-80 max-w-xl">
-              Kurasi doa dan ucapan manis dari para tamu sebelum ditampilkan secara langsung pada situs web undangan Anda.
+            <h2 className="font-headline-xl text-[20px] md:text-[28px] lg:text-headline-xl leading-tight mb-2">Doa & Harapan Tamu</h2>
+            <p className="text-on-surface-variant text-sm md:font-body-lg opacity-80 max-w-xl leading-relaxed">
+              Review doa dan ucapan manis dari para tamu sebelum ditampilkan secara langsung pada situs web undangan Anda.
             </p>
           </div>
 
           {ledUrl && (
             <div className="w-full lg:max-w-md">
               <div className="flex flex-col gap-1 mb-3">
-                <span className="font-label-md text-[11px] text-secondary uppercase tracking-widest">Tautan Layar Proyeksi LED Ballroom</span>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-                  <span className="font-label-md text-[10px] text-secondary uppercase tracking-widest">Siap Tayang</span>
-                </div>
+                <span className="font-label-md text-[11px] text-secondary uppercase tracking-widest">Link Layar LED</span>
               </div>
               <div className="flex items-center justify-between gap-4 p-3 bg-white border border-[#8d4d39]/10">
                 <span className="font-body-md text-on-surface-variant truncate text-sm">{ledUrl}</span>
@@ -163,23 +168,33 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
         {/* Live LED Preview */}
         {ledUrl && (
           <section className="mb-12">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <span className="w-8 h-[1px] bg-secondary" />
-                <span className="font-label-md text-label-md text-secondary uppercase tracking-widest">Pratinjau Layar LED</span>
-              </div>
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              <span className="w-8 h-[1px] bg-secondary shrink-0" />
+              <span className="font-label-md text-[11px] md:text-label-md text-secondary uppercase tracking-widest">Pratinjau Layar LED</span>
+              <span className="hidden sm:inline text-secondary/40">—</span>
+              <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-                <span className="font-label-md text-[10px] text-secondary uppercase tracking-widest">Live &bull; Auto-refresh</span>
-              </div>
+                <span className="font-label-md text-[10px] text-secondary uppercase tracking-widest">Live • Auto-refresh</span>
+              </span>
             </div>
             <div className="bg-black border border-[#1c1c16]/20 p-2 md:p-3 shadow-xl">
-              <div className="relative w-full overflow-hidden bg-[#0a0a0a]" style={{ aspectRatio: "16 / 9" }}>
+              <div
+                ref={ledWrapRef}
+                className="relative w-full overflow-hidden bg-[#0a0a0a] flex items-center justify-center"
+                style={{ aspectRatio: "16 / 9" }}
+              >
                 <iframe
                   src={`/led/${coupleSlug}`}
                   title="Pratinjau Layar LED"
-                  className="absolute inset-0 w-full h-full border-0"
                   loading="lazy"
+                  style={{
+                    width: 1280,
+                    height: 720,
+                    border: 0,
+                    transform: `scale(${ledScale})`,
+                    transformOrigin: "center",
+                    flexShrink: 0,
+                  }}
                 />
               </div>
             </div>
@@ -187,23 +202,23 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
         )}
 
         <div className="flex flex-col lg:flex-row gap-10">
-          {/* Left Sidebar: Filters */}
+          {/* Filters */}
           <aside className="lg:w-64 shrink-0">
-            <div className="sticky top-24 space-y-6">
-              <h4 className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant border-b border-[#c4c7c7]/30 pb-4">Filter Pesan</h4>
-              <nav className="flex flex-col gap-2">
+            <div className="lg:sticky lg:top-24 space-y-4 lg:space-y-6">
+              <h4 className="hidden lg:block font-label-md text-label-md uppercase tracking-widest text-on-surface-variant border-b border-[#c4c7c7]/30 pb-4">Filter Pesan</h4>
+              <nav className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 hide-scrollbar">
                 {FILTERS.map((f) => (
                   <button
                     key={f.key}
                     onClick={() => setFilter(f.key)}
-                    className={`flex items-center justify-between px-4 py-3 font-label-md text-label-md text-left transition-all ${
+                    className={`flex items-center justify-between gap-3 px-4 py-2.5 lg:py-3 font-label-md text-[11px] lg:text-label-md text-left whitespace-nowrap shrink-0 transition-all rounded-full lg:rounded-none border lg:border-0 ${
                       filter === f.key
-                        ? "bg-primary text-on-primary"
-                        : "hover:bg-surface-container-high text-on-surface"
+                        ? "bg-primary text-on-primary border-primary"
+                        : "bg-white border-[#c4c7c7]/40 hover:bg-surface-container-high text-on-surface"
                     }`}
                   >
                     {f.label}
-                    <span className={`text-[10px] ${filter === f.key ? "opacity-70" : f.key === "pending" ? "text-secondary" : "opacity-70"}`}>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${filter === f.key ? "bg-white/20" : f.key === "pending" ? "bg-secondary/10 text-secondary" : "bg-surface-container text-on-surface-variant"}`}>
                       {f.count}
                     </span>
                   </button>
@@ -238,32 +253,33 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
                   >
                     {wish.is_pinned && <div className="absolute top-0 left-0 w-1 h-full bg-primary" />}
 
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="mb-4">
                       <div className="flex items-center gap-2">
                         {wish.is_pinned ? (
                           <>
-                            <span className="material-symbols-outlined text-[16px] text-primary">push_pin</span>
-                            <span className="font-label-md text-label-md uppercase text-primary tracking-widest">Disematkan</span>
+                            <span className="material-symbols-outlined text-[14px] md:text-[16px] text-primary">push_pin</span>
+                            <span className="font-label-md text-[11px] md:text-label-md uppercase text-primary tracking-widest">Disematkan</span>
                           </>
                         ) : isPending ? (
                           <>
-                            <span className="material-symbols-outlined text-[16px] text-secondary">schedule</span>
-                            <span className="font-label-md text-label-md uppercase text-secondary tracking-widest">Menunggu</span>
+                            <span className="material-symbols-outlined text-[14px] md:text-[16px] text-secondary">schedule</span>
+                            <span className="font-label-md text-[11px] md:text-label-md uppercase text-secondary tracking-widest">Review</span>
                           </>
                         ) : (
                           <>
-                            <span className="material-symbols-outlined text-[16px] text-green-600" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                            <span className="font-label-md text-label-md uppercase text-on-surface-variant tracking-widest">Ditampilkan</span>
+                            <span className="material-symbols-outlined text-[14px] md:text-[16px] text-green-600" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                            <span className="font-label-md text-[11px] md:text-label-md uppercase text-on-surface-variant tracking-widest">Ditampilkan</span>
                           </>
                         )}
                       </div>
-                      <span className="text-[11px] text-on-surface-variant/50 font-label-md uppercase">
-                        {sourceLabel} &bull; {timeAgo(wish.created_at)}
-                      </span>
+                      <p className="text-[10px] text-on-surface-variant/60 font-label-md uppercase tracking-widest mt-1.5 flex items-center gap-1.5">
+                        <span className={`inline-block w-1.5 h-1.5 rounded-full ${wish.source === "welcome" ? "bg-secondary" : "bg-primary"}`} />
+                        {sourceLabel} • {timeAgo(wish.created_at)}
+                      </p>
                     </div>
 
-                    <h3 className={`font-headline-md mb-4 ${wish.is_pinned ? "text-headline-md" : "text-[24px]"}`}>{wish.name}</h3>
-                    <p className={`leading-relaxed mb-8 ${wish.is_pinned ? "font-body-lg italic text-on-surface-variant max-w-3xl" : "font-body-md text-on-surface-variant"}`}>
+                    <h3 className={`font-headline-md mb-3 ${wish.is_pinned ? "text-[18px] md:text-headline-md" : "text-[18px] md:text-[22px]"}`}>{wish.name}</h3>
+                    <p className={`leading-relaxed mb-6 ${wish.is_pinned ? "text-sm md:font-body-lg italic text-on-surface-variant max-w-3xl" : "text-sm md:font-body-md text-on-surface-variant"}`}>
                       &ldquo;{wish.message}&rdquo;
                     </p>
 

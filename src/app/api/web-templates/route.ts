@@ -7,7 +7,7 @@ export async function GET(req: Request) {
 
   let query = supabaseAdmin
     .from("web_templates")
-    .select("*")
+    .select("id,code,name,preview_image_url,demo_url,category,package_eligibility,sort_order,is_active")
     .eq("is_active", true)
     .order("sort_order", { ascending: true })
 
@@ -24,5 +24,5 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json({ templates: data })
+  return NextResponse.json({ templates: data }, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } })
 }

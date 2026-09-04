@@ -31,22 +31,23 @@ function TemplatesInner({ id }: { id: string }) {
   const [error, setError] = useState<string | null>(null)
   const [previewTpl, setPreviewTpl] = useState<Template | null>(null)
   const [categoryFilter, setCategoryFilter] = useState<string>("semua")
+  const [searchQuery, setSearchQuery] = useState<string>("")
 
-  const visibleTemplates = categoryFilter === "semua"
-    ? templates
-    : templates.filter((t) => (t.category || "").toLowerCase() === categoryFilter)
+  const visibleTemplates = templates.filter((t) => {
+    const catOk = categoryFilter === "semua" || (t.category || "").toLowerCase() === categoryFilter
+    const searchOk = !searchQuery.trim() || t.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
+    return catOk && searchOk
+  })
 
   useEffect(() => {
-    Promise.all([
-      fetch(`/api/dashboard/${id}/web-invitation`).then(r => r.json()),
-    ]).then(([invData]) => {
+    ;(async () => {
+      const invData = await fetch(`/api/dashboard/${id}/web-invitation`).then((r) => r.json())
       const pkg = invData.profile?.package_type
       const qs = pkg ? `?package_type=${encodeURIComponent(pkg)}` : ""
-      return fetch(`/api/web-templates${qs}`).then(r => r.json()).then(tplData => {
-        setTemplates(tplData.templates || [])
-        if (invData.template) setSelectedId(invData.template.id)
-      })
-    })
+      const tplData = await fetch(`/api/web-templates${qs}`).then((r) => r.json())
+      setTemplates(tplData.templates || [])
+      if (invData.template) setSelectedId(invData.template.id)
+    })()
   }, [id])
 
   const handleSelect = async (templateId: string) => {
@@ -63,10 +64,9 @@ function TemplatesInner({ id }: { id: string }) {
         throw new Error(data.error || res.statusText)
       }
       const { job_id } = await res.json()
-      await pollWpJob(job_id)
+      await pollWpJob(job_id, { interval: 800 })
       setSelectedId(templateId)
-      router.refresh()
-      router.back()
+      router.push(`/dashboard/${id}/web-invitation/editor?preview=1`)
     } catch (err) {
       console.error("[templates] duplicate failed", err)
       setError(err instanceof Error ? err.message : "Gagal menyimpan template")
@@ -84,20 +84,31 @@ function TemplatesInner({ id }: { id: string }) {
 
         <ProductJourney profileId={id} />
 
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar mb-8 pb-1">
-          {CATEGORY_FILTERS.map((f) => (
-            <button
-              key={f.id}
-              onClick={() => setCategoryFilter(f.id)}
-              className={`shrink-0 rounded-full border px-5 py-2 font-label-md text-[11px] uppercase tracking-widest transition-colors ${
-                categoryFilter === f.id
-                  ? "bg-brand-charcoal border-brand-charcoal text-brand-cream"
-                  : "border-outline-variant text-on-surface-variant hover:border-brand-charcoal hover:text-on-surface"
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
+        <div className="flex flex-col sm:flex-row gap-3 mb-8">
+          <div className="relative flex-1 max-w-md">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Cari template…"
+              className="w-full pl-10 pr-4 py-2.5 rounded-full border border-outline-variant bg-surface text-sm placeholder:text-on-surface-variant/60 focus:outline-none focus:border-brand-charcoal focus:ring-1 focus:ring-brand-charcoal"
+            />
+          </div>
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+            {CATEGORY_FILTERS.map((f) => (
+              <button
+                key={f.id}
+                onClick={() => setCategoryFilter(f.id)}
+                className={`shrink-0 rounded-full border px-5 py-2 font-label-md text-[11px] uppercase tracking-widest transition-colors ${
+                  categoryFilter === f.id
+                    ? "bg-brand-charcoal border-brand-charcoal text-brand-cream"
+                    : "border-outline-variant text-on-surface-variant hover:border-brand-charcoal hover:text-on-surface"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 no-scrollbar lg:grid lg:grid-cols-4 xl:grid-cols-5 lg:gap-x-4 lg:gap-y-10 lg:overflow-visible">
@@ -116,7 +127,17 @@ function TemplatesInner({ id }: { id: string }) {
                 <img
                   alt={tpl.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  src={tpl.preview_image_url}
+                  src={`${tpl.preview_image_url}?width=400&quality=75&format=webp`}
+                  loading={idx < 2 ? "eager" : "lazy"}
+                  decoding="async"
+                  sizes="(max-width: 768px) 72vw, 240px"
+                  onMouseEnter={() => {
+                    const link = document.createElement("link")
+                    link.rel = "prefetch"
+                    link.href = tpl.demo_url
+                    link.as = "document"
+                    document.head.appendChild(link)
+                  }}
                 />
                 <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors pointer-events-none" />
               </div>
@@ -160,7 +181,6 @@ function TemplatesInner({ id }: { id: string }) {
         <TemplatePreviewModal
           name={previewTpl.name}
           demoUrl={previewTpl.demo_url}
-          code={previewTpl.code}
           onClose={() => setPreviewTpl(null)}
         />
       )}

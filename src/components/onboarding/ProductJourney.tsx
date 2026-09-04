@@ -70,17 +70,12 @@ export default function ProductJourney({ profileId }: Props) {
         }) || cands.find((c) => { const r = c.getBoundingClientRect(); return r.width > 0 && r.height > 0 }) || cands[0] || null
       let cands = Array.from(document.querySelectorAll(selector)) as HTMLElement[]
       let el: HTMLElement | null = cands.length ? pickVisible(cands) : null
-      if (!el && isMobile && current.target === "[data-tour='konten']") {
-        const fb = document.querySelector("[data-tour='konten-mobile']") as HTMLElement | null
-        if (fb) el = fb
-      }
-      if (current.target === "[data-tour='konten']" && isMobile) {
+      if (isMobile && current.target === "[data-tour='konten']") {
         const aside = document.querySelector("[data-tour='konten']") as HTMLElement | null
         if (aside) {
           const st = window.getComputedStyle(aside)
           if (st.display === "none" || aside.offsetParent === null) {
-            const eb = document.querySelector("[data-tour='konten-mobile']") as HTMLElement | null
-            if (eb) el = eb
+            window.dispatchEvent(new CustomEvent("tour_show_konten"))
           }
         }
       }
@@ -227,7 +222,7 @@ export default function ProductJourney({ profileId }: Props) {
 
   const isTopHalf = targetRect ? targetRect.top < window.innerHeight * 0.45 : false
   const modal = (
-    <div className={`fixed inset-0 z-[100] flex justify-center p-4 ${isTopHalf ? "items-end pb-8" : "items-start pt-20 md:pt-24"}`}>
+    <div className={`fixed inset-0 z-[100] flex justify-center p-4 overflow-y-auto overscroll-contain ${isTopHalf ? "items-end pb-8" : "items-start pt-20 md:pt-24"}`}>
       {targetRect ? (
         <>
           <div className="absolute bg-black/40 z-0" style={{ top: 0, left: 0, right: 0, height: targetRect.top - 6 }} onClick={handleClose} />

@@ -332,7 +332,8 @@ function Inner() {
       })
       const data = await res.json().catch(() => ({}))
       if (res.ok) {
-        router.push(`/register?step=4&profile_id=${data.profile_id || ""}`)
+        const pid = data.wedding_profile_id || data.profile_id || ""
+        router.push(pid ? `/dashboard/${pid}` : "/login")
       } else {
         setSubmitError(data.error || "Terjadi kesalahan. Silakan coba lagi.")
       }
@@ -423,7 +424,7 @@ function Inner() {
         </div>
       </header>
 
-      <main className="pt-20 pb-20 px-edge-margin-mobile md:px-edge-margin-desktop max-w-[1200px] mx-auto">
+      <main className="pt-20 pb-32 px-edge-margin-mobile md:px-edge-margin-desktop max-w-[1200px] mx-auto">
         {/* Header Section */}
         <section className="text-center mb-8 max-w-2xl mx-auto">
           <h2 className="font-headline-lg text-[22px] md:text-headline-lg lg:text-headline-xl mb-2 text-primary tracking-tight">
@@ -707,23 +708,7 @@ function Inner() {
           </div>
         </section>
 
-        <section className="mb-6">
-          <div className={`border p-6 md:p-8 flex items-center justify-between bg-white transition-colors ${undanganFisik ? "border-secondary" : "border-outline-variant/30"}`}>
-            <div>
-              <h4 className="font-headline-md text-2xl mb-1">Undangan Fisik Premium (Cetak)</h4>
-              <p className="font-body-md text-on-surface-variant">Layanan cetak eksklusif dengan bahan premium.</p>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                className="sr-only peer"
-                checked={undanganFisik}
-                onChange={() => setUndanganFisik(!undanganFisik)}
-              />
-              <div className="w-14 h-8 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary" />
-            </label>
-          </div>
-        </section>
+
       </main>
 
       <footer className="fixed bottom-0 left-0 w-full bg-[rgba(253,249,240,0.85)] backdrop-blur-md border-t border-outline-variant px-4 md:px-edge-margin-desktop py-3 md:py-6 z-[90]">
@@ -731,9 +716,9 @@ function Inner() {
           <div className="flex flex-col items-start min-w-0 flex-1">
             <span className="font-label-md text-[10px] uppercase text-on-surface-variant tracking-widest hidden md:block">Estimasi Total</span>
             <div className="flex items-center gap-2 min-w-0">
-              <span className="font-headline-md text-[14px] md:text-2xl truncate">{PACKAGE_LABELS[selectedPackage] || "Paket"} Experience</span>
+              <span className="font-headline-md text-[16px] md:text-[26px] truncate">{PACKAGE_LABELS[selectedPackage] || "Paket"} Experience</span>
               <span className="text-on-surface-variant/30 hidden sm:inline">|</span>
-              <span className="font-headline-md text-[14px] md:text-2xl text-secondary whitespace-nowrap">{formatRp(total)}</span>
+              <span className="font-headline-md text-[16px] md:text-[26px] text-secondary whitespace-nowrap">{formatRp(total)}</span>
             </div>
           </div>
           {isEdit ? (
@@ -799,7 +784,7 @@ function Inner() {
                   !waNumber || submitting ? "opacity-50" : ""
                 }`}
               >
-                <span>{submitting ? "Mengirim..." : "Mulai Diskusi Narasi"}</span>
+                <span>{submitting ? "Mengirim..." : "Kirim"}</span>
                 <span className="material-symbols-outlined">arrow_right_alt</span>
               </button>
               <p className="text-[10px] text-center uppercase tracking-tighter text-on-surface-variant">Tanpa biaya pendaftaran. Pembayaran dilakukan setelah draft pertama disetujui.</p>

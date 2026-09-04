@@ -41,7 +41,7 @@ export const TOUR_STEPS: TourStep[] = [
     title: "Lengkapi Konten",
     description: "Lengkapi informasi pernikahan Anda, mulai dari nama, tanggal, lokasi, hingga kisah cinta. Isi setiap detail agar undangan terasa lebih personal dan sesuai dengan cerita Anda",
     target: "[data-tour='konten']",
-    targetMobile: "[data-tour='konten-mobile']",
+    targetMobile: "[data-tour='konten']",
     route: "editor",
   },
   {

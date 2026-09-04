@@ -80,6 +80,11 @@ function RegisterInner() {
 
   return (
     <div className="relative h-[100dvh] md:min-h-screen bg-background text-on-surface antialiased flex flex-col overflow-hidden md:overflow-x-hidden">
+      {/* Background image as in login */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-surface/60 z-10" />
+        <img alt="Aksaraa Editorial Background" src="/images/login.png" className="w-full h-full object-cover object-center grayscale-[10%]" />
+      </div>
       {/* Progress Bar */}
       <div className="fixed top-0 left-0 w-full h-[2px] bg-outline-variant/30 z-[100]">
         <div
@@ -98,13 +103,13 @@ function RegisterInner() {
       </div>
 
       {/* Main */}
-      <main className="flex-1 min-h-0 overflow-hidden flex flex-col items-center justify-center px-4 md:px-edge-margin-mobile pt-16 md:pt-24 pb-4 md:pb-40 text-center">
+      <main className="relative z-10 flex-1 min-h-0 overflow-hidden flex flex-col items-center justify-center px-4 md:px-edge-margin-mobile pt-16 md:pt-24 pb-4 md:pb-40 text-center">
         {step === 1 && (
-          <div className="animate-fade-in w-[90%] max-w-[340px] mx-auto flex flex-col justify-center">
+          <div className="animate-fade-in w-[90%] max-w-[340px] mx-auto flex flex-col justify-center bg-surface p-6 md:p-10 shadow-2xl">
             <h1 className="font-headline-md text-[20px] md:text-headline-md mb-2 md:mb-4 text-on-surface leading-tight">
               Selamat datang di Aksaraa. Mari mulai cerita Anda.
             </h1>
-            <p className="font-body-md text-sm md:text-body-md text-on-surface-variant mb-6 md:mb-16 opacity-80 italic">
+            <p className="font-body-md text-sm md:text-body-md text-on-surface-variant mb-6 md:mb-10 opacity-80 italic">
               Siapa nama Anda dan pasangan?
             </p>
             <div className="space-y-6 md:space-y-12 w-full">
@@ -138,7 +143,7 @@ function RegisterInner() {
         )}
 
         {step === 2 && (
-          <div className="w-[90%] max-w-md mx-auto space-y-6 md:space-y-12 animate-fade-in flex flex-col justify-center">
+          <div className="w-[90%] max-w-md mx-auto space-y-6 md:space-y-8 animate-fade-in flex flex-col justify-center bg-surface p-6 md:p-10 shadow-2xl">
             <div className="text-center space-y-2 md:space-y-4">
               <h1 className="font-headline-md text-[24px] md:text-[32px] leading-tight text-primary">
                 Kapan pernikahan akan digelar?
@@ -195,8 +200,8 @@ function RegisterInner() {
         )}
 
         {step === 3 && (
-          <div className="w-[90%] max-w-md mx-auto flex flex-col justify-center flex-1 min-h-0 py-2">
-            <div className="text-center mb-4 md:mb-10 animate-fade-in w-full" style={{ animationDelay: "0.1s" }}>
+          <div className="w-[90%] max-w-md mx-auto flex flex-col justify-center flex-1 min-h-0 py-2 bg-surface p-6 md:p-10 shadow-2xl">
+            <div className="text-center mb-4 md:mb-6 animate-fade-in w-full" style={{ animationDelay: "0.1s" }}>
               <h2 className="font-headline-md text-[24px] md:text-[32px] leading-tight text-primary mb-2 md:mb-4">
                 Perkiraan jumlah undangan?
               </h2>

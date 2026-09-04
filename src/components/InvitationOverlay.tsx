@@ -123,8 +123,8 @@ export default function InvitationOverlay({
 
       {/* QR modal — digital pass */}
       {qrOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#fdf9f0] w-full max-w-md h-[85dvh] max-h-[820px] flex flex-col overflow-hidden">
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl w-full max-w-md h-[85dvh] max-h-[820px] flex flex-col overflow-hidden shadow-2xl">
             <div className="flex items-center justify-between px-5 py-3 border-b border-outline-variant/40 shrink-0">
               <span className="font-label-md text-[10px] uppercase tracking-[0.2em] font-semibold text-secondary">
                 Kartu QR Masuk
@@ -151,8 +151,8 @@ export default function InvitationOverlay({
 
       {/* RSVP modal */}
       {rsvpOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#fdf9f0] w-full max-w-md flex flex-col max-h-[92dvh] overflow-y-auto">
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl w-full max-w-md flex flex-col max-h-[92dvh] overflow-hidden shadow-2xl">
             <div className="flex items-center justify-between px-5 py-3 border-b border-outline-variant/40 sticky top-0 bg-[#fdf9f0] shrink-0">
               <span className="font-label-md text-[10px] uppercase tracking-[0.2em] font-semibold text-secondary">
                 Konfirmasi Kehadiran
@@ -162,7 +162,8 @@ export default function InvitationOverlay({
               </button>
             </div>
 
-            {rsvpStatus === "done" ? (
+            <div className="flex-1 overflow-y-auto">
+              {rsvpStatus === "done" ? (
               <div className="text-center p-8">
                 <span className="material-symbols-outlined text-4xl mb-3 inline-block text-emerald-600">task_alt</span>
                 <p className="font-headline-md text-xl text-on-surface mb-2">Terima kasih, {rsvpName}!</p>
@@ -244,6 +245,7 @@ export default function InvitationOverlay({
                 </button>
               </form>
             )}
+            </div>
           </div>
         </div>
       )}
