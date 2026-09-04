@@ -576,6 +576,9 @@ function EditorInner({ id }: { id: string }) {
     return Array.isArray(mapping?.settings) && mapping.settings.join(".") === "background_slideshow_gallery"
   }
 
+  const [galleryUploading, setGalleryUploading] = useState(false)
+  const galleryFileRef = useRef<HTMLInputElement>(null)
+
   const uploadGalleryFiles = async (files: FileList | File[]) => {
     if (data.is_published === true) return
     const list = Array.from(files).filter(f => f.type.startsWith("image/"))
@@ -583,6 +586,7 @@ function EditorInner({ id }: { id: string }) {
     const quota = galleryMax == null ? list.length : Math.max(0, galleryMax - galleryPhotos.length)
     const toUpload = list.slice(0, quota)
     if (toUpload.length === 0) return
+    setGalleryUploading(true)
     const uploaded: string[] = []
     for (const file of toUpload) {
       try {
@@ -599,13 +603,12 @@ function EditorInner({ id }: { id: string }) {
     if (uploaded.length > 0) {
       updateField("gallery_photos", [...galleryPhotos, ...uploaded])
     }
+    setGalleryUploading(false)
   }
 
   const removeGalleryPhoto = (index: number) => {
     updateField("gallery_photos", galleryPhotos.filter((_, i) => i !== index))
   }
-
-  const galleryFileRef = useRef<HTMLInputElement>(null)
 
   type GiftAccount = { id?: string; provider_name: string; account_number: string; account_name: string; type: string }
   const [giftAccounts, setGiftAccounts] = useState<GiftAccount[]>([])
@@ -1243,6 +1246,9 @@ function EditorInner({ id }: { id: string }) {
                   <div className="space-y-2">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Deskripsi</label>
                     <textarea className="input-editorial w-full font-body-md text-[14px] h-24 resize-none" value={data.opening_description || ""} onChange={e => updateField("opening_description", e.target.value)} placeholder="Merupakan suatu kehormatan dan kebahagiaan bagi kami…" />
+                    {!template?.wp_manifest?.opening_description && (
+                      <p className="text-[11px] text-on-surface-variant/70 mt-1 italic">Catatan: Template ini hanya menampilkan Judul. Deskripsi tidak akan tampil di undangan.</p>
+                    )}
                   </div>
                 </div>
               )}

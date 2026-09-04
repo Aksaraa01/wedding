@@ -66,6 +66,8 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
     image_url: r?.image_url || "",
   }))
 
+  const hasAddress = !!esc(giftAddr?.full_address)
+  const hasBank = giftAccounts.length > 0
   const fields: Record<string, any> = {
     couple_illustration_url: profile.couple_illustration_url || "",
     cover_photos: parseList(profile.cover_photos).filter(Boolean),
@@ -89,7 +91,7 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
     countdown: profile.estimated_wedding_date ? `${profile.estimated_wedding_date} 00:00` : "",
     gift_address: esc(giftAddr?.full_address),
     gift_address_name: esc(giftAddr?.recipient_name),
-    gift_section_hidden: profile.gift_section_visible === false,
+    gift_section_hidden: profile.gift_section_visible === false || (!hasBank && !hasAddress),
     video_section_hidden: !gates.cinematic_video.included || profile.video_section_visible === false,
     inviting_families_hidden: !gates.inviting_families.included || profile.inviting_families_visible === false,
     story_hidden: !gates.story.included || profile.story_visible === false,

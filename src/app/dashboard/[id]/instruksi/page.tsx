@@ -82,7 +82,6 @@ const STEPS: Step[] = [
     phase: "Fase 2: Penyebaran & Otomatisasi",
     bullets: [
       "Link undangan & QR otomatis terbuat.",
-      "Aksaraa team akan mengirimkan undangan sesuai tanggal.",
       "QR khusus check-in venue untuk paket tertentu.",
     ],
     route: (id) => `/dashboard/${id}/qr-guestbook`,

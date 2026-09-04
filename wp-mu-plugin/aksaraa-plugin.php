@@ -1336,7 +1336,8 @@ class AksaraaPlugin
         $masterId = self::find_element_parent_id($elements, $baseIds['provider_name']);
         if (!$masterId) return [$elements, $manifest];
 
-        // Desired count = number of non-empty gift_accounts rows (min 1 = master card).
+        // Desired count = number of non-empty gift_accounts rows.
+        // If none, hide the bank card container (don't keep a placeholder).
         $desired = 0;
         if (isset($fields['gift_accounts']) && is_array($fields['gift_accounts'])) {
             foreach ($fields['gift_accounts'] as $g) {
@@ -1347,7 +1348,18 @@ class AksaraaPlugin
                 }
             }
         }
-        if ($desired === 0) $desired = 1;
+        if ($desired === 0) {
+            $elements = self::apply_to_node($elements, $masterId, function (array &$container) {
+                $settings = $container['settings'] ?? [];
+                $classes = trim((string) ($settings['_css_classes'] ?? ''));
+                $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-hidden'));
+                $tokens[] = 'aksaraa-hidden';
+                $settings['_css_classes'] = implode(' ', $tokens);
+                $container['settings'] = $settings;
+            });
+            $manifest['gift_accounts'] = [];
+            return [$elements, $manifest];
+        }
 
         // Existing clones = containers tagged `_aksaraa_bank_clone`.
         $cloneIds = self::find_clone_ids($elements);
