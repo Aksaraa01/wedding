@@ -142,10 +142,10 @@ export default function LoginPage() {
                 </div>
 
                 <div className="group">
-                  <label className="font-label-md text-label-md uppercase text-on-surface-variant mb-3 block tracking-widest text-center">
+                  <label className="font-label-md text-label-md uppercase text-on-surface-variant mb-3 block tracking-widest">
                     PIN
                   </label>
-                  <div className="flex justify-center gap-2 md:gap-3" onPaste={handlePinPaste}>
+                  <div className="flex justify-start gap-2 md:gap-3" onPaste={handlePinPaste}>
                     {Array.from({ length: 6 }).map((_, i) => (
                       <input
                         key={i}
@@ -162,7 +162,7 @@ export default function LoginPage() {
                       />
                     ))}
                   </div>
-                  <p className="mt-3 text-[11px] text-on-surface-variant/60 font-body-md italic text-center">
+                  <p className="mt-3 text-[11px] text-on-surface-variant/60 font-body-md italic">
                     PIN 6 digit yang dibuat saat pendaftaran
                   </p>
                 </div>

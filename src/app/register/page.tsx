@@ -279,23 +279,23 @@ function RegisterInner() {
 
       {/* Footer */}
       {step === 1 && (
-        <footer className="sticky bottom-0 left-0 w-full px-4 md:px-edge-margin-mobile pb-4 md:pb-10 pt-2 md:pt-4 bg-gradient-to-t from-background via-background to-transparent">
-          <div className="max-w-md mx-auto">
+        <nav className="fixed bottom-0 w-full bg-surface/90 backdrop-blur-xl border-t border-outline-variant/10 px-4 md:px-edge-margin-mobile py-3 md:py-6 z-50">
+          <div className="max-w-md mx-auto flex items-center justify-between gap-3 md:gap-6">
+            <button
+              onClick={() => router.push("/hero")}
+              className="flex-1 py-3 md:py-4 border border-outline-variant text-primary font-label-md uppercase tracking-[0.1em] hover:bg-surface-variant transition-colors"
+            >
+              Kembali
+            </button>
             <button
               onClick={handleNextStep1}
               disabled={!step1Valid || nameChecking}
-              className={`w-full bg-primary text-on-primary flex items-center justify-center gap-3 py-3 md:py-5 rounded-none font-label-md text-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all duration-300 active:scale-95 group ${
-                step1Valid && !nameChecking ? "opacity-100" : "opacity-50"
-              }`}
+              className={`flex-[1.5] py-3 md:py-4 bg-primary text-on-primary font-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all duration-300 active:scale-95 ${!step1Valid || nameChecking ? "opacity-50" : "opacity-100"}`}
             >
               {nameChecking ? "Memeriksa..." : "Lanjutkan"}
-              <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
             </button>
-            <p className="mt-3 md:mt-6 text-[10px] text-on-surface-variant/40 text-center tracking-widest font-label-md">
-              LANGKAH 1 DARI 3
-            </p>
           </div>
-        </footer>
+        </nav>
       )}
 
       {step === 2 && (
@@ -318,11 +318,11 @@ function RegisterInner() {
       )}
 
       {step === 3 && (
-        <footer className="fixed bottom-0 w-full z-50 bg-surface border-t border-outline-variant/20 px-4 md:px-edge-margin-mobile py-3 md:py-4">
-          <div className="max-w-md mx-auto flex gap-3 md:gap-4">
+        <nav className="fixed bottom-0 w-full bg-surface/90 backdrop-blur-xl border-t border-outline-variant/10 px-4 md:px-edge-margin-mobile py-3 md:py-6 z-50">
+          <div className="max-w-md mx-auto flex items-center justify-between gap-3 md:gap-6">
             <button
               onClick={() => setStep(2)}
-              className="flex-1 py-3 md:py-4 border border-primary font-label-md text-label-md uppercase tracking-widest text-primary hover:bg-surface-container transition-colors duration-300"
+              className="flex-1 py-3 md:py-4 border border-outline-variant text-primary font-label-md uppercase tracking-[0.1em] hover:bg-surface-variant transition-colors"
             >
               Kembali
             </button>
@@ -336,15 +336,12 @@ function RegisterInner() {
                 })
                 router.push(`/customize?${params}`)
               }}
-              className="flex-[1.5] py-3 md:py-4 bg-primary text-on-primary font-label-md text-label-md uppercase tracking-widest hover:bg-secondary transition-all duration-300 active:scale-[0.98]"
+              className="flex-[1.5] py-3 md:py-4 bg-primary text-on-primary font-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all duration-300 active:scale-95"
             >
               Selesaikan
             </button>
           </div>
-          <p className="mt-2 md:mt-3 text-[10px] text-on-surface-variant/40 text-center tracking-widest font-label-md">
-            LANGKAH 3 DARI 3
-          </p>
-        </footer>
+        </nav>
       )}
 
       <style jsx>{`
