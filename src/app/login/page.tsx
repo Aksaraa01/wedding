@@ -11,6 +11,35 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const btnRef = useRef<HTMLButtonElement>(null)
+  const pinRefs = useRef<(HTMLInputElement | null)[]>([])
+
+  const handlePinChange = (idx: number, val: string) => {
+    const d = val.replace(/\D/g, "").slice(-1)
+    const arr = pin.split("")
+    while (arr.length < 6) arr.push("")
+    arr[idx] = d || ""
+    const next = arr.join("").replace(/\D/g, "").slice(0, 6)
+    setPin(next)
+    if (d && idx < 5) pinRefs.current[idx + 1]?.focus()
+  }
+
+  const handlePinKeyDown = (idx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !pin[idx] && idx > 0) {
+      pinRefs.current[idx - 1]?.focus()
+    }
+    if (e.key === "ArrowLeft" && idx > 0) pinRefs.current[idx - 1]?.focus()
+    if (e.key === "ArrowRight" && idx < 5) pinRefs.current[idx + 1]?.focus()
+  }
+
+  const handlePinPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    const t = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6)
+    if (t) {
+      setPin(t)
+      const nextIdx = Math.min(t.length, 5)
+      setTimeout(() => pinRefs.current[nextIdx]?.focus(), 0)
+    }
+  }
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -113,26 +142,27 @@ export default function LoginPage() {
                 </div>
 
                 <div className="group">
-                  <label
-                    className="font-label-md text-label-md uppercase text-on-surface-variant mb-2 block tracking-widest"
-                    htmlFor="pin"
-                  >
+                  <label className="font-label-md text-label-md uppercase text-on-surface-variant mb-3 block tracking-widest text-center">
                     PIN
                   </label>
-                  <div className="relative border-b border-on-background/20 input-line-focus transition-all duration-300">
-                    <input
-                      className="w-full bg-transparent border-none px-0 py-3 focus:ring-0 font-body-lg text-body-lg tracking-[0.25em] placeholder:text-outline/40"
-                      id="pin"
-                      name="pin"
-                      value={pin}
-                      onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      placeholder="6 digit PIN"
-                      inputMode="numeric"
-                      type="password"
-                      autoComplete="off"
-                    />
+                  <div className="flex justify-center gap-2 md:gap-3" onPaste={handlePinPaste}>
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <input
+                        key={i}
+                        ref={(el) => { pinRefs.current[i] = el }}
+                        className="w-10 h-11 sm:w-11 sm:h-12 md:w-12 md:h-14 rounded-xl md:rounded-2xl border border-outline-variant/40 bg-surface text-center font-headline-md text-[18px] md:text-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline/30"
+                        inputMode="numeric"
+                        type="password"
+                        autoComplete="off"
+                        maxLength={1}
+                        value={pin[i] || ""}
+                        onChange={(e) => handlePinChange(i, e.target.value)}
+                        onKeyDown={(e) => handlePinKeyDown(i, e)}
+                        aria-label={`PIN digit ${i + 1}`}
+                      />
+                    ))}
                   </div>
-                  <p className="mt-3 text-[11px] text-on-surface-variant/60 font-body-md italic">
+                  <p className="mt-3 text-[11px] text-on-surface-variant/60 font-body-md italic text-center">
                     PIN 6 digit yang dibuat saat pendaftaran
                   </p>
                 </div>
