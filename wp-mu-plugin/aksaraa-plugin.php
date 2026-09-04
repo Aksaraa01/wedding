@@ -1859,6 +1859,65 @@ add_action('wp_footer', function () {
     }
 });
 
+// Lightweight interactive preview: when a template-master demo is opened with ?aksaraa_preview=1
+// (used by the in-app "Lihat Template" iframe), skip the interactive-only JS that a design preview
+// does not need (guestbook/comment, XLSX export, QR styling, add-to-calendar, guest form). CSS is
+// KEPT so the template renders pixel-identical; music (server-inline audio widget) is KEPT. This is
+// render-time only — it never touches _elementor_data, Elementor settings, or the master, so the
+// real template page and any couple duplicates are 100% unchanged and fully functional.
+function aksaraa_is_light_preview()
+{
+    if (!is_singular() || empty($_GET['aksaraa_preview'])) {
+        return false;
+    }
+    $name = get_post_field('post_name', get_queried_object_id());
+    return is_string($name) && strpos($name, 'template-') === 0;
+}
+
+add_action('wp_enqueue_scripts', function () {
+    if (!aksaraa_is_light_preview()) {
+        return;
+    }
+    $strip_patterns = array(
+        'comment-kit2',        // CUI guestbook/comment scripts + libs
+        'xlsx.full',           // full XLSX export lib (CDN)
+        'qr-code-styling',     // QR styling lib (unpkg)
+        'add-to-calendar-button',
+        'guest-form',          // weddingpress guest/RSVP submit js
+        'exad-scripts',        // defer handled below; remove non-critical? keep visual deps
+    );
+    $scripts = wp_scripts();
+    $queue   = $scripts->queue;
+    foreach ($queue as $handle) {
+        $src = isset($scripts->registered[$handle]->src) ? $scripts->registered[$handle]->src : '';
+        foreach ($strip_patterns as $pat) {
+            if (false !== strpos($src, $pat) || false !== stripos($handle, str_replace(array('.', '-'), '_', $pat))) {
+                wp_dequeue_script($handle);
+                break;
+            }
+        }
+    }
+    // Keep media-library "qr-code.js" (weddingpress frontend helper) out only if unused visual; leave.
+    wp_dequeue_script('cui_js_script');
+}, 200);
+
+// Preview-only: fully remove any late-printed interactive scripts, defer the license check.
+add_filter('script_loader_tag', function ($tag, $handle) {
+    if (!aksaraa_is_light_preview()) {
+        return $tag;
+    }
+    $drop_patterns = array('comment-kit2', 'xlsx.full', 'qr-code-styling', 'add-to-calendar-button', 'guest-form');
+    foreach ($drop_patterns as $pat) {
+        if (false !== strpos($tag, $pat)) {
+            return ''; // drop the <script> tag entirely
+        }
+    }
+    if (false !== stripos($tag, 'license.min.js')) {
+        $tag = str_replace(' src=', ' defer src=', $tag);
+    }
+    return $tag;
+}, 200, 2);
+
 // Generic comment fix: the guestbook (CUI) comment form is built MANUALLY (it never calls
 // comment_form()), and ships no `email` field. WP's `require_name_email` gate runs in
 // wp_handle_comment_submission BEFORE preprocess_comment, so it wp_dies "Please fill the required

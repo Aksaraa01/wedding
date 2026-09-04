@@ -13,7 +13,16 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose }: Props) 
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const safetyRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const src = demoUrl
+  // The in-app preview loads the template through the lightweight Aksaraa render
+  // (?aksaraa_preview=1 skips interactive-only JS, keeps CSS + music). The full
+  // functional demo URL is kept for the "open in new tab" fallback / real visitors.
+  const fullUrl = demoUrl
+  const src = (() => {
+    if (!demoUrl || !demoUrl.includes("wp.aksaraa.com")) return demoUrl
+    const url = new URL(demoUrl)
+    if (!url.searchParams.has("aksaraa_preview")) url.searchParams.set("aksaraa_preview", "1")
+    return url.toString()
+  })()
 
   useEffect(() => {
     safetyRef.current = setTimeout(() => {
@@ -42,9 +51,9 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose }: Props) 
   }, [])
 
   const openTab = useCallback(() => {
-    window.open(src, "_blank", "noopener,noreferrer")
+    window.open(fullUrl, "_blank", "noopener,noreferrer")
     onClose()
-  }, [src, onClose])
+  }, [fullUrl, onClose])
 
   return (
     <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm" onClick={onClose}>
