@@ -429,42 +429,58 @@ function EditorInner({ id }: { id: string }) {
 
   const handleImageUpload = async (file: File, field: string) => {
     if (data.is_published === true) return
-    const formData = new FormData()
-    formData.append("file", file)
-    const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
-    if (!res.ok) return
-    const { url } = await res.json()
-    updateField(field, [url])
+    setPhotoUploading(field)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
+      if (!res.ok) return
+      const { url } = await res.json()
+      updateField(field, [url])
+    } finally {
+      setPhotoUploading(null)
+    }
   }
 
-  // Upload a photo into a specific slide slot (index 0/1) for slideshow fields.
   const handlePhotoSlideUpload = async (file: File, field: string, index: number) => {
     if (data.is_published === true) return
-    const formData = new FormData()
-    formData.append("file", file)
-    const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
-    if (!res.ok) return
-    const { url } = await res.json()
-    const arr = Array.isArray(data[field]) ? [...data[field]] : (data[field] ? [data[field]] : [])
-    while (arr.length <= index) arr.push("")
-    arr[index] = url
-    updateField(field, arr)
+    const key = `${field}-${index}`
+    setPhotoUploading(key)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
+      if (!res.ok) return
+      const { url } = await res.json()
+      const arr = Array.isArray(data[field]) ? [...data[field]] : (data[field] ? [data[field]] : [])
+      while (arr.length <= index) arr.push("")
+      arr[index] = url
+      updateField(field, arr)
+    } finally {
+      setPhotoUploading(null)
+    }
   }
 
   // Upload a cover into a specific slot (pads empty slots so the couple can fill
   // any of the template's cover slots in any order).
   const setCoverAt = async (index: number, file: File) => {
     if (data.is_published === true) return
-    const formData = new FormData()
-    formData.append("file", file)
-    const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
-    if (!res.ok) return
-    const { url } = await res.json()
-    const covers = [...(Array.isArray(data.cover_photos) ? data.cover_photos : [])]
-    while (covers.length <= index) covers.push("")
-    covers[index] = url
-    setData(prev => ({ ...prev, cover_photos: covers, couple_illustration_url: covers[0] || prev.couple_illustration_url }))
-    save({ cover_photos: covers, couple_illustration_url: covers[0] || data.couple_illustration_url })
+    const key = `cover-${index}`
+    setCoverUploading(key)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
+      if (!res.ok) return
+      const { url } = await res.json()
+      const covers = [...(Array.isArray(data.cover_photos) ? data.cover_photos : [])]
+      while (covers.length <= index) covers.push("")
+      covers[index] = url
+      setData(prev => ({ ...prev, cover_photos: covers, couple_illustration_url: covers[0] || prev.couple_illustration_url }))
+      save({ cover_photos: covers, couple_illustration_url: covers[0] || data.couple_illustration_url })
+    } finally {
+      setCoverUploading(null)
+    }
   }
 
   const clearCoverAt = (index: number) => {
@@ -477,21 +493,27 @@ function EditorInner({ id }: { id: string }) {
   // Upload a photo into a slide of a slideshow cover slot (2 slides per slot).
   const setCoverSlideAt = async (slotIndex: number, slideIndex: number, file: File) => {
     if (data.is_published === true) return
-    const formData = new FormData()
-    formData.append("file", file)
-    const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
-    if (!res.ok) return
-    const { url } = await res.json()
-    const covers = [...(Array.isArray(data.cover_photos) ? data.cover_photos : [])]
-    while (covers.length <= slotIndex) covers.push("")
-    const cur = covers[slotIndex]
-    const arr = Array.isArray(cur) ? [...cur] : (typeof cur === "string" && cur !== "" ? [cur] : [])
-    while (arr.length <= slideIndex) arr.push("")
-    arr[slideIndex] = url
-    covers[slotIndex] = arr
-    const firstUrl = typeof covers[0] === "string" ? covers[0] : (Array.isArray(covers[0]) ? covers[0][0] || "" : "")
-    setData(prev => ({ ...prev, cover_photos: covers, couple_illustration_url: firstUrl || prev.couple_illustration_url }))
-    save({ cover_photos: covers, couple_illustration_url: firstUrl || data.couple_illustration_url })
+    const key = `cover-${slotIndex}-${slideIndex}`
+    setCoverUploading(key)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
+      if (!res.ok) return
+      const { url } = await res.json()
+      const covers = [...(Array.isArray(data.cover_photos) ? data.cover_photos : [])]
+      while (covers.length <= slotIndex) covers.push("")
+      const cur = covers[slotIndex]
+      const arr = Array.isArray(cur) ? [...cur] : (typeof cur === "string" && cur !== "" ? [cur] : [])
+      while (arr.length <= slideIndex) arr.push("")
+      arr[slideIndex] = url
+      covers[slotIndex] = arr
+      const firstUrl = typeof covers[0] === "string" ? covers[0] : (Array.isArray(covers[0]) ? covers[0][0] || "" : "")
+      setData(prev => ({ ...prev, cover_photos: covers, couple_illustration_url: firstUrl || prev.couple_illustration_url }))
+      save({ cover_photos: covers, couple_illustration_url: firstUrl || data.couple_illustration_url })
+    } finally {
+      setCoverUploading(null)
+    }
   }
 
   const sessions: Session[] = Array.isArray(data.sessions) ? data.sessions : []
@@ -540,12 +562,17 @@ function EditorInner({ id }: { id: string }) {
 
   const handleStoryImageUpload = async (file: File, index: number) => {
     if (data.is_published === true) return
-    const formData = new FormData()
-    formData.append("file", file)
-    const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
-    if (!res.ok) return
-    const { url } = await res.json()
-    updateStory(index, "image_url", url)
+    setStoryUploading(index)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
+      if (!res.ok) return
+      const { url } = await res.json()
+      updateStory(index, "image_url", url)
+    } finally {
+      setStoryUploading(null)
+    }
   }
 
   const storyFileRefs = useRef<(HTMLInputElement | null)[]>([])
@@ -578,6 +605,9 @@ function EditorInner({ id }: { id: string }) {
 
   const [galleryUploading, setGalleryUploading] = useState(false)
   const galleryFileRef = useRef<HTMLInputElement>(null)
+  const [coverUploading, setCoverUploading] = useState<string | null>(null)
+  const [photoUploading, setPhotoUploading] = useState<string | null>(null)
+  const [storyUploading, setStoryUploading] = useState<number | null>(null)
 
   const uploadGalleryFiles = async (files: FileList | File[]) => {
     if (data.is_published === true) return
@@ -928,8 +958,11 @@ function EditorInner({ id }: { id: string }) {
               </span>
             )}
             {!hidden && !isLocked && sectionIncomplete(key) && (
-              <span title="Konten belum lengkap" className={`inline-flex ${isActive ? "text-[#8d4d39]" : "text-white"}`}>
-                <AttentionIcon size={36} />
+              <span className="group relative inline-flex ml-1" tabIndex={0}>
+                <span className={`${isActive ? "text-[#8d4d39]" : "text-white"}`}>
+                  <AttentionIcon size={36} />
+                </span>
+                <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block group-focus-within:block group-active:block active:block bg-primary text-white text-[11px] px-3 py-1.5 rounded whitespace-nowrap z-50 shadow-lg pointer-events-none">Konten belum lengkap — silakan lengkapi bagian {label}</span>
               </span>
             )}
           </span>
@@ -1162,7 +1195,16 @@ function EditorInner({ id }: { id: string }) {
                               <span className="text-[10px] font-bold uppercase tracking-wider text-secondary">Slot {i + 1} — Slideshow (2 foto)</span>
                               <div className="grid grid-cols-2 gap-2 mt-2">
                                 {[0, 1].map(s => {
+                                  const key = `cover-${i}-${s}`
+                                  const uploading = coverUploading === key
                                   const url = slides[s]
+                                  if (uploading) {
+                                    return (
+                                      <div key={s} className="relative aspect-video bg-surface-dim border border-outline-variant flex items-center justify-center">
+                                        <span className="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
+                                      </div>
+                                    )
+                                  }
                                   return url ? (
                                     <div key={s} className="relative aspect-video bg-surface-dim border border-outline-variant overflow-hidden group">
                                       <div className={`absolute inset-0 bg-cover bg-center ${data.grayscale ? "grayscale" : ""}`} style={{ backgroundImage: `url(${url})` }} />
@@ -1179,6 +1221,15 @@ function EditorInner({ id }: { id: string }) {
                                   )
                                 })}
                               </div>
+                            </div>
+                          )
+                        }
+                        const key = `cover-${i}`
+                        const uploading = coverUploading === key
+                        if (uploading) {
+                          return (
+                            <div key={i} className="relative aspect-video bg-surface-dim border border-outline-variant flex items-center justify-center">
+                              <span className="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
                             </div>
                           )
                         }
@@ -1218,8 +1269,8 @@ function EditorInner({ id }: { id: string }) {
                         )
                       })}
                     </div>
-                    <input ref={coverReplaceRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f && coverReplaceIndex !== null) { setCoverAt(coverReplaceIndex, f); setCoverReplaceIndex(null) } e.target.value = "" }} />
-                    <input ref={coverSlideRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f && coverSlideTarget !== null) { setCoverSlideAt(coverSlideTarget.slot, coverSlideTarget.slide, f); setCoverSlideTarget(null) } e.target.value = "" }} />
+                    <input ref={coverReplaceRef} type="file" accept="image/*" multiple className="hidden" onChange={async e => { const files = e.target.files ? Array.from(e.target.files).filter(f => f.type.startsWith("image/")) : []; if (files.length && coverReplaceIndex !== null) { const start = coverReplaceIndex; for (let k = 0; k < files.length; k++) { const idx = start + k; if (idx >= coverSlotCount) break; if (isCoverSlideshowSlot(idx)) continue; await setCoverAt(idx, files[k]) } setCoverReplaceIndex(null) } else if (files.length) { for (let k = 0; k < files.length; k++) { if (k >= coverSlotCount) break; if (isCoverSlideshowSlot(k)) continue; await setCoverAt(k, files[k]) } } e.target.value = "" }} />
+                    <input ref={coverSlideRef} type="file" accept="image/*" multiple className="hidden" onChange={async e => { const files = e.target.files ? Array.from(e.target.files).filter(f => f.type.startsWith("image/")) : []; if (files.length && coverSlideTarget !== null) { const { slot, slide } = coverSlideTarget; if (files.length === 1) { await setCoverSlideAt(slot, slide, files[0]) } else { let si = slot, sl = slide; for (const f of files) { await setCoverSlideAt(si, sl, f); sl++; if (sl > 1) { sl = 0; si++; while (si < coverSlotCount && !isCoverSlideshowSlot(si)) si++; if (si >= coverSlotCount) break } } } setCoverSlideTarget(null) } e.target.value = "" }} />
                   </div>
                   <div className="space-y-2">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Tanggal Acara</label>
@@ -1265,6 +1316,15 @@ function EditorInner({ id }: { id: string }) {
                           <div className="grid grid-cols-2 gap-2 mt-2">
                             {[0, 1].map(i => {
                               const url = data.groom_photo_url[i]
+                              const uploading = photoUploading === `groom_photo_url-${i}`
+                              if (uploading) {
+                                return (
+                                  <div key={i} className="relative aspect-video bg-surface-dim border border-outline-variant flex items-center justify-center">
+                                    <span className="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
+                                    <input ref={el => { groomPhotoSlotRef.current[i] = el }} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handlePhotoSlideUpload(f, "groom_photo_url", i); e.target.value = "" }} />
+                                  </div>
+                                )
+                              }
                               return (
                                 <div key={i} className="relative aspect-video bg-surface-dim border border-outline-variant overflow-hidden group">
                                   {url && <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${url})` }} />}
@@ -1295,9 +1355,17 @@ function EditorInner({ id }: { id: string }) {
                       </div>
                     ) : (
                       <div className="flex gap-4 items-end">
-                        <div onClick={() => groomPhotoRef.current?.click()} className="w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors relative overflow-hidden shrink-0">
-                          {data.groom_photo_url[0] ? <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${data.groom_photo_url[0]})` }} /> : <span className="material-symbols-outlined text-on-surface-variant">add_a_photo</span>}
-                          {data.groom_photo_url[0] && <span className="material-symbols-outlined text-white relative z-10 drop-shadow-md">edit</span>}
+                        <div onClick={() => { if (photoUploading !== "groom_photo_url") groomPhotoRef.current?.click() }} className={`w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center relative overflow-hidden shrink-0 ${photoUploading === "groom_photo_url" ? "cursor-wait" : "cursor-pointer hover:bg-surface-container-highest"} transition-colors`}>
+                          {photoUploading === "groom_photo_url" ? (
+                            <span className="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
+                          ) : data.groom_photo_url[0] ? (
+                            <>
+                              <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${data.groom_photo_url[0]})` }} />
+                              <span className="material-symbols-outlined text-white relative z-10 drop-shadow-md">edit</span>
+                            </>
+                          ) : (
+                            <span className="material-symbols-outlined text-on-surface-variant">add_a_photo</span>
+                          )}
                         </div>
                         <input ref={groomPhotoRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, "groom_photo_url") }} />
                         <div className="flex-1">
@@ -1326,6 +1394,15 @@ function EditorInner({ id }: { id: string }) {
                           <div className="grid grid-cols-2 gap-2 mt-2">
                             {[0, 1].map(i => {
                               const url = data.bride_photo_url[i]
+                              const uploading = photoUploading === `bride_photo_url-${i}`
+                              if (uploading) {
+                                return (
+                                  <div key={i} className="relative aspect-video bg-surface-dim border border-outline-variant flex items-center justify-center">
+                                    <span className="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
+                                    <input ref={el => { bridePhotoSlotRef.current[i] = el }} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handlePhotoSlideUpload(f, "bride_photo_url", i); e.target.value = "" }} />
+                                  </div>
+                                )
+                              }
                               return (
                                 <div key={i} className="relative aspect-video bg-surface-dim border border-outline-variant overflow-hidden group">
                                   {url && <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${url})` }} />}
@@ -1356,9 +1433,17 @@ function EditorInner({ id }: { id: string }) {
                       </div>
                     ) : (
                       <div className="flex gap-4 items-end">
-                        <div onClick={() => bridePhotoRef.current?.click()} className="w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors relative overflow-hidden shrink-0">
-                          {data.bride_photo_url[0] ? <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${data.bride_photo_url[0]})` }} /> : <span className="material-symbols-outlined text-on-surface-variant">add_a_photo</span>}
-                          {data.bride_photo_url[0] && <span className="material-symbols-outlined text-white relative z-10 drop-shadow-md">edit</span>}
+                        <div onClick={() => { if (photoUploading !== "bride_photo_url") bridePhotoRef.current?.click() }} className={`w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center relative overflow-hidden shrink-0 ${photoUploading === "bride_photo_url" ? "cursor-wait" : "cursor-pointer hover:bg-surface-container-highest"} transition-colors`}>
+                          {photoUploading === "bride_photo_url" ? (
+                            <span className="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
+                          ) : data.bride_photo_url[0] ? (
+                            <>
+                              <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${data.bride_photo_url[0]})` }} />
+                              <span className="material-symbols-outlined text-white relative z-10 drop-shadow-md">edit</span>
+                            </>
+                          ) : (
+                            <span className="material-symbols-outlined text-on-surface-variant">add_a_photo</span>
+                          )}
                         </div>
                         <input ref={bridePhotoRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, "bride_photo_url") }} />
                         <div className="flex-1">
@@ -1472,8 +1557,9 @@ function EditorInner({ id }: { id: string }) {
                     </div>
                   ))}
                   {sessions.length < 2 && (
-                    <button onClick={addSession} className="w-full py-4 border border-dashed border-outline-variant text-secondary font-label-md text-label-md uppercase tracking-wider hover:bg-surface-container-lowest transition-colors">
-                      + TAMBAH SESI ACARA LAIN
+                    <button onClick={addSession} className="w-full py-3.5 bg-secondary text-white rounded-full font-label-md text-[11px] uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                      <span className="material-symbols-outlined text-[16px]">add</span>
+                      TAMBAH SESI ACARA LAIN
                     </button>
                   )}
                 </div>
@@ -1576,10 +1662,12 @@ function EditorInner({ id }: { id: string }) {
                         </div>
                         <div className="flex gap-4">
                           <div
-                            onClick={() => storyFileRefs.current[i]?.click()}
-                            className="w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors relative overflow-hidden shrink-0"
+                            onClick={() => { if (storyUploading !== i) storyFileRefs.current[i]?.click() }}
+                            className={`w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center relative overflow-hidden shrink-0 ${storyUploading === i ? "cursor-wait" : "cursor-pointer hover:bg-surface-container-highest"} transition-colors`}
                           >
-                            {story.image_url ? (
+                            {storyUploading === i ? (
+                              <span className="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
+                            ) : story.image_url ? (
                               <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${story.image_url})` }} />
                             ) : (
                               <span className="material-symbols-outlined text-on-surface-variant">add_a_photo</span>
@@ -1593,8 +1681,9 @@ function EditorInner({ id }: { id: string }) {
                         <textarea className="input-editorial w-full font-body-md text-[14px] h-20 resize-none" placeholder="Ceritakan momen ini..." value={story.description} onChange={e => updateStory(i, "description", e.target.value)} />
                       </div>
                     ))}
-                    <button onClick={addStory} className="w-full py-3 border border-dashed border-outline-variant text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-highest transition-colors">
-                      + TAMBAH MILESTONE BARU
+                    <button onClick={addStory} className="w-full py-3.5 bg-secondary text-white rounded-full font-label-md text-[11px] uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                      <span className="material-symbols-outlined text-[16px]">add</span>
+                      TAMBAH MILESTONE BARU
                     </button>
                     </div>
                   </div>
@@ -1651,7 +1740,7 @@ function EditorInner({ id }: { id: string }) {
 
                   <button
                     onClick={() => router.push(`/dashboard/${id}/amplop-digital`)}
-                    className="w-full py-3 border border-primary text-primary font-label-md text-[11px] tracking-widest uppercase hover:bg-primary hover:text-on-primary transition-all flex items-center justify-center gap-2 active:scale-95"
+                    className="w-full py-3.5 bg-secondary text-white rounded-full font-label-md text-[11px] tracking-widest uppercase hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                   >
                     <span className="material-symbols-outlined text-[16px]">edit</span>
                     Atur Amplop Digital
@@ -1700,7 +1789,7 @@ function EditorInner({ id }: { id: string }) {
                     <button
                       onClick={() => musicFileRef.current?.click()}
                       disabled={data.is_published === true || musicUploading}
-                      className="w-full py-3 border border-dashed border-secondary text-secondary font-label-md text-[11px] tracking-widest uppercase hover:bg-secondary-container/20 transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="w-full py-3.5 bg-secondary text-white rounded-full font-label-md text-[11px] tracking-widest uppercase hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <span className={`material-symbols-outlined text-[18px] ${musicUploading ? "animate-spin" : ""}`}>
                         {musicUploading ? "progress_activity" : "upload_file"}
@@ -1801,7 +1890,7 @@ function EditorInner({ id }: { id: string }) {
                   </div>
                   <button
                     onClick={handleFeedbackClick}
-                    className="w-full inline-flex items-center justify-center gap-2 border border-outline-variant text-on-surface font-label-md text-label-md uppercase tracking-widest py-3.5 hover:border-primary hover:text-primary transition-colors"
+                    className="w-full inline-flex items-center justify-center gap-2 bg-secondary text-white rounded-full font-label-md text-[11px] uppercase tracking-widest py-3.5 hover:opacity-90 active:scale-[0.98] transition-all"
                   >
                     <span className="material-symbols-outlined text-[18px]">rate_review</span>
                     Lihat &amp; Tambah Feedback
