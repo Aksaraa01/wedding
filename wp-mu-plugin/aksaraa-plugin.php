@@ -1357,6 +1357,10 @@ class AksaraaPlugin
                 $settings['_css_classes'] = implode(' ', $tokens);
                 $container['settings'] = $settings;
             });
+            $cloneIdsZero = self::find_clone_ids($elements);
+            if (!empty($cloneIdsZero)) {
+                $elements = self::remove_nodes_by_id($elements, $cloneIdsZero);
+            }
             $manifest['gift_accounts'] = [];
             return [$elements, $manifest];
         }
