@@ -1918,6 +1918,65 @@ add_filter('script_loader_tag', function ($tag, $handle) {
     return $tag;
 }, 200, 2);
 
+// Preview-only HTML tightening (render-time, no DB/data change):
+//  - lazy-load below-fold <img> and <iframe> (YouTube embed etc.)
+//  - decode images async
+//  - preload the first eager <img> to improve LCP
+//  - serve sibling .webp copies when present (same pixels, smaller bytes)
+function aksaraa_preview_html($html)
+{
+    $uploads_host = 'wp.aksaraa.com/wp-content/uploads/';
+
+    // 1) <img>: keep first one eager + preload, lazy + async the rest.
+    $first_seen = false;
+    $preload = '';
+    $html = preg_replace_callback('/<img\b([^>]*)>/i', function ($m) use (&$first_seen, &$preload, $uploads_host) {
+        $attrs = $m[1];
+        if (preg_match('/\bloading\s*=/i', $attrs)) {
+            return $m[0]; // Elementor already decided
+        }
+        $eager = !$first_seen;
+        $first_seen = true;
+        // pick an src to preload
+        if ($eager && preg_match('/\bsrc=["\']([^"\']+)["\']/', $attrs, $sm) && strpos($sm[1], $uploads_host) !== false) {
+            $preload = '<link rel="preload" as="image" href="' . esc_url($sm[1]) . '">';
+        }
+        if (!$eager) {
+            $attrs = $attrs . ' loading="lazy"';
+        }
+        if (!preg_match('/\bdecoding\s*=/i', $attrs)) {
+            $attrs = $attrs . ' decoding="async"';
+        }
+        return '<img' . $attrs . '>';
+    }, $html);
+
+    // 2) <iframe>: lazy (YouTube embeds, ~1MB) — skip ones already lazy.
+    $html = preg_replace('/<iframe\b(?![^>]*\bloading\s*=)([^>]*)>/i', '<iframe$1 loading="lazy">', $html);
+
+    // 3) Preload injection for first image.
+    if ($preload !== '') {
+        $html = preg_replace('/<head\b/i', '<head>' . $preload, $html, 1);
+    }
+
+    // 4) WebP rewrite (uploads only, only when sibling <file>.webp exists).
+    $html = preg_replace_callback('#' . preg_quote($uploads_host, '#') . '([A-Za-z0-9./_-]+?\.(?:png|jpe?g|gif))(?=[\"\')\s]|$)#i', function ($m) use ($uploads_host) {
+        $rel = $m[1];
+        $candidate = WP_CONTENT_DIR . '/uploads/' . $rel . '.webp';
+        if (file_exists($candidate)) {
+            return $uploads_host . $rel . '.webp';
+        }
+        return $uploads_host . $rel;
+    }, $html);
+
+    return $html;
+}
+
+add_action('template_redirect', function () {
+    if (aksaraa_is_light_preview()) {
+        ob_start('aksaraa_preview_html');
+    }
+}, 5);
+
 // Generic comment fix: the guestbook (CUI) comment form is built MANUALLY (it never calls
 // comment_form()), and ships no `email` field. WP's `require_name_email` gate runs in
 // wp_handle_comment_submission BEFORE preprocess_comment, so it wp_dies "Please fill the required
