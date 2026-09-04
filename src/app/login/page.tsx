@@ -7,7 +7,7 @@ import PageTheme from "@/components/PageTheme"
 export default function LoginPage() {
   const router = useRouter()
   const [phone, setPhone] = useState("")
-  const [slug, setSlug] = useState("")
+  const [pin, setPin] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const btnRef = useRef<HTMLButtonElement>(null)
@@ -21,7 +21,7 @@ export default function LoginPage() {
         const res = await fetch("/api/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone, slug }),
+          body: JSON.stringify({ phone, pin }),
         })
         const data = await res.json()
         if (!res.ok) {
@@ -35,7 +35,7 @@ export default function LoginPage() {
         setLoading(false)
       }
     },
-    [phone, slug, router]
+    [phone, pin, router]
   )
 
   return (
@@ -115,26 +115,25 @@ export default function LoginPage() {
                 <div className="group">
                   <label
                     className="font-label-md text-label-md uppercase text-on-surface-variant mb-2 block tracking-widest"
-                    htmlFor="slug"
+                    htmlFor="pin"
                   >
-                    couple
+                    PIN
                   </label>
-                  <div className="relative border-b border-on-background/20 input-line-focus transition-all duration-300 flex items-baseline">
-                    <span className="text-on-surface-variant/50 font-body-md text-body-md mr-1 select-none">
-                      aksaraa/
-                    </span>
+                  <div className="relative border-b border-on-background/20 input-line-focus transition-all duration-300">
                     <input
-                      className="flex-1 bg-transparent border-none px-0 py-3 focus:ring-0 font-body-lg text-body-lg placeholder:text-outline/40"
-                      id="slug"
-                      name="slug"
-                      value={slug}
-                      onChange={(e) => setSlug(e.target.value)}
-                      placeholder="nama-pasangan"
-                      type="text"
+                      className="w-full bg-transparent border-none px-0 py-3 focus:ring-0 font-body-lg text-body-lg tracking-[0.25em] placeholder:text-outline/40"
+                      id="pin"
+                      name="pin"
+                      value={pin}
+                      onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      placeholder="6 digit PIN"
+                      inputMode="numeric"
+                      type="password"
+                      autoComplete="off"
                     />
                   </div>
                   <p className="mt-3 text-[11px] text-on-surface-variant/60 font-body-md italic">
-                    Cth: Kanya-Rio
+                    PIN 6 digit yang dibuat saat pendaftaran
                   </p>
                 </div>
 
@@ -146,7 +145,7 @@ export default function LoginPage() {
                   <button
                     ref={btnRef}
                     type="submit"
-                    disabled={loading || !phone || !slug}
+                    disabled={loading || !phone || pin.length !== 6}
                     className="w-full bg-primary text-on-primary py-5 font-label-md text-label-md uppercase tracking-[0.2em] border border-primary hover:bg-tertiary transition-all duration-500 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
                     style={{ letterSpacing: "0.2em" }}
                     onMouseEnter={() => { if (btnRef.current) btnRef.current.style.letterSpacing = "0.25em" }}

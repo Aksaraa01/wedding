@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { calcTotal, deriveSelections, normalizePhone, PACKAGE_CODES } from "@/lib/packages"
+import { slugifyCouple } from "@/lib/slug"
+
+function validPin(pin: string): boolean {
+  return /^\d{6}$/.test(pin || "")
+}
 
 export async function POST(req: Request) {
   try {
@@ -10,36 +15,40 @@ export async function POST(req: Request) {
       groom_name,
       estimated_wedding_date,
       estimated_guest_count,
-      slug,
       whatsapp_number,
+      pin,
       package_type,
       wa_blast_tier,
       express_service,
       undangan_fisik,
     } = body
 
-    if (!bride_name || !groom_name || !slug) {
+    if (!bride_name || !groom_name) {
       return NextResponse.json({ error: "Data pengantin tidak lengkap" }, { status: 400 })
+    }
+
+    if (!validPin(pin)) {
+      return NextResponse.json({ error: "PIN harus terdiri dari 6 digit angka" }, { status: 400 })
     }
 
     if (package_type && !PACKAGE_CODES.includes(package_type)) {
       return NextResponse.json({ error: "Paket tidak valid" }, { status: 400 })
     }
 
-    const firstNamePart = (name: string) => (name || "").trim().split(/\s+/)[0]?.toLowerCase() || ""
-    const brideFirst = firstNamePart(bride_name)
-    const groomFirst = firstNamePart(groom_name)
-    if (brideFirst && groomFirst) {
-      const dupSlug = `${brideFirst}-${groomFirst}`
-      const { data: dupCouple } = await supabaseAdmin
-        .from("wedding_profiles")
-        .select("id")
-        .eq("slug", dupSlug)
-        .maybeSingle()
+    // Canonical slug built from FULL names (all input words, not just the first).
+    const slug = slugifyCouple(bride_name, groom_name)
+    if (!slug) {
+      return NextResponse.json({ error: "Data pengantin tidak lengkap" }, { status: 400 })
+    }
 
-      if (dupCouple) {
-        return NextResponse.json({ error: "Nama pasangan sudah digunakan" }, { status: 409 })
-      }
+    const { data: dupCouple } = await supabaseAdmin
+      .from("wedding_profiles")
+      .select("id")
+      .eq("slug", slug)
+      .maybeSingle()
+
+    if (dupCouple) {
+      return NextResponse.json({ error: "Nama pasangan sudah digunakan" }, { status: 409 })
     }
 
     const normalizedPhone = normalizePhone(whatsapp_number || "")
@@ -68,11 +77,15 @@ export async function POST(req: Request) {
           password_hash: slug,
           phone_number: normalizedPhone || slug,
           role: "CLIENT",
+          pin,
         })
         .select("id")
         .single()
 
       if (userError) {
+        if (userError.code === "23505") {
+          return NextResponse.json({ error: "Nomor WhatsApp sudah terdaftar" }, { status: 409 })
+        }
         return NextResponse.json({ error: userError.message }, { status: 500 })
       }
 

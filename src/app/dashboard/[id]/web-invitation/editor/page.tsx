@@ -505,7 +505,7 @@ function EditorInner({ id }: { id: string }) {
     if (data.is_published === true) return
     if (sessions.length >= 2) return
     updateField("sessions", [...sessions, {
-      name: `Sesi ${sessions.length + 1}`,
+      name: "", // left empty: input shows a placeholder (Akad Nikah/Pemberkatan or Resepsi)
       date: "",
       time: "",
       venue: "",
@@ -576,15 +576,29 @@ function EditorInner({ id }: { id: string }) {
     return Array.isArray(mapping?.settings) && mapping.settings.join(".") === "background_slideshow_gallery"
   }
 
-  const addGalleryPhoto = async (file: File) => {
+  const uploadGalleryFiles = async (files: FileList | File[]) => {
     if (data.is_published === true) return
-    if (galleryMax != null && galleryPhotos.length >= galleryMax) return
-    const formData = new FormData()
-    formData.append("file", file)
-    const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
-    if (!res.ok) return
-    const { url } = await res.json()
-    updateField("gallery_photos", [...galleryPhotos, url])
+    const list = Array.from(files).filter(f => f.type.startsWith("image/"))
+    if (list.length === 0) return
+    const quota = galleryMax == null ? list.length : Math.max(0, galleryMax - galleryPhotos.length)
+    const toUpload = list.slice(0, quota)
+    if (toUpload.length === 0) return
+    const uploaded: string[] = []
+    for (const file of toUpload) {
+      try {
+        const formData = new FormData()
+        formData.append("file", file)
+        const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
+        if (!res.ok) continue
+        const { url } = await res.json()
+        if (url) uploaded.push(url)
+      } catch {
+        // skip failed file, keep the rest
+      }
+    }
+    if (uploaded.length > 0) {
+      updateField("gallery_photos", [...galleryPhotos, ...uploaded])
+    }
   }
 
   const removeGalleryPhoto = (index: number) => {
@@ -782,7 +796,8 @@ function EditorInner({ id }: { id: string }) {
     } catch {}
     const isSessionComplete = (s: any) => {
       if (!s || typeof s !== 'object') return false
-      const required = ['name', 'date', 'venue', 'address', 'maps_url']
+      // 'name' is optional: empty keeps the template's own heading (e.g. Akad Nikah/Pemberkatan, Resepsi)
+      const required = ['date', 'venue', 'address', 'maps_url']
       return required.every(k => typeof s[k] === 'string' && s[k].trim() !== '')
     }
     const sessionsComplete = Array.isArray(data.sessions) && data.sessions.length > 0 && data.sessions.every(isSessionComplete)
@@ -1287,11 +1302,11 @@ function EditorInner({ id }: { id: string }) {
                       </div>
                     )}
                     <div className="mt-3">
-                      <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.groom_parents || ""} onChange={e => updateField("groom_parents", e.target.value)} placeholder="Nama Orang Tua Pria" />
+                      <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.groom_parents || ""} onChange={e => updateField("groom_parents", e.target.value)} placeholder="Nama Orang Tua Mempelai Pertama" />
                       <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: Bapak Hendra & Ibu Sari</p>
                     </div>
                     <div className="mt-3">
-                      <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.groom_instagram || ""} onChange={e => updateField("groom_instagram", e.target.value)} placeholder="Instagram Pria" />
+                      <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.groom_instagram || ""} onChange={e => updateField("groom_instagram", e.target.value)} placeholder="Instagram Mempelai Pertama" />
                       <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: @amospurba</p>
                     </div>
                   </div>
@@ -1348,11 +1363,11 @@ function EditorInner({ id }: { id: string }) {
                       </div>
                     )}
                     <div className="mt-3">
-                      <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.bride_parents || ""} onChange={e => updateField("bride_parents", e.target.value)} placeholder="Nama Orang Tua Wanita" />
+                      <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.bride_parents || ""} onChange={e => updateField("bride_parents", e.target.value)} placeholder="Nama Orang Tua Mempelai Kedua" />
                       <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: Bapak Wijaya & Ibu Dewi</p>
                     </div>
                     <div className="mt-3">
-                      <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.bride_instagram || ""} onChange={e => updateField("bride_instagram", e.target.value)} placeholder="Instagram Wanita" />
+                      <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.bride_instagram || ""} onChange={e => updateField("bride_instagram", e.target.value)} placeholder="Instagram Mempelai Kedua" />
                       <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: @claudiamnrg</p>
                     </div>
                   </div>
@@ -1410,7 +1425,8 @@ function EditorInner({ id }: { id: string }) {
                         <div className="flex items-center gap-2 flex-1">
                           <input
                             className="input-editorial font-label-md text-[14px] font-bold uppercase tracking-wider flex-1"
-                            style={{ color: "#8D4D39" }}
+                            style={session.name ? { color: "#8D4D39" } : undefined}
+                            placeholder={i === 0 ? "Akad Nikah / Pemberkatan" : "Resepsi"}
                             value={session.name}
                             onChange={e => updateSession(i, "name", e.target.value)}
                           />
@@ -1601,7 +1617,7 @@ function EditorInner({ id }: { id: string }) {
                         </div>
                       )}
                     </div>
-                    <input ref={galleryFileRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) { addGalleryPhoto(f); e.target.value = "" } }} />
+                    <input ref={galleryFileRef} type="file" accept="image/*" multiple className="hidden" onChange={e => { const f = e.target.files; if (f && f.length) { uploadGalleryFiles(f); e.target.value = "" } }} />
                   </div>
                 </div>
               )}
@@ -1908,6 +1924,8 @@ function EditorInner({ id }: { id: string }) {
         .iphone-frame { box-shadow: 0 0 0 12px #1a1a1a, 0 0 0 13px #333; border-radius: 44px; }
         .input-editorial { border: none; border-bottom: 1px solid #1A1A1A; background: transparent; padding: 8px 0; border-radius: 0; outline: none; transition: border-width 0.1s ease; width: 100%; font-family: 'Playfair Display', serif; font-size: 18px; }
         .input-editorial:focus { border-bottom-width: 2px; box-shadow: none; outline: none; }
+        .input-editorial::placeholder { color: rgba(26,26,26,.34); font-size: .8em; font-style: italic; font-family: 'Inter', sans-serif; font-weight: 400; }
+        .input-editorial::-webkit-input-placeholder { color: rgba(26,26,26,.34); font-size: .8em; font-style: italic; font-family: 'Inter', sans-serif; font-weight: 400; }
       `}</style>
 
       {showPublishConfirm && (

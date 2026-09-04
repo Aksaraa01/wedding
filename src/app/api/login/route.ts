@@ -8,11 +8,11 @@ export async function POST(req: Request) {
   const rl = checkRateLimit(`login:${ip}`, 10)
   if (!rl.ok) return rateLimited(rl.retryAfterMs!)
   try {
-    const { phone, slug } = await req.json()
+    const { phone, pin } = await req.json()
 
-    if (!phone || !slug) {
+    if (!phone || !pin) {
       return NextResponse.json(
-        { error: "Nomor handphone dan nama pasangan harus diisi" },
+        { error: "Nomor handphone dan PIN harus diisi" },
         { status: 400 }
       )
     }
@@ -25,30 +25,20 @@ export async function POST(req: Request) {
       )
     }
 
-    const cleanSlug = slug
-      .toLowerCase()
-      .replace(/[^a-z\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-      .replace(/^-|-$/g, "")
-      .trim()
-
-    if (!cleanSlug) {
-      return NextResponse.json(
-        { error: "Nama pasangan tidak valid" },
-        { status: 400 }
-      )
+    const cleanPin = String(pin || "").replace(/\D/g, "").slice(0, 6)
+    if (!/^\d{6}$/.test(cleanPin)) {
+      return NextResponse.json({ error: "PIN harus terdiri dari 6 digit angka" }, { status: 400 })
     }
 
     const { data: user } = await supabaseAdmin
       .from("users")
-      .select("id")
+      .select("id, pin")
       .eq("phone_number", normalizedPhone)
       .maybeSingle()
 
-    if (!user) {
+    if (!user || !user.pin || String(user.pin) !== cleanPin) {
       return NextResponse.json(
-        { error: "Nomor handphone atau nama pasangan tidak sesuai" },
+        { error: "Nomor handphone atau PIN tidak sesuai" },
         { status: 401 }
       )
     }
@@ -57,12 +47,13 @@ export async function POST(req: Request) {
       .from("wedding_profiles")
       .select("id, slug, bride_name, groom_name")
       .eq("user_id", user.id)
-      .eq("slug", cleanSlug)
+      .order("created_at", { ascending: true })
+      .limit(1)
       .maybeSingle()
 
     if (!profile) {
       return NextResponse.json(
-        { error: "Nomor handphone atau nama pasangan tidak sesuai" },
+        { error: "Nomor handphone atau PIN tidak sesuai" },
         { status: 401 }
       )
     }

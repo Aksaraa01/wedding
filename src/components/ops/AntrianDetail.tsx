@@ -993,7 +993,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                         <div className="mt-4 space-y-3">
                           {groomPhotos.length > 0 && (
                             <div className="text-center">
-                              <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant mb-2">Foto Pria{groomPhotos.length > 1 ? " (Slideshow)" : ""}</p>
+                              <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant mb-2">Foto Mempelai Pertama{groomPhotos.length > 1 ? " (Slideshow)" : ""}</p>
                               <div className="flex justify-center gap-3">
                                 {groomPhotos.map((url, i) => (
                                   <div key={i} className="relative group">
@@ -1014,7 +1014,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                           )}
                           {bridePhotos.length > 0 && (
                             <div className="text-center">
-                              <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant mb-2">Foto Wanita{bridePhotos.length > 1 ? " (Slideshow)" : ""}</p>
+                              <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant mb-2">Foto Mempelai Kedua{bridePhotos.length > 1 ? " (Slideshow)" : ""}</p>
                               <div className="flex justify-center gap-3">
                                 {bridePhotos.map((url, i) => (
                                   <div key={i} className="relative group">
@@ -1039,7 +1039,7 @@ export default function AntrianDetail({ id }: { id: string }) {
 
                     <div className="grid grid-cols-2 gap-4 mt-4 text-center">
                       <div>
-                        <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Mempelai Pria</p>
+                        <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Mempelai Pertama</p>
                         {invitationData.profile.groom_name && (
                           <p className="font-body-md text-sm font-semibold mt-0.5">{invitationData.profile.groom_name}</p>
                         )}
@@ -1054,7 +1054,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                         )}
                       </div>
                       <div>
-                        <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Mempelai Wanita</p>
+                        <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Mempelai Kedua</p>
                         {invitationData.profile.bride_name && (
                           <p className="font-body-md text-sm font-semibold mt-0.5">{invitationData.profile.bride_name}</p>
                         )}

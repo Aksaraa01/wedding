@@ -220,6 +220,8 @@ function Inner() {
   const [modalOpen, setModalOpen] = useState(false)
   const [matrixOpen, setMatrixOpen] = useState(false)
   const [waNumber, setWaNumber] = useState("")
+  const [pin, setPin] = useState("")
+  const [showPin, setShowPin] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState("")
   const [originalPackage, setOriginalPackage] = useState<string>("")
@@ -279,7 +281,8 @@ function Inner() {
 
   const handleSubmit = async () => {
     const cleaned = waNumber.replace(/\D/g, "").replace(/^0+/, "")
-    if (!cleaned) return
+    const cleanPin = (pin || "").replace(/\D/g, "")
+    if (!cleaned || cleanPin.length !== 6) return
 
     setSubmitting(true)
     setSubmitError("")
@@ -305,10 +308,6 @@ function Inner() {
     }
 
     try {
-      const first = userName.trim().split(" ")[0].toLowerCase()
-      const second = partnerName.trim().split(" ")[0].toLowerCase()
-      const slug = `${first}-${second}`
-
       const rawDate = searchParams.get("date")
       const endOfYear = `${new Date().getFullYear()}-12-31`
       const weddingDate = rawDate && rawDate !== "tentative" ? rawDate : endOfYear
@@ -322,8 +321,8 @@ function Inner() {
           groom_name: partnerName.trim(),
           estimated_wedding_date: weddingDate,
           estimated_guest_count: guestCount,
-          slug,
           whatsapp_number: phone,
+          pin: cleanPin,
           package_type: selectedPackage,
           wa_blast_tier: waBlastTier,
           express_service: expressService,
@@ -731,7 +730,7 @@ function Inner() {
             </button>
           ) : (
             <button
-              onClick={() => setModalOpen(true)}
+              onClick={() => { setWaNumber(""); setPin(""); setSubmitError(""); setModalOpen(true) }}
               className="shrink-0 px-6 md:px-12 py-3 md:py-4 bg-primary text-white font-label-md text-[11px] md:text-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all rounded-full md:rounded-none"
             >
               Lanjut
@@ -741,28 +740,28 @@ function Inner() {
       </footer>
 
       {modalOpen && (
-        <div className="fixed inset-0 bg-primary/40 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
-          <div className="bg-surface p-10 max-w-lg w-full border border-outline relative">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+          <div className="bg-surface rounded-2xl p-8 md:p-10 max-w-lg w-full border border-outline-variant/40 shadow-2xl relative max-h-[92dvh] overflow-y-auto">
             <button
-              onClick={() => setModalOpen(false)}
+              onClick={() => { setModalOpen(false); setPin(""); setWaNumber(""); setSubmitError("") }}
               className="absolute top-4 right-4 text-on-surface-variant hover:text-primary"
             >
               <span className="material-symbols-outlined">close</span>
             </button>
-            <div className="text-center mb-10">
-              <div className="w-20 h-20 bg-secondary-container/20 text-secondary flex items-center justify-center rounded-full mx-auto mb-6">
-                <span className="material-symbols-outlined scale-[2]">mail</span>
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-secondary-container/20 text-secondary flex items-center justify-center rounded-full mx-auto mb-5">
+                <span className="material-symbols-outlined scale-150">mail</span>
               </div>
-              <h2 className="font-headline-md text-headline-md mb-4">Langkah Terakhir</h2>
-              <p className="font-body-md text-on-surface-variant">Selesaikan pesanan Anda dengan menghubungkan WhatsApp. Konsultan kami akan membantu proses onboarding narasi Anda.</p>
+              <h2 className="font-headline-md text-headline-md mb-2">Buat Akun</h2>
+              <p className="font-body-md text-sm text-on-surface-variant">Selesaikan pendaftaran Anda dengan nomor WhatsApp dan buat PIN untuk masuk ke dasbor.</p>
             </div>
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div>
                 <label className="font-label-md text-[10px] uppercase text-on-surface-variant block mb-2 tracking-widest">Nomor WhatsApp Aktif</label>
-                <div className="flex border border-outline-variant/30 focus-within:border-primary transition-colors">
-                  <span className="px-4 py-4 bg-surface-container-highest font-body-md border-r border-outline-variant/30">+62</span>
+                <div className="flex border border-outline-variant/30 focus-within:border-primary rounded-xl overflow-hidden transition-colors">
+                  <span className="px-4 py-3.5 bg-surface-container-highest font-body-md border-r border-outline-variant/30">+62</span>
                   <input
-                    className="w-full px-4 py-4 bg-transparent focus:outline-none text-xl font-headline-md placeholder:text-outline-variant"
+                    className="w-full px-4 py-3.5 bg-transparent focus:outline-none text-lg font-headline-md placeholder:text-outline-variant"
                     placeholder="812 XXXX XXXX"
                     type="tel"
                     value={waNumber}
@@ -774,19 +773,51 @@ function Inner() {
                   />
                 </div>
               </div>
+              <div>
+                <label className="font-label-md text-[10px] uppercase text-on-surface-variant block mb-2 tracking-widest">Buat PIN (6 digit)</label>
+                <div className="flex items-center border border-outline-variant/30 focus-within:border-primary rounded-xl overflow-hidden transition-colors">
+                  <input
+                    className="w-full px-4 py-3.5 bg-transparent focus:outline-none text-lg font-headline-md tracking-[0.3em] placeholder:text-outline-variant"
+                    placeholder="••••••"
+                    type={showPin ? "text" : "password"}
+                    inputMode="numeric"
+                    maxLength={6}
+                    autoComplete="off"
+                    value={pin}
+                    onChange={(e) => {
+                      const digits = e.target.value.replace(/\D/g, "").slice(0, 6)
+                      setPin(digits)
+                      setSubmitError("")
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPin(v => !v)}
+                    className="px-3 text-on-surface-variant hover:text-primary"
+                    aria-label={showPin ? "Sembunyikan PIN" : "Tampilkan PIN"}
+                  >
+                    <span className="material-symbols-outlined text-[20px]">{showPin ? "visibility_off" : "visibility"}</span>
+                  </button>
+                </div>
+              </div>
               {submitError && (
                 <p className="font-body-md text-sm text-red-400">{submitError}</p>
               )}
               <button
                 onClick={handleSubmit}
-                disabled={!waNumber || submitting}
-                className={`w-full py-5 bg-secondary text-white font-label-md uppercase tracking-[0.3em] flex items-center justify-center gap-3 transition-all hover:bg-on-secondary-fixed ${
-                  !waNumber || submitting ? "opacity-50" : ""
+                disabled={!waNumber || pin.length !== 6 || submitting}
+                className={`w-full py-4 rounded-xl bg-secondary text-white font-label-md uppercase tracking-[0.3em] flex items-center justify-center gap-3 transition-all hover:bg-on-secondary-fixed ${
+                  !waNumber || pin.length !== 6 || submitting ? "opacity-50" : ""
                 }`}
               >
-                <span>{submitting ? "Mengirim..." : "Kirim"}</span>
+                <span>{submitting ? "Mendaftar..." : "Daftar"}</span>
                 <span className="material-symbols-outlined">arrow_right_alt</span>
               </button>
+              <div className="rounded-xl bg-surface-container-low p-3.5 text-center">
+                <p className="font-label-md text-[11px] text-on-surface-variant leading-relaxed">
+                  Nomor WhatsApp &amp; PIN akan digunakan untuk login ke dasbor Anda.
+                </p>
+              </div>
               <p className="text-[10px] text-center uppercase tracking-tighter text-on-surface-variant">Tanpa biaya pendaftaran. Pembayaran dilakukan setelah draft pertama disetujui.</p>
             </div>
           </div>

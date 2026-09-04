@@ -46,10 +46,14 @@ export function getBankBySlug(slug: string): BankInfo | undefined {
 
 // Lookup by the stored display name (legacy rows may store free text).
 export function getBankByName(name: string): BankInfo | undefined {
-  const n = (name || "").toLowerCase()
+  const n = (name || "").toLowerCase().trim()
+  if (!n) return undefined
+  const exactName = BANKS.find((b) => b.name.toLowerCase() === n)
+  if (exactName) return exactName
+  const exactSlug = BANKS.find((b) => b.slug === n)
+  if (exactSlug) return exactSlug
   return BANKS.find(
     (b) =>
-      b.name.toLowerCase() === n ||
       b.name.toLowerCase().includes(n) ||
       n.includes(b.name.toLowerCase()) ||
       n.includes(b.slug)

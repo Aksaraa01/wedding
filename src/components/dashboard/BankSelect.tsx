@@ -24,6 +24,14 @@ export default function BankSelect({
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    if (value) setMode("pick")
+  }, [value])
+
+  useEffect(() => {
+    setCustom(name || "")
+  }, [name])
+
+  useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
     }
@@ -76,24 +84,32 @@ export default function BankSelect({
             />
           </div>
 
-          {mode !== "pick" && (
-            <button
-              type="button"
-              onClick={mode === "custom" ? () => { setOpen(false); onChange("", custom) } : undefined}
-              className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-brand-terracotta hover:bg-brand-cream ${mode === "custom" ? "font-semibold" : ""}`}
-            >
-              <span className="material-symbols-outlined text-[16px]">edit</span>
-              Lainnya (Kustom)
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => { setMode("custom"); setCustom(name || ""); setOpen(true) }}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-brand-terracotta hover:bg-brand-cream"
+          >
+            <span className="material-symbols-outlined text-[16px]">edit</span>
+            Lainnya (Kustom)
+          </button>
 
           {mode === "custom" && (
             <div className="px-3 py-2 border-b border-brand-border">
               <label className="block text-[10px] uppercase tracking-wider text-brand-slate mb-1">Nama Bank / E-Wallet</label>
               <input
                 value={custom}
-                onChange={(e) => setCustom(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") { setOpen(false); onChange("", custom) } }}
+                onChange={(e) => {
+                  const v = e.target.value
+                  setCustom(v)
+                  onChange("", v)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault()
+                    setOpen(false)
+                    onChange("", custom)
+                  }
+                }}
                 placeholder="Contoh: Bank XYZ"
                 className="w-full bg-white border border-brand-border rounded-lg px-2 py-1.5 text-sm text-brand-charcoal outline-none focus:border-brand-terracotta"
                 onFocus={(e) => e.stopPropagation()}

@@ -126,7 +126,10 @@ function AmplopDigitalInner({ id }: { id: string }) {
 
   async function handleAccountSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!profile || !accProvider.trim()) return
+    if (!profile || !accProvider.trim() || !accNumber.trim() || !accOwner.trim()) {
+      showToast(setToast, "Lengkapi semua field rekening")
+      return
+    }
     setAccSaving(true)
     try {
       const bank = getBankBySlug(accProvider) || getBankByName(accProvider)
@@ -497,7 +500,7 @@ function AmplopDigitalInner({ id }: { id: string }) {
                 <div className="pt-4">
                   <button
                     type="submit"
-                    disabled={accSaving || !accProvider.trim()}
+                    disabled={accSaving || !accProvider.trim() || !accNumber.trim() || !accOwner.trim()}
                     className="w-full py-4 bg-brand-charcoal text-white rounded-xl font-semibold text-xs uppercase tracking-[0.18em] hover:bg-brand-terracotta transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     <span className="material-symbols-outlined text-base">save</span>
