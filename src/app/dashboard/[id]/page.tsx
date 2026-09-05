@@ -350,13 +350,13 @@ function DashboardInner({ id }: { id: string }) {
           <div className="relative rounded-[24px] overflow-hidden shadow-xl border border-[#e0d6c8]/80 bg-[#eedfcb]">
             <div className="relative bg-gradient-to-b md:bg-gradient-to-r from-[#b7583d] via-[#b35237] to-[#9b432a] rounded-[24px] overflow-hidden flex flex-col">
               <div className="relative px-5 md:px-9 pt-5 md:pt-6 pb-7 md:pb-9 rounded-b-[28px] md:rounded-b-[32px] overflow-hidden shadow-md z-10" style={{ backgroundColor: "rgb(236,224,206)", backgroundImage: "url(\"https://lh3.googleusercontent.com/aida-public/AB6AXuBLv_ul4rYeXAog4-6887ND4kkTGR7BHY0cAmpLcSXy7CXuvIfwYHkx5Rrw-ggdKRpC8eDcVNBUx8xhbqotcSH-s3gLaUzYrI3uy5uFy_SiJkuHlugeqjch7Zbf3dBfQPeqSjFuODdjWLGNo796PQXGvUErZ5lUzRmycI26A38177tF2LdP7rfeMoizZilih3cIqLu4q9qyDvvNbV3lutUsV9vG4elmzEi_LkgBX60SiJevBYe-t9TAKv4DJayS_DTavIYqiei_Wtn9QQ\")", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}>
-                <div className="flex flex-wrap items-center gap-1.5 mb-4 max-w-full overflow-hidden">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/85 border border-[#e5ded4] shadow-sm backdrop-blur-sm text-[10px] whitespace-nowrap shrink-0">
+                <div className="flex flex-wrap md:flex-nowrap items-center gap-1.5 md:gap-2 mb-4 max-w-full overflow-hidden">
+                  <div className="inline-flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-white/85 border border-[#e5ded4] shadow-sm backdrop-blur-sm text-[10px] md:text-[11px] whitespace-nowrap shrink-0">
                     <span className="flex items-center text-stone-900 font-bold tracking-tight"><span className="w-2 h-2 rounded-full bg-[#b8382c] mr-1.5 inline-block"></span>PAKET {(PACKAGE_LABEL[profile.package_type || ""] || "Essential").toUpperCase()}</span>
                     <span className="text-stone-400">•</span>
                     <span className="text-stone-700 font-medium tracking-tight">{getPackageCategory(profile.package_type || "") || "UNDANGAN DIGITAL"}</span>
                   </div>
-                  <span className="px-2.5 py-1 rounded-full bg-[#fde8e5] text-[#b93b2a] font-bold text-[10px] tracking-wide inline-flex items-center gap-1 shadow-sm border border-[#fbd0cb] whitespace-nowrap shrink-0"><span>{statusLabel}</span>{statusLabel === "UNPAID" && <span className="text-[10px]">⚠️</span>}</span>
+                  <span className="px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-[#fde8e5] text-[#b93b2a] font-bold text-[10px] md:text-[11px] tracking-wide inline-flex items-center gap-1 md:gap-2 shadow-sm border border-[#fbd0cb] whitespace-nowrap shrink-0"><span>{statusLabel}</span>{statusLabel === "UNPAID" && <span className="text-[10px]">⚠️</span>}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0 pr-1">
@@ -377,12 +377,12 @@ function DashboardInner({ id }: { id: string }) {
                   </div>
                 </div>
               </div>
-              <div className="p-4 flex flex-row gap-2.5 relative z-10">
-                <button onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)} className="w-full h-12 inline-flex items-center justify-center gap-2 px-4 rounded-xl border border-white/40 text-[#fdfbf9] bg-white/10 hover:bg-white/20 active:bg-white/25 transition backdrop-blur-sm text-[13px] font-medium shadow-sm whitespace-nowrap overflow-hidden text-ellipsis shrink">
+              <div className="p-4 md:px-9 md:py-5 flex flex-row gap-2.5 md:gap-3.5 relative z-10">
+                <button onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)} className="w-full h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full border border-white/40 text-[#fdfbf9] bg-white/10 hover:bg-white/20 active:bg-white/25 transition backdrop-blur-sm text-[13px] font-medium shadow-sm whitespace-nowrap overflow-hidden text-ellipsis shrink">
                   <span className="material-symbols-outlined text-[16px] shrink-0">mail</span>
                   <span className="whitespace-nowrap">Lihat Undangan</span>
                 </button>
-                <button onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)} className="w-full h-12 inline-flex items-center justify-center gap-2 px-4 rounded-xl bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden text-ellipsis shrink">
+                <button onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)} className="w-full h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden text-ellipsis shrink">
                   <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">qr_code_2</span>
                   <span className="whitespace-nowrap">Undangan Tamu</span>
                 </button>
