@@ -36,6 +36,13 @@ type Stats = {
   checked_in: number
 }
 
+function formatTableBadge(raw: string | null): string {
+  if (!raw) return ""
+  const t = raw.trim()
+  if (/^meja\s+/i.test(t)) return t.replace(/^meja\s+/i, "MEJA ").toUpperCase()
+  return `MEJA ${t.toUpperCase()}`
+}
+
 function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, copiedId, copiedKind, gated, isFirstGuest, onGatedClick }: {
   guest: Guest
   slug: string
@@ -53,69 +60,67 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, copiedId, copiedKind
 
   const blocked = gated && !isFirstGuest
   const blockAction = (fn: () => void) => (blocked ? onGatedClick : fn)
+  const tableBadge = formatTableBadge(guest.table_number)
 
   return (
-    <div className="bg-surface-container-lowest border border-outline-variant/50 hover:border-outline rounded-xl p-5 shadow-sm transition-all duration-200 flex flex-col gap-4 group">
-      <div className="flex justify-between items-start">
-        <div className="flex flex-col gap-0.5">
-          <h2 className="font-headline-md text-lg md:text-xl font-medium text-primary">{guest.name}</h2>
+    <div className="bg-white border border-[#E2D9CF] hover:border-[#E2D9CF] rounded-xl p-4 shadow-sm transition-all duration-200 flex flex-col gap-3 group">
+      <div className="flex justify-between items-start gap-3">
+        <div className="flex flex-col gap-1 min-w-0">
+          <h2 className="font-headline-md text-[16px] md:text-lg font-medium text-[#2C2A29] truncate">{guest.name}</h2>
           {guest.phone_number && (
-            <p className="font-body-md text-xs text-on-surface-variant tracking-wide font-medium">{guest.phone_number}</p>
+            <p className="font-body-md text-xs text-on-surface-variant tracking-wide">{guest.phone_number}</p>
           )}
           {guest.added_manually && (
-            <span className="inline-flex items-center self-start px-2 py-0.5 bg-amber-100 border border-amber-300 text-amber-700 font-label-md text-[9px] uppercase tracking-wider rounded-full mt-1">
-              Ditambahkan Manual
+            <span className="inline-flex items-center self-start px-2 py-0.5 bg-[#FEF3C7] border border-[#FDE68A] text-[#92400E] font-label-md text-[9px] uppercase tracking-wider rounded-full">
+              Manual
             </span>
           )}
         </div>
-        <div className="flex flex-col items-end gap-1.5">
-          {guest.table_number && (
-            <span className="font-label-md text-[9px] font-semibold tracking-wider bg-surface-container border border-outline-variant/50 text-on-surface px-2.5 py-1 rounded-md">
-              MEJA {guest.table_number}
+        <div className="flex flex-col items-end gap-1.5 shrink-0">
+          {tableBadge && (
+            <span className="inline-flex items-center px-2.5 py-1 bg-[#E5E7EB] border border-[#E2D9CF] text-[#2C2A29] font-label-md text-[10px] font-semibold tracking-wider rounded-full">
+              {tableBadge}
             </span>
           )}
           {hasToken ? (
             <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
-              <span className="font-label-md text-[10px] uppercase font-bold tracking-wider text-emerald-700">AKTIF</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+              <span className="font-label-md text-[10px] uppercase font-bold tracking-wider text-[#10B981]">AKTIF</span>
             </div>
           ) : (
             <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-outline-variant" />
-              <span className="font-label-md text-[10px] uppercase font-bold tracking-wider text-outline-variant">BELUM</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E2D9CF]" />
+              <span className="font-label-md text-[10px] uppercase font-bold tracking-wider text-[#9CA3AF]">BELUM</span>
             </div>
           )}
         </div>
       </div>
 
-      <div className="h-px bg-outline-variant/30" />
-
-      <div className="grid grid-cols-2 gap-3">
-        <button
-          onClick={() => blockAction(() => hasToken && onCopyQr(guest.qr_token!, guest.slug))()}
-          disabled={!blocked && !hasToken}
-          className="flex flex-col items-center justify-center gap-1.5 px-3 py-3.5 md:py-4 min-h-[44px] rounded-xl border border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant hover:border-secondary hover:text-secondary disabled:opacity-30 disabled:hover:border-outline-variant/60 disabled:hover:text-on-surface-variant transition-colors"
-        >
-          <span className={`material-symbols-outlined text-xl ${isCopiedQr ? "text-emerald-600" : ""}`}>
-            {isCopiedQr ? "check" : blocked ? "lock" : "qr_code_2"}
-          </span>
-          <span className={`font-label-md text-[10px] uppercase tracking-wider font-semibold text-center leading-tight ${isCopiedQr ? "text-emerald-700" : ""}`}>
-            {blocked ? "KUNCI — LENGKAPI UNDANGAN" : isCopiedQr ? "TAUTAN QR TERSALIN" : "SALIN TAUTAN QR"}
-          </span>
-        </button>
-        <button
-          onClick={() => blockAction(() => hasToken && onCopyUndangan(guest))()}
-          disabled={!blocked && !hasToken}
-          className="flex flex-col items-center justify-center gap-1.5 px-3 py-3.5 md:py-4 min-h-[44px] rounded-xl border border-outline-variant/60 bg-surface-container-lowest text-on-surface-variant hover:border-secondary hover:text-secondary disabled:opacity-30 disabled:hover:border-outline-variant/60 disabled:hover:text-on-surface-variant transition-colors"
-        >
-          <span className={`material-symbols-outlined text-xl ${isCopiedUndangan ? "text-emerald-600" : ""}`}>
-            {isCopiedUndangan ? "check" : blocked ? "lock" : "link"}
-          </span>
-          <span className={`font-label-md text-[10px] uppercase tracking-wider font-semibold text-center leading-tight ${isCopiedUndangan ? "text-emerald-700" : ""}`}>
-            {blocked ? "KUNCI — LENGKAPI UNDANGAN" : isCopiedUndangan ? "TAUTAN UNDANGAN TERSALIN" : "SALIN TAUTAN UNDANGAN"}
-          </span>
-        </button>
-      </div>
+      {blocked ? (
+        <div className="bg-[#F3F4F6] border border-[#E2D9CF] rounded-lg px-3 py-2.5 flex items-center justify-center gap-2 text-[11px] font-label-md uppercase tracking-wider text-[#9CA3AF]">
+          <span className="material-symbols-outlined text-[16px]">lock</span>
+          Kunci — Lengkapi Undangan
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={() => hasToken && onCopyUndangan(guest)}
+            disabled={!hasToken}
+            className={`flex flex-col items-center justify-center gap-1 px-3 py-2.5 rounded-full min-h-[40px] font-label-md text-[10px] uppercase tracking-wider font-semibold text-center leading-tight transition-colors ${hasToken ? (isCopiedUndangan ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-[#B34E3F] text-white border border-[#B34E3F] hover:bg-[#9E3B2D]") : "bg-[#F3F4F6] text-[#9CA3AF] border border-[#E2D9CF] cursor-not-allowed"}`}
+          >
+            <span className="material-symbols-outlined text-[18px]">{isCopiedUndangan ? "check" : "link"}</span>
+            <span>{isCopiedUndangan ? "Tersalin" : "Salin Undangan"}</span>
+          </button>
+          <button
+            onClick={() => hasToken && onCopyQr(guest.qr_token!, guest.slug)}
+            disabled={!hasToken}
+            className={`flex flex-col items-center justify-center gap-1 px-3 py-2.5 rounded-full min-h-[40px] font-label-md text-[10px] uppercase tracking-wider font-semibold text-center leading-tight transition-colors ${hasToken ? (isCopiedQr ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-[#F5EFE6] text-[#2C2A29] border border-[#E2D9CF] hover:bg-[#E2D9CF]") : "bg-[#F3F4F6] text-[#9CA3AF] border border-[#E2D9CF] cursor-not-allowed"}`}
+          >
+            <span className="material-symbols-outlined text-[18px]">{isCopiedQr ? "check" : "qr_code_2"}</span>
+            <span>{isCopiedQr ? "Tersalin" : "Salin QR"}</span>
+          </button>
+        </div>
+      )}
     </div>
   )
 }
@@ -299,7 +304,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   }
 
   return (
-    <div className="h-screen bg-background font-body-md text-on-surface antialiased flex flex-col overflow-hidden">
+    <div className="h-screen bg-[#FAF7F2] font-body-md text-on-surface antialiased flex flex-col overflow-hidden">
       {/* Background Texture */}
       <div className="fixed inset-0 -z-10 pointer-events-none opacity-[0.03] select-none">
         <img
@@ -310,9 +315,9 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       </div>
 
       {/* Header */}
-      <header className="shrink-0 bg-background/95 backdrop-blur-md border-b border-outline-variant/40 px-6 md:px-12 py-4">
+      <header className="shrink-0 bg-white/80 backdrop-blur-md border-b border-[#E2D9CF] px-6 md:px-12 py-4">
         <div className="w-full flex items-center justify-between">
-          <span className="inline-flex items-center gap-2 text-on-surface-variant font-label-md text-[11px] uppercase tracking-wider font-semibold">
+          <span className="inline-flex items-center gap-2 text-[#2C2A29] font-label-md text-[11px] uppercase tracking-wider font-bold">
             Tautan Undangan dan QR Tamu
           </span>
           <ProfileMenu />
@@ -323,76 +328,77 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       <main className="flex-1 flex flex-col overflow-hidden pb-28 md:pb-0">
         {/* Fixed Top Content */}
         <div className="shrink-0 w-full max-w-2xl mx-auto px-6 pt-6">
-          <h1 className="font-headline-md text-xl md:text-2xl font-medium tracking-tight text-primary">
+          <h1 className="font-headline-md text-xl md:text-2xl font-medium tracking-tight text-[#2C2A29]">
             Tautan Undangan dan QR Tamu
           </h1>
 
-          {/* Stats Pill */}
-          <section className="mt-5 flex flex-col items-center gap-4">
-            <div className="inline-flex flex-wrap justify-center items-center gap-3 md:gap-4 py-3 md:py-2.5 min-h-[44px] px-5 bg-surface-container-low/90 border border-outline-variant/30 rounded-full shadow-sm">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-secondary">link</span>
-                <span className="font-label-md text-[11px] uppercase tracking-wider text-on-surface-variant font-medium">
-                  {stats.with_token} Tautan Tergenerasi
+          {/* Horizontal Action Bar */}
+          <section className="mt-5 bg-white border border-[#E2D9CF] rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+            <div className="flex items-center gap-3">
+              <span className="inline-flex items-center gap-2 bg-[#F3F4F6] border border-[#E2D9CF] rounded-full px-3 py-1.5">
+                <span className="material-symbols-outlined text-sm text-[#B34E3F]">link</span>
+                <span className="font-label-md text-[11px] uppercase tracking-wider text-[#2C2A29] font-bold">
+                  {stats.with_token} Tautan
                 </span>
-              </div>
-              <span className="hidden sm:inline text-outline-variant/60">|</span>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-600 shadow-sm ring-2 ring-emerald-600/10" />
-                <span className="font-label-md text-[11px] uppercase tracking-wider text-on-surface-variant font-medium">
-                  {stats.with_token} QR Status Aktif
+              </span>
+              <span className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#10B981]" />
+                <span className="font-label-md text-[11px] uppercase tracking-wider text-emerald-700 font-bold">
+                  {stats.with_token} Aktif
                 </span>
-              </div>
+              </span>
             </div>
-
-            {/* Generate Button */}
-            {gatedGenerate && (
-              <button
-                onClick={handleGenerate}
-                disabled={generating}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 md:py-2.5 min-h-[44px] bg-primary text-on-primary font-label-md text-[11px] uppercase tracking-wider rounded-full hover:opacity-90 transition-opacity disabled:opacity-40 shadow-sm"
-              >
-                {generating ? (
-                  <span className="w-3.5 h-3.5 border-2 border-on-primary border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <span className="material-symbols-outlined text-sm">add</span>
-                )}
-                {generating ? "Memproses..." : gated ? "Aktifkan QR Tamu Pertama" : "Generate QR untuk Semua Tamu"}
-              </button>
-            )}
-
-            {gated && (
-              <p className="text-[11px] text-on-surface-variant max-w-sm text-center">
-                Konfirmasi undangan terlebih dahulu untuk mengaktifkan QR seluruh tamu. QR tamu pertama
-                dapat disalin sekarang.
-              </p>
-            )}
-
-            {/* Export Button */}
-            <button
-              onClick={handleExportExcel}
-              disabled={exporting || guests.length === 0}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3.5 md:py-2.5 min-h-[44px] border border-outline-variant/60 text-on-surface font-label-md text-[11px] uppercase tracking-wider rounded-full hover:border-secondary hover:text-secondary transition-colors disabled:opacity-40 shadow-sm"
-            >
-              {exporting ? (
-                <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <span className="material-symbols-outlined text-sm">download</span>
+            <div className="flex items-center gap-2">
+              {gatedGenerate && (
+                <button
+                  onClick={handleGenerate}
+                  disabled={generating}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#B34E3F] text-white font-label-md text-[11px] uppercase tracking-wider rounded-full hover:bg-[#9E3B2D] transition-colors disabled:opacity-40 shadow-sm whitespace-nowrap"
+                >
+                  {generating ? (
+                    <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <span className="material-symbols-outlined text-sm">add</span>
+                  )}
+                  {generating ? "..." : gated ? "Aktifkan QR" : "Generate QR"}
+                </button>
               )}
-              {exporting ? "Membuat File..." : "Download Excel"}
-            </button>
+              <button
+                onClick={handleExportExcel}
+                disabled={exporting || guests.length === 0}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-[#E2D9CF] text-[#2C2A29] font-label-md text-[11px] uppercase tracking-wider rounded-full hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors disabled:opacity-40 shadow-sm whitespace-nowrap"
+              >
+                {exporting ? (
+                  <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <span className="material-symbols-outlined text-sm">download</span>
+                )}
+                {exporting ? "..." : "Export Excel"}
+              </button>
+            </div>
           </section>
+          {gated && (
+            <p className="mt-3 text-[11px] text-on-surface-variant text-center md:text-left">
+              Konfirmasi undangan untuk aktifkan QR seluruh tamu. QR pertama dapat disalin sekarang.
+            </p>
+          )}
 
           {/* UNPAID Banner */}
           {isUnpaid && (
-            <div className="mt-6 md:mt-5 bg-yellow-50 border border-yellow-300 rounded-xl p-4 md:p-4 flex items-start gap-3 min-h-[44px]">
-              <span className="material-symbols-outlined text-yellow-600 flex-shrink-0">info</span>
-              <div>
-                <p className="font-body-md text-body-md text-yellow-800 font-semibold">Pembayaran Belum Selesai</p>
-                <p className="font-body-sm text-body-sm text-yellow-700 mt-1">
-                  Selesaikan pembayaran terlebih dahulu untuk menghasilkan tautan unik dan QR untuk setiap tamu.
-                </p>
+            <div className="mt-5 bg-[#FEF3C7] border border-[#F59E0B] rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 shadow-sm">
+              <div className="flex items-start gap-3 flex-1">
+                <span className="material-symbols-outlined text-[#92400E] flex-shrink-0">warning</span>
+                <div>
+                  <p className="font-body-md text-sm text-[#92400E] font-bold">Pembayaran Belum Selesai</p>
+                  <p className="font-body-sm text-[13px] text-[#92400E]/80 mt-1">
+                    Selesaikan pembayaran untuk menghasilkan tautan unik dan QR setiap tamu.
+                  </p>
+                </div>
               </div>
+              <button onClick={() => router.push(`/customize?edit=true&profile_id=${id}`)} className="shrink-0 inline-flex items-center justify-center gap-2 bg-[#D97706] text-white rounded-full px-6 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#92400E] active:scale-95 transition-all whitespace-nowrap">
+                <span className="material-symbols-outlined text-[16px]">payments</span>
+                Bayar Sekarang
+              </button>
             </div>
           )}
 
