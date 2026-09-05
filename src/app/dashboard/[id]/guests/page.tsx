@@ -277,7 +277,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
     return (
       <>
         <PageTheme mode="light" />
-        <header className="w-full top-0 sticky z-40 bg-surface/95 backdrop-blur-md border-b border-outline-variant/30">
+        <header className="w-full top-0 sticky z-40 bg-[#FAF7F2]/90 backdrop-blur-md border-b border-[#E2D9CF]">
           <div className="flex justify-between items-center px-6 py-4 w-full">
             <button
               onClick={() => setView("list")}
@@ -290,37 +290,40 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
           </div>
         </header>
 
-        <main className="flex flex-col h-screen px-5 md:px-6 pt-6 md:pt-8 pb-28 md:pb-0 max-w-lg mx-auto">
+        <main className="flex flex-col h-screen px-5 md:px-6 pt-6 md:pt-8 pb-28 md:pb-0 max-w-lg mx-auto bg-[#FAF7F2]">
           <section className="mb-6 md:mb-8 shrink-0">
-            <h1 className="font-headline-md text-xl md:text-2xl text-primary mb-2">Verifikasi Unggahan</h1>
+            <h1 className="font-headline-md text-xl md:text-2xl text-[#2C2A29] mb-2">Verifikasi Unggahan</h1>
             <p className="font-body-md text-sm md:text-body-md text-on-surface-variant">Pastikan daftar tamu Anda akurat sebelum diintegrasikan ke narasi acara.</p>
           </section>
 
-          <section className="mb-6 shrink-0 grid grid-cols-3 gap-px bg-outline-variant/50 border border-outline-variant/50 overflow-hidden">
-            <div className="bg-surface p-4 flex flex-col items-center text-center">
-              <span className="text-[24px] font-headline-md text-primary mb-1">{verifySummary.total}</span>
-              <span className="font-label-md text-label-md text-on-surface-variant uppercase">Baris</span>
+          <section className="mb-6 shrink-0 grid grid-cols-3 gap-3">
+            <div className="bg-white border border-[#E2D9CF] rounded-xl p-4 flex flex-col items-center text-center shadow-sm">
+              <span className="text-[28px] font-bold text-[#2C2A29] leading-none mb-1">{verifySummary.total}</span>
+              <span className="font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant font-semibold">Baris</span>
+              <span className="mt-2 w-full h-1 bg-[#E2D9CF] rounded-full" />
             </div>
-            <div className="bg-surface p-4 flex flex-col items-center text-center border-x border-outline-variant/20">
-              <span className="text-[24px] font-headline-md text-secondary mb-1">{verifySummary.valid}</span>
-              <span className="font-label-md text-label-md text-on-surface-variant uppercase">Valid</span>
+            <div className="bg-[#D1FAE5] border border-[#A7F3D0] rounded-xl p-4 flex flex-col items-center text-center shadow-sm">
+              <span className="text-[28px] font-bold text-[#065F46] leading-none mb-1">{verifySummary.valid}</span>
+              <span className="font-label-md text-[11px] uppercase tracking-widest text-[#065F46] font-bold">Valid</span>
+              <span className="mt-2 w-full h-1 bg-[#10B981] rounded-full" />
             </div>
-            <div className="bg-surface p-4 flex flex-col items-center text-center">
-              <span className="text-[24px] font-headline-md text-error mb-1">{verifySummary.duplicate}</span>
-              <span className="font-label-md text-label-md text-on-surface-variant uppercase">Duplikat</span>
+            <div className="bg-[#FEE2E2] border border-[#FECACA] rounded-xl p-4 flex flex-col items-center text-center shadow-sm">
+              <span className="text-[28px] font-bold text-[#991B1B] leading-none mb-1">{verifySummary.duplicate}</span>
+              <span className="font-label-md text-[11px] uppercase tracking-widest text-[#991B1B] font-bold">Duplikat</span>
+              <span className="mt-2 w-full h-1 bg-[#DC2626] rounded-full" />
             </div>
           </section>
 
           <div className="shrink-0 flex flex-col gap-4 mb-4">
             <div className="flex justify-between items-end">
-              <h2 className="font-headline-md text-[20px] text-primary">Daftar Tamu Baru</h2>
-              <span className="font-label-md text-label-md text-on-surface-variant border-b border-outline-variant/50 pb-1">{verifySummary.valid} Tamu</span>
+              <h2 className="font-headline-md text-[18px] md:text-[20px] text-[#2C2A29]">Daftar Tamu Baru</h2>
+              <span className="inline-flex items-center gap-1.5 bg-[#B34E3F] text-white px-3 py-1 rounded-full font-label-md text-[11px] font-bold uppercase tracking-widest">{verifySummary.valid} Tamu</span>
             </div>
-            <div className="relative group">
-              <span className="absolute left-0 bottom-3 material-symbols-outlined text-on-surface-variant">search</span>
+            <div className="relative flex items-center">
+              <span className="material-symbols-outlined absolute left-4 text-on-surface-variant/60 text-[20px]">search</span>
               <input
-                className="w-full h-12 md:h-auto bg-transparent border-0 border-b border-primary/20 py-3 pl-8 focus:ring-0 focus:border-primary transition-colors font-label-md text-label-md tracking-widest placeholder:text-outline/60 uppercase"
-                placeholder="CARI NAMA TAMU..."
+                className="w-full bg-white border border-[#E2D9CF] rounded-full py-3 pl-12 pr-4 font-body-md text-sm text-[#2C2A29] placeholder:text-on-surface-variant/50 focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors"
+                placeholder="Cari nama tamu..."
                 value={verifySearch}
                 onChange={(e) => setVerifySearch(e.target.value)}
               />
@@ -328,38 +331,40 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
           </div>
 
           <div className="flex-1 overflow-y-auto min-h-0 pb-40">
-            <section className="border-t border-outline-variant/30">
+            <section className="bg-white border border-[#E2D9CF] rounded-xl overflow-hidden shadow-sm">
               <div className="overflow-x-auto no-scrollbar">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-outline-variant/30 sticky top-0 z-10 bg-surface">
-                      <th className="py-3 md:py-4 font-label-md text-[11px] md:text-label-md text-on-surface-variant uppercase tracking-widest whitespace-nowrap">Nama</th>
-                      <th className="py-3 md:py-4 font-label-md text-[11px] md:text-label-md text-on-surface-variant uppercase tracking-widest whitespace-nowrap">No. WA</th>
-                      <th className="py-3 md:py-4 font-label-md text-[11px] md:text-label-md text-on-surface-variant uppercase tracking-widest text-right whitespace-nowrap">Meja</th>
+                    <tr className="bg-[#FAF7F2] border-b border-[#E2D9CF] sticky top-0 z-10">
+                      <th className="py-3.5 px-4 font-label-md text-[11px] text-[#2C2A29] uppercase tracking-widest whitespace-nowrap">Nama</th>
+                      <th className="py-3.5 px-4 font-label-md text-[11px] text-[#2C2A29] uppercase tracking-widest whitespace-nowrap">No. WA</th>
+                      <th className="py-3.5 px-4 font-label-md text-[11px] text-[#2C2A29] uppercase tracking-widest text-right whitespace-nowrap">Meja</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-outline-variant/10">
+                  <tbody className="divide-y divide-[#E2D9CF]/50">
                     {filteredVerify.map((row, i) => (
-                      <tr key={i} className="group hover:bg-surface-container-low transition-colors duration-200">
-                        <td className="py-3 md:py-5 pr-2 md:pr-4 align-top">
-                          <p className="font-headline-md text-[16px] md:text-[18px] text-primary leading-none flex items-center gap-2 break-words">
-                            {row.name}
+                      <tr key={i} className={`group transition-colors ${i % 2 === 0 ? "bg-white" : "bg-[#FAF7F2]/50"} hover:bg-[#F5EFE6]`}>
+                        <td className="py-3.5 px-4 align-top">
+                          <p className="font-body-md font-bold text-[14px] md:text-[15px] text-[#2C2A29] leading-tight capitalize flex flex-wrap items-center gap-1.5 break-words">
+                            <span>{row.name}</span>
                             {row.is_vip && (
-                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#f2ca50]/20 border border-[#f2ca50]/40 text-[#574500] font-label-md text-[10px] uppercase tracking-wider rounded-full shrink-0">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#C5A059]/15 border border-[#C5A059]/30 text-[#7A5A2E] font-label-md text-[9px] uppercase tracking-wider rounded-full shrink-0">
                                 <span className="material-symbols-outlined text-[10px]">star</span>
                                 VIP
                               </span>
                             )}
                           </p>
-                          {row.category && (
-                            <span className="font-label-md text-[11px] text-secondary-fixed-dim bg-secondary/5 px-1 rounded uppercase mt-1 inline-block">{row.category}</span>
-                          )}
-                          {row.duplicate && (
-                            <span className="font-label-md text-[11px] text-error bg-error-container/20 px-1 rounded uppercase mt-1 inline-block ml-1">Duplikat</span>
-                          )}
+                          <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                            {row.category && (
+                              <span className="inline-flex items-center px-2 py-0.5 bg-[#F5EFE6] border border-[#E2D9CF] text-[#2C2A29] font-label-md text-[10px] uppercase tracking-wider rounded-full">{row.category}</span>
+                            )}
+                            {row.duplicate && (
+                              <span className="inline-flex items-center px-2 py-0.5 bg-[#FEE2E2] border border-[#FECACA] text-[#991B1B] font-label-md text-[10px] font-bold uppercase tracking-wider rounded-full">Duplikat</span>
+                            )}
+                          </div>
                         </td>
-                        <td className="py-3 md:py-5 font-body-md text-on-surface-variant text-[13px] md:text-[14px] break-all">{row.phone_number}</td>
-                        <td className="py-3 md:py-5 font-headline-md text-[16px] md:text-[18px] text-primary text-right italic whitespace-nowrap">{row.table_number || "—"}</td>
+                        <td className="py-3.5 px-4 font-body-md font-medium text-[#2C2A29] text-[13px] md:text-[14px] break-all">{row.phone_number}</td>
+                        <td className="py-3.5 px-4 text-right"><span className="inline-flex items-center px-2.5 py-1 bg-[#F3F4F6] border border-[#E2D9CF] text-[#2C2A29] font-label-md text-[10px] font-semibold tracking-wider rounded-full">{row.table_number ? `MEJA ${row.table_number.replace(/^meja\s+/i, "")}` : "—"}</span></td>
                       </tr>
                     ))}
                   </tbody>
@@ -369,14 +374,23 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
           </div>
         </main>
 
-        <footer className="fixed bottom-0 left-0 right-0 z-50 lg:left-[var(--dash-sidebar-w)] bg-surface border-t border-outline-variant/20 shadow-2xl shadow-primary/10">
-          <div className="max-w-lg mx-auto p-6 flex flex-col gap-4">
+        <footer className="fixed bottom-0 left-0 right-0 z-50 lg:left-[var(--dash-sidebar-w)] bg-white border-t border-[#E2D9CF] shadow-[0_-4px_24px_rgba(0,0,0,0.05)]">
+          <div className="max-w-lg mx-auto p-4 flex flex-col gap-3">
+            <div className="flex items-center justify-between text-[11px] font-label-md uppercase tracking-widest">
+              <span className="text-[#2C2A29] font-bold">{verifySummary.valid} Siap</span>
+              <span className={verifySummary.duplicate > 0 ? "text-[#991B1B] font-bold" : "text-on-surface-variant"}>{verifySummary.duplicate} Duplikat</span>
+              <span className="text-on-surface-variant/60">{verifySummary.total} Baris</span>
+            </div>
+            {verifySummary.duplicate > 0 && (
+              <div className="flex gap-2">
+                <button onClick={() => { setVerifyRows((prev) => prev.filter((r) => !r.duplicate)); setVerifySummary((s) => s ? { total: s.valid, valid: s.valid, duplicate: 0 } : s) }} className="flex-1 py-2.5 border border-[#DC2626] text-[#DC2626] rounded-full font-label-md text-[11px] uppercase tracking-widest hover:bg-[#FEE2E2] transition-colors">Hapus Duplikat</button>
+                <button onClick={() => setVerifySummary((s) => s ? { ...s, duplicate: 0 } : s)} className="flex-1 py-2.5 border border-[#E2D9CF] text-[#2C2A29] rounded-full font-label-md text-[11px] uppercase tracking-widest hover:bg-[#F5EFE6] transition-colors">Abaikan Duplikat</button>
+              </div>
+            )}
             <button
               onClick={handleVerifyImport}
               disabled={importing || verifySummary.valid === 0}
-              className={`w-full bg-primary text-white py-5 px-6 min-h-[44px] font-label-md text-label-md uppercase tracking-[0.2em] transition-all hover:bg-secondary active:scale-[0.98] duration-300 flex items-center justify-center gap-3 ${
-                importing ? "opacity-50" : ""
-              }`}
+              className={`w-full bg-[#B34E3F] text-white py-4 px-6 rounded-full font-label-md text-[11px] uppercase tracking-[0.2em] hover:bg-[#9E3B2D] active:scale-[0.98] transition-all flex items-center justify-center gap-2 ${importing ? "opacity-50" : ""}`}
             >
               {importing ? "Mengimpor..." : `Lanjut (${verifySummary.valid} Tamu)`}
               <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
