@@ -55,6 +55,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   const [verifyRows, setVerifyRows] = useState<VerifyRow[]>([])
   const [verifySummary, setVerifySummary] = useState<VerifySummary | null>(null)
   const [verifySearch, setVerifySearch] = useState("")
+  const [showDuplicateOnly, setShowDuplicateOnly] = useState(false)
   const [importing, setImporting] = useState(false)
   const [waDigits, setWaDigits] = useState("")
   const [duplicateError, setDuplicateError] = useState("")
@@ -270,8 +271,8 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   if (view === "verify" && verifySummary) {
     const filteredVerify = verifyRows.filter(
       (r) =>
-        !verifySearch ||
-        r.name.toLowerCase().includes(verifySearch.toLowerCase())
+        (!verifySearch || r.name.toLowerCase().includes(verifySearch.toLowerCase())) &&
+        (!showDuplicateOnly || r.duplicate)
     )
 
     return (
@@ -383,8 +384,8 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             </div>
             {verifySummary.duplicate > 0 && (
               <div className="flex gap-2">
-                <button onClick={() => { setVerifyRows((prev) => prev.filter((r) => !r.duplicate)); setVerifySummary((s) => s ? { total: s.valid, valid: s.valid, duplicate: 0 } : s) }} className="flex-1 py-2.5 border border-[#DC2626] text-[#DC2626] rounded-full font-label-md text-[11px] uppercase tracking-widest hover:bg-[#FEE2E2] transition-colors">Hapus Duplikat</button>
-                <button onClick={() => setVerifySummary((s) => s ? { ...s, duplicate: 0 } : s)} className="flex-1 py-2.5 border border-[#E2D9CF] text-[#2C2A29] rounded-full font-label-md text-[11px] uppercase tracking-widest hover:bg-[#F5EFE6] transition-colors">Abaikan Duplikat</button>
+                <button onClick={() => { setVerifyRows((prev) => prev.filter((r) => !r.duplicate)); setVerifySummary((s) => s ? { total: s.valid, valid: s.valid, duplicate: 0 } : s); setShowDuplicateOnly(false) }} className="flex-1 py-2.5 border border-[#DC2626] text-[#DC2626] rounded-full font-label-md text-[11px] uppercase tracking-widest hover:bg-[#FEE2E2] transition-colors">Hapus Duplikat</button>
+                <button onClick={() => setShowDuplicateOnly((v) => !v)} className={`flex-1 py-2.5 border rounded-full font-label-md text-[11px] uppercase tracking-widest transition-colors ${showDuplicateOnly ? "bg-[#B34E3F] text-white border-[#B34E3F]" : "border-[#E2D9CF] text-[#2C2A29] hover:bg-[#F5EFE6]"}`}>{showDuplicateOnly ? "Lihat Semua" : "Lihat Duplikat"}</button>
               </div>
             )}
             <button
