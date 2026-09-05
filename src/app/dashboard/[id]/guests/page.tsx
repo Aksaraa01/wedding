@@ -62,6 +62,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false)
   const [waBlastEnabled, setWaBlastEnabled] = useState(false)
   const [chartExpanded, setChartExpanded] = useState(false)
+  const [importModalOpen, setImportModalOpen] = useState(false)
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 768px)")
@@ -216,7 +217,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
     e.preventDefault()
     setDragOver(false)
     const file = e.dataTransfer.files[0]
-    if (file) handleFileUpload(file)
+    if (file) { setImportModalOpen(false); handleFileUpload(file) }
   }
 
   const handleDownloadTemplate = async () => {
@@ -389,17 +390,31 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   return (
     <>
       <PageTheme mode="light" />
-      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-background/90 backdrop-blur-md px-edge-margin-mobile md:px-edge-margin-desktop py-3 md:py-6 flex items-center justify-between">
+      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-[#FAF7F2]/90 backdrop-blur-md border-b border-[#E2D9CF] px-edge-margin-mobile md:px-edge-margin-desktop py-3 md:py-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <button onClick={() => router.push(`/dashboard/${weddingProfileId}`)} aria-label="Kembali ke dasbor" className="flex items-center justify-center w-11 h-11 -ml-2 rounded-full text-on-surface-variant hover:text-primary active:bg-surface-container transition-colors">
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <span className="font-label-md text-label-md text-primary uppercase tracking-widest truncate">Manajemen Daftar Tamu</span>
+          <span className="font-label-md text-label-md text-[#2C2A29] uppercase tracking-widest truncate">Manajemen Daftar Tamu</span>
         </div>
-        <ProfileMenu />
+        <div className="flex items-center gap-2 md:gap-3">
+          <button onClick={() => setImportModalOpen(true)} className="hidden md:inline-flex items-center gap-2 bg-[#F5EFE6] text-[#2C2A29] border border-[#E2D9CF] rounded-full px-5 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#E2D9CF] transition-colors">
+            <span className="material-symbols-outlined text-[16px]">upload_file</span>
+            Import Excel
+          </button>
+          <button onClick={() => setImportModalOpen(true)} className="md:hidden w-10 h-10 flex items-center justify-center bg-[#F5EFE6] text-[#2C2A29] border border-[#E2D9CF] rounded-full hover:bg-[#E2D9CF] transition-colors" aria-label="Import Excel">
+            <span className="material-symbols-outlined text-[18px]">upload_file</span>
+          </button>
+          <button onClick={openAdd} className="inline-flex items-center gap-2 bg-[#B34E3F] text-white rounded-full px-5 md:px-6 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all">
+            <span className="material-symbols-outlined text-[16px]">person_add</span>
+            <span className="hidden sm:inline">Tambah Tamu</span>
+            <span className="sm:hidden">Tambah</span>
+          </button>
+          <ProfileMenu />
+        </div>
       </header>
 
-      <main className="h-screen pt-16 md:pt-20 pb-28 md:pb-0 px-edge-margin-mobile md:px-edge-margin-desktop max-w-2xl md:max-w-6xl mx-auto flex flex-col">
+      <main className="h-screen pt-16 md:pt-20 pb-28 md:pb-0 px-edge-margin-mobile md:px-edge-margin-desktop max-w-2xl md:max-w-6xl mx-auto flex flex-col bg-[#FAF7F2]">
         <section className="mb-5 md:mb-6 shrink-0">
           <h1 className="font-headline-md text-xl md:text-2xl text-primary mb-1">Manajemen Daftar Tamu</h1>
           <p className="font-body-md text-sm md:text-body-md text-on-surface-variant leading-relaxed">
@@ -411,14 +426,14 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
         <aside className="md:overflow-y-auto md:min-h-0 md:pr-1 mb-6 md:mb-0">
         {chartData.length > 0 && (
           <section className="md:mb-0 shrink-0">
-            <div className="border border-outline-variant bg-surface-container-low rounded-lg overflow-hidden">
+            <div className="border border-[#E2D9CF] bg-white rounded-xl overflow-hidden">
               <button
                 onClick={() => setChartExpanded(v => !v)}
-                className="w-full flex items-center justify-between p-5 hover:bg-surface-container transition-colors text-left"
+                className="w-full flex items-center justify-between p-5 hover:bg-[#F5EFE6] transition-colors text-left"
               >
                 <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-secondary text-[18px]">bar_chart</span>
-                  <h2 className="font-headline-md text-[16px] text-primary">Sebaran Tamu per Meja</h2>
+                  <span className="material-symbols-outlined text-[#B34E3F] text-[18px]">bar_chart</span>
+                  <h2 className="font-headline-md text-[16px] text-[#2C2A29]">Sebaran Tamu per Meja</h2>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">
@@ -430,37 +445,18 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                 </div>
               </button>
               {chartExpanded && (
-                <div className="px-5 pb-5">
-                  <div className="flex flex-col gap-3">
-                    {chartData.map((row) => (
-                      <div key={row.table} className="flex items-center gap-3">
-                        <span className="w-16 shrink-0 font-label-md text-[10px] uppercase tracking-wider text-on-surface-variant truncate">
-                          {row.table}
-                        </span>
-                        <div className="flex-1 h-4 bg-surface-container-highest rounded-sm overflow-hidden flex">
-                          {row.cats.map(([cat, count]) => (
-                            <div
-                              key={cat}
-                              style={{ width: `${(count / maxTableTotal) * 100}%`, backgroundColor: categoryColor(cat) }}
-                              title={`${cat}: ${count}`}
-                              className="h-full min-w-[4px]"
-                            />
-                          ))}
-                        </div>
-                        <span className="w-7 shrink-0 text-right font-body-md text-[12px] font-semibold text-primary">
-                          {row.total}
-                        </span>
+                <div className="px-5 pb-5 space-y-3">
+                  {chartData.map((row) => (
+                    <div key={row.table} className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="font-label-md text-[11px] uppercase tracking-wider text-[#2C2A29] truncate">{row.table}</span>
+                        <span className="font-body-md text-[11px] font-semibold text-[#2C2A29]">{row.total} tamu</span>
                       </div>
-                    ))}
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 border-t border-outline-variant/40 pt-3">
-                    {chartCategories.map((cat) => (
-                      <span key={cat} className="flex items-center gap-1.5 font-label-md text-[10px] uppercase tracking-wider text-on-surface-variant">
-                        <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: categoryColor(cat) }} />
-                        {cat}
-                      </span>
-                    ))}
-                  </div>
+                      <div className="w-full h-2 bg-[#F3F4F6] rounded-full overflow-hidden border border-[#E2D9CF]/50">
+                        <div className="h-full bg-[#B34E3F] rounded-full transition-all" style={{ width: `${(row.total / maxTableTotal) * 100}%` }} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -469,50 +465,15 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
         </aside>
 
         <div className="flex flex-col min-h-0">
-        <section className="mb-6 shrink-0">
-          {uploadError && (
-            <div className="mb-3 p-3 bg-error-container border border-error/30 flex items-center gap-3">
-              <span className="material-symbols-outlined text-error text-sm">error</span>
-              <p className="font-body-md text-body-md text-on-error-container flex-1">{uploadError}</p>
-              <button onClick={() => setUploadError("")} className="text-on-error-container/60 hover:text-on-error-container cursor-pointer">
-                <span className="material-symbols-outlined text-sm">close</span>
-              </button>
-            </div>
-          )}
-          <div
-            className={`border-2 border-dashed p-4 flex flex-col items-center text-center transition-all duration-300 ${
-              dragOver ? "drag-active border-secondary bg-surface-container-low" : "border-outline-variant bg-surface-container-low"
-            }`}
-            onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
-            onDragLeave={() => setDragOver(false)}
-            onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <span className="material-symbols-outlined text-xl mb-1.5 text-outline" style={{ fontVariationSettings: "'wght' 200" }}>description</span>
-            <p className="font-body-md text-body-sm text-on-surface mb-2.5 px-2">
-              Seret berkas Excel di sini atau{" "}
-              <span className="font-semibold underline cursor-pointer">Ketuk untuk Unggah</span>
-            </p>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".xlsx"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (file) handleFileUpload(file)
-                e.target.value = ""
-              }}
-            />
-            <button
-              onClick={(e) => { e.stopPropagation(); handleDownloadTemplate() }}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 min-h-[44px] md:min-h-0 border border-primary text-primary font-label-md text-label-sm uppercase tracking-widest hover:bg-primary hover:text-white transition-all duration-300"
-            >
-              <span className="material-symbols-outlined text-[14px]">download</span>
-              Unduh Templat
+        {uploadError && (
+          <div className="mb-4 p-3 bg-error-container border border-error/30 flex items-center gap-3 rounded-lg">
+            <span className="material-symbols-outlined text-error text-sm">error</span>
+            <p className="font-body-md text-body-md text-on-error-container flex-1">{uploadError}</p>
+            <button onClick={() => setUploadError("")} className="text-on-error-container/60 hover:text-on-error-container cursor-pointer">
+              <span className="material-symbols-outlined text-sm">close</span>
             </button>
           </div>
-        </section>
+        )}
 
         <section className="mb-3 flex justify-between items-end">
           <div>
@@ -522,7 +483,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
           </div>
         </section>
 
-        <div className="mb-4 px-0">
+        <div className="bg-white border border-[#E2D9CF] rounded-xl overflow-hidden p-4 md:p-5 flex flex-col gap-4">
           <div className="relative flex items-center">
             <span className="material-symbols-outlined absolute left-4 text-on-surface-variant opacity-50 text-[20px]">search</span>
             <input
@@ -530,12 +491,10 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
               placeholder="Cari Nama, No. HP atau Nomor Meja"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-12 md:h-10 bg-surface-container-low border border-[#eae3d5] py-3 pl-12 pr-4 font-body-md text-[14px] md:text-body-md text-on-surface placeholder:text-[13px] placeholder:text-on-surface-variant/50 focus:outline-none focus:border-secondary transition-colors"
+              className="w-full h-11 bg-white border border-[#E2D9CF] rounded-full py-3 pl-12 pr-4 font-body-md text-[14px] md:text-body-md text-[#2C2A29] placeholder:text-[13px] placeholder:text-on-surface-variant/50 focus:outline-none focus:border-[#B34E3F] transition-colors"
             />
           </div>
-        </div>
-
-        <div className="flex-1 overflow-y-auto min-h-0 pb-40 scroll-area">
+          <div className="flex-1 overflow-y-auto min-h-0 scroll-area -mx-4 md:-mx-5 px-4 md:px-5">
         {loading ? (
           <div className="text-center py-20">
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
@@ -548,24 +507,24 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             </p>
           </div>
         ) : (
-          <section className="border-t border-outline-variant">
-            <div className="hidden md:grid md:grid-cols-12 py-4 px-2 bg-surface-container-lowest sticky top-0 z-10">
-              <div className="col-span-5 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Nama</div>
-              <div className="col-span-4 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Kategori</div>
-              <div className="col-span-3 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant text-right">Meja</div>
+            <section className="border-t border-[#E2D9CF] bg-white">
+            <div className="hidden md:grid md:grid-cols-12 py-4 px-4 bg-[#FAF7F2] sticky top-0 z-10 border-b border-[#E2D9CF]">
+              <div className="col-span-5 font-label-md text-[10px] uppercase tracking-widest text-[#2C2A29]">Nama</div>
+              <div className="col-span-4 font-label-md text-[10px] uppercase tracking-widest text-[#2C2A29]">Kategori</div>
+              <div className="col-span-3 font-label-md text-[10px] uppercase tracking-widest text-[#2C2A29] text-right">Meja</div>
             </div>
 
             {filtered.map((guest) => {
               const nameBadges = (
                 <span className="flex flex-wrap items-center gap-1.5 ml-1">
                   {guest.is_vip && (
-                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#f2ca50]/20 border border-[#f2ca50]/40 text-[#574500] font-label-md text-[10px] uppercase tracking-wider rounded-full">
+                    <span className="inline-flex items-center gap-0.5 px-2 py-0.5 bg-white border border-[#C5A059] text-[#8B6F2A] font-label-md text-[10px] uppercase tracking-wider rounded-full">
                       <span className="material-symbols-outlined text-[11px]">star</span>
                       VIP
                     </span>
                   )}
                   {guest.added_manually && (
-                    <span className="inline-flex items-center px-1.5 py-0.5 bg-amber-100 border border-amber-300 text-amber-700 font-label-md text-[10px] uppercase tracking-wider rounded-full">
+                    <span className="inline-flex items-center px-2 py-0.5 bg-[#FEF3C7] border border-[#D97706] text-[#92400E] font-label-md text-[10px] uppercase tracking-wider rounded-full">
                       Manual
                     </span>
                   )}
@@ -583,7 +542,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                 </>
               )
               return (
-                <div key={guest.id} className="py-3.5 md:py-5 px-1 md:px-2 hairline-divider group">
+                <div key={guest.id} className="py-3.5 md:py-5 px-4 border-b border-[#E2D9CF]/40 hover:bg-[#FAF7F2] transition-colors group">
                   {/* Mobile stacked layout */}
                   <div className="md:hidden flex flex-col gap-2">
                     <div className="flex items-start justify-between gap-3">
@@ -606,15 +565,15 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 pl-1">
-                      <span className="inline-flex items-center px-2.5 py-1 bg-surface-container border border-outline-variant text-on-surface font-label-md text-[12px] rounded-md">
+                      <span className="inline-flex items-center px-2.5 py-1 bg-[#F3F4F6] border border-[#E2D9CF] text-[#2C2A29] font-label-md text-[11px] uppercase tracking-wider rounded-full">
                         {guest.category || "Umum"}
                       </span>
                       {guest.table_number ? (
-                        <span className="inline-flex items-center px-2.5 py-1 bg-surface-container border border-outline-variant text-on-surface font-label-md text-[12px] rounded-md">
+                        <span className="inline-flex items-center px-2.5 py-1 bg-[#F3F4F6] border border-[#E2D9CF] text-[#2C2A29] font-label-md text-[11px] rounded-full">
                           Meja {guest.table_number}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2.5 py-1 bg-surface-container border border-outline-variant/50 text-on-surface-variant/60 font-label-md text-[12px] rounded-md">
+                        <span className="inline-flex items-center px-2.5 py-1 bg-white border border-[#E2D9CF]/50 text-on-surface-variant/60 font-label-md text-[11px] rounded-full">
                           Meja —
                         </span>
                       )}
@@ -625,14 +584,14 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                   <div className="hidden md:grid md:grid-cols-12 md:items-center">
                     <div className="col-span-5 pr-3">{nameBlock}</div>
                     <div className="col-span-4">
-                      <span className="text-[11px] uppercase tracking-widest text-on-surface-variant opacity-80 inline-flex items-center px-1">
+                      <span className="inline-flex items-center px-2.5 py-1 bg-[#F3F4F6] border border-[#E2D9CF] text-[#2C2A29] font-label-md text-[11px] rounded-full">
                         {guest.category || "—"}
                       </span>
                     </div>
                     <div className="col-span-3 flex items-center justify-end gap-1">
                       {guest.table_number ? (
-                        <span className="font-label-md text-[11px] px-2 py-1 bg-surface-container border border-outline-variant text-on-surface inline-flex items-center">
-                          {guest.table_number}
+                        <span className="inline-flex items-center px-2.5 py-1 bg-[#F3F4F6] border border-[#E2D9CF] text-[#2C2A29] font-label-md text-[11px] rounded-full">
+                          Meja {guest.table_number}
                         </span>
                       ) : (
                         <span className="text-[10px] text-on-surface-variant opacity-50">—</span>
@@ -658,25 +617,47 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
         )}
         </div>
         </div>
+          {guests.length > 0 && (
+            <div className="mt-6 flex justify-center md:justify-end">
+              <button onClick={() => setResetConfirmOpen(true)} className="text-[11px] font-label-md uppercase tracking-widest text-[#DC2626] hover:text-[#B91C1C] underline underline-offset-4 transition-colors">
+                Hapus Semua Data
+              </button>
+            </div>
+          )}
+        </div>
         </div>
       </main>
 
-      <footer className="fixed bottom-0 left-0 right-0 z-50 lg:left-[var(--dash-sidebar-w)] bg-background border-t border-outline-variant px-edge-margin-mobile py-4 md:py-6 flex items-center gap-3 md:justify-end shadow-[0_-4px_24px_rgba(0,0,0,0.03)]">
-        <button
-          onClick={openAdd}
-          className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-primary text-white rounded-full px-4 md:px-8 py-3.5 md:py-4 min-h-[48px] font-label-md text-label-md uppercase tracking-widest hover:bg-secondary transition-colors active:scale-[0.98]"
-        >
-          <span className="material-symbols-outlined text-[20px]">person_add</span>
-          Tambah Tamu
-        </button>
-        <button
-          onClick={() => setResetConfirmOpen(true)}
-          className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-transparent border border-error text-error rounded-full px-4 md:px-8 py-3.5 md:py-4 min-h-[48px] font-label-md text-label-md uppercase tracking-widest hover:bg-error-container transition-colors"
-        >
-          <span className="material-symbols-outlined text-[20px]">delete_sweep</span>
-          Hapus Semua
-        </button>
-      </footer>
+      <input ref={fileInputRef} type="file" accept=".xlsx" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) { setImportModalOpen(false); handleFileUpload(file) } e.target.value = "" }} />
+
+      {importModalOpen && (
+        <div className="fixed inset-0 z-[60]">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setImportModalOpen(false)} />
+          <div className="absolute inset-0 flex items-center justify-center p-6">
+            <div className="bg-white w-full max-w-md rounded-2xl p-8 shadow-2xl border border-[#E2D9CF]">
+              <h2 className="font-headline-md text-headline-md text-[#2C2A29] mb-2">Import Daftar Tamu</h2>
+              <p className="font-body-md text-sm text-on-surface-variant mb-6">Unggah file Excel (.xlsx) sesuai template. Seret berkas ke area di bawah atau ketuk untuk memilih.</p>
+              <div
+                className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center text-center transition-all cursor-pointer ${dragOver ? "border-[#B34E3F] bg-[#F5EFE6]" : "border-[#E2D9CF] bg-[#FAF7F2]"}`}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <span className="material-symbols-outlined text-[36px] text-[#B34E3F] mb-3">upload_file</span>
+                <p className="font-body-md text-sm text-[#2C2A29] mb-1">Seret berkas Excel di sini</p>
+                <p className="text-[11px] text-on-surface-variant mb-4">atau <span className="font-semibold underline">Ketuk untuk Unggah</span></p>
+                <p className="text-[10px] text-on-surface-variant/60">Hanya .xlsx</p>
+              </div>
+              <button onClick={handleDownloadTemplate} className="mt-4 w-full bg-white border border-[#B34E3F] text-[#B34E3F] rounded-full py-3 font-label-md text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#F5EFE6] transition-colors">
+                <span className="material-symbols-outlined text-[16px]">download</span>
+                Unduh Templat
+              </button>
+              <button onClick={() => setImportModalOpen(false)} className="mt-3 w-full text-center text-[11px] font-label-md uppercase tracking-widest text-on-surface-variant hover:text-[#2C2A29] py-2">Tutup</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {modalOpen && (
         <div className="fixed inset-0 z-[60]">
