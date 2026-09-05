@@ -289,26 +289,27 @@ function DashboardInner({ id }: { id: string }) {
     <>
       <PageTheme mode="light" />
       <ProductJourney profileId={id} />
-      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-white/80 backdrop-blur-md border-b border-outline-variant h-20 flex items-center justify-end px-6">
-        <div className="flex items-center gap-4">
+      <div className="fixed inset-0 -z-10" style={{ backgroundColor: "#ded1c1", backgroundImage: "radial-gradient(ellipse at 70% 30%, rgba(255,255,255,0.6) 0%, rgba(240,228,215,0.4) 30%, transparent 65%), linear-gradient(115deg, #dfd2c2 0%, #ecdcc9 22%, #baa794 45%, #f2e4d3 62%, #caa890 82%, #dfd3c4 100%)", backgroundAttachment: "fixed" }} />
+      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-transparent h-16 px-10 flex items-center justify-end gap-2 pt-2">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => startTour(id)}
-            className="relative group w-11 h-11 flex items-center justify-center text-violet-600 hover:opacity-80 transition-opacity"
+            className="relative group w-9 h-9 rounded-lg bg-[#ece2d4]/80 hover:bg-[#dfd3c3] flex items-center justify-center text-slate-700 transition shadow-sm"
             aria-label="Jalankan Tur"
             data-tour="replay"
           >
-            <span className="material-symbols-outlined text-[22px]">school</span>
+            <span className="material-symbols-outlined text-[18px]">school</span>
             <span className="pointer-events-none absolute top-full right-0 mt-2 bg-white text-[#2C2A29] border border-[#B34E3F] px-3 py-2 rounded-lg max-w-[160px] whitespace-normal text-center leading-tight text-[11px] opacity-0 group-hover:opacity-100 transition-opacity z-50 shadow-lg">
               Jalankan<br/>Tur
             </span>
           </button>
           <button
             onClick={() => router.push(`/dashboard/${id}/instruksi`)}
-            className="relative group w-11 h-11 flex items-center justify-center text-secondary hover:opacity-80 transition-opacity"
+            className="relative group w-9 h-9 rounded-lg bg-[#ece2d4]/80 hover:bg-[#dfd3c3] flex items-center justify-center text-slate-700 transition shadow-sm"
             aria-label="Cara Memulai"
             data-tour="cara-memulai"
           >
-            <span className="material-symbols-outlined text-[22px]">menu_book</span>
+            <span className="material-symbols-outlined text-[18px]">menu_book</span>
             <span className="pointer-events-none absolute top-full right-0 mt-2 bg-white text-[#2C2A29] border border-[#B34E3F] px-3 py-2 rounded-lg max-w-[160px] whitespace-normal text-center leading-tight text-[11px] opacity-0 group-hover:opacity-100 transition-opacity z-50 shadow-lg">
               Cara<br/>Memulai
             </span>
@@ -316,11 +317,11 @@ function DashboardInner({ id }: { id: string }) {
           {profile.package_type === "cetak_undangan_bonus" ? (
             <button
               onClick={() => router.push(`/dashboard/${id}/instruksi`)}
-              className="relative group w-11 h-11 flex items-center justify-center text-on-surface-variant hover:opacity-80 transition-opacity"
+              className="relative group w-9 h-9 rounded-lg bg-[#ece2d4]/80 hover:bg-[#dfd3c3] flex items-center justify-center text-slate-700 transition shadow-sm"
               title="Paket BONUS — hubungi konsultan untuk ubah paket"
               aria-label="Paket BONUS"
             >
-              <span className="material-symbols-outlined text-[22px]">lock</span>
+              <span className="material-symbols-outlined text-[18px]">lock</span>
               <span className="pointer-events-none absolute top-full right-0 mt-2 bg-white text-[#2C2A29] border border-[#B34E3F] px-3 py-2 rounded-lg max-w-[180px] whitespace-normal text-center leading-tight text-[11px] opacity-0 group-hover:opacity-100 transition-opacity z-50 shadow-lg">
                 Paket BONUS —<br/>hubungi konsultan
               </span>
@@ -328,41 +329,58 @@ function DashboardInner({ id }: { id: string }) {
           ) : (
             <button
               onClick={() => router.push(`/customize?${settingsParams}`)}
-              className="relative group w-11 h-11 flex items-center justify-center text-brand-gold hover:opacity-80 transition-opacity"
+              className="relative group w-9 h-9 rounded-lg bg-[#ece2d4]/80 hover:bg-[#dfd3c3] flex items-center justify-center text-slate-700 transition shadow-sm"
               title="Ganti Paket"
               aria-label="Ganti Paket"
             >
-              <span className="material-symbols-outlined text-[22px]">settings</span>
+              <span className="material-symbols-outlined text-[18px]">settings</span>
               <span className="pointer-events-none absolute top-full right-0 mt-2 bg-white text-[#2C2A29] border border-[#B34E3F] px-3 py-2 rounded-lg max-w-[160px] whitespace-normal text-center leading-tight text-[11px] opacity-0 group-hover:opacity-100 transition-opacity z-50 shadow-lg">
                 Ganti<br/>Paket
               </span>
             </button>
           )}
-          <ProfileMenu />
+          <div className="pl-1">
+            <ProfileMenu />
+          </div>
         </div>
       </header>
 
-      <main className="pt-24 pb-32 lg:max-w-[75%] lg:mx-auto min-h-screen overflow-visible touch-pan-y">
+      <main className="pt-20 pb-32 lg:max-w-[75%] lg:mx-auto min-h-screen overflow-visible touch-pan-y relative z-10">
         <section className="px-6 mb-10">
-          <div className="bg-[#1A1817] rounded-3xl p-8 text-white relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-secondary opacity-10 blur-[100px] pointer-events-none" />
-            <div className="inline-flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-full mb-6 max-w-full overflow-hidden flex-nowrap">
-              <span className={`w-2 h-2 rounded-full shrink-0 ${statusColor} animate-[pulse-animation_2s_ease-in-out_infinite]`} />
-              <span className="text-[10px] font-semibold tracking-widest uppercase truncate">Paket {PACKAGE_LABEL[profile.package_type || ""] || "Essential"}</span>
-              <span className="px-2 py-0.5 text-[9px] font-label-md uppercase bg-white/10 text-white/80 rounded shrink-0">{getPackageCategory(profile.package_type || "")}</span>
-              <span className="text-white/50 shrink-0">•</span>
-              <span className="text-[10px] font-semibold tracking-widest uppercase shrink-0">{statusLabel}</span>
-            </div>
-            <h1 className="font-['Playfair_Display'] text-[48px] md:text-[56px] leading-tight mb-2">
-              {profile.bride_name} &amp; {profile.groom_name}
-            </h1>
-            <p className="text-sm md:text-base text-white/70 tracking-wide mb-8">{formattedDate}</p>
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 flex justify-between items-center">
-              <div>
-                <p className="text-[10px] uppercase tracking-widest opacity-60 mb-1">Menuju Hari Bahagia</p>
-                <p className="font-['Playfair_Display'] text-3xl">{daysLeft} Hari Lagi</p>
+          <div className="relative rounded-[24px] overflow-hidden shadow-lg border border-[#e0d6c8]/60 bg-[#eedfcb]">
+            <div className="relative bg-gradient-to-r from-[#b7583d] via-[#b35237] to-[#9b432a] rounded-[24px] overflow-hidden">
+              <div className="relative px-9 pt-6 pb-9 rounded-b-[32px] overflow-hidden shadow-md z-10" style={{ backgroundColor: "rgb(236,224,206)", backgroundImage: "url(\"https://lh3.googleusercontent.com/aida-public/AB6AXuBLv_ul4rYeXAog4-6887ND4kkTGR7BHY0cAmpLcSXy7CXuvIfwYHkx5Rrw-ggdKRpC8eDcVNBUx8xhbqotcSH-s3gLaUzYrI3uy5uFy_SiJkuHlugeqjch7Zbf3dBfQPeqSjFuODdjWLGNo796PQXGvUErZ5lUzRmycI26A38177tF2LdP7rfeMoizZilih3cIqLu4q9qyDvvNbV3lutUsV9vG4elmzEi_LkgBX60SiJevBYe-t9TAKv4DJayS_DTavIYqiei_Wtn9QQ\")", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}>
+                <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/80 border border-[#e5ded4] shadow-sm backdrop-blur-sm text-[11px]">
+                  <span className="flex items-center text-stone-900 font-bold tracking-tight"><span className="w-2 h-2 rounded-full bg-[#b8382c] mr-1.5 inline-block"></span>PAKET {(PACKAGE_LABEL[profile.package_type || ""] || "Essential").toUpperCase()}</span>
+                  <span className="text-stone-800 font-medium tracking-tight">{getPackageCategory(profile.package_type || "")}</span>
+                  <span className="px-2 py-0.5 rounded-full bg-[#fde8e5] text-[#b93b2a] font-bold text-[10px] tracking-wide flex items-center gap-1"><span>{statusLabel}</span>{statusLabel === "UNPAID" && <span className="text-[10px]">⚠️</span>}</span>
+                </div>
+                <div className="mt-3.5">
+                  <h1 className="font-serif text-[42px] leading-tight text-stone-900 font-normal tracking-normal">{profile.bride_name} <span className="font-serif italic font-normal text-[#c5a059] mx-1.5 text-[42px] leading-none inline-block align-baseline tracking-wide select-none" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>&amp;</span> {profile.groom_name}</h1>
+                  <p className="text-stone-600 font-serif text-[17px] mt-1.5 tracking-wide">{formattedDate}</p>
+                </div>
               </div>
-              <span className="material-symbols-outlined text-secondary/80">calendar_today</span>
+              <div className="px-9 py-5 flex items-center relative z-10">
+                <div className="flex items-center space-x-3.5">
+                  <button onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)} className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-full border border-white/40 text-[#fdfbf9] bg-white/10 hover:bg-white/20 transition backdrop-blur-sm text-[13px] font-medium">
+                    <span className="material-symbols-outlined text-[16px]">mail</span>
+                    <span>Lihat Undangan</span>
+                  </button>
+                  <button onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)} className="inline-flex items-center space-x-2.5 px-5 py-2.5 rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white transition shadow-sm text-[13px] font-semibold">
+                    <span className="material-symbols-outlined text-[16px] text-[#a8824b]">qr_code_2</span>
+                    <span>Undangan Tamu</span>
+                  </button>
+                </div>
+              </div>
+              <div className="absolute right-8 top-1/2 -translate-y-1/2 z-20 pointer-events-none hidden md:flex">
+                <div className="w-44 h-44 rounded-full p-[6px] flex items-center justify-center relative shadow-xl" style={{ background: "linear-gradient(135deg, #d8b471 0%, #fae8be 35%, #c89c4e 60%, #e8c988 85%, #9d7532 100%)", boxShadow: "0 10px 25px -4px rgba(70,30,10,0.35), 0 4px 8px -2px rgba(0,0,0,0.1)" }}>
+                  <div className="w-full h-full rounded-full flex flex-col items-center justify-center text-center relative overflow-hidden bg-[#faf5ec] p-3 border border-[#deb86d]/40">
+                    <span className="font-serif text-[48px] font-bold text-[#b58c4f] tracking-tight leading-none pt-1">{daysLeft}</span>
+                    <span className="font-serif text-[15px] font-semibold text-[#8b6a37] tracking-normal mt-1">Hari Lagi</span>
+                    <span className="text-[11px] font-sans text-stone-600 font-normal tracking-tight mt-0.5">(Count Down)</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -419,7 +437,7 @@ function DashboardInner({ id }: { id: string }) {
             </div>
             <button
               onClick={() => router.push(`/dashboard/${id}/guests`)}
-              className="w-full py-3.5 md:py-5 bg-primary text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+              className="w-full py-3.5 md:py-5 bg-[#b85d3f] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-[#9d4c32] active:scale-[0.98] transition-colors"
             >
               Kelola Tamu &amp; Meja
               <span className="material-symbols-outlined text-[18px]">chevron_right</span>
