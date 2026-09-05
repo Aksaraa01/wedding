@@ -350,14 +350,14 @@ function DashboardInner({ id }: { id: string }) {
           <div className="relative rounded-[24px] overflow-hidden shadow-lg border border-[#e0d6c8]/60 bg-[#eedfcb]">
             <div className="relative bg-gradient-to-r from-[#b7583d] via-[#b35237] to-[#9b432a] rounded-[24px] overflow-hidden">
               <div className="relative px-9 pt-6 pb-9 rounded-b-[32px] overflow-hidden shadow-md z-10" style={{ backgroundColor: "rgb(236,224,206)", backgroundImage: "url(\"https://lh3.googleusercontent.com/aida-public/AB6AXuBLv_ul4rYeXAog4-6887ND4kkTGR7BHY0cAmpLcSXy7CXuvIfwYHkx5Rrw-ggdKRpC8eDcVNBUx8xhbqotcSH-s3gLaUzYrI3uy5uFy_SiJkuHlugeqjch7Zbf3dBfQPeqSjFuODdjWLGNo796PQXGvUErZ5lUzRmycI26A38177tF2LdP7rfeMoizZilih3cIqLu4q9qyDvvNbV3lutUsV9vG4elmzEi_LkgBX60SiJevBYe-t9TAKv4DJayS_DTavIYqiei_Wtn9QQ\")", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}>
-                <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/80 border border-[#e5ded4] shadow-sm backdrop-blur-sm text-[11px]">
-                  <span className="flex items-center text-stone-900 font-bold tracking-tight"><span className="w-2 h-2 rounded-full bg-[#b8382c] mr-1.5 inline-block"></span>PAKET {(PACKAGE_LABEL[profile.package_type || ""] || "Essential").toUpperCase()}</span>
-                  <span className="text-stone-800 font-medium tracking-tight">{getPackageCategory(profile.package_type || "")}</span>
-                  <span className="px-2 py-0.5 rounded-full bg-[#fde8e5] text-[#b93b2a] font-bold text-[10px] tracking-wide flex items-center gap-1"><span>{statusLabel}</span>{statusLabel === "UNPAID" && <span className="text-[10px]">⚠️</span>}</span>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 border border-[#e5ded4] shadow-sm backdrop-blur-sm text-[11px] max-w-full overflow-hidden whitespace-nowrap flex-nowrap">
+                  <span className="flex items-center text-stone-900 font-bold tracking-tight shrink-0"><span className="w-2 h-2 rounded-full bg-[#b8382c] mr-1.5 inline-block"></span>PAKET {(PACKAGE_LABEL[profile.package_type || ""] || "Essential").toUpperCase()}</span>
+                  <span className="text-stone-800 font-medium tracking-tight shrink-0 hidden sm:inline">{getPackageCategory(profile.package_type || "")}</span>
+                  <span className="px-2 py-0.5 rounded-full bg-[#fde8e5] text-[#b93b2a] font-bold text-[10px] tracking-wide flex items-center gap-1 shrink-0"><span>{statusLabel}</span>{statusLabel === "UNPAID" && <span className="text-[10px]">⚠️</span>}</span>
                 </div>
-                <div className="mt-3.5">
-                  <h1 className="font-serif text-[42px] leading-tight text-stone-900 font-normal tracking-normal">{profile.bride_name} <span className="font-serif italic font-normal text-[#c5a059] mx-1.5 text-[42px] leading-none inline-block align-baseline tracking-wide select-none" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>&amp;</span> {profile.groom_name}</h1>
-                  <p className="text-stone-600 font-serif text-[17px] mt-1.5 tracking-wide">{formattedDate}</p>
+                <div className="mt-3.5 max-w-full overflow-hidden">
+                  <h1 className={`font-serif leading-tight text-stone-900 font-normal tracking-normal max-w-full ${((profile.bride_name.trim().split(/\s+/).filter(Boolean).length + profile.groom_name.trim().split(/\s+/).filter(Boolean).length) > 4) ? "text-[26px] md:text-[42px] whitespace-normal line-clamp-2" : "text-[28px] md:text-[42px] whitespace-nowrap overflow-hidden text-ellipsis"}`}>{profile.bride_name} <span className="font-serif italic font-normal text-[#c5a059] mx-1 md:mx-1.5 text-[28px] md:text-[42px] leading-none inline-block align-baseline tracking-wide select-none" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>&amp;</span> {profile.groom_name}</h1>
+                  <p className="text-stone-600 font-serif text-[15px] md:text-[17px] mt-1.5 tracking-wide truncate">{formattedDate}</p>
                 </div>
               </div>
               <div className="px-9 py-5 flex items-center relative z-10">
@@ -502,10 +502,10 @@ function DashboardInner({ id }: { id: string }) {
                             {String(i + 1).padStart(2, "0")}
                           </span>
                           <span
-                            className={`px-1.5 py-0.5 text-[9px] font-bold rounded uppercase ${
+                            className={`px-1.5 py-0.5 text-[9px] font-bold rounded-full border uppercase ${
                               status.active
-                                ? "bg-green-100 text-green-700"
-                                : "bg-outline-variant text-on-surface-variant"
+                                ? "bg-[#C5A059]/15 text-[#7A5A2E] border-[#C5A059]/30"
+                                : "bg-[#F3F4F6] text-on-surface-variant border-[#E2D9CF]"
                             }`}
                           >
                             {status.label}
