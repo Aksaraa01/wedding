@@ -8,8 +8,10 @@ import { ASSETS } from "@/lib/assets"
 
 const CATEGORY_FILTERS = [
   { id: "semua", label: "Semua" },
-  { id: "nasional", label: "Nasional" },
-  { id: "budaya", label: "Budaya" },
+  { id: "adat", label: "Adat/Tradisional" },
+  { id: "modern", label: "Modern Minimalis" },
+  { id: "elegansi", label: "Elegansi Dark" },
+  { id: "floral", label: "Floral" },
 ]
 
 const FEATURES = [
@@ -66,7 +68,14 @@ export default function PremiumWebInvitationPage() {
   const visibleTemplates =
     categoryFilter === "semua"
       ? templates
-      : templates.filter((t) => (t.category || "").toLowerCase() === categoryFilter)
+      : templates.filter((t) => {
+          const cat = (t.category || "").toLowerCase()
+          if (categoryFilter === "adat") return cat.includes("adat") || cat.includes("tradisional") || cat === "budaya"
+          if (categoryFilter === "modern") return cat.includes("modern") || cat.includes("minimalis") || cat === "nasional"
+          if (categoryFilter === "elegansi") return cat.includes("elegansi") || cat.includes("dark")
+          if (categoryFilter === "floral") return cat.includes("floral")
+          return cat === categoryFilter
+        })
 
   return (
     <>
@@ -88,15 +97,15 @@ export default function PremiumWebInvitationPage() {
         </div>
       </nav>
 
-      <main className="pt-24 md:pt-32 pb-40" ref={mainRef}>
+      <main className="pt-24 md:pt-32 pb-40 bg-[#FAF7F2]" ref={mainRef}>
         {/* The Aksara Experience */}
-        <section className="bg-surface-container-low py-12 md:py-20 px-margin-mobile md:px-margin-desktop border-b border-outline-variant/30">
+        <section className="bg-[#FAF7F2] py-12 md:py-20 px-margin-mobile md:px-margin-desktop">
           <div className="max-w-container-max mx-auto">
-            <h2 className="font-headline-lg text-[28px] md:text-headline-lg text-primary mb-8 md:mb-16 text-center transition-all duration-700 opacity-100 translate-y-0">
+            <h2 className="font-headline-lg text-[28px] md:text-headline-lg text-[#2C2A29] mb-8 md:mb-16 text-center transition-all duration-700 opacity-100 translate-y-0">
               Buat Undangan Cepat &amp; Lengkap
             </h2>
             <div className="mb-10 md:mb-20 flex flex-col items-center">
-              <div className="w-full max-w-2xl mx-auto rounded-xl overflow-hidden border border-outline-variant/30 shadow-xl transition-all duration-700 opacity-100 translate-y-0">
+              <div className="w-full max-w-2xl mx-auto rounded-2xl overflow-hidden border border-[#E2D9CF] shadow-xl transition-all duration-700 opacity-100 translate-y-0 bg-white">
                 <img
                   src={ASSETS.premiumWeb.dashboard}
                   alt="Dashboard Preview"
@@ -104,19 +113,19 @@ export default function PremiumWebInvitationPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {FEATURES.map((f, i) => (
                 <div
                   key={f.title}
-                  className="bg-white border border-outline-variant/30 rounded-2xl p-5 shadow-[0_12px_30px_rgba(26,24,23,0.06)] md:bg-transparent md:border-x-0 md:border-b-0 md:border-t md:border-outline-variant/50 md:rounded-none md:shadow-none md:p-0 md:pt-6 transition-all duration-700 feature-item opacity-100 translate-y-0"
+                  className="bg-white border border-[#E2D9CF] rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 feature-item opacity-100 translate-y-0 flex flex-col items-center md:items-start text-center md:text-left"
                   style={{ transitionDelay: `${(i % 4) * 100}ms` }}
                 >
-                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-brand-charcoal text-brand-cream md:hidden">
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#F5EFE6] border border-[#E2D9CF] text-[#B34E3F]">
                     <span className="material-symbols-outlined text-[22px]">{f.icon}</span>
                   </div>
-                  <h3 className="font-headline-md text-lg md:text-xl text-primary mb-2 md:mb-3">{f.title}</h3>
+                  <h3 className="font-headline-md text-[16px] md:text-lg text-[#2C2A29] mb-2">{f.title}</h3>
                   {f.text && (
-                    <p className="font-body-md text-sm md:text-base text-on-surface-variant leading-relaxed opacity-100 translate-y-0">{f.text}</p>
+                    <p className="font-body-md text-sm text-on-surface-variant leading-relaxed">{f.text}</p>
                   )}
                 </div>
               ))}
@@ -135,16 +144,16 @@ export default function PremiumWebInvitationPage() {
         </section>
 
         {/* Category Navigation */}
-        <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mb-16 border-b border-outline-variant/30">
-          <div className="flex gap-8 overflow-x-auto pb-4 no-scrollbar font-label-caps text-label-caps justify-start md:justify-center transition-all duration-700 opacity-0 translate-y-10 text-primary">
+        <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mb-10">
+          <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar justify-start md:justify-center">
             {CATEGORY_FILTERS.map((f) => (
               <button
                 key={f.id}
                 onClick={() => setCategoryFilter(f.id)}
-                className={`filter-btn whitespace-nowrap pb-2 uppercase tracking-widest transition-colors ${
+                className={`shrink-0 rounded-full border px-5 py-2 font-label-md text-[11px] uppercase tracking-widest transition-colors whitespace-nowrap ${
                   categoryFilter === f.id
-                    ? "active text-primary"
-                    : "text-on-surface-variant hover:text-secondary"
+                    ? "bg-[#B34E3F] border-[#B34E3F] text-white"
+                    : "bg-white border-[#E2D9CF] text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F]"
                 }`}
               >
                 {f.label}
@@ -156,41 +165,64 @@ export default function PremiumWebInvitationPage() {
         {/* Template Grid */}
         <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mb-16">
           <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 no-scrollbar lg:grid lg:grid-cols-4 xl:grid-cols-5 lg:gap-x-4 lg:gap-y-10 lg:overflow-visible">
-            {visibleTemplates.map((tpl, idx) => (
-              <article key={tpl.id} className="template-card group flex flex-col shrink-0 snap-start w-[72vw] max-w-[300px] lg:w-auto lg:max-w-none">
+            {visibleTemplates.map((tpl, idx) => {
+              const styleTag = (tpl.category || "Modern").toUpperCase()
+              const tierTag = idx % 3 === 0 ? "POPULER" : idx % 3 === 1 ? "SIGNATURE" : null
+              return (
+              <article key={tpl.id} className="template-card group flex flex-col shrink-0 snap-start w-[72vw] max-w-[300px] lg:w-auto lg:max-w-none bg-white border border-[#E2D9CF] rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
                 <div
-                  className="relative mb-4 overflow-hidden rounded-2xl border-2 border-brand-charcoal aspect-[9/19] bg-surface-container shadow-sm cursor-pointer"
+                  className="relative overflow-hidden aspect-[9/19] bg-[#FAF7F2] cursor-pointer"
                   onClick={() => setPreviewTpl(tpl)}
                 >
                   <img
                     alt={tpl.name}
-                    className="w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-105"
+                    className="w-full h-full object-cover object-top transition-transform duration-[1.5s] group-hover:scale-105"
                     src={tpl.preview_image_url}
                   />
+                  {tierTag && (
+                    <span className="absolute top-3 left-3 bg-[#C5A059] text-white text-[9px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full shadow-sm">{tierTag}</span>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center gap-2 p-4">
+                    <button onClick={(e) => { e.stopPropagation(); setPreviewTpl(tpl) }} className="flex-1 py-2.5 bg-white/90 backdrop-blur text-[#2C2A29] rounded-full font-label-md text-[10px] uppercase tracking-widest hover:bg-white transition-colors">Pratinjau</button>
+                    <button onClick={(e) => { e.stopPropagation(); router.push(`/register?template=${tpl.code}`) }} className="flex-1 py-2.5 bg-[#B34E3F] text-white rounded-full font-label-md text-[10px] uppercase tracking-widest hover:bg-[#9E3B2D] transition-colors">Pilih Template</button>
+                  </div>
                 </div>
-                <div className="flex flex-col flex-grow">
-                  <h2 className="font-headline-md text-[16px] leading-tight mb-3">{tpl.name}</h2>
-                  <button
-                    onClick={() => setPreviewTpl(tpl)}
-                    className="mt-auto w-full py-3 font-label-md text-[10px] uppercase tracking-widest rounded-full bg-brand-charcoal border border-brand-charcoal text-brand-cream hover:bg-secondary hover:border-secondary hover:text-white transition-colors"
-                  >
-                    Lihat Template
-                  </button>
+                <div className="p-4 flex flex-col gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="font-headline-md text-[14px] leading-tight text-[#2C2A29] flex-1">{tpl.name}</h2>
+                    <span className="shrink-0 px-2 py-0.5 bg-[#F5EFE6] border border-[#E2D9CF] text-[#2C2A29] text-[9px] font-bold tracking-widest uppercase rounded-full">{styleTag}</span>
+                  </div>
+                  <div className="flex gap-2 mt-1">
+                    <button
+                      onClick={() => setPreviewTpl(tpl)}
+                      className="flex-1 py-2.5 font-label-md text-[10px] uppercase tracking-widest rounded-full bg-[#F5EFE6] border border-[#E2D9CF] text-[#2C2A29] hover:bg-[#E2D9CF] transition-colors"
+                    >
+                      Pratinjau
+                    </button>
+                    <button
+                      onClick={() => router.push(`/register?template=${tpl.code}`)}
+                      className="flex-1 py-2.5 font-label-md text-[10px] uppercase tracking-widest rounded-full bg-[#B34E3F] border border-[#B34E3F] text-white hover:bg-[#9E3B2D] transition-colors"
+                    >
+                      Pilih Template
+                    </button>
+                  </div>
                 </div>
               </article>
-            ))}
+              )
+            })}
           </div>
         </section>
 
         {/* Final CTA / Sticky Bar */}
-        <section className="fixed bottom-0 w-full z-40 bg-surface/95 backdrop-blur-md border-t border-outline-variant/30 py-6 px-margin-mobile md:px-margin-desktop shadow-[0_-10px_40px_rgba(26,24,23,0.05)]">
+        <section className="fixed bottom-0 w-full z-40 bg-[#F5EFE6] border-t border-[#E2D9CF] py-6 px-margin-mobile md:px-margin-desktop shadow-[0_-10px_40px_rgba(26,24,23,0.05)]">
           <div className="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
             <div>
-              <h4 className="font-headline-md text-primary text-lg mb-1">Menginginkan sentuhan personal?</h4>
+              <h4 className="font-headline-md text-[#2C2A29] text-lg mb-1">Menginginkan sentuhan personal?</h4>
+              <p className="font-body-md text-sm text-on-surface-variant">Konsultasikan desain khusus impian Anda bersama tim kami.</p>
             </div>
             <button
               onClick={() => router.push("/register")}
-              className="bg-primary text-on-primary px-8 py-4 rounded-full font-label-caps text-[10px] tracking-[0.2em] uppercase hover:bg-secondary transition-all w-full md:w-auto"
+              className="bg-[#B34E3F] text-white px-8 py-4 rounded-full font-label-md text-[11px] tracking-[0.2em] uppercase hover:bg-[#9E3B2D] transition-all w-full md:w-auto shadow-sm"
             >
               Konsultasi Desain Khusus
             </button>

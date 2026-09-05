@@ -9,8 +9,10 @@ import ProductJourney from "@/components/onboarding/ProductJourney"
 
 const CATEGORY_FILTERS = [
   { id: "semua", label: "Semua" },
-  { id: "nasional", label: "Nasional" },
-  { id: "budaya", label: "Budaya" },
+  { id: "adat", label: "Adat/Tradisional" },
+  { id: "modern", label: "Modern Minimalis" },
+  { id: "elegansi", label: "Elegansi Dark" },
+  { id: "floral", label: "Floral" },
 ]
 
 type Template = {
@@ -34,7 +36,8 @@ function TemplatesInner({ id }: { id: string }) {
   const [searchQuery, setSearchQuery] = useState<string>("")
 
   const visibleTemplates = templates.filter((t) => {
-    const catOk = categoryFilter === "semua" || (t.category || "").toLowerCase() === categoryFilter
+    const cat = (t.category || "").toLowerCase()
+    const catOk = categoryFilter === "semua" || (categoryFilter === "adat" ? cat.includes("adat") || cat.includes("tradisional") || cat === "budaya" : categoryFilter === "modern" ? cat.includes("modern") || cat.includes("minimalis") || cat === "nasional" : categoryFilter === "elegansi" ? cat.includes("elegansi") || cat.includes("dark") : categoryFilter === "floral" ? cat.includes("floral") : cat === categoryFilter)
     const searchOk = !searchQuery.trim() || t.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
     return catOk && searchOk
   })
@@ -77,7 +80,7 @@ function TemplatesInner({ id }: { id: string }) {
   return (
     <>
       <PageTheme mode="light" />
-      <main className="pt-8 pb-32 px-edge-margin-mobile max-w-container-max mx-auto bg-background">
+      <main className="pt-8 pb-32 px-edge-margin-mobile max-w-container-max mx-auto bg-[#FAF7F2]">
         <section className="mb-10 fade-in">
           <h1 className="font-headline-lg text-[18px] sm:text-[28px] leading-tight mb-3">Pilih Undangan Digital Anda</h1>
         </section>
@@ -99,10 +102,10 @@ function TemplatesInner({ id }: { id: string }) {
               <button
                 key={f.id}
                 onClick={() => setCategoryFilter(f.id)}
-                className={`shrink-0 rounded-full border px-5 py-2 font-label-md text-[11px] uppercase tracking-widest transition-colors ${
+                className={`shrink-0 rounded-full border px-5 py-2 font-label-md text-[11px] uppercase tracking-widest transition-colors whitespace-nowrap ${
                   categoryFilter === f.id
-                    ? "bg-brand-charcoal border-brand-charcoal text-brand-cream"
-                    : "border-outline-variant text-on-surface-variant hover:border-brand-charcoal hover:text-on-surface"
+                    ? "bg-[#B34E3F] border-[#B34E3F] text-white"
+                    : "bg-white border-[#E2D9CF] text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F]"
                 }`}
               >
                 {f.label}
@@ -112,21 +115,27 @@ function TemplatesInner({ id }: { id: string }) {
         </div>
 
         <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 no-scrollbar lg:grid lg:grid-cols-4 xl:grid-cols-5 lg:gap-x-4 lg:gap-y-10 lg:overflow-visible">
-          {visibleTemplates.map((tpl, idx) => (
-            <article key={tpl.id} className="group flex flex-col shrink-0 snap-start w-[72vw] max-w-[300px] lg:w-auto lg:max-w-none">
+          {visibleTemplates.map((tpl, idx) => {
+            const styleTag = (tpl.category || "Modern").toUpperCase()
+            const tierTag = idx % 3 === 0 ? "POPULER" : idx % 3 === 1 ? "SIGNATURE" : null
+            return (
+            <article key={tpl.id} className="group flex flex-col shrink-0 snap-start w-[72vw] max-w-[300px] lg:w-auto lg:max-w-none bg-white border border-[#E2D9CF] rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
               <div
                 data-tour={idx === 0 ? "template-preview" : undefined}
-                className="relative mb-4 overflow-hidden rounded-2xl border-2 border-brand-charcoal aspect-[9/19] bg-surface-container shadow-sm cursor-pointer"
+                className="relative overflow-hidden aspect-[9/19] bg-[#FAF7F2] cursor-pointer"
                 onClick={() => setPreviewTpl(tpl)}
               >
                 {selectedId === tpl.id && (
-                  <div className="absolute top-2 left-2 z-10 bg-secondary/90 px-2 py-0.5">
-                    <span className="text-[8px] font-label-md uppercase tracking-widest text-white">Active</span>
+                  <div className="absolute top-2 left-2 z-10 bg-[#10B981] px-2.5 py-1 rounded-full">
+                    <span className="text-[8px] font-bold uppercase tracking-widest text-white">Active</span>
                   </div>
+                )}
+                {tierTag && selectedId !== tpl.id && (
+                  <span className="absolute top-2 left-2 z-10 bg-[#C5A059] text-white text-[8px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full shadow-sm">{tierTag}</span>
                 )}
                 <img
                   alt={tpl.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                   src={`${tpl.preview_image_url}?width=400&quality=75&format=webp`}
                   loading={idx < 2 ? "eager" : "lazy"}
                   decoding="async"
@@ -139,34 +148,40 @@ function TemplatesInner({ id }: { id: string }) {
                     document.head.appendChild(link)
                   }}
                 />
-                <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors pointer-events-none" />
+                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center gap-2 p-3">
+                  <button onClick={(e) => { e.stopPropagation(); setPreviewTpl(tpl) }} className="flex-1 py-2.5 bg-white/90 backdrop-blur text-[#2C2A29] rounded-full font-label-md text-[10px] uppercase tracking-widest hover:bg-white transition-colors">Pratinjau</button>
+                  <button data-tour={idx === 0 ? "pilih-koleksi" : undefined} onClick={(e) => { e.stopPropagation(); handleSelect(tpl.id) }} disabled={saving} className={`flex-1 py-2.5 rounded-full font-label-md text-[10px] uppercase tracking-widest border transition-colors ${selectedId === tpl.id ? "bg-[#10B981] border-[#10B981] text-white" : "bg-[#B34E3F] border-[#B34E3F] text-white hover:bg-[#9E3B2D]"}`}>{selectedId === tpl.id ? "Terpilih" : "Pilih"}</button>
+                </div>
               </div>
 
-              <div className="flex flex-col flex-grow">
-                <h2 className="font-headline-md text-[16px] leading-tight mb-3">{tpl.name}</h2>
-                <div className="mt-auto flex items-center gap-2">
+              <div className="p-4 flex flex-col gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="font-headline-md text-[14px] leading-tight text-[#2C2A29] flex-1">{tpl.name}</h2>
+                  <span className="shrink-0 px-2 py-0.5 bg-[#F5EFE6] border border-[#E2D9CF] text-[#2C2A29] text-[8px] font-bold tracking-widest uppercase rounded-full">{styleTag}</span>
+                </div>
+                <div className="flex gap-2 mt-1">
                   <button
                     onClick={() => setPreviewTpl(tpl)}
-                    className="flex-1 py-3 font-label-md text-[10px] uppercase tracking-widest rounded-full border border-brand-charcoal text-brand-charcoal hover:bg-brand-cream transition-colors"
+                    className="flex-1 py-2.5 font-label-md text-[10px] uppercase tracking-widest rounded-full bg-[#F5EFE6] border border-[#E2D9CF] text-[#2C2A29] hover:bg-[#E2D9CF] transition-colors"
                   >
-                    Lihat Template
+                    Pratinjau
                   </button>
                   <button
                     data-tour={idx === 0 ? "pilih-koleksi" : undefined}
                     onClick={() => handleSelect(tpl.id)}
                     disabled={saving}
-                    className={`flex-1 py-3 font-label-md text-[10px] uppercase tracking-widest rounded-full border transition-all duration-300 ${
+                    className={`flex-1 py-2.5 font-label-md text-[10px] uppercase tracking-widest rounded-full border transition-colors ${
                       selectedId === tpl.id
-                        ? "bg-secondary border-secondary text-white"
-                        : "bg-brand-charcoal border-brand-charcoal text-brand-cream hover:bg-secondary hover:border-secondary hover:text-white"
+                        ? "bg-[#10B981] border-[#10B981] text-white"
+                        : "bg-[#B34E3F] border-[#B34E3F] text-white hover:bg-[#9E3B2D]"
                     }`}
                   >
-                    {saving ? "Menyimpan..." : selectedId === tpl.id ? "Pilih Ulang" : "Pilih"}
+                    {saving ? "Menyimpan..." : selectedId === tpl.id ? "Terpilih" : "Pilih Template"}
                   </button>
                 </div>
               </div>
             </article>
-          ))}
+          )})}
         </div>
 
         {error && (
