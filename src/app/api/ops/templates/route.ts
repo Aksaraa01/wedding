@@ -49,6 +49,7 @@ export async function POST(req: Request) {
     }
   }
 
+  const tier = ["Baru", "Populer", "Signature"].includes(String(body.tier || "").trim()) ? String(body.tier).trim() : "Baru"
   const { data, error } = await supabaseAdmin
     .from("web_templates")
     .insert({
@@ -61,6 +62,7 @@ export async function POST(req: Request) {
       sort_order: typeof body.sort_order === "number" ? body.sort_order : 0,
       package_eligibility: Array.isArray(body.package_eligibility) ? body.package_eligibility : [],
       category: body.category ? String(body.category).trim() : null,
+      tier,
       wp_master_slug: body.wp_master_slug || null,
       wp_manifest: body.wp_manifest && typeof body.wp_manifest === "object" ? body.wp_manifest : null,
     })

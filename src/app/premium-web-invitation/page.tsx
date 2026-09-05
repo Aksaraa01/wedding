@@ -32,6 +32,7 @@ type Template = {
   demo_url: string
   preview_image_url: string
   category?: string | null
+  tier?: string | null
 }
 
 export default function PremiumWebInvitationPage() {
@@ -176,9 +177,9 @@ export default function PremiumWebInvitationPage() {
         {/* Template Grid */}
         <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mb-16">
           <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 no-scrollbar lg:grid lg:grid-cols-4 xl:grid-cols-5 lg:gap-x-4 lg:gap-y-10 lg:overflow-visible">
-            {visibleTemplates.map((tpl, idx) => {
+            {visibleTemplates.map((tpl) => {
               const styleTag = (tpl.category || "Modern").toUpperCase()
-              const tierTag = idx % 3 === 0 ? "POPULER" : idx % 3 === 1 ? "SIGNATURE" : null
+              const tierTag = tpl.tier && tpl.tier !== "Baru" ? tpl.tier.toUpperCase() : null
               return (
               <article key={tpl.id} className="template-card group flex flex-col shrink-0 snap-start w-[72vw] max-w-[300px] lg:w-auto lg:max-w-none bg-white border border-[#E2D9CF] rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
                 <div

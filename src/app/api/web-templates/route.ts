@@ -7,7 +7,7 @@ export async function GET(req: Request) {
 
   let query = supabaseAdmin
     .from("web_templates")
-    .select("id,code,name,preview_image_url,demo_url,category,package_eligibility,sort_order,is_active")
+    .select("id,code,name,preview_image_url,demo_url,category,tier,package_eligibility,sort_order,is_active")
     .eq("is_active", true)
     .order("sort_order", { ascending: true })
 
