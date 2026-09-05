@@ -178,61 +178,61 @@ export default function VirtualWishWallPage() {
         </div>
       </nav>
 
-      <main className="pt-20" ref={sectionRef}>
+      <main className="pt-20 bg-[#FAF7F2]" ref={sectionRef}>
         {/* Hero */}
         <section className="min-h-[90vh] flex flex-col lg:flex-row items-center max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 lg:py-24 gap-16 overflow-hidden">
           <div className="flex-1 space-y-8 relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary/5 border border-secondary/20 text-secondary rounded-sm font-label-caps text-[10px] tracking-widest">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#F5EFE6] border border-[#E2D9CF] text-[#C5A059] rounded-full font-label-caps text-[10px] tracking-widest">
               <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
               MODUL DINDING DOA &amp; UCAPAN DIGITAL
             </div>
-            <h1 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[44px] md:text-[72px] lg:text-[84px] leading-[1.05] text-primary">
-              Abadikan Doa <br />dalam <span className="italic font-medium text-secondary">Karya Visual</span> Elegan.
+            <h1 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[44px] md:text-[72px] lg:text-[84px] leading-[1.05] text-[#2C2A29]">
+              Abadikan Doa <br />dalam <span className="italic font-medium text-[#B34E3F]">Karya Visual</span> Elegan.
             </h1>
             <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl leading-relaxed">
               Transformasikan ucapan tamu menjadi instalasi digital artistik. Terhubung secara instan dari smartphone tamu langsung ke layar LED venue utama dalam hitungan milidetik.
             </p>
             <div className="flex flex-wrap gap-5 pt-4">
-              <button onClick={() => router.push("/register")} className="bg-primary text-on-primary px-10 py-5 rounded-sm font-label-caps text-[14px] flex items-center gap-3 group transition-all hover:bg-secondary">
+              <button onClick={() => router.push("/register")} className="bg-[#B34E3F] text-white px-10 py-5 rounded-full font-label-caps text-[14px] flex items-center gap-3 group transition-all hover:bg-[#9E3B2D] shadow-lg shadow-[#B34E3F]/20">
                 AKTIFKAN WISH WALL
                 <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
               </button>
             </div>
           </div>
           <div className="flex-1 relative w-full group">
-            <div className="relative w-full aspect-[4/3] md:aspect-video oled-screen rounded-xl editorial-shadow overflow-hidden border-[12px] border-[#1a1817] ring-1 ring-outline-variant/30 gold-border-glow">
-              <div className="absolute inset-0 flex flex-col justify-center gap-8 py-8">
+            <div className="relative w-full aspect-[4/3] md:aspect-video bg-white border border-[#E2D9CF] rounded-2xl p-3 shadow-xl overflow-hidden">
+              <div className="absolute inset-0 flex flex-col justify-center gap-8 py-8 bg-[#1A1817] rounded-xl">
                 <div className="ticker-container">
                   <div className="ticker-scroll gap-6 px-4">
                     <div className="flex gap-6">
-                      <div className="bg-white/5 border border-white/10 p-6 rounded-lg min-w-[300px] backdrop-blur-sm">
+                      <div className="bg-white/5 border border-white/10 p-6 rounded-xl min-w-[300px] backdrop-blur-sm">
                         <p className="text-white font-display-lg text-[18px] italic mb-4">&ldquo;Bahagia selamanya Dimas &amp; Kirana!&rdquo;</p>
                         <div className="flex justify-between items-center text-white/50 font-label-caps text-[10px]">
                           <span>- Sarah &amp; Kevin</span>
-                          <span className="flex items-center gap-1 text-secondary">❤️ 42</span>
+                          <span className="flex items-center gap-1 text-[#C5A059]">❤️ 42</span>
                         </div>
                       </div>
-                      <div className="bg-secondary/10 border border-secondary/30 p-6 rounded-lg min-w-[300px] backdrop-blur-sm">
+                      <div className="bg-[#B34E3F]/10 border border-[#B34E3F]/30 p-6 rounded-xl min-w-[300px] backdrop-blur-sm">
                         <p className="text-white font-display-lg text-[18px] italic mb-4">&ldquo;Semoga sakinah mawaddah warahmah.&rdquo;</p>
                         <div className="flex justify-between items-center text-white/50 font-label-caps text-[10px]">
                           <span>- Keluarga Besar Wijaya</span>
-                          <span className="flex items-center gap-1 text-secondary">❤️ 108</span>
+                          <span className="flex items-center gap-1 text-[#C5A059]">❤️ 108</span>
                         </div>
                       </div>
                     </div>
                     <div className="flex gap-6">
-                      <div className="bg-white/5 border border-white/10 p-6 rounded-lg min-w-[300px] backdrop-blur-sm">
+                      <div className="bg-white/5 border border-white/10 p-6 rounded-xl min-w-[300px] backdrop-blur-sm">
                         <p className="text-white font-display-lg text-[18px] italic mb-4">&ldquo;Bahagia selamanya Dimas &amp; Kirana!&rdquo;</p>
                         <div className="flex justify-between items-center text-white/50 font-label-caps text-[10px]">
                           <span>- Sarah &amp; Kevin</span>
-                          <span className="flex items-center gap-1 text-secondary">❤️ 42</span>
+                          <span className="flex items-center gap-1 text-[#C5A059]">❤️ 42</span>
                         </div>
                       </div>
-                      <div className="bg-secondary/10 border border-secondary/30 p-6 rounded-lg min-w-[300px] backdrop-blur-sm">
+                      <div className="bg-[#B34E3F]/10 border border-[#B34E3F]/30 p-6 rounded-xl min-w-[300px] backdrop-blur-sm">
                         <p className="text-white font-display-lg text-[18px] italic mb-4">&ldquo;Semoga sakinah mawaddah warahmah.&rdquo;</p>
                         <div className="flex justify-between items-center text-white/50 font-label-caps text-[10px]">
                           <span>- Keluarga Besar Wijaya</span>
-                          <span className="flex items-center gap-1 text-secondary">❤️ 108</span>
+                          <span className="flex items-center gap-1 text-[#C5A059]">❤️ 108</span>
                         </div>
                       </div>
                     </div>
@@ -241,43 +241,43 @@ export default function VirtualWishWallPage() {
                 <div className="ticker-container scale-110">
                   <div className="ticker-scroll gap-6 px-4" style={{ animationDirection: "reverse" }}>
                     <div className="flex gap-6">
-                      <div className="bg-white/5 border border-white/10 p-6 rounded-lg min-w-[320px] backdrop-blur-sm">
+                      <div className="bg-white/5 border border-white/10 p-6 rounded-xl min-w-[320px] backdrop-blur-sm">
                         <p className="text-white font-display-lg text-[20px] italic mb-4">&ldquo;Happy Wedding my best friend!&rdquo;</p>
                         <div className="flex justify-between items-center text-white/50 font-label-caps text-[10px]">
                           <span>- Rian Santoso</span>
-                          <span className="flex items-center gap-1 text-secondary">❤️ 15</span>
+                          <span className="flex items-center gap-1 text-[#C5A059]">❤️ 15</span>
                         </div>
                       </div>
-                      <div className="bg-white/5 border border-white/10 p-6 rounded-lg min-w-[320px] backdrop-blur-sm">
+                      <div className="bg-white/5 border border-white/10 p-6 rounded-xl min-w-[320px] backdrop-blur-sm">
                         <p className="text-white font-display-lg text-[20px] italic mb-4">&ldquo;Cheers to a new beginning! ✨&rdquo;</p>
                         <div className="flex justify-between items-center text-white/50 font-label-caps text-[10px]">
                           <span>- Amanda Putri</span>
-                          <span className="flex items-center gap-1 text-secondary">❤️ 28</span>
+                          <span className="flex items-center gap-1 text-[#C5A059]">❤️ 28</span>
                         </div>
                       </div>
                     </div>
                     <div className="flex gap-6">
-                      <div className="bg-white/5 border border-white/10 p-6 rounded-lg min-w-[320px] backdrop-blur-sm">
+                      <div className="bg-white/5 border border-white/10 p-6 rounded-xl min-w-[320px] backdrop-blur-sm">
                         <p className="text-white font-display-lg text-[20px] italic mb-4">&ldquo;Happy Wedding my best friend!&rdquo;</p>
                         <div className="flex justify-between items-center text-white/50 font-label-caps text-[10px]">
                           <span>- Rian Santoso</span>
-                          <span className="flex items-center gap-1 text-secondary">❤️ 15</span>
+                          <span className="flex items-center gap-1 text-[#C5A059]">❤️ 15</span>
                         </div>
                       </div>
-                      <div className="bg-white/5 border border-white/10 p-6 rounded-lg min-w-[320px] backdrop-blur-sm">
+                      <div className="bg-white/5 border border-white/10 p-6 rounded-xl min-w-[320px] backdrop-blur-sm">
                         <p className="text-white font-display-lg text-[20px] italic mb-4">&ldquo;Cheers to a new beginning! ✨&rdquo;</p>
                         <div className="flex justify-between items-center text-white/50 font-label-caps text-[10px]">
                           <span>- Amanda Putri</span>
-                          <span className="flex items-center gap-1 text-secondary">❤️ 28</span>
+                          <span className="flex items-center gap-1 text-[#C5A059]">❤️ 28</span>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-sm border border-white/10">
+              <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
                 <span className="text-[9px] text-white/80 font-label-caps tracking-widest flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" /> PREVIEW: MAIN BALLROOM LED
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#C5A059] animate-pulse" /> PREVIEW: MAIN BALLROOM LED
                 </span>
               </div>
             </div>
@@ -297,16 +297,16 @@ export default function VirtualWishWallPage() {
         </section>
 
         {/* Metrics Strip */}
-        <section className="bg-primary-container py-20">
-          <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <section className="bg-[#1A1817] py-16 border-y border-[#C5A059]/20">
+          <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { icon: "cloud_sync", title: "0.5s Sync", desc: "REAL-TIME CLOUD SPEED" },
               { icon: "hd", title: "4K Quality", desc: "PIXEL PERFECT PROJECTION" },
               { icon: "verified_user", title: "100% Control", desc: "SMART MODERATION PANEL" },
               { icon: "picture_as_pdf", title: "PDF Export", desc: "LIFETIME DIGITAL MEMORY" },
             ].map((m) => (
-              <div key={m.title} className="bg-white/5 border border-white/10 p-8 rounded-lg hover:border-secondary transition-all group">
-                <span className="material-symbols-outlined text-secondary text-[32px] mb-4">{m.icon}</span>
+              <div key={m.title} className="bg-[#1A1817] border border-[#C5A059]/20 p-8 rounded-xl hover:bg-white/5 hover:border-[#C5A059]/40 transition-all group">
+                <span className="material-symbols-outlined text-[#C5A059] text-[32px] mb-4">{m.icon}</span>
                 <h4 className="text-white font-[family-name:var(--font-cormorant)] font-semibold text-[26px] mb-1">{m.title}</h4>
                 <p className="text-white/50 font-label-caps text-[10px] tracking-widest">{m.desc}</p>
               </div>
@@ -315,19 +315,19 @@ export default function VirtualWishWallPage() {
         </section>
 
         {/* Sandbox */}
-        <section className="py-24 bg-surface-container-low" id="sandbox">
+        <section className="py-24 bg-[#FAF7F2]" id="sandbox">
           <div className="max-w-4xl mx-auto px-margin-mobile sandbox-card">
             <div className="text-center mb-12 space-y-4">
-              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[36px] md:text-[48px] text-primary leading-tight">Coba <span className="italic text-secondary">Simulasi Interaktif</span></h2>
+              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[36px] md:text-[48px] text-[#2C2A29] leading-tight">Coba <span className="italic text-[#B34E3F]">Simulasi Interaktif</span></h2>
               <p className="text-on-surface-variant font-body-md max-w-lg mx-auto">Tulis pesan Anda di bawah ini dan lihat bagaimana pesan tersebut tampil secara instan di &quot;Wish Wall&quot; kami.</p>
             </div>
-            <div className="bg-white editorial-shadow rounded-xl p-8 border border-outline-variant/30">
+            <div className="bg-white rounded-2xl p-8 border border-[#E2D9CF] shadow-lg">
               <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="font-label-caps text-[11px] text-on-surface-variant">NAMA TAMU</label>
                     <input
-                      className="w-full bg-surface-container border-none focus:ring-1 focus:ring-secondary rounded-sm py-4 px-5"
+                      className="w-full bg-white border border-[#E2D9CF] focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] rounded-lg py-4 px-5 outline-none transition-colors"
                       placeholder="Contoh: Bpk. Heru & Ibu"
                       type="text"
                       value={guestName}
@@ -336,7 +336,7 @@ export default function VirtualWishWallPage() {
                   </div>
                   <div className="space-y-2">
                     <label className="font-label-caps text-[11px] text-on-surface-variant">HUBUNGAN</label>
-                    <div className="flex flex-wrap gap-2 pt-1">
+                    <div className="flex flex-wrap gap-2 pt-1 p-1 bg-[#F5EFE6] border border-[#E2D9CF] rounded-full w-fit">
                       {["KELUARGA", "SAHABAT", "REKAN KERJA"].map((r) => (
                         <label key={r} className="cursor-pointer">
                           <input
@@ -347,7 +347,7 @@ export default function VirtualWishWallPage() {
                             checked={relation === r}
                             onChange={() => setRelation(r)}
                           />
-                          <span className="px-4 py-2 border border-outline-variant rounded-full text-[11px] font-label-caps peer-checked:bg-primary peer-checked:text-white transition-all block">
+                          <span className={`px-4 py-2 rounded-full text-[11px] font-label-caps transition-all block border ${relation === r ? "bg-[#B34E3F] text-white border-[#B34E3F]" : "bg-white text-[#2C2A29] border-transparent hover:border-[#E2D9CF]"}`}>
                             {r}
                           </span>
                         </label>
@@ -358,7 +358,7 @@ export default function VirtualWishWallPage() {
                 <div className="space-y-2">
                   <label className="font-label-caps text-[11px] text-on-surface-variant">PESAN DOA &amp; UCAPAN</label>
                   <textarea
-                    className="w-full bg-surface-container border-none focus:ring-1 focus:ring-secondary rounded-sm py-4 px-5"
+                    className="w-full bg-white border border-[#E2D9CF] focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] rounded-xl py-4 px-5 outline-none transition-colors"
                     placeholder="Tuliskan doa restu Anda di sini..."
                     rows={4}
                     value={guestMessage}
@@ -366,7 +366,7 @@ export default function VirtualWishWallPage() {
                   />
                 </div>
                 <button
-                  className="w-full bg-secondary text-on-primary py-5 rounded-sm font-label-caps text-[14px] flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-lg shadow-secondary/20"
+                  className="w-full bg-[#B34E3F] text-white py-5 rounded-full font-label-caps text-[14px] flex items-center justify-center gap-3 hover:bg-[#9E3B2D] transition-all shadow-lg shadow-[#B34E3F]/20"
                   type="submit"
                 >
                   <span className="material-symbols-outlined">send</span>
@@ -378,20 +378,20 @@ export default function VirtualWishWallPage() {
         </section>
 
         {/* Live Wish Feed */}
-        <section className="py-24 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+        <section className="py-24 bg-[#FAF7F2] max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-8">
             <div className="space-y-4">
-              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[38px] md:text-[48px] text-primary text-[40px]">Live <span className="italic text-secondary">Wish Feed</span></h2>
+              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[38px] md:text-[48px] text-[#2C2A29]">Live <span className="italic text-[#B34E3F]">Wish Feed</span></h2>
               <p className="text-on-surface-variant font-body-md max-w-md">Eksplorasi doa-doa yang telah masuk dan disetujui oleh moderator.</p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 bg-white border border-[#E2D9CF] rounded-full p-1.5 shadow-sm">
               {filters.map((f) => (
                 <button
                   key={f.key}
-                  className={`px-6 py-3 rounded-full font-label-caps text-[11px] transition-all flex items-center gap-1 ${
+                  className={`px-5 py-2 rounded-full font-label-caps text-[11px] transition-all flex items-center gap-1 border ${
                     filter === f.key
-                      ? "bg-primary text-on-primary"
-                      : "border border-outline-variant text-on-surface-variant hover:border-primary"
+                      ? "bg-[#B34E3F] text-white border-[#B34E3F]"
+                      : "bg-white text-[#2C2A29] border-transparent hover:border-[#E2D9CF]"
                   }`}
                   onClick={() => setFilter(f.key)}
                 >
@@ -405,40 +405,38 @@ export default function VirtualWishWallPage() {
             {filteredCards.map((card) => (
               <div
                 key={card.id}
-                className={`masonry-item p-8 editorial-shadow relative group ${
+                className={`masonry-item p-8 rounded-2xl border shadow-sm relative group bg-white hover:shadow-md transition-shadow ${
                   card.id === sparkleId ? "sparkle-animate" : ""
                 } ${
                   card.pinned
-                    ? "bg-[#F5ECE1] border-l-4 border-secondary"
-                    : card.type === "sahabat"
-                      ? "bg-primary-container text-white"
-                      : "bg-white border border-outline-variant/30"
+                    ? "border-[#C5A059] border-t-4 border-t-[#C5A059]"
+                    : "border-[#E2D9CF]"
                 }`}
                 data-type={card.type}
               >
                 {card.pinned && (
-                  <div className="absolute top-4 right-4 text-secondary">
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>push_pin</span>
+                  <div className="absolute top-4 right-4 bg-[#C5A059] text-white rounded-full p-1.5">
+                    <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>push_pin</span>
                   </div>
                 )}
-                <p className={`font-body-lg text-[18px] leading-relaxed mb-6 ${card.pinned ? "text-primary italic" : card.type === "sahabat" ? "text-white/90" : "text-on-surface-variant"}`}>
+                <p className="font-body-lg text-[18px] leading-relaxed mb-6 text-[#2C2A29] italic">
                   &ldquo;{card.message}&rdquo;
                 </p>
-                <div className="flex justify-between items-center pt-6 border-t border-secondary/20">
+                <div className="flex justify-between items-center pt-6 border-t border-[#E2D9CF]">
                   <div>
-                    <span className={`block font-label-caps text-[12px] ${card.pinned ? "text-primary" : card.type === "sahabat" ? "text-white" : "text-primary"}`}>
+                    <span className="block font-label-caps text-[12px] font-semibold text-[#2C2A29] capitalize">
                       {card.name}
                     </span>
-                    <span className={`text-[10px] uppercase tracking-tighter ${card.pinned ? "text-secondary font-bold" : card.type === "sahabat" ? "text-white/50" : "text-on-surface-variant"}`}>
+                    <span className="text-[10px] uppercase tracking-wider font-bold text-[#C5A059]">
                       {card.relation}
                     </span>
                   </div>
                   <button
-                    className="flex items-center gap-1.5 text-secondary hover:scale-110 transition-transform"
+                    className="flex items-center gap-1.5 text-[#B34E3F] hover:scale-110 transition-transform bg-[#F5EFE6] border border-[#E2D9CF] rounded-full px-3 py-1.5"
                     onClick={() => handleLike(card.id)}
                   >
-                    <span className="material-symbols-outlined text-[20px]">favorite</span>
-                    <span className="font-label-caps text-[14px]">{card.likes}</span>
+                    <span className="material-symbols-outlined text-[18px]">favorite</span>
+                    <span className="font-label-caps text-[12px]">{card.likes}</span>
                   </button>
                 </div>
               </div>
@@ -447,65 +445,64 @@ export default function VirtualWishWallPage() {
         </section>
 
         {/* Bento Grid */}
-        <section className="py-24 bg-[#1a1817]">
+        <section className="py-24 bg-[#FAF7F2]">
           <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
             <div className="text-center mb-20 space-y-6">
-              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-white text-[44px] md:text-[60px]">The Aksaraa <span className="italic text-secondary">Experience</span></h2>
-              <p className="text-white/60 max-w-lg mx-auto">Untuk momen yang hanya terjadi sekali seumur hidup.</p>
+              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[#2C2A29] text-[44px] md:text-[60px]">The Aksaraa <span className="italic text-[#B34E3F]">Experience</span></h2>
+              <p className="text-on-surface-variant max-w-lg mx-auto">Untuk momen yang hanya terjadi sekali seumur hidup.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-12 md:grid-rows-2 gap-gutter h-auto md:h-[700px]">
-              <div className="md:col-span-8 relative overflow-hidden rounded-xl border border-white/10 group bento-item">
+            <div className="grid grid-cols-1 md:grid-cols-12 md:grid-rows-2 gap-6 h-auto md:h-[700px]">
+              <div className="md:col-span-8 relative overflow-hidden rounded-2xl border border-[#E2D9CF] shadow-sm group bento-item bg-white">
                 <img
                   className="absolute inset-0 w-full h-full object-cover grayscale-[0.2] transition-transform duration-1000 group-hover:scale-105"
                   alt="Cinematic luxury wedding venue projection"
                   src={ASSETS.wishWall.venueProjection}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 p-10">
+                <div className="absolute bottom-0 left-0 p-8 md:p-10">
                   <div className="flex items-center gap-4 mb-4">
-                    <span className="w-12 h-[1px] bg-secondary" />
-                    <span className="font-label-caps text-secondary text-[12px] tracking-[0.3em]">IMMERSIVE ART</span>
+                    <span className="w-12 h-[1px] bg-[#C5A059]" />
+                    <span className="font-label-caps text-[#C5A059] text-[12px] tracking-[0.3em]">IMMERSIVE ART</span>
                   </div>
-                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-white text-[34px] mb-4">Venue Cinematic <span className="italic text-secondary">Projection</span></h3>
-                  <p className="text-white/60 max-w-md">Ubah dinding polos ballroom menjadi kanvas digital yang menceritakan cinta melalui ucapan-ucapan hangat dari tamu spesial Anda.</p>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-white text-[28px] md:text-[34px] mb-4">Venue Cinematic <span className="italic text-[#C5A059]">Projection</span></h3>
+                  <p className="text-white/70 max-w-md text-[14px]">Ubah dinding polos ballroom menjadi kanvas digital yang menceritakan cinta melalui ucapan-ucapan hangat dari tamu spesial Anda.</p>
                 </div>
               </div>
-              <div className="md:col-span-4 md:row-span-2 bg-[#252220] border border-white/5 rounded-xl overflow-hidden flex flex-col p-8 group bento-item">
+              <div className="md:col-span-4 md:row-span-2 bg-white border border-[#E2D9CF] rounded-2xl overflow-hidden flex flex-col p-8 group bento-item shadow-sm">
                 <div className="mb-8">
                   <div className="flex items-center justify-between mb-8">
-                    <div className="w-10 h-10 rounded bg-white/5 flex items-center justify-center text-white">
+                    <div className="w-10 h-10 rounded-lg bg-[#F5EFE6] border border-[#E2D9CF] flex items-center justify-center text-[#B34E3F]">
                       <span className="material-symbols-outlined">dashboard</span>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 text-green-500 text-[9px] font-label-caps">
-                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> MODERATOR ONLINE
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#FEF3C7] border border-[#FDE68A] text-[#92400E] text-[9px] font-label-caps font-bold">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" /> MODERATOR ONLINE
                     </div>
                   </div>
-                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-white text-[26px] mb-4">Moderation <span className="italic text-secondary">Mastery</span></h3>
-                  <p className="text-white/40 text-[14px] mb-8 leading-relaxed">Kendali penuh di tangan Anda atau wedding organizer. Setujui pesan secara instan sebelum muncul di layar utama.</p>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[#2C2A29] text-[26px] mb-4">Moderation <span className="italic text-[#B34E3F]">Mastery</span></h3>
+                  <p className="text-on-surface-variant text-[14px] mb-8 leading-relaxed">Kendali penuh di tangan Anda atau wedding organizer. Setujui pesan secara instan sebelum muncul di layar utama.</p>
                 </div>
-                <div className="mt-auto relative rounded-lg border border-white/10 bg-black/40 p-4 transform transition-all group-hover:-translate-y-2">
-                  <img className="w-full rounded-md" alt="Dashboard Interface" src={ASSETS.wishWall.dashboardInterface} />
-                  <div className="absolute inset-0 bg-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                <div className="mt-auto relative rounded-xl border border-[#E2D9CF] bg-[#FAF7F2] p-4 transform transition-all group-hover:-translate-y-1 shadow-sm">
+                  <img className="w-full rounded-lg" alt="Dashboard Interface" src={ASSETS.wishWall.dashboardInterface} />
                 </div>
               </div>
-              <div className="md:col-span-4 bg-[#F5ECE1] p-10 rounded-xl border border-outline-variant/20 flex flex-col justify-between group bento-item">
-                <span className="material-symbols-outlined text-secondary text-[40px] group-hover:rotate-12 transition-transform">auto_stories</span>
+              <div className="md:col-span-4 bg-white p-8 md:p-10 rounded-2xl border border-[#E2D9CF] shadow-sm flex flex-col justify-between group bento-item">
+                <span className="material-symbols-outlined text-[#B34E3F] text-[40px] group-hover:rotate-12 transition-transform">auto_stories</span>
                 <div>
-                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-primary text-[26px] mb-2">Memory <span className="italic text-secondary">Export</span></h3>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[#2C2A29] text-[26px] mb-2">Memory <span className="italic text-[#B34E3F]">Export</span></h3>
                   <p className="text-on-surface-variant text-[14px]">Dapatkan bundel digital lengkap berupa PDF dari semua ucapan di akhir acara.</p>
                 </div>
               </div>
-              <div className="md:col-span-4 bg-secondary p-10 rounded-xl flex flex-col justify-between group bento-item">
+              <div className="md:col-span-4 bg-[#B34E3F] p-8 md:p-10 rounded-2xl border border-[#9E3B2D] flex flex-col justify-between group bento-item shadow-sm">
                 <div className="flex -space-x-3">
                   {["❤️", "✨", "💎"].map((emoji, i) => (
-                    <div key={i} className="w-12 h-12 rounded-full border-4 border-secondary bg-white/20 flex items-center justify-center text-[20px]">
+                    <div key={i} className="w-12 h-12 rounded-full border-4 border-[#B34E3F] bg-white/20 flex items-center justify-center text-[20px]">
                       {emoji}
                     </div>
                   ))}
                 </div>
                 <div>
-                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-white text-[26px] mb-2">Live <span className="italic text-secondary">Reactions</span></h3>
-                  <p className="text-white/70 text-[14px]">Interaksi dua arah yang hidup dengan fitur &apos;Like&apos; yang membuat tamu merasa pesan mereka dihargai.</p>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-white text-[26px] mb-2">Live <span className="italic text-[#F5EFE6]">Reactions</span></h3>
+                  <p className="text-white/80 text-[14px]">Interaksi dua arah yang hidup dengan fitur &apos;Like&apos; yang membuat tamu merasa pesan mereka dihargai.</p>
                 </div>
               </div>
             </div>
