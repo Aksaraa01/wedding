@@ -347,30 +347,45 @@ function DashboardInner({ id }: { id: string }) {
 
       <main className="pt-20 pb-32 lg:max-w-[75%] lg:mx-auto min-h-screen overflow-visible touch-pan-y relative z-10">
         <section className="px-6 mb-10">
-          <div className="relative rounded-[24px] overflow-hidden shadow-lg border border-[#e0d6c8]/60 bg-[#eedfcb]">
-            <div className="relative bg-gradient-to-r from-[#b7583d] via-[#b35237] to-[#9b432a] rounded-[24px] overflow-hidden">
-              <div className="relative px-9 pt-6 pb-9 rounded-b-[32px] overflow-hidden shadow-md z-10" style={{ backgroundColor: "rgb(236,224,206)", backgroundImage: "url(\"https://lh3.googleusercontent.com/aida-public/AB6AXuBLv_ul4rYeXAog4-6887ND4kkTGR7BHY0cAmpLcSXy7CXuvIfwYHkx5Rrw-ggdKRpC8eDcVNBUx8xhbqotcSH-s3gLaUzYrI3uy5uFy_SiJkuHlugeqjch7Zbf3dBfQPeqSjFuODdjWLGNo796PQXGvUErZ5lUzRmycI26A38177tF2LdP7rfeMoizZilih3cIqLu4q9qyDvvNbV3lutUsV9vG4elmzEi_LkgBX60SiJevBYe-t9TAKv4DJayS_DTavIYqiei_Wtn9QQ\")", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 border border-[#e5ded4] shadow-sm backdrop-blur-sm text-[11px] max-w-full overflow-hidden whitespace-nowrap flex-nowrap">
-                  <span className="flex items-center text-stone-900 font-bold tracking-tight shrink-0"><span className="w-2 h-2 rounded-full bg-[#b8382c] mr-1.5 inline-block"></span>PAKET {(PACKAGE_LABEL[profile.package_type || ""] || "Essential").toUpperCase()}</span>
-                  <span className="text-stone-800 font-medium tracking-tight shrink-0 hidden sm:inline">{getPackageCategory(profile.package_type || "")}</span>
-                  <span className="px-2 py-0.5 rounded-full bg-[#fde8e5] text-[#b93b2a] font-bold text-[10px] tracking-wide flex items-center gap-1 shrink-0"><span>{statusLabel}</span>{statusLabel === "UNPAID" && <span className="text-[10px]">⚠️</span>}</span>
+          <div className="relative rounded-[24px] overflow-hidden shadow-xl border border-[#e0d6c8]/80 bg-[#eedfcb]">
+            <div className="relative bg-gradient-to-b md:bg-gradient-to-r from-[#b7583d] via-[#b35237] to-[#9b432a] rounded-[24px] overflow-hidden flex flex-col">
+              <div className="relative px-5 md:px-9 pt-5 md:pt-6 pb-7 md:pb-9 rounded-b-[28px] md:rounded-b-[32px] overflow-hidden shadow-md z-10" style={{ backgroundColor: "rgb(236,224,206)", backgroundImage: "url(\"https://lh3.googleusercontent.com/aida-public/AB6AXuBLv_ul4rYeXAog4-6887ND4kkTGR7BHY0cAmpLcSXy7CXuvIfwYHkx5Rrw-ggdKRpC8eDcVNBUx8xhbqotcSH-s3gLaUzYrI3uy5uFy_SiJkuHlugeqjch7Zbf3dBfQPeqSjFuODdjWLGNo796PQXGvUErZ5lUzRmycI26A38177tF2LdP7rfeMoizZilih3cIqLu4q9qyDvvNbV3lutUsV9vG4elmzEi_LkgBX60SiJevBYe-t9TAKv4DJayS_DTavIYqiei_Wtn9QQ\")", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}>
+                <div className="flex flex-wrap items-center gap-1.5 mb-4 max-w-full overflow-hidden">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/85 border border-[#e5ded4] shadow-sm backdrop-blur-sm text-[10px] whitespace-nowrap shrink-0">
+                    <span className="flex items-center text-stone-900 font-bold tracking-tight"><span className="w-2 h-2 rounded-full bg-[#b8382c] mr-1.5 inline-block"></span>PAKET {(PACKAGE_LABEL[profile.package_type || ""] || "Essential").toUpperCase()}</span>
+                    <span className="text-stone-400">•</span>
+                    <span className="text-stone-700 font-medium tracking-tight">{getPackageCategory(profile.package_type || "") || "UNDANGAN DIGITAL"}</span>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full bg-[#fde8e5] text-[#b93b2a] font-bold text-[10px] tracking-wide inline-flex items-center gap-1 shadow-sm border border-[#fbd0cb] whitespace-nowrap shrink-0"><span>{statusLabel}</span>{statusLabel === "UNPAID" && <span className="text-[10px]">⚠️</span>}</span>
                 </div>
-                <div className="mt-3.5 max-w-full overflow-hidden">
-                  <h1 className={`font-serif leading-tight text-stone-900 font-normal tracking-normal max-w-full ${((profile.bride_name.trim().split(/\s+/).filter(Boolean).length + profile.groom_name.trim().split(/\s+/).filter(Boolean).length) > 4) ? "text-[26px] md:text-[42px] whitespace-normal line-clamp-2" : "text-[28px] md:text-[42px] whitespace-nowrap overflow-hidden text-ellipsis"}`}>{profile.bride_name} <span className="font-serif italic font-normal text-[#c5a059] mx-1 md:mx-1.5 text-[28px] md:text-[42px] leading-none inline-block align-baseline tracking-wide select-none" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>&amp;</span> {profile.groom_name}</h1>
-                  <p className="text-stone-600 font-serif text-[15px] md:text-[17px] mt-1.5 tracking-wide truncate">{formattedDate}</p>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0 pr-1">
+                    <h1 className={`font-serif leading-tight text-stone-900 font-normal tracking-tight break-words ${((profile.bride_name.trim().split(/\s+/).filter(Boolean).length + profile.groom_name.trim().split(/\s+/).filter(Boolean).length) > 4) ? "text-[22px] md:text-[42px] whitespace-normal line-clamp-2" : "text-[28px] md:text-[42px] whitespace-nowrap overflow-hidden text-ellipsis"}`}>{profile.bride_name} <br className="md:hidden"/><span className="font-serif italic font-normal text-[#c5a059] leading-none inline-block align-baseline tracking-wide select-none text-[22px] md:text-[42px]" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>&amp;</span> {profile.groom_name}</h1>
+                    <p className="text-stone-600 font-serif text-[14px] md:text-[17px] mt-1.5 tracking-wide flex items-center truncate">
+                      <span className="material-symbols-outlined text-[14px] mr-1.5 text-[#a8824b] shrink-0 hidden md:inline">calendar_today</span>
+                      {formattedDate}
+                    </p>
+                  </div>
+                  <div className="shrink-0 md:hidden">
+                    <div className="w-28 h-28 rounded-full p-[4px] flex items-center justify-center relative shadow-lg" style={{ background: "linear-gradient(135deg, #d8b471 0%, #fae8be 35%, #c89c4e 60%, #e8c988 85%, #9d7532 100%)", boxShadow: "0 8px 18px -3px rgba(70,30,10,0.35)" }}>
+                      <div className="w-full h-full rounded-full flex flex-col items-center justify-center text-center relative overflow-hidden bg-[#faf5ec] p-2 border border-[#deb86d]/40 shadow-inner">
+                        <span className="font-serif text-[30px] font-bold text-[#b58c4f] tracking-tight leading-none pt-0.5">{daysLeft}</span>
+                        <span className="font-serif text-[11px] font-semibold text-[#8b6a37] tracking-normal leading-tight mt-0.5">Hari Lagi</span>
+                        <span className="text-[9px] font-sans text-stone-500 font-medium tracking-tight mt-0.5">(Count Down)</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="px-9 py-5 flex items-center relative z-10">
-                <div className="flex items-center space-x-3.5">
-                  <button onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)} className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-full border border-white/40 text-[#fdfbf9] bg-white/10 hover:bg-white/20 transition backdrop-blur-sm text-[13px] font-medium">
-                    <span className="material-symbols-outlined text-[16px]">mail</span>
-                    <span>Lihat Undangan</span>
-                  </button>
-                  <button onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)} className="inline-flex items-center space-x-2.5 px-5 py-2.5 rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white transition shadow-sm text-[13px] font-semibold">
-                    <span className="material-symbols-outlined text-[16px] text-[#a8824b]">qr_code_2</span>
-                    <span>Undangan Tamu</span>
-                  </button>
-                </div>
+              <div className="p-4 flex flex-row gap-2.5 relative z-10">
+                <button onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)} className="w-full h-12 inline-flex items-center justify-center gap-2 px-4 rounded-xl border border-white/40 text-[#fdfbf9] bg-white/10 hover:bg-white/20 active:bg-white/25 transition backdrop-blur-sm text-[13px] font-medium shadow-sm whitespace-nowrap overflow-hidden text-ellipsis shrink">
+                  <span className="material-symbols-outlined text-[16px] shrink-0">mail</span>
+                  <span className="whitespace-nowrap">Lihat Undangan</span>
+                </button>
+                <button onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)} className="w-full h-12 inline-flex items-center justify-center gap-2 px-4 rounded-xl bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden text-ellipsis shrink">
+                  <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">qr_code_2</span>
+                  <span className="whitespace-nowrap">Undangan Tamu</span>
+                </button>
               </div>
               <div className="absolute right-8 top-1/2 -translate-y-1/2 z-20 pointer-events-none hidden md:flex">
                 <div className="w-44 h-44 rounded-full p-[6px] flex items-center justify-center relative shadow-xl" style={{ background: "linear-gradient(135deg, #d8b471 0%, #fae8be 35%, #c89c4e 60%, #e8c988 85%, #9d7532 100%)", boxShadow: "0 10px 25px -4px rgba(70,30,10,0.35), 0 4px 8px -2px rgba(0,0,0,0.1)" }}>
