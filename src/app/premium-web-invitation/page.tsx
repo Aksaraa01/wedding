@@ -107,7 +107,7 @@ export default function PremiumWebInvitationPage() {
             <div className="mb-10 md:mb-20 flex flex-col items-center">
               <div className="w-full max-w-2xl mx-auto rounded-2xl overflow-hidden border border-[#E2D9CF] shadow-xl transition-all duration-700 opacity-100 translate-y-0 bg-white">
                 <img
-                  src={ASSETS.premiumWeb.dashboard}
+                  src="/dashboard.png"
                   alt="Dashboard Preview"
                   className="w-full h-auto object-cover"
                 />
@@ -214,17 +214,14 @@ export default function PremiumWebInvitationPage() {
         </section>
 
         {/* Final CTA / Sticky Bar */}
-        <section className="fixed bottom-0 w-full z-40 bg-[#F5EFE6] border-t border-[#E2D9CF] py-6 px-margin-mobile md:px-margin-desktop shadow-[0_-10px_40px_rgba(26,24,23,0.05)]">
-          <div className="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-            <div>
-              <h4 className="font-headline-md text-[#2C2A29] text-lg mb-1">Menginginkan sentuhan personal?</h4>
-              <p className="font-body-md text-sm text-on-surface-variant">Konsultasikan desain khusus impian Anda bersama tim kami.</p>
-            </div>
+        <section className="fixed bottom-0 w-full z-40 bg-[#F5EFE6] border-t border-[#E2D9CF] py-3 md:py-6 px-margin-mobile md:px-margin-desktop shadow-[0_-10px_40px_rgba(26,24,23,0.05)]">
+          <div className="max-w-container-max mx-auto flex flex-row justify-between items-center gap-3 md:gap-6">
+            <h4 className="font-headline-md text-[#2C2A29] text-[14px] md:text-lg leading-tight">Menginginkan sentuhan personal?</h4>
             <button
               onClick={() => router.push("/register")}
-              className="bg-[#B34E3F] text-white px-8 py-4 rounded-full font-label-md text-[11px] tracking-[0.2em] uppercase hover:bg-[#9E3B2D] transition-all w-full md:w-auto shadow-sm"
+              className="bg-[#B34E3F] text-white px-5 md:px-8 py-3 md:py-4 rounded-full font-label-md text-[10px] md:text-[11px] tracking-[0.2em] uppercase hover:bg-[#9E3B2D] transition-all shrink-0 shadow-sm whitespace-nowrap"
             >
-              Konsultasi Desain Khusus
+              Konsultasi
             </button>
           </div>
         </section>
