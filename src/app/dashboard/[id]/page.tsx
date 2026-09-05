@@ -298,8 +298,8 @@ function DashboardInner({ id }: { id: string }) {
             data-tour="replay"
           >
             <span className="material-symbols-outlined text-[22px]">school</span>
-            <span className="pointer-events-none absolute top-full right-0 mt-2 whitespace-nowrap bg-on-surface text-on-primary px-3 py-1.5 font-label-md text-label-md uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity z-50">
-              Jalankan Tur
+            <span className="pointer-events-none absolute top-full right-0 mt-2 bg-white text-[#2C2A29] border border-[#B34E3F] px-3 py-2 rounded-lg max-w-[160px] whitespace-normal text-center leading-tight text-[11px] opacity-0 group-hover:opacity-100 transition-opacity z-50 shadow-lg">
+              Jalankan<br/>Tur
             </span>
           </button>
           <button
@@ -309,8 +309,8 @@ function DashboardInner({ id }: { id: string }) {
             data-tour="cara-memulai"
           >
             <span className="material-symbols-outlined text-[22px]">menu_book</span>
-            <span className="pointer-events-none absolute top-full right-0 mt-2 whitespace-nowrap bg-on-surface text-on-primary px-3 py-1.5 font-label-md text-label-md uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity z-50">
-              Cara Memulai
+            <span className="pointer-events-none absolute top-full right-0 mt-2 bg-white text-[#2C2A29] border border-[#B34E3F] px-3 py-2 rounded-lg max-w-[160px] whitespace-normal text-center leading-tight text-[11px] opacity-0 group-hover:opacity-100 transition-opacity z-50 shadow-lg">
+              Cara<br/>Memulai
             </span>
           </button>
           {profile.package_type === "cetak_undangan_bonus" ? (
@@ -321,8 +321,8 @@ function DashboardInner({ id }: { id: string }) {
               aria-label="Paket BONUS"
             >
               <span className="material-symbols-outlined text-[22px]">lock</span>
-              <span className="pointer-events-none absolute top-full right-0 mt-2 whitespace-nowrap bg-on-surface text-on-primary px-3 py-1.5 font-label-md text-label-md uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity z-50">
-                Paket BONUS — hubungi konsultan
+              <span className="pointer-events-none absolute top-full right-0 mt-2 bg-white text-[#2C2A29] border border-[#B34E3F] px-3 py-2 rounded-lg max-w-[180px] whitespace-normal text-center leading-tight text-[11px] opacity-0 group-hover:opacity-100 transition-opacity z-50 shadow-lg">
+                Paket BONUS —<br/>hubungi konsultan
               </span>
             </button>
           ) : (
@@ -333,8 +333,8 @@ function DashboardInner({ id }: { id: string }) {
               aria-label="Ganti Paket"
             >
               <span className="material-symbols-outlined text-[22px]">settings</span>
-              <span className="pointer-events-none absolute top-full right-0 mt-2 whitespace-nowrap bg-on-surface text-on-primary px-3 py-1.5 font-label-md text-label-md uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity z-50">
-                Ganti Paket
+              <span className="pointer-events-none absolute top-full right-0 mt-2 bg-white text-[#2C2A29] border border-[#B34E3F] px-3 py-2 rounded-lg max-w-[160px] whitespace-normal text-center leading-tight text-[11px] opacity-0 group-hover:opacity-100 transition-opacity z-50 shadow-lg">
+                Ganti<br/>Paket
               </span>
             </button>
           )}

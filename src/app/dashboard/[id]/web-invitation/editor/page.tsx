@@ -936,7 +936,7 @@ function EditorInner({ id }: { id: string }) {
     })()
     const isLocked = lockedInfo !== null
     return (
-      <div data-section={key} data-tour={key} className={`scroll-mt-6 border rounded-xl overflow-visible ${isActive ? "bg-[#B34E3F] border-[#B34E3F]" : "bg-white border-[#E2D9CF]"} `}>
+      <div data-section={key} data-tour={key} className={`scroll-mt-6 border rounded-xl overflow-visible ${isActive ? "bg-[#B34E3F] border-[#B34E3F]" : "bg-white border-[#B34E3F]"} `}>
         <button
           onClick={() => handleSectionToggle(key)}
           className={`w-full flex justify-between items-center py-4 px-4 transition-colors ${isActive ? "text-white hover:text-white/90" : "text-[#2C2A29] hover:text-[#B34E3F]"} ${!isActive ? "rounded-xl" : "rounded-t-xl"}`}
@@ -1120,7 +1120,7 @@ function EditorInner({ id }: { id: string }) {
 
             <span className="hidden md:inline-flex relative group">
               <button onClick={() => setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile")} disabled={initialLoading} className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-outline-variant bg-white text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-50" aria-label="Ganti tampilan pratinjau"><span className="material-symbols-outlined text-[20px]">devices</span></button>
-              <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-primary text-white text-[11px] px-3 py-1.5 rounded whitespace-nowrap z-50 shadow-lg pointer-events-none">Ganti tampilan pratinjau</span>
+              <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-white text-[#2C2A29] border border-[#B34E3F] text-[11px] px-3 py-2 rounded-lg max-w-[160px] whitespace-normal text-center leading-tight z-50 shadow-lg pointer-events-none">Ganti<br/>tampilan pratinjau</span>
             </span>
 
             <button
@@ -1552,7 +1552,7 @@ function EditorInner({ id }: { id: string }) {
                           <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Link Google Maps</label>
                           <input className="input-editorial w-full font-label-md text-[14px]" placeholder="https://maps.google.com/..." type="text" value={session.maps_url} onChange={e => updateSession(i, "maps_url", e.target.value)} />
                         </div>
-                        <button onClick={() => testMapsLink(session.maps_url)} className="bg-surface-container-highest px-3 py-1 text-[10px] font-bold text-primary border border-outline-variant mb-2">UJI LINK</button>
+                        <button onClick={() => testMapsLink(session.maps_url)} className="bg-secondary text-white rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:opacity-90 active:scale-95 transition-all mb-2">UJI LINK</button>
                       </div>
                     </div>
                   ))}
