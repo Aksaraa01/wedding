@@ -92,16 +92,6 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
       <style>{`
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .conversion-line::before {
-          content: '';
-          position: absolute;
-          left: 24px;
-          top: 40px;
-          bottom: 40px;
-          width: 1px;
-          background-color: #e6e2d9;
-          z-index: 0;
-        }
       `}</style>
 
       <div className="min-h-screen bg-surface text-on-surface font-body-md overflow-x-hidden">
@@ -121,69 +111,66 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
             {/* Left Column: Statistics & Action */}
             <div className="lg:col-span-5 space-y-12">
-              <section className="border border-[#c4c7c7]/20 p-8 bg-surface-container-low lg:sticky lg:top-32">
+              <section className="border border-[#E2D9CF] p-8 bg-white lg:sticky lg:top-32 rounded-xl">
                 <h2 className="font-label-md text-label-md uppercase mb-10 opacity-60 tracking-[0.2em]">Ringkasan Statistik</h2>
-                <div className="relative conversion-line">
-                  {/* Stage 1: Total Undangan */}
-                  <div className="relative z-10 flex items-start gap-6 mb-12">
-                    <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center border-4 border-background shrink-0">
+                <div className="space-y-6">
+                  <div className="flex items-start gap-6">
+                    <div className="w-12 h-12 rounded-full bg-[#F3F4F6] border border-[#E2D9CF] text-[#B34E3F] flex items-center justify-center shrink-0">
                       <span className="material-symbols-outlined text-[20px]">groups</span>
                     </div>
-                    <div className="flex-1 bg-surface-container-low p-6 border border-[#c4c7c7]/30">
+                    <div className="flex-1 bg-white p-6 border border-[#E2D9CF] rounded-xl border-l-4 border-l-[#B34E3F]">
                       <p className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant mb-2">Total Undangan</p>
                       <div className="flex items-baseline gap-3">
-                        <span className="font-headline-lg text-headline-lg">{stats.total}</span>
+                        <span className="font-headline-lg text-headline-lg text-[#2C2A29]">{stats.total}</span>
                         <span className="text-on-surface-variant text-sm">Guests</span>
                       </div>
-                      <div className="mt-4 h-1 w-full bg-surface-variant">
-                        <div className="h-full bg-primary" style={{ width: "100%" }} />
+                      <div className="mt-4 h-1 w-full bg-[#F3F4F6] rounded-full overflow-hidden">
+                        <div className="h-full bg-[#B34E3F]" style={{ width: "100%" }} />
                       </div>
                       <p className="mt-2 font-label-md text-[10px] text-on-surface-variant">100% BASE CAPACITY</p>
                     </div>
                   </div>
 
-                  {/* Stage 2: Dibuka */}
-                  <div className="relative z-10 flex items-start gap-6 mb-12">
-                    <div className="w-12 h-12 rounded-full bg-white border border-outline-variant flex items-center justify-center shrink-0">
-                      <span className="material-symbols-outlined text-primary text-[20px]">mark_email_read</span>
+                  <div className="flex items-start gap-6">
+                    <div className="w-12 h-12 rounded-full bg-[#F3F4F6] border border-[#E2D9CF] text-[#B34E3F] flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-[20px]">mark_email_read</span>
                     </div>
-                    <div className="flex-1 bg-white p-6 border border-outline-variant">
+                    <div className="flex-1 bg-white p-6 border border-[#E2D9CF] rounded-xl border-l-4 border-l-[#9E3B2D]">
                       <p className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant mb-2">Dibuka</p>
                       <div className="flex items-baseline justify-between">
                         <div className="flex items-baseline gap-3">
-                          <span className="font-headline-lg text-headline-lg">{stats.dibuka}</span>
+                          <span className="font-headline-lg text-headline-lg text-[#2C2A29]">{stats.dibuka}</span>
                           <span className="text-on-surface-variant text-sm">Undangan</span>
                         </div>
                         <div className="text-right">
-                          <span className="font-bold text-lg">{openPct}%</span>
+                          <span className="font-bold text-lg text-[#2C2A29]">{openPct}%</span>
                           <p className="text-[10px] uppercase tracking-tighter text-on-surface-variant">Open Rate</p>
                         </div>
                       </div>
-                      <div className="mt-4 h-1 w-full bg-surface-variant overflow-hidden">
-                        <div className="h-full bg-secondary-container" style={{ width: `${Math.min(Math.max(openPct, 4), 100)}%` }} />
+                      <div className="mt-4 h-1 w-full bg-[#F3F4F6] rounded-full overflow-hidden">
+                        <div className="h-full bg-[#9E3B2D]" style={{ width: `${Math.min(Math.max(openPct, 4), 100)}%` }} />
                       </div>
                     </div>
                   </div>
 
-                  {/* Stage 3: Konfirmasi Hadir */}
-                  <div className="relative z-10 flex items-start gap-6">
-                    <div className="w-12 h-12 rounded-full bg-white border border-outline-variant flex items-center justify-center shrink-0">
-                      <span className="material-symbols-outlined text-primary text-[20px]">check_circle</span>
+                  <div className="flex items-start gap-6">
+                    <div className="w-12 h-12 rounded-full bg-[#F3F4F6] border border-[#E2D9CF] text-[#D97706] flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-[20px]">check_circle</span>
                     </div>
-                    <div className="flex-1 bg-primary text-white p-6">
-                      <p className="font-label-md text-label-md uppercase tracking-widest text-white mb-2">Konfirmasi Hadir</p>
+                    <div className="flex-1 bg-white p-6 border border-[#E2D9CF] rounded-xl border-l-4 border-l-[#D97706]">
+                      <p className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant mb-2">Konfirmasi Hadir</p>
                       <div className="flex items-baseline justify-between">
                         <div className="flex items-baseline gap-3">
-                          <span className="font-headline-lg text-headline-lg text-white">{stats.hadir}</span>
-                          <span className="text-white text-sm">Confirmed</span>
+                          <span className="font-headline-lg text-headline-lg text-[#2C2A29]">{stats.hadir}</span>
+                          <span className="text-on-surface-variant text-sm">Confirmed</span>
                         </div>
                         <div className="text-right">
-                          <span className="font-bold text-lg text-white">{conversionPct}%</span>
-                          <p className="text-[10px] uppercase tracking-tighter text-white">Conversion</p>
+                          <span className="font-bold text-lg text-[#2C2A29]">{conversionPct}%</span>
+                          <p className="text-[10px] uppercase tracking-tighter text-on-surface-variant">Conversion</p>
                         </div>
                       </div>
-                      <div className="mt-4 h-1 w-full bg-white/30 overflow-hidden">
-                        <div className="h-full bg-white" style={{ width: `${Math.min(Math.max(conversionPct, 4), 100)}%` }} />
+                      <div className="mt-4 h-1 w-full bg-[#F3F4F6] rounded-full overflow-hidden">
+                        <div className="h-full bg-[#D97706]" style={{ width: `${Math.min(Math.max(conversionPct, 4), 100)}%` }} />
                       </div>
                     </div>
                   </div>
@@ -191,28 +178,36 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
               </section>
 
               {/* Action Banner */}
-              <section className="space-y-6">
-                <div className="bg-primary-container p-8 text-on-primary">
-                  <p className="font-body-md italic mb-6 leading-relaxed opacity-90">
+              <section className="space-y-4">
+                <div className="bg-[#F9F6F0] border border-[#E2D9CF] rounded-xl p-6 flex items-start gap-3">
+                  <span className="material-symbols-outlined text-[#B34E3F] text-[20px] shrink-0 mt-0.5">info</span>
+                  <p className="font-body-md text-sm leading-relaxed text-[#2C2A29]">
                     {belumKonfirmasi > 0
-                      ? `"${belumKonfirmasi} tamu kehormatan yang belum memberikan konfirmasi kehadiran."`
-                      : `"${stats.total} tamu undangan telah diinput. Kelola tautan unik dan kirim pengingat sesuai kebutuhan Anda."`}
+                      ? `${belumKonfirmasi} tamu belum konfirmasi. Kirim pengingat atau tambah tamu baru.`
+                      : `${stats.total} tamu telah diinput. Kelola tautan unik dan kirim pengingat sesuai kebutuhan.`}
                   </p>
-                  <button
-                    onClick={() => {
-                      if (!waBlastEnabled) { setShowWaBlastModal(true); return }
-                      router.push(`/dashboard/${id}/reminder-tamu-vip`)
-                    }}
-                    className="w-full bg-on-primary text-primary min-h-[44px] md:min-h-0 py-5 px-6 font-label-md text-label-md uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-secondary transition-colors duration-300"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">notifications_active</span>
-                    Kirim Pengingat via WhatsApp
-                  </button>
                 </div>
-                  <button
-                    onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)}
-                    className="w-full border border-[#1a1a1a]/40 text-primary min-h-[44px] md:min-h-0 py-5 px-6 font-label-md text-label-md uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-primary hover:text-on-primary transition-colors duration-300"
-                  >
+                <button
+                  onClick={() => router.push(`/dashboard/${id}/guests`)}
+                  className="w-full bg-[#B34E3F] text-white rounded-full py-3.5 font-label-md text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#9E3B2D] active:scale-[0.98] transition-all"
+                >
+                  <span className="material-symbols-outlined text-[18px]">person_add</span>
+                  Tambah Tamu
+                </button>
+                <button
+                  onClick={() => {
+                    if (!waBlastEnabled) { setShowWaBlastModal(true); return }
+                    router.push(`/dashboard/${id}/reminder-tamu-vip`)
+                  }}
+                  className="w-full bg-secondary text-white rounded-full py-3.5 font-label-md text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all"
+                >
+                  <span className="material-symbols-outlined text-[18px]">notifications_active</span>
+                  Kirim Pengingat via WhatsApp
+                </button>
+                <button
+                  onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)}
+                  className="w-full bg-white border border-[#B34E3F] text-[#B34E3F] rounded-full py-3.5 font-label-md text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#F9F6F0] active:scale-[0.98] transition-all"
+                >
                   <span className="material-symbols-outlined text-[18px]">qr_code_2</span>
                   Kelola QR &amp; Tautan Tamu
                 </button>
@@ -235,7 +230,7 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
                   </div>
 
                   {/* Filter Chips */}
-                  <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+                  <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2 snap-x snap-mandatory scroll-pl-4">
                     {[
                       { key: null, label: `Semua (${stats.total})` },
                       { key: "BELUM_DIBUKA", label: `Belum Dibuka (${stats.belum_dibuka})` },
@@ -246,10 +241,10 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
                       <button
                         key={chip.key || "all"}
                         onClick={() => setFilter(chip.key)}
-                        className={`whitespace-nowrap px-8 min-h-[44px] md:min-h-0 py-4 md:py-3 border font-label-md text-[11px] uppercase tracking-wider transition-all ${
+                        className={`snap-start shrink-0 whitespace-nowrap px-5 md:px-6 py-3 border rounded-full font-label-md text-[11px] uppercase tracking-wider transition-all ${
                           filter === chip.key
-                            ? "border-primary bg-primary text-on-primary"
-                            : "border-outline-variant text-on-surface-variant hover:bg-surface-container"
+                            ? "border-[#B34E3F] bg-[#B34E3F] text-white font-bold"
+                            : "border-[#E2D9CF] bg-white text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F]"
                         }`}
                       >
                         {chip.label}
@@ -272,7 +267,17 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
                       </thead>
                       <tbody className="divide-y divide-[#c4c7c7]/15">
                         {filtered.length === 0 && (
-                          <tr><td colSpan={3} className="py-12 text-center font-body-md italic opacity-40 text-[14px]">Tidak ada tamu ditemukan.</td></tr>
+                          <tr><td colSpan={3} className="py-12 text-center">
+                            <div className="flex flex-col items-center gap-3">
+                              <span className="material-symbols-outlined text-[36px] text-[#E2D9CF]">group_off</span>
+                              <p className="font-body-md text-sm text-on-surface-variant">Belum ada tamu di kategori ini</p>
+                              <p className="text-[11px] text-on-surface-variant/60">Tambahkan tamu pertama untuk memulai reservasi</p>
+                              <button onClick={() => router.push(`/dashboard/${id}/guests`)} className="mt-2 bg-[#B34E3F] text-white rounded-full px-6 py-2.5 font-label-md text-[11px] uppercase tracking-widest flex items-center gap-2 hover:bg-[#9E3B2D] active:scale-95 transition-all">
+                                <span className="material-symbols-outlined text-[16px]">person_add</span>
+                                Tambah Tamu Pertama
+                              </button>
+                            </div>
+                          </td></tr>
                         )}
                         {filtered.map(guest => {
                           const statusBadge = guest.rsvp_status === "HADIR"
@@ -306,7 +311,15 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
                   {/* Desktop list */}
                   <div className="hidden md:block flex-1 overflow-y-auto divide-y divide-[#c4c7c7]/20 hide-scrollbar">
                     {filtered.length === 0 && (
-                      <p className="py-16 text-center font-body-md italic opacity-40">Tidak ada tamu ditemukan.</p>
+                      <div className="py-16 flex flex-col items-center gap-3 text-center">
+                        <span className="material-symbols-outlined text-[48px] text-[#E2D9CF]">group_off</span>
+                        <p className="font-headline-md text-lg text-[#2C2A29]">Belum ada tamu</p>
+                        <p className="font-body-md text-sm text-on-surface-variant max-w-xs">Tidak ada tamu di kategori ini. Tambahkan tamu pertama untuk memulai reservasi.</p>
+                        <button onClick={() => router.push(`/dashboard/${id}/guests`)} className="mt-2 bg-[#B34E3F] text-white rounded-full px-8 py-3 font-label-md text-[11px] uppercase tracking-widest flex items-center gap-2 hover:bg-[#9E3B2D] active:scale-95 transition-all">
+                          <span className="material-symbols-outlined text-[16px]">person_add</span>
+                          Tambah Tamu Pertama
+                        </button>
+                      </div>
                     )}
                     {filtered.map(guest => {
                       const statusBadge = guest.rsvp_status === "HADIR"
