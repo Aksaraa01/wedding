@@ -233,71 +233,71 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
                 return (
                   <article
                     key={wish.id}
-                    className={`relative overflow-hidden flex flex-col h-full ${wish.is_pinned ? "md:col-span-2 bg-white p-8 border border-[#c4c7c7]/30 editorial-shadow" : isPending ? "bg-[#8d4d39]/5 p-8 border border-[#8d4d39]/20" : "bg-white p-8 border border-[#c4c7c7]/30 editorial-shadow"}`}
+                    className={`relative overflow-hidden flex flex-col h-full rounded-xl border shadow-sm ${wish.is_pinned ? "md:col-span-2 bg-white border-[#C5A059] border-l-4 border-l-[#C5A059]" : isPending ? "bg-[#FFFBEB] border-[#F59E0B]" : "bg-white border-[#E2D9CF]"}`}
                   >
-                    {wish.is_pinned && <div className="absolute top-0 left-0 w-1 h-full bg-primary" />}
-
+                    <div className="p-8 flex flex-col h-full">
                     <div className="mb-4">
                       <div className="flex items-center gap-2">
                         {wish.is_pinned ? (
                           <>
-                            <span className="material-symbols-outlined text-[14px] md:text-[16px] text-primary">push_pin</span>
-                            <span className="font-label-md text-[11px] md:text-label-md uppercase text-primary tracking-widest">Disematkan</span>
+                            <span className="material-symbols-outlined text-[14px] md:text-[16px] text-[#C5A059]">push_pin</span>
+                            <span className="font-label-md text-[11px] md:text-label-md uppercase text-[#C5A059] tracking-widest font-bold">Disematkan</span>
                           </>
                         ) : isPending ? (
                           <>
-                            <span className="material-symbols-outlined text-[14px] md:text-[16px] text-secondary">schedule</span>
-                            <span className="font-label-md text-[11px] md:text-label-md uppercase text-secondary tracking-widest">Review</span>
+                            <span className="material-symbols-outlined text-[14px] md:text-[16px] text-[#F59E0B]">schedule</span>
+                            <span className="font-label-md text-[11px] md:text-label-md uppercase text-[#92400E] tracking-widest font-bold">Review</span>
                           </>
                         ) : (
                           <>
-                            <span className="material-symbols-outlined text-[14px] md:text-[16px] text-green-600" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                            <span className="font-label-md text-[11px] md:text-label-md uppercase text-on-surface-variant tracking-widest">Ditampilkan</span>
+                            <span className="material-symbols-outlined text-[14px] md:text-[16px] text-[#10B981]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                            <span className="font-label-md text-[11px] md:text-label-md uppercase text-[#10B981] tracking-widest font-bold">Ditampilkan</span>
                           </>
                         )}
                       </div>
                       <p className="text-[10px] text-on-surface-variant/60 font-label-md uppercase tracking-widest mt-1.5 flex items-center gap-1.5">
-                        <span className={`inline-block w-1.5 h-1.5 rounded-full ${wish.source === "welcome" ? "bg-secondary" : "bg-primary"}`} />
+                        <span className={`inline-block w-1.5 h-1.5 rounded-full ${wish.source === "welcome" ? "bg-[#C5A059]" : "bg-[#B34E3F]"}`} />
                         {sourceLabel} • {timeAgo(wish.created_at)}
                       </p>
                     </div>
 
-                    <h3 className={`font-headline-md mb-3 ${wish.is_pinned ? "text-[18px] md:text-headline-md" : "text-[18px] md:text-[22px]"}`}>{wish.name}</h3>
+                    <h3 className={`font-headline-md mb-3 capitalize font-semibold text-[#2C2A29] ${wish.is_pinned ? "text-[18px] md:text-headline-md" : "text-[18px] md:text-[22px]"}`}>{wish.name}</h3>
                     <p className={`leading-relaxed mb-6 ${wish.is_pinned ? "text-sm md:font-body-lg italic text-on-surface-variant max-w-3xl" : "text-sm md:font-body-md text-on-surface-variant"}`}>
                       &ldquo;{wish.message}&rdquo;
                     </p>
 
                     {isPending ? (
-                      <div className="flex flex-col gap-3 mt-auto pt-6 border-t border-[#8d4d39]/10">
+                      <div className="flex gap-3 mt-auto pt-6 border-t border-[#F59E0B]/20">
                         <button
                           onClick={() => updateWish(wish.id, { status: "approved" })}
-                          className="w-full py-4 bg-secondary text-on-primary font-label-md text-label-md uppercase tracking-widest hover:opacity-90 transition-all active:scale-[0.98]"
+                          className="flex-1 py-3 bg-[#B34E3F] text-white rounded-full font-label-md text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all"
                         >
-                          Setujui &amp; Tampilkan
+                          Setujui
                         </button>
                         <button
                           onClick={() => deleteWish(wish.id)}
-                          className="w-full py-2 text-secondary font-label-md text-label-md uppercase tracking-widest hover:underline transition-all"
+                          className="flex-1 py-3 bg-white border border-[#DC2626] text-[#DC2626] rounded-full font-label-md text-[11px] uppercase tracking-widest hover:bg-[#FEF2F2] active:scale-95 transition-all"
                         >
                           Tolak
                         </button>
                       </div>
                     ) : (
-                      <div className="flex gap-4 mt-auto pt-6 border-t border-[#c4c7c7]/30">
+                      <div className="flex gap-3 mt-auto pt-6 border-t border-[#E2D9CF]">
                         <button
                           onClick={() => updateWish(wish.id, { status: wish.status === "approved" ? "hidden" : "approved" })}
-                          className="flex-1 py-3 border border-primary text-primary font-label-md text-[11px] lg:text-label-md uppercase tracking-widest hover:bg-surface-container-low transition-colors text-center"
+                          className="flex-1 py-3 bg-white border border-[#E2D9CF] text-[#2C2A29] rounded-full font-label-md text-[11px] lg:text-label-md uppercase tracking-widest hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors text-center"
                         >
                           {wish.status === "approved" ? "Sembunyikan" : "Tampilkan"}
                         </button>
                         <button
                           onClick={() => updateWish(wish.id, { is_pinned: !wish.is_pinned })}
-                          className="flex-1 py-3 border border-primary text-primary font-label-md text-[11px] lg:text-label-md uppercase tracking-widest hover:bg-surface-container-low transition-colors text-center"
+                          className={`flex-1 py-3 rounded-full font-label-md text-[11px] lg:text-label-md uppercase tracking-widest transition-colors text-center ${wish.is_pinned ? "bg-white border border-[#C5A059] text-[#C5A059] hover:bg-[#FFFBEB]" : "bg-white border border-[#E2D9CF] text-[#2C2A29] hover:border-[#C5A059] hover:text-[#C5A059]"}`}
                         >
                           {wish.is_pinned ? "Lepas Semat" : "Sematkan"}
                         </button>
                       </div>
                     )}
+                    </div>
                   </article>
                 )
               })}
