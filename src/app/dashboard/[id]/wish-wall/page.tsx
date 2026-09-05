@@ -119,7 +119,7 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
   ]
 
   return (
-    <div className="min-h-screen bg-[#fdf9f0] text-[#1c1c16] font-body-md text-body-md antialiased pb-20">
+    <div className="min-h-screen bg-[#FAF7F2] text-[#1c1c16] font-body-md text-body-md antialiased pb-20">
       <style>{`
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -127,7 +127,7 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
       `}</style>
 
       {/* Top Navigation Bar */}
-      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-[#fdf9f0]/80 backdrop-blur-md border-b border-[#c4c7c7]/30 flex justify-between items-center px-6 lg:px-10 h-16">
+      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-[#FAF7F2]/80 backdrop-blur-md border-b border-[#E2D9CF] flex justify-between items-center px-6 lg:px-10 h-16">
         <span className="font-label-md text-label-md tracking-widest uppercase text-on-surface-variant">Wish Wall</span>
         <div className="flex items-center gap-4">
           <span className="hidden lg:inline font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">Admin Mode</span>
@@ -137,50 +137,39 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
 
       <main className="mt-20 px-6 lg:px-10 max-w-7xl mx-auto w-full pb-20">
         {/* Page Header */}
-        <section className="mb-12 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
-          <div className="max-w-2xl">
-            <h2 className="font-headline-xl text-[20px] md:text-[28px] lg:text-headline-xl leading-tight mb-2">Doa & Harapan Tamu</h2>
-            <p className="text-on-surface-variant text-sm md:font-body-lg opacity-80 max-w-xl leading-relaxed">
-              Review doa dan ucapan manis dari para tamu sebelum ditampilkan secara langsung pada situs web undangan Anda.
-            </p>
-          </div>
-
-          {ledUrl && (
-            <div className="w-full lg:max-w-md">
-              <div className="flex flex-col gap-1 mb-3">
-                <span className="font-label-md text-[11px] text-secondary uppercase tracking-widest">Link Layar LED</span>
-              </div>
-              <div className="flex items-center justify-between gap-4 p-3 bg-white border border-[#8d4d39]/10">
-                <span className="font-body-md text-on-surface-variant truncate text-sm">{ledUrl}</span>
-                <div className="flex gap-1 shrink-0">
-                  <button onClick={copyLedUrl} className="p-2 hover:bg-surface-container-low transition-colors text-secondary" title="Salin">
-                    <span className="material-symbols-outlined text-[18px]">{copied ? "check" : "content_copy"}</span>
-                  </button>
-                  <a href={ledUrl} target="_blank" rel="noopener" className="p-2 hover:bg-surface-container-low transition-colors text-secondary" title="Buka">
-                    <span className="material-symbols-outlined text-[18px]">open_in_new</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          )}
+        <section className="mb-8">
+          <h2 className="font-headline-xl text-[20px] md:text-[28px] lg:text-headline-xl leading-tight mb-2 text-[#2C2A29]">Doa & Harapan Tamu</h2>
+          <p className="text-on-surface-variant text-sm md:font-body-lg opacity-80 max-w-xl leading-relaxed">
+            Review doa dan ucapan manis dari para tamu sebelum ditampilkan secara langsung pada situs web undangan Anda.
+          </p>
         </section>
 
-        {/* Live LED Preview */}
+        {/* Live LED Preview with Toolbar */}
         {ledUrl && (
-          <section className="mb-12">
-            <div className="flex items-center gap-2 mb-4 flex-wrap">
-              <span className="w-8 h-[1px] bg-secondary shrink-0" />
-              <span className="font-label-md text-[11px] md:text-label-md text-secondary uppercase tracking-widest">Pratinjau Layar LED</span>
-              <span className="hidden sm:inline text-secondary/40">—</span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-                <span className="font-label-md text-[10px] text-secondary uppercase tracking-widest">Live • Auto-refresh</span>
-              </span>
+          <section className="mb-10">
+            <div className="bg-white border border-[#E2D9CF] rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm mb-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="w-2 h-2 rounded-full bg-[#C5A059] animate-pulse" />
+                  <span className="font-label-md text-[11px] text-[#C5A059] uppercase tracking-widest font-bold">Pratinjau Layar LED • Live</span>
+                </div>
+                <div className="flex items-center gap-2 bg-[#FAF7F2] border border-[#E2D9CF] rounded-full px-3 py-2 max-w-full overflow-hidden">
+                  <span className="material-symbols-outlined text-[16px] text-[#B34E3F] shrink-0">link</span>
+                  <span className="font-body-md text-sm text-[#2C2A29] truncate flex-1">{ledUrl}</span>
+                  <button onClick={copyLedUrl} className="shrink-0 w-7 h-7 rounded-full bg-white border border-[#E2D9CF] flex items-center justify-center text-[#B34E3F] hover:bg-[#F5EFE6] transition-colors" title={copied ? "Tersalin" : "Salin"}>
+                    <span className="material-symbols-outlined text-[14px]">{copied ? "check" : "content_copy"}</span>
+                  </button>
+                </div>
+              </div>
+              <a href={ledUrl} target="_blank" rel="noopener" className="shrink-0 inline-flex items-center justify-center gap-2 bg-[#B34E3F] text-white rounded-full px-6 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all shadow-sm whitespace-nowrap">
+                <span className="material-symbols-outlined text-[16px]">open_in_new</span>
+                Buka Layar LED
+              </a>
             </div>
-            <div className="bg-black border border-[#1c1c16]/20 p-2 md:p-3 shadow-xl">
+            <div className="bg-white border border-[#E2D9CF] rounded-2xl p-3 shadow-lg">
               <div
                 ref={ledWrapRef}
-                className="relative w-full overflow-hidden bg-[#0a0a0a] flex items-center justify-center"
+                className="relative w-full overflow-hidden bg-[#1A1817] rounded-xl flex items-center justify-center"
                 style={{ aspectRatio: "16 / 9" }}
               >
                 <iframe
@@ -201,44 +190,39 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
           </section>
         )}
 
-        <div className="flex flex-col lg:flex-row gap-10">
-          {/* Filters */}
-          <aside className="lg:w-64 shrink-0">
-            <div className="lg:sticky lg:top-24 space-y-4 lg:space-y-6">
-              <h4 className="hidden lg:block font-label-md text-label-md uppercase tracking-widest text-on-surface-variant border-b border-[#c4c7c7]/30 pb-4">Filter Pesan</h4>
-              <nav className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 hide-scrollbar">
-                {FILTERS.map((f) => (
-                  <button
-                    key={f.key}
-                    onClick={() => setFilter(f.key)}
-                    className={`flex items-center justify-between gap-3 px-4 py-2.5 lg:py-3 font-label-md text-[11px] lg:text-label-md text-left whitespace-nowrap shrink-0 transition-all rounded-full lg:rounded-none border lg:border-0 ${
-                      filter === f.key
-                        ? "bg-primary text-on-primary border-primary"
-                        : "bg-white border-[#c4c7c7]/40 hover:bg-surface-container-high text-on-surface"
-                    }`}
-                  >
-                    {f.label}
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${filter === f.key ? "bg-white/20" : f.key === "pending" ? "bg-secondary/10 text-secondary" : "bg-surface-container text-on-surface-variant"}`}>
-                      {f.count}
-                    </span>
-                  </button>
-                ))}
-              </nav>
-              <div className="pt-6 border-t border-[#c4c7c7]/30">
-                <p className="text-[12px] text-on-surface-variant leading-relaxed italic">
-                  &ldquo;Moderasi dilakukan secara real-time. Pesan yang disetujui akan langsung muncul di dinding doa digital.&rdquo;
-                </p>
-              </div>
-            </div>
-          </aside>
+        {/* Horizontal Filter Tabs */}
+        <div className="mb-6 bg-white border border-[#E2D9CF] rounded-xl p-2 flex gap-2 overflow-x-auto hide-scrollbar">
+          {FILTERS.map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setFilter(f.key)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-full font-label-md text-[11px] uppercase tracking-widest whitespace-nowrap shrink-0 transition-all border ${
+                filter === f.key
+                  ? "bg-[#B34E3F] text-white border-[#B34E3F]"
+                  : "bg-[#F5EFE6] text-[#2C2A29] border-[#E2D9CF] hover:bg-[#E2D9CF]"
+              }`}
+            >
+              {f.label}
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${filter === f.key ? "bg-white/20 text-white" : "bg-white text-[#2C2A29] border border-[#E2D9CF]"}`}>
+                {f.count}
+              </span>
+            </button>
+          ))}
+        </div>
 
+        <div className="flex flex-col gap-6">
           {/* Main Content: Guest Message Feed */}
           <div className="flex-1">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {shown.length === 0 && (
-                <div className="md:col-span-2 text-center py-16">
-                  <span className="material-symbols-outlined text-4xl text-on-surface-variant/40">forum</span>
-                  <p className="text-on-surface-variant mt-4">Belum ada doa</p>
+                <div className="md:col-span-2 text-center py-16 bg-white border border-[#E2D9CF] rounded-xl">
+                  <span className="material-symbols-outlined text-5xl text-[#E2D9CF] mb-4">forum</span>
+                  <p className="font-headline-md text-lg text-[#2C2A29] mb-2">Belum ada doa</p>
+                  <p className="font-body-md text-sm text-on-surface-variant mb-6 max-w-md mx-auto">Bagikan link undangan agar tamu dapat mengirim ucapan dan doa.</p>
+                  <button onClick={() => { const url = `https://${coupleSlug}.wedding.aksaraa.com`; navigator.clipboard.writeText(url).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) }) }} className="inline-flex items-center gap-2 bg-[#B34E3F] text-white rounded-full px-6 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all">
+                    <span className="material-symbols-outlined text-[16px]">{copied ? "check" : "share"}</span>
+                    {copied ? "Tersalin" : "Bagikan Link Undangan"}
+                  </button>
                 </div>
               )}
 
