@@ -786,6 +786,19 @@ class AksaraaPlugin
             }));
             if (count($items) === 0) continue; // couple hasn't set this — leave placeholders
 
+            if ($array_field === 'inviting_families' && count($mapping) === 1 && count($items) > 1) {
+                $m = $mapping[0];
+                if (is_array($m) && isset($m['elementId'])) {
+                    $joined = implode('<br>', $items);
+                    $result[] = [
+                        'elementId' => $m['elementId'],
+                        'settings' => is_array($m['settings']) ? $m['settings'] : [],
+                        'value' => $joined,
+                    ];
+                }
+                continue;
+            }
+
             foreach ($items as $i => $value) {
                 $m = $mapping[$i] ?? null;
                 if (is_array($m) && isset($m['elementId'])) {
