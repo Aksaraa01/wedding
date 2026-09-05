@@ -742,6 +742,30 @@ class AksaraaPlugin
         return $changed;
     }
 
+    private static function normalize_video_url(string $url): string
+    {
+        $url = trim($url);
+        if ($url === '') return $url;
+        $parts = parse_url($url);
+        if (!$parts || empty($parts['host'])) return $url;
+        $host = strtolower($parts['host']);
+        if (strpos($host, 'youtube.com') !== false && !empty($parts['query'])) {
+            parse_str($parts['query'], $qs);
+            if (!empty($qs['v']) && preg_match('/^[a-zA-Z0-9_-]{11}$/', $qs['v'])) {
+                return 'https://www.youtube.com/embed/' . $qs['v'];
+            }
+        }
+        if ($host === 'youtu.be' && !empty($parts['path'])) {
+            $id = trim($parts['path'], '/');
+            $id = explode('?', $id)[0];
+            $id = explode('&', $id)[0];
+            if (preg_match('/^[a-zA-Z0-9_-]{11}$/', $id)) {
+                return 'https://www.youtube.com/embed/' . $id;
+            }
+        }
+        return $url;
+    }
+
     // Simple (scalar) fields: manifest[field] = [{elementId, settings}] or {elementId, settings}.
     private static function extract_simple_fields(array $fields, array $manifest): array
     {
@@ -753,6 +777,11 @@ class AksaraaPlugin
             if ($fields[$field] === null || $fields[$field] === '') continue;
             if (is_array($fields[$field]) && empty($fields[$field])) continue;
 
+            $value = $fields[$field];
+            if ($field === 'video_url' && is_string($value)) {
+                $value = self::normalize_video_url($value);
+            }
+
             $mappings = is_array($mapping) && isset($mapping['elementId']) ? [$mapping] : $mapping;
             if (!is_array($mappings)) continue;
             foreach ($mappings as $m) {
@@ -760,7 +789,7 @@ class AksaraaPlugin
                     $result[] = [
                         'elementId' => $m['elementId'],
                         'settings' => is_array($m['settings']) ? $m['settings'] : [],
-                        'value' => $fields[$field],
+                        'value' => $value,
                     ];
                 }
             }

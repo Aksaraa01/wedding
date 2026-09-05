@@ -603,6 +603,23 @@ function EditorInner({ id }: { id: string }) {
     return Array.isArray(mapping?.settings) && mapping.settings.join(".") === "background_slideshow_gallery"
   }
 
+  function normalizeVideoUrl(url: string): string {
+    if (!url || typeof url !== "string") return url
+    const t = url.trim()
+    try {
+      const u = new URL(t)
+      if (u.hostname.includes("youtube.com") && u.searchParams.has("v")) {
+        const id = u.searchParams.get("v")?.split("&")[0]?.split("?")[0]
+        if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) return `https://www.youtube.com/embed/${id}`
+      }
+      if (u.hostname === "youtu.be") {
+        const id = u.pathname.split("/").filter(Boolean)[0]?.split("?")[0]
+        if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) return `https://www.youtube.com/embed/${id}`
+      }
+      return t
+    } catch { return t }
+  }
+
   const [galleryUploading, setGalleryUploading] = useState(false)
   const galleryFileRef = useRef<HTMLInputElement>(null)
   const [coverUploading, setCoverUploading] = useState<string | null>(null)
@@ -1629,7 +1646,8 @@ function EditorInner({ id }: { id: string }) {
                         className="input-editorial w-full font-body-md text-[14px]"
                         type="url"
                         value={data.video_url || ""}
-                        onChange={e => updateField("video_url", e.target.value)}
+                        onChange={e => updateField("video_url", normalizeVideoUrl(e.target.value))}
+                        onBlur={e => { const v = normalizeVideoUrl(e.target.value); if (v !== e.target.value) updateField("video_url", v) }}
                         placeholder="https://youtu.be/..."
                       />
                       <p className="text-[11px] text-on-surface-variant mt-1 italic">Tautan video (mis. "OUR FOOTAGE") yang tampil pada undangan.</p>

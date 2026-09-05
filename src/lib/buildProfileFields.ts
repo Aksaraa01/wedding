@@ -19,6 +19,23 @@ function esc(v: unknown): string {
   return v.replace(/<[^>]*>/g, "").replace(/javascript:/gi, "").slice(0, 500)
 }
 
+function normalizeVideoUrl(url: string): string {
+  if (!url || typeof url !== "string") return url
+  const t = url.trim()
+  try {
+    const u = new URL(t)
+    if (u.hostname.includes("youtube.com") && u.searchParams.has("v")) {
+      const id = u.searchParams.get("v")?.split("&")[0]?.split("?")[0]
+      if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) return `https://www.youtube.com/embed/${id}`
+    }
+    if (u.hostname === "youtu.be") {
+      const id = u.pathname.split("/").filter(Boolean)[0]?.split("?")[0]
+      if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) return `https://www.youtube.com/embed/${id}`
+    }
+    return t
+  } catch { return t }
+}
+
 // Gather a couple's content into a flat `fields` object (the same shape the WP
 // mu-plugin consumes for PATCH / duplicate). Returns null if the profile is missing.
 export async function buildProfileFields(profileId: string): Promise<{ profile: any; fields: Record<string, any> } | null> {
@@ -83,7 +100,7 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
     bride_parents: esc(profile.bride_parents),
     groom_instagram: esc(profile.groom_instagram),
     bride_instagram: esc(profile.bride_instagram),
-    video_url: profile.video_url || "",
+    video_url: normalizeVideoUrl(profile.video_url || ""),
     quote_text: esc(profile.quote_text),
     quote_source: esc(profile.quote_source),
     opening_title: esc(profile.opening_title),
