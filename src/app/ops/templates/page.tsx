@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import OpsHeader from "@/components/ops/OpsHeader"
@@ -106,6 +106,7 @@ export default function OpsTemplatesPage() {
   const [uploading, setUploading] = useState(false)
   const previewFileRef = useRef<HTMLInputElement>(null)
   const [wpCheck, setWpCheck] = useState<{ checking: boolean; ok?: boolean; title?: string; msg?: string }>({ checking: false })
+  const [searchQuery, setSearchQuery] = useState("")
 
   // mapping state — simple fields: {field: [{elementId, settings}]},
   // object-array fields (sessions/gift/stories): {field: [{subfield: {elementId, settings}}]}
@@ -127,6 +128,13 @@ export default function OpsTemplatesPage() {
     else setError(data.error || "Gagal memuat template")
     setLoading(false)
   }, [employee])
+
+  const distinctCategories = useMemo(() => [...new Set(templates.map((t) => (t.category || "").trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "id")), [templates])
+  const filteredTemplates = useMemo(() => {
+    if (!searchQuery.trim()) return templates
+    const q = searchQuery.trim().toLowerCase()
+    return templates.filter((t) => t.name.toLowerCase().includes(q) || t.code.toLowerCase().includes(q) || (t.category || "").toLowerCase().includes(q))
+  }, [templates, searchQuery])
 
   useEffect(() => {
     if (employee) fetchTemplates()
@@ -642,19 +650,33 @@ export default function OpsTemplatesPage() {
             </button>
           </div>
 
+          <div className="mb-6 flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1 max-w-md">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+              <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Cari template (nama/kode/kategori)…" className="w-full pl-10 pr-4 py-2.5 rounded-full border border-outline-variant bg-white text-sm placeholder:text-on-surface-variant/60 focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F]" />
+            </div>
+            {distinctCategories.length > 0 && (
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+                {distinctCategories.map((cat) => (
+                  <span key={cat} className="shrink-0 px-3 py-1.5 rounded-full bg-white border border-[#E2D9CF] text-[#2C2A29] text-[10px] font-bold uppercase tracking-wider">{cat}</span>
+                ))}
+              </div>
+            )}
+          </div>
+
           {error && (
             <div className="mb-6 px-4 py-3 bg-error/10 border border-error text-error font-body-md text-sm">{error}</div>
           )}
 
           {loading ? (
             <div className="py-12 text-center text-on-surface-variant">Memuat template...</div>
-          ) : templates.length === 0 ? (
+          ) : filteredTemplates.length === 0 ? (
             <div className="py-12 text-center text-on-surface-variant">
-              Belum ada template. Klik "Tambah Template" untuk memulai.
+              {templates.length === 0 ? 'Belum ada template. Klik "Tambah Template" untuk memulai.' : `Tidak ada template untuk "${searchQuery}"`}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              {templates.map((t) => (
+              {filteredTemplates.map((t) => (
                 <div key={t.id} className={`bg-white border p-3 flex flex-col gap-2 ${t.is_active ? "border-outline-variant" : "border-outline-variant/40 opacity-60"}`}>
                   {t.preview_image_url && (
                     <div className="aspect-[3/4] overflow-hidden bg-surface-container-low border border-outline-variant/30 rounded-sm">
@@ -721,9 +743,17 @@ export default function OpsTemplatesPage() {
                   </div>
                   <div>
                     <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">
-                      Kategori <span className="normal-case text-on-surface-variant/60">(Nasional / Budaya)</span>
+                      Kategori <span className="normal-case text-on-surface-variant/60">(bebas, contoh: Nasional / Budaya / Floral)</span>
                     </label>
-                    <input className="input-editorial w-full font-label-md text-[14px]" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Nasional" />
+                    <input list="category-list" className="input-editorial w-full font-label-md text-[14px]" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Nasional" />
+                    <datalist id="category-list">
+                      {distinctCategories.map((cat) => (
+                        <option key={cat} value={cat} />
+                      ))}
+                    </datalist>
+                    {distinctCategories.length > 0 && (
+                      <p className="text-[10px] text-on-surface-variant/60 mt-1">Kategori ada: {distinctCategories.join(" • ")}</p>
+                    )}
                   </div>
                   <div>
                     <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Deskripsi</label>

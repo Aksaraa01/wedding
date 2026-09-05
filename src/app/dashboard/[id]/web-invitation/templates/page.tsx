@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, use } from "react"
+import { useState, useEffect, use, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import TemplatePreviewModal from "@/components/TemplatePreviewModal"
@@ -34,6 +34,17 @@ function TemplatesInner({ id }: { id: string }) {
   const [previewTpl, setPreviewTpl] = useState<Template | null>(null)
   const [categoryFilter, setCategoryFilter] = useState<string>("semua")
   const [searchQuery, setSearchQuery] = useState<string>("")
+  const allFilters = useMemo(() => {
+    const distinct = [...new Set(templates.map((t) => (t.category || "").trim()).filter(Boolean))]
+    const baseIds = new Set(CATEGORY_FILTERS.map((f) => f.id))
+    const extra = distinct
+      .filter((c) => {
+        const lower = c.toLowerCase()
+        return !baseIds.has(lower) && !["nasional", "budaya"].includes(lower)
+      })
+      .map((c) => ({ id: c.toLowerCase(), label: c }))
+    return [...CATEGORY_FILTERS, ...extra]
+  }, [templates])
 
   const visibleTemplates = templates.filter((t) => {
     const cat = (t.category || "").toLowerCase()
@@ -98,7 +109,7 @@ function TemplatesInner({ id }: { id: string }) {
             />
           </div>
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-            {CATEGORY_FILTERS.map((f) => (
+            {allFilters.map((f) => (
               <button
                 key={f.id}
                 onClick={() => setCategoryFilter(f.id)}
@@ -150,7 +161,7 @@ function TemplatesInner({ id }: { id: string }) {
                 />
                 <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center gap-2 p-3">
                   <button onClick={(e) => { e.stopPropagation(); setPreviewTpl(tpl) }} className="flex-1 py-2.5 bg-white/90 backdrop-blur text-[#2C2A29] rounded-full font-label-md text-[10px] uppercase tracking-widest hover:bg-white transition-colors">Pratinjau</button>
-                  <button data-tour={idx === 0 ? "pilih-koleksi" : undefined} onClick={(e) => { e.stopPropagation(); handleSelect(tpl.id) }} disabled={saving} className={`flex-1 py-2.5 rounded-full font-label-md text-[10px] uppercase tracking-widest border transition-colors ${selectedId === tpl.id ? "bg-[#10B981] border-[#10B981] text-white" : "bg-[#B34E3F] border-[#B34E3F] text-white hover:bg-[#9E3B2D]"}`}>{selectedId === tpl.id ? "Terpilih" : "Pilih"}</button>
+                  <button data-tour={idx === 0 ? "pilih-koleksi" : undefined} onClick={(e) => { e.stopPropagation(); handleSelect(tpl.id) }} disabled={saving} className={`flex-1 py-2.5 rounded-full font-label-md text-[10px] uppercase tracking-widest border transition-colors ${selectedId === tpl.id ? "bg-[#B34E3F] border-[#B34E3F] text-white" : "bg-[#B34E3F] border-[#B34E3F] text-white hover:bg-[#9E3B2D]"}`}>{selectedId === tpl.id ? "Terpilih" : "Pilih"}</button>
                 </div>
               </div>
 
@@ -172,7 +183,7 @@ function TemplatesInner({ id }: { id: string }) {
                     disabled={saving}
                     className={`flex-1 py-2.5 font-label-md text-[10px] uppercase tracking-widest rounded-full border transition-colors ${
                       selectedId === tpl.id
-                        ? "bg-[#10B981] border-[#10B981] text-white"
+                        ? "bg-[#B34E3F] border-[#B34E3F] text-white"
                         : "bg-[#B34E3F] border-[#B34E3F] text-white hover:bg-[#9E3B2D]"
                     }`}
                   >
