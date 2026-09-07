@@ -2214,6 +2214,27 @@ add_filter('comments_template', function ($template) {
     return $template;
 });
 
+// WeddingPress comment kit (ck2) invitation guestbook: auto-approve so the
+// guestbook widget (which queries approved comments only) shows the message
+// immediately after refresh. Wish Wall moderation is unaffected (separate
+// `wishes` table stays pending/menunggu moderasi). Others keep WP default.
+function aksaraa_is_comment_kit_post(int $post_id): bool
+{
+    $raw = get_post_meta($post_id, '_elementor_data', true);
+    if (!is_string($raw) || $raw === '') return false;
+    return strpos($raw, 'ck2_comments_text') !== false
+        || strpos($raw, 'cui-container-comment') !== false
+        || strpos($raw, 'wp-post-comments') !== false;
+}
+
+add_filter('pre_comment_approved', function ($approved, $commentdata) {
+    $post_id = (int) ($commentdata['comment_post_ID'] ?? 0);
+    if ($post_id && aksaraa_is_comment_kit_post($post_id)) {
+        return 1; // auto-approve invitation guestbook comments
+    }
+    return $approved;
+}, 10, 2);
+
 // Allow JSON uploads for Lottie animations
 add_filter('upload_mimes', function ($mimes) {
     $mimes['json'] = 'application/json';

@@ -576,7 +576,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
 
                 <div className="flex gap-2 p-1 bg-[#F5EFE6] rounded-full w-fit">
                   <button type="button" onClick={() => setTemplateView("edit")} className={`px-4 py-1.5 rounded-full font-label-md text-[11px] uppercase tracking-widest transition-colors ${templateView === "edit" ? "bg-[#B34E3F] text-white" : "text-[#2C2A29] hover:text-[#B34E3F]"}`}>Edit Template</button>
-                  <button type="button" onClick={() => setTemplateView("preview")} className={`px-4 py-1.5 rounded-full font-label-md text-[11px] uppercase tracking-widest transition-colors ${templateView === "preview" ? "bg-[#B34E3F] text-white" : "text-[#2C2A29] hover:text-[#B34E3F]"}`}>Preview Output</button>
+                  <button type="button" onClick={() => setTemplateView("preview")} className={`px-4 py-1.5 rounded-full font-label-md text-[11px] uppercase tracking-widest transition-colors ${templateView === "preview" ? "bg-[#B34E3F] text-white" : "text-[#2C2A29] hover:text-[#B34E3F]"}`}>Hasil Pesan</button>
                 </div>
 
                 {templateView === "edit" ? (
@@ -588,20 +588,24 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
                     className="w-full bg-white border border-[#E2D9CF] rounded-xl p-4 font-body-md text-[13px] leading-relaxed text-[#2C2A29] resize-none h-40 max-h-40 overflow-y-auto focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors"
                   />
                 ) : (
-                  <MessagePreview text={msgText} guestName={demoGuestName} coupleName={coupleName} guestUrl={demoGuestUrl} />
+                  <div className="max-h-40 overflow-y-auto rounded-2xl">
+                    <MessagePreview text={msgText} guestName={demoGuestName} coupleName={coupleName} guestUrl={demoGuestUrl} />
+                  </div>
                 )}
               </div>
             )}
           </section>
           {gated && (
-            <div className="mt-4 bg-[#E0F2FE] border border-[#7DD3FC] rounded-xl p-4 flex flex-col gap-3">
-              <div className="flex items-start gap-3">
+            <div className="mt-4 bg-[#E0F2FE] border border-[#7DD3FC] rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 shadow-sm">
+              <div className="flex items-start gap-3 flex-1">
                 <span className="material-symbols-outlined text-[#0284C7] text-[18px] shrink-0 mt-0.5">info</span>
-                <p className="font-body-md text-[13px] text-[#0C4A6E] leading-relaxed">
-                  Konfirmasi design dan data undangan untuk mengaktifkan tautan undangan seluruh tamu.
-                </p>
+                <div>
+                  <p className="font-body-md text-[13px] text-[#0C4A6E] leading-relaxed">
+                    Konfirmasi design dan data undangan untuk mengaktifkan tautan undangan seluruh tamu.
+                  </p>
+                </div>
               </div>
-              <button onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)} className="self-start inline-flex items-center gap-2 bg-[#0284C7] text-white rounded-full px-5 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#0C4A6E] active:scale-95 transition-all whitespace-nowrap">
+              <button onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)} className="shrink-0 inline-flex items-center justify-center gap-2 bg-[#0284C7] text-white rounded-full px-6 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#0C4A6E] active:scale-95 transition-all whitespace-nowrap">
                 <span className="material-symbols-outlined text-[16px]">edit</span>
                 Buka Editor
               </button>
