@@ -465,9 +465,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       </header>
 
       {/* Main */}
-      <main className="flex-1 flex flex-col overflow-hidden pb-28 md:pb-0">
-        {/* Fixed Top Content */}
-        <div className="shrink-0 w-full max-w-2xl mx-auto px-6 pt-6">
+      <main className="flex-1 overflow-y-auto w-full max-w-2xl mx-auto px-6 pt-6 pb-32 md:pb-16">
           <h1 className="font-headline-md text-xl md:text-2xl font-medium tracking-tight text-[#2C2A29]">
             Tautan Undangan dan QR Tamu
           </h1>
@@ -641,11 +639,8 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
               className="bg-transparent border-none focus:ring-0 w-full h-12 py-3.5 font-body-md text-sm text-on-surface placeholder:text-outline-variant/80 outline-none"
             />
           </div>
-        </div>
 
-        {/* Scrollable Guest List */}
-        <div className="flex-1 overflow-y-auto w-full max-w-2xl mx-auto px-6 py-6">
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 mt-6">
             {filtered.length === 0 ? (
               <div className="text-center py-16 bg-surface-container-lowest border border-outline-variant/50 rounded-xl">
                 <span className="material-symbols-outlined text-4xl text-outline-variant mb-3">people_outline</span>
@@ -691,7 +686,6 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
             <div className="w-16 h-[1px] bg-on-surface-variant mb-4" />
             <p className="font-headline-md text-xs tracking-[0.2em] uppercase italic text-on-surface-variant">Aksaraa Management</p>
           </footer>
-        </div>
       </main>
 
       {/* QR book feature limit — only Buku Tamu Digital packages include it */}
