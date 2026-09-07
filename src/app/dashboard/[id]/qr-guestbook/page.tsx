@@ -515,15 +515,81 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
               </button>
             </div>
           </section>
+          {/* Template Pesan Undangan */}
+          <section className="mt-4 bg-white border border-[#E2D9CF] rounded-2xl shadow-sm overflow-hidden">
+            <button type="button" onClick={() => setTemplateOpen(!templateOpen)} className="w-full flex items-center justify-between p-4 bg-[#FAF7F2] hover:bg-[#F5EFE6] transition-colors">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="material-symbols-outlined text-[#B34E3F] text-[18px]">chat</span>
+                <div className="text-left min-w-0">
+                  <h2 className="font-label-md text-[12px] uppercase tracking-widest text-[#2C2A29] font-bold">Template Pesan Undangan</h2>
+                  <p className="font-body-md text-[11px] text-on-surface-variant truncate">Template Aktif: {MSG_CATEGORIES.find((c) => c.id === msgCategory)?.label} • Klik untuk edit template</p>
+                </div>
+              </div>
+              <span className={`material-symbols-outlined text-[#B34E3F] transition-transform ${templateOpen ? "rotate-180" : ""}`}>expand_more</span>
+            </button>
+            {templateOpen && (
+              <div className="p-5 border-t border-[#E2D9CF] space-y-4">
+                <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                  {MSG_CATEGORIES.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => selectMsgCategory(c.id)}
+                      className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full border font-label-md text-[10px] uppercase tracking-wider transition-colors ${
+                        msgCategory === c.id
+                          ? "bg-[#B34E3F] border-[#B34E3F] text-white font-bold"
+                          : "bg-[#F5EFE6] border-[#E2D9CF] text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F]"
+                      }`}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                  {MSG_VARS.map((v) => (
+                    <button
+                      key={v.tag}
+                      type="button"
+                      onClick={() => insertMsgVar(v.tag)}
+                      className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FAF7F2] border border-[#D1C7BD] text-[#B34E3F] font-label-md text-[10px] font-bold uppercase tracking-wider hover:border-[#B34E3F] hover:bg-white transition-colors shadow-sm whitespace-nowrap"
+                      title={`Sisipkan ${v.label}`}
+                    >
+                      <span className="material-symbols-outlined text-[12px]">add</span>
+                      {v.tag}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex gap-2 p-1 bg-[#F5EFE6] rounded-full w-fit">
+                  <button type="button" onClick={() => setTemplateView("edit")} className={`px-4 py-1.5 rounded-full font-label-md text-[11px] uppercase tracking-widest transition-colors ${templateView === "edit" ? "bg-[#B34E3F] text-white" : "text-[#2C2A29] hover:text-[#B34E3F]"}`}>Edit Template</button>
+                  <button type="button" onClick={() => setTemplateView("preview")} className={`px-4 py-1.5 rounded-full font-label-md text-[11px] uppercase tracking-widest transition-colors ${templateView === "preview" ? "bg-[#B34E3F] text-white" : "text-[#2C2A29] hover:text-[#B34E3F]"}`}>Preview Output</button>
+                </div>
+
+                {templateView === "edit" ? (
+                  <textarea
+                    ref={msgTextareaRef}
+                    value={msgText}
+                    onChange={(e) => setMsgText(e.target.value)}
+                    rows={6}
+                    className="w-full bg-white border border-[#E2D9CF] rounded-xl p-4 font-body-md text-[13px] leading-relaxed text-[#2C2A29] resize-none h-40 max-h-40 overflow-y-auto focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors"
+                  />
+                ) : (
+                  <MessagePreview text={msgText} guestName={demoGuestName} coupleName={coupleName} guestUrl={demoGuestUrl} />
+                )}
+              </div>
+            )}
+          </section>
           {gated && (
-            <p className="mt-3 text-[11px] text-on-surface-variant text-center md:text-left">
-              Konfirmasi undangan untuk aktifkan QR seluruh tamu. QR pertama dapat disalin sekarang.
-            </p>
+            <div className="mt-4 bg-[#E0F2FE] border border-[#7DD3FC] rounded-xl p-4 flex items-start gap-3">
+              <span className="material-symbols-outlined text-[#0284C7] text-[18px] shrink-0 mt-0.5">info</span>
+              <p className="font-body-md text-[13px] text-[#0C4A6E] leading-relaxed">
+                Konfirmasi undangan untuk mengaktifkan QR seluruh tamu. QR pertama dapat disalin sekarang.
+              </p>
+            </div>
           )}
 
-          {/* UNPAID Banner */}
           {isUnpaid && (
-            <div className="mt-5 bg-[#FEF3C7] border border-[#F59E0B] rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 shadow-sm">
+            <div className="mt-4 bg-[#FEF3C7] border border-[#F59E0B] rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 shadow-sm">
               <div className="flex items-start gap-3 flex-1">
                 <span className="material-symbols-outlined text-[#92400E] flex-shrink-0">warning</span>
                 <div>
@@ -541,7 +607,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
           )}
 
           {/* Search */}
-          <div className="mt-6 md:mt-5 bg-white border border-[#E2D9CF] rounded-xl px-4 h-12 flex items-center gap-3 shadow-sm focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] transition-all">
+          <div className="mt-4 bg-white border border-[#E2D9CF] rounded-xl px-4 h-12 flex items-center gap-3 shadow-sm focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] transition-all">
             <span className="material-symbols-outlined text-on-surface-variant/70 text-xl">search</span>
             <input
               type="text"
@@ -556,71 +622,6 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
         {/* Scrollable Guest List */}
         <div className="flex-1 overflow-y-auto w-full max-w-2xl mx-auto px-6 py-6">
           <div className="flex flex-col gap-4">
-            {/* Template Pesan Undangan - Accordion */}
-            <section className="bg-white border border-[#E2D9CF] rounded-2xl shadow-sm overflow-hidden">
-              <button type="button" onClick={() => setTemplateOpen(!templateOpen)} className="w-full flex items-center justify-between p-4 bg-[#FAF7F2] hover:bg-[#F5EFE6] transition-colors">
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="material-symbols-outlined text-[#B34E3F] text-[18px]">chat</span>
-                  <div className="text-left min-w-0">
-                    <h2 className="font-label-md text-[12px] uppercase tracking-widest text-[#2C2A29] font-bold">Template Pesan Undangan</h2>
-                    <p className="font-body-md text-[11px] text-on-surface-variant truncate">Template Aktif: {MSG_CATEGORIES.find((c) => c.id === msgCategory)?.label} • Klik untuk edit template</p>
-                  </div>
-                </div>
-                <span className={`material-symbols-outlined text-[#B34E3F] transition-transform ${templateOpen ? "rotate-180" : ""}`}>expand_more</span>
-              </button>
-              {templateOpen && (
-                <div className="p-5 border-t border-[#E2D9CF] space-y-4">
-                  <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
-                    {MSG_CATEGORIES.map((c) => (
-                      <button
-                        key={c.id}
-                        onClick={() => selectMsgCategory(c.id)}
-                        className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full border font-label-md text-[10px] uppercase tracking-wider transition-colors ${
-                          msgCategory === c.id
-                            ? "bg-[#B34E3F] border-[#B34E3F] text-white font-bold"
-                            : "bg-[#F5EFE6] border-[#E2D9CF] text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F]"
-                        }`}
-                      >
-                        {c.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
-                    {MSG_VARS.map((v) => (
-                      <button
-                        key={v.tag}
-                        type="button"
-                        onClick={() => insertMsgVar(v.tag)}
-                        className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FAF7F2] border border-[#D1C7BD] text-[#B34E3F] font-label-md text-[10px] font-bold uppercase tracking-wider hover:border-[#B34E3F] hover:bg-white transition-colors shadow-sm whitespace-nowrap"
-                        title={`Sisipkan ${v.label}`}
-                      >
-                        <span className="material-symbols-outlined text-[12px]">add</span>
-                        {v.tag}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="flex gap-2 p-1 bg-[#F5EFE6] rounded-full w-fit">
-                    <button type="button" onClick={() => setTemplateView("edit")} className={`px-4 py-1.5 rounded-full font-label-md text-[11px] uppercase tracking-widest transition-colors ${templateView === "edit" ? "bg-[#B34E3F] text-white" : "text-[#2C2A29] hover:text-[#B34E3F]"}`}>Edit Template</button>
-                    <button type="button" onClick={() => setTemplateView("preview")} className={`px-4 py-1.5 rounded-full font-label-md text-[11px] uppercase tracking-widest transition-colors ${templateView === "preview" ? "bg-[#B34E3F] text-white" : "text-[#2C2A29] hover:text-[#B34E3F]"}`}>Preview Output</button>
-                  </div>
-
-                  {templateView === "edit" ? (
-                    <textarea
-                      ref={msgTextareaRef}
-                      value={msgText}
-                      onChange={(e) => setMsgText(e.target.value)}
-                      rows={6}
-                      className="w-full bg-white border border-[#E2D9CF] rounded-xl p-4 font-body-md text-[13px] leading-relaxed text-[#2C2A29] resize-none h-40 max-h-40 overflow-y-auto focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors"
-                    />
-                  ) : (
-                    <MessagePreview text={msgText} guestName={demoGuestName} coupleName={coupleName} guestUrl={demoGuestUrl} />
-                  )}
-                </div>
-              )}
-            </section>
-
             {filtered.length === 0 ? (
               <div className="text-center py-16 bg-surface-container-lowest border border-outline-variant/50 rounded-xl">
                 <span className="material-symbols-outlined text-4xl text-outline-variant mb-3">people_outline</span>

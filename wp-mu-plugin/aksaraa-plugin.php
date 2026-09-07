@@ -383,6 +383,8 @@ class AksaraaPlugin
             'post_type' => $master->post_type,
             'post_status' => 'publish',
             'post_author' => get_current_user_id() ?: 1,
+            'comment_status' => 'closed',
+            'ping_status' => 'closed',
         ]);
 
         if (is_wp_error($new_id)) return $new_id;
@@ -2186,6 +2188,12 @@ add_action('wp_footer', function () {
     echo '<script>(function(){function g(){try{return decodeURIComponent((new URLSearchParams(location.search).get("to")||"").replace(/\+/g," "))}catch(e){return""}}function fillName(){var to=g();if(!to)return;var sels=["input[name=\"author\"]","#author","input.cui-input[name=\"author\"]","input[name*=\"nama_tamu\"]","input[name*=\"nama tamu\"]","input[id*=\"nama_tamu\"]","input[id*=\"nama\"]","textarea[name*=\"nama_tamu\"]","input[name=\"form_fields[nama_tamu]\"]","input[name=\"form_fields[name]\"]","#form-field-nama_tamu","#form-field-nama","#form-field-author"];for(var i=0;i<sels.length;i++){try{var els=document.querySelectorAll(sels[i]);for(var j=0;j<els.length;j++){var el=els[j];if(el&&!el.value){el.value=to;el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}));}}}catch(e){}}}function ensureFields(e){var form=e&&e.target;if(!form||!form.matches||!form.matches("form[id^=\"commentform\"]"))return;var to=g();var a=form.querySelector("input[name=\"author\"]");if(a&&!a.value.trim()&&to){a.value=to;}if(!form.querySelector("input[name=\"email\"]")){var h=document.createElement("input");h.type="hidden";h.name="email";h.value="anonymous@wordpress.com";h.setAttribute("autocomplete","off");form.appendChild(h);}}fillName();document.addEventListener("DOMContentLoaded",fillName);document.addEventListener("submit",ensureFields,true);var obs=new MutationObserver(function(){fillName();});try{obs.observe(document.body,{childList:true,subtree:true});}catch(e){}if(window.jQuery){jQuery(document).on("elementor/popup/show",function(){setTimeout(fillName,200);});}document.addEventListener("click",function(e){var t=e.target;if(t&&t.closest&&t.closest(".elementor-button,.cui-link,.cui-button")){setTimeout(fillName,120);}},true);})();</script>';
 });
 
+// Hide native comment display for all posts (headline + comment + reply) — the invitation's guestbook uses a custom Elementor form, not the theme's comment template.
+add_filter('comments_template', function ($template) {
+    if (is_singular()) return '';
+    return $template;
+});
+
 // Allow JSON uploads for Lottie animations
 add_filter('upload_mimes', function ($mimes) {
     $mimes['json'] = 'application/json';
@@ -2234,7 +2242,7 @@ add_action('wp_head', function () {
         // not a content change — applies to master + all duplicated couple posts.
         echo '<style>@media (max-width: 767px) { .elementor-section > .elementor-background-video-container::before, .elementor-section.elementor-motion-effects-element-type-background > .elementor-motion-effects-container > .elementor-motion-effects-layer, .elementor-section > .elementor-background-slideshow, .e-con > .elementor-motion-effects-container > .elementor-motion-effects-layer, .e-con.elementor-motion-effects-element-type-background, .e-con.e-con-full { background-attachment: scroll !important; } }</style>';
     }
-    if (is_singular() && get_post_meta(get_the_ID(), '_wp_page_template', true) === 'default') {
+    if (is_singular() && get_post_meta(get_the_ID(), '_elementor_edit_mode', true) === 'builder') {
         echo '<style>.hestia-title { display: none !important; }</style>';
     }
     // Guard for Elementor Pro popup + audio duplication when template contains two audio widgets (post+popup).
