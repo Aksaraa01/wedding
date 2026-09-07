@@ -667,14 +667,38 @@ class AksaraaPlugin
         $date = isset($fields['date_upper']) ? trim((string) $fields['date_upper']) : '';
         $description = trim(implode(' • ', array_filter([$display, $date, 'Mohon doa restu atas pernikahan kami; detail acara dan konfirmasi kehadiran tersedia di tautan undangan.'])));
 
-        // Cover for the Social tab — only set when the couple uploaded one.
+        // Cover for the Social tab + featured image — only set when the couple
+        // uploaded one. `couple_illustration_url` may be a plain URL or a
+        // JSON-encoded / nested array (slideshow slots); resolve the first public URL.
         $image = '';
-        if (isset($fields['couple_illustration_url']) && is_string($fields['couple_illustration_url']) && trim($fields['couple_illustration_url']) !== '') {
-            $image = trim($fields['couple_illustration_url']);
-        } elseif (isset($fields['cover_photos']) && is_array($fields['cover_photos'])) {
-            foreach ($fields['cover_photos'] as $c) {
-                if (is_string($c) && trim($c) !== '') { $image = trim($c); break; }
+        if (isset($fields['couple_illustration_url'])) {
+            $cand = $fields['couple_illustration_url'];
+            if (is_string($cand) && trim($cand) !== '') {
+                $t = trim($cand);
+                if (preg_match('#^https?://#i', $t)) {
+                    $image = $t;
+                } else {
+                    $dec = json_decode($t, true);
+                    if (is_array($dec)) {
+                        foreach ($dec as $u) {
+                            if (is_string($u) && trim($u) !== '' && preg_match('#^https?://#i', trim($u))) { $image = trim($u); break; }
+                        }
+                    }
+                }
             }
+        }
+        if ($image === '' && isset($fields['cover_photos']) && is_array($fields['cover_photos'])) {
+            $walk = function (array $arr) use (&$walk, &$image) {
+                foreach ($arr as $v) {
+                    if ($image !== '') return;
+                    if (is_string($v)) {
+                        if (trim($v) !== '' && preg_match('#^https?://#i', trim($v))) { $image = trim($v); return; }
+                    } elseif (is_array($v)) {
+                        $walk($v);
+                    }
+                }
+            };
+            $walk($fields['cover_photos']);
         }
 
         update_post_meta($post_id, 'rank_math_title', $title);
@@ -689,10 +713,15 @@ class AksaraaPlugin
             update_post_meta($post_id, 'rank_math_og_image', $att_url);
             if ($att_id > 0) update_post_meta($post_id, 'rank_math_og_image_id', $att_id);
             update_post_meta($post_id, 'rank_math_twitter_image', $att_url);
+            // Featured image (used by Rank Math "Image" snippet + WP media) = cover.
+            if ($att_id > 0) update_post_meta($post_id, '_thumbnail_id', $att_id);
+            else delete_post_meta($post_id, '_thumbnail_id');
         } else {
             delete_post_meta($post_id, 'rank_math_og_image');
             delete_post_meta($post_id, 'rank_math_og_image_id');
             delete_post_meta($post_id, 'rank_math_twitter_image');
+            // No cover -> leave featured image empty.
+            delete_post_meta($post_id, '_thumbnail_id');
         }
     }
 
