@@ -79,21 +79,32 @@ function renderMessage(text: string, guestName: string, coupleName: string, gues
 function MessagePreview({ text, guestName, coupleName, guestUrl }: { text: string; guestName: string; coupleName: string; guestUrl: string }) {
   const parts = (text || "").split(/(\{[^}]+\})/g)
   return (
-    <div className="rounded-xl bg-[#FAF7F2] border border-[#E2D9CF] p-4 text-[13px] leading-relaxed text-[#2C2A29] whitespace-pre-wrap break-words">
-      {parts.map((part, i) => {
-        if (!part) return null
-        const matched = MSG_VARS.find((v) => v.tag === part)
-        if (!matched) return <span key={i}>{part}</span>
-        const value =
-          part === "{Nama Tamu}" ? guestName
-            : part === "{Nama Pasangan}" ? coupleName
-              : guestUrl
-        return (
-          <mark key={i} className="bg-[#FEF3C7] text-[#92400E] px-1.5 py-0.5 rounded-md font-semibold break-all">
-            {value}
-          </mark>
-        )
-      })}
+    <div className="rounded-2xl bg-[#EFEAE2] border border-[#E2D9CF] p-4">
+      <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-[#E2D9CF]/70">
+        <span className="flex items-center gap-1.5 font-label-md text-[10px] uppercase tracking-widest text-[#B34E3F] font-bold">
+          <span className="material-symbols-outlined text-[14px]">chat</span>
+          WhatsApp
+        </span>
+        <span className="flex items-center gap-1.5 text-[9px] font-label-md uppercase tracking-widest text-on-surface-variant/60">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" /> Simulasi
+        </span>
+      </div>
+      <div className="bg-white rounded-2xl rounded-tl-sm border border-[#E2D9CF] px-4 py-3 text-[13px] leading-relaxed text-[#2C2A29] whitespace-pre-wrap break-words shadow-sm">
+        {parts.map((part, i) => {
+          if (!part) return null
+          const matched = MSG_VARS.find((v) => v.tag === part)
+          if (!matched) return <span key={i}>{part}</span>
+          const value =
+            part === "{Nama Tamu}" ? guestName
+              : part === "{Nama Pasangan}" ? coupleName
+                : guestUrl
+          return (
+            <mark key={i} className="bg-[#FEF3C7] text-[#92400E] px-1.5 py-0.5 rounded-md font-semibold break-all">
+              {value}
+            </mark>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -524,58 +535,8 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
             </div>
           )}
 
-          {/* Template Pesan Undangan */}
-          <section className="mt-6 md:mt-5 bg-white border border-[#E2D9CF] rounded-2xl p-5 shadow-sm">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="material-symbols-outlined text-[#B34E3F] text-[18px]">chat</span>
-              <h2 className="font-label-md text-[12px] uppercase tracking-widest text-[#2C2A29] font-bold">Template Pesan Undangan</h2>
-            </div>
-
-            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 mb-4">
-              {MSG_CATEGORIES.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => selectMsgCategory(c.id)}
-                  className={`shrink-0 whitespace-nowrap px-4 py-2 rounded-full border font-label-md text-[11px] uppercase tracking-wider transition-colors ${
-                    msgCategory === c.id
-                      ? "bg-[#B34E3F] border-[#B34E3F] text-white font-bold"
-                      : "bg-[#F5EFE6] border-[#E2D9CF] text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F]"
-                  }`}
-                >
-                  {c.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 mb-2">
-              {MSG_VARS.map((v) => (
-                <button
-                  key={v.tag}
-                  type="button"
-                  onClick={() => insertMsgVar(v.tag)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FEF3C7] border border-[#FDE68A] text-[#92400E] font-label-md text-[10px] font-bold uppercase tracking-wider hover:bg-[#FDE68A] transition-colors"
-                  title={`Sisipkan ${v.label}`}
-                >
-                  <span className="material-symbols-outlined text-[12px]">add</span>
-                  {v.tag}
-                </button>
-              ))}
-            </div>
-
-            <textarea
-              ref={msgTextareaRef}
-              value={msgText}
-              onChange={(e) => setMsgText(e.target.value)}
-              rows={8}
-              className="w-full bg-white border border-[#D1C7BD] rounded-xl p-4 font-body-md text-[13px] leading-relaxed text-[#2C2A29] resize-y focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors"
-            />
-
-            <p className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant/60 mt-3 mb-1.5">Pratinjau</p>
-            <MessagePreview text={msgText} guestName={demoGuestName} coupleName={coupleName} guestUrl={demoGuestUrl} />
-          </section>
-
           {/* Search */}
-          <div className="mt-6 md:mt-5 bg-surface-container-lowest border border-outline-variant/60 rounded-xl px-4 h-12 flex items-center gap-3 shadow-sm focus-within:ring-1 focus-within:ring-secondary focus-within:border-secondary transition-all">
+          <div className="mt-6 md:mt-5 bg-white border border-[#E2D9CF] rounded-xl px-4 h-12 flex items-center gap-3 shadow-sm focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] transition-all">
             <span className="material-symbols-outlined text-on-surface-variant/70 text-xl">search</span>
             <input
               type="text"
@@ -590,6 +551,58 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
         {/* Scrollable Guest List */}
         <div className="flex-1 overflow-y-auto w-full max-w-2xl mx-auto px-6 py-6">
           <div className="flex flex-col gap-4">
+            {/* Template Pesan Undangan */}
+            <section className="bg-white border border-[#E2D9CF] rounded-2xl p-5 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="material-symbols-outlined text-[#B34E3F] text-[18px]">chat</span>
+                <h2 className="font-label-md text-[12px] uppercase tracking-widest text-[#2C2A29] font-bold">Template Pesan Undangan</h2>
+              </div>
+
+              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 mb-4">
+                {MSG_CATEGORIES.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => selectMsgCategory(c.id)}
+                    className={`shrink-0 whitespace-nowrap px-4 py-2 rounded-full border font-label-md text-[11px] uppercase tracking-wider transition-colors ${
+                      msgCategory === c.id
+                        ? "bg-[#B34E3F] border-[#B34E3F] text-white font-bold"
+                        : "bg-[#F5EFE6] border-[#E2D9CF] text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F]"
+                    }`}
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+
+              <p className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant/70 mb-2">Sisipkan variabel (klik untuk menambah di posisi kursor)</p>
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                {MSG_VARS.map((v) => (
+                  <button
+                    key={v.tag}
+                    type="button"
+                    onClick={() => insertMsgVar(v.tag)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#FAF7F2] border border-[#D1C7BD] text-[#B34E3F] font-label-md text-[10px] font-bold uppercase tracking-wider hover:border-[#B34E3F] hover:bg-white transition-colors shadow-sm"
+                    title={`Sisipkan ${v.label}`}
+                  >
+                    <span className="material-symbols-outlined text-[13px]">add</span>
+                    {v.tag}
+                  </button>
+                ))}
+              </div>
+
+              <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant/70 mb-2 block">Teks Pesan (dapat diedit)</label>
+              <textarea
+                ref={msgTextareaRef}
+                value={msgText}
+                onChange={(e) => setMsgText(e.target.value)}
+                rows={6}
+                className="w-full bg-white border border-[#E2D9CF] rounded-xl p-4 font-body-md text-[13px] leading-relaxed text-[#2C2A29] resize-y focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors"
+              />
+
+              <p className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant/70 mt-4 mb-2">Pratinjau WhatsApp</p>
+              <MessagePreview text={msgText} guestName={demoGuestName} coupleName={coupleName} guestUrl={demoGuestUrl} />
+            </section>
+
             {filtered.length === 0 ? (
               <div className="text-center py-16 bg-surface-container-lowest border border-outline-variant/50 rounded-xl">
                 <span className="material-symbols-outlined text-4xl text-outline-variant mb-3">people_outline</span>
