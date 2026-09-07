@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { notFound, redirect } from "next/navigation"
+import type { Metadata } from "next"
 import { getTemplateComponent } from "@/components/templates"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import InvitationOpenedTracker from "@/components/InvitationOpenedTracker"
@@ -8,6 +9,81 @@ import { getWpPostAlive } from "@/lib/wpPostCache"
 import { cachedRead } from "@/lib/refCache"
 
 export const revalidate = 60
+
+// Extract the first public image URL from a field that may be: a URL string, a
+// JSON-encoded array, or a nested array (slideshow cover slots -> array of URLs).
+function firstImageUrl(value: unknown): string | undefined {
+  if (typeof value === "string") {
+    const t = value.trim()
+    if (!t) return undefined
+    if (/^https?:\/\//i.test(t)) return t
+    try {
+      return firstImageUrl(JSON.parse(t))
+    } catch {
+      return undefined
+    }
+  }
+  if (Array.isArray(value)) {
+    for (const v of value) {
+      const r = firstImageUrl(v)
+      if (r) return r
+    }
+  }
+  return undefined
+}
+
+// Couple-specific social sharing metadata. The shared URL is {slug}.wedding.aksaraa.com
+// (rewritten to /w/{slug}), which embeds the couple's WP invitation in an iframe — so the
+// OG card shown by WhatsApp/Telegram/crawlers must come from THIS Next page, not WP.
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const { data: profile } = await supabaseAdmin
+    .from("wedding_profiles")
+    .select("slug, display_name, bride_name, groom_name, bride_full_name, groom_full_name, estimated_wedding_date, couple_illustration_url, cover_photos")
+    .ilike("slug", slug)
+    .single()
+
+  if (!profile) return {}
+
+  const name1 = (profile.bride_full_name || profile.bride_name || "").trim()
+  const name2 = (profile.groom_full_name || profile.groom_name || "").trim()
+  const title = `The Wedding of ${name1}-${name2}`
+
+  const tagline = (profile.display_name || `${profile.bride_name} & ${profile.groom_name}`).trim()
+  const date = profile.estimated_wedding_date
+    ? new Date(profile.estimated_wedding_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
+    : ""
+  const description = [tagline, date, "Mohon doa restu atas pernikahan kami; detail acara dan konfirmasi kehadiran tersedia di tautan undangan."].filter(Boolean).join(" • ")
+
+  let covers: string[] = []
+  if (Array.isArray(profile.cover_photos)) covers = profile.cover_photos.filter((c: unknown) => typeof c === "string" && c.trim())
+  else if (typeof profile.cover_photos === "string" && profile.cover_photos.trim()) {
+    try {
+      const parsed = JSON.parse(profile.cover_photos)
+      if (Array.isArray(parsed)) covers = parsed.filter((c: unknown) => typeof c === "string" && c.trim())
+    } catch {
+      covers = [profile.cover_photos.trim()]
+    }
+  }
+  const image = firstImageUrl(profile.couple_illustration_url) || firstImageUrl(covers) || undefined
+
+  const meta: Metadata = {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: image ? [image] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: image ? [image] : undefined,
+    },
+  }
+  return meta
+}
 
 export default async function WeddingInvitation({
   params,

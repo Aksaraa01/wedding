@@ -436,6 +436,7 @@ class AksaraaPlugin
         $fields = $body['fields'] ?? [];
         if (is_array($fields) && !empty($fields)) {
             self::write_fields_meta($new_id, $fields);
+        self::write_rank_math_seo($new_id, $fields);
         }
 
         // Register the new popup in the theme-builder conditions cache so it
@@ -582,6 +583,7 @@ class AksaraaPlugin
         // Write the couple's fields as post meta (e.g. _aksaraa_bride_name) so the
         // template can read them via Elementor "Post Custom Field" dynamic tags.
         self::write_fields_meta($post_id, $fields);
+        self::write_rank_math_seo($post_id, $fields);
 
         // PATCH the post's _elementor_data — hash-gated CSS regen
         $postChanged = self::apply_fields_to_post($post_id, $fields, $manifest, $updated);
@@ -621,6 +623,58 @@ class AksaraaPlugin
                 $value = wp_json_encode($value);
             }
             update_post_meta($post_id, '_aksaraa_' . $key, (string) $value);
+        }
+    }
+
+    // Fill the Rank Math SEO snippet for a couple's invitation post — the fields the
+    // /ops queue shows as "title / permalink / description" plus a Social (og:image)
+    // cover when the couple uploaded one. Permalink is intentionally left on the
+    // auto post_name. Runs on duplicate + patch so existing couples are updated on
+    // their next "Perbarui undangan".
+    private static function write_rank_math_seo(int $post_id, array $fields)
+    {
+        $name1 = isset($fields['bride_full_name']) && trim((string) $fields['bride_full_name']) !== ''
+            ? trim((string) $fields['bride_full_name'])
+            : (isset($fields['bride_name']) ? trim((string) $fields['bride_name']) : '');
+        $name2 = isset($fields['groom_full_name']) && trim((string) $fields['groom_full_name']) !== ''
+            ? trim((string) $fields['groom_full_name'])
+            : (isset($fields['groom_name']) ? trim((string) $fields['groom_name']) : '');
+
+        if ($name1 === '' && $name2 === '') return;
+
+        $title = sprintf('The Wedding of %s-%s', $name1, $name2);
+        $display = isset($fields['display_name']) && trim((string) $fields['display_name']) !== ''
+            ? trim((string) $fields['display_name'])
+            : trim(sprintf('%s & %s', $name1, $name2));
+        $date = isset($fields['date_upper']) ? trim((string) $fields['date_upper']) : '';
+        $description = trim(implode(' • ', array_filter([$display, $date, 'Mohon doa restu atas pernikahan kami; detail acara dan konfirmasi kehadiran tersedia di tautan undangan.'])));
+
+        // Cover for the Social tab — only set when the couple uploaded one.
+        $image = '';
+        if (isset($fields['couple_illustration_url']) && is_string($fields['couple_illustration_url']) && trim($fields['couple_illustration_url']) !== '') {
+            $image = trim($fields['couple_illustration_url']);
+        } elseif (isset($fields['cover_photos']) && is_array($fields['cover_photos'])) {
+            foreach ($fields['cover_photos'] as $c) {
+                if (is_string($c) && trim($c) !== '') { $image = trim($c); break; }
+            }
+        }
+
+        update_post_meta($post_id, 'rank_math_title', $title);
+        update_post_meta($post_id, 'rank_math_description', $description);
+        update_post_meta($post_id, 'rank_math_og_title', $title);
+        update_post_meta($post_id, 'rank_math_og_description', $description);
+
+        if ($image !== '') {
+            $imported = self::sideload_image($image);
+            $att_id = isset($imported['id']) && (int) $imported['id'] > 0 ? (int) $imported['id'] : 0;
+            $att_url = isset($imported['url']) && $imported['url'] !== '' ? $imported['url'] : $image;
+            update_post_meta($post_id, 'rank_math_og_image', $att_url);
+            if ($att_id > 0) update_post_meta($post_id, 'rank_math_og_image_id', $att_id);
+            update_post_meta($post_id, 'rank_math_twitter_image', $att_url);
+        } else {
+            delete_post_meta($post_id, 'rank_math_og_image');
+            delete_post_meta($post_id, 'rank_math_og_image_id');
+            delete_post_meta($post_id, 'rank_math_twitter_image');
         }
     }
 

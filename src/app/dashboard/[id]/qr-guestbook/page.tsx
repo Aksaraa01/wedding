@@ -216,6 +216,8 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   const [msgCategory, setMsgCategory] = useState<MsgCategory>("nasional")
   const [msgText, setMsgText] = useState<string>(MSG_TEMPLATES.nasional)
   const msgTextareaRef = useRef<HTMLTextAreaElement>(null)
+  const [templateOpen, setTemplateOpen] = useState(false)
+  const [templateView, setTemplateView] = useState<"edit" | "preview">("edit")
   const [exporting, setExporting] = useState(false)
   const [qrCodeBook, setQrCodeBook] = useState(true)
   const [showLimitModal, setShowLimitModal] = useState(false)
@@ -370,7 +372,10 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
         ? ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Pesan WhatsApp", "Tautan QR", "Tautan Undangan", "Sumber"]
         : ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Pesan WhatsApp", "Tautan Undangan", "Sumber"]
       const rows = guests.map((g) => {
-        const msg = g.slug || g.qr_token ? renderMessage(msgText, g.name, coupleName, guestUndanganUrl(g)) : ""
+        const raw = g.slug || g.qr_token ? renderMessage(msgText, g.name, coupleName, guestUndanganUrl(g)) : ""
+        // Keep multi-line formatting, but guard against any literal ASCII quotes that
+        // would trigger Excel/RFC-4180 quoting on copy (strip edge quotes, smarten inner).
+        const msg = raw.replace(/\r/g, "").replace(/^"+|"+$/g, "").replace(/"/g, "“")
         return qrCodeBook
           ? [g.name, g.phone_number || "", g.category || "", g.table_number || "", msg, guestQrUrl(g), guestUndanganUrl(g), g.added_manually ? "Ditambahkan Manual" : "Undangan QR"]
           : [g.name, g.phone_number || "", g.category || "", g.table_number || "", msg, guestUndanganUrl(g), g.added_manually ? "Ditambahkan Manual" : "Undangan QR"]
@@ -551,56 +556,69 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
         {/* Scrollable Guest List */}
         <div className="flex-1 overflow-y-auto w-full max-w-2xl mx-auto px-6 py-6">
           <div className="flex flex-col gap-4">
-            {/* Template Pesan Undangan */}
-            <section className="bg-white border border-[#E2D9CF] rounded-2xl p-5 shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="material-symbols-outlined text-[#B34E3F] text-[18px]">chat</span>
-                <h2 className="font-label-md text-[12px] uppercase tracking-widest text-[#2C2A29] font-bold">Template Pesan Undangan</h2>
-              </div>
+            {/* Template Pesan Undangan - Accordion */}
+            <section className="bg-white border border-[#E2D9CF] rounded-2xl shadow-sm overflow-hidden">
+              <button type="button" onClick={() => setTemplateOpen(!templateOpen)} className="w-full flex items-center justify-between p-4 bg-[#FAF7F2] hover:bg-[#F5EFE6] transition-colors">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="material-symbols-outlined text-[#B34E3F] text-[18px]">chat</span>
+                  <div className="text-left min-w-0">
+                    <h2 className="font-label-md text-[12px] uppercase tracking-widest text-[#2C2A29] font-bold">Template Pesan Undangan</h2>
+                    <p className="font-body-md text-[11px] text-on-surface-variant truncate">Template Aktif: {MSG_CATEGORIES.find((c) => c.id === msgCategory)?.label} • Klik untuk edit template</p>
+                  </div>
+                </div>
+                <span className={`material-symbols-outlined text-[#B34E3F] transition-transform ${templateOpen ? "rotate-180" : ""}`}>expand_more</span>
+              </button>
+              {templateOpen && (
+                <div className="p-5 border-t border-[#E2D9CF] space-y-4">
+                  <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                    {MSG_CATEGORIES.map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => selectMsgCategory(c.id)}
+                        className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full border font-label-md text-[10px] uppercase tracking-wider transition-colors ${
+                          msgCategory === c.id
+                            ? "bg-[#B34E3F] border-[#B34E3F] text-white font-bold"
+                            : "bg-[#F5EFE6] border-[#E2D9CF] text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F]"
+                        }`}
+                      >
+                        {c.label}
+                      </button>
+                    ))}
+                  </div>
 
-              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 mb-4">
-                {MSG_CATEGORIES.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => selectMsgCategory(c.id)}
-                    className={`shrink-0 whitespace-nowrap px-4 py-2 rounded-full border font-label-md text-[11px] uppercase tracking-wider transition-colors ${
-                      msgCategory === c.id
-                        ? "bg-[#B34E3F] border-[#B34E3F] text-white font-bold"
-                        : "bg-[#F5EFE6] border-[#E2D9CF] text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F]"
-                    }`}
-                  >
-                    {c.label}
-                  </button>
-                ))}
-              </div>
+                  <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                    {MSG_VARS.map((v) => (
+                      <button
+                        key={v.tag}
+                        type="button"
+                        onClick={() => insertMsgVar(v.tag)}
+                        className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FAF7F2] border border-[#D1C7BD] text-[#B34E3F] font-label-md text-[10px] font-bold uppercase tracking-wider hover:border-[#B34E3F] hover:bg-white transition-colors shadow-sm whitespace-nowrap"
+                        title={`Sisipkan ${v.label}`}
+                      >
+                        <span className="material-symbols-outlined text-[12px]">add</span>
+                        {v.tag}
+                      </button>
+                    ))}
+                  </div>
 
-              <p className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant/70 mb-2">Sisipkan variabel (klik untuk menambah di posisi kursor)</p>
-              <div className="flex flex-wrap items-center gap-2 mb-4">
-                {MSG_VARS.map((v) => (
-                  <button
-                    key={v.tag}
-                    type="button"
-                    onClick={() => insertMsgVar(v.tag)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#FAF7F2] border border-[#D1C7BD] text-[#B34E3F] font-label-md text-[10px] font-bold uppercase tracking-wider hover:border-[#B34E3F] hover:bg-white transition-colors shadow-sm"
-                    title={`Sisipkan ${v.label}`}
-                  >
-                    <span className="material-symbols-outlined text-[13px]">add</span>
-                    {v.tag}
-                  </button>
-                ))}
-              </div>
+                  <div className="flex gap-2 p-1 bg-[#F5EFE6] rounded-full w-fit">
+                    <button type="button" onClick={() => setTemplateView("edit")} className={`px-4 py-1.5 rounded-full font-label-md text-[11px] uppercase tracking-widest transition-colors ${templateView === "edit" ? "bg-[#B34E3F] text-white" : "text-[#2C2A29] hover:text-[#B34E3F]"}`}>Edit Template</button>
+                    <button type="button" onClick={() => setTemplateView("preview")} className={`px-4 py-1.5 rounded-full font-label-md text-[11px] uppercase tracking-widest transition-colors ${templateView === "preview" ? "bg-[#B34E3F] text-white" : "text-[#2C2A29] hover:text-[#B34E3F]"}`}>Preview Output</button>
+                  </div>
 
-              <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant/70 mb-2 block">Teks Pesan (dapat diedit)</label>
-              <textarea
-                ref={msgTextareaRef}
-                value={msgText}
-                onChange={(e) => setMsgText(e.target.value)}
-                rows={6}
-                className="w-full bg-white border border-[#E2D9CF] rounded-xl p-4 font-body-md text-[13px] leading-relaxed text-[#2C2A29] resize-y focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors"
-              />
-
-              <p className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant/70 mt-4 mb-2">Pratinjau WhatsApp</p>
-              <MessagePreview text={msgText} guestName={demoGuestName} coupleName={coupleName} guestUrl={demoGuestUrl} />
+                  {templateView === "edit" ? (
+                    <textarea
+                      ref={msgTextareaRef}
+                      value={msgText}
+                      onChange={(e) => setMsgText(e.target.value)}
+                      rows={6}
+                      className="w-full bg-white border border-[#E2D9CF] rounded-xl p-4 font-body-md text-[13px] leading-relaxed text-[#2C2A29] resize-none h-40 max-h-40 overflow-y-auto focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors"
+                    />
+                  ) : (
+                    <MessagePreview text={msgText} guestName={demoGuestName} coupleName={coupleName} guestUrl={demoGuestUrl} />
+                  )}
+                </div>
+              )}
             </section>
 
             {filtered.length === 0 ? (

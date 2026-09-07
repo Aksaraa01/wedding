@@ -26,6 +26,7 @@ export const metadata: Metadata = {
   title: "Aksaraa Wedding — Platform Pernikahan Naratif",
   description:
     "Aksaraa: Mengubah janji suci dan perjalanan cinta Anda menjadi kisah digital interaktif yang memikat.",
+  metadataBase: new URL("https://wedding.aksaraa.com"),
   icons: { icon: "/icon.svg" },
 }
 
