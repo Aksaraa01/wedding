@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import * as XLSX from "xlsx"
 import { autoGenerateGuestLinks } from "@/lib/guest-link"
+import { sanitizeGuestName } from "@/lib/nameClean"
 import { parseVip } from "@/lib/packages"
 
 export async function POST(req: NextRequest) {
@@ -21,10 +22,10 @@ export async function POST(req: NextRequest) {
 
     const guests = rows
       .slice(1)
-      .filter((r) => r.name?.trim())
+      .filter((r) => sanitizeGuestName(r.name || "").trim())
       .map((r) => ({
         wedding_profile_id: weddingProfileId,
-        name: r.name.trim(),
+        name: sanitizeGuestName(r.name).trim(),
         phone_number: (r.phone_number || "").toString().trim(),
         category: (r.category || "").toString().trim(),
         table_number: (r.table_number || "").toString().trim(),

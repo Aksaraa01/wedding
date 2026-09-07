@@ -2,14 +2,18 @@ import { supabaseAdmin } from "@/lib/supabase"
 import { generateUniqueToken } from "@/lib/qr"
 import { getFeatureIncluded } from "@/lib/featureGates"
 
-// Case-preserving guest slug: "Bpk. Surya Wahyudi " -> "Bpk.-Surya-Wahyudi".
-// Keeps the guest's exact casing + punctuation, collapses whitespace runs to "-",
-// and keeps "&" URL-safe ("&" -> "dan"). Always encodeURIComponent at build sites.
+// Allowed guest-name charset (manual add/edit + bulk auto-sanitize): letters,
+// digits, space, dot, comma, parentheses. Everything else is stripped.
+export { sanitizeGuestName } from "@/lib/nameClean"
+
+// Clean, URL-safe guest slug (zero '%' in query). Commas/parens/+/& are dropped
+// (map to "-"), only A-Z a-z 0-9 . - remain, space -> "-":
+// "Prof. Dr. …, Ph.D (HC)" -> "Prof.-Dr.-…-Ph.D-HC". Case preserved.
 export function slugifyName(name: string): string {
   return (name || "")
     .trim()
-    .replace(/&/g, "dan")
-    .replace(/\s+/g, "-")
+    .replace(/[^A-Za-z0-9.-]+/g, "-")
+    .replace(/-{2,}/g, "-")
     .replace(/^-+|-+$/g, "")
 }
 

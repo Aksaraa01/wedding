@@ -2313,7 +2313,14 @@ add_action('wp_head', function () {
         echo '<style>@media (max-width: 767px) { .elementor-section > .elementor-background-video-container::before, .elementor-section.elementor-motion-effects-element-type-background > .elementor-motion-effects-container > .elementor-motion-effects-layer, .elementor-section > .elementor-background-slideshow, .e-con > .elementor-motion-effects-container > .elementor-motion-effects-layer, .e-con.elementor-motion-effects-element-type-background, .e-con.e-con-full { background-attachment: scroll !important; } }</style>';
     }
     if (is_singular() && get_post_meta(get_the_ID(), '_elementor_edit_mode', true) === 'builder') {
-        echo '<style>.hestia-title { display: none !important; }</style>';
+        // Hide the blog/page chrome so only the Elementor invitation + the
+        // WeddingPress comment-kit guestbook render (the kit has its own form
+        // `#commentform-{post}` inside _elementor_data; we must NOT touch it).
+        echo '<style>'
+            . '.entry-title, .hestia-title, .entry-header, .entry-meta, .post-meta, '
+            . '.the-content-hide, .single-post .entry-content > .page-title, '
+            . '#respond.comment-respond, .comment-respond, .comments-area { display: none !important; }'
+            . '</style>';
     }
     // Guard for Elementor Pro popup + audio duplication when template contains two audio widgets (post+popup).
     // Templates baked before the fix reference `document.elementorProFrontend` and call `closePopup("{}, event")`

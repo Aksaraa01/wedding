@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { parseVip } from "@/lib/packages"
+import { sanitizeGuestName } from "@/lib/nameClean"
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,8 +26,8 @@ export async function POST(req: NextRequest) {
     }
 
     const result = rows.map((r: Record<string, string>) => {
-      const name = (r.name || "").trim()
-      const rawWa = (r.phone_number || r.whatsapp || "").toString().trim()
+      const name = sanitizeGuestName(r.name).trim()
+      const rawWa = sanitizeGuestName((r.phone_number || r.whatsapp || "").toString()).trim()
       const digits = rawWa.replace(/\D/g, "").replace(/^0+/, "")
       const normalizedWa = digits ? (digits.startsWith("62") ? `+${digits}` : `+62${digits}`) : ""
       const duplicate =

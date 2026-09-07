@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import ProfileMenu from "@/components/ProfileMenu"
 import * as XLSX from "xlsx"
+import { sanitizeGuestName } from "@/lib/nameClean"
 
 type Guest = {
   id: string
@@ -107,7 +108,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
 
   const openEdit = (g: Guest) => {
     setEditingId(g.id)
-    setForm({ name: g.name, phone_number: g.phone_number || "", category: g.category || "", table_number: g.table_number || "", is_vip: !!g.is_vip })
+    setForm({ name: sanitizeGuestName(g.name), phone_number: g.phone_number || "", category: g.category || "", table_number: g.table_number || "", is_vip: !!g.is_vip })
     setWaDigits((g.phone_number || "").replace(/\D/g, ""))
     setModalOpen(true)
   }
@@ -117,7 +118,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
     setDuplicateError("")
 
     const data = {
-      name: form.name.trim(),
+      name: sanitizeGuestName(form.name.trim()),
       phone_number: waDigits ? `+62${waDigits}` : "",
       category: form.category.trim(),
       table_number: form.table_number.trim(),
@@ -689,7 +690,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                     className="w-full bg-transparent border-b border-outline-variant py-2 focus:outline-none focus:border-primary transition-colors"
                     placeholder="Contoh: Anindya Pramesti"
                     value={form.name}
-                    onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                    onChange={(e) => setForm((p) => ({ ...p, name: sanitizeGuestName(e.target.value) }))}
                   />
                 </div>
                 <div className="flex flex-col gap-2">
