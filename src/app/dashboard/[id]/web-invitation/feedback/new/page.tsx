@@ -123,7 +123,7 @@ function FeedbackNewInner({ id }: { id: string }) {
     <>
       <PageTheme mode="light" />
 
-      <header className="w-full top-0 sticky z-50 bg-surface flex items-center justify-between px-edge-margin-mobile py-6 border-b border-outline-variant/30">
+      <header className="w-full top-0 sticky z-50 bg-[#FAF7F2]/90 backdrop-blur-md flex items-center justify-between px-edge-margin-mobile py-6 border-b border-[#E2D9CF]">
         <button
           onClick={() => router.back()}
           className="flex items-center gap-2 text-on-surface-variant hover:opacity-80 transition-opacity"
@@ -134,21 +134,24 @@ function FeedbackNewInner({ id }: { id: string }) {
         <div className="w-10" />
       </header>
 
-      <main className="max-w-container-max mx-auto px-edge-margin-mobile pt-10 pb-40">
+      <main className="max-w-container-max mx-auto px-edge-margin-mobile pt-10 pb-40 bg-[#FAF7F2]">
         <section className="mb-12">
-          <h1 className="font-headline-xl text-headline-md md:text-headline-xl mb-4 leading-tight">Feedback Anda</h1>
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            <h1 className="font-headline-xl text-headline-md md:text-headline-xl leading-tight">Feedback Anda</h1>
+            {limit.remaining_revisions > 0 && (
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FFFBEB] border border-[#FDE68A] text-[#78350F] font-label-md text-[11px] font-bold uppercase tracking-wider shadow-sm">
+                <span className="material-symbols-outlined text-[14px]">history_edu</span>
+                Sisa Revisi: {limit.remaining_revisions} dari {limit.max_revisions}
+              </span>
+            )}
+          </div>
           <p className="font-body-lg text-on-surface-variant max-w-2xl leading-relaxed">
             Sampaikan revisi atau penyesuaian yang Anda inginkan untuk draf undangan{template ? <span className="italic font-semibold"> {template.name}</span> : ""}.
           </p>
-          {limit.remaining_revisions > 0 && (
-            <p className="font-label-md text-label-md text-on-surface-variant mt-2">
-              Sisa revisi: <span className="font-semibold text-primary">{limit.remaining_revisions}</span> dari {limit.max_revisions} putaran
-            </p>
-          )}
         </section>
 
         <section className="mb-16 grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-          <div className="md:col-span-5 aspect-square bg-surface-container-low overflow-hidden relative group">
+          <div className="md:col-span-5 aspect-square bg-surface-container-low overflow-hidden relative group rounded-2xl border border-[#E2D9CF]">
             <img
               src={template?.preview_image_url || "https://placehold.co/600x600/f5f0e8/8d4d39?text=Draft"}
               alt={template?.name || "Draft preview"}
@@ -156,7 +159,8 @@ function FeedbackNewInner({ id }: { id: string }) {
             />
           </div>
 
-          <div className="md:col-span-7 pt-4">
+          <div className="md:col-span-7">
+            <div className="bg-white border border-[#E2D9CF] rounded-2xl p-6 md:p-8 shadow-sm">
             <div className="flex items-start gap-4 mb-8">
               <span className="material-symbols-outlined text-primary text-3xl mt-1">auto_stories</span>
               <div>
@@ -179,7 +183,7 @@ function FeedbackNewInner({ id }: { id: string }) {
                 <select
                   value={area}
                   onChange={e => setArea(e.target.value)}
-                  className="w-full bg-surface-container-lowest border border-outline-variant font-body-md py-3 px-4 appearance-none cursor-pointer rounded-none focus:outline-none focus:border-primary"
+                  className="w-full bg-white border border-[#D1C7BD] font-body-md py-3 px-4 appearance-none cursor-pointer rounded-lg focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors"
                 >
                   <option value="" disabled>Pilih area...</option>
                   <option value="Tipografi & Huruf">Tipografi & Huruf</option>
@@ -198,14 +202,14 @@ function FeedbackNewInner({ id }: { id: string }) {
                   onChange={e => setDescription(e.target.value)}
                   rows={4}
                   placeholder="Tuliskan detail revisi Anda di sini secara spesifik..."
-                  className="w-full bg-surface-container-lowest border border-outline-variant font-body-md py-3 px-4 resize-none rounded-none focus:outline-none focus:border-primary"
+                  className="w-full bg-white border border-[#D1C7BD] font-body-md py-3 px-4 resize-none rounded-lg focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors"
                   required
                 />
               </div>
 
               <div>
                 <label className="font-label-md text-label-md uppercase tracking-widest block mb-4">Unggah Referensi / Foto Pengganti (Opsional, Maks. 5 File)</label>
-                <div className="border-2 border-dashed border-outline-variant hover:border-primary transition-colors cursor-pointer group p-8 flex flex-col items-center justify-center bg-surface-container-lowest relative">
+                <div className="border-2 border-dashed border-[#D1C7BD] hover:border-[#B34E3F] transition-colors cursor-pointer group p-8 flex flex-col items-center justify-center bg-[#FAF7F2] rounded-2xl relative">
                   <input
                     type="file"
                     accept="image/*"
@@ -217,7 +221,7 @@ function FeedbackNewInner({ id }: { id: string }) {
                     <div className="w-full space-y-3">
                       <div className="grid grid-cols-5 gap-2">
                         {previews.map((src, i) => (
-                          <div key={i} className="relative aspect-square bg-surface-container-highest rounded overflow-hidden border border-outline-variant group/image">
+                          <div key={i} className="relative aspect-square bg-surface-container-highest rounded overflow-hidden border border-[#E2D9CF] group/image">
                             <img src={src} alt={`Referensi ${i + 1}`} className="w-full h-full object-cover" />
                             <button
                               type="button"
@@ -229,7 +233,7 @@ function FeedbackNewInner({ id }: { id: string }) {
                           </div>
                         ))}
                         {previews.length < 5 && (
-                          <div className="aspect-square border-2 border-dashed border-outline-variant rounded flex items-center justify-center text-outline hover:border-primary transition-colors">
+                          <div className="aspect-square border-2 border-dashed border-[#D1C7BD] rounded flex items-center justify-center text-[#B34E3F] hover:border-[#B34E3F] transition-colors">
                             <span className="material-symbols-outlined text-2xl">add</span>
                           </div>
                         )}
@@ -238,33 +242,34 @@ function FeedbackNewInner({ id }: { id: string }) {
                     </div>
                   ) : (
                     <>
-                      <span className="material-symbols-outlined text-4xl text-on-surface-variant group-hover:text-primary transition-colors mb-4" style={{ fontVariationSettings: "'wght' 200" }}>add_photo_alternate</span>
-                      <p className="font-body-md text-body-md text-on-surface-variant group-hover:text-primary transition-colors">Seret file atau klik untuk unggah</p>
-                      <p className="text-[10px] uppercase tracking-tighter mt-2 text-outline">JPG, PNG (Maks. 5MB per file, max 5 file)</p>
+                      <span className="material-symbols-outlined text-4xl text-[#B34E3F] group-hover:text-[#9E3B2D] transition-colors mb-4" style={{ fontVariationSettings: "'wght' 200" }}>add_photo_alternate</span>
+                      <p className="font-body-md text-body-md text-[#2C2A29] group-hover:text-[#B34E3F] transition-colors">Seret file atau klik untuk unggah</p>
+                      <p className="text-[10px] uppercase tracking-tighter mt-2 text-on-surface-variant/60">JPG, PNG (Maks. 5MB per file, max 5 file)</p>
                     </>
                   )}
                 </div>
               </div>
 
-              <div className="fixed bottom-0 left-0 w-full z-50 border-t border-outline-variant/20 px-edge-margin-mobile py-6 bg-surface">
+              <div className="fixed bottom-0 left-0 w-full z-50 border-t border-[#E2D9CF] px-edge-margin-mobile py-6 bg-white/95 backdrop-blur-md">
                 <div className="max-w-container-max mx-auto flex flex-col gap-3">
                   <button
                     type="submit"
                     disabled={saving || !description.trim() || limit.is_locked}
-                    className="w-full bg-primary text-surface py-5 px-8 font-label-md text-label-md uppercase tracking-widest hover:bg-secondary transition-all duration-300 transform active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-full bg-[#B34E3F] text-white py-5 px-8 rounded-full font-label-md text-label-md font-bold uppercase tracking-widest hover:bg-[#9E3B2D] transition-all duration-300 transform active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {saving ? "Mengirim..." : "Kirim Umpan Balik ke Konsultan"}
                   </button>
                   <button
                     type="button"
                     onClick={() => router.back()}
-                    className="w-full border border-outline text-on-surface py-5 px-8 font-label-md text-label-md uppercase tracking-widest hover:bg-surface-variant transition-all duration-300"
+                    className="w-full border border-[#E2D9CF] text-[#2C2A29] py-5 px-8 rounded-full font-label-md text-label-md uppercase tracking-widest hover:bg-[#FAF7F2] transition-all duration-300"
                   >
                     Batal
                   </button>
                 </div>
               </div>
             </form>
+            </div>
           </div>
         </section>
       </main>

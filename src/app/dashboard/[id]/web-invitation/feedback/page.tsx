@@ -65,7 +65,7 @@ function FeedbackInner({ id }: { id: string }) {
     <>
       <PageTheme mode="light" />
 
-      <main className="min-h-screen pb-40 bg-surface">
+      <main className="min-h-screen pb-40 bg-[#FAF7F2]">
         <nav className="px-edge-margin-mobile pt-8 mb-8">
           <button
             onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)}
@@ -77,20 +77,20 @@ function FeedbackInner({ id }: { id: string }) {
         </nav>
 
         <section className="px-edge-margin-mobile mb-12">
-          <h1 className="font-headline-lg-mobile text-headline-lg-mobile text-primary mb-4">Riwayat Draf</h1>
+          <h1 className="font-headline-lg-mobile text-headline-lg-mobile text-[#2C2A29] mb-4">Riwayat Draf</h1>
           <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed opacity-80">
             Pantau evolusi narasi pernikahan Anda dari versi awal hingga draf terbaru yang sedang dikerjakan oleh tim kami.
           </p>
         </section>
 
         <section className="px-edge-margin-mobile relative">
-          <div className="absolute left-4 top-0 bottom-0 w-[0.5px] bg-outline-variant/50" />
+          <div className="absolute left-4 top-0 bottom-0 w-[0.5px] bg-[#E2D9CF]" />
 
-          <div className="space-y-16">
+          <div className="space-y-8">
             {submissions.length === 0 ? (
               <div className="relative pl-12 pt-4">
-                <div className="absolute left-[13px] top-4 w-2 h-2 rounded-full bg-outline ring-4 ring-surface" />
-                <div className="flex flex-col items-center justify-center py-12 opacity-40">
+                <div className="absolute left-[13px] top-4 w-2 h-2 rounded-full bg-[#D1C7BD] ring-4 ring-[#FAF7F2]" />
+                <div className="flex flex-col items-center justify-center py-12 opacity-40 bg-white border border-[#E2D9CF] rounded-2xl">
                   <span className="material-symbols-outlined text-[48px] mb-4 text-outline font-light">auto_stories</span>
                   <p className="font-label-md text-label-md uppercase tracking-widest text-center">Belum ada riwayat feedback</p>
                 </div>
@@ -107,25 +107,25 @@ function FeedbackInner({ id }: { id: string }) {
 
                 return (
                   <div key={sub.id} className="relative pl-12">
-                    <div className={`absolute left-[13px] top-2 w-2 h-2 rounded-full ring-4 ring-surface ${isLatest ? "bg-secondary" : "bg-primary"}`} />
+                    <div className={`absolute left-[13px] top-2 w-2 h-2 rounded-full ring-4 ring-[#FAF7F2] ${isLatest ? "bg-[#B34E3F]" : "bg-[#D1C7BD]"}`} />
 
                     {i > 0 && (
-                      <div className="absolute -top-16 left-[14.5px] w-[1px] h-16 bg-outline-variant/30" />
+                      <div className="absolute -top-8 left-[14.5px] w-[1px] h-8 bg-[#E2D9CF]" />
                     )}
 
-                    <div className="flex flex-col space-y-3">
-                      <div className="flex justify-between items-start">
+                    <div className="bg-white border border-[#E2D9CF] rounded-2xl p-5 md:p-6 shadow-sm flex flex-col space-y-4">
+                      <div className="flex justify-between items-start gap-3">
                         <div>
-                          <h3 className="font-headline-md text-headline-md text-primary mb-1">{sub.template_name || "Draf Undangan"}</h3>
-                          <p className="font-label-md text-label-md text-outline uppercase tracking-tighter">{formatDate(sub.created_at)}</p>
+                          <h3 className="font-headline-md text-headline-md text-[#2C2A29] mb-1">{sub.template_name || "Draf Undangan"}</h3>
+                          <p className="font-label-md text-label-md text-on-surface-variant/60 uppercase tracking-tighter">{formatDate(sub.created_at)}</p>
                         </div>
-                        <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full border ${sub.status === "resolved" ? "bg-emerald-50 text-emerald-700 border-emerald-200" : sub.status === "in_progress" ? "bg-amber-50 text-amber-700 border-amber-200" : "bg-blue-50 text-blue-700 border-blue-200"}`}>
-                          {sub.status === "resolved" ? "Selesai" : sub.status === "in_progress" ? "Diproses" : "Menunggu"}
+                        <span className={`text-[10px] font-semibold uppercase px-3 py-1 rounded-full border ${sub.status === "resolved" ? "bg-[#ECFDF5] text-[#059669] border-[#A7F3D0]" : sub.status === "in_progress" ? "bg-[#FFFBEB] text-[#D97706] border-[#FDE68A]" : "bg-blue-50 text-blue-700 border-blue-200"}`}>
+                          {sub.status === "resolved" ? "Selesai" : sub.status === "in_progress" ? "Dalam Proses" : "Menunggu"}
                         </span>
                       </div>
 
                       {isLatest ? (
-                        <div className="bg-surface-container-low p-6 border-l-2 border-secondary overflow-hidden">
+                        <div className="bg-[#FAF7F2] p-5 border-l-4 border-[#B34E3F] rounded-r-xl overflow-hidden">
                           <p className="font-body-md text-body-md italic text-on-surface-variant leading-relaxed whitespace-pre-wrap break-words min-w-0">
                             &ldquo;{sub.description}&rdquo;
                           </p>
@@ -135,7 +135,7 @@ function FeedbackInner({ id }: { id: string }) {
                           {images.length > 0 && (
                             <div className="grid grid-cols-5 gap-2 max-w-lg">
                               {images.map((imgUrl, imgIdx) => (
-                                <div key={imgIdx} className="aspect-square bg-surface-container-highest overflow-hidden rounded mt-3">
+                                <div key={imgIdx} className="aspect-square bg-surface-container-highest overflow-hidden rounded mt-3 border border-[#E2D9CF]">
                                   <img src={imgUrl} alt={`Referensi ${imgIdx + 1}`} className="w-full h-full object-cover" />
                                 </div>
                               ))}
@@ -151,7 +151,7 @@ function FeedbackInner({ id }: { id: string }) {
                           {images.length > 0 && (
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                               {images.map((imgUrl, imgIdx) => (
-                                <div key={imgIdx} className="aspect-[4/5] bg-surface-container-highest overflow-hidden">
+                                <div key={imgIdx} className="aspect-[4/5] bg-surface-container-highest overflow-hidden rounded-lg border border-[#E2D9CF]">
                                   <img src={imgUrl} alt={`Referensi ${imgIdx + 1}`} className="w-full h-full object-cover grayscale-[30%] hover:grayscale-0 transition-all duration-700" />
                                 </div>
                               ))}
@@ -168,7 +168,7 @@ function FeedbackInner({ id }: { id: string }) {
         </section>
       </main>
 
-      <footer className="fixed bottom-0 left-0 w-full z-50 bg-surface/90 backdrop-blur-md border-t border-outline-variant/20 px-6 pt-4 pb-8 flex flex-col gap-4">
+      <footer className="fixed bottom-0 left-0 w-full z-50 bg-[#FAF7F2]/95 backdrop-blur-md border-t border-[#E2D9CF] px-6 pt-4 pb-8 flex flex-col gap-4">
         {limit.is_locked ? (
           <div className="text-center">
             <p className="font-body-md text-body-md text-rose-700 mb-2">
@@ -188,7 +188,7 @@ function FeedbackInner({ id }: { id: string }) {
         <button
           onClick={() => router.push(`/dashboard/${id}/web-invitation/feedback/new`)}
           disabled={limit.is_locked}
-          className="w-full bg-primary text-on-primary py-5 font-label-md text-label-md uppercase tracking-[0.3em] active:scale-[0.98] transition-all hover:bg-secondary duration-300 shadow-xl disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full bg-[#B34E3F] text-white py-5 rounded-full font-label-md text-label-md font-bold uppercase tracking-[0.3em] active:scale-[0.98] transition-all hover:bg-[#9E3B2D] duration-300 shadow-xl disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Beri Masukan Baru
         </button>
