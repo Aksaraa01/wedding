@@ -418,6 +418,11 @@ class AksaraaPlugin
         // Copy all post meta
         self::copy_post_meta($master->ID, $new_id);
 
+        // Render invitation as Elementor Canvas so only the Elementor content
+        // (+ WeddingPress comment-kit guestbook inside it) shows — no Hello
+        // Elementor site header/footer or native reply block.
+        update_post_meta($new_id, '_wp_page_template', 'elementor_canvas');
+
         // Duplicate linked popups, rewire conditions
         $old_popups = self::find_linked_popups($master->ID);
         $popup_map = [];
@@ -2314,12 +2319,14 @@ add_action('wp_head', function () {
     }
     if (is_singular() && get_post_meta(get_the_ID(), '_elementor_edit_mode', true) === 'builder') {
         // Hide the blog/page chrome so only the Elementor invitation + the
-        // WeddingPress comment-kit guestbook render (the kit has its own form
-        // `#commentform-{post}` inside _elementor_data; we must NOT touch it).
+        // WeddingPress comment-kit guestbook render. The kit has its own form
+        // `#commentform-{post}` inside _elementor_data — we do NOT hide it.
+        // Native Hello reply is already absent because these posts use
+        // `_wp_page_template = elementor_canvas`, so we only hide stray title
+        // wrappers defensively (safe: kit form id is scoped, unaffected).
         echo '<style>'
             . '.entry-title, .hestia-title, .entry-header, .entry-meta, .post-meta, '
-            . '.the-content-hide, .single-post .entry-content > .page-title, '
-            . '#respond.comment-respond, .comment-respond, .comments-area { display: none !important; }'
+            . '.single-post .page-header, .single-post .page-title { display: none !important; }'
             . '</style>';
     }
     // Guard for Elementor Pro popup + audio duplication when template contains two audio widgets (post+popup).
