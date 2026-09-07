@@ -109,7 +109,7 @@ function MessagePreview({ text, guestName, coupleName, guestUrl }: { text: strin
   )
 }
 
-function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copiedId, copiedKind, gated, isFirstGuest, onGatedClick }: {
+function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copiedId, copiedKind, gated, isFirstGuest, onGatedClick, isUnpaid }: {
   guest: Guest
   slug: string
   onCopyQr: (token: string, slug: string | null) => void
@@ -120,15 +120,17 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copie
   gated: boolean
   isFirstGuest: boolean
   onGatedClick: () => void
+  isUnpaid?: boolean
 }) {
   const hasToken = !!guest.qr_token
   const isCopiedQr = copiedId === guest.id && copiedKind === "qr"
   const isCopiedUndangan = copiedId === guest.id && copiedKind === "undangan"
   const isCopiedMessage = copiedId === guest.id && copiedKind === "pesan"
 
-  const blocked = gated && !isFirstGuest
+  const blocked = isUnpaid || gated
   const blockAction = (fn: () => void) => (blocked ? onGatedClick : fn)
   const tableBadge = formatTableBadge(guest.table_number)
+  const blockedText = isUnpaid ? "Selesaikan Pembayaran" : "Kunci — Lengkapi Undangan"
 
   return (
     <div className="bg-white border border-[#E2D9CF] hover:border-[#E2D9CF] rounded-xl p-4 shadow-sm transition-all duration-200 flex flex-col gap-3 group">
@@ -167,7 +169,7 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copie
       {blocked ? (
         <div className="bg-[#F3F4F6] border border-[#E2D9CF] rounded-lg px-3 py-2.5 flex items-center justify-center gap-2 text-[11px] font-label-md uppercase tracking-wider text-[#9CA3AF]">
           <span className="material-symbols-outlined text-[16px]">lock</span>
-          Kunci — Lengkapi Undangan
+          {blockedText}
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -471,12 +473,12 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
           </h1>
 
           {/* Horizontal Action Bar */}
-          <section className="mt-5 bg-white border border-[#E2D9CF] rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
-            <div className="flex items-center gap-3">
+          <section className="mt-5 bg-white border border-[#E2D9CF] rounded-xl p-3 flex flex-row items-center gap-2 overflow-x-auto whitespace-nowrap shadow-sm">
+            <div className="flex items-center gap-2 shrink-0">
               <span className="inline-flex items-center gap-2 bg-[#F3F4F6] border border-[#E2D9CF] rounded-full px-3 py-1.5">
                 <span className="material-symbols-outlined text-sm text-[#B34E3F]">link</span>
                 <span className="font-label-md text-[11px] uppercase tracking-wider text-[#2C2A29] font-bold">
-                  {stats.with_token} Tautan
+                  {stats.with_token} Tamu
                 </span>
               </span>
               <span className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1.5">
@@ -656,6 +658,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
                   gated={gated}
                   isFirstGuest={g.id === firstGuestId}
                   onGatedClick={() => setShowConfirmModal(true)}
+                  isUnpaid={isUnpaid}
                 />
               ))
             )}

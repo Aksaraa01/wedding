@@ -375,6 +375,22 @@ class AksaraaPlugin
         // Generate a numbered slug like {base}-01, {base}-02, ...
         $new_slug = self::next_numbered_slug($base_slug ?: $slug, $exclude_post_id);
 
+        // Preserve comment_status for WeddingPress guestbook posts (those that contain an Elementor post-comments widget)
+        $master_has_comment = false;
+        $master_raw = get_post_meta($master->ID, '_elementor_data', true);
+        $master_tree = is_string($master_raw) ? json_decode($master_raw, true) : (is_array($master_raw) ? $master_raw : null);
+        if (is_array($master_tree)) {
+            $check = function (array $nodes) use (&$check, &$master_has_comment) {
+                foreach ($nodes as $el) {
+                    $type = $el['widgetType'] ?? '';
+                    $settings = $el['settings'] ?? [];
+                    if (in_array($type, ['post-comments', 'wp-widget-post-comments', 'theme-post-comments'], true)) { $master_has_comment = true; return; }
+                    if (is_array($settings) && (isset($settings['ck2_comments_text']) || isset($settings['comments_text']) || isset($settings['ck2_konfirmasi_text']))) { $master_has_comment = true; return; }
+                    if (!empty($el['elements'])) { $check($el['elements']); if ($master_has_comment) return; }
+                }
+            };
+            $check($master_tree);
+        }
         // Duplicate the post
         $new_id = wp_insert_post([
             'post_title' => $new_title,
@@ -383,7 +399,7 @@ class AksaraaPlugin
             'post_type' => $master->post_type,
             'post_status' => 'publish',
             'post_author' => get_current_user_id() ?: 1,
-            'comment_status' => 'closed',
+            'comment_status' => $master_has_comment ? 'open' : 'closed',
             'ping_status' => 'closed',
         ]);
 
@@ -2188,7 +2204,11 @@ add_action('wp_footer', function () {
     echo '<script>(function(){function g(){try{return decodeURIComponent((new URLSearchParams(location.search).get("to")||"").replace(/\+/g," "))}catch(e){return""}}function fillName(){var to=g();if(!to)return;var sels=["input[name=\"author\"]","#author","input.cui-input[name=\"author\"]","input[name*=\"nama_tamu\"]","input[name*=\"nama tamu\"]","input[id*=\"nama_tamu\"]","input[id*=\"nama\"]","textarea[name*=\"nama_tamu\"]","input[name=\"form_fields[nama_tamu]\"]","input[name=\"form_fields[name]\"]","#form-field-nama_tamu","#form-field-nama","#form-field-author"];for(var i=0;i<sels.length;i++){try{var els=document.querySelectorAll(sels[i]);for(var j=0;j<els.length;j++){var el=els[j];if(el&&!el.value){el.value=to;el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}));}}}catch(e){}}}function ensureFields(e){var form=e&&e.target;if(!form||!form.matches||!form.matches("form[id^=\"commentform\"]"))return;var to=g();var a=form.querySelector("input[name=\"author\"]");if(a&&!a.value.trim()&&to){a.value=to;}if(!form.querySelector("input[name=\"email\"]")){var h=document.createElement("input");h.type="hidden";h.name="email";h.value="anonymous@wordpress.com";h.setAttribute("autocomplete","off");form.appendChild(h);}}fillName();document.addEventListener("DOMContentLoaded",fillName);document.addEventListener("submit",ensureFields,true);var obs=new MutationObserver(function(){fillName();});try{obs.observe(document.body,{childList:true,subtree:true});}catch(e){}if(window.jQuery){jQuery(document).on("elementor/popup/show",function(){setTimeout(fillName,200);});}document.addEventListener("click",function(e){var t=e.target;if(t&&t.closest&&t.closest(".elementor-button,.cui-link,.cui-button")){setTimeout(fillName,120);}},true);})();</script>';
 });
 
-// Hide native comment display for all posts (headline + comment + reply) — the invitation's guestbook uses a custom Elementor form, not the theme's comment template.
+// Hide Hestia's native comment headline/reply for all singular posts.
+// The invitation's guestbook is an Elementor widget (ck2) that renders inside
+// _elementor_data, not via the theme's comments_template(), so hiding the
+// theme's template does not affect it. Keep comment_status open for those
+// posts (handled in duplicate + backfill) so Elementor's form can still submit.
 add_filter('comments_template', function ($template) {
     if (is_singular()) return '';
     return $template;
