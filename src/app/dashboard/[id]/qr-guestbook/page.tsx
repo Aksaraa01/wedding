@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, use } from "react"
+import { useState, useEffect, use, useRef } from "react"
 import { useRouter } from "next/navigation"
 import * as XLSX from "xlsx"
 import { ASSETS } from "@/lib/assets"
@@ -43,13 +43,69 @@ function formatTableBadge(raw: string | null): string {
   return `MEJA ${t.toUpperCase()}`
 }
 
-function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, copiedId, copiedKind, gated, isFirstGuest, onGatedClick }: {
+type MsgCategory = "nasional" | "international" | "muslim" | "kristen" | "budha" | "hindu"
+
+const MSG_CATEGORIES: { id: MsgCategory; label: string }[] = [
+  { id: "nasional", label: "Nasional" },
+  { id: "international", label: "International" },
+  { id: "muslim", label: "Muslim" },
+  { id: "kristen", label: "Kristen" },
+  { id: "budha", label: "Budha" },
+  { id: "hindu", label: "Hindu" },
+]
+
+const MSG_TEMPLATES: Record<MsgCategory, string> = {
+  nasional: `Yth. Bapak/Ibu/Saudara/i {Nama Tamu},\nKebahagiaan akan terasa lebih lengkap jika disambut bersama orang-orang tersayang. Dengan penuh rasa syukur dan kehangatan, kami mengundang Bapak/Ibu/Saudara/i untuk menjadi bagian dari momen bahagia pernikahan kami.\nMerupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu secara langsung.\nInformasi lengkap mengenai jadwal, lokasi acara, serta konfirmasi kehadiran dapat diakses melalui tautan undangan digital berikut:\n{Tautan Undangan}\nSampai jumpa di hari bahagia kami. Terima kasih atas kasih, doa, dan dukungannya.\nSalam hangat,\n{Nama Pasangan}`,
+  international: `Dear {Nama Tamu},\nAs we begin this wonderful new chapter of our lives, our hearts are filled with gratitude for the love and friendship you have shared with us over the years. It would mean the world to us to have you by our side as we celebrate our wedding day.\nPlease join us for a day filled with love, laughter, and unforgettable memories. You can view the full event details and kindly confirm your attendance through the link below:\n{Tautan Undangan}\nWe truly look forward to celebrating this special day together with you!\nWarm regards,\n{Nama Pasangan}`,
+  muslim: `Assalamu'alaikum Warahmatullahi Wabarakatuh,\nYth. Bapak/Ibu/Saudara/i {Nama Tamu},\nMaha Suci Allah SWT yang telah menciptakan makhluk-Nya berpasang-pasangan. Dengan memohon rahmat, ridho, dan keikhlasan-Nya, kami bermaksud menyelenggarakan syukuran pernikahan kami.\nUngkapan rasa syukur ini terasa semakin indah dengan kehadiran serta doa tulus dari Bapak/Ibu/Saudara/i. Untuk informasi rincian acara dan konfirmasi kehadiran, silakan membuka tautan berikut:\n{Tautan Undangan}\nKehadiran Anda adalah karunia terindah bagi kami. Terima kasih atas segala doa baik yang dipanjatkan.\nWassalamu'alaikum Warahmatullahi Wabarakatuh.\nKami yang berbahagia,\n{Nama Pasangan}`,
+  kristen: `Shalom Bapak/Ibu/Saudara/i {Nama Tamu} yang dikasihi dalam Tuhan,\n"Demikianlah mereka bukan lagi dua, melainkan satu. Karena itu, apa yang telah dipersatukan Allah, tidak boleh diceraikan manusia."\nAtas kasih dan kebaikan Tuhan yang melimpah, kami mengundang Anda untuk menjadi saksi atas janji suci pernikahan kami. Kehadiran dan persekutuan Anda dalam hari bahagia ini merupakan berkah yang luar biasa bagi keluarga besar kami.\nInformasi detail mengenai tata ibadah pemberkatan dan resepsi dapat diakses pada tautan berikut:\n{Tautan Undangan}\nTerima kasih atas dukungan doa dan kasih yang senantiasa menguatkan kami. Tuhan Yesus memberkati.\nSalam kasih,\n{Nama Pasangan}`,
+  budha: `Namo Buddhaya,\nYth. Bapak/Ibu/Saudara/i {Nama Tamu},\nTerpujilah Sang Bagavat, Yang Maha Suci, Yang telah mencapai Penerangan Sempurna. Atas berkah, ketenangan, dan cinta kasih yang meliputi hidup kami, kami dengan penuh rasa hormat mengundang Anda untuk menghadiri perayaan pernikahan kami.\nMerupakan kebahagiaan yang sangat besar bagi kami untuk dapat berbagi kehangatan momen ini bersama Anda. Panduan lengkap acara dan penyesuaian RSVP dapat dilihat melalui tautan di bawah ini:\n{Tautan Undangan}\nSemoga kebaikan dan cinta kasih senantiasa menyertai kita semua. Semoga semua makhluk hidup berbahagia.\nSalam bahagia,\n{Nama Pasangan}`,
+  hindu: `Om Swastyastu,\nYth. Bapak/Ibu/Saudara/i {Nama Tamu},\nAtas asung kertha wara nugraha Ida Sang Hyang Widhi Wasa, kami menyatukan dua hati dan dua keluarga dalam pawiwahan suci pernikahan kami.\nDengan ketulusan dan rasa hormat yang mendalam, kami mengundang Bapak/Ibu/Saudara/i untuk hadir memberikan restu dan menyaksikan hari bersejarah kami. Rincian prosesi dan informasi tempat dapat Anda akses melalui tautan digital berikut:\n{Tautan Undangan}\nMatur Suksma atas perhatian, doa, dan kehadiran Anda yang penuh makna.\nOm Shanti, Shanti, Shanti Om.\nKami yang mengundang,\n{Nama Pasangan}`,
+}
+
+const MSG_VARS: { tag: string; label: string }[] = [
+  { tag: "{Nama Tamu}", label: "Nama Tamu" },
+  { tag: "{Nama Pasangan}", label: "Nama Pasangan" },
+  { tag: "{Tautan Undangan}", label: "Tautan Undangan" },
+]
+
+function renderMessage(text: string, guestName: string, coupleName: string, guestUrl: string): string {
+  return (text || "")
+    .split("{Nama Tamu}").join(guestName)
+    .split("{Nama Pasangan}").join(coupleName)
+    .split("{Tautan Undangan}").join(guestUrl)
+}
+
+function MessagePreview({ text, guestName, coupleName, guestUrl }: { text: string; guestName: string; coupleName: string; guestUrl: string }) {
+  const parts = (text || "").split(/(\{[^}]+\})/g)
+  return (
+    <div className="rounded-xl bg-[#FAF7F2] border border-[#E2D9CF] p-4 text-[13px] leading-relaxed text-[#2C2A29] whitespace-pre-wrap break-words">
+      {parts.map((part, i) => {
+        if (!part) return null
+        const matched = MSG_VARS.find((v) => v.tag === part)
+        if (!matched) return <span key={i}>{part}</span>
+        const value =
+          part === "{Nama Tamu}" ? guestName
+            : part === "{Nama Pasangan}" ? coupleName
+              : guestUrl
+        return (
+          <mark key={i} className="bg-[#FEF3C7] text-[#92400E] px-1.5 py-0.5 rounded-md font-semibold break-all">
+            {value}
+          </mark>
+        )
+      })}
+    </div>
+  )
+}
+
+function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copiedId, copiedKind, gated, isFirstGuest, onGatedClick }: {
   guest: Guest
   slug: string
   onCopyQr: (token: string, slug: string | null) => void
   onCopyUndangan: (guest: Guest) => void
+  onCopyMessage: (guest: Guest) => void
   copiedId: string | null
-  copiedKind: "qr" | "undangan" | null
+  copiedKind: "qr" | "undangan" | "pesan" | null
   gated: boolean
   isFirstGuest: boolean
   onGatedClick: () => void
@@ -57,6 +113,7 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, copiedId, copiedKind
   const hasToken = !!guest.qr_token
   const isCopiedQr = copiedId === guest.id && copiedKind === "qr"
   const isCopiedUndangan = copiedId === guest.id && copiedKind === "undangan"
+  const isCopiedMessage = copiedId === guest.id && copiedKind === "pesan"
 
   const blocked = gated && !isFirstGuest
   const blockAction = (fn: () => void) => (blocked ? onGatedClick : fn)
@@ -102,11 +159,19 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, copiedId, copiedKind
           Kunci — Lengkapi Undangan
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <button
+            onClick={() => hasToken && onCopyMessage(guest)}
+            disabled={!hasToken}
+            className={`col-span-2 sm:col-span-1 flex flex-col items-center justify-center gap-1 px-3 py-2.5 rounded-full min-h-[42px] font-label-md text-[10px] uppercase tracking-wider font-bold text-center leading-tight transition-colors shadow-sm ${hasToken ? (isCopiedMessage ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-[#B34E3F] text-white border border-[#B34E3F] hover:bg-[#9E3B2D]") : "bg-[#F3F4F6] text-[#9CA3AF] border border-[#E2D9CF] cursor-not-allowed"}`}
+          >
+            <span className="material-symbols-outlined text-[18px]">{isCopiedMessage ? "check" : "mail"}</span>
+            <span>{isCopiedMessage ? "Tersalin" : "Salin Pesan"}</span>
+          </button>
           <button
             onClick={() => hasToken && onCopyUndangan(guest)}
             disabled={!hasToken}
-            className={`flex flex-col items-center justify-center gap-1 px-3 py-2.5 rounded-full min-h-[40px] font-label-md text-[10px] uppercase tracking-wider font-semibold text-center leading-tight transition-colors ${hasToken ? (isCopiedUndangan ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-[#B34E3F] text-white border border-[#B34E3F] hover:bg-[#9E3B2D]") : "bg-[#F3F4F6] text-[#9CA3AF] border border-[#E2D9CF] cursor-not-allowed"}`}
+            className={`flex flex-col items-center justify-center gap-1 px-3 py-2.5 rounded-full min-h-[42px] font-label-md text-[10px] uppercase tracking-wider font-semibold text-center leading-tight transition-colors ${hasToken ? (isCopiedUndangan ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-[#F5EFE6] text-[#2C2A29] border border-[#E2D9CF] hover:bg-[#E2D9CF]") : "bg-[#F3F4F6] text-[#9CA3AF] border border-[#E2D9CF] cursor-not-allowed"}`}
           >
             <span className="material-symbols-outlined text-[18px]">{isCopiedUndangan ? "check" : "link"}</span>
             <span>{isCopiedUndangan ? "Tersalin" : "Salin Undangan"}</span>
@@ -114,7 +179,7 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, copiedId, copiedKind
           <button
             onClick={() => hasToken && onCopyQr(guest.qr_token!, guest.slug)}
             disabled={!hasToken}
-            className={`flex flex-col items-center justify-center gap-1 px-3 py-2.5 rounded-full min-h-[40px] font-label-md text-[10px] uppercase tracking-wider font-semibold text-center leading-tight transition-colors ${hasToken ? (isCopiedQr ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-[#F5EFE6] text-[#2C2A29] border border-[#E2D9CF] hover:bg-[#E2D9CF]") : "bg-[#F3F4F6] text-[#9CA3AF] border border-[#E2D9CF] cursor-not-allowed"}`}
+            className={`flex flex-col items-center justify-center gap-1 px-3 py-2.5 rounded-full min-h-[42px] font-label-md text-[10px] uppercase tracking-wider font-semibold text-center leading-tight transition-colors ${hasToken ? (isCopiedQr ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-[#F5EFE6] text-[#2C2A29] border border-[#E2D9CF] hover:bg-[#E2D9CF]") : "bg-[#F3F4F6] text-[#9CA3AF] border border-[#E2D9CF] cursor-not-allowed"}`}
           >
             <span className="material-symbols-outlined text-[18px]">{isCopiedQr ? "check" : "qr_code_2"}</span>
             <span>{isCopiedQr ? "Tersalin" : "Salin QR"}</span>
@@ -136,7 +201,10 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   const [generating, setGenerating] = useState(false)
   const [search, setSearch] = useState("")
   const [copiedId, setCopiedId] = useState<string | null>(null)
-  const [copiedKind, setCopiedKind] = useState<"qr" | "undangan" | null>(null)
+  const [copiedKind, setCopiedKind] = useState<"qr" | "undangan" | "pesan" | null>(null)
+  const [msgCategory, setMsgCategory] = useState<MsgCategory>("nasional")
+  const [msgText, setMsgText] = useState<string>(MSG_TEMPLATES.nasional)
+  const msgTextareaRef = useRef<HTMLTextAreaElement>(null)
   const [exporting, setExporting] = useState(false)
   const [qrCodeBook, setQrCodeBook] = useState(true)
   const [showLimitModal, setShowLimitModal] = useState(false)
@@ -152,6 +220,11 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       const profileData = await profileRes.json()
       const guestsData = await guestsRes.json()
       setProfile(profileData.profile)
+      const savedCat = profileData.profile?.message_category
+      if (savedCat && MSG_CATEGORIES.some((c) => c.id === savedCat)) {
+        setMsgCategory(savedCat as MsgCategory)
+        setMsgText(MSG_TEMPLATES[savedCat as MsgCategory])
+      }
       if (profileData.feature_set && Array.isArray(profileData.feature_set)) {
         setQrCodeBook(profileData.feature_set.includes("qr_code_book"))
       }
@@ -230,6 +303,50 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       : ""
   }
 
+  const coupleName = profile ? `${(profile.bride_name || "").trim()} & ${(profile.groom_name || "").trim()}` : ""
+
+  const handleCopyMessage = async (guest: Guest) => {
+    if (!profile) return
+    const message = renderMessage(msgText, guest.name, coupleName, guestUndanganUrl(guest))
+    try {
+      await navigator.clipboard.writeText(message)
+      setCopiedId(guest.id)
+      setCopiedKind("pesan")
+      setTimeout(() => { setCopiedId(null); setCopiedKind(null) }, 2000)
+    } catch {}
+  }
+
+  const selectMsgCategory = (cat: MsgCategory) => {
+    setMsgCategory(cat)
+    setMsgText(MSG_TEMPLATES[cat])
+    fetch(`/api/dashboard/${id}/message-template`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ category: cat }),
+    }).catch(() => {})
+  }
+
+  const insertMsgVar = (tag: string) => {
+    const el = msgTextareaRef.current
+    if (!el) {
+      setMsgText((t) => (t ? `${t}\n${tag}` : tag))
+      return
+    }
+    const start = el.selectionStart ?? msgText.length
+    const end = el.selectionEnd ?? msgText.length
+    const next = msgText.slice(0, start) + tag + msgText.slice(end)
+    setMsgText(next)
+    requestAnimationFrame(() => {
+      el.focus()
+      const pos = start + tag.length
+      el.setSelectionRange(pos, pos)
+    })
+  }
+
+  const demoGuest = guests[0]
+  const demoGuestName = demoGuest?.name || "Nama Tamu"
+  const demoGuestUrl = demoGuest ? guestUndanganUrl(demoGuest) : "https://aksaraa.com/undangan"
+
   const handleExportExcel = async () => {
     if (!profile || guests.length === 0) return
     if (gated) {
@@ -239,11 +356,14 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
     setExporting(true)
     try {
       const header = qrCodeBook
-        ? ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Tautan QR", "Tautan Undangan", "Sumber"]
-        : ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Tautan Undangan", "Sumber"]
-      const rows = guests.map((g) => qrCodeBook
-        ? [g.name, g.phone_number || "", g.category || "", g.table_number || "", guestQrUrl(g), guestUndanganUrl(g), g.added_manually ? "Ditambahkan Manual" : "Undangan QR"]
-        : [g.name, g.phone_number || "", g.category || "", g.table_number || "", guestUndanganUrl(g), g.added_manually ? "Ditambahkan Manual" : "Undangan QR"])
+        ? ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Pesan WhatsApp", "Tautan QR", "Tautan Undangan", "Sumber"]
+        : ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Pesan WhatsApp", "Tautan Undangan", "Sumber"]
+      const rows = guests.map((g) => {
+        const msg = g.slug || g.qr_token ? renderMessage(msgText, g.name, coupleName, guestUndanganUrl(g)) : ""
+        return qrCodeBook
+          ? [g.name, g.phone_number || "", g.category || "", g.table_number || "", msg, guestQrUrl(g), guestUndanganUrl(g), g.added_manually ? "Ditambahkan Manual" : "Undangan QR"]
+          : [g.name, g.phone_number || "", g.category || "", g.table_number || "", msg, guestUndanganUrl(g), g.added_manually ? "Ditambahkan Manual" : "Undangan QR"]
+      })
       const ws = XLSX.utils.aoa_to_sheet([header, ...rows])
       ws["!cols"] = qrCodeBook
         ? [
@@ -251,6 +371,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
             { wch: 18 },
             { wch: 16 },
             { wch: 12 },
+            { wch: 80 },
             { wch: 55 },
             { wch: 55 },
           ]
@@ -259,14 +380,15 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
             { wch: 18 },
             { wch: 16 },
             { wch: 12 },
+            { wch: 80 },
             { wch: 55 },
           ]
       for (let r = 2; r <= rows.length + 1; r++) {
-        const undRef = XLSX.utils.encode_cell({ r: r - 1, c: qrCodeBook ? 5 : 4 })
+        const undRef = XLSX.utils.encode_cell({ r: r - 1, c: qrCodeBook ? 6 : 5 })
         const undVal = ws[undRef]?.v
         if (undVal) ws[undRef].l = { Target: String(undVal), Tooltip: String(undVal) }
         if (qrCodeBook) {
-          const qrRef = XLSX.utils.encode_cell({ r: r - 1, c: 4 })
+          const qrRef = XLSX.utils.encode_cell({ r: r - 1, c: 5 })
           const qrVal = ws[qrRef]?.v
           if (qrVal) ws[qrRef].l = { Target: String(qrVal), Tooltip: String(qrVal) }
         }
@@ -402,6 +524,56 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
             </div>
           )}
 
+          {/* Template Pesan Undangan */}
+          <section className="mt-6 md:mt-5 bg-white border border-[#E2D9CF] rounded-2xl p-5 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="material-symbols-outlined text-[#B34E3F] text-[18px]">chat</span>
+              <h2 className="font-label-md text-[12px] uppercase tracking-widest text-[#2C2A29] font-bold">Template Pesan Undangan</h2>
+            </div>
+
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 mb-4">
+              {MSG_CATEGORIES.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => selectMsgCategory(c.id)}
+                  className={`shrink-0 whitespace-nowrap px-4 py-2 rounded-full border font-label-md text-[11px] uppercase tracking-wider transition-colors ${
+                    msgCategory === c.id
+                      ? "bg-[#B34E3F] border-[#B34E3F] text-white font-bold"
+                      : "bg-[#F5EFE6] border-[#E2D9CF] text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F]"
+                  }`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              {MSG_VARS.map((v) => (
+                <button
+                  key={v.tag}
+                  type="button"
+                  onClick={() => insertMsgVar(v.tag)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FEF3C7] border border-[#FDE68A] text-[#92400E] font-label-md text-[10px] font-bold uppercase tracking-wider hover:bg-[#FDE68A] transition-colors"
+                  title={`Sisipkan ${v.label}`}
+                >
+                  <span className="material-symbols-outlined text-[12px]">add</span>
+                  {v.tag}
+                </button>
+              ))}
+            </div>
+
+            <textarea
+              ref={msgTextareaRef}
+              value={msgText}
+              onChange={(e) => setMsgText(e.target.value)}
+              rows={8}
+              className="w-full bg-white border border-[#D1C7BD] rounded-xl p-4 font-body-md text-[13px] leading-relaxed text-[#2C2A29] resize-y focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors"
+            />
+
+            <p className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant/60 mt-3 mb-1.5">Pratinjau</p>
+            <MessagePreview text={msgText} guestName={demoGuestName} coupleName={coupleName} guestUrl={demoGuestUrl} />
+          </section>
+
           {/* Search */}
           <div className="mt-6 md:mt-5 bg-surface-container-lowest border border-outline-variant/60 rounded-xl px-4 h-12 flex items-center gap-3 shadow-sm focus-within:ring-1 focus-within:ring-secondary focus-within:border-secondary transition-all">
             <span className="material-symbols-outlined text-on-surface-variant/70 text-xl">search</span>
@@ -446,6 +618,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
                   slug={profile?.slug || ""}
                   onCopyQr={handleCopyQr}
                   onCopyUndangan={handleCopyUndangan}
+                  onCopyMessage={handleCopyMessage}
                   copiedId={copiedId}
                   copiedKind={copiedKind}
                   gated={gated}
