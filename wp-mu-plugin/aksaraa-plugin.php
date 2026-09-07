@@ -368,7 +368,8 @@ class AksaraaPlugin
         $body = $request->get_json_params();
         $new_title = sanitize_text_field($body['title'] ?? $master->post_title . ' Copy');
         $track_url = esc_url_raw($body['track_url'] ?? '');
-        $base_slug = sanitize_title($body['new_slug'] ?? '');
+        $base_slug = self::safe_slug((string) ($body['new_slug'] ?? ''));
+        if ($base_slug === '') $base_slug = sanitize_title($slug);
         $exclude_post_id = (int) ($body['exclude_post_id'] ?? 0);
 
         // Generate a numbered slug like {base}-01, {base}-02, ...
@@ -385,6 +386,16 @@ class AksaraaPlugin
         ]);
 
         if (is_wp_error($new_id)) return $new_id;
+
+        // wp_insert_post auto-lowercases post_name via sanitize_title. Restore the
+        // couple's camel-case slug ("RafiNamu-NoviKamu") so WP shows the FULL couple
+        // name (not a lowercased version). MySQL's default collation keeps permalink
+        // lookup case-insensitive, so this is safe.
+        global $wpdb;
+        if ($new_slug !== '' && $new_slug !== get_post_field('post_name', $new_id)) {
+            $wpdb->update($wpdb->posts, ['post_name' => $new_slug], ['ID' => $new_id]);
+            clean_post_cache($new_id);
+        }
 
         // Copy all post meta
         self::copy_post_meta($master->ID, $new_id);
@@ -469,6 +480,19 @@ class AksaraaPlugin
         if (!isset($option['popup']) || !is_array($option['popup'])) $option['popup'] = [];
         $option['popup'][$popup_id] = ['include/singular/' . $post_type . '/' . $post_id];
         update_option('elementor_pro_theme_builder_conditions', $option);
+    }
+
+    // Case + punctuation-preserving slug builder (URL-safe). "Bpk. Surya Wahyudi"
+    // -> "Bpk.-Surya-Wahyudi", "Rafi Namu" -> "RafiNamu". Keeps uppercase so the
+    // WP duplicate reflects the couple's exact name casing (matches src/lib/slug.ts).
+    private static function safe_slug(string $s): string
+    {
+        $s = trim($s);
+        if ($s === '') return '';
+        $s = str_replace(['&', '&amp;'], 'dan', $s);
+        $s = preg_replace('/[^a-zA-Z0-9-]+/', '-', $s) ?? $s;
+        $s = preg_replace('/-{2,}/', '-', $s) ?? $s;
+        return trim($s, '-');
     }
 
     private static function next_numbered_slug(string $base, int $exclude_post_id = 0): string

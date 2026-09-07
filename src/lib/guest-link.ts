@@ -2,8 +2,15 @@ import { supabaseAdmin } from "@/lib/supabase"
 import { generateUniqueToken } from "@/lib/qr"
 import { getFeatureIncluded } from "@/lib/featureGates"
 
+// Case-preserving guest slug: "Bpk. Surya Wahyudi " -> "Bpk.-Surya-Wahyudi".
+// Keeps the guest's exact casing + punctuation, collapses whitespace runs to "-",
+// and keeps "&" URL-safe ("&" -> "dan"). Always encodeURIComponent at build sites.
 export function slugifyName(name: string): string {
-  return name.toLowerCase().replace(/&/g, "dan").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+  return (name || "")
+    .trim()
+    .replace(/&/g, "dan")
+    .replace(/\s+/g, "-")
+    .replace(/^-+|-+$/g, "")
 }
 
 export async function generateUniqueSlug(weddingProfileId: string, name: string): Promise<string> {

@@ -378,7 +378,7 @@ function DashboardInner({ id }: { id: string }) {
                 </div>
               </div>
               <div className="p-4 md:px-9 md:py-5 flex flex-row gap-2.5 md:gap-3.5 md:justify-start relative z-10">
-                <button onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)} className="flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full border border-white/40 text-[#fdfbf9] bg-white/10 hover:bg-white/20 active:bg-white/25 transition backdrop-blur-sm text-[13px] font-medium shadow-sm whitespace-nowrap overflow-hidden text-ellipsis shrink">
+                <button onClick={() => router.push(`/dashboard/${id}/web-invitation/editor?preview=1`)} className="flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full border border-white/40 text-[#fdfbf9] bg-white/10 hover:bg-white/20 active:bg-white/25 transition backdrop-blur-sm text-[13px] font-medium shadow-sm whitespace-nowrap overflow-hidden text-ellipsis shrink">
                   <span className="material-symbols-outlined text-[16px] shrink-0">mail</span>
                   <span className="whitespace-nowrap">Lihat Undangan</span>
                 </button>

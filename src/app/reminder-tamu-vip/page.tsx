@@ -15,10 +15,9 @@ export default function ReminderTamuVIPPage() {
   const [tableNo, setTableNo] = useState("")
 
   const guestSlug = (guestName.trim() || "tamu-undangan")
-    .toLowerCase()
     .replace(/&/g, "dan")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "") || "tamu-undangan"
+    .replace(/\s+/g, "-")
+    .replace(/^-+|-+$/g, "") || "tamu-undangan"
 
   const SIM_TEMPLATE = {
     label: "Singkat & Padat",

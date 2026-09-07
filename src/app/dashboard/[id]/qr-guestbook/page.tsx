@@ -194,7 +194,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       setShowLimitModal(true)
       return
     }
-    const url = `https://${profile.slug}.wedding.aksaraa.com/qr/${slug || token}`
+    const url = `https://${profile.slug}.wedding.aksaraa.com/qr/${encodeURIComponent(slug || token || "")}`
     try {
       await navigator.clipboard.writeText(url)
       setCopiedId(guests.find(g => g.qr_token === token)?.id || null)
@@ -206,7 +206,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   const handleCopyUndangan = async (guest: Guest) => {
     if (!profile) return
     const url = guest.slug
-      ? `https://${profile.slug}.wedding.aksaraa.com/?to=${guest.slug}`
+      ? `https://${profile.slug}.wedding.aksaraa.com/?to=${encodeURIComponent(guest.slug)}`
       : `https://${profile.slug}.wedding.aksaraa.com/w/${profile.slug}?to=${encodeURIComponent(guest.name)}&qr_token=${encodeURIComponent(guest.qr_token || "")}`
     try {
       await navigator.clipboard.writeText(url)
@@ -218,13 +218,13 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
 
   const guestQrUrl = (guest: Guest) =>
     guest.qr_token
-      ? `https://${profile?.slug}.wedding.aksaraa.com/qr/${guest.slug || guest.qr_token}`
+      ? `https://${profile?.slug}.wedding.aksaraa.com/qr/${encodeURIComponent(guest.slug || guest.qr_token)}`
       : ""
 
   const guestUndanganUrl = (guest: Guest) => {
     if (!profile) return ""
     return guest.slug
-      ? `https://${profile.slug}.wedding.aksaraa.com/?to=${guest.slug}`
+      ? `https://${profile.slug}.wedding.aksaraa.com/?to=${encodeURIComponent(guest.slug)}`
       : guest.qr_token
       ? `https://${profile.slug}.wedding.aksaraa.com/w/${profile.slug}?to=${encodeURIComponent(guest.name)}&qr_token=${encodeURIComponent(guest.qr_token)}`
       : ""

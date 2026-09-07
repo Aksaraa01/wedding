@@ -19,13 +19,17 @@ export default async function WeddingInvitation({
   const { slug } = await params
   const { to, qr_token } = await searchParams
 
+  // Subdomains are lowercased by browsers, so resolve the couple slug
+  // case-insensitively (the stored slug is camel: "RafiNamu-NoviKamu").
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, active_wp_post_id, active_wp_post_url")
-    .eq("slug", slug)
+    .select("id, slug, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, active_wp_post_id, active_wp_post_url")
+    .ilike("slug", slug)
     .single()
 
   if (!profile) notFound()
+
+  const canonicalSlug = profile.slug || slug
 
   const [rowGates, featureSet] = await Promise.all([
     getRowGates(profile.package_type || "signature"),
@@ -35,6 +39,7 @@ export default async function WeddingInvitation({
   const guestContext = await (async () => {
     const fields = "id, name, slug, table_number, qr_token, rsvp_status, rsvp_pax_count, rsvp_message"
     if (to) {
+      // Exact match first (preserves case-sensitive canonical slug).
       const bySlug = await supabaseAdmin
         .from("guests")
         .select(fields)
@@ -42,6 +47,20 @@ export default async function WeddingInvitation({
         .eq("slug", to)
         .maybeSingle()
       if (bySlug.data) return bySlug.data
+
+      // Case-insensitive match -> auto-correct to the canonical (cased) slug so the
+      // guest name in the link always follows the exact input (uppercase).
+      const bySlugInsensitive = await supabaseAdmin
+        .from("guests")
+        .select(fields)
+        .eq("wedding_profile_id", profile.id)
+        .ilike("slug", to)
+        .maybeSingle()
+      if (bySlugInsensitive.data) {
+        const qs = new URLSearchParams({ to: bySlugInsensitive.data.slug })
+        if (qr_token) qs.set("qr_token", qr_token)
+        redirect(`/w/${canonicalSlug}?${qs.toString()}`)
+      }
     }
     if (qr_token) {
       const byToken = await supabaseAdmin
@@ -54,6 +73,9 @@ export default async function WeddingInvitation({
     }
     return null
   })()
+
+  // A provided ?to= must resolve to a real guest of this couple — otherwise 404.
+  if (to && !guestContext && !qr_token) notFound()
 
   const guestName = guestContext?.name || to || "Tamu Undangan"
 
@@ -111,7 +133,7 @@ export default async function WeddingInvitation({
             weddingProfileId={profile.id}
             guestQrUrl={
               guestContext.slug || guestContext.qr_token
-                ? `/qr/${guestContext.slug || guestContext.qr_token}`
+                ? `/qr/${encodeURIComponent(guestContext.slug || guestContext.qr_token)}`
                 : undefined
             }
             guestTableNumber={guestContext.table_number}
@@ -155,7 +177,7 @@ export default async function WeddingInvitation({
               guestId={guestContext.id}
               guestName={guestName}
               weddingProfileId={profile.id}
-              guestQrUrl={guestContext.slug || guestContext.qr_token ? `/qr/${guestContext.slug || guestContext.qr_token}` : undefined}
+              guestQrUrl={guestContext.slug || guestContext.qr_token ? `/qr/${encodeURIComponent(guestContext.slug || guestContext.qr_token)}` : undefined}
               guestTableNumber={guestContext.table_number}
               guestRsvpStatus={guestContext.rsvp_status}
               guestRsvpMessage={guestContext.rsvp_message}
@@ -177,7 +199,7 @@ export default async function WeddingInvitation({
         bride_name={profile.bride_name}
         groom_name={profile.groom_name}
         estimated_wedding_date={profile.estimated_wedding_date}
-        slug={slug}
+        slug={canonicalSlug}
         guest_name={guestName}
         couple_illustration_url={profile.couple_illustration_url || undefined}
         display_name={profile.display_name || undefined}
@@ -201,8 +223,8 @@ export default async function WeddingInvitation({
         wedding_profile_id={profile.id}
         guest_id={guestContext?.id}
         guest_qr_token={featureSet.has("qr_code_book") ? (guestContext?.qr_token || undefined) : undefined}
-        guest_qr_url={featureSet.has("qr_code_book") && guestContext?.qr_token ? `/qr/${guestContext.slug || guestContext.qr_token}` : undefined}
-        guest_qr_content={featureSet.has("qr_code_book") && guestContext?.qr_token ? `/welcome/${guestContext.slug || guestContext.qr_token}` : undefined}
+        guest_qr_url={featureSet.has("qr_code_book") && guestContext?.qr_token ? `/qr/${encodeURIComponent(guestContext.slug || guestContext.qr_token)}` : undefined}
+        guest_qr_content={featureSet.has("qr_code_book") && guestContext?.qr_token ? `/welcome/${encodeURIComponent(guestContext.slug || guestContext.qr_token)}` : undefined}
         guest_table_number={guestContext?.table_number || undefined}
         guest_rsvp_status={guestContext?.rsvp_status || undefined}
         rsvp_max_pax={profile.rsvp_max_pax ?? undefined}

@@ -1981,7 +1981,7 @@ function EditorInner({ id }: { id: string }) {
             ) : null}
 
             {isMobile && showMobilePreview && (
-              <div className="md:hidden w-full h-full overflow-y-auto custom-scrollbar">
+              <div className="md:hidden w-full h-full overflow-y-auto custom-scrollbar pb-[104px]">
                 {renderPreviewBody()}
               </div>
             )}

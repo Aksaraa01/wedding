@@ -338,9 +338,9 @@ export default function AntrianDetail({ id }: { id: string }) {
     ? `https://wa.me/${currentWp.whatsapp_number.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Halo ${currentWp.bride_name} & ${currentWp.groom_name}, saya dari Aksaraa CORE OPS terkait proyek undangan Anda`)}`
     : "#"
   const guestInvUrl = (g: { slug?: string | null; name?: string; qr_token?: string | null }) =>
-    g.slug ? `https://${profileSlug}.wedding.aksaraa.com/?to=${g.slug}` : ""
+    g.slug ? `https://${profileSlug}.wedding.aksaraa.com/?to=${encodeURIComponent(g.slug)}` : ""
   const guestQrUrl = (g: { slug?: string | null; qr_token?: string | null }) =>
-    g.slug || g.qr_token ? `https://${profileSlug}.wedding.aksaraa.com/qr/${g.slug || g.qr_token}` : ""
+    g.slug || g.qr_token ? `https://${profileSlug}.wedding.aksaraa.com/qr/${encodeURIComponent(g.slug || g.qr_token || "")}` : ""
 
   const openQrModal = async () => {
     if (!currentWp) return
@@ -388,8 +388,8 @@ export default function AntrianDetail({ id }: { id: string }) {
       scheduleText
         ? renderReminderMessage(scheduleText, {
             NamaTamu: g.name,
-            TautanUnik: g.slug ? `https://${profileSlug}.wedding.aksaraa.com/?to=${g.slug}` : "",
-            QRAkses: g.slug || g.qr_token ? `https://${profileSlug}.wedding.aksaraa.com/qr/${g.slug || g.qr_token}` : "",
+            TautanUnik: g.slug ? `https://${profileSlug}.wedding.aksaraa.com/?to=${encodeURIComponent(g.slug)}` : "",
+            QRAkses: g.slug || g.qr_token ? `https://${profileSlug}.wedding.aksaraa.com/qr/${encodeURIComponent(g.slug || g.qr_token || "")}` : "",
             NamaPengantin: coupleName,
             NomorMeja: g.table_number || "",
             Tanggal: weddingDate,

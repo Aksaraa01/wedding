@@ -125,14 +125,14 @@ export async function GET(req: NextRequest) {
       const { data: profile } = await supabaseAdmin
         .from("wedding_profiles")
         .select("id")
-        .eq("slug", subdomain)
+        .ilike("slug", subdomain)
         .maybeSingle()
       if (profile) {
         const { data: g } = await supabaseAdmin
           .from("guests")
           .select("id, name, slug, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, wedding_profile_id, is_checked_in, added_manually")
           .eq("wedding_profile_id", profile.id)
-          .eq("slug", slug)
+          .ilike("slug", (slug as string) || "")
           .maybeSingle()
         guest = g
       }
@@ -140,7 +140,7 @@ export async function GET(req: NextRequest) {
         const { data: g } = await supabaseAdmin
           .from("guests")
           .select("id, name, slug, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, wedding_profile_id, is_checked_in, added_manually")
-          .eq("slug", slug)
+          .ilike("slug", (slug as string) || "")
           .maybeSingle()
         guest = g
       }
