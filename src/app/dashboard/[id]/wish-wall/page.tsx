@@ -219,9 +219,9 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
                   <span className="material-symbols-outlined text-5xl text-[#E2D9CF] mb-4">forum</span>
                   <p className="font-headline-md text-lg text-[#2C2A29] mb-2">Belum ada doa</p>
                   <p className="font-body-md text-sm text-on-surface-variant mb-6 max-w-md mx-auto">Bagikan link undangan agar tamu dapat mengirim ucapan dan doa.</p>
-                  <button onClick={() => { const url = `https://${coupleSlug}.wedding.aksaraa.com`; navigator.clipboard.writeText(url).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) }) }} className="inline-flex items-center gap-2 bg-[#B34E3F] text-white rounded-full px-6 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all">
-                    <span className="material-symbols-outlined text-[16px]">{copied ? "check" : "share"}</span>
-                    {copied ? "Tersalin" : "Bagikan Link Undangan"}
+                  <button onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)} className="inline-flex items-center gap-2 bg-[#B34E3F] text-white rounded-full px-6 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all">
+                    <span className="material-symbols-outlined text-[16px]">share</span>
+                    Bagikan Link Undangan
                   </button>
                 </div>
               )}
