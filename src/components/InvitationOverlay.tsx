@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react"
 interface InvitationOverlayProps {
   guestId: string
   guestName: string
+  coupleName: string
   weddingProfileId: string
   guestQrUrl?: string
   guestTableNumber?: string
@@ -17,6 +18,7 @@ interface InvitationOverlayProps {
 export default function InvitationOverlay({
   guestId,
   guestName,
+  coupleName,
   weddingProfileId,
   guestQrUrl,
   guestTableNumber,
@@ -151,100 +153,208 @@ export default function InvitationOverlay({
 
       {/* RSVP modal */}
       {rsvpOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl w-full max-w-md flex flex-col max-h-[92dvh] overflow-hidden shadow-2xl">
-            <div className="flex items-center justify-between px-5 py-3 border-b border-outline-variant/40 sticky top-0 bg-[#fdf9f0] shrink-0">
-              <span className="font-label-md text-[10px] uppercase tracking-[0.2em] font-semibold text-secondary">
-                Konfirmasi Kehadiran
-              </span>
-              <button type="button" onClick={() => setRsvpOpen(false)} className="text-on-surface-variant hover:text-primary p-1" aria-label="Tutup">
-                <span className="material-symbols-outlined text-2xl">close</span>
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+          <div className="relative w-full max-w-[480px] bg-white rounded-3xl shadow-2xl overflow-hidden border border-[#E2D9CF]/60 flex flex-col max-h-[92dvh]">
+            {/* Top decorative gradient line */}
+            <div className="h-1.5 w-full bg-gradient-to-r from-[#C29B38]/60 via-[#B34E3F] to-[#C29B38]/60 shrink-0" />
+
+            {/* Modal header */}
+            <div className="relative bg-[#FAF7F2] px-6 sm:px-8 pt-7 pb-6 text-center border-b border-[#E2D9CF]/40 shrink-0">
+              <button
+                type="button"
+                onClick={() => setRsvpOpen(false)}
+                aria-label="Tutup"
+                className="absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center text-[#78716C] hover:text-[#23201E] hover:bg-black/5 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
+
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FBF1EE] text-[#B34E3F] text-[11px] font-medium tracking-wider uppercase mb-2.5">
+                <span className="material-symbols-outlined text-[14px]">favorite</span>
+                <span className="truncate max-w-[220px]">{coupleName}</span>
+              </div>
+
+              <h2
+                className="text-[24px] sm:text-[27px] leading-tight font-semibold tracking-wide"
+                style={{ fontFamily: "'Playfair Display', serif", color: "#23201E" }}
+              >
+                Konfirmasi Kehadiran
+              </h2>
+
+              <div className="mt-2.5 flex items-center justify-center gap-2 text-[#C29B38]">
+                <div className="h-[0.5px] w-12 bg-gradient-to-r from-transparent to-[#C29B38]/60" />
+                <svg width="24" height="18" viewBox="0 0 28 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-85">
+                  <path d="M14 2C14 2 13 7 8 8C13 9 14 14 14 14C14 14 15 9 20 8C15 7 14 2 14 2Z" stroke="#C29B38" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M4 14C6 11 10 11 14 14C18 11 22 11 24 14" stroke="#B34E3F" strokeWidth="0.9" strokeOpacity="0.5" strokeLinecap="round" />
+                  <circle cx="14" cy="8" r="1.5" fill="#C29B38" />
+                </svg>
+                <div className="h-[0.5px] w-12 bg-gradient-to-l from-transparent to-[#C29B38]/60" />
+              </div>
+
+              <p className="text-xs text-[#78716C] mt-2 max-w-xs mx-auto leading-relaxed">
+                Merupakan suatu kehormatan dan kebahagiaan bagi kami atas kehadiran dan doa restu Anda.
+              </p>
             </div>
 
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto relative">
               {rsvpStatus === "done" ? (
-              <div className="text-center p-8">
-                <span className="material-symbols-outlined text-4xl mb-3 inline-block text-emerald-600">task_alt</span>
-                <p className="font-headline-md text-xl text-on-surface mb-2">Terima kasih, {rsvpName}!</p>
-                <p className="font-body-md text-sm text-on-surface-variant">
-                  Kehadiran Anda telah kami catat sebagai {rsvpAttend === "TIDAK_HADIR" ? "Tidak Hadir" : "Hadir"}.
-                </p>
-                {rsvpMessage.trim() && (
-                  <p className="font-body-md text-sm text-on-surface-variant mt-2 italic">“{rsvpMessage.trim()}”</p>
-                )}
-                <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary mt-4">
-                  Konfirmasi kehadiran Anda sudah diterima
-                </p>
-              </div>
-            ) : (
-              <form onSubmit={handleRsvpSubmit} className="space-y-5 p-5 text-left">
-                <div>
-                  <label className="font-label-md text-[10px] uppercase tracking-[0.2em] font-semibold text-secondary block mb-2">
-                    Nama Lengkap
-                  </label>
-                  <input
-                    type="text"
-                    value={rsvpName}
-                    onChange={(e) => setRsvpName(e.target.value)}
-                    className="w-full bg-transparent border-0 border-b-2 border-outline-variant px-0 py-2 font-body-md text-base outline-none focus:border-secondary"
-                    placeholder="Nama Anda"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="font-label-md text-[10px] uppercase tracking-[0.2em] font-semibold text-secondary block mb-2">
-                      Kehadiran
-                    </label>
-                    <select
-                      value={rsvpAttend}
-                      onChange={(e) => setRsvpAttend(e.target.value)}
-                      className="w-full bg-transparent border-0 border-b-2 border-outline-variant px-0 py-2 font-body-md outline-none focus:border-secondary"
-                    >
-                      <option value="HADIR">Hadir</option>
-                      <option value="TIDAK_HADIR">Tidak Hadir</option>
-                    </select>
+                <div className="text-center p-8">
+                  <div className="w-16 h-16 rounded-full bg-[#FBF1EE] text-[#B34E3F] flex items-center justify-center mb-4 mx-auto shadow-sm">
+                    <span className="material-symbols-outlined text-[36px]">check_circle</span>
                   </div>
-                  <div>
-                    <label className="font-label-md text-[10px] uppercase tracking-[0.2em] font-semibold text-secondary block mb-2">
-                      Jumlah Tamu
+                  <h3 className="text-2xl font-bold mb-2" style={{ fontFamily: "'Playfair Display', serif", color: "#23201E" }}>Terima Kasih!</h3>
+                  <p className="font-headline-md text-xl text-on-surface mb-2">Terima kasih, {rsvpName}!</p>
+                  <p className="font-body-md text-sm text-on-surface-variant">
+                    Kehadiran Anda telah kami catat sebagai {rsvpAttend === "TIDAK_HADIR" ? "Tidak Hadir" : "Hadir"}.
+                  </p>
+                  {rsvpMessage.trim() && (
+                    <p className="font-body-md text-sm text-on-surface-variant mt-2 italic">“{rsvpMessage.trim()}”</p>
+                  )}
+                  <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary mt-4">
+                    Konfirmasi kehadiran Anda sudah diterima
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setRsvpOpen(false)}
+                    className="mt-6 h-11 px-8 rounded-full bg-[#23201E] text-white text-xs font-semibold tracking-wider uppercase hover:bg-black transition-colors"
+                  >
+                    Tutup
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleRsvpSubmit} className="px-6 sm:px-8 py-6 space-y-5 text-left">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-[#23201E] tracking-wide uppercase">
+                      Nama Tamu Undangan
                     </label>
-                    <select
-                      value={rsvpPax}
-                      onChange={(e) => setRsvpPax(e.target.value)}
-                      disabled={rsvpAttend === "TIDAK_HADIR"}
-                      className="w-full bg-transparent border-0 border-b-2 border-outline-variant px-0 py-2 font-body-md outline-none focus:border-secondary disabled:opacity-50"
-                    >
-                      {Array.from({ length: maxPax }, (_, i) => i + 1).map((n) => (
-                        <option key={n} value={String(n)}>
-                          {n} orang
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={rsvpName}
+                        readOnly
+                        aria-readonly="true"
+                        className="w-full h-12 px-4 pr-11 rounded-xl bg-[#FAF7F2] border border-[#E2D9CF] text-sm outline-none cursor-default"
+                        style={{ color: "#23201E" }}
+                        placeholder="Nama Anda"
+                      />
+                      <span className="material-symbols-outlined absolute right-3.5 top-1/2 -translate-y-1/2 text-[#78716C]/70 text-[20px] pointer-events-none">
+                        badge
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <label className="font-label-md text-[10px] uppercase tracking-[0.2em] font-semibold text-secondary block mb-2">
-                    Doa &amp; Ucapan
-                  </label>
-                  <textarea
-                    value={rsvpMessage}
-                    onChange={(e) => setRsvpMessage(e.target.value)}
-                    rows={3}
-                    className="w-full bg-transparent border-0 border-b-2 border-outline-variant px-0 py-2 font-body-md outline-none focus:border-secondary resize-none"
-                    placeholder="Tuliskan doa dan ucapan Anda"
-                  />
-                </div>
-                {rsvpError && <p className="font-body-md text-sm text-red-500">{rsvpError}</p>}
-                <button
-                  type="submit"
-                  disabled={rsvpStatus === "saving" || !rsvpName.trim()}
-                  className="w-full py-4 bg-secondary text-white font-label-md text-[11px] uppercase tracking-[0.2em] hover:opacity-90 transition-opacity disabled:opacity-50"
-                >
-                  {rsvpStatus === "saving" ? "Menyimpan..." : "Kirim Konfirmasi"}
-                </button>
-              </form>
-            )}
+                  <div className="space-y-2">
+                    <label className="block text-xs font-semibold text-[#23201E] tracking-wide uppercase">
+                      Konfirmasi Kehadiran <span className="text-[#B34E3F]">*</span>
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setRsvpAttend("HADIR")}
+                        className={`relative flex flex-col items-center justify-center p-3.5 rounded-2xl transition-all duration-200 text-center cursor-pointer ${
+                          rsvpAttend === "HADIR"
+                            ? "border-2 border-[#B34E3F] bg-[#FAF7F2] text-[#B34E3F] shadow-md"
+                            : "border border-[#E2D9CF] bg-white text-[#78716C] hover:bg-[#FAF7F2]/40"
+                        }`}
+                      >
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1.5 ${rsvpAttend === "HADIR" ? "bg-[#FBF1EE]" : "bg-gray-100"}`}>
+                          <span className="text-base leading-none">🌸</span>
+                        </div>
+                        <span className={`font-semibold text-sm ${rsvpAttend === "HADIR" ? "text-[#B34E3F]" : "text-[#23201E]"}`}>Hadir</span>
+                        <span className={`text-[11px] mt-0.5 ${rsvpAttend === "HADIR" ? "text-[#B34E3F]/80" : "text-[#78716C]"}`}>Merayakan Bersama</span>
+                        {rsvpAttend === "HADIR" && (
+                          <div className="absolute top-2 right-2 w-4 h-4 bg-[#B34E3F] rounded-full flex items-center justify-center text-white">
+                            <span className="material-symbols-outlined text-[12px] font-bold">check</span>
+                          </div>
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRsvpAttend("TIDAK_HADIR")}
+                        className={`relative flex flex-col items-center justify-center p-3.5 rounded-2xl transition-all duration-200 text-center cursor-pointer ${
+                          rsvpAttend === "TIDAK_HADIR"
+                            ? "border-2 border-[#B34E3F] bg-[#FAF7F2] text-[#B34E3F] shadow-md"
+                            : "border border-[#E2D9CF] bg-white text-[#78716C] hover:bg-[#FAF7F2]/40"
+                        }`}
+                      >
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1.5 ${rsvpAttend === "TIDAK_HADIR" ? "bg-[#FBF1EE]" : "bg-gray-100"}`}>
+                          <span className={`material-symbols-outlined text-[18px] ${rsvpAttend === "TIDAK_HADIR" ? "text-[#B34E3F]" : "text-[#78716C]"}`}>event_busy</span>
+                        </div>
+                        <span className={`font-semibold text-sm ${rsvpAttend === "TIDAK_HADIR" ? "text-[#B34E3F]" : "text-[#23201E]"}`}>Tidak Hadir</span>
+                        <span className={`text-[11px] mt-0.5 ${rsvpAttend === "TIDAK_HADIR" ? "text-[#B34E3F]/80" : "text-[#78716C]"}`}>Turut mendoakan</span>
+                        {rsvpAttend === "TIDAK_HADIR" && (
+                          <div className="absolute top-2 right-2 w-4 h-4 bg-[#B34E3F] rounded-full flex items-center justify-center text-white">
+                            <span className="material-symbols-outlined text-[12px] font-bold">check</span>
+                          </div>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  {rsvpAttend === "HADIR" && (
+                    <div className="space-y-1.5 bg-[#FAF7F2]/60 p-3.5 rounded-2xl border border-[#E2D9CF]/60">
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-xs font-semibold text-[#23201E] tracking-wide uppercase flex items-center gap-1.5">
+                          <span className="material-symbols-outlined text-[16px] text-[#B34E3F]">groups</span>
+                          Jumlah Tamu (Pax)
+                        </label>
+                        <span className="text-[11px] text-[#78716C]">Maks. {maxPax} Orang</span>
+                      </div>
+                      <div className={`grid gap-2.5 ${maxPax <= 2 ? "grid-cols-2" : "grid-cols-3"}`}>
+                        {Array.from({ length: maxPax }, (_, i) => i + 1).map((n) => {
+                          const selected = rsvpPax === String(n)
+                          return (
+                            <button
+                              key={n}
+                              type="button"
+                              onClick={() => setRsvpPax(String(n))}
+                              className={`h-11 rounded-xl text-sm transition-colors flex items-center justify-center gap-2 ${
+                                selected
+                                  ? "border-2 border-[#B34E3F] bg-[#FBF1EE] text-[#B34E3F] font-semibold"
+                                  : "border border-[#E2D9CF] bg-white text-[#23201E] font-medium hover:bg-[#FAF7F2]"
+                              }`}
+                            >
+                              <span>{n} Orang</span>
+                              {selected && <span className="material-symbols-outlined text-[16px]">check_circle</span>}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-[#23201E] tracking-wide uppercase flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-[16px] text-[#C29B38]">history_edu</span>
+                      Doa &amp; Ucapan Hangat
+                    </label>
+                    <div className="p-3.5 rounded-2xl border border-[#E2D9CF] relative focus-within:border-[#B34E3F] focus-within:ring-2 focus-within:ring-[#B34E3F]/20 transition-all bg-white">
+                      <div className="flex items-center gap-2 mb-2 pb-2 border-b border-[#E2D9CF]/40 text-[11px] text-[#78716C]">
+                        <span className="material-symbols-outlined text-[14px] text-[#C29B38]">edit_note</span>
+                        <span>Tuliskan doa restu untuk {coupleName}</span>
+                      </div>
+                      <textarea
+                        value={rsvpMessage}
+                        onChange={(e) => setRsvpMessage(e.target.value)}
+                        rows={3}
+                        className="w-full bg-transparent border-0 p-0 text-sm text-[#78716C] placeholder-[#A8A29E] focus:ring-0 resize-none outline-none leading-relaxed"
+                        placeholder="Tuliskan doa restu Anda di sini…"
+                      />
+                    </div>
+                  </div>
+                  {rsvpError && <p className="font-body-md text-sm text-red-500">{rsvpError}</p>}
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={rsvpStatus === "saving" || !rsvpName.trim()}
+                      className="w-full h-14 rounded-full bg-[#B34E3F] hover:bg-[#9A3F32] active:scale-[0.98] text-white font-semibold text-sm sm:text-base tracking-wide shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2.5 disabled:opacity-50"
+                    >
+                      <span>{rsvpStatus === "saving" ? "Menyimpan..." : rsvpAttend === "TIDAK_HADIR" ? "Kirim Doa Restu" : "Kirim Konfirmasi Kehadiran"}</span>
+                      <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
+                    </button>
+                    <p className="text-[11px] text-center text-[#78716C] mt-2.5">
+                      Data Anda terenkripsi dengan aman dalam sistem Aksaraa Wedding.
+                    </p>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
         </div>

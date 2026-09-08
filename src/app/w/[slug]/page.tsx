@@ -206,6 +206,7 @@ export default async function WeddingInvitation({
           <InvitationOverlay
             guestId={guestContext.id}
             guestName={guestName}
+            coupleName={(profile.groom_full_name && profile.bride_full_name ? `${profile.groom_full_name} & ${profile.bride_full_name}` : profile.display_name) || `${profile.groom_name} & ${profile.bride_name}`}
             weddingProfileId={profile.id}
             guestQrUrl={
               guestContext.slug || guestContext.qr_token
@@ -252,6 +253,7 @@ export default async function WeddingInvitation({
             <InvitationOverlay
               guestId={guestContext.id}
               guestName={guestName}
+              coupleName={(profile.groom_full_name && profile.bride_full_name ? `${profile.groom_full_name} & ${profile.bride_full_name}` : profile.display_name) || `${profile.groom_name} & ${profile.bride_name}`}
               weddingProfileId={profile.id}
               guestQrUrl={guestContext.slug || guestContext.qr_token ? `/qr/${encodeURIComponent(guestContext.slug || guestContext.qr_token)}` : undefined}
               guestTableNumber={guestContext.table_number}
