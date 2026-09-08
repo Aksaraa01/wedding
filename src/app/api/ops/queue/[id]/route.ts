@@ -32,7 +32,8 @@ export async function GET(
           payment_status,
           express_service,
           wa_blast_tier,
-          undangan_fisik
+          undangan_fisik,
+          message_category
         ),
         employees!left (
           id,

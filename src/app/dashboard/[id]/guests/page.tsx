@@ -699,6 +699,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                   <input
                     className="w-full bg-white border border-[#E2D9CF] rounded-xl py-3 px-4 focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors placeholder:text-on-surface-variant/50"
                     placeholder="Contoh: Anindya Pramesti"
+                    maxLength={30}
                     value={form.name}
                     onChange={(e) => setForm((p) => ({ ...p, name: sanitizeGuestName(e.target.value) }))}
                   />

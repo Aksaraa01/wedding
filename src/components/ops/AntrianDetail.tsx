@@ -8,6 +8,7 @@ import OpsHeader from "@/components/ops/OpsHeader"
 import html2canvas from "html2canvas"
 import * as XLSX from "xlsx"
 import { renderReminderMessage, getCoupleDisplayName } from "@/lib/reminderTemplates"
+import { MSG_TEMPLATES, cleanMessageForCell, isValidMsgCategory, renderMessage } from "@/lib/messageTemplates"
 import {
   PACKAGE_LABELS,
   FEATURE_LABELS,
@@ -51,6 +52,7 @@ type QueueItem = {
     total_project_cost: number
     payment_status: string
     express_service?: boolean | null
+    message_category?: string | null
   }
 }
 
@@ -401,9 +403,11 @@ export default function AntrianDetail({ id }: { id: string }) {
   }
 
   const downloadQrExcel = () => {
+    const msgCat = isValidMsgCategory(currentWp?.message_category) ? currentWp.message_category : "nasional"
+    const msgCoupleName = `${(currentWp?.bride_name || "").trim()} & ${(currentWp?.groom_name || "").trim()}`
     const header = qrActive
-      ? ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Link QR", "Link Undangan", "Sumber"]
-      : ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Link Undangan", "Sumber"]
+      ? ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Pesan WhatsApp", "Tautan QR", "Tautan Undangan", "Sumber"]
+      : ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Pesan WhatsApp", "Tautan Undangan", "Sumber"]
     const rows = qrGuests.map((g) =>
       qrActive
         ? [
@@ -411,6 +415,7 @@ export default function AntrianDetail({ id }: { id: string }) {
             g.phone_number || "",
             g.category || "",
             g.table_number || "",
+            g.slug || g.qr_token ? cleanMessageForCell(renderMessage(MSG_TEMPLATES[msgCat], g.name, msgCoupleName, guestInvUrl(g))) : "",
             guestQrUrl(g),
             guestInvUrl(g),
             g.added_manually ? "Ditambahkan Manual" : "Undangan QR",
@@ -420,11 +425,43 @@ export default function AntrianDetail({ id }: { id: string }) {
             g.phone_number || "",
             g.category || "",
             g.table_number || "",
+            g.slug || g.qr_token ? cleanMessageForCell(renderMessage(MSG_TEMPLATES[msgCat], g.name, msgCoupleName, guestInvUrl(g))) : "",
             guestInvUrl(g),
             g.added_manually ? "Ditambahkan Manual" : "Undangan QR",
           ]
     )
-    downloadExcel(`daftar-qr-tamu-${profileSlug}.xlsx`, "QR Tamu", header, rows)
+    const ws = XLSX.utils.aoa_to_sheet([header, ...rows])
+    ws["!cols"] = qrActive
+      ? [
+          { wch: 28 },
+          { wch: 18 },
+          { wch: 16 },
+          { wch: 12 },
+          { wch: 80 },
+          { wch: 55 },
+          { wch: 55 },
+        ]
+      : [
+          { wch: 28 },
+          { wch: 18 },
+          { wch: 16 },
+          { wch: 12 },
+          { wch: 80 },
+          { wch: 55 },
+        ]
+    for (let r = 2; r <= rows.length + 1; r++) {
+      const undRef = XLSX.utils.encode_cell({ r: r - 1, c: qrActive ? 6 : 5 })
+      const undVal = ws[undRef]?.v
+      if (undVal) ws[undRef].l = { Target: String(undVal), Tooltip: String(undVal) }
+      if (qrActive) {
+        const qrRef = XLSX.utils.encode_cell({ r: r - 1, c: 5 })
+        const qrVal = ws[qrRef]?.v
+        if (qrVal) ws[qrRef].l = { Target: String(qrVal), Tooltip: String(qrVal) }
+      }
+    }
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, "Tautan & QR Tamu")
+    XLSX.writeFile(wb, `tautan-qr-tamu-${profileSlug}.xlsx`)
   }
 
   const downloadImage = async (url: string, filename: string) => {
