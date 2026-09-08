@@ -200,10 +200,10 @@ export default function SelfieModal({
           <span className="material-symbols-outlined text-lg">close</span>
         </button>
         <div className="text-center flex-1 px-3">
-          <h3 className="font-serif text-[14px] font-bold text-white tracking-wide" style={{ fontFamily: "Playfair Display" }}>
+          <h3 className="text-2xl font-semibold text-white tracking-wide" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
             Foto Check-in
           </h3>
-          <p className="text-[10px] text-white/70 truncate">
+          <p className="text-sm text-white/80 truncate mt-0.5">
             {guestName ? <span className="font-semibold text-white">{guestName}</span> : "Tamu"}
           </p>
         </div>
