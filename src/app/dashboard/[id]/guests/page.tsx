@@ -432,8 +432,9 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             <span className="material-symbols-outlined text-[16px]">upload_file</span>
             Import Excel
           </button>
-          <button onClick={() => setImportModalOpen(true)} className="md:hidden w-10 h-10 flex items-center justify-center bg-white text-[#2C2A29] border border-[#E2D9CF] rounded-full hover:bg-[#F5EFE6] transition-colors shrink-0" aria-label="Import Excel">
-            <span className="material-symbols-outlined text-[18px]">upload_file</span>
+          <button onClick={() => setImportModalOpen(true)} className="md:hidden flex-1 inline-flex items-center justify-center gap-2 bg-white text-[#2C2A29] border border-[#E2D9CF] rounded-full px-5 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#F5EFE6] transition-colors">
+            <span className="material-symbols-outlined text-[16px]">upload_file</span>
+            Import Excel
           </button>
           <button onClick={openAdd} className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-[#B34E3F] text-white rounded-full px-5 md:px-6 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all">
             <span className="material-symbols-outlined text-[16px]">person_add</span>

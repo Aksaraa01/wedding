@@ -45,6 +45,10 @@ function showToast(toastFn: (t: { show: boolean; message: string }) => void, msg
   setTimeout(() => toastFn({ show: false, message: "" }), 3000)
 }
 
+function formatAccountNumber(n: string): string {
+  return n.replace(/[\s-]/g, "").replace(/(\d{4})(?=\d)/g, "$1 - ")
+}
+
 function AmplopDigitalInner({ id }: { id: string }) {
   const router = useRouter()
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -302,30 +306,30 @@ function AmplopDigitalInner({ id }: { id: string }) {
 
       <main className="flex-grow pt-24 pb-12 px-5 sm:px-8 max-w-4xl mx-auto w-full">
         <div className="mb-8 text-left">
-          <p className="text-xs uppercase tracking-[0.25em] text-brand-terracotta font-semibold mb-1">Fitur Amplop Digital & Gift</p>
-          <p className="text-xs sm:text-sm text-brand-slate mt-2 leading-relaxed max-w-2xl">
-            Kelola rekening bank, QRIS, dan alamat pengiriman kado fisik yang akan ditampilkan di halaman web undangan Anda.
+          <h1 className="text-xl font-semibold text-[#2C2A29]" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>Amplop Digital &amp; Kado Fisik</h1>
+          <p className="text-sm text-[#78716C] mt-2 leading-relaxed max-w-2xl">
+            Atur nomor rekening, E-wallet serta alamat pengiriman kado untuk memudahkan para tamu memberikan doa dan hadiah terbaik.
           </p>
         </div>
 
         <div className="flex border-b border-brand-border mb-8 gap-3 sm:gap-8 overflow-x-auto">
           <button
             onClick={() => setActiveTab("digital")}
-            className={`pb-3 text-xs sm:text-sm font-semibold uppercase tracking-[0.15em] border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === "digital" ? "border-brand-terracotta text-brand-terracotta" : "border-transparent text-brand-slate hover:text-brand-charcoal"}`}
+            className={`pb-3 text-xs sm:text-sm font-semibold uppercase tracking-[0.15em] border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === "digital" ? "border-[#B34E3F] text-[#B34E3F]" : "border-transparent text-[#78716C] hover:text-brand-charcoal"}`}
           >
             <span className="material-symbols-outlined text-lg shrink-0">account_balance</span>
             Rekening & E-Wallet
-            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${activeTab === "digital" ? "bg-brand-terracotta/10 text-brand-terracotta" : "bg-brand-slate/10 text-brand-slate"}`}>{accounts.length}</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${activeTab === "digital" ? "bg-[#F5EFE6] text-[#B34E3F]" : "bg-brand-slate/10 text-brand-slate"}`}>{accounts.length}</span>
           </button>
 
           {canShowPhysical && (
             <button
               onClick={() => setActiveTab("physical")}
-              className={`pb-3 text-xs sm:text-sm font-semibold uppercase tracking-[0.15em] border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === "physical" ? "border-brand-terracotta text-brand-terracotta" : "border-transparent text-brand-slate hover:text-brand-charcoal"}`}
+              className={`pb-3 text-xs sm:text-sm font-semibold uppercase tracking-[0.15em] border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === "physical" ? "border-[#B34E3F] text-[#B34E3F]" : "border-transparent text-[#78716C] hover:text-brand-charcoal"}`}
             >
               <span className="material-symbols-outlined text-lg shrink-0">local_shipping</span>
               Alamat Kado Fisik
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${activeTab === "physical" ? "bg-brand-terracotta/10 text-brand-terracotta" : "bg-brand-slate/10 text-brand-slate"}`}>{addresses.length}</span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${activeTab === "physical" ? "bg-[#F5EFE6] text-[#B34E3F]" : "bg-brand-slate/10 text-brand-slate"}`}>{addresses.length}</span>
             </button>
           )}
         </div>
@@ -336,7 +340,7 @@ function AmplopDigitalInner({ id }: { id: string }) {
               <p className="hidden md:block text-xs uppercase tracking-wider text-brand-slate font-semibold">Daftar Rekening & E-Wallet</p>
               <button
                 onClick={() => { resetAccountForm(); setAccountModal(true) }}
-                className="inline-flex items-center gap-2 bg-brand-charcoal text-white px-4 py-2.5 rounded-xl text-xs uppercase tracking-[0.12em] font-semibold hover:bg-brand-terracotta transition-all active:scale-95 shadow-sm"
+                className="inline-flex items-center gap-2 bg-[#B34E3F] text-white px-4 py-2.5 rounded-full text-xs uppercase tracking-[0.12em] font-semibold hover:bg-[#9E3B2D] transition-all active:scale-95 shadow-sm"
               >
                 <span className="material-symbols-outlined text-sm">add</span>
                 Tambah Rekening / E-Wallet
@@ -350,8 +354,16 @@ function AmplopDigitalInner({ id }: { id: string }) {
               </div>
             ) : (
               accounts.map(acc => (
-                <div key={acc.id} className="bg-white border border-brand-border rounded-2xl p-6 sm:p-7 relative overflow-hidden shadow-[0_10px_30px_-10px_rgba(26,24,23,0.04)] hover:border-brand-terracotta/25 hover:shadow-[0_14px_36px_-10px_rgba(26,24,23,0.08)] transition-all duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div key={acc.id} className="bg-white border border-[#E2D9CF] rounded-2xl p-6 sm:p-7 relative overflow-hidden shadow-[0_10px_30px_-10px_rgba(26,24,23,0.04)] hover:border-brand-terracotta/25 hover:shadow-[0_14px_36px_-10px_rgba(26,24,23,0.08)] transition-all duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}>
+                  <div className="absolute top-4 right-4 sm:top-5 sm:right-5 flex items-center gap-2">
+                    <button onClick={() => { resetAccountForm(acc); setAccountModal(true) }} title="Edit" aria-label="Edit rekening" className="w-8 h-8 rounded-full bg-[#F5EFE6] text-[#2C2A29] flex items-center justify-center hover:bg-[#E2D9CF] active:scale-95 transition-all">
+                      <span className="material-symbols-outlined text-[16px]">edit</span>
+                    </button>
+                    <button onClick={() => deleteAccount(acc)} title="Hapus" aria-label="Hapus rekening" className="w-8 h-8 rounded-full bg-[#FEE2E2] text-[#DC2626] flex items-center justify-center hover:bg-[#FECACA] active:scale-95 transition-all">
+                      <span className="material-symbols-outlined text-[16px]">delete</span>
+                    </button>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 pr-20">
                     <div className="flex items-start gap-4">
                       <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl bg-brand-cream border border-brand-border flex items-center justify-center shrink-0 overflow-hidden">
                         {acc.type === "qris" ? (
@@ -368,9 +380,9 @@ function AmplopDigitalInner({ id }: { id: string }) {
                         <h3 className="text-xl sm:text-2xl font-semibold text-brand-charcoal" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{acc.provider_name || (acc.type === "qris" ? "QRIS All Payment" : "Rekening Bank")}</h3>
                         {acc.type !== "qris" && acc.account_number && (
                           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                            <span className="font-mono text-base tracking-wider text-brand-charcoal font-semibold break-all">{acc.account_number}</span>
-                            <button onClick={() => copyText(acc.account_number!, "Nomor rekening")} className="text-brand-terracotta text-xs font-semibold hover:underline inline-flex items-center gap-1 shrink-0">
-                              <span className="material-symbols-outlined text-xs">content_copy</span> Salin
+                            <span className="font-mono text-base tracking-wider text-brand-charcoal font-semibold break-all">{formatAccountNumber(acc.account_number)}</span>
+                            <button onClick={() => copyText(acc.account_number!, "Nomor rekening")} className="bg-[#FAF7F2] border border-[#E2D9CF] text-[#B34E3F] text-xs font-semibold rounded-full px-3 py-1.5 hover:bg-[#F5EFE6] active:scale-95 transition-all inline-flex items-center gap-1 shrink-0">
+                              <span className="material-symbols-outlined text-[14px]">content_copy</span> Salin
                             </button>
                           </div>
                         )}
@@ -378,17 +390,6 @@ function AmplopDigitalInner({ id }: { id: string }) {
                           <p className="text-xs text-brand-slate">Gambar QRIS terpasang & dapat dipindai tamu.</p>
                         )}
                         <p className="text-xs text-brand-slate uppercase tracking-wider font-medium">{acc.account_name ? `a.n ${acc.account_name}` : ""}</p>
-                      </div>
-                    </div>
-                    <div className="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 pt-4 sm:pt-0 border-brand-border gap-3">
-                      <div className="flex items-center gap-3 text-xs font-semibold">
-                        <button onClick={() => { resetAccountForm(acc); setAccountModal(true) }} className="text-brand-charcoal hover:text-brand-terracotta transition-colors inline-flex items-center gap-1">
-                          <span className="material-symbols-outlined text-sm">edit</span> Edit
-                        </button>
-                        <span className="text-brand-slate/40">|</span>
-                        <button onClick={() => deleteAccount(acc)} className="text-rose-700 hover:text-rose-900 transition-colors inline-flex items-center gap-1">
-                          <span className="material-symbols-outlined text-sm">delete</span> Hapus
-                        </button>
                       </div>
                     </div>
                   </div>
@@ -404,7 +405,7 @@ function AmplopDigitalInner({ id }: { id: string }) {
               <p className="hidden md:block text-xs uppercase tracking-wider text-brand-slate font-semibold">Alamat Penerimaan Kado Fisik</p>
               <button
                 onClick={() => { resetAddressForm(); setAddressModal(true) }}
-                className="inline-flex items-center gap-2 bg-brand-charcoal text-white px-4 py-2.5 rounded-xl text-xs uppercase tracking-[0.12em] font-semibold hover:bg-brand-terracotta transition-all active:scale-95 shadow-sm"
+                className="inline-flex items-center gap-2 bg-[#B34E3F] text-white px-4 py-2.5 rounded-full text-xs uppercase tracking-[0.12em] font-semibold hover:bg-[#9E3B2D] transition-all active:scale-95 shadow-sm"
               >
                 <span className="material-symbols-outlined text-sm">add</span>
                 Tambah Alamat Pengiriman
@@ -418,8 +419,16 @@ function AmplopDigitalInner({ id }: { id: string }) {
               </div>
             ) : (
               addresses.map(addr => (
-                <div key={addr.id} className="bg-white border border-brand-border rounded-2xl p-6 sm:p-7 relative overflow-hidden shadow-[0_10px_30px_-10px_rgba(26,24,23,0.04)] hover:border-brand-terracotta/25 hover:shadow-[0_14px_36px_-10px_rgba(26,24,23,0.08)] transition-all duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}>
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                <div key={addr.id} className="bg-white border border-[#E2D9CF] rounded-2xl p-6 sm:p-7 relative overflow-hidden shadow-[0_10px_30px_-10px_rgba(26,24,23,0.04)] hover:border-brand-terracotta/25 hover:shadow-[0_14px_36px_-10px_rgba(26,24,23,0.08)] transition-all duration-300" style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}>
+                  <div className="absolute top-4 right-4 sm:top-5 sm:right-5 flex items-center gap-2">
+                    <button onClick={() => { resetAddressForm(addr); setAddressModal(true) }} title="Edit" aria-label="Edit alamat" className="w-8 h-8 rounded-full bg-[#F5EFE6] text-[#2C2A29] flex items-center justify-center hover:bg-[#E2D9CF] active:scale-95 transition-all">
+                      <span className="material-symbols-outlined text-[16px]">edit</span>
+                    </button>
+                    <button onClick={() => deleteAddress(addr)} title="Hapus" aria-label="Hapus alamat" className="w-8 h-8 rounded-full bg-[#FEE2E2] text-[#DC2626] flex items-center justify-center hover:bg-[#FECACA] active:scale-95 transition-all">
+                      <span className="material-symbols-outlined text-[16px]">delete</span>
+                    </button>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-4 pr-20">
                     <div className="flex items-start gap-4">
                       <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-brand-cream border border-brand-border flex items-center justify-center shrink-0">
                         <span className="material-symbols-outlined text-brand-terracotta text-xl sm:text-2xl">home_pin</span>
@@ -432,17 +441,6 @@ function AmplopDigitalInner({ id }: { id: string }) {
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-brand-slate pt-1">
                           {addr.phone && <><span>Telepon: <strong>{addr.phone}</strong></span></>}
                         </div>
-                      </div>
-                    </div>
-                    <div className="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 pt-4 sm:pt-0 border-brand-border gap-3">
-                      <div className="flex items-center gap-3 text-xs font-semibold">
-                        <button onClick={() => { resetAddressForm(addr); setAddressModal(true) }} className="text-brand-charcoal hover:text-brand-terracotta transition-colors inline-flex items-center gap-1">
-                          <span className="material-symbols-outlined text-sm">edit</span> Edit
-                        </button>
-                        <span className="text-brand-slate/40">|</span>
-                        <button onClick={() => deleteAddress(addr)} className="text-rose-700 hover:text-rose-900 transition-colors inline-flex items-center gap-1">
-                          <span className="material-symbols-outlined text-sm">delete</span> Hapus
-                        </button>
                       </div>
                     </div>
                   </div>
