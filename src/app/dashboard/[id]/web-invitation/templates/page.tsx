@@ -160,10 +160,6 @@ function TemplatesInner({ id }: { id: string }) {
                     document.head.appendChild(link)
                   }}
                 />
-                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center gap-2 p-3">
-                  <button onClick={(e) => { e.stopPropagation(); setPreviewTpl(tpl) }} className="flex-1 py-2.5 bg-white/90 backdrop-blur text-[#2C2A29] rounded-full font-label-md text-[10px] uppercase tracking-widest hover:bg-white transition-colors">Pratinjau</button>
-                  <button data-tour={idx === 0 ? "pilih-koleksi" : undefined} onClick={(e) => { e.stopPropagation(); handleSelect(tpl.id) }} disabled={saving} className={`flex-1 py-2.5 rounded-full font-label-md text-[10px] uppercase tracking-widest border transition-colors ${selectedId === tpl.id ? "bg-[#B34E3F] border-[#B34E3F] text-white" : "bg-[#B34E3F] border-[#B34E3F] text-white hover:bg-[#9E3B2D]"}`}>{selectedId === tpl.id ? "Terpilih" : "Pilih"}</button>
-                </div>
               </div>
 
               <div className="p-4 flex flex-col gap-2">
@@ -176,7 +172,7 @@ function TemplatesInner({ id }: { id: string }) {
                     onClick={() => setPreviewTpl(tpl)}
                     className="flex-1 py-2.5 font-label-md text-[10px] uppercase tracking-widest rounded-full bg-[#F5EFE6] border border-[#E2D9CF] text-[#2C2A29] hover:bg-[#E2D9CF] transition-colors"
                   >
-                    Pratinjau
+                    Lihat Template
                   </button>
                   <button
                     data-tour={idx === 0 ? "pilih-koleksi" : undefined}
@@ -188,7 +184,7 @@ function TemplatesInner({ id }: { id: string }) {
                         : "bg-[#B34E3F] border-[#B34E3F] text-white hover:bg-[#9E3B2D]"
                     }`}
                   >
-                    {saving ? "Menyimpan..." : selectedId === tpl.id ? "Terpilih" : "Pilih Template"}
+                    {saving ? "Menyimpan..." : selectedId === tpl.id ? "Terpilih" : "Pilih"}
                   </button>
                 </div>
               </div>
@@ -203,6 +199,15 @@ function TemplatesInner({ id }: { id: string }) {
           </div>
         )}
       </main>
+
+      {saving && (
+        <div className="fixed inset-0 z-[80] bg-[#2C2A29]/40 backdrop-blur-sm flex items-center justify-center p-6">
+          <div className="bg-white border border-[#E2D9CF] rounded-2xl px-8 py-10 shadow-2xl flex flex-col items-center gap-4 max-w-xs w-full text-center">
+            <span className="w-10 h-10 border-[3px] border-[#B34E3F] border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-[#2C2A29] font-medium">Undangan Anda sedang diproses..</p>
+          </div>
+        </div>
+      )}
 
       {previewTpl && (
         <TemplatePreviewModal

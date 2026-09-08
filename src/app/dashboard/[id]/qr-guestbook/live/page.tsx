@@ -3,6 +3,7 @@
 import { use, useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import ProfileMenu from "@/components/ProfileMenu"
+import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 
 type Profile = {
   id: string
@@ -151,8 +152,8 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
   const filtered = guests.filter((g) => g.name.toLowerCase().includes(search.trim().toLowerCase()))
 
   return (
-    <div className="min-h-screen bg-background font-body-md text-body-md">
-      <header className="px-edge-margin-mobile md:px-edge-margin-desktop py-5 md:py-8 space-y-3 md:space-y-4">
+    <div className="min-h-screen font-body-md text-body-md" style={DASH_SATIN_BG}>
+      <header className="px-edge-margin-mobile md:px-edge-margin-desktop py-5 md:py-8 space-y-3 md:space-y-4 rounded-2xl border border-[#E2D9CF]/60 shadow-sm mx-edge-margin-mobile md:mx-edge-margin-desktop mt-4" style={DASH_HERO_BG}>
         <div className="flex items-center justify-between">
           <span className="inline-flex items-center gap-2 font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">
             Buku Tamu QR &amp; Absensi Live

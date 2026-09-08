@@ -4,6 +4,7 @@ import { useState, useEffect, use, useRef, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import ProfileMenu from "@/components/ProfileMenu"
+import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import * as XLSX from "xlsx"
 import { sanitizeGuestName } from "@/lib/nameClean"
 
@@ -279,7 +280,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
     return (
       <>
         <PageTheme mode="light" />
-        <header className="w-full top-0 sticky z-40 bg-[#FAF7F2]/90 backdrop-blur-md border-b border-[#E2D9CF]">
+        <header className="w-full top-0 sticky z-40 border-b border-[#E2D9CF]" style={DASH_HERO_BG}>
           <div className="flex justify-between items-center px-6 py-4 w-full">
             <button
               onClick={() => setView("list")}
@@ -292,7 +293,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
           </div>
         </header>
 
-        <main className="flex flex-col h-screen px-5 md:px-6 pt-6 md:pt-8 pb-28 md:pb-0 max-w-lg mx-auto bg-[#FAF7F2]">
+        <main className="flex flex-col h-screen px-5 md:px-6 pt-6 md:pt-8 pb-28 md:pb-0 max-w-lg mx-auto" style={DASH_SATIN_BG}>
           <section className="mb-6 md:mb-8 shrink-0">
             <h1 className="font-headline-md text-xl md:text-2xl text-[#2C2A29] mb-2">Verifikasi Unggahan</h1>
             <p className="font-body-md text-sm md:text-body-md text-on-surface-variant">Pastikan daftar tamu Anda akurat sebelum diintegrasikan ke narasi acara.</p>
@@ -406,7 +407,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
   return (
     <>
       <PageTheme mode="light" />
-      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-[#FAF7F2]/90 backdrop-blur-md border-b border-[#E2D9CF] px-edge-margin-mobile md:px-edge-margin-desktop py-3 md:py-4 flex items-center justify-between gap-3">
+      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 border-b border-[#E2D9CF] px-edge-margin-mobile md:px-edge-margin-desktop py-3 md:py-4 flex items-center justify-between gap-3" style={DASH_HERO_BG}>
         <div className="flex items-center gap-3 min-w-0">
           <button onClick={() => router.push(`/dashboard/${weddingProfileId}`)} aria-label="Kembali ke dasbor" className="flex items-center justify-center w-11 h-11 -ml-2 rounded-full text-on-surface-variant hover:text-primary active:bg-surface-container transition-colors">
             <span className="material-symbols-outlined">arrow_back</span>
@@ -430,7 +431,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
         </div>
       </header>
 
-      <main className="h-screen pt-16 md:pt-20 pb-28 md:pb-0 px-edge-margin-mobile md:px-edge-margin-desktop max-w-2xl md:max-w-6xl mx-auto flex flex-col bg-[#FAF7F2]">
+      <main className="h-screen pt-16 md:pt-20 pb-28 md:pb-0 px-edge-margin-mobile md:px-edge-margin-desktop max-w-2xl md:max-w-6xl mx-auto flex flex-col" style={DASH_SATIN_BG}>
         <section className="mb-5 md:mb-6 shrink-0">
           <h1 className="font-headline-md text-xl md:text-2xl text-primary mb-1">Manajemen Daftar Tamu</h1>
           <p className="font-body-md text-sm md:text-body-md text-on-surface-variant leading-relaxed">

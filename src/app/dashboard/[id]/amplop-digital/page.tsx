@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import ProfileMenu from "@/components/ProfileMenu"
+import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import BankSelect from "@/components/dashboard/BankSelect"
 import { bankLogoUrl, getBankBySlug, getBankByName } from "@/lib/bankList"
 
@@ -283,8 +284,9 @@ function AmplopDigitalInner({ id }: { id: string }) {
   return (
     <>
       <PageTheme mode="light" />
+      <div className="fixed inset-0 -z-10" style={DASH_SATIN_BG} />
 
-      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-40 bg-brand-cream/90 backdrop-blur-md border-b border-brand-border h-16 flex items-center px-5 sm:px-8 justify-between">
+      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-40 border-b border-brand-border h-16 flex items-center px-5 sm:px-8 justify-between" style={DASH_HERO_BG}>
         <span className="text-xs uppercase tracking-[0.2em] font-semibold text-brand-charcoal">Amplop Digital &amp; E-Gift</span>
         <div className="flex items-center gap-3">
           <span className="w-2 h-2 rounded-full bg-emerald-500" />

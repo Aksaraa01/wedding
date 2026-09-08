@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import * as XLSX from "xlsx"
 import { ASSETS } from "@/lib/assets"
 import ProfileMenu from "@/components/ProfileMenu"
+import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import { MSG_CATEGORIES, MSG_TEMPLATES, MSG_VARS, MsgCategory, cleanMessageForCell, isValidMsgCategory, renderMessage } from "@/lib/messageTemplates"
 
 type Guest = {
@@ -412,7 +413,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   }
 
   return (
-    <div className="h-screen bg-[#FAF7F2] font-body-md text-on-surface antialiased flex flex-col overflow-hidden">
+    <div className="h-screen font-body-md text-on-surface antialiased flex flex-col overflow-hidden" style={DASH_SATIN_BG}>
       {/* Background Texture */}
       <div className="fixed inset-0 -z-10 pointer-events-none opacity-[0.03] select-none">
         <img
@@ -423,7 +424,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       </div>
 
       {/* Header */}
-      <header className="shrink-0 bg-white/80 backdrop-blur-md border-b border-[#E2D9CF] px-6 md:px-12 py-4">
+      <header className="shrink-0 border-b border-[#E2D9CF] px-6 md:px-12 py-4" style={DASH_HERO_BG}>
         <div className="w-full flex items-center justify-between">
           <span className="inline-flex items-center gap-2 text-[#2C2A29] font-label-md text-[11px] uppercase tracking-wider font-bold">
             Tautan Undangan dan QR Tamu

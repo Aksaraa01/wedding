@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import ProfileMenu from "@/components/ProfileMenu"
+import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 
 type GuestPhoto = {
   id: string
@@ -141,8 +142,8 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-on-surface font-body-md antialiased">
-        <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-surface border-b border-outline-variant h-20 transition-all duration-300 ease-in-out">
+    <div className="min-h-screen text-on-surface font-body-md antialiased" style={DASH_SATIN_BG}>
+        <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 border-b border-outline-variant h-20 transition-all duration-300 ease-in-out" style={DASH_HERO_BG}>
           <div className="flex items-center justify-between px-edge-margin-mobile md:px-edge-margin-desktop h-full w-full">
             <span className="font-label-md text-label-md text-primary uppercase tracking-widest">Galeri Kenangan</span>
             <ProfileMenu />

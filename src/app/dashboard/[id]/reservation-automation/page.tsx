@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import ProfileMenu from "@/components/ProfileMenu"
+import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 
 type RsvpGuest = {
   id: string
@@ -94,9 +95,9 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      <div className="min-h-screen bg-surface text-on-surface font-body-md overflow-x-hidden">
+      <div className="min-h-screen text-on-surface font-body-md overflow-x-hidden" style={DASH_SATIN_BG}>
         {/* Top AppBar */}
-        <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 border-b border-[#c4c7c7]/30 h-20 flex items-center justify-between px-edge-margin-mobile lg:px-edge-margin-desktop bg-surface/95 backdrop-blur-md">
+        <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 border-b border-[#c4c7c7]/30 h-20 flex items-center justify-between px-edge-margin-mobile lg:px-edge-margin-desktop" style={DASH_HERO_BG}>
           <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">RSVP Automation</span>
           <ProfileMenu />
         </header>

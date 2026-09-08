@@ -3,6 +3,7 @@
 import { use, useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import ProfileMenu from "@/components/ProfileMenu"
+import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 
 type Wish = {
   id: string
@@ -119,7 +120,7 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
   ]
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-[#1c1c16] font-body-md text-body-md antialiased pb-20">
+    <div className="min-h-screen text-[#1c1c16] font-body-md text-body-md antialiased pb-20" style={DASH_SATIN_BG}>
       <style>{`
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -127,7 +128,7 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
       `}</style>
 
       {/* Top Navigation Bar */}
-      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-[#FAF7F2]/80 backdrop-blur-md border-b border-[#E2D9CF] flex justify-between items-center px-6 lg:px-10 h-16">
+      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 border-b border-[#E2D9CF] flex justify-between items-center px-6 lg:px-10 h-16" style={DASH_HERO_BG}>
         <span className="font-label-md text-label-md tracking-widest uppercase text-on-surface-variant">Wish Wall</span>
         <div className="flex items-center gap-4">
           <span className="hidden lg:inline font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">Admin Mode</span>

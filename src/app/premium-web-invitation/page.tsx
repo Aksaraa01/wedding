@@ -194,10 +194,6 @@ export default function PremiumWebInvitationPage() {
                   {tierTag && (
                     <span className="absolute top-3 left-3 bg-[#C5A059] text-white text-[9px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full shadow-sm">{tierTag}</span>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center gap-2 p-4">
-                    <button onClick={(e) => { e.stopPropagation(); setPreviewTpl(tpl) }} className="flex-1 py-2.5 bg-white/90 backdrop-blur text-[#2C2A29] rounded-full font-label-md text-[10px] uppercase tracking-widest hover:bg-white transition-colors">Pratinjau</button>
-                    <button onClick={(e) => { e.stopPropagation(); router.push(`/register?template=${tpl.code}`) }} className="flex-1 py-2.5 bg-[#B34E3F] text-white rounded-full font-label-md text-[10px] uppercase tracking-widest hover:bg-[#9E3B2D] transition-colors">Pilih Template</button>
-                  </div>
                 </div>
                 <div className="p-4 flex flex-col gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -209,13 +205,13 @@ export default function PremiumWebInvitationPage() {
                       onClick={() => setPreviewTpl(tpl)}
                       className="flex-1 py-2.5 font-label-md text-[10px] uppercase tracking-widest rounded-full bg-[#F5EFE6] border border-[#E2D9CF] text-[#2C2A29] hover:bg-[#E2D9CF] transition-colors"
                     >
-                      Pratinjau
+                      Lihat Template
                     </button>
                     <button
                       onClick={() => router.push(`/register?template=${tpl.code}`)}
                       className="flex-1 py-2.5 font-label-md text-[10px] uppercase tracking-widest rounded-full bg-[#B34E3F] border border-[#B34E3F] text-white hover:bg-[#9E3B2D] transition-colors"
                     >
-                      Pilih Template
+                      Pilih
                     </button>
                   </div>
                 </div>

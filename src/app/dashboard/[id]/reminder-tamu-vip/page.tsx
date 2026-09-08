@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import { MESSAGE_TEMPLATES } from "@/lib/reminderTemplates"
 import ProfileMenu from "@/components/ProfileMenu"
+import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 
 function stripQrLines(text: string): string {
   return text
@@ -138,8 +139,8 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
   return (
     <>
       <PageTheme mode="light" />
-      <div className="min-h-screen bg-background text-on-surface font-body-md antialiased pb-32">
-        <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-surface/95 backdrop-blur-md border-b border-outline-variant/30 flex items-center px-6 md:px-12 h-16">
+      <div className="min-h-screen text-on-surface font-body-md antialiased pb-32" style={DASH_SATIN_BG}>
+        <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 border-b border-outline-variant/30 flex items-center px-6 md:px-12 h-16" style={DASH_HERO_BG}>
           <div className="w-full flex items-center justify-between">
             <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">Reminder Tamu VIP</span>
             <ProfileMenu />

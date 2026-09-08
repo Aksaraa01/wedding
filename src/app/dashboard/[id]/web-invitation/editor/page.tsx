@@ -7,6 +7,7 @@ import { getTemplateComponent } from "@/components/templates"
 import { RowGates } from "@/lib/featureGates"
 import { pollWpJob } from "@/lib/wpJobPoll"
 import ProfileMenu from "@/components/ProfileMenu"
+import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import ProductJourney from "@/components/onboarding/ProductJourney"
 
 type Profile = {
@@ -1058,10 +1059,10 @@ function EditorInner({ id }: { id: string }) {
     <>
       <PageTheme mode="light" />
       <ProductJourney profileId={id} />
-      <div className="h-screen flex flex-col bg-surface text-on-surface font-body-md overflow-hidden">
+      <div className="h-screen flex flex-col text-on-surface font-body-md overflow-hidden" style={DASH_SATIN_BG}>
 
         {/* TOP BAR */}
-        <header className="bg-surface border-b border-outline-variant flex items-center px-6 lg:px-8 w-full h-20 z-50 shrink-0 gap-4">
+        <header className="border-b border-outline-variant flex items-center px-6 lg:px-8 w-full h-20 z-50 shrink-0 gap-4" style={DASH_HERO_BG}>
           <div className="flex items-center gap-4 shrink-0">
             <button onClick={() => router.push(`/dashboard/${id}`)} className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors">
               <span className="material-symbols-outlined">arrow_back</span>
