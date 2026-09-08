@@ -237,6 +237,7 @@ function EditorInner({ id }: { id: string }) {
   const [feedbackCount, setFeedbackCount] = useState<number | null>(null)
   const [feedbackLoading, setFeedbackLoading] = useState(true)
   const [showPaymentGate, setShowPaymentGate] = useState(false)
+  const [showFeedbackGate, setShowFeedbackGate] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true)
   const [gates, setGates] = useState<RowGates>({
     gift_address: { included: true, availableIn: [...INITIAL_AVAILABLE_IN] },
@@ -910,6 +911,10 @@ function EditorInner({ id }: { id: string }) {
   }
 
   const handleSectionToggle = (section: string) => {
+    if (section === "feedback" && !isPublished) {
+      setShowFeedbackGate(true)
+      return
+    }
     setActiveSection(prev => prev === section ? prev : section)
   }
 
@@ -1097,16 +1102,6 @@ function EditorInner({ id }: { id: string }) {
               </div>
             ) : (
               <>
-            <button
-              data-tour="perbarui"
-              onClick={handleUpdatePreview}
-              disabled={updatingPreview || isPublished || initialLoading}
-              className="hidden md:inline-flex items-center gap-2 px-4 lg:px-5 py-2.5 font-label-md text-label-md bg-[#E8DFD8] text-[#9E3B2D] border border-[#E8DFD8] rounded-full transition-all active:scale-95 hover:bg-[#E2D9CF] hover:border-[#E2D9CF] disabled:opacity-50 shadow-sm"
-            >
-              <span className="material-symbols-outlined text-[18px]">{updatingPreview ? "hourglass_top" : "refresh"}</span>
-              <span>{updatingPreview ? "Memperbarui..." : "Perbarui undangan"}</span>
-            </button>
-
             <div data-tour="ganti-tema" className="inline-flex items-center">
               <button
                 onClick={() => {
@@ -1137,7 +1132,11 @@ function EditorInner({ id }: { id: string }) {
             </div>
 
             <span className="hidden md:inline-flex relative group">
-              <button onClick={() => setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile")} disabled={initialLoading} className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-outline-variant bg-white text-on-surface-variant hover:text-primary hover:border-primary transition-colors disabled:opacity-50" aria-label="Ganti tampilan pratinjau"><span className="material-symbols-outlined text-[20px]">devices</span></button>
+              <button role="switch" aria-checked={previewDevice === "desktop"} onClick={() => setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile")} disabled={initialLoading} className="relative inline-flex items-center w-[72px] h-9 rounded-full border border-outline-variant bg-white px-1 transition-colors disabled:opacity-50" aria-label="Ganti tampilan pratinjau">
+                <span className={`material-symbols-outlined text-[18px] z-10 flex-1 text-center transition-colors ${previewDevice === "mobile" ? "text-white" : "text-on-surface-variant"}`}>smartphone</span>
+                <span className={`material-symbols-outlined text-[18px] z-10 flex-1 text-center transition-colors ${previewDevice === "desktop" ? "text-white" : "text-on-surface-variant"}`}>desktop_mac</span>
+                <span className={`absolute top-1 bottom-1 left-1 w-[30px] rounded-full bg-[#B34E3F] transition-transform duration-300 ${previewDevice === "desktop" ? "translate-x-8" : "translate-x-0"}`} />
+              </button>
               <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-white text-[#2C2A29] border border-[#B34E3F] text-[11px] px-3 py-2 rounded-lg max-w-[160px] whitespace-normal text-center leading-tight z-50 shadow-lg pointer-events-none">Ganti<br/>tampilan pratinjau</span>
             </span>
 
@@ -1919,6 +1918,17 @@ function EditorInner({ id }: { id: string }) {
                 </>
               )}
             </div>
+            <div className="hidden md:block shrink-0 p-6 pt-3 bg-gradient-to-t from-[#F3F4F6] via-[#F3F4F6] to-transparent border-t border-outline-variant/50">
+              <button
+                data-tour="perbarui"
+                onClick={handleUpdatePreview}
+                disabled={updatingPreview || isPublished || initialLoading}
+                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 font-label-md text-label-md bg-[#B34E3F] text-white rounded-full transition-all active:scale-[0.98] hover:bg-[#9E3B2D] disabled:opacity-50 disabled:hover:bg-[#B34E3F] shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[18px]">{updatingPreview ? "hourglass_top" : "refresh"}</span>
+                <span>{updatingPreview ? "Memperbarui..." : "Perbarui Undangan"}</span>
+              </button>
+            </div>
           </aside>
 
           {/* CANVAS */}
@@ -1998,8 +2008,9 @@ function EditorInner({ id }: { id: string }) {
               className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-surface-container-high text-on-surface-variant rounded-full flex items-center justify-center gap-1.5"
             >
               <span className="material-symbols-outlined text-[18px]">{showMobilePreview ? "edit" : "visibility"}</span>
-              {showMobilePreview ? "EDIT" : "PRATINJAU"}
+              {showMobilePreview ? (isPublished ? "KONTEN" : "EDIT") : "PRATINJAU"}
             </button>
+            {!isPublished && (
             <button
               data-tour="perbarui"
               onClick={handleUpdatePreview}
@@ -2009,6 +2020,7 @@ function EditorInner({ id }: { id: string }) {
               <span className={`material-symbols-outlined text-[18px] ${updatingPreview ? "animate-spin" : ""}`}>{updatingPreview ? "progress_activity" : "refresh"}</span>
               {updatingPreview ? "MEMPERBARUI..." : "PERBARUI"}
             </button>
+            )}
             <button
               data-tour="konfirmasi"
               onClick={openPublishConfirm}
@@ -2052,6 +2064,35 @@ function EditorInner({ id }: { id: string }) {
         .input-editorial::placeholder { color: rgba(26,26,26,.34); font-size: .8em; font-style: italic; font-family: 'Inter', sans-serif; font-weight: 400; }
         .input-editorial::-webkit-input-placeholder { color: rgba(26,26,26,.34); font-size: .8em; font-style: italic; font-family: 'Inter', sans-serif; font-weight: 400; }
       `}</style>
+
+      {showFeedbackGate && (
+        <div
+          className="fixed inset-0 z-[90] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6"
+          onClick={() => setShowFeedbackGate(false)}
+        >
+          <div className="bg-white w-full max-w-md rounded-2xl border border-outline-variant shadow-2xl p-8 text-center" onClick={(e) => e.stopPropagation()}>
+            <span className="material-symbols-outlined text-4xl text-secondary mb-4 block">rate_review</span>
+            <h3 className="font-headline-md text-xl font-medium text-primary mb-3">Konfirmasi Undangan Dulu</h3>
+            <p className="text-sm text-on-surface-variant mb-6 leading-relaxed">
+              Fitur Tambah Lainnya &amp; feedback tersedia setelah undangan dikonfirmasi. Konfirmasi undangan Anda terlebih dahulu untuk melihat dan menambah feedback.
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => { setShowFeedbackGate(false); openPublishConfirm() }}
+                className="w-full py-3.5 bg-secondary text-on-secondary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity"
+              >
+                Konfirmasi Undangan
+              </button>
+              <button
+                onClick={() => setShowFeedbackGate(false)}
+                className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+              >
+                Nanti Saja
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showPublishConfirm && (
         <div
