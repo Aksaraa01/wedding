@@ -53,6 +53,10 @@ function formatTableNumber(t: string | null | undefined): string {
   return /^meja\s/i.test(trimmed) ? trimmed : `Meja ${trimmed}`
 }
 
+function formatNama(n: string): string {
+  return n.toLowerCase().replace(/\b[a-z]/g, (c) => c.toUpperCase())
+}
+
 function paxCount(g: { rsvp_pax_count?: number | null; guest_count?: number | null }): number {
   return g.rsvp_pax_count ?? g.guest_count ?? 1
 }
@@ -370,6 +374,8 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
       })
     } catch {}
     setLogEntries((prev) => prev.map((g) => g.id === guestId ? { ...g, souvenir_claimed: true } : g))
+    setAllGuests((prev) => prev.map((g) => g.id === guestId ? { ...g, souvenir_claimed: true } : g))
+    setSelectedGuest((prev) => prev && prev.id === guestId ? { ...prev, souvenir_claimed: true } : prev)
     if (scanResult?.guest?.id === guestId) {
       setScanResult({ ...scanResult, guest: { ...scanResult.guest, souvenir_claimed: true } })
     }
@@ -611,7 +617,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
         {eventInfo?.cover_photo ? (
           <>
             <img src={eventInfo.cover_photo} alt="" className="fixed inset-0 w-full h-full object-cover pointer-events-none" />
-            <div className="fixed inset-0 bg-[#FAF7F2]/85 backdrop-blur-[2px] pointer-events-none" />
+            <div className="fixed inset-0 bg-[#FAF7F2]/40 pointer-events-none" />
           </>
         ) : (
           <div className="fixed inset-0 bg-[#FAF7F2] pointer-events-none" />
@@ -908,54 +914,90 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
       {/* Guest Detail Modal */}
       {selectedGuest && (
         <div className="fixed inset-0 z-50 bg-[#2C2A29]/40 backdrop-blur-sm flex items-center justify-center p-6">
-          <div className="bg-white border border-[#E2D9CF] w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden">
+          <div className="bg-[#FAF7F2] border border-[#E2D9CF] w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden max-h-[90dvh] overflow-y-auto">
             {/* Editorial header */}
             <div className="p-6 border-b border-l-2 border-[#B34E3F]/30 ml-6 mt-6 mb-4">
               <span className="text-[11px] text-[#B34E3F] uppercase tracking-[0.25em] block mb-2 font-semibold">Detail Tamu</span>
-              <h2 className="text-3xl text-[#2C2A29] font-medium tracking-tight" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>{selectedGuest.name}</h2>
+              <h2 className="text-3xl text-[#2C2A29] font-medium tracking-tight" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>{formatNama(selectedGuest.name)}</h2>
             </div>
 
             {/* Detail grid */}
             <div className="px-6 pb-2 space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-left text-xs bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5">
+              <div className="grid grid-cols-2 gap-4 text-left text-xs bg-white border border-[#E2D9CF] rounded-xl p-5">
                 <div className="col-span-2">
-                  <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block font-semibold">Nama Tamu</span>
-                  <strong className="text-[#2C2A29] font-medium text-sm">{selectedGuest.name}</strong>
+                  <span className="text-[9px] text-[#8C827A] uppercase tracking-wider block font-semibold">Nama Tamu</span>
+                  <strong className="text-[#2C2A29] font-medium text-sm">{formatNama(selectedGuest.name)}</strong>
                 </div>
                 <div>
-                  <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block font-semibold">Alokasi Meja</span>
+                  <span className="text-[9px] text-[#8C827A] uppercase tracking-wider block font-semibold">Alokasi Meja</span>
                   <strong className="text-[#B34E3F] text-sm font-bold">
                     {formatTableNumber(selectedGuest.table_number) || "-"}
                   </strong>
                 </div>
                 <div>
-                  <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block font-semibold">Jumlah Pax</span>
+                  <span className="text-[9px] text-[#8C827A] uppercase tracking-wider block font-semibold">Jumlah Pax</span>
                   <strong className="text-[#2C2A29] font-medium text-sm">{paxCount(selectedGuest)} Pax</strong>
                 </div>
                 <div>
-                  <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block font-semibold">Kategori</span>
+                  <span className="text-[9px] text-[#8C827A] uppercase tracking-wider block font-semibold">Kategori</span>
                   <strong className="text-[#2C2A29] font-medium text-sm">{selectedGuest.category || "Reguler"}</strong>
                 </div>
                 <div>
-                  <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block font-semibold">Status</span>
-                  <strong className={`font-medium text-sm ${selectedGuest.is_checked_in ? "text-[#059669]" : "text-[#B34E3F]"}`}>
-                    {selectedGuest.is_checked_in ? "Sudah Check-in" : "Belum Check-in"}
-                  </strong>
+                  <span className="text-[9px] text-[#8C827A] uppercase tracking-wider block font-semibold">Status</span>
+                  {selectedGuest.is_checked_in ? (
+                    <span className="inline-flex items-center gap-1 bg-[#ECFDF5] text-[#059669] border border-[#059669]/20 rounded-full px-2 py-0.5 text-[10px] font-bold">
+                      Sudah Check-in
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 bg-[#F5EFE6] text-[#B34E3F] border border-[#B34E3F]/20 rounded-full px-2 py-0.5 text-[10px] font-bold">
+                      Belum Check-in
+                    </span>
+                  )}
                 </div>
-                <div className="pt-2">
-                  <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block font-semibold">Sumber</span>
+                <div>
+                  <span className="text-[9px] text-[#8C827A] uppercase tracking-wider block font-semibold">Sumber</span>
                   <strong className={`font-medium text-sm ${selectedGuest.added_manually ? "text-amber-600" : "text-[#2C2A29]"}`}>
                     {selectedGuest.added_manually ? "Ditambahkan Manual" : "Undangan QR"}
                   </strong>
                 </div>
                 <div className="pt-2">
-                  <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block font-semibold">QR Token</span>
+                  <span className="text-[9px] text-[#8C827A] uppercase tracking-wider block font-semibold">QR Token</span>
                   <strong className="text-[#2C2A29] font-mono text-[10px]">{selectedGuest.qr_token ? `AKSR-${selectedGuest.qr_token.slice(-6)}` : "-"}</strong>
                 </div>
               </div>
             </div>
 
             <div className="p-6 space-y-3">
+              {/* Aksi Concierge / Event Station */}
+              <div className="space-y-2">
+                <span className="text-[9px] text-[#8C827A] uppercase tracking-wider block font-semibold text-center">Aksi Concierge / Event Station</span>
+                <div className="grid grid-cols-2 gap-2">
+                  {selfieGuestIds.has(selectedGuest.id) ? (
+                    <span className="flex items-center justify-center gap-1 bg-[#D1FAE5] text-[#047857] border border-[#047857]/20 rounded-xl py-3 px-2 text-[10px] font-bold uppercase tracking-wider">
+                      ✓ Photo Diambil
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => openSelfieRecovery(selectedGuest)}
+                      className="flex items-center justify-center gap-1 bg-[#F5EFE6] text-[#B34E3F] border border-[#B34E3F]/40 rounded-xl py-3 px-2 text-[10px] font-bold uppercase tracking-wider hover:bg-white transition-colors"
+                    >
+                      📸 Ambil Photo
+                    </button>
+                  )}
+                  {selectedGuest.souvenir_claimed ? (
+                    <span className="flex items-center justify-center gap-1 bg-[#D1FAE5] text-[#047857] border border-[#047857]/20 rounded-xl py-3 px-2 text-[10px] font-bold uppercase tracking-wider">
+                      ✓ Suvenir Diambil
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => handleClaimSouvenir(selectedGuest.id)}
+                      className="flex items-center justify-center gap-1 bg-[#B34E3F] text-white rounded-xl py-3 px-2 text-[10px] font-bold uppercase tracking-wider hover:bg-[#9E3B2D] transition-colors"
+                    >
+                      🎁 Ambil Suvenir
+                    </button>
+                  )}
+                </div>
+              </div>
               {!selectedGuest.is_checked_in && (
                 <button
                   onClick={handleGuestDetailCheckin}
@@ -967,7 +1009,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
               )}
               <button
                 onClick={() => setSelectedGuest(null)}
-                className="w-full bg-[#FAF7F2] hover:bg-white border border-[#E2D9CF] text-[#2C2A29] py-4 rounded-xl text-[11px] uppercase tracking-widest font-bold transition-all"
+                className="w-full bg-[#EFEAE2] hover:bg-[#E2D9CF] text-[#2C2A29] py-4 rounded-xl text-[11px] uppercase tracking-widest font-bold transition-all"
               >
                 Tutup
               </button>
