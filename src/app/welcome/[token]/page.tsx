@@ -162,7 +162,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
   }
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface font-body-md antialiased selection:bg-secondary-container selection:text-on-secondary-container">
+    <div className="min-h-screen text-on-surface font-body-md antialiased selection:bg-secondary-container selection:text-on-secondary-container" style={{ backgroundColor: "#ded1c1", backgroundImage: "radial-gradient(ellipse at 70% 30%, rgba(255,255,255,0.6) 0%, rgba(240,228,215,0.4) 30%, transparent 65%), linear-gradient(115deg, #dfd2c2 0%, #ecdcc9 22%, #baa794 45%, #f2e4d3 62%, #caa890 82%, #dfd3c4 100%)", backgroundAttachment: "fixed" }}>
       {!isModal && (
         <header className="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-md border-b border-outline-variant/40 transition-all">
           <div className="max-w-md mx-auto h-10 px-4 flex justify-between items-center">

@@ -184,7 +184,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
   }
 
   return (
-    <div className={isPreview ? "min-h-full flex flex-col" : "min-h-screen flex flex-col justify-between items-center py-6 px-4 sm:px-6"} style={{ backgroundColor: "#FBF8F3", color: "#1A1817", fontFamily: "'Plus Jakarta Sans', sans-serif", WebkitFontSmoothing: "antialiased" }}>
+    <div className={isPreview ? "min-h-full flex flex-col" : "min-h-screen flex flex-col justify-between items-center py-6 px-4 sm:px-6"} style={{ backgroundColor: "#ded1c1", backgroundImage: "radial-gradient(ellipse at 70% 30%, rgba(255,255,255,0.6) 0%, rgba(240,228,215,0.4) 30%, transparent 65%), linear-gradient(115deg, #dfd2c2 0%, #ecdcc9 22%, #baa794 45%, #f2e4d3 62%, #caa890 82%, #dfd3c4 100%)", backgroundAttachment: "fixed", color: "#1A1817", fontFamily: "'Plus Jakarta Sans', sans-serif", WebkitFontSmoothing: "antialiased" }}>
       {!isPreview && (
         <header className="w-full max-w-md flex items-center justify-between mb-6 md:justify-center md:gap-8">
           <button onClick={() => history.back()} className="w-10 h-10 rounded-full bg-white border border-[rgba(26,24,23,0.08)] flex items-center justify-center text-[#1A1817] hover:bg-[#FBF8F3] transition-all active:scale-95 md:fixed md:top-6 md:left-6 md:z-30 md:shadow-md">
@@ -210,8 +210,8 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
         )}
 
         <div ref={cardRef} id="wedding-pass-card" className="w-full rounded-2xl overflow-hidden border border-[rgba(26,24,23,0.08)] relative" style={{ background: "#FFFFFF", boxShadow: "0 16px 40px -12px rgba(26, 24, 23, 0.08), 0 4px 12px -2px rgba(26, 24, 23, 0.03)" }}>
-          <div className="absolute w-6 h-6 bg-[#FBF8F3] rounded-full top-[58%] -translate-y-1/2 z-20 left-[-12px]" style={{ boxShadow: "inset -3px 0 4px rgba(26, 24, 23, 0.05)" }} />
-          <div className="absolute w-6 h-6 bg-[#FBF8F3] rounded-full top-[58%] -translate-y-1/2 z-20 right-[-12px]" style={{ boxShadow: "inset 3px 0 4px rgba(26, 24, 23, 0.05)" }} />
+          <div className="absolute w-6 h-6 bg-[#ded1c1] rounded-full top-[58%] -translate-y-1/2 z-20 left-[-12px]" style={{ boxShadow: "inset -3px 0 4px rgba(26, 24, 23, 0.05)" }} />
+          <div className="absolute w-6 h-6 bg-[#ded1c1] rounded-full top-[58%] -translate-y-1/2 z-20 right-[-12px]" style={{ boxShadow: "inset 3px 0 4px rgba(26, 24, 23, 0.05)" }} />
           <div className="absolute border-t-2 border-dashed border-[rgba(26,24,23,0.12)] top-[58%] left-4 right-4 z-10" />
 
           <div className="p-6 sm:p-8 text-center flex flex-col items-center">

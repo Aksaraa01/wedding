@@ -159,7 +159,10 @@ export default function InvitationOverlay({
             <div className="h-1.5 w-full bg-gradient-to-r from-[#C29B38]/60 via-[#B34E3F] to-[#C29B38]/60 shrink-0" />
 
             {/* Modal header */}
-            <div className="relative bg-[#FAF7F2] px-6 sm:px-8 pt-7 pb-6 text-center border-b border-[#E2D9CF]/40 shrink-0">
+            <div
+              className="relative px-6 sm:px-8 pt-7 pb-6 text-center border-b border-[#E2D9CF]/40 shrink-0"
+              style={{ backgroundColor: "#ded1c1", backgroundImage: "radial-gradient(ellipse at 70% 30%, rgba(255,255,255,0.6) 0%, rgba(240,228,215,0.4) 30%, transparent 65%), linear-gradient(115deg, #dfd2c2 0%, #ecdcc9 22%, #baa794 45%, #f2e4d3 62%, #caa890 82%, #dfd3c4 100%)" }}
+            >
               <button
                 type="button"
                 onClick={() => setRsvpOpen(false)}
