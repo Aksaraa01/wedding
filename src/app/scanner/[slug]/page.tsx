@@ -526,18 +526,18 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
   if (!pinVerified) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center p-6">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
-            <span className="material-symbols-outlined text-5xl text-primary mb-4">lock</span>
-            <h1 className="font-headline-md text-headline-md text-primary mb-2">Scanner Concierge</h1>
+            <span className="material-symbols-outlined text-5xl text-[#B34E3F] mb-4">lock</span>
+            <h1 className="text-2xl font-semibold text-[#2C2A29] mb-2" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>Scanner Concierge</h1>
             {eventInfo && (
-              <p className="font-body-md text-on-surface-variant">{coupleDisplay}</p>
+              <p className="text-sm text-[#2C2A29]/70">{coupleDisplay}</p>
             )}
-            <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">Masukkan PIN untuk mengakses scanner</p>
+            <p className="text-xs text-[#2C2A29]/60 mt-1">Masukkan PIN untuk mengakses scanner</p>
           </div>
 
-          <div className="bg-surface-container-low rounded p-6">
+          <div className="bg-white border border-[#E2D9CF] rounded-2xl p-6 shadow-sm">
             <input
               type="text"
               inputMode="numeric"
@@ -546,22 +546,22 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
               value={pinInput}
               onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ""))}
               placeholder="000000"
-              className="w-full text-center text-[2rem] tracking-[0.3em] font-mono bg-surface-container-high border-none rounded py-4 outline-none focus:ring-2 focus:ring-primary"
+              className="w-full text-center text-[2rem] tracking-[0.3em] font-mono bg-[#FAF7F2] border border-[#E2D9CF] rounded-xl py-4 outline-none focus:ring-2 focus:ring-[#B34E3F] text-[#2C2A29]"
               autoFocus
             />
             {pinError && (
-              <p className="font-body-sm text-body-sm text-red-500 mt-3 text-center">{pinError}</p>
+              <p className="text-xs text-red-500 mt-3 text-center">{pinError}</p>
             )}
             <button
               onClick={handleVerifyPin}
               disabled={pinInput.length !== 6}
-              className="w-full bg-primary text-on-primary font-label-md uppercase tracking-widest py-4 mt-4 hover:bg-secondary disabled:opacity-40 transition-colors"
+              className="w-full bg-[#B34E3F] text-white text-[11px] uppercase tracking-widest font-bold py-4 mt-4 rounded-xl hover:bg-[#9E3B2D] disabled:opacity-40 transition-colors"
             >
               Verifikasi PIN
             </button>
           </div>
 
-          <p className="font-body-sm text-body-sm text-on-surface-variant text-center mt-6">
+          <p className="text-xs text-[#2C2A29]/60 text-center mt-6">
             PIN dapat diperoleh dari halaman Live Attendance dashboard
           </p>
         </div>
@@ -571,28 +571,28 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
   if (showNameInput) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center p-6">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
-            <span className="material-symbols-outlined text-5xl text-primary mb-4">badge</span>
-            <h1 className="font-headline-md text-headline-md text-primary mb-2">Nama Operator</h1>
-            <p className="font-body-md text-on-surface-variant">Masukkan nama Anda sebagai operator scanner</p>
+            <span className="material-symbols-outlined text-5xl text-[#B34E3F] mb-4">badge</span>
+            <h1 className="text-2xl font-semibold text-[#2C2A29] mb-2" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>Nama Operator</h1>
+            <p className="text-sm text-[#2C2A29]/70">Masukkan nama Anda sebagai operator scanner</p>
           </div>
 
-          <div className="bg-surface-container-low rounded p-6">
+          <div className="bg-white border border-[#E2D9CF] rounded-2xl p-6 shadow-sm">
             <input
               type="text"
               value={operatorName}
               onChange={(e) => setOperatorName(e.target.value)}
               placeholder="Nama operator"
-              className="w-full bg-surface-container-high border-none rounded py-3 px-4 outline-none focus:ring-2 focus:ring-primary font-body-md"
+              className="w-full bg-[#FAF7F2] border border-[#E2D9CF] rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-[#B34E3F] text-sm text-[#2C2A29]"
               autoFocus
               onKeyDown={(e) => e.key === "Enter" && handleSetName()}
             />
             <button
               onClick={handleSetName}
               disabled={!operatorName.trim()}
-              className="w-full bg-primary text-on-primary font-label-md uppercase tracking-widest py-4 mt-4 hover:bg-secondary disabled:opacity-40 transition-colors"
+              className="w-full bg-[#B34E3F] text-white text-[11px] uppercase tracking-widest font-bold py-4 mt-4 rounded-xl hover:bg-[#9E3B2D] disabled:opacity-40 transition-colors"
             >
               Mulai Scanner
             </button>
@@ -605,111 +605,128 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
   return (
     <>
       <style>{`@keyframes laserMove{0%{top:0%;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:100%;opacity:0}}.scanner-laser{animation:laserMove 2s infinite linear}`}</style>
-      <div className={`font-sans min-h-screen antialiased flex flex-col items-center relative ${eventInfo?.cover_photo ? "text-white" : "text-on-surface bg-background"}`}>
-        {eventInfo?.cover_photo && (
+      <div className="font-sans min-h-screen antialiased flex flex-col items-center relative bg-[#FAF7F2] text-[#2C2A29]">
+        {eventInfo?.cover_photo ? (
           <>
-            <img src={eventInfo.cover_photo} alt="" className="fixed inset-0 w-full h-full object-cover -z-10" />
-            <div className="fixed inset-0 bg-black/55 backdrop-blur-[2px] -z-10" />
+            <img src={eventInfo.cover_photo} alt="" className="fixed right-[-70px] top-1/4 w-72 h-72 rounded-full object-cover opacity-10 -z-0 pointer-events-none" />
+            <div className="fixed inset-0 bg-[#FAF7F2]/70 -z-10 pointer-events-none" />
           </>
+        ) : (
+          <div className="fixed inset-0 bg-[#FAF7F2] -z-10 pointer-events-none" />
         )}
-      <header className={`w-full backdrop-blur-md border-b sticky top-0 z-40 px-4 py-3 flex items-center justify-between ${eventInfo?.cover_photo ? "bg-black/30 border-white/10 text-white" : "bg-surface-container/80 border-outline-variant/30 text-on-surface"}`}>
+      <header className="w-full bg-[#FAF7F2]/80 backdrop-blur-md border-b border-[#E2D9CF] sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className={`material-symbols-outlined text-xl ${eventInfo?.cover_photo ? "text-white" : "text-secondary"}`}>qr_code_scanner</span>
+          <span className="material-symbols-outlined text-xl text-[#B34E3F]">qr_code_scanner</span>
           <div>
-            <h1 className={`font-serif text-base font-semibold tracking-wide ${eventInfo?.cover_photo ? "text-white" : "text-primary"}`}>Aksaraa Concierge</h1>
-            <p className={`text-[9px] uppercase tracking-widest font-medium ${eventInfo?.cover_photo ? "text-white/70" : "text-on-surface-variant/70"}`}>
-              Gate 1 &bull; {coupleDisplay}
+            <h1 className="text-base font-semibold tracking-wide text-[#2C2A29]">Aksaraa Concierge</h1>
+            <p className="text-[9px] uppercase tracking-widest font-medium text-[#2C2A29]/60">
+              Gate 1
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <span className={`w-2 h-2 rounded-full ${offline ? "bg-red-500" : pendingSync > 0 ? "bg-yellow-500" : "bg-green-500"}`} />
-          <button onClick={() => window.location.reload()} className={`p-2 hover:bg-white/10 rounded-full transition-colors ${eventInfo?.cover_photo ? "text-white/80" : "text-on-surface-variant"}`}>
+          <button onClick={() => window.location.reload()} className="p-2 hover:bg-black/5 rounded-full transition-colors text-[#2C2A29]/70">
             <span className="material-symbols-outlined text-lg">sync</span>
           </button>
         </div>
       </header>
 
-      <main className="w-full max-w-md px-4 pt-6 pb-24 flex-grow space-y-6">
-        <section className="border border-outline-variant/60 rounded-xl p-4 bg-surface-container-high/30 relative overflow-hidden">
-          <div className="absolute right-0 bottom-0 w-24 h-24 border-r border-b border-secondary/10 pointer-events-none rounded-br-xl"></div>
-          <div className="flex justify-between items-center">
-            <div className="space-y-0.5">
-              <span className="text-[10px] uppercase tracking-wider text-on-surface-variant/70 font-semibold">Kehadiran Tamu</span>
-              <div className="flex items-baseline gap-1">
-                <span className="font-serif text-3xl font-bold text-secondary">{presentGuestRows}</span>
-                <span className="text-sm text-on-surface-variant/60">/ {totalGuestRows} Tamu</span>
-              </div>
-              <p className="text-[10px] text-on-surface-variant/60">{presentCount} / {totalGuests} pax</p>
-            </div>
-            <div className="text-right">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-secondary/10 text-secondary border border-secondary/20 rounded-full text-[10px] font-bold uppercase tracking-wider">
-                <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span> Live Sync
-              </span>
-            </div>
-          </div>
+      <main className="w-full max-w-md lg:max-w-5xl px-4 pt-5 pb-24 flex-grow">
+        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 items-start">
+        <div className="w-full space-y-5">
+        {/* Couple hero banner */}
+        <section className="relative text-center px-4 pt-5 pb-5 bg-white/70 backdrop-blur-sm border border-[#E2D9CF] rounded-3xl shadow-sm overflow-hidden">
+          {eventInfo?.cover_photo && (
+            <img src={eventInfo.cover_photo} alt="" className="absolute -right-12 -top-12 w-44 h-44 rounded-full object-cover opacity-15 pointer-events-none" />
+          )}
+          <p className="text-[10px] uppercase tracking-[0.35em] text-[#B34E3F] font-bold">The Wedding of</p>
+          <h1 className="text-3xl md:text-4xl font-semibold text-[#2C2A29] mt-1 relative" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>{coupleDisplay || "Aksaraa"}</h1>
+          <p className="text-[11px] text-[#2C2A29]/60 mt-1.5 relative">{presentGuestRows}/{totalGuestRows} Tamu &bull; {presentCount}/{totalGuests} pax</p>
         </section>
 
-        <section className="space-y-3">
-          <div className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden shadow-inner flex flex-col items-center justify-center border-2 border-outline-variant/40">
+        {/* Scanner viewport — frosted card */}
+        <section className="bg-white/85 backdrop-blur-md border border-[#E2D9CF] rounded-3xl p-3 shadow-md space-y-3">
+          <div className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden shadow-inner flex flex-col items-center justify-center border border-[#2C2A29]/10">
             <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_center,#444_1px,transparent_1px)] [background-size:16px_16px]"></div>
             <NativeQrReader onScan={processScan} isPaused={!!scanResult || selfieOpen} />
-            <div className="absolute top-8 left-8 w-8 h-8 border-t-2 border-l-2 border-surface-container-high rounded-tl-md"></div>
-            <div className="absolute top-8 right-8 w-8 h-8 border-t-2 border-r-2 border-surface-container-high rounded-tr-md"></div>
-            <div className="absolute bottom-8 left-8 w-8 h-8 border-b-2 border-l-2 border-surface-container-high rounded-bl-md"></div>
-            <div className="absolute bottom-8 right-8 w-8 h-8 border-b-2 border-r-2 border-surface-container-high rounded-br-md"></div>
-            <div className="scanner-laser absolute left-6 right-6 h-0.5 bg-secondary shadow-[0_0_8px_#8d4d39] z-10"></div>
+            <div className="absolute top-6 left-6 w-10 h-10 border-t-[3px] border-l-[3px] border-[#B34E3F] rounded-tl-lg"></div>
+            <div className="absolute top-6 right-6 w-10 h-10 border-t-[3px] border-r-[3px] border-[#B34E3F] rounded-tr-lg"></div>
+            <div className="absolute bottom-6 left-6 w-10 h-10 border-b-[3px] border-l-[3px] border-[#B34E3F] rounded-bl-lg"></div>
+            <div className="absolute bottom-6 right-6 w-10 h-10 border-b-[3px] border-r-[3px] border-[#B34E3F] rounded-br-lg"></div>
+            <div className="scanner-laser absolute left-6 right-6 h-0.5 bg-[#B34E3F] shadow-[0_0_8px_#B34E3F] z-10"></div>
             <div className="text-center z-20 space-y-1.5 px-8 pointer-events-none">
-              <span className="material-symbols-outlined text-3xl text-surface-container-high/80 animate-pulse">photo_camera</span>
-              <p className="text-xs font-medium text-surface-container-high tracking-wide">Posisikan QR Code Tamu di Dalam Kotak</p>
-              <p className="text-[10px] text-surface-container-high/50 italic">Kamera mendeteksi otomatis...</p>
+              <span className="material-symbols-outlined text-3xl text-white/80 animate-pulse">photo_camera</span>
+              <p className="text-xs font-medium text-white tracking-wide">Posisikan QR Code Tamu di Dalam Kotak</p>
+              <p className="text-[10px] text-white/50 italic">Kamera mendeteksi otomatis...</p>
             </div>
           </div>
           <div className="flex gap-2">
-            <button onClick={simulateSuccess} className="flex-1 bg-background/90 hover:bg-surface-container text-primary border border-outline-variant px-3 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold shadow-sm transition-all active:scale-95">
+            <button onClick={simulateSuccess} className="flex-1 bg-white hover:bg-[#FAF7F2] text-[#B34E3F] border border-[#E2D9CF] px-3 py-2 rounded-xl text-[10px] uppercase tracking-wider font-bold shadow-sm transition-all active:scale-95">
               Simulasi Sukses
             </button>
-            <button onClick={() => setScanResult({ type: "error", message: "QR tidak valid / expired" })} className="flex-1 bg-background/90 hover:bg-surface-container text-secondary border border-outline-variant px-3 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold shadow-sm transition-all active:scale-95">
+            <button onClick={() => setScanResult({ type: "error", message: "QR tidak valid / expired" })} className="flex-1 bg-white hover:bg-[#FAF7F2] text-[#2C2A29] border border-[#E2D9CF] px-3 py-2 rounded-xl text-[10px] uppercase tracking-wider font-bold shadow-sm transition-all active:scale-95">
               Simulasi Gagal
             </button>
           </div>
         </section>
 
+        {/* Quick stats card */}
+        <section className="bg-[#FAF7F2] border border-[#E2D9CF] rounded-2xl p-4 relative overflow-hidden">
+          <div className="flex justify-between items-center">
+            <div className="space-y-0.5">
+              <span className="text-[10px] uppercase tracking-wider text-[#2C2A29]/60 font-semibold">Kehadiran Tamu</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl font-bold text-[#B34E3F]" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>{presentGuestRows}</span>
+                <span className="text-sm text-[#2C2A29]/60">/ {totalGuestRows} Tamu</span>
+              </div>
+              <p className="text-[10px] text-[#2C2A29]/60">{presentCount} / {totalGuests} pax</p>
+            </div>
+            <div className="text-right">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white text-[#B34E3F] border border-[#E2D9CF] rounded-full text-[10px] font-bold uppercase tracking-wider">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#B34E3F] animate-pulse"></span> Live Sync
+              </span>
+            </div>
+          </div>
+        </section>
+        </div>
+
+        <div className="w-full space-y-5">
         <section className="space-y-2">
           <div className="flex items-center justify-between px-1">
-            <span className="text-[10px] uppercase tracking-wider text-on-surface-variant/70 font-semibold">Alternatif Cek-in Manual</span>
+            <span className="text-[10px] uppercase tracking-wider text-[#2C2A29]/60 font-semibold">Alternatif Cek-in Manual</span>
             <button
               onClick={() => setShowAddGuest(true)}
-              className="text-[10px] font-bold uppercase tracking-widest bg-primary text-surface px-3 py-1.5 rounded-lg hover:bg-secondary transition-colors"
+              className="text-[10px] font-bold uppercase tracking-widest bg-[#B34E3F] text-white px-3 py-1.5 rounded-lg hover:bg-[#9E3B2D] transition-colors"
             >
               + Tambah Tamu Manual
             </button>
           </div>
-          <div className="relative border border-outline-variant focus-within:border-secondary rounded-xl bg-surface-container-low px-3 py-2 flex items-center transition-colors group">
-            <span className="material-symbols-outlined text-on-surface-variant mr-2 text-xl">badge</span>
+          <div className="relative border border-[#E2D9CF] focus-within:border-[#B34E3F] rounded-xl bg-white px-3 py-2 flex items-center transition-colors group">
+            <span className="material-symbols-outlined text-[#2C2A29]/50 mr-2 text-xl">badge</span>
             <input
               type="text"
               value={manualQuery}
               onChange={(e) => handleManualSearch(e.target.value)}
               placeholder="Masukkan Nama Tamu atau Kode Unik..."
-              className="w-full bg-transparent border-none p-0 focus:ring-0 text-sm text-primary placeholder:italic placeholder:text-[12px] placeholder:text-on-surface-variant/40"
+              className="w-full bg-transparent border-none p-0 focus:ring-0 text-sm text-[#2C2A29] placeholder:italic placeholder:text-[12px] placeholder:text-[#2C2A29]/40"
             />
           </div>
           {manualSearching && (
             <div className="py-2 text-center">
-              <span className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin inline-block" />
+              <span className="w-5 h-5 border-2 border-[#B34E3F] border-t-transparent rounded-full animate-spin inline-block" />
             </div>
           )}
           {manualResults.length > 0 && (
-            <div className="divide-y divide-outline-variant/30 border border-outline-variant/40 rounded-xl bg-surface-container-low/50 overflow-hidden">
+            <div className="divide-y divide-[#E2D9CF]/60 border border-[#E2D9CF] rounded-xl bg-white overflow-hidden">
               {manualResults.map((g) => (
                 <button
                   key={g.id}
                   onClick={() => setSelectedGuest(g)}
-                  className="w-full text-left p-3 hover:bg-surface-container transition-colors"
+                  className="w-full text-left p-3 hover:bg-[#FAF7F2] transition-colors"
                 >
-                  <h4 className="font-medium text-primary text-xs">{g.name}</h4>
-                  <p className="text-[10px] text-on-surface-variant/60 font-mono">
+                  <h4 className="font-medium text-[#2C2A29] text-xs">{g.name}</h4>
+                  <p className="text-[10px] text-[#2C2A29]/60 font-mono">
                     {formatTableNumber(g.table_number)} &bull; {paxCount(g)} Pax
                   </p>
                 </button>
@@ -720,24 +737,24 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
         <section className="space-y-3">
           <div className="flex items-center justify-between px-1">
-            <span className="text-[10px] uppercase tracking-wider text-on-surface-variant/70 font-semibold">Log Riwayat Masuk</span>
-            <span className="text-[9px] text-on-surface-variant/50 font-mono">Diperbarui Baru Saja</span>
+            <span className="text-[10px] uppercase tracking-wider text-[#2C2A29]/60 font-semibold">Log Riwayat Masuk</span>
+            <span className="text-[9px] text-[#2C2A29]/50 font-mono">Diperbarui Baru Saja</span>
           </div>
-          <div id="logContainer" className="divide-y divide-outline-variant/30 border border-outline-variant rounded-xl bg-surface shadow-sm overflow-hidden">
+          <div id="logContainer" className="divide-y divide-[#E2D9CF]/60 border border-[#E2D9CF] rounded-xl bg-white shadow-sm overflow-hidden">
             {logEntries.length === 0 ? (
               <div className="p-6 text-center">
-                <p className="text-[10px] text-on-surface-variant/60">Belum ada check-in</p>
+                <p className="text-[10px] text-[#2C2A29]/60">Belum ada check-in</p>
               </div>
             ) : (
               logEntries.map((g) => (
-                <div key={g.id} className="p-3 flex items-center justify-between text-xs transition-all hover:bg-surface-container">
+                <div key={g.id} className={`p-3 flex items-center justify-between text-xs transition-all hover:bg-[#FAF7F2] ${g.is_checked_in ? "bg-[#ECFDF5]/50" : ""}`}>
                   <div className="space-y-0.5">
-                    <h4 className="font-medium text-primary">
+                    <h4 className="font-medium text-[#2C2A29]">
                       {g.name}
                       {g.added_manually && <span className="text-[10px] text-amber-600 font-bold font-serif pl-1">[Ditambahkan Manual]</span>}
-                      {g.category && <span className="text-[10px] text-secondary font-bold font-serif pl-1">{g.category}</span>}
+                      {g.category && <span className="text-[10px] text-[#B34E3F] font-bold font-serif pl-1">{g.category}</span>}
                     </h4>
-                    <p className="text-[10px] text-on-surface-variant font-mono">
+                    <p className="text-[10px] text-[#2C2A29]/60 font-mono">
                       {formatTableNumber(g.table_number)}{g.table_number ? " • " : ""}{paxCount(g)} Pax • {formatTanggalWIB(g.checkin_timestamp)}
                     </p>
                   </div>
@@ -746,7 +763,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                       <button
                         onClick={(e) => { e.stopPropagation(); openSelfieRecovery(g) }}
                         title="Ambil foto check-in"
-                        className="text-primary hover:text-secondary mr-1"
+                        className="text-[#B34E3F] hover:text-[#9E3B2D] mr-1"
                       >
                         <span className="material-symbols-outlined text-sm">photo_camera</span>
                       </button>
@@ -754,7 +771,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                     {!g.souvenir_claimed && (
                       <button
                         onClick={(e) => { e.stopPropagation(); handleClaimSouvenir(g.id) }}
-                        className="text-[9px] text-primary hover:underline mr-1"
+                        className="text-[9px] text-[#B34E3F] hover:underline mr-1"
                       >
                         Souvenir
                       </button>
@@ -762,66 +779,70 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                     {g.souvenir_claimed && (
                       <span className="material-symbols-outlined text-sm text-yellow-600">card_giftcard</span>
                     )}
-                    <span className="material-symbols-outlined text-[#2e7d32] text-lg bg-[#2e7d32]/10 p-1 rounded-full">check</span>
+                    <span className="inline-flex items-center gap-1 bg-[#ECFDF5] text-[#059669] border border-[#059669]/20 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider">
+                      <span className="material-symbols-outlined text-[12px]">check</span> Masuk
+                    </span>
                   </div>
                 </div>
               ))
             )}
           </div>
         </section>
+        </div>
+        </div>
       </main>
 
       {scanResult && (
-        <div id="statusModal" className="fixed inset-0 z-50 bg-primary/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
-          <div className="bg-background border border-outline-variant w-full max-w-[min(92vw,26rem)] rounded-2xl p-6 shadow-2xl text-center space-y-5 relative max-h-[90dvh] overflow-y-auto flex flex-col justify-center">
+        <div id="statusModal" className="fixed inset-0 z-50 bg-[#2C2A29]/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
+          <div className="bg-white border border-[#E2D9CF] w-full max-w-[min(92vw,26rem)] rounded-2xl p-6 shadow-2xl text-center space-y-5 relative max-h-[90dvh] overflow-y-auto flex flex-col justify-center">
             <div className={`absolute inset-x-0 top-0 h-1.5 rounded-t-2xl ${
-              scanResult.type === "success" ? "bg-[#2e7d32]" : "bg-secondary"
+              scanResult.type === "success" ? "bg-[#059669]" : "bg-[#B34E3F]"
             }`} id="modalStatusBar"></div>
             <div className="space-y-2 pt-2">
               <div className={`w-14 h-14 rounded-full mx-auto flex items-center justify-center ${
-                scanResult.type === "success" ? "bg-[#2e7d32]/10 text-[#2e7d32]" : "bg-secondary/10 text-secondary"
+                scanResult.type === "success" ? "bg-[#ECFDF5] text-[#059669]" : "bg-[#B34E3F]/10 text-[#B34E3F]"
               }`}>
                 <span className="material-symbols-outlined text-2xl">
                   {scanResult.type === "success" ? "check" : "warning"}
                 </span>
               </div>
-              <h3 className={`font-serif text-xl font-bold ${
-                scanResult.type === "success" ? "text-primary" : "text-secondary"
-              }`}>
+              <h3 className={`text-xl font-bold ${
+                scanResult.type === "success" ? "text-[#2C2A29]" : "text-[#B34E3F]"
+              }`} style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
                 {scanResult.type === "success" ? "Check-In Berhasil" :
                  scanResult.type === "already" ? "Sudah Check-In" : "QR Tidak Valid / Expired"}
               </h3>
-              <p className="text-xs text-on-surface-variant/70 tracking-wide font-mono uppercase">
+              <p className="text-xs text-[#2C2A29]/60 tracking-wide font-mono uppercase">
                 {scanResult.guest?.qr_token ? `AKSR-${scanResult.guest.qr_token.slice(-6)}` : "KODE TIDAK DIKENALI"}
               </p>
             </div>
-            <hr className="border-outline-variant/40" />
+            <hr className="border-[#E2D9CF]/60" />
             {scanResult.guest && (
-              <div className="grid grid-cols-2 gap-4 text-left text-xs bg-surface-container/50 p-4 rounded-xl border border-outline-variant/30">
+              <div className="grid grid-cols-2 gap-4 text-left text-xs bg-[#FAF7F2] p-4 rounded-xl border border-[#E2D9CF]/60">
                 <div>
-                  <span className="text-[9px] text-on-surface-variant/60 uppercase tracking-wider block">Nama Tamu</span>
-                  <strong className="text-primary font-medium text-sm">{scanResult.guest.name}</strong>
+                  <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block">Nama Tamu</span>
+                  <strong className="text-[#2C2A29] font-medium text-sm">{scanResult.guest.name}</strong>
                 </div>
                 <div>
-                  <span className="text-[9px] text-on-surface-variant/60 uppercase tracking-wider block">Status Kuota</span>
-                  <strong className="text-primary font-medium text-sm">{paxCount(scanResult.guest)} Pax Terdaftar</strong>
+                  <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block">Status Kuota</span>
+                  <strong className="text-[#2C2A29] font-medium text-sm">{paxCount(scanResult.guest)} Pax Terdaftar</strong>
                 </div>
                 <div className="pt-2">
-                  <span className="text-[9px] text-on-surface-variant/60 uppercase tracking-wider block">Alokasi Meja</span>
-                  <strong className="text-secondary font-serif text-sm font-bold">
+                  <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block">Alokasi Meja</span>
+                  <strong className="text-[#B34E3F] text-sm font-bold">
                     {formatTableNumber(scanResult.guest.table_number) || "-"}
                   </strong>
                 </div>
                 <div className="pt-2">
-                  <span className="text-[9px] text-on-surface-variant/60 uppercase tracking-wider block">Kategori</span>
-                  <strong className="text-primary font-medium text-sm">{scanResult.guest.category || "Reguler"}</strong>
+                  <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block">Kategori</span>
+                  <strong className="text-[#2C2A29] font-medium text-sm">{scanResult.guest.category || "Reguler"}</strong>
                 </div>
               </div>
             )}
             {scanResult.type === "success" && scanResult.guest && !scanResult.guest.souvenir_claimed && (
               <button
                 onClick={() => handleClaimSouvenir(scanResult.guest!.id)}
-                className="w-full bg-surface-container-high text-primary py-3 rounded-xl font-sans text-[11px] uppercase tracking-widest font-bold transition-all hover:bg-surface-container-hover flex items-center justify-center gap-2"
+                className="w-full bg-[#FAF7F2] text-[#B34E3F] border border-[#E2D9CF] py-3 rounded-xl text-[11px] uppercase tracking-widest font-bold transition-all hover:bg-white flex items-center justify-center gap-2"
               >
                 <span className="material-symbols-outlined text-lg">card_giftcard</span>
                 Ambil Souvenir
@@ -830,7 +851,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
             {scanResult.type !== "error" && scanResult.guest && scanResult.guest.is_checked_in && !selfieGuestIds.has(scanResult.guest.id) && (
               <button
                 onClick={() => openSelfieRecovery(scanResult.guest!)}
-                className="w-full bg-surface-container-high text-primary py-3 rounded-xl font-sans text-[11px] uppercase tracking-widest font-bold transition-all hover:bg-surface-container-hover flex items-center justify-center gap-2"
+                className="w-full bg-[#FAF7F2] text-[#B34E3F] border border-[#E2D9CF] py-3 rounded-xl text-[11px] uppercase tracking-widest font-bold transition-all hover:bg-white flex items-center justify-center gap-2"
               >
                 <span className="material-symbols-outlined text-lg">photo_camera</span>
                 Ambil Foto Check-in
@@ -838,7 +859,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
             )}
             <button
               onClick={() => setScanResult(null)}
-              className="w-full bg-primary hover:bg-secondary text-surface py-3.5 rounded-xl font-sans text-[11px] uppercase tracking-widest font-bold transition-all"
+              className="w-full bg-[#B34E3F] hover:bg-[#9E3B2D] text-white py-3.5 rounded-xl text-[11px] uppercase tracking-widest font-bold transition-all"
             >
               Lanjutkan Scan Berikutnya
             </button>
@@ -858,58 +879,58 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
       />
 
       {selfieDoneToast && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-inverse-surface/95 backdrop-blur-sm text-inverse-on-surface px-6 py-3.5 rounded-xl shadow-xl border border-outline-variant/20 flex items-center gap-3 max-w-sm">
-          <span className="material-symbols-outlined text-secondary-container text-xl">check_circle</span>
-          <span className="font-label-md text-[11px] uppercase tracking-wider font-semibold">{selfieDoneToast}</span>
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-[#2C2A29]/95 backdrop-blur-sm text-white px-6 py-3.5 rounded-xl shadow-xl border border-[#E2D9CF]/20 flex items-center gap-3 max-w-sm">
+          <span className="material-symbols-outlined text-[#E2D9CF] text-xl">check_circle</span>
+          <span className="text-[11px] uppercase tracking-wider font-semibold">{selfieDoneToast}</span>
         </div>
       )}
 
       {/* Guest Detail Modal */}
       {selectedGuest && (
-        <div className="fixed inset-0 z-50 bg-primary/40 backdrop-blur-sm flex items-center justify-center p-6">
-          <div className="bg-background border border-outline-variant w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-[#2C2A29]/40 backdrop-blur-sm flex items-center justify-center p-6">
+          <div className="bg-white border border-[#E2D9CF] w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden">
             {/* Editorial header */}
-            <div className="p-6 border-b border-l-2 border-secondary/30 ml-6 mt-6 mb-4">
-              <span className="font-label-md text-[11px] text-secondary uppercase tracking-[0.25em] block mb-2 font-semibold">Detail Tamu</span>
-              <h2 className="font-headline-lg text-3xl text-primary font-medium tracking-tight">{selectedGuest.name}</h2>
+            <div className="p-6 border-b border-l-2 border-[#B34E3F]/30 ml-6 mt-6 mb-4">
+              <span className="text-[11px] text-[#B34E3F] uppercase tracking-[0.25em] block mb-2 font-semibold">Detail Tamu</span>
+              <h2 className="text-3xl text-[#2C2A29] font-medium tracking-tight" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>{selectedGuest.name}</h2>
             </div>
 
             {/* Detail grid */}
             <div className="px-6 pb-2 space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-left text-xs bg-surface-container-lowest/50 border border-outline-variant/60 rounded-xl p-5">
+              <div className="grid grid-cols-2 gap-4 text-left text-xs bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5">
                 <div className="col-span-2">
-                  <span className="text-[9px] text-on-surface-variant/60 uppercase tracking-wider block font-semibold">Nama Tamu</span>
-                  <strong className="text-primary font-medium text-sm">{selectedGuest.name}</strong>
+                  <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block font-semibold">Nama Tamu</span>
+                  <strong className="text-[#2C2A29] font-medium text-sm">{selectedGuest.name}</strong>
                 </div>
                 <div>
-                  <span className="text-[9px] text-on-surface-variant/60 uppercase tracking-wider block font-semibold">Alokasi Meja</span>
-                  <strong className="text-secondary font-serif text-sm font-bold">
+                  <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block font-semibold">Alokasi Meja</span>
+                  <strong className="text-[#B34E3F] text-sm font-bold">
                     {formatTableNumber(selectedGuest.table_number) || "-"}
                   </strong>
                 </div>
                 <div>
-                  <span className="text-[9px] text-on-surface-variant/60 uppercase tracking-wider block font-semibold">Jumlah Pax</span>
-                  <strong className="text-primary font-medium text-sm">{paxCount(selectedGuest)} Pax</strong>
+                  <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block font-semibold">Jumlah Pax</span>
+                  <strong className="text-[#2C2A29] font-medium text-sm">{paxCount(selectedGuest)} Pax</strong>
                 </div>
                 <div>
-                  <span className="text-[9px] text-on-surface-variant/60 uppercase tracking-wider block font-semibold">Kategori</span>
-                  <strong className="text-primary font-medium text-sm">{selectedGuest.category || "Reguler"}</strong>
+                  <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block font-semibold">Kategori</span>
+                  <strong className="text-[#2C2A29] font-medium text-sm">{selectedGuest.category || "Reguler"}</strong>
                 </div>
                 <div>
-                  <span className="text-[9px] text-on-surface-variant/60 uppercase tracking-wider block font-semibold">Status</span>
-                  <strong className={`font-medium text-sm ${selectedGuest.is_checked_in ? "text-[#2e7d32]" : "text-secondary"}`}>
+                  <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block font-semibold">Status</span>
+                  <strong className={`font-medium text-sm ${selectedGuest.is_checked_in ? "text-[#059669]" : "text-[#B34E3F]"}`}>
                     {selectedGuest.is_checked_in ? "Sudah Check-in" : "Belum Check-in"}
                   </strong>
                 </div>
                 <div className="pt-2">
-                  <span className="text-[9px] text-on-surface-variant/60 uppercase tracking-wider block font-semibold">Sumber</span>
-                  <strong className={`font-medium text-sm ${selectedGuest.added_manually ? "text-amber-600" : "text-primary"}`}>
+                  <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block font-semibold">Sumber</span>
+                  <strong className={`font-medium text-sm ${selectedGuest.added_manually ? "text-amber-600" : "text-[#2C2A29]"}`}>
                     {selectedGuest.added_manually ? "Ditambahkan Manual" : "Undangan QR"}
                   </strong>
                 </div>
                 <div className="pt-2">
-                  <span className="text-[9px] text-on-surface-variant/60 uppercase tracking-wider block font-semibold">QR Token</span>
-                  <strong className="text-primary font-mono text-[10px]">{selectedGuest.qr_token ? `AKSR-${selectedGuest.qr_token.slice(-6)}` : "-"}</strong>
+                  <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block font-semibold">QR Token</span>
+                  <strong className="text-[#2C2A29] font-mono text-[10px]">{selectedGuest.qr_token ? `AKSR-${selectedGuest.qr_token.slice(-6)}` : "-"}</strong>
                 </div>
               </div>
             </div>
@@ -918,7 +939,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
               {!selectedGuest.is_checked_in && (
                 <button
                   onClick={handleGuestDetailCheckin}
-                  className="w-full bg-primary hover:bg-secondary text-on-primary py-4 rounded-xl font-label-md text-[11px] uppercase tracking-widest font-bold transition-all flex items-center justify-center gap-2"
+                  className="w-full bg-[#B34E3F] hover:bg-[#9E3B2D] text-white py-4 rounded-xl text-[11px] uppercase tracking-widest font-bold transition-all flex items-center justify-center gap-2"
                 >
                   <span className="material-symbols-outlined text-lg">check</span>
                   Check-in Sekarang
@@ -926,7 +947,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
               )}
               <button
                 onClick={() => setSelectedGuest(null)}
-                className="w-full bg-surface-container-high hover:bg-surface-container-highest text-primary py-4 rounded-xl font-label-md text-[11px] uppercase tracking-widest font-bold transition-all"
+                className="w-full bg-[#FAF7F2] hover:bg-white border border-[#E2D9CF] text-[#2C2A29] py-4 rounded-xl text-[11px] uppercase tracking-widest font-bold transition-all"
               >
                 Tutup
               </button>
@@ -937,33 +958,33 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
       {/* Tambah Tamu Manual Modal */}
       {showAddGuest && (
-        <div className="fixed inset-0 z-50 bg-primary/40 backdrop-blur-sm flex items-center justify-center p-0">
-          <div className="bg-background w-full h-full md:max-w-md md:h-auto md:max-h-[90vh] md:rounded-2xl border border-outline-variant shadow-2xl flex flex-col overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-[#2C2A29]/40 backdrop-blur-sm flex items-center justify-center p-0">
+          <div className="bg-white w-full h-full md:max-w-md md:h-auto md:max-h-[90vh] md:rounded-2xl border border-[#E2D9CF] shadow-2xl flex flex-col overflow-hidden">
             {/* Header */}
-            <header className="flex items-center justify-between px-6 py-5 border-b border-outline-variant/40 shrink-0">
+            <header className="flex items-center justify-between px-6 py-5 border-b border-[#E2D9CF]/60 shrink-0">
               <button
                 onClick={() => { setShowAddGuest(false); setAddGuestError("") }}
-                className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-label-md text-[11px] uppercase tracking-wider font-semibold"
+                className="inline-flex items-center gap-2 text-[#2C2A29]/70 hover:text-[#B34E3F] transition-colors text-[11px] uppercase tracking-wider font-semibold"
               >
                 <span className="material-symbols-outlined text-base">arrow_back</span>
                 Kembali
               </button>
-              <div className="w-2 h-2 rounded-full bg-secondary/40 animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-[#B34E3F]/40 animate-pulse" />
             </header>
 
             {/* Scrollable form */}
             <div className="flex-1 overflow-y-auto px-6 py-8 space-y-8">
-              <div className="border-l-2 border-secondary/30 pl-6 py-1">
-                <span className="font-label-md text-[11px] text-secondary uppercase tracking-[0.25em] block mb-2 font-semibold">Manajemen Undangan</span>
-                <h2 className="font-headline-lg text-3xl text-primary font-medium tracking-tight">Detail Kehadiran Tamu</h2>
-                <p className="font-body-md text-sm text-on-surface-variant mt-3 max-w-md leading-relaxed">
+              <div className="border-l-2 border-[#B34E3F]/30 pl-6 py-1">
+                <span className="text-[11px] text-[#B34E3F] uppercase tracking-[0.25em] block mb-2 font-semibold">Manajemen Undangan</span>
+                <h2 className="text-3xl text-[#2C2A29] font-medium tracking-tight" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>Detail Kehadiran Tamu</h2>
+                <p className="text-sm text-[#2C2A29]/70 mt-3 max-w-md leading-relaxed">
                   Silakan masukkan informasi tamu secara manual untuk dicatat ke dalam daftar undangan resmi Aksaraa.
                 </p>
               </div>
 
               {/* Nama Lengkap */}
-              <div className="group bg-surface-container-lowest/50 border border-outline-variant/60 rounded-xl p-5 hover:border-outline-variant hover:bg-surface-container-lowest transition-all duration-300 focus-within:ring-1 focus-within:ring-secondary focus-within:border-secondary shadow-sm">
-                <label className="font-label-md text-[10px] text-on-surface-variant uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
+              <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
+                <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
                   Nama Lengkap Tamu
                 </label>
                 <input
@@ -971,38 +992,38 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                   value={addGuestForm.name}
                   onChange={(e) => setAddGuestForm((p) => ({ ...p, name: e.target.value }))}
                   placeholder="Contoh: Bpk. Heru Wijaya"
-                  className="w-full bg-transparent border-0 p-0 font-body-lg text-base text-primary placeholder:text-outline-variant/60 focus:ring-0"
+                  className="w-full bg-transparent border-0 p-0 text-base text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
                 />
               </div>
 
               {/* Nomor WhatsApp */}
-              <div className="group bg-surface-container-lowest/50 border border-outline-variant/60 rounded-xl p-5 hover:border-outline-variant hover:bg-surface-container-lowest transition-all duration-300 focus-within:ring-1 focus-within:ring-secondary focus-within:border-secondary shadow-sm">
-                <label className="font-label-md text-[10px] text-on-surface-variant uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
+              <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
+                <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
                   Nomor WhatsApp
                 </label>
                 <div className="relative flex items-center">
-                  <span className="font-body-lg text-base text-on-surface-variant/70 pr-2 select-none font-medium border-r border-outline-variant/40 mr-2">+62</span>
+                  <span className="text-base text-[#2C2A29]/70 pr-2 select-none font-medium border-r border-[#E2D9CF] mr-2">+62</span>
                   <input
                     type="tel"
                     value={addGuestForm.phone}
                     onChange={(e) => setAddGuestForm((p) => ({ ...p, phone: e.target.value.replace(/\D/g, "") }))}
                     placeholder="812 3456 7890"
-                    className="w-full bg-transparent border-0 p-0 font-body-lg text-base text-primary placeholder:text-outline-variant/60 focus:ring-0"
+                    className="w-full bg-transparent border-0 p-0 text-base text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
                   />
                 </div>
               </div>
 
               {/* Kategori + Meja + Pax */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="group bg-surface-container-lowest/50 border border-outline-variant/60 rounded-xl p-5 hover:border-outline-variant hover:bg-surface-container-lowest transition-all duration-300 focus-within:ring-1 focus-within:ring-secondary focus-within:border-secondary shadow-sm">
-                  <label className="font-label-md text-[10px] text-on-surface-variant uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
+                <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
+                  <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
                     Kategori Undangan
                   </label>
                   <div className="relative flex items-center">
                     <select
                       value={addGuestForm.category}
                       onChange={(e) => setAddGuestForm((p) => ({ ...p, category: e.target.value }))}
-                      className="w-full bg-transparent border-0 p-0 font-body-lg text-base text-primary appearance-none cursor-pointer focus:ring-0 pr-8"
+                      className="w-full bg-transparent border-0 p-0 text-base text-[#2C2A29] appearance-none cursor-pointer focus:ring-0 pr-8"
                     >
                       <option value="">Pilih Kategori</option>
                       <option value="Keluarga Besar">Keluarga Besar</option>
@@ -1011,11 +1032,11 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                       <option value="Rekan Kerja">Rekan Kerja</option>
                       <option value="Lainnya">Lainnya</option>
                     </select>
-                    <span className="material-symbols-outlined absolute right-0 pointer-events-none text-on-surface-variant/70 text-lg">expand_more</span>
+                    <span className="material-symbols-outlined absolute right-0 pointer-events-none text-[#2C2A29]/60 text-lg">expand_more</span>
                   </div>
                 </div>
-                <div className="group bg-surface-container-lowest/50 border border-outline-variant/60 rounded-xl p-5 hover:border-outline-variant hover:bg-surface-container-lowest transition-all duration-300 focus-within:ring-1 focus-within:ring-secondary focus-within:border-secondary shadow-sm">
-                  <label className="font-label-md text-[10px] text-on-surface-variant uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
+                <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
+                  <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
                     Jumlah Pax
                   </label>
                   <input
@@ -1027,11 +1048,11 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                       setAddGuestForm((p) => ({ ...p, guest_count: val ? Math.max(1, Number(val)) : 1 }))
                     }}
                     placeholder="1"
-                    className="w-full bg-transparent border-0 p-0 font-body-lg text-base text-primary placeholder:text-outline-variant/60 focus:ring-0"
+                    className="w-full bg-transparent border-0 p-0 text-base text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
                   />
                 </div>
-                <div className="group bg-surface-container-lowest/50 border border-outline-variant/60 rounded-xl p-5 hover:border-outline-variant hover:bg-surface-container-lowest transition-all duration-300 focus-within:ring-1 focus-within:ring-secondary focus-within:border-secondary shadow-sm">
-                  <label className="font-label-md text-[10px] text-on-surface-variant uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
+                <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
+                  <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
                     Nomor Meja
                   </label>
                   <input
@@ -1039,14 +1060,14 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                     value={addGuestForm.table_number}
                     onChange={(e) => setAddGuestForm((p) => ({ ...p, table_number: e.target.value }))}
                     placeholder="Contoh: Meja 12 atau VIP 1"
-                    className="w-full bg-transparent border-0 p-0 font-body-lg text-base text-primary placeholder:text-outline-variant/60 focus:ring-0"
+                    className="w-full bg-transparent border-0 p-0 text-base text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
                   />
                 </div>
               </div>
 
               {/* Keterangan Tambahan */}
-              <div className="group bg-surface-container-lowest/50 border border-outline-variant/60 rounded-xl p-5 hover:border-outline-variant hover:bg-surface-container-lowest transition-all duration-300 focus-within:ring-1 focus-within:ring-secondary focus-within:border-secondary shadow-sm">
-                <label className="font-label-md text-[10px] text-on-surface-variant uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
+              <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
+                <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
                   Keterangan Tambahan
                 </label>
                 <textarea
@@ -1054,22 +1075,22 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                   onChange={(e) => setAddGuestForm((p) => ({ ...p, notes: e.target.value }))}
                   rows={3}
                   placeholder="Contoh: Alergi kacang, membutuhkan akses kursi roda, dsb..."
-                  className="w-full bg-transparent border-0 p-0 font-body-md text-sm text-primary placeholder:text-outline-variant/60 resize-none focus:ring-0"
+                  className="w-full bg-transparent border-0 p-0 text-sm text-[#2C2A29] placeholder:text-[#2C2A29]/30 resize-none focus:ring-0"
                 />
               </div>
             </div>
 
             {/* Bottom action */}
-            <div className="shrink-0 bg-surface/80 backdrop-blur-md px-6 py-6 border-t border-outline-variant/30">
+            <div className="shrink-0 bg-white/80 backdrop-blur-md px-6 py-6 border-t border-[#E2D9CF]/40">
               {addGuestError && (
-                <p className="text-error text-xs text-center mb-3 font-medium">{addGuestError}</p>
+                <p className="text-red-500 text-xs text-center mb-3 font-medium">{addGuestError}</p>
               )}
               <button
                 onClick={handleAddGuest}
                 disabled={addGuestSubmitting}
-                className="w-full bg-primary hover:bg-secondary text-on-primary py-4 px-8 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 active:scale-[0.99] shadow-md shadow-primary/10 hover:shadow-secondary/20 disabled:opacity-50"
+                className="w-full bg-[#B34E3F] hover:bg-[#9E3B2D] text-white py-4 px-8 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 active:scale-[0.99] shadow-md disabled:opacity-50"
               >
-                <span className="font-label-md text-[11px] uppercase tracking-widest font-bold">
+                <span className="text-[11px] uppercase tracking-widest font-bold">
                   {addGuestSubmitting ? "Menyimpan..." : "Simpan & Konfirmasi Kehadiran"}
                 </span>
                 <span className="material-symbols-outlined text-lg transition-transform duration-300 group-hover:translate-x-1">arrow_forward</span>
@@ -1081,9 +1102,9 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
       {/* Success Toast */}
       {addGuestSuccess && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-inverse-surface/95 backdrop-blur-sm text-inverse-on-surface px-6 py-3.5 rounded-xl shadow-xl border border-outline-variant/20 flex items-center gap-3 max-w-sm">
-          <span className="material-symbols-outlined text-secondary-container text-xl">check_circle</span>
-          <span className="font-label-md text-[11px] uppercase tracking-wider font-semibold">Data Tamu Berhasil Disimpan</span>
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-[#2C2A29]/95 backdrop-blur-sm text-white px-6 py-3.5 rounded-xl shadow-xl border border-[#E2D9CF]/20 flex items-center gap-3 max-w-sm">
+          <span className="material-symbols-outlined text-[#E2D9CF] text-xl">check_circle</span>
+          <span className="text-[11px] uppercase tracking-wider font-semibold">Data Tamu Berhasil Disimpan</span>
         </div>
       )}
     </div>
