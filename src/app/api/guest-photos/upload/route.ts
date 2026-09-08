@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
         .from("guest_photos")
         .select("id", { count: "exact", head: true })
         .eq("guest_id", guest_id)
+        .neq("source", "selfie")
 
       if ((existingCount || 0) >= quota) {
         return NextResponse.json(

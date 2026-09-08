@@ -42,7 +42,7 @@ export default function CameraPage({ params }: { params: Promise<{ token: string
           const photoCheck = await fetch(`/api/guest-photos?guest_id=${data.guest.id}`)
           const photoData = await photoCheck.json()
           const photos = Array.isArray(photoData.photos) ? photoData.photos : []
-          setPhotoCount(photos.length)
+          setPhotoCount(photos.filter((p: { source?: string | null }) => p.source !== "selfie").length)
         }
       } catch {}
       setLoading(false)
