@@ -200,12 +200,12 @@ export default function SelfieModal({
           <span className="material-symbols-outlined text-lg">close</span>
         </button>
         <div className="text-center flex-1 px-3">
-          <h3 className="text-2xl font-semibold text-white tracking-wide" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+          <p className="text-[10px] uppercase tracking-[0.35em] text-white/70 font-bold">
             Foto Check-in
-          </h3>
-          <p className="text-sm text-white/80 truncate mt-0.5">
-            {guestName ? <span className="font-semibold text-white">{guestName}</span> : "Tamu"}
           </p>
+          <h3 className="text-3xl font-semibold text-white tracking-wide truncate mt-1" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+            {guestName || "Tamu"}
+          </h3>
         </div>
         <button
           onClick={() => setFacing((f) => (f === "user" ? "environment" : "user"))}
