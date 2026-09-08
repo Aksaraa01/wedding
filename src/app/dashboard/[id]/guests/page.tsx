@@ -679,15 +679,25 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
         <div className="fixed inset-0 z-[60]">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setModalOpen(false)} />
           <div className="absolute inset-0 flex items-center justify-center p-6">
-            <div className="bg-background w-full max-w-md p-8 shadow-2xl border border-outline-variant">
-              <h2 className="font-headline-md text-headline-md text-primary mb-8">
-                {editingId ? "Edit Tamu" : "Tambah Tamu Baru"}
-              </h2>
+            <div className="bg-[#FAF7F2] w-full max-w-md p-8 shadow-2xl border border-[#E2D9CF] rounded-2xl max-h-[92dvh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="font-headline-md text-headline-md text-[#2C2A29]">
+                  {editingId ? "Edit Tamu" : "Tambah Tamu Baru"}
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setModalOpen(false)}
+                  className="w-9 h-9 flex items-center justify-center rounded-full text-[#78716C] hover:bg-[#E2D9CF]/40 active:scale-95 transition-all shrink-0 -mr-2 -mt-2"
+                  aria-label="Tutup"
+                >
+                  <span className="material-symbols-outlined text-[22px]">close</span>
+                </button>
+              </div>
               <form className="flex flex-col gap-6" onSubmit={(e) => { e.preventDefault(); handleSave() }}>
                 <div className="flex flex-col gap-2">
                   <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Nama</label>
                   <input
-                    className="w-full bg-transparent border-b border-outline-variant py-2 focus:outline-none focus:border-primary transition-colors"
+                    className="w-full bg-white border border-[#E2D9CF] rounded-xl py-3 px-4 focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors placeholder:text-on-surface-variant/50"
                     placeholder="Contoh: Anindya Pramesti"
                     value={form.name}
                     onChange={(e) => setForm((p) => ({ ...p, name: sanitizeGuestName(e.target.value) }))}
@@ -695,10 +705,10 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">No. WhatsApp</label>
-                  <div className="flex border border-outline-variant/30 focus-within:border-primary transition-colors">
-                    <span className="px-4 py-3 bg-surface-container-highest font-body-md border-r border-outline-variant/30">+62</span>
+                  <div className="flex border border-[#E2D9CF] rounded-xl overflow-hidden focus-within:border-[#B34E3F] focus-within:ring-1 focus-within:ring-[#B34E3F] transition-colors bg-white">
+                    <span className="px-4 py-3 bg-[#F5EFE6] font-body-md text-[#2C2A29] border-r border-[#E2D9CF]">+62</span>
                     <input
-                      className="w-full px-4 py-3 bg-transparent font-body-md focus:outline-none"
+                      className="w-full px-4 py-3 bg-white font-body-md focus:outline-none placeholder:text-on-surface-variant/50"
                       placeholder="8123456789"
                       type="tel"
                       value={waDigits}
@@ -709,7 +719,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                 <div className="flex flex-col gap-2">
                   <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Kategori</label>
                   <input
-                    className="w-full bg-transparent border-b border-outline-variant py-2 focus:outline-none focus:border-primary transition-colors"
+                    className="w-full bg-white border border-[#E2D9CF] rounded-xl py-3 px-4 focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors placeholder:text-on-surface-variant/50"
                     placeholder="Contoh: Keluarga, Teman, Kerabat"
                     value={form.category}
                     onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
@@ -718,7 +728,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                 <div className="flex flex-col gap-2">
                   <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Meja</label>
                   <input
-                    className="w-full bg-transparent border-b border-outline-variant py-2 focus:outline-none focus:border-primary transition-colors"
+                    className="w-full bg-white border border-[#E2D9CF] rounded-xl py-3 px-4 focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors placeholder:text-on-surface-variant/50"
                     placeholder="Contoh: MEJA 01"
                     value={form.table_number}
                     onChange={(e) => setForm((p) => ({ ...p, table_number: e.target.value }))}
@@ -730,23 +740,23 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                     <button
                       type="button"
                       onClick={() => setForm((p) => ({ ...p, is_vip: !p.is_vip }))}
-                      className={`flex items-center gap-3 border py-2.5 px-3 min-h-[44px] transition-colors ${
-                        form.is_vip ? "border-[#f2ca50] bg-[#f2ca50]/10" : "border-outline-variant"
+                      className={`flex items-center gap-3 border rounded-xl py-3 px-4 min-h-[44px] transition-colors ${
+                        form.is_vip ? "border-[#FCD34D] bg-[#FEF3C7]" : "border-[#E2D9CF] bg-white"
                       }`}
                     >
                       <span
-                        className={`w-4 h-4 border flex items-center justify-center transition-colors ${
-                          form.is_vip ? "bg-[#f2ca50] border-[#f2ca50]" : "border-outline"
+                        className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
+                          form.is_vip ? "bg-[#FCD34D] border-[#FCD34D]" : "border-[#E2D9CF] bg-white"
                         }`}
                       >
-                        {form.is_vip && <span className="material-symbols-outlined text-[12px] text-[#574500]">check</span>}
+                        {form.is_vip && <span className="material-symbols-outlined text-[14px] text-[#92400E]">check</span>}
                       </span>
-                      <span className="font-body-md text-sm text-on-surface">
+                      <span className="font-body-md text-sm text-[#2C2A29] text-left">
                         Tandai sebagai tamu VIP (dapat reminder WhatsApp otomatis)
                       </span>
                     </button>
                   ) : (
-                    <p className="font-body-md text-[12px] italic text-on-surface-variant/70 leading-relaxed border border-outline-variant/40 bg-surface-container/60 py-3 px-3">
+                    <p className="font-body-md text-[12px] italic text-on-surface-variant/70 leading-relaxed border border-[#E2D9CF] bg-white rounded-xl py-3 px-4">
                       Ubah paket, pengingat tamu VIP
                     </p>
                   )}
@@ -757,14 +767,14 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                   )}
                   <button
                     type="submit"
-                    className="w-full bg-primary text-white py-4 min-h-[44px] font-label-md text-label-md uppercase tracking-widest active:scale-95 transition-transform"
+                    className="w-full bg-[#B34E3F] text-white font-bold py-4 min-h-[44px] font-label-md text-label-md uppercase tracking-widest rounded-xl hover:bg-[#9E3B2D] active:scale-95 transition-all"
                   >
                     Simpan
                   </button>
                   <button
                     type="button"
                     onClick={() => setModalOpen(false)}
-                    className="w-full bg-transparent border border-primary text-primary py-4 min-h-[44px] font-label-md text-label-md uppercase tracking-widest hover:bg-surface-container transition-colors"
+                    className="w-full bg-transparent border border-[#E2D9CF] text-[#2C2A29] py-4 min-h-[44px] font-label-md text-label-md uppercase tracking-widest rounded-xl hover:bg-[#F5EFE6] transition-colors"
                   >
                     Batal
                   </button>

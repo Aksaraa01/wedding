@@ -2238,6 +2238,44 @@ add_action('wp_footer', function () {
     echo '<script>(function(){function g(){try{return decodeURIComponent((new URLSearchParams(location.search).get("to")||"").replace(/\+/g," "))}catch(e){return""}}function fillName(){var to=g();if(!to)return;var sels=["input[name=\"author\"]","#author","input.cui-input[name=\"author\"]","input[name*=\"nama_tamu\"]","input[name*=\"nama tamu\"]","input[id*=\"nama_tamu\"]","input[id*=\"nama\"]","textarea[name*=\"nama_tamu\"]","input[name=\"form_fields[nama_tamu]\"]","input[name=\"form_fields[name]\"]","#form-field-nama_tamu","#form-field-nama","#form-field-author"];for(var i=0;i<sels.length;i++){try{var els=document.querySelectorAll(sels[i]);for(var j=0;j<els.length;j++){var el=els[j];if(el&&!el.value){el.value=to;el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}));}}}catch(e){}}}function ensureFields(e){var form=e&&e.target;if(!form||!form.matches||!form.matches("form[id^=\"commentform\"]"))return;var to=g();var a=form.querySelector("input[name=\"author\"]");if(a&&!a.value.trim()&&to){a.value=to;}if(!form.querySelector("input[name=\"email\"]")){var h=document.createElement("input");h.type="hidden";h.name="email";h.value="anonymous@wordpress.com";h.setAttribute("autocomplete","off");form.appendChild(h);}}fillName();document.addEventListener("DOMContentLoaded",fillName);document.addEventListener("submit",ensureFields,true);var obs=new MutationObserver(function(){fillName();});try{obs.observe(document.body,{childList:true,subtree:true});}catch(e){}if(window.jQuery){jQuery(document).on("elementor/popup/show",function(){setTimeout(fillName,200);});}document.addEventListener("click",function(e){var t=e.target;if(t&&t.closest&&t.closest(".elementor-button,.cui-link,.cui-button")){setTimeout(fillName,120);}},true);})();</script>';
 });
 
+// WeddingPress comment kit (ck2) rejects author names longer than 30 chars in its
+// own client validation (/^[^?%$=\/]{1,30}$/), so titled guests (e.g. Prof./Dr.
+// chains) can never submit through it. When the kit shows its name error AND the
+// message is valid AND the failure is length-only, submit the same fields
+// directly to wp-comments-post.php (server accepts + auto-approves via
+// pre_comment_approved), then reload so the comment appears. Normal flow untouched.
+add_action('wp_footer', function () {
+    if (!is_singular()) return;
+    echo '<script>(function(){'
+        . 'function isKit(){return !!document.querySelector(".cui-container-form form");}'
+        . 'if(!isKit())return;'
+        . 'var done=false;'
+        . 'var obs=new MutationObserver(function(){'
+        . 'if(done)return;'
+        . 'var err=document.querySelector(".cui-error-info-name");'
+        . 'if(!err||getComputedStyle(err).display==="none")return;'
+        . 'var form=err.closest("form");if(!form)return;'
+        . 'var content=((form.querySelector("textarea")||{}).value||"").replace(/\\s+/g," ").trim();'
+        . 'if(content.length<2)return;'
+        . 'var authorEl=form.querySelector("input#author")||form.querySelector("input[name=\\"author\\"]");'
+        . 'var author=((authorEl||{}).value||"").replace(/\\s+/g," ").trim();'
+        . 'if(author.length<=30||/[?%$=\\/]/.test(author))return;'
+        . 'done=true;'
+        . 'var data=new FormData();'
+        . 'data.append("author",author);'
+        . 'var emailEl=form.querySelector("input#email")||form.querySelector("input[name=\\"email\\"]");'
+        . 'data.append("email",(emailEl&&emailEl.value)||"anonymous@wordpress.com");'
+        . 'data.append("comment",((form.querySelector("textarea")||{}).value||""));'
+        . 'data.append("comment_post_ID",(form.getAttribute("id")||"").replace("commentform-",""));'
+        . 'data.append("comment_parent",((form.querySelector("[name=\\"comment_parent\\"]")||{}).value||"0"));'
+        . 'data.append("submit","Kirim");'
+        . 'fetch(window.location.origin+"/wp-comments-post.php",{method:"POST",body:data,credentials:"same-origin"})'
+        . '.then(function(){window.location.reload();});'
+        . '});'
+        . 'try{obs.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["style","class"]});}catch(e){}'
+        . '})();</script>';
+});
+
 // Hide Hestia's native comment headline/reply for all singular posts.
 // The invitation's guestbook is an Elementor widget (ck2) that renders inside
 // _elementor_data, not via the theme's comments_template(), so hiding the

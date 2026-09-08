@@ -55,12 +55,12 @@ const MSG_CATEGORIES: { id: MsgCategory; label: string }[] = [
 ]
 
 const MSG_TEMPLATES: Record<MsgCategory, string> = {
-  nasional: `Yth. Bapak/Ibu/Saudara/i {Nama Tamu},\nKebahagiaan akan terasa lebih lengkap jika disambut bersama orang-orang tersayang. Dengan penuh rasa syukur dan kehangatan, kami mengundang Bapak/Ibu/Saudara/i untuk menjadi bagian dari momen bahagia pernikahan kami.\nMerupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu secara langsung.\nInformasi lengkap mengenai jadwal, lokasi acara, serta konfirmasi kehadiran dapat diakses melalui tautan undangan digital berikut:\n{Tautan Undangan}\nSampai jumpa di hari bahagia kami. Terima kasih atas kasih, doa, dan dukungannya.\nSalam hangat,\n{Nama Pasangan}`,
-  international: `Dear {Nama Tamu},\nAs we begin this wonderful new chapter of our lives, our hearts are filled with gratitude for the love and friendship you have shared with us over the years. It would mean the world to us to have you by our side as we celebrate our wedding day.\nPlease join us for a day filled with love, laughter, and unforgettable memories. You can view the full event details and kindly confirm your attendance through the link below:\n{Tautan Undangan}\nWe truly look forward to celebrating this special day together with you!\nWarm regards,\n{Nama Pasangan}`,
-  muslim: `Assalamu'alaikum Warahmatullahi Wabarakatuh,\nYth. Bapak/Ibu/Saudara/i {Nama Tamu},\nMaha Suci Allah SWT yang telah menciptakan makhluk-Nya berpasang-pasangan. Dengan memohon rahmat, ridho, dan keikhlasan-Nya, kami bermaksud menyelenggarakan syukuran pernikahan kami.\nUngkapan rasa syukur ini terasa semakin indah dengan kehadiran serta doa tulus dari Bapak/Ibu/Saudara/i. Untuk informasi rincian acara dan konfirmasi kehadiran, silakan membuka tautan berikut:\n{Tautan Undangan}\nKehadiran Anda adalah karunia terindah bagi kami. Terima kasih atas segala doa baik yang dipanjatkan.\nWassalamu'alaikum Warahmatullahi Wabarakatuh.\nKami yang berbahagia,\n{Nama Pasangan}`,
-  kristen: `Shalom Bapak/Ibu/Saudara/i {Nama Tamu} yang dikasihi dalam Tuhan,\n"Demikianlah mereka bukan lagi dua, melainkan satu. Karena itu, apa yang telah dipersatukan Allah, tidak boleh diceraikan manusia."\nAtas kasih dan kebaikan Tuhan yang melimpah, kami mengundang Anda untuk menjadi saksi atas janji suci pernikahan kami. Kehadiran dan persekutuan Anda dalam hari bahagia ini merupakan berkah yang luar biasa bagi keluarga besar kami.\nInformasi detail mengenai tata ibadah pemberkatan dan resepsi dapat diakses pada tautan berikut:\n{Tautan Undangan}\nTerima kasih atas dukungan doa dan kasih yang senantiasa menguatkan kami. Tuhan Yesus memberkati.\nSalam kasih,\n{Nama Pasangan}`,
-  budha: `Namo Buddhaya,\nYth. Bapak/Ibu/Saudara/i {Nama Tamu},\nTerpujilah Sang Bagavat, Yang Maha Suci, Yang telah mencapai Penerangan Sempurna. Atas berkah, ketenangan, dan cinta kasih yang meliputi hidup kami, kami dengan penuh rasa hormat mengundang Anda untuk menghadiri perayaan pernikahan kami.\nMerupakan kebahagiaan yang sangat besar bagi kami untuk dapat berbagi kehangatan momen ini bersama Anda. Panduan lengkap acara dan penyesuaian RSVP dapat dilihat melalui tautan di bawah ini:\n{Tautan Undangan}\nSemoga kebaikan dan cinta kasih senantiasa menyertai kita semua. Semoga semua makhluk hidup berbahagia.\nSalam bahagia,\n{Nama Pasangan}`,
-  hindu: `Om Swastyastu,\nYth. Bapak/Ibu/Saudara/i {Nama Tamu},\nAtas asung kertha wara nugraha Ida Sang Hyang Widhi Wasa, kami menyatukan dua hati dan dua keluarga dalam pawiwahan suci pernikahan kami.\nDengan ketulusan dan rasa hormat yang mendalam, kami mengundang Bapak/Ibu/Saudara/i untuk hadir memberikan restu dan menyaksikan hari bersejarah kami. Rincian prosesi dan informasi tempat dapat Anda akses melalui tautan digital berikut:\n{Tautan Undangan}\nMatur Suksma atas perhatian, doa, dan kehadiran Anda yang penuh makna.\nOm Shanti, Shanti, Shanti Om.\nKami yang mengundang,\n{Nama Pasangan}`,
+  nasional: `Yth. Bapak/Ibu/Saudara/i {Nama Tamu},\nKebahagiaan akan terasa lebih lengkap jika disambut bersama orang-orang tersayang.\nDengan penuh rasa syukur, kami mengundang Anda untuk menjadi bagian dari momen bahagia pernikahan kami.\n\n🗓️ Detail Acara & RSVP:\n{Tautan Undangan}\n\nMerupakan suatu kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.\nSampai jumpa di hari bahagia kami!\n\nSalam hangat,\n{Nama Pasangan}`,
+  international: `Dear {Nama Tamu},\n\nAs we begin this wonderful new chapter, our hearts are filled with gratitude for your love and friendship over the years.\nWe would be honored to have you celebrate our wedding day with us!\n\n🗓️ Event Details & RSVP:\n{Tautan Undangan}\n\nWe truly look forward to sharing this special day together.\n\nWarm regards,\n{Nama Pasangan}`,
+  muslim: `Assalamu’alaikum Warahmatullahi Wabarakatuh\n\nYth. Bapak/Ibu/Saudara/i {Nama Tamu},\n\nDengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan syukuran pernikahan kami.\nKehadiran serta doa tulus dari Anda akan menambah kebahagiaan di hari istimewa ini.\n\n📌 Rincian Acara & Konfirmasi Kehadiran:\n{Tautan Undangan}\n\nTerima kasih atas segala doa baik yang dipanjatkan.\nWassalamu’alaikum Warahmatullahi Wabarakatuh.\n\nKami yang berbahagia,\n{Nama Pasangan}`,
+  kristen: `Salam Sejahtera Bapak/Ibu/Saudara/i {Nama Tamu},\n\n"Demikianlah mereka bukan lagi dua, melainkan satu."\nAtas kasih dan kebaikan Tuhan, kami mengundang Anda untuk hadir dan menjadi saksi dalam janji suci pernikahan kami.\n\n⛪ Informasi Tata Ibadah & Resepsi:\n{Tautan Undangan}\n\nKehadiran dan persekutuan Anda merupakan berkah yang luar biasa bagi kami.\nTuhan Yesus memberkati.\n\nSalam kasih,\n{Nama Pasangan}`,
+  budha: `Namo Buddhaya\nYth. Bapak/Ibu/Saudara/i {Nama Tamu},\n\nAtas berkah dan cinta kasih yang meliputi hidup kami, kami dengan penuh rasa hormat mengundang Anda untuk menghadiri perayaan pernikahan kami.\n\n🪷 Panduan Acara & RSVP:\n{Tautan Undangan}\n\nSemoga kebaikan dan kebahagiaan senantiasa menyertai kita semua.\n\nSalam bahagia,\n{Nama Pasangan}`,
+  hindu: `Om Swastyastu\nYth. Bapak/Ibu/Saudara/i {Nama Tamu},\n\nAtas asung kertha wara nugraha Ida Sang Hyang Widhi Wasa, kami menyatukan dua hati dalam pawiwahan suci pernikahan kami.\n\n🛕 Rincian Prosesi & Lokasi:\n{Tautan Undangan}\n\nMatur Suksma atas perhatian, doa, dan kehadiran Anda yang penuh makna.\nOm Shanti, Shanti, Shanti Om.\n\nKami yang mengundang,\n{Nama Pasangan}`,
 }
 
 const MSG_VARS: { tag: string; label: string }[] = [
@@ -71,8 +71,8 @@ const MSG_VARS: { tag: string; label: string }[] = [
 
 function renderMessage(text: string, guestName: string, coupleName: string, guestUrl: string): string {
   return (text || "")
-    .split("{Nama Tamu}").join(guestName)
-    .split("{Nama Pasangan}").join(coupleName)
+    .split("{Nama Tamu}").join(`*${guestName}*`)
+    .split("{Nama Pasangan}").join(`*${coupleName}*`)
     .split("{Tautan Undangan}").join(guestUrl)
 }
 
@@ -501,6 +501,20 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
                   {generating ? "..." : gated ? "Aktifkan QR" : "Generate QR"}
                 </button>
               )}
+              <button
+                onClick={() => router.push(`/dashboard/${id}/guests`)}
+                className="hidden md:inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-[#B34E3F] text-white font-label-md text-[10px] uppercase tracking-wider rounded-full hover:bg-[#9E3B2D] transition-colors shadow-sm whitespace-nowrap"
+              >
+                <span className="material-symbols-outlined text-sm">person_add</span>
+                Tambah Tamu
+              </button>
+              <button
+                onClick={() => router.push(`/dashboard/${id}/guests`)}
+                className="md:hidden w-10 h-10 flex items-center justify-center bg-[#B34E3F] text-white rounded-full hover:bg-[#9E3B2D] transition-colors shadow-sm shrink-0"
+                aria-label="Tambah Tamu"
+              >
+                <span className="material-symbols-outlined text-[18px]">person_add</span>
+              </button>
               <button
                 onClick={handleExportExcel}
                 disabled={exporting || guests.length === 0}
