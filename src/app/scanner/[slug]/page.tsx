@@ -86,6 +86,8 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
   const [selfieAfter, setSelfieAfter] = useState<"checkin" | "recovery">("checkin")
   const [selfieGuestIds, setSelfieGuestIds] = useState<Set<string>>(new Set())
   const [selfieDoneToast, setSelfieDoneToast] = useState<string | null>(null)
+  const [manualOpen, setManualOpen] = useState(false)
+  const [logOpen, setLogOpen] = useState(false)
 
   const bufferRef = useRef("")
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
@@ -608,11 +610,11 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
       <div className="font-sans min-h-screen antialiased flex flex-col items-center relative bg-[#FAF7F2] text-[#2C2A29]">
         {eventInfo?.cover_photo ? (
           <>
-            <img src={eventInfo.cover_photo} alt="" className="fixed right-[-70px] top-1/4 w-72 h-72 rounded-full object-cover opacity-10 -z-0 pointer-events-none" />
-            <div className="fixed inset-0 bg-[#FAF7F2]/70 -z-10 pointer-events-none" />
+            <img src={eventInfo.cover_photo} alt="" className="fixed inset-0 w-full h-full object-cover pointer-events-none" />
+            <div className="fixed inset-0 bg-[#FAF7F2]/85 backdrop-blur-[2px] pointer-events-none" />
           </>
         ) : (
-          <div className="fixed inset-0 bg-[#FAF7F2] -z-10 pointer-events-none" />
+          <div className="fixed inset-0 bg-[#FAF7F2] pointer-events-none" />
         )}
       <header className="w-full bg-[#FAF7F2]/80 backdrop-blur-md border-b border-[#E2D9CF] sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -632,20 +634,16 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
         </div>
       </header>
 
-      <main className="w-full max-w-md lg:max-w-5xl px-4 pt-5 pb-24 flex-grow">
-        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 items-start">
+      <main className="relative z-10 w-full max-w-md mx-auto px-4 pt-5 pb-24 flex-grow">
+        <div className="flex flex-col gap-5 items-center">
         <div className="w-full space-y-5">
-        {/* Couple hero banner */}
+        {/* Couple badge — centered */}
         <section className="relative text-center px-4 pt-5 pb-5 bg-white/70 backdrop-blur-sm border border-[#E2D9CF] rounded-3xl shadow-sm overflow-hidden">
-          {eventInfo?.cover_photo && (
-            <img src={eventInfo.cover_photo} alt="" className="absolute -right-12 -top-12 w-44 h-44 rounded-full object-cover opacity-15 pointer-events-none" />
-          )}
           <p className="text-[10px] uppercase tracking-[0.35em] text-[#B34E3F] font-bold">The Wedding of</p>
           <h1 className="text-3xl md:text-4xl font-semibold text-[#2C2A29] mt-1 relative" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>{coupleDisplay || "Aksaraa"}</h1>
-          <p className="text-[11px] text-[#2C2A29]/60 mt-1.5 relative">{presentGuestRows}/{totalGuestRows} Tamu &bull; {presentCount}/{totalGuests} pax</p>
         </section>
 
-        {/* Scanner viewport — frosted card */}
+        {/* Scanner viewport — centered */}
         <section className="bg-white/85 backdrop-blur-md border border-[#E2D9CF] rounded-3xl p-3 shadow-md space-y-3">
           <div className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden shadow-inner flex flex-col items-center justify-center border border-[#2C2A29]/10">
             <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_center,#444_1px,transparent_1px)] [background-size:16px_16px]"></div>
@@ -691,10 +689,19 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
         </section>
         </div>
 
-        <div className="w-full space-y-5">
-        <section className="space-y-2">
-          <div className="flex items-center justify-between px-1">
+        <div className="w-full space-y-3">
+        {/* Manual check-in accordion — collapsed by default */}
+        <section className="border border-[#E2D9CF] rounded-2xl bg-white shadow-sm overflow-hidden">
+          <button
+            onClick={() => setManualOpen((v) => !v)}
+            className="w-full flex items-center justify-between px-4 py-3.5 text-left"
+          >
             <span className="text-[10px] uppercase tracking-wider text-[#2C2A29]/60 font-semibold">Alternatif Cek-in Manual</span>
+            <span className={`material-symbols-outlined text-xl text-[#B34E3F] transition-transform duration-300 ${manualOpen ? "rotate-180" : ""}`}>expand_more</span>
+          </button>
+          {manualOpen && (
+          <div className="px-4 pb-4 space-y-2">
+          <div className="flex items-center justify-end">
             <button
               onClick={() => setShowAddGuest(true)}
               className="text-[10px] font-bold uppercase tracking-widest bg-[#B34E3F] text-white px-3 py-1.5 rounded-lg hover:bg-[#9E3B2D] transition-colors"
@@ -733,13 +740,24 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
               ))}
             </div>
           )}
+          </div>
+          )}
         </section>
 
-        <section className="space-y-3">
-          <div className="flex items-center justify-between px-1">
+        {/* Log accordion — collapsed by default */}
+        <section className="border border-[#E2D9CF] rounded-2xl bg-white shadow-sm overflow-hidden">
+          <button
+            onClick={() => setLogOpen((v) => !v)}
+            className="w-full flex items-center justify-between px-4 py-3.5 text-left"
+          >
             <span className="text-[10px] uppercase tracking-wider text-[#2C2A29]/60 font-semibold">Log Riwayat Masuk</span>
-            <span className="text-[9px] text-[#2C2A29]/50 font-mono">Diperbarui Baru Saja</span>
-          </div>
+            <span className="flex items-center gap-2">
+              <span className="text-[9px] text-[#2C2A29]/50 font-mono">Diperbarui Baru Saja</span>
+              <span className={`material-symbols-outlined text-xl text-[#B34E3F] transition-transform duration-300 ${logOpen ? "rotate-180" : ""}`}>expand_more</span>
+            </span>
+          </button>
+          {logOpen && (
+          <div className="px-4 pb-4">
           <div id="logContainer" className="divide-y divide-[#E2D9CF]/60 border border-[#E2D9CF] rounded-xl bg-white shadow-sm overflow-hidden">
             {logEntries.length === 0 ? (
               <div className="p-6 text-center">
@@ -787,6 +805,8 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
               ))
             )}
           </div>
+          </div>
+          )}
         </section>
         </div>
         </div>
