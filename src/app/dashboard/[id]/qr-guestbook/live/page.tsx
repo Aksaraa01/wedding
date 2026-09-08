@@ -153,19 +153,24 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="min-h-screen font-body-md text-body-md" style={DASH_SATIN_BG}>
-      <header className="px-edge-margin-mobile md:px-edge-margin-desktop py-5 md:py-8 space-y-3 md:space-y-4 rounded-2xl border border-[#E2D9CF]/60 shadow-sm mx-edge-margin-mobile md:mx-edge-margin-desktop mt-4" style={DASH_HERO_BG}>
-        <div className="flex items-center justify-between">
-          <span className="inline-flex items-center gap-2 font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">
-            Buku Tamu QR &amp; Absensi Live
-          </span>
+      <header className="border-b border-[#E2D9CF] px-6 md:px-12 py-4" style={DASH_HERO_BG}>
+        <div className="w-full flex items-center justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <button onClick={() => router.push(`/dashboard/${id}`)} aria-label="Kembali ke dasbor" className="flex items-center justify-center w-11 h-11 -ml-2 rounded-full text-on-surface-variant hover:text-primary active:bg-surface-container transition-colors shrink-0">
+              <span className="material-symbols-outlined">arrow_back</span>
+            </button>
+            <span className="inline-flex items-center gap-2 text-[#2C2A29] font-label-md text-[11px] uppercase tracking-wider font-bold truncate">
+              Buku Tamu QR &amp; Absensi Live
+            </span>
+          </div>
           <ProfileMenu />
         </div>
-        <h1 className="font-headline-md text-[24px] md:text-[32px] leading-tight text-on-surface">
-          Buku Tamu QR &amp; <br />Absensi Live
-        </h1>
       </header>
 
       <main className="px-edge-margin-mobile md:px-edge-margin-desktop pb-16 space-y-8 md:space-y-0 md:grid md:grid-cols-12 md:gap-8 max-w-[1400px] mx-auto">
+        <h1 className="font-headline-md text-xl md:text-2xl font-medium tracking-tight text-[#2C2A29] pt-6 md:col-span-12">
+          Buku Tamu QR &amp; <br />Absensi Live
+        </h1>
         {/* LEFT — pie chart + scanner card */}
         <div className="md:col-span-5 space-y-6 md:space-y-10">
           <div className="bg-white p-5 md:p-8 shadow-sm border border-[#eae3d5] relative overflow-hidden">

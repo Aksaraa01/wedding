@@ -142,7 +142,12 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
       <div className="min-h-screen text-on-surface font-body-md antialiased pb-32" style={DASH_SATIN_BG}>
         <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 border-b border-outline-variant/30 flex items-center px-6 md:px-12 h-16" style={DASH_HERO_BG}>
           <div className="w-full flex items-center justify-between">
-            <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">Reminder Tamu VIP</span>
+            <div className="flex items-center gap-3 min-w-0">
+              <button onClick={() => router.push(`/dashboard/${id}`)} aria-label="Kembali ke dasbor" className="flex items-center justify-center w-11 h-11 -ml-2 rounded-full text-on-surface-variant hover:text-primary active:bg-surface-container transition-colors shrink-0">
+                <span className="material-symbols-outlined">arrow_back</span>
+              </button>
+              <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant truncate">Reminder Tamu VIP</span>
+            </div>
             <ProfileMenu />
           </div>
         </header>

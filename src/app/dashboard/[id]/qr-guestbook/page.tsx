@@ -426,9 +426,14 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       {/* Header */}
       <header className="shrink-0 border-b border-[#E2D9CF] px-6 md:px-12 py-4" style={DASH_HERO_BG}>
         <div className="w-full flex items-center justify-between">
-          <span className="inline-flex items-center gap-2 text-[#2C2A29] font-label-md text-[11px] uppercase tracking-wider font-bold">
-            Tautan Undangan dan QR Tamu
-          </span>
+          <div className="flex items-center gap-3 min-w-0">
+            <button onClick={() => router.push(`/dashboard/${id}`)} aria-label="Kembali ke dasbor" className="flex items-center justify-center w-11 h-11 -ml-2 rounded-full text-on-surface-variant hover:text-primary active:bg-surface-container transition-colors shrink-0">
+              <span className="material-symbols-outlined">arrow_back</span>
+            </button>
+            <span className="inline-flex items-center gap-2 text-[#2C2A29] font-label-md text-[11px] uppercase tracking-wider font-bold truncate">
+              Tautan Undangan dan QR Tamu
+            </span>
+          </div>
           <ProfileMenu />
         </div>
       </header>

@@ -98,7 +98,12 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
       <div className="min-h-screen text-on-surface font-body-md overflow-x-hidden" style={DASH_SATIN_BG}>
         {/* Top AppBar */}
         <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 border-b border-[#c4c7c7]/30 h-20 flex items-center justify-between px-edge-margin-mobile lg:px-edge-margin-desktop" style={DASH_HERO_BG}>
-          <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant">RSVP Automation</span>
+          <div className="flex items-center gap-3 min-w-0">
+            <button onClick={() => router.push(`/dashboard/${id}`)} aria-label="Kembali ke dasbor" className="flex items-center justify-center w-11 h-11 -ml-2 rounded-full text-on-surface-variant hover:text-primary active:bg-surface-container transition-colors shrink-0">
+              <span className="material-symbols-outlined">arrow_back</span>
+            </button>
+            <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant truncate">RSVP Automation</span>
+          </div>
           <ProfileMenu />
         </header>
 

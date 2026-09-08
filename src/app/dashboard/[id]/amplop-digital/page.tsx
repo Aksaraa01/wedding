@@ -287,7 +287,12 @@ function AmplopDigitalInner({ id }: { id: string }) {
       <div className="fixed inset-0 -z-10" style={DASH_SATIN_BG} />
 
       <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-40 border-b border-brand-border h-16 flex items-center px-5 sm:px-8 justify-between" style={DASH_HERO_BG}>
-        <span className="text-xs uppercase tracking-[0.2em] font-semibold text-brand-charcoal">Amplop Digital &amp; E-Gift</span>
+        <div className="flex items-center gap-3 min-w-0">
+          <button onClick={() => router.push(`/dashboard/${id}`)} aria-label="Kembali ke dasbor" className="flex items-center justify-center w-11 h-11 -ml-2 rounded-full text-on-surface-variant hover:text-primary active:bg-surface-container transition-colors shrink-0">
+            <span className="material-symbols-outlined">arrow_back</span>
+          </button>
+          <span className="text-xs uppercase tracking-[0.2em] font-semibold text-brand-charcoal truncate">Amplop Digital &amp; E-Gift</span>
+        </div>
         <div className="flex items-center gap-3">
           <span className="w-2 h-2 rounded-full bg-emerald-500" />
           <span className="text-xs text-brand-slate font-medium hidden sm:inline">Perubahan Otomatis Disimpan</span>

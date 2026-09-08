@@ -415,18 +415,6 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
           <span className="font-label-md text-label-md text-[#2C2A29] uppercase tracking-widest truncate">Manajemen Daftar Tamu</span>
         </div>
         <div className="flex items-center gap-2 md:gap-3">
-          <button onClick={() => setImportModalOpen(true)} className="hidden md:inline-flex items-center gap-2 bg-[#F5EFE6] text-[#2C2A29] border border-[#E2D9CF] rounded-full px-5 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#E2D9CF] transition-colors">
-            <span className="material-symbols-outlined text-[16px]">upload_file</span>
-            Import Excel
-          </button>
-          <button onClick={() => setImportModalOpen(true)} className="md:hidden w-10 h-10 flex items-center justify-center bg-[#F5EFE6] text-[#2C2A29] border border-[#E2D9CF] rounded-full hover:bg-[#E2D9CF] transition-colors" aria-label="Import Excel">
-            <span className="material-symbols-outlined text-[18px]">upload_file</span>
-          </button>
-          <button onClick={openAdd} className="inline-flex items-center gap-2 bg-[#B34E3F] text-white rounded-full px-5 md:px-6 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all">
-            <span className="material-symbols-outlined text-[16px]">person_add</span>
-            <span className="hidden sm:inline">Tambah Tamu</span>
-            <span className="sm:hidden">Tambah</span>
-          </button>
           <ProfileMenu />
         </div>
       </header>
@@ -438,6 +426,21 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
             Unggah, verifikasi, dan petakan nomor meja seluruh tamu kehormatan Anda secara terpusat.
           </p>
         </section>
+
+        <div className="flex items-center gap-2 md:gap-3 mb-5 md:mb-6 shrink-0">
+          <button onClick={() => setImportModalOpen(true)} className="hidden md:inline-flex items-center gap-2 bg-white text-[#2C2A29] border border-[#E2D9CF] rounded-full px-5 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#F5EFE6] transition-colors">
+            <span className="material-symbols-outlined text-[16px]">upload_file</span>
+            Import Excel
+          </button>
+          <button onClick={() => setImportModalOpen(true)} className="md:hidden w-10 h-10 flex items-center justify-center bg-white text-[#2C2A29] border border-[#E2D9CF] rounded-full hover:bg-[#F5EFE6] transition-colors shrink-0" aria-label="Import Excel">
+            <span className="material-symbols-outlined text-[18px]">upload_file</span>
+          </button>
+          <button onClick={openAdd} className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-[#B34E3F] text-white rounded-full px-5 md:px-6 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all">
+            <span className="material-symbols-outlined text-[16px]">person_add</span>
+            <span className="hidden sm:inline">Tambah Tamu</span>
+            <span className="sm:hidden">Tambah</span>
+          </button>
+        </div>
 
         <div className="flex-1 min-h-0 md:grid md:grid-cols-[320px_minmax(0,1fr)] md:gap-10">
         <aside className="md:overflow-y-auto md:min-h-0 md:pr-1 mb-6 md:mb-0">
