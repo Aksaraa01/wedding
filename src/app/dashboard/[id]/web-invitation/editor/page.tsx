@@ -1395,7 +1395,7 @@ function EditorInner({ id }: { id: string }) {
                     )}
                     <div className="mt-3">
                       <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.groom_parents || ""} onChange={e => updateField("groom_parents", e.target.value)} placeholder="Nama Orang Tua Mempelai Pertama" />
-                      <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: Bapak Hendra & Ibu Sari</p>
+                      <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: Putra dari Bapak Hendra & Ibu Sari</p>
                     </div>
                     <div className="mt-3">
                       <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.groom_instagram || ""} onChange={e => updateField("groom_instagram", e.target.value)} placeholder="Instagram Mempelai Pertama" />
@@ -1473,7 +1473,7 @@ function EditorInner({ id }: { id: string }) {
                     )}
                     <div className="mt-3">
                       <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.bride_parents || ""} onChange={e => updateField("bride_parents", e.target.value)} placeholder="Nama Orang Tua Mempelai Kedua" />
-                      <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: Bapak Wijaya & Ibu Dewi</p>
+                      <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: Putri dari Bapak Wijaya & Ibu Dewi</p>
                     </div>
                     <div className="mt-3">
                       <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.bride_instagram || ""} onChange={e => updateField("bride_instagram", e.target.value)} placeholder="Instagram Mempelai Kedua" />
