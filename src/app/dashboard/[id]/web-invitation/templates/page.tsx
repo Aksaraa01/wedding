@@ -25,6 +25,7 @@ type Template = {
   demo_url: string
   category?: string | null
   tier?: string | null
+  source_type?: string | null
 }
 
 function TemplatesInner({ id }: { id: string }) {
@@ -70,6 +71,25 @@ function TemplatesInner({ id }: { id: string }) {
     setSaving(true)
     setError(null)
     try {
+      const tpl = templates.find((t) => t.id === templateId)
+
+      // In-house template: assign + clear any prior WP duplicate — no job to poll.
+      if (tpl?.source_type === "inhouse") {
+        const res = await fetch(`/api/web-invitation/template-select`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ profile_id: id, template_id: templateId }),
+        })
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}))
+          throw new Error(data.error || res.statusText)
+        }
+        setSelectedId(templateId)
+        router.push(`/dashboard/${id}/web-invitation/editor?preview=1`)
+        return
+      }
+
+      // WP template: duplicate the master and poll until applied.
       const res = await fetch(`/api/wp/duplicate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

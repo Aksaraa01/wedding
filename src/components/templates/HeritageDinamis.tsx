@@ -4,11 +4,11 @@ import ThemeInjector from "./shared/ThemeInjector"
 import MotionSection from "./shared/MotionSection"
 
 interface Props {
-  bride_name: string
-  groom_name: string
-  estimated_wedding_date: string
-  slug: string
-  guest_name: string
+  bride_name?: string
+  groom_name?: string
+  estimated_wedding_date?: string
+  slug?: string
+  guest_name?: string
 }
 
 function Ornament({ className = "" }: { className?: string }) {

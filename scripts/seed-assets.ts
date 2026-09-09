@@ -119,6 +119,14 @@ const ASSETS: AssetEntry[] = [
   { source: "https://drive.usercontent.google.com/download?id=1gyl4IppTKVm7jAldtHwvXWbQ8GO7jY20&export=download", folder: "tracks", name: "white-moment.mp3" },
   { source: "https://drive.usercontent.google.com/download?id=1B0PawYUvYMyRpx-lk9J593hzge5tcxCp&export=download", folder: "tracks", name: "perfect.mp3" },
   { source: "https://drive.usercontent.google.com/download?id=1aluJd9AVsl7UL55gsXnRJpnZ6L6HEMH8&export=download", folder: "tracks", name: "women-in-white.mp3" },
+
+  // --- skyline-penthouse (in-house template artwork) ---
+  { source: "https://lh3.googleusercontent.com/aida-public/AB6AXuBGJvkfp6oNs-gbQrCl_-zfDwFbc2gX6ic6D_J0C4yPUTomh8yOAqH9HMUqyr47zuXASIs3k3ooLMkCiC0RdJRcmU63YrUi2m6RRruwaJG0pVdXGZHigkPpZAklMuu-QKWplw8sELE_Vkw19L6ordS6AKH6EU7wQe9c0670m16KefCqhSFo23KPMDPm6LPdigiQ8lkFacZmuiEBkCp7drM522l5ZAYa16NiwmZK8nigq80Hmev1CDe-", folder: "skyline-penthouse", name: "cover-bg.jpg" },
+  { source: "https://lh3.googleusercontent.com/aida-public/AB6AXuB4szL9Rbn3L9KLjmBW9bObHDMOWaVchxhCg1qxNHw_RxUq4z-NxW59M8SoMY8JNqbBPWLUM_9IKJ8QeM_QrTC8Luler-JjM5s1D5hCU1J5Y8W3LJV41imyQZ3IyXA2fGEakw8sHbu2Er8HyyJRs-7bqhOnZlI6eBz0vcEIFbCuoDnRTHwH3cj0zw0BZsPtYjl4SX6O_JQzitKJ-Xf_VoIw082U8diqAFo2y83e3ux6DAoJKroAmNaMwuO0wKgaJXtKaQ", folder: "skyline-penthouse", name: "room-bg.jpg" },
+
+  // --- pixel-paradise (in-house template artwork) ---
+  { source: "https://lh3.googleusercontent.com/aida-public/AB6AXuB0tHadFSRZA0FLTKk8csw52ihWidnsqzw0sHgoFrz85sF8oVCgVX0iTc1hH8mbPU2Swe4YHDqZVHgQn5HGZJHbR1REfUbqKcd_bRtQYN5HbFlWggiDgeEwxykGjO-6-N15d8Hd-nyJUwc1xMP6B6A5UUYg6jTxMmt_O2T73K7o-rz71Ag-tvpCEhejCWrbTkxjHSSBaiHmuZaOS0dTnIFhvfizzBoC7gFyKqm4oL2-JFeWcQQ_6Dtubep0W-SGrzyT6_4", folder: "pixel-paradise", name: "cover-bg.jpg" },
+  { source: "https://lh3.googleusercontent.com/aida-public/AB6AXuDvQYKAukll_YcaotnSmdV4JtgN0JCBRn4SLbWwTnEHtLmRx1Q-E4IRQTjsyU9lexU9yDbeLi2bnUwjCZiibCVR4jk_aJeBzxlY0tzT_A0BEhepKDW5ZzPMxamGGhxPB7Vqa1oPjq8HIZEUFI3BLbDRCeB-ZfKlYh1OZdDqyLC8Vo1ZmYJxa3MxiYPmtKTxFExU4TlwlFegup89BTORvx-TxGubrZRXX9eUKBbKmsu0EB1WgX8TEDrnqziGQUq_cs-OhiU", folder: "pixel-paradise", name: "room-bg.jpg" },
 ]
 
 async function uploadOne(entry: AssetEntry, index: number, total: number) {

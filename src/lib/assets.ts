@@ -6,6 +6,10 @@ function s(path: string): string {
 }
 
 export const ASSETS = {
+  // Default background track for in-house templates ("An Everlasting Love" —
+  // tracked in web_tracks; the audio file lives in the production media bucket
+  // and is public, so a single literal is safe across environments).
+  defaultMusic: "https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/tracks/An_Everlasting_Love.mp3",
   hero: {
     mockup: s("hero/hero-portrait.jpg"),
   },
@@ -95,6 +99,14 @@ export const ASSETS = {
   reminderVip: {
     chat: s("reminder-vip/whatsapp-chat.jpg"),
     dashboard: s("reminder-vip/dispatch-dashboard.jpg"),
+  },
+  skylinePenthouse: {
+    coverBg: s("skyline-penthouse/cover-bg.jpg"),
+    room: s("skyline-penthouse/room-bg.jpg"),
+  },
+  pixelParadise: {
+    coverBg: s("pixel-paradise/cover-bg.jpg"),
+    room: s("pixel-paradise/room-bg.jpg"),
   },
   textures: {
     naturalPaper: "https://www.transparenttextures.com/patterns/natural-paper.png",

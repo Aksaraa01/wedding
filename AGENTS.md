@@ -37,6 +37,7 @@
 - Use `supabaseAdmin` (service role) for server-side DB access; `supabase` (anon key) for client
 
 ### Database
+- `web_templates.source_type` is `'wp'` (Elementor master + `wp_manifest`, duplicated per couple) vs `'inhouse'` (React component in `TEMPLATE_MAP`, rendered from `wedding_profiles`). In-house templates have `wp_master_slug`/`wp_manifest` null; their editor-driven content shape lives in `TemplateConfig.content` (`ContentSpec` in `src/types/template.ts`)
 - `inviting_families` is `TEXT` type (not JSONB) — `JSON.parse` on read, return `[]` if empty
 - `wa_blast_tier` is cumulative additional capacity on top of package base (Prestige: 100)
 - `rekening_bank` and `gift_shipping_address` deprecated — do not reference

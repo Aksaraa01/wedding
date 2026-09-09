@@ -7,6 +7,7 @@ import InvitationOpenedTracker from "@/components/InvitationOpenedTracker"
 import { getRowGates, getFeatureIncluded } from "@/lib/featureGates"
 import { getWpPostAlive } from "@/lib/wpPostCache"
 import { cachedRead } from "@/lib/refCache"
+import { ASSETS } from "@/lib/assets"
 
 export const revalidate = 60
 
@@ -99,7 +100,7 @@ export default async function WeddingInvitation({
   // case-insensitively (the stored slug is camel: "RafiNamu-NoviKamu").
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id, slug, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, active_wp_post_id, active_wp_post_url")
+    .select("id, slug, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, cover_photos, couple_initials, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, active_wp_post_id, active_wp_post_url, opening_title, opening_description, gift_section_visible, video_section_visible, inviting_families_visible, story_visible")
     .ilike("slug", slug)
     .single()
 
@@ -157,7 +158,7 @@ export default async function WeddingInvitation({
 
   const [giftAcctsRes, giftAddrRes, trackRes] = await Promise.all([
     supabaseAdmin.from("gift_accounts").select("provider_name, account_number, account_name, type").eq("wedding_profile_id", profile.id),
-    supabaseAdmin.from("gift_addresses").select("full_address").eq("wedding_profile_id", profile.id).single(),
+    supabaseAdmin.from("gift_addresses").select("full_address, recipient_name").eq("wedding_profile_id", profile.id).single(),
     profile.selected_track_id
       ? (async () => {
           // Static reference data — cached so repeat views skip this read.
@@ -172,16 +173,44 @@ export default async function WeddingInvitation({
   ])
   const giftAccounts = giftAcctsRes.data?.filter(a => a.type === "bank" || a.type === "ewallet") || []
   const giftAddress = giftAddrRes.data?.full_address || undefined
+  const giftAddressName = giftAddrRes.data?.recipient_name || undefined
   const trackUrl = trackRes.data?.audio_url || undefined
 
-  // Redirect to WP if this couple has an active duplicated WP post.
-  // Verify the post still exists (cached for 5 min, so repeat views skip the
-  // WP HEAD round-trip that competed with editing); if deleted, fall back to demo URL.
-  const wpPostAlive = profile.active_wp_post_url
+  // Resolve template metadata. In-house templates (source_type = 'inhouse') never
+  // fall back to a WP iframe (active post or demo) — they render the React
+  // component directly from wedding_profiles below.
+  let templateCode: string | null = null
+  let isInhouse = false
+  let templateDemoUrl: string | null = null
+  if (profile.selected_template_id) {
+    // Static reference data — cached so repeat views skip this read.
+    const tmpl = await cachedRead<{ code: string | null; demo_url: string | null; source_type: string | null } | null>(`template:${profile.selected_template_id}`, 10 * 60_000, async () => {
+      const { data, error } = await supabaseAdmin
+        .from("web_templates")
+        .select("code, demo_url, source_type")
+        .eq("id", profile.selected_template_id)
+        .single()
+      if (error) return null
+      return { code: data?.code || null, demo_url: data?.demo_url || null, source_type: data?.source_type || null }
+    })
+    if (tmpl) {
+      templateCode = tmpl.code
+      isInhouse = tmpl.source_type === "inhouse"
+      templateDemoUrl = tmpl.demo_url
+    }
+  }
+
+  // In-house templates default to "An Everlasting Love" when the couple has not
+  // picked a track yet (they can override it in the editor music section).
+  const resolvedTrackUrl = trackUrl || (isInhouse ? ASSETS.defaultMusic : undefined)
+
+  // Redirect to WP only if this is a WP-backed template with a live duplicate.
+  // A couple who switched WP → in-house may still carry a stale active_wp_post_url.
+  const wpPostAlive = profile.active_wp_post_url && !isInhouse
     ? await getWpPostAlive(profile.active_wp_post_url)
     : false
 
-  if (profile.active_wp_post_url && wpPostAlive) {
+  if (!isInhouse && profile.active_wp_post_url && wpPostAlive) {
     const guestName = guestContext?.name || to || ""
     const wpUrl = guestName
       ? `${profile.active_wp_post_url}?to=${encodeURIComponent(guestName)}`
@@ -224,48 +253,35 @@ export default async function WeddingInvitation({
     )
   }
 
-  // Resolve template code and render via registry
-  let templateCode: string | null = null
-  if (profile.selected_template_id) {
-    // Static reference data — cached so repeat views skip this read.
-    const tmpl = await cachedRead<{ code: string | null; demo_url: string | null } | null>(`template:${profile.selected_template_id}`, 10 * 60_000, async () => {
-      const { data, error } = await supabaseAdmin
-        .from("web_templates")
-        .select("code, demo_url")
-        .eq("id", profile.selected_template_id)
-        .single()
-      if (error) return null
-      return { code: data?.code || null, demo_url: data?.demo_url || null }
-    })
-    if (tmpl) templateCode = tmpl.code
-    if (tmpl?.demo_url && !wpPostAlive) {
-      const guestName = guestContext?.name || to || ""
-      const wpUrl = guestName
-        ? `${tmpl.demo_url}?to=${encodeURIComponent(guestName)}`
-        : tmpl.demo_url
-      return (
-        <>
-          <div style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh", background: "#fff" }}>
-            <iframe src={wpUrl} title="Undangan Pernikahan" allow="autoplay; fullscreen" style={{ width: "100%", height: "100%", border: "none", display: "block" }} />
-          </div>
-          <InvitationOpenedTracker guestId={guestContext?.id} />
-          {guestContext?.id && (
-            <InvitationOverlay
-              guestId={guestContext.id}
-              guestName={guestName}
-              coupleName={(profile.groom_full_name && profile.bride_full_name ? `${profile.groom_full_name} & ${profile.bride_full_name}` : profile.display_name) || `${profile.groom_name} & ${profile.bride_name}`}
-              weddingProfileId={profile.id}
-              guestQrUrl={guestContext.slug || guestContext.qr_token ? `/qr/${encodeURIComponent(guestContext.slug || guestContext.qr_token)}` : undefined}
-              guestTableNumber={guestContext.table_number}
-              guestRsvpStatus={guestContext.rsvp_status}
-              guestRsvpMessage={guestContext.rsvp_message}
-              rsvpMaxPax={profile.rsvp_max_pax ?? 2}
-              qrEnabled={featureSet.has("qr_code_book")}
-            />
-          )}
-        </>
-      )
-    }
+  // In-house templates have no demo redirect; WP templates without a live post
+  // fall back to the master demo iframe (kept for backward compatibility).
+  if (!isInhouse && templateDemoUrl && !wpPostAlive) {
+    const guestName = guestContext?.name || to || ""
+    const wpUrl = guestName
+      ? `${templateDemoUrl}?to=${encodeURIComponent(guestName)}`
+      : templateDemoUrl
+    return (
+      <>
+        <div style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh", background: "#fff" }}>
+          <iframe src={wpUrl} title="Undangan Pernikahan" allow="autoplay; fullscreen" style={{ width: "100%", height: "100%", border: "none", display: "block" }} />
+        </div>
+        <InvitationOpenedTracker guestId={guestContext?.id} />
+        {guestContext?.id && (
+          <InvitationOverlay
+            guestId={guestContext.id}
+            guestName={guestName}
+            coupleName={(profile.groom_full_name && profile.bride_full_name ? `${profile.groom_full_name} & ${profile.bride_full_name}` : profile.display_name) || `${profile.groom_name} & ${profile.bride_name}`}
+            weddingProfileId={profile.id}
+            guestQrUrl={guestContext.slug || guestContext.qr_token ? `/qr/${encodeURIComponent(guestContext.slug || guestContext.qr_token)}` : undefined}
+            guestTableNumber={guestContext.table_number}
+            guestRsvpStatus={guestContext.rsvp_status}
+            guestRsvpMessage={guestContext.rsvp_message}
+            rsvpMaxPax={profile.rsvp_max_pax ?? 2}
+            qrEnabled={featureSet.has("qr_code_book")}
+          />
+        )}
+      </>
+    )
   }
 
   const Template = getTemplateComponent(templateCode)
@@ -280,6 +296,8 @@ export default async function WeddingInvitation({
         slug={canonicalSlug}
         guest_name={guestName}
         couple_illustration_url={profile.couple_illustration_url || undefined}
+        cover_photos={profile.cover_photos || undefined}
+        couple_initials={profile.couple_initials || undefined}
         display_name={profile.display_name || undefined}
         grayscale={profile.grayscale || undefined}
         groom_full_name={profile.groom_full_name || undefined}
@@ -289,6 +307,10 @@ export default async function WeddingInvitation({
         groom_parents={profile.groom_parents || undefined}
         bride_parents={profile.bride_parents || undefined}
         groom_instagram={profile.groom_instagram || undefined}
+        bride_instagram={profile.bride_instagram || undefined}
+        video_url={profile.video_url || undefined}
+        opening_title={profile.opening_title || undefined}
+        opening_description={profile.opening_description || undefined}
         sessions={profile.sessions || undefined}
         quote_text={profile.quote_text || undefined}
         quote_source={profile.quote_source || undefined}
@@ -296,7 +318,12 @@ export default async function WeddingInvitation({
         gallery_photos={profile.gallery_photos || undefined}
         gift_accounts={giftAccounts.length > 0 ? giftAccounts : undefined}
         gift_address={rowGates.gift_address.included ? giftAddress : undefined}
-        track_url={trackUrl}
+        gift_address_name={giftAddressName || undefined}
+        gift_section_visible={profile.gift_section_visible !== false}
+        video_section_visible={profile.video_section_visible !== false}
+        inviting_families_visible={profile.inviting_families_visible !== false}
+        story_visible={profile.story_visible !== false}
+        track_url={resolvedTrackUrl}
         inviting_families={rowGates.inviting_families.included ? (profile.inviting_families ? (typeof profile.inviting_families === "string" ? JSON.parse(profile.inviting_families) : profile.inviting_families) : undefined) : undefined}
         wedding_profile_id={profile.id}
         guest_id={guestContext?.id}
@@ -305,14 +332,16 @@ export default async function WeddingInvitation({
         guest_qr_content={featureSet.has("qr_code_book") && guestContext?.qr_token ? `/welcome/${encodeURIComponent(guestContext.slug || guestContext.qr_token)}` : undefined}
         guest_table_number={guestContext?.table_number || undefined}
         guest_rsvp_status={guestContext?.rsvp_status || undefined}
+        guest_rsvp_message={guestContext?.rsvp_message || undefined}
         rsvp_max_pax={profile.rsvp_max_pax ?? undefined}
-        feature_gates={{
-          story: rowGates.story.included,
-          gift_address: rowGates.gift_address.included,
-          inviting_families: rowGates.inviting_families.included,
-          qr_code_book: featureSet.has("qr_code_book"),
-        }}
-      />
+feature_gates={{
+            story: rowGates.story.included,
+            gift_address: rowGates.gift_address.included,
+            inviting_families: rowGates.inviting_families.included,
+            video: rowGates.cinematic_video.included,
+            qr_code_book: featureSet.has("qr_code_book"),
+          }}
+        />
       </>
     )
   }

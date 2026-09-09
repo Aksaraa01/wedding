@@ -149,7 +149,8 @@ INSERT INTO web_tracks (title, artist, mood_category, audio_url, sort_order) VAL
     ('Can''t Help Falling in Love', 'Acoustic Cover', 'modern-romantis', '', 4),
     ('Rewrite the Stars', 'Pop Instrumental', 'modern-romantis', '', 5),
     ('Yang Terdalam', 'Peterpan', 'nusantara-heritage', '', 6),
-    ('Hasian', 'Original Song', 'nusantara-heritage', '', 7)
+    ('Hasian', 'Original Song', 'nusantara-heritage', '', 7),
+    ('An Everlasting Love', 'Instrumental', 'modern-romantis', 'https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/seeded/tracks/an-everlasting-love.mp3', 8)
 ON CONFLICT DO NOTHING;
 
 -- Storage bucket for template media

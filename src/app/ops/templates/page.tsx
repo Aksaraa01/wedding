@@ -9,6 +9,7 @@ import { OBJECT_ARRAY_FIELDS, SIMPLE_ARRAY_FIELDS, SUBFIELD_LABELS } from "@/lib
 import { PACKAGE_LABELS, PACKAGE_CATEGORY, PACKAGE_CODES } from "@/lib/packages"
 import { normalizeTemplateTier, tierBadgeClass } from "@/lib/templateTier"
 import ElementSelect from "@/components/ops/ElementSelect"
+import { hasTemplate } from "@/components/templates"
 
 type Template = {
   id: string
@@ -22,6 +23,7 @@ type Template = {
   package_eligibility: string[]
   category: string | null
   tier: string | null
+  source_type: string | null
   wp_master_slug: string | null
   wp_manifest: Record<string, any> | null
 }
@@ -103,6 +105,7 @@ export default function OpsTemplatesPage() {
     package_eligibility: [] as string[],
     category: "",
     tier: "" as string,
+    source_type: "wp" as "wp" | "inhouse",
     wp_master_slug: "",
   })
 
@@ -201,7 +204,7 @@ export default function OpsTemplatesPage() {
     setManifest({})
     setElements([])
     setPopups([])
-    setForm({ code: "", name: "", description: "", preview_image_url: "", demo_url: "", is_active: true, sort_order: templates.length, package_eligibility: [...PACKAGE_CODES], category: "", tier: "", wp_master_slug: "" })
+    setForm({ code: "", name: "", description: "", preview_image_url: "", demo_url: "", is_active: true, sort_order: templates.length, package_eligibility: [...PACKAGE_CODES], category: "", tier: "", source_type: "wp", wp_master_slug: "" })
   }
 
   const startEdit = (t: Template, openMapping = false) => {
@@ -223,6 +226,7 @@ export default function OpsTemplatesPage() {
       package_eligibility: t.package_eligibility && t.package_eligibility.length > 0 ? t.package_eligibility : [...PACKAGE_CODES],
       category: t.category || "",
       tier: (t as any).tier || "",
+      source_type: t.source_type === "inhouse" ? "inhouse" : "wp",
       wp_master_slug: t.wp_master_slug || "",
     })
   }
@@ -267,13 +271,16 @@ export default function OpsTemplatesPage() {
       setError("Nama template wajib diisi")
       return
     }
+    const isInhouse = form.source_type === "inhouse"
     const body = {
       ...form,
+      source_type: isInhouse ? "inhouse" : "wp",
       description: form.description || null,
       preview_image_url: form.preview_image_url || null,
       demo_url: form.demo_url || null,
       category: form.category || null,
-      wp_master_slug: form.wp_master_slug || null,
+      wp_master_slug: isInhouse ? null : (form.wp_master_slug || null),
+      wp_manifest: isInhouse ? null : undefined,
     }
     const url = isNew ? "/api/ops/templates" : `/api/ops/templates/${editing!.id}`
     const res = await fetch(url, {
@@ -701,6 +708,9 @@ export default function OpsTemplatesPage() {
                     {normalizeTemplateTier((t as any).tier) && (
                       <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full shrink-0 ${tierBadgeClass((t as any).tier)}`}>{(t as any).tier}</span>
                     )}
+                    {t.source_type === "inhouse" && (
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-cyan-50 text-cyan-700 border border-cyan-200 shrink-0">In-House</span>
+                    )}
                   </div>
                   {t.description && <p className="text-[11px] text-on-surface-variant line-clamp-2">{t.description}</p>}
                   <div className="flex flex-wrap gap-1">
@@ -718,7 +728,9 @@ export default function OpsTemplatesPage() {
                       </a>
                     )}
                     <button onClick={() => startEdit(t, false)} className="text-[10px] font-label-md uppercase tracking-wider text-primary hover:underline">Edit</button>
-                    <button onClick={() => startEdit(t, true)} className="text-[10px] font-label-md uppercase tracking-wider text-secondary hover:underline">Mapping</button>
+                    {t.source_type !== "inhouse" && (
+                      <button onClick={() => startEdit(t, true)} className="text-[10px] font-label-md uppercase tracking-wider text-secondary hover:underline">Mapping</button>
+                    )}
                     <button onClick={() => handleDelete(t)} className="text-[10px] font-label-md uppercase tracking-wider text-error hover:underline ml-auto">Nonaktifkan</button>
                   </div>
                 </div>
@@ -743,6 +755,36 @@ export default function OpsTemplatesPage() {
                       <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Sort Order</label>
                       <input className="input-editorial w-full font-label-md text-[14px]" type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} />
                     </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Jenis Template</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, source_type: "wp" })}
+                        className={`px-4 py-2.5 border text-left font-label-md text-[12px] uppercase tracking-wider ${
+                          form.source_type === "wp" ? "bg-primary text-white border-primary" : "border-outline-variant text-on-surface-variant hover:border-primary"
+                        }`}
+                      >
+                        WordPress
+                        <span className="block text-[10px] normal-case tracking-normal opacity-80 mt-0.5">Elementor + mapping elemen</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, source_type: "inhouse" })}
+                        className={`px-4 py-2.5 border text-left font-label-md text-[12px] uppercase tracking-wider ${
+                          form.source_type === "inhouse" ? "bg-primary text-white border-primary" : "border-outline-variant text-on-surface-variant hover:border-primary"
+                        }`}
+                      >
+                        In-House
+                        <span className="block text-[10px] normal-case tracking-normal opacity-80 mt-0.5">Komponen React bawaan (tanpa WP)</span>
+                      </button>
+                    </div>
+                    {form.source_type === "inhouse" && !hasTemplate(form.code.trim()) && (
+                      <p className="text-[11px] mt-2 px-3 py-2 bg-amber-50 border border-amber-300 text-amber-800">
+                        ⚠ Kode ini belum terdaftar sebagai komponen in-house. Undangan akan tampil sebagai halaman fallback sampai komponen tersedia di registry.
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Nama Template</label>
@@ -814,6 +856,7 @@ export default function OpsTemplatesPage() {
                     <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Demo URL (harus unik)</label>
                     <input className="input-editorial w-full font-label-md text-[14px]" value={form.demo_url} onChange={(e) => setForm({ ...form, demo_url: e.target.value })} placeholder="https://wp.aksaraa.com/marry-with-you/" />
                   </div>
+                  {form.source_type === "wp" && (
                   <div>
                     <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">WP Master Slug</label>
                     <div className="flex gap-2">
@@ -834,6 +877,7 @@ export default function OpsTemplatesPage() {
                       Slug postingan master template di WordPress — bagian dari URL, contoh: <span className="font-mono">https://wp.aksaraa.com/marry-with-you/</span> → slug <span className="font-mono">marry-with-you</span>.
                     </p>
                   </div>
+                )}
                   <div>
                     <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-2">Eligibilitas Paket (pilih semua yang berlaku)</label>
                     <div className="space-y-4">

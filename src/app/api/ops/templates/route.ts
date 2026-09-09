@@ -51,6 +51,8 @@ export async function POST(req: Request) {
   }
 
   const tier = body.tier === undefined ? "Baru" : normalizeTemplateTier(body.tier)
+  const sourceType = body.source_type === "inhouse" ? "inhouse" : "wp"
+  const isInhouse = sourceType === "inhouse"
   const { data, error } = await supabaseAdmin
     .from("web_templates")
     .insert({
@@ -64,8 +66,9 @@ export async function POST(req: Request) {
       package_eligibility: Array.isArray(body.package_eligibility) ? body.package_eligibility : [],
       category: body.category ? String(body.category).trim() : null,
       tier,
-      wp_master_slug: body.wp_master_slug || null,
-      wp_manifest: body.wp_manifest && typeof body.wp_manifest === "object" ? body.wp_manifest : null,
+      source_type: sourceType,
+      wp_master_slug: isInhouse ? null : (body.wp_master_slug || null),
+      wp_manifest: isInhouse ? null : (body.wp_manifest && typeof body.wp_manifest === "object" ? body.wp_manifest : null),
     })
     .select()
     .single()

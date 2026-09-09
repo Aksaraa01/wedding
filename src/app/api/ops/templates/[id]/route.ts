@@ -62,8 +62,19 @@ export async function PUT(req: Request, ctx: { params: Promise<{ id: string }> }
   if ("package_eligibility" in body) patch.package_eligibility = Array.isArray(body.package_eligibility) ? body.package_eligibility : []
   if ("category" in body) patch.category = body.category ? String(body.category).trim() : null
   if ("tier" in body) patch.tier = normalizeTemplateTier(body.tier)
-  if ("wp_master_slug" in body) patch.wp_master_slug = body.wp_master_slug || null
-  if ("wp_manifest" in body) patch.wp_manifest = body.wp_manifest && typeof body.wp_manifest === "object" ? body.wp_manifest : null
+  // source_type switches effective; switching to in-house clears the WP contract.
+  if ("source_type" in body) {
+    const isInhouse = body.source_type === "inhouse"
+    patch.source_type = isInhouse ? "inhouse" : "wp"
+    if (isInhouse) {
+      patch.wp_master_slug = null
+      patch.wp_manifest = null
+    }
+  }
+  if ("wp_master_slug" in body && patch.source_type !== "inhouse") patch.wp_master_slug = body.wp_master_slug || null
+  if ("wp_manifest" in body && patch.source_type !== "inhouse") {
+    patch.wp_manifest = body.wp_manifest && typeof body.wp_manifest === "object" ? body.wp_manifest : null
+  }
 
   if (Object.keys(patch).length === 0) {
     return NextResponse.json({ error: "Tidak ada data yang diperbarui" }, { status: 400 })

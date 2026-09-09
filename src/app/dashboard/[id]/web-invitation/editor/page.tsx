@@ -3,12 +3,13 @@
 import { useState, useEffect, use, useRef, useCallback, ComponentType } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
-import { getTemplateComponent } from "@/components/templates"
+import { getTemplateComponent, getTemplateContentSpec } from "@/components/templates"
 import { RowGates } from "@/lib/featureGates"
 import { pollWpJob } from "@/lib/wpJobPoll"
 import ProfileMenu from "@/components/ProfileMenu"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import ProductJourney from "@/components/onboarding/ProductJourney"
+import { ASSETS } from "@/lib/assets"
 
 type Profile = {
   id: string
@@ -38,6 +39,12 @@ type Profile = {
   rsvp_max_pax: number | null
   active_wp_post_id: number | null
   active_wp_post_url: string | null
+  gift_section_visible?: boolean
+  video_section_visible?: boolean
+  inviting_families_visible?: boolean
+  story_visible?: boolean
+  opening_title?: string | null
+  opening_description?: string | null
 }
 
 type Session = {
@@ -56,6 +63,7 @@ type Template = {
   description: string
   preview_image_url: string
   demo_url: string
+  source_type?: string | null
   wp_manifest: Record<string, any> | null
 }
 
@@ -337,6 +345,10 @@ function EditorInner({ id }: { id: string }) {
       .finally(() => setFeedbackLoading(false))
   }, [id])
 
+  // In-house templates render the React component directly and skip WP sync.
+  const isInhouse = template?.source_type === "inhouse"
+  const contentSpec = template?.code ? getTemplateContentSpec(template.code) : undefined
+
   // Enqueue a WP patch and poll until it finishes. Coalesced server-side: rapid
   // saves share one job, so polling the same job_id is safe.
   const syncToWp = useCallback(async () => {
@@ -411,9 +423,14 @@ function EditorInner({ id }: { id: string }) {
         if (!res.ok) throw new Error("Save failed")
       }
       setSaveStatus("saved")
-      // Sync to the couple's WP post and refresh the iframe once it's done.
-      await syncToWp()
-      setPreviewVersion(v => v + 1)
+      // Refresh the preview: immediately for in-house (already live), after the
+      // WP patch completes for WP-backed templates.
+      if (isInhouse) {
+        setPreviewVersion(v => v + 1)
+      } else {
+        await syncToWp()
+        setPreviewVersion(v => v + 1)
+      }
       const mobile = typeof window !== "undefined" ? window.innerWidth < 768 : isMobile
       if (mobile) setShowMobilePreview(true)
     } catch {
@@ -421,7 +438,7 @@ function EditorInner({ id }: { id: string }) {
     } finally {
       setUpdatingPreview(false)
     }
-  }, [id, syncToWp, isMobile])
+  }, [id, syncToWp, isMobile, isInhouse])
 
   const updateField = (field: string, value: any) => {
     if (data.is_published === true) return
@@ -588,19 +605,25 @@ function EditorInner({ id }: { id: string }) {
   const galleryMax = photoQuota == null ? null : Math.max(0, photoQuota - groomPhotoCount - bridePhotoCount)
   const canAddGallery = galleryMax == null || galleryPhotos.length < galleryMax
 
-  const coverSlotCount = Array.isArray(template?.wp_manifest?.cover_photos)
+  const coverSlotCount = contentSpec?.cover_slots ?? (Array.isArray(template?.wp_manifest?.cover_photos)
     ? template.wp_manifest.cover_photos.length
-    : 0
+    : 0)
   const coverSlots = Array.from({ length: coverSlotCount })
 
   // Whether a field maps to a background slideshow (which needs 2 photos/slides).
   const isSlideshowField = (field: string): boolean => {
+    if (contentSpec) {
+      if (field === "groom_photo_url") return contentSpec.groom_photo === "slideshow"
+      if (field === "bride_photo_url") return contentSpec.bride_photo === "slideshow"
+      return false
+    }
     const mapping = template?.wp_manifest?.[field]
     const m = Array.isArray(mapping) ? mapping[0] : mapping
     return Array.isArray(m?.settings) && m.settings.join(".") === "background_slideshow_gallery"
   }
 
   const isCoverSlideshowSlot = (i: number): boolean => {
+    if (contentSpec) return !!contentSpec.cover_slideshows?.includes(i)
     const mapping = template?.wp_manifest?.cover_photos?.[i]
     return Array.isArray(mapping?.settings) && mapping.settings.join(".") === "background_slideshow_gallery"
   }
@@ -811,9 +834,13 @@ function EditorInner({ id }: { id: string }) {
       if (!res.ok) throw new Error("Save failed")
       setData(prev => ({ ...prev, ...all, is_published: true }))
       setSaveStatus("saved")
-      // Ensure the couple's WP post carries everything from the editor.
-      await syncToWp()
-      setPreviewVersion(v => v + 1)
+      // In-house templates render from wedding_profiles already; only WP needs sync.
+      if (isInhouse) {
+        setPreviewVersion(v => v + 1)
+      } else {
+        await syncToWp()
+        setPreviewVersion(v => v + 1)
+      }
       return true
     } catch {
       setSaveStatus("error")
@@ -1007,7 +1034,8 @@ function EditorInner({ id }: { id: string }) {
 
   const renderPreviewBody = () => {
     // Prefer the couple's own duplicated WP post; fall back to the master demo.
-    const previewUrl = data.active_wp_post_url || template?.demo_url
+    // In-house templates always render the React component (no WP iframe).
+    const previewUrl = isInhouse ? "" : (data.active_wp_post_url || template?.demo_url)
     if (previewUrl) {
       return <iframe key={`${previewUrl}-${previewVersion}`} src={previewUrl} className="w-full h-full border-0" title="Pratinjau" />
     }
@@ -1031,6 +1059,12 @@ function EditorInner({ id }: { id: string }) {
         guest_table_number="Meja 5"
         guest_qr_url={featureSet.has("qr_code_book") ? `/qr/preview?preview=1&slug=${encodeURIComponent(data.slug || "")}&couple=${encodeURIComponent(data.display_name || `${data.bride_name || ""} & ${data.groom_name || ""}`)}&date=${encodeURIComponent(data.estimated_wedding_date || "")}&time=${encodeURIComponent(sessions[0]?.time || "")}&venue=${encodeURIComponent(sessions[0]?.venue || "")}&address=${encodeURIComponent(sessions[0]?.address || "")}` : undefined}
         display_name={data.display_name || undefined}
+        cover_photos={data.cover_photos || undefined}
+        couple_initials={data.couple_initials || undefined}
+        opening_title={data.opening_title || undefined}
+        opening_description={data.opening_description || undefined}
+        video_url={data.video_url || undefined}
+        bride_instagram={data.bride_instagram || undefined}
         sessions={sessions.length > 0 ? sessions : undefined}
         quote_text={data.quote_text || undefined}
         quote_source={data.quote_source || undefined}
@@ -1047,13 +1081,19 @@ function EditorInner({ id }: { id: string }) {
         inviting_families={gates.inviting_families.included && Array.isArray(data.inviting_families) ? data.inviting_families.filter(Boolean) : undefined}
         gift_accounts={giftAccounts.length > 0 ? giftAccounts.map(a => ({ provider_name: a.provider_name, account_number: a.account_number, account_name: a.account_name, type: a.type })) : undefined}
         gift_address={gates.gift_address.included ? giftAddressText || undefined : undefined}
-        track_url={selectedTrack?.audio_url || undefined}
+        gift_address_name={giftAddressName || undefined}
+        gift_section_visible={data.gift_section_visible !== false}
+        video_section_visible={data.video_section_visible !== false}
+        inviting_families_visible={data.inviting_families_visible !== false}
+        story_visible={data.story_visible !== false}
+        track_url={selectedTrack?.audio_url || (isInhouse ? ASSETS.defaultMusic : undefined)}
         auto_play={autoPlay || undefined}
         rsvp_max_pax={data.rsvp_max_pax ?? 2}
         feature_gates={{
           story: gates.story.included,
           gift_address: gates.gift_address.included,
           inviting_families: gates.inviting_families.included,
+          video: gates.cinematic_video.included,
           qr_code_book: featureSet.has("qr_code_book"),
         }}
       />

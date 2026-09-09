@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { useEffect, useState, type FormEvent } from "react"
 
 interface InvitationOverlayProps {
   guestId: string
@@ -13,6 +13,11 @@ interface InvitationOverlayProps {
   guestRsvpMessage?: string
   rsvpMaxPax?: number
   qrEnabled: boolean
+  // 'center' = right-center column (legacy/WP). 'bottom' = bottom-right corner,
+  // below the hotspot area of in-house immersive rooms. `bottom` tunes its
+  // distance from the viewport edge when anchored bottom (e.g. above a dock).
+  anchor?: "center" | "bottom"
+  bottom?: number
 }
 
 export default function InvitationOverlay({
@@ -26,9 +31,22 @@ export default function InvitationOverlay({
   guestRsvpMessage,
   rsvpMaxPax,
   qrEnabled,
+  anchor = "center",
+  bottom = 24,
 }: InvitationOverlayProps) {
   const [qrOpen, setQrOpen] = useState(false)
   const [rsvpOpen, setRsvpOpen] = useState(false)
+  // In-house templates dispatch aksaraa:floating when their modal opens so the
+  // floating QR/RSVP dock hides instead of overlapping the modal.
+  const [externalHidden, setExternalHidden] = useState(false)
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      setExternalHidden((e as CustomEvent<boolean>).detail === true)
+    }
+    window.addEventListener("aksaraa:floating", handler)
+    return () => window.removeEventListener("aksaraa:floating", handler)
+  }, [])
 
   const alreadyResponded = guestRsvpStatus === "HADIR" || guestRsvpStatus === "TIDAK_HADIR"
 
@@ -94,10 +112,12 @@ export default function InvitationOverlay({
 
   return (
     <>
-      {/* Floating dock — right-center column (WP music toggle sits above) */}
+      {/* Floating dock — right-center column by default, or bottom-right for
+          in-house rooms so it never overlaps the hotspot area. */}
+      {!externalHidden && (
       <div
         className="fixed right-4 z-[90] flex flex-col items-end gap-3"
-        style={{ top: "50%", transform: "translateY(-50%)" }}
+        style={anchor === "bottom" ? { bottom, right: 16 } : { top: "50%", transform: "translateY(-50%)" }}
       >
         {qrEnabled && guestQrUrl && (
           <button
@@ -122,6 +142,7 @@ export default function InvitationOverlay({
           <span className="material-symbols-outlined text-[20px]">event_available</span>
         </button>
       </div>
+      )}
 
       {/* QR modal — digital pass */}
       {qrOpen && (
