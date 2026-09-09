@@ -7,6 +7,8 @@ import { ASSETS } from "@/lib/assets"
 import { FONT_BODY, FONT_PIXEL } from "../shared/Skin"
 import { formatDotDate, initialsOf, type GiftAccountData } from "../shared/lib"
 import LiveWishes from "../shared/LiveWishes"
+import { useSceneFit } from "../shared/useSceneFit"
+import PixelAtmosphere, { PIXEL_ATMOSPHERE_CSS } from "./Atmosphere"
 
 const BODY = FONT_BODY
 const PIXEL = FONT_PIXEL
@@ -50,8 +52,9 @@ function PillButton({
 
 const GUIDE_STYLE = `
 .pp-scene { width: 100%; }
-.pp-guide { border: 2px solid rgb(103, 232, 249) !important; background: rgba(56, 189, 248, 0.2) !important; box-shadow: 0 0 18px rgba(56, 239, 255, 0.9), 0 0 35px rgba(56, 239, 255, 0.5), inset 0 0 15px rgba(56, 239, 255, 0.3) !important; }
-.pp-guide-pink { border: 2px solid rgb(244, 114, 182) !important; background: rgba(236, 72, 153, 0.25) !important; box-shadow: 0 0 18px rgba(244, 114, 182, 0.9), 0 0 35px rgba(244, 114, 182, 0.5), inset 0 0 15px rgba(244, 114, 182, 0.3) !important; }
+.pp-guide { border: 2px solid rgb(103, 232, 249); background: rgba(56, 189, 248, 0.2); animation: ppHotspotPulse 2.2s infinite ease-in-out; }
+.pp-guide-pink { border: 2px solid rgb(244, 114, 182); background: rgba(236, 72, 153, 0.25); animation: ppHotspotPulsePink 2.2s infinite ease-in-out; }
+${PIXEL_ATMOSPHERE_CSS}
 `
 
 export default function PixelRoom({
@@ -64,6 +67,8 @@ export default function PixelRoom({
   onWishOpenChange,
 }: RoomProps) {
   const [hint, setHint] = useState(true)
+  // Art box is measured (never overflows): full image always visible, hotspots aligned.
+  const { boxRef, boxStyle, onArtLoad } = useSceneFit(124, "768 / 1376")
 
   const stories = Array.isArray(profile.stories) ? profile.stories : []
   const families = Array.isArray(profile.inviting_families) ? profile.inviting_families.filter(Boolean) : []
@@ -107,12 +112,13 @@ export default function PixelRoom({
       <style>{GUIDE_STYLE}</style>
 
       {/* Scene: pixel arcade room behind the header */}
-      <div className="absolute inset-0 flex items-start justify-center pt-[124px]">
+      <div ref={boxRef} className="absolute inset-0 flex items-start justify-center pt-[124px]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,#0d1527_0%,#020617_75%)]" />
-        <div className="relative pp-scene">
+        <div className="relative pp-scene" style={boxStyle}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={ASSETS.pixelParadise.room} alt="" className="w-full h-auto block pointer-events-none" draggable={false} />
+          <img src={ASSETS.pixelParadise.room} alt="" onLoad={onArtLoad} className="block w-full h-full object-cover pointer-events-none" draggable={false} />
           <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/40 via-transparent to-[#020617]/70 pointer-events-none" />
+          <PixelAtmosphere />
 
           {items.map((it, i) => {
             if (!it) return null

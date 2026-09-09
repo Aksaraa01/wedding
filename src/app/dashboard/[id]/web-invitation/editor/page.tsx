@@ -1038,9 +1038,23 @@ function EditorInner({ id }: { id: string }) {
   const isPublished = data.is_published === true
 
   const renderPreviewBody = () => {
+    // In-house templates preview through the per-couple preview route inside a
+    // real iframe sized like a device, so the editor shows exactly what guests
+    // see on a real phone. "Perbarui Undangan" saves, then remounts it.
+    if (isInhouse) {
+      const LiveComp = template?.code ? getTemplateComponent(template.code) : null
+      if (!LiveComp) {
+        return (
+          <div className="h-full flex items-center justify-center text-on-surface-variant font-body-md">
+            Pilih template untuk melihat pratinjau
+          </div>
+        )
+      }
+      const src = `/preview/${id}?v=${previewVersion}`
+      return <iframe key={src} src={src} className="w-full h-full border-0" title="Pratinjau" />
+    }
     // Prefer the couple's own duplicated WP post; fall back to the master demo.
-    // In-house templates always render the React component (no WP iframe).
-    const previewUrl = isInhouse ? "" : (data.active_wp_post_url || template?.demo_url)
+    const previewUrl = data.active_wp_post_url || template?.demo_url
     if (previewUrl) {
       return <iframe key={`${previewUrl}-${previewVersion}`} src={previewUrl} className="w-full h-full border-0" title="Pratinjau" />
     }

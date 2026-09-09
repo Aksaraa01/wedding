@@ -6,6 +6,8 @@ import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { formatDotDate, initialsOf, type GiftAccountData } from "./lib"
 import LiveWishes from "../shared/LiveWishes"
+import { useSceneFit } from "../shared/useSceneFit"
+import SkylineAtmosphere, { SKYLINE_ATMOSPHERE_CSS } from "./Atmosphere"
 
 const BODY = { fontFamily: "var(--font-body, 'Plus Jakarta Sans'), sans-serif" } as const
 
@@ -51,14 +53,16 @@ function PillButton({
 // in the editor preview and on a real device.
 const GUIDE_STYLE = `
 .sp-scene { width: 100%; }
-.sp-guide { border: 1.5px solid rgba(56,189,248,0.45) !important; background: rgba(56,189,248,0.05) !important; box-shadow: 0 0 10px rgba(56,189,248,0.25), inset 0 0 8px rgba(56,189,248,0.08) !important; animation: sp-pulse 3s infinite ease-in-out; }
-.sp-guide-pink { border: 1.5px solid rgba(244,63,94,0.45) !important; background: rgba(244,63,94,0.05) !important; box-shadow: 0 0 10px rgba(244,63,94,0.22), inset 0 0 8px rgba(244,63,94,0.08) !important; }
-@keyframes sp-pulse { 0%,100% { transform: scale(1); box-shadow: 0 0 10px rgba(56,189,248,0.25), inset 0 0 8px rgba(56,189,248,0.08); } 50% { transform: scale(1.02); box-shadow: 0 0 14px rgba(56,189,248,0.38), inset 0 0 10px rgba(56,189,248,0.12); } }
+.sp-guide { border: 1.5px solid rgba(56, 189, 248, 0.55); background: rgba(56, 189, 248, 0.05); animation: spGuidePulse 2.6s infinite ease-in-out; }
+.sp-guide-pink { border: 1.5px solid rgba(244, 63, 94, 0.55); background: rgba(244, 63, 94, 0.05); }
+${SKYLINE_ATMOSPHERE_CSS}
 `
 
 
 export default function Room({ profile, musicPlaying, onToggleMusic, onOpenModal, modalActive, wishOpen, onWishOpenChange }: RoomProps) {
   const [hint, setHint] = useState(true)
+  // Art box is measured (never overflows): full image always visible, hotspots aligned.
+  const { boxRef, boxStyle, onArtLoad } = useSceneFit(124, "390 / 513.2")
 
   const stories = Array.isArray(profile.stories) ? profile.stories : []
   const families = Array.isArray(profile.inviting_families) ? profile.inviting_families.filter(Boolean) : []
@@ -110,17 +114,19 @@ export default function Room({ profile, musicPlaying, onToggleMusic, onOpenModal
       {/* Scene: the isometric room illustration with hotspots anchored to it.
           The art starts below the stacked header controls (HINT/Family/Video),
           so it never covers the video button. */}
-      <div className="absolute inset-0 flex items-start justify-center pt-[124px]">
+      <div ref={boxRef} className="absolute inset-0 flex items-start justify-center pt-[124px]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,#0d1527_0%,#020617_75%)]" />
-        <div className="relative sp-scene">
+        <div className="relative sp-scene" style={boxStyle}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={ASSETS.skylinePenthouse.room}
             alt=""
-            className="w-full h-auto block pointer-events-none"
+            onLoad={onArtLoad}
+            className="block w-full h-full object-cover pointer-events-none"
             draggable={false}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#020617] from-2% via-transparent to-[#020617]/60 pointer-events-none" />
+          <SkylineAtmosphere />
 
           {/* Hotspots */}
           {items.map((it) => {

@@ -200,6 +200,13 @@ The VPS has 2GB RAM and CANNOT run `next build`. Build locally, rsync the standa
    pm2 restart aksara-wedding --update-env
    pm2 save
    ```
+4. After the VPS deploy is verified, commit and push the work:
+   ```bash
+   git add -A
+   git commit -m "feat: describe_change"
+   git push origin main
+   ```
+   Note: `tsconfig.tsbuildinfo` is local build noise — leave it uncommitted.
 
 ### Start local development
 

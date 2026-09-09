@@ -78,17 +78,40 @@ export default function PremiumWebInvitationPage() {
     return () => observer.disconnect()
   }, [])
 
+  // Same predicate drives filtering and zero-count hiding, so chips never lie.
+  const matchesCategory = (cat: string | null | undefined, filterId: string): boolean => {
+    const c = (cat || "").trim().toLowerCase()
+    switch (filterId) {
+      case "semua":
+        return true
+      case "adat":
+        return c.includes("adat") || c.includes("tradisional") || c === "budaya"
+      case "modern":
+        return c.includes("modern") || c.includes("minimalis") || c === "nasional"
+      case "elegansi":
+        return c.includes("elegansi") || c.includes("dark")
+      case "floral":
+        return c.includes("floral")
+      default:
+        return c === filterId
+    }
+  }
+
   const visibleTemplates =
     categoryFilter === "semua"
       ? templates
-      : templates.filter((t) => {
-          const cat = (t.category || "").toLowerCase()
-          if (categoryFilter === "adat") return cat.includes("adat") || cat.includes("tradisional") || cat === "budaya"
-          if (categoryFilter === "modern") return cat.includes("modern") || cat.includes("minimalis") || cat === "nasional"
-          if (categoryFilter === "elegansi") return cat.includes("elegansi") || cat.includes("dark")
-          if (categoryFilter === "floral") return cat.includes("floral")
-          return cat === categoryFilter
-        })
+      : templates.filter((t) => matchesCategory(t.category, categoryFilter))
+
+  // Hide filters with no matching templates (e.g. "Elegansi Dark" with 0 rows).
+  const shownFilters = allFilters.filter(
+    (f) => f.id === "semua" || f.id === categoryFilter || templates.some((t) => matchesCategory(t.category, f.id))
+  )
+
+  useEffect(() => {
+    if (categoryFilter !== "semua" && !templates.some((t) => matchesCategory(t.category, categoryFilter))) {
+      setCategoryFilter("semua")
+    }
+  }, [templates, categoryFilter])
 
   return (
     <>
@@ -159,7 +182,7 @@ export default function PremiumWebInvitationPage() {
         {/* Category Navigation */}
         <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mb-10">
           <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar justify-start md:justify-center">
-            {allFilters.map((f) => (
+            {shownFilters.map((f) => (
               <button
                 key={f.id}
                 onClick={() => setCategoryFilter(f.id)}

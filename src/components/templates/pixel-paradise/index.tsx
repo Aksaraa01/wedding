@@ -62,7 +62,7 @@ export default function PixelParadise(props: TemplateProps) {
 
   return (
     <Skin display="Playfair Display" body="Plus Jakarta Sans" pixel="Press Start 2P">
-      <div className="h-screen supports-[height:100dvh]:h-[100dvh] max-h-full w-full bg-[#05070c] flex justify-center overflow-hidden">
+      <div className="sp-shell w-full bg-[#05070c] flex justify-center overflow-hidden">
         <div className="relative h-full w-full max-w-[430px] overflow-hidden bg-[#020617] shadow-[0_0_60px_rgba(0,0,0,0.6)]">
           {!opened ? (
             <PixelCover
