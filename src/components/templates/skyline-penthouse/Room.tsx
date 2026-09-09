@@ -46,9 +46,9 @@ function PillButton({
   )
 }
 
-// Base CSS for hotspot guide outlines (HINT ON). The room art fills the phone
-// column width (aspect 390/513.2) and is anchored right under the header, so it
-// renders identically in the editor preview and on a real device.
+// Base CSS for hotspot guide outlines (HINT ON). The art renders at its natural
+// aspect, full column width, so it is never cropped and hotspots always align
+// in the editor preview and on a real device.
 const GUIDE_STYLE = `
 .sp-scene { width: 100%; }
 .sp-guide { border: 1.5px solid rgba(56,189,248,0.45) !important; background: rgba(56,189,248,0.05) !important; box-shadow: 0 0 10px rgba(56,189,248,0.25), inset 0 0 8px rgba(56,189,248,0.08) !important; animation: sp-pulse 3s infinite ease-in-out; }
@@ -112,12 +112,12 @@ export default function Room({ profile, musicPlaying, onToggleMusic, onOpenModal
           so it never covers the video button. */}
       <div className="absolute inset-0 flex items-start justify-center pt-[124px]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,#0d1527_0%,#020617_75%)]" />
-        <div className="relative sp-scene" style={{ aspectRatio: "390 / 513.2" }}>
+        <div className="relative sp-scene">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={ASSETS.skylinePenthouse.room}
             alt=""
-            className="w-full h-full object-cover pointer-events-none"
+            className="w-full h-auto block pointer-events-none"
             draggable={false}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#020617] from-2% via-transparent to-[#020617]/60 pointer-events-none" />
@@ -199,9 +199,10 @@ export default function Room({ profile, musicPlaying, onToggleMusic, onOpenModal
         </div>
       </header>
 
-      {/* Room hint for hidden hotspots (subtle, only when guide is off) */}
-      {!hint && (
-        <div className="pointer-events-none absolute bottom-[18%] inset-x-0 flex justify-center">
+      {/* Room hint for hidden hotspots — sits above the sticky wishes button and
+          hides while any modal (incl. wishes) is open so they never overlap. */}
+      {!hint && !modalActive && !wishOpen && (
+        <div className="pointer-events-none absolute bottom-[72px] inset-x-0 flex justify-center z-10">
           <span className="text-[9px] uppercase tracking-[0.2em] text-slate-500" style={BODY}>
             Sentuh objek untuk menjelajah
           </span>

@@ -64,6 +64,7 @@ type Template = {
   preview_image_url: string
   demo_url: string
   source_type?: string | null
+  wp_master_slug?: string | null
   wp_manifest: Record<string, any> | null
 }
 
@@ -345,8 +346,11 @@ function EditorInner({ id }: { id: string }) {
       .finally(() => setFeedbackLoading(false))
   }, [id])
 
-  // In-house templates render the React component directly and skip WP sync.
-  const isInhouse = template?.source_type === "inhouse"
+    // In-house templates render the React component directly and skip WP sync.
+  // Detection tolerates rows that predate the source_type column: a registered
+  // React code with no WP master is in-house by construction.
+  const isInhouse = template?.source_type === "inhouse" ||
+    (!!template?.code && !!getTemplateComponent(template.code) && !template?.wp_master_slug)
   const contentSpec = template?.code ? getTemplateContentSpec(template.code) : undefined
 
   // Enqueue a WP patch and poll until it finishes. Coalesced server-side: rapid
@@ -423,9 +427,10 @@ function EditorInner({ id }: { id: string }) {
         if (!res.ok) throw new Error("Save failed")
       }
       setSaveStatus("saved")
-      // Refresh the preview: immediately for in-house (already live), after the
-      // WP patch completes for WP-backed templates.
+      // Refresh the preview: in-house renders live from the profile, so reload
+      // fresh server data into it; for WP, sync the patch first, then refresh.
       if (isInhouse) {
+        await fetchProfile()
         setPreviewVersion(v => v + 1)
       } else {
         await syncToWp()
@@ -438,7 +443,7 @@ function EditorInner({ id }: { id: string }) {
     } finally {
       setUpdatingPreview(false)
     }
-  }, [id, syncToWp, isMobile, isInhouse])
+  }, [id, syncToWp, isMobile, isInhouse, fetchProfile])
 
   const updateField = (field: string, value: any) => {
     if (data.is_published === true) return

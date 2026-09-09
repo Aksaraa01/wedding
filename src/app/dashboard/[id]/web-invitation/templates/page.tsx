@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import TemplatePreviewModal from "@/components/TemplatePreviewModal"
 import { pollWpJob } from "@/lib/wpJobPoll"
+import { getTemplateComponent } from "@/components/templates"
 import { normalizeTemplateTier, tierBadgeClass } from "@/lib/templateTier"
 import ProductJourney from "@/components/onboarding/ProductJourney"
 
@@ -26,6 +27,26 @@ type Template = {
   category?: string | null
   tier?: string | null
   source_type?: string | null
+  wp_master_slug?: string | null
+}
+
+// Same predicate drives filtering and zero-count hiding, so chips never lie.
+function matchesCategory(cat: string | null | undefined, filterId: string): boolean {
+  const c = (cat || "").trim().toLowerCase()
+  switch (filterId) {
+    case "semua":
+      return true
+    case "adat":
+      return c.includes("adat") || c.includes("tradisional") || c === "budaya"
+    case "modern":
+      return c.includes("modern") || c.includes("minimalis") || c === "nasional"
+    case "elegansi":
+      return c.includes("elegansi") || c.includes("dark")
+    case "floral":
+      return c.includes("floral")
+    default:
+      return c === filterId
+  }
 }
 
 function TemplatesInner({ id }: { id: string }) {
@@ -50,11 +71,22 @@ function TemplatesInner({ id }: { id: string }) {
   }, [templates])
 
   const visibleTemplates = templates.filter((t) => {
-    const cat = (t.category || "").toLowerCase()
-    const catOk = categoryFilter === "semua" || (categoryFilter === "adat" ? cat.includes("adat") || cat.includes("tradisional") || cat === "budaya" : categoryFilter === "modern" ? cat.includes("modern") || cat.includes("minimalis") || cat === "nasional" : categoryFilter === "elegansi" ? cat.includes("elegansi") || cat.includes("dark") : categoryFilter === "floral" ? cat.includes("floral") : cat === categoryFilter)
+    const catOk = matchesCategory(t.category, categoryFilter)
     const searchOk = !searchQuery.trim() || t.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
     return catOk && searchOk
   })
+
+  // Filters with no matching templates are hidden (except "Semua"), so empty
+  // categories like "Elegansi Dark" never appear as dead filter chips.
+  const shownFilters = allFilters
+    .map((f) => ({ ...f, count: templates.filter((t) => matchesCategory(t.category, f.id)).length }))
+    .filter((f) => f.id === "semua" || f.count > 0 || f.id === categoryFilter)
+
+  useEffect(() => {
+    if (categoryFilter !== "semua" && !templates.some((t) => matchesCategory(t.category, categoryFilter))) {
+      setCategoryFilter("semua")
+    }
+  }, [templates, categoryFilter])
 
   useEffect(() => {
     ;(async () => {
@@ -72,9 +104,11 @@ function TemplatesInner({ id }: { id: string }) {
     setError(null)
     try {
       const tpl = templates.find((t) => t.id === templateId)
+      const inhouse = tpl?.source_type === "inhouse" ||
+        (!!tpl?.code && !!getTemplateComponent(tpl.code) && !tpl?.wp_master_slug)
 
       // In-house template: assign + clear any prior WP duplicate — no job to poll.
-      if (tpl?.source_type === "inhouse") {
+      if (inhouse) {
         const res = await fetch(`/api/web-invitation/template-select`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -131,7 +165,7 @@ function TemplatesInner({ id }: { id: string }) {
             />
           </div>
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-            {allFilters.map((f) => (
+            {shownFilters.map((f) => (
               <button
                 key={f.id}
                 onClick={() => setCategoryFilter(f.id)}

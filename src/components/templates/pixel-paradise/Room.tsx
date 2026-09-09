@@ -90,7 +90,7 @@ export default function PixelRoom({
     pink,
   })
 
-  // Pixel room hotspot coordinates (scene aspect 768/1376). Gated hotspots are
+  // Pixel room hotspot coordinates (% of the natural-aspect art). Gated hotspots are
   // dropped when their content is empty/toggled off. Jukebox = love story; the
   // pink hearts = the couple; the GIFT sign = wedding gift.
   const items: ({ kind: ModalKind; label: string; pos: ReturnType<typeof hotspot>; giftLabel?: boolean } | null)[] = [
@@ -109,9 +109,9 @@ export default function PixelRoom({
       {/* Scene: pixel arcade room behind the header */}
       <div className="absolute inset-0 flex items-start justify-center pt-[124px]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,#0d1527_0%,#020617_75%)]" />
-        <div className="relative pp-scene" style={{ aspectRatio: "768 / 1376" }}>
+        <div className="relative pp-scene">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={ASSETS.pixelParadise.room} alt="" className="w-full h-full object-cover pointer-events-none" draggable={false} />
+          <img src={ASSETS.pixelParadise.room} alt="" className="w-full h-auto block pointer-events-none" draggable={false} />
           <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/40 via-transparent to-[#020617]/70 pointer-events-none" />
 
           {items.map((it, i) => {
@@ -187,9 +187,10 @@ export default function PixelRoom({
         </button>
       )}
 
-      {/* Room hint when guides are off */}
-      {!hint && (
-        <div className="pointer-events-none absolute bottom-[26%] inset-x-0 flex justify-center z-20">
+      {/* Room hint when guides are off — sits above the sticky wishes button and
+          hides while any modal (incl. wishes) is open so they never overlap. */}
+      {!hint && !modalActive && !wishOpen && (
+        <div className="pointer-events-none absolute bottom-[72px] inset-x-0 flex justify-center z-10">
           <span className="text-[8px] uppercase tracking-[0.2em] text-slate-500" style={PIXEL}>
             Sentuh objek untuk menjelajah
           </span>

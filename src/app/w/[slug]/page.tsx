@@ -184,18 +184,19 @@ export default async function WeddingInvitation({
   let templateDemoUrl: string | null = null
   if (profile.selected_template_id) {
     // Static reference data — cached so repeat views skip this read.
-    const tmpl = await cachedRead<{ code: string | null; demo_url: string | null; source_type: string | null } | null>(`template:${profile.selected_template_id}`, 10 * 60_000, async () => {
+    const tmpl = await cachedRead<{ code: string | null; demo_url: string | null; source_type: string | null; wp_master_slug: string | null } | null>(`template:${profile.selected_template_id}`, 10 * 60_000, async () => {
       const { data, error } = await supabaseAdmin
         .from("web_templates")
-        .select("code, demo_url, source_type")
+        .select("code, demo_url, source_type, wp_master_slug")
         .eq("id", profile.selected_template_id)
         .single()
       if (error) return null
-      return { code: data?.code || null, demo_url: data?.demo_url || null, source_type: data?.source_type || null }
+      return { code: data?.code || null, demo_url: data?.demo_url || null, source_type: data?.source_type || null, wp_master_slug: data?.wp_master_slug || null }
     })
     if (tmpl) {
       templateCode = tmpl.code
-      isInhouse = tmpl.source_type === "inhouse"
+      isInhouse = tmpl.source_type === "inhouse" ||
+        (!!tmpl.code && !!getTemplateComponent(tmpl.code) && !tmpl.wp_master_slug)
       templateDemoUrl = tmpl.demo_url
     }
   }
