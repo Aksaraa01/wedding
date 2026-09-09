@@ -836,7 +836,7 @@ function Inner() {
                 Paket yang Anda pilih berbeda dari paket yang sudah dibayar. Perubahan paket memerlukan konfirmasi dan bantuan konsultan.
               </p>
               <button
-                onClick={() => window.open("https://wa.me/6281224459435", "_blank")}
+                onClick={() => window.open("https://wa.me/6282268905055?text=Halo%20Aksaraa%20Wedding%20Saya%20perlu%20konsultasi%20mengenai..", "_blank")}
                 className="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
               >
                 <span className="material-symbols-outlined text-[16px] mr-2">chat</span>

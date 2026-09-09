@@ -2244,7 +2244,7 @@ function EditorInner({ id }: { id: string }) {
             </p>
             <div className="flex flex-col gap-3">
               <a
-                href="https://wa.me/6281224459435?text=Halo%20Aksaraa%2C%20saya%20ingin%20menyelesaikan%20pembayaran%20untuk%20membuka%20fitur%20Feedback"
+                href="https://wa.me/6282268905055?text=Halo%20Aksaraa%2C%20saya%20ingin%20menyelesaikan%20pembayaran%20untuk%20membuka%20fitur%20Feedback"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-3.5 bg-[#8d4d39] text-white rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity text-center"
