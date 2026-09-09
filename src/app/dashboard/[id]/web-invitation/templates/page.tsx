@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import TemplatePreviewModal from "@/components/TemplatePreviewModal"
 import { pollWpJob } from "@/lib/wpJobPoll"
+import { normalizeTemplateTier, tierBadgeClass } from "@/lib/templateTier"
 import ProductJourney from "@/components/onboarding/ProductJourney"
 
 const CATEGORY_FILTERS = [
@@ -129,7 +130,7 @@ function TemplatesInner({ id }: { id: string }) {
         <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 no-scrollbar lg:grid lg:grid-cols-4 xl:grid-cols-5 lg:gap-x-4 lg:gap-y-10 lg:overflow-visible">
           {visibleTemplates.map((tpl, idx) => {
             const styleTag = (tpl.category || "Modern").toUpperCase()
-            const tierTag = tpl.tier && tpl.tier !== "Baru" ? tpl.tier.toUpperCase() : null
+            const tierTag = normalizeTemplateTier(tpl.tier)?.toUpperCase() ?? null
             return (
             <article key={tpl.id} className="group flex flex-col shrink-0 snap-start w-[72vw] max-w-[300px] lg:w-auto lg:max-w-none bg-white border border-[#E2D9CF] rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
               <div
@@ -143,7 +144,7 @@ function TemplatesInner({ id }: { id: string }) {
                   </div>
                 )}
                 {tierTag && selectedId !== tpl.id && (
-                  <span className="absolute top-2 left-2 z-10 bg-[#C5A059] text-white text-[8px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full shadow-sm">{tierTag}</span>
+                  <span className={`absolute top-2 left-2 z-10 text-white text-[8px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full shadow-sm ${tierBadgeClass(tpl.tier)}`}>{tierTag}</span>
                 )}
                 <img
                   alt={tpl.name}

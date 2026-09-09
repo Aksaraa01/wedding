@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { requireOpsEmployee } from "@/lib/ops-auth"
+import { normalizeTemplateTier } from "@/lib/templateTier"
 
 // GET /api/ops/templates — all templates (active + inactive), for ops management
 export async function GET(req: Request) {
@@ -49,7 +50,7 @@ export async function POST(req: Request) {
     }
   }
 
-  const tier = ["Baru", "Populer", "Signature"].includes(String(body.tier || "").trim()) ? String(body.tier).trim() : "Baru"
+  const tier = body.tier === undefined ? "Baru" : normalizeTemplateTier(body.tier)
   const { data, error } = await supabaseAdmin
     .from("web_templates")
     .insert({

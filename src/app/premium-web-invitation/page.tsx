@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import TemplatePreviewModal from "@/components/TemplatePreviewModal"
 import { ASSETS } from "@/lib/assets"
+import { normalizeTemplateTier, tierBadgeClass } from "@/lib/templateTier"
 
 const CATEGORY_FILTERS = [
   { id: "semua", label: "Semua" },
@@ -179,7 +180,7 @@ export default function PremiumWebInvitationPage() {
           <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 no-scrollbar lg:grid lg:grid-cols-4 xl:grid-cols-5 lg:gap-x-4 lg:gap-y-10 lg:overflow-visible">
             {visibleTemplates.map((tpl) => {
               const styleTag = (tpl.category || "Modern").toUpperCase()
-              const tierTag = tpl.tier && tpl.tier !== "Baru" ? tpl.tier.toUpperCase() : null
+              const tierTag = normalizeTemplateTier(tpl.tier)?.toUpperCase() ?? null
               return (
               <article key={tpl.id} className="template-card group flex flex-col shrink-0 snap-start w-[72vw] max-w-[300px] lg:w-auto lg:max-w-none bg-white border border-[#E2D9CF] rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
                 <div
@@ -192,7 +193,7 @@ export default function PremiumWebInvitationPage() {
                     src={tpl.preview_image_url}
                   />
                   {tierTag && (
-                    <span className="absolute top-3 left-3 bg-[#C5A059] text-white text-[9px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full shadow-sm">{tierTag}</span>
+                    <span className={`absolute top-3 left-3 text-white text-[9px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full shadow-sm ${tierBadgeClass(tpl.tier)}`}>{tierTag}</span>
                   )}
                 </div>
                 <div className="p-4 flex flex-col gap-2">

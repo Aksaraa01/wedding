@@ -7,6 +7,7 @@ import OpsHeader from "@/components/ops/OpsHeader"
 import { FIELD_LABELS, WIDGET_SETTINGS } from "@/lib/fieldLabels"
 import { OBJECT_ARRAY_FIELDS, SIMPLE_ARRAY_FIELDS, SUBFIELD_LABELS } from "@/lib/manifest"
 import { PACKAGE_LABELS, PACKAGE_CATEGORY, PACKAGE_CODES } from "@/lib/packages"
+import { normalizeTemplateTier, tierBadgeClass } from "@/lib/templateTier"
 import ElementSelect from "@/components/ops/ElementSelect"
 
 type Template = {
@@ -101,7 +102,7 @@ export default function OpsTemplatesPage() {
     sort_order: 0,
     package_eligibility: [] as string[],
     category: "",
-    tier: "Baru" as string,
+    tier: "" as string,
     wp_master_slug: "",
   })
 
@@ -200,7 +201,7 @@ export default function OpsTemplatesPage() {
     setManifest({})
     setElements([])
     setPopups([])
-    setForm({ code: "", name: "", description: "", preview_image_url: "", demo_url: "", is_active: true, sort_order: templates.length, package_eligibility: [...PACKAGE_CODES], category: "", tier: "Baru", wp_master_slug: "" })
+    setForm({ code: "", name: "", description: "", preview_image_url: "", demo_url: "", is_active: true, sort_order: templates.length, package_eligibility: [...PACKAGE_CODES], category: "", tier: "", wp_master_slug: "" })
   }
 
   const startEdit = (t: Template, openMapping = false) => {
@@ -221,7 +222,7 @@ export default function OpsTemplatesPage() {
       sort_order: t.sort_order,
       package_eligibility: t.package_eligibility && t.package_eligibility.length > 0 ? t.package_eligibility : [...PACKAGE_CODES],
       category: t.category || "",
-      tier: (t as any).tier || "Baru",
+      tier: (t as any).tier || "",
       wp_master_slug: t.wp_master_slug || "",
     })
   }
@@ -697,8 +698,8 @@ export default function OpsTemplatesPage() {
                     {t.category && (
                       <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-brand-goldMuted/40 text-brand-charcoal shrink-0">{t.category}</span>
                     )}
-                    {(t as any).tier && (t as any).tier !== "Baru" && (
-                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-[#C5A059] text-white rounded-full shrink-0">{(t as any).tier}</span>
+                    {normalizeTemplateTier((t as any).tier) && (
+                      <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full shrink-0 ${tierBadgeClass((t as any).tier)}`}>{(t as any).tier}</span>
                     )}
                   </div>
                   {t.description && <p className="text-[11px] text-on-surface-variant line-clamp-2">{t.description}</p>}
@@ -764,6 +765,7 @@ export default function OpsTemplatesPage() {
                   <div>
                     <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Tipe Badge</label>
                     <select className="input-editorial w-full font-label-md text-[14px]" value={form.tier} onChange={(e) => setForm({ ...form, tier: e.target.value })}>
+                      <option value="">Tanpa Badge</option>
                       <option value="Baru">Baru</option>
                       <option value="Populer">Populer</option>
                       <option value="Signature">Signature</option>
