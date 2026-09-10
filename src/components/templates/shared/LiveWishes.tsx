@@ -33,12 +33,14 @@ type Props = {
   guestName?: string
   // Override the sticky button offset (quest footer needs more clearance).
   stickyClassName?: string
+  // Hide the sticky trigger (caller provides its own entry point, e.g. header).
+  hideTrigger?: boolean
 }
 
 // Shared live wishes experience for in-house templates: a sticky button that
 // opens the LIVE WISHES & DOA modal (approved feed + input). Same design & UX
 // for Skyline Penthouse, Pixel Paradise and Pixel Quest.
-export default function LiveWishes({ open, onOpenChange, weddingProfileId, guestId, guestName, stickyClassName = "bottom-3 left-3" }: Props) {
+export default function LiveWishes({ open, onOpenChange, weddingProfileId, guestId, guestName, stickyClassName = "bottom-3 left-3", hideTrigger = false }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const [message, setMessage] = useState("")
@@ -103,6 +105,7 @@ export default function LiveWishes({ open, onOpenChange, weddingProfileId, guest
   return (
     <>
       {/* Sticky live-wishes button (bottom-left) */}
+      {!hideTrigger && (
       <button
         type="button"
         onClick={() => onOpenChange(true)}
@@ -119,6 +122,7 @@ export default function LiveWishes({ open, onOpenChange, weddingProfileId, guest
           {wishes.length}
         </span>
       </button>
+      )}
 
       {/* LIVE WISHES & DOA modal */}
       {open && (

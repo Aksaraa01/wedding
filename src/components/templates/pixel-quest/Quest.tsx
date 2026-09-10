@@ -71,17 +71,19 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
   })
 
   const [stepIdx, setStepIdx] = useState(0)
+  // Quest starts unstarted: frame 1 shows with no card and no active progress.
+  // START begins at the couple card (still frame 1); FINISH resets to unstarted.
+  const [started, setStarted] = useState(false)
   // Hiding the card persists across step navigation (never auto-reset).
   const [cardHidden, setCardHidden] = useState(false)
   useEffect(() => {
     setStepIdx((i) => Math.min(i, Math.max(0, steps.length - 1)))
   }, [steps.length])
 
-  const step = steps[Math.min(stepIdx, Math.max(0, steps.length - 1))] || "couple"
+  const step = started ? steps[Math.min(stepIdx, Math.max(0, steps.length - 1))] || "couple" : "couple"
   const frameIdx = STEP_FRAME[step]
   const catPos = CAT_POS[step]
-  const celebrate = step === "gift" || step === "inviting" || step === "video"
-  const isFirst = stepIdx <= 0
+  const celebrate = started && (step === "gift" || step === "inviting" || step === "video")
   const isLast = stepIdx >= steps.length - 1
 
   const videoEmbed = normalizeVideoUrl(profile.video_url)
@@ -90,7 +92,32 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
 
   const go = (i: number) => {
     if (i < 0 || i >= steps.length) return
+    setStarted(true)
     setStepIdx(i)
+  }
+
+  const handleNext = () => {
+    if (!started) {
+      setStarted(true)
+      setStepIdx(0)
+      return
+    }
+    if (isLast) {
+      // FINISH loops back to the unstarted state (frame 1, no card).
+      setStarted(false)
+      setStepIdx(0)
+      return
+    }
+    go(stepIdx + 1)
+  }
+
+  const handlePrev = () => {
+    if (!started) return
+    if (stepIdx <= 0) {
+      setStarted(false)
+      return
+    }
+    go(stepIdx - 1)
   }
 
   return (
@@ -121,32 +148,42 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
 
       {/* Top bar */}
       <header className="relative z-30 pt-3.5 px-4 flex flex-col gap-2 shrink-0">
-        <div className="flex items-center justify-between">
-          <div className="px-3 py-1 rounded-full bg-[#0e1321]/90 border border-cyan-500/30 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            <span className="text-[8px] text-cyan-300 tracking-wider" style={FONT_PIXEL}>
+        <div className="flex items-center justify-between gap-2">
+          <div className="px-3 py-1 rounded-full bg-[#0e1321]/90 border border-cyan-500/30 flex items-center gap-1.5 min-w-0">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
+            <span className="text-[8px] text-cyan-300 tracking-wider truncate" style={FONT_PIXEL}>
               {(profile.display_name || `${profile.groom_name || ""} & ${profile.bride_name || ""}`).toUpperCase().slice(0, 24) || "MEMPELAI"}
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={onToggleMusic}
               aria-label="Putar atau jeda musik"
-              className="px-2.5 py-1 rounded-full bg-[#0e1321]/90 flex items-center gap-1 border border-cyan-400/40 text-cyan-300 hover:text-white active:scale-95 transition text-[8px]"
+              className="px-2 py-1 rounded-full bg-[#0e1321]/90 flex items-center gap-1 border border-cyan-400/40 text-cyan-300 hover:text-white active:scale-95 transition text-[8px]"
               style={FONT_PIXEL}
             >
-              <span className="material-symbols-outlined text-[14px]">{musicPlaying ? "music_note" : "music_off"}</span>
+              <span className="material-symbols-outlined text-[13px]">{musicPlaying ? "music_note" : "music_off"}</span>
               <span>{musicPlaying ? "BGM" : "MUTED"}</span>
             </button>
             <button
               type="button"
-              onClick={() => setCardHidden((h) => !h)}
-              className="px-2.5 py-1 rounded-full bg-[#0e1321]/90 flex items-center gap-1 border border-cyan-400/40 text-cyan-300 hover:text-white active:scale-95 transition text-[8px]"
+              onClick={() => onWishOpenChange(true)}
+              aria-label="Buka Live Wishes & Doa"
+              className="px-2 py-1 rounded-full bg-[#0e1321]/90 flex items-center gap-1 border border-cyan-400/40 text-cyan-300 hover:text-white active:scale-95 transition text-[8px]"
               style={FONT_PIXEL}
             >
-              <span className="material-symbols-outlined text-[14px]">{cardHidden ? "visibility" : "visibility_off"}</span>
-              <span>{cardHidden ? "SHOW CARD" : "HIDE CARD"}</span>
+              <span className="material-symbols-outlined text-[13px]">forum</span>
+              <span>WISHES</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCardHidden((h) => !h)}
+              className="px-2 py-1 rounded-full bg-[#0e1321]/90 flex items-center gap-1 border border-cyan-400/40 text-cyan-300 hover:text-white active:scale-95 transition text-[8px]"
+              style={FONT_PIXEL}
+            >
+              <span className="material-symbols-outlined text-[13px]">{cardHidden ? "visibility" : "visibility_off"}</span>
+              <span>{cardHidden ? "SHOW" : "HIDE"}</span>
             </button>
           </div>
         </div>
@@ -154,8 +191,9 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
 
       <div className="flex-1 min-h-[6vh]" />
 
-      {/* Floating card (max half the device screen, body scrolls) */}
-      {!cardHidden && (
+      {/* Floating card (max half the device screen, body scrolls).
+          Shown only after START; hiding persists across steps. */}
+      {started && !cardHidden && (
         <main className="relative z-30 px-4 pb-2 shrink-0">
           {step === "couple" && <CoupleCard profile={profile} onHide={() => setCardHidden(true)} />}
           {step === "story" && <StoryCard profile={profile} onHide={() => setCardHidden(true)} />}
@@ -173,8 +211,8 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
         </main>
       )}
 
-      {/* Restore pill when the card is hidden */}
-      {cardHidden && (
+      {/* Restore pill when the card is hidden (only after START) */}
+      {started && cardHidden && (
         <div className="relative z-30 px-4 mb-2 flex justify-center shrink-0">
           <button
             type="button"
@@ -194,9 +232,9 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
         <div className="p-2 rounded-2xl flex items-center justify-between bg-[#0e1321]/90 border border-cyan-400/40 shadow-xl">
           <button
             type="button"
-            onClick={() => go(stepIdx - 1)}
-            disabled={isFirst}
-            className={`flex items-center gap-1.5 px-3 py-2.5 rounded-xl border text-[9px] transition-all active:scale-95 ${isFirst ? "bg-slate-900/70 border-slate-700 text-slate-400 opacity-40 cursor-not-allowed" : "bg-slate-900/70 border-slate-700 text-slate-300 hover:border-cyan-400/60 hover:text-cyan-300"}`}
+            onClick={handlePrev}
+            disabled={!started}
+            className={`flex items-center gap-1.5 px-3 py-2.5 rounded-xl border text-[9px] transition-all active:scale-95 ${!started ? "bg-slate-900/70 border-slate-700 text-slate-400 opacity-40 cursor-not-allowed" : "bg-slate-900/70 border-slate-700 text-slate-300 hover:border-cyan-400/60 hover:text-cyan-300"}`}
             style={FONT_PIXEL}
           >
             <span className="material-symbols-outlined text-sm">arrow_back</span>
@@ -208,38 +246,39 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
                 key={k}
                 type="button"
                 role="tab"
-                aria-selected={i === stepIdx}
+                aria-selected={started && i === stepIdx}
                 aria-label={STEP_LABEL[k]}
                 title={STEP_LABEL[k]}
                 onClick={() => go(i)}
-                className={`rounded-full transition-all cursor-pointer ${i === stepIdx ? "w-2.5 h-2.5 bg-cyan-400 shadow-[0_0_8px_#38bdf8]" : i < stepIdx ? "w-2 h-2 bg-cyan-400/60" : "w-2 h-2 bg-slate-700"}`}
+                className={`rounded-full transition-all cursor-pointer ${started && i === stepIdx ? "w-2.5 h-2.5 bg-cyan-400 shadow-[0_0_8px_#38bdf8]" : started && i < stepIdx ? "w-2 h-2 bg-cyan-400/60" : "w-2 h-2 bg-slate-700"}`}
               />
             ))}
           </div>
           <button
             type="button"
-            onClick={() => (isLast ? go(0) : go(stepIdx + 1))}
+            onClick={handleNext}
             className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl border-2 text-[10px] font-bold transition-all active:scale-95 ${
-              isLast
+              started && isLast
                 ? "bg-gradient-to-r from-amber-400 to-amber-500 border-amber-300 text-black shadow-[0_0_15px_rgba(251,191,36,0.6)]"
                 : "bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 border-cyan-200 text-slate-950 shadow-[0_0_20px_rgba(56,189,248,0.75)] hover:brightness-110"
             }`}
             style={FONT_PIXEL}
           >
-            {isFirst ? "START" : isLast ? "FINISH" : "NEXT"}
-            <span className="material-symbols-outlined text-sm">{isLast ? "done_all" : "arrow_forward"}</span>
+            {!started ? "START" : isLast ? "FINISH" : "NEXT"}
+            <span className="material-symbols-outlined text-sm">{started && isLast ? "done_all" : "arrow_forward"}</span>
           </button>
         </div>
       </footer>
 
-      {/* Comment section (shared live wishes) */}
+      {/* Comment section (shared live wishes; entry via header pill so it never
+          overlaps the card, footer, or dock) */}
       <LiveWishes
         open={wishOpen}
         onOpenChange={onWishOpenChange}
         weddingProfileId={profile.wedding_profile_id}
         guestId={profile.guest_id}
         guestName={profile.guest_name}
-        stickyClassName="bottom-[104px] left-3"
+        hideTrigger
       />
     </div>
   )
