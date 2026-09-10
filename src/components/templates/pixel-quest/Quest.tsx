@@ -43,9 +43,10 @@ type Props = {
   onToggleMusic: () => void
   wishOpen: boolean
   onWishOpenChange: (open: boolean) => void
+  onCardVisibilityChange?: (visible: boolean) => void
 }
 
-export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, onWishOpenChange }: Props) {
+export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, onWishOpenChange, onCardVisibilityChange }: Props) {
   const stories = Array.isArray(profile.stories) ? profile.stories : []
   const families = Array.isArray(profile.inviting_families) ? profile.inviting_families.filter(Boolean) : []
   const sessions = Array.isArray(profile.sessions) ? profile.sessions : []
@@ -81,6 +82,12 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
   }, [steps.length])
 
   const step = started ? steps[Math.min(stepIdx, Math.max(0, steps.length - 1))] || "couple" : "couple"
+  // The floating card is the quest's "modal": while it is displayed, the
+  // floating QR/RSVP/speaker buttons stay hidden (pixel-paradise parity).
+  const cardVisible = started && !cardHidden
+  useEffect(() => {
+    onCardVisibilityChange?.(cardVisible)
+  }, [cardVisible, onCardVisibilityChange])
   const frameIdx = STEP_FRAME[step]
   const catPos = CAT_POS[step]
   const celebrate = started && (step === "gift" || step === "inviting" || step === "video")
@@ -183,7 +190,7 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
 
       {/* Floating card (max half the device screen, body scrolls).
           Shown only after START; hiding persists across steps. */}
-      {started && !cardHidden && (
+      {cardVisible && (
         <main className="relative z-30 px-4 pb-2 shrink-0">
           {step === "couple" && <CoupleCard profile={profile} onHide={() => setCardHidden(true)} />}
           {step === "story" && <StoryCard profile={profile} onHide={() => setCardHidden(true)} />}
@@ -261,8 +268,8 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
       </footer>
 
       {/* Floating speaker (same as pixel-paradise) — bottom right above the guest
-          dock, hidden while the wishes feed is open. */}
-      {!wishOpen && (
+          dock, hidden while the card or the wishes feed is displayed. */}
+      {!wishOpen && !cardVisible && (
         <button
           type="button"
           onClick={onToggleMusic}
