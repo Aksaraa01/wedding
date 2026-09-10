@@ -158,16 +158,6 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
           <div className="flex items-center gap-1.5">
             <button
               type="button"
-              onClick={onToggleMusic}
-              aria-label="Putar atau jeda musik"
-              className="px-2 py-1 rounded-full bg-[#0e1321]/90 flex items-center gap-1 border border-cyan-400/40 text-cyan-300 hover:text-white active:scale-95 transition text-[8px]"
-              style={FONT_PIXEL}
-            >
-              <span className="material-symbols-outlined text-[13px]">{musicPlaying ? "music_note" : "music_off"}</span>
-              <span>{musicPlaying ? "BGM" : "MUTED"}</span>
-            </button>
-            <button
-              type="button"
               onClick={() => onWishOpenChange(true)}
               aria-label="Buka Live Wishes & Doa"
               className="px-2 py-1 rounded-full bg-[#0e1321]/90 flex items-center gap-1 border border-cyan-400/40 text-cyan-300 hover:text-white active:scale-95 transition text-[8px]"
@@ -269,6 +259,23 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
           </button>
         </div>
       </footer>
+
+      {/* Floating speaker (same as pixel-paradise) — bottom right above the guest
+          dock, hidden while the wishes feed is open. */}
+      {!wishOpen && (
+        <button
+          type="button"
+          onClick={onToggleMusic}
+          aria-label="Putar atau jeda musik"
+          title="Putar atau jeda musik"
+          className="fixed right-4 z-[95] w-11 h-11 rounded-full bg-white text-[#111827] shadow-lg border border-black/10 flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
+          style={{ bottom: 230, right: 16 }}
+        >
+          <span className={`material-symbols-outlined text-[22px] ${musicPlaying ? "" : "opacity-70"}`}>
+            {musicPlaying ? "graphic_eq" : "music_off"}
+          </span>
+        </button>
+      )}
 
       {/* Comment section (shared live wishes; entry via header pill so it never
           overlaps the card, footer, or dock) */}
