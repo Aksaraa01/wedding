@@ -11,6 +11,7 @@ import Quest from "./Quest"
 export default function PixelQuest(props: TemplateProps) {
   const [opened, setOpened] = useState(false)
   const [wishOpen, setWishOpen] = useState(false)
+  const [galleryOpen, setGalleryOpen] = useState(false)
   const [questCardVisible, setQuestCardVisible] = useState(false)
   const [playing, setPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -40,12 +41,13 @@ export default function PixelQuest(props: TemplateProps) {
   }, [])
 
   const onWishOpenChange = useCallback((open: boolean) => setWishOpen(open), [])
+  const onGalleryOpenChange = useCallback((open: boolean) => setGalleryOpen(open), [])
   const onCardVisibilityChange = useCallback((visible: boolean) => setQuestCardVisible(visible), [])
 
   // Guest QR/RSVP dock shows only after the invitation opens, for identified
-  // guests, and hides while the quest card or the wishes feed is displayed
-  // (pixel-paradise parity: floating buttons yield to content).
-  const showGuestDock = opened && !wishOpen && !questCardVisible && !!props.guest_id && !!props.wedding_profile_id
+  // guests, and hides while the quest card, the gallery overlay, or the wishes
+  // feed is displayed (pixel-paradise parity: floating buttons yield to content).
+  const showGuestDock = opened && !wishOpen && !galleryOpen && !questCardVisible && !!props.guest_id && !!props.wedding_profile_id
   const coupleName =
     (props.groom_full_name && props.bride_full_name
       ? `${props.groom_full_name} & ${props.bride_full_name}`
@@ -71,6 +73,8 @@ export default function PixelQuest(props: TemplateProps) {
               onToggleMusic={toggleMusic}
               wishOpen={wishOpen}
               onWishOpenChange={onWishOpenChange}
+              galleryOpen={galleryOpen}
+              onGalleryOpenChange={onGalleryOpenChange}
               onCardVisibilityChange={onCardVisibilityChange}
             />
           )}

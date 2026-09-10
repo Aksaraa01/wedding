@@ -113,6 +113,7 @@ export const ASSETS = {
     frame1: s("pixel-quest/frame1.jpg"),
     frame2: s("pixel-quest/frame2.jpg"),
     frame3: s("pixel-quest/frame3.jpg"),
+    frameGallery: s("pixel-quest/frame-gallery.jpg"),
     frame4: s("pixel-quest/frame4.jpg"),
   },
   textures: {

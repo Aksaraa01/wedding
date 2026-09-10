@@ -12,18 +12,21 @@ import { CameoFrame1, CameoFrame2, CameoFrame3, CameoFrame4, CAMEO_CSS } from ".
 import CoupleCard from "./cards/CoupleCard"
 import StoryCard from "./cards/StoryCard"
 import EventsCard from "./cards/EventsCard"
+import GalleryCard from "./cards/GalleryCard"
 import GiftCard from "./cards/GiftCard"
 import FamilyCard from "./cards/FamilyCard"
 import VideoCard, { type VideoCardData } from "./cards/VideoCard"
+import GalleryModal from "../pixel-paradise/modals/GalleryModal"
 
-export type QuestStep = "couple" | "story" | "events" | "gift" | "inviting" | "video"
+export type QuestStep = "couple" | "story" | "events" | "gallery" | "gift" | "inviting" | "video"
 
-const FRAMES = [ASSETS.pixelQuest.frame1, ASSETS.pixelQuest.frame2, ASSETS.pixelQuest.frame3, ASSETS.pixelQuest.frame4]
-const STEP_FRAME: Record<QuestStep, number> = { couple: 0, story: 1, events: 2, gift: 3, inviting: 3, video: 3 }
+const FRAMES = [ASSETS.pixelQuest.frame1, ASSETS.pixelQuest.frame2, ASSETS.pixelQuest.frame3, ASSETS.pixelQuest.frameGallery, ASSETS.pixelQuest.frame4]
+const STEP_FRAME: Record<QuestStep, number> = { couple: 0, story: 1, events: 2, gallery: 3, gift: 4, inviting: 4, video: 4 }
 const CAT_POS: Record<QuestStep, { top: string; left: string; flip: boolean }> = {
   couple: { top: "48.5%", left: "33%", flip: false },
   story: { top: "44%", left: "62%", flip: true },
   events: { top: "46%", left: "26%", flip: false },
+  gallery: { top: "46%", left: "48%", flip: false },
   gift: { top: "50%", left: "60%", flip: true },
   inviting: { top: "49%", left: "38%", flip: false },
   video: { top: "47%", left: "64%", flip: true },
@@ -32,6 +35,7 @@ const STEP_LABEL: Record<QuestStep, string> = {
   couple: "SOULMATES",
   story: "LOVE STORY",
   events: "DATE & VENUE",
+  gallery: "GALLERY",
   gift: "WEDDING GIFT",
   inviting: "TURUT MENGUNDANG",
   video: "VIDEO",
@@ -43,18 +47,22 @@ type Props = {
   onToggleMusic: () => void
   wishOpen: boolean
   onWishOpenChange: (open: boolean) => void
+  galleryOpen: boolean
+  onGalleryOpenChange: (open: boolean) => void
   onCardVisibilityChange?: (visible: boolean) => void
 }
 
-export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, onWishOpenChange, onCardVisibilityChange }: Props) {
+export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, onWishOpenChange, galleryOpen, onGalleryOpenChange, onCardVisibilityChange }: Props) {
   const stories = Array.isArray(profile.stories) ? profile.stories : []
   const families = Array.isArray(profile.inviting_families) ? profile.inviting_families.filter(Boolean) : []
   const sessions = Array.isArray(profile.sessions) ? profile.sessions : []
+  const galleryPhotos = (Array.isArray(profile.gallery_photos) ? profile.gallery_photos : []).filter(Boolean)
   const accounts: GiftAccountData[] = Array.isArray(profile.gift_accounts) ? profile.gift_accounts : []
   const gates = profile.feature_gates || {}
 
   const storyOn = gates.story !== false && profile.story_visible !== false && stories.length > 0
   const eventsOn = sessions.some((s) => s && (s.date || s.venue))
+  const galleryOn = galleryPhotos.length > 0
   const giftOn =
     profile.gift_section_visible !== false &&
     (accounts.length > 0 || (gates.gift_address !== false && !!profile.gift_address))
@@ -62,10 +70,11 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
   const videoOn = gates.video !== false && profile.video_section_visible !== false && !!profile.video_url
 
   // Steps reduce automatically when their content is hidden/off.
-  const steps: QuestStep[] = (["couple", "story", "events", "gift", "inviting", "video"] as QuestStep[]).filter((k) => {
+  const steps: QuestStep[] = (["couple", "story", "events", "gallery", "gift", "inviting", "video"] as QuestStep[]).filter((k) => {
     if (k === "couple") return true
     if (k === "story") return storyOn
     if (k === "events") return eventsOn
+    if (k === "gallery") return galleryOn
     if (k === "gift") return giftOn
     if (k === "inviting") return invitingOn
     return videoOn
@@ -149,7 +158,7 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
       <CameoFrame1 active={frameIdx === 0} />
       <CameoFrame2 active={frameIdx === 1} />
       <CameoFrame3 active={frameIdx === 2} />
-      <CameoFrame4 active={frameIdx === 3} />
+      <CameoFrame4 active={frameIdx === 4} />
       <QuestAtmosphere celebrate={celebrate} />
       <QuestCat top={catPos.top} left={catPos.left} flip={catPos.flip} />
 
@@ -195,6 +204,7 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
           {step === "couple" && <CoupleCard profile={profile} onHide={() => setCardHidden(true)} />}
           {step === "story" && <StoryCard profile={profile} onHide={() => setCardHidden(true)} />}
           {step === "events" && <EventsCard profile={profile} onHide={() => setCardHidden(true)} />}
+          {step === "gallery" && <GalleryCard photos={galleryPhotos} onHide={() => setCardHidden(true)} onExpand={() => onGalleryOpenChange(true)} />}
           {step === "gift" && (
             <GiftCard
               accounts={accounts}
@@ -268,8 +278,9 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
       </footer>
 
       {/* Floating speaker (same as pixel-paradise) — bottom right above the guest
-          dock, hidden while the card or the wishes feed is displayed. */}
-      {!wishOpen && !cardVisible && (
+          dock, hidden while the card, the gallery overlay, or the wishes feed
+          is displayed. */}
+      {!wishOpen && !cardVisible && !galleryOpen && (
         <button
           type="button"
           onClick={onToggleMusic}
@@ -283,6 +294,9 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
           </span>
         </button>
       )}
+
+      {/* Full gallery overlay (pixel-paradise gallery, fullscreen viewing) */}
+      {galleryOpen && <GalleryModal profile={profile} onClose={() => onGalleryOpenChange(false)} />}
 
       {/* Comment section (shared live wishes; entry via header pill so it never
           overlaps the card, footer, or dock) */}

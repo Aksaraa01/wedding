@@ -159,7 +159,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         inviting: true,
         video: true,
         story: true,
-        gallery: false,
+        gallery: true,
         gift: true,
       },
     },
