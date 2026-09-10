@@ -24,12 +24,12 @@ export default function CoupleCard({ profile, onHide }: { profile: TemplateProps
     return (
       <div className={`rounded-xl bg-[#090e1c]/90 border ${cyan ? "border-cyan-400/40" : "border-pink-400/40"} p-2.5 flex items-center gap-3`}>
         {photo ? (
-          <div className={`shrink-0 w-10 h-10 rounded-xl overflow-hidden border ${cyan ? "border-cyan-400" : "border-pink-400"} bg-slate-900`}>
+          <div className={`shrink-0 w-20 h-20 rounded-xl overflow-hidden border ${cyan ? "border-cyan-400" : "border-pink-400"} bg-slate-900`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={photo} alt={fullName || ""} className="w-full h-full object-contain" loading="lazy" />
           </div>
         ) : (
-          <div className={`shrink-0 w-10 h-10 rounded-xl bg-cyan-500/20 border ${cyan ? "border-cyan-400 text-cyan-300" : "border-pink-400 text-pink-300"} flex items-center justify-center text-xs shadow-[0_0_10px_rgba(56,189,248,0.4)]`} style={FONT_PIXEL}>
+          <div className={`shrink-0 w-20 h-20 rounded-xl bg-cyan-500/20 border ${cyan ? "border-cyan-400 text-cyan-300" : "border-pink-400 text-pink-300"} flex items-center justify-center text-xs shadow-[0_0_10px_rgba(56,189,248,0.4)]`} style={FONT_PIXEL}>
             {tag || "P1"}
           </div>
         )}

@@ -1,12 +1,12 @@
 "use client"
 
-import { FONT_DISPLAY, FONT_PIXEL } from "../../shared/Skin"
+import { FONT_PIXEL } from "../../shared/Skin"
 import CardShell from "./CardShell"
 
 export type VideoCardData = { state: "ready"; videoUrl: string } | { state: "none" } | { state: "loading" }
 
 // Autoplay teaser (pixel lesson: no poster step — the video starts immediately).
-export default function VideoCard({ data, title, quote, onHide }: { data: VideoCardData | null; title: string; quote?: string; onHide: () => void }) {
+export default function VideoCard({ data, title, onHide }: { data: VideoCardData | null; title: string; onHide: () => void }) {
   if (!data) return null
   return (
     <CardShell icon="movie" eyebrow="CINEMA TEASER" title="Our Story Video" badge="4K HD" badgeClassName="bg-pink-950/80 border-pink-500/40 text-pink-400" onHide={onHide}>
@@ -27,11 +27,6 @@ export default function VideoCard({ data, title, quote, onHide }: { data: VideoC
           </div>
           <div className="rounded-xl bg-[#090e1c]/90 border border-dashed border-cyan-400/40 p-2.5 text-center">
             <h4 className="text-[9px] text-white" style={FONT_PIXEL}>{title}</h4>
-            {quote && (
-              <p className="italic text-[11px] text-slate-300 mt-1" style={FONT_DISPLAY}>
-                &ldquo;{quote}&rdquo;
-              </p>
-            )}
           </div>
         </>
       )}

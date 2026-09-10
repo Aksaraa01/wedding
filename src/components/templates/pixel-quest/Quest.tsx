@@ -94,7 +94,7 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
   }
 
   return (
-    <div className="relative h-full w-full overflow-hidden select-none bg-[#05070c] text-[#dee2f6]">
+    <div className="relative h-full w-full overflow-hidden select-none bg-[#05070c] text-[#dee2f6] flex flex-col">
       <style>{`${QUEST_ATMOSPHERE_CSS}\n${CAMEO_CSS}`}</style>
 
       {/* Background frames (cross-fade by step) */}
@@ -169,7 +169,7 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
             />
           )}
           {step === "inviting" && <FamilyCard families={families} onHide={() => setCardHidden(true)} />}
-          {step === "video" && <VideoCard data={videoData} title={coupleTitle} quote={profile.quote_text || undefined} onHide={() => setCardHidden(true)} />}
+          {step === "video" && <VideoCard data={videoData} title={coupleTitle} onHide={() => setCardHidden(true)} />}
         </main>
       )}
 
@@ -190,7 +190,7 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
       )}
 
       {/* Footer nav */}
-      <footer className="relative z-30 px-4 pb-5 pt-1 shrink-0">
+      <footer className="relative z-30 px-4 pb-5 pt-1 shrink-0 sticky bottom-0">
         <div className="p-2 rounded-2xl flex items-center justify-between bg-[#0e1321]/90 border border-cyan-400/40 shadow-xl">
           <button
             type="button"
