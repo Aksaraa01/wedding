@@ -96,14 +96,13 @@ export default function PixelRoom({
   })
 
   // Pixel room hotspot coordinates (% of the natural-aspect art). Gated hotspots are
-  // dropped when their content is empty/toggled off. Jukebox = love story; the
-  // pink hearts = the couple; the GIFT sign = wedding gift.
+  // dropped when their content is empty/toggled off. The pink hearts = the couple;
+  // the GIFT sign = wedding gift. (No jukebox hotspot — music notes are decor only.)
   const items: ({ kind: ModalKind; label: string; pos: ReturnType<typeof hotspot>; giftLabel?: boolean } | null)[] = [
     giftEnabled ? { kind: "gift", label: "Buka Kado Pernikahan (Gift)", pos: hotspot(45, 4, 13, 10), giftLabel: true } : null,
     storyEnabled ? { kind: "story", label: "Buka Playstory", pos: hotspot(9, 11, 24, 19) } : null,
     galleryEnabled ? { kind: "gallery", label: "Buka Galeri Foto", pos: hotspot(37, 11, 15, 13) } : null,
     eventsEnabled ? { kind: "events", label: "Buka Waktu & Lokasi Acara", pos: hotspot(84, 8, 14, 15) } : null,
-    storyEnabled ? { kind: "story", label: "Wedding Playlist (Jukebox)", pos: hotspot(77, 22, 20, 19) } : null,
     { kind: "couple", label: "Buka Profil Mempelai", pos: hotspot(32, 55, 17, 14, true) },
   ]
 
