@@ -12,7 +12,7 @@ const DEMO_PROPS: TemplateProps = {
   groom_name: "Farhan",
   display_name: "Farhan & Annisa",
   couple_initials: "FA",
-  estimated_wedding_date: "2026-07-20",
+  estimated_wedding_date: "2030-07-20",
   slug: "demo",
   guest_name: "Tamu Undangan",
   groom_full_name: "Farhan Putra Nugraha",
@@ -28,7 +28,7 @@ const DEMO_PROPS: TemplateProps = {
   sessions: [
     {
       name: "Akad Nikah",
-      date: "2026-07-20",
+      date: "2030-07-20",
       time: "08:00 – 10:00 WIB",
       venue: "The Sky Chapel, Penthouse 48F",
       address: "Jakarta",
@@ -36,7 +36,7 @@ const DEMO_PROPS: TemplateProps = {
     },
     {
       name: "Resepsi Pernikahan",
-      date: "2026-07-20",
+      date: "2030-07-20",
       time: "18:00 – 21:30 WIB",
       venue: "Grand Ballroom Penthouse",
       address: "Jakarta",
