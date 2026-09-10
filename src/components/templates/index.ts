@@ -6,6 +6,7 @@ import AnimasiWatercolor from "./AnimasiWatercolor"
 import HeritageDinamis from "./HeritageDinamis"
 import SkylinePenthouse from "./skyline-penthouse"
 import PixelParadise from "./pixel-paradise"
+import PixelQuest from "./pixel-quest"
 
 export type { TemplateProps } from "@/types/template"
 
@@ -16,6 +17,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "heritage-dinamis": HeritageDinamis,
   "skyline-penthouse": SkylinePenthouse,
   "pixel-paradise": PixelParadise,
+  "pixel_quest": PixelQuest,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -125,6 +127,39 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         video: true,
         story: true,
         gallery: true,
+        gift: true,
+      },
+    },
+  },
+  {
+    code: "pixel_quest",
+    name: "Pixel Quest Level Up Together",
+    description: "Petualangan 6 langkah bergaya arcade retro — latar dan karakter berubah tiap tahap, dari Press Start hingga Quest Complete.",
+    theme: {
+      fonts: { display: "Playfair Display", script: "Playfair Display", body: "Plus Jakarta Sans" },
+      colors: {
+        surface: "#0e1321",
+        text: "#dee2f6",
+        accent: "#38bdf8",
+        accentMuted: "#f472b6",
+        overlay: "#000000",
+        dark: "#05070c",
+      },
+      ornaments: { divider: "line", border: "minimal", frame: "square" },
+      motion: { enabled: true, duration: 0.5, stagger: 0.12 },
+    },
+    content: {
+      cover_slots: 1,
+      groom_photo: "single",
+      bride_photo: "single",
+      sections: {
+        opening_description: false,
+        quote: true,
+        countdown: false,
+        inviting: true,
+        video: true,
+        story: true,
+        gallery: false,
         gift: true,
       },
     },

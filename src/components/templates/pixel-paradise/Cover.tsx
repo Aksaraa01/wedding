@@ -30,12 +30,14 @@ export default function PixelCover({
   guest_name,
   couple_initials,
   onOpen,
+  backgroundUrl,
 }: {
   groom_name?: string
   bride_name?: string
   guest_name?: string
   couple_initials?: string
   onOpen: () => void
+  backgroundUrl?: string
 }) {
   const rootRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
@@ -60,7 +62,7 @@ export default function PixelCover({
         <div className="absolute inset-0 bg-gradient-to-b from-[#070b16] via-[#0d1424] to-[#0a0e1c]" />
         <div
           className="absolute inset-0 opacity-50 mix-blend-screen bg-cover bg-center"
-          style={{ backgroundImage: `url(${ASSETS.pixelParadise.coverBg})` }}
+          style={{ backgroundImage: `url(${backgroundUrl || ASSETS.pixelParadise.coverBg})` }}
         />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(56,189,248,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(56,189,248,0.05)_1px,transparent_1px)] [background-size:18px_18px] opacity-30" />
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[420px] bg-[#38bdf8]/10 blur-[130px] rounded-full" />

@@ -108,6 +108,13 @@ export const ASSETS = {
     coverBg: s("pixel-paradise/cover-bg.jpg"),
     room: s("pixel-paradise/room-bg.jpg"),
   },
+  pixelQuest: {
+    coverBg: s("pixel-quest/cover-bg.jpg"),
+    frame1: s("pixel-quest/frame1.jpg"),
+    frame2: s("pixel-quest/frame2.jpg"),
+    frame3: s("pixel-quest/frame3.jpg"),
+    frame4: s("pixel-quest/frame4.jpg"),
+  },
   textures: {
     naturalPaper: "https://www.transparenttextures.com/patterns/natural-paper.png",
     felt: "https://www.transparenttextures.com/patterns/felt.png",

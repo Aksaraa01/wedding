@@ -31,12 +31,14 @@ type Props = {
   weddingProfileId?: string
   guestId?: string
   guestName?: string
+  // Override the sticky button offset (quest footer needs more clearance).
+  stickyClassName?: string
 }
 
 // Shared live wishes experience for in-house templates: a sticky button that
 // opens the LIVE WISHES & DOA modal (approved feed + input). Same design & UX
-// for Skyline Penthouse and Pixel Paradise.
-export default function LiveWishes({ open, onOpenChange, weddingProfileId, guestId, guestName }: Props) {
+// for Skyline Penthouse, Pixel Paradise and Pixel Quest.
+export default function LiveWishes({ open, onOpenChange, weddingProfileId, guestId, guestName, stickyClassName = "bottom-3 left-3" }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const [message, setMessage] = useState("")
@@ -104,7 +106,7 @@ export default function LiveWishes({ open, onOpenChange, weddingProfileId, guest
       <button
         type="button"
         onClick={() => onOpenChange(true)}
-        className="absolute bottom-3 left-3 z-30 flex items-center gap-2 pl-2.5 pr-3 py-2 rounded-full bg-slate-950/95 border-2 border-cyan-500/50 backdrop-blur-md shadow-[0_0_14px_rgba(56,239,255,0.35)] text-cyan-200 hover:border-cyan-400 active:scale-95 transition-all"
+        className={`absolute ${stickyClassName} z-30 flex items-center gap-2 pl-2.5 pr-3 py-2 rounded-full bg-slate-950/95 border-2 border-cyan-500/50 backdrop-blur-md shadow-[0_0_14px_rgba(56,239,255,0.35)] text-cyan-200 hover:border-cyan-400 active:scale-95 transition-all`}
         style={FONT_PIXEL}
         aria-label="Buka Live Wishes & Doa"
       >
