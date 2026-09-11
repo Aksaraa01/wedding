@@ -21,11 +21,12 @@ export default function StoryPage({ stories }: { stories: StoryData[] }) {
         {stories.map((s, i) => (
           <article key={i} className="relative mb-5">
             <div className="absolute -left-6 top-6 transform -translate-x-1/2 flex items-center justify-center">
-              <div className="w-5 h-5 rounded-full bg-[#f7f4ee] border-2 border-[#d4af37] flex items-center justify-center shadow-[0_0_12px_rgba(212,175,55,0.5)]">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#d4af37]" />
+              <div className="w-5 h-5 rounded-full bg-[#FFFCF3] border-2 border-[#d4af37] flex items-center justify-center shadow-[0_0_12px_rgba(242,202,80,0.5)]">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#d4af37] im-gold-pulse" />
               </div>
             </div>
-            <div className="rounded-3xl bg-white/70 backdrop-blur-md border border-[#d4af37]/50 p-4 shadow-[0_16px_35px_-8px_rgba(0,0,0,0.15),0_0_20px_0_rgba(212,175,55,0.2)]">
+            <div className="relative overflow-hidden rounded-3xl bg-[#FFFCF3]/85 backdrop-blur-md border border-[#d4af37]/35 p-4 shadow-[0_16px_35px_-8px_rgba(0,0,0,0.15),0_0_20px_0_rgba(212,175,55,0.2)]">
+              <div className="absolute inset-1.5 rounded-[20px] border border-dashed border-[#d4af37]/30 pointer-events-none" />
               {s.image_url && (
                 <div className="rounded-[120px_120px_1.5rem_1.5rem] overflow-hidden relative border border-[#d4af37]/35 p-1 shadow-inner mb-3 bg-[#f7f4ee]">
                   <div className="rounded-[110px_110px_1rem_1rem] overflow-hidden w-full">

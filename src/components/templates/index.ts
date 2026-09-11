@@ -173,11 +173,11 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     theme: {
       fonts: { display: "Cormorant Garamond", script: "Alex Brush", body: "Montserrat" },
       colors: {
-        surface: "#2A1F18",
+        surface: "#F5EDDC",
         text: "#4A3427",
         accent: "#8E6B3D",
         accentMuted: "#d4af37",
-        overlay: "#000000",
+        overlay: "#2A1F18",
         dark: "#2A1F18",
       },
       ornaments: { divider: "line", border: "minimal", frame: "arch" },

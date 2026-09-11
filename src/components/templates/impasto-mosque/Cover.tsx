@@ -48,12 +48,19 @@ export default function ImpastoCover({
           className="flex-1 min-h-0 flex flex-col items-center justify-start pt-1 will-change-transform"
           style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}
         >
-          <h2 className="text-[13px] tracking-[0.28em] uppercase font-semibold mb-1" style={{ ...FONT_BODY, color: "#4A3427", textShadow: "0 1px 3px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.6)" }}>
-            THE WEDDING OF
-          </h2>
-          <h1 className="text-[3.4rem] leading-[1.08] py-1 px-2" style={{ ...FONT_SCRIPT, color: "#3B281C", textShadow: "0 1px 2px rgba(255,255,255,0.7), 0 2px 6px rgba(0,0,0,0.25)" }}>
-            {groom_name || "Mempelai"} &amp; {bride_name || "Mempelai"}
-          </h1>
+          <div className="relative flex flex-col items-center">
+            <div
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] pointer-events-none"
+              style={{ background: "radial-gradient(circle, rgba(255,244,220,0.55) 0%, rgba(255,244,220,0.18) 45%, transparent 70%)" }}
+            />
+            <h2 className="relative text-[13px] tracking-[0.28em] uppercase font-semibold mb-1" style={{ ...FONT_BODY, color: "#4A3427", textShadow: "0 1px 3px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.6)" }}>
+              THE WEDDING OF
+            </h2>
+            <h1 className="relative text-[3.4rem] leading-[1.08] py-1 px-2" style={{ ...FONT_SCRIPT, color: "#3B281C", textShadow: "0 2px 4px rgba(255,255,255,0.4), 0 1px 2px rgba(74,52,39,0.2)" }}>
+              <span className="block">{groom_name || "Mempelai"} &amp;</span>
+              <span className="block">{bride_name || "Mempelai"}</span>
+            </h1>
+          </div>
           <p className="text-[0.88rem] tracking-[0.26em] font-semibold uppercase mt-1.5 text-[#F8F5EE]" style={{ ...FONT_DISPLAY, textShadow: "0 1px 3px rgba(0,0,0,0.9), 0 0 12px rgba(242,202,80,0.35)" }}>
             {formatLongDate(estimated_wedding_date) || "Segera Hadir"}
           </p>
@@ -75,11 +82,11 @@ export default function ImpastoCover({
             style={{
               ...FONT_BODY,
               letterSpacing: "0.18em",
-              background: "rgba(255,255,255,0.22)",
-              backdropFilter: "blur(14px)",
-              WebkitBackdropFilter: "blur(14px)",
-              border: "1.5px solid rgba(255,255,255,0.55)",
-              boxShadow: "0 8px 32px 0 rgba(0,0,0,0.35), inset 0 1px 2px 0 rgba(255,255,255,0.45)",
+              background: "linear-gradient(135deg, rgba(110,80,58,0.55) 0%, rgba(68,48,33,0.72) 100%)",
+              backdropFilter: "blur(8px)",
+              WebkitBackdropFilter: "blur(8px)",
+              border: "1.5px solid rgba(255,245,230,0.35)",
+              boxShadow: "0 8px 24px 0 rgba(44,30,20,0.3), inset 0 1px 1px 0 rgba(255,255,255,0.25)",
             }}
           >
             <span className="material-symbols-outlined text-[18px]">mail</span>

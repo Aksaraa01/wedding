@@ -35,14 +35,14 @@ export default function MainPage({ profile }: { profile: TemplateProps }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={ASSETS.impastoMosque.brush} alt="" className="w-[115%] h-[115%] max-w-none object-cover opacity-90" loading="lazy" style={{ maskImage: "radial-gradient(90% 80%, black 65%, transparent 100%)" }} />
         </div>
-        <h2 className="text-[38px] leading-tight tracking-wide mb-2 relative z-10" style={{ ...FONT_SCRIPT, color: "#171c21", textShadow: "0 1px 1px rgba(255,255,255,0.5)" }}>
+        <h2 className="text-[38px] leading-tight tracking-wide mb-2 relative z-10" style={{ ...FONT_SCRIPT, color: "#2A1F18", textShadow: "0 2px 4px rgba(255,255,255,0.4), 0 1px 2px rgba(74,52,39,0.2)" }}>
           {initials}
         </h2>
-        <p className="italic text-[13px] leading-[22px] tracking-[0.01em] px-3 font-medium relative z-10" style={{ ...FONT_DISPLAY, color: "#1c2227" }}>
+        <p className="italic text-[13px] leading-[22px] tracking-[0.01em] px-3 font-medium relative z-10" style={{ ...FONT_DISPLAY, color: "#4A3427", textShadow: "0 1px 3px rgba(255,255,255,0.6)" }}>
           {profile.quote_text || DEFAULT_VERSE}
         </p>
         <div className="flex items-center justify-center gap-2 mt-2.5 relative z-10">
-          <span className="text-[11px] tracking-[0.25em] font-semibold uppercase" style={{ ...FONT_DISPLAY, color: "#2e353d" }}>
+          <span className="text-[11px] tracking-[0.25em] font-semibold uppercase" style={{ ...FONT_DISPLAY, color: "#715c48" }}>
             {profile.quote_source || "QS. AR-RUM: 21"}
           </span>
         </div>

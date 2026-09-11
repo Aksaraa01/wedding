@@ -1,7 +1,7 @@
 "use client"
 
 import { ASSETS } from "@/lib/assets"
-import { FONT_BODY, FONT_DISPLAY } from "../../shared/Skin"
+import { FONT_BODY, FONT_DISPLAY, FONT_SCRIPT } from "../../shared/Skin"
 import { formatLongDate, type SessionData } from "../../shared/lib"
 
 // Single event card on the white brush backdrop, bottom-anchored (used for
@@ -16,7 +16,7 @@ export default function EventPage({ session }: { session: SessionData }) {
           <img src={ASSETS.impastoMosque.brush} alt="" className="w-full h-full object-fill scale-110 opacity-95" loading="lazy" />
         </div>
         <div className="relative z-10 flex flex-col items-center w-full px-4 py-2">
-          <h1 className="italic text-[38px] leading-tight mb-2 drop-shadow-sm" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
+          <h1 className="text-[42px] leading-tight mb-2" style={{ ...FONT_SCRIPT, color: "#2A1F18", textShadow: "0 2px 4px rgba(255,255,255,0.4), 0 1px 2px rgba(74,52,39,0.2)" }}>
             {session.name || "Acara"}
           </h1>
           {session.date && (
