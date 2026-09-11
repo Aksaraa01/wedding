@@ -5,7 +5,7 @@ import type { StoryData } from "../../shared/lib"
 
 export default function StoryPage({ stories }: { stories: StoryData[] }) {
   return (
-    <div className="w-full max-w-[370px] mx-auto px-1">
+    <div className="flex-1 w-full max-w-[370px] mx-auto px-1 pt-2 pb-16">
       <div className="text-center mb-5 flex flex-col items-center">
         <h1 className="text-[26px] font-bold tracking-tight" style={{ ...FONT_DISPLAY, color: "#8C6212" }}>
           Our Journey

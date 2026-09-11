@@ -25,9 +25,9 @@ export default function CombinedPage({
   const videoEmbed = normalizeVideoUrl(profile.video_url)
 
   return (
-    <div className="w-full max-w-[370px] mx-auto px-1 space-y-4">
+    <div className="flex-1 w-full max-w-[370px] mx-auto px-4 pt-3 pb-16 space-y-4">
       {videoOn && videoEmbed && (
-        <article className="rounded-[28px] p-5 bg-[#FFFDF9]/88 backdrop-blur-md border border-[#d4af37]/35 shadow-[0_10px_30px_-5px_rgba(58,41,16,0.12)]">
+        <article className="rounded-[28px] p-5 bg-[#FFFDF9]/[0.88] backdrop-blur-md border border-[#d4af37]/35 shadow-[0_10px_30px_-5px_rgba(58,41,16,0.12)]">
           <div className="inline-flex items-center gap-1.5 mb-2.5 px-3 py-0.5 rounded-full bg-[#faebd7]/70 border border-[#d4af37]/25">
             <span className="material-symbols-outlined text-[#8E6B3D] text-[14px]">videocam</span>
             <span className="text-[11px] font-semibold tracking-widest uppercase" style={{ ...FONT_BODY, color: "#8E6B3D" }}>
@@ -50,7 +50,7 @@ export default function CombinedPage({
       )}
 
       {invitingOn && (
-        <article className="rounded-[28px] p-5 bg-[#FFFDF9]/88 backdrop-blur-md border border-[#d4af37]/35 shadow-[0_10px_30px_-5px_rgba(58,41,16,0.12)]">
+        <article className="rounded-[28px] p-5 bg-[#FFFDF9]/[0.88] backdrop-blur-md border border-[#d4af37]/35 shadow-[0_10px_30px_-5px_rgba(58,41,16,0.12)]">
           <div className="text-center mb-3">
             <div className="inline-flex items-center gap-1.5 mb-2 px-3 py-0.5 rounded-full bg-[#faebd7]/70 border border-[#d4af37]/25">
               <span className="material-symbols-outlined text-[#8E6B3D] text-[14px]">group</span>
@@ -73,7 +73,7 @@ export default function CombinedPage({
       )}
 
       {giftOn && (
-        <article className="rounded-[28px] p-5 bg-[#FFFDF9]/88 backdrop-blur-md border border-[#d4af37]/35 shadow-[0_10px_30px_-5px_rgba(58,41,16,0.12)]">
+        <article className="rounded-[28px] p-5 bg-[#FFFDF9]/[0.88] backdrop-blur-md border border-[#d4af37]/35 shadow-[0_10px_30px_-5px_rgba(58,41,16,0.12)]">
           <div className="text-center mb-3">
             <h2 className="italic font-bold text-[19px]" style={{ ...FONT_DISPLAY, color: "#221C16" }}>
               Ungkapan Tanda Kasih

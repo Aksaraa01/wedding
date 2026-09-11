@@ -18,7 +18,7 @@ export default function CountdownPage({ profile, sessions }: { profile: Template
     { v: pad2(seconds), l: "Detik" },
   ]
   return (
-    <div className="w-full max-w-[360px] mx-auto flex flex-col items-center justify-center p-6 text-center">
+    <div className="flex-1 w-full max-w-[360px] mx-auto flex flex-col items-center justify-start text-center px-6 pt-12 pb-8">
       <div className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none opacity-95">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={ASSETS.impastoMosque.brush} alt="" className="w-full h-full object-fill scale-110 opacity-95" loading="lazy" />

@@ -87,7 +87,7 @@ export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
   const renderPage = (key: ImpastoPageKey) => {
     switch (key) {
       case "main":
-        return <MainPage profile={profile} onWishOpenChange={onWishOpenChange} />
+        return <MainPage profile={profile} />
       case "groom":
         return <PersonPage profile={profile} side="groom" />
       case "bride":
@@ -97,7 +97,7 @@ export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
       case "story":
         return <StoryPage stories={stories} />
       case "event0":
-        return <EventPage session={sessions[0]} caravan />
+        return <EventPage session={sessions[0]} />
       case "event1":
         return <EventPage session={sessions[1]} />
       case "countdown":

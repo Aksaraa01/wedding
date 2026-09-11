@@ -7,7 +7,7 @@ import { CouplePhoto } from "./MainPage"
 
 export default function ClosingPage({ profile, onWishOpenChange }: { profile: TemplateProps; onWishOpenChange: (open: boolean) => void }) {
   return (
-    <div className="w-full max-w-[360px] mx-auto flex flex-col items-center text-center px-2">
+    <div className="flex-1 w-full max-w-[360px] mx-auto flex flex-col items-center justify-start text-center px-2 pt-12 pb-8">
       <div className="w-[190px] aspect-[3/4] rounded-t-full rounded-b-2xl overflow-hidden border-2 border-[#d4af37]/60 shadow-[0_12px_32px_rgba(0,0,0,0.65)] p-1 bg-[#f7f4ee]/30">
         <CouplePhoto profile={profile} className="w-full h-full rounded-t-full rounded-b-xl" />
       </div>

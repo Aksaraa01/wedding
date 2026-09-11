@@ -4,10 +4,10 @@ import { FONT_BODY } from "../../shared/Skin"
 
 export default function GalleryPage({ photos }: { photos: string[] }) {
   return (
-    <div className="w-full max-w-[370px] mx-auto px-1">
+    <div className="flex-1 w-full max-w-[370px] mx-auto px-1 pt-5 pb-16">
       <div className="flex items-center justify-center gap-2 mb-4">
         <div className="h-[1px] w-8 bg-gradient-to-r from-transparent to-[#8E6B3D]" />
-        <span className="text-[10px] uppercase tracking-[0.25em] text-[#554300] font-bold" style={FONT_BODY}>
+        <span className="text-[15px] uppercase tracking-[0.25em] text-[#554300] font-bold" style={FONT_BODY}>
           Our Moments
         </span>
         <div className="h-[1px] w-8 bg-gradient-to-l from-transparent to-[#8E6B3D]" />
