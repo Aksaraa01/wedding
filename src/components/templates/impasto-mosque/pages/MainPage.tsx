@@ -29,7 +29,7 @@ export function CouplePhoto({ profile, className = "" }: { profile: TemplateProp
 export default function MainPage({ profile, onWishOpenChange }: { profile: TemplateProps; onWishOpenChange: (open: boolean) => void }) {
   const initials = (profile.couple_initials || "").trim() || initialsOf(profile.groom_name, profile.bride_name) || "AR"
   return (
-    <div className="w-full max-w-[370px] mx-auto flex flex-col items-center text-center px-2 py-4">
+    <div className="flex-1 w-full max-w-[370px] mx-auto flex flex-col items-center text-center px-2 pt-3">
       <div className="relative px-5 py-6 w-full">
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-90">
           {/* eslint-disable-next-line @next/next/no-img-element */}

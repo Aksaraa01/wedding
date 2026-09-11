@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { ASSETS } from "@/lib/assets"
 import { FONT_BODY, FONT_DISPLAY, FONT_SCRIPT } from "../shared/Skin"
 import { formatLongDate } from "../shared/lib"
-import ImpastoAtmosphere, { IM_ATMOSPHERE_CSS } from "./Atmosphere"
+import ImpastoAtmosphere, { IM_ATMOSPHERE_CSS, ImpastoFlowers } from "./Atmosphere"
 
 export default function ImpastoCover({
   groom_name,
@@ -41,11 +41,12 @@ export default function ImpastoCover({
       </div>
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-amber-900/10 via-transparent to-black/50" />
       <ImpastoAtmosphere />
+      <ImpastoFlowers />
 
       <div className="relative z-10 h-full flex flex-col items-center text-center px-4">
         <div
-          className="flex-1 min-h-0 flex flex-col items-center justify-center py-4 will-change-transform"
-          style={{ transform: `scale(${scale})`, transformOrigin: "center" }}
+          className="flex-1 min-h-0 flex flex-col items-center justify-start pt-1 will-change-transform"
+          style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}
         >
           <h2 className="text-[13px] tracking-[0.28em] uppercase font-semibold mb-1" style={{ ...FONT_BODY, color: "#4A3427", textShadow: "0 1px 3px rgba(255,255,255,0.8), 0 0 8px rgba(255,255,255,0.6)" }}>
             THE WEDDING OF
@@ -58,7 +59,7 @@ export default function ImpastoCover({
           </p>
         </div>
 
-        <div className="w-full max-w-md flex flex-col items-center gap-3 z-20 pb-6 shrink-0">
+        <div className="w-full max-w-md flex flex-col items-center gap-3 z-20 pb-9 shrink-0">
           <div className="text-center">
             <p className="italic text-[#f2ca50] text-[1.05rem] tracking-[0.06em] mb-1" style={{ ...FONT_DISPLAY, textShadow: "0 1px 2px rgba(0,0,0,0.8), 0 2px 8px rgba(0,0,0,0.7)" }}>
               Kepada Yth. Bapak/Ibu/Saudara/i

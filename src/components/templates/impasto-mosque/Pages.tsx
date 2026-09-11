@@ -97,7 +97,7 @@ export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
       case "story":
         return <StoryPage stories={stories} />
       case "event0":
-        return <EventPage session={sessions[0]} />
+        return <EventPage session={sessions[0]} caravan />
       case "event1":
         return <EventPage session={sessions[1]} />
       case "countdown":
@@ -128,9 +128,9 @@ export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
             ref={(el) => {
               pageRefs.current[i] = el
             }}
-            className="min-h-full snap-start snap-always flex flex-col justify-center px-4 py-10"
+            className="min-h-full snap-start snap-always flex flex-col"
           >
-            <div className={`transition-all duration-500 ${i === activeIdx ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+            <div className={`flex-1 flex flex-col min-h-0 transition-all duration-500 ${i === activeIdx ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
               {renderPage(key)}
             </div>
           </section>

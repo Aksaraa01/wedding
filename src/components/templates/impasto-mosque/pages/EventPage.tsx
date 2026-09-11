@@ -5,7 +5,7 @@ import { FONT_BODY, FONT_DISPLAY } from "../../shared/Skin"
 import { formatLongDate, type SessionData } from "../../shared/lib"
 
 // Single event card on the white brush backdrop (used for Akad and Resepsi).
-export default function EventPage({ session }: { session: SessionData }) {
+export default function EventPage({ session, caravan }: { session: SessionData; caravan?: boolean }) {
   const location = [session.venue, session.address].filter(Boolean).join(" • ")
   return (
     <div className="w-full max-w-[360px] mx-auto flex flex-col items-center justify-center p-6 text-center">
@@ -60,6 +60,16 @@ export default function EventPage({ session }: { session: SessionData }) {
           </a>
         )}
       </div>
+      {caravan && (
+        <div className="pointer-events-none select-none mt-2 flex items-end justify-center gap-4 opacity-80" aria-hidden="true">
+          <svg className="w-14 h-14 text-[#2A1F18]/90 fill-current" viewBox="0 0 100 100">
+            <path d="M12 70 C12 65 14 62 17 60 C17 56 18 52 20 48 C22 44 26 42 30 43 C33 44 35 48 37 49 C39 46 42 42 48 42 C54 42 58 46 61 50 C63 47 66 43 72 43 C77 43 81 47 83 51 C87 49 90 42 91 35 C91 28 89 22 87 18 C86 16 88 14 91 14 C94 14 97 16 97 19 C97 22 95 24 94 26 C95 28 97 30 96 34 C95 38 92 43 89 47 C89 54 87 62 84 66 C84 72 85 78 86 85 C86 87 84 88 82 88 C80 88 79 86 79 84 C79 78 78 72 78 68 C76 68 73 68 71 68 C70 73 69 79 69 85 C69 87 67 88 65 88 C63 88 62 86 62 83 C63 76 64 70 65 67 C58 68 45 68 38 67 C37 72 36 78 35 84 C35 87 33 88 31 88 C29 88 28 86 28 83 C29 77 30 71 31 67 C28 67 26 67 24 67 C23 72 21 78 20 84 C20 86 18 87 16 87 C14 87 13 85 13 83 C14 78 16 73 17 67 C14 68 12 69 12 70 Z" />
+          </svg>
+          <svg className="w-11 h-11 text-[#2A1F18]/75 fill-current -ml-2" viewBox="0 0 100 100">
+            <path d="M12 70 C12 65 14 62 17 60 C17 56 18 52 20 48 C22 44 26 42 30 43 C33 44 35 48 37 49 C39 46 42 42 48 42 C54 42 58 46 61 50 C63 47 66 43 72 43 C77 43 81 47 83 51 C87 49 90 42 91 35 C91 28 89 22 87 18 C86 16 88 14 91 14 C94 14 97 16 97 19 C97 22 95 24 94 26 C95 28 97 30 96 34 C95 38 92 43 89 47 C89 54 87 62 84 66 C84 72 85 78 86 85 C86 87 84 88 82 88 C80 88 79 86 79 84 C79 78 78 72 78 68 C76 68 73 68 71 68 C70 73 69 79 69 85 C69 87 67 88 65 88 C63 88 62 86 62 83 C63 76 64 70 65 67 C58 68 45 68 38 67 C37 72 36 78 35 84 C35 87 33 88 31 88 C29 88 28 86 28 83 C29 77 30 71 31 67 C28 67 26 67 24 67 C23 72 21 78 20 84 C20 86 18 87 16 87 C14 87 13 85 13 83 C14 78 16 73 17 67 C14 68 12 69 12 70 Z" />
+          </svg>
+        </div>
+      )}
     </div>
   )
 }

@@ -19,9 +19,15 @@ export default function PersonPage({ profile, side }: { profile: TemplateProps; 
   const linkHref = raw ? (raw.includes("instagram.com") ? raw : `https://instagram.com/${raw.replace(/^@/, "")}`) : undefined
 
   return (
-    <div className="w-full max-w-[370px] mx-auto flex flex-col items-center text-center px-2">
+    <div className="flex-1 w-full max-w-[370px] mx-auto flex flex-col items-center justify-center text-center px-2">
       <div className={`flex w-full items-end justify-between gap-3 ${isGroom ? "" : "flex-row-reverse"}`}>
         <div className="relative w-[175px] aspect-[3/4] rounded-t-full rounded-b-2xl overflow-hidden border-2 border-[#d4af37]/70 p-1 shrink-0 bg-[#f7f4ee]/30 shadow-[0_12px_32px_rgba(0,0,0,0.65)]">
+          <svg className="absolute top-2 left-3 im-sparkle-1 pointer-events-none" fill="none" height="14" viewBox="0 0 24 24" width="14">
+            <path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z" fill="#ffe088" />
+          </svg>
+          <svg className="absolute bottom-6 right-2 im-sparkle-2 pointer-events-none" fill="none" height="12" viewBox="0 0 24 24" width="12">
+            <path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z" fill="#f2ca50" />
+          </svg>
           <div className="w-full h-full rounded-t-full rounded-b-xl overflow-hidden relative bg-[#f7f4ee]">
             {photo ? (
               // eslint-disable-next-line @next/next/no-img-element
