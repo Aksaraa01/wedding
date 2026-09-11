@@ -116,6 +116,11 @@ export const ASSETS = {
     frameGallery: s("pixel-quest/frame-gallery.jpg"),
     frame4: s("pixel-quest/frame4.jpg"),
   },
+  impastoMosque: {
+    coverBg: s("impasto-mosque/cover-bg.jpg"),
+    bg: s("impasto-mosque/bg.jpg"),
+    brush: s("impasto-mosque/brush.jpg"),
+  },
   textures: {
     naturalPaper: "https://www.transparenttextures.com/patterns/natural-paper.png",
     felt: "https://www.transparenttextures.com/patterns/felt.png",
