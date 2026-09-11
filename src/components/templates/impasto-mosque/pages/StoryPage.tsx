@@ -29,9 +29,9 @@ export default function StoryPage({ stories }: { stories: StoryData[] }) {
               <div className="absolute inset-1.5 rounded-[20px] border border-dashed border-[#d4af37]/30 pointer-events-none" />
               {s.image_url && (
                 <div className="rounded-[120px_120px_1.5rem_1.5rem] overflow-hidden relative border border-[#d4af37]/35 p-1 shadow-inner mb-3 bg-[#f7f4ee]">
-                  <div className="rounded-[110px_110px_1rem_1rem] overflow-hidden w-full">
+                  <div className="rounded-[110px_110px_1rem_1rem] overflow-hidden w-full h-56">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={s.image_url} alt={s.title || ""} loading="lazy" className="w-full h-auto object-contain" />
+                    <img src={s.image_url} alt={s.title || ""} loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
                   </div>
                 </div>
               )}

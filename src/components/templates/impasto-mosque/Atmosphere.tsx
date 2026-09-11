@@ -62,6 +62,37 @@ export const IM_ATMOSPHERE_CSS = `
 .im-wing { transform-origin: center center; animation: imFlap 0.38s ease-in-out infinite; }
 .im-wing-fast { transform-origin: center center; animation: imFlap 0.32s ease-in-out infinite; }
 .im-wing-slow { transform-origin: center center; animation: imFlap 0.44s ease-in-out infinite; }
+@keyframes imBirdR {
+  0% { transform: translate3d(-60px, 0, 0) scale(0.85); opacity: 0; }
+  10% { opacity: 0.95; }
+  90% { opacity: 0.95; }
+  100% { transform: translate3d(480px, -60px, 0) scale(1.05); opacity: 0; }
+}
+@keyframes imBirdL {
+  0% { transform: translate3d(480px, 20px, 0) scaleX(-1) scale(0.8); opacity: 0; }
+  10% { opacity: 0.9; }
+  90% { opacity: 0.9; }
+  100% { transform: translate3d(-60px, -40px, 0) scaleX(-1) scale(0.95); opacity: 0; }
+}
+@keyframes imBirdLow {
+  0% { transform: translate3d(-60px, 40px, 0) scale(0.7); opacity: 0; }
+  12% { opacity: 0.85; }
+  88% { opacity: 0.85; }
+  100% { transform: translate3d(480px, -20px, 0) scale(0.85); opacity: 0; }
+}
+@keyframes imFlapWl {
+  0%, 100% { transform: rotate(0deg) scaleY(1); }
+  50% { transform: rotate(-32deg) scaleY(0.4) skewX(10deg); }
+}
+@keyframes imFlapWr {
+  0%, 100% { transform: rotate(0deg) scaleY(1); }
+  50% { transform: rotate(32deg) scaleY(0.4) skewX(-10deg); }
+}
+.im-bird-1 { animation: imBirdR 12s cubic-bezier(0.25, 0.1, 0.25, 1) infinite; will-change: transform; }
+.im-bird-2 { animation: imBirdL 15s cubic-bezier(0.25, 0.1, 0.25, 1) 4.5s infinite; will-change: transform; }
+.im-bird-3 { animation: imBirdLow 14s cubic-bezier(0.25, 0.1, 0.25, 1) 8s infinite; will-change: transform; }
+.im-flap-l { transform-origin: 15px 12px; animation: imFlapWl 0.38s ease-in-out infinite alternate; }
+.im-flap-r { transform-origin: 15px 13px; animation: imFlapWr 0.38s ease-in-out infinite alternate; }
 @keyframes imMote {
   0%, 100% { opacity: 0.2; transform: translateY(0) scale(0.8); }
   50% { opacity: 0.85; transform: translateY(-16px) scale(1.15); }
@@ -142,32 +173,79 @@ function Dove({
   )
 }
 
-// Ambient life above the shared mosque backdrop: gliding doves, gold sun
-// motes, drifting + falling petals, sparkles. Pure CSS, pointer-transparent.
-export default function ImpastoAtmosphere() {
+const DOVES: { flight: string; top: string; size: number; wing: string; tone: string; shadow: string }[] = [
+  { flight: "im-dove-1", top: "8%", size: 34, wing: "im-wing-fast", tone: "#FFFDF8", shadow: "drop-shadow-[0_2px_4px_rgba(40,30,20,0.35)]" },
+  { flight: "im-dove-2", top: "17%", size: 26, wing: "im-wing", tone: "#FDF9EE", shadow: "drop-shadow-[0_2px_4px_rgba(40,30,20,0.3)]" },
+  { flight: "im-dove-3", top: "27%", size: 40, wing: "im-wing-slow", tone: "#FFFDF8", shadow: "drop-shadow-[0_2px_4px_rgba(40,30,20,0.35)]" },
+  { flight: "im-dove-4", top: "38%", size: 22, wing: "im-wing", tone: "#F8F5EE", shadow: "drop-shadow-[0_2px_3px_rgba(40,30,20,0.25)]" },
+  { flight: "im-dove-5", top: "22%", size: 30, wing: "im-wing-fast", tone: "#FAF6EC", shadow: "drop-shadow-[0_2px_4px_rgba(40,30,20,0.25)]" },
+  { flight: "im-dove-6", top: "44%", size: 20, wing: "im-wing-slow", tone: "#FFFDF8", shadow: "drop-shadow-[0_1px_3px_rgba(40,30,20,0.2)]" },
+]
+
+const BIRDS: { flight: string; top: string; cls: string; body: string; wing: string }[] = [
+  { flight: "im-bird-1", top: "3rem", cls: "w-10 h-8", body: "#fffdf7", wing: "#fdfbf7" },
+  { flight: "im-bird-2", top: "7rem", cls: "w-8 h-6", body: "#f5eedc", wing: "#ffffff" },
+  { flight: "im-bird-3", top: "11rem", cls: "w-11 h-8", body: "#ffffff", wing: "#fdfbf7" },
+]
+
+function Bird({ flight, top, cls, body, wing }: { flight: string; top: string; cls: string; body: string; wing: string }) {
+  return (
+    <div className={`absolute left-0 pointer-events-none ${flight}`} style={{ top }}>
+      <svg className={`${cls} drop-shadow-md`} fill="none" viewBox="0 0 36 28">
+        <path className="im-flap-l" d="M14 12 C 12 6, 5 1, 0 3 C 5 6, 10 9, 14 12 Z" fill={wing} opacity="0.95" />
+        <path d="M11 12 C 15 11, 21 11.5, 27 13 C 24 14, 20 14.5, 14 14 C 11 15, 6 16, 2 15 C 6 13.5, 9 13, 11 12 Z" fill={body} />
+        <path className="im-flap-r" d="M15 13 C 18 18, 24 24, 30 26 C 25 21, 20 17, 15 13 Z" fill={wing} opacity="0.9" />
+        <circle cx="26" cy="12.8" r="1.8" fill={body} />
+      </svg>
+    </div>
+  )
+}
+
+// Per-page ambient life above the shared mosque backdrop. Each page picks
+// its own mix (dove count, seagull trio, falling petals, gold motes) to
+// mirror the reference designs; pure CSS, pointer-transparent.
+export default function ImpastoAtmosphere({
+  doves = 6,
+  birds = false,
+  petals = true,
+  motes = true,
+}: {
+  doves?: number
+  birds?: boolean
+  petals?: boolean
+  motes?: boolean
+}) {
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden im-atmos" style={{ zIndex: 5 }}>
-      <Dove flight="im-dove-1" top="8%" size={34} wing="im-wing-fast" tone="#FFFDF8" shadow="drop-shadow-[0_2px_4px_rgba(40,30,20,0.35)]" />
-      <Dove flight="im-dove-2" top="17%" size={26} wing="im-wing" tone="#FDF9EE" shadow="drop-shadow-[0_2px_4px_rgba(40,30,20,0.3)]" />
-      <Dove flight="im-dove-3" top="27%" size={40} wing="im-wing-slow" tone="#FFFDF8" shadow="drop-shadow-[0_2px_4px_rgba(40,30,20,0.35)]" />
-      <Dove flight="im-dove-4" top="38%" size={22} wing="im-wing" tone="#F8F5EE" shadow="drop-shadow-[0_2px_3px_rgba(40,30,20,0.25)]" />
-      <Dove flight="im-dove-5" top="22%" size={30} wing="im-wing-fast" tone="#FAF6EC" shadow="drop-shadow-[0_2px_4px_rgba(40,30,20,0.25)]" />
-      <Dove flight="im-dove-6" top="44%" size={20} wing="im-wing-slow" tone="#FFFDF8" shadow="drop-shadow-[0_1px_3px_rgba(40,30,20,0.2)]" />
-      <span className="absolute w-2 h-2 rounded-full bg-amber-200/70 blur-[0.8px] im-mote-1" style={{ top: "30%", left: "18%" }} />
-      <span className="absolute w-2.5 h-2.5 rounded-full bg-yellow-100/80 blur-[1px] im-mote-2" style={{ top: "38%", right: "22%" }} />
-      <span className="absolute w-1.5 h-1.5 rounded-full bg-amber-300/60 blur-[0.5px] im-mote-3" style={{ top: "55%", left: "30%" }} />
-      <span className="absolute w-3 h-2.5 rounded-full bg-[#f4b8c6] im-drift-1" style={{ bottom: "12%", left: "16%" }} />
-      <span className="absolute w-3.5 h-3 rounded-full bg-[#faedd4] im-drift-2" style={{ bottom: "9%", right: "20%" }} />
-      <span className="absolute w-2.5 h-2 rounded-full bg-[#e89db1] im-drift-3" style={{ bottom: "16%", left: "38%" }} />
-      <span className="absolute w-2.5 h-3 rounded-full bg-[#FFF9F0] im-fall-1" style={{ top: "-4%", left: "12%" }} />
-      <span className="absolute w-2 h-2.5 rounded-full bg-[#F7E7DC] im-fall-2" style={{ top: "-4%", left: "64%" }} />
-      <span className="absolute w-2 h-2.5 rounded-full bg-[#FFE8B8] im-fall-3" style={{ top: "-4%", left: "85%" }} />
-      <svg className="absolute im-sparkle-1" style={{ bottom: "28%", left: "8%" }} fill="none" height="16" viewBox="0 0 24 24" width="16">
-        <path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z" fill="#ffe088" />
-      </svg>
-      <svg className="absolute im-sparkle-2" style={{ bottom: "36%", right: "10%" }} fill="none" height="14" viewBox="0 0 24 24" width="14">
-        <path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z" fill="#f2ca50" />
-      </svg>
+      {DOVES.slice(0, Math.max(0, Math.min(6, doves))).map((d) => (
+        <Dove key={d.flight} flight={d.flight} top={d.top} size={d.size} wing={d.wing} tone={d.tone} shadow={d.shadow} />
+      ))}
+      {birds && BIRDS.map((b) => (
+        <Bird key={b.flight} flight={b.flight} top={b.top} cls={b.cls} body={b.body} wing={b.wing} />
+      ))}
+      {motes && (
+        <>
+          <span className="absolute w-2 h-2 rounded-full bg-amber-200/70 blur-[0.8px] im-mote-1" style={{ top: "30%", left: "18%" }} />
+          <span className="absolute w-2.5 h-2.5 rounded-full bg-yellow-100/80 blur-[1px] im-mote-2" style={{ top: "38%", right: "22%" }} />
+          <span className="absolute w-1.5 h-1.5 rounded-full bg-amber-300/60 blur-[0.5px] im-mote-3" style={{ top: "55%", left: "30%" }} />
+          <svg className="absolute im-sparkle-1" style={{ bottom: "28%", left: "8%" }} fill="none" height="16" viewBox="0 0 24 24" width="16">
+            <path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z" fill="#ffe088" />
+          </svg>
+          <svg className="absolute im-sparkle-2" style={{ bottom: "36%", right: "10%" }} fill="none" height="14" viewBox="0 0 24 24" width="14">
+            <path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z" fill="#f2ca50" />
+          </svg>
+        </>
+      )}
+      {petals && (
+        <>
+          <span className="absolute w-3 h-2.5 rounded-full bg-[#f4b8c6] im-drift-1" style={{ bottom: "12%", left: "16%" }} />
+          <span className="absolute w-3.5 h-3 rounded-full bg-[#faedd4] im-drift-2" style={{ bottom: "9%", right: "20%" }} />
+          <span className="absolute w-2.5 h-2 rounded-full bg-[#e89db1] im-drift-3" style={{ bottom: "16%", left: "38%" }} />
+          <span className="absolute w-2.5 h-3 rounded-full bg-[#FFF9F0] im-fall-1" style={{ top: "-4%", left: "12%" }} />
+          <span className="absolute w-2 h-2.5 rounded-full bg-[#F7E7DC] im-fall-2" style={{ top: "-4%", left: "64%" }} />
+          <span className="absolute w-2 h-2.5 rounded-full bg-[#FFE8B8] im-fall-3" style={{ top: "-4%", left: "85%" }} />
+        </>
+      )}
     </div>
   )
 }

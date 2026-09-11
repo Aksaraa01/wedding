@@ -2,7 +2,7 @@
 
 import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
-import { FONT_BODY, FONT_DISPLAY, FONT_SCRIPT } from "../../shared/Skin"
+import { FONT_BODY, FONT_DISPLAY } from "../../shared/Skin"
 import { CouplePhoto } from "./MainPage"
 
 export default function ClosingPage({ profile, onWishOpenChange }: { profile: TemplateProps; onWishOpenChange: (open: boolean) => void }) {
@@ -23,7 +23,7 @@ export default function ClosingPage({ profile, onWishOpenChange }: { profile: Te
           <span className="text-[10px] uppercase tracking-[0.25em] font-semibold mb-1" style={{ ...FONT_BODY, color: "#715c48" }}>
             UNGKAPAN TERIMA KASIH
           </span>
-          <h1 className="text-[34px] leading-tight mb-1.5" style={{ ...FONT_SCRIPT, color: "#2A1F18", textShadow: "0 2px 4px rgba(255,255,255,0.4), 0 1px 2px rgba(74,52,39,0.2)" }}>
+          <h1 className="italic text-[30px] leading-tight mb-1.5 drop-shadow-sm" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
             Terima Kasih &amp; Doa Restu
           </h1>
           <div className="flex items-center gap-2 mb-2 w-full max-w-[280px] justify-center">

@@ -25,6 +25,22 @@ type Props = {
 
 // Scroll-snap page stack over ONE fixed background. Each page is at least one
 // device screen (snap-start); the bg never moves while content cross-fades.
+// Each page carries its own atmosphere mix (doves / birds / petals / motes)
+// mirroring the reference designs.
+
+// Per-page atmosphere mix matching ~/Downloads/design reference files.
+const ATMO: Record<ImpastoPageKey, { doves: number; birds: boolean; petals: boolean; motes: boolean }> = {
+  main: { doves: 4, birds: false, petals: true, motes: true },
+  groom: { doves: 5, birds: false, petals: false, motes: false },
+  bride: { doves: 6, birds: false, petals: false, motes: false },
+  gallery: { doves: 0, birds: true, petals: false, motes: false },
+  story: { doves: 3, birds: false, petals: false, motes: true },
+  event0: { doves: 4, birds: false, petals: false, motes: false },
+  event1: { doves: 0, birds: true, petals: false, motes: false },
+  countdown: { doves: 4, birds: false, petals: false, motes: false },
+  combined: { doves: 4, birds: false, petals: false, motes: true },
+  closing: { doves: 4, birds: false, petals: false, motes: false },
+}
 export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
   const stories = Array.isArray(profile.stories) ? profile.stories : []
   const families = Array.isArray(profile.inviting_families) ? profile.inviting_families.filter(Boolean) : []
@@ -97,9 +113,9 @@ export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
       case "story":
         return <StoryPage stories={stories} />
       case "event0":
-        return <EventPage session={sessions[0]} />
+        return <EventPage session={sessions[0]} anchor="top" />
       case "event1":
-        return <EventPage session={sessions[1]} />
+        return <EventPage session={sessions[1]} anchor="bottom" />
       case "countdown":
         return <CountdownPage profile={profile} sessions={sessions as any} />
       case "combined":
@@ -117,7 +133,6 @@ export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={ASSETS.impastoMosque.bg} alt="" draggable={false} className="w-full h-full object-cover object-center" />
       </div>
-      <ImpastoAtmosphere />
 
       {/* Scrollable content layer (snap = page change) */}
       <div ref={scrollRef} className="absolute inset-0 overflow-y-auto snap-y snap-mandatory custom-scrollbar">
@@ -128,8 +143,9 @@ export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
             ref={(el) => {
               pageRefs.current[i] = el
             }}
-            className="min-h-full snap-start snap-always flex flex-col"
+            className="relative min-h-full snap-start snap-always flex flex-col"
           >
+            <ImpastoAtmosphere {...ATMO[key]} />
             <div className={`flex-1 flex flex-col min-h-0 transition-all duration-500 ${i === activeIdx ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
               {renderPage(key)}
             </div>

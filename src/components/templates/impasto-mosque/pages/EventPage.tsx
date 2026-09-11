@@ -1,22 +1,22 @@
 "use client"
 
 import { ASSETS } from "@/lib/assets"
-import { FONT_BODY, FONT_DISPLAY, FONT_SCRIPT } from "../../shared/Skin"
+import { FONT_BODY, FONT_DISPLAY } from "../../shared/Skin"
 import { formatLongDate, type SessionData } from "../../shared/lib"
 
-// Single event card on the white brush backdrop, bottom-anchored (used for
-// Akad and Resepsi). No camel caravan — per design.
-export default function EventPage({ session }: { session: SessionData }) {
+// Single event card on the white brush backdrop. Akad sits top-anchored,
+// Resepsi bottom-anchored — per design. No camel caravan.
+export default function EventPage({ session, anchor }: { session: SessionData; anchor: "top" | "bottom" }) {
   const location = [session.venue, session.address].filter(Boolean).join(" • ")
   return (
-    <div className="flex-1 w-full flex flex-col justify-end items-center px-6 pb-8 text-center">
+    <div className={`flex-1 w-full flex flex-col items-center px-6 text-center ${anchor === "top" ? "justify-start pt-12" : "justify-end pb-8 pt-4"}`}>
       <div className="relative w-full max-w-[360px] flex flex-col items-center justify-center p-8 text-center select-none">
-        <div className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none opacity-95">
+        <div className="absolute inset-0 -z-10 w-full h-full flex items-center justify-center pointer-events-none drop-shadow-xl">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={ASSETS.impastoMosque.brush} alt="" className="w-full h-full object-fill scale-110 opacity-95" loading="lazy" />
         </div>
         <div className="relative z-10 flex flex-col items-center w-full px-4 py-2">
-          <h1 className="text-[42px] leading-tight mb-2" style={{ ...FONT_SCRIPT, color: "#2A1F18", textShadow: "0 2px 4px rgba(255,255,255,0.4), 0 1px 2px rgba(74,52,39,0.2)" }}>
+          <h1 className="italic text-[38px] leading-tight mb-2 drop-shadow-sm" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
             {session.name || "Acara"}
           </h1>
           {session.date && (
