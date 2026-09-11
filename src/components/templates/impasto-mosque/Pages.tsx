@@ -29,17 +29,17 @@ type Props = {
 // mirroring the reference designs.
 
 // Per-page atmosphere mix matching ~/Downloads/design reference files.
-const ATMO: Record<ImpastoPageKey, { doves: number; birds: boolean; petals: boolean; motes: boolean }> = {
-  main: { doves: 4, birds: false, petals: true, motes: true },
-  groom: { doves: 5, birds: false, petals: false, motes: false },
-  bride: { doves: 6, birds: false, petals: false, motes: false },
-  gallery: { doves: 0, birds: true, petals: false, motes: false },
-  story: { doves: 3, birds: false, petals: false, motes: true },
-  event0: { doves: 4, birds: false, petals: false, motes: false },
-  event1: { doves: 0, birds: true, petals: false, motes: false },
-  countdown: { doves: 4, birds: false, petals: false, motes: false },
-  combined: { doves: 4, birds: false, petals: false, motes: true },
-  closing: { doves: 4, birds: false, petals: false, motes: false },
+const ATMO: Record<ImpastoPageKey, { doves: number; petals: boolean; motes: boolean }> = {
+  main: { doves: 4, petals: true, motes: true },
+  groom: { doves: 5, petals: false, motes: false },
+  bride: { doves: 6, petals: false, motes: false },
+  gallery: { doves: 3, petals: false, motes: false },
+  story: { doves: 3, petals: false, motes: true },
+  event0: { doves: 4, petals: false, motes: false },
+  event1: { doves: 3, petals: false, motes: false },
+  countdown: { doves: 4, petals: false, motes: false },
+  combined: { doves: 4, petals: false, motes: true },
+  closing: { doves: 4, petals: false, motes: false },
 }
 export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
   const stories = Array.isArray(profile.stories) ? profile.stories : []
@@ -72,7 +72,9 @@ export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
     return combinedOn
   })
 
-  const [activeIdx, setActiveIdx] = useState(0)
+  // Per-page visibility ratio (0..1) driven by the scroll position. Page
+  // content fades + drifts out as it scrolls away up or down — no timers.
+  const [vis, setVis] = useState<Record<number, number>>({})
   const scrollRef = useRef<HTMLDivElement>(null)
   const pageRefs = useRef<(HTMLElement | null)[]>([])
 
@@ -81,18 +83,23 @@ export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
     if (!root) return
     const obs = new IntersectionObserver(
       (entries) => {
-        let best = -1
-        let bestRatio = 0
-        for (const e of entries) {
-          const idx = Number((e.target as HTMLElement).dataset.idx)
-          if (e.isIntersecting && e.intersectionRatio > bestRatio) {
-            bestRatio = e.intersectionRatio
-            best = idx
+        setVis((prev) => {
+          const next = { ...prev }
+          let changed = false
+          for (const e of entries) {
+            const idx = Number((e.target as HTMLElement).dataset.idx)
+            const targetH = (e.target as HTMLElement).offsetHeight || e.boundingClientRect.height || 1
+            const viewH = e.rootBounds?.height || root.clientHeight || 1
+            const v = Math.max(0, Math.min(1, e.intersectionRect.height / (Math.min(targetH, viewH) || 1)))
+            if (Math.abs((next[idx] ?? 1) - v) > 0.01) {
+              next[idx] = Math.round(v * 100) / 100
+              changed = true
+            }
           }
-        }
-        if (best >= 0) setActiveIdx(best)
+          return changed ? next : prev
+        })
       },
-      { root, threshold: [0, 0.25, 0.5, 0.75, 1] }
+      { root, threshold: Array.from({ length: 21 }, (_, i) => i / 20) }
     )
     pageRefs.current.forEach((el) => {
       if (el) obs.observe(el)
@@ -136,21 +143,27 @@ export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
 
       {/* Scrollable content layer (snap = page change) */}
       <div ref={scrollRef} className="absolute inset-0 overflow-y-auto snap-y snap-mandatory custom-scrollbar">
-        {pages.map((key, i) => (
-          <section
-            key={key}
-            data-idx={i}
-            ref={(el) => {
-              pageRefs.current[i] = el
-            }}
-            className="relative min-h-full snap-start snap-always flex flex-col"
-          >
-            <ImpastoAtmosphere {...ATMO[key]} />
-            <div className={`flex-1 flex flex-col min-h-0 transition-all duration-500 ${i === activeIdx ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-              {renderPage(key)}
-            </div>
-          </section>
-        ))}
+        {pages.map((key, i) => {
+          const o = vis[i] ?? 1
+          return (
+            <section
+              key={key}
+              data-idx={i}
+              ref={(el) => {
+                pageRefs.current[i] = el
+              }}
+              className="relative min-h-full snap-start snap-always flex flex-col"
+            >
+              <ImpastoAtmosphere {...ATMO[key]} />
+              <div
+                className="flex-1 flex flex-col min-h-0"
+                style={{ opacity: o, transform: `translateY(${(1 - o) * 24}px)`, transition: "opacity 0.12s linear" }}
+              >
+                {renderPage(key)}
+              </div>
+            </section>
+          )
+        })}
       </div>
     </div>
   )

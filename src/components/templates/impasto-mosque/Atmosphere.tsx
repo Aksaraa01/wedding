@@ -49,9 +49,13 @@ export const IM_ATMOSPHERE_CSS = `
   86% { opacity: 0.85; }
   100% { transform: translate(460px, 10px) scale(0.55); opacity: 0; }
 }
-@keyframes imFlap {
-  0%, 100% { transform: scaleY(1); }
-  50% { transform: scaleY(0.38); }
+@keyframes imDoveFlapL {
+  0%, 100% { transform: rotate(0deg) scaleY(1); }
+  50% { transform: rotate(-36deg) scaleY(0.42); }
+}
+@keyframes imDoveFlapR {
+  0%, 100% { transform: rotate(0deg) scaleY(1); }
+  50% { transform: rotate(36deg) scaleY(0.42); }
 }
 .im-dove-1 { animation: imFly1 8.5s cubic-bezier(0.4, 0, 0.2, 1) infinite; animation-delay: -2s; will-change: transform; }
 .im-dove-2 { animation: imFly2 11s cubic-bezier(0.38, 0, 0.22, 1) infinite; animation-delay: -6s; will-change: transform; }
@@ -59,40 +63,8 @@ export const IM_ATMOSPHERE_CSS = `
 .im-dove-4 { animation: imFly4 13.5s cubic-bezier(0.35, 0, 0.25, 1) infinite; animation-delay: -9s; will-change: transform; }
 .im-dove-5 { animation: imFly5 9.5s cubic-bezier(0.4, 0, 0.2, 1) infinite; animation-delay: -1.2s; will-change: transform; }
 .im-dove-6 { animation: imFly6 14s linear infinite; animation-delay: -9.5s; will-change: transform; }
-.im-wing { transform-origin: center center; animation: imFlap 0.38s ease-in-out infinite; }
-.im-wing-fast { transform-origin: center center; animation: imFlap 0.32s ease-in-out infinite; }
-.im-wing-slow { transform-origin: center center; animation: imFlap 0.44s ease-in-out infinite; }
-@keyframes imBirdR {
-  0% { transform: translate3d(-60px, 0, 0) scale(0.85); opacity: 0; }
-  10% { opacity: 0.95; }
-  90% { opacity: 0.95; }
-  100% { transform: translate3d(480px, -60px, 0) scale(1.05); opacity: 0; }
-}
-@keyframes imBirdL {
-  0% { transform: translate3d(480px, 20px, 0) scaleX(-1) scale(0.8); opacity: 0; }
-  10% { opacity: 0.9; }
-  90% { opacity: 0.9; }
-  100% { transform: translate3d(-60px, -40px, 0) scaleX(-1) scale(0.95); opacity: 0; }
-}
-@keyframes imBirdLow {
-  0% { transform: translate3d(-60px, 40px, 0) scale(0.7); opacity: 0; }
-  12% { opacity: 0.85; }
-  88% { opacity: 0.85; }
-  100% { transform: translate3d(480px, -20px, 0) scale(0.85); opacity: 0; }
-}
-@keyframes imFlapWl {
-  0%, 100% { transform: rotate(0deg) scaleY(1); }
-  50% { transform: rotate(-32deg) scaleY(0.4) skewX(10deg); }
-}
-@keyframes imFlapWr {
-  0%, 100% { transform: rotate(0deg) scaleY(1); }
-  50% { transform: rotate(32deg) scaleY(0.4) skewX(-10deg); }
-}
-.im-bird-1 { animation: imBirdR 12s cubic-bezier(0.25, 0.1, 0.25, 1) infinite; will-change: transform; }
-.im-bird-2 { animation: imBirdL 15s cubic-bezier(0.25, 0.1, 0.25, 1) 4.5s infinite; will-change: transform; }
-.im-bird-3 { animation: imBirdLow 14s cubic-bezier(0.25, 0.1, 0.25, 1) 8s infinite; will-change: transform; }
-.im-flap-l { transform-origin: 15px 12px; animation: imFlapWl 0.38s ease-in-out infinite alternate; }
-.im-flap-r { transform-origin: 15px 13px; animation: imFlapWr 0.38s ease-in-out infinite alternate; }
+.im-dove-wing-l { transform-origin: 16px 12px; animation: imDoveFlapL 0.35s ease-in-out infinite; }
+.im-dove-wing-r { transform-origin: 18px 12px; animation: imDoveFlapR 0.35s ease-in-out infinite; }
 @keyframes imMote {
   0%, 100% { opacity: 0.2; transform: translateY(0) scale(0.8); }
   50% { opacity: 0.85; transform: translateY(-16px) scale(1.15); }
@@ -145,83 +117,55 @@ export const IM_ATMOSPHERE_CSS = `
 }
 `
 
-const DOVE_PATH = "M4 25 C12 23, 17 21, 23 18 C26 13, 30 7, 36 3 C36 8, 34 14, 30 19 C35 18, 42 16, 46 17 C42 20, 37 22, 33 24 C36 26, 40 30, 44 34 C38 32, 31 29, 27 28 C23 31, 16 34, 11 36 C13 32, 17 28, 20 27 C15 27, 8 26, 4 25 Z"
-
-function Dove({
-  flight,
-  top,
-  size,
-  wing,
-  tone,
-  shadow,
-}: {
+type DoveSpec = {
   flight: string
   top: string
-  size: number
-  wing: string
-  tone: string
-  shadow: string
-}) {
-  return (
-    <div className={`absolute left-0 pointer-events-none ${flight}`} style={{ top }}>
-      <div className={`${wing} ${shadow}`}>
-        <svg width={size} height={size} viewBox="0 0 48 48" fill={tone}>
-          <path d={DOVE_PATH} />
-        </svg>
-      </div>
-    </div>
-  )
+  width: number
+  opacity: number
+  wingL: string
+  wingR: string
+  body: string
+  glow: string
 }
 
-const DOVES: { flight: string; top: string; size: number; wing: string; tone: string; shadow: string }[] = [
-  { flight: "im-dove-1", top: "8%", size: 34, wing: "im-wing-fast", tone: "#FFFDF8", shadow: "drop-shadow-[0_2px_4px_rgba(40,30,20,0.35)]" },
-  { flight: "im-dove-2", top: "17%", size: 26, wing: "im-wing", tone: "#FDF9EE", shadow: "drop-shadow-[0_2px_4px_rgba(40,30,20,0.3)]" },
-  { flight: "im-dove-3", top: "27%", size: 40, wing: "im-wing-slow", tone: "#FFFDF8", shadow: "drop-shadow-[0_2px_4px_rgba(40,30,20,0.35)]" },
-  { flight: "im-dove-4", top: "38%", size: 22, wing: "im-wing", tone: "#F8F5EE", shadow: "drop-shadow-[0_2px_3px_rgba(40,30,20,0.25)]" },
-  { flight: "im-dove-5", top: "22%", size: 30, wing: "im-wing-fast", tone: "#FAF6EC", shadow: "drop-shadow-[0_2px_4px_rgba(40,30,20,0.25)]" },
-  { flight: "im-dove-6", top: "44%", size: 20, wing: "im-wing-slow", tone: "#FFFDF8", shadow: "drop-shadow-[0_1px_3px_rgba(40,30,20,0.2)]" },
+const DOVES: DoveSpec[] = [
+  { flight: "im-dove-1", top: "8%", width: 40, opacity: 1, wingL: "#FFFDF7", wingR: "#ffffff", body: "#FAF6ED", glow: "drop-shadow-[0_2px_8px_rgba(255,255,255,0.9)]" },
+  { flight: "im-dove-2", top: "17%", width: 28, opacity: 0.85, wingL: "#FBF8F0", wingR: "#ffffff", body: "#ffffff", glow: "drop-shadow-[0_2px_6px_rgba(255,255,255,0.75)]" },
+  { flight: "im-dove-3", top: "27%", width: 44, opacity: 1, wingL: "#FFFDF5", wingR: "#ffffff", body: "#ffffff", glow: "drop-shadow-[0_3px_10px_rgba(255,255,255,0.95)]" },
+  { flight: "im-dove-4", top: "38%", width: 24, opacity: 0.8, wingL: "#ffffff", wingR: "#F5EFE1", body: "#ffffff", glow: "drop-shadow-[0_2px_5px_rgba(255,255,255,0.7)]" },
+  { flight: "im-dove-5", top: "22%", width: 36, opacity: 0.95, wingL: "#ffffff", wingR: "#FFFDF8", body: "#ffffff", glow: "drop-shadow-[0_2px_8px_rgba(255,255,255,0.85)]" },
+  { flight: "im-dove-6", top: "30%", width: 32, opacity: 0.9, wingL: "#FFFDF7", wingR: "#ffffff", body: "#FAF6ED", glow: "drop-shadow-[0_2px_6px_rgba(255,255,255,0.8)]" },
 ]
 
-const BIRDS: { flight: string; top: string; cls: string; body: string; wing: string }[] = [
-  { flight: "im-bird-1", top: "3rem", cls: "w-10 h-8", body: "#fffdf7", wing: "#fdfbf7" },
-  { flight: "im-bird-2", top: "7rem", cls: "w-8 h-6", body: "#f5eedc", wing: "#ffffff" },
-  { flight: "im-bird-3", top: "11rem", cls: "w-11 h-8", body: "#ffffff", wing: "#fdfbf7" },
-]
-
-function Bird({ flight, top, cls, body, wing }: { flight: string; top: string; cls: string; body: string; wing: string }) {
+function Dove({ spec }: { spec: DoveSpec }) {
   return (
-    <div className={`absolute left-0 pointer-events-none ${flight}`} style={{ top }}>
-      <svg className={`${cls} drop-shadow-md`} fill="none" viewBox="0 0 36 28">
-        <path className="im-flap-l" d="M14 12 C 12 6, 5 1, 0 3 C 5 6, 10 9, 14 12 Z" fill={wing} opacity="0.95" />
-        <path d="M11 12 C 15 11, 21 11.5, 27 13 C 24 14, 20 14.5, 14 14 C 11 15, 6 16, 2 15 C 6 13.5, 9 13, 11 12 Z" fill={body} />
-        <path className="im-flap-r" d="M15 13 C 18 18, 24 24, 30 26 C 25 21, 20 17, 15 13 Z" fill={wing} opacity="0.9" />
-        <circle cx="26" cy="12.8" r="1.8" fill={body} />
+    <div className={`absolute left-0 pointer-events-none ${spec.flight}`} style={{ top: spec.top, opacity: spec.opacity }}>
+      <svg width={spec.width} viewBox="0 0 36 28" fill="none" className={spec.glow}>
+        <path className="im-dove-wing-l" d="M16 12 C12 5 3 1 0 5 C5 9 11 12 16 13 Z" fill={spec.wingL} />
+        <path className="im-dove-wing-r" d="M18 12 C23 4 32 0 36 4 C31 8 25 12 18 13 Z" fill={spec.wingR} />
+        <path d="M13 13 C15 11 18 11 20 13 C21 15 20 18 17 22 C15 19 14 16 13 13 Z" fill={spec.body} />
+        <ellipse cx="16.5" cy="11.5" rx="2.5" ry="3" fill="#ffffff" />
       </svg>
     </div>
   )
 }
 
-// Per-page ambient life above the shared mosque backdrop. Each page picks
-// its own mix (dove count, seagull trio, falling petals, gold motes) to
-// mirror the reference designs; pure CSS, pointer-transparent.
+// Per-page ambient life above the shared mosque backdrop, using the groom
+// reference doves. Each page picks its own mix (dove count, falling petals,
+// gold motes) to mirror the reference designs; pure CSS, pointer-transparent.
 export default function ImpastoAtmosphere({
-  doves = 6,
-  birds = false,
+  doves = 5,
   petals = true,
   motes = true,
 }: {
   doves?: number
-  birds?: boolean
   petals?: boolean
   motes?: boolean
 }) {
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden im-atmos" style={{ zIndex: 5 }}>
       {DOVES.slice(0, Math.max(0, Math.min(6, doves))).map((d) => (
-        <Dove key={d.flight} flight={d.flight} top={d.top} size={d.size} wing={d.wing} tone={d.tone} shadow={d.shadow} />
-      ))}
-      {birds && BIRDS.map((b) => (
-        <Bird key={b.flight} flight={b.flight} top={b.top} cls={b.cls} body={b.body} wing={b.wing} />
+        <Dove key={d.flight} spec={d} />
       ))}
       {motes && (
         <>

@@ -120,6 +120,7 @@ export const ASSETS = {
     coverBg: s("impasto-mosque/cover-bg.jpg"),
     bg: s("impasto-mosque/bg.jpg"),
     brush: s("impasto-mosque/brush.jpg"),
+    coupleCover: s("impasto-mosque/couple-cover.png"),
   },
   textures: {
     naturalPaper: "https://www.transparenttextures.com/patterns/natural-paper.png",

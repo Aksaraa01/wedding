@@ -8,7 +8,7 @@ import { firstImage, initialsOf } from "../../shared/lib"
 const DEFAULT_VERSE = "“Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu istri-istri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya, dan dijadikan-Nya di antaramu rasa kasih dan sayang.”"
 
 export function CouplePhoto({ profile, className = "" }: { profile: TemplateProps; className?: string }) {
-  const src = firstImage(profile.cover_photos) || firstImage(profile.couple_illustration_url)
+  const src = firstImage(profile.cover_photos) || firstImage(profile.couple_illustration_url) || ASSETS.impastoMosque.coupleCover
   if (!src) {
     return (
       <div className={`bg-[#f7f4ee] flex items-center justify-center ${className}`}>

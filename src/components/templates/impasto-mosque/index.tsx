@@ -71,6 +71,7 @@ export default function ImpastoMosque(props: TemplateProps) {
               weddingProfileId={props.wedding_profile_id}
               guestId={props.guest_id}
               guestName={props.guest_name}
+              hideTrigger
             />
           )}
         </div>

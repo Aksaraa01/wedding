@@ -1,20 +1,13 @@
 "use client"
 
-import { FONT_BODY, FONT_DISPLAY } from "../../shared/Skin"
+import { FONT_DISPLAY } from "../../shared/Skin"
 
 const HEIGHTS = ["h-52", "h-40", "h-44", "h-48"]
 
 export default function GalleryPage({ photos }: { photos: string[] }) {
   return (
     <div className="flex-1 w-full max-w-[370px] mx-auto px-1 pt-5 pb-16">
-      <div className="flex items-center justify-center gap-2 mb-2">
-        <div className="h-[1px] w-8 bg-gradient-to-r from-transparent to-[#8E6B3D]" />
-        <span className="text-[10px] uppercase tracking-[0.25em] text-[#554300] font-bold" style={FONT_BODY}>
-          Our Moments
-        </span>
-        <div className="h-[1px] w-8 bg-gradient-to-l from-transparent to-[#8E6B3D]" />
-      </div>
-      <h1 className="text-center italic text-[30px] leading-tight mb-4 drop-shadow-sm" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
+      <h1 className="text-center italic text-[30px] leading-tight mt-2 mb-4 drop-shadow-sm" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
         Our Moments
       </h1>
       <div className="columns-2 gap-3 space-y-3">
