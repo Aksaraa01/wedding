@@ -88,7 +88,7 @@ export default function ImpastoMosque(props: TemplateProps) {
             guestRsvpMessage={props.guest_rsvp_message || undefined}
             rsvpMaxPax={props.rsvp_max_pax ?? 2}
             qrEnabled={props.feature_gates?.qr_code_book === true}
-            anchor="bottom"
+            anchor="center"
           />
         )}
 
@@ -99,7 +99,12 @@ export default function ImpastoMosque(props: TemplateProps) {
             aria-label="Putar atau jeda musik"
             title="Putar atau jeda musik"
             className="fixed right-4 z-[95] w-11 h-11 rounded-full bg-white text-[#111827] shadow-lg border border-black/10 flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
-            style={{ bottom: 144, right: 16 }}
+            style={{
+              top: "50%",
+              right: 16,
+              transform: "translateY(-50%)",
+              marginTop: showGuestDock ? (props.feature_gates?.qr_code_book === true && props.guest_qr_url ? 88 : 58) : 0,
+            }}
           >
             <span className={`material-symbols-outlined text-[22px] ${playing ? "" : "opacity-70"}`}>
               {playing ? "graphic_eq" : "music_off"}
