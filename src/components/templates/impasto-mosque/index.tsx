@@ -1,12 +1,54 @@
 "use client"
 
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import type { TemplateProps } from "@/types/template"
 import InvitationOverlay from "@/components/InvitationOverlay"
-import Skin from "../shared/Skin"
+import { ASSETS } from "@/lib/assets"
+import { firstImage, initialsOf, photoList } from "../shared/lib"
+import Skin, { FONT_BODY, FONT_SCRIPT } from "../shared/Skin"
 import LiveWishes from "../shared/LiveWishes"
 import ImpastoCover from "./Cover"
 import ImpastoPages from "./Pages"
+
+// Preload the template-critical imagery (painted backdrop, brush, photos)
+// behind a splash so guests never see lazy pop-in. Fails safe after 9s.
+function useImpastoReady(profile: TemplateProps) {
+  const [ready, setReady] = useState(false)
+  useEffect(() => {
+    let cancelled = false
+    const srcs = [
+      ASSETS.impastoMosque.coverBg,
+      ASSETS.impastoMosque.bg,
+      ASSETS.impastoMosque.brush,
+      ASSETS.impastoMosque.coupleCover,
+      firstImage(profile.cover_photos),
+      firstImage(profile.couple_illustration_url),
+      photoList(profile.groom_photo_url)[0],
+      photoList(profile.bride_photo_url)[0],
+    ].filter(Boolean) as string[]
+    const load = (src: string) =>
+      new Promise<void>((resolve) => {
+        const img = new Image()
+        img.onload = () => resolve()
+        img.onerror = () => resolve()
+        img.src = src
+      })
+    const timer = setTimeout(() => {
+      if (!cancelled) setReady(true)
+    }, 9000)
+    Promise.allSettled(srcs.map(load)).then(() => {
+      if (!cancelled) {
+        clearTimeout(timer)
+        setReady(true)
+      }
+    })
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [profile.cover_photos, profile.couple_illustration_url, profile.groom_photo_url, profile.bride_photo_url])
+  return ready
+}
 
 export default function ImpastoMosque(props: TemplateProps) {
   const [opened, setOpened] = useState(false)
@@ -40,6 +82,9 @@ export default function ImpastoMosque(props: TemplateProps) {
 
   const onWishOpenChange = useCallback((open: boolean) => setWishOpen(open), [])
 
+  const ready = useImpastoReady(props)
+  const initials = (props.couple_initials || "").trim() || initialsOf(props.groom_name, props.bride_name) || "AR"
+
   // Guest QR/RSVP dock shows only after the invitation opens, for identified
   // guests, and hides while the wishes feed is open.
   const showGuestDock = opened && !wishOpen && !!props.guest_id && !!props.wedding_profile_id
@@ -50,8 +95,24 @@ export default function ImpastoMosque(props: TemplateProps) {
 
   return (
     <Skin display="Cormorant Garamond" body="Montserrat" script="Alex Brush">
+      <style>{`@keyframes imLoadPulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }`}</style>
       <div className="sp-shell w-full bg-[#2A1F18] flex justify-center overflow-hidden">
         <div className="relative h-full w-full max-w-[430px] overflow-hidden bg-[#2A1F18] shadow-[0_0_60px_rgba(0,0,0,0.6)]">
+          {!ready && (
+            <div className="absolute inset-0 z-[100] overflow-hidden bg-[#171310]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={ASSETS.impastoMosque.coverBg} alt="" draggable={false} className="absolute inset-0 w-full h-full object-cover object-center opacity-40" />
+              <div className="absolute inset-0 bg-black/45" />
+              <div className="relative h-full flex flex-col items-center justify-center gap-3 px-8 text-center">
+                <span className="text-[46px] leading-none text-[#f2ca50]" style={{ ...FONT_SCRIPT, textShadow: "0 2px 12px rgba(0,0,0,0.8)" }}>
+                  {initials}
+                </span>
+                <span className="text-[11px] uppercase font-medium" style={{ ...FONT_BODY, letterSpacing: "0.3em", color: "#E5DEC9", animation: "imLoadPulse 1.6s ease-in-out infinite" }}>
+                  Menyiapkan Undangan
+                </span>
+              </div>
+            </div>
+          )}
           {!opened ? (
             <ImpastoCover
               groom_name={props.groom_name}

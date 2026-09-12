@@ -20,9 +20,6 @@ export default function ClosingPage({ profile, onWishOpenChange }: { profile: Te
             </div>
             <div className="absolute -inset-1 rounded-t-full rounded-b-lg border border-[#d4af37]/30 pointer-events-none" />
           </div>
-          <span className="text-[10px] uppercase tracking-[0.25em] font-semibold mb-1" style={{ ...FONT_BODY, color: "#715c48" }}>
-            UNGKAPAN TERIMA KASIH
-          </span>
           <h1 className="italic text-[30px] leading-tight mb-1.5 drop-shadow-sm" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
             Terima Kasih &amp; Doa Restu
           </h1>

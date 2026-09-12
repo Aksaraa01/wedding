@@ -25,11 +25,8 @@ export default function CountdownPage({ profile, sessions }: { profile: Template
           <img src={ASSETS.impastoMosque.brush} alt="" className="w-full h-full object-fill scale-110 opacity-95" loading="lazy" />
         </div>
       <div className="relative z-10 flex flex-col items-center w-full px-4 py-2">
-        <span className="text-[11px] uppercase tracking-[0.25em] font-semibold mb-1" style={{ ...FONT_BODY, color: "#715c48" }}>
+        <h1 className="italic text-[28px] leading-tight mb-2 drop-shadow-sm" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
           Save The Date
-        </span>
-        <h1 className="italic text-[34px] leading-tight mb-1 drop-shadow-sm" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
-          Menghitung Hari
         </h1>
         <div className="flex items-center gap-2 mb-4">
           <span className="h-px w-6 bg-[#8E6B3D]/40" />
