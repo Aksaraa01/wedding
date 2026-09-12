@@ -45,7 +45,7 @@ export default function ImpastoCover({
 
       <div className="relative z-10 h-full flex flex-col items-center text-center px-4">
         <div
-          className="flex-1 min-h-0 flex flex-col items-center justify-start pt-1 will-change-transform"
+          className="flex-1 min-h-0 flex flex-col items-center justify-start pt-10 will-change-transform"
           style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}
         >
           <div className="relative flex flex-col items-center">
