@@ -12,6 +12,7 @@ export async function GET(req: Request) {
     .from("web_templates")
     .select("*")
     .order("sort_order", { ascending: true })
+    .order("name", { ascending: true })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ templates: data })
 }
