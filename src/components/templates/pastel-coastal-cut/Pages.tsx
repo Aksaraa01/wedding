@@ -31,12 +31,15 @@ type AtmoMix = {
   pearls: boolean
   waves: boolean
   flocks: boolean
+  mainBirds?: boolean
+  guestBirds?: boolean
+  petals8?: boolean
 }
 
 const ATMO: Record<PastelPageKey, AtmoMix> = {
-  main: { doves: 0, clouds: 0, petals: true, motes: true, pearls: false, waves: false, flocks: false },
-  groom: { doves: 3, clouds: 0, petals: false, motes: false, pearls: true, waves: false, flocks: false },
-  bride: { doves: 3, clouds: 0, petals: false, motes: false, pearls: true, waves: false, flocks: false },
+  main: { doves: 0, clouds: 0, petals: false, motes: false, pearls: false, waves: false, flocks: false, mainBirds: true, petals8: true },
+  groom: { doves: 0, clouds: 0, petals: false, motes: false, pearls: true, waves: false, flocks: false, guestBirds: true },
+  bride: { doves: 0, clouds: 0, petals: false, motes: false, pearls: true, waves: false, flocks: false, guestBirds: true },
   gallery: { doves: 3, clouds: 1, petals: false, motes: false, pearls: true, waves: true, flocks: false },
   story: { doves: 3, clouds: 1, petals: false, motes: true, pearls: false, waves: false, flocks: false },
   events: { doves: 4, clouds: 0, petals: false, motes: false, pearls: false, waves: false, flocks: true },

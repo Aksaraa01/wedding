@@ -69,19 +69,19 @@ export default function PastelCover({
         <img src={ASSETS.pastelCoastal.bg} alt="" draggable={false} className="w-full h-full object-cover object-center pointer-events-none" />
       </div>
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white/20 via-transparent to-amber-900/10" />
-      <PastelAtmosphere doves={0} flocks motes petals />
+      <PastelAtmosphere doves={0} mainBirds petals8 motes />
       <CoastalGrass />
 
       <div className="relative z-10 h-full flex flex-col items-center text-center px-4">
         <div
-          className="flex-1 min-h-0 flex flex-col items-center justify-start pt-1 will-change-transform"
+          className="flex-1 min-h-0 flex flex-col items-center justify-start pt-10 will-change-transform"
           style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}
         >
           <div className="relative flex flex-col items-center">
             <h2 className="relative text-[13px] tracking-[0.28em] uppercase font-semibold mb-1" style={{ ...FONT_BODY, color: "#4A3B32", textShadow: "0 1px 2px rgba(255,255,255,0.8)" }}>
               THE WEDDING OF
             </h2>
-            <h1 className="relative text-[3.8rem] leading-[1.08] py-0.5 px-2 font-normal" style={{ ...FONT_SCRIPT, color: "#3D2E24", textShadow: "0 2px 4px rgba(255,255,255,0.7)" }}>
+            <h1 className="relative text-[3.8rem] leading-[1.08] py-0.5 px-2 font-normal" style={{ ...FONT_SCRIPT, color: "#FFFFFF", textShadow: "0 2px 6px rgba(74,52,39,0.45), 0 1px 2px rgba(74,52,39,0.35)" }}>
               <span className="block">{groom_name || "Mempelai"} &amp;</span>
               <span className="block">{bride_name || "Mempelai"}</span>
             </h1>

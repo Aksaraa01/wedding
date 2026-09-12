@@ -2,7 +2,7 @@
 
 import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
-import { FONT_BODY, FONT_DISPLAY, FONT_SCRIPT } from "../../shared/Skin"
+import { FONT_DISPLAY, FONT_SCRIPT } from "../../shared/Skin"
 import { firstImage, initialsOf } from "../../shared/lib"
 import { PastelCloud } from "../Atmosphere"
 
@@ -30,14 +30,14 @@ export function CouplePhoto({ profile, className = "" }: { profile: TemplateProp
 export default function MainPage({ profile }: { profile: TemplateProps }) {
   const initials = (profile.couple_initials || "").trim() || initialsOf(profile.groom_name, profile.bride_name) || "AR"
   return (
-    <div className="flex-1 w-full max-w-[370px] mx-auto flex flex-col items-center text-center px-4 pt-3">
-      <section className="relative flex flex-col items-center justify-center text-center px-3 pb-2 w-full min-h-[220px] overflow-hidden">
+    <div className="flex-1 w-full mx-auto flex flex-col items-center text-center pt-3">
+      <section className="relative flex flex-col items-center justify-center text-center px-3 pt-3 pb-2 w-full min-h-[220px] overflow-hidden">
         <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-          <div className="pc-cloud-left absolute w-[330px] max-w-[95vw] filter drop-shadow-[0_8px_20px_rgba(74,52,39,0.18)]">
-            <PastelCloud className="w-full h-auto opacity-95" />
+          <div className="pc-cloud-left absolute w-[330px] sm:w-[360px] max-w-[95vw] pointer-events-none filter drop-shadow-[0_8px_20px_rgba(74,52,39,0.18)]">
+            <PastelCloud className="w-full h-auto object-contain opacity-95 select-none" />
           </div>
-          <div className="pc-cloud-right absolute w-[340px] max-w-[95vw] filter drop-shadow-[0_6px_18px_rgba(74,52,39,0.14)]">
-            <PastelCloud flip className="w-full h-auto opacity-90" />
+          <div className="pc-cloud-right absolute w-[340px] sm:w-[370px] max-w-[95vw] pointer-events-none filter drop-shadow-[0_6px_18px_rgba(74,52,39,0.14)]">
+            <PastelCloud flip className="w-full h-auto object-contain opacity-90 select-none" />
           </div>
         </div>
         <div className="pc-quote-in w-full max-w-[360px] mx-auto relative select-none flex flex-col items-center text-center px-4 py-3">
@@ -56,18 +56,28 @@ export default function MainPage({ profile }: { profile: TemplateProps }) {
       </section>
 
       <div className="flex-1 min-h-0 flex items-center justify-center relative pointer-events-none w-full">
-        <div className="relative flex flex-col items-center justify-end w-full h-full max-h-[380px] px-6">
+        <div className="relative flex flex-col items-center justify-end w-full max-w-[370px] h-full max-h-[380px] px-4 mx-auto">
           <div className="absolute -left-4 bottom-6 origin-bottom-left opacity-90 pointer-events-none pc-shell-sway" style={{ transformOrigin: "bottom left" }}>
             <svg fill="none" height="78" viewBox="0 0 75 90" width="65">
               <path d="M8 88 C18 68 25 48 50 25" fill="none" stroke="#8E6B3D" strokeLinecap="round" strokeWidth="1.6" opacity="0.8" />
               <path d="M22 64 C30 55 42 58 46 64 C42 70 29 71 22 64 Z" fill="#6f8e72" opacity="0.85" />
+              <g transform="translate(35, 12) scale(0.68)" style={{ transformOrigin: "14px 14px" }}>
+                <circle cx="14" cy="14" fill="#d4af37" opacity="0.85" r="7" />
+                <circle cx="14" cy="4" fill="#FFF9F0" opacity="0.95" r="5.5" />
+                <circle cx="22" cy="8" fill="#FFF9F0" opacity="0.95" r="5.5" />
+                <circle cx="22" cy="20" fill="#FFF9F0" opacity="0.95" r="5.5" />
+                <circle cx="14" cy="24" fill="#FFF9F0" opacity="0.95" r="5.5" />
+                <circle cx="6" cy="20" fill="#FFF9F0" opacity="0.95" r="5.5" />
+                <circle cx="6" cy="8" fill="#FFF9F0" opacity="0.95" r="5.5" />
+                <circle cx="14" cy="14" fill="#f2ca50" r="3.8" />
+              </g>
             </svg>
           </div>
           <svg className="absolute bottom-28 left-6 pc-sparkle-1 pointer-events-none" fill="none" height="16" viewBox="0 0 24 24" width="16">
             <path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z" fill="#d4af37" opacity="0.85" />
           </svg>
           <svg className="absolute bottom-36 right-8 pc-sparkle-2 pointer-events-none" fill="none" height="14" viewBox="0 0 24 24" width="14">
-            <path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z" fill="#f2ca50" />
+            <path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z" fill="#ecc99f" opacity="0.9" />
           </svg>
           <div className="absolute -inset-2 pointer-events-none flex items-center justify-center">
             <div
@@ -76,15 +86,12 @@ export default function MainPage({ profile }: { profile: TemplateProps }) {
             />
           </div>
           <div
-            className="relative w-[210px] aspect-[3/4] rounded-t-full rounded-b-2xl overflow-hidden p-1 bg-[#f7f4ee]/40"
-            style={{ border: "2.5px solid #d4af37", boxShadow: "0 0 20px rgba(212,175,55,0.5), inset 0 0 14px rgba(212,175,55,0.3), 0 16px 36px rgba(0,0,0,0.35)" }}
+            className="relative w-[210px] aspect-[3/4] rounded-t-full rounded-b-2xl overflow-hidden p-1 bg-[#FDFBF7]"
+            style={{ border: "2.5px solid #d4af37", boxShadow: "0 12px 28px rgba(74, 52, 39, 0.22), 0 2px 6px rgba(0, 0, 0, 0.08)" }}
           >
             <CouplePhoto profile={profile} className="w-full h-full rounded-t-full rounded-b-xl" />
-            <div className="absolute inset-0 pointer-events-none" style={{ boxShadow: "inset 0 0 20px rgba(42,31,24,0.25), inset 0 -30px 30px rgba(15,20,25,0.35)" }} />
+            <div className="absolute inset-0 pointer-events-none" style={{ boxShadow: "inset 0 0 15px rgba(255, 248, 238, 0.25)" }} />
           </div>
-          <p className="mt-3 text-[11px] uppercase tracking-[0.3em] font-semibold" style={{ ...FONT_BODY, color: "#7C5A37", textShadow: "0 1px 2px rgba(255,255,255,0.8)" }}>
-            {[(profile.groom_name || "").trim(), (profile.bride_name || "").trim()].filter(Boolean).join(" & ") || "Mempelai"}
-          </p>
         </div>
       </div>
     </div>

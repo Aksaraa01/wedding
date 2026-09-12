@@ -1,5 +1,6 @@
 "use client"
 
+import type { CSSProperties } from "react"
 import { ASSETS } from "@/lib/assets"
 
 export const PC_ATMOSPHERE_CSS = `
@@ -223,6 +224,117 @@ export const PC_ATMOSPHERE_CSS = `
   100% { box-shadow: 0 0 0 0 rgba(242, 202, 80, 0); }
 }
 .pc-node-pulse { animation: pcGoldPulse 2.4s infinite cubic-bezier(0.4, 0, 0.6, 1); }
+@keyframes pcFlyA1 {
+  0% { transform: translate(-60px, 45px) scale(0.7) rotate(5deg); opacity: 0; }
+  8% { opacity: 0.95; }
+  88% { opacity: 0.95; }
+  100% { transform: translate(470px, -25px) scale(0.7) rotate(-5deg); opacity: 0; }
+}
+@keyframes pcFlyA2 {
+  0% { transform: translate(-50px, 120px) scale(0.52) rotate(3deg); opacity: 0; }
+  12% { opacity: 0.85; }
+  85% { opacity: 0.85; }
+  100% { transform: translate(460px, 40px) scale(0.52) rotate(-4deg); opacity: 0; }
+}
+@keyframes pcFlyA3 {
+  0% { transform: translate(-60px, 175px) scale(0.42) rotate(6deg); opacity: 0; }
+  15% { opacity: 0.75; }
+  82% { opacity: 0.75; }
+  100% { transform: translate(450px, 95px) scale(0.42) rotate(-3deg); opacity: 0; }
+}
+@keyframes pcFlyA4 {
+  0% { transform: translate(470px, 25px) scale(-0.58, 0.58) rotate(-4deg); opacity: 0; }
+  10% { opacity: 0.85; }
+  85% { opacity: 0.85; }
+  100% { transform: translate(-50px, 110px) scale(-0.58, 0.58) rotate(4deg); opacity: 0; }
+}
+@keyframes pcFlapL {
+  0%, 100% { transform: rotate(0deg) scaleY(1); }
+  50% { transform: rotate(-38deg) scaleY(0.35); }
+}
+@keyframes pcFlapR {
+  0%, 100% { transform: rotate(0deg) scaleY(1); }
+  50% { transform: rotate(38deg) scaleY(0.35); }
+}
+.pc-fly-a1 { animation: pcFlyA1 15s cubic-bezier(0.4, 0, 0.6, 1) infinite; will-change: transform; }
+.pc-fly-a2 { animation: pcFlyA2 19s cubic-bezier(0.35, 0, 0.65, 1) 4s infinite; will-change: transform; }
+.pc-fly-a3 { animation: pcFlyA3 24s cubic-bezier(0.4, 0, 0.6, 1) 10s infinite; will-change: transform; }
+.pc-fly-a4 { animation: pcFlyA4 21s cubic-bezier(0.35, 0, 0.65, 1) 7s infinite; will-change: transform; }
+@keyframes pcBird1 {
+  0% { transform: translate3d(-60px, 0, 0) scale(0.75); opacity: 0; }
+  10% { opacity: 0.85; }
+  50% { transform: translate3d(210px, -18px, 0) scale(0.82); }
+  90% { opacity: 0.85; }
+  100% { transform: translate3d(450px, -32px, 0) scale(0.9); opacity: 0; }
+}
+@keyframes pcBird2 {
+  0% { transform: translate3d(-70px, 20px, 0) scale(0.6); opacity: 0; }
+  12% { opacity: 0.75; }
+  55% { transform: translate3d(200px, 6px, 0) scale(0.65); }
+  88% { opacity: 0.75; }
+  100% { transform: translate3d(460px, -10px, 0) scale(0.7); opacity: 0; }
+}
+@keyframes pcBird3 {
+  0% { transform: translate3d(-60px, -10px, 0) scale(0.5); opacity: 0; }
+  15% { opacity: 0.65; }
+  50% { transform: translate3d(220px, 12px, 0) scale(0.55); }
+  85% { opacity: 0.65; }
+  100% { transform: translate3d(450px, 2px, 0) scale(0.6); opacity: 0; }
+}
+@keyframes pcWingFL {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-35deg); }
+}
+@keyframes pcWingFR {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(35deg); }
+}
+.pc-bird-1 { animation: pcBird1 16s cubic-bezier(0.4, 0, 0.2, 1) infinite; will-change: transform; }
+.pc-bird-2 { animation: pcBird2 19s cubic-bezier(0.38, 0, 0.22, 1) 4.5s infinite; will-change: transform; }
+.pc-bird-3 { animation: pcBird3 23s cubic-bezier(0.42, 0, 0.24, 1) 9s infinite; will-change: transform; }
+.pc-wing-fl { transform-origin: right bottom; animation: pcWingFL 0.7s ease-in-out infinite alternate; }
+.pc-wing-fr { transform-origin: left bottom; animation: pcWingFR 0.7s ease-in-out infinite alternate; }
+@keyframes pcPetalFall {
+  0% { top: -10%; opacity: 0; }
+  8% { opacity: var(--pc-petal-max, 0.9); }
+  88% { opacity: var(--pc-petal-max, 0.9); }
+  100% { top: 108%; opacity: 0; }
+}
+@keyframes pcSway1 {
+  0%, 100% { transform: translateX(0px) rotateZ(0deg) rotateX(0deg); }
+  25% { transform: translateX(28px) rotateZ(45deg) rotateX(40deg); }
+  50% { transform: translateX(-18px) rotateZ(110deg) rotateY(60deg); }
+  75% { transform: translateX(34px) rotateZ(210deg) rotateX(30deg); }
+}
+@keyframes pcSway2 {
+  0%, 100% { transform: translateX(0px) rotateZ(0deg) rotateY(0deg); }
+  30% { transform: translateX(-32px) rotateZ(-55deg) rotateX(50deg); }
+  60% { transform: translateX(22px) rotateZ(120deg) rotateY(45deg); }
+  85% { transform: translateX(-26px) rotateZ(240deg) rotateX(35deg); }
+}
+@keyframes pcSway3 {
+  0%, 100% { transform: translateX(0px) rotateZ(10deg) rotateX(20deg); }
+  33% { transform: translateX(38px) rotateZ(90deg) rotateY(70deg); }
+  66% { transform: translateX(-30px) rotateZ(190deg) rotateX(55deg); }
+}
+.pc-petal-container { position: absolute; will-change: top, transform, opacity; pointer-events: none; animation-name: pcPetalFall; animation-timing-function: linear; animation-iteration-count: infinite; }
+.pc-petal-inner { width: 100%; height: 100%; will-change: transform; transform-style: preserve-3d; }
+@keyframes pcShellIn {
+  0% { opacity: 0; transform: translateY(100px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes pcPhotoIn {
+  0% { opacity: 0; transform: translateY(40px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.pc-shell-in { opacity: 0; animation: pcShellIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.pc-photo-in { opacity: 0; animation: pcPhotoIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@keyframes pcGoldPulse {
+  0% { box-shadow: 0 0 0 0 rgba(242, 202, 80, 0.6); }
+  70% { box-shadow: 0 0 0 10px rgba(242, 202, 80, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(242, 202, 80, 0); }
+}
+.pc-node-pulse { animation: pcGoldPulse 2.4s infinite cubic-bezier(0.4, 0, 0.6, 1); }
 @keyframes pcFadeUp {
   0% { opacity: 0; transform: translateY(18px); }
   100% { opacity: 1; transform: translateY(0); }
@@ -280,6 +392,138 @@ function Dove({ spec }: { spec: DoveSpec }) {
   )
 }
 
+const MAIN_BIRDS = [
+  { flight: "pc-fly-a1", width: 46, height: 34, flap: 0.52, tail: "#FFF9F0", tailOp: 0.95, wingR: "#F6F3EC", glow: "drop-shadow(0 2px 4px rgba(0,0,0,0.25))" },
+  { flight: "pc-fly-a2", width: 44, height: 32, flap: 0.46, tail: "#FFF9F0", tailOp: 0.9, wingR: "#F3EFE6", glow: "drop-shadow(0 1px 3px rgba(0,0,0,0.2))" },
+  { flight: "pc-fly-a3", width: 40, height: 30, flap: 0.4, tail: "#FFF9F0", tailOp: 0.85, wingR: "#EFEAE0", glow: "drop-shadow(0 1px 2px rgba(0,0,0,0.18))" },
+  { flight: "pc-fly-a4", width: 44, height: 32, flap: 0.48, tail: "#FFF9F0", tailOp: 0.9, wingR: "#F3EFE6", glow: "drop-shadow(0 1px 3px rgba(0,0,0,0.2))" },
+]
+
+function MainBird({ spec }: { spec: (typeof MAIN_BIRDS)[number] }) {
+  return (
+    <div className={`absolute ${spec.flight}`} style={{ willChange: "transform" }}>
+      <svg width={spec.width} height={spec.height} viewBox="0 0 50 38" fill="none" style={{ filter: spec.glow }}>
+        <path d="M25 19 C23 23, 20 28, 14 31 C19 28, 23 25, 25 21 C27 25, 31 28, 36 31 C30 28, 27 23, 25 19 Z" fill={spec.tail} opacity={spec.tailOp} />
+        <path
+          d="M25 21 C21 16, 11 9, 2 12 C10 13, 18 17, 23 21 Z"
+          fill="#FFFFFF"
+          style={{ transformOrigin: "24px 20px", animation: `pcFlapL ${spec.flap}s ease-in-out infinite` }}
+        />
+        <path
+          d="M25 21 C29 16, 39 9, 48 12 C40 13, 32 17, 27 21 Z"
+          fill={spec.wingR}
+          style={{ transformOrigin: "26px 20px", animation: `pcFlapR ${spec.flap}s ease-in-out infinite` }}
+        />
+        <ellipse cx="25" cy="18" rx="2.5" ry="4.5" fill="#FFFDF8" />
+      </svg>
+    </div>
+  )
+}
+
+export function MainBirds() {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ height: "55%" }}>
+      {MAIN_BIRDS.map((b) => (
+        <MainBird key={b.flight} spec={b} />
+      ))}
+    </div>
+  )
+}
+
+const GUEST_BIRDS = [
+  { flight: "pc-bird-1", top: "8%", cls: "w-7 h-5", glow: "drop-shadow-[0_2px_4px_rgba(255,255,255,0.4)]", op: 0.95 },
+  { flight: "pc-bird-2", top: "14%", cls: "w-6 h-4", glow: "drop-shadow-[0_2px_3px_rgba(255,255,255,0.35)]", op: 0.9 },
+  { flight: "pc-bird-3", top: "19%", cls: "w-5 h-3.5", glow: "", op: 0.8 },
+]
+
+export function GuestBirds() {
+  return (
+    <>
+      {GUEST_BIRDS.map((b) => (
+        <div key={b.flight} className={`absolute left-0 pointer-events-none ${b.flight}`} style={{ top: b.top, opacity: b.op }}>
+          <svg className={`${b.cls} ${b.glow}`} fill="none" viewBox="0 0 40 24">
+            <path className="pc-wing-fl" d="M19 13 C14 8, 7 3, 2 6 C7 11, 13 14, 19 13 Z" fill="#ffffff" fillOpacity={b.op} />
+            <path className="pc-wing-fr" d="M21 13 C26 8, 33 3, 38 6 C33 11, 27 14, 21 13 Z" fill="#ffffff" fillOpacity={b.op} />
+            <path d="M18 12 C19.5 10, 20.5 10, 22 12 C21 15, 19 15, 18 12 Z" fill="#f8fafc" />
+          </svg>
+        </div>
+      ))}
+    </>
+  )
+}
+
+const PETALS: { left: string; dur: string; delay: string; max: number; sway: string; swayDur: string; shape: number }[] = [
+  { left: "8%", dur: "12.5s", delay: "0s", max: 0.85, sway: "pcSway1", swayDur: "5.8s", shape: 0 },
+  { left: "24%", dur: "13.8s", delay: "3.5s", max: 0.8, sway: "pcSway2", swayDur: "6.2s", shape: 1 },
+  { left: "38%", dur: "10.4s", delay: "1.2s", max: 0.75, sway: "pcSway3", swayDur: "5.4s", shape: 2 },
+  { left: "55%", dur: "14.2s", delay: "5.8s", max: 0.82, sway: "pcSway1", swayDur: "6.6s", shape: 3 },
+  { left: "70%", dur: "11.6s", delay: "2.1s", max: 0.88, sway: "pcSway2", swayDur: "5.9s", shape: 4 },
+  { left: "85%", dur: "13s", delay: "7.2s", max: 0.78, sway: "pcSway3", swayDur: "5.2s", shape: 5 },
+  { left: "16%", dur: "11.2s", delay: "8.5s", max: 0.82, sway: "pcSway1", swayDur: "6s", shape: 1 },
+  { left: "92%", dur: "12.8s", delay: "4.2s", max: 0.75, sway: "pcSway2", swayDur: "5.5s", shape: 2 },
+]
+
+function PetalShape({ shape }: { shape: number }) {
+  switch (shape) {
+    case 0:
+      return (
+        <svg width="18" height="20" viewBox="0 0 24 26" fill="none" style={{ filter: "drop-shadow(0 2px 4px rgba(212,175,55,0.25))" }}>
+          <path d="M12 2 C19 6, 23 15, 16 23 C10 26, 4 21, 2 13 C1 7, 7 2, 12 2 Z" fill="#FFF9F0" opacity="0.9" />
+          <path d="M12 4 C14 10, 14 16, 12 22" opacity="0.5" stroke="#ECC99F" strokeLinecap="round" strokeWidth="0.8" />
+        </svg>
+      )
+    case 1:
+      return (
+        <svg width="14" height="16" viewBox="0 0 20 22" fill="none" style={{ filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.15))" }}>
+          <path d="M10 2 C16 5, 19 13, 14 19 C9 22, 4 18, 2 11 C1 6, 6 2, 10 2 Z" fill="#F7E7DC" opacity="0.85" />
+        </svg>
+      )
+    case 2:
+      return (
+        <svg width="10" height="12" viewBox="0 0 16 18" fill="none">
+          <path d="M8 1 C13 4, 15 11, 11 16 C7 18, 3 15, 1 9 C0 5, 4 1, 8 1 Z" fill="#FFF2D6" opacity="0.85" />
+        </svg>
+      )
+    case 3:
+      return (
+        <svg width="16" height="18" viewBox="0 0 20 22" fill="none" style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.12))" }}>
+          <path d="M10 2 C16 5, 19 13, 14 20 C8 22, 3 17, 2 11 C1 5, 6 2, 10 2 Z" fill="#FCECE6" opacity="0.85" />
+        </svg>
+      )
+    case 4:
+      return (
+        <svg width="19" height="20" viewBox="0 0 24 26" fill="none" style={{ filter: "drop-shadow(0 2px 5px rgba(242,202,80,0.3))" }}>
+          <path d="M12 2 C19 6, 23 15, 16 23 C10 26, 4 21, 2 13 C1 7, 7 2, 12 2 Z" fill="#FDFBF7" opacity="0.9" />
+          <path d="M12 3 C14 10, 14 17, 12 23" opacity="0.45" stroke="#D4AF37" strokeLinecap="round" strokeWidth="0.8" />
+        </svg>
+      )
+    default:
+      return (
+        <svg width="11" height="13" viewBox="0 0 16 18" fill="none">
+          <path d="M8 1 C13 4, 15 11, 11 16 C7 18, 3 15, 1 9 C0 5, 4 1, 8 1 Z" fill="#FFE8B8" opacity="0.85" />
+        </svg>
+      )
+  }
+}
+
+export function Petals8() {
+  return (
+    <div aria-hidden="true" className="absolute inset-0 pointer-events-none overflow-hidden">
+      {PETALS.map((p, i) => (
+        <div
+          key={i}
+          className="pc-petal-container"
+          style={{ left: p.left, animationDuration: p.dur, animationDelay: p.delay, "--pc-petal-max": p.max } as CSSProperties}
+        >
+          <div className="pc-petal-inner" style={{ animation: `${p.sway} ${p.swayDur} ease-in-out infinite` }}>
+            <PetalShape shape={p.shape} />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function FlockDove({ flap, size, delay }: { flap: string; size: number; delay?: string }) {
   return (
     <div className={`${flap} drop-shadow-[0_2px_4px_rgba(40,30,20,0.35)]`} style={delay ? { animationDelay: delay } : undefined}>
@@ -311,6 +555,9 @@ export default function PastelAtmosphere({
   pearls = false,
   waves = false,
   flocks = false,
+  mainBirds = false,
+  guestBirds = false,
+  petals8 = false,
 }: {
   doves?: number
   clouds?: number
@@ -319,9 +566,15 @@ export default function PastelAtmosphere({
   pearls?: boolean
   waves?: boolean
   flocks?: boolean
+  mainBirds?: boolean
+  guestBirds?: boolean
+  petals8?: boolean
 }) {
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden pc-atmos" style={{ zIndex: 5 }}>
+      {mainBirds && <MainBirds />}
+      {guestBirds && <GuestBirds />}
+      {petals8 && <Petals8 />}
       {flocks && (
         <>
           <div className="pc-flock-1 absolute top-[28%] left-0 flex items-center">
