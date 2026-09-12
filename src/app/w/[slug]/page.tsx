@@ -1,9 +1,11 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { notFound, redirect } from "next/navigation"
+import { headers } from "next/headers"
 import type { Metadata } from "next"
 import { getTemplateComponent } from "@/components/templates"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import InvitationOpenedTracker from "@/components/InvitationOpenedTracker"
+import { isBotUserAgent, markInvitationOpened } from "@/lib/recordInvitationOpen"
 import { getRowGates, getFeatureIncluded } from "@/lib/featureGates"
 import { getWpPostAlive } from "@/lib/wpPostCache"
 import { cachedRead } from "@/lib/refCache"
@@ -114,7 +116,7 @@ export default async function WeddingInvitation({
   ])
 
   const guestContext = await (async () => {
-    const fields = "id, name, slug, table_number, qr_token, rsvp_status, rsvp_pax_count, rsvp_message"
+    const fields = "id, name, slug, table_number, qr_token, rsvp_status, rsvp_pax_count, rsvp_message, invitation_opened_at"
     if (to) {
       // Exact match first (preserves case-sensitive canonical slug).
       const bySlug = await supabaseAdmin
@@ -153,6 +155,20 @@ export default async function WeddingInvitation({
 
   // A provided ?to= must resolve to a real guest of this couple — otherwise 404.
   if (to && !guestContext && !qr_token) notFound()
+
+  // Server-side "dibuka" backup: link loaded for a resolved guest. Runs per
+  // request (this route reads searchParams, so it is never statically
+  // prerendered). Skipped for bots (link-preview fetches must not count),
+  // for already-opened guests (zero extra writes), and never throws.
+  // The client-side InvitationOpenedTracker remains as belt-and-suspenders.
+  if (guestContext?.id && !(guestContext as { invitation_opened_at?: string | null }).invitation_opened_at) {
+    try {
+      const ua = (await headers()).get("user-agent")
+      if (!isBotUserAgent(ua)) await markInvitationOpened(guestContext.id)
+    } catch {
+      // tracking must never break page render
+    }
+  }
 
   const guestName = guestContext?.name || to || "Tamu Undangan"
 
