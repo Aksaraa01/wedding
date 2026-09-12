@@ -8,6 +8,7 @@ import SkylinePenthouse from "./skyline-penthouse"
 import PixelParadise from "./pixel-paradise"
 import PixelQuest from "./pixel-quest"
 import ImpastoMosque from "./impasto-mosque"
+import PastelCoastal from "./pastel-coastal-cut"
 
 export type { TemplateProps } from "@/types/template"
 
@@ -20,6 +21,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "pixel-paradise": PixelParadise,
   "pixel_quest": PixelQuest,
   "impasto-mosque-dark-gold": ImpastoMosque,
+  "pastel-coastal-cut": PastelCoastal,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -177,6 +179,39 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         text: "#4A3427",
         accent: "#8E6B3D",
         accentMuted: "#d4af37",
+        overlay: "#2A1F18",
+        dark: "#2A1F18",
+      },
+      ornaments: { divider: "line", border: "minimal", frame: "arch" },
+      motion: { enabled: true, duration: 0.5, stagger: 0.12 },
+    },
+    content: {
+      cover_slots: 1,
+      groom_photo: "single",
+      bride_photo: "single",
+      sections: {
+        opening_description: false,
+        quote: true,
+        countdown: true,
+        inviting: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+      },
+    },
+  },
+  {
+    code: "pastel-coastal-cut",
+    name: "Pastel Coastal Cut",
+    description: "Undangan gulir bernuansa papercraft pantai pastel — awan kertas, kerang mutiara, dan burung camar di atas satu lukisan pesisir.",
+    theme: {
+      fonts: { display: "Cormorant Garamond", script: "Alex Brush", body: "Montserrat" },
+      colors: {
+        surface: "#FBF6EC",
+        text: "#4A3427",
+        accent: "#B37A56",
+        accentMuted: "#8E6B3D",
         overlay: "#2A1F18",
         dark: "#2A1F18",
       },

@@ -122,6 +122,11 @@ export const ASSETS = {
     brush: s("impasto-mosque/brush.jpg"),
     coupleCover: s("impasto-mosque/couple-cover.png"),
   },
+  pastelCoastal: {
+    bg: s("pastel-coastal-cut/bg.jpg"),
+    cloud: s("pastel-coastal-cut/cloud.png"),
+    shell: s("pastel-coastal-cut/shell.png"),
+  },
   textures: {
     naturalPaper: "https://www.transparenttextures.com/patterns/natural-paper.png",
     felt: "https://www.transparenttextures.com/patterns/felt.png",
