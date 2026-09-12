@@ -139,7 +139,16 @@ export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
       landedIdx = i
     }
   })
-  const bgZoomed = pages[landedIdx] === "events" && landedVis > 0.5
+  // Most-visible page drives the backdrop: date & venue zooms middle-top,
+  // groom bottom-left, bride bottom-right, countdown center — smooth refocus.
+  const BG_ZOOM: Record<string, { s: number; o: string }> = {
+    events: { s: 1.5, o: "50% 18%" },
+    groom: { s: 1.35, o: "0% 100%" },
+    bride: { s: 1.35, o: "100% 100%" },
+    countdown: { s: 1.3, o: "50% 55%" },
+  }
+  const landedKey = pages[landedIdx]
+  const zoom = landedVis > 0.5 && BG_ZOOM[landedKey] ? BG_ZOOM[landedKey] : { s: 1, o: "50% 50%" }
 
   return (
     <div className="relative h-full w-full overflow-hidden">
@@ -151,8 +160,12 @@ export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
           src={ASSETS.impastoMosque.bg}
           alt=""
           draggable={false}
-          className={`w-full h-full object-cover object-center transition-transform duration-[1400ms] ease-out ${bgZoomed ? "scale-[1.5]" : "scale-100"}`}
-          style={{ transformOrigin: "50% 18%" }}
+          className="w-full h-full object-cover object-center"
+          style={{
+            transform: `scale(${zoom.s})`,
+            transformOrigin: zoom.o,
+            transition: "transform 1.6s cubic-bezier(0.4, 0, 0.2, 1), transform-origin 1.6s cubic-bezier(0.4, 0, 0.2, 1)",
+          }}
         />
       </div>
 

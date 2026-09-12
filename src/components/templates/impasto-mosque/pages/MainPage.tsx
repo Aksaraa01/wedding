@@ -33,7 +33,7 @@ export default function MainPage({ profile }: { profile: TemplateProps }) {
       <div className="w-full relative select-none flex flex-col items-center text-center px-5 py-6">
         <div className="absolute inset-0 -z-10 pointer-events-none flex items-center justify-center overflow-visible">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={ASSETS.impastoMosque.brush} alt="" className="w-[115%] h-[115%] max-w-none object-cover mix-blend-screen drop-shadow-md" loading="lazy" style={{ maskImage: "radial-gradient(90% 80%, black 65%, transparent 100%)" }} />
+          <img src={ASSETS.impastoMosque.brush} alt="" className="w-[115%] h-[115%] max-w-none object-cover mix-blend-screen opacity-50 drop-shadow-md" loading="lazy" style={{ maskImage: "radial-gradient(90% 80%, black 65%, transparent 100%)" }} />
         </div>
         <h2 className="text-[38px] leading-tight tracking-wide mb-2 relative z-10" style={{ ...FONT_SCRIPT, color: "#171c21", textShadow: "0 1px 1px rgba(255,255,255,0.5)" }}>
           {initials}
