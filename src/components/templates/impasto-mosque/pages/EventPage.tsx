@@ -1,67 +1,69 @@
 "use client"
 
-import { ASSETS } from "@/lib/assets"
-import { FONT_BODY, FONT_DISPLAY } from "../../shared/Skin"
+import { FONT_BODY, FONT_SCRIPT } from "../../shared/Skin"
 import { formatLongDate, type SessionData } from "../../shared/lib"
 
-// Single event card on the white brush backdrop. Akad sits top-anchored,
-// Resepsi bottom-anchored — per design. No camel caravan.
-export default function EventPage({ session, anchor }: { session: SessionData; anchor: "top" | "bottom" }) {
-  const location = [session.venue, session.address].filter(Boolean).join(" • ")
+function EventBlock({ session, align }: { session: SessionData; align: "left" | "right" }) {
+  const right = align === "right"
   return (
-    <div className={`flex-1 w-full flex flex-col items-center px-6 text-center ${anchor === "top" ? "justify-start pt-12" : "justify-end pb-8 pt-4"}`}>
-      <div className="relative w-full max-w-[360px] flex flex-col items-center justify-center p-8 text-center select-none">
-        <div className="absolute inset-0 -z-10 w-full h-full flex items-center justify-center pointer-events-none drop-shadow-xl">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={ASSETS.impastoMosque.brush} alt="" className="w-full h-full object-fill scale-110 opacity-95" loading="lazy" />
-        </div>
-        <div className="relative z-10 flex flex-col items-center w-full px-4 py-2">
-          <h1 className="italic text-[38px] leading-tight mb-2 drop-shadow-sm" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
-            {session.name || "Acara"}
-          </h1>
-          {session.date && (
-            <div className="flex flex-col items-center mb-3">
-              <span className="text-[18px] font-bold tracking-wide" style={{ ...FONT_DISPLAY, color: "#2c221a" }}>
-                {formatLongDate(session.date)}
-              </span>
-            </div>
-          )}
-          {session.time && (
-            <div className="inline-flex items-center justify-center px-4 py-1 rounded-full bg-[#2A1F18] border border-[#8E6B3D]/40 shadow-sm mb-4">
-              <span className="text-[11px] font-semibold tracking-wider text-[#f5ecd8]" style={FONT_BODY}>
-                {session.time}
-              </span>
-            </div>
-          )}
-          {location && (
-            <div className="flex flex-col items-center mb-5">
-              {session.venue && (
-                <h2 className="text-[19px] font-bold tracking-wide mb-1" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
-                  {session.venue}
-                </h2>
-              )}
-              {session.address && (
-                <p className="text-[12px] leading-[18px] font-medium max-w-[240px]" style={{ ...FONT_BODY, color: "#554638" }}>
-                  {session.address}
-                </p>
-              )}
-            </div>
-          )}
-          {session.maps_url && (
-            <a
-              href={session.maps_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-[#fffdfa] font-semibold text-[12px] tracking-wider shadow-md hover:brightness-110 active:scale-95 transition-all"
-              style={{ ...FONT_BODY, background: "linear-gradient(135deg, #8E6B3D 0%, #b38f53 100%)" }}
-            >
-              <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-              </svg>
-              <span>Buka Google Maps</span>
-            </a>
-          )}
-        </div>
+    <section className={`flex flex-col max-w-[290px] drop-shadow-sm ${right ? "items-end text-right self-end mt-4" : "items-start text-left"}`}>
+      <h1 className="text-[38px] leading-tight font-normal mb-2" style={{ ...FONT_SCRIPT, color: "#1c1815" }}>
+        {session.name || "Acara"}
+      </h1>
+      {session.date && (
+        <p className="text-[13px] font-medium tracking-wide mb-1" style={{ ...FONT_BODY, color: "#2d241e" }}>
+          {formatLongDate(session.date)}
+        </p>
+      )}
+      {session.time && (
+        <p className="text-[12.5px] font-normal tracking-wide mb-2" style={{ ...FONT_BODY, color: "#3c3028" }}>
+          {session.time}
+        </p>
+      )}
+      {session.venue && (
+        <h2 className="text-[12.5px] font-bold uppercase mb-1.5" style={{ ...FONT_BODY, color: "#231b15", letterSpacing: "0.14em" }}>
+          {session.venue}
+        </h2>
+      )}
+      {session.address && (
+        <p className="text-[11px] leading-[1.35] font-normal mb-3.5 max-w-[230px]" style={{ ...FONT_BODY, color: "#3f3227" }}>
+          {session.address}
+        </p>
+      )}
+      {session.maps_url && (
+        <a
+          href={session.maps_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[10.5px] font-semibold uppercase border border-white/60 shadow-sm backdrop-blur-md transition-transform active:scale-95"
+          style={{ ...FONT_BODY, letterSpacing: "0.14em", background: "rgba(244,237,227,0.7)", color: "#292019" }}
+        >
+          <span className="material-symbols-outlined text-[14px]" style={{ color: "#3b2a1e" }}>
+            location_on
+          </span>
+          <span>Lihat Lokasi</span>
+        </a>
+      )}
+    </section>
+  )
+}
+
+// Combined Akad (top-left) + Resepsi (bottom-right) on one page, text
+// straight on the painting with the shared dove animation. No brush card,
+// no camel caravan — per design.
+export default function EventPage({ sessions }: { sessions: SessionData[] }) {
+  const [akad, resepsi] = sessions
+  return (
+    <div className="flex-1 w-full max-w-[430px] mx-auto flex flex-col px-6 pt-10 pb-16 pointer-events-auto select-none">
+      <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white/15 via-transparent to-transparent" />
+      <div className="relative flex-1 w-full h-full flex flex-col justify-between px-5 pt-14 pb-4">
+        {akad && (akad.date || akad.venue) ? <EventBlock session={akad} align="left" /> : <span />}
+        {resepsi && (resepsi.date || resepsi.venue) ? <EventBlock session={resepsi} align="right" /> : <span />}
+        <footer className="w-full flex items-center justify-center relative pt-2">
+          <span className="text-[11px] font-semibold uppercase" style={{ ...FONT_BODY, letterSpacing: "0.2em", color: "rgba(61,48,37,0.9)" }}>
+            Geser ke atas
+          </span>
+        </footer>
       </div>
     </div>
   )

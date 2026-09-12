@@ -16,7 +16,7 @@ import ClosingPage from "./pages/ClosingPage"
 
 export type ImpastoPageKey =
   | "main" | "groom" | "bride" | "gallery" | "story"
-  | "event0" | "event1" | "countdown" | "combined" | "closing"
+  | "events" | "countdown" | "combined" | "closing"
 
 type Props = {
   profile: TemplateProps
@@ -35,8 +35,7 @@ const ATMO: Record<ImpastoPageKey, { doves: number; petals: boolean; motes: bool
   bride: { doves: 6, petals: false, motes: false },
   gallery: { doves: 3, petals: false, motes: false },
   story: { doves: 3, petals: false, motes: true },
-  event0: { doves: 4, petals: false, motes: false },
-  event1: { doves: 3, petals: false, motes: false },
+  events: { doves: 4, petals: false, motes: false },
   countdown: { doves: 4, petals: false, motes: false },
   combined: { doves: 4, petals: false, motes: true },
   closing: { doves: 4, petals: false, motes: false },
@@ -61,13 +60,12 @@ export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
   const combinedOn = giftOn || invitingOn || videoOn
 
   const pages: ImpastoPageKey[] = ([
-    "main", "groom", "bride", "gallery", "story", "event0", "event1", "countdown", "combined", "closing",
+    "main", "groom", "bride", "gallery", "story", "events", "countdown", "combined", "closing",
   ] as ImpastoPageKey[]).filter((k) => {
     if (k === "main" || k === "groom" || k === "bride" || k === "closing") return true
     if (k === "gallery") return galleryOn
     if (k === "story") return storyOn
-    if (k === "event0") return eventOn(sessions[0])
-    if (k === "event1") return eventOn(sessions[1])
+    if (k === "events") return eventOn(sessions[0]) || eventOn(sessions[1])
     if (k === "countdown") return countdownOn
     return combinedOn
   })
@@ -119,10 +117,8 @@ export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
         return <GalleryPage photos={galleryPhotos} />
       case "story":
         return <StoryPage stories={stories} />
-      case "event0":
-        return <EventPage session={sessions[0]} anchor="top" />
-      case "event1":
-        return <EventPage session={sessions[1]} anchor="bottom" />
+      case "events":
+        return <EventPage sessions={sessions as any} />
       case "countdown":
         return <CountdownPage profile={profile} sessions={sessions as any} />
       case "combined":
@@ -132,13 +128,32 @@ export default function ImpastoPages({ profile, onWishOpenChange }: Props) {
     }
   }
 
+  // Most-visible page drives the backdrop: landing on date & venue zooms
+  // the painting into its middle-top as fullscreen.
+  let landedIdx = 0
+  let landedVis = -1
+  pages.forEach((_, i) => {
+    const v = vis[i] ?? 1
+    if (v > landedVis) {
+      landedVis = v
+      landedIdx = i
+    }
+  })
+  const bgZoomed = pages[landedIdx] === "events" && landedVis > 0.5
+
   return (
     <div className="relative h-full w-full overflow-hidden">
       <style>{IM_ATMOSPHERE_CSS}</style>
       {/* Fixed background layer — never moves while pages scroll over it */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={ASSETS.impastoMosque.bg} alt="" draggable={false} className="w-full h-full object-cover object-center" />
+        <img
+          src={ASSETS.impastoMosque.bg}
+          alt=""
+          draggable={false}
+          className={`w-full h-full object-cover object-center transition-transform duration-[1400ms] ease-out ${bgZoomed ? "scale-[1.5]" : "scale-100"}`}
+          style={{ transformOrigin: "50% 18%" }}
+        />
       </div>
 
       {/* Scrollable content layer (snap = page change) */}
