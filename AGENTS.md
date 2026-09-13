@@ -186,13 +186,14 @@ The VPS has 2GB RAM and CANNOT run `next build`. Build locally, rsync the standa
    ```bash
    set -a; source .env.local.prod; set +a; npm run build
    ```
-2. Rsync standalone output to server (always run all five, or chunks/static/public will 404):
+2. Rsync standalone output to server (always run sequentially, or chunks/static/public will 404):
    ```bash
    rsync -avz -e "ssh -i $HOME/.ssh/aksaraa_deploy" --delete .next/standalone/ askaraa@103.93.135.176:/var/www/aksara-wedding/.next/standalone/
    rsync -avz -e "ssh -i $HOME/.ssh/aksaraa_deploy" --delete .next/static/ askaraa@103.93.135.176:/var/www/aksara-wedding/.next/static/
    rsync -avz -e "ssh -i $HOME/.ssh/aksaraa_deploy" --delete .next/static/ askaraa@103.93.135.176:/var/www/aksara-wedding/.next/standalone/.next/static/
    rsync -avz -e "ssh -i $HOME/.ssh/aksaraa_deploy" --delete public/ askaraa@103.93.135.176:/var/www/aksara-wedding/.next/standalone/public/
    ```
+   **CRITICAL: `public/` rsync MUST run AFTER `standalone/` rsync** — the `--delete` on standalone wipes remote `public/` (it doesn't exist locally in `.next/standalone/`). Running them in parallel causes a race where public gets deleted after being synced. Run all four sequentially.
    Note: Next 16 standalone output does NOT copy `public/`; the standalone server serves public from `.next/standalone/public/` (next to `server.js`). Syncing to `/var/www/aksara-wedding/public/` is NOT served — do not use it.
 3. Restart PM2 on the server (restart is REQUIRED — the standalone server indexes the static folder at boot, so static synced after startup returns 404 until restart):
    ```bash

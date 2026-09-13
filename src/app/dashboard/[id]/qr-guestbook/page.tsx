@@ -403,11 +403,9 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   }
 
   const isUnpaid = profile?.payment_status === "UNPAID"
-  const firstGuestHasToken = !!guests[0]?.qr_token
-  const needsGenerate = !isUnpaid && stats.total > 0 && stats.with_token < stats.total
-  const gatedGenerate = gated
-    ? stats.total > 0 && !firstGuestHasToken
-    : needsGenerate
+  const withSlug = guests.filter((g) => !!g.slug).length
+  const allHaveSlugs = stats.total > 0 && withSlug >= stats.total
+  const gatedGenerate = !isUnpaid && stats.total > 0 && !allHaveSlugs
   const filtered = guests.filter((g) => {
     if (!search) return true
     const q = search.toLowerCase()
