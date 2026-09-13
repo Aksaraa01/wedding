@@ -78,7 +78,7 @@ function MessagePreview({ text, guestName, coupleName, guestUrl }: { text: strin
   )
 }
 
-function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copiedId, copiedKind, gated, isFirstGuest, onGatedClick, isUnpaid }: {
+function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copiedId, copiedKind, gated, isFirstGuest, onGatedClick, isUnpaid, qrCodeBook, setShowLimitModal }: {
   guest: Guest
   slug: string
   onCopyQr: (token: string, slug: string | null) => void
@@ -90,6 +90,8 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copie
   isFirstGuest: boolean
   onGatedClick: () => void
   isUnpaid?: boolean
+  qrCodeBook: boolean
+  setShowLimitModal: (open: boolean) => void
 }) {
   const hasToken = !!guest.qr_token
   const isCopiedQr = copiedId === guest.id && copiedKind === "qr"
@@ -143,25 +145,36 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copie
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           <button
-            onClick={() => hasToken && onCopyMessage(guest)}
-            disabled={!hasToken}
-            className={`col-span-2 sm:col-span-1 flex flex-col items-center justify-center gap-1 px-3 py-2.5 rounded-full min-h-[42px] font-label-md text-[10px] uppercase tracking-wider font-bold text-center leading-tight transition-colors shadow-sm ${hasToken ? (isCopiedMessage ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-[#B34E3F] text-white border border-[#B34E3F] hover:bg-[#9E3B2D]") : "bg-[#F3F4F6] text-[#9CA3AF] border border-[#E2D9CF] cursor-not-allowed"}`}
+            onClick={() => {
+              const hasSlug = !!guest.slug
+              if (hasSlug) onCopyMessage(guest)
+            }}
+            disabled={!guest.slug}
+            className={`col-span-2 sm:col-span-1 flex flex-col items-center justify-center gap-1 px-3 py-2.5 rounded-full min-h-[42px] font-label-md text-[10px] uppercase tracking-wider font-bold text-center leading-tight transition-colors shadow-sm ${guest.slug ? (isCopiedMessage ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-[#B34E3F] text-white border border-[#B34E3F] hover:bg-[#9E3B2D]") : "bg-[#F3F4F6] text-[#9CA3AF] border border-[#E2D9CF] cursor-not-allowed"}`}
           >
             <span className="material-symbols-outlined text-[18px]">{isCopiedMessage ? "check" : "mail"}</span>
             <span>{isCopiedMessage ? "Tersalin" : "Salin Pesan"}</span>
           </button>
           <button
-            onClick={() => hasToken && onCopyUndangan(guest)}
-            disabled={!hasToken}
-            className={`flex flex-col items-center justify-center gap-1 px-3 py-2.5 rounded-full min-h-[42px] font-label-md text-[10px] uppercase tracking-wider font-semibold text-center leading-tight transition-colors ${hasToken ? (isCopiedUndangan ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-[#F5EFE6] text-[#2C2A29] border border-[#E2D9CF] hover:bg-[#E2D9CF]") : "bg-[#F3F4F6] text-[#9CA3AF] border border-[#E2D9CF] cursor-not-allowed"}`}
+            onClick={() => {
+              const hasSlug = !!guest.slug
+              if (hasSlug) onCopyUndangan(guest)
+            }}
+            disabled={!guest.slug}
+            className={`flex flex-col items-center justify-center gap-1 px-3 py-2.5 rounded-full min-h-[42px] font-label-md text-[10px] uppercase tracking-wider font-semibold text-center leading-tight transition-colors ${guest.slug ? (isCopiedUndangan ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-[#F5EFE6] text-[#2C2A29] border border-[#E2D9CF] hover:bg-[#E2D9CF]") : "bg-[#F3F4F6] text-[#9CA3AF] border border-[#E2D9CF] cursor-not-allowed"}`}
           >
             <span className="material-symbols-outlined text-[18px]">{isCopiedUndangan ? "check" : "link"}</span>
             <span>{isCopiedUndangan ? "Tersalin" : "Salin Undangan"}</span>
           </button>
           <button
-            onClick={() => hasToken && onCopyQr(guest.qr_token!, guest.slug)}
-            disabled={!hasToken}
-            className={`flex flex-col items-center justify-center gap-1 px-3 py-2.5 rounded-full min-h-[42px] font-label-md text-[10px] uppercase tracking-wider font-semibold text-center leading-tight transition-colors ${hasToken ? (isCopiedQr ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-[#F5EFE6] text-[#2C2A29] border border-[#E2D9CF] hover:bg-[#E2D9CF]") : "bg-[#F3F4F6] text-[#9CA3AF] border border-[#E2D9CF] cursor-not-allowed"}`}
+            onClick={() => {
+              if (qrCodeBook) {
+                hasToken && onCopyQr(guest.qr_token!, guest.slug)
+              } else {
+                setShowLimitModal(true)
+              }
+            }}
+            className={`flex flex-col items-center justify-center gap-1 px-3 py-2.5 rounded-full min-h-[42px] font-label-md text-[10px] uppercase tracking-wider font-semibold text-center leading-tight transition-colors ${qrCodeBook ? (hasToken ? (isCopiedQr ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-[#F5EFE6] text-[#2C2A29] border border-[#E2D9CF] hover:bg-[#E2D9CF]") : "bg-[#F3F4F6] text-[#9CA3AF] border border-[#E2D9CF] cursor-not-allowed") : "bg-[#F3F4F6] text-[#9CA3AF] border border-[#E2D9CF]"}`}
           >
             <span className="material-symbols-outlined text-[18px]">{isCopiedQr ? "check" : "qr_code_2"}</span>
             <span>{isCopiedQr ? "Tersalin" : "Salin QR"}</span>
@@ -237,6 +250,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       const data = await res.json()
       if (res.ok) {
         await fetchData()
+        if (data.message) alert(data.message)
       } else {
         alert(data.error || "Gagal generate QR")
       }
@@ -472,7 +486,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
                   ) : (
                     <span className="material-symbols-outlined text-sm">add</span>
                   )}
-                  {generating ? "..." : gated ? "Aktifkan QR" : "Generate QR"}
+                  {generating ? "..." : gated ? "Aktifkan QR" : qrCodeBook ? "Generate QR" : "Generate Link"}
                 </button>
               )}
               <button
@@ -664,6 +678,8 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
                   isFirstGuest={g.id === firstGuestId}
                   onGatedClick={() => setShowConfirmModal(true)}
                   isUnpaid={isUnpaid}
+                  qrCodeBook={qrCodeBook}
+                  setShowLimitModal={setShowLimitModal}
                 />
               ))
             )}

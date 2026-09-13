@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { autoGenerateGuestLinks } from "@/lib/guest-link"
+import { getFeatureIncluded } from "@/lib/featureGates"
 
 export async function GET(
   _req: Request,
@@ -59,8 +60,6 @@ export async function POST(
       )
     }
 
-    // Paid but not confirmed: the invitation content isn't final, so only the
-    // first guest's QR may be activated. The client passes the first guest's id.
     const gated = profile.is_published !== true && !!requestedGuestId
 
     let query = supabaseAdmin
@@ -84,9 +83,34 @@ export async function POST(
       return NextResponse.json({ generated: 0, message: "Semua tamu sudah memiliki QR" })
     }
 
+    // Check if QR feature is included in the package
+    const { data: profileFull } = await supabaseAdmin
+      .from("wedding_profiles")
+      .select("package_type")
+      .eq("id", id)
+      .single()
+
+    const features = await getFeatureIncluded(profileFull?.package_type || "signature")
+    const generateQr = features.has("qr_code_book")
+
     const generated = await autoGenerateGuestLinks(id, guests)
 
-    return NextResponse.json({ generated, gated })
+    // Clearer response: distinguish between QR tokens generated vs links only
+    if (generateQr) {
+      return NextResponse.json({ 
+        generated, 
+        qr_generated: generated, 
+        gated,
+        message: `${generated} QR Code dan tautan undangan berhasil dibuat`
+      })
+    } else {
+      return NextResponse.json({ 
+        generated, 
+        qr_generated: 0, 
+        gated,
+        message: `${generated} tautan undangan berhasil dibuat. QR Code tidak tersedia pada paket ini.`
+      })
+    }
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
