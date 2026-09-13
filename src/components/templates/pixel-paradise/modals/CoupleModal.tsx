@@ -2,7 +2,7 @@
 
 import type { TemplateProps } from "@/types/template"
 import { FONT_DISPLAY, FONT_PIXEL } from "../../shared/Skin"
-import { photoList } from "../../shared/lib"
+import { bridePhoto, groomPhoto } from "../../shared/lib"
 import ModalShell from "./ModalShell"
 
 function PersonCard({
@@ -84,8 +84,8 @@ function PersonCard({
 }
 
 export default function CoupleModal({ profile, onClose }: { profile: TemplateProps; onClose: () => void }) {
-  const groomPhoto = photoList(profile.groom_photo_url)[0]
-  const bridePhoto = photoList(profile.bride_photo_url)[0]
+  const groomPhotoUrl = groomPhoto(profile.groom_photo_url)
+  const bridePhotoUrl = bridePhoto(profile.bride_photo_url)
 
   return (
     <ModalShell
@@ -98,7 +98,7 @@ export default function CoupleModal({ profile, onClose }: { profile: TemplatePro
     >
       <PersonCard
         side="groom"
-        photo={groomPhoto}
+        photo={groomPhotoUrl}
         name={profile.groom_full_name || profile.groom_name}
         shortName={profile.groom_name}
         parents={profile.groom_parents}
@@ -116,7 +116,7 @@ export default function CoupleModal({ profile, onClose }: { profile: TemplatePro
 
       <PersonCard
         side="bride"
-        photo={bridePhoto}
+        photo={bridePhotoUrl}
         name={profile.bride_full_name || profile.bride_name}
         shortName={profile.bride_name}
         parents={profile.bride_parents}

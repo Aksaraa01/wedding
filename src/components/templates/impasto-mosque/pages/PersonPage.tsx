@@ -3,11 +3,11 @@
 import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { FONT_BODY, FONT_DISPLAY } from "../../shared/Skin"
-import { photoList } from "../../shared/lib"
+import { bridePhoto, groomPhoto } from "../../shared/lib"
 
 export default function PersonPage({ profile, side }: { profile: TemplateProps; side: "groom" | "bride" }) {
   const isGroom = side === "groom"
-  const photo = photoList(isGroom ? profile.groom_photo_url : profile.bride_photo_url)[0]
+  const photo = isGroom ? groomPhoto(profile.groom_photo_url) : bridePhoto(profile.bride_photo_url)
   const fullName = (isGroom ? profile.groom_full_name : profile.bride_full_name) || undefined
   const shortName = (isGroom ? profile.groom_name : profile.bride_name) || undefined
   const parents = ((isGroom ? profile.groom_parents : profile.bride_parents) || "").trim()
@@ -29,14 +29,8 @@ export default function PersonPage({ profile, side }: { profile: TemplateProps; 
       style={{ background: "linear-gradient(180deg, rgba(212,175,55,0.45) 0%, rgba(42,31,24,0.6) 100%)" }}
     >
       <div className={`w-full h-full overflow-hidden relative ${isGroom ? "rounded-t-full rounded-br-xl" : "rounded-t-full rounded-bl-xl"}`}>
-        {photo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={photo} alt={fullName || ""} className={`w-full h-full object-cover object-top brightness-[1.02] contrast-[1.03] ${isGroom ? "scale-x-[-1]" : ""}`} loading="lazy" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-[#f7f4ee]">
-            <span className="material-symbols-outlined text-4xl text-[#8E6B3D]/50">person</span>
-          </div>
-        )}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={photo} alt={fullName || ""} className={`w-full h-full object-cover object-top brightness-[1.02] contrast-[1.03] ${isGroom ? "scale-x-[-1]" : ""}`} loading="lazy" />
         <div className="absolute inset-0 pointer-events-none" style={{ boxShadow: "inset 0 0 20px rgba(42,31,24,0.4), inset 0 -30px 30px rgba(15,20,25,0.5)" }} />
         <div className={`absolute inset-1.5 pointer-events-none border border-[#d4af37]/25 ${isGroom ? "rounded-t-full rounded-br-xl" : "rounded-t-full rounded-bl-xl"}`} />
       </div>
@@ -45,19 +39,11 @@ export default function PersonPage({ profile, side }: { profile: TemplateProps; 
 
   const textBlock = (
     <div className={`flex-1 max-w-[210px] pb-4 z-20 flex flex-col ${isGroom ? "items-end text-right" : "items-start text-left"}`}>
-      <div className="flex items-center gap-1.5 mb-1.5">
-        {!isGroom && <span className="w-4 h-[1.5px] bg-[#8E6B3D] inline-block" />}
-        <span className="text-[10px] uppercase tracking-[0.22em] text-[#554300] font-bold" style={FONT_BODY}>
-          {isGroom ? "The Groom" : "The Bride"}
-        </span>
-        {isGroom && <span className="w-4 h-[1.5px] bg-[#8E6B3D] inline-block" />}
-      </div>
       <h1 className="italic text-[30px] sm:text-[34px] leading-[1.1] tracking-tight mb-2" style={{ ...FONT_DISPLAY, color: "#241a00", textShadow: "0 1px 2px rgba(255,255,255,0.6)" }}>
         {`${fullName || shortName || "Mempelai"},`}
       </h1>
       {parents && (
         <p className="text-[11.5px] leading-[17px] font-normal mb-3.5" style={{ ...FONT_BODY, color: "#2c3136", textShadow: "0 1px 1px rgba(255,255,255,0.5)" }}>
-          {isGroom ? "Putra pertama dari" : "Putri pertama dari"}<br />
           <span className="font-semibold" style={{ color: "#171c21" }}>{parents}</span>
         </p>
       )}

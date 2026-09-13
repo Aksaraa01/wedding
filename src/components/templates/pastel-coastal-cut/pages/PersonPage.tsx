@@ -3,11 +3,11 @@
 import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { FONT_BODY, FONT_SCRIPT } from "../../shared/Skin"
-import { photoList } from "../../shared/lib"
+import { bridePhoto, groomPhoto } from "../../shared/lib"
 
 export default function PersonPage({ profile, side }: { profile: TemplateProps; side: "groom" | "bride" }) {
   const isGroom = side === "groom"
-  const photo = photoList(isGroom ? profile.groom_photo_url : profile.bride_photo_url)[0]
+  const photo = isGroom ? groomPhoto(profile.groom_photo_url) : bridePhoto(profile.bride_photo_url)
   const fullName = (isGroom ? profile.groom_full_name : profile.bride_full_name) || undefined
   const shortName = (isGroom ? profile.groom_name : profile.bride_name) || undefined
   const parents = ((isGroom ? profile.groom_parents : profile.bride_parents) || "").trim()
@@ -27,14 +27,8 @@ export default function PersonPage({ profile, side }: { profile: TemplateProps; 
         style={{ boxShadow: "0 14px 30px -6px rgba(32, 24, 16, 0.35), 0 0 0 1.5px rgba(212, 175, 55, 0.45), 0 0 0 3px rgba(255, 252, 245, 0.9), 0 5px 14px rgba(200, 160, 100, 0.25)" }}
       >
         <div className="relative w-full h-full rounded-t-[72px] rounded-b-lg overflow-hidden border border-amber-200/50 bg-[#F4EDE2]">
-          {photo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={photo} alt={fullName || shortName || ""} className="w-full h-full object-cover object-top scale-105" loading="lazy" style={{ filter: "contrast(1.04) brightness(1.02) saturate(0.96)" }} />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-[#F4EDE2]">
-              <span className="material-symbols-outlined text-4xl text-[#8E6B3D]/50">person</span>
-            </div>
-          )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={photo} alt={fullName || shortName || ""} className="w-full h-full object-cover object-top scale-105" loading="lazy" style={{ filter: "contrast(1.04) brightness(1.02) saturate(0.96)" }} />
           <div className="absolute inset-0 bg-gradient-to-t from-[#2c2016]/30 via-transparent to-amber-100/10 pointer-events-none" />
         </div>
       </div>
@@ -43,11 +37,6 @@ export default function PersonPage({ profile, side }: { profile: TemplateProps; 
 
   const textBlock = (
     <div className={`flex flex-col flex-1 min-w-0 pr-1 ${isGroom ? "items-start text-left" : "items-end text-right"}`}>
-      {!isGroom && (
-        <p className="pc-stagger-1 tracking-[0.2em] text-[11px] uppercase font-semibold mb-0.5" style={{ ...FONT_BODY, color: "#5a4222" }}>
-          The Bride
-        </p>
-      )}
       <h1 className="pc-stagger-1 text-[3rem] leading-[0.9] text-[#233543] filter drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]" style={FONT_SCRIPT}>
         {shortName || "Mempelai"}
       </h1>
@@ -55,14 +44,9 @@ export default function PersonPage({ profile, side }: { profile: TemplateProps; 
         {fullName || shortName || "Mempelai"}
       </h2>
       {parents && (
-        <>
-          <p className="pc-stagger-3 italic text-xs text-[#3b474e] font-normal leading-none mb-1" style={FONT_BODY}>
-            {isGroom ? "Putra dari" : "Putri dari"}
-          </p>
-          <p className="pc-stagger-4 font-medium text-xs leading-snug text-[#1f2930] mb-2.5" style={FONT_BODY}>
-            {parents}
-          </p>
-        </>
+        <p className="pc-stagger-4 font-medium text-xs leading-snug text-[#1f2930] mb-2.5" style={FONT_BODY}>
+          {parents}
+        </p>
       )}
       {handle && (
         <a

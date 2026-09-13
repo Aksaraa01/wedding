@@ -1,24 +1,14 @@
 "use client"
 
 import type { TemplateProps } from "@/types/template"
-import { ASSETS } from "@/lib/assets"
 import { FONT_DISPLAY, FONT_SCRIPT } from "../../shared/Skin"
-import { firstImage, initialsOf } from "../../shared/lib"
+import { coverPhoto, initialsOf } from "../../shared/lib"
 import { PastelCloud } from "../Atmosphere"
 
 const DEFAULT_VERSE = "“Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu istri-istri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya, dan dijadikan-Nya di antaramu rasa kasih dan sayang.”"
 
 export function CouplePhoto({ profile, className = "" }: { profile: TemplateProps; className?: string }) {
-  const src = firstImage(profile.cover_photos) || firstImage(profile.couple_illustration_url) || ASSETS.impastoMosque.coupleCover
-  if (!src) {
-    return (
-      <div className={`bg-[#f7f4ee] flex items-center justify-center ${className}`}>
-        <span className="text-3xl text-[#8E6B3D]" style={FONT_SCRIPT}>
-          {profile.couple_initials || initialsOf(profile.groom_name, profile.bride_name) || "AR"}
-        </span>
-      </div>
-    )
-  }
+  const src = coverPhoto(profile)
   return (
     <div className={`overflow-hidden relative ${className}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -509,9 +509,9 @@ function EditorInner({ id }: { id: string }) {
 
   const clearCoverAt = (index: number) => {
     if (data.is_published === true) return
-    const covers = (Array.isArray(data.cover_photos) ? data.cover_photos : []).map((c, i) => i === index ? "" : c)
-    setData(prev => ({ ...prev, cover_photos: covers, couple_illustration_url: covers[0] || "" }))
-    save({ cover_photos: covers, couple_illustration_url: covers[0] || "" })
+    const covers = (Array.isArray(data.cover_photos) ? data.cover_photos : []).filter((_, i) => i !== index)
+    setData(prev => ({ ...prev, cover_photos: covers, couple_illustration_url: (typeof covers[0] === 'string' ? covers[0] : Array.isArray(covers[0]) ? covers[0][0] : '') || "" }))
+    save({ cover_photos: covers, couple_illustration_url: (typeof covers[0] === 'string' ? covers[0] : Array.isArray(covers[0]) ? covers[0][0] : '') || "" })
   }
 
   // Upload a photo into a slide of a slideshow cover slot (2 slides per slot).

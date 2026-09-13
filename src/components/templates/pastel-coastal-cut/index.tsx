@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import type { TemplateProps } from "@/types/template"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import { ASSETS } from "@/lib/assets"
-import { firstImage, initialsOf, photoList } from "../shared/lib"
+import { bridePhoto, coverPhoto, groomPhoto, initialsOf } from "../shared/lib"
 import Skin, { FONT_BODY, FONT_SCRIPT } from "../shared/Skin"
 import LiveWishes from "../shared/LiveWishes"
 import PastelCover from "./Cover"
@@ -18,11 +18,12 @@ function usePastelReady(profile: TemplateProps) {
       ASSETS.pastelCoastal.bg,
       ASSETS.pastelCoastal.cloud,
       ASSETS.pastelCoastal.shell,
-      ASSETS.impastoMosque.coupleCover,
-      firstImage(profile.cover_photos),
-      firstImage(profile.couple_illustration_url),
-      photoList(profile.groom_photo_url)[0],
-      photoList(profile.bride_photo_url)[0],
+      ASSETS.defaults.couple,
+      ASSETS.defaults.groom,
+      ASSETS.defaults.bride,
+      coverPhoto(profile),
+      groomPhoto(profile.groom_photo_url),
+      bridePhoto(profile.bride_photo_url),
     ].filter(Boolean) as string[]
     const load = (src: string) =>
       new Promise<void>((resolve) => {

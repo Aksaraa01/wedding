@@ -2,7 +2,7 @@
 
 import type { TemplateProps } from "@/types/template"
 import { FONT_PIXEL } from "../../shared/Skin"
-import { countdownTarget, firstImage, formatDotDate, formatLongDate, gcalLink, type SessionData } from "../../shared/lib"
+import { countdownTarget, coverPhoto, formatDotDate, formatLongDate, gcalLink, type SessionData } from "../../shared/lib"
 import { useCountdown } from "../../shared/useCountdown"
 import ModalShell from "./ModalShell"
 
@@ -57,7 +57,7 @@ function SessionCard({ session }: { session: SessionData }) {
 
 export default function EventsModal({ profile, onClose }: { profile: TemplateProps; onClose: () => void }) {
   const sessions: SessionData[] = (Array.isArray(profile.sessions) ? profile.sessions : []).filter((s) => s && (s.date || s.venue))
-  const cover = firstImage(profile.cover_photos) || firstImage(profile.couple_illustration_url)
+  const cover = coverPhoto(profile)
   const target = countdownTarget(sessions, profile.estimated_wedding_date)
   const { days, hours, minutes, seconds } = useCountdown(target)
   const calLink = gcalLink(sessions[0], profile.groom_name, profile.bride_name)
@@ -66,15 +66,8 @@ export default function EventsModal({ profile, onClose }: { profile: TemplatePro
   return (
     <ModalShell icon="event" eyebrow="RETRO ARCADE LOUNGE" title="DATE & VENUE" onClose={onClose}>
       <div className="relative rounded-2xl overflow-hidden border-2 border-[#38bdf8]/40 group shadow-lg bg-[#090e1c]">
-        {cover ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={cover} alt="Venue" className="w-full h-44 object-contain" />
-        ) : (
-          <div className="w-full h-44 flex flex-col items-center justify-center gap-1.5 bg-[#0e1321]">
-            <span className="material-symbols-outlined text-[26px] text-[#38bdf8]/60">photo_camera_back</span>
-            <span className="text-[11px] text-slate-400">Foto sampul belum diunggah</span>
-          </div>
-        )}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={cover} alt="Venue" className="w-full h-44 object-contain" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#090f1d]/60 via-transparent to-black/20 pointer-events-none" />
       </div>
 

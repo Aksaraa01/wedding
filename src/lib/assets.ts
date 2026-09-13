@@ -44,6 +44,11 @@ export const ASSETS = {
   qrGuestbook: {
     bg: s("qr-guestbook/texture-bg.jpg"),
   },
+  defaults: {
+    couple: "/defaults/couple.png",
+    groom: "/defaults/groom.png",
+    bride: "/defaults/bride.png",
+  },
   demo: {
     groomPhoto: s("demo/groom.jpg"),
     bridePhoto: s("demo/bride.jpg"),

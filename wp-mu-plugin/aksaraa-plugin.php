@@ -1698,6 +1698,7 @@ class AksaraaPlugin
             'video_section' => 'video_section_hidden',
             'inviting_families_section' => 'inviting_families_hidden',
             'story_section' => 'story_hidden',
+            'gallery_section' => 'gallery_photos_hidden',
         ];
 
         foreach ($sections as $manifestKey => $hiddenField) {

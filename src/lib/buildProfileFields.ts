@@ -85,17 +85,32 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
 
   const hasAddress = !!esc(giftAddr?.full_address)
   const hasBank = giftAccounts.length > 0
+  const coverPhotos = parseList(profile.cover_photos).filter(Boolean)
+  const galleryPhotos = parseList(profile.gallery_photos).filter(Boolean)
+  const groomPhoto = parseList(profile.groom_photo_url).filter(Boolean)
+  const bridePhoto = parseList(profile.bride_photo_url).filter(Boolean)
+  // Inject default images when the couple hasn't uploaded their own — the
+  // mu-plugin sideloads the URL into WP media so the Elementor template renders it.
+  if (coverPhotos.length === 0 && profile.slug) {
+    coverPhotos.push(`https://${profile.slug}.wedding.aksaraa.com/defaults/couple.png`)
+  }
+  if (groomPhoto.length === 0 && profile.slug) {
+    groomPhoto.push(`https://${profile.slug}.wedding.aksaraa.com/defaults/groom.png`)
+  }
+  if (bridePhoto.length === 0 && profile.slug) {
+    bridePhoto.push(`https://${profile.slug}.wedding.aksaraa.com/defaults/bride.png`)
+  }
   const fields: Record<string, any> = {
     couple_illustration_url: profile.couple_illustration_url || "",
-    cover_photos: parseList(profile.cover_photos).filter(Boolean),
+    cover_photos: coverPhotos,
     couple_initials: esc(profile.couple_initials),
     display_name: esc(profile.display_name || (profile.bride_name && profile.groom_name ? `${profile.bride_name} & ${profile.groom_name}` : "")),
     groom_name: esc(profile.groom_name),
     bride_name: esc(profile.bride_name),
     groom_full_name: esc(profile.groom_full_name),
     bride_full_name: esc(profile.bride_full_name),
-    groom_photo_url: parseList(profile.groom_photo_url).filter(Boolean),
-    bride_photo_url: parseList(profile.bride_photo_url).filter(Boolean),
+    groom_photo_url: groomPhoto,
+    bride_photo_url: bridePhoto,
     groom_parents: esc(profile.groom_parents),
     bride_parents: esc(profile.bride_parents),
     groom_instagram: esc(profile.groom_instagram),
@@ -116,7 +131,8 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
     date_upper: profile.estimated_wedding_date ? formatDateUpper(profile.estimated_wedding_date) : "",
     sessions,
     calendar_link,
-    gallery_photos: parseList(profile.gallery_photos).filter(Boolean),
+    gallery_photos: galleryPhotos,
+    gallery_photos_hidden: galleryPhotos.length === 0,
     inviting_families: parseList(profile.inviting_families).filter(Boolean).map(esc),
     gift_accounts: giftAccounts.map(a => ({
       provider_name: a.provider_logo_url || resolveBankLogo(a.provider_name),
