@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     if (profile && profile.payment_status !== "UNPAID") {
       const { data: missing, error: missingError } = await supabaseAdmin
         .from("guests")
-        .select("id, name, qr_token")
+        .select("id, name, qr_token, slug")
         .eq("wedding_profile_id", weddingProfileId)
         .or("qr_token.is.null,slug.is.null")
         .limit(500)

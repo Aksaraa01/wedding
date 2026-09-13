@@ -53,7 +53,7 @@ export async function PUT(
     if (wasUnpaid && nowPaid) {
       const { data: guests } = await supabaseAdmin
         .from("guests")
-        .select("id, name, qr_token")
+        .select("id, name, qr_token, slug")
         .eq("wedding_profile_id", profileId)
         .or("qr_token.is.null,slug.is.null")
 

@@ -64,7 +64,7 @@ export async function POST(
 
     let query = supabaseAdmin
       .from("guests")
-      .select("id, name, qr_token")
+      .select("id, name, qr_token, slug")
       .eq("wedding_profile_id", id)
       .or("qr_token.is.null,slug.is.null")
       .order("created_at", { ascending: true })
