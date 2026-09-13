@@ -1,9 +1,5 @@
 import { ComponentType } from "react"
 import type { TemplateConfig, TemplateProps } from "@/types/template"
-import ParallaxSinematik from "./ParallaxSinematik"
-import EditorialModern from "./EditorialModern"
-import AnimasiWatercolor from "./AnimasiWatercolor"
-import HeritageDinamis from "./HeritageDinamis"
 import SkylinePenthouse from "./skyline-penthouse"
 import PixelParadise from "./pixel-paradise"
 import PixelQuest from "./pixel-quest"
@@ -13,10 +9,6 @@ import PastelCoastal from "./pastel-coastal-cut"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
-  "parallax-sinematik": ParallaxSinematik,
-  "editorial-modern": EditorialModern,
-  "animasi-watercolor": AnimasiWatercolor,
-  "heritage-dinamis": HeritageDinamis,
   "skyline-penthouse": SkylinePenthouse,
   "pixel-paradise": PixelParadise,
   "pixel_quest": PixelQuest,
