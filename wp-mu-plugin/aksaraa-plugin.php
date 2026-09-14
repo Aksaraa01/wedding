@@ -1698,7 +1698,6 @@ class AksaraaPlugin
             'video_section' => 'video_section_hidden',
             'inviting_families_section' => 'inviting_families_hidden',
             'story_section' => 'story_hidden',
-            'gallery_section' => 'gallery_photos_hidden',
         ];
 
         foreach ($sections as $manifestKey => $hiddenField) {
@@ -1719,6 +1718,31 @@ class AksaraaPlugin
             });
         }
 
+        // Gallery widget: hide ALL gallery-type widgets when no photos uploaded.
+        // Template-agnostic — finds widgets by widgetType, not by manifest elementId.
+        if (!empty($fields['gallery_photos_hidden'])) {
+            $elements = self::hide_widgets_by_type($elements, 'gallery');
+        }
+
+        return $elements;
+    }
+
+    // Hide/show all widgets of a given type by toggling the aksaraa-hidden marker.
+    private static function hide_widgets_by_type(array $elements, string $widgetType): array
+    {
+        foreach ($elements as &$el) {
+            if (($el['widgetType'] ?? '') === $widgetType) {
+                $el['settings'] = $el['settings'] ?? [];
+                $classes = trim((string) ($el['settings']['_css_classes'] ?? ''));
+                $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-hidden'));
+                $tokens[] = 'aksaraa-hidden';
+                $el['settings']['_css_classes'] = implode(' ', $tokens);
+            }
+            if (!empty($el['elements'])) {
+                $el['elements'] = self::hide_widgets_by_type($el['elements'], $widgetType);
+            }
+        }
+        unset($el);
         return $elements;
     }
 
