@@ -190,6 +190,7 @@ function FeedbackNewInner({ id }: { id: string }) {
                   <option value="Foto & Visual">Foto & Visual</option>
                   <option value="Informasi Acara">Informasi Acara</option>
                   <option value="Tata Letak (Layout)">Tata Letak (Layout)</option>
+                  <option value="Full Custom / Penuh Design Baru">Full Custom / Penuh Design Baru</option>
                   <option value="Lainnya">Lainnya</option>
                 </select>
                 <span className="material-symbols-outlined absolute right-0 bottom-3 pointer-events-none text-on-surface-variant">keyboard_arrow_down</span>
@@ -261,7 +262,7 @@ function FeedbackNewInner({ id }: { id: string }) {
                   </button>
                   <button
                     type="button"
-                    onClick={() => router.back()}
+          onClick={() => router.push(`/dashboard/${id}/web-invitation/editor?section=feedback`)}
                     className="w-full border border-[#E2D9CF] text-[#2C2A29] py-5 px-8 rounded-full font-label-md text-label-md uppercase tracking-widest hover:bg-[#FAF7F2] transition-all duration-300"
                   >
                     Batal

@@ -68,7 +68,7 @@ function FeedbackInner({ id }: { id: string }) {
       <main className="min-h-screen pb-40 bg-[#FAF7F2]">
         <nav className="px-edge-margin-mobile pt-8 mb-8">
           <button
-            onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)}
+            onClick={() => router.push(`/dashboard/${id}/web-invitation/editor?section=feedback`)}
             className="flex items-center text-on-surface-variant hover:text-primary transition-colors group"
           >
             <span className="material-symbols-outlined text-[18px] mr-2 transition-transform group-hover:-translate-x-1">arrow_back</span>

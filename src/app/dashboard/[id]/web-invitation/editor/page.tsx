@@ -232,6 +232,10 @@ function EditorInner({ id }: { id: string }) {
     if (searchParams.get("preview") === "1" && typeof window !== "undefined" && window.innerWidth < 768) {
       setShowMobilePreview(true)
     }
+    const section = searchParams.get("section")
+    if (section) {
+      setActiveSection(section)
+    }
   }, [searchParams])
 
   useEffect(() => {
@@ -240,10 +244,10 @@ function EditorInner({ id }: { id: string }) {
     return () => window.removeEventListener("tour_show_konten", onShowKonten as EventListener)
   }, [])
   const [showPublishConfirm, setShowPublishConfirm] = useState(false)
-  const [pubState, setPubState] = useState<"ask" | "working" | "done" | "error">("ask")
+  const [pubState, setPubState] = useState<"ask" | "working" | "done" | "choose" | "error">("ask")
   const [pubError, setPubError] = useState("")
   const [showH3Reminder, setShowH3Reminder] = useState(false)
-  const [feedbackCount, setFeedbackCount] = useState<number | null>(null)
+  const [feedbackSubmissions, setFeedbackSubmissions] = useState<any[]>([])
   const [feedbackLoading, setFeedbackLoading] = useState(true)
   const [showPaymentGate, setShowPaymentGate] = useState(false)
   const [showFeedbackGate, setShowFeedbackGate] = useState(false)
@@ -341,8 +345,8 @@ function EditorInner({ id }: { id: string }) {
   useEffect(() => {
     fetch(`/api/feedback-submissions?wedding_profile_id=${id}`)
       .then(r => r.ok ? r.json() : null)
-      .then(res => setFeedbackCount(res?.submissions?.length ?? 0))
-      .catch(() => setFeedbackCount(0))
+      .then(res => setFeedbackSubmissions(res?.submissions || []))
+      .catch(() => setFeedbackSubmissions([]))
       .finally(() => setFeedbackLoading(false))
   }, [id])
 
@@ -866,7 +870,7 @@ function EditorInner({ id }: { id: string }) {
     const ok = await handlePublish()
     if (ok) {
       setPubState("done")
-      setTimeout(() => router.push(`/dashboard/${id}/qr-guestbook`), 1200)
+      setTimeout(() => setPubState("choose"), 1200)
     } else {
       setPubError("Gagal mengonfirmasi undangan. Periksa koneksi Anda, lalu coba lagi.")
       setPubState("error")
@@ -1961,7 +1965,17 @@ function EditorInner({ id }: { id: string }) {
                     </div>
                     <div className="space-y-1">
                       <p className="font-label-md text-label-md text-on-surface-variant">
-                        {feedbackLoading ? "Memuat..." : feedbackCount === 0 ? "Belum ada feedback." : `${feedbackCount} feedback tercatat untuk undangan Anda.`}
+                        {feedbackLoading ? "Memuat..." : feedbackSubmissions.length === 0 ? "Belum ada feedback." : (() => {
+                          const total = feedbackSubmissions.length
+                          const resolved = feedbackSubmissions.filter((s: any) => s.status === "resolved").length
+                          const inProgress = feedbackSubmissions.filter((s: any) => s.status === "in_progress").length
+                          const pending = feedbackSubmissions.filter((s: any) => s.status === "pending").length
+                          const parts = [`${total} Feedback tercatat`]
+                          if (resolved > 0) parts.push(`${resolved} Selesai`)
+                          if (inProgress > 0) parts.push(`${inProgress} Dalam Proses`)
+                          if (pending > 0) parts.push(`${pending} Menunggu`)
+                          return parts.join(", ")
+                        })()}
                       </p>
                     </div>
                   </div>
@@ -2156,7 +2170,7 @@ function EditorInner({ id }: { id: string }) {
       {showPublishConfirm && (
         <div
           className="fixed inset-0 z-[90] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6"
-          onClick={() => { if (pubState === "ask" || pubState === "error") setShowPublishConfirm(false) }}
+          onClick={() => { if (pubState === "ask" || pubState === "error" || pubState === "choose") setShowPublishConfirm(false) }}
         >
           <div className="bg-white w-full max-w-md rounded-2xl border border-outline-variant shadow-2xl p-8 text-center" onClick={(e) => e.stopPropagation()}>
             {pubState === "ask" && (() => {
@@ -2211,6 +2225,28 @@ function EditorInner({ id }: { id: string }) {
                 <span className="success-pop material-symbols-outlined text-6xl text-emerald-500 block" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                 <h3 className="font-headline-md text-xl font-medium text-primary">Undangan Terkonfirmasi</h3>
                 <p className="text-sm text-on-surface-variant">Mengarahkan ke Tautan Undangan &amp; QR Tamu…</p>
+              </div>
+            )}
+
+            {pubState === "choose" && (
+              <div className="flex flex-col items-center gap-4 py-4">
+                <span className="material-symbols-outlined text-4xl text-emerald-500 block" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                <h3 className="font-headline-md text-xl font-medium text-primary">Undangan Terkonfirmasi</h3>
+                <p className="text-sm text-on-surface-variant text-center">Ingin menambah masukan lainnya untuk undangan Anda?</p>
+                <div className="flex flex-col gap-3 w-full mt-2">
+                  <button
+                    onClick={() => router.push(`/dashboard/${id}/web-invitation/feedback/new?return_section=feedback`)}
+                    className="w-full py-3.5 bg-secondary text-on-secondary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity"
+                  >
+                    Tambah Masukan Lainnya
+                  </button>
+                  <button
+                    onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)}
+                    className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+                  >
+                    Tidak, ke QR Guestbook
+                  </button>
+                </div>
               </div>
             )}
 
