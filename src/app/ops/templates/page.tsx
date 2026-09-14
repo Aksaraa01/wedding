@@ -405,6 +405,7 @@ export default function OpsTemplatesPage() {
     if (!widgetType) return "title"
     if (widgetType === "container-bg") return "background_image.url"
     if (widgetType === "container-slideshow") return "background_slideshow_gallery"
+    if (widgetType === "media-carousel") return ""
     // Whole-section container has no content field to patch; hide/show is driven
     // by a _css_classes marker in the mu-plugin.
     if (widgetType === "container" && field && isSectionField(field)) return ""

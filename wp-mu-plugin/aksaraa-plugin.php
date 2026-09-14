@@ -309,6 +309,20 @@ class AksaraaPlugin
             case 'nested-accordion-item':
                 $t = trim((string) ($settings['item_title'] ?? ''));
                 return $t !== '' ? $t : '(judul item kosong)';
+            case 'gallery':
+            case 'media-carousel':
+                $slides = $settings['slides'] ?? $settings['gallery'] ?? [];
+                if (is_array($slides) && !empty($slides)) {
+                    $count = count($slides);
+                    $names = [];
+                    foreach (array_slice($slides, 0, 3) as $s) {
+                        if (is_array($s) && !empty($s['url'])) $names[] = self::image_name($s);
+                    }
+                    $label = $widgetType === 'media-carousel' ? 'media-carousel' : 'gallery';
+                    if (!empty($names)) return $label . ' (' . $count . '): ' . implode(' + ', $names);
+                    return $label . ' (' . $count . ')';
+                }
+                return $widgetType === 'media-carousel' ? 'media-carousel' : 'gallery';
             default: return '';
         }
     }
@@ -778,7 +792,7 @@ class AksaraaPlugin
             self::extract_simple_fields($fields, $manifest),
             self::extract_simple_array_fields($fields, $manifest),
             self::extract_object_array_fields($fields, $manifest),
-            self::extract_gallery_field($fields, $manifest)
+            self::extract_gallery_field($fields, $manifest, $elements)
         );
 
         // Fallback: if track_url is provided but not in manifest, find and patch
@@ -985,9 +999,10 @@ class AksaraaPlugin
         return $result;
     }
 
-    // Gallery widget: gallery_photos maps to ONE gallery widget whose settings.gallery
-    // is an array of {id, url}. The couple's photos REPLACE the template's placeholders.
-    private static function extract_gallery_field(array $fields, array $manifest): array
+    // Gallery widget: gallery_photos maps to ONE gallery/media-carousel widget.
+    // gallery widget stores images in settings.gallery; media-carousel uses settings.slides.
+    // The couple's photos REPLACE the template's placeholders.
+    private static function extract_gallery_field(array $fields, array $manifest, array $elements): array
     {
         $result = [];
         if (!isset($fields['gallery_photos']) || !is_array($fields['gallery_photos'])) return $result;
@@ -1005,9 +1020,15 @@ class AksaraaPlugin
         }
         if (empty($images)) return $result;
 
+        // Detect widget type to use the correct Elementor settings key.
+        // gallery widget: settings.gallery  |  media-carousel: settings.slides
+        $node = self::find_node($elements, $m['elementId']);
+        $widgetType = $node['widgetType'] ?? '';
+        $galleryKey = ($widgetType === 'media-carousel') ? 'slides' : 'gallery';
+
         $result[] = [
             'elementId' => $m['elementId'],
-            'settings' => ['gallery'],
+            'settings' => [$galleryKey],
             'value' => $images,
         ];
         return $result;
@@ -1735,6 +1756,7 @@ class AksaraaPlugin
         // Template-agnostic — finds widgets by widgetType, not by manifest elementId.
         if (!empty($fields['gallery_photos_hidden'])) {
             $elements = self::hide_widgets_by_type($elements, 'gallery');
+            $elements = self::hide_widgets_by_type($elements, 'media-carousel');
         }
 
         return $elements;

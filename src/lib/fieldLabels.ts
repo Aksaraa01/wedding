@@ -54,6 +54,7 @@ export const WIDGET_SETTINGS: Record<string, string> = {
   "weddingpress-kit2": "",
   "weddingpress-copy-text": "",
   gallery: "",
+  "media-carousel": "",
   "nested-accordion": "items.0.item_title",
   "nested-accordion-item": "item_title",
 }
