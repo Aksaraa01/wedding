@@ -22,43 +22,25 @@ export async function GET(
     }
 
     const packageType = profile.package_type || "signature"
-    const gates = await getRowGates(packageType)
-    const features = await getFeatureIncluded(packageType)
-    const photoQuota = await getPhotoQuota(packageType)
-
-    let template = null
-    if (profile.selected_template_id) {
-      const { data: t } = await supabaseAdmin
-        .from("web_templates")
-        .select("*")
-        .eq("id", profile.selected_template_id)
-        .single()
-      template = t
-    }
-
-    let track = null
-    if (profile.selected_track_id) {
-      const { data: tr } = await supabaseAdmin
-        .from("web_tracks")
-        .select("*")
-        .eq("id", profile.selected_track_id)
-        .single()
-      track = tr
-    }
-
-    // Gift accounts (bank/ewallet only)
-    const { data: giftAccts } = await supabaseAdmin
-      .from("gift_accounts")
-      .select("provider_name, account_number, account_name, type")
-      .eq("wedding_profile_id", profile.id)
+    // Independent reads — one parallel wave instead of 7 sequential roundtrips.
+    // Plain Promise.all (fail-fast) keeps error semantics identical to the old
+    // sequential awaits: any network-level throw still lands in the outer catch
+    // below → 500. Deliberately NOT allSettled with silent fallbacks: wrong
+    // gates would misrender paid-feature locks, worse than a visible error.
+    const [gates, features, photoQuota, template, track, giftAccts, giftAddr] = await Promise.all([
+      getRowGates(packageType),
+      getFeatureIncluded(packageType),
+      getPhotoQuota(packageType),
+      profile.selected_template_id
+        ? supabaseAdmin.from("web_templates").select("*").eq("id", profile.selected_template_id).single().then(r => r.data ?? null)
+        : Promise.resolve(null),
+      profile.selected_track_id
+        ? supabaseAdmin.from("web_tracks").select("*").eq("id", profile.selected_track_id).single().then(r => r.data ?? null)
+        : Promise.resolve(null),
+      supabaseAdmin.from("gift_accounts").select("provider_name, account_number, account_name, type").eq("wedding_profile_id", profile.id).then(r => r.data ?? []),
+      supabaseAdmin.from("gift_addresses").select("full_address, recipient_name").eq("wedding_profile_id", profile.id).maybeSingle().then(r => r.data ?? null),
+    ])
     const gift_accounts = (giftAccts || []).filter(a => a.type === "bank" || a.type === "ewallet")
-
-    // Gift shipping address
-    const { data: giftAddr } = await supabaseAdmin
-      .from("gift_addresses")
-      .select("full_address, recipient_name")
-      .eq("wedding_profile_id", profile.id)
-      .maybeSingle()
 
     return NextResponse.json({
       profile: {
