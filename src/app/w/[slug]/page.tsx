@@ -68,7 +68,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       covers = [profile.cover_photos.trim()]
     }
   }
-  const image = firstImageUrl(profile.couple_illustration_url) || firstImageUrl(covers) || undefined
+  const image = firstImageUrl(profile.couple_illustration_url) || firstImageUrl(covers) || (profile.slug ? `https://${profile.slug}.wedding.aksaraa.com/defaults/couple.png` : undefined)
 
   const meta: Metadata = {
     title,
