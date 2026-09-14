@@ -232,9 +232,10 @@ function EditorInner({ id }: { id: string }) {
     if (searchParams.get("preview") === "1" && typeof window !== "undefined" && window.innerWidth < 768) {
       setShowMobilePreview(true)
     }
-    const section = searchParams.get("section")
+    const section = searchParams.get("section") || searchParams.get("return_section")
     if (section) {
       setActiveSection(section)
+      setShowMobilePreview(false)
     }
   }, [searchParams])
 
@@ -278,6 +279,8 @@ function EditorInner({ id }: { id: string }) {
 
   const coverReplaceRef = useRef<HTMLInputElement>(null)
   const coverSlideRef = useRef<HTMLInputElement>(null)
+  const sidebarScrollRef = useRef<HTMLDivElement>(null)
+  const hasAutoFocusedFeedback = useRef(false)
   const groomPhotoRef = useRef<HTMLInputElement>(null)
   const bridePhotoRef = useRef<HTMLInputElement>(null)
   const groomPhotoSlotRef = useRef<(HTMLInputElement | null)[]>([])
@@ -946,21 +949,54 @@ function EditorInner({ id }: { id: string }) {
     }
   }
 
+  const scrollSectionIntoView = (section: string) => {
+    requestAnimationFrame(() => {
+      const container = sidebarScrollRef.current
+      const el = (container?.querySelector(`[data-section="${section}"]`) ??
+        document.querySelector(`[data-section="${section}"]`)) as HTMLElement | null
+      if (!el) return
+      if (section === "feedback" && container) {
+        container.scrollTo({ top: container.scrollHeight, behavior: "smooth" })
+        return
+      }
+      if (container) {
+        const top = el.offsetTop - 24
+        container.scrollTo({ top, behavior: "smooth" })
+      } else {
+        el.scrollIntoView({ behavior: "smooth", block: "start" })
+      }
+    })
+  }
+
   const handleSectionToggle = (section: string) => {
     if (section === "feedback" && !isPublished) {
       setShowFeedbackGate(true)
       return
     }
-    setActiveSection(prev => prev === section ? prev : section)
+    setActiveSection(prev => {
+      if (prev === section) scrollSectionIntoView(section)
+      return prev === section ? prev : section
+    })
   }
 
   // When the open accordion changes, scroll it into view inside the sidebar so a
   // long accordion above doesn't leave the newly-opened one hidden above the fold.
+  // Depends on searchParams + initialLoading too so back-nav with the same
+  // ?section= value still re-scrolls after the sidebar finishes loading.
   useEffect(() => {
-    if (!activeSection) return
-    const el = document.querySelector(`[data-section="${activeSection}"]`)
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" })
-  }, [activeSection])
+    if (initialLoading || !activeSection) return
+    scrollSectionIntoView(activeSection)
+  }, [activeSection, initialLoading, searchParams])
+
+  useEffect(() => {
+    if (initialLoading || hasAutoFocusedFeedback.current) return
+    if (data.is_published !== true) return
+    const section = searchParams.get("section") || searchParams.get("return_section")
+    if (!section) {
+      hasAutoFocusedFeedback.current = true
+      setActiveSection("feedback")
+    }
+  }, [initialLoading, data.is_published, searchParams])
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -1251,7 +1287,7 @@ function EditorInner({ id }: { id: string }) {
               </div>
             )}
 
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 pb-32 space-y-4 md:pb-6">
+            <div ref={sidebarScrollRef} className="flex-1 overflow-y-auto custom-scrollbar p-6 pb-32 space-y-4 md:pb-6">
               {initialLoading ? (
                 <SidebarShimmer />
               ) : (
@@ -2244,7 +2280,7 @@ function EditorInner({ id }: { id: string }) {
                     onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)}
                     className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
                   >
-                    Tidak, ke QR Guestbook
+                    Sudah Ok, Lanjut
                   </button>
                 </div>
               </div>

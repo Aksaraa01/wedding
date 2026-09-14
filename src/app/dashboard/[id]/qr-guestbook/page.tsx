@@ -206,6 +206,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   const [qrCodeBook, setQrCodeBook] = useState(true)
   const [showLimitModal, setShowLimitModal] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [hasUnresolvedFeedback, setHasUnresolvedFeedback] = useState(false)
 
   const fetchData = async () => {
     try {
@@ -233,6 +234,16 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   useEffect(() => {
     setLoading(true)
     fetchData().finally(() => setLoading(false))
+  }, [id])
+
+  useEffect(() => {
+    fetch(`/api/feedback-submissions?wedding_profile_id=${id}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(res => {
+        const list = res?.submissions || []
+        setHasUnresolvedFeedback(list.some((s: any) => s.status !== "resolved"))
+      })
+      .catch(() => setHasUnresolvedFeedback(false))
   }, [id])
 
   const gated = !!profile && profile.payment_status !== "UNPAID" && profile.is_published !== true
@@ -606,6 +617,24 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
               <button onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)} className="shrink-0 inline-flex items-center justify-center gap-2 bg-[#0284C7] text-white rounded-full px-6 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#0C4A6E] active:scale-95 transition-all whitespace-nowrap">
                 <span className="material-symbols-outlined text-[16px]">edit</span>
                 Buka Editor
+              </button>
+            </div>
+          )}
+
+          {hasUnresolvedFeedback && (
+            <div className="mt-4 bg-[#E0F2FE] border border-[#7DD3FC] rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 shadow-sm">
+              <div className="flex items-start gap-3 flex-1">
+                <span className="material-symbols-outlined text-[#0284C7] text-[18px] shrink-0 mt-0.5">info</span>
+                <div>
+                  <p className="font-body-md text-sm text-[#0C4A6E] font-bold">Undangan Belum Selesai</p>
+                  <p className="font-body-md text-[13px] text-[#0C4A6E] leading-relaxed mt-1">
+                    Ada feedback kamu yang belum selesai. Sebaiknya tunggu hingga selesai agar tamu mendapat undangan terbaru.
+                  </p>
+                </div>
+              </div>
+              <button onClick={() => router.push(`/dashboard/${id}/web-invitation/feedback`)} className="shrink-0 inline-flex items-center justify-center gap-2 bg-[#0284C7] text-white rounded-full px-6 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#0C4A6E] active:scale-95 transition-all whitespace-nowrap">
+                <span className="material-symbols-outlined text-[16px]">rate_review</span>
+                Lihat Feedback
               </button>
             </div>
           )}

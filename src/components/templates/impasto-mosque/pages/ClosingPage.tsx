@@ -1,7 +1,6 @@
 "use client"
 
 import type { TemplateProps } from "@/types/template"
-import { ASSETS } from "@/lib/assets"
 import { FONT_BODY, FONT_DISPLAY } from "../../shared/Skin"
 import { CouplePhoto } from "./MainPage"
 
@@ -9,10 +8,6 @@ export default function ClosingPage({ profile, onWishOpenChange }: { profile: Te
   return (
     <div className="flex-1 w-full max-w-[360px] mx-auto flex flex-col items-center justify-start text-center px-6 pt-12 pb-8">
       <div className="relative w-full max-w-[360px] flex flex-col items-center p-8">
-        <div className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none drop-shadow-xl">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={ASSETS.impastoMosque.brush} alt="" className="w-full h-full object-fill scale-110 opacity-95" loading="lazy" />
-        </div>
         <div className="relative z-10 flex flex-col items-center w-full px-4 py-2">
           <div className="mb-3 relative">
             <div className="w-28 h-36 rounded-t-full rounded-b-lg overflow-hidden border-2 border-[#8E6B3D]/60 shadow-lg relative bg-[#f7f4ee]">

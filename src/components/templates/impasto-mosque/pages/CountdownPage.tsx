@@ -1,7 +1,6 @@
 "use client"
 
 import type { TemplateProps } from "@/types/template"
-import { ASSETS } from "@/lib/assets"
 import { FONT_BODY, FONT_DISPLAY } from "../../shared/Skin"
 import { countdownTarget, formatLongDate, gcalLink, type SessionData } from "../../shared/lib"
 import { useCountdown } from "../../shared/useCountdown"
@@ -20,10 +19,6 @@ export default function CountdownPage({ profile, sessions }: { profile: Template
   return (
     <div className="flex-1 w-full max-w-[370px] mx-auto flex flex-col items-center justify-start text-center px-6 pt-12 pb-8">
       <div className="relative w-full max-w-[360px] flex flex-col items-center justify-center p-8 text-center select-none">
-        <div className="absolute inset-0 -z-10 w-full h-full flex items-center justify-center pointer-events-none drop-shadow-xl">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={ASSETS.impastoMosque.brush} alt="" className="w-full h-full object-fill scale-110 opacity-95" loading="lazy" />
-        </div>
       <div className="relative z-10 flex flex-col items-center w-full px-4 py-2">
         <h1 className="italic text-[28px] leading-tight mb-2 drop-shadow-sm" style={{ ...FONT_DISPLAY, color: "#221a14" }}>
           Save The Date
