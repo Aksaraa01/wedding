@@ -968,6 +968,19 @@ class AksaraaPlugin
                     ];
                 }
             }
+            // Fill remaining mapped slots with the last item so all mapped elements
+            // receive the value (e.g. default cover shown on every cover widget).
+            $last = end($items);
+            for ($i = count($items); $i < count($mapping); $i++) {
+                $m = $mapping[$i] ?? null;
+                if (is_array($m) && isset($m['elementId'])) {
+                    $result[] = [
+                        'elementId' => $m['elementId'],
+                        'settings' => is_array($m['settings']) ? $m['settings'] : [],
+                        'value' => $last,
+                    ];
+                }
+            }
         }
         return $result;
     }
