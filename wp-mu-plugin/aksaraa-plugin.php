@@ -1000,7 +1000,8 @@ class AksaraaPlugin
     }
 
     // Gallery widget: gallery_photos maps to ONE gallery/media-carousel widget.
-    // gallery widget stores images in settings.gallery; media-carousel uses settings.slides.
+    // gallery widget stores images in settings.gallery as [{id, url}].
+    // media-carousel stores images in settings.slides as [{image: {id,url,alt,source}, _id, image_link_to_type}].
     // The couple's photos REPLACE the template's placeholders.
     private static function extract_gallery_field(array $fields, array $manifest, array $elements): array
     {
@@ -1013,24 +1014,47 @@ class AksaraaPlugin
         $urls = array_values(array_filter(array_map('strval', $fields['gallery_photos'])));
         if (empty($urls)) return $result;
         $imported_map = self::sideload_images_parallel($urls);
-        $images = [];
-        foreach ($urls as $url) {
-            $imported = $imported_map[$url] ?? ['id' => 0, 'url' => $url];
-            $images[] = ['id' => $imported['id'], 'url' => $imported['url']];
-        }
-        if (empty($images)) return $result;
 
-        // Detect widget type to use the correct Elementor settings key.
-        // gallery widget: settings.gallery  |  media-carousel: settings.slides
+        // Detect widget type to use the correct Elementor settings key and value format.
         $node = self::find_node($elements, $m['elementId']);
         $widgetType = $node['widgetType'] ?? '';
-        $galleryKey = ($widgetType === 'media-carousel') ? 'slides' : 'gallery';
 
-        $result[] = [
-            'elementId' => $m['elementId'],
-            'settings' => [$galleryKey],
-            'value' => $images,
-        ];
+        if ($widgetType === 'media-carousel') {
+            // media-carousel: settings.slides = [{image: {id,url,alt,source}, _id, image_link_to_type}]
+            $slides = [];
+            foreach ($urls as $url) {
+                $imported = $imported_map[$url] ?? ['id' => 0, 'url' => $url];
+                $slides[] = [
+                    'image' => [
+                        'id' => $imported['id'],
+                        'url' => $imported['url'],
+                        'alt' => '',
+                        'source' => 'library',
+                    ],
+                    '_id' => substr(md5(uniqid((string) mt_rand(), true)), 0, 7),
+                    'image_link_to_type' => 'file',
+                ];
+            }
+            if (empty($slides)) return $result;
+            $result[] = [
+                'elementId' => $m['elementId'],
+                'settings' => ['slides'],
+                'value' => $slides,
+            ];
+        } else {
+            // gallery widget: settings.gallery = [{id, url}]
+            $images = [];
+            foreach ($urls as $url) {
+                $imported = $imported_map[$url] ?? ['id' => 0, 'url' => $url];
+                $images[] = ['id' => $imported['id'], 'url' => $imported['url']];
+            }
+            if (empty($images)) return $result;
+            $result[] = [
+                'elementId' => $m['elementId'],
+                'settings' => ['gallery'],
+                'value' => $images,
+            ];
+        }
         return $result;
     }
 
