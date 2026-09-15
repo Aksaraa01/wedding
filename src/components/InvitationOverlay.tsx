@@ -193,9 +193,9 @@ export default function InvitationOverlay({
                 <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
 
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FBF1EE] text-[#B34E3F] text-[11px] font-medium tracking-wider uppercase mb-2.5">
-                <span className="material-symbols-outlined text-[14px]">favorite</span>
-                <span className="truncate max-w-[220px]">{coupleName}</span>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#FBF1EE] text-[#B34E3F] text-[10px] font-medium tracking-wider uppercase mb-2.5 max-w-[85%] flex-wrap justify-center text-center leading-tight">
+                <span className="material-symbols-outlined text-[14px] shrink-0">favorite</span>
+                <span className="break-words line-clamp-2">{coupleName}</span>
               </div>
 
               <h2
@@ -215,28 +215,34 @@ export default function InvitationOverlay({
                 <div className="h-[0.5px] w-12 bg-gradient-to-l from-transparent to-[#C29B38]/60" />
               </div>
 
-              <p className="text-xs text-[#78716C] mt-2 max-w-xs mx-auto leading-relaxed">
+              <p className="text-xs text-[#57534E] mt-2 max-w-xs mx-auto leading-relaxed">
                 Merupakan suatu kehormatan dan kebahagiaan bagi kami atas kehadiran dan doa restu Anda.
               </p>
             </div>
 
             <div className="flex-1 overflow-y-auto relative">
               {rsvpStatus === "done" ? (
-                <div className="text-center p-8">
-                  <div className="w-16 h-16 rounded-full bg-[#FBF1EE] text-[#B34E3F] flex items-center justify-center mb-4 mx-auto shadow-sm">
+                <div className="text-center px-6 py-8 sm:px-8">
+                  <div className="w-16 h-16 rounded-full bg-[#FBF1EE] text-[#B34E3F] flex items-center justify-center mb-5 mx-auto shadow-sm">
                     <span className="material-symbols-outlined text-[36px]">check_circle</span>
                   </div>
-                  <h3 className="text-2xl font-bold mb-2" style={{ fontFamily: "'Playfair Display', serif", color: "#23201E" }}>Terima Kasih!</h3>
-                  <p className="font-headline-md text-xl text-on-surface mb-2">Terima kasih, {rsvpName}!</p>
-                  <p className="font-body-md text-sm text-on-surface-variant">
-                    Kehadiran Anda telah kami catat sebagai {rsvpAttend === "TIDAK_HADIR" ? "Tidak Hadir" : "Hadir"}.
-                  </p>
+                  <h3 className="text-[24px] sm:text-[26px] font-bold leading-tight" style={{ fontFamily: "'Playfair Display', serif", color: "#23201E" }}>
+                    Terima kasih, {rsvpName}!
+                  </h3>
+                  <div className="mt-3 flex justify-center">
+                    <span
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold tracking-wide border ${
+                        rsvpAttend === "TIDAK_HADIR" ? "bg-neutral-100 text-neutral-600 border-neutral-200" : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      }`}
+                    >
+                      {rsvpAttend === "TIDAK_HADIR" ? "Tidak Hadir" : "Hadir"}
+                    </span>
+                  </div>
                   {rsvpMessage.trim() && (
-                    <p className="font-body-md text-sm text-on-surface-variant mt-2 italic">“{rsvpMessage.trim()}”</p>
+                    <div className="mt-4 mx-auto max-w-sm rounded-2xl bg-[#FAF7F2] border border-[#E2D9CF] px-4 py-3">
+                      <p className="text-sm italic leading-relaxed text-[#57534E]">“{rsvpMessage.trim()}”</p>
+                    </div>
                   )}
-                  <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary mt-4">
-                    Konfirmasi kehadiran Anda sudah diterima
-                  </p>
                   <button
                     type="button"
                     onClick={() => setRsvpOpen(false)}
