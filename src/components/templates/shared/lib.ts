@@ -146,20 +146,16 @@ const DEFAULT_BRIDE = "/defaults/bride.png"
 // Default couple/bride/groom photos shown when the couple has not uploaded
 // their own. Centralized here so every in-house template falls back to the
 // same defaults instead of template/dummy imagery.
-export function coverPhoto(v: { cover_photos?: unknown; couple_illustration_url?: unknown }): string {
-  // Only use slot 0 — the editor designates slot 0 as the couple cover photo.
-  // Slots 1+ are gallery/slideshow content. Iterating the full array causes
-  // cleared slots to be skipped and unintended images to appear as cover.
-  const slot0 = Array.isArray(v.cover_photos) ? v.cover_photos[0] : v.cover_photos
-  return firstImage(slot0) || firstImage(v.couple_illustration_url) || DEFAULT_COVER
+export function coverPhoto(_v: { cover_photos?: unknown; couple_illustration_url?: unknown }): string {
+  return DEFAULT_COVER
 }
 
-export function groomPhoto(v: string | string[] | null | undefined): string {
-  return photoList(v)[0] || DEFAULT_GROOM
+export function groomPhoto(_v: string | string[] | null | undefined): string {
+  return DEFAULT_GROOM
 }
 
-export function bridePhoto(v: string | string[] | null | undefined): string {
-  return photoList(v)[0] || DEFAULT_BRIDE
+export function bridePhoto(_v: string | string[] | null | undefined): string {
+  return DEFAULT_BRIDE
 }
 
 // Convert watch links to embeddable URLs so an <iframe> can play them.
