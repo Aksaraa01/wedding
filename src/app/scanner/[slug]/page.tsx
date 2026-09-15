@@ -614,14 +614,8 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
     <>
       <style>{`@keyframes laserMove{0%{top:0%;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:100%;opacity:0}}.scanner-laser{animation:laserMove 2s infinite linear}`}</style>
       <div className="font-sans min-h-screen antialiased flex flex-col items-center relative bg-[#FAF7F2] text-[#2C2A29]">
-        {eventInfo?.cover_photo ? (
-          <>
-            <img src={eventInfo.cover_photo} alt="" className="fixed inset-0 w-full h-full object-cover pointer-events-none" />
-            <div className="fixed inset-0 bg-[#FAF7F2]/40 pointer-events-none" />
-          </>
-        ) : (
-          <div className="fixed inset-0 bg-[#FAF7F2] pointer-events-none" />
-        )}
+        <img src={eventInfo?.cover_photo || "/defaults/couple.png"} alt="" className="fixed inset-0 w-full h-full object-cover pointer-events-none" />
+        <div className="fixed inset-0 bg-[#FAF7F2]/40 pointer-events-none" />
       <header className="w-full bg-[#FAF7F2]/80 backdrop-blur-md border-b border-[#E2D9CF] sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-xl text-[#B34E3F]">qr_code_scanner</span>
