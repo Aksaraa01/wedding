@@ -1,12 +1,17 @@
 "use client"
 
+import { ASSETS } from "@/lib/assets"
 import { FONT_BODY, FONT_SCRIPT } from "../../shared/Skin"
 import { formatLongDate, type SessionData } from "../../shared/lib"
 
 function EventBlock({ session, align }: { session: SessionData; align: "left" | "right" }) {
   const right = align === "right"
   return (
-    <section className={`flex flex-col max-w-[290px] drop-shadow-sm ${right ? "items-end text-right self-end mt-4" : "items-start text-left"}`}>
+    <section className={`relative flex flex-col max-w-[290px] drop-shadow-sm px-5 py-5 ${right ? "items-end text-right self-end mt-4" : "items-start text-left"}`}>
+      <div className="absolute inset-0 -z-10 pointer-events-none flex items-center justify-center overflow-hidden rounded-2xl">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={ASSETS.pastelDreamCathedral.brush} alt="" className="w-[115%] h-[115%] max-w-none object-cover mix-blend-screen opacity-50 drop-shadow-md" loading="lazy" style={{ maskImage: "radial-gradient(90% 80%, black 65%, transparent 100%)" }} />
+      </div>
       <h1 className="text-[38px] leading-tight font-normal mb-2" style={{ ...FONT_SCRIPT, color: "#1c1815" }}>
         {session.name || "Acara"}
       </h1>

@@ -1,13 +1,18 @@
 "use client"
 
 import type { TemplateProps } from "@/types/template"
+import { ASSETS } from "@/lib/assets"
 import { FONT_BODY, FONT_DISPLAY } from "../../shared/Skin"
 import { CouplePhoto } from "./MainPage"
 
 export default function ClosingPage({ profile, onWishOpenChange }: { profile: TemplateProps; onWishOpenChange: (open: boolean) => void }) {
   return (
     <div className="flex-1 w-full max-w-[360px] mx-auto flex flex-col items-center justify-start text-center px-6 pt-12 pb-8">
-      <div className="relative w-full max-w-[360px] flex flex-col items-center p-8">
+      <div className="relative w-full max-w-[360px] flex flex-col items-center p-8 overflow-hidden">
+        <div className="absolute inset-0 -z-10 pointer-events-none flex items-center justify-center overflow-visible">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={ASSETS.pastelDreamCathedral.brush} alt="" className="w-[115%] h-[115%] max-w-none object-cover mix-blend-screen opacity-50 drop-shadow-md" loading="lazy" style={{ maskImage: "radial-gradient(90% 80%, black 65%, transparent 100%)" }} />
+        </div>
         <div className="relative z-10 flex flex-col items-center w-full px-4 py-2">
           <div className="mb-3 relative">
             <div className="w-28 h-36 rounded-t-full rounded-b-lg overflow-hidden border-2 border-[#8E6B3D]/60 shadow-lg relative bg-[#f7f4ee]">
