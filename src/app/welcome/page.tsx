@@ -195,7 +195,7 @@ function WelcomeContent() {
               <button
                 onClick={handleSendWish}
                 disabled={wishLoading || !wishMessage.trim()}
-                className="w-full bg-secondary text-on-primary py-4 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] transition-all hover:bg-secondary/90 active:scale-[0.99] shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full bg-[#B34E3F] text-white py-4 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] transition-all hover:bg-[#9E3B2D] active:scale-[0.99] shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:bg-[#B34E3F]/50"
               >
                 <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>send</span>
                 {wishLoading ? "Mengirim..." : "Kirim Doa Restu"}
