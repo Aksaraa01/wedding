@@ -614,8 +614,9 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
     <>
       <style>{`@keyframes laserMove{0%{top:0%;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:100%;opacity:0}}.scanner-laser{animation:laserMove 2s infinite linear}`}</style>
       <div className="font-sans min-h-screen antialiased flex flex-col items-center relative bg-[#FAF7F2] text-[#2C2A29]">
-        <img src={eventInfo?.cover_photo || "/defaults/couple.png"} alt="" className="fixed inset-0 w-full h-full object-cover pointer-events-none" />
-        <div className="fixed inset-0 bg-[#FAF7F2]/40 pointer-events-none" />
+        <div className="fixed inset-0 bg-[#FAF7F2] pointer-events-none" />
+        <img src="/images/flower.png" alt="" className="fixed bottom-0 left-0 w-40 sm:w-48 md:w-64 lg:w-80 h-auto object-contain object-bottom pointer-events-none select-none" style={{ transformOrigin: "bottom left" }} />
+        <img src="/images/flower.png" alt="" className="fixed bottom-0 right-0 w-40 sm:w-48 md:w-64 lg:w-80 h-auto object-contain object-bottom pointer-events-none select-none scale-x-[-1]" style={{ transformOrigin: "bottom right" }} />
       <header className="w-full bg-[#FAF7F2]/80 backdrop-blur-md border-b border-[#E2D9CF] sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-xl text-[#B34E3F]">qr_code_scanner</span>
