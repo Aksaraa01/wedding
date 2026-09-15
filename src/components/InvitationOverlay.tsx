@@ -229,7 +229,8 @@ export default function InvitationOverlay({
                   <h3 className="text-[24px] sm:text-[26px] font-bold leading-tight" style={{ fontFamily: "'Playfair Display', serif", color: "#23201E" }}>
                     Terima kasih, {rsvpName}!
                   </h3>
-                  <div className="mt-3 flex justify-center">
+                  <p className="mt-3 text-sm text-[#57534E] flex items-center justify-center gap-2 flex-wrap">
+                    <span>Status konfirmasi Anda:</span>
                     <span
                       className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold tracking-wide border ${
                         rsvpAttend === "TIDAK_HADIR" ? "bg-neutral-100 text-neutral-600 border-neutral-200" : "bg-emerald-50 text-emerald-700 border-emerald-200"
@@ -237,7 +238,7 @@ export default function InvitationOverlay({
                     >
                       {rsvpAttend === "TIDAK_HADIR" ? "Tidak Hadir" : "Hadir"}
                     </span>
-                  </div>
+                  </p>
                   {rsvpMessage.trim() && (
                     <div className="mt-4 mx-auto max-w-sm rounded-2xl bg-[#FAF7F2] border border-[#E2D9CF] px-4 py-3">
                       <p className="text-sm italic leading-relaxed text-[#57534E]">“{rsvpMessage.trim()}”</p>
