@@ -616,17 +616,18 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
       <div className="font-sans min-h-screen antialiased flex flex-col items-center relative bg-[#FAF7F2] text-[#2C2A29]">
         {eventInfo?.cover_photo ? (
           <>
-            <img src={eventInfo.cover_photo} alt="" className="fixed inset-0 w-full h-full object-cover pointer-events-none" />
-            <div className="fixed inset-0 bg-[#FAF7F2]/40 pointer-events-none" />
+            <div className="fixed inset-0 bg-[#FAF7F2] pointer-events-none" />
+            <img src={eventInfo.cover_photo} alt="" className="fixed inset-0 w-full h-full object-cover md:object-contain object-center pointer-events-none" />
+            <div className="fixed inset-0 bg-[#FAF7F2]/30 pointer-events-none" />
           </>
         ) : (
           <>
             <div className="fixed inset-0 bg-[#FAF7F2] pointer-events-none" />
             <div className="fixed bottom-0 left-0 pointer-events-none select-none z-0">
-              <img src="/images/flower.png" alt="" className="w-40 sm:w-48 md:w-64 lg:w-80 h-auto object-contain object-bottom block" loading="eager" decoding="async" />
+              <img src="/images/flower.png" alt="" className="w-32 sm:w-40 md:w-64 lg:w-80 h-auto object-contain object-bottom block max-w-[45vw]" loading="eager" decoding="async" />
             </div>
             <div className="fixed bottom-0 right-0 pointer-events-none select-none z-0">
-              <img src="/images/flower.png" alt="" className="w-40 sm:w-48 md:w-64 lg:w-80 h-auto object-contain object-bottom block" loading="eager" decoding="async" style={{ transform: "scaleX(-1)" }} />
+              <img src="/images/flower.png" alt="" className="w-32 sm:w-40 md:w-64 lg:w-80 h-auto object-contain object-bottom block max-w-[45vw]" loading="eager" decoding="async" style={{ transform: "scaleX(-1)" }} />
             </div>
           </>
         )}

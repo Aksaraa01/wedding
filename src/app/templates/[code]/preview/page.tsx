@@ -17,14 +17,14 @@ const DEMO_PROPS: TemplateProps = {
   guest_name: "Tamu Undangan",
   groom_full_name: "Farhan Putra Nugraha",
   bride_full_name: "Annisa Kirana Putri",
-  groom_photo_url: ASSETS.demo.groomPhoto,
-  bride_photo_url: ASSETS.demo.bridePhoto,
+  groom_photo_url: ASSETS.defaults.groom,
+  bride_photo_url: ASSETS.defaults.bride,
   groom_parents: "Putra tercinta dari Bapak F & Ibu G",
   bride_parents: "Putri tercinta dari Bapak A & Ibu B",
   groom_instagram: "@farhan",
   bride_instagram: "@annisa",
-  couple_illustration_url: ASSETS.demo.story1,
-  cover_photos: [ASSETS.demo.story1],
+  couple_illustration_url: ASSETS.defaults.couple,
+  cover_photos: [ASSETS.defaults.couple],
   sessions: [
     {
       name: "Akad Nikah",
