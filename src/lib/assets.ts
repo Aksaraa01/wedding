@@ -127,6 +127,11 @@ export const ASSETS = {
     brush: s("impasto-mosque/brush.jpg"),
     coupleCover: s("impasto-mosque/couple-cover.png"),
   },
+  pastelDreamCathedral: {
+    coverBg: "/images/church.jpeg",
+    bg: "/images/church.jpeg",
+    brush: s("impasto-mosque/brush.jpg"),
+  },
   pastelCoastal: {
     bg: s("pastel-coastal-cut/bg.jpg"),
     cloud: s("pastel-coastal-cut/cloud.png"),
