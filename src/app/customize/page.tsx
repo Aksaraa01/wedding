@@ -111,14 +111,13 @@ const UNDANGAN_CARDS: CardDef[] = [
     code: "elite",
     name: "Elite",
     tagline: "Solusi undangan khusus pernikahan Anda",
-    style: "gold",
+    style: "elite",
     features: [
       { icon: "workspace_premium", text: "Prioritas Pengerjaan & Konsultan Khusus", accent: true },
       { icon: "check", text: "Masa Aktif 1 Tahun" },
       { icon: "auto_awesome", text: "Full Custom Design sesuai keinginan", accent: true, pt: true },
-      { icon: "check_circle", text: "Termasuk Fitur Prestige", divider: true },
     ],
-    details: { label: "Termasuk Fitur Prestige", items: SIGNATURE_DETAILS },
+    details: { label: "Termasuk Fitur Prestige", items: [...SIGNATURE_DETAILS, "Unlimited Foto Gallery", "Auto-Reminder VIP"] },
   },
 ]
 
@@ -446,7 +445,7 @@ function Inner() {
         </div>
       </header>
 
-      <main className="pt-20 pb-32 px-edge-margin-mobile md:px-edge-margin-desktop max-w-[1200px] mx-auto">
+      <main className="pt-20 pb-32 px-edge-margin-mobile md:px-edge-margin-desktop max-w-[1280px] xl:max-w-[1320px] mx-auto">
         {/* Header Section */}
         <section className="text-center mb-8 max-w-2xl mx-auto">
           <h2 className="font-headline-lg text-[22px] md:text-headline-lg lg:text-headline-xl mb-2 text-primary tracking-tight">
@@ -499,7 +498,7 @@ function Inner() {
                   isActive
                     ? "border-2 border-secondary scale-[1.02] z-10 shadow-xl shadow-secondary/20"
                     : isElite
-                      ? "border-2 border-[#d4af37]/40 shadow-lg shadow-[#d4af37]/20 z-10"
+                      ? "border-2 border-[#d4af37]/40 shadow-lg shadow-[#d4af37]/20 z-10 lg:scale-[1.05] xl:scale-[1.07]"
                       : popular
                         ? "border-2 border-secondary/30 lg:-mt-4 lg:mb-4 lg:shadow-xl shadow-lg shadow-secondary/20 z-10"
                         : "border border-outline-variant/20"
@@ -549,7 +548,7 @@ function Inner() {
                         ))}
                       </ul>
                       {pkg.details && (
-                        <details className={`group/details border-t ${st.divider} pt-4 mt-4 flex-grow`}>
+                        <details open={isElite} className={`group/details border-t ${st.divider} pt-4 mt-4 flex-grow`}>
                           <summary className={`flex justify-between items-center cursor-pointer font-label-md text-sm font-semibold uppercase tracking-wider text-on-surface-variant ${st.summaryHover} transition-colors list-none`}>
                             <span>{pkg.details.label}</span>
                             <span className="material-symbols-outlined text-sm transition-transform group-open/details:rotate-180">
