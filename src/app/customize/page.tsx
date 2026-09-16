@@ -519,7 +519,7 @@ function Inner() {
                           {oldPrice != null ? formatRp(oldPrice) : ""}
                         </div>
                         <div className="flex items-baseline gap-2">
-                          <span className={`font-headline-lg ${isDgb ? "text-3xl" : "text-4xl"} text-primary font-semibold whitespace-nowrap`}>{formatRp(price)}</span>
+                          <span className="font-headline-lg text-3xl text-primary font-semibold whitespace-nowrap">{formatRp(price)}</span>
                         </div>
                       </div>
                       {pkg.included && (
@@ -585,7 +585,7 @@ function Inner() {
                           {oldPrice != null ? formatRp(oldPrice) : ""}
                         </div>
                         <div className="flex items-baseline gap-2">
-                          <span className={`font-headline-lg ${isDgb ? "text-3xl" : "text-4xl"} text-primary font-semibold whitespace-nowrap`}>{formatRp(price)}</span>
+                          <span className="font-headline-lg text-3xl text-primary font-semibold whitespace-nowrap">{formatRp(price)}</span>
                         </div>
                       </div>
                       {pkg.included && (
