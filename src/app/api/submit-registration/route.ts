@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { calcTotal, deriveSelections, normalizePhone, PACKAGE_CODES } from "@/lib/packages"
 import { slugifyCouple } from "@/lib/slug"
+import { notifyNewAccountGroup } from "@/lib/notifyGroup"
 
 function validPin(pin: string): boolean {
   return /^\d{6}$/.test(pin || "")
@@ -156,6 +157,17 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: featuresError.message }, { status: 500 })
       }
     }
+
+    void notifyNewAccountGroup({
+      wedding_profile_id: profile.id,
+      slug,
+      bride_name,
+      groom_name,
+      whatsapp_number: normalizedPhone,
+      package_type: package_type || "signature",
+      wa_blast_tier: wa_blast_tier || 0,
+      total,
+    }).catch((e) => console.error("[notifyGroup] failed", e))
 
     return NextResponse.json({ success: true, wedding_profile_id: profile.id, slug })
   } catch (err) {
