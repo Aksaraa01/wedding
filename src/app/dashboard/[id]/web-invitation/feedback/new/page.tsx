@@ -14,6 +14,7 @@ function FeedbackNewInner({ id }: { id: string }) {
   const router = useRouter()
   const [template, setTemplate] = useState<Template | null>(null)
   const [limit, setLimit] = useState({ max_revisions: 0, used_revisions: 0, remaining_revisions: 0, is_locked: false })
+  const [packageType, setPackageType] = useState("")
   const [area, setArea] = useState("")
   const [description, setDescription] = useState("")
   const [files, setFiles] = useState<File[]>([])
@@ -30,6 +31,7 @@ function FeedbackNewInner({ id }: { id: string }) {
       .then(([profData, limitData]) => {
         setTemplate(profData.template)
         setLimit(limitData)
+        setPackageType(profData.profile?.package_type || "")
         if (limitData.is_locked) {
           setError(`Batas revisi (${limitData.max_revisions} putaran) telah tercapai. Silakan hubungi konsultan Aksaraa.`)
         }
@@ -190,7 +192,7 @@ function FeedbackNewInner({ id }: { id: string }) {
                   <option value="Foto & Visual">Foto & Visual</option>
                   <option value="Informasi Acara">Informasi Acara</option>
                   <option value="Tata Letak (Layout)">Tata Letak (Layout)</option>
-                  <option value="Full Custom / Penuh Design Baru">Full Custom / Penuh Design Baru</option>
+                  {packageType === "bonus_full_custom" && <option value="Full Custom / Penuh Design Baru">Full Custom / Penuh Design Baru</option>}
                   <option value="Lainnya">Lainnya</option>
                 </select>
                 <span className="material-symbols-outlined absolute right-0 bottom-3 pointer-events-none text-on-surface-variant">keyboard_arrow_down</span>

@@ -29,7 +29,11 @@ export async function GET(req: NextRequest) {
 
     const packageCol = matrixColumnForPackage(profile.package_type, "value")
 
-    const limitRaw = matrixRow?.[packageCol] as string || "2 Round"
+    let limitRaw = matrixRow?.[packageCol] as string | undefined
+    if (!limitRaw && profile.package_type === "bonus_full_custom") {
+      limitRaw = matrixRow?.[matrixColumnForPackage("prestige", "value")] as string | undefined
+    }
+    limitRaw = limitRaw || "2 Round"
     const maxRevisions = parseInt(limitRaw) || 2
 
     const { count: existingCount } = await supabaseAdmin

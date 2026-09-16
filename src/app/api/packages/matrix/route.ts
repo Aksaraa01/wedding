@@ -14,6 +14,7 @@ const EMPHASIS_CLASS: Record<string, string> = {
 // Digital packages, then Buku Tamu Digital package).
 const COLUMNS = [
   { code: "cetak_undangan_bonus", label: "BONUS" },
+  { code: "bonus_full_custom", label: "BONUS FULL CUSTOM" },
   { code: "essential", label: "Essential" },
   { code: "signature", label: "Signature" },
   { code: "prestige", label: "Prestige" },
@@ -53,7 +54,18 @@ export async function GET() {
       rows: rows.filter((r) => r.section_code === s.code).map((r) => {
         const cols: Record<string, { value: string; class: string }> = {}
         for (const col of COLUMNS) {
-          cols[col.code] = mapCell(r[`${col.code}_value`] || "—", r[`${col.code}_emphasis`] || "default")
+          let value: string | null = r[`${col.code}_value`]
+          let emphasis: string | null = r[`${col.code}_emphasis`]
+          if (col.code === "bonus_full_custom" && (value === undefined || value === null) && (r as any).prestige_value !== undefined) {
+            if (r.label === "Reminder otomatis ke 100 Customers VIP") {
+              value = "—"
+              emphasis = "muted"
+            } else {
+              value = (r as any).prestige_value
+              emphasis = (r as any).prestige_emphasis
+            }
+          }
+          cols[col.code] = mapCell(value || "—", emphasis || "default")
         }
         return {
           id: r.id,

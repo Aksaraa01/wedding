@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation"
 import Image from "next/image"
 import PageTheme from "@/components/PageTheme"
 import ProfileMenu from "@/components/ProfileMenu"
-import { PACKAGE_LABELS as PACKAGE_LABEL, getPackageCategory } from "@/lib/packages"
+import { PACKAGE_LABELS as PACKAGE_LABEL, getPackageCategory, hasVipQuotaBase } from "@/lib/packages"
 import ProductJourney, { startTour } from "@/components/onboarding/ProductJourney"
 
 type Selections = {
@@ -186,7 +186,7 @@ function DashboardInner({ id }: { id: string }) {
           if (waBlastData?.schedule) setWaBlastSchedule(waBlastData.schedule)
           const wpPackage = data.profile?.package_type || "signature"
           const waBlastTier = waBlastData?.wa_blast_tier || 0
-          const quota = (wpPackage === "prestige" ? 100 : 0) + waBlastTier
+          const quota = (hasVipQuotaBase(wpPackage) ? 100 : 0) + waBlastTier
           const vipCount = waBlastData?.vip_count || 0
           setWaBlastIncluded(quota > 0 ? Math.min(vipCount, quota) : vipCount)
           const hasSeen = (data.profile as any)?.has_seen_tour === true
@@ -314,7 +314,7 @@ function DashboardInner({ id }: { id: string }) {
               Cara<br/>Memulai
             </span>
           </button>
-          {profile.package_type === "cetak_undangan_bonus" ? (
+          {(["cetak_undangan_bonus", "bonus_full_custom"] as string[]).includes(profile.package_type || "") ? (
             <button
               onClick={() => router.push(`/dashboard/${id}/instruksi`)}
               className="relative group w-9 h-9 rounded-lg bg-[#ece2d4]/80 hover:bg-[#dfd3c3] flex items-center justify-center text-slate-700 transition shadow-sm"

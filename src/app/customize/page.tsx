@@ -270,7 +270,7 @@ function Inner() {
 
   const showWaTier = PACKAGE_FEATURES[selectedPackage]?.includes("wa_blast") ?? false
   const activeCards = activeTab === "undangan" ? UNDANGAN_CARDS : DGB_CARDS
-  const matrixVisibleCols = matrixCols.filter((col) => col.code !== "cetak_undangan_bonus")
+  const matrixVisibleCols = matrixCols.filter((col) => !["cetak_undangan_bonus", "bonus_full_custom"].includes(col.code))
   const matrixUndanganCols = matrixVisibleCols.filter((c) => !c.code.startsWith("dgb_"))
   const matrixDgbCols = matrixVisibleCols.filter((c) => c.code.startsWith("dgb_"))
 

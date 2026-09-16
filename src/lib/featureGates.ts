@@ -20,6 +20,7 @@ const PACKAGES = [
   "signature",
   "prestige",
   "cetak_undangan_bonus",
+  "bonus_full_custom",
   "dgb_sistem",
   "dgb_pro",
   "dgb_premium",
@@ -35,9 +36,7 @@ export async function getRowGates(packageType: string): Promise<RowGates> {
   return cachedRead(`row-gates:${packageType}`, 10 * 60_000, async () => {
     const { data, error } = await supabaseAdmin
       .from("package_matrix_rows")
-      .select(
-        "code, essential_value, essential_emphasis, signature_value, signature_emphasis, prestige_value, prestige_emphasis, cetak_undangan_bonus_value, cetak_undangan_bonus_emphasis, dgb_sistem_value, dgb_sistem_emphasis, dgb_pro_value, dgb_pro_emphasis, dgb_premium_value, dgb_premium_emphasis, dgb_prestige_value, dgb_prestige_emphasis"
-      )
+      .select("*")
       .in("code", GATE_CODES as unknown as string[])
 
     const fallback: RowGates = {
@@ -49,8 +48,12 @@ export async function getRowGates(packageType: string): Promise<RowGates> {
 
     if (error) return fallback
 
-    const col = (row: Record<string, string | null>, pkg: string, suffix: string) =>
-      row[`${pkg}_${suffix}`] ?? row[`signature_${suffix}`]
+    const col = (row: Record<string, string | null>, pkg: string, suffix: string) => {
+      const v = row[`${pkg}_${suffix}`]
+      if (v !== undefined && v !== null) return v
+      if (pkg === "bonus_full_custom") return row[`prestige_${suffix}`] ?? row[`signature_${suffix}`]
+      return row[`signature_${suffix}`]
+    }
 
     const gates: RowGates = { ...fallback }
     for (const row of (data || []) as Record<string, string | null>[]) {

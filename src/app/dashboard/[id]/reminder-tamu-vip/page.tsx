@@ -6,6 +6,7 @@ import PageTheme from "@/components/PageTheme"
 import { MESSAGE_TEMPLATES } from "@/lib/reminderTemplates"
 import ProfileMenu from "@/components/ProfileMenu"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
+import { hasVipQuotaBase } from "@/lib/packages"
 
 function stripQrLines(text: string): string {
   return text
@@ -115,7 +116,7 @@ export default function ReminderTamuVIPPage({ params }: { params: Promise<{ id: 
 
   const displayText = editing ? editText : messageText
 
-  const packageBase = packageType === "prestige" ? 100 : 0
+  const packageBase = hasVipQuotaBase(packageType) ? 100 : 0
   const totalQuota = packageBase + waBlastTier
   const quotaLabel = totalQuota > 0 ? `Kuota: ${Math.min(vipGuests.length, totalQuota)}/${totalQuota}` : `${vipGuests.length} Tamu VIP`
 

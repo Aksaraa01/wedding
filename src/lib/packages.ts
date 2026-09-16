@@ -1,5 +1,6 @@
 export const PACKAGE_PRICES: Record<string, number> = {
   cetak_undangan_bonus: 100000,
+  bonus_full_custom: 350000,
   essential: 199000,
   signature: 299000,
   prestige: 499000,
@@ -11,6 +12,7 @@ export const PACKAGE_PRICES: Record<string, number> = {
 
 export const PACKAGE_OLD_PRICES: Record<string, number | null> = {
   cetak_undangan_bonus: null,
+  bonus_full_custom: null,
   essential: 299000,
   signature: 450000,
   prestige: 750000,
@@ -22,6 +24,7 @@ export const PACKAGE_OLD_PRICES: Record<string, number | null> = {
 
 export const PACKAGE_LABELS: Record<string, string> = {
   cetak_undangan_bonus: "BONUS (Cetak Undangan)",
+  bonus_full_custom: "BONUS FULL CUSTOM",
   essential: "Essential",
   signature: "Signature",
   prestige: "Prestige",
@@ -36,6 +39,7 @@ export const PACKAGE_CODES = [
   "signature",
   "prestige",
   "cetak_undangan_bonus",
+  "bonus_full_custom",
   "dgb_sistem",
   "dgb_pro",
   "dgb_premium",
@@ -47,6 +51,7 @@ export const PACKAGE_CATEGORY: Record<string, "undangan" | "dgbook"> = {
   signature: "undangan",
   prestige: "undangan",
   cetak_undangan_bonus: "undangan",
+  bonus_full_custom: "undangan",
   dgb_sistem: "dgbook",
   dgb_pro: "dgbook",
   dgb_premium: "dgbook",
@@ -86,6 +91,10 @@ export const PACKAGE_FEATURES: Record<string, string[]> = {
   ],
   // BONUS (cetak undangan, assigned via OPS) = Signature-minus.
   cetak_undangan_bonus: [
+    "premium_web", "wish_wall", "reservation_automation",
+    "unique_link_generator", "kolom_direct_transfer",
+  ],
+  bonus_full_custom: [
     "premium_web", "wish_wall", "reservation_automation",
     "unique_link_generator", "kolom_direct_transfer",
   ],

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { resolveDerivedStatus } from "@/lib/opsStatus"
+import { hasVipQuotaBase } from "@/lib/packages"
 
 export async function GET(
   _req: Request,
@@ -111,7 +112,7 @@ export async function GET(
       .eq("wedding_profile_id", wp.id)
       .eq("is_vip", true)
       .order("created_at", { ascending: true })
-    const waBlastQuota = (wp.package_type === "prestige" ? 100 : 0) + (wp.wa_blast_tier || 0)
+    const waBlastQuota = (hasVipQuotaBase(wp.package_type) ? 100 : 0) + (wp.wa_blast_tier || 0)
 
     // Template + track name for premium_web (parallel)
     let webTemplateName: string | null = null
