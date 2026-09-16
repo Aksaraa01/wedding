@@ -18,6 +18,7 @@ const COLUMNS = [
   { code: "essential", label: "Essential" },
   { code: "signature", label: "Signature" },
   { code: "prestige", label: "Prestige" },
+  { code: "elite", label: "Elite" },
   { code: "dgb_sistem", label: "Sistem" },
   { code: "dgb_pro", label: "Pro" },
   { code: "dgb_premium", label: "Premium" },
@@ -64,6 +65,10 @@ export async function GET() {
               value = (r as any).prestige_value
               emphasis = (r as any).prestige_emphasis
             }
+          }
+          if (col.code === "elite" && (value === undefined || value === null) && (r as any).prestige_value !== undefined) {
+            value = (r as any).prestige_value
+            emphasis = (r as any).prestige_emphasis
           }
           cols[col.code] = mapCell(value || "—", emphasis || "default")
         }

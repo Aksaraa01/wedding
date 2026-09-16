@@ -4,6 +4,7 @@ export const PACKAGE_PRICES: Record<string, number> = {
   essential: 199000,
   signature: 299000,
   prestige: 499000,
+  elite: 599000,
   dgb_sistem: 699000,
   dgb_pro: 1699000,
   dgb_premium: 2199000,
@@ -16,6 +17,7 @@ export const PACKAGE_OLD_PRICES: Record<string, number | null> = {
   essential: 299000,
   signature: 450000,
   prestige: 750000,
+  elite: 850000,
   dgb_sistem: 999000,
   dgb_pro: 2275000,
   dgb_premium: 2950000,
@@ -28,6 +30,7 @@ export const PACKAGE_LABELS: Record<string, string> = {
   essential: "Essential",
   signature: "Signature",
   prestige: "Prestige",
+  elite: "Elite",
   dgb_sistem: "Sistem",
   dgb_pro: "Pro",
   dgb_premium: "Premium",
@@ -38,6 +41,7 @@ export const PACKAGE_CODES = [
   "essential",
   "signature",
   "prestige",
+  "elite",
   "cetak_undangan_bonus",
   "bonus_full_custom",
   "dgb_sistem",
@@ -50,6 +54,7 @@ export const PACKAGE_CATEGORY: Record<string, "undangan" | "dgbook"> = {
   essential: "undangan",
   signature: "undangan",
   prestige: "undangan",
+  elite: "undangan",
   cetak_undangan_bonus: "undangan",
   bonus_full_custom: "undangan",
   dgb_sistem: "dgbook",
@@ -64,10 +69,10 @@ export function getPackageCategory(packageType: string): "Undangan Digital" | "B
 
 export type PackageCode = (typeof PACKAGE_CODES)[number]
 
-// Packages that ship with the base 100-VIP reminder quota (prestige + all Buku
+// Packages that ship with the base 100-VIP reminder quota (prestige + elite + all Buku
 // Tamu Digital tiers; per matrix "Reminder otomatis ke 100 Customers VIP").
 export function hasVipQuotaBase(packageType: string): boolean {
-  return packageType === "prestige" || packageType.startsWith("dgb_")
+  return packageType === "prestige" || packageType === "elite" || packageType.startsWith("dgb_")
 }
 
 export function matrixColumnForPackage(packageType: string, suffix: "value" | "emphasis"): string {
@@ -97,6 +102,10 @@ export const PACKAGE_FEATURES: Record<string, string[]> = {
   bonus_full_custom: [
     "premium_web", "wish_wall", "reservation_automation",
     "unique_link_generator", "kolom_direct_transfer",
+  ],
+  elite: [
+    "premium_web", "wish_wall", "reservation_automation",
+    "kolom_direct_transfer", "unique_link_generator", "wa_blast",
   ],
   // Buku Tamu Digital tiers carry the full set (prestige + QR book + gallery).
   dgb_sistem: [

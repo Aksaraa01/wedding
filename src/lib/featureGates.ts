@@ -19,6 +19,7 @@ const PACKAGES = [
   "essential",
   "signature",
   "prestige",
+  "elite",
   "cetak_undangan_bonus",
   "bonus_full_custom",
   "dgb_sistem",
@@ -51,7 +52,7 @@ export async function getRowGates(packageType: string): Promise<RowGates> {
     const col = (row: Record<string, string | null>, pkg: string, suffix: string) => {
       const v = row[`${pkg}_${suffix}`]
       if (v !== undefined && v !== null) return v
-      if (pkg === "bonus_full_custom") return row[`prestige_${suffix}`] ?? row[`signature_${suffix}`]
+      if (pkg === "bonus_full_custom" || pkg === "elite") return row[`prestige_${suffix}`] ?? row[`signature_${suffix}`]
       return row[`signature_${suffix}`]
     }
 

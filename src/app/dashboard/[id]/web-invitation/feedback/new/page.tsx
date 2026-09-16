@@ -192,7 +192,7 @@ function FeedbackNewInner({ id }: { id: string }) {
                   <option value="Foto & Visual">Foto & Visual</option>
                   <option value="Informasi Acara">Informasi Acara</option>
                   <option value="Tata Letak (Layout)">Tata Letak (Layout)</option>
-                  {packageType === "bonus_full_custom" && <option value="Full Custom / Penuh Design Baru">Full Custom / Penuh Design Baru</option>}
+                  {(packageType === "bonus_full_custom" || packageType === "elite") && <option value="Full Custom / Penuh Design Baru">Full Custom / Penuh Design Baru</option>}
                   <option value="Lainnya">Lainnya</option>
                 </select>
                 <span className="material-symbols-outlined absolute right-0 bottom-3 pointer-events-none text-on-surface-variant">keyboard_arrow_down</span>

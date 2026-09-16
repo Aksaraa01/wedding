@@ -46,8 +46,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Profil tidak ditemukan" }, { status: 404 })
     }
 
-    if (area === "Full Custom / Penuh Design Baru" && profile.package_type !== "bonus_full_custom") {
-      return NextResponse.json({ error: "Area Full Custom hanya tersedia untuk paket Bonus Full Custom" }, { status: 403 })
+    if (area === "Full Custom / Penuh Design Baru" && !["bonus_full_custom", "elite"].includes(profile.package_type)) {
+      return NextResponse.json({ error: "Area Full Custom hanya tersedia untuk paket Bonus Full Custom dan Elite" }, { status: 403 })
     }
 
     const { data: matrixRow } = await supabaseAdmin
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     const packageCol = matrixColumnForPackage(profile.package_type, "value")
 
     let limitRaw = matrixRow?.[packageCol] as string | undefined
-    if (!limitRaw && profile.package_type === "bonus_full_custom") {
+    if (!limitRaw && ["bonus_full_custom", "elite"].includes(profile.package_type)) {
       limitRaw = matrixRow?.[matrixColumnForPackage("prestige", "value")] as string | undefined
     }
     limitRaw = limitRaw || "2 Round"

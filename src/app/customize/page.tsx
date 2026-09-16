@@ -45,7 +45,7 @@ type CardDef = {
   code: string
   name: string
   tagline: string
-  style: "sage" | "secondary" | "gold"
+  style: "sage" | "secondary" | "gold" | "elite"
   included?: { icon: string; text: string }
   features: CardFeature[]
   details?: { label: string; items: string[] }
@@ -106,6 +106,19 @@ const UNDANGAN_CARDS: CardDef[] = [
       { icon: "workspace_premium", text: "Custom Logo & Auto-Reminder VIP", accent: true, pt: true },
     ],
     details: { label: "Termasuk Fitur Signature", items: SIGNATURE_DETAILS },
+  },
+  {
+    code: "elite",
+    name: "Elite",
+    tagline: "Solusi undangan khusus pernikahan Anda",
+    style: "gold",
+    features: [
+      { icon: "workspace_premium", text: "Prioritas Pengerjaan & Konsultan Khusus", accent: true },
+      { icon: "check", text: "Masa Aktif 1 Tahun" },
+      { icon: "auto_awesome", text: "Full Custom Design sesuai keinginan", accent: true, pt: true },
+      { icon: "check_circle", text: "Termasuk Fitur Prestige", divider: true },
+    ],
+    details: { label: "Termasuk Fitur Prestige", items: SIGNATURE_DETAILS },
   },
 ]
 
@@ -190,6 +203,16 @@ const STYLES = {
     divider: "border-outline-variant/30",
     summaryHover: "hover:text-primary",
     button: "bg-surface-container text-primary border border-outline-variant/30 hover:bg-surface-variant hover:border-outline-variant",
+  },
+  elite: {
+    gradient: "bg-[linear-gradient(145deg,rgba(255,253,248,1)_0%,rgba(251,243,224,1)_50%,rgba(247,235,208,1)_100%)]",
+    includedBox: "bg-[#d4af37]/10 rounded-xl p-3 mb-4",
+    includedIcon: "text-[#b8941f]",
+    accent: "text-[#b8941f]",
+    dot: "bg-[#d4af37]",
+    divider: "border-[#d4af37]/20",
+    summaryHover: "hover:text-[#b8941f]",
+    button: "bg-[#d4af37] text-white border border-[#b8941f]/30 hover:bg-[#b8941f] shadow-md",
   },
 }
 
@@ -456,7 +479,7 @@ function Inner() {
         {/* Package cards */}
         <div
           className={`grid grid-cols-1 gap-4 md:gap-6 ${
-            activeTab === "undangan" ? "lg:grid-cols-3" : "md:grid-cols-2 xl:grid-cols-4"
+            activeTab === "undangan" ? "lg:grid-cols-4" : "md:grid-cols-2 xl:grid-cols-4"
           }`}
         >
           {activeCards.map((pkg) => {
@@ -464,6 +487,7 @@ function Inner() {
             const isDgb = activeTab === "dgbook"
             const st = STYLES[pkg.style]
             const popular = pkg.style === "secondary"
+            const isElite = pkg.code === "elite"
             const oldPrice = PACKAGE_OLD_PRICES[pkg.code]
             const price = PACKAGE_PRICES[pkg.code]
 
@@ -474,9 +498,11 @@ function Inner() {
                 className={`flex flex-col rounded-3xl bg-surface-container-lowest p-6 card-shadow transition-transform duration-500 hover:-translate-y-2 border relative overflow-hidden group cursor-pointer ${
                   isActive
                     ? "border-2 border-secondary scale-[1.02] z-10 shadow-xl shadow-secondary/20"
-                    : popular
-                      ? "border-2 border-secondary/30 lg:-mt-4 lg:mb-4 lg:shadow-xl shadow-lg shadow-secondary/20 z-10"
-                      : "border border-outline-variant/20"
+                    : isElite
+                      ? "border-2 border-[#d4af37]/40 shadow-lg shadow-[#d4af37]/20 z-10"
+                      : popular
+                        ? "border-2 border-secondary/30 lg:-mt-4 lg:mb-4 lg:shadow-xl shadow-lg shadow-secondary/20 z-10"
+                        : "border border-outline-variant/20"
                 }`}
               >
                 <div className={`absolute inset-0 ${st.gradient} opacity-30 group-hover:opacity-50 transition-opacity duration-500`} />
@@ -545,7 +571,15 @@ function Inner() {
                     </div>
                   ) : (
                     <div className="mb-6 flex-grow">
-                      <h3 className="font-headline-md text-headline-md mb-2 text-primary">{pkg.name}</h3>
+                      {isElite ? (
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-headline-md text-headline-md text-primary font-bold">{pkg.name}</h3>
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider text-[#7a5813] bg-[#f5e5be] border border-[#d4af37]/40">masterpiece</span>
+                          <span className="material-symbols-outlined text-[20px] text-[#b89035]">workspace_premium</span>
+                        </div>
+                      ) : (
+                        <h3 className="font-headline-md text-headline-md mb-2 text-primary">{pkg.name}</h3>
+                      )}
                       <p className="text-on-surface-variant text-sm mb-2 font-medium">{pkg.tagline}</p>
                       <div className="mt-4 mb-4">
                         <div className="text-on-surface-variant line-through text-sm mb-1 font-medium whitespace-nowrap">

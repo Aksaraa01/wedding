@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
     const packageCol = matrixColumnForPackage(profile.package_type, "value")
 
     let limitRaw = matrixRow?.[packageCol] as string | undefined
-    if (!limitRaw && profile.package_type === "bonus_full_custom") {
+    if (!limitRaw && ["bonus_full_custom", "elite"].includes(profile.package_type)) {
       limitRaw = matrixRow?.[matrixColumnForPackage("prestige", "value")] as string | undefined
     }
     limitRaw = limitRaw || "2 Round"

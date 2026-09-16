@@ -108,14 +108,16 @@ const PACKAGE_NAMES: Record<string, string> = {
   essential: "Essential",
   signature: "Signature",
   prestige: "Prestige",
+  elite: "Elite",
   cetak_undangan_bonus: "BONUS",
+  bonus_full_custom: "BONUS FULL CUSTOM",
   dgb_sistem: "Sistem",
   dgb_pro: "Pro",
   dgb_premium: "Premium",
   dgb_prestige: "Prestige",
 }
 
-const INITIAL_AVAILABLE_IN = ["essential", "signature", "prestige", "cetak_undangan_bonus", "bonus_full_custom", "dgb_sistem", "dgb_pro", "dgb_premium", "dgb_prestige"]
+const INITIAL_AVAILABLE_IN = ["essential", "signature", "prestige", "elite", "cetak_undangan_bonus", "bonus_full_custom", "dgb_sistem", "dgb_pro", "dgb_premium", "dgb_prestige"]
 
 function upgradeMessage(availableIn: string[]): string {
   const names = availableIn.map(p => PACKAGE_NAMES[p] || p).join(" & ")
