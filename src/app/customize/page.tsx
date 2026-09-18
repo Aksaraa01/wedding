@@ -459,7 +459,7 @@ function Inner() {
                 router.push(`/dashboard/${editProfileId}`)
               } else if (hasCouple) {
                 const p = new URLSearchParams({
-                  step: "3",
+                  step: "2",
                   user: userName,
                   partner: partnerName,
                   date: searchParams.get("date") || "tentative",

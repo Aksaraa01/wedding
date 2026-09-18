@@ -2,22 +2,21 @@
 
 import { useState, useRef, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { ASSETS } from "@/lib/assets"
 
-type Step = 1 | 2 | 3
+type Step = 1 | 2
 
-const PROGRESS: Record<Step, string> = { 1: "w-1/3", 2: "w-2/3", 3: "w-full" }
+const PROGRESS: Record<Step, string> = { 1: "w-1/2", 2: "w-full" }
 
 function RegisterInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
   const stepParam = searchParams.get("step")
-  const initialStep: Step = stepParam === "3" ? 3 : stepParam === "2" ? 2 : 1
+  const initialStep: Step = stepParam === "2" || stepParam === "3" ? 2 : 1
   const initialUser = searchParams.get("user") || ""
   const initialPartner = searchParams.get("partner") || ""
   const initialDate = searchParams.get("date")
-  const initialGuest = Number(searchParams.get("guest") || "300")
+  const initialGuest = searchParams.get("guest") || "300"
 
   const packagePassthrough = useRef({
     package: searchParams.get("package") || "",
@@ -33,9 +32,7 @@ function RegisterInner() {
     initialDate && initialDate !== "tentative" ? initialDate : ""
   )
   const [isTentative, setIsTentative] = useState(initialDate === "tentative")
-  const [guestCount, setGuestCount] = useState(initialGuest)
   const dateCardRef = useRef<HTMLDivElement>(null)
-  const paxRef = useRef<HTMLSpanElement>(null)
 
   const [nameChecking, setNameChecking] = useState(false)
   const [nameError, setNameError] = useState("")
@@ -72,17 +69,18 @@ function RegisterInner() {
       setTimeout(() => dateCardRef.current?.classList.remove("animate-shake"), 500)
       return
     }
-    setStep(3)
-  }
-
-  const handleSlider = (val: number) => {
-    setGuestCount(val)
-    if (paxRef.current) {
-      paxRef.current.style.transform = "scale(1.05)"
-      setTimeout(() => {
-        if (paxRef.current) paxRef.current.style.transform = "scale(1)"
-      }, 100)
-    }
+    const params = new URLSearchParams({
+      user: userName,
+      partner: partnerName,
+      date: weddingDate || "tentative",
+      guest: initialGuest,
+    })
+    const pt = packagePassthrough.current
+    if (pt.package) params.set("package", pt.package)
+    if (pt.tab) params.set("tab", pt.tab)
+    if (pt.wa_tier) params.set("wa_tier", pt.wa_tier)
+    if (pt.express) params.set("express", pt.express)
+    router.push(`/customize?${params}`)
   }
 
   return (
@@ -206,82 +204,6 @@ function RegisterInner() {
           </div>
         )}
 
-        {step === 3 && (
-          <div className="w-[90%] max-w-md mx-auto flex flex-col justify-center flex-1 min-h-0 py-2 bg-surface p-6 md:p-10 shadow-2xl">
-            <div className="text-center mb-4 md:mb-6 animate-fade-in w-full" style={{ animationDelay: "0.1s" }}>
-              <h2 className="font-headline-md text-[24px] md:text-[32px] leading-tight text-primary mb-2 md:mb-4">
-                Perkiraan jumlah undangan?
-              </h2>
-              <p className="font-body-md text-sm md:text-body-md text-on-surface-variant max-w-[320px] mx-auto">
-                Ini membantu menghitung kuota server RSVP, Undangan, QR Code tamu, dan alokasi meja VIP.
-              </p>
-            </div>
-
-            <div
-              className="w-full bg-[#FAF5EB] p-4 md:p-8 border border-outline-variant/30 animate-fade-in"
-              style={{ animationDelay: "0.2s" }}
-            >
-              <div className="text-center mb-6 md:mb-12">
-                <div className="font-label-md text-label-md text-secondary uppercase tracking-[0.2em] mb-4">
-                  ESTIMASI KAPASITAS
-                </div>
-                <div className="flex items-baseline justify-center gap-2">
-                  <span
-                    ref={paxRef}
-                    className="font-headline-xl text-headline-xl text-primary"
-                    style={{ transition: "transform 0.1s ease-out" }}
-                  >
-                    {guestCount}
-                  </span>
-                  <span className="font-headline-md text-headline-md text-primary italic">Tamu</span>
-                </div>
-                <div className="font-body-md text-on-surface-variant mt-2">(Pax)</div>
-              </div>
-
-              <div className="relative w-full pb-8 px-2">
-                <input
-                  type="range"
-                  min="50"
-                  max="1500"
-                  step="10"
-                  value={guestCount}
-                  onChange={(e) => handleSlider(Number(e.target.value))}
-                  className="range-slider mb-8 w-full"
-                />
-                <div className="flex justify-between w-full font-label-md text-[10px] text-on-surface-variant uppercase tracking-wider">
-                  <div className="flex flex-col items-start gap-1">
-                    <span className="w-px h-2 bg-outline-variant mx-auto" />
-                    <span>50 Pax</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="w-px h-2 bg-outline-variant" />
-                    <span>Intimate</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="w-px h-2 bg-outline-variant" />
-                    <span>Ballroom</span>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <span className="w-px h-2 bg-outline-variant mx-auto" />
-                    <span>1500+ Pax</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 md:mt-12 w-[90%] max-w-[140px] md:max-w-[200px] aspect-[4/5] max-h-[22dvh] md:max-h-none mx-auto opacity-80 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-              <div
-                className="w-full h-full grayscale"
-                style={{
-                    backgroundImage:
-                      `url('${ASSETS.register.bg}')`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              />
-            </div>
-          </div>
-        )}
       </main>
 
       {/* Footer */}
@@ -331,38 +253,6 @@ function RegisterInner() {
               className="flex-[1.5] py-3 md:py-4 bg-primary text-on-primary font-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all duration-300 active:scale-95"
             >
               Lanjutkan
-            </button>
-          </div>
-        </nav>
-      )}
-
-      {step === 3 && (
-        <nav className="fixed bottom-0 w-full bg-surface/90 backdrop-blur-xl border-t border-outline-variant/10 px-4 md:px-edge-margin-mobile py-3 md:py-6 z-50">
-          <div className="max-w-md mx-auto flex items-center justify-between gap-3 md:gap-6">
-            <button
-              onClick={() => setStep(2)}
-              className="flex-1 py-3 md:py-4 border border-outline-variant text-primary font-label-md uppercase tracking-[0.1em] hover:bg-surface-variant transition-colors"
-            >
-              Kembali
-            </button>
-            <button
-              onClick={() => {
-                const params = new URLSearchParams({
-                  user: userName,
-                  partner: partnerName,
-                  date: weddingDate || "tentative",
-                  guest: String(guestCount),
-                })
-                const pt = packagePassthrough.current
-                if (pt.package) params.set("package", pt.package)
-                if (pt.tab) params.set("tab", pt.tab)
-                if (pt.wa_tier) params.set("wa_tier", pt.wa_tier)
-                if (pt.express) params.set("express", pt.express)
-                router.push(`/customize?${params}`)
-              }}
-              className="flex-[1.5] py-3 md:py-4 bg-primary text-on-primary font-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all duration-300 active:scale-95"
-            >
-              Selesaikan
             </button>
           </div>
         </nav>

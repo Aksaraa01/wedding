@@ -91,9 +91,8 @@ function TemplatesInner({ id }: { id: string }) {
   useEffect(() => {
     ;(async () => {
       const invData = await fetch(`/api/dashboard/${id}/web-invitation`).then((r) => r.json())
-      const pkg = invData.profile?.package_type
-      const qs = pkg ? `?package_type=${encodeURIComponent(pkg)}` : ""
-      const tplData = await fetch(`/api/web-templates${qs}`).then((r) => r.json())
+      // All templates are available to all packages — fetch unfiltered.
+      const tplData = await fetch(`/api/web-templates`).then((r) => r.json())
       setTemplates(tplData.templates || [])
       if (invData.template) setSelectedId(invData.template.id)
     })()

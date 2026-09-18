@@ -1623,48 +1623,6 @@ function EditorInner({ id }: { id: string }) {
                 </div>
               )}
 
-              {renderSection("inviting", "group", "TURUT MENGUNDANG",
-                <div className="mt-6 space-y-4">
-                  {gates.inviting_families.included ? (
-                    <>
-                      <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
-                        <SectionToggle
-                          label="Tampilkan Turut Mengundang"
-                          checked={data.inviting_families_visible !== false}
-                          disabled={data.is_published === true}
-                          onChange={() => handleToggleVisibility("inviting_families_visible", data.inviting_families_visible === false)}
-                        />
-                      </div>
-                      <p className="text-[11px] text-on-surface-variant italic">Masukkan nama keluarga yang turut mengundang, pisahkan dengan enter</p>
-                      <textarea
-                        className="input-editorial w-full font-headline-md text-[16px] min-h-[120px] resize-none"
-                        value={(Array.isArray(data.inviting_families) ? data.inviting_families : []).join("\n")}
-                        onChange={e => {
-                          const lines = e.target.value.split("\n").map(s => s.trim()).filter(Boolean)
-                          const originalLines = e.target.value.split("\n")
-                          const hasTrailingEmpty = originalLines.length > 0 && originalLines[originalLines.length - 1] === ""
-                          const result = hasTrailingEmpty ? [...lines, ""] : lines
-                          if (e.target.value === "") {
-                            updateField("inviting_families", [])
-                          } else {
-                            const arr = e.target.value.split("\n")
-                            updateField("inviting_families", arr)
-                          }
-                        }}
-                        onBlur={e => {
-                          const arr = e.target.value.split("\n").map(s => s.trim()).filter(Boolean)
-                          updateField("inviting_families", arr)
-                        }}
-                        placeholder={"Keluarga Bapak H. Sulaiman & Ibu Hj. Fatimah\nKeluarga Bapak Drs. Wijaya & Ibu Dra. Siti\nKeluarga Besar Kedua Mempelai"}
-                        rows={4}
-                      />
-                    </>
-                  ) : (
-                    <LockedNotice availableIn={gates.inviting_families.availableIn} />
-                  )}
-                </div>
-              )}
-
               {renderSection("acara", "calendar_today", "ACARA",
                 <div className="mt-6 space-y-8">
                   {sessions.map((session, i) => (
@@ -1721,6 +1679,83 @@ function EditorInner({ id }: { id: string }) {
                 </div>
               )}
 
+              {renderSection("galeri", "collections", "GALERI",
+                <div className="mt-6 space-y-8">
+                  <div className="space-y-4">
+                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">
+                      {galleryMax == null ? "GALERI FOTO" : `GALERI FOTO (MAKS. ${galleryMax} FOTO)`}
+                    </label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {galleryPhotos.map((url, i) => (
+                        <div key={i} className="aspect-square bg-surface-dim border border-outline-variant relative group">
+                          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${url})` }} />
+                          <button onClick={() => removeGalleryPhoto(i)} className="absolute top-1 right-1 bg-black/50 text-white p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="material-symbols-outlined text-[14px]">close</span>
+                          </button>
+                        </div>
+                      ))}
+                      {galleryUploading && (
+                        <div className="aspect-square border border-outline flex items-center justify-center bg-surface-dim">
+                          <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+                        </div>
+                      )}
+                      {canAddGallery && !galleryUploading && (
+                        <div onClick={() => galleryFileRef.current?.click()} className="aspect-square border border-dashed border-outline flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-highest cursor-pointer transition-colors">
+                          <span className="material-symbols-outlined text-[18px]">add</span>
+                          <span className="text-[8px] font-bold mt-1">TAMBAH</span>
+                        </div>
+                      )}
+                      {!canAddGallery && galleryUploading && (
+                        <div className="aspect-square border border-outline flex items-center justify-center bg-surface-dim">
+                          <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+                        </div>
+                      )}
+                    </div>
+                    <input ref={galleryFileRef} type="file" accept="image/*" multiple className="hidden" onChange={e => { const f = e.target.files; if (f && f.length) { uploadGalleryFiles(f); e.target.value = "" } }} />
+                  </div>
+                </div>
+              )}
+              {renderSection("inviting", "group", "TURUT MENGUNDANG",
+                <div className="mt-6 space-y-4">
+                  {gates.inviting_families.included ? (
+                    <>
+                      <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+                        <SectionToggle
+                          label="Tampilkan Turut Mengundang"
+                          checked={data.inviting_families_visible !== false}
+                          disabled={data.is_published === true}
+                          onChange={() => handleToggleVisibility("inviting_families_visible", data.inviting_families_visible === false)}
+                        />
+                      </div>
+                      <p className="text-[11px] text-on-surface-variant italic">Masukkan nama keluarga yang turut mengundang, pisahkan dengan enter</p>
+                      <textarea
+                        className="input-editorial w-full font-headline-md text-[16px] min-h-[120px] resize-none"
+                        value={(Array.isArray(data.inviting_families) ? data.inviting_families : []).join("\n")}
+                        onChange={e => {
+                          const lines = e.target.value.split("\n").map(s => s.trim()).filter(Boolean)
+                          const originalLines = e.target.value.split("\n")
+                          const hasTrailingEmpty = originalLines.length > 0 && originalLines[originalLines.length - 1] === ""
+                          const result = hasTrailingEmpty ? [...lines, ""] : lines
+                          if (e.target.value === "") {
+                            updateField("inviting_families", [])
+                          } else {
+                            const arr = e.target.value.split("\n")
+                            updateField("inviting_families", arr)
+                          }
+                        }}
+                        onBlur={e => {
+                          const arr = e.target.value.split("\n").map(s => s.trim()).filter(Boolean)
+                          updateField("inviting_families", arr)
+                        }}
+                        placeholder={"Keluarga Bapak H. Sulaiman & Ibu Hj. Fatimah\nKeluarga Bapak Drs. Wijaya & Ibu Dra. Siti\nKeluarga Besar Kedua Mempelai"}
+                        rows={4}
+                      />
+                    </>
+                  ) : (
+                    <LockedNotice availableIn={gates.inviting_families.availableIn} />
+                  )}
+                </div>
+              )}
               {renderSection("kutipan", "format_quote", "KUTIPAN",
                 <div className="mt-6 space-y-6">
                   <div className="space-y-2">
@@ -1847,42 +1882,6 @@ function EditorInner({ id }: { id: string }) {
                 ) : (
                   <div className="mt-6"><LockedNotice availableIn={gates.story.availableIn} /></div>
                 )
-              )}
-              {renderSection("galeri", "collections", "GALERI",
-                <div className="mt-6 space-y-8">
-                  <div className="space-y-4">
-                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">
-                      {galleryMax == null ? "GALERI FOTO" : `GALERI FOTO (MAKS. ${galleryMax} FOTO)`}
-                    </label>
-                    <div className="grid grid-cols-4 gap-2">
-                      {galleryPhotos.map((url, i) => (
-                        <div key={i} className="aspect-square bg-surface-dim border border-outline-variant relative group">
-                          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${url})` }} />
-                          <button onClick={() => removeGalleryPhoto(i)} className="absolute top-1 right-1 bg-black/50 text-white p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="material-symbols-outlined text-[14px]">close</span>
-                          </button>
-                        </div>
-                      ))}
-                      {galleryUploading && (
-                        <div className="aspect-square border border-outline flex items-center justify-center bg-surface-dim">
-                          <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
-                        </div>
-                      )}
-                      {canAddGallery && !galleryUploading && (
-                        <div onClick={() => galleryFileRef.current?.click()} className="aspect-square border border-dashed border-outline flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-highest cursor-pointer transition-colors">
-                          <span className="material-symbols-outlined text-[18px]">add</span>
-                          <span className="text-[8px] font-bold mt-1">TAMBAH</span>
-                        </div>
-                      )}
-                      {!canAddGallery && galleryUploading && (
-                        <div className="aspect-square border border-outline flex items-center justify-center bg-surface-dim">
-                          <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
-                        </div>
-                      )}
-                    </div>
-                    <input ref={galleryFileRef} type="file" accept="image/*" multiple className="hidden" onChange={e => { const f = e.target.files; if (f && f.length) { uploadGalleryFiles(f); e.target.value = "" } }} />
-                  </div>
-                </div>
               )}
               {renderSection("gift", "featured_seasonal_and_gifts", "GIFT", <>
                 <div className="space-y-6">
