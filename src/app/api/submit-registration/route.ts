@@ -158,16 +158,22 @@ export async function POST(req: Request) {
       }
     }
 
-    void notifyNewAccountGroup({
-      wedding_profile_id: profile.id,
-      slug,
-      bride_name,
-      groom_name,
-      whatsapp_number: normalizedPhone,
-      package_type: package_type || "signature",
-      wa_blast_tier: wa_blast_tier || 0,
-      total,
-    }).catch((e) => console.error("[notifyGroup] failed", e))
+    // Awaited (not fire-and-forget) so the WA send completes inside the
+    // request lifecycle; a notify failure never fails the registration.
+    try {
+      await notifyNewAccountGroup({
+        wedding_profile_id: profile.id,
+        slug,
+        bride_name,
+        groom_name,
+        whatsapp_number: normalizedPhone,
+        package_type: package_type || "signature",
+        wa_blast_tier: wa_blast_tier || 0,
+        total,
+      })
+    } catch (e) {
+      console.error("[notifyGroup] failed", e)
+    }
 
     return NextResponse.json({ success: true, wedding_profile_id: profile.id, slug })
   } catch (err) {

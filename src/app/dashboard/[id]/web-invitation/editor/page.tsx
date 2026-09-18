@@ -1224,7 +1224,7 @@ function EditorInner({ id }: { id: string }) {
                 className="inline-flex md:hidden items-center gap-2 px-4 py-2.5 border font-label-md text-label-md rounded-full transition-all active:scale-95 border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary bg-white disabled:opacity-50"
               >
                 <span className="material-symbols-outlined text-[18px]">palette</span>
-                <span>GANTI TEMA</span>
+                <span>PILIH TEMA</span>
               </button>
               <button
                 onClick={() => {
@@ -1239,7 +1239,7 @@ function EditorInner({ id }: { id: string }) {
                 }`}
               >
                 <span className="material-symbols-outlined text-[18px]">palette</span>
-                <span>GANTI TEMA</span>
+                <span>PILIH TEMA</span>
               </button>
             </div>
 

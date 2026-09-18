@@ -53,20 +53,28 @@ export async function notifyNewAccountGroup(payload: NotifyPayload): Promise<voi
   const apiUrl = process.env.WA_SCHOOL_API_URL || "http://127.0.0.1:3001/send"
   const body: any = targetJid.includes("@g.us") ? { phone: targetJid, message: text } : { phone: targetJid, message: text }
 
-  try {
-    const res = await fetch(apiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    })
-    if (!res.ok) {
-      const t = await res.text()
-      throw new Error(`WA send ${res.status} ${t}`)
+  const maxAttempts = 3
+  let lastError: unknown = null
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) {
+        const t = await res.text()
+        throw new Error(`WA send ${res.status} ${t}`)
+      }
+      lastError = null
+      break
+    } catch (e) {
+      lastError = e
+      console.error(`[notifyGroup] WA send failed (attempt ${attempt}/${maxAttempts})`, e)
+      if (attempt < maxAttempts) await new Promise((r) => setTimeout(r, 2000 * attempt))
     }
-  } catch (e) {
-    console.error("[notifyGroup] WA send failed", e)
-    throw e
   }
+  if (lastError) throw lastError
 
   try {
     await supabaseAdmin.from("notification_log").insert({
