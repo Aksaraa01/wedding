@@ -10,6 +10,7 @@ import ProfileMenu from "@/components/ProfileMenu"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import ProductJourney from "@/components/onboarding/ProductJourney"
 import { ASSETS } from "@/lib/assets"
+import { OPENING_PRESETS, OPENING_CUSTOM, matchOpeningPreset } from "@/lib/openingPresets"
 
 type Profile = {
   id: string
@@ -219,6 +220,7 @@ function EditorInner({ id }: { id: string }) {
   const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "error">("idle")
   const [photoQuota, setPhotoQuota] = useState<number | null>(null)
   const [activeSection, setActiveSection] = useState<string>("sampul")
+  const [openingCustomMode, setOpeningCustomMode] = useState(false)
   const [showMobilePreview, setShowMobilePreview] = useState(false)
   const [previewDevice, setPreviewDevice] = useState<"mobile" | "desktop">("mobile")
   const searchParams = useSearchParams()
@@ -1161,6 +1163,15 @@ function EditorInner({ id }: { id: string }) {
     )
   }
 
+  const openingMatch = matchOpeningPreset(data.opening_title)
+  const isOpeningCustom = openingCustomMode || (!!data.opening_title && !openingMatch)
+  const openingSelectValue =
+    openingMatch && !openingCustomMode
+      ? (data.opening_title as string)
+      : data.opening_title || openingCustomMode
+        ? OPENING_CUSTOM
+        : ""
+
   return (
     <>
       <PageTheme mode="light" />
@@ -1411,11 +1422,38 @@ function EditorInner({ id }: { id: string }) {
                 <div className="mt-6 space-y-4">
                   <div className="space-y-2">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Judul</label>
-                    <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.opening_title || ""} onChange={e => updateField("opening_title", e.target.value)} placeholder="Perkenankanlah kami mengundang" />
+                    <select
+                      className="input-editorial w-full font-body-md text-[14px] cursor-pointer"
+                      value={openingSelectValue}
+                      onChange={e => {
+                        const value = e.target.value
+                        if (value === "" || value === OPENING_CUSTOM) {
+                          setOpeningCustomMode(true)
+                          return
+                        }
+                        const preset = matchOpeningPreset(value)
+                        if (!preset) return
+                        setOpeningCustomMode(false)
+                        updateField("opening_title", preset.title)
+                        updateField("opening_description", preset.description)
+                      }}
+                    >
+                      <option value="">-- Pilih Judul --</option>
+                      {OPENING_PRESETS.map(p => (
+                        <option key={p.title} value={p.title}>{p.title}</option>
+                      ))}
+                      <option value={OPENING_CUSTOM}>{OPENING_CUSTOM}</option>
+                    </select>
                   </div>
+                  {isOpeningCustom && (
+                    <div className="space-y-2">
+                      <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Judul Custom</label>
+                      <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.opening_title || ""} onChange={e => updateField("opening_title", e.target.value)} placeholder="Perkenankanlah kami mengundang" />
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Deskripsi</label>
-                    <textarea className="input-editorial w-full font-body-md text-[14px] h-24 resize-none" value={data.opening_description || ""} onChange={e => updateField("opening_description", e.target.value)} placeholder="Merupakan suatu kehormatan dan kebahagiaan bagi kami…" />
+                    <textarea className="input-editorial w-full font-body-md text-[14px] h-24 resize-none disabled:opacity-60" value={data.opening_description || ""} onChange={e => updateField("opening_description", e.target.value)} placeholder="Merupakan suatu kehormatan dan kebahagiaan bagi kami…" disabled={!isOpeningCustom} />
                     {!template?.wp_manifest?.opening_description && (
                       <p className="text-[11px] text-on-surface-variant/70 mt-1 italic">Catatan: Template ini hanya menampilkan Judul. Deskripsi tidak akan tampil di undangan.</p>
                     )}
