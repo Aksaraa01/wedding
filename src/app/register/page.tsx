@@ -19,6 +19,13 @@ function RegisterInner() {
   const initialDate = searchParams.get("date")
   const initialGuest = Number(searchParams.get("guest") || "300")
 
+  const packagePassthrough = useRef({
+    package: searchParams.get("package") || "",
+    tab: searchParams.get("tab") || "",
+    wa_tier: searchParams.get("wa_tier") || "",
+    express: searchParams.get("express") || "",
+  })
+
   const [step, setStep] = useState<Step>(initialStep)
   const [userName, setUserName] = useState(initialUser)
   const [partnerName, setPartnerName] = useState(initialPartner)
@@ -282,7 +289,19 @@ function RegisterInner() {
         <nav className="fixed bottom-0 w-full bg-surface/90 backdrop-blur-xl border-t border-outline-variant/10 px-4 md:px-edge-margin-mobile py-3 md:py-6 z-50">
           <div className="max-w-md mx-auto flex items-center justify-between gap-3 md:gap-6">
             <button
-              onClick={() => router.push("/hero")}
+              onClick={() => {
+                const pt = packagePassthrough.current
+                if (pt.package) {
+                  const p = new URLSearchParams()
+                  p.set("package", pt.package)
+                  if (pt.tab) p.set("tab", pt.tab)
+                  if (pt.wa_tier) p.set("wa_tier", pt.wa_tier)
+                  if (pt.express) p.set("express", pt.express)
+                  router.push(`/customize?${p}`)
+                } else {
+                  router.push("/hero")
+                }
+              }}
               className="flex-1 py-3 md:py-4 border border-outline-variant text-primary font-label-md uppercase tracking-[0.1em] hover:bg-surface-variant transition-colors"
             >
               Kembali
@@ -334,6 +353,11 @@ function RegisterInner() {
                   date: weddingDate || "tentative",
                   guest: String(guestCount),
                 })
+                const pt = packagePassthrough.current
+                if (pt.package) params.set("package", pt.package)
+                if (pt.tab) params.set("tab", pt.tab)
+                if (pt.wa_tier) params.set("wa_tier", pt.wa_tier)
+                if (pt.express) params.set("express", pt.express)
                 router.push(`/customize?${params}`)
               }}
               className="flex-[1.5] py-3 md:py-4 bg-primary text-on-primary font-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all duration-300 active:scale-95"

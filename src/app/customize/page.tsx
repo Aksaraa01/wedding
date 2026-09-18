@@ -227,13 +227,27 @@ function Inner() {
 
   const isEdit = searchParams.get("edit") === "true"
   const editProfileId = searchParams.get("profile_id") || ""
+  const hasCouple = userName.trim().length > 0 && partnerName.trim().length > 0
 
-  const initialTab = searchParams.get("tab") === "dgbook" ? "dgbook" : "undangan"
+  const rawPackage = searchParams.get("package") || ""
+  const packageParam = rawPackage && PACKAGE_PRICES[rawPackage] != null ? rawPackage : ""
+  const initialTab = packageParam
+    ? packageParam.startsWith("dgb_")
+      ? "dgbook"
+      : "undangan"
+    : searchParams.get("tab") === "dgbook"
+      ? "dgbook"
+      : "undangan"
+  const rawWaTier = Number(searchParams.get("wa_tier") || "0")
+  const initialWaTier = rawWaTier === 100 || rawWaTier === 200 || rawWaTier === 300 ? rawWaTier : 0
+  const initialExpress = searchParams.get("express") === "1"
 
   const [activeTab, setActiveTab] = useState<"undangan" | "dgbook">(initialTab)
-  const [selectedPackage, setSelectedPackage] = useState(initialTab === "dgbook" ? "dgb_sistem" : "signature")
-  const [waBlastTier, setWaBlastTier] = useState<number>(0)
-  const [expressService, setExpressService] = useState(false)
+  const [selectedPackage, setSelectedPackage] = useState(
+    packageParam || (initialTab === "dgbook" ? "dgb_sistem" : "signature")
+  )
+  const [waBlastTier, setWaBlastTier] = useState<number>(initialWaTier)
+  const [expressService, setExpressService] = useState(initialExpress)
   const [undanganFisik, setUndanganFisik] = useState(false)
   const [matrix, setMatrix] = useState<MatrixSection[]>([])
   const [matrixCols, setMatrixCols] = useState<MatrixCol[]>([])
@@ -301,7 +315,26 @@ function Inner() {
     setWaBlastTier(0)
   }
 
+  const goToRegister = () => {
+    const p = new URLSearchParams()
+    if (userName) p.set("user", userName)
+    if (partnerName) p.set("partner", partnerName)
+    const date = searchParams.get("date")
+    const guest = searchParams.get("guest")
+    if (date) p.set("date", date)
+    if (guest) p.set("guest", guest)
+    p.set("package", selectedPackage)
+    p.set("tab", activeTab)
+    if (waBlastTier > 0) p.set("wa_tier", String(waBlastTier))
+    if (expressService) p.set("express", "1")
+    router.push(`/register?${p}`)
+  }
+
   const handleSubmit = async () => {
+    if (!userName.trim() || !partnerName.trim()) {
+      setSubmitError("Data pengantin tidak lengkap. Silakan ulangi dari halaman pendaftaran.")
+      return
+    }
     const cleaned = waNumber.replace(/\D/g, "").replace(/^0+/, "")
     const cleanPin = (pin || "").replace(/\D/g, "")
     if (!cleaned || cleanPin.length !== 6) return
@@ -424,7 +457,7 @@ function Inner() {
             onClick={() => {
               if (isEdit) {
                 router.push(`/dashboard/${editProfileId}`)
-              } else {
+              } else if (hasCouple) {
                 const p = new URLSearchParams({
                   step: "3",
                   user: userName,
@@ -433,6 +466,8 @@ function Inner() {
                   guest: searchParams.get("guest") || "300",
                 })
                 router.push(`/register?${p}`)
+              } else {
+                router.push("/hero")
               }
             }}
             className="flex items-center gap-2 group text-on-surface-variant hover:text-primary transition-colors"
@@ -763,7 +798,13 @@ function Inner() {
             </button>
           ) : (
             <button
-              onClick={() => { setWaNumber(""); setPin(""); setSubmitError(""); setModalOpen(true) }}
+              onClick={() => {
+                if (hasCouple) {
+                  setWaNumber(""); setPin(""); setSubmitError(""); setModalOpen(true)
+                } else {
+                  goToRegister()
+                }
+              }}
               className="shrink-0 px-6 md:px-12 py-3 md:py-4 bg-primary text-white font-label-md text-[11px] md:text-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all rounded-full md:rounded-none"
             >
               Lanjut
