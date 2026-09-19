@@ -1060,6 +1060,19 @@ class AksaraaPlugin
                     'settings' => ['slides'],
                     'value' => $slides,
                 ];
+                // A single slide never initializes Elementor Pro's Swiper (its
+                // handler bails at `<= 1` slide), so it can only ever show that one
+                // image. Disable loop/autoplay/arrows so it renders as a static
+                // focused photo instead of a dead carousel shell.
+                if (count($slides) === 1) {
+                    foreach (['loop' => '', 'autoplay' => '', 'show_arrows' => ''] as $key => $val) {
+                        $result[] = [
+                            'elementId' => $m['elementId'],
+                            'settings' => [$key],
+                            'value' => $val,
+                        ];
+                    }
+                }
                 continue;
             }
 
@@ -2454,7 +2467,8 @@ add_action('wp_head', function () {
         if (is_array($tree)) {
             $markers = ['aksaraa-addr-hidden', 'aksaraa-hidden', 'aksaraa-session-hidden'];
             $hidden = [];
-            $walk = function (array $nodes) use (&$walk, &$hidden, $markers) {
+            $singleSlideCarousels = [];
+            $walk = function (array $nodes) use (&$walk, &$hidden, &$singleSlideCarousels, $markers) {
                 foreach ($nodes as $el) {
                     $classes = (string) ($el['settings']['_css_classes'] ?? '');
                     if (is_array($el['settings'] ?? null) && !empty($el['id'])) {
@@ -2462,6 +2476,17 @@ add_action('wp_head', function () {
                             if (strpos($classes, $marker) !== false) {
                                 $hidden[] = $el['id'];
                                 break;
+                            }
+                        }
+                        // Elementor Pro's media-carousel handler bails out when there
+                        // is <= 1 slide (`if (1 >= getSlidesCount()) return;`), so
+                        // Swiper never sets widths and the widget collapses to its
+                        // content width (0) inside a centered flex container. Force
+                        // full width so a couple's single photo still renders.
+                        if (($el['widgetType'] ?? '') === 'media-carousel') {
+                            $slides = $el['settings']['slides'] ?? [];
+                            if (is_array($slides) && count($slides) <= 1) {
+                                $singleSlideCarousels[] = $el['id'];
                             }
                         }
                     }
@@ -2472,6 +2497,14 @@ add_action('wp_head', function () {
             if ($hidden) {
                 $sel = implode(',', array_map(fn($id) => '.elementor-element-' . $id, array_unique($hidden)));
                 echo '<style>' . $sel . '{ display: none !important; }</style>';
+            }
+            if ($singleSlideCarousels) {
+                $sel = implode(',', array_map(fn($id) => '.elementor-element-' . $id, array_unique($singleSlideCarousels)));
+                echo '<style>'
+                    . $sel . '{ width: 100% !important; }'
+                    . $sel . ' .elementor-main-swiper,' . $sel . ' .swiper,' . $sel . ' .swiper-wrapper,'
+                    . $sel . ' .swiper-slide,' . $sel . ' .elementor-carousel-image { width: 100% !important; }'
+                    . '</style>';
             }
         }
     }
