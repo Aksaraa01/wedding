@@ -1501,21 +1501,36 @@ class AksaraaPlugin
 
     private static function reconcile_sessions(array $elements, array $fields, array $manifest): array
     {
-        $slots = $manifest['sessions'] ?? [];
-        if (!is_array($slots) || count($slots) < 2) return [$elements, $manifest];
-        $secondSlot = $slots[1] ?? null;
-        if (!is_array($secondSlot)) return [$elements, $manifest];
-        $probeId = $secondSlot['name']['elementId'] ?? $secondSlot['venue']['elementId'] ?? $secondSlot['date']['elementId'] ?? null;
-        if (!$probeId) {
-            foreach ($secondSlot as $v) {
-                if (is_array($v) && !empty($v['elementId'])) { $probeId = $v['elementId']; break; }
+        // Explicit target (ops-mapped `sessions_section` / "Kontainer Acara") wins.
+        // Otherwise derive it from the 2nd session slot as before. The explicit
+        // element may be a container OR a widget (e.g. a stray label), and
+        // `apply_to_node` matches any node id.
+        $containerId = '';
+        $explicit = $manifest['sessions_section'] ?? null;
+        if (is_array($explicit)) {
+            $slot = isset($explicit['elementId']) ? $explicit : ($explicit[0] ?? null);
+            if (is_array($slot) && !empty($slot['elementId'])) {
+                $containerId = (string) $slot['elementId'];
             }
         }
-        if (!$probeId) return [$elements, $manifest];
-        $innerId = self::find_element_parent_id($elements, (string) $probeId);
-        if (!$innerId) return [$elements, $manifest];
-        $outerId = self::find_element_parent_id($elements, $innerId);
-        $containerId = $outerId ?: $innerId;
+
+        if ($containerId === '') {
+            $slots = $manifest['sessions'] ?? [];
+            if (!is_array($slots) || count($slots) < 2) return [$elements, $manifest];
+            $secondSlot = $slots[1] ?? null;
+            if (!is_array($secondSlot)) return [$elements, $manifest];
+            $probeId = $secondSlot['name']['elementId'] ?? $secondSlot['venue']['elementId'] ?? $secondSlot['date']['elementId'] ?? null;
+            if (!$probeId) {
+                foreach ($secondSlot as $v) {
+                    if (is_array($v) && !empty($v['elementId'])) { $probeId = $v['elementId']; break; }
+                }
+            }
+            if (!$probeId) return [$elements, $manifest];
+            $innerId = self::find_element_parent_id($elements, (string) $probeId);
+            if (!$innerId) return [$elements, $manifest];
+            $outerId = self::find_element_parent_id($elements, $innerId);
+            $containerId = $outerId ?: $innerId;
+        }
 
         $desired = 0;
         if (isset($fields['sessions']) && is_array($fields['sessions'])) {

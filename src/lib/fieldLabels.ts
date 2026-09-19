@@ -14,6 +14,7 @@ export const FIELD_LABELS: Record<string, string> = {
   bride_parents: "Orang Tua Mempelai Kedua",
   date_upper: "Tanggal Acara",
   sessions: "Sesi Acara",
+  sessions_section: "Kontainer Acara",
   gallery_photos: "Galeri Foto",
   gift_accounts: "Rekening Hadiah",
   gift_address: "Alamat Pengiriman Kado",
