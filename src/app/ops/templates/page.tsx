@@ -385,6 +385,21 @@ export default function OpsTemplatesPage() {
         }
       }
     }
+    // Safety net: gallery widgets store images under a widget-specific key
+    // (gallery / carousel / wp_gallery / slides). Normalize the displayed settings
+    // path so it doesn't show a stale "title" — the mu-plugin keys off widgetType.
+    const GALLERY_SETTINGS_KEY: Record<string, string> = {
+      "image-carousel": "carousel",
+      "image-gallery": "wp_gallery",
+      "media-carousel": "slides",
+      gallery: "gallery",
+    }
+    for (const m of (Array.isArray(sorted["gallery_photos"]) ? sorted["gallery_photos"] : [])) {
+      if (!m || !m.elementId) continue
+      const el = mappable.find(x => x.id === m.elementId)
+      const key = el ? GALLERY_SETTINGS_KEY[el.widgetType] : undefined
+      if (key && (m.settings || []).join(".") !== key) m.settings = [key]
+    }
     const res = await fetch(`/api/ops/templates/${editing.id}`, {
       method: "PUT",
       headers: opsHeaders(employee),

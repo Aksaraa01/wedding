@@ -310,19 +310,31 @@ class AksaraaPlugin
                 $t = trim((string) ($settings['item_title'] ?? ''));
                 return $t !== '' ? $t : '(judul item kosong)';
             case 'gallery':
+            case 'image-gallery':
+            case 'image-carousel':
             case 'media-carousel':
-                $slides = $settings['slides'] ?? $settings['gallery'] ?? [];
+                if ($widgetType === 'media-carousel') {
+                    $slides = $settings['slides'] ?? [];
+                } elseif ($widgetType === 'image-carousel') {
+                    $slides = $settings['carousel'] ?? [];
+                } elseif ($widgetType === 'image-gallery') {
+                    $slides = $settings['wp_gallery'] ?? [];
+                } else {
+                    $slides = $settings['gallery'] ?? [];
+                }
+                $label = $widgetType;
                 if (is_array($slides) && !empty($slides)) {
                     $count = count($slides);
                     $names = [];
                     foreach (array_slice($slides, 0, 3) as $s) {
-                        if (is_array($s) && !empty($s['url'])) $names[] = self::image_name($s);
+                        if (!is_array($s)) continue;
+                        if (!empty($s['url'])) $names[] = self::image_name($s);
+                        elseif (!empty($s['image']['url'])) $names[] = self::image_name($s['image']);
                     }
-                    $label = $widgetType === 'media-carousel' ? 'media-carousel' : 'gallery';
                     if (!empty($names)) return $label . ' (' . $count . '): ' . implode(' + ', $names);
                     return $label . ' (' . $count . ')';
                 }
-                return $widgetType === 'media-carousel' ? 'media-carousel' : 'gallery';
+                return $label;
             default: return '';
         }
     }
@@ -1008,50 +1020,67 @@ class AksaraaPlugin
         $result = [];
         if (!isset($fields['gallery_photos']) || !is_array($fields['gallery_photos'])) return $result;
         $mapping = $manifest['gallery_photos'] ?? [];
-        $m = is_array($mapping) && isset($mapping['elementId']) ? $mapping : (is_array($mapping) && isset($mapping[0]) ? $mapping[0] : null);
-        if (!$m || !is_array($m) || !isset($m['elementId'])) return $result;
+        if (!is_array($mapping)) return $result;
+        // Accept a single {elementId} mapping or a list of mappings. A template may
+        // expose the gallery in more than one widget (e.g. image-carousel + media-carousel),
+        // so every mapped element must be patched.
+        $slots = isset($mapping['elementId']) ? [$mapping] : $mapping;
+        if (!is_array($slots)) return $result;
 
         $urls = array_values(array_filter(array_map('strval', $fields['gallery_photos'])));
         if (empty($urls)) return $result;
         $imported_map = self::sideload_images_parallel($urls);
 
-        // Detect widget type to use the correct Elementor settings key and value format.
-        $node = self::find_node($elements, $m['elementId']);
-        $widgetType = $node['widgetType'] ?? '';
+        foreach ($slots as $m) {
+            if (!is_array($m) || empty($m['elementId'])) continue;
 
-        if ($widgetType === 'media-carousel') {
-            // media-carousel: settings.slides = [{image: {id,url,alt,source}, _id, image_link_to_type}]
-            $slides = [];
-            foreach ($urls as $url) {
-                $imported = $imported_map[$url] ?? ['id' => 0, 'url' => $url];
-                $slides[] = [
-                    'image' => [
-                        'id' => $imported['id'],
-                        'url' => $imported['url'],
-                        'alt' => '',
-                        'source' => 'library',
-                    ],
-                    '_id' => substr(md5(uniqid((string) mt_rand(), true)), 0, 7),
-                    'image_link_to_type' => 'file',
+            // Detect widget type to use the correct Elementor settings key and value format.
+            $node = self::find_node($elements, (string) $m['elementId']);
+            $widgetType = $node['widgetType'] ?? '';
+
+            if ($widgetType === 'media-carousel') {
+                // media-carousel: settings.slides = [{image: {id,url,alt,source}, _id, image_link_to_type}]
+                $slides = [];
+                foreach ($urls as $url) {
+                    $imported = $imported_map[$url] ?? ['id' => 0, 'url' => $url];
+                    $slides[] = [
+                        'image' => [
+                            'id' => $imported['id'],
+                            'url' => $imported['url'],
+                            'alt' => '',
+                            'source' => 'library',
+                        ],
+                        '_id' => substr(md5(uniqid((string) mt_rand(), true)), 0, 7),
+                        'image_link_to_type' => 'file',
+                    ];
+                }
+                if (empty($slides)) continue;
+                $result[] = [
+                    'elementId' => $m['elementId'],
+                    'settings' => ['slides'],
+                    'value' => $slides,
                 ];
+                continue;
             }
-            if (empty($slides)) return $result;
-            $result[] = [
-                'elementId' => $m['elementId'],
-                'settings' => ['slides'],
-                'value' => $slides,
-            ];
-        } else {
-            // gallery widget: settings.gallery = [{id, url}]
+
+            // Gallery-style widgets store a flat [{id, url}] list, but the settings
+            // key differs by widget:
+            //  - image-carousel (core): `carousel`
+            //  - image-gallery  (core): `wp_gallery`
+            //  - gallery        (legacy/other): `gallery`
+            $key = 'gallery';
+            if ($widgetType === 'image-carousel') $key = 'carousel';
+            elseif ($widgetType === 'image-gallery') $key = 'wp_gallery';
+
             $images = [];
             foreach ($urls as $url) {
                 $imported = $imported_map[$url] ?? ['id' => 0, 'url' => $url];
                 $images[] = ['id' => $imported['id'], 'url' => $imported['url']];
             }
-            if (empty($images)) return $result;
+            if (empty($images)) continue;
             $result[] = [
                 'elementId' => $m['elementId'],
-                'settings' => ['gallery'],
+                'settings' => [$key],
                 'value' => $images,
             ];
         }
