@@ -24,6 +24,7 @@
 - Prefer `function ComponentName()` over arrow functions
 - Props typed with `interface ComponentNameProps`
 - No JSDoc comments unless behavior is opaque
+- **Client components must NEVER import server-only modules** (`@/lib/supabase`, `@/lib/guest-link`, `@/lib/qr`, `@/lib/featureGates`, etc.). `@/lib/supabase` calls `createClient()` at module-eval with the service-role key, which is empty in the browser → `supabaseKey is required` → the whole page hits the error boundary. Pure, client-safe helpers live in dedicated modules (e.g. `@/lib/guest-slug` for slug constants/helpers); `@/lib/guest-link` re-exports them for server code but must not be imported client-side.
 
 ### Tailwind
 - Custom tokens: `margin-mobile` (20px), `margin-desktop` (64px), `edge-margin-mobile` (24px), `edge-margin-desktop` (80px)

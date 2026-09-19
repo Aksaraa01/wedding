@@ -4,7 +4,7 @@ import { useState, useEffect, use, useRef, useCallback, ComponentType } from "re
 import { useRouter, useSearchParams } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import { getTemplateComponent, getTemplateContentSpec } from "@/components/templates"
-import { RowGates } from "@/lib/featureGates"
+import type { RowGates } from "@/lib/featureGates"
 import { pollWpJob } from "@/lib/wpJobPoll"
 import ProfileMenu from "@/components/ProfileMenu"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
