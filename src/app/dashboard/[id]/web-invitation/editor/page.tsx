@@ -11,6 +11,7 @@ import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import ProductJourney from "@/components/onboarding/ProductJourney"
 import { ASSETS } from "@/lib/assets"
 import { OPENING_PRESETS, OPENING_CUSTOM, matchOpeningPreset } from "@/lib/openingPresets"
+import { compressImage } from "@/lib/imageCompress"
 
 type Profile = {
   id: string
@@ -466,12 +467,8 @@ function EditorInner({ id }: { id: string }) {
     if (data.is_published === true) return
     setPhotoUploading(field)
     try {
-      const formData = new FormData()
-      formData.append("file", file)
-      const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
-      if (!res.ok) return
-      const { url } = await res.json()
-      updateField(field, [url])
+      const url = await uploadImageFile(file)
+      if (url) updateField(field, [url])
     } finally {
       setPhotoUploading(null)
     }
@@ -482,11 +479,8 @@ function EditorInner({ id }: { id: string }) {
     const key = `${field}-${index}`
     setPhotoUploading(key)
     try {
-      const formData = new FormData()
-      formData.append("file", file)
-      const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
-      if (!res.ok) return
-      const { url } = await res.json()
+      const url = await uploadImageFile(file)
+      if (!url) return
       const arr = Array.isArray(data[field]) ? [...data[field]] : (data[field] ? [data[field]] : [])
       while (arr.length <= index) arr.push("")
       arr[index] = url
@@ -503,11 +497,8 @@ function EditorInner({ id }: { id: string }) {
     const key = `cover-${index}`
     setCoverUploading(key)
     try {
-      const formData = new FormData()
-      formData.append("file", file)
-      const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
-      if (!res.ok) return
-      const { url } = await res.json()
+      const url = await uploadImageFile(file)
+      if (!url) return
       const covers = [...(Array.isArray(data.cover_photos) ? data.cover_photos : [])]
       while (covers.length <= index) covers.push("")
       covers[index] = url
@@ -531,11 +522,8 @@ function EditorInner({ id }: { id: string }) {
     const key = `cover-${slotIndex}-${slideIndex}`
     setCoverUploading(key)
     try {
-      const formData = new FormData()
-      formData.append("file", file)
-      const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
-      if (!res.ok) return
-      const { url } = await res.json()
+      const url = await uploadImageFile(file)
+      if (!url) return
       const covers = [...(Array.isArray(data.cover_photos) ? data.cover_photos : [])]
       while (covers.length <= slotIndex) covers.push("")
       const cur = covers[slotIndex]
@@ -599,12 +587,8 @@ function EditorInner({ id }: { id: string }) {
     if (data.is_published === true) return
     setStoryUploading(index)
     try {
-      const formData = new FormData()
-      formData.append("file", file)
-      const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
-      if (!res.ok) return
-      const { url } = await res.json()
-      updateStory(index, "image_url", url)
+      const url = await uploadImageFile(file)
+      if (url) updateStory(index, "image_url", url)
     } finally {
       setStoryUploading(null)
     }
@@ -666,6 +650,28 @@ function EditorInner({ id }: { id: string }) {
   const [coverUploading, setCoverUploading] = useState<string | null>(null)
   const [photoUploading, setPhotoUploading] = useState<string | null>(null)
   const [storyUploading, setStoryUploading] = useState<number | null>(null)
+  const [uploadError, setUploadError] = useState("")
+
+  // Shared upload helper: compress large phone photos client-side, then POST.
+  // Returns the public URL, or null after surfacing the server's message.
+  const uploadImageFile = useCallback(async (file: File): Promise<string | null> => {
+    try {
+      const compressed = await compressImage(file)
+      const formData = new FormData()
+      formData.append("file", compressed)
+      const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
+      const payload = await res.json().catch(() => ({}))
+      if (!res.ok || !payload.url) {
+        setUploadError(payload.error || "Gagal mengunggah gambar. Coba lagi.")
+        return null
+      }
+      setUploadError("")
+      return payload.url as string
+    } catch {
+      setUploadError("Gagal mengunggah gambar. Periksa koneksi lalu coba lagi.")
+      return null
+    }
+  }, [])
 
   const uploadGalleryFiles = async (files: FileList | File[]) => {
     if (data.is_published === true) return
@@ -678,16 +684,8 @@ function EditorInner({ id }: { id: string }) {
     setGalleryUploading(true)
     const uploaded: string[] = []
     for (const file of toUpload) {
-      try {
-        const formData = new FormData()
-        formData.append("file", file)
-        const res = await fetch("/api/template-media/upload", { method: "POST", body: formData })
-        if (!res.ok) continue
-        const { url } = await res.json()
-        if (url) uploaded.push(url)
-      } catch {
-        // skip failed file, keep the rest
-      }
+      const url = await uploadImageFile(file)
+      if (url) uploaded.push(url)
     }
     if (uploaded.length > 0) {
       updateField("gallery_photos", [...galleryPhotos, ...uploaded])
@@ -2428,6 +2426,17 @@ function EditorInner({ id }: { id: string }) {
                 Tutup
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {uploadError && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[120] max-w-[92vw] sm:max-w-md">
+          <div className="flex items-start gap-3 bg-[#2C2A29] text-white rounded-lg shadow-2xl px-4 py-3 border border-white/10">
+            <span className="material-symbols-outlined text-[20px] text-red-400 shrink-0">error</span>
+            <p className="font-body-md text-[13px] leading-snug flex-1">{uploadError}</p>
+            <button onClick={() => setUploadError("")} className="text-white/60 hover:text-white shrink-0" aria-label="Tutup">
+              <span className="material-symbols-outlined text-[18px]">close</span>
+            </button>
           </div>
         </div>
       )}

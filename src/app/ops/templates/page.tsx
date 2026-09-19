@@ -10,6 +10,7 @@ import { PACKAGE_LABELS, PACKAGE_CATEGORY, PACKAGE_CODES } from "@/lib/packages"
 import { normalizeTemplateTier, tierBadgeClass } from "@/lib/templateTier"
 import ElementSelect from "@/components/ops/ElementSelect"
 import { hasTemplate } from "@/components/templates"
+import { compressImage } from "@/lib/imageCompress"
 
 type Template = {
   id: string
@@ -236,8 +237,9 @@ export default function OpsTemplatesPage() {
     setUploading(true)
     setError("")
     try {
+      const compressed = await compressImage(file)
       const fd = new FormData()
-      fd.append("file", file)
+      fd.append("file", compressed)
       const res = await fetch("/api/template-media/upload", { method: "POST", body: fd })
       const data = await res.json()
       if (!res.ok) {

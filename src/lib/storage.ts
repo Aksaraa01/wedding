@@ -4,14 +4,45 @@ export { isSupabaseStorageUrl, storagePathFromUrl, toTransformedUrl, toOgImageUr
 
 const BUCKET = "media"
 
+// Desired bucket config. `ensureBucket` reconciles an existing bucket so new
+// MIME types (e.g. HEIC from iPhones) take effect without a manual migration.
+const BUCKET_FILE_SIZE_LIMIT = 20 * 1024 * 1024 // 20 MB
+const BUCKET_ALLOWED_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/svg+xml",
+  "image/heic",
+  "image/heif",
+  "audio/mpeg",
+  "audio/wav",
+  "audio/ogg",
+]
+
 export async function ensureBucket() {
   const { data: buckets } = await supabaseAdmin.storage.listBuckets()
-  if (buckets?.find((b) => b.name === BUCKET)) return
-  await supabaseAdmin.storage.createBucket(BUCKET, {
-    public: true,
-    fileSizeLimit: 20 * 1024 * 1024, // 20 MB
-    allowedMimeTypes: ["image/jpeg", "image/png", "image/webp", "image/svg+xml", "audio/mpeg", "audio/wav", "audio/ogg"],
-  })
+  const existing = buckets?.find((b) => b.name === BUCKET)
+  if (!existing) {
+    await supabaseAdmin.storage.createBucket(BUCKET, {
+      public: true,
+      fileSizeLimit: BUCKET_FILE_SIZE_LIMIT,
+      allowedMimeTypes: BUCKET_ALLOWED_MIME_TYPES,
+    })
+    return
+  }
+  const currentMime = existing.allowed_mime_types ?? null
+  const inSync =
+    existing.file_size_limit === BUCKET_FILE_SIZE_LIMIT &&
+    Array.isArray(currentMime) &&
+    currentMime.length === BUCKET_ALLOWED_MIME_TYPES.length &&
+    BUCKET_ALLOWED_MIME_TYPES.every((mime) => currentMime.includes(mime))
+  if (!inSync) {
+    await supabaseAdmin.storage.updateBucket(BUCKET, {
+      public: true,
+      fileSizeLimit: BUCKET_FILE_SIZE_LIMIT,
+      allowedMimeTypes: BUCKET_ALLOWED_MIME_TYPES,
+    })
+  }
 }
 
 export function getPublicUrl(path: string) {
