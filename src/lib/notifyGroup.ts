@@ -22,7 +22,10 @@ function formatDateWIB(d: Date): string {
 
 export async function notifyNewAccountGroup(payload: NotifyPayload): Promise<void> {
   const targetJid = process.env.WA_TARGET_GROUP_JID || process.env.WA_NOTIFY_GROUP_ID || ""
-  if (!targetJid) return
+  if (!targetJid) {
+    console.error("[notifyGroup] missing WA_TARGET_GROUP_JID — notification skipped")
+    return
+  }
 
   try {
     const { data: existing } = await supabaseAdmin

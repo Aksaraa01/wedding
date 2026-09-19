@@ -17,6 +17,28 @@ export function slugifyName(name: string): string {
     .replace(/^-+|-+$/g, "")
 }
 
+// Display version of a raw ?to= slug for Fleksibel mode:
+// "Budi-Santoso" -> "Budi Santoso". Underscores also become spaces.
+export function prettifyGuestSlug(slug: string | null | undefined): string {
+  return ((slug || "").replace(/[-_]+/g, " ")).trim()
+}
+
+// Raw ?to= values must look like slugs we generate (letters, digits, dot,
+// hyphen) and stay short — prevents junk rows from the flexible RSVP path.
+export function isValidGuestSlug(slug: string | null | undefined): boolean {
+  if (!slug || slug.length > 80) return false
+  return /^[A-Za-z0-9.-]+$/.test(slug)
+}
+
+// Generic fallback identity for Fleksibel bare links (no ?to=). It is
+// display-only: flexible-rsvp rejects it so it can never become a guest row.
+export const FALLBACK_GUEST_SLUG = "Teman-Partner"
+export const FALLBACK_GUEST_NAME = "Teman & Partner"
+
+export function isFallbackGuestSlug(slug: string | null | undefined): boolean {
+  return prettifyGuestSlug(slug).toLowerCase() === "teman & partner"
+}
+
 export async function generateUniqueSlug(weddingProfileId: string, name: string): Promise<string> {
   const base = slugifyName(name) || "tamu"
   for (let i = 0; i < 100; i++) {

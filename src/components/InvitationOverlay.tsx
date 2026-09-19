@@ -3,7 +3,10 @@
 import { useEffect, useState, type FormEvent } from "react"
 
 interface InvitationOverlayProps {
-  guestId: string
+  guestId?: string
+  // Fleksibel mode: no guest row yet — RSVP provisions one keyed by this slug.
+  guestSlug?: string
+  allowFlexibleRsvp?: boolean
   guestName: string
   coupleName: string
   weddingProfileId: string
@@ -22,6 +25,8 @@ interface InvitationOverlayProps {
 
 export default function InvitationOverlay({
   guestId,
+  guestSlug,
+  allowFlexibleRsvp,
   guestName,
   coupleName,
   weddingProfileId,
@@ -60,6 +65,7 @@ export default function InvitationOverlay({
     alreadyResponded ? "done" : "idle"
   )
   const [rsvpError, setRsvpError] = useState("")
+  const [resolvedId, setResolvedId] = useState<string | undefined>(guestId)
 
   const maxPax = Math.max(1, Math.min(10, rsvpMaxPax ?? 2))
 
@@ -69,19 +75,47 @@ export default function InvitationOverlay({
     setRsvpStatus("saving")
     setRsvpError("")
     try {
-      const res = await fetch(`/api/guests/${guestId}/rsvp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          rsvp_status: rsvpAttend,
-          rsvp_pax_count: rsvpAttend === "HADIR" ? Number(rsvpPax) : undefined,
-          rsvp_message: rsvpMessage.trim() || undefined,
-        }),
-      })
-      if (!res.ok) {
-        setRsvpError("Gagal menyimpan kehadiran. Silakan coba lagi.")
-        setRsvpStatus("error")
-        return
+      let activeId = resolvedId
+      if (!activeId) {
+        if (!allowFlexibleRsvp || !guestSlug) {
+          setRsvpError("Gagal menyimpan kehadiran. Silakan coba lagi.")
+          setRsvpStatus("error")
+          return
+        }
+        const flex = await fetch("/api/guests/flexible-rsvp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            wedding_profile_id: weddingProfileId,
+            slug: guestSlug,
+            rsvp_status: rsvpAttend,
+            rsvp_pax_count: rsvpAttend === "HADIR" ? Number(rsvpPax) : undefined,
+            rsvp_message: rsvpMessage.trim() || undefined,
+          }),
+        })
+        const flexData = await flex.json().catch(() => ({}))
+        if (!flex.ok || !flexData.guest?.id) {
+          setRsvpError(flexData.error || "Gagal menyimpan kehadiran. Silakan coba lagi.")
+          setRsvpStatus("error")
+          return
+        }
+        activeId = flexData.guest.id
+        setResolvedId(activeId)
+      } else {
+        const res = await fetch(`/api/guests/${activeId}/rsvp`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            rsvp_status: rsvpAttend,
+            rsvp_pax_count: rsvpAttend === "HADIR" ? Number(rsvpPax) : undefined,
+            rsvp_message: rsvpMessage.trim() || undefined,
+          }),
+        })
+        if (!res.ok) {
+          setRsvpError("Gagal menyimpan kehadiran. Silakan coba lagi.")
+          setRsvpStatus("error")
+          return
+        }
       }
       // Also save the comment to the wish wall (source: invitation), same as the
       // React templates. 409 = already sent earlier, treat as success.
@@ -91,7 +125,7 @@ export default function InvitationOverlay({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             wedding_profile_id: weddingProfileId,
-            guest_id: guestId,
+            guest_id: activeId,
             name: rsvpName.trim(),
             message: rsvpMessage.trim(),
             source: "invitation",

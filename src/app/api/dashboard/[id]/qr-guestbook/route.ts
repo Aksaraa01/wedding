@@ -34,6 +34,35 @@ export async function GET(
   }
 }
 
+export async function PUT(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const body = await req.json().catch(() => ({}))
+
+    if (typeof body.guest_link_strict !== "boolean") {
+      return NextResponse.json({ error: "guest_link_strict harus boolean" }, { status: 400 })
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from("wedding_profiles")
+      .update({ guest_link_strict: body.guest_link_strict })
+      .eq("id", id)
+      .select("id, guest_link_strict")
+      .single()
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true, guest_link_strict: data.guest_link_strict })
+  } catch (err) {
+    return NextResponse.json({ error: String(err) }, { status: 500 })
+  }
+}
+
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }

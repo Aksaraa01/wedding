@@ -71,7 +71,7 @@ export default function SkylinePenthouse(props: TemplateProps) {
   // The QR/RSVP dock is rendered by the template itself so it never appears on
   // the cover: it shows only for identified guests, after the invitation opens,
   // and hides while a modal or the live-wishes modal is open.
-  const showGuestDock = opened && !modal && !wishOpen && !!props.guest_id && !!props.wedding_profile_id
+  const showGuestDock = opened && !modal && !wishOpen && (!!props.guest_id || (props.guest_link_strict === false && !!props.guest_slug)) && !!props.wedding_profile_id
   const coupleName =
     (props.groom_full_name && props.bride_full_name
       ? `${props.groom_full_name} & ${props.bride_full_name}`
@@ -116,7 +116,9 @@ export default function SkylinePenthouse(props: TemplateProps) {
 
         {showGuestDock && (
           <InvitationOverlay
-            guestId={props.guest_id!}
+            guestId={props.guest_id}
+            guestSlug={props.guest_slug}
+            allowFlexibleRsvp={props.guest_link_strict === false}
             guestName={props.guest_name || "Tamu Undangan"}
             coupleName={coupleName}
             weddingProfileId={props.wedding_profile_id!}
@@ -132,7 +134,7 @@ export default function SkylinePenthouse(props: TemplateProps) {
 
         {hasTrack && (
           // Hidden from a11y tree; the music pill in the room is the control.
-          <audio ref={audioRef} src={props.track_url} loop playsInline preload="auto" />
+          <audio ref={audioRef} src={props.track_url} loop playsInline preload="none" />
         )}
       </div>
     </Skin>

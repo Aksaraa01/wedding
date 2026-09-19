@@ -10,6 +10,8 @@ import { getRowGates, getFeatureIncluded } from "@/lib/featureGates"
 import { getWpPostAlive } from "@/lib/wpPostCache"
 import { cachedRead } from "@/lib/refCache"
 import { ASSETS } from "@/lib/assets"
+import { toOgImageUrl } from "@/lib/storage"
+import { prettifyGuestSlug, FALLBACK_GUEST_NAME } from "@/lib/guest-link"
 
 export const revalidate = 60
 
@@ -69,6 +71,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     }
   }
   const image = firstImageUrl(profile.couple_illustration_url) || firstImageUrl(covers) || (profile.slug ? `https://${profile.slug}.wedding.aksaraa.com/defaults/couple.png` : undefined)
+  // Crawlers (WhatsApp/Telegram) fetch this per share — serve a 1200w
+  // transform of the raw cover instead of the multi-MB original.
+  const ogImage = image ? toOgImageUrl(image) : undefined
 
   const meta: Metadata = {
     title,
@@ -76,13 +81,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title,
       description,
-      images: image ? [image] : undefined,
+      images: ogImage ? [ogImage] : undefined,
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: image ? [image] : undefined,
+      images: ogImage ? [ogImage] : undefined,
     },
   }
   return meta
@@ -102,7 +107,7 @@ export default async function WeddingInvitation({
   // case-insensitively (the stored slug is camel: "RafiNamu-NoviKamu").
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id, slug, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, cover_photos, couple_initials, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, active_wp_post_id, active_wp_post_url, opening_title, opening_description, gift_section_visible, video_section_visible, inviting_families_visible, story_visible")
+    .select("id, slug, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, cover_photos, couple_initials, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, active_wp_post_id, active_wp_post_url, opening_title, opening_description, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, guest_link_strict")
     .ilike("slug", slug)
     .single()
 
@@ -153,8 +158,10 @@ export default async function WeddingInvitation({
     return null
   })()
 
-  // A provided ?to= must resolve to a real guest of this couple — otherwise 404.
-  if (to && !guestContext && !qr_token) notFound()
+  // Terbatas (default): a provided ?to= must resolve to a real guest of
+  // this couple — otherwise 404. Fleksibel: any ?to= renders.
+  const linkStrict = profile.guest_link_strict !== false
+  if (to && !guestContext && !qr_token && linkStrict) notFound()
 
   // Server-side "dibuka" backup: link loaded for a resolved guest. Runs per
   // request (this route reads searchParams, so it is never statically
@@ -170,7 +177,7 @@ export default async function WeddingInvitation({
     }
   }
 
-  const guestName = guestContext?.name || to || "Tamu Undangan"
+  const guestName = guestContext?.name || prettifyGuestSlug(to) || (linkStrict ? "Tamu Undangan" : FALLBACK_GUEST_NAME)
 
   const [giftAcctsRes, giftAddrRes, trackRes] = await Promise.all([
     supabaseAdmin.from("gift_accounts").select("provider_name, account_number, account_name, type").eq("wedding_profile_id", profile.id),
@@ -228,7 +235,7 @@ export default async function WeddingInvitation({
     : false
 
   if (!isInhouse && profile.active_wp_post_url && wpPostAlive) {
-    const guestName = guestContext?.name || to || ""
+    const guestName = guestContext?.name || prettifyGuestSlug(to) || ""
     const wpUrl = guestName
       ? `${profile.active_wp_post_url}?to=${encodeURIComponent(guestName)}`
       : profile.active_wp_post_url
@@ -248,20 +255,22 @@ export default async function WeddingInvitation({
         {/* Count the invitation as "dibuka" for identified guests when the page
             loads (covers popup-based and future popup-less invitations). */}
         <InvitationOpenedTracker guestId={guestContext?.id} />
-        {guestContext?.id && (
+        {((guestContext?.id) || (!linkStrict && !!to)) && (
           <InvitationOverlay
-            guestId={guestContext.id}
+            guestId={guestContext?.id}
+            guestSlug={to || undefined}
+            allowFlexibleRsvp={!linkStrict}
             guestName={guestName}
             coupleName={(profile.groom_full_name && profile.bride_full_name ? `${profile.groom_full_name} & ${profile.bride_full_name}` : profile.display_name) || `${profile.groom_name} & ${profile.bride_name}`}
             weddingProfileId={profile.id}
             guestQrUrl={
-              guestContext.slug || guestContext.qr_token
+              guestContext?.slug || guestContext?.qr_token
                 ? `/qr/${encodeURIComponent(guestContext.slug || guestContext.qr_token)}`
                 : undefined
             }
-            guestTableNumber={guestContext.table_number}
-            guestRsvpStatus={guestContext.rsvp_status}
-            guestRsvpMessage={guestContext.rsvp_message}
+            guestTableNumber={guestContext?.table_number}
+            guestRsvpStatus={guestContext?.rsvp_status}
+            guestRsvpMessage={guestContext?.rsvp_message}
             rsvpMaxPax={profile.rsvp_max_pax ?? 2}
             qrEnabled={featureSet.has("qr_code_book")}
           />
@@ -273,7 +282,7 @@ export default async function WeddingInvitation({
   // In-house templates have no demo redirect; WP templates without a live post
   // fall back to the master demo iframe (kept for backward compatibility).
   if (!isInhouse && templateDemoUrl && !wpPostAlive) {
-    const guestName = guestContext?.name || to || ""
+    const guestName = guestContext?.name || prettifyGuestSlug(to) || ""
     const wpUrl = guestName
       ? `${templateDemoUrl}?to=${encodeURIComponent(guestName)}`
       : templateDemoUrl
@@ -283,16 +292,18 @@ export default async function WeddingInvitation({
           <iframe src={wpUrl} title="Undangan Pernikahan" allow="autoplay; fullscreen" style={{ width: "100%", height: "100%", border: "none", display: "block" }} />
         </div>
         <InvitationOpenedTracker guestId={guestContext?.id} />
-        {guestContext?.id && (
+        {((guestContext?.id) || (!linkStrict && !!to)) && (
           <InvitationOverlay
-            guestId={guestContext.id}
+            guestId={guestContext?.id}
+            guestSlug={to || undefined}
+            allowFlexibleRsvp={!linkStrict}
             guestName={guestName}
             coupleName={(profile.groom_full_name && profile.bride_full_name ? `${profile.groom_full_name} & ${profile.bride_full_name}` : profile.display_name) || `${profile.groom_name} & ${profile.bride_name}`}
             weddingProfileId={profile.id}
-            guestQrUrl={guestContext.slug || guestContext.qr_token ? `/qr/${encodeURIComponent(guestContext.slug || guestContext.qr_token)}` : undefined}
-            guestTableNumber={guestContext.table_number}
-            guestRsvpStatus={guestContext.rsvp_status}
-            guestRsvpMessage={guestContext.rsvp_message}
+            guestQrUrl={guestContext?.slug || guestContext?.qr_token ? `/qr/${encodeURIComponent(guestContext.slug || guestContext.qr_token)}` : undefined}
+            guestTableNumber={guestContext?.table_number}
+            guestRsvpStatus={guestContext?.rsvp_status}
+            guestRsvpMessage={guestContext?.rsvp_message}
             rsvpMaxPax={profile.rsvp_max_pax ?? 2}
             qrEnabled={featureSet.has("qr_code_book")}
           />
@@ -344,6 +355,8 @@ export default async function WeddingInvitation({
         inviting_families={rowGates.inviting_families.included ? (profile.inviting_families ? (typeof profile.inviting_families === "string" ? JSON.parse(profile.inviting_families) : profile.inviting_families) : undefined) : undefined}
         wedding_profile_id={profile.id}
         guest_id={guestContext?.id}
+        guest_link_strict={linkStrict}
+        guest_slug={to || undefined}
         guest_qr_token={featureSet.has("qr_code_book") ? (guestContext?.qr_token || undefined) : undefined}
         guest_qr_url={featureSet.has("qr_code_book") && guestContext?.qr_token ? `/qr/${encodeURIComponent(guestContext.slug || guestContext.qr_token)}` : undefined}
         guest_qr_content={featureSet.has("qr_code_book") && guestContext?.qr_token ? `/welcome/${encodeURIComponent(guestContext.slug || guestContext.qr_token)}` : undefined}

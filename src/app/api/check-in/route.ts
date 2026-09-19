@@ -4,24 +4,29 @@ import { getFeatureIncluded, getGuestPhotoQuota } from "@/lib/featureGates"
 
 export async function POST(req: NextRequest) {
   try {
-    const { qr_token, checked_in_by, wedding_profile_id } = await req.json()
+    const { qr_token, checked_in_by, wedding_profile_id, slug } = await req.json()
 
-    if (!qr_token) {
+    if (!qr_token && !slug) {
       return NextResponse.json({ error: "QR token diperlukan" }, { status: 400 })
     }
 
-    const { data: guest, error: guestErr } = await supabaseAdmin
+    let guestQuery = supabaseAdmin
       .from("guests")
       .select("id, name, table_number, is_checked_in, checkin_timestamp, souvenir_claimed, wedding_profile_id")
-      .eq("qr_token", qr_token)
-      .maybeSingle()
+
+    const { data: guest, error: guestErr } = qr_token
+      ? await guestQuery.eq("qr_token", qr_token).maybeSingle()
+      : await guestQuery
+          .eq("wedding_profile_id", wedding_profile_id || "")
+          .ilike("slug", slug || "")
+          .maybeSingle()
 
     if (guestErr) {
       return NextResponse.json({ error: guestErr.message }, { status: 500 })
     }
 
     if (!guest) {
-      return NextResponse.json({ error: "QR tidak valid. Tamu tidak ditemukan." }, { status: 404 })
+      return NextResponse.json({ error: qr_token ? "QR tidak valid. Tamu tidak ditemukan." : "Tamu tidak ditemukan." }, { status: 404 })
     }
 
     if (wedding_profile_id && guest.wedding_profile_id !== wedding_profile_id) {

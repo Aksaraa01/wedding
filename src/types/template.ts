@@ -79,6 +79,10 @@ export type TemplateProps = {
   story_visible?: boolean
   wedding_profile_id?: string
   guest_id?: string
+  // Fleksibel link mode: RSVP dock renders without a guest row and provisions
+  // one keyed by guest_slug on submit.
+  guest_link_strict?: boolean
+  guest_slug?: string
   guest_qr_token?: string
   guest_qr_url?: string
   guest_qr_content?: string

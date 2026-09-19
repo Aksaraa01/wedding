@@ -84,7 +84,7 @@ export default function PastelCoastal(props: TemplateProps) {
   const ready = usePastelReady(props)
   const initials = (props.couple_initials || "").trim() || initialsOf(props.groom_name, props.bride_name) || "AR"
 
-  const showGuestDock = opened && !wishOpen && !!props.guest_id && !!props.wedding_profile_id
+  const showGuestDock = opened && !wishOpen && (!!props.guest_id || (props.guest_link_strict === false && !!props.guest_slug)) && !!props.wedding_profile_id
   const coupleName =
     (props.groom_full_name && props.bride_full_name
       ? `${props.groom_full_name} & ${props.bride_full_name}`
@@ -136,7 +136,9 @@ export default function PastelCoastal(props: TemplateProps) {
 
         {showGuestDock && (
           <InvitationOverlay
-            guestId={props.guest_id!}
+            guestId={props.guest_id}
+            guestSlug={props.guest_slug}
+            allowFlexibleRsvp={props.guest_link_strict === false}
             guestName={props.guest_name || "Tamu Undangan"}
             coupleName={coupleName}
             weddingProfileId={props.wedding_profile_id!}
@@ -170,7 +172,7 @@ export default function PastelCoastal(props: TemplateProps) {
           </button>
         )}
 
-        {hasTrack && <audio ref={audioRef} src={props.track_url} loop playsInline preload="auto" />}
+        {hasTrack && <audio ref={audioRef} src={props.track_url} loop playsInline preload="none" />}
       </div>
     </Skin>
   )

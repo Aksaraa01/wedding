@@ -7,6 +7,7 @@ import { ASSETS } from "@/lib/assets"
 import ProfileMenu from "@/components/ProfileMenu"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import { MSG_CATEGORIES, MSG_TEMPLATES, MSG_VARS, MsgCategory, cleanMessageForCell, isValidMsgCategory, renderMessage } from "@/lib/messageTemplates"
+import { FALLBACK_GUEST_SLUG, FALLBACK_GUEST_NAME } from "@/lib/guest-link"
 
 type Guest = {
   id: string
@@ -30,6 +31,7 @@ type Profile = {
   groom_name: string
   estimated_wedding_date: string | null
   estimated_guest_count: number | null
+  guest_link_strict?: boolean | null
 }
 
 type Stats = {
@@ -207,6 +209,10 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   const [showLimitModal, setShowLimitModal] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [hasUnresolvedFeedback, setHasUnresolvedFeedback] = useState(false)
+  const [linkStrict, setLinkStrict] = useState(true)
+  const [linkSaving, setLinkSaving] = useState(false)
+  const [showLinkInfo, setShowLinkInfo] = useState(false)
+  const [genericCopied, setGenericCopied] = useState<"link" | "msg" | null>(null)
 
   const fetchData = async () => {
     try {
@@ -218,6 +224,11 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       const profileData = await profileRes.json()
       const guestsData = await guestsRes.json()
       setProfile(profileData.profile)
+      if (profileData.profile?.guest_link_strict === false) {
+        setLinkStrict(false)
+      } else {
+        setLinkStrict(true)
+      }
       const savedCat = profileData.profile?.message_category
       if (savedCat && MSG_CATEGORIES.some((c) => c.id === savedCat)) {
         setMsgCategory(savedCat as MsgCategory)
@@ -248,6 +259,28 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
 
   const gated = !!profile && profile.payment_status !== "UNPAID" && profile.is_published !== true
   const firstGuestId = guests[0]?.id || null
+
+  const handleLinkMode = async (strict: boolean) => {
+    if (strict === linkStrict || linkSaving) return
+    setLinkStrict(strict)
+    setLinkSaving(true)
+    try {
+      const res = await fetch(`/api/dashboard/${id}/qr-guestbook`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ guest_link_strict: strict }),
+      })
+      if (!res.ok) {
+        setLinkStrict(!strict)
+        alert("Gagal menyimpan. Silakan coba lagi.")
+      }
+    } catch {
+      setLinkStrict(!strict)
+      alert("Gagal menyimpan. Silakan coba lagi.")
+    } finally {
+      setLinkSaving(false)
+    }
+  }
 
   const handleGenerate = async () => {
     setGenerating(true)
@@ -313,6 +346,22 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   }
 
   const coupleName = profile ? `${(profile.bride_name || "").trim()} & ${(profile.groom_name || "").trim()}` : ""
+
+  const genericUndanganUrl = profile
+    ? `https://${profile.slug}.wedding.aksaraa.com/?to=${encodeURIComponent(FALLBACK_GUEST_SLUG)}`
+    : ""
+
+  const handleCopyGeneric = async (kind: "link" | "msg") => {
+    if (!profile) return
+    const text = kind === "link"
+      ? genericUndanganUrl
+      : renderMessage(msgText, FALLBACK_GUEST_NAME, coupleName, genericUndanganUrl)
+    try {
+      await navigator.clipboard.writeText(text)
+      setGenericCopied(kind)
+      setTimeout(() => setGenericCopied(null), 2000)
+    } catch {}
+  }
 
   const handleCopyMessage = async (guest: Guest) => {
     if (!profile) return
@@ -538,6 +587,74 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
               </button>
             </div>
           </section>
+          {/* Akses Tautan Undangan */}
+          <section className="mt-4 bg-white border border-[#E2D9CF] rounded-2xl shadow-sm p-4">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-[#B34E3F] text-[18px]">link</span>
+              <h2 className="font-label-md text-[12px] uppercase tracking-widest text-[#2C2A29] font-bold flex-1">Akses Tautan Undangan</h2>
+              <button
+                type="button"
+                onClick={() => setShowLinkInfo(true)}
+                aria-label="Info akses tautan undangan"
+                className="w-8 h-8 flex items-center justify-center rounded-full text-on-surface-variant hover:text-[#B34E3F] hover:bg-[#F5EFE6] transition-colors"
+              >
+                <span className="material-symbols-outlined text-[20px]">info</span>
+              </button>
+            </div>
+            <div className="flex gap-2 p-1 bg-[#F5EFE6] rounded-full w-fit mt-3">
+              <button
+                type="button"
+                onClick={() => handleLinkMode(true)}
+                disabled={linkSaving}
+                className={`px-4 py-1.5 rounded-full font-label-md text-[11px] uppercase tracking-widest transition-colors disabled:opacity-50 ${linkStrict ? "bg-[#B34E3F] text-white" : "text-[#2C2A29] hover:text-[#B34E3F]"}`}
+              >
+                Terbatas
+              </button>
+              <button
+                type="button"
+                onClick={() => handleLinkMode(false)}
+                disabled={linkSaving}
+                className={`px-4 py-1.5 rounded-full font-label-md text-[11px] uppercase tracking-widest transition-colors disabled:opacity-50 ${!linkStrict ? "bg-[#B34E3F] text-white" : "text-[#2C2A29] hover:text-[#B34E3F]"}`}
+              >
+                Fleksibel
+              </button>
+            </div>
+            <p className="font-body-md text-[12px] text-on-surface-variant mt-2 leading-relaxed">
+              {linkStrict
+                ? "Hanya tamu terdaftar yang dapat membuka undangan."
+                : "Siapa pun dapat membuka undangan dengan nama apa pun."}
+            </p>
+          </section>
+          {!linkStrict && (
+            <section className="mt-4 bg-white border border-[#E2D9CF] rounded-2xl shadow-sm p-4">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[#B34E3F] text-[18px]">share</span>
+                <h2 className="font-label-md text-[12px] uppercase tracking-widest text-[#2C2A29] font-bold flex-1">Tautan Umum</h2>
+              </div>
+              <p className="font-mono text-[12px] text-[#2C2A29] bg-[#F5EFE6] border border-[#E2D9CF] rounded-xl px-3 py-2.5 mt-3 break-all">
+                {genericUndanganUrl}
+              </p>
+              <div className="flex gap-2 mt-3">
+                <button
+                  type="button"
+                  onClick={() => handleCopyGeneric("link")}
+                  className="flex-1 py-2.5 font-label-md text-[10px] uppercase tracking-widest rounded-full bg-[#F5EFE6] border border-[#E2D9CF] text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors"
+                >
+                  {genericCopied === "link" ? "Tersalin!" : "Salin Tautan"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleCopyGeneric("msg")}
+                  className="flex-1 py-2.5 font-label-md text-[10px] uppercase tracking-widest rounded-full bg-[#B34E3F] border border-[#B34E3F] text-white hover:bg-[#9E3B2D] transition-colors"
+                >
+                  {genericCopied === "msg" ? "Tersalin!" : "Salin Pesan"}
+                </button>
+              </div>
+              <p className="font-body-md text-[12px] text-on-surface-variant mt-2 leading-relaxed">
+                Salin pesan, lalu ganti {`to=${FALLBACK_GUEST_SLUG}`} dengan slug nama tamu — contoh: to=Budi-Santoso.
+              </p>
+            </section>
+          )}
           {/* Template Pesan Undangan */}
           <section className="mt-4 bg-white border border-[#E2D9CF] rounded-2xl shadow-sm overflow-hidden">
             <button type="button" onClick={() => setTemplateOpen(!templateOpen)} className="w-full flex items-center justify-between p-4 bg-[#FAF7F2] hover:bg-[#F5EFE6] transition-colors">
@@ -720,6 +837,36 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       </main>
 
       {/* QR book feature limit — only Buku Tamu Digital packages include it */}
+      {showLinkInfo && (
+        <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-secondary text-2xl">info</span>
+              </div>
+              <h3 className="font-headline-md text-lg font-medium text-primary">Akses Tautan Undangan</h3>
+              <div className="text-sm text-on-surface-variant leading-relaxed space-y-3 text-left w-full">
+                <p>
+                  <span className="font-bold text-on-surface">Mode Terbatas</span> — Hanya tamu yang namanya terdaftar di daftar tamu yang dapat membuka undangan. Jika tautan dibuka dengan nama yang tidak ada di daftar, akan muncul halaman &ldquo;Tautan Undangan Tidak Valid&rdquo;.
+                </p>
+                <p>
+                  <span className="font-bold text-on-surface">Mode Fleksibel</span> — Siapa pun dapat membuka undangan dengan nama apa pun, cocok untuk satu tautan umum yang dibagikan ke banyak orang. Nama yang tampil mengikuti tulisan di tautan (contoh: Budi-Santoso menjadi &ldquo;Budi Santoso&rdquo;).
+                </p>
+                <p>
+                  Saat tamu mengisi RSVP, namanya otomatis tercatat di daftar tamu dengan kategori Fleksibel, sehingga tetap bisa check-in dan klaim souvenir.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowLinkInfo(false)}
+                className="w-full bg-primary text-on-primary py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
+              >
+                Mengerti
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showLimitModal && (
         <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl">

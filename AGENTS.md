@@ -195,11 +195,20 @@ The VPS has 2GB RAM and CANNOT run `next build`. Build locally, rsync the standa
    ```
    **CRITICAL: `public/` rsync MUST run AFTER `standalone/` rsync** — the `--delete` on standalone wipes remote `public/` (it doesn't exist locally in `.next/standalone/`). Running them in parallel causes a race where public gets deleted after being synced. Run all four sequentially.
    Note: Next 16 standalone output does NOT copy `public/`; the standalone server serves public from `.next/standalone/public/` (next to `server.js`). Syncing to `/var/www/aksara-wedding/public/` is NOT served — do not use it.
-3. Restart PM2 on the server (restart is REQUIRED — the standalone server indexes the static folder at boot, so static synced after startup returns 404 until restart):
+3. Reload PM2 on the server (reload is REQUIRED — the standalone server indexes the static folder at boot, so static synced after startup returns 404 until reload):
    ```bash
    ssh askaraa@103.93.135.176
-   pm2 restart aksara-wedding --update-env
+   cd /var/www/aksara-wedding && pm2 startOrRestart ecosystem.config.js --only aksara-wedding --update-env
    pm2 save
+   ```
+   **CRITICAL: use `startOrRestart` with the ecosystem file, NOT bare `pm2 restart`.**
+   `pm2 restart` preserves the process's original launch-time env and never re-reads
+   `ecosystem.config.js`, so any env var added to the file later (e.g.
+   `WA_TARGET_GROUP_JID`, `WP_POLL_MS`) silently never reaches the process (this
+   broke WA group notifications). `startOrRestart` re-reads the file. After reload,
+   verify new vars landed (names only, never print values):
+   ```bash
+   ssh -i $HOME/.ssh/aksaraa_deploy askaraa@103.93.135.176 "pm2 env \$(pm2 id aksara-wedding 2>/dev/null | grep -o '[0-9]*') 2>/dev/null | grep -o '^[A-Za-z_][A-Za-z0-9_]*' | sort -u"
    ```
 4. After the VPS deploy is verified, commit and push the work:
    ```bash
