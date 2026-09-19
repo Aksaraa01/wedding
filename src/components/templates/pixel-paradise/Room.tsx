@@ -4,6 +4,7 @@ import { useState } from "react"
 import type { CSSProperties } from "react"
 import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
+import { toTransformedUrl } from "@/lib/storageUrl"
 import { FONT_BODY, FONT_PIXEL } from "../shared/Skin"
 import { formatDotDate, initialsOf, type GiftAccountData } from "../shared/lib"
 import LiveWishes from "../shared/LiveWishes"
@@ -115,7 +116,7 @@ export default function PixelRoom({
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,#0d1527_0%,#020617_75%)]" />
         <div className="relative pp-scene" style={boxStyle}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={ASSETS.pixelParadise.room} alt="" onLoad={onArtLoad} className="block w-full h-full object-cover pointer-events-none" draggable={false} />
+          <img src={toTransformedUrl(ASSETS.pixelParadise.room, { width: 800 })} alt="" onLoad={onArtLoad} className="block w-full h-full object-cover pointer-events-none" draggable={false} />
           <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/40 via-transparent to-[#020617]/70 pointer-events-none" />
           <PixelAtmosphere />
 

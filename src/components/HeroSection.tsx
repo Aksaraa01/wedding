@@ -2,27 +2,34 @@
 
 import Link from "next/link"
 
-// Template screenshots live in the prod bucket's `templates/` folder.
-const PROD_MEDIA = "https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media"
+// Template screenshots live in the media bucket's `templates/` folder.
+// Env-relative (never hardcoded to prod) + image transform at ~2x display
+// size: arch cards render at 130-156px, mobile carousel at 200px, avatars at
+// 32px — serving full originals here cost ~8-12MB per homepage view.
+const MEDIA_RENDER_BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL || ""}/storage/v1/render/image/public/media`
+
+function thumb(name: string, width = 400): string {
+  return `${MEDIA_RENDER_BASE}/templates/${name}?width=${width}&quality=70&resize=cover`
+}
 
 // 8 square cards in a top arch, mirroring the reference layout.
 // Sizes ladder: edges 130px → center 156px. Rotations ∓36° → ∓4°.
 const ARCH_PHOTOS = [
-  { src: `${PROD_MEDIA}/templates/Template%201.png`, left: "4%", top: "72%", size: 130, rotate: -36, z: 10 },
-  { src: `${PROD_MEDIA}/templates/Template%202.png`, left: "13%", top: "42%", size: 140, rotate: -24, z: 20 },
-  { src: `${PROD_MEDIA}/templates/Template%203.png`, left: "24%", top: "16%", size: 148, rotate: -13, z: 30 },
-  { src: `${PROD_MEDIA}/templates/Template%204.png`, left: "37%", top: "4%", size: 156, rotate: -4, z: 40 },
-  { src: `${PROD_MEDIA}/templates/Template%205.png`, left: "51%", top: "4%", size: 156, rotate: 4, z: 35 },
-  { src: `${PROD_MEDIA}/templates/Template%206.png`, left: "64%", top: "16%", size: 148, rotate: 13, z: 30 },
-  { src: `${PROD_MEDIA}/templates/Template%207.png`, left: "76%", top: "42%", size: 140, rotate: 24, z: 20 },
-  { src: `${PROD_MEDIA}/templates/Template%209.png`, left: "85%", top: "72%", size: 130, rotate: 36, z: 10 },
+  { src: thumb("Template%201.png"), left: "4%", top: "72%", size: 130, rotate: -36, z: 10 },
+  { src: thumb("Template%202.png"), left: "13%", top: "42%", size: 140, rotate: -24, z: 20 },
+  { src: thumb("Template%203.png"), left: "24%", top: "16%", size: 148, rotate: -13, z: 30 },
+  { src: thumb("Template%204.png"), left: "37%", top: "4%", size: 156, rotate: -4, z: 40 },
+  { src: thumb("Template%205.png"), left: "51%", top: "4%", size: 156, rotate: 4, z: 35 },
+  { src: thumb("Template%206.png"), left: "64%", top: "16%", size: 148, rotate: 13, z: 30 },
+  { src: thumb("Template%207.png"), left: "76%", top: "42%", size: 140, rotate: 24, z: 20 },
+  { src: thumb("Template%209.png"), left: "85%", top: "72%", size: 130, rotate: 36, z: 10 },
 ]
 
 const SOCIAL_AVATARS = [
-  `${PROD_MEDIA}/templates/Template%201.png`,
-  `${PROD_MEDIA}/templates/Template%202.png`,
-  `${PROD_MEDIA}/templates/Template%203.png`,
-  `${PROD_MEDIA}/templates/Template%204.png`,
+  thumb("Template%201.png", 96),
+  thumb("Template%202.png", 96),
+  thumb("Template%203.png", 96),
+  thumb("Template%204.png", 96),
 ]
 
 export default function HeroSection() {
@@ -64,6 +71,8 @@ export default function HeroSection() {
               alt="Galeri"
               width={photo.size}
               height={photo.size}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover rounded-2xl"
             />
           </div>
@@ -74,13 +83,15 @@ export default function HeroSection() {
       <div className="md:hidden w-full max-w-[1100px] mx-auto mb-6 mt-6">
         <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 no-scrollbar px-4">
           {ARCH_PHOTOS.map((photo, i) => (
-            <div key={i} className="shrink-0 snap-start w-[200px]">
-              <img
-                src={photo.src}
-                alt="Galeri"
-                className="w-full aspect-[9/19] object-cover rounded-2xl border border-white/20 shadow-[0_24px_48px_-16px_rgba(0,0,0,0.55)]"
-              />
-            </div>
+              <div key={i} className="shrink-0 snap-start w-[200px]">
+                <img
+                  src={photo.src}
+                  alt="Galeri"
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full aspect-[9/19] object-cover rounded-2xl border border-white/20 shadow-[0_24px_48px_-16px_rgba(0,0,0,0.55)]"
+                />
+              </div>
           ))}
         </div>
       </div>
@@ -127,7 +138,7 @@ export default function HeroSection() {
           <div className="flex -space-x-2">
             {SOCIAL_AVATARS.map((src, i) => (
               <div key={i} className="w-8 h-8 rounded-full border-2 border-[#3A153A] overflow-hidden">
-                <img src={src} alt="Tamu" className="w-full h-full object-cover" />
+                <img src={src} alt="Tamu" loading="lazy" decoding="async" className="w-full h-full object-cover" />
               </div>
             ))}
             <div className="w-8 h-8 rounded-full border-2 border-[#3A153A] bg-[#592259] flex items-center justify-center text-xs text-white">

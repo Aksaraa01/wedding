@@ -1,6 +1,7 @@
 "use client"
 
 import { FONT_DISPLAY } from "../../shared/Skin"
+import { toTransformedUrl } from "@/lib/storageUrl"
 
 const HEIGHTS = ["h-52", "h-40", "h-44", "h-60", "h-48"]
 const BOBS = ["pc-bob-1", "pc-bob-2", "pc-bob-3", "pc-bob-4", "pc-bob-5"]
@@ -24,7 +25,7 @@ export default function GalleryPage({ photos }: { photos: string[] }) {
             <div className="break-inside-avoid relative rounded-[16px] overflow-hidden backdrop-blur-md bg-white/5 border border-[#d4af37]/35 shadow-[0_8px_24px_rgba(0,0,0,0.35)] transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] hover:shadow-[0_12px_28px_rgba(212,175,55,0.25)] hover:border-[#d4af37]/60 cursor-pointer group">
               <div className={`w-full ${HEIGHTS[i % HEIGHTS.length]} overflow-hidden relative`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt={`Galeri ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500" />
+                <img src={toTransformedUrl(src, { width: 600 })} alt={`Galeri ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10 pointer-events-none" />
                 <div className="absolute inset-1.5 rounded-[12px] border border-[#d4af37]/25 pointer-events-none" />
               </div>

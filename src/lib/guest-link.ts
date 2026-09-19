@@ -1,21 +1,22 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { generateUniqueToken } from "@/lib/qr"
 import { getFeatureIncluded } from "@/lib/featureGates"
+import { slugifyName } from "@/lib/guest-slug"
 
 // Allowed guest-name charset (manual add/edit + bulk auto-sanitize): letters,
 // digits, space, dot, comma, parentheses. Everything else is stripped.
 export { sanitizeGuestName } from "@/lib/nameClean"
 
-// Clean, URL-safe guest slug (zero '%' in query). Commas/parens/+/& are dropped
-// (map to "-"), only A-Z a-z 0-9 . - remain, space -> "-":
-// "Prof. Dr. …, Ph.D (HC)" -> "Prof.-Dr.-…-Ph.D-HC". Case preserved.
-export function slugifyName(name: string): string {
-  return (name || "")
-    .trim()
-    .replace(/[^A-Za-z0-9.-]+/g, "-")
-    .replace(/-{2,}/g, "-")
-    .replace(/^-+|-+$/g, "")
-}
+// Pure slug helpers live in the client-safe ./guest-slug module;
+// re-exported here so server code keeps importing from "@/lib/guest-link".
+export {
+  slugifyName,
+  prettifyGuestSlug,
+  isValidGuestSlug,
+  FALLBACK_GUEST_SLUG,
+  FALLBACK_GUEST_NAME,
+  isFallbackGuestSlug,
+} from "@/lib/guest-slug"
 
 // Display version of a raw ?to= slug for Fleksibel mode:
 // "Budi-Santoso" -> "Budi Santoso". Underscores also become spaces.

@@ -3,7 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase"
 import { ensureBucket, uploadFile } from "@/lib/storage"
 import { getGuestPhotoQuota } from "@/lib/featureGates"
 
-const MAX_SIZE = 5 * 1024 * 1024
+const MAX_SIZE = 2 * 1024 * 1024
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (file.size > MAX_SIZE) {
-      return NextResponse.json({ error: "Ukuran file maksimal 5MB" }, { status: 400 })
+      return NextResponse.json({ error: "Ukuran file maksimal 2MB" }, { status: 400 })
     }
 
     // Per-guest photo quota follows the selected Buku Tamu Digital package

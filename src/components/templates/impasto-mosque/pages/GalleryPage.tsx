@@ -1,6 +1,7 @@
 "use client"
 
 import { FONT_DISPLAY } from "../../shared/Skin"
+import { toTransformedUrl } from "@/lib/storageUrl"
 
 const HEIGHTS = ["h-52", "h-40", "h-44", "h-48"]
 
@@ -18,7 +19,7 @@ export default function GalleryPage({ photos }: { photos: string[] }) {
           >
             <div className={`w-full ${HEIGHTS[i % HEIGHTS.length]} overflow-hidden relative`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt={`Galeri ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500" />
+              <img src={toTransformedUrl(src, { width: 600 })} alt={`Galeri ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10 pointer-events-none" />
               <div className="absolute inset-1.5 rounded-[12px] border border-[#d4af37]/25 pointer-events-none" />
             </div>

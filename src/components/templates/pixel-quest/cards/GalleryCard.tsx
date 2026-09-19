@@ -2,6 +2,7 @@
 
 import type { TemplateProps } from "@/types/template"
 import { FONT_PIXEL } from "../../shared/Skin"
+import { toTransformedUrl } from "@/lib/storageUrl"
 import CardShell from "./CardShell"
 
 // Compact inline gallery grid for the quest step. Tapping opens the full
@@ -23,7 +24,7 @@ export default function GalleryCard({
           {photos.slice(0, 6).map((src, i) => (
             <div key={i} className="relative rounded-lg overflow-hidden border border-[#38bdf8]/40 bg-slate-950 aspect-square">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt={`Galeri ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-contain" />
+              <img src={toTransformedUrl(src, { width: 400 })} alt={`Galeri ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-contain" />
               <span className="absolute bottom-0.5 left-1 text-[7px] text-cyan-300" style={FONT_PIXEL}>
                 {`LVL.${String(i + 1).padStart(2, "0")}`}
               </span>

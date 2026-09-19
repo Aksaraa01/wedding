@@ -1,5 +1,14 @@
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 const STORAGE_BASE = `${SUPABASE_URL}/storage/v1/object/public/media/seeded`
+// Env-relative so staging/dev traffic bills its own project, never prod.
+// Falls back to the prod literal only when the env is unset (single literal
+// is safe: the file is public and shared across environments).
+const PROD_FALLBACK = "https://ylmfgorryxzpdckkebnr.supabase.co"
+
+function trackUrl(name: string): string {
+  const base = SUPABASE_URL || PROD_FALLBACK
+  return `${base}/storage/v1/object/public/media/tracks/${name}`
+}
 
 function s(path: string): string {
   return `${STORAGE_BASE}/${path}`
@@ -7,9 +16,9 @@ function s(path: string): string {
 
 export const ASSETS = {
   // Default background track for in-house templates ("An Everlasting Love" —
-  // tracked in web_tracks; the audio file lives in the production media bucket
-  // and is public, so a single literal is safe across environments).
-  defaultMusic: "https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/tracks/An_Everlasting_Love.mp3",
+  // tracked in web_tracks; the audio file lives in the media bucket and is
+  // public, so a single fallback literal is safe across environments).
+  defaultMusic: trackUrl("An_Everlasting_Love.mp3"),
   hero: {
     mockup: s("hero/hero-portrait.jpg"),
   },

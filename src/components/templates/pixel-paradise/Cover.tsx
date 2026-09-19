@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { ASSETS } from "@/lib/assets"
+import { toTransformedUrl } from "@/lib/storageUrl"
 import { FONT_PIXEL } from "../shared/Skin"
 
 const PIXEL = FONT_PIXEL
@@ -62,7 +63,7 @@ export default function PixelCover({
         <div className="absolute inset-0 bg-gradient-to-b from-[#070b16] via-[#0d1424] to-[#0a0e1c]" />
         <div
           className="absolute inset-0 opacity-50 mix-blend-screen bg-cover bg-center"
-          style={{ backgroundImage: `url(${backgroundUrl || ASSETS.pixelParadise.coverBg})` }}
+          style={{ backgroundImage: `url(${toTransformedUrl(backgroundUrl || ASSETS.pixelParadise.coverBg, { width: 800 })})` }}
         />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(56,189,248,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(56,189,248,0.05)_1px,transparent_1px)] [background-size:18px_18px] opacity-30" />
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[420px] bg-[#38bdf8]/10 blur-[130px] rounded-full" />

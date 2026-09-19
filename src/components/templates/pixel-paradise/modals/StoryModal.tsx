@@ -3,6 +3,7 @@
 import type { TemplateProps } from "@/types/template"
 import { FONT_PIXEL } from "../../shared/Skin"
 import type { StoryData } from "../../shared/lib"
+import { toTransformedUrl } from "@/lib/storageUrl"
 import ModalShell from "./ModalShell"
 
 function Milestone({ story, i }: { story: StoryData; i: number }) {
@@ -35,7 +36,7 @@ function Milestone({ story, i }: { story: StoryData; i: number }) {
         {story.image_url && (
           <div className="w-full aspect-[16/9] rounded-lg overflow-hidden border border-white/10 mb-2 bg-[#090e1c]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={story.image_url} alt={story.title || ""} className="w-full h-full object-contain" loading="lazy" />
+            <img src={toTransformedUrl(story.image_url, { width: 600 })} alt={story.title || ""} className="w-full h-full object-contain" loading="lazy" />
           </div>
         )}
         {story.description && (

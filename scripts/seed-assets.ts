@@ -170,6 +170,8 @@ async function uploadOne(entry: AssetEntry, index: number, total: number) {
     const { error } = await supabase.storage.from(BUCKET).upload(storagePath, file, {
       upsert: true,
       contentType,
+      // Immutable seeded content: 1y browser + CDN cache for max hit rate.
+      cacheControl: "31536000",
     })
     if (error) {
       console.log(`FAIL (${error.message})`)

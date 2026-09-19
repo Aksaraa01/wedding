@@ -2,6 +2,7 @@
 
 import type { TemplateProps } from "@/types/template"
 import { FONT_PIXEL } from "../../shared/Skin"
+import { toTransformedUrl } from "@/lib/storageUrl"
 import ModalShell from "./ModalShell"
 
 const frame = (i: number) =>
@@ -21,7 +22,7 @@ export default function GalleryModal({ profile, onClose }: { profile: TemplatePr
               <span className={`absolute top-1 left-1 w-1.5 h-1.5 z-10 shadow-[0_0_4px_#22d3ee] ${i % 2 === 0 ? "bg-cyan-400" : "bg-pink-400"}`} />
               <span className={`absolute top-1 right-1 w-1.5 h-1.5 z-10 shadow-[0_0_4px_#f472b6] ${i % 2 === 0 ? "bg-pink-400" : "bg-cyan-400"}`} />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt={`Galeri ${i + 1}`} loading="lazy" decoding="async" className="w-full h-28 object-contain" />
+              <img src={toTransformedUrl(src, { width: 400 })} alt={`Galeri ${i + 1}`} loading="lazy" decoding="async" className="w-full h-28 object-contain" />
               <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/90 to-transparent py-1 px-1.5 flex items-center justify-between">
                 <span className="text-[7px] text-cyan-300 tracking-wider" style={FONT_PIXEL}>
                   {`LVL.${String(i + 1).padStart(2, "0")}`}

@@ -42,6 +42,8 @@ async function main() {
       const { error } = await supabase.storage.from(BUCKET).upload(storagePath, buf, {
         upsert: true,
         contentType: "image/png",
+        // Immutable seeded content: 1y browser + CDN cache for max hit rate.
+        cacheControl: "31536000",
       })
       if (error) throw error
       const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(storagePath)

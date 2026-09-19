@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "check:egress": "./scripts/check-storage-egress.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.8",

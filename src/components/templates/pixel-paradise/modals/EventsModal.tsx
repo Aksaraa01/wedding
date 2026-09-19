@@ -4,6 +4,7 @@ import type { TemplateProps } from "@/types/template"
 import { FONT_PIXEL } from "../../shared/Skin"
 import { countdownTarget, coverPhoto, formatDotDate, formatLongDate, gcalLink, type SessionData } from "../../shared/lib"
 import { useCountdown } from "../../shared/useCountdown"
+import { toTransformedUrl } from "@/lib/storageUrl"
 import ModalShell from "./ModalShell"
 
 function SessionCard({ session }: { session: SessionData }) {
@@ -67,7 +68,7 @@ export default function EventsModal({ profile, onClose }: { profile: TemplatePro
     <ModalShell icon="event" eyebrow="RETRO ARCADE LOUNGE" title="DATE & VENUE" onClose={onClose}>
       <div className="relative rounded-2xl overflow-hidden border-2 border-[#38bdf8]/40 group shadow-lg bg-[#090e1c]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={cover} alt="Venue" className="w-full h-44 object-contain" />
+        <img src={toTransformedUrl(cover, { width: 800 })} alt="Venue" className="w-full h-44 object-contain" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#090f1d]/60 via-transparent to-black/20 pointer-events-none" />
       </div>
 

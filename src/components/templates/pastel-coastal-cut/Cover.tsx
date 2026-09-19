@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { ASSETS } from "@/lib/assets"
+import { toTransformedUrl } from "@/lib/storageUrl"
 import { FONT_BODY, FONT_DISPLAY, FONT_SCRIPT } from "../shared/Skin"
 import { formatLongDate } from "../shared/lib"
 import PastelAtmosphere, { PC_ATMOSPHERE_CSS } from "./Atmosphere"
@@ -66,7 +67,7 @@ export default function PastelCover({
       <style>{PC_ATMOSPHERE_CSS}</style>
       <div className="absolute inset-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={ASSETS.pastelCoastal.bg} alt="" draggable={false} className="w-full h-full object-cover object-center pointer-events-none" />
+        <img src={toTransformedUrl(ASSETS.pastelCoastal.bg, { width: 800 })} alt="" draggable={false} className="w-full h-full object-cover object-center pointer-events-none" />
       </div>
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white/20 via-transparent to-amber-900/10" />
       <PastelAtmosphere doves={0} mainBirds petals8 motes />

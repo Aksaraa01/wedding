@@ -3,6 +3,7 @@
 import type { TemplateProps } from "@/types/template"
 import { FONT_DISPLAY, FONT_PIXEL } from "../../shared/Skin"
 import { bridePhoto, groomPhoto } from "../../shared/lib"
+import { toTransformedUrl } from "@/lib/storageUrl"
 import ModalShell from "./ModalShell"
 
 function PersonCard({
@@ -37,7 +38,7 @@ function PersonCard({
         {photo ? (
           <div className={`relative shrink-0 w-[96px] h-[96px] rounded-lg overflow-hidden border-2 ${accentFrame} bg-slate-900`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={photo} alt={name || ""} className="w-full h-full object-contain" />
+            <img src={toTransformedUrl(photo, { width: 400 })} alt={name || ""} className="w-full h-full object-contain" />
           </div>
         ) : (
           <div className={`relative shrink-0 w-[96px] h-[96px] rounded-lg overflow-hidden border-2 ${accentFrame} bg-slate-900 flex items-center justify-center`}>
