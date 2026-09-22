@@ -80,7 +80,7 @@ function MessagePreview({ text, guestName, coupleName, guestUrl }: { text: strin
   )
 }
 
-function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copiedId, copiedKind, gated, isFirstGuest, onGatedClick, isUnpaid, qrCodeBook, setShowLimitModal }: {
+function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copiedId, copiedKind, gated, isFirstGuest, onBlockedClick, isUnpaid, qrCodeBook, setShowLimitModal }: {
   guest: Guest
   slug: string
   onCopyQr: (token: string, slug: string | null) => void
@@ -90,7 +90,7 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copie
   copiedKind: "qr" | "undangan" | "pesan" | null
   gated: boolean
   isFirstGuest: boolean
-  onGatedClick: () => void
+  onBlockedClick: () => void
   isUnpaid?: boolean
   qrCodeBook: boolean
   setShowLimitModal: (open: boolean) => void
@@ -101,7 +101,6 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copie
   const isCopiedMessage = copiedId === guest.id && copiedKind === "pesan"
 
   const blocked = isUnpaid || gated
-  const blockAction = (fn: () => void) => (blocked ? onGatedClick : fn)
   const tableBadge = formatTableBadge(guest.table_number)
   const blockedText = isUnpaid ? "Selesaikan Pembayaran" : "Kunci — Lengkapi Undangan"
 
@@ -140,10 +139,14 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copie
       </div>
 
       {blocked ? (
-        <div className="bg-[#F3F4F6] border border-[#E2D9CF] rounded-lg px-3 py-2.5 flex items-center justify-center gap-2 text-[11px] font-label-md uppercase tracking-wider text-[#9CA3AF]">
+        <button
+          type="button"
+          onClick={onBlockedClick}
+          className="bg-[#F3F4F6] border border-[#E2D9CF] rounded-lg px-3 py-2.5 flex items-center justify-center gap-2 text-[11px] font-label-md uppercase tracking-wider text-[#9CA3AF] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors"
+        >
           <span className="material-symbols-outlined text-[16px]">lock</span>
           {blockedText}
-        </div>
+        </button>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           <button
@@ -353,6 +356,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
 
   const handleCopyGeneric = async (kind: "link" | "msg") => {
     if (!profile) return
+    if (isUnpaid || gated) return
     const text = kind === "link"
       ? genericUndanganUrl
       : renderMessage(msgText, FALLBACK_GUEST_NAME, coupleName, genericUndanganUrl)
@@ -407,6 +411,10 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
 
   const handleExportExcel = async () => {
     if (!profile || guests.length === 0) return
+    if (isUnpaid) {
+      router.push(`/customize?edit=true&profile_id=${id}`)
+      return
+    }
     if (gated) {
       setShowConfirmModal(true)
       return
@@ -463,6 +471,15 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   }
 
   const isUnpaid = profile?.payment_status === "UNPAID"
+  const blocked = isUnpaid || gated
+  const blockedText = isUnpaid ? "Selesaikan Pembayaran" : "Kunci — Lengkapi Undangan"
+  const handleBlockedClick = () => {
+    if (isUnpaid) {
+      router.push(`/customize?edit=true&profile_id=${id}`)
+    } else {
+      setShowConfirmModal(true)
+    }
+  }
   const withSlug = guests.filter((g) => !!g.slug).length
   const allHaveSlugs = stats.total > 0 && withSlug >= stats.total
   const gatedGenerate = !isUnpaid && stats.total > 0 && !allHaveSlugs
@@ -631,6 +648,17 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
                 <span className="material-symbols-outlined text-[#B34E3F] text-[18px]">share</span>
                 <h2 className="font-label-md text-[12px] uppercase tracking-widest text-[#2C2A29] font-bold flex-1">Tautan Umum</h2>
               </div>
+              {blocked ? (
+                <button
+                  type="button"
+                  onClick={handleBlockedClick}
+                  className="w-full mt-3 bg-[#F3F4F6] border border-[#E2D9CF] rounded-xl px-3 py-3 flex items-center justify-center gap-2 text-[11px] font-label-md uppercase tracking-wider text-[#9CA3AF] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[16px]">lock</span>
+                  {blockedText}
+                </button>
+              ) : (
+              <>
               <p className="font-mono text-[12px] text-[#2C2A29] bg-[#F5EFE6] border border-[#E2D9CF] rounded-xl px-3 py-2.5 mt-3 break-all">
                 {genericUndanganUrl}
               </p>
@@ -653,6 +681,8 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
               <p className="font-body-md text-[12px] text-on-surface-variant mt-2 leading-relaxed">
                 Salin pesan, lalu ganti {`to=${FALLBACK_GUEST_SLUG}`} dengan slug nama tamu — contoh: to=Budi-Santoso.
               </p>
+              </>
+              )}
             </section>
           )}
           {/* Template Pesan Undangan */}
@@ -820,7 +850,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
                   copiedKind={copiedKind}
                   gated={gated}
                   isFirstGuest={g.id === firstGuestId}
-                  onGatedClick={() => setShowConfirmModal(true)}
+                  onBlockedClick={handleBlockedClick}
                   isUnpaid={isUnpaid}
                   qrCodeBook={qrCodeBook}
                   setShowLimitModal={setShowLimitModal}
