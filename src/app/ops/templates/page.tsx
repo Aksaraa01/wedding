@@ -421,6 +421,7 @@ export default function OpsTemplatesPage() {
   const defaultSettingsPath = (widgetType: string | null, field?: string): string => {
     if (!widgetType) return "title"
     if (widgetType === "container-bg") return "background_image.url"
+    if (widgetType === "container-bg-overlay") return "background_overlay_image.url"
     if (widgetType === "container-slideshow") return "background_slideshow_gallery"
     if (widgetType === "media-carousel") return ""
     // Whole-section container has no content field to patch; hide/show is driven
@@ -563,12 +564,13 @@ export default function OpsTemplatesPage() {
         const keys = el.settings_keys || []
         const preview = el._preview || ""
         const hasBackground = preview.startsWith("bg: ")
+        const hasOverlay = preview.startsWith("bg-overlay: ")
         const hasSlideshow = preview.startsWith("slideshow")
         const isWidget = !!el.widgetType
         const excluded = isWidget && EXCLUDED_WIDGETS.has(el.widgetType!)
-        // Order matters: bg/slideshow containers must be classified BEFORE plain
-        // containers, otherwise a cover/photo container (which is also a section/
-        // container) would fall through to `container` and default to `title`.
+        // Order matters: bg/slideshow/overlay containers must be classified BEFORE
+        // plain containers, otherwise a cover/photo container (which is also a
+        // section/container) would fall through to `container` and default to `title`.
         if (isWidget && !excluded) {
           result.push({
             id: el.id,
@@ -581,6 +583,15 @@ export default function OpsTemplatesPage() {
           result.push({
             id: el.id,
             widgetType: "container-bg",
+            source,
+            settingsKeys: keys,
+            _preview: el._preview,
+          })
+        } else if (!isWidget && hasOverlay) {
+          // Container whose image is a background OVERLAY (Elementor ::before).
+          result.push({
+            id: el.id,
+            widgetType: "container-bg-overlay",
             source,
             settingsKeys: keys,
             _preview: el._preview,

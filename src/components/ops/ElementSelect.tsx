@@ -23,7 +23,7 @@ function isMappable(el: ElementNode, allowContainers: boolean): boolean {
   // Section/container that should be targetable (e.g. a whole gift section to hide).
   if (!isWidget && allowContainers && (el.elType === "section" || el.elType === "container")) return true
   if (isWidget && !excluded) return true
-  if (!isWidget && (preview.startsWith("bg: ") || preview.startsWith("slideshow"))) return true
+  if (!isWidget && (preview.startsWith("bg: ") || preview.startsWith("bg-overlay: ") || preview.startsWith("slideshow"))) return true
   return false
 }
 

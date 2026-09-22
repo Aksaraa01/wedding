@@ -197,6 +197,14 @@ class AksaraaPlugin
                         }
                     } elseif (is_array($bg) && !empty($bg['url'])) {
                         $node['_preview'] = 'bg: ' . self::image_name($bg);
+                    } else {
+                        // Background OVERLAY image (Elementor renders it via ::before).
+                        // Exposed as a distinct `bg-overlay:` target so /ops can map a
+                        // cover onto a container that only carries an overlay image.
+                        $ov = $el['settings']['background_overlay_image'] ?? [];
+                        if (is_array($ov) && !empty($ov['url'])) {
+                            $node['_preview'] = 'bg-overlay: ' . self::image_name($ov);
+                        }
                     }
                     if ($node['_preview'] !== '') {
                         // Append the first heading text so the mapper can tell which
@@ -1294,7 +1302,7 @@ class AksaraaPlugin
                     return true;
                 }
 
-                $isImageUrl = $lastKey === 'url' && ($parentKey === 'background_image' || $parentKey === 'image');
+                $isImageUrl = $lastKey === 'url' && in_array($parentKey, ['background_image', 'background_overlay_image', 'image'], true);
                 if ($isImageUrl) {
                     // Sideload the external image into the WP media library so Elementor
                     // can resolve it via a real attachment id (image/background widgets).
@@ -1316,6 +1324,11 @@ class AksaraaPlugin
                                 $el['settings'][$variantKey]['id'] = $imported['id'];
                             }
                         }
+                    }
+                    // Overlay images render via ::before only when the overlay
+                    // background type is "classic" — force it on patch.
+                    if ($parentKey === 'background_overlay_image') {
+                        $el['settings']['background_overlay_background'] = 'classic';
                     }
                 } else {
                     if (is_string($value)) $value = wp_kses_post($value);
