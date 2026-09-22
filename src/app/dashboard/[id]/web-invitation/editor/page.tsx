@@ -219,6 +219,7 @@ function EditorInner({ id }: { id: string }) {
   })
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error">("saved")
   const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "error">("idle")
+  const [syncError, setSyncError] = useState<string | null>(null)
   const [photoQuota, setPhotoQuota] = useState<number | null>(null)
   const [activeSection, setActiveSection] = useState<string>("sampul")
   const [openingCustomMode, setOpeningCustomMode] = useState(false)
@@ -365,10 +366,39 @@ function EditorInner({ id }: { id: string }) {
     (!!template?.code && !!getTemplateComponent(template.code) && !template?.wp_master_slug)
   const contentSpec = template?.code ? getTemplateContentSpec(template.code) : undefined
 
+  // Ubah error teknis sinkronisasi WP menjadi pesan Bahasa Indonesia yang
+  // bisa ditindaklanjuti pengguna (tampilkan + tombol coba lagi).
+  function toIndonesianSyncError(err: unknown): string {
+    const raw = err instanceof Error ? err.message : String(err ?? "")
+    const lower = raw.toLowerCase()
+    if (!raw) return "Sinkronisasi ke WordPress gagal. Silakan tekan Perbarui Undangan untuk mencoba lagi."
+    if (lower.includes("abort")) return "Sinkronisasi dibatalkan. Silakan tekan Perbarui Undangan untuk mencoba lagi."
+    if (lower.includes("masih berjalan") || lower.includes("timeout") || lower.includes("timed out")) {
+      return "Sinkronisasi masih berjalan dan melewati batas waktu. Perubahan Anda sudah tersimpan — tekan Perbarui Undangan untuk mencoba lagi."
+    }
+    if (lower.includes("fetch failed") || lower.includes("failed to fetch") || lower.includes("network") || lower.includes("load failed")) {
+      return "Koneksi ke server WordPress gagal. Periksa koneksi internet Anda, lalu tekan Perbarui Undangan untuk mencoba lagi."
+    }
+    if (lower.includes("belum ada postingan wordpress")) {
+      return "Belum ada undangan WordPress yang aktif. Silakan pilih tema terlebih dahulu, lalu tekan Perbarui Undangan."
+    }
+    if (lower.includes("profil tidak ditemukan") || lower.includes("job tidak ditemukan")) {
+      return "Data undangan tidak ditemukan. Muat ulang halaman ini, lalu tekan Perbarui Undangan untuk mencoba lagi."
+    }
+    if (lower.includes("http")) {
+      return `WordPress mengembalikan kesalahan (${raw}). Perubahan Anda sudah tersimpan — tekan Perbarui Undangan untuk mencoba lagi.`
+    }
+    if (/^[a-z]/.test(raw) && /[a-z]{4,}/.test(raw) && !/[а-я ]/i.test(raw) && /the|and|failed|error|connection/i.test(raw)) {
+      return `${raw} Silakan tekan Perbarui Undangan untuk mencoba lagi.`
+    }
+    return raw.endsWith("lagi.") ? raw : `${raw} Silakan tekan Perbarui Undangan untuk mencoba lagi.`
+  }
+
   // Enqueue a WP patch and poll until it finishes. Coalesced server-side: rapid
   // saves share one job, so polling the same job_id is safe.
   const syncToWp = useCallback(async () => {
     setSyncStatus("syncing")
+    setSyncError(null)
     if (wpAbortRef.current) wpAbortRef.current.abort()
     const ctrl = new AbortController()
     wpAbortRef.current = ctrl
@@ -390,6 +420,7 @@ function EditorInner({ id }: { id: string }) {
       if (err?.name === "AbortError") return
       console.error("[editor] wp sync failed", err)
       setSyncStatus("error")
+      setSyncError(toIndonesianSyncError(err))
       throw err
     }
   }, [id])
@@ -413,7 +444,7 @@ function EditorInner({ id }: { id: string }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(all),
         })
-        if (!res.ok) throw new Error("Save failed")
+        if (!res.ok) throw new Error("Gagal menyimpan perubahan. Silakan coba lagi.")
         setSaveStatus("saved")
       } catch {
         setSaveStatus("error")
@@ -425,6 +456,7 @@ function EditorInner({ id }: { id: string }) {
   const handleUpdatePreview = useCallback(async () => {
     setSaveStatus("saving")
     setUpdatingPreview(true)
+    setSyncError(null)
     // Flush any pending (debounced) changes immediately.
     const all = { ...pendingUpdates.current }
     pendingUpdates.current = {}
@@ -436,7 +468,7 @@ function EditorInner({ id }: { id: string }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(all),
         })
-        if (!res.ok) throw new Error("Save failed")
+        if (!res.ok) throw new Error("Gagal menyimpan perubahan. Silakan coba lagi.")
       }
       setSaveStatus("saved")
       // Refresh the preview: in-house renders live from the profile, so reload
@@ -1193,7 +1225,7 @@ function EditorInner({ id }: { id: string }) {
               ) : (
                 <>
                   <h1 className="font-headline-md text-[18px] lg:text-[20px] text-primary tracking-tight font-bold truncate max-w-[180px] xl:max-w-none">{data.display_name || "Undangan"}</h1>
-                  <p className="font-label-md text-[10px] text-on-surface-variant flex items-center gap-1">
+                  <p className="font-label-md text-[10px] text-on-surface-variant flex items-center gap-1" title={syncStatus === "error" && syncError ? syncError : undefined}>
                     <span className={`w-1.5 h-1.5 rounded-full ${saveStatusColor}`} />
                     {saveStatusLabel}
                   </p>
@@ -1282,6 +1314,24 @@ function EditorInner({ id }: { id: string }) {
             <ProfileMenu />
           </div>
         </header>
+
+        {syncStatus === "error" && syncError && (
+          <div className="shrink-0 px-4 sm:px-6 lg:px-8 py-3 bg-red-50 border-b border-red-200 flex items-start sm:items-center gap-3">
+            <span className="material-symbols-outlined text-red-600 text-[20px] shrink-0 mt-0.5 sm:mt-0">error</span>
+            <div className="flex-1 min-w-0">
+              <p className="font-label-md text-[11px] uppercase tracking-widest text-red-700">Sinkronisasi Gagal</p>
+              <p className="text-[13px] text-[#2C2A29] leading-snug">{syncError}</p>
+            </div>
+            <button
+              onClick={handleUpdatePreview}
+              disabled={updatingPreview || isPublished}
+              className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#B34E3F] text-white font-label-md text-[12px] hover:bg-[#9E3B2D] disabled:opacity-50 transition-colors"
+            >
+              <span className={`material-symbols-outlined text-[16px] ${updatingPreview ? "animate-spin" : ""}`}>{updatingPreview ? "progress_activity" : "refresh"}</span>
+              {updatingPreview ? "Mencoba..." : "Coba Lagi"}
+            </button>
+          </div>
+        )}
 
         {/* MAIN */}
         <main className="flex-1 flex overflow-hidden">
