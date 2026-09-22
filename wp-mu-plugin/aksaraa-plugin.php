@@ -174,6 +174,7 @@ class AksaraaPlugin
                 'elType' => $el['elType'] ?? '',
                 'widgetType' => $el['widgetType'] ?? null,
             ];
+            $overlayNode = null;
             if (isset($el['settings'])) {
                 $node['settings_keys'] = array_keys($el['settings']);
                 $widgetType = $el['widgetType'] ?? '';
@@ -182,7 +183,10 @@ class AksaraaPlugin
                 if ($node['_preview'] === '' && $widgetType === '') {
                     $bg = $el['settings']['background_image'] ?? [];
                     $slides = $el['settings']['background_slideshow_gallery'] ?? [];
+                    $ov = $el['settings']['background_overlay_image'] ?? [];
                     $bgType = $el['settings']['background_background'] ?? '';
+                    $bgHasImage = is_array($bg) && !empty($bg['url']);
+                    $ovHasImage = is_array($ov) && !empty($ov['url']);
                     // Honor background_background first: a "slideshow" section may still
                     // carry a leftover background_image, which must not mask the slideshow.
                     if ($bgType === 'slideshow' && is_array($slides) && !empty($slides)) {
@@ -195,16 +199,13 @@ class AksaraaPlugin
                             // this element expects 2 photos (a/b).
                             $node['_preview'] = 'slideshow (' . count($names) . '): ' . implode(' + ', array_slice($names, 0, 2));
                         }
-                    } elseif (is_array($bg) && !empty($bg['url'])) {
+                    } elseif ($bgHasImage) {
                         $node['_preview'] = 'bg: ' . self::image_name($bg);
-                    } else {
+                    } elseif ($ovHasImage) {
                         // Background OVERLAY image (Elementor renders it via ::before).
                         // Exposed as a distinct `bg-overlay:` target so /ops can map a
                         // cover onto a container that only carries an overlay image.
-                        $ov = $el['settings']['background_overlay_image'] ?? [];
-                        if (is_array($ov) && !empty($ov['url'])) {
-                            $node['_preview'] = 'bg-overlay: ' . self::image_name($ov);
-                        }
+                        $node['_preview'] = 'bg-overlay: ' . self::image_name($ov);
                     }
                     if ($node['_preview'] !== '') {
                         // Append the first heading text so the mapper can tell which
@@ -212,11 +213,29 @@ class AksaraaPlugin
                         $heading = self::first_heading_text($el['elements'] ?? []);
                         if ($heading !== '') $node['_preview'] .= ' · ' . $heading;
                     }
+                    // A container may carry BOTH a background image and a background
+                    // overlay image. The `bg:` preview wins for the container itself, so
+                    // expose the overlay as a synthetic selectable child (`{id}__overlay`)
+                    // that /ops maps to background_overlay_image.url.
+                    if ($bgHasImage && $ovHasImage) {
+                        $ovPreview = 'bg-overlay: ' . self::image_name($ov);
+                        $heading = self::first_heading_text($el['elements'] ?? []);
+                        if ($heading !== '') $ovPreview .= ' · ' . $heading;
+                        $overlayNode = [
+                            'id' => ($el['id'] ?? '') . '__overlay',
+                            'elType' => 'container',
+                            'widgetType' => null,
+                            'settings_keys' => ['background_overlay_image', 'url'],
+                            '_preview' => $ovPreview,
+                            'children' => [],
+                        ];
+                    }
                 }
             }
             $children = [];
+            if ($overlayNode) $children[] = $overlayNode;
             if (!empty($el['elements'])) {
-                $children = self::simplify_elements($el['elements']);
+                $children = array_merge($children, self::simplify_elements($el['elements']));
             }
             if ($widgetType === 'nested-accordion' && isset($el['settings']['items']) && is_array($el['settings']['items'])) {
                 $virtual = [];
@@ -1267,6 +1286,11 @@ class AksaraaPlugin
 
     private static function set_element_settings(array &$elements, string $elementId, array $settingsPath, $value): bool
     {
+        // Synthetic overlay targets (`{containerId}__overlay`) resolve to the base
+        // container; the settings path already carries `background_overlay_image.url`.
+        if (substr($elementId, -9) === '__overlay') {
+            $elementId = substr($elementId, 0, -9);
+        }
         foreach ($elements as &$el) {
             if ($el['id'] === $elementId) {
                 $target = &$el['settings'];
