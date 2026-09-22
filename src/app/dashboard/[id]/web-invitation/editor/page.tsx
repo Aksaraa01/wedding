@@ -1128,9 +1128,15 @@ function EditorInner({ id }: { id: string }) {
       return <iframe key={src} src={src} className="w-full h-full border-0" title="Pratinjau" />
     }
     // Prefer the couple's own duplicated WP post; fall back to the master demo.
+    // aksaraa_preview=1 tells wp.aksaraa.com to render preview-light: no audio
+    // preload/autoplay (each reload would otherwise re-download the full MP3
+    // from Supabase), lazy below-fold media. Render-time only, guests unaffected.
     const previewUrl = data.active_wp_post_url || template?.demo_url
     if (previewUrl) {
-      return <iframe key={`${previewUrl}-${previewVersion}`} src={previewUrl} className="w-full h-full border-0" title="Pratinjau" />
+      const previewSrc = previewUrl.includes("aksaraa_preview=")
+        ? previewUrl
+        : `${previewUrl}${previewUrl.includes("?") ? "&" : "?"}aksaraa_preview=1`
+      return <iframe key={`${previewSrc}-${previewVersion}`} src={previewSrc} className="w-full h-full border-0" title="Pratinjau" />
     }
     const LiveComp = template?.code ? getTemplateComponent(template.code) : null
     if (!LiveComp) {

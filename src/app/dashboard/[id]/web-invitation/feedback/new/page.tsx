@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
+import { compressImage } from "@/lib/imageCompress"
 
 type Template = {
   id: string
@@ -82,8 +83,11 @@ function FeedbackNewInner({ id }: { id: string }) {
       const imageUrls: string[] = []
 
       for (const file of files) {
+        // Compress phone photos client-side so feedback screenshots don't land
+        // in storage as multi-MB originals (bandwidth + egress on every view).
+        const compressed = file.type.startsWith("image/") ? await compressImage(file) : file
         const formData = new FormData()
-        formData.append("file", file)
+        formData.append("file", compressed)
         const uploadRes = await fetch("/api/media/upload", {
           method: "POST",
           body: formData,

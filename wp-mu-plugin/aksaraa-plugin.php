@@ -2369,6 +2369,42 @@ add_action('template_redirect', function () {
     }
 }, 5);
 
+// Couple-post editor preview (?aksaraa_preview=1 on a duplicated post, sent by the
+// dashboard editor iframe): neutralize the weddingpress-audio widget's eager fetch.
+// The widget prints <audio> with NO preload attribute, so browsers default to
+// preload=auto and download the full MP3 from Supabase on EVERY preview reload
+// (each "Perbarui Undangan" click = one more full download = cached egress).
+// Render-time only: guests (no aksaraa_preview param) are untouched, and manual
+// play in preview still works (preload="none" never blocks .play()).
+function aksaraa_is_couple_preview()
+{
+    if (!is_singular() || empty($_GET['aksaraa_preview'])) {
+        return false;
+    }
+    if (aksaraa_is_light_preview()) return false; // masters handled above
+    return true;
+}
+
+function aksaraa_couple_preview_html($html)
+{
+    // 1) Server-side: force preload="none" on <audio> tags that don't decide.
+    $html = preg_replace('/<audio\b(?![^>]*\bpreload\s*=)([^>]*)>/i', '<audio$1 preload="none">', $html);
+    // 2) Belt: pause anything autoplaying at load + catch late (popup) nodes.
+    $belt = '<script>(function(){function n(a){try{if(a.tagName==="AUDIO"){a.preload="none";a.removeAttribute("autoplay");if(a.autoplay)a.autoplay=false;}}catch(e){}}function sweep(){try{var els=document.querySelectorAll("audio");for(var i=0;i<els.length;i++){var a=els[i];n(a);try{if(!a.paused)a.pause();}catch(e){}}}catch(e){}}sweep();document.addEventListener("DOMContentLoaded",sweep);window.addEventListener("load",sweep);try{var o=new MutationObserver(function(m){for(var i=0;i<m.length;i++){var ns=m[i].addedNodes;for(var j=0;j<ns.length;j++){var nd=ns[j];if(!nd||!nd.querySelectorAll)continue;if(nd.tagName==="AUDIO")n(nd);var inn=nd.querySelectorAll("audio");for(var k=0;k<inn.length;k++)n(inn[k]);}}});o.observe(document.documentElement,{childList:true,subtree:true});}catch(e){}})();</script>';
+    if (stripos($html, '</body>') !== false) {
+        $html = preg_replace('/<\/body>/i', $belt . '</body>', $html, 1);
+    } else {
+        $html .= $belt;
+    }
+    return $html;
+}
+
+add_action('template_redirect', function () {
+    if (aksaraa_is_couple_preview()) {
+        ob_start('aksaraa_couple_preview_html');
+    }
+}, 5);
+
 // Generic comment fix: the guestbook (CUI) comment form is built MANUALLY (it never calls
 // comment_form()), and ships no `email` field. WP's `require_name_email` gate runs in
 // wp_handle_comment_submission BEFORE preprocess_comment, so it wp_dies "Please fill the required
