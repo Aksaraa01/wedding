@@ -543,7 +543,12 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [invConfirmOpen, setInvConfirmOpen] = useState(false)
   const [invPendingChanges, setInvPendingChanges] = useState<string[]>([])
   const [invSyncing, setInvSyncing] = useState(false)
+  const [invSyncMsg, setInvSyncMsg] = useState("")
   const [invSyncError, setInvSyncError] = useState<string | null>(null)
+  const [invTplOpen, setInvTplOpen] = useState(false)
+  const [invTplList, setInvTplList] = useState<any[]>([])
+  const [invTplLoading, setInvTplLoading] = useState(false)
+  const [invTplWorking, setInvTplWorking] = useState<string | null>(null)
   const [invTrackOptions, setInvTrackOptions] = useState<any[]>([])
   const [invUploading, setInvUploading] = useState<string | null>(null)
   const [invGiftAddrId, setInvGiftAddrId] = useState<string | null>(null)
@@ -1143,6 +1148,7 @@ export default function AntrianDetail({ id }: { id: string }) {
     const wpId = invitationData?.profile?.id
     if (!wpId) return
     setInvSyncing(true)
+    setInvSyncMsg("")
     setInvSyncError(null)
     try {
       await runInvPatch(wpId)
@@ -1152,6 +1158,77 @@ export default function AntrianDetail({ id }: { id: string }) {
       setInvSyncError(invSyncErrorID(err))
     } finally {
       setInvSyncing(false)
+    }
+  }
+
+  const openTplPicker = async () => {
+    setInvTplOpen(true)
+    if (invTplList.length > 0) return
+    setInvTplLoading(true)
+    try {
+      const res = await fetch(`/api/web-templates`)
+      const data = await res.json().catch(() => ({}))
+      if (res.ok) setInvTplList(data.templates || [])
+    } catch {}
+    setInvTplLoading(false)
+  }
+
+  const selectInvTemplate = async (tpl: any) => {
+    const wpId = invitationData?.profile?.id
+    if (!wpId || !tpl?.id || invTplWorking) return
+    if (tpl.id === invitationData.template?.id) {
+      setInvTplOpen(false)
+      return
+    }
+    const prevName = invitationData.template?.name || "belum ada"
+    const inhouse = tpl.source_type === "inhouse" || (!!tpl.code && !tpl.wp_master_slug)
+    setInvTplWorking(tpl.id)
+    setInvSyncError(null)
+    try {
+      if (inhouse) {
+        const res = await fetch(`/api/web-invitation/template-select`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ profile_id: wpId, template_id: tpl.id }),
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) throw new Error(data.error || "Gagal mengganti template")
+      } else {
+        setInvSyncMsg("Menduplikasi template WordPress...")
+        setInvSyncing(true)
+        const res = await fetch(`/api/wp/duplicate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ template_id: tpl.id, profile_id: wpId }),
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) throw new Error(data.error || "Gagal menduplikasi template")
+        if (data.job_id) await pollWpJob(data.job_id, { interval: 800 })
+      }
+      setInvTplOpen(false)
+      await fetchInvitationData(wpId)
+      fetchInvCardSummary(wpId)
+      try {
+        await fetch(`/api/ops/queue/${id}/invitation-log`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-ops-phone": employee?.phone_number || "",
+            "x-ops-role": employee?.role || "",
+          },
+          body: JSON.stringify({ details: `Template (${prevName} → ${tpl.name})` }),
+        })
+        fetchAll()
+      } catch (e) {
+        console.error("[ops] invitation log failed", e)
+      }
+    } catch (err: any) {
+      setInvTplOpen(false)
+      setInvSyncError(invSyncErrorID(err))
+    } finally {
+      setInvTplWorking(null)
+      setInvSyncing(false)
+      setInvSyncMsg("")
     }
   }
 
@@ -2754,7 +2831,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvAccordion>
 
-                  {invitationData.template && (
+                  {invitationData.template ? (
                     <>
                       <div className="border-t border-outline-variant/40" />
                       <div>
@@ -2772,13 +2849,37 @@ export default function AntrianDetail({ id }: { id: string }) {
                               </button>
                             </div>
                           )}
-                          <div>
+                          <div className="min-w-0">
                             <p className="font-body-md text-sm font-semibold">{invitationData.template.name}</p>
                             {invitationData.template.description && (
                               <p className="font-body-md text-[10px] text-on-surface-variant mt-0.5">{invitationData.template.description}</p>
                             )}
                           </div>
                         </div>
+                        <button
+                          type="button"
+                          onClick={openTplPicker}
+                          className="mt-3 w-full py-2.5 rounded-full border border-outline-variant font-label-md text-[11px] uppercase tracking-widest text-on-surface hover:border-secondary hover:text-secondary transition-colors flex items-center justify-center gap-1.5"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">swap_horiz</span>
+                          Ganti Template
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="border-t border-outline-variant/40" />
+                      <div>
+                        <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary mb-3">Template</h4>
+                        <p className="font-body-md text-xs italic text-on-surface-variant/70 mb-3">Belum dipilih.</p>
+                        <button
+                          type="button"
+                          onClick={openTplPicker}
+                          className="w-full py-2.5 rounded-full bg-secondary text-white font-label-md text-[11px] uppercase tracking-widest hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">add</span>
+                          Pilih Template
+                        </button>
                       </div>
                     </>
                   )}
@@ -2855,8 +2956,76 @@ export default function AntrianDetail({ id }: { id: string }) {
         <div className="fixed inset-0 z-[310] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl px-8 py-6 flex flex-col items-center gap-3 shadow-2xl max-w-xs w-full">
             <span className="w-10 h-10 border-[3px] border-secondary border-t-transparent rounded-full animate-spin" />
-            <p className="font-label-md text-sm text-primary text-center">Menyimpan & menyinkronkan...</p>
+            <p className="font-label-md text-sm text-primary text-center">{invSyncMsg || "Menyimpan & menyinkronkan..."}</p>
             <p className="font-body-md text-xs text-on-surface-variant text-center">Mohon tunggu, jangan tutup halaman ini.</p>
+          </div>
+        </div>
+      )}
+
+      {invTplOpen && (
+        <div className="fixed inset-0 z-[320] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => { if (!invTplWorking) setInvTplOpen(false) }}>
+          <div className="bg-white w-full max-w-2xl rounded-2xl border border-outline-variant shadow-2xl flex flex-col overflow-hidden max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant shrink-0">
+              <h3 className="font-headline-md text-lg font-medium text-primary">Pilih Template</h3>
+              <button onClick={() => { if (!invTplWorking) setInvTplOpen(false) }} className="p-2 hover:bg-surface-container-low transition-colors" aria-label="Tutup">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto">
+              {invTplLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <span className="w-8 h-8 border-2 border-secondary border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : invTplList.length === 0 ? (
+                <p className="font-body-md text-sm text-on-surface-variant text-center py-8">Tidak ada template tersedia.</p>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {invTplList.map((tpl: any) => {
+                    const isCurrent = tpl.id === invitationData.template?.id
+                    const pkg = invitationData.profile?.package_type || ""
+                    const eligible = !Array.isArray(tpl.package_eligibility) || tpl.package_eligibility.length === 0 || (pkg && tpl.package_eligibility.includes(pkg))
+                    const working = invTplWorking === tpl.id
+                    return (
+                      <button
+                        key={tpl.id}
+                        type="button"
+                        disabled={!!invTplWorking}
+                        onClick={() => selectInvTemplate(tpl)}
+                        className={`relative text-left border rounded-xl overflow-hidden transition-all disabled:opacity-60 ${isCurrent ? "border-secondary ring-1 ring-secondary" : "border-outline-variant hover:border-secondary"}`}
+                      >
+                        {tpl.preview_image_url ? (
+                          <img src={tpl.preview_image_url} alt={tpl.name} className="w-full aspect-[3/4] object-cover" loading="lazy" />
+                        ) : (
+                          <div className="w-full aspect-[3/4] bg-surface-dim flex items-center justify-center">
+                            <span className="material-symbols-outlined text-on-surface-variant">image</span>
+                          </div>
+                        )}
+                        <div className="p-2.5">
+                          <p className="font-body-md text-[13px] font-semibold truncate">{tpl.name}</p>
+                          <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant mt-0.5">
+                            {tpl.source_type === "inhouse" ? "In-house" : "WordPress"}{tpl.category ? ` • ${tpl.category}` : ""}
+                          </p>
+                          {!eligible && (
+                            <p className="font-label-md text-[9px] uppercase tracking-widest text-amber-700 mt-1">Di luar paket</p>
+                          )}
+                        </div>
+                        {isCurrent && (
+                          <span className="absolute top-2 left-2 inline-flex items-center gap-1 bg-secondary text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                            <span className="material-symbols-outlined text-[11px]">check</span>
+                            Saat Ini
+                          </span>
+                        )}
+                        {working && (
+                          <span className="absolute inset-0 bg-white/70 flex items-center justify-center">
+                            <span className="w-8 h-8 border-2 border-secondary border-t-transparent rounded-full animate-spin" />
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
