@@ -824,9 +824,24 @@ export default function AntrianDetail({ id }: { id: string }) {
   }
 
   const startInvEdit = async () => {
-    const p = invitationData?.profile
-    if (!p) return
+    const currentId = invitationData?.profile?.id
+    if (!currentId) return
     setInvSaveError("")
+    // Re-fetch fresh data first: the modal may have been opened a while ago
+    // while the couple (or another tab) changed something. Building the form
+    // from stale rows makes the next save re-POST existing rows as new
+    // duplicates (server assigns fresh ids to id-less rows).
+    let fresh: any = null
+    try {
+      const res = await fetch(`/api/dashboard/${currentId}/web-invitation`)
+      if (res.ok) {
+        fresh = await res.json()
+        setInvitationData(fresh)
+      }
+    } catch {}
+    const src = fresh || invitationData
+    const p = src.profile
+    if (!p) return
     setInvForm({
       display_name: p.display_name || "",
       couple_initials: p.couple_initials || "",
@@ -864,7 +879,7 @@ export default function AntrianDetail({ id }: { id: string }) {
       gift_section_visible: p.gift_section_visible !== false,
       inviting_families_visible: p.inviting_families_visible !== false,
       selected_track_id: p.selected_track_id || "",
-      giftAccounts: (invitationData.gift_accounts || []).map((a: any) => ({
+      giftAccounts: (src.gift_accounts || []).map((a: any) => ({
         id: a.id,
         provider_name: a.provider_name || "",
         account_number: a.account_number || "",
@@ -873,8 +888,8 @@ export default function AntrianDetail({ id }: { id: string }) {
         provider_logo_url: a.provider_logo_url || "",
       })),
       giftAddress: {
-        recipient_name: invitationData.gift_address_name || "",
-        full_address: invitationData.gift_address || "",
+        recipient_name: src.gift_address_name || "",
+        full_address: src.gift_address || "",
       },
     })
     setInvEditing(true)
@@ -1119,6 +1134,9 @@ export default function AntrianDetail({ id }: { id: string }) {
   }
 
   const confirmInvSave = async () => {
+    // Re-entry guard: a double-click on "Ya, Simpan" would otherwise run two
+    // concurrent saves that POST the same id-less rows twice (duplicates).
+    if (invSyncing) return
     setInvConfirmOpen(false)
     setInvSyncing(true)
     setInvSyncError(null)
