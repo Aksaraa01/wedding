@@ -32,6 +32,7 @@ import {
 } from "@/lib/opsStatus"
 import { canChangeStatus, unauthorizedStatusMessage } from "@/lib/opsRoles"
 import { compressImage } from "@/lib/imageCompress"
+import { pollWpJob } from "@/lib/wpJobPoll"
 import { OPENING_PRESETS, OPENING_CUSTOM, matchOpeningPreset } from "@/lib/openingPresets"
 import { normalizeVideoUrl } from "@/components/templates/shared/lib"
 
@@ -185,6 +186,31 @@ function invUpgradeMessage(availableIn: string[] | undefined): string {
   return `Fitur ini tersedia untuk paket ${names}. Silakan upgrade paket untuk mengakses fitur ini.`
 }
 
+// Indonesian, actionable sync errors for the ops console (mirrors the couple
+// editor). Every message ends with a retry call-to-action.
+function invSyncErrorID(err: unknown): string {
+  const raw = err instanceof Error ? err.message : String(err ?? "")
+  const lower = raw.toLowerCase()
+  if (!raw) return "Sinkronisasi ke WordPress gagal. Silakan tekan Coba Lagi."
+  if (lower.includes("abort")) return "Sinkronisasi dibatalkan. Silakan tekan Coba Lagi."
+  if (lower.includes("masih berjalan") || lower.includes("timeout") || lower.includes("timed out")) {
+    return "Sinkronisasi masih berjalan dan melewati batas waktu. Perubahan sudah tersimpan — tekan Coba Lagi untuk melanjutkan sinkronisasi."
+  }
+  if (lower.includes("fetch failed") || lower.includes("failed to fetch") || lower.includes("network") || lower.includes("load failed")) {
+    return "Koneksi ke server gagal. Periksa koneksi internet, lalu tekan Coba Lagi."
+  }
+  if (lower.includes("belum ada postingan wordpress")) {
+    return "Belum ada undangan WordPress yang aktif. Perubahan sudah tersimpan — tekan Coba Lagi setelah template dipilih."
+  }
+  if (lower.includes("profil tidak ditemukan") || lower.includes("job tidak ditemukan")) {
+    return "Data undangan tidak ditemukan. Muat ulang halaman, lalu tekan Coba Lagi."
+  }
+  if (lower.includes("http")) {
+    return `WordPress mengembalikan kesalahan (${raw}). Perubahan sudah tersimpan — tekan Coba Lagi.`
+  }
+  return raw.endsWith("Lagi.") ? raw : `${raw} Silakan tekan Coba Lagi.`
+}
+
 type InvSectionState = "ok" | "locked" | "hidden" | "empty"
 
 const invHasArr = (v: any) => Array.isArray(v) && v.filter(Boolean).length > 0
@@ -273,8 +299,9 @@ function InvAccordion({ secKey, icon, label, active, onToggle, lockedInfo, hidde
 }) {
   const isLocked = lockedInfo !== null
   return (
-    <div data-section={secKey} className={`scroll-mt-6 border rounded-xl overflow-visible ${active ? "bg-[#B34E3F] border-[#B34E3F]" : "bg-white border-[#B34E3F]"} `}>
+    <div data-section={secKey} data-inv-section={secKey} className={`scroll-mt-6 border rounded-xl overflow-visible ${active ? "bg-[#B34E3F] border-[#B34E3F]" : "bg-white border-[#B34E3F]"} `}>
       <button
+        type="button"
         onClick={onToggle}
         className={`w-full flex justify-between items-center py-4 px-4 transition-colors ${active ? "text-white hover:text-white/90" : "text-[#2C2A29] hover:text-[#B34E3F]"} ${!active ? "rounded-xl" : "rounded-t-xl"}`}
       >
@@ -490,14 +517,24 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [invitationData, setInvitationData] = useState<any>(null)
   const [invEditing, setInvEditing] = useState(false)
   const [invForm, setInvForm] = useState<any>(null)
-  const [invSaving, setInvSaving] = useState(false)
   const [invSaveError, setInvSaveError] = useState("")
+  const [invConfirmOpen, setInvConfirmOpen] = useState(false)
+  const [invPendingChanges, setInvPendingChanges] = useState<string[]>([])
+  const [invSyncing, setInvSyncing] = useState(false)
+  const [invSyncError, setInvSyncError] = useState<string | null>(null)
   const [invTrackOptions, setInvTrackOptions] = useState<any[]>([])
   const [invUploading, setInvUploading] = useState<string | null>(null)
   const [invGiftAddrId, setInvGiftAddrId] = useState<string | null>(null)
   const [invTrackSearch, setInvTrackSearch] = useState("")
   const [invActiveSection, setInvActiveSection] = useState("sampul")
-  const invToggleSection = (key: string) => setInvActiveSection((v) => (v === key ? "" : v))
+  const invToggleSection = (key: string) => {
+    setInvActiveSection((v) => (v === key ? "" : v))
+    requestAnimationFrame(() => {
+      try {
+        document.querySelector(`[data-inv-section="${key}"]`)?.scrollIntoView({ behavior: "smooth", block: "nearest" })
+      } catch {}
+    })
+  }
   const [invCardSummary, setInvCardSummary] = useState<{ empty: string[]; wpId: string } | null>(null)
   const [invLoading, setInvLoading] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
@@ -720,6 +757,42 @@ export default function AntrianDetail({ id }: { id: string }) {
   const invOpeningSelect = invOpeningMatch ? invOpeningMatch.title : invForm?.opening_title ? OPENING_CUSTOM : ""
   const invIsCustom = !invOpeningMatch
 
+  // Cover slots mirror the couple editor: in-house templates have 1 single
+  // slot; WP templates follow wp_manifest.cover_photos (length + slideshow
+  // markers). Slot writes also sync couple_illustration_url from slot 0.
+  const invTpl = invitationData?.template
+  const invIsInhouseTpl = !!invTpl && (invTpl.source_type === "inhouse" || (!!invTpl.code && !invTpl.wp_master_slug))
+  const invCoverSlotCount = invIsInhouseTpl ? 1 : (Array.isArray(invTpl?.wp_manifest?.cover_photos) ? invTpl.wp_manifest.cover_photos.length : 0)
+  const invIsCoverSlideshowSlot = (i: number) => {
+    if (invIsInhouseTpl) return false
+    const mapping = invTpl?.wp_manifest?.cover_photos?.[i]
+    return Array.isArray(mapping?.settings) && mapping.settings.join(".") === "background_slideshow_gallery"
+  }
+  const invSetCoverAt = (idx: number, url: string) => {
+    if (!invForm) return
+    const covers: any[] = [...(Array.isArray(invForm.cover_photos) ? invForm.cover_photos : [])]
+    while (covers.length <= idx) covers.push("")
+    covers[idx] = url
+    const first = covers[0]
+    setInvForm({ ...invForm, cover_photos: covers, couple_illustration_url: typeof first === "string" && first ? first : invForm.couple_illustration_url })
+  }
+  const invClearCoverAt = (idx: number) => {
+    if (!invForm) return
+    const covers = (Array.isArray(invForm.cover_photos) ? invForm.cover_photos : []).filter((_: any, i: number) => i !== idx)
+    const first = covers[0]
+    setInvForm({ ...invForm, cover_photos: covers, couple_illustration_url: typeof first === "string" && first ? first : "" })
+  }
+  const invSetCoverSlideAt = (slot: number, slide: number, url: string) => {
+    if (!invForm) return
+    const covers: any[] = [...(Array.isArray(invForm.cover_photos) ? invForm.cover_photos : [])]
+    const cur = covers[slot]
+    const arr: string[] = Array.isArray(cur) ? [...cur] : (typeof cur === "string" && cur !== "" ? [cur] : [])
+    while (arr.length <= slide) arr.push("")
+    arr[slide] = url
+    covers[slot] = arr
+    setInvForm({ ...invForm, cover_photos: covers })
+  }
+
   const photoStrArr = (v: any): string[] => {    if (Array.isArray(v)) return v.filter(Boolean)
     if (typeof v === "string" && v) {
       try {
@@ -814,65 +887,66 @@ export default function AntrianDetail({ id }: { id: string }) {
     }
   }
 
-  const saveInvEdit = async () => {
-    if (!invForm || !invitationData?.profile?.id) return
-    setInvSaving(true)
-    setInvSaveError("")
-    try {
-      const wpId = invitationData.profile.id
-      const f = invForm
-      const orig = invitationData.profile
+  const computeInvDiff = (): string[] => {
+    if (!invForm || !invitationData?.profile) return []
+    const f = invForm
+    const orig = invitationData.profile
+    const changed: string[] = []
+    const sameStr = (a: any, b: any) => (a ?? "") === (b ?? "")
+    const strField = (label: string, nv: any, ov: any) => { if (!sameStr(nv, ov)) changed.push(label) }
+    strField("Nama Tampilan", f.display_name, orig.display_name)
+    strField("Inisial", f.couple_initials, orig.couple_initials)
+    strField("Judul Pembuka", f.opening_title, orig.opening_title)
+    strField("Deskripsi Pembuka", f.opening_description, orig.opening_description)
+    strField("Panggilan (1)", f.groom_name, orig.groom_name)
+    strField("Nama Lengkap (1)", f.groom_full_name, orig.groom_full_name)
+    strField("Orang Tua (1)", f.groom_parents, orig.groom_parents)
+    strField("Instagram (1)", f.groom_instagram, orig.groom_instagram)
+    strField("Panggilan (2)", f.bride_name, orig.bride_name)
+    strField("Nama Lengkap (2)", f.bride_full_name, orig.bride_full_name)
+    strField("Orang Tua (2)", f.bride_parents, orig.bride_parents)
+    strField("Instagram (2)", f.bride_instagram, orig.bride_instagram)
+    strField("Foto Sampul Utama", f.couple_illustration_url, orig.couple_illustration_url)
+    strField("Kutipan", f.quote_text, orig.quote_text)
+    strField("Sumber Kutipan", f.quote_source, orig.quote_source)
+    strField("Video", f.video_url, orig.video_url)
+    strField("Tanggal Acara", f.estimated_wedding_date, orig.estimated_wedding_date)
+    if (Number(f.rsvp_max_pax) !== Number(orig.rsvp_max_pax)) changed.push("Maks Pax")
+    if (!!f.grayscale !== (orig.grayscale === true)) changed.push("Grayscale")
+    const arrField = (label: string, nv: any[], ov: any[]) => {
+      if (JSON.stringify(nv || []) !== JSON.stringify(ov || [])) changed.push(`${label} (${(ov || []).length}→${(nv || []).length})`)
+    }
+    arrField("Foto Sampul", f.cover_photos, photoStrArr(orig.cover_photos))
+    arrField("Foto Mempelai 1", f.groom_photo_url, photoList(orig.groom_photo_url))
+    arrField("Foto Mempelai 2", f.bride_photo_url, photoList(orig.bride_photo_url))
+    arrField("Galeri", f.gallery_photos, photoStrArr(orig.gallery_photos))
+    arrField("Turut Mengundang", f.inviting_families, orig.inviting_families)
+    arrField("Sesi Acara", f.sessions, orig.sessions)
+    arrField("Kisah", f.stories, orig.stories)
+    const visField = (label: string, nv: boolean, ov: boolean) => { if (!!nv !== !!ov) changed.push(label) }
+    visField("Tampil Video", f.video_section_visible, orig.video_section_visible !== false)
+    visField("Tampil Kisah", f.story_visible, orig.story_visible !== false)
+    visField("Tampil Hadiah", f.gift_section_visible, orig.gift_section_visible !== false)
+    visField("Tampil Turut Mengundang", f.inviting_families_visible, orig.inviting_families_visible !== false)
+    if ((f.selected_track_id || "") !== (orig.selected_track_id || "")) {
+      const t = invTrackOptions.find((x: any) => x.id === f.selected_track_id)
+      changed.push(`Lagu (${t?.title || invitationData.track?.title || "diubah"})`)
+    }
+    const normAccts = (list: any[]) => (list || []).map((a: any) => [a.provider_name || "", a.account_number || "", a.account_name || "", a.type || ""].join("|")).sort()
+    if (JSON.stringify(normAccts(f.giftAccounts)) !== JSON.stringify(normAccts(invitationData.gift_accounts || []))) {
+      changed.push(`Rekening (${(invitationData.gift_accounts || []).length}→${f.giftAccounts.length})`)
+    }
+    if (!sameStr(f.giftAddress.recipient_name, invitationData.gift_address_name) || !sameStr(f.giftAddress.full_address, invitationData.gift_address)) {
+      changed.push("Alamat Kado")
+    }
+    return changed
+  }
 
-      // Diff for the audit timeline: what did this ops save actually change?
-      const changed: string[] = []
-      const sameStr = (a: any, b: any) => (a ?? "") === (b ?? "")
-      const strField = (label: string, nv: any, ov: any) => { if (!sameStr(nv, ov)) changed.push(label) }
-      strField("Nama Tampilan", f.display_name, orig.display_name)
-      strField("Inisial", f.couple_initials, orig.couple_initials)
-      strField("Judul Pembuka", f.opening_title, orig.opening_title)
-      strField("Deskripsi Pembuka", f.opening_description, orig.opening_description)
-      strField("Panggilan (1)", f.groom_name, orig.groom_name)
-      strField("Nama Lengkap (1)", f.groom_full_name, orig.groom_full_name)
-      strField("Orang Tua (1)", f.groom_parents, orig.groom_parents)
-      strField("Instagram (1)", f.groom_instagram, orig.groom_instagram)
-      strField("Panggilan (2)", f.bride_name, orig.bride_name)
-      strField("Nama Lengkap (2)", f.bride_full_name, orig.bride_full_name)
-      strField("Orang Tua (2)", f.bride_parents, orig.bride_parents)
-      strField("Instagram (2)", f.bride_instagram, orig.bride_instagram)
-      strField("Foto Sampul Utama", f.couple_illustration_url, orig.couple_illustration_url)
-      strField("Kutipan", f.quote_text, orig.quote_text)
-      strField("Sumber Kutipan", f.quote_source, orig.quote_source)
-      strField("Video", f.video_url, orig.video_url)
-      strField("Tanggal Acara", f.estimated_wedding_date, orig.estimated_wedding_date)
-      if (Number(f.rsvp_max_pax) !== Number(orig.rsvp_max_pax)) changed.push("Maks Pax")
-      if (!!f.grayscale !== (orig.grayscale === true)) changed.push("Grayscale")
-      const arrField = (label: string, nv: any[], ov: any[]) => {
-        if (JSON.stringify(nv || []) !== JSON.stringify(ov || [])) changed.push(`${label} (${(ov || []).length}→${(nv || []).length})`)
-      }
-      arrField("Foto Sampul", f.cover_photos, photoStrArr(orig.cover_photos))
-      arrField("Foto Mempelai 1", f.groom_photo_url, photoList(orig.groom_photo_url))
-      arrField("Foto Mempelai 2", f.bride_photo_url, photoList(orig.bride_photo_url))
-      arrField("Galeri", f.gallery_photos, photoStrArr(orig.gallery_photos))
-      arrField("Turut Mengundang", f.inviting_families, orig.inviting_families)
-      arrField("Sesi Acara", f.sessions, orig.sessions)
-      arrField("Kisah", f.stories, orig.stories)
-      const visField = (label: string, nv: boolean, ov: boolean) => { if (!!nv !== !!ov) changed.push(label) }
-      visField("Tampil Video", f.video_section_visible, orig.video_section_visible !== false)
-      visField("Tampil Kisah", f.story_visible, orig.story_visible !== false)
-      visField("Tampil Hadiah", f.gift_section_visible, orig.gift_section_visible !== false)
-      visField("Tampil Turut Mengundang", f.inviting_families_visible, orig.inviting_families_visible !== false)
-      if ((f.selected_track_id || "") !== (orig.selected_track_id || "")) {
-        const t = invTrackOptions.find((x: any) => x.id === f.selected_track_id)
-        changed.push(`Lagu (${t?.title || invitationData.track?.title || "diubah"})`)
-      }
-      const normAccts = (list: any[]) => (list || []).map((a: any) => [a.provider_name || "", a.account_number || "", a.account_name || "", a.type || ""].join("|")).sort()
-      if (JSON.stringify(normAccts(f.giftAccounts)) !== JSON.stringify(normAccts(invitationData.gift_accounts || []))) {
-        changed.push(`Rekening (${(invitationData.gift_accounts || []).length}→${f.giftAccounts.length})`)
-      }
-      if (!sameStr(f.giftAddress.recipient_name, invitationData.gift_address_name) || !sameStr(f.giftAddress.full_address, invitationData.gift_address)) {
-        changed.push("Alamat Kado")
-      }
-      const res = await fetch(`/api/dashboard/${wpId}/web-invitation`, {
+  const executeInvSave = async (): Promise<string> => {
+    if (!invForm || !invitationData?.profile?.id) throw new Error("Data belum siap.")
+    const wpId = invitationData.profile.id
+    const f = invForm
+    const res = await fetch(`/api/dashboard/${wpId}/web-invitation`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -961,26 +1035,95 @@ export default function AntrianDetail({ id }: { id: string }) {
         })
       }
 
+      return wpId
+  }
+
+  const runInvPatch = async (wpId: string) => {
+    if (invIsInhouseTpl) return
+    const res = await fetch(`/api/wp/patch`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ profile_id: wpId }),
+    })
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      throw new Error(data.error || res.statusText || "Gagal memulai sinkronisasi")
+    }
+    const { job_id } = await res.json()
+    if (!job_id) return
+    await pollWpJob(job_id, { interval: 800 })
+  }
+
+  const logInvChange = async (changed: string[]) => {
+    if (changed.length === 0) return
+    try {
+      await fetch(`/api/ops/queue/${id}/invitation-log`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-ops-phone": employee?.phone_number || "",
+          "x-ops-role": employee?.role || "",
+        },
+        body: JSON.stringify({ details: `Mengubah: ${changed.join(", ")}` }),
+      })
+      fetchAll()
+    } catch (e) {
+      console.error("[ops] invitation log failed", e)
+    }
+  }
+
+  const openInvConfirm = () => {
+    if (!invForm) return
+    const changed = computeInvDiff()
+    if (changed.length === 0) {
+      setInvSaveError("Tidak ada perubahan untuk disimpan.")
+      return
+    }
+    setInvSaveError("")
+    setInvSyncError(null)
+    setInvPendingChanges(changed)
+    setInvConfirmOpen(true)
+  }
+
+  const confirmInvSave = async () => {
+    setInvConfirmOpen(false)
+    setInvSyncing(true)
+    setInvSyncError(null)
+    setInvSaveError("")
+    try {
+      const changed = computeInvDiff()
+      const wpId = await executeInvSave()
+      try {
+        await runInvPatch(wpId)
+      } catch (patchErr) {
+        await fetchInvitationData(wpId)
+        fetchInvCardSummary(wpId)
+        await logInvChange(changed)
+        throw patchErr
+      }
       await fetchInvitationData(wpId)
       fetchInvCardSummary(wpId)
-
-      if (changed.length > 0) {
-        fetch(`/api/ops/queue/${id}/invitation-log`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-ops-phone": employee?.phone_number || "",
-            "x-ops-role": employee?.role || "",
-          },
-          body: JSON.stringify({ details: `Mengubah: ${changed.join(", ")}` }),
-        })
-          .then(() => fetchAll())
-          .catch((e) => console.error("[ops] invitation log failed", e))
-      }
-    } catch (err: any) {
-      setInvSaveError(err?.message || "Gagal menyimpan. Coba lagi.")
+      await logInvChange(changed)
+    } catch (err) {
+      setInvSyncError(invSyncErrorID(err))
     } finally {
-      setInvSaving(false)
+      setInvSyncing(false)
+    }
+  }
+
+  const retryInvPatch = async () => {
+    const wpId = invitationData?.profile?.id
+    if (!wpId) return
+    setInvSyncing(true)
+    setInvSyncError(null)
+    try {
+      await runInvPatch(wpId)
+      await fetchInvitationData(wpId)
+      fetchInvCardSummary(wpId)
+    } catch (err) {
+      setInvSyncError(invSyncErrorID(err))
+    } finally {
+      setInvSyncing(false)
     }
   }
 
@@ -1661,18 +1804,16 @@ export default function AntrianDetail({ id }: { id: string }) {
                   <>
                     <button
                       onClick={() => { setInvEditing(false); setInvForm(null); setInvSaveError("") }}
-                      disabled={invSaving}
-                      className="px-4 py-2 border border-outline-variant text-on-surface-variant text-[9px] font-bold uppercase tracking-widest hover:bg-surface-container transition-all disabled:opacity-40"
+                      className="px-4 py-2 border border-outline-variant text-on-surface-variant text-[9px] font-bold uppercase tracking-widest hover:bg-surface-container transition-all"
                     >
                       Batal
                     </button>
                     <button
-                      onClick={saveInvEdit}
-                      disabled={invSaving}
-                      className="px-4 py-2 bg-secondary text-white text-[9px] font-bold uppercase tracking-widest hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-40"
+                      onClick={openInvConfirm}
+                      className="px-4 py-2 bg-secondary text-white text-[9px] font-bold uppercase tracking-widest hover:opacity-90 transition-all flex items-center gap-2"
                     >
-                      <span className={`material-symbols-outlined text-[16px] ${invSaving ? "animate-spin" : ""}`}>{invSaving ? "progress_activity" : "save"}</span>
-                      {invSaving ? "Menyimpan..." : "Simpan"}
+                      <span className="material-symbols-outlined text-[16px]">save</span>
+                      Simpan
                     </button>
                   </>
                 )}
@@ -1702,6 +1843,24 @@ export default function AntrianDetail({ id }: { id: string }) {
                 <p className="font-body-md text-[13px] text-red-700">{invSaveError}</p>
               </div>
             )}
+            {invSyncError && (
+              <div className="mx-6 sm:mx-10 mt-4 bg-red-50 border border-red-200 rounded-xl p-4">
+                <div className="flex items-start gap-3">
+                  <span className="material-symbols-outlined text-red-600 text-[20px] shrink-0 mt-0.5">error</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-label-md text-[11px] uppercase tracking-widest text-red-700">Sinkronisasi Gagal</p>
+                    <p className="font-body-md text-[13px] text-[#2C2A29] mt-1 leading-relaxed">{invSyncError}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={retryInvPatch}
+                  className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#B34E3F] text-white font-label-md text-[12px] hover:bg-[#9E3B2D] transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[16px]">refresh</span>
+                  Coba Lagi
+                </button>
+              </div>
+            )}
 
             <div className="p-6 sm:p-10">
               <div ref={cardRef} className="max-w-md mx-auto bg-white border border-outline-variant shadow-lg overflow-hidden">
@@ -1713,13 +1872,118 @@ export default function AntrianDetail({ id }: { id: string }) {
                   <div className="mt-6 space-y-8">
                     <div className="space-y-3">
                       <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Foto Sampul</label>
-                      <p className="text-[11px] text-on-surface-variant italic">Foto utama undangan ditambah foto sampul lainnya.</p>
-                      <InvField label="Foto Utama">
-                        <InvPhotoList urls={invForm.couple_illustration_url ? [invForm.couple_illustration_url] : []} onChange={(v) => setInvForm({ ...invForm, couple_illustration_url: v[0] || "" })} onUpload={invUploadPhoto} uploading={invUploading} uploadKey="sampul-main" />
-                      </InvField>
-                      <InvField label="Foto Sampul Tambahan">
-                        <InvPhotoList urls={invForm.cover_photos} onChange={(v) => setInvForm({ ...invForm, cover_photos: v })} onUpload={invUploadPhoto} uploading={invUploading} uploadKey="sampul-extra" />
-                      </InvField>
+                      <p className="text-[11px] text-on-surface-variant italic">
+                        {invCoverSlotCount > 0
+                          ? `${invCoverSlotCount} slot foto sampul tersedia pada template. Isi setiap slot untuk mengganti foto.`
+                          : "Pilih template lain dengan foto sampul"}
+                      </p>
+                      <div className="grid grid-cols-2 gap-3">
+                        {Array.from({ length: invCoverSlotCount }).map((_, i) => {
+                          const slotValue = (Array.isArray(invForm.cover_photos) ? invForm.cover_photos : [])[i]
+                          if (invIsCoverSlideshowSlot(i)) {
+                            const slides = Array.isArray(slotValue) ? slotValue : (typeof slotValue === "string" && slotValue !== "" ? [slotValue] : [])
+                            return (
+                              <div key={i} className="col-span-2 border border-outline-variant rounded p-2 bg-surface-container-lowest">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-secondary">Slot {i + 1} — Slideshow (2 foto)</span>
+                                <div className="grid grid-cols-2 gap-2 mt-2">
+                                  {[0, 1].map((s) => {
+                                    const sKey = `cover-${i}-${s}`
+                                    const busy = invUploading === sKey
+                                    const url = slides[s]
+                                    return (
+                                      <div key={s} className="relative aspect-video bg-surface-dim border border-outline-variant overflow-hidden group">
+                                        {busy ? (
+                                          <span className="material-symbols-outlined text-[20px] animate-spin absolute inset-0 m-auto w-fit h-fit">progress_activity</span>
+                                        ) : (
+                                          <>
+                                            {url && <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${url})` }} />}
+                                            <span className="absolute top-1 left-1 w-6 h-6 bg-black/60 text-white rounded-sm flex items-center justify-center text-[11px] font-bold">{i + 1}.{s === 0 ? "a" : "b"}</span>
+                                            <label className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer" title="Ganti foto">
+                                              <span className="material-symbols-outlined text-white text-[24px] drop-shadow-md">edit</span>
+                                              <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={async (e) => {
+                                                  const f = e.target.files?.[0]
+                                                  e.target.value = ""
+                                                  if (!f) return
+                                                  const u = await invUploadPhoto(sKey, f)
+                                                  if (u) invSetCoverSlideAt(i, s, u)
+                                                }}
+                                              />
+                                            </label>
+                                          </>
+                                        )}
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                            )
+                          }
+                          const sKey = `cover-${i}`
+                          const busy = invUploading === sKey
+                          const url = typeof slotValue === "string" ? slotValue : (Array.isArray(slotValue) ? slotValue[0] : "")
+                          if (busy) {
+                            return (
+                              <div key={i} className="relative aspect-video bg-surface-dim border border-outline-variant flex items-center justify-center">
+                                <span className="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
+                              </div>
+                            )
+                          }
+                          if (url) {
+                            return (
+                              <div key={i} className="relative aspect-video bg-surface-dim border border-outline-variant overflow-hidden group">
+                                <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${url})` }} />
+                                <span className="absolute top-1 left-1 w-6 h-6 bg-black/60 text-white rounded-sm flex items-center justify-center text-[11px] font-bold">{i + 1}</span>
+                                <label className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer" title="Ganti foto ini">
+                                  <span className="material-symbols-outlined text-white text-[24px] drop-shadow-md">edit</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={async (e) => {
+                                      const f = e.target.files?.[0]
+                                      e.target.value = ""
+                                      if (!f) return
+                                      const u = await invUploadPhoto(sKey, f)
+                                      if (u) invSetCoverAt(i, u)
+                                    }}
+                                  />
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={() => invClearCoverAt(i)}
+                                  className="absolute top-1 right-1 w-6 h-6 bg-black/60 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                  title="Hapus foto ini"
+                                >
+                                  <span className="material-symbols-outlined text-[14px]">close</span>
+                                </button>
+                              </div>
+                            )
+                          }
+                          return (
+                            <label key={i} className="relative aspect-video bg-surface-dim border border-dashed border-outline-variant flex flex-col items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors">
+                              <span className="absolute top-1 left-1 w-6 h-6 bg-black/60 text-white rounded-sm flex items-center justify-center text-[11px] font-bold">{i + 1}</span>
+                              <span className="material-symbols-outlined text-on-surface-variant">add_photo_alternate</span>
+                              <span className="text-[9px] text-on-surface-variant mt-1">Slot {i + 1}</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={async (e) => {
+                                  const f = e.target.files?.[0]
+                                  e.target.value = ""
+                                  if (!f) return
+                                  const u = await invUploadPhoto(sKey, f)
+                                  if (u) invSetCoverAt(i, u)
+                                }}
+                              />
+                            </label>
+                          )
+                        })}
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Tanggal Acara</label>
@@ -2368,34 +2632,6 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvAccordion>
 
-                  {invitationData.template && (
-                    <>
-                      <div className="border-t border-outline-variant/40" />
-                      <div>
-                        <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary mb-3">Template</h4>
-                        <div className="flex items-center gap-4">
-                          {invitationData.template.preview_image_url && (
-                            <div className="relative group w-20 h-20 shrink-0 bg-surface-dim border border-outline-variant overflow-hidden">
-                              <img src={invitationData.template.preview_image_url} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
-                              <button
-                                onClick={() => downloadImage(invitationData.template.preview_image_url, `template-${invitationData.template.code || "preview"}.jpg`)}
-                                className="absolute top-0.5 right-0.5 w-5 h-5 bg-white/80 border border-outline-variant flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                title="Download"
-                              >
-                                <span className="material-symbols-outlined text-[11px]">download</span>
-                              </button>
-                            </div>
-                          )}
-                          <div>
-                            <p className="font-body-md text-sm font-semibold">{invitationData.template.name}</p>
-                            {invitationData.template.description && (
-                              <p className="font-body-md text-[10px] text-on-surface-variant mt-0.5">{invitationData.template.description}</p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
                   <InvAccordion secKey="gift" icon="featured_seasonal_and_gifts" label="GIFT" active={invActiveSection === "gift"} onToggle={() => invToggleSection("gift")} {...invAccProps("gift")}>
                     {invEditing && invForm ? (
                       <div className="mt-6 space-y-6">
@@ -2517,6 +2753,35 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvAccordion>
 
+                  {invitationData.template && (
+                    <>
+                      <div className="border-t border-outline-variant/40" />
+                      <div>
+                        <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary mb-3">Template</h4>
+                        <div className="flex items-center gap-4">
+                          {invitationData.template.preview_image_url && (
+                            <div className="relative group w-20 h-20 shrink-0 bg-surface-dim border border-outline-variant overflow-hidden">
+                              <img src={invitationData.template.preview_image_url} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                              <button
+                                onClick={() => downloadImage(invitationData.template.preview_image_url, `template-${invitationData.template.code || "preview"}.jpg`)}
+                                className="absolute top-0.5 right-0.5 w-5 h-5 bg-white/80 border border-outline-variant flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                title="Download"
+                              >
+                                <span className="material-symbols-outlined text-[11px]">download</span>
+                              </button>
+                            </div>
+                          )}
+                          <div>
+                            <p className="font-body-md text-sm font-semibold">{invitationData.template.name}</p>
+                            {invitationData.template.description && (
+                              <p className="font-body-md text-[10px] text-on-surface-variant mt-0.5">{invitationData.template.description}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
                   {invitationData.profile?.invitation_url && (
                     <>
                       <div className="border-t border-outline-variant/40" />
@@ -2547,8 +2812,55 @@ export default function AntrianDetail({ id }: { id: string }) {
         </div>
       )}
 
-      {showVipModal && (
-        <div className="fixed inset-0 z-[90] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => setShowVipModal(false)}>
+      {invConfirmOpen && (
+        <div className="fixed inset-0 z-[300] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setInvConfirmOpen(false)}>
+          <div className="bg-white w-full max-w-md rounded-2xl border border-outline-variant shadow-2xl p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex flex-col items-center text-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-secondary text-2xl">save</span>
+              </div>
+              <h3 className="font-headline-md text-lg font-medium text-primary">Simpan Perubahan?</h3>
+              <p className="text-sm text-on-surface-variant leading-relaxed">
+                Pastikan data berikut sudah benar. Setelah disimpan, undangan langsung disinkronkan ke WordPress.
+              </p>
+              <div className="w-full max-h-40 overflow-y-auto rounded-xl bg-surface-container-low border border-outline-variant p-3 text-left">
+                {invPendingChanges.map((c, i) => (
+                  <p key={i} className="font-body-md text-[13px] text-on-surface flex items-start gap-2 py-0.5">
+                    <span className="material-symbols-outlined text-[14px] text-secondary mt-0.5 shrink-0">check</span>
+                    {c}
+                  </p>
+                ))}
+              </div>
+              <div className="flex gap-2 w-full mt-1">
+                <button
+                  onClick={() => setInvConfirmOpen(false)}
+                  className="flex-1 border border-outline-variant text-on-surface-variant py-3 rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={confirmInvSave}
+                  className="flex-1 bg-secondary text-white py-3 rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
+                >
+                  Ya, Simpan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {invSyncing && (
+        <div className="fixed inset-0 z-[310] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl px-8 py-6 flex flex-col items-center gap-3 shadow-2xl max-w-xs w-full">
+            <span className="w-10 h-10 border-[3px] border-secondary border-t-transparent rounded-full animate-spin" />
+            <p className="font-label-md text-sm text-primary text-center">Menyimpan & menyinkronkan...</p>
+            <p className="font-body-md text-xs text-on-surface-variant text-center">Mohon tunggu, jangan tutup halaman ini.</p>
+          </div>
+        </div>
+      )}
+
+      {showVipModal && (        <div className="fixed inset-0 z-[90] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => setShowVipModal(false)}>
           <div className="bg-surface-container-lowest w-full max-w-2xl rounded-2xl border border-outline-variant/50 shadow-2xl flex flex-col overflow-hidden max-h-[80vh]" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant/30">
               <div>
