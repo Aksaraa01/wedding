@@ -2530,14 +2530,7 @@ function EditorInner({ id }: { id: string }) {
                       ))}
                     </ul>
                     <p className="text-sm text-secondary font-semibold mt-3">Setelah dikonfirmasi, konten undangan tidak dapat diubah.</p>
-                  </div>
-                  <div className="flex flex-col gap-3">
-                    <button
-                      onClick={() => setShowPublishConfirm(false)}
-                      className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
-                    >
-                      Kembali
-                    </button>
+                    <p className="text-[12px] text-on-surface-variant mt-2">Ketuk di luar kotak ini untuk menutup.</p>
                   </div>
                 </>
               )
