@@ -1071,8 +1071,8 @@ export default function AntrianDetail({ id }: { id: string }) {
       return wpId
   }
 
-  const runInvPatch = async (wpId: string) => {
-    if (invIsInhouseTpl) return
+  const runInvPatch = async (wpId: string, isInhouse?: boolean) => {
+    if (isInhouse ?? invIsInhouseTpl) return
     const res = await fetch(`/api/wp/patch`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1148,7 +1148,7 @@ export default function AntrianDetail({ id }: { id: string }) {
     const wpId = invitationData?.profile?.id
     if (!wpId) return
     setInvSyncing(true)
-    setInvSyncMsg("")
+    setInvSyncMsg("Menyinkronkan data undangan...")
     setInvSyncError(null)
     try {
       await runInvPatch(wpId)
@@ -1204,6 +1204,10 @@ export default function AntrianDetail({ id }: { id: string }) {
         const data = await res.json().catch(() => ({}))
         if (!res.ok) throw new Error(data.error || "Gagal menduplikasi template")
         if (data.job_id) await pollWpJob(data.job_id, { interval: 800 })
+        // Duplicate only copies the master — patch the couple's latest data
+        // into the fresh post right away (same as Perbarui in the editor).
+        setInvSyncMsg("Menulis data undangan ke template baru...")
+        await runInvPatch(wpId, false)
       }
       setInvTplOpen(false)
       await fetchInvitationData(wpId)
@@ -2364,12 +2368,13 @@ export default function AntrianDetail({ id }: { id: string }) {
                           const setS = (patch: any) => setInvForm({ ...invForm, sessions: invForm.sessions.map((s: any, j: number) => (j === i ? { ...s, ...patch } : s)) })
                           return (
                             <div key={i} className="bg-surface-container-low p-4 border border-outline-variant space-y-6">
-                              <div className="flex items-center justify-between gap-2">
-                                <div className="flex items-center gap-2 flex-1">
+                              <div className="flex items-end justify-between gap-2">
+                                <div className="flex-1">
+                                  <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Nama Acara</label>
                                   <input
-                                    className="input-editorial font-label-md text-[14px] font-bold uppercase tracking-wider flex-1"
+                                    className="input-editorial font-label-md text-[14px] font-bold uppercase tracking-wider w-full"
                                     style={session.name ? { color: "#8D4D39" } : undefined}
-                                    placeholder={i === 0 ? "Akad Nikah / Pemberkatan" : "Resepsi"}
+                                    placeholder={i === 0 ? "Contoh: Akad Nikah / Pemberkatan" : "Contoh: Resepsi"}
                                     value={session.name || ""}
                                     onChange={(e) => setS({ name: e.target.value })}
                                   />
