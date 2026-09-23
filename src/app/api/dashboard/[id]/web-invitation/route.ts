@@ -106,7 +106,7 @@ export async function GET(
 async function getPublishBlockers(id: string): Promise<{ key: string; label: string }[]> {
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("package_type, couple_illustration_url, cover_photos, opening_title, opening_description, display_name, groom_full_name, bride_full_name, sessions, gallery_photos, inviting_families, inviting_families_visible, quote_text, video_url, video_section_visible, stories, story_visible, gift_section_visible")
+    .select("package_type, selected_template_id, couple_illustration_url, cover_photos, opening_title, opening_description, display_name, groom_full_name, bride_full_name, sessions, gallery_photos, inviting_families, inviting_families_visible, quote_text, video_url, video_section_visible, stories, story_visible, gift_section_visible")
     .eq("id", id)
     .maybeSingle()
 
@@ -119,6 +119,7 @@ async function getPublishBlockers(id: string): Promise<{ key: string; label: str
   ])
 
   return getIncompleteInvitationSections({
+    has_template: !!profile.selected_template_id,
     cover_photos: parseStringList(profile.cover_photos),
     couple_illustration_url: profile.couple_illustration_url,
     opening_title: profile.opening_title,

@@ -1,4 +1,5 @@
 export const INVITATION_SECTION_LABELS: Record<string, string> = {
+  tema: "Tema",
   sampul: "Sampul",
   pembuka: "Kalimat Pembuka",
   profile: "Profile Mempelai",
@@ -12,6 +13,7 @@ export const INVITATION_SECTION_LABELS: Record<string, string> = {
 }
 
 export const INVITATION_SECTION_ORDER = [
+  "tema",
   "sampul",
   "pembuka",
   "profile",
@@ -31,6 +33,7 @@ export type InvitationGates = {
 }
 
 export type InvitationCompletenessInput = {
+  has_template: boolean
   cover_photos: unknown
   couple_illustration_url: unknown
   opening_title: unknown
@@ -84,6 +87,8 @@ function isSessionComplete(s: unknown): boolean {
 
 function isSectionIncomplete(key: string, d: InvitationCompletenessInput): boolean {
   switch (key) {
+    case "tema":
+      return !d.has_template
     case "sampul":
       return !hasArr(d.cover_photos) && !hasStr(d.couple_illustration_url)
     case "pembuka":
@@ -118,10 +123,20 @@ function isSectionIncomplete(key: string, d: InvitationCompletenessInput): boole
   }
 }
 
+export type IncompleteInvitationSection = {
+  key: string
+  label: string
+  action: "templates" | "section"
+}
+
 export function getIncompleteInvitationSections(
   d: InvitationCompletenessInput
-): { key: string; label: string }[] {
+): IncompleteInvitationSection[] {
   return INVITATION_SECTION_ORDER.filter(key =>
     isSectionIncomplete(key, d)
-  ).map(key => ({ key, label: INVITATION_SECTION_LABELS[key] }))
+  ).map(key => ({
+    key,
+    label: INVITATION_SECTION_LABELS[key],
+    action: key === "tema" ? "templates" : "section",
+  }))
 }

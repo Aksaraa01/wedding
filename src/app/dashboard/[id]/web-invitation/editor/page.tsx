@@ -1008,6 +1008,7 @@ function EditorInner({ id }: { id: string }) {
   // gate in src/lib/invitationCompleteness.ts). Hidden or package-locked
   // sections count as complete.
   const completenessInput = useMemo(() => ({
+    has_template: !!template,
     cover_photos: data.cover_photos,
     couple_illustration_url: data.couple_illustration_url,
     opening_title: data.opening_title,
@@ -1032,7 +1033,7 @@ function EditorInner({ id }: { id: string }) {
       cinematic_video: gates.cinematic_video.included,
       story: gates.story.included,
     },
-  }), [data, gates, giftAddressText, giftAccounts])
+  }), [data, gates, giftAddressText, giftAccounts, template])
 
   const getIncompleteSections = useCallback(
     () => getIncompleteInvitationSections(completenessInput),
@@ -2499,7 +2500,7 @@ function EditorInner({ id }: { id: string }) {
           className="fixed inset-0 z-[90] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6"
           onClick={() => { if (pubState === "ask" || pubState === "error" || pubState === "choose") setShowPublishConfirm(false) }}
         >
-          <div className="bg-white w-full max-w-md rounded-2xl border border-outline-variant shadow-2xl p-8 text-center" onClick={(e) => e.stopPropagation()}>
+          <div className="relative bg-white w-full max-w-md rounded-2xl border border-outline-variant shadow-2xl p-8 text-center" onClick={(e) => e.stopPropagation()}>
             {pubState === "ask" && (() => {
               const incomplete = getIncompleteSections()
               const goToSection = (key: string) => {
@@ -2508,11 +2509,23 @@ function EditorInner({ id }: { id: string }) {
                 setActiveSection(key)
                 scrollSectionIntoView(key)
               }
+              const goToTemplates = () => {
+                setShowPublishConfirm(false)
+                try { sessionStorage.setItem('from_templates_' + id, '1') } catch {}
+                router.push(`/dashboard/${id}/web-invitation/templates`)
+              }
               return (
                 <>
+                  <button
+                    onClick={() => setShowPublishConfirm(false)}
+                    aria-label="Tutup"
+                    className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">close</span>
+                  </button>
                   <span className="material-symbols-outlined text-4xl text-amber-500 mb-4 block">assignment_late</span>
                   <h3 className="font-headline-md text-xl font-medium text-primary mb-3">Konten Belum Lengkap</h3>
-                  <div className="mb-6 text-left">
+                  <div className="mb-2 text-left">
                     <p className="text-sm text-on-surface-variant mb-2">Bagian berikut masih kosong atau belum diisi. Undangan tidak dapat dikonfirmasi sebelum semuanya lengkap:</p>
                     <ul className="mb-3 space-y-2">
                       {incomplete.map((s) => (
@@ -2520,17 +2533,25 @@ function EditorInner({ id }: { id: string }) {
                           <span className="text-sm text-red-700 flex items-center gap-2">
                             <span className="material-symbols-outlined text-[16px]">error</span> {s.label}
                           </span>
-                          <button
-                            onClick={() => goToSection(s.key)}
-                            className="shrink-0 px-3 py-1.5 rounded-full bg-secondary text-white text-[11px] font-label-md uppercase tracking-widest hover:opacity-90 transition-opacity"
-                          >
-                            Lengkapi
-                          </button>
+                          {s.action === "templates" ? (
+                            <button
+                              onClick={goToTemplates}
+                              className="shrink-0 px-3 py-1.5 rounded-full bg-secondary text-white text-[11px] font-label-md uppercase tracking-widest hover:opacity-90 transition-opacity"
+                            >
+                              Pilih Tema
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => goToSection(s.key)}
+                              className="shrink-0 px-3 py-1.5 rounded-full bg-secondary text-white text-[11px] font-label-md uppercase tracking-widest hover:opacity-90 transition-opacity"
+                            >
+                              Lengkapi
+                            </button>
+                          )}
                         </li>
                       ))}
                     </ul>
                     <p className="text-sm text-secondary font-semibold mt-3">Setelah dikonfirmasi, konten undangan tidak dapat diubah.</p>
-                    <p className="text-[12px] text-on-surface-variant mt-2">Ketuk di luar kotak ini untuk menutup.</p>
                   </div>
                 </>
               )
