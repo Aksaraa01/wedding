@@ -2405,6 +2405,26 @@ add_action('template_redirect', function () {
     }
 }, 5);
 
+// Guest + master frontend (always on): neutralize the weddingpress-audio
+// widget's eager fetch. The widget prints <audio> with NO preload attribute,
+// so browsers default to preload=auto and download the FULL MP3 on every page
+// view — including link-preview crawlers and visitors who never press play.
+// Playback paths (".button-undangan" gate click, #aksaraa-music-toggle) call
+// .play(), which fetches on demand, so guests hear music exactly as before
+// apart from a split-second start delay. Render-time only: never touches
+// _elementor_data, Elementor settings, or any post. Idempotent (skips tags
+// that already carry preload), so it composes with the preview buffers above.
+function aksaraa_audio_preload_none($html)
+{
+    return preg_replace('/<audio\b(?![^>]*\bpreload\s*=)([^>]*)>/i', '<audio$1 preload="none">', $html);
+}
+
+add_action('template_redirect', function () {
+    if (is_singular()) {
+        ob_start('aksaraa_audio_preload_none');
+    }
+}, 6);
+
 // Generic comment fix: the guestbook (CUI) comment form is built MANUALLY (it never calls
 // comment_form()), and ships no `email` field. WP's `require_name_email` gate runs in
 // wp_handle_comment_submission BEFORE preprocess_comment, so it wp_dies "Please fill the required
