@@ -38,7 +38,7 @@ export async function GET(
       profile.selected_track_id
         ? supabaseAdmin.from("web_tracks").select("*").eq("id", profile.selected_track_id).single().then(r => r.data ?? null)
         : Promise.resolve(null),
-      supabaseAdmin.from("gift_accounts").select("provider_name, account_number, account_name, type").eq("wedding_profile_id", profile.id).then(r => r.data ?? []),
+      supabaseAdmin.from("gift_accounts").select("id, provider_name, provider_logo_url, account_number, account_name, type").eq("wedding_profile_id", profile.id).then(r => r.data ?? []),
       supabaseAdmin.from("gift_addresses").select("full_address, recipient_name").eq("wedding_profile_id", profile.id).maybeSingle().then(r => r.data ?? null),
     ])
     const gift_accounts = (giftAccts || []).filter(a => a.type === "bank" || a.type === "ewallet")

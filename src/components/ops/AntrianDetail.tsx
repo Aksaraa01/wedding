@@ -1034,9 +1034,20 @@ export default function AntrianDetail({ id }: { id: string }) {
       if (!res.ok) throw new Error(data.error || "Gagal menyimpan undangan")
 
       const formIds = new Set(f.giftAccounts.filter((a: any) => a.id).map((a: any) => a.id))
+      // Gift writes must fail loudly: a silent partial save (e.g. deletes
+      // failing while posts succeed) is exactly how duplicate rows pile up.
+      const checkedGiftFetch = async (url: string, init: RequestInit, what: string) => {
+        const r = await fetch(url, init)
+        if (!r.ok) {
+          const d = await r.json().catch(() => ({}))
+          throw new Error(d.error || `Gagal ${what}. Coba lagi.`)
+        }
+        return r
+      }
       for (const a of invitationData.gift_accounts || []) {
+        if (!a?.id) continue
         if (!formIds.has(a.id)) {
-          await fetch(`/api/gift-accounts/${a.id}`, { method: "DELETE" })
+          await checkedGiftFetch(`/api/gift-accounts/${a.id}`, { method: "DELETE" }, "menghapus rekening")
         }
       }
       for (const a of f.giftAccounts) {
@@ -1049,17 +1060,17 @@ export default function AntrianDetail({ id }: { id: string }) {
           type: a.type,
         }
         if (a.id) {
-          await fetch(`/api/gift-accounts/${a.id}`, {
+          await checkedGiftFetch(`/api/gift-accounts/${a.id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
-          })
+          }, "menyimpan rekening")
         } else {
-          await fetch(`/api/gift-accounts`, {
+          await checkedGiftFetch(`/api/gift-accounts`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ wedding_profile_id: wpId, ...body }),
-          })
+          }, "menambah rekening")
         }
       }
 
@@ -1067,20 +1078,20 @@ export default function AntrianDetail({ id }: { id: string }) {
       const addrFull = (f.giftAddress.full_address || "").trim()
       if (invGiftAddrId) {
         if (addrName && addrFull) {
-          await fetch(`/api/gift-addresses/${invGiftAddrId}`, {
+          await checkedGiftFetch(`/api/gift-addresses/${invGiftAddrId}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ recipient_name: addrName, full_address: addrFull }),
-          })
+          }, "menyimpan alamat kado")
         } else {
-          await fetch(`/api/gift-addresses/${invGiftAddrId}`, { method: "DELETE" })
+          await checkedGiftFetch(`/api/gift-addresses/${invGiftAddrId}`, { method: "DELETE" }, "menghapus alamat kado")
         }
       } else if (addrName && addrFull) {
-        await fetch(`/api/gift-addresses`, {
+        await checkedGiftFetch(`/api/gift-addresses`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ wedding_profile_id: wpId, recipient_name: addrName, full_address: addrFull }),
-        })
+        }, "menambah alamat kado")
       }
 
       return wpId
