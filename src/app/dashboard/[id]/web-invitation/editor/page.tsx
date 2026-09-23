@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useEffect, use, useRef, useCallback, ComponentType } from "react"
+import { useState, useEffect, use, useRef, useCallback, useMemo, ComponentType } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import { getTemplateComponent, getTemplateContentSpec } from "@/components/templates"
 import type { RowGates } from "@/lib/featureGates"
+import { getIncompleteInvitationSections, parseStringList } from "@/lib/invitationCompleteness"
 import { pollWpJob } from "@/lib/wpJobPoll"
 import ProfileMenu from "@/components/ProfileMenu"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
@@ -251,8 +252,13 @@ function EditorInner({ id }: { id: string }) {
     return () => window.removeEventListener("tour_show_konten", onShowKonten as EventListener)
   }, [])
   const [showPublishConfirm, setShowPublishConfirm] = useState(false)
-  const [pubState, setPubState] = useState<"ask" | "working" | "done" | "choose" | "error">("ask")
+  const [pubState, setPubState] = useState<"ask" | "choose" | "error">("ask")
   const [pubError, setPubError] = useState("")
+  const [reviewMode, setReviewMode] = useState(false)
+  const [reviewError, setReviewError] = useState("")
+  const [publishing, setPublishing] = useState(false)
+  const [giftLoading, setGiftLoading] = useState(true)
+  const prevShowMobilePreview = useRef(false)
   const [showH3Reminder, setShowH3Reminder] = useState(false)
   const [feedbackSubmissions, setFeedbackSubmissions] = useState<any[]>([])
   const [feedbackLoading, setFeedbackLoading] = useState(true)
@@ -490,13 +496,13 @@ function EditorInner({ id }: { id: string }) {
   }, [id, syncToWp, isMobile, isInhouse, fetchProfile])
 
   const updateField = (field: string, value: any) => {
-    if (data.is_published === true) return
+    if (data.is_published === true || reviewMode) return
     setData(prev => ({ ...prev, [field]: value }))
     save({ [field]: value })
   }
 
   const handleImageUpload = async (file: File, field: string) => {
-    if (data.is_published === true) return
+    if (data.is_published === true || reviewMode) return
     setPhotoUploading(field)
     try {
       const url = await uploadImageFile(file)
@@ -507,7 +513,7 @@ function EditorInner({ id }: { id: string }) {
   }
 
   const handlePhotoSlideUpload = async (file: File, field: string, index: number) => {
-    if (data.is_published === true) return
+    if (data.is_published === true || reviewMode) return
     const key = `${field}-${index}`
     setPhotoUploading(key)
     try {
@@ -525,7 +531,7 @@ function EditorInner({ id }: { id: string }) {
   // Upload a cover into a specific slot (pads empty slots so the couple can fill
   // any of the template's cover slots in any order).
   const setCoverAt = async (index: number, file: File) => {
-    if (data.is_published === true) return
+    if (data.is_published === true || reviewMode) return
     const key = `cover-${index}`
     setCoverUploading(key)
     try {
@@ -542,7 +548,7 @@ function EditorInner({ id }: { id: string }) {
   }
 
   const clearCoverAt = (index: number) => {
-    if (data.is_published === true) return
+    if (data.is_published === true || reviewMode) return
     const covers = (Array.isArray(data.cover_photos) ? data.cover_photos : []).filter((_, i) => i !== index)
     setData(prev => ({ ...prev, cover_photos: covers, couple_illustration_url: (typeof covers[0] === 'string' ? covers[0] : Array.isArray(covers[0]) ? covers[0][0] : '') || "" }))
     save({ cover_photos: covers, couple_illustration_url: (typeof covers[0] === 'string' ? covers[0] : Array.isArray(covers[0]) ? covers[0][0] : '') || "" })
@@ -550,7 +556,7 @@ function EditorInner({ id }: { id: string }) {
 
   // Upload a photo into a slide of a slideshow cover slot (2 slides per slot).
   const setCoverSlideAt = async (slotIndex: number, slideIndex: number, file: File) => {
-    if (data.is_published === true) return
+    if (data.is_published === true || reviewMode) return
     const key = `cover-${slotIndex}-${slideIndex}`
     setCoverUploading(key)
     try {
@@ -579,10 +585,10 @@ function EditorInner({ id }: { id: string }) {
   }
 
   const addSession = () => {
-    if (data.is_published === true) return
+    if (data.is_published === true || reviewMode) return
     if (sessions.length >= 2) return
     updateField("sessions", [...sessions, {
-      name: "", // left empty: input shows a placeholder (Akad Nikah/Pemberkatan or Resepsi)
+      name: "", // required (Nama Acara): must be filled before the invitation can be confirmed
       date: "",
       time: "",
       venue: "",
@@ -607,7 +613,7 @@ function EditorInner({ id }: { id: string }) {
   }
 
   const addStory = () => {
-    if (data.is_published === true) return
+    if (data.is_published === true || reviewMode) return
     updateField("stories", [...stories, { title: "", description: "", image_url: "" }])
   }
 
@@ -616,7 +622,7 @@ function EditorInner({ id }: { id: string }) {
   }
 
   const handleStoryImageUpload = async (file: File, index: number) => {
-    if (data.is_published === true) return
+    if (data.is_published === true || reviewMode) return
     setStoryUploading(index)
     try {
       const url = await uploadImageFile(file)
@@ -706,7 +712,7 @@ function EditorInner({ id }: { id: string }) {
   }, [])
 
   const uploadGalleryFiles = async (files: FileList | File[]) => {
-    if (data.is_published === true) return
+    if (data.is_published === true || reviewMode) return
     if (galleryUploading) return
     const list = Array.from(files).filter(f => f.type.startsWith("image/"))
     if (list.length === 0) return
@@ -735,21 +741,25 @@ function EditorInner({ id }: { id: string }) {
   const [giftAddressName, setGiftAddressName] = useState("")
 
   const loadGiftData = useCallback(async () => {
-    const [acctRes, addrRes] = await Promise.all([
-      fetch(`/api/gift-accounts?wedding_profile_id=${id}`),
-      fetch(`/api/gift-addresses?wedding_profile_id=${id}`),
-    ])
-    if (acctRes.ok) {
-      const { accounts } = await acctRes.json()
-      setGiftAccounts(accounts.filter((a: any) => a.type === "bank" || a.type === "ewallet"))
-    }
-    if (addrRes.ok) {
-      const { addresses } = await addrRes.json()
-      const active = addresses?.[0]
-      if (active) {
-        setGiftAddressText(active.full_address)
-        setGiftAddressName(active.recipient_name || "")
+    try {
+      const [acctRes, addrRes] = await Promise.all([
+        fetch(`/api/gift-accounts?wedding_profile_id=${id}`),
+        fetch(`/api/gift-addresses?wedding_profile_id=${id}`),
+      ])
+      if (acctRes.ok) {
+        const { accounts } = await acctRes.json()
+        setGiftAccounts(accounts.filter((a: any) => a.type === "bank" || a.type === "ewallet"))
       }
+      if (addrRes.ok) {
+        const { addresses } = await addrRes.json()
+        const active = addresses?.[0]
+        if (active) {
+          setGiftAddressText(active.full_address)
+          setGiftAddressName(active.recipient_name || "")
+        }
+      }
+    } finally {
+      setGiftLoading(false)
     }
   }, [id])
 
@@ -794,7 +804,7 @@ function EditorInner({ id }: { id: string }) {
   const myCustomTrack = allTracks.find(t => t.is_custom === true && t.uploaded_by === id && t.is_public !== true)
 
   const handleSelectTrack = (trackId: string) => {
-    if (data.is_published === true) return
+    if (data.is_published === true || reviewMode) return
     const newId = data.selected_track_id === trackId ? null : trackId
     setData(prev => ({ ...prev, selected_track_id: newId }))
     pendingUpdates.current = { ...pendingUpdates.current, selected_track_id: newId }
@@ -807,7 +817,7 @@ function EditorInner({ id }: { id: string }) {
   }
 
   const handleMusicFilePick = (file: File) => {
-    if (data.is_published === true) return
+    if (data.is_published === true || reviewMode) return
     setMusicUploadError("")
     if (myCustomTrack) {
       setPendingMusicFile(file)
@@ -818,7 +828,7 @@ function EditorInner({ id }: { id: string }) {
   }
 
   const uploadMusic = async (file: File) => {
-    if (data.is_published === true) return
+    if (data.is_published === true || reviewMode) return
     setMusicUploading(true)
     setMusicUploadError("")
     try {
@@ -864,123 +874,171 @@ function EditorInner({ id }: { id: string }) {
     router.push(`/dashboard/${id}/web-invitation/feedback`)
   }
 
-  const handlePublish = async (): Promise<boolean> => {
-    setSaveStatus("saving")
-    setUpdatingPreview(true)
-    // Flush any pending (debounced) edits together with the confirmation.
+  // Flush any pending (debounced) edits immediately. Returns ok:false when the
+  // save fails so callers can abort instead of previewing stale data.
+  const flushPendingSave = useCallback(async (): Promise<{ ok: boolean; saved: Record<string, any> }> => {
     const all = { ...pendingUpdates.current }
     pendingUpdates.current = {}
     if (saveTimer.current) clearTimeout(saveTimer.current)
+    if (Object.keys(all).length === 0) return { ok: true, saved: {} }
     try {
       const res = await fetch(`/api/dashboard/${id}/web-invitation`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ is_published: true, ...all }),
+        body: JSON.stringify(all),
       })
-      if (!res.ok) throw new Error("Save failed")
-      setData(prev => ({ ...prev, ...all, is_published: true }))
+      if (!res.ok) return { ok: false, saved: {} }
+      return { ok: true, saved: all }
+    } catch {
+      return { ok: false, saved: {} }
+    }
+  }, [id])
+
+  const scrollCanvasToTop = useCallback(() => {
+    requestAnimationFrame(() => {
+      document.querySelectorAll(".review-scroll").forEach(el => {
+        (el as HTMLElement).scrollTo({ top: 0 })
+      })
+    })
+  }, [])
+
+  // Enter fullscreen preview-review: patch (flush + WP sync) first so the
+  // preview shows the couple's latest data. Nothing is published yet.
+  const enterReview = useCallback(async () => {
+    if (reviewMode) return
+    setReviewError("")
+    setSaveStatus("saving")
+    setUpdatingPreview(true)
+    try {
+      const flush = await flushPendingSave()
+      if (!flush.ok) {
+        setSaveStatus("error")
+        setReviewError("Gagal menyimpan perubahan. Periksa koneksi Anda, lalu coba lagi.")
+        setUploadError("Gagal menyimpan perubahan. Periksa koneksi Anda, lalu coba lagi.")
+        return
+      }
+      if (Object.keys(flush.saved).length > 0) {
+        setData(prev => ({ ...prev, ...flush.saved }))
+      }
       setSaveStatus("saved")
       // In-house templates render from wedding_profiles already; only WP needs sync.
       if (isInhouse) {
+        await fetchProfile()
         setPreviewVersion(v => v + 1)
       } else {
         await syncToWp()
         setPreviewVersion(v => v + 1)
       }
-      return true
+      prevShowMobilePreview.current = showMobilePreview
+      if (typeof window !== "undefined" && window.innerWidth < 768) setShowMobilePreview(true)
+      setReviewMode(true)
+      scrollCanvasToTop()
     } catch {
       setSaveStatus("error")
-      return false
+      setReviewError("Gagal menyiapkan pratinjau. Periksa koneksi Anda, lalu coba lagi.")
+      setUploadError("Gagal menyiapkan pratinjau. Periksa koneksi Anda, lalu coba lagi.")
     } finally {
       setUpdatingPreview(false)
     }
-  }
+  }, [reviewMode, flushPendingSave, isInhouse, fetchProfile, syncToWp, showMobilePreview, scrollCanvasToTop])
+
+  const exitReview = useCallback(() => {
+    setReviewError("")
+    setShowMobilePreview(prevShowMobilePreview.current)
+    setReviewMode(false)
+  }, [])
+
+  // Final confirmation from the review screen: mark published, then show the
+  // feedback upsell popup (choose). No re-sync needed — edits are locked
+  // during review so the preview already matches the server data.
+  const finalizePublish = useCallback(async () => {
+    setPublishing(true)
+    setReviewError("")
+    try {
+      const res = await fetch(`/api/dashboard/${id}/web-invitation`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_published: true }),
+      })
+      if (!res.ok) {
+        const payload = await res.json().catch(() => ({} as any))
+        const blocked = Array.isArray((payload as any)?.incomplete) ? (payload as any).incomplete : []
+        if (res.status === 422 && blocked.length > 0) {
+          setReviewError(`Masih ada konten yang belum lengkap: ${blocked.map((s: any) => s.label).join(", ")}. Kembali ke edit untuk melengkapi.`)
+        } else {
+          setReviewError("Gagal mengonfirmasi undangan. Periksa koneksi Anda, lalu coba lagi.")
+        }
+        return
+      }
+      setData(prev => ({ ...prev, is_published: true, published_at: new Date().toISOString() }))
+      setReviewMode(false)
+      setShowMobilePreview(prevShowMobilePreview.current)
+      setPubError("")
+      setPubState("choose")
+      setShowPublishConfirm(true)
+    } catch {
+      setReviewError("Gagal mengonfirmasi undangan. Periksa koneksi Anda, lalu coba lagi.")
+    } finally {
+      setPublishing(false)
+    }
+  }, [id])
 
   const openPublishConfirm = () => {
-    setPubError("")
-    setPubState("ask")
-    setShowPublishConfirm(true)
-  }
-
-  const runPublish = async () => {
-    setPubState("working")
-    const ok = await handlePublish()
-    if (ok) {
-      setPubState("done")
-      setTimeout(() => setPubState("choose"), 1200)
-    } else {
-      setPubError("Gagal mengonfirmasi undangan. Periksa koneksi Anda, lalu coba lagi.")
-      setPubState("error")
+    if (isPublished || reviewMode) return
+    if (giftLoading || galleryUploading || coverUploading || photoUploading || storyUploading || musicUploading) {
+      setUploadError("Mohon tunggu hingga unggahan dan pemuatan data selesai, lalu coba lagi.")
+      return
     }
-  }
-
-  const getEmptyContent = () => {
-    let families: any[] = []
-    try {
-      const f = typeof data.inviting_families === "string" ? JSON.parse(data.inviting_families) : data.inviting_families
-      families = Array.isArray(f) ? f : []
-    } catch {}
-    const isSessionComplete = (s: any) => {
-      if (!s || typeof s !== 'object') return false
-      // 'name' is optional: empty keeps the template's own heading (e.g. Akad Nikah/Pemberkatan, Resepsi)
-      const required = ['date', 'venue', 'address', 'maps_url']
-      return required.every(k => typeof s[k] === 'string' && s[k].trim() !== '')
+    const incomplete = getIncompleteSections()
+    if (incomplete.length > 0) {
+      setPubError("")
+      setPubState("ask")
+      setShowPublishConfirm(true)
+      return
     }
-    const sessionsComplete = Array.isArray(data.sessions) && data.sessions.length > 0 && data.sessions.every(isSessionComplete)
-    const items = [
-      { label: "Nama Mempelai (Nama yang ditampilkan)", filled: !!data.display_name },
-      { label: "Foto Sampul", filled: !!data.couple_illustration_url },
-      { label: "Foto Mempelai", filled: !!(data.groom_photo_url && data.bride_photo_url) },
-      { label: "Nama Lengkap Mempelai", filled: !!(data.groom_full_name && data.bride_full_name) },
-      { label: "Nama Orang Tua Mempelai", filled: !!(data.groom_parents && data.bride_parents) },
-      { label: "Tanggal & Sesi Acara", filled: sessionsComplete },
-      { label: "Kisah Cinta", filled: !(gates.story.included) || (Array.isArray(data.stories) && data.stories.length > 0) },
-      { label: "Galeri Foto", filled: Array.isArray(data.gallery_photos) && data.gallery_photos.length > 0 },
-      { label: "Turut Mengundang", filled: !(gates.inviting_families.included) || families.length > 0 },
-      { label: "Kutipan", filled: !!data.quote_text },
-    ]
-    return items.filter(i => !i.filled).map(i => i.label)
+    // Content complete: skip the popup and go straight to fullscreen preview-review.
+    enterReview()
   }
 
-  // Per-accordion completeness: a section is incomplete when its core content is
-  // empty. Hidden (toggle off) or locked (not in package) sections count as complete.
+  // Canonical completeness input (single source of truth, shared with the API
+  // gate in src/lib/invitationCompleteness.ts). Hidden or package-locked
+  // sections count as complete.
+  const completenessInput = useMemo(() => ({
+    cover_photos: data.cover_photos,
+    couple_illustration_url: data.couple_illustration_url,
+    opening_title: data.opening_title,
+    opening_description: data.opening_description,
+    display_name: data.display_name,
+    groom_full_name: data.groom_full_name,
+    bride_full_name: data.bride_full_name,
+    sessions: data.sessions,
+    gallery_photos: data.gallery_photos,
+    inviting_families: parseStringList(data.inviting_families),
+    inviting_families_visible: data.inviting_families_visible,
+    quote_text: data.quote_text,
+    video_url: data.video_url,
+    video_section_visible: data.video_section_visible,
+    stories: data.stories,
+    story_visible: data.story_visible,
+    gift_section_visible: data.gift_section_visible,
+    gift_has_address: typeof giftAddressText === "string" && giftAddressText.trim() !== "",
+    gift_account_count: giftAccounts.length,
+    gates: {
+      inviting_families: gates.inviting_families.included,
+      cinematic_video: gates.cinematic_video.included,
+      story: gates.story.included,
+    },
+  }), [data, gates, giftAddressText, giftAccounts])
+
+  const getIncompleteSections = useCallback(
+    () => getIncompleteInvitationSections(completenessInput),
+    [completenessInput]
+  )
+
+  // Per-accordion completeness badge: a section shows "!" while its core
+  // content is empty.
   const sectionIncomplete = (key: string): boolean => {
-    const hasArr = (v: any) => Array.isArray(v) && v.filter(Boolean).length > 0
-    const hasStr = (v: any) => typeof v === "string" && v.trim() !== ""
-    switch (key) {
-      case "sampul":
-        return !hasArr(data.cover_photos) && !hasStr(data.couple_illustration_url)
-      case "pembuka":
-        return !hasStr(data.opening_title) && !hasStr(data.opening_description)
-      case "profile":
-        return !hasStr(data.display_name) || !hasStr(data.groom_full_name) || !hasStr(data.bride_full_name)
-      case "inviting":
-        if (!gates.inviting_families.included) return false
-        if (data.inviting_families_visible === false) return false
-        return !hasArr(data.inviting_families)
-      case "acara": {
-        if (!hasArr(data.sessions)) return true
-        const isComplete = (s: any) => s && typeof s === 'object' && ['name', 'date', 'venue', 'address', 'maps_url'].every(k => typeof s[k] === 'string' && s[k].trim() !== '')
-        return !data.sessions.every(isComplete)
-      }
-      case "kutipan":
-        return !hasStr(data.quote_text)
-      case "video":
-        if (!gates.cinematic_video.included) return false
-        if (data.video_section_visible === false) return false
-        return !hasStr(data.video_url)
-      case "story":
-        if (!gates.story.included) return false
-        if (data.story_visible === false) return false
-        return !hasArr(data.stories)
-      case "galeri":
-        return !hasArr(data.gallery_photos)
-      case "gift":
-        if (data.gift_section_visible === false) return false
-        return !hasStr(giftAddressText) && giftAccounts.length === 0
-      default:
-        return false
-    }
+    return getIncompleteInvitationSections(completenessInput).some(s => s.key === key)
   }
 
   const scrollSectionIntoView = (section: string) => {
@@ -1211,7 +1269,7 @@ function EditorInner({ id }: { id: string }) {
   return (
     <>
       <PageTheme mode="light" />
-      <ProductJourney profileId={id} />
+      {!reviewMode && <ProductJourney profileId={id} />}
       <div className="h-screen flex flex-col text-on-surface font-body-md overflow-hidden" style={DASH_SATIN_BG}>
 
         {/* TOP BAR */}
@@ -1248,6 +1306,21 @@ function EditorInner({ id }: { id: string }) {
                 <div className="h-10 w-10 bg-surface-container-high rounded-full" />
                 <div className="h-10 w-28 bg-surface-container-high rounded-full" />
               </div>
+            ) : reviewMode ? (
+              <>
+                <span className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#2C2A29] text-white font-label-md text-label-md">
+                  <span className="material-symbols-outlined text-[18px]">visibility</span>
+                  <span>PRATINJAU FINAL</span>
+                </span>
+                <span className="hidden md:inline-flex relative group">
+                  <button role="switch" aria-checked={previewDevice === "desktop"} onClick={() => { setPreviewDevice(prev => prev === "mobile" ? "desktop" : "mobile"); scrollCanvasToTop() }} disabled={initialLoading} className="relative inline-flex items-center w-[72px] h-9 rounded-full border border-outline-variant bg-white px-1 transition-colors disabled:opacity-50" aria-label="Ganti tampilan pratinjau">
+                    <span className={`material-symbols-outlined text-[18px] z-10 flex-1 text-center transition-colors ${previewDevice === "mobile" ? "text-white" : "text-on-surface-variant"}`}>smartphone</span>
+                    <span className={`material-symbols-outlined text-[18px] z-10 flex-1 text-center transition-colors ${previewDevice === "desktop" ? "text-white" : "text-on-surface-variant"}`}>desktop_mac</span>
+                    <span className={`absolute top-1 bottom-1 left-1 w-[30px] rounded-full bg-[#B34E3F] transition-transform duration-300 ${previewDevice === "desktop" ? "translate-x-8" : "translate-x-0"}`} />
+                  </button>
+                  <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-white text-[#2C2A29] border border-[#B34E3F] text-[11px] px-3 py-2 rounded-lg max-w-[160px] whitespace-normal text-center leading-tight z-50 shadow-lg pointer-events-none">Ganti<br/>tampilan pratinjau</span>
+                </span>
+              </>
             ) : (
               <>
             <div data-tour="ganti-tema" className="inline-flex items-center">
@@ -1342,7 +1415,7 @@ function EditorInner({ id }: { id: string }) {
         {/* MAIN */}
         <main className="flex-1 flex overflow-hidden">
           {/* SIDEBAR */}
-            <aside data-tour="konten" className={`${showMobilePreview ? 'hidden' : 'flex'} md:flex w-full md:w-[440px] bg-[#F3F4F6] border-r border-outline-variant flex-col h-full z-40 shrink-0`}>
+            <aside data-tour="konten" className={reviewMode ? "hidden" : `${showMobilePreview ? 'hidden' : 'flex'} md:flex w-full md:w-[440px] bg-[#F3F4F6] border-r border-outline-variant flex-col h-full z-40 shrink-0`}>
             <div className="flex border-b border-outline-variant">
               <button className="flex-1 py-4 font-label-md text-label-md text-primary border-b-2 border-primary text-center">KONTEN</button>
             </div>
@@ -1681,12 +1754,13 @@ function EditorInner({ id }: { id: string }) {
                 <div className="mt-6 space-y-8">
                   {sessions.map((session, i) => (
                     <div key={i} className="bg-surface-container-low p-4 border border-outline-variant space-y-6">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 flex-1">
+                      <div className="flex items-end justify-between gap-2">
+                        <div className="flex-1">
+                          <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Nama Acara</label>
                           <input
-                            className="input-editorial font-label-md text-[14px] font-bold uppercase tracking-wider flex-1"
+                            className="input-editorial font-label-md text-[14px] font-bold uppercase tracking-wider w-full"
                             style={session.name ? { color: "#8D4D39" } : undefined}
-                            placeholder={i === 0 ? "Akad Nikah / Pemberkatan" : "Resepsi"}
+                            placeholder={i === 0 ? "Contoh: Akad Nikah / Pemberkatan" : "Contoh: Resepsi"}
                             value={session.name}
                             onChange={e => updateSession(i, "name", e.target.value)}
                           />
@@ -2133,8 +2207,55 @@ function EditorInner({ id }: { id: string }) {
             </div>
           </aside>
 
+          {/* REVIEW GUIDE — side sheet on desktop, laid out beside the canvas
+              (never floating above the invitation) */}
+          {reviewMode && (
+            <aside className="hidden md:flex w-[360px] shrink-0 bg-white border-r border-outline-variant flex-col h-full z-40">
+              <div className="p-6 space-y-5 overflow-y-auto custom-scrollbar flex-1">
+                <div className="flex items-start gap-3">
+                  <span className="material-symbols-outlined text-[28px] text-secondary shrink-0">visibility</span>
+                  <div>
+                    <h2 className="font-headline-md text-[18px] text-primary font-medium">Periksa Pratinjau Final</h2>
+                    <p className="text-[13px] text-on-surface-variant leading-relaxed mt-1">
+                      Ini tampilan undangan Anda dengan data terbaru. Gulir dari sampul hingga akhir dan pastikan nama, foto, jadwal, lokasi, dan galeri sudah benar.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-emerald-50 border border-emerald-200">
+                  <span className="material-symbols-outlined text-[18px] text-emerald-600">check_circle</span>
+                  <p className="text-[12px] text-emerald-800 leading-snug">Pratinjau sudah memakai data terbaru hasil sinkronisasi.</p>
+                </div>
+                {reviewError && (
+                  <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-red-50 border border-red-200">
+                    <span className="material-symbols-outlined text-[18px] text-red-600 shrink-0">error</span>
+                    <p className="text-[12px] text-red-800 leading-snug">{reviewError}</p>
+                  </div>
+                )}
+                <div className="space-y-3 pt-1">
+                  <button
+                    onClick={finalizePublish}
+                    disabled={publishing || updatingPreview}
+                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 font-label-md text-label-md bg-[#9E3B2D] text-white rounded-full transition-all active:scale-[0.98] hover:bg-[#8d2e20] disabled:opacity-50 shadow-sm"
+                  >
+                    <span className={`material-symbols-outlined text-[18px] ${publishing ? "animate-spin" : ""}`}>{publishing ? "progress_activity" : "check_circle"}</span>
+                    <span>{publishing ? "Mengonfirmasi..." : "Lanjut — Konfirmasi"}</span>
+                  </button>
+                  <button
+                    onClick={exitReview}
+                    disabled={publishing}
+                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 border border-outline-variant text-on-surface-variant font-label-md text-label-md rounded-full hover:bg-surface-container transition-colors disabled:opacity-50"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">edit</span>
+                    <span>Kembali Edit</span>
+                  </button>
+                </div>
+                <p className="text-[12px] text-secondary font-semibold text-center leading-snug">Setelah dikonfirmasi, konten undangan tidak dapat diubah.</p>
+              </div>
+            </aside>
+          )}
+
           {/* CANVAS */}
-          <section className={`${showMobilePreview ? 'flex' : 'hidden'} md:flex flex-1 bg-surface relative overflow-hidden items-center justify-center`}
+          <section className={`${(showMobilePreview || reviewMode) ? 'flex' : 'hidden'} md:flex flex-1 bg-surface relative overflow-hidden items-center justify-center`}
             style={{ backgroundImage: "linear-gradient(#e5e1d8 1px, transparent 1px), linear-gradient(90deg, #e5e1d8 1px, transparent 1px)", backgroundSize: "40px 40px" }}
           >
             {(initialLoading || updatingPreview || syncStatus === "syncing") && (
@@ -2159,7 +2280,7 @@ function EditorInner({ id }: { id: string }) {
                 </div>
                 <div className="absolute top-3 left-1/2 -translate-x-1/2 w-28 h-7 bg-tertiary rounded-full z-[101]" />
 
-                <div className="h-full w-full overflow-y-auto custom-scrollbar">
+                <div className="h-full w-full overflow-y-auto custom-scrollbar review-scroll">
                   {renderPreviewBody()}
                 </div>
               </div>
@@ -2186,15 +2307,15 @@ function EditorInner({ id }: { id: string }) {
                       {updatingPreview ? "Memperbarui..." : "Perbarui"}
                     </button>
                   </div>
-                  <div className="flex-1 overflow-y-auto custom-scrollbar">
+                  <div className="flex-1 overflow-y-auto custom-scrollbar review-scroll">
                     {renderPreviewBody()}
                   </div>
                 </div>
               </div>
             ) : null}
 
-            {isMobile && showMobilePreview && (
-              <div className="md:hidden w-full h-full overflow-y-auto custom-scrollbar pb-[104px]">
+            {isMobile && (showMobilePreview || reviewMode) && (
+              <div className={`md:hidden w-full h-full overflow-y-auto custom-scrollbar review-scroll ${reviewMode ? "pb-[340px]" : "pb-[104px]"}`}>
                 {renderPreviewBody()}
               </div>
             )}
@@ -2202,6 +2323,7 @@ function EditorInner({ id }: { id: string }) {
         </main>
 
         {/* MOBILE BOTTOM BAR */}
+        {!reviewMode && (
         <div className="md:hidden fixed bottom-0 left-0 w-full px-4 pb-6 pt-3 bg-surface/90 backdrop-blur-sm z-50 border-t border-outline-variant">
           <div className="flex gap-3">
             <button
@@ -2252,6 +2374,45 @@ function EditorInner({ id }: { id: string }) {
             </button>
           </div>
         </div>
+        )}
+
+        {/* MOBILE REVIEW SHEET — bottom sheet below the preview (canvas has
+            extra bottom padding so the invitation stays fully visible) */}
+        {reviewMode && (
+          <div className="md:hidden fixed bottom-0 left-0 w-full px-4 pb-6 pt-4 bg-white z-50 border-t border-outline-variant rounded-t-2xl shadow-2xl max-h-[38dvh] overflow-y-auto custom-scrollbar">
+            <div className="w-10 h-1 rounded-full bg-outline-variant mx-auto mb-3" />
+            <div className="flex items-start gap-3 mb-3">
+              <span className="material-symbols-outlined text-[24px] text-secondary shrink-0">visibility</span>
+              <p className="text-[13px] text-on-surface-variant leading-relaxed">
+                Gulir undangan hingga akhir dan pastikan semuanya benar. Setelah dikonfirmasi, konten tidak dapat diubah.
+              </p>
+            </div>
+            {reviewError && (
+              <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-red-50 border border-red-200 mb-3">
+                <span className="material-symbols-outlined text-[18px] text-red-600 shrink-0">error</span>
+                <p className="text-[12px] text-red-800 leading-snug">{reviewError}</p>
+              </div>
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={exitReview}
+                disabled={publishing}
+                className="flex-1 py-4 font-label-md text-label-md tracking-widest rounded-full border border-outline-variant text-on-surface-variant disabled:opacity-50 flex items-center justify-center gap-1.5"
+              >
+                <span className="material-symbols-outlined text-[18px]">edit</span>
+                EDIT
+              </button>
+              <button
+                onClick={finalizePublish}
+                disabled={publishing || updatingPreview}
+                className="flex-1 py-4 font-label-md text-label-md tracking-widest rounded-full bg-secondary text-on-secondary disabled:opacity-50 flex items-center justify-center gap-1.5"
+              >
+                <span className={`material-symbols-outlined text-[18px] ${publishing ? "animate-spin" : ""}`}>{publishing ? "progress_activity" : "check_circle"}</span>
+                {publishing ? "MENGONFIRMASI..." : "LANJUT"}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* MOBILE BOTTOM BAR */}
       </div>
@@ -2303,31 +2464,42 @@ function EditorInner({ id }: { id: string }) {
         >
           <div className="bg-white w-full max-w-md rounded-2xl border border-outline-variant shadow-2xl p-8 text-center" onClick={(e) => e.stopPropagation()}>
             {pubState === "ask" && (() => {
-              const empty = getEmptyContent()
+              const incomplete = getIncompleteSections()
+              const goToSection = (key: string) => {
+                setShowPublishConfirm(false)
+                setShowMobilePreview(false)
+                setActiveSection(key)
+                scrollSectionIntoView(key)
+              }
               return (
                 <>
-                  <span className="material-symbols-outlined text-4xl text-secondary mb-4 block">check_circle</span>
-                  <h3 className="font-headline-md text-xl font-medium text-primary mb-3">Konfirmasi Undangan?</h3>
+                  <span className="material-symbols-outlined text-4xl text-amber-500 mb-4 block">assignment_late</span>
+                  <h3 className="font-headline-md text-xl font-medium text-primary mb-3">Konten Belum Lengkap</h3>
                   <div className="mb-6 text-left">
-                    {empty.length > 0 ? (
-                      <>
-                        <p className="text-sm text-on-surface-variant mb-2">Beberapa konten berikut masih kosong atau belum diisi:</p>
-                        <ul className="mb-3 space-y-1">
-                          {empty.map((label) => (
-                            <li key={label} className="text-sm text-red-600 flex items-center gap-2">
-                              <span className="material-symbols-outlined text-[16px]">error</span> {label}
-                            </li>
-                          ))}
-                        </ul>
-                        <p className="text-sm text-on-surface-variant">Pastikan seluruh konten terisi sebelum mengonfirmasi undangan.</p>
-                      </>
-                    ) : null}
+                    <p className="text-sm text-on-surface-variant mb-2">Bagian berikut masih kosong atau belum diisi. Undangan tidak dapat dikonfirmasi sebelum semuanya lengkap:</p>
+                    <ul className="mb-3 space-y-2">
+                      {incomplete.map((s) => (
+                        <li key={s.key} className="flex items-center justify-between gap-2 rounded-lg border border-red-200 bg-red-50/50 px-3 py-2">
+                          <span className="text-sm text-red-700 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[16px]">error</span> {s.label}
+                          </span>
+                          <button
+                            onClick={() => goToSection(s.key)}
+                            className="shrink-0 px-3 py-1.5 rounded-full bg-secondary text-white text-[11px] font-label-md uppercase tracking-widest hover:opacity-90 transition-opacity"
+                          >
+                            Lengkapi
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
                     <p className="text-sm text-secondary font-semibold mt-3">Setelah dikonfirmasi, konten undangan tidak dapat diubah.</p>
                   </div>
                   <div className="flex flex-col gap-3">
                     <button
-                      onClick={runPublish}
-                      className="w-full py-3.5 bg-secondary text-on-secondary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity"
+                      disabled
+                      aria-disabled
+                      title="Lengkapi seluruh konten terlebih dahulu"
+                      className="w-full py-3.5 bg-outline-variant text-on-surface-variant/60 rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold cursor-not-allowed"
                     >
                       Ya, Konfirmasi Undangan
                     </button>
@@ -2341,21 +2513,6 @@ function EditorInner({ id }: { id: string }) {
                 </>
               )
             })()}
-
-            {pubState === "working" && (
-              <div className="flex flex-col items-center justify-center gap-4 py-6">
-                <span className="w-10 h-10 rounded-full border-[3px] border-secondary border-t-transparent animate-spin" />
-                <p className="font-label-md text-sm text-on-surface-variant uppercase tracking-widest">Mengonfirmasi undangan…</p>
-              </div>
-            )}
-
-            {pubState === "done" && (
-              <div className="flex flex-col items-center justify-center gap-4 py-6">
-                <span className="success-pop material-symbols-outlined text-6xl text-emerald-500 block" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                <h3 className="font-headline-md text-xl font-medium text-primary">Undangan Terkonfirmasi</h3>
-                <p className="text-sm text-on-surface-variant">Mengarahkan ke Tautan Undangan &amp; QR Tamu…</p>
-              </div>
-            )}
 
             {pubState === "choose" && (
               <div className="flex flex-col items-center gap-4 py-4">
