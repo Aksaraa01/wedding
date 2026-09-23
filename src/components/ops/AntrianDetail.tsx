@@ -32,6 +32,8 @@ import {
 } from "@/lib/opsStatus"
 import { canChangeStatus, unauthorizedStatusMessage } from "@/lib/opsRoles"
 import { compressImage } from "@/lib/imageCompress"
+import { OPENING_PRESETS, OPENING_CUSTOM, matchOpeningPreset } from "@/lib/openingPresets"
+import { normalizeVideoUrl } from "@/components/templates/shared/lib"
 
 type QueueItem = {
   id: string
@@ -233,6 +235,78 @@ function invAvailableIn(p: any, gateKey: string): string[] {
   return p?.package_gates?.[gateKey]?.availableIn || []
 }
 
+function InvLockedNotice({ availableIn }: { availableIn: string[] }) {
+  return (
+    <div className="flex items-start gap-3 p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+      <span className="material-symbols-outlined text-[20px] text-secondary">lock</span>
+      <div>
+        <p className="font-label-md text-label-md uppercase tracking-widest text-secondary">Fitur Terkunci</p>
+        <p className="font-body-md text-sm text-on-surface-variant mt-1">{invUpgradeMessage(availableIn)}</p>
+      </div>
+    </div>
+  )
+}
+
+function InvSectionToggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: () => void }) {
+  return (
+    <div className="flex items-center justify-between gap-3 py-2">
+      <span className="font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant">{label}</span>
+      <label className="inline-flex items-center cursor-pointer shrink-0 gap-2">
+        <span className="font-label-md text-[10px] text-on-surface-variant">{checked ? "Tampil" : "Sembunyi"}</span>
+        <input type="checkbox" checked={checked} className="sr-only peer" onChange={onChange} />
+        <div className="relative w-10 h-5 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary" />
+      </label>
+    </div>
+  )
+}
+
+function InvAccordion({ secKey, icon, label, active, onToggle, lockedInfo, hidden, incomplete, children }: {
+  secKey: string
+  icon: string
+  label: string
+  active: boolean
+  onToggle: () => void
+  lockedInfo: string[] | null
+  hidden: boolean
+  incomplete: boolean
+  children: ReactNode
+}) {
+  const isLocked = lockedInfo !== null
+  return (
+    <div data-section={secKey} className={`scroll-mt-6 border rounded-xl overflow-visible ${active ? "bg-[#B34E3F] border-[#B34E3F]" : "bg-white border-[#B34E3F]"} `}>
+      <button
+        onClick={onToggle}
+        className={`w-full flex justify-between items-center py-4 px-4 transition-colors ${active ? "text-white hover:text-white/90" : "text-[#2C2A29] hover:text-[#B34E3F]"} ${!active ? "rounded-xl" : "rounded-t-xl"}`}
+      >
+        <span className="font-label-md text-label-md flex items-center gap-3 min-h-[24px]">
+          <span className="material-symbols-outlined text-[18px] leading-none">{icon}</span>
+          {label}
+          {isLocked && (
+            <span className="group relative inline-flex ml-1">
+              <span className={`material-symbols-outlined text-[18px] ${active ? "text-white" : "text-[#6B7280]"}`}>lock</span>
+              <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-white text-[#2C2A29] border border-[#B34E3F] text-[11px] px-3 py-2 rounded-lg max-w-[200px] whitespace-normal text-center leading-tight z-50 shadow-lg">{invUpgradeMessage(lockedInfo!)}</span>
+            </span>
+          )}
+          {hidden && !isLocked && (
+            <span className="group relative inline-flex">
+              <span className={`material-symbols-outlined text-[18px] ${active ? "text-white/90" : "text-[#6B7280]"}`}>visibility_off</span>
+              <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-white text-[#2C2A29] border border-[#B34E3F] text-[11px] px-3 py-2 rounded-lg max-w-[200px] whitespace-normal text-center leading-tight z-50 shadow-lg">Konten<br />disembunyikan - tidak<br />tampil di undangan</span>
+            </span>
+          )}
+          {!hidden && !isLocked && incomplete && (
+            <span className="group relative inline-flex ml-1 items-center" tabIndex={0}>
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#D97706] text-white text-[11px] font-bold leading-none">!</span>
+              <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block group-focus-within:block group-active:block active:block bg-white text-[#2C2A29] border border-[#B34E3F] text-[11px] px-3 py-2 rounded-lg max-w-[180px] whitespace-normal text-center leading-tight z-50 shadow-lg pointer-events-none">Konten belum<br />lengkap — silakan<br />lengkapi bagian {label}</span>
+            </span>
+          )}
+        </span>
+        <span className={`material-symbols-outlined leading-none ${active ? "text-white" : "text-[#2C2A29]"}`}>{active ? "expand_less" : "expand_more"}</span>
+      </button>
+      {active && <div className="px-4 pb-6 bg-white rounded-b-xl overflow-hidden border-t border-[#E2D9CF]">{children}</div>}
+    </div>
+  )
+}
+
 function InvBadge({ state, label, tip }: { state: InvSectionState; label: string; tip?: string }) {
   if (state === "locked") {
     return (
@@ -291,43 +365,6 @@ function InvCheck({ label, checked, onChange }: { label: string; checked: boolea
   )
 }
 
-function InvStringList({ items, onChange, placeholder, addLabel }: { items: string[]; onChange: (v: string[]) => void; placeholder?: string; addLabel?: string }) {
-  const [draft, setDraft] = useState("")
-  return (
-    <div className="space-y-2">
-      {items.map((v, i) => (
-        <div key={i} className="flex items-center gap-2">
-          <input
-            value={v}
-            onChange={(e) => onChange(items.map((x, j) => (j === i ? e.target.value : x)))}
-            placeholder={placeholder}
-            className={`${invInputCls} flex-1`}
-          />
-          <button type="button" onClick={() => onChange(items.filter((_, j) => j !== i))} aria-label="Hapus" className="w-9 h-9 shrink-0 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:text-red-600 hover:border-red-300 transition-colors">
-            <span className="material-symbols-outlined text-[18px]">delete</span>
-          </button>
-        </div>
-      ))}
-      <div className="flex items-center gap-2">
-        <input
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); if (draft.trim()) { onChange([...items, draft.trim()]); setDraft("") } } }}
-          placeholder={placeholder}
-          className={`${invInputCls} flex-1`}
-        />
-        <button
-          type="button"
-          onClick={() => { if (draft.trim()) { onChange([...items, draft.trim()]); setDraft("") } }}
-          className="h-9 px-3 shrink-0 rounded-lg bg-secondary text-white font-label-md text-[11px] uppercase tracking-widest hover:opacity-90 transition-opacity"
-        >
-          {addLabel || "Tambah"}
-        </button>
-      </div>
-    </div>
-  )
-}
-
 function InvPhotoList({ urls, onChange, onUpload, uploading, uploadKey }: {
   urls: string[]
   onChange: (v: string[]) => void
@@ -378,67 +415,6 @@ function InvPhotoList({ urls, onChange, onUpload, uploading, uploadKey }: {
 
 const INV_EMPTY_SESSION = { name: "", date: "", time: "", timezone: "WIB", venue: "", address: "", maps_url: "" }
 
-function InvSessionList({ items, onChange }: { items: any[]; onChange: (v: any[]) => void }) {
-  const set = (i: number, patch: any) => onChange(items.map((s, j) => (j === i ? { ...s, ...patch } : s)))
-  return (
-    <div className="space-y-3">
-      {items.map((s, i) => (
-        <div key={i} className="border border-outline-variant rounded-xl p-3 space-y-2 bg-surface-container-lowest">
-          <div className="flex items-center justify-between">
-            <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary">Sesi {i + 1}</p>
-            <button type="button" onClick={() => onChange(items.filter((_, j) => j !== i))} className="text-[11px] font-label-md uppercase tracking-widest text-red-600 hover:underline">Hapus</button>
-          </div>
-          <InvField label="Nama Sesi"><InvText value={s.name || ""} onChange={(v) => set(i, { name: v })} placeholder="Akad Nikah" /></InvField>
-          <div className="grid grid-cols-2 gap-2">
-            <InvField label="Tanggal"><InvText value={s.date || ""} onChange={(v) => set(i, { date: v })} placeholder="2026-10-10" /></InvField>
-            <InvField label="Waktu"><InvText value={s.time || ""} onChange={(v) => set(i, { time: v })} placeholder="08:00" /></InvField>
-          </div>
-          <InvField label="Tempat"><InvText value={s.venue || ""} onChange={(v) => set(i, { venue: v })} placeholder="Gedung ..." /></InvField>
-          <InvField label="Alamat"><InvArea value={s.address || ""} onChange={(v) => set(i, { address: v })} rows={2} /></InvField>
-          <InvField label="Link Maps"><InvText value={s.maps_url || ""} onChange={(v) => set(i, { maps_url: v })} placeholder="https://maps..." /></InvField>
-        </div>
-      ))}
-      {items.length < 5 && (
-        <button type="button" onClick={() => onChange([...items, { ...INV_EMPTY_SESSION }])} className="w-full py-2.5 rounded-xl border border-dashed border-outline-variant font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant hover:border-secondary hover:text-secondary transition-colors">
-          + Tambah Sesi
-        </button>
-      )}
-    </div>
-  )
-}
-
-function InvStoryList({ items, onChange, onUpload, uploading }: {
-  items: any[]
-  onChange: (v: any[]) => void
-  onUpload: (key: string, file: File) => Promise<string | null>
-  uploading: string | null
-}) {
-  const set = (i: number, patch: any) => onChange(items.map((s, j) => (j === i ? { ...s, ...patch } : s)))
-  return (
-    <div className="space-y-3">
-      {items.map((s, i) => (
-        <div key={i} className="border border-outline-variant rounded-xl p-3 space-y-2 bg-surface-container-lowest">
-          <div className="flex items-center justify-between">
-            <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary">Kisah {i + 1}</p>
-            <button type="button" onClick={() => onChange(items.filter((_, j) => j !== i))} className="text-[11px] font-label-md uppercase tracking-widest text-red-600 hover:underline">Hapus</button>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <InvField label="Tahun"><InvText value={s.year || ""} onChange={(v) => set(i, { year: v })} placeholder="2020" /></InvField>
-            <InvField label="Judul"><InvText value={s.title || ""} onChange={(v) => set(i, { title: v })} placeholder="Awal bertemu" /></InvField>
-          </div>
-          <InvField label="Cerita"><InvArea value={s.description || ""} onChange={(v) => set(i, { description: v })} rows={3} /></InvField>
-          <InvField label="Foto">
-            <InvPhotoList urls={s.image_url ? [s.image_url] : []} onChange={(v) => set(i, { image_url: v[0] || "" })} onUpload={onUpload} uploading={uploading} uploadKey={`story-${i}`} />
-          </InvField>
-        </div>
-      ))}
-      <button type="button" onClick={() => onChange([...items, { year: "", title: "", description: "", image_url: "" }])} className="w-full py-2.5 rounded-xl border border-dashed border-outline-variant font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant hover:border-secondary hover:text-secondary transition-colors">
-        + Tambah Kisah
-      </button>
-    </div>
-  )
-}
-
 function InvGiftAccounts({ items, onChange }: { items: any[]; onChange: (v: any[]) => void }) {
   const set = (i: number, patch: any) => onChange(items.map((a, j) => (j === i ? { ...a, ...patch } : a)))
   return (
@@ -470,33 +446,32 @@ function InvGiftAccounts({ items, onChange }: { items: any[]; onChange: (v: any[
   )
 }
 
-function InvSection({ title, state, lockTip, first, noEmptyBadge, emptyText, editing, children }: {
-  title: string
-  state: InvSectionState
-  lockTip?: string
-  first?: boolean
-  noEmptyBadge?: boolean
-  emptyText?: string
-  editing?: boolean
-  children: ReactNode
+function InvPhotoBox({ url, uploading, onFile, badge }: {
+  url: string
+  uploading: boolean
+  onFile: (file: File) => Promise<void>
+  badge?: string
 }) {
-  const badgeState = state === "empty" && noEmptyBadge ? "ok" : state
-  const showEmptyPlaceholder = state === "empty" && !editing
   return (
-    <>
-      {!first && <div className="border-t border-outline-variant/40" />}
-      <div className={state === "hidden" || state === "locked" ? "opacity-80" : ""}>
-        <div className="flex items-center gap-2 mb-3">
-          <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary">{title}</h4>
-          <InvBadge state={badgeState} label={title} tip={lockTip} />
-        </div>
-        {showEmptyPlaceholder ? (
-          <p className="font-body-md text-xs italic text-on-surface-variant/70">{emptyText || "Belum diisi."}</p>
-        ) : (
-          children
-        )}
-      </div>
-    </>
+    <div className="relative w-20 h-20 bg-surface-dim border border-outline-variant shrink-0 overflow-hidden">
+      {uploading ? (
+        <span className="material-symbols-outlined text-[20px] animate-spin absolute inset-0 m-auto w-fit h-fit">progress_activity</span>
+      ) : url ? (
+        <>
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${url})` }} />
+          {badge && <span className="absolute top-1 left-1 w-6 h-6 bg-black/60 text-white rounded-sm flex items-center justify-center text-[11px] font-bold">{badge}</span>}
+          <label className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer" title="Ganti foto">
+            <span className="material-symbols-outlined text-white text-[24px] drop-shadow-md">edit</span>
+            <input type="file" accept="image/*" className="hidden" onChange={async (e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) await onFile(f) }} />
+          </label>
+        </>
+      ) : (
+        <label className="absolute inset-0 flex items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors">
+          <span className="material-symbols-outlined text-on-surface-variant">add_a_photo</span>
+          <input type="file" accept="image/*" className="hidden" onChange={async (e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) await onFile(f) }} />
+        </label>
+      )}
+    </div>
   )
 }
 
@@ -520,6 +495,9 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [invTrackOptions, setInvTrackOptions] = useState<any[]>([])
   const [invUploading, setInvUploading] = useState<string | null>(null)
   const [invGiftAddrId, setInvGiftAddrId] = useState<string | null>(null)
+  const [invTrackSearch, setInvTrackSearch] = useState("")
+  const [invActiveSection, setInvActiveSection] = useState("sampul")
+  const invToggleSection = (key: string) => setInvActiveSection((v) => (v === key ? "" : v))
   const [invCardSummary, setInvCardSummary] = useState<{ empty: string[]; wpId: string } | null>(null)
   const [invLoading, setInvLoading] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
@@ -721,8 +699,28 @@ export default function AntrianDetail({ id }: { id: string }) {
     fetchInvCardSummary(wpId)
   }, [detail])
 
-  const photoStrArr = (v: any): string[] => {
-    if (Array.isArray(v)) return v.filter(Boolean)
+  // Accordion header props mirroring the couple editor (lock / hidden / incomplete).
+  const invAccProps = (key: string) => {
+    const p = invitationData?.profile
+    const gates = p?.package_gates || {}
+    const lockedInfo: string[] | null =
+      key === "inviting" && gates.inviting_families?.included === false ? gates.inviting_families.availableIn || [] :
+      key === "video" && gates.cinematic_video?.included === false ? gates.cinematic_video.availableIn || [] :
+      key === "story" && gates.story?.included === false ? gates.story.availableIn || [] : null
+    const hidden =
+      key === "inviting" ? p?.inviting_families_visible === false :
+      key === "video" ? p?.video_section_visible === false :
+      key === "story" ? p?.story_visible === false :
+      key === "gift" ? p?.gift_section_visible === false : false
+    const st = invSectionState(p, key === "profile" ? "profil" : key === "music" ? "musik" : key, key === "gift" ? { accounts: invitationData?.gift_accounts || [], address: invitationData?.gift_address || "" } : undefined)
+    return { lockedInfo, hidden, incomplete: st === "empty" }
+  }
+
+  const invOpeningMatch = invForm ? matchOpeningPreset(invForm.opening_title || "") : null
+  const invOpeningSelect = invOpeningMatch ? invOpeningMatch.title : invForm?.opening_title ? OPENING_CUSTOM : ""
+  const invIsCustom = !invOpeningMatch
+
+  const photoStrArr = (v: any): string[] => {    if (Array.isArray(v)) return v.filter(Boolean)
     if (typeof v === "string" && v) {
       try {
         const parsed = JSON.parse(v)
@@ -1707,27 +1705,46 @@ export default function AntrianDetail({ id }: { id: string }) {
 
             <div className="p-6 sm:p-10">
               <div ref={cardRef} className="max-w-md mx-auto bg-white border border-outline-variant shadow-lg overflow-hidden">
-                {/* SAMPUL — header + hero + foto sampul (editor order) */}
-                <div className="px-6 pt-6 flex items-center gap-2">
-                  <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary">SAMPUL</h4>
-                  <InvBadge state={invSectionState(invitationData.profile, "sampul")} label="SAMPUL" />
-                </div>
+                <style>{`.input-editorial { border: none; border-bottom: 1px solid #1A1A1A; background: transparent; padding: 8px 0; border-radius: 0; outline: none; transition: border-width 0.1s ease; width: 100%; font-family: 'Playfair Display', serif; font-size: 18px; } .input-editorial:focus { border-bottom-width: 2px; box-shadow: none; outline: none; } .input-editorial::placeholder { color: rgba(26,26,26,.34); font-size: .8em; font-style: italic; font-family: 'Inter', sans-serif; font-weight: 400; } .custom-scrollbar::-webkit-scrollbar { width: 4px; } .custom-scrollbar::-webkit-scrollbar-track { background: transparent; } .custom-scrollbar::-webkit-scrollbar-thumb { background: #E5E1D8; }`}</style>
+                {/* SAMPUL */}
+                <div className="p-6 space-y-4">
+                <InvAccordion secKey="sampul" icon="photo_album" label="SAMPUL" active={invActiveSection === "sampul"} onToggle={() => invToggleSection("sampul")} {...invAccProps("sampul")}>
                 {invEditing && invForm ? (
-                  <div className="px-6 py-3 space-y-3">
-                    <InvField label="Foto Sampul Utama">
-                      <InvPhotoList urls={invForm.couple_illustration_url ? [invForm.couple_illustration_url] : []} onChange={(v) => setInvForm({ ...invForm, couple_illustration_url: v[0] || "" })} onUpload={invUploadPhoto} uploading={invUploading} uploadKey="sampul-main" />
-                    </InvField>
-                    <InvCheck label="Foto hitam putih (grayscale)" checked={!!invForm.grayscale} onChange={(v) => setInvForm({ ...invForm, grayscale: v })} />
-                    <InvField label="Foto Sampul Tambahan">
-                      <InvPhotoList urls={invForm.cover_photos} onChange={(v) => setInvForm({ ...invForm, cover_photos: v })} onUpload={invUploadPhoto} uploading={invUploading} uploadKey="sampul-extra" />
-                    </InvField>
+                  <div className="mt-6 space-y-8">
+                    <div className="space-y-3">
+                      <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Foto Sampul</label>
+                      <p className="text-[11px] text-on-surface-variant italic">Foto utama undangan ditambah foto sampul lainnya.</p>
+                      <InvField label="Foto Utama">
+                        <InvPhotoList urls={invForm.couple_illustration_url ? [invForm.couple_illustration_url] : []} onChange={(v) => setInvForm({ ...invForm, couple_illustration_url: v[0] || "" })} onUpload={invUploadPhoto} uploading={invUploading} uploadKey="sampul-main" />
+                      </InvField>
+                      <InvField label="Foto Sampul Tambahan">
+                        <InvPhotoList urls={invForm.cover_photos} onChange={(v) => setInvForm({ ...invForm, cover_photos: v })} onUpload={invUploadPhoto} uploading={invUploading} uploadKey="sampul-extra" />
+                      </InvField>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Tanggal Acara</label>
+                      <input className="input-editorial w-full font-headline-md text-[16px]" type="date" value={invForm.estimated_wedding_date || ""} onChange={(e) => setInvForm({ ...invForm, estimated_wedding_date: e.target.value })} />
+                      <p className="text-[11px] text-on-surface-variant mt-1 italic">Tanggal utama yang tampil pada sampul undangan.</p>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Nama Mempelai</label>
+                      <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={invForm.display_name || ""} onChange={(e) => setInvForm({ ...invForm, display_name: e.target.value })} />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Singkatan Pasangan</label>
+                      <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={invForm.couple_initials || ""} onChange={(e) => setInvForm({ ...invForm, couple_initials: e.target.value })} placeholder="WD" />
+                      <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: WD, AC — inisial singkat pasangan pada sampul.</p>
+                    </div>
+                    <div className="space-y-2">
+                      <InvCheck label="Foto hitam putih (grayscale)" checked={!!invForm.grayscale} onChange={(v) => setInvForm({ ...invForm, grayscale: v })} />
+                    </div>
                   </div>
                 ) : invSectionState(invitationData.profile, "sampul") === "empty" ? (
-                  <p className="px-6 py-3 font-body-md text-xs italic text-on-surface-variant/70">Belum diisi.</p>
+                  <p className="font-body-md text-xs italic text-on-surface-variant/70 mt-6">Belum diisi.</p>
                 ) : (
                   <>
                     {invitationData.profile?.couple_illustration_url && (
-                      <div className="relative h-64 sm:h-80 bg-surface-dim overflow-hidden mt-3">
+                      <div className="relative h-64 sm:h-80 bg-surface-dim overflow-hidden mt-6">
                         <img
                           src={invitationData.profile.couple_illustration_url}
                           alt="Cover"
@@ -1751,7 +1768,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     {coverPhotos(invitationData.profile.cover_photos).length > 0 && (
                       <div className="px-6 pt-4 pb-2">
                         <div className="grid grid-cols-3 gap-2">
-                          {coverPhotos(invitationData.profile.cover_photos).map((url, i) => (
+                          {coverPhotos(invitationData.profile.cover_photos).map((url: string, i: number) => (
                             <div key={i} className="relative group aspect-video bg-surface-dim border border-outline-variant overflow-hidden">
                               <img src={url} alt={`Cover ${i + 1}`} className="w-full h-full object-cover" crossOrigin="anonymous" />
                               <button onClick={() => downloadImage(url, `cover-${invitationData.profile.slug || "photo"}-${i + 1}.jpg`)} className="absolute top-0.5 right-0.5 w-5 h-5 bg-white/80 border border-outline-variant flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" title="Download">
@@ -1764,13 +1781,49 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </>
                 )}
+                </InvAccordion>
+                </div>
 
-                <div className="p-6 space-y-6">
-                  <InvSection editing={!!(invEditing && invForm)} title="KALIMAT PEMBUKA" state={invSectionState(invitationData.profile, "pembuka")}>
+                <div className="p-6 space-y-4">
+                  <InvAccordion secKey="pembuka" icon="chat_bubble_outline" label="KALIMAT PEMBUKA" active={invActiveSection === "pembuka"} onToggle={() => invToggleSection("pembuka")} {...invAccProps("pembuka")}>
                     {invEditing && invForm ? (
-                      <div className="space-y-3">
-                        <InvField label="Judul Pembuka"><InvText value={invForm.opening_title} onChange={(v) => setInvForm({ ...invForm, opening_title: v })} placeholder="Assalamu'alaikum ..." /></InvField>
-                        <InvField label="Deskripsi Pembuka"><InvArea value={invForm.opening_description} onChange={(v) => setInvForm({ ...invForm, opening_description: v })} rows={4} /></InvField>
+                      <div className="mt-6 space-y-4">
+                        <div className="space-y-2">
+                          <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Judul</label>
+                          <select
+                            className="input-editorial w-full font-body-md text-[14px] cursor-pointer"
+                            value={invOpeningSelect}
+                            onChange={(e) => {
+                              const value = e.target.value
+                              if (value === "" || value === OPENING_CUSTOM) {
+                                if (value === "") setInvForm({ ...invForm, opening_title: "", opening_description: "" })
+                                return
+                              }
+                              const preset = matchOpeningPreset(value)
+                              if (!preset) return
+                              setInvForm({ ...invForm, opening_title: preset.title, opening_description: preset.description })
+                            }}
+                          >
+                            <option value="">-- Pilih Judul --</option>
+                            {OPENING_PRESETS.map((p) => (
+                              <option key={p.title} value={p.title}>{p.title}</option>
+                            ))}
+                            <option value={OPENING_CUSTOM}>{OPENING_CUSTOM}</option>
+                          </select>
+                        </div>
+                        {invIsCustom && (
+                          <div className="space-y-2">
+                            <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Judul Custom</label>
+                            <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={invForm.opening_title || ""} onChange={(e) => setInvForm({ ...invForm, opening_title: e.target.value })} placeholder="Perkenankanlah kami mengundang" />
+                          </div>
+                        )}
+                        <div className="space-y-2">
+                          <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Deskripsi</label>
+                          <textarea className="input-editorial w-full font-body-md text-[14px] h-24 resize-none disabled:opacity-60" value={invForm.opening_description || ""} onChange={(e) => setInvForm({ ...invForm, opening_description: e.target.value })} placeholder="Merupakan suatu kehormatan dan kebahagiaan bagi kami…" disabled={!invIsCustom} />
+                          {!invitationData.template?.wp_manifest?.opening_description && (
+                            <p className="text-[11px] text-on-surface-variant/70 mt-1 italic">Catatan: Template ini hanya menampilkan Judul. Deskripsi tidak akan tampil di undangan.</p>
+                          )}
+                        </div>
                       </div>
                     ) : (
                     <div>
@@ -1782,25 +1835,77 @@ export default function AntrianDetail({ id }: { id: string }) {
                       )}
                     </div>
                     )}
-                  </InvSection>
+                  </InvAccordion>
 
-                  <InvSection editing={!!(invEditing && invForm)} title="PROFILE MEMPELAI" state={invSectionState(invitationData.profile, "profil")}>
+                  <InvAccordion secKey="profile" icon="group" label="PROFILE MEMPELAI" active={invActiveSection === "profile"} onToggle={() => invToggleSection("profile")} {...invAccProps("profile")}>
                     {invEditing && invForm ? (
-                      <div className="space-y-3">
-                        <InvField label="Nama Tampilan"><InvText value={invForm.display_name} onChange={(v) => setInvForm({ ...invForm, display_name: v })} placeholder="Andi & Budi" /></InvField>
-                        <InvField label="Inisial Pasangan"><InvText value={invForm.couple_initials} onChange={(v) => setInvForm({ ...invForm, couple_initials: v })} placeholder="A & B" /></InvField>
-                        <div className="grid grid-cols-2 gap-2">
-                          <InvField label="Panggilan (1)"><InvText value={invForm.groom_name} onChange={(v) => setInvForm({ ...invForm, groom_name: v })} /></InvField>
-                          <InvField label="Panggilan (2)"><InvText value={invForm.bride_name} onChange={(v) => setInvForm({ ...invForm, bride_name: v })} /></InvField>
-                          <InvField label="Nama Lengkap (1)"><InvText value={invForm.groom_full_name} onChange={(v) => setInvForm({ ...invForm, groom_full_name: v })} /></InvField>
-                          <InvField label="Nama Lengkap (2)"><InvText value={invForm.bride_full_name} onChange={(v) => setInvForm({ ...invForm, bride_full_name: v })} /></InvField>
-                          <InvField label="Orang Tua (1)"><InvText value={invForm.groom_parents} onChange={(v) => setInvForm({ ...invForm, groom_parents: v })} /></InvField>
-                          <InvField label="Orang Tua (2)"><InvText value={invForm.bride_parents} onChange={(v) => setInvForm({ ...invForm, bride_parents: v })} /></InvField>
-                          <InvField label="Instagram (1)"><InvText value={invForm.groom_instagram} onChange={(v) => setInvForm({ ...invForm, groom_instagram: v })} /></InvField>
-                          <InvField label="Instagram (2)"><InvText value={invForm.bride_instagram} onChange={(v) => setInvForm({ ...invForm, bride_instagram: v })} /></InvField>
-                        </div>
-                        <InvField label="Foto Mempelai 1"><InvPhotoList urls={invForm.groom_photo_url} onChange={(v) => setInvForm({ ...invForm, groom_photo_url: v })} onUpload={invUploadPhoto} uploading={invUploading} uploadKey="profil-groom" /></InvField>
-                        <InvField label="Foto Mempelai 2"><InvPhotoList urls={invForm.bride_photo_url} onChange={(v) => setInvForm({ ...invForm, bride_photo_url: v })} onUpload={invUploadPhoto} uploading={invUploading} uploadKey="profil-bride" /></InvField>
+                      <div className="mt-6 space-y-8">
+                        {(["groom", "bride"] as const).map((side) => {
+                          const isGroom = side === "groom"
+                          const urls = (isGroom ? invForm.groom_photo_url : invForm.bride_photo_url) || []
+                          const setUrls = (v: string[]) => setInvForm({ ...invForm, [isGroom ? "groom_photo_url" : "bride_photo_url"]: v })
+                          const upKey = (i: number) => `profil-${side}-${i}`
+                          const putUrl = async (i: number, file: File) => {
+                            const url = await invUploadPhoto(upKey(i), file)
+                            if (!url) return
+                            const next = [...urls]
+                            next[i] = url
+                            setUrls(next.filter(Boolean))
+                          }
+                          const label = isGroom ? "Mempelai Pertama" : "Mempelai Kedua"
+                          const nameHint = isGroom ? "Nama Mempelai Pertama" : "Nama Mempelai Kedua"
+                          const fullHint = isGroom ? "Nama Lengkap Mempelai Pertama" : "Nama Lengkap Mempelai Kedua"
+                          const parHint = isGroom ? "Contoh: Putra dari Bapak Hendra & Ibu Sari" : "Contoh: Putri dari Bapak Wijaya & Ibu Dewi"
+                          const igHint = isGroom ? "Contoh: @amospurba" : "Contoh: @claudiamnrg"
+                          return (
+                            <div key={side} className="space-y-4">
+                              <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">{label}</label>
+                              {urls.length > 1 ? (
+                                <div className="border border-outline-variant rounded p-2 bg-surface-container-lowest">
+                                  <span className="text-[10px] font-bold uppercase tracking-wider text-secondary">Slideshow (harus 2 foto)</span>
+                                  <div className="grid grid-cols-2 gap-2 mt-2">
+                                    {[0, 1].map((i) => (
+                                      <div key={i} className="relative">
+                                        <InvPhotoBox url={urls[i] || ""} uploading={invUploading === upKey(i)} onFile={(f) => putUrl(i, f)} badge={i === 0 ? "a" : "b"} />
+                                        {urls[i] && (
+                                          <button type="button" onClick={() => setUrls(urls.filter((_: string, j: number) => j !== i))} className="absolute top-1 right-1 w-6 h-6 bg-black/60 text-white rounded-full flex items-center justify-center" title="Hapus foto ini">
+                                            <span className="material-symbols-outlined text-[14px]">close</span>
+                                          </button>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex gap-4 items-end">
+                                  <InvPhotoBox url={urls[0] || ""} uploading={invUploading === upKey(0)} onFile={(f) => putUrl(0, f)} />
+                                  <div className="flex-1">
+                                    <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={isGroom ? invForm.groom_name || "" : invForm.bride_name || ""} onChange={(e) => setInvForm({ ...invForm, [isGroom ? "groom_name" : "bride_name"]: e.target.value })} placeholder={nameHint} />
+                                    <p className="text-[11px] text-on-surface-variant mt-1 italic">{nameHint}</p>
+                                    <input className="input-editorial w-full font-headline-md text-[18px] mt-3" type="text" value={isGroom ? invForm.groom_full_name || "" : invForm.bride_full_name || ""} onChange={(e) => setInvForm({ ...invForm, [isGroom ? "groom_full_name" : "bride_full_name"]: e.target.value })} placeholder={fullHint} />
+                                    <p className="text-[11px] text-on-surface-variant mt-1 italic">{fullHint}</p>
+                                  </div>
+                                </div>
+                              )}
+                              {urls.length > 1 && (
+                                <>
+                                  <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={isGroom ? invForm.groom_name || "" : invForm.bride_name || ""} onChange={(e) => setInvForm({ ...invForm, [isGroom ? "groom_name" : "bride_name"]: e.target.value })} placeholder={nameHint} />
+                                  <p className="text-[11px] text-on-surface-variant mt-1 italic">{nameHint}</p>
+                                  <input className="input-editorial w-full font-headline-md text-[18px] mt-3" type="text" value={isGroom ? invForm.groom_full_name || "" : invForm.bride_full_name || ""} onChange={(e) => setInvForm({ ...invForm, [isGroom ? "groom_full_name" : "bride_full_name"]: e.target.value })} placeholder={fullHint} />
+                                  <p className="text-[11px] text-on-surface-variant mt-1 italic">{fullHint}</p>
+                                </>
+                              )}
+                              <div className="mt-3">
+                                <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={isGroom ? invForm.groom_parents || "" : invForm.bride_parents || ""} onChange={(e) => setInvForm({ ...invForm, [isGroom ? "groom_parents" : "bride_parents"]: e.target.value })} placeholder={isGroom ? "Nama Orang Tua Mempelai Pertama" : "Nama Orang Tua Mempelai Kedua"} />
+                                <p className="text-[11px] text-on-surface-variant mt-1 italic">{parHint}</p>
+                              </div>
+                              <div className="mt-3">
+                                <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={isGroom ? invForm.groom_instagram || "" : invForm.bride_instagram || ""} onChange={(e) => setInvForm({ ...invForm, [isGroom ? "groom_instagram" : "bride_instagram"]: e.target.value })} placeholder={isGroom ? "Instagram Mempelai Pertama" : "Instagram Mempelai Kedua"} />
+                                <p className="text-[11px] text-on-surface-variant mt-1 italic">{igHint}</p>
+                              </div>
+                            </div>
+                          )
+                        })}
                       </div>
                     ) : (
                     <div>
@@ -1896,13 +2001,70 @@ export default function AntrianDetail({ id }: { id: string }) {
                       </div>
                     </div>
                     )}
-                  </InvSection>
+                  </InvAccordion>
 
-                  <InvSection editing={!!(invEditing && invForm)} title="ACARA" state={invSectionState(invitationData.profile, "acara")}>
+                  <InvAccordion secKey="acara" icon="calendar_today" label="ACARA" active={invActiveSection === "acara"} onToggle={() => invToggleSection("acara")} {...invAccProps("acara")}>
                     {invEditing && invForm ? (
-                      <div className="space-y-3">
-                        <InvField label="Perkiraan Tanggal"><InvText value={invForm.estimated_wedding_date} onChange={(v) => setInvForm({ ...invForm, estimated_wedding_date: v })} placeholder="2026-10-10" /></InvField>
-                        <InvSessionList items={invForm.sessions} onChange={(v) => setInvForm({ ...invForm, sessions: v })} />
+                      <div className="mt-6 space-y-8">
+                        {(invForm.sessions || []).map((session: any, i: number) => {
+                          const setS = (patch: any) => setInvForm({ ...invForm, sessions: invForm.sessions.map((s: any, j: number) => (j === i ? { ...s, ...patch } : s)) })
+                          return (
+                            <div key={i} className="bg-surface-container-low p-4 border border-outline-variant space-y-6">
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-2 flex-1">
+                                  <input
+                                    className="input-editorial font-label-md text-[14px] font-bold uppercase tracking-wider flex-1"
+                                    style={session.name ? { color: "#8D4D39" } : undefined}
+                                    placeholder={i === 0 ? "Akad Nikah / Pemberkatan" : "Resepsi"}
+                                    value={session.name || ""}
+                                    onChange={(e) => setS({ name: e.target.value })}
+                                  />
+                                </div>
+                                {(invForm.sessions || []).length > 1 && (
+                                  <button type="button" onClick={() => setInvForm({ ...invForm, sessions: invForm.sessions.filter((_: any, j: number) => j !== i) })} className="text-red-500 hover:text-red-700 transition-colors">
+                                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                                  </button>
+                                )}
+                              </div>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="col-span-1">
+                                  <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Tanggal</label>
+                                  <input className="input-editorial w-full font-label-md text-[14px]" type="date" value={session.date || ""} onChange={(e) => setS({ date: e.target.value })} />
+                                </div>
+                                <div className="col-span-1">
+                                  <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Waktu</label>
+                                  <input className="input-editorial w-full font-label-md text-[14px]" type="text" value={session.time || ""} onChange={(e) => setS({ time: e.target.value })} placeholder="08:00 - 10:00" />
+                                </div>
+                              </div>
+                              <div>
+                                <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Nama Tempat</label>
+                                <input className="input-editorial w-full font-label-md text-[14px]" type="text" value={session.venue || ""} onChange={(e) => setS({ venue: e.target.value })} placeholder="Nama venue atau lokasi" />
+                              </div>
+                              <div>
+                                <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Alamat Lengkap</label>
+                                <textarea className="input-editorial w-full font-label-md text-[14px] min-h-[60px] resize-none" placeholder="Masukkan alamat lengkap..." value={session.address || ""} onChange={(e) => setS({ address: e.target.value })} />
+                              </div>
+                              <div className="flex gap-2 items-end">
+                                <div className="flex-1">
+                                  <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Link Google Maps</label>
+                                  <input className="input-editorial w-full font-label-md text-[14px]" placeholder="https://maps.google.com/..." type="text" value={session.maps_url || ""} onChange={(e) => setS({ maps_url: e.target.value })} />
+                                </div>
+                                <button type="button" onClick={() => { if (session.maps_url) window.open(session.maps_url, "_blank", "noopener,noreferrer") }} className="bg-secondary text-white rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:opacity-90 active:scale-95 transition-all mb-2">UJI LINK</button>
+                              </div>
+                            </div>
+                          )
+                        })}
+                        {(invForm.sessions || []).length < 2 && (
+                          <button type="button" onClick={() => setInvForm({ ...invForm, sessions: [...(invForm.sessions || []), { name: "", date: "", time: "", timezone: "WIB", venue: "", address: "", maps_url: "" }] })} className="w-full py-3.5 bg-secondary text-white rounded-full font-label-md text-[11px] uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                            <span className="material-symbols-outlined text-[16px]">add</span>
+                            TAMBAH SESI ACARA LAIN
+                          </button>
+                        )}
+                        <div className="space-y-2">
+                          <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Tanggal Acara</label>
+                          <input className="input-editorial w-full font-headline-md text-[16px]" type="date" value={invForm.estimated_wedding_date || ""} onChange={(e) => setInvForm({ ...invForm, estimated_wedding_date: e.target.value })} />
+                          <p className="text-[11px] text-on-surface-variant mt-1 italic">Tanggal utama yang tampil pada sampul undangan.</p>
+                        </div>
                         <InvField label="Batas Maksimum Pax"><InvText value={String(invForm.rsvp_max_pax ?? 2)} onChange={(v) => setInvForm({ ...invForm, rsvp_max_pax: v })} /></InvField>
                       </div>
                     ) : (
@@ -1928,11 +2090,54 @@ export default function AntrianDetail({ id }: { id: string }) {
                     </div>
                     </div>
                     )}
-                  </InvSection>
+                  </InvAccordion>
 
-                  <InvSection editing={!!(invEditing && invForm)} title="GALERI" state={invSectionState(invitationData.profile, "galeri")}>
+                  <InvAccordion secKey="galeri" icon="collections" label="GALERI" active={invActiveSection === "galeri"} onToggle={() => invToggleSection("galeri")} {...invAccProps("galeri")}>
                     {invEditing && invForm ? (
-                      <InvPhotoList urls={invForm.gallery_photos} onChange={(v) => setInvForm({ ...invForm, gallery_photos: v })} onUpload={invUploadPhoto} uploading={invUploading} uploadKey="galeri" />
+                      <div className="mt-6 space-y-8">
+                        <div className="space-y-4">
+                          <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">
+                            {invitationData.photo_quota == null ? "GALERI FOTO" : `GALERI FOTO (MAKS. ${invitationData.photo_quota} FOTO)`}
+                          </label>
+                          <div className="grid grid-cols-4 gap-2">
+                            {invForm.gallery_photos.map((url: string, i: number) => (
+                              <div key={i} className="aspect-square bg-surface-dim border border-outline-variant relative group">
+                                <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${url})` }} />
+                                <button type="button" onClick={() => setInvForm({ ...invForm, gallery_photos: invForm.gallery_photos.filter((_: string, j: number) => j !== i) })} className="absolute top-1 right-1 bg-black/50 text-white p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <span className="material-symbols-outlined text-[14px]">close</span>
+                                </button>
+                              </div>
+                            ))}
+                            {invUploading === "galeri" && (
+                              <div className="aspect-square border border-outline flex items-center justify-center bg-surface-dim">
+                                <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+                              </div>
+                            )}
+                            {(invitationData.photo_quota == null || invForm.gallery_photos.length < invitationData.photo_quota) && invUploading !== "galeri" && (
+                              <label className="aspect-square border border-dashed border-outline flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-highest cursor-pointer transition-colors">
+                                <span className="material-symbols-outlined text-[18px]">add</span>
+                                <span className="text-[8px] font-bold mt-1">TAMBAH</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  multiple
+                                  className="hidden"
+                                  onChange={async (e) => {
+                                    const files = e.target.files ? Array.from(e.target.files).filter((f) => f.type.startsWith("image/")) : []
+                                    e.target.value = ""
+                                    if (!files.length) return
+                                    const quota = invitationData.photo_quota == null ? files.length : Math.max(0, invitationData.photo_quota - invForm.gallery_photos.length)
+                                    for (const file of files.slice(0, quota)) {
+                                      const url = await invUploadPhoto("galeri", file)
+                                      if (url) setInvForm((prev: any) => ({ ...prev, gallery_photos: [...prev.gallery_photos, url] }))
+                                    }
+                                  }}
+                                />
+                              </label>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     ) : (
                     <div className="grid grid-cols-3 gap-2">
                       {(Array.isArray(invitationData.profile.gallery_photos) ? invitationData.profile.gallery_photos : []).map((url: string, i: number) => (
@@ -1949,18 +2154,46 @@ export default function AntrianDetail({ id }: { id: string }) {
                       ))}
                     </div>
                     )}
-                  </InvSection>
+                  </InvAccordion>
 
-                  <InvSection editing={!!(invEditing && invForm)}
-                    title="TURUT MENGUNDANG"
-                    state={invSectionState(invitationData.profile, "inviting")}
-                    lockTip={invUpgradeMessage(invAvailableIn(invitationData.profile, "inviting_families"))}
+                  <InvAccordion
+                    secKey="inviting"
+                    icon="group"
+                    label="TURUT MENGUNDANG"
+                    active={invActiveSection === "inviting"}
+                    onToggle={() => invToggleSection("inviting")}
+                    {...invAccProps("inviting")}
                   >
                     {invEditing && invForm && invSectionState(invitationData.profile, "inviting") !== "locked" ? (
-                      <div className="space-y-3">
-                        <InvCheck label="Tampilkan Turut Mengundang" checked={!!invForm.inviting_families_visible} onChange={(v) => setInvForm({ ...invForm, inviting_families_visible: v })} />
-                        <InvStringList items={invForm.inviting_families} onChange={(v) => setInvForm({ ...invForm, inviting_families: v })} placeholder="Keluarga Besar ..." addLabel="Tambah" />
+                      <div className="mt-6 space-y-4">
+                        <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+                          <InvSectionToggle
+                            label="Tampilkan Turut Mengundang"
+                            checked={invForm.inviting_families_visible !== false}
+                            onChange={() => setInvForm({ ...invForm, inviting_families_visible: invForm.inviting_families_visible === false })}
+                          />
+                        </div>
+                        <p className="text-[11px] text-on-surface-variant italic">Masukkan nama keluarga yang turut mengundang, pisahkan dengan enter</p>
+                        <textarea
+                          className="input-editorial w-full font-headline-md text-[16px] min-h-[120px] resize-none"
+                          value={(Array.isArray(invForm.inviting_families) ? invForm.inviting_families : []).join("\n")}
+                          onChange={(e) => {
+                            if (e.target.value === "") {
+                              setInvForm({ ...invForm, inviting_families: [] })
+                            } else {
+                              setInvForm({ ...invForm, inviting_families: e.target.value.split("\n") })
+                            }
+                          }}
+                          onBlur={(e) => {
+                            const arr = e.target.value.split("\n").map((s) => s.trim()).filter(Boolean)
+                            setInvForm({ ...invForm, inviting_families: arr })
+                          }}
+                          placeholder={"Keluarga Bapak H. Sulaiman & Ibu Hj. Fatimah\nKeluarga Bapak Drs. Wijaya & Ibu Dra. Siti\nKeluarga Besar Kedua Mempelai"}
+                          rows={4}
+                        />
                       </div>
+                    ) : invSectionState(invitationData.profile, "inviting") === "locked" ? (
+                      <div className="mt-6"><InvLockedNotice availableIn={invAvailableIn(invitationData.profile, "inviting_families")} /></div>
                     ) : (
                     <div className="text-center">
                       {(Array.isArray(invitationData.profile.inviting_families) ? invitationData.profile.inviting_families.filter(Boolean) : []).map((f: string, i: number) => (
@@ -1968,13 +2201,52 @@ export default function AntrianDetail({ id }: { id: string }) {
                       ))}
                     </div>
                     )}
-                  </InvSection>
+                  </InvAccordion>
 
-                  <InvSection editing={!!(invEditing && invForm)} title="KUTIPAN" state={invSectionState(invitationData.profile, "kutipan")}>
+                  <InvAccordion secKey="kutipan" icon="format_quote" label="KUTIPAN" active={invActiveSection === "kutipan"} onToggle={() => invToggleSection("kutipan")} {...invAccProps("kutipan")}>
                     {invEditing && invForm ? (
-                      <div className="space-y-3">
-                        <InvField label="Isi Kutipan"><InvArea value={invForm.quote_text} onChange={(v) => setInvForm({ ...invForm, quote_text: v })} rows={3} /></InvField>
-                        <InvField label="Sumber Kutipan"><InvText value={invForm.quote_source} onChange={(v) => setInvForm({ ...invForm, quote_source: v })} /></InvField>
+                      <div className="mt-6 space-y-6">
+                        <div className="space-y-2">
+                          <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Pilih Kutipan Populer</label>
+                          <select
+                            className="input-editorial w-full font-body-md text-[14px] cursor-pointer"
+                            value={invForm.quote_source || ""}
+                            onChange={(e) => {
+                              const source = e.target.value
+                              if (source === "Ar-Rum: 21") {
+                                setInvForm({ ...invForm, quote_text: "Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu isteri-isteri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya; dan dijadikan-Nya diantaramu rasa kasih dan sayang.", quote_source: "QS. Ar-Rum: 21" })
+                              } else if (source === "Matius 19:6") {
+                                setInvForm({ ...invForm, quote_text: "Demikianlah mereka bukan lagi dua, melainkan satu. Karena itu, apa yang telah dipersatukan Allah, tidak boleh diceraikan manusia.", quote_source: "Matius 19:6" })
+                              } else if (source === "Custom") {
+                                setInvForm({ ...invForm, quote_text: "", quote_source: "" })
+                              } else {
+                                setInvForm({ ...invForm, quote_source: source })
+                              }
+                            }}
+                          >
+                            <option value="">-- Pilih Kutipan --</option>
+                            <option value="Ar-Rum: 21">Ar-Rum: 21</option>
+                            <option value="Matius 19:6">Matius 19:6</option>
+                            <option value="Custom">Custom</option>
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Isi Kutipan</label>
+                          <textarea
+                            className="input-editorial w-full font-body-md text-[14px] h-32 resize-none"
+                            value={invForm.quote_text || ""}
+                            onChange={(e) => setInvForm({ ...invForm, quote_text: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Sumber / Penulis</label>
+                          <input
+                            className="input-editorial w-full font-body-md text-[14px]"
+                            type="text"
+                            value={invForm.quote_source || ""}
+                            onChange={(e) => setInvForm({ ...invForm, quote_source: e.target.value })}
+                          />
+                        </div>
                       </div>
                     ) : (
                     <div className="text-center italic">
@@ -1984,38 +2256,92 @@ export default function AntrianDetail({ id }: { id: string }) {
                         )}
                     </div>
                     )}
-                  </InvSection>
+                  </InvAccordion>
 
-                  <InvSection editing={!!(invEditing && invForm)}
-                    title="VIDEO"
-                    state={invSectionState(invitationData.profile, "video")}
-                    lockTip={invUpgradeMessage(invAvailableIn(invitationData.profile, "cinematic_video"))}
-                  >
-                    {invEditing && invForm && invSectionState(invitationData.profile, "video") !== "locked" ? (
-                      <div className="space-y-3">
-                        <InvCheck label="Tampilkan Video" checked={!!invForm.video_section_visible} onChange={(v) => setInvForm({ ...invForm, video_section_visible: v })} />
-                        <InvField label="Link Video"><InvText value={invForm.video_url} onChange={(v) => setInvForm({ ...invForm, video_url: v })} placeholder="https://youtube..." /></InvField>
-                      </div>
+                  <InvAccordion secKey="video" icon="movie" label="VIDEO" active={invActiveSection === "video"} onToggle={() => invToggleSection("video")} {...invAccProps("video")}>
+                    {invEditing && invForm ? (
+                      invSectionState(invitationData.profile, "video") === "locked" ? (
+                        <div className="mt-6"><InvLockedNotice availableIn={invAvailableIn(invitationData.profile, "cinematic_video")} /></div>
+                      ) : (
+                        <div className="mt-6 space-y-4">
+                          <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+                            <InvSectionToggle
+                              label="Tampilkan Video"
+                              checked={invForm.video_section_visible !== false}
+                              onChange={() => setInvForm({ ...invForm, video_section_visible: invForm.video_section_visible === false })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">URL Video (YouTube)</label>
+                            <input
+                              className="input-editorial w-full font-body-md text-[14px]"
+                              type="url"
+                              value={invForm.video_url || ""}
+                              onChange={(e) => setInvForm({ ...invForm, video_url: normalizeVideoUrl(e.target.value) })}
+                              onBlur={(e) => { const v = normalizeVideoUrl(e.target.value); if (v !== e.target.value) setInvForm({ ...invForm, video_url: v }) }}
+                              placeholder="https://youtu.be/..."
+                            />
+                            <p className="text-[11px] text-on-surface-variant mt-1 italic">Tautan video (mis. "OUR FOOTAGE") yang tampil pada undangan.</p>
+                          </div>
+                        </div>
+                      )
                     ) : (
                     <div>
                       <a href={invitationData.profile.video_url} target="_blank" rel="noopener noreferrer" className="font-body-md text-xs text-primary underline break-all">{invitationData.profile.video_url}</a>
                     </div>
                     )}
-                  </InvSection>
+                  </InvAccordion>
 
-                  <InvSection editing={!!(invEditing && invForm)}
-                    title="STORY"
-                    state={invSectionState(invitationData.profile, "story")}
-                    lockTip={invUpgradeMessage(invAvailableIn(invitationData.profile, "story"))}
-                  >
+                  <InvAccordion secKey="story" icon="auto_stories" label="STORY" active={invActiveSection === "story"} onToggle={() => invToggleSection("story")} {...invAccProps("story")}>
                     {invEditing && invForm && invSectionState(invitationData.profile, "story") !== "locked" ? (
-                      <div className="space-y-3">
-                        <InvCheck label="Tampilkan Kisah Cinta" checked={!!invForm.story_visible} onChange={(v) => setInvForm({ ...invForm, story_visible: v })} />
-                        <InvStoryList items={invForm.stories} onChange={(v) => setInvForm({ ...invForm, stories: v })} onUpload={invUploadPhoto} uploading={invUploading} />
+                      <div className="mt-6 space-y-6">
+                        <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+                          <InvSectionToggle
+                            label="Tampilkan Kisah Cinta"
+                            checked={invForm.story_visible !== false}
+                            onChange={() => setInvForm({ ...invForm, story_visible: invForm.story_visible === false })}
+                          />
+                        </div>
+                        <div className="space-y-8">
+                          <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest block">CURATE YOUR LOVE STORY</label>
+                          {(invForm.stories || []).map((story: any, i: number) => {
+                            const setSt = (patch: any) => setInvForm({ ...invForm, stories: invForm.stories.map((s: any, j: number) => (j === i ? { ...s, ...patch } : s)) })
+                            const upKey = `story-${i}`
+                            return (
+                              <div key={i} className="p-4 bg-surface-container-low border border-outline-variant space-y-4">
+                                <div className="flex justify-between items-center">
+                                  <span className="font-bold text-[10px] text-secondary uppercase">MILESTONE {i + 1}</span>
+                                  <button type="button" onClick={() => setInvForm({ ...invForm, stories: invForm.stories.filter((_: any, j: number) => j !== i) })} className="text-red-500 hover:text-red-700 transition-colors">
+                                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                                  </button>
+                                </div>
+                                <div className="flex gap-4">
+                                  <InvPhotoBox
+                                    url={story.image_url || ""}
+                                    uploading={invUploading === upKey}
+                                    onFile={async (file) => {
+                                      const url = await invUploadPhoto(upKey, file)
+                                      if (url) setSt({ image_url: url })
+                                    }}
+                                  />
+                                  <div className="flex-1 space-y-3">
+                                    <input className="input-editorial w-full font-headline-md text-[18px]" placeholder="Tahun" type="text" value={story.year || ""} onChange={(e) => setSt({ year: e.target.value })} />
+                                    <input className="input-editorial w-full font-headline-md text-[18px]" placeholder="Judul Cerita" type="text" value={story.title || ""} onChange={(e) => setSt({ title: e.target.value })} />
+                                  </div>
+                                </div>
+                                <textarea className="input-editorial w-full font-body-md text-[14px] h-20 resize-none" placeholder="Ceritakan momen ini..." value={story.description || ""} onChange={(e) => setSt({ description: e.target.value })} />
+                              </div>
+                            )
+                          })}
+                          <button type="button" onClick={() => setInvForm({ ...invForm, stories: [...(invForm.stories || []), { year: "", title: "", description: "", image_url: "" }] })} className="w-full py-3.5 bg-secondary text-white rounded-full font-label-md text-[11px] uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                            <span className="material-symbols-outlined text-[16px]">add</span>
+                            TAMBAH MILESTONE BARU
+                          </button>
+                        </div>
                       </div>
                     ) : (
-                      <div>
-                        <div className="space-y-4">
+                    <div>
+                      <div className="space-y-4">
                           {invitationData.profile.stories.map((st: any, i: number) => (
                             <div key={i} className="flex gap-4">
                               {st.image_url && (
@@ -2040,7 +2366,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                         </div>
                       </div>
                     )}
-                  </InvSection>
+                  </InvAccordion>
 
                   {invitationData.template && (
                     <>
@@ -2070,26 +2396,30 @@ export default function AntrianDetail({ id }: { id: string }) {
                       </div>
                     </>
                   )}
-
-                  <InvSection editing={!!(invEditing && invForm)}
-                    title="GIFT"
-                    state={invSectionState(invitationData.profile, "gift", { accounts: invitationData.gift_accounts || [], address: invitationData.gift_address || "" })}
-                  >
+                  <InvAccordion secKey="gift" icon="featured_seasonal_and_gifts" label="GIFT" active={invActiveSection === "gift"} onToggle={() => invToggleSection("gift")} {...invAccProps("gift")}>
                     {invEditing && invForm ? (
-                      <div className="space-y-3">
-                        <InvCheck label="Tampilkan Bagian Hadiah" checked={!!invForm.gift_section_visible} onChange={(v) => setInvForm({ ...invForm, gift_section_visible: v })} />
-                        <InvGiftAccounts items={invForm.giftAccounts} onChange={(v) => setInvForm({ ...invForm, giftAccounts: v })} />
-                        <div>
-                          <div className="flex items-center gap-2 mb-3">
-                            <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary">Alamat Pengiriman Kado</h4>
-                            {invitationData.profile?.package_gates?.gift_address?.included === false && (
-                              <InvBadge state="locked" label="Alamat Pengiriman Kado" tip={invUpgradeMessage(invAvailableIn(invitationData.profile, "gift_address"))} />
-                            )}
-                          </div>
-                          <div className="space-y-3">
-                            <InvField label="Nama Penerima"><InvText value={invForm.giftAddress.recipient_name} onChange={(v) => setInvForm({ ...invForm, giftAddress: { ...invForm.giftAddress, recipient_name: v } })} /></InvField>
-                            <InvField label="Alamat Lengkap"><InvArea value={invForm.giftAddress.full_address} onChange={(v) => setInvForm({ ...invForm, giftAddress: { ...invForm.giftAddress, full_address: v } })} rows={3} /></InvField>
-                          </div>
+                      <div className="mt-6 space-y-6">
+                        <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+                          <InvSectionToggle
+                            label="Tampilkan Bagian Hadiah"
+                            checked={invForm.gift_section_visible !== false}
+                            onChange={() => setInvForm({ ...invForm, gift_section_visible: invForm.gift_section_visible === false })}
+                          />
+                        </div>
+                        <div className="space-y-3">
+                          <p className="font-label-md text-[11px] uppercase tracking-widest text-secondary">Daftar Rekening / E-Wallet</p>
+                          <InvGiftAccounts items={invForm.giftAccounts} onChange={(v) => setInvForm({ ...invForm, giftAccounts: v })} />
+                        </div>
+                        <div className="space-y-3">
+                          <p className="font-label-md text-[11px] uppercase tracking-widest text-secondary">Alamat Pengiriman Kado</p>
+                          {invitationData.profile?.package_gates?.gift_address?.included === false ? (
+                            <InvLockedNotice availableIn={invAvailableIn(invitationData.profile, "gift_address")} />
+                          ) : (
+                            <div className="space-y-3">
+                              <InvField label="Nama Penerima"><InvText value={invForm.giftAddress.recipient_name} onChange={(v) => setInvForm({ ...invForm, giftAddress: { ...invForm.giftAddress, recipient_name: v } })} /></InvField>
+                              <InvField label="Alamat Lengkap"><InvArea value={invForm.giftAddress.full_address} onChange={(v) => setInvForm({ ...invForm, giftAddress: { ...invForm.giftAddress, full_address: v } })} rows={3} /></InvField>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ) : (
@@ -2118,27 +2448,62 @@ export default function AntrianDetail({ id }: { id: string }) {
                         )}
                     </div>
                     )}
-                  </InvSection>
+                  </InvAccordion>
 
-                  <InvSection editing={!!(invEditing && invForm)}
-                    title="MUSIC"
-                    state={invSectionState(invitationData.profile, "musik")}
-                    noEmptyBadge
-                    emptyText="Belum dipilih."
-                  >
+                  <InvAccordion secKey="music" icon="music_note" label="MUSIC" active={invActiveSection === "music"} onToggle={() => invToggleSection("music")} {...invAccProps("music")}>
                     {invEditing && invForm ? (
-                      <InvField label="Lagu Undangan">
-                        <select
-                          value={invForm.selected_track_id || ""}
-                          onChange={(e) => setInvForm({ ...invForm, selected_track_id: e.target.value })}
-                          className={invInputCls}
-                        >
-                          <option value="">— Tanpa lagu —</option>
-                          {invTrackOptions.map((t: any) => (
-                            <option key={t.id} value={t.id}>{t.title}{t.artist ? ` — ${t.artist}` : ""}</option>
-                          ))}
-                        </select>
-                      </InvField>
+                      <div className="mt-6 space-y-4">
+                        <div className="flex items-center gap-2 bg-surface-container-low px-3 py-2 border border-outline-variant">
+                          <span className="material-symbols-outlined text-[20px] text-on-surface-variant">search</span>
+                          <input
+                            className="bg-transparent border-none focus:ring-0 font-label-md text-label-md w-full text-on-surface"
+                            placeholder="Cari lagu..."
+                            value={invTrackSearch}
+                            onChange={(e) => setInvTrackSearch(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-1 max-h-64 overflow-y-auto custom-scrollbar -mx-4 px-4">
+                          {invTrackOptions
+                            .filter((t) => t.title.toLowerCase().includes(invTrackSearch.toLowerCase()) || (t.artist && t.artist.toLowerCase().includes(invTrackSearch.toLowerCase())))
+                            .map((track) => {
+                              const isSelected = track.id === invForm.selected_track_id
+                              return (
+                                <div
+                                  key={track.id}
+                                  onClick={() => setInvForm({ ...invForm, selected_track_id: isSelected ? "" : track.id })}
+                                  className={`flex items-center justify-between p-3 cursor-pointer transition-colors ${
+                                    isSelected
+                                      ? "bg-secondary-container/30 border border-secondary ring-1 ring-secondary"
+                                      : "border border-transparent hover:bg-surface-container-low"
+                                  }`}
+                                >
+                                  <div className="flex flex-col">
+                                    <span className="font-label-md text-primary flex items-center gap-2">
+                                      {track.title}
+                                      {isSelected && (
+                                        <span className="inline-flex items-center gap-1 bg-secondary text-white text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 shrink-0">
+                                          <span className="material-symbols-outlined text-[11px]">check</span>
+                                          Dipilih
+                                        </span>
+                                      )}
+                                    </span>
+                                    <span className="text-[10px] text-on-surface-variant">
+                                      {track.artist || "Instrumental"}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`material-symbols-outlined ${isSelected ? "text-secondary" : "text-on-surface-variant"}`}>
+                                      {isSelected ? "pause" : "play_arrow"}
+                                    </span>
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          {invTrackOptions.filter((t) => t.title.toLowerCase().includes(invTrackSearch.toLowerCase()) || (t.artist && t.artist.toLowerCase().includes(invTrackSearch.toLowerCase()))).length === 0 && (
+                            <p className="text-on-surface-variant font-body-md text-sm py-4 text-center">Tidak ada lagu ditemukan.</p>
+                          )}
+                        </div>
+                      </div>
                     ) : invitationData.track ? (
                       <div className="flex items-center gap-3">
                         <span className="material-symbols-outlined text-secondary">music_note</span>
@@ -2150,7 +2515,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     ) : (
                       <p className="font-body-md text-xs italic text-on-surface-variant/70">Belum dipilih.</p>
                     )}
-                  </InvSection>
+                  </InvAccordion>
 
                   {invitationData.profile?.invitation_url && (
                     <>
