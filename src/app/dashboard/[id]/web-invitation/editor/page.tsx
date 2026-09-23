@@ -257,8 +257,11 @@ function EditorInner({ id }: { id: string }) {
   const [reviewMode, setReviewMode] = useState(false)
   const [reviewError, setReviewError] = useState("")
   const [publishing, setPublishing] = useState(false)
+  const [preparingReview, setPreparingReview] = useState(false)
   const [giftLoading, setGiftLoading] = useState(true)
   const prevShowMobilePreview = useRef(false)
+  const reviewSheetRef = useRef<HTMLDivElement>(null)
+  const [reviewSheetH, setReviewSheetH] = useState(0)
   const [showH3Reminder, setShowH3Reminder] = useState(false)
   const [feedbackSubmissions, setFeedbackSubmissions] = useState<any[]>([])
   const [feedbackLoading, setFeedbackLoading] = useState(true)
@@ -908,7 +911,7 @@ function EditorInner({ id }: { id: string }) {
     if (reviewMode) return
     setReviewError("")
     setSaveStatus("saving")
-    setUpdatingPreview(true)
+    setPreparingReview(true)
     try {
       const flush = await flushPendingSave()
       if (!flush.ok) {
@@ -938,12 +941,13 @@ function EditorInner({ id }: { id: string }) {
       setReviewError("Gagal menyiapkan pratinjau. Periksa koneksi Anda, lalu coba lagi.")
       setUploadError("Gagal menyiapkan pratinjau. Periksa koneksi Anda, lalu coba lagi.")
     } finally {
-      setUpdatingPreview(false)
+      setPreparingReview(false)
     }
   }, [reviewMode, flushPendingSave, isInhouse, fetchProfile, syncToWp, showMobilePreview, scrollCanvasToTop])
 
   const exitReview = useCallback(() => {
     setReviewError("")
+    setReviewSheetH(0)
     setShowMobilePreview(prevShowMobilePreview.current)
     setReviewMode(false)
   }, [])
@@ -1101,6 +1105,24 @@ function EditorInner({ id }: { id: string }) {
     window.addEventListener("tour_open_section", handler as EventListener)
     return () => window.removeEventListener("tour_open_section", handler as EventListener)
   }, [])
+
+  // Keep the mobile canvas bottom padding in sync with the review sheet
+  // height so the invitation stays fully visible above the sheet on every
+  // device size (sheet height varies with content, font scaling, errors).
+  useEffect(() => {
+    if (!reviewMode || !isMobile) return
+    const measure = () => {
+      if (reviewSheetRef.current) setReviewSheetH(reviewSheetRef.current.offsetHeight)
+    }
+    measure()
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null
+    if (ro && reviewSheetRef.current) ro.observe(reviewSheetRef.current)
+    window.addEventListener("resize", measure)
+    return () => {
+      ro?.disconnect()
+      window.removeEventListener("resize", measure)
+    }
+  }, [reviewMode, isMobile])
 
   const isSectionHidden = (key: string) => {
     switch (key) {
@@ -2217,7 +2239,7 @@ function EditorInner({ id }: { id: string }) {
                   <div>
                     <h2 className="font-headline-md text-[18px] text-primary font-medium">Periksa Pratinjau Final</h2>
                     <p className="text-[13px] text-on-surface-variant leading-relaxed mt-1">
-                      Ini tampilan undangan Anda dengan data terbaru. Gulir dari sampul hingga akhir dan pastikan nama, foto, jadwal, lokasi, dan galeri sudah benar.
+                      Ini tampilan undangan Anda dengan data terbaru. Scroll dari sampul hingga akhir dan pastikan nama, foto, jadwal, lokasi, dan galeri sudah benar.
                     </p>
                   </div>
                 </div>
@@ -2315,7 +2337,10 @@ function EditorInner({ id }: { id: string }) {
             ) : null}
 
             {isMobile && (showMobilePreview || reviewMode) && (
-              <div className={`md:hidden w-full h-full overflow-y-auto custom-scrollbar review-scroll ${reviewMode ? "pb-[340px]" : "pb-[104px]"}`}>
+              <div
+                className={`md:hidden w-full h-full overflow-y-auto custom-scrollbar review-scroll ${reviewMode ? "" : "pb-[104px]"}`}
+                style={reviewMode ? { paddingBottom: (reviewSheetH > 0 ? reviewSheetH : 300) + 24 } : undefined}
+              >
                 {renderPreviewBody()}
               </div>
             )}
@@ -2379,12 +2404,12 @@ function EditorInner({ id }: { id: string }) {
         {/* MOBILE REVIEW SHEET — bottom sheet below the preview (canvas has
             extra bottom padding so the invitation stays fully visible) */}
         {reviewMode && (
-          <div className="md:hidden fixed bottom-0 left-0 w-full px-4 pb-6 pt-4 bg-white z-50 border-t border-outline-variant rounded-t-2xl shadow-2xl max-h-[38dvh] overflow-y-auto custom-scrollbar">
+          <div ref={reviewSheetRef} className="md:hidden fixed bottom-0 left-0 w-full px-4 pb-6 pt-4 bg-white z-50 border-t border-outline-variant rounded-t-2xl shadow-2xl max-h-[38dvh] overflow-y-auto custom-scrollbar">
             <div className="w-10 h-1 rounded-full bg-outline-variant mx-auto mb-3" />
             <div className="flex items-start gap-3 mb-3">
               <span className="material-symbols-outlined text-[24px] text-secondary shrink-0">visibility</span>
               <p className="text-[13px] text-on-surface-variant leading-relaxed">
-                Gulir undangan hingga akhir dan pastikan semuanya benar. Setelah dikonfirmasi, konten tidak dapat diubah.
+                Scroll undangan hingga akhir dan pastikan semuanya benar. Setelah dikonfirmasi, konten tidak dapat diubah.
               </p>
             </div>
             {reviewError && (
@@ -2410,6 +2435,18 @@ function EditorInner({ id }: { id: string }) {
                 <span className={`material-symbols-outlined text-[18px] ${publishing ? "animate-spin" : ""}`}>{publishing ? "progress_activity" : "check_circle"}</span>
                 {publishing ? "MENGONFIRMASI..." : "LANJUT"}
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* PREPARING REVIEW — dedicated fullscreen loading while patching, so it
+            never blends into the invitation preview */}
+        {preparingReview && !reviewMode && (
+          <div className="fixed inset-0 z-[80] bg-[#2C2A29]/70 backdrop-blur-sm flex items-center justify-center p-6">
+            <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-8 text-center">
+              <span className="w-12 h-12 rounded-full border-[3px] border-secondary border-t-transparent animate-spin block mx-auto" />
+              <h3 className="font-headline-md text-xl font-medium text-primary mt-5">Menyiapkan Pratinjau Final…</h3>
+              <p className="text-sm text-on-surface-variant mt-2 leading-relaxed">Menyimpan perubahan dan menyinkronkan data terbaru Anda. Mohon tunggu sebentar.</p>
             </div>
           </div>
         )}
@@ -2495,14 +2532,6 @@ function EditorInner({ id }: { id: string }) {
                     <p className="text-sm text-secondary font-semibold mt-3">Setelah dikonfirmasi, konten undangan tidak dapat diubah.</p>
                   </div>
                   <div className="flex flex-col gap-3">
-                    <button
-                      disabled
-                      aria-disabled
-                      title="Lengkapi seluruh konten terlebih dahulu"
-                      className="w-full py-3.5 bg-outline-variant text-on-surface-variant/60 rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold cursor-not-allowed"
-                    >
-                      Ya, Konfirmasi Undangan
-                    </button>
                     <button
                       onClick={() => setShowPublishConfirm(false)}
                       className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
