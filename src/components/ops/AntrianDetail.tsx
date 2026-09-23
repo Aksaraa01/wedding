@@ -286,51 +286,65 @@ function InvSectionToggle({ label, checked, onChange }: { label: string; checked
   )
 }
 
-function InvAccordion({ secKey, icon, label, active, onToggle, lockedInfo, hidden, incomplete, children }: {
+function InvAccordion({ secKey, icon, label, lockedInfo, hidden, incomplete, defaultOpen, children }: {
   secKey: string
   icon: string
   label: string
-  active: boolean
-  onToggle: () => void
   lockedInfo: string[] | null
   hidden: boolean
   incomplete: boolean
+  defaultOpen?: boolean
   children: ReactNode
 }) {
   const isLocked = lockedInfo !== null
   return (
-    <div data-section={secKey} data-inv-section={secKey} className={`scroll-mt-6 border rounded-xl overflow-visible ${active ? "bg-[#B34E3F] border-[#B34E3F]" : "bg-white border-[#B34E3F]"} `}>
-      <button
-        type="button"
-        onClick={onToggle}
-        className={`w-full flex justify-between items-center py-4 px-4 transition-colors ${active ? "text-white hover:text-white/90" : "text-[#2C2A29] hover:text-[#B34E3F]"} ${!active ? "rounded-xl" : "rounded-t-xl"}`}
+    <details
+      data-section={secKey}
+      data-inv-section={secKey}
+      open={defaultOpen || undefined}
+      className="group scroll-mt-6 border rounded-xl overflow-visible bg-white border-[#B34E3F] open:bg-[#B34E3F] open:border-[#B34E3F]"
+    >
+      <summary
+        onClick={() => {
+          // Single-open at DOM level (no React state): after the native
+          // toggle, close every other section. Immune to render timing.
+          requestAnimationFrame(() => {
+            try {
+              document.querySelectorAll("[data-inv-section]").forEach((el) => {
+                if (el.getAttribute("data-inv-section") !== secKey) el.removeAttribute("open")
+              })
+            } catch {}
+          })
+        }}
+        className="w-full flex justify-between items-center py-4 px-4 transition-colors text-[#2C2A29] hover:text-[#B34E3F] group-open:text-white group-open:hover:text-white/90 rounded-xl group-open:rounded-b-none group-open:rounded-t-xl cursor-pointer list-none [&::-webkit-details-marker]:hidden"
       >
         <span className="font-label-md text-label-md flex items-center gap-3 min-h-[24px]">
           <span className="material-symbols-outlined text-[18px] leading-none">{icon}</span>
           {label}
           {isLocked && (
-            <span className="group relative inline-flex ml-1">
-              <span className={`material-symbols-outlined text-[18px] ${active ? "text-white" : "text-[#6B7280]"}`}>lock</span>
-              <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-white text-[#2C2A29] border border-[#B34E3F] text-[11px] px-3 py-2 rounded-lg max-w-[200px] whitespace-normal text-center leading-tight z-50 shadow-lg">{invUpgradeMessage(lockedInfo!)}</span>
+            <span className="group/inner relative inline-flex ml-1">
+              <span className="material-symbols-outlined text-[18px] text-[#6B7280] group-open:text-white">lock</span>
+              <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover/inner:block bg-white text-[#2C2A29] border border-[#B34E3F] text-[11px] px-3 py-2 rounded-lg max-w-[200px] whitespace-normal text-center leading-tight z-50 shadow-lg">{invUpgradeMessage(lockedInfo!)}</span>
             </span>
           )}
           {hidden && !isLocked && (
-            <span className="group relative inline-flex">
-              <span className={`material-symbols-outlined text-[18px] ${active ? "text-white/90" : "text-[#6B7280]"}`}>visibility_off</span>
-              <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-white text-[#2C2A29] border border-[#B34E3F] text-[11px] px-3 py-2 rounded-lg max-w-[200px] whitespace-normal text-center leading-tight z-50 shadow-lg">Konten<br />disembunyikan - tidak<br />tampil di undangan</span>
+            <span className="group/inner relative inline-flex">
+              <span className="material-symbols-outlined text-[18px] text-[#6B7280] group-open:text-white/90">visibility_off</span>
+              <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover/inner:block bg-white text-[#2C2A29] border border-[#B34E3F] text-[11px] px-3 py-2 rounded-lg max-w-[200px] whitespace-normal text-center leading-tight z-50 shadow-lg">Konten<br />disembunyikan - tidak<br />tampil di undangan</span>
             </span>
           )}
           {!hidden && !isLocked && incomplete && (
-            <span className="group relative inline-flex ml-1 items-center" tabIndex={0}>
+            <span className="group/inner relative inline-flex ml-1 items-center" tabIndex={0}>
               <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#D97706] text-white text-[11px] font-bold leading-none">!</span>
-              <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block group-focus-within:block group-active:block active:block bg-white text-[#2C2A29] border border-[#B34E3F] text-[11px] px-3 py-2 rounded-lg max-w-[180px] whitespace-normal text-center leading-tight z-50 shadow-lg pointer-events-none">Konten belum<br />lengkap — silakan<br />lengkapi bagian {label}</span>
+              <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover/inner:block bg-white text-[#2C2A29] border border-[#B34E3F] text-[11px] px-3 py-2 rounded-lg max-w-[180px] whitespace-normal text-center leading-tight z-50 shadow-lg pointer-events-none">Konten belum<br />lengkap — silakan<br />lengkapi bagian {label}</span>
             </span>
           )}
         </span>
-        <span className={`material-symbols-outlined leading-none ${active ? "text-white" : "text-[#2C2A29]"}`}>{active ? "expand_less" : "expand_more"}</span>
-      </button>
-      {active && <div className="px-4 pb-6 bg-white rounded-b-xl overflow-hidden border-t border-[#E2D9CF]">{children}</div>}
-    </div>
+        <span className="material-symbols-outlined leading-none text-[#2C2A29] group-open:text-white group-open:hidden">expand_more</span>
+        <span className="material-symbols-outlined leading-none text-white hidden group-open:block">expand_less</span>
+      </summary>
+      <div className="px-4 pb-6 bg-white rounded-b-xl overflow-hidden border-t border-[#E2D9CF]">{children}</div>
+    </details>
   )
 }
 
@@ -526,15 +540,6 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [invUploading, setInvUploading] = useState<string | null>(null)
   const [invGiftAddrId, setInvGiftAddrId] = useState<string | null>(null)
   const [invTrackSearch, setInvTrackSearch] = useState("")
-  const [invActiveSection, setInvActiveSection] = useState("sampul")
-  const invToggleSection = (key: string) => {
-    setInvActiveSection((v) => (v === key ? "" : v))
-    requestAnimationFrame(() => {
-      try {
-        document.querySelector(`[data-inv-section="${key}"]`)?.scrollIntoView({ behavior: "smooth", block: "nearest" })
-      } catch {}
-    })
-  }
   const [invCardSummary, setInvCardSummary] = useState<{ empty: string[]; wpId: string } | null>(null)
   const [invLoading, setInvLoading] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
@@ -1867,7 +1872,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                 <style>{`.input-editorial { border: none; border-bottom: 1px solid #1A1A1A; background: transparent; padding: 8px 0; border-radius: 0; outline: none; transition: border-width 0.1s ease; width: 100%; font-family: 'Playfair Display', serif; font-size: 18px; } .input-editorial:focus { border-bottom-width: 2px; box-shadow: none; outline: none; } .input-editorial::placeholder { color: rgba(26,26,26,.34); font-size: .8em; font-style: italic; font-family: 'Inter', sans-serif; font-weight: 400; } .custom-scrollbar::-webkit-scrollbar { width: 4px; } .custom-scrollbar::-webkit-scrollbar-track { background: transparent; } .custom-scrollbar::-webkit-scrollbar-thumb { background: #E5E1D8; }`}</style>
                 {/* SAMPUL */}
                 <div className="p-6 space-y-4">
-                <InvAccordion secKey="sampul" icon="photo_album" label="SAMPUL" active={invActiveSection === "sampul"} onToggle={() => invToggleSection("sampul")} {...invAccProps("sampul")}>
+                <InvAccordion secKey="sampul" icon="photo_album" label="SAMPUL" defaultOpen {...invAccProps("sampul")}>
                 {invEditing && invForm ? (
                   <div className="mt-6 space-y-8">
                     <div className="space-y-3">
@@ -2049,7 +2054,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                 </div>
 
                 <div className="p-6 space-y-4">
-                  <InvAccordion secKey="pembuka" icon="chat_bubble_outline" label="KALIMAT PEMBUKA" active={invActiveSection === "pembuka"} onToggle={() => invToggleSection("pembuka")} {...invAccProps("pembuka")}>
+                  <InvAccordion secKey="pembuka" icon="chat_bubble_outline" label="KALIMAT PEMBUKA" {...invAccProps("pembuka")}>
                     {invEditing && invForm ? (
                       <div className="mt-6 space-y-4">
                         <div className="space-y-2">
@@ -2101,7 +2106,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvAccordion>
 
-                  <InvAccordion secKey="profile" icon="group" label="PROFILE MEMPELAI" active={invActiveSection === "profile"} onToggle={() => invToggleSection("profile")} {...invAccProps("profile")}>
+                  <InvAccordion secKey="profile" icon="group" label="PROFILE MEMPELAI" {...invAccProps("profile")}>
                     {invEditing && invForm ? (
                       <div className="mt-6 space-y-8">
                         {(["groom", "bride"] as const).map((side) => {
@@ -2267,7 +2272,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvAccordion>
 
-                  <InvAccordion secKey="acara" icon="calendar_today" label="ACARA" active={invActiveSection === "acara"} onToggle={() => invToggleSection("acara")} {...invAccProps("acara")}>
+                  <InvAccordion secKey="acara" icon="calendar_today" label="ACARA" {...invAccProps("acara")}>
                     {invEditing && invForm ? (
                       <div className="mt-6 space-y-8">
                         {(invForm.sessions || []).map((session: any, i: number) => {
@@ -2356,7 +2361,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvAccordion>
 
-                  <InvAccordion secKey="galeri" icon="collections" label="GALERI" active={invActiveSection === "galeri"} onToggle={() => invToggleSection("galeri")} {...invAccProps("galeri")}>
+                  <InvAccordion secKey="galeri" icon="collections" label="GALERI" {...invAccProps("galeri")}>
                     {invEditing && invForm ? (
                       <div className="mt-6 space-y-8">
                         <div className="space-y-4">
@@ -2424,8 +2429,6 @@ export default function AntrianDetail({ id }: { id: string }) {
                     secKey="inviting"
                     icon="group"
                     label="TURUT MENGUNDANG"
-                    active={invActiveSection === "inviting"}
-                    onToggle={() => invToggleSection("inviting")}
                     {...invAccProps("inviting")}
                   >
                     {invEditing && invForm && invSectionState(invitationData.profile, "inviting") !== "locked" ? (
@@ -2467,7 +2470,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvAccordion>
 
-                  <InvAccordion secKey="kutipan" icon="format_quote" label="KUTIPAN" active={invActiveSection === "kutipan"} onToggle={() => invToggleSection("kutipan")} {...invAccProps("kutipan")}>
+                  <InvAccordion secKey="kutipan" icon="format_quote" label="KUTIPAN" {...invAccProps("kutipan")}>
                     {invEditing && invForm ? (
                       <div className="mt-6 space-y-6">
                         <div className="space-y-2">
@@ -2522,7 +2525,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvAccordion>
 
-                  <InvAccordion secKey="video" icon="movie" label="VIDEO" active={invActiveSection === "video"} onToggle={() => invToggleSection("video")} {...invAccProps("video")}>
+                  <InvAccordion secKey="video" icon="movie" label="VIDEO" {...invAccProps("video")}>
                     {invEditing && invForm ? (
                       invSectionState(invitationData.profile, "video") === "locked" ? (
                         <div className="mt-6"><InvLockedNotice availableIn={invAvailableIn(invitationData.profile, "cinematic_video")} /></div>
@@ -2556,7 +2559,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvAccordion>
 
-                  <InvAccordion secKey="story" icon="auto_stories" label="STORY" active={invActiveSection === "story"} onToggle={() => invToggleSection("story")} {...invAccProps("story")}>
+                  <InvAccordion secKey="story" icon="auto_stories" label="STORY" {...invAccProps("story")}>
                     {invEditing && invForm && invSectionState(invitationData.profile, "story") !== "locked" ? (
                       <div className="mt-6 space-y-6">
                         <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
@@ -2632,7 +2635,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvAccordion>
 
-                  <InvAccordion secKey="gift" icon="featured_seasonal_and_gifts" label="GIFT" active={invActiveSection === "gift"} onToggle={() => invToggleSection("gift")} {...invAccProps("gift")}>
+                  <InvAccordion secKey="gift" icon="featured_seasonal_and_gifts" label="GIFT" {...invAccProps("gift")}>
                     {invEditing && invForm ? (
                       <div className="mt-6 space-y-6">
                         <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
@@ -2686,7 +2689,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvAccordion>
 
-                  <InvAccordion secKey="music" icon="music_note" label="MUSIC" active={invActiveSection === "music"} onToggle={() => invToggleSection("music")} {...invAccProps("music")}>
+                  <InvAccordion secKey="music" icon="music_note" label="MUSIC" {...invAccProps("music")}>
                     {invEditing && invForm ? (
                       <div className="mt-6 space-y-4">
                         <div className="flex items-center gap-2 bg-surface-container-low px-3 py-2 border border-outline-variant">
