@@ -520,6 +520,7 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [invTrackOptions, setInvTrackOptions] = useState<any[]>([])
   const [invUploading, setInvUploading] = useState<string | null>(null)
   const [invGiftAddrId, setInvGiftAddrId] = useState<string | null>(null)
+  const [invCardSummary, setInvCardSummary] = useState<{ empty: string[]; wpId: string } | null>(null)
   const [invLoading, setInvLoading] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
   const [showVipModal, setShowVipModal] = useState(false)
@@ -683,6 +684,42 @@ export default function AntrianDetail({ id }: { id: string }) {
       setInvLoading(false)
     }
   }
+
+  // Lightweight completeness summary for the premium_web feature card
+  // (warning banner). Same section rules as the editor/modal.
+  const fetchInvCardSummary = async (wpId: string) => {
+    try {
+      const res = await fetch(`/api/dashboard/${wpId}/web-invitation`)
+      if (!res.ok) return
+      const data = await res.json()
+      const p = data.profile
+      const defs: [string, string][] = [
+        ["sampul", "SAMPUL"],
+        ["pembuka", "KALIMAT PEMBUKA"],
+        ["profil", "PROFILE MEMPELAI"],
+        ["acara", "ACARA"],
+        ["galeri", "GALERI"],
+        ["inviting", "TURUT MENGUNDANG"],
+        ["kutipan", "KUTIPAN"],
+        ["video", "VIDEO"],
+        ["story", "STORY"],
+        ["gift", "GIFT"],
+        ["musik", "MUSIC"],
+      ]
+      const gift = { accounts: data.gift_accounts || [], address: data.gift_address || "" }
+      const empty = defs
+        .filter(([k]) => invSectionState(p, k, k === "gift" ? gift : undefined) === "empty")
+        .map(([, label]) => label)
+      setInvCardSummary({ empty, wpId })
+    } catch {}
+  }
+
+  useEffect(() => {
+    const fa = detail?.feature_actions?.find((x: any) => x.feature_key === "premium_web")
+    const wpId = fa?.wedding_profile_id
+    if (!wpId || invCardSummary?.wpId === wpId) return
+    fetchInvCardSummary(wpId)
+  }, [detail])
 
   const photoStrArr = (v: any): string[] => {
     if (Array.isArray(v)) return v.filter(Boolean)
@@ -927,6 +964,7 @@ export default function AntrianDetail({ id }: { id: string }) {
       }
 
       await fetchInvitationData(wpId)
+      fetchInvCardSummary(wpId)
 
       if (changed.length > 0) {
         fetch(`/api/ops/queue/${id}/invitation-log`, {
@@ -1382,6 +1420,23 @@ export default function AntrianDetail({ id }: { id: string }) {
                       )
                     })()}
 
+                    {fa.feature_key === "premium_web" && invCardSummary && (
+                      invCardSummary.empty.length > 0 ? (
+                        <div className="mb-4 rounded-xl px-3 py-2.5 flex items-start gap-2 bg-amber-50 border border-amber-300">
+                          <span className="material-symbols-outlined text-amber-600 text-[16px] shrink-0 mt-0.5">warning</span>
+                          <div>
+                            <p className="font-label-md text-[10px] uppercase tracking-widest text-amber-800">Data belum lengkap ({invCardSummary.empty.length})</p>
+                            <p className="font-body-md text-xs text-amber-900 mt-0.5 leading-relaxed">{invCardSummary.empty.join(" • ")}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="mb-4 rounded-xl px-3 py-2 flex items-center gap-2 bg-emerald-50 border border-emerald-200">
+                          <span className="material-symbols-outlined text-emerald-600 text-[16px]">check_circle</span>
+                          <p className="font-label-md text-[10px] uppercase tracking-widest text-emerald-700">Semua data terisi</p>
+                        </div>
+                      )
+                    )}
+
                     {fa.feature_key === "unique_link_generator" && (
                       <div className="mb-4 flex flex-wrap items-center gap-3">
                         <button
@@ -1649,55 +1704,6 @@ export default function AntrianDetail({ id }: { id: string }) {
                 <p className="font-body-md text-[13px] text-red-700">{invSaveError}</p>
               </div>
             )}
-            {(() => {
-              const p = invitationData.profile
-              const defs: [string, string][] = [
-                ["sampul", "SAMPUL"],
-                ["pembuka", "KALIMAT PEMBUKA"],
-                ["profil", "PROFILE MEMPELAI"],
-                ["acara", "ACARA"],
-                ["galeri", "GALERI"],
-                ["inviting", "TURUT MENGUNDANG"],
-                ["kutipan", "KUTIPAN"],
-                ["video", "VIDEO"],
-                ["story", "STORY"],
-                ["gift", "GIFT"],
-                ["musik", "MUSIC"],
-              ]
-              const gift = { accounts: invitationData.gift_accounts || [], address: invitationData.gift_address || "" }
-              const empty = defs
-                .filter(([k]) => invSectionState(p, k, k === "gift" ? gift : undefined) === "empty")
-                .map(([, label]) => label)
-              const published = p.is_published === true
-              return (
-                <div className="mx-6 sm:mx-10 mt-4 space-y-2">
-                  <div className={`rounded-xl px-4 py-2.5 flex items-center gap-2 border ${published ? "bg-emerald-50 border-emerald-200" : "bg-surface-container-low border-outline-variant"}`}>
-                    <span className={`material-symbols-outlined text-[18px] ${published ? "text-emerald-600" : "text-on-surface-variant"}`}>
-                      {published ? "verified" : "hourglass_top"}
-                    </span>
-                    <p className={`font-label-md text-[11px] uppercase tracking-widest ${published ? "text-emerald-700" : "text-on-surface-variant"}`}>
-                      {published
-                        ? `Sudah dikonfirmasi${p.published_at ? ` • ${formatDateTime(p.published_at)}` : ""}`
-                        : "Belum dikonfirmasi editor"}
-                    </p>
-                  </div>
-                  {empty.length > 0 ? (
-                    <div className="rounded-xl px-4 py-3 flex items-start gap-2 bg-amber-50 border border-amber-300">
-                      <span className="material-symbols-outlined text-amber-600 text-[18px] shrink-0 mt-0.5">warning</span>
-                      <div>
-                        <p className="font-label-md text-[11px] uppercase tracking-widest text-amber-800">Data belum lengkap ({empty.length})</p>
-                        <p className="font-body-md text-[13px] text-amber-900 mt-0.5 leading-relaxed">{empty.join(" • ")}</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="rounded-xl px-4 py-2.5 flex items-center gap-2 bg-emerald-50 border border-emerald-200">
-                      <span className="material-symbols-outlined text-emerald-600 text-[18px]">check_circle</span>
-                      <p className="font-label-md text-[11px] uppercase tracking-widest text-emerald-700">Semua data terisi</p>
-                    </div>
-                  )}
-                </div>
-              )
-            })()}
 
             <div className="p-6 sm:p-10">
               <div ref={cardRef} className="max-w-md mx-auto bg-white border border-outline-variant shadow-lg overflow-hidden">
