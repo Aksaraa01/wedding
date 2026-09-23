@@ -32,7 +32,7 @@ import {
 } from "@/lib/opsStatus"
 import { canChangeStatus, unauthorizedStatusMessage } from "@/lib/opsRoles"
 import { compressImage } from "@/lib/imageCompress"
-import { pollWpJob } from "@/lib/wpJobPoll"
+import { pollWpJob, fetchWpJob } from "@/lib/wpJobPoll"
 import { OPENING_PRESETS, OPENING_CUSTOM, matchOpeningPreset } from "@/lib/openingPresets"
 import { normalizeVideoUrl } from "@/components/templates/shared/lib"
 import BankSelect from "@/components/dashboard/BankSelect"
@@ -1071,12 +1071,12 @@ export default function AntrianDetail({ id }: { id: string }) {
       return wpId
   }
 
-  const runInvPatch = async (wpId: string, isInhouse?: boolean) => {
-    if (isInhouse ?? invIsInhouseTpl) return
+  const runInvPatch = async (wpId: string, opts?: { isInhouse?: boolean; postId?: number | null }) => {
+    if (opts?.isInhouse ?? invIsInhouseTpl) return
     const res = await fetch(`/api/wp/patch`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ profile_id: wpId }),
+      body: JSON.stringify({ profile_id: wpId, post_id: opts?.postId ?? null }),
     })
     if (!res.ok) {
       const data = await res.json().catch(() => ({}))
@@ -1206,8 +1206,13 @@ export default function AntrianDetail({ id }: { id: string }) {
         if (data.job_id) await pollWpJob(data.job_id, { interval: 800 })
         // Duplicate only copies the master — patch the couple's latest data
         // into the fresh post right away (same as Perbarui in the editor).
+        // The duplicate result pins the post_id so a rapid re-pick can't
+        // redirect this patch onto the wrong post.
         setInvSyncMsg("Menulis data undangan ke template baru...")
-        await runInvPatch(wpId, false)
+        const freshPostId = typeof data.result?.post_id === "number" ? data.result.post_id : typeof data.post_id === "number" ? data.post_id : null
+        const dupJob = data.job_id ? await fetchWpJob(data.job_id) : null
+        const pinnedPostId = freshPostId ?? (typeof dupJob?.result === "object" && dupJob?.result !== null ? (dupJob.result as any).post_id ?? null : null)
+        await runInvPatch(wpId, { postId: typeof pinnedPostId === "number" ? pinnedPostId : null })
       }
       setInvTplOpen(false)
       await fetchInvitationData(wpId)

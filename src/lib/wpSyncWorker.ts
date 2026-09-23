@@ -138,14 +138,18 @@ async function runCleanup(jobId: string, profileId: string, payload: any) {
   return { skipped: "no slug nor old_post_id" }
 }
 
-async function runPatch(jobId: string, profileId: string) {
+async function runPatch(jobId: string, profileId: string, postId?: number | null) {
   const built = await buildProfileFields(profileId)
   if (!built) {
     throw new Error("Profil tidak ditemukan")
   }
   const { profile, fields } = built
 
-  if (!profile.active_wp_post_id) {
+  // Explicit post wins (duplicate→patch chains pin the fresh post). Otherwise
+  // fall back to the profile's active post. Never patch the template master:
+  // runDuplicate deliberately never sets active_wp_post_id to the master id.
+  const targetPostId = postId || profile.active_wp_post_id
+  if (!targetPostId) {
     throw new Error("Belum ada postingan WordPress aktif. Pilih template terlebih dahulu.")
   }
 
@@ -172,7 +176,7 @@ async function runPatch(jobId: string, profileId: string) {
   }
 
   const res = await wpFetch(
-    `${WP_ORIGIN}/wp-json/aksaraa/v1/posts/${profile.active_wp_post_id}/elements`,
+    `${WP_ORIGIN}/wp-json/aksaraa/v1/posts/${targetPostId}/elements`,
     { method: "PATCH", body: JSON.stringify({ fields, manifest, track_url: trackUrl }) }
   )
 
@@ -224,10 +228,10 @@ export async function enqueueDuplicate(profileId: string, templateId: string): P
   return { job_id: data.id, status: data.status }
 }
 
-export async function enqueuePatch(profileId: string): Promise<EnqueueResult> {
+export async function enqueuePatch(profileId: string, postId?: number | null): Promise<EnqueueResult> {
   const { data: existing } = await supabaseAdmin
     .from("wp_sync_jobs")
-    .select("id, status")
+    .select("id, status, payload")
     .eq("wedding_profile_id", profileId)
     .eq("kind", "patch")
     .in("status", ["queued", "processing"])
@@ -235,7 +239,11 @@ export async function enqueuePatch(profileId: string): Promise<EnqueueResult> {
     .limit(1)
     .maybeSingle()
 
-  if (existing) {
+  // Reuse an in-flight patch only when it targets the same post (or neither
+  // pins a post, e.g. manual editor saves). A duplicate→patch chain that
+  // pins a fresh post_id must NOT coalesce into a patch for the old post.
+  const existingPostId = (existing?.payload as any)?.post_id ?? null
+  if (existing && (existingPostId || null) === (postId || null)) {
     await supabaseAdmin
       .from("wp_sync_jobs")
       .update({ updated_at: new Date().toISOString() })
@@ -245,7 +253,7 @@ export async function enqueuePatch(profileId: string): Promise<EnqueueResult> {
 
   const { data, error } = await supabaseAdmin
     .from("wp_sync_jobs")
-    .insert({ wedding_profile_id: profileId, kind: "patch", status: "queued" })
+    .insert({ wedding_profile_id: profileId, kind: "patch", status: "queued", payload: postId ? { post_id: postId } : null })
     .select("id, status")
     .single()
 
@@ -273,14 +281,24 @@ async function claimNext(): Promise<{ id: string; wedding_profile_id: string; ki
     .eq("status", "processing")
     .lt("started_at", new Date(now.getTime() - STALE_MS).toISOString())
 
-  const { data: oldest } = await supabaseAdmin
+  // Per-profile serialization: never run two jobs for the same couple
+  // concurrently. A patch that runs while a newer duplicate is still writing
+  // would otherwise patch the old post (or read a half-updated profile).
+  const { data: processing } = await supabaseAdmin
     .from("wp_sync_jobs")
-    .select("id")
+    .select("wedding_profile_id")
+    .eq("status", "processing")
+
+  const busyProfiles = new Set((processing || []).map((r: any) => r.wedding_profile_id))
+
+  const { data: queued } = await supabaseAdmin
+    .from("wp_sync_jobs")
+    .select("id, wedding_profile_id")
     .eq("status", "queued")
     .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle()
+    .limit(10)
 
+  const oldest = (queued || []).find((q: any) => !busyProfiles.has(q.wedding_profile_id))
   if (!oldest) return null
 
   const { data, error } = await supabaseAdmin
@@ -305,7 +323,8 @@ async function processJob(job: NonNullable<Awaited<ReturnType<typeof claimNext>>
     } else if (kind === "cleanup") {
       result = await runCleanup(id, wedding_profile_id, payload)
     } else {
-      result = await runPatch(id, wedding_profile_id)
+      const pinnedPostId = typeof payload?.post_id === "number" ? payload.post_id : null
+      result = await runPatch(id, wedding_profile_id, pinnedPostId)
     }
     await supabaseAdmin
       .from("wp_sync_jobs")
@@ -320,10 +339,13 @@ async function processJob(job: NonNullable<Awaited<ReturnType<typeof claimNext>>
       .eq("id", id)
       .single()
     const attempts = (current?.attempts || 0) + 1
+    // A 404 means the target post is gone (e.g. superseded by a newer
+    // duplicate and cleaned up) — retrying can never succeed, fail fast.
+    const terminal = attempts >= MAX_ATTEMPTS || message.includes("(HTTP 404)")
     const update: Record<string, any> = {
       attempts,
       updated_at: new Date().toISOString(),
-      status: attempts >= MAX_ATTEMPTS ? "failed" : "queued",
+      status: terminal ? "failed" : "queued",
       last_error: message,
       started_at: null,
     }
