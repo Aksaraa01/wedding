@@ -33,6 +33,9 @@ export default function OpsMusicPage() {
   const [uploadError, setUploadError] = useState("")
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState("")
+  const [editingArtist, setEditingArtist] = useState("")
+  const [uploadTitle, setUploadTitle] = useState("")
+  const [uploadArtist, setUploadArtist] = useState("")
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -75,12 +78,16 @@ export default function OpsMusicPage() {
       const formData = new FormData()
       formData.append("file", file)
       formData.append("uploaded_by_name", employee.name)
+      if (uploadTitle.trim()) formData.append("title", uploadTitle.trim())
+      if (uploadArtist.trim()) formData.append("artist", uploadArtist.trim())
       const res = await fetch("/api/tracks", { method: "POST", body: formData })
       const data = await res.json()
       if (!res.ok) {
         setUploadError(data.error || "Gagal mengunggah lagu")
         return
       }
+      setUploadTitle("")
+      setUploadArtist("")
       await fetchTracks()
     } catch {
       setUploadError("Gagal mengunggah lagu")
@@ -99,14 +106,21 @@ export default function OpsMusicPage() {
   }
 
   const saveTitle = async (track: Track) => {
-    if (!editingTitle.trim() || editingTitle.trim() === track.title) {
+    const title = editingTitle.trim()
+    const artist = editingArtist.trim()
+    const titleChanged = title && title !== track.title
+    const artistChanged = artist !== (track.artist || "")
+    if (!titleChanged && !artistChanged) {
       setEditingId(null)
       return
     }
     const res = await fetch(`/api/tracks/${track.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: editingTitle.trim() }),
+      body: JSON.stringify({
+        ...(titleChanged ? { title } : {}),
+        ...(artistChanged ? { artist } : {}),
+      }),
     })
     if (res.ok) {
       setEditingId(null)
@@ -158,7 +172,21 @@ export default function OpsMusicPage() {
                 Semua musik: lagu unggahan pengguna &amp; staf dapat diubah judul atau dipublikasikan; lagu sistem ditandai Sistem.
               </p>
             </div>
-            <div className="flex flex-col items-stretch md:items-end gap-2">
+            <div className="flex flex-col items-stretch md:items-end gap-2 md:w-72">
+              <input
+                type="text"
+                value={uploadTitle}
+                onChange={(e) => setUploadTitle(e.target.value)}
+                placeholder="Judul (opsional — default nama file)"
+                className="w-full bg-white border border-outline-variant px-4 py-2.5 text-sm text-primary focus:border-primary focus:ring-0 outline-none"
+              />
+              <input
+                type="text"
+                value={uploadArtist}
+                onChange={(e) => setUploadArtist(e.target.value)}
+                placeholder="Penyanyi (opsional — kosong = disembunyikan)"
+                className="w-full bg-white border border-outline-variant px-4 py-2.5 text-sm text-primary focus:border-primary focus:ring-0 outline-none"
+              />
               <button
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
@@ -204,21 +232,34 @@ export default function OpsMusicPage() {
 
                   <div className="flex-1 min-w-0">
                     {editingId === track.id ? (
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={editingTitle}
-                          onChange={(e) => setEditingTitle(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && saveTitle(track)}
-                          className="flex-1 bg-surface-container-low border border-outline-variant px-3 py-2 text-sm font-semibold text-primary focus:border-primary focus:ring-0 outline-none"
-                          autoFocus
-                        />
-                        <button onClick={() => saveTitle(track)} className="px-3 py-2 bg-primary text-white text-[10px] uppercase tracking-widest font-bold hover:bg-secondary">
-                          Simpan
-                        </button>
-                        <button onClick={() => setEditingId(null)} className="px-3 py-2 border border-outline-variant text-on-surface-variant text-[10px] uppercase tracking-widest font-bold">
-                          Batal
-                        </button>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={editingTitle}
+                            onChange={(e) => setEditingTitle(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && saveTitle(track)}
+                            placeholder="Judul"
+                            className="flex-1 bg-surface-container-low border border-outline-variant px-3 py-2 text-sm font-semibold text-primary focus:border-primary focus:ring-0 outline-none"
+                            autoFocus
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={editingArtist}
+                            onChange={(e) => setEditingArtist(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && saveTitle(track)}
+                            placeholder="Penyanyi (opsional — kosongkan untuk sembunyikan)"
+                            className="flex-1 bg-surface-container-low border border-outline-variant px-3 py-2 text-sm text-primary focus:border-primary focus:ring-0 outline-none"
+                          />
+                          <button onClick={() => saveTitle(track)} className="px-3 py-2 bg-primary text-white text-[10px] uppercase tracking-widest font-bold hover:bg-secondary">
+                            Simpan
+                          </button>
+                          <button onClick={() => setEditingId(null)} className="px-3 py-2 border border-outline-variant text-on-surface-variant text-[10px] uppercase tracking-widest font-bold">
+                            Batal
+                          </button>
+                        </div>
                       </div>
                     ) : (
                       <div className="flex items-center gap-3 min-w-0">
@@ -232,9 +273,9 @@ export default function OpsMusicPage() {
                         <h3 className="font-display-lg text-base truncate">{track.title}</h3>
                         {isCustom && (
                           <button
-                            onClick={() => { setEditingId(track.id); setEditingTitle(track.title) }}
+                            onClick={() => { setEditingId(track.id); setEditingTitle(track.title); setEditingArtist(track.artist || "") }}
                             className="text-on-surface-variant hover:text-primary transition-colors shrink-0"
-                            title="Ubah judul"
+                            title="Ubah judul & penyanyi"
                           >
                             <span className="material-symbols-outlined text-[16px]">edit</span>
                           </button>
@@ -243,7 +284,7 @@ export default function OpsMusicPage() {
                     )}
                     <p className="text-[11px] text-on-surface-variant mt-1 font-mono">
                       {isCustom ? (
-                        <>Upload oleh: <span className="font-semibold">{track.uploaded_by_name || (track.uploaded_by ? "Pengguna" : "—")}</span> <span className="mx-2">•</span> {formatDate(track.created_at)}</>
+                        <>Upload oleh: <span className="font-semibold">{track.uploaded_by_name || (track.uploaded_by ? "Pengguna" : "—")}</span> <span className="mx-2">•</span> Penyanyi: <span className="font-semibold">{track.artist || "—"}</span> <span className="mx-2">•</span> {formatDate(track.created_at)}</>
                       ) : (
                         <>Artis: <span className="font-semibold">{track.artist || "—"}</span> <span className="mx-2">•</span> Mood: {track.mood_category}</>
                       )}

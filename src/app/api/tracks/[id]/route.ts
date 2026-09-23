@@ -25,9 +25,13 @@ export async function PATCH(
 
     const updates: Record<string, any> = {}
     if (typeof body.is_public === "boolean") updates.is_public = body.is_public
+    // Title and artist are independent: editing the title never overwrites
+    // the singer. An explicit empty artist clears it (hidden in editor).
     if (typeof body.title === "string" && body.title.trim()) {
       updates.title = body.title.trim()
-      updates.artist = body.title.trim()
+    }
+    if (typeof body.artist === "string") {
+      updates.artist = body.artist.trim() || null
     }
 
     if (Object.keys(updates).length === 0) {

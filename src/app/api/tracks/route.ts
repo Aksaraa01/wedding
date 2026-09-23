@@ -72,6 +72,8 @@ export async function POST(req: NextRequest) {
     const file = formData.get("file") as File | null
     const weddingProfileId = (formData.get("wedding_profile_id") as string) || ""
     const uploadedByName = (formData.get("uploaded_by_name") as string) || ""
+    const customTitle = ((formData.get("title") as string) || "").trim()
+    const customArtist = ((formData.get("artist") as string) || "").trim()
 
     if (!file) {
       return NextResponse.json({ error: "File tidak ditemukan" }, { status: 400 })
@@ -122,8 +124,11 @@ export async function POST(req: NextRequest) {
     const { data: track, error: insertError } = await supabaseAdmin
       .from("web_tracks")
       .insert({
-        title: titleBase || "Lagu Saya",
-        artist: isAdmin ? (ownerName || "Aksaraa") : "Lagu Saya",
+        title: customTitle || titleBase || "Lagu Saya",
+        // Admin uploads: singer is optional — empty means hidden in the
+        // editor (no "Aksaraa" default). Couple uploads keep "Lagu Saya",
+        // shown as "★ Lagu Saya" only to the uploader (isMine rule).
+        artist: isAdmin ? (customArtist || null) : "Lagu Saya",
         mood_category: "custom",
         audio_url: url,
         is_active: true,

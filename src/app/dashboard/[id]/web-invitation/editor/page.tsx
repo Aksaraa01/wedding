@@ -2154,9 +2154,14 @@ function EditorInner({ id }: { id: string }) {
                                 </span>
                               )}
                             </span>
-                            <span className="text-[10px] text-on-surface-variant">
-                              {isMine ? "★ Lagu Saya" : (track.artist || "Instrumental")}
-                            </span>
+                            {(() => {
+                              const subtitle = isMine ? "★ Lagu Saya" : (track.artist?.trim() || "")
+                              return subtitle ? (
+                                <span className="text-[10px] text-on-surface-variant">
+                                  {subtitle}
+                                </span>
+                              ) : null
+                            })()}
                           </div>
                           <div className="flex items-center gap-2">
                             <span className={`material-symbols-outlined ${isSelected ? "text-secondary" : "text-on-surface-variant"}`}>
