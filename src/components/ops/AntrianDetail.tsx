@@ -35,6 +35,8 @@ import { compressImage } from "@/lib/imageCompress"
 import { pollWpJob } from "@/lib/wpJobPoll"
 import { OPENING_PRESETS, OPENING_CUSTOM, matchOpeningPreset } from "@/lib/openingPresets"
 import { normalizeVideoUrl } from "@/components/templates/shared/lib"
+import BankSelect from "@/components/dashboard/BankSelect"
+import { getBankBySlug, getBankByName, bankLogoUrl } from "@/lib/bankList"
 
 type QueueItem = {
   id: string
@@ -458,29 +460,35 @@ const INV_EMPTY_SESSION = { name: "", date: "", time: "", timezone: "WIB", venue
 
 function InvGiftAccounts({ items, onChange }: { items: any[]; onChange: (v: any[]) => void }) {
   const set = (i: number, patch: any) => onChange(items.map((a, j) => (j === i ? { ...a, ...patch } : a)))
+  const slugOf = (a: any) => getBankBySlug(a.provider_name || "")?.slug || getBankByName(a.provider_name || "")?.slug || ""
   return (
     <div className="space-y-3">
       {items.map((a, i) => (
-        <div key={a.id || `new-${i}`} className="border border-outline-variant rounded-xl p-3 space-y-2 bg-surface-container-lowest">
+        <div key={a.id || `new-${i}`} className="border border-outline-variant rounded-xl p-3 space-y-3 bg-surface-container-lowest">
           <div className="flex items-center justify-between">
             <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary">Rekening {i + 1}</p>
             <button type="button" onClick={() => onChange(items.filter((_, j) => j !== i))} className="text-[11px] font-label-md uppercase tracking-widest text-red-600 hover:underline">Hapus</button>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <InvField label="Bank / E-Wallet"><InvText value={a.provider_name || ""} onChange={(v) => set(i, { provider_name: v })} placeholder="BCA" /></InvField>
-            <label className="block">
-              <span className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Jenis</span>
-              <select value={a.type || "bank"} onChange={(e) => set(i, { type: e.target.value })} className={`${invInputCls} mt-1`}>
-                <option value="bank">Bank</option>
-                <option value="ewallet">E-Wallet</option>
-              </select>
-            </label>
+          <div>
+            <label className="block font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Bank / E-Wallet</label>
+            <BankSelect
+              value={slugOf(a)}
+              name={a.provider_name || ""}
+              onChange={(slug, displayName) => {
+                const bank = getBankBySlug(slug)
+                set(i, {
+                  provider_name: displayName,
+                  type: bank?.type || a.type || "bank",
+                  provider_logo_url: bank ? bankLogoUrl(bank.slug) : a.provider_logo_url || "",
+                })
+              }}
+            />
           </div>
           <InvField label="Nomor Rekening"><InvText value={a.account_number || ""} onChange={(v) => set(i, { account_number: v })} placeholder="1234567890" /></InvField>
           <InvField label="Atas Nama"><InvText value={a.account_name || ""} onChange={(v) => set(i, { account_name: v })} placeholder="Nama pemilik" /></InvField>
         </div>
       ))}
-      <button type="button" onClick={() => onChange([...items, { provider_name: "", account_number: "", account_name: "", type: "bank" }])} className="w-full py-2.5 rounded-xl border border-dashed border-outline-variant font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant hover:border-secondary hover:text-secondary transition-colors">
+      <button type="button" onClick={() => onChange([...items, { provider_name: "", account_number: "", account_name: "", type: "bank", provider_logo_url: "" }])} className="w-full py-2.5 rounded-xl border border-dashed border-outline-variant font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant hover:border-secondary hover:text-secondary transition-colors">
         + Tambah Rekening
       </button>
     </div>
@@ -857,6 +865,7 @@ export default function AntrianDetail({ id }: { id: string }) {
         account_number: a.account_number || "",
         account_name: a.account_name || "",
         type: a.type === "ewallet" ? "ewallet" : "bank",
+        provider_logo_url: a.provider_logo_url || "",
       })),
       giftAddress: {
         recipient_name: invitationData.gift_address_name || "",
@@ -921,13 +930,26 @@ export default function AntrianDetail({ id }: { id: string }) {
     const arrField = (label: string, nv: any[], ov: any[]) => {
       if (JSON.stringify(nv || []) !== JSON.stringify(ov || [])) changed.push(`${label} (${(ov || []).length}→${(nv || []).length})`)
     }
-    arrField("Foto Sampul", f.cover_photos, photoStrArr(orig.cover_photos))
-    arrField("Foto Mempelai 1", f.groom_photo_url, photoList(orig.groom_photo_url))
-    arrField("Foto Mempelai 2", f.bride_photo_url, photoList(orig.bride_photo_url))
-    arrField("Galeri", f.gallery_photos, photoStrArr(orig.gallery_photos))
-    arrField("Turut Mengundang", f.inviting_families, orig.inviting_families)
-    arrField("Sesi Acara", f.sessions, orig.sessions)
-    arrField("Kisah", f.stories, orig.stories)
+      arrField("Foto Sampul", f.cover_photos, photoStrArr(orig.cover_photos))
+      arrField("Foto Mempelai 1", f.groom_photo_url, photoList(orig.groom_photo_url))
+      arrField("Foto Mempelai 2", f.bride_photo_url, photoList(orig.bride_photo_url))
+      arrField("Galeri", f.gallery_photos, photoStrArr(orig.gallery_photos))
+      arrField("Turut Mengundang", f.inviting_families, orig.inviting_families)
+      // Normalize key order + nulls on BOTH sides: DB rows often carry keys
+      // in a different order (or extra nulls) than the edit form builds.
+      const normSessions = (list: any[]) => (list || []).map((s: any) => ({
+        name: s?.name || "", date: s?.date || "", time: s?.time || "", timezone: s?.timezone || "WIB",
+        venue: s?.venue || "", address: s?.address || "", maps_url: s?.maps_url || "",
+      }))
+      const normStories = (list: any[]) => (list || []).map((s: any) => ({
+        year: s?.year || "", title: s?.title || "", description: s?.description || "", image_url: s?.image_url || "",
+      }))
+      if (JSON.stringify(normSessions(f.sessions)) !== JSON.stringify(normSessions(orig.sessions))) {
+        changed.push(`Sesi Acara (${(orig.sessions || []).length}→${(f.sessions || []).length})`)
+      }
+      if (JSON.stringify(normStories(f.stories)) !== JSON.stringify(normStories(orig.stories))) {
+        changed.push(`Kisah (${(orig.stories || []).length}→${(f.stories || []).length})`)
+      }
     const visField = (label: string, nv: boolean, ov: boolean) => { if (!!nv !== !!ov) changed.push(label) }
     visField("Tampil Video", f.video_section_visible, orig.video_section_visible !== false)
     visField("Tampil Kisah", f.story_visible, orig.story_visible !== false)
@@ -937,7 +959,7 @@ export default function AntrianDetail({ id }: { id: string }) {
       const t = invTrackOptions.find((x: any) => x.id === f.selected_track_id)
       changed.push(`Lagu (${t?.title || invitationData.track?.title || "diubah"})`)
     }
-    const normAccts = (list: any[]) => (list || []).map((a: any) => [a.provider_name || "", a.account_number || "", a.account_name || "", a.type || ""].join("|")).sort()
+      const normAccts = (list: any[]) => (list || []).map((a: any) => [a.provider_name || "", a.account_number || "", a.account_name || "", a.type || "", a.provider_logo_url || ""].join("|")).sort()
     if (JSON.stringify(normAccts(f.giftAccounts)) !== JSON.stringify(normAccts(invitationData.gift_accounts || []))) {
       changed.push(`Rekening (${(invitationData.gift_accounts || []).length}→${f.giftAccounts.length})`)
     }
@@ -1001,6 +1023,7 @@ export default function AntrianDetail({ id }: { id: string }) {
         if (!a.account_number) continue
         const body = {
           provider_name: a.provider_name,
+          provider_logo_url: a.provider_logo_url || "",
           account_number: a.account_number,
           account_name: a.account_name,
           type: a.type,
@@ -1822,21 +1845,6 @@ export default function AntrianDetail({ id }: { id: string }) {
                     </button>
                   </>
                 )}
-                <button
-                  onClick={() => {
-                    if (!cardRef.current) return
-                    html2canvas(cardRef.current, { scale: 2, useCORS: true }).then((canvas) => {
-                      const link = document.createElement("a")
-                      link.download = `undangan-${invitationData.profile?.slug || "card"}.png`
-                      link.href = canvas.toDataURL("image/png")
-                      link.click()
-                    })
-                  }}
-                  className="px-4 py-2 bg-secondary text-on-secondary text-[9px] font-bold uppercase tracking-widest hover:opacity-90 transition-all flex items-center gap-2"
-                >
-                  <span className="material-symbols-outlined text-[16px]">download</span>
-                  Download
-                </button>
                 <button onClick={() => { setShowInvCard(false); setInvitationData(null); setInvEditing(false); setInvForm(null); setInvSaveError("") }} className="p-2 hover:bg-surface-container-low transition-colors">
                   <span className="material-symbols-outlined">close</span>
                 </button>
@@ -2329,12 +2337,6 @@ export default function AntrianDetail({ id }: { id: string }) {
                             TAMBAH SESI ACARA LAIN
                           </button>
                         )}
-                        <div className="space-y-2">
-                          <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Tanggal Acara</label>
-                          <input className="input-editorial w-full font-headline-md text-[16px]" type="date" value={invForm.estimated_wedding_date || ""} onChange={(e) => setInvForm({ ...invForm, estimated_wedding_date: e.target.value })} />
-                          <p className="text-[11px] text-on-surface-variant mt-1 italic">Tanggal utama yang tampil pada sampul undangan.</p>
-                        </div>
-                        <InvField label="Batas Maksimum Pax"><InvText value={String(invForm.rsvp_max_pax ?? 2)} onChange={(v) => setInvForm({ ...invForm, rsvp_max_pax: v })} /></InvField>
                       </div>
                     ) : (
                     <div>
@@ -2353,10 +2355,6 @@ export default function AntrianDetail({ id }: { id: string }) {
                         ))}
                       </div>
                     )}
-                    <div className="mt-4 flex items-center gap-2">
-                      <span className="font-label-md text-[10px] uppercase tracking-widest text-secondary">Batas Maksimum Pax:</span>
-                      <span className="font-body-md text-sm font-semibold text-on-surface">{invitationData?.profile?.rsvp_max_pax ?? 2}</span>
-                    </div>
                     </div>
                     )}
                   </InvAccordion>
