@@ -88,11 +88,12 @@ type FeedbackSubmission = {
 
 type StatusLogEntry = {
   id: string
-  kind: "status" | "package"
+  kind: "status" | "package" | "invitation"
   previous_status: string | null
   new_status: string | null
   previous_package: string | null
   new_package: string | null
+  details: string | null
   changed_by_employee_id: string | null
   changed_by_name: string | null
   created_at: string
@@ -469,16 +470,18 @@ function InvGiftAccounts({ items, onChange }: { items: any[]; onChange: (v: any[
   )
 }
 
-function InvSection({ title, state, lockTip, first, noEmptyBadge, emptyText, children }: {
+function InvSection({ title, state, lockTip, first, noEmptyBadge, emptyText, editing, children }: {
   title: string
   state: InvSectionState
   lockTip?: string
   first?: boolean
   noEmptyBadge?: boolean
   emptyText?: string
+  editing?: boolean
   children: ReactNode
 }) {
   const badgeState = state === "empty" && noEmptyBadge ? "ok" : state
+  const showEmptyPlaceholder = state === "empty" && !editing
   return (
     <>
       {!first && <div className="border-t border-outline-variant/40" />}
@@ -487,7 +490,7 @@ function InvSection({ title, state, lockTip, first, noEmptyBadge, emptyText, chi
           <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary">{title}</h4>
           <InvBadge state={badgeState} label={title} tip={lockTip} />
         </div>
-        {state === "empty" ? (
+        {showEmptyPlaceholder ? (
           <p className="font-body-md text-xs italic text-on-surface-variant/70">{emptyText || "Belum diisi."}</p>
         ) : (
           children
@@ -783,6 +786,57 @@ export default function AntrianDetail({ id }: { id: string }) {
     try {
       const wpId = invitationData.profile.id
       const f = invForm
+      const orig = invitationData.profile
+
+      // Diff for the audit timeline: what did this ops save actually change?
+      const changed: string[] = []
+      const sameStr = (a: any, b: any) => (a ?? "") === (b ?? "")
+      const strField = (label: string, nv: any, ov: any) => { if (!sameStr(nv, ov)) changed.push(label) }
+      strField("Nama Tampilan", f.display_name, orig.display_name)
+      strField("Inisial", f.couple_initials, orig.couple_initials)
+      strField("Judul Pembuka", f.opening_title, orig.opening_title)
+      strField("Deskripsi Pembuka", f.opening_description, orig.opening_description)
+      strField("Panggilan (1)", f.groom_name, orig.groom_name)
+      strField("Nama Lengkap (1)", f.groom_full_name, orig.groom_full_name)
+      strField("Orang Tua (1)", f.groom_parents, orig.groom_parents)
+      strField("Instagram (1)", f.groom_instagram, orig.groom_instagram)
+      strField("Panggilan (2)", f.bride_name, orig.bride_name)
+      strField("Nama Lengkap (2)", f.bride_full_name, orig.bride_full_name)
+      strField("Orang Tua (2)", f.bride_parents, orig.bride_parents)
+      strField("Instagram (2)", f.bride_instagram, orig.bride_instagram)
+      strField("Foto Sampul Utama", f.couple_illustration_url, orig.couple_illustration_url)
+      strField("Kutipan", f.quote_text, orig.quote_text)
+      strField("Sumber Kutipan", f.quote_source, orig.quote_source)
+      strField("Video", f.video_url, orig.video_url)
+      strField("Tanggal Acara", f.estimated_wedding_date, orig.estimated_wedding_date)
+      if (Number(f.rsvp_max_pax) !== Number(orig.rsvp_max_pax)) changed.push("Maks Pax")
+      if (!!f.grayscale !== (orig.grayscale === true)) changed.push("Grayscale")
+      const arrField = (label: string, nv: any[], ov: any[]) => {
+        if (JSON.stringify(nv || []) !== JSON.stringify(ov || [])) changed.push(`${label} (${(ov || []).length}→${(nv || []).length})`)
+      }
+      arrField("Foto Sampul", f.cover_photos, photoStrArr(orig.cover_photos))
+      arrField("Foto Mempelai 1", f.groom_photo_url, photoList(orig.groom_photo_url))
+      arrField("Foto Mempelai 2", f.bride_photo_url, photoList(orig.bride_photo_url))
+      arrField("Galeri", f.gallery_photos, photoStrArr(orig.gallery_photos))
+      arrField("Turut Mengundang", f.inviting_families, orig.inviting_families)
+      arrField("Sesi Acara", f.sessions, orig.sessions)
+      arrField("Kisah", f.stories, orig.stories)
+      const visField = (label: string, nv: boolean, ov: boolean) => { if (!!nv !== !!ov) changed.push(label) }
+      visField("Tampil Video", f.video_section_visible, orig.video_section_visible !== false)
+      visField("Tampil Kisah", f.story_visible, orig.story_visible !== false)
+      visField("Tampil Hadiah", f.gift_section_visible, orig.gift_section_visible !== false)
+      visField("Tampil Turut Mengundang", f.inviting_families_visible, orig.inviting_families_visible !== false)
+      if ((f.selected_track_id || "") !== (orig.selected_track_id || "")) {
+        const t = invTrackOptions.find((x: any) => x.id === f.selected_track_id)
+        changed.push(`Lagu (${t?.title || invitationData.track?.title || "diubah"})`)
+      }
+      const normAccts = (list: any[]) => (list || []).map((a: any) => [a.provider_name || "", a.account_number || "", a.account_name || "", a.type || ""].join("|")).sort()
+      if (JSON.stringify(normAccts(f.giftAccounts)) !== JSON.stringify(normAccts(invitationData.gift_accounts || []))) {
+        changed.push(`Rekening (${(invitationData.gift_accounts || []).length}→${f.giftAccounts.length})`)
+      }
+      if (!sameStr(f.giftAddress.recipient_name, invitationData.gift_address_name) || !sameStr(f.giftAddress.full_address, invitationData.gift_address)) {
+        changed.push("Alamat Kado")
+      }
       const res = await fetch(`/api/dashboard/${wpId}/web-invitation`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -873,6 +927,20 @@ export default function AntrianDetail({ id }: { id: string }) {
       }
 
       await fetchInvitationData(wpId)
+
+      if (changed.length > 0) {
+        fetch(`/api/ops/queue/${id}/invitation-log`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-ops-phone": employee?.phone_number || "",
+            "x-ops-role": employee?.role || "",
+          },
+          body: JSON.stringify({ details: `Mengubah: ${changed.join(", ")}` }),
+        })
+          .then(() => fetchAll())
+          .catch((e) => console.error("[ops] invitation log failed", e))
+      }
     } catch (err: any) {
       setInvSaveError(err?.message || "Gagal menyimpan. Coba lagi.")
     } finally {
@@ -1494,6 +1562,8 @@ export default function AntrianDetail({ id }: { id: string }) {
                         <td className="px-4 py-3 font-semibold">
                           {log.kind === "package" ? (
                             <>Paket: {log.previous_package ? PACKAGE_LABELS[log.previous_package] ?? log.previous_package : "—"}{" → "}{log.new_package ? PACKAGE_LABELS[log.new_package] ?? log.new_package : "—"}</>
+                          ) : log.kind === "invitation" ? (
+                            <>Data Undangan: <span className="font-normal">{log.details || "diubah"}</span></>
                           ) : (
                             <>{log.previous_status ? OPS_STATUS_LABELS[log.previous_status as keyof typeof OPS_STATUS_LABELS] ?? log.previous_status : "—"}{" → "}{log.new_status ? OPS_STATUS_LABELS[log.new_status as keyof typeof OPS_STATUS_LABELS] ?? log.new_status : "—"}</>
                           )}
@@ -1579,6 +1649,55 @@ export default function AntrianDetail({ id }: { id: string }) {
                 <p className="font-body-md text-[13px] text-red-700">{invSaveError}</p>
               </div>
             )}
+            {(() => {
+              const p = invitationData.profile
+              const defs: [string, string][] = [
+                ["sampul", "SAMPUL"],
+                ["pembuka", "KALIMAT PEMBUKA"],
+                ["profil", "PROFILE MEMPELAI"],
+                ["acara", "ACARA"],
+                ["galeri", "GALERI"],
+                ["inviting", "TURUT MENGUNDANG"],
+                ["kutipan", "KUTIPAN"],
+                ["video", "VIDEO"],
+                ["story", "STORY"],
+                ["gift", "GIFT"],
+                ["musik", "MUSIC"],
+              ]
+              const gift = { accounts: invitationData.gift_accounts || [], address: invitationData.gift_address || "" }
+              const empty = defs
+                .filter(([k]) => invSectionState(p, k, k === "gift" ? gift : undefined) === "empty")
+                .map(([, label]) => label)
+              const published = p.is_published === true
+              return (
+                <div className="mx-6 sm:mx-10 mt-4 space-y-2">
+                  <div className={`rounded-xl px-4 py-2.5 flex items-center gap-2 border ${published ? "bg-emerald-50 border-emerald-200" : "bg-surface-container-low border-outline-variant"}`}>
+                    <span className={`material-symbols-outlined text-[18px] ${published ? "text-emerald-600" : "text-on-surface-variant"}`}>
+                      {published ? "verified" : "hourglass_top"}
+                    </span>
+                    <p className={`font-label-md text-[11px] uppercase tracking-widest ${published ? "text-emerald-700" : "text-on-surface-variant"}`}>
+                      {published
+                        ? `Sudah dikonfirmasi${p.published_at ? ` • ${formatDateTime(p.published_at)}` : ""}`
+                        : "Belum dikonfirmasi editor"}
+                    </p>
+                  </div>
+                  {empty.length > 0 ? (
+                    <div className="rounded-xl px-4 py-3 flex items-start gap-2 bg-amber-50 border border-amber-300">
+                      <span className="material-symbols-outlined text-amber-600 text-[18px] shrink-0 mt-0.5">warning</span>
+                      <div>
+                        <p className="font-label-md text-[11px] uppercase tracking-widest text-amber-800">Data belum lengkap ({empty.length})</p>
+                        <p className="font-body-md text-[13px] text-amber-900 mt-0.5 leading-relaxed">{empty.join(" • ")}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="rounded-xl px-4 py-2.5 flex items-center gap-2 bg-emerald-50 border border-emerald-200">
+                      <span className="material-symbols-outlined text-emerald-600 text-[18px]">check_circle</span>
+                      <p className="font-label-md text-[11px] uppercase tracking-widest text-emerald-700">Semua data terisi</p>
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
 
             <div className="p-6 sm:p-10">
               <div ref={cardRef} className="max-w-md mx-auto bg-white border border-outline-variant shadow-lg overflow-hidden">
@@ -1641,7 +1760,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                 )}
 
                 <div className="p-6 space-y-6">
-                  <InvSection title="KALIMAT PEMBUKA" state={invSectionState(invitationData.profile, "pembuka")}>
+                  <InvSection editing={!!(invEditing && invForm)} title="KALIMAT PEMBUKA" state={invSectionState(invitationData.profile, "pembuka")}>
                     {invEditing && invForm ? (
                       <div className="space-y-3">
                         <InvField label="Judul Pembuka"><InvText value={invForm.opening_title} onChange={(v) => setInvForm({ ...invForm, opening_title: v })} placeholder="Assalamu'alaikum ..." /></InvField>
@@ -1659,7 +1778,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvSection>
 
-                  <InvSection title="PROFILE MEMPELAI" state={invSectionState(invitationData.profile, "profil")}>
+                  <InvSection editing={!!(invEditing && invForm)} title="PROFILE MEMPELAI" state={invSectionState(invitationData.profile, "profil")}>
                     {invEditing && invForm ? (
                       <div className="space-y-3">
                         <InvField label="Nama Tampilan"><InvText value={invForm.display_name} onChange={(v) => setInvForm({ ...invForm, display_name: v })} placeholder="Andi & Budi" /></InvField>
@@ -1773,7 +1892,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvSection>
 
-                  <InvSection title="ACARA" state={invSectionState(invitationData.profile, "acara")}>
+                  <InvSection editing={!!(invEditing && invForm)} title="ACARA" state={invSectionState(invitationData.profile, "acara")}>
                     {invEditing && invForm ? (
                       <div className="space-y-3">
                         <InvField label="Perkiraan Tanggal"><InvText value={invForm.estimated_wedding_date} onChange={(v) => setInvForm({ ...invForm, estimated_wedding_date: v })} placeholder="2026-10-10" /></InvField>
@@ -1805,7 +1924,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvSection>
 
-                  <InvSection title="GALERI" state={invSectionState(invitationData.profile, "galeri")}>
+                  <InvSection editing={!!(invEditing && invForm)} title="GALERI" state={invSectionState(invitationData.profile, "galeri")}>
                     {invEditing && invForm ? (
                       <InvPhotoList urls={invForm.gallery_photos} onChange={(v) => setInvForm({ ...invForm, gallery_photos: v })} onUpload={invUploadPhoto} uploading={invUploading} uploadKey="galeri" />
                     ) : (
@@ -1826,7 +1945,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvSection>
 
-                  <InvSection
+                  <InvSection editing={!!(invEditing && invForm)}
                     title="TURUT MENGUNDANG"
                     state={invSectionState(invitationData.profile, "inviting")}
                     lockTip={invUpgradeMessage(invAvailableIn(invitationData.profile, "inviting_families"))}
@@ -1845,7 +1964,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvSection>
 
-                  <InvSection title="KUTIPAN" state={invSectionState(invitationData.profile, "kutipan")}>
+                  <InvSection editing={!!(invEditing && invForm)} title="KUTIPAN" state={invSectionState(invitationData.profile, "kutipan")}>
                     {invEditing && invForm ? (
                       <div className="space-y-3">
                         <InvField label="Isi Kutipan"><InvArea value={invForm.quote_text} onChange={(v) => setInvForm({ ...invForm, quote_text: v })} rows={3} /></InvField>
@@ -1861,7 +1980,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvSection>
 
-                  <InvSection
+                  <InvSection editing={!!(invEditing && invForm)}
                     title="VIDEO"
                     state={invSectionState(invitationData.profile, "video")}
                     lockTip={invUpgradeMessage(invAvailableIn(invitationData.profile, "cinematic_video"))}
@@ -1878,7 +1997,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvSection>
 
-                  <InvSection
+                  <InvSection editing={!!(invEditing && invForm)}
                     title="STORY"
                     state={invSectionState(invitationData.profile, "story")}
                     lockTip={invUpgradeMessage(invAvailableIn(invitationData.profile, "story"))}
@@ -1946,7 +2065,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     </>
                   )}
 
-                  <InvSection
+                  <InvSection editing={!!(invEditing && invForm)}
                     title="GIFT"
                     state={invSectionState(invitationData.profile, "gift", { accounts: invitationData.gift_accounts || [], address: invitationData.gift_address || "" })}
                   >
@@ -1995,7 +2114,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvSection>
 
-                  <InvSection
+                  <InvSection editing={!!(invEditing && invForm)}
                     title="MUSIC"
                     state={invSectionState(invitationData.profile, "musik")}
                     noEmptyBadge

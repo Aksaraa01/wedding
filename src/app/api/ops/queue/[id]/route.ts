@@ -159,6 +159,7 @@ export async function GET(
         new_status,
         previous_package,
         new_package,
+        details,
         created_at,
         employees!left (
           id,
@@ -178,6 +179,7 @@ export async function GET(
         new_status: log.new_status,
         previous_package: log.previous_package || null,
         new_package: log.new_package || null,
+        details: log.details || null,
         created_at: log.created_at,
         changed_by_employee_id: emp?.id || null,
         changed_by_name: emp?.name || null,
