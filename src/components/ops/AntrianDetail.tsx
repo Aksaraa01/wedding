@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
+import type { ReactNode } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import PageTheme from "@/components/PageTheme"
@@ -86,8 +87,11 @@ type FeedbackSubmission = {
 
 type StatusLogEntry = {
   id: string
+  kind: "status" | "package"
   previous_status: string | null
-  new_status: string
+  new_status: string | null
+  previous_package: string | null
+  new_package: string | null
   changed_by_employee_id: string | null
   changed_by_name: string | null
   created_at: string
@@ -151,6 +155,136 @@ function SlaTimer({ startedAt }: { startedAt: string }) {
     return () => clearInterval(interval)
   }, [startedAt])
   return <span>{elapsed}</span>
+}
+
+// ---------- Detail Undangan Digital: editor-mirroring section helpers ----------
+// Labels, lock tooltips, and completeness rules mirror the couple editor
+// (dashboard/[id]/web-invitation/editor/page.tsx) so ops sees the same
+// structure: locked by package / hidden by couple / filled / still empty.
+
+const INV_PACKAGE_NAMES: Record<string, string> = {
+  essential: "Essential",
+  signature: "Signature",
+  prestige: "Prestige",
+  elite: "Elite",
+  cetak_undangan_bonus: "BONUS",
+  bonus_full_custom: "BONUS FULL CUSTOM",
+  dgb_sistem: "Sistem",
+  dgb_pro: "Pro",
+  dgb_premium: "Premium",
+  dgb_prestige: "Prestige",
+}
+
+function invUpgradeMessage(availableIn: string[] | undefined): string {
+  const list = (availableIn || []).filter(Boolean)
+  const names = list.length > 0 ? list.map((c) => INV_PACKAGE_NAMES[c] || c).join(" & ") : "paket yang mendukung"
+  return `Fitur ini tersedia untuk paket ${names}. Silakan upgrade paket untuk mengakses fitur ini.`
+}
+
+type InvSectionState = "ok" | "locked" | "hidden" | "empty"
+
+const invHasArr = (v: any) => Array.isArray(v) && v.filter(Boolean).length > 0
+const invHasStr = (v: any) => typeof v === "string" && v.trim() !== ""
+
+function invSectionState(p: any, key: string, gift?: { accounts: any[]; address: string }): InvSectionState {
+  const gates = p?.package_gates || {}
+  switch (key) {
+    case "sampul":
+      return !invHasArr(p?.cover_photos) && !invHasStr(p?.couple_illustration_url) ? "empty" : "ok"
+    case "pembuka":
+      return !invHasStr(p?.opening_title) && !invHasStr(p?.opening_description) ? "empty" : "ok"
+    case "profil":
+      return !invHasStr(p?.display_name) || !invHasStr(p?.groom_full_name) || !invHasStr(p?.bride_full_name) ? "empty" : "ok"
+    case "acara": {
+      const ss = Array.isArray(p?.sessions) ? p.sessions : []
+      if (ss.length === 0) return "empty"
+      const bad = ss.some((s: any) => !invHasStr(s?.name) || !invHasStr(s?.date) || !invHasStr(s?.venue) || !invHasStr(s?.address) || !invHasStr(s?.maps_url))
+      return bad ? "empty" : "ok"
+    }
+    case "galeri":
+      return !invHasArr(p?.gallery_photos) ? "empty" : "ok"
+    case "inviting":
+      if (gates.inviting_families?.included === false) return "locked"
+      if (p?.inviting_families_visible === false) return "hidden"
+      return !invHasArr(p?.inviting_families) ? "empty" : "ok"
+    case "kutipan":
+      return !invHasStr(p?.quote_text) ? "empty" : "ok"
+    case "video":
+      if (gates.cinematic_video?.included === false) return "locked"
+      if (p?.video_section_visible === false) return "hidden"
+      return !invHasStr(p?.video_url) ? "empty" : "ok"
+    case "story":
+      if (gates.story?.included === false) return "locked"
+      if (p?.story_visible === false) return "hidden"
+      return !invHasArr(p?.stories) ? "empty" : "ok"
+    case "gift":
+      if (p?.gift_section_visible === false) return "hidden"
+      return (gift && (invHasArr(gift.accounts) || invHasStr(gift.address))) ? "ok" : "empty"
+    case "musik":
+      return p?.selected_track_id ? "ok" : "empty"
+    default:
+      return "ok"
+  }
+}
+
+function invAvailableIn(p: any, gateKey: string): string[] {
+  return p?.package_gates?.[gateKey]?.availableIn || []
+}
+
+function InvBadge({ state, label, tip }: { state: InvSectionState; label: string; tip?: string }) {
+  if (state === "locked") {
+    return (
+      <span className="group relative inline-flex">
+        <span className="material-symbols-outlined text-[16px] text-[#6B7280]">lock</span>
+        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-white text-[#2C2A29] border border-[#B34E3F] text-[11px] px-3 py-2 rounded-lg max-w-[200px] whitespace-normal text-center leading-tight z-50 shadow-lg">{tip}</span>
+      </span>
+    )
+  }
+  if (state === "hidden") {
+    return (
+      <span className="group relative inline-flex">
+        <span className="material-symbols-outlined text-[16px] text-[#6B7280]">visibility_off</span>
+        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-white text-[#2C2A29] border border-[#B34E3F] text-[11px] px-3 py-2 rounded-lg max-w-[200px] whitespace-normal text-center leading-tight z-50 shadow-lg">Konten disembunyikan - tidak tampil di undangan</span>
+      </span>
+    )
+  }
+  if (state === "empty") {
+    return (
+      <span className="group relative inline-flex">
+        <span className="w-5 h-5 rounded-full bg-[#D97706] text-white text-[12px] font-bold flex items-center justify-center">!</span>
+        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-white text-[#2C2A29] border border-[#B34E3F] text-[11px] px-3 py-2 rounded-lg max-w-[200px] whitespace-normal text-center leading-tight z-50 shadow-lg">Konten belum lengkap — silakan lengkapi bagian {label}</span>
+      </span>
+    )
+  }
+  return null
+}
+
+function InvSection({ title, state, lockTip, first, noEmptyBadge, emptyText, children }: {
+  title: string
+  state: InvSectionState
+  lockTip?: string
+  first?: boolean
+  noEmptyBadge?: boolean
+  emptyText?: string
+  children: ReactNode
+}) {
+  const badgeState = state === "empty" && noEmptyBadge ? "ok" : state
+  return (
+    <>
+      {!first && <div className="border-t border-outline-variant/40" />}
+      <div className={state === "hidden" || state === "locked" ? "opacity-80" : ""}>
+        <div className="flex items-center gap-2 mb-3">
+          <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary">{title}</h4>
+          <InvBadge state={badgeState} label={title} tip={lockTip} />
+        </div>
+        {state === "empty" ? (
+          <p className="font-body-md text-xs italic text-on-surface-variant/70">{emptyText || "Belum diisi."}</p>
+        ) : (
+          children
+        )}
+      </div>
+    </>
+  )
 }
 
 export default function AntrianDetail({ id }: { id: string }) {
@@ -913,21 +1047,21 @@ export default function AntrianDetail({ id }: { id: string }) {
               })}
           </div>
 
-          {/* Status Log */}
+          {/* Riwayat (status + paket) */}
           <section className="mb-16">
             <h3 className="font-headline-md text-2xl mb-6 flex items-center gap-3">
               <span className="material-symbols-outlined">history</span>
-              Riwayat Status
+              Riwayat
             </h3>
             <div className="border border-outline-variant bg-white overflow-x-auto">
               {detail.status_log.length === 0 ? (
-                <p className="p-6 text-sm opacity-50 italic text-center">Belum ada perubahan status.</p>
+                <p className="p-6 text-sm opacity-50 italic text-center">Belum ada riwayat.</p>
               ) : (
                 <table className="w-full text-sm min-w-[520px]">
                   <thead>
                     <tr className="border-b border-outline-variant text-left font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">
                       <th className="px-4 py-3">Waktu</th>
-                      <th className="px-4 py-3">Perubahan Status</th>
+                      <th className="px-4 py-3">Perubahan</th>
                       <th className="px-4 py-3">Oleh</th>
                     </tr>
                   </thead>
@@ -936,9 +1070,11 @@ export default function AntrianDetail({ id }: { id: string }) {
                       <tr key={log.id}>
                         <td className="px-4 py-3 whitespace-nowrap text-on-surface-variant">{formatDateTime(log.created_at)}</td>
                         <td className="px-4 py-3 font-semibold">
-                          {log.previous_status ? OPS_STATUS_LABELS[log.previous_status as keyof typeof OPS_STATUS_LABELS] ?? log.previous_status : "—"}
-                          {" → "}
-                          {OPS_STATUS_LABELS[log.new_status as keyof typeof OPS_STATUS_LABELS] ?? log.new_status}
+                          {log.kind === "package" ? (
+                            <>Paket: {log.previous_package ? PACKAGE_LABELS[log.previous_package] ?? log.previous_package : "—"}{" → "}{log.new_package ? PACKAGE_LABELS[log.new_package] ?? log.new_package : "—"}</>
+                          ) : (
+                            <>{log.previous_status ? OPS_STATUS_LABELS[log.previous_status as keyof typeof OPS_STATUS_LABELS] ?? log.previous_status : "—"}{" → "}{log.new_status ? OPS_STATUS_LABELS[log.new_status as keyof typeof OPS_STATUS_LABELS] ?? log.new_status : "—"}</>
+                          )}
                         </td>
                         <td className="px-4 py-3">{log.changed_by_name || "—"}</td>
                       </tr>
@@ -991,35 +1127,72 @@ export default function AntrianDetail({ id }: { id: string }) {
 
             <div className="p-6 sm:p-10">
               <div ref={cardRef} className="max-w-md mx-auto bg-white border border-outline-variant shadow-lg overflow-hidden">
-                {invitationData.profile?.couple_illustration_url && (
-                  <div className="relative h-64 sm:h-80 bg-surface-dim overflow-hidden">
-                    <img
-                      src={invitationData.profile.couple_illustration_url}
-                      alt="Cover"
-                      className={`w-full h-full object-cover ${invitationData.profile.grayscale ? "grayscale" : ""}`}
-                      crossOrigin="anonymous"
-                    />
-                    <button
-                      onClick={() => downloadImage(invitationData.profile.couple_illustration_url!, `cover-${invitationData.profile.slug || "photo"}.jpg`)}
-                      className="absolute top-3 right-3 w-8 h-8 bg-white/90 border border-outline-variant flex items-center justify-center shadow-sm hover:bg-white transition-colors z-10"
-                      title="Download"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">download</span>
-                    </button>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
-                    <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                      <h3 className="font-display-lg text-3xl sm:text-4xl">{invitationData.profile.display_name || `${invitationData.profile.bride_name} & ${invitationData.profile.groom_name}`}</h3>
-                      <p className="font-body-md text-sm opacity-80 mt-1">We Are Getting Married</p>
-                    </div>
-                  </div>
+                {/* SAMPUL — header + hero + foto sampul (editor order) */}
+                <div className="px-6 pt-6 flex items-center gap-2">
+                  <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary">SAMPUL</h4>
+                  <InvBadge state={invSectionState(invitationData.profile, "sampul")} label="SAMPUL" />
+                </div>
+                {invSectionState(invitationData.profile, "sampul") === "empty" ? (
+                  <p className="px-6 py-3 font-body-md text-xs italic text-on-surface-variant/70">Belum diisi.</p>
+                ) : (
+                  <>
+                    {invitationData.profile?.couple_illustration_url && (
+                      <div className="relative h-64 sm:h-80 bg-surface-dim overflow-hidden mt-3">
+                        <img
+                          src={invitationData.profile.couple_illustration_url}
+                          alt="Cover"
+                          className={`w-full h-full object-cover ${invitationData.profile.grayscale ? "grayscale" : ""}`}
+                          crossOrigin="anonymous"
+                        />
+                        <button
+                          onClick={() => downloadImage(invitationData.profile.couple_illustration_url!, `cover-${invitationData.profile.slug || "photo"}.jpg`)}
+                          className="absolute top-3 right-3 w-8 h-8 bg-white/90 border border-outline-variant flex items-center justify-center shadow-sm hover:bg-white transition-colors z-10"
+                          title="Download"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">download</span>
+                        </button>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+                        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                          <h3 className="font-display-lg text-3xl sm:text-4xl">{invitationData.profile.display_name || `${invitationData.profile.bride_name} & ${invitationData.profile.groom_name}`}</h3>
+                          <p className="font-body-md text-sm opacity-80 mt-1">We Are Getting Married</p>
+                        </div>
+                      </div>
+                    )}
+                    {coverPhotos(invitationData.profile.cover_photos).length > 0 && (
+                      <div className="px-6 pt-4 pb-2">
+                        <div className="grid grid-cols-3 gap-2">
+                          {coverPhotos(invitationData.profile.cover_photos).map((url, i) => (
+                            <div key={i} className="relative group aspect-video bg-surface-dim border border-outline-variant overflow-hidden">
+                              <img src={url} alt={`Cover ${i + 1}`} className="w-full h-full object-cover" crossOrigin="anonymous" />
+                              <button onClick={() => downloadImage(url, `cover-${invitationData.profile.slug || "photo"}-${i + 1}.jpg`)} className="absolute top-0.5 right-0.5 w-5 h-5 bg-white/80 border border-outline-variant flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" title="Download">
+                                <span className="material-symbols-outlined text-[11px]">download</span>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
 
                 <div className="p-6 space-y-6">
-                  <div>
-                    <p className="font-display-lg text-2xl text-center text-primary">{invitationData.profile.display_name || `${invitationData.profile.bride_name} & ${invitationData.profile.groom_name}`}</p>
-                    {invitationData.profile.couple_initials && (
-                      <p className="font-display-lg text-sm text-center text-secondary mt-1">{invitationData.profile.couple_initials}</p>
-                    )}
+                  <InvSection title="KALIMAT PEMBUKA" state={invSectionState(invitationData.profile, "pembuka")}>
+                    <div>
+                      {invitationData.profile.opening_title && (
+                        <p className="font-body-md text-sm font-semibold">{invitationData.profile.opening_title}</p>
+                      )}
+                      {invitationData.profile.opening_description && (
+                        <p className="font-body-md text-xs text-on-surface-variant mt-1 whitespace-pre-line">{invitationData.profile.opening_description}</p>
+                      )}
+                    </div>
+                  </InvSection>
+
+                  <InvSection title="PROFILE MEMPELAI" state={invSectionState(invitationData.profile, "profil")}>
+                    <div>
+                      <p className="font-display-lg text-2xl text-center text-primary">{invitationData.profile.display_name || `${invitationData.profile.bride_name} & ${invitationData.profile.groom_name}`}</p>
+                      {invitationData.profile.couple_initials && (
+                        <p className="font-display-lg text-sm text-center text-secondary mt-1">{invitationData.profile.couple_initials}</p>
+                      )}
 
                     {(() => {
                       const groomPhotos = photoList(invitationData.profile.groom_photo_url)
@@ -1074,81 +1247,43 @@ export default function AntrianDetail({ id }: { id: string }) {
                       )
                     })()}
 
-                    <div className="grid grid-cols-2 gap-4 mt-4 text-center">
-                      <div>
-                        <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Mempelai Pertama</p>
-                        {invitationData.profile.groom_name && (
-                          <p className="font-body-md text-sm font-semibold mt-0.5">{invitationData.profile.groom_name}</p>
-                        )}
-                        {invitationData.profile.groom_full_name && invitationData.profile.groom_full_name !== invitationData.profile.groom_name && (
-                          <p className="font-body-md text-xs mt-0.5">{invitationData.profile.groom_full_name}</p>
-                        )}
-                        {invitationData.profile.groom_parents && (
-                          <p className="font-body-md text-[10px] text-on-surface-variant mt-0.5">Putra dari {invitationData.profile.groom_parents}</p>
-                        )}
-                        {invitationData.profile.groom_instagram && (
-                          <p className="font-body-md text-[10px] text-secondary mt-0.5">@{invitationData.profile.groom_instagram}</p>
-                        )}
-                      </div>
-                      <div>
-                        <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Mempelai Kedua</p>
-                        {invitationData.profile.bride_name && (
-                          <p className="font-body-md text-sm font-semibold mt-0.5">{invitationData.profile.bride_name}</p>
-                        )}
-                        {invitationData.profile.bride_full_name && invitationData.profile.bride_full_name !== invitationData.profile.bride_name && (
-                          <p className="font-body-md text-xs mt-0.5">{invitationData.profile.bride_full_name}</p>
-                        )}
-                        {invitationData.profile.bride_parents && (
-                          <p className="font-body-md text-[10px] text-on-surface-variant mt-0.5">Putri dari {invitationData.profile.bride_parents}</p>
-                        )}
-                        {invitationData.profile.bride_instagram && (
-                          <p className="font-body-md text-[10px] text-secondary mt-0.5">@{invitationData.profile.bride_instagram}</p>
-                        )}
-                      </div>
-                    </div>
-                    {Array.isArray(invitationData.profile.inviting_families) && invitationData.profile.inviting_families.filter(Boolean).length > 0 && (
-                      <div className="mt-4 text-center border-t border-outline-variant/40 pt-4">
-                        <p className="font-label-md text-[9px] uppercase tracking-widest text-secondary mb-2">Turut Mengundang</p>
-                        {invitationData.profile.inviting_families.filter(Boolean).map((f: string, i: number) => (
-                          <p key={i} className="font-body-md text-[10px] italic text-on-surface-variant">Keluarga Besar {f}</p>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {coverPhotos(invitationData.profile.cover_photos).length > 0 && (
-                    <>
-                      <div className="border-t border-outline-variant/40" />
-                      <div>
-                        <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary mb-3">Foto Sampul</h4>
-                        <div className="grid grid-cols-3 gap-2">
-                          {coverPhotos(invitationData.profile.cover_photos).map((url, i) => (
-                            <div key={i} className="relative group aspect-video bg-surface-dim border border-outline-variant overflow-hidden">
-                              <img src={url} alt={`Cover ${i + 1}`} className="w-full h-full object-cover" crossOrigin="anonymous" />
-                              <button onClick={() => downloadImage(url, `cover-${invitationData.profile.slug || "photo"}-${i + 1}.jpg`)} className="absolute top-0.5 right-0.5 w-5 h-5 bg-white/80 border border-outline-variant flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" title="Download">
-                                <span className="material-symbols-outlined text-[11px]">download</span>
-                              </button>
-                            </div>
-                          ))}
+                      <div className="grid grid-cols-2 gap-4 mt-4 text-center">
+                        <div>
+                          <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Mempelai Pertama</p>
+                          {invitationData.profile.groom_name && (
+                            <p className="font-body-md text-sm font-semibold mt-0.5">{invitationData.profile.groom_name}</p>
+                          )}
+                          {invitationData.profile.groom_full_name && invitationData.profile.groom_full_name !== invitationData.profile.groom_name && (
+                            <p className="font-body-md text-xs mt-0.5">{invitationData.profile.groom_full_name}</p>
+                          )}
+                          {invitationData.profile.groom_parents && (
+                            <p className="font-body-md text-[10px] text-on-surface-variant mt-0.5">Putra dari {invitationData.profile.groom_parents}</p>
+                          )}
+                          {invitationData.profile.groom_instagram && (
+                            <p className="font-body-md text-[10px] text-secondary mt-0.5">@{invitationData.profile.groom_instagram}</p>
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Mempelai Kedua</p>
+                          {invitationData.profile.bride_name && (
+                            <p className="font-body-md text-sm font-semibold mt-0.5">{invitationData.profile.bride_name}</p>
+                          )}
+                          {invitationData.profile.bride_full_name && invitationData.profile.bride_full_name !== invitationData.profile.bride_name && (
+                            <p className="font-body-md text-xs mt-0.5">{invitationData.profile.bride_full_name}</p>
+                          )}
+                          {invitationData.profile.bride_parents && (
+                            <p className="font-body-md text-[10px] text-on-surface-variant mt-0.5">Putri dari {invitationData.profile.bride_parents}</p>
+                          )}
+                          {invitationData.profile.bride_instagram && (
+                            <p className="font-body-md text-[10px] text-secondary mt-0.5">@{invitationData.profile.bride_instagram}</p>
+                          )}
                         </div>
                       </div>
-                    </>
-                  )}
+                    </div>
+                  </InvSection>
 
-                  {invitationData.profile.video_url && (
-                    <>
-                      <div className="border-t border-outline-variant/40" />
-                      <div>
-                        <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary mb-2">Video</h4>
-                        <a href={invitationData.profile.video_url} target="_blank" rel="noopener noreferrer" className="font-body-md text-xs text-primary underline break-all">{invitationData.profile.video_url}</a>
-                      </div>
-                    </>
-                  )}
-
-                  <div className="border-t border-outline-variant/40" />
-
-                  <div>
-                    <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary mb-3">Acara Pernikahan</h4>
+                  <InvSection title="ACARA" state={invSectionState(invitationData.profile, "acara")}>
+                    <div>
                     {getWeddingDate(invitationData.profile) && (
                       <p className="font-display-lg text-lg text-primary">{formatDate(getWeddingDate(invitationData.profile))}</p>
                     )}
@@ -1168,25 +1303,63 @@ export default function AntrianDetail({ id }: { id: string }) {
                       <span className="font-label-md text-[10px] uppercase tracking-widest text-secondary">Batas Maksimum Pax:</span>
                       <span className="font-body-md text-sm font-semibold text-on-surface">{invitationData?.profile?.rsvp_max_pax ?? 2}</span>
                     </div>
-                  </div>
+                    </div>
+                  </InvSection>
 
-                  {invitationData.profile.quote_text && (
-                    <>
-                      <div className="border-t border-outline-variant/40" />
-                      <div className="text-center italic">
+                  <InvSection title="GALERI" state={invSectionState(invitationData.profile, "galeri")}>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(Array.isArray(invitationData.profile.gallery_photos) ? invitationData.profile.gallery_photos : []).map((url: string, i: number) => (
+                        <div key={i} className="relative group aspect-square bg-surface-dim border border-outline-variant overflow-hidden">
+                          <img src={url} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" crossOrigin="anonymous" />
+                          <button
+                            onClick={() => downloadImage(url, `gallery-${invitationData.profile.slug || "photo"}-${i + 1}.jpg`)}
+                            className="absolute top-0.5 right-0.5 w-5 h-5 bg-white/80 border border-outline-variant flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            title="Download"
+                          >
+                            <span className="material-symbols-outlined text-[11px]">download</span>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </InvSection>
+
+                  <InvSection
+                    title="TURUT MENGUNDANG"
+                    state={invSectionState(invitationData.profile, "inviting")}
+                    lockTip={invUpgradeMessage(invAvailableIn(invitationData.profile, "inviting_families"))}
+                  >
+                    <div className="text-center">
+                      {(Array.isArray(invitationData.profile.inviting_families) ? invitationData.profile.inviting_families.filter(Boolean) : []).map((f: string, i: number) => (
+                        <p key={i} className="font-body-md text-[10px] italic text-on-surface-variant">Keluarga Besar {f}</p>
+                      ))}
+                    </div>
+                  </InvSection>
+
+                  <InvSection title="KUTIPAN" state={invSectionState(invitationData.profile, "kutipan")}>
+                    <div className="text-center italic">
                         <p className="font-body-md text-sm leading-relaxed">&ldquo;{invitationData.profile.quote_text}&rdquo;</p>
                         {invitationData.profile.quote_source && (
                           <p className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant mt-2">&mdash; {invitationData.profile.quote_source}</p>
                         )}
-                      </div>
-                    </>
-                  )}
+                    </div>
+                  </InvSection>
 
-                  {Array.isArray(invitationData.profile.stories) && invitationData.profile.stories.length > 0 && (
-                    <>
-                      <div className="border-t border-outline-variant/40" />
+                  <InvSection
+                    title="VIDEO"
+                    state={invSectionState(invitationData.profile, "video")}
+                    lockTip={invUpgradeMessage(invAvailableIn(invitationData.profile, "cinematic_video"))}
+                  >
+                    <div>
+                      <a href={invitationData.profile.video_url} target="_blank" rel="noopener noreferrer" className="font-body-md text-xs text-primary underline break-all">{invitationData.profile.video_url}</a>
+                    </div>
+                  </InvSection>
+
+                  <InvSection
+                    title="STORY"
+                    state={invSectionState(invitationData.profile, "story")}
+                    lockTip={invUpgradeMessage(invAvailableIn(invitationData.profile, "story"))}
+                  >
                       <div>
-                        <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary mb-3">Our Story</h4>
                         <div className="space-y-4">
                           {invitationData.profile.stories.map((st: any, i: number) => (
                             <div key={i} className="flex gap-4">
@@ -1211,31 +1384,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                           ))}
                         </div>
                       </div>
-                    </>
-                  )}
-
-                  {Array.isArray(invitationData.profile.gallery_photos) && invitationData.profile.gallery_photos.length > 0 && (
-                    <>
-                      <div className="border-t border-outline-variant/40" />
-                      <div>
-                        <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary mb-3">Galeri</h4>
-                        <div className="grid grid-cols-3 gap-2">
-                          {invitationData.profile.gallery_photos.map((url: string, i: number) => (
-                            <div key={i} className="relative group aspect-square bg-surface-dim border border-outline-variant overflow-hidden">
-                              <img src={url} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" crossOrigin="anonymous" />
-                              <button
-                                onClick={() => downloadImage(url, `gallery-${invitationData.profile.slug || "photo"}-${i + 1}.jpg`)}
-                                className="absolute top-0.5 right-0.5 w-5 h-5 bg-white/80 border border-outline-variant flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                title="Download"
-                              >
-                                <span className="material-symbols-outlined text-[11px]">download</span>
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </>
-                  )}
+                  </InvSection>
 
                   {invitationData.template && (
                     <>
@@ -1266,24 +1415,11 @@ export default function AntrianDetail({ id }: { id: string }) {
                     </>
                   )}
 
-                  {invitationData.track && (
-                    <>
-                      <div className="border-t border-outline-variant/40" />
-                      <div className="flex items-center gap-3">
-                        <span className="material-symbols-outlined text-secondary">music_note</span>
-                        <div>
-                          <p className="font-body-md text-sm font-semibold">{invitationData.track.title}</p>
-                          {invitationData.track.artist && <p className="font-body-md text-[10px] text-on-surface-variant">{invitationData.track.artist}</p>}
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {((Array.isArray(invitationData.gift_accounts) && invitationData.gift_accounts.length > 0) || invitationData.gift_address) && (
-                    <>
-                      <div className="border-t border-outline-variant/40" />
-                      <div>
-                        <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary mb-3">Transfer & Kado</h4>
+                  <InvSection
+                    title="GIFT"
+                    state={invSectionState(invitationData.profile, "gift", { accounts: invitationData.gift_accounts || [], address: invitationData.gift_address || "" })}
+                  >
+                    <div>
                         {Array.isArray(invitationData.gift_accounts) && invitationData.gift_accounts.length > 0 && (
                           <div className="space-y-2">
                             {invitationData.gift_accounts.map((a: any, i: number) => (
@@ -1296,14 +1432,37 @@ export default function AntrianDetail({ id }: { id: string }) {
                         )}
                         {invitationData.gift_address && (
                           <div className="mt-3 bg-surface-container-low p-3 rounded">
-                            <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant mb-1">Alamat Pengiriman Kado</p>
+                            <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant mb-1 flex items-center gap-2">
+                              Alamat Pengiriman Kado
+                              {invitationData.profile?.package_gates?.gift_address?.included === false && (
+                                <InvBadge state="locked" label="Alamat Pengiriman Kado" tip={invUpgradeMessage(invAvailableIn(invitationData.profile, "gift_address"))} />
+                              )}
+                            </p>
                             {invitationData.gift_address_name && <p className="font-body-md text-sm font-semibold">a.n. {invitationData.gift_address_name}</p>}
                             <p className="font-body-md text-xs text-on-surface-variant whitespace-pre-line">{invitationData.gift_address}</p>
                           </div>
                         )}
+                    </div>
+                  </InvSection>
+
+                  <InvSection
+                    title="MUSIC"
+                    state={invSectionState(invitationData.profile, "musik")}
+                    noEmptyBadge
+                    emptyText="Belum dipilih."
+                  >
+                    {invitationData.track ? (
+                      <div className="flex items-center gap-3">
+                        <span className="material-symbols-outlined text-secondary">music_note</span>
+                        <div>
+                          <p className="font-body-md text-sm font-semibold">{invitationData.track.title}</p>
+                          {invitationData.track.artist && <p className="font-body-md text-[10px] text-on-surface-variant">{invitationData.track.artist}</p>}
+                        </div>
                       </div>
-                    </>
-                  )}
+                    ) : (
+                      <p className="font-body-md text-xs italic text-on-surface-variant/70">Belum dipilih.</p>
+                    )}
+                  </InvSection>
 
                   {invitationData.profile?.invitation_url && (
                     <>

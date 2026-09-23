@@ -19,7 +19,7 @@ export async function PUT(
 
     const { data: queueItem, error: queueError } = await supabaseAdmin
       .from("ops_queue")
-      .select("id, wedding_profiles!inner (id, wa_blast_tier, express_service, undangan_fisik)")
+      .select("id, wedding_profiles!inner (id, package_type, wa_blast_tier, express_service, undangan_fisik)")
       .eq("id", id)
       .single()
 
@@ -30,6 +30,8 @@ export async function PUT(
     const wp = Array.isArray(queueItem.wedding_profiles)
       ? queueItem.wedding_profiles[0]
       : queueItem.wedding_profiles
+
+    const previousPackage = wp?.package_type || null
 
     const waBlastTier = wp?.wa_blast_tier || 0
     const expressService = wp?.express_service === true
@@ -65,6 +67,30 @@ export async function PUT(
         status: "butuh_tindakan",
       }))
       await supabaseAdmin.from("feature_actions").insert(featureRows)
+    }
+
+    // Audit trail: record package changes in the unified queue timeline.
+    // Same-package saves are a no-op for the log.
+    if (previousPackage !== package_type) {
+      const phone = req.headers.get("x-ops-phone") || ""
+      const { data: emp } = await supabaseAdmin
+        .from("employees")
+        .select("id")
+        .eq("phone_number", phone)
+        .maybeSingle()
+
+      const { error: logError } = await supabaseAdmin.from("ops_queue_status_log").insert({
+        ops_queue_id: id,
+        kind: "package",
+        previous_status: null,
+        new_status: null,
+        previous_package: previousPackage,
+        new_package: package_type,
+        changed_by_employee_id: emp?.id || null,
+      })
+      if (logError) {
+        console.error("[ops/package] audit log insert failed", logError.message)
+      }
     }
 
     return NextResponse.json({ success: true, package_type, total_project_cost: total })

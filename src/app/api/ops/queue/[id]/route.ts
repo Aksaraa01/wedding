@@ -154,8 +154,11 @@ export async function GET(
       .from("ops_queue_status_log")
       .select(`
         id,
+        kind,
         previous_status,
         new_status,
+        previous_package,
+        new_package,
         created_at,
         employees!left (
           id,
@@ -170,8 +173,11 @@ export async function GET(
       const emp = Array.isArray(log.employees) ? log.employees[0] : log.employees
       return {
         id: log.id,
+        kind: log.kind || "status",
         previous_status: log.previous_status,
         new_status: log.new_status,
+        previous_package: log.previous_package || null,
+        new_package: log.new_package || null,
         created_at: log.created_at,
         changed_by_employee_id: emp?.id || null,
         changed_by_name: emp?.name || null,
