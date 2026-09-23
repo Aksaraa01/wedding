@@ -31,6 +31,7 @@ import {
   resolveDerivedStatus,
 } from "@/lib/opsStatus"
 import { canChangeStatus, unauthorizedStatusMessage } from "@/lib/opsRoles"
+import { compressImage } from "@/lib/imageCompress"
 
 type QueueItem = {
   id: string
@@ -259,6 +260,215 @@ function InvBadge({ state, label, tip }: { state: InvSectionState; label: string
   return null
 }
 
+function InvField({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <label className="block">
+      <span className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">{label}</span>
+      <div className="mt-1">{children}</div>
+    </label>
+  )
+}
+
+const invInputCls = "w-full bg-white border border-outline-variant rounded-lg px-3 py-2 font-body-md text-sm text-on-surface focus:outline-none focus:border-secondary"
+
+function InvText({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
+  return <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={invInputCls} />
+}
+
+function InvArea({ value, onChange, rows, placeholder }: { value: string; onChange: (v: string) => void; rows?: number; placeholder?: string }) {
+  return <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={rows || 3} placeholder={placeholder} className={`${invInputCls} resize-y`} />
+}
+
+function InvCheck({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button type="button" onClick={() => onChange(!checked)} className="flex items-center gap-2 py-1">
+      <span className={`w-9 h-5 rounded-full relative transition-colors shrink-0 ${checked ? "bg-secondary" : "bg-outline-variant"}`}>
+        <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${checked ? "right-0.5" : "left-0.5"}`} />
+      </span>
+      <span className="font-label-md text-[11px] text-on-surface text-left">{label}</span>
+    </button>
+  )
+}
+
+function InvStringList({ items, onChange, placeholder, addLabel }: { items: string[]; onChange: (v: string[]) => void; placeholder?: string; addLabel?: string }) {
+  const [draft, setDraft] = useState("")
+  return (
+    <div className="space-y-2">
+      {items.map((v, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <input
+            value={v}
+            onChange={(e) => onChange(items.map((x, j) => (j === i ? e.target.value : x)))}
+            placeholder={placeholder}
+            className={`${invInputCls} flex-1`}
+          />
+          <button type="button" onClick={() => onChange(items.filter((_, j) => j !== i))} aria-label="Hapus" className="w-9 h-9 shrink-0 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:text-red-600 hover:border-red-300 transition-colors">
+            <span className="material-symbols-outlined text-[18px]">delete</span>
+          </button>
+        </div>
+      ))}
+      <div className="flex items-center gap-2">
+        <input
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); if (draft.trim()) { onChange([...items, draft.trim()]); setDraft("") } } }}
+          placeholder={placeholder}
+          className={`${invInputCls} flex-1`}
+        />
+        <button
+          type="button"
+          onClick={() => { if (draft.trim()) { onChange([...items, draft.trim()]); setDraft("") } }}
+          className="h-9 px-3 shrink-0 rounded-lg bg-secondary text-white font-label-md text-[11px] uppercase tracking-widest hover:opacity-90 transition-opacity"
+        >
+          {addLabel || "Tambah"}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function InvPhotoList({ urls, onChange, onUpload, uploading, uploadKey }: {
+  urls: string[]
+  onChange: (v: string[]) => void
+  onUpload: (key: string, file: File) => Promise<string | null>
+  uploading: string | null
+  uploadKey: string
+}) {
+  const busy = uploading === uploadKey
+  return (
+    <div className="space-y-2">
+      {urls.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {urls.map((url, i) => (
+            <div key={i} className="relative group w-16 h-16 bg-surface-dim border border-outline-variant overflow-hidden rounded-lg">
+              <img src={url} alt="" className="w-full h-full object-cover" />
+              <button
+                type="button"
+                onClick={() => onChange(urls.filter((_, j) => j !== i))}
+                aria-label="Hapus foto"
+                className="absolute top-0.5 right-0.5 w-5 h-5 bg-white/90 border border-outline-variant flex items-center justify-center text-red-600"
+              >
+                <span className="material-symbols-outlined text-[14px]">close</span>
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      <label className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border border-outline-variant font-label-md text-[11px] uppercase tracking-widest cursor-pointer transition-colors ${busy ? "opacity-50 pointer-events-none" : "hover:border-secondary hover:text-secondary"}`}>
+        <span className={`material-symbols-outlined text-[16px] ${busy ? "animate-spin" : ""}`}>{busy ? "progress_activity" : "upload"}</span>
+        {busy ? "Mengunggah..." : "Unggah Foto"}
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          disabled={busy}
+          onChange={async (e) => {
+            const f = e.target.files?.[0]
+            e.target.value = ""
+            if (!f) return
+            const url = await onUpload(uploadKey, f)
+            if (url) onChange([...urls, url])
+          }}
+        />
+      </label>
+    </div>
+  )
+}
+
+const INV_EMPTY_SESSION = { name: "", date: "", time: "", timezone: "WIB", venue: "", address: "", maps_url: "" }
+
+function InvSessionList({ items, onChange }: { items: any[]; onChange: (v: any[]) => void }) {
+  const set = (i: number, patch: any) => onChange(items.map((s, j) => (j === i ? { ...s, ...patch } : s)))
+  return (
+    <div className="space-y-3">
+      {items.map((s, i) => (
+        <div key={i} className="border border-outline-variant rounded-xl p-3 space-y-2 bg-surface-container-lowest">
+          <div className="flex items-center justify-between">
+            <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary">Sesi {i + 1}</p>
+            <button type="button" onClick={() => onChange(items.filter((_, j) => j !== i))} className="text-[11px] font-label-md uppercase tracking-widest text-red-600 hover:underline">Hapus</button>
+          </div>
+          <InvField label="Nama Sesi"><InvText value={s.name || ""} onChange={(v) => set(i, { name: v })} placeholder="Akad Nikah" /></InvField>
+          <div className="grid grid-cols-2 gap-2">
+            <InvField label="Tanggal"><InvText value={s.date || ""} onChange={(v) => set(i, { date: v })} placeholder="2026-10-10" /></InvField>
+            <InvField label="Waktu"><InvText value={s.time || ""} onChange={(v) => set(i, { time: v })} placeholder="08:00" /></InvField>
+          </div>
+          <InvField label="Tempat"><InvText value={s.venue || ""} onChange={(v) => set(i, { venue: v })} placeholder="Gedung ..." /></InvField>
+          <InvField label="Alamat"><InvArea value={s.address || ""} onChange={(v) => set(i, { address: v })} rows={2} /></InvField>
+          <InvField label="Link Maps"><InvText value={s.maps_url || ""} onChange={(v) => set(i, { maps_url: v })} placeholder="https://maps..." /></InvField>
+        </div>
+      ))}
+      {items.length < 5 && (
+        <button type="button" onClick={() => onChange([...items, { ...INV_EMPTY_SESSION }])} className="w-full py-2.5 rounded-xl border border-dashed border-outline-variant font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant hover:border-secondary hover:text-secondary transition-colors">
+          + Tambah Sesi
+        </button>
+      )}
+    </div>
+  )
+}
+
+function InvStoryList({ items, onChange, onUpload, uploading }: {
+  items: any[]
+  onChange: (v: any[]) => void
+  onUpload: (key: string, file: File) => Promise<string | null>
+  uploading: string | null
+}) {
+  const set = (i: number, patch: any) => onChange(items.map((s, j) => (j === i ? { ...s, ...patch } : s)))
+  return (
+    <div className="space-y-3">
+      {items.map((s, i) => (
+        <div key={i} className="border border-outline-variant rounded-xl p-3 space-y-2 bg-surface-container-lowest">
+          <div className="flex items-center justify-between">
+            <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary">Kisah {i + 1}</p>
+            <button type="button" onClick={() => onChange(items.filter((_, j) => j !== i))} className="text-[11px] font-label-md uppercase tracking-widest text-red-600 hover:underline">Hapus</button>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <InvField label="Tahun"><InvText value={s.year || ""} onChange={(v) => set(i, { year: v })} placeholder="2020" /></InvField>
+            <InvField label="Judul"><InvText value={s.title || ""} onChange={(v) => set(i, { title: v })} placeholder="Awal bertemu" /></InvField>
+          </div>
+          <InvField label="Cerita"><InvArea value={s.description || ""} onChange={(v) => set(i, { description: v })} rows={3} /></InvField>
+          <InvField label="Foto">
+            <InvPhotoList urls={s.image_url ? [s.image_url] : []} onChange={(v) => set(i, { image_url: v[0] || "" })} onUpload={onUpload} uploading={uploading} uploadKey={`story-${i}`} />
+          </InvField>
+        </div>
+      ))}
+      <button type="button" onClick={() => onChange([...items, { year: "", title: "", description: "", image_url: "" }])} className="w-full py-2.5 rounded-xl border border-dashed border-outline-variant font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant hover:border-secondary hover:text-secondary transition-colors">
+        + Tambah Kisah
+      </button>
+    </div>
+  )
+}
+
+function InvGiftAccounts({ items, onChange }: { items: any[]; onChange: (v: any[]) => void }) {
+  const set = (i: number, patch: any) => onChange(items.map((a, j) => (j === i ? { ...a, ...patch } : a)))
+  return (
+    <div className="space-y-3">
+      {items.map((a, i) => (
+        <div key={a.id || `new-${i}`} className="border border-outline-variant rounded-xl p-3 space-y-2 bg-surface-container-lowest">
+          <div className="flex items-center justify-between">
+            <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary">Rekening {i + 1}</p>
+            <button type="button" onClick={() => onChange(items.filter((_, j) => j !== i))} className="text-[11px] font-label-md uppercase tracking-widest text-red-600 hover:underline">Hapus</button>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <InvField label="Bank / E-Wallet"><InvText value={a.provider_name || ""} onChange={(v) => set(i, { provider_name: v })} placeholder="BCA" /></InvField>
+            <label className="block">
+              <span className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Jenis</span>
+              <select value={a.type || "bank"} onChange={(e) => set(i, { type: e.target.value })} className={`${invInputCls} mt-1`}>
+                <option value="bank">Bank</option>
+                <option value="ewallet">E-Wallet</option>
+              </select>
+            </label>
+          </div>
+          <InvField label="Nomor Rekening"><InvText value={a.account_number || ""} onChange={(v) => set(i, { account_number: v })} placeholder="1234567890" /></InvField>
+          <InvField label="Atas Nama"><InvText value={a.account_name || ""} onChange={(v) => set(i, { account_name: v })} placeholder="Nama pemilik" /></InvField>
+        </div>
+      ))}
+      <button type="button" onClick={() => onChange([...items, { provider_name: "", account_number: "", account_name: "", type: "bank" }])} className="w-full py-2.5 rounded-xl border border-dashed border-outline-variant font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant hover:border-secondary hover:text-secondary transition-colors">
+        + Tambah Rekening
+      </button>
+    </div>
+  )
+}
+
 function InvSection({ title, state, lockTip, first, noEmptyBadge, emptyText, children }: {
   title: string
   state: InvSectionState
@@ -300,6 +510,13 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [roleGateMessage, setRoleGateMessage] = useState("")
   const [showInvCard, setShowInvCard] = useState(false)
   const [invitationData, setInvitationData] = useState<any>(null)
+  const [invEditing, setInvEditing] = useState(false)
+  const [invForm, setInvForm] = useState<any>(null)
+  const [invSaving, setInvSaving] = useState(false)
+  const [invSaveError, setInvSaveError] = useState("")
+  const [invTrackOptions, setInvTrackOptions] = useState<any[]>([])
+  const [invUploading, setInvUploading] = useState<string | null>(null)
+  const [invGiftAddrId, setInvGiftAddrId] = useState<string | null>(null)
   const [invLoading, setInvLoading] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
   const [showVipModal, setShowVipModal] = useState(false)
@@ -455,10 +672,211 @@ export default function AntrianDetail({ id }: { id: string }) {
       const data = await res.json()
       setInvitationData(data)
       setShowInvCard(true)
+      setInvEditing(false)
+      setInvForm(null)
     } catch (e) {
       console.error("Failed to fetch invitation", e)
     } finally {
       setInvLoading(false)
+    }
+  }
+
+  const photoStrArr = (v: any): string[] => {
+    if (Array.isArray(v)) return v.filter(Boolean)
+    if (typeof v === "string" && v) {
+      try {
+        const parsed = JSON.parse(v)
+        return Array.isArray(parsed) ? parsed.filter(Boolean) : [v]
+      } catch {
+        return [v]
+      }
+    }
+    return []
+  }
+
+  const startInvEdit = async () => {
+    const p = invitationData?.profile
+    if (!p) return
+    setInvSaveError("")
+    setInvForm({
+      display_name: p.display_name || "",
+      couple_initials: p.couple_initials || "",
+      opening_title: p.opening_title || "",
+      opening_description: p.opening_description || "",
+      groom_name: p.groom_name || "",
+      groom_full_name: p.groom_full_name || "",
+      groom_parents: p.groom_parents || "",
+      groom_instagram: p.groom_instagram || "",
+      bride_name: p.bride_name || "",
+      bride_full_name: p.bride_full_name || "",
+      bride_parents: p.bride_parents || "",
+      bride_instagram: p.bride_instagram || "",
+      couple_illustration_url: p.couple_illustration_url || "",
+      cover_photos: photoStrArr(p.cover_photos),
+      groom_photo_url: photoList(p.groom_photo_url),
+      bride_photo_url: photoList(p.bride_photo_url),
+      gallery_photos: photoStrArr(p.gallery_photos),
+      inviting_families: Array.isArray(p.inviting_families) ? [...p.inviting_families] : [],
+      sessions: (Array.isArray(p.sessions) ? p.sessions : []).map((s: any) => ({
+        name: s?.name || "", date: s?.date || "", time: s?.time || "", timezone: s?.timezone || "WIB",
+        venue: s?.venue || "", address: s?.address || "", maps_url: s?.maps_url || "",
+      })),
+      stories: (Array.isArray(p.stories) ? p.stories : []).map((s: any) => ({
+        year: s?.year || "", title: s?.title || "", description: s?.description || "", image_url: s?.image_url || "",
+      })),
+      quote_text: p.quote_text || "",
+      quote_source: p.quote_source || "",
+      video_url: p.video_url || "",
+      rsvp_max_pax: p.rsvp_max_pax ?? 2,
+      estimated_wedding_date: p.estimated_wedding_date || "",
+      grayscale: p.grayscale === true,
+      video_section_visible: p.video_section_visible !== false,
+      story_visible: p.story_visible !== false,
+      gift_section_visible: p.gift_section_visible !== false,
+      inviting_families_visible: p.inviting_families_visible !== false,
+      selected_track_id: p.selected_track_id || "",
+      giftAccounts: (invitationData.gift_accounts || []).map((a: any) => ({
+        id: a.id,
+        provider_name: a.provider_name || "",
+        account_number: a.account_number || "",
+        account_name: a.account_name || "",
+        type: a.type === "ewallet" ? "ewallet" : "bank",
+      })),
+      giftAddress: {
+        recipient_name: invitationData.gift_address_name || "",
+        full_address: invitationData.gift_address || "",
+      },
+    })
+    setInvEditing(true)
+    fetch(`/api/gift-addresses?wedding_profile_id=${p.id}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setInvGiftAddrId(d?.addresses?.[0]?.id || null))
+      .catch(() => {})
+    fetch(`/api/tracks?wedding_profile_id=${p.id}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setInvTrackOptions(d?.tracks || []))
+      .catch(() => {})
+  }
+
+  const invUploadPhoto = async (key: string, file: File): Promise<string | null> => {
+    setInvUploading(key)
+    try {
+      const compressed = file.type.startsWith("image/") ? await compressImage(file) : file
+      const fd = new FormData()
+      fd.append("file", compressed)
+      const res = await fetch("/api/template-media/upload", { method: "POST", body: fd })
+      const payload = await res.json().catch(() => ({}))
+      if (!res.ok || !payload.url) throw new Error(payload.error || "Gagal mengunggah gambar")
+      return payload.url as string
+    } catch (err: any) {
+      setInvSaveError(err?.message || "Gagal mengunggah gambar.")
+      return null
+    } finally {
+      setInvUploading(null)
+    }
+  }
+
+  const saveInvEdit = async () => {
+    if (!invForm || !invitationData?.profile?.id) return
+    setInvSaving(true)
+    setInvSaveError("")
+    try {
+      const wpId = invitationData.profile.id
+      const f = invForm
+      const res = await fetch(`/api/dashboard/${wpId}/web-invitation`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          display_name: f.display_name,
+          couple_initials: f.couple_initials,
+          opening_title: f.opening_title,
+          opening_description: f.opening_description,
+          groom_name: f.groom_name,
+          groom_full_name: f.groom_full_name,
+          groom_parents: f.groom_parents || null,
+          groom_instagram: f.groom_instagram || null,
+          bride_name: f.bride_name,
+          bride_full_name: f.bride_full_name,
+          bride_parents: f.bride_parents || null,
+          bride_instagram: f.bride_instagram || null,
+          couple_illustration_url: f.couple_illustration_url || null,
+          cover_photos: f.cover_photos,
+          gallery_photos: f.gallery_photos,
+          groom_photo_url: f.groom_photo_url,
+          bride_photo_url: f.bride_photo_url,
+          sessions: f.sessions,
+          stories: f.stories,
+          inviting_families: (f.inviting_families || []).filter(Boolean),
+          quote_text: f.quote_text || null,
+          quote_source: f.quote_source || null,
+          video_url: f.video_url || null,
+          rsvp_max_pax: Number(f.rsvp_max_pax) || 2,
+          estimated_wedding_date: f.estimated_wedding_date || null,
+          grayscale: !!f.grayscale,
+          video_section_visible: !!f.video_section_visible,
+          story_visible: !!f.story_visible,
+          gift_section_visible: !!f.gift_section_visible,
+          inviting_families_visible: !!f.inviting_families_visible,
+          selected_track_id: f.selected_track_id || null,
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || "Gagal menyimpan undangan")
+
+      const formIds = new Set(f.giftAccounts.filter((a: any) => a.id).map((a: any) => a.id))
+      for (const a of invitationData.gift_accounts || []) {
+        if (!formIds.has(a.id)) {
+          await fetch(`/api/gift-accounts/${a.id}`, { method: "DELETE" })
+        }
+      }
+      for (const a of f.giftAccounts) {
+        if (!a.account_number) continue
+        const body = {
+          provider_name: a.provider_name,
+          account_number: a.account_number,
+          account_name: a.account_name,
+          type: a.type,
+        }
+        if (a.id) {
+          await fetch(`/api/gift-accounts/${a.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          })
+        } else {
+          await fetch(`/api/gift-accounts`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ wedding_profile_id: wpId, ...body }),
+          })
+        }
+      }
+
+      const addrName = (f.giftAddress.recipient_name || "").trim()
+      const addrFull = (f.giftAddress.full_address || "").trim()
+      if (invGiftAddrId) {
+        if (addrName && addrFull) {
+          await fetch(`/api/gift-addresses/${invGiftAddrId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ recipient_name: addrName, full_address: addrFull }),
+          })
+        } else {
+          await fetch(`/api/gift-addresses/${invGiftAddrId}`, { method: "DELETE" })
+        }
+      } else if (addrName && addrFull) {
+        await fetch(`/api/gift-addresses`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ wedding_profile_id: wpId, recipient_name: addrName, full_address: addrFull }),
+        })
+      }
+
+      await fetchInvitationData(wpId)
+    } catch (err: any) {
+      setInvSaveError(err?.message || "Gagal menyimpan. Coba lagi.")
+    } finally {
+      setInvSaving(false)
     }
   }
 
@@ -998,15 +1416,19 @@ export default function AntrianDetail({ id }: { id: string }) {
                             catch { return [fb.image_url] }
                           })()
                           return (
-                            <div key={fb.id} className="bg-surface-container-low p-2.5 border-l-2 border-secondary">
-                              <div className="flex justify-between items-start gap-2 mb-0.5">
-                                <p className="font-body-md text-[10px] font-semibold">{fb.template_name || "Draf"} <span className="font-label-md text-[8px] text-on-surface-variant/60 font-normal">R{fb.round_number}</span></p>
+                            <div key={fb.id} className="bg-surface-container-low p-3 border-l-2 border-secondary">
+                              <div className="flex justify-between items-start gap-2 mb-1">
+                                <p className="font-body-md text-xs font-semibold">{fb.template_name || "Draf"} <span className="font-label-md text-[10px] text-on-surface-variant/60 font-normal">R{fb.round_number}</span></p>
                                 <span className={`text-[7px] font-bold uppercase px-1 py-0.5 shrink-0 ${fb.status === "resolved" ? "bg-emerald-100 text-emerald-800" : fb.status === "in_progress" ? "bg-amber-100 text-amber-800" : "bg-blue-100 text-blue-800"}`}>
                                   {fb.status === "resolved" ? "Selesai" : fb.status === "in_progress" ? "Proses" : "Tunggu"}
                                 </span>
                               </div>
-                              <p className="font-body-md text-[10px] italic text-on-surface-variant/80 leading-relaxed whitespace-pre-wrap break-words">
+                              <p className="font-body-md text-sm font-medium leading-relaxed whitespace-pre-wrap break-words">
                                 &ldquo;{fb.description}&rdquo;
+                              </p>
+                              <p className="font-label-md text-[10px] text-on-surface-variant/70 mt-1.5 flex items-center gap-1">
+                                <span className="material-symbols-outlined text-[12px]">schedule</span>
+                                {formatDateTime(fb.created_at)}
                               </p>
                               {images.length > 0 && (
                                 <div className="flex gap-1 mt-1.5">
@@ -1103,7 +1525,34 @@ export default function AntrianDetail({ id }: { id: string }) {
           <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white shadow-2xl">
             <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-white border-b border-outline-variant">
               <h2 className="font-display-lg text-lg">Undangan Digital — {invitationData.profile?.bride_name || ""} & {invitationData.profile?.groom_name || ""}</h2>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                {!invEditing ? (
+                  <button
+                    onClick={startInvEdit}
+                    className="px-4 py-2 bg-primary text-on-primary text-[9px] font-bold uppercase tracking-widest hover:opacity-90 transition-all flex items-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">edit</span>
+                    Ubah
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => { setInvEditing(false); setInvForm(null); setInvSaveError("") }}
+                      disabled={invSaving}
+                      className="px-4 py-2 border border-outline-variant text-on-surface-variant text-[9px] font-bold uppercase tracking-widest hover:bg-surface-container transition-all disabled:opacity-40"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      onClick={saveInvEdit}
+                      disabled={invSaving}
+                      className="px-4 py-2 bg-secondary text-white text-[9px] font-bold uppercase tracking-widest hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-40"
+                    >
+                      <span className={`material-symbols-outlined text-[16px] ${invSaving ? "animate-spin" : ""}`}>{invSaving ? "progress_activity" : "save"}</span>
+                      {invSaving ? "Menyimpan..." : "Simpan"}
+                    </button>
+                  </>
+                )}
                 <button
                   onClick={() => {
                     if (!cardRef.current) return
@@ -1119,11 +1568,17 @@ export default function AntrianDetail({ id }: { id: string }) {
                   <span className="material-symbols-outlined text-[16px]">download</span>
                   Download
                 </button>
-                <button onClick={() => { setShowInvCard(false); setInvitationData(null) }} className="p-2 hover:bg-surface-container-low transition-colors">
+                <button onClick={() => { setShowInvCard(false); setInvitationData(null); setInvEditing(false); setInvForm(null); setInvSaveError("") }} className="p-2 hover:bg-surface-container-low transition-colors">
                   <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
             </div>
+            {invSaveError && (
+              <div className="mx-6 sm:mx-10 mt-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center gap-2">
+                <span className="material-symbols-outlined text-red-600 text-[18px]">error</span>
+                <p className="font-body-md text-[13px] text-red-700">{invSaveError}</p>
+              </div>
+            )}
 
             <div className="p-6 sm:p-10">
               <div ref={cardRef} className="max-w-md mx-auto bg-white border border-outline-variant shadow-lg overflow-hidden">
@@ -1132,7 +1587,17 @@ export default function AntrianDetail({ id }: { id: string }) {
                   <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary">SAMPUL</h4>
                   <InvBadge state={invSectionState(invitationData.profile, "sampul")} label="SAMPUL" />
                 </div>
-                {invSectionState(invitationData.profile, "sampul") === "empty" ? (
+                {invEditing && invForm ? (
+                  <div className="px-6 py-3 space-y-3">
+                    <InvField label="Foto Sampul Utama">
+                      <InvPhotoList urls={invForm.couple_illustration_url ? [invForm.couple_illustration_url] : []} onChange={(v) => setInvForm({ ...invForm, couple_illustration_url: v[0] || "" })} onUpload={invUploadPhoto} uploading={invUploading} uploadKey="sampul-main" />
+                    </InvField>
+                    <InvCheck label="Foto hitam putih (grayscale)" checked={!!invForm.grayscale} onChange={(v) => setInvForm({ ...invForm, grayscale: v })} />
+                    <InvField label="Foto Sampul Tambahan">
+                      <InvPhotoList urls={invForm.cover_photos} onChange={(v) => setInvForm({ ...invForm, cover_photos: v })} onUpload={invUploadPhoto} uploading={invUploading} uploadKey="sampul-extra" />
+                    </InvField>
+                  </div>
+                ) : invSectionState(invitationData.profile, "sampul") === "empty" ? (
                   <p className="px-6 py-3 font-body-md text-xs italic text-on-surface-variant/70">Belum diisi.</p>
                 ) : (
                   <>
@@ -1177,6 +1642,12 @@ export default function AntrianDetail({ id }: { id: string }) {
 
                 <div className="p-6 space-y-6">
                   <InvSection title="KALIMAT PEMBUKA" state={invSectionState(invitationData.profile, "pembuka")}>
+                    {invEditing && invForm ? (
+                      <div className="space-y-3">
+                        <InvField label="Judul Pembuka"><InvText value={invForm.opening_title} onChange={(v) => setInvForm({ ...invForm, opening_title: v })} placeholder="Assalamu'alaikum ..." /></InvField>
+                        <InvField label="Deskripsi Pembuka"><InvArea value={invForm.opening_description} onChange={(v) => setInvForm({ ...invForm, opening_description: v })} rows={4} /></InvField>
+                      </div>
+                    ) : (
                     <div>
                       {invitationData.profile.opening_title && (
                         <p className="font-body-md text-sm font-semibold">{invitationData.profile.opening_title}</p>
@@ -1185,9 +1656,28 @@ export default function AntrianDetail({ id }: { id: string }) {
                         <p className="font-body-md text-xs text-on-surface-variant mt-1 whitespace-pre-line">{invitationData.profile.opening_description}</p>
                       )}
                     </div>
+                    )}
                   </InvSection>
 
                   <InvSection title="PROFILE MEMPELAI" state={invSectionState(invitationData.profile, "profil")}>
+                    {invEditing && invForm ? (
+                      <div className="space-y-3">
+                        <InvField label="Nama Tampilan"><InvText value={invForm.display_name} onChange={(v) => setInvForm({ ...invForm, display_name: v })} placeholder="Andi & Budi" /></InvField>
+                        <InvField label="Inisial Pasangan"><InvText value={invForm.couple_initials} onChange={(v) => setInvForm({ ...invForm, couple_initials: v })} placeholder="A & B" /></InvField>
+                        <div className="grid grid-cols-2 gap-2">
+                          <InvField label="Panggilan (1)"><InvText value={invForm.groom_name} onChange={(v) => setInvForm({ ...invForm, groom_name: v })} /></InvField>
+                          <InvField label="Panggilan (2)"><InvText value={invForm.bride_name} onChange={(v) => setInvForm({ ...invForm, bride_name: v })} /></InvField>
+                          <InvField label="Nama Lengkap (1)"><InvText value={invForm.groom_full_name} onChange={(v) => setInvForm({ ...invForm, groom_full_name: v })} /></InvField>
+                          <InvField label="Nama Lengkap (2)"><InvText value={invForm.bride_full_name} onChange={(v) => setInvForm({ ...invForm, bride_full_name: v })} /></InvField>
+                          <InvField label="Orang Tua (1)"><InvText value={invForm.groom_parents} onChange={(v) => setInvForm({ ...invForm, groom_parents: v })} /></InvField>
+                          <InvField label="Orang Tua (2)"><InvText value={invForm.bride_parents} onChange={(v) => setInvForm({ ...invForm, bride_parents: v })} /></InvField>
+                          <InvField label="Instagram (1)"><InvText value={invForm.groom_instagram} onChange={(v) => setInvForm({ ...invForm, groom_instagram: v })} /></InvField>
+                          <InvField label="Instagram (2)"><InvText value={invForm.bride_instagram} onChange={(v) => setInvForm({ ...invForm, bride_instagram: v })} /></InvField>
+                        </div>
+                        <InvField label="Foto Mempelai 1"><InvPhotoList urls={invForm.groom_photo_url} onChange={(v) => setInvForm({ ...invForm, groom_photo_url: v })} onUpload={invUploadPhoto} uploading={invUploading} uploadKey="profil-groom" /></InvField>
+                        <InvField label="Foto Mempelai 2"><InvPhotoList urls={invForm.bride_photo_url} onChange={(v) => setInvForm({ ...invForm, bride_photo_url: v })} onUpload={invUploadPhoto} uploading={invUploading} uploadKey="profil-bride" /></InvField>
+                      </div>
+                    ) : (
                     <div>
                       <p className="font-display-lg text-2xl text-center text-primary">{invitationData.profile.display_name || `${invitationData.profile.bride_name} & ${invitationData.profile.groom_name}`}</p>
                       {invitationData.profile.couple_initials && (
@@ -1280,9 +1770,17 @@ export default function AntrianDetail({ id }: { id: string }) {
                         </div>
                       </div>
                     </div>
+                    )}
                   </InvSection>
 
                   <InvSection title="ACARA" state={invSectionState(invitationData.profile, "acara")}>
+                    {invEditing && invForm ? (
+                      <div className="space-y-3">
+                        <InvField label="Perkiraan Tanggal"><InvText value={invForm.estimated_wedding_date} onChange={(v) => setInvForm({ ...invForm, estimated_wedding_date: v })} placeholder="2026-10-10" /></InvField>
+                        <InvSessionList items={invForm.sessions} onChange={(v) => setInvForm({ ...invForm, sessions: v })} />
+                        <InvField label="Batas Maksimum Pax"><InvText value={String(invForm.rsvp_max_pax ?? 2)} onChange={(v) => setInvForm({ ...invForm, rsvp_max_pax: v })} /></InvField>
+                      </div>
+                    ) : (
                     <div>
                     {getWeddingDate(invitationData.profile) && (
                       <p className="font-display-lg text-lg text-primary">{formatDate(getWeddingDate(invitationData.profile))}</p>
@@ -1304,9 +1802,13 @@ export default function AntrianDetail({ id }: { id: string }) {
                       <span className="font-body-md text-sm font-semibold text-on-surface">{invitationData?.profile?.rsvp_max_pax ?? 2}</span>
                     </div>
                     </div>
+                    )}
                   </InvSection>
 
                   <InvSection title="GALERI" state={invSectionState(invitationData.profile, "galeri")}>
+                    {invEditing && invForm ? (
+                      <InvPhotoList urls={invForm.gallery_photos} onChange={(v) => setInvForm({ ...invForm, gallery_photos: v })} onUpload={invUploadPhoto} uploading={invUploading} uploadKey="galeri" />
+                    ) : (
                     <div className="grid grid-cols-3 gap-2">
                       {(Array.isArray(invitationData.profile.gallery_photos) ? invitationData.profile.gallery_photos : []).map((url: string, i: number) => (
                         <div key={i} className="relative group aspect-square bg-surface-dim border border-outline-variant overflow-hidden">
@@ -1321,6 +1823,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                         </div>
                       ))}
                     </div>
+                    )}
                   </InvSection>
 
                   <InvSection
@@ -1328,20 +1831,34 @@ export default function AntrianDetail({ id }: { id: string }) {
                     state={invSectionState(invitationData.profile, "inviting")}
                     lockTip={invUpgradeMessage(invAvailableIn(invitationData.profile, "inviting_families"))}
                   >
+                    {invEditing && invForm && invSectionState(invitationData.profile, "inviting") !== "locked" ? (
+                      <div className="space-y-3">
+                        <InvCheck label="Tampilkan Turut Mengundang" checked={!!invForm.inviting_families_visible} onChange={(v) => setInvForm({ ...invForm, inviting_families_visible: v })} />
+                        <InvStringList items={invForm.inviting_families} onChange={(v) => setInvForm({ ...invForm, inviting_families: v })} placeholder="Keluarga Besar ..." addLabel="Tambah" />
+                      </div>
+                    ) : (
                     <div className="text-center">
                       {(Array.isArray(invitationData.profile.inviting_families) ? invitationData.profile.inviting_families.filter(Boolean) : []).map((f: string, i: number) => (
                         <p key={i} className="font-body-md text-[10px] italic text-on-surface-variant">Keluarga Besar {f}</p>
                       ))}
                     </div>
+                    )}
                   </InvSection>
 
                   <InvSection title="KUTIPAN" state={invSectionState(invitationData.profile, "kutipan")}>
+                    {invEditing && invForm ? (
+                      <div className="space-y-3">
+                        <InvField label="Isi Kutipan"><InvArea value={invForm.quote_text} onChange={(v) => setInvForm({ ...invForm, quote_text: v })} rows={3} /></InvField>
+                        <InvField label="Sumber Kutipan"><InvText value={invForm.quote_source} onChange={(v) => setInvForm({ ...invForm, quote_source: v })} /></InvField>
+                      </div>
+                    ) : (
                     <div className="text-center italic">
                         <p className="font-body-md text-sm leading-relaxed">&ldquo;{invitationData.profile.quote_text}&rdquo;</p>
                         {invitationData.profile.quote_source && (
                           <p className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant mt-2">&mdash; {invitationData.profile.quote_source}</p>
                         )}
                     </div>
+                    )}
                   </InvSection>
 
                   <InvSection
@@ -1349,9 +1866,16 @@ export default function AntrianDetail({ id }: { id: string }) {
                     state={invSectionState(invitationData.profile, "video")}
                     lockTip={invUpgradeMessage(invAvailableIn(invitationData.profile, "cinematic_video"))}
                   >
+                    {invEditing && invForm && invSectionState(invitationData.profile, "video") !== "locked" ? (
+                      <div className="space-y-3">
+                        <InvCheck label="Tampilkan Video" checked={!!invForm.video_section_visible} onChange={(v) => setInvForm({ ...invForm, video_section_visible: v })} />
+                        <InvField label="Link Video"><InvText value={invForm.video_url} onChange={(v) => setInvForm({ ...invForm, video_url: v })} placeholder="https://youtube..." /></InvField>
+                      </div>
+                    ) : (
                     <div>
                       <a href={invitationData.profile.video_url} target="_blank" rel="noopener noreferrer" className="font-body-md text-xs text-primary underline break-all">{invitationData.profile.video_url}</a>
                     </div>
+                    )}
                   </InvSection>
 
                   <InvSection
@@ -1359,6 +1883,12 @@ export default function AntrianDetail({ id }: { id: string }) {
                     state={invSectionState(invitationData.profile, "story")}
                     lockTip={invUpgradeMessage(invAvailableIn(invitationData.profile, "story"))}
                   >
+                    {invEditing && invForm && invSectionState(invitationData.profile, "story") !== "locked" ? (
+                      <div className="space-y-3">
+                        <InvCheck label="Tampilkan Kisah Cinta" checked={!!invForm.story_visible} onChange={(v) => setInvForm({ ...invForm, story_visible: v })} />
+                        <InvStoryList items={invForm.stories} onChange={(v) => setInvForm({ ...invForm, stories: v })} onUpload={invUploadPhoto} uploading={invUploading} />
+                      </div>
+                    ) : (
                       <div>
                         <div className="space-y-4">
                           {invitationData.profile.stories.map((st: any, i: number) => (
@@ -1384,6 +1914,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                           ))}
                         </div>
                       </div>
+                    )}
                   </InvSection>
 
                   {invitationData.template && (
@@ -1419,6 +1950,24 @@ export default function AntrianDetail({ id }: { id: string }) {
                     title="GIFT"
                     state={invSectionState(invitationData.profile, "gift", { accounts: invitationData.gift_accounts || [], address: invitationData.gift_address || "" })}
                   >
+                    {invEditing && invForm ? (
+                      <div className="space-y-3">
+                        <InvCheck label="Tampilkan Bagian Hadiah" checked={!!invForm.gift_section_visible} onChange={(v) => setInvForm({ ...invForm, gift_section_visible: v })} />
+                        <InvGiftAccounts items={invForm.giftAccounts} onChange={(v) => setInvForm({ ...invForm, giftAccounts: v })} />
+                        <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <h4 className="font-label-md text-[9px] uppercase tracking-widest text-secondary">Alamat Pengiriman Kado</h4>
+                            {invitationData.profile?.package_gates?.gift_address?.included === false && (
+                              <InvBadge state="locked" label="Alamat Pengiriman Kado" tip={invUpgradeMessage(invAvailableIn(invitationData.profile, "gift_address"))} />
+                            )}
+                          </div>
+                          <div className="space-y-3">
+                            <InvField label="Nama Penerima"><InvText value={invForm.giftAddress.recipient_name} onChange={(v) => setInvForm({ ...invForm, giftAddress: { ...invForm.giftAddress, recipient_name: v } })} /></InvField>
+                            <InvField label="Alamat Lengkap"><InvArea value={invForm.giftAddress.full_address} onChange={(v) => setInvForm({ ...invForm, giftAddress: { ...invForm.giftAddress, full_address: v } })} rows={3} /></InvField>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
                     <div>
                         {Array.isArray(invitationData.gift_accounts) && invitationData.gift_accounts.length > 0 && (
                           <div className="space-y-2">
@@ -1443,6 +1992,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                           </div>
                         )}
                     </div>
+                    )}
                   </InvSection>
 
                   <InvSection
@@ -1451,7 +2001,20 @@ export default function AntrianDetail({ id }: { id: string }) {
                     noEmptyBadge
                     emptyText="Belum dipilih."
                   >
-                    {invitationData.track ? (
+                    {invEditing && invForm ? (
+                      <InvField label="Lagu Undangan">
+                        <select
+                          value={invForm.selected_track_id || ""}
+                          onChange={(e) => setInvForm({ ...invForm, selected_track_id: e.target.value })}
+                          className={invInputCls}
+                        >
+                          <option value="">— Tanpa lagu —</option>
+                          {invTrackOptions.map((t: any) => (
+                            <option key={t.id} value={t.id}>{t.title}{t.artist ? ` — ${t.artist}` : ""}</option>
+                          ))}
+                        </select>
+                      </InvField>
+                    ) : invitationData.track ? (
                       <div className="flex items-center gap-3">
                         <span className="material-symbols-outlined text-secondary">music_note</span>
                         <div>
