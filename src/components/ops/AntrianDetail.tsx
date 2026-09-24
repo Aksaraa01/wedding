@@ -553,6 +553,7 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [invUploading, setInvUploading] = useState<string | null>(null)
   const [invGiftAddrId, setInvGiftAddrId] = useState<string | null>(null)
   const [invTrackSearch, setInvTrackSearch] = useState("")
+  const [showFbPayGate, setShowFbPayGate] = useState(false)
   const [invOpeningCustomMode, setInvOpeningCustomMode] = useState(false)
   const [invCardSummary, setInvCardSummary] = useState<{ empty: string[]; wpId: string } | null>(null)
   const [invLoading, setInvLoading] = useState(false)
@@ -700,6 +701,24 @@ export default function AntrianDetail({ id }: { id: string }) {
     } else {
       alert(data.error || "Gagal mengubah paket")
     }
+  }
+
+  // Ops "Tambah Feedback": paid couples go straight to the couple feedback
+  // page (new tab, flag set for audit logging); UNPAID gets an explanatory
+  // popup instead — feedback is a paid-status feature.
+  // NOTE: window.open WITHOUT noopener/noreferrer — the popup must share this
+  // tab's sessionStorage (flag + ops employee). With noopener the popup gets
+  // isolated storage and the audit log silently never fires.
+  const handleAddFeedback = (wpId: string) => {
+    if (!wpId) return
+    if (detail?.wedding_profile?.payment_status === "UNPAID") {
+      setShowFbPayGate(true)
+      return
+    }
+    try {
+      sessionStorage.setItem(`ops_feedback_${wpId}`, "1")
+    } catch {}
+    window.open(`/dashboard/${wpId}/web-invitation/feedback`, "_blank")
   }
 
   const fetchInvitationData = async (wpId: string) => {
@@ -1819,11 +1838,23 @@ export default function AntrianDetail({ id }: { id: string }) {
                       </div>
                     )}
 
-                    {fa.feature_key === "premium_web" && feedbackSubmissions.length > 0 && (
+                    {fa.feature_key === "premium_web" && (
                       <div className="mb-4 space-y-2">
-                        <h5 className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">
-                          Feedback Terbaru
-                        </h5>
+                        <div className="flex items-center justify-between gap-2">
+                          <h5 className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">
+                            Feedback Terbaru
+                          </h5>
+                          <button
+                            type="button"
+                            onClick={() => handleAddFeedback(fa.wedding_profile_id)}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-secondary text-white font-label-md text-[10px] uppercase tracking-widest hover:opacity-90 active:scale-95 transition-all shrink-0"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">add</span>
+                            Tambah
+                          </button>
+                        </div>
+                    {feedbackSubmissions.length > 0 ? (
+                      <>
                         {feedbackSubmissions.slice(0, 2).map((fb) => {
                           const images = (() => {
                             if (!fb.image_url) return []
@@ -1865,6 +1896,10 @@ export default function AntrianDetail({ id }: { id: string }) {
                         })}
                         {feedbackSubmissions.length > 2 && (
                           <p className="font-label-md text-[8px] text-on-surface-variant/50 text-center">+{feedbackSubmissions.length - 2} lainnya</p>
+                        )}
+                        </>
+                        ) : (
+                          <p className="font-body-md text-xs italic text-on-surface-variant/70">Belum ada feedback.</p>
                         )}
                       </div>
                     )}
@@ -3073,6 +3108,28 @@ export default function AntrianDetail({ id }: { id: string }) {
                   })}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showFbPayGate && (
+        <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowFbPayGate(false)}>
+          <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
+                <span className="material-symbols-outlined text-amber-600 text-2xl">payments</span>
+              </div>
+              <h3 className="font-headline-md text-lg font-medium text-primary">Khusus Sudah Bayar</h3>
+              <p className="text-sm text-on-surface-variant leading-relaxed">
+                Fitur feedback hanya tersedia untuk undangan dengan status pembayaran <span className="font-semibold text-on-surface">Sudah Bayar</span>. Selesaikan pembayaran couple terlebih dahulu untuk menambah feedback.
+              </p>
+              <button
+                onClick={() => setShowFbPayGate(false)}
+                className="w-full bg-primary text-on-primary py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
+              >
+                Mengerti
+              </button>
             </div>
           </div>
         </div>

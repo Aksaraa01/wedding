@@ -15,10 +15,28 @@ export async function POST(
 
   try {
     const { id } = await params
-    const { details } = await req.json()
+    const body = await req.json()
+    const { details, wedding_profile_id } = body
 
     if (!details || typeof details !== "string") {
       return NextResponse.json({ error: "details wajib diisi" }, { status: 400 })
+    }
+
+    // Resolve the queue: direct id, or latest queue for a wedding profile
+    // (used when only the profile is known, e.g. feedback submitted from a
+    // couple page opened by ops).
+    let queueId = id
+    if (wedding_profile_id && id === "by-profile") {
+      const { data: queues } = await supabaseAdmin
+        .from("ops_queue")
+        .select("id")
+        .eq("wedding_profile_id", wedding_profile_id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+      if (!queues || queues.length === 0) {
+        return NextResponse.json({ error: "Antrian tidak ditemukan" }, { status: 404 })
+      }
+      queueId = queues[0].id
     }
 
     const phone = req.headers.get("x-ops-phone") || ""
@@ -29,7 +47,7 @@ export async function POST(
       .maybeSingle()
 
     const { error } = await supabaseAdmin.from("ops_queue_status_log").insert({
-      ops_queue_id: id,
+      ops_queue_id: queueId,
       kind: "invitation",
       previous_status: null,
       new_status: null,
