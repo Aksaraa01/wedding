@@ -36,6 +36,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
   const [qrToken, setQrToken] = useState("")
   const [slug, setSlug] = useState("")
   const [isVip, setIsVip] = useState(false)
+  const [guestLoaded, setGuestLoaded] = useState(false)
   const [estimatedDate, setEstimatedDate] = useState("")
   const [sessions, setSessions] = useState<any[]>([])
   const [qrDataUrl, setQrDataUrl] = useState("")
@@ -75,11 +76,12 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
           color: { dark: "#1A1817", light: "#ffffff" },
         })
         setQrDataUrl(url)
+        setGuestLoaded(true)
       })()
       return
     }
 
-    if (!segment) { setError("Token tidak ditemukan"); return }
+    if (!segment) { setError("Token tidak ditemukan"); setGuestLoaded(true); return }
 
     ;(async () => {
       try {
@@ -123,8 +125,10 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
 
         setPollToken(data.guest.qr_token || segment)
         setPollRedirect(data.guest.slug || data.guest.qr_token || segment)
+        setGuestLoaded(true)
       } catch (e: any) {
         setError(e.message)
+        setGuestLoaded(true)
       }
     })()
   }, [segment])
@@ -204,6 +208,19 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
       )}
 
       <main className={isPreview ? "w-full flex flex-col" : "w-full max-w-md flex flex-col items-center"}>
+        {!guestLoaded ? (
+          <div className="w-full max-w-[430px] flex flex-col items-center animate-pulse" aria-label="Memuat kartu">
+            <div className="h-3 w-36 rounded-full bg-white/50 mb-3" />
+            <div className="h-8 w-60 rounded-lg bg-white/50 mb-6" />
+            <div className="w-full rounded-[32px] bg-white/30 p-6 space-y-4">
+              <div className="h-5 w-32 rounded mx-auto bg-white/60" />
+              <div className="h-8 w-48 rounded mx-auto bg-white/60" />
+              <div className="w-52 h-52 rounded-2xl mx-auto bg-white/60" />
+              <div className="h-4 w-40 rounded mx-auto bg-white/50" />
+            </div>
+          </div>
+        ) : (
+          <>
         {isVip && !isPreview && (
           <>
             <div className="w-full max-w-[430px] flex flex-col items-center">
@@ -263,7 +280,14 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
                       <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 rounded-bl" style={{ borderColor: "#AA7C11" }} />
                       <div className="w-52 h-52 bg-white rounded-2xl p-1.5 flex items-center justify-center relative overflow-hidden">
                         {qrDataUrl ? (
-                          <img src={qrDataUrl} alt="VIP QR Code" className="w-full h-full object-contain" />
+                          <button type="button" onClick={() => setQrModalOpen(true)} className="absolute inset-0 cursor-pointer" title="Perbesar QR">
+                            <img src={qrDataUrl} alt="VIP QR Code" className="w-full h-full object-contain" />
+                            <span className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                              <span className="bg-white/95 text-[#1A1817] text-[11px] font-medium px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1">
+                                <span className="material-symbols-outlined text-sm">zoom_in</span> Perbesar QR
+                              </span>
+                            </span>
+                          </button>
                         ) : (
                           <div className="w-8 h-8 border-2 border-[#1A1817] border-t-transparent rounded-full animate-spin" />
                         )}
@@ -455,6 +479,8 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
             Terenkripsi &amp; Terverifikasi oleh Aksaraa System
           </p>
           </div>
+        )}
+          </>
         )}
           </>
         )}
