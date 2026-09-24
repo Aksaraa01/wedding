@@ -64,6 +64,7 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
   const [stats, setStats] = useState<Stats | null>(null)
   const [guests, setGuests] = useState<CheckinRecord[]>([])
   const [search, setSearch] = useState("")
+  const [statusFilter, setStatusFilter] = useState<"semua" | "hadir" | "hadir-manual" | "belum-hadir">("semua")
   const [loading, setLoading] = useState(true)
   const [generatingPin, setGeneratingPin] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -85,7 +86,7 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
       }
       if (guestsRes.ok) {
         const g = await guestsRes.json()
-        setGuests((g.guests || []).filter((x: any) => x.is_checked_in))
+        setGuests(g.guests || [])
       }
     } catch {}
   }, [id])
@@ -154,7 +155,12 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
   const manualPct = total ? (checkedManual / total) * 100 : 0
 
   const filtered = guests
-    .filter((g) => g.name.toLowerCase().includes(search.trim().toLowerCase()))
+    .filter((g) => {
+      if (statusFilter === "hadir" && (!g.is_checked_in || g.added_manually)) return false
+      if (statusFilter === "hadir-manual" && (!g.is_checked_in || !g.added_manually)) return false
+      if (statusFilter === "belum-hadir" && g.is_checked_in) return false
+      return g.name.toLowerCase().includes(search.trim().toLowerCase())
+    })
     .sort((a, b) => {
       const ta = a.checkin_timestamp ? new Date(a.checkin_timestamp).getTime() : -Infinity
       const tb = b.checkin_timestamp ? new Date(b.checkin_timestamp).getTime() : -Infinity
@@ -297,31 +303,55 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
             <span className="text-[10px] font-label-md text-on-surface-variant uppercase italic">Update otomatis</span>
           </div>
 
-          <div className="mb-4 flex items-center border border-outline-variant/60 focus-within:border-secondary rounded-xl bg-white px-4 py-2.5 md:py-3 gap-3 shadow-sm transition-colors min-h-[48px]">
-            <span className="material-symbols-outlined text-on-surface-variant text-xl">search</span>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Cari nama tamu..."
-              className="w-full bg-transparent border-0 p-0 focus:ring-0 text-sm text-primary placeholder:text-on-surface-variant/50"
-            />
-            {search && (
-              <button onClick={() => setSearch("")} className="text-on-surface-variant hover:text-primary transition-colors" aria-label="Bersihkan">
-                <span className="material-symbols-outlined text-lg">close</span>
-              </button>
-            )}
-          </div>
+          <section className="mb-4 bg-white border border-[#E2D9CF] rounded-2xl shadow-sm p-3 md:p-4 space-y-3">
+            <div className="flex items-center bg-[#FAF7F2] border border-[#E2D9CF]/60 focus-within:border-secondary rounded-xl px-4 py-2.5 md:py-3 gap-3 transition-colors min-h-[48px]">
+              <span className="material-symbols-outlined text-on-surface-variant text-xl">search</span>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Cari nama tamu..."
+                className="w-full bg-transparent border-0 p-0 focus:ring-0 text-sm text-primary placeholder:text-on-surface-variant/50"
+              />
+              {search && (
+                <button onClick={() => setSearch("")} className="text-on-surface-variant hover:text-primary transition-colors" aria-label="Bersihkan">
+                  <span className="material-symbols-outlined text-lg">close</span>
+                </button>
+              )}
+            </div>
+
+            <div className="flex gap-1.5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+              {([
+                { id: "semua", label: "Semua" },
+                { id: "hadir", label: "Hadir" },
+                { id: "hadir-manual", label: "Hadir-Manual" },
+                { id: "belum-hadir", label: "Belum Hadir" },
+              ] as const).map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => setStatusFilter(f.id)}
+                  className={`shrink-0 whitespace-nowrap px-3.5 py-1.5 rounded-full border font-label-md text-[10px] uppercase tracking-wider transition-colors ${
+                    statusFilter === f.id
+                      ? "bg-[#B34E3F] border-[#B34E3F] text-white font-bold"
+                      : "bg-[#FAF7F2] border-[#E2D9CF] text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F]"
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </section>
 
           <div className="bg-white border border-[#eae3d5] shadow-sm overflow-hidden">
             {filtered.length === 0 ? (
               <div className="py-12 text-center">
                 <span className="material-symbols-outlined text-3xl text-outline-variant mb-3">qr_code_scanner</span>
                 <p className="font-body-md text-sm text-on-surface-variant">
-                  {search ? "Tidak ada tamu yang cocok" : "Belum ada tamu yang check-in"}
+                  {search || statusFilter !== "semua" ? "Tidak ada tamu yang cocok" : "Belum ada tamu yang check-in"}
                 </p>
                 <p className="font-body-md text-xs text-on-surface-variant mt-1">
-                  {search ? "Coba kata kunci lain" : "Scan QR tamu di venue untuk memulai"}
+                  {search || statusFilter !== "semua" ? "Coba kata kunci atau filter lain" : "Scan QR tamu di venue untuk memulai"}
                 </p>
               </div>
             ) : (
@@ -347,9 +377,15 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
                         )}
                       </div>
                       <p className="font-body-md text-on-surface-variant text-[13px]">
-                        {c.table_number ? `Meja ${c.table_number} • ` : ""}
-                        <span className="text-secondary italic">Hadir</span>
-                        <span className="text-on-surface-variant/60"> • {formatWIB(c.checkin_timestamp)}</span>
+                        {c.table_number ? `${/^meja\s/i.test(c.table_number.trim()) ? c.table_number.trim() : `Meja ${c.table_number}`} • ` : ""}
+                        {c.is_checked_in ? (
+                          <>
+                            <span className="text-secondary italic">Hadir{c.added_manually ? "-Manual" : ""}</span>
+                            <span className="text-on-surface-variant/60"> • {formatWIB(c.checkin_timestamp)}</span>
+                          </>
+                        ) : (
+                          <span className="text-on-surface-variant/60 italic">Belum Hadir</span>
+                        )}
                       </p>
                     </div>
                   </div>

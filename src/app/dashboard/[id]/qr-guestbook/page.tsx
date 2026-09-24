@@ -501,11 +501,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   const withSlug = guests.filter((g) => !!g.slug).length
   const allHaveSlugs = stats.total > 0 && withSlug >= stats.total
   const gatedGenerate = !isUnpaid && stats.total > 0 && !allHaveSlugs
-  const [statusFilter, setStatusFilter] = useState<"semua" | "hadir" | "hadir-manual" | "belum-hadir">("semua")
   const filtered = guests.filter((g) => {
-    if (statusFilter === "hadir" && (!g.is_checked_in || g.added_manually)) return false
-    if (statusFilter === "hadir-manual" && (!g.is_checked_in || !g.added_manually)) return false
-    if (statusFilter === "belum-hadir" && g.is_checked_in) return false
     if (!search) return true
     const q = search.toLowerCase()
     return (
@@ -840,34 +836,11 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
             />
           </div>
 
-          {/* Status filter */}
-          <div className="flex gap-1.5 mt-3 overflow-x-auto no-scrollbar pb-1">
-            {([
-              { id: "semua", label: "Semua" },
-              { id: "hadir", label: "Hadir" },
-              { id: "hadir-manual", label: "Hadir-Manual" },
-              { id: "belum-hadir", label: "Belum Hadir" },
-            ] as const).map((f) => (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => setStatusFilter(f.id)}
-                className={`shrink-0 whitespace-nowrap px-3.5 py-1.5 rounded-full border font-label-md text-[10px] uppercase tracking-wider transition-colors ${
-                  statusFilter === f.id
-                    ? "bg-[#B34E3F] border-[#B34E3F] text-white font-bold"
-                    : "bg-white border-[#E2D9CF] text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F]"
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-
           <div className="flex flex-col gap-4 mt-6">
             {filtered.length === 0 ? (
               <div className="text-center py-16 bg-surface-container-lowest border border-outline-variant/50 rounded-xl">
                 <span className="material-symbols-outlined text-4xl text-outline-variant mb-3">people_outline</span>
-                {search || statusFilter !== "semua" ? (
+                {search ? (
                   <p className="font-body-md text-sm text-on-surface-variant">Tidak ada tamu yang cocok</p>
                 ) : (
                   <>

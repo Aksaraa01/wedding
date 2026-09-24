@@ -224,12 +224,12 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
 
             {/* Right Column: Guest List */}
             <div className="lg:col-span-7 lg:h-[calc(100vh-9rem)] lg:flex lg:flex-col lg:gap-8">
-                <div className="flex flex-col gap-8 bg-[#f2ede4]/30 p-8 border border-[#c4c7c7]/10 shrink-0">
+                <section className="bg-white border border-[#E2D9CF] rounded-2xl shadow-sm p-3 md:p-4 space-y-3 shrink-0">
                   {/* Search Bar */}
-                  <div className="relative border-b pb-4 flex items-center border-[#1a1a1a]/20 focus-within:border-primary transition-colors">
-                    <span className="material-symbols-outlined absolute left-0 text-on-surface-variant">search</span>
+                  <div className="flex items-center bg-[#FAF7F2] border border-[#E2D9CF]/60 focus-within:border-secondary rounded-xl px-4 py-2.5 md:py-3 gap-3 transition-colors min-h-[48px]">
+                    <span className="material-symbols-outlined text-on-surface-variant text-xl">search</span>
                     <input
-                      className="w-full pl-10 bg-transparent border-none focus:ring-0 text-[14px] placeholder:italic placeholder:opacity-30 outline-none min-h-[44px] md:min-h-0 py-3 md:py-0"
+                      className="w-full bg-transparent border-none focus:ring-0 text-sm text-primary placeholder:text-on-surface-variant/50 outline-none"
                       placeholder="Cari nama tamu..."
                       type="text"
                       value={search}
@@ -238,7 +238,7 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
                   </div>
 
                   {/* Filter Chips */}
-                  <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2 snap-x snap-mandatory scroll-pl-4">
+                  <div className="flex gap-1.5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
                     {[
                       { key: null, label: `Semua (${stats.total})` },
                       { key: "BELUM_DIBUKA", label: `Belum Dibuka (${stats.belum_dibuka})` },
@@ -249,17 +249,17 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
                       <button
                         key={chip.key || "all"}
                         onClick={() => setFilter(chip.key)}
-                        className={`snap-start shrink-0 whitespace-nowrap px-5 md:px-6 py-3 border rounded-full font-label-md text-[11px] uppercase tracking-wider transition-all ${
+                        className={`shrink-0 whitespace-nowrap px-3.5 py-1.5 rounded-full border font-label-md text-[10px] uppercase tracking-wider transition-colors ${
                           filter === chip.key
-                            ? "border-[#B34E3F] bg-[#B34E3F] text-white font-bold"
-                            : "border-[#E2D9CF] bg-white text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F]"
+                            ? "bg-[#B34E3F] border-[#B34E3F] text-white font-bold"
+                            : "bg-[#FAF7F2] border-[#E2D9CF] text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F]"
                         }`}
                       >
                         {chip.label}
                       </button>
                     ))}
                   </div>
-                </div>
+                </section>
 
                 {/* List Rows - mobile as table */}
                 <div className="flex-1 overflow-hidden border border-[#c4c7c7]/20 bg-white flex flex-col">
