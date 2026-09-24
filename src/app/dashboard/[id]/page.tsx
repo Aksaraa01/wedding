@@ -43,7 +43,7 @@ const CARDS = [
   { key: "reservation_automation" as const, title: "RSVP Automation" },
   { key: "wa_blast" as const, title: "Reminder Tamu VIP" },
   { key: "qr_code_book" as const, title: "Buku Tamu Digital" },
-  { key: "wish_wall" as const, title: "Virtual Wish Wall" },
+  { key: "wish_wall" as const, title: "Doa & Harapan Tamu" },
   { key: "galeri_foto_tamu" as const, title: "Galeri Kenangan Tamu" },
   { key: "kolom_direct_transfer" as const, title: "Digital Angpao & E-Gift" },
   { key: "undangan_fisik" as const, title: "Undangan Fisik Premium" },

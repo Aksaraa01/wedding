@@ -37,6 +37,7 @@ type Profile = {
 type Stats = {
   total: number
   with_token: number
+  with_link: number
   checked_in: number
 }
 
@@ -96,6 +97,7 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copie
   setShowLimitModal: (open: boolean) => void
 }) {
   const hasToken = !!guest.qr_token
+  const hasLink = !!guest.qr_token || !!guest.slug
   const isCopiedQr = copiedId === guest.id && copiedKind === "qr"
   const isCopiedUndangan = copiedId === guest.id && copiedKind === "undangan"
   const isCopiedMessage = copiedId === guest.id && copiedKind === "pesan"
@@ -124,7 +126,7 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copie
               {tableBadge}
             </span>
           )}
-          {hasToken ? (
+          {hasLink ? (
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
               <span className="font-label-md text-[10px] uppercase font-bold tracking-wider text-[#10B981]">AKTIF</span>
@@ -196,7 +198,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
 
   const [profile, setProfile] = useState<Profile | null>(null)
   const [guests, setGuests] = useState<Guest[]>([])
-  const [stats, setStats] = useState<Stats>({ total: 0, with_token: 0, checked_in: 0 })
+  const [stats, setStats] = useState<Stats>({ total: 0, with_token: 0, with_link: 0, checked_in: 0 })
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
   const [search, setSearch] = useState("")
@@ -539,13 +541,13 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
               <span className="inline-flex items-center gap-1.5 bg-[#F3F4F6] border border-[#E2D9CF] rounded-full px-3 py-1.5">
                 <span className="material-symbols-outlined text-sm text-[#B34E3F]">link</span>
                 <span className="font-label-md text-[11px] uppercase tracking-wider text-[#2C2A29] font-bold">
-                  {stats.with_token} Tamu
+                  {stats.total} Tamu
                 </span>
               </span>
               <span className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#10B981]" />
                 <span className="font-label-md text-[11px] uppercase tracking-wider text-emerald-700 font-bold">
-                  {stats.with_token} Aktif
+                  {stats.with_link} Aktif
                 </span>
               </span>
             </div>

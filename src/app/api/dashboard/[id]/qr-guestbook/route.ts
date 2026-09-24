@@ -22,11 +22,15 @@ export async function GET(
 
     const total = guests.length
     const withToken = guests.filter((g) => g.qr_token).length
+    // "Active" means the guest has a working link (QR token or invitation
+    // slug). Slug-only guests (e.g. flexible auto-rows, non-QR packages)
+    // open and RSVP fine but never get a token.
+    const withLink = guests.filter((g) => g.qr_token || g.slug).length
     const checkedIn = guests.filter((g) => g.is_checked_in).length
 
     return NextResponse.json({
       guests,
-      stats: { total, with_token: withToken, checked_in: checkedIn },
+      stats: { total, with_token: withToken, with_link: withLink, checked_in: checkedIn },
       tokens_missing: total - withToken,
     })
   } catch (err) {

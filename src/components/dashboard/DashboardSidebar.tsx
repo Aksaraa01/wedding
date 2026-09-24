@@ -49,7 +49,7 @@ const MODULES: ModuleDef[] = [
   },
   {
     key: "wish_wall",
-    label: "Virtual Wish Wall",
+    label: "Doa & Harapan Tamu",
     icon: "favorite",
     route: (id) => `/dashboard/${id}/wish-wall`,
     match: (p, id) => p === `/dashboard/${id}/wish-wall`,

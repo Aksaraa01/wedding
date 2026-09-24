@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 const PRODUCTS = [
   { label: "Premium Web Invitation", href: "/premium-web-invitation" },
   { label: "QR dan Digital Buku Tamu", href: "/qr-digital-buku-tamu" },
-  { label: "Virtual Wish Wall", href: "/virtual-wish-wall" },
+  { label: "Doa & Harapan Tamu", href: "/virtual-wish-wall" },
   { label: "Galeri Kenangan Tamu", href: "/galeri-kenangan-tamu" },
   { label: "Reminder Tamu VIP", href: "/reminder-tamu-vip" },
 ]
