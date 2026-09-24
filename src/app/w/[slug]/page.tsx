@@ -103,6 +103,65 @@ export default async function WeddingInvitation({
   const { slug } = await params
   const { to, qr_token } = await searchParams
 
+  // Crawler fast-path: link-preview bots (WhatsApp/Telegram/...) only need the
+  // <head> metadata from generateMetadata above (guest-independent). Serve a
+  // minimal shell and skip every heavy read (guest lookup, gates, gifts,
+  // template, WP liveness) so previews never time out under sharing spikes.
+  // Same metadata, no cloaking — guests get the full page below.
+  const ua = (await headers()).get("user-agent")
+  if (isBotUserAgent(ua)) {
+    const { data: lite } = await supabaseAdmin
+      .from("wedding_profiles")
+      .select("id, slug, display_name, bride_name, groom_name, guest_link_strict")
+      .ilike("slug", slug)
+      .maybeSingle()
+    if (!lite) notFound()
+    // Same access rule as the guest page below: strict couples 404 unknown
+    // ?to= even for crawlers (no invitation exists there). One indexed
+    // existence check — still far cheaper than the full render.
+    if (to || qr_token) {
+      const linkStrict = lite.guest_link_strict !== false
+      let guestFound = false
+      if (to) {
+        const { data: hit } = await supabaseAdmin
+          .from("guests")
+          .select("id")
+          .eq("wedding_profile_id", lite.id)
+          .eq("slug", to)
+          .maybeSingle()
+        guestFound = !!hit
+        if (!guestFound) {
+          // Case-insensitive fallback mirrors the guest page (which
+          // redirects to the canonical cased slug instead of 404ing).
+          const { data: hitCi } = await supabaseAdmin
+            .from("guests")
+            .select("id")
+            .eq("wedding_profile_id", lite.id)
+            .ilike("slug", to)
+            .maybeSingle()
+          guestFound = !!hitCi
+        }
+      }
+      if (!guestFound && qr_token) {
+        const { data: hit } = await supabaseAdmin
+          .from("guests")
+          .select("id")
+          .eq("wedding_profile_id", lite.id)
+          .eq("qr_token", qr_token)
+          .maybeSingle()
+        guestFound = !!hit
+      }
+      if (to && !guestFound && !qr_token && linkStrict) notFound()
+    }
+    const names = (lite.display_name || `${lite.bride_name || ""} & ${lite.groom_name || ""}`.trim() || "Undangan Pernikahan").trim()
+    return (
+      <div style={{ padding: 32, fontFamily: "Georgia, serif", textAlign: "center" }}>
+        <p style={{ fontSize: 20 }}>{names}</p>
+        <p style={{ fontSize: 14, opacity: 0.7 }}>Mohon doa restu atas pernikahan kami.</p>
+      </div>
+    )
+  }
+
   // Subdomains are lowercased by browsers, so resolve the couple slug
   // case-insensitively (the stored slug is camel: "RafiNamu-NoviKamu").
   const { data: profile } = await supabaseAdmin
@@ -115,9 +174,13 @@ export default async function WeddingInvitation({
 
   const canonicalSlug = profile.slug || slug
 
+  // Reference data (package gates/features) is shared across couples and
+  // changes rarely — cache per package type so repeat views skip these reads.
+  // Couple content (profile/gifts/track) intentionally stays uncached.
+  const packageType = profile.package_type || "signature"
   const [rowGates, featureSet] = await Promise.all([
-    getRowGates(profile.package_type || "signature"),
-    getFeatureIncluded(profile.package_type || "signature"),
+    cachedRead(`gates:${packageType}`, 10 * 60_000, () => getRowGates(packageType)),
+    cachedRead(`features:${packageType}`, 10 * 60_000, () => getFeatureIncluded(packageType)),
   ])
 
   const guestContext = await (async () => {
