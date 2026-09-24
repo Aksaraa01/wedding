@@ -155,7 +155,10 @@ function FeedbackNewInner({ id }: { id: string }) {
 
       <header className="w-full top-0 sticky z-50 bg-[#FAF7F2]/90 backdrop-blur-md flex items-center justify-between px-edge-margin-mobile py-6 border-b border-[#E2D9CF]">
         <button
-          onClick={() => router.back()}
+          onClick={() => {
+            if (typeof window !== "undefined" && window.history.length > 1) router.back()
+            else router.push(`/dashboard/${id}/web-invitation/feedback`)
+          }}
           className="flex items-center gap-2 text-on-surface-variant hover:opacity-80 transition-opacity"
         >
           <span className="material-symbols-outlined text-sm">arrow_back</span>
@@ -292,7 +295,10 @@ function FeedbackNewInner({ id }: { id: string }) {
                   </button>
                   <button
                     type="button"
-          onClick={() => router.push(`/dashboard/${id}/web-invitation/editor?section=feedback`)}
+          onClick={() => {
+            if (typeof window !== "undefined" && window.history.length > 1) router.back()
+            else router.push(`/dashboard/${id}/web-invitation/feedback`)
+          }}
                     className="w-full border border-[#E2D9CF] text-[#2C2A29] py-5 px-8 rounded-full font-label-md text-label-md uppercase tracking-widest hover:bg-[#FAF7F2] transition-all duration-300"
                   >
                     Batal

@@ -1839,18 +1839,20 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
 
                     {fa.feature_key === "premium_web" && (
-                      <div className="mb-4 space-y-2">
+                      <div className="mb-4 space-y-2 rounded-xl border border-outline-variant/60 bg-surface-container-lowest/50 p-3">
                         <div className="flex items-center justify-between gap-2">
-                          <h5 className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">
+                          <h5 className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant flex items-center gap-1.5">
+                            <span className="material-symbols-outlined text-[14px]">rate_review</span>
                             Feedback Terbaru
                           </h5>
                           <button
                             type="button"
                             onClick={() => handleAddFeedback(fa.wedding_profile_id)}
+                            title="Tambah feedback baru untuk undangan ini"
                             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-secondary text-white font-label-md text-[10px] uppercase tracking-widest hover:opacity-90 active:scale-95 transition-all shrink-0"
                           >
                             <span className="material-symbols-outlined text-[14px]">add</span>
-                            Tambah
+                            Tambah Feedback
                           </button>
                         </div>
                     {feedbackSubmissions.length > 0 ? (
