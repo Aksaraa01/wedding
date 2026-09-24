@@ -13,6 +13,7 @@ import ProductJourney from "@/components/onboarding/ProductJourney"
 import { ASSETS } from "@/lib/assets"
 import { OPENING_PRESETS, OPENING_CUSTOM, matchOpeningPreset } from "@/lib/openingPresets"
 import { compressImage } from "@/lib/imageCompress"
+import { waLink } from "@/lib/contact"
 
 type Profile = {
   id: string
@@ -2673,7 +2674,7 @@ function EditorInner({ id }: { id: string }) {
             </p>
             <div className="flex flex-col gap-3">
               <a
-                href="https://wa.me/6282268905055?text=Halo%20Aksaraa%2C%20saya%20ingin%20menyelesaikan%20pembayaran%20untuk%20membuka%20fitur%20Feedback"
+                href={waLink("Halo Aksaraa, saya ingin menyelesaikan pembayaran untuk membuka fitur Feedback")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-3.5 bg-[#8d4d39] text-white rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity text-center"

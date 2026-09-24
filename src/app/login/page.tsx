@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
+import { waLink } from "@/lib/contact"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -200,7 +201,7 @@ export default function LoginPage() {
                 </div>
                 <a
                   className="block text-on-surface-variant font-label-md text-label-md uppercase tracking-widest border-b border-transparent hover:border-primary transition-all duration-300"
-                  href="https://wa.me/6282268905055?text=Halo%20Aksaraa%20Wedding%20Saya%20perlu%20konsultasi%20mengenai.."
+                  href={waLink("Halo Aksaraa Wedding Saya perlu konsultasi mengenai..")}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

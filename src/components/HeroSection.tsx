@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { waLink } from "@/lib/contact"
 
 // Template screenshots live in the media bucket's `templates/` folder.
 // Env-relative (never hardcoded to prod) + image transform at ~2x display
@@ -124,7 +125,7 @@ export default function HeroSection() {
             Mulai Cerita Anda
           </Link>
           <a
-            href="https://wa.me/6282268905055?text=Halo%20Aksaraa%20Wedding%20Saya%20perlu%20konsultasi%20mengenai.."
+            href={waLink("Halo Aksaraa Wedding Saya perlu konsultasi mengenai..")}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full sm:w-auto text-[#FAF7F2] hover:text-[#C5A85D] transition-colors font-medium flex items-center justify-center gap-2 py-3.5 border-b border-transparent hover:border-[#C5A85D]"
