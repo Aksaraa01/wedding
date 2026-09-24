@@ -418,8 +418,14 @@ function DashboardInner({ id }: { id: string }) {
                   <span className="text-lg md:text-2xl font-semibold">{tableCount}</span>
                 </div>
               </div>
-              <div className="bg-white p-3 md:p-5">
-                <p className="text-[11px] uppercase tracking-wider text-on-surface-variant mb-1">Reservasi Tamu</p>
+              <button
+                onClick={() => router.push(`/dashboard/${id}/reservation-automation`)}
+                className="bg-white p-3 md:p-5 text-left hover:bg-[#faf6ee] active:scale-[0.99] transition-all cursor-pointer group/box"
+              >
+                <p className="text-[11px] uppercase tracking-wider text-on-surface-variant mb-1 flex items-center justify-between">
+                  Reservasi Tamu
+                  <span className="material-symbols-outlined text-[16px] text-outline group-hover/box:text-secondary group-hover/box:translate-x-0.5 transition-all">chevron_right</span>
+                </p>
                 <div className="flex items-baseline gap-2">
                   <span className="text-lg md:text-2xl font-semibold">{rsvpHadirCount}</span>
                   <span className="text-xs md:text-sm text-on-surface-variant opacity-60">{rsvpHadirPax} Pax</span>
@@ -430,15 +436,24 @@ function DashboardInner({ id }: { id: string }) {
                     style={{ width: `${rsvpTotalPax > 0 ? (rsvpHadirPax / rsvpTotalPax) * 100 : 0}%` }}
                   />
                 </div>
-              </div>
-              <div className="bg-white p-3 md:p-5">
-                <p className="text-[11px] uppercase tracking-wider text-on-surface-variant mb-1">Checkin Tamu</p>
-                {selections.qr_code_book ? (
+              </button>
+              {selections.qr_code_book ? (
+                <button
+                  onClick={() => router.push(`/dashboard/${id}/qr-guestbook/live`)}
+                  className="bg-white p-3 md:p-5 text-left hover:bg-[#faf6ee] active:scale-[0.99] transition-all cursor-pointer group/box"
+                >
+                  <p className="text-[11px] uppercase tracking-wider text-on-surface-variant mb-1 flex items-center justify-between">
+                    Checkin Tamu
+                    <span className="material-symbols-outlined text-[16px] text-outline group-hover/box:text-secondary group-hover/box:translate-x-0.5 transition-all">chevron_right</span>
+                  </p>
                   <div className="flex items-baseline gap-2">
                     <span className="text-lg md:text-2xl font-semibold">{checkedInCount}</span>
                     <span className="text-xs md:text-sm text-on-surface-variant opacity-60">{checkedInPax} Pax</span>
                   </div>
-                ) : (
+                </button>
+              ) : (
+              <div className="bg-white p-3 md:p-5">
+                <p className="text-[11px] uppercase tracking-wider text-on-surface-variant mb-1">Checkin Tamu</p>
                   <div className="relative group inline-flex items-center gap-2 pt-0.5">
                     <span className="material-symbols-outlined text-lg md:text-xl text-on-surface-variant/50">lock</span>
                     <span className="text-xs md:text-sm text-on-surface-variant/60">Tidak Aktif</span>
@@ -446,8 +461,8 @@ function DashboardInner({ id }: { id: string }) {
                       Fitur ini aktif untuk paket Buku Tamu Digital
                     </div>
                   </div>
-                )}
               </div>
+              )}
             </div>
             <button
               onClick={() => router.push(`/dashboard/${id}/guests`)}

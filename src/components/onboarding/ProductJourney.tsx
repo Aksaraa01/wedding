@@ -35,6 +35,10 @@ export default function ProductJourney({ profileId }: Props) {
   const [mounted, setMounted] = useState(false)
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null)
   const [selections, setSelections] = useState<Record<string, boolean> | null>(null)
+  const [cardH, setCardH] = useState(400)
+  const cardRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) setCardH(node.offsetHeight)
+  }, [])
 
   const storageKey = `tour_step_${profileId}`
   const seenKey = `tour_seen_${profileId}`
@@ -171,7 +175,7 @@ export default function ProductJourney({ profileId }: Props) {
     const attach = (target: HTMLElement) => {
       const updateRect = () => {
         const r = target.getBoundingClientRect()
-        if (r.width > 0 || r.height > 0) setTargetRect({ ...r } as DOMRect)
+        if (r.width > 0 || r.height > 0) setTargetRect(r.toJSON() as DOMRect)
       }
       updateRect()
       target.scrollIntoView({ behavior: "smooth", block: "center" })
@@ -221,7 +225,34 @@ export default function ProductJourney({ profileId }: Props) {
       })
       mo.observe(document.body, { childList: true, subtree: true, attributes: true })
     }
+    // Re-sync the highlight rect while the step is active: late layout
+    // shifts (images/fonts loading, collapsibles opening) move the target
+    // without firing scroll/resize, leaving a stale rect behind.
+    const poll = setInterval(() => {
+      const found = tryFind()
+      if (!found) return
+      if (found !== el) {
+        el?.classList.remove("tour-highlight")
+        el = found
+        found.classList.add("tour-highlight")
+        try { ro?.observe(found) } catch {}
+        found.scrollIntoView({ behavior: "smooth", block: "center" })
+      }
+      const r = found.getBoundingClientRect()
+      if (r.width === 0 && r.height === 0) return
+      setTargetRect((prev) => {
+        if (!prev) return r.toJSON() as DOMRect
+        if (
+          Math.abs(prev.top - r.top) > 2 ||
+          Math.abs(prev.left - r.left) > 2 ||
+          Math.abs(prev.width - r.width) > 2 ||
+          Math.abs(prev.height - r.height) > 2
+        ) return r.toJSON() as DOMRect
+        return prev
+      })
+    }, 500)
     return () => {
+      clearInterval(poll)
       if (iv) clearInterval(iv)
       mo?.disconnect()
       if (detach) detach()
@@ -269,9 +300,22 @@ export default function ProductJourney({ profileId }: Props) {
   const position = visibleSteps.findIndex((s) => s.id === step) + 1
   const total = visibleSteps.length
 
-  const isTopHalf = targetRect ? targetRect.top < window.innerHeight * 0.45 : false
+  // Place the card on the side with enough free space so it never covers
+  // the highlighted target. Card height is measured (not estimated) so
+  // mid-viewport targets resolve correctly. Falls back to the larger side
+  // when the card fits neither above nor below.
+  const viewportH = typeof window !== "undefined" ? window.innerHeight : 800;
+  const spaceAbove = targetRect ? targetRect.top - 6 : viewportH;
+  const spaceBelow = targetRect ? viewportH - targetRect.bottom - 6 : 0;
+  const placeBottom = targetRect
+    ? spaceBelow >= cardH + 16
+      ? true
+      : spaceAbove >= cardH + 16
+        ? false
+        : spaceBelow >= spaceAbove
+    : false;
   const modal = (
-    <div className={`fixed inset-0 z-[100] flex justify-center p-4 overflow-y-auto overscroll-contain ${isTopHalf ? "items-end pb-8" : "items-start pt-20 md:pt-24"}`}>
+    <div className={`fixed inset-0 z-[100] flex justify-center p-4 overflow-y-auto overscroll-contain ${placeBottom ? "items-end pb-8" : "items-start pt-20 md:pt-24"}`}>
       {targetRect ? (
         <>
           <div className="absolute bg-black/40 z-0" style={{ top: 0, left: 0, right: 0, height: targetRect.top - 6 }} onClick={handleClose} />
@@ -291,7 +335,7 @@ export default function ProductJourney({ profileId }: Props) {
       ) : (
         <div className="absolute inset-0 bg-black/40 z-0" onClick={handleClose} />
       )}
-      <div className="relative z-20 bg-white rounded-[24px] shadow-2xl max-w-[280px] md:max-w-[520px] w-full overflow-hidden border border-violet-100 animate-[fadeIn_0.4s_ease] max-h-[85vh] overflow-y-auto">
+      <div ref={cardRef} className="relative z-20 bg-white rounded-[24px] shadow-2xl max-w-[280px] md:max-w-[520px] w-full overflow-hidden border border-violet-100 animate-[fadeIn_0.4s_ease] max-h-[85vh] overflow-y-auto">
         <div className="h-1 w-full bg-[#592259]" />
         <button onClick={handleClose} className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors" aria-label="Tutup">
           <span className="material-symbols-outlined text-[20px] text-on-surface-variant">close</span>

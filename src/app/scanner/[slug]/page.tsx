@@ -87,6 +87,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
   const [selectedGuest, setSelectedGuest] = useState<GuestRecord | null>(null)
 
   const [selfieGuest, setSelfieGuest] = useState<GuestRecord | null>(null)
+  const [scanSuccess, setScanSuccess] = useState<GuestRecord | null>(null)
   const [selfieAfter, setSelfieAfter] = useState<"checkin" | "recovery">("checkin")
   const [selfieGuestIds, setSelfieGuestIds] = useState<Set<string>>(new Set())
   const [selfieDoneToast, setSelfieDoneToast] = useState<string | null>(null)
@@ -95,6 +96,11 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
   const bufferRef = useRef("")
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const successTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+
+  useEffect(() => {
+    return () => clearTimeout(successTimerRef.current)
+  }, [])
 
   const processScan = useCallback(async (rawText: string) => {
     const token = extractToken(rawText)
@@ -121,7 +127,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
       setLogEntries((prev) => [g, ...prev.filter((x) => x.id !== g.id)])
       updatePending()
       trySync()
-      openSelfieCheckin(g)
+      showScanSuccess(g)
       return
     }
 
@@ -154,7 +160,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
         setLogEntries((prev) => [g, ...prev])
         updatePending()
         trySync()
-        openSelfieCheckin(g)
+        showScanSuccess(g)
       } else {
         setScanResult({ type: "error", message: "Tamu tidak ditemukan" })
       }
@@ -207,6 +213,18 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
     setScanResult(null)
   }
 
+  // After a successful QR scan, show a centered success animation first,
+  // then land on the ambil-foto-checkin (selfie) step.
+  function showScanSuccess(guest: GuestRecord) {
+    clearTimeout(successTimerRef.current)
+    setScanResult(null)
+    setScanSuccess(guest)
+    successTimerRef.current = setTimeout(() => {
+      setScanSuccess(null)
+      openSelfieCheckin(guest)
+    }, 1800)
+  }
+
   const simulateSuccess = () => {
     if (!eventInfo) return
     const fake: GuestRecord = {
@@ -228,7 +246,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
     }
     setAllGuests((prev) => (prev.some((x) => x.id === fake.id) ? prev : [fake, ...prev]))
     setLogEntries((prev) => [fake, ...prev])
-    openSelfieCheckin(fake)
+    showScanSuccess(fake)
   }
 
   const handleSelfieDone = useCallback((uploaded: boolean, _error?: string) => {
@@ -616,7 +634,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
   return (
     <>
-      <style>{`@keyframes laserMove{0%{top:0%;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:100%;opacity:0}}.scanner-laser{animation:laserMove 2s infinite linear}`}</style>
+      <style>{`@keyframes laserMove{0%{top:0%;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:100%;opacity:0}}.scanner-laser{animation:laserMove 2s infinite linear}@keyframes successPop{0%{transform:scale(0.4);opacity:0}55%{transform:scale(1.12);opacity:1}100%{transform:scale(1);opacity:1}}.scan-success-pop{animation:successPop 0.5s ease-out both}@keyframes successFadeUp{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}.scan-success-fade{animation:successFadeUp 0.4s ease-out 0.15s both}`}</style>
       <div className="font-sans min-h-screen antialiased flex flex-col items-center relative bg-[#FAF7F2] text-[#2C2A29]">
         {eventInfo?.cover_photo ? (
           <>
@@ -666,7 +684,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
         <section className="bg-white/85 backdrop-blur-md border border-[#E2D9CF] rounded-3xl p-3 shadow-md space-y-3">
           <div className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden shadow-inner flex flex-col items-center justify-center border border-[#2C2A29]/10">
             <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_center,#444_1px,transparent_1px)] [background-size:16px_16px]"></div>
-            <NativeQrReader onScan={processScan} isPaused={!!scanResult || selfieOpen} />
+            <NativeQrReader onScan={processScan} isPaused={!!scanResult || selfieOpen || !!scanSuccess} />
             <div className="absolute top-6 left-6 w-10 h-10 border-t-[3px] border-l-[3px] border-[#B34E3F] rounded-tl-lg"></div>
             <div className="absolute top-6 right-6 w-10 h-10 border-t-[3px] border-r-[3px] border-[#B34E3F] rounded-tr-lg"></div>
             <div className="absolute bottom-6 left-6 w-10 h-10 border-b-[3px] border-l-[3px] border-[#B34E3F] rounded-bl-lg"></div>
@@ -922,6 +940,27 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
             >
               Lanjutkan Scan Berikutnya
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Scan success interstitial — centered overlay before ambil foto check-in */}
+      {scanSuccess && (
+        <div className="fixed inset-0 z-[90] bg-[#2C2A29]/50 backdrop-blur-sm flex items-center justify-center p-6">
+          <div className="bg-white rounded-3xl shadow-2xl px-8 py-10 w-full max-w-xs text-center space-y-4">
+            <div className="scan-success-pop w-20 h-20 rounded-full mx-auto flex items-center justify-center bg-[#ECFDF5] text-[#059669]">
+              <span className="material-symbols-outlined text-5xl">check_circle</span>
+            </div>
+            <div className="scan-success-fade space-y-1.5">
+              <h3 className="text-xl font-bold text-[#2C2A29]" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+                Check-In Berhasil
+              </h3>
+              <p className="text-sm text-[#2C2A29]/80 font-medium truncate">{scanSuccess.name}</p>
+              <p className="text-[11px] uppercase tracking-widest text-[#2C2A29]/60 font-semibold flex items-center justify-center gap-2 pt-1">
+                <span className="w-3.5 h-3.5 border-2 border-[#B34E3F] border-t-transparent rounded-full animate-spin inline-block" />
+                Diarahkan ambil foto check-in…
+              </p>
+            </div>
           </div>
         </div>
       )}
