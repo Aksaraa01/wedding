@@ -18,6 +18,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
   const ref = token
 
   const [guestName, setGuestName] = useState("")
+  const [isVip, setIsVip] = useState(false)
   const [coupleName, setCoupleName] = useState("")
   const [tableNumber, setTableNumber] = useState<string | null>(null)
   const [category, setCategory] = useState<string | null>(null)
@@ -56,6 +57,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
         if (!data.guest || !data.profile) throw new Error("Data tidak ditemukan")
         const guestToken = data.guest.qr_token || ref
         setGuestName(data.guest.name)
+        setIsVip(data.guest.is_vip === true)
         setGuestId(data.guest.id)
         setGuestQrToken(guestToken)
         setCoupleName(data.profile.display_name || `${data.profile.bride_name} & ${data.profile.groom_name}`)
@@ -182,6 +184,11 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
           <div className="text-center space-y-2 mt-auto pb-12 px-8 py-6 rounded-xl border border-white/20 shadow-sm bg-white/10 z-10 w-full">
             <p className="text-label-md text-primary uppercase tracking-widest font-body-md">Selamat Datang,</p>
             {loading ? (<div className="h-8 bg-surface-container-high rounded animate-pulse w-48 mx-auto" />) : (<h1 className="font-headline-lg text-headline-lg text-primary lowercase tracking-tight"><span style={{ color: "rgb(28, 28, 22)", fontSize: "30px", fontWeight: 600, textTransform: "none", backgroundColor: "rgb(253, 249, 240)" }}>{guestName || "..."}</span></h1>)}
+            {!loading && isVip && (
+              <span className="inline-flex items-center px-3 py-1 mt-2 rounded-md text-[11px] font-extrabold tracking-[0.15em] text-[#1F170B] shadow-sm" style={{ background: "linear-gradient(135deg, rgb(243, 226, 179) 0%, rgb(212, 175, 55) 100%)" }}>
+                VIP
+              </span>
+            )}
           </div>
         </section>
 
