@@ -553,6 +553,7 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [invUploading, setInvUploading] = useState<string | null>(null)
   const [invGiftAddrId, setInvGiftAddrId] = useState<string | null>(null)
   const [invTrackSearch, setInvTrackSearch] = useState("")
+  const [invOpeningCustomMode, setInvOpeningCustomMode] = useState(false)
   const [invCardSummary, setInvCardSummary] = useState<{ empty: string[]; wpId: string } | null>(null)
   const [invLoading, setInvLoading] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
@@ -711,6 +712,7 @@ export default function AntrianDetail({ id }: { id: string }) {
       setShowInvCard(true)
       setInvEditing(false)
       setInvForm(null)
+      setInvOpeningCustomMode(false)
     } catch (e) {
       console.error("Failed to fetch invitation", e)
     } finally {
@@ -772,8 +774,13 @@ export default function AntrianDetail({ id }: { id: string }) {
   }
 
   const invOpeningMatch = invForm ? matchOpeningPreset(invForm.opening_title || "") : null
-  const invOpeningSelect = invOpeningMatch ? invOpeningMatch.title : invForm?.opening_title ? OPENING_CUSTOM : ""
-  const invIsCustom = !invOpeningMatch
+  const invIsCustom = invOpeningCustomMode || (!!invForm?.opening_title && !invOpeningMatch)
+  const invOpeningSelect =
+    invOpeningMatch && !invOpeningCustomMode
+      ? invOpeningMatch.title
+      : invForm?.opening_title || invOpeningCustomMode
+        ? OPENING_CUSTOM
+        : ""
 
   // Cover slots mirror the couple editor: in-house templates have 1 single
   // slot; WP templates follow wp_manifest.cover_photos (length + slideshow
@@ -842,6 +849,7 @@ export default function AntrianDetail({ id }: { id: string }) {
     const src = fresh || invitationData
     const p = src.profile
     if (!p) return
+    setInvOpeningCustomMode(false)
     setInvForm({
       display_name: p.display_name || "",
       couple_initials: p.couple_initials || "",
@@ -1946,7 +1954,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                 ) : (
                   <>
                     <button
-                      onClick={() => { setInvEditing(false); setInvForm(null); setInvSaveError("") }}
+                      onClick={() => { setInvEditing(false); setInvForm(null); setInvSaveError(""); setInvOpeningCustomMode(false) }}
                       className="px-4 py-2 border border-outline-variant text-on-surface-variant text-[9px] font-bold uppercase tracking-widest hover:bg-surface-container transition-all"
                     >
                       Batal
@@ -1960,7 +1968,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     </button>
                   </>
                 )}
-                <button onClick={() => { setShowInvCard(false); setInvitationData(null); setInvEditing(false); setInvForm(null); setInvSaveError("") }} className="p-2 hover:bg-surface-container-low transition-colors">
+                <button onClick={() => { setShowInvCard(false); setInvitationData(null); setInvEditing(false); setInvForm(null); setInvSaveError(""); setInvOpeningCustomMode(false) }} className="p-2 hover:bg-surface-container-low transition-colors">
                   <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
@@ -2188,11 +2196,12 @@ export default function AntrianDetail({ id }: { id: string }) {
                             onChange={(e) => {
                               const value = e.target.value
                               if (value === "" || value === OPENING_CUSTOM) {
-                                if (value === "") setInvForm({ ...invForm, opening_title: "", opening_description: "" })
+                                setInvOpeningCustomMode(true)
                                 return
                               }
                               const preset = matchOpeningPreset(value)
                               if (!preset) return
+                              setInvOpeningCustomMode(false)
                               setInvForm({ ...invForm, opening_title: preset.title, opening_description: preset.description })
                             }}
                           >
