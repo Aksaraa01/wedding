@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { autoGenerateGuestLinks, isFallbackGuestSlug, isValidGuestSlug, prettifyGuestSlug } from "@/lib/guest-link"
+import { markInvitationOpened } from "@/lib/recordInvitationOpen"
 import { checkRateLimit, getClientIp, rateLimited } from "@/lib/rateLimit"
 
 const ALLOWED = new Set(["HADIR", "TIDAK_HADIR"])
@@ -121,6 +122,11 @@ export async function POST(req: Request) {
     if (updateError) {
       return NextResponse.json({ error: updateError.message }, { status: 500 })
     }
+
+    // Submitting the RSVP form proves the guest opened the invitation
+    // (flexible links render for any name, so w/[slug] tracking may never
+    // have resolved them). First-touch only, never throws.
+    if (guestId) await markInvitationOpened(guestId)
 
     return NextResponse.json({ guest })
   } catch (err) {

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { markInvitationOpened } from "@/lib/recordInvitationOpen"
 import { checkRateLimit, getClientIp, rateLimited } from "@/lib/rateLimit"
 
 const ALLOWED = new Set(["HADIR", "TIDAK_HADIR"])
@@ -62,6 +63,10 @@ export async function POST(
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    // RSVP form submit proves the guest opened the invitation. First-touch
+    // only, never throws.
+    await markInvitationOpened(id)
 
     return NextResponse.json({ guest: data })
   } catch (err) {

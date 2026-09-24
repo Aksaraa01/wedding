@@ -51,13 +51,14 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
       .finally(() => setLoading(false))
   }, [id])
 
-  const hasRsvp = (g: RsvpGuest) => g.rsvp_status === "HADIR" || g.rsvp_status === "TIDAK_HADIR"
-
   const filtered = guests.filter(g => {
     if (filter === "HADIR" && g.rsvp_status !== "HADIR") return false
     if (filter === "TIDAK_HADIR" && g.rsvp_status !== "TIDAK_HADIR") return false
-    if (filter === "DIBUKA" && (hasRsvp(g) || !g.invitation_opened_at)) return false
-    if (filter === "BELUM_DIBUKA" && (hasRsvp(g) || g.invitation_opened_at)) return false
+    // Pure opened-based filters, matching the server stats
+    // (dibuka = opened, belum_dibuka = total - opened). RSVP'd guests keep
+    // their opened state — an HADIR guest who opened is both Dibuka and Hadir.
+    if (filter === "DIBUKA" && !g.invitation_opened_at) return false
+    if (filter === "BELUM_DIBUKA" && g.invitation_opened_at) return false
     if (search && !g.name.toLowerCase().includes(search.toLowerCase())) return false
     return true
   })
