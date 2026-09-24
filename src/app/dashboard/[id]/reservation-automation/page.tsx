@@ -103,7 +103,7 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
             <button onClick={() => router.push(`/dashboard/${id}`)} aria-label="Kembali ke dasbor" className="flex items-center justify-center w-11 h-11 -ml-2 rounded-full text-on-surface-variant hover:text-primary active:bg-surface-container transition-colors shrink-0">
               <span className="material-symbols-outlined">arrow_back</span>
             </button>
-            <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant truncate">RSVP Automation</span>
+            <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant truncate">Data Reservasi</span>
           </div>
           <ProfileMenu />
         </header>

@@ -28,7 +28,7 @@ const MODULES: ModuleDef[] = [
   },
   {
     key: "reservation_automation",
-    label: "RSVP Automation",
+    label: "Data Reservasi",
     icon: "how_to_reg",
     route: (id) => `/dashboard/${id}/reservation-automation`,
     match: (p, id) => p === `/dashboard/${id}/reservation-automation`,
