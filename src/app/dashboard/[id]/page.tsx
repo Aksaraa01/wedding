@@ -40,7 +40,7 @@ type Profile = {
 const CARDS = [
   { key: "premium_web" as const, title: "Premium Web Invitation" },
   { key: "unique_link_generator" as const, title: "Undangan dan QR Tamu" },
-  { key: "reservation_automation" as const, title: "Data Reservasi" },
+  { key: "reservation_automation" as const, title: "Reservasi Tamu" },
   { key: "wa_blast" as const, title: "Reminder Tamu VIP" },
   { key: "qr_code_book" as const, title: "Buku Tamu Digital" },
   { key: "wish_wall" as const, title: "Doa & Harapan Tamu" },

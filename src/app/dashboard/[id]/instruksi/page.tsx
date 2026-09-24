@@ -89,7 +89,7 @@ const STEPS: Step[] = [
   {
     key: "reservation_automation",
     icon: "fact_check",
-    title: "Data Reservasi",
+    title: "Reservasi Tamu",
     phase: "Fase 2: Penyebaran & Otomatisasi",
     bullets: [
       "Pantau reservasi kehadiran secara real-time.",
