@@ -2,9 +2,31 @@
 import { useEffect, useState, useCallback } from "react"
 import { createPortal } from "react-dom"
 import { useRouter, usePathname } from "next/navigation"
-import { TOUR_STEPS } from "@/lib/tourContent"
+import { TOUR_STEPS, type TourStep } from "@/lib/tourContent"
 
 type Props = { profileId: string }
+
+const ROUTES: Record<TourStep["route"], string> = {
+  dashboard: "",
+  editor: "/web-invitation/editor",
+  templates: "/web-invitation/templates",
+  "qr-guestbook": "/qr-guestbook",
+  guests: "/guests",
+  "reservation-automation": "/reservation-automation",
+  "wish-wall": "/wish-wall",
+  "qr-live": "/qr-guestbook/live",
+}
+
+function routeOf(pathname: string): TourStep["route"] {
+  if (pathname.includes("/qr-guestbook/live")) return "qr-live"
+  if (pathname.includes("/qr-guestbook")) return "qr-guestbook"
+  if (pathname.includes("/reservation-automation")) return "reservation-automation"
+  if (pathname.includes("/wish-wall")) return "wish-wall"
+  if (pathname.includes("/guests")) return "guests"
+  if (pathname.includes("/editor")) return "editor"
+  if (pathname.includes("/templates")) return "templates"
+  return "dashboard"
+}
 
 export default function ProductJourney({ profileId }: Props) {
   const router = useRouter()
@@ -12,6 +34,7 @@ export default function ProductJourney({ profileId }: Props) {
   const [step, setStep] = useState<number | null>(null)
   const [mounted, setMounted] = useState(false)
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null)
+  const [selections, setSelections] = useState<Record<string, boolean> | null>(null)
 
   const storageKey = `tour_step_${profileId}`
   const seenKey = `tour_seen_${profileId}`
@@ -32,6 +55,23 @@ export default function ProductJourney({ profileId }: Props) {
 
   useEffect(() => { setMounted(true) }, [])
 
+  // Load package selections so the journey can skip steps the package lacks
+  // (e.g. Buku Tamu Digital is not in Undangan Digital packages).
+  useEffect(() => {
+    let cancelled = false
+    fetch(`/api/dashboard/${profileId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.selections) setSelections(data.selections)
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [profileId])
+
+  const visibleSteps = TOUR_STEPS.filter(
+    (s) => !s.feature || selections === null || selections[s.feature] === true
+  )
+
   useEffect(() => {
     const onStart = () => {
       const s = getStep()
@@ -47,6 +87,22 @@ export default function ProductJourney({ profileId }: Props) {
     setStep(s)
   }, [pathname, getStep, isActive])
 
+  // If the stored step is filtered out (package lacks the feature), jump forward.
+  useEffect(() => {
+    if (step === null || !isActive() || selections === null) return
+    if (!visibleSteps.some((s) => s.id === step)) {
+      const next = visibleSteps.find((s) => s.id > step)
+      if (next) {
+        setStepPersist(next.id)
+        const base = `/dashboard/${profileId}`
+        router.push(`${base}${ROUTES[next.route]}`)
+      } else {
+        setStep(null)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, selections])
+
   useEffect(() => {
     if (step === null || !isActive()) return
     const current = TOUR_STEPS.find((s) => s.id === step)
@@ -61,6 +117,9 @@ export default function ProductJourney({ profileId }: Props) {
           const collapsed = sec.getAttribute("data-collapsed") === "true" || sec.querySelector("[data-collapsed='true']")
           if (collapsed) window.dispatchEvent(new CustomEvent("tour_open_section", { detail: secName }))
         }
+      }
+      if (current.target === "[data-tour='template-pesan']") {
+        window.dispatchEvent(new CustomEvent("tour_open_template"))
       }
       const pickVisible = (cands: HTMLElement[]) =>
         cands.find((c) => {
@@ -170,55 +229,45 @@ export default function ProductJourney({ profileId }: Props) {
     }
   }, [step, pathname, isActive])
 
+  const finishTour = useCallback(() => {
+    localStorage.setItem(seenKey, "1")
+    localStorage.removeItem(storageKey)
+    localStorage.removeItem(`tour_active_${profileId}`)
+    fetch(`/api/dashboard/${profileId}/web-invitation`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ has_seen_tour: true }),
+    }).catch(() => {})
+    setStep(null)
+  }, [seenKey, storageKey, profileId])
+
   const handleNext = useCallback(async () => {
     if (step === null) return
-    const next = step + 1
-    if (next > TOUR_STEPS.length) {
-      localStorage.setItem(seenKey, "1")
-      localStorage.removeItem(storageKey)
-      localStorage.removeItem(`tour_active_${profileId}`)
-      fetch(`/api/dashboard/${profileId}/web-invitation`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ has_seen_tour: true }),
-      }).catch(() => {})
-      setStep(null)
+    const currentStep = TOUR_STEPS.find((s) => s.id === step)
+    const nextStep = visibleSteps.find((s) => s.id > step)
+    if (!nextStep) {
+      finishTour()
       return
     }
-    const nextStep = TOUR_STEPS.find((s) => s.id === next)
-    const currentStep = TOUR_STEPS.find((s) => s.id === step)
-    setStepPersist(next)
-    if (nextStep && currentStep && nextStep.route !== currentStep.route) {
+    setStepPersist(nextStep.id)
+    if (currentStep && nextStep.route !== currentStep.route) {
       const base = `/dashboard/${profileId}`
-      const routes: Record<string, string> = {
-        dashboard: base,
-        editor: `${base}/web-invitation/editor`,
-        templates: `${base}/web-invitation/templates`,
-      }
-      const targetRoute = routes[nextStep.route] || base
-      router.push(targetRoute)
+      router.push(`${base}${ROUTES[nextStep.route]}`)
     }
-  }, [step, setStepPersist, seenKey, storageKey, profileId, router])
+  }, [step, visibleSteps, setStepPersist, finishTour, profileId, router])
 
   const handleClose = useCallback(() => {
-    if (step !== null) {
-      localStorage.setItem(seenKey, "1")
-      localStorage.removeItem(storageKey)
-      localStorage.removeItem(`tour_active_${profileId}`)
-      fetch(`/api/dashboard/${profileId}/web-invitation`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ has_seen_tour: true }),
-      }).catch(() => {})
-      setStep(null)
-    }
-  }, [step, seenKey, storageKey, profileId])
+    if (step !== null) finishTour()
+  }, [step, finishTour])
 
   if (!mounted || step === null || !isActive()) return null
   const current = TOUR_STEPS.find((s) => s.id === step)
   if (!current) return null
-  const currentRoute = pathname.includes("/editor") ? "editor" : pathname.includes("/templates") ? "templates" : "dashboard"
+  const currentRoute = routeOf(pathname)
   if (current.route !== currentRoute) return null
+
+  const position = visibleSteps.findIndex((s) => s.id === step) + 1
+  const total = visibleSteps.length
 
   const isTopHalf = targetRect ? targetRect.top < window.innerHeight * 0.45 : false
   const modal = (
@@ -249,7 +298,7 @@ export default function ProductJourney({ profileId }: Props) {
         </button>
         <div className="p-4 md:p-8">
           <div className="flex items-center gap-3 mb-3 md:mb-4">
-            <span className="text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase text-violet-600">Langkah {String(current.id).padStart(2, "0")} / 09</span>
+            <span className="text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase text-violet-600">Langkah {String(position).padStart(2, "0")} / {String(total).padStart(2, "0")}</span>
             <span className="flex-1 h-px bg-violet-100" />
           </div>
           <h2 className="font-['Playfair_Display'] text-[18px] md:text-[28px] leading-tight font-bold text-[#1A1817] mb-2 md:mb-3">{current.title}</h2>

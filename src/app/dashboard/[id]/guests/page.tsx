@@ -428,15 +428,15 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
         </section>
 
         <div className="flex items-center gap-2 md:gap-3 mb-5 md:mb-6 shrink-0">
-          <button onClick={() => setImportModalOpen(true)} className="hidden md:inline-flex items-center gap-2 bg-white text-[#2C2A29] border border-[#E2D9CF] rounded-full px-5 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#F5EFE6] transition-colors">
+          <button onClick={() => setImportModalOpen(true)} data-tour="import-excel" className="hidden md:inline-flex items-center gap-2 bg-white text-[#2C2A29] border border-[#E2D9CF] rounded-full px-5 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#F5EFE6] transition-colors">
             <span className="material-symbols-outlined text-[16px]">upload_file</span>
             Import Excel
           </button>
-          <button onClick={() => setImportModalOpen(true)} className="md:hidden flex-1 inline-flex items-center justify-center gap-2 bg-white text-[#2C2A29] border border-[#E2D9CF] rounded-full px-5 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#F5EFE6] transition-colors">
+          <button onClick={() => setImportModalOpen(true)} data-tour="import-excel" className="md:hidden flex-1 inline-flex items-center justify-center gap-2 bg-white text-[#2C2A29] border border-[#E2D9CF] rounded-full px-5 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#F5EFE6] transition-colors">
             <span className="material-symbols-outlined text-[16px]">upload_file</span>
             Import Excel
           </button>
-          <button onClick={openAdd} className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-[#B34E3F] text-white rounded-full px-5 md:px-6 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all">
+          <button onClick={openAdd} data-tour="tambah-tamu-manual" className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-[#B34E3F] text-white rounded-full px-5 md:px-6 py-2.5 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all">
             <span className="material-symbols-outlined text-[16px]">person_add</span>
             <span className="hidden sm:inline">Tambah Tamu</span>
             <span className="sm:hidden">Tambah</span>

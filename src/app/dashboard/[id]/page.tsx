@@ -6,7 +6,7 @@ import Image from "next/image"
 import PageTheme from "@/components/PageTheme"
 import ProfileMenu from "@/components/ProfileMenu"
 import { PACKAGE_LABELS as PACKAGE_LABEL, getPackageCategory, hasVipQuotaBase } from "@/lib/packages"
-import ProductJourney, { startTour } from "@/components/onboarding/ProductJourney"
+import { startTour } from "@/components/onboarding/ProductJourney"
 
 type Selections = {
   premium_web: boolean
@@ -288,7 +288,6 @@ function DashboardInner({ id }: { id: string }) {
   return (
     <>
       <PageTheme mode="light" />
-      <ProductJourney profileId={id} />
       <div className="fixed inset-0 -z-10" style={{ backgroundColor: "#ded1c1", backgroundImage: "radial-gradient(ellipse at 70% 30%, rgba(255,255,255,0.6) 0%, rgba(240,228,215,0.4) 30%, transparent 65%), linear-gradient(115deg, #dfd2c2 0%, #ecdcc9 22%, #baa794 45%, #f2e4d3 62%, #caa890 82%, #dfd3c4 100%)", backgroundAttachment: "fixed" }} />
       <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 bg-transparent h-16 px-10 flex items-center justify-end gap-2 pt-2">
         <div className="flex items-center gap-2">
@@ -378,11 +377,11 @@ function DashboardInner({ id }: { id: string }) {
                 </div>
               </div>
               <div className="p-4 md:px-9 md:py-5 flex flex-row gap-2.5 md:gap-3.5 md:justify-start relative z-10">
-                <button onClick={() => router.push(`/dashboard/${id}/web-invitation/editor?preview=1`)} className="flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full border border-white/40 text-[#fdfbf9] bg-white/10 hover:bg-white/20 active:bg-white/25 transition backdrop-blur-sm text-[13px] font-medium shadow-sm whitespace-nowrap overflow-hidden text-ellipsis shrink">
+                <button onClick={() => router.push(`/dashboard/${id}/web-invitation/editor?preview=1`)} data-tour="lihat-undangan" className="flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full border border-white/40 text-[#fdfbf9] bg-white/10 hover:bg-white/20 active:bg-white/25 transition backdrop-blur-sm text-[13px] font-medium shadow-sm whitespace-nowrap overflow-hidden text-ellipsis shrink">
                   <span className="material-symbols-outlined text-[16px] shrink-0">mail</span>
                   <span className="whitespace-nowrap">Lihat Undangan</span>
                 </button>
-                <button onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)} className="flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden text-ellipsis shrink">
+                <button onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)} data-tour="undangan-tamu" className="flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden text-ellipsis shrink">
                   <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">qr_code_2</span>
                   <span className="whitespace-nowrap">Undangan Tamu</span>
                 </button>

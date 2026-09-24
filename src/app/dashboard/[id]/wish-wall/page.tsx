@@ -143,7 +143,7 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
 
       <main className="mt-20 px-6 lg:px-10 max-w-7xl mx-auto w-full pb-20">
         {/* Page Header */}
-        <section className="mb-8">
+        <section data-tour="wish-wall" className="mb-8">
           <h2 className="font-headline-xl text-[20px] md:text-[28px] lg:text-headline-xl leading-tight mb-2 text-[#2C2A29]">Doa & Harapan Tamu</h2>
           <p className="text-on-surface-variant text-sm md:font-body-lg opacity-80 max-w-xl leading-relaxed">
             Review doa dan ucapan manis dari para tamu sebelum ditampilkan secara langsung pada situs web undangan Anda.

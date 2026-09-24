@@ -19,6 +19,7 @@ type RsvpGuest = {
   rsvp_responded_at: string | null
   is_checked_in: boolean
   invitation_opened_at: string | null
+  is_vip?: boolean
 }
 
 type Stats = {
@@ -118,7 +119,7 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
             {/* Left Column: Statistics & Action */}
             <div className="lg:col-span-5 space-y-12">
-              <section className="border border-[#E2D9CF] p-8 bg-white lg:sticky lg:top-32 rounded-xl">
+              <section data-tour="reservasi" className="border border-[#E2D9CF] p-8 bg-white lg:sticky lg:top-32 rounded-xl">
                 <h2 className="font-label-md text-label-md uppercase mb-10 opacity-60 tracking-[0.2em]">Ringkasan Statistik</h2>
                 <div className="space-y-6">
                   <div className="flex items-start gap-6">
@@ -298,7 +299,15 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
                           return (
                             <tr key={guest.id} className="hover:bg-surface-container-low">
                               <td className="px-4 py-3 max-w-[140px]">
-                                <p className="font-headline-md text-[14px] max-[18px] truncate leading-tight" style={{ fontSize: "min(18px, 14px)" }}>{guest.name}</p>
+                                <p className="font-headline-md text-[14px] max-[18px] leading-tight flex flex-wrap items-center gap-1" style={{ fontSize: "min(18px, 14px)" }}>
+                                  <span className="truncate min-w-0 max-w-full">{guest.name}</span>
+                                  {guest.is_vip && (
+                                    <span className="inline-flex items-center gap-0.5 px-1.5 py-px bg-white border border-[#C5A059] text-[#8B6F2A] text-[9px] uppercase tracking-wider rounded-full shrink-0">
+                                      <span className="material-symbols-outlined text-[10px]">star</span>
+                                      VIP
+                                    </span>
+                                  )}
+                                </p>
                                 <p className="font-label-md text-[10px] tracking-widest opacity-40 truncate">{guest.phone_number}</p>
                               </td>
                               <td className="px-2 py-3 text-center">
@@ -343,7 +352,15 @@ export default function ReservationAutomationPage({ params }: { params: Promise<
                       return (
                         <div key={guest.id} className="flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:bg-surface-container-low transition-colors px-4 md:px-8 py-10">
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-headline-md text-[24px] mb-1 truncate">{guest.name}</h3>
+                            <h3 className="font-headline-md text-[24px] mb-1 flex flex-wrap items-center gap-2">
+                              <span className="truncate min-w-0 max-w-full">{guest.name}</span>
+                              {guest.is_vip && (
+                                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 bg-white border border-[#C5A059] text-[#8B6F2A] font-label-md text-[10px] uppercase tracking-wider rounded-full shrink-0">
+                                  <span className="material-symbols-outlined text-[11px]">star</span>
+                                  VIP
+                                </span>
+                              )}
+                            </h3>
                             <p className="font-label-md text-[12px] tracking-widest opacity-40">{guest.phone_number}</p>
                             {wishMessage && (
                               <p className="mt-3 font-body-md italic text-on-surface-variant/70 leading-relaxed">&ldquo;{wishMessage}&rdquo;</p>

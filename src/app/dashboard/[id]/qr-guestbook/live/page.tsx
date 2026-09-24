@@ -216,7 +216,7 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
           </div>
 
           {/* Scanner card */}
-          <div className="bg-surface-container-lowest border border-outline-variant/30 p-5 md:p-8 space-y-6">
+          <div data-tour="buku-tamu" className="bg-surface-container-lowest border border-outline-variant/30 p-5 md:p-8 space-y-6">
             <div className="flex flex-col gap-3">
               <span className="font-label-md text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-on-surface-variant mb-1 md:mb-2 block">
                 Tautan Scanner Live

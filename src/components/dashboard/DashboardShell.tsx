@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar"
+import ProductJourney from "@/components/onboarding/ProductJourney"
 
 export default function DashboardShell({ id, children }: { id: string; children: React.ReactNode }) {
   const pathname = usePathname()
@@ -41,6 +42,7 @@ export default function DashboardShell({ id, children }: { id: string; children:
 
   return (
     <>
+      <ProductJourney profileId={id} />
       {!hideSidebar && <DashboardSidebar id={id} collapsed={collapsed} onToggle={toggle} />}
       <div className={`transition-[padding-left] duration-300 ${paddingClass} min-h-screen overflow-visible`}>{children}</div>
     </>

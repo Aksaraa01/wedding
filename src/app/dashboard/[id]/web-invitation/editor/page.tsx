@@ -9,7 +9,6 @@ import { getIncompleteInvitationSections, parseStringList } from "@/lib/invitati
 import { pollWpJob } from "@/lib/wpJobPoll"
 import ProfileMenu from "@/components/ProfileMenu"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
-import ProductJourney from "@/components/onboarding/ProductJourney"
 import { ASSETS } from "@/lib/assets"
 import { OPENING_PRESETS, OPENING_CUSTOM, matchOpeningPreset } from "@/lib/openingPresets"
 import { compressImage } from "@/lib/imageCompress"
@@ -1293,7 +1292,6 @@ function EditorInner({ id }: { id: string }) {
   return (
     <>
       <PageTheme mode="light" />
-      {!reviewMode && <ProductJourney profileId={id} />}
       <div className="h-screen flex flex-col text-on-surface font-body-md overflow-hidden" style={DASH_SATIN_BG}>
 
         {/* TOP BAR */}

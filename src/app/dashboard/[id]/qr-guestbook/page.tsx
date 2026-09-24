@@ -111,13 +111,15 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copie
     <div className="bg-white border border-[#E2D9CF] hover:border-[#E2D9CF] rounded-xl p-4 shadow-sm transition-all duration-200 flex flex-col gap-3 group">
       <div className="flex justify-between items-start gap-3">
         <div className="flex flex-col gap-1 min-w-0">
-          <h2 className="font-headline-md text-[16px] md:text-lg font-medium text-[#2C2A29] truncate">{guest.name}</h2>
-          {guest.is_vip && (
-            <span className="inline-flex items-center self-start gap-0.5 px-2 py-0.5 bg-white border border-[#C5A059] text-[#8B6F2A] font-label-md text-[10px] uppercase tracking-wider rounded-full">
-              <span className="material-symbols-outlined text-[11px]">star</span>
-              VIP
-            </span>
-          )}
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
+            <h2 className="font-headline-md text-[16px] md:text-lg font-medium text-[#2C2A29] truncate min-w-0 max-w-full">{guest.name}</h2>
+            {guest.is_vip && (
+              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 bg-white border border-[#C5A059] text-[#8B6F2A] font-label-md text-[10px] uppercase tracking-wider rounded-full shrink-0">
+                <span className="material-symbols-outlined text-[11px]">star</span>
+                VIP
+              </span>
+            )}
+          </div>
           {guest.phone_number && (
             <p className="font-body-md text-xs text-on-surface-variant tracking-wide">{guest.phone_number}</p>
           )}
@@ -258,6 +260,13 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
     setLoading(true)
     fetchData().finally(() => setLoading(false))
   }, [id])
+
+  // Product tour: auto-expand the message template when its step is active.
+  useEffect(() => {
+    const open = () => setTemplateOpen(true)
+    window.addEventListener("tour_open_template", open)
+    return () => window.removeEventListener("tour_open_template", open)
+  }, [])
 
   useEffect(() => {
     fetch(`/api/feedback-submissions?wedding_profile_id=${id}`)
@@ -575,6 +584,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
               )}
               <button
                 onClick={() => router.push(`/dashboard/${id}/guests`)}
+                data-tour="tambah-tamu"
                 className="hidden md:inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-[#B34E3F] text-white font-label-md text-[10px] uppercase tracking-wider rounded-full hover:bg-[#9E3B2D] transition-colors shadow-sm whitespace-nowrap"
               >
                 <span className="material-symbols-outlined text-sm">person_add</span>
@@ -582,6 +592,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
               </button>
               <button
                 onClick={() => router.push(`/dashboard/${id}/guests`)}
+                data-tour="tambah-tamu"
                 className="md:hidden w-10 h-10 flex items-center justify-center bg-[#B34E3F] text-white rounded-full hover:bg-[#9E3B2D] transition-colors shadow-sm shrink-0"
                 aria-label="Tambah Tamu"
               >
@@ -614,7 +625,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
             </div>
           </section>
           {/* Akses Tautan Undangan */}
-          <section className="mt-4 bg-white border border-[#E2D9CF] rounded-2xl shadow-sm p-4">
+          <section data-tour="link-mode" className="mt-4 bg-white border border-[#E2D9CF] rounded-2xl shadow-sm p-4">
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-[#B34E3F] text-[18px]">link</span>
               <h2 className="font-label-md text-[12px] uppercase tracking-widest text-[#2C2A29] font-bold flex-1">Akses Tautan Undangan</h2>
@@ -695,7 +706,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
             </section>
           )}
           {/* Template Pesan Undangan */}
-          <section className="mt-4 bg-white border border-[#E2D9CF] rounded-2xl shadow-sm overflow-hidden">
+          <section data-tour="template-pesan" className="mt-4 bg-white border border-[#E2D9CF] rounded-2xl shadow-sm overflow-hidden">
             <button type="button" onClick={() => setTemplateOpen(!templateOpen)} className="w-full flex items-center justify-between p-4 bg-[#FAF7F2] hover:bg-[#F5EFE6] transition-colors">
               <div className="flex items-center gap-3 min-w-0">
                 <span className="material-symbols-outlined text-[#B34E3F] text-[18px]">chat</span>

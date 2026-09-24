@@ -7,7 +7,6 @@ import TemplatePreviewModal from "@/components/TemplatePreviewModal"
 import { pollWpJob } from "@/lib/wpJobPoll"
 import { getTemplateComponent } from "@/components/templates"
 import { normalizeTemplateTier, tierBadgeClass } from "@/lib/templateTier"
-import ProductJourney from "@/components/onboarding/ProductJourney"
 
 const CATEGORY_FILTERS = [
   { id: "semua", label: "Semua" },
@@ -150,8 +149,6 @@ function TemplatesInner({ id }: { id: string }) {
         <section className="mb-10 fade-in">
           <h1 className="font-headline-lg text-[18px] sm:text-[28px] leading-tight mb-3">Pilih Undangan Digital Anda</h1>
         </section>
-
-        <ProductJourney profileId={id} />
 
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
           <div className="relative flex-1 max-w-md">
