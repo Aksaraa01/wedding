@@ -14,6 +14,7 @@ export interface GuestRecord {
   checked_in_by: string | null
   souvenir_claimed: boolean
   added_manually?: boolean
+  is_vip?: boolean
 }
 
 interface SyncAction {

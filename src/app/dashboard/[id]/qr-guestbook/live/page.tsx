@@ -21,6 +21,7 @@ type CheckinRecord = {
   souvenir_claimed: boolean
   is_checked_in: boolean
   added_manually?: boolean
+  is_vip?: boolean
 }
 
 type Stats = {
@@ -324,6 +325,12 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
                     <div className="flex-grow min-w-0">
                       <div className="flex items-center gap-2">
                         <h4 className="font-headline-md text-[17px] leading-tight truncate">{c.name}</h4>
+                        {c.is_vip && (
+                          <span className="shrink-0 inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-white border border-[#C5A059] text-[#8B6F2A] text-[9px] font-label-md font-semibold uppercase tracking-wider rounded-full">
+                            <span className="material-symbols-outlined text-[10px]">star</span>
+                            VIP
+                          </span>
+                        )}
                         {c.added_manually && (
                           <span className="shrink-0 inline-block align-middle text-[9px] font-label-md font-semibold uppercase tracking-wider text-amber-700 bg-amber-100 border border-amber-300 rounded px-1.5 py-0.5">
                             Ditambahkan Manual

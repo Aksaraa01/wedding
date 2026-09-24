@@ -80,7 +80,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
   const [offline, setOffline] = useState(false)
 
   const [showAddGuest, setShowAddGuest] = useState(false)
-  const [addGuestForm, setAddGuestForm] = useState({ name: "", phone: "", guest_count: 1, category: "", table_number: "", notes: "" })
+  const [addGuestForm, setAddGuestForm] = useState({ name: "", phone: "", guest_count: 1, category: "", table_number: "", is_vip: false })
   const [addGuestSubmitting, setAddGuestSubmitting] = useState(false)
   const [addGuestError, setAddGuestError] = useState("")
   const [addGuestSuccess, setAddGuestSuccess] = useState(false)
@@ -145,6 +145,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
           checked_in_by: null,
           souvenir_claimed: false,
           added_manually: data.guest.added_manually || false,
+          is_vip: (data.guest as any).is_vip === true,
         }
         await cacheGuests([serverGuest])
         await markCheckedIn(serverGuest.id, token, operatorName)
@@ -289,6 +290,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
             checked_in_by: null,
             souvenir_claimed: false,
             added_manually: g.added_manually || false,
+            is_vip: (g as any).is_vip === true,
           }))
           await cacheGuests(records)
           setAllGuests(records)
@@ -423,6 +425,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
           guest_count: addGuestForm.guest_count,
           category: addGuestForm.category,
           table_number: addGuestForm.table_number,
+          is_vip: addGuestForm.is_vip,
           added_manually: true,
           checked_in_by: operatorName,
         }),
@@ -448,6 +451,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
           phone_number: g.phone_number || null,
           table_number: g.table_number || null,
           category: g.category || null,
+          is_vip: (g as any).is_vip === true,
           guest_count: g.guest_count || 1,
           rsvp_status: g.rsvp_status || null,
           rsvp_pax_count: g.rsvp_pax_count || null,
@@ -463,7 +467,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
       }
 
       setAddGuestSuccess(true)
-      setAddGuestForm({ name: "", phone: "", guest_count: 1, category: "", table_number: "", notes: "" })
+      setAddGuestForm({ name: "", phone: "", guest_count: 1, category: "", table_number: "", is_vip: false })
       if (manualQuery.trim()) handleManualSearch(manualQuery)
       if (g) {
         setTimeout(() => {
@@ -747,7 +751,14 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                   onClick={() => setSelectedGuest(g)}
                   className="w-full text-left p-3 hover:bg-[#FAF7F2] transition-colors"
                 >
-                  <h4 className="font-medium text-[#2C2A29] text-xs">{g.name}</h4>
+                  <h4 className="font-medium text-[#2C2A29] text-xs flex flex-wrap items-center gap-1.5">{g.name}
+                    {g.is_vip && (
+                      <span className="inline-flex items-center gap-0.5 px-1.5 py-px bg-white border border-[#C5A059] text-[#8B6F2A] text-[9px] uppercase tracking-wider rounded-full">
+                        <span className="material-symbols-outlined text-[10px]">star</span>
+                        VIP
+                      </span>
+                    )}
+                  </h4>
                   <p className="text-[10px] text-[#2C2A29]/60 font-mono">
                     {formatTableNumber(g.table_number)} &bull; {paxCount(g)} Pax
                   </p>
@@ -784,6 +795,12 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                   <div className="space-y-0.5">
                     <h4 className="font-medium text-[#2C2A29]">
                       {g.name}
+                      {g.is_vip && (
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-px ml-1 bg-white border border-[#C5A059] text-[#8B6F2A] text-[9px] uppercase tracking-wider rounded-full align-middle">
+                          <span className="material-symbols-outlined text-[10px]">star</span>
+                          VIP
+                        </span>
+                      )}
                       {g.added_manually && <span className="text-[10px] text-amber-600 font-bold font-serif pl-1">[Ditambahkan Manual]</span>}
                       {g.category && <span className="text-[10px] text-[#B34E3F] font-bold font-serif pl-1">{g.category}</span>}
                     </h4>
@@ -856,7 +873,14 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
               <div className="grid grid-cols-2 gap-4 text-left text-xs bg-[#FAF7F2] p-4 rounded-xl border border-[#E2D9CF]/60">
                 <div>
                   <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block">Nama Tamu</span>
-                  <strong className="text-[#2C2A29] font-medium text-sm">{scanResult.guest.name}</strong>
+                  <strong className="text-[#2C2A29] font-medium text-sm flex flex-wrap items-center gap-1.5">{scanResult.guest.name}
+                    {scanResult.guest.is_vip && (
+                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 bg-white border border-[#C5A059] text-[#8B6F2A] font-label-md text-[10px] uppercase tracking-wider rounded-full">
+                        <span className="material-symbols-outlined text-[11px]">star</span>
+                        VIP
+                      </span>
+                    )}
+                  </strong>
                 </div>
                 <div>
                   <span className="text-[9px] text-[#2C2A29]/60 uppercase tracking-wider block">Status Kuota</span>
@@ -935,7 +959,14 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
               <div className="grid grid-cols-2 gap-4 text-left text-xs bg-white border border-[#E2D9CF] rounded-xl p-5">
                 <div className="col-span-2">
                   <span className="text-[9px] text-[#8C827A] uppercase tracking-wider block font-semibold">Nama Tamu</span>
-                  <strong className="text-[#2C2A29] font-medium text-sm">{formatNama(selectedGuest.name)}</strong>
+                  <strong className="text-[#2C2A29] font-medium text-sm flex flex-wrap items-center gap-1.5">{formatNama(selectedGuest.name)}
+                    {selectedGuest.is_vip && (
+                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 bg-white border border-[#C5A059] text-[#8B6F2A] font-label-md text-[10px] uppercase tracking-wider rounded-full">
+                        <span className="material-symbols-outlined text-[11px]">star</span>
+                        VIP
+                      </span>
+                    )}
+                  </strong>
                 </div>
                 <div>
                   <span className="text-[9px] text-[#8C827A] uppercase tracking-wider block font-semibold">Alokasi Meja</span>
@@ -1084,28 +1115,50 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                 </div>
               </div>
 
-              {/* Kategori + Meja + Pax */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
-                  <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
-                    Kategori Undangan
-                  </label>
-                  <div className="relative flex items-center">
-                    <select
-                      value={addGuestForm.category}
-                      onChange={(e) => setAddGuestForm((p) => ({ ...p, category: e.target.value }))}
-                      className="w-full bg-transparent border-0 p-0 text-base text-[#2C2A29] appearance-none cursor-pointer focus:ring-0 pr-8"
-                    >
-                      <option value="">Pilih Kategori</option>
-                      <option value="Keluarga Besar">Keluarga Besar</option>
-                      <option value="Tamu VIP">Tamu VIP</option>
-                      <option value="Teman">Teman Sekolah/Kuliah</option>
-                      <option value="Rekan Kerja">Rekan Kerja</option>
-                      <option value="Lainnya">Lainnya</option>
-                    </select>
-                    <span className="material-symbols-outlined absolute right-0 pointer-events-none text-[#2C2A29]/60 text-lg">expand_more</span>
-                  </div>
+              {/* Kategori */}
+              <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
+                <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
+                  Kategori Undangan
+                </label>
+                <div className="relative flex items-center">
+                  <select
+                    value={addGuestForm.category}
+                    onChange={(e) => setAddGuestForm((p) => ({ ...p, category: e.target.value }))}
+                    className="w-full bg-transparent border-0 p-0 text-base text-[#2C2A29] appearance-none cursor-pointer focus:ring-0 pr-8"
+                  >
+                    <option value="">Pilih Kategori</option>
+                    <option value="Keluarga">Keluarga</option>
+                    <option value="Kerabat">Kerabat</option>
+                    <option value="Teman">Teman</option>
+                    <option value="Kolega">Kolega</option>
+                    <option value="Lainnya">Lainnya</option>
+                  </select>
+                  <span className="material-symbols-outlined absolute right-0 pointer-events-none text-[#2C2A29]/60 text-lg">expand_more</span>
                 </div>
+              </div>
+
+              {/* Is VIP */}
+              <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => setAddGuestForm((p) => ({ ...p, is_vip: !p.is_vip }))}
+                  className="w-full flex items-center justify-between gap-3"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px] text-[#8B6F2A]">star</span>
+                    <span className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider font-semibold text-left">
+                      Tamu VIP
+                      <span className="block normal-case tracking-normal font-normal text-[#2C2A29]/50 mt-0.5">Kartu QR desain khusus VIP</span>
+                    </span>
+                  </span>
+                  <span className={`w-10 h-5 rounded-full relative transition-colors shrink-0 ${addGuestForm.is_vip ? "bg-secondary" : "bg-outline-variant"}`}>
+                    <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${addGuestForm.is_vip ? "right-0.5" : "left-0.5"}`} />
+                  </span>
+                </button>
+              </div>
+
+              {/* Jumlah Pax + Nomor Meja */}
+              <div className="grid grid-cols-2 gap-6">
                 <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
                   <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
                     Jumlah Pax
@@ -1134,20 +1187,6 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
                     className="w-full bg-transparent border-0 p-0 text-base text-[#2C2A29] placeholder:text-[#2C2A29]/30 focus:ring-0"
                   />
                 </div>
-              </div>
-
-              {/* Keterangan Tambahan */}
-              <div className="group bg-[#FAF7F2] border border-[#E2D9CF]/60 rounded-xl p-5 hover:border-[#E2D9CF] hover:bg-white transition-all duration-300 focus-within:ring-1 focus-within:ring-[#B34E3F] focus-within:border-[#B34E3F] shadow-sm">
-                <label className="text-[10px] text-[#2C2A29]/60 uppercase tracking-wider block mb-1.5 transition-colors font-semibold">
-                  Keterangan Tambahan
-                </label>
-                <textarea
-                  value={addGuestForm.notes}
-                  onChange={(e) => setAddGuestForm((p) => ({ ...p, notes: e.target.value }))}
-                  rows={3}
-                  placeholder="Contoh: Alergi kacang, membutuhkan akses kursi roda, dsb..."
-                  className="w-full bg-transparent border-0 p-0 text-sm text-[#2C2A29] placeholder:text-[#2C2A29]/30 resize-none focus:ring-0"
-                />
               </div>
             </div>
 

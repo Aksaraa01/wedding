@@ -21,6 +21,7 @@ type Guest = {
   checkin_timestamp: string | null
   souvenir_claimed: boolean
   added_manually?: boolean
+  is_vip?: boolean
 }
 
 type Profile = {
@@ -111,6 +112,12 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copie
       <div className="flex justify-between items-start gap-3">
         <div className="flex flex-col gap-1 min-w-0">
           <h2 className="font-headline-md text-[16px] md:text-lg font-medium text-[#2C2A29] truncate">{guest.name}</h2>
+          {guest.is_vip && (
+            <span className="inline-flex items-center self-start gap-0.5 px-2 py-0.5 bg-white border border-[#C5A059] text-[#8B6F2A] font-label-md text-[10px] uppercase tracking-wider rounded-full">
+              <span className="material-symbols-outlined text-[11px]">star</span>
+              VIP
+            </span>
+          )}
           {guest.phone_number && (
             <p className="font-body-md text-xs text-on-surface-variant tracking-wide">{guest.phone_number}</p>
           )}

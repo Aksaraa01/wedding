@@ -724,12 +724,25 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Kategori</label>
-                  <input
-                    className="w-full bg-white border border-[#E2D9CF] rounded-xl py-3 px-4 focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors placeholder:text-on-surface-variant/50"
-                    placeholder="Contoh: Keluarga, Teman, Kerabat"
-                    value={form.category}
-                    onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
-                  />
+                  <select
+                    className="w-full bg-white border border-[#E2D9CF] rounded-xl py-3 px-4 focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] transition-colors"
+                    value={["Keluarga", "Kerabat", "Teman", "Kolega", "Lainnya"].includes(form.category) ? form.category : form.category ? "__legacy__" : ""}
+                    onChange={(e) => {
+                      const v = e.target.value
+                      if (v === "__legacy__") return
+                      setForm((p) => ({ ...p, category: v }))
+                    }}
+                  >
+                    <option value="">Pilih kategori</option>
+                    {form.category && !["Keluarga", "Kerabat", "Teman", "Kolega", "Lainnya"].includes(form.category) && (
+                      <option value="__legacy__">{form.category}</option>
+                    )}
+                    <option value="Keluarga">Keluarga</option>
+                    <option value="Kerabat">Kerabat</option>
+                    <option value="Teman">Teman</option>
+                    <option value="Kolega">Kolega</option>
+                    <option value="Lainnya">Lainnya</option>
+                  </select>
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Meja</label>

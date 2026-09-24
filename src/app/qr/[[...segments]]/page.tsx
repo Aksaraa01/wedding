@@ -35,6 +35,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
   const [guestCount, setGuestCount] = useState(1)
   const [qrToken, setQrToken] = useState("")
   const [slug, setSlug] = useState("")
+  const [isVip, setIsVip] = useState(false)
   const [estimatedDate, setEstimatedDate] = useState("")
   const [sessions, setSessions] = useState<any[]>([])
   const [qrDataUrl, setQrDataUrl] = useState("")
@@ -61,6 +62,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
         setCoupleName(couple)
         setTableNumber("Meja 5")
         setCategory("")
+        setIsVip(false)
         setGuestCount(2)
         setQrToken(`AKS-PREVIEW-${slug}`)
         setSlug(slug)
@@ -100,6 +102,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
         setCoupleName(data.profile.display_name || `${data.profile.bride_name} & ${data.profile.groom_name}`)
         setTableNumber(data.guest.table_number || "")
         setCategory(data.guest.category || "")
+        setIsVip(data.guest.is_vip === true)
         const pax = data.guest.rsvp_status === "HADIR" && data.guest.rsvp_pax_count
           ? data.guest.rsvp_pax_count
           : 2
@@ -201,6 +204,140 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
       )}
 
       <main className={isPreview ? "w-full flex flex-col" : "w-full max-w-md flex flex-col items-center"}>
+        {isVip && !isPreview && (
+          <>
+            <div className="w-full max-w-[430px] flex flex-col items-center">
+              <div className="text-center mb-6 px-3">
+                <p className="text-[11px] uppercase tracking-[0.24em] font-semibold text-[#8B643C] mb-1.5 flex items-center justify-center gap-1.5">
+                  Aksaraa Guestbook Pass
+                </p>
+                <h1 className="text-[34px] leading-tight font-normal text-[#2C221A] tracking-tight" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+                  Kartu Masuk Digital <span className="italic font-medium text-[#A67B2A]">VIP</span>
+                </h1>
+                <p className="text-[12.5px] leading-relaxed text-[#5C4D40] max-w-[320px] mx-auto mt-2 font-normal">
+                  Tunjukkan kode QR VIP ini kepada meja penerima tamu khusus tamu kehormatan &amp; VIP.
+                </p>
+              </div>
+
+              <article ref={cardRef} className="w-full rounded-[32px] relative overflow-hidden flex flex-col" style={{ background: "linear-gradient(rgb(26, 23, 20) 0%, rgb(21, 18, 16) 100%)", border: "1.5px solid rgb(197, 154, 78)", boxShadow: "rgba(0, 0, 0, 0.65) 0px 24px 50px -10px, rgba(197, 154, 78, 0.15) 0px 0px 30px, rgba(255, 235, 185, 0.25) 0px 1px 1px inset" }}>
+                <div className="pt-7 px-6 pb-6 text-center flex flex-col items-center" style={{ background: "transparent" }}>
+                  <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full mb-5 shimmer-badge" style={{ background: "linear-gradient(135deg, rgb(45, 36, 24) 0%, rgb(30, 23, 15) 100%)", border: "1px solid rgb(212, 175, 55)", boxShadow: "rgba(212, 175, 55, 0.2) 0px 4px 14px" }}>
+                    <svg className="w-3.5 h-3.5 text-[#E6C364]" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
+                    </svg>
+                    <span className="text-[11px] font-bold tracking-[0.2em] text-[#F3E2B3] uppercase">Official VIP Invitation</span>
+                  </div>
+
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-[#B89B77] font-medium mb-1">
+                    The Wedding Of
+                  </p>
+                  <h2 className="text-[32px] sm:text-[34px] leading-snug font-normal text-[#FAF5ED]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+                    {coupleName || "..."}
+                  </h2>
+
+                  <div className="w-full mt-6 rounded-2xl p-4 text-center relative" style={{ background: "linear-gradient(rgb(36, 31, 26) 0%, rgb(28, 24, 20) 100%)", border: "1px solid rgb(120, 90, 40)", boxShadow: "rgba(255, 255, 255, 0.06) 0px 1px 0px inset" }}>
+                    <div className="flex items-center justify-center gap-2 mb-1.5">
+                      <span className="text-[10.5px] uppercase tracking-[0.18em] text-[#D8BC94] font-semibold">Tamu Undangan Khusus</span>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[9.5px] font-extrabold tracking-wider text-[#1F170B]" style={{ background: "linear-gradient(135deg, rgb(243, 226, 179) 0%, rgb(212, 175, 55) 100%)" }}>VIP</span>
+                    </div>
+                    <h3 className="text-[25px] font-semibold text-[#FAF5ED] tracking-wide mb-3" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+                      {guestName || "..."}
+                    </h3>
+                    <div className="pt-3 grid grid-cols-2 gap-2 text-center" style={{ borderTop: "1px solid rgba(212, 175, 55, 0.25)" }}>
+                      <div className="px-2 border-r" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
+                        <span className="block text-[10px] uppercase tracking-wider text-[#A89682] font-medium mb-0.5">Alokasi Duduk</span>
+                        <p className="text-[14px] font-semibold text-[#FAF5ED]">{tableNumber || "—"}</p>
+                      </div>
+                      <div className="px-2">
+                        <span className="block text-[10px] uppercase tracking-wider text-[#A89682] font-medium mb-0.5">Kuota Tamu</span>
+                        <p className="text-[14px] font-bold text-[#FAF5ED]">
+                          {guestCount} Orang <span className="text-[11.5px] font-normal text-[#C2B29F]">(Pax)</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-7 flex flex-col items-center">
+                    <div className="p-3.5 rounded-3xl relative" style={{ background: "#FFFFFF", border: "3px solid #D4AF37", boxShadow: "0 0 0 4px rgba(212, 175, 55, 0.2), 0 16px 36px rgba(0, 0, 0, 0.5)" }}>
+                      <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 rounded-tr" style={{ borderColor: "#AA7C11" }} />
+                      <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 rounded-bl" style={{ borderColor: "#AA7C11" }} />
+                      <div className="w-52 h-52 bg-white rounded-2xl p-1.5 flex items-center justify-center relative overflow-hidden">
+                        {qrDataUrl ? (
+                          <img src={qrDataUrl} alt="VIP QR Code" className="w-full h-full object-contain" />
+                        ) : (
+                          <div className="w-8 h-8 border-2 border-[#1A1817] border-t-transparent rounded-full animate-spin" />
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-xl font-mono text-[12.5px] tracking-wider" style={{ background: "#25201A", border: "1px solid #7D5D2B", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>
+                      <span className="font-bold text-[#EED8A1]">{fallbackCode}</span>
+                      <button className="text-[#B89B77] hover:text-[#FAF5ED] active:scale-95 transition-transform" onClick={handleCopyCode} title="Salin Kode VIP" type="button">
+                        <span className="material-symbols-outlined text-base" style={{ color: copyOk ? "#059669" : undefined }}>{copyOk ? "check" : "content_copy"}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="relative w-full my-1 flex items-center">
+                  <div className="ticket-notch-left" />
+                  <div className="w-full mx-7 border-b-2 border-dashed" style={{ borderColor: "rgba(212, 175, 55, 0.35)" }} />
+                  <div className="ticket-notch-right" />
+                </div>
+
+                <div className="px-6 pt-5 pb-7 flex flex-col space-y-4" style={{ background: "transparent" }}>
+                  <div className="grid grid-cols-1 gap-3.5 pt-1">
+                    <div className="flex items-start gap-3.5">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-[#E6C364] mt-0.5" style={{ background: "#282119", border: "1px solid #785A28" }}>
+                        <span className="material-symbols-outlined text-base">calendar_today</span>
+                      </div>
+                      <div>
+                        <span className="block text-[10.5px] uppercase tracking-wider text-[#A89682] font-semibold">Waktu &amp; Tanggal</span>
+                        <p className="text-[14px] font-semibold text-[#FAF5ED] leading-tight">{estimatedDate ? formatDate(estimatedDate) : "—"}</p>
+                        {sessions[0]?.time && <p className="text-[12px] text-[#C2B29F] font-normal mt-0.5">{sessions[0].time} WIB</p>}
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3.5">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-[#E6C364] mt-0.5" style={{ background: "#282119", border: "1px solid #785A28" }}>
+                        <span className="material-symbols-outlined text-base">location_on</span>
+                      </div>
+                      <div>
+                        <span className="block text-[10.5px] uppercase tracking-wider text-[#A89682] font-semibold">Lokasi Acara</span>
+                        <p className="text-[14px] font-semibold text-[#FAF5ED] leading-tight">{sessions[0]?.venue || "—"}</p>
+                        {sessions[0]?.address && <p className="text-[12px] text-[#C2B29F] leading-snug mt-0.5">{sessions[0].address}</p>}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 text-center" style={{ borderTop: "1px solid rgba(212, 175, 55, 0.15)" }}>
+                    <p className="text-[9.5px] tracking-[0.22em] text-[#9E8B77] uppercase font-medium">
+                      Aksaraa Digital Guestbook Platform
+                    </p>
+                  </div>
+                </div>
+              </article>
+
+              <div className="w-full mt-6 space-y-3">
+                <button onClick={downloadPass} disabled={downloading} className="w-full h-12 text-white rounded-xl text-xs uppercase tracking-[0.15em] font-semibold transition-all duration-300 active:scale-[0.98] shadow-md flex items-center justify-center gap-2 disabled:opacity-50" style={{ background: "#1A1714", border: "1px solid #7D5D2B" }}>
+                  <span className="material-symbols-outlined text-base">download</span>
+                  <span>{downloading ? "MEMPROSES GAMBAR..." : "Simpan ke Galeri (PNG)"}</span>
+                </button>
+                <div className="grid grid-cols-2 gap-3">
+                  <a href={sessions[0]?.maps_url || "https://maps.google.com"} target="_blank" rel="noopener" className="h-11 bg-white border border-[rgba(26,24,23,0.08)] rounded-xl text-xs font-medium text-[#1A1817] hover:bg-[#FBF8F3] transition-colors flex items-center justify-center gap-1.5">
+                    <span className="material-symbols-outlined text-[#8D4D39] text-base">map</span>
+                    Petunjuk Lokasi
+                  </a>
+                  <button onClick={() => setQrModalOpen(true)} className="h-11 bg-white border border-[rgba(26,24,23,0.08)] rounded-xl text-xs font-medium text-[#1A1817] hover:bg-[#FBF8F3] transition-colors flex items-center justify-center gap-1.5">
+                    <span className="material-symbols-outlined text-[#8D4D39] text-base">fit_screen</span>
+                    Kecerahan Maks
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+        {(!isVip || isPreview) && (
+          <>
         {!isPreview && (
           <div className="text-center mb-6">
             <p className="text-[11px] uppercase tracking-[0.25em] text-[#8D4D39] font-semibold mb-1">Aksaraa Guestbook Pass</p>
@@ -303,7 +440,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
           </button>
 
           <div className="grid grid-cols-2 gap-3">
-            <a href="https://maps.google.com" target="_blank" rel="noopener" className="h-11 bg-white border border-[rgba(26,24,23,0.08)] rounded-xl text-xs font-medium text-[#1A1817] hover:bg-[#FBF8F3] transition-colors flex items-center justify-center gap-1.5">
+            <a href={sessions[0]?.maps_url || "https://maps.google.com"} target="_blank" rel="noopener" className="h-11 bg-white border border-[rgba(26,24,23,0.08)] rounded-xl text-xs font-medium text-[#1A1817] hover:bg-[#FBF8F3] transition-colors flex items-center justify-center gap-1.5">
               <span className="material-symbols-outlined text-[#8D4D39] text-base">map</span>
               Petunjuk Lokasi
             </a>
@@ -318,6 +455,8 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
             Terenkripsi &amp; Terverifikasi oleh Aksaraa System
           </p>
           </div>
+        )}
+          </>
         )}
       </main>
 
@@ -357,6 +496,10 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
         body { margin: 0; }
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
         @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .ticket-notch-left { width: 24px; height: 24px; border-radius: 0 100% 100% 0; background: linear-gradient(135deg, #ebdccb 0%, #dec4a9 100%); position: absolute; left: 0; transform: translateY(-50%); }
+        .ticket-notch-right { width: 24px; height: 24px; border-radius: 100% 0 0 100%; background: linear-gradient(225deg, #ebdccb 0%, #dec4a9 100%); position: absolute; right: 0; transform: translateY(-50%); }
+        @keyframes shimmer { 0% { opacity: 0.85; } 50% { opacity: 1; transform: scale(1.02); } 100% { opacity: 0.85; } }
+        .shimmer-badge { animation: shimmer 3s infinite ease-in-out; }
       `}</style>
       </div>
   )

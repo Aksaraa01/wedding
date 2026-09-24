@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
 
     const { data: guests, error } = await supabaseAdmin
       .from("guests")
-      .select("id, name, phone_number, table_number, category, guest_count, rsvp_status, rsvp_pax_count, is_checked_in, checkin_timestamp, souvenir_claimed, qr_token, added_manually")
+      .select("id, name, phone_number, table_number, category, guest_count, rsvp_status, rsvp_pax_count, is_checked_in, checkin_timestamp, souvenir_claimed, qr_token, added_manually, is_vip")
       .eq("wedding_profile_id", weddingProfileId)
       .or(`name.ilike.%${q}%,phone_number.ilike.%${q}%`)
       .limit(10)
