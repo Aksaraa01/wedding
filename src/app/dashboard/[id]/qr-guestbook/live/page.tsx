@@ -35,7 +35,10 @@ type Stats = {
 function formatWIB(iso: string | null): string {
   if (!iso) return ""
   const d = new Date(iso)
-  return d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta" }) + " WIB"
+  if (isNaN(d.getTime())) return ""
+  const date = d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Jakarta" })
+  const time = d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta" })
+  return `${date}, ${time} WIB`
 }
 
 function Donut({ qrPct, manualPct, percentage }: { qrPct: number; manualPct: number; percentage: number }) {
@@ -150,7 +153,13 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
   const qrPct = total ? (checkedQr / total) * 100 : 0
   const manualPct = total ? (checkedManual / total) * 100 : 0
 
-  const filtered = guests.filter((g) => g.name.toLowerCase().includes(search.trim().toLowerCase()))
+  const filtered = guests
+    .filter((g) => g.name.toLowerCase().includes(search.trim().toLowerCase()))
+    .sort((a, b) => {
+      const ta = a.checkin_timestamp ? new Date(a.checkin_timestamp).getTime() : -Infinity
+      const tb = b.checkin_timestamp ? new Date(b.checkin_timestamp).getTime() : -Infinity
+      return tb - ta
+    })
 
   return (
     <div className="min-h-screen font-body-md text-body-md" style={DASH_SATIN_BG}>
