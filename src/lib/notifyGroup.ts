@@ -32,6 +32,7 @@ export async function notifyNewAccountGroup(payload: NotifyPayload): Promise<voi
       .from("notification_log")
       .select("wedding_profile_id")
       .eq("wedding_profile_id", payload.wedding_profile_id)
+      .eq("kind", "registration")
       .maybeSingle()
 
     if (existing) return
