@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase"
 import { requireOpsEmployee } from "@/lib/ops-auth"
 import { allowedNextStatuses, isOpsStatusKey, OPS_STATUS_LABELS, resolveDerivedStatus } from "@/lib/opsStatus"
 import { autoGenerateGuestLinks } from "@/lib/guest-link"
+import { notifyFeedbackBaruGroup } from "@/lib/notifyGroup"
 import { canChangeStatus, unauthorizedStatusMessage } from "@/lib/opsRoles"
 
 export async function PUT(
@@ -122,6 +123,36 @@ export async function PUT(
       new_status: status,
       changed_by_employee_id: emp?.id || null,
     })
+
+    // Fire-and-forget WA group notification on entering feedback_baru.
+    // ref_id reuses the pending feedback id so a Hook-B notification for the
+    // same submission is deduped by the unique index (exactly-once).
+    if (status === "feedback_baru") {
+      try {
+        const { data: prof } = await supabaseAdmin
+          .from("wedding_profiles")
+          .select("bride_name, groom_name, package_type, payment_status")
+          .eq("id", profileId)
+          .maybeSingle()
+        if (prof) {
+          const pendingId =
+            latestFb?.status === "pending" ? latestFb.id : `manual-${id}-${Date.now()}`
+          notifyFeedbackBaruGroup({
+            wedding_profile_id: profileId,
+            feedback_id: pendingId,
+            couple: `${prof.groom_name} & ${prof.bride_name}`,
+            package_type: prof.package_type,
+            payment_status: prof.payment_status,
+            round_number: 0,
+            area: null,
+            description: "Status diubah ke Feedback Baru oleh tim ops.",
+            queue_id: id,
+          }).catch((e) => console.error("[status-notify] failed", e))
+        }
+      } catch (e) {
+        console.error("[status-notify] failed", e)
+      }
+    }
 
     return NextResponse.json({ success: true, derived_status: status, previous_status: derived })
   } catch (err) {

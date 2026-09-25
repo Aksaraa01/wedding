@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { matrixColumnForPackage } from "@/lib/packages"
+import { notifyFeedbackBaruGroup } from "@/lib/notifyGroup"
 
 export async function GET(req: NextRequest) {
   try {
@@ -94,6 +95,38 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // Fire-and-forget WA group notification (never blocks the couple's submit).
+    try {
+      const [profRes, queueRes] = await Promise.all([
+        supabaseAdmin
+          .from("wedding_profiles")
+          .select("bride_name, groom_name, package_type, payment_status")
+          .eq("id", wedding_profile_id)
+          .maybeSingle(),
+        supabaseAdmin
+          .from("ops_queue")
+          .select("id")
+          .eq("wedding_profile_id", wedding_profile_id)
+          .maybeSingle(),
+      ])
+      const prof = profRes.data
+      if (prof && queueRes.data) {
+        notifyFeedbackBaruGroup({
+          wedding_profile_id,
+          feedback_id: data.id,
+          couple: `${prof.groom_name} & ${prof.bride_name}`,
+          package_type: prof.package_type,
+          payment_status: prof.payment_status,
+          round_number: data.round_number ?? roundNumber,
+          area: data.area,
+          description: data.description,
+          queue_id: queueRes.data.id,
+        }).catch((e) => console.error("[feedback-notify] failed", e))
+      }
+    } catch (e) {
+      console.error("[feedback-notify] failed", e)
     }
 
     return NextResponse.json({ submission: data })

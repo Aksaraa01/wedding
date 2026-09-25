@@ -87,3 +87,93 @@ export async function notifyNewAccountGroup(payload: NotifyPayload): Promise<voi
     })
   } catch {}
 }
+
+type FeedbackPayload = {
+  wedding_profile_id: string
+  feedback_id: string
+  couple: string
+  package_type: string
+  payment_status: string
+  round_number: number
+  area: string | null
+  description: string
+  queue_id: string
+}
+
+const PAYMENT_LABELS: Record<string, string> = {
+  UNPAID: "Belum Bayar (UNPAID)",
+  PARTIAL_DP: "DP Sebagian (PARTIAL_DP)",
+  FULLY_PAID: "Lunas (FULLY_PAID)",
+}
+
+export async function notifyFeedbackBaruGroup(payload: FeedbackPayload): Promise<boolean> {
+  const targetJid = process.env.WA_FEEDBACK_GROUP_JID || ""
+  if (!targetJid) {
+    console.error("[notifyGroup] missing WA_FEEDBACK_GROUP_JID — notification skipped")
+    return false
+  }
+
+  try {
+    const { data: existing } = await supabaseAdmin
+      .from("notification_log")
+      .select("wedding_profile_id")
+      .eq("wedding_profile_id", payload.wedding_profile_id)
+      .eq("kind", "feedback")
+      .eq("ref_id", payload.feedback_id)
+      .maybeSingle()
+
+    if (existing) return false
+  } catch {}
+
+  const label = PACKAGE_LABELS[payload.package_type] || payload.package_type
+  const payment = PAYMENT_LABELS[payload.payment_status] || payload.payment_status
+  const area = payload.area?.trim() || "Lainnya"
+  const desc = payload.description.trim().slice(0, 1500)
+  const roundLabel = payload.round_number > 0 ? `ke-${payload.round_number} ` : ""
+  const now = formatDateWIB(new Date())
+
+  const text = [
+    `🔔 Feedback Baru Masuk`,
+    `Couple: ${payload.couple}`,
+    `Paket: ${label} — Status Bayar: ${payment}`,
+    `Feedback ${roundLabel}(${area}): ${desc}`,
+    `Waktu: ${now}`,
+    `Tindak lanjut: https://wedding.aksaraa.com/ops/antrian/${payload.queue_id}`,
+  ].join("\n")
+
+  const apiUrl = process.env.WA_SCHOOL_API_URL || "http://127.0.0.1:3001/send"
+
+  const maxAttempts = 3
+  let lastError: unknown = null
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: targetJid, message: text }),
+      })
+      if (!res.ok) {
+        const t = await res.text()
+        throw new Error(`WA send ${res.status} ${t}`)
+      }
+      lastError = null
+      break
+    } catch (e) {
+      lastError = e
+      console.error(`[notifyGroup] feedback WA send failed (attempt ${attempt}/${maxAttempts})`, e)
+      if (attempt < maxAttempts) await new Promise((r) => setTimeout(r, 2000 * attempt))
+    }
+  }
+  if (lastError) throw lastError
+
+  try {
+    await supabaseAdmin.from("notification_log").insert({
+      wedding_profile_id: payload.wedding_profile_id,
+      kind: "feedback",
+      ref_id: payload.feedback_id,
+      channel: "wa_group",
+      payload: { ...payload, text },
+    })
+  } catch {}
+  return true
+}
