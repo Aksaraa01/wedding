@@ -93,7 +93,7 @@ type FeedbackSubmission = {
 
 type StatusLogEntry = {
   id: string
-  kind: "status" | "package" | "invitation"
+  kind: "status" | "package" | "invitation" | "payment"
   previous_status: string | null
   new_status: string | null
   previous_package: string | null
@@ -1948,6 +1948,8 @@ export default function AntrianDetail({ id }: { id: string }) {
                             <>Paket: {log.previous_package ? PACKAGE_LABELS[log.previous_package] ?? log.previous_package : "—"}{" → "}{log.new_package ? PACKAGE_LABELS[log.new_package] ?? log.new_package : "—"}</>
                           ) : log.kind === "invitation" ? (
                             <>Data Undangan: <span className="font-normal">{log.details || "diubah"}</span></>
+                          ) : log.kind === "payment" ? (
+                            <>Pembayaran: <span className="font-normal">{log.details || "diubah"}</span></>
                           ) : (
                             <>{log.previous_status ? OPS_STATUS_LABELS[log.previous_status as keyof typeof OPS_STATUS_LABELS] ?? log.previous_status : "—"}{" → "}{log.new_status ? OPS_STATUS_LABELS[log.new_status as keyof typeof OPS_STATUS_LABELS] ?? log.new_status : "—"}</>
                           )}

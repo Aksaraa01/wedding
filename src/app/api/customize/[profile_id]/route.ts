@@ -61,7 +61,7 @@ export async function PUT(
 
     const { data: queueData } = await supabaseAdmin
       .from("ops_queue")
-      .select("id")
+      .select("id, status")
       .eq("wedding_profile_id", profile_id)
       .maybeSingle()
 
@@ -81,11 +81,21 @@ export async function PUT(
         await supabaseAdmin.from("feature_actions").insert(featureRows)
       }
 
-      // Reset queue status to belum_bayar so OPS knows there's new work
-      await supabaseAdmin
-        .from("ops_queue")
-        .update({ status: "belum_bayar" })
-        .eq("id", queueData.id)
+      // Reset queue status to belum_bayar so OPS knows there's new work.
+      // Logged so the reset doesn't create a silent gap in Riwayat.
+      if (queueData.status !== "belum_bayar") {
+        await supabaseAdmin
+          .from("ops_queue")
+          .update({ status: "belum_bayar" })
+          .eq("id", queueData.id)
+        await supabaseAdmin.from("ops_queue_status_log").insert({
+          ops_queue_id: queueData.id,
+          kind: "status",
+          previous_status: queueData.status,
+          new_status: "belum_bayar",
+          details: "Reset otomatis: couple ganti paket",
+        })
+      }
     }
 
     return NextResponse.json({ success: true })

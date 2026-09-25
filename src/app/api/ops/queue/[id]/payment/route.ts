@@ -62,6 +62,16 @@ export async function PUT(
       }
     }
 
+    // Audit the payment flip in the unified Riwayat (this route bypasses the
+    // status pipeline, so without this the change would leave no trace).
+    if (oldProfile?.payment_status !== payment_status) {
+      await supabaseAdmin.from("ops_queue_status_log").insert({
+        ops_queue_id: id,
+        kind: "payment",
+        details: `${oldProfile?.payment_status || "—"} → ${payment_status}`,
+      })
+    }
+
     return NextResponse.json({
       success: true,
       payment_status,
