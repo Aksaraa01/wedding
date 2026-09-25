@@ -33,6 +33,11 @@ export function toTransformedUrl(
 
 // OG/social preview: crawlers fetch this per share, so serve a 1200w
 // transform of the raw cover instead of the multi-MB original.
+// Dedicated og variants (template-media/og/*.jpg, already sub-300KB JPEG)
+// pass through untouched — re-transforming would upscale them.
 export function toOgImageUrl(urlOrPath: string): string {
+  if (typeof urlOrPath === "string" && urlOrPath.includes("/template-media/og/")) {
+    return urlOrPath.split("?")[0]
+  }
   return toTransformedUrl(urlOrPath, { width: 1200, quality: 70, resize: "cover" })
 }

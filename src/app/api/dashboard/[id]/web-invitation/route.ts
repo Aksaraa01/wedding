@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { getRowGates, getFeatureIncluded, getPhotoQuota } from "@/lib/featureGates"
 import { getIncompleteInvitationSections, parseStringList } from "@/lib/invitationCompleteness"
+import { ensureOgImage, ogPublicUrlFor, resolveCoverImage } from "@/lib/ogImage"
 
 export const dynamic = "force-dynamic"
 
@@ -188,6 +189,35 @@ export async function PUT(  req: NextRequest,
         )
       }
       updates.published_at = new Date().toISOString()
+    }
+
+    // Keep the social thumbnail in sync with the selected cover (illustration
+    // first, then first cover — same priority as guest metadata). Runs only
+    // when cover fields are part of this save; any failure falls back to the
+    // normal cover chain and never blocks the save itself.
+    if (body.couple_illustration_url !== undefined || body.cover_photos !== undefined) {
+      try {
+        const { data: current } = await supabaseAdmin
+          .from("wedding_profiles")
+          .select("couple_illustration_url, cover_photos, og_image_url")
+          .eq("id", id)
+          .maybeSingle()
+        const effective = resolveCoverImage({
+          couple_illustration_url: body.couple_illustration_url !== undefined ? body.couple_illustration_url : current?.couple_illustration_url,
+          cover_photos: body.cover_photos !== undefined ? body.cover_photos : current?.cover_photos,
+        })
+        if (!effective) {
+          if (current?.og_image_url) updates.og_image_url = null
+        } else if (ogPublicUrlFor(effective) !== (current?.og_image_url || null)) {
+          const og = await ensureOgImage(effective)
+          // Null on generation failure clears a stale variant so shares fall
+          // back to the (new) cover instead of the old photo.
+          updates.og_image_url = og
+        }
+      } catch (err) {
+        // og sync is best-effort; fallbacks in generateMetadata cover failures.
+        console.warn("[og] cover hook failed:", err instanceof Error ? err.message : String(err))
+      }
     }
 
     const { error } = await supabaseAdmin

@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("slug, display_name, bride_name, groom_name, bride_full_name, groom_full_name, estimated_wedding_date, couple_illustration_url, cover_photos")
+    .select("slug, display_name, bride_name, groom_name, bride_full_name, groom_full_name, estimated_wedding_date, couple_illustration_url, cover_photos, og_image_url")
     .ilike("slug", slug)
     .single()
 
@@ -70,10 +70,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       covers = [profile.cover_photos.trim()]
     }
   }
-  const image = firstImageUrl(profile.couple_illustration_url) || firstImageUrl(covers) || (profile.slug ? `https://${profile.slug}.wedding.aksaraa.com/defaults/couple.png` : undefined)
-  // Crawlers (WhatsApp/Telegram) fetch this per share — serve a 1200w
-  // transform of the raw cover instead of the multi-MB original.
+  // Social thumbnail priority (shared with the PUT og hook — same order):
+  // 1) dedicated og variant (guaranteed sub-300KB JPEG), 2) first JPEG
+  //    cover (transforms stay JPEG and small), 3) any image, 4) default.
+  const isJpeg = (u: string) => /\.jpe?g($|\?)/i.test(u)
+  const firstJpeg = (list: string[]) => list.find(isJpeg)
+  const ogVariant = typeof (profile as any).og_image_url === "string" && (profile as any).og_image_url.trim()
+    ? (profile as any).og_image_url.trim()
+    : undefined
+  const image = ogVariant
+    || firstJpeg([firstImageUrl(profile.couple_illustration_url), ...covers].filter((u): u is string => !!u))
+    || firstImageUrl(profile.couple_illustration_url)
+    || firstImageUrl(covers)
+    || (profile.slug ? `https://${profile.slug}.wedding.aksaraa.com/defaults/couple.png` : undefined)
+  // Crawlers (WhatsApp/Telegram) fetch this per share — serve a transform of
+  // the raw cover instead of the multi-MB original. The dedicated og variant
+  // (when present) is already a small JPEG and passes through untouched.
   const ogImage = image ? toOgImageUrl(image) : undefined
+  const ogAlt = tagline ? `Undangan pernikahan ${tagline}` : title
 
   const meta: Metadata = {
     title,
@@ -81,7 +95,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title,
       description,
-      images: ogImage ? [ogImage] : undefined,
+      images: ogImage ? [{ url: ogImage, alt: ogAlt, type: "image/jpeg" }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
