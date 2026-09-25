@@ -127,7 +127,6 @@ export async function notifyFeedbackBaruGroup(payload: FeedbackPayload): Promise
 
   const label = PACKAGE_LABELS[payload.package_type] || payload.package_type
   const payment = PAYMENT_LABELS[payload.payment_status] || payload.payment_status
-  const area = payload.area?.trim() || "Lainnya"
   const desc = payload.description.trim().slice(0, 1500)
   const roundLabel = payload.round_number > 0 ? `ke-${payload.round_number} ` : ""
   const now = formatDateWIB(new Date())
@@ -135,9 +134,17 @@ export async function notifyFeedbackBaruGroup(payload: FeedbackPayload): Promise
   const text = [
     `🔔 Feedback Baru Masuk`,
     `Couple: ${payload.couple}`,
-    `Paket: ${label} — Status Bayar: ${payment}`,
-    `Feedback ${roundLabel}(${area}): ${desc}`,
-    `Waktu: ${now}`,
+    `Paket: ${label}`,
+    `Status Bayar: ${payment}`,
+    ``,
+    ``,
+    `Feedback ${roundLabel}:`,
+    `${desc}`,
+    ``,
+    ``,
+    `Waktu Feedback : ${now}`,
+    ``,
+    ``,
     `Tindak lanjut: https://wedding.aksaraa.com/ops/antrian/${payload.queue_id}`,
   ].join("\n")
 
