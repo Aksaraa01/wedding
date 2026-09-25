@@ -86,7 +86,13 @@ export async function POST(req: NextRequest) {
 
     const isAdmin = !weddingProfileId
 
-    // Client upload: enforce one non-public custom track per user (published ones survive)
+    // Client upload: enforce one non-public custom track per user (published ones survive).
+    // NOTE: the old row is usually still referenced by
+    // wedding_profiles.selected_track_id (NO ACTION FK), so it cannot be
+    // deleted first — collect it, insert the replacement, re-point the
+    // selection, then delete. Never swallow delete errors: a silent FK
+    // failure is exactly how duplicate "Lagu Saya" rows were born.
+    let superseded: { id: string; audio_url: string | null }[] = []
     if (!isAdmin) {
       const { data: existing } = await supabaseAdmin
         .from("web_tracks")
@@ -94,16 +100,7 @@ export async function POST(req: NextRequest) {
         .eq("is_custom", true)
         .eq("uploaded_by", weddingProfileId)
         .eq("is_public", false)
-
-      if (existing && existing.length > 0) {
-        for (const old of existing) {
-          const path = extractStoragePath(old.audio_url)
-          if (path) {
-            try { await deleteFile(path) } catch {}
-          }
-          await supabaseAdmin.from("web_tracks").delete().eq("id", old.id)
-        }
-      }
+      superseded = existing || []
     }
 
     const name = `t-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`
@@ -143,6 +140,34 @@ export async function POST(req: NextRequest) {
 
     if (insertError) {
       return NextResponse.json({ error: insertError.message }, { status: 500 })
+    }
+
+    // Now that the replacement exists, release the FK reference and remove
+    // the superseded rows. Failures here are returned loudly — the client
+    // keeps showing the new track, and ops can see/clean the leftover.
+    if (!isAdmin && superseded.length > 0) {
+      const oldIds = superseded.map((o) => o.id)
+      // Re-point the uploader's own profile(s) off the old rows first so the
+      // FK no longer blocks the delete. A no-op match simply means nothing
+      // referenced them.
+      await supabaseAdmin
+        .from("wedding_profiles")
+        .update({ selected_track_id: track.id })
+        .eq("id", weddingProfileId)
+        .in("selected_track_id", oldIds)
+      for (const old of superseded) {
+        const path = extractStoragePath(old.audio_url || "")
+        if (path) {
+          try { await deleteFile(path) } catch {}
+        }
+        const { error: deleteError } = await supabaseAdmin.from("web_tracks").delete().eq("id", old.id)
+        if (deleteError) {
+          return NextResponse.json(
+            { error: `Lagu baru tersimpan, tetapi lagu lama gagal dihapus: ${deleteError.message}` },
+            { status: 500 },
+          )
+        }
+      }
     }
 
     return NextResponse.json({ track })

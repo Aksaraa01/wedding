@@ -882,7 +882,7 @@ function EditorInner({ id }: { id: string }) {
   }
 
   const handleMusicFilePick = (file: File) => {
-    if (data.is_published === true || reviewMode) return
+    if (data.is_published === true || reviewMode || musicUploading) return
     setMusicUploadError("")
     if (myCustomTrack) {
       setPendingMusicFile(file)
@@ -893,7 +893,7 @@ function EditorInner({ id }: { id: string }) {
   }
 
   const uploadMusic = async (file: File) => {
-    if (data.is_published === true || reviewMode) return
+    if (data.is_published === true || reviewMode || musicUploading) return
     setMusicUploading(true)
     setMusicUploadError("")
     try {
