@@ -211,7 +211,14 @@ The VPS has 2GB RAM and CANNOT run `next build`. Build locally, rsync the standa
    ```bash
    ssh -i $HOME/.ssh/aksaraa_deploy askaraa@103.93.135.176 "pm2 env \$(pm2 id aksara-wedding 2>/dev/null | grep -o '[0-9]*') 2>/dev/null | grep -o '^[A-Za-z_][A-Za-z0-9_]*' | sort -u"
    ```
-4. After the VPS deploy is verified, commit and push the work:
+4. Smoke-test the AFFECTED prod API endpoints directly (MANDATORY — not just `/login`):
+   ```bash
+   curl -s -o /dev/null -w "%{http_code}\n" --max-time 25 "https://wedding.aksaraa.com/api/dashboard/<id>/web-invitation"
+   ```
+   Hit every API route touched by the change (GET and, on staging/test data only, the mutating verbs). Local staging smoke runs on macOS and CANNOT catch platform-specific failures: on 2026-09-25 a top-level `import sharp` crashed the whole web-invitation route on the Linux VPS (GET+PUT 500 → every editor empty) while local smoke passed green.
+   - NEVER top-level-import a platform-native module in a route file. Lazy-import it inside the function that needs it (`const { default: sharp } = await import("sharp")`) with try/catch fallback, so reads keep working even if the binding is missing.
+   - If a native module is required in prod, ensure its linux-x64 binding is an explicit dependency (e.g. `@img/sharp-linux-x64`, `@img/sharp-libvips-linux-x64`) so it gets traced into `.next/standalone/node_modules`, and verify post-deploy with a real mutating call on test data.
+5. After the VPS deploy is verified, commit and push the work:
    ```bash
    git add -A
    git commit -m "feat: describe_change"
