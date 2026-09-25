@@ -97,6 +97,44 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    // Ops attribution, server-side (atomic with the insert above): if the
+    // submit carries a valid ops employee identity, record it in the queue
+    // timeline. Couple flows send no ops headers → zero behavior change.
+    // Replaces the old client-side second-fetch audit (flag + separate POST)
+    // which failed silently whenever the form wasn't opened via the ops
+    // "Tambah Feedback" button.
+    try {
+      const opsPhone = req.headers.get("x-ops-phone") || ""
+      if (opsPhone) {
+        const { data: emp } = await supabaseAdmin
+          .from("employees")
+          .select("id")
+          .eq("phone_number", opsPhone)
+          .maybeSingle()
+        if (emp) {
+          const { data: queues } = await supabaseAdmin
+            .from("ops_queue")
+            .select("id")
+            .eq("wedding_profile_id", wedding_profile_id)
+            .order("created_at", { ascending: false })
+            .limit(1)
+          if (queues && queues.length > 0) {
+            const label = `Tambah Feedback R${data.round_number ?? roundNumber}${data.area ? ` (${data.area})` : ""}`
+            await supabaseAdmin.from("ops_queue_status_log").insert({
+              ops_queue_id: queues[0].id,
+              kind: "invitation",
+              previous_status: null,
+              new_status: null,
+              previous_package: null,
+              new_package: null,
+              details: label.slice(0, 500),
+              changed_by_employee_id: emp.id,
+            })
+          }
+        }
+      }
+    } catch {}
+
     // Fire-and-forget WA group notification (never blocks the couple's submit).
     try {
       const [profRes, queueRes] = await Promise.all([

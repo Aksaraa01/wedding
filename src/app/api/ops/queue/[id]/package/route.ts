@@ -51,11 +51,21 @@ export async function PUT(
       return NextResponse.json({ error: updateError.message }, { status: 500 })
     }
 
-    // Rebuild feature_actions to match the new package
+    // Rebuild feature_actions to match the new package, preserving the
+    // completion status of features present in both old and new packages.
+    // A mid-pipeline package change must not wipe already-finished work.
     const selections = deriveSelections(package_type, undanganFisik)
     const enabledFeatures = Object.entries(selections)
       .filter(([, v]) => v)
       .map(([key]) => key)
+
+    const { data: prevFeatures } = await supabaseAdmin
+      .from("feature_actions")
+      .select("feature_key, status")
+      .eq("ops_queue_id", id)
+    const prevStatus = new Map(
+      (prevFeatures || []).map((f: any) => [f.feature_key, f.status]),
+    )
 
     await supabaseAdmin.from("feature_actions").delete().eq("ops_queue_id", id)
 
@@ -64,7 +74,7 @@ export async function PUT(
         ops_queue_id: id,
         wedding_profile_id: wp.id,
         feature_key: key,
-        status: "butuh_tindakan",
+        status: (prevStatus.get(key) as string) || "butuh_tindakan",
       }))
       await supabaseAdmin.from("feature_actions").insert(featureRows)
     }

@@ -98,9 +98,21 @@ function FeedbackNewInner({ id }: { id: string }) {
         }
       }
 
+      // Ops attribution (server-side audit): when this form is opened by
+      // an ops employee, their session identity travels with the submit
+      // so the server can log it — no entry-point flag needed.
+      const submitHeaders: Record<string, string> = { "Content-Type": "application/json" }
+      try {
+        const empRaw = sessionStorage.getItem("ops_employee")
+        const emp = empRaw ? JSON.parse(empRaw) : null
+        if (emp?.phone_number) {
+          submitHeaders["x-ops-phone"] = emp.phone_number
+          submitHeaders["x-ops-role"] = emp.role || ""
+        }
+      } catch {}
       const res = await fetch("/api/feedback-submissions", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: submitHeaders,
         body: JSON.stringify({
           wedding_profile_id: id,
           template_id: template?.id || null,
@@ -117,29 +129,8 @@ function FeedbackNewInner({ id }: { id: string }) {
         throw new Error(data.error || "Gagal mengirim feedback")
       }
 
-      // Ops-initiated submit (opened from the ops console): record it in the
-      // queue timeline. Absent for couple flows — zero behavior change there.
-      // Awaited (not fire-and-forget): navigating away immediately would abort
-      // an in-flight fetch and lose the log row.
-      try {
-        const flagKey = `ops_feedback_${id}`
-        if (typeof window !== "undefined" && sessionStorage.getItem(flagKey) === "1") {
-          sessionStorage.removeItem(flagKey)
-          const empRaw = sessionStorage.getItem("ops_employee")
-          const emp = empRaw ? JSON.parse(empRaw) : null
-          const sub = data.submission || {}
-          const label = `Tambah Feedback R${sub.round_number || "?"}${sub.area ? ` (${sub.area})` : ""}`
-          await fetch(`/api/ops/queue/by-profile/invitation-log`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-ops-phone": emp?.phone_number || "",
-              "x-ops-role": emp?.role || "",
-            },
-            body: JSON.stringify({ wedding_profile_id: id, details: label }),
-          }).catch(() => {})
-        }
-      } catch {}
+      // Ops attribution is handled server-side (x-ops headers above) —
+      // no second fetch needed.
 
       router.push(`/dashboard/${id}/web-invitation/feedback`)
     } catch (err) {

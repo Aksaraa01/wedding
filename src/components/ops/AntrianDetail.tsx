@@ -704,20 +704,15 @@ export default function AntrianDetail({ id }: { id: string }) {
   }
 
   // Ops "Tambah Feedback": paid couples go straight to the couple feedback
-  // page (new tab, flag set for audit logging); UNPAID gets an explanatory
-  // popup instead — feedback is a paid-status feature.
-  // NOTE: window.open WITHOUT noopener/noreferrer — the popup must share this
-  // tab's sessionStorage (flag + ops employee). With noopener the popup gets
-  // isolated storage and the audit log silently never fires.
+  // page (new tab); UNPAID gets an explanatory popup instead — feedback is
+  // a paid-status feature. Ops attribution is handled server-side via the
+  // ops employee session headers (see POST /api/feedback-submissions).
   const handleAddFeedback = (wpId: string) => {
     if (!wpId) return
     if (detail?.wedding_profile?.payment_status === "UNPAID") {
       setShowFbPayGate(true)
       return
     }
-    try {
-      sessionStorage.setItem(`ops_feedback_${wpId}`, "1")
-    } catch {}
     window.open(`/dashboard/${wpId}/web-invitation/feedback`, "_blank")
   }
 
