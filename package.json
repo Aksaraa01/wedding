@@ -10,6 +10,8 @@
     "check:egress": "./scripts/check-storage-egress.sh"
   },
   "dependencies": {
+    "@img/sharp-libvips-linux-x64": "^1.3.3",
+    "@img/sharp-linux-x64": "^0.35.4",
     "@supabase/supabase-js": "^2.110.8",
     "fflate": "^0.8.3",
     "html2canvas": "^1.4.1",

@@ -1,7 +1,12 @@
 import { createHash } from "node:crypto"
-import sharp from "sharp"
 import { supabaseAdmin } from "@/lib/supabase"
 import { parseStringList } from "@/lib/invitationCompleteness"
+
+// NOTE: sharp is imported LAZILY inside ensureOgImage (never top-level).
+// sharp ships platform-native binaries; a top-level import crashes the whole
+// route module on any platform whose binding wasn't traced into the build
+// (this took down GET+PUT web-invitation on the Linux VPS). Lazy import keeps
+// reads working everywhere; generation failures fall back gracefully.
 
 // Dedicated sub-300KB JPEG social thumbnails (og:image). One variant per
 // distinct cover URL, stored at a deterministic path so regeneration is
@@ -74,6 +79,7 @@ export async function ensureOgImage(coverUrl: string): Promise<string | null> {
     if (!res.ok) return null
     const buf = Buffer.from(await res.arrayBuffer())
     if (!buf.length) return null
+    const { default: sharp } = await import("sharp")
     const convert = (quality: number) =>
       sharp(buf).rotate().resize({ width: OG_WIDTH, withoutEnlargement: true }).jpeg({ quality, mozjpeg: true }).toBuffer()
     let out = await convert(OG_QUALITY)
