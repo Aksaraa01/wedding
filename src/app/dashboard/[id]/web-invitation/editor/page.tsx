@@ -437,6 +437,11 @@ function EditorInner({ id }: { id: string }) {
   const save = useCallback((updates: Record<string, any>) => {
     setSaveStatus("saving")
     pendingUpdates.current = { ...pendingUpdates.current, ...updates }
+    scheduleSave()
+  }, [id])
+
+  // Scheduler extracted from save() so state-computed updates can share it.
+  function scheduleSave() {
     if (saveTimer.current) clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(async () => {
       const all = pendingUpdates.current
@@ -459,7 +464,7 @@ function EditorInner({ id }: { id: string }) {
         setSaveStatus("error")
       }
     }, 1200)
-  }, [id])
+  }
 
   // Manual preview update: flush pending save + sync to WP, then refresh the iframe.
   const handleUpdatePreview = useCallback(async () => {
@@ -504,6 +509,29 @@ function EditorInner({ id }: { id: string }) {
     save({ [field]: value })
   }
 
+  // Race-free variant: compute updates from the LATEST state inside the
+  // functional updater, and feed the exact same values to the debounced
+  // save. Use this whenever several async uploads each contribute to one
+  // array field (cover slots, gallery) — sequential awaits otherwise read
+  // stale state and stomp each other's results.
+  const applyFields = (build: (prev: Record<string, any>) => Record<string, any>) => {
+    if (data.is_published === true || reviewMode) return
+    setSaveStatus("saving")
+    setData(prev => {
+      const updates = build(prev)
+      pendingUpdates.current = { ...pendingUpdates.current, ...updates }
+      scheduleSave()
+      return { ...prev, ...updates }
+    })
+  }
+
+  const firstCoverUrl = (covers: any[]): string => {
+    const first = covers[0]
+    if (typeof first === "string") return first || ""
+    if (Array.isArray(first)) return first[0] || ""
+    return ""
+  }
+
   const handleImageUpload = async (file: File, field: string) => {
     if (data.is_published === true || reviewMode) return
     setPhotoUploading(field)
@@ -531,23 +559,72 @@ function EditorInner({ id }: { id: string }) {
     }
   }
 
+  // Batch cover upload: uploads run sequentially (per-slot spinners stay
+  // accurate), then all results land in ONE state update + ONE save, so
+  // multi-select can no longer stomp earlier slots with stale reads.
+  const runCoverUploads = async (pairs: { index: number; file: File }[]) => {
+    if (data.is_published === true || reviewMode || pairs.length === 0) return
+    const done: { index: number; url: string }[] = []
+    for (const p of pairs) {
+      setCoverUploading(`cover-${p.index}`)
+      try {
+        const url = await uploadImageFile(p.file)
+        if (url) done.push({ index: p.index, url })
+      } finally {
+        setCoverUploading(null)
+      }
+    }
+    if (done.length === 0) return
+    applyFields((prev) => {
+      const covers = [...(Array.isArray(prev.cover_photos) ? prev.cover_photos : [])]
+      for (const d of done) {
+        while (covers.length <= d.index) covers.push("")
+        covers[d.index] = d.url
+      }
+      const first = firstCoverUrl(covers)
+      return {
+        cover_photos: covers,
+        couple_illustration_url: first || prev.couple_illustration_url,
+      }
+    })
+  }
+
+  // Batch slideshow-slide upload: same single-commit pattern as runCoverUploads.
+  const runCoverSlideUploads = async (pairs: { slot: number; slide: number; file: File }[]) => {
+    if (data.is_published === true || reviewMode || pairs.length === 0) return
+    const done: { slot: number; slide: number; url: string }[] = []
+    for (const p of pairs) {
+      setCoverUploading(`cover-${p.slot}-${p.slide}`)
+      try {
+        const url = await uploadImageFile(p.file)
+        if (url) done.push({ ...p, url })
+      } finally {
+        setCoverUploading(null)
+      }
+    }
+    if (done.length === 0) return
+    applyFields((prev) => {
+      const covers = [...(Array.isArray(prev.cover_photos) ? prev.cover_photos : [])]
+      for (const d of done) {
+        while (covers.length <= d.slot) covers.push("")
+        const cur = covers[d.slot]
+        const arr = Array.isArray(cur) ? [...cur] : (typeof cur === "string" && cur !== "" ? [cur] : [])
+        while (arr.length <= d.slide) arr.push("")
+        arr[d.slide] = d.url
+        covers[d.slot] = arr
+      }
+      const first = firstCoverUrl(covers)
+      return {
+        cover_photos: covers,
+        couple_illustration_url: first || prev.couple_illustration_url,
+      }
+    })
+  }
+
   // Upload a cover into a specific slot (pads empty slots so the couple can fill
   // any of the template's cover slots in any order).
   const setCoverAt = async (index: number, file: File) => {
-    if (data.is_published === true || reviewMode) return
-    const key = `cover-${index}`
-    setCoverUploading(key)
-    try {
-      const url = await uploadImageFile(file)
-      if (!url) return
-      const covers = [...(Array.isArray(data.cover_photos) ? data.cover_photos : [])]
-      while (covers.length <= index) covers.push("")
-      covers[index] = url
-      setData(prev => ({ ...prev, cover_photos: covers, couple_illustration_url: covers[0] || prev.couple_illustration_url }))
-      save({ cover_photos: covers, couple_illustration_url: covers[0] || data.couple_illustration_url })
-    } finally {
-      setCoverUploading(null)
-    }
+    await runCoverUploads([{ index, file }])
   }
 
   const clearCoverAt = (index: number) => {
@@ -559,25 +636,7 @@ function EditorInner({ id }: { id: string }) {
 
   // Upload a photo into a slide of a slideshow cover slot (2 slides per slot).
   const setCoverSlideAt = async (slotIndex: number, slideIndex: number, file: File) => {
-    if (data.is_published === true || reviewMode) return
-    const key = `cover-${slotIndex}-${slideIndex}`
-    setCoverUploading(key)
-    try {
-      const url = await uploadImageFile(file)
-      if (!url) return
-      const covers = [...(Array.isArray(data.cover_photos) ? data.cover_photos : [])]
-      while (covers.length <= slotIndex) covers.push("")
-      const cur = covers[slotIndex]
-      const arr = Array.isArray(cur) ? [...cur] : (typeof cur === "string" && cur !== "" ? [cur] : [])
-      while (arr.length <= slideIndex) arr.push("")
-      arr[slideIndex] = url
-      covers[slotIndex] = arr
-      const firstUrl = typeof covers[0] === "string" ? covers[0] : (Array.isArray(covers[0]) ? covers[0][0] || "" : "")
-      setData(prev => ({ ...prev, cover_photos: covers, couple_illustration_url: firstUrl || prev.couple_illustration_url }))
-      save({ cover_photos: covers, couple_illustration_url: firstUrl || data.couple_illustration_url })
-    } finally {
-      setCoverUploading(null)
-    }
+    await runCoverSlideUploads([{ slot: slotIndex, slide: slideIndex, file }])
   }
 
   const sessions: Session[] = Array.isArray(data.sessions) ? data.sessions : []
@@ -729,7 +788,10 @@ function EditorInner({ id }: { id: string }) {
       if (url) uploaded.push(url)
     }
     if (uploaded.length > 0) {
-      updateField("gallery_photos", [...galleryPhotos, ...uploaded])
+      applyFields((prev) => {
+        const existing = Array.isArray(prev.gallery_photos) ? prev.gallery_photos : []
+        return { gallery_photos: [...existing, ...uploaded] }
+      })
     }
     setGalleryUploading(false)
   }
@@ -1547,8 +1609,8 @@ function EditorInner({ id }: { id: string }) {
                         )
                       })}
                     </div>
-                    <input ref={coverReplaceRef} type="file" accept="image/*" multiple className="hidden" onChange={async e => { const files = e.target.files ? Array.from(e.target.files).filter(f => f.type.startsWith("image/")) : []; if (files.length && coverReplaceIndex !== null) { const start = coverReplaceIndex; for (let k = 0; k < files.length; k++) { const idx = start + k; if (idx >= coverSlotCount) break; if (isCoverSlideshowSlot(idx)) continue; await setCoverAt(idx, files[k]) } setCoverReplaceIndex(null) } else if (files.length) { for (let k = 0; k < files.length; k++) { if (k >= coverSlotCount) break; if (isCoverSlideshowSlot(k)) continue; await setCoverAt(k, files[k]) } } e.target.value = "" }} />
-                    <input ref={coverSlideRef} type="file" accept="image/*" multiple className="hidden" onChange={async e => { const files = e.target.files ? Array.from(e.target.files).filter(f => f.type.startsWith("image/")) : []; if (files.length && coverSlideTarget !== null) { const { slot, slide } = coverSlideTarget; if (files.length === 1) { await setCoverSlideAt(slot, slide, files[0]) } else { let si = slot, sl = slide; for (const f of files) { await setCoverSlideAt(si, sl, f); sl++; if (sl > 1) { sl = 0; si++; while (si < coverSlotCount && !isCoverSlideshowSlot(si)) si++; if (si >= coverSlotCount) break } } } setCoverSlideTarget(null) } e.target.value = "" }} />
+                    <input ref={coverReplaceRef} type="file" accept="image/*" multiple className="hidden" onChange={async e => { const files = e.target.files ? Array.from(e.target.files).filter(f => f.type.startsWith("image/")) : []; const pairs: { index: number; file: File }[] = []; if (files.length && coverReplaceIndex !== null) { for (let k = 0; k < files.length; k++) { const idx = coverReplaceIndex + k; if (idx >= coverSlotCount) break; if (isCoverSlideshowSlot(idx)) continue; pairs.push({ index: idx, file: files[k] }) } setCoverReplaceIndex(null) } else if (files.length) { for (let k = 0; k < files.length; k++) { if (k >= coverSlotCount) break; if (isCoverSlideshowSlot(k)) continue; pairs.push({ index: k, file: files[k] }) } } e.target.value = ""; if (pairs.length) await runCoverUploads(pairs) }} />
+                    <input ref={coverSlideRef} type="file" accept="image/*" multiple className="hidden" onChange={async e => { const files = e.target.files ? Array.from(e.target.files).filter(f => f.type.startsWith("image/")) : []; const pairs: { slot: number; slide: number; file: File }[] = []; if (files.length && coverSlideTarget !== null) { let si = coverSlideTarget.slot, sl = coverSlideTarget.slide; for (const f of files) { pairs.push({ slot: si, slide: sl, file: f }); sl++; if (sl > 1) { sl = 0; si++; while (si < coverSlotCount && !isCoverSlideshowSlot(si)) si++; if (si >= coverSlotCount) break } } setCoverSlideTarget(null) } e.target.value = ""; if (pairs.length) await runCoverSlideUploads(pairs) }} />
                   </div>
                   <div className="space-y-2">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Tanggal Acara</label>
