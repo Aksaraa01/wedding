@@ -93,25 +93,58 @@ export default function HeroSection() {
     return () => clearInterval(id)
   }, [photos])
 
-  // Mobile carousel: auto-scroll one card at a time, loop back at the end.
+  // Mobile carousel: seamless infinite loop. The list is rendered 3x;
+  // the view rests in the middle copy and wraps instantly (invisible, the
+  // content is identical) whenever it drifts into an outer copy.
+  const loopPhotos = [...photos, ...photos, ...photos]
+
+  // Mobile carousel: auto-advance one card at a time inside the middle copy.
   useEffect(() => {
     const track = trackRef.current
     if (!track) return
     if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    const copyWidth = () => track.scrollWidth / 3
+    // Start inside the middle copy so both directions can wrap.
+    track.scrollLeft = copyWidth()
     const step = () => {
       if (pausedRef.current) return
       const max = track.scrollWidth - track.clientWidth
       if (max <= 0) return
       const card = track.querySelector<HTMLElement>(":scope > div")
       const w = (card?.offsetWidth || 150) + 16
-      if (track.scrollLeft + 1 >= max) {
-        track.scrollTo({ left: 0, behavior: "smooth" })
-      } else {
-        track.scrollBy({ left: w, behavior: "smooth" })
-      }
+      if (track.scrollLeft + 1 >= max) return // wrap handler recenters below
+      track.scrollBy({ left: w, behavior: "smooth" })
     }
     const id = setInterval(step, SCROLL_MS)
     return () => clearInterval(id)
+  }, [photos])
+
+  // Seamless wrap (auto + manual swipe): jump by exactly one copy width.
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track) return
+    let ticking = false
+    const wrap = () => {
+      ticking = false
+      const copyWidth = track.scrollWidth / 3
+      if (copyWidth <= 0) return
+      if (track.scrollLeft >= copyWidth * 2) {
+        track.scrollLeft -= copyWidth
+      } else if (track.scrollLeft <= 0) {
+        track.scrollLeft += copyWidth
+      }
+    }
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true
+        requestAnimationFrame(wrap)
+      }
+    }
+    // Position inside the middle copy on mount / photo change.
+    const copyWidth = track.scrollWidth / 3
+    if (copyWidth > 0) track.scrollLeft = copyWidth
+    track.addEventListener("scroll", onScroll, { passive: true })
+    return () => track.removeEventListener("scroll", onScroll)
   }, [photos])
 
   const pauseAutoScroll = () => {
@@ -207,7 +240,7 @@ export default function HeroSection() {
           onPointerDown={pauseAutoScroll}
           className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 no-scrollbar px-4"
         >
-          {photos.map((src, i) => (
+          {loopPhotos.map((src, i) => (
               <div key={i} className="shrink-0 snap-start w-[150px]">
                 <img
                   src={src}
