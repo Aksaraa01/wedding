@@ -817,6 +817,11 @@ class AksaraaPlugin
         // and package gates.
         $elements = self::reconcile_section_visibility($elements, $fields, $manifest);
 
+        // F9 - hide instagram handle widgets when the couple left them empty,
+        // so the master's placeholder handle doesn't stay visible. Reappears
+        // automatically once a handle is set.
+        $elements = self::reconcile_instagram_visibility($elements, $fields, $manifest);
+
         // F7 — auto-fill copy buttons: each bank/address card may carry a
         // `weddingpress-copy-text` widget whose `dce_clipboard_text` should hold the
         // submitted account number / address so guests copy the real value.
@@ -1875,6 +1880,43 @@ class AksaraaPlugin
         if (!empty($fields['gallery_photos_hidden'])) {
             $elements = self::hide_widgets_by_type($elements, 'gallery');
             $elements = self::hide_widgets_by_type($elements, 'media-carousel');
+        }
+
+        return $elements;
+    }
+
+    // F9 - hide instagram handle widgets when the couple left the handle empty,
+    // so the template master's placeholder handle doesn't stay visible on the
+    // live invitation. Markers are removed (widget reappears) as soon as a
+    // handle is set. Runs inside apply_fields_to_post, i.e. on every patch
+    // (including the post-duplicate patch), for the post and its popups.
+    private static function reconcile_instagram_visibility(array $elements, array $fields, array $manifest): array
+    {
+        foreach (['groom_instagram', 'bride_instagram'] as $field) {
+            $mapping = $manifest[$field] ?? null;
+            if (!is_array($mapping)) continue;
+            // Accept a single {elementId, settings} slot or a list of them.
+            $slots = isset($mapping['elementId']) ? [$mapping] : array_values($mapping);
+            $ids = [];
+            foreach ($slots as $slot) {
+                if (is_array($slot) && !empty($slot['elementId'])) {
+                    $ids[] = (string) $slot['elementId'];
+                }
+            }
+            if (empty($ids)) continue;
+
+            $hasValue = isset($fields[$field]) && is_string($fields[$field]) && trim($fields[$field]) !== '';
+            foreach ($ids as $id) {
+                $elements = self::apply_to_node($elements, $id, function (array &$node) use ($hasValue) {
+                    $node['settings'] = $node['settings'] ?? [];
+                    $classes = trim((string) ($node['settings']['_css_classes'] ?? ''));
+                    $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-hidden'));
+                    if (!$hasValue) {
+                        $tokens[] = 'aksaraa-hidden';
+                    }
+                    $node['settings']['_css_classes'] = implode(' ', $tokens);
+                });
+            }
         }
 
         return $elements;

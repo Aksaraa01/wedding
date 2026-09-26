@@ -807,6 +807,15 @@ export default function AntrianDetail({ id }: { id: string }) {
     const mapping = invTpl?.wp_manifest?.cover_photos?.[i]
     return Array.isArray(mapping?.settings) && mapping.settings.join(".") === "background_slideshow_gallery"
   }
+  // Couple-photo slots mirror the couple editor: slideshow-ness comes from the
+  // TEMPLATE (manifest background_slideshow_gallery), never from how many
+  // photos are currently uploaded. In-house templates are always single.
+  const invIsSlideshowField = (field: "groom_photo_url" | "bride_photo_url") => {
+    if (invIsInhouseTpl) return false
+    const mapping = invTpl?.wp_manifest?.[field]
+    const m = Array.isArray(mapping) ? mapping[0] : mapping
+    return Array.isArray(m?.settings) && m.settings.join(".") === "background_slideshow_gallery"
+  }
   const invSetCoverAt = (idx: number, url: string) => {
     if (!invForm) return
     const covers: any[] = [...(Array.isArray(invForm.cover_photos) ? invForm.cover_photos : [])]
@@ -2288,6 +2297,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                             setUrls(next.filter(Boolean))
                           }
                           const label = isGroom ? "Mempelai Pertama" : "Mempelai Kedua"
+                          const slideshow = invIsSlideshowField(isGroom ? "groom_photo_url" : "bride_photo_url")
                           const nameHint = isGroom ? "Nama Mempelai Pertama" : "Nama Mempelai Kedua"
                           const fullHint = isGroom ? "Nama Lengkap Mempelai Pertama" : "Nama Lengkap Mempelai Kedua"
                           const parHint = isGroom ? "Contoh: Putra dari Bapak Hendra & Ibu Sari" : "Contoh: Putri dari Bapak Wijaya & Ibu Dewi"
@@ -2295,7 +2305,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                           return (
                             <div key={side} className="space-y-4">
                               <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">{label}</label>
-                              {urls.length > 1 ? (
+                              {slideshow ? (
                                 <div className="border border-outline-variant rounded p-2 bg-surface-container-lowest">
                                   <span className="text-[10px] font-bold uppercase tracking-wider text-secondary">Slideshow (harus 2 foto)</span>
                                   <div className="grid grid-cols-2 gap-2 mt-2">
@@ -2322,7 +2332,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                                   </div>
                                 </div>
                               )}
-                              {urls.length > 1 && (
+                              {slideshow && (
                                 <>
                                   <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={isGroom ? invForm.groom_name || "" : invForm.bride_name || ""} onChange={(e) => setInvForm({ ...invForm, [isGroom ? "groom_name" : "bride_name"]: e.target.value })} placeholder={nameHint} />
                                   <p className="text-[11px] text-on-surface-variant mt-1 italic">{nameHint}</p>
