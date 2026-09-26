@@ -954,6 +954,23 @@ class AksaraaPlugin
         return $url;
     }
 
+    // Couples type plain usernames ("@rafi", "rafi", or a full URL) into the
+    // instagram inputs. Social-icon link targets need a full URL; text targets
+    // keep the raw handle (normalized at the call site, not here).
+    private static function normalize_instagram_url($v): string
+    {
+        $t = trim((string) $v);
+        $t = ltrim($t, "@ \t\n\r\0\x0B");
+        $t = trim($t);
+        if ($t === '') return '';
+        if (stripos($t, 'instagram.com') !== false) {
+            if (!preg_match('#^https?://#i', $t)) $t = 'https://' . ltrim($t, '/');
+            return $t;
+        }
+        if (preg_match('#^https?://#i', $t)) return $t;
+        return 'https://instagram.com/' . ltrim($t, '/');
+    }
+
     // Simple (scalar) fields: manifest[field] = [{elementId, settings}] or {elementId, settings}.
     private static function extract_simple_fields(array $fields, array $manifest): array
     {
@@ -974,10 +991,22 @@ class AksaraaPlugin
             if (!is_array($mappings)) continue;
             foreach ($mappings as $m) {
                 if (is_array($m) && isset($m['elementId'])) {
+                    $v = $value;
+                    // Instagram handles arrive as usernames ("@rafi"). Link
+                    // targets (social icons) need full URLs; text targets keep
+                    // the raw handle for display.
+                    if (($field === 'groom_instagram' || $field === 'bride_instagram') && is_string($v)) {
+                        $sp = is_array($m['settings']) ? array_values($m['settings']) : [];
+                        $n = count($sp);
+                        if ($n >= 2 && $sp[$n - 2] === 'link' && $sp[$n - 1] === 'url') {
+                            $v = self::normalize_instagram_url($v);
+                            if ($v === '') continue;
+                        }
+                    }
                     $result[] = [
                         'elementId' => $m['elementId'],
                         'settings' => is_array($m['settings']) ? $m['settings'] : [],
-                        'value' => $value,
+                        'value' => $v,
                     ];
                 }
             }
