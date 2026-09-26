@@ -4,6 +4,7 @@ import { use, useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import ProfileMenu from "@/components/ProfileMenu"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
+import { useVisiblePoll } from "@/lib/useVisiblePoll"
 
 type Profile = {
   id: string
@@ -96,11 +97,9 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
     fetchAll().finally(() => setLoading(false))
   }, [fetchAll])
 
-  useEffect(() => {
-    if (loading) return
-    const interval = setInterval(fetchAll, 10000)
-    return () => clearInterval(interval)
-  }, [fetchAll, loading])
+  // Live refresh, paused while the tab is hidden (usher phones locked or in
+  // background must not generate traffic or Supabase log volume).
+  useVisiblePoll(fetchAll, 10000, !loading)
 
   const buildScannerUrl = (slug: string) => {
     return `https://${slug}.wedding.aksaraa.com/scanner`

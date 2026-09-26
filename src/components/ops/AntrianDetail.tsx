@@ -24,6 +24,7 @@ import {
   getPackageCategory,
 } from "@/lib/opsConstants"
 import { PACKAGE_FEATURES } from "@/lib/packages"
+import { useVisiblePoll } from "@/lib/useVisiblePoll"
 import {
   OPS_COLUMNS,
   OPS_STATUS_LABELS,
@@ -600,16 +601,17 @@ export default function AntrianDetail({ id }: { id: string }) {
 
   useEffect(() => { fetchAll() }, [fetchAll])
 
-  // Live polling + refetch when the tab regains focus.
+  // Live polling, paused while the tab is hidden (a background detail tab
+  // with its multi-query fetchAll must not generate traffic or log volume).
+  // Refetch-on-focus behavior is preserved via useVisiblePoll's refetch.
+  useVisiblePoll(fetchAll, POLL_MS)
   useEffect(() => {
-    const interval = setInterval(() => fetchAll(), POLL_MS)
-    const onFocus = () => fetchAll()
+    const onFocus = () => {
+      if (!document.hidden) fetchAll()
+    }
     window.addEventListener("focus", onFocus)
-    document.addEventListener("visibilitychange", onFocus)
     return () => {
-      clearInterval(interval)
       window.removeEventListener("focus", onFocus)
-      document.removeEventListener("visibilitychange", onFocus)
     }
   }, [fetchAll])
 

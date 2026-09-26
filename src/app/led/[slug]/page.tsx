@@ -1,6 +1,7 @@
 "use client"
 
 import { use, useEffect, useState, useRef, useCallback } from "react"
+import { useVisiblePoll } from "@/lib/useVisiblePoll"
 
 type Wish = {
   id: string
@@ -68,14 +69,16 @@ export default function LedDisplay({ params }: { params: Promise<{ slug: string 
       .catch((e) => {
         if (!cancelled) setError(e.message)
       })
-    const interval = setInterval(() => {
-      if (pid) fetchWishes(pid)
-    }, 10000)
     return () => {
       cancelled = true
-      clearInterval(interval)
     }
   }, [slug, fetchWishes])
+
+  // Poll wishes, paused while the tab is hidden (ballroom screens left open
+  // in background must not generate traffic or Supabase log volume).
+  useVisiblePoll(() => {
+    if (profileId) fetchWishes(profileId)
+  }, 10000, profileId !== "")
 
   const allApproved = [...pinned, ...others]
   const hashtag = coupleName ? `#${coupleName.replace(/[^a-zA-Z0-9]/g, "")}` : ""

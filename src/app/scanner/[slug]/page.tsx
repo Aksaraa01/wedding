@@ -3,6 +3,7 @@
 import { useState, useEffect, use, useRef, useCallback } from "react"
 import NativeQrReader from "@/components/scanner/NativeQrReader"
 import SelfieModal from "@/components/scanner/SelfieModal"
+import { useVisiblePoll } from "@/lib/useVisiblePoll"
 import {
   cacheGuests,
   getGuestByToken,
@@ -355,11 +356,9 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
     }
   }, [processScan])
 
-  useEffect(() => {
-    if (!pendingSync) return
-    const interval = setInterval(() => trySync(), 30000)
-    return () => clearInterval(interval)
-  }, [pendingSync, trySync])
+  // Offline-sync retry, paused while hidden (pending rows stay safe in
+  // IndexedDB and flush on the visibility refetch when the phone wakes).
+  useVisiblePoll(trySync, 30000, pendingSync > 0)
 
   const handleVerifyPin = async () => {
     setPinError("")

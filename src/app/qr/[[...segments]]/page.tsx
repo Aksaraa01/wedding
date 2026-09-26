@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState, useRef } from "react"
 import QRCode from "qrcode"
+import { useVisiblePoll } from "@/lib/useVisiblePoll"
 
 function getSegment(segments: string[] | undefined): string | null {
   if (!segments || segments.length === 0) return null
@@ -133,20 +134,18 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
     })()
   }, [segment])
 
-  useEffect(() => {
-    if (!pollToken) return
-    const id = setInterval(async () => {
-      try {
-        const res = await fetch(`/api/check-in?qr_token=${encodeURIComponent(pollToken)}`)
-        if (!res.ok) return
-        const data = await res.json()
-        if (data.guest?.is_checked_in) {
-          ;(window.top || window).location.replace(`/welcome/${pollRedirect}`)
-        }
-      } catch {}
-    }, 5000)
-    return () => clearInterval(id)
-  }, [pollToken, pollRedirect])
+  // Poll check-in state, paused while hidden (a background tab needs no
+  // redirect; one fresh check fires on return).
+  useVisiblePoll(async () => {
+    try {
+      const res = await fetch(`/api/check-in?qr_token=${encodeURIComponent(pollToken)}`)
+      if (!res.ok) return
+      const data = await res.json()
+      if (data.guest?.is_checked_in) {
+        ;(window.top || window).location.replace(`/welcome/${pollRedirect}`)
+      }
+    } catch {}
+  }, 5000, pollToken !== "")
 
   const fallbackCode = qrToken.slice(0, 11)
 

@@ -6,6 +6,7 @@ import PageTheme from "@/components/PageTheme"
 import OpsHeader from "@/components/ops/OpsHeader"
 import { PACKAGE_LABELS, formatDate, getPackageCategory } from "@/lib/opsConstants"
 import { OPS_COLUMNS } from "@/lib/opsStatus"
+import { useVisiblePoll } from "@/lib/useVisiblePoll"
 
 type QueueItem = {
   id: string
@@ -102,16 +103,17 @@ export default function OpsBoardPage() {
     if (employee) fetchQueue()
   }, [employee, fetchQueue])
 
-  // Live polling + refetch when the tab regains focus.
+  // Live polling, paused while the tab is hidden (a background ops tab must
+  // not generate traffic or Supabase log volume). Refetch-on-focus behavior
+  // is preserved via useVisiblePoll's visibility refetch.
+  useVisiblePoll(fetchQueue, POLL_MS, !!employee)
   useEffect(() => {
-    const interval = setInterval(fetchQueue, POLL_MS)
-    const onFocus = () => fetchQueue()
+    const onFocus = () => {
+      if (!document.hidden) fetchQueue()
+    }
     window.addEventListener("focus", onFocus)
-    document.addEventListener("visibilitychange", onFocus)
     return () => {
-      clearInterval(interval)
       window.removeEventListener("focus", onFocus)
-      document.removeEventListener("visibilitychange", onFocus)
     }
   }, [fetchQueue])
 
