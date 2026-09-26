@@ -1,11 +1,12 @@
 "use client"
 
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { waLink } from "@/lib/contact"
 
 // Template screenshots live in the media bucket's `templates/` folder.
 // Env-relative (never hardcoded to prod) + image transform at ~2x display
-// size: arch cards render at 130-156px, mobile carousel at 200px, avatars at
+// size: arch cards render at 130-156px, mobile carousel at 150px, avatars at
 // 32px — serving full originals here cost ~8-12MB per homepage view.
 const MEDIA_RENDER_BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL || ""}/storage/v1/render/image/public/media`
 
@@ -13,18 +14,38 @@ function thumb(name: string, width = 400): string {
   return `${MEDIA_RENDER_BASE}/templates/${name}?width=${width}&quality=70&resize=cover`
 }
 
+// Fallback when the template API is unreachable/empty — same frames as before.
+const FALLBACK_PHOTOS = [
+  thumb("Template%201.png"),
+  thumb("Template%202.png"),
+  thumb("Template%203.png"),
+  thumb("Template%204.png"),
+  thumb("Template%205.png"),
+  thumb("Template%206.png"),
+  thumb("Template%207.png"),
+  thumb("Template%209.png"),
+  thumb("Template%201.png"),
+  thumb("Template%202.png"),
+]
+
+type ArchSlot = { left: string; top: string; size: number; rotate: number; z: number }
+
 // 8 square cards in a top arch, mirroring the reference layout.
 // Sizes ladder: edges 130px → center 156px. Rotations ∓36° → ∓4°.
-const ARCH_PHOTOS = [
-  { src: thumb("Template%201.png"), left: "4%", top: "72%", size: 130, rotate: -36, z: 10 },
-  { src: thumb("Template%202.png"), left: "13%", top: "42%", size: 140, rotate: -24, z: 20 },
-  { src: thumb("Template%203.png"), left: "24%", top: "16%", size: 148, rotate: -13, z: 30 },
-  { src: thumb("Template%204.png"), left: "37%", top: "4%", size: 156, rotate: -4, z: 40 },
-  { src: thumb("Template%205.png"), left: "51%", top: "4%", size: 156, rotate: 4, z: 35 },
-  { src: thumb("Template%206.png"), left: "64%", top: "16%", size: 148, rotate: 13, z: 30 },
-  { src: thumb("Template%207.png"), left: "76%", top: "42%", size: 140, rotate: 24, z: 20 },
-  { src: thumb("Template%209.png"), left: "85%", top: "72%", size: 130, rotate: 36, z: 10 },
+const ARCH_SLOTS: ArchSlot[] = [
+  { left: "4%", top: "72%", size: 130, rotate: -36, z: 10 },
+  { left: "13%", top: "42%", size: 140, rotate: -24, z: 20 },
+  { left: "24%", top: "16%", size: 148, rotate: -13, z: 30 },
+  { left: "37%", top: "4%", size: 156, rotate: -4, z: 40 },
+  { left: "51%", top: "4%", size: 156, rotate: 4, z: 35 },
+  { left: "64%", top: "16%", size: 148, rotate: 13, z: 30 },
+  { left: "76%", top: "42%", size: 140, rotate: 24, z: 20 },
+  { left: "85%", top: "72%", size: 130, rotate: 36, z: 10 },
 ]
+
+const ROTATE_MS = 4000
+const SCROLL_MS = 3000
+const RESUME_MS = 6000
 
 const SOCIAL_AVATARS = [
   thumb("Template%201.png", 96),
@@ -34,6 +55,79 @@ const SOCIAL_AVATARS = [
 ]
 
 export default function HeroSection() {
+  // Real template previews (first 10 active). Falls back to the hardcoded
+  // frames when the API is unreachable or returns too few.
+  const [photos, setPhotos] = useState<string[]>(FALLBACK_PHOTOS)
+  const [offset, setOffset] = useState(0)
+  const trackRef = useRef<HTMLDivElement>(null)
+  const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pausedRef = useRef(false)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch("/api/web-templates")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled) return
+        const urls = Array.isArray(data?.templates)
+          ? data.templates
+              .map((t: any) => (typeof t?.preview_image_url === "string" ? t.preview_image_url.trim() : ""))
+              .filter(Boolean)
+              .slice(0, 10)
+          : []
+        if (urls.length >= 8) setPhotos(urls)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  // Desktop arch: slide the 8-slot window through the photo list.
+  useEffect(() => {
+    if (photos.length <= ARCH_SLOTS.length) return
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    const id = setInterval(() => {
+      setOffset((o) => (o + 1) % photos.length)
+    }, ROTATE_MS)
+    return () => clearInterval(id)
+  }, [photos])
+
+  // Mobile carousel: auto-scroll one card at a time, loop back at the end.
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track) return
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    const step = () => {
+      if (pausedRef.current) return
+      const max = track.scrollWidth - track.clientWidth
+      if (max <= 0) return
+      const card = track.querySelector<HTMLElement>(":scope > div")
+      const w = (card?.offsetWidth || 150) + 16
+      if (track.scrollLeft + 1 >= max) {
+        track.scrollTo({ left: 0, behavior: "smooth" })
+      } else {
+        track.scrollBy({ left: w, behavior: "smooth" })
+      }
+    }
+    const id = setInterval(step, SCROLL_MS)
+    return () => clearInterval(id)
+  }, [photos])
+
+  const pauseAutoScroll = () => {
+    pausedRef.current = true
+    if (resumeTimer.current) clearTimeout(resumeTimer.current)
+    resumeTimer.current = setTimeout(() => {
+      pausedRef.current = false
+    }, RESUME_MS)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (resumeTimer.current) clearTimeout(resumeTimer.current)
+    }
+  }, [])
+
   return (
     <section className="relative min-h-screen w-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 text-[#EFEAE1] [font-family:var(--font-inter)] antialiased overflow-hidden bg-[radial-gradient(circle_at_center,#592259_0%,#3A153A_100%)]">
       <style>{`
@@ -50,43 +144,73 @@ export default function HeroSection() {
           box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.65);
           border-color: rgba(255, 255, 255, 0.4);
         }
+        .arch-crossfade { animation: arch-fade-in 1.1s ease forwards; }
+        @keyframes arch-fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @media (prefers-reduced-motion: reduce) {
+          .arch-crossfade { animation: none; }
+        }
       `}</style>
 
-      {/* Top arch gallery (mirrors reference positioning) — desktop only */}
+      {/* Top arch gallery (mirrors reference positioning) — desktop only.
+          Layout identical; each slot crossfades through the template list. */}
       <div className="hidden md:block absolute top-24 left-1/2 -translate-x-1/2 w-full max-w-[1100px] h-[380px] pointer-events-none px-4 z-5">
-        {ARCH_PHOTOS.map((photo, i) => (
-          <div
-            key={i}
-            className="arch-photo pointer-events-auto"
-            style={{
-              left: photo.left,
-              top: photo.top,
-              width: photo.size,
-              height: photo.size,
-              transform: `rotate(${photo.rotate}deg)`,
-              zIndex: photo.z,
-            }}
-          >
-            <img
-              src={photo.src}
-              alt="Galeri"
-              width={photo.size}
-              height={photo.size}
-              loading="lazy"
-              decoding="async"
-              className="w-full h-full object-cover rounded-2xl"
-            />
-          </div>
-        ))}
+        {ARCH_SLOTS.map((slot, i) => {
+          const current = photos[(offset + i) % photos.length]
+          const incoming = photos[(offset + i + 1) % photos.length]
+          const animate = photos.length > ARCH_SLOTS.length
+          return (
+            <div
+              key={i}
+              className="arch-photo pointer-events-auto"
+              style={{
+                left: slot.left,
+                top: slot.top,
+                width: slot.size,
+                height: slot.size,
+                transform: `rotate(${slot.rotate}deg)`,
+                zIndex: slot.z,
+              }}
+            >
+              <img
+                src={current}
+                alt="Galeri"
+                width={slot.size}
+                height={slot.size}
+                loading="lazy"
+                decoding="async"
+                className="w-full h-full object-cover rounded-2xl"
+              />
+              {animate && incoming !== current && (
+                <img
+                  key={offset}
+                  src={incoming}
+                  alt=""
+                  aria-hidden
+                  width={slot.size}
+                  height={slot.size}
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 w-full h-full object-cover rounded-2xl arch-crossfade"
+                />
+              )}
+            </div>
+          )
+        })}
       </div>
 
-      {/* Mobile: horizontal snap carousel of the template frames (no overlap with text) */}
-      <div className="md:hidden w-full max-w-[1100px] mx-auto mb-6 mt-6">
-        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 no-scrollbar px-4">
-          {ARCH_PHOTOS.map((photo, i) => (
-              <div key={i} className="shrink-0 snap-start w-[200px]">
+      {/* Mobile: horizontal snap carousel of the template frames.
+          pt-24 clears the fixed h-20 header; cards 150px. Auto-scrolls. */}
+      <div className="md:hidden w-full max-w-[1100px] mx-auto mb-6 pt-24">
+        <div
+          ref={trackRef}
+          onTouchStart={pauseAutoScroll}
+          onPointerDown={pauseAutoScroll}
+          className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 no-scrollbar px-4"
+        >
+          {photos.map((src, i) => (
+              <div key={i} className="shrink-0 snap-start w-[150px]">
                 <img
-                  src={photo.src}
+                  src={src}
                   alt="Galeri"
                   loading="lazy"
                   decoding="async"
