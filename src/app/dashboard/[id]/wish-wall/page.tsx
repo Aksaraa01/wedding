@@ -20,6 +20,7 @@ type Stats = {
   pending: number
   approved: number
   pinned: number
+  hidden: number
 }
 
 function timeAgo(iso: string): string {
@@ -38,7 +39,7 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
   const router = useRouter()
 
   const [wishes, setWishes] = useState<Wish[]>([])
-  const [stats, setStats] = useState<Stats>({ total: 0, pending: 0, approved: 0, pinned: 0 })
+  const [stats, setStats] = useState<Stats>({ total: 0, pending: 0, approved: 0, pinned: 0, hidden: 0 })
   const [filter, setFilter] = useState("all")
   const [coupleSlug, setCoupleSlug] = useState("")
   const [copied, setCopied] = useState(false)
@@ -68,6 +69,7 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
       pending: all.filter((w: Wish) => w.status === "pending").length,
       approved: all.filter((w: Wish) => w.status === "approved").length,
       pinned: all.filter((w: Wish) => w.is_pinned).length,
+      hidden: all.filter((w: Wish) => w.status === "hidden").length,
     })
   }
 
@@ -82,6 +84,7 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
     if (filter === "all") return true
     if (filter === "pending") return w.status === "pending"
     if (filter === "approved") return w.status === "approved"
+    if (filter === "hidden") return w.status === "hidden"
     if (filter === "pinned") return w.is_pinned
     return true
   })
@@ -116,6 +119,7 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
     { key: "all", label: "Semua Doa", count: stats.total },
     { key: "pending", label: "Menunggu Moderasi", count: stats.pending },
     { key: "approved", label: "Disetujui", count: stats.approved },
+    { key: "hidden", label: "Disembunyikan", count: stats.hidden },
     { key: "pinned", label: "Disematkan", count: stats.pinned },
   ]
 
@@ -234,12 +238,13 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
 
               {shown.map((wish) => {
                 const isPending = wish.status === "pending"
+                const isHidden = wish.status === "hidden"
                 const sourceLabel = wish.source === "welcome" ? "Dari Welcome" : "Dari Undangan"
 
                 return (
                   <article
                     key={wish.id}
-                    className={`relative overflow-hidden flex flex-col h-full rounded-xl border shadow-sm ${wish.is_pinned ? "md:col-span-2 bg-white border-[#C5A059] border-l-4 border-l-[#C5A059]" : isPending ? "bg-[#FFFBEB] border-[#F59E0B]" : "bg-white border-[#E2D9CF]"}`}
+                    className={`relative overflow-hidden flex flex-col h-full rounded-xl border shadow-sm ${wish.is_pinned ? "md:col-span-2 bg-white border-[#C5A059] border-l-4 border-l-[#C5A059]" : isPending ? "bg-[#FFFBEB] border-[#F59E0B]" : isHidden ? "bg-[#F3F4F6] border-[#D1D5DB]" : "bg-white border-[#E2D9CF]"}`}
                   >
                     <div className="p-8 flex flex-col h-full">
                     <div className="mb-4">
@@ -253,6 +258,11 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
                           <>
                             <span className="material-symbols-outlined text-[14px] md:text-[16px] text-[#F59E0B]">schedule</span>
                             <span className="font-label-md text-[11px] md:text-label-md uppercase text-[#92400E] tracking-widest font-bold">Review</span>
+                          </>
+                        ) : isHidden ? (
+                          <>
+                            <span className="material-symbols-outlined text-[14px] md:text-[16px] text-[#6B7280]">visibility_off</span>
+                            <span className="font-label-md text-[11px] md:text-label-md uppercase text-[#6B7280] tracking-widest font-bold">Disembunyikan</span>
                           </>
                         ) : (
                           <>
