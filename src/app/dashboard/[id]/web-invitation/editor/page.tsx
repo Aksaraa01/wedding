@@ -1621,7 +1621,7 @@ function EditorInner({ id }: { id: string }) {
                   <div className="space-y-2">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Hashtag Instagram Post</label>
                     <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.display_name || ""} onChange={e => updateField("display_name", e.target.value)} placeholder="#RiaYusufBersatu" />
-                    <p className="text-[11px] text-on-surface-variant mt-1 italic">Tampil pada sampul undangan WordPress sebagai hashtag. Contoh: #RiaYusufBersatu. Kosongkan untuk menyembunyikan.</p>
+                    <p className="text-[11px] text-on-surface-variant mt-1 italic">Tampil pada undangan sebagai hashtag. Contoh: #RiaYusufWedding. Kosongkan untuk menyembunyikan.</p>
                   </div>
                   )}
                   <div className="space-y-2">
