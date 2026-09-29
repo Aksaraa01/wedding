@@ -223,7 +223,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   const [showLimitModal, setShowLimitModal] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [hasUnresolvedFeedback, setHasUnresolvedFeedback] = useState(false)
-  const [linkStrict, setLinkStrict] = useState(true)
+  const [linkStrict, setLinkStrict] = useState(false)
   const [linkSaving, setLinkSaving] = useState(false)
   const [showLinkInfo, setShowLinkInfo] = useState(false)
   const [genericCopied, setGenericCopied] = useState<"link" | "msg" | null>(null)
