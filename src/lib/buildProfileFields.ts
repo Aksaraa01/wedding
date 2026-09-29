@@ -104,7 +104,7 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
     couple_illustration_url: profile.couple_illustration_url || "",
     cover_photos: coverPhotos,
     couple_initials: esc(profile.couple_initials),
-    display_name: esc(profile.display_name || (profile.bride_name && profile.groom_name ? `${profile.bride_name} & ${profile.groom_name}` : "")),
+    display_name: esc(profile.display_name || ""),
     groom_name: esc(profile.groom_name),
     bride_name: esc(profile.bride_name),
     groom_full_name: esc(profile.groom_full_name),

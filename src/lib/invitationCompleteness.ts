@@ -94,7 +94,7 @@ function isSectionIncomplete(key: string, d: InvitationCompletenessInput): boole
     case "pembuka":
       return !hasStr(d.opening_title) && !hasStr(d.opening_description)
     case "profile":
-      return !hasStr(d.display_name) || !hasStr(d.groom_full_name) || !hasStr(d.bride_full_name)
+      return !hasStr(d.groom_full_name) || !hasStr(d.bride_full_name)
     case "inviting":
       if (!d.gates.inviting_families) return false
       if (d.inviting_families_visible === false) return false
