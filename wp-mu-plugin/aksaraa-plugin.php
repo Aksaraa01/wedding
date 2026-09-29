@@ -822,6 +822,9 @@ class AksaraaPlugin
         // automatically once a handle is set.
         $elements = self::reconcile_instagram_visibility($elements, $fields, $manifest);
 
+        // F10 — hide the hashtag element when empty.
+        $elements = self::reconcile_display_name_visibility($elements, $fields, $manifest);
+
         // F7 — auto-fill copy buttons: each bank/address card may carry a
         // `weddingpress-copy-text` widget whose `dce_clipboard_text` should hold the
         // submitted account number / address so guests copy the real value.
@@ -1946,6 +1949,41 @@ class AksaraaPlugin
                     $node['settings']['_css_classes'] = implode(' ', $tokens);
                 });
             }
+        }
+
+        return $elements;
+    }
+
+    // F10 - hide the display_name (hashtag) element when the couple left the
+    // hashtag empty, so the master's placeholder name doesn't stay visible on
+    // the live invitation. Marker removed (element reappears) as soon as a
+    // hashtag is set. Runs inside apply_fields_to_post, i.e. on every patch
+    // (including the post-duplicate patch), for the post and its popups.
+    private static function reconcile_display_name_visibility(array $elements, array $fields, array $manifest): array
+    {
+        $mapping = $manifest['display_name'] ?? null;
+        if (!is_array($mapping)) return $elements;
+        // Accept a single {elementId, settings} slot or a list of them.
+        $slots = isset($mapping['elementId']) ? [$mapping] : array_values($mapping);
+        $ids = [];
+        foreach ($slots as $slot) {
+            if (is_array($slot) && !empty($slot['elementId'])) {
+                $ids[] = (string) $slot['elementId'];
+            }
+        }
+        if (empty($ids)) return $elements;
+
+        $hasValue = isset($fields['display_name']) && is_string($fields['display_name']) && trim($fields['display_name']) !== '';
+        foreach ($ids as $id) {
+            $elements = self::apply_to_node($elements, $id, function (array &$node) use ($hasValue) {
+                $node['settings'] = $node['settings'] ?? [];
+                $classes = trim((string) ($node['settings']['_css_classes'] ?? ''));
+                $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-hidden'));
+                if (!$hasValue) {
+                    $tokens[] = 'aksaraa-hidden';
+                }
+                $node['settings']['_css_classes'] = implode(' ', $tokens);
+            });
         }
 
         return $elements;

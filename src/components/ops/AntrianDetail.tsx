@@ -227,7 +227,7 @@ function invSectionState(p: any, key: string, gift?: { accounts: any[]; address:
     case "pembuka":
       return !invHasStr(p?.opening_title) && !invHasStr(p?.opening_description) ? "empty" : "ok"
     case "profil":
-      return !invHasStr(p?.display_name) || !invHasStr(p?.groom_full_name) || !invHasStr(p?.bride_full_name) ? "empty" : "ok"
+      return !invHasStr(p?.groom_full_name) || !invHasStr(p?.bride_full_name) ? "empty" : "ok"
     case "acara": {
       const ss = Array.isArray(p?.sessions) ? p.sessions : []
       if (ss.length === 0) return "empty"
@@ -961,7 +961,7 @@ export default function AntrianDetail({ id }: { id: string }) {
     const changed: string[] = []
     const sameStr = (a: any, b: any) => (a ?? "") === (b ?? "")
     const strField = (label: string, nv: any, ov: any) => { if (!sameStr(nv, ov)) changed.push(label) }
-    strField("Nama Tampilan", f.display_name, orig.display_name)
+    strField("Hashtag", f.display_name, orig.display_name)
     strField("Inisial", f.couple_initials, orig.couple_initials)
     strField("Judul Pembuka", f.opening_title, orig.opening_title)
     strField("Deskripsi Pembuka", f.opening_description, orig.opening_description)
@@ -2171,10 +2171,18 @@ export default function AntrianDetail({ id }: { id: string }) {
                       <input className="input-editorial w-full font-headline-md text-[16px]" type="date" value={invForm.estimated_wedding_date || ""} onChange={(e) => setInvForm({ ...invForm, estimated_wedding_date: e.target.value })} />
                       <p className="text-[11px] text-on-surface-variant mt-1 italic">Tanggal utama yang tampil pada sampul undangan.</p>
                     </div>
+                    {(() => {
+                      const t = (invitationData as any)?.template
+                      const tplInhouse = t?.source_type === "inhouse" || (!!t?.code && !t?.wp_master_slug)
+                      if (tplInhouse) return null
+                      return (
                     <div className="space-y-2">
-                      <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Nama Mempelai</label>
-                      <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={invForm.display_name || ""} onChange={(e) => setInvForm({ ...invForm, display_name: e.target.value })} />
+                      <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Hashtag Instagram Post</label>
+                      <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={invForm.display_name || ""} onChange={(e) => setInvForm({ ...invForm, display_name: e.target.value })} placeholder="#RiaYusufBersatu" />
+                      <p className="text-[11px] text-on-surface-variant mt-1 italic">Tampil pada sampul undangan WordPress sebagai hashtag. Kosongkan untuk menyembunyikan.</p>
                     </div>
+                      )
+                    })()}
                     <div className="space-y-2">
                       <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Singkatan Pasangan</label>
                       <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={invForm.couple_initials || ""} onChange={(e) => setInvForm({ ...invForm, couple_initials: e.target.value })} placeholder="WD" />

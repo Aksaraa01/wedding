@@ -3,7 +3,7 @@ export const FIELD_LABELS: Record<string, string> = {
   couple_illustration_url: "Foto Sampul",
   cover_photos: "Foto Sampul",
   couple_initials: "Singkatan Pasangan",
-  display_name: "Nama Pasangan (Tampilan)",
+  display_name: "Hashtag Instagram Post",
   groom_name: "Nama Mempelai Pertama",
   bride_name: "Nama Mempelai Kedua",
   groom_full_name: "Nama Lengkap Mempelai Pertama",

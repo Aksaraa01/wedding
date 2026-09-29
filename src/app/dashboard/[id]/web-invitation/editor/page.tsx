@@ -314,7 +314,7 @@ function EditorInner({ id }: { id: string }) {
         setData(prev => ({
           ...prev,
           ...p,
-          display_name: p.display_name || (p.bride_name && p.groom_name ? `${p.bride_name} & ${p.groom_name}` : ""),
+          display_name: p.display_name || "",
           inviting_families: Array.isArray(p.inviting_families) ? p.inviting_families : [],
           cover_photos: Array.isArray(p.cover_photos) ? p.cover_photos : [],
           groom_photo_url: parsePhotoList(p.groom_photo_url),
@@ -1372,7 +1372,7 @@ function EditorInner({ id }: { id: string }) {
                 </div>
               ) : (
                 <>
-                  <h1 className="font-headline-md text-[18px] lg:text-[20px] text-primary tracking-tight font-bold truncate max-w-[180px] xl:max-w-none">{data.display_name || "Undangan"}</h1>
+                  <h1 className="font-headline-md text-[18px] lg:text-[20px] text-primary tracking-tight font-bold truncate max-w-[180px] xl:max-w-none">{data.bride_name && data.groom_name ? `${data.bride_name} & ${data.groom_name}` : data.bride_name || data.groom_name || "Undangan"}</h1>
                   <p className="font-label-md text-[10px] text-on-surface-variant flex items-center gap-1" title={syncStatus === "error" && syncError ? syncError : undefined}>
                     <span className={`w-1.5 h-1.5 rounded-full ${saveStatusColor}`} />
                     {saveStatusLabel}
@@ -1617,10 +1617,13 @@ function EditorInner({ id }: { id: string }) {
                     <input className="input-editorial w-full font-headline-md text-[16px]" type="date" value={data.estimated_wedding_date || ""} onChange={e => updateField("estimated_wedding_date", e.target.value)} />
                     <p className="text-[11px] text-on-surface-variant mt-1 italic">Tanggal utama yang tampil pada sampul undangan.</p>
                   </div>
+                  {!isInhouse && (
                   <div className="space-y-2">
-                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Nama Mempelai</label>
-                    <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.display_name || ""} onChange={e => updateField("display_name", e.target.value)} />
+                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Hashtag Instagram Post</label>
+                    <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.display_name || ""} onChange={e => updateField("display_name", e.target.value)} placeholder="#RiaYusufBersatu" />
+                    <p className="text-[11px] text-on-surface-variant mt-1 italic">Tampil pada sampul undangan WordPress sebagai hashtag. Contoh: #RiaYusufBersatu. Kosongkan untuk menyembunyikan.</p>
                   </div>
+                  )}
                   <div className="space-y-2">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Singkatan Pasangan</label>
                     <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.couple_initials || ""} onChange={e => updateField("couple_initials", e.target.value)} placeholder="WD" />
