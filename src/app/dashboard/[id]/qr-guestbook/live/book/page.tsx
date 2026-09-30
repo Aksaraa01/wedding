@@ -20,7 +20,9 @@ type Guest = {
   is_vip?: boolean
 }
 
-type Entry = Guest & { wish?: string; photo?: string }
+type GuestPhoto = { url: string; source: string | null; created_at: string | null }
+
+type Entry = Guest & { wish?: string; photos: string[] }
 
 type Profile = {
   slug: string
@@ -71,13 +73,7 @@ export default function LiveBookPage({ params }: { params: Promise<{ id: string 
       let guests: Guest[] = []
       if (guestsRes.ok) {
         const g = await guestsRes.json()
-        guests = ((g.guests || []) as Guest[])
-          .filter((x) => x.is_checked_in)
-          .sort((a, b) => {
-            const ta = a.checkin_timestamp ? new Date(a.checkin_timestamp).getTime() : 0
-            const tb = b.checkin_timestamp ? new Date(b.checkin_timestamp).getTime() : 0
-            return tb - ta
-          })
+        guests = ((g.guests || []) as Guest[]).filter((x) => x.is_checked_in)
       }
       const wishByGuest = new Map<string, string>()
       if (wishRes.ok) {
@@ -88,20 +84,42 @@ export default function LiveBookPage({ params }: { params: Promise<{ id: string 
           }
         }
       }
-      const photoByGuest = new Map<string, string>()
+      const photoByGuest = new Map<string, GuestPhoto[]>()
       if (photoRes.ok) {
         const p = await photoRes.json()
         for (const item of p.photos || []) {
-          if (item.guest_id && item.image_url && !photoByGuest.has(item.guest_id)) {
-            photoByGuest.set(item.guest_id, item.image_url)
+          if (item.guest_id && item.image_url) {
+            const list = photoByGuest.get(item.guest_id) || []
+            list.push({ url: item.image_url, source: item.source || null, created_at: item.created_at || null })
+            photoByGuest.set(item.guest_id, list)
           }
         }
+        // Selfie check-in first, then gallery uploads newest-first.
+        for (const [gid, list] of photoByGuest) {
+          list.sort((a, b) => {
+            const as = a.source === "selfie" ? 0 : 1
+            const bs = b.source === "selfie" ? 0 : 1
+            if (as !== bs) return as - bs
+            return (b.created_at || "").localeCompare(a.created_at || "")
+          })
+          photoByGuest.set(gid, list.slice(0, 4))
+        }
       }
+      // Guests with photos first, then newest check-in first.
+      const withPhoto = (g: Guest) => (photoByGuest.get(g.id) || []).length > 0
+      guests.sort((a, b) => {
+        const pa = withPhoto(a) ? 0 : 1
+        const pb = withPhoto(b) ? 0 : 1
+        if (pa !== pb) return pa - pb
+        const ta = a.checkin_timestamp ? new Date(a.checkin_timestamp).getTime() : 0
+        const tb = b.checkin_timestamp ? new Date(b.checkin_timestamp).getTime() : 0
+        return tb - ta
+      })
       setEntries(
         guests.map((g) => ({
           ...g,
           wish: wishByGuest.get(g.id),
-          photo: photoByGuest.get(g.id),
+          photos: (photoByGuest.get(g.id) || []).map((x) => x.url),
         }))
       )
     } catch {}
@@ -242,50 +260,7 @@ export default function LiveBookPage({ params }: { params: Promise<{ id: string 
           {/* ENTRY PAGES */}
           {entries.map((e, i) => (
             <div className="bfb-page" key={e.id}>
-              <div className="bfb-paper h-full w-full flex flex-col px-6 md:px-8 py-6">
-                <div className="flex items-center justify-between">
-                  <span className={`${cinzel.className} text-[10px] tracking-[0.24em] uppercase text-[#8B6F2A]`}>✻ Registry No. {String(i + 1).padStart(3, "0")}</span>
-                  <span className="text-xs italic text-[#8B6F2A]">{formatTime(e.checkin_timestamp)}</span>
-                </div>
-                <div className="w-full h-px bg-gradient-to-r from-transparent via-[#C9A34E]/60 to-transparent my-3" />
-                <h2 className={`${cormorant.className} text-2xl text-[#231E1B]`}>{e.name}</h2>
-                <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                  {e.table_number && (
-                    <span className="px-2.5 py-0.5 rounded-full bg-[#F4EFE6] border border-[#E2D9CF] text-[10px] uppercase tracking-wider text-[#39332D]">
-                      {e.table_number}
-                    </span>
-                  )}
-                  {e.category && (
-                    <span className="px-2.5 py-0.5 rounded-full bg-[#F4EFE6] border border-[#E2D9CF] text-[10px] uppercase tracking-wider text-[#39332D]">
-                      {e.category}
-                    </span>
-                  )}
-                  {e.is_vip && (
-                    <span className="px-2.5 py-0.5 rounded-full bg-[#C9A34E]/15 border border-[#C9A34E] text-[10px] uppercase tracking-wider text-[#7A5A2E] font-bold">
-                      ★ VIP
-                    </span>
-                  )}
-                  {e.added_manually && (
-                    <span className="px-2.5 py-0.5 rounded-full bg-amber-100 border border-amber-300 text-[10px] uppercase tracking-wider text-amber-700">
-                      Manual
-                    </span>
-                  )}
-                </div>
-                {e.photo && (
-                  <div className="mt-3 mx-auto max-w-[220px] bg-white p-2 pb-3 shadow-lg rotate-[-1deg]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={e.photo} alt={`Foto ${e.name}`} className="w-full aspect-square object-cover" loading="lazy" />
-                  </div>
-                )}
-                {e.wish ? (
-                  <p className={`${cormorant.className} italic text-lg text-[#39332D] leading-relaxed mt-3`}>&ldquo;{e.wish}&rdquo;</p>
-                ) : (
-                  <p className={`${cormorant.className} italic text-sm text-[#8B6F2A]/70 mt-3`}>Hadir dengan sukacita.</p>
-                )}
-                <div className="mt-auto pt-3 text-right">
-                  <span className="italic text-xs text-[#8B6F2A]">p. {i + 1}</span>
-                </div>
-              </div>
+              <EntryPage entry={e} index={i} />
             </div>
           ))}
 
@@ -302,6 +277,77 @@ export default function LiveBookPage({ params }: { params: Promise<{ id: string 
         <p className="text-center text-[10px] tracking-[0.2em] uppercase text-[#8B6F2A]/70 mt-3">
           {entries.length === 0 ? "Menunggu tamu" : `Halaman ${Math.min(pageRef.current + 1, entries.length + 1)} dari ${entries.length + 1}`}
         </p>
+      </div>
+    </div>
+  )
+}
+
+function EntryPage({ entry, index }: { entry: Entry; index: number }) {
+  const [sel, setSel] = useState(0)
+  const active = entry.photos.length > 0 ? entry.photos[Math.min(sel, entry.photos.length - 1)] : ""
+  return (
+    <div className="bfb-paper h-full w-full flex flex-col px-5 md:px-7 py-4 overflow-hidden">
+      <div className="flex items-center justify-between shrink-0">
+        <span className={`${cinzel.className} text-[10px] tracking-[0.24em] uppercase text-[#8B6F2A]`}>✻ Registry No. {String(index + 1).padStart(3, "0")}</span>
+        <span className="text-[11px] italic text-[#8B6F2A]">{formatTime(entry.checkin_timestamp)}</span>
+      </div>
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-[#C9A34E]/60 to-transparent my-2 shrink-0" />
+      <h2 className={`${cormorant.className} text-[22px] leading-tight text-[#231E1B] truncate shrink-0`}>{entry.name}</h2>
+      <div className="flex flex-wrap items-center gap-1.5 mt-1.5 shrink-0">
+        {entry.table_number && (
+          <span className="px-2 py-0.5 rounded-full bg-[#F4EFE6] border border-[#E2D9CF] text-[9px] uppercase tracking-wider text-[#39332D]">
+            {entry.table_number}
+          </span>
+        )}
+        {entry.category && (
+          <span className="px-2 py-0.5 rounded-full bg-[#F4EFE6] border border-[#E2D9CF] text-[9px] uppercase tracking-wider text-[#39332D]">
+            {entry.category}
+          </span>
+        )}
+        {entry.is_vip && (
+          <span className="px-2 py-0.5 rounded-full bg-[#C9A34E]/15 border border-[#C9A34E] text-[9px] uppercase tracking-wider text-[#7A5A2E] font-bold">
+            ★ VIP
+          </span>
+        )}
+        {entry.added_manually && (
+          <span className="px-2 py-0.5 rounded-full bg-amber-100 border border-amber-300 text-[9px] uppercase tracking-wider text-amber-700">
+            Manual
+          </span>
+        )}
+      </div>
+      {active && (
+        <div className="mt-2 mx-auto w-full max-w-[200px] shrink-0">
+          <div className="bg-white p-1.5 pb-2 shadow-lg rotate-[-1deg]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={active} alt={`Foto ${entry.name}`} className="w-full aspect-square object-cover" loading="lazy" />
+          </div>
+          {entry.photos.length > 1 && (
+            <div className="flex justify-center gap-1.5 mt-1.5">
+              {entry.photos.map((u, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setSel(i)}
+                  aria-label={`Lihat foto ${i + 1}`}
+                  className={`w-9 h-9 rounded overflow-hidden border-2 transition-all ${i === Math.min(sel, entry.photos.length - 1) ? "border-[#C9A34E] shadow" : "border-transparent opacity-60 hover:opacity-100"}`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={u} alt="" className="w-full h-full object-cover" loading="lazy" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      <div className="flex-1 min-h-0 overflow-y-auto mt-2">
+        {entry.wish ? (
+          <p className={`${cormorant.className} italic text-[17px] leading-snug text-[#39332D]`}>&ldquo;{entry.wish}&rdquo;</p>
+        ) : (
+          <p className={`${cormorant.className} italic text-sm text-[#8B6F2A]/70`}>Hadir dengan sukacita.</p>
+        )}
+      </div>
+      <div className="pt-1 text-right shrink-0">
+        <span className="italic text-[11px] text-[#8B6F2A]">p. {index + 1}</span>
       </div>
     </div>
   )

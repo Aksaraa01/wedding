@@ -75,6 +75,7 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
   const [exporting, setExporting] = useState(false)
   const bookWrapRef = useRef<HTMLDivElement>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [cssFullscreen, setCssFullscreen] = useState(false)
 
   const fetchAll = useCallback(async () => {
     try {
@@ -110,14 +111,24 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
   }, [id])
 
   const toggleBookFullscreen = useCallback(async () => {
-    try {
-      if (document.fullscreenElement) {
-        await document.exitFullscreen()
-      } else if (bookWrapRef.current) {
-        await bookWrapRef.current.requestFullscreen()
-      }
-    } catch {}
-  }, [])
+    // CSS fallback (e.g. iPhone Safari has no Element fullscreen): fixed overlay.
+    if (cssFullscreen) {
+      setCssFullscreen(false)
+      return
+    }
+    if (document.fullscreenElement) {
+      try { await document.exitFullscreen() } catch {}
+      return
+    }
+    const el = bookWrapRef.current
+    if (el && typeof el.requestFullscreen === "function") {
+      try {
+        await el.requestFullscreen()
+        return
+      } catch {}
+    }
+    setCssFullscreen(true)
+  }, [cssFullscreen])
 
   useEffect(() => {
     const onFs = () => setIsFullscreen(!!document.fullscreenElement)
@@ -251,9 +262,9 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
           </p>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
         {/* LEFT — stats + live feed */}
-        <div className="space-y-6 min-w-0">
+        <div className="space-y-6 min-w-0 lg:col-span-5">
           <div className="bg-white p-5 md:p-8 shadow-sm border border-[#eae3d5] relative overflow-hidden">
             <div className="absolute inset-3 md:inset-4 border border-[#eae3d5]/50 pointer-events-none" />
             <div className="relative z-10">
@@ -423,7 +434,7 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
         </div>
 
         {/* RIGHT — scanner quick access + live book */}
-        <div className="space-y-6 min-w-0">
+        <div className="space-y-6 min-w-0 lg:col-span-7">
           <section data-tour="buku-tamu" className="bg-white border border-[#E2D9CF] rounded-2xl shadow-sm p-4 md:p-5">
             <div className="flex items-center gap-2 mb-3">
               <span className="material-symbols-outlined text-[#B34E3F] text-[18px]">qr_code_scanner</span>
@@ -481,15 +492,25 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
                 onClick={toggleBookFullscreen}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-[#E2D9CF] font-label-md text-[10px] uppercase tracking-widest text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors shadow-sm"
               >
-                <span className="material-symbols-outlined text-[16px]">{isFullscreen ? "fullscreen_exit" : "fullscreen"}</span>
-                {isFullscreen ? "Keluar Layar Penuh" : "Buka Mode Layar Penuh"}
+                <span className="material-symbols-outlined text-[16px]">{isFullscreen || cssFullscreen ? "fullscreen_exit" : "fullscreen"}</span>
+                {isFullscreen || cssFullscreen ? "Keluar Layar Penuh" : "Buka Mode Layar Penuh"}
               </button>
             </div>
-            <div ref={bookWrapRef} className={`rounded-2xl overflow-hidden border border-[#E2D9CF] shadow-sm bg-[#F4EFE6] ${isFullscreen ? "h-screen" : ""}`}>
+            <div ref={bookWrapRef} className={`rounded-2xl overflow-hidden border border-[#E2D9CF] shadow-sm bg-[#F4EFE6] ${isFullscreen ? "h-screen" : ""} ${cssFullscreen ? "fixed inset-0 z-[90] rounded-none border-0 p-3 md:p-6 overflow-auto" : ""}`}>
+              {cssFullscreen && (
+                <button
+                  type="button"
+                  onClick={() => setCssFullscreen(false)}
+                  className="fixed top-4 right-4 z-[91] w-11 h-11 rounded-full bg-[#2C2A29] text-white flex items-center justify-center shadow-xl"
+                  aria-label="Keluar layar penuh"
+                >
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              )}
               <iframe
                 src={`/dashboard/${id}/qr-guestbook/live/book`}
                 title="Buku Tamu Digital"
-                className={`w-full border-0 ${isFullscreen ? "h-full" : "h-[560px] md:h-[620px]"}`}
+                className={`w-full border-0 ${isFullscreen || cssFullscreen ? "h-full min-h-[85vh]" : "h-[560px] md:h-[620px]"}`}
                 loading="lazy"
               />
             </div>
