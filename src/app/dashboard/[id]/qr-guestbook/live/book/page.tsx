@@ -132,51 +132,79 @@ export default function LiveBookPage({ params }: { params: Promise<{ id: string 
 
   useVisiblePoll(fetchAll, 15000, !loading)
 
-  // (Re)build the flip book whenever the entry set changes.
+  // Viewport bucket: remount the flip book when orientation/size meaningfully
+  // changes (resize, entering/exiting fullscreen). Debounced to avoid thrash.
+  function sizeBucket() {
+    if (typeof window === "undefined") return "l-0-0"
+    const w = window.innerWidth
+    const h = window.innerHeight
+    return `${w < 768 ? "p" : "l"}-${Math.round(w / 100)}-${Math.round(h / 100)}`
+  }
+  const [bucket, setBucket] = useState(sizeBucket)
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout> | undefined
+    const update = () => {
+      if (t) clearTimeout(t)
+      t = setTimeout(() => setBucket(sizeBucket()), 350)
+    }
+    window.addEventListener("resize", update)
+    document.addEventListener("fullscreenchange", update)
+    update()
+    return () => {
+      if (t) clearTimeout(t)
+      window.removeEventListener("resize", update)
+      document.removeEventListener("fullscreenchange", update)
+    }
+  }, [])
+  const buildKey = `${bucket}|${entriesKey}`
+
+  // Flip lifecycle. NOTE: PageFlip.destroy() removes its own container block
+  // from the DOM, so the flip root must be a fresh React-remounted node on
+  // every rebuild (keyed container below) — never re-init on a node a
+  // previous instance owned, or the book renders blank.
   useEffect(() => {
     const el = bookRef.current
     if (!el || loading) return
-    const build = () => {
-      try { flipRef.current?.destroy() } catch {}
-      flipRef.current = null
-      const pages = el.querySelectorAll(".bfb-page")
-      if (pages.length === 0) return
-      const w = el.clientWidth
-      const portrait = window.innerWidth < 768
-      const pageW = portrait ? w : Math.floor(w / 2)
-      const pageH = Math.floor(pageW * 1.42)
-      el.style.height = `${pageH}px`
-      try {
-        const flip = new PageFlip(el, {
-          width: pageW,
-          height: pageH,
-          showCover: true,
-          usePortrait: portrait,
-          maxShadowOpacity: 0.4,
-          mobileScrollSupport: true,
-        })
-        flip.loadFromHTML(pages)
-        flip.on("flip", (e: any) => {
-          pageRef.current = typeof e?.data === "number" ? e.data : pageRef.current
-        })
-        const maxPage = Math.max(0, pages.length - 1)
-        if (pageRef.current > maxPage) pageRef.current = maxPage
-        if (pageRef.current > 0) {
-          try { flip.turnToPage(pageRef.current) } catch {}
-        }
+    const pages = el.querySelectorAll(".bfb-page")
+    if (pages.length === 0) return
+    const containerW = el.clientWidth || window.innerWidth
+    const availH = Math.max(320, window.innerHeight - 132)
+    const portrait = window.innerWidth < 768
+    const maxPageW = portrait ? containerW : Math.floor(containerW / 2)
+    const pageW = Math.max(200, Math.min(maxPageW, Math.floor(availH / 1.42)))
+    const pageH = Math.floor(pageW * 1.42)
+    el.style.height = `${pageH}px`
+    el.style.maxWidth = portrait ? `${pageW}px` : `${pageW * 2}px`
+    el.style.margin = "0 auto"
+    let flip: InstanceType<typeof PageFlip> | null = null
+    try {
+      flip = new PageFlip(el, {
+        width: pageW,
+        height: pageH,
+        showCover: true,
+        usePortrait: portrait,
+        maxShadowOpacity: 0.4,
+        mobileScrollSupport: true,
+      })
+      flip.loadFromHTML(pages)
+      flip.on("flip", (e: any) => {
+        pageRef.current = typeof e?.data === "number" ? e.data : pageRef.current
+      })
         flipRef.current = flip
-      } catch {}
-    }
-    build()
-    const onResize = () => build()
-    window.addEventListener("resize", onResize)
-    return () => {
-      window.removeEventListener("resize", onResize)
-      try { flipRef.current?.destroy() } catch {}
+        const maxPage = Math.max(0, pages.length - 1)
+      if (pageRef.current > maxPage) pageRef.current = maxPage
+      if (pageRef.current > 0) {
+        try { flip.turnToPage(pageRef.current) } catch {}
+      }
+    } catch {
       flipRef.current = null
+    }
+    return () => {
+      try { flip?.destroy() } catch {}
+      if (flipRef.current === flip) flipRef.current = null
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entriesKey, loading])
+  }, [buildKey, loading])
 
   const coverPhoto =
     (Array.isArray(profile?.cover_photos) && profile.cover_photos.find(Boolean)) ||
@@ -222,7 +250,7 @@ export default function LiveBookPage({ params }: { params: Promise<{ id: string 
           <span className={`${cormorant.className} italic text-xs text-[#8B6F2A]`}>{entries.length} tamu hadir</span>
         </div>
 
-        <div ref={bookRef} className="w-full rounded-lg overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] border border-[#E2D8C3]">
+        <div key={buildKey} ref={bookRef} className="w-full rounded-lg overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] border border-[#E2D8C3]">
           {/* COVER */}
           <div className="bfb-page" data-density="hard">
             <div className="bfb-paper h-full w-full flex flex-col items-center justify-between text-center px-6 py-8 relative">
