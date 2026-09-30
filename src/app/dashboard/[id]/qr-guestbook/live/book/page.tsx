@@ -185,13 +185,16 @@ export default function LiveBookPage({ params }: { params: Promise<{ id: string 
         usePortrait: portrait,
         maxShadowOpacity: 0.4,
         mobileScrollSupport: true,
+        // Clicks must never turn pages (thumbnail taps swap photos).
+        // Page turns stay available via drag / swipe / corner curl.
+        disableFlipByClick: true,
       })
       flip.loadFromHTML(pages)
       flip.on("flip", (e: any) => {
         pageRef.current = typeof e?.data === "number" ? e.data : pageRef.current
       })
-        flipRef.current = flip
-        const maxPage = Math.max(0, pages.length - 1)
+      flipRef.current = flip
+      const maxPage = Math.max(0, pages.length - 1)
       if (pageRef.current > maxPage) pageRef.current = maxPage
       if (pageRef.current > 0) {
         try { flip.turnToPage(pageRef.current) } catch {}
