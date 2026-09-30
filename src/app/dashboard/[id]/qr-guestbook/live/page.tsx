@@ -1,7 +1,8 @@
 "use client"
 
-import { use, useEffect, useState, useCallback } from "react"
+import { use, useEffect, useState, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
+import * as XLSX from "xlsx"
 import ProfileMenu from "@/components/ProfileMenu"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import { useVisiblePoll } from "@/lib/useVisiblePoll"
@@ -18,6 +19,7 @@ type CheckinRecord = {
   id: string
   name: string
   table_number: string | null
+  category: string | null
   checkin_timestamp: string | null
   souvenir_claimed: boolean
   is_checked_in: boolean
@@ -69,13 +71,18 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
   const [loading, setLoading] = useState(true)
   const [generatingPin, setGeneratingPin] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [wishByGuest, setWishByGuest] = useState<Record<string, string>>({})
+  const [exporting, setExporting] = useState(false)
+  const bookWrapRef = useRef<HTMLDivElement>(null)
+  const [isFullscreen, setIsFullscreen] = useState(false)
 
   const fetchAll = useCallback(async () => {
     try {
-      const [profileRes, statsRes, guestsRes] = await Promise.all([
+      const [profileRes, statsRes, guestsRes, wishRes] = await Promise.all([
         fetch(`/api/dashboard/${id}`),
         fetch(`/api/dashboard/${id}/qr-guestbook/stats`),
         fetch(`/api/dashboard/${id}/qr-guestbook`),
+        fetch(`/api/wishes?wedding_profile_id=${id}`),
       ])
       if (profileRes.ok) {
         const p = await profileRes.json()
@@ -89,8 +96,34 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
         const g = await guestsRes.json()
         setGuests(g.guests || [])
       }
+      if (wishRes.ok) {
+        const w = await wishRes.json()
+        const map: Record<string, string> = {}
+        for (const item of w.wishes || []) {
+          if (item.guest_id && item.message && !map[item.guest_id]) {
+            map[item.guest_id] = item.message
+          }
+        }
+        setWishByGuest(map)
+      }
     } catch {}
   }, [id])
+
+  const toggleBookFullscreen = useCallback(async () => {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen()
+      } else if (bookWrapRef.current) {
+        await bookWrapRef.current.requestFullscreen()
+      }
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    const onFs = () => setIsFullscreen(!!document.fullscreenElement)
+    document.addEventListener("fullscreenchange", onFs)
+    return () => document.removeEventListener("fullscreenchange", onFs)
+  }, [])
 
   useEffect(() => {
     setLoading(true)
@@ -115,8 +148,31 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
     } catch {}
   }
 
-  const handleGeneratePin = async () => {
-    if (!profile) return
+  const handleExportExcel = async () => {
+    if (filtered.length === 0 || exporting) return
+    setExporting(true)
+    try {
+      const header = ["Nama Tamu", "Meja", "Kategori", "VIP", "Status", "Waktu Check-in", "Ucapan"]
+      const rows = filtered.map((g) => [
+        g.name,
+        g.table_number || "",
+        g.category || "",
+        g.is_vip ? "Ya" : "",
+        !g.is_checked_in ? "Belum Hadir" : g.added_manually ? "Hadir-Manual" : "Hadir",
+        g.checkin_timestamp ? formatWIB(g.checkin_timestamp) : "",
+        wishByGuest[g.id] || "",
+      ])
+      const ws = XLSX.utils.aoa_to_sheet([header, ...rows])
+      ws["!cols"] = [{ wch: 28 }, { wch: 14 }, { wch: 16 }, { wch: 8 }, { wch: 14 }, { wch: 22 }, { wch: 60 }]
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, "Daftar Hadir")
+      XLSX.writeFile(wb, "daftar-hadir.xlsx")
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  const handleGeneratePin = async () => {    if (!profile) return
     setGeneratingPin(true)
     try {
       const res = await fetch("/api/scanner-pin", {
@@ -182,12 +238,22 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
         </div>
       </header>
 
-      <main className="px-edge-margin-mobile md:px-edge-margin-desktop pb-16 space-y-8 md:space-y-0 md:grid md:grid-cols-12 md:gap-8 max-w-[1400px] mx-auto">
-        <h1 className="font-headline-md text-xl md:text-2xl font-medium tracking-tight text-[#2C2A29] pt-6 md:col-span-12">
-          Buku Tamu QR &amp; <br />Absensi Live
+      <main className="px-edge-margin-mobile md:px-edge-margin-desktop pb-16 max-w-[1400px] mx-auto">
+        <h1 className="font-headline-md text-xl md:text-2xl font-medium tracking-tight text-[#2C2A29] pt-6">
+          Buku Tamu QR &amp; Absensi Live
         </h1>
-        {/* LEFT — pie chart + scanner card */}
-        <div className="md:col-span-5 space-y-6 md:space-y-10">
+
+        {/* Global info banner */}
+        <div className="mt-4 bg-amber-50 border border-amber-300 rounded-xl px-4 py-3 flex items-start gap-3">
+          <span className="material-symbols-outlined text-amber-600 text-[20px] shrink-0">info</span>
+          <p className="font-body-md text-[13px] text-amber-900 leading-relaxed">
+            <span className="font-bold">INFO:</span> Buku tamu digital ini akan terisi pada hari acara setelah ada tamu yang check-in
+          </p>
+        </div>
+
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+        {/* LEFT — stats + live feed */}
+        <div className="space-y-6 min-w-0">
           <div className="bg-white p-5 md:p-8 shadow-sm border border-[#eae3d5] relative overflow-hidden">
             <div className="absolute inset-3 md:inset-4 border border-[#eae3d5]/50 pointer-events-none" />
             <div className="relative z-10">
@@ -229,77 +295,30 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
             </div>
           </div>
 
-          {/* Scanner card */}
-          <div data-tour="buku-tamu" className="bg-surface-container-lowest border border-outline-variant/30 p-5 md:p-8 space-y-6">
-            <div className="flex flex-col gap-3">
-              <span className="font-label-md text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-on-surface-variant mb-1 md:mb-2 block">
-                Tautan Scanner Live
-              </span>
-              <div className="flex flex-col gap-4 md:gap-6">
-                <code className="font-body-md text-primary break-all text-[15px] md:text-[18px] leading-relaxed">{scannerUrl}</code>
-
-                <div className="flex items-center gap-4 md:gap-8 pt-4 border-t border-outline-variant/20 flex-wrap">
-                  <button
-                    onClick={handleCopyLink}
-                    className="flex items-center gap-2 font-label-md text-[11px] md:text-[10px] text-on-surface-variant uppercase tracking-widest hover:text-primary transition-colors py-2.5"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">
-                      {copied ? "check" : "content_copy"}
-                    </span>
-                    {copied ? "Tersalin" : "Salin Tautan"}
-                  </button>
-                  <a
-                    href={scannerUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 font-label-md text-[11px] md:text-[10px] text-on-surface-variant uppercase tracking-widest hover:text-primary transition-colors py-2.5"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">open_in_new</span>
-                    Buka Scanner
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 pt-4 border-t border-outline-variant/20">
-              {profile?.scanner_pin ? (
-                <div className="flex items-center gap-3">
-                  <span className="font-label-md text-[10px] md:text-[11px] uppercase tracking-widest text-on-surface-variant">PIN:</span>
-                  <span className="font-headline-md text-[18px] md:text-[20px] tracking-[0.15em] text-primary">{profile.scanner_pin}</span>
-                  <button
-                    onClick={handleGeneratePin}
-                    disabled={generatingPin}
-                    className="text-on-surface-variant hover:text-primary transition-colors p-2"
-                    title="Generate ulang PIN"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">refresh</span>
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={handleGeneratePin}
-                  disabled={generatingPin}
-                  className="flex items-center gap-2 font-label-md text-[11px] md:text-[10px] text-secondary uppercase tracking-widest hover:text-primary transition-colors py-2.5"
-                >
-                  {generatingPin ? (
-                    <span className="w-3.5 h-3.5 border-2 border-secondary border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <span className="material-symbols-outlined text-[16px]">lock</span>
-                  )}
-                  {generatingPin ? "Memproses..." : "Buat PIN Scanner"}
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* RIGHT — search + live list */}
-        <div className="md:col-span-7">
-          <div className="flex justify-between items-end mb-4">
+          {/* Feed header: LIVE indicator + export */}
+          <div className="flex justify-between items-end mb-4 gap-2">
             <h2 className="font-label-md text-label-md uppercase tracking-[0.2em] text-on-surface-variant">
               Live Feed &amp; Daftar Hadir
             </h2>
-            <span className="text-[10px] font-label-md text-on-surface-variant uppercase italic">Update otomatis</span>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-label-md uppercase tracking-widest text-emerald-700">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Live
+              </span>
+              <button
+                type="button"
+                onClick={handleExportExcel}
+                disabled={exporting || filtered.length === 0}
+                className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-[#E2D9CF] text-[#2C2A29] font-label-md text-[10px] uppercase tracking-wider rounded-full hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors disabled:opacity-40 shadow-sm"
+              >
+                {exporting ? (
+                  <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <span className="material-symbols-outlined text-sm">download</span>
+                )}
+                {exporting ? "..." : "Ekspor Data"}
+              </button>
+            </div>
           </div>
 
           <section className="mb-4 bg-white border border-[#E2D9CF] rounded-2xl shadow-sm p-3 md:p-4 space-y-3">
@@ -321,10 +340,10 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
 
             <div className="flex gap-1.5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
               {([
-                { id: "semua", label: "Semua" },
-                { id: "hadir", label: "Hadir" },
-                { id: "hadir-manual", label: "Hadir-Manual" },
-                { id: "belum-hadir", label: "Belum Hadir" },
+                { id: "semua", label: `Semua (${total})` },
+                { id: "hadir", label: `Hadir (${checkedQr})` },
+                { id: "hadir-manual", label: `Hadir-Manual (${checkedManual})` },
+                { id: "belum-hadir", label: `Belum Hadir (${notChecked})` },
               ] as const).map((f) => (
                 <button
                   key={f.id}
@@ -374,6 +393,15 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
                             Ditambahkan Manual
                           </span>
                         )}
+                        {wishByGuest[c.id] && (
+                          <span
+                            title={wishByGuest[c.id]}
+                            className="shrink-0 inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#ECFDF5] border border-emerald-300 text-emerald-700 text-[9px] font-label-md font-semibold uppercase tracking-wider rounded-full"
+                          >
+                            <span className="material-symbols-outlined text-[10px]">volunteer_activism</span>
+                            Wishes
+                          </span>
+                        )}
                       </div>
                       <p className="font-body-md text-on-surface-variant text-[13px]">
                         {c.table_number ? `${/^meja\s/i.test(c.table_number.trim()) ? c.table_number.trim() : `Meja ${c.table_number}`} • ` : ""}
@@ -392,6 +420,81 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
               </div>
             )}
           </div>
+        </div>
+
+        {/* RIGHT — scanner quick access + live book */}
+        <div className="space-y-6 min-w-0">
+          <section data-tour="buku-tamu" className="bg-white border border-[#E2D9CF] rounded-2xl shadow-sm p-4 md:p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="material-symbols-outlined text-[#B34E3F] text-[18px]">qr_code_scanner</span>
+              <h2 className="font-label-md text-[12px] uppercase tracking-widest text-[#2C2A29] font-bold flex-1">Pranala Scanner Cepat</h2>
+            </div>
+            <p className="font-mono text-[12px] text-[#2C2A29] bg-[#F5EFE6] border border-[#E2D9CF] rounded-xl px-3 py-2.5 break-all">{scannerUrl}</p>
+            <div className="flex flex-wrap items-center gap-2 mt-3">
+              <button
+                type="button"
+                onClick={handleCopyLink}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#F5EFE6] border border-[#E2D9CF] font-label-md text-[10px] uppercase tracking-widest text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors"
+              >
+                <span className="material-symbols-outlined text-[16px]">{copied ? "check" : "content_copy"}</span>
+                {copied ? "Tersalin!" : "Salin Tautan"}
+              </button>
+              <a
+                href={scannerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#E2D9CF] font-label-md text-[10px] uppercase tracking-widest text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors"
+              >
+                <span className="material-symbols-outlined text-[16px]">open_in_new</span>
+                Buka Scanner
+              </a>
+              {profile?.scanner_pin ? (
+                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2C2A29] text-white font-label-md text-[11px] tracking-[0.15em]">
+                  PIN: <span className="font-bold">{profile.scanner_pin}</span>
+                  <button
+                    onClick={handleGeneratePin}
+                    disabled={generatingPin}
+                    className="hover:text-[#E6CA7E] transition-colors disabled:opacity-50"
+                    title="Generate ulang PIN"
+                    aria-label="Generate ulang PIN"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">refresh</span>
+                  </button>
+                </span>
+              ) : (
+                <button
+                  onClick={handleGeneratePin}
+                  disabled={generatingPin}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#B34E3F] text-white font-label-md text-[10px] uppercase tracking-widest hover:bg-[#9E3B2D] transition-colors disabled:opacity-50"
+                >
+                  {generatingPin ? "Memproses..." : "Buat PIN Scanner"}
+                </button>
+              )}
+            </div>
+          </section>
+
+          <section>
+            <div className="flex items-center justify-between mb-3 px-1">
+              <h2 className="font-label-md text-label-md uppercase tracking-[0.2em] text-on-surface-variant">Buku Tamu Digital</h2>
+              <button
+                type="button"
+                onClick={toggleBookFullscreen}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-[#E2D9CF] font-label-md text-[10px] uppercase tracking-widest text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[16px]">{isFullscreen ? "fullscreen_exit" : "fullscreen"}</span>
+                {isFullscreen ? "Keluar Layar Penuh" : "Buka Mode Layar Penuh"}
+              </button>
+            </div>
+            <div ref={bookWrapRef} className={`rounded-2xl overflow-hidden border border-[#E2D9CF] shadow-sm bg-[#F4EFE6] ${isFullscreen ? "h-screen" : ""}`}>
+              <iframe
+                src={`/dashboard/${id}/qr-guestbook/live/book`}
+                title="Buku Tamu Digital"
+                className={`w-full border-0 ${isFullscreen ? "h-full" : "h-[560px] md:h-[620px]"}`}
+                loading="lazy"
+              />
+            </div>
+          </section>
+        </div>
         </div>
       </main>
     </div>

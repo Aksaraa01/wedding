@@ -11,6 +11,7 @@ export default function DashboardShell({ id, children }: { id: string; children:
     pathname.includes("/web-invitation/editor") ||
     pathname.includes("/web-invitation/templates") ||
     pathname.includes("/web-invitation/feedback") ||
+    pathname.includes("/qr-guestbook/live/book") ||
     pathname.includes("/guests")
   const [collapsed, setCollapsed] = useState(false)
 
