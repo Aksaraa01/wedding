@@ -41,9 +41,10 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
   const [wishes, setWishes] = useState<Wish[]>([])
   const [stats, setStats] = useState<Stats>({ total: 0, pending: 0, approved: 0, pinned: 0, hidden: 0 })
   const [filter, setFilter] = useState("all")
+  const [query, setQuery] = useState("")
   const [coupleSlug, setCoupleSlug] = useState("")
   const [copied, setCopied] = useState(false)
-  const [visible, setVisible] = useState(6)
+  const [visible, setVisible] = useState(9)
   const ledWrapRef = useRef<HTMLDivElement>(null)
   const [ledScale, setLedScale] = useState(1)
 
@@ -80,12 +81,13 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
     fetchWishes()
   }, [id])
 
+  const q = query.trim().toLowerCase()
   const filtered = wishes.filter((w) => {
-    if (filter === "all") return true
-    if (filter === "pending") return w.status === "pending"
-    if (filter === "approved") return w.status === "approved"
-    if (filter === "hidden") return w.status === "hidden"
-    if (filter === "pinned") return w.is_pinned
+    if (filter === "pending" && w.status !== "pending") return false
+    if (filter === "approved" && w.status !== "approved") return false
+    if (filter === "hidden" && w.status !== "hidden") return false
+    if (filter === "pinned" && !w.is_pinned) return false
+    if (q && !w.name.toLowerCase().includes(q) && !w.message.toLowerCase().includes(q)) return false
     return true
   })
 
@@ -200,12 +202,35 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
           </section>
         )}
 
-        {/* Horizontal Filter Tabs */}
+        {/* Search + Horizontal Filter Tabs */}
+        <div className="mb-4 bg-white border border-[#E2D9CF] rounded-xl p-2 flex items-center gap-2 shadow-sm">
+          <span className="material-symbols-outlined text-[18px] text-on-surface-variant shrink-0 pl-2">search</span>
+          <input
+            value={query}
+            onChange={(e) => { setQuery(e.target.value); setVisible(9) }}
+            placeholder="Cari nama tamu atau isi pesan…"
+            className="flex-1 min-w-0 bg-transparent outline-none font-body-md text-sm text-[#2C2A29] placeholder:text-on-surface-variant/50 py-2"
+          />
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              aria-label="Hapus pencarian"
+              className="shrink-0 w-7 h-7 rounded-full hover:bg-[#F5EFE6] flex items-center justify-center text-on-surface-variant transition-colors"
+            >
+              <span className="material-symbols-outlined text-[16px]">close</span>
+            </button>
+          )}
+        </div>
+        {q && (
+          <p className="text-xs text-on-surface-variant mb-4 px-1">
+            {filtered.length} hasil untuk &ldquo;{query.trim()}&rdquo;
+          </p>
+        )}
         <div className="mb-6 bg-white border border-[#E2D9CF] rounded-xl p-2 flex gap-2 overflow-x-auto hide-scrollbar">
           {FILTERS.map((f) => (
             <button
               key={f.key}
-              onClick={() => setFilter(f.key)}
+              onClick={() => { setFilter(f.key); setVisible(9) }}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-full font-label-md text-[11px] uppercase tracking-widest whitespace-nowrap shrink-0 transition-all border ${
                 filter === f.key
                   ? "bg-[#B34E3F] text-white border-[#B34E3F]"
@@ -223,7 +248,7 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
         <div className="flex flex-col gap-6">
           {/* Main Content: Guest Message Feed */}
           <div className="flex-1">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {shown.length === 0 && (
                 <div className="md:col-span-2 text-center py-16 bg-white border border-[#E2D9CF] rounded-xl">
                   <span className="material-symbols-outlined text-5xl text-[#E2D9CF] mb-4">forum</span>
@@ -244,10 +269,10 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
                 return (
                   <article
                     key={wish.id}
-                    className={`relative overflow-hidden flex flex-col h-full rounded-xl border shadow-sm ${wish.is_pinned ? "md:col-span-2 bg-white border-[#C5A059] border-l-4 border-l-[#C5A059]" : isPending ? "bg-[#FFFBEB] border-[#F59E0B]" : isHidden ? "bg-[#F3F4F6] border-[#D1D5DB]" : "bg-white border-[#E2D9CF]"}`}
+                    className={`relative overflow-hidden flex flex-col h-full rounded-xl border shadow-sm ${wish.is_pinned ? "bg-white border-[#C5A059] border-l-4 border-l-[#C5A059]" : isPending ? "bg-[#FFFBEB] border-[#F59E0B]" : isHidden ? "bg-[#F3F4F6] border-[#D1D5DB]" : "bg-white border-[#E2D9CF]"}`}
                   >
-                    <div className="p-8 flex flex-col h-full">
-                    <div className="mb-4">
+                    <div className="p-4 md:p-5 flex flex-col h-full">
+                    <div className="mb-2.5">
                       <div className="flex items-center gap-2">
                         {wish.is_pinned ? (
                           <>
@@ -277,37 +302,37 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
                       </p>
                     </div>
 
-                    <h3 className={`font-headline-md mb-3 capitalize font-semibold text-[#2C2A29] ${wish.is_pinned ? "text-[18px] md:text-headline-md" : "text-[18px] md:text-[22px]"}`}>{wish.name}</h3>
-                    <p className={`leading-relaxed mb-6 ${wish.is_pinned ? "text-sm md:font-body-lg italic text-on-surface-variant max-w-3xl" : "text-sm md:font-body-md text-on-surface-variant"}`}>
+                    <h3 className="font-headline-md mb-1.5 capitalize font-semibold text-[#2C2A29] text-[15px] md:text-[16px] leading-snug">{wish.name}</h3>
+                    <p className={`leading-relaxed mb-4 text-[13px] md:text-sm ${wish.is_pinned ? "italic text-on-surface-variant" : "text-on-surface-variant"}`}>
                       &ldquo;{wish.message}&rdquo;
                     </p>
 
                     {isPending ? (
-                      <div className="flex gap-3 mt-auto pt-6 border-t border-[#F59E0B]/20">
+                      <div className="flex gap-2 mt-auto pt-3 border-t border-[#F59E0B]/20">
                         <button
                           onClick={() => updateWish(wish.id, { status: "approved" })}
-                          className="flex-1 py-3 bg-[#B34E3F] text-white rounded-full font-label-md text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all"
+                          className="flex-1 py-2 bg-[#B34E3F] text-white rounded-full font-label-md text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all"
                         >
                           Setujui
                         </button>
                         <button
                           onClick={() => deleteWish(wish.id)}
-                          className="flex-1 py-3 bg-white border border-[#DC2626] text-[#DC2626] rounded-full font-label-md text-[11px] uppercase tracking-widest hover:bg-[#FEF2F2] active:scale-95 transition-all"
+                          className="flex-1 py-2 bg-white border border-[#DC2626] text-[#DC2626] rounded-full font-label-md text-[11px] uppercase tracking-widest hover:bg-[#FEF2F2] active:scale-95 transition-all"
                         >
                           Tolak
                         </button>
                       </div>
                     ) : (
-                      <div className="flex gap-3 mt-auto pt-6 border-t border-[#E2D9CF]">
+                      <div className="flex gap-2 mt-auto pt-3 border-t border-[#E2D9CF]">
                         <button
                           onClick={() => updateWish(wish.id, { status: wish.status === "approved" ? "hidden" : "approved" })}
-                          className="flex-1 py-3 bg-white border border-[#E2D9CF] text-[#2C2A29] rounded-full font-label-md text-[11px] lg:text-label-md uppercase tracking-widest hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors text-center"
+                          className="flex-1 py-2 bg-white border border-[#E2D9CF] text-[#2C2A29] rounded-full font-label-md text-[11px] uppercase tracking-widest hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors text-center"
                         >
                           {wish.status === "approved" ? "Sembunyikan" : "Tampilkan"}
                         </button>
                         <button
                           onClick={() => updateWish(wish.id, { is_pinned: !wish.is_pinned })}
-                          className={`flex-1 py-3 rounded-full font-label-md text-[11px] lg:text-label-md uppercase tracking-widest transition-colors text-center ${wish.is_pinned ? "bg-white border border-[#C5A059] text-[#C5A059] hover:bg-[#FFFBEB]" : "bg-white border border-[#E2D9CF] text-[#2C2A29] hover:border-[#C5A059] hover:text-[#C5A059]"}`}
+                          className={`flex-1 py-2 rounded-full font-label-md text-[11px] uppercase tracking-widest transition-colors text-center ${wish.is_pinned ? "bg-white border border-[#C5A059] text-[#C5A059] hover:bg-[#FFFBEB]" : "bg-white border border-[#E2D9CF] text-[#2C2A29] hover:border-[#C5A059] hover:text-[#C5A059]"}`}
                         >
                           {wish.is_pinned ? "Lepas Semat" : "Sematkan"}
                         </button>
@@ -322,7 +347,7 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
             {filtered.length > visible && (
               <div className="mt-12 flex justify-center">
                 <button
-                  onClick={() => setVisible(v => v + 6)}
+                  onClick={() => setVisible(v => v + 9)}
                   className="px-10 py-4 border border-outline text-on-surface font-label-md text-label-md uppercase tracking-widest hover:bg-surface-container-high transition-all"
                 >
                   Muat Pesan Lainnya

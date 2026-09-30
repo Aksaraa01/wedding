@@ -127,11 +127,10 @@ export default function LedDisplay({ params }: { params: Promise<{ slug: string 
 
   const renderSpotCard = (wish: Wish) => (
     <div key={wish.id} className="relative shrink-0 pt-3">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-[#5B242A] text-[#FAF3EC] rounded-full pl-2.5 pr-3.5 py-1 shadow-md pointer-events-none">
-        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 bg-[#5B242A] text-[#FAF3EC] rounded-full p-1.5 shadow-md pointer-events-none">
+        <svg className="w-3.5 h-3.5 block" fill="currentColor" viewBox="0 0 24 24">
           <path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z" />
         </svg>
-        <span className="font-sans text-[10px] font-semibold tracking-[0.2em] uppercase">Disematkan</span>
       </div>
       {renderCard(wish)}
     </div>
