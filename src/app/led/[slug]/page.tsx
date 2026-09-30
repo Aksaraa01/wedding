@@ -29,6 +29,7 @@ export default function LedDisplay({ params }: { params: Promise<{ slug: string 
   const [pinned, setPinned] = useState<Wish[]>([])
   const [others, setOthers] = useState<Wish[]>([])
   const [error, setError] = useState("")
+  const [spotPage, setSpotPage] = useState(0)
 
   const fetchWishes = useCallback(async (pid: string) => {
     try {
@@ -80,6 +81,25 @@ export default function LedDisplay({ params }: { params: Promise<{ slug: string 
     if (profileId) fetchWishes(profileId)
   }, 10000, profileId !== "")
 
+  // Pinned spotlight paging for row 1: max 2 static cards; when more than 2
+  // wishes are pinned, rotate pages with a fade every 8s (paused in hidden
+  // tabs, same rationale as the wish poll above).
+  const pinnedIds = pinned.map((w) => w.id).join(",")
+  const SPOT_SIZE = 2
+  const spotPages = Math.max(1, Math.ceil(pinned.length / SPOT_SIZE))
+  useEffect(() => {
+    setSpotPage(0)
+  }, [pinnedIds])
+  useEffect(() => {
+    if (spotPages <= 1) return
+    const t = setInterval(() => {
+      if (!document.hidden) setSpotPage((p) => (p + 1) % spotPages)
+    }, 8000)
+    return () => clearInterval(t)
+  }, [spotPages, pinnedIds])
+  const safeSpot = spotPage % spotPages
+  const spotShown = pinned.slice(safeSpot * SPOT_SIZE, safeSpot * SPOT_SIZE + SPOT_SIZE)
+
   const allApproved = [...pinned, ...others]
   const hashtag = coupleName ? `#${coupleName.replace(/[^a-zA-Z0-9]/g, "")}` : ""
 
@@ -102,6 +122,18 @@ export default function LedDisplay({ params }: { params: Promise<{ slug: string 
           <path d="M12 22V12M12 12C12 7 7 6 7 6C7 11 12 12 12 12ZM12 12C12 7 17 6 17 6C17 11 12 12 12 12Z" />
         </svg>
       </div>
+    </div>
+  )
+
+  const renderSpotCard = (wish: Wish) => (
+    <div key={wish.id} className="relative shrink-0 pt-3">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-[#5B242A] text-[#FAF3EC] rounded-full pl-2.5 pr-3.5 py-1 shadow-md pointer-events-none">
+        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z" />
+        </svg>
+        <span className="font-sans text-[10px] font-semibold tracking-[0.2em] uppercase">Disematkan</span>
+      </div>
+      {renderCard(wish)}
     </div>
   )
 
@@ -145,6 +177,8 @@ export default function LedDisplay({ params }: { params: Promise<{ slug: string 
         .wish-card:hover { transform: translateY(-2px); box-shadow: 0 12px 28px -6px rgba(91,36,42,0.08); }
         @keyframes marqueeLeft { 0% { transform: translateX(0%); } 100% { transform: translateX(-100%); } }
         @keyframes marqueeRight { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
+        @keyframes spotlightFade { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: translateY(0); } }
+        .spotlight-fade { animation: spotlightFade 0.6s ease; }
         .marquee-row-wrapper:hover .marquee-track { animation-play-state: paused !important; }
         body { margin: 0; overflow: hidden; font-family: 'Plus Jakarta Sans', sans-serif; }
       `}</style>
@@ -198,14 +232,22 @@ export default function LedDisplay({ params }: { params: Promise<{ slug: string 
             <div className="absolute right-0 top-0 bottom-0 w-12 md:w-24 z-20 pointer-events-none bg-gradient-to-l from-[#F8F4ED] via-[#F8F4ED]/80 to-transparent" />
 
             <div className="flex flex-col gap-4 md:gap-6 py-2">
-              <div className="marquee-row-wrapper overflow-hidden flex select-none">
-                <div className="marquee-track flex gap-4 md:gap-6 shrink-0" style={{ animation: "marqueeLeft 75s linear infinite" }}>
-                  {row1.map((w, i) => renderMarqueeCard(w, i))}
+              {pinned.length > 0 ? (
+                <div className="overflow-hidden flex justify-center select-none" aria-live="polite">
+                  <div key={safeSpot} className="spotlight-fade flex gap-4 md:gap-6 justify-center">
+                    {spotShown.map((w) => renderSpotCard(w))}
+                  </div>
                 </div>
-                <div className="marquee-track flex gap-4 md:gap-6 shrink-0 ml-4 md:ml-6" aria-hidden="true" style={{ animation: "marqueeLeft 75s linear infinite" }}>
-                  {row1.map((w, i) => renderMarqueeCard(w, i + 1000))}
+              ) : (
+                <div className="marquee-row-wrapper overflow-hidden flex select-none">
+                  <div className="marquee-track flex gap-4 md:gap-6 shrink-0" style={{ animation: "marqueeLeft 75s linear infinite" }}>
+                    {row1.map((w, i) => renderMarqueeCard(w, i))}
+                  </div>
+                  <div className="marquee-track flex gap-4 md:gap-6 shrink-0 ml-4 md:ml-6" aria-hidden="true" style={{ animation: "marqueeLeft 75s linear infinite" }}>
+                    {row1.map((w, i) => renderMarqueeCard(w, i + 1000))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="marquee-row-wrapper overflow-hidden flex select-none">
                 <div className="marquee-track flex gap-4 md:gap-6 shrink-0" style={{ animation: "marqueeRight 80s linear infinite" }}>
