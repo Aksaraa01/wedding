@@ -1959,18 +1959,24 @@ class AksaraaPlugin
     // the live invitation. Marker removed (element reappears) as soon as a
     // hashtag is set. Runs inside apply_fields_to_post, i.e. on every patch
     // (including the post-duplicate patch), for the post and its popups.
+    // display_name_section (mapped separately in /ops, directly under the
+    // hashtag row) hides the hashtag's PARENT container too, so no empty gap
+    // remains. Both keys share the same empty-hashtag condition.
     private static function reconcile_display_name_visibility(array $elements, array $fields, array $manifest): array
     {
-        $mapping = $manifest['display_name'] ?? null;
-        if (!is_array($mapping)) return $elements;
-        // Accept a single {elementId, settings} slot or a list of them.
-        $slots = isset($mapping['elementId']) ? [$mapping] : array_values($mapping);
-        $ids = [];
-        foreach ($slots as $slot) {
-            if (is_array($slot) && !empty($slot['elementId'])) {
-                $ids[] = (string) $slot['elementId'];
+        $slots = [];
+        foreach (['display_name', 'display_name_section'] as $key) {
+            $mapping = $manifest[$key] ?? null;
+            if (!is_array($mapping)) continue;
+            // Accept a single {elementId, settings} slot or a list of them.
+            $list = isset($mapping['elementId']) ? [$mapping] : array_values($mapping);
+            foreach ($list as $slot) {
+                if (is_array($slot) && !empty($slot['elementId'])) {
+                    $slots[] = (string) $slot['elementId'];
+                }
             }
         }
+        $ids = array_values(array_unique($slots));
         if (empty($ids)) return $elements;
 
         $hasValue = isset($fields['display_name']) && is_string($fields['display_name']) && trim($fields['display_name']) !== '';

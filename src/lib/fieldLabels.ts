@@ -4,6 +4,7 @@ export const FIELD_LABELS: Record<string, string> = {
   cover_photos: "Foto Sampul",
   couple_initials: "Singkatan Pasangan",
   display_name: "Hashtag Instagram Post",
+  display_name_section: "Hashtag (kontainer yg disembunyikan saat hashtag kosong)",
   groom_name: "Nama Mempelai Pertama",
   bride_name: "Nama Mempelai Kedua",
   groom_full_name: "Nama Lengkap Mempelai Pertama",

@@ -44,7 +44,7 @@ type Employee = { id: string; name: string; role: string; phone_number: string }
 // Aksara fields grouped by the editor's accordion sections (same order).
 const MAPPING_GROUPS: { key: string; label: string; fields: string[] }[] = [
   { key: "sampul", label: "Sampul", fields: ["guest_name", "cover_photos", "couple_initials", "opening_title", "opening_description"] },
-  { key: "profile", label: "Profile Mempelai", fields: ["display_name", "groom_name", "bride_name", "groom_full_name", "bride_full_name", "groom_photo_url", "bride_photo_url", "groom_parents", "bride_parents", "groom_instagram", "bride_instagram"] },
+  { key: "profile", label: "Profile Mempelai", fields: ["display_name", "display_name_section", "groom_name", "bride_name", "groom_full_name", "bride_full_name", "groom_photo_url", "bride_photo_url", "groom_parents", "bride_parents", "groom_instagram", "bride_instagram"] },
   { key: "inviting", label: "Turut Mengundang", fields: ["inviting_families", "inviting_families_section"] },
   { key: "acara", label: "Acara", fields: ["date_upper", "countdown", "sessions", "sessions_section", "calendar_link"] },
   { key: "kutipan", label: "Kutipan", fields: ["quote_text", "quote_source"] },
@@ -416,7 +416,7 @@ export default function OpsTemplatesPage() {
   }
 
   const isSectionField = (field: string) =>
-    field === "gift_section" || field === "video_section" || field === "inviting_families_section" || field === "story_section" || field === "sessions_section"
+    field === "gift_section" || field === "video_section" || field === "inviting_families_section" || field === "story_section" || field === "sessions_section" || field === "display_name_section"
 
   const defaultSettingsPath = (widgetType: string | null, field?: string): string => {
     if (!widgetType) return "title"
