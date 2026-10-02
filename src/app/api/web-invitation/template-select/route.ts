@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { enqueueCleanup, enqueueDuplicate } from "@/lib/wpSyncWorker"
+import { enqueueCleanup, enqueueDuplicate, hasOpenWpChain } from "@/lib/wpSyncWorker"
 
 // POST /api/web-invitation/template-select
 // Sets the couple's template by source:
@@ -49,7 +49,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ mode: "inhouse", selected_template_id: template_id })
     }
 
-    const job = await enqueueDuplicate(profile_id, template_id)
+    // Serialize template changes per couple: a second pick waits instead of
+    // interleaving a duplicate→patch→cleanup chain with another.
+    if (await hasOpenWpChain(profile_id)) {
+      return NextResponse.json({ error: "Sinkronisasi template masih berjalan. Tunggu selesai sebelum mengganti template lagi." }, { status: 409 })
+    }
+    const job = await enqueueDuplicate(profile_id, template_id, typeof body?.source === "string" ? body.source : null)
     return NextResponse.json({ mode: "wp", job_id: job.job_id, status: job.status }, { status: 202 })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })

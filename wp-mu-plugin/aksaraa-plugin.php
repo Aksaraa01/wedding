@@ -685,7 +685,72 @@ class AksaraaPlugin
         // Unused media accumulates harmlessly; manual cleanup can be added later
         // as an explicit /ops action with a long grace period.
 
+        // Read-after-write assertion: fail loudly (job retries, then alerts)
+        // instead of reporting "done" when the gallery did not actually land.
+        $galleryErr = self::verify_gallery_counts($post_id, $fields, $manifest);
+        if ($galleryErr !== null) {
+            return new WP_Error('gallery_mismatch', $galleryErr, ['status' => 500]);
+        }
+
         return ['patched' => $updated];
+    }
+
+    // Verify every mapped gallery slot holds exactly the submitted photos, all
+    // sideloaded (id > 0 — a bare external URL with id 0 renders nothing).
+    // Slots whose element is absent from THIS tree are skipped (manifest is
+    // shared with popups; only verifiable slots can fail the patch).
+    private static function verify_gallery_counts(int $post_id, array $fields, array $manifest): ?string
+    {
+        if (!isset($fields['gallery_photos']) || !is_array($fields['gallery_photos'])) return null;
+        $expected = array_values(array_filter(array_map('strval', $fields['gallery_photos'])));
+        if (empty($expected)) return null;
+        $mapping = $manifest['gallery_photos'] ?? [];
+        if (!is_array($mapping)) return null;
+        $slots = isset($mapping['elementId']) ? [$mapping] : $mapping;
+        if (!is_array($slots) || empty($slots)) return null;
+
+        global $wpdb;
+        $raw = $wpdb->get_var($wpdb->prepare(
+            "SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = '_elementor_data' LIMIT 1",
+            $post_id
+        ));
+        $tree = is_string($raw) ? json_decode($raw, true) : null;
+        if (!is_array($tree)) return 'gallery verify: _elementor_data unreadable';
+
+        foreach ($slots as $m) {
+            if (!is_array($m) || empty($m['elementId'])) continue;
+            $node = self::find_node($tree, (string) $m['elementId']);
+            if (!is_array($node)) {
+                error_log('[aksaraa] gallery verify: element ' . $m['elementId'] . ' absent on post ' . $post_id . ' — skipped');
+                continue;
+            }
+            $wt = $node['widgetType'] ?? '';
+            if ($wt === 'media-carousel') {
+                $items = $node['settings']['slides'] ?? null;
+                $vals = is_array($items) ? array_values($items) : [];
+                if (count($vals) !== count($expected)) {
+                    return sprintf('gallery verify: %s has %d slides, want %d', $m['elementId'], count($vals), count($expected));
+                }
+                foreach ($vals as $it) {
+                    if ((int) ($it['image']['id'] ?? 0) <= 0) {
+                        return sprintf('gallery verify: %s has unsideloaded slide (id 0)', $m['elementId']);
+                    }
+                }
+                continue;
+            }
+            $key = $wt === 'image-carousel' ? 'carousel' : ($wt === 'image-gallery' ? 'wp_gallery' : 'gallery');
+            $items = $node['settings'][$key] ?? null;
+            $vals = is_array($items) ? array_values($items) : [];
+            if (count($vals) !== count($expected)) {
+                return sprintf('gallery verify: %s has %d images, want %d', $m['elementId'], count($vals), count($expected));
+            }
+            foreach ($vals as $it) {
+                if ((int) ($it['id'] ?? 0) <= 0) {
+                    return sprintf('gallery verify: %s has unsideloaded image (id 0)', $m['elementId']);
+                }
+            }
+        }
+        return null;
     }
 
     // Store each content field as post meta `_aksaraa_{field}` so templates can read
@@ -929,6 +994,13 @@ class AksaraaPlugin
             // zoomed/tall state keeps serving even after meta is cleared).
             $cache_file = WP_CONTENT_DIR . '/uploads/elementor/css/post-' . $target_id . '.css';
             if (file_exists($cache_file)) @unlink($cache_file);
+        }
+        // Always drop the rendered-HTML caches, even when nothing changed: a
+        // cheap lazy rebuild on next view beats serving stale HTML (gallery
+        // uploads landing between patches kept showing stale tiles until the
+        // next change-triggered clear).
+        foreach (['_elementor_element_cache', '_elementor_page_assets'] as $cache_key) {
+            $wpdb->delete($wpdb->postmeta, ['post_id' => $target_id, 'meta_key' => $cache_key]);
         }
         return $changed;
     }

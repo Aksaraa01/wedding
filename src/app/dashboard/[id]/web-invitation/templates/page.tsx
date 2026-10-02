@@ -110,7 +110,7 @@ function TemplatesInner({ id }: { id: string }) {
         const res = await fetch(`/api/web-invitation/template-select`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ profile_id: id, template_id: templateId }),
+          body: JSON.stringify({ profile_id: id, template_id: templateId, source: "dashboard" }),
         })
         if (!res.ok) {
           const data = await res.json().catch(() => ({}))
@@ -125,7 +125,7 @@ function TemplatesInner({ id }: { id: string }) {
       const res = await fetch(`/api/wp/duplicate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ template_id: templateId, profile_id: id }),
+        body: JSON.stringify({ template_id: templateId, profile_id: id, source: "dashboard" }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))

@@ -12,7 +12,8 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json()
-    const { profile_id, post_id } = body
+    const { profile_id, post_id, source } = body
+    const src = typeof source === "string" ? source : null
 
     if (!profile_id) {
       return NextResponse.json({ error: "profile_id wajib diisi" }, { status: 400 })
@@ -29,11 +30,11 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     if (!pinnedPostId && !profile?.active_wp_post_id && profile?.selected_template_id) {
-      const job = await enqueueDuplicate(profile_id, profile.selected_template_id)
+      const job = await enqueueDuplicate(profile_id, profile.selected_template_id, src)
       return NextResponse.json({ job_id: job.job_id, status: job.status, fallback: "duplicate" }, { status: 202 })
     }
 
-    const job = await enqueuePatch(profile_id, pinnedPostId)
+    const job = await enqueuePatch(profile_id, pinnedPostId, { source: src })
     return NextResponse.json({ job_id: job.job_id, status: job.status }, { status: 202 })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })

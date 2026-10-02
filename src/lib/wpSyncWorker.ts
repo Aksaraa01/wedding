@@ -86,26 +86,23 @@ async function runDuplicate(jobId: string, profileId: string, templateId: string
   }
 
   const data = await res.json()
-  const postUrl = data.post_url || ""
-
-  const { error: updateErr } = await supabaseAdmin
-    .from("wedding_profiles")
-    .update({
-      active_wp_post_id: data.post_id,
-      active_wp_post_url: postUrl,
-      selected_template_id: templateId,
-    })
-    .eq("id", profileId)
-
-  if (updateErr) {
-    throw new Error(updateErr.message)
+  const postUrl = typeof data.post_url === "string" ? data.post_url : ""
+  if (typeof data.post_id !== "number") {
+    throw new Error("Duplikasi WordPress tidak mengembalikan post_id")
   }
 
-  if (oldPostId) {
-    await enqueueCleanup(profileId, oldPostId, profile.slug || "")
+  // NOTE (chain order: duplicate → patch → cleanup): the profile keeps
+  // pointing at the OLD post until the chained finalize patch below succeeds,
+  // so guests never see an unpatched duplicate. The worker (processJob)
+  // enqueues that finalize patch from this result; on its success the profile
+  // switches to the new post and the old post is cleaned up.
+  return {
+    post_id: data.post_id,
+    post_url: postUrl,
+    old_post_id: oldPostId,
+    base_slug: profile.slug || "",
+    template_id: templateId,
   }
-
-  return { post_id: data.post_id, post_url: postUrl, cleaned_old: oldPostId }
 }
 
 async function runCleanup(jobId: string, profileId: string, payload: any) {
@@ -138,7 +135,20 @@ async function runCleanup(jobId: string, profileId: string, payload: any) {
   return { skipped: "no slug nor old_post_id" }
 }
 
-async function runPatch(jobId: string, profileId: string, postId?: number | null) {
+export type FinalizeChain = {
+  postUrl: string
+  newTemplateId: string
+  oldPostId: number | null
+  baseSlug: string
+}
+
+async function runPatch(
+  jobId: string,
+  profileId: string,
+  postId?: number | null,
+  finalize?: FinalizeChain | null,
+  source?: string | null,
+) {
   const built = await buildProfileFields(profileId)
   if (!built) {
     throw new Error("Profil tidak ditemukan")
@@ -188,6 +198,33 @@ async function runPatch(jobId: string, profileId: string, postId?: number | null
   }
 
   const data = await res.json()
+
+  // Finalize step of the duplicate → patch → cleanup chain: only now (fresh
+  // post fully patched) does the live invitation switch over, and only then
+  // is the old post eligible for cleanup. On failure the profile keeps
+  // pointing at the old (complete) post — processJob deletes the orphaned
+  // duplicate instead.
+  if (finalize) {
+    if (!finalize.postUrl) {
+      throw new Error("Hasil duplicate tidak menyertakan post_url — profil tidak dialihkan")
+    }
+    const { error: updateErr } = await supabaseAdmin
+      .from("wedding_profiles")
+      .update({
+        active_wp_post_id: targetPostId,
+        active_wp_post_url: finalize.postUrl,
+        selected_template_id: finalize.newTemplateId,
+      })
+      .eq("id", profileId)
+    if (updateErr) {
+      throw new Error(updateErr.message)
+    }
+    if (finalize.oldPostId) {
+      await enqueueCleanup(profileId, finalize.oldPostId, finalize.baseSlug, source ?? null)
+    }
+    return { patched: data.patched || [], finalized_post_id: targetPostId }
+  }
+
   return { patched: data.patched || [] }
 }
 
@@ -195,7 +232,7 @@ async function runPatch(jobId: string, profileId: string, postId?: number | null
 
 type EnqueueResult = { job_id: string; status: string }
 
-export async function enqueueDuplicate(profileId: string, templateId: string): Promise<EnqueueResult> {
+export async function enqueueDuplicate(profileId: string, templateId: string, source?: string | null): Promise<EnqueueResult> {
   // Idempotent: if a duplicate is already queued/processing, reuse it.
   // If still queued and the template changed, swap the template on the same record.
   const { data: existing } = await supabaseAdmin
@@ -220,7 +257,7 @@ export async function enqueueDuplicate(profileId: string, templateId: string): P
 
   const { data, error } = await supabaseAdmin
     .from("wp_sync_jobs")
-    .insert({ wedding_profile_id: profileId, kind: "duplicate", template_id: templateId, status: "queued" })
+    .insert({ wedding_profile_id: profileId, kind: "duplicate", template_id: templateId, status: "queued", source: source ?? null })
     .select("id, status")
     .single()
 
@@ -228,7 +265,17 @@ export async function enqueueDuplicate(profileId: string, templateId: string): P
   return { job_id: data.id, status: data.status }
 }
 
-export async function enqueuePatch(profileId: string, postId?: number | null): Promise<EnqueueResult> {
+export type PatchJobExtra = {
+  source?: string | null
+  finalize?: {
+    postUrl: string
+    newTemplateId: string
+    oldPostId: number | null
+    baseSlug: string
+  } | null
+}
+
+export async function enqueuePatch(profileId: string, postId?: number | null, extra?: PatchJobExtra): Promise<EnqueueResult> {
   const { data: existing } = await supabaseAdmin
     .from("wp_sync_jobs")
     .select("id, status, payload")
@@ -241,9 +288,12 @@ export async function enqueuePatch(profileId: string, postId?: number | null): P
 
   // Reuse an in-flight patch only when it targets the same post (or neither
   // pins a post, e.g. manual editor saves). A duplicate→patch chain that
-  // pins a fresh post_id must NOT coalesce into a patch for the old post.
+  // pins a fresh post_id must NOT coalesce into a patch for the old post —
+  // and a finalize patch must never coalesce into (or absorb) a manual one,
+  // or the profile switch + cleanup would silently never run.
   const existingPostId = (existing?.payload as any)?.post_id ?? null
-  if (existing && (existingPostId || null) === (postId || null)) {
+  const existingFinalize = !!(existing?.payload as any)?.finalize
+  if (existing && (existingPostId || null) === (postId || null) && existingFinalize === !!extra?.finalize) {
     await supabaseAdmin
       .from("wp_sync_jobs")
       .update({ updated_at: new Date().toISOString() })
@@ -251,9 +301,18 @@ export async function enqueuePatch(profileId: string, postId?: number | null): P
     return { job_id: existing.id, status: existing.status }
   }
 
+  const payload: Record<string, any> = {}
+  if (postId) payload.post_id = postId
+  if (extra?.finalize) {
+    payload.post_url = extra.finalize.postUrl
+    payload.new_template_id = extra.finalize.newTemplateId
+    payload.old_post_id = extra.finalize.oldPostId
+    payload.base_slug = extra.finalize.baseSlug
+    payload.finalize = true
+  }
   const { data, error } = await supabaseAdmin
     .from("wp_sync_jobs")
-    .insert({ wedding_profile_id: profileId, kind: "patch", status: "queued", payload: postId ? { post_id: postId } : null })
+    .insert({ wedding_profile_id: profileId, kind: "patch", status: "queued", payload: Object.keys(payload).length > 0 ? payload : null, source: extra?.source ?? null })
     .select("id, status")
     .single()
 
@@ -261,19 +320,33 @@ export async function enqueuePatch(profileId: string, postId?: number | null): P
   return { job_id: data.id, status: data.status }
 }
 
-export async function enqueueCleanup(profileId: string, oldPostId: number, baseSlug: string): Promise<EnqueueResult> {
+export async function enqueueCleanup(profileId: string, oldPostId: number, baseSlug: string, source?: string | null): Promise<EnqueueResult> {
   const { data, error } = await supabaseAdmin
     .from("wp_sync_jobs")
-    .insert({ wedding_profile_id: profileId, kind: "cleanup", status: "queued", payload: { old_post_id: oldPostId, base_slug: baseSlug } })
+    .insert({ wedding_profile_id: profileId, kind: "cleanup", status: "queued", payload: { old_post_id: oldPostId, base_slug: baseSlug }, source: source ?? null })
     .select("id, status")
     .single()
   if (error) throw new Error(error.message)
   return { job_id: data.id, status: data.status }
+}
+
+// Template changes are serialized per couple: a second pick waits instead of
+// interleaving a duplicate→patch→cleanup chain with another (the Febrian /
+// Vincent double-pick incidents). Stuck "processing" rows are reclaimed by the
+// worker within STALE_MS, so a block here always clears by itself.
+export async function hasOpenWpChain(profileId: string): Promise<boolean> {
+  const { data } = await supabaseAdmin
+    .from("wp_sync_jobs")
+    .select("id")
+    .eq("wedding_profile_id", profileId)
+    .in("status", ["queued", "processing"])
+    .limit(1)
+  return !!data && data.length > 0
 }
 
 // ---------- Worker ----------
 
-async function claimNext(): Promise<{ id: string; wedding_profile_id: string; kind: WpJobKind; template_id: string | null; payload: any | null } | null> {
+async function claimNext(): Promise<{ id: string; wedding_profile_id: string; kind: WpJobKind; template_id: string | null; payload: any | null; source: string | null } | null> {
   const now = new Date()
   await supabaseAdmin
     .from("wp_sync_jobs")
@@ -306,7 +379,7 @@ async function claimNext(): Promise<{ id: string; wedding_profile_id: string; ki
     .update({ status: "processing", started_at: now.toISOString(), updated_at: now.toISOString() })
     .eq("id", oldest.id)
     .eq("status", "queued")
-    .select("id, wedding_profile_id, kind, template_id, payload")
+    .select("id, wedding_profile_id, kind, template_id, payload, source")
     .maybeSingle()
 
   if (error || !data) return null
@@ -314,17 +387,43 @@ async function claimNext(): Promise<{ id: string; wedding_profile_id: string; ki
 }
 
 async function processJob(job: NonNullable<Awaited<ReturnType<typeof claimNext>>>) {
-  const { id, wedding_profile_id, kind, template_id, payload } = job
+  const { id, wedding_profile_id, kind, template_id, payload, source } = job
   try {
     let result: any
     if (kind === "duplicate") {
       if (!template_id) throw new Error("template_id hilang untuk job duplicate")
       result = await runDuplicate(id, wedding_profile_id, template_id)
+      // Chain the finalize patch: profile switches to the new post (and the
+      // old post becomes cleanup-eligible) only after this patch succeeds.
+      // Inserted directly (no dedupe) so a coalesced manual patch can never
+      // swallow the finalize side-effects; per-profile serialization in
+      // claimNext keeps the order safe.
+      const fin = await enqueuePatch(wedding_profile_id, result.post_id, {
+        source: source ?? null,
+        finalize: {
+          postUrl: result.post_url,
+          newTemplateId: result.template_id,
+          oldPostId: result.old_post_id,
+          baseSlug: result.base_slug,
+        },
+      })
+      result = { ...result, finalize_job_id: fin.job_id }
     } else if (kind === "cleanup") {
       result = await runCleanup(id, wedding_profile_id, payload)
     } else {
       const pinnedPostId = typeof payload?.post_id === "number" ? payload.post_id : null
-      result = await runPatch(id, wedding_profile_id, pinnedPostId)
+      const fin = payload?.finalize
+        ? {
+          postUrl: typeof payload?.post_url === "string" ? payload.post_url : "",
+          newTemplateId: typeof payload?.new_template_id === "string" ? payload.new_template_id : "",
+          oldPostId: typeof payload?.old_post_id === "number" ? payload.old_post_id : null,
+          baseSlug: typeof payload?.base_slug === "string" ? payload.base_slug : "",
+        }
+        : null
+      if (fin && (!fin.postUrl || !fin.newTemplateId)) {
+        throw new Error("finalize patch kekurangan post_url / new_template_id")
+      }
+      result = await runPatch(id, wedding_profile_id, pinnedPostId, fin, source ?? null)
     }
     await supabaseAdmin
       .from("wp_sync_jobs")
@@ -342,6 +441,21 @@ async function processJob(job: NonNullable<Awaited<ReturnType<typeof claimNext>>
     // A 404 means the target post is gone (e.g. superseded by a newer
     // duplicate and cleaned up) — retrying can never succeed, fail fast.
     const terminal = attempts >= MAX_ATTEMPTS || message.includes("(HTTP 404)")
+    if (terminal && kind === "patch" && payload?.finalize && typeof payload?.post_id === "number") {
+      // Finalize failed for good: the profile still points at the old
+      // (complete) post, so delete the orphaned duplicate instead of leaving
+      // it behind. Best-effort — must not mask the original failure.
+      try {
+        await enqueueCleanup(
+          wedding_profile_id,
+          payload.post_id,
+          typeof payload?.base_slug === "string" ? payload.base_slug : "",
+          source ?? null,
+        )
+      } catch (cleanupErr) {
+        console.error(`[wpSync] orphan cleanup for job ${id} failed:`, cleanupErr instanceof Error ? cleanupErr.message : String(cleanupErr))
+      }
+    }
     const update: Record<string, any> = {
       attempts,
       updated_at: new Date().toISOString(),

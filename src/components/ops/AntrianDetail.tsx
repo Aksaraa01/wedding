@@ -1135,7 +1135,7 @@ export default function AntrianDetail({ id }: { id: string }) {
     const res = await fetch(`/api/wp/patch`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ profile_id: wpId, post_id: opts?.postId ?? null }),
+      body: JSON.stringify({ profile_id: wpId, post_id: opts?.postId ?? null, source: "ops" }),
     })
     if (!res.ok) {
       const data = await res.json().catch(() => ({}))
@@ -1251,7 +1251,7 @@ export default function AntrianDetail({ id }: { id: string }) {
         const res = await fetch(`/api/web-invitation/template-select`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ profile_id: wpId, template_id: tpl.id }),
+          body: JSON.stringify({ profile_id: wpId, template_id: tpl.id, source: "ops" }),
         })
         const data = await res.json().catch(() => ({}))
         if (!res.ok) throw new Error(data.error || "Gagal mengganti template")
@@ -1261,7 +1261,7 @@ export default function AntrianDetail({ id }: { id: string }) {
         const res = await fetch(`/api/wp/duplicate`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ template_id: tpl.id, profile_id: wpId }),
+          body: JSON.stringify({ template_id: tpl.id, profile_id: wpId, source: "ops" }),
         })
         const data = await res.json().catch(() => ({}))
         if (!res.ok) throw new Error(data.error || "Gagal menduplikasi template")

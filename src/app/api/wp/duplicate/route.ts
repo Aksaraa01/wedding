@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { enqueueDuplicate } from "@/lib/wpSyncWorker"
+import { enqueueDuplicate, hasOpenWpChain } from "@/lib/wpSyncWorker"
 
 const WP_ORIGIN = process.env.NEXT_PUBLIC_WP_ORIGIN || ""
 const WP_SECRET = process.env.WP_INTERNAL_SECRET || ""
@@ -11,13 +11,17 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json()
-    const { template_id, profile_id } = body
+    const { template_id, profile_id, source } = body
 
     if (!template_id || !profile_id) {
       return NextResponse.json({ error: "template_id dan profile_id wajib diisi" }, { status: 400 })
     }
 
-    const job = await enqueueDuplicate(profile_id, template_id)
+    if (await hasOpenWpChain(profile_id)) {
+      return NextResponse.json({ error: "Sinkronisasi template masih berjalan. Tunggu selesai sebelum mengganti template lagi." }, { status: 409 })
+    }
+
+    const job = await enqueueDuplicate(profile_id, template_id, typeof source === "string" ? source : null)
     return NextResponse.json({ job_id: job.job_id, status: job.status }, { status: 202 })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })

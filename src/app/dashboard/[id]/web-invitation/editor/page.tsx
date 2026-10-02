@@ -415,7 +415,7 @@ function EditorInner({ id }: { id: string }) {
       const res = await fetch(`/api/wp/patch`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profile_id: id }),
+        body: JSON.stringify({ profile_id: id, source: "dashboard" }),
         signal: ctrl.signal,
       })
       if (!res.ok) {
