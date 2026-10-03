@@ -95,7 +95,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title,
       description,
-      images: ogImage ? [{ url: ogImage, alt: ogAlt, type: "image/jpeg" }] : undefined,
+      images: ogImage ? [{ url: ogImage, alt: ogAlt, type: "image/jpeg", width: 1200, height: 630 }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
