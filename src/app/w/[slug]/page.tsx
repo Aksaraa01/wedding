@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("slug, display_name, bride_name, groom_name, bride_full_name, groom_full_name, estimated_wedding_date, couple_illustration_url, cover_photos, og_image_url")
+    .select("slug, display_name, bride_name, groom_name, bride_full_name, groom_full_name, estimated_wedding_date, couple_illustration_url, cover_photos, og_image_url, og_image_width, og_image_height")
     .ilike("slug", slug)
     .single()
 
@@ -87,6 +87,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // the raw cover instead of the multi-MB original. The dedicated og variant
   // (when present) is already a small JPEG and passes through untouched.
   const ogImage = image ? toOgImageUrl(image) : undefined
+  // Width/height are emitted only when measured for THIS file (stored at
+  // generation time) — never a declared box the file doesn't fill, which
+  // renders zoomed-out. Without them crawlers probe the file (fine).
+  const ogW = Number((profile as any).og_image_width)
+  const ogH = Number((profile as any).og_image_height)
+  const ogDims = Number.isFinite(ogW) && Number.isFinite(ogH) && ogW > 0 && ogH > 0
+    && ogVariant && ogImage === ogVariant.split("?")[0]
+    ? { width: ogW, height: ogH } as const
+    : undefined
   const ogAlt = tagline ? `Undangan pernikahan ${tagline}` : title
 
   const meta: Metadata = {
@@ -95,7 +104,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title,
       description,
-      images: ogImage ? [{ url: ogImage, alt: ogAlt, type: "image/jpeg", width: 1200, height: 630 }] : undefined,
+      images: ogImage ? [{ url: ogImage, alt: ogAlt, type: "image/jpeg", ...ogDims }] : undefined,
     },
     twitter: {
       card: "summary_large_image",

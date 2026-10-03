@@ -14,16 +14,21 @@ import { parseStringList } from "@/lib/invitationCompleteness"
 
 const BUCKET = "media"
 const OG_PREFIX = "template-media/og"
-const OG_WIDTH = 1200
-const OG_HEIGHT = 630
-const OG_QUALITY_STEPS = [65, 55, 45]
+const OG_MAX_WIDTH = 1200
+const OG_QUALITY_STEPS = [70, 60, 50]
 const OG_MAX_BYTES = 300 * 1024
+
+export type OgVariant = {
+  url: string
+  width: number
+  height: number
+}
 
 function ogPathFor(coverUrl: string): string {
   const h = createHash("sha256").update(coverUrl).digest("hex").slice(0, 32)
-  // v3 = 1200x630 cover-fill at natural scale (no shrink, no blur bars).
-  // New path so v2 fit-mode files stop being referenced + caches bust.
-  return `${OG_PREFIX}/v3-${h}.jpg`
+  // v4 = original aspect, proportional resize only (no canvas, no crop).
+  // New path so cropped v2/v3 files stop being referenced + caches bust.
+  return `${OG_PREFIX}/v4-${h}.jpg`
 }
 
 export function ogPublicUrlFor(coverUrl: string): string | null {
@@ -63,71 +68,68 @@ function smallerInputFor(coverUrl: string): string {
   return coverUrl
 }
 
-// Returns the public og variant URL, or null when generation is impossible /
-// over budget (callers fall back to the normal cover chain).
-export async function ensureOgImage(coverUrl: string): Promise<string | null> {
+// Returns the public og variant (URL + measured dimensions), or null when
+// generation is impossible / over budget (callers fall back to the normal
+// cover chain and omit width/height so no client ever scales from wrong dims).
+export async function ensureOgImage(coverUrl: string): Promise<OgVariant | null> {
   if (!coverUrl || !/^https?:\/\//i.test(coverUrl)) return null
   try {
     const path = ogPathFor(coverUrl)
     const dir = path.split("/").slice(0, -1).join("/")
     const name = path.split("/").pop() || ""
     const { data: listed } = await supabaseAdmin.storage.from(BUCKET).list(dir, { search: name, limit: 10 })
-    if ((listed || []).some(o => o.name === name)) {
-      return ogPublicUrlFor(coverUrl)
-    }
-    const transformed = smallerInputFor(coverUrl)
-    let res = await fetch(transformed)
-    // Tenants without the transform add-on answer 403 (FeatureNotEnabled) —
-    // fall back to the original bytes instead of giving up.
-    if (!res.ok && transformed !== coverUrl) res = await fetch(coverUrl)
-    if (!res.ok) return null
-    const buf = Buffer.from(await res.arrayBuffer())
-    if (!buf.length) return null
-    const { default: sharp } = await import("sharp")
-    // Social card follows the template-list preview rule (fill the frame at
-    // natural scale, never shrunk) with smart positioning: `attention` keeps
-    // faces in frame for arbitrary couple photos (a fixed top anchor crops
-    // empty wall when the subject sits low in frame — verified against real
-    // covers). Falls back to centre when attention analysis fails.
-    // WhatsApp then shows a full-bleed preview instead of a zoomed-out
-    // thumbnail.
-    const convert = async (quality: number) => {
-      try {
-        return await sharp(buf)
+    if (!(listed || []).some(o => o.name === name)) {
+      const transformed = smallerInputFor(coverUrl)
+      let res = await fetch(transformed)
+      // Tenants without the transform add-on answer 403 (FeatureNotEnabled) —
+      // fall back to the original bytes instead of giving up.
+      if (!res.ok && transformed !== coverUrl) res = await fetch(coverUrl)
+      if (!res.ok) return null
+      const buf = Buffer.from(await res.arrayBuffer())
+      if (!buf.length) return null
+      const { default: sharp } = await import("sharp")
+      // Original aspect, proportional resize only (max 1200w, never upscaled):
+      // the full photo is preserved — no crop, no bars, no shrink-to-fit.
+      // withoutEnlargement keeps small photos byte-identical in dimensions.
+      const convert = (quality: number) =>
+        sharp(buf)
           .rotate()
-          .resize({ width: OG_WIDTH, height: OG_HEIGHT, fit: "cover", position: "attention" })
+          .resize({ width: OG_MAX_WIDTH, fit: "inside", withoutEnlargement: true })
           .jpeg({ quality, mozjpeg: true })
           .toBuffer()
-      } catch {
-        return await sharp(buf)
-          .rotate()
-          .resize({ width: OG_WIDTH, height: OG_HEIGHT, fit: "cover", position: "centre" })
-          .jpeg({ quality, mozjpeg: true })
-          .toBuffer()
+      let out: Buffer | null = null
+      for (const q of OG_QUALITY_STEPS) {
+        const attempt = await convert(q)
+        out = attempt
+        if (attempt.length <= OG_MAX_BYTES) break
+      }
+      if (!out || out.length > OG_MAX_BYTES || out.length === 0) return null
+      // supabase-js rejects raw Buffers in some runtimes (SharedArrayBuffer
+      // check) — upload as Blob instead.
+      const body = new Blob([new Uint8Array(out)], { type: "image/jpeg" })
+      const { error } = await supabaseAdmin.storage.from(BUCKET).upload(path, body, {
+        upsert: false,
+        contentType: "image/jpeg",
+        cacheControl: "31536000",
+      })
+      if (error) {
+        // Lost a race with a concurrent generation for the same cover.
+        const { data: relist } = await supabaseAdmin.storage.from(BUCKET).list(dir, { search: name, limit: 10 })
+        if (!(relist || []).some(o => o.name === name)) return null
       }
     }
-    let out: Buffer | null = null
-    for (const q of OG_QUALITY_STEPS) {
-      const attempt = await convert(q)
-      out = attempt
-      if (attempt.length <= OG_MAX_BYTES) break
-    }
-    if (!out || out.length > OG_MAX_BYTES || out.length === 0) return null
-    // supabase-js rejects raw Buffers in some runtimes (SharedArrayBuffer
-    // check) — upload as Blob instead.
-    const body = new Blob([new Uint8Array(out)], { type: "image/jpeg" })
-    const { error } = await supabaseAdmin.storage.from(BUCKET).upload(path, body, {
-      upsert: false,
-      contentType: "image/jpeg",
-      cacheControl: "31536000",
-    })
-    if (error) {
-      // Lost a race with a concurrent generation for the same cover.
-      const { data: relist } = await supabaseAdmin.storage.from(BUCKET).list(dir, { search: name, limit: 10 })
-      if ((relist || []).some(o => o.name === name)) return ogPublicUrlFor(coverUrl)
-      return null
-    }
-    return ogPublicUrlFor(coverUrl)
+    // Measure the stored file so meta reports true dimensions (never a
+    // declared box the file doesn't fill — that mismatch renders zoomed-out).
+    const publicUrl = ogPublicUrlFor(coverUrl)
+    if (!publicUrl) return null
+    const fileRes = await fetch(publicUrl)
+    if (!fileRes.ok) return null
+    const fileBuf = Buffer.from(await fileRes.arrayBuffer())
+    if (!fileBuf.length) return null
+    const { default: sharpMeta } = await import("sharp")
+    const meta = await sharpMeta(fileBuf).metadata()
+    if (!meta.width || !meta.height) return null
+    return { url: publicUrl, width: meta.width, height: meta.height }
   } catch (err) {
     console.warn("[og] ensureOgImage failed:", err instanceof Error ? err.message : String(err))
     return null

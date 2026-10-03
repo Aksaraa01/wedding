@@ -199,7 +199,7 @@ export async function PUT(  req: NextRequest,
       try {
         const { data: current } = await supabaseAdmin
           .from("wedding_profiles")
-          .select("couple_illustration_url, cover_photos, og_image_url")
+          .select("couple_illustration_url, cover_photos, og_image_url, og_image_width, og_image_height")
           .eq("id", id)
           .maybeSingle()
         const effective = resolveCoverImage({
@@ -207,12 +207,18 @@ export async function PUT(  req: NextRequest,
           cover_photos: body.cover_photos !== undefined ? body.cover_photos : current?.cover_photos,
         })
         if (!effective) {
-          if (current?.og_image_url) updates.og_image_url = null
+          if (current?.og_image_url) {
+            updates.og_image_url = null
+            updates.og_image_width = null
+            updates.og_image_height = null
+          }
         } else if (ogPublicUrlFor(effective) !== (current?.og_image_url || null)) {
           const og = await ensureOgImage(effective)
           // Null on generation failure clears a stale variant so shares fall
           // back to the (new) cover instead of the old photo.
-          updates.og_image_url = og
+          updates.og_image_url = og?.url ?? null
+          updates.og_image_width = og?.width ?? null
+          updates.og_image_height = og?.height ?? null
         }
       } catch (err) {
         // og sync is best-effort; fallbacks in generateMetadata cover failures.
