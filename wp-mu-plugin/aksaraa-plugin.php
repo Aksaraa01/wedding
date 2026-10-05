@@ -870,6 +870,11 @@ class AksaraaPlugin
         // F2b — dynamic Love Story accordion: sync nested-accordion items + children to stories count.
         [$elements, $manifest] = self::reconcile_story_accordion($elements, $fields, $manifest);
 
+        // F2d — dynamic Love Story cards (container type): one mapped container
+        // per story (title + image + description inside), cloned to match the
+        // couple's story count. See reconcile_story_containers.
+        [$elements, $manifest] = self::reconcile_story_containers($elements, $fields, $manifest);
+
         // F2c — dynamic sessions: 1-5 sessions via cloning second container.
         [$elements, $manifest] = self::reconcile_sessions($elements, $fields, $manifest);
 
@@ -902,7 +907,7 @@ class AksaraaPlugin
         $changed = $tree_before !== wp_json_encode($elements, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         $fields_to_apply = array_merge(
             self::extract_simple_fields($fields, $manifest),
-            self::extract_simple_array_fields($fields, $manifest),
+            self::extract_simple_array_fields($fields, $manifest, $elements),
             self::extract_object_array_fields($fields, $manifest),
             self::extract_gallery_field($fields, $manifest, $elements)
         );
@@ -1094,7 +1099,10 @@ class AksaraaPlugin
     // Slots beyond the couple's items are left untouched (template placeholder), so
     // e.g. the popup/footer cover is NOT blanked when the couple uploads fewer covers
     // than the template has cover slots.
-    private static function extract_simple_array_fields(array $fields, array $manifest): array
+    // Cover slots targeting a media-carousel widget (empty settings path — the ops
+    // picker suggests none) receive the FULL sideloaded cover list as slides,
+    // same builder the gallery extractor uses.
+    private static function extract_simple_array_fields(array $fields, array $manifest, array $elements = []): array
     {
         $result = [];
         foreach (['inviting_families', 'cover_photos'] as $array_field) {
@@ -1120,9 +1128,31 @@ class AksaraaPlugin
                 continue;
             }
 
+            // Cover slots targeting a media-carousel widget (empty settings path)
+            // take the WHOLE flattened cover list as slides — a per-index scalar
+            // write can never address a slides array. Skipped from the scalar
+            // loops below via $carouselSkip.
+            $carouselSkip = [];
+            if ($array_field === 'cover_photos' && !empty($elements)) {
+                $flatUrls = self::flat_url_list($items);
+                if (!empty($flatUrls)) {
+                    foreach ($mapping as $m) {
+                        if (!is_array($m) || empty($m['elementId'])) continue;
+                        $node = self::find_node($elements, (string) $m['elementId']);
+                        if (is_array($node) && ($node['widgetType'] ?? '') === 'media-carousel') {
+                            foreach (self::media_slides_entries((string) $m['elementId'], $flatUrls) as $e) {
+                                $result[] = $e;
+                            }
+                            $carouselSkip[(string) $m['elementId']] = true;
+                        }
+                    }
+                }
+            }
+
             foreach ($items as $i => $value) {
                 $m = $mapping[$i] ?? null;
                 if (is_array($m) && isset($m['elementId'])) {
+                    if (isset($carouselSkip[(string) $m['elementId']])) continue;
                     $result[] = [
                         'elementId' => $m['elementId'],
                         'settings' => is_array($m['settings']) ? $m['settings'] : [],
@@ -1136,6 +1166,7 @@ class AksaraaPlugin
             for ($i = count($items); $i < count($mapping); $i++) {
                 $m = $mapping[$i] ?? null;
                 if (is_array($m) && isset($m['elementId'])) {
+                    if (isset($carouselSkip[(string) $m['elementId']])) continue;
                     $result[] = [
                         'elementId' => $m['elementId'],
                         'settings' => is_array($m['settings']) ? $m['settings'] : [],
@@ -1176,38 +1207,8 @@ class AksaraaPlugin
 
             if ($widgetType === 'media-carousel') {
                 // media-carousel: settings.slides = [{image: {id,url,alt,source}, _id, image_link_to_type}]
-                $slides = [];
-                foreach ($urls as $url) {
-                    $imported = $imported_map[$url] ?? ['id' => 0, 'url' => $url];
-                    $slides[] = [
-                        'image' => [
-                            'id' => $imported['id'],
-                            'url' => $imported['url'],
-                            'alt' => '',
-                            'source' => 'library',
-                        ],
-                        '_id' => substr(md5(uniqid((string) mt_rand(), true)), 0, 7),
-                        'image_link_to_type' => 'file',
-                    ];
-                }
-                if (empty($slides)) continue;
-                $result[] = [
-                    'elementId' => $m['elementId'],
-                    'settings' => ['slides'],
-                    'value' => $slides,
-                ];
-                // A single slide never initializes Elementor Pro's Swiper (its
-                // handler bails at `<= 1` slide), so it can only ever show that one
-                // image. Disable loop/autoplay/arrows so it renders as a static
-                // focused photo instead of a dead carousel shell.
-                if (count($slides) === 1) {
-                    foreach (['loop' => '', 'autoplay' => '', 'show_arrows' => ''] as $key => $val) {
-                        $result[] = [
-                            'elementId' => $m['elementId'],
-                            'settings' => [$key],
-                            'value' => $val,
-                        ];
-                    }
+                foreach (self::media_slides_entries((string) $m['elementId'], $urls) as $entry) {
+                    $result[] = $entry;
                 }
                 continue;
             }
@@ -1236,9 +1237,68 @@ class AksaraaPlugin
         return $result;
     }
 
-    private static function sideload_images_parallel(array $urls): array
+    // Shared builder: full URL list → media-carousel slides (+ static fallback
+    // when a single slide would leave Swiper uninitialized). Sideloads via the
+    // persistent source-URL mapping; failures keep id 0 + original URL.
+    private static function media_slides_entries(string $elementId, array $urls): array
     {
         $result = [];
+        $imported_map = self::sideload_images_parallel($urls);
+        $slides = [];
+        foreach ($urls as $url) {
+            $imported = $imported_map[$url] ?? ['id' => 0, 'url' => $url];
+            $slides[] = [
+                'image' => [
+                    'id' => $imported['id'],
+                    'url' => $imported['url'],
+                    'alt' => '',
+                    'source' => 'library',
+                ],
+                '_id' => substr(md5(uniqid((string) mt_rand(), true)), 0, 7),
+                'image_link_to_type' => 'file',
+            ];
+        }
+        if (empty($slides)) return $result;
+        $result[] = [
+            'elementId' => $elementId,
+            'settings' => ['slides'],
+            'value' => $slides,
+        ];
+        // A single slide never initializes Elementor Pro's Swiper (its
+        // handler bails at `<= 1` slide), so it can only ever show that one
+        // image. Disable loop/autoplay/arrows so it renders as a static
+        // focused photo instead of a dead carousel shell.
+        if (count($slides) === 1) {
+            foreach (['loop' => '', 'autoplay' => '', 'show_arrows' => ''] as $key => $val) {
+                $result[] = [
+                    'elementId' => $elementId,
+                    'settings' => [$key],
+                    'value' => $val,
+                ];
+            }
+        }
+        return $result;
+    }
+
+    // Flatten a possibly-nested URL list (cover slideshow slots) to plain URLs.
+    private static function flat_url_list(array $items): array
+    {
+        $out = [];
+        $walk = function ($arr) use (&$walk, &$out) {
+            foreach ($arr as $v) {
+                if (is_string($v)) {
+                    if (trim($v) !== '') $out[] = trim($v);
+                } elseif (is_array($v)) {
+                    $walk($v);
+                }
+            }
+        };
+        $walk($items);
+        return array_values($out);
+    }
+
+    private static function sideload_images_parallel(array $urls): array
+    {        $result = [];
         $to_download = [];
         global $wpdb;
         $site = parse_url(site_url(), PHP_URL_HOST);
@@ -1365,15 +1425,18 @@ class AksaraaPlugin
 
     // Object arrays (sessions, gift_accounts, stories):
     // manifest[field] = [{sub_field: {elementId, settings}}], fields[field] = [{sub_field: value}].
+    // `stories_container` shares the couple's `stories` data — F2d rebuilds its
+    // slots per clone before this runs, so each story fills its own card.
     private static function extract_object_array_fields(array $fields, array $manifest): array
     {
         $result = [];
-        foreach (['sessions', 'gift_accounts', 'stories'] as $array_field) {
-            if (!isset($fields[$array_field]) || !is_array($fields[$array_field])) continue;
-            $mapping = $manifest[$array_field] ?? [];
+        $keyMap = ['sessions' => 'sessions', 'gift_accounts' => 'gift_accounts', 'stories' => 'stories', 'stories_container' => 'stories'];
+        foreach ($keyMap as $manifestKey => $fieldKey) {
+            if (!isset($fields[$fieldKey]) || !is_array($fields[$fieldKey])) continue;
+            $mapping = $manifest[$manifestKey] ?? [];
             if (!is_array($mapping)) continue;
 
-            foreach ($fields[$array_field] as $i => $item) {
+            foreach ($fields[$fieldKey] as $i => $item) {
                 if (!is_array($item)) continue;
                 $slot = $mapping[$i] ?? null;
                 if (!$slot || !is_array($slot)) continue;
@@ -1687,6 +1750,116 @@ class AksaraaPlugin
         return [$elements, $manifest];
     }
 
+    // F2d — dynamic Love Story cards (container type). Templates whose love
+    // story is ONE container (title + image + description widgets inside,
+    // e.g. template-33) map it once via `stories_container`:
+    // {container: {elementId}, title: {...}, description: {...}, image_url: {...}}.
+    // Story 1 patches the master in place; stories 2..N clone the container
+    // (fresh elementIds, `_aksaraa_story_clone` tag). Each clone is inserted
+    // right after the previous card, so DOM order always matches story order
+    // (master first, never removed). Surplus clones are trimmed when stories
+    // shrink; zero stories hides the master instead of deleting it. Manifest
+    // slots are rebuilt per card so the standard object-array extractor fills
+    // them. Legacy slot-array `stories` templates never carry this key.
+    private static function reconcile_story_containers(array $elements, array $fields, array $manifest): array
+    {
+        $mapping = $manifest['stories_container'] ?? null;
+        if (!is_array($mapping)) return [$elements, $manifest];
+        $slot = isset($mapping['container']) ? $mapping : ($mapping[0] ?? null);
+        if (!is_array($slot) || empty($slot['container']['elementId'])) return [$elements, $manifest];
+        $masterId = (string) $slot['container']['elementId'];
+        $master = self::find_node($elements, $masterId);
+        if (!is_array($master)) return [$elements, $manifest];
+
+        $stories = (isset($fields['stories']) && is_array($fields['stories'])) ? array_values($fields['stories']) : [];
+        $items = [];
+        foreach ($stories as $s) {
+            if (!is_array($s)) continue;
+            foreach (['title', 'description', 'image_url'] as $k) {
+                if (isset($s[$k]) && trim((string) $s[$k]) !== '') { $items[] = $s; break; }
+            }
+        }
+        $desired = count($items);
+        if ($desired > 6) {
+            error_log('[aksaraa] stories_container: capped at 6 stories (had ' . $desired . ')');
+            $desired = 6;
+        }
+
+        $hideNode = function (array &$node, bool $hide) {
+            $node['settings'] = $node['settings'] ?? [];
+            $classes = trim((string) ($node['settings']['_css_classes'] ?? ''));
+            $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-hidden'));
+            if ($hide) $tokens[] = 'aksaraa-hidden';
+            $node['settings']['_css_classes'] = implode(' ', $tokens);
+        };
+
+        if ($desired === 0) {
+            $elements = self::apply_to_node($elements, $masterId, function (array &$c) use ($hideNode) { $hideNode($c, true); });
+            $stale = self::find_clone_ids($elements, '_aksaraa_story_clone');
+            if (!empty($stale)) {
+                $elements = self::remove_nodes_by_id($elements, $stale);
+            }
+            return [$elements, $manifest];
+        }
+
+        // Unhide master + any existing clones (a previously-empty state).
+        $elements = self::apply_to_node($elements, $masterId, function (array &$c) use ($hideNode) { $hideNode($c, false); });
+        foreach (self::find_clone_ids($elements, '_aksaraa_story_clone') as $cid) {
+            $elements = self::apply_to_node($elements, $cid, function (array &$c) use ($hideNode) { $hideNode($c, false); });
+        }
+
+        // Clone / trim to desired count.
+        $cloneIds = self::find_clone_ids($elements, '_aksaraa_story_clone');
+        if (count($cloneIds) + 1 < $desired) {
+            $anchor = end($cloneIds) ?: $masterId;
+            for ($i = count($cloneIds) + 1; $i < $desired; $i++) {
+                $fresh = self::find_node($elements, $masterId);
+                if (!is_array($fresh)) break;
+                $map = null;
+                $clone = self::tag_clone(self::clone_subtree($fresh, $map), '_aksaraa_story_clone');
+                $elements = self::insert_after($elements, $anchor, $clone);
+                $anchor = $map[$masterId] ?? $anchor;
+            }
+        } elseif (count($cloneIds) + 1 > $desired) {
+            $excess = array_slice($cloneIds, $desired - 1);
+            if (!empty($excess)) $elements = self::remove_nodes_by_id($elements, $excess);
+        }
+
+        // Rebuild manifest slots: slot 0 = master, then one per clone in DOM
+        // order, inner widget ids re-derived from each card subtree.
+        $baseTitle = $slot['title'] ?? null;
+        $baseDesc = $slot['description'] ?? null;
+        $baseImg = $slot['image_url'] ?? null;
+        $cardIds = array_merge([$masterId], self::find_clone_ids($elements, '_aksaraa_story_clone'));
+        $newSlots = [];
+        foreach ($cardIds as $cid) {
+            $card = self::find_node($elements, $cid);
+            if (!is_array($card)) continue;
+            $headings = self::find_descendant_headings($card);
+            $descId = self::find_descendant_widget_id($card, 'text-editor');
+            $row = ['container' => ['elementId' => $cid, 'settings' => []]];
+            if (is_array($baseTitle) && !empty($baseTitle['elementId'])) {
+                $row['title'] = ['elementId' => $headings[0] ?? $baseTitle['elementId'], 'settings' => is_array($baseTitle['settings'] ?? null) ? $baseTitle['settings'] : []];
+            }
+            if (is_array($baseDesc) && !empty($baseDesc['elementId'])) {
+                $row['description'] = ['elementId' => $descId ?: $baseDesc['elementId'], 'settings' => is_array($baseDesc['settings'] ?? null) ? $baseDesc['settings'] : []];
+            }
+            if (is_array($baseImg) && !empty($baseImg['elementId'])) {
+                // Image mapped on the card container itself (e.g. background)
+                // follows the card id; a mapped inner image widget is
+                // re-derived per card (falls back to the base id).
+                $imgId = ((string) $baseImg['elementId'] === $masterId)
+                    ? $cid
+                    : (self::find_descendant_widget_id($card, 'image') ?: $baseImg['elementId']);
+                $row['image_url'] = ['elementId' => $imgId, 'settings' => is_array($baseImg['settings'] ?? null) ? $baseImg['settings'] : []];
+            }
+            $newSlots[] = $row;
+        }
+        $manifest['stories_container'] = array_slice($newSlots, 0, max($desired, 1));
+
+        return [$elements, $manifest];
+    }
+
     private static function reconcile_sessions(array $elements, array $fields, array $manifest): array
     {
         // Explicit target (ops-mapped `sessions_section` / "Kontainer Acara") wins.
@@ -1984,6 +2157,15 @@ class AksaraaPlugin
         if (!empty($fields['gallery_photos_hidden'])) {
             $elements = self::hide_widgets_by_type($elements, 'gallery');
             $elements = self::hide_widgets_by_type($elements, 'media-carousel');
+        } else {
+            // Photos present: drop stale markers. A patch that ran while the
+            // gallery was still empty hides these widgets, and no other path
+            // unhides them — without this, later patches rewrite data around
+            // an element that stays display:none forever. Widget-scoped only:
+            // container/section markers belong to their own toggles (F4/F6)
+            // and must stay untouched.
+            $elements = self::unhide_widgets_by_type($elements, 'gallery');
+            $elements = self::unhide_widgets_by_type($elements, 'media-carousel');
         }
 
         return $elements;
@@ -2080,6 +2262,26 @@ class AksaraaPlugin
             }
             if (!empty($el['elements'])) {
                 $el['elements'] = self::hide_widgets_by_type($el['elements'], $widgetType);
+            }
+        }
+        unset($el);
+        return $elements;
+    }
+
+    // Reverse of hide_widgets_by_type: drop the marker so a previously-empty
+    // gallery reappears once photos exist. Widgets only, never containers —
+    // container markers are owned by their own reconciles (F4/F6 sections).
+    private static function unhide_widgets_by_type(array $elements, string $widgetType): array
+    {
+        foreach ($elements as &$el) {
+            if (($el['widgetType'] ?? '') === $widgetType) {
+                $el['settings'] = $el['settings'] ?? [];
+                $classes = trim((string) ($el['settings']['_css_classes'] ?? ''));
+                $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-hidden'));
+                $el['settings']['_css_classes'] = implode(' ', $tokens);
+            }
+            if (!empty($el['elements'])) {
+                $el['elements'] = self::unhide_widgets_by_type($el['elements'], $widgetType);
             }
         }
         unset($el);
@@ -2242,13 +2444,13 @@ class AksaraaPlugin
     }
 
     // Find ids of previously-cloned bank containers (tagged `_aksaraa_bank_clone`).
-    private static function find_clone_ids(array $elements): array
+    private static function find_clone_ids(array $elements, string $tag = '_aksaraa_bank_clone'): array
     {
         $ids = [];
-        $walk = function (array $nodes) use (&$walk, &$ids) {
+        $walk = function (array $nodes) use (&$walk, &$ids, $tag) {
             foreach ($nodes as $el) {
                 if (in_array($el['elType'] ?? '', ['section', 'container'], true)
-                    && !empty($el['settings']['_aksaraa_bank_clone'])) {
+                    && !empty($el['settings'][$tag])) {
                     $ids[] = $el['id'] ?? '';
                 }
                 if (!empty($el['elements'])) $walk($el['elements']);
@@ -2258,10 +2460,10 @@ class AksaraaPlugin
         return $ids;
     }
 
-    private static function tag_clone(array $node): array
+    private static function tag_clone(array $node, string $tag = '_aksaraa_bank_clone'): array
     {
         if (!isset($node['settings'])) $node['settings'] = [];
-        $node['settings']['_aksaraa_bank_clone'] = true;
+        $node['settings'][$tag] = true;
         return $node;
     }
 
@@ -2275,7 +2477,7 @@ class AksaraaPlugin
         return null;
     }
 
-    private static function clone_subtree(array $node): array
+    private static function clone_subtree(array $node, array &$map = null): array
     {
         $map = [];
         return self::deep_clone($node, $map);
