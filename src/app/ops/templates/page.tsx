@@ -49,7 +49,7 @@ const MAPPING_GROUPS: { key: string; label: string; fields: string[] }[] = [
   { key: "acara", label: "Acara", fields: ["date_upper", "countdown", "sessions", "sessions_section", "calendar_link"] },
   { key: "kutipan", label: "Kutipan", fields: ["quote_text", "quote_source"] },
   { key: "video", label: "Video", fields: ["video_url", "video_section"] },
-  { key: "story", label: "Story", fields: ["stories", "story_section"] },
+  { key: "story", label: "Story", fields: ["stories", "stories_container", "story_section"] },
   { key: "galeri", label: "Galeri", fields: ["gallery_photos"] },
   { key: "gift", label: "Gift", fields: ["gift_accounts", "gift_address", "gift_address_name", "gift_section"] },
 ]
@@ -418,12 +418,15 @@ export default function OpsTemplatesPage() {
   const isSectionField = (field: string) =>
     field === "gift_section" || field === "video_section" || field === "inviting_families_section" || field === "story_section" || field === "sessions_section" || field === "display_name_section"
 
-  const defaultSettingsPath = (widgetType: string | null, field?: string): string => {
+  const defaultSettingsPath = (widgetType: string | null, field?: string, subField?: string): string => {
     if (!widgetType) return "title"
     if (widgetType === "container-bg") return "background_image.url"
     if (widgetType === "container-bg-overlay") return "background_overlay_image.url"
     if (widgetType === "container-slideshow") return "background_slideshow_gallery"
     if (widgetType === "media-carousel") return ""
+    // Plain story card container (F2d clone type): structural only, no value
+    // to patch — like section containers, visibility is marker-driven.
+    if (widgetType === "container" && subField === "container") return ""
     // Whole-section container has no content field to patch; hide/show is driven
     // by a _css_classes marker in the mu-plugin.
     if (widgetType === "container" && field && isSectionField(field)) return ""
@@ -506,7 +509,7 @@ export default function OpsTemplatesPage() {
       const slots = [...(m[field] || [])]
       slots[slotIdx] = {
         ...(slots[slotIdx] || {}),
-        [subField]: { elementId, settings: defaultSettingsPath(widgetType, subField).split(".").filter(Boolean) },
+        [subField]: { elementId, settings: defaultSettingsPath(widgetType, field, subField).split(".").filter(Boolean) },
       }
       return { ...m, [field]: slots }
     })
@@ -1037,6 +1040,7 @@ export default function OpsTemplatesPage() {
                                               popups={popups}
                                               usedIds={usedIds}
                                               placeholder="— belum —"
+                                              allowContainers={subField === "container"}
                                               onChange={(elId) => {
                                                 if (!elId) { removeSubMapping(field, slotIdx, subField); return }
                                                 const el = mappable.find(x => x.id === elId)

@@ -174,10 +174,15 @@ async function runPatch(
   }
   if (trackUrl) fields.track_url = trackUrl
 
+  // Finalize patches must use the NEW template's manifest: the profile still
+  // points at the old template until this patch succeeds (chain order), so
+  // reading by profile.selected_template_id would apply stale element ids
+  // that match nothing (only the template-agnostic audio fallback lands).
+  const manifestTemplateId = finalize?.newTemplateId || profile.selected_template_id
   const { data: tpl } = await supabaseAdmin
     .from("web_templates")
     .select("wp_manifest")
-    .eq("id", profile.selected_template_id)
+    .eq("id", manifestTemplateId)
     .maybeSingle()
 
   let manifest: any = tpl?.wp_manifest || {}

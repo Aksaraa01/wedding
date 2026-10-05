@@ -29,6 +29,10 @@ export const OBJECT_ARRAY_FIELDS: Record<string, string[]> = {
   sessions: ["name", "date", "time", "venue", "address", "maps_url"],
   gift_accounts: ["provider_name", "account_number", "account_name"],
   stories: ["title", "description", "image_url"],
+  // Container-clone love story (F2d): ONE mapped container (+ inner widgets)
+  // auto-duplicated per story. Same couple data as `stories`; never use both
+  // keys on one template.
+  stories_container: ["container", "title", "description", "image_url"],
 }
 
 // Array fields whose items are flat values (string) mapped to one element each.
@@ -45,6 +49,7 @@ export const SUBFIELD_LABELS: Record<string, string> = {
   provider_name: "Nama Bank",
   account_number: "Nomor Rekening",
   account_name: "Atas Nama",
+  container: "Kontainer",
   title: "Judul",
   description: "Deskripsi",
   image_url: "Gambar",

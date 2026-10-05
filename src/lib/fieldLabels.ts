@@ -25,6 +25,7 @@ export const FIELD_LABELS: Record<string, string> = {
   inviting_families_section: "Bagian Turut Mengundang (kontainer yg disembunyikan saat toggle OFF)",
   story_section: "Bagian Kisah Cinta (kontainer yg disembunyikan saat toggle OFF)",
   stories: "Kisah Cinta",
+  stories_container: "Kisah Cinta (kontainer, duplikat otomatis per cerita — gantikan mapping Kisah Cinta biasa)",
   video_url: "Video",
   quote_text: "Kutipan",
   quote_source: "Sumber Kutipan",
