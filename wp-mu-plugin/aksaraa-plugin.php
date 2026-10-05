@@ -2163,14 +2163,15 @@ class AksaraaPlugin
         return $elements;
     }
 
-    // Media visibility by scope: `gallery` widgets always follow gallery
-    // emptiness; a media-carousel mapped under cover_photos follows cover
-    // emptiness instead. Strip-then-add (same pattern as section toggles) so
-    // stale markers from an earlier empty state clear on the next patch.
+    // Media visibility by scope: `gallery` widgets (and carousels outside any
+    // cover mapping) follow gallery emptiness; a media-carousel mapped under
+    // cover_photos is NEVER hidden for emptiness — empty covers fall back to
+    // the couple default image (injected upstream), which must show, not hide.
+    // Strip-then-add (same pattern as section toggles) so stale markers from
+    // an earlier empty state clear on the next patch.
     private static function reconcile_media_visibility(array $elements, array $fields, array $manifest): array
     {
         $galleryEmpty = !empty($fields['gallery_photos_hidden']);
-        $coverEmpty = !empty($fields['cover_photos_hidden']);
 
         $slotIds = function ($mapping) {
             $ids = [];
@@ -2190,12 +2191,14 @@ class AksaraaPlugin
             }
         }
 
-        $walk = function (array $nodes) use (&$walk, $galleryEmpty, $coverEmpty, $galleryIds, $coverIds) {
+        $walk = function (array $nodes) use (&$walk, $galleryEmpty, $galleryIds, $coverIds) {
             foreach ($nodes as &$el) {
                 $wt = $el['widgetType'] ?? '';
                 if ($wt === 'gallery' || $wt === 'media-carousel') {
                     $id = (string) ($el['id'] ?? '');
-                    $hide = isset($coverIds[$id]) && !isset($galleryIds[$id]) ? $coverEmpty : $galleryEmpty;
+                    // Cover carousels always show (defaults fill emptiness);
+                    // gallery scope hides only when gallery is empty.
+                    $hide = (isset($coverIds[$id]) && !isset($galleryIds[$id])) ? false : $galleryEmpty;
                     $el['settings'] = $el['settings'] ?? [];
                     $classes = trim((string) ($el['settings']['_css_classes'] ?? ''));
                     $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-hidden'));
