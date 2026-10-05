@@ -86,6 +86,9 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
   const hasAddress = !!esc(giftAddr?.full_address)
   const hasBank = giftAccounts.length > 0
   const coverPhotos = parseList(profile.cover_photos).filter(Boolean)
+  // Real cover emptiness BEFORE the default-image injection below (the mu-plugin
+  // scopes cover-carousel visibility off this, independently of gallery state).
+  const coverPhotosHidden = coverPhotos.length === 0
   const galleryPhotos = parseList(profile.gallery_photos).filter(Boolean)
   const groomPhoto = parseList(profile.groom_photo_url).filter(Boolean)
   const bridePhoto = parseList(profile.bride_photo_url).filter(Boolean)
@@ -133,6 +136,7 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
     calendar_link,
     gallery_photos: galleryPhotos,
     gallery_photos_hidden: galleryPhotos.length === 0,
+    cover_photos_hidden: coverPhotosHidden,
     inviting_families: parseList(profile.inviting_families).filter(Boolean).map(esc),
     gift_accounts: giftAccounts.map(a => ({
       provider_name: a.provider_logo_url || resolveBankLogo(a.provider_name),

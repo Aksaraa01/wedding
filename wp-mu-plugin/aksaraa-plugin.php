@@ -2152,23 +2152,64 @@ class AksaraaPlugin
             });
         }
 
-        // Gallery widget: hide ALL gallery-type widgets when no photos uploaded.
-        // Template-agnostic — finds widgets by widgetType, not by manifest elementId.
-        if (!empty($fields['gallery_photos_hidden'])) {
-            $elements = self::hide_widgets_by_type($elements, 'gallery');
-            $elements = self::hide_widgets_by_type($elements, 'media-carousel');
-        } else {
-            // Photos present: drop stale markers. A patch that ran while the
-            // gallery was still empty hides these widgets, and no other path
-            // unhides them — without this, later patches rewrite data around
-            // an element that stays display:none forever. Widget-scoped only:
-            // container/section markers belong to their own toggles (F4/F6)
-            // and must stay untouched.
-            $elements = self::unhide_widgets_by_type($elements, 'gallery');
-            $elements = self::unhide_widgets_by_type($elements, 'media-carousel');
-        }
+        // Gallery + cover visibility have SEPARATE scopes (F6g): gallery-type
+        // widgets follow gallery_photos; cover-mapped media-carousels follow
+        // cover_photos (a cover slideshow must not hide just because the
+        // gallery is empty, nor show placeholders when covers are missing).
+        // Scope comes from the manifest mapping, not the widget type alone;
+        // carousels outside both mappings keep the legacy gallery rule.
+        $elements = self::reconcile_media_visibility($elements, $fields, $manifest);
 
         return $elements;
+    }
+
+    // Media visibility by scope: `gallery` widgets always follow gallery
+    // emptiness; a media-carousel mapped under cover_photos follows cover
+    // emptiness instead. Strip-then-add (same pattern as section toggles) so
+    // stale markers from an earlier empty state clear on the next patch.
+    private static function reconcile_media_visibility(array $elements, array $fields, array $manifest): array
+    {
+        $galleryEmpty = !empty($fields['gallery_photos_hidden']);
+        $coverEmpty = !empty($fields['cover_photos_hidden']);
+
+        $slotIds = function ($mapping) {
+            $ids = [];
+            if (!is_array($mapping)) return $ids;
+            $slots = isset($mapping['elementId']) ? [$mapping] : array_values($mapping);
+            foreach ($slots as $m) {
+                if (is_array($m) && !empty($m['elementId'])) $ids[(string) $m['elementId']] = true;
+            }
+            return $ids;
+        };
+        $galleryIds = $slotIds($manifest['gallery_photos'] ?? []);
+        $coverIds = [];
+        foreach (array_keys($slotIds($manifest['cover_photos'] ?? [])) as $cid) {
+            $node = self::find_node($elements, $cid);
+            if (is_array($node) && ($node['widgetType'] ?? '') === 'media-carousel') {
+                $coverIds[$cid] = true;
+            }
+        }
+
+        $walk = function (array $nodes) use (&$walk, $galleryEmpty, $coverEmpty, $galleryIds, $coverIds) {
+            foreach ($nodes as &$el) {
+                $wt = $el['widgetType'] ?? '';
+                if ($wt === 'gallery' || $wt === 'media-carousel') {
+                    $id = (string) ($el['id'] ?? '');
+                    $hide = isset($coverIds[$id]) && !isset($galleryIds[$id]) ? $coverEmpty : $galleryEmpty;
+                    $el['settings'] = $el['settings'] ?? [];
+                    $classes = trim((string) ($el['settings']['_css_classes'] ?? ''));
+                    $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-hidden'));
+                    if ($hide) $tokens[] = 'aksaraa-hidden';
+                    $el['settings']['_css_classes'] = implode(' ', $tokens);
+                }
+                if (!empty($el['elements'])) {
+                    $el['elements'] = $walk($el['elements']);
+                }
+            }
+            unset($el);
+            return $nodes;
+        };
+        return $walk($elements);
     }
 
     // F9 - hide instagram handle widgets when the couple left the handle empty,
@@ -2246,45 +2287,6 @@ class AksaraaPlugin
             });
         }
 
-        return $elements;
-    }
-
-    // Hide/show all widgets of a given type by toggling the aksaraa-hidden marker.
-    private static function hide_widgets_by_type(array $elements, string $widgetType): array
-    {
-        foreach ($elements as &$el) {
-            if (($el['widgetType'] ?? '') === $widgetType) {
-                $el['settings'] = $el['settings'] ?? [];
-                $classes = trim((string) ($el['settings']['_css_classes'] ?? ''));
-                $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-hidden'));
-                $tokens[] = 'aksaraa-hidden';
-                $el['settings']['_css_classes'] = implode(' ', $tokens);
-            }
-            if (!empty($el['elements'])) {
-                $el['elements'] = self::hide_widgets_by_type($el['elements'], $widgetType);
-            }
-        }
-        unset($el);
-        return $elements;
-    }
-
-    // Reverse of hide_widgets_by_type: drop the marker so a previously-empty
-    // gallery reappears once photos exist. Widgets only, never containers —
-    // container markers are owned by their own reconciles (F4/F6 sections).
-    private static function unhide_widgets_by_type(array $elements, string $widgetType): array
-    {
-        foreach ($elements as &$el) {
-            if (($el['widgetType'] ?? '') === $widgetType) {
-                $el['settings'] = $el['settings'] ?? [];
-                $classes = trim((string) ($el['settings']['_css_classes'] ?? ''));
-                $tokens = array_values(array_filter(explode(' ', $classes), fn($c) => $c !== '' && $c !== 'aksaraa-hidden'));
-                $el['settings']['_css_classes'] = implode(' ', $tokens);
-            }
-            if (!empty($el['elements'])) {
-                $el['elements'] = self::unhide_widgets_by_type($el['elements'], $widgetType);
-            }
-        }
-        unset($el);
         return $elements;
     }
 
