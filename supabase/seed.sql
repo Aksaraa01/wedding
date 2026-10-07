@@ -15,6 +15,7 @@ ON CONFLICT (code) DO NOTHING;
 -- Package Features
 INSERT INTO package_features (package_code, feature_code, is_included) VALUES
     ('essential', 'premium_web', true),
+    ('essential', 'wish_wall', true),
     ('essential', 'reservation_automation', true),
     ('essential', 'unique_link_generator', true),
     ('essential', 'kolom_direct_transfer', true),

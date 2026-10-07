@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { calcTotalWithVoucher, deriveSelections, PACKAGE_CODES } from "@/lib/packages"
+import { calcTotalWithVoucher, PACKAGE_CODES } from "@/lib/packages"
+import { getSelections } from "@/lib/featureGates"
 
 const VOUCHER_ERRORS: Record<string, string> = {
   invalid: "Kode voucher tidak valid.",
@@ -162,7 +163,7 @@ export async function PUT(
       express_service !== undefined ||
       undangan_fisik !== undefined
     // Sync feature_actions to match the new package
-    const selections = deriveSelections(effPackage, !!effFisik)
+    const selections = await getSelections(effPackage, !!effFisik)
     const enabledFeatures = Object.entries(selections)
       .filter(([, v]) => v)
       .map(([key]) => key)

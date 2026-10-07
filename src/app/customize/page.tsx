@@ -334,6 +334,7 @@ function Inner() {
   const [undanganFisik, setUndanganFisik] = useState(false)
   const [matrix, setMatrix] = useState<MatrixSection[]>([])
   const [matrixCols, setMatrixCols] = useState<MatrixCol[]>([])
+  const [pkgFeatures, setPkgFeatures] = useState<Record<string, string[]>>({})
 
   const [loaded, setLoaded] = useState(!isEdit)
   const [modalOpen, setModalOpen] = useState(false)
@@ -370,6 +371,7 @@ function Inner() {
       .then((data) => {
         setMatrix(data.matrix || [])
         setMatrixCols(data.columns || [])
+        setPkgFeatures(data.features || {})
       })
   }, [])
 
@@ -457,7 +459,7 @@ function Inner() {
     setWaBlastTier(0)
   }
 
-  const showWaTier = PACKAGE_FEATURES[selectedPackage]?.includes("wa_blast") ?? false
+  const showWaTier = (pkgFeatures[selectedPackage] ?? PACKAGE_FEATURES[selectedPackage] ?? []).includes("wa_blast")
   const activeCards = activeTab === "undangan" ? UNDANGAN_CARDS : DGB_CARDS
   const matrixVisibleCols = matrixCols.filter((col) => !["cetak_undangan_bonus", "bonus_full_custom"].includes(col.code))
   const matrixUndanganCols = matrixVisibleCols.filter((c) => !c.code.startsWith("dgb_"))

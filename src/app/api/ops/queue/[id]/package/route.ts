@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { requireOpsEmployee } from "@/lib/ops-auth"
-import { calcTotalWithVoucher, deriveSelections, PACKAGE_CODES } from "@/lib/packages"
+import { calcTotalWithVoucher, PACKAGE_CODES } from "@/lib/packages"
+import { getSelections } from "@/lib/featureGates"
 
 export async function PUT(
   req: NextRequest,
@@ -56,7 +57,7 @@ export async function PUT(
     // Rebuild feature_actions to match the new package, preserving the
     // completion status of features present in both old and new packages.
     // A mid-pipeline package change must not wipe already-finished work.
-    const selections = deriveSelections(package_type, undanganFisik)
+    const selections = await getSelections(package_type, undanganFisik)
     const enabledFeatures = Object.entries(selections)
       .filter(([, v]) => v)
       .map(([key]) => key)

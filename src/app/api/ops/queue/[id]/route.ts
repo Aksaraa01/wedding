@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { resolveDerivedStatus } from "@/lib/opsStatus"
 import { hasVipQuotaBase } from "@/lib/packages"
+import { getFeatureIncluded } from "@/lib/featureGates"
 
 export async function GET(
   _req: Request,
@@ -189,6 +190,8 @@ export async function GET(
       }
     })
 
+    const featureSet = Array.from(await getFeatureIncluded(wp.package_type || "signature"))
+
     return NextResponse.json({
       queue: {
         id: queueItem.id,
@@ -220,6 +223,7 @@ export async function GET(
         undangan_fisik: wp.undangan_fisik === true,
       },
       feature_actions: featureActions || [],
+      feature_set: featureSet,
       employees: allEmployees || [],
       guest_stats: { total: totalGuests, with_token: withToken },
       feature_stats: {

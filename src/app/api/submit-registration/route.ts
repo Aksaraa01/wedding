@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { calcTotalWithVoucher, calcTotal, deriveSelections, normalizePhone, PACKAGE_CODES } from "@/lib/packages"
+import { calcTotalWithVoucher, calcTotal, normalizePhone, PACKAGE_CODES } from "@/lib/packages"
 import { slugifyCouple } from "@/lib/slug"
 import { notifyNewAccountGroup } from "@/lib/notifyGroup"
+import { getSelections } from "@/lib/featureGates"
 
 const VOUCHER_ERRORS: Record<string, string> = {
   invalid: "Kode voucher tidak valid.",
@@ -161,7 +162,7 @@ export async function POST(req: Request) {
         .eq("id", profile.id)
     }
 
-    const selections = deriveSelections(package_type || "signature", !!undangan_fisik)
+    const selections = await getSelections(package_type || "signature", !!undangan_fisik)
     const enabledFeatures = Object.entries(selections)
       .filter(([, v]) => v)
       .map(([key]) => key)

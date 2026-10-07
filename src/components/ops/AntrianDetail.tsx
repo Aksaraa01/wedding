@@ -111,6 +111,7 @@ type QueueDetail = {
   queue: QueueItem
   wedding_profile: QueueItem["wedding_profile"]
   feature_actions: FeatureAction[]
+  feature_set?: string[]
   employees: Employee[]
   guest_stats: { total: number; with_token: number }
   feature_stats: {
@@ -685,9 +686,11 @@ export default function AntrianDetail({ id }: { id: string }) {
   const currentWp = detail?.wedding_profile
 
   // QR Guest Book (Buku Tamu Digital) module: only active on DGB tiers.
-  const qrActive = currentWp?.package_type
-    ? (PACKAGE_FEATURES[currentWp.package_type]?.includes("qr_code_book") ?? false)
-    : true
+  const qrActive = detail?.feature_set
+    ? detail.feature_set.includes("qr_code_book")
+    : currentWp?.package_type
+      ? (PACKAGE_FEATURES[currentWp.package_type]?.includes("qr_code_book") ?? false)
+      : true
 
   const derived = detail && currentWp
     ? resolveDerivedStatus({

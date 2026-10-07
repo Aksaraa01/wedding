@@ -88,7 +88,7 @@ export const WA_TIER_PRICES: Record<number, number> = {
 export const EXPRESS_FEE = 250000
 
 export const PACKAGE_FEATURES: Record<string, string[]> = {
-  essential: ["premium_web", "reservation_automation", "unique_link_generator", "kolom_direct_transfer"],
+  essential: ["premium_web", "wish_wall", "reservation_automation", "unique_link_generator", "kolom_direct_transfer"],
   signature: ["premium_web", "wish_wall", "reservation_automation", "unique_link_generator", "kolom_direct_transfer"],
   prestige: [
     "premium_web", "wish_wall", "reservation_automation",

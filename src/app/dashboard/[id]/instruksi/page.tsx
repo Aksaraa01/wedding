@@ -4,7 +4,7 @@ import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import ProfileMenu from "@/components/ProfileMenu"
-import { PACKAGE_CODES, PACKAGE_FEATURES, PACKAGE_LABELS as PACKAGE_LABEL, PACKAGE_CATEGORY } from "@/lib/packages"
+import { PACKAGE_LABELS as PACKAGE_LABEL, PACKAGE_CATEGORY } from "@/lib/packages"
 
 type Step = {
   key: string
@@ -29,13 +29,9 @@ type Selections = {
   wa_blast: boolean
 }
 
-// feature_code -> packages that include it (derived from single source of truth: packages.ts)
-const AVAILABLE_IN: Record<string, string[]> = {}
-for (const pkg of PACKAGE_CODES) {
-  for (const feat of PACKAGE_FEATURES[pkg] || []) {
-    ;(AVAILABLE_IN[feat] = AVAILABLE_IN[feat] || []).push(pkg)
-  }
-}
+// feature_code -> packages that include it. Built at runtime from the
+// `package_features` table (via /api/packages/matrix) so it never drifts from
+// the editable matrix.
 
 const STEPS: Step[] = [
   {
@@ -164,6 +160,7 @@ function InstructionInner({ id }: { id: string }) {
   const [selections, setSelections] = useState<Selections | null>(null)
   const [packageType, setPackageType] = useState("signature")
   const [paymentStatus, setPaymentStatus] = useState<string>("UNPAID")
+  const [availableIn, setAvailableIn] = useState<Record<string, string[]>>({})
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -178,6 +175,22 @@ function InstructionInner({ id }: { id: string }) {
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [id])
+
+  useEffect(() => {
+    fetch("/api/packages/matrix")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        const features: Record<string, string[]> = data?.features || {}
+        const inv: Record<string, string[]> = {}
+        for (const pkg of Object.keys(features)) {
+          for (const feat of features[pkg]) {
+            ;(inv[feat] = inv[feat] || []).push(pkg)
+          }
+        }
+        setAvailableIn(inv)
+      })
+      .catch(() => {})
+  }, [])
 
   const activeKeys = new Set(
     Object.entries(selections || {})
@@ -291,7 +304,7 @@ function InstructionInner({ id }: { id: string }) {
                               </div>
                             ) : (
                               (() => {
-                                const pkgs = AVAILABLE_IN[step.key] || []
+                                const pkgs = availableIn[step.key] || []
                                 const grouped: Record<string, string[]> = {}
                                 for (const p of pkgs) {
                                   const cat = PACKAGE_CATEGORY[p] === "dgbook" ? "Buku Tamu Digital" : "Undangan Digital"

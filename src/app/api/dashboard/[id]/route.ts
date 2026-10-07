@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { requireAuth } from "@/lib/requireAuth"
-import { deriveSelections } from "@/lib/packages"
-import { getRowGates, getFeatureIncluded } from "@/lib/featureGates"
+import { getRowGates, getFeatureIncluded, getSelections } from "@/lib/featureGates"
 
 export async function GET(
   _req: Request,
@@ -27,7 +26,7 @@ export async function GET(
     const packageGates = await getRowGates(packageType)
     const featureSet = Array.from(await getFeatureIncluded(packageType))
 
-    const selections = deriveSelections(
+    const selections = await getSelections(
       profile.package_type || "signature",
       !!profile.undangan_fisik
     )

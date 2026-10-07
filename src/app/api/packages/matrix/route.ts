@@ -49,6 +49,17 @@ export async function GET() {
       return NextResponse.json({ error: rowError.message }, { status: 500 })
     }
 
+    // Editable feature matrix (source of truth for gates). Returned so the
+    // client never hardcodes which package includes which feature.
+    const { data: pf } = await supabaseAdmin
+      .from("package_features")
+      .select("package_code, feature_code")
+      .eq("is_included", true)
+    const features: Record<string, string[]> = {}
+    for (const r of (pf || []) as { package_code: string; feature_code: string }[]) {
+      ;(features[r.package_code] = features[r.package_code] || []).push(r.feature_code)
+    }
+
     const matrix = sections.map((s) => ({
       code: s.code,
       label: s.label,
@@ -81,7 +92,7 @@ export async function GET() {
       }),
     }))
 
-    return NextResponse.json({ matrix, columns: COLUMNS.map((c) => ({ code: c.code, label: PACKAGE_LABELS[c.code] || c.label })) })
+    return NextResponse.json({ matrix, columns: COLUMNS.map((c) => ({ code: c.code, label: PACKAGE_LABELS[c.code] || c.label })), features })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

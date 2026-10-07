@@ -1,6 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { cachedRead } from "@/lib/refCache"
-import { matrixColumnForPackage } from "@/lib/packages"
+import { matrixColumnForPackage, deriveSelections, type Selections } from "@/lib/packages"
 
 export type GateInfo = {
   included: boolean
@@ -88,6 +88,25 @@ export async function getFeatureIncluded(packageType: string): Promise<Set<strin
     if (error) return new Set<string>()
     return new Set((data || []).map((d) => d.feature_code))
   })
+}
+
+// Feature selections are driven by the `package_features` table (the editable
+// source of truth). Falls back to the static matrix only when the table read
+// fails/returns nothing, so the app never renders an empty feature set.
+export async function getSelections(packageType: string, undanganFisik: boolean): Promise<Selections> {
+  const set = await getFeatureIncluded(packageType)
+  if (set.size === 0) return deriveSelections(packageType, undanganFisik)
+  return {
+    premium_web: set.has("premium_web"),
+    wish_wall: set.has("wish_wall"),
+    reservation_automation: set.has("reservation_automation"),
+    kolom_direct_transfer: set.has("kolom_direct_transfer"),
+    galeri_foto_tamu: set.has("galeri_foto_tamu"),
+    qr_code_book: set.has("qr_code_book"),
+    unique_link_generator: set.has("unique_link_generator"),
+    wa_blast: set.has("wa_blast"),
+    undangan_fisik: undanganFisik,
+  }
 }
 
 // Photo quota ("Kuota Foto" matrix row): number of photos, or null = Unlimited.
