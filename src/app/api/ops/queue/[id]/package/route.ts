@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { requireOpsEmployee } from "@/lib/ops-auth"
-import { calcTotal, deriveSelections, PACKAGE_CODES } from "@/lib/packages"
+import { calcTotalWithVoucher, deriveSelections, PACKAGE_CODES } from "@/lib/packages"
 
 export async function PUT(
   req: NextRequest,
@@ -19,7 +19,7 @@ export async function PUT(
 
     const { data: queueItem, error: queueError } = await supabaseAdmin
       .from("ops_queue")
-      .select("id, wedding_profiles!inner (id, package_type, wa_blast_tier, express_service, undangan_fisik)")
+      .select("id, wedding_profiles!inner (id, package_type, wa_blast_tier, express_service, undangan_fisik, voucher_code, voucher_discount)")
       .eq("id", id)
       .single()
 
@@ -37,7 +37,9 @@ export async function PUT(
     const expressService = wp?.express_service === true
     const undanganFisik = wp?.undangan_fisik === true
 
-    const total = calcTotal(package_type, waBlastTier, expressService)
+    // Voucher discount earned at signup is preserved across package changes.
+    const voucherDiscount = (wp as any)?.voucher_discount || 0
+    const total = calcTotalWithVoucher(package_type, waBlastTier, expressService, voucherDiscount)
 
     const { error: updateError } = await supabaseAdmin
       .from("wedding_profiles")

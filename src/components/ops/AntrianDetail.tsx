@@ -58,6 +58,8 @@ type QueueItem = {
     estimated_guest_count: number
     package_type: string
     total_project_cost: number
+    voucher_code?: string | null
+    voucher_discount?: number | null
     payment_status: string
     express_service?: boolean | null
     message_category?: string | null
@@ -94,7 +96,7 @@ type FeedbackSubmission = {
 
 type StatusLogEntry = {
   id: string
-  kind: "status" | "package" | "invitation" | "payment"
+  kind: "status" | "package" | "invitation" | "payment" | "voucher"
   previous_status: string | null
   new_status: string | null
   previous_package: string | null
@@ -566,6 +568,37 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [qrGuests, setQrGuests] = useState<any[]>([])
   const [qrLoading, setQrLoading] = useState(false)
   const [qrGenerating, setQrGenerating] = useState(false)
+  const [voucherInput, setVoucherInput] = useState("")
+  const [voucherApplying, setVoucherApplying] = useState(false)
+  const [voucherMsg, setVoucherMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const [voucherSwapOpen, setVoucherSwapOpen] = useState(false)
+
+  const applyVoucherOps = async () => {
+    const code = voucherInput.trim().toUpperCase()
+    if (!code || voucherApplying) return
+    setVoucherApplying(true)
+    setVoucherMsg(null)
+    try {
+      const res = await fetch(`/api/ops/queue/${id}/voucher`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "x-ops-phone": employee?.phone_number || "",
+          "x-ops-role": employee?.role || "",
+        },
+        body: JSON.stringify({ voucher_code: code }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || "Gagal menerapkan voucher")
+      setVoucherInput("")
+      setVoucherMsg({ ok: true, text: `Voucher ${data.voucher_code} diterapkan • potongan ${formatCurrency(data.voucher_discount)}` })
+      await fetchAll()
+    } catch (err: any) {
+      setVoucherMsg({ ok: false, text: err?.message || "Gagal menerapkan voucher" })
+    } finally {
+      setVoucherApplying(false)
+    }
+  }
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -1545,8 +1578,118 @@ export default function AntrianDetail({ id }: { id: string }) {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">Estimasi Biaya:</span>
-                  <span className="font-bold text-primary">{formatCurrency(currentWp.total_project_cost)}</span>
+                  {!!currentWp.voucher_code && (currentWp.voucher_discount || 0) > 0 ? (
+                    <span className="whitespace-nowrap">
+                      <span className="text-sm text-on-surface-variant line-through mr-2">{formatCurrency((currentWp.total_project_cost || 0) + (currentWp.voucher_discount || 0))}</span>
+                      <span className="font-bold text-primary">{formatCurrency(currentWp.total_project_cost)}</span>
+                    </span>
+                  ) : (
+                    <span className="font-bold text-primary">{formatCurrency(currentWp.total_project_cost)}</span>
+                  )}
                 </div>
+                {!!currentWp.voucher_code ? (
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 border border-green-300 text-green-800 font-label-md text-[10px] uppercase tracking-widest rounded-full">
+                      <span className="material-symbols-outlined text-[14px]">confirmation_number</span>
+                      {currentWp.voucher_code} − {formatCurrency(currentWp.voucher_discount || 0)}
+                    </span>
+                    {((employee?.role === "admin" || employee?.role === "sales") &&
+                      (currentWp.payment_status === "UNPAID" || employee?.role === "admin")) && (
+                      <button
+                        onClick={() => {
+                          setVoucherSwapOpen((v) => !v)
+                          setVoucherInput("")
+                          setVoucherMsg(null)
+                        }}
+                        className="text-[10px] uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors"
+                        title="Ganti ke kode voucher lain"
+                      >
+                        Ganti
+                      </button>
+                    )}
+                    {(employee?.role === "admin" ||
+                      (employee?.role === "sales" && currentWp.payment_status === "UNPAID")) && (
+                      <button
+                        onClick={async () => {
+                          if (!confirm(`Lepas voucher ${currentWp.voucher_code} dari couple ini? Kuota kembali bertambah.`)) return
+                          setVoucherApplying(true)
+                          try {
+                            const res = await fetch(`/api/ops/queue/${id}/voucher`, {
+                              method: "DELETE",
+                              headers: {
+                                "x-ops-phone": employee?.phone_number || "",
+                                "x-ops-role": employee?.role || "",
+                              },
+                            })
+                            const data = await res.json().catch(() => ({}))
+                            if (!res.ok) throw new Error(data.error || "Gagal melepas voucher")
+                            setVoucherMsg({ ok: true, text: "Voucher dilepas." })
+                            await fetchAll()
+                          } catch (err: any) {
+                            setVoucherMsg({ ok: false, text: err?.message || "Gagal melepas voucher" })
+                          } finally {
+                            setVoucherApplying(false)
+                          }
+                        }}
+                        disabled={voucherApplying}
+                        className="text-[10px] uppercase tracking-widest text-on-surface-variant hover:text-red-500 transition-colors disabled:opacity-50"
+                        title="Lepas voucher (admin)"
+                      >
+                        Lepas
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  (employee?.role === "admin" || employee?.role === "sales") &&
+                  (currentWp.payment_status === "UNPAID" || employee?.role === "admin") && (
+                    <div className="flex items-center gap-2">
+                      <input
+                        value={voucherInput}
+                        onChange={(e) => {
+                          setVoucherInput(e.target.value.toUpperCase())
+                          setVoucherMsg(null)
+                        }}
+                        placeholder="Kode voucher"
+                        className="w-40 px-2.5 py-1.5 text-xs font-mono uppercase tracking-widest border border-outline-variant bg-white focus:outline-none focus:border-primary"
+                      />
+                      <button
+                        onClick={applyVoucherOps}
+                        disabled={voucherApplying || !voucherInput.trim()}
+                        className="px-3 py-1.5 bg-white border border-secondary text-secondary font-label-md text-[10px] uppercase tracking-widest hover:bg-secondary hover:text-white active:scale-95 transition-all disabled:opacity-50"
+                      >
+                        {voucherApplying ? "..." : "Pakai"}
+                      </button>
+                    </div>
+                  )
+                )}
+                {voucherSwapOpen && !!currentWp.voucher_code && (
+                  <div className="flex items-center gap-2">
+                    <input
+                      value={voucherInput}
+                      onChange={(e) => {
+                        setVoucherInput(e.target.value.toUpperCase())
+                        setVoucherMsg(null)
+                      }}
+                      placeholder="Kode pengganti"
+                      className="w-40 px-2.5 py-1.5 text-xs font-mono uppercase tracking-widest border border-outline-variant bg-white focus:outline-none focus:border-primary"
+                    />
+                    <button
+                      onClick={async () => {
+                        await applyVoucherOps()
+                        setVoucherSwapOpen(false)
+                      }}
+                      disabled={voucherApplying || !voucherInput.trim()}
+                      className="px-3 py-1.5 bg-white border border-secondary text-secondary font-label-md text-[10px] uppercase tracking-widest hover:bg-secondary hover:text-white active:scale-95 transition-all disabled:opacity-50"
+                    >
+                      {voucherApplying ? "..." : "Tukar"}
+                    </button>
+                  </div>
+                )}
+                {voucherMsg && (
+                  <div className={`flex items-center gap-2 text-xs ${voucherMsg.ok ? "text-green-700" : "text-red-500"}`}>
+                    {voucherMsg.text}
+                  </div>
+                )}
                 {currentWp.express_service && (
                   <div className="flex items-center gap-2">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-300 text-amber-800 font-label-md text-[10px] uppercase tracking-widest rounded-full">
@@ -1956,6 +2099,8 @@ export default function AntrianDetail({ id }: { id: string }) {
                             <>Data Undangan: <span className="font-normal">{log.details || "diubah"}</span></>
                           ) : log.kind === "payment" ? (
                             <>Pembayaran: <span className="font-normal">{log.details || "diubah"}</span></>
+                          ) : log.kind === "voucher" ? (
+                            <>Voucher: <span className="font-normal">{log.details || "diubah"}</span></>
                           ) : (
                             <>{log.previous_status ? OPS_STATUS_LABELS[log.previous_status as keyof typeof OPS_STATUS_LABELS] ?? log.previous_status : "—"}{" → "}{log.new_status ? OPS_STATUS_LABELS[log.new_status as keyof typeof OPS_STATUS_LABELS] ?? log.new_status : "—"}</>
                           )}

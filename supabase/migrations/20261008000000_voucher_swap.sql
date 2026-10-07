@@ -1,0 +1,67 @@
+-- Atomic voucher swap (human-error correction): validate the new code, release
+-- the old redemption (cap decremented), consume the new one — all in ONE
+-- transaction so a failure can never leave the couple voucher-less. The
+-- caller updates wedding_profiles + writes the audit log entries.
+create or replace function public.swap_voucher(p_code text, p_profile_id uuid, p_package text)
+returns table (voucher_id uuid, amount int, old_voucher_id uuid, old_code text)
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_new public.vouchers%rowtype;
+  v_old_id uuid;
+  v_elig text[];
+  v_old_redemption_id uuid;
+begin
+  if p_code is null or btrim(p_code) = '' then
+    raise exception 'invalid' using errcode = 'P0001';
+  end if;
+
+  select * into v_new from public.vouchers
+  where upper(code) = upper(btrim(p_code))
+  for update;
+
+  if not found then
+    raise exception 'invalid' using errcode = 'P0001';
+  end if;
+  if not v_new.is_active then
+    raise exception 'inactive' using errcode = 'P0001';
+  end if;
+  if v_new.used_count >= v_new.max_uses then
+    raise exception 'exhausted' using errcode = 'P0001';
+  end if;
+
+  select coalesce(array_agg(x), '{}') into v_elig
+  from jsonb_array_elements_text(case when jsonb_typeof(v_new.package_eligibility) = 'array' then v_new.package_eligibility else '[]'::jsonb end) as x;
+  if array_length(v_elig, 1) is not null and not (p_package = any (v_elig)) then
+    raise exception 'ineligible' using errcode = 'P0001';
+  end if;
+
+  -- Release the current redemption first (frees the one-per-profile slot),
+  -- then consume the new code. Same transaction: no half-swapped state.
+  delete from public.voucher_redemptions
+  where wedding_profile_id = p_profile_id
+  returning voucher_redemptions.id, voucher_redemptions.voucher_id into v_old_redemption_id, v_old_id;
+
+  if v_old_redemption_id is not null then
+    update public.vouchers
+    set used_count = greatest(0, used_count - 1), updated_at = now()
+    where id = v_old_id;
+    insert into public.voucher_logs (voucher_id, action, details)
+    values (v_old_id, 'released', 'diganti — slot dikembalikan ke pool');
+  end if;
+
+  update public.vouchers
+  set used_count = used_count + 1, updated_at = now()
+  where id = v_new.id;
+
+  insert into public.voucher_redemptions (voucher_id, wedding_profile_id, amount_applied)
+  values (v_new.id, p_profile_id, v_new.amount);
+
+  insert into public.voucher_logs (voucher_id, action, details)
+  values (v_new.id, 'redeemed', 'profil ' || p_profile_id::text || ' • paket ' || coalesce(p_package, '-') || ' • potongan ' || v_new.amount::text || ' (ganti)');
+
+  return query select v_new.id, v_new.amount, v_old_id, (select code from public.vouchers where id = v_old_id);
+end;
+$$;

@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { calcTotal, deriveSelections, normalizePhone, PACKAGE_CODES } from "@/lib/packages"
+import { calcTotalWithVoucher, calcTotal, deriveSelections, normalizePhone, PACKAGE_CODES } from "@/lib/packages"
 import { slugifyCouple } from "@/lib/slug"
 import { notifyNewAccountGroup } from "@/lib/notifyGroup"
+
+const VOUCHER_ERRORS: Record<string, string> = {
+  invalid: "Kode voucher tidak valid.",
+  inactive: "Voucher ini sudah dinonaktifkan.",
+  exhausted: "Kuota voucher ini sudah habis.",
+  ineligible: "Voucher ini tidak berlaku untuk paket yang dipilih.",
+  already_used: "Voucher ini sudah digunakan.",
+}
 
 function validPin(pin: string): boolean {
   return /^\d{6}$/.test(pin || "")
@@ -95,6 +103,11 @@ export async function POST(req: Request) {
 
     const total = calcTotal(package_type || "signature", wa_blast_tier || 0, !!express_service)
 
+    const voucherCode =
+      typeof body?.voucher_code === "string" && body.voucher_code.trim()
+        ? body.voucher_code.trim().toUpperCase()
+        : null
+
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("wedding_profiles")
       .insert({
@@ -120,6 +133,32 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Nama pasangan sudah digunakan" }, { status: 409 })
       }
       return NextResponse.json({ error: profileError.message }, { status: 500 })
+    }
+
+    // Voucher redemption (single voucher per couple): atomic consume AFTER the
+    // profile exists. On failure the just-created profile is removed so a
+    // retry starts clean (the users row is phone-keyed and safely reused).
+    let voucherDiscount = 0
+    if (voucherCode) {
+      const { data: redeemed, error: redeemError } = await supabaseAdmin.rpc("redeem_voucher", {
+        p_code: voucherCode,
+        p_profile_id: profile.id,
+        p_package: package_type || "signature",
+      })
+      if (redeemError) {
+        await supabaseAdmin.from("wedding_profiles").delete().eq("id", profile.id)
+        const key = (redeemError.message || "").trim()
+        return NextResponse.json(
+          { error: VOUCHER_ERRORS[key] || "Voucher tidak dapat digunakan." },
+          { status: 400 },
+        )
+      }
+      voucherDiscount = Math.max(0, Math.floor(Number(redeemed) || 0))
+      const discounted = calcTotalWithVoucher(package_type || "signature", wa_blast_tier || 0, !!express_service, voucherDiscount)
+      await supabaseAdmin
+        .from("wedding_profiles")
+        .update({ voucher_code: voucherCode, voucher_discount: voucherDiscount, total_project_cost: discounted })
+        .eq("id", profile.id)
     }
 
     const selections = deriveSelections(package_type || "signature", !!undangan_fisik)
@@ -160,6 +199,8 @@ export async function POST(req: Request) {
 
     // Awaited (not fire-and-forget) so the WA send completes inside the
     // request lifecycle; a notify failure never fails the registration.
+    // Reports the discounted total when a voucher was applied.
+    const finalTotal = calcTotalWithVoucher(package_type || "signature", wa_blast_tier || 0, !!express_service, voucherDiscount)
     try {
       await notifyNewAccountGroup({
         wedding_profile_id: profile.id,
@@ -169,7 +210,7 @@ export async function POST(req: Request) {
         whatsapp_number: normalizedPhone,
         package_type: package_type || "signature",
         wa_blast_tier: wa_blast_tier || 0,
-        total,
+        total: finalTotal,
       })
     } catch (e) {
       console.error("[notifyGroup] failed", e)

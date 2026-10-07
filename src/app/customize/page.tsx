@@ -220,6 +220,88 @@ function formatRp(n: number) {
   return "Rp " + n.toLocaleString("id-ID").replace(/,/g, ".")
 }
 
+// Shared voucher modal (registration + edit flows): clear input on open,
+// primary Pakai/Tukar CTA, subtle Lepas text-link, no Tutup button (X +
+// backdrop close), sans typography, inline validation feedback.
+function VoucherModal(props: {
+  title: string
+  subtitle: React.ReactNode
+  input: string
+  onInput(v: string): void
+  checking: boolean
+  busy: boolean
+  error: string
+  success: string | null
+  pakaiLabel: string
+  onPakai(): void
+  showLepas: boolean
+  onLepas(): void
+  onClose(): void
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-[200] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={props.onClose}
+    >
+      <div
+        className="bg-surface rounded-2xl p-6 md:p-8 max-w-md w-full border border-outline-variant shadow-2xl relative"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={props.onClose}
+          className="absolute top-4 right-4 text-on-surface-variant hover:text-primary"
+          aria-label="Tutup"
+        >
+          <span className="material-symbols-outlined">close</span>
+        </button>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-11 h-11 bg-secondary-container/20 text-secondary flex items-center justify-center rounded-full shrink-0">
+            <span className="material-symbols-outlined">confirmation_number</span>
+          </div>
+          <h2 className="font-label-md text-label-md uppercase tracking-widest">{props.title}</h2>
+        </div>
+        <div className="font-body-md text-sm text-on-surface-variant mb-4">{props.subtitle}</div>
+        <div className="flex gap-2">
+          <input
+            value={props.input}
+            onChange={(e) => props.onInput(e.target.value.toUpperCase())}
+            placeholder="Masukkan kode baru"
+            autoComplete="off"
+            autoFocus
+            className="flex-1 min-w-0 px-4 py-3 bg-surface border border-outline-variant focus:border-primary rounded-xl focus:outline-none font-mono uppercase tracking-widest placeholder:text-on-surface-variant/60 placeholder:normal-case placeholder:tracking-normal placeholder:font-body-md transition-colors"
+          />
+          <button
+            type="button"
+            onClick={props.onPakai}
+            disabled={props.checking || props.busy || !props.input.trim()}
+            className="shrink-0 px-6 rounded-xl bg-secondary text-white font-label-md text-[11px] uppercase tracking-widest hover:bg-on-secondary-fixed active:scale-95 transition-all disabled:opacity-50"
+          >
+            {(props.checking || props.busy) ? "..." : props.pakaiLabel}
+          </button>
+        </div>
+        {props.error && (
+          <p className="font-body-md text-sm text-red-500 mt-2">{props.error}</p>
+        )}
+        {props.success && (
+          <p className="font-body-md text-sm text-green-700 mt-2 flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-[18px]">check_circle</span>
+            {props.success}
+          </p>
+        )}
+        {props.showLepas && (
+          <button
+            onClick={props.onLepas}
+            disabled={props.busy}
+            className="mt-3 mx-auto block text-[11px] uppercase tracking-widest text-red-400 hover:text-red-500 transition-colors disabled:opacity-50"
+          >
+            Lepas voucher
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function Inner() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -267,6 +349,20 @@ function Inner() {
   const [originalFisik, setOriginalFisik] = useState(false)
   const [packageChangeModalOpen, setPackageChangeModalOpen] = useState(false)
   const [profilePaymentStatus, setProfilePaymentStatus] = useState<"UNPAID" | "PARTIAL_DP" | "FULLY_PAID">("UNPAID")
+  const [profileVoucherCode, setProfileVoucherCode] = useState<string | null>(null)
+
+  // Voucher discount (registration flow only — one code per couple).
+  const [voucherCode, setVoucherCode] = useState("")
+  const [voucherAmount, setVoucherAmount] = useState<number | null>(null)
+  const [voucherError, setVoucherError] = useState("")
+  const [voucherChecking, setVoucherChecking] = useState(false)
+  const [voucherModalOpen, setVoucherModalOpen] = useState(false)
+  const [voucherPostSaveOpen, setVoucherPostSaveOpen] = useState(false)
+  const [voucherModalInput, setVoucherModalInput] = useState("")
+  const [voucherModalSuccess, setVoucherModalSuccess] = useState<string | null>(null)
+  // Snapshot at open: the title must not flip mid-session when applying
+  // changes live profile state (edit applied Pakai while open).
+  const [voucherModalHadVoucher, setVoucherModalHadVoucher] = useState(false)
 
   useEffect(() => {
     fetch("/api/packages/matrix")
@@ -277,27 +373,83 @@ function Inner() {
       })
   }, [])
 
-  useEffect(() => {
+  const fetchProfile = async () => {
     if (!isEdit || !editProfileId) return
-    fetch(`/api/dashboard/${editProfileId}`)
-      .then((r) => r.json())
-      .then((data) => {
-        const pkg = data.profile.package_type || "signature"
-        setSelectedPackage(pkg)
-        setOriginalPackage(pkg)
-        setProfilePaymentStatus(data.profile.payment_status || "UNPAID")
-        setActiveTab(pkg.startsWith("dgb_") ? "dgbook" : "undangan")
-        setWaBlastTier(data.profile.wa_blast_tier || 0)
-        setOriginalWaTier(data.profile.wa_blast_tier || 0)
-        setExpressService(!!data.profile.express_service)
-        setOriginalExpress(!!data.profile.express_service)
-        setUndanganFisik(!!data.profile.undangan_fisik)
-        setOriginalFisik(!!data.profile.undangan_fisik)
-        setLoaded(true)
-      })
+    const data = await fetch(`/api/dashboard/${editProfileId}`).then((r) => r.json())
+    const pkg = data.profile.package_type || "signature"
+    setSelectedPackage(pkg)
+    setOriginalPackage(pkg)
+    setProfilePaymentStatus(data.profile.payment_status || "UNPAID")
+    setActiveTab(pkg.startsWith("dgb_") ? "dgbook" : "undangan")
+    setWaBlastTier(data.profile.wa_blast_tier || 0)
+    setOriginalWaTier(data.profile.wa_blast_tier || 0)
+    setExpressService(!!data.profile.express_service)
+    setOriginalExpress(!!data.profile.express_service)
+    setUndanganFisik(!!data.profile.undangan_fisik)
+    setOriginalFisik(!!data.profile.undangan_fisik)
+    setProfileVoucherCode(data.profile.voucher_code || null)
+    if (data.profile.voucher_code) {
+      setVoucherCode(data.profile.voucher_code)
+      setVoucherAmount(Number(data.profile.voucher_discount) || 0)
+    } else {
+      setVoucherCode("")
+      setVoucherAmount(null)
+    }
+    setLoaded(true)
+  }
+
+  useEffect(() => {
+    fetchProfile()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editProfileId, isEdit])
 
   const total = calcTotal(selectedPackage, waBlastTier, expressService)
+  const discountedTotal = voucherAmount != null ? Math.max(0, total - voucherAmount) : total
+
+  const applyVoucher = async (code: string, pkg: string): Promise<{ ok: boolean; amount: number }> => {
+    const clean = code.trim().toUpperCase()
+    if (!clean) {
+      setVoucherAmount(null)
+      setVoucherError("")
+      return { ok: false, amount: 0 }
+    }
+    setVoucherChecking(true)
+    setVoucherError("")
+    try {
+      const res = await fetch("/api/vouchers/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: clean, package_type: pkg }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (data.ok) {
+        const amount = data.amount || 0
+        setVoucherCode(clean)
+        setVoucherAmount(amount)
+        return { ok: true, amount }
+      } else {
+        setVoucherAmount(null)
+        setVoucherError(data.message || "Kode voucher tidak valid.")
+        return { ok: false, amount: 0 }
+      }
+    } catch {
+      setVoucherAmount(null)
+      setVoucherError("Gagal memeriksa voucher. Coba lagi.")
+      return { ok: false, amount: 0 }
+    } finally {
+      setVoucherChecking(false)
+    }
+  }
+
+  // Re-validate when the package changes — eligibility is per package.
+  useEffect(() => {
+    if (voucherCode && !isEdit) {
+      setVoucherAmount(null)
+      setVoucherError("")
+      applyVoucher(voucherCode, selectedPackage)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPackage])
 
   const switchTab = (tab: "undangan" | "dgbook") => {
     setActiveTab(tab)
@@ -383,6 +535,7 @@ function Inner() {
           wa_blast_tier: waBlastTier,
           express_service: expressService,
           undangan_fisik: undanganFisik,
+          voucher_code: voucherAmount != null ? voucherCode.trim().toUpperCase() : undefined,
         }),
       })
       const data = await res.json().catch(() => ({}))
@@ -399,12 +552,84 @@ function Inner() {
     }
   }
 
+  // Sticky-footer voucher entry: registration always; edit only while UNPAID.
+  const showVoucherEntry = !isEdit || profilePaymentStatus === "UNPAID"
+
+  const openVoucherModal = () => {
+    setVoucherModalInput("")
+    setVoucherError("")
+    setVoucherModalSuccess(null)
+    setVoucherModalHadVoucher(!!profileVoucherCode)
+    setVoucherModalOpen(true)
+  }
+
+  const modalPakai = async () => {
+    const clean = voucherModalInput.trim().toUpperCase()
+    if (!clean || submitting || voucherChecking) return
+    if (!isEdit) {
+      const r = await applyVoucher(clean, selectedPackage)
+      if (r.ok) {
+        setVoucherModalSuccess(`Kode ${clean} valid — potongan ${formatRp(r.amount)}.`)
+        setVoucherModalOpen(false)
+      }
+      return
+    }
+    setSubmitting(true)
+    setVoucherError("")
+    setVoucherModalSuccess(null)
+    try {
+      const res = await fetch(`/api/customize/${editProfileId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          profileVoucherCode ? { voucher_code: clean, replace_voucher: true } : { voucher_code: clean }
+        ),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || "Voucher tidak dapat digunakan.")
+      setProfileVoucherCode(clean)
+      setVoucherModalSuccess(`Voucher ${clean} diterapkan.`)
+      setVoucherModalOpen(false)
+      fetchProfile()
+    } catch (err: any) {
+      setVoucherError(err?.message || "Voucher tidak dapat digunakan.")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const modalLepas = async () => {
+    if (submitting) return
+    setSubmitting(true)
+    setVoucherError("")
+    setVoucherModalSuccess(null)
+    try {
+      const res = await fetch(`/api/customize/${editProfileId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ release_voucher: true }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || "Gagal melepas voucher")
+      setProfileVoucherCode(null)
+      setVoucherAmount(null)
+      setVoucherModalInput("")
+      setVoucherModalOpen(false)
+      fetchProfile()
+    } catch (err: any) {
+      setVoucherError(err?.message || "Gagal melepas voucher")
+    } finally {
+      setSubmitting(false)
+    }
+  }
   const handleSave = async () => {
+    const newVoucher = !profileVoucherCode && voucherAmount != null ? voucherCode.trim().toUpperCase() : undefined
     const hasChanged =
       selectedPackage !== originalPackage ||
       waBlastTier !== originalWaTier ||
       expressService !== originalExpress ||
-      undanganFisik !== originalFisik
+      undanganFisik !== originalFisik ||
+      !!newVoucher
     if (isEdit && hasChanged && profilePaymentStatus !== "UNPAID") {
       setPackageChangeModalOpen(true)
       return
@@ -421,10 +646,20 @@ function Inner() {
           wa_blast_tier: waBlastTier,
           express_service: expressService,
           undangan_fisik: undanganFisik,
+          ...(newVoucher ? { voucher_code: newVoucher } : {}),
         }),
       })
       if (res.ok) {
-        router.push(`/dashboard/${editProfileId}`)
+        if (newVoucher) setProfileVoucherCode(newVoucher)
+        // Edit flow, unpaid, no voucher yet: offer voucher right after saving.
+        if (isEdit && !profileVoucherCode && !newVoucher && profilePaymentStatus === "UNPAID") {
+          setVoucherCode("")
+          setVoucherAmount(null)
+          setVoucherError("")
+          setVoucherPostSaveOpen(true)
+        } else {
+          router.push(`/dashboard/${editProfileId}`)
+        }
       } else {
         const err = await res.json()
         setSubmitError(err.error || "Gagal menyimpan.")
@@ -779,21 +1014,73 @@ function Inner() {
 
       </main>
 
-      <footer className="fixed bottom-0 left-0 w-full bg-[rgba(253,249,240,0.85)] backdrop-blur-md border-t border-outline-variant px-4 md:px-edge-margin-desktop py-3 md:py-6 z-[90]">
-        <div className="max-w-[1200px] mx-auto flex flex-row items-center justify-between gap-3 md:gap-4">
-          <div className="flex flex-col items-start min-w-0 flex-1">
-            <span className="font-label-md text-[10px] uppercase text-on-surface-variant tracking-widest hidden md:block">Estimasi Total</span>
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="font-headline-md text-[16px] md:text-[26px] truncate">{PACKAGE_LABELS[selectedPackage] || "Paket"} Experience</span>
-              <span className="text-on-surface-variant/30 hidden sm:inline">|</span>
-              <span className="font-headline-md text-[16px] md:text-[26px] text-secondary whitespace-nowrap">{formatRp(total)}</span>
+      <footer className="fixed bottom-0 left-0 w-full bg-[rgba(253,249,240,0.92)] backdrop-blur-md border-t border-outline-variant px-4 md:px-edge-margin-desktop py-4 md:py-6 z-[90]">
+        <div className="max-w-[1200px] mx-auto flex flex-col items-stretch gap-3 sm:flex-row sm:items-center justify-between md:gap-6">
+          <div className="flex flex-col items-start min-w-0 flex-1 gap-1.5">
+            <span className="font-label-md text-[10px] uppercase text-on-surface-variant tracking-widest">Estimasi Total</span>
+            <span className="font-headline-md text-[15px] md:text-[22px] leading-tight truncate max-w-full">{PACKAGE_LABELS[selectedPackage] || "Paket"} Experience</span>
+            <div className="flex items-baseline gap-2 min-w-0 flex-wrap">
+              {voucherAmount != null ? (
+                <>
+                  <span className="font-body-md text-sm text-on-surface-variant line-through">{formatRp(total)}</span>
+                  <span className="font-headline-md text-[22px] md:text-[30px] leading-none text-secondary">{formatRp(discountedTotal)}</span>
+                </>
+              ) : (
+                <span className="font-headline-md text-[22px] md:text-[30px] leading-none text-secondary">{formatRp(total)}</span>
+              )}
             </div>
+            {(voucherAmount != null || profileVoucherCode) && (
+              <span className="inline-flex items-center gap-1.5 mt-0.5 px-2.5 py-1 bg-green-50 border border-green-300 text-green-800 font-label-md text-[10px] uppercase tracking-widest rounded-full w-fit">
+                <span className="material-symbols-outlined text-[12px]">confirmation_number</span>
+                {profileVoucherCode || voucherCode.trim().toUpperCase()} − {formatRp(voucherAmount || 0)}
+                <span className="text-green-800/40">•</span>
+                <button
+                  onClick={() => {
+                    setVoucherError("")
+                    setVoucherModalOpen(true)
+                  }}
+                  className="underline underline-offset-2 decoration-green-800/40 hover:text-green-900 transition-colors"
+                >
+                  Ganti
+                </button>
+                <span className="text-green-800/40">•</span>
+                <button
+                  onClick={() => {
+                    if (!isEdit) {
+                      setVoucherCode("")
+                      setVoucherAmount(null)
+                      setVoucherError("")
+                      return
+                    }
+                    if (profilePaymentStatus !== "UNPAID") return
+                    if (!confirm("Lepas voucher? Potongan harga akan hilang.")) return
+                    modalLepas()
+                  }}
+                  className="underline underline-offset-2 decoration-green-800/40 hover:text-red-500 transition-colors"
+                >
+                  Hapus
+                </button>
+              </span>
+            )}
           </div>
+          <div className="flex flex-col sm:flex-row gap-2 md:gap-3 sm:items-center w-full sm:w-auto">
+            {showVoucherEntry && voucherAmount == null && !profileVoucherCode && (
+              <button
+                onClick={() => {
+                  setVoucherError("")
+                  setVoucherModalOpen(true)
+                }}
+                className="inline-flex items-center justify-center gap-1.5 px-5 py-3.5 md:py-4 rounded-full md:rounded-none border border-secondary text-secondary font-label-md text-[11px] md:text-label-md uppercase tracking-[0.2em] hover:bg-secondary hover:text-white active:scale-95 transition-all whitespace-nowrap w-full sm:w-auto"
+              >
+                <span className="material-symbols-outlined text-[16px]">confirmation_number</span>
+                ＋ Voucher
+              </button>
+            )}
           {isEdit ? (
             <button
               onClick={handleSave}
               disabled={submitting}
-              className={`shrink-0 px-6 md:px-12 py-3 md:py-4 bg-primary text-white font-label-md text-[11px] md:text-label-md uppercase tracking-[0.2em] transition-all hover:bg-secondary rounded-full md:rounded-none ${submitting ? "opacity-50" : ""}`}
+              className={`shrink-0 px-6 md:px-12 py-4 bg-primary text-white font-label-md text-[11px] md:text-label-md uppercase tracking-[0.2em] transition-all hover:bg-secondary rounded-full md:rounded-none ${submitting ? "opacity-50" : ""} w-full sm:w-auto`}
             >
               {submitting ? "Menyimpan..." : "Simpan"}
             </button>
@@ -806,11 +1093,12 @@ function Inner() {
                   goToRegister()
                 }
               }}
-              className="shrink-0 px-6 md:px-12 py-3 md:py-4 bg-primary text-white font-label-md text-[11px] md:text-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all rounded-full md:rounded-none"
+              className="shrink-0 px-6 md:px-12 py-4 bg-primary text-white font-label-md text-[11px] md:text-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all rounded-full md:rounded-none w-full sm:w-auto"
             >
               Lanjut
             </button>
           )}
+          </div>
         </div>
       </footer>
 
@@ -929,6 +1217,84 @@ function Inner() {
             </div>
           </div>
         </div>
+      )}
+
+      {voucherPostSaveOpen && (
+        <VoucherModal
+          title="Perubahan Tersimpan"
+          subtitle="Punya kode voucher? Tambahkan sekarang untuk potongan harga."
+          input={voucherModalInput}
+          onInput={(v) => {
+            setVoucherModalInput(v)
+            setVoucherError("")
+            setVoucherModalSuccess(null)
+          }}
+          checking={false}
+          busy={submitting}
+          error={voucherError}
+          success={voucherModalSuccess}
+          pakaiLabel="Pakai"
+          onPakai={async () => {
+            const clean = voucherModalInput.trim().toUpperCase()
+            if (!clean || submitting) return
+            setSubmitting(true)
+            setVoucherError("")
+            setVoucherModalSuccess(null)
+            try {
+              const res = await fetch(`/api/customize/${editProfileId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ voucher_code: clean }),
+              })
+              const data = await res.json().catch(() => ({}))
+              if (!res.ok) throw new Error(data.error || "Voucher tidak dapat digunakan.")
+              setVoucherPostSaveOpen(false)
+              router.push(`/dashboard/${editProfileId}`)
+            } catch (err: any) {
+              setVoucherError(err?.message || "Voucher tidak dapat digunakan.")
+            } finally {
+              setSubmitting(false)
+            }
+          }}
+          showLepas={false}
+          onLepas={() => {}}
+          onClose={() => {
+            setVoucherPostSaveOpen(false)
+            router.push(`/dashboard/${editProfileId}`)
+          }}
+        />
+      )}
+
+      {voucherModalOpen && (
+        <VoucherModal
+          title={voucherModalHadVoucher ? "Ganti Voucher" : "Pakai Voucher"}
+          subtitle={
+            voucherModalHadVoucher ? (
+              <>Masukkan kode baru di bawah. Voucher aktif tetap berlaku sampai kode baru diterapkan.</>
+            ) : (
+              "Masukkan kode dari konsultan untuk potongan harga paket."
+            )
+          }
+          input={voucherModalInput}
+          onInput={(v) => {
+            setVoucherModalInput(v)
+            setVoucherError("")
+            setVoucherModalSuccess(null)
+          }}
+          checking={voucherChecking}
+          busy={submitting}
+          error={voucherError}
+          success={voucherModalSuccess}
+          pakaiLabel={voucherModalHadVoucher ? "Tukar" : "Pakai"}
+          onPakai={modalPakai}
+          showLepas={isEdit && voucherModalHadVoucher && profilePaymentStatus === "UNPAID"}
+          onLepas={modalLepas}
+          onClose={() => {
+            setVoucherModalOpen(false)
+            setVoucherError("")
+            setVoucherModalSuccess(null)
+          }}
+        />
       )}
 
       {matrixOpen && (

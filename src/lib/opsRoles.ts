@@ -7,6 +7,7 @@ export const TAB_ROLES: Record<string, OpsRole[]> = {
   antrian: ["admin", "sales", "creative"],
   music: ["admin", "creative"],
   template: ["admin", "creative"],
+  voucher: ["admin", "sales"],
 }
 
 export function canChangeStatus(role: string, derived: string): boolean {

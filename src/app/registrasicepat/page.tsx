@@ -13,12 +13,47 @@ function RegistrasiCepatInner() {
   const [showPin, setShowPin] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState("")
+  const [voucherCode, setVoucherCode] = useState("")
+  const [voucherAmount, setVoucherAmount] = useState<number | null>(null)
+  const [voucherError, setVoucherError] = useState("")
+  const [voucherChecking, setVoucherChecking] = useState(false)
 
   const formValid =
     firstName.trim().length > 0 &&
     secondName.trim().length > 0 &&
     waNumber.replace(/\D/g, "").length > 0 &&
     pin.length === 6
+
+  const applyVoucher = async (code: string) => {
+    const clean = code.trim().toUpperCase()
+    if (!clean) {
+      setVoucherAmount(null)
+      setVoucherError("")
+      return
+    }
+    setVoucherChecking(true)
+    setVoucherError("")
+    try {
+      const res = await fetch("/api/vouchers/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: clean, package_type: "signature" }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (data.ok) {
+        setVoucherCode(clean)
+        setVoucherAmount(data.amount || 0)
+      } else {
+        setVoucherAmount(null)
+        setVoucherError(data.message || "Kode voucher tidak valid.")
+      }
+    } catch {
+      setVoucherAmount(null)
+      setVoucherError("Gagal memeriksa voucher. Coba lagi.")
+    } finally {
+      setVoucherChecking(false)
+    }
+  }
 
   const handleSubmit = async () => {
     if (!formValid || submitting) return
@@ -68,6 +103,7 @@ function RegistrasiCepatInner() {
           wa_blast_tier: 0,
           express_service: false,
           undangan_fisik: false,
+          voucher_code: voucherAmount != null ? voucherCode.trim().toUpperCase() : undefined,
         }),
       })
       const data = await res.json().catch(() => ({}))
@@ -173,6 +209,37 @@ function RegistrasiCepatInner() {
             {submitError && (
               <p className="font-body-md text-sm text-red-400">{submitError}</p>
             )}
+            <div>
+              <label className="font-label-md text-[10px] uppercase text-on-surface-variant block mb-2 tracking-widest">Kode Voucher (opsional)</label>
+              <div className="flex gap-2">
+                <input
+                  className="flex-1 min-w-0 px-4 py-3.5 bg-transparent border border-outline-variant/30 focus:border-primary rounded-xl focus:outline-none font-mono uppercase tracking-widest placeholder:text-outline-variant transition-colors"
+                  placeholder="AKSARAA-XXXXXX"
+                  autoComplete="off"
+                  value={voucherCode}
+                  onChange={(e) => {
+                    setVoucherCode(e.target.value.toUpperCase())
+                    setVoucherError("")
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => applyVoucher(voucherCode)}
+                  disabled={voucherChecking || !voucherCode.trim()}
+                  className="shrink-0 px-5 rounded-xl border border-secondary text-secondary font-label-md text-[11px] uppercase tracking-widest hover:bg-secondary hover:text-white active:scale-95 transition-all disabled:opacity-50"
+                >
+                  {voucherChecking ? "..." : "Pakai"}
+                </button>
+              </div>
+              {voucherError && (
+                <p className="font-body-md text-sm text-red-400 mt-2">{voucherError}</p>
+              )}
+              {voucherAmount != null && (
+                <p className="font-body-md text-sm text-green-700 mt-2">
+                  Voucher diterapkan — potongan Rp{voucherAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}.
+                </p>
+              )}
+            </div>
             <button
               onClick={handleSubmit}
               disabled={!formValid || submitting}

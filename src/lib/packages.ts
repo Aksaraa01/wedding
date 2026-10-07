@@ -168,6 +168,18 @@ export function calcTotal(
   return pkgPrice + waPrice + expressPrice
 }
 
+// Grand total minus voucher discount (locked at registration, preserved across
+// later package/add-on changes). Never negative.
+export function calcTotalWithVoucher(
+  packageType: string,
+  waBlastTier: number,
+  expressService: boolean,
+  voucherDiscount?: number | null
+): number {
+  const discount = Math.max(0, Math.floor(Number(voucherDiscount) || 0))
+  return Math.max(0, calcTotal(packageType, waBlastTier, expressService) - discount)
+}
+
 export function normalizePhone(wa: string): string {
   const digits = wa.replace(/\D/g, "").replace(/^0+/, "")
   if (!digits) return ""
