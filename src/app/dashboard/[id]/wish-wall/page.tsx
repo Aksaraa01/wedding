@@ -14,6 +14,7 @@ type Wish = {
   is_pinned: boolean
   created_at: string
   source: string | null
+  guests?: { category?: string | null; is_vip?: boolean } | { category?: string | null; is_vip?: boolean }[] | null
 }
 
 type Stats = {
@@ -121,7 +122,17 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
     try {
       await generateWishWallPdf(
         profile || {},
-        approvedWishes.map((w) => ({ id: w.id, name: w.name, message: w.message, created_at: w.created_at })),
+        approvedWishes.map((w) => {
+          const g = Array.isArray(w.guests) ? w.guests[0] : w.guests
+          return {
+            id: w.id,
+            name: w.name,
+            message: w.message,
+            created_at: w.created_at,
+            category: g?.category || null,
+            is_vip: g?.is_vip === true,
+          }
+        }),
       )
     } catch (e: any) {
       setPdfError(e?.message || "Gagal membuat PDF. Coba lagi.")

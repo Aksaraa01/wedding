@@ -11,6 +11,8 @@ export type PdfWish = {
   name: string
   message: string
   created_at?: string | null
+  category?: string | null
+  is_vip?: boolean
 }
 
 export type PdfProfile = {
@@ -133,7 +135,7 @@ function buildCover(profile: PdfProfile, count: number): Promise<HTMLElement> {
       `<span style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:26px;color:#A98231;">${escapeHtml(initials(`${groom} ${bride}`))}</span>`,
     ),
   )
-  top.appendChild(el("div", "font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:#A98231;", "The Wedding Guestbook"))
+  top.appendChild(el("div", "font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:#A98231;", "The Wedding Wish Wall"))
   top.appendChild(el("div", "font-family:'Pinyon Script',cursive;font-size:30px;color:#39332D;margin-top:6px;", "Celebration of Eternal Love"))
   cover.appendChild(top)
 
@@ -173,14 +175,49 @@ function buildCard(wish: PdfWish): HTMLElement {
     "height:280px;background:#FFFFFF;border:1px solid #E8DCDB;border-radius:16px;padding:20px;box-sizing:border-box;" +
       "display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;",
   )
-  card.appendChild(
+  const head = el("div", "display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;")
+  head.appendChild(
     el(
       "div",
-      "display:flex;align-items:center;gap:12px;margin-bottom:12px;",
-      `<div style="width:40px;height:40px;border-radius:50%;background:#FAF3EC;border:1px solid #E8DCDB;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Cormorant Garamond',serif;font-weight:700;font-size:14px;color:#5B242A;">${escapeHtml(initials(wish.name))}</div>` +
-        `<div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:17px;color:#5B242A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(wish.name)}</div>`,
+      "width:40px;height:40px;border-radius:50%;background:#FAF3EC;border:1px solid #E8DCDB;" +
+        "display:flex;align-items:center;justify-content:center;flex-shrink:0;" +
+        "font-family:'Cormorant Garamond',serif;font-weight:700;font-size:14px;color:#5B242A;",
+      escapeHtml(initials(wish.name)),
     ),
   )
+  const col = el("div", "flex:1;min-width:0;")
+  col.appendChild(
+    el(
+      "div",
+      "font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:17px;line-height:1.3;color:#5B242A;" +
+        "word-break:break-word;margin:0;padding:0;",
+      escapeHtml(wish.name),
+    ),
+  )
+  const meta = el("div", "display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:5px;")
+  if (wish.category) {
+    meta.appendChild(
+      el(
+        "span",
+        "font-family:'Plus Jakarta Sans',sans-serif;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;" +
+          "color:#39332D;background:#F4EFE6;border:1px solid #E2D9CF;border-radius:9999px;padding:2px 8px;",
+        escapeHtml(wish.category),
+      ),
+    )
+  }
+  if (wish.is_vip) {
+    meta.appendChild(
+      el(
+        "span",
+        "font-family:'Plus Jakarta Sans',sans-serif;font-size:10px;letter-spacing:0.08em;font-weight:700;" +
+          "color:#7A5A2E;background:rgba(201,163,78,0.15);border:1px solid #C9A34E;border-radius:9999px;padding:2px 8px;",
+        "&#9733; VIP",
+      ),
+    )
+  }
+  if (meta.childNodes.length > 0) col.appendChild(meta)
+  head.appendChild(col)
+  card.appendChild(head)
   card.appendChild(
     el(
       "div",

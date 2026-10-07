@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 
     let query = supabaseAdmin
       .from("wishes")
-      .select("*")
+      .select("*, guests(category, is_vip)")
       .eq("wedding_profile_id", weddingProfileId)
       .order("is_pinned", { ascending: false })
       .order("created_at", { ascending: false })
