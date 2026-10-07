@@ -194,32 +194,26 @@ function buildCard(wish: PdfWish): HTMLElement {
       escapeHtml(wish.name),
     ),
   )
-  const meta = el("div", "margin-top:6px;")
+  const metaParts: string[] = []
   if (wish.category) {
-    meta.appendChild(
-      el(
-        "span",
-        "display:inline-block;vertical-align:middle;height:22px;line-height:22px;padding:0 10px;margin-right:6px;" +
-          "border-radius:9999px;text-align:center;white-space:nowrap;" +
-          "font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;" +
-          "color:#6B5B45;background:#F6F1E7;border:1px solid #E2D9CF;",
-        escapeHtml(wish.category),
-      ),
+    metaParts.push(
+      `<span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#8B6F2A;">${escapeHtml(wish.category)}</span>`,
     )
   }
   if (wish.is_vip) {
-    meta.appendChild(
+    metaParts.push(
+      `<span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.08em;color:#A98231;">&#9733; VIP</span>`,
+    )
+  }
+  if (metaParts.length > 0) {
+    col.appendChild(
       el(
-        "span",
-        "display:inline-block;vertical-align:middle;height:22px;line-height:22px;padding:0 10px;" +
-          "border-radius:9999px;text-align:center;white-space:nowrap;" +
-          "font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.12em;" +
-          "color:#7A5A2E;background:#F7EDD3;border:1px solid #C9A34E;",
-        "&#9733;&nbsp;VIP",
+        "div",
+        "margin-top:4px;",
+        metaParts.join(`<span style="font-family:'Plus Jakarta Sans',sans-serif;color:#C9A34E;margin:0 6px;">&bull;</span>`),
       ),
     )
   }
-  if (meta.childNodes.length > 0) col.appendChild(meta)
   head.appendChild(col)
   card.appendChild(head)
   card.appendChild(
