@@ -4,6 +4,7 @@ import { use, useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import ProfileMenu from "@/components/ProfileMenu"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
+import { generateWishWallPdf, type PdfProfile } from "@/lib/wishWallPdf"
 
 type Wish = {
   id: string
@@ -43,7 +44,10 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
   const [filter, setFilter] = useState("all")
   const [query, setQuery] = useState("")
   const [coupleSlug, setCoupleSlug] = useState("")
+  const [profile, setProfile] = useState<PdfProfile | null>(null)
   const [copied, setCopied] = useState(false)
+  const [downloading, setDownloading] = useState(false)
+  const [pdfError, setPdfError] = useState("")
   const [visible, setVisible] = useState(9)
   const ledWrapRef = useRef<HTMLDivElement>(null)
   const [ledScale, setLedScale] = useState(1)
@@ -77,6 +81,7 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
   useEffect(() => {
     fetch(`/api/dashboard/${id}`).then(r => r.json()).then(data => {
       if (data?.profile?.slug) setCoupleSlug(data.profile.slug)
+      if (data?.profile) setProfile(data.profile)
     })
     fetchWishes()
   }, [id])
@@ -105,6 +110,24 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
   const deleteWish = async (wishId: string) => {
     const res = await fetch(`/api/wishes/${wishId}`, { method: "DELETE" })
     if (res.ok) fetchWishes()
+  }
+
+  const approvedWishes = wishes.filter((w) => w.status === "approved")
+
+  const downloadPdf = async () => {
+    if (downloading || approvedWishes.length === 0) return
+    setDownloading(true)
+    setPdfError("")
+    try {
+      await generateWishWallPdf(
+        profile || {},
+        approvedWishes.map((w) => ({ id: w.id, name: w.name, message: w.message, created_at: w.created_at })),
+      )
+    } catch (e: any) {
+      setPdfError(e?.message || "Gagal membuat PDF. Coba lagi.")
+    } finally {
+      setDownloading(false)
+    }
   }
 
   const ledUrl = coupleSlug ? `https://${coupleSlug}.wedding.aksaraa.com/led` : ""
@@ -149,12 +172,37 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
 
       <main className="mt-20 px-6 lg:px-10 max-w-7xl mx-auto w-full pb-20">
         {/* Page Header */}
-        <section data-tour="wish-wall" className="mb-8">
-          <h2 className="font-headline-xl text-[20px] md:text-[28px] lg:text-headline-xl leading-tight mb-2 text-[#2C2A29]">Doa & Harapan Tamu</h2>
-          <p className="text-on-surface-variant text-sm md:font-body-lg opacity-80 max-w-xl leading-relaxed">
-            Review doa dan ucapan manis dari para tamu sebelum ditampilkan secara langsung pada situs web undangan Anda.
-          </p>
+        <section data-tour="wish-wall" className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div>
+            <h2 className="font-headline-xl text-[20px] md:text-[28px] lg:text-headline-xl leading-tight mb-2 text-[#2C2A29]">Doa & Harapan Tamu</h2>
+            <p className="text-on-surface-variant text-sm md:font-body-lg opacity-80 max-w-xl leading-relaxed">
+              Review doa dan ucapan manis dari para tamu sebelum ditampilkan secara langsung pada situs web undangan Anda.
+            </p>
+          </div>
+          <div className="shrink-0 flex flex-col items-stretch sm:items-end gap-1.5">
+            <button
+              onClick={downloadPdf}
+              disabled={downloading || approvedWishes.length === 0}
+              title={approvedWishes.length === 0 ? "Belum ada doa yang disetujui" : "Unduh doa yang disetujui sebagai PDF"}
+              className="inline-flex items-center justify-center gap-2 bg-[#B34E3F] text-white rounded-full px-6 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all shadow-sm whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <span className={`material-symbols-outlined text-[16px] ${downloading ? "animate-spin" : ""}`}>
+                {downloading ? "progress_activity" : "picture_as_pdf"}
+              </span>
+              {downloading ? "Menyiapkan PDF…" : "Download PDF"}
+            </button>
+            <span className="text-[11px] text-on-surface-variant text-center sm:text-right">
+              {approvedWishes.length > 0 ? `${approvedWishes.length} doa disetujui` : "Belum ada doa disetujui"}
+            </span>
+          </div>
         </section>
+
+        {pdfError && (
+          <div className="mb-6 p-4 border border-red-300 bg-red-50 text-sm text-red-700 rounded-xl flex items-center gap-2">
+            <span className="material-symbols-outlined text-[18px]">error</span>
+            {pdfError}
+          </div>
+        )}
 
         {/* Live LED Preview with Toolbar */}
         {ledUrl && (
