@@ -10,7 +10,7 @@ export async function GET(
 
     const { data: guests, error } = await supabaseAdmin
       .from("guests")
-      .select("id, name, phone_number, category, table_number, guest_count, rsvp_status, rsvp_pax_count, rsvp_message, rsvp_responded_at, is_checked_in, invitation_opened_at")
+      .select("id, name, phone_number, category, table_number, guest_count, rsvp_status, rsvp_pax_count, rsvp_message, rsvp_responded_at, is_checked_in, invitation_opened_at, is_vip")
       .eq("wedding_profile_id", id)
       .order("created_at", { ascending: true })
 
