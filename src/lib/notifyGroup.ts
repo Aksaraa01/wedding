@@ -10,6 +10,8 @@ type NotifyPayload = {
   package_type: string
   wa_blast_tier: number
   total: number
+  voucher_code?: string | null
+  voucher_discount?: number | null
 }
 
 function formatIDR(n: number): string {
@@ -48,6 +50,9 @@ export async function notifyNewAccountGroup(payload: NotifyPayload): Promise<voi
     `Nama Couple: ${couple}`,
     `Nomor Handphone: ${payload.whatsapp_number}`,
     paketLine,
+    ...(payload.voucher_code
+      ? [`Voucher: ${payload.voucher_code}--Rp ${formatIDR(payload.voucher_discount || 0)}`]
+      : []),
     `Tanggal Buat: ${now}`,
     `Status Bayar: Belum Bayar (UNPAID)`,
     ``,

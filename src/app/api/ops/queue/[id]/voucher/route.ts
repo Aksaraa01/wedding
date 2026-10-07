@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { requireOpsEmployee } from "@/lib/ops-auth"
 import { calcTotalWithVoucher } from "@/lib/packages"
+import { resolveDerivedStatus } from "@/lib/opsStatus"
 
 const VOUCHER_ERRORS: Record<string, string> = {
   invalid: "Kode voucher tidak valid.",
@@ -34,7 +35,7 @@ export async function PUT(
 
     const { data: queueItem, error: queueError } = await supabaseAdmin
       .from("ops_queue")
-      .select("id, wedding_profiles!inner (id, package_type, wa_blast_tier, express_service, payment_status, voucher_code, voucher_discount)")
+      .select("id, status, wedding_profiles!inner (id, package_type, wa_blast_tier, express_service, payment_status, voucher_code, voucher_discount)")
       .eq("id", id)
       .single()
 
@@ -45,6 +46,24 @@ export async function PUT(
     const wp = (Array.isArray(queueItem.wedding_profiles)
       ? queueItem.wedding_profiles[0]
       : queueItem.wedding_profiles) as any
+
+    // Voucher add/swap only at the Belum Bayar stage (derived column — a
+    // pending-feedback resubmission drags the card back, closing the gate).
+    const { data: latestFb } = await supabaseAdmin
+      .from("feedback_submissions")
+      .select("status")
+      .eq("wedding_profile_id", wp.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    const derived = resolveDerivedStatus({
+      storedStatus: (queueItem as any).status,
+      paymentStatus: wp.payment_status,
+      latestFeedbackStatus: latestFb?.status || null,
+    })
+    if (derived !== "belum_bayar") {
+      return NextResponse.json({ error: "Voucher hanya dapat ditambahkan pada tahap Belum Bayar." }, { status: 403 })
+    }
 
     // Swap flow (human-error correction) when a voucher is already applied:
     // same role rules as first apply. Atomic via swap_voucher(): old slot

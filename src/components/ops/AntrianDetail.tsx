@@ -96,7 +96,7 @@ type FeedbackSubmission = {
 
 type StatusLogEntry = {
   id: string
-  kind: "status" | "package" | "invitation" | "payment" | "voucher"
+  kind: "status" | "package" | "invitation" | "payment" | "voucher" | "publish"
   previous_status: string | null
   new_status: string | null
   previous_package: string | null
@@ -572,6 +572,40 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [voucherApplying, setVoucherApplying] = useState(false)
   const [voucherMsg, setVoucherMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [voucherSwapOpen, setVoucherSwapOpen] = useState(false)
+  const [publishConfirmOpen, setPublishConfirmOpen] = useState(false)
+  const [publishBusy, setPublishBusy] = useState(false)
+  const [publishConfirmError, setPublishConfirmError] = useState<string | null>(null)
+  const [publishBlockers, setPublishBlockers] = useState<{ key: string; label: string }[]>([])
+
+  const confirmPublish = async () => {
+    setPublishBusy(true)
+    setPublishConfirmError(null)
+    try {
+      const res = await fetch(`/api/ops/queue/${id}/confirm`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-ops-phone": employee?.phone_number || "",
+          "x-ops-role": employee?.role || "",
+        },
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        if (res.status === 422 && Array.isArray((data as any)?.incomplete)) {
+          setPublishBlockers((data as any).incomplete)
+          return
+        }
+        throw new Error((data as any)?.error || "Gagal mengkonfirmasi undangan")
+      }
+      setPublishConfirmOpen(false)
+      setPublishBlockers([])
+      await fetchAll()
+    } catch (err: any) {
+      setPublishConfirmError(err?.message || "Gagal mengkonfirmasi undangan")
+    } finally {
+      setPublishBusy(false)
+    }
+  }
 
   const applyVoucherOps = async () => {
     const code = voucherInput.trim().toUpperCase()
@@ -1594,7 +1628,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                       {currentWp.voucher_code} − {formatCurrency(currentWp.voucher_discount || 0)}
                     </span>
                     {((employee?.role === "admin" || employee?.role === "sales") &&
-                      (currentWp.payment_status === "UNPAID" || employee?.role === "admin")) && (
+                      derived === "belum_bayar") && (
                       <button
                         onClick={() => {
                           setVoucherSwapOpen((v) => !v)
@@ -1641,7 +1675,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                   </div>
                 ) : (
                   (employee?.role === "admin" || employee?.role === "sales") &&
-                  (currentWp.payment_status === "UNPAID" || employee?.role === "admin") && (
+                  derived === "belum_bayar" && (
                     <div className="flex items-center gap-2">
                       <input
                         value={voucherInput}
@@ -1876,6 +1910,20 @@ export default function AntrianDetail({ id }: { id: string }) {
                         }`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${confirmed ? "bg-emerald-500" : "bg-amber-500"}`} />
                           {label}
+                          {!confirmed && fa.feature_key === "premium_web" &&
+                            (employee?.role === "admin" || employee?.role === "sales") && (
+                            <button
+                              onClick={() => {
+                                setPublishConfirmOpen(true)
+                                setPublishConfirmError(null)
+                                setPublishBlockers([])
+                              }}
+                              className="ml-1 inline-flex items-center gap-1 px-2.5 py-0.5 bg-primary text-on-primary rounded-full hover:bg-secondary active:scale-95 transition-all normal-case tracking-normal"
+                            >
+                              <span className="material-symbols-outlined text-[12px]">verified</span>
+                              Konfirmasi
+                            </button>
+                          )}
                         </div>
                       )
                     })()}
@@ -2101,6 +2149,8 @@ export default function AntrianDetail({ id }: { id: string }) {
                             <>Pembayaran: <span className="font-normal">{log.details || "diubah"}</span></>
                           ) : log.kind === "voucher" ? (
                             <>Voucher: <span className="font-normal">{log.details || "diubah"}</span></>
+                          ) : log.kind === "publish" ? (
+                            <>Konfirmasi: <span className="font-normal">{log.details || "diubah"}</span></>
                           ) : (
                             <>{log.previous_status ? OPS_STATUS_LABELS[log.previous_status as keyof typeof OPS_STATUS_LABELS] ?? log.previous_status : "—"}{" → "}{log.new_status ? OPS_STATUS_LABELS[log.new_status as keyof typeof OPS_STATUS_LABELS] ?? log.new_status : "—"}</>
                           )}
@@ -2125,6 +2175,53 @@ export default function AntrianDetail({ id }: { id: string }) {
           </footer>
         </main>
       </div>
+
+      {/* PUBLISH CONFIRM MODAL — mandatory confirmation before ops confirms */}
+      {publishConfirmOpen && (
+        <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8">
+          <div className="relative w-full max-w-md bg-white shadow-2xl rounded-2xl p-8">
+            <div className="text-center mb-6">
+              <div className="w-14 h-14 bg-secondary-container/20 text-secondary flex items-center justify-center rounded-full mx-auto mb-4">
+                <span className="material-symbols-outlined scale-125">verified</span>
+              </div>
+              <h2 className="font-headline-md text-headline-md mb-2">Konfirmasi Undangan</h2>
+              <p className="font-body-md text-sm text-on-surface-variant">
+                Konfirmasi undangan untuk <span className="font-semibold text-on-surface">{detail?.wedding_profile?.groom_name || ""} &amp; {detail?.wedding_profile?.bride_name || ""}</span> atas nama couple?
+                Aksi ini dicatat di Riwayat beserta nama Anda.
+              </p>
+            </div>
+            {publishBlockers.length > 0 && (
+              <div className="mb-4 rounded-xl px-3 py-2.5 bg-amber-50 border border-amber-300">
+                <p className="font-label-md text-[10px] uppercase tracking-widest text-amber-800 mb-1">Belum bisa dikonfirmasi — data belum lengkap:</p>
+                <p className="font-body-md text-xs text-amber-900 leading-relaxed">{publishBlockers.map((b) => b.label).join(" • ")}</p>
+              </div>
+            )}
+            {publishConfirmError && (
+              <p className="font-body-md text-sm text-red-500 mb-4 text-center">{publishConfirmError}</p>
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setPublishConfirmOpen(false)
+                  setPublishConfirmError(null)
+                  setPublishBlockers([])
+                }}
+                disabled={publishBusy}
+                className="flex-1 py-3 rounded-xl border border-outline-variant text-on-surface-variant font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors disabled:opacity-50"
+              >
+                Batal
+              </button>
+              <button
+                onClick={confirmPublish}
+                disabled={publishBusy}
+                className="flex-1 py-3 rounded-xl bg-primary text-on-primary font-label-md text-xs uppercase tracking-widest hover:bg-secondary active:scale-95 transition-all disabled:opacity-50"
+              >
+                {publishBusy ? "Memproses..." : "Ya, Konfirmasi"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* INVITATION CARD MODAL */}
       {showInvCard && invitationData && (

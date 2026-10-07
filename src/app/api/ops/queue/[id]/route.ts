@@ -162,6 +162,7 @@ export async function GET(
         previous_package,
         new_package,
         details,
+        actor_label,
         created_at,
         employees!left (
           id,
@@ -184,7 +185,7 @@ export async function GET(
         details: log.details || null,
         created_at: log.created_at,
         changed_by_employee_id: emp?.id || null,
-        changed_by_name: emp?.name || null,
+        changed_by_name: emp?.name || log.actor_label || null,
       }
     })
 

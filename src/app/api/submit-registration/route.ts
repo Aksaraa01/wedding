@@ -211,6 +211,8 @@ export async function POST(req: Request) {
         package_type: package_type || "signature",
         wa_blast_tier: wa_blast_tier || 0,
         total: finalTotal,
+        voucher_code: voucherCode,
+        voucher_discount: voucherDiscount || null,
       })
     } catch (e) {
       console.error("[notifyGroup] failed", e)
