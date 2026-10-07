@@ -8,6 +8,7 @@ import ProfileMenu from "@/components/ProfileMenu"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import { MSG_CATEGORIES, MSG_TEMPLATES, MSG_VARS, MsgCategory, cleanMessageForCell, isValidMsgCategory, renderMessage } from "@/lib/messageTemplates"
 import { FALLBACK_GUEST_SLUG, FALLBACK_GUEST_NAME } from "@/lib/guest-slug"
+import { waLink } from "@/lib/contact"
 
 type Guest = {
   id: string
@@ -817,7 +818,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
                   </p>
                 </div>
               </div>
-              <button onClick={() => router.push(`/customize?edit=true&profile_id=${id}`)} className="shrink-0 inline-flex items-center justify-center gap-2 bg-[#D97706] text-white rounded-full px-6 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#92400E] active:scale-95 transition-all whitespace-nowrap">
+              <button onClick={() => window.open(waLink("Halo Aksaraa Wedding, Saya mau melakukan pembayaran"), "_blank")} className="shrink-0 inline-flex items-center justify-center gap-2 bg-[#D97706] text-white rounded-full px-6 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#92400E] active:scale-95 transition-all whitespace-nowrap">
                 <span className="material-symbols-outlined text-[16px]">payments</span>
                 Bayar Sekarang
               </button>

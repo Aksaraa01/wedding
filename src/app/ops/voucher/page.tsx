@@ -40,6 +40,16 @@ const ACTION_LABELS: Record<string, string> = {
   redeem_rejected: "Ditolak",
 }
 
+const PACKAGE_GROUPS: { label: string; codes: string[] }[] = [
+  { label: "Undangan Digital", codes: ["essential", "signature", "prestige", "elite"] },
+  { label: "Buku Tamu Digital", codes: ["dgb_sistem", "dgb_pro", "dgb_premium", "dgb_prestige"] },
+  { label: "Bonus", codes: ["cetak_undangan_bonus", "bonus_full_custom"] },
+]
+
+const DEFAULT_PKGS = PACKAGE_CODES.filter(
+  (c) => c !== "cetak_undangan_bonus" && c !== "bonus_full_custom"
+)
+
 function opsHeaders(employee: Employee): Record<string, string> {
   return {
     "Content-Type": "application/json",
@@ -62,12 +72,15 @@ export default function OpsVoucherPage() {
   const [expanded, setExpanded] = useState<string | null>(null)
   const [activityOpen, setActivityOpen] = useState(false)
 
-  // Generate form (admin only). Bonus packages start unchecked.
+  // Generate form (admin only). Collapsed until "Tambah Voucher" is clicked.
+  const [formOpen, setFormOpen] = useState(false)
+  const [scope, setScope] = useState<"all" | "specific">("specific")
+  const [notice, setNotice] = useState("")
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [amount, setAmount] = useState("50000")
   const [cap, setCap] = useState("100")
-  const [pkgs, setPkgs] = useState<string[]>(PACKAGE_CODES.filter((c) => c !== "cetak_undangan_bonus" && c !== "bonus_full_custom"))
+  const [pkgs, setPkgs] = useState<string[]>([...DEFAULT_PKGS])
   const [generating, setGenerating] = useState(false)
   const [toggling, setToggling] = useState<string | null>(null)
 
@@ -116,32 +129,61 @@ export default function OpsVoucherPage() {
     setPkgs((cur) => (cur.includes(code) ? cur.filter((c) => c !== code) : [...cur, code]))
   }
 
+  const toggleGroup = (codes: string[]) => {
+    setPkgs((cur) => {
+      const allOn = codes.every((c) => cur.includes(c))
+      return allOn ? cur.filter((c) => !codes.includes(c)) : [...new Set([...cur, ...codes])]
+    })
+  }
+
+  const resetForm = () => {
+    setTitle("")
+    setDescription("")
+    setAmount("50000")
+    setCap("100")
+    setPkgs([...DEFAULT_PKGS])
+    setScope("specific")
+  }
+
+  const closeForm = () => {
+    setFormOpen(false)
+    setError("")
+  }
+
   const generate = async () => {
     if (!employee || generating) return
     if (!title.trim()) {
       setError("Judul voucher wajib diisi.")
       return
     }
+    if (scope === "specific" && pkgs.length === 0) {
+      setError('Pilih minimal satu paket, atau pilih "Semua Paket".')
+      return
+    }
+    const amountNum = parseInt(amount, 10) || 0
+    if (amountNum <= 0) {
+      setError("Potongan harus lebih dari 0.")
+      return
+    }
     setGenerating(true)
     setError("")
+    setNotice("")
     const res = await fetch("/api/vouchers", {
       method: "POST",
       headers: opsHeaders(employee),
       body: JSON.stringify({
         title: title.trim(),
         description: description.trim() || undefined,
-        amount: parseInt(amount, 10) || 0,
+        amount: amountNum,
         max_uses: parseInt(cap, 10) || 0,
-        package_eligibility: pkgs,
+        package_eligibility: scope === "all" ? [] : pkgs,
       }),
     })
     const data = await res.json().catch(() => ({}))
     if (res.ok) {
-      setTitle("")
-      setDescription("")
-      setAmount("50000")
-      setCap("100")
-      setPkgs(PACKAGE_CODES.filter((c) => c !== "cetak_undangan_bonus" && c !== "bonus_full_custom"))
+      setNotice(`Voucher${data?.voucher?.code ? ` ${data.voucher.code}` : ""} berhasil dibuat.`)
+      resetForm()
+      setFormOpen(false)
       fetchVouchers()
     } else {
       setError(data.error || "Gagal generate voucher")
@@ -225,85 +267,212 @@ export default function OpsVoucherPage() {
           <div className="mb-6 p-4 border border-red-300 bg-red-50 text-sm text-red-700 rounded-xl">{error}</div>
         )}
 
+        {notice && (
+          <div className="mb-6 p-4 border border-green-300 bg-green-50 text-sm text-green-800 rounded-xl flex items-center gap-2">
+            <span className="material-symbols-outlined text-[18px]">check_circle</span>
+            {notice}
+          </div>
+        )}
+
         {isAdmin && (
-          <section className="mb-10 bg-white border border-outline-variant rounded-2xl p-5 shadow-sm">
-            <h3 className="font-label-md text-label-md uppercase tracking-widest mb-4">Generate Voucher Baru</h3>
-            <div className="mb-4">
-              <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-1">
-                Judul <span className="text-red-500">*</span>
-              </label>
-              <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-sm bg-background"
-                placeholder="cth: Promo Kemerdekaan 50K"
-                maxLength={120}
-              />
-            </div>
-            <div className="mb-4">
-              <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-1">
-                Deskripsi <span className="normal-case opacity-60">(opsional)</span>
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-sm bg-background resize-none"
-                placeholder="cth: Untuk 100 pendaftar pertama via Instagram"
-                rows={2}
-                maxLength={500}
-              />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-1">Potongan (Rp)</label>
-                <input
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value.replace(/\D/g, ""))}
-                  inputMode="numeric"
-                  className="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-sm bg-background"
-                  placeholder="50000"
-                />
+          <section className="mb-10 bg-white border border-outline-variant rounded-2xl shadow-sm overflow-hidden">
+            {!formOpen ? (
+              <div className="p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <h3 className="font-label-md text-label-md uppercase tracking-widest">Voucher Baru</h3>
+                  <p className="text-sm text-on-surface-variant mt-1">Buat kode diskon baru untuk customer.</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setFormOpen(true)
+                    setNotice("")
+                    setError("")
+                  }}
+                  className="inline-flex items-center justify-center gap-2 bg-primary text-white rounded-full px-6 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-secondary active:scale-95 transition-all shrink-0"
+                >
+                  <span className="material-symbols-outlined text-[18px]">add</span>
+                  Tambah Voucher
+                </button>
               </div>
-              <div>
-                <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-1">Cap Limit (maks. pemakaian)</label>
-                <input
-                  value={cap}
-                  onChange={(e) => setCap(e.target.value.replace(/\D/g, ""))}
-                  inputMode="numeric"
-                  className="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-sm bg-background"
-                  placeholder="100"
-                />
-              </div>
-            </div>
-            <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-2">
-              Berlaku untuk paket (checklist — kosongkan semua = semua paket)
-            </label>
-            <div className="flex flex-wrap gap-2 mb-5">
-              {PACKAGE_CODES.map((code) => {
-                const on = pkgs.includes(code)
-                return (
+            ) : (
+              <div className="p-5">
+                <div className="flex items-start justify-between mb-5">
+                  <div>
+                    <h3 className="font-label-md text-label-md uppercase tracking-widest">Generate Voucher Baru</h3>
+                    <p className="text-xs text-on-surface-variant mt-1">
+                      Field bertanda <span className="text-red-500">*</span> wajib diisi.
+                    </p>
+                  </div>
                   <button
-                    key={code}
-                    onClick={() => togglePackage(code)}
-                    className={`px-3.5 py-2 rounded-full text-[11px] uppercase tracking-widest border transition-colors ${
-                      on
-                        ? "bg-primary text-white border-primary"
-                        : "bg-surface text-on-surface-variant border-outline-variant hover:border-primary"
-                    }`}
+                    onClick={closeForm}
+                    aria-label="Tutup form"
+                    className="w-8 h-8 rounded-full hover:bg-surface-container-low flex items-center justify-center text-on-surface-variant"
                   >
-                    {on ? "✓ " : ""}{PACKAGE_LABELS[code] || code}
+                    <span className="material-symbols-outlined text-[20px]">close</span>
                   </button>
-                )
-              })}
-            </div>
-            <button
-              onClick={generate}
-              disabled={generating}
-              className="inline-flex items-center gap-2 bg-primary text-white rounded-full px-8 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-secondary active:scale-95 transition-all disabled:opacity-50"
-            >
-              <span className="material-symbols-outlined text-[16px]">confirmation_number</span>
-              {generating ? "Membuat..." : "Generate Voucher"}
-            </button>
+                </div>
+
+                <div className="mb-4">
+                  <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-1">
+                    Judul <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-sm bg-background focus:outline-none focus:border-primary"
+                    placeholder="cth: Promo Kemerdekaan 50K"
+                    maxLength={120}
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-1">
+                    Deskripsi <span className="normal-case opacity-60">(opsional)</span>
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-sm bg-background resize-none focus:outline-none focus:border-primary"
+                    placeholder="cth: Untuk 100 pendaftar pertama via Instagram"
+                    rows={2}
+                    maxLength={500}
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-1">Potongan (Rp)</label>
+                    <input
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value.replace(/\D/g, ""))}
+                      inputMode="numeric"
+                      className="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-sm bg-background focus:outline-none focus:border-primary"
+                      placeholder="50000"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-1">Cap Limit (maks. pemakaian)</label>
+                    <input
+                      value={cap}
+                      onChange={(e) => setCap(e.target.value.replace(/\D/g, ""))}
+                      inputMode="numeric"
+                      className="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-sm bg-background focus:outline-none focus:border-primary"
+                      placeholder="100"
+                    />
+                  </div>
+                </div>
+
+                <div className="mb-5">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <label className="text-[11px] uppercase tracking-widest text-on-surface-variant">Berlaku untuk paket</label>
+                    <div className="inline-flex p-0.5 bg-surface-container rounded-full">
+                      <button
+                        onClick={() => setScope("all")}
+                        className={`px-3.5 py-1.5 rounded-full text-[11px] uppercase tracking-widest transition-colors ${
+                          scope === "all" ? "bg-white shadow-sm text-on-surface font-semibold" : "text-on-surface-variant"
+                        }`}
+                      >
+                        Semua Paket
+                      </button>
+                      <button
+                        onClick={() => setScope("specific")}
+                        className={`px-3.5 py-1.5 rounded-full text-[11px] uppercase tracking-widest transition-colors ${
+                          scope === "specific" ? "bg-white shadow-sm text-on-surface font-semibold" : "text-on-surface-variant"
+                        }`}
+                      >
+                        Paket Tertentu
+                      </button>
+                    </div>
+                  </div>
+                  {scope === "all" ? (
+                    <p className="text-sm text-on-surface-variant bg-surface-container-low rounded-xl px-4 py-3">
+                      Voucher berlaku untuk semua paket, termasuk paket yang ditambahkan nanti.
+                    </p>
+                  ) : (
+                    <>
+                      <div className="rounded-xl border border-outline-variant overflow-hidden">
+                        {PACKAGE_GROUPS.map((group) => {
+                          const allOn = group.codes.every((c) => pkgs.includes(c))
+                          return (
+                            <div key={group.label} className="border-b border-outline-variant/50 last:border-b-0">
+                              <div className="flex items-center justify-between px-3.5 py-2 bg-surface-container-low">
+                                <span className="text-[11px] uppercase tracking-widest text-on-surface-variant">{group.label}</span>
+                                <button
+                                  onClick={() => toggleGroup(group.codes)}
+                                  className="text-[11px] uppercase tracking-widest text-primary hover:underline"
+                                >
+                                  {allOn ? "Kosongkan" : "Pilih semua"}
+                                </button>
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 p-2">
+                                {group.codes.map((code) => {
+                                  const on = pkgs.includes(code)
+                                  return (
+                                    <button
+                                      key={code}
+                                      onClick={() => togglePackage(code)}
+                                      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-sm transition-colors ${
+                                        on ? "bg-primary/5" : "hover:bg-surface-container-low"
+                                      }`}
+                                    >
+                                      <span
+                                        className={`w-4 h-4 rounded-[4px] border flex items-center justify-center shrink-0 ${
+                                          on ? "bg-primary border-primary text-white" : "border-outline"
+                                        }`}
+                                      >
+                                        {on && <span className="material-symbols-outlined text-[12px]" style={{ fontWeight: 700 }}>check</span>}
+                                      </span>
+                                      <span className={`truncate ${on ? "text-on-surface" : "text-on-surface-variant"}`}>
+                                        {PACKAGE_LABELS[code] || code}
+                                      </span>
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                      <p className="text-xs text-on-surface-variant mt-2">
+                        {pkgs.length === 0
+                          ? "Belum ada paket dipilih — pilih minimal satu, atau gunakan Semua Paket."
+                          : `${pkgs.length} paket dipilih.`}
+                      </p>
+                    </>
+                  )}
+                </div>
+
+                <div className="mb-5 rounded-xl bg-surface-container-low px-4 py-3 flex items-center gap-2.5 text-sm">
+                  <span className="material-symbols-outlined text-primary text-[18px]">confirmation_number</span>
+                  <span>
+                    <span className="font-semibold text-primary">{formatRp(parseInt(amount, 10) || 0)}</span>
+                    <span className="text-on-surface-variant"> untuk </span>
+                    <span className="font-medium">{scope === "all" ? "semua paket" : `${pkgs.length} paket`}</span>
+                    <span className="text-on-surface-variant"> • maks </span>
+                    <span className="font-medium">{parseInt(cap, 10) || 0}x</span>
+                    <span className="text-on-surface-variant"> pemakaian</span>
+                  </span>
+                </div>
+
+                <div className="flex flex-col-reverse sm:flex-row gap-3">
+                  <button
+                    onClick={closeForm}
+                    disabled={generating}
+                    className="sm:w-40 py-3 rounded-full border border-outline-variant text-on-surface-variant font-label-md text-[11px] uppercase tracking-widest hover:bg-surface-container transition-colors disabled:opacity-50"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    onClick={generate}
+                    disabled={generating || !title.trim() || (scope === "specific" && pkgs.length === 0)}
+                    className="flex-1 inline-flex items-center justify-center gap-2 bg-primary text-white rounded-full px-8 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-secondary active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <span className={`material-symbols-outlined text-[18px] ${generating ? "animate-spin" : ""}`}>
+                      {generating ? "progress_activity" : "confirmation_number"}
+                    </span>
+                    {generating ? "Membuat..." : "Generate Voucher"}
+                  </button>
+                </div>
+              </div>
+            )}
           </section>
         )}
 
