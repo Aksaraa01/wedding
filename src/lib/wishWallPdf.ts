@@ -194,13 +194,13 @@ function buildCard(wish: PdfWish): HTMLElement {
       escapeHtml(wish.name),
     ),
   )
-  const meta = el("div", "display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;")
+  const meta = el("div", "margin-top:6px;")
   if (wish.category) {
     meta.appendChild(
       el(
         "span",
-        "display:inline-flex;align-items:center;justify-content:center;height:22px;box-sizing:border-box;" +
-          "padding:0 10px;border-radius:9999px;line-height:1;" +
+        "display:inline-block;vertical-align:middle;height:22px;line-height:22px;padding:0 10px;margin-right:6px;" +
+          "border-radius:9999px;text-align:center;white-space:nowrap;" +
           "font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;" +
           "color:#6B5B45;background:#F6F1E7;border:1px solid #E2D9CF;",
         escapeHtml(wish.category),
@@ -208,16 +208,16 @@ function buildCard(wish: PdfWish): HTMLElement {
     )
   }
   if (wish.is_vip) {
-    const vip = el(
-      "span",
-      "display:inline-flex;align-items:center;justify-content:center;gap:4px;height:22px;box-sizing:border-box;" +
-        "padding:0 10px;border-radius:9999px;line-height:1;" +
-        "font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.12em;" +
-        "color:#7A5A2E;background:#F7EDD3;border:1px solid #C9A34E;",
+    meta.appendChild(
+      el(
+        "span",
+        "display:inline-block;vertical-align:middle;height:22px;line-height:22px;padding:0 10px;" +
+          "border-radius:9999px;text-align:center;white-space:nowrap;" +
+          "font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.12em;" +
+          "color:#7A5A2E;background:#F7EDD3;border:1px solid #C9A34E;",
+        "&#9733;&nbsp;VIP",
+      ),
     )
-    vip.appendChild(el("span", "font-size:11px;line-height:1;", "&#9733;"))
-    vip.appendChild(el("span", "line-height:1;", "VIP"))
-    meta.appendChild(vip)
   }
   if (meta.childNodes.length > 0) col.appendChild(meta)
   head.appendChild(col)
