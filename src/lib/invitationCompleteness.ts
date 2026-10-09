@@ -90,7 +90,10 @@ function isSectionIncomplete(key: string, d: InvitationCompletenessInput): boole
     case "tema":
       return !d.has_template
     case "sampul":
-      return !hasArr(d.cover_photos) && !hasStr(d.couple_illustration_url)
+      // Not required: an empty cover renders the default couple photo
+      // (coverPhoto() fallback / WP default injection), so it must not block
+      // confirmation.
+      return false
     case "pembuka":
       return !hasStr(d.opening_title) && !hasStr(d.opening_description)
     case "profile":

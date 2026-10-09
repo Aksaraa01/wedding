@@ -226,7 +226,9 @@ function invSectionState(p: any, key: string, gift?: { accounts: any[]; address:
   const gates = p?.package_gates || {}
   switch (key) {
     case "sampul":
-      return !invHasArr(p?.cover_photos) && !invHasStr(p?.couple_illustration_url) ? "empty" : "ok"
+      // Not required: an empty cover renders the default couple photo, so it
+      // is never flagged incomplete (mirrors invitationCompleteness).
+      return "ok"
     case "pembuka":
       return !invHasStr(p?.opening_title) && !invHasStr(p?.opening_description) ? "empty" : "ok"
     case "profil":
