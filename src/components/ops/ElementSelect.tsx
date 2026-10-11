@@ -46,6 +46,7 @@ export default function ElementSelect({
   usedIds,
   placeholder = "— pilih elemen —",
   allowContainers = false,
+  reuseIds,
 }: {
   value: string
   onChange: (id: string) => void
@@ -54,6 +55,11 @@ export default function ElementSelect({
   usedIds: Set<string>
   placeholder?: string
   allowContainers?: boolean
+  // Ids already mapped within the SAME slot (e.g. stories_container card):
+  // shown with an amber background and selectable again, so one element can
+  // serve two subfields (container + its own background image). Ids mapped
+  // anywhere else stay hidden via usedIds.
+  reuseIds?: Set<string>
 }) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
@@ -86,12 +92,14 @@ export default function ElementSelect({
 
   const q = search.trim().toLowerCase()
   // An element may be selected here only if it's the current value of this
-  // dropdown or it's not mapped to another field yet. Mapped-elsewhere elements
-  // are hidden entirely (tree + search) so they can't be double-mapped.
-  const isSelectable = (id: string) => id === value || !usedIds.has(id)
+  // dropdown, it's not mapped to another field yet, or it's reused within the
+  // same slot (reuseIds). Mapped-elsewhere elements are hidden entirely
+  // (tree + search) so they can't be double-mapped.
+  const isSelectable = (id: string) => id === value || !usedIds.has(id) || (reuseIds?.has(id) ?? false)
 
   const Row = ({ id, indent }: { id: string; indent: number }) => {
     const el = flatById.get(id)!
+    const reused = id !== value && (reuseIds?.has(id) ?? false)
     return (
       <button
         type="button"
@@ -100,9 +108,9 @@ export default function ElementSelect({
           setOpen(false)
           setSearch("")
         }}
-        title={elementLabel(el)}
+        title={reused ? `${elementLabel(el)} — sudah dipakai di slot ini` : elementLabel(el)}
         className={`w-full text-left px-2 py-1 font-mono text-[10px] border-b border-outline-variant/20 truncate ${
-          id === value ? "bg-primary text-on-primary" : "hover:bg-surface-container-high cursor-pointer"
+          id === value ? "bg-primary text-on-primary" : reused ? "bg-amber-100 hover:bg-amber-200 cursor-pointer" : "hover:bg-surface-container-high cursor-pointer"
         }`}
         style={{ paddingLeft: 8 + indent * 14 }}
       >
@@ -210,6 +218,9 @@ export default function ElementSelect({
               className="w-full bg-transparent border-none outline-none text-[11px] font-body-md py-0.5"
             />
           </div>
+          {(reuseIds?.size ?? 0) > 0 && (
+            <div className="px-2 py-1 text-[10px] text-amber-800 bg-amber-50 border-b border-outline-variant">Kuning = sudah dipakai di slot ini (boleh dipakai lagi)</div>
+          )}
           {renderSource("Post", elements)}
           {popups.map((p) => renderSource(`Popup: ${p.popup_title}`, p.elements))}
           {(elements.length === 0 && popups.length === 0) || (q && searchHits.length === 0) ? (

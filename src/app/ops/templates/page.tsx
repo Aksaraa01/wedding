@@ -1022,7 +1022,18 @@ export default function OpsTemplatesPage() {
                               {slots.length === 0 ? (
                                 <p className="px-3 py-2 text-[10px] text-on-surface-variant/50">Belum ada slot. Klik "+ Tambah Slot" untuk memetakan satu kartu (mis. Sesi 1).</p>
                               ) : (
-                                slots.map((slot: any, slotIdx: number) => (
+                                slots.map((slot: any, slotIdx: number) => {
+                                  // Ids already mapped within THIS slot: shown amber and
+                                  // selectable again, so one element can serve two
+                                  // subfields (e.g. stories_container card + its own
+                                  // background image). Ids mapped anywhere else stay
+                                  // hidden via usedIds.
+                                  const slotIds = new Set<string>()
+                                  for (const v of Object.values(slot || {})) {
+                                    const sm = v as any
+                                    if (sm && typeof sm === "object" && sm.elementId) slotIds.add(sm.elementId)
+                                  }
+                                  return (
                                   <div key={slotIdx} className="px-3 pb-2 border-b border-outline-variant/10">
                                     <div className="flex items-center justify-between py-1">
                                       <span className="text-[10px] font-label-md uppercase text-secondary tracking-wider">Slot {slotIdx + 1}</span>
@@ -1039,6 +1050,7 @@ export default function OpsTemplatesPage() {
                                               elements={elements}
                                               popups={popups}
                                               usedIds={usedIds}
+                                              reuseIds={slotIds}
                                               placeholder="— belum —"
                                               allowContainers={subField === "container"}
                                               onChange={(elId) => {
@@ -1062,7 +1074,8 @@ export default function OpsTemplatesPage() {
                                       )
                                     })}
                                   </div>
-                                ))
+                                  )
+                                })
                               )}
                             </div>
                           )
