@@ -2217,36 +2217,25 @@ export default function AntrianDetail({ id }: { id: string }) {
             {publishConfirmError && (
               <p className="font-body-md text-sm text-red-500 mb-4 text-center">{publishConfirmError}</p>
             )}
-            <div className="flex flex-col gap-3">
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setPublishConfirmOpen(false)
-                    setPublishConfirmError(null)
-                    setPublishBlockers([])
-                  }}
-                  disabled={publishBusy}
-                  className="flex-1 py-3 rounded-xl border border-outline-variant text-on-surface-variant font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors disabled:opacity-50"
-                >
-                  Batal
-                </button>
-                <button
-                  onClick={() => confirmPublish(false)}
-                  disabled={publishBusy}
-                  className="flex-1 py-3 rounded-xl bg-primary text-on-primary font-label-md text-xs uppercase tracking-widest hover:bg-secondary active:scale-95 transition-all disabled:opacity-50"
-                >
-                  {publishBusy ? "Memproses..." : "Ya, Konfirmasi"}
-                </button>
-              </div>
-              {publishBlockers.length > 0 && (
-                <button
-                  onClick={() => confirmPublish(true)}
-                  disabled={publishBusy}
-                  className="w-full py-3 rounded-xl border border-amber-400 text-amber-800 font-label-md text-xs uppercase tracking-widest hover:bg-amber-50 active:scale-[0.99] transition-all disabled:opacity-50"
-                >
-                  {publishBusy ? "Memproses..." : "Lanjutkan Meskipun Belum Lengkap"}
-                </button>
-              )}
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setPublishConfirmOpen(false)
+                  setPublishConfirmError(null)
+                  setPublishBlockers([])
+                }}
+                disabled={publishBusy}
+                className="flex-1 py-3 rounded-xl border border-outline-variant text-on-surface-variant font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors disabled:opacity-50"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => confirmPublish(true)}
+                disabled={publishBusy}
+                className="flex-1 py-3 rounded-xl bg-primary text-on-primary font-label-md text-xs uppercase tracking-widest hover:bg-secondary active:scale-95 transition-all disabled:opacity-50"
+              >
+                {publishBusy ? "Memproses..." : "Ya, Konfirmasi"}
+              </button>
             </div>
           </div>
         </div>

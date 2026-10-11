@@ -55,6 +55,7 @@ export async function GET(
         payment_status: profile.payment_status || null,
         package_gates: gates,
         feature_set: Array.from(features),
+        selected_template_id: profile.selected_template_id || null,
         selected_track_id: profile.selected_track_id,
         couple_illustration_url: profile.couple_illustration_url,
         cover_photos: profile.cover_photos,
