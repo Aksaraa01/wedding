@@ -289,6 +289,17 @@ function EditorInner({ id }: { id: string }) {
   }
   const [previewVersion, setPreviewVersion] = useState(0)
   const [updatingPreview, setUpdatingPreview] = useState(false)
+  // Preview-frame readiness: the canvas skeleton stays up until the frame
+  // document itself fires onLoad (the editor's own JSON fetch resolves long
+  // before a heavy Elementor/React page finishes painting).
+  const [readyKey, setReadyKey] = useState("")
+  const [iframeError, setIframeError] = useState("")
+  // Chain settle: arriving from template select while the WP
+  // duplicate→patch→cleanup chain is still open would preview a stale (or
+  // already-cleaned-up) post. The skeleton holds until the chain drains.
+  const [chainSettling, setChainSettling] = useState(false)
+  const settleGuard = useRef(false)
+  const iframeReadyTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [coverReplaceIndex, setCoverReplaceIndex] = useState<number | null>(null)
   const [coverSlideTarget, setCoverSlideTarget] = useState<{ slot: number; slide: number } | null>(null)
 
@@ -359,6 +370,51 @@ function EditorInner({ id }: { id: string }) {
   useEffect(() => {
     if (previewVersion > 0) fetchProfile()
   }, [previewVersion, fetchProfile])
+
+  // Chain settle on template-select return (flag set by the templates page):
+  // poll the WP job queue until no chain job is open, then re-fetch so the
+  // frame mounts the live post. In-house selects commit synchronously, so the
+  // first poll finds nothing open and this is a near no-op (no extra fetch).
+  useEffect(() => {
+    if (settleGuard.current) return
+    settleGuard.current = true
+    let fromTemplates = false
+    try { fromTemplates = sessionStorage.getItem('from_templates_' + id) === '1' } catch {}
+    if (!fromTemplates) return
+    let cancelled = false
+    let waited = false
+    const startedAt = Date.now()
+    const TIMEOUT_MS = 120000
+    setChainSettling(true)
+    const tick = async () => {
+      if (cancelled) return
+      let open = false
+      try {
+        const res = await fetch(`/api/wp/jobs?profile_id=${id}`, { cache: "no-store" })
+        const json = await res.json().catch(() => null)
+        const jobs = Array.isArray(json?.jobs) ? json.jobs : []
+        open = jobs.some((j: any) => j.status === "queued" || j.status === "processing")
+      } catch {
+        open = true // transient network error: keep waiting until the timeout
+      }
+      if (cancelled) return
+      if (!open) {
+        setChainSettling(false)
+        if (waited) fetchProfile()
+        return
+      }
+      waited = true
+      if (Date.now() - startedAt > TIMEOUT_MS) {
+        setChainSettling(false)
+        setSyncError("Sinkronisasi template masih berjalan. Tekan Perbarui Undangan untuk memuat pratinjau terbaru.")
+        fetchProfile()
+        return
+      }
+      setTimeout(tick, 1000)
+    }
+    tick()
+    return () => { cancelled = true }
+  }, [id, fetchProfile])
 
   useEffect(() => {
     fetch(`/api/feedback-submissions?wedding_profile_id=${id}`)
@@ -502,6 +558,26 @@ function EditorInner({ id }: { id: string }) {
       setUpdatingPreview(false)
     }
   }, [id, syncToWp, isMobile, isInhouse, fetchProfile])
+
+  // Latest frame key, readable inside the stable onLoad handler below.
+  const iframeKeyRef = useRef("")
+  const handleIframeLoad = useCallback(() => {
+    setIframeError("")
+    if (iframeReadyTimer.current) clearTimeout(iframeReadyTimer.current)
+    // Small settle delay so Elementor's first paint + webfonts land before
+    // the skeleton lifts; repeat views are fully cached anyway.
+    const key = iframeKeyRef.current
+    iframeReadyTimer.current = setTimeout(() => setReadyKey(key), 600)
+  }, [])
+  const handleIframeError = useCallback(() => {
+    if (iframeReadyTimer.current) clearTimeout(iframeReadyTimer.current)
+    setIframeError("Pratinjau gagal dimuat. Periksa koneksi Anda, lalu coba lagi.")
+  }, [])
+  const retryPreview = useCallback(() => {
+    setIframeError("")
+    setReadyKey("")
+    setPreviewVersion(v => v + 1)
+  }, [])
 
   const updateField = (field: string, value: any) => {
     if (data.is_published === true || reviewMode) return
@@ -1254,21 +1330,23 @@ function EditorInner({ id }: { id: string }) {
     saveStatus === "error" ? "bg-red-500" : "bg-emerald-500"
   const isPublished = data.is_published === true
 
-  const renderPreviewBody = () => {
-    // In-house templates preview through the per-couple preview route inside a
-    // real iframe sized like a device, so the editor shows exactly what guests
-    // see on a real phone. "Perbarui Undangan" saves, then remounts it.
+  // Single source of truth for the preview frame: which frame to show, its
+  // src, and a remount identity (template/post id + version). The identity is
+  // part of the React key so every template switch deterministically remounts
+  // the frame instead of reusing a stale one. The canvas overlay keys off
+  // `kind === "iframe" && readyKey !== key` so a half-painted frame is never
+  // presented as final.
+  const previewFrame = useMemo(() => {
     if (isInhouse) {
       const LiveComp = template?.code ? getTemplateComponent(template.code) : null
-      if (!LiveComp) {
-        return (
-          <div className="h-full flex items-center justify-center text-on-surface-variant font-body-md">
-            Pilih template untuk melihat pratinjau
-          </div>
-        )
+      if (!LiveComp) return { kind: "placeholder" as const }
+      return {
+        kind: "iframe" as const,
+        src: `/preview/${id}?v=${previewVersion}`,
+        // Template identity forces a remount on every template switch, even
+        // when previewVersion is still 0 on a fresh editor mount.
+        key: `inh-${template?.id || template?.code || "none"}-v${previewVersion}`,
       }
-      const src = `/preview/${id}?v=${previewVersion}`
-      return <iframe key={src} src={src} className="w-full h-full border-0" title="Pratinjau" />
     }
     // Prefer the couple's own duplicated WP post; fall back to the master demo.
     // aksaraa_preview=1 tells wp.aksaraa.com to render preview-light: no audio
@@ -1279,7 +1357,48 @@ function EditorInner({ id }: { id: string }) {
       const previewSrc = previewUrl.includes("aksaraa_preview=")
         ? previewUrl
         : `${previewUrl}${previewUrl.includes("?") ? "&" : "?"}aksaraa_preview=1`
-      return <iframe key={`${previewSrc}-${previewVersion}`} src={previewSrc} className="w-full h-full border-0" title="Pratinjau" />
+      return {
+        kind: "iframe" as const,
+        src: previewSrc,
+        // Post identity forces a remount when the duplicate chain flips the
+        // active post (or a re-pick lands on a new duplicate).
+        key: `wp-${data.active_wp_post_id || "demo"}-${template?.id || "none"}-v${previewVersion}`,
+      }
+    }
+    const LiveComp = template?.code ? getTemplateComponent(template.code) : null
+    if (!LiveComp) return { kind: "placeholder" as const }
+    return { kind: "direct" as const }
+  }, [isInhouse, template, data.active_wp_post_url, data.active_wp_post_id, previewVersion, id])
+
+  const previewFrameKey = previewFrame.kind === "iframe" ? previewFrame.key : ""
+  iframeKeyRef.current = previewFrameKey
+  const iframeReady = previewFrame.kind !== "iframe" || (readyKey !== "" && readyKey === previewFrameKey)
+
+  // A new frame identity starts unready with no stale error.
+  useEffect(() => { setIframeError("") }, [previewFrameKey])
+
+  const renderPreviewBody = () => {
+    // In-house templates preview through the per-couple preview route inside a
+    // real iframe sized like a device, so the editor shows exactly what guests
+    // see on a real phone. "Perbarui Undangan" saves, then remounts it.
+    if (previewFrame.kind === "iframe") {
+      return (
+        <iframe
+          key={previewFrame.key}
+          src={previewFrame.src}
+          className="w-full h-full border-0"
+          title="Pratinjau"
+          onLoad={handleIframeLoad}
+          onError={handleIframeError}
+        />
+      )
+    }
+    if (previewFrame.kind !== "direct") {
+      return (
+        <div className="h-full flex items-center justify-center text-on-surface-variant font-body-md">
+          Pilih template untuk melihat pratinjau
+        </div>
+      )
     }
     const LiveComp = template?.code ? getTemplateComponent(template.code) : null
     if (!LiveComp) {
@@ -2350,14 +2469,27 @@ function EditorInner({ id }: { id: string }) {
           <section className={`${(showMobilePreview || reviewMode) ? 'flex' : 'hidden'} md:flex flex-1 bg-surface relative overflow-hidden items-center justify-center`}
             style={{ backgroundImage: "linear-gradient(#e5e1d8 1px, transparent 1px), linear-gradient(90deg, #e5e1d8 1px, transparent 1px)", backgroundSize: "40px 40px" }}
           >
-            {(initialLoading || updatingPreview || syncStatus === "syncing") && (
+            {(initialLoading || updatingPreview || syncStatus === "syncing" || chainSettling || (previewFrame.kind === "iframe" && !iframeReady)) && (
               <div className="absolute inset-0 bg-surface/90 backdrop-blur-sm z-30 flex items-center justify-center">
-                <div className="flex flex-col items-center gap-3">
-                  <span className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                  <span className="font-label-md text-label-md text-on-surface-variant animate-pulse">
-                    {initialLoading ? "Memuat pratinjau..." : updatingPreview || syncStatus === "syncing" ? "Menyinkronkan..." : "Memuat..."}
-                  </span>
-                </div>
+                {iframeError ? (
+                  <div className="flex flex-col items-center gap-3 px-6 text-center">
+                    <span className="material-symbols-outlined text-[32px] text-red-500">error</span>
+                    <p className="font-label-md text-label-md text-on-surface-variant">{iframeError}</p>
+                    <button
+                      onClick={retryPreview}
+                      className="px-5 py-2.5 rounded-full bg-secondary text-white font-label-md text-label-md hover:opacity-90 transition-opacity"
+                    >
+                      Coba Lagi
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-3">
+                    <span className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                    <span className="font-label-md text-label-md text-on-surface-variant animate-pulse">
+                      {initialLoading ? "Memuat pratinjau..." : chainSettling ? "Menyinkronkan template..." : updatingPreview || syncStatus === "syncing" ? "Menyinkronkan..." : "Memuat pratinjau..."}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
             {!isMobile && previewDevice === "mobile" ? (
