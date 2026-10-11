@@ -26,6 +26,7 @@ export async function PUT(
       .select(`
         id,
         status,
+        sla_ended_at,
         wedding_profile_id,
         wedding_profiles!inner (
           payment_status
@@ -75,9 +76,17 @@ export async function PUT(
     }
 
     // Persist the pipeline stage first so a failure aborts before any side-effect.
+    // Entering a terminal stage freezes the SLA clock (first entry wins).
+    const statusUpdate: Record<string, unknown> = { status }
+    if (
+      (status === "feedback_selesai" || status === "project_selesai") &&
+      !(queueItem as any).sla_ended_at
+    ) {
+      statusUpdate.sla_ended_at = new Date().toISOString()
+    }
     const { error: updateError } = await supabaseAdmin
       .from("ops_queue")
-      .update({ status })
+      .update(statusUpdate)
       .eq("id", id)
 
     if (updateError) {

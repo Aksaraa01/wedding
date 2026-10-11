@@ -358,7 +358,6 @@ function Inner() {
   const [voucherError, setVoucherError] = useState("")
   const [voucherChecking, setVoucherChecking] = useState(false)
   const [voucherModalOpen, setVoucherModalOpen] = useState(false)
-  const [voucherPostSaveOpen, setVoucherPostSaveOpen] = useState(false)
   const [voucherModalInput, setVoucherModalInput] = useState("")
   const [voucherModalSuccess, setVoucherModalSuccess] = useState<string | null>(null)
   // Snapshot at open: the title must not flip mid-session when applying
@@ -653,15 +652,9 @@ function Inner() {
       })
       if (res.ok) {
         if (newVoucher) setProfileVoucherCode(newVoucher)
-        // Edit flow, unpaid, no voucher yet: offer voucher right after saving.
-        if (isEdit && !profileVoucherCode && !newVoucher && profilePaymentStatus === "UNPAID") {
-          setVoucherCode("")
-          setVoucherAmount(null)
-          setVoucherError("")
-          setVoucherPostSaveOpen(true)
-        } else {
-          router.push(`/dashboard/${editProfileId}`)
-        }
+        // Saved: always route to the dashboard. The voucher popup is
+        // button-only (＋ Voucher / Ganti) — no post-save upsell.
+        router.push(`/dashboard/${editProfileId}`)
       } else {
         const err = await res.json()
         setSubmitError(err.error || "Gagal menyimpan.")
@@ -1219,52 +1212,6 @@ function Inner() {
             </div>
           </div>
         </div>
-      )}
-
-      {voucherPostSaveOpen && (
-        <VoucherModal
-          title="Perubahan Tersimpan"
-          subtitle="Punya kode voucher? Tambahkan sekarang untuk potongan harga."
-          input={voucherModalInput}
-          onInput={(v) => {
-            setVoucherModalInput(v)
-            setVoucherError("")
-            setVoucherModalSuccess(null)
-          }}
-          checking={false}
-          busy={submitting}
-          error={voucherError}
-          success={voucherModalSuccess}
-          pakaiLabel="Pakai"
-          onPakai={async () => {
-            const clean = voucherModalInput.trim().toUpperCase()
-            if (!clean || submitting) return
-            setSubmitting(true)
-            setVoucherError("")
-            setVoucherModalSuccess(null)
-            try {
-              const res = await fetch(`/api/customize/${editProfileId}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ voucher_code: clean }),
-              })
-              const data = await res.json().catch(() => ({}))
-              if (!res.ok) throw new Error(data.error || "Voucher tidak dapat digunakan.")
-              setVoucherPostSaveOpen(false)
-              router.push(`/dashboard/${editProfileId}`)
-            } catch (err: any) {
-              setVoucherError(err?.message || "Voucher tidak dapat digunakan.")
-            } finally {
-              setSubmitting(false)
-            }
-          }}
-          showLepas={false}
-          onLepas={() => {}}
-          onClose={() => {
-            setVoucherPostSaveOpen(false)
-            router.push(`/dashboard/${editProfileId}`)
-          }}
-        />
       )}
 
       {voucherModalOpen && (

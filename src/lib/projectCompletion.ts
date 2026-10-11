@@ -56,7 +56,7 @@ export async function runProjectCompletionSweep(): Promise<SweepResult> {
 
     const { data: candidates, error } = await supabaseAdmin
       .from("ops_queue")
-      .select("id, status, wedding_profile_id, wedding_profiles!inner (id, payment_status, estimated_wedding_date, sessions)")
+      .select("id, status, sla_ended_at, wedding_profile_id, wedding_profiles!inner (id, payment_status, estimated_wedding_date, sessions)")
       .neq("status", "project_selesai")
       .eq("wedding_profiles.payment_status", "FULLY_PAID")
 
@@ -82,9 +82,14 @@ export async function runProjectCompletionSweep(): Promise<SweepResult> {
     for (const row of rows) {
       if (blocked.has(row.wedding_profile_id)) continue
 
+      // Auto-completion is terminal: freeze the SLA clock unless an earlier
+      // terminal stage (e.g. feedback_selesai) already froze it.
       const { error: updateError } = await supabaseAdmin
         .from("ops_queue")
-        .update({ status: "project_selesai" })
+        .update({
+          status: "project_selesai",
+          ...((row as any).sla_ended_at ? {} : { sla_ended_at: new Date().toISOString() }),
+        })
         .eq("id", row.id)
       if (updateError) {
         console.error(`[projectCompletion] queue ${row.id} update failed:`, updateError.message)

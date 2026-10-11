@@ -7,6 +7,7 @@ import { getPublishBlockers } from "@/lib/publishBlockers"
 // console on the couple's behalf (same completeness gate as the couple's own
 // Konfirmasi). Admin + sales. Idempotent: already-published returns success.
 // Every confirmation is logged to the unified queue timeline (kind "publish").
+// Body { force: true } publishes even with blockers (logged as DIPAKSA).
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -16,6 +17,11 @@ export async function POST(
 
   try {
     const { id } = await params
+    let force = false
+    try {
+      const body = await req.json().catch(() => null)
+      force = (body as any)?.force === true
+    } catch { force = false }
     const { data: queueItem, error: queueError } = await supabaseAdmin
       .from("ops_queue")
       .select("id, wedding_profile_id")
@@ -42,12 +48,13 @@ export async function POST(
     }
 
     const incomplete = await getPublishBlockers(profileId)
-    if (incomplete.length > 0) {
+    if (incomplete.length > 0 && !force) {
       return NextResponse.json(
         { error: "Konten undangan belum lengkap.", incomplete },
         { status: 422 },
       )
     }
+    const forcedLabels = force ? incomplete.map((s: any) => s.label).filter(Boolean) : []
 
     const updates: Record<string, any> = { is_published: true }
     if (!profile.published_at) updates.published_at = new Date().toISOString()
@@ -67,11 +74,11 @@ export async function POST(
     await supabaseAdmin.from("ops_queue_status_log").insert({
       ops_queue_id: id,
       kind: "publish",
-      details: `Undangan dikonfirmasi oleh ${(emp as any)?.name || "ops"} • ${profile.groom_name || ""} & ${profile.bride_name || ""}`.slice(0, 500),
+      details: (`Undangan dikonfirmasi oleh ${(emp as any)?.name || "ops"} • ${profile.groom_name || ""} & ${profile.bride_name || ""}${forcedLabels.length > 0 ? ` • DIPAKSA meski belum lengkap: ${forcedLabels.join(", ")}` : ""}`).slice(0, 500),
       changed_by_employee_id: (emp as any)?.id || null,
     })
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, ...(forcedLabels.length > 0 ? { forced: true, incomplete } : {}) })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

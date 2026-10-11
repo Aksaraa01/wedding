@@ -43,6 +43,7 @@ type QueueItem = {
   id: string
   status: string
   sla_started_at: string
+  sla_ended_at?: string | null
   assigned_to: string | null
   assigned_name: string | null
   created_at: string
@@ -150,21 +151,28 @@ type OpsEmployee = { id: string; name: string; role: string; phone_number?: stri
 
 const POLL_MS = 20000
 
-function SlaTimer({ startedAt }: { startedAt: string }) {
+function SlaTimer({ startedAt, endedAt }: { startedAt: string; endedAt?: string | null }) {
   const [elapsed, setElapsed] = useState("")
   useEffect(() => {
-    const tick = () => {
-      const diff = Date.now() - new Date(startedAt).getTime()
-      if (diff < 0) { setElapsed("00:00:00"); return }
+    const fmt = (diff: number) => {
+      if (diff < 0) return "00:00:00"
       const h = Math.floor(diff / 3600000)
       const m = Math.floor((diff % 3600000) / 60000)
       const s = Math.floor((diff % 60000) / 1000)
-      setElapsed(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`)
+      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+    }
+    // Frozen: terminal stage reached — show the final duration, no ticking.
+    if (endedAt) {
+      setElapsed(fmt(new Date(endedAt).getTime() - new Date(startedAt).getTime()))
+      return
+    }
+    const tick = () => {
+      setElapsed(fmt(Date.now() - new Date(startedAt).getTime()))
     }
     tick()
     const interval = setInterval(tick, 1000)
     return () => clearInterval(interval)
-  }, [startedAt])
+  }, [startedAt, endedAt])
   return <span>{elapsed}</span>
 }
 
@@ -225,6 +233,8 @@ const invHasStr = (v: any) => typeof v === "string" && v.trim() !== ""
 function invSectionState(p: any, key: string, gift?: { accounts: any[]; address: string }): InvSectionState {
   const gates = p?.package_gates || {}
   switch (key) {
+    case "tema":
+      return p?.selected_template_id ? "ok" : "empty"
     case "sampul":
       // Not required: an empty cover renders the default couple photo, so it
       // is never flagged incomplete (mirrors invitationCompleteness).
@@ -580,7 +590,7 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [publishConfirmError, setPublishConfirmError] = useState<string | null>(null)
   const [publishBlockers, setPublishBlockers] = useState<{ key: string; label: string }[]>([])
 
-  const confirmPublish = async () => {
+  const confirmPublish = async (force = false) => {
     setPublishBusy(true)
     setPublishConfirmError(null)
     try {
@@ -591,6 +601,7 @@ export default function AntrianDetail({ id }: { id: string }) {
           "x-ops-phone": employee?.phone_number || "",
           "x-ops-role": employee?.role || "",
         },
+        body: JSON.stringify({ force }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -816,7 +827,10 @@ export default function AntrianDetail({ id }: { id: string }) {
       if (!res.ok) return
       const data = await res.json()
       const p = data.profile
+      // Keys mirror the server confirm gate (getIncompleteInvitationSections):
+      // no "musik" (never blocking), with "tema" first.
       const defs: [string, string][] = [
+        ["tema", "TEMA"],
         ["sampul", "SAMPUL"],
         ["pembuka", "KALIMAT PEMBUKA"],
         ["profil", "PROFILE MEMPELAI"],
@@ -827,7 +841,6 @@ export default function AntrianDetail({ id }: { id: string }) {
         ["video", "VIDEO"],
         ["story", "STORY"],
         ["gift", "GIFT"],
-        ["musik", "MUSIC"],
       ]
       const gift = { accounts: data.gift_accounts || [], address: data.gift_address || "" }
       const empty = defs
@@ -1763,9 +1776,9 @@ export default function AntrianDetail({ id }: { id: string }) {
                 </select>
               </div>
               <div className="bg-secondary-container text-on-secondary-container px-6 py-4 border border-secondary flex flex-col items-center justify-center w-full sm:w-auto">
-                <span className="font-label-md text-[10px] uppercase tracking-widest opacity-80">Status SLA Aktif</span>
+                <span className="font-label-md text-[10px] uppercase tracking-widest opacity-80">{detail.queue.sla_ended_at ? "SLA Selesai" : "Status SLA Aktif"}</span>
                 <span className="font-mono text-xl font-bold">
-                  <SlaTimer startedAt={detail.queue.sla_started_at} />
+                  <SlaTimer startedAt={detail.queue.sla_started_at} endedAt={detail.queue.sla_ended_at} />
                 </span>
               </div>
             </div>
@@ -2197,32 +2210,43 @@ export default function AntrianDetail({ id }: { id: string }) {
             </div>
             {publishBlockers.length > 0 && (
               <div className="mb-4 rounded-xl px-3 py-2.5 bg-amber-50 border border-amber-300">
-                <p className="font-label-md text-[10px] uppercase tracking-widest text-amber-800 mb-1">Belum bisa dikonfirmasi — data belum lengkap:</p>
+                <p className="font-label-md text-[10px] uppercase tracking-widest text-amber-800 mb-1">Data belum lengkap:</p>
                 <p className="font-body-md text-xs text-amber-900 leading-relaxed">{publishBlockers.map((b) => b.label).join(" • ")}</p>
               </div>
             )}
             {publishConfirmError && (
               <p className="font-body-md text-sm text-red-500 mb-4 text-center">{publishConfirmError}</p>
             )}
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setPublishConfirmOpen(false)
-                  setPublishConfirmError(null)
-                  setPublishBlockers([])
-                }}
-                disabled={publishBusy}
-                className="flex-1 py-3 rounded-xl border border-outline-variant text-on-surface-variant font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors disabled:opacity-50"
-              >
-                Batal
-              </button>
-              <button
-                onClick={confirmPublish}
-                disabled={publishBusy}
-                className="flex-1 py-3 rounded-xl bg-primary text-on-primary font-label-md text-xs uppercase tracking-widest hover:bg-secondary active:scale-95 transition-all disabled:opacity-50"
-              >
-                {publishBusy ? "Memproses..." : "Ya, Konfirmasi"}
-              </button>
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setPublishConfirmOpen(false)
+                    setPublishConfirmError(null)
+                    setPublishBlockers([])
+                  }}
+                  disabled={publishBusy}
+                  className="flex-1 py-3 rounded-xl border border-outline-variant text-on-surface-variant font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors disabled:opacity-50"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={() => confirmPublish(false)}
+                  disabled={publishBusy}
+                  className="flex-1 py-3 rounded-xl bg-primary text-on-primary font-label-md text-xs uppercase tracking-widest hover:bg-secondary active:scale-95 transition-all disabled:opacity-50"
+                >
+                  {publishBusy ? "Memproses..." : "Ya, Konfirmasi"}
+                </button>
+              </div>
+              {publishBlockers.length > 0 && (
+                <button
+                  onClick={() => confirmPublish(true)}
+                  disabled={publishBusy}
+                  className="w-full py-3 rounded-xl border border-amber-400 text-amber-800 font-label-md text-xs uppercase tracking-widest hover:bg-amber-50 active:scale-[0.99] transition-all disabled:opacity-50"
+                >
+                  {publishBusy ? "Memproses..." : "Lanjutkan Meskipun Belum Lengkap"}
+                </button>
+              )}
             </div>
           </div>
         </div>

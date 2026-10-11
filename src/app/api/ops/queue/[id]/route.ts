@@ -17,6 +17,7 @@ export async function GET(
         id,
         status,
         sla_started_at,
+        sla_ended_at,
         assigned_to,
         created_at,
         wedding_profiles!inner (
@@ -197,6 +198,7 @@ export async function GET(
         id: queueItem.id,
         status: queueItem.status,
         sla_started_at: queueItem.sla_started_at,
+        sla_ended_at: (queueItem as any).sla_ended_at || null,
         assigned_to: queueItem.assigned_to,
         assigned_name: Array.isArray(queueItem.employees)
           ? queueItem.employees[0]?.name || null

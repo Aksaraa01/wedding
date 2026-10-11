@@ -10,6 +10,7 @@ export async function GET() {
         id,
         status,
         sla_started_at,
+        sla_ended_at,
         assigned_to,
         created_at,
         wedding_profiles!inner (
@@ -53,6 +54,7 @@ export async function GET() {
         id: item.id,
         status: item.status,
         sla_started_at: item.sla_started_at,
+        sla_ended_at: item.sla_ended_at || null,
         assigned_to: item.assigned_to,
         assigned_name: emp?.name || null,
         created_at: item.created_at,
