@@ -46,7 +46,9 @@ export default function SelfieModal({
       try {
         if (streamRef.current) streamRef.current.getTracks().forEach((t) => t.stop())
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: mode },
+          // HD ideals (see PhotoboothCamera): no constraint = 640x480 feed
+          // that the 1080x1440 canvas would merely upscale without detail.
+          video: { facingMode: mode, width: { ideal: 1920 }, height: { ideal: 1080 } },
           audio: false,
         })
         streamRef.current = stream

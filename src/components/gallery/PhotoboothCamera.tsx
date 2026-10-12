@@ -63,7 +63,10 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     try {
       setCameraError("")
       if (streamRef.current) streamRef.current.getTracks().forEach((t) => t.stop())
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: mode }, audio: false })
+      // Request HD: without width/height ideals browsers fall back to
+      // 640x480, and the 1600px canvas cap below can only downscale —
+      // never recover — detail. `ideal` degrades gracefully on weak hardware.
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: mode, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false })
       streamRef.current = stream
       if (videoRef.current) {
         videoRef.current.srcObject = stream
