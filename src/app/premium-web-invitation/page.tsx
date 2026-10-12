@@ -34,6 +34,8 @@ type Template = {
   preview_image_url: string
   category?: string | null
   tier?: string | null
+  // Tanpa-photo group: separate dimension from category/tier (never a badge).
+  no_photo?: boolean | null
 }
 
 export default function PremiumWebInvitationPage() {
@@ -41,6 +43,7 @@ export default function PremiumWebInvitationPage() {
   const mainRef = useRef<HTMLElement>(null)
   const [templates, setTemplates] = useState<Template[]>([])
   const [categoryFilter, setCategoryFilter] = useState("semua")
+  const [photoFilter, setPhotoFilter] = useState<"semua" | "tanpa">("semua")
   const [previewTpl, setPreviewTpl] = useState<Template | null>(null)
   const allFilters = useMemo(() => {
     const distinct = [...new Set(templates.map((t) => (t.category || "").trim()).filter(Boolean))]
@@ -98,9 +101,11 @@ export default function PremiumWebInvitationPage() {
   }
 
   const visibleTemplates =
-    categoryFilter === "semua"
-      ? templates
-      : templates.filter((t) => matchesCategory(t.category, categoryFilter))
+    templates.filter((t) => {
+      const catOk = categoryFilter === "semua" || matchesCategory(t.category, categoryFilter)
+      const photoOk = photoFilter !== "tanpa" || t.no_photo === true
+      return catOk && photoOk
+    })
 
   // Hide filters with no matching templates (e.g. "Elegansi Dark" with 0 rows).
   const shownFilters = allFilters.filter(
@@ -196,7 +201,42 @@ export default function PremiumWebInvitationPage() {
               </button>
             ))}
           </div>
+          <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar justify-start md:justify-center mt-2">
+            <span className="shrink-0 font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant self-center">Foto:</span>
+            {([
+              { id: "semua", label: "Semua" },
+              { id: "tanpa", label: "Tanpa Photo" },
+            ] as const).map((f) => (
+              <button
+                key={f.id}
+                onClick={() => setPhotoFilter(f.id)}
+                className={`shrink-0 rounded-full border px-5 py-2 font-label-md text-[11px] uppercase tracking-widest transition-colors whitespace-nowrap ${
+                  photoFilter === f.id
+                    ? "bg-[#2C2A29] border-[#2C2A29] text-white"
+                    : "bg-white border-[#E2D9CF] text-[#2C2A29] hover:border-[#2C2A29] hover:text-[#2C2A29]"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </section>
+
+        {visibleTemplates.length === 0 && (
+          <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mb-16">
+            <div className="py-12 text-center">
+              <p className="font-body-md text-sm text-on-surface-variant mb-4">
+                {photoFilter === "tanpa" ? "Belum ada template Tanpa Photo yang cocok." : "Tidak ada template yang cocok dengan filter."}
+              </p>
+              <button
+                onClick={() => { setPhotoFilter("semua"); setCategoryFilter("semua") }}
+                className="rounded-full border border-[#B34E3F] text-[#B34E3F] px-5 py-2 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#B34E3F] hover:text-white transition-colors"
+              >
+                Tampilkan Semua
+              </button>
+            </div>
+          </section>
+        )}
 
         {/* Template Grid */}
         <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mb-16">

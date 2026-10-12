@@ -79,10 +79,8 @@ function TemplatesInner({ id }: { id: string }) {
     return catOk && photoOk && searchOk
   })
 
-  // Independent photo group (not a category): hidden entirely while no
-  // template carries the flag, same zero-count rule as category chips.
-  const tanpaCount = templates.filter((t) => t.no_photo === true).length
-
+  // Independent photo group (not a category): always visible, even while no
+  // template carries the flag yet — the empty state below covers zero matches.
   // Filters with no matching templates are hidden (except "Semua"), so empty
   // categories like "Elegansi Dark" never appear as dead filter chips.
   const shownFilters = allFilters
@@ -93,10 +91,7 @@ function TemplatesInner({ id }: { id: string }) {
     if (categoryFilter !== "semua" && !templates.some((t) => matchesCategory(t.category, categoryFilter))) {
       setCategoryFilter("semua")
     }
-    if (photoFilter === "tanpa" && !templates.some((t) => t.no_photo === true)) {
-      setPhotoFilter("semua")
-    }
-  }, [templates, categoryFilter, photoFilter])
+  }, [templates, categoryFilter])
 
   useEffect(() => {
     ;(async () => {
@@ -186,29 +181,40 @@ function TemplatesInner({ id }: { id: string }) {
               </button>
             ))}
           </div>
-          {tanpaCount > 0 && (
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-              <span className="shrink-0 font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant">Foto:</span>
-              {([
-                { id: "semua", label: "Semua" },
-                { id: "tanpa", label: "Tanpa Photo" },
-              ] as const).map((f) => (
-                <button
-                  key={f.id}
-                  onClick={() => setPhotoFilter(f.id)}
-                  className={`shrink-0 rounded-full border px-5 py-2 font-label-md text-[11px] uppercase tracking-widest transition-colors whitespace-nowrap ${
-                    photoFilter === f.id
-                      ? "bg-[#2C2A29] border-[#2C2A29] text-white"
-                      : "bg-white border-[#E2D9CF] text-[#2C2A29] hover:border-[#2C2A29] hover:text-[#2C2A29]"
-                  }`}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+            <span className="shrink-0 font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant">Foto:</span>
+            {([
+              { id: "semua", label: "Semua" },
+              { id: "tanpa", label: "Tanpa Photo" },
+            ] as const).map((f) => (
+              <button
+                key={f.id}
+                onClick={() => setPhotoFilter(f.id)}
+                className={`shrink-0 rounded-full border px-5 py-2 font-label-md text-[11px] uppercase tracking-widest transition-colors whitespace-nowrap ${
+                  photoFilter === f.id
+                    ? "bg-[#2C2A29] border-[#2C2A29] text-white"
+                    : "bg-white border-[#E2D9CF] text-[#2C2A29] hover:border-[#2C2A29] hover:text-[#2C2A29]"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
 
+        {visibleTemplates.length === 0 && (
+          <div className="py-12 text-center">
+            <p className="font-body-md text-sm text-on-surface-variant mb-4">
+              {photoFilter === "tanpa" ? "Belum ada template Tanpa Photo yang cocok." : "Tidak ada template yang cocok dengan filter."}
+            </p>
+            <button
+              onClick={() => { setPhotoFilter("semua"); setCategoryFilter("semua"); setSearchQuery("") }}
+              className="rounded-full border border-[#B34E3F] text-[#B34E3F] px-5 py-2 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#B34E3F] hover:text-white transition-colors"
+            >
+              Tampilkan Semua
+            </button>
+          </div>
+        )}
         <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 no-scrollbar lg:grid lg:grid-cols-4 xl:grid-cols-5 lg:gap-x-4 lg:gap-y-10 lg:overflow-visible">
           {visibleTemplates.map((tpl, idx) => {
             const styleTag = (tpl.category || "Modern").toUpperCase()
