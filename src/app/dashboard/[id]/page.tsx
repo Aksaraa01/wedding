@@ -152,6 +152,9 @@ function DashboardInner({ id }: { id: string }) {
   const [showFisikInfo, setShowFisikInfo] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  // Upsell popup hook lives with the rest: anything after the `if (loading)`
+  // early return below would trip React #310 (hook count changed).
+  const [upsell, setUpsell] = useState<null | "galeri" | "undangan">(null)
 
   useEffect(() => {
     Promise.all([
@@ -167,13 +170,8 @@ function DashboardInner({ id }: { id: string }) {
       .then(([dashboardRes, invData, qrData, photoData, accData, addrData, rsvpData, waBlastData]) => {
         if (!dashboardRes.ok) throw new Error("Dashboard tidak ditemukan")
         return dashboardRes.json().then((data) => {
-          // Galeri Tamu is a single-page product: GT couples never see the
-          // dashboard, they live entirely on the galeri-kenangan page.
-          const pkg = (data.profile?.package_type || "") as string
-          if (pkg === "gt") {
-            router.replace(`/dashboard/${id}/galeri-kenangan`)
-            return
-          }
+          // GT couples render the dashboard with gated modules (upsell
+          // popups) instead of redirecting to galeri-kenangan.
           setProfile(data.profile)
           setSelections(data.selections)
           setGuestCount(data.guest_count ?? data.profile.estimated_guest_count ?? 0)
@@ -280,9 +278,30 @@ function DashboardInner({ id }: { id: string }) {
 
   const activeCards = CARDS.filter((card) => selections[card.key])
   // Galeri Tamu shortcut: Undangan Digital + Galeri add-on, or Buku Tamu
-  // Digital tiers (both carry galeri_foto_tamu). Standalone GT never reaches
-  // the dashboard (redirected to galeri-kenangan on load).
+  // Digital tiers (both carry galeri_foto_tamu). Undangan Digital shows the
+  // button even without the add-on — it opens the upsell popup instead.
   const galeriEligible = selections?.galeri_foto_tamu === true
+  const isGt = profile?.package_type === "gt"
+  const showGaleriBtn =
+    !isGt && (galeriEligible || getPackageCategory(profile?.package_type || "") === "Undangan Digital")
+  // Upsell popup: "galeri" (undangan users without the add-on) or
+  // "undangan" (GT users eyeing invitation features). CTA goes to
+  // pilih-paket in edit mode.
+  const customizeUrl = profile
+    ? `/customize?edit=true&tab=undangan&user=${encodeURIComponent(profile.bride_name)}&partner=${encodeURIComponent(profile.groom_name)}&date=${encodeURIComponent(profile.estimated_wedding_date)}&guest=${encodeURIComponent(String(profile.estimated_guest_count ?? 300))}&profile_id=${id}`
+    : "/customize"
+  const UPS_COPY: Record<"galeri" | "undangan", { title: string; body: string; cta: string }> = {
+    galeri: {
+      title: "Tambah Galeri Tamu",
+      body: "Paketmu belum termasuk Galeri Tamu. Upgrade paket atau tambahkan add-on untuk membuka QR acara dan galeri kenangan.",
+      cta: "Pilih Paket",
+    },
+    undangan: {
+      title: "Butuh Undangan Digital",
+      body: "Fitur ini termasuk paket Undangan Digital — undangan web, QR tamu, dan absensi live. Upgrade paketmu untuk membukanya.",
+      cta: "Pilih Paket",
+    },
+  }
 
   const moduleVals = {
     templateName,
@@ -405,21 +424,40 @@ function DashboardInner({ id }: { id: string }) {
                 </div>
               </div>
               <div className="p-4 md:px-9 md:py-5 flex flex-row gap-2.5 md:gap-3.5 md:justify-start relative z-10">
-                <button onClick={() => router.push(`/dashboard/${id}/web-invitation/editor?preview=1`)} data-tour="lihat-undangan" className="flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full border border-white/40 text-[#fdfbf9] bg-white/10 hover:bg-white/20 active:bg-white/25 transition backdrop-blur-sm text-[13px] font-medium shadow-sm whitespace-nowrap overflow-hidden text-ellipsis shrink">
-                  <span className="material-symbols-outlined text-[16px] shrink-0">mail</span>
-                  <span className="whitespace-nowrap">Lihat Undangan</span>
-                </button>
-                <button onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)} data-tour="undangan-tamu" title={galeriEligible ? "Undangan Tamu" : undefined} className={galeriEligible
-                  ? "flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink"
-                  : "flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden text-ellipsis shrink"}>
-                  <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">qr_code_2</span>
-                  <span className={galeriEligible ? "whitespace-nowrap hidden md:inline" : "whitespace-nowrap"}>Undangan Tamu</span>
-                </button>
-                {galeriEligible && (
-                  <button onClick={() => router.push(`/dashboard/${id}/galeri-kenangan`)} data-tour="galeri-tamu" title="Galeri Tamu" className="flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink">
-                    <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">photo_library</span>
-                    <span className="whitespace-nowrap hidden md:inline">Galeri Tamu</span>
-                  </button>
+                {isGt ? (
+                  <>
+                    <button onClick={() => router.push(`/dashboard/${id}/galeri-kenangan`)} data-tour="galeri-tamu" className="flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full border border-white/40 text-[#fdfbf9] bg-white/10 hover:bg-white/20 active:bg-white/25 transition backdrop-blur-sm text-[13px] font-medium shadow-sm whitespace-nowrap overflow-hidden text-ellipsis shrink">
+                      <span className="material-symbols-outlined text-[16px] shrink-0">photo_library</span>
+                      <span className="whitespace-nowrap">Galeri Tamu</span>
+                    </button>
+                    <button onClick={() => setUpsell("undangan")} data-tour="lihat-undangan" title="Lihat Undangan" className="flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink">
+                      <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">mail</span>
+                      <span className="whitespace-nowrap hidden md:inline">Lihat Undangan</span>
+                    </button>
+                    <button onClick={() => setUpsell("undangan")} data-tour="undangan-tamu" title="Undangan Tamu" className="flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink">
+                      <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">qr_code_2</span>
+                      <span className="whitespace-nowrap hidden md:inline">Undangan Tamu</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button onClick={() => router.push(`/dashboard/${id}/web-invitation/editor?preview=1`)} data-tour="lihat-undangan" className="flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full border border-white/40 text-[#fdfbf9] bg-white/10 hover:bg-white/20 active:bg-white/25 transition backdrop-blur-sm text-[13px] font-medium shadow-sm whitespace-nowrap overflow-hidden text-ellipsis shrink">
+                      <span className="material-symbols-outlined text-[16px] shrink-0">mail</span>
+                      <span className="whitespace-nowrap">Lihat Undangan</span>
+                    </button>
+                    <button onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)} data-tour="undangan-tamu" title={showGaleriBtn ? "Undangan Tamu" : undefined} className={showGaleriBtn
+                      ? "flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink"
+                      : "flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden text-ellipsis shrink"}>
+                      <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">qr_code_2</span>
+                      <span className={showGaleriBtn ? "whitespace-nowrap hidden md:inline" : "whitespace-nowrap"}>Undangan Tamu</span>
+                    </button>
+                    {showGaleriBtn && (
+                      <button onClick={() => (galeriEligible ? router.push(`/dashboard/${id}/galeri-kenangan`) : setUpsell("galeri"))} data-tour="galeri-tamu" title="Galeri Tamu" className="flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink">
+                        <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">photo_library</span>
+                        <span className="whitespace-nowrap hidden md:inline">Galeri Tamu</span>
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
               <div className="absolute right-8 top-1/2 -translate-y-1/2 z-20 pointer-events-none hidden md:flex">
@@ -455,12 +493,12 @@ function DashboardInner({ id }: { id: string }) {
                 </div>
               </div>
               <button
-                onClick={() => router.push(`/dashboard/${id}/reservation-automation`)}
-                className="bg-white p-3 md:p-5 text-left hover:bg-[#faf6ee] active:scale-[0.99] transition-all cursor-pointer group/box"
+                onClick={() => (isGt ? setUpsell("undangan") : router.push(`/dashboard/${id}/reservation-automation`))}
+                className={`bg-white p-3 md:p-5 text-left hover:bg-[#faf6ee] active:scale-[0.99] transition-all cursor-pointer group/box ${isGt ? "opacity-60" : ""}`}
               >
                 <p className="text-[11px] uppercase tracking-wider text-on-surface-variant mb-1 flex items-center justify-between">
                   Reservasi Tamu
-                  <span className="material-symbols-outlined text-[16px] text-outline group-hover/box:text-secondary group-hover/box:translate-x-0.5 transition-all">chevron_right</span>
+                  <span className="material-symbols-outlined text-[16px] text-outline group-hover/box:text-secondary group-hover/box:translate-x-0.5 transition-all">{isGt ? "lock" : "chevron_right"}</span>
                 </p>
                 <div className="flex items-baseline gap-2">
                   <span className="text-lg md:text-2xl font-semibold">{rsvpHadirCount}</span>
@@ -488,24 +526,29 @@ function DashboardInner({ id }: { id: string }) {
                   </div>
                 </button>
               ) : (
-              <div className="bg-white p-3 md:p-5">
+              <button
+                onClick={() => (isGt ? setUpsell("undangan") : undefined)}
+                className={`bg-white p-3 md:p-5 text-left transition-all ${isGt ? "cursor-pointer hover:bg-[#faf6ee] active:scale-[0.99]" : ""}`}
+              >
                 <p className="text-[11px] uppercase tracking-wider text-on-surface-variant mb-1">Checkin Tamu</p>
                   <div className="relative group inline-flex items-center gap-2 pt-0.5">
                     <span className="material-symbols-outlined text-lg md:text-xl text-on-surface-variant/50">lock</span>
                     <span className="text-xs md:text-sm text-on-surface-variant/60">Tidak Aktif</span>
+                    {!isGt && (
                     <div className="hidden group-hover:block absolute bottom-full left-0 mb-2 w-max max-w-[220px] bg-black/85 text-white text-[11px] leading-relaxed px-3 py-2 rounded-lg shadow-xl z-20">
                       Fitur ini aktif untuk paket Buku Tamu Digital
                     </div>
+                    )}
                   </div>
-              </div>
+              </button>
               )}
             </div>
             <button
-              onClick={() => router.push(`/dashboard/${id}/guests`)}
-              className="w-full py-3.5 md:py-5 bg-[#b85d3f] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-[#9d4c32] active:scale-[0.98] transition-colors"
+              onClick={() => (isGt ? setUpsell("undangan") : router.push(`/dashboard/${id}/guests`))}
+              className={`w-full py-3.5 md:py-5 bg-[#b85d3f] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-[#9d4c32] active:scale-[0.98] transition-colors ${isGt ? "opacity-80" : ""}`}
             >
               Kelola Tamu &amp; Meja
-              <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+              <span className="material-symbols-outlined text-[18px]">{isGt ? "lock" : "chevron_right"}</span>
             </button>
           </div>
         </section>
@@ -594,6 +637,32 @@ function DashboardInner({ id }: { id: string }) {
           </div>
         </section>
       </main>
+
+      {upsell && (
+        <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setUpsell(null)}>
+          <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-primary text-2xl">{upsell === "galeri" ? "photo_library" : "mail"}</span>
+              </div>
+              <h3 className="font-headline-md text-lg font-medium text-primary">{UPS_COPY[upsell].title}</h3>
+              <p className="text-sm text-on-surface-variant">{UPS_COPY[upsell].body}</p>
+              <button
+                onClick={() => router.push(customizeUrl)}
+                className="w-full bg-primary text-on-primary py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
+              >
+                {UPS_COPY[upsell].cta}
+              </button>
+              <button
+                onClick={() => setUpsell(null)}
+                className="w-full border border-outline-variant text-on-surface-variant py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+              >
+                Nanti Saja
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showFisikInfo && (
         <div
