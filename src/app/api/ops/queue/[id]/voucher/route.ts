@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { requireOpsEmployee } from "@/lib/ops-auth"
-import { calcTotalWithVoucher } from "@/lib/packages"
+import { calcTotalWithVoucherBook } from "@/lib/packages"
+import { getPriceBook } from "@/lib/priceBook"
 import { resolveDerivedStatus } from "@/lib/opsStatus"
 
 const VOUCHER_ERRORS: Record<string, string> = {
@@ -35,7 +36,7 @@ export async function PUT(
 
     const { data: queueItem, error: queueError } = await supabaseAdmin
       .from("ops_queue")
-      .select("id, status, wedding_profiles!inner (id, package_type, wa_blast_tier, express_service, payment_status, voucher_code, voucher_discount)")
+      .select("id, status, wedding_profiles!inner (id, package_type, wa_blast_tier, express_service, payment_status, voucher_code, voucher_discount, galeri_price)")
       .eq("id", id)
       .single()
 
@@ -101,11 +102,14 @@ export async function PUT(
       }
       const row = Array.isArray(swapped) ? swapped[0] : swapped
       const discount = Math.max(0, Math.floor(Number(row?.amount) || 0))
-      const total = calcTotalWithVoucher(
+      const book = await getPriceBook()
+      const total = calcTotalWithVoucherBook(
+        book,
         wp.package_type || "signature",
         wp.wa_blast_tier || 0,
         wp.express_service === true,
-        discount
+        discount,
+        wp.galeri_price || 0
       )
       const { error: updateError } = await supabaseAdmin
         .from("wedding_profiles")
@@ -139,11 +143,14 @@ export async function PUT(
     }
 
     const discount = Math.max(0, Math.floor(Number(redeemed) || 0))
-    const total = calcTotalWithVoucher(
+    const book = await getPriceBook()
+    const total = calcTotalWithVoucherBook(
+      book,
       wp.package_type || "signature",
       wp.wa_blast_tier || 0,
       wp.express_service === true,
-      discount
+      discount,
+      wp.galeri_price || 0
     )
 
     const { error: updateError } = await supabaseAdmin
@@ -179,7 +186,7 @@ export async function DELETE(
     const { id } = await params
     const { data: queueItem, error: queueError } = await supabaseAdmin
       .from("ops_queue")
-      .select("id, wedding_profiles!inner (id, package_type, wa_blast_tier, express_service, payment_status, voucher_code, voucher_discount)")
+      .select("id, wedding_profiles!inner (id, package_type, wa_blast_tier, express_service, payment_status, voucher_code, voucher_discount, galeri_price)")
       .eq("id", id)
       .single()
 
@@ -235,11 +242,14 @@ export async function DELETE(
       }
     }
 
-    const total = calcTotalWithVoucher(
+    const book = await getPriceBook()
+    const total = calcTotalWithVoucherBook(
+      book,
       wp.package_type || "signature",
       wp.wa_blast_tier || 0,
       wp.express_service === true,
-      0
+      0,
+      wp.galeri_price || 0
     )
     await supabaseAdmin
       .from("wedding_profiles")

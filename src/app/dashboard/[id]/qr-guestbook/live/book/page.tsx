@@ -1,13 +1,24 @@
 "use client"
 
 import { use, useEffect, useRef, useState, useCallback } from "react"
-import { Cinzel, Pinyon_Script, Cormorant_Garamond } from "next/font/google"
 import { PageFlip } from "page-flip"
 import { useVisiblePoll } from "@/lib/useVisiblePoll"
+import { displayCategory } from "@/lib/gallery-client"
+import { ASSETS } from "@/lib/assets"
 
-const cinzel = Cinzel({ subsets: ["latin"], weight: ["400", "600", "700"] })
-const pinyon = Pinyon_Script({ subsets: ["latin"], weight: ["400"] })
-const cormorant = Cormorant_Garamond({ subsets: ["latin"], weight: ["400", "500", "600"], style: ["normal", "italic"] })
+// App self-hosted faces (layout.tsx) — never duplicate next/font queries
+// (Turbopack rejects the second identical Google Fonts query at build).
+const playfair = { className: "font-[family-name:var(--font-playfair)]" }
+const inter = { className: "font-[family-name:var(--font-inter)]" }
+const cormorant = { className: "font-[family-name:var(--font-cormorant)]" }
+
+const INK = "#4f1519"
+const MAROON = "#6b2b2d"
+const GOLD = "#b89569"
+const PAPER = "#fdfbf7"
+const CREAM = "#f4ece3"
+const FAINT = "#735955"
+const GRAY = "#85706c"
 
 type Guest = {
   id: string
@@ -20,9 +31,9 @@ type Guest = {
   is_vip?: boolean
 }
 
-type GuestPhoto = { url: string; source: string | null; created_at: string | null }
+type GuestPhoto = { url: string; source: string | null; created_at: string | null; caption?: string | null }
 
-type Entry = Guest & { wish?: string; photos: string[] }
+type Entry = Guest & { wish?: string; photos: { url: string; caption?: string | null; source?: string | null }[] }
 
 type Profile = {
   slug: string
@@ -46,6 +57,108 @@ function initialsOf(bride: string, groom: string): string {
   const b = (bride.trim()[0] || "").toUpperCase()
   const g = (groom.trim()[0] || "").toUpperCase()
   return `${b}${g}` || "A"
+}
+
+function Folio({ right }: { right: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between border-b border-[#e6dcce] pb-2 shrink-0">
+      <span className="flex items-center gap-1.5">
+        <span className="w-1 h-1 rounded-full" style={{ backgroundColor: MAROON }} />
+        <span className={`${inter.className} text-[8px] tracking-[0.2em] uppercase`} style={{ color: FAINT }}>Aksaraa Official Wedding Keepsake</span>
+      </span>
+      <span className={`${inter.className} text-[8px] tracking-[0.14em] uppercase font-medium`} style={{ color: MAROON }}>{right}</span>
+    </div>
+  )
+}
+
+function Emblem({ size, mono }: { size: number; mono: string }) {
+  return (
+    <div className="relative rounded-full overflow-hidden flex items-center justify-center shrink-0" style={{ width: size, height: size, backgroundColor: CREAM, border: "1px solid #e4d7cb" }}>
+      <span className={`${playfair.className} font-semibold`} style={{ fontSize: Math.round(size * 0.32), color: INK }}>{mono}</span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        alt="Aksaraa Wedding Emblem"
+        src={ASSETS.galeriEnvelope.aksaraaMonogram}
+        className="absolute inset-0 w-full h-full object-cover"
+        onError={(e) => { (e.target as HTMLImageElement).remove() }}
+      />
+    </div>
+  )
+}
+
+function Divider({ width = 120 }: { width?: number }) {
+  return (
+    <div className="flex items-center justify-center gap-2 opacity-75 mx-auto" style={{ width }}>
+      <span className="h-[1px] flex-1" style={{ background: "linear-gradient(to right, transparent, #b89569)" }} />
+      <span className={`${cormorant.className} leading-none`} style={{ color: MAROON, fontSize: 13 }}>❦</span>
+      <span className="h-[1px] flex-1" style={{ background: "linear-gradient(to left, transparent, #b89569)" }} />
+    </div>
+  )
+}
+
+function BottomBar({ couple, right }: { couple: string; right?: string }) {
+  return (
+    <div className="flex items-center justify-between border-t border-[#eee5dc] pt-1.5 shrink-0">
+      <span className={`${inter.className} text-[7px] tracking-[0.18em] uppercase truncate`} style={{ color: GRAY }}>Album Cetak Edisi Terbatas — {couple}</span>
+      {right && <span className={`${inter.className} text-[7px] tracking-[0.14em] uppercase font-semibold shrink-0 ml-2`} style={{ color: MAROON }}>{right}</span>}
+    </div>
+  )
+}
+
+function BrassFrame({ children, ratio }: { children: React.ReactNode; ratio: string }) {
+  return (
+    <div className="relative bg-white p-1.5 border border-[#ede3d8] w-full" style={{ borderRadius: 2 }}>
+      <span className="absolute top-1 left-1 w-2.5 h-2.5 border-t border-l pointer-events-none" style={{ borderColor: GOLD }} />
+      <span className="absolute top-1 right-1 w-2.5 h-2.5 border-t border-r pointer-events-none" style={{ borderColor: GOLD }} />
+      <span className="absolute bottom-1 left-1 w-2.5 h-2.5 border-b border-l pointer-events-none" style={{ borderColor: GOLD }} />
+      <span className="absolute bottom-1 right-1 w-2.5 h-2.5 border-b border-r pointer-events-none" style={{ borderColor: GOLD }} />
+      <div className={`relative overflow-hidden w-full bg-[#f2efe9] border border-[#ede3d8] ${ratio}`}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+export function BookCover({ profile, mono, venue }: { profile: Profile | null; mono: string; venue: string }) {
+  const coverPhoto =
+    (Array.isArray(profile?.cover_photos) && profile.cover_photos.find(Boolean)) ||
+    profile?.couple_illustration_url ||
+    ""
+  const coupleName = `${profile?.groom_name || ""} & ${profile?.bride_name || ""}`.replace(/^ & | & $/g, "").trim() || "Mempelai"
+  return (
+    <div className="h-full w-full flex flex-col px-5 py-4 relative" style={{ backgroundColor: PAPER }}>
+      <div className="absolute inset-2 border border-[#e4d7cb]/80 pointer-events-none" style={{ borderRadius: 2 }} />
+      <div className="absolute pointer-events-none opacity-70" style={{ left: -18, top: -18, width: 110 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img alt="" src={ASSETS.galeriEnvelope.flowerTopLeft} className="w-full h-auto object-contain" />
+      </div>
+      <div className="relative z-10 flex flex-col items-center pt-1">
+        <Emblem size={52} mono={mono} />
+        <p className={`${inter.className} text-[8px] tracking-[0.28em] uppercase font-semibold mt-2`} style={{ color: MAROON }}>The Wedding of</p>
+        <h1 className={`${playfair.className} leading-tight mt-0.5`} style={{ fontSize: 30, color: INK }}>{coupleName}</h1>
+        <div className="mt-1.5"><Divider width={130} /></div>
+      </div>
+      <div className="relative z-10 my-2">
+        {coverPhoto ? (
+          <BrassFrame ratio="aspect-[4/3]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={coverPhoto} alt="Foto pasangan" className="w-full h-full object-contain bg-[#f2efe9]" loading="lazy" />
+          </BrassFrame>
+        ) : (
+          <div className="w-full aspect-[4/3] flex items-center justify-center border border-dashed border-[#D8CEB8]">
+            <span className={`${cormorant.className} italic`} style={{ color: MAROON }}>Foto menyusul</span>
+          </div>
+        )}
+      </div>
+      <div className="relative z-10 text-center">
+        <p className={`${playfair.className} font-medium`} style={{ fontSize: 15, color: INK }}>{formatLongDate(profile?.estimated_wedding_date || null)}</p>
+        {venue && <p className={`${cormorant.className} italic text-[13px]`} style={{ color: MAROON }}>{venue}</p>}
+      </div>
+      <div className="relative z-10 mt-auto pt-2">
+        <BottomBar couple={coupleName} />
+      </div>
+    </div>
+  )
 }
 
 export default function LiveBookPage({ params }: { params: Promise<{ id: string }> }) {
@@ -90,7 +203,7 @@ export default function LiveBookPage({ params }: { params: Promise<{ id: string 
         for (const item of p.photos || []) {
           if (item.guest_id && item.image_url) {
             const list = photoByGuest.get(item.guest_id) || []
-            list.push({ url: item.image_url, source: item.source || null, created_at: item.created_at || null })
+            list.push({ url: item.image_url, source: item.source || null, created_at: item.created_at || null, caption: item.caption || null })
             photoByGuest.set(item.guest_id, list)
           }
         }
@@ -119,7 +232,7 @@ export default function LiveBookPage({ params }: { params: Promise<{ id: string 
         guests.map((g) => ({
           ...g,
           wish: wishByGuest.get(g.id),
-          photos: (photoByGuest.get(g.id) || []).map((x) => x.url),
+          photos: (photoByGuest.get(g.id) || []).map((x) => ({ url: x.url, caption: x.caption || null, source: x.source || null })),
         }))
       )
     } catch {}
@@ -185,7 +298,7 @@ export default function LiveBookPage({ params }: { params: Promise<{ id: string 
         usePortrait: portrait,
         maxShadowOpacity: 0.4,
         mobileScrollSupport: true,
-        // Clicks must never turn pages (thumbnail taps swap photos).
+        // Clicks must never turn pages (photo taps open nothing).
         // Page turns stay available via drag / swipe / corner curl.
         disableFlipByClick: true,
       })
@@ -215,6 +328,9 @@ export default function LiveBookPage({ params }: { params: Promise<{ id: string 
     ""
   const venue = profile?.sessions?.[0]?.venue || ""
   const mono = initialsOf(profile?.bride_name || "", profile?.groom_name || "")
+  const coupleName = `${profile?.groom_name || ""} & ${profile?.bride_name || ""}`.replace(/^ & | & $/g, "").trim() || "Mempelai"
+  const total = entries.length + 1
+  const pad = (n: number) => String(n).padStart(2, "0")
 
   if (loading) {
     return (
@@ -227,85 +343,42 @@ export default function LiveBookPage({ params }: { params: Promise<{ id: string 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center px-3 py-6 md:p-8" style={{ backgroundColor: "#F4EFE6" }}>
       <style>{`
-        .bfb-paper {
-          background-color: #FAF6EE;
-          background-image:
-            radial-gradient(#E8DFC9 0.75px, transparent 0.75px),
-            radial-gradient(#DFD4BA 0.5px, #FAF6EE 0.5px);
-          background-size: 24px 24px, 12px 12px;
-          background-position: 0 0, 6px 6px;
-        }
-        .bfb-gold-text {
-          background: linear-gradient(135deg, #ECC875 0%, #FAF0D7 25%, #C59B3F 50%, #FAF0D7 75%, #B38628 100%);
-          -webkit-background-clip: text;
-          background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-        .bfb-page { background-color: #FAF6EE; overflow: hidden; }
+        .bfb-page { background-color: ${PAPER}; overflow: hidden; }
       `}</style>
 
       <div className="w-full max-w-[880px]">
         <div className="flex items-center justify-between px-2 pb-3">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className={`${cinzel.className} text-[11px] tracking-[0.2em] uppercase text-[#8B6F2A]`}>Live Guestbook</span>
+            <span className={`${inter.className} text-[11px] tracking-[0.2em] uppercase font-semibold`} style={{ color: "#8B6F2A" }}>Live Guestbook</span>
           </div>
-          <span className={`${cormorant.className} italic text-xs text-[#8B6F2A]`}>{entries.length} tamu hadir</span>
+          <span className={`${cormorant.className} italic text-xs`} style={{ color: "#8B6F2A" }}>{entries.length} tamu hadir</span>
         </div>
 
         <div key={buildKey} ref={bookRef} className="w-full rounded-lg overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] border border-[#E2D8C3]">
           {/* COVER */}
           <div className="bfb-page" data-density="hard">
-            <div className="bfb-paper h-full w-full flex flex-col items-center justify-between text-center px-6 py-8 relative">
-              <div className="absolute inset-3 border border-[#C9A34E]/60 pointer-events-none" />
-              <div className="pt-2">
-                <div className="w-14 h-14 mx-auto rounded-full border border-dashed border-[#C9A34E] flex items-center justify-center mb-2">
-                  <span className={`${cormorant.className} italic text-xl text-[#A98231]`}>{mono}</span>
-                </div>
-                <p className={`${cinzel.className} text-[9px] tracking-[0.28em] uppercase text-[#A98231]`}>The Wedding Guestbook</p>
-                <p className={`${pinyon.className} text-2xl text-[#39332D] mt-1`}>Celebration of Eternal Love</p>
-              </div>
-              {coverPhoto ? (
-                <div className="w-44 h-56 md:w-52 md:h-64 rounded-t-full overflow-hidden border-2 border-[#D8CEB8] shadow-lg my-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={coverPhoto} alt="Foto pasangan" className="w-full h-full object-cover" />
-                </div>
-              ) : (
-                <div className="w-44 h-56 flex items-center justify-center border-2 border-dashed border-[#D8CEB8] rounded-t-full my-3">
-                  <span className={`${cormorant.className} italic text-[#8B6F2A]`}>Foto menyusul</span>
-                </div>
-              )}
-              <div>
-                <h1 className={`${cormorant.className} text-3xl md:text-4xl text-[#231E1B]`}>
-                  <span className="bfb-gold-text font-semibold">{profile?.groom_name || "Mempelai"}</span>
-                  <span className={`${pinyon.className} text-3xl text-[#A98231] mx-2`}>&amp;</span>
-                  <span className="bfb-gold-text font-semibold">{profile?.bride_name || "Mempelai"}</span>
-                </h1>
-                <p className={`${cinzel.className} text-[10px] tracking-[0.2em] uppercase text-[#39332D] mt-2`}>{formatLongDate(profile?.estimated_wedding_date || null)}</p>
-                {venue && <p className={`${cormorant.className} italic text-sm text-[#8B6F2A]`}>{venue}</p>}
-                <p className="text-[10px] tracking-[0.2em] uppercase text-[#A98231] mt-4 animate-pulse">← Geser untuk membuka →</p>
-              </div>
-            </div>
+            <BookCover profile={profile} mono={mono} venue={venue} />
           </div>
 
           {/* ENTRY PAGES */}
           {entries.map((e, i) => (
             <div className="bfb-page" key={e.id}>
-              <EntryPage entry={e} index={i} />
+              <EntryPage entry={e} index={i} pageNo={i + 2} pageTotal={total} coupleName={coupleName} />
             </div>
           ))}
 
           {entries.length === 0 && (
             <div className="bfb-page">
-              <div className="bfb-paper h-full w-full flex flex-col items-center justify-center text-center px-8">
-                <p className={`${cormorant.className} text-xl text-[#39332D]`}>Buku tamu digital ini akan terisi pada hari acara setelah ada tamu yang check-in.</p>
-                <p className="text-xs tracking-[0.2em] uppercase text-[#A98231] mt-3">Menunggu kehadiran pertama</p>
+              <div className="h-full w-full flex flex-col items-center justify-center text-center px-8" style={{ backgroundColor: PAPER }}>
+                <p className={`${cormorant.className} text-xl`} style={{ color: INK }}>Buku tamu digital ini akan terisi pada hari acara setelah ada tamu yang check-in.</p>
+                <p className={`${inter.className} text-[9px] tracking-[0.2em] uppercase mt-3`} style={{ color: MAROON }}>Menunggu kehadiran pertama</p>
               </div>
             </div>
           )}
         </div>
 
-        <p className="text-center text-[10px] tracking-[0.2em] uppercase text-[#8B6F2A]/70 mt-3">
+        <p className={`${inter.className} text-center text-[10px] tracking-[0.2em] uppercase mt-3`} style={{ color: "rgba(139,111,42,0.7)" }}>
           {entries.length === 0 ? "Menunggu tamu" : `Halaman ${Math.min(pageRef.current + 1, entries.length + 1)} dari ${entries.length + 1}`}
         </p>
       </div>
@@ -313,80 +386,65 @@ export default function LiveBookPage({ params }: { params: Promise<{ id: string 
   )
 }
 
-function EntryPage({ entry, index }: { entry: Entry; index: number }) {
-  const [sel, setSel] = useState(0)
-  const active = entry.photos.length > 0 ? entry.photos[Math.min(sel, entry.photos.length - 1)] : ""
+export function EntryPage({ entry, pageNo, pageTotal, coupleName }: { entry: Entry; index: number; pageNo: number; pageTotal: number; coupleName: string }) {
+  const n = entry.photos.length
+  const pad = (n: number) => String(n).padStart(2, "0")
   return (
-    <div className="bfb-paper h-full w-full flex flex-col px-5 md:px-7 py-4 overflow-hidden">
-      <div className="flex items-center justify-between shrink-0">
-        <span className={`${cinzel.className} text-[10px] tracking-[0.24em] uppercase text-[#8B6F2A]`}>✻ Registry No. {String(index + 1).padStart(3, "0")}</span>
-        <span className="text-[11px] italic text-[#8B6F2A]">{formatTime(entry.checkin_timestamp)}</span>
+    <div className="h-full w-full flex flex-col px-4 py-3 overflow-hidden relative" style={{ backgroundColor: PAPER }}>
+      <div className="absolute inset-1.5 border border-[#e4d7cb]/70 pointer-events-none" style={{ borderRadius: 2 }} />
+      <div className="relative z-10">
+        <Folio right={<>Halaman {pad(pageNo)} <span style={{ color: GOLD }}>•</span> Buku Kenangan Tamu</>} />
       </div>
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-[#C9A34E]/60 to-transparent my-2 shrink-0" />
-      <h2 className={`${cormorant.className} text-[22px] leading-tight text-[#231E1B] truncate shrink-0`}>{entry.name}</h2>
-      <div className="flex flex-wrap items-center gap-1.5 mt-1.5 shrink-0">
-        {entry.table_number && (
-          <span className="px-2 py-0.5 rounded-full bg-[#F4EFE6] border border-[#E2D9CF] text-[9px] uppercase tracking-wider text-[#39332D]">
-            {entry.table_number}
-          </span>
-        )}
-        {entry.category && (
-          <span className="px-2 py-0.5 rounded-full bg-[#F4EFE6] border border-[#E2D9CF] text-[9px] uppercase tracking-wider text-[#39332D]">
-            {entry.category}
-          </span>
-        )}
-        {entry.is_vip && (
-          <span className="px-2 py-0.5 rounded-full bg-[#C9A34E]/15 border border-[#C9A34E] text-[9px] uppercase tracking-wider text-[#7A5A2E] font-bold">
-            ★ VIP
-          </span>
-        )}
-        {entry.added_manually && (
-          <span className="px-2 py-0.5 rounded-full bg-amber-100 border border-amber-300 text-[9px] uppercase tracking-wider text-amber-700">
-            Manual
-          </span>
-        )}
-      </div>
-      {active && (
-        <div className="mt-2 mx-auto w-full max-w-[200px] shrink-0">
-          <div className="bg-white p-1.5 pb-2 shadow-lg rotate-[-1deg]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={active} alt={`Foto ${entry.name}`} className="w-full aspect-square object-cover" loading="lazy" />
+      <div className="relative z-10 mt-2 bg-[#f4ece3] border border-[#ede3d8] rounded-[2px] px-2.5 py-2 flex items-center justify-between gap-2 text-left" style={{ borderRadius: 2 }}>
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: MAROON }}>
+            <span className={`${playfair.className} font-semibold text-[12px] text-[#ffdad9]`}>{(entry.name.trim()[0] || "T").toUpperCase()}</span>
           </div>
-          {entry.photos.length > 1 && (
-            <div className="flex justify-center gap-1.5 mt-1.5">
-              {entry.photos.map((u, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setSel(i)}
-                  aria-label={`Lihat foto ${i + 1}`}
-                  className={`w-9 h-9 rounded overflow-hidden border-2 transition-all ${i === Math.min(sel, entry.photos.length - 1) ? "border-[#C9A34E] shadow" : "border-transparent opacity-60 hover:opacity-100"}`}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={u} alt="" className="w-full h-full object-cover" loading="lazy" />
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="min-w-0 flex-1">
+            <p className={`${inter.className} text-[7px] uppercase font-semibold`} style={{ color: GRAY, letterSpacing: "0.18em" }}>Koleksi Kenangan Oleh</p>
+            <p className={`${playfair.className} font-semibold leading-tight truncate`} style={{ fontSize: 14, color: INK }}>{entry.name}</p>
+            {entry.wish ? (
+              <p className={`${cormorant.className} italic leading-snug truncate`} style={{ fontSize: 12, color: "#665452" }}>&ldquo;{entry.wish}&rdquo;</p>
+            ) : null}
+          </div>
+        </div>
+        <div className="text-right shrink-0 border-l pl-2 ml-1" style={{ borderColor: "#e4d7cb" }}>
+          <span className="block text-[8px] font-bold uppercase" style={{ color: GOLD }}>{displayCategory(entry.category) || "Tamu"}</span>
+          {entry.table_number && <span className="block text-[8px] mt-0.5" style={{ color: GRAY }}>{entry.table_number}</span>}
+        </div>
+      </div>
+      {(entry.is_vip || entry.added_manually) && (
+        <div className="relative z-10 flex gap-1 mt-1">
+          {entry.is_vip && <span className="px-1.5 py-px rounded-full text-[7px] uppercase tracking-wider font-bold" style={{ backgroundColor: "rgba(201,163,78,0.15)", border: "1px solid #C9A34E", color: "#7A5A2E" }}>★ VIP</span>}
+          {entry.added_manually && <span className="px-1.5 py-px rounded-full text-[7px] uppercase tracking-wider" style={{ backgroundColor: "#fef3c7", border: "1px solid #fcd34d", color: "#92400e" }}>Manual</span>}
         </div>
       )}
-      <div className="flex-1 min-h-0 overflow-y-auto mt-2">
-        {entry.wish ? (
-          <p className={`${cormorant.className} italic text-[17px] leading-snug text-[#39332D]`}>&ldquo;{entry.wish}&rdquo;</p>
-        ) : (
-          <p className={`${cormorant.className} italic text-sm text-[#8B6F2A]/70`}>Hadir dengan sukacita.</p>
-        )}
-      </div>
-      <div className="pt-1 text-right shrink-0">
-        <span className="italic text-[11px] text-[#8B6F2A]">p. {index + 1}</span>
+      {entry.photos.length > 0 && (
+        <div className="relative z-10 mt-1.5 grid gap-1.5" style={{ gridTemplateColumns: `repeat(${Math.min(Math.max(entry.photos.length, 1), 4)}, minmax(0,1fr))` }}>
+          {entry.photos.map((p, i) => (
+            <div key={i} className="bg-white p-1 border border-[#e4d7cb]" style={{ borderRadius: 2 }}>
+              <div className="relative w-full overflow-hidden bg-[#f2efe9] border border-[#ede3d8]" style={{ aspectRatio: "4 / 3", borderRadius: 1 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={p.url} alt={`Kenangan ${entry.name}`} className="w-full h-full object-contain" loading="lazy" />
+                {p.source === "selfie" && (
+                  <span className="absolute top-1 left-1 px-1.5 py-px rounded-full text-[7px] uppercase tracking-wider font-bold text-white" style={{ backgroundColor: MAROON }}>Check-in</span>
+                )}
+              </div>
+              {p.caption?.trim() && (
+                <p className={`${playfair.className} font-medium text-center mt-1`} style={{ fontSize: 11, lineHeight: 1.4, color: INK, maxHeight: 32, overflow: "hidden" }}>{p.caption.trim()}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      {entry.photos.length === 0 && entry.wish && (
+        <div className="relative z-10 flex-1 min-h-0 overflow-y-auto mt-2">
+          <p className={`${cormorant.className} italic leading-snug`} style={{ fontSize: 16, color: INK }}>&ldquo;{entry.wish}&rdquo;</p>
+        </div>
+      )}
+      <div className="relative z-10 mt-auto pt-1">
+        <BottomBar couple={coupleName} right={`Halaman ${pad(pageNo)} dari ${pad(pageTotal)}`} />
       </div>
     </div>
   )
-}
-
-function formatTime(iso: string | null): string {
-  if (!iso) return ""
-  const d = new Date(iso)
-  if (isNaN(d.getTime())) return ""
-  return d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta" }) + " WIB"
 }

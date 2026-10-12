@@ -25,17 +25,9 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
   const [eventDate, setEventDate] = useState("")
   const [qrDataUrl, setQrDataUrl] = useState("")
   const [error, setError] = useState("")
-  const [wishMessage, setWishMessage] = useState("")
-  const [wishSent, setWishSent] = useState(false)
-  const [wishLoading, setWishLoading] = useState(false)
-  const [submittedWish, setSubmittedWish] = useState("")
-  const [weddingProfileId, setWeddingProfileId] = useState("")
-  const [guestId, setGuestId] = useState("")
   const [guestQrToken, setGuestQrToken] = useState("")
-  const [photoUploading, setPhotoUploading] = useState(false)
   const [photoUrls, setPhotoUrls] = useState<string[]>([])
   const [photoQuota, setPhotoQuota] = useState(0)
-  const [gates, setGates] = useState<{ wish_wall: boolean; galeri_foto_tamu: boolean }>({ wish_wall: true, galeri_foto_tamu: true })
   const [coverPhoto, setCoverPhoto] = useState("")
   const [loading, setLoading] = useState(true)
   const router = useRouter()
@@ -58,14 +50,11 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
         const guestToken = data.guest.qr_token || ref
         setGuestName(data.guest.name)
         setIsVip(data.guest.is_vip === true)
-        setGuestId(data.guest.id)
         setGuestQrToken(guestToken)
         setCoupleName(data.profile.display_name || `${data.profile.bride_name} & ${data.profile.groom_name}`)
         setTableNumber(data.guest.table_number || null)
         setCategory(data.guest.category || null)
         setEventDate(formatDate(data.profile.estimated_wedding_date || ""))
-        setWeddingProfileId(data.guest.wedding_profile_id)
-        if (data.gates) setGates(data.gates)
         if (typeof data.photoQuota === "number") setPhotoQuota(data.photoQuota)
         const covers = Array.isArray(data.profile.cover_photos) ? data.profile.cover_photos : []
         const firstCover = covers.find((c: unknown) => typeof c === "string" && (c as string).trim()) as string | undefined
@@ -80,12 +69,6 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
         }
 
         if (data.guest.id) {
-          const wishCheck = await fetch(`/api/wishes?wedding_profile_id=${data.guest.wedding_profile_id}&guest_id=${data.guest.id}&source=welcome`)
-          const wishData = await wishCheck.json()
-          if (wishData.wishes && wishData.wishes.length > 0) {
-            setWishSent(true)
-            setSubmittedWish(wishData.wishes[0].message)
-          }
           const photoCheck = await fetch(`/api/guest-photos?guest_id=${data.guest.id}`)
           const photoData = await photoCheck.json()
           const photos = Array.isArray(photoData.photos) ? photoData.photos.map((p: { image_url: string }) => p.image_url).filter(Boolean) : []
@@ -106,31 +89,6 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
       }
     })()
   }, [ref])
-
-  const handleSendWish = async () => {
-    if (!wishMessage.trim() || !weddingProfileId) return
-    setWishLoading(true)
-    try {
-      const res = await fetch("/api/wishes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          wedding_profile_id: weddingProfileId,
-          guest_id: guestId || null,
-          name: guestName,
-          message: wishMessage.trim(),
-          source: "welcome",
-        }),
-      })
-      if (res.ok) {
-        setSubmittedWish(wishMessage.trim())
-        setWishSent(true)
-        setWishMessage("")
-      }
-    } finally {
-      setWishLoading(false)
-    }
-  }
 
   useEffect(() => {
     const ticketNode = document.querySelector('.stagger-2')
@@ -192,33 +150,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
           </div>
         </section>
 
-        <section className="fade-in-up stagger-2 w-full bg-surface-container-low border border-outline-variant/40 rounded-xl p-6 shadow-sm"><div className="text-center mb-4"><h3 className="font-headline-md text-xl font-medium text-primary">Ambil Momen Anda</h3><p className="text-xs text-on-surface-variant mt-1">Abadikan kebahagiaan hari ini secara langsung</p></div><div className="flex flex-col gap-4"><button onClick={() => window.open(`/welcome/${guestQrToken || ref}/camera`, '_blank')} className="w-full bg-[#B34E3F] text-white py-4 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] transition-all hover:bg-[#9E3B2D] active:scale-[0.99] shadow-sm flex items-center justify-center gap-2"><span className="material-symbols-outlined text-sm">photo_camera</span>Buka Kamera</button>{photoUrls.length > 0 && (<button onClick={() => router.push(`/welcome/${guestQrToken || ref}/gallery`)} className="w-full bg-surface-container-high text-primary py-3 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] border border-outline-variant/30 flex items-center justify-center gap-2 hover:bg-surface-container-highest transition-colors"><span className="material-symbols-outlined text-sm">photo_library</span>Lihat {photoUrls.length} Foto ({photoQuota ? `${photoQuota - photoUrls.length} sisa` : ""})</button>)}</div></section>
-        <section className="fade-in-up stagger-3 w-full mt-8 bg-surface-container-low border border-outline-variant/40 rounded-xl p-6 shadow-sm">
-          <div className="text-center mb-4">
-            <h3 className="font-headline-md text-xl font-medium text-primary">Tulis Doa &amp; Harapan</h3>
-            <p className="text-xs text-on-surface-variant mt-1">Berikan ucapan restu terbaik Anda untuk kedua mempelai</p>
-          </div>
-          {wishSent ? (
-            <div className="text-center py-8">
-              <span className="material-symbols-outlined text-4xl text-secondary mb-2" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
-              <p className="font-headline-md text-lg text-primary font-medium">Terima Kasih!</p>
-              {submittedWish && (
-                <div className="mt-4 p-4 bg-surface-container-lowest rounded-lg border border-outline-variant/30 text-left">
-                  <p className="text-sm text-on-surface leading-relaxed italic">&ldquo;{submittedWish}&rdquo;</p>
-                </div>
-              )}
-              <p className="text-xs text-on-surface-variant mt-4">Doa dan harapan Anda telah tersampaikan.</p>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4">
-              <textarea value={wishMessage} onChange={(e) => setWishMessage(e.target.value)} placeholder="Tuliskan pesan hangat dan doa Anda di sini..." className="w-full min-h-[110px] p-4 bg-surface-container-lowest border border-outline-variant/50 rounded-lg font-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-all resize-none text-sm shadow-inner" />
-              <button onClick={handleSendWish} disabled={wishLoading || !wishMessage.trim()} className="w-full bg-[#B34E3F] text-white py-4 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] transition-all hover:bg-[#9E3B2D] active:scale-[0.99] shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:bg-[#B34E3F]/50">
-                <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>send</span>
-                {wishLoading ? "Mengirim..." : "Kirim Doa Restu"}
-              </button>
-            </div>
-          )}
-        </section>
+        <section className="fade-in-up stagger-2 w-full bg-surface-container-low border border-outline-variant/40 rounded-xl p-6 shadow-sm"><div className="text-center mb-4"><h3 className="font-headline-md text-xl font-medium text-primary">Ambil Momen Anda</h3><p className="text-xs text-on-surface-variant mt-1">Abadikan kebahagiaan hari ini secara langsung</p></div><div className="flex flex-col gap-4"><button onClick={() => router.push(`/welcome/${guestQrToken || ref}/kamera`)} className="w-full bg-[#B34E3F] text-white py-4 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] transition-all hover:bg-[#9E3B2D] active:scale-[0.99] shadow-sm flex items-center justify-center gap-2"><span className="material-symbols-outlined text-sm">photo_camera</span>Buka Kamera</button><button onClick={() => router.push(`/welcome/${guestQrToken || ref}/galeri`)} className="w-full bg-surface-container-high text-primary py-3 px-6 rounded-lg font-label-md text-xs uppercase tracking-[0.2em] border border-outline-variant/30 flex items-center justify-center gap-2 hover:bg-surface-container-highest transition-colors"><span className="material-symbols-outlined text-sm">photo_library</span>{photoUrls.length > 0 ? (<>Lihat {photoUrls.length} Foto ({photoQuota ? `${photoQuota - photoUrls.length} sisa` : ""})</>) : "Lihat Galeri"}</button></div></section>
 
         <div className="fade-in-up stagger-4 w-full flex flex-col shadow-md rounded-xl overflow-hidden border border-outline-variant/40 bg-surface-container-lowest mt-8">
           <div className="bg-primary text-on-primary p-6 flex flex-col items-center text-center relative">

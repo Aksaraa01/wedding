@@ -23,6 +23,8 @@ function RegisterInner() {
     tab: searchParams.get("tab") || "",
     wa_tier: searchParams.get("wa_tier") || "",
     express: searchParams.get("express") || "",
+    galeri_photos: searchParams.get("galeri_photos") || "",
+    galeri_guests: searchParams.get("galeri_guests") || "",
   })
 
   const [step, setStep] = useState<Step>(initialStep)
@@ -80,6 +82,8 @@ function RegisterInner() {
     if (pt.tab) params.set("tab", pt.tab)
     if (pt.wa_tier) params.set("wa_tier", pt.wa_tier)
     if (pt.express) params.set("express", pt.express)
+    if (pt.galeri_photos) params.set("galeri_photos", pt.galeri_photos)
+    if (pt.galeri_guests) params.set("galeri_guests", pt.galeri_guests)
     router.push(`/customize?${params}`)
   }
 
@@ -219,6 +223,8 @@ function RegisterInner() {
                   if (pt.tab) p.set("tab", pt.tab)
                   if (pt.wa_tier) p.set("wa_tier", pt.wa_tier)
                   if (pt.express) p.set("express", pt.express)
+                  if (pt.galeri_photos) p.set("galeri_photos", pt.galeri_photos)
+                  if (pt.galeri_guests) p.set("galeri_guests", pt.galeri_guests)
                   router.push(`/customize?${p}`)
                 } else {
                   router.push("/hero")

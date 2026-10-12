@@ -26,9 +26,13 @@ export function toTransformedUrl(
     return `${clean.replace("/object/public/", "/render/image/public/")}?width=${width}&quality=${quality}&resize=${resize}`
   }
   // Bucket path without origin — needs NEXT_PUBLIC_SUPABASE_URL at runtime.
+  // Leading slashes are stripped so "/a/b.jpg" never becomes media//a/b.jpg.
+  // NOTE: local public assets ("/defaults/…", "/images/…") do NOT live in the
+  // bucket — pass those straight to <img>, never through here.
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
   if (!base) return urlOrPath
-  return `${base}/storage/v1/render/image/public/media/${urlOrPath}?width=${width}&quality=${quality}&resize=${resize}`
+  const path = urlOrPath.replace(/^\/+/, "")
+  return `${base}/storage/v1/render/image/public/media/${path}?width=${width}&quality=${quality}&resize=${resize}`
 }
 
 // OG/social preview: crawlers fetch this per share, so serve a 1200w

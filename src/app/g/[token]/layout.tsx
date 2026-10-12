@@ -1,0 +1,7 @@
+export default function GalleryGuestLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen flex flex-col items-center" style={{ backgroundColor: "#fbf9f4" }}>
+      <div className="w-full max-w-lg flex-1 flex flex-col relative">{children}</div>
+    </div>
+  )
+}

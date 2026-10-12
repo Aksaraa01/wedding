@@ -917,6 +917,7 @@ export default function OpsTemplatesPage() {
                         const groups = {
                           "Undangan Digital": PACKAGE_CODES.filter((c) => PACKAGE_CATEGORY[c] === "undangan"),
                           "Buku Tamu Digital": PACKAGE_CODES.filter((c) => PACKAGE_CATEGORY[c] === "dgbook"),
+                          "Galeri Tamu": PACKAGE_CODES.filter((c) => PACKAGE_CATEGORY[c] === "galeri"),
                         }
                         return Object.entries(groups).map(([category, codes]) => (
                           <div key={category} className="w-full">

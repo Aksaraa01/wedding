@@ -25,10 +25,15 @@ export async function GET(
     const packageType = profile.package_type || "signature"
     const packageGates = await getRowGates(packageType)
     const featureSet = Array.from(await getFeatureIncluded(packageType))
+    // GT add-on (standalone bands carry it in package_features already).
+    if (profile.galeri_addon === true && !featureSet.includes("galeri_foto_tamu")) {
+      featureSet.push("galeri_foto_tamu")
+    }
 
     const selections = await getSelections(
       profile.package_type || "signature",
-      !!profile.undangan_fisik
+      !!profile.undangan_fisik,
+      !!profile.galeri_addon
     )
 
     let guestCount = 0, tableCount = 0, checkedInCount = 0, checkedInPax = 0, rsvpHadirCount = 0, rsvpHadirPax = 0, rsvpTotalPax = 0, pendingWishes = 0, totalWishes = 0

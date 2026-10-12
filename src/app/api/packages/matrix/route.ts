@@ -11,7 +11,9 @@ const EMPHASIS_CLASS: Record<string, string> = {
 }
 
 // Display order matches the pricing CSV / PDF (BONUS first, then Undangan
-// Digital packages, then Buku Tamu Digital package).
+// Digital packages, then Buku Tamu Digital package). Galeri Tamu is a single
+// slider-priced package (no matrix columns): gallery lives on as the
+// Undangan add-on (slider tiers) and bundled in Buku Tamu Digital.
 const COLUMNS = [
   { code: "cetak_undangan_bonus", label: "BONUS" },
   { code: "bonus_full_custom", label: "BONUS FULL CUSTOM" },

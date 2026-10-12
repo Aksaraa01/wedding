@@ -38,7 +38,12 @@ export async function GET(
           express_service,
           wa_blast_tier,
           undangan_fisik,
-          message_category
+          message_category,
+          galeri_addon,
+          galeri_photos_per_guest,
+          galeri_guest_count,
+          galeri_tier,
+          galeri_price
         ),
         employees!left (
           id,
@@ -223,6 +228,11 @@ export async function GET(
         express_service: wp.express_service,
         wa_blast_tier: wp.wa_blast_tier || 0,
         undangan_fisik: wp.undangan_fisik === true,
+        galeri_addon: wp.galeri_addon === true,
+        galeri_photos_per_guest: wp.galeri_photos_per_guest ?? null,
+        galeri_guest_count: wp.galeri_guest_count ?? null,
+        galeri_tier: wp.galeri_tier || null,
+        galeri_price: wp.galeri_price || 0,
       },
       feature_actions: featureActions || [],
       feature_set: featureSet,

@@ -43,6 +43,7 @@ const ACTION_LABELS: Record<string, string> = {
 const PACKAGE_GROUPS: { label: string; codes: string[] }[] = [
   { label: "Undangan Digital", codes: ["essential", "signature", "prestige", "elite"] },
   { label: "Buku Tamu Digital", codes: ["dgb_sistem", "dgb_pro", "dgb_premium", "dgb_prestige"] },
+  { label: "Galeri Tamu", codes: ["gt"] },
   { label: "Bonus", codes: ["cetak_undangan_bonus", "bonus_full_custom"] },
 ]
 

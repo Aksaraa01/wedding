@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { calcTotalWithVoucher, calcTotal, normalizePhone, PACKAGE_CODES } from "@/lib/packages"
+import { calcTotalWithVoucherBook, normalizePhone, PACKAGE_CODES, PACKAGE_FEATURES } from "@/lib/packages"
+import { getPriceBook } from "@/lib/priceBook"
+import { normalizeGaleriConfig } from "@/lib/gallery"
 import { slugifyCouple } from "@/lib/slug"
 import { notifyNewAccountGroup } from "@/lib/notifyGroup"
 import { getSelections } from "@/lib/featureGates"
@@ -44,6 +46,30 @@ export async function POST(req: Request) {
     if (package_type && !PACKAGE_CODES.includes(package_type)) {
       return NextResponse.json({ error: "Paket tidak valid" }, { status: 400 })
     }
+
+    // Galeri Tamu slider config (standalone tab or Undangan add-on).
+    // Tier + price recomputed server-side; standalone band follows photos.
+    let galeri: Awaited<ReturnType<typeof normalizeGaleriConfig>> = null
+    try {
+      galeri = await normalizeGaleriConfig(body?.galeri)
+    } catch (err: unknown) {
+      return NextResponse.json({ error: err instanceof Error ? err.message : "Konfigurasi galeri tidak valid" }, { status: 400 })
+    }
+    let effectivePackage = package_type || "signature"
+    // Standalone GT tab posts photos only (no package code).
+    if (galeri && !package_type) effectivePackage = "gt"
+    if (effectivePackage === "gt" && !galeri) {
+      return NextResponse.json({ error: "Paket Galeri Tamu membutuhkan konfigurasi foto & tamu" }, { status: 400 })
+    }
+    // Buku Tamu Digital bundles its gallery via the matrix — the slider
+    // add-on is Undangan-only. WA tiers only where the base includes them.
+    if (galeri && effectivePackage.startsWith("dgb_")) {
+      return NextResponse.json({ error: "Buku Tamu Digital sudah termasuk galeri — add-on Galeri Tamu hanya untuk Undangan Digital" }, { status: 400 })
+    }
+    if ((wa_blast_tier || 0) > 0 && !(PACKAGE_FEATURES[effectivePackage] || []).includes("wa_blast")) {
+      return NextResponse.json({ error: "Paket yang dipilih tidak mendukung WA Blast" }, { status: 400 })
+    }
+    const galeriPrice = galeri?.price || 0
 
     // Canonical slug built from FULL names (all input words, not just the first).
     const slug = slugifyCouple(bride_name, groom_name)
@@ -102,7 +128,11 @@ export async function POST(req: Request) {
       userId = user.id
     }
 
-    const total = calcTotal(package_type || "signature", wa_blast_tier || 0, !!express_service)
+    const book = await getPriceBook()
+    if (book.base[effectivePackage] === undefined) {
+      return NextResponse.json({ error: "Harga paket belum dikonfigurasi" }, { status: 500 })
+    }
+    const total = calcTotalWithVoucherBook(book, effectivePackage, wa_blast_tier || 0, !!express_service, 0, galeriPrice)
 
     const voucherCode =
       typeof body?.voucher_code === "string" && body.voucher_code.trim()
@@ -119,12 +149,22 @@ export async function POST(req: Request) {
         estimated_guest_count,
         slug,
         whatsapp_number: normalizedPhone,
-        package_type: package_type || "signature",
+        package_type: effectivePackage,
         wa_blast_tier: wa_blast_tier || 0,
         express_service: !!express_service,
         undangan_fisik: !!undangan_fisik,
         total_project_cost: total,
         payment_status: "UNPAID",
+        // Galeri config (standalone tab or Undangan add-on). Couple name is
+        // prefilled for the galeri-kenangan setup card (editable there).
+        galeri_addon: !!galeri,
+        galeri_photos_per_guest: galeri?.photos_per_guest || null,
+        galeri_guest_count: galeri?.guest_count || null,
+        galeri_tier: galeri?.tier || null,
+        galeri_price: galeriPrice,
+        ...(galeri
+          ? { gallery_couple_name: `${bride_name.trim()} & ${groom_name.trim()}` }
+          : {}),
       })
       .select("id")
       .single()
@@ -144,7 +184,7 @@ export async function POST(req: Request) {
       const { data: redeemed, error: redeemError } = await supabaseAdmin.rpc("redeem_voucher", {
         p_code: voucherCode,
         p_profile_id: profile.id,
-        p_package: package_type || "signature",
+        p_package: effectivePackage,
       })
       if (redeemError) {
         await supabaseAdmin.from("wedding_profiles").delete().eq("id", profile.id)
@@ -155,14 +195,14 @@ export async function POST(req: Request) {
         )
       }
       voucherDiscount = Math.max(0, Math.floor(Number(redeemed) || 0))
-      const discounted = calcTotalWithVoucher(package_type || "signature", wa_blast_tier || 0, !!express_service, voucherDiscount)
+      const discounted = calcTotalWithVoucherBook(book, effectivePackage, wa_blast_tier || 0, !!express_service, voucherDiscount, galeriPrice)
       await supabaseAdmin
         .from("wedding_profiles")
         .update({ voucher_code: voucherCode, voucher_discount: voucherDiscount, total_project_cost: discounted })
         .eq("id", profile.id)
     }
 
-    const selections = await getSelections(package_type || "signature", !!undangan_fisik)
+    const selections = await getSelections(effectivePackage, !!undangan_fisik, !!galeri)
     const enabledFeatures = Object.entries(selections)
       .filter(([, v]) => v)
       .map(([key]) => key)
@@ -201,7 +241,7 @@ export async function POST(req: Request) {
     // Awaited (not fire-and-forget) so the WA send completes inside the
     // request lifecycle; a notify failure never fails the registration.
     // Reports the discounted total when a voucher was applied.
-    const finalTotal = calcTotalWithVoucher(package_type || "signature", wa_blast_tier || 0, !!express_service, voucherDiscount)
+    const finalTotal = calcTotalWithVoucherBook(book, effectivePackage, wa_blast_tier || 0, !!express_service, voucherDiscount, galeriPrice)
     try {
       await notifyNewAccountGroup({
         wedding_profile_id: profile.id,
@@ -209,7 +249,7 @@ export async function POST(req: Request) {
         bride_name,
         groom_name,
         whatsapp_number: normalizedPhone,
-        package_type: package_type || "signature",
+        package_type: effectivePackage,
         wa_blast_tier: wa_blast_tier || 0,
         total: finalTotal,
         voucher_code: voucherCode,

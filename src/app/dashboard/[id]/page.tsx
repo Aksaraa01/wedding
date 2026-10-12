@@ -31,6 +31,11 @@ type Profile = {
   payment_status: "UNPAID" | "PARTIAL_DP" | "FULLY_PAID"
   total_project_cost: number
   express_service?: boolean | null
+  wa_blast_tier?: number | null
+  galeri_addon?: boolean | null
+  galeri_tier?: string | null
+  galeri_photos_per_guest?: number | null
+  galeri_guest_count?: number | null
   akad_date?: string | null
   resepsi_date?: string | null
   sessions?: { date: string }[] | null
@@ -162,6 +167,13 @@ function DashboardInner({ id }: { id: string }) {
       .then(([dashboardRes, invData, qrData, photoData, accData, addrData, rsvpData, waBlastData]) => {
         if (!dashboardRes.ok) throw new Error("Dashboard tidak ditemukan")
         return dashboardRes.json().then((data) => {
+          // Galeri Tamu is a single-page product: GT couples never see the
+          // dashboard, they live entirely on the galeri-kenangan page.
+          const pkg = (data.profile?.package_type || "") as string
+          if (pkg === "gt") {
+            router.replace(`/dashboard/${id}/galeri-kenangan`)
+            return
+          }
           setProfile(data.profile)
           setSelections(data.selections)
           setGuestCount(data.guest_count ?? data.profile.estimated_guest_count ?? 0)
@@ -267,6 +279,10 @@ function DashboardInner({ id }: { id: string }) {
   })
 
   const activeCards = CARDS.filter((card) => selections[card.key])
+  // Galeri Tamu shortcut: Undangan Digital + Galeri add-on, or Buku Tamu
+  // Digital tiers (both carry galeri_foto_tamu). Standalone GT never reaches
+  // the dashboard (redirected to galeri-kenangan on load).
+  const galeriEligible = selections?.galeri_foto_tamu === true
 
   const moduleVals = {
     templateName,
@@ -355,6 +371,18 @@ function DashboardInner({ id }: { id: string }) {
                     <span className="text-stone-400">•</span>
                     <span className="text-stone-700 font-medium tracking-tight">{getPackageCategory(profile.package_type || "") || "UNDANGAN DIGITAL"}</span>
                   </div>
+                  {(profile.wa_blast_tier || 0) > 0 && (
+                    <span title={`Reminder WA VIP +${profile.wa_blast_tier} tamu`} className="inline-flex items-center gap-1 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-white/85 border border-blue-200 shadow-sm backdrop-blur-sm text-[10px] md:text-[11px] whitespace-nowrap shrink-0 text-blue-800 font-bold">WA +{profile.wa_blast_tier}
+                    </span>
+                  )}
+                  {profile.express_service && (
+                    <span title="Layanan Kilat 24 jam" className="inline-flex items-center gap-1 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-white/85 border border-amber-200 shadow-sm backdrop-blur-sm text-[10px] md:text-[11px] whitespace-nowrap shrink-0 text-amber-800 font-bold">Kilat
+                    </span>
+                  )}
+                  {profile.galeri_addon && (
+                    <span title={(profile.galeri_photos_per_guest || 0) > 0 && (profile.galeri_guest_count || 0) > 0 ? `Galeri Tamu: ${profile.galeri_photos_per_guest} foto/tamu × ${profile.galeri_guest_count} tamu` : "Galeri Tamu"} className="inline-flex items-center gap-1 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-white/85 border border-purple-200 shadow-sm backdrop-blur-sm text-[10px] md:text-[11px] whitespace-nowrap shrink-0 text-purple-800 font-bold">{profile.galeri_tier || "Galeri"}
+                    </span>
+                  )}
                   <span className="px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-[#fde8e5] text-[#b93b2a] font-bold text-[10px] md:text-[11px] tracking-wide inline-flex items-center gap-1 md:gap-2 shadow-sm border border-[#fbd0cb] whitespace-nowrap shrink-0"><span>{statusLabel}</span>{statusLabel === "UNPAID" && <span className="text-[10px]">⚠️</span>}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
@@ -381,10 +409,18 @@ function DashboardInner({ id }: { id: string }) {
                   <span className="material-symbols-outlined text-[16px] shrink-0">mail</span>
                   <span className="whitespace-nowrap">Lihat Undangan</span>
                 </button>
-                <button onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)} data-tour="undangan-tamu" className="flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden text-ellipsis shrink">
+                <button onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)} data-tour="undangan-tamu" title={galeriEligible ? "Undangan Tamu" : undefined} className={galeriEligible
+                  ? "flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink"
+                  : "flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden text-ellipsis shrink"}>
                   <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">qr_code_2</span>
-                  <span className="whitespace-nowrap">Undangan Tamu</span>
+                  <span className={galeriEligible ? "whitespace-nowrap hidden md:inline" : "whitespace-nowrap"}>Undangan Tamu</span>
                 </button>
+                {galeriEligible && (
+                  <button onClick={() => router.push(`/dashboard/${id}/galeri-kenangan`)} data-tour="galeri-tamu" title="Galeri Tamu" className="flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink">
+                    <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">photo_library</span>
+                    <span className="whitespace-nowrap hidden md:inline">Galeri Tamu</span>
+                  </button>
+                )}
               </div>
               <div className="absolute right-8 top-1/2 -translate-y-1/2 z-20 pointer-events-none hidden md:flex">
                 <div className="w-44 h-44 rounded-full p-[6px] flex items-center justify-center relative shadow-xl" style={{ background: "linear-gradient(135deg, #d8b471 0%, #fae8be 35%, #c89c4e 60%, #e8c988 85%, #9d7532 100%)", boxShadow: "0 10px 25px -4px rgba(70,30,10,0.35), 0 4px 8px -2px rgba(0,0,0,0.1)" }}>
@@ -478,17 +514,6 @@ function DashboardInner({ id }: { id: string }) {
           <div className="px-6 flex justify-between items-center mb-6">
             <h2 className="font-['Playfair_Display'] text-2xl">Modul Perencanaan</h2>
           </div>
-          {profile.express_service && (
-            <div className="mx-6 mb-6 bg-amber-50 border border-amber-300 rounded-xl p-4 flex items-start gap-3">
-              <span className="material-symbols-outlined text-amber-600 flex-shrink-0">bolt</span>
-              <div>
-                <p className="font-body-md text-body-md text-amber-800 font-semibold">Layanan Kilat 24 Jam Aktif</p>
-                <p className="font-body-sm text-body-sm text-amber-700 mt-1 hidden md:block">
-                  Proses pengerjaan undangan Anda dipercepat dengan layanan kilat 24 jam.
-                </p>
-              </div>
-            </div>
-          )}
           <div className="px-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             {activeCards.length === 0 ? (
               <div className="text-center py-20 bg-white border border-outline-variant rounded-2xl">

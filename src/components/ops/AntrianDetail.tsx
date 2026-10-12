@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import type { ReactNode } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -23,7 +23,7 @@ import {
   coverPhotos,
   getPackageCategory,
 } from "@/lib/opsConstants"
-import { PACKAGE_FEATURES } from "@/lib/packages"
+import { PACKAGE_FEATURES, calcTotalBook, matchGaleriTier, type GaleriTierRow, type PriceBook } from "@/lib/packages"
 import { useVisiblePoll } from "@/lib/useVisiblePoll"
 import {
   OPS_COLUMNS,
@@ -63,6 +63,12 @@ type QueueItem = {
     voucher_discount?: number | null
     payment_status: string
     express_service?: boolean | null
+    wa_blast_tier?: number | null
+    galeri_addon?: boolean | null
+    galeri_photos_per_guest?: number | null
+    galeri_guest_count?: number | null
+    galeri_tier?: string | null
+    galeri_price?: number | null
     message_category?: string | null
   }
 }
@@ -589,6 +595,18 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [publishBusy, setPublishBusy] = useState(false)
   const [publishConfirmError, setPublishConfirmError] = useState<string | null>(null)
   const [publishBlockers, setPublishBlockers] = useState<{ key: string; label: string }[]>([])
+  // Add-on editor (main package stays in the header dropdown; this panel
+  // manages WA tier + Express + Galeri config with a live DB-priced estimate).
+  const [addonOpen, setAddonOpen] = useState(false)
+  const [editWaTier, setEditWaTier] = useState(0)
+  const [editExpress, setEditExpress] = useState(false)
+  const [editGaleriOn, setEditGaleriOn] = useState(false)
+  const [editGaleriPhotos, setEditGaleriPhotos] = useState(5)
+  const [editGaleriGuests, setEditGaleriGuests] = useState(100)
+  const [priceBook, setPriceBook] = useState<PriceBook | null>(null)
+  const [tierRows, setTierRows] = useState<GaleriTierRow[] | null>(null)
+  const [savingAddons, setSavingAddons] = useState(false)
+  const [addonMsg, setAddonMsg] = useState<{ ok: boolean; text: string } | null>(null)
 
   const confirmPublish = async (force = false) => {
     setPublishBusy(true)
@@ -771,6 +789,17 @@ export default function AntrianDetail({ id }: { id: string }) {
       setShowRoleGate(true)
       return
     }
+    setPendingPkg(packageType)
+    // Selecting Galeri Tamu carries the slider config (stored add-on values
+    // or Tier-A defaults) so the estimate is real immediately — the panel's
+    // mandatory slider then refines it. Band follows the photo count.
+    const body: Record<string, unknown> = { package_type: packageType }
+    if (packageType === "gt" && currentWp) {
+      const photos = currentWp.galeri_addon && currentWp.galeri_photos_per_guest ? currentWp.galeri_photos_per_guest : 5
+      const guests = currentWp.galeri_addon && currentWp.galeri_guest_count ? currentWp.galeri_guest_count : 100
+      body.package_type = "gt"
+      body.galeri = { photos_per_guest: photos, guest_count: guests }
+    }
     const res = await fetch(`/api/ops/queue/${id}/package`, {
       method: "PUT",
       headers: {
@@ -778,13 +807,179 @@ export default function AntrianDetail({ id }: { id: string }) {
         "x-ops-phone": employee?.phone_number || "",
         "x-ops-role": employee?.role || "",
       },
-      body: JSON.stringify({ package_type: packageType }),
+      body: JSON.stringify(body),
     })
     const data = await res.json()
     if (data.success) {
       fetchAll()
     } else {
       alert(data.error || "Gagal mengubah paket")
+    }
+    setPendingPkg(null)
+  }
+
+  // Add-on editor: sync from the loaded profile whenever the panel opens,
+  // and lazy-load the DB price books once.
+  useEffect(() => {
+    if (!priceBook) {
+      fetch("/api/packages/prices")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => { if (d && d.base) setPriceBook(d as PriceBook) })
+        .catch(() => {})
+    }
+    if (!tierRows) {
+      fetch("/api/galeri-tiers")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          const t = d?.tiers
+          if (t && typeof t === "object") {
+            const rows: GaleriTierRow[] = Object.entries(t).map(([tier, v]) => {
+              const r = v as { price?: unknown; photoMin?: unknown; photoMax?: unknown; guestMin?: unknown; guestMax?: unknown }
+              return {
+                tier,
+                photoMin: Math.floor(Number(r.photoMin)),
+                photoMax: Math.floor(Number(r.photoMax)),
+                guestMin: Math.floor(Number(r.guestMin)),
+                guestMax: Math.floor(Number(r.guestMax)),
+                price: Math.floor(Number(r.price) || 0),
+              }
+            })
+            if (rows.length > 0) setTierRows(rows)
+          }
+        })
+        .catch(() => {})
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    if (!addonOpen || !currentWp) return
+    setEditWaTier(currentWp.wa_blast_tier || 0)
+    setEditExpress(!!currentWp.express_service)
+    // Legacy GT mains have no add-on toggle: the slider IS the product, so
+    // the editor is always on for them (photo/guest input mandatory).
+    setEditGaleriOn(!!currentWp.galeri_addon || getPackageCategory(currentWp.package_type) === "Galeri Tamu")
+    setEditGaleriPhotos(currentWp.galeri_photos_per_guest || 5)
+    setEditGaleriGuests(currentWp.galeri_guest_count || 100)
+    setAddonMsg(null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addonOpen])
+
+  // Tier resolves by matching the sliders against the DB bounds (names,
+  // bounds, prices all live in galeri_tiers). Slider input limits derive
+  // from the same matrix union — no hardcoded bands anywhere.
+  const galeriBounds = useMemo(() => {
+    if (!tierRows || tierRows.length === 0) return null
+    return {
+      photoMin: Math.max(1, Math.min(...tierRows.map((r) => r.photoMin))),
+      photoMax: Math.max(1, Math.max(...tierRows.map((r) => r.photoMax))),
+      guestMin: Math.max(1, Math.min(...tierRows.map((r) => r.guestMin))),
+      guestMax: Math.max(1, Math.max(...tierRows.map((r) => r.guestMax))),
+    }
+  }, [tierRows])
+  const gPhotoMin = galeriBounds?.photoMin ?? 1
+  const gPhotoMax = galeriBounds?.photoMax ?? 10
+  const gGuestMin = galeriBounds?.guestMin ?? 10
+  const gGuestMax = galeriBounds?.guestMax ?? 200
+  const addonPhotos = Math.min(gPhotoMax, Math.max(gPhotoMin, Math.floor(editGaleriPhotos) || gPhotoMin))
+  const addonGuests = Math.min(gGuestMax, Math.max(gGuestMin, Math.floor(editGaleriGuests) || gGuestMin))
+  const addonMatch = tierRows ? matchGaleriTier(tierRows, addonPhotos, addonGuests) : null
+  const addonTierPrice = editGaleriOn && addonMatch ? addonMatch.price : 0
+  // Estimates must never render from a half-loaded price book: with the
+  // galeri toggle on but tiers unmatched (loading or uncovered combo),
+  // show skeletons.
+  const galeriPricesReady = !editGaleriOn || !!addonMatch
+  const addonEstimate =
+    priceBook && currentWp && galeriPricesReady
+      ? calcTotalBook(priceBook, currentWp.package_type, editWaTier, editExpress, addonTierPrice)
+      : null
+
+  // Add-on availability follows the MAIN package (reduces human error):
+  // - Galeri Tamu (standalone): photo/guest sliders here (mandatory — the
+  //   slider tier IS its price). No WA / Express on GT.
+  // - Buku Tamu Digital bundles gallery: no GT slider, WA + Express only
+  //   (WA only where the base package includes it).
+  // - Undangan Digital: WA (where included) + Express + Galeri slider.
+  const mainPkgCat = currentWp ? getPackageCategory(currentWp.package_type) : ""
+  const isGtMain = mainPkgCat === "Galeri Tamu"
+  const isDgbMain = mainPkgCat === "Buku Tamu Digital"
+  const waAllowed = !!currentWp && !!PACKAGE_FEATURES[currentWp.package_type]?.includes("wa_blast")
+  const expressAllowed = !isGtMain
+  const galeriAllowed = !!currentWp && !isDgbMain
+
+  // Header estimate goes live: panel draft (marked unstored) wins, then an
+  // in-flight package change, else the stored total.
+  const storedSnap = currentWp
+    ? {
+        wa: currentWp.wa_blast_tier || 0,
+        ex: !!currentWp.express_service,
+        gOn: !!currentWp.galeri_addon,
+        gP: currentWp.galeri_photos_per_guest || 0,
+        gG: currentWp.galeri_guest_count || 0,
+      }
+    : null
+  const panelDraftActive =
+    addonOpen &&
+    !!storedSnap &&
+    (editWaTier !== storedSnap.wa ||
+      editExpress !== storedSnap.ex ||
+      editGaleriOn !== storedSnap.gOn ||
+      (editGaleriOn && (editGaleriPhotos !== storedSnap.gP || editGaleriGuests !== storedSnap.gG)))
+  const [pendingPkg, setPendingPkg] = useState<string | null>(null)
+  const liveEstimate =
+    priceBook && currentWp && (panelDraftActive || (pendingPkg && pendingPkg !== currentWp.package_type)) && (!panelDraftActive || galeriPricesReady)
+      ? calcTotalBook(
+          priceBook,
+          pendingPkg && pendingPkg !== currentWp.package_type ? pendingPkg : currentWp.package_type,
+          panelDraftActive ? editWaTier : (storedSnap?.wa || 0),
+          panelDraftActive ? editExpress : !!storedSnap?.ex,
+          panelDraftActive ? addonTierPrice : (currentWp.galeri_price || 0)
+        )
+      : null
+
+  const saveAddons = async () => {
+    if (employee?.role === "creative") {
+      setRoleGateMessage("Perubahan add-on hanya dapat dilakukan oleh Admin atau Sales. Peran Anda saat ini: Creative.")
+      setShowRoleGate(true)
+      return
+    }
+    if (!currentWp) return
+    // Never save a galeri draft without a resolved DB tier — the server
+    // would reject it, but the operator acts on the estimate.
+    if (galeriAllowed && editGaleriOn && !addonMatch) {
+      setAddonMsg({ ok: false, text: !tierRows ? "Harga galeri belum termuat — tunggu sebentar lalu coba lagi." : `Kombinasi ${addonPhotos} foto × ${addonGuests} tamu belum tersedia di matriks.` })
+      return
+    }
+    const photos = addonPhotos
+    const guests = addonGuests
+    setSavingAddons(true)
+    setAddonMsg(null)
+    try {
+      const res = await fetch(`/api/ops/queue/${id}/package`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "x-ops-phone": employee?.phone_number || "",
+          "x-ops-role": employee?.role || "",
+        },
+        body: JSON.stringify({
+          // Single gt code — no band derivation (slider tiers price it).
+          package_type: currentWp.package_type,
+          // Only applicable add-ons are sent; omitted keys ride along
+          // untouched server-side (never wipes stored values).
+          ...(waAllowed ? { wa_blast_tier: editWaTier } : {}),
+          ...(expressAllowed ? { express_service: editExpress } : {}),
+          ...(galeriAllowed ? { galeri: editGaleriOn ? { photos_per_guest: photos, guest_count: guests } : null } : {}),
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Gagal menyimpan add-on")
+      setAddonMsg({ ok: true, text: `Tersimpan. Estimasi ${formatCurrency(data.total_project_cost)}` })
+      await fetchAll()
+    } catch (e: any) {
+      setAddonMsg({ ok: false, text: e?.message || "Gagal menyimpan add-on" })
+    } finally {
+      setSavingAddons(false)
     }
   }
 
@@ -1614,7 +1809,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                   >
                     <optgroup label="Undangan Digital">
                       {Object.entries(PACKAGE_LABELS)
-                        .filter(([code]) => !code.startsWith("dgb_"))
+                        .filter(([code]) => !code.startsWith("dgb_") && !code.startsWith("gt_"))
                         .map(([code, label]) => (
                           <option key={code} value={code}>{label} — {getPackageCategory(code)}</option>
                         ))}
@@ -1626,11 +1821,180 @@ export default function AntrianDetail({ id }: { id: string }) {
                           <option key={code} value={code}>{label} — {getPackageCategory(code)}</option>
                         ))}
                     </optgroup>
+                    {/* Standalone Galeri Tamu: single slider-priced package. */}
+                    <optgroup label="Galeri Tamu">
+                      <option value="gt">
+                        Galeri Tamu — Galeri Tamu
+                      </option>
+                    </optgroup>
                   </select>
+                </div>
+                <div className="w-full">
+                  <button
+                    type="button"
+                    onClick={() => setAddonOpen((v) => !v)}
+                    className="w-full flex items-center gap-2 py-1 text-left"
+                    aria-expanded={addonOpen}
+                  >
+                    <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60 shrink-0">Add-on:</span>
+                    <span className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
+                      {currentWp && (currentWp.wa_blast_tier || 0) > 0 && (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider bg-blue-50 border border-blue-300 text-blue-800 px-1.5 py-0.5 rounded-full">
+                          WA +{currentWp.wa_blast_tier}
+                        </span>
+                      )}
+                      {currentWp?.express_service && (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider bg-amber-50 border border-amber-300 text-amber-800 px-1.5 py-0.5 rounded-full">
+                          Kilat
+                        </span>
+                      )}
+                      {currentWp?.galeri_addon && (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider bg-purple-50 border border-purple-300 text-purple-800 px-1.5 py-0.5 rounded-full">
+                          {currentWp.galeri_tier || "Galeri"}
+                        </span>
+                      )}
+                      {currentWp && !((currentWp.wa_blast_tier || 0) > 0) && !currentWp.express_service && !currentWp.galeri_addon && (
+                        <span className="text-[10px] uppercase tracking-widest text-on-surface-variant/60">{isGtMain ? "Belum dikonfigurasi — kelola" : "Tanpa add-on — kelola"}</span>
+                      )}
+                    </span>
+                    <span className={`material-symbols-outlined text-[18px] transition-transform shrink-0 ${addonOpen ? "rotate-180" : ""}`}>expand_more</span>
+                  </button>
+                  {addonOpen && currentWp && (
+                    <div className="mt-2 border border-outline-variant/60 bg-white p-3 md:p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+                      {waAllowed && (
+                      <div className="border border-outline-variant/40 p-3">
+                        <h4 className="font-label-md text-[11px] uppercase tracking-widest font-bold mb-1">Reminder WA VIP</h4>
+                        <select
+                          value={editWaTier}
+                          onChange={(e) => setEditWaTier(Number(e.target.value))}
+                          disabled={employee?.role === "creative"}
+                          className="w-full bg-white border border-outline-variant text-sm py-2 px-2 focus:ring-0 focus:border-primary disabled:opacity-50"
+                        >
+                          <option value={0}>Tanpa tambahan</option>
+                          {[100, 200, 300].map((t) => (
+                            <option key={t} value={t}>
+                              +{t} tamu{priceBook ? ` — ${formatCurrency(priceBook.waTiers[t] ?? 0)}` : ""}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      )}
+                      {expressAllowed && (
+                      <div className="border border-outline-variant/40 p-3">
+                        <h4 className="font-label-md text-[11px] uppercase tracking-widest font-bold mb-1">Layanan Kilat</h4>
+                        <p className="text-xs text-on-surface-variant mb-2">
+                          24 jam{priceBook ? ` — ${formatCurrency(priceBook.express)}` : ""}.
+                        </p>
+                        <label className="inline-flex items-center gap-2 cursor-pointer text-sm">
+                          <input
+                            type="checkbox"
+                            checked={editExpress}
+                            onChange={() => setEditExpress(!editExpress)}
+                            disabled={employee?.role === "creative"}
+                            className="w-4 h-4 accent-[#8d4d39] disabled:opacity-50"
+                          />
+                          Aktifkan
+                        </label>
+                      </div>
+                      )}
+                      {galeriAllowed ? (
+                      <div className={`border p-3 ${editGaleriOn ? "border-secondary" : "border-outline-variant/40"}`}>
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <h4 className="font-label-md text-[11px] uppercase tracking-widest font-bold">Galeri Tamu{isGtMain ? " (wajib)" : ""}</h4>
+                          {!isGtMain && (
+                          <label className="inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              className="sr-only peer"
+                              checked={editGaleriOn}
+                              onChange={() => setEditGaleriOn(!editGaleriOn)}
+                              disabled={employee?.role === "creative"}
+                            />
+                            <div className="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary relative" />
+                          </label>
+                          )}
+                        </div>
+                        {editGaleriOn ? (
+                          <div className="flex flex-col gap-2">
+                            <div className="grid grid-cols-2 gap-2">
+                              <label className="text-xs text-on-surface-variant">
+                                Foto/tamu
+                                <input
+                                  type="number"
+                                  min={gPhotoMin}
+                                  max={gPhotoMax}
+                                  value={editGaleriPhotos}
+                                  onChange={(e) => setEditGaleriPhotos(Number(e.target.value))}
+                                  disabled={employee?.role === "creative"}
+                                  className="mt-1 w-full bg-white border border-outline-variant text-sm py-1.5 px-2 focus:ring-0 focus:border-primary disabled:opacity-50"
+                                />
+                              </label>
+                              <label className="text-xs text-on-surface-variant">
+                                Tamu
+                                <input
+                                  type="number"
+                                  min={gGuestMin}
+                                  max={gGuestMax}
+                                  value={editGaleriGuests}
+                                  onChange={(e) => setEditGaleriGuests(Number(e.target.value))}
+                                  disabled={employee?.role === "creative"}
+                                  className="mt-1 w-full bg-white border border-outline-variant text-sm py-1.5 px-2 focus:ring-0 focus:border-primary disabled:opacity-50"
+                                />
+                              </label>
+                            </div>
+                            <p className="text-xs font-bold text-primary">
+                              {addonMatch ? `${addonMatch.tier} • ${formatCurrency(addonMatch.price)}` : !tierRows ? "Memuat harga…" : "Kombinasi belum tersedia"}
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="text-xs text-on-surface-variant">Aktifkan untuk konfigurasi.</p>
+                        )}
+                      </div>
+                      ) : (
+                      <div className="border border-outline-variant/40 p-3">
+                        <h4 className="font-label-md text-[11px] uppercase tracking-widest font-bold mb-1">Galeri Tamu</h4>
+                        <p className="text-xs text-on-surface-variant">
+                          Galeri sudah termasuk paket ini.
+                        </p>
+                      </div>
+                      )}
+                      <div className="md:col-span-3 flex flex-col sm:flex-row sm:items-center gap-2 pt-2 border-t border-outline-variant/40">
+                        <div className="flex-1 text-sm">
+                          <span className="font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Estimasi: </span>
+                          <span className="font-bold text-primary">
+                            {addonEstimate == null ? "•••" : formatCurrency(addonEstimate)}
+                          </span>
+                          {addonMsg && (
+                            <span className={`block text-xs mt-1 ${addonMsg.ok ? "text-green-700" : "text-red-500"}`}>{addonMsg.text}</span>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={saveAddons}
+                          disabled={savingAddons || employee?.role === "creative" || !priceBook}
+                          className="px-6 py-2.5 bg-primary text-white font-label-md text-[11px] uppercase tracking-[0.2em] hover:bg-secondary transition-colors disabled:opacity-50"
+                        >
+                          {savingAddons ? "Menyimpan..." : "Simpan"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">Estimasi Biaya:</span>
-                  {!!currentWp.voucher_code && (currentWp.voucher_discount || 0) > 0 ? (
+                  {liveEstimate != null ? (
+                    <span className="whitespace-nowrap">
+                      {!!currentWp.voucher_code && (currentWp.voucher_discount || 0) > 0 ? (
+                        <>
+                          <span className="text-sm text-on-surface-variant line-through mr-2">{formatCurrency(liveEstimate)}</span>
+                          <span className="font-bold text-primary">{formatCurrency(Math.max(0, liveEstimate - (currentWp.voucher_discount || 0)))}</span>
+                        </>
+                      ) : (
+                        <span className="font-bold text-primary">{formatCurrency(liveEstimate)}</span>
+                      )}
+                      <span className="ml-2 text-[8px] uppercase tracking-widest text-amber-700 bg-amber-50 border border-amber-300 px-1.5 py-0.5 rounded-full">Belum tersimpan</span>
+                    </span>
+                  ) : !!currentWp.voucher_code && (currentWp.voucher_discount || 0) > 0 ? (
                     <span className="whitespace-nowrap">
                       <span className="text-sm text-on-surface-variant line-through mr-2">{formatCurrency((currentWp.total_project_cost || 0) + (currentWp.voucher_discount || 0))}</span>
                       <span className="font-bold text-primary">{formatCurrency(currentWp.total_project_cost)}</span>

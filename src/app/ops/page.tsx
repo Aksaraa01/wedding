@@ -253,7 +253,7 @@ export default function OpsBoardPage() {
                                 {wp.bride_name} &amp; {wp.groom_name}
                               </p>
                               {wp.express_service && (
-                                <span className="material-symbols-outlined text-amber-600 text-base shrink-0" title="Layanan Kilat 24 Jam">bolt</span>
+                                <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider bg-amber-50 border border-amber-300 text-amber-800 px-1.5 py-0.5 rounded-full shrink-0" title="Layanan Kilat 24 Jam">Kilat</span>
                               )}
                             </div>
                             <div className="space-y-1 text-[11px] text-on-surface-variant font-body-md">
@@ -272,6 +272,21 @@ export default function OpsBoardPage() {
                                   {getPackageCategory(wp.package_type)}
                                 </span>
                               </div>
+                              {((wp as any).wa_blast_tier > 0 || (wp as any).galeri_addon) && (
+                                <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                                  <span className="material-symbols-outlined text-[13px] opacity-60">add_circle</span>
+                                  {(wp as any).wa_blast_tier > 0 && (
+                                    <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider bg-blue-50 border border-blue-300 text-blue-800 px-1.5 py-0.5 rounded-full">
+                                      WA +{(wp as any).wa_blast_tier}
+                                    </span>
+                                  )}
+                                  {(wp as any).galeri_addon && (
+                                    <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider bg-purple-50 border border-purple-300 text-purple-800 px-1.5 py-0.5 rounded-full">
+                                      {(wp as any).galeri_tier || "Galeri"}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
                               <div className="flex items-center gap-1.5">
                                 <span className="material-symbols-outlined text-[13px] opacity-60">person</span>
                                 {item.assigned_name || "—"}
@@ -317,9 +332,9 @@ export default function OpsBoardPage() {
                             <p className="font-display-lg text-[15px] leading-tight">
                               {wp.bride_name} &amp; {wp.groom_name}
                             </p>
-                            {wp.express_service && (
-                              <span className="material-symbols-outlined text-amber-600 text-base shrink-0">bolt</span>
-                            )}
+                              {wp.express_service && (
+                                <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider bg-amber-50 border border-amber-300 text-amber-800 px-1.5 py-0.5 rounded-full shrink-0">Kilat</span>
+                              )}
                           </div>
                           <div className="space-y-1 text-[11px] text-on-surface-variant">
                             <div className="flex items-center gap-1.5">
@@ -337,6 +352,21 @@ export default function OpsBoardPage() {
                                 {getPackageCategory(wp.package_type)}
                               </span>
                             </div>
+                            {((wp as any).wa_blast_tier > 0 || (wp as any).galeri_addon) && (
+                              <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                                <span className="material-symbols-outlined text-[13px] opacity-60">add_circle</span>
+                                {(wp as any).wa_blast_tier > 0 && (
+                                  <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider bg-blue-50 border border-blue-300 text-blue-800 px-1.5 py-0.5 rounded-full">
+                                    WA +{(wp as any).wa_blast_tier}
+                                  </span>
+                                )}
+                                {(wp as any).galeri_addon && (
+                                  <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider bg-purple-50 border border-purple-300 text-purple-800 px-1.5 py-0.5 rounded-full">
+                                    {(wp as any).galeri_tier || "Galeri"}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                             <div className="flex items-center gap-1.5">
                               <span className="material-symbols-outlined text-[13px] opacity-60">person</span>
                               <span className="truncate">{item.assigned_name || "—"}</span>

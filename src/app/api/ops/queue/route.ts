@@ -26,6 +26,10 @@ export async function GET() {
           total_project_cost,
           payment_status,
           express_service,
+          wa_blast_tier,
+          galeri_addon,
+          galeri_tier,
+          galeri_price,
           created_at,
           users!left (
             created_at
@@ -72,6 +76,10 @@ export async function GET() {
           total_project_cost: wp.total_project_cost,
           payment_status: wp.payment_status,
           express_service: wp.express_service,
+          wa_blast_tier: wp.wa_blast_tier || 0,
+          galeri_addon: wp.galeri_addon === true,
+          galeri_tier: wp.galeri_tier || null,
+          galeri_price: wp.galeri_price || 0,
         },
       }
     })

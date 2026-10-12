@@ -9,7 +9,8 @@ INSERT INTO packages (code, name, description, base_price, price_old) VALUES
     ('dgb_sistem', 'Sistem', 'Buku Tamu Digital - Sistem', 699000, 999000),
     ('dgb_pro', 'Pro', 'Buku Tamu Digital - Pro', 1699000, 2275000),
     ('dgb_premium', 'Premium', 'Buku Tamu Digital - Premium', 2199000, 2950000),
-    ('dgb_prestige', 'Prestige', 'Buku Tamu Digital - Prestige', 2699000, 3600000)
+    ('dgb_prestige', 'Prestige', 'Buku Tamu Digital - Prestige', 2699000, 3600000),
+    ('gt', 'Galeri Tamu', 'Galeri Kenangan Tamu standalone — harga mengikuti matriks tier foto & tamu', 0, NULL)
 ON CONFLICT (code) DO NOTHING;
 
 -- Package Features
@@ -82,15 +83,18 @@ INSERT INTO package_features (package_code, feature_code, is_included) VALUES
     ('dgb_prestige', 'kolom_direct_transfer', true),
     ('dgb_prestige', 'galeri_foto_tamu', true),
     ('dgb_prestige', 'qr_code_book', true),
-    ('dgb_prestige', 'wa_blast', true)
+    ('dgb_prestige', 'wa_blast', true),
+    ('gt', 'galeri_foto_tamu', true)
 ON CONFLICT (package_code, feature_code) DO NOTHING;
 
--- WA Blast Pricing Tiers
+-- WA Blast Pricing Tiers + Express flat fee (single price source of truth
+-- together with packages.base_price and galeri_tiers — no hardcoded money)
 TRUNCATE product_price_tiers;
 INSERT INTO product_price_tiers (product_code, min_qty, max_qty, price) VALUES
     ('wa_blast', 100, 100, 150000),
     ('wa_blast', 200, 200, 250000),
-    ('wa_blast', 300, 300, 300000);
+    ('wa_blast', 300, 300, 300000),
+    ('express_service', 1, 1, 250000);
 
 -- Package Matrix Sections
 INSERT INTO package_matrix_sections (code, label, sort_order) VALUES
@@ -143,6 +147,19 @@ INSERT INTO package_matrix_rows (
     (NULL, 'dgbook', 'Photo by Guest', 2, '—','muted', '—','muted', '—','muted', '—','muted', '—','muted', '—','muted', '2','default', '2','secondary', '3','secondary', '4','gold'),
     (NULL, 'dgbook', 'Devices (Tablet/HP)', 3, '—','muted', '—','muted', '—','muted', '—','muted', '—','muted', '—','muted', '—','muted', '2','secondary', '3','secondary', '4','gold'),
     (NULL, 'dgbook', 'Ushers', 4, '—','muted', '—','muted', '—','muted', '—','muted', '—','muted', '—','muted', '—','muted', '2','secondary', '3','secondary', '4','gold');
+
+-- Galeri Tamu slider tiers (DB source of truth; mirrors the ops-managed
+-- galeri_tiers matrix — tier names, bounds, and prices all live here).
+-- NOTE: 'Standard Roll - Plus' photo_max mirrors staging (5); confirm with
+-- ops whether the Plus band should read 6–10 like the other Plus rows.
+INSERT INTO galeri_tiers (tier, photo_min, photo_max, guest_min, guest_max, price) VALUES
+    ('Mini Roll - Basic', 1, 5, 1, 100, 100000),
+    ('Mini Roll - Plus', 6, 10, 1, 100, 150000),
+    ('Standard Roll - Basic', 1, 5, 101, 150, 200000),
+    ('Standard Roll - Plus', 6, 5, 101, 150, 250000),
+    ('Maxi Roll - Basic', 1, 5, 151, 200, 300000),
+    ('Maxi Roll - Plus', 6, 10, 151, 200, 350000)
+ON CONFLICT (tier) DO NOTHING;
 
 -- Web Templates
 INSERT INTO web_templates (code, name, description, preview_image_url, demo_url, sort_order, category) VALUES

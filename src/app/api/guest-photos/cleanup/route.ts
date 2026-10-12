@@ -13,8 +13,7 @@ export async function POST(req: NextRequest) {
 
     const { data: profiles, error: profileError } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("id, sessions")
-      .not("sessions", "is", null)
+      .select("id, sessions, package_type, galeri_addon, gallery_end_at")
 
     if (profileError) {
       return NextResponse.json({ error: profileError.message }, { status: 500 })
@@ -25,6 +24,18 @@ export async function POST(req: NextRequest) {
 
     const expiredIds: string[] = []
     for (const profile of profiles || []) {
+      // Galeri (standalone or add-on): 7-day retention from the event end.
+      if ((profile.package_type === "gt" || (profile as any).galeri_addon === true) && profile.gallery_end_at) {
+        const end = new Date(profile.gallery_end_at)
+        if (Number.isNaN(end.getTime())) continue
+        const deletion = new Date(end)
+        deletion.setDate(deletion.getDate() + 7)
+        const deletionStart = new Date(deletion.getFullYear(), deletion.getMonth(), deletion.getDate()).getTime()
+        if (deletionStart <= todayStart) {
+          expiredIds.push(profile.id)
+        }
+        continue
+      }
       const sessions = Array.isArray(profile.sessions) ? (profile.sessions as { date?: string }[]) : []
       const dates = sessions.map(s => s.date).filter((d): d is string => !!d && /^\d{4}-\d{2}-\d{2}$/.test(d))
       if (!dates.length) continue

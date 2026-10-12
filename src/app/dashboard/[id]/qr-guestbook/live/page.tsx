@@ -1,6 +1,6 @@
 "use client"
 
-import { use, useEffect, useState, useCallback, useRef } from "react"
+import { use, useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import * as XLSX from "xlsx"
 import ProfileMenu from "@/components/ProfileMenu"
@@ -73,9 +73,7 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
   const [copied, setCopied] = useState(false)
   const [wishByGuest, setWishByGuest] = useState<Record<string, string>>({})
   const [exporting, setExporting] = useState(false)
-  const bookWrapRef = useRef<HTMLDivElement>(null)
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const [cssFullscreen, setCssFullscreen] = useState(false)
+  const [scannerOpen, setScannerOpen] = useState(false)
 
   const fetchAll = useCallback(async () => {
     try {
@@ -110,31 +108,7 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
     } catch {}
   }, [id])
 
-  const toggleBookFullscreen = useCallback(async () => {
-    // CSS fallback (e.g. iPhone Safari has no Element fullscreen): fixed overlay.
-    if (cssFullscreen) {
-      setCssFullscreen(false)
-      return
-    }
-    if (document.fullscreenElement) {
-      try { await document.exitFullscreen() } catch {}
-      return
-    }
-    const el = bookWrapRef.current
-    if (el && typeof el.requestFullscreen === "function") {
-      try {
-        await el.requestFullscreen()
-        return
-      } catch {}
-    }
-    setCssFullscreen(true)
-  }, [cssFullscreen])
 
-  useEffect(() => {
-    const onFs = () => setIsFullscreen(!!document.fullscreenElement)
-    document.addEventListener("fullscreenchange", onFs)
-    return () => document.removeEventListener("fullscreenchange", onFs)
-  }, [])
 
   useEffect(() => {
     setLoading(true)
@@ -146,6 +120,16 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
   useVisiblePoll(fetchAll, 10000, !loading)
 
   const buildScannerUrl = (slug: string) => {
+    // Prod couples use their subdomain. Everywhere else (local, staging,
+    // LAN) the direct slug path on the current origin needs no DNS tricks —
+    // usher phones on the same Wi-Fi open it via the machine's LAN IP.
+    if (typeof window !== "undefined") {
+      const host = window.location.hostname
+      if (host === "wedding.aksaraa.com" || host.endsWith(".wedding.aksaraa.com")) {
+        return `https://${slug}.wedding.aksaraa.com/scanner`
+      }
+      return `${window.location.origin}/scanner/${slug}`
+    }
     return `https://${slug}.wedding.aksaraa.com/scanner`
   }
 
@@ -262,50 +246,76 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
           </p>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-        {/* LEFT — stats + live feed */}
-        <div className="space-y-6 min-w-0 lg:col-span-5">
-          <div className="bg-white p-5 md:p-8 shadow-sm border border-[#eae3d5] relative overflow-hidden">
-            <div className="absolute inset-3 md:inset-4 border border-[#eae3d5]/50 pointer-events-none" />
-            <div className="relative z-10">
-              <div className="mb-5 md:mb-6 text-center">
-                <p className="font-label-md text-label-md uppercase tracking-[0.2em] text-on-surface-variant">
-                  Statistik Kehadiran
-                </p>
+        <div className="mt-6 flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+        {/* RIGHT column on desktop (scanner + book stacked by structure, so
+            the book can never land anywhere else). First on mobile. */}
+        <div className="order-1 lg:order-2 lg:col-span-7 flex flex-col gap-6 lg:gap-8 min-w-0 w-full">
+        {/* SCANNER — first on mobile, right column on desktop */}
+        <section data-tour="buku-tamu" className="order-1 lg:order-2 lg:col-span-7 min-w-0 w-full bg-white border border-[#E2D9CF] rounded-2xl shadow-sm overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setScannerOpen((v) => !v)}
+            className="w-full flex items-center gap-2 p-4 md:p-5 text-left"
+            aria-expanded={scannerOpen}
+          >
+            <span className="material-symbols-outlined text-[#B34E3F] text-[18px] shrink-0">qr_code_scanner</span>
+            <h2 className="font-label-md text-[12px] uppercase tracking-widest text-[#2C2A29] font-bold flex-1 min-w-0 truncate">Pranala Scanner Cepat</h2>
+            {profile?.scanner_pin && (
+              <span className="shrink-0 inline-flex items-center px-2.5 py-1 rounded-full bg-[#2C2A29] text-white font-label-md text-[10px] tracking-[0.12em]">
+                PIN: <span className="font-bold ml-1">{profile.scanner_pin}</span>
+              </span>
+            )}
+            <span className={`material-symbols-outlined text-[#B34E3F] transition-transform shrink-0 ${scannerOpen ? "rotate-180" : ""}`}>expand_more</span>
+          </button>
+          {scannerOpen && (
+            <div className="px-4 md:px-5 pb-4 md:pb-5">
+              <p className="font-mono text-[12px] text-[#2C2A29] bg-[#F5EFE6] border border-[#E2D9CF] rounded-xl px-3 py-2.5 break-all">{scannerUrl}</p>
+              <div className="grid grid-cols-2 gap-2 mt-3">
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className="inline-flex items-center justify-center gap-1.5 px-2 py-2 rounded-full bg-[#F5EFE6] border border-[#E2D9CF] font-label-md text-[10px] uppercase tracking-wider text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors whitespace-nowrap"
+                >
+                  <span className="material-symbols-outlined text-[16px]">{copied ? "check" : "content_copy"}</span>
+                  {copied ? "Tersalin!" : "Salin Tautan"}
+                </button>
+                <a
+                  href={scannerUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-1.5 px-2 py-2 rounded-full bg-[#B34E3F] border border-[#B34E3F] font-label-md text-[10px] uppercase tracking-wider text-white hover:bg-[#9E3B2D] transition-colors whitespace-nowrap"
+                >
+                  <span className="material-symbols-outlined text-[16px]">open_in_new</span>
+                  Buka Tautan
+                </a>
               </div>
-              <div className="w-40 h-40 md:w-48 md:h-48 mx-auto">
-                <Donut qrPct={qrPct} manualPct={manualPct} percentage={percentage} />
-              </div>
-              <div className="mt-8 space-y-4">
-                <div className="flex items-center justify-between border-b border-outline-variant/20 pb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-secondary" />
-                    <span className="font-body-md text-sm">Hadir</span>
-                  </div>
-                  <span className="font-label-md text-primary">{checkedQr}</span>
-                </div>
-                <div className="flex items-center justify-between border-b border-outline-variant/20 pb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-amber-500" />
-                    <span className="font-body-md text-sm">Hadir-Manual</span>
-                  </div>
-                  <span className="font-label-md text-amber-600">{checkedManual}</span>
-                </div>
-                <div className="flex items-center justify-between border-b border-outline-variant/20 pb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-surface-container-highest" />
-                    <span className="font-body-md text-sm text-on-surface-variant">Belum Hadir</span>
-                  </div>
-                  <span className="font-label-md text-on-surface-variant">{notChecked}</span>
-                </div>
-                <div className="flex items-center justify-between pt-2">
-                  <span className="font-label-md text-[10px] uppercase tracking-widest">Total Undangan</span>
-                  <span className="font-headline-md text-[18px]">{total}</span>
-                </div>
+              <div className="mt-2">
+                {profile?.scanner_pin ? (
+                  <button
+                    type="button"
+                    onClick={handleGeneratePin}
+                    disabled={generatingPin}
+                    className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full font-label-md text-[10px] uppercase tracking-wider text-on-surface-variant hover:text-[#B34E3F] transition-colors disabled:opacity-50"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">refresh</span>
+                    {generatingPin ? "Memproses..." : "Generate ulang PIN"}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleGeneratePin}
+                    disabled={generatingPin}
+                    className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-[#B34E3F] text-white font-label-md text-[10px] uppercase tracking-widest hover:bg-[#9E3B2D] transition-colors disabled:opacity-50"
+                  >
+                    {generatingPin ? "Memproses..." : "Buat PIN Scanner"}
+                  </button>
+                )}
               </div>
             </div>
-          </div>
-
+          )}
+        </section>
+          {/* FEED — fourth on mobile (list), left column on desktop */}
+          <div className="order-4 lg:order-3 lg:col-span-5 min-w-0 w-full">
           {/* Feed header: LIVE indicator + export */}
           <div className="flex justify-between items-end mb-4 gap-2">
             <h2 className="font-label-md text-label-md uppercase tracking-[0.2em] text-on-surface-variant">
@@ -433,88 +443,55 @@ export default function LiveAttendancePage({ params }: { params: Promise<{ id: s
           </div>
         </div>
 
-        {/* RIGHT — scanner quick access + live book */}
-        <div className="space-y-6 min-w-0 lg:col-span-7">
-          <section data-tour="buku-tamu" className="bg-white border border-[#E2D9CF] rounded-2xl shadow-sm p-4 md:p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="material-symbols-outlined text-[#B34E3F] text-[18px]">qr_code_scanner</span>
-              <h2 className="font-label-md text-[12px] uppercase tracking-widest text-[#2C2A29] font-bold flex-1">Pranala Scanner Cepat</h2>
-            </div>
-            <p className="font-mono text-[12px] text-[#2C2A29] bg-[#F5EFE6] border border-[#E2D9CF] rounded-xl px-3 py-2.5 break-all">{scannerUrl}</p>
-            <div className="flex flex-wrap items-center gap-2 mt-3">
-              <button
-                type="button"
-                onClick={handleCopyLink}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#F5EFE6] border border-[#E2D9CF] font-label-md text-[10px] uppercase tracking-widest text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors"
-              >
-                <span className="material-symbols-outlined text-[16px]">{copied ? "check" : "content_copy"}</span>
-                {copied ? "Tersalin!" : "Salin Tautan"}
-              </button>
-              <a
-                href={scannerUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#E2D9CF] font-label-md text-[10px] uppercase tracking-widest text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors"
-              >
-                <span className="material-symbols-outlined text-[16px]">open_in_new</span>
-                Buka Scanner
-              </a>
-              {profile?.scanner_pin ? (
-                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2C2A29] text-white font-label-md text-[11px] tracking-[0.15em]">
-                  PIN: <span className="font-bold">{profile.scanner_pin}</span>
-                  <button
-                    onClick={handleGeneratePin}
-                    disabled={generatingPin}
-                    className="hover:text-[#E6CA7E] transition-colors disabled:opacity-50"
-                    title="Generate ulang PIN"
-                    aria-label="Generate ulang PIN"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">refresh</span>
-                  </button>
-                </span>
-              ) : (
-                <button
-                  onClick={handleGeneratePin}
-                  disabled={generatingPin}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#B34E3F] text-white font-label-md text-[10px] uppercase tracking-widest hover:bg-[#9E3B2D] transition-colors disabled:opacity-50"
-                >
-                  {generatingPin ? "Memproses..." : "Buat PIN Scanner"}
-                </button>
-              )}
-            </div>
-          </section>
+        </div>
 
-          <section>
-            <div className="flex items-center justify-between mb-3 px-1">
-              <h2 className="font-label-md text-label-md uppercase tracking-[0.2em] text-on-surface-variant">Buku Tamu Digital</h2>
-              <button
-                type="button"
-                onClick={toggleBookFullscreen}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-[#E2D9CF] font-label-md text-[10px] uppercase tracking-widest text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors shadow-sm"
-              >
-                <span className="material-symbols-outlined text-[16px]">{isFullscreen || cssFullscreen ? "fullscreen_exit" : "fullscreen"}</span>
-                {isFullscreen || cssFullscreen ? "Keluar Layar Penuh" : "Buka Mode Layar Penuh"}
-              </button>
+        {/* LEFT column on desktop (stats + feed). Second on mobile. */}
+        <div className="order-2 lg:order-1 lg:col-span-5 flex flex-col gap-6 lg:gap-8 min-w-0 w-full">
+        {/* STATS — third on mobile (pie chart), left column on desktop */}
+        <div className="order-3 lg:order-1 lg:col-span-5 min-w-0 w-full">
+          <div className="bg-white p-5 md:p-8 shadow-sm border border-[#eae3d5] relative overflow-hidden">
+            <div className="absolute inset-3 md:inset-4 border border-[#eae3d5]/50 pointer-events-none" />
+            <div className="relative z-10">
+              <div className="mb-5 md:mb-6 text-center">
+                <p className="font-label-md text-label-md uppercase tracking-[0.2em] text-on-surface-variant">
+                  Statistik Kehadiran
+                </p>
+              </div>
+              <div className="w-40 h-40 md:w-48 md:h-48 mx-auto">
+                <Donut qrPct={qrPct} manualPct={manualPct} percentage={percentage} />
+              </div>
+              <div className="mt-8 space-y-4">
+                <div className="flex items-center justify-between border-b border-outline-variant/20 pb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-secondary" />
+                    <span className="font-body-md text-sm">Hadir</span>
+                  </div>
+                  <span className="font-label-md text-primary">{checkedQr}</span>
+                </div>
+                <div className="flex items-center justify-between border-b border-outline-variant/20 pb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-amber-500" />
+                    <span className="font-body-md text-sm">Hadir-Manual</span>
+                  </div>
+                  <span className="font-label-md text-amber-600">{checkedManual}</span>
+                </div>
+                <div className="flex items-center justify-between border-b border-outline-variant/20 pb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-surface-container-highest" />
+                    <span className="font-body-md text-sm text-on-surface-variant">Belum Hadir</span>
+                  </div>
+                  <span className="font-label-md text-on-surface-variant">{notChecked}</span>
+                </div>
+                <div className="flex items-center justify-between pt-2">
+                  <span className="font-label-md text-[10px] uppercase tracking-widest">Total Undangan</span>
+                  <span className="font-headline-md text-[18px]">{total}</span>
+                </div>
+              </div>
             </div>
-            <div ref={bookWrapRef} className={`rounded-2xl overflow-hidden border border-[#E2D9CF] shadow-sm bg-[#F4EFE6] ${isFullscreen ? "h-screen" : ""} ${cssFullscreen ? "fixed inset-0 z-[90] rounded-none border-0 p-3 md:p-6 overflow-auto" : ""}`}>
-              {cssFullscreen && (
-                <button
-                  type="button"
-                  onClick={() => setCssFullscreen(false)}
-                  className="fixed top-4 right-4 z-[91] w-11 h-11 rounded-full bg-[#2C2A29] text-white flex items-center justify-center shadow-xl"
-                  aria-label="Keluar layar penuh"
-                >
-                  <span className="material-symbols-outlined">close</span>
-                </button>
-              )}
-              <iframe
-                src={`/dashboard/${id}/qr-guestbook/live/book`}
-                title="Buku Tamu Digital"
-                className={`w-full border-0 ${isFullscreen || cssFullscreen ? "h-full min-h-[85vh]" : "h-[560px] md:h-[620px]"}`}
-                loading="lazy"
-              />
-            </div>
-          </section>
+          </div>
+
+
+          </div>
         </div>
         </div>
       </main>

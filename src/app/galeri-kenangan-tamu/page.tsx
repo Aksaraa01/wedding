@@ -119,7 +119,7 @@ export default function GaleriKenanganTamuPage() {
               Transformasi album pernikahan konvensional menjadi ekosistem digital interaktif. Biarkan tamu mengabadikan kedekatan tanpa perlu aplikasi tambahan.
             </p>
             <button
-              onClick={() => router.push("/register")}
+              onClick={() => router.push("/customize?tab=galeri")}
               className="bg-primary text-on-primary px-10 py-5 font-label-sm text-label-sm uppercase tracking-[0.3em] hover:scale-[0.98] transition-transform flex items-center gap-3"
             >
               Aktifkan Galeri Tamu

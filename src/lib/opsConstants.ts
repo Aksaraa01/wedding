@@ -4,6 +4,7 @@ export const PACKAGE_LABELS: Record<string, string> = PACKAGE_LABELS_MAP
 
 export function getPackageCategory(code: string): string {
   if (code.startsWith("dgb_")) return "Buku Tamu Digital"
+  if (code === "gt") return "Galeri Tamu"
   return "Undangan Digital"
 }
 

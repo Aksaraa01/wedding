@@ -307,7 +307,7 @@ function InstructionInner({ id }: { id: string }) {
                                 const pkgs = availableIn[step.key] || []
                                 const grouped: Record<string, string[]> = {}
                                 for (const p of pkgs) {
-                                  const cat = PACKAGE_CATEGORY[p] === "dgbook" ? "Buku Tamu Digital" : "Undangan Digital"
+                                  const cat = PACKAGE_CATEGORY[p] === "dgbook" ? "Buku Tamu Digital" : PACKAGE_CATEGORY[p] === "galeri" ? "Galeri Tamu" : "Undangan Digital"
                                   if (!grouped[cat]) grouped[cat] = []
                                   grouped[cat].push(PACKAGE_LABEL[p] || p)
                                 }

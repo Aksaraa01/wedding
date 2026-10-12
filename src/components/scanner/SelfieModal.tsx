@@ -161,7 +161,7 @@ export default function SelfieModal({
             <canvas ref={canvasRef} className="hidden" />
           </>
         ) : (
-          <img src={capturedSrc} alt="Foto check-in" className="absolute inset-0 w-full h-full object-cover" />
+          <img src={capturedSrc} alt="Foto check-in" className="absolute inset-0 w-full h-full object-contain" />
         )}
         {/* Viewfinder frame corners */}
         <div className="absolute inset-0 pointer-events-none z-10">

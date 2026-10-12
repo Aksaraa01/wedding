@@ -1,96 +1,472 @@
 "use client"
 
-import { use, useEffect, useState } from "react"
+import { use, useCallback, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import ProfileMenu from "@/components/ProfileMenu"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
+import { toTransformedUrl } from "@/lib/storageUrl"
+import { ASSETS } from "@/lib/assets"
+import { downloadBlob, sharePhoto, displayCategory } from "@/lib/gallery-client"
+import { paymentWaLink } from "@/lib/contact"
+import { StandeeFront, hashtagOf, type StandeeData } from "@/components/galeri/StandeeCards"
 
 type GuestPhoto = {
   id: string
   image_url: string
   created_at: string
-  guest_id: string
+  guest_id: string | null
+  device_id: string | null
+  uploader_name: string | null
+  category: string | null
+  caption: string | null
   source?: string | null
-  guests: { name: string; category: string; is_checked_in?: boolean | null } | null
+  guests: { name: string; category: string; is_checked_in?: boolean | null; rsvp_message?: string | null } | null
 }
+
+type Setup = {
+  package_type: string
+  is_gallery: boolean
+  galeri_addon?: boolean
+  galeri_enabled?: boolean
+  galeri_photos_per_guest?: number | null
+  galeri_guest_count?: number | null
+  galeri_tier?: string | null
+  galeri_price?: number
+  payment_status: "UNPAID" | "PARTIAL_DP" | "FULLY_PAID"
+  gallery_token: string | null
+  gallery_url: string | null
+  gallery_couple_name: string
+  gallery_photo_url: string | null
+  gallery_start_at: string | null
+  gallery_end_at: string | null
+  date_label: string
+  start_label: string
+  end_label: string
+  prefill?: { date: string; start_time: string; photo_url?: string | null } | null
+}
+
+type Pill = "all" | "gallery" | "selfie"
+
+const SERIF: React.CSSProperties = { fontFamily: "'Playfair Display', serif" }
+const SANS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" }
+const CAPTION_FONT: React.CSSProperties = { fontFamily: "'EB Garamond', Georgia, serif" }
 
 function formatDeletionDate(date: string): string {
   const [y, m, d] = date.split("-")
   return `${d}-${m}-${y}`
 }
 
+function wibDateInput(iso: string | null): string {
+  if (!iso) return ""
+  try {
+    return new Date(iso).toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" })
+  } catch {
+    return ""
+  }
+}
+
+function wibTimeInput(iso: string | null): string {
+  if (!iso) return ""
+  try {
+    return new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta" })
+  } catch {
+    return ""
+  }
+}
+
+function formatCardStamp(iso: string): string {
+  try {
+    const d = new Date(iso)
+    const date = d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Jakarta" })
+    const time = d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta" }).replace(".", ":")
+    return `${date} • ${time} WIB`
+  } catch {
+    return ""
+  }
+}
+
+function displayNameOf(p: GuestPhoto): string {
+  return p.uploader_name || p.guests?.name || "Tamu"
+}
+
 export default function GaleriKenangan({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const router = useRouter()
+
+  const [setup, setSetup] = useState<Setup | null>(null)
+  const [stats, setStats] = useState({ photos: 0, devices: 0 })
   const [photos, setPhotos] = useState<GuestPhoto[]>([])
-  const [loading, setLoading] = useState(true)
-  const [downloadingAll, setDownloadingAll] = useState(false)
+  const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(false)
+  const [pill, setPill] = useState<Pill>("all")
+  // Name search is a Galeri Tamu exclusive; Buku Tamu Digital keeps pills.
   const [search, setSearch] = useState("")
-    const [retention, setRetention] = useState<{ hasEventDate: boolean; latestEventDate: string | null; deletionDate: string | null }>({ hasEventDate: false, latestEventDate: null, deletionDate: null })
-  const [sortBy, setSortBy] = useState<"terbaru" | "disukai">("terbaru")
-  const filteredPhotos = [...photos].filter((p) => !search.trim() || (p.guests?.name || "").toLowerCase().includes(search.trim().toLowerCase())).sort((a, b) => {
-    if (sortBy === "terbaru") return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    return 0
-  })
+  const [debouncedQ, setDebouncedQ] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [retention, setRetention] = useState<{ hasEventDate: boolean; latestEventDate: string | null; deletionDate: string | null }>({ hasEventDate: false, latestEventDate: null, deletionDate: null })
+  const [downloadingAll, setDownloadingAll] = useState(false)
+  const [downloadProgress, setDownloadProgress] = useState("")
+  const [showPaywall, setShowPaywall] = useState(false)
+
+  // Detail card: collapsible + view/edit (only three fields by design).
+  const [cardOpen, setCardOpen] = useState(true)
+  const [coupleName, setCoupleName] = useState("")
+  const [eventDate, setEventDate] = useState("")
+  const [startTime, setStartTime] = useState("")
+  const [endTime, setEndTime] = useState("")
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState("")
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
+
+  // QR card.
+  const [qr, setQr] = useState<{ gallery_url: string; qr_png: string | null } | null>(null)
+  const [qrLoading, setQrLoading] = useState(false)
+  const [qrCopied, setQrCopied] = useState(false)
+  const [regenerating, setRegenerating] = useState(false)
+
+  const fetchSetup = useCallback(async () => {
+    const res = await fetch(`/api/dashboard/${id}/gallery-setup`)
+    if (!res.ok) return
+    const data = await res.json()
+    if (data.setup) {
+      const s = data.setup as Setup
+      setSetup(s)
+      if (!s.gallery_start_at) setEditing(true)
+      setCoupleName(s.gallery_couple_name || "")
+      // Stored values win; editor prefill fills the rest while unconfigured.
+      setEventDate(wibDateInput(s.gallery_start_at) || s.prefill?.date || "")
+      setStartTime(wibTimeInput(s.gallery_start_at) || s.prefill?.start_time || "")
+      setEndTime(wibTimeInput(s.gallery_end_at))
+    }
+    if (data.stats) setStats(data.stats)
+  }, [id])
+
+  const fetchPhotos = useCallback(async (p: number, pillValue: Pill, q: string, append: boolean) => {
+    if (append) setLoadingMore(true)
+    try {
+      const sourceParam = pillValue === "all" ? "" : `&source=${pillValue}`
+      const qParam = q ? `&q=${encodeURIComponent(q)}` : ""
+      const res = await fetch(`/api/guest-photos?wedding_profile_id=${id}&page=${p}${sourceParam}${qParam}`)
+      const data = await res.json().catch(() => null)
+      if (data?.photos) {
+        setPhotos((prev) => (append ? [...prev, ...data.photos] : data.photos))
+        setTotal(data.total || 0)
+        setPage(data.page || p)
+        setHasMore(!!data.has_more)
+      }
+      if (data?.hasEventDate !== undefined) {
+        setRetention({ hasEventDate: data.hasEventDate, latestEventDate: data.latestEventDate, deletionDate: data.deletionDate })
+      }
+    } finally {
+      if (append) setLoadingMore(false)
+    }
+  }, [id])
+
+  useEffect(() => {
+    setLoading(true)
+    Promise.all([fetchSetup(), fetchPhotos(1, "all", "", false)]).finally(() => setLoading(false))
+  }, [fetchSetup, fetchPhotos])
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQ(search.trim()), 400)
+    return () => clearTimeout(t)
+  }, [search])
+
+  useEffect(() => {
+    // Skip the initial run (covered by the mount fetch above).
+    setPhotos([])
+    fetchPhotos(1, pill, debouncedQ, false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedQ])
+
+  const switchPill = (next: Pill) => {
+    if (next === pill) return
+    setPill(next)
+    setPhotos([])
+    fetchPhotos(1, next, debouncedQ, false)
+  }
+
+  const isUnpaid = setup?.payment_status === "UNPAID"
+  // Unduh + Buku Kenangan stay paywalled: unpaid couples get the payment
+  // popup (same WA redirect as /qr-guestbook) instead of the action.
+  const requirePaid = () => {
+    if (isUnpaid) {
+      setShowPaywall(true)
+      return false
+    }
+    return true
+  }
+  const isGalleryPkg = !!setup?.is_gallery
+  // Detail card + setup belongs to every GT surface: standalone band
+  // packages, the Undangan add-on, and Buku Tamu Digital (feature-bundled).
+  const hasGaleri = isGalleryPkg || setup?.galeri_addon === true || setup?.galeri_enabled === true
+  // Filter pills belong to Buku Tamu Digital only (not standalone GT,
+  // not Undangan + Galeri combos).
+  const isDgbPkg = (setup?.package_type || "").startsWith("dgb_")
+  const configured = !!setup?.gallery_start_at
+
+  const statusLine = !configured
+    ? "Lengkapi detail acara untuk menerbitkan QR"
+    : isUnpaid
+      ? "Selesaikan pembayaran untuk mengaktifkan QR"
+      : (() => {
+          const now = Date.now()
+          const start = setup?.gallery_start_at ? new Date(setup.gallery_start_at).getTime() : NaN
+          const end = setup?.gallery_end_at ? new Date(setup.gallery_end_at).getTime() : NaN
+          if (Number.isNaN(start) || Number.isNaN(end)) return "Jadwal belum valid"
+          if (now < start - 3600000) return "Acara Siap Dimulai • QR aktif 1 jam sebelum mulai"
+          if (now > end + 3600000) return "Acara Selesai • QR tidak aktif"
+          return "Acara Siap Dimulai • QR Tamu Aktif"
+        })()
+
+  const handleSaveSetup = async () => {
+    if (!coupleName.trim() || !eventDate || !startTime || !endTime) {
+      setSaveError("Lengkapi nama mempelai, tanggal, jam mulai, dan jam selesai.")
+      return
+    }
+    setSaving(true)
+    setSaveError("")
+    try {
+      const res = await fetch(`/api/dashboard/${id}/gallery-setup`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ couple_name: coupleName.trim(), date: eventDate, start_time: startTime, end_time: endTime }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || "Gagal menyimpan")
+      setEditing(false)
+      setQr(null)
+      await fetchSetup()
+    } catch (err: unknown) {
+      setSaveError(err instanceof Error ? err.message : "Gagal menyimpan")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handlePhotoUpload = async (file: File) => {
+    setUploadingPhoto(true)
+    try {
+      const form = new FormData()
+      form.append("file", file)
+      const res = await fetch(`/api/dashboard/${id}/gallery-setup`, { method: "POST", body: form })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || "Gagal mengunggah foto")
+      await fetchSetup()
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Gagal mengunggah foto")
+    } finally {
+      setUploadingPhoto(false)
+    }
+  }
+
+  const loadQr = async () => {
+    setQrLoading(true)
+    try {
+      const res = await fetch(`/api/dashboard/${id}/gallery-qr`)
+      const data = await res.json().catch(() => ({}))
+      if (res.ok) setQr({ gallery_url: data.gallery_url, qr_png: data.qr_png || null })
+    } finally {
+      setQrLoading(false)
+    }
+  }
+
+  const copyQrLink = async () => {
+    if (!qr?.gallery_url) return
+    try {
+      await navigator.clipboard.writeText(qr.gallery_url)
+      setQrCopied(true)
+      setTimeout(() => setQrCopied(false), 2000)
+    } catch {}
+  }
+
+  // Standee display faces (raster download needs more than the app bundle).
+  useEffect(() => {
+    if (document.getElementById("standee-fonts")) return
+    const link = document.createElement("link")
+    link.id = "standee-fonts"
+    link.rel = "stylesheet"
+    link.href = "https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+    document.head.appendChild(link)
+  }, [])
+
+  const [dlBusy, setDlBusy] = useState(false)
+
+  // Unduh Standee: renders the full front card off-screen and rasterizes
+  // the card node itself — the PNG is exactly the card, no outer frame.
+  const downloadStandee = async () => {
+    if (dlBusy || !qr?.qr_png || !setup) return
+    setDlBusy(true)
+    let host: HTMLDivElement | null = null
+    let root: { unmount: () => void } | null = null
+    try {
+      let venue = ""
+      try {
+        const dres = await fetch(`/api/dashboard/${id}`)
+        if (dres.ok) {
+          const ddata = await dres.json()
+          const sessions = ddata.profile?.sessions
+          if (Array.isArray(sessions) && sessions[0]?.venue) venue = String(sessions[0].venue)
+        }
+      } catch {}
+      const coupleName = setup.gallery_couple_name || "Mempelai"
+      const data: StandeeData = {
+        couple: coupleName,
+        dateLine: [setup.date_label || "", venue].filter(Boolean).join(" • "),
+        qrPng: qr.qr_png,
+        qrUrl: qr.gallery_url,
+        hashtag: hashtagOf(coupleName),
+        sigDate: "",
+      }
+      host = document.createElement("div")
+      host.style.cssText = "position:absolute;left:-10000px;top:0;width:530px;"
+      document.body.appendChild(host)
+      const { createRoot } = await import("react-dom/client")
+      root = createRoot(host)
+      await new Promise<void>((res) => {
+        ;(root as unknown as { render: (n: React.ReactNode) => void }).render(
+          <div style={{ width: 530 }}>
+            <StandeeFront data={data} />
+          </div>
+        )
+        setTimeout(res, 80)
+      })
+      try {
+        await (document as unknown as { fonts?: { ready?: Promise<unknown> } }).fonts?.ready
+      } catch {}
+      const imgs = Array.from(host.querySelectorAll("img"))
+      await Promise.all(imgs.map((img) => (img as HTMLImageElement).decode?.().catch(() => {})))
+      await new Promise((r) => setTimeout(r, 250))
+      const node = host.firstElementChild as HTMLElement | null
+      if (!node) throw new Error("render gagal")
+      const { default: html2canvas } = await import("html2canvas")
+      const canvas = await html2canvas(node, { scale: 3, useCORS: true, backgroundColor: "#FAF7F2", logging: false })
+      const slug = coupleName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "acara"
+      const link = document.createElement("a")
+      link.href = canvas.toDataURL("image/png")
+      link.download = `standee-galeri-${slug}.png`
+      link.click()
+    } catch {
+      alert("Gagal mengunduh standee.")
+    } finally {
+      try { root?.unmount() } catch {}
+      host?.remove()
+      setDlBusy(false)
+    }
+  }
+
+  const regenerateQr = async () => {
+    if (!confirm("Buat QR baru? QR yang sudah dicetak sebelumnya tidak akan berfungsi lagi.")) return
+    setRegenerating(true)
+    try {
+      const res = await fetch(`/api/dashboard/${id}/gallery-qr`, { method: "POST" })
+      if (res.ok) {
+        setQr(null)
+        await fetchSetup()
+        await loadQr()
+      }
+    } finally {
+      setRegenerating(false)
+    }
+  }
 
   const downloadSingle = async (url: string, filename: string) => {
     try {
       const res = await fetch(url)
       const blob = await res.blob()
-      const link = document.createElement("a")
-      link.href = URL.createObjectURL(blob)
-      link.download = filename
-      link.click()
-      URL.revokeObjectURL(link.href)
+      await downloadBlob(blob, filename)
     } catch {
       window.open(url, "_blank")
     }
   }
 
+  const shareSingle = async (photo: GuestPhoto) => {
+    const name = displayNameOf(photo)
+    try {
+      const res = await fetch(photo.image_url)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const blob = await res.blob()
+      const ext = (blob.type.split("/")[1] || "jpg").split("+")[0]
+      const file = new File([blob], `${name}-${photo.id}.${ext}`, { type: blob.type || "image/jpeg" })
+      const text = photo.caption
+        ? `${photo.caption} — ${name} untuk ${setup?.gallery_couple_name || ""}`
+        : `Kenangan dari ${name} untuk ${setup?.gallery_couple_name || ""}`
+      const outcome = await sharePhoto({ file, title: `Kenangan untuk ${setup?.gallery_couple_name || "mempelai"}`, text })
+      if (outcome === "unsupported") {
+        await downloadSingle(photo.image_url, `${name}-${photo.id}.${ext}`)
+      }
+    } catch {
+      window.open(photo.image_url, "_blank")
+    }
+  }
+
+  // Chunked manifest + browser-side zip: the VPS never holds the archive in
+  // memory, and progress stays visible for 400–600-photo events.
   const downloadAll = async () => {
+    if (!requirePaid()) return
     if (downloadingAll) return
     setDownloadingAll(true)
+    setDownloadProgress("Menyiapkan daftar...")
     try {
-      const res = await fetch(`/api/guest-photos/download-all?wedding_profile_id=${id}`)
-      if (!res.ok) {
-        const text = await res.text()
-        alert(text || "Gagal mengunduh")
-        return
+      const manifest: { url: string; name: string }[] = []
+      const captionChunks: string[] = []
+      const CHUNK = 200
+      let offset = 0
+      let grandTotal = 0
+      for (;;) {
+        const res = await fetch(`/api/guest-photos/download-all?wedding_profile_id=${id}&offset=${offset}&limit=${CHUNK}`)
+        if (!res.ok) {
+          const text = await res.text()
+          alert(text || "Gagal mengunduh")
+          return
+        }
+        const data = await res.json()
+        grandTotal = data.total || 0
+        const items = data.photos || []
+        manifest.push(...items)
+        if (data.captions) captionChunks.push(data.captions)
+        offset += items.length
+        if (items.length < CHUNK || offset >= grandTotal) break
+        setDownloadProgress(`Menyiapkan daftar... (${offset}/${grandTotal})`)
       }
-      const { photos: manifest } = await res.json()
-      if (!manifest || manifest.length === 0) {
+      if (manifest.length === 0) {
         alert("Belum ada foto untuk diunduh")
         return
       }
 
       const { zip } = await import("fflate")
-      const output = new Map<string, Uint8Array>()
       const files: Record<string, Uint8Array> = {}
-
-      for (const item of manifest) {
-        try {
-          const imgRes = await fetch(item.url)
-          if (!imgRes.ok) throw new Error(`HTTP ${imgRes.status}`)
-          files[item.name] = new Uint8Array(await imgRes.arrayBuffer())
-        } catch {
-          // lewati file yang gagal
-        }
+      const CONCURRENCY = 6
+      let done = 0
+      for (let i = 0; i < manifest.length; i += CONCURRENCY) {
+        const batch = manifest.slice(i, i + CONCURRENCY)
+        await Promise.all(batch.map(async (item) => {
+          try {
+            const imgRes = await fetch(item.url)
+            if (!imgRes.ok) throw new Error(`HTTP ${imgRes.status}`)
+            files[item.name] = new Uint8Array(await imgRes.arrayBuffer())
+          } catch {
+            // lewati file yang gagal
+          }
+        }))
+        done += batch.length
+        setDownloadProgress(`Mengunduh ${Math.min(done, manifest.length)}/${manifest.length}...`)
       }
-
+      if (captionChunks.length > 0) {
+        files["captions.txt"] = new TextEncoder().encode(captionChunks.join("\n\n"))
+      }
       if (Object.keys(files).length === 0) {
         alert("Tidak ada foto yang berhasil diunduh")
         return
       }
-
-      await new Promise<void>((resolve, reject) => {
-        zip(files, { level: 6 }, (err, data) => {
-          if (err) return reject(err)
-          output.set("zip", data)
-          resolve()
-        })
+      setDownloadProgress("Membuat ZIP...")
+      const zipped = await new Promise<Uint8Array>((resolve, reject) => {
+        zip(files, { level: 6 }, (err, data) => (err ? reject(err) : resolve(data)))
       })
-
-      const blob = new Blob([output.get("zip")!], { type: "application/zip" })
+      const blob = new Blob([new Uint8Array(zipped)], { type: "application/zip" })
       const link = document.createElement("a")
       link.href = URL.createObjectURL(blob)
       link.download = "galeri-kenangan.zip"
@@ -98,219 +474,562 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
       URL.revokeObjectURL(link.href)
     } finally {
       setDownloadingAll(false)
+      setDownloadProgress("")
     }
   }
 
-  useEffect(() => {
-    fetch(`/api/guest-photos?wedding_profile_id=${id}`)
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => {
-        if (data?.photos) setPhotos(data.photos)
-        if (data?.hasEventDate !== undefined) {
-          setRetention({ hasEventDate: data.hasEventDate, latestEventDate: data.latestEventDate, deletionDate: data.deletionDate })
-        }
-      })
-      .finally(() => setLoading(false))
-  }, [id])
-
-  useEffect(() => {
-    const onScroll = () => {
-      const header = document.querySelector("header")
-      if (!header) return
-      if (window.scrollY > 20) {
-        header.classList.add("shadow-sm", "h-16")
-        header.classList.remove("h-20")
-      } else {
-        header.classList.remove("shadow-sm", "h-16")
-        header.classList.add("h-20")
-      }
-    }
-    window.addEventListener("scroll", onScroll)
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [])
-
-  function formatRelativeTime(dateStr: string): string {
-    const diff = Date.now() - new Date(dateStr).getTime()
-    const mins = Math.floor(diff / 60000)
-    if (mins < 1) return "Baru saja"
-    if (mins < 60) return `${mins} menit lalu`
-    const hours = Math.floor(mins / 60)
-    if (hours < 24) return `${hours} jam lalu`
-    const days = Math.floor(hours / 24)
-    if (days < 7) return `${days} hari lalu`
-    return new Date(dateStr).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })
+  const openKeepsakeBook = () => {
+    if (!requirePaid()) return
+    window.open(`/dashboard/${id}/galeri-kenangan/buku`, "_blank", "noopener")
   }
+
+  const prefillPhoto =
+    !setup?.gallery_photo_url && (setup?.prefill?.photo_url || "").startsWith("http")
+      ? (setup?.prefill?.photo_url as string)
+      : ""
+  const avatarSrc = (setup?.gallery_photo_url || prefillPhoto)
+    ? toTransformedUrl((setup?.gallery_photo_url || prefillPhoto) as string, { width: 200, quality: 65 })
+    : ""
+  // Photo box follows the same fallback as the invitation: stored upload,
+  // then editor cover, then the default couple image (local public asset,
+  // served by the app itself — never through the storage transform).
+  const boxPhoto = setup?.gallery_photo_url || prefillPhoto || ASSETS.defaults.couple
+  const avatarInitial = ((setup?.gallery_couple_name || "G").trim()[0] || "G").toUpperCase()
 
   return (
-    <div className="min-h-screen text-on-surface font-body-md antialiased" style={DASH_SATIN_BG}>
-        <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 border-b border-outline-variant h-20 transition-all duration-300 ease-in-out" style={DASH_HERO_BG}>
-          <div className="flex items-center justify-between px-edge-margin-mobile md:px-edge-margin-desktop h-full w-full">
-            <div className="flex items-center gap-3 min-w-0">
+    <div className="min-h-screen text-on-surface font-body-md antialiased" style={{ ...SANS, ...DASH_SATIN_BG }}>
+      <header className="fixed top-0 inset-x-0 lg:left-[var(--dash-sidebar-w)] z-50 border-b border-outline-variant h-20 transition-all duration-300 ease-in-out" style={DASH_HERO_BG}>
+        <div className="flex items-center justify-between px-edge-margin-mobile md:px-edge-margin-desktop h-full w-full">
+          <div className="flex items-center gap-3 min-w-0">
+            {!isGalleryPkg && (
               <button onClick={() => router.push(`/dashboard/${id}`)} aria-label="Kembali ke dasbor" className="flex items-center justify-center w-11 h-11 -ml-2 rounded-full text-on-surface-variant hover:text-primary active:bg-surface-container transition-colors shrink-0">
                 <span className="material-symbols-outlined">arrow_back</span>
               </button>
-              <span className="font-label-md text-label-md text-primary uppercase tracking-widest truncate">Galeri Kenangan</span>
-            </div>
-            <ProfileMenu />
+            )}
+            <span className="font-label-md text-label-md text-primary uppercase tracking-widest truncate">Galeri Kenangan</span>
           </div>
-        </header>
+          <ProfileMenu />
+        </div>
+      </header>
 
-      <main className="pt-32 pb-28 md:pb-32 max-w-container-max mx-auto px-edge-margin-mobile md:px-edge-margin-desktop">
-        {!loading && retention.hasEventDate && retention.deletionDate && (
-          <div className="mb-10 flex items-start gap-3 bg-[#FEF3C7] border border-[#FDE68A] rounded-xl px-5 py-4 shadow-sm">
-            <span className="material-symbols-outlined text-[#92400E] shrink-0 mt-0.5">info</span>
-            <p className="font-body-md text-[13px] text-[#92400E]">
-              Foto tersedia sampai {formatDeletionDate(retention.deletionDate)}, jangan lupa di download
+      <main className="pt-20 pb-28 md:pb-32">
+        {/* Banner — flush under the header */}
+        <div className="relative overflow-hidden px-6 pt-8 pb-8 rounded-b-[1.5rem] shadow-sm" style={{ backgroundColor: "#f5f3ee" }}>
+          <img src={ASSETS.galeriEnvelope.galleryBannerTopRight} alt="" aria-hidden className="absolute -top-6 -right-6 w-28 h-28 object-contain pointer-events-none" style={{ opacity: 0.25, transform: "rotate(12deg)" }} />
+          <img src={ASSETS.galeriEnvelope.galleryBannerBottomLeft} alt="" aria-hidden className="absolute -bottom-8 -left-8 w-24 h-24 object-contain pointer-events-none" style={{ opacity: 0.2, transform: "rotate(-12deg)" }} />
+
+          <div className="flex items-center justify-end mb-4 relative z-10 max-w-7xl mx-auto">
+            <div className="flex items-center gap-2">
+              <img src={ASSETS.galeriEnvelope.aksaraaMonogram} alt="Aksaraa" className="w-8 h-8 rounded-full object-cover shadow-sm" />
+            </div>
+          </div>
+
+          <div className="relative z-10 flex flex-col items-center text-center max-w-7xl mx-auto">
+            <h2 className="font-medium tracking-normal mb-1 text-[30px] md:text-[44px] leading-tight" style={{ ...SERIF, color: "#4f1519" }}>
+              Galeri Kenangan
+            </h2>
+            <p className="text-[14px] md:text-[17px] leading-relaxed text-[#444841] max-w-xl mx-auto px-4">
+              Kumpulan tawa, kehangatan, dan rekaman kasih dari setiap sahabat yang hadir membersamai langkah kami.
             </p>
-          </div>
-        )}
-
-        {!loading && !retention.hasEventDate && (
-          <div className="mb-10 flex flex-col md:flex-row md:items-center gap-4 bg-[#FEF3C7] border border-[#FDE68A] rounded-xl px-5 py-4 shadow-sm">
-            <div className="flex items-start gap-3 flex-1">
-              <span className="material-symbols-outlined text-[#92400E] shrink-0 mt-0.5">warning</span>
-              <p className="font-body-md text-[13px] text-[#92400E] leading-relaxed">
-                Tanggal acara belum diatur. Atur tanggal agar foto dikelola otomatis dan unduhan tepat waktu.
-              </p>
-            </div>
-            <button
-              onClick={() => router.push(`/dashboard/${id}/web-invitation/editor`)}
-              className="shrink-0 bg-[#B34E3F] text-white rounded-full font-label-md text-[11px] uppercase tracking-widest px-6 py-3 inline-flex items-center justify-center gap-2 hover:bg-[#9E3B2D] active:scale-95 transition-all"
-            >
-              <span className="material-symbols-outlined text-[16px]">edit_calendar</span>
-              Buka Editor
-            </button>
-          </div>
-        )}
-
-        <section className="mb-8 fade-in" style={{ animation: "fadeIn 0.8s ease-out forwards" }}>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-[#E2D9CF] pb-8">
-            <div className="max-w-2xl">
-              <h2 className="font-headline-xl text-[28px] md:text-headline-xl text-[#2C2A29] mb-3">Galeri Kenangan Tamu</h2>
-              <p className="font-body-lg text-body-md md:text-body-lg text-on-surface-variant">Melihat hari bahagia Anda melalui lensa para tamu terkasih.</p>
-              <div className="mt-4 inline-flex items-center gap-2 bg-white border border-[#E2D9CF] rounded-full px-4 py-2 shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-[#C5A059]"></span>
-                <span className="font-label-md text-[11px] uppercase tracking-widest text-[#2C2A29] font-bold">{loading ? "..." : `${photos.length} Momen`}</span>
-                <span className="text-on-surface-variant/40">•</span>
-                <span className="font-body-md text-[11px] text-on-surface-variant">Terunggah</span>
+            <div className="mt-5 flex items-center justify-center gap-3 bg-white px-4 py-2 rounded-full shadow-sm text-[#444841] border border-[#d9c1c0]/30">
+              <div className="flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[16px]" style={{ color: "#4f1519" }}>photo_camera</span>
+                <span className="text-[11px] font-semibold text-[#1b1c19]">{loading ? "..." : `${stats.photos} Foto`}</span>
+              </div>
+              <span className="w-1 h-1 rounded-full bg-[#d9c1c0]" />
+              <div className="flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[16px]" style={{ color: "#536251" }}>group</span>
+                <span className="text-[11px] font-semibold text-[#1b1c19]">{loading ? "..." : `${stats.devices} Tamu Terkasih`}</span>
               </div>
             </div>
-            <div className="flex flex-col items-start md:items-end gap-3">
-              {!loading && photos.length > 0 && (
+            {!loading && total > 0 && (
+              <div className="mt-3.5 flex items-center justify-center gap-2.5 flex-wrap">
                 <button
                   onClick={downloadAll}
                   disabled={downloadingAll}
-                  className="inline-flex items-center gap-2 bg-[#B34E3F] text-white rounded-full px-6 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all disabled:opacity-50 shadow-sm"
+                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-white hover:opacity-95 shadow-sm hover:shadow transition-all active:scale-95 text-[11px] font-semibold tracking-wider uppercase disabled:opacity-50"
+                  style={{ backgroundColor: "#6b2b2d" }}
                 >
-                  <span className="material-symbols-outlined text-[18px]">{downloadingAll ? "hourglass_empty" : "download"}</span>
-                  {downloadingAll ? "Menyiapkan ZIP..." : `Unduh Semua (${photos.length})`}
+                  <span className="material-symbols-outlined text-[16px]">{downloadingAll ? "hourglass_empty" : "cloud_download"}</span>
+                  {downloadingAll ? (downloadProgress || "Menyiapkan...") : "Unduh Semua Foto"}
                 </button>
-              )}
-            </div>
+                <button
+                  onClick={openKeepsakeBook}
+                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-white border border-[#d9c1c0] text-[#1b1c19] hover:opacity-90 shadow-sm transition-all active:scale-95 text-[11px] font-semibold tracking-wider uppercase"
+                >
+                  <span className="material-symbols-outlined text-[16px]">menu_book</span>
+                  Buku Kenangan
+                </button>
+              </div>
+            )}
           </div>
-        </section>
+        </div>
 
-        {!loading && photos.length > 0 && (
-          <div className="mb-6 bg-white border border-[#E2D9CF] rounded-xl p-4 flex flex-col md:flex-row gap-4 items-stretch md:items-center shadow-sm">
-            <div className="flex-1 flex items-center gap-3 bg-[#FAF7F2] border border-[#E2D9CF]/50 rounded-full px-4 py-2">
-              <span className="material-symbols-outlined text-on-surface-variant/70 text-xl">search</span>
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Cari nama tamu..."
-                className="flex-1 bg-transparent border-none focus:ring-0 py-1 text-sm text-on-surface placeholder:text-outline-variant/80 outline-none"
-              />
+        <div className="px-6">
+          {loading ? (
+            <div className="flex items-center justify-center py-32">
+              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <button onClick={() => setSortBy("terbaru")} className={`px-4 py-2 rounded-full font-label-md text-[11px] uppercase tracking-widest border transition-colors ${sortBy === "terbaru" ? "bg-[#B34E3F] text-white border-[#B34E3F]" : "bg-white text-[#2C2A29] border-[#E2D9CF] hover:border-[#B34E3F]"}`}>Terbaru</button>
-              <button onClick={() => setSortBy("disukai")} className={`px-4 py-2 rounded-full font-label-md text-[11px] uppercase tracking-widest border transition-colors ${sortBy === "disukai" ? "bg-[#B34E3F] text-white border-[#B34E3F]" : "bg-white text-[#2C2A29] border-[#E2D9CF] hover:border-[#B34E3F]"}`}>Paling Disukai</button>
-            </div>
-          </div>
-        )}
-
-        {loading ? (
-          <div className="flex items-center justify-center py-32">
-            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : photos.length === 0 ? (
-          <div className="text-center py-32">
-            <span className="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4">photo_library</span>
-            <p className="font-body-md text-on-surface-variant">Belum ada foto dari tamu</p>
-          </div>
-        ) : filteredPhotos.length === 0 ? (
-          <div className="text-center py-16 bg-white border border-outline-variant/50 rounded-xl">
-            <p className="font-body-md text-sm text-on-surface-variant">Tidak ada foto untuk “{search}”</p>
-          </div>
-        ) : (
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filteredPhotos.map((photo, i) => {
-              return (
-                <div key={photo.id} className="group bg-white border border-[#E2D9CF] rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow" style={{ animation: `fadeIn 0.8s ease-out forwards`, animationDelay: `${0.2 + i * 0.1}s`, opacity: 0 }}>
-                  <div className="relative overflow-hidden bg-[#FAF7F2] flex items-center justify-center">
-                    <img
-                      src={photo.image_url}
-                      alt={`Foto oleh ${photo.guests?.name || "Tamu"}`}
-                      className="w-full h-auto max-h-[520px] object-contain cursor-pointer"
-                      style={{ transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)" }}
-                      onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.02)" }}
-                      onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)" }}
-                      onClick={() => window.open(photo.image_url, "_blank")}
-                    />
-                    <button onClick={() => window.open(photo.image_url, "_blank")} className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-[#2C2A29] hover:bg-white shadow-sm opacity-0 group-hover:opacity-100 transition-opacity" title="Lihat penuh">
-                      <span className="material-symbols-outlined text-[16px]">visibility</span>
-                    </button>
-                    {photo.source === "selfie" && (
-                      <span className="absolute top-3 left-3 inline-flex items-center gap-1 text-[9px] font-bold text-white bg-[#B34E3F] rounded-full px-2 py-1 uppercase tracking-wider">
-                        <span className="material-symbols-outlined text-[10px]">photo_camera</span>
-                        Foto Check-in
-                      </span>
-                    )}
+          ) : (
+            <>
+              {/* Detail card — standalone GT bands + Undangan add-on */}
+              {hasGaleri && (
+              <div className="w-full max-w-7xl mx-auto bg-white rounded-[1rem] shadow-md border border-[#d9c1c0]/40 overflow-hidden transition-all duration-300 mt-6">
+                <button
+                  onClick={() => setCardOpen((v) => !v)}
+                  className="w-full p-4 md:p-5 flex items-center justify-between select-none hover:bg-[#f5f3ee]/50 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-3 md:gap-4 min-w-0">
+                    <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden border-2 border-[#4f1519]/20 shadow-sm shrink-0 bg-[#f5f3ee] flex items-center justify-center">
+                      {avatarSrc ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={avatarSrc} alt={setup?.gallery_couple_name || "Mempelai"} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-xl font-semibold" style={{ ...SERIF, color: "#4f1519" }}>{avatarInitial}</span>
+                      )}
+                    </div>
+                    <div className="flex flex-col text-left min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-[17px] md:text-[19px] font-medium leading-tight" style={{ ...SERIF, color: "#4f1519" }}>Detail Acara</h3>
+                        {setup?.date_label && (
+                          <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold tracking-wider uppercase" style={{ backgroundColor: "#fea3a2", color: "#793638" }}>
+                            {setup.date_label}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[14px] md:text-[15px] text-[#444841] truncate">{setup?.gallery_couple_name || ""}&nbsp;</p>
+                    </div>
                   </div>
-                  <div className="bg-white px-4 py-3 flex items-center justify-between gap-3 border-t border-[#E2D9CF]">
-                    <div className="min-w-0">
-                      <p className="font-body-md font-semibold text-[14px] text-[#2C2A29] truncate">{photo.guests?.name || "Tamu"}</p>
-                      <p className="font-label-md text-[11px] text-on-surface-variant flex items-center gap-1.5">
-                        {photo.guests?.category ? <span className="truncate max-w-[80px]">{photo.guests.category}</span> : <span>Umum</span>}
-                        <span className="text-on-surface-variant/30">•</span>
-                        <span className="text-[11px]">{formatRelativeTime(photo.created_at)}</span>
-                      </p>
+                  <div className="flex items-center gap-2 pl-2 shrink-0">
+                    <span className="hidden sm:inline-block text-[11px] uppercase tracking-wider font-semibold" style={{ color: "#4f1519" }}>
+                      {cardOpen ? "Tutup Detail" : "Buka Detail"}
+                    </span>
+                    <div className="w-8 h-8 rounded-full bg-[#f0eee9] flex items-center justify-center" style={{ color: "#4f1519" }}>
+                      <span className="material-symbols-outlined text-[20px] transition-transform duration-300" style={{ transform: cardOpen ? "none" : "rotate(180deg)" }}>
+                        expand_less
+                      </span>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        className="w-8 h-8 rounded-full bg-[#FAF7F2] border border-[#E2D9CF] flex items-center justify-center text-on-surface-variant hover:text-[#B34E3F] hover:border-[#B34E3F] transition-colors"
-                        title="Sukai"
-                        onClick={(e) => {
-                          const el = e.currentTarget.querySelector("span") as HTMLElement
-                          if (!el) return
-                          const filled = el.style.fontVariationSettings.includes("'FILL' 1")
-                          el.style.fontVariationSettings = filled ? "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" : "'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24"
-                          el.style.color = filled ? "" : "#B34E3F"
-                        }}
-                      ><span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}>favorite</span></button>
-                      <button
-                        className="w-8 h-8 rounded-full bg-[#FAF7F2] border border-[#E2D9CF] flex items-center justify-center text-on-surface-variant hover:text-[#B34E3F] hover:border-[#B34E3F] transition-colors"
-                        title="Unduh foto ini"
-                        onClick={() => downloadSingle(photo.image_url, `${photo.guests?.name || "tamu"}-${photo.id}.jpg`)}
-                      ><span className="material-symbols-outlined text-[16px]">download</span></button>
+                  </div>
+                </button>
+
+                {cardOpen && (
+                  <div className="border-t border-[#d9c1c0]/30 bg-[#f5f3ee]/30 p-4 md:p-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                      <div className="lg:col-span-8 flex flex-col md:flex-row gap-5 items-stretch bg-white p-5 md:p-6 rounded-[1rem] border border-[#d9c1c0]/30 shadow-sm">
+                        <div className="flex flex-col items-center shrink-0 justify-center">
+                          <div className="relative group w-36 h-48 md:w-44 md:h-56 rounded-2xl overflow-hidden border-2 border-[#4f1519]/20 shadow-md bg-[#f5f3ee]">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={boxPhoto.startsWith("http") ? toTransformedUrl(boxPhoto, { width: 400, quality: 70 }) : boxPhoto} alt={`Foto Mempelai ${setup?.gallery_couple_name || ""}`} className="w-full h-full object-contain" />
+                            <label className="absolute inset-0 bg-[#4f1519]/40 backdrop-blur-[2px] text-white opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer gap-1 p-2">
+                              <span className="material-symbols-outlined text-[24px]">{uploadingPhoto ? "hourglass_empty" : "photo_camera"}</span>
+                              <span className="text-[10px] uppercase tracking-wider font-semibold">{uploadingPhoto ? "Mengunggah..." : "Ganti Foto"}</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                disabled={uploadingPhoto}
+                                onChange={(e) => {
+                                  const f = e.target.files?.[0]
+                                  if (f) handlePhotoUpload(f)
+                                  e.target.value = ""
+                                }}
+                              />
+                            </label>
+                          </div>
+                        </div>
+                        <div className="flex-1 flex flex-col justify-between pt-1 md:pt-0 border-t md:border-t-0 md:border-l border-[#d9c1c0]/30 md:pl-5 min-w-0">
+                          {!editing && configured ? (
+                            <div className="flex flex-col gap-3.5">
+                              <div className="flex items-start justify-between gap-2 pb-2.5 border-b border-[#d9c1c0]/20">
+                                <div className="min-w-0">
+                                  <span className="text-[11px] uppercase tracking-widest font-semibold" style={{ color: "#6b2b2d" }}>Informasi Acara</span>
+                                  <h4 className="text-[22px] md:text-[26px] mt-0.5 leading-snug truncate" style={{ ...SERIF, color: "#4f1519" }}>{setup?.gallery_couple_name}</h4>
+                                </div>
+                                <button
+                                  onClick={() => setEditing(true)}
+                                  className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#f0eee9] hover:bg-[#e4e2dd] transition-colors text-[11px] font-semibold shrink-0 shadow-sm"
+                                  style={{ color: "#4f1519" }}
+                                >
+                                  <span className="material-symbols-outlined text-[14px]">edit</span>
+                                  Edit Detail
+                                </button>
+                              </div>
+                              <div className="flex items-start gap-3">
+                                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{ backgroundColor: "#fea3a2", color: "#793638" }}>
+                                  <span className="material-symbols-outlined text-[18px]">calendar_month</span>
+                                </div>
+                                <div className="min-w-0">
+                                  <span className="text-[11px] uppercase tracking-wider text-[#444841] font-medium">Hari &amp; Waktu Acara</span>
+                                  <p className="text-[#1b1c19] font-medium text-[15px] md:text-[16px]">
+                                    {setup?.date_label}{setup?.start_label ? ` • ${setup.start_label}` : ""}{setup?.end_label ? ` - ${setup.end_label} WIB` : ""}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="p-2.5 rounded-lg bg-[#f5f3ee]/60 border border-[#d9c1c0]/20 flex items-center gap-2 text-[#444841] text-[12px] md:text-[13px]">
+                                <span className="material-symbols-outlined text-[17px] shrink-0" style={{ color: "#536251" }}>verified</span>
+                                <span>Status: {statusLine}</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <form className="flex flex-col gap-3" onSubmit={(e) => { e.preventDefault(); handleSaveSetup() }}>
+                              <div className="flex items-center justify-between pb-2 border-b border-[#d9c1c0]/20">
+                                <span className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: "#4f1519" }}>
+                                  {configured ? "Edit Detail Acara" : "Detail Acara"}
+                                </span>
+                                <span className="text-[10px] text-[#444841]">Simpan untuk memperbarui</span>
+                              </div>
+                              <div>
+                                <label className="block text-[10px] uppercase tracking-wider text-[#444841] mb-1 font-semibold">Nama Mempelai</label>
+                                <input
+                                  type="text"
+                                  value={coupleName}
+                                  maxLength={80}
+                                  onChange={(e) => setCoupleName(e.target.value)}
+                                  placeholder="Bryan & Cheline"
+                                  className="w-full px-3 py-1.5 rounded-lg border border-[#d9c1c0]/60 bg-[#fbf9f4] text-[#1b1c19] text-[13px] focus:outline-none focus:ring-1 focus:ring-[#4f1519]"
+                                />
+                              </div>
+                              <div className="flex flex-col gap-2.5">
+                                <div>
+                                  <label className="block text-[10px] uppercase tracking-wider text-[#444841] mb-1 font-semibold">Tanggal Acara</label>
+                                  <input
+                                    type="date"
+                                    value={eventDate}
+                                    onChange={(e) => setEventDate(e.target.value)}
+                                    className="w-full px-3 py-1.5 rounded-lg border border-[#d9c1c0]/60 bg-[#fbf9f4] text-[#1b1c19] text-[13px] focus:outline-none focus:ring-1 focus:ring-[#4f1519]"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-[10px] uppercase tracking-wider text-[#444841] mb-1 font-semibold">Waktu Acara</label>
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <div>
+                                      <span className="block text-[9px] uppercase tracking-wider text-[#444841] mb-0.5">Waktu Mulai (Dari)</span>
+                                      <input
+                                        type="time"
+                                        value={startTime}
+                                        onChange={(e) => setStartTime(e.target.value)}
+                                        className="w-full px-3 py-1.5 rounded-lg border border-[#d9c1c0]/60 bg-[#fbf9f4] text-[#1b1c19] text-[13px] focus:outline-none focus:ring-1 focus:ring-[#4f1519]"
+                                      />
+                                    </div>
+                                    <div>
+                                      <span className="block text-[9px] uppercase tracking-wider text-[#444841] mb-0.5">Waktu Selesai (Sampai)</span>
+                                      <input
+                                        type="time"
+                                        value={endTime}
+                                        onChange={(e) => setEndTime(e.target.value)}
+                                        className="w-full px-3 py-1.5 rounded-lg border border-[#d9c1c0]/60 bg-[#fbf9f4] text-[#1b1c19] text-[13px] focus:outline-none focus:ring-1 focus:ring-[#4f1519]"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              {saveError && <p className="text-sm text-red-500">{saveError}</p>}
+                              <div className="flex items-center gap-2 pt-1 justify-end">
+                                {configured && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditing(false)
+                                      setSaveError("")
+                                      setCoupleName(setup?.gallery_couple_name || "")
+                                      setEventDate(wibDateInput(setup?.gallery_start_at || null))
+                                      setStartTime(wibTimeInput(setup?.gallery_start_at || null))
+                                      setEndTime(wibTimeInput(setup?.gallery_end_at || null))
+                                    }}
+                                    className="px-3 py-1 rounded-full border border-[#d9c1c0]/50 text-[#444841] hover:bg-[#f0eee9] text-[11px] font-semibold transition-colors"
+                                  >
+                                    Batal
+                                  </button>
+                                )}
+                                <button
+                                  type="submit"
+                                  disabled={saving}
+                                  className="px-3.5 py-1 rounded-full text-white text-[11px] font-semibold shadow-sm flex items-center gap-1 transition-colors disabled:opacity-50"
+                                  style={{ backgroundColor: "#4f1519" }}
+                                >
+                                  <span className="material-symbols-outlined text-[14px]">save</span>
+                                  {saving ? "Menyimpan..." : "Simpan"}
+                                </button>
+                              </div>
+                            </form>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="lg:col-span-4 flex flex-col items-center text-center bg-white p-5 rounded-[1rem] border border-[#d9c1c0]/30 shadow-sm h-full justify-between">
+                        <div className="flex flex-col items-center w-full">
+                          <span className="text-[11px] uppercase tracking-widest font-semibold mb-2" style={{ color: "#6b2b2d" }}>QR Kode Akses Acara</span>
+                          {!configured ? (
+                            <p className="text-[13px] text-[#444841] leading-relaxed">QR terbit setelah detail acara disimpan.</p>
+                          ) : isUnpaid ? (
+                            <>
+                              <p className="text-[13px] text-[#444841] leading-relaxed">Selesaikan pembayaran untuk menampilkan QR acara.</p>
+                              <button
+                                onClick={() => window.open(paymentWaLink({ packageType: setup?.package_type, galeriTier: setup?.galeri_tier }), "_blank")}
+                                className="mt-3 inline-flex items-center justify-center gap-2 bg-[#D97706] text-white rounded-full px-6 py-2.5 text-[11px] uppercase tracking-widest font-semibold hover:bg-[#92400E] active:scale-95 transition-all"
+                              >
+                                <span className="material-symbols-outlined text-[16px]">payments</span>
+                                Bayar Sekarang
+                              </button>
+                            </>
+                          ) : !qr ? (
+                            <button
+                              onClick={loadQr}
+                              disabled={qrLoading}
+                              className="mt-1 inline-flex items-center gap-2 text-white rounded-full px-6 py-2.5 text-[11px] uppercase tracking-widest hover:opacity-95 transition-colors disabled:opacity-50"
+                              style={{ backgroundColor: "#6b2b2d" }}
+                            >
+                              <span className="material-symbols-outlined text-[16px]">qr_code_2</span>
+                              {qrLoading ? "Memuat..." : "Tampilkan QR"}
+                            </button>
+                          ) : (
+                            <>
+                              <div className="p-3 bg-white rounded-[1rem] border-2 border-[#4f1519]/20 shadow-sm">
+                                {qr.qr_png ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img src={qr.qr_png} alt="QR akses galeri" className="w-32 h-32 md:w-36 md:h-36" />
+                                ) : (
+                                  <p className="font-mono text-[11px] break-all max-w-[160px]">{qr.gallery_url}</p>
+                                )}
+                              </div>
+                              <p className="text-[12px] text-[#444841] mt-3 leading-snug px-1">
+                                Tamu dapat scan QR ini untuk langsung mengunggah foto ke Galeri Kenangan.
+                              </p>
+                              <p className="font-mono text-[11px] text-[#444841] bg-[#f5f3ee] border border-[#d9c1c0] rounded-lg px-3 py-2 mt-2 break-all w-full">
+                                {qr.gallery_url}
+                              </p>
+                            </>
+                          )}
+                        </div>
+                        {qr && !isUnpaid && (
+                          <div className="flex items-center gap-2 mt-4 w-full">
+                            <button onClick={copyQrLink} className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2 rounded-full bg-[#f0eee9] text-[#1b1c19] hover:opacity-80 text-[11px] font-semibold transition-colors">
+                              <span className="material-symbols-outlined text-[14px]">{qrCopied ? "check" : "share"}</span>
+                              {qrCopied ? "Tersalin!" : "Bagikan"}
+                            </button>
+                            <button onClick={downloadStandee} disabled={!qr.qr_png || dlBusy} className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2 rounded-full text-white text-[11px] font-semibold shadow-sm transition-colors disabled:opacity-50" style={{ backgroundColor: "#536251" }}>
+                              <span className="material-symbols-outlined text-[14px]">download</span>
+                              {dlBusy ? "Menyiapkan..." : "Unduh Standee"}
+                            </button>
+                          </div>
+                        )}
+                        {configured && !isUnpaid && qr && (
+                          <button onClick={regenerateQr} disabled={regenerating} className="mt-2 text-[11px] uppercase tracking-widest text-[#444841]/70 hover:text-red-500 transition-colors disabled:opacity-50">
+                            {regenerating ? "Membuat QR baru..." : "Buat QR baru"}
+                          </button>
+                        )}
+                        {configured && !isUnpaid && setup?.galeri_guest_count ? (
+                          <button
+                            onClick={() => router.push(`/dashboard/${id}/galeri-kenangan/cetak`)}
+                            className="mt-2 w-full flex items-center justify-center gap-1.5 py-2 rounded-full bg-[#f0eee9] hover:bg-[#e4e2dd] text-[11px] font-semibold uppercase tracking-widest transition-colors"
+                            style={{ color: "#4f1519" }}
+                          >
+                            <span className="material-symbols-outlined text-[16px]">print</span>
+                            Cetak Standee
+                          </button>
+                        ) : null}
+                      </div>
                     </div>
+                  </div>
+                )}
+              </div>
+              )}
+
+              {!loading && retention.hasEventDate && retention.deletionDate && (
+                <div className="max-w-7xl mx-auto w-full mt-6">
+                  <div className="flex items-start gap-3 bg-[#E0F2FE] border border-[#7DD3FC] rounded-xl px-5 py-4 shadow-sm">
+                    <span className="material-symbols-outlined text-[#0284C7] shrink-0 mt-0.5">info</span>
+                    <p className="font-body-md text-[13px] text-[#0C4A6E]">
+                      Foto tersedia sampai {formatDeletionDate(retention.deletionDate)}, jangan lupa di download
+                    </p>
                   </div>
                 </div>
-              )
-            })}
-          </section>
-        )}
+              )}
+
+              {isUnpaid && (
+                <div className="max-w-7xl mx-auto w-full mt-6">
+                  <div className="flex items-start gap-3 bg-[#E0F2FE] border border-[#7DD3FC] rounded-xl px-5 py-4 shadow-sm">
+                    <span className="material-symbols-outlined text-[#0284C7] shrink-0 mt-0.5">warning</span>
+                    <p className="font-body-md text-[13px] text-[#0C4A6E] leading-relaxed">
+                      Selesaikan pembayaran untuk menerbitkan QR acara. Pengaturan detail acara tetap bisa diisi sekarang.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Search — all packages */}
+              <div className="mt-6 max-w-7xl mx-auto w-full bg-white border border-[#d9c1c0]/40 rounded-full px-4 h-12 flex items-center gap-3 shadow-sm focus-within:ring-1 focus-within:ring-[#4f1519] focus-within:border-[#4f1519] transition-all">
+                <span className="material-symbols-outlined text-[#444841]/70 text-xl">search</span>
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Cari nama atau caption..."
+                  className="bg-transparent border-none focus:ring-0 w-full h-12 py-3.5 text-sm text-[#1b1c19] placeholder:text-[#867272]/80 outline-none"
+                  style={SANS}
+                />
+              </div>
+              {/* Filter pills — pure Buku Tamu Digital packages only */}
+              {isDgbPkg && (
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 mt-6 max-w-7xl mx-auto w-full">
+                  {([
+                    { id: "all" as Pill, icon: "grid_view", label: "Semua Kenangan" },
+                    { id: "gallery" as Pill, icon: "view_timeline", label: "Kenangan Tamu" },
+                    { id: "selfie" as Pill, icon: "face", label: "Check IN" },
+                  ]).map((f) => {
+                    const active = pill === f.id
+                    return (
+                      <button
+                        key={f.id}
+                        onClick={() => switchPill(f.id)}
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-[11px] uppercase tracking-wider font-semibold shrink-0 transition-all active:scale-95 ${active ? "text-white shadow-sm" : "bg-white text-[#444841] shadow-sm hover:opacity-80"}`}
+                        style={active ? { backgroundColor: "#6b2b2d" } : undefined}
+                      >
+                        <span className="material-symbols-outlined text-[16px]">{f.icon}</span>
+                        {f.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+
+              {/* Divider */}
+              <div className="flex items-center gap-3 pt-6 max-w-7xl mx-auto w-full">
+                <div className="h-px bg-[#d9c1c0]/50 flex-grow" />
+                <div className="flex items-center gap-2">
+                  <img src={ASSETS.galeriEnvelope.galleryBannerTopRight} alt="" aria-hidden className="w-4 h-4 object-contain" />
+                  <span className="text-[11px] uppercase tracking-widest font-semibold" style={{ color: "#6b2b2d" }}>Unggahan Sahabat &amp; Keluarga</span>
+                  <img src={ASSETS.galeriEnvelope.galleryBannerBottomLeft} alt="" aria-hidden className="w-4 h-4 object-contain" />
+                </div>
+                <div className="h-px bg-[#d9c1c0]/50 flex-grow" />
+              </div>
+
+              {photos.length === 0 ? (
+                <div className="text-center py-24 max-w-7xl mx-auto w-full">
+                  <span className="material-symbols-outlined text-6xl text-[#444841]/30 mb-4">photo_library</span>
+                  <p className="text-[#444841]">
+                    {debouncedQ
+                      ? `Tidak ada foto untuk “${debouncedQ}”`
+                      : pill !== "all"
+                        ? "Belum ada foto pada kategori ini"
+                        : "Belum ada foto dari tamu"}
+                  </p>
+                  {pill === "all" && !configured && (
+                    <p className="text-sm text-[#444841]/70 mt-2">Simpan detail acara untuk menerbitkan QR agar tamu mulai mengunggah.</p>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 max-w-7xl mx-auto w-full items-start mt-6">
+                    {photos.map((photo) => {
+                      const name = displayNameOf(photo)
+                      const initial = (name.trim()[0] || "T").toUpperCase()
+                      return (
+                        <div key={photo.id} className="bg-white rounded-[1rem] p-4 shadow-md flex flex-col h-full justify-between">
+                          <div className="flex flex-col">
+                            <div className="flex items-center justify-between pb-3 gap-2">
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div className="w-9 h-9 rounded-full flex items-center justify-center text-[16px] font-semibold shrink-0" style={{ ...SERIF, backgroundColor: "#ffdad9", color: "#4f1519" }}>
+                                  {initial}
+                                </div>
+                                <div className="flex flex-col min-w-0">
+                                  <h3 className="text-[17px] leading-tight truncate" style={{ ...SERIF, color: "#1b1c19" }}>Momen dari {name}</h3>
+                                  <span className="text-[11px] text-[#444841]">{formatCardStamp(photo.created_at)}</span>
+                                </div>
+                              </div>
+                              {displayCategory(photo.category || photo.guests?.category) && (
+                                <span className="text-[11px] px-2.5 py-0.5 rounded-full font-medium shrink-0" style={{ backgroundColor: "#fea3a2", color: "#793638" }}>
+                                  {displayCategory(photo.category || photo.guests?.category)}
+                                </span>
+                              )}
+                              {photo.source === "selfie" && (
+                                <span className="text-[11px] px-2.5 py-0.5 rounded-full font-medium shrink-0" style={{ backgroundColor: "#4f1519", color: "#ffdad9" }}>
+                                  Check-in
+                                </span>
+                              )}
+                            </div>
+                            <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-[#f0eee9] shadow-sm">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={photo.image_url}
+                                alt={`Foto oleh ${name}`}
+                                loading="lazy"
+                                decoding="async"
+                                className="w-full h-full object-cover cursor-pointer"
+                                onClick={() => window.open(photo.image_url, "_blank")}
+                              />
+                            </div>
+                            {photo.caption && (
+                              <p className="text-[17px] leading-[26px] mt-3 px-1" style={{ ...CAPTION_FONT, color: "#1b1c19" }}>
+                                {photo.caption}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-end gap-2 pt-3 mt-4 bg-[#f5f3ee]/40 p-2 rounded-lg">
+                            <button
+                              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#536251] text-white text-[11px] font-semibold shadow-sm hover:opacity-90 transition-all active:scale-95"
+                              onClick={() => downloadSingle(photo.image_url, `${name}-${photo.id}.jpg`)}
+                            >
+                              <span className="material-symbols-outlined text-[16px]">download</span>
+                              Unduh Foto
+                            </button>
+                            <button
+                              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-white border border-[#E2D9CF] text-[#1b1c19] hover:opacity-80 text-[11px] font-semibold transition-all"
+                              onClick={() => shareSingle(photo)}
+                            >
+                              <span className="material-symbols-outlined text-[16px]">share</span>
+                              Bagikan
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </section>
+                  {hasMore && (
+                    <div className="flex justify-center mt-8 max-w-7xl mx-auto w-full">
+                      <button
+                        onClick={() => fetchPhotos(page + 1, pill, debouncedQ, true)}
+                        disabled={loadingMore}
+                        className="inline-flex items-center gap-2 bg-white border border-[#E2D9CF] text-[#1b1c19] rounded-full px-8 py-3 text-[11px] uppercase tracking-widest hover:opacity-80 transition-colors disabled:opacity-50 shadow-sm"
+                      >
+                        {loadingMore ? "Memuat..." : `Muat Lagi (${total - photos.length} tersisa)`}
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
+            </>
+          )}
+        </div>
       </main>
 
-      <style jsx global>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #fdf9f0; }
-        ::-webkit-scrollbar-thumb { background: #e5e1d8; }
-      `}</style>
+      {showPaywall && (
+        <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowPaywall(false)}>
+          <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-primary text-2xl">payments</span>
+              </div>
+              <h3 className="font-headline-md text-lg font-medium text-primary">Selesaikan Pembayaran</h3>
+              <p className="text-sm text-on-surface-variant">
+                Fitur ini aktif setelah pembayaran selesai. Klik Bayar untuk menghubungi tim Aksaraa via WhatsApp.
+              </p>
+              <button
+                onClick={() => window.open(paymentWaLink({ packageType: setup?.package_type, galeriTier: setup?.galeri_tier }), "_blank")}
+                className="w-full bg-primary text-on-primary py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
+              >
+                Bayar
+              </button>
+              <button
+                onClick={() => setShowPaywall(false)}
+                className="w-full border border-outline-variant text-on-surface-variant py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+              >
+                Nanti Saja
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

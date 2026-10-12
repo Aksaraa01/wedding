@@ -93,15 +93,21 @@ export async function getFeatureIncluded(packageType: string): Promise<Set<strin
 // Feature selections are driven by the `package_features` table (the editable
 // source of truth). Falls back to the static matrix only when the table read
 // fails/returns nothing, so the app never renders an empty feature set.
-export async function getSelections(packageType: string, undanganFisik: boolean): Promise<Selections> {
+// galeriAddon covers both the standalone GT tab and the GT add-on on
+// Undangan Digital: either way galeri_foto_tamu is included.
+export async function getSelections(packageType: string, undanganFisik: boolean, galeriAddon = false): Promise<Selections> {
   const set = await getFeatureIncluded(packageType)
-  if (set.size === 0) return deriveSelections(packageType, undanganFisik)
+  if (set.size === 0) {
+    const fallback = deriveSelections(packageType, undanganFisik)
+    if (galeriAddon) fallback.galeri_foto_tamu = true
+    return fallback
+  }
   return {
     premium_web: set.has("premium_web"),
     wish_wall: set.has("wish_wall"),
     reservation_automation: set.has("reservation_automation"),
     kolom_direct_transfer: set.has("kolom_direct_transfer"),
-    galeri_foto_tamu: set.has("galeri_foto_tamu"),
+    galeri_foto_tamu: set.has("galeri_foto_tamu") || galeriAddon,
     qr_code_book: set.has("qr_code_book"),
     unique_link_generator: set.has("unique_link_generator"),
     wa_blast: set.has("wa_blast"),

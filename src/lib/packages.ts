@@ -1,27 +1,43 @@
-export const PACKAGE_PRICES: Record<string, number> = {
-  cetak_undangan_bonus: 100000,
-  bonus_full_custom: 350000,
-  essential: 199000,
-  signature: 299000,
-  prestige: 499000,
-  elite: 599000,
-  dgb_sistem: 699000,
-  dgb_pro: 1699000,
-  dgb_premium: 2199000,
-  dgb_prestige: 2699000,
+// Price source of truth: the packages / product_price_tiers / galeri_tiers
+// tables (via getPriceBook server-side or /api/packages/prices client-side).
+// This module holds NO money amounts — only codes, labels, bands, and pure
+// total math over a caller-supplied PriceBook.
+export type PriceBook = {
+  base: Record<string, number>
+  old: Record<string, number | null>
+  waTiers: Record<number, number>
+  express: number
 }
 
-export const PACKAGE_OLD_PRICES: Record<string, number | null> = {
-  cetak_undangan_bonus: null,
-  bonus_full_custom: null,
-  essential: 299000,
-  signature: 450000,
-  prestige: 750000,
-  elite: 850000,
-  dgb_sistem: 999000,
-  dgb_pro: 2275000,
-  dgb_premium: 2950000,
-  dgb_prestige: 3600000,
+export function emptyPriceBook(): PriceBook {
+  return { base: {}, old: {}, waTiers: {}, express: 0 }
+}
+
+export function calcTotalBook(
+  book: PriceBook,
+  packageType: string,
+  waBlastTier: number,
+  expressService: boolean,
+  galeriPrice = 0
+): number {
+  const pkgPrice = book.base[packageType] ?? 0
+  const waPrice = waBlastTier ? (book.waTiers[waBlastTier] ?? 0) : 0
+  const expressPrice = expressService ? book.express : 0
+  return pkgPrice + waPrice + expressPrice + Math.max(0, Math.floor(galeriPrice) || 0)
+}
+
+// Grand total minus voucher discount (locked at registration, preserved across
+// later package/add-on changes). Never negative.
+export function calcTotalWithVoucherBook(
+  book: PriceBook,
+  packageType: string,
+  waBlastTier: number,
+  expressService: boolean,
+  voucherDiscount?: number | null,
+  galeriPrice = 0
+): number {
+  const discount = Math.max(0, Math.floor(Number(voucherDiscount) || 0))
+  return Math.max(0, calcTotalBook(book, packageType, waBlastTier, expressService, galeriPrice) - discount)
 }
 
 export const PACKAGE_LABELS: Record<string, string> = {
@@ -35,6 +51,7 @@ export const PACKAGE_LABELS: Record<string, string> = {
   dgb_pro: "Pro",
   dgb_premium: "Premium",
   dgb_prestige: "Prestige",
+  gt: "Galeri Tamu",
 }
 
 export const PACKAGE_CODES = [
@@ -48,9 +65,10 @@ export const PACKAGE_CODES = [
   "dgb_pro",
   "dgb_premium",
   "dgb_prestige",
+  "gt",
 ] as const
 
-export const PACKAGE_CATEGORY: Record<string, "undangan" | "dgbook"> = {
+export const PACKAGE_CATEGORY: Record<string, "undangan" | "dgbook" | "galeri"> = {
   essential: "undangan",
   signature: "undangan",
   prestige: "undangan",
@@ -61,10 +79,13 @@ export const PACKAGE_CATEGORY: Record<string, "undangan" | "dgbook"> = {
   dgb_pro: "dgbook",
   dgb_premium: "dgbook",
   dgb_prestige: "dgbook",
+  gt: "galeri",
 }
 
-export function getPackageCategory(packageType: string): "Undangan Digital" | "Buku Tamu Digital" {
-  return PACKAGE_CATEGORY[packageType] === "undangan" ? "Undangan Digital" : "Buku Tamu Digital"
+export function getPackageCategory(packageType: string): "Undangan Digital" | "Buku Tamu Digital" | "Galeri Tamu" {
+  const cat = PACKAGE_CATEGORY[packageType]
+  if (cat === "galeri") return "Galeri Tamu"
+  return cat === "undangan" ? "Undangan Digital" : "Buku Tamu Digital"
 }
 
 export type PackageCode = (typeof PACKAGE_CODES)[number]
@@ -79,13 +100,65 @@ export function matrixColumnForPackage(packageType: string, suffix: "value" | "e
   return `${packageType}_${suffix}`
 }
 
-export const WA_TIER_PRICES: Record<number, number> = {
-  100: 150000,
-  200: 250000,
-  300: 300000,
+// WA tier quantities shipped by the product (100/200/300). Per-tier PRICES
+// live in product_price_tiers and arrive via PriceBook.
+export const WA_TIERS = [100, 200, 300] as const
+
+// Galeri Tamu slider model (standalone tab + Undangan add-on share it).
+// Tiers are fully DB-driven: galeri_tiers rows carry their own name +
+// photo/guest bounds + price, matched by range. Renaming rows, adding rows,
+// or reshaping bands needs zero code changes.
+export type GaleriTierRow = {
+  tier: string
+  photoMin: number
+  photoMax: number
+  guestMin: number
+  guestMax: number
+  price: number
 }
 
-export const EXPRESS_FEE = 250000
+// First row whose bounds contain the slider position wins. Null = no tier
+// covers this combination (caller must surface it, never invent a price).
+export function matchGaleriTier(
+  rows: GaleriTierRow[],
+  photosPerGuest: number,
+  guestCount: number
+): GaleriTierRow | null {
+  const photos = Math.floor(photosPerGuest)
+  const guests = Math.floor(guestCount)
+  for (const row of rows || []) {
+    if (
+      Number.isFinite(row.photoMin) && Number.isFinite(row.photoMax) &&
+      Number.isFinite(row.guestMin) && Number.isFinite(row.guestMax) &&
+      photos >= row.photoMin && photos <= row.photoMax &&
+      guests >= row.guestMin && guests <= row.guestMax
+    ) {
+      return row
+    }
+  }
+  return null
+}
+
+export const GALERI_PHOTO_MIN = 1
+export const GALERI_PHOTO_MAX = 10
+export const GALERI_GUEST_MIN = 10
+export const GALERI_GUEST_MAX = 200
+// Absolute per-event photo ceiling regardless of slider math.
+export const GALERI_EVENT_CAP_MAX = 2000
+
+export function galeriEventCap(photosPerGuest: number, guestCount: number): number {
+  return Math.min(Math.max(1, photosPerGuest) * Math.max(1, guestCount), GALERI_EVENT_CAP_MAX)
+}
+
+// Quota fallback for GT rows without a slider config (shouldn't happen —
+// registration, customize, and Ops all require one — but the upload path
+// must never divide by zero or lock out).
+export const GALLERY_DEFAULT_QUOTA = 5
+export const GALLERY_DEFAULT_CAP = 500
+
+export function isGalleryPackage(packageType: string): boolean {
+  return packageType === "gt"
+}
 
 export const PACKAGE_FEATURES: Record<string, string[]> = {
   essential: ["premium_web", "wish_wall", "reservation_automation", "unique_link_generator", "kolom_direct_transfer"],
@@ -128,6 +201,9 @@ export const PACKAGE_FEATURES: Record<string, string[]> = {
     "unique_link_generator", "kolom_direct_transfer",
     "galeri_foto_tamu", "qr_code_book", "wa_blast",
   ],
+  // Galeri Kenangan Tamu (standalone, single package): event QR + guest
+  // gallery only. Slider tiers (galeri_tiers) price it.
+  gt: ["galeri_foto_tamu"],
 }
 
 export type Selections = {
@@ -155,29 +231,6 @@ export function deriveSelections(packageType: string, undanganFisik: boolean): S
     wa_blast: included.includes("wa_blast"),
     undangan_fisik: undanganFisik,
   }
-}
-
-export function calcTotal(
-  packageType: string,
-  waBlastTier: number,
-  expressService: boolean
-): number {
-  const pkgPrice = PACKAGE_PRICES[packageType] || PACKAGE_PRICES.signature
-  const waPrice = waBlastTier ? (WA_TIER_PRICES[waBlastTier] || 0) : 0
-  const expressPrice = expressService ? EXPRESS_FEE : 0
-  return pkgPrice + waPrice + expressPrice
-}
-
-// Grand total minus voucher discount (locked at registration, preserved across
-// later package/add-on changes). Never negative.
-export function calcTotalWithVoucher(
-  packageType: string,
-  waBlastTier: number,
-  expressService: boolean,
-  voucherDiscount?: number | null
-): number {
-  const discount = Math.max(0, Math.floor(Number(voucherDiscount) || 0))
-  return Math.max(0, calcTotal(packageType, waBlastTier, expressService) - discount)
 }
 
 export function normalizePhone(wa: string): string {

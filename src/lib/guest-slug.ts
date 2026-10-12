@@ -33,3 +33,13 @@ export const FALLBACK_GUEST_NAME = "Teman & Partner"
 export function isFallbackGuestSlug(slug: string | null | undefined): boolean {
   return prettifyGuestSlug(slug).toLowerCase() === "teman & partner"
 }
+
+// Guest identity categories for the Galeri photobooth. Single source of
+// truth — also used by the dashboard add-guest and scanner forms.
+export const GUEST_CATEGORIES = ["Keluarga", "Kerabat", "Teman", "Kolega", "Lainnya"] as const
+
+export type GuestCategory = (typeof GUEST_CATEGORIES)[number]
+
+export function isValidGuestCategory(value: string | null | undefined): value is GuestCategory {
+  return !!value && (GUEST_CATEGORIES as readonly string[]).includes(value)
+}

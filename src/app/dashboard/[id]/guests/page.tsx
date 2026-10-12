@@ -7,6 +7,7 @@ import ProfileMenu from "@/components/ProfileMenu"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import * as XLSX from "xlsx"
 import { sanitizeGuestName } from "@/lib/nameClean"
+import { displayCategory } from "@/lib/gallery-client"
 
 type Guest = {
   id: string
@@ -246,7 +247,7 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
     const byTable = new Map<string, Map<string, number>>()
     for (const g of guests) {
       const table = g.table_number?.trim() || "Tanpa Meja"
-      const category = g.category?.trim() || "Tanpa Kategori"
+      const category = displayCategory(g.category) || "Tanpa Kategori"
       if (!byTable.has(table)) byTable.set(table, new Map())
       const cats = byTable.get(table)!
       cats.set(category, (cats.get(category) || 0) + 1)
@@ -358,8 +359,8 @@ function GuestsInner({ weddingProfileId }: { weddingProfileId: string }) {
                             )}
                           </p>
                           <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
-                            {row.category && (
-                              <span className="inline-flex items-center px-2 py-0.5 bg-[#F5EFE6] border border-[#E2D9CF] text-[#2C2A29] font-label-md text-[10px] uppercase tracking-wider rounded-full">{row.category}</span>
+                            {displayCategory(row.category) && (
+                              <span className="inline-flex items-center px-2 py-0.5 bg-[#F5F3EE] border border-[#E2D9CF] text-[#2C2A29] font-label-md text-[10px] uppercase tracking-wider rounded-full">{displayCategory(row.category)}</span>
                             )}
                             {row.duplicate && (
                               <span className="inline-flex items-center px-2 py-0.5 bg-[#FEE2E2] border border-[#FECACA] text-[#991B1B] font-label-md text-[10px] font-bold uppercase tracking-wider rounded-full">Duplikat</span>

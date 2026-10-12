@@ -3,19 +3,18 @@
 import React, { useState, useEffect, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import {
-  PACKAGE_PRICES,
-  PACKAGE_OLD_PRICES,
+  PACKAGE_CODES,
   PACKAGE_LABELS,
   PACKAGE_FEATURES,
-  WA_TIER_PRICES,
-  EXPRESS_FEE,
-  calcTotal,
+  WA_TIERS,
+  calcTotalBook,
   normalizePhone,
+  emptyPriceBook,
+  type PriceBook,
 } from "@/lib/packages"
+import GaleriConfigurator, { type GaleriSelection } from "@/components/galeri/GaleriConfigurator"
 import ProfileMenu from "@/components/ProfileMenu"
 import { waLink } from "@/lib/contact"
-
-const WA_TIERS = [100, 200, 300] as const
 
 type MatrixRow = {
   id: string
@@ -313,28 +312,46 @@ function Inner() {
   const hasCouple = userName.trim().length > 0 && partnerName.trim().length > 0
 
   const rawPackage = searchParams.get("package") || ""
-  const packageParam = rawPackage && PACKAGE_PRICES[rawPackage] != null ? rawPackage : ""
+  const packageParam = rawPackage && (PACKAGE_CODES as readonly string[]).includes(rawPackage) ? rawPackage : ""
   const initialTab = packageParam
     ? packageParam.startsWith("dgb_")
       ? "dgbook"
-      : "undangan"
+      : packageParam === "gt"
+        ? "galeri"
+        : "undangan"
     : searchParams.get("tab") === "dgbook"
       ? "dgbook"
-      : "undangan"
+      : searchParams.get("tab") === "galeri"
+        ? "galeri"
+        : "undangan"
   const rawWaTier = Number(searchParams.get("wa_tier") || "0")
   const initialWaTier = rawWaTier === 100 || rawWaTier === 200 || rawWaTier === 300 ? rawWaTier : 0
   const initialExpress = searchParams.get("express") === "1"
+  const urlGaleriPhotos = Number(searchParams.get("galeri_photos") || "0")
+  const urlGaleriGuests = Number(searchParams.get("galeri_guests") || "0")
 
-  const [activeTab, setActiveTab] = useState<"undangan" | "dgbook">(initialTab)
+  const [activeTab, setActiveTab] = useState<"undangan" | "dgbook" | "galeri">(initialTab)
   const [selectedPackage, setSelectedPackage] = useState(
-    packageParam || (initialTab === "dgbook" ? "dgb_sistem" : "signature")
+    packageParam || (initialTab === "dgbook" ? "dgb_sistem" : initialTab === "galeri" ? "gt" : "signature")
   )
   const [waBlastTier, setWaBlastTier] = useState<number>(initialWaTier)
   const [expressService, setExpressService] = useState(initialExpress)
   const [undanganFisik, setUndanganFisik] = useState(false)
+  // Galeri slider config: standalone GT tab always has one; Undangan tab
+  // holds one behind the add-on toggle (preserved when toggled off).
+  const [galeriSel, setGaleriSel] = useState<GaleriSelection | null>(null)
+  const [galeriAddonOn, setGaleriAddonOn] = useState(false)
+  const [galeriAddonSel, setGaleriAddonSel] = useState<GaleriSelection | null>(null)
+  const [originalGaleri, setOriginalGaleri] = useState("")
+  const [addonsOpen, setAddonsOpen] = useState(false)
+  const [galeriPopupOpen, setGaleriPopupOpen] = useState(false)
   const [matrix, setMatrix] = useState<MatrixSection[]>([])
   const [matrixCols, setMatrixCols] = useState<MatrixCol[]>([])
   const [pkgFeatures, setPkgFeatures] = useState<Record<string, string[]>>({})
+  // Price book (DB truth). Null until loaded — prices render skeletons and
+  // submit stays disabled until every displayed price is real.
+  const [book, setBook] = useState<PriceBook | null>(null)
+  const [bookError, setBookError] = useState(false)
 
   const [loaded, setLoaded] = useState(!isEdit)
   const [modalOpen, setModalOpen] = useState(false)
@@ -372,6 +389,14 @@ function Inner() {
         setMatrixCols(data.columns || [])
         setPkgFeatures(data.features || {})
       })
+      .catch(() => {})
+    fetch("/api/packages/prices")
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("prices unreadable"))))
+      .then((data) => {
+        if (data && data.base) setBook(data as PriceBook)
+        else setBookError(true)
+      })
+      .catch(() => setBookError(true))
   }, [])
 
   const fetchProfile = async () => {
@@ -381,13 +406,34 @@ function Inner() {
     setSelectedPackage(pkg)
     setOriginalPackage(pkg)
     setProfilePaymentStatus(data.profile.payment_status || "UNPAID")
-    setActiveTab(pkg.startsWith("dgb_") ? "dgbook" : "undangan")
+    setActiveTab(pkg.startsWith("dgb_") ? "dgbook" : pkg === "gt" ? "galeri" : "undangan")
     setWaBlastTier(data.profile.wa_blast_tier || 0)
     setOriginalWaTier(data.profile.wa_blast_tier || 0)
     setExpressService(!!data.profile.express_service)
     setOriginalExpress(!!data.profile.express_service)
     setUndanganFisik(!!data.profile.undangan_fisik)
     setOriginalFisik(!!data.profile.undangan_fisik)
+    // Galeri prefill (standalone band or Undangan add-on).
+    const gp = data.profile
+    if (gp.galeri_addon && gp.galeri_photos_per_guest && gp.galeri_guest_count) {
+      const sel = {
+        photos: gp.galeri_photos_per_guest,
+        guests: gp.galeri_guest_count,
+        tier: gp.galeri_tier,
+        price: gp.galeri_price || 0,
+      }
+      setGaleriSel(sel)
+      setGaleriAddonSel(sel)
+      setGaleriAddonOn(pkg !== "gt")
+      setOriginalGaleri(JSON.stringify({ on: true, photos: sel.photos, guests: sel.guests }))
+      if (pkg === "gt") {
+        setSelectedPackage("gt")
+        setOriginalPackage("gt")
+      }
+    } else {
+      setGaleriAddonOn(false)
+      setOriginalGaleri(JSON.stringify({ on: false }))
+    }
     setProfileVoucherCode(data.profile.voucher_code || null)
     if (data.profile.voucher_code) {
       setVoucherCode(data.profile.voucher_code)
@@ -404,8 +450,28 @@ function Inner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editProfileId, isEdit])
 
-  const total = calcTotal(selectedPackage, waBlastTier, expressService)
+  const activeGaleri = activeTab === "galeri" ? galeriSel : activeTab === "undangan" && galeriAddonOn ? galeriAddonSel : null
+  const galeriPrice = activeGaleri?.price || 0
+  const isGaleriTab = activeTab === "galeri"
+  // Express 24h is not offered on the standalone GT tab.
+  const showExpress = activeTab !== "galeri"
+  // Standalone GT is a single package code; slider tiers price it.
+  const galeriBand = "gt"
+  // Package code used for totals, submit, and voucher validation.
+  const effectivePackage = isGaleriTab && galeriSel ? galeriBand : selectedPackage
+  const total = !book
+    ? 0
+    : isGaleriTab
+      ? galeriPrice
+      : calcTotalBook(book, selectedPackage, waBlastTier, showExpress && expressService, galeriPrice)
   const discountedTotal = voucherAmount != null ? Math.max(0, total - voucherAmount) : total
+  // Galeri price must be real (DB tiers loaded) before submit is allowed.
+  const galeriReady = !activeGaleri || activeGaleri.price > 0
+
+  const handleGtSel = (sel: GaleriSelection) => {
+    setGaleriSel(sel)
+    setSelectedPackage("gt")
+  }
 
   const applyVoucher = async (code: string, pkg: string): Promise<{ ok: boolean; amount: number }> => {
     const clean = code.trim().toUpperCase()
@@ -452,16 +518,18 @@ function Inner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPackage])
 
-  const switchTab = (tab: "undangan" | "dgbook") => {
+  const switchTab = (tab: "undangan" | "dgbook" | "galeri") => {
     setActiveTab(tab)
-    setSelectedPackage(tab === "dgbook" ? "dgb_sistem" : "signature")
+    setSelectedPackage(tab === "dgbook" ? "dgb_sistem" : tab === "galeri" ? "gt" : "signature")
     setWaBlastTier(0)
   }
 
   const showWaTier = (pkgFeatures[selectedPackage] ?? PACKAGE_FEATURES[selectedPackage] ?? []).includes("wa_blast")
-  const activeCards = activeTab === "undangan" ? UNDANGAN_CARDS : DGB_CARDS
+  // WA tier options come from the DB book; static quantities only pre-load.
+  const waTierOptions = book ? Object.keys(book.waTiers).map(Number).sort((a, b) => a - b) : [...WA_TIERS]
+  const activeCards = activeTab === "dgbook" ? DGB_CARDS : UNDANGAN_CARDS
   const matrixVisibleCols = matrixCols.filter((col) => !["cetak_undangan_bonus", "bonus_full_custom"].includes(col.code))
-  const matrixUndanganCols = matrixVisibleCols.filter((c) => !c.code.startsWith("dgb_"))
+  const matrixUndanganCols = matrixVisibleCols.filter((c) => !c.code.startsWith("dgb_") && !c.code.startsWith("gt_"))
   const matrixDgbCols = matrixVisibleCols.filter((c) => c.code.startsWith("dgb_"))
 
   const selectPackage = (code: string) => {
@@ -477,16 +545,24 @@ function Inner() {
     const guest = searchParams.get("guest")
     if (date) p.set("date", date)
     if (guest) p.set("guest", guest)
-    p.set("package", selectedPackage)
+    p.set("package", isGaleriTab && galeriSel ? galeriBand : selectedPackage)
     p.set("tab", activeTab)
     if (waBlastTier > 0) p.set("wa_tier", String(waBlastTier))
-    if (expressService) p.set("express", "1")
+    if (expressService && !isGaleriTab) p.set("express", "1")
+    if (activeGaleri) {
+      p.set("galeri_photos", String(activeGaleri.photos))
+      p.set("galeri_guests", String(activeGaleri.guests))
+    }
     router.push(`/register?${p}`)
   }
 
   const handleSubmit = async () => {
     if (!userName.trim() || !partnerName.trim()) {
       setSubmitError("Data pengantin tidak lengkap. Silakan ulangi dari halaman pendaftaran.")
+      return
+    }
+    if (!book || !galeriReady) {
+      setSubmitError("Harga belum termuat. Tunggu sebentar lalu coba lagi.")
       return
     }
     const cleaned = waNumber.replace(/\D/g, "").replace(/^0+/, "")
@@ -532,17 +608,20 @@ function Inner() {
           estimated_guest_count: guestCount,
           whatsapp_number: phone,
           pin: cleanPin,
-          package_type: selectedPackage,
+          package_type: effectivePackage,
           wa_blast_tier: waBlastTier,
-          express_service: expressService,
+          express_service: isGaleriTab ? false : expressService,
           undangan_fisik: undanganFisik,
           voucher_code: voucherAmount != null ? voucherCode.trim().toUpperCase() : undefined,
+          ...(activeGaleri ? { galeri: { photos_per_guest: activeGaleri.photos, guest_count: activeGaleri.guests } } : {}),
         }),
       })
       const data = await res.json().catch(() => ({}))
       if (res.ok) {
         const pid = data.wedding_profile_id || data.profile_id || ""
-        router.push(pid ? `/dashboard/${pid}` : "/login")
+        const donePackage = isGaleriTab && galeriSel ? galeriBand : selectedPackage
+        // Galeri standalone lands directly on the event setup page.
+        router.push(pid ? (donePackage === "gt" ? `/dashboard/${pid}/galeri-kenangan` : `/dashboard/${pid}`) : "/login")
       } else {
         setSubmitError(data.error || "Terjadi kesalahan. Silakan coba lagi.")
       }
@@ -568,7 +647,7 @@ function Inner() {
     const clean = voucherModalInput.trim().toUpperCase()
     if (!clean || submitting || voucherChecking) return
     if (!isEdit) {
-      const r = await applyVoucher(clean, selectedPackage)
+      const r = await applyVoucher(clean, effectivePackage)
       if (r.ok) {
         setVoucherModalSuccess(`Kode ${clean} valid — potongan ${formatRp(r.amount)}.`)
         setVoucherModalOpen(false)
@@ -579,11 +658,16 @@ function Inner() {
     setVoucherError("")
     setVoucherModalSuccess(null)
     try {
+      // Edit mode validates against the PENDING package (tab switch not yet
+      // saved): the server falls back to the stored package when the body
+      // omits it, which wrongly rejects a voucher that covers the new tab
+      // (e.g. gt-only voucher while switching signature → galeri).
+      const pendingPackage = { package_type: effectivePackage }
       const res = await fetch(`/api/customize/${editProfileId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
-          profileVoucherCode ? { voucher_code: clean, replace_voucher: true } : { voucher_code: clean }
+          profileVoucherCode ? { voucher_code: clean, replace_voucher: true, ...pendingPackage } : { voucher_code: clean, ...pendingPackage }
         ),
       })
       const data = await res.json().catch(() => ({}))
@@ -625,11 +709,29 @@ function Inner() {
   }
   const handleSave = async () => {
     const newVoucher = !profileVoucherCode && voucherAmount != null ? voucherCode.trim().toUpperCase() : undefined
+    if (!book || !galeriReady) {
+      setSubmitError("Harga belum termuat. Tunggu sebentar lalu coba lagi.")
+      return
+    }
+    const galeriPayload =
+      activeTab === "galeri"
+        ? galeriSel
+          ? { photos_per_guest: galeriSel.photos, guest_count: galeriSel.guests }
+          : null
+        : activeTab === "undangan"
+          ? galeriAddonOn && galeriAddonSel
+            ? { photos_per_guest: galeriAddonSel.photos, guest_count: galeriAddonSel.guests }
+            : null
+          : undefined
+    const galeriSnapshot = JSON.stringify(
+      galeriPayload ? { on: true, photos: galeriPayload.photos_per_guest, guests: galeriPayload.guest_count } : { on: false }
+    )
     const hasChanged =
       selectedPackage !== originalPackage ||
       waBlastTier !== originalWaTier ||
       expressService !== originalExpress ||
       undanganFisik !== originalFisik ||
+      galeriSnapshot !== originalGaleri ||
       !!newVoucher
     if (isEdit && hasChanged && profilePaymentStatus !== "UNPAID") {
       setPackageChangeModalOpen(true)
@@ -643,10 +745,11 @@ function Inner() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          package_type: selectedPackage,
+          package_type: isGaleriTab && galeriSel ? galeriBand : selectedPackage,
           wa_blast_tier: waBlastTier,
-          express_service: expressService,
+          express_service: isGaleriTab ? false : expressService,
           undangan_fisik: undanganFisik,
+          ...(galeriPayload !== undefined ? { galeri: galeriPayload } : {}),
           ...(newVoucher ? { voucher_code: newVoucher } : {}),
         }),
       })
@@ -725,23 +828,35 @@ function Inner() {
         {/* Segmented Toggle */}
         <div className="sticky top-24 z-40 py-2 mb-8 flex justify-center">
           <div className="inline-flex rounded-full bg-surface-container-low/80 backdrop-blur-md p-1.5 shadow-sm border border-outline-variant/20">
-            {(["undangan", "dgbook"] as const).map((tab) => (
+            {(["undangan", "dgbook", "galeri"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => switchTab(tab)}
-                className={`px-8 py-2.5 rounded-full font-label-md text-label-md uppercase tracking-widest transition-all duration-300 ${
+                className={`px-6 md:px-8 py-2.5 rounded-full font-label-md text-label-md uppercase tracking-widest transition-all duration-300 ${
                   activeTab === tab
                     ? "bg-white text-primary shadow-md"
                     : "text-on-surface-variant hover:text-primary"
                 }`}
               >
-                {tab === "undangan" ? "Undangan Digital" : "Buku Tamu Digital"}
+                {tab === "undangan" ? "Undangan Digital" : tab === "dgbook" ? "Buku Tamu Digital" : "Galeri Tamu"}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Package cards */}
+        {/* Package cards (Undangan / Buku Tamu) or slider configurator (Galeri) */}
+        {activeTab === "galeri" ? (
+          <>
+            <GaleriConfigurator
+              initialPhotos={galeriSel?.photos || urlGaleriPhotos || 5}
+              initialGuests={galeriSel?.guests || urlGaleriGuests || 100}
+              onChange={handleGtSel}
+            />
+            {/* Bottom clearance so the configurator's tail content clears
+                the tall stacked mobile footer (total + voucher + simpan). */}
+            <div aria-hidden className="h-56 md:hidden" />
+          </>
+        ) : (
         <div
           className={`grid grid-cols-1 gap-4 md:gap-6 ${
             activeTab === "undangan" ? "lg:grid-cols-4" : "md:grid-cols-2 xl:grid-cols-4"
@@ -753,8 +868,8 @@ function Inner() {
             const st = STYLES[pkg.style]
             const popular = pkg.style === "secondary"
             const isElite = pkg.code === "elite"
-            const oldPrice = PACKAGE_OLD_PRICES[pkg.code]
-            const price = PACKAGE_PRICES[pkg.code]
+            const oldPrice = book?.old[pkg.code] ?? null
+            const price = book?.base[pkg.code]
 
             return (
               <div
@@ -785,7 +900,7 @@ function Inner() {
                           {oldPrice != null ? formatRp(oldPrice) : ""}
                         </div>
                         <div className="flex items-baseline gap-2">
-                          <span className="font-headline-lg text-3xl text-primary font-semibold whitespace-nowrap">{formatRp(price)}</span>
+                          <span className="font-headline-lg text-3xl text-primary font-semibold whitespace-nowrap">{price == null ? <span className="inline-block h-8 w-32 bg-surface-container-high rounded animate-pulse align-middle" /> : formatRp(price)}</span>
                         </div>
                       </div>
                       {pkg.included && (
@@ -851,7 +966,7 @@ function Inner() {
                           {oldPrice != null ? formatRp(oldPrice) : ""}
                         </div>
                         <div className="flex items-baseline gap-2">
-                          <span className="font-headline-lg text-3xl text-primary font-semibold whitespace-nowrap">{formatRp(price)}</span>
+                          <span className="font-headline-lg text-3xl text-primary font-semibold whitespace-nowrap">{price == null ? <span className="inline-block h-8 w-32 bg-surface-container-high rounded animate-pulse align-middle" /> : formatRp(price)}</span>
                         </div>
                       </div>
                       {pkg.included && (
@@ -928,15 +1043,19 @@ function Inner() {
             )
           })}
         </div>
+        )}
 
+        {activeTab !== "galeri" && (
         <div className="text-center mb-14 mt-12">
           <button onClick={() => setMatrixOpen(true)} className="inline-flex items-center gap-2 font-label-md text-label-md uppercase tracking-widest text-secondary border-b border-secondary/40 pb-1 hover:border-secondary transition-colors">
             <span className="material-symbols-outlined text-[18px]">grid_view</span>
             Lihat Detail Komparasi Fitur
           </button>
         </div>
+        )}
 
         {showWaTier && (
+          <div className="hidden md:block">
           <section className="mb-6">
             <div className={`border p-6 md:p-8 bg-white transition-colors ${waBlastTier > 0 ? "border-secondary" : "border-outline-variant/30"}`}>
               <div className="flex items-center justify-between">
@@ -956,7 +1075,7 @@ function Inner() {
               </div>
               {waBlastTier > 0 && (
                 <div className="mt-6 flex flex-wrap gap-3">
-                  {WA_TIERS.map((tier) => (
+                  {waTierOptions.map((tier) => (
                     <button
                       key={tier}
                       onClick={() => setWaBlastTier(tier)}
@@ -968,15 +1087,18 @@ function Inner() {
                     >
                       <span className="font-headline-md text-lg block">+{tier}</span>
                       <span className="font-label-md text-[10px] uppercase tracking-wider text-on-surface-variant">Tamu</span>
-                      <span className="font-body-md text-[13px] text-on-surface-variant block mt-1">{formatRp(WA_TIER_PRICES[tier])}</span>
+                      <span className="font-body-md text-[13px] text-on-surface-variant block mt-1">{book ? formatRp(book.waTiers[tier] ?? 0) : "•••"}</span>
                     </button>
                   ))}
                 </div>
               )}
             </div>
           </section>
+          </div>
         )}
 
+        {showExpress && (
+        <div className="hidden md:block">
         <section className="mb-6">
           <div className={`border p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 bg-white transition-colors ${expressService ? "border-secondary" : "border-outline-variant/30"}`}>
             <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto">
@@ -991,7 +1113,7 @@ function Inner() {
             <div className="flex items-center gap-4 md:gap-8 w-full md:w-auto justify-between md:justify-end">
               <div className="text-left md:text-right">
                 <span className="font-label-md text-secondary block uppercase tracking-tighter text-[10px] md:text-label-md">Layanan Kilat</span>
-                <span className="font-headline-md text-xl md:text-2xl">{formatRp(EXPRESS_FEE)}</span>
+                <span className="font-headline-md text-xl md:text-2xl">{book ? formatRp(book.express) : "•••"}</span>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -1005,17 +1127,230 @@ function Inner() {
             </div>
           </div>
         </section>
+        </div>
+        )}
 
+        {activeTab === "undangan" && (
+          <section className="mb-6">
+            <div className={`border p-6 md:p-8 bg-white rounded-3xl transition-colors ${galeriAddonOn ? "border-secondary" : "border-outline-variant/30"}`}>
+              <div className="flex items-center gap-4 md:gap-6">
+                <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-primary text-white flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined scale-110 md:scale-125">photo_library</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-headline-md text-xl md:text-2xl mb-1">Tambah Galeri Tamu</h4>
+                  <p className="font-body-md text-[13px] md:text-body-md text-on-surface-variant">
+                    QR acara + foto per tamu dengan harga slider.
+                    {galeriAddonOn && galeriAddonSel ? ` ${galeriAddonSel.tier} — ${formatRp(galeriAddonSel.price)}.` : " Aktifkan untuk konfigurasi."}
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-4">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={galeriAddonOn}
+                    onChange={() => {
+                      const next = !galeriAddonOn
+                      setGaleriAddonOn(next)
+                      if (next) setGaleriPopupOpen(true)
+                    }}
+                  />
+                  <div className="w-14 h-8 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary" />
+                </label>
+              </div>
+              {galeriAddonOn && (
+                <div className="mt-4 flex items-center justify-between gap-3 flex-wrap">
+                  <p className="font-body-md text-[13px] text-on-surface-variant">
+                    {galeriAddonSel ? `${galeriAddonSel.photos} foto/tamu • ${galeriAddonSel.guests} tamu • ${galeriAddonSel.tier} — ${formatRp(galeriAddonSel.price)}` : "Menyiapkan harga..."}
+                  </p>
+                  <button
+                    onClick={() => setGaleriPopupOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-primary text-white font-label-md text-[11px] uppercase tracking-widest hover:bg-secondary transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">tune</span>
+                    Ubah
+                  </button>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+        {/* Bottom clearance so the add-on tail content clears the tall
+            stacked mobile footer (total + voucher + simpan). */}
+        {activeTab === "undangan" && <div aria-hidden className="h-56 md:hidden" />}
+
+        {/* Galeri slider popup (Undangan add-on) */}
+        {galeriPopupOpen && (
+          <div className="fixed inset-0 z-[210] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/50" onClick={() => setGaleriPopupOpen(false)} />
+            <div className="relative bg-[#f0f4f8] rounded-3xl max-w-3xl w-full max-h-[88dvh] overflow-y-auto p-4 md:p-6 shadow-2xl">
+              <div className="flex items-center justify-between mb-3 px-1">
+                <h3 className="font-headline-md text-lg text-primary">Galeri Tamu</h3>
+                <button onClick={() => setGaleriPopupOpen(false)} aria-label="Tutup" className="text-on-surface-variant hover:text-primary">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+              <GaleriConfigurator
+                initialPhotos={galeriAddonSel?.photos || urlGaleriPhotos || 5}
+                initialGuests={galeriAddonSel?.guests || urlGaleriGuests || 100}
+                onChange={setGaleriAddonSel}
+              />
+              <button
+                onClick={() => setGaleriPopupOpen(false)}
+                className="mt-4 w-full py-4 bg-primary text-white rounded-xl font-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-colors"
+              >
+                Terapkan
+              </button>
+            </div>
+          </div>
+        )}
 
       </main>
+
+      {/* Floating add-ons pill — RSVP-dock style. The Galeri tab has no
+          add-ons, so the pill stays hidden there. */}
+      {activeTab !== "galeri" && (
+        <button
+          onClick={() => setAddonsOpen(true)}
+          aria-label="Add-on layanan"
+          title="Add-On Layanan"
+          className="fixed right-4 top-1/2 -translate-y-1/2 z-[80] flex items-center gap-2 h-12 pl-4 pr-3 rounded-full bg-[#B88A2D] text-white shadow-xl hover:bg-[#C9A227] active:scale-95 transition-all"
+        >
+          <span className="font-label-md text-[10px] uppercase tracking-widest whitespace-nowrap">Add-On</span>
+          <span className="material-symbols-outlined text-[20px]">add_circle</span>
+          {(waBlastTier > 0 || (showExpress && expressService) || (activeTab === "undangan" && galeriAddonOn)) && (
+            <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-[#B88A2D]" />
+          )}
+        </button>
+      )}
+      {addonsOpen && (
+        <div className="fixed inset-0 z-[200]">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setAddonsOpen(false)} />
+          <div className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto bg-[#f0f4f8] rounded-t-3xl p-5 pb-8 md:inset-x-auto md:left-1/2 md:top-1/2 md:bottom-auto md:-translate-x-1/2 md:-translate-y-1/2 md:w-[min(32rem,calc(100vw-3rem))] md:rounded-3xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-headline-md text-lg text-primary">Add-On Layanan</h3>
+              <button onClick={() => setAddonsOpen(false)} aria-label="Tutup" className="text-on-surface-variant hover:text-primary">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="flex flex-col gap-4">
+              {showWaTier && (
+                <div className={`border p-4 bg-white ${waBlastTier > 0 ? "border-secondary" : "border-outline-variant/30"}`}>
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h4 className="font-headline-md text-base mb-0.5">Reminder Tamu VIP</h4>
+                      <p className="text-xs text-on-surface-variant">+100 tamu termasuk, tambah sesuai kebutuhan.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                      <input
+                        type="checkbox"
+                        className="sr-only peer"
+                        checked={waBlastTier > 0}
+                        onChange={() => setWaBlastTier(waBlastTier > 0 ? 0 : 100)}
+                      />
+                      <div className="w-14 h-8 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary" />
+                    </label>
+                  </div>
+                  {waBlastTier > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {waTierOptions.map((tier) => (
+                        <button
+                          key={tier}
+                          onClick={() => setWaBlastTier(tier)}
+                          className={`flex-1 min-w-[80px] p-3 border text-center transition-all ${
+                            waBlastTier === tier
+                              ? "border-secondary bg-secondary-fixed/30"
+                              : "border-outline-variant hover:border-secondary"
+                          }`}
+                        >
+                          <span className="font-headline-md text-base block">+{tier}</span>
+                          <span className="text-[12px] text-on-surface-variant block mt-0.5">{book ? formatRp(book.waTiers[tier] ?? 0) : "•••"}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              {showExpress && (
+              <div className={`border p-4 bg-white ${expressService ? "border-secondary" : "border-outline-variant/30"}`}>
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-full bg-secondary text-white flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined">bolt</span>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-headline-md text-base">Yakin Esok Selesai</h4>
+                    <p className="text-xs text-on-surface-variant">{book ? formatRp(book.express) : "•••"} • 24 jam</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={expressService}
+                      onChange={() => setExpressService(!expressService)}
+                    />
+                    <div className="w-14 h-8 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary" />
+                  </label>
+                </div>
+              </div>
+              )}
+              {activeTab === "undangan" && (
+              <div className={`border p-4 bg-white ${galeriAddonOn ? "border-secondary" : "border-outline-variant/30"}`}>
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined">photo_library</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-headline-md text-base">Galeri Tamu</h4>
+                    <p className="text-xs text-on-surface-variant">
+                      {galeriAddonOn && galeriAddonSel ? `${galeriAddonSel.tier} • ${formatRp(galeriAddonSel.price)}` : "QR acara + slider foto & tamu"}
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={galeriAddonOn}
+                      onChange={() => {
+                        const next = !galeriAddonOn
+                        setGaleriAddonOn(next)
+                        if (next) {
+                          setAddonsOpen(false)
+                          setGaleriPopupOpen(true)
+                        }
+                      }}
+                    />
+                    <div className="w-14 h-8 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary" />
+                  </label>
+                </div>
+                {galeriAddonOn && (
+                  <p className="text-xs text-on-surface-variant mt-2">Atur slider foto &amp; tamu pada halaman, lalu kembali ke sini.</p>
+                )}
+              </div>
+              )}
+            </div>
+            <div className="flex items-center justify-between mt-4 mb-3">
+              <span className="font-label-md text-xs uppercase tracking-widest text-on-surface-variant">Estimasi Total</span>
+              <span className="font-headline-md text-xl text-secondary">{!book ? "•••" : formatRp(voucherAmount != null ? discountedTotal : total)}</span>
+            </div>
+            <button
+              onClick={() => setAddonsOpen(false)}
+              className="w-full py-4 bg-primary text-white rounded-xl font-label-md uppercase tracking-[0.2em] active:scale-[0.98] transition-transform"
+            >
+              Terapkan
+            </button>
+          </div>
+        </div>
+      )}
 
       <footer className="fixed bottom-0 left-0 w-full bg-[rgba(253,249,240,0.92)] backdrop-blur-md border-t border-outline-variant px-4 md:px-edge-margin-desktop py-4 md:py-6 z-[90]">
         <div className="max-w-[1200px] mx-auto flex flex-col items-stretch gap-3 sm:flex-row sm:items-center justify-between md:gap-6">
           <div className="flex flex-col items-start min-w-0 flex-1 gap-1.5">
             <span className="font-label-md text-[10px] uppercase text-on-surface-variant tracking-widest">Estimasi Total</span>
-            <span className="font-headline-md text-[15px] md:text-[22px] leading-tight truncate max-w-full">{PACKAGE_LABELS[selectedPackage] || "Paket"} Experience</span>
+            <span className="font-headline-md text-[15px] md:text-[22px] leading-tight truncate max-w-full">{PACKAGE_LABELS[isGaleriTab && galeriSel ? galeriBand : selectedPackage] || "Paket"}{activeTab === "undangan" && galeriAddonOn && galeriAddonSel ? " + Galeri Tamu" : ""} Experience</span>
             <div className="flex items-baseline gap-2 min-w-0 flex-wrap">
-              {voucherAmount != null ? (
+              {!book ? (
+                <span className="inline-block h-8 w-40 bg-surface-container-high rounded animate-pulse" />
+              ) : voucherAmount != null ? (
                 <>
                   <span className="font-body-md text-sm text-on-surface-variant line-through">{formatRp(total)}</span>
                   <span className="font-headline-md text-[22px] md:text-[30px] leading-none text-secondary">{formatRp(discountedTotal)}</span>
@@ -1024,6 +1359,12 @@ function Inner() {
                 <span className="font-headline-md text-[22px] md:text-[30px] leading-none text-secondary">{formatRp(total)}</span>
               )}
             </div>
+            {bookError && (
+              <p className="font-body-md text-sm text-red-500 mt-1">
+                Gagal memuat harga. Periksa koneksi lalu muat ulang halaman.
+                <button onClick={() => window.location.reload()} className="underline underline-offset-2 ml-1">Muat ulang</button>
+              </p>
+            )}
             {(voucherAmount != null || profileVoucherCode) && (
               <span className="inline-flex items-center gap-1.5 mt-0.5 px-2.5 py-1 bg-green-50 border border-green-300 text-green-800 font-label-md text-[10px] uppercase tracking-widest rounded-full w-fit">
                 <span className="material-symbols-outlined text-[12px]">confirmation_number</span>
@@ -1074,23 +1415,25 @@ function Inner() {
           {isEdit ? (
             <button
               onClick={handleSave}
-              disabled={submitting}
-              className={`shrink-0 px-6 md:px-12 py-4 bg-primary text-white font-label-md text-[11px] md:text-label-md uppercase tracking-[0.2em] transition-all hover:bg-secondary rounded-full md:rounded-none ${submitting ? "opacity-50" : ""} w-full sm:w-auto`}
+              disabled={submitting || !book || !galeriReady}
+              className={`shrink-0 px-6 md:px-12 py-4 bg-primary text-white font-label-md text-[11px] md:text-label-md uppercase tracking-[0.2em] transition-all hover:bg-secondary rounded-full md:rounded-none ${submitting || !book || !galeriReady ? "opacity-50" : ""} w-full sm:w-auto`}
             >
-              {submitting ? "Menyimpan..." : "Simpan"}
+              {submitting ? "Menyimpan..." : !book ? "Memuat harga..." : !galeriReady ? "Menyiapkan galeri..." : "Simpan"}
             </button>
           ) : (
             <button
               onClick={() => {
+                if (!book || !galeriReady) return
                 if (hasCouple) {
                   setWaNumber(""); setPin(""); setSubmitError(""); setModalOpen(true)
                 } else {
                   goToRegister()
                 }
               }}
-              className="shrink-0 px-6 md:px-12 py-4 bg-primary text-white font-label-md text-[11px] md:text-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all rounded-full md:rounded-none w-full sm:w-auto"
+              disabled={!book || !galeriReady}
+              className={`shrink-0 px-6 md:px-12 py-4 bg-primary text-white font-label-md text-[11px] md:text-label-md uppercase tracking-[0.2em] hover:bg-secondary transition-all rounded-full md:rounded-none w-full sm:w-auto ${!book || !galeriReady ? "opacity-50" : ""}`}
             >
-              Lanjut
+              {!book ? "Memuat harga..." : !galeriReady ? "Menyiapkan galeri..." : "Lanjut"}
             </button>
           )}
           </div>
@@ -1283,7 +1626,7 @@ function Inner() {
                     {matrixVisibleCols.map((col) => (
                       <th
                         key={col.code}
-                        className={`py-3 px-3 text-center font-semibold border-l border-outline-variant/10 first:border-l-0 ${selectedPackage === col.code ? "text-secondary" : ""} ${col.code.startsWith("dgb_") ? "bg-secondary/5" : ""}`}
+                        className={`py-3 px-3 text-center font-semibold border-l border-outline-variant/10 first:border-l-0 ${selectedPackage === col.code ? "text-secondary" : ""} ${col.code.startsWith("dgb_") || col.code.startsWith("gt_") ? "bg-secondary/5" : ""}`}
                       >
                         {col.label}
                       </th>
