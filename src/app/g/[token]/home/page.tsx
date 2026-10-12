@@ -41,6 +41,7 @@ export default function GalleryHomePage({ params }: { params: Promise<{ token: s
   const router = useRouter()
   const [data, setData] = useState<ResolveData | null>(null)
   const [who, setWho] = useState("")
+  const [whoName, setWhoName] = useState("")
 
   useEffect(() => {
     const identity = loadIdentity(token)
@@ -49,6 +50,7 @@ export default function GalleryHomePage({ params }: { params: Promise<{ token: s
       return
     }
     setWho(`${identity.name} (${identity.category})`)
+    setWhoName(identity.name)
     fetch(`/api/gallery/${encodeURIComponent(token)}?device_id=${encodeURIComponent(identity.device_id)}`)
       .then((r) => r.json())
       .then((d) => {
@@ -115,6 +117,15 @@ export default function GalleryHomePage({ params }: { params: Promise<{ token: s
             <span className="text-[11px] tracking-[0.18em] uppercase">{who}</span>
             <span className="text-[10px]" style={{ color: "#4f1519" }}>✦</span>
           </div>
+          {whoName && (
+            <button
+              type="button"
+              onClick={() => router.push(`/g/${encodeURIComponent(token)}/identitas`)}
+              className="text-[11px] underline underline-offset-2 text-[#444841]/60 hover:text-[#4f1519] transition-colors -mt-2 mb-2"
+            >
+              Bukan {whoName}? Ganti nama
+            </button>
+          )}
 
           <div className="w-full max-w-[340px] flex flex-col gap-2 z-10 mb-1">
             <button

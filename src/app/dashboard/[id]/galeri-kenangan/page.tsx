@@ -619,7 +619,9 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                         <div className="flex flex-col items-center shrink-0 justify-center">
                           <div className="relative group w-36 h-48 md:w-44 md:h-56 rounded-2xl overflow-hidden border-2 border-[#4f1519]/20 shadow-md bg-[#f5f3ee]">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={boxPhoto.startsWith("http") ? toTransformedUrl(boxPhoto, { width: 400, quality: 70 }) : boxPhoto} alt={`Foto Mempelai ${setup?.gallery_couple_name || ""}`} className="w-full h-full object-contain" />
+                            <img src={boxPhoto.startsWith("http") ? toTransformedUrl(boxPhoto, { width: 400, quality: 70 }) : boxPhoto} aria-hidden alt="" className="absolute inset-0 w-full h-full object-cover blur-md scale-110 opacity-60" />
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={boxPhoto.startsWith("http") ? toTransformedUrl(boxPhoto, { width: 400, quality: 70 }) : boxPhoto} alt={`Foto Mempelai ${setup?.gallery_couple_name || ""}`} className="relative w-full h-full object-contain" />
                             <label className="absolute inset-0 bg-[#4f1519]/40 backdrop-blur-[2px] text-white opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer gap-1 p-2">
                               <span className="material-symbols-outlined text-[24px]">{uploadingPhoto ? "hourglass_empty" : "photo_camera"}</span>
                               <span className="text-[10px] uppercase tracking-wider font-semibold">{uploadingPhoto ? "Mengunggah..." : "Ganti Foto"}</span>

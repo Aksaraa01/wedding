@@ -2,18 +2,27 @@
 
 export const GALLERY_DEVICE_KEY = "aksaraa_gt_device"
 
+// Fallback when crypto.randomUUID is unavailable (non-secure contexts
+// like http LAN URLs): UUIDv4-shaped hex so it always passes the
+// /^[0-9a-f-]{8,64}$/ device validation here and server-side. The old
+// `dev-...` base36 fallback contained g-z and NEVER validated, minting a
+// fresh device (fresh quota) on every identitas submit.
+function fallbackDeviceId(): string {
+  const hex = (n: number) =>
+    Array.from({ length: n }, () => Math.floor(Math.random() * 16).toString(16)).join("")
+  return `00000000-0000-4000-8000-${hex(12)}`
+}
+
 export function getDeviceId(): string {
   try {
     const existing = localStorage.getItem(GALLERY_DEVICE_KEY)
     if (existing && /^[0-9a-f-]{8,64}$/i.test(existing)) return existing
     const fresh =
-      typeof crypto !== "undefined" && "randomUUID" in crypto
-        ? crypto.randomUUID()
-        : `dev-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
+      typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : fallbackDeviceId()
     localStorage.setItem(GALLERY_DEVICE_KEY, fresh)
     return fresh
   } catch {
-    return `dev-${Date.now().toString(36)}`
+    return fallbackDeviceId()
   }
 }
 

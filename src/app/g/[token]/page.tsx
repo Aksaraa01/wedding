@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { ASSETS } from "@/lib/assets"
+import { loadIdentity } from "@/lib/gallery-client"
 
 type ResolveData = {
   status: "active" | "upcoming" | "ended" | "locked" | "not_configured" | "invalid"
@@ -233,7 +234,11 @@ export default function GalleryGatePage({ params }: { params: Promise<{ token: s
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation()
-                        router.push(`/g/${encodeURIComponent(token)}/identitas`)
+                        // Identified devices skip reinput and land straight
+                        // on home; new guests (or name-switchers) go through
+                        // identitas. device_id stays stable either way.
+                        const idn = loadIdentity(token)
+                        router.push(`/g/${encodeURIComponent(token)}/${idn ? "home" : "identitas"}`)
                       }}
                       className="py-2 px-5 rounded-full text-white text-[11px] tracking-wider uppercase font-semibold flex items-center gap-1.5 shadow-md active:scale-95 transition-all"
                       style={{ backgroundColor: "#4f1519" }}

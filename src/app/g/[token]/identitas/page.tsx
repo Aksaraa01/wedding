@@ -4,7 +4,7 @@ import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { GUEST_CATEGORIES } from "@/lib/guest-slug"
 import { sanitizeGuestName } from "@/lib/nameClean"
-import { getDeviceId, saveIdentity } from "@/lib/gallery-client"
+import { getDeviceId, loadIdentity, saveIdentity } from "@/lib/gallery-client"
 import { ASSETS } from "@/lib/assets"
 
 const SERIF: React.CSSProperties = { fontFamily: "'Playfair Display', serif" }
@@ -16,8 +16,11 @@ export default function GalleryIdentityPage({ params }: { params: Promise<{ toke
   const { token } = use(params)
   const router = useRouter()
   const [couple, setCouple] = useState("")
-  const [name, setName] = useState("")
-  const [category, setCategory] = useState("")
+  // Returning browsers (same tab/session) get their name prefilled — one
+  // tap to continue, still editable for shared devices. device_id stays
+  // stable via getDeviceId, so quota continues instead of resetting.
+  const [name, setName] = useState(() => loadIdentity(token)?.name || "")
+  const [category, setCategory] = useState(() => loadIdentity(token)?.category || "")
   const [error, setError] = useState("")
   const [checking, setChecking] = useState(true)
   const [toast, setToast] = useState<string | null>(null)
