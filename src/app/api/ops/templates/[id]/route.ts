@@ -62,6 +62,7 @@ export async function PUT(req: Request, ctx: { params: Promise<{ id: string }> }
   if ("package_eligibility" in body) patch.package_eligibility = Array.isArray(body.package_eligibility) ? body.package_eligibility : []
   if ("category" in body) patch.category = body.category ? String(body.category).trim() : null
   if ("tier" in body) patch.tier = normalizeTemplateTier(body.tier)
+  if ("no_photo" in body) patch.no_photo = body.no_photo === true
   // source_type switches effective; switching to in-house clears the WP contract.
   if ("source_type" in body) {
     const isInhouse = body.source_type === "inhouse"

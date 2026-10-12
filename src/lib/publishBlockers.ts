@@ -15,10 +15,13 @@ export async function getPublishBlockers(id: string): Promise<{ key: string; lab
 
   if (!profile) return [{ key: "profile", label: "Profile Mempelai" }]
 
-  const [gates, giftAccts, giftAddr] = await Promise.all([
+  const [gates, giftAccts, giftAddr, tpl] = await Promise.all([
     getRowGates(profile.package_type || "signature"),
     supabaseAdmin.from("gift_accounts").select("id").eq("wedding_profile_id", id).in("type", ["bank", "ewallet"]).then(r => r.data ?? []),
     supabaseAdmin.from("gift_addresses").select("full_address").eq("wedding_profile_id", id).maybeSingle().then(r => r.data ?? null),
+    profile.selected_template_id
+      ? supabaseAdmin.from("web_templates").select("no_photo").eq("id", profile.selected_template_id).maybeSingle().then(r => (r.data as any)?.no_photo === true)
+      : Promise.resolve(false),
   ])
 
   return getIncompleteInvitationSections({
@@ -42,6 +45,7 @@ export async function getPublishBlockers(id: string): Promise<{ key: string; lab
     gift_section_visible: profile.gift_section_visible,
     gift_has_address: !!(giftAddr?.full_address && String(giftAddr.full_address).trim()),
     gift_account_count: giftAccts.length,
+    no_photo_template: tpl,
     gates: {
       inviting_families: gates.inviting_families.included,
       cinematic_video: gates.cinematic_video.included,

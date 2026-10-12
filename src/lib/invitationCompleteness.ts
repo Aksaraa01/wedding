@@ -54,6 +54,11 @@ export type InvitationCompletenessInput = {
   gift_has_address: boolean
   gift_account_count: number
   gates: InvitationGates
+  // Tanpa-photo template: photo fields are hidden in editor + ops, so the
+  // gallery section never counts as incomplete. Stored photos are kept (hidden,
+  // ungated, unsynced) so switching back to a with-photo template restores
+  // them — hide must never equal delete.
+  no_photo_template: boolean
 }
 
 function hasArr(v: unknown): boolean {
@@ -117,6 +122,9 @@ function isSectionIncomplete(key: string, d: InvitationCompletenessInput): boole
       if (d.story_visible === false) return false
       return !hasArr(d.stories)
     case "galeri":
+      // Tanpa-photo templates hide the whole gallery section: an empty (or
+      // even filled-but-hidden) gallery never blocks confirmation.
+      if (d.no_photo_template) return false
       return !hasArr(d.gallery_photos)
     case "gift":
       if (d.gift_section_visible === false) return false

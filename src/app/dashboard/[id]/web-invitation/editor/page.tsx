@@ -69,6 +69,7 @@ type Template = {
   source_type?: string | null
   wp_master_slug?: string | null
   wp_manifest: Record<string, any> | null
+  no_photo?: boolean | null
 }
 
 function formatDate(dateStr: string) {
@@ -430,6 +431,11 @@ function EditorInner({ id }: { id: string }) {
   const isInhouse = template?.source_type === "inhouse" ||
     (!!template?.code && !!getTemplateComponent(template.code) && !template?.wp_master_slug)
   const contentSpec = template?.code ? getTemplateContentSpec(template.code) : undefined
+  // Tanpa-photo template: photo fields (cover slots, person photos, gallery,
+  // story images) are hidden in editor + ops and excluded from completeness.
+  // Stored photos are kept so switching back to a with-photo template restores
+  // them — hide must never equal delete.
+  const isNoPhoto = template?.no_photo === true
 
   // Ubah error teknis sinkronisasi WP menjadi pesan Bahasa Indonesia yang
   // bisa ditindaklanjuti pengguna (tampilkan + tombol coba lagi).
@@ -1166,6 +1172,9 @@ function EditorInner({ id }: { id: string }) {
     gift_section_visible: data.gift_section_visible,
     gift_has_address: typeof giftAddressText === "string" && giftAddressText.trim() !== "",
     gift_account_count: giftAccounts.length,
+    // Tanpa-photo template: photo fields are hidden, so the gallery section
+    // never counts as incomplete (stored photos are kept for a switch back).
+    no_photo_template: template?.no_photo === true,
     gates: {
       inviting_families: gates.inviting_families.included,
       cinematic_video: gates.cinematic_video.included,
@@ -1637,6 +1646,8 @@ function EditorInner({ id }: { id: string }) {
                 <>
               {renderSection("sampul", "photo_album", "SAMPUL",
                 <div className="mt-6 space-y-8">
+                  {/* Tanpa-photo: cover slots hidden, initials/date stay */}
+                  {!isNoPhoto && (
                   <div className="space-y-3">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Foto Sampul</label>
                     <p className="text-[11px] text-on-surface-variant italic">
@@ -1731,6 +1742,7 @@ function EditorInner({ id }: { id: string }) {
                     <input ref={coverReplaceRef} type="file" accept="image/*" multiple className="hidden" onChange={async e => { const files = e.target.files ? Array.from(e.target.files).filter(f => f.type.startsWith("image/")) : []; const pairs: { index: number; file: File }[] = []; if (files.length && coverReplaceIndex !== null) { for (let k = 0; k < files.length; k++) { const idx = coverReplaceIndex + k; if (idx >= coverSlotCount) break; if (isCoverSlideshowSlot(idx)) continue; pairs.push({ index: idx, file: files[k] }) } setCoverReplaceIndex(null) } else if (files.length) { for (let k = 0; k < files.length; k++) { if (k >= coverSlotCount) break; if (isCoverSlideshowSlot(k)) continue; pairs.push({ index: k, file: files[k] }) } } e.target.value = ""; if (pairs.length) await runCoverUploads(pairs) }} />
                     <input ref={coverSlideRef} type="file" accept="image/*" multiple className="hidden" onChange={async e => { const files = e.target.files ? Array.from(e.target.files).filter(f => f.type.startsWith("image/")) : []; const pairs: { slot: number; slide: number; file: File }[] = []; if (files.length && coverSlideTarget !== null) { let si = coverSlideTarget.slot, sl = coverSlideTarget.slide; for (const f of files) { pairs.push({ slot: si, slide: sl, file: f }); sl++; if (sl > 1) { sl = 0; si++; while (si < coverSlotCount && !isCoverSlideshowSlot(si)) si++; if (si >= coverSlotCount) break } } setCoverSlideTarget(null) } e.target.value = ""; if (pairs.length) await runCoverSlideUploads(pairs) }} />
                   </div>
+                  )}
                   <div className="space-y-2">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Tanggal Acara</label>
                     <input className="input-editorial w-full font-headline-md text-[16px]" type="date" value={data.estimated_wedding_date || ""} onChange={e => updateField("estimated_wedding_date", e.target.value)} />
@@ -1800,6 +1812,8 @@ function EditorInner({ id }: { id: string }) {
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Mempelai Pertama</label>
                     {isSlideshowField("groom_photo_url") ? (
                       <div className="space-y-3">
+                        {/* Tanpa-photo: slideshow grid hidden, names stay */}
+                        {!isNoPhoto && (
                         <div className="border border-outline-variant rounded p-2 bg-surface-container-lowest">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-secondary">Slideshow (harus 2 foto)</span>
                           <div className="grid grid-cols-2 gap-2 mt-2">
@@ -1833,6 +1847,7 @@ function EditorInner({ id }: { id: string }) {
                             })}
                           </div>
                         </div>
+                        )}
                         <div className="space-y-2">
                           <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_name || ""} onChange={e => updateField("groom_name", e.target.value)} placeholder="Nama Mempelai Pertama" />
                           <p className="text-[11px] text-on-surface-variant italic">Nama Mempelai Pertama</p>
@@ -1844,6 +1859,9 @@ function EditorInner({ id }: { id: string }) {
                       </div>
                     ) : (
                       <div className="flex gap-4 items-end">
+                        {/* Tanpa-photo: person photo hidden, names stay */}
+                        {!isNoPhoto && (
+                        <>
                         <div onClick={() => { if (photoUploading !== "groom_photo_url") groomPhotoRef.current?.click() }} className={`w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center relative overflow-hidden shrink-0 ${photoUploading === "groom_photo_url" ? "cursor-wait" : "cursor-pointer hover:bg-surface-container-highest"} transition-colors`}>
                           {photoUploading === "groom_photo_url" ? (
                             <span className="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
@@ -1857,6 +1875,8 @@ function EditorInner({ id }: { id: string }) {
                           )}
                         </div>
                         <input ref={groomPhotoRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, "groom_photo_url") }} />
+                        </>
+                        )}
                         <div className="flex-1">
                           <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_name || ""} onChange={e => updateField("groom_name", e.target.value)} placeholder="Nama Mempelai Pertama" />
                           <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Mempelai Pertama</p>
@@ -1878,6 +1898,8 @@ function EditorInner({ id }: { id: string }) {
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Mempelai Kedua</label>
                     {isSlideshowField("bride_photo_url") ? (
                       <div className="space-y-3">
+                        {/* Tanpa-photo: slideshow grid hidden, names stay */}
+                        {!isNoPhoto && (
                         <div className="border border-outline-variant rounded p-2 bg-surface-container-lowest">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-secondary">Slideshow (harus 2 foto)</span>
                           <div className="grid grid-cols-2 gap-2 mt-2">
@@ -1911,6 +1933,7 @@ function EditorInner({ id }: { id: string }) {
                             })}
                           </div>
                         </div>
+                        )}
                         <div className="space-y-2">
                           <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_name || ""} onChange={e => updateField("bride_name", e.target.value)} placeholder="Nama Mempelai Kedua" />
                           <p className="text-[11px] text-on-surface-variant italic">Nama Mempelai Kedua</p>
@@ -1922,6 +1945,9 @@ function EditorInner({ id }: { id: string }) {
                       </div>
                     ) : (
                       <div className="flex gap-4 items-end">
+                        {/* Tanpa-photo: person photo hidden, names stay */}
+                        {!isNoPhoto && (
+                        <>
                         <div onClick={() => { if (photoUploading !== "bride_photo_url") bridePhotoRef.current?.click() }} className={`w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center relative overflow-hidden shrink-0 ${photoUploading === "bride_photo_url" ? "cursor-wait" : "cursor-pointer hover:bg-surface-container-highest"} transition-colors`}>
                           {photoUploading === "bride_photo_url" ? (
                             <span className="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
@@ -1935,6 +1961,8 @@ function EditorInner({ id }: { id: string }) {
                           )}
                         </div>
                         <input ref={bridePhotoRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, "bride_photo_url") }} />
+                        </>
+                        )}
                         <div className="flex-1">
                           <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_name || ""} onChange={e => updateField("bride_name", e.target.value)} placeholder="Nama Mempelai Kedua" />
                           <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Mempelai Kedua</p>
@@ -2013,7 +2041,8 @@ function EditorInner({ id }: { id: string }) {
                 </div>
               )}
 
-              {renderSection("galeri", "collections", "GALERI",
+              {/* Tanpa-photo: whole gallery section removed (photos-only) */}
+              {!isNoPhoto && renderSection("galeri", "collections", "GALERI",
                 <div className="mt-6 space-y-8">
                   <div className="space-y-4">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">
@@ -2187,6 +2216,9 @@ function EditorInner({ id }: { id: string }) {
                           </button>
                         </div>
                         <div className="flex gap-4">
+                          {/* Tanpa-photo: story image hidden, title/description stay */}
+                          {!isNoPhoto && (
+                          <>
                           <div
                             onClick={() => { if (storyUploading !== i) storyFileRefs.current[i]?.click() }}
                             className={`w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center relative overflow-hidden shrink-0 ${storyUploading === i ? "cursor-wait" : "cursor-pointer hover:bg-surface-container-highest"} transition-colors`}
@@ -2200,6 +2232,8 @@ function EditorInner({ id }: { id: string }) {
                             )}
                           </div>
                           <input ref={el => { storyFileRefs.current[i] = el }} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleStoryImageUpload(f, i) }} />
+                          </>
+                          )}
                           <div className="flex-1 space-y-3">
                             <input className="input-editorial w-full font-headline-md text-[18px]" placeholder="Judul Cerita" type="text" value={story.title} onChange={e => updateStory(i, "title", e.target.value)} />
                           </div>

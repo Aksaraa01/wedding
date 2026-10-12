@@ -47,6 +47,7 @@ export default function ElementSelect({
   placeholder = "— pilih elemen —",
   allowContainers = false,
   reuseIds,
+  disabled = false,
 }: {
   value: string
   onChange: (id: string) => void
@@ -60,6 +61,9 @@ export default function ElementSelect({
   // serve two subfields (container + its own background image). Ids mapped
   // anywhere else stay hidden via usedIds.
   reuseIds?: Set<string>
+  // Disabled (e.g. photo field on a tanpa-photo template): shows the current
+  // value but never opens the dropdown.
+  disabled?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
@@ -196,11 +200,13 @@ export default function ElementSelect({
     <div className="relative" ref={ref}>
       <button
         type="button"
+        disabled={disabled}
         onClick={() => {
+          if (disabled) return
           setOpen((o) => !o)
           setSearch("")
         }}
-        className="w-full text-left border border-outline-variant px-1.5 py-1 bg-background font-mono text-[10px] flex items-center justify-between gap-1 hover:border-secondary transition-colors"
+        className="w-full text-left border border-outline-variant px-1.5 py-1 bg-background font-mono text-[10px] flex items-center justify-between gap-1 hover:border-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-outline-variant"
       >
         <span className={`truncate ${currentLabel ? "" : "text-on-surface-variant/50"}`}>{currentLabel || placeholder}</span>
         <span className="material-symbols-outlined text-[12px] shrink-0 text-on-surface-variant">{open ? "expand_less" : "expand_more"}</span>

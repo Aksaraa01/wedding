@@ -61,6 +61,20 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
 
   const gates = await getRowGates(profile.package_type || "signature")
 
+  // Tanpa-photo template: photo fields are hidden in editor + ops. The WP-bound
+  // payload blanks them (with default-image injection suppressed) so even a
+  // stale photo mapping can't leak photos into the duplicate. DB values stay
+  // intact, so switching back to a with-photo template restores everything.
+  let noPhotoTemplate = false
+  if (profile.selected_template_id) {
+    const { data: tpl } = await supabaseAdmin
+      .from("web_templates")
+      .select("no_photo")
+      .eq("id", profile.selected_template_id)
+      .maybeSingle()
+    noPhotoTemplate = (tpl as any)?.no_photo === true
+  }
+
   const rawSessions: any[] = parseList(profile.sessions)
   const sessions = rawSessions.map((r: any) => ({
     name: esc(r?.name),
@@ -80,31 +94,32 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
   const stories = parseList(profile.stories).map((r: any) => ({
     title: esc(r?.title),
     description: esc(r?.description),
-    image_url: r?.image_url || "",
+    image_url: noPhotoTemplate ? "" : (r?.image_url || ""),
   }))
 
   const hasAddress = !!esc(giftAddr?.full_address)
   const hasBank = giftAccounts.length > 0
-  const coverPhotos = parseList(profile.cover_photos).filter(Boolean)
+  const coverPhotos = noPhotoTemplate ? [] : parseList(profile.cover_photos).filter(Boolean)
   // Real cover emptiness BEFORE the default-image injection below (the mu-plugin
   // scopes cover-carousel visibility off this, independently of gallery state).
   const coverPhotosHidden = coverPhotos.length === 0
-  const galleryPhotos = parseList(profile.gallery_photos).filter(Boolean)
-  const groomPhoto = parseList(profile.groom_photo_url).filter(Boolean)
-  const bridePhoto = parseList(profile.bride_photo_url).filter(Boolean)
+  const galleryPhotos = noPhotoTemplate ? [] : parseList(profile.gallery_photos).filter(Boolean)
+  const groomPhoto = noPhotoTemplate ? [] : parseList(profile.groom_photo_url).filter(Boolean)
+  const bridePhoto = noPhotoTemplate ? [] : parseList(profile.bride_photo_url).filter(Boolean)
   // Inject default images when the couple hasn't uploaded their own — the
   // mu-plugin sideloads the URL into WP media so the Elementor template renders it.
-  if (coverPhotos.length === 0 && profile.slug) {
+  // Skipped entirely for tanpa-photo templates (no fallback photo either).
+  if (!noPhotoTemplate && coverPhotos.length === 0 && profile.slug) {
     coverPhotos.push(`https://${profile.slug}.wedding.aksaraa.com/defaults/couple.png`)
   }
-  if (groomPhoto.length === 0 && profile.slug) {
+  if (!noPhotoTemplate && groomPhoto.length === 0 && profile.slug) {
     groomPhoto.push(`https://${profile.slug}.wedding.aksaraa.com/defaults/groom.png`)
   }
-  if (bridePhoto.length === 0 && profile.slug) {
+  if (!noPhotoTemplate && bridePhoto.length === 0 && profile.slug) {
     bridePhoto.push(`https://${profile.slug}.wedding.aksaraa.com/defaults/bride.png`)
   }
   const fields: Record<string, any> = {
-    couple_illustration_url: profile.couple_illustration_url || "",
+    couple_illustration_url: noPhotoTemplate ? "" : (profile.couple_illustration_url || ""),
     cover_photos: coverPhotos,
     couple_initials: esc(profile.couple_initials),
     display_name: esc(profile.display_name || ""),

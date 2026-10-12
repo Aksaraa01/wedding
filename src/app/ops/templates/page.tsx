@@ -24,6 +24,9 @@ type Template = {
   package_eligibility: string[]
   category: string | null
   tier: string | null
+  // Tanpa-photo group (separate dimension, never a badge): photo fields are
+  // hidden in editor + ops and excluded from completeness.
+  no_photo?: boolean | null
   source_type: string | null
   wp_master_slug: string | null
   wp_manifest: Record<string, any> | null
@@ -53,6 +56,28 @@ const MAPPING_GROUPS: { key: string; label: string; fields: string[] }[] = [
   { key: "galeri", label: "Galeri", fields: ["gallery_photos"] },
   { key: "gift", label: "Gift", fields: ["gift_accounts", "gift_address", "gift_address_name", "gift_section"] },
 ]
+
+// Tanpa-photo templates: these mappings are disabled (kept visible but
+// uneditable) so ops can see the template carries no photos.
+const PHOTO_SIMPLE_FIELDS = ["cover_photos", "groom_photo_url", "bride_photo_url", "gallery_photos"]
+function isPhotoMapping(field: string, subField?: string): boolean {
+  if (PHOTO_SIMPLE_FIELDS.includes(field)) return true
+  return (field === "stories" || field === "stories_container") && subField === "image_url"
+}
+// Mapped photo fields, for the flagging guardrail (naming them beats silent
+// contradiction: invitation shows photos, editor can't edit them).
+function photoMappingsIn(manifest: Record<string, any>): string[] {
+  const found: string[] = []
+  for (const f of PHOTO_SIMPLE_FIELDS) {
+    const rows = manifest?.[f]
+    if (Array.isArray(rows) && rows.some((r: any) => r?.elementId)) found.push(f)
+  }
+  for (const f of ["stories", "stories_container"]) {
+    const slots = manifest?.[f]
+    if (Array.isArray(slots) && slots.some((s: any) => s?.image_url?.elementId)) found.push(`${f}.image_url`)
+  }
+  return found
+}
 
 function useOpsSession() {
   const router = useRouter()
@@ -108,6 +133,7 @@ export default function OpsTemplatesPage() {
     tier: "" as string,
     source_type: "wp" as "wp" | "inhouse",
     wp_master_slug: "",
+    no_photo: false,
   })
 
   const [uploading, setUploading] = useState(false)
@@ -205,7 +231,7 @@ export default function OpsTemplatesPage() {
     setManifest({})
     setElements([])
     setPopups([])
-    setForm({ code: "", name: "", description: "", preview_image_url: "", demo_url: "", is_active: true, sort_order: templates.length, package_eligibility: [...PACKAGE_CODES], category: "", tier: "", source_type: "wp", wp_master_slug: "" })
+    setForm({ code: "", name: "", description: "", preview_image_url: "", demo_url: "", is_active: true, sort_order: templates.length, package_eligibility: [...PACKAGE_CODES], category: "", tier: "", source_type: "wp", wp_master_slug: "", no_photo: false })
   }
 
   const startEdit = (t: Template, openMapping = false) => {
@@ -229,6 +255,7 @@ export default function OpsTemplatesPage() {
       tier: (t as any).tier || "",
       source_type: t.source_type === "inhouse" ? "inhouse" : "wp",
       wp_master_slug: t.wp_master_slug || "",
+      no_photo: (t as any).no_photo === true,
     })
   }
 
@@ -274,6 +301,15 @@ export default function OpsTemplatesPage() {
       return
     }
     const isInhouse = form.source_type === "inhouse"
+    // Guardrail: flagging Tanpa Photo while photo mappings exist would strand
+    // a contradictory state (invitation shows photos, editor can't edit them,
+    // sync blanks them). Require unmapping first.
+    if (form.no_photo === true) {
+      const mapped = photoMappingsIn(manifest)
+      if (mapped.length > 0 && !confirm(`Template masih memetakan field foto: ${mapped.join(", ")}.\n\nAktifkan Tanpa Photo? Hapus mapping foto tersebut dulu agar tidak kontradiksi, atau batal.`)) {
+        return
+      }
+    }
     const body = {
       ...form,
       source_type: isInhouse ? "inhouse" : "wp",
@@ -295,7 +331,9 @@ export default function OpsTemplatesPage() {
       setError(data.error || "Gagal menyimpan template")
       return
     }
-    if (isNew) setEditing(data.template)
+    // Refresh editing so the mapping view (and its Tanpa-Photo disable)
+    // always reads the saved flag, not a stale row.
+    setEditing(data.template)
     setShowForm(false)
     fetchTemplates()
   }
@@ -629,6 +667,9 @@ export default function OpsTemplatesPage() {
 
   const mappable = mappableElements()
   const usedIds = mappedElementIds()
+  // Mapping disable follows the SAVED flag (refreshed on every template save),
+  // so the mapping view can never disagree with what's stored.
+  const mappingNoPhoto = editing?.no_photo === true
 
   const toggleExpand = (id: string) => {
     setExpanded((s) => {
@@ -951,6 +992,10 @@ export default function OpsTemplatesPage() {
                       <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
                       Aktif
                     </label>
+                    <label className="flex items-center gap-2 text-sm cursor-pointer" title="Sembunyikan semua field foto (sampul, mempelai, galeri, story) di editor + ops">
+                      <input type="checkbox" checked={!!form.no_photo} onChange={(e) => setForm({ ...form, no_photo: e.target.checked })} />
+                      Tanpa Photo
+                    </label>
                   </div>
                   <div className="flex gap-3 pt-4 border-t border-outline-variant">
                     <button onClick={handleSave} className="bg-primary text-white px-8 py-3 font-label-md text-xs uppercase tracking-widest hover:bg-secondary transition-all">Simpan</button>
@@ -1000,6 +1045,11 @@ export default function OpsTemplatesPage() {
                     </div>
 
                     {/* Field mapping table */}
+                    {mappingNoPhoto && (
+                      <div className="mb-2 rounded-lg px-3 py-2 bg-amber-50 border border-amber-300 text-[11px] text-amber-900">
+                        Template <span className="font-bold">Tanpa Photo</span> — pemetaan foto (sampul, mempelai, galeri, gambar story) dinonaktifkan. Mapping lama ditampilkan tapi tidak bisa diubah; hapus dulu bila ingin menonaktifkan flag ini.
+                      </div>
+                    )}
                     <div className="border border-outline-variant bg-white">
                       <div className="grid grid-cols-[minmax(150px,220px)_minmax(0,1fr)_minmax(100px,140px)_24px] gap-2 px-3 py-2 border-b border-outline-variant bg-surface-container-lowest text-[10px] font-label-md uppercase tracking-wider text-on-surface-variant">
                         <span>Konten Aksaraa</span>
@@ -1042,9 +1092,12 @@ export default function OpsTemplatesPage() {
                                     </div>
                                     {subFields.map(subField => {
                                       const sub = slot?.[subField]
+                                      // Tanpa-photo: photo sub-mappings are visible but
+                                      // uneditable (remove × stays enabled for cleanup).
+                                      const subDisabled = mappingNoPhoto && isPhotoMapping(field, subField)
                                       return (
                                         <div key={subField} className="grid grid-cols-[90px_1fr_90px_24px] gap-2 px-1 py-1 items-start">
-                                          <span className="text-[10px] text-on-surface-variant pt-1.5 truncate" title={subField}>{SUBFIELD_LABELS[subField] || subField}</span>
+                                          <span className="text-[10px] text-on-surface-variant pt-1.5 truncate" title={subField}>{SUBFIELD_LABELS[subField] || subField}{subDisabled ? " (nonaktif)" : ""}</span>
                                           <div className="min-w-0">
                                             <ElementSelect
                                               value={sub?.elementId || ""}
@@ -1052,6 +1105,7 @@ export default function OpsTemplatesPage() {
                                               popups={popups}
                                               usedIds={usedIds}
                                               reuseIds={slotIds}
+                                              disabled={subDisabled}
                                               placeholder="— belum —"
                                               allowContainers={subField === "container"}
                                               onChange={(elId) => {
@@ -1063,7 +1117,8 @@ export default function OpsTemplatesPage() {
                                           </div>
                                           {sub ? (
                                             <input
-                                              className="text-[10px] font-mono border border-outline-variant px-1 py-0.5 w-full bg-background"
+                                              disabled={subDisabled}
+                                              className="text-[10px] font-mono border border-outline-variant px-1 py-0.5 w-full bg-background disabled:opacity-50"
                                               value={(sub.settings || []).join(".")}
                                               onChange={(e) => updateSubSettingsPath(field, slotIdx, subField, e.target.value)}
                                             />
@@ -1086,13 +1141,14 @@ export default function OpsTemplatesPage() {
                           <div key={field}>
                             {rows.length === 0 ? (
                               <div className="grid grid-cols-[minmax(150px,220px)_minmax(0,1fr)_minmax(100px,140px)_24px] gap-2 px-3 py-1.5 border-b border-outline-variant/30 items-start">
-                                <span className="text-[11px] font-body-md text-on-surface truncate pt-1.5" title={field}>{FIELD_LABELS[field] || field}</span>
+                                <span className="text-[11px] font-body-md text-on-surface truncate pt-1.5" title={field}>{FIELD_LABELS[field] || field}{(mappingNoPhoto && isPhotoMapping(field)) ? " (nonaktif)" : ""}</span>
                                 <div className="min-w-0">
                                   <ElementSelect
                                     value=""
                                     elements={elements}
                                     popups={popups}
                                     usedIds={usedIds}
+                                    disabled={mappingNoPhoto && isPhotoMapping(field)}
                                     placeholder="— belum dipetakan —"
                                     allowContainers={isSectionField(field)}
                                     onChange={(elId) => {
@@ -1113,7 +1169,7 @@ export default function OpsTemplatesPage() {
                                       {idx === 0 ? `${FIELD_LABELS[field] || field} 1` : `${FIELD_LABELS[field] || field} ${idx + 1}`}
                                     </span>
                                   ) : idx === 0 ? (
-                                    <span className="text-[11px] font-body-md text-on-surface truncate pt-1.5" title={field}>{FIELD_LABELS[field] || field}</span>
+                                    <span className="text-[11px] font-body-md text-on-surface truncate pt-1.5" title={field}>{FIELD_LABELS[field] || field}{(mappingNoPhoto && isPhotoMapping(field)) ? " (nonaktif)" : ""}</span>
                                   ) : (
                                     <span className="text-[10px] text-on-surface-variant/40 pt-1.5">↳</span>
                                   )}
@@ -1123,6 +1179,7 @@ export default function OpsTemplatesPage() {
                                     elements={elements}
                                     popups={popups}
                                     usedIds={usedIds}
+                                    disabled={mappingNoPhoto && isPhotoMapping(field)}
                                     allowContainers={isSectionField(field)}
                                     onChange={(elId) => {
                                       if (!elId) { removeMapping(field, idx); return }
@@ -1138,7 +1195,8 @@ export default function OpsTemplatesPage() {
                                 </div>
                                   <div className="flex items-center gap-0.5 pt-0.5">
                                     <input
-                                      className="text-[10px] font-mono border border-outline-variant px-1 py-0.5 w-full bg-background"
+                                      disabled={mappingNoPhoto && isPhotoMapping(field)}
+                                      className="text-[10px] font-mono border border-outline-variant px-1 py-0.5 w-full bg-background disabled:opacity-50"
                                       value={mapped.settings.join(".")}
                                       onChange={(e) => updateSettingsPath(field, idx, e.target.value)}
                                     />
@@ -1146,7 +1204,7 @@ export default function OpsTemplatesPage() {
                                   <div className="flex items-center gap-0.5 pt-1.5">
                                     <button onClick={() => removeMapping(field, idx)} className="text-xs text-on-surface-variant hover:text-error" title="Hapus">×</button>
                                     {idx === rows.length - 1 && (
-                                      <button onClick={() => setAddingField(field === addingField ? null : field)} className={`text-xs ${field === addingField ? "text-error" : "text-primary hover:text-secondary"}`} title="Tambah elemen">{field === addingField ? "−" : "+"}</button>
+                                      <button onClick={() => setAddingField(field === addingField ? null : field)} disabled={mappingNoPhoto && isPhotoMapping(field)} className={`text-xs ${field === addingField ? "text-error" : "text-primary hover:text-secondary"} disabled:opacity-30 disabled:cursor-not-allowed`} title="Tambah elemen">{field === addingField ? "−" : "+"}</button>
                                     )}
                                   </div>
                                 </div>

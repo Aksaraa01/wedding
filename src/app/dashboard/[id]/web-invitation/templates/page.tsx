@@ -27,6 +27,8 @@ type Template = {
   tier?: string | null
   source_type?: string | null
   wp_master_slug?: string | null
+  // Tanpa-photo group: separate dimension from category/tier (never a badge).
+  no_photo?: boolean | null
 }
 
 // Same predicate drives filtering and zero-count hiding, so chips never lie.
@@ -56,6 +58,7 @@ function TemplatesInner({ id }: { id: string }) {
   const [error, setError] = useState<string | null>(null)
   const [previewTpl, setPreviewTpl] = useState<Template | null>(null)
   const [categoryFilter, setCategoryFilter] = useState<string>("semua")
+  const [photoFilter, setPhotoFilter] = useState<"semua" | "tanpa">("semua")
   const [searchQuery, setSearchQuery] = useState<string>("")
   const allFilters = useMemo(() => {
     const distinct = [...new Set(templates.map((t) => (t.category || "").trim()).filter(Boolean))]
@@ -71,9 +74,14 @@ function TemplatesInner({ id }: { id: string }) {
 
   const visibleTemplates = templates.filter((t) => {
     const catOk = matchesCategory(t.category, categoryFilter)
+    const photoOk = photoFilter !== "tanpa" || t.no_photo === true
     const searchOk = !searchQuery.trim() || t.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
-    return catOk && searchOk
+    return catOk && photoOk && searchOk
   })
+
+  // Independent photo group (not a category): hidden entirely while no
+  // template carries the flag, same zero-count rule as category chips.
+  const tanpaCount = templates.filter((t) => t.no_photo === true).length
 
   // Filters with no matching templates are hidden (except "Semua"), so empty
   // categories like "Elegansi Dark" never appear as dead filter chips.
@@ -85,7 +93,10 @@ function TemplatesInner({ id }: { id: string }) {
     if (categoryFilter !== "semua" && !templates.some((t) => matchesCategory(t.category, categoryFilter))) {
       setCategoryFilter("semua")
     }
-  }, [templates, categoryFilter])
+    if (photoFilter === "tanpa" && !templates.some((t) => t.no_photo === true)) {
+      setPhotoFilter("semua")
+    }
+  }, [templates, categoryFilter, photoFilter])
 
   useEffect(() => {
     ;(async () => {
@@ -175,6 +186,27 @@ function TemplatesInner({ id }: { id: string }) {
               </button>
             ))}
           </div>
+          {tanpaCount > 0 && (
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+              <span className="shrink-0 font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant">Foto:</span>
+              {([
+                { id: "semua", label: "Semua" },
+                { id: "tanpa", label: "Tanpa Photo" },
+              ] as const).map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => setPhotoFilter(f.id)}
+                  className={`shrink-0 rounded-full border px-5 py-2 font-label-md text-[11px] uppercase tracking-widest transition-colors whitespace-nowrap ${
+                    photoFilter === f.id
+                      ? "bg-[#2C2A29] border-[#2C2A29] text-white"
+                      : "bg-white border-[#E2D9CF] text-[#2C2A29] hover:border-[#2C2A29] hover:text-[#2C2A29]"
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 no-scrollbar lg:grid lg:grid-cols-4 xl:grid-cols-5 lg:gap-x-4 lg:gap-y-10 lg:overflow-visible">

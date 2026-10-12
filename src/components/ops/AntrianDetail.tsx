@@ -236,7 +236,7 @@ type InvSectionState = "ok" | "locked" | "hidden" | "empty"
 const invHasArr = (v: any) => Array.isArray(v) && v.filter(Boolean).length > 0
 const invHasStr = (v: any) => typeof v === "string" && v.trim() !== ""
 
-function invSectionState(p: any, key: string, gift?: { accounts: any[]; address: string }): InvSectionState {
+function invSectionState(p: any, key: string, gift?: { accounts: any[]; address: string }, noPhoto?: boolean): InvSectionState {
   const gates = p?.package_gates || {}
   switch (key) {
     case "tema":
@@ -256,6 +256,8 @@ function invSectionState(p: any, key: string, gift?: { accounts: any[]; address:
       return bad ? "empty" : "ok"
     }
     case "galeri":
+      // Tanpa-photo templates hide the whole gallery section: never incomplete.
+      if (noPhoto) return "ok"
       return !invHasArr(p?.gallery_photos) ? "empty" : "ok"
     case "inviting":
       if (gates.inviting_families?.included === false) return "locked"
@@ -1039,7 +1041,7 @@ export default function AntrianDetail({ id }: { id: string }) {
       ]
       const gift = { accounts: data.gift_accounts || [], address: data.gift_address || "" }
       const empty = defs
-        .filter(([k]) => invSectionState(p, k, k === "gift" ? gift : undefined) === "empty")
+        .filter(([k]) => invSectionState(p, k, k === "gift" ? gift : undefined, (invitationData as any)?.template?.no_photo === true) === "empty")
         .map(([, label]) => label)
       setInvCardSummary({ empty, wpId })
     } catch {}
@@ -1065,7 +1067,7 @@ export default function AntrianDetail({ id }: { id: string }) {
       key === "video" ? p?.video_section_visible === false :
       key === "story" ? p?.story_visible === false :
       key === "gift" ? p?.gift_section_visible === false : false
-    const st = invSectionState(p, key === "profile" ? "profil" : key === "music" ? "musik" : key, key === "gift" ? { accounts: invitationData?.gift_accounts || [], address: invitationData?.gift_address || "" } : undefined)
+    const st = invSectionState(p, key === "profile" ? "profil" : key === "music" ? "musik" : key, key === "gift" ? { accounts: invitationData?.gift_accounts || [], address: invitationData?.gift_address || "" } : undefined, invNoPhoto)
     return { lockedInfo, hidden, incomplete: st === "empty" }
   }
 
@@ -1082,6 +1084,9 @@ export default function AntrianDetail({ id }: { id: string }) {
   // slot; WP templates follow wp_manifest.cover_photos (length + slideshow
   // markers). Slot writes also sync couple_illustration_url from slot 0.
   const invTpl = invitationData?.template
+  // Tanpa-photo template: photo fields are hidden in editor + ops and excluded
+  // from completeness. Stored photos are kept (hidden, ungated, unsynced).
+  const invNoPhoto = (invitationData as any)?.template?.no_photo === true
   const invIsInhouseTpl = !!invTpl && (invTpl.source_type === "inhouse" || (!!invTpl.code && !invTpl.wp_master_slug))
   const invCoverSlotCount = invIsInhouseTpl ? 1 : (Array.isArray(invTpl?.wp_manifest?.cover_photos) ? invTpl.wp_manifest.cover_photos.length : 0)
   const invIsCoverSlideshowSlot = (i: number) => {
@@ -2675,6 +2680,8 @@ export default function AntrianDetail({ id }: { id: string }) {
                 <InvAccordion secKey="sampul" icon="photo_album" label="SAMPUL" defaultOpen {...invAccProps("sampul")}>
                 {invEditing && invForm ? (
                   <div className="mt-6 space-y-8">
+                    {/* Tanpa-photo: cover slots hidden, date/initials stay */}
+                    {!invNoPhoto && (
                     <div className="space-y-3">
                       <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Foto Sampul</label>
                       <p className="text-[11px] text-on-surface-variant italic">
@@ -2790,6 +2797,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                         })}
                       </div>
                     </div>
+                    )}
                     <div className="space-y-2">
                       <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Tanggal Acara</label>
                       <input className="input-editorial w-full font-headline-md text-[16px]" type="date" value={invForm.estimated_wedding_date || ""} onChange={(e) => setInvForm({ ...invForm, estimated_wedding_date: e.target.value })} />
@@ -2940,6 +2948,9 @@ export default function AntrianDetail({ id }: { id: string }) {
                             <div key={side} className="space-y-4">
                               <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">{label}</label>
                               {slideshow ? (
+                                <>
+                                {/* Tanpa-photo: slideshow grid hidden, names stay */}
+                                {!invNoPhoto && (
                                 <div className="border border-outline-variant rounded p-2 bg-surface-container-lowest">
                                   <span className="text-[10px] font-bold uppercase tracking-wider text-secondary">Slideshow (harus 2 foto)</span>
                                   <div className="grid grid-cols-2 gap-2 mt-2">
@@ -2955,9 +2966,14 @@ export default function AntrianDetail({ id }: { id: string }) {
                                     ))}
                                   </div>
                                 </div>
+                                )}
+                                </>
                               ) : (
                                 <div className="flex gap-4 items-end">
+                                  {/* Tanpa-photo: person photo hidden, names stay */}
+                                  {!invNoPhoto && (
                                   <InvPhotoBox url={urls[0] || ""} uploading={invUploading === upKey(0)} onFile={(f) => putUrl(0, f)} />
+                                  )}
                                   <div className="flex-1">
                                     <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={isGroom ? invForm.groom_name || "" : invForm.bride_name || ""} onChange={(e) => setInvForm({ ...invForm, [isGroom ? "groom_name" : "bride_name"]: e.target.value })} placeholder={nameHint} />
                                     <p className="text-[11px] text-on-surface-variant mt-1 italic">{nameHint}</p>
@@ -3162,6 +3178,8 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvAccordion>
 
+                  {/* Tanpa-photo: whole gallery section removed (photos-only) */}
+                  {!invNoPhoto && (
                   <InvAccordion secKey="galeri" icon="collections" label="GALERI" {...invAccProps("galeri")}>
                     {invEditing && invForm ? (
                       <div className="mt-6 space-y-8">
@@ -3225,6 +3243,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     </div>
                     )}
                   </InvAccordion>
+                  )}
 
                   <InvAccordion
                     secKey="inviting"
@@ -3384,6 +3403,8 @@ export default function AntrianDetail({ id }: { id: string }) {
                                   </button>
                                 </div>
                                 <div className="flex gap-4">
+                                  {/* Tanpa-photo: story image hidden, title/description stay */}
+                                  {!invNoPhoto && (
                                   <InvPhotoBox
                                     url={story.image_url || ""}
                                     uploading={invUploading === upKey}
@@ -3392,6 +3413,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                                       if (url) setSt({ image_url: url })
                                     }}
                                   />
+                                  )}
                                   <div className="flex-1 space-y-3">
                                     <input className="input-editorial w-full font-headline-md text-[18px]" placeholder="Tahun" type="text" value={story.year || ""} onChange={(e) => setSt({ year: e.target.value })} />
                                     <input className="input-editorial w-full font-headline-md text-[18px]" placeholder="Judul Cerita" type="text" value={story.title || ""} onChange={(e) => setSt({ title: e.target.value })} />
