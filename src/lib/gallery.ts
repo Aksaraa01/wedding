@@ -17,6 +17,48 @@ export type GalleryEvent = {
   gallery_photo_url: string | null
   gallery_start_at: string | null
   gallery_end_at: string | null
+  bride_name?: string | null
+  groom_name?: string | null
+  cover_photos?: unknown
+  couple_illustration_url?: string | null
+}
+
+// Galeri surfaces always show "mempelai 1 & mempelai 2". The invitation
+// hashtag (display_name) must never leak in as the couple name.
+export function galeriCoupleName(e: {
+  gallery_couple_name?: string | null
+  bride_name?: string | null
+  groom_name?: string | null
+}): string {
+  const stored = (e.gallery_couple_name || "").trim()
+  if (stored) return stored
+  return `${e.bride_name || ""} & ${e.groom_name || ""}`.replace(/^ & | & $/g, "").trim()
+}
+
+function firstCoverUrl(input: unknown): string {
+  if (typeof input === "string") return input.trim()
+  if (Array.isArray(input)) {
+    for (const v of input) {
+      const found = firstCoverUrl(v)
+      if (found) return found
+    }
+  }
+  return ""
+}
+
+// Event hero photo: stored upload wins, else the invitation cover chain
+// (same as the dashboard prefill), else empty for the client default.
+export function galeriPhotoUrl(e: {
+  gallery_photo_url?: string | null
+  cover_photos?: unknown
+  couple_illustration_url?: string | null
+}): string {
+  const stored = (e.gallery_photo_url || "").trim()
+  if (stored) return stored
+  const fromCovers = firstCoverUrl(e.cover_photos)
+  if (fromCovers.startsWith("http")) return fromCovers
+  const ill = (e.couple_illustration_url || "").trim()
+  return ill.startsWith("http") ? ill : ""
 }
 
 export function galleryTokenFor(): string {
@@ -40,7 +82,7 @@ export async function getGalleryEventByToken(token: string): Promise<GalleryEven
   if (!token || token.length > 64) return null
   const { data } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id, package_type, payment_status, gallery_token, gallery_couple_name, gallery_photo_url, gallery_start_at, gallery_end_at")
+    .select("id, package_type, payment_status, gallery_token, gallery_couple_name, gallery_photo_url, gallery_start_at, gallery_end_at, bride_name, groom_name, cover_photos, couple_illustration_url")
     .eq("gallery_token", token)
     .maybeSingle()
   return (data as GalleryEvent | null) || null

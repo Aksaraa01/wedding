@@ -81,8 +81,10 @@ export default function SelfieModal({
       sh = Math.round(vw / targetAspect)
       sy = Math.round((vh - sh) / 2)
     }
-    canvas.width = 720
-    canvas.height = 960
+    // 1080x1440 HD capture (3:4). Frame overlay scales proportionally;
+    // output stays well under the 2MB upload cap at q0.85.
+    canvas.width = 1080
+    canvas.height = 1440
     const ctx = canvas.getContext("2d")
     if (!ctx) return
     ctx.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height)

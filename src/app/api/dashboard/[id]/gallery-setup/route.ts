@@ -58,8 +58,9 @@ export async function GET(
   // image transforms build a bogus media//defaults/... URL that 404s.
   // The dashboard shows its initial-letter placeholder instead.
   const editorPhoto = editorPhotoRaw.startsWith("http") ? editorPhotoRaw : ""
+  // Detail Acara prefill is always "mempelai 1 & mempelai 2" — the
+  // invitation hashtag (display_name) must never leak in here.
   const editorName =
-    (((profile as any).display_name as string) || "").trim() ||
     `${profile.bride_name || ""} & ${profile.groom_name || ""}`.replace(/^ & | & $/g, "").trim()
   const sessions = Array.isArray((profile as any).sessions) ? (profile as any).sessions as { date?: string; time?: string }[] : []
   const rawDate = (sessions[0]?.date || (profile as any).estimated_wedding_date || "") as string
@@ -121,7 +122,7 @@ export async function GET(
       payment_status: profile.payment_status,
       gallery_token: profile.gallery_token,
       gallery_url: profile.gallery_token ? galleryCameraUrl(profile.gallery_token) : null,
-      gallery_couple_name: profile.gallery_couple_name || editorName || `${profile.bride_name} & ${profile.groom_name}`,
+      gallery_couple_name: profile.gallery_couple_name || editorName,
       gallery_photo_url: profile.gallery_photo_url || null,
       gallery_start_at: profile.gallery_start_at,
       gallery_end_at: profile.gallery_end_at,

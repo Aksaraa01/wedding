@@ -7,6 +7,8 @@ import {
   formatGalleryDateWib,
   formatGalleryTimeWib,
   wibDateParts,
+  galeriCoupleName,
+  galeriPhotoUrl,
 } from "@/lib/gallery"
 import { checkRateLimit, getClientIp, rateLimited } from "@/lib/rateLimit"
 
@@ -45,8 +47,8 @@ export async function GET(
     used,
     remaining: Math.max(0, quota - used),
     event: {
-      couple_name: event.gallery_couple_name || "",
-      photo_url: event.gallery_photo_url || "",
+      couple_name: galeriCoupleName(event),
+      photo_url: galeriPhotoUrl(event),
       date_label: formatGalleryDateWib(event.gallery_start_at),
       start_label: formatGalleryTimeWib(event.gallery_start_at),
       end_label: formatGalleryTimeWib(event.gallery_end_at),
