@@ -39,9 +39,12 @@ export function identityKey(token: string): string {
   return `aksaraa_gt_identity_${token}`
 }
 
-export function loadIdentity(token: string): GalleryIdentity | null {
+// Identity lives in localStorage (shared across tabs) with sessionStorage
+// as a same-tab fast path. sessionStorage-only lost the identity on every
+// link reopen/new tab, forcing reinput even in the same browser. The home
+// page's "Bukan {nama}?" escape covers shared devices.
+function parseIdentity(raw: string | null): GalleryIdentity | null {
   try {
-    const raw = sessionStorage.getItem(identityKey(token))
     if (!raw) return null
     const parsed = JSON.parse(raw) as Partial<GalleryIdentity>
     if (!parsed.name || !parsed.category || !parsed.device_id) return null
@@ -51,9 +54,26 @@ export function loadIdentity(token: string): GalleryIdentity | null {
   }
 }
 
-export function saveIdentity(token: string, identity: GalleryIdentity): void {
+export function loadIdentity(token: string): GalleryIdentity | null {
+  const key = identityKey(token)
   try {
-    sessionStorage.setItem(identityKey(token), JSON.stringify(identity))
+    const fromSession = parseIdentity(sessionStorage.getItem(key))
+    if (fromSession) return fromSession
+  } catch {}
+  try {
+    return parseIdentity(localStorage.getItem(key))
+  } catch {
+    return null
+  }
+}
+
+export function saveIdentity(token: string, identity: GalleryIdentity): void {
+  const raw = JSON.stringify(identity)
+  try {
+    sessionStorage.setItem(identityKey(token), raw)
+  } catch {}
+  try {
+    localStorage.setItem(identityKey(token), raw)
   } catch {}
 }
 
