@@ -11,6 +11,8 @@ export type GalleryViewPhoto = {
   caption: string | null
   created_at: string
   source?: string | null
+  uploader_name?: string | null
+  category?: string | null
 }
 
 export type GalleryViewProps = {
@@ -49,8 +51,14 @@ export default function GuestGalleryView(props: GalleryViewProps) {
   const [notice, setNotice] = useState("")
   const [sheetFor, setSheetFor] = useState<string | null>(null)
 
+  // Card attribution is the STORED per-photo name (history survives a
+  // rename — new uploads take the new name). identityName is only the
+  // fallback for rows predating the field.
+  const ownerOf = (p: GalleryViewPhoto) => (p.uploader_name || "").trim() || identityName
+  const categoryOf = (p: GalleryViewPhoto) => (p.category || "").trim() || identityCategory
+
   const shareTextFor = (p: GalleryViewPhoto) => {
-    const base = p.caption?.trim() ? p.caption.trim() : `Kenangan dari ${identityName || "tamu"}`
+    const base = p.caption?.trim() ? p.caption.trim() : `Kenangan dari ${ownerOf(p) || "tamu"}`
     return `${base} — untuk ${coupleName || "mempelai"} ${p.image_url}`
   }
 
@@ -170,21 +178,23 @@ export default function GuestGalleryView(props: GalleryViewProps) {
               const stripNo = String(photos.length - i).padStart(3, "0")
               const sheetOpen = sheetFor === p.id
               const shareText = shareTextFor(p)
+              const owner = ownerOf(p)
+              const catLabel = displayCategory(categoryOf(p))
               return (
                 <article key={p.id} className="bg-white rounded-[1rem] p-4 shadow-md flex flex-col">
                   <div className="flex items-center justify-between pb-3 gap-2">
                     <div className="flex items-center gap-2.5 min-w-0">
                       <div className="w-9 h-9 rounded-full flex items-center justify-center text-[16px] font-semibold shrink-0" style={{ ...SERIF, backgroundColor: "#ffdad9", color: "#4f1519" }}>
-                        {(identityName.trim()[0] || "T").toUpperCase()}
+                        {(owner.trim()[0] || "T").toUpperCase()}
                       </div>
                       <div className="flex flex-col min-w-0">
-                        <h3 className="text-[17px] leading-tight truncate" style={SERIF}>Momen dari {identityName}</h3>
+                        <h3 className="text-[17px] leading-tight truncate" style={SERIF}>Momen dari {owner}</h3>
                         <span className="text-[11px] text-[#444841]">{formatCardStamp(p.created_at)}</span>
                       </div>
                     </div>
-                    {displayCategory(identityCategory) && (
+                    {catLabel && (
                       <span className="text-[11px] px-2.5 py-0.5 rounded-full font-medium shrink-0" style={{ backgroundColor: "#fea3a2", color: "#793638" }}>
-                        {displayCategory(identityCategory)}
+                        {catLabel}
                       </span>
                     )}
                     {p.source === "selfie" && (

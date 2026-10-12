@@ -29,7 +29,7 @@ export async function GET(
 
   const { data, error } = await supabaseAdmin
     .from("guest_photos")
-    .select("id, image_url, caption, created_at, source")
+    .select("id, image_url, caption, created_at, source, uploader_name, category")
     .eq("wedding_profile_id", event.id)
     .eq("device_id", deviceId)
     .neq("source", "selfie")

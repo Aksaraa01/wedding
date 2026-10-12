@@ -48,12 +48,14 @@ export default function WelcomeGaleriPage({ params }: { params: Promise<{ token:
         const photoData = await photoRes.json()
         const list = Array.isArray(photoData.photos) ? photoData.photos : []
         const mine = list
-          .map((p: { id: string; image_url: string; caption?: string | null; created_at?: string; source?: string | null }) => ({
+          .map((p: { id: string; image_url: string; caption?: string | null; created_at?: string; source?: string | null; uploader_name?: string | null; category?: string | null }) => ({
             id: p.id,
             image_url: p.image_url,
             caption: p.caption || null,
             created_at: p.created_at || new Date().toISOString(),
             source: p.source || null,
+            uploader_name: p.uploader_name || null,
+            category: p.category || null,
           }))
         setPhotos(mine)
         // Check-in selfies display but never consume the upload quota.
