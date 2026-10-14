@@ -1,0 +1,69 @@
+import { supabaseAdmin } from "@/lib/supabase"
+
+// Real weddings for /portofolio: completed projects with a cover photo.
+// Server-only (service role). Shared by the index, detail, and sitemap.
+export type PortfolioEntry = {
+  slug: string
+  groom: string
+  bride: string
+  date: string | null
+  venue: string | null
+  covers: string[]
+  illustration: string | null
+  templateName: string | null
+}
+
+function firstImage(value: unknown): string[] {
+  if (typeof value === "string" && value.trim()) {
+    try {
+      const p = JSON.parse(value)
+      if (Array.isArray(p)) return p.filter((u) => typeof u === "string" && (u as string).trim())
+      return [value.trim()]
+    } catch {
+      return [value.trim()]
+    }
+  }
+  if (Array.isArray(value)) return value.filter((u) => typeof u === "string" && (u as string).trim())
+  return []
+}
+
+export async function getPortfolioEntries(): Promise<PortfolioEntry[]> {
+  const { data: queues } = await supabaseAdmin
+    .from("ops_queue")
+    .select("wedding_profile_id")
+    .eq("status", "project_selesai")
+  const ids = [...new Set(((queues as { wedding_profile_id: string }[] | null) || []).map((q) => q.wedding_profile_id))].filter(Boolean)
+  if (ids.length === 0) return []
+
+  const { data: profiles } = await supabaseAdmin
+    .from("wedding_profiles")
+    .select("id,slug,bride_name,groom_name,bride_full_name,groom_full_name,estimated_wedding_date,sessions,cover_photos,couple_illustration_url,selected_template_id")
+    .in("id", ids)
+
+  const tplIds = [...new Set(((profiles as { selected_template_id: string | null }[] | null) || []).map((p) => p.selected_template_id).filter(Boolean))] as string[]
+  let tplNames = new Map<string, string>()
+  if (tplIds.length > 0) {
+    const { data: tpls } = await supabaseAdmin.from("web_templates").select("id,name").in("id", tplIds)
+    tplNames = new Map(((tpls as { id: string; name: string }[] | null) || []).map((t) => [t.id, t.name]))
+  }
+
+  return (((profiles as any[] | null) || [])
+    .map((p) => {
+      const covers = firstImage(p.cover_photos)
+      const groom = (p.groom_full_name || p.groom_name || "").trim()
+      const bride = (p.bride_full_name || p.bride_name || "").trim()
+      const sessions = Array.isArray(p.sessions) ? p.sessions : []
+      return {
+        slug: p.slug,
+        groom,
+        bride,
+        date: p.estimated_wedding_date || sessions[0]?.date || null,
+        venue: sessions[0]?.venue || null,
+        covers,
+        illustration: typeof p.couple_illustration_url === "string" ? p.couple_illustration_url : null,
+        templateName: (p.selected_template_id && tplNames.get(p.selected_template_id)) || null,
+      } as PortfolioEntry
+    })
+    .filter((e) => e.slug && e.groom && e.bride && (e.covers.length > 0 || e.illustration)))
+    .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))
+}

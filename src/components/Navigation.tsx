@@ -82,12 +82,12 @@ export default function Navigation() {
                 ))}
               </div>
             </div>
-            <button
-              onClick={() => showComingSoon("Portofolio")}
+            <a
+              href="/portofolio"
               className="font-label-md text-label-md uppercase tracking-widest text-[#e5e1e4] hover:text-[#f2ca50] transition-colors"
             >
               Portofolio
-            </button>
+            </a>
             <a
               href="/artikel"
               className="font-label-md text-label-md uppercase tracking-widest text-[#e5e1e4] hover:text-[#f2ca50] transition-colors"
@@ -178,12 +178,13 @@ export default function Navigation() {
             >
               Template
             </a>
-            <button
+            <a
+              href="/portofolio"
+              onClick={closeMenu}
               className="border-b border-white/10 pb-4 text-left"
-              onClick={() => { closeMenu(); showComingSoon("Portofolio") }}
             >
               Portofolio
-            </button>
+            </a>
             <button
               className="border-b border-white/10 pb-4 text-left"
               onClick={() => { closeMenu(); showComingSoon("Tentang Kami") }}
