@@ -1200,8 +1200,6 @@ export default function AntrianDetail({ id }: { id: string }) {
       gift_section_visible: p.gift_section_visible !== false,
       inviting_families_visible: p.inviting_families_visible !== false,
       selected_track_id: p.selected_track_id || "",
-      portfolio_visible: p.portfolio_visible === true,
-      portfolio_featured: p.portfolio_featured === true,
       giftAccounts: (src.gift_accounts || []).map((a: any) => ({
         id: a.id,
         provider_name: a.provider_name || "",
@@ -1298,8 +1296,6 @@ export default function AntrianDetail({ id }: { id: string }) {
     visField("Tampil Kisah", f.story_visible, orig.story_visible !== false)
     visField("Tampil Hadiah", f.gift_section_visible, orig.gift_section_visible !== false)
     visField("Tampil Turut Mengundang", f.inviting_families_visible, orig.inviting_families_visible !== false)
-    visField("Portofolio (izin tampil)", f.portfolio_visible, orig.portfolio_visible === true)
-    visField("Portofolio (pilihan utama)", f.portfolio_featured, orig.portfolio_featured === true)
     if ((f.selected_track_id || "") !== (orig.selected_track_id || "")) {
       const t = invTrackOptions.find((x: any) => x.id === f.selected_track_id)
       changed.push(`Lagu (${t?.title || invitationData.track?.title || "diubah"})`)
@@ -1353,8 +1349,6 @@ export default function AntrianDetail({ id }: { id: string }) {
           gift_section_visible: !!f.gift_section_visible,
           inviting_families_visible: !!f.inviting_families_visible,
           selected_track_id: f.selected_track_id || null,
-          portfolio_visible: !!f.portfolio_visible,
-          portfolio_featured: !!f.portfolio_featured,
         }),
       })
       const data = await res.json().catch(() => ({}))
@@ -3585,46 +3579,6 @@ export default function AntrianDetail({ id }: { id: string }) {
                       </div>
                     ) : (
                       <p className="font-body-md text-xs italic text-on-surface-variant/70">Belum dipilih.</p>
-                    )}
-                  </InvAccordion>
-
-                  <InvAccordion secKey="portofolio" icon="photo_library" label="PORTOFOLIO" {...invAccProps("portofolio")}>
-                    {invEditing && invForm ? (
-                      <div className="mt-6 space-y-4">
-                        <p className="font-body-md text-xs text-on-surface-variant">
-                          Izin tampil harus dikonfirmasi ke pasangan. Yang tampil di halaman portofolio: nama,
-                          tanggal &amp; tempat acara, foto, paket, dan fitur yang dipakai.
-                        </p>
-                        <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
-                          <InvSectionToggle
-                            label="Tampilkan di Portofolio (izin pasangan)"
-                            checked={invForm.portfolio_visible === true}
-                            onChange={() => setInvForm({ ...invForm, portfolio_visible: !invForm.portfolio_visible })}
-                          />
-                        </div>
-                        <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
-                          <InvSectionToggle
-                            label="Pilihan utama (maks 5 di halaman portofolio)"
-                            checked={invForm.portfolio_featured === true}
-                            onChange={() => setInvForm({ ...invForm, portfolio_featured: !invForm.portfolio_featured })}
-                          />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col gap-1.5">
-                        <p className="font-body-md text-sm">
-                          Izin tampil:{" "}
-                          <span className="font-semibold">
-                            {invitationData.profile?.portfolio_visible ? "Ya" : "Belum"}
-                          </span>
-                        </p>
-                        <p className="font-body-md text-sm">
-                          Pilihan utama:{" "}
-                          <span className="font-semibold">
-                            {invitationData.profile?.portfolio_featured ? "Ya" : "Tidak"}
-                          </span>
-                        </p>
-                      </div>
                     )}
                   </InvAccordion>
 
