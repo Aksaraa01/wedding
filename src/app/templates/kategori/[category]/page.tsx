@@ -15,10 +15,10 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
   const cat = getCategory(category)
   if (!cat) return {}
   return {
-    title: `${cat.h1} | Aksaraa`,
+    title: cat.h1,
     description: cat.description,
     alternates: { canonical: `https://wedding.aksaraa.com/templates/kategori/${cat.id}` },
-    openGraph: { title: `${cat.h1} | Aksaraa`, description: cat.description },
+    openGraph: { title: cat.h1, description: cat.description },
   }
 }
 
