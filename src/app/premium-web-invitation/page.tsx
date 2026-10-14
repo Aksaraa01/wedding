@@ -309,7 +309,7 @@ export default function PremiumWebInvitationPage() {
             },
             {
               q: "Berapa harga undangan digital di Aksaraa?",
-              a: "Harga tergantung paket dan fitur yang dipilih. Lihat halaman customize untuk daftar paket undangan website, buku tamu digital, galeri foto tamu, dan add-on lainnya.",
+              a: "Harga tergantung paket dan fitur yang dipilih. Lihat [halaman harga](/customize) untuk daftar paket undangan website, buku tamu digital, galeri foto tamu, dan add-on lainnya.",
             },
             {
               q: "Apakah tersedia template adat dan tanpa foto?",

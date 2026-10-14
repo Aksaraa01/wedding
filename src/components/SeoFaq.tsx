@@ -1,6 +1,40 @@
 "use client"
 
+import type { ReactNode } from "react"
+
 export type FaqItem = { q: string; a: string }
+
+// Minimal inline-link markup: [label](/path) or [label](https://...).
+// Internal links stay in-tab; external links open in a new tab.
+function renderRichText(text: string): ReactNode[] {
+  const parts: ReactNode[] = []
+  const re = /\[([^\]]+)\]\(([^)]+)\)/g
+  let last = 0
+  let m: RegExpExecArray | null
+  let key = 0
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) parts.push(text.slice(last, m.index))
+    const href = m[2]
+    const external = /^https?:\/\//.test(href)
+    parts.push(
+      <a
+        key={key++}
+        href={href}
+        {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        className="font-semibold text-[#B34E3F] underline underline-offset-2 hover:text-[#9E3B2D]"
+      >
+        {m[1]}
+      </a>
+    )
+    last = m.index + m[0].length
+  }
+  if (last < text.length) parts.push(text.slice(last))
+  return parts
+}
+
+function plainText(text: string): string {
+  return text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+}
 
 // Keyword-rich FAQ block with FAQPage JSON-LD (eligible for rich results).
 // Rendered server-side as plain <details> so crawlers read it without JS.
@@ -11,7 +45,7 @@ export default function SeoFaq({ heading, items }: { heading: string; items: Faq
     mainEntity: items.map((item) => ({
       "@type": "Question",
       name: item.q,
-      acceptedAnswer: { "@type": "Answer", text: item.a },
+      acceptedAnswer: { "@type": "Answer", text: plainText(item.a) },
     })),
   }
   return (
@@ -32,7 +66,7 @@ export default function SeoFaq({ heading, items }: { heading: string; items: Faq
                 expand_more
               </span>
             </summary>
-            <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">{item.a}</p>
+            <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">{renderRichText(item.a)}</p>
           </details>
         ))}
       </div>

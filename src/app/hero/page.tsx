@@ -26,7 +26,7 @@ export default function HeroPage() {
             },
             {
               q: "Berapa harga membuat undangan digital?",
-              a: "Harga mengikuti paket dan fitur yang dipilih. Buka halaman customize untuk melihat paket undangan website, buku tamu, galeri, dan add-on yang tersedia.",
+              a: "Harga mengikuti paket dan fitur yang dipilih. Buka [halaman harga](/customize) untuk melihat paket undangan website, buku tamu, galeri, dan add-on yang tersedia.",
             },
             {
               q: "Apakah tamu harus install aplikasi?",
