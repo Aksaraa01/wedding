@@ -55,7 +55,7 @@ export default async function PortofolioIndexPage() {
                     {e.groom} &amp; {e.bride}
                   </h2>
                   <p className="text-xs text-on-surface-variant mt-1">
-                    {[e.venue, `Paket ${e.packageLabel}`].filter(Boolean).join(" • ")}
+                    Paket {e.packageLabel}
                   </p>
                 </div>
               </Link>

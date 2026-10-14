@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const names = `${entry.groom} & ${entry.bride}`
   return {
     title: `Pernikahan ${names}`,
-    description: `Kisah dan galeri foto pernikahan ${names} — undangan digital Aksaraa${entry.venue ? ` di ${entry.venue}` : ""}.`,
+    description: `Kisah dan galeri foto pernikahan ${names} — undangan digital Aksaraa.`,
     alternates: { canonical: `https://wedding.aksaraa.com/portofolio/${entry.slug}` },
     openGraph: {
       title: `Pernikahan ${names} | Aksaraa`,
@@ -58,7 +58,7 @@ export default async function PortofolioDetailPage({ params }: { params: Promise
           Pernikahan {entry.groom} &amp; {entry.bride}
         </h1>
         <p className="font-body-md text-on-surface-variant mb-8">
-          {[entry.venue, `Paket ${entry.packageLabel}`].filter(Boolean).join(" • ")}
+          Paket {entry.packageLabel}
         </p>
 
         <div className="flex flex-wrap gap-2 mb-8">
