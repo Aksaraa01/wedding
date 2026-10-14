@@ -76,6 +76,20 @@ export default async function PortofolioDetailPage({ params }: { params: Promise
           {entry.templateName ? ` • Template ${entry.templateName}` : ""}
         </p>
 
+        <div className="flex flex-wrap gap-2 mb-8">
+          <span className="rounded-full bg-[#B34E3F] text-white text-[11px] font-bold tracking-widest uppercase px-4 py-1.5">
+            Paket {entry.packageLabel}
+          </span>
+          {entry.features.map((f) => (
+            <span
+              key={f}
+              className="rounded-full border border-[#E2D9CF] bg-white px-4 py-1.5 text-[11px] font-semibold tracking-widest uppercase text-[#2C2A29]"
+            >
+              {f}
+            </span>
+          ))}
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
           {entry.covers.map((src, i) => (
             // eslint-disable-next-line @next/next/no-img-element

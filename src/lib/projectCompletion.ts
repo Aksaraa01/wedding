@@ -109,6 +109,10 @@ export async function runProjectCompletionSweep(): Promise<SweepResult> {
 
     if (completed > 0) {
       console.log(`[projectCompletion] completed ${completed}/${rows.length} eligible projects`)
+      try {
+        const { revalidatePath } = await import("next/cache")
+        revalidatePath("/portofolio", "layout")
+      } catch {}
     }
     return { checked: rows.length, completed }
   } finally {

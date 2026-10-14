@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { getPortfolioEntries } from "@/lib/portfolio"
+import { getPortfolioEntries, portfolioIndexEntries } from "@/lib/portfolio"
 
 export const metadata: Metadata = {
   title: "Portofolio Pernikahan: Kisah Nyata Pasangan Aksaraa",
@@ -30,7 +30,7 @@ function formatDate(iso: string | null): string {
 }
 
 export default async function PortofolioIndexPage() {
-  const entries = await getPortfolioEntries()
+  const entries = portfolioIndexEntries(await getPortfolioEntries())
 
   return (
     <main className="bg-[#FAF7F2] min-h-screen pt-24 md:pt-32 pb-10">

@@ -93,6 +93,15 @@ export async function PUT(
       return NextResponse.json({ error: updateError.message }, { status: 500 })
     }
 
+    // A newly completed project can enter the portfolio pool: refresh the
+    // prerendered portfolio pages (new completions appear after ops consent).
+    if (status === "project_selesai") {
+      try {
+        const { revalidatePath } = await import("next/cache")
+        revalidatePath("/portofolio", "layout")
+      } catch {}
+    }
+
     // Side-effects driven by the target status.
     if (status === "belum_bayar") {
       await supabaseAdmin
