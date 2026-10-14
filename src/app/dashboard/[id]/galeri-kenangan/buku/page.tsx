@@ -217,7 +217,7 @@ function EntryChunk({ entry, pageNo, pageTotal, coupleName, photosPerGuest }: { 
         </div>
       </header>
       <section className="relative my-1" style={{ zIndex: 10 }}>
-        <div className="grid gap-3.5 mx-auto items-start text-center" style={{ gridTemplateColumns: `repeat(${Math.min(entry.photos.length, photosPerGuest, 5)}, minmax(0,1fr))` }}>
+        <div className="grid gap-3.5 mx-auto items-start text-center" style={{ gridTemplateColumns: `repeat(${Math.min(photosPerGuest, 5)}, minmax(0,1fr))` }}>
           {entry.photos.map((photo, i) => (
             <div key={i} className="bg-white p-2 border border-[#e4d7cb]" style={{ borderRadius: 2 }}>
               <div className="w-full overflow-hidden bg-[#f2efe9] border border-[#ede3d8] flex items-center justify-center relative" style={{ aspectRatio: "4 / 3", borderRadius: 1 }}>
