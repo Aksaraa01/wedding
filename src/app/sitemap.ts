@@ -7,6 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const pages = [
     "/hero",
     "/premium-web-invitation",
+    "/templates",
     "/qr-digital-buku-tamu",
     "/galeri-kenangan-tamu",
     "/virtual-wish-wall",
