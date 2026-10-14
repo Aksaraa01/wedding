@@ -9,6 +9,12 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ["html2canvas", "xlsx", "qrcode"],
   },
+  async redirects() {
+    return [
+      // Keyword URL for pricing; the configurator lives at /customize.
+      { source: "/harga", destination: "/customize", permanent: true },
+    ]
+  },
   async headers() {
     return [
       {
