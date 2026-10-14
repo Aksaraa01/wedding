@@ -3,6 +3,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ARTICLES, getArticle } from "@/data/artikel"
 import Navigation from "@/components/Navigation"
+import WetonChecker from "@/components/WetonChecker"
 
 export function generateStaticParams() {
   return ARTICLES.map((a) => ({ slug: a.slug }))
@@ -66,6 +67,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           className="artikel-body font-body-md text-[15px] md:text-base leading-[1.9] text-[#2C2A29] space-y-5 [&>h2]:font-headline-md [&>h2]:text-xl [&>h2]:md:text-2xl [&>h2]:text-primary [&>h2]:pt-4 [&>p>a]:font-semibold [&>p>a]:text-[#B34E3F] [&>p>a]:underline [&>p>a]:underline-offset-2"
           dangerouslySetInnerHTML={{ __html: article.body }}
         />
+        {article.checker === "weton" && <WetonChecker />}
         <div className="mt-10 rounded-2xl bg-white border border-[#E2D9CF] p-6 md:p-8 text-center">
           <h2 className="font-headline-md text-lg md:text-xl text-[#2C2A29] mb-2">
             Siap membuat undangan digital Anda?

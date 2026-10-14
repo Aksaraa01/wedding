@@ -10,6 +10,7 @@ export type Article = {
   date: string
   readMinutes: number
   body: string
+  checker?: "weton"
 }
 
 export const ARTICLES: Article[] = [
@@ -73,9 +74,22 @@ export const ARTICLES: Article[] = [
 <h2>Hari-H</h2>
 <p>Nikmati acara. QR check-in mencatat kehadiran, layar sapa menyambut tamu, galeri terisi foto candid, dan wish wall menampung doa — semua berjalan otomatis.</p>`,
   },
+    {
+    slug: "cara-menghitung-weton-tanggal-baik",
+    title: "Cara Menghitung Weton dan Memilih Tanggal Baik Pernikahan",
+    description:
+      "Panduan weton Jawa: arti pasaran Legi Pahing Pon Wage Kliwon, cara hitung neptu, plus kalkulator weton otomatis untuk tanggal akad dan resepsi.",
+    category: "Tradisi",
+    date: "2026-10-14",
+    readMinutes: 5,
+    body: `
+<p>Banyak keluarga Jawa memakai <strong>weton</strong> sebagai salah satu pertimbangan memilih tanggal akad dan resepsi. Weton adalah kombinasi hari masehi (Senin–Minggu) dengan pasaran Jawa (Legi, Pahing, Pon, Wage, Kliwon) yang berputar setiap 5 hari.</p>
+<h2>Cek weton tanggal Anda</h2>
+<p>Masukkan tanggal rencana acara di bawah — weton dan neptunya terhitung otomatis:</p>`,
+    checker: "weton",
+  },
   {
-    slug: "ide-disposable-camera-pernikahan",
-    title: "Disposable Camera Pernikahan: Ide Galeri Foto dari Sudut Tamu",
+    slug: "ide-disposable-camera-pernikahan",    title: "Disposable Camera Pernikahan: Ide Galeri Foto dari Sudut Tamu",
     description:
       "Tren disposable camera di resepsi: tamu memotret candid, foto tampil live. Cara kerja, penempatan QR, dan tips agar galeri penuh.",
     category: "Galeri Tamu",

@@ -20,7 +20,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/customize",
     "/kalkulator-budget",
     "/checklist-nikah",
-    "/tanggal-baik",
+    "/artikel/cara-menghitung-weton-tanggal-baik",
     "/artikel",
     "/artikel/cara-membuat-undangan-pernikahan-digital",
     "/artikel/biaya-wedding-organizer-2026",

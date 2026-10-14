@@ -13,6 +13,8 @@ const nextConfig = {
     return [
       // Keyword URL for pricing; the configurator lives at /customize.
       { source: "/harga", destination: "/customize", permanent: true },
+      // Weton checker folded into its article.
+      { source: "/tanggal-baik", destination: "/artikel/cara-menghitung-weton-tanggal-baik", permanent: true },
     ]
   },
   async headers() {

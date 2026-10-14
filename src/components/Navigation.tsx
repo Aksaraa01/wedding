@@ -11,12 +11,18 @@ const PRODUCTS = [
   { label: "Reminder Tamu VIP", href: "/reminder-tamu-vip" },
 ]
 
+const TOOLS = [
+  { label: "Kalkulator Budget", href: "/kalkulator-budget" },
+  { label: "Checklist Nikah", href: "/checklist-nikah" },
+]
+
 export default function Navigation() {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [showProducts, setShowProducts] = useState(false)
   const [showProductsMobile, setShowProductsMobile] = useState(false)
-  const [snackbar, setSnackbar] = useState<string | null>(null)
+  const [showTools, setShowTools] = useState(false)
+  const [showToolsMobile, setShowToolsMobile] = useState(false)
 
   const toggleMenu = () => {
     setIsOpen((prev) => !prev)
@@ -28,19 +34,8 @@ export default function Navigation() {
     document.body.classList.remove("mobile-menu-open")
   }
 
-  const showComingSoon = (label: string) => {
-    setSnackbar(label)
-    setTimeout(() => setSnackbar(null), 2000)
-  }
-
   return (
     <>
-      {snackbar && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[70] bg-[#1c1b1e] text-[#f2ca50] px-6 py-4 shadow-2xl flex items-center gap-3 animate-[slideUp_0.3s_ease-out] border border-white/10">
-          <span className="material-symbols-outlined text-sm">construction</span>
-          <span className="font-label-md text-label-md uppercase tracking-widest">{snackbar} — Coming Soon</span>
-        </div>
-      )}
       <style>{`
         @keyframes slideUp {
           from { transform: translateX(-50%) translateY(20px); opacity: 0; }
@@ -50,9 +45,11 @@ export default function Navigation() {
       <header className="fixed top-0 w-full z-50 bg-[#131315]/90 backdrop-blur-xl border-b border-white/5">
         <nav className="max-w-container-max mx-auto px-edge-margin-mobile md:px-edge-margin-desktop h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="font-display-lg text-2xl tracking-tighter text-[#f2ca50]">
-              WEDDING.AKSAR<span className="italic font-normal">AA</span>
-            </span>
+            <a href="/hero" aria-label="Aksaraa Wedding — Beranda" className="flex items-center gap-2">
+              <span className="font-display-lg text-2xl tracking-tighter text-[#f2ca50]">
+                WEDDING.AKSAR<span className="italic font-normal">AA</span>
+              </span>
+            </a>
           </div>
 
           <div className="hidden md:flex items-center gap-10">
@@ -100,12 +97,32 @@ export default function Navigation() {
             >
               Template
             </a>
-            <button
-              onClick={() => showComingSoon("Tentang Kami")}
-              className="font-label-md text-label-md uppercase tracking-widest text-[#e5e1e4] hover:text-[#f2ca50] transition-colors"
-            >
-              Tentang Kami
-            </button>
+            <div className="group relative">
+              <button
+                onClick={() => setShowTools((prev) => !prev)}
+                className="flex items-center gap-1 font-label-md text-label-md uppercase tracking-widest text-[#e5e1e4] hover:text-[#f2ca50] transition-colors"
+              >
+                Tools
+                <span className="material-symbols-outlined text-sm transition-transform duration-300" style={{ transform: showTools ? "rotate(180deg)" : "rotate(0deg)" }}>
+                  expand_more
+                </span>
+              </button>
+              <div
+                className={`absolute top-full left-0 mt-4 w-72 bg-[#1c1b1e] border border-white/10 shadow-2xl py-4 transition-all duration-300 origin-top-left ${
+                  showTools ? "opacity-100 translate-y-0 visible" : "opacity-0 translate-y-2 invisible"
+                }`}
+              >
+                {TOOLS.map((t) => (
+                  <a
+                    key={t.label}
+                    href={t.href}
+                    className="block px-6 py-3 hover:bg-[#2a2a2c] transition-colors font-label-md text-[10px] uppercase tracking-wider text-[#d0c5af] hover:text-[#f2ca50]"
+                  >
+                    {t.label}
+                  </a>
+                ))}
+              </div>
+            </div>
             <button
               onClick={() => router.push("/login")}
               className="px-6 py-2 border border-[#f2ca50]/30 rounded-full font-label-md text-label-md uppercase tracking-widest text-[#f2ca50] hover:bg-[#f2ca50] hover:text-[#3c2f00] transition-all duration-300"
@@ -131,9 +148,9 @@ export default function Navigation() {
       >
         <div className="flex flex-col h-full p-edge-margin-mobile">
           <div className="flex justify-between items-center py-4">
-            <span className="font-display-lg text-xl tracking-tighter text-[#f2ca50]">
+            <a href="/hero" aria-label="Aksaraa Wedding — Beranda" onClick={closeMenu} className="font-display-lg text-xl tracking-tighter text-[#f2ca50]">
               WEDDING.AKSAR<span className="italic font-normal">AA</span>
-            </span>
+            </a>
             <button className="p-2 text-[#e5e1e4]" onClick={closeMenu} aria-label="Close menu">
               <span className="material-symbols-outlined text-3xl">close</span>
             </button>
@@ -185,12 +202,31 @@ export default function Navigation() {
             >
               Portofolio
             </a>
-            <button
-              className="border-b border-white/10 pb-4 text-left"
-              onClick={() => { closeMenu(); showComingSoon("Tentang Kami") }}
-            >
-              Tentang Kami
-            </button>
+            <div className="border-b border-white/10 pb-4">
+              <button
+                className="flex items-center justify-between w-full text-left"
+                onClick={() => setShowToolsMobile(!showToolsMobile)}
+              >
+                <span>Tools</span>
+                <span className="material-symbols-outlined text-2xl transition-transform duration-300" style={{ transform: showToolsMobile ? "rotate(180deg)" : "rotate(0deg)" }}>
+                  expand_more
+                </span>
+              </button>
+              {showToolsMobile && (
+                <div className="mt-4 flex flex-col gap-1">
+                  {TOOLS.map((t) => (
+                    <a
+                      key={t.label}
+                      href={t.href}
+                      onClick={closeMenu}
+                      className="block pl-4 py-3 font-headline-md text-lg text-[#d0c5af] hover:text-[#f2ca50] transition-colors"
+                    >
+                      {t.label}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
           </nav>
           <div className="mt-auto pb-12">
             <button
