@@ -7,6 +7,7 @@ import TemplatePreviewModal from "@/components/TemplatePreviewModal"
 import { ASSETS } from "@/lib/assets"
 import SeoFaq from "@/components/SeoFaq"
 import { normalizeTemplateTier, tierBadgeClass } from "@/lib/templateTier"
+import { matchesCategory } from "@/lib/templateCategory"
 
 const CATEGORY_FILTERS = [
   { id: "semua", label: "Semua" },
@@ -94,23 +95,7 @@ export default function PremiumWebInvitationPage() {
   }, [])
 
   // Same predicate drives filtering and zero-count hiding, so chips never lie.
-  const matchesCategory = (cat: string | null | undefined, filterId: string): boolean => {
-    const c = (cat || "").trim().toLowerCase()
-    switch (filterId) {
-      case "semua":
-        return true
-      case "adat":
-        return c.includes("adat") || c.includes("tradisional") || c === "budaya"
-      case "modern":
-        return c.includes("modern") || c.includes("minimalis") || c === "nasional"
-      case "elegansi":
-        return c.includes("elegansi") || c.includes("dark")
-      case "floral":
-        return c.includes("floral")
-      default:
-        return c === filterId
-    }
-  }
+  // (Shared with /templates/[category]; see src/lib/templateCategory.ts.)
 
   const visibleTemplates =
     templates.filter((t) => {

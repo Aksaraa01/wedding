@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { supabaseAdmin } from "@/lib/supabase"
 import { normalizeTemplateTier, tierBadgeClass } from "@/lib/templateTier"
+import { TEMPLATE_CATEGORIES } from "@/lib/templateCategory"
 import SeoFaq from "@/components/SeoFaq"
 
 export const metadata: Metadata = {
@@ -64,6 +65,17 @@ export default async function TemplatesIndexPage() {
           >
             Cara Membuat
           </Link>
+        </div>
+        <div className="mt-4 flex flex-wrap justify-center gap-2">
+          {TEMPLATE_CATEGORIES.map((c) => (
+            <Link
+              key={c.id}
+              href={`/templates/${c.id}`}
+              className="rounded-full border border-[#E2D9CF] bg-white px-5 py-2 font-label-md text-[11px] uppercase tracking-widest text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors"
+            >
+              {c.label}
+            </Link>
+          ))}
         </div>
       </section>
 
