@@ -9,6 +9,8 @@ import { ASSETS } from "@/lib/assets"
 import { downloadBlob, sharePhoto, displayCategory } from "@/lib/gallery-client"
 import { paymentWaLink } from "@/lib/contact"
 import { StandeeFront, hashtagOf, type StandeeData } from "@/components/galeri/StandeeCards"
+import { GALERI_FRAME_IDS, GALERI_FRAME_NAMES, GALERI_FRAME_THUMBS, normalizeFrameSelection, type FrameSelection, type GaleriFrameId } from "@/lib/galeriFrames"
+import { GALERI_CAMERAS, normalizeCameraId, CAMERA_SWATCH_IMG, type GaleriCameraId } from "@/lib/galeriCameras"
 
 type GuestPhoto = {
   id: string
@@ -36,6 +38,8 @@ type Setup = {
   gallery_token: string | null
   gallery_url: string | null
   gallery_couple_name: string
+  gallery_frame?: string | null
+  gallery_camera?: string | null
   gallery_photo_url: string | null
   gallery_start_at: string | null
   gallery_end_at: string | null
@@ -109,6 +113,7 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
   const [downloadingAll, setDownloadingAll] = useState(false)
   const [downloadProgress, setDownloadProgress] = useState("")
   const [showPaywall, setShowPaywall] = useState(false)
+  const [frameSaving, setFrameSaving] = useState<string | null>(null)
 
   // Detail card: collapsible + view/edit (only three fields by design).
   const [cardOpen, setCardOpen] = useState(true)
@@ -483,6 +488,46 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
     window.open(`/dashboard/${id}/galeri-kenangan/buku`, "_blank", "noopener")
   }
 
+  // Frame + camera pickers: immediate single-field saves (no setup validation).
+  const activeFrame = normalizeFrameSelection(setup?.gallery_frame)
+  const activeCamera = normalizeCameraId(setup?.gallery_camera)
+  const saveFrame = async (fid: FrameSelection) => {
+    if (fid === activeFrame || frameSaving) return
+    setFrameSaving(fid)
+    try {
+      const res = await fetch(`/api/dashboard/${id}/gallery-setup`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ frame: fid }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || "Gagal menyimpan frame")
+      await fetchSetup()
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Gagal menyimpan frame")
+    } finally {
+      setFrameSaving(null)
+    }
+  }
+  const saveCamera = async (cid: GaleriCameraId) => {
+    if (cid === activeCamera || frameSaving) return
+    setFrameSaving(cid)
+    try {
+      const res = await fetch(`/api/dashboard/${id}/gallery-setup`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ camera: cid }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || "Gagal menyimpan tipe kamera")
+      await fetchSetup()
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Gagal menyimpan tipe kamera")
+    } finally {
+      setFrameSaving(null)
+    }
+  }
+
   const prefillPhoto =
     !setup?.gallery_photo_url && (setup?.prefill?.photo_url || "").startsWith("http")
       ? (setup?.prefill?.photo_url as string)
@@ -588,7 +633,7 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                     </div>
                     <div className="flex flex-col text-left min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-[17px] md:text-[19px] font-medium leading-tight" style={{ ...SERIF, color: "#4f1519" }}>Detail Acara</h3>
+                        <h3 className="text-[17px] md:text-[19px] font-medium leading-tight" style={{ ...SERIF, color: "#4f1519" }}>Detail Acara & Frame</h3>
                         {setup?.date_label && (
                           <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold tracking-wider uppercase" style={{ backgroundColor: "#fea3a2", color: "#793638" }}>
                             {setup.date_label}
@@ -829,6 +874,114 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                           </button>
                         ) : null}
                       </div>
+                    </div>
+
+                    {/* Frame picker — baked into guest captures at upload */}
+                    <div className="border-t border-[#d9c1c0]/30 px-4 md:px-6 py-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="text-[11px] uppercase tracking-widest font-semibold" style={{ color: "#4f1519" }}>Bingkai Foto Tamu</p>
+                        {frameSaving && <span className="text-[11px] text-[#444841]/70">Menyimpan...</span>}
+                      </div>
+                      <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1 md:grid md:grid-cols-6 md:overflow-visible md:mx-0 md:px-0">
+                        <button
+                          onClick={() => void saveFrame("none")}
+                          disabled={frameSaving !== null}
+                          className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-1.5 transition-all active:scale-95 disabled:opacity-70 shrink-0 w-28 md:w-auto ${activeFrame === "none" ? "border-[#4f1519] bg-white shadow-md" : "border-[#d9c1c0]/40 bg-white/60 hover:border-[#4f1519]/50"}`}
+                        >
+                          <span className="w-full rounded-lg bg-[#f0eee9] flex items-center justify-center" style={{ aspectRatio: "4/5" }}>
+                            <span className="material-symbols-outlined text-[28px] text-[#444841]/50">hide_image</span>
+                          </span>
+                          <span className={`text-[10px] font-semibold leading-tight text-center ${activeFrame === "none" ? "text-[#4f1519]" : "text-[#444841]/70"}`}>
+                            {activeFrame === "none" ? "✓ " : ""}Tanpa Bingkai
+                          </span>
+                        </button>
+                        {GALERI_FRAME_IDS.map((fid) => {
+                          const selected = fid === activeFrame
+                          return (
+                            <button
+                              key={fid}
+                              onClick={() => void saveFrame(fid)}
+                              disabled={frameSaving !== null}
+                              className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-1.5 transition-all active:scale-95 disabled:opacity-70 shrink-0 w-28 md:w-auto ${selected ? "border-[#4f1519] bg-white shadow-md" : "border-[#d9c1c0]/40 bg-white/60 hover:border-[#4f1519]/50"}`}
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={GALERI_FRAME_THUMBS[fid]} alt={`Bingkai ${GALERI_FRAME_NAMES[fid]}`} loading="lazy" className="w-full rounded-lg object-cover" />
+                              <span className={`text-[10px] font-semibold leading-tight text-center ${selected ? "text-[#4f1519]" : "text-[#444841]/70"}`}>
+                                {selected ? "✓ " : ""}{GALERI_FRAME_NAMES[fid]}
+                              </span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                      <p className="text-[11px] text-[#444841]/70 mt-2 leading-relaxed">
+                        {activeFrame === "none"
+                          ? "Foto tamu diunggah apa adanya, tanpa bingkai."
+                          : `Otomatis terpilih: ${GALERI_FRAME_NAMES[activeFrame]}. Diterapkan ke setiap foto tamu saat diunggah.`}
+                      </p>
+                    </div>
+
+                    {/* Camera type — Instagram concept: one static preview,
+                        tap a swatch to apply its filter live (and save it —
+                        baked into guest captures at upload). */}
+                    <div className="border-t border-[#d9c1c0]/30 px-4 md:px-6 py-4">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={CAMERA_SWATCH_IMG}
+                        alt="Pratinjau tipe kamera"
+                        loading="lazy"
+                        className="w-full max-w-[340px] aspect-[4/3] rounded-lg object-cover shadow-md mx-auto"
+                        style={(() => {
+                          const css = GALERI_CAMERAS.find((c) => c.id === activeCamera)?.css || ""
+                          return css ? { filter: css } : undefined
+                        })()}
+                      />
+                      <div className="mt-3.5 w-full bg-surface-container-low border border-outline-variant/40 rounded-xl p-3.5 shadow-sm flex flex-col gap-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold tracking-wider uppercase text-on-surface">
+                            Pilih Tipe Kamera Kamu
+                          </span>
+                          <span className="text-[11px] font-medium text-primary px-2 py-0.5 rounded-full bg-surface-container-high">
+                            {frameSaving ? "Menyimpan..." : (GALERI_CAMERAS.find((c) => c.id === activeCamera)?.name || "Normal")}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3.5 overflow-x-auto no-scrollbar pb-1 pt-0.5 snap-x px-0.5">
+                          {GALERI_CAMERAS.map((cam) => {
+                            const selected = cam.id === activeCamera
+                            return (
+                              <button
+                                key={cam.id}
+                                onClick={() => void saveCamera(cam.id)}
+                                disabled={frameSaving !== null}
+                                className="flex flex-col items-center gap-1.5 flex-shrink-0 group cursor-pointer focus:outline-none disabled:opacity-70"
+                              >
+                                <div className={`relative w-[52px] h-[52px] rounded-full p-[2px] transition-all border-2 ${selected ? "border-primary ring-2 ring-primary/20" : "border-transparent"}`}>
+                                  <div className="w-full h-full rounded-full overflow-hidden shadow-sm">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                      alt={cam.name}
+                                      loading="lazy"
+                                      className="w-full h-full object-cover"
+                                      src={CAMERA_SWATCH_IMG}
+                                      style={cam.css ? { filter: cam.css } : undefined}
+                                    />
+                                  </div>
+                                  <div className={`absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary text-surface-container-lowest flex items-center justify-center shadow-md ${selected ? "" : "hidden"}`}>
+                                    <span className="material-symbols-outlined text-[11px] font-bold">check</span>
+                                  </div>
+                                </div>
+                                <div className="flex flex-col items-center leading-tight">
+                                  <span className={`text-[11px] ${selected ? "font-semibold text-primary" : "font-medium text-on-surface-variant group-hover:text-primary"} transition-colors`}>{cam.name}</span>
+                                  <span className="text-[9px] text-on-surface-variant/70">{cam.desc}</span>
+                                </div>
+                              </button>
+                            )
+                          })}
+                        </div>
+                        <div className="w-full h-[1px] bg-outline-variant/30" />
+                      </div>
+                      <p className="text-[11px] text-[#444841]/70 mt-2 leading-relaxed">
+                        Diterapkan ke setiap foto tamu saat diunggah.
+                      </p>
                     </div>
                   </div>
                 )}

@@ -49,6 +49,8 @@ export async function GET(
     event: {
       couple_name: galeriCoupleName(event),
       photo_url: galeriPhotoUrl(event),
+      frame: event.gallery_frame || "none",
+      camera: event.gallery_camera || "normal",
       date_label: formatGalleryDateWib(event.gallery_start_at),
       start_label: formatGalleryTimeWib(event.gallery_start_at),
       end_label: formatGalleryTimeWib(event.gallery_end_at),

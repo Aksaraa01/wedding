@@ -4,6 +4,8 @@ import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import PhotoboothCamera from "@/components/gallery/PhotoboothCamera"
 import { loadIdentity } from "@/lib/gallery-client"
+import { preloadFrameArt } from "@/lib/galeriFrames"
+import { cameraCss, cameraPreset, normalizeCameraId } from "@/lib/galeriCameras"
 
 type Ready = {
   deviceId: string
@@ -11,6 +13,9 @@ type Ready = {
   category: string
   couple: string
   dateLabel: string
+  frame: string
+  cameraFilter: string
+  cameraName: string
   quota: number
   used: number
 }
@@ -23,6 +28,9 @@ export default function GalleryCameraRoute({ params }: { params: Promise<{ token
   const [ready, setReady] = useState<Ready | null>(null)
 
   useEffect(() => {
+    // Prewarm frame art on mount: event Wi-Fi is often slow, and loading
+    // all florals mid-upload is the failure window for missing decor.
+    preloadFrameArt()
     const idn = loadIdentity(token)
     if (!idn) {
       router.replace(`/g/${encodeURIComponent(token)}/identitas`)
@@ -41,6 +49,9 @@ export default function GalleryCameraRoute({ params }: { params: Promise<{ token
           category: idn.category,
           couple: d?.event?.couple_name || "",
           dateLabel: d?.event?.date_label || "",
+          frame: typeof d?.event?.frame === "string" ? d.event.frame : "none",
+          cameraFilter: cameraCss(normalizeCameraId(typeof d?.event?.camera === "string" ? d.event.camera : undefined)),
+          cameraName: cameraPreset(typeof d?.event?.camera === "string" ? d.event.camera : undefined).name,
           quota: typeof d?.quota === "number" ? d.quota : 0,
           used: typeof d?.used === "number" ? d.used : 0,
         })
@@ -75,6 +86,9 @@ export default function GalleryCameraRoute({ params }: { params: Promise<{ token
     <PhotoboothCamera
       coupleName={ready.couple}
       dateLabel={ready.dateLabel}
+      frameId={ready.frame}
+      cameraFilter={ready.cameraFilter}
+      cameraName={ready.cameraName}
       quota={ready.quota}
       initialUsed={ready.used}
       backHref={`/g/${encodeURIComponent(token)}/home`}

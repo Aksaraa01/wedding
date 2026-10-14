@@ -10,8 +10,11 @@ import {
   formatGalleryTimeWib,
 } from "@/lib/gallery"
 import { isGalleryPackage } from "@/lib/packages"
+import { resolveCoupleName } from "@/lib/coupleName"
 import { getFeatureIncluded } from "@/lib/featureGates"
 import { sanitizeCoupleName } from "@/lib/nameClean"
+import { normalizeFrameSelection, GALERI_FRAME_IDS } from "@/lib/galeriFrames"
+import { normalizeCameraId, GALERI_CAMERAS } from "@/lib/galeriCameras"
 
 const MAX_NAME = 80
 
@@ -27,7 +30,7 @@ export async function GET(
 
   const { data: profile, error } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id, package_type, payment_status, bride_name, groom_name, display_name, estimated_wedding_date, sessions, cover_photos, couple_illustration_url, gallery_token, gallery_couple_name, gallery_photo_url, gallery_start_at, gallery_end_at, galeri_addon, galeri_photos_per_guest, galeri_guest_count, galeri_tier, galeri_price")
+    .select("id, package_type, payment_status, bride_name, groom_name, bride_full_name, groom_full_name, display_name, estimated_wedding_date, sessions, cover_photos, couple_illustration_url, gallery_token, gallery_couple_name, gallery_photo_url, gallery_start_at, gallery_end_at, gallery_frame, gallery_camera, galeri_addon, galeri_photos_per_guest, galeri_guest_count, galeri_tier, galeri_price")
     .eq("id", id)
     .single()
 
@@ -58,10 +61,10 @@ export async function GET(
   // image transforms build a bogus media//defaults/... URL that 404s.
   // The dashboard shows its initial-letter placeholder instead.
   const editorPhoto = editorPhotoRaw.startsWith("http") ? editorPhotoRaw : ""
-  // Detail Acara prefill is always "mempelai 1 & mempelai 2" — the
-  // invitation hashtag (display_name) must never leak in here.
-  const editorName =
-    `${profile.bride_name || ""} & ${profile.groom_name || ""}`.replace(/^ & | & $/g, "").trim()
+  // Detail Acara prefill is always "mempelai 1 & mempelai 2" (full names
+  // from the editor, fallback short names) — the invitation hashtag
+  // (display_name) must never leak in here.
+  const editorName = resolveCoupleName(profile as any)
   const sessions = Array.isArray((profile as any).sessions) ? (profile as any).sessions as { date?: string; time?: string }[] : []
   const rawDate = (sessions[0]?.date || (profile as any).estimated_wedding_date || "") as string
   const rawTime = (sessions[0]?.time || "") as string
@@ -123,6 +126,8 @@ export async function GET(
       gallery_token: profile.gallery_token,
       gallery_url: profile.gallery_token ? galleryCameraUrl(profile.gallery_token) : null,
       gallery_couple_name: profile.gallery_couple_name || editorName,
+      gallery_frame: (profile as any).gallery_frame || "none",
+      gallery_camera: (profile as any).gallery_camera || "normal",
       gallery_photo_url: profile.gallery_photo_url || null,
       gallery_start_at: profile.gallery_start_at,
       gallery_end_at: profile.gallery_end_at,
@@ -149,6 +154,43 @@ export async function PUT(
     body = await req.json()
   } catch {
     return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
+  }
+
+  // Frame/camera-only save (Detail Acara & Frame picker): no setup validation.
+  const wantFrame = typeof body.frame === "string" ? body.frame : undefined
+  const wantCamera = typeof body.camera === "string" ? body.camera : undefined
+  if (
+    (wantFrame !== undefined || wantCamera !== undefined) &&
+    body.couple_name === undefined &&
+    body.date === undefined &&
+    body.start_time === undefined &&
+    body.end_time === undefined
+  ) {
+    if (wantFrame !== undefined && wantFrame !== "none" && !(GALERI_FRAME_IDS as readonly string[]).includes(wantFrame)) {
+      return NextResponse.json({ error: "Frame tidak valid" }, { status: 400 })
+    }
+    if (wantCamera !== undefined && !GALERI_CAMERAS.some((c) => c.id === wantCamera)) {
+      return NextResponse.json({ error: "Tipe kamera tidak valid" }, { status: 400 })
+    }
+    const patch: Record<string, string> = {}
+    if (wantFrame !== undefined) patch.gallery_frame = normalizeFrameSelection(wantFrame)
+    if (wantCamera !== undefined) patch.gallery_camera = normalizeCameraId(wantCamera)
+    const { data: frameProfile } = await supabaseAdmin
+      .from("wedding_profiles")
+      .select("id")
+      .eq("id", id)
+      .maybeSingle()
+    if (!frameProfile) {
+      return NextResponse.json({ error: "Profil tidak ditemukan" }, { status: 404 })
+    }
+    const { error: frameError } = await supabaseAdmin
+      .from("wedding_profiles")
+      .update(patch)
+      .eq("id", id)
+    if (frameError) {
+      return NextResponse.json({ error: frameError.message }, { status: 500 })
+    }
+    return NextResponse.json({ success: true, ...patch })
   }
 
   const rawName = typeof body.couple_name === "string" ? body.couple_name.trim() : ""

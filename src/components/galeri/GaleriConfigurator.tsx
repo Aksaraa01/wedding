@@ -9,6 +9,7 @@ import {
   matchGaleriTier,
   type GaleriTierRow,
 } from "@/lib/packages"
+import { GALERI_CAMERAS } from "@/lib/galeriCameras"
 
 export type GaleriSelection = {
   photos: number
@@ -215,11 +216,26 @@ export default function GaleriConfigurator({ initialPhotos = 5, initialGuests = 
               </div>
             </div>
             <div className="bg-white rounded-[1.25rem] p-4 flex items-start gap-3 shadow-sm">
+              <div className="w-11 h-11 rounded-full bg-[#f5f3ee] flex items-center justify-center shrink-0">
+                <span className="material-symbols-outlined text-[20px]" style={{ color: "#6b2b2d" }}>photo_camera</span>
+              </div>
+              <div>
+                <p className="font-semibold text-[15px] text-[#1b1c19]">Tipe Kamera & Bingkai Foto</p>
+                <p className="text-[12px] text-[#444841] leading-relaxed mt-0.5">
+                  {(() => {
+                    const films = GALERI_CAMERAS.filter((c) => c.id !== "normal")
+                    const top2 = films.slice(0, 2).map((c) => c.name).join(", ")
+                    return `Pilih dari ${films.length} tipe kamera film (${top2}, dll.) dan 6 opsi bingkai di dashboard — diterapkan otomatis ke setiap foto.`
+                  })()}
+                </p>
+              </div>
+            </div>
+            <div className="bg-white rounded-[1.25rem] p-4 flex items-start gap-3 shadow-sm">
               <div className="w-11 h-11 rounded-full bg-[#ffddba] flex items-center justify-center shrink-0">
                 <span className="material-symbols-outlined text-[20px] text-[#5f401a]">menu_book</span>
               </div>
               <div>
-                <p className="font-semibold text-[15px] text-[#1b1c19]">Unduh Buku Tamu (Guestbook PDF)</p>
+                <p className="font-semibold text-[15px] text-[#1b1c19]">Buku Kenangan PDF</p>
                 <p className="text-[12px] text-[#444841] leading-relaxed mt-0.5">
                   Kompilasi pesan ucapan dan foto dalam album resolusi tinggi siap cetak.
                 </p>

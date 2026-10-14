@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { compressImage } from "@/lib/imageCompress"
+import { applyGaleriFrame, normalizeFrameSelection } from "@/lib/galeriFrames"
 import { newCaptureId } from "@/lib/gallery-client"
 import { ASSETS } from "@/lib/assets"
 
@@ -25,6 +26,9 @@ type ExtendedTrack = Omit<MediaStreamTrack, "getCapabilities" | "applyConstraint
 export type PhotoboothCameraProps = {
   coupleName: string
   dateLabel?: string
+  frameId?: string
+  cameraFilter?: string
+  cameraName?: string
   quota: number
   initialUsed: number
   backHref: string
@@ -40,7 +44,7 @@ export type PhotoboothCameraProps = {
 // quota enforcement stay in the callers; this component only captures,
 // previews, and uploads.
 export default function PhotoboothCamera(props: PhotoboothCameraProps) {
-  const { coupleName, dateLabel, quota, initialUsed, backHref, doneHref, uploadShot } = props
+  const { coupleName, dateLabel, frameId, cameraFilter, cameraName, quota, initialUsed, backHref, doneHref, uploadShot } = props
   const router = useRouter()
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -181,7 +185,16 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     setUploading(true)
     setError("")
     try {
-      const result = await uploadShot({ file: shot.file, caption: caption.trim(), captureId: shot.captureId })
+      // Bake the couple-selected frame into the JPG (couple/date/caption).
+      // applyGaleriFrame never throws: worst case the raw shot uploads.
+      const framed = await applyGaleriFrame(shot.file, {
+        frame: normalizeFrameSelection(frameId),
+        couple: coupleName,
+        date: dateLabel || "",
+        caption: caption.trim(),
+        cameraFilter: cameraFilter || "",
+      })
+      const result = await uploadShot({ file: framed, caption: caption.trim(), captureId: shot.captureId })
       setUsed(result.used)
       URL.revokeObjectURL(shot.previewUrl)
       setShot(null)
@@ -201,7 +214,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
       {!shot ? (
         <>
           <div className="absolute inset-0 z-0 overflow-hidden">
-            <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+            <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" style={cameraFilter ? { filter: cameraFilter } : undefined} />
             <canvas ref={canvasRef} className="hidden" />
             <div className="absolute inset-0 bg-black/15 pointer-events-none" />
           </div>
@@ -223,7 +236,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
             </div>
             <div className="flex items-center gap-1 px-2.5 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-white/20">
               <span className="w-2 h-2 rounded-full bg-[#ffddba] animate-pulse" />
-              <span className="text-[10px] text-white tracking-wider uppercase font-semibold">{frameLabel}</span>
+              <span className="text-[10px] text-white tracking-wider uppercase font-semibold">{frameLabel}{cameraName ? ` • ${cameraName}` : ""}</span>
             </div>
           </header>
 
@@ -311,7 +324,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
 
               <div className="flex flex-col items-center text-center z-10 w-full mb-6" style={{ gap: 6 }}>
                 <div className="flex items-center justify-center mb-1">
-                  <img src={ASSETS.galeriEnvelope.aksaraaLogo} alt="Aksaraa Wedding" className="h-10 w-10 rounded-full object-cover drop-shadow-sm" style={{ filter: "brightness(0) invert(1)", opacity: 0.95 }} />
+                  <img src={ASSETS.galeriEnvelope.aksaraaLogo} alt="Aksaraa Wedding" className="h-10 w-10 rounded-full object-cover drop-shadow-sm bg-white" style={{ opacity: 0.95 }} />
                 </div>
                 <h2 className="text-[28px] leading-9 font-medium tracking-tight" style={SERIF}>{coupleName}</h2>
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full backdrop-blur-sm shadow-sm mt-1" style={{ backgroundColor: "rgba(79, 21, 25, 0.55)" }}>
@@ -322,7 +335,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
 
               <div className="relative w-full max-w-[340px] aspect-[4/3] rounded-[1rem] overflow-hidden bg-black shadow-2xl flex items-center justify-center select-none">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={shot.previewUrl} alt="Pratinjau foto" className="w-full h-full object-cover" />
+                <img src={shot.previewUrl} alt="Pratinjau foto" className="w-full h-full object-cover" style={cameraFilter ? { filter: cameraFilter } : undefined} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none" />
                 <div className="absolute inset-3 rounded-[1rem] pointer-events-none flex flex-col justify-between">
                   <div className="flex justify-between items-start">

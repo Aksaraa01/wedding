@@ -21,6 +21,8 @@ export type GalleryEvent = {
   groom_name?: string | null
   cover_photos?: unknown
   couple_illustration_url?: string | null
+  gallery_frame?: string | null
+  gallery_camera?: string | null
 }
 
 // Galeri surfaces always show "mempelai 1 & mempelai 2". The invitation
@@ -82,7 +84,7 @@ export async function getGalleryEventByToken(token: string): Promise<GalleryEven
   if (!token || token.length > 64) return null
   const { data } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id, package_type, payment_status, gallery_token, gallery_couple_name, gallery_photo_url, gallery_start_at, gallery_end_at, bride_name, groom_name, cover_photos, couple_illustration_url")
+    .select("id, package_type, payment_status, gallery_token, gallery_couple_name, gallery_photo_url, gallery_start_at, gallery_end_at, gallery_frame, gallery_camera, bride_name, groom_name, cover_photos, couple_illustration_url")
     .eq("gallery_token", token)
     .maybeSingle()
   return (data as GalleryEvent | null) || null
