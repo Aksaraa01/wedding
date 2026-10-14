@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
+import SeoFaq from "@/components/SeoFaq"
 import { ASSETS } from "@/lib/assets"
 
 export default function ReminderTamuVIPPage() {
@@ -107,8 +108,11 @@ export default function ReminderTamuVIPPage() {
                 Modul Pengingat Otomatis
               </span>
               <h1 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[44px] md:text-[72px] leading-[1.05] text-primary mb-8 reveal-item">
-                Pastikan Kehadiran <span className="italic text-secondary">Tamu Kehormatan</span> dengan Sentuhan Personal.
+                Reminder WhatsApp Otomatis untuk <span className="italic text-secondary">Tamu Undangan</span>.
               </h1>
+              <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl mb-8 reveal-item">
+                Blast undangan dan pengingat otomatis via WhatsApp — lengkap dengan RSVP, tautan unik, dan nomor meja untuk setiap tamu.
+              </p>
               <button
                 onClick={() => router.push("/register")}
                 className="group flex items-center gap-4 px-10 py-5 bg-primary text-on-primary font-label-sm text-label-sm uppercase tracking-widest transition-all hover:bg-on-surface-variant reveal-item"
@@ -334,6 +338,28 @@ export default function ReminderTamuVIPPage() {
             </div>
           </div>
         </section>
+
+        <SeoFaq
+          heading="Pertanyaan tentang Reminder WhatsApp"
+          items={[
+            {
+              q: "Apa itu reminder WhatsApp otomatis?",
+              a: "Sistem yang mengirim undangan dan pengingat kehadiran ke setiap tamu via WhatsApp secara terjadwal — tanpa broadcast manual satu per satu.",
+            },
+            {
+              q: "Apakah setiap tamu mendapat pesan personal?",
+              a: "Ya. Setiap pesan memuat nama tamu, tautan undangan unik, dan nomor meja masing-masing — bukan pesan massal yang generik.",
+            },
+            {
+              q: "Apakah RSVP bisa lewat WhatsApp?",
+              a: "Ya. Tamu mengonfirmasi kehadiran lewat tautan di pesan, dan status RSVP tercatat otomatis di dashboard mempelai.",
+            },
+            {
+              q: "Apakah memakai nomor WhatsApp pribadi mempelai?",
+              a: "Tidak. Pesan dikirim melalui sistem Aksaraa, sehingga nomor pribadi tetap aman dan riwayat pengiriman terdokumentasi.",
+            },
+          ]}
+        />
 
       </main>
     </>

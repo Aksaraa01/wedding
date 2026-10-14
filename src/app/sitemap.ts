@@ -11,6 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/galeri-kenangan-tamu",
     "/virtual-wish-wall",
     "/reminder-tamu-vip",
+    "/customize",
   ]
   return pages.map((path) => ({
     url: `${base}${path}`,

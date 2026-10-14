@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
+import SeoFaq from "@/components/SeoFaq"
 
 // Local copies of the reference artwork (downloaded from the design HTML).
 const IMG_HERO = "/media/qr-digital/hero.jpg"
@@ -104,10 +105,10 @@ export default function QrDigitalBukuTamuPage() {
           <div className="flex flex-col lg:flex-row items-center justify-between max-w-7xl mx-auto mt-10 md:mt-16 gap-16">
             <div className="w-full lg:w-1/2 text-left fade-in-up" style={{ animationDelay: "0.1s" }}>
               <h1 className="font-[family-name:var(--font-cormorant)] font-semibold text-[40px] md:text-[56px] lg:text-[64px] leading-[1.1] text-[#fcf9f4] mb-6 tracking-[-0.02em]">
-                Kehadiran Tamu Jadi <span className="italic text-secondary" style={{ color: "#8d4d39" }}>Berkesan</span>
+                Buku Tamu Digital QR untuk <span className="italic text-secondary" style={{ color: "#8d4d39" }}>Resepsi Berkesan</span>
               </h1>
               <p className="font-body-lg text-body-lg text-[#e5e2dd] max-w-lg mb-8 opacity-90">
-                Solusi resepsi digital premium untuk momen tak terlupakan Anda. Menghadirkan kesan modern sejak langkah pertama.
+                Check-in QR, e-pass tamu, layar sapa, dan rekap kehadiran otomatis — buku tamu digital modern untuk resepsi pernikahan Anda.
               </p>
               <a
                 href="#features"
@@ -328,6 +329,28 @@ export default function QrDigitalBukuTamuPage() {
             ))}
           </div>
         </section>
+
+        <SeoFaq
+          heading="Pertanyaan tentang Buku Tamu Digital"
+          items={[
+            {
+              q: "Apa itu buku tamu digital?",
+              a: "Buku tamu digital menggantikan buku tulis resepsi: tamu check-in dengan QR, mendapat e-pass berisi nama dan nomor meja, dan kehadiran tercatat otomatis dengan rekap real-time.",
+            },
+            {
+              q: "Bagaimana cara kerja QR check-in?",
+              a: "Setiap tamu mendapat QR unik. Di pintu masuk, petugas memindai QR dengan scanner — data kehadiran, kategori, dan souvenir tercatat seketika.",
+            },
+            {
+              q: "Apakah butuh perangkat khusus di venue?",
+              a: "Cukup satu HP atau laptop panitia sebagai scanner. Tamu hanya menunjukkan QR dari HP masing-masing, tanpa aplikasi tambahan.",
+            },
+            {
+              q: "Apakah ada layar sapa dan rekap tamu?",
+              a: "Ya. Nama tamu bisa tampil di layar sapa saat check-in, dan panitia memantau total kehadiran, tamu VIP, dan klaim souvenir dari dashboard.",
+            },
+          ]}
+        />
       </main>
 
       {/* Structured Footer */}

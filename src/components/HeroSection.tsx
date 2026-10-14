@@ -262,16 +262,16 @@ export default function HeroSection() {
         </div>
 
         <h1 className="[font-family:var(--font-playfair)] text-[clamp(2rem,5.5vw,4.2rem)] font-bold leading-[1.08] tracking-tight text-[#FAF7F2] mb-6 drop-shadow-xl">
-          Setiap Aksara
+          Undangan Pernikahan
           <br />
-          Bercerita Tentang
+          Digital untuk
           <br />
-          <span className="italic">Hari Bahagia Kami.</span>
+          <span className="italic">Hari Bahagia Anda.</span>
         </h1>
 
         <p className="text-base md:text-lg text-[#B09BA6] max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-10 font-light drop-shadow-md">
-          Bagikan momen spesial Anda dengan undangan website berdesain menawan, dilengkapi sistem RSVP
-          dan buku tamu digital yang berkesan.
+          Buat undangan website pernikahan dengan 100+ desain menawan — lengkap dengan RSVP online,
+          buku tamu digital QR, galeri foto tamu, dan reminder WhatsApp otomatis.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center items-center">

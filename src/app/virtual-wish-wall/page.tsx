@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
+import SeoFaq from "@/components/SeoFaq"
 import { ASSETS } from "@/lib/assets"
 
 type WishCard = {
@@ -187,10 +188,10 @@ export default function VirtualWishWallPage() {
               MODUL DINDING DOA &amp; UCAPAN DIGITAL
             </div>
             <h1 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[44px] md:text-[72px] lg:text-[84px] leading-[1.05] text-[#2C2A29]">
-              Abadikan Doa <br />dalam <span className="italic font-medium text-[#B34E3F]">Karya Visual</span> Elegan.
+              Wish Wall Digital: <br />Papan <span className="italic font-medium text-[#B34E3F]">Ucapan Pernikahan</span> di Layar.
             </h1>
             <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl leading-relaxed">
-              Transformasikan ucapan tamu menjadi instalasi digital artistik. Terhubung secara instan dari smartphone tamu langsung ke layar LED venue utama dalam hitungan milidetik.
+              Doa dan ucapan tamu tampil live di layar LED venue — buku tamu ucapan digital dengan moderasi instan, langsung dari smartphone tamu.
             </p>
             <div className="flex flex-wrap gap-5 pt-4">
               <button onClick={() => router.push("/register")} className="bg-[#B34E3F] text-white px-10 py-5 rounded-full font-label-caps text-[14px] flex items-center gap-3 group transition-all hover:bg-[#9E3B2D] shadow-lg shadow-[#B34E3F]/20">
@@ -509,6 +510,28 @@ export default function VirtualWishWallPage() {
           </div>
         </section>
       </main>
+
+        <SeoFaq
+          heading="Pertanyaan tentang Wish Wall Digital"
+          items={[
+            {
+              q: "Apa itu virtual wish wall?",
+              a: "Wish wall digital adalah papan ucapan pernikahan modern: doa dan ucapan tamu dikirim dari HP dan tampil live sebagai karya visual elegan di layar venue.",
+            },
+            {
+              q: "Bagaimana moderasi ucapannya?",
+              a: "Mempelai atau wedding organizer menyetujui setiap pesan secara instan sebelum tayang — ucapan yang kurang pantas tidak akan muncul di layar.",
+            },
+            {
+              q: "Apakah bisa tampil di layar atau LED venue?",
+              a: "Ya. Feed ucapan dirancang untuk diproyeksikan ke layar, LED, atau TV venue, lengkap dengan mode fullscreen untuk momen puncak acara.",
+            },
+            {
+              q: "Apakah tamu perlu aplikasi khusus?",
+              a: "Tidak. Tamu menulis ucapan lewat browser HP masing-masing — semudah mengisi buku tamu, semegah instalasi digital.",
+            },
+          ]}
+        />
 
       {/* Sticky Bottom Bar */}
       <div className="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-outline-variant/30 py-4 px-margin-mobile md:px-margin-desktop z-[90] flex flex-col sm:flex-row items-center justify-between gap-4 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import TemplatePreviewModal from "@/components/TemplatePreviewModal"
 import { ASSETS } from "@/lib/assets"
+import SeoFaq from "@/components/SeoFaq"
 import { normalizeTemplateTier, tierBadgeClass } from "@/lib/templateTier"
 
 const CATEGORY_FILTERS = [
@@ -142,9 +143,9 @@ export default function PremiumWebInvitationPage() {
         {/* The Aksara Experience */}
         <section className="bg-[#FAF7F2] py-12 md:py-20 px-margin-mobile md:px-margin-desktop">
           <div className="max-w-container-max mx-auto">
-            <h2 className="font-headline-lg text-[28px] md:text-headline-lg text-[#2C2A29] mb-8 md:mb-16 text-center transition-all duration-700 opacity-100 translate-y-0">
+            <p className="font-headline-lg text-[28px] md:text-headline-lg text-[#2C2A29] mb-8 md:mb-16 text-center transition-all duration-700 opacity-100 translate-y-0">
               Buat Undangan Cepat &amp; Lengkap
-            </h2>
+            </p>
             <div className="mb-10 md:mb-20 flex flex-col items-center">
               <div className="w-full max-w-2xl mx-auto rounded-2xl overflow-hidden border border-[#E2D9CF] shadow-xl transition-all duration-700 opacity-100 translate-y-0 bg-white">
                 <img
@@ -177,10 +178,11 @@ export default function PremiumWebInvitationPage() {
         {/* Editorial Header */}
         <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mb-16 text-center">
           <h1 className="font-headline-lg text-[28px] md:text-headline-lg text-primary mb-6 transition-all duration-700 opacity-100 translate-y-0">
-            Template Undangan
+            Template Undangan Pernikahan Digital Premium
           </h1>
           <p className="font-body-lg text-body-lg max-w-2xl mx-auto transition-all duration-700 text-on-surface-variant opacity-100 translate-y-0">
-            Pilih kanvas untuk kisah cinta Anda. Setiap desain dirancang dengan indah untuk mencerminkan perjalanan cinta Anda.
+            Pilih dari 100+ template undangan website pernikahan — adat, modern, floral, hingga tanpa foto.
+            Setiap desain sudah lengkap dengan RSVP online, amplop digital, dan galeri foto.
           </p>
         </section>
 
@@ -297,6 +299,28 @@ export default function PremiumWebInvitationPage() {
             </button>
           </div>
         </section>
+
+        <SeoFaq
+          heading="Pertanyaan tentang Undangan Pernikahan Digital"
+          items={[
+            {
+              q: "Apa itu undangan pernikahan digital?",
+              a: "Undangan pernikahan digital adalah undangan website yang dibagikan lewat link WhatsApp — berisi profil mempelai, jadwal acara, RSVP online, amplop digital, galeri foto, dan peta lokasi dalam satu halaman.",
+            },
+            {
+              q: "Berapa harga undangan digital di Aksaraa?",
+              a: "Harga tergantung paket dan fitur yang dipilih. Lihat halaman customize untuk daftar paket undangan website, buku tamu digital, galeri foto tamu, dan add-on lainnya.",
+            },
+            {
+              q: "Apakah tersedia template adat dan tanpa foto?",
+              a: "Ya. Tersedia kategori Adat/Tradisional, Modern Minimalis, Elegansi Dark, Floral, hingga desain tanpa foto untuk privasi maksimal.",
+            },
+            {
+              q: "Apakah tamu perlu menginstal aplikasi?",
+              a: "Tidak. Tamu cukup membuka tautan undangan di browser HP — RSVP, amplop digital, dan galeri langsung bisa digunakan.",
+            },
+          ]}
+        />
       </main>
 
       {previewTpl && (

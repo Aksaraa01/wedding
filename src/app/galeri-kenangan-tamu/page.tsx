@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
+import SeoFaq from "@/components/SeoFaq"
 import { ASSETS } from "@/lib/assets"
 
 const heroImages = [
@@ -113,10 +114,10 @@ export default function GaleriKenanganTamuPage() {
               Modul Galeri &amp; Candid Photo
             </span>
             <h1 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[44px] md:text-[72px] leading-[1.05] text-primary max-w-xl">
-              Tangkap Setiap <span className="italic text-secondary">Momen Bahagia</span> dari Sudut Pandang Tamu Anda.
+              Galeri Foto Tamu <span className="italic text-secondary">Disposable Camera</span> Pernikahan Anda.
             </h1>
             <p className="font-body-lg text-body-lg text-secondary max-w-lg">
-              Transformasi album pernikahan konvensional menjadi ekosistem digital interaktif. Biarkan tamu mengabadikan kedekatan tanpa perlu aplikasi tambahan.
+              Tamu pindai QR dan langsung mengunggah foto yang tampil live — arsip kenangan candid ala disposable camera, tanpa aplikasi tambahan.
             </p>
             <button
               onClick={() => router.push("/customize?tab=galeri")}
@@ -323,6 +324,28 @@ export default function GaleriKenanganTamuPage() {
             </div>
           </div>
         </section>
+
+        <SeoFaq
+          heading="Pertanyaan tentang Galeri Foto Tamu"
+          items={[
+            {
+              q: "Apa itu galeri foto tamu ala disposable camera?",
+              a: "Konsep seperti kamera disposable di setiap meja: tamu memotret dari sudut pandang mereka dan foto langsung tampil di galeri live — candid, spontan, dan penuh kejutan.",
+            },
+            {
+              q: "Bagaimana tamu mengunggah foto?",
+              a: "Tamu memindai QR di meja atau undangan, mengambil atau memilih foto dari HP, lalu mengunggah — foto tampil di galeri dalam hitungan detik.",
+            },
+            {
+              q: "Apakah tamu perlu menginstal aplikasi?",
+              a: "Tidak. Seluruh proses berjalan di browser HP: pindai, jepret, unggah. Semudah mengisi RSVP.",
+            },
+            {
+              q: "Berapa banyak foto yang bisa diunggah?",
+              a: "Kuota foto per tamu mengikuti paket yang dipilih mempelai dan bisa dilihat langsung di halaman galeri.",
+            },
+          ]}
+        />
       </main>
     </>
   )
