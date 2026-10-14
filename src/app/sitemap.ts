@@ -13,6 +13,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/virtual-wish-wall",
     "/reminder-tamu-vip",
     "/customize",
+    "/artikel",
+    "/artikel/cara-membuat-undangan-pernikahan-digital",
+    "/artikel/biaya-wedding-organizer-2026",
+    "/artikel/checklist-persiapan-pernikahan-12-bulan",
+    "/artikel/ide-disposable-camera-pernikahan",
   ]
   return pages.map((path) => ({
     url: `${base}${path}`,

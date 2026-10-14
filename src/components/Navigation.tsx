@@ -10,6 +10,7 @@ const PRODUCTS = [
   { label: "Doa & Harapan Tamu", href: "/virtual-wish-wall" },
   { label: "Galeri Kenangan Tamu", href: "/galeri-kenangan-tamu" },
   { label: "Reminder Tamu VIP", href: "/reminder-tamu-vip" },
+  { label: "Artikel", href: "/artikel" },
 ]
 
 export default function Navigation() {
