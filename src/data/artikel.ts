@@ -63,7 +63,7 @@ export const ARTICLES: Article[] = [
     readMinutes: 8,
     body: `
 <h2>12–9 bulan: fondasi</h2>
-<p>Tetapkan tanggal, budget, dan estimasi tamu. Amankan gedung/venue dan fotografer — dua vendor yang paling cepat penuh. Mulai riset <a href="/templates">desain undangan pernikahan digital</a> agar gaya visual konsisten sejak awal.</p>
+<p>Tetapkan tanggal, budget, dan estimasi tamu. Amankan gedung/venue dan fotografer — dua vendor yang paling cepat penuh. Hitung estimasi dengan <a href="/kalkulator-budget">kalkulator budget pernikahan</a>. Mulai riset <a href="/templates">desain undangan pernikahan digital</a> agar gaya visual konsisten sejak awal.</p>
 <h2>8–5 bulan: vendor inti</h2>
 <p>MUA, dekorasi, katering, dan hiburan. Susun guest list sementara di spreadsheet — nama, nomor WhatsApp, kategori, dan alokasi meja. Data ini menjadi bahan undangan digital nantinya.</p>
 <h2>4–2 bulan: undangan dan RSVP</h2>
