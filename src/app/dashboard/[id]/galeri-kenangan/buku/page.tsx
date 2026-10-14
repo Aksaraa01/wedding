@@ -346,12 +346,18 @@ if (dead) return
     return () => { dead = true }
   }, [id])
 
-// One album page per guest per N photos (configured photos per guest).
-  // Grid: up to 5 columns, rows = ceil(photosPerGuest / 5).
+// One album page per guest: fixed 5 columns x 2 rows = 10 photos max per page.
+  // Empty slots rendered as placeholders for consistent layout.
+  const PHOTOS_PER_PAGE = 10 // 5 cols x 2 rows
   const chunks: { entry: Entry; photos: Photo[] }[] = []
   for (const entry of entries) {
-    for (let i = 0; i < entry.photos.length; i += photosPerGuest) {
-      chunks.push({ entry, photos: entry.photos.slice(i, i + photosPerGuest) })
+    for (let i = 0; i < entry.photos.length; i += PHOTOS_PER_PAGE) {
+      const pagePhotos = entry.photos.slice(i, i + PHOTOS_PER_PAGE)
+      // Pad with null placeholders to always fill 10 slots (5 cols x 2 rows)
+      while (pagePhotos.length < PHOTOS_PER_PAGE) {
+        pagePhotos.push(null)
+      }
+      chunks.push({ entry, photos: pagePhotos })
     }
   }
   const pageTotal = chunks.length + 1
