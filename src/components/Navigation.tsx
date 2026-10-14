@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 
 const PRODUCTS = [
   { label: "Premium Web Invitation", href: "/premium-web-invitation" },
-  { label: "Galeri Template", href: "/templates" },
   { label: "QR dan Digital Buku Tamu", href: "/qr-digital-buku-tamu" },
   { label: "Doa & Harapan Tamu", href: "/virtual-wish-wall" },
   { label: "Galeri Kenangan Tamu", href: "/galeri-kenangan-tamu" },
@@ -95,6 +94,12 @@ export default function Navigation() {
             >
               Artikel
             </a>
+            <a
+              href="/templates"
+              className="font-label-md text-label-md uppercase tracking-widest text-[#e5e1e4] hover:text-[#f2ca50] transition-colors"
+            >
+              Template
+            </a>
             <button
               onClick={() => showComingSoon("Tentang Kami")}
               className="font-label-md text-label-md uppercase tracking-widest text-[#e5e1e4] hover:text-[#f2ca50] transition-colors"
@@ -165,6 +170,13 @@ export default function Navigation() {
               className="border-b border-white/10 pb-4 text-left"
             >
               Artikel
+            </a>
+            <a
+              href="/templates"
+              onClick={closeMenu}
+              className="border-b border-white/10 pb-4 text-left"
+            >
+              Template
             </a>
             <button
               className="border-b border-white/10 pb-4 text-left"
