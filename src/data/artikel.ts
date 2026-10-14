@@ -89,6 +89,80 @@ export const ARTICLES: Article[] = [
     checker: "weton",
   },
   {
+    slug: "harga-undangan-digital-2026",
+    title: "Harga Undangan Digital 2026: Perbandingan dan Tips Hemat",
+    description:
+      "Kisaran harga undangan pernikahan digital 2026, perbedaan paket basic vs premium, dan cara hemat jutaan rupiah tanpa mengorbankan kualitas.",
+    category: "Harga",
+    date: "2026-10-14",
+    readMinutes: 6,
+    body: `
+<p>Harga <strong>undangan pernikahan digital</strong> bervariasi dari puluhan ribu hingga jutaan rupiah. Selisihnya terletak pada fitur: RSVP, buku tamu digital, galeri foto, wish wall, dan reminder WhatsApp.</p>
+<h2>Patokan harga 2026</h2>
+<p>Paket basic (undangan + RSVP) umumnya paling terjangkau; paket premium menambah buku tamu QR, galeri foto tamu, dan blast WhatsApp. Kompetitor mematok Rp49–149 ribu untuk fitur sekelasnya — bandingkan isi fiturnya, bukan cuma angkanya.</p>
+<h2>Tips hemat terbesar</h2>
+<p>Gabungkan kebutuhan dalam satu platform: undangan + buku tamu + galeri + reminder dalam satu paket selalu lebih murah daripada beli terpisah. Hitung dulu kebutuhan Anda dengan <a href="/kalkulator-budget">kalkulator budget</a>, lalu lihat <a href="/customize">halaman harga</a> untuk paket yang pas.</p>
+<h2>Yang sering dilupakan</h2>
+<p>Masa aktif link (pastikan aktif selamanya sebagai kenangan), batas revisi desain, dan apakah ganti template dikenakan biaya. Di Aksaraa, ganti template gratis kapan saja.</p>`,
+  },
+  {
+    slug: "cara-menyebar-undangan-whatsapp",
+    title: "Cara Menyebar Undangan via WhatsApp yang Sopan dan Efektif",
+    description:
+      "Etika dan teknik sebar undangan WhatsApp: tautan unik per tamu, waktu kirim terbaik, template pesan, dan follow-up RSVP otomatis.",
+    category: "Panduan",
+    date: "2026-10-14",
+    readMinutes: 5,
+    body: `
+<p>WhatsApp adalah kanal utama sebaran <strong>undangan digital</strong> — tapi cara menyebarnya menentukan berapa banyak tamu yang benar-benar hadir.</p>
+<h2>Gunakan tautan unik per tamu</h2>
+<p>Jangan sebar satu link ke grup. Tautan unik berisi nama masing-masing tamu terasa personal, mencegah tamu tak diundang, dan membuat rekap RSVP akurat per nama.</p>
+<h2>Waktu kirim terbaik</h2>
+<p>Kirim undangan H-30 hingga H-21, lalu <a href="/reminder-tamu-vip">reminder otomatis</a> H-7 dan H-1. Pesan pembuka yang sopan menyebut nama tamu selalu dibuka lebih dulu daripada broadcast generik.</p>
+<h2>Template pesan yang bekerja</h2>
+<p>Salam pembuka + nama tamu + maksud undangan + tautan + penutup hangat. Hindari huruf kapital semua dan emoji berlebihan — kesopanan terbaca dari formatnya.</p>
+<h2>Follow-up yang tidak mengganggu</h2>
+<p>Satu pengingat cukup; dua maksimal. Sistem reminder otomatis memastikan tidak ada tamu terlewat tanpa Anda harus mengejar satu per satu.</p>`,
+  },
+  {
+    slug: "tips-memilih-wedding-organizer",
+    title: "7 Tips Memilih Wedding Organizer Agar Tidak Salah Pilih",
+    description:
+      "Cara memilih WO: portofolio sejenis, kontrak tertulis, chemistry, tools modern, dan red flag yang wajib dihindari.",
+    category: "Wedding Planner",
+    date: "2026-10-14",
+    readMinutes: 6,
+    body: `
+<p><strong>Wedding organizer</strong> yang tepat membuat Anda menikmati hari-H; yang salah membuat Anda jadi koordinator dadakan. Tujuh tips ini membantu memilih dengan percaya diri.</p>
+<h2>1. Minta portofolio acara sejenis</h2>
+<p>WO adat Jawa belum tentu piawai adat Batak. Lihat dokumentasi acara dengan skala, adat, dan venue sejenis milik Anda.</p>
+<h2>2. Wawancara chemistry-nya</h2>
+<p>Anda akan intens berkomunikasi 3–6 bulan. Pilih tim yang responsif, jujur soal budget, dan tidak memaksakan vendor rekanan.</p>
+<h2>3. Kontrak tertulis yang rinci</h2>
+<p>Jumlah crew, jam kerja, rundown, overtime fee, dan apa yang tidak termasuk — semua di atas kertas bermeterai, bukan janji lisan.</p>
+<h2>4. Pastikan melek tools digital</h2>
+<p>WO modern memakai <a href="/qr-digital-buku-tamu">buku tamu digital</a> untuk rekap tamu dan <a href="/reminder-tamu-vip">reminder WhatsApp</a> agar tamu VIP hadir — bukan buku tulis dan telepon manual.</p>
+<h2>5–7. Cek testimoni, waspadai DP besar, dan pastikan satu PIC khusus</h2>
+<p>Hubungi 2–3 pengantin sebelumnya. Hindari DP di atas 50% tanpa milestone jelas. Dan pastikan ada satu nama PIC yang bertanggung jawab penuh atas acara Anda.</p>`,
+  },
+  {
+    slug: "undangan-tanpa-foto-vs-foto",
+    title: "Undangan Tanpa Foto vs Pakai Foto: Mana yang Cocok untuk Anda?",
+    description:
+      "Pertimbangan privasi, estetika, dan budaya dalam memilih template undangan tanpa foto atau dengan foto prewedding.",
+    category: "Template",
+    date: "2026-10-14",
+    readMinutes: 4,
+    body: `
+<p>Salah satu keputusan desain terbesar: tampilkan foto prewedding atau tidak sama sekali. Keduanya valid — tergantung prioritas Anda.</p>
+<h2>Alasan memilih tanpa foto</h2>
+<p>Privasi (tidak ingin wajah tersebar di grup WhatsApp), belum sempat prewedding, atau selera minimalis yang mengutamakan tipografi. Lihat koleksi <a href="/templates/kategori/tanpa-foto">template tanpa foto</a> — ornamen dan tipografinya berdiri sendiri.</p>
+<h2>Alasan memakai foto</h2>
+<p>Tamu mengenali Anda sekilas (penting untuk tamu jauh), nuansa lebih personal, dan foto menjadi pusat estetika undangan. Galeri prewedding juga memperkaya halaman.</p>
+<h2>Solusi tengah</h2>
+<p>Pakai foto di halaman dalam tapi sampul tetap tipografi, atau sebaliknya. Semua <a href="/templates">template Aksaraa</a> bisa diganti kapan saja — mulai tanpa foto, tambah foto belakangan bila berubah pikiran.</p>`,
+  },
+  {
     slug: "ide-disposable-camera-pernikahan",    title: "Disposable Camera Pernikahan: Ide Galeri Foto dari Sudut Tamu",
     description:
       "Tren disposable camera di resepsi: tamu memotret candid, foto tampil live. Cara kerja, penempatan QR, dan tips agar galeri penuh.",
