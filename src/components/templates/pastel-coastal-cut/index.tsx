@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import type { TemplateProps } from "@/types/template"
+import { resolveCoupleName } from "@/lib/coupleName"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import { ASSETS } from "@/lib/assets"
 import { bridePhoto, coverPhoto, groomPhoto, initialsOf } from "../shared/lib"
@@ -85,10 +86,7 @@ export default function PastelCoastal(props: TemplateProps) {
   const initials = (props.couple_initials || "").trim() || initialsOf(props.groom_name, props.bride_name) || "AR"
 
   const showGuestDock = opened && !wishOpen && (!!props.guest_id || (props.guest_link_strict === false && !!props.guest_slug)) && !!props.wedding_profile_id
-  const coupleName =
-    (props.groom_full_name && props.bride_full_name
-      ? `${props.groom_full_name} & ${props.bride_full_name}`
-      : props.display_name) || `${props.groom_name || ""} & ${props.bride_name || ""}`
+  const coupleName = resolveCoupleName(props)
 
   return (
     <Skin display="Cormorant Garamond" body="Montserrat" script="Alex Brush">

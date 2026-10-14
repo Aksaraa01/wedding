@@ -9,6 +9,7 @@ import OpsHeader from "@/components/ops/OpsHeader"
 import html2canvas from "html2canvas"
 import * as XLSX from "xlsx"
 import { renderReminderMessage, getCoupleDisplayName } from "@/lib/reminderTemplates"
+import { resolveCoupleName } from "@/lib/coupleName"
 import { MSG_TEMPLATES, cleanMessageForCell, isValidMsgCategory, renderMessage } from "@/lib/messageTemplates"
 import {
   PACKAGE_LABELS,
@@ -51,6 +52,8 @@ type QueueItem = {
     id: string
     bride_name: string
     groom_name: string
+    bride_full_name?: string | null
+    groom_full_name?: string | null
     display_name?: string | null
     slug: string
     whatsapp_number: string
@@ -1633,7 +1636,7 @@ export default function AntrianDetail({ id }: { id: string }) {
   const downloadVipExcel = () => {
     const header = ["Nama Tamu", "No. WhatsApp (nomor saja, tanpa +62/0)", "Kategori", "Meja", "VIP (isi YA jika VIP)", "Sumber", "Pesan"]
     const scheduleText = detail?.wa_blast_schedule?.message_text || ""
-    const coupleName = currentWp ? getCoupleDisplayName({ display_name: currentWp.display_name, bride_name: currentWp.bride_name, groom_name: currentWp.groom_name }) : ""
+    const coupleName = currentWp ? getCoupleDisplayName({ bride_full_name: currentWp.bride_full_name, groom_full_name: currentWp.groom_full_name, bride_name: currentWp.bride_name, groom_name: currentWp.groom_name }) : ""
     const sessions = (currentWp?.sessions || []) as Array<{ venue?: string; address?: string }>
     const firstSession = sessions[0] || {}
     const weddingDate = currentWp?.estimated_wedding_date
@@ -2845,7 +2848,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                         </button>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
                         <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                          <h3 className="font-display-lg text-3xl sm:text-4xl">{invitationData.profile.display_name || `${invitationData.profile.bride_name} & ${invitationData.profile.groom_name}`}</h3>
+                          <h3 className="font-display-lg text-3xl sm:text-4xl">{resolveCoupleName(invitationData.profile)}</h3>
                           <p className="font-body-md text-sm opacity-80 mt-1">We Are Getting Married</p>
                         </div>
                       </div>
@@ -3004,7 +3007,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                       </div>
                     ) : (
                     <div>
-                      <p className="font-display-lg text-2xl text-center text-primary">{invitationData.profile.display_name || `${invitationData.profile.bride_name} & ${invitationData.profile.groom_name}`}</p>
+                      <p className="font-display-lg text-2xl text-center text-primary">{resolveCoupleName(invitationData.profile)}</p>
                       {invitationData.profile.couple_initials && (
                         <p className="font-display-lg text-sm text-center text-secondary mt-1">{invitationData.profile.couple_initials}</p>
                       )}

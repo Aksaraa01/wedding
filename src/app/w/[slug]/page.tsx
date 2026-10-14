@@ -12,6 +12,7 @@ import { cachedRead } from "@/lib/refCache"
 import { ASSETS } from "@/lib/assets"
 import { toOgImageUrl } from "@/lib/storage"
 import { prettifyGuestSlug, FALLBACK_GUEST_NAME } from "@/lib/guest-link"
+import { resolveCoupleName } from "@/lib/coupleName"
 
 export const revalidate = 60
 
@@ -54,7 +55,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const name2 = (profile.groom_full_name || profile.groom_name || "").trim()
   const title = `The Wedding of ${name1}-${name2}`
 
-  const tagline = (profile.display_name || `${profile.bride_name} & ${profile.groom_name}`).trim()
+  const tagline = resolveCoupleName(profile)
   const date = profile.estimated_wedding_date
     ? new Date(profile.estimated_wedding_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
     : ""
@@ -135,7 +136,7 @@ export default async function WeddingInvitation({
   if (isBotUserAgent(ua)) {
     const { data: lite } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("id, slug, display_name, bride_name, groom_name, guest_link_strict")
+      .select("id, slug, bride_name, groom_name, bride_full_name, groom_full_name, guest_link_strict")
       .ilike("slug", slug)
       .maybeSingle()
     if (!lite) notFound()
@@ -176,7 +177,7 @@ export default async function WeddingInvitation({
       }
       if (to && !guestFound && !qr_token && linkStrict) notFound()
     }
-    const names = (lite.display_name || `${lite.bride_name || ""} & ${lite.groom_name || ""}`.trim() || "Undangan Pernikahan").trim()
+    const names = resolveCoupleName(lite) || "Undangan Pernikahan"
     return (
       <div style={{ padding: 32, fontFamily: "Georgia, serif", textAlign: "center" }}>
         <p style={{ fontSize: 20 }}>{names}</p>
@@ -347,7 +348,7 @@ export default async function WeddingInvitation({
             guestSlug={to || undefined}
             allowFlexibleRsvp={!linkStrict}
             guestName={guestName}
-            coupleName={(profile.groom_full_name && profile.bride_full_name ? `${profile.groom_full_name} & ${profile.bride_full_name}` : profile.display_name) || `${profile.groom_name} & ${profile.bride_name}`}
+            coupleName={resolveCoupleName(profile)}
             weddingProfileId={profile.id}
             guestQrUrl={
               guestContext?.slug || guestContext?.qr_token
@@ -384,7 +385,7 @@ export default async function WeddingInvitation({
             guestSlug={to || undefined}
             allowFlexibleRsvp={!linkStrict}
             guestName={guestName}
-            coupleName={(profile.groom_full_name && profile.bride_full_name ? `${profile.groom_full_name} & ${profile.bride_full_name}` : profile.display_name) || `${profile.groom_name} & ${profile.bride_name}`}
+            coupleName={resolveCoupleName(profile)}
             weddingProfileId={profile.id}
             guestQrUrl={guestContext?.slug || guestContext?.qr_token ? `/qr/${encodeURIComponent(guestContext.slug || guestContext.qr_token)}` : undefined}
             guestTableNumber={guestContext?.table_number}

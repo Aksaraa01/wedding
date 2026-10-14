@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react"
 import type { TemplateProps } from "@/types/template"
+import { resolveCoupleName } from "@/lib/coupleName"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import { ASSETS } from "@/lib/assets"
 import Skin from "../shared/Skin"
@@ -48,10 +49,7 @@ export default function PixelQuest(props: TemplateProps) {
   // guests, and hides while the quest card, the gallery overlay, or the wishes
   // feed is displayed (pixel-paradise parity: floating buttons yield to content).
   const showGuestDock = opened && !wishOpen && !galleryOpen && !questCardVisible && (!!props.guest_id || (props.guest_link_strict === false && !!props.guest_slug)) && !!props.wedding_profile_id
-  const coupleName =
-    (props.groom_full_name && props.bride_full_name
-      ? `${props.groom_full_name} & ${props.bride_full_name}`
-      : props.display_name) || `${props.groom_name || ""} & ${props.bride_name || ""}`
+  const coupleName = resolveCoupleName(props)
 
   return (
     <Skin display="Playfair Display" body="Plus Jakarta Sans" pixel="Press Start 2P">

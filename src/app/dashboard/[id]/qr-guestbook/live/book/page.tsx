@@ -4,6 +4,7 @@ import { use, useEffect, useRef, useState, useCallback } from "react"
 import { PageFlip } from "page-flip"
 import { useVisiblePoll } from "@/lib/useVisiblePoll"
 import { displayCategory } from "@/lib/gallery-client"
+import { resolveCoupleName } from "@/lib/coupleName"
 import { ASSETS } from "@/lib/assets"
 
 // App self-hosted faces (layout.tsx) — never duplicate next/font queries
@@ -39,6 +40,8 @@ type Profile = {
   slug: string
   bride_name: string
   groom_name: string
+  bride_full_name?: string | null
+  groom_full_name?: string | null
   estimated_wedding_date: string | null
   sessions?: { venue?: string; date?: string }[] | null
   cover_photos?: string[] | null
@@ -124,7 +127,8 @@ export function BookCover({ profile, mono, venue }: { profile: Profile | null; m
     (Array.isArray(profile?.cover_photos) && profile.cover_photos.find(Boolean)) ||
     profile?.couple_illustration_url ||
     ""
-  const coupleName = `${profile?.groom_name || ""} & ${profile?.bride_name || ""}`.replace(/^ & | & $/g, "").trim() || "Mempelai"
+  const coupleName = resolveCoupleName(profile || {}) || "Mempelai"
+  const coverTitleSize = coupleName.length > 28 ? 24 : 30
   return (
     <div className="h-full w-full flex flex-col px-5 py-4 relative" style={{ backgroundColor: PAPER }}>
       <div className="absolute inset-2 border border-[#e4d7cb]/80 pointer-events-none" style={{ borderRadius: 2 }} />
@@ -135,7 +139,7 @@ export function BookCover({ profile, mono, venue }: { profile: Profile | null; m
       <div className="relative z-10 flex flex-col items-center pt-1">
         <Emblem size={52} mono={mono} />
         <p className={`${inter.className} text-[8px] tracking-[0.28em] uppercase font-semibold mt-2`} style={{ color: MAROON }}>The Wedding of</p>
-        <h1 className={`${playfair.className} leading-tight mt-0.5`} style={{ fontSize: 30, color: INK }}>{coupleName}</h1>
+        <h1 className={`${playfair.className} leading-tight mt-0.5`} style={{ fontSize: coverTitleSize, color: INK }}>{coupleName}</h1>
         <div className="mt-1.5"><Divider width={130} /></div>
       </div>
       <div className="relative z-10 my-2">
@@ -328,7 +332,7 @@ export default function LiveBookPage({ params }: { params: Promise<{ id: string 
     ""
   const venue = profile?.sessions?.[0]?.venue || ""
   const mono = initialsOf(profile?.bride_name || "", profile?.groom_name || "")
-  const coupleName = `${profile?.groom_name || ""} & ${profile?.bride_name || ""}`.replace(/^ & | & $/g, "").trim() || "Mempelai"
+  const coupleName = resolveCoupleName(profile || {}) || "Mempelai"
   const total = entries.length + 1
   const pad = (n: number) => String(n).padStart(2, "0")
 

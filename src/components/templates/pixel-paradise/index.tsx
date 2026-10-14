@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react"
 import type { TemplateProps } from "@/types/template"
+import { resolveCoupleName } from "@/lib/coupleName"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import Skin from "../shared/Skin"
 import PixelCover from "./Cover"
@@ -52,10 +53,7 @@ export default function PixelParadise(props: TemplateProps) {
   // Guest QR/RSVP dock shows only after the invitation opens, for identified
   // guests, and hides while a modal or the wishes feed is open.
   const showGuestDock = opened && !modal && !wishOpen && (!!props.guest_id || (props.guest_link_strict === false && !!props.guest_slug)) && !!props.wedding_profile_id
-  const coupleName =
-    (props.groom_full_name && props.bride_full_name
-      ? `${props.groom_full_name} & ${props.bride_full_name}`
-      : props.display_name) || `${props.groom_name || ""} & ${props.bride_name || ""}`
+  const coupleName = resolveCoupleName(props)
 
   const videoEmbed = normalizeVideoUrl(props.video_url)
   const videoData: VideoModalData = videoEmbed ? { state: "ready", videoUrl: videoEmbed } : { state: "none" }

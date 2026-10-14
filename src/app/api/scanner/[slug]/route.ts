@@ -11,7 +11,7 @@ export async function GET(
 
     const { data: profile, error: profileErr } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("id, bride_name, groom_name, display_name, scanner_pin, sessions, estimated_wedding_date, cover_photos, couple_illustration_url")
+      .select("id, bride_name, groom_name, bride_full_name, groom_full_name, display_name, scanner_pin, sessions, estimated_wedding_date, cover_photos, couple_illustration_url")
       .eq("slug", slug)
       .single()
 
@@ -28,6 +28,8 @@ export async function GET(
       wedding_profile_id: profile.id,
       bride_name: profile.bride_name,
       groom_name: profile.groom_name,
+      bride_full_name: (profile as any).bride_full_name || null,
+      groom_full_name: (profile as any).groom_full_name || null,
       display_name: profile.display_name,
       guest_count: guestCount || 0,
       has_pin: !!profile.scanner_pin,

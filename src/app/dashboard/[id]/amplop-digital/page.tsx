@@ -283,8 +283,6 @@ function AmplopDigitalInner({ id }: { id: string }) {
     )
   }
 
-  const coupleName = `${profile.bride_name} & ${profile.groom_name}`
-
   return (
     <>
       <PageTheme mode="light" />

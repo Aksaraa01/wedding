@@ -4,6 +4,7 @@ import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import GuestGalleryView, { type GalleryViewPhoto } from "@/components/gallery/GuestGalleryView"
 import { displayCategory } from "@/lib/gallery-client"
+import { resolveCoupleName } from "@/lib/coupleName"
 
 function datePartsOf(dateStr: string): { d: string; m: string; y: string } | null {
   const m = /^\d{4}-\d{2}-\d{2}$/.exec(dateStr || "")
@@ -36,7 +37,7 @@ export default function WelcomeGaleriPage({ params }: { params: Promise<{ token:
         if (!data.guest || !data.profile) throw new Error("Data tidak ditemukan")
         const quota = typeof data.photoQuota === "number" ? data.photoQuota : 0
         setIdentity({ name: data.guest.name || "", category: data.guest.category || "Umum" })
-        setCouple(data.profile.display_name || `${data.profile.bride_name} & ${data.profile.groom_name}`)
+        setCouple(resolveCoupleName(data.profile))
         const rawDate = data.profile.estimated_wedding_date || ""
         setDateParts(datePartsOf(rawDate))
         try {

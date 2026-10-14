@@ -1,3 +1,5 @@
+import { resolveCoupleName, type CoupleNameInput } from "./coupleName"
+
 export type ReminderTemplate = { label: string; text: string }
 
 export const MESSAGE_TEMPLATES: Record<string, ReminderTemplate> = {
@@ -70,14 +72,6 @@ export function renderReminderMessage(text: string, ctx: ReminderContext): strin
   return out
 }
 
-export function getCoupleDisplayName(profile: {
-  display_name?: string | null
-  bride_name?: string | null
-  groom_name?: string | null
-}): string {
-  if (profile.display_name && profile.display_name.trim()) return profile.display_name.trim()
-  const b = (profile.bride_name || "").trim()
-  const g = (profile.groom_name || "").trim()
-  if (b && g) return `${b} & ${g}`
-  return b || g
+export function getCoupleDisplayName(profile: CoupleNameInput): string {
+  return resolveCoupleName(profile)
 }

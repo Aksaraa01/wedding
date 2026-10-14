@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { formatDateUpper } from "@/lib/formatDate"
+import { resolveCoupleName } from "@/lib/coupleName"
 import { resolveBankLogo } from "@/lib/bankList"
 import { getRowGates } from "@/lib/featureGates"
 
@@ -85,10 +86,11 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
     maps_url: r?.maps_url || "",
   }))
 
+  const coupleParts = resolveCoupleName(profile).split("&").map((s) => s.trim())
   const calendar_link = buildCalendarLink(
     rawSessions[0] as any,
-    esc(profile.groom_name) || esc(profile.display_name?.split("&")[0]?.trim()),
-    esc(profile.bride_name) || esc(profile.display_name?.split("&")[1]?.trim())
+    esc(coupleParts[0] || ""),
+    esc(coupleParts[1] || "")
   )
 
   const stories = parseList(profile.stories).map((r: any) => ({

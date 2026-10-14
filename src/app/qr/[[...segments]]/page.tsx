@@ -3,6 +3,7 @@
 import { use, useEffect, useState, useRef } from "react"
 import QRCode from "qrcode"
 import { useVisiblePoll } from "@/lib/useVisiblePoll"
+import { resolveCoupleName } from "@/lib/coupleName"
 
 function getSegment(segments: string[] | undefined): string | null {
   if (!segments || segments.length === 0) return null
@@ -102,7 +103,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
         }
 
         setGuestName(data.guest.name)
-        setCoupleName(data.profile.display_name || `${data.profile.bride_name} & ${data.profile.groom_name}`)
+        setCoupleName(resolveCoupleName(data.profile))
         setTableNumber(data.guest.table_number || "")
         setCategory(data.guest.category || "")
         setIsVip(data.guest.is_vip === true)

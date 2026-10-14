@@ -13,6 +13,7 @@ import { ASSETS } from "@/lib/assets"
 import { OPENING_PRESETS, OPENING_CUSTOM, matchOpeningPreset } from "@/lib/openingPresets"
 import { compressImage } from "@/lib/imageCompress"
 import { waLink } from "@/lib/contact"
+import { resolveCoupleName } from "@/lib/coupleName"
 
 type Profile = {
   id: string
@@ -1427,7 +1428,7 @@ function EditorInner({ id }: { id: string }) {
         guest_id="preview"
         guest_qr_token={featureSet.has("qr_code_book") ? "preview" : undefined}
         guest_table_number="Meja 5"
-        guest_qr_url={featureSet.has("qr_code_book") ? `/qr/preview?preview=1&slug=${encodeURIComponent(data.slug || "")}&couple=${encodeURIComponent(data.display_name || `${data.bride_name || ""} & ${data.groom_name || ""}`)}&date=${encodeURIComponent(data.estimated_wedding_date || "")}&time=${encodeURIComponent(sessions[0]?.time || "")}&venue=${encodeURIComponent(sessions[0]?.venue || "")}&address=${encodeURIComponent(sessions[0]?.address || "")}` : undefined}
+        guest_qr_url={featureSet.has("qr_code_book") ? `/qr/preview?preview=1&slug=${encodeURIComponent(data.slug || "")}&couple=${encodeURIComponent(resolveCoupleName(data))}&date=${encodeURIComponent(data.estimated_wedding_date || "")}&time=${encodeURIComponent(sessions[0]?.time || "")}&venue=${encodeURIComponent(sessions[0]?.venue || "")}&address=${encodeURIComponent(sessions[0]?.address || "")}` : undefined}
         display_name={data.display_name || undefined}
         cover_photos={data.cover_photos || undefined}
         couple_initials={data.couple_initials || undefined}

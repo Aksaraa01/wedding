@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import type { TemplateProps } from "@/types/template"
+import { resolveCoupleName } from "@/lib/coupleName"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import Skin from "./Skin"
 import SkylineCover from "./Cover"
@@ -72,10 +73,7 @@ export default function SkylinePenthouse(props: TemplateProps) {
   // the cover: it shows only for identified guests, after the invitation opens,
   // and hides while a modal or the live-wishes modal is open.
   const showGuestDock = opened && !modal && !wishOpen && (!!props.guest_id || (props.guest_link_strict === false && !!props.guest_slug)) && !!props.wedding_profile_id
-  const coupleName =
-    (props.groom_full_name && props.bride_full_name
-      ? `${props.groom_full_name} & ${props.bride_full_name}`
-      : props.display_name) || `${props.groom_name || ""} & ${props.bride_name || ""}`
+  const coupleName = resolveCoupleName(props)
 
   return (
     <Skin>

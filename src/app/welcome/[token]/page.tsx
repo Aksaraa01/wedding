@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react"
 import QRCode from "qrcode"
 import ProfileMenu from "@/components/ProfileMenu"
+import { resolveCoupleName } from "@/lib/coupleName"
 import { useRouter, useSearchParams } from "next/navigation"
 
 function formatDate(dateStr: string): string {
@@ -51,7 +52,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
         setGuestName(data.guest.name)
         setIsVip(data.guest.is_vip === true)
         setGuestQrToken(guestToken)
-        setCoupleName(data.profile.display_name || `${data.profile.bride_name} & ${data.profile.groom_name}`)
+        setCoupleName(resolveCoupleName(data.profile))
         setTableNumber(data.guest.table_number || null)
         setCategory(data.guest.category || null)
         setEventDate(formatDate(data.profile.estimated_wedding_date || ""))

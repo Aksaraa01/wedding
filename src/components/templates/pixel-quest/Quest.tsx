@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import type { TemplateProps } from "@/types/template"
+import { resolveCoupleName } from "@/lib/coupleName"
 import { ASSETS } from "@/lib/assets"
 import { FONT_PIXEL } from "../shared/Skin"
 import LiveWishes from "../shared/LiveWishes"
@@ -168,7 +169,7 @@ export default function Quest({ profile, musicPlaying, onToggleMusic, wishOpen, 
           <div className="px-3 py-1 rounded-full bg-[#0e1321]/90 border border-cyan-500/30 flex items-center gap-1.5 min-w-0">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
             <span className="text-[8px] text-cyan-300 tracking-wider truncate" style={FONT_PIXEL}>
-              {(profile.display_name || `${profile.groom_name || ""} & ${profile.bride_name || ""}`).toUpperCase().slice(0, 24) || "MEMPELAI"}
+              {(resolveCoupleName(profile) || "MEMPELAI").toUpperCase().slice(0, 24)}
             </span>
           </div>
           <div className="flex items-center gap-1.5">

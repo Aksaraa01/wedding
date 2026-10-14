@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import PhotoboothCamera from "@/components/gallery/PhotoboothCamera"
+import { resolveCoupleName } from "@/lib/coupleName"
 
 type Ready = {
   guestId: string
@@ -58,7 +59,7 @@ export default function WelcomeKameraPage({ params }: { params: Promise<{ token:
           weddingProfileId: data.guest.wedding_profile_id,
           name: data.guest.name || "",
           category: data.guest.category || "Umum",
-          couple: data.profile.display_name || `${data.profile.bride_name} & ${data.profile.groom_name}`,
+          couple: resolveCoupleName(data.profile),
           dateLabel: formatDateLabel(data.profile.estimated_wedding_date || ""),
           quota,
           used,

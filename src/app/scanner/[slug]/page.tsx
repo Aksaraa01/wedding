@@ -4,6 +4,7 @@ import { useState, useEffect, use, useRef, useCallback } from "react"
 import NativeQrReader from "@/components/scanner/NativeQrReader"
 import SelfieModal from "@/components/scanner/SelfieModal"
 import { useVisiblePoll } from "@/lib/useVisiblePoll"
+import { resolveCoupleName } from "@/lib/coupleName"
 import {
   cacheGuests,
   getGuestByToken,
@@ -18,6 +19,8 @@ type EventInfo = {
   wedding_profile_id: string
   bride_name: string
   groom_name: string
+  bride_full_name?: string | null
+  groom_full_name?: string | null
   display_name?: string
   guest_count: number
   has_pin: boolean
@@ -550,7 +553,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
   const presentGuestRows = logEntries.filter(g => g.is_checked_in).length
   const totalGuestRows = allGuests.length
   const coupleDisplay = eventInfo
-    ? (eventInfo.display_name || `${eventInfo.bride_name} & ${eventInfo.groom_name}`)
+    ? resolveCoupleName(eventInfo)
     : ""
 
   if (!pinVerified) {
