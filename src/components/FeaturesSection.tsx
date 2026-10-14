@@ -1,27 +1,55 @@
 "use client"
 
-import { useState } from "react"
+import Link from "next/link"
 
 const MODULES = [
   {
     icon: "language",
     title: "Web Invitation & RSVP",
     desc: "Manjakan tamu dengan undangan sinematik personal, lengkap dengan RSVP real-time untuk katering dan acara presisi",
+    href: "/fitur/undangan-digital",
   },
   {
     icon: "qr_code_2",
-    title: "VIP Reception QR Pass",
-    desc: "Berikan kesan pertama yang mewah dan istimewa bagi tamu undangan Anda dengan proses masuk yang super cepat dan elegan",
+    title: "Buku Tamu Digital QR",
+    desc: "Check-in QR, e-pass tamu, layar sapa, rekap kehadiran otomatis — buku tamu digital modern.",
+    href: "/fitur/buku-tamu-qr",
   },
   {
     icon: "settings_input_component",
-    title: "Virtual Wish Wall",
-    desc: "Hadirkan pengalaman interaktif, ucapan dari HP tamu tayang seketika di layar LED venue, menciptakan momen tak terlupakan",
+    title: "Wish Wall Digital",
+    desc: "Ucapan tamu tampil live di layar venue dengan moderasi instan — papan ucapan modern.",
+    href: "/fitur/wish-wall",
   },
   {
     icon: "chat_bubble_outline",
-    title: "Auto-Reminder WhatsApp",
-    desc: "Pastikan tamu penting hadir melalui reminder dan undangan digital otomatis berisi lokasi, waktu, dan QR Pass cepat.",
+    title: "Reminder WhatsApp Otomatis",
+    desc: "Blast undangan & pengingat H-7/H-1 otomatis via WA, personal per tamu + tautan unik + nomor meja.",
+    href: "/fitur/reminder-wa",
+  },
+  {
+    icon: "featured_seasonal_and_gifts",
+    title: "Amplop Digital & Kado",
+    desc: "Rekening bank, e-wallet, QRIS, alamat kado — terintegrasi di undangan, aman & praktis.",
+    href: "/fitur/amplop-digital",
+  },
+  {
+    icon: "photo_library",
+    title: "Galeri Foto Tamu",
+    desc: "Tamu upload foto candid via QR di meja, tampil live layaknya disposable camera.",
+    href: "/fitur/galeri-foto-tamu",
+  },
+  {
+    icon: "qr_code_2",
+    title: "Link Unik & QR Pass",
+    desc: "Tautan & QR unik per tamu — anti tamu tak diundang, rekap akurat, nomor meja otomatis.",
+    href: "/fitur/link-unik",
+  },
+  {
+    icon: "how_to_vote",
+    title: "RSVP Otomatis",
+    desc: "Tamu konfirmasi via HP, rekap real-time, export Excel, notifikasi WA otomatis.",
+    href: "/fitur/rsvp-otomatis",
   },
 ]
 
@@ -54,8 +82,9 @@ export default function FeaturesSection() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-gutter">
           {MODULES.map((m) => (
-            <div
+            <Link
               key={m.title}
+              href={m.href}
               className="group bg-surface p-6 md:p-10 border border-outline-variant/30 flex flex-col justify-between hover:bg-primary transition-all duration-700 md:h-[420px] rounded-none"
             >
               <div>
@@ -69,7 +98,7 @@ export default function FeaturesSection() {
               <p className="font-body-md text-sm md:text-body-md leading-relaxed text-on-surface-variant group-hover:text-[#ffffff]/70 transition-colors mt-6 md:mt-0">
                 {m.desc}
               </p>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
