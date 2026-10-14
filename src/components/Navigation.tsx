@@ -10,7 +10,6 @@ const PRODUCTS = [
   { label: "Doa & Harapan Tamu", href: "/virtual-wish-wall" },
   { label: "Galeri Kenangan Tamu", href: "/galeri-kenangan-tamu" },
   { label: "Reminder Tamu VIP", href: "/reminder-tamu-vip" },
-  { label: "Artikel", href: "/artikel" },
 ]
 
 export default function Navigation() {
@@ -90,6 +89,12 @@ export default function Navigation() {
             >
               Portofolio
             </button>
+            <a
+              href="/artikel"
+              className="font-label-md text-label-md uppercase tracking-widest text-[#e5e1e4] hover:text-[#f2ca50] transition-colors"
+            >
+              Artikel
+            </a>
             <button
               onClick={() => showComingSoon("Tentang Kami")}
               className="font-label-md text-label-md uppercase tracking-widest text-[#e5e1e4] hover:text-[#f2ca50] transition-colors"
@@ -154,6 +159,13 @@ export default function Navigation() {
                 </div>
               )}
             </div>
+            <a
+              href="/artikel"
+              onClick={closeMenu}
+              className="border-b border-white/10 pb-4 text-left"
+            >
+              Artikel
+            </a>
             <button
               className="border-b border-white/10 pb-4 text-left"
               onClick={() => { closeMenu(); showComingSoon("Portofolio") }}
