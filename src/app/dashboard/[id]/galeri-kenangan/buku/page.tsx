@@ -186,7 +186,7 @@ function CoverPage({ couple }: { couple: Couple }) {
   )
 }
 
-function EntryChunk({ entry, pageNo, pageTotal, coupleName }: { entry: Entry; pageNo: number; pageTotal: number; coupleName: string }) {
+function EntryChunk({ entry, pageNo, pageTotal, coupleName, photosPerGuest }: { entry: Entry; pageNo: number; pageTotal: number; coupleName: string; photosPerGuest: number }) {
   return (
     <div className="kb-page relative overflow-hidden flex flex-col text-center" style={{ backgroundColor: PAPER, border: "1px solid #e8dfd5", padding: "40px 40px", minHeight: 1020 }}>
       <div className="absolute pointer-events-none border border-[#e4d7cb]/80 rounded-[2px]" style={{ inset: 12 }} />
@@ -217,7 +217,7 @@ function EntryChunk({ entry, pageNo, pageTotal, coupleName }: { entry: Entry; pa
         </div>
       </header>
       <section className="relative my-1" style={{ zIndex: 10 }}>
-        <div className="grid gap-3.5 mx-auto items-start text-center" style={{ gridTemplateColumns: `repeat(${entry.photos.length <= 5 ? Math.max(entry.photos.length, 1) : 5}, minmax(0,1fr))` }}>
+        <div className="grid gap-3.5 mx-auto items-start text-center" style={{ gridTemplateColumns: `repeat(${Math.min(entry.photos.length, photosPerGuest, 5)}, minmax(0,1fr))` }}>
           {entry.photos.map((photo, i) => (
             <div key={i} className="bg-white p-2 border border-[#e4d7cb]" style={{ borderRadius: 2 }}>
               <div className="w-full overflow-hidden bg-[#f2efe9] border border-[#ede3d8] flex items-center justify-center relative" style={{ aspectRatio: "4 / 3", borderRadius: 1 }}>
@@ -250,6 +250,7 @@ export default function BukuPage({ params }: { params: Promise<{ id: string }> }
   const [loading, setLoading] = useState(true)
   const [fontsReady, setFontsReady] = useState(false)
   const [error, setError] = useState("")
+  const [photosPerGuest, setPhotosPerGuest] = useState<number>(10)
 
   useEffect(() => {
     let dead = false
@@ -294,7 +295,7 @@ export default function BukuPage({ params }: { params: Promise<{ id: string }> }
           return
         }
 
-        let setup: { gallery_couple_name?: string; date_label?: string; start_label?: string; end_label?: string; gallery_photo_url?: string } | null = null
+        let setup: { gallery_couple_name?: string; date_label?: string; start_label?: string; end_label?: string; gallery_photo_url?: string; galeri_photos_per_guest?: number } | null = null
         let dashProfile: { bride_name?: string; groom_name?: string; sessions?: { venue?: string }[] | null } | null = null
         try {
           const [sres, dres] = await Promise.all([
@@ -304,7 +305,8 @@ export default function BukuPage({ params }: { params: Promise<{ id: string }> }
           if (sres.ok) setup = (await sres.json()).setup || null
           if (dres.ok) dashProfile = (await dres.json()).profile || null
         } catch {}
-        if (dead) return
+if (dead) return
+      setPhotosPerGuest(setup?.galeri_photos_per_guest || 10)
         // Cover photo follows the same fallback as the invitation and the
         // dashboard box: stored upload, then editor cover, then the default
         // couple image (local public asset — never an empty frame).
@@ -344,11 +346,12 @@ export default function BukuPage({ params }: { params: Promise<{ id: string }> }
     return () => { dead = true }
   }, [id])
 
-  // One album page per guest per 10 photos (5-col grid × 2 rows).
+// One album page per guest per N photos (configured photos per guest).
+  // Grid: up to 5 columns, rows = ceil(photosPerGuest / 5).
   const chunks: { entry: Entry; photos: Photo[] }[] = []
   for (const entry of entries) {
-    for (let i = 0; i < entry.photos.length; i += 10) {
-      chunks.push({ entry, photos: entry.photos.slice(i, i + 10) })
+    for (let i = 0; i < entry.photos.length; i += photosPerGuest) {
+      chunks.push({ entry, photos: entry.photos.slice(i, i + photosPerGuest) })
     }
   }
   const pageTotal = chunks.length + 1
@@ -412,7 +415,7 @@ export default function BukuPage({ params }: { params: Promise<{ id: string }> }
             </div>
             {chunks.map((c, i) => (
               <div key={`${c.entry.key}-${i}`} className="w-full" style={{ breakInside: "avoid", breakAfter: i === chunks.length - 1 ? "auto" : "page" }}>
-                <EntryChunk entry={{ ...c.entry, photos: c.photos }} pageNo={i + 2} pageTotal={pageTotal} coupleName={couple.coupleName} />
+                <EntryChunk entry={{ ...c.entry, photos: c.photos }} pageNo={i + 2} pageTotal={pageTotal} coupleName={couple.coupleName} photosPerGuest={photosPerGuest} />
               </div>
             ))}
           </div>

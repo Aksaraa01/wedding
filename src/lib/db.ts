@@ -139,7 +139,7 @@ export async function claimSouvenirLocal(guestId: string): Promise<void> {
   })
 }
 
-export async function syncPending(profileId: string): Promise<{ synced: number; failed: number; offline?: true }> {
+export async function syncPending(profileId: string, scannerToken?: string): Promise<{ synced: number; failed: number; offline?: true }> {
   const db = await openDB()
   const actions: SyncAction[] = await new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_SYNC, "readonly")
@@ -154,12 +154,16 @@ export async function syncPending(profileId: string): Promise<{ synced: number; 
   let synced = 0
   let failed = 0
 
+  const authHeader = scannerToken ? `Bearer ${scannerToken}` : null
+
   for (const action of actions) {
     if (action.action === "checkin") {
       try {
         const res = await fetch("/api/check-in", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: authHeader
+            ? { "Content-Type": "application/json", "Authorization": authHeader }
+            : { "Content-Type": "application/json" },
           body: JSON.stringify({
             qr_token: action.qr_token,
             checked_in_by: action.checked_in_by,
@@ -175,7 +179,9 @@ export async function syncPending(profileId: string): Promise<{ synced: number; 
       try {
         const res = await fetch("/api/check-in", {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: authHeader
+            ? { "Content-Type": "application/json", "Authorization": authHeader }
+            : { "Content-Type": "application/json" },
           body: JSON.stringify({ guest_id: action.guest_id }),
         })
         if (res.ok) synced++

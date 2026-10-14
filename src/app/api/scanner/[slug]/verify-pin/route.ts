@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { signScannerJwt } from "@/lib/scannerJwt"
 
 export async function POST(
   req: NextRequest,
@@ -34,7 +35,9 @@ export async function POST(
       return NextResponse.json({ error: "PIN salah" }, { status: 403 })
     }
 
-    return NextResponse.json({ valid: true, wedding_profile_id: profile.id })
+    const token = await signScannerJwt(profile.id)
+
+    return NextResponse.json({ valid: true, wedding_profile_id: profile.id, token })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

@@ -1,10 +1,23 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { getFeatureIncluded, getGuestPhotoQuota } from "@/lib/featureGates"
+import { verifyScannerJwt, extractScannerJwt } from "@/lib/scannerJwt"
+
+async function resolveWeddingProfileId(req: NextRequest, body: any): Promise<string | null> {
+  const token = extractScannerJwt(req)
+  if (token) {
+    const verified = await verifyScannerJwt(token)
+    if (verified) return verified.weddingProfileId
+  }
+  return body.wedding_profile_id || null
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const { qr_token, checked_in_by, wedding_profile_id, slug } = await req.json()
+    const body = await req.json()
+    const { qr_token, checked_in_by, wedding_profile_id, slug } = body
+
+    const resolvedProfileId = await resolveWeddingProfileId(req, body)
 
     if (!qr_token && !slug) {
       return NextResponse.json({ error: "QR token diperlukan" }, { status: 400 })
@@ -17,7 +30,7 @@ export async function POST(req: NextRequest) {
     const { data: guest, error: guestErr } = qr_token
       ? await guestQuery.eq("qr_token", qr_token).maybeSingle()
       : await guestQuery
-          .eq("wedding_profile_id", wedding_profile_id || "")
+          .eq("wedding_profile_id", resolvedProfileId || "")
           .ilike("slug", slug || "")
           .maybeSingle()
 
@@ -29,7 +42,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: qr_token ? "QR tidak valid. Tamu tidak ditemukan." : "Tamu tidak ditemukan." }, { status: 404 })
     }
 
-    if (wedding_profile_id && guest.wedding_profile_id !== wedding_profile_id) {
+    if (resolvedProfileId && guest.wedding_profile_id !== resolvedProfileId) {
       return NextResponse.json({ error: "QR tidak sesuai dengan acara ini" }, { status: 403 })
     }
 

@@ -1,11 +1,22 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { verifyScannerJwt, extractScannerJwt } from "@/lib/scannerJwt"
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const q = searchParams.get("q") || ""
-    const weddingProfileId = searchParams.get("wedding_profile_id")
+    let weddingProfileId = searchParams.get("wedding_profile_id")
+
+    const token = extractScannerJwt(req)
+    if (token) {
+      const verified = await verifyScannerJwt(token)
+      if (verified) {
+        weddingProfileId = verified.weddingProfileId
+      } else {
+        return NextResponse.json({ error: "Token scanner tidak valid atau kadaluarsa" }, { status: 401 })
+      }
+    }
 
     if (!weddingProfileId || !q) {
       return NextResponse.json({ error: "Parameter tidak lengkap" }, { status: 400 })

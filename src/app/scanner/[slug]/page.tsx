@@ -70,6 +70,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
   const [eventInfo, setEventInfo] = useState<EventInfo | null>(null)
   const [pinVerified, setPinVerified] = useState(false)
+  const [scannerToken, setScannerToken] = useState<string | null>(null)
   const [pinInput, setPinInput] = useState("")
   const [pinError, setPinError] = useState("")
   const [operatorName, setOperatorName] = useState("")
@@ -136,7 +137,9 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
     }
 
     try {
-      const res = await fetch(`/api/check-in?qr_token=${encodeURIComponent(token)}`)
+      const headers: HeadersInit = { "Content-Type": "application/json" }
+      if (scannerToken) headers["Authorization"] = `Bearer ${scannerToken}`
+      const res = await fetch(`/api/check-in?qr_token=${encodeURIComponent(token)}`, { headers })
       if (res.ok) {
         const data = await res.json()
         const serverGuest: GuestRecord = {
@@ -175,14 +178,14 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
   const trySync = useCallback(async () => {
     if (!eventInfo) return
-    const result = await syncPending(eventInfo.wedding_profile_id)
+    const result = await syncPending(eventInfo.wedding_profile_id, scannerToken || undefined)
     if (result.offline) {
       setOffline(true)
     } else {
       setOffline(false)
     }
     updatePending()
-  }, [eventInfo])
+  }, [eventInfo, scannerToken])
 
   const updatePending = useCallback(async () => {
     const count = await getPendingCount()
@@ -277,6 +280,8 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
   useEffect(() => {
     const verified = sessionStorage.getItem(`scanner_pin_${slug}`)
     if (verified === "true") setPinVerified(true)
+    const storedJwt = sessionStorage.getItem(`scanner_jwt_${slug}`)
+    if (storedJwt) setScannerToken(storedJwt)
   }, [slug])
 
   useEffect(() => {
@@ -372,6 +377,10 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
     })
     const data = await res.json()
     if (res.ok && data.valid) {
+      if (data.token) {
+        setScannerToken(data.token)
+        sessionStorage.setItem(`scanner_jwt_${slug}`, data.token)
+      }
       sessionStorage.setItem(`scanner_pin_${slug}`, "true")
       setPinVerified(true)
       setShowNameInput(true)
@@ -389,9 +398,11 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
   const handleClaimSouvenir = async (guestId: string) => {
     await claimSouvenirLocal(guestId)
     try {
+      const headers: HeadersInit = { "Content-Type": "application/json" }
+      if (scannerToken) headers["Authorization"] = `Bearer ${scannerToken}`
       await fetch("/api/check-in", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ guest_id: guestId }),
       })
     } catch {}
@@ -412,7 +423,9 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
     }
     setManualSearching(true)
     try {
-      const res = await fetch(`/api/check-in/search?q=${encodeURIComponent(q)}&wedding_profile_id=${eventInfo.wedding_profile_id}`)
+      const headers: HeadersInit = {}
+      if (scannerToken) headers["Authorization"] = `Bearer ${scannerToken}`
+      const res = await fetch(`/api/check-in/search?q=${encodeURIComponent(q)}&wedding_profile_id=${eventInfo.wedding_profile_id}`, { headers })
       if (res.ok) {
         const data = await res.json()
         setManualResults(data.guests || [])
