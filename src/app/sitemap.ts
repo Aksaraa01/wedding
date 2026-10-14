@@ -19,6 +19,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/reminder-tamu-vip",
     "/customize",
     "/kalkulator-budget",
+    "/checklist-nikah",
+    "/tanggal-baik",
     "/artikel",
     "/artikel/cara-membuat-undangan-pernikahan-digital",
     "/artikel/biaya-wedding-organizer-2026",
