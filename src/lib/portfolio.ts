@@ -15,6 +15,7 @@ export type PortfolioEntry = {
   covers: string[]
   illustration: string | null
   templateName: string | null
+  templatePreview: string | null
   packageLabel: string
   features: string[]
 }
@@ -50,17 +51,21 @@ export async function getPortfolioEntries(): Promise<PortfolioEntry[]> {
 
   const tplIds = [...new Set(((profiles as { selected_template_id: string | null }[] | null) || []).map((p) => p.selected_template_id).filter(Boolean))] as string[]
   let tplNames = new Map<string, string>()
+  let tplPreviews = new Map<string, string>()
   if (tplIds.length > 0) {
-    const { data: tpls } = await supabaseAdmin.from("web_templates").select("id,name").in("id", tplIds)
-    tplNames = new Map(((tpls as { id: string; name: string }[] | null) || []).map((t) => [t.id, t.name]))
+    const { data: tpls } = await supabaseAdmin.from("web_templates").select("id,name,preview_image_url").in("id", tplIds)
+    for (const t of ((tpls as { id: string; name: string; preview_image_url: string | null }[] | null) || [])) {
+      tplNames.set(t.id, t.name)
+      if (t.preview_image_url) tplPreviews.set(t.id, t.preview_image_url)
+    }
   }
 
   return (((profiles as any[] | null) || [])
     .filter((p) => p.portfolio_visible === true)
     .map((p) => {
       const covers = firstImage(p.cover_photos)
-      const groom = (p.groom_full_name || p.groom_name || "").trim()
-      const bride = (p.bride_full_name || p.bride_name || "").trim()
+      const groom = (p.groom_name || "").trim()
+      const bride = (p.bride_name || "").trim()
       const sessions = Array.isArray(p.sessions) ? p.sessions : []
       const packageType = p.package_type || "signature"
       const sel = deriveSelections(packageType, p.undangan_fisik === true)
@@ -77,6 +82,7 @@ export async function getPortfolioEntries(): Promise<PortfolioEntry[]> {
         covers,
         illustration: typeof p.couple_illustration_url === "string" ? p.couple_illustration_url : null,
         templateName: (p.selected_template_id && tplNames.get(p.selected_template_id)) || null,
+        templatePreview: (p.selected_template_id && tplPreviews.get(p.selected_template_id)) || null,
         packageLabel: PACKAGE_LABELS[packageType] || packageType,
         features: order.filter((k) => (sel as any)[k]).map((k) => FEATURE_LABELS[k] || k),
         featured: p.portfolio_featured === true,

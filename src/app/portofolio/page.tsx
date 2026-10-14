@@ -16,19 +16,6 @@ export const metadata: Metadata = {
 
 export const revalidate = 3600
 
-function formatDate(iso: string | null): string {
-  if (!iso) return ""
-  try {
-    return new Date(iso.length <= 10 ? `${iso}T00:00:00` : iso).toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    })
-  } catch {
-    return ""
-  }
-}
-
 export default async function PortofolioIndexPage() {
   const entries = portfolioIndexEntries(await getPortfolioEntries())
 
@@ -68,7 +55,7 @@ export default async function PortofolioIndexPage() {
                     {e.groom} &amp; {e.bride}
                   </h2>
                   <p className="text-xs text-on-surface-variant mt-1">
-                    {[formatDate(e.date), e.venue].filter(Boolean).join(" • ")}
+                    {[e.venue, `Paket ${e.packageLabel}`].filter(Boolean).join(" • ")}
                   </p>
                 </div>
               </Link>

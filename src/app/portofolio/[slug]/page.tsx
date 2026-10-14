@@ -28,20 +28,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export const revalidate = 3600
 
-function formatDate(iso: string | null): string {
-  if (!iso) return ""
-  try {
-    return new Date(iso.length <= 10 ? `${iso}T00:00:00` : iso).toLocaleDateString("id-ID", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    })
-  } catch {
-    return ""
-  }
-}
-
 export default async function PortofolioDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const entries = await getPortfolioEntries()
@@ -72,8 +58,7 @@ export default async function PortofolioDetailPage({ params }: { params: Promise
           Pernikahan {entry.groom} &amp; {entry.bride}
         </h1>
         <p className="font-body-md text-on-surface-variant mb-8">
-          {[formatDate(entry.date), entry.venue].filter(Boolean).join(" • ")}
-          {entry.templateName ? ` • Template ${entry.templateName}` : ""}
+          {[entry.venue, `Paket ${entry.packageLabel}`].filter(Boolean).join(" • ")}
         </p>
 
         <div className="flex flex-wrap gap-2 mb-8">
@@ -89,6 +74,30 @@ export default async function PortofolioDetailPage({ params }: { params: Promise
             </span>
           ))}
         </div>
+
+        {entry.templatePreview && (
+          <div className="rounded-2xl bg-white border border-[#E2D9CF] p-6 md:p-8 mb-10 flex flex-col sm:flex-row items-center gap-6">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={entry.templatePreview}
+              alt={`Template undangan ${entry.templateName || ""} dipakai ${names}`}
+              loading="lazy"
+              decoding="async"
+              className="w-40 sm:w-48 shrink-0 aspect-[9/19] object-cover object-top rounded-xl border border-[#E2D9CF]"
+            />
+            <div className="text-center sm:text-left">
+              <p className="text-[11px] uppercase tracking-widest text-[#B34E3F] font-semibold mb-1">
+                Template yang dipakai
+              </p>
+              <p className="font-headline-md text-xl text-[#2C2A29]">
+                {entry.templateName || "Desain premium Aksaraa"}
+              </p>
+              <p className="text-sm text-on-surface-variant mt-2">
+                Suka tampilannya? Pakai desain yang sama untuk undangan Anda.
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
           {entry.covers.map((src, i) => (
