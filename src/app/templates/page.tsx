@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { supabaseAdmin } from "@/lib/supabase"
+import { normalizeTemplateTier, tierBadgeClass } from "@/lib/templateTier"
 import SeoFaq from "@/components/SeoFaq"
 
 export const metadata: Metadata = {
@@ -39,13 +40,6 @@ async function getTemplates(): Promise<TemplateRow[]> {
 
 export default async function TemplatesIndexPage() {
   const templates = await getTemplates()
-  const byCategory = new Map<string, TemplateRow[]>()
-  for (const t of templates) {
-    const cat = (t.category || "Lainnya").trim() || "Lainnya"
-    if (!byCategory.has(cat)) byCategory.set(cat, [])
-    byCategory.get(cat)!.push(t)
-  }
-  const categories = [...byCategory.keys()].sort((a, b) => a.localeCompare(b, "id"))
 
   return (
     <main className="bg-[#FAF7F2] min-h-screen pt-24 md:pt-32 pb-10">
@@ -73,46 +67,56 @@ export default async function TemplatesIndexPage() {
         </div>
       </section>
 
-      {categories.map((cat) => (
-        <section key={cat} className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mb-12">
-          <h2 className="font-headline-md text-xl md:text-2xl text-[#2C2A29] mb-5">
-            Undangan {cat}
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {(byCategory.get(cat) || []).map((t) => (
-              <Link
-                key={t.id}
-                href={`/register?template=${encodeURIComponent(t.code)}`}
-                className="group bg-white border border-[#E2D9CF] rounded-2xl overflow-hidden hover:shadow-md transition-shadow"
-              >
-                {t.preview_image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={t.preview_image_url}
-                    alt={`Template undangan pernikahan digital ${t.name}`}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full aspect-[3/4] object-cover"
-                  />
-                ) : (
-                  <div className="w-full aspect-[3/4] bg-[#F5EFE6] flex items-center justify-center text-[#B34E3F] text-sm">
-                    {t.name}
-                  </div>
-                )}
-                <div className="p-4">
-                  <h3 className="font-semibold text-[#2C2A29] text-sm md:text-base group-hover:text-[#B34E3F]">
-                    {t.name}
-                  </h3>
-                  <p className="text-xs text-on-surface-variant mt-1">
-                    Undangan {cat}
-                    {t.no_photo ? " • Tanpa Foto" : ""}
-                  </p>
+      {/* Template Grid — same card design as /premium-web-invitation */}
+      <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mb-16">
+        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 no-scrollbar lg:grid lg:grid-cols-4 xl:grid-cols-5 lg:gap-x-4 lg:gap-y-10 lg:overflow-visible">
+          {templates.map((t) => {
+            const styleTag = (t.category || "Modern").toUpperCase()
+            const tierTag = normalizeTemplateTier(t.tier)?.toUpperCase() ?? null
+            return (
+              <article key={t.id} className="template-card group flex flex-col shrink-0 snap-start w-[72vw] max-w-[300px] lg:w-auto lg:max-w-none bg-white border border-[#E2D9CF] rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
+                <div className="relative overflow-hidden aspect-[9/19] bg-[#FAF7F2]">
+                  {t.preview_image_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      alt={`Template undangan pernikahan digital ${t.name}`}
+                      className="w-full h-full object-cover object-top transition-transform duration-[1.5s] group-hover:scale-105"
+                      src={t.preview_image_url}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-[#B34E3F] text-sm">
+                      {t.name}
+                    </div>
+                  )}
+                  {tierTag && (
+                    <span className={`absolute top-3 left-3 text-white text-[9px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full shadow-sm ${tierBadgeClass(t.tier)}`}>{tierTag}</span>
+                  )}
                 </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ))}
+                <div className="p-4 flex flex-col gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="font-headline-md text-[14px] leading-tight text-[#2C2A29] flex-1">{t.name}</h2>
+                    <span className="shrink-0 px-2 py-0.5 bg-[#F5EFE6] border border-[#E2D9CF] text-[#2C2A29] text-[9px] font-bold tracking-widest uppercase rounded-full">{styleTag}</span>
+                  </div>
+                  <div className="flex gap-2 mt-1">
+                    <Link
+                      href="/premium-web-invitation"
+                      className="flex-1 py-2.5 font-label-md text-[10px] uppercase tracking-widest rounded-full bg-[#F5EFE6] border border-[#E2D9CF] text-[#2C2A29] hover:bg-[#E2D9CF] transition-colors text-center"
+                    >
+                      Lihat Template
+                    </Link>
+                    <Link
+                      href={`/register?template=${encodeURIComponent(t.code)}`}
+                      className="flex-1 py-2.5 font-label-md text-[10px] uppercase tracking-widest rounded-full bg-[#B34E3F] border border-[#B34E3F] text-white hover:bg-[#9E3B2D] transition-colors text-center"
+                    >
+                      Pilih
+                    </Link>
+                  </div>
+                </div>
+              </article>
+            )
+          })}
+        </div>
+      </section>
 
       <SeoFaq
         heading="Pertanyaan tentang Template Undangan"
