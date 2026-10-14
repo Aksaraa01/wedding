@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { ARTICLES } from "@/data/artikel"
+import Navigation from "@/components/Navigation"
 
 export const metadata: Metadata = {
   title: "Artikel: Panduan Undangan Digital & Persiapan Nikah",
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
 export default function ArtikelIndexPage() {
   return (
     <main className="bg-[#FAF7F2] min-h-screen pt-24 md:pt-32 pb-10">
+      <Navigation />
       <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto text-center mb-12">
         <h1 className="font-headline-lg text-[28px] md:text-headline-lg text-primary mb-6">
           Artikel: Panduan Nikah &amp; Undangan Digital

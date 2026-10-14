@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getPortfolioEntries } from "@/lib/portfolio"
+import Navigation from "@/components/Navigation"
 
 export async function generateStaticParams() {
   const entries = await getPortfolioEntries()
@@ -48,6 +49,7 @@ export default async function PortofolioDetailPage({ params }: { params: Promise
 
   return (
     <main className="bg-[#FAF7F2] min-h-screen pt-24 md:pt-32 pb-10">
+      <Navigation />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <article className="px-margin-mobile md:px-margin-desktop max-w-4xl mx-auto">
         <p className="text-[11px] uppercase tracking-widest text-[#B34E3F] font-semibold mb-3">

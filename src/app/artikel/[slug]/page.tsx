@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ARTICLES, getArticle } from "@/data/artikel"
+import Navigation from "@/components/Navigation"
 
 export function generateStaticParams() {
   return ARTICLES.map((a) => ({ slug: a.slug }))
@@ -48,6 +49,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   return (
     <main className="bg-[#FAF7F2] min-h-screen pt-24 md:pt-32 pb-10">
+      <Navigation />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <article className="px-margin-mobile md:px-margin-desktop max-w-3xl mx-auto">

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import SeoFaq from "@/components/SeoFaq"
+import Navigation from "@/components/Navigation"
 
 type Task = { id: string; text: string }
 type Phase = { id: string; title: string; tasks: Task[] }
@@ -87,6 +88,7 @@ export default function ChecklistNikahPage() {
 
   return (
     <main className="bg-[#FAF7F2] min-h-screen pt-24 md:pt-32 pb-10">
+      <Navigation />
       <section className="px-margin-mobile md:px-margin-desktop max-w-3xl mx-auto text-center mb-8">
         <h1 className="font-headline-lg text-[28px] md:text-headline-lg text-primary mb-6">
           Checklist Persiapan Pernikahan

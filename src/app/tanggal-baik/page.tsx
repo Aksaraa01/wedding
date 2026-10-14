@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react"
 import Link from "next/link"
 import SeoFaq from "@/components/SeoFaq"
+import Navigation from "@/components/Navigation"
 
 // Javanese weton from a Gregorian date. Anchor: 17 Agustus 1945 = Jumat Legi
 // (widely documented), pasaran cycles every 5 days.
@@ -45,6 +46,7 @@ export default function TanggalBaikPage() {
 
   return (
     <main className="bg-[#FAF7F2] min-h-screen pt-24 md:pt-32 pb-10">
+      <Navigation />
       <section className="px-margin-mobile md:px-margin-desktop max-w-3xl mx-auto text-center mb-8">
         <h1 className="font-headline-lg text-[28px] md:text-headline-lg text-primary mb-6">
           Cek Weton &amp; Tanggal Baik Pernikahan

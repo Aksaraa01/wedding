@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { supabaseAdmin } from "@/lib/supabase"
 import { normalizeTemplateTier, tierBadgeClass } from "@/lib/templateTier"
 import { TEMPLATE_CATEGORIES, getCategory, matchesCategory } from "@/lib/templateCategory"
+import Navigation from "@/components/Navigation"
 import SeoFaq from "@/components/SeoFaq"
 
 export function generateStaticParams() {
@@ -57,6 +58,7 @@ export default async function TemplateCategoryPage({ params }: { params: Promise
 
   return (
     <main className="bg-[#FAF7F2] min-h-screen pt-24 md:pt-32 pb-10">
+      <Navigation />
       <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto text-center mb-10">
         <p className="text-[11px] uppercase tracking-widest text-on-surface-variant font-semibold mb-3">
           <Link href="/templates" className="hover:underline">Galeri Template</Link>
