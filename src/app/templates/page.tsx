@@ -99,7 +99,7 @@ export default async function TemplatesIndexPage() {
                   </div>
                   <div className="flex gap-2 mt-1">
                     <Link
-                      href="/premium-web-invitation"
+                      href={`/premium-web-invitation?template=${encodeURIComponent(t.code)}`}
                       className="flex-1 py-2.5 font-label-md text-[10px] uppercase tracking-widest rounded-full bg-[#F5EFE6] border border-[#E2D9CF] text-[#2C2A29] hover:bg-[#E2D9CF] transition-colors text-center"
                     >
                       Lihat Template

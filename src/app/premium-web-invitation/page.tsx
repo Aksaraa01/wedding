@@ -61,7 +61,18 @@ export default function PremiumWebInvitationPage() {
   useEffect(() => {
     fetch("/api/web-templates")
       .then((r) => r.json())
-      .then((d) => setTemplates(d.templates || []))
+      .then((d) => {
+        const list = d.templates || []
+        setTemplates(list)
+        // Deep link from /templates gallery: ?template=CODE auto-opens preview.
+        try {
+          const code = new URLSearchParams(window.location.search).get("template")?.trim().toLowerCase()
+          if (code) {
+            const hit = list.find((t: Template) => (t.code || "").toLowerCase() === code)
+            if (hit) setPreviewTpl(hit)
+          }
+        } catch {}
+      })
       .catch(() => setTemplates([]))
   }, [])
 
