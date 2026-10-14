@@ -70,7 +70,7 @@ export default async function TemplatesIndexPage() {
           {TEMPLATE_CATEGORIES.map((c) => (
             <Link
               key={c.id}
-              href={`/templates/${c.id}`}
+              href={`/templates/kategori/${c.id}`}
               className="rounded-full border border-[#E2D9CF] bg-white px-5 py-2 font-label-md text-[11px] uppercase tracking-widest text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors"
             >
               {c.label}
