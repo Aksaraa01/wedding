@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { requireOpsEmployee } from "@/lib/ops-auth"
 import { resolveDerivedStatus } from "@/lib/opsStatus"
 import { hasVipQuotaBase } from "@/lib/packages"
 import { getFeatureIncluded } from "@/lib/featureGates"
@@ -8,6 +9,8 @@ export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireOpsEmployee(_req)
+  if (!auth.ok) return auth.res
   try {
     const { id } = await params
 

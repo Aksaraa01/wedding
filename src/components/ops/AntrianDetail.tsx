@@ -683,7 +683,12 @@ export default function AntrianDetail({ id }: { id: string }) {
 
   const fetchAll = useCallback(async () => {
     try {
-      const res = await fetch(`/api/ops/queue/${id}`)
+      const res = await fetch(`/api/ops/queue/${id}`, {
+        headers: {
+          "x-ops-phone": employee?.phone_number || "",
+          "x-ops-role": employee?.role || "",
+        },
+      })
       if (!res.ok) return
       const data = await res.json()
       setDetail(data)
@@ -701,7 +706,7 @@ export default function AntrianDetail({ id }: { id: string }) {
     } finally {
       setLoading(false)
     }
-  }, [id])
+  }, [id, employee?.phone_number, employee?.role])
 
   useEffect(() => { fetchAll() }, [fetchAll])
 

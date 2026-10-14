@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { checkRateLimit, getClientIp, rateLimited } from "@/lib/rateLimit"
 
 export async function POST(req: NextRequest) {
   try {
@@ -8,6 +9,12 @@ export async function POST(req: NextRequest) {
     if (!wedding_profile_id) {
       return NextResponse.json({ error: "Parameter tidak lengkap" }, { status: 400 })
     }
+
+    // Stopgap brute-force guard (no behavior change for legit clicks:
+    // the dashboard mints at most once per visit). Full owner-session
+    // gating is a follow-up owned by the auth workstream.
+    const rl = checkRateLimit(`scanner-pin:${getClientIp(req)}:${wedding_profile_id}`, 10, 60_000)
+    if (!rl.ok) return rateLimited(rl.retryAfterMs!)
 
     const { data: profile } = await supabaseAdmin
       .from("wedding_profiles")

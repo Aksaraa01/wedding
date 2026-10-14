@@ -25,7 +25,7 @@ type QueueItem = {
 }
 
 type Employee = { id: string; name: string }
-type OpsEmployee = { id: string; name: string; role: string }
+type OpsEmployee = { id: string; name: string; role: string; phone_number?: string }
 
 const POLL_MS = 20000
 
@@ -88,7 +88,12 @@ export default function OpsBoardPage() {
 
   const fetchQueue = useCallback(async () => {
     try {
-      const res = await fetch("/api/ops/queue")
+      const res = await fetch("/api/ops/queue", {
+        headers: {
+          "x-ops-phone": employee?.phone_number || "",
+          "x-ops-role": employee?.role || "",
+        },
+      })
       const data = await res.json()
       setQueue(data.queue || [])
       setEmployees(data.employees || [])
@@ -97,7 +102,7 @@ export default function OpsBoardPage() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [employee])
 
   useEffect(() => {
     if (employee) fetchQueue()

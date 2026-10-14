@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { requireOpsEmployee } from "@/lib/ops-auth"
 
 export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string; key: string }> }
 ) {
+  const auth = await requireOpsEmployee(req)
+  if (!auth.ok) return auth.res
   try {
     const { id, key } = await params
     const { status, client_note, image_url } = await req.json()
