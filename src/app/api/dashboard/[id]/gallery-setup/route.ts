@@ -76,34 +76,23 @@ export async function GET(
     .select("id", { count: "exact", head: true })
     .eq("wedding_profile_id", id)
 
-  // Distinct-device count (bounded fetch: event caps keep this small).
+  // "Tamu Terkasih" = contributors with photos, all sources including
+  // check-in selfies. Checked-in guests without uploads are NOT counted.
+  // Device rows and guest rows are disjoint by construction (one side is
+  // always null).
   const { data: deviceRows } = await supabaseAdmin
     .from("guest_photos")
     .select("device_id")
     .eq("wedding_profile_id", id)
-    .neq("source", "selfie")
     .not("device_id", "is", null)
     .limit(2000)
-  // Guest contributors (Buku Tamu Digital path): per-guest uploads carry
-  // guest_id with NO device, and QR-tamu check-ins may never upload — both
-  // are beloved guests too, so they join the count. Device rows and guest
-  // rows are disjoint by construction (one side is always null).
   const { data: photoGuestRows } = await supabaseAdmin
     .from("guest_photos")
     .select("guest_id")
     .eq("wedding_profile_id", id)
     .not("guest_id", "is", null)
     .limit(2000)
-  const { data: checkedRows } = await supabaseAdmin
-    .from("guests")
-    .select("id")
-    .eq("wedding_profile_id", id)
-    .eq("is_checked_in", true)
-    .limit(5000)
-  const guestIds = new Set([
-    ...(photoGuestRows || []).map((r) => r.guest_id as string),
-    ...(checkedRows || []).map((r) => (r as { id: string }).id),
-  ])
+  const guestIds = new Set((photoGuestRows || []).map((r) => r.guest_id as string))
   const devices = new Set((deviceRows || []).map((r) => r.device_id as string)).size + guestIds.size
 
   return NextResponse.json({
