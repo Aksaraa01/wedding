@@ -186,7 +186,7 @@ function CoverPage({ couple }: { couple: Couple }) {
   )
 }
 
-function EntryChunk({ entry, pageNo, pageTotal, coupleName, photosPerGuest }: { entry: Entry; pageNo: number; pageTotal: number; coupleName: string; photosPerGuest: number }) {
+function EntryChunk({ entry, pageNo, pageTotal, coupleName, photosPerGuest }: { entry: Omit<Entry, "photos"> & { photos: (Photo | null)[] }; pageNo: number; pageTotal: number; coupleName: string; photosPerGuest: number }) {
   return (
     <div className="kb-page relative overflow-hidden flex flex-col text-center" style={{ backgroundColor: PAPER, border: "1px solid #e8dfd5", padding: "40px 40px", minHeight: 1020 }}>
       <div className="absolute pointer-events-none border border-[#e4d7cb]/80 rounded-[2px]" style={{ inset: 12 }} />
@@ -218,7 +218,15 @@ function EntryChunk({ entry, pageNo, pageTotal, coupleName, photosPerGuest }: { 
       </header>
       <section className="relative my-1" style={{ zIndex: 10 }}>
         <div className="grid gap-3.5 mx-auto items-start text-center" style={{ gridTemplateColumns: `repeat(${Math.min(photosPerGuest, 5)}, minmax(0,1fr))` }}>
-          {entry.photos.map((photo, i) => (
+          {entry.photos.map((photo, i) => {
+            if (photo === null) {
+              return (
+                <div key={i} className="bg-white/40 p-2 border border-dashed border-[#e4d7cb]" style={{ borderRadius: 2 }}>
+                  <div className="w-full bg-[#f2efe9]/50 border border-[#ede3d8] flex items-center justify-center" style={{ aspectRatio: "4 / 3", borderRadius: 1 }} />
+                </div>
+              )
+            }
+            return (
             <div key={i} className="bg-white p-2 border border-[#e4d7cb]" style={{ borderRadius: 2 }}>
               <div className="w-full overflow-hidden bg-[#f2efe9] border border-[#ede3d8] flex items-center justify-center relative" style={{ aspectRatio: "4 / 3", borderRadius: 1 }}>
                 <FitPhoto src={photo.url} alt={`Kenangan ${entry.name}`} mode="contain" className="flex-shrink-0" />
@@ -230,7 +238,8 @@ function EntryChunk({ entry, pageNo, pageTotal, coupleName, photosPerGuest }: { 
                 <p className="mt-1.5 font-medium leading-snug line-clamp-3" style={{ ...SERIF, fontSize: 12, color: INK }}>{photo.caption.trim()}</p>
               )}
             </div>
-          ))}
+          )
+          })}
         </div>
       </section>
       <div className="relative mt-auto pt-2" style={{ zIndex: 10 }}>
@@ -349,10 +358,10 @@ if (dead) return
 // One album page per guest: fixed 5 columns x 2 rows = 10 photos max per page.
   // Empty slots rendered as placeholders for consistent layout.
   const PHOTOS_PER_PAGE = 10 // 5 cols x 2 rows
-  const chunks: { entry: Entry; photos: Photo[] }[] = []
+  const chunks: { entry: Entry; photos: (Photo | null)[] }[] = []
   for (const entry of entries) {
     for (let i = 0; i < entry.photos.length; i += PHOTOS_PER_PAGE) {
-      const pagePhotos = entry.photos.slice(i, i + PHOTOS_PER_PAGE)
+      const pagePhotos: (Photo | null)[] = entry.photos.slice(i, i + PHOTOS_PER_PAGE)
       // Pad with null placeholders to always fill 10 slots (5 cols x 2 rows)
       while (pagePhotos.length < PHOTOS_PER_PAGE) {
         pagePhotos.push(null)
