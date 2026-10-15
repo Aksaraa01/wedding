@@ -64,7 +64,7 @@ async function runDuplicate(jobId: string, profileId: string, templateId: string
 
   const brideFull = (profile.bride_full_name || profile.bride_name || "").trim()
   const groomFull = (profile.groom_full_name || profile.groom_name || "").trim()
-  const title = `${brideFull} & ${groomFull} - ${tpl.name}`
+  const title = `${groomFull} & ${brideFull} - ${tpl.name}`
   const newSlug = profile.slug ? profile.slug : undefined
 
   const wpBody: Record<string, any> = { title, fields }

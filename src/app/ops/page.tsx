@@ -7,6 +7,7 @@ import OpsHeader from "@/components/ops/OpsHeader"
 import { PACKAGE_LABELS, formatDate, getPackageCategory } from "@/lib/opsConstants"
 import { OPS_COLUMNS } from "@/lib/opsStatus"
 import { useVisiblePoll } from "@/lib/useVisiblePoll"
+import { resolveCoupleName } from "@/lib/coupleName"
 
 type QueueItem = {
   id: string
@@ -18,6 +19,8 @@ type QueueItem = {
     id: string
     bride_name: string
     groom_name: string
+    bride_full_name?: string | null
+    groom_full_name?: string | null
     whatsapp_number: string
     package_type: string
     express_service?: boolean | null
@@ -255,7 +258,7 @@ export default function OpsBoardPage() {
                           >
                             <div className="flex items-start justify-between gap-2 mb-2">
                               <p className="font-display-lg text-base leading-tight">
-                                {wp.bride_name} &amp; {wp.groom_name}
+                                {resolveCoupleName(wp)}
                               </p>
                               {wp.express_service && (
                                 <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider bg-amber-50 border border-amber-300 text-amber-800 px-1.5 py-0.5 rounded-full shrink-0" title="Layanan Kilat 24 Jam">Kilat</span>

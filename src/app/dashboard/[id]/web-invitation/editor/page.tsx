@@ -1485,7 +1485,7 @@ function EditorInner({ id }: { id: string }) {
                 </div>
               ) : (
                 <>
-                  <h1 className="font-headline-md text-[18px] lg:text-[20px] text-primary tracking-tight font-bold truncate max-w-[180px] xl:max-w-none">{data.bride_name && data.groom_name ? `${data.bride_name} & ${data.groom_name}` : data.bride_name || data.groom_name || "Undangan"}</h1>
+                  <h1 className="font-headline-md text-[18px] lg:text-[20px] text-primary tracking-tight font-bold truncate max-w-[180px] xl:max-w-none">{resolveCoupleName(data) || "Undangan"}</h1>
                   <p className="font-label-md text-[10px] text-on-surface-variant flex items-center gap-1" title={syncStatus === "error" && syncError ? syncError : undefined}>
                     <span className={`w-1.5 h-1.5 rounded-full ${saveStatusColor}`} />
                     {saveStatusLabel}

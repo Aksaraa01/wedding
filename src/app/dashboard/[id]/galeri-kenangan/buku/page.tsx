@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { displayCategory } from "@/lib/gallery-client"
+import { resolveCoupleName } from "@/lib/coupleName"
 import { ASSETS } from "@/lib/assets"
 
 const SERIF: React.CSSProperties = { fontFamily: "'Playfair Display', Georgia, serif" }
@@ -305,7 +306,7 @@ export default function BukuPage({ params }: { params: Promise<{ id: string }> }
         }
 
         let setup: { gallery_couple_name?: string; date_label?: string; start_label?: string; end_label?: string; gallery_photo_url?: string; galeri_photos_per_guest?: number } | null = null
-        let dashProfile: { bride_name?: string; groom_name?: string; sessions?: { venue?: string }[] | null } | null = null
+        let dashProfile: { bride_name?: string; groom_name?: string; bride_full_name?: string | null; groom_full_name?: string | null; sessions?: { venue?: string }[] | null } | null = null
         try {
           const [sres, dres] = await Promise.all([
             fetch(`/api/dashboard/${id}/gallery-setup`),
@@ -330,7 +331,7 @@ if (dead) return
           ASSETS.defaults.couple
         const coupleName =
           setup?.gallery_couple_name ||
-          (dashProfile ? `${dashProfile.bride_name || ""} & ${dashProfile.groom_name || ""}`.replace(/^ & | & $/g, "").trim() : "") ||
+          (dashProfile ? resolveCoupleName(dashProfile) : "") ||
           "Mempelai"
         const venue = dashProfile?.sessions?.[0]?.venue || ""
         setCouple({

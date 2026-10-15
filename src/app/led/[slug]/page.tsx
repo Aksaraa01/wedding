@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState, useRef, useCallback } from "react"
 import { useVisiblePoll } from "@/lib/useVisiblePoll"
+import { resolveCoupleName } from "@/lib/coupleName"
 
 type Wish = {
   id: string
@@ -53,7 +54,7 @@ export default function LedDisplay({ params }: { params: Promise<{ slug: string 
         setProfileId(pid)
         const groom = (data.groom_name || "").trim()
         const bride = (data.bride_name || "").trim()
-        setCoupleName(bride && groom ? `${groom} & ${bride}` : bride || groom || "Our Wedding")
+        setCoupleName(resolveCoupleName(data) || (bride && groom ? `${groom} & ${bride}` : bride || groom || "Our Wedding"))
         if (data.estimated_wedding_date) {
           try {
             const d = new Date(data.estimated_wedding_date)

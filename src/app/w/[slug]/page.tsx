@@ -51,11 +51,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   if (!profile) return {}
 
-  const name1 = (profile.bride_full_name || profile.bride_name || "").trim()
-  const name2 = (profile.groom_full_name || profile.groom_name || "").trim()
+  const name1 = (profile.groom_full_name || profile.groom_name || "").trim()
+  const name2 = (profile.bride_full_name || profile.bride_name || "").trim()
   const title = `The Wedding of ${name1}-${name2}`
 
-  const tagline = `${profile.bride_name || ""} & ${profile.groom_name || ""}`.trim()
+  const tagline = resolveCoupleName(profile)
   const date = profile.estimated_wedding_date
     ? new Date(profile.estimated_wedding_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
     : ""
@@ -508,7 +508,7 @@ feature_gates={{
         fontWeight: 400,
         margin: "0 0 8px",
       }}>
-        {profile.bride_name} & {profile.groom_name}
+        {resolveCoupleName(profile)}
       </h1>
       <p style={{
         fontFamily: "'Inter', sans-serif",

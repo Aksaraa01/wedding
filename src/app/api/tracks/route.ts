@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
         .select("bride_name, groom_name")
         .eq("id", weddingProfileId)
         .single()
-      if (profile) ownerName = `${profile.bride_name} & ${profile.groom_name}`
+      if (profile) ownerName = `${profile.groom_name} & ${profile.bride_name}`
     }
 
     const { data: track, error: insertError } = await supabaseAdmin

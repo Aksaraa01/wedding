@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
+import { resolveCoupleName } from "@/lib/coupleName"
 
 type ModuleDef = {
   key: string
@@ -93,7 +94,7 @@ export default function DashboardSidebar({
         if (cancelled) return
         setSelections((data && data.selections) || {})
         const p = data && data.profile
-        if (p) setCoupleName([p.bride_name, p.groom_name].filter(Boolean).join(" & "))
+        if (p) setCoupleName(resolveCoupleName(p))
       })
       .catch(() => {
         if (!cancelled) setSelections({})

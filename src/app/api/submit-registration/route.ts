@@ -163,7 +163,7 @@ export async function POST(req: Request) {
         galeri_tier: galeri?.tier || null,
         galeri_price: galeriPrice,
         ...(galeri
-          ? { gallery_couple_name: `${bride_name.trim()} & ${groom_name.trim()}` }
+          ? { gallery_couple_name: `${groom_name.trim()} & ${bride_name.trim()}` }
           : {}),
       })
       .select("id")

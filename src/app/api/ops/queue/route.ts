@@ -20,6 +20,8 @@ export async function GET(req: Request) {
           id,
           bride_name,
           groom_name,
+          bride_full_name,
+          groom_full_name,
           slug,
           whatsapp_number,
           estimated_wedding_date,

@@ -9,6 +9,7 @@ import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import { MSG_CATEGORIES, MSG_TEMPLATES, MSG_VARS, MsgCategory, cleanMessageForCell, isValidMsgCategory, renderMessage } from "@/lib/messageTemplates"
 import { FALLBACK_GUEST_SLUG, FALLBACK_GUEST_NAME } from "@/lib/guest-slug"
 import { paymentWaLink } from "@/lib/contact"
+import { resolveCoupleName } from "@/lib/coupleName"
 
 type Guest = {
   id: string
@@ -33,6 +34,8 @@ type Profile = {
   slug: string
   bride_name: string
   groom_name: string
+  bride_full_name?: string | null
+  groom_full_name?: string | null
   estimated_wedding_date: string | null
   estimated_guest_count: number | null
   guest_link_strict?: boolean | null
@@ -369,7 +372,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       : ""
   }
 
-  const coupleName = profile ? `${(profile.bride_name || "").trim()} & ${(profile.groom_name || "").trim()}` : ""
+  const coupleName = profile ? resolveCoupleName(profile) : ""
 
   const genericUndanganUrl = profile
     ? `https://${profile.slug}.wedding.aksaraa.com/?to=${encodeURIComponent(FALLBACK_GUEST_SLUG)}`

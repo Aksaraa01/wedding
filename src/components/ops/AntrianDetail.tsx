@@ -1672,7 +1672,7 @@ export default function AntrianDetail({ id }: { id: string }) {
 
   const downloadQrExcel = () => {
     const msgCat = isValidMsgCategory(currentWp?.message_category) ? currentWp.message_category : "nasional"
-    const msgCoupleName = `${(currentWp?.bride_name || "").trim()} & ${(currentWp?.groom_name || "").trim()}`
+    const msgCoupleName = currentWp ? getCoupleDisplayName(currentWp) : ""
     const header = qrActive
       ? ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Pesan WhatsApp", "Tautan QR", "Tautan Undangan", "Sumber"]
       : ["Nama Tamu", "No. WhatsApp", "Kategori", "Meja", "Pesan WhatsApp", "Tautan Undangan", "Sumber"]
@@ -1802,7 +1802,7 @@ export default function AntrianDetail({ id }: { id: string }) {
               <span className="font-label-md text-xs uppercase tracking-[0.2em] text-secondary mb-2 block">
                 Ruang Kerja Klien
               </span>
-              <h2 className="font-display-lg text-3xl md:text-5xl leading-tight break-words">{currentWp.bride_name} &amp; {currentWp.groom_name}</h2>
+              <h2 className="font-display-lg text-3xl md:text-5xl leading-tight break-words">{resolveCoupleName(currentWp || {})}</h2>
               <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 font-body-md text-sm text-on-surface-variant">
                 <div className="flex items-center gap-2">
                   <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">Tanggal:</span>
@@ -2623,7 +2623,7 @@ export default function AntrianDetail({ id }: { id: string }) {
         <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8">
           <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white shadow-2xl">
             <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-white border-b border-outline-variant">
-              <h2 className="font-display-lg text-lg">Undangan Digital — {invitationData.profile?.bride_name || ""} & {invitationData.profile?.groom_name || ""}</h2>
+              <h2 className="font-display-lg text-lg">Undangan Digital — {resolveCoupleName(invitationData.profile || {})}</h2>
               <div className="flex items-center gap-2">
                 {!invEditing ? (
                   <button
