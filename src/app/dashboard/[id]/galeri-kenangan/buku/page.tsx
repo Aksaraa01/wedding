@@ -216,19 +216,19 @@ function EntryChunk({ entry, pageNo, pageTotal, coupleName, photosPerGuest }: { 
           </div>
         </div>
       </header>
-      <section className="relative my-1" style={{ zIndex: 10 }}>
-        <div className="grid gap-3.5 mx-auto items-start text-center" style={{ gridTemplateColumns: `repeat(${Math.min(photosPerGuest, 5)}, minmax(0,1fr))` }}>
+      <section className="relative my-1 flex-1 flex flex-col justify-center" style={{ zIndex: 10 }}>
+        <div className="grid gap-3.5 mx-auto text-center w-full flex-1" style={{ gridTemplateColumns: `repeat(${Math.min(photosPerGuest, 5)}, minmax(0,1fr))`, gridTemplateRows: `repeat(${Math.max(1, Math.ceil(Math.max(1, photosPerGuest) / 5))}, 1fr)` }}>
           {entry.photos.map((photo, i) => {
             if (photo === null) {
               return (
-                <div key={i} className="bg-white/40 p-2 border border-dashed border-[#e4d7cb]" style={{ borderRadius: 2 }}>
-                  <div className="w-full bg-[#f2efe9]/50 border border-[#ede3d8] flex items-center justify-center" style={{ aspectRatio: "4 / 3", borderRadius: 1 }} />
+                <div key={i} className="bg-white/40 p-2 border border-dashed border-[#e4d7cb] h-full flex flex-col" style={{ borderRadius: 2 }}>
+                  <div className="w-full flex-1 bg-[#f2efe9]/50 border border-[#ede3d8] flex items-center justify-center" style={{ borderRadius: 1, minHeight: 120 }} />
                 </div>
               )
             }
             return (
-            <div key={i} className="bg-white p-2 border border-[#e4d7cb]" style={{ borderRadius: 2 }}>
-              <div className="w-full overflow-hidden bg-[#f2efe9] border border-[#ede3d8] flex items-center justify-center relative" style={{ aspectRatio: "4 / 3", borderRadius: 1 }}>
+            <div key={i} className="bg-white p-2 border border-[#e4d7cb] h-full flex flex-col" style={{ borderRadius: 2 }}>
+              <div className="w-full flex-1 overflow-hidden bg-[#f2efe9] border border-[#ede3d8] flex items-center justify-center relative" style={{ borderRadius: 1, minHeight: 120 }}>
                 <FitPhoto src={photo.url} alt={`Kenangan ${entry.name}`} mode="contain" className="flex-shrink-0" />
                 {photo.source === "selfie" && (
                   <span className="absolute top-1 left-1 px-1.5 py-px rounded-full text-[8px] uppercase tracking-wider font-bold text-white" style={{ backgroundColor: "#4f1519" }}>Check-in</span>
@@ -238,7 +238,7 @@ function EntryChunk({ entry, pageNo, pageTotal, coupleName, photosPerGuest }: { 
                 <p className="mt-1.5 font-medium leading-snug line-clamp-3" style={{ ...SERIF, fontSize: 12, color: INK }}>{photo.caption.trim()}</p>
               )}
             </div>
-          )
+            )
           })}
         </div>
       </section>
@@ -249,7 +249,7 @@ function EntryChunk({ entry, pageNo, pageTotal, coupleName, photosPerGuest }: { 
   )
 }
 
-// Printable keepsake album: cover + one page per 10 guest photos. Opened in
+// Printable keepsake album: one page per guest quota of photos. Opened in
 // a tab from the dashboard ("Buku Kenangan"); the couple prints to PDF via
 // the browser dialog — zero server cost, fully async, no frozen tab.
 export default function BukuPage({ params }: { params: Promise<{ id: string }> }) {
@@ -355,15 +355,15 @@ if (dead) return
     return () => { dead = true }
   }, [id])
 
-// One album page per guest: fixed 5 columns x 2 rows = 10 photos max per page.
-  // Empty slots rendered as placeholders for consistent layout.
-  const PHOTOS_PER_PAGE = 10 // 5 cols x 2 rows
+  // One album page per guest: slots per page follow the couple's photo
+  // quota (photosPerGuest). Short pages are padded with placeholders.
+  const perPage = Math.max(1, photosPerGuest)
   const chunks: { entry: Entry; photos: (Photo | null)[] }[] = []
   for (const entry of entries) {
-    for (let i = 0; i < entry.photos.length; i += PHOTOS_PER_PAGE) {
-      const pagePhotos: (Photo | null)[] = entry.photos.slice(i, i + PHOTOS_PER_PAGE)
-      // Pad with null placeholders to always fill 10 slots (5 cols x 2 rows)
-      while (pagePhotos.length < PHOTOS_PER_PAGE) {
+    for (let i = 0; i < entry.photos.length; i += perPage) {
+      const pagePhotos: (Photo | null)[] = entry.photos.slice(i, i + perPage)
+      // Pad with null placeholders to always fill the quota slots.
+      while (pagePhotos.length < perPage) {
         pagePhotos.push(null)
       }
       chunks.push({ entry, photos: pagePhotos })

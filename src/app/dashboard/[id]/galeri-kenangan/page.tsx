@@ -586,11 +586,11 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
               </div>
             </div>
             {!loading && total > 0 && (
-              <div className="mt-3.5 flex items-center justify-center gap-2.5 flex-wrap">
+              <div className="mt-3.5 flex items-center justify-center gap-2 flex-nowrap">
                 <button
                   onClick={downloadAll}
                   disabled={downloadingAll}
-                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-white hover:opacity-95 shadow-sm hover:shadow transition-all active:scale-95 text-[11px] font-semibold tracking-wider uppercase disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-3 sm:px-5 py-2.5 rounded-full text-white hover:opacity-95 shadow-sm hover:shadow transition-all active:scale-95 text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase disabled:opacity-50 whitespace-nowrap"
                   style={{ backgroundColor: "#6b2b2d" }}
                 >
                   <span className="material-symbols-outlined text-[16px]">{downloadingAll ? "hourglass_empty" : "cloud_download"}</span>
@@ -598,7 +598,7 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                 </button>
                 <button
                   onClick={openKeepsakeBook}
-                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-white border border-[#d9c1c0] text-[#1b1c19] hover:opacity-90 shadow-sm transition-all active:scale-95 text-[11px] font-semibold tracking-wider uppercase"
+                  className="flex items-center gap-1.5 px-3 sm:px-5 py-2.5 rounded-full bg-white border border-[#d9c1c0] text-[#1b1c19] hover:opacity-90 shadow-sm transition-all active:scale-95 text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase whitespace-nowrap"
                 >
                   <span className="material-symbols-outlined text-[16px]">menu_book</span>
                   Buku Kenangan
