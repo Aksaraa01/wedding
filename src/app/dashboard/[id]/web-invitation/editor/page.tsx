@@ -264,8 +264,6 @@ function EditorInner({ id }: { id: string }) {
   const prevShowMobilePreview = useRef(false)
   const reviewSheetRef = useRef<HTMLDivElement>(null)
   const [reviewSheetH, setReviewSheetH] = useState(0)
-  const barRef = useRef<HTMLDivElement>(null)
-  const [barH, setBarH] = useState(0)
   const [showH3Reminder, setShowH3Reminder] = useState(false)
   const [feedbackSubmissions, setFeedbackSubmissions] = useState<any[]>([])
   const [feedbackLoading, setFeedbackLoading] = useState(true)
@@ -1256,42 +1254,6 @@ function EditorInner({ id }: { id: string }) {
     window.addEventListener("tour_open_section", handler as EventListener)
     return () => window.removeEventListener("tour_open_section", handler as EventListener)
   }, [])
-
-  // Keep the mobile canvas bottom padding in sync with the review sheet
-  // height so the invitation stays fully visible above the sheet on every
-  // device size (sheet height varies with content, font scaling, errors).
-  useEffect(() => {
-    if (!reviewMode || !isMobile) return
-    const measure = () => {
-      if (reviewSheetRef.current) setReviewSheetH(reviewSheetRef.current.offsetHeight)
-    }
-    measure()
-    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null
-    if (ro && reviewSheetRef.current) ro.observe(reviewSheetRef.current)
-    window.addEventListener("resize", measure)
-    return () => {
-      ro?.disconnect()
-      window.removeEventListener("resize", measure)
-    }
-  }, [reviewMode, isMobile])
-
-  // Same idea for the normal bottom action bar: reserve exactly its measured
-  // height (no more fixed 104px guess) so the preview uses the full real
-  // visible height on every device.
-  useEffect(() => {
-    if (reviewMode || !isMobile) return
-    const measure = () => {
-      if (barRef.current) setBarH(barRef.current.offsetHeight)
-    }
-    measure()
-    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null
-    if (ro && barRef.current) ro.observe(barRef.current)
-    window.addEventListener("resize", measure)
-    return () => {
-      ro?.disconnect()
-      window.removeEventListener("resize", measure)
-    }
-  }, [reviewMode, isMobile])
 
   const isSectionHidden = (key: string) => {
     switch (key) {
@@ -2611,8 +2573,7 @@ function EditorInner({ id }: { id: string }) {
 
             {isMobile && (showMobilePreview || reviewMode) && (
           <div
-            className={`md:hidden w-full h-full overflow-y-auto custom-scrollbar review-scroll ${reviewMode ? "" : ""}`}
-            style={reviewMode ? { paddingBottom: (reviewSheetH > 0 ? reviewSheetH : 300) + 24 } : { paddingBottom: barH }}
+            className="md:hidden w-full h-full overflow-y-auto custom-scrollbar review-scroll"
           >
                 {renderPreviewBody()}
               </div>
@@ -2622,7 +2583,7 @@ function EditorInner({ id }: { id: string }) {
 
         {/* MOBILE BOTTOM BAR */}
         {!reviewMode && (
-        <div ref={barRef} className="md:hidden fixed bottom-0 left-0 w-full px-4 pb-6 pt-3 bg-surface/90 backdrop-blur-sm z-50 border-t border-outline-variant">
+        <div className="md:hidden fixed bottom-0 left-0 w-full px-4 pb-6 pt-3 bg-surface/90 backdrop-blur-sm z-50 border-t border-outline-variant">
           <div className="flex gap-3">
             <button
               data-tour="konten-mobile"

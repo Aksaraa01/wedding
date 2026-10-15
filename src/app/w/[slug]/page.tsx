@@ -4,7 +4,6 @@ import { headers } from "next/headers"
 import type { Metadata } from "next"
 import { getTemplateComponent } from "@/components/templates"
 import InvitationOverlay from "@/components/InvitationOverlay"
-import InvitationCredit from "@/components/InvitationCredit"
 import InvitationOpenedTracker from "@/components/InvitationOpenedTracker"
 import { isBotUserAgent, markInvitationOpened } from "@/lib/recordInvitationOpen"
 import { getRowGates, getFeatureIncluded } from "@/lib/featureGates"
@@ -190,11 +189,6 @@ export default async function WeddingInvitation({
       <div style={{ padding: 32, fontFamily: "Georgia, serif", textAlign: "center" }}>
         <p style={{ fontSize: 20 }}>{names}</p>
         <p style={{ fontSize: 14, opacity: 0.7 }}>Mohon doa restu atas pernikahan kami.</p>
-        <p style={{ fontSize: 12, opacity: 0.7 }}>
-          <a href="https://wedding.aksaraa.com/" title="Buat undangan pernikahan digital di Aksaraa Wedding">
-            Undangan Pernikahan Digital oleh Aksaraa
-          </a>
-        </p>
       </div>
     )
   }
@@ -355,7 +349,6 @@ export default async function WeddingInvitation({
         {/* Count the invitation as "dibuka" for identified guests when the page
             loads (covers popup-based and future popup-less invitations). */}
         <InvitationOpenedTracker guestId={guestContext?.id} />
-        <InvitationCredit />
         {((guestContext?.id) || (!linkStrict && !!to)) && (
           <InvitationOverlay
             guestId={guestContext?.id}
@@ -393,7 +386,6 @@ export default async function WeddingInvitation({
           <iframe src={wpUrl} title="Undangan Pernikahan" allow="autoplay; fullscreen" style={{ width: "100%", height: "100%", border: "none", display: "block" }} />
         </div>
         <InvitationOpenedTracker guestId={guestContext?.id} />
-        <InvitationCredit />
         {((guestContext?.id) || (!linkStrict && !!to)) && (
           <InvitationOverlay
             guestId={guestContext?.id}
@@ -419,7 +411,6 @@ export default async function WeddingInvitation({
     return (
       <>
         <InvitationOpenedTracker guestId={guestContext?.id} />
-        <InvitationCredit />
         <Template
         bride_name={profile.bride_name}
         groom_name={profile.groom_name}
@@ -542,16 +533,6 @@ feature_gates={{
         height: "1px",
         background: "#c4c7c7",
       }} />
-      <p style={{
-        fontFamily: "'Inter', sans-serif",
-        fontSize: "11px",
-        color: "#8a8580",
-        marginTop: "20px",
-      }}>
-        <a href="https://wedding.aksaraa.com/" title="Buat undangan pernikahan digital di Aksaraa Wedding" style={{ color: "inherit" }}>
-          Undangan Pernikahan Digital oleh Aksaraa
-        </a>
-      </p>
     </div>
   )
 }
