@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const name2 = (profile.bride_full_name || profile.bride_name || "").trim()
   const title = `The Wedding of ${name1}-${name2}`
 
-  const tagline = resolveCoupleName(profile)
+  const tagline = `${(profile.groom_name || "").trim()} & ${(profile.bride_name || "").trim()}`.replace(/^ & | & $/g, "")
   const date = profile.estimated_wedding_date
     ? new Date(profile.estimated_wedding_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
     : ""
