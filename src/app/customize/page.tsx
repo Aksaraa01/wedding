@@ -14,7 +14,7 @@ import {
 } from "@/lib/packages"
 import GaleriConfigurator, { type GaleriSelection } from "@/components/galeri/GaleriConfigurator"
 import ProfileMenu from "@/components/ProfileMenu"
-import { waLink } from "@/lib/contact"
+import { packageChangeWaLink } from "@/lib/contact"
 
 type MatrixRow = {
   id: string
@@ -1525,7 +1525,42 @@ function Inner() {
         </div>
       )}
 
-      {packageChangeModalOpen && (
+      {packageChangeModalOpen && (() => {
+        const parseGaleri = (s: string) => {
+          try {
+            const o = JSON.parse(s || "{}")
+            return o?.on ? { on: true as const, photos: Number(o.photos) || 0, guests: Number(o.guests) || 0 } : { on: false as const }
+          } catch {
+            return { on: false as const }
+          }
+        }
+        const curGaleriPayload =
+          activeTab === "galeri"
+            ? galeriSel
+              ? { photos_per_guest: galeriSel.photos, guest_count: galeriSel.guests }
+              : null
+            : activeTab === "undangan"
+              ? galeriAddonOn && galeriAddonSel
+                ? { photos_per_guest: galeriAddonSel.photos, guest_count: galeriAddonSel.guests }
+                : null
+              : undefined
+        const curGaleriSnapshot = JSON.stringify(
+          curGaleriPayload ? { on: true, photos: curGaleriPayload.photos_per_guest, guests: curGaleriPayload.guest_count } : { on: false }
+        )
+        const oldSel = { package: originalPackage, waBlastTier: originalWaTier, express: originalExpress, fisik: originalFisik, galeri: parseGaleri(originalGaleri) }
+        const newSel = { package: selectedPackage, waBlastTier, express: expressService, fisik: undanganFisik, galeri: parseGaleri(curGaleriSnapshot) }
+        const summary: string[] = []
+        if (selectedPackage !== originalPackage) {
+          summary.push(`Paket: ${PACKAGE_LABELS[originalPackage] || originalPackage} → ${PACKAGE_LABELS[selectedPackage] || selectedPackage}`)
+        }
+        if (waBlastTier !== originalWaTier) summary.push(`WA Blast: ${originalWaTier || "—"} → ${waBlastTier || "—"}`)
+        if (expressService !== originalExpress) summary.push(`Express: ${originalExpress ? "Ya" : "Tidak"} → ${expressService ? "Ya" : "Tidak"}`)
+        if (undanganFisik !== originalFisik) summary.push(`Fisik: ${originalFisik ? "Ya" : "Tidak"} → ${undanganFisik ? "Ya" : "Tidak"}`)
+        if (curGaleriSnapshot !== originalGaleri) {
+          const g = parseGaleri(curGaleriSnapshot)
+          summary.push(g.on ? `Galeri: ${g.photos} foto × ${g.guests} tamu` : "Galeri: dimatikan")
+        }
+        return (
         <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
             <div className="flex flex-col items-center text-center gap-4">
@@ -1536,8 +1571,15 @@ function Inner() {
               <p className="text-sm text-on-surface-variant">
                 Paket yang Anda pilih berbeda dari paket yang sudah dibayar. Perubahan paket memerlukan konfirmasi dan bantuan konsultan.
               </p>
+              {summary.length > 0 && (
+                <div className="w-full rounded-xl bg-surface-container-low border border-outline-variant/40 px-4 py-3 text-left space-y-1">
+                  {summary.map((line) => (
+                    <p key={line} className="text-[13px] text-on-surface">• {line}</p>
+                  ))}
+                </div>
+              )}
               <button
-                onClick={() => window.open(waLink("Halo Aksaraa Wedding Saya perlu konsultasi mengenai.."), "_blank")}
+                onClick={() => window.open(packageChangeWaLink(oldSel, newSel), "_blank")}
                 className="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
               >
                 <span className="material-symbols-outlined text-[16px] mr-2">chat</span>
@@ -1555,7 +1597,8 @@ function Inner() {
             </div>
           </div>
         </div>
-      )}
+        )
+      })()}
 
       {voucherModalOpen && (
         <VoucherModal

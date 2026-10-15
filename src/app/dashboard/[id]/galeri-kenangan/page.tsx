@@ -882,6 +882,14 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                         <p className="text-[11px] uppercase tracking-widest font-semibold" style={{ color: "#4f1519" }}>Bingkai Foto Tamu</p>
                         {frameSaving && <span className="text-[11px] text-[#444841]/70">Menyimpan...</span>}
                       </div>
+                      <div className="flex items-center gap-2.5 rounded-xl border-l-4 px-4 py-3 mb-3" style={{ backgroundColor: "#FBF1EE", borderLeftColor: "#B34E3F" }}>
+                        <span className="material-symbols-outlined text-[20px] shrink-0" style={{ color: "#B34E3F" }}>check_circle</span>
+                        <p className="text-[13px] font-semibold leading-snug" style={{ color: "#4f1519" }}>
+                          {activeFrame === "none"
+                            ? "Tanpa bingkai — foto tamu diunggah apa adanya."
+                            : `${GALERI_FRAME_NAMES[activeFrame]} aktif — diterapkan ke setiap foto tamu saat diunggah.`}
+                        </p>
+                      </div>
                       <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1 md:grid md:grid-cols-6 md:overflow-visible md:mx-0 md:px-0">
                         <button
                           onClick={() => void saveFrame("none")}
@@ -913,11 +921,6 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                           )
                         })}
                       </div>
-                      <p className="text-[11px] text-[#444841]/70 mt-2 leading-relaxed">
-                        {activeFrame === "none"
-                          ? "Foto tamu diunggah apa adanya, tanpa bingkai."
-                          : `Otomatis terpilih: ${GALERI_FRAME_NAMES[activeFrame]}. Diterapkan ke setiap foto tamu saat diunggah.`}
-                      </p>
                     </div>
 
                     {/* Camera type — Instagram concept: one static preview,
@@ -935,6 +938,14 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                           return css ? { filter: css } : undefined
                         })()}
                       />
+                      <div className="flex items-center gap-2.5 rounded-xl border-l-4 px-4 py-3 mt-3.5 mb-1" style={{ backgroundColor: "#FBF1EE", borderLeftColor: "#B34E3F" }}>
+                        <span className="material-symbols-outlined text-[20px] shrink-0" style={{ color: "#B34E3F" }}>check_circle</span>
+                        <p className="text-[13px] font-semibold leading-snug" style={{ color: "#4f1519" }}>
+                          {frameSaving
+                            ? "Menyimpan..."
+                            : `${GALERI_CAMERAS.find((c) => c.id === activeCamera)?.name || "Normal"} aktif — diterapkan ke setiap foto tamu saat diunggah.`}
+                        </p>
+                      </div>
                       <div className="mt-3.5 w-full bg-surface-container-low border border-outline-variant/40 rounded-xl p-3.5 shadow-sm flex flex-col gap-3">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-semibold tracking-wider uppercase text-on-surface">
@@ -979,9 +990,6 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                         </div>
                         <div className="w-full h-[1px] bg-outline-variant/30" />
                       </div>
-                      <p className="text-[11px] text-[#444841]/70 mt-2 leading-relaxed">
-                        Diterapkan ke setiap foto tamu saat diunggah.
-                      </p>
                     </div>
                   </div>
                 )}

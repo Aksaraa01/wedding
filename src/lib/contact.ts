@@ -27,3 +27,37 @@ export function paymentWaText(opts: { packageType?: string | null; galeriTier?: 
 export function paymentWaLink(opts: { packageType?: string | null; galeriTier?: string | null }): string {
   return waLink(paymentWaText(opts))
 }
+
+export type PackageChangeSelection = {
+  package: string
+  waBlastTier: number
+  express: boolean
+  fisik: boolean
+  galeri: { on: boolean; photos?: number; guests?: number } | null
+}
+
+// Package-change CTA prefill: names the paid package, the new selection,
+// and any changed/new add-ons so the consultant instantly knows the request.
+// Unchanged or absent pieces are omitted, never half-filled.
+export function packageChangeWaText(oldSel: PackageChangeSelection, newSel: PackageChangeSelection): string {
+  const oldPkg = PACKAGE_LABELS[oldSel.package] || oldSel.package || "?"
+  const newPkg = PACKAGE_LABELS[newSel.package] || newSel.package || "?"
+  let text = `Halo Aksaraa Wedding, saya sudah membayar paket ${oldPkg} dan ingin ganti ke ${newPkg}.`
+  const addons: string[] = []
+  if (newSel.waBlastTier > 0 && newSel.waBlastTier !== oldSel.waBlastTier) {
+    addons.push(`WA Blast ${newSel.waBlastTier}`)
+  }
+  if (newSel.express && !oldSel.express) addons.push("Layanan Express")
+  if (newSel.fisik && !oldSel.fisik) addons.push("Undangan Fisik")
+  const g = newSel.galeri
+  const og = oldSel.galeri
+  if (g?.on && (!og?.on || og.photos !== g.photos || og.guests !== g.guests)) {
+    addons.push(`Galeri Tamu ${g.photos || "?"} foto × ${g.guests || "?"} tamu`)
+  }
+  if (addons.length > 0) text += ` Add-on baru: ${addons.join(", ")}.`
+  return `${text} Mohon bantuan konsultan.`
+}
+
+export function packageChangeWaLink(oldSel: PackageChangeSelection, newSel: PackageChangeSelection): string {
+  return waLink(packageChangeWaText(oldSel, newSel))
+}
