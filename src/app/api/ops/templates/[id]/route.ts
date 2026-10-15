@@ -86,18 +86,39 @@ export async function PUT(req: Request, ctx: { params: Promise<{ id: string }> }
   return NextResponse.json({ template: data })
 }
 
-// DELETE /api/ops/templates/[id] — soft delete (is_active=false)
+// DELETE /api/ops/templates/[id] — soft delete (is_active=false) by
+// default; ?hard=true removes the row from the DB. Hard delete is refused
+// with 409 while any profile or feedback references the template.
 export async function DELETE(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const guard = await requireOpsEmployee(req, { allowedRoles: ["admin", "creative"] })
   if (!guard.ok) return guard.res
 
   const { id } = await ctx.params
-  const { data, error } = await supabaseAdmin
-    .from("web_templates")
-    .update({ is_active: false })
-    .eq("id", id)
-    .select()
-    .single()
+  const hard = new URL(req.url).searchParams.get("hard") === "true"
+  if (!hard) {
+    const { data, error } = await supabaseAdmin
+      .from("web_templates")
+      .update({ is_active: false })
+      .eq("id", id)
+      .select()
+      .single()
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ template: data })
+  }
+
+  const [{ count: profileCount }, { count: feedbackCount }] = await Promise.all([
+    supabaseAdmin.from("wedding_profiles").select("id", { count: "exact", head: true }).eq("selected_template_id", id),
+    supabaseAdmin.from("feedback_submissions").select("id", { count: "exact", head: true }).eq("template_id", id),
+  ])
+  if ((profileCount || 0) > 0 || (feedbackCount || 0) > 0) {
+    return NextResponse.json(
+      {
+        error: `Template dipakai ${profileCount || 0} profil & ${feedbackCount || 0} feedback — nonaktifkan saja, jangan hapus.`,
+      },
+      { status: 409 },
+    )
+  }
+  const { error } = await supabaseAdmin.from("web_templates").delete().eq("id", id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ template: data })
+  return NextResponse.json({ deleted: true })
 }

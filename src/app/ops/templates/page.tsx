@@ -338,10 +338,16 @@ export default function OpsTemplatesPage() {
     fetchTemplates()
   }
 
-  const handleDelete = async (t: Template) => {
-    if (!confirm(`Nonaktifkan template "${t.name}"?`)) return
+  const handleDelete = async (t: Template, hard = false) => {
+    if (!confirm(`${hard ? "Hapus permanen" : "Nonaktifkan"} template "${t.name}"?${hard ? " Data dihapus dari database dan tidak bisa dikembalikan." : ""}`)) return
+    if (hard && !confirm(`Yakin hapus permanen "${t.name}" dari database?`)) return
     if (!employee) return
-    await fetch(`/api/ops/templates/${t.id}`, { method: "DELETE", headers: opsHeaders(employee) })
+    const res = await fetch(`/api/ops/templates/${t.id}${hard ? "?hard=true" : ""}`, { method: "DELETE", headers: opsHeaders(employee) })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) {
+      setError(data.error || "Gagal menghapus template")
+      return
+    }
     fetchTemplates()
   }
 
@@ -840,6 +846,7 @@ export default function OpsTemplatesPage() {
                       <button onClick={() => startEdit(t, true)} className="text-[10px] font-label-md uppercase tracking-wider text-secondary hover:underline">Mapping</button>
                     )}
                     <button onClick={() => handleDelete(t)} className="text-[10px] font-label-md uppercase tracking-wider text-error hover:underline ml-auto">Nonaktifkan</button>
+                    <button onClick={() => handleDelete(t, true)} className="text-[10px] font-label-md uppercase tracking-wider text-error/70 hover:underline">Hapus</button>
                   </div>
                 </div>
               ))}
