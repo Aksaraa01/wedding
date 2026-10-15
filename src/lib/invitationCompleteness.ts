@@ -116,6 +116,9 @@ function isSectionIncomplete(key: string, d: InvitationCompletenessInput): boole
     case "video":
       if (!d.gates.cinematic_video) return false
       if (d.video_section_visible === false) return false
+      // Tanpa-photo templates hide the video section: a missing URL never
+      // blocks confirmation (same rule as galeri).
+      if (d.no_photo_template) return false
       return !hasStr(d.video_url)
     case "story":
       if (!d.gates.story) return false

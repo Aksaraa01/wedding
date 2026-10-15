@@ -264,6 +264,8 @@ function EditorInner({ id }: { id: string }) {
   const prevShowMobilePreview = useRef(false)
   const reviewSheetRef = useRef<HTMLDivElement>(null)
   const [reviewSheetH, setReviewSheetH] = useState(0)
+  const barRef = useRef<HTMLDivElement>(null)
+  const [barH, setBarH] = useState(0)
   const [showH3Reminder, setShowH3Reminder] = useState(false)
   const [feedbackSubmissions, setFeedbackSubmissions] = useState<any[]>([])
   const [feedbackLoading, setFeedbackLoading] = useState(true)
@@ -1273,6 +1275,24 @@ function EditorInner({ id }: { id: string }) {
     }
   }, [reviewMode, isMobile])
 
+  // Same idea for the normal bottom action bar: reserve exactly its measured
+  // height (no more fixed 104px guess) so the preview uses the full real
+  // visible height on every device.
+  useEffect(() => {
+    if (reviewMode || !isMobile) return
+    const measure = () => {
+      if (barRef.current) setBarH(barRef.current.offsetHeight)
+    }
+    measure()
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null
+    if (ro && barRef.current) ro.observe(barRef.current)
+    window.addEventListener("resize", measure)
+    return () => {
+      ro?.disconnect()
+      window.removeEventListener("resize", measure)
+    }
+  }, [reviewMode, isMobile])
+
   const isSectionHidden = (key: string) => {
     switch (key) {
       case "inviting": return data.inviting_families_visible === false
@@ -1483,7 +1503,9 @@ function EditorInner({ id }: { id: string }) {
   return (
     <>
       <PageTheme mode="light" />
-      <div className="h-screen flex flex-col text-on-surface font-body-md overflow-hidden" style={DASH_SATIN_BG}>
+      {/* dvh tracks the real visible height as mobile browser chrome
+          shows/hides; h-screen stays as fallback for older browsers. */}
+      <div className="h-screen flex flex-col text-on-surface font-body-md overflow-hidden" style={{ ...DASH_SATIN_BG, height: "100dvh" }}>
 
         {/* TOP BAR */}
         <header className="border-b border-outline-variant flex items-center px-6 lg:px-8 w-full h-20 z-50 shrink-0 gap-4" style={DASH_HERO_BG}>
@@ -1537,17 +1559,24 @@ function EditorInner({ id }: { id: string }) {
             ) : (
               <>
             <div data-tour="ganti-tema" className="inline-flex items-center">
+              <span className="inline-flex md:hidden flex-col items-center gap-1">
               <button
                 onClick={() => {
                   try { sessionStorage.setItem('from_templates_' + id, '1') } catch {}
                   router.push(`/dashboard/${id}/web-invitation/templates`)
                 }}
                 disabled={isPublished || initialLoading}
-                className="inline-flex md:hidden items-center gap-2 px-4 py-2.5 border font-label-md text-label-md rounded-full transition-all active:scale-95 border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary bg-white disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-4 py-2.5 border font-label-md text-label-md rounded-full transition-all active:scale-95 border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary bg-white disabled:opacity-50"
               >
                 <span className="material-symbols-outlined text-[18px]">palette</span>
                 <span>PILIH TEMA</span>
               </button>
+              {template?.name && (
+                <span className="font-headline-md text-[15px] text-primary truncate max-w-[160px]" title={template.name}>
+                  {template.name.length > 30 ? `${template.name.slice(0, 30)}…` : template.name}
+                </span>
+              )}
+              </span>
               <button
                 onClick={() => {
                   try { sessionStorage.setItem('from_templates_' + id, '1') } catch {}
@@ -2167,7 +2196,7 @@ function EditorInner({ id }: { id: string }) {
                   </div>
                 </div>
               )}
-              {renderSection("video", "movie", "VIDEO",
+              {!isNoPhoto && renderSection("video", "movie", "VIDEO",
                 gates.cinematic_video.included ? (
                   <div className="mt-6 space-y-4">
                     <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
@@ -2527,6 +2556,13 @@ function EditorInner({ id }: { id: string }) {
                 )}
               </div>
             )}
+            {template?.name && (
+              <div className="hidden md:inline-flex absolute top-4 left-4 z-20 items-center gap-2 px-4 py-2 rounded-full bg-white/90 border border-outline-variant shadow-sm backdrop-blur-sm max-w-[320px]">
+                <span className="material-symbols-outlined text-[16px] text-secondary shrink-0">palette</span>
+                <span className="font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant shrink-0">Tema</span>
+                <span className="font-headline-md text-[14px] text-primary truncate">{template.name}</span>
+              </div>
+            )}
             {!isMobile && previewDevice === "mobile" ? (
               <div className="hidden md:block iphone-frame w-[390px] h-[780px] bg-white overflow-hidden relative shadow-2xl" style={{ transform: "scale(0.95)", transformOrigin: "center" }}>
                 <div className="absolute top-0 inset-x-0 h-10 px-8 flex justify-between items-end pb-1 z-[100] text-black pointer-events-none">
@@ -2574,10 +2610,10 @@ function EditorInner({ id }: { id: string }) {
             ) : null}
 
             {isMobile && (showMobilePreview || reviewMode) && (
-              <div
-                className={`md:hidden w-full h-full overflow-y-auto custom-scrollbar review-scroll ${reviewMode ? "" : "pb-[104px]"}`}
-                style={reviewMode ? { paddingBottom: (reviewSheetH > 0 ? reviewSheetH : 300) + 24 } : undefined}
-              >
+          <div
+            className={`md:hidden w-full h-full overflow-y-auto custom-scrollbar review-scroll ${reviewMode ? "" : ""}`}
+            style={reviewMode ? { paddingBottom: (reviewSheetH > 0 ? reviewSheetH : 300) + 24 } : { paddingBottom: barH }}
+          >
                 {renderPreviewBody()}
               </div>
             )}
@@ -2586,7 +2622,7 @@ function EditorInner({ id }: { id: string }) {
 
         {/* MOBILE BOTTOM BAR */}
         {!reviewMode && (
-        <div className="md:hidden fixed bottom-0 left-0 w-full px-4 pb-6 pt-3 bg-surface/90 backdrop-blur-sm z-50 border-t border-outline-variant">
+        <div ref={barRef} className="md:hidden fixed bottom-0 left-0 w-full px-4 pb-6 pt-3 bg-surface/90 backdrop-blur-sm z-50 border-t border-outline-variant">
           <div className="flex gap-3">
             <button
               data-tour="konten-mobile"
