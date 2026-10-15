@@ -1,0 +1,65 @@
+import { NextResponse } from "next/server"
+import { supabaseAdmin } from "@/lib/supabase"
+import { requireOpsEmployee } from "@/lib/ops-auth"
+
+// POST /api/ops/templates/[id]/duplicate — clone a template so a tanpa-photo
+// (or other) variant starts with the full mapping instead of from zero.
+// Forces is_active=false (ops activates after review) and no_photo=true;
+// blanks demo_url + wp_master_slug (both unique-checked, ops re-points).
+// Accepts optional { code }; falls back to `{source}-tanpa-foto(-2, ...)`.
+export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const guard = await requireOpsEmployee(req, { allowedRoles: ["admin", "creative"] })
+  if (!guard.ok) return guard.res
+  const { id } = await params
+
+  const { data: source, error: srcErr } = await supabaseAdmin
+    .from("web_templates")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle()
+  if (srcErr) return NextResponse.json({ error: srcErr.message }, { status: 500 })
+  if (!source) return NextResponse.json({ error: "Template tidak ditemukan" }, { status: 404 })
+
+  let body: Record<string, unknown> = {}
+  try {
+    body = await req.json()
+  } catch {}
+
+  const codeBase = String(body.code || "").trim() || `${source.code}-tanpa-foto`
+  const { data: maxRow } = await supabaseAdmin
+    .from("web_templates")
+    .select("sort_order")
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  const sortOrder = typeof maxRow?.sort_order === "number" ? maxRow.sort_order + 1 : 0
+
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const code = attempt === 0 ? codeBase : `${codeBase}-${attempt + 1}`
+    const { data, error } = await supabaseAdmin
+      .from("web_templates")
+      .insert({
+        code,
+        name: `${source.name} (Tanpa Foto)`,
+        description: source.description,
+        preview_image_url: source.preview_image_url,
+        demo_url: null,
+        is_active: false,
+        sort_order: sortOrder,
+        package_eligibility: Array.isArray(source.package_eligibility) ? source.package_eligibility : [],
+        category: source.category,
+        tier: source.tier,
+        source_type: source.source_type,
+        wp_master_slug: null,
+        wp_manifest: source.source_type === "inhouse" ? null : source.wp_manifest,
+        no_photo: true,
+      })
+      .select()
+      .single()
+    if (!error) return NextResponse.json({ template: data })
+    if ((error as { code?: string }).code !== "23505") {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+  }
+  return NextResponse.json({ error: "Gagal membuat kode unik, coba kode lain." }, { status: 409 })
+}

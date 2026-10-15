@@ -345,6 +345,34 @@ export default function OpsTemplatesPage() {
     fetchTemplates()
   }
 
+  const [duplicatingId, setDuplicatingId] = useState<string | null>(null)
+
+  // Duplicate a template as an inactive tanpa-foto variant with the full
+  // mapping copied, then jump straight into its edit form for review.
+  const handleDuplicate = async (t: Template) => {
+    if (!employee || duplicatingId) return
+    setDuplicatingId(t.id)
+    setError("")
+    try {
+      const res = await fetch(`/api/ops/templates/${t.id}/duplicate`, {
+        method: "POST",
+        headers: opsHeaders(employee),
+        body: JSON.stringify({}),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || "Gagal menduplikasi template")
+        return
+      }
+      await fetchTemplates()
+      startEdit(data.template as Template, false)
+    } catch {
+      setError("Gagal menduplikasi template")
+    } finally {
+      setDuplicatingId(null)
+    }
+  }
+
   const loadWpElements = async () => {
     if (!employee || !editing?.id) return
     setWpLoading(true)
@@ -801,6 +829,13 @@ export default function OpsTemplatesPage() {
                       </a>
                     )}
                     <button onClick={() => startEdit(t, false)} className="text-[10px] font-label-md uppercase tracking-wider text-primary hover:underline">Edit</button>
+                    <button
+                      onClick={() => handleDuplicate(t)}
+                      disabled={duplicatingId === t.id}
+                      className="text-[10px] font-label-md uppercase tracking-wider text-secondary hover:underline disabled:opacity-50"
+                    >
+                      {duplicatingId === t.id ? "Menduplikasi..." : "Duplikat"}
+                    </button>
                     {t.source_type !== "inhouse" && (
                       <button onClick={() => startEdit(t, true)} className="text-[10px] font-label-md uppercase tracking-wider text-secondary hover:underline">Mapping</button>
                     )}
