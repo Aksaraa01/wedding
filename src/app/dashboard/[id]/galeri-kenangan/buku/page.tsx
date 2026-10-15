@@ -216,19 +216,19 @@ function EntryChunk({ entry, pageNo, pageTotal, coupleName, photosPerGuest }: { 
           </div>
         </div>
       </header>
-      <section className="relative my-1 flex-1 flex flex-col justify-center" style={{ zIndex: 10 }}>
-        <div className="grid gap-3.5 mx-auto text-center w-full flex-1" style={{ gridTemplateColumns: `repeat(${Math.min(photosPerGuest, 5)}, minmax(0,1fr))`, gridTemplateRows: `repeat(${Math.max(1, Math.ceil(Math.max(1, photosPerGuest) / 5))}, 1fr)` }}>
+      <section className="relative my-1" style={{ zIndex: 10 }}>
+        <div className="grid gap-3.5 mx-auto items-start text-center w-full" style={{ gridTemplateColumns: `repeat(3, minmax(0,1fr))` }}>
           {entry.photos.map((photo, i) => {
             if (photo === null) {
               return (
-                <div key={i} className="bg-white/40 p-2 border border-dashed border-[#e4d7cb] h-full flex flex-col" style={{ borderRadius: 2 }}>
-                  <div className="w-full flex-1 bg-[#f2efe9]/50 border border-[#ede3d8] flex items-center justify-center" style={{ borderRadius: 1, minHeight: 120 }} />
+                <div key={i} className="bg-white/40 p-2 border border-dashed border-[#e4d7cb]" style={{ borderRadius: 2 }}>
+                  <div className="w-full bg-[#f2efe9]/50 border border-[#ede3d8] flex items-center justify-center" style={{ aspectRatio: "4 / 3", borderRadius: 1 }} />
                 </div>
               )
             }
             return (
-            <div key={i} className="bg-white p-2 border border-[#e4d7cb] h-full flex flex-col" style={{ borderRadius: 2 }}>
-              <div className="w-full flex-1 overflow-hidden bg-[#f2efe9] border border-[#ede3d8] flex items-center justify-center relative" style={{ borderRadius: 1, minHeight: 120 }}>
+            <div key={i} className="bg-white p-2 border border-[#e4d7cb]" style={{ borderRadius: 2 }}>
+              <div className="w-full overflow-hidden bg-[#f2efe9] border border-[#ede3d8] flex items-center justify-center relative" style={{ aspectRatio: "4 / 3", borderRadius: 1 }}>
                 <FitPhoto src={photo.url} alt={`Kenangan ${entry.name}`} mode="contain" className="flex-shrink-0" />
                 {photo.source === "selfie" && (
                   <span className="absolute top-1 left-1 px-1.5 py-px rounded-full text-[8px] uppercase tracking-wider font-bold text-white" style={{ backgroundColor: "#4f1519" }}>Check-in</span>
