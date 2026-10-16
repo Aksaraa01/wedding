@@ -6,6 +6,7 @@ import Image from "next/image"
 import PageTheme from "@/components/PageTheme"
 import ProfileMenu from "@/components/ProfileMenu"
 import { PACKAGE_LABELS as PACKAGE_LABEL, getPackageCategory, hasVipQuotaBase } from "@/lib/packages"
+import UpgradePackageModal, { type UpgradeModalContent } from "@/components/UpgradePackageModal"
 import { startTour } from "@/components/onboarding/ProductJourney"
 
 type Selections = {
@@ -154,7 +155,7 @@ function DashboardInner({ id }: { id: string }) {
   const [error, setError] = useState("")
   // Upsell popup hook lives with the rest: anything after the `if (loading)`
   // early return below would trip React #310 (hook count changed).
-  const [upsell, setUpsell] = useState<null | "galeri" | "undangan">(null)
+  const [upsell, setUpsell] = useState<null | "galeri" | "undangan" | "wishwall" | "dgbook">(null)
 
   useEffect(() => {
     Promise.all([
@@ -281,25 +282,68 @@ function DashboardInner({ id }: { id: string }) {
   // Digital tiers (both carry galeri_foto_tamu). Undangan Digital shows the
   // button even without the add-on — it opens the upsell popup instead.
   const galeriEligible = selections?.galeri_foto_tamu === true
+  const wishEligible = selections?.wish_wall === true
   const isGt = profile?.package_type === "gt"
   const showGaleriBtn =
     !isGt && (galeriEligible || getPackageCategory(profile?.package_type || "") === "Undangan Digital")
   // Upsell popup: "galeri" (undangan users without the add-on) or
   // "undangan" (GT users eyeing invitation features). CTA goes to
   // pilih-paket in edit mode.
-  const customizeUrl = profile
-    ? `/customize?edit=true&tab=undangan&user=${encodeURIComponent(profile.bride_name)}&partner=${encodeURIComponent(profile.groom_name)}&date=${encodeURIComponent(profile.estimated_wedding_date)}&guest=${encodeURIComponent(String(profile.estimated_guest_count ?? 300))}&profile_id=${id}`
-    : "/customize"
-  const UPS_COPY: Record<"galeri" | "undangan", { title: string; body: string; cta: string }> = {
+  const customizeUrlFor = (tab: "undangan" | "dgbook" | "galeri") =>
+    profile
+      ? `/customize?edit=true&tab=${tab}&user=${encodeURIComponent(profile.bride_name)}&partner=${encodeURIComponent(profile.groom_name)}&date=${encodeURIComponent(profile.estimated_wedding_date)}&guest=${encodeURIComponent(String(profile.estimated_guest_count ?? 300))}&profile_id=${id}`
+      : "/customize"
+  // Unified upsell content (shared UpgradePackageModal format: lock label +
+  // benefit list + eligible packages). Eligible sets mirror PACKAGE_FEATURES
+  // grouped by category to avoid ambiguous tier labels.
+  const UPS_COPY: Record<"galeri" | "undangan" | "wishwall" | "dgbook", UpgradeModalContent & { href: string }> = {
     galeri: {
       title: "Tambah Galeri Tamu",
-      body: "Paketmu belum termasuk Galeri Tamu. Upgrade paket atau tambahkan add-on untuk membuka QR acara dan galeri kenangan.",
+      lockLabel: "Paket Galeri Tamu",
+      benefits: [
+        "QR acara + kumpulan foto candid penuh kenangan",
+        "Bingkai & filter otomatis di setiap foto tamu",
+        "Galeri online + unduhan massal dari dashboard",
+      ],
+      eligiblePackages: ["Galeri Tamu", "Buku Tamu Digital"],
       cta: "Pilih Paket",
+      href: customizeUrlFor("galeri"),
     },
     undangan: {
       title: "Butuh Undangan Digital",
-      body: "Fitur ini termasuk paket Undangan Digital — undangan web, QR tamu, dan absensi live. Upgrade paketmu untuk membukanya.",
+      lockLabel: "Paket Undangan Digital",
+      benefits: [
+        "Undangan web elegan + RSVP online",
+        "QR tamu personal + absensi live",
+        "Amplop digital & manajemen tamu",
+      ],
+      eligiblePackages: ["Undangan Digital"],
       cta: "Pilih Paket",
+      href: customizeUrlFor("undangan"),
+    },
+    wishwall: {
+      title: "Butuh Wish Wall",
+      lockLabel: "Paket Undangan Digital",
+      benefits: [
+        "Doa & harapan tamu terkumpul otomatis",
+        "Moderasi + sematkan ucapan favorit",
+        "Tampil cantik di Layar LED acara",
+      ],
+      eligiblePackages: ["Undangan Digital", "Buku Tamu Digital"],
+      cta: "Pilih Paket",
+      href: customizeUrlFor("undangan"),
+    },
+    dgbook: {
+      title: "Butuh Buku Tamu Digital",
+      lockLabel: "Paket Buku Tamu Digital",
+      benefits: [
+        "QR check-in + absensi tamu secara live",
+        "Sapaan otomatis di Layar LED",
+        "Galeri foto + selfie check-in tamu",
+      ],
+      eligiblePackages: ["Buku Tamu Digital (Sistem, Pro, Premium, Prestige)"],
+      cta: "Pilih Paket",
+      href: customizeUrlFor("dgbook"),
     },
   }
 
@@ -438,6 +482,10 @@ function DashboardInner({ id }: { id: string }) {
                       <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">qr_code_2</span>
                       <span className="whitespace-nowrap hidden md:inline">Undangan Tamu</span>
                     </button>
+                    <button onClick={() => setUpsell("undangan")} data-tour="wish-wall" title="Wish Wall" className="flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink">
+                      <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">favorite</span>
+                      <span className="whitespace-nowrap hidden md:inline">Wish Wall</span>
+                    </button>
                   </>
                 ) : (
                   <>
@@ -450,6 +498,10 @@ function DashboardInner({ id }: { id: string }) {
                       : "flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden text-ellipsis shrink"}>
                       <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">qr_code_2</span>
                       <span className={showGaleriBtn ? "whitespace-nowrap hidden md:inline" : "whitespace-nowrap"}>Undangan Tamu</span>
+                    </button>
+                    <button onClick={() => (wishEligible ? router.push(`/dashboard/${id}/wish-wall`) : isGt ? setUpsell("undangan") : setUpsell("wishwall"))} data-tour="wish-wall" title="Wish Wall" className="flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink">
+                      <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">favorite</span>
+                      <span className="whitespace-nowrap hidden md:inline">Wish Wall</span>
                     </button>
                     {showGaleriBtn && (
                       <button onClick={() => (galeriEligible ? router.push(`/dashboard/${id}/galeri-kenangan`) : setUpsell("galeri"))} data-tour="galeri-tamu" title="Galeri Tamu" className="flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink">
@@ -527,18 +579,16 @@ function DashboardInner({ id }: { id: string }) {
                 </button>
               ) : (
               <button
-                onClick={() => (isGt ? setUpsell("undangan") : undefined)}
-                className={`bg-white p-3 md:p-5 text-left transition-all ${isGt ? "cursor-pointer hover:bg-[#faf6ee] active:scale-[0.99]" : ""}`}
+                onClick={() => setUpsell("dgbook")}
+                className="bg-white p-3 md:p-5 text-left transition-all cursor-pointer hover:bg-[#faf6ee] active:scale-[0.99] group/box"
               >
-                <p className="text-[11px] uppercase tracking-wider text-on-surface-variant mb-1">Checkin Tamu</p>
+                <p className="text-[11px] uppercase tracking-wider text-on-surface-variant mb-1 flex items-center justify-between">
+                  Checkin Tamu
+                  <span className="material-symbols-outlined text-[16px] text-outline group-hover/box:text-secondary group-hover/box:translate-x-0.5 transition-all">lock</span>
+                </p>
                   <div className="relative group inline-flex items-center gap-2 pt-0.5">
                     <span className="material-symbols-outlined text-lg md:text-xl text-on-surface-variant/50">lock</span>
                     <span className="text-xs md:text-sm text-on-surface-variant/60">Tidak Aktif</span>
-                    {!isGt && (
-                    <div className="hidden group-hover:block absolute bottom-full left-0 mb-2 w-max max-w-[220px] bg-black/85 text-white text-[11px] leading-relaxed px-3 py-2 rounded-lg shadow-xl z-20">
-                      Fitur ini aktif untuk paket Buku Tamu Digital
-                    </div>
-                    )}
                   </div>
               </button>
               )}
@@ -639,29 +689,12 @@ function DashboardInner({ id }: { id: string }) {
       </main>
 
       {upsell && (
-        <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setUpsell(null)}>
-          <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex flex-col items-center text-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-primary text-2xl">{upsell === "galeri" ? "photo_library" : "mail"}</span>
-              </div>
-              <h3 className="font-headline-md text-lg font-medium text-primary">{UPS_COPY[upsell].title}</h3>
-              <p className="text-sm text-on-surface-variant">{UPS_COPY[upsell].body}</p>
-              <button
-                onClick={() => router.push(customizeUrl)}
-                className="w-full bg-primary text-on-primary py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
-              >
-                {UPS_COPY[upsell].cta}
-              </button>
-              <button
-                onClick={() => setUpsell(null)}
-                className="w-full border border-outline-variant text-on-surface-variant py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
-              >
-                Nanti Saja
-              </button>
-            </div>
-          </div>
-        </div>
+        <UpgradePackageModal
+          open
+          onClose={() => setUpsell(null)}
+          ctaHref={UPS_COPY[upsell].href}
+          content={UPS_COPY[upsell]}
+        />
       )}
 
       {showFisikInfo && (

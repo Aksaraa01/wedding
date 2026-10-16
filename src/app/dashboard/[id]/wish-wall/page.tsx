@@ -3,8 +3,19 @@
 import { use, useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import ProfileMenu from "@/components/ProfileMenu"
+import UpgradePackageModal from "@/components/UpgradePackageModal"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
+import { PACKAGE_CODES, PACKAGE_CATEGORY, PACKAGE_LABELS } from "@/lib/packages"
 import { generateWishWallPdf, type PdfProfile } from "@/lib/wishWallPdf"
+
+const GREETING_DURATIONS = [15, 20, 30]
+
+const GREETING_UPSELL_BENEFITS = [
+  "Sapaan otomatis muncul di Layar LED setiap tamu check-in/scan",
+  "Foto check-in + nama besar + kategori tamu dalam satu layar",
+  "Tamu berombongan antre otomatis tanpa operator",
+  "Durasi tampil bisa diatur 15, 20, atau 30 detik",
+]
 
 type Wish = {
   id: string
@@ -50,6 +61,11 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
   const [downloading, setDownloading] = useState(false)
   const [pdfError, setPdfError] = useState("")
   const [visible, setVisible] = useState(9)
+  const [packageType, setPackageType] = useState("")
+  const [greetOn, setGreetOn] = useState(false)
+  const [greetSecs, setGreetSecs] = useState(30)
+  const [savingGreet, setSavingGreet] = useState(false)
+  const [upsellOpen, setUpsellOpen] = useState(false)
   const ledWrapRef = useRef<HTMLDivElement>(null)
   const [ledScale, setLedScale] = useState(1)
 
@@ -83,6 +99,10 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
     fetch(`/api/dashboard/${id}`).then(r => r.json()).then(data => {
       if (data?.profile?.slug) setCoupleSlug(data.profile.slug)
       if (data?.profile) setProfile(data.profile)
+      if (data?.profile?.package_type) setPackageType(data.profile.package_type)
+      if (data?.profile?.led_greeting_enabled === true) setGreetOn(true)
+      const secs = Number(data?.profile?.led_greeting_duration_sec)
+      if (secs === 15 || secs === 20 || secs === 30) setGreetSecs(secs)
     })
     fetchWishes()
   }, [id])
@@ -151,6 +171,32 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
     })
   }
 
+  // Layar Sapaan: Buku Tamu Digital only. Other packages see the same
+  // option locked — clicking it opens the upgrade upsell instead.
+  const isDgb = packageType.startsWith("dgb_")
+  const dgbLabels = PACKAGE_CODES
+    .filter((c) => PACKAGE_CATEGORY[c] === "dgbook")
+    .map((c) => PACKAGE_LABELS[c])
+  const customizeHref = `/customize?edit=true&tab=dgbook&profile_id=${id}`
+
+  const saveGreeting = async (on: boolean, secs: number) => {
+    if (!isDgb || savingGreet) return
+    setSavingGreet(true)
+    try {
+      const res = await fetch(`/api/dashboard/${id}/web-invitation`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ led_greeting_enabled: on, led_greeting_duration_sec: secs }),
+      })
+      if (res.ok) {
+        setGreetOn(on)
+        setGreetSecs(secs)
+      }
+    } finally {
+      setSavingGreet(false)
+    }
+  }
+
   const FILTERS = [
     { key: "all", label: "Semua Doa", count: stats.total },
     { key: "pending", label: "Menunggu Moderasi", count: stats.pending },
@@ -190,19 +236,19 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
               Review doa dan ucapan manis dari para tamu sebelum ditampilkan secara langsung pada situs web undangan Anda.
             </p>
           </div>
-          <div className="shrink-0 flex flex-col items-stretch sm:items-end gap-1.5">
+          <div className="shrink-0 flex flex-row items-center justify-between sm:flex-col sm:items-end gap-2 sm:gap-1.5">
             <button
               onClick={downloadPdf}
               disabled={downloading || approvedWishes.length === 0}
               title={approvedWishes.length === 0 ? "Belum ada doa yang disetujui" : "Unduh doa yang disetujui sebagai PDF"}
-              className="inline-flex items-center justify-center gap-2 bg-[#B34E3F] text-white rounded-full px-6 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all shadow-sm whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center gap-1.5 bg-[#B34E3F] text-white rounded-full px-3 py-1.5 sm:px-6 sm:py-3 font-label-md text-[10px] sm:text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all shadow-sm whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <span className={`material-symbols-outlined text-[16px] ${downloading ? "animate-spin" : ""}`}>
+              <span className={`material-symbols-outlined text-[14px] sm:text-[16px] ${downloading ? "animate-spin" : ""}`}>
                 {downloading ? "progress_activity" : "picture_as_pdf"}
               </span>
               {downloading ? "Menyiapkan PDF…" : "Download PDF"}
             </button>
-            <span className="text-[11px] text-on-surface-variant text-center sm:text-right">
+            <span className="text-[11px] text-on-surface-variant text-right sm:text-right">
               {approvedWishes.length > 0 ? `${approvedWishes.length} doa disetujui` : "Belum ada doa disetujui"}
             </span>
           </div>
@@ -218,25 +264,90 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
         {/* Live LED Preview with Toolbar */}
         {ledUrl && (
           <section className="mb-10">
-            <div className="bg-white border border-[#E2D9CF] rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm mb-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="w-2 h-2 rounded-full bg-[#C5A059] animate-pulse" />
-                  <span className="font-label-md text-[11px] text-[#C5A059] uppercase tracking-widest font-bold">Pratinjau Layar LED • Live</span>
+            {/* Merged LED control card: preview link + sapaan option in one
+                compact, mobile-first block. Locked upsell entry for
+                non-Buku-Tamu-Digital packages. */}
+            <div className="bg-white border border-[#E2D9CF] rounded-2xl shadow-sm overflow-hidden mb-3">
+              <div className="flex items-center justify-between gap-2 px-3.5 py-2.5">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="w-2 h-2 rounded-full bg-[#C5A059] animate-pulse shrink-0" />
+                  <span className="font-label-md text-[11px] text-[#C5A059] uppercase tracking-widest font-bold truncate">Pratinjau Layar LED • Live</span>
                 </div>
-                <div className="flex items-center gap-2 bg-[#FAF7F2] border border-[#E2D9CF] rounded-full px-3 py-2 max-w-full overflow-hidden">
-                  <span className="material-symbols-outlined text-[16px] text-[#B34E3F] shrink-0">link</span>
-                  <span className="font-body-md text-sm text-[#2C2A29] truncate flex-1">{ledUrl}</span>
-                  <button onClick={copyLedUrl} className="shrink-0 w-7 h-7 rounded-full bg-white border border-[#E2D9CF] flex items-center justify-center text-[#B34E3F] hover:bg-[#F5EFE6] transition-colors" title={copied ? "Tersalin" : "Salin"}>
-                    <span className="material-symbols-outlined text-[14px]">{copied ? "check" : "content_copy"}</span>
+                <a href={ledUrl} target="_blank" rel="noopener" className="shrink-0 inline-flex items-center gap-1.5 bg-[#B34E3F] text-white rounded-full px-3.5 py-2 font-label-md text-[10px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all shadow-sm">
+                  <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                  <span className="hidden sm:inline">Buka Layar LED</span>
+                  <span className="sm:hidden">Buka</span>
+                </a>
+              </div>
+              <div className="px-3.5 pb-2.5">
+                <div className="flex items-center gap-2 bg-[#FAF7F2] border border-[#E2D9CF] rounded-full pl-2.5 pr-1.5 py-1 max-w-full overflow-hidden">
+                  <span className="material-symbols-outlined text-[14px] text-[#B34E3F] shrink-0">link</span>
+                  <span className="font-body-md text-[12px] text-[#2C2A29] truncate flex-1">{ledUrl}</span>
+                  <button onClick={copyLedUrl} className="shrink-0 w-6 h-6 rounded-full bg-white border border-[#E2D9CF] flex items-center justify-center text-[#B34E3F] hover:bg-[#F5EFE6] transition-colors" title={copied ? "Tersalin" : "Salin"}>
+                    <span className="material-symbols-outlined text-[12px]">{copied ? "check" : "content_copy"}</span>
                   </button>
                 </div>
               </div>
-              <a href={ledUrl} target="_blank" rel="noopener" className="shrink-0 inline-flex items-center justify-center gap-2 bg-[#B34E3F] text-white rounded-full px-6 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#9E3B2D] active:scale-95 transition-all shadow-sm whitespace-nowrap">
-                <span className="material-symbols-outlined text-[16px]">open_in_new</span>
-                Buka Layar LED
-              </a>
+              {/* Locked state: a transparent cover over the whole sapaan area
+                  so ANY tap (toggle, duration, labels, gaps) opens the
+                  upsell — disabled controls swallow clicks unreliably. */}
+              <div className={`relative border-t border-[#E2D9CF] ${!isDgb ? "cursor-pointer" : ""}`}>
+                {!isDgb && (
+                  <button
+                    type="button"
+                    aria-label="Lihat paket Buku Tamu Digital"
+                    onClick={() => setUpsellOpen(true)}
+                    className="absolute inset-0 z-10 w-full h-full bg-transparent cursor-pointer"
+                  />
+                )}
+                <div className={`flex items-center gap-2.5 px-3.5 py-2.5 ${!isDgb ? "opacity-70" : ""}`}>
+                  {!isDgb && <span className="material-symbols-outlined text-[18px] text-[#B34E3F] shrink-0">lock</span>}
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={greetOn}
+                    aria-label="Tampilkan sapaan tamu"
+                    disabled={!isDgb || savingGreet}
+                    onClick={(e) => { e.stopPropagation(); if (isDgb) saveGreeting(!greetOn, greetSecs) }}
+                    className={`relative inline-flex w-10 h-[22px] rounded-full transition-colors shrink-0 ${greetOn && isDgb ? "bg-[#B34E3F]" : "bg-[#E2D9CF]"} disabled:opacity-60`}
+                  >
+                    <span className={`absolute top-[3px] w-4 h-4 rounded-full bg-white shadow transition-all ${greetOn && isDgb ? "left-[22px]" : "left-[3px]"}`} />
+                  </button>
+                  <span className="min-w-0">
+                    <span className="block font-label-md text-[13px] font-semibold text-[#2C2A29] leading-tight">Tampilkan sapaan tamu</span>
+                    <span className="block text-[11px] text-on-surface-variant leading-tight truncate">Setiap tamu check-in muncul di Layar LED</span>
+                  </span>
+                </div>
+                <div className={`flex items-center gap-2 px-3.5 py-2 border-t border-[#F1E9DE] ${!isDgb ? "opacity-70" : ""}`} onClick={isDgb ? (e) => e.stopPropagation() : undefined}>
+                  <span className="text-[11px] text-on-surface-variant shrink-0">Durasi</span>
+                  <span className="inline-flex flex-1 rounded-full border border-[#E2D9CF] overflow-hidden">
+                    {GREETING_DURATIONS.map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        disabled={!isDgb || savingGreet}
+                        onClick={() => saveGreeting(greetOn, s)}
+                        className={`flex-1 px-2 py-1.5 text-[12px] font-semibold transition-colors ${greetSecs === s ? "bg-[#B34E3F] text-white" : "bg-white text-[#2C2A29] hover:bg-[#F5EFE6]"} disabled:opacity-60`}
+                      >
+                        {s} dtk
+                      </button>
+                    ))}
+                  </span>
+                </div>
+              </div>
             </div>
+            <UpgradePackageModal
+              open={upsellOpen}
+              onClose={() => setUpsellOpen(false)}
+              ctaHref={customizeHref}
+              content={{
+                title: "Layar Sapaan Tamu",
+                lockLabel: "Paket Buku Tamu Digital",
+                benefits: GREETING_UPSELL_BENEFITS,
+                eligiblePackages: dgbLabels,
+                cta: "Lihat Paket",
+              }}
+            />
             <div className="bg-white border border-[#E2D9CF] rounded-2xl p-3 shadow-lg">
               <div
                 ref={ledWrapRef}
@@ -290,7 +401,7 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
             <button
               key={f.key}
               onClick={() => { setFilter(f.key); setVisible(9) }}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-full font-label-md text-[11px] uppercase tracking-widest whitespace-nowrap shrink-0 transition-all border ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-4 sm:py-2.5 rounded-full font-label-md text-[10px] sm:text-[11px] uppercase tracking-widest whitespace-nowrap shrink-0 transition-all border ${
                 filter === f.key
                   ? "bg-[#B34E3F] text-white border-[#B34E3F]"
                   : "bg-[#F5EFE6] text-[#2C2A29] border-[#E2D9CF] hover:bg-[#E2D9CF]"

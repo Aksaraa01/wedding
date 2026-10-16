@@ -1,22 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import type { CSSProperties, ReactNode } from "react"
-
-const FONT_CACHE = new Set<string>()
-
-function loadFont(href: string): Promise<void> {
-  if (FONT_CACHE.has(href)) return Promise.resolve()
-  FONT_CACHE.add(href)
-  return new Promise((resolve) => {
-    const link = document.createElement("link")
-    link.rel = "stylesheet"
-    link.href = href
-    link.onload = () => resolve()
-    link.onerror = () => resolve()
-    document.head.appendChild(link)
-  })
-}
 
 const DISPLAY_CSS = "var(--font-display, 'Playfair Display'), serif"
 const BODY_CSS = "var(--font-body, 'Plus Jakarta Sans'), sans-serif"
@@ -38,25 +22,10 @@ type SkinProps = {
   children: ReactNode
 }
 
-// Loads the template fonts and exposes them as CSS vars with a dark splash
-// (no bright flash in immersive dark themes).
+// Template display/body/pixel/script families are self-hosted in fonts.css
+// — no runtime fetch. Renders immediately (display=swap handles the swap,
+// no splash gate needed).
 export default function Skin({ display = "Playfair Display", body = "Plus Jakarta Sans", pixel, script, children }: SkinProps) {
-  const [ready, setReady] = useState(false)
-
-  useEffect(() => {
-    const urls = [
-      `https://fonts.googleapis.com/css2?family=${encodeURIComponent(display)}:wght@400;600;700&display=swap`,
-      `https://fonts.googleapis.com/css2?family=${encodeURIComponent(body)}:wght@300;400;500;600;700;800&display=swap`,
-    ]
-    if (pixel) urls.push(`https://fonts.googleapis.com/css2?family=${encodeURIComponent(pixel)}&display=swap`)
-    if (script) urls.push(`https://fonts.googleapis.com/css2?family=${encodeURIComponent(script)}&display=swap`)
-    Promise.all(urls.map(loadFont)).then(() => setReady(true))
-  }, [display, body, pixel, script])
-
-  if (!ready) {
-    return <div className="min-h-screen bg-[#05070c]" />
-  }
-
   const vars: Record<string, string> = { "--font-display": DISPLAY_CSS, "--font-body": BODY_CSS }
   if (pixel) vars["--font-pixel"] = PIXEL_CSS
   if (script) vars["--font-script"] = SCRIPT_CSS

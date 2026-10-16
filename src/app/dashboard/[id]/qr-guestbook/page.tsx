@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import * as XLSX from "xlsx"
 import { ASSETS } from "@/lib/assets"
 import ProfileMenu from "@/components/ProfileMenu"
+import UpgradePackageModal from "@/components/UpgradePackageModal"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import { MSG_CATEGORIES, MSG_TEMPLATES, MSG_VARS, MsgCategory, cleanMessageForCell, isValidMsgCategory, renderMessage } from "@/lib/messageTemplates"
 import { FALLBACK_GUEST_SLUG, FALLBACK_GUEST_NAME } from "@/lib/guest-slug"
@@ -165,17 +166,17 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copie
           {blockedText}
         </button>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
           <button
             onClick={() => {
               const hasSlug = !!guest.slug
               if (hasSlug) onCopyMessage(guest)
             }}
             disabled={!guest.slug}
-            className={`col-span-2 sm:col-span-1 flex flex-col items-center justify-center gap-1 px-3 py-2.5 rounded-full min-h-[42px] font-label-md text-[10px] uppercase tracking-wider font-bold text-center leading-tight transition-colors shadow-sm ${guest.slug ? (isCopiedMessage ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-[#B34E3F] text-white border border-[#B34E3F] hover:bg-[#9E3B2D]") : "bg-[#F3F4F6] text-[#9CA3AF] border border-[#E2D9CF] cursor-not-allowed"}`}
+            className="flex flex-col items-center justify-center gap-0.5 px-1 py-2 min-h-[52px] font-label-md text-[9px] sm:text-[10px] uppercase tracking-wider font-bold text-center leading-tight transition-all active:scale-95 disabled:opacity-40"
           >
-            <span className="material-symbols-outlined text-[18px]">{isCopiedMessage ? "check" : "mail"}</span>
-            <span>{isCopiedMessage ? "Tersalin" : "Salin Pesan"}</span>
+            <span className={`material-symbols-outlined text-[22px] ${guest.slug ? (isCopiedMessage ? "text-emerald-600" : "text-[#B34E3F]") : "text-[#9CA3AF]"}`}>{isCopiedMessage ? "check" : "mail"}</span>
+            <span className={guest.slug ? (isCopiedMessage ? "text-emerald-700" : "text-[#2C2A29]") : "text-[#9CA3AF]"}>{isCopiedMessage ? "Tersalin" : "Salin Pesan"}</span>
           </button>
           <button
             onClick={() => {
@@ -183,10 +184,10 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copie
               if (hasSlug) onCopyUndangan(guest)
             }}
             disabled={!guest.slug}
-            className={`flex flex-col items-center justify-center gap-1 px-3 py-2.5 rounded-full min-h-[42px] font-label-md text-[10px] uppercase tracking-wider font-semibold text-center leading-tight transition-colors ${guest.slug ? (isCopiedUndangan ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-[#F5EFE6] text-[#2C2A29] border border-[#E2D9CF] hover:bg-[#E2D9CF]") : "bg-[#F3F4F6] text-[#9CA3AF] border border-[#E2D9CF] cursor-not-allowed"}`}
+            className="flex flex-col items-center justify-center gap-0.5 px-1 py-2 min-h-[52px] font-label-md text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold text-center leading-tight transition-all active:scale-95 disabled:opacity-40"
           >
-            <span className="material-symbols-outlined text-[18px]">{isCopiedUndangan ? "check" : "link"}</span>
-            <span>{isCopiedUndangan ? "Tersalin" : "Salin Undangan"}</span>
+            <span className={`material-symbols-outlined text-[22px] ${guest.slug ? (isCopiedUndangan ? "text-emerald-600" : "text-[#2C2A29]") : "text-[#9CA3AF]"}`}>{isCopiedUndangan ? "check" : "link"}</span>
+            <span className={guest.slug ? (isCopiedUndangan ? "text-emerald-700" : "text-[#2C2A29]") : "text-[#9CA3AF]"}>{isCopiedUndangan ? "Tersalin" : "Salin Undangan"}</span>
           </button>
           <button
             onClick={() => {
@@ -196,10 +197,10 @@ function GuestCard({ guest, slug, onCopyQr, onCopyUndangan, onCopyMessage, copie
                 setShowLimitModal(true)
               }
             }}
-            className={`flex flex-col items-center justify-center gap-1 px-3 py-2.5 rounded-full min-h-[42px] font-label-md text-[10px] uppercase tracking-wider font-semibold text-center leading-tight transition-colors ${qrCodeBook ? (hasToken ? (isCopiedQr ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-[#F5EFE6] text-[#2C2A29] border border-[#E2D9CF] hover:bg-[#E2D9CF]") : "bg-[#F3F4F6] text-[#9CA3AF] border border-[#E2D9CF] cursor-not-allowed") : "bg-[#F3F4F6] text-[#9CA3AF] border border-[#E2D9CF]"}`}
+            className="flex flex-col items-center justify-center gap-0.5 px-1 py-2 min-h-[52px] font-label-md text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold text-center leading-tight transition-all active:scale-95"
           >
-            <span className="material-symbols-outlined text-[18px]">{isCopiedQr ? "check" : "qr_code_2"}</span>
-            <span>{isCopiedQr ? "Tersalin" : "Salin QR"}</span>
+            <span className={`material-symbols-outlined text-[22px] ${qrCodeBook ? (hasToken ? (isCopiedQr ? "text-emerald-600" : "text-[#2C2A29]") : "text-[#9CA3AF]") : "text-[#B34E3F]"}`}>{isCopiedQr ? "check" : "qr_code_2"}</span>
+            <span className={qrCodeBook ? (isCopiedQr ? "text-emerald-700" : "text-[#2C2A29]") : "text-[#2C2A29]"}>{isCopiedQr ? "Tersalin" : "Salin QR"}</span>
           </button>
         </div>
       )}
@@ -924,31 +925,22 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       )}
 
       {showLimitModal && (
-        <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
-            <div className="flex flex-col items-center text-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-secondary text-2xl">qr_code_scanner</span>
-              </div>
-              <h3 className="font-headline-md text-lg font-medium text-primary">Fitur Buku Tamu Digital</h3>
-              <p className="text-sm text-on-surface-variant">
-                QR tamu dan QR Guest Book hanya tersedia pada paket Buku Tamu Digital. Ubah paket Anda untuk mengaktifkan fitur ini.
-              </p>
-              <button
-                onClick={() => router.push(`/customize?edit=true&tab=dgbook&user=${encodeURIComponent(profile?.bride_name || "")}&partner=${encodeURIComponent(profile?.groom_name || "")}&date=${encodeURIComponent(profile?.estimated_wedding_date || "")}&guest=${encodeURIComponent(String(profile?.estimated_guest_count || 300))}&profile_id=${id}`)}
-                className="w-full bg-primary text-on-primary py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
-              >
-                Ubah ke Buku Tamu Digital
-              </button>
-              <button
-                onClick={() => setShowLimitModal(false)}
-                className="w-full border border-outline-variant text-on-surface-variant py-3.5 md:py-3 min-h-[44px] rounded-xl font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
-              >
-                Nanti Saja
-              </button>
-            </div>
-          </div>
-        </div>
+        <UpgradePackageModal
+          open
+          onClose={() => setShowLimitModal(false)}
+          ctaHref={`/customize?edit=true&tab=dgbook&user=${encodeURIComponent(profile?.bride_name || "")}&partner=${encodeURIComponent(profile?.groom_name || "")}&date=${encodeURIComponent(profile?.estimated_wedding_date || "")}&guest=${encodeURIComponent(String(profile?.estimated_guest_count || 300))}&profile_id=${id}`}
+          content={{
+            title: "Fitur Buku Tamu Digital",
+            lockLabel: "Paket Buku Tamu Digital",
+            benefits: [
+              "QR personal untuk setiap tamu",
+              "Scanner dan check in tamu tanpa aplikasi",
+              "Sapaan otomatis di Layar LED",
+            ],
+            eligiblePackages: ["Buku Tamu Digital (Sistem, Pro, Premium, Prestige)"],
+            cta: "Pilih Paket",
+          }}
+        />
       )}
 
       {/* Paid-but-unconfirmed Modal — invitation must be completed & confirmed first */}

@@ -106,10 +106,6 @@ export default function CetakQrPage({ params }: { params: Promise<{ id: string }
 
   return (
     <div className="min-h-screen bg-[#fbf9f4] py-8" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-      <link
-        href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
-        rel="stylesheet"
-      />
       <style>{`
         @media print {
           .no-print { display: none !important; }

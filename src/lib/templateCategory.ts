@@ -54,7 +54,7 @@ export const TEMPLATE_CATEGORIES: TemplateCategory[] = [
     description:
       "Template undangan digital tanpa foto untuk privasi maksimal: tipografi dan ornamen cantik tanpa menampilkan foto prewedding Anda.",
     intro:
-      "Jaga privasi tanpa mengorbankan keindahan: desain tipografi dan ornamen yang berdiri sendiri — cocok untuk undangan yang intim dan tertutup.",
+      "Rayakan momen spesial dengan undangan yang elegan dan tetap menjaga privasi. Desain tipografi dan ornamen yang minimalis memberikan sentuhan eksklusif untuk acara yang lebih intim. Dilengkapi dengan RSVP online, amplop digital, dan galeri foto, semua kebutuhan undangan Anda tersedia dalam satu tempat.",
   },
 ]
 

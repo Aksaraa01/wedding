@@ -1,0 +1,308 @@
+{
+  "inter-300.woff2": {
+    "family": "Inter",
+    "weight": "300",
+    "style": "normal",
+    "bytes": 48432
+  },
+  "inter-400.woff2": {
+    "family": "Inter",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 48432
+  },
+  "inter-500.woff2": {
+    "family": "Inter",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 48432
+  },
+  "inter-600.woff2": {
+    "family": "Inter",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 48432
+  },
+  "inter-700.woff2": {
+    "family": "Inter",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 48432
+  },
+  "inter-800.woff2": {
+    "family": "Inter",
+    "weight": "800",
+    "style": "normal",
+    "bytes": 48432
+  },
+  "playfairdisplay-400-italic.woff2": {
+    "family": "Playfair Display",
+    "weight": "400",
+    "style": "italic",
+    "bytes": 38888
+  },
+  "playfairdisplay-500-italic.woff2": {
+    "family": "Playfair Display",
+    "weight": "500",
+    "style": "italic",
+    "bytes": 38888
+  },
+  "playfairdisplay-600-italic.woff2": {
+    "family": "Playfair Display",
+    "weight": "600",
+    "style": "italic",
+    "bytes": 38888
+  },
+  "playfairdisplay-700-italic.woff2": {
+    "family": "Playfair Display",
+    "weight": "700",
+    "style": "italic",
+    "bytes": 38888
+  },
+  "playfairdisplay-400.woff2": {
+    "family": "Playfair Display",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 38460
+  },
+  "playfairdisplay-500.woff2": {
+    "family": "Playfair Display",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 38460
+  },
+  "playfairdisplay-600.woff2": {
+    "family": "Playfair Display",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 38460
+  },
+  "playfairdisplay-700.woff2": {
+    "family": "Playfair Display",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 38460
+  },
+  "cormorantgaramond-400-italic.woff2": {
+    "family": "Cormorant Garamond",
+    "weight": "400",
+    "style": "italic",
+    "bytes": 39304
+  },
+  "cormorantgaramond-500-italic.woff2": {
+    "family": "Cormorant Garamond",
+    "weight": "500",
+    "style": "italic",
+    "bytes": 39304
+  },
+  "cormorantgaramond-600-italic.woff2": {
+    "family": "Cormorant Garamond",
+    "weight": "600",
+    "style": "italic",
+    "bytes": 39304
+  },
+  "cormorantgaramond-700-italic.woff2": {
+    "family": "Cormorant Garamond",
+    "weight": "700",
+    "style": "italic",
+    "bytes": 39304
+  },
+  "cormorantgaramond-400.woff2": {
+    "family": "Cormorant Garamond",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 37776
+  },
+  "cormorantgaramond-500.woff2": {
+    "family": "Cormorant Garamond",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 37776
+  },
+  "cormorantgaramond-600.woff2": {
+    "family": "Cormorant Garamond",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 37776
+  },
+  "cormorantgaramond-700.woff2": {
+    "family": "Cormorant Garamond",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 37776
+  },
+  "dancingscript-500.woff2": {
+    "family": "Dancing Script",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 42604
+  },
+  "dancingscript-600.woff2": {
+    "family": "Dancing Script",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 42604
+  },
+  "dancingscript-700.woff2": {
+    "family": "Dancing Script",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 42604
+  },
+  "plusjakartasans-300.woff2": {
+    "family": "Plus Jakarta Sans",
+    "weight": "300",
+    "style": "normal",
+    "bytes": 27272
+  },
+  "plusjakartasans-400.woff2": {
+    "family": "Plus Jakarta Sans",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 27272
+  },
+  "plusjakartasans-500.woff2": {
+    "family": "Plus Jakarta Sans",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 27272
+  },
+  "plusjakartasans-600.woff2": {
+    "family": "Plus Jakarta Sans",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 27272
+  },
+  "plusjakartasans-700.woff2": {
+    "family": "Plus Jakarta Sans",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 27272
+  },
+  "plusjakartasans-800.woff2": {
+    "family": "Plus Jakarta Sans",
+    "weight": "800",
+    "style": "normal",
+    "bytes": 27272
+  },
+  "ebgaramond-400-italic.woff2": {
+    "family": "EB Garamond",
+    "weight": "400",
+    "style": "italic",
+    "bytes": 47824
+  },
+  "ebgaramond-500-italic.woff2": {
+    "family": "EB Garamond",
+    "weight": "500",
+    "style": "italic",
+    "bytes": 47824
+  },
+  "ebgaramond-600-italic.woff2": {
+    "family": "EB Garamond",
+    "weight": "600",
+    "style": "italic",
+    "bytes": 47824
+  },
+  "ebgaramond-700-italic.woff2": {
+    "family": "EB Garamond",
+    "weight": "700",
+    "style": "italic",
+    "bytes": 47824
+  },
+  "ebgaramond-400.woff2": {
+    "family": "EB Garamond",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 44172
+  },
+  "ebgaramond-500.woff2": {
+    "family": "EB Garamond",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 44172
+  },
+  "ebgaramond-600.woff2": {
+    "family": "EB Garamond",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 44172
+  },
+  "ebgaramond-700.woff2": {
+    "family": "EB Garamond",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 44172
+  },
+  "italianno-400.woff2": {
+    "family": "Italianno",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 25292
+  },
+  "pressstart2p-400.woff2": {
+    "family": "Press Start 2P",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 4704
+  },
+  "alexbrush-400.woff2": {
+    "family": "Alex Brush",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 22092
+  },
+  "montserrat-300.woff2": {
+    "family": "Montserrat",
+    "weight": "300",
+    "style": "normal",
+    "bytes": 35508
+  },
+  "montserrat-400.woff2": {
+    "family": "Montserrat",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 35508
+  },
+  "montserrat-500.woff2": {
+    "family": "Montserrat",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 35508
+  },
+  "montserrat-600.woff2": {
+    "family": "Montserrat",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 35508
+  },
+  "montserrat-700.woff2": {
+    "family": "Montserrat",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 35508
+  },
+  "montserrat-800.woff2": {
+    "family": "Montserrat",
+    "weight": "800",
+    "style": "normal",
+    "bytes": 35508
+  },
+  "cinzel-400.woff2": {
+    "family": "Cinzel",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 25888
+  },
+  "cinzel-600.woff2": {
+    "family": "Cinzel",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 25888
+  },
+  "pinyonscript-400.woff2": {
+    "family": "Pinyon Script",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 28072
+  }
+}

@@ -1,34 +1,7 @@
 import type { Metadata } from "next"
-import { Inter, Playfair_Display, Cormorant_Garamond, Dancing_Script } from "next/font/google"
 import RouteUnlock from "@/components/RouteUnlock"
 import "./globals.css"
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-})
-
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-  display: "swap",
-})
-
-const cormorant = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-cormorant",
-  display: "swap",
-})
-
-// Caption script for Galeri Tamu photo frames (canvas + picker).
-const dancing = Dancing_Script({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-dancing",
-  display: "swap",
-})
+import "./fonts.css"
 
 export const metadata: Metadata = {
   title: {
@@ -73,7 +46,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${playfair.variable} ${cormorant.variable} ${dancing.variable} font-body-md bg-background text-on-surface`}
+        className="font-body-md bg-background text-on-surface"
         data-mode="connect"
       >
         {children}

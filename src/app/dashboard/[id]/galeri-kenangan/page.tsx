@@ -288,15 +288,8 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
     } catch {}
   }
 
-  // Standee display faces (raster download needs more than the app bundle).
-  useEffect(() => {
-    if (document.getElementById("standee-fonts")) return
-    const link = document.createElement("link")
-    link.id = "standee-fonts"
-    link.rel = "stylesheet"
-    link.href = "https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
-    document.head.appendChild(link)
-  }, [])
+  // Standee display faces are self-hosted in fonts.css — no runtime
+  // font fetch needed before rasterizing.
 
   const [dlBusy, setDlBusy] = useState(false)
 
@@ -608,7 +601,7 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
           </div>
         </div>
 
-        <div className="px-6">
+        <div className="px-4 md:px-6">
           {loading ? (
             <div className="flex items-center justify-center py-32">
               <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -659,12 +652,13 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                   <div className="border-t border-[#d9c1c0]/30 bg-[#f5f3ee]/30 p-4 md:p-6">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                       <div className="lg:col-span-8 flex flex-col md:flex-row gap-5 items-stretch bg-white p-5 md:p-6 rounded-[1rem] border border-[#d9c1c0]/30 shadow-sm">
-                        <div className="flex flex-col items-center shrink-0 justify-center">
-                          <div className="relative group w-36 h-48 md:w-44 md:h-56 rounded-2xl overflow-hidden border-2 border-[#4f1519]/20 shadow-md bg-[#f5f3ee]">
+                        <div className="flex flex-col items-center shrink-0 justify-center w-full md:w-auto">
+                          {/* Instagram-grid concept: portrait 3:4 cell + cover.
+                              Phone portraits fill it with almost no crop
+                              (a square cut ~1/3 off this photo). */}
+                          <div className="relative group w-full max-w-[180px] md:max-w-[200px] aspect-[3/4] rounded-2xl overflow-hidden border-2 border-[#4f1519]/20 shadow-md bg-[#f5f3ee]">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={boxPhoto.startsWith("http") ? toTransformedUrl(boxPhoto, { width: 400, quality: 70 }) : boxPhoto} aria-hidden alt="" className="absolute inset-0 w-full h-full object-cover blur-md scale-110 opacity-60" />
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={boxPhoto.startsWith("http") ? toTransformedUrl(boxPhoto, { width: 400, quality: 70 }) : boxPhoto} alt={`Foto Mempelai ${setup?.gallery_couple_name || ""}`} className="relative w-full h-full object-contain" />
+                            <img src={boxPhoto.startsWith("http") ? toTransformedUrl(boxPhoto, { width: 400, quality: 70 }) : boxPhoto} alt={`Foto Mempelai ${setup?.gallery_couple_name || ""}`} className="absolute inset-0 w-full h-full object-cover" />
                             <label className="absolute inset-0 bg-[#4f1519]/40 backdrop-blur-[2px] text-white opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer gap-1 p-2">
                               <span className="material-symbols-outlined text-[24px]">{uploadingPhoto ? "hourglass_empty" : "photo_camera"}</span>
                               <span className="text-[10px] uppercase tracking-wider font-semibold">{uploadingPhoto ? "Mengunggah..." : "Ganti Foto"}</span>
@@ -882,25 +876,30 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                         <p className="text-[11px] uppercase tracking-widest font-semibold" style={{ color: "#4f1519" }}>Bingkai Foto Tamu</p>
                         {frameSaving && <span className="text-[11px] text-[#444841]/70">Menyimpan...</span>}
                       </div>
-                      <div className="flex items-center gap-2.5 rounded-xl border-l-4 px-4 py-3 mb-3" style={{ backgroundColor: "#FBF1EE", borderLeftColor: "#B34E3F" }}>
-                        <span className="material-symbols-outlined text-[20px] shrink-0" style={{ color: "#B34E3F" }}>check_circle</span>
-                        <p className="text-[13px] font-semibold leading-snug" style={{ color: "#4f1519" }}>
+                      <div className="flex items-center gap-2 rounded-xl border-l-4 px-2.5 py-2 md:px-3 md:py-2.5 mb-3" style={{ backgroundColor: "#FBF1EE", borderLeftColor: "#B34E3F" }}>
+                        <span className="material-symbols-outlined text-[16px] md:text-[18px] shrink-0" style={{ color: "#B34E3F" }}>check_circle</span>
+                        <p className="text-[11px] md:text-[12px] font-semibold leading-snug" style={{ color: "#4f1519" }}>
                           {activeFrame === "none"
                             ? "Tanpa bingkai — foto tamu diunggah apa adanya."
                             : `${GALERI_FRAME_NAMES[activeFrame]} aktif — diterapkan ke setiap foto tamu saat diunggah.`}
                         </p>
                       </div>
-                      <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1 md:grid md:grid-cols-6 md:overflow-visible md:mx-0 md:px-0">
+                      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1 md:grid md:grid-cols-6 md:overflow-visible md:mx-0 md:px-0">
                         <button
                           onClick={() => void saveFrame("none")}
                           disabled={frameSaving !== null}
-                          className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-1.5 transition-all active:scale-95 disabled:opacity-70 shrink-0 w-28 md:w-auto ${activeFrame === "none" ? "border-[#4f1519] bg-white shadow-md" : "border-[#d9c1c0]/40 bg-white/60 hover:border-[#4f1519]/50"}`}
+                          className={`relative flex flex-col items-center gap-1 rounded-xl border-2 p-1.5 transition-all active:scale-95 disabled:opacity-70 shrink-0 w-24 md:w-auto ${activeFrame === "none" ? "border-[#4f1519] bg-white shadow-md" : "border-[#d9c1c0]/40 bg-white/60 hover:border-[#4f1519]/50"}`}
                         >
+                          {activeFrame === "none" && (
+                            <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-[#4f1519] text-white flex items-center justify-center shadow">
+                              <span className="material-symbols-outlined text-[13px] font-bold">check</span>
+                            </span>
+                          )}
                           <span className="w-full rounded-lg bg-[#f0eee9] flex items-center justify-center" style={{ aspectRatio: "4/5" }}>
-                            <span className="material-symbols-outlined text-[28px] text-[#444841]/50">hide_image</span>
+                            <span className="material-symbols-outlined text-[24px] text-[#444841]/50">hide_image</span>
                           </span>
                           <span className={`text-[10px] font-semibold leading-tight text-center ${activeFrame === "none" ? "text-[#4f1519]" : "text-[#444841]/70"}`}>
-                            {activeFrame === "none" ? "✓ " : ""}Tanpa Bingkai
+                            Tanpa Bingkai
                           </span>
                         </button>
                         {GALERI_FRAME_IDS.map((fid) => {
@@ -910,12 +909,17 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                               key={fid}
                               onClick={() => void saveFrame(fid)}
                               disabled={frameSaving !== null}
-                              className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-1.5 transition-all active:scale-95 disabled:opacity-70 shrink-0 w-28 md:w-auto ${selected ? "border-[#4f1519] bg-white shadow-md" : "border-[#d9c1c0]/40 bg-white/60 hover:border-[#4f1519]/50"}`}
+                              className={`relative flex flex-col items-center gap-1 rounded-xl border-2 p-1.5 transition-all active:scale-95 disabled:opacity-70 shrink-0 w-24 md:w-auto ${selected ? "border-[#4f1519] bg-white shadow-md" : "border-[#d9c1c0]/40 bg-white/60 hover:border-[#4f1519]/50"}`}
                             >
+                              {selected && (
+                                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-[#4f1519] text-white flex items-center justify-center shadow z-10">
+                                  <span className="material-symbols-outlined text-[13px] font-bold">check</span>
+                                </span>
+                              )}
                               {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img src={GALERI_FRAME_THUMBS[fid]} alt={`Bingkai ${GALERI_FRAME_NAMES[fid]}`} loading="lazy" className="w-full rounded-lg object-cover" />
                               <span className={`text-[10px] font-semibold leading-tight text-center ${selected ? "text-[#4f1519]" : "text-[#444841]/70"}`}>
-                                {selected ? "✓ " : ""}{GALERI_FRAME_NAMES[fid]}
+                                {GALERI_FRAME_NAMES[fid]}
                               </span>
                             </button>
                           )
@@ -938,9 +942,9 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                           return css ? { filter: css } : undefined
                         })()}
                       />
-                      <div className="flex items-center gap-2.5 rounded-xl border-l-4 px-4 py-3 mt-3.5 mb-1" style={{ backgroundColor: "#FBF1EE", borderLeftColor: "#B34E3F" }}>
-                        <span className="material-symbols-outlined text-[20px] shrink-0" style={{ color: "#B34E3F" }}>check_circle</span>
-                        <p className="text-[13px] font-semibold leading-snug" style={{ color: "#4f1519" }}>
+                      <div className="flex items-center gap-2 rounded-xl border-l-4 px-2.5 py-2 md:px-3 md:py-2.5 mt-3.5 mb-1" style={{ backgroundColor: "#FBF1EE", borderLeftColor: "#B34E3F" }}>
+                        <span className="material-symbols-outlined text-[16px] md:text-[18px] shrink-0" style={{ color: "#B34E3F" }}>check_circle</span>
+                        <p className="text-[11px] md:text-[12px] font-semibold leading-snug" style={{ color: "#4f1519" }}>
                           {frameSaving
                             ? "Menyimpan..."
                             : `${GALERI_CAMERAS.find((c) => c.id === activeCamera)?.name || "Normal"} aktif — diterapkan ke setiap foto tamu saat diunggah.`}
@@ -981,7 +985,7 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                                   </div>
                                 </div>
                                 <div className="flex flex-col items-center leading-tight">
-                                  <span className={`text-[11px] ${selected ? "font-semibold text-primary" : "font-medium text-on-surface-variant group-hover:text-primary"} transition-colors`}>{cam.name}</span>
+                                  <span className={`text-[10px] ${selected ? "font-semibold text-primary" : "font-medium text-on-surface-variant group-hover:text-primary"} transition-colors`}>{cam.name}</span>
                                   <span className="text-[9px] text-on-surface-variant/70">{cam.desc}</span>
                                 </div>
                               </button>
@@ -1081,12 +1085,12 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                 </div>
               ) : (
                 <>
-                  <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 max-w-7xl mx-auto w-full items-start mt-6">
+                  <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 max-w-7xl mx-auto w-full items-start mt-4 md:mt-6">
                     {photos.map((photo) => {
                       const name = displayNameOf(photo)
                       const initial = (name.trim()[0] || "T").toUpperCase()
                       return (
-                        <div key={photo.id} className="bg-white rounded-[1rem] p-4 shadow-md flex flex-col h-full justify-between">
+                        <div key={photo.id} className="bg-white rounded-[1rem] p-3 md:p-4 shadow-md flex flex-col h-full justify-between">
                           <div className="flex flex-col">
                             <div className="flex items-center justify-between pb-3 gap-2">
                               <div className="flex items-center gap-2.5 min-w-0">

@@ -73,20 +73,34 @@ export default function SelfieModal({
     if (!video || !canvas) return
     const vw = video.videoWidth || 720
     const vh = video.videoHeight || 960
-    const targetAspect = 3 / 4
-    const videoAspect = vw / vh
-    let sx = 0, sy = 0, sw = vw, sh = vh
-    if (videoAspect > targetAspect) {
-      sw = Math.round(vh * targetAspect)
-      sx = Math.round((vw - sw) / 2)
-    } else {
-      sh = Math.round(vw / targetAspect)
-      sy = Math.round((vh - sh) / 2)
-    }
+    // Match the live preview: the <video> renders full-bleed with
+    // object-cover, so only its center crop is visible. Capturing the raw
+    // sensor rect instead would include ~60% more width on tall phones
+    // (the "zoomed out" result). Derive the visible rect from the
+    // element size, then cover-fit it into the 3:4 output.
+    const Ew = video.clientWidth || window.innerWidth || vw
+    const Eh = video.clientHeight || window.innerHeight || vh
+    const scale = Math.max(Ew / vw, Eh / vh)
+    const visW = Ew / scale
+    const visH = Eh / scale
+    let sx = (vw - visW) / 2
+    let sy = (vh - visH) / 2
+    let sw = visW
+    let sh = visH
     // 1080x1440 HD capture (3:4). Frame overlay scales proportionally;
     // output stays well under the 2MB upload cap at q0.85.
     canvas.width = 1080
     canvas.height = 1440
+    const targetAspect = canvas.width / canvas.height
+    if (sw / sh > targetAspect) {
+      const sw2 = sh * targetAspect
+      sx += (sw - sw2) / 2
+      sw = sw2
+    } else {
+      const sh2 = sw / targetAspect
+      sy += (sh - sh2) / 2
+      sh = sh2
+    }
     const ctx = canvas.getContext("2d")
     if (!ctx) return
     ctx.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height)
@@ -155,7 +169,6 @@ export default function SelfieModal({
 
   return (
     <div className="fixed inset-0 z-[90] w-full h-[100dvh] overflow-hidden bg-black flex flex-col" style={{ color: "#F8F5F0" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');`}</style>
 
       {/* Full-bleed camera */}
       <div className="absolute inset-0 w-full h-full">

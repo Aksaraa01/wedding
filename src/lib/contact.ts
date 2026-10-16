@@ -5,7 +5,7 @@
 
 export const AKSARAA_WA_NUMBER = "6281161613071"
 
-import { getPackageCategory, PACKAGE_LABELS } from "@/lib/packages"
+import { getPackageCategory, PACKAGE_CATEGORY, PACKAGE_LABELS } from "@/lib/packages"
 
 export function waLink(text: string): string {
   return `https://wa.me/${AKSARAA_WA_NUMBER}?text=${encodeURIComponent(text)}`
@@ -18,7 +18,7 @@ export function paymentWaText(opts: { packageType?: string | null; galeriTier?: 
   const base = "Halo Aksaraa Wedding, Saya mau melakukan pembayaran"
   const pkg = (opts.packageType || "").trim()
   if (!pkg) return base
-  let text = `${base} paket ${getPackageCategory(pkg)} ${PACKAGE_LABELS[pkg] || pkg}`
+  let text = `${base} paket ${packageGroupLabel(pkg)}`
   const tier = (opts.galeriTier || "").trim()
   if (tier) text += ` dengan Galeri Tamu ${tier}`
   return text
@@ -36,12 +36,22 @@ export type PackageChangeSelection = {
   galeri: { on: boolean; photos?: number; guests?: number } | null
 }
 
+// "Undangan Digital Signature" style label: group + tier, so the
+// consultant instantly knows both. Unknown codes fall back to the raw
+// code, never to a wrong group.
+function packageGroupLabel(code: string | undefined | null): string {
+  const c = (code || "").trim()
+  if (!c) return "?"
+  const label = PACKAGE_LABELS[c] || c
+  return PACKAGE_CATEGORY[c] ? `${getPackageCategory(c)} ${label}` : label
+}
+
 // Package-change CTA prefill: names the paid package, the new selection,
 // and any changed/new add-ons so the consultant instantly knows the request.
 // Unchanged or absent pieces are omitted, never half-filled.
 export function packageChangeWaText(oldSel: PackageChangeSelection, newSel: PackageChangeSelection): string {
-  const oldPkg = PACKAGE_LABELS[oldSel.package] || oldSel.package || "?"
-  const newPkg = PACKAGE_LABELS[newSel.package] || newSel.package || "?"
+  const oldPkg = packageGroupLabel(oldSel.package)
+  const newPkg = packageGroupLabel(newSel.package)
   let text = `Halo Aksaraa Wedding, saya sudah membayar paket ${oldPkg} dan ingin ganti ke ${newPkg}.`
   const addons: string[] = []
   if (newSel.waBlastTier > 0 && newSel.waBlastTier !== oldSel.waBlastTier) {

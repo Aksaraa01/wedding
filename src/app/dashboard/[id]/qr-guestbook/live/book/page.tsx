@@ -7,7 +7,7 @@ import { displayCategory } from "@/lib/gallery-client"
 import { resolveCoupleName } from "@/lib/coupleName"
 import { ASSETS } from "@/lib/assets"
 
-// App self-hosted faces (layout.tsx) — never duplicate next/font queries
+// App self-hosted faces (fonts.css) — never fetch Google Fonts at runtime
 // (Turbopack rejects the second identical Google Fonts query at build).
 const playfair = { className: "font-[family-name:var(--font-playfair)]" }
 const inter = { className: "font-[family-name:var(--font-inter)]" }

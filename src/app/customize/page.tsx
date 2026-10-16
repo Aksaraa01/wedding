@@ -406,7 +406,17 @@ function Inner() {
     setSelectedPackage(pkg)
     setOriginalPackage(pkg)
     setProfilePaymentStatus(data.profile.payment_status || "UNPAID")
-    setActiveTab(pkg.startsWith("dgb_") ? "dgbook" : pkg === "gt" ? "galeri" : "undangan")
+    // An explicit tab/package URL param (e.g. upsell deep-links) wins over
+    // the profile's current package — otherwise every upsell lands back on
+    // the current-package tab.
+    const urlTab = searchParams.get("tab")
+    if (packageParam || urlTab === "undangan" || urlTab === "dgbook" || urlTab === "galeri") {
+      setActiveTab(packageParam
+        ? packageParam.startsWith("dgb_") ? "dgbook" : packageParam === "gt" ? "galeri" : "undangan"
+        : urlTab as "undangan" | "dgbook" | "galeri")
+    } else {
+      setActiveTab(pkg.startsWith("dgb_") ? "dgbook" : pkg === "gt" ? "galeri" : "undangan")
+    }
     setWaBlastTier(data.profile.wa_blast_tier || 0)
     setOriginalWaTier(data.profile.wa_blast_tier || 0)
     setExpressService(!!data.profile.express_service)

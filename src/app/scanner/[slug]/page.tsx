@@ -102,9 +102,22 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
   const bufferRef = useRef("")
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const successTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  // Same-QR cooldown: the reader fires continuously while a QR stays in
+  // frame — without this, one held-up QR races markCheckedIn and appends
+  // duplicate log rows (and reopens the camera after every skip).
+  const lastScanRef = useRef<{ token: string; at: number } | null>(null)
+  // Photo step resolved via "Lewati": don't auto-reopen the camera on
+  // re-scan (explicit photo buttons stay available).
+  const selfieSkippedRef = useRef<Set<string>>(new Set())
 
   useEffect(() => {
     return () => clearTimeout(successTimerRef.current)
+  }, [])
+
+  // Upsert by id — a re-processed scan updates the row in place instead of
+  // duplicating it in Log Riwayat Masuk.
+  const upsertLog = useCallback((g: GuestRecord) => {
+    setLogEntries((prev) => [g, ...prev.filter((x) => x.id !== g.id)])
   }, [])
 
   const processScan = useCallback(async (rawText: string) => {
@@ -113,11 +126,15 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
       setScanResult({ type: "error", message: "QR tidak valid" })
       return
     }
+    const now = Date.now()
+    const last = lastScanRef.current
+    if (last && last.token === token && now - last.at < 2500) return
+    lastScanRef.current = { token, at: now }
 
     const cached = await getGuestByToken(token)
 
     if (cached && cached.is_checked_in) {
-      if (selfieGuestIds.has(cached.id)) {
+      if (selfieGuestIds.has(cached.id) || selfieSkippedRef.current.has(cached.id)) {
         setScanResult({ type: "already", guest: cached, message: `${cached.name} sudah check-in` })
       } else {
         openSelfieRecovery(cached)
@@ -129,7 +146,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
       await markCheckedIn(cached.id, token, operatorName)
       const updated = await getGuestByToken(token)
       const g = updated || cached
-      setLogEntries((prev) => [g, ...prev.filter((x) => x.id !== g.id)])
+      upsertLog(g)
       updatePending()
       trySync()
       showScanSuccess(g)
@@ -164,7 +181,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
         await markCheckedIn(serverGuest.id, token, operatorName)
         const updated = await getGuestByToken(token)
         const g = updated || serverGuest
-        setLogEntries((prev) => [g, ...prev])
+        upsertLog(g)
         updatePending()
         trySync()
         showScanSuccess(g)
@@ -174,7 +191,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
     } catch {
       setScanResult({ type: "error", message: "Gagal terhubung ke server. Periksa koneksi." })
     }
-  }, [operatorName, eventInfo, selfieGuestIds, openSelfieCheckin, openSelfieRecovery])
+  }, [operatorName, eventInfo, selfieGuestIds, openSelfieCheckin, openSelfieRecovery, upsertLog])
 
   const trySync = useCallback(async () => {
     if (!eventInfo) return
@@ -265,6 +282,10 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
         setSelfieGuestIds((prev) => new Set(prev).add(guest.id))
         setSelfieDoneToast(`Foto check-in ${guest.name} berhasil disimpan`)
         setTimeout(() => setSelfieDoneToast(null), 3000)
+      } else {
+        // Skipped: resolve the photo step so re-scans report "sudah
+        // check-in" instead of reopening the camera in a loop.
+        selfieSkippedRef.current.add(guest.id)
       }
       setScanResult({ type: "success", guest, message: `Selamat datang, ${guest.name}!` })
     }
@@ -529,7 +550,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
   const handleManualCheckin = async (guest: GuestRecord) => {
     if (guest.is_checked_in) {
-      if (!selfieGuestIds.has(guest.id)) {
+      if (!selfieGuestIds.has(guest.id) && !selfieSkippedRef.current.has(guest.id)) {
         openSelfieRecovery(guest)
       } else {
         setScanResult({ type: "already", guest, message: `${guest.name} sudah check-in` })
@@ -540,7 +561,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
     await markCheckedIn(guest.id, guest.qr_token || "", operatorName)
     const updated = await getGuestByToken(guest.qr_token || "")
     const g = updated || guest
-    setLogEntries((prev) => [g, ...prev])
+    upsertLog(g)
     setManualQuery("")
     setManualResults([])
     updatePending()

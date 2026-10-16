@@ -29,9 +29,6 @@ const PAGE_W = 794
 const PAGE_H = 1123
 const PER_PAGE = 6
 
-const FONT_HREF =
-  "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
-
 function escapeHtml(s: unknown): string {
   return String(s ?? "").replace(/[&<>"']/g, (c) => (
     { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string
@@ -71,23 +68,8 @@ const FLOWER_SVG =
   '<svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24"><path d="M12 22V12M12 12C12 7 7 6 7 6C7 11 12 12 12 12ZM12 12C12 7 17 6 17 6C17 11 12 12 12 12Z"/></svg>'
 
 async function ensureFonts(): Promise<void> {
-  let link = document.getElementById("wish-wall-pdf-fonts") as HTMLLinkElement | null
-  const waitForLink = new Promise<void>((resolve) => {
-    if (link && (link as any).sheet) return resolve()
-    if (!link) {
-      link = document.createElement("link")
-      link.id = "wish-wall-pdf-fonts"
-      link.rel = "stylesheet"
-      link.href = FONT_HREF
-      document.head.appendChild(link)
-    }
-    const done = () => resolve()
-    link.addEventListener("load", done, { once: true })
-    link.addEventListener("error", done, { once: true })
-    setTimeout(done, 5000)
-  })
-  await waitForLink
-
+  // Display faces are self-hosted in fonts.css — just wait for the faces
+  // (document.fonts resolves the bundled @font-face, no runtime CDN fetch).
   const specs = [
     '400 40px "Cormorant Garamond"',
     '600 40px "Cormorant Garamond"',

@@ -125,14 +125,19 @@ export async function PUT(  req: NextRequest,
       "gallery_photos", "inviting_families", "rsvp_max_pax",
       "estimated_wedding_date", "gift_section_visible", "video_section_visible", "inviting_families_visible", "story_visible",
       "opening_title", "opening_description", "portfolio_visible", "portfolio_featured",
+      "led_greeting_enabled", "led_greeting_duration_sec",
     ]
 
     const updates: Record<string, any> = {}
     for (const key of allowed) {
       if (body[key] !== undefined) {
-        // groom/bride photos are stored as JSON strings in text columns so they can
-        // hold multiple slides (slideshow backgrounds).
-        if ((key === "groom_photo_url" || key === "bride_photo_url") && Array.isArray(body[key])) {
+        // Greeting duration is constrained by DB check — coerce strays.
+        if (key === "led_greeting_duration_sec") {
+          const v = Number(body[key])
+          updates[key] = v === 15 || v === 20 || v === 30 ? v : 30
+        } else if ((key === "groom_photo_url" || key === "bride_photo_url") && Array.isArray(body[key])) {
+          // groom/bride photos are stored as JSON strings in text columns so
+          // they can hold multiple slides (slideshow backgrounds).
           updates[key] = JSON.stringify(body[key].filter(Boolean))
         } else {
           updates[key] = body[key]

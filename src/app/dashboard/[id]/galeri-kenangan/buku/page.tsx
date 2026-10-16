@@ -382,10 +382,6 @@ if (dead) return
 
   return (
     <div className="min-h-screen bg-[#f2efe9] py-8" style={SANS}>
-      <link
-        href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
-        rel="stylesheet"
-      />
       <style>{`
         @media print {
           .no-print { display: none !important; }

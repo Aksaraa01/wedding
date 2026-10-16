@@ -15,6 +15,15 @@ type Wish = {
   guests: { category: string } | null
 }
 
+type Checkin = {
+  guest_id: string
+  name: string
+  category: string
+  checkin_timestamp: string
+}
+
+type Greeting = Checkin & { photoUrl: string | null; durationMs: number }
+
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean)
   if (parts.length === 0) return "?"
@@ -31,6 +40,61 @@ export default function LedDisplay({ params }: { params: Promise<{ slug: string 
   const [others, setOthers] = useState<Wish[]>([])
   const [error, setError] = useState("")
   const [spotPage, setSpotPage] = useState(0)
+
+  // Layar Sapaan: greeting overlay state. seenIds + cursor live in refs so
+  // polls never re-greet (StrictMode-safe, reload-safe via the boot window).
+  // Duration is ref-mirrored: the driver captures it at show time, so a
+  // mid-greeting dashboard change applies to the NEXT greeting, not this one.
+  const [greetEnabled, setGreetEnabled] = useState(false)
+  const greetSecsRef = useRef(30)
+  const [greetQueue, setGreetQueue] = useState<Checkin[]>([])
+  const [current, setCurrent] = useState<Greeting | null>(null)
+  const seenRef = useRef<Set<string>>(new Set())
+  const cursorRef = useRef<string | null>(null)
+  // Unmount guard for the detached greeting resolver below. NOTE: the
+  // driver effect intentionally has NO cleanup — it dequeues synchronously
+  // (which re-renders and would run any cleanup), so a cleanup flag would
+  // cancel its own async and no greeting would ever display.
+  const mountedRef = useRef(true)
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
+
+  const fetchCheckins = useCallback(async (pid: string) => {
+    try {
+      const qs = cursorRef.current ? `&since=${encodeURIComponent(cursorRef.current)}` : ""
+      const r = await fetch(`/api/led/checkins?wedding_profile_id=${pid}${qs}`)
+      const data = await r.json()
+      if (!data) return
+      if (data.durationSec === 15 || data.durationSec === 20 || data.durationSec === 30) {
+        greetSecsRef.current = data.durationSec
+      }
+      if (!data.enabled) {
+        // Toggled off (or package no longer Buku Tamu Digital): drain the
+        // queue silently; the running greeting finishes its timer.
+        setGreetEnabled(false)
+        setGreetQueue([])
+        return
+      }
+      setGreetEnabled(true)
+      const fresh: Checkin[] = (data.checkins || []).filter(
+        (c: Checkin) => c.guest_id && !seenRef.current.has(c.guest_id)
+      )
+      if (fresh.length > 0) {
+        fresh.forEach((c) => seenRef.current.add(c.guest_id))
+        setGreetQueue((q) => [...q, ...fresh])
+      }
+      // Cursor follows the newest timestamp seen (server or data).
+      const maxTs = (data.checkins || []).reduce(
+        (m: string | null, c: Checkin) => (!m || c.checkin_timestamp > m ? c.checkin_timestamp : m),
+        cursorRef.current
+      )
+      cursorRef.current = maxTs || data.now || cursorRef.current
+    } catch {}
+  }, [])
 
   const fetchWishes = useCallback(async (pid: string) => {
     try {
@@ -67,6 +131,7 @@ export default function LedDisplay({ params }: { params: Promise<{ slug: string 
           } catch {}
         }
         fetchWishes(pid)
+        fetchCheckins(pid)
       })
       .catch((e) => {
         if (!cancelled) setError(e.message)
@@ -74,13 +139,60 @@ export default function LedDisplay({ params }: { params: Promise<{ slug: string 
     return () => {
       cancelled = true
     }
-  }, [slug, fetchWishes])
+  }, [slug, fetchWishes, fetchCheckins])
 
-  // Poll wishes, paused while the tab is hidden (ballroom screens left open
+  // Poll wishes + check-ins, paused while the tab is hidden (ballroom screens left open
   // in background must not generate traffic or Supabase log volume).
   useVisiblePoll(() => {
-    if (profileId) fetchWishes(profileId)
+    if (profileId) {
+      fetchWishes(profileId)
+      fetchCheckins(profileId)
+    }
   }, 10000, profileId !== "")
+
+  // Greeting driver (pure FIFO, no cap): when idle and queued, take the next
+  // guest, resolve their selfie, then show for the configured duration.
+  // The selfie fetch is awaited BEFORE display so the photo layout never
+  // flashes empty — but bounded by a timeout, so a stalled photo request
+  // can never wedge the queue; failures fall back to centered-name.
+  useEffect(() => {
+    if (current || greetQueue.length === 0) return
+    const next: Checkin = greetQueue[0];
+    setGreetQueue(greetQueue.slice(1));
+    (async () => {
+      let photoUrl: string | null = null
+      try {
+        const fetched = fetch(`/api/led/selfie?guest_id=${encodeURIComponent(next.guest_id)}`).then((r) => r.json())
+        const data = await Promise.race([
+          fetched,
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000)),
+        ])
+        if (data?.image_url) {
+          await Promise.race([
+            new Promise<void>((resolve) => {
+              const img = new Image()
+              img.onload = () => resolve()
+              img.onerror = () => resolve()
+              img.src = data.image_url
+            }),
+            new Promise<void>((resolve) => setTimeout(() => resolve(), 4000)),
+          ])
+          photoUrl = data.image_url
+        }
+      } catch {}
+      if (mountedRef.current) {
+        const secs = greetSecsRef.current === 15 || greetSecsRef.current === 20 ? greetSecsRef.current : 30
+        setCurrent({ ...next, photoUrl, durationMs: secs * 1000 })
+      }
+    })()
+  }, [current, greetQueue])
+
+  // Greeting timer: back to wishes (or next in queue) when time is up.
+  useEffect(() => {
+    if (!current) return
+    const t = setTimeout(() => setCurrent(null), current.durationMs)
+    return () => clearTimeout(t)
+  }, [current])
 
   // Pinned spotlight paging for row 1: max 2 static cards; when more than 2
   // wishes are pinned, rotate pages with a fade every 8s (paused in hidden
@@ -171,7 +283,6 @@ export default function LedDisplay({ params }: { params: Promise<{ slug: string 
   return (
     <div className="champagne-gradient h-screen w-screen overflow-hidden select-none flex flex-col justify-between relative">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Italianno&display=swap');
         .champagne-gradient { background: radial-gradient(circle at 50% 20%, #FFFDF9 0%, #FAF5EE 55%, #EFE7DA 100%); }
         .wish-card { background: rgba(255,255,255,0.78); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 8px 24px -6px rgba(100,75,55,0.05), 0 2px 6px -1px rgba(100,75,55,0.03); border: 1px solid rgba(229,221,208,0.65); transition: transform 0.4s ease, box-shadow 0.4s ease; }
         .wish-card:hover { transform: translateY(-2px); box-shadow: 0 12px 28px -6px rgba(91,36,42,0.08); }
@@ -213,7 +324,46 @@ export default function LedDisplay({ params }: { params: Promise<{ slug: string 
         </div>
       </header>
 
-      {allApproved.length === 0 ? (
+      {/* Layar Sapaan takes over the center stage while a greeting plays.
+          Background, corner flowers, header, and footer stay exactly as-is;
+          only the wishes content swaps out. Wishes keep polling underneath. */}
+      {greetEnabled && current ? (
+        <div key={current.guest_id} className="spotlight-fade relative z-10 flex-1 flex items-center justify-center px-[6vw] my-auto overflow-hidden">
+          {current.photoUrl ? (
+            <div className="flex items-center justify-center gap-[4vw] w-full max-w-[1400px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={current.photoUrl} alt={current.name} className="h-[74vh] max-w-[44vw] aspect-[3/4] object-cover rounded-3xl shadow-2xl border-4 border-white/80 shrink-0" />
+              <div className="text-left min-w-0">
+                <p className="italic text-3xl md:text-5xl text-[#7E3B42] font-medium tracking-wide mb-3" style={{ fontFamily: '"Cormorant Garamond", serif' }}>
+                  Selamat Datang
+                </p>
+                <h2 className="text-5xl md:text-7xl text-[#5B242A] font-bold tracking-tight leading-tight break-words" style={{ fontFamily: '"Playfair Display", serif' }}>
+                  {current.name}
+                </h2>
+                {current.category && (
+                  <span className="inline-block mt-5 px-6 py-2 rounded-full bg-[#5B242A] text-[#FAF3EC] text-lg md:text-xl font-semibold tracking-widest uppercase">
+                    {current.category}
+                  </span>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="text-center max-w-[1200px]">
+              <p className="italic text-3xl md:text-5xl text-[#7E3B42] font-medium tracking-wide mb-4" style={{ fontFamily: '"Cormorant Garamond", serif' }}>
+                Selamat Datang
+              </p>
+              <h2 className="text-6xl md:text-8xl text-[#5B242A] font-bold tracking-tight leading-tight break-words" style={{ fontFamily: '"Playfair Display", serif' }}>
+                {current.name}
+              </h2>
+              {current.category && (
+                <span className="inline-block mt-6 px-6 py-2 rounded-full bg-[#5B242A] text-[#FAF3EC] text-lg md:text-xl font-semibold tracking-widest uppercase">
+                  {current.category}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      ) : allApproved.length === 0 ? (
         <div className="flex-1 flex items-center justify-center relative z-10">
           <p className="text-[#9E9080] text-lg italic">Belum ada doa yang disetujui. Menunggu ucapan hangat dari tamu...</p>
         </div>
