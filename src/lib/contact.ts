@@ -14,17 +14,24 @@ export function waLink(text: string): string {
 // Payment CTA prefill: names the couple's package + Galeri tier so the
 // consultant instantly knows what is being paid. Missing pieces degrade to
 // the plain base message, never to a half-filled sentence.
-export function paymentWaText(opts: { packageType?: string | null; galeriTier?: string | null }): string {
+export function formatRupiah(amount: number): string {
+  return `Rp${Math.round(amount).toLocaleString("id-ID")}`
+}
+
+export function paymentWaText(opts: { packageType?: string | null; galeriTier?: string | null; amount?: number | null }): string {
   const base = "Halo Aksaraa Wedding, Saya mau melakukan pembayaran"
   const pkg = (opts.packageType || "").trim()
   if (!pkg) return base
   let text = `${base} paket ${packageGroupLabel(pkg)}`
+  if (typeof opts.amount === "number" && opts.amount > 0) {
+    text += ` senilai ${formatRupiah(opts.amount)}`
+  }
   const tier = (opts.galeriTier || "").trim()
   if (tier) text += ` dengan Galeri Tamu ${tier}`
   return text
 }
 
-export function paymentWaLink(opts: { packageType?: string | null; galeriTier?: string | null }): string {
+export function paymentWaLink(opts: { packageType?: string | null; galeriTier?: string | null; amount?: number | null }): string {
   return waLink(paymentWaText(opts))
 }
 

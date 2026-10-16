@@ -40,6 +40,9 @@ type Profile = {
   estimated_wedding_date: string | null
   estimated_guest_count: number | null
   guest_link_strict?: boolean | null
+  total_project_cost?: number | null
+  voucher_code?: string | null
+  voucher_discount?: number | null
 }
 
 type Stats = {
@@ -437,7 +440,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   const handleExportExcel = async () => {
     if (!profile || guests.length === 0) return
     if (isUnpaid) {
-      router.push(`/customize?edit=true&profile_id=${id}`)
+      window.open(payLink(), "_blank")
       return
     }
     if (gated) {
@@ -498,9 +501,13 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   const isUnpaid = profile?.payment_status === "UNPAID"
   const blocked = isUnpaid || gated
   const blockedText = isUnpaid ? "Selesaikan Pembayaran" : "Kunci — Lengkapi Undangan"
+  // Final amount after voucher: stored total is already discounted, but
+  // recompute defensively so a lagging total never overstates the bill.
+  const finalAmount = Math.max(0, (Number(profile?.total_project_cost) || 0) - (Number(profile?.voucher_discount) || 0))
+  const payLink = () => paymentWaLink({ packageType: profile?.package_type, galeriTier: profile?.galeri_tier, amount: finalAmount > 0 ? finalAmount : null })
   const handleBlockedClick = () => {
     if (isUnpaid) {
-      router.push(`/customize?edit=true&profile_id=${id}`)
+      window.open(payLink(), "_blank")
     } else {
       setShowConfirmModal(true)
     }
@@ -824,7 +831,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
                   </p>
                 </div>
               </div>
-              <button onClick={() => window.open(paymentWaLink({ packageType: profile?.package_type, galeriTier: profile?.galeri_tier }), "_blank")} className="shrink-0 inline-flex items-center justify-center gap-2 bg-[#D97706] text-white rounded-full px-6 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#92400E] active:scale-95 transition-all whitespace-nowrap">
+              <button onClick={() => window.open(payLink(), "_blank")} className="shrink-0 inline-flex items-center justify-center gap-2 bg-[#D97706] text-white rounded-full px-6 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#92400E] active:scale-95 transition-all whitespace-nowrap">
                 <span className="material-symbols-outlined text-[16px]">payments</span>
                 Bayar Sekarang
               </button>
