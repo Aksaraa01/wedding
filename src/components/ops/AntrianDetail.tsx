@@ -555,6 +555,7 @@ export default function AntrianDetail({ id }: { id: string }) {
   const router = useRouter()
   const [employee, setEmployee] = useState<OpsEmployee | null>(null)
   const [detail, setDetail] = useState<QueueDetail | null>(null)
+  const [loadError, setLoadError] = useState(false)
   const [feedbackSubmissions, setFeedbackSubmissions] = useState<FeedbackSubmission[]>([])
   const [loading, setLoading] = useState(true)
   const [waBlastSchedule, setWaBlastSchedule] = useState<any>(null)
@@ -682,6 +683,9 @@ export default function AntrianDetail({ id }: { id: string }) {
   }, [router])
 
   const fetchAll = useCallback(async () => {
+    // Employee session loads async — never treat its absence as "not
+    // found". Stay in loading state until credentials exist.
+    if (!employee?.phone_number) return
     try {
       const res = await fetch(`/api/ops/queue/${id}`, {
         headers: {
@@ -689,8 +693,12 @@ export default function AntrianDetail({ id }: { id: string }) {
           "x-ops-role": employee?.role || "",
         },
       })
-      if (!res.ok) return
+      if (!res.ok) {
+        setLoadError(true)
+        return
+      }
       const data = await res.json()
+      setLoadError(false)
       setDetail(data)
       setWaBlastSchedule(data.wa_blast_schedule || null)
       const wpId = data.wedding_profile?.id
@@ -703,6 +711,7 @@ export default function AntrianDetail({ id }: { id: string }) {
       }
     } catch (e) {
       console.error("Failed to fetch detail", e)
+      setLoadError(true)
     } finally {
       setLoading(false)
     }
@@ -1748,7 +1757,7 @@ export default function AntrianDetail({ id }: { id: string }) {
 
   if (!employee) return null
 
-  if (loading) {
+  if (loading || (!detail && !loadError)) {
     return (
       <div className="h-screen flex items-center justify-center bg-background font-body-md">
         <div className="animate-spin material-symbols-outlined text-4xl text-primary">sync</div>
