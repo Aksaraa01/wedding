@@ -301,9 +301,9 @@ function DashboardInner({ id }: { id: string }) {
       title: "Tambah Galeri Tamu",
       lockLabel: "Paket Galeri Tamu",
       benefits: [
-        "QR acara + kumpulan foto candid penuh kenangan",
-        "Bingkai & filter otomatis di setiap foto tamu",
-        "Galeri online + unduhan massal dari dashboard",
+        "QR acara untuk akses kamera digital dan mengabadikan momen candid dari para tamu",
+        "Bingkai dan filter untuk setiap foto tamu",
+        "Galeri foto online dengan fitur unduh massal langsung dari dashboard",
       ],
       eligiblePackages: ["Galeri Tamu", "Buku Tamu Digital"],
       cta: "Pilih Paket",
