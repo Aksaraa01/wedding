@@ -64,8 +64,10 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
 
   // Tanpa-photo template: photo fields are hidden in editor + ops. The WP-bound
   // payload blanks them (with default-image injection suppressed) so even a
-  // stale photo mapping can't leak photos into the duplicate. DB values stay
-  // intact, so switching back to a with-photo template restores everything.
+  // stale photo mapping can't leak photos into the duplicate — and story
+  // images go as explicit null so sideloaded images are actively cleared.
+  // DB values stay intact, so switching back to a with-photo template
+  // restores everything.
   let noPhotoTemplate = false
   if (profile.selected_template_id) {
     const { data: tpl } = await supabaseAdmin
@@ -93,10 +95,17 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
     esc(coupleParts[1] || "")
   )
 
+  // Tanpa-photo story images are explicit null (not ""): the mu-plugin
+  // treats null image values as "clear the slot" so pre-switch sideloaded
+  // images get wiped from the duplicate. Empty string keeps the old
+  // skip-and-preserve-placeholders behavior. image_bg covers the card
+  // container backdrop (a stock-photo bg the manifest maps separately);
+  // the key is omitted entirely for with-photo templates.
   const stories = parseList(profile.stories).map((r: any) => ({
     title: esc(r?.title),
     description: esc(r?.description),
-    image_url: noPhotoTemplate ? "" : (r?.image_url || ""),
+    image_url: noPhotoTemplate ? null : (r?.image_url || ""),
+    ...(noPhotoTemplate ? { image_bg: null } : {}),
   }))
 
   const hasAddress = !!esc(giftAddr?.full_address)

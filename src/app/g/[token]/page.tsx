@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { ASSETS } from "@/lib/assets"
+import { frameStageFlorals, normalizeFrameSelection } from "@/lib/galeriFrames"
 import { loadIdentity } from "@/lib/gallery-client"
 
 type ResolveData = {
@@ -13,6 +14,7 @@ type ResolveData = {
   event?: {
     couple_name: string
     photo_url: string
+    frame?: string
     date_label: string
     start_label: string
     end_label: string
@@ -143,6 +145,12 @@ export default function GalleryGatePage({ params }: { params: Promise<{ token: s
   }
 
   const couple = data.event?.couple_name || ""
+  // Envelope chrome shows the active frame's art in its TL/BR slots
+  // (frame-2 Sage = botanicalTopLeft + flowerBottomRight). Unframed
+  // events keep the previous flowerTopLeft/flowerBottomRight look.
+  const gateFlorals = frameStageFlorals(normalizeFrameSelection(data.event?.frame))
+  const gateTL = gateFlorals.tl || gateFlorals.tr || ASSETS.galeriEnvelope.flowerTopLeft
+  const gateBR = gateFlorals.br || gateFlorals.bl || ASSETS.galeriEnvelope.flowerBottomRight
 
   const openEnvelope = () => {
     if (opened) return
@@ -168,8 +176,8 @@ export default function GalleryGatePage({ params }: { params: Promise<{ token: s
 
       <div className="relative w-full overflow-hidden flex flex-col items-center min-h-[720px] p-6 transition-all duration-700 rounded-[2.5rem] shadow-2xl" style={{ backgroundColor: "#6b2b2d" }}>
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/25 pointer-events-none" />
-        <img src={ASSETS.galeriEnvelope.flowerTopLeft} alt="" aria-hidden className="absolute -top-6 -left-6 w-40 h-40 object-contain pointer-events-none z-10 select-none" style={{ transform: "rotate(-12deg)", opacity: 0.95 }} />
-        <img src={ASSETS.galeriEnvelope.flowerBottomRight} alt="" aria-hidden className="absolute -bottom-6 -right-6 w-44 h-44 object-contain pointer-events-none z-10 select-none" style={{ transform: "rotate(6deg)", opacity: 0.95 }} />
+        <img src={gateTL} alt="" aria-hidden className="absolute -top-6 -left-6 w-40 h-40 object-contain pointer-events-none z-10 select-none" style={{ transform: "rotate(-12deg)", opacity: 0.95 }} />
+        <img src={gateBR} alt="" aria-hidden className="absolute -bottom-6 -right-6 w-44 h-44 object-contain pointer-events-none z-10 select-none" style={{ transform: "rotate(6deg)", opacity: 0.95 }} />
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-40">
           {particles.map((p, i) => (
             <div

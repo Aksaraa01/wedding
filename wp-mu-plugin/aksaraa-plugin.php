@@ -1441,8 +1441,21 @@ class AksaraaPlugin
                 $slot = $mapping[$i] ?? null;
                 if (!$slot || !is_array($slot)) continue;
                 foreach ($slot as $sub_field => $sub_mapping) {
-                    if (!isset($item[$sub_field])) continue;
-                    if ($item[$sub_field] === null || $item[$sub_field] === '') continue;
+                    if (!array_key_exists($sub_field, $item)) continue;
+                    // Explicit null = system blank (e.g. tanpa-photo): clear the
+                    // slot instead of preserving whatever is there. Empty
+                    // string keeps the old skip-and-preserve-placeholders rule.
+                    if ($item[$sub_field] === null) {
+                        if (is_array($sub_mapping) && isset($sub_mapping['elementId']) && self::is_image_settings_path($sub_mapping['settings'] ?? null)) {
+                            $result[] = [
+                                'elementId' => $sub_mapping['elementId'],
+                                'settings' => is_array($sub_mapping['settings']) ? $sub_mapping['settings'] : [],
+                                'value' => null,
+                            ];
+                        }
+                        continue;
+                    }
+                    if ($item[$sub_field] === '') continue;
                     if (is_array($sub_mapping) && isset($sub_mapping['elementId'])) {
                         $result[] = [
                             'elementId' => $sub_mapping['elementId'],
@@ -1454,6 +1467,19 @@ class AksaraaPlugin
             }
         }
         return $result;
+    }
+
+    // True when a manifest settings path addresses an Elementor image URL
+    // (image/background widgets resolve via attachment id, not bare URL).
+    private static function is_image_settings_path($settingsPath): bool
+    {
+        if (!is_array($settingsPath)) return false;
+        $sp = array_values($settingsPath);
+        $n = count($sp);
+        if ($n === 0) return false;
+        $lastKey = $sp[$n - 1];
+        $parentKey = $sp[0] ?? '';
+        return $lastKey === 'url' && in_array($parentKey, ['background_image', 'background_overlay_image', 'image'], true);
     }
 
     private static function set_element_settings(array &$elements, string $elementId, array $settingsPath, $value): bool
@@ -1500,6 +1526,22 @@ class AksaraaPlugin
 
                 $isImageUrl = $lastKey === 'url' && in_array($parentKey, ['background_image', 'background_overlay_image', 'image'], true);
                 if ($isImageUrl) {
+                    // Explicit null = system blank (tanpa-photo): clear the
+                    // slot AND its responsive variants instead of sideloading.
+                    if ($value === null) {
+                        $target['url'] = '';
+                        $target['id'] = 0;
+                        if (count($settingsPath) === 2) {
+                            foreach (['_tablet', '_mobile'] as $suffix) {
+                                $variantKey = $parentKey . $suffix;
+                                if (isset($el['settings'][$variantKey]) && is_array($el['settings'][$variantKey])) {
+                                    $el['settings'][$variantKey]['url'] = '';
+                                    $el['settings'][$variantKey]['id'] = 0;
+                                }
+                            }
+                        }
+                        return true;
+                    }
                     // Sideload the external image into the WP media library so Elementor
                     // can resolve it via a real attachment id (image/background widgets).
                     // A field may provide an array (2 slides); a single image uses the first.
@@ -1852,6 +1894,13 @@ class AksaraaPlugin
                     ? $cid
                     : (self::find_descendant_widget_id($card, 'image') ?: $baseImg['elementId']);
                 $row['image_url'] = ['elementId' => $imgId, 'settings' => is_array($baseImg['settings'] ?? null) ? $baseImg['settings'] : []];
+            }
+            // Optional card-container background (e.g. a stock-photo backdrop
+            // that tanpa-photo templates must clear via explicit null). The
+            // container IS the card, so it trivially follows the card id.
+            $baseBg = $slot['image_bg'] ?? null;
+            if (is_array($baseBg) && !empty($baseBg['elementId'])) {
+                $row['image_bg'] = ['elementId' => $cid, 'settings' => is_array($baseBg['settings'] ?? null) ? $baseBg['settings'] : []];
             }
             $newSlots[] = $row;
         }

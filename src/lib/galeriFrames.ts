@@ -138,6 +138,17 @@ const PALETTES: Record<GaleriFrameId, Palette> = {
   },
 }
 
+export type StageFlorals = { tl: string | null; tr: string | null; bl: string | null; br: string | null }
+
+// DOM chrome (live preview, envelope gate) must show the SAME corners the
+// canvas bake draws — read them from the palette, never hardcode per frame.
+// "none"/unknown falls back to frame-1 so unframed chrome keeps its look.
+export function frameStageFlorals(frame: unknown): StageFlorals {
+  const sel = normalizeFrameSelection(frame)
+  const pal = PALETTES[sel === "none" ? DEFAULT_FRAME : sel]
+  return { tl: pal.floralTL, tr: pal.floralTR, bl: pal.floralBL, br: pal.floralBR }
+}
+
 export type FrameText = {
   couple: string
   date: string

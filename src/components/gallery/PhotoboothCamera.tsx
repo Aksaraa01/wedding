@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { compressImage } from "@/lib/imageCompress"
-import { applyGaleriFrame, normalizeFrameSelection } from "@/lib/galeriFrames"
+import { applyGaleriFrame, frameStageFlorals, normalizeFrameSelection } from "@/lib/galeriFrames"
 import { newCaptureId } from "@/lib/gallery-client"
 import { ASSETS } from "@/lib/assets"
 
@@ -51,6 +51,9 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
   const streamRef = useRef<MediaStream | null>(null)
 
   const [used, setUsed] = useState(initialUsed)
+  // Preview chrome shows the SAME corners the canvas bake draws for the
+  // active frame (frame-2 Sage = TL+BR, not the frame-1 TR+BL hardcodes).
+  const stageFlorals = frameStageFlorals(normalizeFrameSelection(frameId))
   const [facing, setFacing] = useState<"environment" | "user">("environment")
   const [flash, setFlash] = useState(false)
   const [torchOn, setTorchOn] = useState(false)
@@ -318,7 +321,12 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
 
           <div className="flex flex-col w-full pb-6 max-w-lg mx-auto">
             <div className="relative w-full rounded-[1rem] px-5 pt-7 pb-6 flex flex-col items-center shadow-xl overflow-hidden" style={{ backgroundColor: "#6b2b2d", color: "#fbf9f4" }}>
-              <img src={ASSETS.galeriEnvelope.previewFloralTopRight} alt="" aria-hidden className="absolute -top-12 -right-8 w-44 object-contain pointer-events-none z-0 select-none" style={{ transform: "rotate(12deg)", opacity: 0.8 }} />
+              {stageFlorals.tr && (
+                <img src={stageFlorals.tr} alt="" aria-hidden className="absolute -top-12 -right-8 w-44 object-contain pointer-events-none z-0 select-none" style={{ transform: "rotate(12deg)", opacity: 0.8 }} />
+              )}
+              {stageFlorals.tl && (
+                <img src={stageFlorals.tl} alt="" aria-hidden className="absolute -top-12 -left-8 w-44 object-contain pointer-events-none z-0 select-none" style={{ transform: "rotate(-12deg)", opacity: 0.8 }} />
+              )}
               <div className="absolute -top-10 -right-10 w-36 h-36 rounded-full blur-2xl pointer-events-none" style={{ backgroundColor: "rgba(107, 43, 45, 0.4)" }} />
               <div className="absolute -bottom-12 -left-12 w-40 h-40 rounded-full blur-2xl pointer-events-none" style={{ backgroundColor: "rgba(145,73,74,0.15)" }} />
 
@@ -402,7 +410,12 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
                 </button>
               </div>
 
-              <img src={ASSETS.galeriEnvelope.previewFloralBottomLeft} alt="" aria-hidden className="absolute -bottom-10 -left-6 w-36 object-contain pointer-events-none z-0 select-none" style={{ transform: "rotate(-6deg)", opacity: 0.75 }} />
+              {stageFlorals.bl && (
+                <img src={stageFlorals.bl} alt="" aria-hidden className="absolute -bottom-10 -left-6 w-36 object-contain pointer-events-none z-0 select-none" style={{ transform: "rotate(-6deg)", opacity: 0.75 }} />
+              )}
+              {stageFlorals.br && (
+                <img src={stageFlorals.br} alt="" aria-hidden className="absolute -bottom-10 -right-6 w-36 object-contain pointer-events-none z-0 select-none" style={{ transform: "rotate(6deg)", opacity: 0.75 }} />
+              )}
             </div>
           </div>
         </div>

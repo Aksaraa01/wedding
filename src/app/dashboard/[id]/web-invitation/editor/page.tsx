@@ -1534,8 +1534,8 @@ function EditorInner({ id }: { id: string }) {
                 <span>PILIH TEMA</span>
               </button>
               {template?.name && (
-                <span className="font-headline-md text-[15px] text-primary truncate max-w-[160px]" title={template.name}>
-                  {template.name.length > 30 ? `${template.name.slice(0, 30)}…` : template.name}
+                <span className="font-headline-md text-[12px] leading-tight text-primary text-center px-2">
+                  {template.name}
                 </span>
               )}
               </span>
