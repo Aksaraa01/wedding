@@ -14,3 +14,11 @@ export function formatDate(dateStr: string): string {
 export function formatDateUpper(dateStr: string): string {
   return formatDate(dateStr).toUpperCase()
 }
+
+// Short Indonesian date without weekday: "2026-10-14" -> "14 Oktober 2026".
+// Used for article bylines and cards.
+export function formatIdDate(iso: string): string {
+  const m = (iso || "").match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (!m) return iso
+  return `${parseInt(m[3], 10)} ${MONTHS[parseInt(m[2], 10) - 1] || ""} ${m[1]}`
+}
