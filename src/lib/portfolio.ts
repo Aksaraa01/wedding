@@ -68,6 +68,7 @@ export async function getPortfolioEntries(): Promise<PortfolioEntry[]> {
       const bride = (p.bride_name || "").trim()
       const sessions = Array.isArray(p.sessions) ? p.sessions : []
       const packageType = p.package_type || "signature"
+      const packageLabelType = packageType === "cetak_undangan_bonus" ? "signature" : packageType === "bonus_full_custom" ? "elite" : packageType
       const sel = deriveSelections(packageType, p.undangan_fisik === true)
       const order: (keyof typeof sel)[] = [
         "premium_web", "qr_code_book", "galeri_foto_tamu", "wish_wall",
@@ -83,7 +84,7 @@ export async function getPortfolioEntries(): Promise<PortfolioEntry[]> {
         illustration: typeof p.couple_illustration_url === "string" ? p.couple_illustration_url : null,
         templateName: (p.selected_template_id && tplNames.get(p.selected_template_id)) || null,
         templatePreview: (p.selected_template_id && tplPreviews.get(p.selected_template_id)) || null,
-        packageLabel: PACKAGE_LABELS[packageType] || packageType,
+        packageLabel: PACKAGE_LABELS[packageLabelType] || packageLabelType,
         features: order.filter((k) => (sel as any)[k]).map((k) => FEATURE_LABELS[k] || k),
         featured: p.portfolio_featured === true,
       } as PortfolioEntry & { featured: boolean }
