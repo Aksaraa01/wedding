@@ -1971,6 +1971,18 @@ export default function AntrianDetail({ id }: { id: string }) {
                         ) : (
                           <p className="text-xs text-on-surface-variant">Aktifkan untuk konfigurasi.</p>
                         )}
+                        {(currentWp as any)?.additional_cost > 0 && (
+                          <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 flex items-center justify-between">
+                            <span className="text-xs font-semibold text-amber-800">Sisa bayar selisih {formatCurrency((currentWp as any).additional_cost)} • {(currentWp as any).additional_payment_status}</span>
+                            <div className="flex gap-1.5">
+                              {(currentWp as any).additional_payment_status === "UNPAID" ? (
+                                <button onClick={async () => { await fetch(`/api/ops/queue/${detail!.queue.id}/package/delta-pay`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "pay" }) }); fetchAll() }} className="px-2.5 py-1 rounded bg-emerald-600 text-white text-[11px] font-bold">Tandai Lunas</button>
+                              ) : (
+                                <button onClick={async () => { await fetch(`/api/ops/queue/${detail!.queue.id}/package/delta-pay`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "revert" }) }); fetchAll() }} className="px-2.5 py-1 rounded bg-amber-600 text-white text-[11px] font-bold">Batalkan Lunas</button>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                       ) : (
                       <div className="border border-outline-variant/40 p-3">
@@ -3126,7 +3138,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                                 <div className="flex-1">
                                   <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Nama Acara</label>
                                   <input
-                                    className="input-editorial font-label-md text-[14px] font-bold uppercase tracking-wider w-full"
+                                    className="input-editorial font-label-md text-[14px] font-bold w-full"
                                     style={session.name ? { color: "#8D4D39" } : undefined}
                                     placeholder={i === 0 ? "Contoh: Akad Nikah / Pemberkatan" : "Contoh: Resepsi"}
                                     value={session.name || ""}

@@ -1368,6 +1368,17 @@ function EditorInner({ id }: { id: string }) {
 
   // A new frame identity starts unready with no stale error.
   useEffect(() => { setIframeError("") }, [previewFrameKey])
+  // Fallback: if the iframe never fires onLoad (e.g. preview blocked or
+  // very slow), lift the skeleton after 5s so the editor is not stuck.
+  useEffect(() => {
+    if (previewFrame.kind !== "iframe" || !previewFrameKey) return
+    const t = setTimeout(() => {
+      if (iframeKeyRef.current === previewFrameKey && readyKey !== previewFrameKey) {
+        setReadyKey(previewFrameKey)
+      }
+    }, 5000)
+    return () => clearTimeout(t)
+  }, [previewFrameKey, previewFrame.kind, readyKey])
 
   const renderPreviewBody = () => {
     // In-house templates preview through the per-couple preview route inside a
@@ -1984,7 +1995,7 @@ function EditorInner({ id }: { id: string }) {
                         <div className="flex-1">
                           <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Nama Acara</label>
                           <input
-                            className="input-editorial font-label-md text-[14px] font-bold uppercase tracking-wider w-full"
+                            className="input-editorial font-label-md text-[14px] font-bold w-full"
                             style={session.name ? { color: "#8D4D39" } : undefined}
                             placeholder={i === 0 ? "Contoh: Akad Nikah / Pemberkatan" : "Contoh: Resepsi"}
                             value={session.name}
