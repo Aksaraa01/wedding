@@ -42,13 +42,13 @@ export async function sanitizeAddonsForPackage(
     }
   }
 
-  // Buku Tamu Digital bundles its gallery via the matrix — slider config
-  // never applies here (self-heals legacy rows back to null).
+  // Buku Tamu Digital bundles gallery via matrix, but additive top-ups
+  // via galeri_tiers are allowed (quota = base + add-on).
   if (isDgb) {
     return {
       waBlastTier: explicit.waBlastTier ?? stored.waBlastTier,
       expressService: explicit.expressService ?? stored.expressService,
-      galeri: null,
+      galeri: explicit.galeri !== undefined ? explicit.galeri : stored.galeri,
     }
   }
 

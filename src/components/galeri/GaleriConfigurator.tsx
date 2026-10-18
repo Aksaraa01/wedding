@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, type ReactNode } from "react"
 import {
   GALERI_GUEST_MAX,
   GALERI_GUEST_MIN,
@@ -22,6 +22,7 @@ type Props = {
   initialPhotos?: number
   initialGuests?: number
   onChange: (sel: GaleriSelection) => void
+  action?: ReactNode
 }
 
 const SERIF: React.CSSProperties = { fontFamily: "'Playfair Display', serif" }
@@ -34,7 +35,7 @@ function formatRp(n: number): string {
 // Shared Galeri Tamu slider configurator (mock: Paket Galeri Tamu
 // Interaktif). Used by the standalone GT tab and the Undangan add-on.
 // Tier + price always derive from the same matrix as the server.
-export default function GaleriConfigurator({ initialPhotos = 5, initialGuests = 100, onChange }: Props) {
+export default function GaleriConfigurator({ initialPhotos = 5, initialGuests = 100, onChange, action }: Props) {
   // Slider ranges derive from the DB matrix once loaded (union of bounds);
   // the GALERI_* constants are only the pre-load fallback.
   const [tierRows, setTierRows] = useState<GaleriTierRow[] | null>(null)
@@ -120,7 +121,7 @@ export default function GaleriConfigurator({ initialPhotos = 5, initialGuests = 
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+      <div className="mt-5 flex flex-col gap-5">
         <div className="flex flex-col gap-5">
           <div className="rounded-[1.5rem] bg-[#f5f3ee] border border-outline-variant/20 p-5">
             <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -187,6 +188,23 @@ export default function GaleriConfigurator({ initialPhotos = 5, initialGuests = 
           )}
         </div>
 
+        {/* Price + action — sits between the sliders and the features panel,
+            one compact row on every breakpoint. */}
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <div
+            className="flex-1 min-w-0 h-[52px] rounded-full text-white flex items-center justify-between gap-2 shadow-md px-4 sm:px-5"
+            style={{ backgroundColor: "#4f1519" }}
+          >
+            <span className="text-[11px] sm:text-[12px] font-normal text-white/85 truncate">
+              {!tierRows ? "Memuat harga..." : matched && matched.price > 0 ? matched.tier : "Kombinasi belum tersedia"}
+            </span>
+            <span className="text-[20px] sm:text-[26px] font-semibold tracking-tight leading-none whitespace-nowrap shrink-0" style={SERIF}>
+              {tierRows ? (matched && matched.price > 0 ? formatRp(matched.price) : "—") : "•••"}
+            </span>
+          </div>
+          {action}
+        </div>
+
         <div className="rounded-[1.5rem] bg-[#f5f3ee] border border-outline-variant/20 p-5 flex flex-col">
           <p className="text-[12px] uppercase tracking-[0.15em] font-semibold text-[#1b1c19] flex items-center gap-2 mb-3">
             <span className="material-symbols-outlined text-[18px]">inventory_2</span>
@@ -232,7 +250,7 @@ export default function GaleriConfigurator({ initialPhotos = 5, initialGuests = 
             </div>
             <div className="bg-white rounded-[1.25rem] p-4 flex items-start gap-3 shadow-sm">
               <div className="w-11 h-11 rounded-full bg-[#ffddba] flex items-center justify-center shrink-0">
-                <span className="material-symbols-outlined text-[20px] text-[#5f401a]">menu_book</span>
+                <span className="material-symbols-outlined text-[20px]" style={{ color: "#5f401a" }}>menu_book</span>
               </div>
               <div>
                 <p className="font-semibold text-[15px] text-[#1b1c19]">Buku Kenangan PDF</p>
@@ -240,16 +258,6 @@ export default function GaleriConfigurator({ initialPhotos = 5, initialGuests = 
                   Kompilasi pesan ucapan dan foto dalam album resolusi tinggi siap cetak.
                 </p>
               </div>
-            </div>
-          </div>
-          <div className="mt-4 pt-4 border-t border-outline-variant/20">
-            <div className="min-h-16 rounded-full text-white flex flex-col items-center justify-center gap-0.5 shadow-md py-2 px-4" style={{ backgroundColor: "#4f1519" }}>
-              <span className="text-[28px] md:text-[32px] font-semibold tracking-tight leading-none" style={SERIF}>
-                {tierRows ? (matched && matched.price > 0 ? formatRp(matched.price) : "—") : "•••"}
-              </span>
-              <span className="text-[11px] font-normal text-white/80">
-                {!tierRows ? "Memuat harga..." : matched && matched.price > 0 ? matched.tier : "Kombinasi belum tersedia"}
-              </span>
             </div>
           </div>
         </div>

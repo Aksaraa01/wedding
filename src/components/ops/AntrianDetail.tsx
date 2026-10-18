@@ -106,7 +106,7 @@ type FeedbackSubmission = {
 
 type StatusLogEntry = {
   id: string
-  kind: "status" | "package" | "invitation" | "payment" | "voucher" | "publish"
+  kind: "status" | "package" | "invitation" | "payment" | "voucher" | "publish" | "addon"
   previous_status: string | null
   new_status: string | null
   previous_package: string | null
@@ -604,6 +604,13 @@ export default function AntrianDetail({ id }: { id: string }) {
   // Add-on editor (main package stays in the header dropdown; this panel
   // manages WA tier + Express + Galeri config with a live DB-priced estimate).
   const [addonOpen, setAddonOpen] = useState(false)
+  // Reviewing a couple-staged delta top-up: when true the panel prefills the
+  // galeri sliders from the staged request instead of the stored add-on.
+  const [reviewTopup, setReviewTopup] = useState(false)
+  // The staged-delta banner is informational only (no pay step): clicking
+  // "Tinjau" dismisses it and opens the pre-filled add-on panel. Re-arms when
+  // the staged amount changes.
+  const [deltaDismissed, setDeltaDismissed] = useState(false)
   const [editWaTier, setEditWaTier] = useState(0)
   const [editExpress, setEditExpress] = useState(false)
   const [editGaleriOn, setEditGaleriOn] = useState(false)
@@ -875,14 +882,29 @@ export default function AntrianDetail({ id }: { id: string }) {
     if (!addonOpen || !currentWp) return
     setEditWaTier(currentWp.wa_blast_tier || 0)
     setEditExpress(!!currentWp.express_service)
-    // Legacy GT mains have no add-on toggle: the slider IS the product, so
-    // the editor is always on for them (photo/guest input mandatory).
-    setEditGaleriOn(!!currentWp.galeri_addon || getPackageCategory(currentWp.package_type) === "Galeri Tamu")
-    setEditGaleriPhotos(currentWp.galeri_photos_per_guest || 5)
-    setEditGaleriGuests(currentWp.galeri_guest_count || 100)
+    const stagedPhotos = (currentWp as any).galeri_topup_photos_per_guest as number | null
+    if (reviewTopup && stagedPhotos) {
+      // Show exactly what the couple requested (the staged top-up), so the
+      // operator reviews the real delta before marking it lunas.
+      setEditGaleriOn(true)
+      setEditGaleriPhotos(stagedPhotos)
+      setEditGaleriGuests((currentWp as any).galeri_topup_guest_count || 100)
+    } else {
+      // Legacy GT mains have no add-on toggle: the slider IS the product, so
+      // the editor is always on for them (photo/guest input mandatory).
+      setEditGaleriOn(!!currentWp.galeri_addon || getPackageCategory(currentWp.package_type) === "Galeri Tamu")
+      setEditGaleriPhotos(currentWp.galeri_photos_per_guest || 5)
+      setEditGaleriGuests(currentWp.galeri_guest_count || 100)
+    }
     setAddonMsg(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addonOpen])
+  }, [addonOpen, reviewTopup])
+
+  // Re-arm the dismissed banner whenever the staged delta amount changes.
+  const stagedDeltaCost = Number((currentWp as any)?.additional_cost || 0)
+  useEffect(() => {
+    setDeltaDismissed(false)
+  }, [stagedDeltaCost])
 
   // Tier resolves by matching the sliders against the DB bounds (names,
   // bounds, prices all live in galeri_tiers). Slider input limits derive
@@ -921,10 +943,9 @@ export default function AntrianDetail({ id }: { id: string }) {
   // - Undangan Digital: WA (where included) + Express + Galeri slider.
   const mainPkgCat = currentWp ? getPackageCategory(currentWp.package_type) : ""
   const isGtMain = mainPkgCat === "Galeri Tamu"
-  const isDgbMain = mainPkgCat === "Buku Tamu Digital"
   const waAllowed = !!currentWp && !!PACKAGE_FEATURES[currentWp.package_type]?.includes("wa_blast")
   const expressAllowed = !isGtMain
-  const galeriAllowed = !!currentWp && !isDgbMain
+  const galeriAllowed = !!currentWp
 
   // Header estimate goes live: panel draft (marked unstored) wins, then an
   // in-flight package change, else the stored total.
@@ -955,6 +976,18 @@ export default function AntrianDetail({ id }: { id: string }) {
           panelDraftActive ? addonTierPrice : (currentWp.galeri_price || 0)
         )
       : null
+
+  // Manual toggle always edits the stored add-ons; "Tinjau" opts into the
+  // staged top-up prefill instead.
+  const toggleAddonPanel = () => {
+    setReviewTopup(false)
+    setAddonOpen((v) => !v)
+  }
+  const reviewStagedTopup = () => {
+    setReviewTopup(true)
+    setAddonOpen(true)
+    setDeltaDismissed(true)
+  }
 
   const saveAddons = async () => {
     if (employee?.role === "creative") {
@@ -1854,7 +1887,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                 <div className="w-full">
                   <button
                     type="button"
-                    onClick={() => setAddonOpen((v) => !v)}
+                    onClick={toggleAddonPanel}
                     className="w-full flex items-center gap-2 py-1 text-left"
                     aria-expanded={addonOpen}
                   >
@@ -1881,6 +1914,21 @@ export default function AntrianDetail({ id }: { id: string }) {
                     </span>
                     <span className={`material-symbols-outlined text-[18px] transition-transform shrink-0 ${addonOpen ? "rotate-180" : ""}`}>expand_more</span>
                   </button>
+                  {/* Couple-staged top-up request: informational only. Ops
+                      reviews it via "Tinjau" (opens the pre-filled add-on
+                      panel), then Simpan applies it — no separate pay step. */}
+                  {currentWp && stagedDeltaCost > 0 && !deltaDismissed && (
+                    <div className="mt-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:justify-between">
+                      <span className="text-xs font-semibold text-amber-800">
+                        Permintaan tambah kuota: {(currentWp as any).galeri_topup_photos_per_guest ? `${(currentWp as any).galeri_topup_photos_per_guest} foto × ${(currentWp as any).galeri_topup_guest_count} tamu` : "—"}
+                        {(currentWp as any).additional_tier ? ` • tier ${(currentWp as any).additional_tier}` : ""}
+                        {stagedDeltaCost > 0 ? ` • ${formatCurrency(stagedDeltaCost)}` : ""}
+                      </span>
+                      <div className="flex gap-1.5 shrink-0">
+                        <button onClick={reviewStagedTopup} className="px-2.5 py-1 rounded bg-white border border-amber-400 text-amber-800 text-[11px] font-bold uppercase tracking-wider">Tinjau</button>
+                      </div>
+                    </div>
+                  )}
                   {addonOpen && currentWp && (
                     <div className="mt-2 border border-outline-variant/60 bg-white p-3 md:p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
                       {waAllowed && (
@@ -1970,18 +2018,6 @@ export default function AntrianDetail({ id }: { id: string }) {
                           </div>
                         ) : (
                           <p className="text-xs text-on-surface-variant">Aktifkan untuk konfigurasi.</p>
-                        )}
-                        {(currentWp as any)?.additional_cost > 0 && (
-                          <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 flex items-center justify-between">
-                            <span className="text-xs font-semibold text-amber-800">Sisa bayar selisih {formatCurrency((currentWp as any).additional_cost)} • {(currentWp as any).additional_payment_status}</span>
-                            <div className="flex gap-1.5">
-                              {(currentWp as any).additional_payment_status === "UNPAID" ? (
-                                <button onClick={async () => { await fetch(`/api/ops/queue/${detail!.queue.id}/package/delta-pay`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "pay" }) }); fetchAll() }} className="px-2.5 py-1 rounded bg-emerald-600 text-white text-[11px] font-bold">Tandai Lunas</button>
-                              ) : (
-                                <button onClick={async () => { await fetch(`/api/ops/queue/${detail!.queue.id}/package/delta-pay`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "revert" }) }); fetchAll() }} className="px-2.5 py-1 rounded bg-amber-600 text-white text-[11px] font-bold">Batalkan Lunas</button>
-                              )}
-                            </div>
-                          </div>
                         )}
                       </div>
                       ) : (
@@ -2558,7 +2594,13 @@ export default function AntrianDetail({ id }: { id: string }) {
                         <td className="px-4 py-3 whitespace-nowrap text-on-surface-variant">{formatDateTime(log.created_at)}</td>
                         <td className="px-4 py-3 font-semibold">
                           {log.kind === "package" ? (
-                            <>Paket: {log.previous_package ? PACKAGE_LABELS[log.previous_package] ?? log.previous_package : "—"}{" → "}{log.new_package ? PACKAGE_LABELS[log.new_package] ?? log.new_package : "—"}</>
+                            log.previous_package === log.new_package && log.details ? (
+                              <>Add-on: <span className="font-normal">{log.details}</span></>
+                            ) : (
+                              <>Paket: {log.previous_package ? PACKAGE_LABELS[log.previous_package] ?? log.previous_package : "—"}{" → "}{log.new_package ? PACKAGE_LABELS[log.new_package] ?? log.new_package : "—"}</>
+                            )
+                          ) : log.kind === "addon" ? (
+                            <>Add-on: <span className="font-normal">{log.details || "diubah"}</span></>
                           ) : log.kind === "invitation" ? (
                             <>Data Undangan: <span className="font-normal">{log.details || "diubah"}</span></>
                           ) : log.kind === "payment" ? (

@@ -68,6 +68,13 @@ export const PACKAGE_CODES = [
   "gt",
 ] as const
 
+export const DGB_BASE_QUOTA: Record<string, { photos: number; guests: number }> = {
+  dgb_sistem: { photos: 2, guests: 200 },
+  dgb_pro: { photos: 2, guests: 200 },
+  dgb_premium: { photos: 3, guests: 200 },
+  dgb_prestige: { photos: 4, guests: 200 },
+}
+
 export const PACKAGE_CATEGORY: Record<string, "undangan" | "dgbook" | "galeri"> = {
   essential: "undangan",
   signature: "undangan",
@@ -86,6 +93,18 @@ export function getPackageCategory(packageType: string): "Undangan Digital" | "B
   const cat = PACKAGE_CATEGORY[packageType]
   if (cat === "galeri") return "Galeri Tamu"
   return cat === "undangan" ? "Undangan Digital" : "Buku Tamu Digital"
+}
+
+// Group-qualified label for UI + WhatsApp, e.g. "Buku Tamu Digital: Sistem".
+// A bare tier name must never appear without its product family. Codes whose
+// label already equals their group (gt) collapse to the single name.
+export function packageDisplayName(code: string | null | undefined): string {
+  const c = (code || "").trim()
+  if (!c) return "Paket"
+  const label = PACKAGE_LABELS[c] || c
+  const cat = PACKAGE_CATEGORY[c] ? getPackageCategory(c) : ""
+  if (!cat || cat === label) return label
+  return `${cat}: ${label}`
 }
 
 export type PackageCode = (typeof PACKAGE_CODES)[number]

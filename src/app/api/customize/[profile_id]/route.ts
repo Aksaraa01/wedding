@@ -2,9 +2,10 @@ import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { calcTotalWithVoucherBook, PACKAGE_CODES } from "@/lib/packages"
 import { getPriceBook } from "@/lib/priceBook"
-import { normalizeGaleriConfig } from "@/lib/gallery"
+import { normalizeGaleriConfig, getGaleriTiers } from "@/lib/gallery"
 import { sanitizeAddonsForPackage } from "@/lib/packageRules"
 import { getSelections } from "@/lib/featureGates"
+import { computeGaleriDelta } from "@/lib/galeriDelta"
 
 const VOUCHER_ERRORS: Record<string, string> = {
   invalid: "Kode voucher tidak valid.",
@@ -29,7 +30,7 @@ export async function PUT(
 
     const { data: existing } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("payment_status, package_type, wa_blast_tier, express_service, undangan_fisik, voucher_code, voucher_discount, galeri_addon, galeri_photos_per_guest, galeri_guest_count, galeri_tier, galeri_price")
+      .select("payment_status, package_type, wa_blast_tier, express_service, undangan_fisik, voucher_code, voucher_discount, total_project_cost, galeri_addon, galeri_photos_per_guest, galeri_guest_count, galeri_tier, galeri_price, galeri_topup_photos_per_guest, galeri_topup_guest_count, additional_tier, additional_cost, additional_payment_status, galeri_prev_photos, galeri_prev_guests, galeri_prev_tier, galeri_prev_price")
       .eq("id", profile_id)
       .single()
 
@@ -52,8 +53,84 @@ export async function PUT(
         (wa_blast_tier ?? 0) !== (existing.wa_blast_tier ?? 0) ||
         !!express_service !== !!existing.express_service ||
         !!undangan_fisik !== !!existing.undangan_fisik ||
-        (galeriTouched && galeri?.price !== (existing.galeri_price || 0))
+        (galeriTouched && (galeri?.price ?? 0) !== (existing.galeri_price || 0))
       if (changed) {
+        // Paid galeri top-up (undangan add-on, gt, or dgb incremental) is
+        // staged as a delta instead of hard 403. Single-record replace:
+        // new tier becomes the staged topup; existing tier stays as base
+        // until Ops marks the delta PAID.
+        const packageChanging = !!(package_type && package_type !== existing.package_type)
+        const waChanging = (wa_blast_tier ?? 0) !== (existing.wa_blast_tier ?? 0)
+        const expressChanging = !!express_service !== !!existing.express_service
+        const fisikChanging = !!undangan_fisik !== !!existing.undangan_fisik
+        const isGaleriOnlyDelta =
+          !packageChanging && !waChanging && !expressChanging && !fisikChanging &&
+          galeriTouched && galeri !== null && (galeri?.price ?? 0) > 0 &&
+          ((existing.galeri_addon && (galeri?.price !== (existing.galeri_price || 0))) ||
+            (existing.package_type === "gt" && galeri !== null) ||
+            ((existing.package_type || "").startsWith("dgb_") && galeri !== null))
+        if (isGaleriOnlyDelta) {
+          try {
+            const book = await getPriceBook()
+            const tierRows = await getGaleriTiers()
+            const voucherDiscount = existing.voucher_discount || 0
+            const effPackageForDelta = package_type || existing.package_type || "signature"
+            const stored = existing.galeri_addon
+              ? { photos: existing.galeri_photos_per_guest || 0, guests: existing.galeri_guest_count || 0 }
+              : null
+            const next = galeri ? { photos: galeri.photos_per_guest, guests: galeri.guest_count } : null
+            const deltaInfo = computeGaleriDelta(tierRows, {
+              book,
+              basePackage: effPackageForDelta,
+              waTier: existing.wa_blast_tier ?? 0,
+              express: !!existing.express_service,
+              voucherDiscount,
+              stored,
+              next,
+            })
+            const delta = deltaInfo.delta
+            // Stage delta. Snapshot `prev` from the CURRENT effective values
+            // (the main galeri_* columns are only ever written by a paid
+            // delta), so revert always walks back exactly one step. Re-editing
+            // a still-UNPAID delta keeps prev identical (idempotent).
+            const stageUpdate: Record<string, unknown> = {
+              galeri_topup_photos_per_guest: galeri!.photos_per_guest,
+              galeri_topup_guest_count: galeri!.guest_count,
+              additional_tier: deltaInfo.newTier,
+              additional_cost: delta,
+              additional_payment_status: "UNPAID" as const,
+              galeri_prev_photos: existing.galeri_photos_per_guest ?? null,
+              galeri_prev_guests: existing.galeri_guest_count ?? null,
+              galeri_prev_tier: existing.galeri_tier ?? null,
+              galeri_prev_price: existing.galeri_price || 0,
+            }
+            await supabaseAdmin.from("wedding_profiles").update(stageUpdate as never).eq("id", profile_id)
+            const { data: stagedQueue } = await supabaseAdmin
+              .from("ops_queue")
+              .select("id")
+              .eq("wedding_profile_id", profile_id)
+              .maybeSingle()
+            if (stagedQueue?.id) {
+              await supabaseAdmin.from("ops_queue_status_log").insert({
+                ops_queue_id: stagedQueue.id,
+                kind: "galeri_topup",
+                details: `selisih distage ${delta} → tier ${deltaInfo.newTier || "-"}`,
+                changed_by_employee_id: null,
+              } as never)
+            }
+            return NextResponse.json({
+              success: true,
+              requires_deltapay: true,
+              delta,
+              newTotal: deltaInfo.newTotal,
+              storedTotal: deltaInfo.storedTotal,
+              newTier: deltaInfo.newTier,
+              storedTier: deltaInfo.storedTier,
+            })
+          } catch (e) {
+            return NextResponse.json({ error: (e as Error).message || "Gagal menghitung selisih" }, { status: 400 })
+          }
+        }
         return NextResponse.json({ error: "Perubahan paket/add-on setelah pembayaran hubungi konsultan" }, { status: 403 })
       }
     }

@@ -5,7 +5,7 @@
 
 export const AKSARAA_WA_NUMBER = "6281161613071"
 
-import { getPackageCategory, PACKAGE_CATEGORY, PACKAGE_LABELS } from "@/lib/packages"
+import { packageDisplayName } from "@/lib/packages"
 
 export function waLink(text: string): string {
   return `https://wa.me/${AKSARAA_WA_NUMBER}?text=${encodeURIComponent(text)}`
@@ -41,6 +41,7 @@ export type PackageChangeSelection = {
   express: boolean
   fisik: boolean
   galeri: { on: boolean; photos?: number; guests?: number } | null
+  delta?: number | null
 }
 
 // "Undangan Digital Signature" style label: group + tier, so the
@@ -49,8 +50,7 @@ export type PackageChangeSelection = {
 function packageGroupLabel(code: string | undefined | null): string {
   const c = (code || "").trim()
   if (!c) return "?"
-  const label = PACKAGE_LABELS[c] || c
-  return PACKAGE_CATEGORY[c] ? `${getPackageCategory(c)} ${label}` : label
+  return packageDisplayName(c)
 }
 
 // Package-change CTA prefill: names the paid package, the new selection,
@@ -72,6 +72,7 @@ export function packageChangeWaText(oldSel: PackageChangeSelection, newSel: Pack
     addons.push(`Galeri Tamu ${g.photos || "?"} foto × ${g.guests || "?"} tamu`)
   }
   if (addons.length > 0) text += ` Add-on baru: ${addons.join(", ")}.`
+  if (newSel.delta != null && newSel.delta > 0) text += ` Selisih bayar: ${formatRupiah(newSel.delta)}.`
   return `${text} Mohon bantuan konsultan.`
 }
 

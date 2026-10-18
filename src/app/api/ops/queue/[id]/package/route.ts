@@ -131,6 +131,22 @@ export async function PUT(
               galeri_price: galeriPrice,
             }
           : {}),
+        // Saving the galeri add-on resolves any couple-staged top-up request
+        // (the new add-on IS the applied change) — clear the staging fields so
+        // the request banner does not linger.
+        ...(galeriTouched
+          ? {
+              additional_cost: 0,
+              additional_tier: null,
+              additional_payment_status: "UNPAID",
+              galeri_topup_photos_per_guest: null,
+              galeri_topup_guest_count: null,
+              galeri_prev_photos: null,
+              galeri_prev_guests: null,
+              galeri_prev_tier: null,
+              galeri_prev_price: null,
+            }
+          : {}),
       })
       .eq("id", wp.id)
 
@@ -166,7 +182,7 @@ export async function PUT(
       await supabaseAdmin.from("feature_actions").insert(featureRows)
     }
 
-    // Audit trail: record package AND add-on changes in the unified timeline.
+    // Audit trail: package AND add-on changes in the unified timeline.
     const phone = req.headers.get("x-ops-phone") || ""
     const { data: emp } = await supabaseAdmin
       .from("employees")
@@ -181,7 +197,6 @@ export async function PUT(
       new_status: null,
       changed_by_employee_id: emp?.id || null,
     }
-    const prevGaleriPrice = (wp as any)?.galeri_price || 0
     if (previousPackage !== package_type) {
       const { error: logError } = await supabaseAdmin.from("ops_queue_status_log").insert({
         ...logBase,
@@ -192,15 +207,55 @@ export async function PUT(
         console.error("[ops/package] audit log insert failed", logError.message)
       }
     }
-    if (galeriTouched && galeriPrice !== prevGaleriPrice) {
+
+    // Add-on changes (WA Blast tier, Express, Galeri Tamu) get their own
+    // kind="addon" rows: a package row for an add-on-only change would read
+    // "Paket: X → X" and hide what actually happened. Explicit field intent
+    // is required so a package change's auto-drop isn't double-logged here
+    // (that path writes its own removal entry below).
+    const addonChanges: string[] = []
+    const prevWaTier = Number((wp as any)?.wa_blast_tier) || 0
+    const prevExpress = (wp as any)?.express_service === true
+    const prevGaleriOn = (wp as any)?.galeri_addon === true
+
+    if (body?.wa_blast_tier !== undefined && waBlastTier !== prevWaTier) {
+      addonChanges.push(
+        waBlastTier > 0
+          ? prevWaTier > 0
+            ? `WA Blast kuota: ${prevWaTier} → ${waBlastTier}`
+            : `WA Blast ditambahkan: ${waBlastTier} kuota`
+          : `WA Blast dilepas`,
+      )
+    }
+    if (body?.express_service !== undefined && expressService !== prevExpress) {
+      addonChanges.push(`Express ${expressService ? "diaktifkan" : "dinonaktifkan"}`)
+    }
+    if (galeriTouched && galeriChanged) {
+      const prevGaleriTier = (wp as any)?.galeri_tier || null
+      const prevGaleriPhotos = (wp as any)?.galeri_photos_per_guest ?? null
+      const prevGaleriGuests = (wp as any)?.galeri_guest_count ?? null
+      const galeriSame =
+        prevGaleriTier === (effGaleri?.tier || null) &&
+        prevGaleriPhotos === (effGaleri?.photos_per_guest ?? null) &&
+        prevGaleriGuests === (effGaleri?.guest_count ?? null)
+      if (galeriAddon && !prevGaleriOn) {
+        addonChanges.push(`Galeri Tamu ditambahkan: ${effGaleri?.tier} (${effGaleri?.photos_per_guest} foto × ${effGaleri?.guest_count} tamu)`)
+      } else if (galeriAddon && prevGaleriOn && !galeriSame) {
+        addonChanges.push(`Galeri Tamu: ${effGaleri?.tier} (${effGaleri?.photos_per_guest} foto × ${effGaleri?.guest_count} tamu)`)
+      } else if (!galeriAddon && prevGaleriOn) {
+        addonChanges.push(`Galeri Tamu dilepas`)
+      }
+    }
+    if (addonChanges.length > 0) {
       const { error: logError } = await supabaseAdmin.from("ops_queue_status_log").insert({
-        ...logBase,
+        ops_queue_id: id,
+        kind: "addon",
+        previous_status: null,
+        new_status: null,
         previous_package: previousPackage,
         new_package: package_type,
-        details:
-          galeriPrice > 0
-            ? `Add-on Galeri Tamu: Tier ${effGaleri?.tier} (${effGaleri?.photos_per_guest} foto × ${effGaleri?.guest_count} tamu)`
-            : `Add-on Galeri Tamu dilepas`,
+        details: addonChanges.join("; "),
+        changed_by_employee_id: emp?.id || null,
       })
       if (logError) {
         console.error("[ops/package] addon audit log insert failed", logError.message)
@@ -208,10 +263,14 @@ export async function PUT(
     }
     if (autoDropped.length > 0) {
       const { error: logError } = await supabaseAdmin.from("ops_queue_status_log").insert({
-        ...logBase,
+        ops_queue_id: id,
+        kind: "addon",
+        previous_status: null,
+        new_status: null,
         previous_package: previousPackage,
         new_package: package_type,
         details: autoDropped.join("; "),
+        changed_by_employee_id: emp?.id || null,
       })
       if (logError) {
         console.error("[ops/package] auto-drop audit log insert failed", logError.message)

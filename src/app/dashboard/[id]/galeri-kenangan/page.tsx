@@ -34,6 +34,9 @@ type Setup = {
   galeri_guest_count?: number | null
   galeri_tier?: string | null
   galeri_price?: number
+  galeri_quota_photos_per_guest?: number | null
+  galeri_quota_guests?: number | null
+  galeri_event_cap?: number | null
   payment_status: "UNPAID" | "PARTIAL_DP" | "FULLY_PAID"
   gallery_token: string | null
   gallery_url: string | null
@@ -116,7 +119,9 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
   const [frameSaving, setFrameSaving] = useState<string | null>(null)
 
   // Detail card: collapsible + view/edit (only three fields by design).
+  // Defaults open until the first photo lands, then collapses (once).
   const [cardOpen, setCardOpen] = useState(true)
+  const cardInitRef = useRef(false)
   const [coupleName, setCoupleName] = useState("")
   const [eventDate, setEventDate] = useState("")
   const [startTime, setStartTime] = useState("")
@@ -165,6 +170,7 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
       if (data?.hasEventDate !== undefined) {
         setRetention({ hasEventDate: data.hasEventDate, latestEventDate: data.latestEventDate, deletionDate: data.deletionDate })
       }
+      return (data?.total as number) || 0
     } finally {
       if (append) setLoadingMore(false)
     }
@@ -172,7 +178,14 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
 
   useEffect(() => {
     setLoading(true)
-    Promise.all([fetchSetup(), fetchPhotos(1, "all", "", false)]).finally(() => setLoading(false))
+    Promise.all([fetchSetup(), fetchPhotos(1, "all", "", false)])
+      .then(([, total]) => {
+        if (!cardInitRef.current) {
+          cardInitRef.current = true
+          setCardOpen((total as number) === 0)
+        }
+      })
+      .finally(() => setLoading(false))
   }, [fetchSetup, fetchPhotos])
 
   useEffect(() => {
@@ -532,6 +545,7 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
   // then editor cover, then the default couple image (local public asset,
   // served by the app itself — never through the storage transform).
   const boxPhoto = setup?.gallery_photo_url || prefillPhoto || ASSETS.defaults.couple
+  const hasOwnPhoto = !!setup?.gallery_photo_url
   const avatarInitial = ((setup?.gallery_couple_name || "G").trim()[0] || "G").toUpperCase()
 
   return (
@@ -648,6 +662,16 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                   </div>
                 </button>
 
+                {!loading && (setup?.galeri_quota_photos_per_guest || setup?.galeri_quota_guests) ? (
+                  <div className="px-4 md:px-5 pb-4 -mt-1 flex">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d9c1c0]/40 bg-[#f5f3ee]/60 px-3 py-1.5 text-[10px] sm:text-[11px] font-semibold text-[#444841] whitespace-nowrap">
+                      <span className="material-symbols-outlined text-[15px]" style={{ color: "#6b2b2d" }}>burst_mode</span>
+                      Kuota: {setup?.galeri_quota_photos_per_guest || 0} foto/tamu
+                      {setup?.galeri_quota_guests ? ` untuk ${setup.galeri_quota_guests} tamu` : ""}
+                    </span>
+                  </div>
+                ) : null}
+
                 {cardOpen && (
                   <div className="border-t border-[#d9c1c0]/30 bg-[#f5f3ee]/30 p-4 md:p-6">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -656,12 +680,12 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                           {/* Instagram-grid concept: portrait 3:4 cell + cover.
                               Phone portraits fill it with almost no crop
                               (a square cut ~1/3 off this photo). */}
-                          <div className="relative group w-full max-w-[180px] md:max-w-[200px] aspect-[3/4] rounded-2xl overflow-hidden border-2 border-[#4f1519]/20 shadow-md bg-[#f5f3ee]">
+                          <div className="relative group w-[180px] md:w-[200px] aspect-[3/4] rounded-2xl overflow-hidden border-2 border-[#4f1519]/20 shadow-md bg-[#f5f3ee]">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={boxPhoto.startsWith("http") ? toTransformedUrl(boxPhoto, { width: 400, quality: 70 }) : boxPhoto} alt={`Foto Mempelai ${setup?.gallery_couple_name || ""}`} className="absolute inset-0 w-full h-full object-cover" />
-                            <label className="absolute inset-0 bg-[#4f1519]/40 backdrop-blur-[2px] text-white opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer gap-1 p-2">
+                            <label className={`absolute inset-0 bg-[#4f1519]/45 backdrop-blur-[2px] text-white transition-opacity flex flex-col items-center justify-center cursor-pointer gap-1 p-2 ${hasOwnPhoto ? "opacity-0 group-hover:opacity-100 focus-within:opacity-100" : "opacity-100"}`}>
                               <span className="material-symbols-outlined text-[24px]">{uploadingPhoto ? "hourglass_empty" : "photo_camera"}</span>
-                              <span className="text-[10px] uppercase tracking-wider font-semibold">{uploadingPhoto ? "Mengunggah..." : "Ganti Foto"}</span>
+                              <span className="text-[10px] uppercase tracking-wider font-semibold text-center">{uploadingPhoto ? "Mengunggah..." : hasOwnPhoto ? "Ganti Foto" : "Unggah Foto"}</span>
                               <input
                                 type="file"
                                 accept="image/*"

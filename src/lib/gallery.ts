@@ -1,7 +1,7 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { generateToken } from "@/lib/qr"
 import { cachedRead } from "@/lib/refCache"
-import { GALLERY_DEFAULT_CAP, GALLERY_DEFAULT_QUOTA, galeriEventCap, matchGaleriTier, type GaleriTierRow } from "@/lib/packages"
+import { DGB_BASE_QUOTA, GALLERY_DEFAULT_CAP, GALLERY_DEFAULT_QUOTA, galeriEventCap, matchGaleriTier, type GaleriTierRow } from "@/lib/packages"
 
 // Server-only gallery helpers (imports supabaseAdmin — never import from
 // client components; use ./gallery-client for the browser side).
@@ -116,6 +116,7 @@ export type GalleryQuota = { quota: number; cap: number }
 
 // Per-event quota from the slider config; single-package default when a GT
 // row has no config yet. The RPC re-checks authoritatively.
+// For Buku Tamu Digital, quota is additive: base (2-4 / 200) + add-on tier.
 export async function getGalleryQuota(profileId: string, packageType: string): Promise<GalleryQuota> {
   const { data } = await supabaseAdmin
     .from("wedding_profiles")
@@ -124,6 +125,15 @@ export async function getGalleryQuota(profileId: string, packageType: string): P
     .maybeSingle()
   const photos = Math.floor(Number((data as { galeri_photos_per_guest?: unknown } | null)?.galeri_photos_per_guest) || 0)
   const guests = Math.floor(Number((data as { galeri_guest_count?: unknown } | null)?.galeri_guest_count) || 0)
+  if (packageType.startsWith("dgb_")) {
+    const base = DGB_BASE_QUOTA[packageType] || { photos: 2, guests: 200 }
+    if (photos > 0 && guests > 0) {
+      const totalPhotos = base.photos + photos
+      const totalGuests = base.guests + guests
+      return { quota: totalPhotos, cap: galeriEventCap(totalPhotos, totalGuests) }
+    }
+    return { quota: base.photos, cap: galeriEventCap(base.photos, base.guests) }
+  }
   if (photos > 0 && guests > 0) {
     return { quota: photos, cap: galeriEventCap(photos, guests) }
   }

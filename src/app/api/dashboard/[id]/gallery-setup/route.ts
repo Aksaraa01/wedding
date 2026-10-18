@@ -9,7 +9,13 @@ import {
   formatGalleryDateWib,
   formatGalleryTimeWib,
 } from "@/lib/gallery"
-import { isGalleryPackage } from "@/lib/packages"
+import {
+  isGalleryPackage,
+  DGB_BASE_QUOTA,
+  galeriEventCap,
+  GALLERY_DEFAULT_QUOTA,
+  GALLERY_DEFAULT_CAP,
+} from "@/lib/packages"
 import { resolveCoupleName } from "@/lib/coupleName"
 import { getFeatureIncluded } from "@/lib/featureGates"
 import { sanitizeCoupleName } from "@/lib/nameClean"
@@ -95,6 +101,30 @@ export async function GET(
   const guestIds = new Set((photoGuestRows || []).map((r) => r.guest_id as string))
   const devices = new Set((deviceRows || []).map((r) => r.device_id as string)).size + guestIds.size
 
+  // Event quota for display: Buku Tamu Digital is additive (base tier +
+  // galeri add-on slider), standalone GT/Undangan add-on use the stored
+  // slider config, GT-without-config falls back to the single-package default.
+  const pkgType = (profile.package_type || "") as string
+  const addonPhotos = Math.floor(Number(profile.galeri_photos_per_guest) || 0)
+  const addonGuests = Math.floor(Number(profile.galeri_guest_count) || 0)
+  const hasSlider = addonPhotos > 0 && addonGuests > 0
+  let quotaPhotos = addonPhotos
+  let quotaGuests = addonGuests
+  if (pkgType.startsWith("dgb_")) {
+    const base = DGB_BASE_QUOTA[pkgType] || { photos: 2, guests: 200 }
+    quotaPhotos = base.photos + addonPhotos
+    quotaGuests = base.guests + addonGuests
+  } else if (!hasSlider) {
+    if (isGalleryPackage(pkgType)) {
+      quotaPhotos = GALLERY_DEFAULT_QUOTA
+      quotaGuests = GALLERY_DEFAULT_CAP
+    } else {
+      quotaPhotos = 0
+      quotaGuests = 0
+    }
+  }
+  const eventCap = quotaPhotos > 0 && quotaGuests > 0 ? galeriEventCap(quotaPhotos, quotaGuests) : 0
+
   return NextResponse.json({
     setup: {
       package_type: profile.package_type,
@@ -111,6 +141,9 @@ export async function GET(
       galeri_guest_count: profile.galeri_guest_count || null,
       galeri_tier: profile.galeri_tier || null,
       galeri_price: profile.galeri_price || 0,
+      galeri_quota_photos_per_guest: quotaPhotos || null,
+      galeri_quota_guests: quotaGuests || null,
+      galeri_event_cap: eventCap || null,
       payment_status: profile.payment_status,
       gallery_token: profile.gallery_token,
       gallery_url: profile.gallery_token ? galleryCameraUrl(profile.gallery_token) : null,
