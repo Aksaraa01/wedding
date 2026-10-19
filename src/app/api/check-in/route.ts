@@ -170,12 +170,17 @@ export async function GET(req: NextRequest) {
 
     const { data: profile, error: profileErr } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("bride_name, groom_name, bride_full_name, groom_full_name, display_name, slug, estimated_wedding_date, sessions, package_type, cover_photos, couple_illustration_url")
+      .select("bride_name, groom_name, bride_full_name, groom_full_name, display_name, slug, estimated_wedding_date, sessions, package_type, cover_photos, couple_illustration_url, invitation_disabled_at")
       .eq("id", guest.wedding_profile_id)
       .single()
 
     if (profileErr || !profile) {
       return NextResponse.json({ error: "Profil tidak ditemukan" }, { status: 404 })
+    }
+
+    // Ops executed the invitation teardown: the guest pass is no longer valid.
+    if ((profile as { invitation_disabled_at?: string | null }).invitation_disabled_at) {
+      return NextResponse.json({ error: "Masa aktif undangan telah berakhir.", expired: true }, { status: 410 })
     }
 
     const features = await getFeatureIncluded(profile.package_type || "signature")

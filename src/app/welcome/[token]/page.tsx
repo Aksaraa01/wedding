@@ -30,6 +30,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
   const [photoUrls, setPhotoUrls] = useState<string[]>([])
   const [photoQuota, setPhotoQuota] = useState(0)
   const [coverPhoto, setCoverPhoto] = useState("")
+  const [expired, setExpired] = useState(false)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -45,6 +46,10 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
           ? `qr_token=${encodeURIComponent(ref)}`
           : `slug=${encodeURIComponent(ref)}`
         const res = await fetch(`/api/check-in?${query}`)
+        if (res.status === 410) {
+          setExpired(true)
+          return
+        }
         if (!res.ok) throw new Error("QR tidak valid")
         const data = await res.json()
         if (!data.guest || !data.profile) throw new Error("Data tidak ditemukan")
@@ -109,6 +114,18 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
       }
     }
   }, [])
+
+  if (expired) {
+    return (
+      <div className="min-h-screen bg-surface flex items-center justify-center p-6">
+        <div className="text-center max-w-sm">
+          <span className="material-symbols-outlined text-6xl text-on-surface-variant/50 mb-4">hourglass_disabled</span>
+          <h1 className="font-headline-md text-3xl text-primary font-medium mb-2">Masa Aktif Berakhir</h1>
+          <p className="text-sm text-on-surface-variant">Masa aktif undangan digital ini telah berakhir. Tautan dan e-pass sudah tidak berlaku.</p>
+        </div>
+      </div>
+    )
+  }
 
   if (error) {
     return (

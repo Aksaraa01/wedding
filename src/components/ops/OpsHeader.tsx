@@ -7,11 +7,12 @@ import { TAB_ROLES } from "@/lib/opsRoles"
 
 type OpsEmployee = { name: string; role: string }
 
-const NAV_ITEMS: { key: "antrian" | "music" | "template" | "voucher"; label: string; href: string }[] = [
+const NAV_ITEMS: { key: "antrian" | "music" | "template" | "voucher" | "clearance"; label: string; href: string }[] = [
   { key: "antrian", label: "Antrian", href: "/ops" },
   { key: "music", label: "Music", href: "/ops/music" },
   { key: "template", label: "Template", href: "/ops/templates" },
   { key: "voucher", label: "Voucher", href: "/ops/voucher" },
+  { key: "clearance", label: "Clearance", href: "/ops/clearance" },
 ]
 
 export default function OpsHeader({

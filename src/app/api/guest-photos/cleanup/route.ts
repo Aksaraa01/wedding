@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { deleteFile } from "@/lib/storage"
+import { storagePathFromUrl } from "@/lib/storageUrl"
+import { getPhotoRetentionDays } from "@/lib/appSettings"
+import { hasGaleri, lastEventDate, addDaysIso, daysUntil, isIsoDate, todayIso } from "@/lib/lifecycle"
+
+// Legacy guest-photo cleanup endpoint. Deletion is OPS-MANUAL by design (see
+// /ops/clearance); nothing schedules this. It is kept token-guarded as a
+// fallback and SCOPED to galeri profiles only (gt / galeri_addon) — it must
+// never delete photos for non-galeri profiles. Retention + eligibility come
+// from the DB (app_settings), never hardcoded.
 
 const TOKEN = process.env.GUEST_PHOTOS_CLEANUP_TOKEN || ""
+const BUCKET = "media"
+const BATCH = 100
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,41 +21,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    const retentionDays = await getPhotoRetentionDays()
+    const today = todayIso()
+
     const { data: profiles, error: profileError } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("id, sessions, package_type, galeri_addon, gallery_end_at")
+      .select("id, sessions, estimated_wedding_date, package_type, galeri_addon, gallery_end_at")
+      .or("package_type.eq.gt,galeri_addon.eq.true")
 
     if (profileError) {
       return NextResponse.json({ error: profileError.message }, { status: 500 })
     }
 
-    const now = new Date()
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
-
     const expiredIds: string[] = []
     for (const profile of profiles || []) {
-      // Galeri (standalone or add-on): 7-day retention from the event end.
-      if ((profile.package_type === "gt" || (profile as any).galeri_addon === true) && profile.gallery_end_at) {
-        const end = new Date(profile.gallery_end_at)
-        if (Number.isNaN(end.getTime())) continue
-        const deletion = new Date(end)
-        deletion.setDate(deletion.getDate() + 7)
-        const deletionStart = new Date(deletion.getFullYear(), deletion.getMonth(), deletion.getDate()).getTime()
-        if (deletionStart <= todayStart) {
-          expiredIds.push(profile.id)
-        }
-        continue
-      }
-      const sessions = Array.isArray(profile.sessions) ? (profile.sessions as { date?: string }[]) : []
-      const dates = sessions.map(s => s.date).filter((d): d is string => !!d && /^\d{4}-\d{2}-\d{2}$/.test(d))
-      if (!dates.length) continue
-      const latest = dates.map(d => new Date(d)).sort((a, b) => a.getTime() - b.getTime()).pop()!
-      const deletion = new Date(latest)
-      deletion.setDate(deletion.getDate() + 7)
-      const deletionStart = new Date(deletion.getFullYear(), deletion.getMonth(), deletion.getDate()).getTime()
-      if (deletionStart <= todayStart) {
-        expiredIds.push(profile.id)
-      }
+      if (!hasGaleri(profile)) continue
+      const last = lastEventDate(profile.sessions, profile.estimated_wedding_date)
+      const base = isIsoDate(profile.gallery_end_at) ? (profile.gallery_end_at as string).slice(0, 10) : last
+      if (!base) continue
+      if (daysUntil(addDaysIso(base, retentionDays), today) <= 0) expiredIds.push(profile.id)
     }
 
     let deletedPhotos = 0
@@ -55,27 +49,23 @@ export async function POST(req: NextRequest) {
         .select("id, image_url")
         .eq("wedding_profile_id", profileId)
 
-      for (const photo of photos || []) {
-        const path = extractStoragePath(photo.image_url)
-        if (path) {
-          try { await deleteFile(path) } catch {}
-        }
-        await supabaseAdmin.from("guest_photos").delete().eq("id", photo.id)
-        deletedPhotos++
+      const rows = photos || []
+      const paths = rows.map((p) => storagePathFromUrl(p.image_url)).filter(Boolean) as string[]
+      const unique = [...new Set(paths)]
+      for (let i = 0; i < unique.length; i += BATCH) {
+        await supabaseAdmin.storage.from(BUCKET).remove(unique.slice(i, i + BATCH))
       }
+      if (rows.length) {
+        await supabaseAdmin
+          .from("guest_photos")
+          .delete()
+          .eq("wedding_profile_id", profileId)
+      }
+      deletedPhotos += rows.length
     }
 
     return NextResponse.json({ profilesChecked: profiles?.length || 0, expired: expiredIds.length, deletedPhotos })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
-}
-
-function extractStoragePath(url: string): string | null {
-  if (!url) return null
-  const marker = "/object/public/media/"
-  const idx = url.indexOf(marker)
-  if (idx === -1) return null
-  const rest = url.slice(idx + marker.length).split("?")[0]
-  return rest || null
 }

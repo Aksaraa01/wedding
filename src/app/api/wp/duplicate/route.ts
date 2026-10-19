@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { enqueueDuplicate, hasOpenWpChain } from "@/lib/wpSyncWorker"
+import { supabaseAdmin } from "@/lib/supabase"
 
 const WP_ORIGIN = process.env.NEXT_PUBLIC_WP_ORIGIN || ""
 const WP_SECRET = process.env.WP_INTERNAL_SECRET || ""
@@ -15,6 +16,20 @@ export async function POST(req: Request) {
 
     if (!template_id || !profile_id) {
       return NextResponse.json({ error: "template_id dan profile_id wajib diisi" }, { status: 400 })
+    }
+
+    // Clearance ran: masa aktif ended, the WP post was deleted. Do not let the
+    // couple spin up a fresh invitation — only Ops can reopen the profile.
+    const { data: gate } = await supabaseAdmin
+      .from("wedding_profiles")
+      .select("invitation_disabled_at")
+      .eq("id", profile_id)
+      .maybeSingle()
+    if ((gate as { invitation_disabled_at?: string | null } | null)?.invitation_disabled_at) {
+      return NextResponse.json(
+        { error: "Masa aktif undangan ini telah berakhir. Hubungi tim Aksaraa untuk mengaktifkan kembali." },
+        { status: 409 }
+      )
     }
 
     if (await hasOpenWpChain(profile_id)) {

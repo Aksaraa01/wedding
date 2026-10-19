@@ -95,6 +95,12 @@ async function handleGalleryUpload(
   if (event.payment_status === "UNPAID") {
     return NextResponse.json({ error: "Galeri belum aktif." }, { status: 403 })
   }
+  if (event.photos_cleared_at) {
+    return NextResponse.json(
+      { error: "Masa aktif galeri telah berakhir.", code: "CLEARED" },
+      { status: 410 }
+    )
+  }
   // Cheap pre-check before touching storage bytes; the RPC re-checks
   // authoritatively inside its lock (TOCTOU-safe).
   const window = galleryWindowStatus(event.gallery_start_at, event.gallery_end_at)
@@ -215,9 +221,17 @@ export async function POST(req: NextRequest) {
     // bypass the guest-facing quota so a Foto Check-in is always captured.
     const { data: profile } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("package_type")
+      .select("package_type, photos_cleared_at")
       .eq("id", wedding_profile_id)
       .single()
+
+    // Clearance teardown removed this couple's photos (and disallows new ones).
+    if ((profile as { photos_cleared_at?: string | null } | null)?.photos_cleared_at) {
+      return NextResponse.json(
+        { error: "Masa aktif galeri telah berakhir.", code: "CLEARED" },
+        { status: 410 }
+      )
+    }
 
     const isSelfie = source === "selfie"
 

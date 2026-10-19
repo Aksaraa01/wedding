@@ -7,7 +7,7 @@ import { frameStageFlorals, normalizeFrameSelection } from "@/lib/galeriFrames"
 import { loadIdentity } from "@/lib/gallery-client"
 
 type ResolveData = {
-  status: "active" | "upcoming" | "ended" | "locked" | "not_configured" | "invalid"
+  status: "active" | "upcoming" | "ended" | "locked" | "not_configured" | "invalid" | "cleared"
   quota?: number
   used?: number
   remaining?: number
@@ -46,6 +46,11 @@ const INVALID_COPY: Record<string, { title: string; body: string; icon: string }
     title: "QR Tidak Valid",
     body: "Tautan galeri ini tidak dikenal. Pastikan Anda memindai QR resmi dari mempelai.",
     icon: "qr_code_2",
+  },
+  cleared: {
+    title: "Masa Aktif Berakhir",
+    body: "Masa aktif galeri kenangan ini telah berakhir dan foto tamu telah dihapus. Terima kasih atas kebersamaan dan kenangan indahnya.",
+    icon: "hourglass_disabled",
   },
 }
 

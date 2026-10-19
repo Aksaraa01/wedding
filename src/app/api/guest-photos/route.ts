@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { getPhotoRetentionDays } from "@/lib/appSettings"
+import { hasGaleri, lastEventDate, addDaysIso, isIsoDate } from "@/lib/lifecycle"
 
 const PAGE_SIZE = 30
 
@@ -72,41 +74,29 @@ export async function GET(req: NextRequest) {
 async function getRetention(weddingProfileId: string) {
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("sessions, package_type, galeri_addon, gallery_end_at")
+    .select("sessions, estimated_wedding_date, package_type, galeri_addon, gallery_end_at")
     .eq("id", weddingProfileId)
     .single()
 
-  // Galeri Tamu: 7-day dashboard access from the event end
-  // ("Masa Aktif Foto 7 Hari").
-  if (
-    (profile?.package_type === "gt" || (profile as any)?.galeri_addon === true) &&
-    profile?.gallery_end_at
-  ) {
-    const end = new Date(profile.gallery_end_at as string)
-    if (!Number.isNaN(end.getTime())) {
-      const deletion = new Date(end)
-      deletion.setDate(deletion.getDate() + 7)
-      const iso = (d: Date) => d.toISOString().slice(0, 10)
-      return { hasEventDate: true, latestEventDate: iso(end), deletionDate: iso(deletion), retentionDays: 7 }
-    }
+  // Retention window comes from app_settings (DB-driven), not hardcoded.
+  const retentionDays = await getPhotoRetentionDays()
+
+  // Galeri (standalone or add-on): window ends at the stored event end, else
+  // fall back to the last acara session date.
+  const last = lastEventDate(profile?.sessions, (profile?.estimated_wedding_date as string | null) ?? null)
+  const base =
+    profile && hasGaleri(profile) && isIsoDate(profile.gallery_end_at)
+      ? (profile.gallery_end_at as string).slice(0, 10)
+      : last
+
+  if (!base) {
+    return { hasEventDate: false, latestEventDate: null, deletionDate: null, retentionDays }
   }
 
-  const sessions = Array.isArray(profile?.sessions) ? (profile.sessions as { date?: string }[]) : []
-  const dates = sessions.map(s => s.date).filter((d): d is string => !!d && /^\d{4}-\d{2}-\d{2}$/.test(d))
-  const latest = dates.length ? dates.map(d => new Date(d)).sort((a, b) => a.getTime() - b.getTime()).pop() : null
-
-  if (!latest) {
-    return { hasEventDate: false, latestEventDate: null, deletionDate: null }
-  }
-
-  const deletion = new Date(latest)
-  deletion.setDate(deletion.getDate() + 7)
-  deletion.setHours(23, 59, 0, 0)
-
-  const iso = (d: Date) => d.toISOString().slice(0, 10)
   return {
     hasEventDate: true,
-    latestEventDate: iso(latest),
-    deletionDate: iso(deletion),
+    latestEventDate: base,
+    deletionDate: addDaysIso(base, retentionDays),
+    retentionDays,
   }
 }

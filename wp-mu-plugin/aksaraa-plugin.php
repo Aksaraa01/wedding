@@ -113,6 +113,17 @@ class AksaraaPlugin
             'permission_callback' => [self::class, 'auth'],
         ]);
 
+        // DELETE scoped attachments referenced by a post (+ its popups).
+        // Called by the Aksaraa clearance teardown BEFORE the post is deleted
+        // (the post's _elementor_data is the source of truth for its
+        // attachments). Only deletes attachment posts referenced in that
+        // post's _elementor_data / featured image.
+        register_rest_route('aksaraa/v1', '/posts/(?P<id>\d+)/attachments', [
+            'methods' => 'DELETE',
+            'callback' => [self::class, 'delete_post_attachments'],
+            'permission_callback' => [self::class, 'auth'],
+        ]);
+
         // POST cleanup orphans for a couple slug
         register_rest_route('aksaraa/v1', '/cleanup', [
             'methods' => 'POST',
@@ -1601,6 +1612,55 @@ class AksaraaPlugin
         if (!$result) return new WP_Error('failed', 'Delete failed', ['status' => 500]);
 
         return ['deleted' => $post_id, 'popups_also_deleted' => count($popups)];
+    }
+
+    // ---------- DELETE /posts/{id}/attachments ----------
+    // Scoped attachment cleanup for the clearance teardown. Must be called
+    // BEFORE the post is deleted (the post's _elementor_data is the source of
+    // truth for which attachments belong to it). Only deletes attachment posts
+    // referenced by this post (+ its linked popups) or its featured image.
+    public static function delete_post_attachments(WP_REST_Request $request)
+    {
+        $post_id = (int) $request->get_param('id');
+        $ids = [];
+
+        $targets = self::find_linked_popups($post_id);
+        $self = get_post($post_id);
+        if ($self) array_unshift($targets, $self);
+
+        foreach ($targets as $t) {
+            if (!$t) continue;
+            $thumb = get_post_thumbnail_id($t->ID);
+            if ($thumb) $ids[] = (int) $thumb;
+
+            $raw = get_post_meta($t->ID, '_elementor_data', true);
+            if (!$raw) continue;
+            $data = is_string($raw) ? json_decode($raw, true) : $raw;
+            if (is_array($data)) self::collect_attachment_ids($data, $ids);
+        }
+
+        $ids = array_values(array_unique(array_filter($ids)));
+        $deleted = 0;
+        foreach ($ids as $aid) {
+            if (get_post_type($aid) === 'attachment') {
+                if (wp_delete_attachment($aid, true)) $deleted++;
+            }
+        }
+
+        return ['deleted' => $deleted, 'candidates' => count($ids)];
+    }
+
+    private static function collect_attachment_ids($data, &$ids)
+    {
+        if (!is_array($data)) return;
+        foreach ($data as $value) {
+            if (is_array($value)) {
+                self::collect_attachment_ids($value, $ids);
+            } elseif (is_numeric($value)) {
+                $n = (int) $value;
+                if ($n > 0 && get_post_type($n) === 'attachment') $ids[] = $n;
+            }
+        }
     }
 
     public static function cleanup_orphans(WP_REST_Request $request)

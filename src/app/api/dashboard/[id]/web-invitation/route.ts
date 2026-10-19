@@ -16,7 +16,7 @@ export async function GET(
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("id, bride_name, groom_name, slug, package_type, payment_status, selected_template_id, selected_track_id, couple_illustration_url, cover_photos, couple_initials, grayscale, is_published, published_at, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, display_name, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, opening_title, opening_description, active_wp_post_id, active_wp_post_url, portfolio_visible, portfolio_featured")
+      .select("id, bride_name, groom_name, slug, package_type, payment_status, selected_template_id, selected_track_id, couple_illustration_url, cover_photos, couple_initials, grayscale, is_published, published_at, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, rundown, display_name, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, opening_title, opening_description, active_wp_post_id, active_wp_post_url, portfolio_visible, portfolio_featured")
       .eq("id", id)
       .single()
 
@@ -74,6 +74,7 @@ export async function GET(
         video_url: profile.video_url,
         estimated_wedding_date: profile.estimated_wedding_date,
         sessions: profile.sessions,
+        rundown: profile.rundown,
         display_name: profile.display_name,
         quote_text: profile.quote_text,
         quote_source: profile.quote_source,
@@ -121,7 +122,7 @@ export async function PUT(  req: NextRequest,
       "groom_full_name", "bride_full_name", "groom_name", "bride_name",
       "groom_photo_url", "bride_photo_url",
       "groom_parents", "bride_parents", "groom_instagram", "bride_instagram", "video_url",
-      "display_name", "sessions", "quote_text", "quote_source", "stories",
+      "display_name", "sessions", "rundown", "quote_text", "quote_source", "stories",
       "gallery_photos", "inviting_families", "rsvp_max_pax",
       "estimated_wedding_date", "gift_section_visible", "video_section_visible", "inviting_families_visible", "story_visible",
       "opening_title", "opening_description", "portfolio_visible", "portfolio_featured",
@@ -147,6 +148,20 @@ export async function PUT(  req: NextRequest,
 
     // Record the confirmation time when the invitation is first published.
     if (body.is_published === true) {
+      // Clearance ran: the invitation's masa aktif ended and the link is dead.
+      // Re-publishing must not revive it — only Ops can reset the flag.
+      const { data: gate } = await supabaseAdmin
+        .from("wedding_profiles")
+        .select("invitation_disabled_at")
+        .eq("id", id)
+        .maybeSingle()
+      if ((gate as { invitation_disabled_at?: string | null } | null)?.invitation_disabled_at) {
+        return NextResponse.json(
+          { error: "Masa aktif undangan ini telah berakhir. Hubungi tim Aksaraa untuk mengaktifkan kembali." },
+          { status: 409 }
+        )
+      }
+
       const incomplete = await getPublishBlockers(id)
       if (incomplete.length > 0) {
         return NextResponse.json(

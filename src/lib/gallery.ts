@@ -6,7 +6,7 @@ import { DGB_BASE_QUOTA, GALLERY_DEFAULT_CAP, GALLERY_DEFAULT_QUOTA, galeriEvent
 // Server-only gallery helpers (imports supabaseAdmin — never import from
 // client components; use ./gallery-client for the browser side).
 
-export type GalleryStatus = "active" | "upcoming" | "ended" | "not_configured" | "locked" | "invalid"
+export type GalleryStatus = "active" | "upcoming" | "ended" | "not_configured" | "locked" | "invalid" | "cleared"
 
 export type GalleryEvent = {
   id: string
@@ -23,6 +23,7 @@ export type GalleryEvent = {
   couple_illustration_url?: string | null
   gallery_frame?: string | null
   gallery_camera?: string | null
+  photos_cleared_at?: string | null
 }
 
 // Galeri surfaces always show "mempelai 1 & mempelai 2". The invitation
@@ -84,7 +85,7 @@ export async function getGalleryEventByToken(token: string): Promise<GalleryEven
   if (!token || token.length > 64) return null
   const { data } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id, package_type, payment_status, gallery_token, gallery_couple_name, gallery_photo_url, gallery_start_at, gallery_end_at, gallery_frame, gallery_camera, bride_name, groom_name, cover_photos, couple_illustration_url")
+    .select("id, package_type, payment_status, gallery_token, gallery_couple_name, gallery_photo_url, gallery_start_at, gallery_end_at, gallery_frame, gallery_camera, bride_name, groom_name, cover_photos, couple_illustration_url, photos_cleared_at")
     .eq("gallery_token", token)
     .maybeSingle()
   return (data as GalleryEvent | null) || null
@@ -108,6 +109,8 @@ export function galleryWindowStatus(
 
 export function galleryStatusForEvent(event: GalleryEvent | null, nowMs = Date.now()): GalleryStatus {
   if (!event) return "invalid"
+  // Ops executed clearance: the gallery window is over regardless of dates.
+  if (event.photos_cleared_at) return "cleared"
   if (event.payment_status === "UNPAID") return "locked"
   return galleryWindowStatus(event.gallery_start_at, event.gallery_end_at, nowMs)
 }
