@@ -6,6 +6,7 @@ import PixelQuest from "./pixel-quest"
 import ImpastoMosque from "./impasto-mosque"
 import PastelDreamCathedral from "./pastel-dream-cathedral"
 import PastelCoastal from "./pastel-coastal-cut"
+import NiharaMist from "./nihara-mist"
 import DarkSplitRail from "./dark-split-rail"
 
 export type { TemplateProps } from "@/types/template"
@@ -17,6 +18,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "impasto-mosque-dark-gold": ImpastoMosque,
   "pastel-dream-cathedral": PastelDreamCathedral,
   "pastel-coastal-cut": PastelCoastal,
+  "nihara-mist": NiharaMist,
   "dark-split-rail": DarkSplitRail,
 }
 
@@ -309,7 +311,7 @@ export function getTemplateContentSpec(code: string | null) {
 
 export function getTemplateComponent(code: string | null): ComponentType<TemplateProps> | null {
   if (!code) return null
-  return TEMPLATE_MAP[code] || null
+  return TEMPLATE_MAP[code] ?? null
 }
 
 export function hasTemplate(code: string | null): boolean {

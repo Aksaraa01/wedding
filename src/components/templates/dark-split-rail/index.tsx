@@ -5,7 +5,6 @@ import type { TemplateProps } from "@/types/template"
 import { resolveCoupleName } from "@/lib/coupleName"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import { coverPhoto, initialsOf, normalizeVideoUrl, photoList } from "../shared/lib"
-import LiveWishes from "../shared/LiveWishes"
 import { TIBRA_CSS } from "./Atmosphere"
 import BackgroundVideo from "./BackgroundVideo"
 import Cover from "./Cover"
@@ -19,7 +18,6 @@ export default function DarkSplitRail(profile: TemplateProps) {
   const [progress, setProgress] = useState(0)
   const [leaving, setLeaving] = useState(false)
   const [ready, setReady] = useState(false)
-  const [wishOpen, setWishOpen] = useState(false)
   const [giftOpen, setGiftOpen] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [media, setMedia] = useState<PanelMedia>("cover")
@@ -130,7 +128,6 @@ export default function DarkSplitRail(profile: TemplateProps) {
   const panelPhotos = coverPhotos.length > 0 ? coverPhotos : [coverPhoto(profile)]
   const showGuestDock =
     phase === "open" &&
-    !wishOpen &&
     (!!profile.guest_id || (profile.guest_link_strict === false && !!profile.guest_slug)) &&
     !!profile.wedding_profile_id
 
@@ -185,17 +182,6 @@ export default function DarkSplitRail(profile: TemplateProps) {
             giftAddress={profile.gift_address}
             giftAddressName={profile.gift_address_name}
             onClose={() => setGiftOpen(false)}
-          />
-        )}
-
-        {phase === "open" && (
-          <LiveWishes
-            open={wishOpen}
-            onOpenChange={setWishOpen}
-            weddingProfileId={profile.wedding_profile_id}
-            guestId={profile.guest_id}
-            guestName={profile.guest_name}
-            hideTrigger
           />
         )}
 

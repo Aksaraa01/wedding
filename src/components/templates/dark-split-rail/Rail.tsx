@@ -22,6 +22,7 @@ import Person from "./sections/Person"
 import Portrait from "./sections/Portrait"
 import SaveTheDate from "./sections/SaveTheDate"
 import Story from "./sections/Story"
+import Wishes from "./sections/Wishes"
 
 type Props = {
   profile: TemplateProps
@@ -151,6 +152,12 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
       )}
 
       {invitingOn && <Inviting families={inviting} />}
+
+      <Wishes
+        weddingProfileId={profile.wedding_profile_id}
+        guestId={profile.guest_id}
+        guestName={profile.guest_name}
+      />
 
       <Closing photos={gallery} coupleLabel={coupleLabel} />
     </div>
