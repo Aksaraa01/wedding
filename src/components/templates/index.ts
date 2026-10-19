@@ -6,6 +6,7 @@ import PixelQuest from "./pixel-quest"
 import ImpastoMosque from "./impasto-mosque"
 import PastelDreamCathedral from "./pastel-dream-cathedral"
 import PastelCoastal from "./pastel-coastal-cut"
+import DarkSplitRail from "./dark-split-rail"
 
 export type { TemplateProps } from "@/types/template"
 
@@ -16,6 +17,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "impasto-mosque-dark-gold": ImpastoMosque,
   "pastel-dream-cathedral": PastelDreamCathedral,
   "pastel-coastal-cut": PastelCoastal,
+  "dark-split-rail": DarkSplitRail,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -251,6 +253,39 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       bride_photo: "single",
       sections: {
         opening_description: false,
+        quote: true,
+        countdown: true,
+        inviting: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+      },
+    },
+  },
+  {
+    code: "dark-split-rail",
+    name: "Dark Split Rail",
+    description: "Undangan split-screen gelap sinematik — panel foto/video di kiri dan rel konten elegan di kanan, dengan animasi reveal blur.",
+    theme: {
+      fonts: { display: "Times New Roman", script: "Baskervville", body: "Public Sans" },
+      colors: {
+        surface: "#000000",
+        text: "#F2F1EE",
+        accent: "#F2F1EE",
+        accentMuted: "#AFACA6",
+        overlay: "#000000",
+        dark: "#1B1B18",
+      },
+      ornaments: { divider: "line", border: "minimal", frame: "square" },
+      motion: { enabled: true, duration: 0.5, stagger: 0.12 },
+    },
+    content: {
+      cover_slots: 1,
+      groom_photo: "slideshow",
+      bride_photo: "slideshow",
+      sections: {
+        opening_description: true,
         quote: true,
         countdown: true,
         inviting: true,

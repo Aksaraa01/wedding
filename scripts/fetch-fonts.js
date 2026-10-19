@@ -1,13 +1,13 @@
 // Downloads static latin woff2 files for the app's Google Fonts set.
 // Mirrors the weights/styles declared in src/app/layout.tsx.
-// Writes into src/fonts/. Manual fetch is reliable; the Turbopack
+// Writes into public/fonts/. Manual fetch is reliable; the Turbopack
 // burst-fetch of the same files flakes, so we vendor them instead.
 const fs = require("fs");
 const path = require("path");
 
 const UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36";
-const OUT = path.join(__dirname, "..", "src", "fonts");
+const OUT = path.join(__dirname, "..", "public", "fonts");
 
 const FAMILIES = [
   { name: "Inter", weights: ["300", "400", "500", "600", "700", "800"], styles: ["normal"] },
@@ -22,6 +22,11 @@ const FAMILIES = [
   { name: "Montserrat", weights: ["300", "400", "500", "600", "700", "800"], styles: ["normal"] },
   { name: "Cinzel", weights: ["400", "600"], styles: ["normal"] },
   { name: "Pinyon Script", weights: ["400"], styles: ["normal"] },
+  { name: "Public Sans", weights: ["300", "400", "500", "600", "700"], styles: ["normal"] },
+  { name: "Baskervville", weights: ["400"], styles: ["normal"] },
+  { name: "Jura", weights: ["300", "400", "500", "600", "700"], styles: ["normal"] },
+  { name: "Lora", weights: ["400", "500", "600", "700"], styles: ["normal", "italic"] },
+  { name: "Poppins", weights: ["300", "400", "500", "600", "700"], styles: ["normal"] },
 ];
 
 function cssUrl(f) {

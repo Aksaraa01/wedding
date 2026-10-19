@@ -86,17 +86,33 @@ function parseStartHour(raw?: string): number {
 // Countdown target: prefer the main event (estimated_wedding_date) at 00:00 to
 // match the WP countdown convention; falls back to the first session's date.
 export function countdownTarget(sessions?: SessionData[], estimated?: string | null): Date | null {
-  const iso = String(estimated || "").trim()
-  if (iso) {
-    const d = new Date(`${iso.slice(0, 10)}T00:00:00`)
-    if (!isNaN(d.getTime())) return d
+  const raw: string[] = []
+  const est = String(estimated || "").trim()
+  if (est) raw.push(est)
+  ;(sessions || []).forEach((s) => {
+    const d = s?.date ? String(s.date).trim() : ""
+    if (d) raw.push(d)
+  })
+
+  const parse = (v: string): Date | null => {
+    const m = v.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/)
+    if (m) {
+      const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), Number(m[4] || 0), Number(m[5] || 0))
+      return isNaN(d.getTime()) ? null : d
+    }
+    const d = new Date(v)
+    return isNaN(d.getTime()) ? null : d
   }
-  const first = (sessions || []).find((s) => s && s.date)
-  if (first?.date) {
-    const d = new Date(`${String(first.date).slice(0, 10)}T00:00:00`)
-    if (!isNaN(d.getTime())) return d
-  }
-  return null
+
+  const dates = raw.map(parse).filter((d): d is Date => d !== null)
+  if (dates.length === 0) return null
+
+  // Prefer the nearest upcoming date (so whichever date the couple sets — the
+  // event date or a session — drives the countdown); fall back to the latest.
+  const now = Date.now()
+  const upcoming = dates.filter((d) => d.getTime() > now).sort((a, b) => a.getTime() - b.getTime())
+  if (upcoming.length > 0) return upcoming[0]
+  return dates.sort((a, b) => b.getTime() - a.getTime())[0]
 }
 
 // Google Calendar link for the first session (mirrors buildProfileFields).

@@ -304,5 +304,149 @@
     "weight": "400",
     "style": "normal",
     "bytes": 28072
+  },
+  "publicsans-300.woff2": {
+    "family": "Public Sans",
+    "weight": "300",
+    "style": "normal",
+    "bytes": 26636
+  },
+  "publicsans-400.woff2": {
+    "family": "Public Sans",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 26636
+  },
+  "publicsans-500.woff2": {
+    "family": "Public Sans",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 26636
+  },
+  "publicsans-600.woff2": {
+    "family": "Public Sans",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 26636
+  },
+  "publicsans-700.woff2": {
+    "family": "Public Sans",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 26636
+  },
+  "baskervville-400.woff2": {
+    "family": "Baskervville",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 18100
+  },
+  "jura-300.woff2": {
+    "family": "Jura",
+    "weight": "300",
+    "style": "normal",
+    "bytes": 24156
+  },
+  "jura-400.woff2": {
+    "family": "Jura",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 24156
+  },
+  "jura-500.woff2": {
+    "family": "Jura",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 24156
+  },
+  "jura-600.woff2": {
+    "family": "Jura",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 24156
+  },
+  "jura-700.woff2": {
+    "family": "Jura",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 24156
+  },
+  "lora-400-italic.woff2": {
+    "family": "Lora",
+    "weight": "400",
+    "style": "italic",
+    "bytes": 40648
+  },
+  "lora-500-italic.woff2": {
+    "family": "Lora",
+    "weight": "500",
+    "style": "italic",
+    "bytes": 40648
+  },
+  "lora-600-italic.woff2": {
+    "family": "Lora",
+    "weight": "600",
+    "style": "italic",
+    "bytes": 40648
+  },
+  "lora-700-italic.woff2": {
+    "family": "Lora",
+    "weight": "700",
+    "style": "italic",
+    "bytes": 40648
+  },
+  "lora-400.woff2": {
+    "family": "Lora",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 37792
+  },
+  "lora-500.woff2": {
+    "family": "Lora",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 37792
+  },
+  "lora-600.woff2": {
+    "family": "Lora",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 37792
+  },
+  "lora-700.woff2": {
+    "family": "Lora",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 37792
+  },
+  "poppins-300.woff2": {
+    "family": "Poppins",
+    "weight": "300",
+    "style": "normal",
+    "bytes": 7844
+  },
+  "poppins-400.woff2": {
+    "family": "Poppins",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 7900
+  },
+  "poppins-500.woff2": {
+    "family": "Poppins",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 7740
+  },
+  "poppins-600.woff2": {
+    "family": "Poppins",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 7992
+  },
+  "poppins-700.woff2": {
+    "family": "Poppins",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 7848
   }
 }

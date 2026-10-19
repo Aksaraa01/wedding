@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { getTemplateComponent, getTemplateConfig } from "@/components/templates"
+import { DEMO_PROPS_BY_CODE } from "@/components/templates/demoProps"
 import { ASSETS } from "@/lib/assets"
 import type { TemplateProps } from "@/types/template"
 
@@ -91,7 +92,7 @@ export default async function TemplatePreviewPage({ params }: { params: Promise<
 
   return (
     <div className="bg-[#05070c]">
-      <Component {...DEMO_PROPS} />
+      <Component {...(DEMO_PROPS_BY_CODE[code] || DEMO_PROPS)} />
     </div>
   )
 }

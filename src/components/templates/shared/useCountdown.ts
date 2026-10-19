@@ -15,11 +15,13 @@ function diff(target: Date) {
 
 export function useCountdown(target: Date | null) {
   const [t, setT] = useState(() => diff(target || new Date()))
+  const key = target ? target.getTime() : null
   useEffect(() => {
-    if (!target) return
-    setT(diff(target))
-    const id = setInterval(() => setT(diff(target)), 1000)
+    if (key === null) return
+    const at = new Date(key)
+    setT(diff(at))
+    const id = setInterval(() => setT(diff(at)), 1000)
     return () => clearInterval(id)
-  }, [target])
+  }, [key])
   return t
 }
