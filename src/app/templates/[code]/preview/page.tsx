@@ -189,7 +189,7 @@ export default async function TemplatePreviewPage({ params }: { params: Promise<
   const Component = getTemplateComponent(code)
   if (!Component) notFound()
 
-  const demoProps = code === "nihara-mist" ? NIHARA_MIST_DEMO : (DEMO_PROPS_BY_CODE[code] || DEMO_PROPS)
+  const demoProps = DEMO_PROPS_BY_CODE[code] || (code === "nihara-mist" ? NIHARA_MIST_DEMO : DEMO_PROPS)
 
   return (
     <div className="bg-[#05070c]">

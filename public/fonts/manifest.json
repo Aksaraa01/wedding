@@ -305,6 +305,36 @@
     "style": "normal",
     "bytes": 28072
   },
+  "publicsans-300.woff2": {
+    "family": "Public Sans",
+    "weight": "300",
+    "style": "normal",
+    "bytes": 26636
+  },
+  "publicsans-400.woff2": {
+    "family": "Public Sans",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 26636
+  },
+  "publicsans-500.woff2": {
+    "family": "Public Sans",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 26636
+  },
+  "publicsans-600.woff2": {
+    "family": "Public Sans",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 26636
+  },
+  "publicsans-700.woff2": {
+    "family": "Public Sans",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 26636
+  },
   "baskervville-400.woff2": {
     "family": "Baskervville",
     "weight": "400",
@@ -484,5 +514,101 @@
     "weight": "400",
     "style": "normal",
     "bytes": 36744
+  },
+  "cormorant-300-italic.woff2": {
+    "family": "Cormorant",
+    "weight": "300",
+    "style": "italic",
+    "bytes": 38076
+  },
+  "cormorant-400-italic.woff2": {
+    "family": "Cormorant",
+    "weight": "400",
+    "style": "italic",
+    "bytes": 38076
+  },
+  "cormorant-500-italic.woff2": {
+    "family": "Cormorant",
+    "weight": "500",
+    "style": "italic",
+    "bytes": 38076
+  },
+  "cormorant-600-italic.woff2": {
+    "family": "Cormorant",
+    "weight": "600",
+    "style": "italic",
+    "bytes": 38076
+  },
+  "cormorant-300.woff2": {
+    "family": "Cormorant",
+    "weight": "300",
+    "style": "normal",
+    "bytes": 35280
+  },
+  "cormorant-400.woff2": {
+    "family": "Cormorant",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 35280
+  },
+  "cormorant-500.woff2": {
+    "family": "Cormorant",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 35280
+  },
+  "cormorant-600.woff2": {
+    "family": "Cormorant",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 35280
+  },
+  "bitter-300-italic.woff2": {
+    "family": "Bitter",
+    "weight": "300",
+    "style": "italic",
+    "bytes": 33376
+  },
+  "bitter-400-italic.woff2": {
+    "family": "Bitter",
+    "weight": "400",
+    "style": "italic",
+    "bytes": 33376
+  },
+  "bitter-500-italic.woff2": {
+    "family": "Bitter",
+    "weight": "500",
+    "style": "italic",
+    "bytes": 33376
+  },
+  "bitter-300.woff2": {
+    "family": "Bitter",
+    "weight": "300",
+    "style": "normal",
+    "bytes": 34156
+  },
+  "bitter-400.woff2": {
+    "family": "Bitter",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 34156
+  },
+  "bitter-500.woff2": {
+    "family": "Bitter",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 34156
+  },
+  "allura-400.woff2": {
+    "family": "Allura",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 26464
+  },
+  "parisienne-400.woff2": {
+    "family": "Parisienne",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 22332
   }
 }

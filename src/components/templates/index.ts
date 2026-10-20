@@ -8,6 +8,7 @@ import PastelDreamCathedral from "./pastel-dream-cathedral"
 import PastelCoastal from "./pastel-coastal-cut"
 import NiharaMist from "./nihara-mist"
 import DarkSplitRail from "./dark-split-rail"
+import Sandhya from "./sandhya"
 
 export type { TemplateProps } from "@/types/template"
 
@@ -20,6 +21,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "pastel-coastal-cut": PastelCoastal,
   "nihara-mist": NiharaMist,
   "dark-split-rail": DarkSplitRail,
+  sandhya: Sandhya,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -332,6 +334,43 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         dresscode: true,
         livestream: true,
       },
+    },
+  },
+  {
+    code: "sandhya",
+    name: "Sandhya",
+    description: "Undangan sinematik bernuansa senja — sampul berlapis bunga, ayat, mempelai, acara, dress code, galeri, hadiah, dan ucapan dalam satu alur gulir.",
+    theme: {
+      fonts: { display: "Cormorant", script: "Allura", body: "Bitter" },
+      colors: {
+        surface: "#0b0805",
+        text: "#ffffff",
+        accent: "#e8b57c",
+        accentMuted: "#c98f6b",
+        overlay: "#000000",
+        dark: "#100d0a",
+      },
+      ornaments: { divider: "floral", border: "minimal", frame: "square" },
+      motion: { enabled: true, duration: 0.7, stagger: 0.2 },
+    },
+    content: {
+      cover_slots: 5,
+      cover_slot_labels: ["Sampul", "Ayat / Kutipan", "Acara", "Dress Code", "Finale"],
+      groom_photo: "single",
+      bride_photo: "single",
+      sections: {
+        opening_description: true,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: true,
+        livestream: true,
+      },
+      extras: true,
     },
   },
 ]

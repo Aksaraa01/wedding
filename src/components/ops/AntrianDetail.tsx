@@ -730,6 +730,13 @@ export default function AntrianDetail({ id }: { id: string }) {
     }))
   }
 
+  const handleTemplateContentChange = (key: string, value: string) => {
+    setInvForm((prev: any) => ({
+      ...prev,
+      template_content: { ...(prev?.template_content || {}), [key]: value },
+    }))
+  }
+
   const handleLivestreamUrlChange = (url: string) => {
     setInvForm((prev: any) => ({
       ...prev,
@@ -1322,6 +1329,11 @@ export default function AntrianDetail({ id }: { id: string }) {
       grayscale: p.grayscale === true,
       video_section_visible: p.video_section_visible !== false,
       story_visible: p.story_visible !== false,
+      dresscode: p.dresscode || {},
+      livestream: p.livestream || {},
+      dresscode_visible: p.dresscode_visible !== false,
+      livestream_visible: p.livestream_visible !== false,
+      template_content: p.template_content || {},
       gift_section_visible: p.gift_section_visible !== false,
       inviting_families_visible: p.inviting_families_visible !== false,
       selected_track_id: p.selected_track_id || "",
@@ -1421,6 +1433,23 @@ export default function AntrianDetail({ id }: { id: string }) {
     visField("Tampil Kisah", f.story_visible, orig.story_visible !== false)
     visField("Tampil Hadiah", f.gift_section_visible, orig.gift_section_visible !== false)
     visField("Tampil Turut Mengundang", f.inviting_families_visible, orig.inviting_families_visible !== false)
+    visField("Tampil Dress Code", f.dresscode_visible !== false, orig.dresscode_visible !== false)
+    visField("Tampil Live Streaming", f.livestream_visible !== false, orig.livestream_visible !== false)
+    if (JSON.stringify(f.dresscode?.colors || []) !== JSON.stringify(orig.dresscode?.colors || [])) changed.push("Palet Dress Code")
+    strField("Live Streaming", f.livestream?.url, orig.livestream?.url)
+    const tcLabels: [string, string][] = [
+      ["cover_apology", "Cover Apology"],
+      ["groom_child_order", "Groom Child Order"],
+      ["bride_child_order", "Bride Child Order"],
+      ["gallery_quote", "Gallery Quote"],
+      ["gallery_quote_sign", "Gallery Quote Sign"],
+      ["gift_intro_title", "Gift Intro Title"],
+      ["gift_intro_description", "Gift Intro Description"],
+      ["closing_message", "Closing Message"],
+    ]
+    for (const [key, label] of tcLabels) {
+      strField(label, f.template_content?.[key], orig.template_content?.[key])
+    }
     if ((f.selected_track_id || "") !== (orig.selected_track_id || "")) {
       const t = invTrackOptions.find((x: any) => x.id === f.selected_track_id)
       changed.push(`Lagu (${t?.title || invitationData.track?.title || "diubah"})`)
@@ -1472,6 +1501,11 @@ export default function AntrianDetail({ id }: { id: string }) {
           video_section_visible: !!f.video_section_visible,
           story_visible: !!f.story_visible,
           gift_section_visible: !!f.gift_section_visible,
+          dresscode: f.dresscode || {},
+          livestream: f.livestream || {},
+          dresscode_visible: f.dresscode_visible !== false,
+          livestream_visible: f.livestream_visible !== false,
+          template_content: f.template_content || {},
           inviting_families_visible: !!f.inviting_families_visible,
           selected_track_id: f.selected_track_id || null,
         }),
@@ -3636,6 +3670,85 @@ export default function AntrianDetail({ id }: { id: string }) {
                         ) : (
                           <p className="font-body-md text-xs italic text-on-surface-variant/70">Belum ada live streaming.</p>
                         )}
+                      </div>
+                    )}
+                  </InvAccordion>
+                  )}
+
+                  {invContentSpec?.extras && (
+                  <InvAccordion secKey="extras" icon="auto_awesome" label="SANDHYA EXTRAS" {...invAccProps("extras")}>
+                    {invEditing && invForm ? (
+                      <div className="mt-6 space-y-4">
+                        <p className="text-[11px] text-on-surface-variant italic">
+                          Copy khusus template Sandhya. Kosongkan untuk memakai teks bawaan.
+                        </p>
+                          <div className="space-y-2">
+                            <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Cover Apology</label>
+                            <textarea className="input-editorial w-full font-body-md text-[14px] resize-none" rows={2} value={invForm.template_content?.cover_apology || ""} onChange={(e) => handleTemplateContentChange("cover_apology", e.target.value)} placeholder="We sincerely apologize…" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Groom Child Order</label>
+                            <input className="input-editorial w-full font-body-md text-[14px]" type="text" value={invForm.template_content?.groom_child_order || ""} onChange={(e) => handleTemplateContentChange("groom_child_order", e.target.value)} placeholder="The Second Son of" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Bride Child Order</label>
+                            <input className="input-editorial w-full font-body-md text-[14px]" type="text" value={invForm.template_content?.bride_child_order || ""} onChange={(e) => handleTemplateContentChange("bride_child_order", e.target.value)} placeholder="The Daughter of" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Gallery Quote</label>
+                            <textarea className="input-editorial w-full font-body-md text-[14px] resize-none" rows={2} value={invForm.template_content?.gallery_quote || ""} onChange={(e) => handleTemplateContentChange("gallery_quote", e.target.value)} placeholder="Every love story is beautiful…" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Gallery Quote Sign-off</label>
+                            <input className="input-editorial w-full font-body-md text-[14px]" type="text" value={invForm.template_content?.gallery_quote_sign || ""} onChange={(e) => handleTemplateContentChange("gallery_quote_sign", e.target.value)} placeholder="Vincent & Felicia" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Gift Intro Title</label>
+                            <input className="input-editorial w-full font-body-md text-[14px]" type="text" value={invForm.template_content?.gift_intro_title || ""} onChange={(e) => handleTemplateContentChange("gift_intro_title", e.target.value)} placeholder="A Token of Love" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Gift Intro Description</label>
+                            <textarea className="input-editorial w-full font-body-md text-[14px] resize-none" rows={3} value={invForm.template_content?.gift_intro_description || ""} onChange={(e) => handleTemplateContentChange("gift_intro_description", e.target.value)} placeholder="Your presence is the greatest gift…" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Closing Message</label>
+                            <textarea className="input-editorial w-full font-body-md text-[14px] resize-none" rows={3} value={invForm.template_content?.closing_message || ""} onChange={(e) => handleTemplateContentChange("closing_message", e.target.value)} placeholder="It would be an honor and a joy…" />
+                          </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                          <div className="flex justify-between gap-4 border-b border-outline-variant/20 pb-2 text-sm">
+                            <span className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Cover Apology</span>
+                            <span className="font-body-md text-right">{invitationData?.profile?.template_content?.cover_apology || "—"}</span>
+                          </div>
+                          <div className="flex justify-between gap-4 border-b border-outline-variant/20 pb-2 text-sm">
+                            <span className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Groom Child Order</span>
+                            <span className="font-body-md text-right">{invitationData?.profile?.template_content?.groom_child_order || "—"}</span>
+                          </div>
+                          <div className="flex justify-between gap-4 border-b border-outline-variant/20 pb-2 text-sm">
+                            <span className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Bride Child Order</span>
+                            <span className="font-body-md text-right">{invitationData?.profile?.template_content?.bride_child_order || "—"}</span>
+                          </div>
+                          <div className="flex justify-between gap-4 border-b border-outline-variant/20 pb-2 text-sm">
+                            <span className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Gallery Quote</span>
+                            <span className="font-body-md text-right">{invitationData?.profile?.template_content?.gallery_quote || "—"}</span>
+                          </div>
+                          <div className="flex justify-between gap-4 border-b border-outline-variant/20 pb-2 text-sm">
+                            <span className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Gallery Quote Sign-off</span>
+                            <span className="font-body-md text-right">{invitationData?.profile?.template_content?.gallery_quote_sign || "—"}</span>
+                          </div>
+                          <div className="flex justify-between gap-4 border-b border-outline-variant/20 pb-2 text-sm">
+                            <span className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Gift Intro Title</span>
+                            <span className="font-body-md text-right">{invitationData?.profile?.template_content?.gift_intro_title || "—"}</span>
+                          </div>
+                          <div className="flex justify-between gap-4 border-b border-outline-variant/20 pb-2 text-sm">
+                            <span className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Gift Intro Description</span>
+                            <span className="font-body-md text-right">{invitationData?.profile?.template_content?.gift_intro_description || "—"}</span>
+                          </div>
+                          <div className="flex justify-between gap-4 border-b border-outline-variant/20 pb-2 text-sm">
+                            <span className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Closing Message</span>
+                            <span className="font-body-md text-right">{invitationData?.profile?.template_content?.closing_message || "—"}</span>
+                          </div>
                       </div>
                     )}
                   </InvAccordion>

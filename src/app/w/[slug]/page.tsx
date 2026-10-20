@@ -198,7 +198,7 @@ export default async function WeddingInvitation({
   // case-insensitively (the stored slug is camel: "RafiNamu-NoviKamu").
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id, slug, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, cover_photos, couple_initials, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, active_wp_post_id, active_wp_post_url, opening_title, opening_description, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, guest_link_strict, invitation_disabled_at, dresscode, livestream, dresscode_visible, livestream_visible")
+    .select("id, slug, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, cover_photos, couple_initials, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, active_wp_post_id, active_wp_post_url, opening_title, opening_description, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, guest_link_strict, invitation_disabled_at, dresscode, livestream, dresscode_visible, livestream_visible, template_content")
     .ilike("slug", slug)
     .single()
 
@@ -440,6 +440,7 @@ export default async function WeddingInvitation({
         video_url={profile.video_url || undefined}
         opening_title={profile.opening_title || undefined}
         opening_description={profile.opening_description || undefined}
+        template_content={(profile.template_content as Record<string, string>) || undefined}
         dresscode={(profile.dresscode as any) || undefined}
         livestream={(profile.livestream as any) || undefined}
         dresscode_visible={(profile as any).dresscode_visible !== false}

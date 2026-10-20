@@ -90,6 +90,11 @@ export type TemplateProps = {
   video_section_visible?: boolean
   inviting_families_visible?: boolean
   story_visible?: boolean
+  // Template-specific reference copy (Sandhya). Kept generic so other in-house
+  // templates can opt in without new columns per template.
+  template_content?: Record<string, string>
+  // Editor/demo preview only: enables preview-only chrome (e.g. theme switcher).
+  preview_mode?: boolean
   wedding_profile_id?: string
   guest_id?: string
   // Fleksibel link mode: RSVP dock renders without a guest row and provisions
@@ -142,6 +147,8 @@ export type ContentSpec = {
     dresscode?: boolean
     livestream?: boolean
   }
+  // Template consumes profile.template_content (reference-only copy fields).
+  extras?: boolean
 }
 
 export type TemplateConfig = {

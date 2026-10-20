@@ -206,3 +206,20 @@ export function timeAgo(iso?: string): string {
   if (hours < 24) return `${hours} Jam Lalu`
   return `${Math.floor(hours / 24)} Hari Lalu`
 }
+
+export function flattenPhotos(value: unknown): string[] {
+  if (typeof value === "string") {
+    const s = value.trim()
+    if (!s) return []
+    if (s.startsWith("[")) {
+      try {
+        return flattenPhotos(JSON.parse(s))
+      } catch {
+        return [s]
+      }
+    }
+    return [s]
+  }
+  if (Array.isArray(value)) return value.flatMap(flattenPhotos)
+  return []
+}

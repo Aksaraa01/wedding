@@ -49,6 +49,7 @@ type Profile = {
   story_visible?: boolean
   opening_title?: string | null
   opening_description?: string | null
+  template_content?: Record<string, string> | null
 }
 
 type Session = {
@@ -231,6 +232,7 @@ function EditorInner({ id }: { id: string }) {
     bride_photo_url: [],
     cover_photos: [],
     inviting_families: [],
+    template_content: {},
   })
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error">("saved")
   const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "error">("idle")
@@ -239,6 +241,7 @@ function EditorInner({ id }: { id: string }) {
   const [activeSection, setActiveSection] = useState<string>("sampul")
   const [colorEdit, setColorEdit] = useState<{ index: number; hex: string } | null>(null)
   const [openingCustomMode, setOpeningCustomMode] = useState(false)
+  const [showMobileBar, setShowMobileBar] = useState(false)
   const [showMobilePreview, setShowMobilePreview] = useState(false)
   const [previewDevice, setPreviewDevice] = useState<"mobile" | "desktop">("mobile")
   const searchParams = useSearchParams()
@@ -603,6 +606,10 @@ function EditorInner({ id }: { id: string }) {
     if (data.is_published === true || reviewMode) return
     setData(prev => ({ ...prev, [field]: value }))
     save({ [field]: value })
+  }
+
+  const updateTemplateContent = (key: string, value: string) => {
+    updateField("template_content", { ...(data.template_content || {}), [key]: value })
   }
 
   // Race-free variant: compute updates from the LATEST state inside the
@@ -2324,6 +2331,101 @@ function EditorInner({ id }: { id: string }) {
                   </div>
                 </div>
               ))}
+              {contentSpec?.extras && renderSection("extras", "auto_awesome", "SANDHYA EXTRAS", (
+                <div className="mt-6 space-y-4">
+                  <p className="text-[11px] text-on-surface-variant italic">
+                    Copy khusus template Sandhya. Kosongkan untuk memakai teks bawaan.
+                  </p>
+                    <div className="space-y-2">
+                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Cover apology</label>
+                      <input
+                        className="input-editorial w-full font-body-md text-[14px]"
+                        type="text"
+                        value={data.template_content?.cover_apology || ""}
+                        onChange={e => updateTemplateContent("cover_apology", e.target.value)}
+                        placeholder="We sincerely apologize for any misspelling of names and titles."
+                        disabled={data.is_published === true}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Groom — child order</label>
+                      <input
+                        className="input-editorial w-full font-body-md text-[14px]"
+                        type="text"
+                        value={data.template_content?.groom_child_order || ""}
+                        onChange={e => updateTemplateContent("groom_child_order", e.target.value)}
+                        placeholder="The Second Son of"
+                        disabled={data.is_published === true}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Bride — child order</label>
+                      <input
+                        className="input-editorial w-full font-body-md text-[14px]"
+                        type="text"
+                        value={data.template_content?.bride_child_order || ""}
+                        onChange={e => updateTemplateContent("bride_child_order", e.target.value)}
+                        placeholder="The Daughter of"
+                        disabled={data.is_published === true}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Gallery quote</label>
+                      <textarea
+                        className="input-editorial w-full font-body-md text-[14px] resize-none"
+                        rows={2}
+                        value={data.template_content?.gallery_quote || ""}
+                        onChange={e => updateTemplateContent("gallery_quote", e.target.value)}
+                        placeholder="Every love story is beautiful, but ours is my favorite."
+                        disabled={data.is_published === true}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Gallery quote sign-off</label>
+                      <textarea
+                        className="input-editorial w-full font-body-md text-[14px] resize-none"
+                        rows={1}
+                        value={data.template_content?.gallery_quote_sign || ""}
+                        onChange={e => updateTemplateContent("gallery_quote_sign", e.target.value)}
+                        placeholder="Vincent & Felicia"
+                        disabled={data.is_published === true}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Gift intro title</label>
+                      <input
+                        className="input-editorial w-full font-body-md text-[14px]"
+                        type="text"
+                        value={data.template_content?.gift_intro_title || ""}
+                        onChange={e => updateTemplateContent("gift_intro_title", e.target.value)}
+                        placeholder="A Token of Love"
+                        disabled={data.is_published === true}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Gift intro description</label>
+                      <textarea
+                        className="input-editorial w-full font-body-md text-[14px] resize-none"
+                        rows={3}
+                        value={data.template_content?.gift_intro_description || ""}
+                        onChange={e => updateTemplateContent("gift_intro_description", e.target.value)}
+                        placeholder="Your presence is the greatest gift…"
+                        disabled={data.is_published === true}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Closing message</label>
+                      <textarea
+                        className="input-editorial w-full font-body-md text-[14px] resize-none"
+                        rows={3}
+                        value={data.template_content?.closing_message || ""}
+                        onChange={e => updateTemplateContent("closing_message", e.target.value)}
+                        placeholder="It would be an honor and a joy…"
+                        disabled={data.is_published === true}
+                      />
+                    </div>
+                </div>
+              ))}
               {renderSection("story", "auto_stories", "STORY",
                 gates.story.included ? (
                   <div className="mt-6 space-y-6">
@@ -2719,58 +2821,91 @@ function EditorInner({ id }: { id: string }) {
           </section>
         </main>
 
-        {/* MOBILE BOTTOM BAR */}
-        {!reviewMode && (
-        <div className="md:hidden fixed bottom-0 left-0 w-full px-4 pb-6 pt-3 bg-surface/90 backdrop-blur-sm z-50 border-t border-outline-variant">
-          <div className="flex gap-3">
+        {/* MOBILE BOTTOM BAR — collapsible floating button (visible in BOTH edit & preview modes) */}
+        {(
+          <>
+            {/* Floating action button - ALWAYS visible on mobile */}
             <button
-              data-tour="konten-mobile"
-              onClick={() => setShowMobilePreview(prev => !prev)}
-              className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-surface-container-high text-on-surface-variant rounded-full flex items-center justify-center gap-1.5"
+              onClick={() => setShowMobileBar(!showMobileBar)}
+              className="md:hidden fixed bottom-4 right-4 z-50 p-3 bg-brand-gold text-white rounded-full shadow-2xl active:scale-[0.95] transition-transform"
+              aria-label={showMobileBar ? "Tutup menu" : "Buka menu"}
             >
-              <span className="material-symbols-outlined text-[18px]">{showMobilePreview ? "edit" : "visibility"}</span>
-              {showMobilePreview ? (isPublished ? "KONTEN" : "EDIT") : "PRATINJAU"}
+              <span className="material-symbols-outlined text-[24px]">
+                {showMobileBar ? "close" : "menu"}
+              </span>
             </button>
-            {!isPublished && (
-            <button
-              data-tour="perbarui"
-              onClick={handleUpdatePreview}
-              disabled={updatingPreview || isPublished}
-              className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-brand-gold text-white disabled:opacity-50 rounded-full flex items-center justify-center gap-1.5"
-            >
-              <span className={`material-symbols-outlined text-[18px] ${updatingPreview ? "animate-spin" : ""}`}>{updatingPreview ? "progress_activity" : "refresh"}</span>
-              {updatingPreview ? "MEMPERBARUI..." : "PERBARUI"}
-            </button>
-            )}
-            <button
-              data-tour="konfirmasi"
-              onClick={openPublishConfirm}
-              disabled={isPublished}
-              className={`flex-1 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5 rounded-full ${
-                isPublished
-                  ? "py-2 flex-col gap-0.5 bg-emerald-600 text-white cursor-default"
-                  : "py-4 bg-secondary text-on-secondary"
+
+            {/* Expandable bottom bar */}
+            <div
+              className={`md:hidden fixed bottom-0 left-0 w-full px-4 pb-6 pt-3 bg-surface/90 backdrop-blur-sm z-50 border-t border-outline-variant transition-all duration-300 ease-out ${
+                showMobileBar ? "opacity-100 translate-y-0 max-h-[60vh]" : "opacity-0 translate-y-full max-h-0 pointer-events-none"
               }`}
+              style={{ overflow: "hidden" }}
             >
-              {isPublished ? (
-                <>
-                  <span className="flex items-center gap-1 text-[11px]">
-                    <span className="material-symbols-outlined text-[14px]">verified</span>
-                    TERKONFIRMASI
-                  </span>
-                  <span className="text-[8px] opacity-90 font-normal tracking-normal">
-                    {formatConfirmedAt(data.published_at)}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <span className="material-symbols-outlined text-[18px]">check_circle</span>
-                  KONFIRMASI
-                </>
-              )}
-            </button>
-          </div>
-        </div>
+              <div className="flex gap-3">
+                {reviewMode ? (
+                  // Preview mode: only close preview button
+                  <button
+                    onClick={() => { setReviewMode(false); setShowMobileBar(false); }}
+                    className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-brand-gold text-white rounded-full flex items-center justify-center gap-1.5"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">close</span>
+                    TUTUP PRATINJAU
+                  </button>
+                ) : (
+                  // Edit mode: PRATINJAU, PERBARUI, KONFIRMASI
+                  <>
+                    <button
+                      data-tour="konten-mobile"
+                      onClick={() => setShowMobilePreview(prev => !prev)}
+                      className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-surface-container-high text-on-surface-variant rounded-full flex items-center justify-center gap-1.5"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">{showMobilePreview ? "edit" : "visibility"}</span>
+                      {showMobilePreview ? (isPublished ? "KONTEN" : "EDIT") : "PRATINJAU"}
+                    </button>
+                    {!isPublished && (
+                    <button
+                      data-tour="perbarui"
+                      onClick={handleUpdatePreview}
+                      disabled={updatingPreview || isPublished}
+                      className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-brand-gold text-white disabled:opacity-50 rounded-full flex items-center justify-center gap-1.5"
+                    >
+                      <span className={`material-symbols-outlined text-[18px] ${updatingPreview ? "animate-spin" : ""}`}>{updatingPreview ? "progress_activity" : "refresh"}</span>
+                      {updatingPreview ? "MEMPERBARUI..." : "PERBARUI"}
+                    </button>
+                    )}
+                    <button
+                      data-tour="konfirmasi"
+                      onClick={openPublishConfirm}
+                      disabled={isPublished}
+                      className={`flex-1 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5 rounded-full ${
+                        isPublished
+                          ? "py-2 flex-col gap-0.5 bg-emerald-600 text-white cursor-default"
+                          : "py-4 bg-secondary text-on-secondary"
+                      }`}
+                    >
+                      {isPublished ? (
+                        <>
+                          <span className="flex items-center gap-1 text-[11px]">
+                            <span className="material-symbols-outlined text-[14px]">verified</span>
+                            TERKONFIRMASI
+                          </span>
+                          <span className="text-[8px] opacity-90 font-normal tracking-normal">
+                            {formatConfirmedAt(data.published_at)}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                          KONFIRMASI
+                        </>
+                      )}
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </>
         )}
 
         {/* MOBILE REVIEW SHEET — bottom sheet below the preview (canvas has

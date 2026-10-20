@@ -29,6 +29,10 @@ const FAMILIES = [
   { name: "Poppins", weights: ["300", "400", "500", "600", "700"], styles: ["normal"] },
   { name: "Mulish", weights: ["300", "400", "500", "600", "700"], styles: ["normal", "italic"] },
   { name: "WindSong", weights: ["400"], styles: ["normal"] },
+  { name: "Cormorant", weights: ["300", "400", "500", "600"], styles: ["normal", "italic"] },
+  { name: "Bitter", weights: ["300", "400", "500"], styles: ["normal", "italic"] },
+  { name: "Allura", weights: ["400"], styles: ["normal"] },
+  { name: "Parisienne", weights: ["400"], styles: ["normal"] },
 ];
 
 function cssUrl(f) {
