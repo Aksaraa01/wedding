@@ -8,6 +8,7 @@ import { AKSARAA_WA_NUMBER } from "@/lib/contact"
 import { coverPhoto, photoList, normalizeVideoUrl, flattenPhotos } from "../shared/lib"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import Wishes from "./Wishes"
+import VideoModalPlayer from "./VideoModalPlayer"
 import BackgroundVideo from "../dark-split-rail/BackgroundVideo"
 import "./sandhya.css"
 
@@ -400,19 +401,24 @@ export default function Sandhya(profile: TemplateProps) {
     }
   }, [opened, scene])
 
-  // Load YouTube IFrame API for BackgroundVideo playVideo nudging
+  // Load the YouTube IFrame API once (shared by BackgroundVideo's play nudge
+  // and the video modal's caption removal). Never clobber window.YT — the modal
+  // needs the real YT.Player.
   useEffect(() => {
     if (typeof window === "undefined") return
-    if ((window as any).YT?.loaded) return
-    const script = document.createElement("script")
-    script.src = "https://www.youtube.com/iframe_api"
-    script.async = true
-    script.onload = () => {
-      ;(window as any).YT = { loaded: true }
+    if ((window as any).YT?.Player) return
+    const prev = (window as any).onYouTubeIframeAPIReady
+    ;(window as any).onYouTubeIframeAPIReady = () => {
+      if (typeof prev === "function") prev()
       window.dispatchEvent(new Event("YouTubeIframeAPIReady"))
     }
-    document.body.appendChild(script)
-    return () => { script.remove() }
+    if (!document.getElementById("yt-iframe-api")) {
+      const script = document.createElement("script")
+      script.id = "yt-iframe-api"
+      script.src = "https://www.youtube.com/iframe_api"
+      script.async = true
+      document.body.appendChild(script)
+    }
   }, [])
 
   const openInvitation = useCallback(() => {
@@ -952,14 +958,8 @@ export default function Sandhya(profile: TemplateProps) {
             onClick={() => setVideoModal(false)}
             aria-label="Close"
           >×</button>
-          <div className="relative aspect-video w-full max-w-[1100px]" style={{ maxHeight: "85vh" }} onClick={(e) => e.stopPropagation()}>
-            <iframe
-              src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1&modestbranding=1&cc_load_policy=0&iv_load_policy=3`}
-              title="Our wedding film"
-              className="absolute inset-0 h-full w-full rounded-lg border-0"
-              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-              allowFullScreen
-            />
+          <div className="relative aspect-video w-full max-w-[1100px] overflow-hidden rounded-lg" style={{ maxHeight: "85vh" }} onClick={(e) => e.stopPropagation()}>
+            <VideoModalPlayer videoId={videoId} />
           </div>
         </div>,
         document.body
