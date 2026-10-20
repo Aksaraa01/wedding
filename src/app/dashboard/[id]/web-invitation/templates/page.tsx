@@ -63,14 +63,22 @@ function TemplatesInner({ id }: { id: string }) {
   const [searchQuery, setSearchQuery] = useState<string>("")
   const allFilters = useMemo(() => {
     const distinct = [...new Set(templates.map((t) => (t.category || "").trim()).filter(Boolean))]
-    const baseIds = new Set(CATEGORY_FILTERS.map((f) => f.id))
     const extra = distinct
       .filter((c) => {
         const lower = c.toLowerCase()
-        return !baseIds.has(lower) && !["nasional", "budaya"].includes(lower)
+        if (["nasional", "budaya"].includes(lower)) return false
+        // Skip any category a built-in filter already covers (e.g. the DB
+        // value "Elegansi Dark" is matched by the base "elegansi" chip).
+        return !CATEGORY_FILTERS.some((f) => f.id !== "semua" && matchesCategory(c, f.id))
       })
       .map((c) => ({ id: c.toLowerCase(), label: c }))
-    return [...CATEGORY_FILTERS, ...extra]
+    const seen = new Set(CATEGORY_FILTERS.map((f) => f.id))
+    const dedupedExtra = extra.filter((f) => {
+      if (seen.has(f.id)) return false
+      seen.add(f.id)
+      return true
+    })
+    return [...CATEGORY_FILTERS, ...dedupedExtra]
   }, [templates])
 
   const visibleTemplates = templates.filter((t) => {
