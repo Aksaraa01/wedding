@@ -38,6 +38,25 @@ function initialsOf(groom?: string, bride?: string) {
   return `${a}${b}`.toUpperCase() || "A"
 }
 
+// cover_photos can hold nested groups (e.g. a slideshow slot stored as an
+// array). Flatten everything so indices always resolve to a single URL.
+function flattenPhotos(value: unknown): string[] {
+  if (typeof value === "string") {
+    const s = value.trim()
+    if (!s) return []
+    if (s.startsWith("[")) {
+      try {
+        return flattenPhotos(JSON.parse(s))
+      } catch {
+        return [s]
+      }
+    }
+    return [s]
+  }
+  if (Array.isArray(value)) return value.flatMap(flattenPhotos)
+  return []
+}
+
 function describePalette(colors?: { hex?: string; name?: string }[]): string {
   const names = (colors || []).map((c) => (c.name || "").trim()).filter(Boolean)
   if (!names.length) return ""
@@ -152,8 +171,8 @@ export default function NiharaMist(profile: TemplateProps) {
   const brideShort = profile.bride_name || ""
   const initials = (profile.couple_initials || "").trim() || initialsOf(groomShort, brideShort)
   const cover = coverPhoto(profile)
-  const gallery = (profile.gallery_photos || []).filter(Boolean)
-  const coverList = (profile.cover_photos || []).filter(Boolean)
+  const gallery = flattenPhotos(profile.gallery_photos)
+  const coverList = flattenPhotos(profile.cover_photos)
   const bgVerse = coverList[1] || gallery[0] || cover
   const bgEvents = coverList[2] || gallery[1] || bgVerse
   const bgDress = coverList[3] || gallery[2] || bgEvents
