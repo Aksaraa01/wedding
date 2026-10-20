@@ -474,6 +474,12 @@ export default function Sandhya(profile: TemplateProps) {
 
   return (
     <div ref={rootRef} className="sandhya-root" style={{ "--warm": themeValue, background: "transparent" } as React.CSSProperties}>
+      {hasTrack && (
+        <audio ref={audioRef} loop preload="auto">
+          <source src={profile.track_url} type="audio/mpeg" />
+        </audio>
+      )}
+
       {videoEmbed && opened && (
         createPortal(
           <BackgroundVideo embed={videoEmbed} poster={cover} signal={scene === "finale" ? 1 : 0} />,
