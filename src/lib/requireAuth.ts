@@ -1,19 +1,21 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { COUPLE_COOKIE, OPS_COOKIE, getSessionToken, verifySession } from "@/lib/sessionToken"
 
-type Opts = { allowAnon?: boolean }
+export async function requireAuth(req: Request) {
+  const couple = await verifySession(getSessionToken(req, COUPLE_COOKIE), "couple")
+  if (couple) return null
 
-export async function requireAuth(req: Request, opts: Opts = {}) {
-  const strict = process.env.STRICT_AUTH === "1"
-  if (!strict) return null
-  if (opts.allowAnon) return null
-  const auth = req.headers.get("authorization")
-  if (auth?.startsWith("Bearer ")) {
-    const token = auth.slice(7)
-    const { data } = await supabaseAdmin.auth.getUser(token)
-    if (data?.user) return null
+  const ops = await verifySession(getSessionToken(req, OPS_COOKIE), "ops")
+  if (ops) {
+    const { data: employee } = await supabaseAdmin
+      .from("employees")
+      .select("id")
+      .eq("id", ops.sub)
+      .eq("is_active", true)
+      .maybeSingle()
+    if (employee) return null
   }
-  const cookie = req.headers.get("cookie") || ""
-  if (cookie.includes("sb-") || cookie.includes("supabase")) return null
+
   return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 }

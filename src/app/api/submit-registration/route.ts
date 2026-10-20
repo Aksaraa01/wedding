@@ -1,25 +1,24 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { calcTotalWithVoucherBook, normalizePhone, PACKAGE_CODES, PACKAGE_FEATURES } from "@/lib/packages"
+import { normalizePhone, PACKAGE_CODES, PACKAGE_FEATURES, priceParts } from "@/lib/packages"
 import { getPriceBook } from "@/lib/priceBook"
 import { normalizeGaleriConfig } from "@/lib/gallery"
 import { slugifyCouple } from "@/lib/slug"
 import { notifyNewAccountGroup } from "@/lib/notifyGroup"
 import { getSelections } from "@/lib/featureGates"
-
-const VOUCHER_ERRORS: Record<string, string> = {
-  invalid: "Kode voucher tidak valid.",
-  inactive: "Voucher ini sudah dinonaktifkan.",
-  exhausted: "Kuota voucher ini sudah habis.",
-  ineligible: "Voucher ini tidak berlaku untuk paket yang dipilih.",
-  already_used: "Voucher ini sudah digunakan.",
-}
+import { checkRateLimit, getClientIp, rateLimited } from "@/lib/rateLimit"
+import { normalizeVoucherCode } from "@/lib/voucherInput"
+import { voucherErrorMessage } from "@/lib/voucherErrors"
+import { COUPLE_COOKIE, COUPLE_TTL_SECONDS, setSessionCookie, signSession } from "@/lib/sessionToken"
 
 function validPin(pin: string): boolean {
   return /^\d{6}$/.test(pin || "")
 }
 
 export async function POST(req: Request) {
+  const ipRl = checkRateLimit(`register:${getClientIp(req)}`, 10, 60_000)
+  if (!ipRl.ok) return rateLimited(ipRl.retryAfterMs!)
+
   try {
     const body = await req.json()
     const {
@@ -45,6 +44,19 @@ export async function POST(req: Request) {
 
     if (package_type && !PACKAGE_CODES.includes(package_type)) {
       return NextResponse.json({ error: "Paket tidak valid" }, { status: 400 })
+    }
+
+    const normalizedPhone = normalizePhone(whatsapp_number || "")
+    if (normalizedPhone) {
+      const phoneRl = checkRateLimit(`register-phone:${normalizedPhone}`, 5, 60_000)
+      if (!phoneRl.ok) return rateLimited(phoneRl.retryAfterMs!)
+    }
+
+    let voucherCode: string | null = null
+    if (typeof body?.voucher_code === "string" && body.voucher_code !== "") {
+      const parsed = normalizeVoucherCode(body.voucher_code)
+      if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 })
+      voucherCode = parsed.value
     }
 
     // Galeri Tamu slider config (standalone tab or Undangan add-on).
@@ -87,8 +99,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Nama pasangan sudah digunakan" }, { status: 409 })
     }
 
-    const normalizedPhone = normalizePhone(whatsapp_number || "")
-
     const userEmail = `${slug}@aksaraa.com`
 
     let userId = ""
@@ -122,7 +132,7 @@ export async function POST(req: Request) {
         if (userError.code === "23505") {
           return NextResponse.json({ error: "Nomor WhatsApp sudah terdaftar" }, { status: 409 })
         }
-        return NextResponse.json({ error: userError.message }, { status: 500 })
+        return NextResponse.json({ error: "Terjadi kesalahan. Silakan coba lagi." }, { status: 500 })
       }
 
       userId = user.id
@@ -132,12 +142,8 @@ export async function POST(req: Request) {
     if (book.base[effectivePackage] === undefined) {
       return NextResponse.json({ error: "Harga paket belum dikonfigurasi" }, { status: 500 })
     }
-    const total = calcTotalWithVoucherBook(book, effectivePackage, wa_blast_tier || 0, !!express_service, 0, galeriPrice)
-
-    const voucherCode =
-      typeof body?.voucher_code === "string" && body.voucher_code.trim()
-        ? body.voucher_code.trim().toUpperCase()
-        : null
+    const parts = priceParts(book, effectivePackage, wa_blast_tier || 0, !!express_service, galeriPrice)
+    const totalBase = parts.base + parts.waBlast + parts.express + parts.galeri
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("wedding_profiles")
@@ -153,7 +159,7 @@ export async function POST(req: Request) {
         wa_blast_tier: wa_blast_tier || 0,
         express_service: !!express_service,
         undangan_fisik: !!undangan_fisik,
-        total_project_cost: total,
+        total_project_cost: totalBase,
         payment_status: "UNPAID",
         // Galeri config (standalone tab or Undangan add-on). Couple name is
         // prefilled for the galeri-kenangan setup card (editable there).
@@ -173,7 +179,7 @@ export async function POST(req: Request) {
       if (profileError.code === "23505") {
         return NextResponse.json({ error: "Nama pasangan sudah digunakan" }, { status: 409 })
       }
-      return NextResponse.json({ error: profileError.message }, { status: 500 })
+      return NextResponse.json({ error: "Terjadi kesalahan. Silakan coba lagi." }, { status: 500 })
     }
 
     // Voucher redemption (single voucher per couple): atomic consume AFTER the
@@ -184,21 +190,29 @@ export async function POST(req: Request) {
       const { data: redeemed, error: redeemError } = await supabaseAdmin.rpc("redeem_voucher", {
         p_code: voucherCode,
         p_profile_id: profile.id,
-        p_package: effectivePackage,
+        p_base: parts.base,
+        p_wa_price: parts.waBlast,
+        p_express_price: parts.express,
+        p_galeri_price: parts.galeri,
+        p_employee_id: null,
       })
       if (redeemError) {
         await supabaseAdmin.from("wedding_profiles").delete().eq("id", profile.id)
         const key = (redeemError.message || "").trim()
         return NextResponse.json(
-          { error: VOUCHER_ERRORS[key] || "Voucher tidak dapat digunakan." },
+          { error: voucherErrorMessage(key) },
           { status: 400 },
         )
       }
-      voucherDiscount = Math.max(0, Math.floor(Number(redeemed) || 0))
-      const discounted = calcTotalWithVoucherBook(book, effectivePackage, wa_blast_tier || 0, !!express_service, voucherDiscount, galeriPrice)
+      const row = Array.isArray(redeemed) ? redeemed[0] : redeemed
+      voucherDiscount = Math.max(0, Math.floor(Number(row?.out_discount) || 0))
       await supabaseAdmin
         .from("wedding_profiles")
-        .update({ voucher_code: voucherCode, voucher_discount: voucherDiscount, total_project_cost: discounted })
+        .update({
+          voucher_code: voucherCode,
+          voucher_discount: voucherDiscount,
+          total_project_cost: Math.max(0, totalBase - voucherDiscount),
+        })
         .eq("id", profile.id)
     }
 
@@ -218,7 +232,7 @@ export async function POST(req: Request) {
       .single()
 
     if (queueError) {
-      return NextResponse.json({ error: queueError.message }, { status: 500 })
+      return NextResponse.json({ error: "Terjadi kesalahan. Silakan coba lagi." }, { status: 500 })
     }
 
     if (enabledFeatures.length > 0) {
@@ -234,14 +248,14 @@ export async function POST(req: Request) {
         .insert(featureRows)
 
       if (featuresError) {
-        return NextResponse.json({ error: featuresError.message }, { status: 500 })
+        return NextResponse.json({ error: "Terjadi kesalahan. Silakan coba lagi." }, { status: 500 })
       }
     }
 
     // Awaited (not fire-and-forget) so the WA send completes inside the
     // request lifecycle; a notify failure never fails the registration.
     // Reports the discounted total when a voucher was applied.
-    const finalTotal = calcTotalWithVoucherBook(book, effectivePackage, wa_blast_tier || 0, !!express_service, voucherDiscount, galeriPrice)
+    const finalTotal = Math.max(0, totalBase - voucherDiscount)
     try {
       await notifyNewAccountGroup({
         wedding_profile_id: profile.id,
@@ -259,8 +273,11 @@ export async function POST(req: Request) {
       console.error("[notifyGroup] failed", e)
     }
 
-    return NextResponse.json({ success: true, wedding_profile_id: profile.id, slug })
-  } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    const token = await signSession({ sub: profile.id, scope: "couple" }, COUPLE_TTL_SECONDS)
+    const res = NextResponse.json({ success: true, wedding_profile_id: profile.id, slug })
+    setSessionCookie(res, COUPLE_COOKIE, token, COUPLE_TTL_SECONDS)
+    return res
+  } catch {
+    return NextResponse.json({ error: "Terjadi kesalahan. Silakan coba lagi." }, { status: 500 })
   }
 }

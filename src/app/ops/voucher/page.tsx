@@ -21,7 +21,13 @@ type Voucher = {
   code: string
   title: string
   description: string | null
+  discount_type: "amount" | "percent"
   amount: number
+  percent: number | null
+  max_discount: number | null
+  include_wa_blast: boolean
+  include_express: boolean
+  include_galeri: boolean
   max_uses: number
   used_count: number
   package_eligibility: string[]
@@ -77,9 +83,16 @@ export default function OpsVoucherPage() {
   const [formOpen, setFormOpen] = useState(false)
   const [scope, setScope] = useState<"all" | "specific">("specific")
   const [notice, setNotice] = useState("")
+  const [code, setCode] = useState("")
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
+  const [discountType, setDiscountType] = useState<"amount" | "percent">("amount")
   const [amount, setAmount] = useState("50000")
+  const [percent, setPercent] = useState("10")
+  const [maxDiscount, setMaxDiscount] = useState("")
+  const [includeWaBlast, setIncludeWaBlast] = useState(true)
+  const [includeExpress, setIncludeExpress] = useState(true)
+  const [includeGaleri, setIncludeGaleri] = useState(true)
   const [cap, setCap] = useState("100")
   const [pkgs, setPkgs] = useState<string[]>([...DEFAULT_PKGS])
   const [generating, setGenerating] = useState(false)
@@ -138,9 +151,16 @@ export default function OpsVoucherPage() {
   }
 
   const resetForm = () => {
+    setCode("")
     setTitle("")
     setDescription("")
+    setDiscountType("amount")
     setAmount("50000")
+    setPercent("10")
+    setMaxDiscount("")
+    setIncludeWaBlast(true)
+    setIncludeExpress(true)
+    setIncludeGaleri(true)
     setCap("100")
     setPkgs([...DEFAULT_PKGS])
     setScope("specific")
@@ -153,6 +173,11 @@ export default function OpsVoucherPage() {
 
   const generate = async () => {
     if (!employee || generating) return
+    const cleanCode = code.replace(/\s/g, "").toUpperCase()
+    if (!cleanCode) {
+      setError("Kode voucher wajib diisi.")
+      return
+    }
     if (!title.trim()) {
       setError("Judul voucher wajib diisi.")
       return
@@ -162,8 +187,18 @@ export default function OpsVoucherPage() {
       return
     }
     const amountNum = parseInt(amount, 10) || 0
-    if (amountNum <= 0) {
+    const percentNum = parseInt(percent, 10) || 0
+    if (discountType === "amount" && amountNum <= 0) {
       setError("Potongan harus lebih dari 0.")
+      return
+    }
+    if (discountType === "percent" && (percentNum < 1 || percentNum > 100)) {
+      setError("Persentase harus antara 1 dan 100.")
+      return
+    }
+    const maxDiscountNum = maxDiscount.trim() ? parseInt(maxDiscount, 10) || 0 : null
+    if (discountType === "percent" && maxDiscount.trim() && maxDiscountNum !== null && maxDiscountNum <= 0) {
+      setError("Batas potongan harus lebih dari 0.")
       return
     }
     setGenerating(true)
@@ -173,9 +208,16 @@ export default function OpsVoucherPage() {
       method: "POST",
       headers: opsHeaders(employee),
       body: JSON.stringify({
+        code: cleanCode,
         title: title.trim(),
         description: description.trim() || undefined,
-        amount: amountNum,
+        discount_type: discountType,
+        amount: discountType === "amount" ? amountNum : 0,
+        percent: discountType === "percent" ? percentNum : null,
+        max_discount: discountType === "percent" ? maxDiscountNum : null,
+        include_wa_blast: includeWaBlast,
+        include_express: includeExpress,
+        include_galeri: includeGaleri,
         max_uses: parseInt(cap, 10) || 0,
         package_eligibility: scope === "all" ? [] : pkgs,
       }),
@@ -187,7 +229,7 @@ export default function OpsVoucherPage() {
       setFormOpen(false)
       fetchVouchers()
     } else {
-      setError(data.error || "Gagal generate voucher")
+      setError(data.error || "Gagal membuat voucher")
     }
     setGenerating(false)
   }
@@ -260,7 +302,7 @@ export default function OpsVoucherPage() {
         <section className="mb-8">
           <h2 className="font-headline-xl text-[20px] md:text-[28px] leading-tight mb-2">Voucher Diskon</h2>
           <p className="text-on-surface-variant text-sm opacity-80 max-w-xl leading-relaxed">
-            Generate kode voucher untuk customer. Satu kode bisa dipakai banyak couple sampai cap tercapai — pemakaian tercatat otomatis.
+             Buat kode voucher manual untuk customer. Satu kode bisa dipakai banyak couple sampai cap tercapai — pemakaian tercatat otomatis.
           </p>
         </section>
 
@@ -299,9 +341,9 @@ export default function OpsVoucherPage() {
               <div className="p-5">
                 <div className="flex items-start justify-between mb-5">
                   <div>
-                    <h3 className="font-label-md text-label-md uppercase tracking-widest">Generate Voucher Baru</h3>
+                    <h3 className="font-label-md text-label-md uppercase tracking-widest">Voucher Baru</h3>
                     <p className="text-xs text-on-surface-variant mt-1">
-                      Field bertanda <span className="text-red-500">*</span> wajib diisi.
+                      Field bertanda <span className="text-red-500">*</span> wajib diisi. Kode tidak boleh mengandung spasi dan tidak dapat diubah setelah dibuat.
                     </p>
                   </div>
                   <button
@@ -313,6 +355,22 @@ export default function OpsVoucherPage() {
                   </button>
                 </div>
 
+                <div className="mb-4">
+                  <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-1">
+                    Kode Voucher <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\s/g, "").toUpperCase())}
+                    onKeyDown={(e) => {
+                      if (e.key === " ") e.preventDefault()
+                    }}
+                    className="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-sm bg-background font-mono tracking-wide focus:outline-none focus:border-primary"
+                    placeholder="cth: PROMO50"
+                    maxLength={64}
+                    autoCapitalize="characters"
+                  />
+                </div>
                 <div className="mb-4">
                   <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-1">
                     Judul <span className="text-red-500">*</span>
@@ -338,27 +396,99 @@ export default function OpsVoucherPage() {
                     maxLength={500}
                   />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                  <div>
-                    <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-1">Potongan (Rp)</label>
-                    <input
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value.replace(/\D/g, ""))}
-                      inputMode="numeric"
-                      className="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-sm bg-background focus:outline-none focus:border-primary"
-                      placeholder="50000"
-                    />
+                <div className="mb-5">
+                  <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-2">Jenis Potongan</label>
+                  <div className="inline-flex p-0.5 bg-surface-container rounded-full mb-4">
+                    <button
+                      onClick={() => setDiscountType("amount")}
+                      className={`px-4 py-1.5 rounded-full text-[11px] uppercase tracking-widest transition-colors ${
+                        discountType === "amount" ? "bg-white shadow-sm text-on-surface font-semibold" : "text-on-surface-variant"
+                      }`}
+                    >
+                      Nominal (Rp)
+                    </button>
+                    <button
+                      onClick={() => setDiscountType("percent")}
+                      className={`px-4 py-1.5 rounded-full text-[11px] uppercase tracking-widest transition-colors ${
+                        discountType === "percent" ? "bg-white shadow-sm text-on-surface font-semibold" : "text-on-surface-variant"
+                      }`}
+                    >
+                      Persen (%)
+                    </button>
                   </div>
-                  <div>
-                    <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-1">Cap Limit (maks. pemakaian)</label>
-                    <input
-                      value={cap}
-                      onChange={(e) => setCap(e.target.value.replace(/\D/g, ""))}
-                      inputMode="numeric"
-                      className="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-sm bg-background focus:outline-none focus:border-primary"
-                      placeholder="100"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {discountType === "amount" ? (
+                      <div>
+                        <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-1">Potongan (Rp)</label>
+                        <input
+                          value={amount}
+                          onChange={(e) => setAmount(e.target.value.replace(/\D/g, ""))}
+                          inputMode="numeric"
+                          className="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-sm bg-background focus:outline-none focus:border-primary"
+                          placeholder="50000"
+                        />
+                      </div>
+                    ) : (
+                      <>
+                        <div>
+                          <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-1">Persentase (%)</label>
+                          <input
+                            value={percent}
+                            onChange={(e) => setPercent(e.target.value.replace(/\D/g, "").slice(0, 3))}
+                            inputMode="numeric"
+                            className="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-sm bg-background focus:outline-none focus:border-primary"
+                            placeholder="10"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-1">
+                            Batas Potongan (Rp) <span className="normal-case opacity-60">(opsional)</span>
+                          </label>
+                          <input
+                            value={maxDiscount}
+                            onChange={(e) => setMaxDiscount(e.target.value.replace(/\D/g, ""))}
+                            inputMode="numeric"
+                            className="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-sm bg-background focus:outline-none focus:border-primary"
+                            placeholder="Tanpa batas"
+                          />
+                        </div>
+                      </>
+                    )}
+                    <div>
+                      <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-1">Cap Limit (maks. pemakaian)</label>
+                      <input
+                        value={cap}
+                        onChange={(e) => setCap(e.target.value.replace(/\D/g, ""))}
+                        inputMode="numeric"
+                        className="w-full border border-outline-variant rounded-lg px-3 py-2.5 text-sm bg-background focus:outline-none focus:border-primary"
+                        placeholder="100"
+                      />
+                    </div>
                   </div>
+                </div>
+
+                <div className="mb-5">
+                  <label className="text-[11px] uppercase tracking-widest text-on-surface-variant block mb-2">Berlaku untuk add-on</label>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { label: "WA Blast", value: includeWaBlast, set: setIncludeWaBlast },
+                      { label: "Express", value: includeExpress, set: setIncludeExpress },
+                      { label: "Galeri Tamu", value: includeGaleri, set: setIncludeGaleri },
+                    ].map((item) => (
+                      <button
+                        key={item.label}
+                        onClick={() => item.set(!item.value)}
+                        className={`px-4 py-2 rounded-full border text-[11px] uppercase tracking-widest transition-colors ${
+                          item.value ? "border-primary bg-primary/5 text-primary" : "border-outline-variant text-on-surface-variant"
+                        }`}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-on-surface-variant mt-2">
+                    Persen dihitung dari paket + add-on yang dipilih di atas.
+                  </p>
                 </div>
 
                 <div className="mb-5">
@@ -444,7 +574,11 @@ export default function OpsVoucherPage() {
                 <div className="mb-5 rounded-xl bg-surface-container-low px-4 py-3 flex items-center gap-2.5 text-sm">
                   <span className="material-symbols-outlined text-primary text-[18px]">confirmation_number</span>
                   <span>
-                    <span className="font-semibold text-primary">{formatRp(parseInt(amount, 10) || 0)}</span>
+                    <span className="font-semibold text-primary">
+                      {discountType === "percent"
+                        ? `${parseInt(percent, 10) || 0}%${maxDiscount ? ` (maks ${formatRp(parseInt(maxDiscount, 10) || 0)})` : ""}`
+                        : formatRp(parseInt(amount, 10) || 0)}
+                    </span>
                     <span className="text-on-surface-variant"> untuk </span>
                     <span className="font-medium">{scope === "all" ? "semua paket" : `${pkgs.length} paket`}</span>
                     <span className="text-on-surface-variant"> • maks </span>
@@ -463,13 +597,13 @@ export default function OpsVoucherPage() {
                   </button>
                   <button
                     onClick={generate}
-                    disabled={generating || !title.trim() || (scope === "specific" && pkgs.length === 0)}
+                    disabled={generating || !code.replace(/\s/g, "").trim() || !title.trim() || (scope === "specific" && pkgs.length === 0)}
                     className="flex-1 inline-flex items-center justify-center gap-2 bg-primary text-white rounded-full px-8 py-3 font-label-md text-[11px] uppercase tracking-widest hover:bg-secondary active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <span className={`material-symbols-outlined text-[18px] ${generating ? "animate-spin" : ""}`}>
                       {generating ? "progress_activity" : "confirmation_number"}
                     </span>
-                    {generating ? "Membuat..." : "Generate Voucher"}
+                    {generating ? "Membuat..." : "Buat Voucher"}
                   </button>
                 </div>
               </div>
@@ -578,7 +712,7 @@ export default function OpsVoucherPage() {
           ) : filteredVouchers.length === 0 ? (
             <div className="text-center py-14 bg-white border border-outline-variant rounded-xl">
               <span className="material-symbols-outlined text-5xl text-outline-variant mb-4">confirmation_number</span>
-              <p className="text-sm text-on-surface-variant">{vouchers.length === 0 ? "Belum ada voucher. Generate yang pertama di atas." : "Tidak ada voucher yang cocok dengan filter."}</p>
+              <p className="text-sm text-on-surface-variant">{vouchers.length === 0 ? "Belum ada voucher. Buat yang pertama di atas." : "Tidak ada voucher yang cocok dengan filter."}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -602,14 +736,25 @@ export default function OpsVoucherPage() {
                         {copied === v.code ? "Tersalin" : "Salin"}
                       </button>
                     </div>
-                    <p className="text-sm mb-3">
-                      <span className="font-semibold text-primary">{formatRp(v.amount)}</span>
+                    <p className="text-sm mb-2">
+                      <span className="font-semibold text-primary">
+                        {v.discount_type === "percent"
+                          ? `${v.percent || 0}%${v.max_discount ? ` (maks ${formatRp(v.max_discount)})` : ""}`
+                          : formatRp(v.amount)}
+                      </span>
                       <span className="text-on-surface-variant"> • </span>
                       {v.package_eligibility.length > 0 ? (
                         <span className="text-on-surface-variant text-[13px]">{v.package_eligibility.map((c) => PACKAGE_LABELS[c] || c).join(", ")}</span>
                       ) : (
                         <span className="text-on-surface-variant text-[13px]">Semua paket</span>
                       )}
+                    </p>
+                    <p className="text-[11px] text-on-surface-variant/80 mb-3">
+                      Termasuk: {[
+                        v.include_wa_blast !== false ? "WA Blast" : null,
+                        v.include_express !== false ? "Express" : null,
+                        v.include_galeri !== false ? "Galeri" : null,
+                      ].filter(Boolean).join(" • ") || "Paket saja"}
                     </p>
                     <div className="flex items-center gap-3 mb-1">
                       <div className="flex-1 h-2 bg-surface-container-high rounded-full overflow-hidden">

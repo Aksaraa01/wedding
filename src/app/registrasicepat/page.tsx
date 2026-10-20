@@ -15,8 +15,10 @@ function RegistrasiCepatInner() {
   const [submitError, setSubmitError] = useState("")
   const [voucherCode, setVoucherCode] = useState("")
   const [voucherAmount, setVoucherAmount] = useState<number | null>(null)
+  const [voucherNote, setVoucherNote] = useState("")
   const [voucherError, setVoucherError] = useState("")
   const [voucherChecking, setVoucherChecking] = useState(false)
+  const [basePrice, setBasePrice] = useState<number | null>(null)
 
   const formValid =
     firstName.trim().length > 0 &&
@@ -25,30 +27,50 @@ function RegistrasiCepatInner() {
     pin.length === 6
 
   const applyVoucher = async (code: string) => {
-    const clean = code.trim().toUpperCase()
+    const clean = code.replace(/\s/g, "").toUpperCase()
     if (!clean) {
       setVoucherAmount(null)
+      setVoucherNote("")
       setVoucherError("")
       return
     }
     setVoucherChecking(true)
     setVoucherError("")
     try {
+      let base = basePrice
+      if (base === null) {
+        try {
+          const priceRes = await fetch("/api/packages/prices")
+          const priceBook = await priceRes.json()
+          base = Number(priceBook?.base?.signature) || 0
+          setBasePrice(base)
+        } catch {
+          base = 0
+        }
+      }
       const res = await fetch("/api/vouchers/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: clean, package_type: "signature" }),
+        body: JSON.stringify({ code: clean, package_type: "signature", base }),
       })
       const data = await res.json().catch(() => ({}))
       if (data.ok) {
         setVoucherCode(clean)
-        setVoucherAmount(data.amount || 0)
+        const preview = data.discount_preview ?? (data.discount_type === "amount" ? data.amount : null)
+        setVoucherAmount(preview)
+        setVoucherNote(
+          data.discount_type === "percent"
+            ? `${data.percent}%${data.max_discount ? ` (maks Rp${Number(data.max_discount).toLocaleString("id-ID")})` : ""}`
+            : "",
+        )
       } else {
         setVoucherAmount(null)
+        setVoucherNote("")
         setVoucherError(data.message || "Kode voucher tidak valid.")
       }
     } catch {
       setVoucherAmount(null)
+      setVoucherNote("")
       setVoucherError("Gagal memeriksa voucher. Coba lagi.")
     } finally {
       setVoucherChecking(false)
@@ -218,9 +240,13 @@ function RegistrasiCepatInner() {
                   autoComplete="off"
                   value={voucherCode}
                   onChange={(e) => {
-                    setVoucherCode(e.target.value.toUpperCase())
+                    setVoucherCode(e.target.value.replace(/\s/g, "").toUpperCase())
                     setVoucherError("")
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === " ") e.preventDefault()
+                  }}
+                  maxLength={64}
                 />
                 <button
                   type="button"
@@ -234,9 +260,10 @@ function RegistrasiCepatInner() {
               {voucherError && (
                 <p className="font-body-md text-sm text-red-400 mt-2">{voucherError}</p>
               )}
-              {voucherAmount != null && (
+              {(voucherAmount != null || voucherNote) && (
                 <p className="font-body-md text-sm text-green-700 mt-2">
-                  Voucher diterapkan — potongan Rp{voucherAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}.
+                  Voucher diterapkan{voucherNote ? ` — ${voucherNote}` : ""}
+                  {voucherAmount != null ? ` — potongan Rp${voucherAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}` : ""}.
                 </p>
               )}
             </div>

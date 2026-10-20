@@ -10,11 +10,18 @@ import {
   normalizePhone,
   emptyPriceBook,
   packageDisplayName,
+  priceParts,
   type PriceBook,
 } from "@/lib/packages"
 import GaleriConfigurator, { type GaleriSelection } from "@/components/galeri/GaleriConfigurator"
 import ProfileMenu from "@/components/ProfileMenu"
 import { packageChangeWaLink } from "@/lib/contact"
+import {
+  calcVoucherTotals,
+  parseVoucherTerms,
+  voucherTermsFromRow,
+  type VoucherTerms,
+} from "@/lib/voucherDiscount"
 
 type MatrixRow = {
   id: string
@@ -263,8 +270,12 @@ function VoucherModal(props: {
         <div className="flex gap-2">
           <input
             value={props.input}
-            onChange={(e) => props.onInput(e.target.value.toUpperCase())}
+            onChange={(e) => props.onInput(e.target.value.replace(/\s/g, "").toUpperCase())}
+            onKeyDown={(e) => {
+              if (e.key === " ") e.preventDefault()
+            }}
             placeholder="Masukkan kode baru"
+            maxLength={64}
             autoComplete="off"
             autoFocus
             className="flex-1 min-w-0 px-4 py-3 bg-surface border border-outline-variant focus:border-primary rounded-xl focus:outline-none font-mono uppercase tracking-widest placeholder:text-on-surface-variant/60 placeholder:normal-case placeholder:tracking-normal placeholder:font-body-md transition-colors"
@@ -272,7 +283,7 @@ function VoucherModal(props: {
           <button
             type="button"
             onClick={props.onPakai}
-            disabled={props.checking || props.busy || !props.input.trim()}
+            disabled={props.checking || props.busy || !props.input.replace(/\s/g, "")}
             className="shrink-0 px-6 rounded-xl bg-secondary text-white font-label-md text-[11px] uppercase tracking-widest hover:bg-on-secondary-fixed active:scale-95 transition-all disabled:opacity-50"
           >
             {(props.checking || props.busy) ? "..." : props.pakaiLabel}
@@ -376,6 +387,8 @@ function Inner() {
   // Voucher discount (registration flow only — one code per couple).
   const [voucherCode, setVoucherCode] = useState("")
   const [voucherAmount, setVoucherAmount] = useState<number | null>(null)
+  const [voucherTerms, setVoucherTerms] = useState<VoucherTerms | null>(null)
+  const [voucherFrozen, setVoucherFrozen] = useState(false)
   const [voucherError, setVoucherError] = useState("")
   const [voucherChecking, setVoucherChecking] = useState(false)
   const [voucherModalOpen, setVoucherModalOpen] = useState(false)
@@ -464,9 +477,13 @@ function Inner() {
     if (data.profile.voucher_code) {
       setVoucherCode(data.profile.voucher_code)
       setVoucherAmount(Number(data.profile.voucher_discount) || 0)
+      setVoucherTerms(parseVoucherTerms(data.voucher_terms))
+      setVoucherFrozen(!!data.voucher_frozen)
     } else {
       setVoucherCode("")
       setVoucherAmount(null)
+      setVoucherTerms(null)
+      setVoucherFrozen(false)
     }
     setLoaded(true)
   }
@@ -485,12 +502,19 @@ function Inner() {
   const galeriBand = "gt"
   // Package code used for totals, submit, and voucher validation.
   const effectivePackage = isGaleriTab && galeriSel ? galeriBand : selectedPackage
-  const total = !book
-    ? 0
-    : isGaleriTab
-      ? galeriPrice
-      : calcTotalBook(book, selectedPackage, waBlastTier, showExpress && expressService, galeriPrice)
-  const discountedTotal = voucherAmount != null ? Math.max(0, total - voucherAmount) : total
+  const parts = book
+    ? priceParts(book, effectivePackage, waBlastTier, showExpress && expressService, galeriPrice)
+    : { base: 0, waBlast: 0, express: 0, galeri: 0 }
+  const total = !book ? 0 : parts.base + parts.waBlast + parts.express + parts.galeri
+  const voucherTotals = calcVoucherTotals({
+    terms: voucherTerms,
+    storedDiscount: voucherAmount,
+    frozen: voucherFrozen,
+    packageType: effectivePackage,
+    parts,
+  })
+  const discountedTotal = voucherTotals.total
+  const appliedVoucherDiscount = voucherTotals.discount
   // Galeri price must be real (DB tiers loaded) before submit is allowed.
   const galeriReady = !activeGaleri || activeGaleri.price > 0
 
@@ -533,33 +557,58 @@ function Inner() {
   }
 
   const applyVoucher = async (code: string, pkg: string): Promise<{ ok: boolean; amount: number }> => {
-    const clean = code.trim().toUpperCase()
+    const clean = code.replace(/\s/g, "").toUpperCase()
     if (!clean) {
       setVoucherAmount(null)
+      setVoucherTerms(null)
       setVoucherError("")
       return { ok: false, amount: 0 }
     }
     setVoucherChecking(true)
     setVoucherError("")
     try {
+      const vParts = book
+        ? priceParts(book, pkg, waBlastTier, showExpress && expressService, galeriPrice)
+        : { base: 0, waBlast: 0, express: 0, galeri: 0 }
       const res = await fetch("/api/vouchers/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: clean, package_type: pkg }),
+        body: JSON.stringify({
+          code: clean,
+          package_type: pkg,
+          base: vParts.base,
+          wa_blast_price: vParts.waBlast,
+          express_price: vParts.express,
+          galeri_price: vParts.galeri,
+        }),
       })
       const data = await res.json().catch(() => ({}))
       if (data.ok) {
-        const amount = data.amount || 0
+        const amount = Number(data.discount_preview ?? data.amount ?? 0)
+        const includes = {
+          waBlast: data.include_wa_blast !== false,
+          express: data.include_express !== false,
+          galeri: data.include_galeri !== false,
+        }
+        const eligiblePackages = Array.isArray(data.eligible) ? data.eligible : []
         setVoucherCode(clean)
         setVoucherAmount(amount)
+        setVoucherTerms(
+          data.discount_type === "percent"
+            ? { type: "percent", percent: Number(data.percent) || 0, maxDiscount: data.max_discount ?? null, includes, eligiblePackages }
+            : { type: "amount", amount, includes, eligiblePackages },
+        )
+        setVoucherFrozen(false)
         return { ok: true, amount }
       } else {
         setVoucherAmount(null)
+        setVoucherTerms(null)
         setVoucherError(data.message || "Kode voucher tidak valid.")
         return { ok: false, amount: 0 }
       }
     } catch {
       setVoucherAmount(null)
+      setVoucherTerms(null)
       setVoucherError("Gagal memeriksa voucher. Coba lagi.")
       return { ok: false, amount: 0 }
     } finally {
@@ -571,6 +620,7 @@ function Inner() {
   useEffect(() => {
     if (voucherCode && !isEdit) {
       setVoucherAmount(null)
+      setVoucherTerms(null)
       setVoucherError("")
       applyVoucher(voucherCode, selectedPackage)
     }
@@ -703,7 +753,7 @@ function Inner() {
   }
 
   const modalPakai = async () => {
-    const clean = voucherModalInput.trim().toUpperCase()
+    const clean = voucherModalInput.replace(/\s/g, "").toUpperCase()
     if (!clean || submitting || voucherChecking) return
     if (!isEdit) {
       const r = await applyVoucher(clean, effectivePackage)
@@ -757,6 +807,8 @@ function Inner() {
       if (!res.ok) throw new Error(data.error || "Gagal melepas voucher")
       setProfileVoucherCode(null)
       setVoucherAmount(null)
+      setVoucherTerms(null)
+      setVoucherFrozen(false)
       setVoucherModalInput("")
       setVoucherModalOpen(false)
       fetchProfile()
@@ -1553,7 +1605,7 @@ function Inner() {
             <div className="flex items-baseline gap-2 min-w-0 flex-wrap">
               {!book ? (
                 <span className="inline-block h-8 w-40 bg-surface-container-high rounded animate-pulse" />
-              ) : voucherAmount != null ? (
+              ) : voucherAmount != null || profileVoucherCode ? (
                 <>
                   <span className="font-body-md text-sm text-on-surface-variant line-through">{formatRp(total)}</span>
                   <span className="font-headline-md text-[22px] md:text-[30px] leading-none text-secondary">{formatRp(discountedTotal)}</span>
@@ -1571,7 +1623,7 @@ function Inner() {
             {(voucherAmount != null || profileVoucherCode) && (
               <span className="inline-flex items-center gap-1.5 mt-0.5 px-2.5 py-1 bg-green-50 border border-green-300 text-green-800 font-label-md text-[10px] uppercase tracking-widest rounded-full w-fit">
                 <span className="material-symbols-outlined text-[12px]">confirmation_number</span>
-                {profileVoucherCode || voucherCode.trim().toUpperCase()} − {formatRp(voucherAmount || 0)}
+                {profileVoucherCode || voucherCode.replace(/\s/g, "").toUpperCase()} − {formatRp(appliedVoucherDiscount)}
                 <span className="text-green-800/40">•</span>
                 <button
                   onClick={() => {
@@ -1588,6 +1640,8 @@ function Inner() {
                     if (!isEdit) {
                       setVoucherCode("")
                       setVoucherAmount(null)
+                      setVoucherTerms(null)
+                      setVoucherFrozen(false)
                       setVoucherError("")
                       return
                     }

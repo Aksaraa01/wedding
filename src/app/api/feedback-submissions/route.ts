@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { matrixColumnForPackage } from "@/lib/packages"
 import { notifyFeedbackBaruGroup } from "@/lib/notifyGroup"
+import { OPS_COOKIE, getSessionToken, verifySession } from "@/lib/sessionToken"
 
 export async function GET(req: NextRequest) {
   try {
@@ -104,12 +105,13 @@ export async function POST(req: NextRequest) {
     // which failed silently whenever the form wasn't opened via the ops
     // "Tambah Feedback" button.
     try {
-      const opsPhone = req.headers.get("x-ops-phone") || ""
-      if (opsPhone) {
+      const session = await verifySession(getSessionToken(req, OPS_COOKIE), "ops")
+      if (session) {
         const { data: emp } = await supabaseAdmin
           .from("employees")
           .select("id")
-          .eq("phone_number", opsPhone)
+          .eq("id", session.sub)
+          .eq("is_active", true)
           .maybeSingle()
         if (emp) {
           const { data: queues } = await supabaseAdmin

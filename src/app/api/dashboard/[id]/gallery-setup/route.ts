@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { requireAuth } from "@/lib/requireAuth"
+import { requireProfileAccess } from "@/lib/requireProfileAccess"
 import { ensureBucket, uploadFile } from "@/lib/storage"
 import {
   generateUniqueGalleryToken,
@@ -30,9 +30,9 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireAuth(req)
-  if (auth) return auth
   const { id } = await params
+  const auth = await requireProfileAccess(req, id)
+  if (auth) return auth
 
   const { data: profile, error } = await supabaseAdmin
     .from("wedding_profiles")
@@ -167,9 +167,9 @@ export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireAuth(req)
-  if (auth) return auth
   const { id } = await params
+  const auth = await requireProfileAccess(req, id)
+  if (auth) return auth
 
   let body: Record<string, unknown>
   try {
@@ -271,9 +271,9 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireAuth(req)
-  if (auth) return auth
   const { id } = await params
+  const auth = await requireProfileAccess(req, id)
+  if (auth) return auth
 
   try {
     await ensureBucket()

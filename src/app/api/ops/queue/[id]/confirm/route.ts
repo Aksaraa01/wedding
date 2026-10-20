@@ -65,17 +65,11 @@ export async function POST(
       .eq("id", profileId)
     if (updateError) return NextResponse.json({ error: updateError.message }, { status: 500 })
 
-    const phone = req.headers.get("x-ops-phone") || ""
-    const { data: emp } = await supabaseAdmin
-      .from("employees")
-      .select("id, name")
-      .eq("phone_number", phone)
-      .maybeSingle()
     await supabaseAdmin.from("ops_queue_status_log").insert({
       ops_queue_id: id,
       kind: "publish",
-      details: (`Undangan dikonfirmasi oleh ${(emp as any)?.name || "ops"} • ${profile.groom_name || ""} & ${profile.bride_name || ""}${forcedLabels.length > 0 ? ` • DIPAKSA meski belum lengkap: ${forcedLabels.join(", ")}` : ""}`).slice(0, 500),
-      changed_by_employee_id: (emp as any)?.id || null,
+      details: (`Undangan dikonfirmasi oleh ${auth.employee.name || "ops"} • ${profile.groom_name || ""} & ${profile.bride_name || ""}${forcedLabels.length > 0 ? ` • DIPAKSA meski belum lengkap: ${forcedLabels.join(", ")}` : ""}`).slice(0, 500),
+      changed_by_employee_id: auth.employee.id,
     })
 
     return NextResponse.json({ success: true, ...(forcedLabels.length > 0 ? { forced: true, incomplete } : {}) })

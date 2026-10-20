@@ -1,19 +1,20 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { calcTotalWithVoucherBook, PACKAGE_CODES } from "@/lib/packages"
+import { PACKAGE_CODES, priceParts } from "@/lib/packages"
 import { getPriceBook } from "@/lib/priceBook"
 import { normalizeGaleriConfig, getGaleriTiers } from "@/lib/gallery"
 import { sanitizeAddonsForPackage } from "@/lib/packageRules"
 import { getSelections } from "@/lib/featureGates"
 import { computeGaleriDelta } from "@/lib/galeriDelta"
-
-const VOUCHER_ERRORS: Record<string, string> = {
-  invalid: "Kode voucher tidak valid.",
-  inactive: "Voucher ini sudah dinonaktifkan.",
-  exhausted: "Kuota voucher ini sudah habis.",
-  ineligible: "Voucher ini tidak berlaku untuk paket yang dipilih.",
-  already_used: "Couple ini sudah memakai voucher.",
-}
+import { requireProfileAccess } from "@/lib/requireProfileAccess"
+import { normalizeVoucherCode } from "@/lib/voucherInput"
+import { voucherErrorMessage } from "@/lib/voucherErrors"
+import {
+  calcVoucherTotals,
+  parseVoucherTerms,
+  voucherTermsFromRow,
+  type VoucherTerms,
+} from "@/lib/voucherDiscount"
 
 export async function PUT(
   req: Request,
@@ -21,6 +22,8 @@ export async function PUT(
 ) {
   try {
     const { profile_id } = await params
+    const unauthorized = await requireProfileAccess(req, profile_id)
+    if (unauthorized) return unauthorized
     const body = await req.json()
     const { package_type, wa_blast_tier, express_service, undangan_fisik } = body
 
@@ -33,6 +36,21 @@ export async function PUT(
       .select("payment_status, package_type, wa_blast_tier, express_service, undangan_fisik, voucher_code, voucher_discount, total_project_cost, galeri_addon, galeri_photos_per_guest, galeri_guest_count, galeri_tier, galeri_price, galeri_topup_photos_per_guest, galeri_topup_guest_count, additional_tier, additional_cost, additional_payment_status, galeri_prev_photos, galeri_prev_guests, galeri_prev_tier, galeri_prev_price")
       .eq("id", profile_id)
       .single()
+
+    const { data: activeRedemption } = await supabaseAdmin
+      .from("voucher_redemptions")
+      .select("voucher_id, amount_applied, terms_snapshot, frozen_at, vouchers (code, discount_type, amount, percent, max_discount, include_wa_blast, include_express, include_galeri, package_eligibility)")
+      .eq("wedding_profile_id", profile_id)
+      .eq("status", "active")
+      .maybeSingle()
+
+    const redemptionVoucher = activeRedemption
+      ? (Array.isArray(activeRedemption.vouchers) ? activeRedemption.vouchers[0] : activeRedemption.vouchers)
+      : null
+    const redemptionTerms =
+      parseVoucherTerms(activeRedemption?.terms_snapshot) ??
+      (redemptionVoucher ? voucherTermsFromRow(redemptionVoucher) : null)
+    const voucherFrozen = !!activeRedemption?.frozen_at
 
     // Galeri slider config: object to set/replace, null to remove, undefined
     // to keep. Tier + price recomputed server-side.
@@ -172,15 +190,25 @@ export async function PUT(
     const effGaleri = eff.galeri
     const effGaleriPrice = effGaleri?.price || 0
 
+    const book = await getPriceBook()
+    if (book.base[effPackage] === undefined) {
+      return NextResponse.json({ error: "Harga paket belum dikonfigurasi" }, { status: 500 })
+    }
+    const parts = priceParts(book, effPackage, effTier, !!effExpress, effGaleriPrice)
+
     // Retroactive voucher apply (edit mode, one voucher per couple): validate +
     // atomic consume BEFORE recomputing the total. Paid couples are blocked
     // from total-changing edits above; locked voucher chips never send a code.
     let voucherDiscount = existing?.voucher_discount || 0
     let voucherCode: string | null = existing?.voucher_code || null
-    const newVoucherCode =
-      typeof body?.voucher_code === "string" && body.voucher_code.trim()
-        ? body.voucher_code.trim().toUpperCase()
-        : null
+    let voucherTerms: VoucherTerms | null = redemptionTerms
+    let frozen = voucherFrozen
+    let newVoucherCode: string | null = null
+    if (typeof body?.voucher_code === "string" && body.voucher_code !== "") {
+      const parsedCode = normalizeVoucherCode(body.voucher_code)
+      if (!parsedCode.ok) return NextResponse.json({ error: parsedCode.error }, { status: 400 })
+      newVoucherCode = parsedCode.value
+    }
     if (newVoucherCode && existing && existing.payment_status !== "UNPAID") {
       return NextResponse.json({ error: "Voucher tidak dapat ditambahkan setelah pembayaran. Hubungi konsultan." }, { status: 403 })
     }
@@ -193,35 +221,33 @@ export async function PUT(
       if (existing && existing.payment_status !== "UNPAID") {
         return NextResponse.json({ error: "Voucher tidak dapat dilepas setelah pembayaran. Hubungi konsultan." }, { status: 403 })
       }
-      const { data: red } = await supabaseAdmin
-        .from("voucher_redemptions")
-        .select("id, voucher_id")
-        .eq("wedding_profile_id", profile_id)
-        .eq("status", "active")
-        .maybeSingle()
-      if (red) {
-        const { data: flipped } = await supabaseAdmin
-          .from("voucher_redemptions")
-          .update({ status: "released", released_at: new Date().toISOString() })
-          .eq("id", (red as any).id)
-          .eq("status", "active")
-          .select("id")
-        if (flipped && flipped.length > 0) {
-          const { data: v } = await supabaseAdmin
-            .from("vouchers")
-            .select("used_count")
-            .eq("id", (red as any).voucher_id)
-            .maybeSingle()
-          await supabaseAdmin
-            .from("vouchers")
-            .update({ used_count: Math.max(0, ((v as any)?.used_count || 1) - 1), updated_at: new Date().toISOString() })
-            .eq("id", (red as any).voucher_id)
+      const { error: releaseError } = await supabaseAdmin.rpc("release_voucher", {
+        p_profile_id: profile_id,
+        p_employee_id: null,
+      })
+      if (releaseError) {
+        const key = (releaseError.message || "").trim()
+        // Legacy profile with a code but no active redemption row: fall through
+        // and clear the profile fields instead of failing the release.
+        if (key !== "not_found") {
+          return NextResponse.json({ error: voucherErrorMessage(key) }, { status: 400 })
         }
       }
       voucherDiscount = 0
       voucherCode = null
+      voucherTerms = null
+      frozen = false
     }
     if (newVoucherCode) {
+      const rpcArgs = {
+        p_code: newVoucherCode,
+        p_profile_id: profile_id,
+        p_base: parts.base,
+        p_wa_price: parts.waBlast,
+        p_express_price: parts.express,
+        p_galeri_price: parts.galeri,
+        p_employee_id: null,
+      }
       if (voucherCode) {
         // Swap flow (ganti kode): only with explicit replace intent, UNPAID only.
         if (body?.replace_voucher !== true) {
@@ -230,39 +256,41 @@ export async function PUT(
         if (voucherCode === newVoucherCode) {
           return NextResponse.json({ error: "Kode sama dengan voucher yang sudah dipakai." }, { status: 400 })
         }
-        const { data: swapped, error: swapError } = await supabaseAdmin.rpc("swap_voucher", {
-          p_code: newVoucherCode,
-          p_profile_id: profile_id,
-          p_package: effPackage,
-        })
+        const { data: swapped, error: swapError } = await supabaseAdmin.rpc("swap_voucher", rpcArgs)
         if (swapError) {
           const key = (swapError.message || "").trim()
-          return NextResponse.json({ error: VOUCHER_ERRORS[key] || "Voucher tidak dapat digunakan." }, { status: 400 })
+          return NextResponse.json({ error: voucherErrorMessage(key) }, { status: 400 })
         }
         const srow = Array.isArray(swapped) ? swapped[0] : swapped
-        voucherDiscount = Math.max(0, Math.floor(Number(srow?.amount) || 0))
+        voucherDiscount = Math.max(0, Math.floor(Number(srow?.out_discount) || 0))
+        voucherTerms = parseVoucherTerms(srow?.out_terms) ?? voucherTerms
         voucherCode = newVoucherCode
+        frozen = false
       } else {
-        const { data: redeemed, error: redeemError } = await supabaseAdmin.rpc("redeem_voucher", {
-          p_code: newVoucherCode,
-          p_profile_id: profile_id,
-          p_package: effPackage,
-        })
+        const { data: redeemed, error: redeemError } = await supabaseAdmin.rpc("redeem_voucher", rpcArgs)
         if (redeemError) {
           const key = (redeemError.message || "").trim()
-          return NextResponse.json({ error: VOUCHER_ERRORS[key] || "Voucher tidak dapat digunakan." }, { status: 400 })
+          return NextResponse.json({ error: voucherErrorMessage(key) }, { status: 400 })
         }
-        voucherDiscount = Math.max(0, Math.floor(Number(redeemed) || 0))
+        const row = Array.isArray(redeemed) ? redeemed[0] : redeemed
+        voucherDiscount = Math.max(0, Math.floor(Number(row?.out_discount) || 0))
+        voucherTerms = parseVoucherTerms(row?.out_terms) ?? voucherTerms
         voucherCode = newVoucherCode
+        frozen = false
       }
     }
 
-    // Voucher discount locked at registration is preserved across add-on edits.
-    const book = await getPriceBook()
-    if (book.base[effPackage] === undefined) {
-      return NextResponse.json({ error: "Harga paket belum dikonfigurasi" }, { status: 500 })
-    }
-    const total = calcTotalWithVoucherBook(book, effPackage, effTier, !!effExpress, voucherDiscount, effGaleriPrice)
+    // Percent vouchers recalculate live while UNPAID; fixed amounts and frozen
+    // redemptions keep their stored value.
+    const totals = calcVoucherTotals({
+      terms: voucherTerms,
+      storedDiscount: voucherDiscount,
+      frozen,
+      packageType: effPackage,
+      parts,
+    })
+    voucherDiscount = totals.discount
+    const total = totals.total
 
     // Galeri columns are written whenever the effective config differs from
     // stored — a package change can clear carried values even when the

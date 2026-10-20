@@ -2,6 +2,7 @@
 const nextConfig = {
   output: "standalone",
   compress: true,
+  allowedDevOrigins: ["127.0.0.1", "localhost"],
   images: {
     remotePatterns: [{ protocol: "https", hostname: "*.supabase.co" }],
     formats: ["image/avif", "image/webp"],
@@ -23,14 +24,19 @@ const nextConfig = {
         source: "/(.*)",
         headers: [{ key: "Permissions-Policy", value: "camera=(self), microphone=(self), geolocation=(self)" }],
       },
-      {
-        source: "/_next/static/:path*",
-        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
-      },
-      {
-        source: "/media/:path*",
-        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
-      },
+      // Immutable caching only in production — it breaks Turbopack dev.
+      ...(process.env.NODE_ENV === "production"
+        ? [
+            {
+              source: "/_next/static/:path*",
+              headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+            },
+            {
+              source: "/media/:path*",
+              headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+            },
+          ]
+        : []),
     ]
   },
 }

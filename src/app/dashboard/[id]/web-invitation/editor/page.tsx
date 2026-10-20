@@ -3,7 +3,7 @@
 import { useState, useEffect, use, useRef, useCallback, useMemo, ComponentType } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
-import { getTemplateComponent, getTemplateContentSpec } from "@/components/templates"
+import { getTemplateComponent, getTemplateContentSpec, hidesOpeningSection } from "@/components/templates"
 import type { RowGates } from "@/lib/featureGates"
 import { getIncompleteInvitationSections, parseStringList } from "@/lib/invitationCompleteness"
 import { pollWpJob } from "@/lib/wpJobPoll"
@@ -141,6 +141,18 @@ function LockedNotice({ availableIn }: { availableIn: string[] }) {
   )
 }
 
+function describePalette(colors?: { hex?: string; name?: string }[]): string {
+  const names = (colors || []).map((c) => (c.name || "").trim()).filter(Boolean)
+  if (!names.length) return ""
+  const list =
+    names.length === 1
+      ? names[0]
+      : names.length === 2
+        ? `${names[0]} & ${names[1]}`
+        : `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`
+  return `Elegant Attire in ${list}.`
+}
+
 function SectionToggle({ label, checked, onChange, disabled = false }: { label: string; checked: boolean; onChange: () => void; disabled?: boolean }) {
   return (
     <div className="flex items-center justify-between gap-3 py-2">
@@ -225,6 +237,7 @@ function EditorInner({ id }: { id: string }) {
   const [syncError, setSyncError] = useState<string | null>(null)
   const [photoQuota, setPhotoQuota] = useState<number | null>(null)
   const [activeSection, setActiveSection] = useState<string>("sampul")
+  const [colorEdit, setColorEdit] = useState<{ index: number; hex: string } | null>(null)
   const [openingCustomMode, setOpeningCustomMode] = useState(false)
   const [showMobilePreview, setShowMobilePreview] = useState(false)
   const [previewDevice, setPreviewDevice] = useState<"mobile" | "desktop">("mobile")
@@ -791,6 +804,7 @@ function EditorInner({ id }: { id: string }) {
   const coverSlotCount = contentSpec?.cover_slots ?? (Array.isArray(template?.wp_manifest?.cover_photos)
     ? template.wp_manifest.cover_photos.length
     : 0)
+  const coverSlotLabel = (i: number) => contentSpec?.cover_slot_labels?.[i] || `Slot ${i + 1}`
   const coverSlots = Array.from({ length: coverSlotCount })
 
   // Whether a field maps to a background slideshow (which needs 2 photos/slides).
@@ -1176,6 +1190,8 @@ function EditorInner({ id }: { id: string }) {
     // Tanpa-photo template: photo fields are hidden, so the gallery section
     // never counts as incomplete (stored photos are kept for a switch back).
     no_photo_template: template?.no_photo === true,
+    // Templates whose design has no Kalimat Pembuka block never block publish.
+    no_opening_section: hidesOpeningSection(template?.code),
     gates: {
       inviting_families: gates.inviting_families.included,
       cinematic_video: gates.cinematic_video.included,
@@ -1261,6 +1277,8 @@ function EditorInner({ id }: { id: string }) {
       case "video": return data.video_section_visible === false
       case "story": return data.story_visible === false
       case "gift": return data.gift_section_visible === false
+      case "dresscode": return data.dresscode_visible === false
+      case "livestream": return data.livestream_visible === false
       default: return false
     }
   }
@@ -1628,9 +1646,9 @@ function EditorInner({ id }: { id: string }) {
         )}
 
         {/* MAIN */}
-        <main className="flex-1 flex overflow-hidden">
+        <main className="flex-1 min-h-0 flex overflow-hidden">
           {/* SIDEBAR */}
-            <aside data-tour="konten" className={reviewMode ? "hidden" : `${showMobilePreview ? 'hidden' : 'flex'} md:flex w-full md:w-[440px] bg-[#F3F4F6] border-r border-outline-variant flex-col h-full z-40 shrink-0`}>
+            <aside data-tour="konten" className={reviewMode ? "hidden" : `${showMobilePreview ? 'hidden' : 'flex'} md:flex w-full md:w-[440px] bg-[#F3F4F6] border-r border-outline-variant flex-col h-full min-h-0 z-40 shrink-0`}>
             <div className="flex border-b border-outline-variant">
               <button className="flex-1 py-4 font-label-md text-label-md text-primary border-b-2 border-primary text-center">KONTEN</button>
             </div>
@@ -1642,7 +1660,7 @@ function EditorInner({ id }: { id: string }) {
               </div>
             )}
 
-            <div ref={sidebarScrollRef} className="flex-1 overflow-y-auto custom-scrollbar p-6 pb-32 space-y-4 md:pb-6">
+            <div ref={sidebarScrollRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar p-6 pb-32 space-y-4 md:pb-6">
               {initialLoading ? (
                 <SidebarShimmer />
               ) : (
@@ -1655,7 +1673,7 @@ function EditorInner({ id }: { id: string }) {
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Foto Sampul</label>
                     <p className="text-[11px] text-on-surface-variant italic">
                       {coverSlotCount > 0
-                        ? `${coverSlotCount} slot foto sampul tersedia pada template. Isi setiap slot untuk mengganti foto.`
+                        ? `${coverSlotCount} slot foto tersedia pada template${contentSpec?.cover_slot_labels ? ` (${contentSpec.cover_slot_labels.join(" · ")})` : ""}. Isi setiap slot untuk mengganti foto.`
                         : "Pilih template lain dengan foto sampul"}
                     </p>
                     <div className="grid grid-cols-2 gap-3">
@@ -1665,7 +1683,7 @@ function EditorInner({ id }: { id: string }) {
                           const slides = Array.isArray(slotValue) ? slotValue : (typeof slotValue === "string" && slotValue !== "" ? [slotValue] : [])
                           return (
                             <div key={i} className="col-span-2 border border-outline-variant rounded p-2 bg-surface-container-lowest">
-                              <span className="text-[10px] font-bold uppercase tracking-wider text-secondary">Slot {i + 1} — Slideshow (2 foto)</span>
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-secondary">{coverSlotLabel(i)} — Slideshow (2 foto)</span>
                               <div className="grid grid-cols-2 gap-2 mt-2">
                                 {[0, 1].map(s => {
                                   const key = `cover-${i}-${s}`
@@ -1712,6 +1730,7 @@ function EditorInner({ id }: { id: string }) {
                             <div key={i} className="relative aspect-video bg-surface-dim border border-outline-variant overflow-hidden group">
                               <div className={`absolute inset-0 bg-cover bg-center ${data.grayscale ? "grayscale" : ""}`} style={{ backgroundImage: `url(${url})` }} />
                               <span className="absolute top-1 left-1 w-6 h-6 bg-black/60 text-white rounded-sm flex items-center justify-center text-[11px] font-bold">{i + 1}</span>
+                              <span className="absolute bottom-1 left-1 right-1 bg-black/55 text-white text-[9px] px-1 py-0.5 rounded-sm truncate">{coverSlotLabel(i)}</span>
                               <button
                                 onClick={() => { setCoverReplaceIndex(i); coverReplaceRef.current?.click() }}
                                 className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100"
@@ -1737,7 +1756,7 @@ function EditorInner({ id }: { id: string }) {
                           >
                             <span className="absolute top-1 left-1 w-6 h-6 bg-black/60 text-white rounded-sm flex items-center justify-center text-[11px] font-bold">{i + 1}</span>
                             <span className="material-symbols-outlined text-on-surface-variant">add_photo_alternate</span>
-                            <span className="text-[9px] text-on-surface-variant mt-1">Slot {i + 1}</span>
+                            <span className="text-[9px] text-on-surface-variant mt-1">{coverSlotLabel(i)}</span>
                           </div>
                         )
                       })}
@@ -1764,7 +1783,7 @@ function EditorInner({ id }: { id: string }) {
                 </div>
               )}
 
-              {renderSection("pembuka", "chat_bubble_outline", "KALIMAT PEMBUKA",
+              {!hidesOpeningSection(template?.code) && renderSection("pembuka", "chat_bubble_outline", "KALIMAT PEMBUKA",
                 <div className="mt-6 space-y-4">
                   <div className="space-y-2">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Judul</label>
@@ -2195,6 +2214,116 @@ function EditorInner({ id }: { id: string }) {
                   <div className="mt-6"><LockedNotice availableIn={gates.cinematic_video.availableIn} /></div>
                 )
               )}
+              {contentSpec?.sections?.dresscode && renderSection("dresscode", "checkroom", "DRESS CODE", (
+                <div className="mt-6 space-y-4">
+                  <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+                    <SectionToggle
+                      label="Tampilkan Dress Code"
+                      checked={data.dresscode_visible !== false}
+                      disabled={data.is_published === true}
+                      onChange={() => handleToggleVisibility("dresscode_visible", data.dresscode_visible === false)}
+                    />
+                  </div>
+                  <p className="text-[11px] text-on-surface-variant italic">
+                    Judul selalu “Dress Code”. Deskripsi otomatis dari nama palet warna.
+                  </p>
+                  <div className="space-y-2">
+                    <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Palet Warna</label>
+                    <div className="space-y-2">
+                      {(data.dresscode?.colors || []).map((c: { hex?: string; name?: string }, i: number) => (
+                        <div key={i} className="flex gap-2 items-center">
+                          <button
+                            type="button"
+                            onClick={() => setColorEdit({ index: i, hex: c.hex || "#CCCCCC" })}
+                            className="relative h-9 w-10 shrink-0 rounded border border-outline-variant overflow-hidden"
+                            style={{ backgroundColor: c.hex || "#CCCCCC" }}
+                            title="Ubah kode warna"
+                            aria-label={`Ubah kode warna ${c.name || i + 1}`}
+                          />
+                          <input className="input-editorial flex-1 font-body-md text-[14px]" type="text" value={c.name || ""} onChange={e => { const colors = [...(data.dresscode?.colors || [])]; colors[i] = { ...colors[i], name: e.target.value }; updateField("dresscode", { ...(data.dresscode || {}), colors }) }} placeholder="Nama warna (mis. Ivory)" />
+                          <button onClick={() => { const colors = (data.dresscode?.colors || []).filter((_: unknown, idx: number) => idx !== i); updateField("dresscode", { ...(data.dresscode || {}), colors }) }} className="text-red-500 hover:text-red-700">
+                            <span className="material-symbols-outlined text-[18px]">delete</span>
+                          </button>
+                        </div>
+                      ))}
+                      <button onClick={() => updateField("dresscode", { ...(data.dresscode || {}), colors: [...(data.dresscode?.colors || []), { hex: "#CCCCCC", name: "" }] })} className="w-full py-2 border border-dashed border-outline-variant rounded-lg text-secondary font-label-md text-[11px] uppercase tracking-widest hover:bg-surface-container-low transition-colors">
+                        + Tambah Warna
+                      </button>
+                    </div>
+                  </div>
+                  {colorEdit && (
+                    <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 p-4" onClick={() => setColorEdit(null)}>
+                      <div className="w-full max-w-xs rounded-2xl bg-white p-5 shadow-2xl" onClick={e => e.stopPropagation()}>
+                        <p className="font-label-md text-[11px] uppercase tracking-widest text-secondary mb-4">Kode Warna</p>
+                        <div className="flex items-center gap-4">
+                          <input
+                            type="color"
+                            className="h-16 w-16 shrink-0 cursor-pointer rounded-lg border border-outline-variant bg-transparent p-1"
+                            value={/^#[0-9a-fA-F]{6}$/.test(colorEdit.hex) ? colorEdit.hex : "#CCCCCC"}
+                            onChange={e => setColorEdit({ ...colorEdit, hex: e.target.value })}
+                            aria-label="Pilih warna"
+                          />
+                          <input
+                            className="input-editorial flex-1 font-body-md text-[15px]"
+                            type="text"
+                            value={colorEdit.hex}
+                            onChange={e => setColorEdit({ ...colorEdit, hex: e.target.value })}
+                            onBlur={() => {
+                              const raw = colorEdit.hex.trim()
+                              const hex = /^[0-9a-fA-F]{6}$/.test(raw) ? `#${raw}` : raw
+                              if (hex !== colorEdit.hex) setColorEdit({ ...colorEdit, hex })
+                            }}
+                            placeholder="#CCCCCC"
+                            aria-label="Kode warna heksadesimal"
+                            autoFocus
+                          />
+                        </div>
+                        <div className="mt-3 h-10 w-full rounded-lg border border-outline-variant" style={{ backgroundColor: colorEdit.hex }} />
+                        <div className="mt-5 flex justify-end gap-2">
+                          <button type="button" onClick={() => setColorEdit(null)} className="rounded-full border border-outline-variant px-4 py-2 font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Batal</button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const raw = colorEdit.hex.trim()
+                              const hex = /^[0-9a-fA-F]{6}$/.test(raw) ? `#${raw}` : raw
+                              const colors = [...(data.dresscode?.colors || [])]
+                              colors[colorEdit.index] = { ...colors[colorEdit.index], hex }
+                              updateField("dresscode", { ...(data.dresscode || {}), colors })
+                              setColorEdit(null)
+                            }}
+                            className="rounded-full bg-[#B34E3F] px-4 py-2 font-label-md text-[10px] uppercase tracking-widest text-white"
+                          >Simpan</button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+              {contentSpec?.sections?.livestream && renderSection("livestream", "live_tv", "LIVE STREAMING", (
+                <div className="mt-6 space-y-4">
+                  <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+                    <SectionToggle
+                      label="Tampilkan Live Streaming"
+                      checked={data.livestream_visible !== false}
+                      disabled={data.is_published === true}
+                      onChange={() => handleToggleVisibility("livestream_visible", data.livestream_visible === false)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                  <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">URL Live Streaming</label>
+                  <input
+                    className="input-editorial w-full font-body-md text-[14px]"
+                    type="url"
+                    value={data.livestream?.url || ""}
+                    onChange={e => updateField("livestream", { url: e.target.value })}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                  />
+                  <p className="text-[11px] text-on-surface-variant mt-1 italic">
+                    Tautan tayangan langsung. Judul, deskripsi, dan tombol mengikuti template.
+                  </p>
+                  </div>
+                </div>
+              ))}
               {renderSection("story", "auto_stories", "STORY",
                 gates.story.included ? (
                   <div className="mt-6 space-y-6">
@@ -2698,9 +2827,11 @@ function EditorInner({ id }: { id: string }) {
       </div>
 
       <style>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar { scrollbar-width: auto; scrollbar-color: #CFC6B8 transparent; }
+        .custom-scrollbar::-webkit-scrollbar { width: 10px; height: 10px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #E5E1D8; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #CFC6B8; border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #B34E3F; background-clip: content-box; }
         .iphone-frame { box-shadow: 0 0 0 12px #1a1a1a, 0 0 0 13px #333; border-radius: 44px; }
         .input-editorial { border: none; border-bottom: 1px solid #1A1A1A; background: transparent; padding: 8px 0; border-radius: 0; outline: none; transition: border-width 0.1s ease; width: 100%; font-family: 'Playfair Display', serif; font-size: 18px; }
         .input-editorial:focus { border-bottom-width: 2px; box-shadow: none; outline: none; }

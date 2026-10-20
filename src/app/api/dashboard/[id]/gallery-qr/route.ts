@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { requireAuth } from "@/lib/requireAuth"
+import { requireProfileAccess } from "@/lib/requireProfileAccess"
 import { generateUniqueGalleryToken, galleryCameraUrl } from "@/lib/gallery"
 
 export const runtime = "nodejs"
@@ -12,9 +12,9 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireAuth(req)
-  if (auth) return auth
   const { id } = await params
+  const auth = await requireProfileAccess(req, id)
+  if (auth) return auth
 
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
@@ -48,9 +48,9 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireAuth(req)
-  if (auth) return auth
   const { id } = await params
+  const auth = await requireProfileAccess(req, id)
+  if (auth) return auth
 
   const token = await generateUniqueGalleryToken()
   const { error } = await supabaseAdmin

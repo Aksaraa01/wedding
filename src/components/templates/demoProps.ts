@@ -104,6 +104,9 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
     cover_photos: [
       `${TM}/1790765548170-DSC06466.jpg`,
       `${TM}/1790765550955-DSC07125.jpg`,
+      `${TM}/1790765554693-DSC07047.jpg`,
+      `${TM}/1790765557463-DSC06424.jpg`,
+      `${TM}/1790766757680-DSC07110.jpg`,
     ],
     couple_illustration_url: `${TM}/1790765548170-DSC06466.jpg`,
     groom_photo_url: [`${TM}/1790766039655-DSC06967.jpg`],

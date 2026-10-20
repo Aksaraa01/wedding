@@ -287,7 +287,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       groom_photo: "slideshow",
       bride_photo: "slideshow",
       sections: {
-        opening_description: true,
+        opening_description: false,
         quote: true,
         countdown: true,
         inviting: true,
@@ -298,11 +298,49 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       },
     },
   },
+  {
+    code: "nihara-mist",
+    name: "Nihara Mist",
+    description: "Undangan gaya elegansi gelap dengan antarmuka interaktif, countdown, galeri mist tiles, dan vinil musik.",
+    theme: {
+      fonts: { display: "EB Garamond", script: "WindSong", body: "Mulish" },
+      colors: {
+        surface: "#0a0a0f",
+        text: "#f0eee6",
+        accent: "#c9a96e",
+        accentMuted: "#8a7350",
+        overlay: "#000000",
+        dark: "#0a0a0f",
+      },
+      ornaments: { divider: "floral", border: "minimal", frame: "square" },
+      motion: { enabled: true, duration: 0.7, stagger: 0.2 },
+    },
+    content: {
+      cover_slots: 5,
+      cover_slot_labels: ["Sampul", "Ayat / Kutipan (+ panel desktop)", "Acara", "Dress Code", "Finale (poster)"],
+      groom_photo: "single",
+      bride_photo: "single",
+      sections: {
+        opening_description: false,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: true,
+        livestream: true,
+      },
+    },
+  },
 ]
 
 export function getTemplateConfig(code: string): TemplateConfig | undefined {
   return TEMPLATE_CONFIGS.find((t) => t.code === code)
 }
+
+export { hidesOpeningSection } from "@/lib/templateSections"
 
 export function getTemplateContentSpec(code: string | null) {
   if (!code) return undefined

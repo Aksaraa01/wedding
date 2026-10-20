@@ -1,40 +1,17 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { requireOpsEmployee } from "@/lib/ops-auth"
-import { PACKAGE_CODES } from "@/lib/packages"
+import { parseVoucherCreateInput } from "@/lib/voucherInput"
 
-const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+const VOUCHER_FIELDS =
+  "id, code, title, description, discount_type, amount, percent, max_discount, include_wa_blast, include_express, include_galeri, max_uses, used_count, package_eligibility, is_active, created_by_employee_id, created_at, updated_at"
 
-function randomCode(prefix = "AKSARAA"): string {
-  let s = ""
-  // crypto.getRandomValues is available in route runtimes (no Math.random codes).
-  const buf = new Uint32Array(6)
-  crypto.getRandomValues(buf)
-  for (const n of buf) s += CODE_ALPHABET[n % CODE_ALPHABET.length]
-  return `${prefix}-${s}`
-}
-
-function cleanEligibility(v: unknown): string[] {
-  if (!Array.isArray(v)) return []
-  const seen = new Set<string>()
-  for (const x of v) {
-    if (typeof x === "string" && (PACKAGE_CODES as readonly string[]).includes(x)) seen.add(x)
-  }
-  return [...seen]
-}
-
-async function logVoucher(voucherId: string, action: string, details: string, req: Request) {
-  const phone = req.headers.get("x-ops-phone") || ""
-  const { data: emp } = await supabaseAdmin
-    .from("employees")
-    .select("id")
-    .eq("phone_number", phone)
-    .maybeSingle()
+async function logVoucher(voucherId: string, action: string, details: string, employeeId: string | null) {
   await supabaseAdmin.from("voucher_logs").insert({
     voucher_id: voucherId,
     action,
     details: details.slice(0, 500),
-    changed_by_employee_id: emp?.id || null,
+    changed_by_employee_id: employeeId,
   })
 }
 
@@ -45,14 +22,14 @@ export async function GET(req: Request) {
 
   const { data, error } = await supabaseAdmin
     .from("vouchers")
-    .select("id, code, title, description, amount, max_uses, used_count, package_eligibility, is_active, created_by_employee_id, created_at, updated_at")
+    .select(VOUCHER_FIELDS)
     .order("created_at", { ascending: false })
     .limit(200)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: "Gagal memuat voucher." }, { status: 500 })
 
   const ids = (data || []).map((v: any) => v.id)
-  let logsByVoucher: Record<string, any[]> = {}
+  const logsByVoucher: Record<string, any[]> = {}
   if (ids.length > 0) {
     const { data: logs } = await supabaseAdmin
       .from("voucher_logs")
@@ -61,7 +38,7 @@ export async function GET(req: Request) {
       .order("created_at", { ascending: false })
       .limit(800)
     const empIds = [...new Set(((logs || []) as any[]).map((l) => l.changed_by_employee_id).filter(Boolean))]
-    let empNames: Record<string, string> = {}
+    const empNames: Record<string, string> = {}
     if (empIds.length > 0) {
       const { data: emps } = await supabaseAdmin.from("employees").select("id, name").in("id", empIds)
       for (const e of (emps || []) as any[]) empNames[e.id] = e.name
@@ -78,62 +55,55 @@ export async function GET(req: Request) {
   })
 }
 
-// POST /api/vouchers — generate codes (admin only).
-// Body: { amount?, max_uses?, package_eligibility?[] }.
+// POST /api/vouchers — create with a manually entered code (admin only).
 export async function POST(req: Request) {
   const auth = await requireOpsEmployee(req, { allowedRoles: ["admin"] })
   if (!auth.ok) return auth.res
 
   try {
-    const body = await req.json().catch(() => null)
-    const title = typeof body?.title === "string" ? body.title.trim() : ""
-    if (!title) {
-      return NextResponse.json({ error: "Judul voucher wajib diisi." }, { status: 400 })
-    }
-    const description = typeof body?.description === "string" ? body.description.trim().slice(0, 500) : null
-    const amount = Number.isFinite(Number(body?.amount)) ? Math.max(0, Math.floor(Number(body.amount))) : 50000
-    const maxUses = Number.isFinite(Number(body?.max_uses)) ? Math.max(1, Math.floor(Number(body.max_uses))) : 100
-    const eligibility = cleanEligibility(body?.package_eligibility)
+    const parsed = parseVoucherCreateInput(await req.json().catch(() => null))
+    if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 })
+    const input = parsed.value
 
-    const phone = req.headers.get("x-ops-phone") || ""
-    const { data: emp } = await supabaseAdmin
-      .from("employees")
-      .select("id")
-      .eq("phone_number", phone)
-      .maybeSingle()
+    const { data, error } = await supabaseAdmin
+      .from("vouchers")
+      .insert({
+        code: input.code,
+        title: input.title,
+        description: input.description,
+        discount_type: input.discountType,
+        amount: input.discountType === "amount" ? input.amount : 0,
+        percent: input.discountType === "percent" ? input.percent : null,
+        max_discount: input.discountType === "percent" ? input.maxDiscount : null,
+        include_wa_blast: input.includeWaBlast,
+        include_express: input.includeExpress,
+        include_galeri: input.includeGaleri,
+        max_uses: input.maxUses,
+        package_eligibility: input.packageEligibility,
+        created_by_employee_id: auth.employee.id,
+      })
+      .select(VOUCHER_FIELDS)
+      .single()
 
-    let voucher: any = null
-    for (let attempt = 0; attempt < 5; attempt++) {
-      const { data, error } = await supabaseAdmin
-        .from("vouchers")
-        .insert({
-          code: randomCode(),
-          title,
-          description: description || null,
-          amount,
-          max_uses: maxUses,
-          package_eligibility: eligibility,
-          created_by_employee_id: emp?.id || null,
-        })
-        .select("id, code, title, description, amount, max_uses, used_count, package_eligibility, is_active, created_at")
-        .single()
-      if (!error) {
-        voucher = data
-        break
+    if (error) {
+      if (error.code === "23505") {
+        return NextResponse.json({ error: "Kode voucher sudah digunakan." }, { status: 409 })
       }
-      // Unique-code collision (23505): regenerate. Anything else is fatal.
-      if (error.code !== "23505") return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: "Gagal membuat voucher." }, { status: 500 })
     }
-    if (!voucher) return NextResponse.json({ error: "Gagal generate kode unik, coba lagi." }, { status: 500 })
 
+    const discountLabel =
+      input.discountType === "percent"
+        ? `${input.percent}%${input.maxDiscount ? ` (maks ${input.maxDiscount})` : ""}`
+        : `${input.amount}`
     await logVoucher(
-      voucher.id,
+      data.id,
       "created",
-      `${title} • potongan ${voucher.amount} • kuota ${voucher.max_uses} • paket: ${eligibility.length > 0 ? eligibility.join(", ") : "semua"}`,
-      req,
+      `${input.title} • potongan ${discountLabel} • kuota ${input.maxUses} • paket: ${input.packageEligibility.length > 0 ? input.packageEligibility.join(", ") : "semua"}`,
+      auth.employee.id,
     )
-    return NextResponse.json({ voucher })
-  } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    return NextResponse.json({ voucher: data })
+  } catch {
+    return NextResponse.json({ error: "Gagal membuat voucher." }, { status: 500 })
   }
 }

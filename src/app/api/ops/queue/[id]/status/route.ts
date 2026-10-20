@@ -58,9 +58,7 @@ export async function PUT(
       latestFeedbackStatus: latestFb?.status || null,
     })
 
-    const phone = req.headers.get("x-ops-phone") || ""
-    const { data: empRole } = await supabaseAdmin.from("employees").select("role").eq("phone_number", phone).maybeSingle()
-    const role = empRole?.role || req.headers.get("x-ops-role") || ""
+    const role = auth.employee.role
     if (!canChangeStatus(role, derived)) {
       return NextResponse.json({ error: unauthorizedStatusMessage(role, derived) }, { status: 403 })
     }
@@ -129,17 +127,11 @@ export async function PUT(
         .eq("wedding_profile_id", profileId)
     }
 
-    const { data: emp } = await supabaseAdmin
-      .from("employees")
-      .select("id")
-      .eq("phone_number", phone)
-      .maybeSingle()
-
     await supabaseAdmin.from("ops_queue_status_log").insert({
       ops_queue_id: id,
       previous_status: derived,
       new_status: status,
-      changed_by_employee_id: emp?.id || null,
+      changed_by_employee_id: auth.employee.id,
     })
 
     // Fire-and-forget WA group notification on entering feedback_baru.

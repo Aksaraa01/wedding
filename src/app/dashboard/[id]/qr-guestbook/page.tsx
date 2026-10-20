@@ -501,9 +501,8 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   const isUnpaid = profile?.payment_status === "UNPAID"
   const blocked = isUnpaid || gated
   const blockedText = isUnpaid ? "Selesaikan Pembayaran" : "Kunci — Lengkapi Undangan"
-  // Final amount after voucher: stored total is already discounted, but
-  // recompute defensively so a lagging total never overstates the bill.
-  const finalAmount = Math.max(0, (Number(profile?.total_project_cost) || 0) - (Number(profile?.voucher_discount) || 0))
+  // total_project_cost already has the voucher discount applied.
+  const finalAmount = Math.max(0, Number(profile?.total_project_cost) || 0)
   const payLink = () => paymentWaLink({ packageType: profile?.package_type, galeriTier: profile?.galeri_tier, amount: finalAmount > 0 ? finalAmount : null })
   const handleBlockedClick = () => {
     if (isUnpaid) {

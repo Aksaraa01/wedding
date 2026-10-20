@@ -107,11 +107,10 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
   return (
     <div className="w-full bg-black/5 lg:w-[450px] lg:shrink-0">
       <Opening
-        eyebrow={profile.opening_title}
+        eyebrow="The Wedding Of"
         coupleLabel={coupleLabel}
         hashtag={hashtag}
         dateShort={dotShort(profile.estimated_wedding_date)}
-        description={profile.opening_description}
         quoteText={profile.quote_text}
         quoteSource={profile.quote_source}
       />

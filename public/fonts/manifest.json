@@ -305,36 +305,6 @@
     "style": "normal",
     "bytes": 28072
   },
-  "publicsans-300.woff2": {
-    "family": "Public Sans",
-    "weight": "300",
-    "style": "normal",
-    "bytes": 26636
-  },
-  "publicsans-400.woff2": {
-    "family": "Public Sans",
-    "weight": "400",
-    "style": "normal",
-    "bytes": 26636
-  },
-  "publicsans-500.woff2": {
-    "family": "Public Sans",
-    "weight": "500",
-    "style": "normal",
-    "bytes": 26636
-  },
-  "publicsans-600.woff2": {
-    "family": "Public Sans",
-    "weight": "600",
-    "style": "normal",
-    "bytes": 26636
-  },
-  "publicsans-700.woff2": {
-    "family": "Public Sans",
-    "weight": "700",
-    "style": "normal",
-    "bytes": 26636
-  },
   "baskervville-400.woff2": {
     "family": "Baskervville",
     "weight": "400",
@@ -448,5 +418,71 @@
     "weight": "700",
     "style": "normal",
     "bytes": 7848
+  },
+  "mulish-300-italic.woff2": {
+    "family": "Mulish",
+    "weight": "300",
+    "style": "italic",
+    "bytes": 32472
+  },
+  "mulish-400-italic.woff2": {
+    "family": "Mulish",
+    "weight": "400",
+    "style": "italic",
+    "bytes": 32472
+  },
+  "mulish-500-italic.woff2": {
+    "family": "Mulish",
+    "weight": "500",
+    "style": "italic",
+    "bytes": 32472
+  },
+  "mulish-600-italic.woff2": {
+    "family": "Mulish",
+    "weight": "600",
+    "style": "italic",
+    "bytes": 32472
+  },
+  "mulish-700-italic.woff2": {
+    "family": "Mulish",
+    "weight": "700",
+    "style": "italic",
+    "bytes": 32472
+  },
+  "mulish-300.woff2": {
+    "family": "Mulish",
+    "weight": "300",
+    "style": "normal",
+    "bytes": 29896
+  },
+  "mulish-400.woff2": {
+    "family": "Mulish",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 29896
+  },
+  "mulish-500.woff2": {
+    "family": "Mulish",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 29896
+  },
+  "mulish-600.woff2": {
+    "family": "Mulish",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 29896
+  },
+  "mulish-700.woff2": {
+    "family": "Mulish",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 29896
+  },
+  "windsong-400.woff2": {
+    "family": "WindSong",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 36744
   }
 }

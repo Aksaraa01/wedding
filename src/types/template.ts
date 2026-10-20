@@ -66,6 +66,19 @@ export type TemplateProps = {
   }[]
   gallery_photos?: string[]
   video_url?: string
+  dresscode_visible?: boolean
+  livestream_visible?: boolean
+  dresscode?: {
+    title?: string
+    description?: string
+    colors?: { hex?: string; name?: string }[]
+  }
+  livestream?: {
+    title?: string
+    description?: string
+    buttonLabel?: string
+    url?: string
+  }
   gift_accounts?: { provider_name?: string; account_number?: string; account_name?: string; type?: string }[]
   gift_address?: string
   gift_address_name?: string
@@ -109,6 +122,8 @@ export type PhotoStyle = "single" | "slideshow"
 // component — instead of per-template DB mapping.
 export type ContentSpec = {
   cover_slots?: number
+  // Optional human labels for each cover slot (e.g. per-scene backgrounds).
+  cover_slot_labels?: string[]
   // Indices (0-based) of cover slots that render as 2-photo slideshows.
   cover_slideshows?: number[]
   groom_photo?: PhotoStyle
@@ -124,6 +139,8 @@ export type ContentSpec = {
     story?: boolean
     gallery?: boolean
     gift?: boolean
+    dresscode?: boolean
+    livestream?: boolean
   }
 }
 

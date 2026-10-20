@@ -31,12 +31,25 @@ export async function PUT(
 
     const { data: oldProfile } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("payment_status")
+      .select("payment_status, voucher_discount, total_project_cost")
       .eq("id", profileId)
       .single()
 
     const wasUnpaid = oldProfile?.payment_status === "UNPAID"
     const nowPaid = payment_status !== "UNPAID"
+
+    // First payment freezes percent-voucher terms one-way. A later revert to
+    // UNPAID does not unfreeze: the couple keeps the discount they paid with.
+    if (wasUnpaid && nowPaid) {
+      const { error: freezeError } = await supabaseAdmin.rpc("freeze_voucher", {
+        p_profile_id: profileId,
+        p_discount: oldProfile?.voucher_discount || 0,
+        p_total: total_cost !== undefined ? total_cost : oldProfile?.total_project_cost || 0,
+      })
+      if (freezeError) {
+        return NextResponse.json({ error: "Gagal membekukan voucher." }, { status: 500 })
+      }
+    }
 
     const updateData: Record<string, any> = { payment_status }
     if (total_cost !== undefined) {

@@ -37,6 +37,8 @@ import { compressImage } from "@/lib/imageCompress"
 import { pollWpJob, fetchWpJob } from "@/lib/wpJobPoll"
 import { OPENING_PRESETS, OPENING_CUSTOM, matchOpeningPreset } from "@/lib/openingPresets"
 import { normalizeVideoUrl } from "@/components/templates/shared/lib"
+import { getTemplateContentSpec } from "@/components/templates"
+import { hidesOpeningSection } from "@/lib/templateSections"
 import BankSelect from "@/components/dashboard/BankSelect"
 import { getBankBySlug, getBankByName, bankLogoUrl } from "@/lib/bankList"
 
@@ -271,6 +273,8 @@ function invSectionState(p: any, key: string, gift?: { accounts: any[]; address:
     case "video":
       if (gates.cinematic_video?.included === false) return "locked"
       if (p?.video_section_visible === false) return "hidden"
+      // Tanpa-photo templates hide the video section entirely (mirrors editor).
+      if (noPhoto) return "ok"
       return !invHasStr(p?.video_url) ? "empty" : "ok"
     case "story":
       if (gates.story?.included === false) return "locked"
@@ -279,6 +283,14 @@ function invSectionState(p: any, key: string, gift?: { accounts: any[]; address:
     case "gift":
       if (p?.gift_section_visible === false) return "hidden"
       return (gift && (invHasArr(gift.accounts) || invHasStr(gift.address))) ? "ok" : "empty"
+    case "dresscode":
+      if (gates.dresscode?.included === false) return "locked"
+      if (p?.dresscode_visible === false) return "hidden"
+      return !invHasArr(p?.dresscode?.colors) ? "empty" : "ok"
+    case "livestream":
+      if (gates.livestream?.included === false) return "locked"
+      if (p?.livestream_visible === false) return "hidden"
+      return !invHasStr(p?.livestream?.url) ? "empty" : "ok"
     case "musik":
       return p?.selected_track_id ? "ok" : "empty"
     default:
@@ -585,6 +597,7 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [invOpeningCustomMode, setInvOpeningCustomMode] = useState(false)
   const [invCardSummary, setInvCardSummary] = useState<{ empty: string[]; wpId: string } | null>(null)
   const [invLoading, setInvLoading] = useState(false)
+  const [invColorEdit, setInvColorEdit] = useState<{ index: number; hex: string } | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
   const [showVipModal, setShowVipModal] = useState(false)
   const [vipSearch, setVipSearch] = useState("")
@@ -677,6 +690,51 @@ export default function AntrianDetail({ id }: { id: string }) {
     } finally {
       setVoucherApplying(false)
     }
+  }
+
+  const handleToggleVisibility = async (key: string, newValue: boolean) => {
+    if (!detail?.wedding_profile?.id) return
+    try {
+      const res = await fetch(`/api/dashboard/${detail.wedding_profile.id}/web-invitation`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [key]: newValue }),
+      })
+      if (!res.ok) throw new Error("Gagal mengubah visibilitas")
+      setInvForm((prev: any) => ({ ...prev, [key]: newValue }))
+      await fetchAll()
+    } catch (e) {
+      console.error("Failed to toggle visibility", e)
+    }
+  }
+
+  const handleDresscodeColorNameChange = (index: number, name: string) => {
+    setInvForm((prev: any) => {
+      const colors = [...(prev.dresscode?.colors || [])]
+      colors[index] = { ...colors[index], name }
+      return { ...prev, dresscode: { ...(prev.dresscode || {}), colors } }
+    })
+  }
+
+  const handleDresscodeColorDelete = (index: number) => {
+    setInvForm((prev: any) => {
+      const colors = (prev.dresscode?.colors || []).filter((_: unknown, idx: number) => idx !== index)
+      return { ...prev, dresscode: { ...(prev.dresscode || {}), colors } }
+    })
+  }
+
+  const handleDresscodeColorAdd = () => {
+    setInvForm((prev: any) => ({
+      ...prev,
+      dresscode: { ...(prev.dresscode || {}), colors: [...(prev.dresscode?.colors || []), { hex: "#CCCCCC", name: "" }] }
+    }))
+  }
+
+  const handleLivestreamUrlChange = (url: string) => {
+    setInvForm((prev: any) => ({
+      ...prev,
+      livestream: { ...(prev.livestream || {}), url }
+    }))
   }
 
   useEffect(() => {
@@ -1088,10 +1146,17 @@ export default function AntrianDetail({ id }: { id: string }) {
         ["video", "VIDEO"],
         ["story", "STORY"],
         ["gift", "GIFT"],
+        ["dresscode", "DRESS CODE"],
+        ["livestream", "LIVE STREAMING"],
       ]
       const gift = { accounts: data.gift_accounts || [], address: data.gift_address || "" }
       const empty = defs
-        .filter(([k]) => invSectionState(p, k, k === "gift" ? gift : undefined, (invitationData as any)?.template?.no_photo === true) === "empty")
+        .filter(([k]) => {
+          if (k === "pembuka" && hidesOpeningSection(data.template?.code)) return false
+          if (k === "dresscode" && !getTemplateContentSpec(data.template?.code)?.sections?.dresscode) return false
+          if (k === "livestream" && !getTemplateContentSpec(data.template?.code)?.sections?.livestream) return false
+          return invSectionState(p, k, k === "gift" ? gift : undefined, data.template?.no_photo === true) === "empty"
+        })
         .map(([, label]) => label)
       setInvCardSummary({ empty, wpId })
     } catch {}
@@ -1111,12 +1176,16 @@ export default function AntrianDetail({ id }: { id: string }) {
     const lockedInfo: string[] | null =
       key === "inviting" && gates.inviting_families?.included === false ? gates.inviting_families.availableIn || [] :
       key === "video" && gates.cinematic_video?.included === false ? gates.cinematic_video.availableIn || [] :
-      key === "story" && gates.story?.included === false ? gates.story.availableIn || [] : null
+      key === "story" && gates.story?.included === false ? gates.story.availableIn || [] :
+      key === "dresscode" && gates.dresscode?.included === false ? gates.dresscode.availableIn || [] :
+      key === "livestream" && gates.livestream?.included === false ? gates.livestream.availableIn || [] : null
     const hidden =
       key === "inviting" ? p?.inviting_families_visible === false :
       key === "video" ? p?.video_section_visible === false :
       key === "story" ? p?.story_visible === false :
-      key === "gift" ? p?.gift_section_visible === false : false
+      key === "gift" ? p?.gift_section_visible === false :
+      key === "dresscode" ? p?.dresscode_visible === false :
+      key === "livestream" ? p?.livestream_visible === false : false
     const st = invSectionState(p, key === "profile" ? "profil" : key === "music" ? "musik" : key, key === "gift" ? { accounts: invitationData?.gift_accounts || [], address: invitationData?.gift_address || "" } : undefined, invNoPhoto)
     return { lockedInfo, hidden, incomplete: st === "empty" }
   }
@@ -1138,17 +1207,26 @@ export default function AntrianDetail({ id }: { id: string }) {
   // from completeness. Stored photos are kept (hidden, ungated, unsynced).
   const invNoPhoto = (invitationData as any)?.template?.no_photo === true
   const invIsInhouseTpl = !!invTpl && (invTpl.source_type === "inhouse" || (!!invTpl.code && !invTpl.wp_master_slug))
-  const invCoverSlotCount = invIsInhouseTpl ? 1 : (Array.isArray(invTpl?.wp_manifest?.cover_photos) ? invTpl.wp_manifest.cover_photos.length : 0)
+  // Section/photo capabilities follow the selected template exactly like the
+  // couple editor (content spec for in-house, manifest for WP). Ops must never
+  // show fields the template does not render.
+  const invContentSpec = invTpl?.code ? getTemplateContentSpec(invTpl.code) : undefined
+  const invCoverSlotCount = invContentSpec?.cover_slots ?? (Array.isArray(invTpl?.wp_manifest?.cover_photos) ? invTpl.wp_manifest.cover_photos.length : 0)
+  const invCoverSlotLabel = (i: number) => invContentSpec?.cover_slot_labels?.[i] || `Slot ${i + 1}`
   const invIsCoverSlideshowSlot = (i: number) => {
-    if (invIsInhouseTpl) return false
+    if (invContentSpec) return !!invContentSpec.cover_slideshows?.includes(i)
     const mapping = invTpl?.wp_manifest?.cover_photos?.[i]
     return Array.isArray(mapping?.settings) && mapping.settings.join(".") === "background_slideshow_gallery"
   }
   // Couple-photo slots mirror the couple editor: slideshow-ness comes from the
-  // TEMPLATE (manifest background_slideshow_gallery), never from how many
-  // photos are currently uploaded. In-house templates are always single.
+  // TEMPLATE (content spec or manifest), never from how many photos are
+  // currently uploaded.
   const invIsSlideshowField = (field: "groom_photo_url" | "bride_photo_url") => {
-    if (invIsInhouseTpl) return false
+    if (invContentSpec) {
+      if (field === "groom_photo_url") return invContentSpec.groom_photo === "slideshow"
+      if (field === "bride_photo_url") return invContentSpec.bride_photo === "slideshow"
+      return false
+    }
     const mapping = invTpl?.wp_manifest?.[field]
     const m = Array.isArray(mapping) ? mapping[0] : mapping
     return Array.isArray(m?.settings) && m.settings.join(".") === "background_slideshow_gallery"
@@ -2767,7 +2845,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                             const slides = Array.isArray(slotValue) ? slotValue : (typeof slotValue === "string" && slotValue !== "" ? [slotValue] : [])
                             return (
                               <div key={i} className="col-span-2 border border-outline-variant rounded p-2 bg-surface-container-lowest">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-secondary">Slot {i + 1} — Slideshow (2 foto)</span>
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-secondary">{invCoverSlotLabel(i)} — Slideshow (2 foto)</span>
                                 <div className="grid grid-cols-2 gap-2 mt-2">
                                   {[0, 1].map((s) => {
                                     const sKey = `cover-${i}-${s}`
@@ -2820,6 +2898,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                               <div key={i} className="relative aspect-video bg-surface-dim border border-outline-variant overflow-hidden group">
                                 <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${url})` }} />
                                 <span className="absolute top-1 left-1 w-6 h-6 bg-black/60 text-white rounded-sm flex items-center justify-center text-[11px] font-bold">{i + 1}</span>
+                                <span className="absolute bottom-1 left-1 right-1 bg-black/55 text-white text-[9px] px-1 py-0.5 rounded-sm truncate">{invCoverSlotLabel(i)}</span>
                                 <label className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer" title="Ganti foto ini">
                                   <span className="material-symbols-outlined text-white text-[24px] drop-shadow-md">edit</span>
                                   <input
@@ -2850,7 +2929,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                             <label key={i} className="relative aspect-video bg-surface-dim border border-dashed border-outline-variant flex flex-col items-center justify-center cursor-pointer hover:bg-surface-container-highest transition-colors">
                               <span className="absolute top-1 left-1 w-6 h-6 bg-black/60 text-white rounded-sm flex items-center justify-center text-[11px] font-bold">{i + 1}</span>
                               <span className="material-symbols-outlined text-on-surface-variant">add_photo_alternate</span>
-                              <span className="text-[9px] text-on-surface-variant mt-1">Slot {i + 1}</span>
+                              <span className="text-[9px] text-on-surface-variant mt-1">{invCoverSlotLabel(i)}</span>
                               <input
                                 type="file"
                                 accept="image/*"
@@ -2941,6 +3020,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                 </div>
 
                 <div className="p-6 space-y-4">
+                  {!hidesOpeningSection(invitationData?.template?.code) && (
                   <InvAccordion secKey="pembuka" icon="chat_bubble_outline" label="KALIMAT PEMBUKA" {...invAccProps("pembuka")}>
                     {invEditing && invForm ? (
                       <div className="mt-6 space-y-4">
@@ -2993,6 +3073,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     </div>
                     )}
                   </InvAccordion>
+                  )}
 
                   <InvAccordion secKey="profile" icon="group" label="PROFILE MEMPELAI" {...invAccProps("profile")}>
                     {invEditing && invForm ? (
@@ -3416,6 +3497,8 @@ export default function AntrianDetail({ id }: { id: string }) {
                     )}
                   </InvAccordion>
 
+                  {/* Tanpa-photo: whole video section removed (mirrors editor) */}
+                  {!invNoPhoto && (
                   <InvAccordion secKey="video" icon="movie" label="VIDEO" {...invAccProps("video")}>
                     {invEditing && invForm ? (
                       invSectionState(invitationData.profile, "video") === "locked" ? (
@@ -3449,6 +3532,114 @@ export default function AntrianDetail({ id }: { id: string }) {
                     </div>
                     )}
                   </InvAccordion>
+                  )}
+
+                  {/* Dress code is template-specific: only templates whose
+                      content spec renders it show this accordion (mirrors editor). */}
+                  {invContentSpec?.sections?.dresscode && (
+                  <InvAccordion secKey="dresscode" icon="checkroom" label="DRESS CODE" {...invAccProps("dresscode")}>
+                    {invEditing && invForm ? (
+                      <div className="mt-6 space-y-4">
+                        <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+                          <InvSectionToggle
+                            label="Tampilkan Dress Code"
+                            checked={invForm.dresscode_visible !== false}
+                            onChange={() => handleToggleVisibility("dresscode_visible", invForm.dresscode_visible === false)}
+                          />
+                        </div>
+                        <p className="text-[11px] text-on-surface-variant italic">
+                          Judul selalu "Dress Code". Deskripsi otomatis dari nama palet warna.
+                        </p>
+                        <div className="space-y-2">
+                          <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Palet Warna</label>
+                          <div className="space-y-2">
+                            {(invForm.dresscode?.colors || []).map((c: { hex?: string; name?: string }, i: number) => (
+                              <div key={i} className="flex gap-2 items-center">
+                                <button
+                                  type="button"
+                                  onClick={() => setInvColorEdit({ index: i, hex: c.hex || "#CCCCCC" })}
+                                  className="relative h-9 w-10 shrink-0 rounded border border-outline-variant overflow-hidden"
+                                  style={{ backgroundColor: c.hex || "#CCCCCC" }}
+                                  title="Ubah kode warna"
+                                  aria-label={`Ubah kode warna ${c.name || i + 1}`}
+                                />
+                                <input className="input-editorial flex-1 font-body-md text-[14px]" type="text" value={c.name || ""} onChange={(e) => handleDresscodeColorNameChange(i, e.target.value)} placeholder="Nama warna (mis. Ivory)" />
+                                <button onClick={() => handleDresscodeColorDelete(i)} className="text-red-500 hover:text-red-700">
+                                  <span className="material-symbols-outlined text-[18px]">delete</span>
+                                </button>
+                              </div>
+                            ))}
+                            <button onClick={handleDresscodeColorAdd} className="w-full py-2 border border-dashed border-outline-variant rounded-lg text-secondary font-label-md text-[11px] uppercase tracking-widest hover:bg-surface-container-low transition-colors">
+                              + Tambah Warna
+                            </button>
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-on-surface-variant italic mt-2">
+                          Deskripsi otomatis: {invForm.dresscode?.description?.trim() ? invForm.dresscode.description : "Elegant Attire in " + (invForm.dresscode?.colors?.map((c: any) => c.name).filter(Boolean).join(", ") || "—")}
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        {(invitationData?.profile?.dresscode?.colors || []).length ? (
+                          <div className="mt-6 space-y-4">
+                            {(invitationData?.profile?.dresscode?.colors || []).map((c: any, i: number) => (
+                              <div key={i} className="flex gap-2 items-center">
+                                <span className="relative h-9 w-10 shrink-0 rounded border border-outline-variant overflow-hidden" style={{ backgroundColor: c.hex || "#CCCCCC" }} />
+                                <span className="font-body-md text-sm">{c.name || `Warna ${i + 1}`}</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : null}
+                        <p className="text-[11px] text-on-surface-variant italic mt-2">
+                          Deskripsi otomatis: {invitationData?.profile?.dresscode?.description?.trim() ? invitationData.profile.dresscode.description : "Elegant Attire in " + ((invitationData?.profile?.dresscode?.colors || []).map((c: any) => c.name).filter(Boolean).join(", ") || "—")}
+                        </p>
+                      </div>
+                    )}
+                  </InvAccordion>
+                  )}
+
+                  {/* Live streaming is template-specific (mirrors editor). */}
+                  {invContentSpec?.sections?.livestream && (
+                  <InvAccordion secKey="livestream" icon="live_tv" label="LIVE STREAMING" {...invAccProps("livestream")}>
+                    {invEditing && invForm ? (
+                      <div className="mt-6 space-y-4">
+                        <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+                          <InvSectionToggle
+                            label="Tampilkan Live Streaming"
+                            checked={invForm.livestream_visible !== false}
+                            onChange={() => handleToggleVisibility("livestream_visible", invForm.livestream_visible === false)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">URL Live Streaming</label>
+                          <input
+                            className="input-editorial w-full font-body-md text-[14px]"
+                            type="url"
+                            value={invForm.livestream?.url || ""}
+                            onChange={(e) => handleLivestreamUrlChange(e.target.value)}
+                            placeholder="https://www.youtube.com/watch?v=..."
+                          />
+                          <p className="text-[11px] text-on-surface-variant mt-1 italic">
+                            Tautan tayangan langsung. Judul, deskripsi, dan tombol mengikuti template.
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        {invitationData.profile.livestream?.url ? (
+                          <div className="mt-6">
+                            <a href={invitationData.profile.livestream.url} target="_blank" rel="noopener noreferrer" className="font-body-md text-sm text-primary underline break-all">
+                              {invitationData.profile.livestream.url}
+                            </a>
+                            <p className="mt-2 text-sm text-on-surface-variant">Live Streaming tersedia</p>
+                          </div>
+                        ) : (
+                          <p className="font-body-md text-xs italic text-on-surface-variant/70">Belum ada live streaming.</p>
+                        )}
+                      </div>
+                    )}
+                  </InvAccordion>
+                  )}
 
                   <InvAccordion secKey="story" icon="auto_stories" label="STORY" {...invAccProps("story")}>
                     {invEditing && invForm && invSectionState(invitationData.profile, "story") !== "locked" ? (

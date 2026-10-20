@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { normalizePhone } from "@/lib/packages"
 import { checkRateLimit, getClientIp, rateLimited } from "@/lib/rateLimit"
+import { COUPLE_COOKIE, COUPLE_TTL_SECONDS, setSessionCookie, signSession } from "@/lib/sessionToken"
 
 export async function POST(req: Request) {
   const ip = getClientIp(req)
@@ -58,14 +59,20 @@ export async function POST(req: Request) {
       )
     }
 
-    return NextResponse.json({
+    const token = await signSession(
+      { sub: profile.id, scope: "couple" },
+      COUPLE_TTL_SECONDS,
+    )
+    const res = NextResponse.json({
       success: true,
       wedding_profile_id: profile.id,
       slug: profile.slug,
       bride_name: profile.bride_name,
       groom_name: profile.groom_name,
     })
-  } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    setSessionCookie(res, COUPLE_COOKIE, token, COUPLE_TTL_SECONDS)
+    return res
+  } catch {
+    return NextResponse.json({ error: "Terjadi kesalahan. Silakan coba lagi." }, { status: 500 })
   }
 }

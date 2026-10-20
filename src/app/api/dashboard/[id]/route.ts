@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { requireAuth } from "@/lib/requireAuth"
+import { requireProfileAccess } from "@/lib/requireProfileAccess"
 import { getRowGates, getFeatureIncluded, getSelections } from "@/lib/featureGates"
+import { parseVoucherTerms, voucherTermsFromRow } from "@/lib/voucherDiscount"
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireAuth(_req)
+  const { id: accessId } = await params
+  const auth = await requireProfileAccess(req, accessId)
   if (auth) return auth
   try {
     const { id } = await params
@@ -21,6 +23,19 @@ export async function GET(
     if (profileError || !profile) {
       return NextResponse.json({ error: "Wedding profile not found" }, { status: 404 })
     }
+
+    const { data: activeRedemption } = await supabaseAdmin
+      .from("voucher_redemptions")
+      .select("terms_snapshot, frozen_at, vouchers (discount_type, amount, percent, max_discount, include_wa_blast, include_express, include_galeri, package_eligibility)")
+      .eq("wedding_profile_id", id)
+      .eq("status", "active")
+      .maybeSingle()
+    const redemptionVoucher = activeRedemption
+      ? (Array.isArray(activeRedemption.vouchers) ? activeRedemption.vouchers[0] : activeRedemption.vouchers)
+      : null
+    const voucherTerms =
+      parseVoucherTerms(activeRedemption?.terms_snapshot) ??
+      (redemptionVoucher ? voucherTermsFromRow(redemptionVoucher) : null)
 
     const packageType = profile.package_type || "signature"
     const packageGates = await getRowGates(packageType)
@@ -68,6 +83,8 @@ export async function GET(
     return NextResponse.json({
       profile,
       selections,
+      voucher_terms: voucherTerms,
+      voucher_frozen: !!activeRedemption?.frozen_at,
       package_gates: packageGates,
       feature_set: featureSet,
       guest_count: guestCount || 0,

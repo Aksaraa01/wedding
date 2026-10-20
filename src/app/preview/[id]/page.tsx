@@ -20,7 +20,7 @@ export default async function CouplePreview({ params }: { params: Promise<{ id: 
 
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id, slug, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, cover_photos, couple_initials, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, opening_title, opening_description, gift_section_visible, video_section_visible, inviting_families_visible, story_visible")
+    .select("id, slug, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, cover_photos, couple_initials, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, opening_title, opening_description, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, dresscode, livestream, dresscode_visible, livestream_visible")
     .eq("id", id)
     .single()
 
@@ -88,6 +88,10 @@ export default async function CouplePreview({ params }: { params: Promise<{ id: 
       video_url={profile.video_url || undefined}
       opening_title={profile.opening_title || undefined}
       opening_description={profile.opening_description || undefined}
+      dresscode={(profile.dresscode as any) || undefined}
+      livestream={(profile.livestream as any) || undefined}
+      dresscode_visible={(profile as any).dresscode_visible !== false}
+      livestream_visible={(profile as any).livestream_visible !== false}
       sessions={profile.sessions || undefined}
       quote_text={profile.quote_text || undefined}
       quote_source={profile.quote_source || undefined}

@@ -27,6 +27,8 @@ const FAMILIES = [
   { name: "Jura", weights: ["300", "400", "500", "600", "700"], styles: ["normal"] },
   { name: "Lora", weights: ["400", "500", "600", "700"], styles: ["normal", "italic"] },
   { name: "Poppins", weights: ["300", "400", "500", "600", "700"], styles: ["normal"] },
+  { name: "Mulish", weights: ["300", "400", "500", "600", "700"], styles: ["normal", "italic"] },
+  { name: "WindSong", weights: ["400"], styles: ["normal"] },
 ];
 
 function cssUrl(f) {

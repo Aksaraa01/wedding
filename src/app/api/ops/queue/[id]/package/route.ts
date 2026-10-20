@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { requireOpsEmployee } from "@/lib/ops-auth"
-import { calcTotalWithVoucherBook, PACKAGE_CODES } from "@/lib/packages"
+import { PACKAGE_CODES, priceParts } from "@/lib/packages"
 import { getPriceBook } from "@/lib/priceBook"
 import { normalizeGaleriConfig } from "@/lib/gallery"
 import { sanitizeAddonsForPackage } from "@/lib/packageRules"
 import { getSelections } from "@/lib/featureGates"
+import {
+  calcVoucherTotals,
+  parseVoucherTerms,
+  voucherTermsFromRow,
+} from "@/lib/voucherDiscount"
 
 export async function PUT(
   req: NextRequest,
@@ -37,7 +42,7 @@ export async function PUT(
 
     const { data: queueItem, error: queueError } = await supabaseAdmin
       .from("ops_queue")
-      .select("id, wedding_profiles!inner (id, package_type, wa_blast_tier, express_service, undangan_fisik, voucher_code, voucher_discount, galeri_addon, galeri_photos_per_guest, galeri_guest_count, galeri_tier, galeri_price)")
+      .select("id, wedding_profiles!inner (id, package_type, wa_blast_tier, express_service, undangan_fisik, payment_status, voucher_code, voucher_discount, galeri_addon, galeri_photos_per_guest, galeri_guest_count, galeri_tier, galeri_price)")
       .eq("id", id)
       .single()
 
@@ -53,8 +58,21 @@ export async function PUT(
 
     const undanganFisik = wp?.undangan_fisik === true
 
-    // Voucher discount earned at signup is preserved across package changes.
-    const voucherDiscount = (wp as any)?.voucher_discount || 0
+    // Percent vouchers recalculate against the new package/add-on parts while
+    // UNPAID; fixed amounts and frozen redemptions keep their stored value.
+    const storedVoucherDiscount = (wp as any)?.voucher_discount || 0
+    const { data: activeRedemption } = await supabaseAdmin
+      .from("voucher_redemptions")
+      .select("terms_snapshot, frozen_at, vouchers (discount_type, amount, percent, max_discount, include_wa_blast, include_express, include_galeri, package_eligibility)")
+      .eq("wedding_profile_id", wp.id)
+      .eq("status", "active")
+      .maybeSingle()
+    const redemptionVoucher = activeRedemption
+      ? (Array.isArray(activeRedemption.vouchers) ? activeRedemption.vouchers[0] : activeRedemption.vouchers)
+      : null
+    const voucherTerms =
+      parseVoucherTerms(activeRedemption?.terms_snapshot) ??
+      (redemptionVoucher ? voucherTermsFromRow(redemptionVoucher) : null)
     const storedGaleri = (wp as any)?.galeri_addon
       ? {
           photos_per_guest: (wp as any).galeri_photos_per_guest,
@@ -103,7 +121,16 @@ export async function PUT(
     if (book.base[package_type] === undefined) {
       return NextResponse.json({ error: "Harga paket belum dikonfigurasi" }, { status: 500 })
     }
-    const total = calcTotalWithVoucherBook(book, package_type, waBlastTier, expressService, voucherDiscount, galeriPrice)
+    const parts = priceParts(book, package_type, waBlastTier, expressService, galeriPrice)
+    const voucherTotals = calcVoucherTotals({
+      terms: voucherTerms,
+      storedDiscount: storedVoucherDiscount,
+      frozen: !!activeRedemption?.frozen_at || (wp as any)?.payment_status !== "UNPAID",
+      packageType: package_type,
+      parts,
+    })
+    const voucherDiscount = voucherTotals.discount
+    const total = voucherTotals.total
 
     // Galeri columns are written whenever the effective config differs —
     // a package change can clear carried values with galeri untouched.
@@ -122,6 +149,7 @@ export async function PUT(
         wa_blast_tier: waBlastTier,
         express_service: expressService,
         total_project_cost: total,
+        voucher_discount: voucherDiscount,
         ...(galeriChanged
           ? {
               galeri_addon: !!effGaleri,
@@ -183,19 +211,12 @@ export async function PUT(
     }
 
     // Audit trail: package AND add-on changes in the unified timeline.
-    const phone = req.headers.get("x-ops-phone") || ""
-    const { data: emp } = await supabaseAdmin
-      .from("employees")
-      .select("id")
-      .eq("phone_number", phone)
-      .maybeSingle()
-
     const logBase = {
       ops_queue_id: id,
       kind: "package",
       previous_status: null,
       new_status: null,
-      changed_by_employee_id: emp?.id || null,
+      changed_by_employee_id: auth.employee.id,
     }
     if (previousPackage !== package_type) {
       const { error: logError } = await supabaseAdmin.from("ops_queue_status_log").insert({
@@ -255,7 +276,7 @@ export async function PUT(
         previous_package: previousPackage,
         new_package: package_type,
         details: addonChanges.join("; "),
-        changed_by_employee_id: emp?.id || null,
+        changed_by_employee_id: auth.employee.id,
       })
       if (logError) {
         console.error("[ops/package] addon audit log insert failed", logError.message)
@@ -270,7 +291,7 @@ export async function PUT(
         previous_package: previousPackage,
         new_package: package_type,
         details: autoDropped.join("; "),
-        changed_by_employee_id: emp?.id || null,
+        changed_by_employee_id: auth.employee.id,
       })
       if (logError) {
         console.error("[ops/package] auto-drop audit log insert failed", logError.message)

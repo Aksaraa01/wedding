@@ -10,6 +10,8 @@ export const INVITATION_SECTION_LABELS: Record<string, string> = {
   video: "Video",
   story: "Story",
   gift: "Gift",
+  dresscode: "Dress Code",
+  livestream: "Live Streaming",
 }
 
 export const INVITATION_SECTION_ORDER = [
@@ -59,6 +61,9 @@ export type InvitationCompletenessInput = {
   // ungated, unsynced) so switching back to a with-photo template restores
   // them — hide must never equal delete.
   no_photo_template: boolean
+  // Templates that don't use the Kalimat Pembuka block at all (fixed opening
+  // card): never block publishing on it.
+  no_opening_section?: boolean
 }
 
 function hasArr(v: unknown): boolean {
@@ -100,6 +105,7 @@ function isSectionIncomplete(key: string, d: InvitationCompletenessInput): boole
       // confirmation.
       return false
     case "pembuka":
+      if (d.no_opening_section) return false
       return !hasStr(d.opening_title) && !hasStr(d.opening_description)
     case "profile":
       return !hasStr(d.groom_full_name) || !hasStr(d.bride_full_name)

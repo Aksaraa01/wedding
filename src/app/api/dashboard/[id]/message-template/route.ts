@@ -1,16 +1,15 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { requireAuth } from "@/lib/requireAuth"
+import { requireProfileAccess } from "@/lib/requireProfileAccess"
 
 const VALID = ["nasional", "international", "muslim", "kristen", "budha", "hindu"]
 
 // PUT /api/dashboard/[id]/message-template — persist the couple's selected
 // WhatsApp invitation-message template category.
 export async function PUT(req: Request, ctx: { params: Promise<{ id: string }> }) {
-  const auth = await requireAuth(req)
-  if (auth) return auth
-
   const { id } = await ctx.params
+  const auth = await requireProfileAccess(req, id)
+  if (auth) return auth
   let body: Record<string, unknown>
   try {
     body = await req.json()

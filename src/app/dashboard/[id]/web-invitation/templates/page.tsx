@@ -75,7 +75,12 @@ function TemplatesInner({ id }: { id: string }) {
   const visibleTemplates = templates.filter((t) => {
     const catOk = matchesCategory(t.category, categoryFilter)
     const photoOk = photoFilter !== "tanpa" || t.no_photo === true
-    const searchOk = !searchQuery.trim() || t.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
+    const q = searchQuery.trim().toLowerCase()
+    const searchOk = !q || [t.name, t.category, t.description, t.code]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase()
+      .includes(q)
     return catOk && photoOk && searchOk
   })
 
@@ -156,17 +161,29 @@ function TemplatesInner({ id }: { id: string }) {
           <h1 className="font-headline-lg text-[18px] sm:text-[28px] leading-tight mb-3">Pilih Undangan Digital Anda</h1>
         </section>
 
-        <div className="flex flex-col sm:flex-row gap-3 mb-8">
-          <div className="relative flex-1 max-w-md">
+        <div className="flex flex-col gap-3 mb-8">
+          <div className="relative w-full max-w-xl min-w-[240px]">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
             <input
+              type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari template…"
-              className="w-full pl-10 pr-4 py-2.5 rounded-full border border-outline-variant bg-surface text-sm placeholder:text-on-surface-variant/60 focus:outline-none focus:border-brand-charcoal focus:ring-1 focus:ring-brand-charcoal"
+              placeholder="Cari template, kategori…"
+              aria-label="Cari template"
+              className="w-full pl-10 pr-10 py-2.5 rounded-full border border-outline-variant bg-surface text-sm placeholder:text-on-surface-variant/60 focus:outline-none focus:border-brand-charcoal focus:ring-1 focus:ring-brand-charcoal [&::-webkit-search-cancel-button]:hidden"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                aria-label="Hapus pencarian"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-brand-charcoal"
+              >
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            )}
           </div>
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+          <div className="flex flex-wrap items-center gap-2">
             {shownFilters.map((f) => (
               <button
                 key={f.id}
@@ -181,7 +198,7 @@ function TemplatesInner({ id }: { id: string }) {
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="shrink-0 font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant">Foto:</span>
             {([
               { id: "semua", label: "Semua" },
@@ -205,7 +222,7 @@ function TemplatesInner({ id }: { id: string }) {
         {visibleTemplates.length === 0 && (
           <div className="py-12 text-center">
             <p className="font-body-md text-sm text-on-surface-variant mb-4">
-              {photoFilter === "tanpa" ? "Belum ada template Tanpa Photo yang cocok." : "Tidak ada template yang cocok dengan filter."}
+              {photoFilter === "tanpa" ? "Belum ada template Tanpa Photo yang cocok." : searchQuery.trim() ? `Tidak ada template untuk “${searchQuery.trim()}”.` : "Tidak ada template yang cocok dengan filter."}
             </p>
             <button
               onClick={() => { setPhotoFilter("semua"); setCategoryFilter("semua"); setSearchQuery("") }}

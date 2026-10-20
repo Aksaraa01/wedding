@@ -39,13 +39,6 @@ export async function POST(
       queueId = queues[0].id
     }
 
-    const phone = req.headers.get("x-ops-phone") || ""
-    const { data: emp } = await supabaseAdmin
-      .from("employees")
-      .select("id")
-      .eq("phone_number", phone)
-      .maybeSingle()
-
     const { error } = await supabaseAdmin.from("ops_queue_status_log").insert({
       ops_queue_id: queueId,
       kind: "invitation",
@@ -54,7 +47,7 @@ export async function POST(
       previous_package: null,
       new_package: null,
       details: details.slice(0, 500),
-      changed_by_employee_id: emp?.id || null,
+      changed_by_employee_id: auth.employee.id,
     })
 
     if (error) {

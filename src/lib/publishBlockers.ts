@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { getRowGates } from "@/lib/featureGates"
+import { hidesOpeningSection } from "@/lib/templateSections"
 import { getIncompleteInvitationSections, parseStringList } from "@/lib/invitationCompleteness"
 
 // Mirror of the editor's sectionIncomplete gate: publishing is rejected while
@@ -9,7 +10,7 @@ import { getIncompleteInvitationSections, parseStringList } from "@/lib/invitati
 export async function getPublishBlockers(id: string): Promise<{ key: string; label: string }[]> {
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("package_type, selected_template_id, couple_illustration_url, cover_photos, opening_title, opening_description, display_name, groom_full_name, bride_full_name, sessions, gallery_photos, inviting_families, inviting_families_visible, quote_text, video_url, video_section_visible, stories, story_visible, gift_section_visible")
+    .select("package_type, selected_template_id, couple_illustration_url, cover_photos, opening_title, opening_description, display_name, groom_full_name, bride_full_name, sessions, gallery_photos, inviting_families, inviting_families_visible, quote_text, video_url, video_section_visible, stories, story_visible, gift_section_visible, dresscode, livestream")
     .eq("id", id)
     .maybeSingle()
 
@@ -20,8 +21,8 @@ export async function getPublishBlockers(id: string): Promise<{ key: string; lab
     supabaseAdmin.from("gift_accounts").select("id").eq("wedding_profile_id", id).in("type", ["bank", "ewallet"]).then(r => r.data ?? []),
     supabaseAdmin.from("gift_addresses").select("full_address").eq("wedding_profile_id", id).maybeSingle().then(r => r.data ?? null),
     profile.selected_template_id
-      ? supabaseAdmin.from("web_templates").select("no_photo").eq("id", profile.selected_template_id).maybeSingle().then(r => (r.data as any)?.no_photo === true)
-      : Promise.resolve(false),
+      ? supabaseAdmin.from("web_templates").select("no_photo, code").eq("id", profile.selected_template_id).maybeSingle().then(r => r.data ?? null)
+      : Promise.resolve(null),
   ])
 
   return getIncompleteInvitationSections({
@@ -45,7 +46,8 @@ export async function getPublishBlockers(id: string): Promise<{ key: string; lab
     gift_section_visible: profile.gift_section_visible,
     gift_has_address: !!(giftAddr?.full_address && String(giftAddr.full_address).trim()),
     gift_account_count: giftAccts.length,
-    no_photo_template: tpl,
+    no_photo_template: (tpl as any)?.no_photo === true,
+    no_opening_section: hidesOpeningSection((tpl as any)?.code),
     gates: {
       inviting_families: gates.inviting_families.included,
       cinematic_video: gates.cinematic_video.included,

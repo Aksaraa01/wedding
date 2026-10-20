@@ -13,6 +13,21 @@ export function emptyPriceBook(): PriceBook {
   return { base: {}, old: {}, waTiers: {}, express: 0 }
 }
 
+export function priceParts(
+  book: PriceBook,
+  packageType: string,
+  waBlastTier: number,
+  expressService: boolean,
+  galeriPrice = 0
+) {
+  return {
+    base: Math.max(0, Math.floor(book.base[packageType] ?? 0)),
+    waBlast: waBlastTier ? Math.max(0, Math.floor(book.waTiers[waBlastTier] ?? 0)) : 0,
+    express: expressService ? Math.max(0, Math.floor(book.express)) : 0,
+    galeri: Math.max(0, Math.floor(galeriPrice) || 0),
+  }
+}
+
 export function calcTotalBook(
   book: PriceBook,
   packageType: string,
@@ -20,10 +35,8 @@ export function calcTotalBook(
   expressService: boolean,
   galeriPrice = 0
 ): number {
-  const pkgPrice = book.base[packageType] ?? 0
-  const waPrice = waBlastTier ? (book.waTiers[waBlastTier] ?? 0) : 0
-  const expressPrice = expressService ? book.express : 0
-  return pkgPrice + waPrice + expressPrice + Math.max(0, Math.floor(galeriPrice) || 0)
+  const parts = priceParts(book, packageType, waBlastTier, expressService, galeriPrice)
+  return parts.base + parts.waBlast + parts.express + parts.galeri
 }
 
 // Grand total minus voucher discount (locked at registration, preserved across
