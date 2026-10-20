@@ -39,7 +39,7 @@ function normalizeVideoUrl(url: string): string {
 
 // Gather a couple's content into a flat `fields` object (the same shape the WP
 // mu-plugin consumes for PATCH / duplicate). Returns null if the profile is missing.
-export async function buildProfileFields(profileId: string): Promise<{ profile: any; fields: Record<string, any> } | null> {
+export async function buildProfileFields(profileId: string, templateId?: string | null): Promise<{ profile: any; fields: Record<string, any> } | null> {
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
     .select(PROFILE_SELECT)
@@ -68,12 +68,15 @@ export async function buildProfileFields(profileId: string): Promise<{ profile: 
   // images go as explicit null so sideloaded images are actively cleared.
   // DB values stay intact, so switching back to a with-photo template
   // restores everything.
+  // Duplicate/finalize chains still point at the previous template until the
+  // finalize patch succeeds, so callers pass the NEW template id explicitly.
+  const effectiveTemplateId = templateId || profile.selected_template_id
   let noPhotoTemplate = false
-  if (profile.selected_template_id) {
+  if (effectiveTemplateId) {
     const { data: tpl } = await supabaseAdmin
       .from("web_templates")
       .select("no_photo")
-      .eq("id", profile.selected_template_id)
+      .eq("id", effectiveTemplateId)
       .maybeSingle()
     noPhotoTemplate = (tpl as any)?.no_photo === true
   }

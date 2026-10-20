@@ -33,7 +33,7 @@ async function runDuplicate(jobId: string, profileId: string, templateId: string
     throw new Error("Template tidak memiliki wp_master_slug")
   }
 
-  const built = await buildProfileFields(profileId)
+  const built = await buildProfileFields(profileId, templateId)
   if (!built) {
     throw new Error("Profil tidak ditemukan")
   }
@@ -149,7 +149,7 @@ async function runPatch(
   finalize?: FinalizeChain | null,
   source?: string | null,
 ) {
-  const built = await buildProfileFields(profileId)
+  const built = await buildProfileFields(profileId, finalize?.newTemplateId)
   if (!built) {
     throw new Error("Profil tidak ditemukan")
   }
