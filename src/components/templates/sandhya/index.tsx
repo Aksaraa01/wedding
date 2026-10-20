@@ -270,7 +270,9 @@ export default function Sandhya(profile: TemplateProps) {
     if (current === next) return
     setLeavingScene(current)
     setDirBack(!forward)
-    setStep(0)
+    // Backward into a multi-step scene lands on its last step (bride / last
+    // event), forward lands on the first — matching the reference.
+    setStep(forward ? 0 : stepsOf(next) - 1)
     setCoupleExit(null)
     setHintVisible(false)
     lock(2900)
@@ -280,7 +282,7 @@ export default function Sandhya(profile: TemplateProps) {
     if (scenes.indexOf(current) === finaleIndex) leaveFinale()
     setScene(next)
     window.setTimeout(() => setLeavingScene(null), 2900)
-  }, [scenes, finaleIndex, enterFinale, leaveFinale, lock])
+  }, [scenes, finaleIndex, stepsOf, enterFinale, leaveFinale, lock])
 
   const advance = useCallback(() => {
     if (!opened || lockRef.current) return
@@ -899,6 +901,8 @@ export default function Sandhya(profile: TemplateProps) {
         </section>
       </div>
 
+      <div className="grain" aria-hidden="true" />
+
       <div className={`hint${opened && hintVisible && scene !== "finale" ? " is-show" : ""}`} aria-hidden="true">
         <span className="hint__line" />
         <p className="label label--dim">Swipe up</p>
@@ -946,7 +950,7 @@ export default function Sandhya(profile: TemplateProps) {
       {videoModal && videoId && createPortal(
         <div
           className="fixed inset-0 z-[10000] flex items-center justify-center"
-          style={{ background: "rgba(0,0,0,0.96)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", padding: "clamp(12px, 4vw, 48px)" }}
+          style={{ background: "rgba(0,0,0,0.92)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", padding: "clamp(12px, 4vw, 48px)" }}
           onClick={() => setVideoModal(false)}
           role="dialog"
           aria-modal="true"
