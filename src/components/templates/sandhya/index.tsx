@@ -496,6 +496,9 @@ export default function Sandhya(profile: TemplateProps) {
               </span>
             </div>
           </div>
+          <div className="tpl-preload-brand">
+            <img src={A} alt="Aksaraa Wedding" className="tpl-preload-brand__logo" />
+          </div>
         </div>
       )}
 
@@ -848,16 +851,12 @@ export default function Sandhya(profile: TemplateProps) {
                 </section>
               )}
 
-              <section className="sheet__section sheet__section--wishes" data-io>
-                <h3 className="display story__heading">Wishes & Prayers</h3>
-                <p className="wishes__intro serif-i">Leave a message of love and a prayer for {coupleLabel}.</p>
-                <Wishes
-                  guestId={profile.guest_id}
-                  coupleName={coupleLabel}
-                  weddingProfileId={profile.wedding_profile_id!}
-                  guestName={guestName}
-                />
-              </section>
+              <Wishes
+                guestId={profile.guest_id}
+                coupleName={coupleLabel}
+                weddingProfileId={profile.wedding_profile_id!}
+                guestName={guestName}
+              />
 
               <section className="sheet__section sheet__closing" data-io>
                 <div className="closing-portrait">

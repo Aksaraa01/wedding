@@ -254,13 +254,15 @@ function EditorInner({ id }: { id: string }) {
   }, [])
 
   useEffect(() => {
-    if (searchParams.get("preview") === "1" && typeof window !== "undefined" && window.innerWidth < 768) {
+    const wantsPreview = searchParams.get("preview") === "1"
+    if (wantsPreview && typeof window !== "undefined" && window.innerWidth < 768) {
       setShowMobilePreview(true)
     }
     const section = searchParams.get("section") || searchParams.get("return_section")
     if (section) {
       setActiveSection(section)
-      setShowMobilePreview(false)
+      // An explicit ?preview=1 wins over a section deep-link.
+      if (!wantsPreview) setShowMobilePreview(false)
     }
   }, [searchParams])
 
@@ -2821,13 +2823,68 @@ function EditorInner({ id }: { id: string }) {
           </section>
         </main>
 
-        {/* MOBILE BOTTOM BAR — collapsible floating button (visible in BOTH edit & preview modes) */}
-        {(
+        {/* MOBILE BOTTOM BAR — docked while editing */}
+        {!showMobilePreview && !reviewMode && (
+          <div className="md:hidden fixed bottom-0 left-0 w-full px-4 pb-6 pt-3 bg-surface/90 backdrop-blur-sm z-50 border-t border-outline-variant">
+            <div className="flex gap-3">
+              <button
+                data-tour="konten-mobile"
+                onClick={() => setShowMobilePreview(prev => !prev)}
+                className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-surface-container-high text-on-surface-variant rounded-full flex items-center justify-center gap-1.5"
+              >
+                <span className="material-symbols-outlined text-[18px]">visibility</span>
+                PRATINJAU
+              </button>
+              {!isPublished && (
+              <button
+                data-tour="perbarui"
+                onClick={handleUpdatePreview}
+                disabled={updatingPreview || isPublished}
+                className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-brand-gold text-white disabled:opacity-50 rounded-full flex items-center justify-center gap-1.5"
+              >
+                <span className={`material-symbols-outlined text-[18px] ${updatingPreview ? "animate-spin" : ""}`}>{updatingPreview ? "progress_activity" : "refresh"}</span>
+                {updatingPreview ? "MEMPERBARUI..." : "PERBARUI"}
+              </button>
+              )}
+              <button
+                data-tour="konfirmasi"
+                onClick={openPublishConfirm}
+                disabled={isPublished}
+                className={`flex-1 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5 rounded-full ${
+                  isPublished
+                    ? "py-2 flex-col gap-0.5 bg-emerald-600 text-white cursor-default"
+                    : "py-4 bg-secondary text-on-secondary"
+                }`}
+              >
+                {isPublished ? (
+                  <>
+                    <span className="flex items-center gap-1 text-[11px]">
+                      <span className="material-symbols-outlined text-[14px]">verified</span>
+                      TERKONFIRMASI
+                    </span>
+                    <span className="text-[8px] opacity-90 font-normal tracking-normal">
+                      {formatConfirmedAt(data.published_at)}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                    KONFIRMASI
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* MOBILE FLOATING CONTROLS — floating button while previewing
+            (any entry point: ?preview=1, PRATINJAU toggle, PERBARUI). Review
+            mode uses its own bottom sheet instead. */}
+        {showMobilePreview && !reviewMode && (
           <>
-            {/* Floating action button - ALWAYS visible on mobile */}
             <button
               onClick={() => setShowMobileBar(!showMobileBar)}
-              className="md:hidden fixed bottom-4 right-4 z-50 p-3 bg-brand-gold text-white rounded-full shadow-2xl active:scale-[0.95] transition-transform"
+              className="md:hidden fixed bottom-4 right-4 z-[60] p-3 bg-brand-gold text-white rounded-full shadow-2xl active:scale-[0.95] transition-transform"
               aria-label={showMobileBar ? "Tutup menu" : "Buka menu"}
             >
               <span className="material-symbols-outlined text-[24px]">
@@ -2835,74 +2892,59 @@ function EditorInner({ id }: { id: string }) {
               </span>
             </button>
 
-            {/* Expandable bottom bar */}
             <div
-              className={`md:hidden fixed bottom-0 left-0 w-full px-4 pb-6 pt-3 bg-surface/90 backdrop-blur-sm z-50 border-t border-outline-variant transition-all duration-300 ease-out ${
+              className={`md:hidden fixed bottom-0 left-0 w-full px-4 pb-6 pt-3 bg-surface/90 backdrop-blur-sm z-[60] border-t border-outline-variant transition-all duration-300 ease-out ${
                 showMobileBar ? "opacity-100 translate-y-0 max-h-[60vh]" : "opacity-0 translate-y-full max-h-0 pointer-events-none"
               }`}
               style={{ overflow: "hidden" }}
             >
               <div className="flex gap-3">
-                {reviewMode ? (
-                  // Preview mode: only close preview button
-                  <button
-                    onClick={() => { setReviewMode(false); setShowMobileBar(false); }}
-                    className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-brand-gold text-white rounded-full flex items-center justify-center gap-1.5"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">close</span>
-                    TUTUP PRATINJAU
-                  </button>
-                ) : (
-                  // Edit mode: PRATINJAU, PERBARUI, KONFIRMASI
-                  <>
-                    <button
-                      data-tour="konten-mobile"
-                      onClick={() => setShowMobilePreview(prev => !prev)}
-                      className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-surface-container-high text-on-surface-variant rounded-full flex items-center justify-center gap-1.5"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">{showMobilePreview ? "edit" : "visibility"}</span>
-                      {showMobilePreview ? (isPublished ? "KONTEN" : "EDIT") : "PRATINJAU"}
-                    </button>
-                    {!isPublished && (
-                    <button
-                      data-tour="perbarui"
-                      onClick={handleUpdatePreview}
-                      disabled={updatingPreview || isPublished}
-                      className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-brand-gold text-white disabled:opacity-50 rounded-full flex items-center justify-center gap-1.5"
-                    >
-                      <span className={`material-symbols-outlined text-[18px] ${updatingPreview ? "animate-spin" : ""}`}>{updatingPreview ? "progress_activity" : "refresh"}</span>
-                      {updatingPreview ? "MEMPERBARUI..." : "PERBARUI"}
-                    </button>
-                    )}
-                    <button
-                      data-tour="konfirmasi"
-                      onClick={openPublishConfirm}
-                      disabled={isPublished}
-                      className={`flex-1 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5 rounded-full ${
-                        isPublished
-                          ? "py-2 flex-col gap-0.5 bg-emerald-600 text-white cursor-default"
-                          : "py-4 bg-secondary text-on-secondary"
-                      }`}
-                    >
-                      {isPublished ? (
-                        <>
-                          <span className="flex items-center gap-1 text-[11px]">
-                            <span className="material-symbols-outlined text-[14px]">verified</span>
-                            TERKONFIRMASI
-                          </span>
-                          <span className="text-[8px] opacity-90 font-normal tracking-normal">
-                            {formatConfirmedAt(data.published_at)}
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="material-symbols-outlined text-[18px]">check_circle</span>
-                          KONFIRMASI
-                        </>
-                      )}
-                    </button>
-                  </>
+                <button
+                  data-tour="konten-mobile"
+                  onClick={() => setShowMobilePreview(prev => !prev)}
+                  className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-surface-container-high text-on-surface-variant rounded-full flex items-center justify-center gap-1.5"
+                >
+                  <span className="material-symbols-outlined text-[18px]">edit</span>
+                  {isPublished ? "KONTEN" : "EDIT"}
+                </button>
+                {!isPublished && (
+                <button
+                  data-tour="perbarui"
+                  onClick={handleUpdatePreview}
+                  disabled={updatingPreview || isPublished}
+                  className="flex-1 py-4 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform bg-brand-gold text-white disabled:opacity-50 rounded-full flex items-center justify-center gap-1.5"
+                >
+                  <span className={`material-symbols-outlined text-[18px] ${updatingPreview ? "animate-spin" : ""}`}>{updatingPreview ? "progress_activity" : "refresh"}</span>
+                  {updatingPreview ? "MEMPERBARUI..." : "PERBARUI"}
+                </button>
                 )}
+                <button
+                  data-tour="konfirmasi"
+                  onClick={openPublishConfirm}
+                  disabled={isPublished}
+                  className={`flex-1 font-label-md text-label-md tracking-widest active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5 rounded-full ${
+                    isPublished
+                      ? "py-2 flex-col gap-0.5 bg-emerald-600 text-white cursor-default"
+                      : "py-4 bg-secondary text-on-secondary"
+                  }`}
+                >
+                  {isPublished ? (
+                    <>
+                      <span className="flex items-center gap-1 text-[11px]">
+                        <span className="material-symbols-outlined text-[14px]">verified</span>
+                        TERKONFIRMASI
+                      </span>
+                      <span className="text-[8px] opacity-90 font-normal tracking-normal">
+                        {formatConfirmedAt(data.published_at)}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                      KONFIRMASI
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </>
