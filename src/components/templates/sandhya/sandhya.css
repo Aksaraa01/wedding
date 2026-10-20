@@ -205,7 +205,8 @@ animation:none
 .sandhya-root .tpl-gift{position:relative}
 .sandhya-root .tpl-gift__close{position:absolute;top:10px;right:10px;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;border:1px solid var(--hairline);border-radius:999px;background:rgba(255,255,255,.06);color:var(--ink);cursor:pointer;transition:background .3s ease,color .3s ease}
 .sandhya-root .tpl-gift__close:hover{background:color-mix(in srgb,var(--warm),transparent 70%);color:var(--ink)}
-.sandhya-root .tpl-footer__center{display:flex;align-items:center;justify-content:center;width:100%}
+.sandhya-root .sheet__footer .tpl-footer{display:flex;flex-direction:column;align-items:center;gap:14px}
+.sandhya-root .sheet__footer .tpl-footer__text{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:11px;letter-spacing:.04em;text-transform:none;color:rgba(255,255,255,.45)}
 .sandhya-root .sheet__section--opening{padding-top:6px}
 .sandhya-root .opening__eyebrow{color:var(--warm);margin-bottom:12px}
 .sandhya-root .opening__title{font-family:var(--sandhya-font-heading);font-weight:500;font-size:clamp(28px,6vw,40px);line-height:1.15;color:var(--ink);margin:0 0 14px}

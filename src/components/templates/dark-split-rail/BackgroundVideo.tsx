@@ -51,6 +51,8 @@ export default function BackgroundVideo({ embed, poster, signal = 0 }: { embed: 
     mute: "1",
     loop: "1",
     controls: "0",
+    cc_load_policy: "0",
+    iv_load_policy: "3",
     playsinline: "1",
     rel: "0",
     modestbranding: "1",

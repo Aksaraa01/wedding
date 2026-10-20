@@ -271,10 +271,18 @@ function EditorInner({ id }: { id: string }) {
     window.addEventListener("tour_show_konten", onShowKonten as EventListener)
     return () => window.removeEventListener("tour_show_konten", onShowKonten as EventListener)
   }, [])
+
   const [showPublishConfirm, setShowPublishConfirm] = useState(false)
   const [pubState, setPubState] = useState<"ask" | "choose" | "error">("ask")
   const [pubError, setPubError] = useState("")
   const [reviewMode, setReviewMode] = useState(false)
+
+  // Collapse the mobile action sheet whenever the editor switches between edit
+  // and preview (or enters review), so preview always lands on the floating
+  // button only — never the expanded EDIT/PERBARUI/KONFIRMASI sheet.
+  useEffect(() => {
+    setShowMobileBar(false)
+  }, [showMobilePreview, reviewMode])
   const [reviewError, setReviewError] = useState("")
   const [publishing, setPublishing] = useState(false)
   const [preparingReview, setPreparingReview] = useState(false)

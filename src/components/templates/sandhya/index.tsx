@@ -873,18 +873,19 @@ export default function Sandhya(profile: TemplateProps) {
 
 <footer className="sheet__footer" data-io>
                 <footer className="tpl-footer">
-                  <div className="tpl-footer__center" style={{ textAlign: "center", width: "100%" }}>
-                    <a
-                      href={waHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="Hubungi via WhatsApp"
-                      className="tpl-footer__link"
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: 24, verticalAlign: "middle" }}>chat</span>
-                    </a>
-                  </div>
-                  <p className="tpl-footer__text" style={{ margin: 0, color: "var(--ink-faint)", fontFamily: "system-ui, -apple-system, Segoe UI, sans-serif", letterSpacing: "0.1em", textAlign: "center" }}>© {new Date().getFullYear()} {coupleLabel}. All rights reserved.</p>
+                  <a
+                    href={waHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Hubungi Aksaraa Wedding via WhatsApp"
+                    className="tpl-footer__link"
+                  >
+                    <span className="tpl-footer__badge">
+                      <img src={A} alt="Aksaraa Wedding" className="tpl-footer__logo" draggable={false} />
+                    </span>
+                    <span className="tpl-footer__cta">Wedding by Aksaraa</span>
+                  </a>
+                  <p className="tpl-footer__text">© {new Date().getFullYear()} {coupleLabel}. All rights reserved.</p>
                 </footer>
               </footer>
             </div>
@@ -936,23 +937,32 @@ export default function Sandhya(profile: TemplateProps) {
         </div>
       )}
 
-      {videoModal && videoId && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/95 p-4" onClick={() => setVideoModal(false)}>
-          <div className="aspect-video w-full max-w-3xl" onClick={(e) => e.stopPropagation()}>
-            <iframe
-              src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1&modestbranding=1`}
-              title="Our wedding film"
-              className="h-full w-full"
-              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-            />
-          </div>
+      {videoModal && videoId && createPortal(
+        <div
+          className="fixed inset-0 z-[10000] flex items-center justify-center"
+          style={{ background: "rgba(0,0,0,0.96)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", padding: "clamp(12px, 4vw, 48px)" }}
+          onClick={() => setVideoModal(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Our wedding film"
+        >
           <button
             type="button"
-            className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+            className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-black/50 text-[26px] leading-none text-white"
             onClick={() => setVideoModal(false)}
             aria-label="Close"
-          >✕</button>
-        </div>
+          >×</button>
+          <div className="relative aspect-video w-full max-w-[1100px]" style={{ maxHeight: "85vh" }} onClick={(e) => e.stopPropagation()}>
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1&modestbranding=1&cc_load_policy=0&iv_load_policy=3`}
+              title="Our wedding film"
+              className="absolute inset-0 h-full w-full rounded-lg border-0"
+              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+              allowFullScreen
+            />
+          </div>
+        </div>,
+        document.body
       )}
 
       {showGuestDock && (
