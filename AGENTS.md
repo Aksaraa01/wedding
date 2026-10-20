@@ -66,6 +66,14 @@
 ### Git
 - Commit directly to `origin main`
 - No PR workflow
+- Remote is HTTPS: `https://github.com/askaraamini/wedding.git`. Authentication
+  comes from macOS Keychain (`credential.helper=osxkeychain`); there is no token
+  in this repo, `AGENTS.md`, or `~/.git-credentials`. Never paste a PAT into chat,
+  code, or markdown — if one is exposed, revoke it in GitHub and let Keychain
+  hold the replacement.
+- On this machine `git` is blocked by an unaccepted Xcode license. Prefix every
+  git command with `DEVELOPER_DIR=/Library/Developer/CommandLineTools`
+  (e.g. `DEVELOPER_DIR=/Library/Developer/CommandLineTools git status`).
 
 ### WordPress Integration (Live WP as Source of Truth)
 WP hosts the Elementor template masters. Each couple gets a **duplicate** of the master (post + linked popups) that is patched with their data via the mu-plugin REST API.
@@ -107,6 +115,11 @@ When duplicating Elementor posts/popups, the following will silently corrupt dat
 2. Use shared layout in `src/app/layout.tsx`
 3. Follow font/color tokens from tailwind.config.ts
 4. Use `Navigation` component for header
+
+### Add or port an in-house template
+Read `docs/INHOUSE_TEMPLATE_PLAYBOOK.md` first. It covers the full
+reference → component → migration → editor → ops → wishes/floating dock →
+deploy flow, plus the do/don'ts and the failure catalogue from past sessions.
 
 ### Add an API route
 1. Create `src/app/api/<name>/route.ts`
