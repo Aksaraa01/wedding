@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { storagePathFromUrl } from "@/lib/storageUrl"
+import { storagePathFromUrl, thumbPathsFor } from "@/lib/storageUrl"
 import { getPhotoRetentionDays } from "@/lib/appSettings"
 import { hasGaleri, lastEventDate, addDaysIso, daysUntil, isIsoDate, todayIso } from "@/lib/lifecycle"
 
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
 
       const rows = photos || []
       const paths = rows.map((p) => storagePathFromUrl(p.image_url)).filter(Boolean) as string[]
-      const unique = [...new Set(paths)]
+      const unique = [...new Set(paths.flatMap((p) => [p, ...thumbPathsFor(p)]))]
       for (let i = 0; i < unique.length; i += BATCH) {
         await supabaseAdmin.storage.from(BUCKET).remove(unique.slice(i, i + BATCH))
       }

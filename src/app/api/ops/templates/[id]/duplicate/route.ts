@@ -2,6 +2,31 @@ import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { requireOpsEmployee } from "@/lib/ops-auth"
 
+// A no-photo variant must keep a target for the stock Love Story backdrop so
+// the patch payload's explicit `image_bg: null` can clear it. Older variants
+// dropped that mapping; derive it from the card container (or its background
+// image mapping) when cloning from a with-photo template.
+function withStoryBgClearMapping(source: Record<string, any>) {
+  if (!source.wp_manifest || typeof source.wp_manifest !== "object") return source.wp_manifest
+  const manifest = JSON.parse(JSON.stringify(source.wp_manifest))
+  const slots = manifest?.stories_container
+  if (!Array.isArray(slots)) return manifest
+  const isBgPath = (settings: unknown) =>
+    Array.isArray(settings) && settings.join(".") === "background_image.url"
+  for (const slot of slots) {
+    if (!slot || typeof slot !== "object" || slot.image_bg?.elementId) continue
+    const candidate = isBgPath(slot.container?.settings)
+      ? slot.container
+      : isBgPath(slot.image_url?.settings)
+        ? slot.image_url
+        : null
+    if (candidate?.elementId) {
+      slot.image_bg = { elementId: candidate.elementId, settings: [...candidate.settings] }
+    }
+  }
+  return manifest
+}
+
 // POST /api/ops/templates/[id]/duplicate — clone a template so a tanpa-photo
 // (or other) variant starts with the full mapping instead of from zero.
 // Forces is_active=false (ops activates after review) and no_photo=true;
@@ -51,7 +76,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         tier: source.tier,
         source_type: source.source_type,
         wp_master_slug: null,
-        wp_manifest: source.source_type === "inhouse" ? null : source.wp_manifest,
+        wp_manifest: source.source_type === "inhouse" ? null : withStoryBgClearMapping(source),
         no_photo: true,
       })
       .select()

@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto"
 import { supabaseAdmin } from "@/lib/supabase"
 import { parseStringList } from "@/lib/invitationCompleteness"
+import { toTransformedUrl } from "@/lib/storageUrl"
 
 // NOTE: sharp is imported LAZILY inside ensureOgImage (never top-level).
 // sharp ships platform-native binaries; a top-level import crashes the whole
@@ -57,15 +58,10 @@ export function resolveCoverImage(input: {
 }
 
 function smallerInputFor(coverUrl: string): string {
-  // Save egress: convert from a smaller CDN transform when the source is ours.
-  // MUST use resize=contain (aspect-preserving): resize=cover without a
-  // height distorts portraits (800x4160 from 2773x4160), which then throws
-  // off the attention crop and yields cut faces.
-  if (coverUrl.includes("supabase.co/storage/v1/object/public/media/")) {
-    const clean = coverUrl.split("?")[0]
-    return `${clean.replace("/object/public/", "/render/image/public/")}?width=1200&resize=contain`
-  }
-  return coverUrl
+  // Save egress by reading the pre-generated 1200w thumbnail when the source
+  // is ours. Aspect ratio is preserved by sharp at generation time (no crop,
+  // no bars), so faces are never cut. non-Supabase URLs pass through.
+  return toTransformedUrl(coverUrl, { width: 1200, resize: "contain" })
 }
 
 // Returns the public og variant (URL + measured dimensions), or null when

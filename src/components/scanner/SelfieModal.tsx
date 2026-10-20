@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { drawSelfieFrame } from "@/lib/selfieOverlay"
+import { compressImage } from "@/lib/imageCompress"
 
 interface SelfieModalProps {
   open: boolean
@@ -105,11 +106,19 @@ export default function SelfieModal({
     if (!ctx) return
     ctx.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height)
     void drawSelfieFrame(ctx, canvas.width, canvas.height, coupleName, endDate).then(() => {
-      canvas.toBlob((b) => {
+      canvas.toBlob(async (b) => {
         if (!b) return
-        setCapturedBlob(b)
-        setCapturedSrc(URL.createObjectURL(b))
-      }, "image/jpeg", 0.85)
+        // 1080x1440 is already within the dimension cap; re-encode at q0.88
+        // and fall back to the raw capture if compression cannot improve it.
+        const raw = new File([b], `selfie-${Date.now()}.jpg`, { type: "image/jpeg" })
+        const compressed = await compressImage(raw, {
+          maxDimension: 1800,
+          maxBytes: 1.5 * 1024 * 1024,
+          initialQuality: 0.88,
+        })
+        setCapturedBlob(compressed)
+        setCapturedSrc(URL.createObjectURL(compressed))
+      }, "image/jpeg", 0.9)
     })
   }
 

@@ -60,6 +60,8 @@
 - Bucket: `media`, folder prefix: `seeded/`
 - Central asset config: `src/lib/assets.ts`
 - All external images seeded to Supabase (no Google/Unsplash/Drive URLs)
+- Derivatives: `media/thumbs/{width}/{original-path-without-ext}.webp` (`src/lib/storageUrl.ts`); generated on upload, backfill with `scripts/backfill-thumbs.mjs`. Originals stay for download/share/print/lightbox; UI thumbnails fall back to the original on error.
+- On the Linux standalone runtime, `supabase-js` rejects Node `Buffer` upload bodies with `ArrayBuffer: SharedArrayBuffer is not allowed`. Always wrap in-memory output as `new Blob([new Uint8Array(buf)], { type })` before `.storage.upload()` (see `src/lib/storage.ts`).
 
 ### Git
 - Commit directly to `origin main`

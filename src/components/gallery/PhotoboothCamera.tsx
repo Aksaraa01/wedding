@@ -123,8 +123,8 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     if (!video || !canvas || !video.videoWidth) return null
     const vw = video.videoWidth
     const vh = video.videoHeight
-    // 4:3 cover crop, capped at 1600px — matches the gallery card frame and
-    // keeps uploads small before client compression.
+    // 4:3 cover crop, capped at 1800px — matches the gallery card frame and
+    // the keepsake-book print size.
     const targetAspect = 4 / 3
     const videoAspect = vw / vh
     let sx = 0, sy = 0, sw = vw, sh = vh
@@ -135,7 +135,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
       sh = Math.round(vw / targetAspect)
       sy = Math.round((vh - sh) / 2)
     }
-    const scale = Math.min(1, 1600 / Math.max(sw, sh))
+    const scale = Math.min(1, 1800 / Math.max(sw, sh))
     canvas.width = Math.round(sw * scale)
     canvas.height = Math.round(sh * scale)
     const ctx = canvas.getContext("2d")
@@ -197,7 +197,14 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
         caption: caption.trim(),
         cameraFilter: cameraFilter || "",
       })
-      const result = await uploadShot({ file: framed, caption: caption.trim(), captureId: shot.captureId })
+      // Baking the frame can re-encode at source size; normalize once more so
+      // the server's 1.5MB guest cap is met without a rejected upload.
+      const upload = await compressImage(framed, {
+        maxDimension: 1800,
+        maxBytes: 1.5 * 1024 * 1024,
+        initialQuality: 0.88,
+      })
+      const result = await uploadShot({ file: upload, caption: caption.trim(), captureId: shot.captureId })
       setUsed(result.used)
       URL.revokeObjectURL(shot.previewUrl)
       setShot(null)

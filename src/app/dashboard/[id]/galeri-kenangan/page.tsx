@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import ProfileMenu from "@/components/ProfileMenu"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import { toTransformedUrl } from "@/lib/storageUrl"
+import StorageImage from "@/components/StorageImage"
 import { ASSETS } from "@/lib/assets"
 import { downloadBlob, sharePhoto, displayCategory } from "@/lib/gallery-client"
 import { paymentWaLink } from "@/lib/contact"
@@ -1138,9 +1139,9 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                               )}
                             </div>
                             <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-[#f0eee9] shadow-sm">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
+                              <StorageImage
                                 src={photo.image_url}
+                                width={400}
                                 alt={`Foto oleh ${name}`}
                                 loading="lazy"
                                 decoding="async"

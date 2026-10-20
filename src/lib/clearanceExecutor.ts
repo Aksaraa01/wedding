@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase"
-import { storagePathFromUrl } from "@/lib/storageUrl"
+import { storagePathFromUrl, thumbPathsFor } from "@/lib/storageUrl"
 
 // Idempotent, resumable teardown executor for the Clearance console.
 // Every step records its outcome in clearance_actions.steps so a failed run can
@@ -55,7 +55,9 @@ function toPath(url: unknown): string | null {
 }
 
 async function removeStoragePaths(paths: string[]): Promise<number> {
-  const unique = [...new Set(paths.filter(Boolean))]
+  // Originals + their pre-generated thumbnails (thumbs are separate objects).
+  const expanded = paths.flatMap((p) => [p, ...thumbPathsFor(p)])
+  const unique = [...new Set(expanded.filter(Boolean))]
   let removed = 0
   for (let i = 0; i < unique.length; i += MEDIA_BATCH) {
     const batch = unique.slice(i, i + MEDIA_BATCH)

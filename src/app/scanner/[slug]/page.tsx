@@ -348,13 +348,14 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
           }))
         }
       try {
-        const photoRes = await fetch(`/api/guest-photos?wedding_profile_id=${eventInfo.wedding_profile_id}`)
+        const headers: Record<string, string> = {}
+        if (scannerToken) headers["Authorization"] = `Bearer ${scannerToken}`
+        const photoRes = await fetch(`/api/guest-photos?wedding_profile_id=${eventInfo.wedding_profile_id}&selfies=1`, { headers })
         if (photoRes.ok) {
           const photoData = await photoRes.json()
-          const ids = new Set<string>()
-          for (const p of Array.isArray(photoData.photos) ? photoData.photos : []) {
-            if (p.source === "selfie" && p.guest_id) ids.add(p.guest_id)
-          }
+          const ids = new Set<string>(
+            Array.isArray(photoData.selfie_guest_ids) ? photoData.selfie_guest_ids.filter(Boolean) : []
+          )
           if (ids.size) setSelfieGuestIds(ids)
         }
       } catch {}
@@ -363,7 +364,7 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
       }
     }
     initDB()
-  }, [pinVerified, operatorName, eventInfo])
+  }, [pinVerified, operatorName, eventInfo, scannerToken])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

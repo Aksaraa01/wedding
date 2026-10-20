@@ -3,29 +3,45 @@
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { waLink } from "@/lib/contact"
+import { toTransformedUrl } from "@/lib/storageUrl"
 
 // Template screenshots live in the media bucket's `templates/` folder.
-// Env-relative (never hardcoded to prod) + image transform at ~2x display
-// size: arch cards render at 130-156px, mobile carousel at 150px, avatars at
-// 32px — serving full originals here cost ~8-12MB per homepage view.
-const MEDIA_RENDER_BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL || ""}/storage/v1/render/image/public/media`
+// Env-relative (never hardcoded to prod) + pre-generated WebP thumbnails at
+// ~2x display size: arch cards render at 130-156px, mobile carousel at 150px,
+// avatars at 32px — serving full originals here cost ~8-12MB per view.
+const MEDIA_BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL || ""}/storage/v1/object/public/media`
 
 function thumb(name: string, width = 400): string {
-  return `${MEDIA_RENDER_BASE}/templates/${name}?width=${width}&quality=70&resize=cover`
+  return toTransformedUrl(`${MEDIA_BASE}/templates/${name}`, { width })
+}
+
+// Keep the original alongside the thumbnail so a missing/failed derivative
+// still renders instead of leaving a broken frame.
+type HeroPhoto = { src: string; original: string }
+
+function frame(name: string): HeroPhoto {
+  const original = `${MEDIA_BASE}/templates/${name}`
+  return { src: thumb(name), original }
+}
+
+function handleImageError(img: HTMLImageElement) {
+  if (img.dataset.fellBack) return
+  img.dataset.fellBack = "1"
+  if (img.dataset.original) img.src = img.dataset.original
 }
 
 // Fallback when the template API is unreachable/empty — same frames as before.
-const FALLBACK_PHOTOS = [
-  thumb("Template%201.png"),
-  thumb("Template%202.png"),
-  thumb("Template%203.png"),
-  thumb("Template%204.png"),
-  thumb("Template%205.png"),
-  thumb("Template%206.png"),
-  thumb("Template%207.png"),
-  thumb("Template%209.png"),
-  thumb("Template%201.png"),
-  thumb("Template%202.png"),
+const FALLBACK_PHOTOS: HeroPhoto[] = [
+  frame("Template%201.png"),
+  frame("Template%202.png"),
+  frame("Template%203.png"),
+  frame("Template%204.png"),
+  frame("Template%205.png"),
+  frame("Template%206.png"),
+  frame("Template%207.png"),
+  frame("Template%209.png"),
+  frame("Template%201.png"),
+  frame("Template%202.png"),
 ]
 
 type ArchSlot = { left: string; top: string; size: number; rotate: number; z: number }
@@ -57,7 +73,7 @@ const SOCIAL_AVATARS = [
 export default function HeroSection() {
   // Real template previews (first 10 active). Falls back to the hardcoded
   // frames when the API is unreachable or returns too few.
-  const [photos, setPhotos] = useState<string[]>(FALLBACK_PHOTOS)
+  const [photos, setPhotos] = useState<HeroPhoto[]>(FALLBACK_PHOTOS)
   const [offset, setOffset] = useState(0)
   const trackRef = useRef<HTMLDivElement>(null)
   const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -71,8 +87,12 @@ export default function HeroSection() {
         if (cancelled) return
         const urls = Array.isArray(data?.templates)
           ? data.templates
-              .map((t: any) => (typeof t?.preview_image_url === "string" ? t.preview_image_url.trim() : ""))
-              .filter(Boolean)
+              .map((t: any) => {
+                const original = typeof t?.preview_image_url === "string" ? t.preview_image_url.trim() : ""
+                if (!original) return null
+                return { src: toTransformedUrl(original, { width: 400 }), original }
+              })
+              .filter((photo: HeroPhoto | null): photo is HeroPhoto => photo !== null)
               .slice(0, 10)
           : []
         if (urls.length >= 8) setPhotos(urls)
@@ -205,18 +225,20 @@ export default function HeroSection() {
               }}
             >
               <img
-                src={current}
+                src={current.src}
                 alt="Galeri"
                 width={slot.size}
                 height={slot.size}
                 loading="lazy"
                 decoding="async"
                 className="w-full h-full object-cover rounded-2xl"
+                data-original={current.original}
+                onError={(e) => handleImageError(e.currentTarget)}
               />
               {animate && incoming !== current && (
                 <img
                   key={offset}
-                  src={incoming}
+                  src={incoming.src}
                   alt=""
                   aria-hidden
                   width={slot.size}
@@ -224,6 +246,8 @@ export default function HeroSection() {
                   loading="lazy"
                   decoding="async"
                   className="absolute inset-0 w-full h-full object-cover rounded-2xl arch-crossfade"
+                  data-original={incoming.original}
+                  onError={(e) => handleImageError(e.currentTarget)}
                 />
               )}
             </div>
@@ -240,14 +264,16 @@ export default function HeroSection() {
           onPointerDown={pauseAutoScroll}
           className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 no-scrollbar px-4"
         >
-          {loopPhotos.map((src, i) => (
+          {loopPhotos.map((photo, i) => (
               <div key={i} className="shrink-0 snap-start w-[150px]">
                 <img
-                  src={src}
+                  src={photo.src}
                   alt="Galeri"
                   loading="lazy"
                   decoding="async"
                   className="w-full aspect-[9/19] object-cover rounded-2xl border border-white/20 shadow-[0_24px_48px_-16px_rgba(0,0,0,0.55)]"
+                  data-original={photo.original}
+                  onError={(e) => handleImageError(e.currentTarget)}
                 />
               </div>
           ))}

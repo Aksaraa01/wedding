@@ -49,7 +49,7 @@ export default function WelcomeKameraPage({ params }: { params: Promise<{ token:
         }
         let used = 0
         try {
-          const photoRes = await fetch(`/api/guest-photos?guest_id=${data.guest.id}`)
+          const photoRes = await fetch(`/api/guest-photos?guest_id=${data.guest.id}&guest_token=${encodeURIComponent(token)}`)
           const photoData = await photoRes.json()
           const list = Array.isArray(photoData.photos) ? photoData.photos : []
           used = list.filter((p: { source?: string | null }) => p.source !== "selfie").length

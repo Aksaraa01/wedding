@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { ASSETS } from "@/lib/assets"
 import { downloadUrl, sharePhoto, displayCategory } from "@/lib/gallery-client"
+import StorageImage from "@/components/StorageImage"
 
 export type GalleryViewPhoto = {
   id: string
@@ -207,7 +208,7 @@ export default function GuestGalleryView(props: GalleryViewProps) {
                   <div className="relative my-3 rounded-lg overflow-hidden border border-[#d9c1c0]/30 shadow-sm flex flex-col items-center p-2" style={{ backgroundColor: "rgba(234,232,227,0.5)" }}>
                     <div className="w-full max-h-[380px] overflow-hidden rounded-md flex justify-center items-center bg-white">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={p.image_url} alt={`Photostrip ${coupleName}`} loading="lazy" decoding="async" className="w-full h-auto object-contain max-h-[360px] rounded-md" />
+                      <StorageImage src={p.image_url} width={800} alt={`Photostrip ${coupleName}`} loading="lazy" decoding="async" className="w-full h-auto object-contain max-h-[360px] rounded-md" />
                     </div>
                     <div className="flex items-center justify-between w-full px-2 pt-2 text-[#444841] text-[11px]">
                       <span className="flex items-center gap-1">

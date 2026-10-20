@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { getPhotoRetentionDays } from "@/lib/appSettings"
 import { hasGaleri, lastEventDate, addDaysIso, isIsoDate } from "@/lib/lifecycle"
+import { requireProfileAccess } from "@/lib/requireProfileAccess"
+import { extractScannerJwt, verifyScannerJwt } from "@/lib/scannerJwt"
 
 const PAGE_SIZE = 30
 
@@ -12,6 +14,21 @@ export async function GET(req: NextRequest) {
     const guestId = searchParams.get("guest_id")
 
     if (guestId) {
+      // Guest listings expose every photo URL for that guest. Require the QR
+      // token (or the guest's legacy slug) — knowing a guest UUID is not
+      // enough, otherwise the endpoint is an enumeration/egress vector.
+      const guestToken = searchParams.get("guest_token") || ""
+      const { data: guest } = await supabaseAdmin
+        .from("guests")
+        .select("id, qr_token, slug")
+        .eq("id", guestId)
+        .maybeSingle()
+      if (!guest) {
+        return NextResponse.json({ error: "Tamu tidak ditemukan" }, { status: 404 })
+      }
+      if (!guestToken || (guestToken !== guest.qr_token && guestToken !== guest.slug)) {
+        return NextResponse.json({ error: "Token tamu tidak valid" }, { status: 401 })
+      }
       const { data } = await supabaseAdmin
         .from("guest_photos")
         .select("id, image_url, source, caption, created_at")
@@ -23,6 +40,24 @@ export async function GET(req: NextRequest) {
 
     if (!weddingProfileId) {
       return NextResponse.json({ error: "wedding_profile_id diperlukan" }, { status: 400 })
+    }
+
+    const auth = await requireProfileAccess(req, weddingProfileId)
+    if (auth) {
+      // Scanner kiosks are not owner sessions. They may only ask which guests
+      // already have a check-in selfie (to avoid re-prompting), never the
+      // gallery manifest itself.
+      const scanner = await verifyScannerJwt(extractScannerJwt(req) || "")
+      if (!scanner || scanner.weddingProfileId !== weddingProfileId) return auth
+      if (searchParams.get("selfies") !== "1") return auth
+      const { data: selfies } = await supabaseAdmin
+        .from("guest_photos")
+        .select("guest_id")
+        .eq("wedding_profile_id", weddingProfileId)
+        .eq("source", "selfie")
+        .not("guest_id", "is", null)
+      const selfieGuestIds = [...new Set((selfies || []).map((p) => p.guest_id as string))]
+      return NextResponse.json({ selfie_guest_ids: selfieGuestIds })
     }
 
     // Paginated owner listing. Without `page`/`q` params the first page is

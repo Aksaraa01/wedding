@@ -101,6 +101,8 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
     bride_full_name: "Felicia Sagita Pandiangan",
     estimated_wedding_date: "2026-10-16",
     guest_name: "Tamu Undangan",
+    wedding_profile_id: "demo-wedding-profile-id",
+    guest_id: "demo-guest-id",
     cover_photos: [
       `${TM}/1790765548170-DSC06466.jpg`,
       `${TM}/1790765550955-DSC07125.jpg`,

@@ -99,12 +99,15 @@ const EXT_BY_TYPE: Record<string, string> = {
 }
 
 export async function compressImage(file: File, options: CompressImageOptions = {}): Promise<File> {
-  const { maxBytes = 1.8 * 1024 * 1024, maxDimension = 2000, initialQuality = 0.85 } = options
+  // Sharper default than before (was 2000/1.8MB/q0.85): guest books print the
+  // originals, so keep 1800px long edge and spend the byte budget on quality.
+  const { maxBytes = 1.5 * 1024 * 1024, maxDimension = 1800, initialQuality = 0.88 } = options
 
   if (!file.type.startsWith("image/")) return file
   // Vector/animated formats: re-encoding would destroy them, and they are small.
   if (file.type === "image/svg+xml" || file.type === "image/gif") return file
-  if (file.size <= maxBytes) return file
+  // Byte cap is enforced by encodeWithinLimit; still decode when the file is
+  // small so oversized dimensions (e.g. 6000px, 900KB) get capped.
 
   const url = URL.createObjectURL(file)
   try {

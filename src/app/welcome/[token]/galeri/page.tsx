@@ -45,7 +45,7 @@ export default function WelcomeGaleriPage({ params }: { params: Promise<{ token:
         } catch {
           setDateLabel("")
         }
-        const photoRes = await fetch(`/api/guest-photos?guest_id=${data.guest.id}`)
+        const photoRes = await fetch(`/api/guest-photos?guest_id=${data.guest.id}&guest_token=${encodeURIComponent(token)}`)
         const photoData = await photoRes.json()
         const list = Array.isArray(photoData.photos) ? photoData.photos : []
         const mine = list

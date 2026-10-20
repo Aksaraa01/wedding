@@ -5,6 +5,8 @@ import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { AKSARAA_WA_NUMBER } from "@/lib/contact"
 import { coverPhoto, photoList } from "../shared/lib"
+import InvitationOverlay from "@/components/InvitationOverlay"
+import Wishes from "./Wishes"
 import "./nihara-mist.css"
 
 type SceneName = "cover" | "verse" | "couple" | "events" | "dresscode" | "finale"
@@ -177,6 +179,12 @@ export default function NiharaMist(profile: TemplateProps) {
   const videoId = youtubeId(profile.video_url)
   const hasVideo = !!videoId && gates.video !== false && profile.video_section_visible !== false
   const calUrl = calendarUrl(`The Wedding of ${coupleLabel}`, profile.estimated_wedding_date, events[0]?.venue || events[0]?.address || "")
+  const showGuestDock =
+    opened &&
+    lightbox === null &&
+    !videoModal &&
+    (!!profile.guest_id || (profile.guest_link_strict === false && !!profile.guest_slug)) &&
+    !!profile.wedding_profile_id
 
   const showToast = useCallback((msg: string) => {
     setToast(msg)
@@ -773,6 +781,12 @@ export default function NiharaMist(profile: TemplateProps) {
                 </section>
               )}
 
+              <Wishes
+                weddingProfileId={profile.wedding_profile_id}
+                guestId={profile.guest_id}
+                guestName={profile.guest_name}
+              />
+
               <section className="sheet__section sheet__closing" data-io>
                 <div className="closing-portrait">
                   {(cover || bridePhoto) && (
@@ -839,6 +853,24 @@ export default function NiharaMist(profile: TemplateProps) {
         )}
 
         <div className={`nihara-toast${toast ? " show" : ""}`}>{toast}</div>
+
+        {showGuestDock && (
+          <InvitationOverlay
+            guestId={profile.guest_id}
+            guestSlug={profile.guest_slug}
+            allowFlexibleRsvp={profile.guest_link_strict === false}
+            guestName={profile.guest_name || "Tamu Undangan"}
+            coupleName={coupleLabel}
+            weddingProfileId={profile.wedding_profile_id!}
+            guestQrUrl={profile.guest_qr_url}
+            guestTableNumber={profile.guest_table_number}
+            guestRsvpStatus={profile.guest_rsvp_status}
+            guestRsvpMessage={profile.guest_rsvp_message || undefined}
+            rsvpMaxPax={profile.rsvp_max_pax ?? 2}
+            qrEnabled={profile.feature_gates?.qr_code_book === true}
+            anchor="center"
+          />
+        )}
 
         {lightbox !== null && gallery[lightbox] && (
           <div className="fixed inset-0 z-[10000] flex cursor-pointer items-center justify-center bg-black/90 p-4" onClick={() => setLightbox(null)}>

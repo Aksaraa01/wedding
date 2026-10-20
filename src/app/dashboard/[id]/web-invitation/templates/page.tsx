@@ -7,6 +7,7 @@ import TemplatePreviewModal from "@/components/TemplatePreviewModal"
 import { pollWpJob } from "@/lib/wpJobPoll"
 import { getTemplateComponent } from "@/components/templates"
 import { normalizeTemplateTier, tierBadgeClass } from "@/lib/templateTier"
+import { toTransformedUrl } from "@/lib/storageUrl"
 
 const CATEGORY_FILTERS = [
   { id: "semua", label: "Semua" },
@@ -254,10 +255,17 @@ function TemplatesInner({ id }: { id: string }) {
                 <img
                   alt={tpl.name}
                   className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                  src={`${tpl.preview_image_url}?width=400&quality=75&format=webp`}
+                  src={toTransformedUrl(tpl.preview_image_url, { width: 400 })}
                   loading={idx < 2 ? "eager" : "lazy"}
                   decoding="async"
                   sizes="(max-width: 768px) 72vw, 240px"
+                  data-original={tpl.preview_image_url}
+                  onError={(e) => {
+                    const img = e.currentTarget
+                    if (img.dataset.fellBack) return
+                    img.dataset.fellBack = "1"
+                    if (img.dataset.original) img.src = img.dataset.original
+                  }}
                   onMouseEnter={() => {
                     const link = document.createElement("link")
                     link.rel = "prefetch"

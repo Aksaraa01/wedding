@@ -1959,6 +1959,18 @@ class AksaraaPlugin
             // that tanpa-photo templates must clear via explicit null). The
             // container IS the card, so it trivially follows the card id.
             $baseBg = $slot['image_bg'] ?? null;
+            if (!is_array($baseBg)) {
+                // Older tanpa-photo variants dropped the explicit image_bg
+                // mapping; the card's own background mapping is still enough
+                // to know what to clear. (No effect on with-photo payloads,
+                // which never send image_bg.)
+                $candidate = $slot['container'] ?? ($slot['image_url'] ?? null);
+                if (is_array($candidate)
+                    && (string) ($candidate['elementId'] ?? '') === $masterId
+                    && self::is_image_settings_path($candidate['settings'] ?? null)) {
+                    $baseBg = $candidate;
+                }
+            }
             if (is_array($baseBg) && !empty($baseBg['elementId'])) {
                 $row['image_bg'] = ['elementId' => $cid, 'settings' => is_array($baseBg['settings'] ?? null) ? $baseBg['settings'] : []];
             }

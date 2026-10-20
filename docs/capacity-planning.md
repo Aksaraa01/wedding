@@ -27,7 +27,7 @@
 | **Biaya VPS** | **Rp109.000/bulan** (monthly) |
 | PM2 processes | 5 processes ±640MB total (`aksara-wedding` 142MB, `whatsapp` 64MB, `whatsapp-cron` 73MB, `aksaraa` 166MB, `pencatatan` 195MB) — available RAM ±1.1GB |
 | OOM history | **0 kejadian** (belum pernah ter-kill, dmesg kosong) |
-| **Monitoring** | **BELUM ADA** dashboard/pemantauan sistem (CPU/RAM/disk/egress/storage) — lihat §10 |
+| **Monitoring** | **SEBAGIAN** — `/ops/health` menampilkan storage/object/retensi; egress & image-transform masih manual di dashboard Supabase (lihat §10, §13) |
 | Standalone `.next` | 51MB (5 template saat ini) |
 | Supabase bucket `media` | public, fileSizeLimit 20MB, MIME: jpeg/png/webp/svg/mp3/wav/ogg |
 | Supabase bucket `template-media` | public, tanpa limit |
@@ -206,10 +206,23 @@ Bucket `media`/`template-media` **public** + `fileSizeLimit 20MB`, **RLS 0 polic
 ## 12. Kesimpulan
 
 1. **Naikkan Supabase Free → Pro ($25/bln)** sebagai langkah pertama — menyelesaikan storage, egress, backup, dan **Smart CDN** (performa naik, tanpa rework).
-2. **Jangan kompresi** foto (keputusan bisnis) — cukup andalkan **Pro CDN** untuk kecepatan (upload tetap max 5MB).
+2. **Kompresi terkontrol** — foto tamu dinormalisasi ke **1800px / ±1.5MB q0.88** (cukup tajam untuk cetak A5). Thumbnail WebP 400/800/1200w disajikan di grid/card; original hanya untuk download/share/buku.
 3. **Retensi 3 bulan — SKIP hard-delete otomatis (keputusan user).** Upload foto ±15–25GB/bln → wajib **monitor manual** storage/egress (dashboard); rencana **cold storage/arsip** bila mendekati 100GB (terjadi ±5–6 bln tanpa clean-up).
 4. **Download galeri** → **DONE**: client-side zip (**`fflate`**, URL CDN, tanpa VPS-assemble) — menyelesaikan OOM & egress ganda (commit `45d4135`).
 5. **RLS/storage policy** → aktifkan minimal (RLS tabel sensitif + policy insert/delete bucket) untuk menutup eksposur bucket publik.
 6. **Template in-house** → pilot 10 template dulu, ukur RAM `next start` & standalone, sebelum scale ke 100.
 7. **VPS** — swap **2GB aktif** (jaring pengaman OOM); jangan build di server; **load test k6/Locust** utk skenario spike 1.000 concurrent sebelum jam sibuk.
 8. **Biaya bulanan fixed** — **VPS Rp109.000/bln** + **Supabase Pro $25/bln (≈Rp400rb/bln)**, + overage storage/egress bila lewat budget. **Monitoring dashboard** (CPU/RAM/disk VPS + storage/egress Supabase) **belum ada** → prioritas pasang agar spike/OOM/kuota terdeteksi (lihat §10).
+
+---
+
+## 13. Thumbnail pipeline — DONE (20 Oct 2026)
+
+- **Tidak ada lagi `/render/image/`.** Supabase menagih **per distinct origin image** yang ditransformasi (100/bln di Pro); galeri dengan ratusan foto langsung melewati kuota.
+- **Derivative pre-generated:** `media/thumbs/{400|800|1200}/{path-asli}.webp`, dibuat saat upload (sharp, lazy import) dan di-backfill untuk objek lama (`scripts/backfill-thumbs.mjs`).
+- **Aturan lebar:** `guest-photos/` → 400 & 800; folder gambar lain → 400/800/1200. `template-media/og/`, SVG/GIF/HEIC/audio di-skip.
+- **Display** memakai thumbnail; **original** tetap untuk Unduh, Share, Buku Kenangan/cetak, dan lightbox.
+- **Fallback UX:** `StorageImage` otomatis fallback ke original bila derivative hilang/gagal, jadi tidak ada slot kosong.
+- **Backfill prod:** 2.049 originals → 6.097 thumbnails, ±320MB; 5 file korup tercatat di `thumbs/_skipped.json` dan tetap tampil via fallback.
+- **Monitoring:** `/ops/health` menampilkan storage (object/bytes per folder, thumbs, guest photos) + retensi; egress & transformation tetap hanya di dashboard Supabase (Management API publik tidak mengeksposnya).
+- **Setelah deploy + verifikasi:** matikan `imageTransformation` di project storage config agar request liar tidak ditagih.

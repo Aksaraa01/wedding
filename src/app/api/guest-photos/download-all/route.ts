@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { requireProfileAccess } from "@/lib/requireProfileAccess"
+import { checkRateLimit, getClientIp, rateLimited } from "@/lib/rateLimit"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -30,6 +32,21 @@ export async function GET(req: NextRequest) {
   if (!weddingProfileId) {
     return new Response("wedding_profile_id diperlukan", { status: 400 })
   }
+
+  // Owner/ops only: the manifest contains every original URL + uploader name
+  // + caption, so an unauthenticated UUID lookup would leak the whole gallery
+  // (and let anyone burn storage egress repeatedly).
+  const auth = await requireProfileAccess(req, weddingProfileId)
+  if (auth) return auth
+
+  // Chunked downloads hit this endpoint a few times per ZIP (200 photos per
+  // request). 60 / 10 min allows several re-downloads but stops loops.
+  const rl = checkRateLimit(
+    `guest-download:${getClientIp(req)}:${weddingProfileId}`,
+    60,
+    10 * 60 * 1000
+  )
+  if (!rl.ok) return rateLimited(rl.retryAfterMs || 10 * 60 * 1000)
 
   const { data: photos, error, count } = await supabaseAdmin
     .from("guest_photos")
@@ -64,5 +81,8 @@ export async function GET(req: NextRequest) {
     .map((m) => `[${m.name}]${m.category ? ` (${m.category})` : ""}\n${m.caption || "(tanpa caption)"}`)
     .join("\n\n")
 
-  return NextResponse.json({ photos: manifest, captions, total: count || 0, offset, limit })
+  return NextResponse.json(
+    { photos: manifest, captions, total: count || 0, offset, limit },
+    { headers: { "Cache-Control": "private, no-store" } }
+  )
 }

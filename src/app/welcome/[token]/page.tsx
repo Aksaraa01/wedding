@@ -75,7 +75,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
         }
 
         if (data.guest.id) {
-          const photoCheck = await fetch(`/api/guest-photos?guest_id=${data.guest.id}`)
+          const photoCheck = await fetch(`/api/guest-photos?guest_id=${data.guest.id}&guest_token=${encodeURIComponent(guestToken)}`)
           const photoData = await photoCheck.json()
           const photos = Array.isArray(photoData.photos) ? photoData.photos.map((p: { image_url: string }) => p.image_url).filter(Boolean) : []
           setPhotoUrls(photos)

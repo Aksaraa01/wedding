@@ -14,12 +14,13 @@ interface StorageImageProps {
   decoding?: "async" | "sync" | "auto"
   draggable?: boolean
   onLoad?: () => void
+  onClick?: () => void
 }
 
-// Egress-safe <img>: serves the Supabase transform at display width instead
-// of the full original. If the transform endpoint ever fails (e.g.
-// transformation disabled), onError falls back to the raw URL so the image
-// still renders — never a blank slot to save bytes.
+// Egress-safe <img>: serves a pre-generated WebP thumbnail instead of the
+// full original. If the derivative is missing (e.g. an object that could not
+// be decoded/backfilled), onError falls back to the raw URL so the image still
+// renders — never a blank slot to save bytes.
 export default function StorageImage({
   src,
   alt,
@@ -31,6 +32,7 @@ export default function StorageImage({
   decoding = "async",
   draggable,
   onLoad,
+  onClick,
 }: StorageImageProps) {
   const transformed = toTransformedUrl(src, { width, quality, resize })
   const [current, setCurrent] = useState(transformed)
@@ -44,6 +46,7 @@ export default function StorageImage({
       decoding={decoding}
       draggable={draggable}
       onLoad={onLoad}
+      onClick={onClick}
       onError={() => {
         if (current !== src) setCurrent(src)
       }}

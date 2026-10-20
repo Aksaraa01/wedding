@@ -11,6 +11,18 @@ set -e
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 FAIL=0
 
+echo "--- check: no /render/image/ transformations (billed per origin) ---"
+RENDER_HITS=$(grep -rn "render/image" "$ROOT/src" --include='*.ts' --include='*.tsx' \
+  | grep -v "src/app/api/ops/usage/route.ts" \
+  || true)
+if [ -n "$RENDER_HITS" ]; then
+  echo "$RENDER_HITS"
+  echo "FAIL: image transformations are billed per distinct origin. Use a pre-generated thumb via toTransformedUrl()."
+  FAIL=1
+else
+  echo "OK"
+fi
+
 echo "--- check: no new raw /object/public/ usages ---"
 RAW_HITS=$(grep -rn "object/public" "$ROOT/src" --include='*.ts' --include='*.tsx' \
   | grep -v "src/lib/storageUrl.ts" \
