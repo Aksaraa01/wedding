@@ -698,6 +698,7 @@ export default function Sandhya(profile: TemplateProps) {
           <div className="finale__bg">
             <div className="finale__media" ref={finaleMediaRef} />
           </div>
+          <div className="scene__veil scene__veil--deep" />
           <div className="finale__scroll" id="sandhyaFinaleScroll" ref={finaleScrollRef}>
             <div className="finale__hero">
               <h2 className="display finale__std reveal">Counting the Days</h2>
