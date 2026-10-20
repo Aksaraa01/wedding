@@ -193,6 +193,8 @@ export default function Sandhya(profile: TemplateProps) {
   const bgEvents = coverList[2] || gallery[1] || bgVerse
   const bgDress = coverList[3] || gallery[2] || bgEvents
   const bgDesk = coverList[1] || gallery[0] || cover
+  // "Finale" cover slot — used as the finale background when the video is off.
+  const finalePhoto = coverList[4] || gallery[0] || cover
   const videoId = youtubeId(profile.video_url)
   const videoEmbed = normalizeVideoUrl(profile.video_url)
   const hasVideo = !!videoId && gates.video !== false && profile.video_section_visible !== false
@@ -480,7 +482,7 @@ export default function Sandhya(profile: TemplateProps) {
         </audio>
       )}
 
-      {videoEmbed && opened && (
+      {hasVideo && videoEmbed && opened && (
         createPortal(
           <BackgroundVideo embed={videoEmbed} poster={cover} signal={scene === "finale" ? 1 : 0} />,
           document.body
@@ -702,7 +704,9 @@ export default function Sandhya(profile: TemplateProps) {
         {/* FINALE */}
         <section className={sceneClass("finale")} aria-hidden={!isActive("finale")}>
           <div className="finale__bg">
-            <div className="finale__media" ref={finaleMediaRef} />
+            <div className="finale__media" ref={finaleMediaRef}>
+              {!hasVideo && finalePhoto && <img src={finalePhoto} alt="" decoding="async" />}
+            </div>
           </div>
           <div className="scene__veil scene__veil--deep" />
           <div className="finale__scroll" id="sandhyaFinaleScroll" ref={finaleScrollRef}>
