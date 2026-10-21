@@ -183,7 +183,6 @@ export default function Sandhya(profile: TemplateProps) {
   const groomChildOrder = tc.groom_child_order || "The Son of"
   const brideChildOrder = tc.bride_child_order || "The Daughter of"
   const galleryQuote = tc.gallery_quote || "Every love story is beautiful, but ours is my favorite."
-  const galleryQuoteSign = tc.gallery_quote_sign || coupleLabel
   const giftIntroTitle = tc.gift_intro_title || "A Token of Love"
   const giftIntroDescription = tc.gift_intro_description || "Your presence is the greatest gift. If you would like to send a token of love, the details are below."
   const closingMessage = tc.closing_message || "It would be an honor and a joy for us to have you present and to receive your blessing on our wedding day."
@@ -779,7 +778,7 @@ export default function Sandhya(profile: TemplateProps) {
                   <div className="gallery__quote-wrap">
                     <span className="gallery__quote-mark" aria-hidden="true">"</span>
                     <p className="gallery__quote serif-i">{galleryQuote}</p>
-                    <p className="gallery__quote-sign hand">{galleryQuoteSign}</p>
+                    <p className="gallery__quote-sign hand">{coupleLabel}</p>
                   </div>
                   {gallery.length > 2 && (
                     <div className="car-row car-row--rev">

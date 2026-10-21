@@ -1,4 +1,5 @@
 import type { TemplateProps } from "@/types/template"
+import { ASSETS } from "@/lib/assets"
 
 const TM = "https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/template-media"
 
@@ -261,12 +262,132 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
       groom_child_order: "The Second Son of",
       bride_child_order: "The Daughter of",
       gallery_quote: "Every love story is beautiful, but ours is my favorite.",
-      gallery_quote_sign: "Albarn & Faye",
       gift_intro_title: "A Token of Love",
       gift_intro_description:
         "Your presence is the greatest gift. If you would like to send a token of love, the details are below.",
       closing_message:
         "It would be an honor and a joy for us to have you present and to receive your blessing on our wedding day.",
+    },
+    feature_gates: { story: true, gift_address: true, inviting_families: true, video: true, qr_code_book: true },
+  },
+  evermore: {
+    slug: "demo",
+    groom_name: "David",
+    bride_name: "Faye",
+    couple_initials: "DF",
+    display_name: "#DavidFaye2026",
+    groom_full_name: "David Albarn",
+    bride_full_name: "Faye Reed",
+    estimated_wedding_date: "2026-10-16",
+    guest_name: "Tamu Undangan",
+    preview_mode: true,
+    wedding_profile_id: "demo-wedding-profile-id",
+    guest_id: "demo-guest-id",
+    cover_photos: [`${DE}/bride-child.webp`, `${DE}/groom-child.webp`],
+    couple_illustration_url: `${DE}/cover.webp`,
+    groom_photo_url: [`${DE}/groom.webp`],
+    bride_photo_url: [`${DE}/bride.webp`],
+    groom_parents: "Putra dari Bapak & Ibu Albarn",
+    bride_parents: "Putri dari Bapak & Ibu Reed",
+    groom_instagram: "@wedding.aksaraa",
+    bride_instagram: "@wedding.aksaraa",
+    opening_title: "Dear,",
+    opening_description:
+      "With great respect, we cordially invite you to celebrate our wedding day with us.",
+    quote_text:
+      "Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan diantaramu rasa kasih dan sayang.",
+    quote_source: "QS. Ar-Rum : 21",
+    sessions: [
+      {
+        name: "Akad Nikah",
+        date: "2026-10-16",
+        time: "09:00 - 11:00 WIB",
+        venue: "Masjid Al-Barkah",
+        address: "Jl. Kemang Raya No. 12, RT 03/RW 02, Bangka, Mampang Prapatan, Jakarta Selatan 12730",
+        maps_url: "https://maps.google.com/?q=Masjid+Al-Barkah",
+      },
+      {
+        name: "Resepsi",
+        date: "2026-10-16",
+        time: "12:00 - 15:00 WIB",
+        venue: "The Garden Hall Kemang",
+        address: "Jl. Pangeran Antasari No. 18, RT 05/RW 06, Cilandak Barat, Cilandak, Jakarta Selatan 12430",
+        maps_url: "https://maps.google.com/?q=The+Garden+Hall+Kemang",
+      },
+    ],
+    stories: [
+      {
+        title: "How We Met",
+        description:
+          "A chance meeting at a friend's gathering in the old town. One long conversation over coffee turned a quiet afternoon into the start of everything.",
+        image_url: `${DE}/cover.webp`,
+      },
+      {
+        title: "Falling in Love",
+        description:
+          "Slow walks, shared playlists, and letters we still keep. Somewhere between the laughter and the silences, we simply knew.",
+        image_url: `${DE}/cover-1.webp`,
+      },
+      {
+        title: "Growing Together",
+        description:
+          "We learned to choose each other through busy days, small surprises, and every imperfect little adventure.",
+        image_url: `${DE}/cover-2.webp`,
+      },
+      {
+        title: "Forever Starts Here",
+        description:
+          "Now we are ready for the next chapter, with the same laughter and a little more room for all our dreams.",
+        image_url: `${DE}/cover-3.webp`,
+      },
+    ],
+    gallery_photos: [...DE_GALLERY],
+    video_url: "https://youtu.be/-ARVwU58l7A",
+    dresscode: {
+      title: "Dress Code",
+      description:
+        "We would be delighted if you could dress in these tones - earthy maroon, dusty rose, gold & sage.",
+      colors: [
+        { hex: "#8a2822", name: "Maroon" },
+        { hex: "#b5746b", name: "Dusty Rose" },
+        { hex: "#b08a4f", name: "Gold" },
+        { hex: "#8a9a7b", name: "Sage" },
+        { hex: "#f2ede7", name: "Cream" },
+      ],
+    },
+    livestream: {
+      title: "Join Us Online",
+      description:
+        "Can't make it in person? Join the live stream and celebrate this lovely day with us from wherever you are.",
+      buttonLabel: "Watch Live Stream",
+      url: "https://www.youtube.com/live/dummy-livestream-link",
+    },
+    gift_accounts: [
+      { provider_name: "Bank Central Asia (BCA)", account_number: "1234 5678 9012", account_name: "Faye Reed", type: "bank" },
+      { provider_name: "Bank Mandiri", account_number: "0987 6543 2100", account_name: "David Albarn", type: "bank" },
+    ],
+    gift_address: "Jl. Melati No. 10, Menteng, Jakarta Pusat 10310",
+    gift_address_name: "David Albarn & Faye Reed",
+    track_url: ASSETS.defaultMusic,
+    auto_play: false,
+    inviting_families: [
+      "Keluarga Bapak & Ibu Albarn",
+      "Keluarga Bapak & Ibu Reed",
+      "Keluarga Besar Kedua Mempelai",
+    ],
+    template_content: {
+      cover_kicker: "This Kids are\nGetting Married",
+      profiles_intro: "Two hearts, one playlist, and zero agreement on what to eat.",
+      story_intro: "From a chance meeting to a lifetime of choosing each other.",
+      gallery_intro:
+        "A handful of frames from the chapters we have lived together, kept like old photographs in a family album.",
+      gallery_quote: "Somewhere between the first hello and every tomorrow, we found our forever.",
+      gift_intro_title: "Wedding Gift",
+      gift_intro_description:
+        "Your presence is the greatest gift. If you would like to send a token of love, you can find the details below.",
+      wishes_intro: "Leave a few kind words and prayers for the couple.",
+      closing_message:
+        "It would be an honour to share this day with you, and to keep writing our story surrounded by the people we love.",
     },
     feature_gates: { story: true, gift_address: true, inviting_families: true, video: true, qr_code_book: true },
   },

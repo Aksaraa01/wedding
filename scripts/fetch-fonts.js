@@ -33,6 +33,8 @@ const FAMILIES = [
   { name: "Bitter", weights: ["300", "400", "500"], styles: ["normal", "italic"] },
   { name: "Allura", weights: ["400"], styles: ["normal"] },
   { name: "Parisienne", weights: ["400"], styles: ["normal"] },
+  { name: "Caveat", weights: ["400", "500", "600", "700"], styles: ["normal"] },
+  { name: "Knewave", weights: ["400"], styles: ["normal"] },
 ];
 
 function cssUrl(f) {

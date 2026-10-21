@@ -21,6 +21,8 @@
   --font-bitter: 'Bitter', serif;
   --font-allura: 'Allura', serif;
   --font-parisienne: 'Parisienne', serif;
+  --font-caveat: 'Caveat', cursive;
+  --font-knewave: 'Knewave', cursive;
 }
 @font-face {
   font-family: 'Inter';
@@ -735,4 +737,39 @@
   font-weight: 400;
   font-display: swap;
   src: url('/fonts/parisienne-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Caveat';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/caveat-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Caveat';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/caveat-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Caveat';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/caveat-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Caveat';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/caveat-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Knewave';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/knewave-400.woff2') format('woff2');
 }

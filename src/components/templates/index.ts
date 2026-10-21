@@ -9,6 +9,7 @@ import PastelCoastal from "./pastel-coastal-cut"
 import NiharaMist from "./nihara-mist"
 import DarkSplitRail from "./dark-split-rail"
 import Sandhya from "./sandhya"
+import Evermore from "./evermore"
 
 export type { TemplateProps } from "@/types/template"
 
@@ -22,6 +23,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "nihara-mist": NiharaMist,
   "dark-split-rail": DarkSplitRail,
   sandhya: Sandhya,
+  evermore: Evermore,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -335,6 +337,43 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         dresscode: true,
         livestream: true,
       },
+    },
+  },
+  {
+    code: "evermore",
+    name: "Evermore",
+    description: "Undangan bergaya scrapbook tahun 70-an — sampul ilustrasi anak, foto mempelai berbingkai pita, kisah cinta, galeri polaroid, hadiah, dan ucapan dalam satu alur gulir.",
+    theme: {
+      fonts: { display: "Knewave", script: "Caveat", body: "Caveat" },
+      colors: {
+        surface: "#f5f2f0",
+        text: "#820e03",
+        accent: "#820e03",
+        accentMuted: "#a51208",
+        overlay: "#f5f2f0",
+        dark: "#4e221d",
+      },
+      ornaments: { divider: "floral", border: "minimal", frame: "arch" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.2 },
+    },
+    content: {
+      cover_slots: 2,
+      cover_slot_labels: ["Foto anak perempuan", "Foto anak laki-laki"],
+      groom_photo: "single",
+      bride_photo: "single",
+      sections: {
+        opening_description: true,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: true,
+        livestream: true,
+      },
+      extras: true,
     },
   },
   {

@@ -610,5 +610,35 @@
     "weight": "400",
     "style": "normal",
     "bytes": 22332
+  },
+  "caveat-400.woff2": {
+    "family": "Caveat",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 74572
+  },
+  "caveat-500.woff2": {
+    "family": "Caveat",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 74572
+  },
+  "caveat-600.woff2": {
+    "family": "Caveat",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 74572
+  },
+  "caveat-700.woff2": {
+    "family": "Caveat",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 74572
+  },
+  "knewave-400.woff2": {
+    "family": "Knewave",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 17340
   }
 }

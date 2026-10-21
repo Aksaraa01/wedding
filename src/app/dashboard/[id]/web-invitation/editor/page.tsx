@@ -4,6 +4,7 @@ import { useState, useEffect, use, useRef, useCallback, useMemo, ComponentType }
 import { useRouter, useSearchParams } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import { getTemplateComponent, getTemplateContentSpec, hidesOpeningSection } from "@/components/templates"
+import { getTemplateExtraFields, templateExtrasLabel } from "@/lib/templateExtras"
 import type { RowGates } from "@/lib/featureGates"
 import { getIncompleteInvitationSections, parseStringList } from "@/lib/invitationCompleteness"
 import { pollWpJob } from "@/lib/wpJobPoll"
@@ -326,7 +327,6 @@ function EditorInner({ id }: { id: string }) {
   // duplicate→patch→cleanup chain is still open would preview a stale (or
   // already-cleaned-up) post. The skeleton holds until the chain drains.
   const [chainSettling, setChainSettling] = useState(false)
-  const settleGuard = useRef(false)
   const iframeReadyTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [coverReplaceIndex, setCoverReplaceIndex] = useState<number | null>(null)
   const [coverSlideTarget, setCoverSlideTarget] = useState<{ slot: number; slide: number } | null>(null)
@@ -404,8 +404,6 @@ function EditorInner({ id }: { id: string }) {
   // frame mounts the live post. In-house selects commit synchronously, so the
   // first poll finds nothing open and this is a near no-op (no extra fetch).
   useEffect(() => {
-    if (settleGuard.current) return
-    settleGuard.current = true
     let fromTemplates = false
     try { fromTemplates = sessionStorage.getItem('from_templates_' + id) === '1' } catch {}
     if (!fromTemplates) return
@@ -458,6 +456,8 @@ function EditorInner({ id }: { id: string }) {
   const isInhouse = template?.source_type === "inhouse" ||
     (!!template?.code && !!getTemplateComponent(template.code) && !template?.wp_master_slug)
   const contentSpec = template?.code ? getTemplateContentSpec(template.code) : undefined
+  const extraFields = getTemplateExtraFields(template?.code)
+  const extrasLabel = templateExtrasLabel(template?.name)
   // Tanpa-photo template: photo fields (cover slots, person photos, gallery,
   // story images) are hidden in editor + ops and excluded from completeness.
   // Stored photos are kept so switching back to a with-photo template restores
@@ -2341,99 +2341,35 @@ function EditorInner({ id }: { id: string }) {
                   </div>
                 </div>
               ))}
-              {contentSpec?.extras && renderSection("extras", "auto_awesome", "SANDHYA EXTRAS", (
+              {contentSpec?.extras && renderSection("extras", "auto_awesome", extrasLabel, (
                 <div className="mt-6 space-y-4">
                   <p className="text-[11px] text-on-surface-variant italic">
-                    Copy khusus template Sandhya. Kosongkan untuk memakai teks bawaan.
+                    Copy khusus template {template?.name}. Kosongkan untuk memakai teks bawaan.
                   </p>
-                    <div className="space-y-2">
-                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Cover apology</label>
-                      <input
-                        className="input-editorial w-full font-body-md text-[14px]"
-                        type="text"
-                        value={data.template_content?.cover_apology || ""}
-                        onChange={e => updateTemplateContent("cover_apology", e.target.value)}
-                        placeholder="We sincerely apologize for any misspelling of names and titles."
-                        disabled={data.is_published === true}
-                      />
+                  {extraFields.map((field) => (
+                    <div key={field.key} className="space-y-2">
+                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">{field.label}</label>
+                      {field.multiline ? (
+                        <textarea
+                          className="input-editorial w-full font-body-md text-[14px] resize-none"
+                          rows={field.rows ?? 2}
+                          value={data.template_content?.[field.key] || ""}
+                          onChange={e => updateTemplateContent(field.key, e.target.value)}
+                          placeholder={field.placeholder}
+                          disabled={data.is_published === true}
+                        />
+                      ) : (
+                        <input
+                          className="input-editorial w-full font-body-md text-[14px]"
+                          type="text"
+                          value={data.template_content?.[field.key] || ""}
+                          onChange={e => updateTemplateContent(field.key, e.target.value)}
+                          placeholder={field.placeholder}
+                          disabled={data.is_published === true}
+                        />
+                      )}
                     </div>
-                    <div className="space-y-2">
-                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Groom — child order</label>
-                      <input
-                        className="input-editorial w-full font-body-md text-[14px]"
-                        type="text"
-                        value={data.template_content?.groom_child_order || ""}
-                        onChange={e => updateTemplateContent("groom_child_order", e.target.value)}
-                        placeholder="The Second Son of"
-                        disabled={data.is_published === true}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Bride — child order</label>
-                      <input
-                        className="input-editorial w-full font-body-md text-[14px]"
-                        type="text"
-                        value={data.template_content?.bride_child_order || ""}
-                        onChange={e => updateTemplateContent("bride_child_order", e.target.value)}
-                        placeholder="The Daughter of"
-                        disabled={data.is_published === true}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Gallery quote</label>
-                      <textarea
-                        className="input-editorial w-full font-body-md text-[14px] resize-none"
-                        rows={2}
-                        value={data.template_content?.gallery_quote || ""}
-                        onChange={e => updateTemplateContent("gallery_quote", e.target.value)}
-                        placeholder="Every love story is beautiful, but ours is my favorite."
-                        disabled={data.is_published === true}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Gallery quote sign-off</label>
-                      <textarea
-                        className="input-editorial w-full font-body-md text-[14px] resize-none"
-                        rows={1}
-                        value={data.template_content?.gallery_quote_sign || ""}
-                        onChange={e => updateTemplateContent("gallery_quote_sign", e.target.value)}
-                        placeholder="Vincent & Felicia"
-                        disabled={data.is_published === true}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Gift intro title</label>
-                      <input
-                        className="input-editorial w-full font-body-md text-[14px]"
-                        type="text"
-                        value={data.template_content?.gift_intro_title || ""}
-                        onChange={e => updateTemplateContent("gift_intro_title", e.target.value)}
-                        placeholder="A Token of Love"
-                        disabled={data.is_published === true}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Gift intro description</label>
-                      <textarea
-                        className="input-editorial w-full font-body-md text-[14px] resize-none"
-                        rows={3}
-                        value={data.template_content?.gift_intro_description || ""}
-                        onChange={e => updateTemplateContent("gift_intro_description", e.target.value)}
-                        placeholder="Your presence is the greatest gift…"
-                        disabled={data.is_published === true}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Closing message</label>
-                      <textarea
-                        className="input-editorial w-full font-body-md text-[14px] resize-none"
-                        rows={3}
-                        value={data.template_content?.closing_message || ""}
-                        onChange={e => updateTemplateContent("closing_message", e.target.value)}
-                        placeholder="It would be an honor and a joy…"
-                        disabled={data.is_published === true}
-                      />
-                    </div>
+                  ))}
                 </div>
               ))}
               {renderSection("story", "auto_stories", "STORY",
