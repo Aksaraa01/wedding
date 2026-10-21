@@ -529,7 +529,7 @@ export default function Sandhya(profile: TemplateProps) {
 
       <div className={stageClass} aria-live="polite">
         {/* COVER */}
-        <section className={sceneClass("cover")} style={{ "--focus-x": "50%", "--focus-y": "34%" } as React.CSSProperties}>
+        <section className={sceneClass("cover")} style={{ "--focus-x": profile.template_demo ? "58%" : "50%", "--focus-y": "34%" } as React.CSSProperties}>
           <div className="scene__bg"><div className="scene__zoom">{cover && <img src={cover} alt="" decoding="async" />}</div></div>
           <div className="scene__veil" />
           <div className="scene__content cover">

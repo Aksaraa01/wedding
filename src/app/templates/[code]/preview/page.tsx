@@ -90,10 +90,20 @@ export default async function TemplatePreviewPage({ params }: { params: Promise<
   if (!Component) notFound()
 
   const demoProps = DEMO_PROPS_BY_CODE[code] || DEMO_PROPS
+  const previewProps: TemplateProps = {
+    ...demoProps,
+    preview_mode: true,
+    template_demo: true,
+    wedding_profile_id: undefined,
+    guest_id: undefined,
+    guest_slug: undefined,
+    guest_link_strict: undefined,
+    guest_qr_url: undefined,
+  }
 
   return (
     <div className="bg-[#05070c]">
-      <Component {...demoProps} />
+      <Component {...previewProps} />
     </div>
   )
 }

@@ -147,6 +147,7 @@ export default function DarkSplitRail(profile: TemplateProps) {
             coupleLabel={shortCoupleLabel}
             guestName={profile.guest_name}
             dateShort={coverDate}
+            objectPosition={profile.template_demo ? "58% 50%" : "50% 50%"}
             onOpen={openInvitation}
           />
         )}

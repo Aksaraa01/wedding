@@ -95,6 +95,8 @@ export type TemplateProps = {
   template_content?: Record<string, string>
   // Editor/demo preview only: enables preview-only chrome (e.g. theme switcher).
   preview_mode?: boolean
+  // Public template gallery demo. Never set for a couple's real invitation.
+  template_demo?: boolean
   wedding_profile_id?: string
   guest_id?: string
   // Fleksibel link mode: RSVP dock renders without a guest row and provisions

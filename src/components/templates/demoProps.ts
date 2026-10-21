@@ -12,6 +12,15 @@ const DE_COVERS = [
   `${DE}/cover-5.webp`,
   `${DE}/cover-6.webp`,
 ]
+const DE_COVERS_COVER2 = [
+  `${DE}/cover-2.webp`,
+  `${DE}/cover-1.webp`,
+  `${DE}/cover.webp`,
+  `${DE}/cover-3.webp`,
+  `${DE}/cover-4.webp`,
+  `${DE}/cover-5.webp`,
+  `${DE}/cover-6.webp`,
+]
 const DE_GALLERY = [...DE_COVERS]
 
 export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
@@ -25,7 +34,7 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
     bride_full_name: "Faye Reed",
     estimated_wedding_date: "2026-10-16",
     guest_name: "Tamu Undangan",
-    cover_photos: [...DE_COVERS],
+    cover_photos: [...DE_COVERS_COVER2],
     couple_illustration_url: `${DE}/cover.webp`,
     groom_photo_url: [`${DE}/groom.webp`],
     bride_photo_url: [`${DE}/bride.webp`],
@@ -171,7 +180,7 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
     preview_mode: true,
     wedding_profile_id: "demo-wedding-profile-id",
     guest_id: "demo-guest-id",
-    cover_photos: [...DE_COVERS],
+    cover_photos: [...DE_COVERS_COVER2],
     couple_illustration_url: `${DE}/cover.webp`,
     groom_photo_url: [`${DE}/groom.webp`],
     bride_photo_url: [`${DE}/bride.webp`],
@@ -268,7 +277,7 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
     guest_name: "Tamu Undangan",
     wedding_profile_id: "demo-wedding-profile-id",
     guest_id: "demo-guest-id",
-    cover_photos: [...DE_COVERS],
+    cover_photos: [...DE_COVERS_COVER2],
     couple_illustration_url: `${DE}/cover.webp`,
     groom_photo_url: [`${DE}/groom.webp`],
     bride_photo_url: [`${DE}/bride.webp`],

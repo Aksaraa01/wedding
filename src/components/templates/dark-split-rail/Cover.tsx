@@ -7,10 +7,11 @@ type Props = {
   coupleLabel: string
   guestName?: string
   dateShort?: string
+  objectPosition?: string
   onOpen: () => void
 }
 
-export default function Cover({ coverUrl, coupleLabel, guestName, dateShort, onOpen }: Props) {
+export default function Cover({ coverUrl, coupleLabel, guestName, dateShort, objectPosition = "50% 50%", onOpen }: Props) {
   return (
     <div className="fixed inset-0 z-[900] overflow-hidden">
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -19,7 +20,7 @@ export default function Cover({ coverUrl, coupleLabel, guestName, dateShort, onO
         alt=""
         draggable={false}
         className="absolute inset-0 h-full w-full object-cover"
-        style={{ objectPosition: "85% 0", animation: "dsrKen 18s ease-out forwards" }}
+        style={{ objectPosition, animation: "dsrKen 18s ease-out forwards" }}
       />
       <div className="absolute inset-0 bg-black/50" />
 
