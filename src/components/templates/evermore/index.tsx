@@ -115,6 +115,7 @@ export default function Evermore(profile: TemplateProps) {
   const groomShort = profile.groom_name || ""
   const brideShort = profile.bride_name || ""
   const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || "The Wedding"
+  const coupleInitials = (profile.couple_initials || "").trim()
   const groomFull = profile.groom_full_name || groomShort
   const brideFull = profile.bride_full_name || brideShort
   const guestName = profile.guest_name || "Our Beloved Guest"
@@ -307,6 +308,7 @@ export default function Evermore(profile: TemplateProps) {
           </div>
           <div className="evermore-preload__heart-mask">
             <span className="evermore-ornament evermore-preload__heart" aria-hidden="true" style={{ "--ornament-mask": cssUrl(ASSET("solid-heart.svg")) } as CSSProperties} />
+            {coupleInitials && <span className="evermore-preload__initials">{coupleInitials}</span>}
           </div>
           <p className="evermore-preload__names">{coupleLabel}</p>
           <img className="evermore-preload__brand" src={A} alt="Aksaraa Wedding" />
