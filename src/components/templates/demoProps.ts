@@ -12,6 +12,11 @@ const DE_COVERS = [
   `${DE}/cover-5.webp`,
   `${DE}/cover-6.webp`,
 ]
+const DE_COVERS_DARK_SPLIT = [
+  `${DE}/cover-2.webp`,
+  `${DE}/cover-1.webp`,
+  `${DE}/cover.webp`,
+]
 const DE_COVERS_COVER2 = [
   `${DE}/cover-2.webp`,
   `${DE}/cover-1.webp`,
@@ -34,7 +39,7 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
     bride_full_name: "Faye Reed",
     estimated_wedding_date: "2026-10-16",
     guest_name: "Tamu Undangan",
-    cover_photos: [...DE_COVERS_COVER2],
+    cover_photos: [...DE_COVERS_DARK_SPLIT],
     couple_illustration_url: `${DE}/cover.webp`,
     groom_photo_url: [`${DE}/groom.webp`],
     bride_photo_url: [`${DE}/bride.webp`],

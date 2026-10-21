@@ -52,6 +52,9 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
   const groomPhotos = useMemo(() => photoList(profile.groom_photo_url), [profile.groom_photo_url])
   const bridePhotos = useMemo(() => photoList(profile.bride_photo_url), [profile.bride_photo_url])
   const gallery = useMemo(() => (profile.gallery_photos || []).filter(Boolean), [profile.gallery_photos])
+  const coverPhotos = useMemo(() => (profile.cover_photos || []).filter(Boolean), [profile.cover_photos])
+  const saveDatePhoto = coverPhotos[1] || coverPhotos[0] || gallery[0]
+  const closingPhoto = coverPhotos[2] || coverPhotos[1] || coverPhotos[0] || gallery[0]
   const sessions = profile.sessions || []
   const stories = profile.stories || []
   const target = useMemo(
@@ -137,7 +140,7 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
 
       <Events sessions={sessions} />
 
-      <SaveTheDate photos={gallery} target={target} gcal={gcal} coupleLabel={coupleLabel} />
+      <SaveTheDate photos={saveDatePhoto ? [saveDatePhoto] : []} target={target} gcal={gcal} coupleLabel={coupleLabel} />
 
       {giftOn && <GiftTeaser onOpen={onOpenGift} />}
 
@@ -158,7 +161,7 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
         guestName={profile.guest_name}
       />
 
-      <Closing photos={gallery} coupleLabel={coupleLabel} />
+      <Closing photos={closingPhoto ? [closingPhoto] : []} coupleLabel={coupleLabel} />
     </div>
   )
 }

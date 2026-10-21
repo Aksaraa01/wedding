@@ -285,7 +285,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.5, stagger: 0.12 },
     },
     content: {
-      cover_slots: 1,
+      cover_slots: 3,
+      cover_slot_labels: ["Sampul", "Save The Date", "Terima Kasih"],
       groom_photo: "slideshow",
       bride_photo: "slideshow",
       sections: {
