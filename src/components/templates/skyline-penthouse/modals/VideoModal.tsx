@@ -39,7 +39,7 @@ export default function VideoModal({ data, onClose }: Props) {
   }
 
   const videoUrl = data.videoUrl
-  const src = `${videoUrl}${videoUrl.includes("?") ? "&" : "?"}autoplay=1&rel=0&playsinline=1`
+  const src = `${videoUrl}${videoUrl.includes("?") ? "&" : "?"}autoplay=1&mute=1&rel=0&playsinline=1`
 
   return (
     <ModalShell icon="movie" eyebrow="CINEMATIC TEASER" title="OUR MOMENTS / TEASER" onClose={onClose}>

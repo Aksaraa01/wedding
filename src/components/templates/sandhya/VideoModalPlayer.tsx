@@ -34,6 +34,7 @@ export default function VideoModalPlayer({ videoId }: Props) {
         height: "100%",
         playerVars: {
           autoplay: 1,
+          mute: 1,
           rel: 0,
           playsinline: 1,
           modestbranding: 1,

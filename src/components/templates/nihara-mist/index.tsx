@@ -5,6 +5,7 @@ import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { AKSARAA_WA_NUMBER } from "@/lib/contact"
 import { coverPhoto, photoList } from "../shared/lib"
+import AutoplayYouTube from "../shared/AutoplayYouTube"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import Wishes from "./Wishes"
 import "./nihara-mist.css"
@@ -158,6 +159,7 @@ export default function NiharaMist(profile: TemplateProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const finaleVideoRef = useRef<HTMLVideoElement | null>(null)
   const finaleMediaRef = useRef<HTMLDivElement | null>(null)
+  const finaleIframeRef = useRef<HTMLIFrameElement | null>(null)
   const finaleScrollRef = useRef<HTMLDivElement | null>(null)
   const lockRef = useRef(false)
   const lockTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -228,6 +230,34 @@ export default function NiharaMist(profile: TemplateProps) {
       doc.body.classList.remove("nihara-mist-active")
     }
   }, [])
+
+  useEffect(() => {
+    if (!hasVideo) return
+    const el = finaleIframeRef.current
+    if (!el) return
+    let tries = 0
+    const disableCaptions = () => {
+      try {
+        const win = el.contentWindow
+        if (!win) return
+        win.postMessage(JSON.stringify({ event: "listening", id: 1, channel: "widget" }), "*")
+        win.postMessage(JSON.stringify({ event: "command", func: "unloadModule", args: ["captions"] }), "*")
+        win.postMessage(JSON.stringify({ event: "command", func: "unloadModule", args: ["cc"] }), "*")
+      } catch {
+        /* ignore */
+      }
+    }
+    el.addEventListener("load", disableCaptions)
+    const id = window.setInterval(() => {
+      disableCaptions()
+      tries += 1
+      if (tries >= 10) window.clearInterval(id)
+    }, 1000)
+    return () => {
+      el.removeEventListener("load", disableCaptions)
+      window.clearInterval(id)
+    }
+  }, [hasVideo, videoId])
 
   const lock = useCallback((ms: number) => {
     lockRef.current = true
@@ -657,8 +687,9 @@ export default function NiharaMist(profile: TemplateProps) {
             <div className="finale__media" ref={finaleMediaRef}>
               {hasVideo ? (
                 <iframe
+                  ref={finaleIframeRef}
                   id="niharaFinaleVideo"
-                  src={"https://www.youtube-nocookie.com/embed/" + videoId + "?autoplay=1&mute=1&loop=1&playlist=" + videoId + "&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&disablekb=1&fs=0&playsinline=1&enablejsapi=0"}
+                  src={"https://www.youtube-nocookie.com/embed/" + videoId + "?autoplay=1&mute=1&loop=1&playlist=" + videoId + "&controls=0&modestbranding=1&showinfo=0&cc_load_policy=0&rel=0&iv_load_policy=3&disablekb=1&fs=0&playsinline=1&enablejsapi=1"}
                   title="Video pernikahan"
                   allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
                   style={{ position: "absolute", top: "50%", left: "50%", width: "177.78vh", height: "100vh", minWidth: "100%", minHeight: "100%", transform: "translate(-50%, -50%) scale(1.18)", border: 0, pointerEvents: "none", filter: "contrast(1.03) brightness(.86) saturate(.88)" }}
@@ -718,19 +749,19 @@ export default function NiharaMist(profile: TemplateProps) {
                 <section className="sheet__section sheet__section--gallery" data-io>
                   <h3 className="display gallery__title">Our Moments</h3>
                   {hasVideo && (
-                    <button
-                      type="button"
-                      className="nihara-video nihara-video__frame"
-                      onClick={() => setVideoModal(true)}
-                      aria-label="Putar video pasangan"
-                    >
-                      <img src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`} alt="" loading="lazy" />
-                      <span className="nihara-video__shade" aria-hidden="true" />
-                      <span className="nihara-video__play" aria-hidden="true">
-                        <span className="material-symbols-outlined">play_arrow</span>
-                      </span>
-                      <span className="nihara-video__label">Putar Video</span>
-                    </button>
+                    <div className="nihara-video">
+                      <AutoplayYouTube
+                        videoId={videoId}
+                        title="Video pernikahan"
+                        signal={opened ? 1 : 0}
+                      />
+                      <button
+                        type="button"
+                        className="nihara-video__hit"
+                        onClick={() => setVideoModal(true)}
+                        aria-label="Buka video pasangan"
+                      />
+                    </div>
                   )}
                   <div className="mist-strip">
                     {gallery.map((url: string, i: number) => (
@@ -912,7 +943,7 @@ export default function NiharaMist(profile: TemplateProps) {
           <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/95 p-4" onClick={() => setVideoModal(false)}>
             <div className="aspect-video w-full max-w-3xl" onClick={(e) => e.stopPropagation()}>
               <iframe
-                src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1&modestbranding=1`}
+                src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&rel=0&playsinline=1&modestbranding=1`}
                 title="Video pasangan"
                 className="h-full w-full"
                 allow="autoplay; encrypted-media; picture-in-picture; fullscreen"

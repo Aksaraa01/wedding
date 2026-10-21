@@ -6,6 +6,7 @@ import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { AKSARAA_WA_NUMBER } from "@/lib/contact"
 import { coverPhoto, photoList, normalizeVideoUrl, flattenPhotos } from "../shared/lib"
+import AutoplayYouTube from "../shared/AutoplayYouTube"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import Wishes from "./Wishes"
 import VideoModalPlayer from "./VideoModalPlayer"
@@ -199,7 +200,6 @@ export default function Sandhya(profile: TemplateProps) {
   const videoEmbed = normalizeVideoUrl(profile.video_url)
   const hasVideo = !!videoId && gates.video !== false && profile.video_section_visible !== false
   const hasGallery = gallery.length > 0 || hasVideo
-  const videoPoster = videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : cover
   const stories = gates.story !== false && profile.story_visible !== false ? (profile.stories || []).filter((s) => s && (s.title || s.description || s.image_url)) : []
   const accounts = profile.gift_section_visible !== false ? (profile.gift_accounts || []).filter(Boolean) : []
   const giftAddress = profile.gift_section_visible !== false && gates.gift_address !== false ? (profile.gift_address || "") : ""
@@ -795,19 +795,19 @@ export default function Sandhya(profile: TemplateProps) {
                     </div>
                   )}
                   {hasVideo && (
-                    <button
-                      type="button"
-                      className="sandhya-video"
-                      onClick={() => setVideoModal(true)}
-                      aria-label="Play our wedding film"
-                    >
-                      <img className="sandhya-video__cover" src={videoPoster} alt="" loading="lazy" />
-                      <span className="sandhya-video__hit" aria-hidden="true" />
-                      <span className="sandhya-video__play" aria-hidden="true">
-                        <span className="material-symbols-outlined">play_arrow</span>
-                      </span>
-                      <span className="sandhya-video__label">Play Our Film</span>
-                    </button>
+                    <div className="sandhya-video">
+                      <AutoplayYouTube
+                        videoId={videoId}
+                        title="Our wedding film"
+                        signal={scene === "finale" ? 1 : 0}
+                      />
+                      <button
+                        type="button"
+                        className="sandhya-video__hit"
+                        onClick={() => setVideoModal(true)}
+                        aria-label="Play our wedding film"
+                      />
+                    </div>
                   )}
                 </section>
               )}

@@ -154,7 +154,7 @@ export default function DarkSplitRail(profile: TemplateProps) {
         {/* Warmed up from the very first frame (behind the splash/cover) so the
             video is already playing the moment the invitation opens. */}
         {videoEmbed && (
-          <BackgroundVideo embed={videoEmbed} poster={coverPhoto(profile)} signal={phase === "open" ? 1 : 0} />
+          <BackgroundVideo embed={videoEmbed} poster={coverPhoto(profile)} signal={phase === "open" ? 1 : 0} dim clean />
         )}
 
         {phase === "open" && (
