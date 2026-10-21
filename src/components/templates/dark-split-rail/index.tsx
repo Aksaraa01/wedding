@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import type { TemplateProps } from "@/types/template"
 import { resolveCoupleName } from "@/lib/coupleName"
 import InvitationOverlay from "@/components/InvitationOverlay"
-import { coverPhoto, initialsOf, normalizeVideoUrl, photoList } from "../shared/lib"
+import { coverPhoto, flattenPhotos, initialsOf, normalizeVideoUrl, photoList } from "../shared/lib"
 import { TIBRA_CSS } from "./Atmosphere"
 import BackgroundVideo from "./BackgroundVideo"
 import Cover from "./Cover"
@@ -124,7 +124,7 @@ export default function DarkSplitRail(profile: TemplateProps) {
 
   const accounts = profile.gift_accounts || []
   const videoEmbed = normalizeVideoUrl(profile.video_url)
-  const coverPhotos = ((profile.cover_photos || []) as string[]).filter(Boolean)
+  const coverPhotos = flattenPhotos(profile.cover_photos)
   const panelPhotos = coverPhotos.length > 0 ? coverPhotos : [coverPhoto(profile)]
   const showGuestDock =
     phase === "open" &&

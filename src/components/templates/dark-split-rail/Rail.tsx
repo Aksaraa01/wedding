@@ -5,6 +5,7 @@ import type { TemplateProps } from "@/types/template"
 import { resolveCoupleName } from "@/lib/coupleName"
 import {
   countdownTarget,
+  flattenPhotos,
   gcalLink,
   initialsOf,
   normalizeVideoUrl,
@@ -52,7 +53,7 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
   const groomPhotos = useMemo(() => photoList(profile.groom_photo_url), [profile.groom_photo_url])
   const bridePhotos = useMemo(() => photoList(profile.bride_photo_url), [profile.bride_photo_url])
   const gallery = useMemo(() => (profile.gallery_photos || []).filter(Boolean), [profile.gallery_photos])
-  const coverPhotos = useMemo(() => (profile.cover_photos || []).filter(Boolean), [profile.cover_photos])
+  const coverPhotos = useMemo(() => flattenPhotos(profile.cover_photos), [profile.cover_photos])
   const saveDatePhoto = coverPhotos[1] || coverPhotos[0] || gallery[0]
   const closingPhoto = coverPhotos[2] || coverPhotos[1] || coverPhotos[0] || gallery[0]
   const sessions = profile.sessions || []
