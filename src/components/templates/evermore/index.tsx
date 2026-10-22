@@ -198,8 +198,8 @@ export default function Evermore(profile: TemplateProps) {
   }, [])
 
   useEffect(() => {
-    const leave = window.setTimeout(() => setPreloaderLeaving(true), 2350)
-    const done = window.setTimeout(() => setLoading(false), 3100)
+    const leave = window.setTimeout(() => setPreloaderLeaving(true), 3000)
+    const done = window.setTimeout(() => setLoading(false), 3700)
     return () => {
       window.clearTimeout(leave)
       window.clearTimeout(done)
@@ -308,9 +308,12 @@ export default function Evermore(profile: TemplateProps) {
           </div>
           <div className="evermore-preload__heart-mask">
             <span className="evermore-ornament evermore-preload__heart" aria-hidden="true" style={{ "--ornament-mask": cssUrl(ASSET("solid-heart.svg")) } as CSSProperties} />
-            {coupleInitials && <span className="evermore-preload__initials">{coupleInitials}</span>}
           </div>
-          <p className="evermore-preload__names">{coupleLabel}</p>
+          <div className="evermore-preload__stack">
+            <p className="evermore-preload__love">love</p>
+            <p className="evermore-preload__names">{coupleLabel}</p>
+            {coupleInitials && <p className="evermore-preload__initials">{coupleInitials}</p>}
+          </div>
           <img className="evermore-preload__brand" src={A} alt="Aksaraa Wedding" />
         </div>
       )}
