@@ -341,7 +341,7 @@ export default function Evermore(profile: TemplateProps) {
       )}
 
       <div className="desktop-layout">
-        <aside className="desktop-cover" aria-hidden="true" style={{ backgroundImage: `linear-gradient(180deg, rgb(245 242 240 / 76%), rgb(245 242 240 / 84%)), ${cssUrl(desktopPhoto)}` }}>
+        <aside className="desktop-cover" aria-hidden="true" style={{ backgroundImage: `linear-gradient(180deg, rgb(245 242 240 / 76%), rgb(245 242 240 / 84%)), ${cssUrl(desktopPhoto)}`, backgroundSize: "cover", backgroundPosition: "center" }}>
           <div className="desktop-cover__content">
             <p className="desktop-cover__label">The Wedding Of</p>
             <h1>{groomShort} &amp;<br />{brideShort}</h1>
