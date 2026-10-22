@@ -466,4 +466,100 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
     ],
     feature_gates: { story: true, gift_address: true, inviting_families: true, video: true, qr_code_book: true },
   },
+  "piano-garden": {
+    slug: "demo",
+    groom_name: "Albarn",
+    bride_name: "Faye",
+    couple_initials: "AF",
+    display_name: "#AlbarnFaye2026",
+    groom_full_name: "David Albarn",
+    bride_full_name: "Faye Reed",
+    estimated_wedding_date: "2026-10-16",
+    guest_name: "Tamu Undangan",
+    preview_mode: true,
+    wedding_profile_id: "demo-wedding-profile-id",
+    guest_id: "demo-guest-id",
+    cover_photos: [...DE_COVERS_COVER2],
+    groom_photo_url: [`${DE}/groom.webp`],
+    bride_photo_url: [`${DE}/bride.webp`],
+    couple_illustration_url: `${DE}/cover.webp`,
+    groom_parents: "Mr. & Mrs. Albarn",
+    bride_parents: "Mr. & Mrs. Reed",
+    groom_instagram: "@wedding.aksaraa",
+    bride_instagram: "@wedding.aksaraa",
+    opening_title: "Warmest Greetings",
+    opening_description:
+      "With great joy and gratitude, we invite you to share in the beginning of our forever. Your presence and blessings would mean the world to us.",
+    quote_text:
+      "And over all these virtues put on love, which binds them all together in perfect unity.",
+    quote_source: "Colossians 3 : 14",
+    sessions: [
+      {
+        name: "Holy Matrimony",
+        date: "2026-10-16",
+        time: "10.00 - 12.00 WIB",
+        venue: "Gereja HKBP Sukadame",
+        address: "Jl. Sisingamangaraja No. 333 Pematangsiantar, Sumatera Utara",
+        maps_url: "https://maps.app.goo.gl/9bRvrJZZ1xcZSoqa6",
+      },
+      {
+        name: "Reception",
+        date: "2026-10-16",
+        time: "13.00 WIB - Selesai",
+        venue: "Sopo Godang HKBP",
+        address: "Jl. Gereja No. 35 Pematangsiantar, Sumatera Utara",
+        maps_url: "https://maps.app.goo.gl/UPxWi9HU1w4A9R1j6",
+      },
+    ],
+    stories: [
+      {
+        title: "The First Hello",
+        description:
+          "It began with a simple introduction that slowly grew into a comfortable companionship. Time brought us closer and taught us to know each other deeply.",
+        image_url: `${DE}/cover.webp`,
+      },
+      {
+        title: "Toward Forever",
+        description:
+          "After many chapters together, we chose to walk hand in hand. Today we invite you to be part of the beginning of our journey.",
+        image_url: `${DE}/cover-1.webp`,
+      },
+    ],
+    gallery_photos: [...DE_GALLERY, `${DE}/bride.webp`, `${DE}/groom.webp`],
+    video_url: "https://youtu.be/-ARVwU58l7A",
+    dresscode: {
+      colors: [
+        { hex: "#e8d9c5", name: "Sand" },
+        { hex: "#c98f6b", name: "Terracotta" },
+        { hex: "#7c5a43", name: "Cocoa" },
+        { hex: "#2c241d", name: "Espresso" },
+      ],
+    },
+    livestream: { url: "https://www.youtube.com/live/dummy-livestream-link" },
+    gift_accounts: [
+      { provider_name: "Bank Danamon", account_number: "903687866339", account_name: "David Albarn", type: "bank" },
+      { provider_name: "Bank Central Asia (BCA)", account_number: "8200891083", account_name: "Faye Reed", type: "bank" },
+    ],
+    gift_address: "Jl. Sisingamangaraja No. 333, Pematangsiantar, Sumatera Utara, 21142",
+    gift_address_name: "David Albarn & Faye Reed",
+    track_url: ASSETS.defaultMusic,
+    auto_play: false,
+    inviting_families: [
+      "The Albarn Family",
+      "The Reed Family",
+      "The Extended Families of Both",
+    ],
+    template_content: {
+      cover_apology: "We sincerely apologize for any misspelling of names and titles.",
+      groom_child_order: "The Second Son of",
+      bride_child_order: "The Daughter of",
+      gallery_quote: "Every love story is beautiful, but ours is my favorite.",
+      gift_intro_title: "A Token of Love",
+      gift_intro_description:
+        "Your presence is the greatest gift. If you would like to send a token of love, the details are below.",
+      closing_message:
+        "It would be an honor and a joy for us to have you present and to receive your blessing on our wedding day.",
+    },
+    feature_gates: { story: true, gift_address: true, inviting_families: true, video: true, qr_code_book: true },
+  },
 }

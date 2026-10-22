@@ -48,7 +48,16 @@ A section renders only when both allow it (plus non-empty data).
    - add to `TEMPLATE_MAP`
    - add `TEMPLATE_CONFIGS` entry with `content.sections` and `cover_slots`
    - `getTemplateComponent` + `getTemplateContentSpec` must resolve it
-4. Declare the **content spec** deliberately:
+4. Add template-scoped extra copy fields in `src/lib/templateExtras.ts`
+   (`cover_apology`, `gallery_intro`, `gallery_quote`, `gift_intro_title`,
+   `gift_intro_description`, `wishes_intro`, `closing_message`, …). Each entry
+   needs `templates: [..., "<code>"]` **and** a `placeholders["<code>"]` value;
+   the component must actually read `profile.template_content?.<key>`. Fields
+   that exist in the editor but are never read are dead controls.
+5. Allow mock IDs in the preview route (`src/app/templates/[code]/preview/page.tsx`):
+   `keepDemoIds = code === "<code>" || …` so server-backed sections (wishes,
+   guest dock) get `wedding_profile_id` / `guest_id` in preview.
+6. Declare the **content spec** deliberately:
    ```ts
    content: {
      sections: { opening_description: true, dresscode: true, livestream: true },
@@ -57,10 +66,10 @@ A section renders only when both allow it (plus non-empty data).
    }
    ```
    Anything `false` here must be hidden in editor **and** ops.
-5. Add demo props for `<code>` in `demoProps.ts` (photos, names, dates,
+7. Add demo props for `<code>` in `demoProps.ts` (photos, names, dates,
    `wedding_profile_id: "demo-wedding-profile-id"`,
    `guest_id: "demo-guest-id"` so server-backed sections have sample data).
-6. If the template has a non-standard opening ("Kalimat Pembuka"), register it
+8. If the template has a non-standard opening ("Kalimat Pembuka"), register it
    in `src/lib/templateSections.ts`:
    ```ts
    TEMPLATES_WITHOUT_OPENING = new Set(["<code>"])
@@ -80,6 +89,60 @@ A section renders only when both allow it (plus non-empty data).
   helpers (`@/lib/guest-slug`, `@/components/templates/shared/lib`).
 - **Don't** copy WordPress/Elementor assumptions into an in-house template.
 
+### Reference assets and CSS (hard lessons)
+
+- Audit every reference asset first (URL, size, format). Vendor only assets the
+  template actually uses into `public/templates/<code>/`; keep large video as a
+  normal static file, and always ship a poster/fallback image.
+- **Never vendor licensed media** (third-party music, stock art) or third-party
+  branding (platform logo, theme switcher, fullscreen chrome). Music comes from
+  `profile.track_url`; demo falls back to `ASSETS.defaultMusic`.
+- Bank logos are not part of `TemplateProps.gift_accounts`
+  (`provider_name`, `account_number`, `account_name`, `type` only). Render the
+  provider name instead of borrowing reference bank PNGs.
+- **Demo data/text/photos must come from Aksaraa's own sample content (e.g. the
+  `sandhya` demo entry / `DE` photos), never from the reference couple.** Do not
+  ship the reference's names, dates, quotes, stories, gallery photos, or copy in
+  `demoProps.ts` or in component fallback constants. Structural design labels
+  that belong to the layout (e.g. "The Beginning") are fine, but every
+  data-driven string and photo should mirror an existing Aksaraa template
+  (`sandhya` is the default source for English content).
+- Capture the rendered DOM **and** the full compiled CSS before touching code.
+  Then extract whole rule blocks with brace matching, preserving `@media` /
+  `@supports` / `@keyframes` wrappers. **Do not** pull lines that merely contain
+  the root class — that silently drops media headers and the mobile layout
+  breaks (desktop grid stays applied at 390px).
+- Prefix all global reference blocks (`.tpl-rsvp`, `.tpl-gift`, `.tpl-footer`,
+  `.tpl-music-btn`, vinyl/tonearm) under the template root class
+  when copying. Unscoped utility/base rules leak into every other template.
+- **Port the CSS for every class the component renders — not just the section
+  wrapper.** The reference often defines inner classes (`.dress-code-card`,
+  `.dress-code-intro`, `.dress-code-swatches`, `.dress-code-swatch`,
+  `.dress-code-swatch-dot`, …) in a different part of the stylesheet than the
+  `.<section>-section` rule. If any are missed the section renders as raw text
+  (e.g. "Dress CodeElegant Attire in …" with no card/swatches). Diff the class
+  list in the JSX against the CSS and assert every one has a rule.
+- **Every in-house footer must carry the Aksaraa brand badge** — a link with a
+  round white badge containing `ASSETS.galeriEnvelope.aksaraaLogo` plus the
+  "Wedding by Aksaraa" CTA, exactly like Sandhya (`.tpl-footer__link` /
+  `.tpl-footer__badge` / `.tpl-footer__cta`). Do not ship a bare logo or drop
+  the logo. Copy the Sandhya footer CSS and keep the socials.
+- Reference sites often rely on libraries the repo does not have (AOS, GSAP).
+  Re-implement the minimal behavior with `IntersectionObserver` and the
+  template's own classes (`data-aos` → `is-aos-visible`), not a new dependency.
+- Decide explicitly whether to keep reference-only chrome (lightbox, fullscreen,
+  rundown). If the reference has no lightbox but users will expect zoom, add one
+  scoped to the template; if a section has no schema fields, omit it and say so.
+- Body scroll lock must work without relying on an effect alone (route-change
+  effects can reset `body.style.overflow`). Add a CSS fallback scoped by state:
+  ```css
+  html:has(.piano-garden-root.is-locked),
+  body:has(.piano-garden-root.is-locked) { overflow: hidden; }
+  ```
+- Gate/splash layering: if the reference leaves the gate in flow after opening,
+  hide it (`.root.is-open .cover-gate { display: none }`) and scroll to top;
+  otherwise users see an empty 100svh section first.
+
 ---
 
 ## 2. Phase 2 — Database
@@ -93,8 +156,24 @@ ALTER TABLE public.wedding_profiles
 
 INSERT INTO web_templates (code, name, …)
 VALUES ('<code>', …)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO UPDATE SET …;
 ```
+
+For an in-house template the row must include:
+
+| Column | Value |
+|---|---|
+| `source_type` | `'inhouse'` (leaves `wp_master_slug` / `wp_manifest` null) |
+| `preview_image_url` | `/templates/<code>/thumbnail.webp` |
+| `demo_url` | `/templates/<code>/preview` |
+| `tier` | match the sibling reference (e.g. `'Baru'`) |
+| `sort_order` | next free slot; keep it stable after release |
+| `package_eligibility` | copy the sibling template array, don't invent packages |
+| `category` | string used by the public filter (`Floral`, `Modern Minimalis`, …) |
+| `is_active` | `true` |
+
+Use `ON CONFLICT (code) DO UPDATE` (not `DO NOTHING`) so re-running the file
+also refreshes copy, thumbnail, tier and eligibility for an existing row.
 
 Order of environments:
 
@@ -310,7 +389,19 @@ const showGuestDock =
 4. Hit the affected APIs (GET + mutating on staging/test data only).
 5. A stale staging server serves old chunks → `ChunkLoadError`/404. Kill and
    rebuild; never debug the component first.
-6. Production: see Deploy below. Test **only** the rafi-novi couple
+6. **Visual QA against the reference at both breakpoints** (CDP or manual):
+   - `390×844` (true mobile via `Emulation.setDeviceMetricsOverride`, not a
+     narrow desktop window) and `1440×900` (split/sticky layout).
+   - Assert `document.documentElement.scrollWidth === innerWidth` (no horizontal
+     overflow), the mobile media query actually applies
+     (`getComputedStyle(pageShell).display === "block"`), and the gate locks body
+     scroll before open and releases it after.
+   - Walk every section: gate → open → video/fallback, AOS reveals, story
+     timeline, gallery marquee + lightbox (Esc/←/→), gift reveal + copy toast,
+     wishes form/list pagination, closing, guest dock in a real guest link.
+   - Console must be free of `Runtime.exceptionThrown` and React hydration
+     warnings.
+7. Production: see Deploy below. Test **only** the rafi-novi couple
    (`6a7ad151-c3b4-43e8-8429-0b58b4d0736b`, slug `rafi-novi`).
 
 ---
@@ -371,16 +462,33 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 | `db push` → "Remote migration versions not found" | missing local migration files | backfill from `schema_migrations`, then dry-run |
 | `db push` → `ECONNREFUSED …:5432` | direct DB host is IPv6-only | use pooler host from `supabase/.temp` |
 | `git` → Xcode license error | developer dir | `DEVELOPER_DIR=/Library/Developer/CommandLineTools` |
+| Mobile still renders the two-column desktop grid | extracted CSS lost its `@media` wrappers | re-extract whole blocks with brace matching |
+| Mobile shows a section at the wrong width / horizontal scroll | reference media header dropped or unscoped global rule | verify `max-width: 900px` rules exist; prefix all base blocks |
+| Page scrolls behind the cover gate | route-change resets `body.style.overflow` | add `:has(.root.is-locked) { overflow:hidden }` fallback |
+| Empty 100svh gap after "Buka Undangan" | gate left in flow but content scrolled | hide gate on `is-open` and `scrollTo(0,0)` |
+| Gift cards have a blank logo slot | `gift_accounts` has no `provider_logo_url` | render `provider_name` (never borrow reference bank PNGs) |
+| Template preview 500 / wishes query with undefined id | preview route did not opt into demo IDs | add code to `keepDemoIds` |
+| Editor shows extra copy field that never renders | `templateExtras` entry added without component support | wire `template_content.<key>` in the component |
 
 ---
 
 ## 10. Definition of done
 
-- [ ] Template registered + content spec + demo props
+- [ ] Template registered + content spec + demo props + `templateExtras`
+- [ ] Preview route `keepDemoIds` includes the code (server-backed sections)
+- [ ] Reference assets audited/vendored, no licensed media or third-party logos
+- [ ] Scoped CSS preserves media/supports/keyframes wrappers
 - [ ] Migration(s) applied local → staging → prod, history in sync
 - [ ] Editor GET/PUT + UI + completeness + publish blockers
 - [ ] Ops accordion + summary + read-only branch + content-spec gates
 - [ ] Public render honors `feature_gates` **and** `*_visible`
 - [ ] Wishes section + floating RSVP/QR dock (if the reference has them)
-- [ ] `tsc`, staging build, preview curl, affected APIs, prod smoke
+- [ ] Scroll lock, gate removal, lightbox/modals verified
+- [ ] **Every rendered section is actually styled** — dress code shows a card +
+      swatch dots (not raw text); every JSX class has a matching CSS rule
+- [ ] **Music control reveals after opening** (`.tpl-music-btn.visible` sets
+      `opacity:1; pointer-events:all`) and the track plays
+- [ ] **Footer has the Aksaraa brand badge** (logo + "Wedding by Aksaraa") like Sandhya
+- [ ] `tsc`, visual QA at 390×844 + 1440×900, staging build, preview curl,
+      affected APIs, prod smoke
 - [ ] Committed and pushed to `origin main`

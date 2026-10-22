@@ -10,6 +10,7 @@ import NiharaMist from "./nihara-mist"
 import DarkSplitRail from "./dark-split-rail"
 import Sandhya from "./sandhya"
 import Evermore from "./evermore"
+import PianoGarden from "./piano-garden"
 
 export type { TemplateProps } from "@/types/template"
 
@@ -24,6 +25,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "dark-split-rail": DarkSplitRail,
   sandhya: Sandhya,
   evermore: Evermore,
+  "piano-garden": PianoGarden,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -407,6 +409,42 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         gallery: true,
         gift: true,
         inviting: true,
+        dresscode: true,
+        livestream: true,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "piano-garden",
+    name: "Piano Garden",
+    description: "Undangan bergaya taman pastel — sampul bunga, video pembuka, ayat, mempelai, hitung mundur, acara, dress code, galeri berjalan, kisah cinta, hadiah, dan ucapan dalam satu alur gulir.",
+    theme: {
+      fonts: { display: "Italianno", script: "Italianno", body: "Poppins" },
+      colors: {
+        surface: "#f5f2f8",
+        text: "#2b2535",
+        accent: "#a3acd4",
+        accentMuted: "#5d4b77",
+        overlay: "#2b2535",
+        dark: "#2b2535",
+      },
+      ornaments: { divider: "floral", border: "minimal", frame: "circle" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.2 },
+    },
+    content: {
+      cover_slots: 0,
+      groom_photo: "single",
+      bride_photo: "single",
+      sections: {
+        opening_description: false,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: false,
         dresscode: true,
         livestream: true,
       },
