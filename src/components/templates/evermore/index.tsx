@@ -131,7 +131,7 @@ export default function Evermore(profile: TemplateProps) {
   const groomChild = coverSlices[1] || ASSET("groom-kid.png")
   const hasBrideChild = !!coverSlices[0]
   const hasGroomChild = !!coverSlices[1]
-  const desktopPhoto = photoList(profile.bride_photo_url)[0] || photoList(profile.groom_photo_url)[0] || coverSlices[0] || bridePhoto || groomPhoto
+  const desktopPhoto = photos[0] || ASSET("love-story-1.webp")
   const videoEmbed = normalizeVideoUrl(profile.video_url)
   const hasVideo = gates.video !== false && profile.video_section_visible !== false && !!videoEmbed
   const hasGallery = photos.length > 0 || hasVideo
