@@ -12,6 +12,7 @@ import Sandhya from "./sandhya"
 import Evermore from "./evermore"
 import PianoGarden from "./piano-garden"
 import AltarGarden from "./altar-garden"
+import LunarBlossom from "./lunar-blossom"
 import AdatMelayu from "./adat-melayu"
 import AdatBatak from "./adat-batak"
 
@@ -573,6 +574,44 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         livestream: true,
         rundown: true,
         contacts: true,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "lunar-blossom",
+    name: "Lunar Blossom",
+    description: "Undangan bergaya lukisan bunga oriental — gerbang pembuka, nama bergaya kaligrafi, ayat, mempelai, hitung mundur, acara, galeri, hadiah, dan ucapan dalam satu alur gulir.",
+    theme: {
+      fonts: { display: "Zzzzz Edwardian", script: "Itc Edwardian Script", body: "Athelas" },
+      colors: {
+        surface: "#fff8df",
+        text: "#d50909",
+        accent: "#d50909",
+        accentMuted: "#6e4000",
+        overlay: "#6e4000",
+        dark: "#6e4000",
+      },
+      ornaments: { divider: "floral", border: "ornate", frame: "circle" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.2 },
+    },
+    content: {
+      cover_slots: 1,
+      cover_slot_labels: ["Foto Sampul"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: true,
+      sections: {
+        opening_description: false,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: false,
+        livestream: false,
       },
       extras: true,
     },

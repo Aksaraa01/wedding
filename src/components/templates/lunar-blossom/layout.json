@@ -1,0 +1,2901 @@
+{
+  "canvasWidth": 484,
+  "totalHeight": 14041,
+  "sections": [
+    {
+      "id": "feddcab7-f346-4a46-b5ef-c5b0b5eef50b",
+      "kind": "hero",
+      "top": 0,
+      "height": 826,
+      "background": "/templates/lunar-blossom/assets/hero-art.webp",
+      "elements": [
+        {
+          "id": "83f2287d-9bbf-4341-ae3c-c83ad49b7b97",
+          "type": "photo",
+          "x": -255,
+          "y": 553.28,
+          "w": 384,
+          "h": 368.62,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/img-5050.webp"
+        },
+        {
+          "id": "2aedde97-d478-4813-8628-2d9e0a567709",
+          "type": "photo",
+          "x": 371,
+          "y": 542.88,
+          "w": 384,
+          "h": 368.62,
+          "src": "/templates/lunar-blossom/assets/img-5050.webp"
+        },
+        {
+          "id": "62f15d24-848c-4842-9696-c720dba79ff2",
+          "type": "photo",
+          "x": 285.5,
+          "y": 644.7,
+          "w": 385,
+          "h": 385,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/cdsc.webp"
+        },
+        {
+          "id": "6fa49b05-d8df-4df8-9afa-909f591cf553",
+          "type": "photo",
+          "x": -214.5,
+          "y": 633.5,
+          "w": 385,
+          "h": 385,
+          "src": "/templates/lunar-blossom/assets/cdsc.webp"
+        },
+        {
+          "id": "0f5040dd-b7ac-4017-b793-6360c27e22a1",
+          "type": "photo",
+          "x": 218.23,
+          "y": 744.92,
+          "w": 385.55,
+          "h": 119.34,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/image-3ee721.webp"
+        },
+        {
+          "id": "7e565319-46e1-4812-b722-ce413c565ad4",
+          "type": "photo",
+          "x": -87.78,
+          "y": 746.67,
+          "w": 385.55,
+          "h": 119.34,
+          "src": "/templates/lunar-blossom/assets/image-3ee721.webp"
+        },
+        {
+          "id": "a292e6ae-8429-44c0-8adb-14997b2d86c9",
+          "type": "photo",
+          "x": -168.4,
+          "y": 691.55,
+          "w": 410.39,
+          "h": 729.59,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-41.webp"
+        },
+        {
+          "id": "a5d95234-6695-4e2c-8a56-39e2fb63a56e",
+          "type": "photo",
+          "x": 264,
+          "y": 690.8,
+          "w": 410.39,
+          "h": 729.59,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-41.webp"
+        },
+        {
+          "id": "dbb923bd-ed9a-40c3-84fd-4a426e62d1e1",
+          "type": "photo",
+          "x": 27,
+          "y": 702.6,
+          "w": 384,
+          "h": 216,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-64.webp"
+        },
+        {
+          "id": "03a541fd-b7fa-4007-8670-4569d6e09ba0",
+          "type": "photo",
+          "x": -85,
+          "y": 704.5,
+          "w": 243,
+          "h": 243,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-4.webp"
+        },
+        {
+          "id": "af539148-786a-4486-83a3-df9d0917e21a",
+          "type": "photo",
+          "x": 323,
+          "y": 704.5,
+          "w": 243,
+          "h": 243,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-4.webp"
+        },
+        {
+          "id": "745a4616-3fa6-4619-8bf8-dda8940fe38f",
+          "type": "text",
+          "x": 16,
+          "y": 118.35,
+          "w": 452,
+          "h": 111,
+          "role": "display-names"
+        },
+        {
+          "id": "435a5dc8-92f0-4c66-9cc6-1eabc43524a7",
+          "type": "text",
+          "x": 16,
+          "y": 244.35,
+          "w": 452,
+          "h": 25,
+          "role": "hero-subtitle"
+        },
+        {
+          "id": "lunar-hashtag",
+          "type": "text",
+          "x": 16,
+          "y": 300,
+          "w": 452,
+          "h": 60,
+          "role": "display-hashtag"
+        }
+      ]
+    },
+    {
+      "id": "ea4f762e-e464-4486-854e-1f62077b89a5",
+      "kind": "floral",
+      "top": 826,
+      "height": 774,
+      "background": "white",
+      "elements": [
+        {
+          "id": "035f5160-a41f-41be-81a1-0cd0514581af",
+          "type": "photo",
+          "x": -54.5,
+          "y": 0,
+          "w": 578,
+          "h": 774,
+          "src": "/templates/lunar-blossom/assets/12333.webp"
+        },
+        {
+          "id": "94f74dc0-7acc-4362-b79f-ce16cf9cfb66",
+          "type": "photo",
+          "x": -63.7,
+          "y": -258.28,
+          "w": 660,
+          "h": 541,
+          "src": "/templates/lunar-blossom/assets/j.webp"
+        },
+        {
+          "id": "8bc16b6c-8715-4d22-aeed-cc35471b159e",
+          "type": "photo",
+          "x": 122,
+          "y": 90.76,
+          "w": 240,
+          "h": 320,
+          "role": "cover-photo"
+        },
+        {
+          "id": "3910f429-f9e6-4eab-a50c-80939f4d59b4",
+          "type": "graphic",
+          "x": 415.23,
+          "y": 235.14,
+          "w": 364,
+          "h": 468,
+          "src": "/templates/lunar-blossom/assets/tree-middle-left.webp"
+        },
+        {
+          "id": "9c03a075-3c6c-4186-a298-c11e0efb6b53",
+          "type": "graphic",
+          "x": 356,
+          "y": 540,
+          "w": 364,
+          "h": 468,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/tree-middle-left.webp"
+        },
+        {
+          "id": "13ab3345-286e-4cb1-89a5-a0eace1a1207",
+          "type": "graphic",
+          "x": -230.41,
+          "y": 540,
+          "w": 364,
+          "h": 468,
+          "src": "/templates/lunar-blossom/assets/tree-middle-left.webp"
+        },
+        {
+          "id": "c8ef8eb5-c90a-4ba6-a824-9dc8673a18c7",
+          "type": "photo",
+          "x": -48.52,
+          "y": 634.99,
+          "w": 317,
+          "h": 178,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of.webp"
+        },
+        {
+          "id": "bd1a1a33-28b7-4f16-b4d5-495870becbbb",
+          "type": "photo",
+          "x": 200.57,
+          "y": 627.79,
+          "w": 317,
+          "h": 178,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of.webp"
+        },
+        {
+          "id": "9ee53471-54bc-40cb-9734-c22135c7db9d",
+          "type": "photo",
+          "x": 392.1,
+          "y": 696,
+          "w": 266,
+          "h": 82,
+          "src": "/templates/lunar-blossom/assets/image-3ee721.webp"
+        },
+        {
+          "id": "dec96194-ff63-4d42-b141-36b3ea1e4f66",
+          "type": "photo",
+          "x": -158.59,
+          "y": 696,
+          "w": 266,
+          "h": 82,
+          "src": "/templates/lunar-blossom/assets/image-3ee721.webp"
+        },
+        {
+          "id": "b6923910-85e4-4e75-afcf-4e0ff1e47014",
+          "type": "graphic",
+          "x": 419.01,
+          "y": 247.34,
+          "w": 364,
+          "h": 468,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/tree-middle-left.webp"
+        },
+        {
+          "id": "c77c0c77-f169-4b7a-8272-c72091fe5146",
+          "type": "graphic",
+          "x": -272.77,
+          "y": 459.67,
+          "w": 364,
+          "h": 468,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/tree-middle-left.webp"
+        },
+        {
+          "id": "15d82cf9-8363-4b59-9473-9acbfab73b14",
+          "type": "graphic",
+          "x": 347.5,
+          "y": -59.23,
+          "w": 273,
+          "h": 338,
+          "src": "/templates/lunar-blossom/assets/tree-right.webp"
+        },
+        {
+          "id": "e59a7c33-a24a-40c7-ac0f-8e32109fa4e5",
+          "type": "graphic",
+          "x": -99.08,
+          "y": -52.04,
+          "w": 273,
+          "h": 338,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/tree-right.webp"
+        },
+        {
+          "id": "4766c4f0-5f82-43f9-83e1-07a08fe01cae",
+          "type": "photo",
+          "x": -202.05,
+          "y": 580.93,
+          "w": 501,
+          "h": 282,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-2.webp"
+        },
+        {
+          "id": "977c309e-f20c-4611-9aaa-9d1c09966bda",
+          "type": "photo",
+          "x": 348.63,
+          "y": 538.97,
+          "w": 501,
+          "h": 282,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-2.webp"
+        },
+        {
+          "id": "1838c24a-ea2a-4c0c-b64d-0b9c3bc599d0",
+          "type": "graphic",
+          "x": -42,
+          "y": 576.66,
+          "w": 84,
+          "h": 84,
+          "src": "/templates/lunar-blossom/assets/comp-61.webp"
+        },
+        {
+          "id": "cda9e2e3-19c8-49b7-bdb6-8529b72d482b",
+          "type": "graphic",
+          "x": 431.46,
+          "y": 530.59,
+          "w": 105.08,
+          "h": 105.08,
+          "r": -17.2,
+          "src": "/templates/lunar-blossom/assets/comp-61.webp"
+        },
+        {
+          "id": "f7e0ced2-fc03-43ee-9a8f-edf48a7ecfb2",
+          "type": "graphic",
+          "x": 411.2,
+          "y": 328.99,
+          "w": 231,
+          "h": 231,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/pohon-kuning.webp"
+        },
+        {
+          "id": "9cfdabc7-4831-4e7a-aca0-46aeb3b8e9ca",
+          "type": "graphic",
+          "x": -134.54,
+          "y": 152.5,
+          "w": 231,
+          "h": 231,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/pohon-kuning.webp"
+        },
+        {
+          "id": "b8f78886-b464-41b9-84d1-1e82ef4d4e5a",
+          "type": "photo",
+          "x": 65,
+          "y": 63.45,
+          "w": 354,
+          "h": 354,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-3.webp"
+        },
+        {
+          "id": "ecb3c62b-e9c8-49af-94a7-3ab26994c7b5",
+          "type": "photo",
+          "x": -54.5,
+          "y": 707.5,
+          "w": 145,
+          "h": 145,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-4.webp"
+        },
+        {
+          "id": "68f30c68-3969-4bd1-8cf7-81a02e8325a6",
+          "type": "photo",
+          "x": 393.5,
+          "y": 693.64,
+          "w": 145,
+          "h": 145,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-4.webp"
+        },
+        {
+          "id": "3a8462ca-67a0-4729-844e-6b935910df5e",
+          "type": "photo",
+          "x": 408.5,
+          "y": 607.14,
+          "w": 151,
+          "h": 151,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "bd66764b-51eb-4033-9adc-d8cd25c99173",
+          "type": "photo",
+          "x": -75.5,
+          "y": 628.64,
+          "w": 151,
+          "h": 151,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "336ef778-0401-4ef3-8321-378b946b2c47",
+          "type": "photo",
+          "x": -92.5,
+          "y": 284,
+          "w": 151,
+          "h": 151,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "55c27d52-3419-4020-9bb8-c7e9991c0671",
+          "type": "photo",
+          "x": 426.5,
+          "y": 284.64,
+          "w": 151,
+          "h": 151,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "35461478-c483-4155-ae10-fddc89b0ac74",
+          "type": "photo",
+          "x": 423.5,
+          "y": 211.64,
+          "w": 151,
+          "h": 151,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "fbf0a956-cb19-4f66-9a96-3d659a0f8d37",
+          "type": "photo",
+          "x": -107,
+          "y": 329.89,
+          "w": 153,
+          "h": 153,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-4.webp"
+        },
+        {
+          "id": "bf922d0a-e336-4c52-95c7-b3751d287b7d",
+          "type": "graphic",
+          "x": -311.77,
+          "y": 288.14,
+          "w": 364,
+          "h": 468,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/tree-middle-left.webp"
+        },
+        {
+          "id": "aadad587-557a-413f-833f-24d882baebc9",
+          "type": "graphic",
+          "x": 453.5,
+          "y": 587.35,
+          "w": 82,
+          "h": 95,
+          "src": "/templates/lunar-blossom/assets/rose-copy-1.webp"
+        },
+        {
+          "id": "2806373a-c032-496f-a009-ca271da346d4",
+          "type": "graphic",
+          "x": -54.5,
+          "y": 510.35,
+          "w": 88,
+          "h": 88,
+          "src": "/templates/lunar-blossom/assets/iu.webp"
+        },
+        {
+          "id": "b39f44db-9f8a-4905-adbf-e34ab8f10b83",
+          "type": "photo",
+          "x": 56,
+          "y": 721.6,
+          "w": 92,
+          "h": 92,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "0ca89d6e-b7dd-42b1-993a-5f1003b4efdc",
+          "type": "photo",
+          "x": 353,
+          "y": 720.6,
+          "w": 92,
+          "h": 92,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "ff32deac-bcf9-4fd4-8021-c206fc5fe3d4",
+          "type": "photo",
+          "x": 298,
+          "y": 721.6,
+          "w": 92,
+          "h": 92,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "da1eea7b-7ad5-44da-a389-91d4cb1f872b",
+          "type": "photo",
+          "x": 121,
+          "y": 721.6,
+          "w": 92,
+          "h": 92,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "1a69aae7-b6c3-4bcd-ad3c-752a90f3a2b3",
+          "type": "photo",
+          "x": 166.5,
+          "y": 698.5,
+          "w": 151,
+          "h": 151,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-4.webp"
+        },
+        {
+          "id": "6bcfb20a-bdc4-461b-af5c-4dd5ebcabcb4",
+          "type": "photo",
+          "x": 50,
+          "y": -122.4,
+          "w": 384,
+          "h": 216,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-64.webp"
+        },
+        {
+          "id": "6c84ed32-bab2-4b2c-9aa7-86a17246132f",
+          "type": "photo",
+          "x": -62.74,
+          "y": -106.5,
+          "w": 213,
+          "h": 213,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-4.webp"
+        },
+        {
+          "id": "96a11e45-0f69-4f02-ad3c-b9da66254793",
+          "type": "photo",
+          "x": 332.66,
+          "y": -106.5,
+          "w": 213,
+          "h": 213,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-4.webp"
+        },
+        {
+          "id": "126ef91f-c7a2-4f03-8206-f0df3dad394d",
+          "type": "photo",
+          "x": -164.39,
+          "y": 30.79,
+          "w": 351.77,
+          "h": 455.54,
+          "r": -12.35,
+          "src": "/templates/lunar-blossom/assets/bambu.webp"
+        },
+        {
+          "id": "652406fc-d097-400f-a174-b87527951aa9",
+          "type": "photo",
+          "x": 271.4,
+          "y": 37.12,
+          "w": 402.21,
+          "h": 478.33,
+          "r": 21.69,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/bambu.webp"
+        }
+      ]
+    },
+    {
+      "id": "75b7d7c3-ae4b-4434-8f49-c655c2a56435",
+      "kind": "verse",
+      "top": 1600,
+      "height": 678,
+      "background": "#fff8dfff",
+      "elements": [
+        {
+          "id": "7b496980-bb0f-4d2d-bd75-e35ba54f2ee0",
+          "type": "photo",
+          "x": 204.61,
+          "y": -17.91,
+          "w": 382.11,
+          "h": 208.2,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/img-5098.webp"
+        },
+        {
+          "id": "cbb57bec-1405-49b7-bbc7-b56416aaa20b",
+          "type": "photo",
+          "x": -106.22,
+          "y": -10.34,
+          "w": 382.11,
+          "h": 208.2,
+          "src": "/templates/lunar-blossom/assets/img-5098.webp"
+        },
+        {
+          "id": "ac58211c-4f78-4b61-bbbb-119d3e7c6b3b",
+          "type": "photo",
+          "x": -75,
+          "y": -82.5,
+          "w": 177,
+          "h": 177,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-4.webp"
+        },
+        {
+          "id": "00484baa-9bcf-4db4-bd63-113f26eb7d85",
+          "type": "photo",
+          "x": 391,
+          "y": -90,
+          "w": 168,
+          "h": 168,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-4.webp"
+        },
+        {
+          "id": "62a31561-edc2-4c66-8a63-802a2e25c36a",
+          "type": "photo",
+          "x": 45,
+          "y": -62,
+          "w": 104,
+          "h": 104,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "903c68c3-e454-4fde-8373-da6d7793ec71",
+          "type": "photo",
+          "x": 351,
+          "y": -59.4,
+          "w": 104,
+          "h": 104,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "c0ee9d61-13ac-4d2c-9c2b-0152d7294b3c",
+          "type": "photo",
+          "x": 294,
+          "y": -60.4,
+          "w": 104,
+          "h": 104,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "68a54161-a7f0-4f3b-80bb-75f0f522e0e9",
+          "type": "photo",
+          "x": 109,
+          "y": -63.4,
+          "w": 104,
+          "h": 104,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "20fc76f0-487f-4956-ae0f-a098b73ecb22",
+          "type": "photo",
+          "x": 192.58,
+          "y": -83.29,
+          "w": 132,
+          "h": 132,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-4.webp"
+        },
+        {
+          "id": "abbdb141-b61b-4dab-9ea7-a42084cf2f8c",
+          "type": "photo",
+          "x": -311.83,
+          "y": -121.27,
+          "w": 383.52,
+          "h": 575.27,
+          "src": "/templates/lunar-blossom/assets/bambu.webp"
+        },
+        {
+          "id": "56d6af33-534b-4a65-a494-fa251ce7df3b",
+          "type": "photo",
+          "x": 419.1,
+          "y": -124.43,
+          "w": 383.52,
+          "h": 575.27,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/bambu.webp"
+        },
+        {
+          "id": "3caf7600-2481-4159-a7c1-ab9ddc21dbb4",
+          "type": "photo",
+          "x": -6,
+          "y": 320.4,
+          "w": 496,
+          "h": 496,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-7.webp"
+        },
+        {
+          "id": "1b0229c3-4fcc-4213-ad47-f2f3dd41470b",
+          "type": "photo",
+          "x": -240.38,
+          "y": 175.07,
+          "w": 528.5,
+          "h": 627.89,
+          "r": -21.75,
+          "src": "/templates/lunar-blossom/assets/bambu.webp"
+        },
+        {
+          "id": "380c34fc-09bc-4362-9cbf-a00d98165e17",
+          "type": "photo",
+          "x": 197.81,
+          "y": 171.71,
+          "w": 523.39,
+          "h": 625.98,
+          "r": 20.95,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/bambu.webp"
+        },
+        {
+          "id": "63de18c5-1130-4f65-acd6-43b988a0739d",
+          "type": "photo",
+          "x": 381.88,
+          "y": 512.43,
+          "w": 228,
+          "h": 228,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "6b7add76-dc2c-41d3-8e7a-992aef22a04d",
+          "type": "photo",
+          "x": -133.06,
+          "y": 509.12,
+          "w": 228,
+          "h": 228,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "ef3abe85-0c88-4827-b47c-2229e55e8582",
+          "type": "photo",
+          "x": -44.55,
+          "y": 541.54,
+          "w": 324,
+          "h": 182,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-8.webp"
+        },
+        {
+          "id": "9d83f09a-a3bd-4843-8591-d2851a8631a5",
+          "type": "photo",
+          "x": 260.05,
+          "y": 540.02,
+          "w": 324,
+          "h": 182,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-8.webp"
+        },
+        {
+          "id": "5cf590b3-4b17-4aab-9e21-55e2f2da0cf7",
+          "type": "photo",
+          "x": -82.48,
+          "y": 591.6,
+          "w": 184,
+          "h": 184,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "ff52e54e-eec6-4eea-b327-974ae3885e20",
+          "type": "photo",
+          "x": 385.1,
+          "y": 572.36,
+          "w": 184,
+          "h": 184,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "7c8e4571-bd12-46e0-a8f1-5039c7937ef2",
+          "type": "text",
+          "x": 156.2,
+          "y": 594.02,
+          "w": 95,
+          "h": 96,
+          "role": "initial-1"
+        },
+        {
+          "id": "67f67d41-c3d5-436e-8084-524f2762fb7c",
+          "type": "text",
+          "x": 194.5,
+          "y": 616.71,
+          "w": 95,
+          "h": 96,
+          "role": "initial-2"
+        },
+        {
+          "id": "8059bb67-000f-4cf2-ac41-2280ce7191a6",
+          "type": "text",
+          "x": 71,
+          "y": 62,
+          "w": 342,
+          "h": 140,
+          "role": "quote"
+        }
+      ]
+    },
+    {
+      "id": "51a64a35-0808-464a-8224-c356851f8ba9",
+      "kind": "couple",
+      "top": 2278,
+      "height": 2013,
+      "background": "#fff8dfff",
+      "elements": [
+        {
+          "id": "642c53ff-0984-4aa4-ba8b-fe78f4d3f0c0",
+          "type": "graphic",
+          "x": -7,
+          "y": 15.28,
+          "w": 497,
+          "h": 539,
+          "src": "/templates/lunar-blossom/assets/frame-55.webp"
+        },
+        {
+          "id": "7ce28804-f873-4ad1-b62c-3e03b3ed63ad",
+          "type": "photo",
+          "x": 0,
+          "y": 126.05,
+          "w": 484,
+          "h": 461,
+          "src": "/templates/lunar-blossom/assets/scdvc.webp"
+        },
+        {
+          "id": "9c9e1eb1-4010-44d1-b41c-747db76056e5",
+          "type": "photo",
+          "x": -201.56,
+          "y": 333.54,
+          "w": 384.72,
+          "h": 155.63,
+          "src": "/templates/lunar-blossom/assets/image-670691.webp"
+        },
+        {
+          "id": "f234d2a4-3b5c-4657-a28f-26cb76f19b5c",
+          "type": "photo",
+          "x": -42.56,
+          "y": 361.98,
+          "w": 384,
+          "h": 216,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-9.webp"
+        },
+        {
+          "id": "49269d34-40d1-42d2-8e95-6953cb3e0c69",
+          "type": "photo",
+          "x": 268.39,
+          "y": 170.71,
+          "w": 384,
+          "h": 368.63,
+          "src": "/templates/lunar-blossom/assets/img-5050.webp"
+        },
+        {
+          "id": "0b9f0906-561f-4952-a800-f624c22ef0b9",
+          "type": "photo",
+          "x": 191,
+          "y": 158.75,
+          "w": 293,
+          "h": 447,
+          "role": "groom-photo"
+        },
+        {
+          "id": "944b728d-2f10-46cc-8ee9-ebcdc8e4387b",
+          "type": "photo",
+          "x": 242,
+          "y": 453.18,
+          "w": 362,
+          "h": 156,
+          "src": "/templates/lunar-blossom/assets/image-670691.webp"
+        },
+        {
+          "id": "aba4a2d6-b2b3-410b-abc8-a3793e59d80f",
+          "type": "photo",
+          "x": 0,
+          "y": 473.86,
+          "w": 326,
+          "h": 171,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-8.webp"
+        },
+        {
+          "id": "0cddd7d8-b206-466b-ad19-1490f2ba1315",
+          "type": "photo",
+          "x": 311.5,
+          "y": 511.69,
+          "w": 212,
+          "h": 119,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-10.webp"
+        },
+        {
+          "id": "185fb4f1-0aba-4f73-a3a3-93688a39bcd5",
+          "type": "photo",
+          "x": 147.7,
+          "y": 507.19,
+          "w": 323,
+          "h": 182,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-12.webp"
+        },
+        {
+          "id": "875e5798-9eb2-4e67-8524-bfee9483c12a",
+          "type": "photo",
+          "x": 0,
+          "y": 546.17,
+          "w": 129,
+          "h": 129,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-4.webp"
+        },
+        {
+          "id": "27bd8e97-4301-4101-8cf6-17c2e00c147a",
+          "type": "photo",
+          "x": -92.5,
+          "y": 496.97,
+          "w": 185,
+          "h": 104,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-10.webp"
+        },
+        {
+          "id": "b2aabe11-65b5-44df-8ff7-18e6ea394213",
+          "type": "photo",
+          "x": -114.18,
+          "y": 480.26,
+          "w": 216,
+          "h": 216,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "f78918c2-3d90-4d04-859d-d1bd2ea15d69",
+          "type": "photo",
+          "x": 385,
+          "y": 500.91,
+          "w": 198,
+          "h": 198,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "c5aec92f-4a2d-4b57-8943-94f965cc7100",
+          "type": "text",
+          "x": 16,
+          "y": 65.04,
+          "w": 452,
+          "h": 79.5,
+          "role": "couple-title"
+        },
+        {
+          "id": "a17b4c34-359c-41ae-8082-5cc1282e0d9a",
+          "type": "photo",
+          "x": 432.5,
+          "y": 476.92,
+          "w": 103,
+          "h": 103,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-21.webp"
+        },
+        {
+          "id": "e8f21c06-e115-44f5-8adb-754fb947f9de",
+          "type": "photo",
+          "x": 135.91,
+          "y": 568.01,
+          "w": 70,
+          "h": 70,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-6.webp"
+        },
+        {
+          "id": "c80c9386-b841-43ed-ae20-db78dcbf3e85",
+          "type": "graphic",
+          "x": -6.5,
+          "y": 924.62,
+          "w": 497,
+          "h": 539,
+          "src": "/templates/lunar-blossom/assets/frame-55.webp"
+        },
+        {
+          "id": "d1eea727-a4d3-46f7-a392-9219c84da54d",
+          "type": "photo",
+          "x": 0,
+          "y": 1053.43,
+          "w": 484,
+          "h": 461,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/scdvc.webp"
+        },
+        {
+          "id": "bff992f9-0923-4982-8503-d33dc683c952",
+          "type": "photo",
+          "x": 265.11,
+          "y": 1276.47,
+          "w": 384.72,
+          "h": 155.63,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/image-670691.webp"
+        },
+        {
+          "id": "7152c01a-ea6f-4596-b8ff-c0cff06923e5",
+          "type": "photo",
+          "x": 191.44,
+          "y": 1343.53,
+          "w": 384,
+          "h": 216,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-9.webp"
+        },
+        {
+          "id": "f6a9898e-0511-468c-bfba-0416099df0e9",
+          "type": "photo",
+          "x": -135.02,
+          "y": 1082.83,
+          "w": 384,
+          "h": 368.62,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/img-5050.webp"
+        },
+        {
+          "id": "3b4b1126-9815-4752-b022-0715280934f6",
+          "type": "photo",
+          "x": -11.14,
+          "y": 1127.3,
+          "w": 359,
+          "h": 422,
+          "role": "bride-photo"
+        },
+        {
+          "id": "51917052-a474-4a43-9ede-0dd5334371ba",
+          "type": "photo",
+          "x": -167.78,
+          "y": 1406.01,
+          "w": 362,
+          "h": 156,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/image-670691.webp"
+        },
+        {
+          "id": "ccb2fe4b-b7e9-4915-8b2f-d8aab9421ad2",
+          "type": "photo",
+          "x": 173.44,
+          "y": 1440.18,
+          "w": 326,
+          "h": 171,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-8.webp"
+        },
+        {
+          "id": "79335406-1482-49cb-b702-08230fef2fc9",
+          "type": "photo",
+          "x": -12.5,
+          "y": 1470.11,
+          "w": 207,
+          "h": 116,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-10.webp"
+        },
+        {
+          "id": "d6f6114a-ecf7-4b11-8893-2985547d3930",
+          "type": "photo",
+          "x": -9.24,
+          "y": 1473.57,
+          "w": 323,
+          "h": 182,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-12.webp"
+        },
+        {
+          "id": "4d15cd54-fd85-4baf-948c-b9c22b904b7c",
+          "type": "photo",
+          "x": 393.06,
+          "y": 1487.13,
+          "w": 207,
+          "h": 116,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-10.webp"
+        },
+        {
+          "id": "7f11d34e-ae3a-4e75-98e3-0a4922d31d93",
+          "type": "photo",
+          "x": -119.73,
+          "y": 1491.3,
+          "w": 216,
+          "h": 216,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "c30b975b-9d35-448f-84c8-9605aa896c50",
+          "type": "photo",
+          "x": 395.72,
+          "y": 1493.34,
+          "w": 198,
+          "h": 198,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "641e317e-e972-401f-9000-b7aea6ef7af5",
+          "type": "photo",
+          "x": -51.5,
+          "y": 1475.57,
+          "w": 103,
+          "h": 103,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-21.webp"
+        },
+        {
+          "id": "6faab9cb-bc7c-4f97-9f13-1460047f54b3",
+          "type": "photo",
+          "x": -294.21,
+          "y": 844.64,
+          "w": 383.52,
+          "h": 575.27,
+          "src": "/templates/lunar-blossom/assets/bambu.webp"
+        },
+        {
+          "id": "7ba1f4bd-901d-4443-9b18-133a7d191b4a",
+          "type": "photo",
+          "x": 405.79,
+          "y": 719.98,
+          "w": 383.52,
+          "h": 575.27,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/bambu.webp"
+        },
+        {
+          "id": "83568151-983b-44f3-a766-3b8bf7ba0680",
+          "type": "text",
+          "x": 16,
+          "y": 660.05,
+          "w": 452,
+          "h": 104,
+          "role": "groom-name"
+        },
+        {
+          "id": "0665b308-1d04-4d87-aabd-61475e8ce4d6",
+          "type": "text",
+          "x": 16,
+          "y": 763,
+          "w": 452,
+          "h": 63,
+          "role": "groom-parents"
+        },
+        {
+          "id": "8681ad87-4cc7-4729-ba38-992a85500d0e",
+          "type": "text",
+          "x": 177.5,
+          "y": 968.16,
+          "w": 129,
+          "h": 57,
+          "html": "<p style=\"text-align: left\"><span style=\"font-family: &quot;Zzzzz Edwardian&quot;; font-size: 96px; line-height: 52px; font-weight: unset; color: rgb(213, 9, 9)\">&amp;</span></p>"
+        },
+        {
+          "id": "6bb0eecc-5e30-420c-88bd-7f7d77b5d4f2",
+          "type": "text",
+          "x": 16,
+          "y": 1632.84,
+          "w": 452,
+          "h": 104,
+          "role": "bride-name"
+        },
+        {
+          "id": "61ebb77d-c13c-4dc2-a39f-b83b29083861",
+          "type": "text",
+          "x": 16,
+          "y": 1731,
+          "w": 452,
+          "h": 63,
+          "role": "bride-parents"
+        },
+        {
+          "id": "5cd715c9-54a1-4722-9d39-0bd7c52a68c0",
+          "type": "photo",
+          "x": -45.82,
+          "y": 1798.14,
+          "w": 386.75,
+          "h": 180.39,
+          "src": "/templates/lunar-blossom/assets/vdfvfdfv.webp"
+        },
+        {
+          "id": "27fb373a-2724-48f0-bce3-12e5ffcb2e2e",
+          "type": "photo",
+          "x": 296.03,
+          "y": 1789.99,
+          "w": 257,
+          "h": 206,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/dbfffdbbf.webp"
+        }
+      ]
+    },
+    {
+      "id": "47f5cb6a-8ca0-4262-82d6-de13b3801a8b",
+      "kind": "countdown",
+      "top": 4291,
+      "height": 715,
+      "background": "#fff8dfff",
+      "elements": [
+        {
+          "id": "557add2c-f0e3-4610-8790-c89d53f9bd45",
+          "type": "photo",
+          "x": -50.5,
+          "y": 114.77,
+          "w": 585,
+          "h": 585,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-15.webp"
+        },
+        {
+          "id": "6a386428-7444-4d8b-883d-e6cc728813a3",
+          "type": "widget-countdown",
+          "x": 33.5,
+          "y": 254.3,
+          "w": 417,
+          "h": 304,
+          "bg": "#d50909ff",
+          "color": "#ffffff",
+          "role": "countdown"
+        },
+        {
+          "id": "46a83e29-2d66-4ca5-8079-929043e2caad",
+          "type": "text",
+          "x": 16,
+          "y": 62.36,
+          "w": 452,
+          "h": 96,
+          "role": "countdown-title"
+        },
+        {
+          "id": "c21e4747-30f4-41da-a556-7594d74328d5",
+          "type": "photo",
+          "x": 52.3,
+          "y": 394.2,
+          "w": 575,
+          "h": 323,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-14.webp"
+        },
+        {
+          "id": "c74780e3-729f-4544-a51e-4be3f188d17f",
+          "type": "photo",
+          "x": -138.51,
+          "y": 394.13,
+          "w": 575,
+          "h": 323,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-14.webp"
+        },
+        {
+          "id": "cd3014e4-7c2c-4b27-b465-13f90453108d",
+          "type": "photo",
+          "x": -198.07,
+          "y": 82.75,
+          "w": 440.07,
+          "h": 506.86,
+          "r": -25.57,
+          "src": "/templates/lunar-blossom/assets/bambu.webp"
+        },
+        {
+          "id": "fb96cd8c-e0cc-44da-a2c0-7deeeae518e3",
+          "type": "photo",
+          "x": 237.89,
+          "y": 82.75,
+          "w": 439.42,
+          "h": 506.68,
+          "r": 25.43,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/bambu.webp"
+        },
+        {
+          "id": "ce339cce-eaf9-48c8-b84d-8c1eeccbf293",
+          "type": "photo",
+          "x": -70.5,
+          "y": 462.87,
+          "w": 141,
+          "h": 141,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "16ff8219-ebbb-4289-9c21-8621e101ba86",
+          "type": "photo",
+          "x": 413.5,
+          "y": 462.14,
+          "w": 141,
+          "h": 141,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "724260e5-505b-424c-b329-ca170562e345",
+          "type": "photo",
+          "x": -70.5,
+          "y": 534.56,
+          "w": 141,
+          "h": 141,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "1c9c653a-e439-40b7-b6b8-ce6e1c620fea",
+          "type": "photo",
+          "x": 413.5,
+          "y": 538.01,
+          "w": 141,
+          "h": 141,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "53e5df4d-b4ed-47a4-8390-7e6faa92ac2f",
+          "type": "photo",
+          "x": -170.5,
+          "y": 541.66,
+          "w": 232,
+          "h": 232,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-4.webp"
+        },
+        {
+          "id": "cd7c24e3-4704-478b-a4d4-b517396ab436",
+          "type": "photo",
+          "x": 420.3,
+          "y": 539.63,
+          "w": 232,
+          "h": 232,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-4.webp"
+        },
+        {
+          "id": "1250a12e-b84f-47de-831d-703fa10c618d",
+          "type": "photo",
+          "x": 398.5,
+          "y": 158.36,
+          "w": 250,
+          "h": 250,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "ae929dd9-eb67-4eae-a535-57f7ec5b1f9b",
+          "type": "photo",
+          "x": -174.05,
+          "y": 231.45,
+          "w": 250,
+          "h": 250,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        }
+      ]
+    },
+    {
+      "id": "62fe2869-f761-4811-8966-ab423afae352",
+      "kind": "events-intro",
+      "top": 5006,
+      "height": 322,
+      "background": "#fff8dfff",
+      "elements": [
+        {
+          "id": "cb8ebe81-73dc-49b6-b87f-35530a8c2958",
+          "type": "photo",
+          "x": 0,
+          "y": -108.65,
+          "w": 486,
+          "h": 647,
+          "src": "/templates/lunar-blossom/assets/svdsv.webp"
+        },
+        {
+          "id": "08baba04-5c8e-4b2a-af75-d6cdfc66a914",
+          "type": "photo",
+          "x": 0,
+          "y": -24.13,
+          "w": 484,
+          "h": 606,
+          "src": "/templates/lunar-blossom/assets/vdcx.webp"
+        },
+        {
+          "id": "b12cfc42-ddea-4a8d-a814-2e7c151c49b6",
+          "type": "text",
+          "x": 112.5,
+          "y": 101.3,
+          "w": 259,
+          "h": 96,
+          "color": "#000",
+          "role": "events-intro"
+        },
+        {
+          "id": "60b806ab-7de1-4f30-b1a6-2f46a7b6573e",
+          "type": "text",
+          "x": 12,
+          "y": 18.11,
+          "w": 460,
+          "h": 90,
+          "color": "#000",
+          "role": "events-title"
+        },
+        {
+          "id": "d4c80f9d-e89d-43c8-bbec-f86ceab2360b",
+          "type": "photo",
+          "x": -22.24,
+          "y": 87.87,
+          "w": 126,
+          "h": 224,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-11.webp"
+        },
+        {
+          "id": "bfd9dafa-cc55-413d-a9d9-c15691b6d33e",
+          "type": "photo",
+          "x": 374.79,
+          "y": 90.54,
+          "w": 126,
+          "h": 224,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-11.webp"
+        },
+        {
+          "id": "052a1db7-194a-47cb-86d4-07a7c69cb79d",
+          "type": "graphic",
+          "x": -41,
+          "y": 216.06,
+          "w": 312,
+          "h": 389,
+          "src": "/templates/lunar-blossom/assets/tree-new-copy-3-1.webp"
+        },
+        {
+          "id": "69d2e427-a010-4a52-84b3-ab7387bc1b21",
+          "type": "graphic",
+          "x": 211.5,
+          "y": 218.1,
+          "w": 312,
+          "h": 389,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/tree-new-copy-3-1.webp"
+        },
+        {
+          "id": "28870761-969e-4d33-8fc4-e477a9f2ee4f",
+          "type": "graphic",
+          "x": 42.68,
+          "y": 230.62,
+          "w": 384.63,
+          "h": 149.75,
+          "src": "/templates/lunar-blossom/assets/bush.webp"
+        },
+        {
+          "id": "8858602b-3278-444e-89fd-d3c6aa6c4d92",
+          "type": "photo",
+          "x": -63,
+          "y": 82.87,
+          "w": 126,
+          "h": 224,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-11.webp"
+        },
+        {
+          "id": "91eb0dde-1bbb-4b36-acb7-7518e1c372fc",
+          "type": "photo",
+          "x": 413.5,
+          "y": 86.1,
+          "w": 126,
+          "h": 224,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-11.webp"
+        }
+      ]
+    },
+    {
+      "id": "c7bb0711-8b7d-4a92-b1d1-f9dcec53b759",
+      "kind": "event-1",
+      "top": 5328,
+      "height": 959,
+      "background": "#fff8dfff",
+      "elements": [
+        {
+          "id": "aa7a59c1-d3a4-4d3a-8b9f-f9ebb1a73004",
+          "type": "photo",
+          "x": -8.9,
+          "y": 217.49,
+          "w": 442,
+          "h": 590,
+          "src": "/templates/lunar-blossom/assets/download-2.webp"
+        },
+        {
+          "id": "a5a8cd1d-9af6-48a5-9f50-c5607ade1349",
+          "type": "photo",
+          "x": -34.5,
+          "y": 222.55,
+          "w": 569,
+          "h": 569,
+          "src": "/templates/lunar-blossom/assets/csc.webp"
+        },
+        {
+          "id": "26cef97f-67af-4d4c-a8cb-2b82d73e346e",
+          "type": "photo",
+          "x": -210.5,
+          "y": -27.65,
+          "w": 905,
+          "h": 995,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-16.webp"
+        },
+        {
+          "id": "66c740b5-1588-4ef5-8571-d770cd1a31be",
+          "type": "photo",
+          "x": 30,
+          "y": 688.81,
+          "w": 424,
+          "h": 238,
+          "src": "/templates/lunar-blossom/assets/ngngf.webp"
+        },
+        {
+          "id": "bcab5789-f637-4e17-875a-8e2689aaa10b",
+          "type": "text",
+          "x": 70,
+          "y": 498,
+          "w": 344,
+          "h": 33,
+          "color": "#000",
+          "role": "event-0-venue"
+        },
+        {
+          "id": "32e7d7cb-0527-4cd3-a258-47dc9f73151f",
+          "type": "text",
+          "x": 70,
+          "y": 358,
+          "w": 344,
+          "h": 63,
+          "color": "#000",
+          "role": "event-0-day"
+        },
+        {
+          "id": "d2629f5f-7068-47e4-8650-82ab387f303e",
+          "type": "text",
+          "x": 70,
+          "y": 507,
+          "w": 344,
+          "h": 80,
+          "color": "#000",
+          "role": "event-0-address"
+        },
+        {
+          "id": "1638395f-fcfc-4f5e-824c-f9ad3e0ad1e0",
+          "type": "widget-address",
+          "x": 142,
+          "y": 576,
+          "w": 200,
+          "h": 44,
+          "bg": "#d50909ff",
+          "color": "#fff",
+          "role": "event-0-map"
+        },
+        {
+          "id": "cd766d1e-2728-4186-bf9a-b1b0cf8b1620",
+          "type": "text",
+          "x": 70,
+          "y": 412,
+          "w": 344,
+          "h": 30,
+          "color": "#000",
+          "role": "event-0-month"
+        },
+        {
+          "id": "3193235d-d790-45c3-81c6-3af40975d569",
+          "type": "text",
+          "x": 70,
+          "y": 293,
+          "w": 344,
+          "h": 50,
+          "color": "#000",
+          "role": "event-0-name"
+        },
+        {
+          "id": "f735c769-74d4-4fca-9a95-246359a74468",
+          "type": "text",
+          "x": 70,
+          "y": 452,
+          "w": 344,
+          "h": 30,
+          "color": "#000",
+          "role": "event-0-time"
+        },
+        {
+          "id": "5ba433bf-6cff-4111-b66d-4d5ee3e73551",
+          "type": "photo",
+          "x": -49.38,
+          "y": 773.35,
+          "w": 386.75,
+          "h": 180.39,
+          "src": "/templates/lunar-blossom/assets/vdfvfdfv.webp"
+        },
+        {
+          "id": "0fbcc50e-fbd2-4a57-8bfb-0742b1ee642f",
+          "type": "photo",
+          "x": 165.62,
+          "y": 774.6,
+          "w": 386.75,
+          "h": 180.39,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/vdfvfdfv.webp"
+        },
+        {
+          "id": "fb65b37f-cf8a-4df8-966d-11bbc23098f7",
+          "type": "photo",
+          "x": -107.76,
+          "y": 335.91,
+          "w": 243,
+          "h": 365,
+          "src": "/templates/lunar-blossom/assets/bambu.webp"
+        },
+        {
+          "id": "cfdfa7a8-7236-4fca-805d-29636826f9ec",
+          "type": "photo",
+          "x": 362.5,
+          "y": 144.3,
+          "w": 243,
+          "h": 365,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/bambu.webp"
+        },
+        {
+          "id": "43ced790-22a9-4c99-86be-4fb2d8c5d00b",
+          "type": "photo",
+          "x": 414.5,
+          "y": 75.8,
+          "w": 218,
+          "h": 218,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "9b37acaa-9a10-493f-a9f7-4b45f4be62b0",
+          "type": "photo",
+          "x": -119.5,
+          "y": 289.8,
+          "w": 170,
+          "h": 170,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "d8756231-802f-45d8-8624-97e581694db8",
+          "type": "graphic",
+          "x": -121.98,
+          "y": 190.25,
+          "w": 243.96,
+          "h": 243.96,
+          "r": 23.82,
+          "src": "/templates/lunar-blossom/assets/comp-1-5cf461.webp"
+        },
+        {
+          "id": "2767cec0-9063-4116-99a7-846166577ffb",
+          "type": "graphic",
+          "x": 372.26,
+          "y": 301.17,
+          "w": 198.64,
+          "h": 198.64,
+          "r": -4.4,
+          "src": "/templates/lunar-blossom/assets/comp-1-5cf461.webp"
+        },
+        {
+          "id": "2fb2b91b-925e-4beb-a1fb-f34567699eff",
+          "type": "graphic",
+          "x": -108.19,
+          "y": 232.78,
+          "w": 195.33,
+          "h": 195.33,
+          "r": 7.98,
+          "src": "/templates/lunar-blossom/assets/comp-1-453366.webp"
+        }
+      ]
+    },
+    {
+      "id": "ed99ab68-1280-470c-a2b8-4d128fe5ec07",
+      "kind": "event-2",
+      "top": 6287,
+      "height": 997,
+      "background": "#fff8dfff",
+      "elements": [
+        {
+          "id": "09126bf0-52e0-4321-b9d4-cc81b866c6fe",
+          "type": "photo",
+          "x": -25.01,
+          "y": 945.91,
+          "w": 517,
+          "h": 74,
+          "src": "/templates/lunar-blossom/assets/screenshot-2026-07-29-223122.webp"
+        },
+        {
+          "id": "7d447d42-ab8e-4748-ba87-c8877438e1f6",
+          "type": "photo",
+          "x": -8.9,
+          "y": 218.58,
+          "w": 442,
+          "h": 590,
+          "src": "/templates/lunar-blossom/assets/download-2.webp"
+        },
+        {
+          "id": "5bf260ee-1f16-4f56-b3b5-ac75048fde84",
+          "type": "photo",
+          "x": -34.5,
+          "y": 223.64,
+          "w": 569,
+          "h": 569,
+          "src": "/templates/lunar-blossom/assets/csc.webp"
+        },
+        {
+          "id": "6f265c52-6f61-4e1e-9820-9abf96f95c1d",
+          "type": "photo",
+          "x": -210.5,
+          "y": -26.56,
+          "w": 905,
+          "h": 995,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-16.webp"
+        },
+        {
+          "id": "cac4cb0b-6458-4a4b-9f36-2737afc93b70",
+          "type": "photo",
+          "x": 30,
+          "y": 689.9,
+          "w": 424,
+          "h": 238,
+          "src": "/templates/lunar-blossom/assets/ngngf.webp"
+        },
+        {
+          "id": "cf3db261-3336-433c-8d24-853611d1290c",
+          "type": "text",
+          "x": 70,
+          "y": 498,
+          "w": 344,
+          "h": 33,
+          "color": "#000",
+          "role": "event-1-venue"
+        },
+        {
+          "id": "6689fe99-0112-4f61-8456-9013948a1385",
+          "type": "text",
+          "x": 70,
+          "y": 358,
+          "w": 344,
+          "h": 63,
+          "color": "#000",
+          "role": "event-1-day"
+        },
+        {
+          "id": "899dfdac-52c6-4315-a279-e680458d6437",
+          "type": "text",
+          "x": 70,
+          "y": 507,
+          "w": 344,
+          "h": 80,
+          "color": "#000",
+          "role": "event-1-address"
+        },
+        {
+          "id": "bf6ef4c9-b005-4640-b965-0d91e096f9d9",
+          "type": "widget-address",
+          "x": 142,
+          "y": 576,
+          "w": 200,
+          "h": 44,
+          "bg": "#d50909ff",
+          "color": "#fff",
+          "role": "event-1-map"
+        },
+        {
+          "id": "3d2244c6-c955-43d3-8b5b-d6298db49b5b",
+          "type": "text",
+          "x": 70,
+          "y": 412,
+          "w": 344,
+          "h": 30,
+          "color": "#000",
+          "role": "event-1-month"
+        },
+        {
+          "id": "c3f1c000-abd8-4ed0-bd67-968772e0c293",
+          "type": "text",
+          "x": 70,
+          "y": 293,
+          "w": 344,
+          "h": 50,
+          "color": "#000",
+          "role": "event-1-name"
+        },
+        {
+          "id": "521d2284-59ae-4f2f-aab9-b29665527f55",
+          "type": "text",
+          "x": 70,
+          "y": 452,
+          "w": 344,
+          "h": 30,
+          "color": "#000",
+          "role": "event-1-time"
+        },
+        {
+          "id": "48e55dad-e755-48b6-9b7f-0c785d34dacd",
+          "type": "photo",
+          "x": -49.38,
+          "y": 774.44,
+          "w": 386.75,
+          "h": 180.39,
+          "src": "/templates/lunar-blossom/assets/vdfvfdfv.webp"
+        },
+        {
+          "id": "01ca3679-83f4-48d7-abad-cef8df4b3e49",
+          "type": "photo",
+          "x": 165.62,
+          "y": 775.69,
+          "w": 386.75,
+          "h": 180.39,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/vdfvfdfv.webp"
+        },
+        {
+          "id": "922eb19c-3ae1-4472-91e9-bd5dcb446a2d",
+          "type": "photo",
+          "x": -107.76,
+          "y": 337,
+          "w": 243,
+          "h": 365,
+          "src": "/templates/lunar-blossom/assets/bambu.webp"
+        },
+        {
+          "id": "9ab3854d-bf51-490a-a116-dbb182dda788",
+          "type": "photo",
+          "x": 362.5,
+          "y": 145.39,
+          "w": 243,
+          "h": 365,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/bambu.webp"
+        },
+        {
+          "id": "b1e0dd07-3e88-449e-85da-22746cc3cc86",
+          "type": "photo",
+          "x": -119.5,
+          "y": 290.89,
+          "w": 170,
+          "h": 170,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "e9501922-67a8-46c6-b85b-17711de5dca9",
+          "type": "graphic",
+          "x": -121.98,
+          "y": 191.34,
+          "w": 243.96,
+          "h": 243.96,
+          "r": 23.82,
+          "src": "/templates/lunar-blossom/assets/comp-1-5cf461.webp"
+        },
+        {
+          "id": "5e74959b-79ba-4b9c-86dd-2ae0108635c8",
+          "type": "graphic",
+          "x": 372.26,
+          "y": 302.26,
+          "w": 198.64,
+          "h": 198.64,
+          "r": -4.4,
+          "src": "/templates/lunar-blossom/assets/comp-1-5cf461.webp"
+        },
+        {
+          "id": "5f6d12a8-4086-408f-91f1-0570b878490b",
+          "type": "graphic",
+          "x": -108.19,
+          "y": 233.86,
+          "w": 195.33,
+          "h": 195.33,
+          "r": 7.98,
+          "src": "/templates/lunar-blossom/assets/comp-1-453366.webp"
+        },
+        {
+          "id": "6049704f-bddd-495e-838c-18cbbff0a04a",
+          "type": "photo",
+          "x": 209.56,
+          "y": 852.94,
+          "w": 282,
+          "h": 158,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-12.webp"
+        },
+        {
+          "id": "4e589277-6562-4248-9644-190340914b81",
+          "type": "photo",
+          "x": -19.12,
+          "y": 855.46,
+          "w": 282,
+          "h": 158,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-12.webp"
+        }
+      ]
+    },
+    {
+      "id": "lunar-story",
+      "kind": "story",
+      "top": 7284,
+      "height": 1300,
+      "background": "#fff8dfff",
+      "elements": [
+        {
+          "id": "ls-f1",
+          "type": "photo",
+          "x": -130,
+          "y": -40,
+          "w": 250,
+          "h": 250,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "ls-f2",
+          "type": "photo",
+          "x": 364,
+          "y": -40,
+          "w": 250,
+          "h": 250,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "ls-f3",
+          "type": "graphic",
+          "x": 406,
+          "y": 1000,
+          "w": 116,
+          "h": 176,
+          "src": "/templates/lunar-blossom/assets/rose-right.webp"
+        },
+        {
+          "id": "ls-f4",
+          "type": "graphic",
+          "x": -46,
+          "y": 1000,
+          "w": 116,
+          "h": 176,
+          "src": "/templates/lunar-blossom/assets/rose-right.webp"
+        },
+        {
+          "id": "ls-title",
+          "type": "text",
+          "x": 16,
+          "y": 70,
+          "w": 452,
+          "h": 96,
+          "role": "story-title"
+        },
+        {
+          "id": "ls-list",
+          "type": "text",
+          "x": 50,
+          "y": 200,
+          "w": 384,
+          "h": 1060,
+          "role": "story-list"
+        }
+      ]
+    },
+    {
+      "id": "b5dde9f5-5692-4586-b114-28b6d23ac35b",
+      "kind": "wishes",
+      "top": 8584,
+      "height": 923,
+      "background": "transparent",
+      "elements": [
+        {
+          "id": "1c15918c-2182-4d00-aaf7-c01d6c3de8c9",
+          "type": "photo",
+          "x": 0,
+          "y": 582.67,
+          "w": 484,
+          "h": 341,
+          "src": "/templates/lunar-blossom/assets/vdcx.webp"
+        },
+        {
+          "id": "15293afd-901d-490a-a466-fb8c17850d6d",
+          "type": "photo",
+          "x": -192.57,
+          "y": 554.94,
+          "w": 302.82,
+          "h": 372.46,
+          "r": 62.26,
+          "src": "/templates/lunar-blossom/assets/image-110564.webp"
+        },
+        {
+          "id": "0744b0f0-99c6-418c-a14e-e6ed6db6abc8",
+          "type": "photo",
+          "x": 366.26,
+          "y": 558.2,
+          "w": 387,
+          "h": 376.79,
+          "r": -43.19,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/image-110564.webp"
+        },
+        {
+          "id": "114f005c-5315-4daa-9647-1f48cf6a1a10",
+          "type": "widget-greeting",
+          "x": 67.5,
+          "y": 103.47,
+          "w": 349,
+          "h": 717,
+          "color": "#6e2237ff",
+          "role": "wishes"
+        },
+        {
+          "id": "89059dfa-db6a-4432-8bb9-888a9ea04df1",
+          "type": "text",
+          "x": 84.5,
+          "y": 4.26,
+          "w": 300,
+          "h": 90,
+          "color": "#000",
+          "role": "wishes-title"
+        },
+        {
+          "id": "6c9a3c89-345e-4b5d-87dd-13c0d817befe",
+          "type": "photo",
+          "x": -107.34,
+          "y": -111.7,
+          "w": 190,
+          "h": 190,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "2810151d-790a-44ef-aed6-926b21b71f37",
+          "type": "photo",
+          "x": 405.85,
+          "y": -110.77,
+          "w": 190,
+          "h": 190,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "e94aec55-20b6-41fa-9921-2697f120ef04",
+          "type": "photo",
+          "x": 422.17,
+          "y": 2.88,
+          "w": 164,
+          "h": 131,
+          "src": "/templates/lunar-blossom/assets/dbfffdbbf.webp"
+        },
+        {
+          "id": "811647b2-ada5-408c-974b-b807a12e92bf",
+          "type": "photo",
+          "x": -113,
+          "y": -5.45,
+          "w": 164,
+          "h": 131,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/dbfffdbbf.webp"
+        },
+        {
+          "id": "25157296-2cda-4d03-b104-55a9e0cd33ea",
+          "type": "graphic",
+          "x": 438.81,
+          "y": 1.83,
+          "w": 380,
+          "h": 491.72,
+          "src": "/templates/lunar-blossom/assets/tree-new-copy-3-2.webp"
+        },
+        {
+          "id": "b804f4dd-ecbf-48cc-a695-a2bb8f92e25a",
+          "type": "graphic",
+          "x": -329.32,
+          "y": -11.08,
+          "w": 380,
+          "h": 491.72,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/tree-new-copy-3-2.webp"
+        },
+        {
+          "id": "0ab5b38c-cadf-4313-8a23-e4be70823939",
+          "type": "graphic",
+          "x": 446.5,
+          "y": 348.39,
+          "w": 116,
+          "h": 176,
+          "src": "/templates/lunar-blossom/assets/rose-right.webp"
+        },
+        {
+          "id": "c3b7f5c4-758c-4fea-b1ed-80eef8155958",
+          "type": "graphic",
+          "x": -74.38,
+          "y": 340.19,
+          "w": 116,
+          "h": 176,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/rose-right.webp"
+        },
+        {
+          "id": "e1227aa3-d996-4c5a-97f6-36b74010aea2",
+          "type": "graphic",
+          "x": -135.22,
+          "y": 450.01,
+          "w": 200,
+          "h": 188,
+          "src": "/templates/lunar-blossom/assets/orange-flower-1.webp"
+        },
+        {
+          "id": "5c151878-e8ac-476f-b06e-b70559648042",
+          "type": "graphic",
+          "x": 415.33,
+          "y": 451.77,
+          "w": 200,
+          "h": 188,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/orange-flower-1.webp"
+        },
+        {
+          "id": "4cce90ed-0196-496c-a8ed-a43b2268181a",
+          "type": "photo",
+          "x": -296.76,
+          "y": 682.94,
+          "w": 384,
+          "h": 368.62,
+          "src": "/templates/lunar-blossom/assets/img-5050.webp"
+        },
+        {
+          "id": "7f4b889f-2fcf-4636-860b-f7231a082151",
+          "type": "photo",
+          "x": 393.64,
+          "y": 740.35,
+          "w": 228,
+          "h": 228,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        }
+      ]
+    },
+    {
+      "id": "lunar-honored",
+      "kind": "honored",
+      "top": 9507,
+      "height": 600,
+      "background": "#fff8dfff",
+      "elements": [
+        {
+          "id": "lh-f1",
+          "type": "photo",
+          "x": -120,
+          "y": -30,
+          "w": 230,
+          "h": 230,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "lh-f2",
+          "type": "photo",
+          "x": 374,
+          "y": -30,
+          "w": 230,
+          "h": 230,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "lh-f3",
+          "type": "graphic",
+          "x": 400,
+          "y": 330,
+          "w": 116,
+          "h": 176,
+          "src": "/templates/lunar-blossom/assets/rose-right.webp"
+        },
+        {
+          "id": "lh-f4",
+          "type": "graphic",
+          "x": -52,
+          "y": 330,
+          "w": 116,
+          "h": 176,
+          "src": "/templates/lunar-blossom/assets/rose-right.webp"
+        },
+        {
+          "id": "lh-f5",
+          "type": "graphic",
+          "x": -90,
+          "y": 430,
+          "w": 200,
+          "h": 188,
+          "src": "/templates/lunar-blossom/assets/orange-flower-1.webp"
+        },
+        {
+          "id": "lh-f6",
+          "type": "graphic",
+          "x": 374,
+          "y": 430,
+          "w": 200,
+          "h": 188,
+          "src": "/templates/lunar-blossom/assets/orange-flower-1.webp"
+        },
+        {
+          "id": "lh-title",
+          "type": "text",
+          "x": 16,
+          "y": 70,
+          "w": 452,
+          "h": 96,
+          "role": "honored-title"
+        },
+        {
+          "id": "lh-list",
+          "type": "text",
+          "x": 66,
+          "y": 200,
+          "w": 352,
+          "h": 300,
+          "role": "honored-list"
+        }
+      ]
+    },
+    {
+      "id": "0066e7be-7ea9-4e6f-ad11-7d08b549fc98",
+      "kind": "gift",
+      "top": 10107,
+      "height": 1316,
+      "background": "#fff8dfff",
+      "elements": [
+        {
+          "id": "476ea64d-a5a3-45fa-a24b-02c83164d488",
+          "type": "photo",
+          "x": -3,
+          "y": 932.22,
+          "w": 490,
+          "h": 429,
+          "src": "/templates/lunar-blossom/assets/img-8135-1.webp"
+        },
+        {
+          "id": "fdc39402-07f4-4aaf-b7cb-de8b897a0c73",
+          "type": "photo",
+          "x": 0,
+          "y": 561.51,
+          "w": 484,
+          "h": 461,
+          "src": "/templates/lunar-blossom/assets/scdvc.webp"
+        },
+        {
+          "id": "615cdacb-a38a-4803-87ec-62d1c0b82a24",
+          "type": "photo",
+          "x": 147.8,
+          "y": 844.44,
+          "w": 384,
+          "h": 216,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-12.webp"
+        },
+        {
+          "id": "19e133e1-2608-4e40-9ab0-7fdb6a1a1ed5",
+          "type": "photo",
+          "x": 99.44,
+          "y": 818.49,
+          "w": 148,
+          "h": 156,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-11.webp"
+        },
+        {
+          "id": "f801b916-8832-41da-aa44-0475200e0070",
+          "type": "widget-gift-group",
+          "x": 64.5,
+          "y": 161.34,
+          "w": 355,
+          "h": 471,
+          "bg": "#7daa6aff",
+          "color": "#fff",
+          "role": "gift"
+        },
+        {
+          "id": "07a603e7-d6df-4406-9ded-76bea9187124",
+          "type": "text",
+          "x": 12,
+          "y": 44.13,
+          "w": 460,
+          "h": 90,
+          "color": "#000",
+          "role": "gift-title"
+        },
+        {
+          "id": "5ee0d56b-b758-4f2a-84c4-8b375c635959",
+          "type": "photo",
+          "x": 143.5,
+          "y": 637.99,
+          "w": 380,
+          "h": 380,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-17.webp"
+        },
+        {
+          "id": "9225efe8-1b44-4807-9750-7f734a410886",
+          "type": "photo",
+          "x": -88.46,
+          "y": 841.14,
+          "w": 384,
+          "h": 216,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-14.webp"
+        },
+        {
+          "id": "e1844832-66fb-4b33-90c3-8ab763e0cd8b",
+          "type": "photo",
+          "x": 193.96,
+          "y": 875.21,
+          "w": 384,
+          "h": 216,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-12.webp"
+        },
+        {
+          "id": "bade00ec-ca58-4d93-a040-b3b6aaa00ca8",
+          "type": "photo",
+          "x": -123.63,
+          "y": 936.47,
+          "w": 204,
+          "h": 115,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-10.webp"
+        },
+        {
+          "id": "1c2a74b7-5247-4651-b7f4-340b919bc20e",
+          "type": "photo",
+          "x": 352.76,
+          "y": 386,
+          "w": 424.63,
+          "h": 424.63,
+          "r": 6.25,
+          "src": "/templates/lunar-blossom/assets/cdsc.webp"
+        },
+        {
+          "id": "73e0828e-113e-4a0c-b33f-4f836034a30a",
+          "type": "photo",
+          "x": -314.61,
+          "y": 406.37,
+          "w": 469.27,
+          "h": 469.27,
+          "r": -14.53,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/cdsc.webp"
+        },
+        {
+          "id": "94434556-a294-4633-b01c-5382e20bf4bb",
+          "type": "photo",
+          "x": 395.5,
+          "y": 918.04,
+          "w": 128,
+          "h": 128,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-44.webp"
+        },
+        {
+          "id": "ce144a59-16e6-4d81-a421-a642bad67d3f",
+          "type": "photo",
+          "x": 54.25,
+          "y": 739.14,
+          "w": 87.67,
+          "h": 87.67,
+          "r": 46.06,
+          "src": "/templates/lunar-blossom/assets/kupu-kupu-revisi.webp"
+        },
+        {
+          "id": "3c2a98ba-e28e-434d-a14d-c718b4812ad4",
+          "type": "photo",
+          "x": -247.43,
+          "y": -28.31,
+          "w": 384,
+          "h": 368.63,
+          "src": "/templates/lunar-blossom/assets/img-5050.webp"
+        },
+        {
+          "id": "ea662337-2503-4330-bd66-a01124538ae3",
+          "type": "photo",
+          "x": -123.18,
+          "y": -54.96,
+          "w": 229.46,
+          "h": 225.05,
+          "r": -18.54,
+          "src": "/templates/lunar-blossom/assets/img-5090.webp"
+        },
+        {
+          "id": "ee92ba5f-81ed-4e99-9f0d-db8d217f50fa",
+          "type": "photo",
+          "x": -33.88,
+          "y": 0.75,
+          "w": 79,
+          "h": 79,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-21.webp"
+        },
+        {
+          "id": "5824c09a-733f-48d4-ba4b-16765074e547",
+          "type": "photo",
+          "x": 415.61,
+          "y": -61.61,
+          "w": 237,
+          "h": 237,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "9be5180a-48e3-4db6-8f7e-6260fde105b8",
+          "type": "graphic",
+          "x": 457.35,
+          "y": 27.4,
+          "w": 104,
+          "h": 108,
+          "src": "/templates/lunar-blossom/assets/orange-flower-5.webp"
+        },
+        {
+          "id": "4eb5e10e-ccc3-4a52-9e97-d670bc348fcb",
+          "type": "graphic",
+          "x": 441,
+          "y": 138.17,
+          "w": 86,
+          "h": 149,
+          "src": "/templates/lunar-blossom/assets/tulip-1-1.webp"
+        }
+      ]
+    },
+    {
+      "id": "c3e13007-91c8-45db-8d0e-619d0996e8c6",
+      "kind": "gallery",
+      "top": 11423,
+      "height": 1169,
+      "background": "#fff8dfff",
+      "elements": [
+        {
+          "id": "2bc6c7c4-b0fe-4d06-b2f6-56c7bade3e25",
+          "type": "photo",
+          "x": 330.73,
+          "y": 1078.05,
+          "w": 385.55,
+          "h": 119.34,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/image-3ee721.webp"
+        },
+        {
+          "id": "c7a75c3a-21ee-4f8d-a0cf-139892ac9f46",
+          "type": "photo",
+          "x": -208.06,
+          "y": 1080.99,
+          "w": 385.55,
+          "h": 119.34,
+          "src": "/templates/lunar-blossom/assets/image-3ee721.webp"
+        },
+        {
+          "id": "45e91e8b-c777-4384-9b3e-26d1e85e29d8",
+          "type": "photo",
+          "x": 189.21,
+          "y": 891.49,
+          "w": 384,
+          "h": 216,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-2.webp"
+        },
+        {
+          "id": "cd066451-a3e9-4d0c-97ca-4f3c280f33f3",
+          "type": "photo",
+          "x": -119.61,
+          "y": 892.23,
+          "w": 384,
+          "h": 216,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-2.webp"
+        },
+        {
+          "id": "0fd6c23f-f50c-4222-a38e-777c20542620",
+          "type": "photo",
+          "x": -111,
+          "y": 58.04,
+          "w": 706,
+          "h": 389,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-9.webp"
+        },
+        {
+          "id": "96f430c6-2a4d-4f36-8820-f25a1431ccb2",
+          "type": "photo",
+          "x": -288,
+          "y": 206.75,
+          "w": 1060,
+          "h": 714,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-15.webp"
+        },
+        {
+          "id": "6dfd75db-a5d5-442a-bbe4-5c522dd831e5",
+          "type": "widget-galleries",
+          "x": 45.5,
+          "y": 327.36,
+          "w": 393,
+          "h": 544,
+          "color": "white",
+          "role": "gallery"
+        },
+        {
+          "id": "cfeb29a5-8214-415c-8f43-3ecf60abaa3e",
+          "type": "text",
+          "x": 109,
+          "y": 11.71,
+          "w": 266,
+          "h": 99,
+          "role": "gallery-title"
+        },
+        {
+          "id": "aad82d9a-ccd9-4c1d-b1ea-5cfaf8931ede",
+          "type": "photo",
+          "x": -39.01,
+          "y": 836.14,
+          "w": 213,
+          "h": 120,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-18.webp"
+        },
+        {
+          "id": "49ad944f-5f03-4c35-a2cc-9ccd143e780b",
+          "type": "photo",
+          "x": 135.5,
+          "y": 840.46,
+          "w": 213,
+          "h": 120,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-18.webp"
+        },
+        {
+          "id": "3b6e30d5-b3cb-4581-8372-c90a4ed03884",
+          "type": "photo",
+          "x": 310.5,
+          "y": 838.26,
+          "w": 213,
+          "h": 120,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-18.webp"
+        },
+        {
+          "id": "d303bc44-70e9-49ed-ae78-21ce720b34b0",
+          "type": "photo",
+          "x": -109.34,
+          "y": 815.54,
+          "w": 384,
+          "h": 216,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-64.webp"
+        },
+        {
+          "id": "0e9af886-71cf-44f6-a59d-bb028cef88ab",
+          "type": "photo",
+          "x": 195.05,
+          "y": 812.24,
+          "w": 384,
+          "h": 216,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-64.webp"
+        },
+        {
+          "id": "b9a94ea9-1c24-4b67-aac6-b1d319a0275f",
+          "type": "photo",
+          "x": -50,
+          "y": 804.56,
+          "w": 100,
+          "h": 100,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-6.webp"
+        },
+        {
+          "id": "91046ccd-32f1-471a-9484-3a9c98bdec6f",
+          "type": "photo",
+          "x": 423.5,
+          "y": 805.57,
+          "w": 100,
+          "h": 100,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-6.webp"
+        },
+        {
+          "id": "3459fd71-c58c-4e86-a8ee-76c0f87ae167",
+          "type": "photo",
+          "x": -74.5,
+          "y": 895.52,
+          "w": 149,
+          "h": 149,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "2c513cbd-6c48-44e8-a38d-33cd815ec7dc",
+          "type": "photo",
+          "x": 415.7,
+          "y": 887.73,
+          "w": 149,
+          "h": 149,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "ab786a5c-df7f-4a0d-a428-d6fd89d06515",
+          "type": "photo",
+          "x": -34,
+          "y": 895.96,
+          "w": 537,
+          "h": 385,
+          "src": "/templates/lunar-blossom/assets/fdgdfg.webp"
+        },
+        {
+          "id": "b8426eab-e331-4225-a628-76ef792364ea",
+          "type": "text",
+          "x": 43,
+          "y": 1059.88,
+          "w": 383,
+          "h": 96,
+          "role": "gallery-caption"
+        }
+      ]
+    },
+    {
+      "id": "d5d55345-3ba4-414c-80a8-6029b60008c8",
+      "kind": "video",
+      "top": 12592,
+      "height": 256,
+      "background": "white",
+      "elements": [
+        {
+          "id": "0ca10482-95a7-4649-9df5-adf5e76d3ba2",
+          "type": "widget-video",
+          "x": 0,
+          "y": 0,
+          "w": 484,
+          "h": 255,
+          "bg": "var(--color-light_primary_main)",
+          "color": "white",
+          "role": "video"
+        }
+      ]
+    },
+    {
+      "id": "67b54535-c8a9-41d4-b36e-77e639fc44d0",
+      "kind": "closing",
+      "top": 12848,
+      "height": 1193,
+      "background": "#fff8dfff",
+      "elements": [
+        {
+          "id": "1400a6b2-395c-4386-9c4e-d72e56b33f1e",
+          "type": "photo",
+          "x": -3.99,
+          "y": 172.86,
+          "w": 509,
+          "h": 485,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/scdvc.webp"
+        },
+        {
+          "id": "f81aa751-591c-47fe-97f8-0270a5e4c233",
+          "type": "photo",
+          "x": -142.65,
+          "y": 650.06,
+          "w": 777,
+          "h": 777,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-20.webp"
+        },
+        {
+          "id": "93226c8f-7686-4498-ac17-c30255093313",
+          "type": "photo",
+          "x": -49.95,
+          "y": 448.24,
+          "w": 569,
+          "h": 515,
+          "src": "/templates/lunar-blossom/assets/vdcx.webp"
+        },
+        {
+          "id": "80f77955-8ea9-4e45-89f2-a99e015bb8a9",
+          "type": "photo",
+          "x": -22.49,
+          "y": 358.7,
+          "w": 542,
+          "h": 678,
+          "src": "/templates/lunar-blossom/assets/vdcx.webp"
+        },
+        {
+          "id": "978c511c-2cd5-4869-b2e6-c9deaa2942eb",
+          "type": "photo",
+          "x": 230.51,
+          "y": 704.88,
+          "w": 357.56,
+          "h": 430.96,
+          "r": 20.04,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/bambu.webp"
+        },
+        {
+          "id": "a1bdde0e-0f1d-44ae-aac9-d5a1a557499f",
+          "type": "frame",
+          "x": 137.51,
+          "y": 349.6,
+          "w": 201,
+          "h": 267,
+          "bg": "#FEE3EC",
+          "role": "couple-frame"
+        },
+        {
+          "id": "7475a1da-b07c-4ead-a794-521e40f4d125",
+          "type": "photo",
+          "x": 356.15,
+          "y": 853.83,
+          "w": 234,
+          "h": 286,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-11.webp"
+        },
+        {
+          "id": "e297170f-4418-4016-b725-234e8f450db6",
+          "type": "photo",
+          "x": -117.21,
+          "y": 708.83,
+          "w": 355.22,
+          "h": 430.02,
+          "r": -19.53,
+          "src": "/templates/lunar-blossom/assets/bambu.webp"
+        },
+        {
+          "id": "e81acc0b-ffbc-43c1-8777-603d9fcbc7f3",
+          "type": "photo",
+          "x": -120.99,
+          "y": 840.48,
+          "w": 234,
+          "h": 286,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-11.webp"
+        },
+        {
+          "id": "4e3f870b-a8b5-42e3-bf9f-af5bab75f17e",
+          "type": "text",
+          "x": 82.51,
+          "y": 141.16,
+          "w": 296,
+          "h": 90,
+          "color": "#000",
+          "role": "closing-title"
+        },
+        {
+          "id": "34959df6-14aa-4999-830d-5636e1ac4659",
+          "type": "text",
+          "x": 104.01,
+          "y": 720.67,
+          "w": 253,
+          "h": 100,
+          "color": "#000",
+          "role": "closing-text"
+        },
+        {
+          "id": "79c24de5-16d0-40cf-9bd8-e375cfe60c5d",
+          "type": "photo",
+          "x": 230.51,
+          "y": -82.98,
+          "w": 384,
+          "h": 216,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-12.webp"
+        },
+        {
+          "id": "90f86bab-86ef-4e73-b9cc-687761382c9e",
+          "type": "photo",
+          "x": -95.96,
+          "y": -79.8,
+          "w": 384,
+          "h": 216,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-12.webp"
+        },
+        {
+          "id": "88ac942c-0791-4ab1-8013-1783347c8bd7",
+          "type": "photo",
+          "x": -58.49,
+          "y": 13.25,
+          "w": 267,
+          "h": 111,
+          "src": "/templates/lunar-blossom/assets/vdfvfdfv.webp"
+        },
+        {
+          "id": "24aedd85-78f0-4396-8269-8e3b5ad5eb50",
+          "type": "photo",
+          "x": 301.31,
+          "y": 9.96,
+          "w": 267,
+          "h": 111,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/vdfvfdfv.webp"
+        },
+        {
+          "id": "33f13602-4521-4e95-8aac-0aa95e21591f",
+          "type": "photo",
+          "x": 167.58,
+          "y": 948.39,
+          "w": 384,
+          "h": 216,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-2.webp"
+        },
+        {
+          "id": "0be021f9-2d51-406c-9136-c7a6be80b6b3",
+          "type": "photo",
+          "x": -99.09,
+          "y": 950.6,
+          "w": 384,
+          "h": 216,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-2.webp"
+        },
+        {
+          "id": "fcbf33bc-00dd-462f-a378-8c2e93e20857",
+          "type": "photo",
+          "x": 23.8,
+          "y": 948.63,
+          "w": 506,
+          "h": 285,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-12.webp"
+        },
+        {
+          "id": "e354bc42-4743-4616-8a08-ce579508665a",
+          "type": "photo",
+          "x": -3.99,
+          "y": 833.55,
+          "w": 485,
+          "h": 273,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-9.webp"
+        },
+        {
+          "id": "5d847f96-d10b-489c-abc2-92b53485f0f9",
+          "type": "photo",
+          "x": -90.74,
+          "y": 1064.01,
+          "w": 235,
+          "h": 132,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-18.webp"
+        },
+        {
+          "id": "24995fec-74b2-4411-877f-0e0b27171ad6",
+          "type": "photo",
+          "x": 347.49,
+          "y": 1063.18,
+          "w": 235,
+          "h": 132,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-18.webp"
+        },
+        {
+          "id": "404e808e-67c0-49b4-8b92-ac8e88928ee6",
+          "type": "photo",
+          "x": -7.99,
+          "y": 232.29,
+          "w": 492,
+          "h": 492,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-19.webp"
+        },
+        {
+          "id": "7102b4c8-edc4-4c15-90fe-ceffdf53d70b",
+          "type": "photo",
+          "x": -23.02,
+          "y": 1006.75,
+          "w": 283,
+          "h": 132,
+          "src": "/templates/lunar-blossom/assets/vdfvfdfv.webp"
+        },
+        {
+          "id": "ce1da7be-d786-4f22-8f60-31c2ea6308bb",
+          "type": "photo",
+          "x": 238.01,
+          "y": 1011.22,
+          "w": 283,
+          "h": 132,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/vdfvfdfv.webp"
+        },
+        {
+          "id": "7ad89ba5-a5d6-43a1-9eba-74e222b9d5c7",
+          "type": "photo",
+          "x": -134.49,
+          "y": 96.39,
+          "w": 261,
+          "h": 392,
+          "src": "/templates/lunar-blossom/assets/bambu.webp"
+        },
+        {
+          "id": "db4f578d-d62e-4a96-b42e-1baed8c31c82",
+          "type": "photo",
+          "x": -70.49,
+          "y": 1022.11,
+          "w": 301,
+          "h": 169,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-8.webp"
+        },
+        {
+          "id": "0f10ce80-bafb-41a7-8aa1-ff4d10933883",
+          "type": "photo",
+          "x": 210.88,
+          "y": 1014.29,
+          "w": 301,
+          "h": 169,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-8.webp"
+        },
+        {
+          "id": "76dd7b7e-d919-41aa-b156-e0b97dfb95af",
+          "type": "photo",
+          "x": -154.93,
+          "y": 88.94,
+          "w": 237,
+          "h": 237,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "df96a769-b4d3-4567-b6ca-68baa853bd00",
+          "type": "photo",
+          "x": -176.99,
+          "y": 227.35,
+          "w": 237,
+          "h": 237,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "d16c304b-f865-41ac-9a19-259dae5b1006",
+          "type": "photo",
+          "x": 423.99,
+          "y": 216.57,
+          "w": 237,
+          "h": 237,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "49753811-4e57-41d7-b28a-1f4fe1b08baf",
+          "type": "photo",
+          "x": 401.01,
+          "y": 289.12,
+          "w": 237,
+          "h": 237,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-5.webp"
+        },
+        {
+          "id": "9658236e-30f8-424d-b54a-d38aa8cc1a15",
+          "type": "photo",
+          "x": 349.51,
+          "y": 91.03,
+          "w": 261,
+          "h": 392,
+          "flipX": true,
+          "src": "/templates/lunar-blossom/assets/bambu.webp"
+        },
+        {
+          "id": "7ce84a47-5c0e-4ff1-8201-e6de6ea5f0b7",
+          "type": "photo",
+          "x": -89.28,
+          "y": 1075.57,
+          "w": 252,
+          "h": 142,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-18.webp"
+        },
+        {
+          "id": "a16a07e5-1b9a-4034-9065-9be3b23d43c3",
+          "type": "photo",
+          "x": 345.03,
+          "y": 1077.79,
+          "w": 252,
+          "h": 142,
+          "src": "/templates/lunar-blossom/assets/the-wedding-of-18.webp"
+        }
+      ]
+    }
+  ]
+}

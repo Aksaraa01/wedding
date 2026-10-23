@@ -12,6 +12,27 @@ export interface TemplateExtraField {
 
 export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
+    key: "welcome_invite",
+    label: "Teks Ajakan Sampul",
+    multiline: true,
+    rows: 2,
+    placeholders: {
+      "lunar-blossom": "Anda diundang untuk merayakan pernikahan",
+    },
+    templates: ["lunar-blossom"],
+  },
+  {
+    key: "events_intro",
+    label: "Pengantar Acara",
+    multiline: true,
+    rows: 3,
+    placeholders: {
+      "lunar-blossom":
+        "Dengan kasih karunia Tuhan, kami dengan hormat memohon kehadiran Anda pada pernikahan anak-anak kami tercinta",
+    },
+    templates: ["lunar-blossom"],
+  },
+  {
     key: "cover_kicker",
     label: "Teks Pembuka Sampul",
     multiline: true,
@@ -91,8 +112,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       sandhya: "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.",
       "piano-garden": "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.",
       "altar-garden": "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.",
+      "lunar-blossom": "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.",
     },
-    templates: ["sandhya", "evermore", "piano-garden", "altar-garden"],
+    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom"],
   },
   {
     key: "wishes_intro",
@@ -116,8 +138,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       sandhya: "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami.",
       "piano-garden": "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami.",
       "altar-garden": "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami.",
+      "lunar-blossom": "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami.",
     },
-    templates: ["sandhya", "evermore", "piano-garden", "altar-garden"],
+    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom"],
   },
 ]
 
