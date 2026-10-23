@@ -748,3 +748,69 @@ DEMO_PROPS_BY_CODE["adat-melayu"] = {
     { name: "Dewi Anggraini", description: "Keluarga Mempelai Wanita", whatsapp: "+62 812 9876 5432" },
   ],
 }
+
+DEMO_PROPS_BY_CODE["adat-batak"] = {
+  ...DEMO_PROPS_BY_CODE["adat-melayu"],
+  slug: "demo",
+  quote_text:
+    "Demikianlah mereka bukan lagi dua, melainkan satu. Karena itu, apa yang telah dipersatukan Allah, tidak boleh diceraikan manusia.",
+  quote_source: "Matius 19:6",
+  groom_parents: "Putri dari Bapak Arman Pradipta & Ibu Ratna Kusumawardani",
+  bride_parents: "Putra dari Bapak Daniel Wicaksono & Ibu Helena Puspaningrum",
+  sessions: [
+    {
+      name: "Pemberkatan Nikah",
+      date: "2027-12-31",
+      time: "08.00 - 10.00 WIB",
+      venue: "Gereja HKBP Medan",
+      address: "Jl. Sisingamangaraja No. 7, Medan, Sumatera Utara",
+      maps_url: "https://maps.app.goo.gl/9bRvrJZZ1xcZSoqa6",
+    },
+    {
+      name: "Resepsi Pernikahan",
+      date: "2027-12-31",
+      time: "11.00 - 14.00 WIB",
+      venue: "Gedung Serbaguna Batak",
+      address: "Jl. Sisingamangaraja No. 7, Medan, Sumatera Utara",
+      maps_url: "https://maps.app.goo.gl/UPxWi9HU1w4A9R1j6",
+    },
+  ],
+  stories: [
+    {
+      title: "Pertama Bertemu",
+      description:
+        "Kami pertama kali bertemu di sebuah acara peminatan di kampus dan berkenalan sebagai perwakilan divisi kegiatan.",
+    },
+    {
+      title: "Bertemu Kembali",
+      description:
+        "Setelah lama tidak bertemu, kami dipertemukan kembali di sebuah seminar profesional dalam bidang yang sama.",
+    },
+    {
+      title: "Memantapkan Hati",
+      description:
+        "Dengan doa dan restu kedua keluarga, kami memantapkan hati untuk mengikat janji dalam kasih Tuhan.",
+    },
+    {
+      title: "Hari Bahagia",
+      description:
+        "Dengan penuh syukur, kami memulai perjalanan membangun keluarga kecil. Semoga Tuhan menyertai setiap langkah kami.",
+    },
+  ],
+  gift_address: "Jl. Sisingamangaraja No. 7, Medan, Sumatera Utara",
+  gift_address_name: "Sandhya & Joseph",
+  inviting_families: [
+    "Keluarga Besar Bapak Arman Pradipta",
+    "Keluarga Besar Ibu Ratna Kusumawardani",
+    "Keluarga Besar Bapak Daniel Wicaksono",
+    "Keluarga Besar Ibu Helena Puspaningrum",
+  ],
+  track_url: "/templates/adat-batak/dongan-matua.mp3",
+  template_content: {
+    ...(DEMO_PROPS_BY_CODE["adat-melayu"].template_content || {}),
+    gallery_quote:
+      "Kasih itu sabar; kasih itu murah hati. Kami bersyukur dipertemukan dalam kasih dan penyertaan Tuhan.",
+    closing_message:
+      "Suatu kebahagiaan dan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu kepada kami.",
+  },
+}
