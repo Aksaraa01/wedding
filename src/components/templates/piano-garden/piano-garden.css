@@ -474,3 +474,16 @@ html:has(.piano-garden-root.is-locked),body:has(.piano-garden-root.is-locked){ov
 /* Music button reveal (missing port from reference/Sandhya) */
 .piano-garden-root .tpl-music-btn.visible{opacity:1;pointer-events:all}
 .piano-garden-root .tpl-music-btn.visible:hover{transform:scale(1.1);background:var(--piano-primary-hover)}
+
+/* Video buffering behind the cover (loads before the guest opens) */
+.piano-garden-root .video-intro.is-preloading{position:fixed;inset:0;width:100vw;height:100svh;min-height:0;opacity:0;pointer-events:none;z-index:0}
+.piano-garden-root .gate-spinner{display:inline-block;width:15px;height:15px;flex:0 0 auto;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:piano-gate-spin .7s linear infinite}
+.piano-garden-root .gate-loader{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:14px;color:var(--warm-fg,#fff)}
+.piano-garden-root .gate-loader-track{position:relative;display:block;width:min(180px,70%);height:3px;border-radius:999px;background:rgba(255,255,255,.28);overflow:hidden}
+.piano-garden-root .gate-loader-fill{position:absolute;top:0;bottom:0;left:0;display:block;height:100%;border-radius:inherit;background:currentColor;transition:width .35s ease}
+.piano-garden-root .gate-loader-label{font-family:var(--sans);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.72)}
+.piano-garden-root .pill-button:disabled{opacity:.72;cursor:wait}
+.piano-garden-root .pill-button:disabled:hover{transform:none;background:var(--piano-primary)}
+.piano-garden-root .gate-open{gap:8px}
+.piano-garden-root .video-buffering{position:absolute;right:16px;bottom:80px;z-index:2;display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:rgba(20,21,18,.5);backdrop-filter:blur(8px);color:#fff;pointer-events:none}
+@keyframes piano-gate-spin{to{transform:rotate(360deg)}}

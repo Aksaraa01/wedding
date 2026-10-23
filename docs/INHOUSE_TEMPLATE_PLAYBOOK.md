@@ -308,6 +308,35 @@ const hasVideo = !!videoId && gates.video !== false && profile.video_section_vis
   ```
   Keep the hint visible after the transition (~2s), not before.
 
+### Opening video — it must be *played* to preload
+
+If the template has an opening/hero video, do **not** trust `preload="auto"` to
+have it ready when the guest taps "Open Invitation". Browsers deliberately
+throttle media preload — Chrome buffers ~1s and then pauses the download — so
+the rest arrives *during* playback and the video visibly stalls (a `waiting`
+event) right after opening. Pattern (`piano-garden` / `altar-garden`):
+
+- Keep the `<video>` mounted from first paint. While locked, park the section
+  out of flow but **on-screen**: `.video-intro.is-preloading { position:fixed;
+  inset:0; opacity:0; pointer-events:none; z-index:0 }` (the gate sits above at
+  `z-index:1`). Do **not** use `left:-9999px` or `display:none` — off-screen /
+  unrendered media gets deprioritized even more.
+- After hydration (only when `navigator.connection` is not `saveData` and not
+  2g–3g), set `preload="auto"` and **`video.muted = true; video.play()`** —
+  playing is what actually drives the download.
+- Track `buffered.end(last) / duration`; enable "Open Invitation" at **≥80%**
+  buffered (keep the muted playback running to fill the rest), then on open
+  reset `currentTime = 0` and play. Add a safety timeout (~8s) so a slow link
+  still opens.
+- `muted` + `playsInline` is required (autoplay policy). On `saveData`/2g–3g,
+  skip the forced preload, don't gate, and show the poster/fallback.
+- Show a small **corner** spinner only for a sustained stall (`waiting` lasting
+  >500ms). Never a centered overlay — a transient `waiting` at the start of
+  playback is normal and must not flash a loader.
+- Keep the clip small (re-encode long/portrait files; ~4MB/20s at 608×1080
+  CRF~24–28 is fine) and let `/templates/:path*` be cached
+  (`max-age=604800`) so repeat opens are instant.
+
 ---
 
 ## 6. Phase 6 — Wishes + floating RSVP/QR dock
@@ -487,6 +516,9 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 | Gift cards have a blank logo slot | `gift_accounts` has no `provider_logo_url` | render `provider_name` (never borrow reference bank PNGs) |
 | Template preview 500 / wishes query with undefined id | preview route did not opt into demo IDs | add code to `keepDemoIds` |
 | Editor shows extra copy field that never renders | `templateExtras` entry added without component support | wire `template_content.<key>` in the component |
+| Opening video stalls / loader appears mid-playback | browser throttled `preload`; only ~1s buffered | play it muted behind the cover until ≥80% buffered before enabling Open |
+| Video never buffers while the gate is locked | element parked off-screen (`left:-9999px`) or `display:none` | keep it on-screen but covered (`position:fixed; inset:0; opacity:0`) |
+| Loader flashes for a moment as the video starts | transient `waiting` at playback start | delay the corner spinner ~500ms; only show on a sustained stall |
 
 ---
 
@@ -506,6 +538,9 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
       swatch dots (not raw text); every JSX class has a matching CSS rule
 - [ ] **Music control reveals after opening** (`.tpl-music-btn.visible` sets
       `opacity:1; pointer-events:all`) and the track plays
+- [ ] **Opening video is preloaded by playing it muted behind the cover** until
+      ≥80% buffered before Open is enabled (no mid-playback stall; corner
+      spinner only for a sustained stall)
 - [ ] **Footer has the Aksaraa brand badge** (logo + "Wedding by Aksaraa") like Sandhya
 - [ ] `tsc`, visual QA at 390×844 + 1440×900, staging build, preview curl,
       affected APIs, prod smoke
