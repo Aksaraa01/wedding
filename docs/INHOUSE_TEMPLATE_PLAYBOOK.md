@@ -98,6 +98,55 @@ A section renders only when both allow it (plus non-empty data).
   helpers (`@/lib/guest-slug`, `@/components/templates/shared/lib`).
 - **Don't** copy WordPress/Elementor assumptions into an in-house template.
 
+### Reference teardown (do this before porting)
+
+1. `curl -L https://momentus.id/preview/<code>` — the preview is a shell; read
+   its `<iframe src>` and fetch that invitation URL with a mobile UA.
+2. Extract the rendered structure, not just the screenshot:
+   - every `<section class="…">` and its `<h2>` (the section order),
+   - `<audio>`/`<video>` tags **including `preload`**, and `<source>` URLs,
+   - every `/templates/<code>/…` asset and its `content-length` (`curl -I`),
+   - the palette (`--sage`, `--sage-deep`, `--cream`, `--dark`) and font vars,
+   - the root class (`.<code>-root`) and the inner classes each section uses.
+3. Diff against the closest in-house template (usually `sandhya`); list only the
+   new/different sections, assets, palette, and fonts. Most Momentus themes are
+   the same component re-skinned — do not re-port what already exists.
+4. For every new section, write down its data shape and check whether
+   `wedding_profiles` has it. If not, decide explicitly: **omit** it, or add a
+   schema field + editor/ops + feature gate. Never ship reference data.
+5. Classify reference chrome (theme switcher, vinyl/tonearm internals, platform
+   footer/logo, demo social links) and leave it out.
+6. Copy the compiled CSS only for the classes the JSX renders, and only the
+   fonts actually used. Reference pages routinely load 40+ stylesheets and ~20
+   woff2 files; porting the whole graph is a performance regression.
+
+#### REA: `adat-melayu` (2026-10)
+
+- **Structure:** same component family as `sandhya` (`cover`, `cover-gate`,
+  `video-intro`, `verse-section`, `groom-bride-section`, `events-section`,
+  `live-streams-section`, `dress-code-section`, `our-gallery-section`,
+  `love-story-section`, `gift-section`, `rsvp-wishes-section`,
+  `thank-you-section`) plus two sections we do not have:
+  - `tpl-rundown` — "Rundown Acara": `time` + `description` items.
+  - `tpl-contact` — "Hubungi Kami": `name` + `description` (family side) +
+    WhatsApp link per person.
+  Neither has a `wedding_profiles` field. Omit or add a JSON field; never
+  hardcode the reference's contacts.
+- **Palette:** `--sage #B1270D` (red), `--sage-deep #7A6332` (gold/brown),
+  `--cream`/`--paper #FBF5E8`, `--dark`/`--ink #2E2818`, `--warm-fg #fff`.
+  The theme only overrides CSS variables; the layout is shared.
+- **Media:** music `saloma-p-ramlee-selamat-pengantin-baru.mp3` = **2.05 MB**
+  with `<audio preload="auto">`; opening `opening-garden.mp4` = **10.1 MB**
+  with `<video preload="metadata">`. Both are `cf-cache-status: HIT`. The video
+  filename is reused across themes — measure the actual bytes, don't infer.
+- **Open behavior:** tapping Open starts the track immediately (same
+  `openInvitation` → `audio.play()` pattern as `altar-garden`/`piano-garden`);
+  there is no separate "tap the music button" step to port.
+- **Assets:** 16 gallery `webp` (~38 KB each), `cover-garden.webp` 45 KB,
+  `fallback.webp` 433 KB, bride/groom/couple/bouquet/parallax/thumbnail.
+- **Do not vendor:** theme switcher, vinyl/tonearm chrome, momentus footer/
+  logo/socials, Instagram live-stream demo link, reference couple data.
+
 ### Reference assets and CSS (hard lessons)
 
 - Audit every reference asset first (URL, size, format). Vendor only assets the
@@ -320,15 +369,18 @@ pattern (`piano-garden` / `altar-garden`) is to sequence the downloads instead:
 
 - **Preload the music while the cover is up**: `<audio loop preload="auto">`
   (skip on `saveData`/2g–3g). By the time the guest taps Open the MP3 is already
-  in cache, so it no longer competes with the video. Gate the preload on
-  `profile.auto_play !== false`.
+  in cache, so it no longer competes with the video. Preload whenever a track
+  exists — do **not** gate it on `auto_play`; these templates start the music on
+  Open, so the guest never has to tap the music button.
 - **Stream the video on open**: `<video muted playsInline preload="metadata">`.
   Do not force `preload="auto"`/`play()` while locked and do not gate the Open
   button. The video section stays mounted and out of flow behind the cover
   (`.video-intro.is-preloading { position:fixed; inset:0; opacity:0;
   pointer-events:none; z-index:0 }`) purely for layout — not for preloading.
 - Keep the "Open Invitation" button enabled at all times (no `Preparing…`
-  state). On tap, play the video (and the pre-cached music).
+  state). On tap, play the video **and** start the pre-cached music
+  (`audio.play()` inside the click handler — that user gesture is what allows
+  autoplay). The guest must never need a second tap on the music button.
 - Show a small **corner** spinner only for a sustained stall (`waiting` lasting
   >1500ms). Never a centered overlay, and never before the first `playing` event
   — a transient `waiting` at the start of playback is normal and must not flash
@@ -336,6 +388,11 @@ pattern (`piano-garden` / `altar-garden`) is to sequence the downloads instead:
 - Keep the clip small (re-encode long/portrait files; ~4MB/20s at 608×1080
   CRF~24–28 is fine) and let `/templates/:path*` be cached
   (`max-age=604800`) so repeat opens are instant.
+- Evidence from `adat-melayu` (2026-10): the reference streams a **10.1 MB**
+  opening video smoothly because the **2.05 MB music is preloaded** on the cover
+  and all media is Cloudflare-cached (`cf-cache-status: HIT`, `max-age=14400`).
+  Our delivery is VPS-first (no CDN), so keep our clip small (≤ ~4–6 MB) and
+  keep the music-first sequencing; a large clip only becomes safe behind a CDN.
 - Supabase-hosted media currently returns `cache-control: private, no-cache`
   (`cf-cache-status: DYNAMIC`), so music/images are re-fetched from the origin
   on every visit. If first-visit cost matters, set a long `cacheControl` on the
@@ -523,6 +580,10 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 | Opening video stalls / loader appears mid-playback | music starts downloading at open and starves the video (music `preload="metadata"`) | preload the music on the cover (`preload="auto"`), stream the video (`preload="metadata"`), don't gate |
 | Video never buffers while force-preloaded behind the cover | muted autoplay of a hidden/`opacity:0` video is paused/blocked, so only throttled `preload` runs | don't rely on hidden autoplay; preload the music and stream the video |
 | Every visit re-downloads music/images | Supabase public objects return `private, no-cache` (`cf-cache-status: DYNAMIC`) | set a long `cacheControl` on the objects or serve media from a CDN |
+| Reference video is unexpectedly huge | filename is reused across themes (`opening-garden.mp4`); sizes differ wildly | `curl -I`/`ffprobe` the actual file; never infer size from the name |
+| New reference section has no schema (`Rundown Acara`, `Hubungi Kami`) | `wedding_profiles` has no field for it | omit it, or add a JSON field + editor/ops/gates — never hardcode reference data |
+| Contact buttons open the reference's WhatsApp numbers | `tpl-contact` markup copied verbatim | require real contact data; hide the section when absent |
+| Port drags in 40+ stylesheets / 20 fonts | whole asset graph copied instead of the template's rules | extract only classes the JSX renders + the fonts actually used |
 | Loader flashes for a moment as the video starts | transient `waiting` at playback start | delay the corner spinner ~1500ms; only show on a sustained stall, never before the first `playing` |
 
 ---

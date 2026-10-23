@@ -206,13 +206,13 @@ export default function AltarGarden(profile: TemplateProps) {
   const openInvitation = useCallback(() => {
     setOpened(true)
     window.scrollTo(0, 0)
-    if (hasTrack && profile.auto_play !== false) {
+    if (hasTrack) {
       const audio = audioRef.current
       if (audio) {
         audio.play().then(() => setPlaying(true), () => setPlaying(false))
       }
     }
-  }, [hasTrack, profile.auto_play])
+  }, [hasTrack])
 
   useEffect(() => {
     const conn = (navigator as Navigator & {
@@ -378,7 +378,7 @@ export default function AltarGarden(profile: TemplateProps) {
         <audio
           ref={audioRef}
           loop
-          preload={connectionOk && profile.auto_play !== false ? "auto" : "metadata"}
+          preload={connectionOk ? "auto" : "metadata"}
         >
           <source src={trackUrl} type="audio/mpeg" />
         </audio>
