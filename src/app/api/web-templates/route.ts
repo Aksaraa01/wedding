@@ -4,6 +4,9 @@ import { supabaseAdmin } from "@/lib/supabase"
 export async function GET(req: Request) {
   const url = new URL(req.url)
   const packageType = url.searchParams.get("package_type")
+  // Dashboard/ops callers opt out of the shared cache so package_eligibility
+  // edits show up immediately (the public marketing lists keep caching).
+  const fresh = url.searchParams.get("fresh") === "1"
 
   let query = supabaseAdmin
     .from("web_templates")
@@ -25,5 +28,8 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json({ templates: data }, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } })
+  const cacheHeaders = fresh
+    ? { "Cache-Control": "no-store" }
+    : { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" }
+  return NextResponse.json({ templates: data }, { headers: cacheHeaders })
 }

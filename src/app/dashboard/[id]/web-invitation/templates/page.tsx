@@ -126,7 +126,8 @@ function TemplatesInner({ id }: { id: string }) {
     ;(async () => {
       const invData = await fetch(`/api/dashboard/${id}/web-invitation`).then((r) => r.json())
       // Fetch unfiltered: ineligible templates stay visible and upsell on Pilih.
-      const tplData = await fetch(`/api/web-templates`).then((r) => r.json())
+      // fresh=1 + no-store so ops package_eligibility edits reflect immediately.
+      const tplData = await fetch(`/api/web-templates?fresh=1`, { cache: "no-store" }).then((r) => r.json())
       setTemplates(tplData.templates || [])
       setProfile(invData.profile || null)
       if (invData.template) setSelectedId(invData.template.id)

@@ -83,7 +83,7 @@ export function packageChangeWaLink(oldSel: PackageChangeSelection, newSel: Pack
 // Template upsell CTA prefill: names the locked template and the cheapest
 // package it ships in, so the consultant instantly knows what to quote.
 export function templateUpgradeWaText(templateName: string, minPackageLabel: string): string {
-  return `Halo Aksaraa Wedding, saya tertarik dengan template ${templateName}. Template ini tersedia mulai dari paket ${minPackageLabel}. Mohon informasi untuk upgrade paket saya.`
+  return `Halo Aksaraa Wedding, saya mau tema ${templateName}. Tema ini tersedia mulai dari paket ${minPackageLabel}. Mohon informasi untuk upgrade paket saya.`
 }
 
 export function templateUpgradeWaLink(templateName: string, minPackageLabel: string): string {
