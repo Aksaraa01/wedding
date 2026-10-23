@@ -289,8 +289,6 @@ function EditorInner({ id }: { id: string }) {
   const [preparingReview, setPreparingReview] = useState(false)
   const [giftLoading, setGiftLoading] = useState(true)
   const prevShowMobilePreview = useRef(false)
-  const reviewSheetRef = useRef<HTMLDivElement>(null)
-  const [reviewSheetH, setReviewSheetH] = useState(0)
   const [showH3Reminder, setShowH3Reminder] = useState(false)
   const [feedbackSubmissions, setFeedbackSubmissions] = useState<any[]>([])
   const [feedbackLoading, setFeedbackLoading] = useState(true)
@@ -1123,7 +1121,6 @@ function EditorInner({ id }: { id: string }) {
 
   const exitReview = useCallback(() => {
     setReviewError("")
-    setReviewSheetH(0)
     setShowMobilePreview(prevShowMobilePreview.current)
     setReviewMode(false)
   }, [])
@@ -1518,9 +1515,14 @@ function EditorInner({ id }: { id: string }) {
         {/* TOP BAR */}
         <header className="border-b border-outline-variant flex items-center px-6 lg:px-8 w-full h-20 z-50 shrink-0 gap-4" style={DASH_HERO_BG}>
           <div className="flex items-center gap-4 shrink-0">
-            <button onClick={() => router.push(`/dashboard/${id}`)} className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors">
+            <button
+              onClick={() => (reviewMode ? exitReview() : router.push(`/dashboard/${id}`))}
+              disabled={publishing}
+              className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors disabled:opacity-50 disabled:pointer-events-none"
+              aria-label={reviewMode ? "Kembali edit" : "Kembali ke dashboard"}
+            >
               <span className="material-symbols-outlined">arrow_back</span>
-              <span className="font-label-md text-label-md hidden sm:inline">DASHBOARD</span>
+              <span className="font-label-md text-label-md hidden sm:inline">{reviewMode ? "KEMBALI EDIT" : "DASHBOARD"}</span>
             </button>
             <div className="h-8 w-px bg-outline-variant hidden sm:block" />
             <div className="hidden sm:block min-w-0">
@@ -1551,7 +1553,8 @@ function EditorInner({ id }: { id: string }) {
               </div>
             ) : reviewMode ? (
               <>
-                <span className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#2C2A29] text-white font-label-md text-label-md">
+                <span className="md:hidden font-label-md text-[10px] uppercase tracking-widest text-primary">Pratinjau Final</span>
+                <span className="hidden md:inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#2C2A29] text-white font-label-md text-label-md">
                   <span className="material-symbols-outlined text-[18px]">visibility</span>
                   <span>PRATINJAU FINAL</span>
                 </span>
@@ -1639,10 +1642,37 @@ function EditorInner({ id }: { id: string }) {
             )}
           </div>
 
-          <div className="flex items-center shrink-0">
-            <ProfileMenu />
+          <div className="flex items-center shrink-0 gap-2">
+            {reviewMode && (
+              <button
+                onClick={finalizePublish}
+                disabled={publishing || updatingPreview}
+                className="md:hidden inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-secondary text-on-secondary font-label-md text-[11px] uppercase tracking-widest disabled:opacity-50 active:scale-[0.98] transition-all"
+              >
+                <span className={`material-symbols-outlined text-[18px] ${publishing ? "animate-spin" : ""}`}>{publishing ? "progress_activity" : "check_circle"}</span>
+                {publishing ? "Memproses..." : "Konfirmasi"}
+              </button>
+            )}
+            <div className={reviewMode ? "hidden md:block" : ""}>
+              <ProfileMenu />
+            </div>
           </div>
         </header>
+
+        {reviewMode && (
+          <div className="md:hidden shrink-0 px-6 py-2.5 bg-surface-container-low border-b border-outline-variant">
+            {reviewError ? (
+              <p className="flex items-start gap-2 text-[11px] text-red-700 leading-snug">
+                <span className="material-symbols-outlined text-[16px] shrink-0">error</span>
+                <span>{reviewError}</span>
+              </p>
+            ) : (
+              <p className="text-[11px] text-on-surface-variant leading-snug">
+                Scroll undangan hingga akhir dan pastikan semuanya benar. Setelah dikonfirmasi, konten tidak dapat diubah.
+              </p>
+            )}
+          </div>
+        )}
 
         {syncStatus === "error" && syncError && (
           <div className="shrink-0 px-4 sm:px-6 lg:px-8 py-3 bg-red-50 border-b border-red-200 flex items-start sm:items-center gap-3">
@@ -2894,44 +2924,6 @@ function EditorInner({ id }: { id: string }) {
           </>
         )}
 
-        {/* MOBILE REVIEW SHEET — bottom sheet below the preview (canvas has
-            extra bottom padding so the invitation stays fully visible) */}
-        {reviewMode && (
-          <div ref={reviewSheetRef} className="md:hidden fixed bottom-0 left-0 w-full px-4 pb-6 pt-4 bg-white z-50 border-t border-outline-variant rounded-t-2xl shadow-2xl max-h-[38dvh] overflow-y-auto custom-scrollbar">
-            <div className="w-10 h-1 rounded-full bg-outline-variant mx-auto mb-3" />
-            <div className="flex items-start gap-3 mb-3">
-              <span className="material-symbols-outlined text-[24px] text-secondary shrink-0">visibility</span>
-              <p className="text-[13px] text-on-surface-variant leading-relaxed">
-                Scroll undangan hingga akhir dan pastikan semuanya benar. Setelah dikonfirmasi, konten tidak dapat diubah.
-              </p>
-            </div>
-            {reviewError && (
-              <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-red-50 border border-red-200 mb-3">
-                <span className="material-symbols-outlined text-[18px] text-red-600 shrink-0">error</span>
-                <p className="text-[12px] text-red-800 leading-snug">{reviewError}</p>
-              </div>
-            )}
-            <div className="flex gap-3">
-              <button
-                onClick={exitReview}
-                disabled={publishing}
-                className="flex-1 py-4 font-label-md text-label-md tracking-widest rounded-full border border-outline-variant text-on-surface-variant disabled:opacity-50 flex items-center justify-center gap-1.5"
-              >
-                <span className="material-symbols-outlined text-[18px]">edit</span>
-                EDIT
-              </button>
-              <button
-                onClick={finalizePublish}
-                disabled={publishing || updatingPreview}
-                className="flex-1 py-4 font-label-md text-label-md tracking-widest rounded-full bg-secondary text-on-secondary disabled:opacity-50 flex items-center justify-center gap-1.5"
-              >
-                <span className={`material-symbols-outlined text-[18px] ${publishing ? "animate-spin" : ""}`}>{publishing ? "progress_activity" : "check_circle"}</span>
-                {publishing ? "MENGONFIRMASI..." : "LANJUT"}
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* PREPARING REVIEW — dedicated fullscreen loading while patching, so it
             never blends into the invitation preview */}
         {preparingReview && !reviewMode && (
@@ -2944,7 +2936,6 @@ function EditorInner({ id }: { id: string }) {
           </div>
         )}
 
-        {/* MOBILE BOTTOM BAR */}
       </div>
 
       <style>{`

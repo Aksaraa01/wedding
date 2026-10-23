@@ -10,11 +10,26 @@ export async function GET(
   try {
     const { id } = await params
 
-    const { data: guests, error } = await supabaseAdmin
+    const baseFields = "id, name, phone_number, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, slug, is_checked_in, checkin_timestamp, souvenir_claimed, added_manually, is_vip"
+    let guestsResult = await supabaseAdmin
       .from("guests")
-      .select("id, name, phone_number, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, slug, is_checked_in, checkin_timestamp, souvenir_claimed, added_manually, is_vip")
+      .select(`${baseFields}, wa_invite_clicked_at`)
       .eq("wedding_profile_id", id)
       .order("name", { ascending: true })
+
+    if (guestsResult.error && guestsResult.error.message.includes("wa_invite_clicked_at")) {
+      const fallback = await supabaseAdmin
+        .from("guests")
+        .select(baseFields)
+        .eq("wedding_profile_id", id)
+        .order("name", { ascending: true })
+      guestsResult = {
+        ...fallback,
+        data: fallback.data?.map((guest) => ({ ...guest, wa_invite_clicked_at: null })) ?? null,
+      } as typeof guestsResult
+    }
+
+    const { data: guests, error } = guestsResult
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
