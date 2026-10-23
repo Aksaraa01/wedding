@@ -1,0 +1,42 @@
+{
+  "width": 367,
+  "height": 547,
+  "background": "/templates/lunar-blossom/assets/gate-art.webp",
+  "elements": [
+    {
+      "role": "gate-guest",
+      "x": 5,
+      "y": 66.3,
+      "w": 357,
+      "h": 20.8
+    },
+    {
+      "role": "gate-invite",
+      "x": 5,
+      "y": 116.017,
+      "w": 357,
+      "h": 24.8
+    },
+    {
+      "role": "gate-names",
+      "x": 12.5,
+      "y": 136.002,
+      "w": 342,
+      "h": 56.8
+    },
+    {
+      "role": "gate-date",
+      "x": 5,
+      "y": 184.763,
+      "w": 357,
+      "h": 18.4
+    },
+    {
+      "role": "gate-button",
+      "x": 10,
+      "y": 483.119,
+      "w": 357,
+      "h": 44
+    }
+  ]
+}

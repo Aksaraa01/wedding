@@ -1,0 +1,1347 @@
+@font-face {
+  font-family: "Athelas Regular";
+  src: url("/templates/lunar-blossom/fonts/athelas-regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Itc Edwardian Script";
+  src: url("/templates/lunar-blossom/fonts/itc-edwardian-script.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nunito Regular";
+  src: url("/templates/lunar-blossom/fonts/nunito-regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pinyonscript";
+  src: url("/templates/lunar-blossom/fonts/pinyonscript.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Times Toman Italic";
+  src: url("/templates/lunar-blossom/fonts/times-toman-italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Zzzzz Edwardian";
+  src: url("/templates/lunar-blossom/fonts/zzzzz-edwardian.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz- Nina";
+  src: url("/templates/lunar-blossom/fonts/nina.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+.lb-root {
+  min-height: 100vh;
+  background: #f1e8d5;
+  color: #d50909;
+  font-family: "Athelas Regular", Georgia, serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.lb-shell {
+  position: relative;
+  width: 100%;
+  max-width: 484px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: #fff8df;
+  box-shadow: 0 0 80px rgba(93, 49, 12, 0.12);
+}
+
+.lb-section {
+  position: relative;
+  width: 100%;
+  overflow: visible;
+}
+
+.lb-art {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: top left;
+}
+
+.lb-el {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.lb-photo {
+  pointer-events: none;
+}
+
+.lb-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  user-select: none;
+}
+
+.lb-photo--cover {
+  overflow: hidden;
+  border-radius: 44% 44% 7% 7% / 33% 33% 5% 5%;
+}
+
+.lb-photo--person {
+  overflow: hidden;
+}
+
+.lb-photo--person img {
+  object-fit: cover;
+}
+
+.lb-el {
+  opacity: 0;
+  translate: 0 26px;
+  transition: opacity 0.9s ease, translate 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lb-el.is-visible {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.lb-desktop-cover {
+  display: none;
+}
+
+.lb-photo--cover img {
+  object-fit: cover;
+}
+
+.lb-t {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.2;
+  text-align: center;
+  overflow: visible;
+}
+
+.lb-html p,
+.lb-html h1,
+.lb-html h2,
+.lb-html h3,
+.lb-html h4 {
+  margin: 0;
+}
+
+.lb-html a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.lb-r-display-names {
+  font-family: "Zzzzz Edwardian", cursive;
+  font-size: 43px;
+  line-height: 37px;
+  color: #d50909;
+  align-items: center;
+}
+
+.lb-r-display-names .lb-amp {
+  font-family: "Zzzzz Edwardian", cursive;
+  font-size: 43px;
+  line-height: 37px;
+}
+
+.lb-r-hero-subtitle {
+  font-family: "Times Toman Italic", Georgia, serif;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #d50909;
+  align-items: center;
+}
+
+.lb-hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.lb-r-quote {
+  font-family: "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz- Nina", "Itc Edwardian Script", cursive;
+  color: #d50909;
+  align-items: center;
+  gap: 16px;
+  height: auto !important;
+  min-height: 96px;
+  padding: 22px 26px;
+  background: radial-gradient(closest-side, rgba(255, 248, 223, 0.95) 60%, rgba(255, 248, 223, 0) 100%);
+}
+
+.lb-quote__source {
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+.lb-quote__text {
+  font-size: 24px;
+  line-height: 1.22;
+}
+
+.lb-r-initial-1,
+.lb-r-initial-2 {
+  font-family: "Zzzzz Edwardian", cursive;
+  font-size: 64px;
+  line-height: 1;
+  align-items: center;
+}
+
+.lb-r-couple-title {
+  font-family: "Zzzzz Edwardian", cursive;
+  font-size: 53px;
+  line-height: 1.1;
+  align-items: center;
+}
+
+.lb-r-bride-name,
+.lb-r-groom-name {
+  font-family: "Zzzzz Edwardian", cursive;
+  font-size: 51px;
+  line-height: 1;
+  align-items: center;
+  gap: 4px;
+}
+
+.lb-name__short {
+  font-family: "Zzzzz Edwardian", cursive;
+  font-size: 51px;
+  line-height: 1;
+}
+
+.lb-name__full {
+  font-family: "Times Toman Italic", Georgia, serif;
+  font-size: 21px;
+  line-height: 1.3;
+}
+
+.lb-r-bride-parents,
+.lb-r-groom-parents {
+  font-family: "Times Toman Italic", Georgia, serif;
+  font-size: 21px;
+  line-height: 1.28;
+  color: #d50909;
+  align-items: center;
+  gap: 3px;
+}
+
+.lb-parents__text {
+  display: block;
+}
+
+.lb-r-groom-instagram,
+.lb-r-bride-instagram {
+  align-items: center;
+}
+
+.lb-ig {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #d50909;
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 16px;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.lb-ig svg {
+  width: 16px;
+  height: 16px;
+}
+
+.lb-r-countdown-title {
+  font-family: "Zzzzz Edwardian", cursive;
+  font-size: 64px;
+  line-height: 1;
+  align-items: center;
+}
+
+.lb-r-events-title,
+.lb-r-rsvp-title,
+.lb-r-wishes-title,
+.lb-r-gift-title,
+.lb-r-closing-title,
+.lb-r-story-title {
+  font-family: "Itc Edwardian Script", cursive;
+  font-size: 60px;
+  line-height: 1.05;
+  align-items: center;
+}
+
+.lb-r-events-intro {
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 18px;
+  line-height: 1.25;
+  color: #d50909;
+  align-items: center;
+}
+
+.lb-r-honored-title {
+  font-family: "Itc Edwardian Script", cursive;
+  font-size: 60px;
+  line-height: 1.05;
+  color: #d50909;
+  align-items: center;
+}
+
+.lb-r-honored-list {
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.lb-honored {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+}
+
+.lb-honored li {
+  font-family: "Times Toman Italic", Georgia, serif;
+  font-size: 21px;
+  line-height: 1.4;
+  color: #d50909;
+}
+
+.lb-r-event-0-name {
+  font-family: "Itc Edwardian Script", cursive;
+  font-size: 42px;
+  line-height: 36px;
+  align-items: center;
+}
+
+.lb-r-display-hashtag {
+  font-family: "Times Toman Italic", Georgia, serif;
+  font-size: 20px;
+  line-height: 1.3;
+  color: #d50909;
+  align-items: center;
+}
+
+.lb-chapters {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 44px;
+}
+
+.lb-chapters li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.lb-chapters li.is-alt {
+  align-items: center;
+}
+
+.lb-chapter__photo {
+  width: 180px;
+  aspect-ratio: 3/4;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 4px solid #fee3ec;
+}
+
+.lb-chapter__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.lb-chapter__title {
+  margin: 12px 0 0;
+  font-family: "Itc Edwardian Script", cursive;
+  font-size: 34px;
+  line-height: 1.05;
+  color: #d50909;
+}
+
+.lb-chapter__text {
+  margin: 6px 0 0;
+  font-family: "Times Toman Italic", Georgia, serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #d50909;
+}
+
+.lb-r-event-1-name {
+  font-family: "Itc Edwardian Script", cursive;
+  font-size: 52px;
+  line-height: 36px;
+  align-items: center;
+}
+
+.lb-r-event-0-day,
+.lb-r-event-1-day {
+  font-family: "Itc Edwardian Script", cursive;
+  font-size: 42px;
+  line-height: 1.1;
+  align-items: center;
+}
+
+.lb-r-event-0-month,
+.lb-r-event-1-month {
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 20px;
+  line-height: 1.2;
+  color: #6e4000;
+  align-items: center;
+}
+
+.lb-r-event-0-time,
+.lb-r-event-1-time {
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 20px;
+  line-height: 1.2;
+  color: #6e4000;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.lb-r-event-0-venue,
+.lb-r-event-1-venue {
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 22px;
+  line-height: 1.25;
+  font-weight: 400;
+  color: #6e4000;
+  align-items: center;
+}
+
+.lb-r-event-0-address,
+.lb-r-event-1-address {
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 16px;
+  line-height: 1.35;
+  color: #6e4000;
+  align-items: center;
+}
+
+.lb-r-gallery-title {
+  font-family: "Zzzzz Edwardian", cursive;
+  font-size: 66px;
+  line-height: 1;
+  align-items: center;
+}
+
+.lb-r-gallery-caption {
+  font-family: "Zzzzz Edwardian", cursive;
+  font-size: 55px;
+  line-height: 48px;
+  align-items: center;
+}
+
+.lb-r-closing-text {
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 16px;
+  line-height: 1.35;
+  align-items: center;
+}
+
+.lb-map {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #d50909;
+  color: #fff;
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 16px;
+  text-decoration: none;
+  box-shadow: 0 6px 16px rgba(213, 9, 9, 0.18);
+}
+
+.lb-countdown {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #d50909;
+  box-shadow: none;
+}
+
+.lb-countdown__grid {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  justify-content: center;
+  width: 100%;
+  row-gap: 8px;
+  column-gap: 14px;
+  margin-bottom: 6px;
+}
+
+.lb-countdown__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.lb-countdown__cell b {
+  font-family: "Itc Edwardian Script", cursive;
+  font-size: 48px;
+  line-height: 1;
+  font-weight: 400;
+  color: #d50909;
+}
+
+.lb-countdown__cell span {
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 20px;
+  line-height: 1.2;
+  color: #d50909;
+}
+
+.lb-countdown__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 999px;
+  background: #d50909;
+  color: #fff;
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 16px;
+  text-decoration: none;
+  box-shadow: 0 8px 20px rgba(213, 9, 9, 0.18);
+}
+
+.lb-countdown__cta svg {
+  width: 16px;
+  height: 16px;
+}
+
+.lb-widget {
+  overflow: hidden;
+}
+
+.lb-widget__empty {
+  margin: 0;
+  padding: 24px;
+  text-align: center;
+  font-size: 15px;
+  color: #6e4000;
+}
+
+.lb-wishes {
+  width: 100%;
+  height: 100%;
+  padding: 18px 20px;
+  border-radius: 22px;
+  background: rgba(255, 248, 223, 0.9);
+  border: 1px solid rgba(213, 9, 9, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lb-wishes__intro {
+  margin: 0;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.25;
+  color: #6e4000;
+}
+
+.lb-wishes__form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lb-wishes__input,
+.lb-wishes__textarea {
+  width: 100%;
+  border: 1px solid rgba(110, 64, 0, 0.22);
+  border-radius: 10px;
+  background: #fffdf7;
+  color: #6e4000;
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 14px;
+  padding: 7px 10px;
+  outline: none;
+}
+
+.lb-wishes__input {
+  height: 32px;
+}
+
+.lb-wishes__textarea {
+  height: 58px;
+  resize: none;
+}
+
+.lb-wishes__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lb-wishes__count {
+  font-size: 10px;
+  color: rgba(110, 64, 0, 0.7);
+}
+
+.lb-wishes__submit {
+  height: 30px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: #d50909;
+  color: #fff;
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.lb-wishes__submit:disabled {
+  opacity: 0.55;
+}
+
+.lb-wishes__feedback {
+  margin: 0;
+  text-align: center;
+  font-size: 10px;
+  color: #477a3f;
+}
+
+.lb-wishes__feedback.is-error {
+  color: #b3261e;
+}
+
+.lb-wishes__list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  scrollbar-width: thin;
+}
+
+.lb-wishes__empty {
+  margin: 6px 0;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(110, 64, 0, 0.75);
+}
+
+.lb-wishes__item {
+  padding: 9px 11px;
+  border-radius: 12px;
+  background: rgba(213, 9, 9, 0.05);
+}
+
+.lb-wishes__meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: #6e4000;
+}
+
+.lb-wishes__meta b {
+  font-size: 12px;
+}
+
+.lb-wishes__meta span {
+  opacity: 0.65;
+}
+
+.lb-wishes__item p {
+  margin: 3px 0 0;
+  font-size: 12px;
+  line-height: 1.3;
+  color: #4d2a00;
+}
+
+.lb-wishes__pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 2px 0;
+  font-size: 11px;
+  color: #6e4000;
+}
+
+.lb-wishes__pager button {
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgba(110, 64, 0, 0.2);
+  border-radius: 50%;
+  background: transparent;
+  color: #6e4000;
+  cursor: pointer;
+}
+
+.lb-wishes__pager button:disabled {
+  opacity: 0.35;
+}
+
+.lb-gift {
+  width: 100%;
+  height: 100%;
+  padding: 16px 18px;
+  border-radius: 22px;
+  background: rgba(255, 248, 223, 0.93);
+  border: 1px solid rgba(213, 9, 9, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lb-gift__intro {
+  margin: 0;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.3;
+  color: #6e4000;
+}
+
+.lb-gift__tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(213, 9, 9, 0.08);
+}
+
+.lb-gift__tabs button {
+  height: 30px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #6e4000;
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.lb-gift__tabs button.is-active {
+  background: #d50909;
+  color: #fff;
+}
+
+.lb-gift__panel {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 3px;
+  scrollbar-width: thin;
+}
+
+.lb-gift__account,
+.lb-gift__address {
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(213, 9, 9, 0.055);
+  text-align: center;
+}
+
+.lb-gift__bank {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #6e4000;
+}
+
+.lb-gift__number {
+  margin: 4px 0 1px;
+  font-size: 19px;
+  letter-spacing: 0.04em;
+  color: #d50909;
+}
+
+.lb-gift__holder {
+  margin: 0;
+  font-size: 12px;
+  color: #6e4000;
+}
+
+.lb-gift__addr-text {
+  margin: 5px 0;
+  font-size: 12px;
+  line-height: 1.35;
+  color: #6e4000;
+}
+
+.lb-gift__copy {
+  margin-top: 8px;
+  height: 28px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: #6e4000;
+  color: #fff;
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.lb-gift__copy:disabled {
+  opacity: 0.5;
+}
+
+.lb-gift__empty {
+  margin: auto 0;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(110, 64, 0, 0.75);
+}
+
+.lb-gallery {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lb-gallery__stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #f3ead8;
+  cursor: pointer;
+}
+
+.lb-gallery__stage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.lb-gallery__count {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.38);
+  color: #fff;
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 10px;
+}
+
+.lb-gallery__bar {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(255, 248, 223, 0.85);
+}
+
+.lb-gallery__bar > button {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(213, 9, 9, 0.1);
+  color: #d50909;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.lb-gallery__dots {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.lb-gallery__dots button {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(213, 9, 9, 0.25);
+  cursor: pointer;
+}
+
+.lb-gallery__dots button.is-active {
+  width: 18px;
+  border-radius: 999px;
+  background: #d50909;
+}
+
+.lb-video {
+  overflow: hidden;
+  background: #000;
+}
+
+.lb-video iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.lb-frame {
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fee3ec;
+  border: 5px solid #fee3ec;
+}
+
+.lb-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.lb-gate {
+  position: fixed;
+  inset: 0;
+  background-color: #eef5ef;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  z-index: 500;
+}
+
+.lb-gate__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 251, 237, 0.08) 0%,
+    rgba(255, 251, 237, 0.02) 40%,
+    rgba(255, 251, 237, 0.26) 68%,
+    rgba(255, 251, 237, 0.42) 100%
+  );
+}
+
+.lb-gate__lang {
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top));
+  right: 18px;
+  z-index: 2;
+}
+
+.lb-gate__lang button,
+.lb-lang button {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(110, 64, 0, 0.28);
+  border-radius: 50%;
+  background: rgba(255, 250, 236, 0.75);
+  color: #6e4000;
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.lb-gate__content {
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  top: 38%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: #6e4000;
+}
+
+.lb-gate__guest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  margin: 0 0 9px;
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: #6e4000;
+}
+
+.lb-gate__guest-name {
+  font-weight: 700;
+}
+
+.lb-gate__invite {
+  margin: 0 0 10px;
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 16px;
+  line-height: 1.3;
+  color: #6e4000;
+}
+
+.lb-gate__names {
+  margin: 0;
+  font-family: "Itc Edwardian Script", cursive;
+  font-size: 48px;
+  line-height: 1.05;
+  font-weight: 400;
+  color: #6e4000;
+  text-shadow: 0 2px 16px rgba(255, 249, 228, 0.55);
+}
+
+.lb-gate__names span {
+  font-family: "Itc Edwardian Script", cursive;
+  font-size: 1em;
+}
+
+.lb-gate__date {
+  margin: 10px 0 0;
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 16px;
+  color: #6e4000;
+}
+
+.lb-gate__button {
+  position: absolute;
+  left: 50%;
+  bottom: max(22%, calc(env(safe-area-inset-bottom) + 40px));
+  transform: translateX(-50%);
+  height: 44px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 50px;
+  background: #6e4000;
+  color: #fff;
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(95, 54, 0, 0.24);
+  white-space: nowrap;
+}
+
+.lb-lang {
+  position: fixed;
+  top: max(16px, env(safe-area-inset-top));
+  right: max(16px, calc((100vw - 484px) / 2 + 14px));
+  z-index: 80;
+}
+
+.lb-music {
+  position: fixed;
+  left: max(14px, calc((100vw - 484px) / 2 + 12px));
+  bottom: max(16px, calc(env(safe-area-inset-bottom) + 12px));
+  z-index: 80;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 250, 236, 0.5);
+  border-radius: 50%;
+  background: #6e4000;
+  color: #fff8df;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(60, 32, 0, 0.24);
+}
+
+.lb-music__disc {
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle, rgba(255, 248, 223, 0.38) 0 1px, transparent 1px 4px);
+  animation: lbVinyl 5s linear infinite;
+  animation-play-state: paused;
+}
+
+.lb-music.is-playing .lb-music__disc {
+  animation-play-state: running;
+}
+
+.lb-music__note {
+  position: relative;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.lb-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 84px;
+  z-index: 220;
+  transform: translate(-50%, 14px);
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: rgba(60, 32, 0, 0.9);
+  color: #fff8df;
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.lb-toast.is-show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.lb-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.92);
+  padding: 20px;
+  cursor: zoom-out;
+}
+
+.lb-lightbox img {
+  max-width: 95vw;
+  max-height: 88vh;
+  object-fit: contain;
+  border-radius: 6px;
+  user-select: none;
+}
+
+.lb-lightbox__close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.lb-lightbox__count {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 12px;
+}
+
+.lb-lightbox__nav {
+  position: absolute;
+  top: 50%;
+  width: 42px;
+  height: 42px;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.lb-lightbox__nav--prev {
+  left: 16px;
+}
+
+.lb-lightbox__nav--next {
+  right: 16px;
+}
+
+@keyframes lbVinyl {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (min-width: 520px) {
+  .lb-shell {
+    margin-top: 24px;
+    margin-bottom: 24px;
+    border-radius: 2px;
+  }
+
+  .lb-lang {
+    top: 34px;
+  }
+
+  .lb-music {
+    bottom: 30px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .lb-root {
+    background: #fff8df;
+  }
+
+  .lb-desktop-cover {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 67vw;
+    overflow: hidden;
+    background: #fff;
+    z-index: 1;
+  }
+
+  .lb-desktop-cover img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .lb-desktop-cover__names {
+    position: absolute;
+    left: 34.9%;
+    top: 17vh;
+    transform: translateX(-50%);
+    margin: 0;
+    font-family: "Itc Edwardian Script", cursive;
+    font-size: 48px;
+    font-weight: 400;
+    color: #6e4000;
+    white-space: pre-wrap;
+  }
+
+  .lb-shell {
+    width: 33vw;
+    max-width: none;
+    margin: 0 0 0 auto;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .lb-lang {
+    right: 24px;
+  }
+
+  .lb-music {
+    left: 24px;
+  }
+}
+
+.lb-footer {
+  padding: 36px 20px 44px;
+  text-align: center;
+  background: #fff8df;
+}
+
+.lb-footer__link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.lb-footer__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  padding: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.lb-footer__link:hover .lb-footer__badge {
+  transform: scale(1.05);
+}
+
+.lb-footer__logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 999px;
+}
+
+.lb-footer__cta {
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  text-transform: uppercase;
+  color: #6e4000;
+}
+
+.lb-footer__text {
+  margin: 14px 0 0;
+  font-family: "Athelas Regular", Georgia, serif;
+  font-size: 11px;
+  color: rgba(110, 64, 0, 0.6);
+}
