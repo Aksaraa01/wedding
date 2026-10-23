@@ -14,6 +14,7 @@ import PianoGarden from "./piano-garden"
 import AltarGarden from "./altar-garden"
 import AdatMelayu from "./adat-melayu"
 import AdatBatak from "./adat-batak"
+import AdatMinang from "./adat-minang"
 
 export type { TemplateProps } from "@/types/template"
 
@@ -32,6 +33,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "altar-garden": AltarGarden,
   "adat-melayu": AdatMelayu,
   "adat-batak": AdatBatak,
+  "adat-minang": AdatMinang,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -547,6 +549,46 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         surface: "#faf3ea",
         text: "#2a1f17",
         accent: "#7d1319",
+        accentMuted: "#735b3f",
+        overlay: "#2a1f17",
+        dark: "#2a1f17",
+      },
+      ornaments: { divider: "floral", border: "minimal", frame: "arch" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.2 },
+    },
+    content: {
+      cover_slots: 1,
+      cover_slot_labels: ["Foto Sampul"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: false,
+      sections: {
+        opening_description: false,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: true,
+        livestream: true,
+        rundown: true,
+        contacts: true,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "adat-minang",
+    name: "Adat Minang",
+    description: "Undangan adat Minang bernuansa marun dan emas — rumah gadang, payung adat, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
+    theme: {
+      fonts: { display: "Pinyon Script", script: "Pinyon Script", body: "Poppins" },
+      colors: {
+        surface: "#faf3ea",
+        text: "#2a1f17",
+        accent: "#4d2221",
         accentMuted: "#735b3f",
         overlay: "#2a1f17",
         dark: "#2a1f17",
