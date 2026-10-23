@@ -45,7 +45,7 @@ export default function Navigation() {
       <header className="fixed top-0 w-full z-50 bg-[#131315]/90 backdrop-blur-xl border-b border-white/5">
         <nav className="max-w-container-max mx-auto px-edge-margin-mobile md:px-edge-margin-desktop h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <a href="/hero" aria-label="Aksaraa Wedding — Beranda" className="flex items-center gap-2">
+            <a href="/hero" aria-label="Aksaraa Wedding, Beranda" className="flex items-center gap-2">
               <span className="font-display-lg text-2xl tracking-tighter text-[#f2ca50]">
                 WEDDING.AKSAR<span className="italic font-normal">AA</span>
               </span>
@@ -148,7 +148,7 @@ export default function Navigation() {
       >
         <div className="flex flex-col h-full p-edge-margin-mobile">
           <div className="flex justify-between items-center py-4">
-            <a href="/hero" aria-label="Aksaraa Wedding — Beranda" onClick={closeMenu} className="font-display-lg text-xl tracking-tighter text-[#f2ca50]">
+            <a href="/hero" aria-label="Aksaraa Wedding, Beranda" onClick={closeMenu} className="font-display-lg text-xl tracking-tighter text-[#f2ca50]">
               WEDDING.AKSAR<span className="italic font-normal">AA</span>
             </a>
             <button className="p-2 text-[#e5e1e4]" onClick={closeMenu} aria-label="Close menu">
