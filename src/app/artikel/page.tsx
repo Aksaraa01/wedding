@@ -40,10 +40,10 @@ export default function ArtikelIndexPage() {
         <p className="text-[11px] uppercase tracking-widest text-[#B34E3F] font-semibold mb-3">
           Blog Aksaraa
         </p>
-        <h1 className="font-headline-lg text-[28px] md:text-headline-lg text-primary mb-6">
+        <h1 className="font-headline-lg text-[26px] leading-[1.15] md:leading-normal md:text-headline-lg text-primary mb-4 md:mb-6">
           Artikel: Panduan Nikah &amp; Undangan Digital
         </h1>
-        <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
+        <p className="text-base md:text-body-lg leading-relaxed text-on-surface-variant max-w-2xl mx-auto">
           Panduan praktis seputar undangan pernikahan digital, wedding planner, checklist persiapan,
           dan galeri foto tamu — ditulis untuk calon pengantin Indonesia.
         </p>
@@ -55,15 +55,15 @@ export default function ArtikelIndexPage() {
             href={`/artikel/${featured.slug}`}
             className="group grid md:grid-cols-2 bg-[#2C2A29] rounded-3xl overflow-hidden hover:shadow-xl transition-shadow max-w-4xl mx-auto"
           >
-            <div className="bg-gradient-to-br from-[#B34E3F] to-[#6b2b2d] p-8 md:p-10 flex flex-col justify-center min-h-[220px]">
-              <p className="text-[11px] uppercase tracking-widest text-[#ffdea4] font-semibold mb-3">
+            <div className="bg-gradient-to-br from-[#B34E3F] to-[#6b2b2d] p-6 md:p-10 flex flex-col justify-center min-h-[180px] md:min-h-[220px]">
+              <p className="text-[10px] md:text-[11px] uppercase tracking-widest text-[#ffdea4] font-semibold mb-2 md:mb-3">
                 Pilihan Editor • {featured.category}
               </p>
-              <p className="font-headline-md text-2xl md:text-[28px] leading-tight text-white group-hover:underline underline-offset-4">
+              <p className="font-headline-md text-xl md:text-[28px] leading-snug md:leading-tight text-white group-hover:underline underline-offset-4">
                 {featured.title}
               </p>
             </div>
-            <div className="bg-white p-8 md:p-10 flex flex-col justify-center">
+            <div className="bg-white p-6 md:p-10 flex flex-col justify-center">
               <p className="text-sm text-on-surface-variant leading-relaxed mb-4">
                 {featured.description}
               </p>

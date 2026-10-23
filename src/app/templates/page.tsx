@@ -47,37 +47,39 @@ export default async function TemplatesIndexPage() {
     <main className="bg-[#FAF7F2] min-h-screen pt-24 md:pt-32 pb-10">
       <Navigation />
       <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto text-center mb-12">
-        <h1 className="font-headline-lg text-[28px] md:text-headline-lg text-primary mb-6">
+        <h1 className="font-headline-lg text-[26px] leading-[1.15] md:leading-normal md:text-headline-lg text-primary mb-4 md:mb-6">
           Galeri Template Undangan Pernikahan Digital
         </h1>
-        <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
+        <p className="text-base md:text-body-lg leading-relaxed text-on-surface-variant max-w-2xl mx-auto">
           {templates.length}+ template undangan website pernikahan — adat, modern, floral, elegansi dark,
           hingga tanpa foto. Setiap desain sudah lengkap dengan RSVP online, amplop digital, dan galeri foto.
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
+        <div className="mt-6 flex flex-col sm:flex-row sm:flex-wrap sm:justify-center gap-3">
           <Link
             href="/customize"
-            className="px-8 py-3.5 rounded-full bg-[#B34E3F] text-white text-xs font-semibold tracking-widest uppercase hover:bg-[#9A3F32] transition-colors"
+            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#B34E3F] text-white text-xs font-semibold tracking-widest uppercase active:bg-[#9A3F32] hover:bg-[#9A3F32] transition-colors text-center"
           >
             Lihat Harga &amp; Paket
           </Link>
           <Link
             href="/premium-web-invitation"
-            className="px-8 py-3.5 rounded-full border border-[#B34E3F] text-[#B34E3F] text-xs font-semibold tracking-widest uppercase hover:bg-[#B34E3F] hover:text-white transition-colors"
+            className="w-full sm:w-auto px-8 py-3.5 rounded-full border border-[#B34E3F] text-[#B34E3F] text-xs font-semibold tracking-widest uppercase active:bg-[#B34E3F] hover:bg-[#B34E3F] active:text-white hover:text-white transition-colors text-center"
           >
             Cara Membuat
           </Link>
         </div>
-        <div className="mt-4 flex flex-wrap justify-center gap-2">
-          {TEMPLATE_CATEGORIES.map((c) => (
-            <Link
-              key={c.id}
-              href={`/templates/kategori/${c.id}`}
-              className="rounded-full border border-[#E2D9CF] bg-white px-5 py-2 font-label-md text-[11px] uppercase tracking-widest text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors"
-            >
-              {c.label}
-            </Link>
-          ))}
+        <div className="mt-5 -mx-margin-mobile px-margin-mobile md:mx-0 md:px-0">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-1 md:flex-wrap md:justify-center md:overflow-visible">
+            {TEMPLATE_CATEGORIES.map((c) => (
+              <Link
+                key={c.id}
+                href={`/templates/kategori/${c.id}`}
+                className="shrink-0 snap-start rounded-full border border-[#E2D9CF] bg-white px-4 py-2.5 md:py-2 font-label-md text-[11px] uppercase tracking-widest text-[#2C2A29] active:border-[#B34E3F] md:hover:border-[#B34E3F] md:hover:text-[#B34E3F] transition-colors"
+              >
+                {c.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
