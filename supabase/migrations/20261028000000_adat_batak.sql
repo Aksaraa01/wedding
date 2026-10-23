@@ -5,7 +5,7 @@ VALUES
   ('adat-batak', 'Adat Batak',
    'Undangan adat Batak bernuansa merah dan emas — rumah bolon, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.',
    '/templates/adat-batak/thumbnail.webp',
-   '/templates/adat-batak/preview', 21, 'Adat/Tradisional', 'inhouse',
+   '/templates/adat-batak/preview', 1, 'Adat/Tradisional', 'inhouse',
    '["essential","signature","prestige","elite","cetak_undangan_bonus","bonus_full_custom","dgb_sistem","dgb_pro","dgb_premium","dgb_prestige","gt"]',
    'Baru', true)
 ON CONFLICT (code) DO UPDATE SET

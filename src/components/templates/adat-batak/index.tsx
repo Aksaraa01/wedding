@@ -1054,9 +1054,9 @@ export default function AdatBatak(profile: TemplateProps) {
             </section>
           )}
 
-          <section className="rsvp-wishes-section parallax-section" data-aos="fade-up" aria-label="RSVP & Wishes">
+          <section className="rsvp-wishes-section parallax-section" data-aos="fade-up" aria-label="Wishes">
             <h2 className="script garden-text-reveal" data-aos="fade-down">
-              RSVP &amp; Wishes
+              Wishes
             </h2>
             <p className="wishes-subtitle garden-text-reveal" data-aos="fade-up" data-aos-delay="100" style={delay(100)}>
               {wishesSubtitle}

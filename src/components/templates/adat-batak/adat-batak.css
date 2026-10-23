@@ -637,3 +637,16 @@ html:has(.adat-batak-root.is-locked),body:has(.adat-batak-root.is-locked){overfl
   box-shadow: 0 4px 15px rgb(23 22 18 / 0.24);
 }
 .adat-batak-root .tpl-music-btn:hover { background: var(--sage-hover); }
+
+/* Batak opening video: white typography over the bolon illustration. */
+.adat-batak-root .video-copy,
+.adat-batak-root .video-copy > .script,
+.adat-batak-root .video-copy h2,
+.adat-batak-root .video-copy .video-ampersand,
+.adat-batak-root .video-copy > p:last-of-type {
+  color: #fff;
+}
+.adat-batak-root .video-copy h2,
+.adat-batak-root .video-copy > .script {
+  text-shadow: 0 2px 14px rgb(0 0 0 / 0.32);
+}
