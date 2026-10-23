@@ -113,12 +113,8 @@ export default function AltarGarden(profile: TemplateProps) {
   const [toast, setToast] = useState("")
   const [giftRevealed, setGiftRevealed] = useState(false)
   const [lightbox, setLightbox] = useState<number | null>(null)
-  const [preloadVideo, setPreloadVideo] = useState(false)
-  const [videoReady, setVideoReady] = useState(false)
   const [videoFailed, setVideoFailed] = useState(false)
-  const [videoProgress, setVideoProgress] = useState(0)
-  const [videoPlaying, setVideoPlaying] = useState(false)
-  const [gateTimedOut, setGateTimedOut] = useState(false)
+  const [videoBuffering, setVideoBuffering] = useState(false)
   const [connectionOk, setConnectionOk] = useState(true)
 
   const tc = profile.template_content || {}
@@ -177,9 +173,6 @@ export default function AltarGarden(profile: TemplateProps) {
     lightbox === null &&
     (!!profile.guest_id || (profile.guest_link_strict === false && !!profile.guest_slug)) &&
     !!profile.wedding_profile_id
-  const gateBusy = connectionOk && !videoReady && !videoFailed && !gateTimedOut
-  const progressPct = Math.round(videoProgress * 100)
-
   const showToast = useCallback((message: string) => {
     setToast(message)
     if (toastTimer.current) window.clearTimeout(toastTimer.current)
@@ -231,43 +224,8 @@ export default function AltarGarden(profile: TemplateProps) {
     }
   }, [])
 
-  useEffect(() => {
-    if (connectionOk) setPreloadVideo(true)
-  }, [connectionOk])
-
-  useEffect(() => {
-    const video = videoRef.current
-    if (!video || !preloadVideo) return
-    video.preload = "auto"
-    video.load()
-  }, [preloadVideo])
-
-  useEffect(() => {
-    if (!connectionOk || videoReady || videoFailed) return
-    const timer = window.setTimeout(() => setGateTimedOut(true), 8000)
-    return () => window.clearTimeout(timer)
-  }, [connectionOk, videoReady, videoFailed])
-
-  const bufferedRatio = useCallback((video: HTMLVideoElement) => {
-    if (!Number.isFinite(video.duration) || video.duration <= 0) return 0
-    let end = 0
-    try {
-      if (video.buffered.length) end = video.buffered.end(video.buffered.length - 1)
-    } catch {
-      end = 0
-    }
-    return Math.min(1, end / video.duration)
-  }, [])
-
-  const syncVideoProgress = useCallback(() => {
-    const video = videoRef.current
-    if (!video) return
-    setVideoProgress(bufferedRatio(video))
-  }, [bufferedRatio])
-
   const handleVideoError = useCallback(() => {
     setVideoFailed(true)
-    setVideoReady(true)
   }, [])
 
   const handleVideoPlaying = useCallback(() => {
@@ -275,53 +233,13 @@ export default function AltarGarden(profile: TemplateProps) {
       window.clearTimeout(bufferSpinnerTimer.current)
       bufferSpinnerTimer.current = null
     }
-    setVideoPlaying(true)
+    setVideoBuffering(false)
   }, [])
 
   const handleVideoWaiting = useCallback(() => {
     if (bufferSpinnerTimer.current) window.clearTimeout(bufferSpinnerTimer.current)
-    bufferSpinnerTimer.current = window.setTimeout(() => setVideoPlaying(false), 500)
+    bufferSpinnerTimer.current = window.setTimeout(() => setVideoBuffering(true), 1500)
   }, [])
-
-  useEffect(() => {
-    const video = videoRef.current
-    if (!video || !preloadVideo || !connectionOk || videoFailed || opened) return
-    let cancelled = false
-    const reset = () => {
-      try {
-        video.pause()
-        video.currentTime = 0
-      } catch {
-        // ignore
-      }
-    }
-    const onProgress = () => {
-      if (cancelled) return
-      const ratio = bufferedRatio(video)
-      setVideoProgress(ratio)
-      if (ratio >= 0.8) setVideoReady(true)
-      if (ratio >= 0.995) reset()
-    }
-    const onEnded = () => {
-      if (cancelled) return
-      reset()
-      setVideoReady(true)
-    }
-    video.addEventListener("progress", onProgress)
-    video.addEventListener("timeupdate", onProgress)
-    video.addEventListener("ended", onEnded)
-    video.muted = true
-    const played = video.play()
-    if (played && typeof played.catch === "function") {
-      played.catch(() => undefined)
-    }
-    return () => {
-      cancelled = true
-      video.removeEventListener("progress", onProgress)
-      video.removeEventListener("timeupdate", onProgress)
-      video.removeEventListener("ended", onEnded)
-    }
-  }, [preloadVideo, connectionOk, videoFailed, opened, bufferedRatio])
 
   useEffect(() => {
     if (!opened || videoFailed) return
@@ -423,6 +341,7 @@ export default function AltarGarden(profile: TemplateProps) {
   useEffect(
     () => () => {
       if (toastTimer.current) window.clearTimeout(toastTimer.current)
+      if (bufferSpinnerTimer.current) window.clearTimeout(bufferSpinnerTimer.current)
     },
     []
   )
@@ -456,7 +375,11 @@ export default function AltarGarden(profile: TemplateProps) {
       </a>
 
       {hasTrack && (
-        <audio ref={audioRef} loop preload="metadata">
+        <audio
+          ref={audioRef}
+          loop
+          preload={connectionOk && profile.auto_play !== false ? "auto" : "metadata"}
+        >
           <source src={trackUrl} type="audio/mpeg" />
         </audio>
       )}
@@ -533,33 +456,12 @@ export default function AltarGarden(profile: TemplateProps) {
                     data-aos-delay="260"
                     style={delay(260)}
                     onClick={openInvitation}
-                    disabled={gateBusy}
-                    aria-busy={gateBusy}
                   >
-                    {gateBusy ? (
-                      <>
-                        <span className="gate-spinner" aria-hidden="true" />
-                        Preparing…
-                      </>
-                    ) : (
-                      <>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" aria-hidden="true">
-                          <path d="M4 6h16v12H4zM4 7l8 6 8-6" />
-                        </svg>
-                        Open Invitation
-                      </>
-                    )}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" aria-hidden="true">
+                      <path d="M4 6h16v12H4zM4 7l8 6 8-6" />
+                    </svg>
+                    Open Invitation
                   </button>
-                  {gateBusy && (
-                    <div className="gate-loader" role="status" aria-live="polite">
-                      <span className="gate-loader-track" aria-hidden="true">
-                        <span className="gate-loader-fill" style={{ width: `${Math.max(8, progressPct)}%` }} />
-                      </span>
-                      <span className="gate-loader-label">
-                        {progressPct > 0 ? `Preparing your invitation… ${progressPct}%` : "Preparing your invitation…"}
-                      </span>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -576,18 +478,15 @@ export default function AltarGarden(profile: TemplateProps) {
                 ref={videoRef}
                 muted
                 playsInline
-                preload={!connectionOk ? "metadata" : preloadVideo ? "auto" : "none"}
+                preload="metadata"
                 poster={ASSET("fallback.webp")}
-                onLoadedMetadata={syncVideoProgress}
-                onProgress={syncVideoProgress}
-                onCanPlay={syncVideoProgress}
                 onPlaying={handleVideoPlaying}
                 onWaiting={handleVideoWaiting}
                 onError={handleVideoError}
               >
                 <source src={ASSET("opening-garden.mp4")} type="video/mp4" />
               </video>
-              {opened && !videoPlaying && !videoFailed && (
+              {opened && videoBuffering && !videoFailed && (
                 <div className="video-buffering" role="status" aria-live="polite" aria-label="Loading video">
                   <span className="gate-spinner" aria-hidden="true" />
                 </div>

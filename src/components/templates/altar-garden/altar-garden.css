@@ -475,13 +475,9 @@ html:has(.altar-garden-root.is-locked),body:has(.altar-garden-root.is-locked){ov
 .altar-garden-root .tpl-music-btn.visible{opacity:1;pointer-events:all}
 .altar-garden-root .tpl-music-btn.visible:hover{transform:scale(1.1);background:var(--altar-primary-hover)}
 
-/* Video buffering behind the cover (loads before the guest opens) */
+/* Locked cover: keep the video section off-flow behind the cover (not preloading) */
 .altar-garden-root .video-intro.is-preloading{position:fixed;inset:0;width:100vw;height:100svh;min-height:0;opacity:0;pointer-events:none;z-index:0}
 .altar-garden-root .gate-spinner{display:inline-block;width:15px;height:15px;flex:0 0 auto;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:altar-gate-spin .7s linear infinite}
-.altar-garden-root .gate-loader{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:14px;color:var(--warm-fg,#fff)}
-.altar-garden-root .gate-loader-track{position:relative;display:block;width:min(180px,70%);height:3px;border-radius:999px;background:rgba(255,255,255,.28);overflow:hidden}
-.altar-garden-root .gate-loader-fill{position:absolute;top:0;bottom:0;left:0;display:block;height:100%;border-radius:inherit;background:currentColor;transition:width .35s ease}
-.altar-garden-root .gate-loader-label{font-family:var(--sans);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.72)}
 .altar-garden-root .pill-button:disabled{opacity:.72;cursor:wait}
 .altar-garden-root .pill-button:disabled:hover{transform:none;background:var(--altar-primary)}
 .altar-garden-root .gate-open{gap:8px}

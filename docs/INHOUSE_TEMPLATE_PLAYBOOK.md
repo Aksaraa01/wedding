@@ -308,34 +308,38 @@ const hasVideo = !!videoId && gates.video !== false && profile.video_section_vis
   ```
   Keep the hint visible after the transition (~2s), not before.
 
-### Opening video — it must be *played* to preload
+### Opening video — preload the **music**, stream the video
 
-If the template has an opening/hero video, do **not** trust `preload="auto"` to
-have it ready when the guest taps "Open Invitation". Browsers deliberately
-throttle media preload — Chrome buffers ~1s and then pauses the download — so
-the rest arrives *during* playback and the video visibly stalls (a `waiting`
-event) right after opening. Pattern (`piano-garden` / `altar-garden`):
+Do **not** try to preload the opening video by force-playing it muted behind the
+cover. That approach fights the browser's media preload throttling and, more
+importantly, it is not the real bottleneck. The stall comes from **bandwidth
+contention at the moment of open**: the background music and the video both
+start downloading at the same time, and the (larger) music track starves the
+video, which fires `waiting` and shows the corner spinner. Momentus's proven
+pattern (`piano-garden` / `altar-garden`) is to sequence the downloads instead:
 
-- Keep the `<video>` mounted from first paint. While locked, park the section
-  out of flow but **on-screen**: `.video-intro.is-preloading { position:fixed;
-  inset:0; opacity:0; pointer-events:none; z-index:0 }` (the gate sits above at
-  `z-index:1`). Do **not** use `left:-9999px` or `display:none` — off-screen /
-  unrendered media gets deprioritized even more.
-- After hydration (only when `navigator.connection` is not `saveData` and not
-  2g–3g), set `preload="auto"` and **`video.muted = true; video.play()`** —
-  playing is what actually drives the download.
-- Track `buffered.end(last) / duration`; enable "Open Invitation" at **≥80%**
-  buffered (keep the muted playback running to fill the rest), then on open
-  reset `currentTime = 0` and play. Add a safety timeout (~8s) so a slow link
-  still opens.
-- `muted` + `playsInline` is required (autoplay policy). On `saveData`/2g–3g,
-  skip the forced preload, don't gate, and show the poster/fallback.
+- **Preload the music while the cover is up**: `<audio loop preload="auto">`
+  (skip on `saveData`/2g–3g). By the time the guest taps Open the MP3 is already
+  in cache, so it no longer competes with the video. Gate the preload on
+  `profile.auto_play !== false`.
+- **Stream the video on open**: `<video muted playsInline preload="metadata">`.
+  Do not force `preload="auto"`/`play()` while locked and do not gate the Open
+  button. The video section stays mounted and out of flow behind the cover
+  (`.video-intro.is-preloading { position:fixed; inset:0; opacity:0;
+  pointer-events:none; z-index:0 }`) purely for layout — not for preloading.
+- Keep the "Open Invitation" button enabled at all times (no `Preparing…`
+  state). On tap, play the video (and the pre-cached music).
 - Show a small **corner** spinner only for a sustained stall (`waiting` lasting
-  >500ms). Never a centered overlay — a transient `waiting` at the start of
-  playback is normal and must not flash a loader.
+  >1500ms). Never a centered overlay, and never before the first `playing` event
+  — a transient `waiting` at the start of playback is normal and must not flash
+  a loader.
 - Keep the clip small (re-encode long/portrait files; ~4MB/20s at 608×1080
   CRF~24–28 is fine) and let `/templates/:path*` be cached
   (`max-age=604800`) so repeat opens are instant.
+- Supabase-hosted media currently returns `cache-control: private, no-cache`
+  (`cf-cache-status: DYNAMIC`), so music/images are re-fetched from the origin
+  on every visit. If first-visit cost matters, set a long `cacheControl` on the
+  storage objects (or serve them from a CDN); see the failure catalogue.
 
 ---
 
@@ -516,9 +520,10 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 | Gift cards have a blank logo slot | `gift_accounts` has no `provider_logo_url` | render `provider_name` (never borrow reference bank PNGs) |
 | Template preview 500 / wishes query with undefined id | preview route did not opt into demo IDs | add code to `keepDemoIds` |
 | Editor shows extra copy field that never renders | `templateExtras` entry added without component support | wire `template_content.<key>` in the component |
-| Opening video stalls / loader appears mid-playback | browser throttled `preload`; only ~1s buffered | play it muted behind the cover until ≥80% buffered before enabling Open |
-| Video never buffers while the gate is locked | element parked off-screen (`left:-9999px`) or `display:none` | keep it on-screen but covered (`position:fixed; inset:0; opacity:0`) |
-| Loader flashes for a moment as the video starts | transient `waiting` at playback start | delay the corner spinner ~500ms; only show on a sustained stall |
+| Opening video stalls / loader appears mid-playback | music starts downloading at open and starves the video (music `preload="metadata"`) | preload the music on the cover (`preload="auto"`), stream the video (`preload="metadata"`), don't gate |
+| Video never buffers while force-preloaded behind the cover | muted autoplay of a hidden/`opacity:0` video is paused/blocked, so only throttled `preload` runs | don't rely on hidden autoplay; preload the music and stream the video |
+| Every visit re-downloads music/images | Supabase public objects return `private, no-cache` (`cf-cache-status: DYNAMIC`) | set a long `cacheControl` on the objects or serve media from a CDN |
+| Loader flashes for a moment as the video starts | transient `waiting` at playback start | delay the corner spinner ~1500ms; only show on a sustained stall, never before the first `playing` |
 
 ---
 
@@ -538,9 +543,9 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
       swatch dots (not raw text); every JSX class has a matching CSS rule
 - [ ] **Music control reveals after opening** (`.tpl-music-btn.visible` sets
       `opacity:1; pointer-events:all`) and the track plays
-- [ ] **Opening video is preloaded by playing it muted behind the cover** until
-      ≥80% buffered before Open is enabled (no mid-playback stall; corner
-      spinner only for a sustained stall)
+- [ ] **Music preloads on the cover and the video streams on open** (`preload="metadata"`,
+      button always enabled; no `Preparing…` gate). No mid-playback stall; the
+      corner spinner is only a sustained-stall safety net
 - [ ] **Footer has the Aksaraa brand badge** (logo + "Wedding by Aksaraa") like Sandhya
 - [ ] `tsc`, visual QA at 390×844 + 1440×900, staging build, preview curl,
       affected APIs, prod smoke
