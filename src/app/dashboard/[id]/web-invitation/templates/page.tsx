@@ -389,7 +389,7 @@ function TemplatesInner({ id }: { id: string }) {
           ctaHref={upgradeCtaHref}
           waHref={templateUpgradeWaLink(upgradeTpl.name, upgradeMinLabel(upgradeTpl))}
           content={{
-            title: upgradeTpl.name,
+            title: `Mau tema ${upgradeTpl.name}?`,
             lockLabel: `Paket ${upgradeMinLabel(upgradeTpl)}`,
             benefits: [
               "Akses koleksi template eksklusif",
