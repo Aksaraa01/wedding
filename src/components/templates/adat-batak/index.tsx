@@ -21,14 +21,14 @@ import "./adat-batak.css"
 const ASSET = (name: string) => `/templates/adat-batak/${name}`
 
 const DEFAULT_QUOTE =
-  "Demikianlah mereka bukan lagi dua, melainkan satu. Karena itu, apa yang telah dipersatukan Allah, tidak boleh diceraikan manusia."
-const DEFAULT_QUOTE_SOURCE = "Matius 19:6"
+  "Bismillahirrahmanirrahim. Semoga Allah SWT senantiasa melimpahkan keberkahan, kasih, dan keharmonisan dalam perjalanan kami."
+const DEFAULT_QUOTE_SOURCE = "Doa Pernikahan Adat Melayu"
 const DEMO_TRACK = "/templates/adat-batak/dongan-matua.mp3"
-const DEFAULT_GALLERY_QUOTE = "Kasih itu sabar; kasih itu murah hati. Kami bersyukur dipertemukan dalam kasih dan penyertaan Tuhan."
+const DEFAULT_GALLERY_QUOTE = "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama."
 const DEFAULT_GIFT_DESCRIPTION =
   "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:"
 const DEFAULT_CLOSING =
-  "Suatu kebahagiaan dan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu kepada kami."
+  "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan."
 const DEFAULT_WISHES_SUBTITLE =
   "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu."
 
@@ -610,7 +610,7 @@ export default function AdatBatak(profile: TemplateProps) {
                   Married!
                 </h2>
                 <p className="garden-text-reveal" data-aos="fade-up" data-aos-delay="120" style={delay(120)}>
-                  Dengan penuh syukur kepada Tuhan, kami dipertemukan untuk melangkah bersama dalam kasih dan pengharapan.
+                  Dengan memohon rahmat dan ridho Allah SWT, kami dipertemukan untuk melangkah bersama dalam kasih dan keharmonisan.
                 </p>
               </div>
               <div>
@@ -756,7 +756,7 @@ export default function AdatBatak(profile: TemplateProps) {
                 </a>
               )}
               <p>
-                Dengan penuh syukur kepada Tuhan, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan kami:
+                Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Melayu kami:
               </p>
             </div>
             {events.map((event, index) => {
@@ -1112,7 +1112,7 @@ export default function AdatBatak(profile: TemplateProps) {
             <div className="closing-copy" data-aos="fade-up">
               <div className="closing-message garden-text-reveal" data-aos="fade-up">
                 <p>{closingMessage}</p>
-                <strong>Kami Yang Berbahagia,</strong>
+                <strong>Dengan penuh hormat dan syukur,</strong>
                 <p className="script closing-names name-fit" style={fitStyle(coupleLabel)}>
                   {groomShort} &amp; {brideShort}
                 </p>

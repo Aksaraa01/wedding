@@ -650,3 +650,5 @@ html:has(.adat-batak-root.is-locked),body:has(.adat-batak-root.is-locked){overfl
 .adat-batak-root .video-copy > .script {
   text-shadow: 0 2px 14px rgb(0 0 0 / 0.32);
 }
+
+.adat-batak-root .video-copy { top: 42%; }
