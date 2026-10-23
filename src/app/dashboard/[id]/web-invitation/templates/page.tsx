@@ -4,10 +4,13 @@ import { useState, useEffect, use, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import TemplatePreviewModal from "@/components/TemplatePreviewModal"
+import UpgradePackageModal from "@/components/UpgradePackageModal"
 import { pollWpJob } from "@/lib/wpJobPoll"
 import { getTemplateComponent } from "@/components/templates"
 import { normalizeTemplateTier, tierBadgeClass } from "@/lib/templateTier"
 import { toTransformedUrl } from "@/lib/storageUrl"
+import { packageDisplayName, lowestEligiblePackage } from "@/lib/packages"
+import { templateUpgradeWaLink } from "@/lib/contact"
 
 const CATEGORY_FILTERS = [
   { id: "semua", label: "Semua" },
@@ -30,6 +33,16 @@ type Template = {
   wp_master_slug?: string | null
   // Tanpa-photo group: separate dimension from category/tier (never a badge).
   no_photo?: boolean | null
+  // Package gate: empty/absent ⇒ available to everyone. Otherwise the couple's
+  // package_type must be in the list, or Pilih opens the upgrade popup.
+  package_eligibility?: string[] | null
+}
+
+type Profile = {
+  package_type?: string | null
+  groom_name?: string | null
+  bride_name?: string | null
+  estimated_wedding_date?: string | null
 }
 
 // Same predicate drives filtering and zero-count hiding, so chips never lie.
@@ -54,10 +67,12 @@ function matchesCategory(cat: string | null | undefined, filterId: string): bool
 function TemplatesInner({ id }: { id: string }) {
   const router = useRouter()
   const [templates, setTemplates] = useState<Template[]>([])
+  const [profile, setProfile] = useState<Profile | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [previewTpl, setPreviewTpl] = useState<Template | null>(null)
+  const [upgradeTpl, setUpgradeTpl] = useState<Template | null>(null)
   const [categoryFilter, setCategoryFilter] = useState<string>("semua")
   const [photoFilter, setPhotoFilter] = useState<"semua" | "tanpa">("semua")
   const [searchQuery, setSearchQuery] = useState<string>("")
@@ -110,18 +125,44 @@ function TemplatesInner({ id }: { id: string }) {
   useEffect(() => {
     ;(async () => {
       const invData = await fetch(`/api/dashboard/${id}/web-invitation`).then((r) => r.json())
-      // All templates are available to all packages — fetch unfiltered.
+      // Fetch unfiltered: ineligible templates stay visible and upsell on Pilih.
       const tplData = await fetch(`/api/web-templates`).then((r) => r.json())
       setTemplates(tplData.templates || [])
+      setProfile(invData.profile || null)
       if (invData.template) setSelectedId(invData.template.id)
     })()
   }, [id])
 
+  // Empty/absent eligibility = available to all. Otherwise the couple's package
+  // must be listed. A missing package_type degrades to ineligible only when the
+  // template is explicitly restricted.
+  const isEligible = (tpl: Template): boolean => {
+    const elig = tpl.package_eligibility
+    if (!Array.isArray(elig) || elig.length === 0) return true
+    return !!profile?.package_type && elig.includes(profile.package_type)
+  }
+
+  const upgradeMinLabel = (tpl: Template): string => {
+    const elig = tpl.package_eligibility || []
+    const min = lowestEligiblePackage(elig)
+    if (min) return packageDisplayName(min)
+    return elig.length > 0 ? packageDisplayName(elig[0]) : "tertentu"
+  }
+
+  const upgradeCtaHref = `/customize?edit=true&tab=undangan&user=${encodeURIComponent(profile?.groom_name || "")}&partner=${encodeURIComponent(profile?.bride_name || "")}&date=${encodeURIComponent(profile?.estimated_wedding_date || "")}&profile_id=${id}`
+
   const handleSelect = async (templateId: string) => {
+    const tpl = templates.find((t) => t.id === templateId)
+    // Package gate: keep the card visible, but route Pilih to the upsell popup.
+    // The already-active template is grandfathered — a couple that picked it
+    // before eligibility changed can keep using it without an upsell.
+    if (tpl && selectedId !== tpl.id && !isEligible(tpl)) {
+      setUpgradeTpl(tpl)
+      return
+    }
     setSaving(true)
     setError(null)
     try {
-      const tpl = templates.find((t) => t.id === templateId)
       const inhouse = tpl?.source_type === "inhouse" ||
         (!!tpl?.code && !!getTemplateComponent(tpl.code) && !tpl?.wp_master_slug)
 
@@ -336,6 +377,27 @@ function TemplatesInner({ id }: { id: string }) {
           name={previewTpl.name}
           demoUrl={previewTpl.demo_url}
           onClose={() => setPreviewTpl(null)}
+        />
+      )}
+
+      {upgradeTpl && (
+        <UpgradePackageModal
+          open
+          showClose
+          onClose={() => setUpgradeTpl(null)}
+          ctaHref={upgradeCtaHref}
+          waHref={templateUpgradeWaLink(upgradeTpl.name, upgradeMinLabel(upgradeTpl))}
+          content={{
+            title: upgradeTpl.name,
+            lockLabel: `Paket ${upgradeMinLabel(upgradeTpl)}`,
+            benefits: [
+              "Akses koleksi template eksklusif",
+              "Bebas ganti tema kapan saja",
+              "Desain responsif dengan musik & animasi",
+            ],
+            eligiblePackages: (upgradeTpl.package_eligibility || []).map((c) => packageDisplayName(c)),
+            cta: "Lihat Paket",
+          }}
         />
       )}
     </>

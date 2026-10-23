@@ -15,18 +15,34 @@ interface UpgradePackageModalProps {
   onClose: () => void
   content: UpgradeModalContent
   ctaHref: string
+  // Optional WhatsApp CTA: when set, replaces the "Nanti Saja" dismiss button
+  // with "Hubungi Konsultan" (prefilled link opens in a new tab).
+  waHref?: string
+  // Optional explicit close (X) affordance for flows where the popup is the
+  // only way forward and outside-click alone is too subtle.
+  showClose?: boolean
 }
 
 // Shared upsell shell: locked-feature popup showing what the feature does
 // and which packages include it. Callers pass feature-specific content;
-// the shell (overlay, card, CTA + "Nanti Saja") stays identical everywhere.
-export default function UpgradePackageModal({ open, onClose, content, ctaHref }: UpgradePackageModalProps) {
+// the shell (overlay, card, CTA + dismiss/WA) stays identical everywhere.
+export default function UpgradePackageModal({ open, onClose, content, ctaHref, waHref, showClose }: UpgradePackageModalProps) {
   const router = useRouter()
   if (!open) return null
   return (
     <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center gap-2 mb-2">
+      <div className="relative bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+        {showClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Tutup"
+            className="absolute top-3 right-3 text-on-surface-variant hover:text-primary transition-colors"
+          >
+            <span className="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        )}
+        <div className="flex items-center gap-2 mb-2 pr-6">
           <span className="material-symbols-outlined text-[20px] text-[#B34E3F]">lock</span>
           <span className="text-[11px] font-bold uppercase tracking-widest text-[#B34E3F]">{content.lockLabel}</span>
         </div>
@@ -49,12 +65,23 @@ export default function UpgradePackageModal({ open, onClose, content, ctaHref }:
           >
             {content.cta}
           </button>
-          <button
-            onClick={onClose}
-            className="flex-1 py-2.5 rounded-full border border-[#E2D9CF] text-[#2C2A29] text-[13px] font-semibold hover:bg-[#F5EFE6] transition-colors"
-          >
-            Nanti Saja
-          </button>
+          {waHref ? (
+            <a
+              href={waHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 py-2.5 rounded-full border border-[#E2D9CF] text-[#2C2A29] text-[13px] font-semibold hover:bg-[#F5EFE6] transition-colors text-center"
+            >
+              Hubungi Konsultan
+            </a>
+          ) : (
+            <button
+              onClick={onClose}
+              className="flex-1 py-2.5 rounded-full border border-[#E2D9CF] text-[#2C2A29] text-[13px] font-semibold hover:bg-[#F5EFE6] transition-colors"
+            >
+              Nanti Saja
+            </button>
+          )}
         </div>
       </div>
     </div>

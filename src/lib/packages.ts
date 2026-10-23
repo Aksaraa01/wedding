@@ -122,6 +122,33 @@ export function packageDisplayName(code: string | null | undefined): string {
 
 export type PackageCode = (typeof PACKAGE_CODES)[number]
 
+// Ascending tier order used to answer "mulai dari paket mana" for template
+// eligibility. Category families are grouped (Undangan Digital first, then
+// Buku Tamu Digital, then Galeri Tamu); within a family the cheaper tier
+// ranks lower. Bonuses are ops-assigned and sit between the paid families.
+export const PACKAGE_RANK: string[] = [
+  "essential",
+  "signature",
+  "prestige",
+  "elite",
+  "cetak_undangan_bonus",
+  "bonus_full_custom",
+  "dgb_sistem",
+  "dgb_pro",
+  "dgb_premium",
+  "dgb_prestige",
+  "gt",
+]
+
+// Lowest-ranked code in an eligibility list (the cheapest package a template
+// is available in). Null when the list is empty/unknown so callers never
+// invent a package name.
+export function lowestEligiblePackage(eligible: string[] | null | undefined): string | null {
+  const codes = (eligible || []).filter((c) => PACKAGE_RANK.includes(c))
+  if (codes.length === 0) return null
+  return codes.reduce((min, c) => (PACKAGE_RANK.indexOf(c) < PACKAGE_RANK.indexOf(min) ? c : min))
+}
+
 // Packages that ship with the base 100-VIP reminder quota (prestige + elite + all Buku
 // Tamu Digital tiers; per matrix "Reminder otomatis ke 100 Customers VIP").
 export function hasVipQuotaBase(packageType: string): boolean {
