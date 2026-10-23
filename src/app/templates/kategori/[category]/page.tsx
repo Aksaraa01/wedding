@@ -65,16 +65,16 @@ export default async function TemplateCategoryPage({ params }: { params: Promise
           {" • "}
           {cat.label}
         </p>
-        <h1 className="font-headline-lg text-[28px] md:text-headline-lg text-primary mb-6">
+        <h1 className="font-headline-lg text-[26px] leading-[1.15] md:leading-normal md:text-headline-lg text-primary mb-4 md:mb-6">
           {cat.h1}
         </h1>
-        <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
+        <p className="text-base md:text-body-lg leading-relaxed text-on-surface-variant max-w-2xl mx-auto">
           {cat.intro} Setiap desain sudah lengkap dengan RSVP online, amplop digital, dan galeri foto.
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
+        <div className="mt-6 flex justify-center">
           <Link
             href="/customize"
-            className="px-8 py-3.5 rounded-full bg-[#B34E3F] text-white text-xs font-semibold tracking-widest uppercase hover:bg-[#9A3F32] transition-colors"
+            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#B34E3F] text-white text-xs font-semibold tracking-widest uppercase active:bg-[#9A3F32] hover:bg-[#9A3F32] transition-colors text-center"
           >
             Lihat Harga &amp; Paket
           </Link>
@@ -83,8 +83,8 @@ export default async function TemplateCategoryPage({ params }: { params: Promise
 
       {templates.length === 0 ? (
         <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mb-16 text-center">
-          <p className="font-body-md text-sm text-on-surface-variant">
-            Koleksi {cat.label} segera hadir — lihat{" "}
+          <p className="font-body-md text-base md:text-sm text-on-surface-variant">
+            Koleksi {cat.label} segera hadir. Lihat{" "}
             <Link href="/templates" className="font-semibold text-[#B34E3F] underline underline-offset-2">
               semua template
             </Link>{" "}
@@ -145,16 +145,18 @@ export default async function TemplateCategoryPage({ params }: { params: Promise
 
       <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mb-4 text-center">
         <p className="text-sm text-on-surface-variant mb-3">Lihat gaya lain:</p>
-        <div className="flex flex-wrap justify-center gap-2">
-          {others.map((c) => (
-            <Link
-              key={c.id}
-              href={`/templates/kategori/${c.id}`}
-              className="rounded-full border border-[#E2D9CF] bg-white px-5 py-2 font-label-md text-[11px] uppercase tracking-widest text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors"
-            >
-              {c.label}
-            </Link>
-          ))}
+        <div className="-mx-margin-mobile px-margin-mobile md:mx-0 md:px-0">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-1 md:flex-wrap md:justify-center md:overflow-visible md:snap-none">
+            {others.map((c) => (
+              <Link
+                key={c.id}
+                href={`/templates/kategori/${c.id}`}
+                className="shrink-0 snap-start rounded-full border border-[#E2D9CF] bg-white px-4 py-2.5 md:py-2 font-label-md text-[11px] uppercase tracking-widest text-[#2C2A29] active:border-[#B34E3F] md:hover:border-[#B34E3F] md:hover:text-[#B34E3F] transition-colors"
+              >
+                {c.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -163,7 +165,7 @@ export default async function TemplateCategoryPage({ params }: { params: Promise
         items={[
           {
             q: `Apakah template ${cat.label.toLowerCase()} bisa diganti nanti?`,
-            a: `Bisa. Ganti desain kapan saja dari dashboard tanpa mengulang data — nama, acara, galeri, dan tamu tetap tersimpan. Lihat [halaman harga](/customize) untuk paketnya.`,
+            a: `Bisa. Ganti desain kapan saja dari dashboard tanpa mengulang data: nama, acara, galeri, dan tamu tetap tersimpan. Lihat [halaman harga](/customize) untuk paketnya.`,
           },
           {
             q: "Apakah tamu perlu install aplikasi untuk membuka undangan?",
@@ -171,7 +173,7 @@ export default async function TemplateCategoryPage({ params }: { params: Promise
           },
           {
             q: "Bagaimana cara memakai template ini?",
-            a: `Pilih desain ${cat.label.toLowerCase()} favorit, daftar, isi data mempelai dan acara di editor — undangan langsung jadi dan siap dibagikan lewat WhatsApp.`,
+            a: `Pilih desain ${cat.label.toLowerCase()} favorit, daftar, isi data mempelai dan acara di editor, undangan langsung jadi dan siap dibagikan lewat WhatsApp.`,
           },
         ]}
       />

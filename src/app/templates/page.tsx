@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Galeri Template Undangan Pernikahan Digital | Aksaraa",
     description:
-      "Ratusan template undangan website — adat, modern, floral, tanpa foto — siap pakai dengan RSVP dan amplop digital.",
+      "Ratusan template undangan website untuk adat, modern, floral, hingga tanpa foto, siap pakai dengan RSVP dan amplop digital.",
   },
 }
 
@@ -51,7 +51,7 @@ export default async function TemplatesIndexPage() {
           Galeri Template Undangan Pernikahan Digital
         </h1>
         <p className="text-base md:text-body-lg leading-relaxed text-on-surface-variant max-w-2xl mx-auto">
-          {templates.length}+ template undangan website pernikahan — adat, modern, floral, elegansi dark,
+          {templates.length}+ template undangan website pernikahan: adat, modern, floral, elegansi dark,
           hingga tanpa foto. Setiap desain sudah lengkap dengan RSVP online, amplop digital, dan galeri foto.
         </p>
         <div className="mt-6 flex flex-col sm:flex-row sm:flex-wrap sm:justify-center gap-3">
@@ -139,15 +139,15 @@ export default async function TemplatesIndexPage() {
         items={[
           {
             q: "Bagaimana cara memakai template undangan ini?",
-            a: "Pilih desain favorit, daftar, lalu isi data mempelai dan acara di editor — undangan website langsung jadi dan siap dibagikan lewat WhatsApp. Lihat [halaman harga](/customize) untuk paketnya.",
+            a: "Pilih desain favorit, daftar, lalu isi data mempelai dan acara di editor, undangan website langsung jadi dan siap dibagikan lewat WhatsApp. Lihat [halaman harga](/customize) untuk paketnya.",
           },
           {
             q: "Apakah ada template undangan adat dan tanpa foto?",
-            a: "Ada. Gunakan kategori Adat/Tradisional untuk nuansa budaya, atau Tanpa Foto bila mengutamakan privasi — keduanya tetap lengkap dengan RSVP dan amplop digital.",
+            a: "Ada. Gunakan kategori Adat/Tradisional untuk nuansa budaya, atau Tanpa Foto bila mengutamakan privasi. Keduanya tetap lengkap dengan RSVP dan amplop digital.",
           },
           {
             q: "Bisakah ganti template setelah undangan jadi?",
-            a: "Bisa. Ganti desain kapan saja dari dashboard tanpa mengulang data — nama, acara, galeri, dan tamu tetap tersimpan.",
+            a: "Bisa. Ganti desain kapan saja dari dashboard tanpa mengulang data: nama, acara, galeri, dan tamu tetap tersimpan.",
           },
           {
             q: "Apakah template bisa dicoba dulu?",

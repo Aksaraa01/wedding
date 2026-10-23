@@ -16,9 +16,9 @@ export const TEMPLATE_CATEGORIES: TemplateCategory[] = [
     label: "Adat/Tradisional",
     h1: "Template Undangan Pernikahan Adat & Tradisional",
     description:
-      "Template undangan digital adat Jawa, Batak, Minang, Bugis, dan tradisional lainnya — lengkap dengan RSVP, amplop digital, dan galeri foto.",
+      "Template undangan digital adat Jawa, Batak, Minang, Bugis, dan tradisional lainnya, lengkap dengan RSVP, amplop digital, dan galeri foto.",
     intro:
-      "Pilih template undangan website bernuansa adat dan tradisional: motif klasik, aksara daerah, dan palet warna khas — dipadukan dengan RSVP online dan amplop digital modern.",
+      "Pilih template undangan website bernuansa adat dan tradisional: motif klasik, aksara daerah, dan palet warna khas, dipadukan dengan RSVP online dan amplop digital modern.",
   },
   {
     id: "modern",
@@ -27,7 +27,7 @@ export const TEMPLATE_CATEGORIES: TemplateCategory[] = [
     description:
       "Template undangan digital modern minimalis: bersih, elegan, dan timeless. Lengkap dengan RSVP online, amplop digital, dan galeri foto.",
     intro:
-      "Desain modern minimalis yang bersih dan timeless — tipografi rapi, ruang putih lega, dan fokus pada foto serta informasi acara Anda.",
+      "Desain modern minimalis yang bersih dan timeless: tipografi rapi, ruang putih lega, dan fokus pada foto serta informasi acara Anda.",
   },
   {
     id: "elegansi",
@@ -45,7 +45,7 @@ export const TEMPLATE_CATEGORIES: TemplateCategory[] = [
     description:
       "Template undangan digital floral yang romantis: ilustrasi bunga watercolor dan pastel untuk undangan pernikahan yang lembut dan manis.",
     intro:
-      "Ilustrasi bunga watercolor, warna pastel, dan ornamen botani yang romantis — favorit untuk akad pagi dan resepsi garden party.",
+      "Ilustrasi bunga watercolor, warna pastel, dan ornamen botani yang romantis. Favorit untuk akad pagi dan resepsi garden party.",
   },
   {
     id: "tanpa-foto",
