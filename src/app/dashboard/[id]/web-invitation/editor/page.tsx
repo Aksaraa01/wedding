@@ -461,6 +461,9 @@ function EditorInner({ id }: { id: string }) {
   // Stored photos are kept so switching back to a with-photo template restores
   // them — hide must never equal delete.
   const isNoPhoto = template?.no_photo === true
+  // Text-only love story (e.g. piano-garden): hide the milestone photo field
+  // while keeping stored image_url data intact.
+  const showStoryPhoto = contentSpec?.story_photo !== false && !isNoPhoto
 
   // Ubah error teknis sinkronisasi WP menjadi pesan Bahasa Indonesia yang
   // bisa ditindaklanjuti pengguna (tampilkan + tombol coba lagi).
@@ -2424,8 +2427,8 @@ function EditorInner({ id }: { id: string }) {
                           </button>
                         </div>
                         <div className="flex gap-4">
-                          {/* Tanpa-photo: story image hidden, title/description stay */}
-                          {!isNoPhoto && (
+                          {/* Text-only story templates hide the milestone photo */}
+                          {showStoryPhoto && (
                           <>
                           <div
                             onClick={() => { if (storyUploading !== i) storyFileRefs.current[i]?.click() }}

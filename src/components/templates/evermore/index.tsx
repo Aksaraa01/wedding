@@ -159,15 +159,15 @@ export default function Evermore(profile: TemplateProps) {
     (!!profile.guest_id || (profile.guest_link_strict === false && !!profile.guest_slug)) &&
     !!profile.wedding_profile_id
 
-  const coverKicker = tc.cover_kicker || "This Kids are\nGetting Married"
-  const profilesIntro = tc.profiles_intro || "Two hearts, one playlist, and zero agreement on what to eat."
-  const storyIntro = tc.story_intro || "From a chance meeting to a lifetime of choosing each other."
-  const galleryIntro = tc.gallery_intro || "A handful of frames from the chapters we have lived together, kept like old photographs in a family album."
-  const galleryQuote = tc.gallery_quote || "Somewhere between the first hello and every tomorrow, we found our forever."
-  const giftIntroTitle = tc.gift_intro_title || "Wedding Gift"
-  const giftIntroDescription = tc.gift_intro_description || "Your presence is the greatest gift. If you would like to send a token of love, you can find the details below."
-  const wishesIntro = tc.wishes_intro || "Leave a few kind words and prayers for the couple."
-  const closingMessage = tc.closing_message || "It would be an honour to share this day with you, and to keep writing our story surrounded by the people we love."
+  const coverKicker = tc.cover_kicker || "Dua Insan Ini\nAkan Menikah"
+  const profilesIntro = tc.profiles_intro || "Dua hati, satu playlist, dan nol kesepakatan soal mau makan apa."
+  const storyIntro = tc.story_intro || "Dari pertemuan tak sengaja hingga seumur hidup saling memilih."
+  const galleryIntro = tc.gallery_intro || "Beberapa bingkai yang telah kami lalui bersama, tersimpan seperti foto lama di album keluarga."
+  const galleryQuote = tc.gallery_quote || "Di antara sapaan pertama dan setiap hari esok, kami menemukan selamanya."
+  const giftIntroTitle = tc.gift_intro_title || "Hadiah Pernikahan"
+  const giftIntroDescription = tc.gift_intro_description || "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya dapat ditemukan di bawah ini."
+  const wishesIntro = tc.wishes_intro || "Tinggalkan beberapa harapan dan doa untuk kedua mempelai."
+  const closingMessage = tc.closing_message || "Merupakan suatu kehormatan dapat berbagi hari ini dengan Anda, dan terus menulis kisah kami dikelilingi orang-orang yang kami cintai."
   const displayName = profile.display_name || `#${`${groomShort}${brideShort}`.replace(/\s+/g, "") || "OurWedding"}`
   const dressDescription = profile.dresscode?.description || describePalette(profile.dresscode?.colors)
   const storyFallbacks = [
@@ -178,8 +178,8 @@ export default function Evermore(profile: TemplateProps) {
   const storyPhotos = stories.length
     ? stories.slice(0, 3).map((s, index) => s.image_url || storyFallbacks[index] || storyFallbacks[0])
     : storyFallbacks
-  const thankYouPhoto = photos[1] || photos[0] || bridePhoto || groomPhoto || ASSET("love-story-2.webp")
-  const videoPoster = photos[0] || coverSlices[0] || bridePhoto || groomPhoto || ASSET("love-story-1.webp")
+  const thankYouPhoto = photos[1] || photos[0] || groomPhoto || bridePhoto || ASSET("love-story-2.webp")
+  const videoPoster = photos[0] || coverSlices[0] || groomPhoto || bridePhoto || ASSET("love-story-1.webp")
   const galleryItems = photos.slice(0, 12)
   const galleryRows = Math.max(1, Math.ceil(galleryItems.length / 3))
   const A = ASSETS.galeriEnvelope.aksaraaLogo
@@ -403,37 +403,37 @@ export default function Evermore(profile: TemplateProps) {
               <h2>Bride &amp; Groom</h2>
               <p>{profilesIntro}</p>
             </header>
-            <article className="profile-card profile-card-bride">
-              <div className="profile-art" aria-hidden="true">
-                <div className="profile-photo profile-bride" style={{ backgroundImage: cssUrl(bridePhoto) }} />
-                <span className="evermore-ornament profile-frame" aria-hidden="true" style={{ "--ornament-mask": cssUrl(ASSET("scalloped-bow-frame.svg")) } as CSSProperties} />
-              </div>
-              <div className="profile-copy">
-                <h2>{brideFull}</h2>
-                <p className="profile-lineage">The Bride</p>
-                {profile.bride_parents && <strong><span>{profile.bride_parents}</span></strong>}
-                {profile.bride_instagram && (
-                  <a className="profile-instagram" href={`https://instagram.com/${profile.bride_instagram.replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg>
-                    <span>@{profile.bride_instagram.replace(/^@/, "")}</span>
-                  </a>
-                )}
-              </div>
-            </article>
-            <span className="evermore-ornament profile-heart" aria-hidden="true" style={{ "--ornament-mask": cssUrl(ASSET("solid-heart.svg")) } as CSSProperties} />
             <article className="profile-card profile-card-groom">
               <div className="profile-art" aria-hidden="true">
                 <div className="profile-photo profile-groom" style={{ backgroundImage: cssUrl(groomPhoto) }} />
                 <span className="evermore-ornament profile-frame" aria-hidden="true" style={{ "--ornament-mask": cssUrl(ASSET("scalloped-bow-frame.svg")) } as CSSProperties} />
               </div>
               <div className="profile-copy">
-                <h2>{groomFull}</h2>
-                <p className="profile-lineage">The Groom</p>
+                <h2>{groomShort}</h2>
+                {groomFull && groomFull !== groomShort && <p className="profile-fullname">{groomFull}</p>}
                 {profile.groom_parents && <strong><span>{profile.groom_parents}</span></strong>}
                 {profile.groom_instagram && (
                   <a className="profile-instagram" href={`https://instagram.com/${profile.groom_instagram.replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg>
                     <span>@{profile.groom_instagram.replace(/^@/, "")}</span>
+                  </a>
+                )}
+              </div>
+            </article>
+            <span className="evermore-ornament profile-heart" aria-hidden="true" style={{ "--ornament-mask": cssUrl(ASSET("solid-heart.svg")) } as CSSProperties} />
+            <article className="profile-card profile-card-bride">
+              <div className="profile-art" aria-hidden="true">
+                <div className="profile-photo profile-bride" style={{ backgroundImage: cssUrl(bridePhoto) }} />
+                <span className="evermore-ornament profile-frame" aria-hidden="true" style={{ "--ornament-mask": cssUrl(ASSET("scalloped-bow-frame.svg")) } as CSSProperties} />
+              </div>
+              <div className="profile-copy">
+                <h2>{brideShort}</h2>
+                {brideFull && brideFull !== brideShort && <p className="profile-fullname">{brideFull}</p>}
+                {profile.bride_parents && <strong><span>{profile.bride_parents}</span></strong>}
+                {profile.bride_instagram && (
+                  <a className="profile-instagram" href={`https://instagram.com/${profile.bride_instagram.replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg>
+                    <span>@{profile.bride_instagram.replace(/^@/, "")}</span>
                   </a>
                 )}
               </div>

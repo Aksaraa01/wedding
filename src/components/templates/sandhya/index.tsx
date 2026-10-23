@@ -173,19 +173,19 @@ export default function Sandhya(profile: TemplateProps) {
   const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || "The Wedding"
   const groomShort = profile.groom_name || ""
   const brideShort = profile.bride_name || ""
+  const groomFull = profile.groom_full_name || ""
+  const brideFull = profile.bride_full_name || ""
   const initials = (profile.couple_initials || "").trim() || initialsOf(groomShort, brideShort)
   const cover = coverPhoto(profile)
   const gallery = flattenPhotos(profile.gallery_photos)
   const coverList = flattenPhotos(profile.cover_photos)
   const tc = profile.template_content || {}
   const themeValue = SANDHYA_THEMES.find((t) => t.id === themeId)?.value || SANDHYA_THEMES[0].value
-  const coverApology = tc.cover_apology || "We sincerely apologize for any misspelling of names and titles."
-  const groomChildOrder = tc.groom_child_order || "The Son of"
-  const brideChildOrder = tc.bride_child_order || "The Daughter of"
-  const galleryQuote = tc.gallery_quote || "Every love story is beautiful, but ours is my favorite."
-  const giftIntroTitle = tc.gift_intro_title || "A Token of Love"
-  const giftIntroDescription = tc.gift_intro_description || "Your presence is the greatest gift. If you would like to send a token of love, the details are below."
-  const closingMessage = tc.closing_message || "It would be an honor and a joy for us to have you present and to receive your blessing on our wedding day."
+  const coverApology = tc.cover_apology || "Kami memohon maaf atas segala kekeliruan penulisan nama dan gelar."
+  const galleryQuote = tc.gallery_quote || "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku."
+  const giftIntroTitle = tc.gift_intro_title || "Tanda Kasih"
+  const giftIntroDescription = tc.gift_intro_description || "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini."
+  const closingMessage = tc.closing_message || "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami."
   const openingTitle = profile.opening_title || "Warmest Greetings"
   const openingDescription = profile.opening_description || "With great joy and gratitude, we invite you to share in the beginning of our forever."
   // Backgrounds from cover_photos slots (like nihara-mist)
@@ -597,9 +597,8 @@ export default function Sandhya(profile: TemplateProps) {
           <div className="scene__veil scene__veil--couple" />
           <div className="scene__content couple">
             <article className={`couple-card${isActive("couple") && step === 0 ? " is-current" : ""}`}>
-              <p className="label couple-card__role">The Groom</p>
-              <h2>{profile.groom_name}</h2>
-              <p className="couple-card__full serif-i">{groomChildOrder}</p>
+              <h2>{groomShort}</h2>
+              {groomFull && groomFull !== groomShort && <p className="couple-card__full">{groomFull}</p>}
               {profile.groom_parents && <p className="couple-card__parents serif">{profile.groom_parents}</p>}
               {profile.groom_instagram && (
                 <a className="btn-ig" href={`https://instagram.com/${profile.groom_instagram.replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer">
@@ -613,9 +612,8 @@ export default function Sandhya(profile: TemplateProps) {
               )}
             </article>
             <article className={`couple-card${isActive("couple") && step === 1 ? " is-current" : ""}`}>
-              <p className="label couple-card__role">The Bride</p>
-              <h2>{profile.bride_name}</h2>
-              <p className="couple-card__full serif-i">{brideChildOrder}</p>
+              <h2>{brideShort}</h2>
+              {brideFull && brideFull !== brideShort && <p className="couple-card__full">{brideFull}</p>}
               {profile.bride_parents && <p className="couple-card__parents serif">{profile.bride_parents}</p>}
               {profile.bride_instagram && (
                 <a className="btn-ig" href={`https://instagram.com/${profile.bride_instagram.replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer">
@@ -879,7 +877,7 @@ export default function Sandhya(profile: TemplateProps) {
               <section className="sheet__section sheet__closing" data-io>
                 <div className="closing-portrait">
                   <figure className="gilded">
-                    <img src={cover || bridePhoto || groomPhoto || bgDesk} alt={coupleLabel} loading="lazy" />
+                    <img src={cover || groomPhoto || bridePhoto || bgDesk} alt={coupleLabel} loading="lazy" />
                   </figure>
                   <img className="closing-flower closing-flower--left" src="/templates/sandhya/flower-1.webp" alt="" aria-hidden="true" />
                   <img className="closing-flower closing-flower--right" src="/templates/sandhya/flower-2.webp" alt="" aria-hidden="true" />

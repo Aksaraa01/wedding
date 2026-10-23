@@ -22,13 +22,13 @@ const ASSET = (name: string) => `/templates/piano-garden/${name}`
 
 const DEFAULT_QUOTE =
   "And over all these virtues put on love, which binds them all together in perfect unity."
-const DEFAULT_GALLERY_QUOTE = "Every love story is beautiful, but ours is my favorite."
+const DEFAULT_GALLERY_QUOTE = "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku."
 const DEFAULT_GIFT_DESCRIPTION =
-  "Your presence is the greatest gift. If you would like to send a token of love, the details are below."
+  "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini."
 const DEFAULT_CLOSING =
-  "It would be an honor and a joy for us to have you present and to receive your blessing on our wedding day."
+  "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami."
 const DEFAULT_WISHES_SUBTITLE =
-  "Leave a message of love and a prayer for the couple."
+  "Tinggalkan pesan cinta dan doa untuk kedua mempelai."
 
 function describePalette(colors?: { hex?: string; name?: string }[]): string {
   const names = (colors || []).map((c) => (c.name || "").trim()).filter(Boolean)
@@ -116,11 +116,11 @@ export default function PianoGarden(profile: TemplateProps) {
   const tc = profile.template_content || {}
   const gates = profile.feature_gates || {}
 
-  const groomShort = (profile.groom_name || "").trim() || "The Groom"
-  const brideShort = (profile.bride_name || "").trim() || "The Bride"
-  const groomFull = profile.groom_full_name || groomShort
-  const brideFull = profile.bride_full_name || brideShort
-  const coupleLabel = `${groomShort} & ${brideShort}`
+  const groomShort = (profile.groom_name || "").trim()
+  const brideShort = (profile.bride_name || "").trim()
+  const groomFull = (profile.groom_full_name || groomShort).trim()
+  const brideFull = (profile.bride_full_name || brideShort).trim()
+  const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || "The Wedding"
   const guestName = profile.guest_name || "Our Beloved Guest"
   const dateLong = formatLongDate(profile.estimated_wedding_date)
   const countdown = useCountdown(profile.estimated_wedding_date, profile.sessions)
@@ -151,10 +151,10 @@ export default function PianoGarden(profile: TemplateProps) {
   const quoteText = profile.quote_text || DEFAULT_QUOTE
   const quoteSource = profile.quote_source || "Colossians 3 : 14"
   const coverApology =
-    tc.cover_apology || "We sincerely apologize for any misspelling of names and titles."
+    tc.cover_apology || "Kami memohon maaf atas segala kekeliruan penulisan nama dan gelar."
   const galleryIntro = tc.gallery_intro || ""
   const galleryQuote = tc.gallery_quote || DEFAULT_GALLERY_QUOTE
-  const giftIntroTitle = tc.gift_intro_title || "A Token of Love"
+  const giftIntroTitle = tc.gift_intro_title || "Tanda Kasih"
   const giftIntroDescription = tc.gift_intro_description || DEFAULT_GIFT_DESCRIPTION
   const wishesSubtitle = tc.wishes_intro || DEFAULT_WISHES_SUBTITLE
   const closingMessage = tc.closing_message || DEFAULT_CLOSING
@@ -483,7 +483,7 @@ export default function PianoGarden(profile: TemplateProps) {
             </div>
           </section>
 
-          <section className="groom-bride-section parallax-section" data-aos="fade-up" aria-label="Groom & Bride">
+          <section className="groom-bride-section parallax-section" data-aos="fade-up" aria-label="Mempelai">
             <div className="profile-card" data-aos="fade-up" data-aos-delay="60" style={delay(60)}>
               <div className="profile-intro" data-aos="fade-down" data-aos-delay="120" style={delay(120)}>
                 <h2 className="script profile-heading garden-text-reveal" data-aos="fade-up">
@@ -496,46 +496,7 @@ export default function PianoGarden(profile: TemplateProps) {
                 </p>
               </div>
               <div>
-                <article className="person person-bride" data-aos="slide-left" data-aos-delay="160" style={delay(160)}>
-                  <div className="person-image">
-                    <img className="person-photo" src={bridePhoto} alt={brideFull} data-aos="zoom-in" />
-                    <img className="person-floral floral-left" src={ASSET("couple-1.webp")} alt="" data-aos="leaf-in" data-aos-delay="120" style={delay(120)} />
-                    <img className="person-floral floral-right" src={ASSET("couple-2.webp")} alt="" data-aos="leaf-in" data-aos-delay="220" style={delay(220)} />
-                  </div>
-                  <h3 className="script name-fit person-nickname garden-text-reveal" style={fitStyle(brideShort)} data-aos="fade-up">
-                    {brideShort}
-                  </h3>
-                  <p className="person-fullname name-fit garden-text-reveal" style={fitStyle(brideFull)} data-aos="fade-up" data-aos-delay="100">
-                    {brideFull}
-                  </p>
-                  {profile.bride_parents && (
-                    <p className="person-parents garden-text-reveal" data-aos="fade-up" data-aos-delay="160" style={delay(160)}>
-                      <span className="name-fit" style={fitStyle(profile.bride_parents)}>
-                        {profile.bride_parents}
-                      </span>
-                    </p>
-                  )}
-                  {profile.bride_instagram && (
-                    <a
-                      className="small-pill garden-text-reveal"
-                      href={`https://instagram.com/${profile.bride_instagram.replace(/^@/, "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Instagram ${brideFull}`}
-                      data-aos="zoom-in"
-                      data-aos-delay="220"
-                      style={delay(220)}
-                    >
-                      <InstagramIcon />@{profile.bride_instagram.replace(/^@/, "")}
-                    </a>
-                  )}
-                </article>
-                <p className="profile-ampersand garden-text-reveal" aria-hidden="true" data-aos="zoom-in">
-                  &amp;
-                </p>
-              </div>
-              <div>
-                <article className="person person-groom" data-aos="slide-right" data-aos-delay="160" style={delay(160)}>
+                <article className="person person-groom" data-aos="slide-left" data-aos-delay="160" style={delay(160)}>
                   <div className="person-image">
                     <img className="person-photo" src={groomPhoto} alt={groomFull} data-aos="zoom-in" />
                     <img className="person-floral floral-left" src={ASSET("couple-2.webp")} alt="" data-aos="leaf-in" data-aos-delay="120" style={delay(120)} />
@@ -566,6 +527,45 @@ export default function PianoGarden(profile: TemplateProps) {
                       style={delay(220)}
                     >
                       <InstagramIcon />@{profile.groom_instagram.replace(/^@/, "")}
+                    </a>
+                  )}
+                </article>
+                <p className="profile-ampersand garden-text-reveal" aria-hidden="true" data-aos="zoom-in">
+                  &amp;
+                </p>
+              </div>
+              <div>
+                <article className="person person-bride" data-aos="slide-right" data-aos-delay="160" style={delay(160)}>
+                  <div className="person-image">
+                    <img className="person-photo" src={bridePhoto} alt={brideFull} data-aos="zoom-in" />
+                    <img className="person-floral floral-left" src={ASSET("couple-1.webp")} alt="" data-aos="leaf-in" data-aos-delay="120" style={delay(120)} />
+                    <img className="person-floral floral-right" src={ASSET("couple-2.webp")} alt="" data-aos="leaf-in" data-aos-delay="220" style={delay(220)} />
+                  </div>
+                  <h3 className="script name-fit person-nickname garden-text-reveal" style={fitStyle(brideShort)} data-aos="fade-up">
+                    {brideShort}
+                  </h3>
+                  <p className="person-fullname name-fit garden-text-reveal" style={fitStyle(brideFull)} data-aos="fade-up" data-aos-delay="100">
+                    {brideFull}
+                  </p>
+                  {profile.bride_parents && (
+                    <p className="person-parents garden-text-reveal" data-aos="fade-up" data-aos-delay="160" style={delay(160)}>
+                      <span className="name-fit" style={fitStyle(profile.bride_parents)}>
+                        {profile.bride_parents}
+                      </span>
+                    </p>
+                  )}
+                  {profile.bride_instagram && (
+                    <a
+                      className="small-pill garden-text-reveal"
+                      href={`https://instagram.com/${profile.bride_instagram.replace(/^@/, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Instagram ${brideFull}`}
+                      data-aos="zoom-in"
+                      data-aos-delay="220"
+                      style={delay(220)}
+                    >
+                      <InstagramIcon />@{profile.bride_instagram.replace(/^@/, "")}
                     </a>
                   )}
                 </article>

@@ -258,15 +258,13 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
     },
     livestream: { url: "https://www.youtube.com/live/dummy-livestream-link" },
     template_content: {
-      cover_apology: "We sincerely apologize for any misspelling of names and titles.",
-      groom_child_order: "The Second Son of",
-      bride_child_order: "The Daughter of",
-      gallery_quote: "Every love story is beautiful, but ours is my favorite.",
-      gift_intro_title: "A Token of Love",
+      cover_apology: "Kami memohon maaf atas segala kekeliruan penulisan nama dan gelar.",
+      gallery_quote: "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku.",
+      gift_intro_title: "Tanda Kasih",
       gift_intro_description:
-        "Your presence is the greatest gift. If you would like to send a token of love, the details are below.",
+        "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.",
       closing_message:
-        "It would be an honor and a joy for us to have you present and to receive your blessing on our wedding day.",
+        "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami.",
     },
     feature_gates: { story: true, gift_address: true, inviting_families: true, video: true, qr_code_book: true },
   },
@@ -376,18 +374,18 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
       "Keluarga Besar Kedua Mempelai",
     ],
     template_content: {
-      cover_kicker: "This Kids are\nGetting Married",
-      profiles_intro: "Two hearts, one playlist, and zero agreement on what to eat.",
-      story_intro: "From a chance meeting to a lifetime of choosing each other.",
+      cover_kicker: "Dua Insan Ini\nAkan Menikah",
+      profiles_intro: "Dua hati, satu playlist, dan nol kesepakatan soal mau makan apa.",
+      story_intro: "Dari pertemuan tak sengaja hingga seumur hidup saling memilih.",
       gallery_intro:
-        "A handful of frames from the chapters we have lived together, kept like old photographs in a family album.",
-      gallery_quote: "Somewhere between the first hello and every tomorrow, we found our forever.",
-      gift_intro_title: "Wedding Gift",
+        "Beberapa bingkai yang telah kami lalui bersama, tersimpan seperti foto lama di album keluarga.",
+      gallery_quote: "Di antara sapaan pertama dan setiap hari esok, kami menemukan selamanya.",
+      gift_intro_title: "Hadiah Pernikahan",
       gift_intro_description:
-        "Your presence is the greatest gift. If you would like to send a token of love, you can find the details below.",
-      wishes_intro: "Leave a few kind words and prayers for the couple.",
+        "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya dapat ditemukan di bawah ini.",
+      wishes_intro: "Tinggalkan beberapa harapan dan doa untuk kedua mempelai.",
       closing_message:
-        "It would be an honour to share this day with you, and to keep writing our story surrounded by the people we love.",
+        "Merupakan suatu kehormatan dapat berbagi hari ini dengan Anda, dan terus menulis kisah kami dikelilingi orang-orang yang kami cintai.",
     },
     feature_gates: { story: true, gift_address: true, inviting_families: true, video: true, qr_code_book: true },
   },
@@ -516,13 +514,11 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
         title: "The First Hello",
         description:
           "It began with a simple introduction that slowly grew into a comfortable companionship. Time brought us closer and taught us to know each other deeply.",
-        image_url: `${DE}/cover.webp`,
       },
       {
         title: "Toward Forever",
         description:
           "After many chapters together, we chose to walk hand in hand. Today we invite you to be part of the beginning of our journey.",
-        image_url: `${DE}/cover-1.webp`,
       },
     ],
     gallery_photos: [...DE_GALLERY, `${DE}/bride.webp`, `${DE}/groom.webp`],
@@ -550,15 +546,13 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
       "The Extended Families of Both",
     ],
     template_content: {
-      cover_apology: "We sincerely apologize for any misspelling of names and titles.",
-      groom_child_order: "The Second Son of",
-      bride_child_order: "The Daughter of",
-      gallery_quote: "Every love story is beautiful, but ours is my favorite.",
-      gift_intro_title: "A Token of Love",
+      cover_apology: "Kami memohon maaf atas segala kekeliruan penulisan nama dan gelar.",
+      gallery_quote: "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku.",
+      gift_intro_title: "Tanda Kasih",
       gift_intro_description:
-        "Your presence is the greatest gift. If you would like to send a token of love, the details are below.",
+        "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.",
       closing_message:
-        "It would be an honor and a joy for us to have you present and to receive your blessing on our wedding day.",
+        "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami.",
     },
     feature_gates: { story: true, gift_address: true, inviting_families: true, video: true, qr_code_book: true },
   },

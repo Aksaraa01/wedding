@@ -121,7 +121,7 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
 
       <Person
         id="groom"
-        heading="Mempelai Pria"
+        heading="Mempelai"
         shortName={profile.groom_name}
         fullName={profile.groom_full_name}
         parents={profile.groom_parents}
@@ -131,7 +131,6 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
 
       <Person
         id="bride"
-        heading="Mempelai Wanita"
         shortName={profile.bride_name}
         fullName={profile.bride_full_name}
         parents={profile.bride_parents}

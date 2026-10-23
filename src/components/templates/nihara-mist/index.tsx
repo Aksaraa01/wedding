@@ -171,6 +171,8 @@ export default function NiharaMist(profile: TemplateProps) {
   const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || "The Wedding"
   const groomShort = profile.groom_name || ""
   const brideShort = profile.bride_name || ""
+  const groomFull = profile.groom_full_name || ""
+  const brideFull = profile.bride_full_name || ""
   const initials = (profile.couple_initials || "").trim() || initialsOf(groomShort, brideShort)
   const cover = coverPhoto(profile)
   const gallery = flattenPhotos(profile.gallery_photos)
@@ -580,8 +582,8 @@ export default function NiharaMist(profile: TemplateProps) {
           <div className="scene__veil scene__veil--couple" />
           <div className="scene__content couple">
             <article className={`couple-card${isActive("couple") && step === 0 ? " is-current" : ""}`}>
-              <p className="label couple-card__role">The Groom</p>
-              <h2>{profile.groom_name}</h2>
+              <h2>{groomShort}</h2>
+              {groomFull && groomFull !== groomShort && <p className="couple-card__full">{groomFull}</p>}
               {profile.groom_parents && <p className="couple-card__parents serif">{profile.groom_parents}</p>}
               {profile.groom_instagram && (
                 <a className="btn-ig" href={`https://instagram.com/${profile.groom_instagram.replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer">
@@ -595,8 +597,8 @@ export default function NiharaMist(profile: TemplateProps) {
               )}
             </article>
             <article className={`couple-card${isActive("couple") && step === 1 ? " is-current" : ""}`}>
-              <p className="label couple-card__role">The Bride</p>
-              <h2>{profile.bride_name}</h2>
+              <h2>{brideShort}</h2>
+              {brideFull && brideFull !== brideShort && <p className="couple-card__full">{brideFull}</p>}
               {profile.bride_parents && <p className="couple-card__parents serif">{profile.bride_parents}</p>}
               {profile.bride_instagram && (
                 <a className="btn-ig" href={`https://instagram.com/${profile.bride_instagram.replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer">
@@ -839,9 +841,9 @@ export default function NiharaMist(profile: TemplateProps) {
 
               <section className="sheet__section sheet__closing" data-io>
                 <div className="closing-portrait">
-                  {(cover || bridePhoto) && (
+                  {(cover || groomPhoto || bridePhoto) && (
                     <figure className="gilded">
-                      <img src={cover || bridePhoto} alt={coupleLabel} loading="lazy" />
+                      <img src={cover || groomPhoto || bridePhoto} alt={coupleLabel} loading="lazy" />
                     </figure>
                   )}
                   <p className="closing-names">

@@ -436,6 +436,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       cover_slots: 0,
       groom_photo: "single",
       bride_photo: "single",
+      story_photo: false,
       sections: {
         opening_description: false,
         quote: true,

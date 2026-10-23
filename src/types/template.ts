@@ -135,6 +135,9 @@ export type ContentSpec = {
   cover_slideshows?: number[]
   groom_photo?: PhotoStyle
   bride_photo?: PhotoStyle
+  // Whether love-story milestones render/accept a photo. Absent ⇒ true.
+  // Set false for text-only story layouts (e.g. piano-garden).
+  story_photo?: boolean
   // Sections the template renders. Absent/false ⇒ the section's content either
   // never appears or, where the toggle exists, hides its entry point entirely.
   sections?: {

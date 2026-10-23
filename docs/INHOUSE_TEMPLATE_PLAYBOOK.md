@@ -54,6 +54,11 @@ A section renders only when both allow it (plus non-empty data).
    needs `templates: [..., "<code>"]` **and** a `placeholders["<code>"]` value;
    the component must actually read `profile.template_content?.<key>`. Fields
    that exist in the editor but are never read are dead controls.
+   **Keep `placeholders["<code>"]` in the same language and copy as the
+   component defaults and `demoProps`.** When you switch a template's sample
+   content (e.g. to Sandhya English), update the extras placeholders too — else
+   the editor hints stay in the old language (e.g. Indonesian) and contradict
+   the English invitation.
 5. Allow mock IDs in the preview route (`src/app/templates/[code]/preview/page.tsx`):
    `keepDemoIds = code === "<code>" || …` so server-backed sections (wishes,
    guest dock) get `wedding_profile_id` / `guest_id` in preview.
@@ -66,6 +71,10 @@ A section renders only when both allow it (plus non-empty data).
    }
    ```
    Anything `false` here must be hidden in editor **and** ops.
+   Per-section photo capability: set `story_photo: false` when the love-story
+   layout is text-only (piano-garden). Editor and ops then hide the milestone
+   photo field and exclude it from completeness, while stored `image_url` data
+   is kept (hide ≠ delete).
 7. Add demo props for `<code>` in `demoProps.ts` (photos, names, dates,
    `wedding_profile_id: "demo-wedding-profile-id"`,
    `guest_id: "demo-guest-id"` so server-backed sections have sample data).

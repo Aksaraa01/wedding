@@ -1219,6 +1219,7 @@ export default function AntrianDetail({ id }: { id: string }) {
   // couple editor (content spec for in-house, manifest for WP). Ops must never
   // show fields the template does not render.
   const invContentSpec = invTpl?.code ? getTemplateContentSpec(invTpl.code) : undefined
+  const invShowStoryPhoto = invContentSpec?.story_photo !== false && !invNoPhoto
   const invExtraFields = getTemplateExtraFields(invTpl?.code)
   const invExtrasLabel = templateExtrasLabel(invTpl?.name)
   const invCoverSlotCount = invContentSpec?.cover_slots ?? (Array.isArray(invTpl?.wp_manifest?.cover_photos) ? invTpl.wp_manifest.cover_photos.length : 0)
@@ -1442,8 +1443,6 @@ export default function AntrianDetail({ id }: { id: string }) {
     strField("Live Streaming", f.livestream?.url, orig.livestream?.url)
     const tcLabels: [string, string][] = [
       ["cover_apology", "Cover Apology"],
-      ["groom_child_order", "Groom Child Order"],
-      ["bride_child_order", "Bride Child Order"],
       ["gallery_quote", "Gallery Quote"],
       ["gift_intro_title", "Gift Intro Title"],
       ["gift_intro_description", "Gift Intro Description"],
@@ -3744,8 +3743,8 @@ export default function AntrianDetail({ id }: { id: string }) {
                                   </button>
                                 </div>
                                 <div className="flex gap-4">
-                                  {/* Tanpa-photo: story image hidden, title/description stay */}
-                                  {!invNoPhoto && (
+                                  {/* Text-only story templates hide the milestone photo */}
+                                  {invShowStoryPhoto && (
                                   <InvPhotoBox
                                     url={story.image_url || ""}
                                     uploading={invUploading === upKey}
@@ -3775,7 +3774,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                       <div className="space-y-4">
                           {invitationData.profile.stories.map((st: any, i: number) => (
                             <div key={i} className="flex gap-4">
-                              {st.image_url && (
+                              {invShowStoryPhoto && st.image_url && (
                                 <div className="relative group w-16 h-16 shrink-0 bg-surface-dim border border-outline-variant overflow-hidden">
                                   <img src={st.image_url} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
                                   <button

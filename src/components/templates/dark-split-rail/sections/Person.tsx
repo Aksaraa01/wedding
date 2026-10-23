@@ -6,7 +6,7 @@ import Slideshow from "../Slideshow"
 
 type Props = {
   id: "groom" | "bride"
-  heading: string
+  heading?: string
   shortName?: string
   fullName?: string
   parents?: string
@@ -26,9 +26,11 @@ export default function Person({ id, heading, shortName, fullName, parents, inst
   return (
     <Section id={id} className="bg-black/[0.06]" reveal={false}>
       <div className="text-center text-white">
-        <p className="text-[15px] uppercase" style={{ ...FONT_DISPLAY, letterSpacing: "3px" }}>
-          {heading}
-        </p>
+        {heading && (
+          <p className="text-[15px] uppercase" style={{ ...FONT_DISPLAY, letterSpacing: "3px" }}>
+            {heading}
+          </p>
+        )}
 
         <Slideshow
           images={photos}
