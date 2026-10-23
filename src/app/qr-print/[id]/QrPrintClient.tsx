@@ -2,23 +2,54 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import QRCode from "qrcode"
+import { resolveCoupleName } from "@/lib/coupleName"
+import { resolveEventPhoto } from "@/lib/event-photo"
+import { toTransformedUrl } from "@/lib/storageUrl"
 
 type PrintGuest = {
   id: string
   name: string
   qr_token: string | null
+  table_number: string | null
+  rsvp_status: string | null
+  rsvp_pax_count: number | null
+  is_vip: boolean
 }
 
 type PrintProfile = {
   slug: string
   bride_name: string
   groom_name: string
+  bride_full_name: string | null
+  groom_full_name: string | null
+  display_name: string | null
   estimated_wedding_date: string | null
+  cover_photos: unknown
+  couple_illustration_url: string | null
+  gallery_photo_url: string | null
+  sessions: Array<{ name?: string | null; date?: string | null; time?: string | null; venue?: string | null; address?: string | null }> | null
   payment_status: "UNPAID" | "PARTIAL_DP" | "FULLY_PAID"
   is_published: boolean
 }
 
-const PER_PAGE = 12
+//PrintPhoto serves the pre-generated WebP derivative and falls back to the raw
+// URL if the thumb is missing — never a blank slot on printed cards.
+function PrintPhoto({ src, alt }: { src: string; alt: string }) {
+  const [url, setUrl] = useState(() => toTransformedUrl(src, { width: 800, quality: 75 }))
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      data-qr-print
+      src={url}
+      alt={alt}
+      className="qrp-photo"
+      draggable={false}
+      onError={() => { if (url !== src) setUrl(src) }}
+    />
+  )
+}
+
+const PER_PAGE = 4
 
 export default function QrPrintClient({ id, autoprint }: { id: string; autoprint: boolean }) {
   const [profile, setProfile] = useState<PrintProfile | null>(null)
@@ -39,6 +70,38 @@ export default function QrPrintClient({ id, autoprint }: { id: string; autoprint
     }
     return chunks
   }, [printable])
+
+  const passPhoto = useMemo(
+    () => (profile ? resolveEventPhoto(profile) || "/defaults/couple.png" : ""),
+    [profile]
+  )
+  const coupleName = useMemo(() => (profile ? resolveCoupleName(profile) : ""), [profile])
+  const hashtag = useMemo(() => (profile?.display_name || "").trim(), [profile])
+  // Printable cards list up to 2 sessions (Akad + Resepsi), each labeled with
+  // the acara name; roll the date down to the session's own date, else the
+  // profile-level date.
+  const printSessions = useMemo(() => {
+    if (!profile) return []
+    const fmt = (d: string) =>
+      d ? new Date(d).toLocaleDateString("id-ID", { year: "numeric", month: "long", day: "numeric" }) : ""
+    const list = (Array.isArray(profile.sessions) ? profile.sessions : [])
+      .filter((s) => s && (s.date || s.time || s.venue || s.address))
+      .slice(0, 2)
+      .map((s) => {
+        const time = (s.time || "").trim()
+        return {
+          name: (s.name || "").trim(),
+          date: fmt(s.date || profile.estimated_wedding_date || ""),
+          time: time && !/\bwib\b/i.test(time) ? `${time} WIB` : time,
+          venue: (s.venue || "").trim(),
+          address: (s.address || "").trim(),
+        }
+      })
+    if (list.length === 0 && profile.estimated_wedding_date) {
+      return [{ name: "", date: fmt(profile.estimated_wedding_date), time: "", venue: "", address: "" }]
+    }
+    return list
+  }, [profile])
 
   useEffect(() => {
     let cancelled = false
@@ -103,11 +166,11 @@ export default function QrPrintClient({ id, autoprint }: { id: string; autoprint
             : `https://wedding.aksaraa.com/welcome/${encodeURIComponent(token)}`
           next[guest.id] = await QRCode.toDataURL(content, {
             errorCorrectionLevel: "Q",
-            margin: 4,
+            margin: 2,
             scale: 16,
-            color: { dark: "#000000", light: "#FFFFFF" },
+            color: { dark: "#1A1817", light: "#FFFFFF" },
           })
-          if (i % 6 === 0) {
+          if (i % 2 === 0) {
             setQrById({ ...next })
             setProgress(i + 1)
             await new Promise((resolve) => setTimeout(resolve, 0))
@@ -164,7 +227,7 @@ export default function QrPrintClient({ id, autoprint }: { id: string; autoprint
           <strong>Cetak QR Tamu</strong>
           <span>
             {ready
-              ? `${printable.length} QR · ${pages.length} halaman A4`
+              ? `${printable.length} kartu · ${pages.length} halaman A4`
               : `Menyiapkan QR ${progress}/${printable.length}`}
             {missingCount > 0 ? ` · ${missingCount} tamu tanpa QR dilewati` : ""}
           </span>
@@ -175,7 +238,7 @@ export default function QrPrintClient({ id, autoprint }: { id: string; autoprint
       </div>
 
       <p className="qrp-hint no-print">
-        Di dialog cetak pilih A4, skala 100%, dan matikan headers/footers. Setiap halaman berisi 12 QR.
+        Di dialog cetak pilih A4, skala 100%, dan matikan headers/footers serta aktifkan background graphics. Setiap halaman berisi 4 kartu (potong di garis putus-putus).
       </p>
 
       {error ? (
@@ -201,21 +264,62 @@ export default function QrPrintClient({ id, autoprint }: { id: string; autoprint
           {pages.map((page, pageIndex) => (
             <section className="qrp-page" key={pageIndex}>
               <div className="qrp-grid">
-                {page.map((guest) => (
-                  <div className="qrp-cell" key={guest.id}>
-                    <div className="qrp-name">{guest.name}</div>
-                    {qrById[guest.id] ? (
-                      <img
-                        data-qr-print
-                        src={qrById[guest.id]}
-                        alt={`QR ${guest.name}`}
-                        className="qrp-qr"
-                      />
-                    ) : (
-                      <div className="qrp-qr qrp-qr-placeholder" />
-                    )}
-                  </div>
-                ))}
+                {page.map((guest) => {
+                  const pax = guest.rsvp_status === "HADIR" && guest.rsvp_pax_count
+                    ? guest.rsvp_pax_count
+                    : 2
+                  return (
+                    <div className="qrp-cell" key={guest.id}>
+                      <div className={`qrp-card ${guest.is_vip ? "qrp-vip" : ""}`}>
+                        <div className="qrp-photo-wrap">
+                          <PrintPhoto src={passPhoto} alt={`Foto resepsi ${coupleName}`} />
+                          <div className="qrp-photo-shade" />
+                          {guest.is_vip && <span className="qrp-vip-pill">VIP</span>}
+                          <div className="qrp-names">
+                            <span className="qrp-eyebrow">The Wedding Of</span>
+                            <strong className="qrp-couple">{coupleName || "—"}</strong>
+                            {hashtag && <span className="qrp-tag">{hashtag}</span>}
+                          </div>
+                        </div>
+                        <div className="qrp-card-body">
+                          <div className="qrp-cols">
+                            <div className="qrp-left">
+                              {qrById[guest.id] ? (
+                                <img
+                                  data-qr-print
+                                  src={qrById[guest.id]}
+                                  alt={`QR ${guest.name}`}
+                                  className="qrp-card-qr"
+                                />
+                              ) : (
+                                <div className="qrp-card-qr qrp-qr-placeholder" />
+                              )}
+                              <span className="qrp-code">{(guest.qr_token || "").slice(0, 11)}</span>
+                              <span className="qrp-caption">Bawa kartu ini dan perlihatkan kepada penerima tamu saat melakukan check-in di lokasi acara</span>
+                            </div>
+                            <div className="qrp-right">
+                              <span className="qrp-invited">You are invited to our wedding day!</span>
+                              <em className="qrp-dear">Dear</em>
+                              <strong className="qrp-guest">{guest.name}</strong>
+                              <span className="qrp-stats">Meja {guest.table_number || "—"} · {pax} Pax</span>
+                              {printSessions.map((ev, i) => (
+                                <span key={i} className={`qrp-sess ${i > 0 ? "qrp-sess-follow" : ""}`}>
+                                  {ev.name && <span className="qrp-label">{ev.name}</span>}
+                                  <span className="qrp-detail">{ev.date || "—"}{ev.time ? ` · ${ev.time}` : ""}</span>
+                                  <span className="qrp-detail">
+                                    {ev.venue || "—"}
+                                    {ev.address ? <><br />{ev.address}</> : null}
+                                  </span>
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          <span className="qrp-card-foot">Aksaraa Digital Guestbook Platform</span>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </section>
           ))}
@@ -344,39 +448,220 @@ export default function QrPrintClient({ id, autoprint }: { id: string; autoprint
         }
         .qrp-grid {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          grid-template-rows: repeat(4, 1fr);
-          gap: 8mm;
+          grid-template-columns: repeat(2, 1fr);
+          grid-template-rows: repeat(2, 1fr);
+          gap: 6mm;
           width: 190mm;
           height: 277mm;
         }
         .qrp-cell {
           min-width: 0;
           display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 2mm;
           break-inside: avoid;
           page-break-inside: avoid;
+          border: 0.25mm dashed #b9b1a6;
         }
-        .qrp-name {
-          max-width: 55mm;
+        .qrp-card {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          background: #fff;
+          color: #1a1817;
           font-family: Arial, Helvetica, sans-serif;
-          font-size: 9pt;
-          line-height: 1.2;
-          font-weight: 600;
-          color: #000;
-          text-align: center;
+          overflow: hidden;
+          position: relative;
+        }
+        .qrp-card.qrp-vip {
+          background: linear-gradient(#1b1712, #15120f);
+          color: #faf5ed;
+          border: 0.6mm solid #c59a4e;
+        }
+        .qrp-photo-wrap {
+          position: relative;
+          height: 44%;
+          min-height: 36mm;
+        }
+        .qrp-photo {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+        .qrp-photo-shade {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to bottom, rgba(26, 23, 20, 0.08) 0%, rgba(26, 23, 20, 0.06) 40%, rgba(26, 23, 20, 0.58) 72%, rgba(26, 23, 20, 0.9) 100%);
+        }
+        .qrp-vip-pill {
+          position: absolute;
+          top: 3mm;
+          left: 3mm;
+          padding: 0.8mm 3.5mm;
+          border-radius: 999px;
+          background: linear-gradient(135deg, #f9f1cb 0%, #ead894 55%, #f4eabb 100%);
+          color: #3a2c12;
+          font-weight: 800;
+          font-size: 8.5pt;
+          letter-spacing: 0.12em;
+        }
+        .qrp-names {
+          position: absolute;
+          left: 4mm;
+          right: 4mm;
+          bottom: 2.5mm;
+          z-index: 2;
+          color: #fff;
+          line-height: 1.15;
+        }
+        .qrp-eyebrow {
+          display: block;
+          font-size: 7pt;
+          opacity: 0.85;
+        }
+        .qrp-couple {
+          display: block;
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-size: 14.5pt;
+          font-weight: 700;
+          line-height: 1.05;
           overflow-wrap: anywhere;
         }
-        .qrp-qr {
+        .qrp-tag {
           display: block;
-          width: 40mm;
-          height: 40mm;
+          font-size: 6.5pt;
+          opacity: 0.75;
+          margin-top: 0.4mm;
+          overflow-wrap: anywhere;
+        }
+        .qrp-card-body {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          padding: 3mm;
+          min-height: 0;
+        }
+        .qrp-cols {
+          flex: 1;
+          display: grid;
+          grid-template-columns: 38% 1fr;
+          gap: 3.5mm;
+          align-items: start;
+          min-height: 0;
+        }
+        .qrp-left {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          min-width: 0;
+        }
+        .qrp-card-qr {
+          display: block;
+          width: 31mm;
+          height: 31mm;
+          border-radius: 2mm;
         }
         .qrp-qr-placeholder {
           border: 0.2mm dashed #d1d5db;
+        }
+        .qrp-code {
+          margin-top: 1.6mm;
+          font-size: 6pt;
+          letter-spacing: 0.08em;
+          font-family: 'Courier New', monospace;
+          opacity: 0.75;
+        }
+        .qrp-caption {
+          margin-top: 1.4mm;
+          max-width: 34mm;
+          font-size: 5.4pt;
+          line-height: 1.3;
+          text-align: center;
+          opacity: 0.65;
+        }
+        .qrp-right {
+          display: flex;
+          flex-direction: column;
+          min-width: 0;
+          font-size: 6.6pt;
+        }
+        .qrp-invited {
+          font-weight: 700;
+          color: #8d4d39;
+        }
+        .qrp-card.qrp-vip .qrp-invited {
+          color: #e6c364;
+        }
+        .qrp-dear {
+          font-style: normal;
+          opacity: 0.7;
+          margin-top: 1.2mm;
+        }
+        .qrp-guest {
+          font-size: 9.5pt;
+          font-weight: 700;
+          line-height: 1.1;
+          margin-top: 0.3mm;
+          overflow-wrap: anywhere;
+        }
+        .qrp-stats {
+          margin-top: 1.2mm;
+          padding: 0.6mm 2mm;
+          align-self: flex-start;
+          border-radius: 999px;
+          background: #fbf8f3;
+          border: 0.15mm solid rgba(26, 24, 23, 0.18);
+          font-weight: 700;
+        }
+        .qrp-card.qrp-vip .qrp-stats {
+          background: #25201a;
+          border-color: #7d5d2b;
+          color: #f3e2b3;
+        }
+        .qrp-sess {
+          display: block;
+          margin-top: 2.2mm;
+        }
+        .qrp-label {
+          display: block;
+          text-transform: uppercase;
+          letter-spacing: 0.14em;
+          font-weight: 700;
+          font-size: 6pt;
+          color: #8d4d39;
+          margin-bottom: 0.4mm;
+        }
+        .qrp-card.qrp-vip .qrp-label {
+          color: #e6c364;
+        }
+        .qrp-sess-follow {
+          padding-top: 1.6mm;
+          border-top: 0.15mm dashed rgba(26, 24, 23, 0.18);
+        }
+        .qrp-card.qrp-vip .qrp-sess-follow {
+          border-top-color: rgba(212, 175, 55, 0.35);
+        }
+        .qrp-detail {
+          display: block;
+          margin-top: 0.8mm;
+          font-weight: 600;
+          line-height: 1.25;
+          overflow-wrap: anywhere;
+        }
+        .qrp-card-foot {
+          margin-top: 1.6mm;
+          padding-top: 1.2mm;
+          border-top: 0.15mm dashed rgba(26, 24, 23, 0.18);
+          text-align: center;
+          font-size: 5.2pt;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          opacity: 0.6;
+        }
+        .qrp-card.qrp-vip .qrp-card-foot {
+          border-top-color: rgba(212, 175, 55, 0.35);
         }
         @media print {
           body {
@@ -409,10 +694,14 @@ export default function QrPrintClient({ id, autoprint }: { id: string; autoprint
           .qrp-grid {
             width: 190mm !important;
             height: 277mm !important;
-            gap: 8mm !important;
+            gap: 6mm !important;
           }
-          .qrp-name,
-          .qrp-qr {
+          .qrp-cell,
+          .qrp-card,
+          .qrp-photo-shade,
+          .qrp-vip-pill,
+          .qrp-card.qrp-vip,
+          .qrp-stats {
             print-color-adjust: exact;
             -webkit-print-color-adjust: exact;
           }

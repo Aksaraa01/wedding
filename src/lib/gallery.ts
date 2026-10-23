@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { generateToken } from "@/lib/qr"
 import { cachedRead } from "@/lib/refCache"
+import { resolveEventPhoto } from "@/lib/event-photo"
 import { DGB_BASE_QUOTA, GALLERY_DEFAULT_CAP, GALLERY_DEFAULT_QUOTA, galeriEventCap, matchGaleriTier, type GaleriTierRow } from "@/lib/packages"
 
 // Server-only gallery helpers (imports supabaseAdmin — never import from
@@ -38,30 +39,15 @@ export function galeriCoupleName(e: {
   return `${e.groom_name || ""} & ${e.bride_name || ""}`.replace(/^ & | & $/g, "").trim()
 }
 
-function firstCoverUrl(input: unknown): string {
-  if (typeof input === "string") return input.trim()
-  if (Array.isArray(input)) {
-    for (const v of input) {
-      const found = firstCoverUrl(v)
-      if (found) return found
-    }
-  }
-  return ""
-}
-
 // Event hero photo: stored upload wins, else the invitation cover chain
 // (same as the dashboard prefill), else empty for the client default.
+// Delegates to the client-safe rule in @/lib/event-photo (single source).
 export function galeriPhotoUrl(e: {
   gallery_photo_url?: string | null
   cover_photos?: unknown
   couple_illustration_url?: string | null
 }): string {
-  const stored = (e.gallery_photo_url || "").trim()
-  if (stored) return stored
-  const fromCovers = firstCoverUrl(e.cover_photos)
-  if (fromCovers.startsWith("http")) return fromCovers
-  const ill = (e.couple_illustration_url || "").trim()
-  return ill.startsWith("http") ? ill : ""
+  return resolveEventPhoto(e)
 }
 
 export function galleryTokenFor(): string {

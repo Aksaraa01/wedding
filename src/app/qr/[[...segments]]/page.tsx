@@ -4,6 +4,8 @@ import { use, useEffect, useState, useRef } from "react"
 import QRCode from "qrcode"
 import { useVisiblePoll } from "@/lib/useVisiblePoll"
 import { resolveCoupleName } from "@/lib/coupleName"
+import { resolveEventPhoto } from "@/lib/event-photo"
+import StorageImage from "@/components/StorageImage"
 
 function getSegment(segments: string[] | undefined): string | null {
   if (!segments || segments.length === 0) return null
@@ -26,14 +28,38 @@ function formatDate(dateStr: string): string {
   return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`
 }
 
+type DisplaySession = { name: string; date: string; time: string; venue: string; address: string }
+
+// Pass shows every session (e.g. Akad + Resepsi) labeled with the acara name;
+// date/time roll down to the session's own date, else the profile-level date.
+function displaySessions(rawSessions: any[], estimatedDate: string): DisplaySession[] {
+  const list = (Array.isArray(rawSessions) ? rawSessions : [])
+    .filter((s) => s && (s.date || s.time || s.venue || s.address))
+    .map((s) => {
+      const time = (s.time || "").trim()
+      return {
+        name: (s.name || "").trim(),
+        date: formatDate(s.date || estimatedDate),
+        time: time && !/\bwib\b/i.test(time) ? `${time} WIB` : time,
+        venue: (s.venue || "").trim(),
+        address: (s.address || "").trim(),
+      }
+    })
+  if (list.length === 0) {
+    return [{ name: "", date: formatDate(estimatedDate), time: "", venue: "", address: "" }]
+  }
+  return list
+}
+
 export default function DigitalPassPage({ params }: { params: Promise<{ segments?: string[] }> }) {
   const { segments } = use(params)
   const segment = getSegment(segments)
 
   const [guestName, setGuestName] = useState("")
   const [coupleName, setCoupleName] = useState("")
+  const [hashtag, setHashtag] = useState("")
+  const [passPhoto, setPassPhoto] = useState("/defaults/couple.png")
   const [tableNumber, setTableNumber] = useState("")
-  const [category, setCategory] = useState("")
   const [guestCount, setGuestCount] = useState(1)
   const [qrToken, setQrToken] = useState("")
   const [slug, setSlug] = useState("")
@@ -63,8 +89,9 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
         const sessions = time || venue || address ? [{ time, venue, address }] : []
         setGuestName("Tamu Undangan")
         setCoupleName(couple)
+        setHashtag(params.get("hashtag") || "")
+        setPassPhoto(params.get("photo") || "/defaults/couple.png")
         setTableNumber("Meja 5")
-        setCategory("")
         setIsVip(false)
         setGuestCount(2)
         setQrToken(`AKS-PREVIEW-${slug}`)
@@ -104,8 +131,9 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
 
         setGuestName(data.guest.name)
         setCoupleName(resolveCoupleName(data.profile))
+        setHashtag((data.profile.display_name || "").trim())
+        setPassPhoto(resolveEventPhoto(data.profile) || "/defaults/couple.png")
         setTableNumber(data.guest.table_number || "")
-        setCategory(data.guest.category || "")
         setIsVip(data.guest.is_vip === true)
         const pax = data.guest.rsvp_status === "HADIR" && data.guest.rsvp_pax_count
           ? data.guest.rsvp_pax_count
@@ -149,6 +177,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
   }, 5000, pollToken !== "")
 
   const fallbackCode = qrToken.slice(0, 11)
+  const passSessions = displaySessions(sessions, estimatedDate)
 
   const handleCopyCode = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -212,11 +241,11 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
           <div className="w-full max-w-[430px] flex flex-col items-center animate-pulse" aria-label="Memuat kartu">
             <div className="h-3 w-36 rounded-full bg-white/50 mb-3" />
             <div className="h-8 w-60 rounded-lg bg-white/50 mb-6" />
-            <div className="w-full rounded-[32px] bg-white/30 p-6 space-y-4">
-              <div className="h-5 w-32 rounded mx-auto bg-white/60" />
-              <div className="h-8 w-48 rounded mx-auto bg-white/60" />
-              <div className="w-52 h-52 rounded-2xl mx-auto bg-white/60" />
-              <div className="h-4 w-40 rounded mx-auto bg-white/50" />
+            <div className="w-full rounded-[32px] bg-white/30 overflow-hidden">
+              <div className="h-60 bg-white/40" />
+              <div className="p-6 flex justify-center">
+                <div className="w-40 h-40 rounded-2xl bg-white/60" />
+              </div>
             </div>
           </div>
         ) : (
@@ -237,107 +266,105 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
               </div>
 
               <article ref={cardRef} className="w-full rounded-[32px] relative overflow-hidden flex flex-col" style={{ background: "linear-gradient(rgb(26, 23, 20) 0%, rgb(21, 18, 16) 100%)", border: "1.5px solid rgb(197, 154, 78)", boxShadow: "rgba(0, 0, 0, 0.65) 0px 24px 50px -10px, rgba(197, 154, 78, 0.15) 0px 0px 30px, rgba(255, 235, 185, 0.25) 0px 1px 1px inset" }}>
-                <div className="pt-7 px-6 pb-6 text-center flex flex-col items-center" style={{ background: "transparent" }}>
-                  <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full mb-5 shimmer-badge" style={{ background: "linear-gradient(135deg, rgb(45, 36, 24) 0%, rgb(30, 23, 15) 100%)", border: "1px solid rgb(212, 175, 55)", boxShadow: "rgba(212, 175, 55, 0.2) 0px 4px 14px" }}>
-                    <svg className="w-3.5 h-3.5 text-[#E6C364]" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-                    </svg>
-                    <span className="text-[11px] font-bold tracking-[0.2em] text-[#F3E2B3] uppercase">Official VIP Invitation</span>
+                <div className="relative h-60 shrink-0">
+                  <StorageImage src={passPhoto} width={800} quality={75} alt="Foto resepsi" draggable={false} className="absolute inset-0 w-full h-full object-cover" loading="eager" />
+                  <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(26, 23, 20, 0.10) 0%, rgba(26, 23, 20, 0.06) 40%, rgba(26, 23, 20, 0.58) 72%, rgba(26, 23, 20, 0.92) 100%)" }} />
+                  <span className="absolute top-4 left-4 z-10 px-4 py-1.5 rounded-full text-[14px] font-extrabold tracking-[0.14em] text-[#3A2C12]" style={{ background: "linear-gradient(135deg, #F9F1CB 0%, #EAD894 55%, #F4EABB 100%)", boxShadow: "0 4px 14px rgba(0, 0, 0, 0.45)" }}>VIP</span>
+                  <div className="absolute bottom-3.5 inset-x-5 z-10 text-left">
+                    <p className="text-[12px] font-medium text-white/85 mb-0.5">The Wedding Of</p>
+                    <h2 className="text-[30px] leading-[1.08] font-bold text-white break-words" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", textShadow: "0 1px 8px rgba(0,0,0,0.35)" }}>
+                      {coupleName || "..."}
+                    </h2>
+                    {hashtag ? <p className="text-[11.5px] font-medium text-white/75 mt-1 break-words">{hashtag}</p> : null}
                   </div>
+                </div>
 
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-[#B89B77] font-medium mb-1">
-                    The Wedding Of
-                  </p>
-                  <h2 className="text-[32px] sm:text-[34px] leading-snug font-normal text-[#FAF5ED]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
-                    {coupleName || "..."}
-                  </h2>
-
-                  <div className="w-full mt-6 rounded-2xl p-4 text-center relative" style={{ background: "linear-gradient(rgb(36, 31, 26) 0%, rgb(28, 24, 20) 100%)", border: "1px solid rgb(120, 90, 40)", boxShadow: "rgba(255, 255, 255, 0.06) 0px 1px 0px inset" }}>
-                    <div className="flex items-center justify-center gap-2 mb-1.5">
-                      <span className="text-[10.5px] uppercase tracking-[0.18em] text-[#D8BC94] font-semibold">Tamu Undangan Khusus</span>
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[9.5px] font-extrabold tracking-wider text-[#1F170B]" style={{ background: "linear-gradient(135deg, rgb(243, 226, 179) 0%, rgb(212, 175, 55) 100%)" }}>VIP</span>
-                    </div>
-                    <h3 className="text-[25px] font-semibold text-[#FAF5ED] tracking-wide mb-3" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
-                      {guestName || "..."}
-                    </h3>
-                    <div className="pt-3 grid grid-cols-2 gap-2 text-center" style={{ borderTop: "1px solid rgba(212, 175, 55, 0.25)" }}>
-                      <div className="px-2 border-r" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
-                        <span className="block text-[10px] uppercase tracking-wider text-[#A89682] font-medium mb-0.5">Alokasi Duduk</span>
-                        <p className="text-[14px] font-semibold text-[#FAF5ED]">{tableNumber || "—"}</p>
-                      </div>
-                      <div className="px-2">
-                        <span className="block text-[10px] uppercase tracking-wider text-[#A89682] font-medium mb-0.5">Kuota Tamu</span>
-                        <p className="text-[14px] font-bold text-[#FAF5ED]">
-                          {guestCount} Orang <span className="text-[11.5px] font-normal text-[#C2B29F]">(Pax)</span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-7 flex flex-col items-center">
-                    <div className="p-3.5 rounded-3xl relative" style={{ background: "#FFFFFF", border: "3px solid #D4AF37", boxShadow: "0 0 0 4px rgba(212, 175, 55, 0.2), 0 16px 36px rgba(0, 0, 0, 0.5)" }}>
-                      <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 rounded-tr" style={{ borderColor: "#AA7C11" }} />
-                      <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 rounded-bl" style={{ borderColor: "#AA7C11" }} />
-                      <div className="w-52 h-52 bg-white rounded-2xl p-1.5 flex items-center justify-center relative overflow-hidden">
-                        {qrDataUrl ? (
-                          <button type="button" onClick={() => setQrModalOpen(true)} className="absolute inset-0 cursor-pointer" title="Perbesar QR">
-                            <img src={qrDataUrl} alt="VIP QR Code" className="w-full h-full object-contain" />
-                            <span className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                              <span className="bg-white/95 text-[#1A1817] text-[11px] font-medium px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1">
-                                <span className="material-symbols-outlined text-sm">zoom_in</span> Perbesar QR
+                <div className="flex-1 px-5 py-5">
+                  <div className="grid grid-cols-[176px,minmax(0,1fr)] gap-4 items-start">
+                    <div className="flex flex-col items-center">
+                      <div className="p-3 rounded-3xl relative bg-white" style={{ border: "3px solid #D4AF37", boxShadow: "0 12px 28px rgba(0, 0, 0, 0.45)" }}>
+                        <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 rounded-tr" style={{ borderColor: "#AA7C11" }} />
+                        <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 rounded-bl" style={{ borderColor: "#AA7C11" }} />
+                        <div className="w-36 h-36 bg-white rounded-2xl p-1 flex items-center justify-center relative overflow-hidden">
+                          {qrDataUrl ? (
+                            <button type="button" onClick={() => setQrModalOpen(true)} className="absolute inset-1.5" title="Perbesar QR">
+                              <img src={qrDataUrl} alt="VIP QR Code" className="w-full h-full object-contain" />
+                              <span className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 hover:opacity-100">
+                                <span className="bg-white/95 text-[#1A1817] text-[11px] font-medium px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1">
+                                  <span className="material-symbols-outlined text-sm">zoom_in</span> Perbesar QR
+                                </span>
                               </span>
-                            </span>
+                            </button>
+                          ) : (
+                            <div className="w-8 h-8 border-2 border-[#1A1817] border-t-transparent rounded-full animate-spin" />
+                          )}
+                        </div>
+                      </div>
+
+                      {fallbackCode && (
+                        <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-xl font-mono text-[11.5px] tracking-wider" style={{ background: "#25201A", border: "1px solid #7D5D2B" }}>
+                          <span className="font-bold text-[#EED8A1]">{fallbackCode}</span>
+                          <button className="text-[#B89B77] hover:text-[#FAF5ED] active:scale-95 transition-transform" onClick={handleCopyCode} title="Salin Kode VIP" type="button">
+                            <span className="material-symbols-outlined text-sm" style={{ color: copyOk ? "#059669" : undefined }}>{copyOk ? "check" : "content_copy"}</span>
                           </button>
-                        ) : (
-                          <div className="w-8 h-8 border-2 border-[#1A1817] border-t-transparent rounded-full animate-spin" />
-                        )}
-                      </div>
+                        </div>
+                      )}
+
+                      <p className="mt-2.5 text-[9px] leading-snug text-center text-white/60">
+                        Bawa kartu ini dan perlihatkan kepada penerima tamu saat melakukan check-in di lokasi acara
+                      </p>
                     </div>
 
-                    <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-xl font-mono text-[12.5px] tracking-wider" style={{ background: "#25201A", border: "1px solid #7D5D2B", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>
-                      <span className="font-bold text-[#EED8A1]">{fallbackCode}</span>
-                      <button className="text-[#B89B77] hover:text-[#FAF5ED] active:scale-95 transition-transform" onClick={handleCopyCode} title="Salin Kode VIP" type="button">
-                        <span className="material-symbols-outlined text-base" style={{ color: copyOk ? "#059669" : undefined }}>{copyOk ? "check" : "content_copy"}</span>
-                      </button>
+                    <div className="flex flex-col min-w-0 text-left">
+                      <p className="text-[12.5px] font-semibold text-[#E6C364]">You are invited to our wedding day!</p>
+                      <p className="text-[11.5px] text-[#C2B29F] mt-3">Dear</p>
+                      <h3 className="text-[23px] font-semibold text-[#FAF5ED] leading-tight break-words" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+                        {guestName || "..."}
+                      </h3>
+                      <div className="flex flex-wrap gap-1.5 mt-2.5">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold text-[#F3E2B3]" style={{ background: "#25201A", border: "1px solid #7D5D2B" }}>
+                          Meja {tableNumber || "—"}
+                        </span>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold text-[#F3E2B3]" style={{ background: "#25201A", border: "1px solid #7D5D2B" }}>
+                          {guestCount} Pax
+                        </span>
+                      </div>
+
+                      {passSessions.map((ev, i) => (
+                        <div key={i} className={i > 0 ? "mt-2.5 pt-2.5" : "mt-4"} style={i > 0 ? { borderTop: "1px dashed rgba(212, 175, 55, 0.35)" } : undefined}>
+                          {ev.name && (
+                            <p className="text-[10.5px] uppercase tracking-[0.16em] font-semibold text-[#E6C364]">{ev.name}</p>
+                          )}
+                          <div className="flex items-start gap-2 mt-1.5">
+                            <span className="material-symbols-outlined text-[15px] text-[#E6C364] shrink-0 mt-0.5">calendar_today</span>
+                            <div className="min-w-0">
+                              <p className="text-[13px] font-semibold text-[#FAF5ED] leading-tight">{ev.date || "—"}</p>
+                              {ev.time && <p className="text-[11.5px] text-[#C2B29F] mt-0.5">{ev.time}</p>}
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-2 mt-1.5">
+                            <span className="material-symbols-outlined text-[15px] text-[#E6C364] shrink-0 mt-0.5">location_on</span>
+                            <div className="min-w-0">
+                              <p className="text-[13px] font-semibold text-[#FAF5ED] leading-tight">{ev.venue || "—"}</p>
+                              {ev.address && <p className="text-[11.5px] text-[#C2B29F] leading-snug mt-0.5">{ev.address}</p>}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
 
-                <div className="relative w-full my-1 flex items-center">
-                  <div className="ticket-notch-left" />
+                <div className="relative w-full flex items-center">
+                  <div className="w-6 h-6 absolute left-[-12px] top-1/2 -translate-y-1/2 z-20 rounded-full" style={{ background: "#ded1c1", boxShadow: "inset -3px 0 4px rgba(26, 24, 23, 0.05)" }} />
+                  <div className="w-6 h-6 absolute right-[-12px] top-1/2 -translate-y-1/2 z-20 rounded-full" style={{ background: "#ded1c1", boxShadow: "inset 3px 0 4px rgba(26, 24, 23, 0.05)" }} />
                   <div className="w-full mx-7 border-b-2 border-dashed" style={{ borderColor: "rgba(212, 175, 55, 0.35)" }} />
-                  <div className="ticket-notch-right" />
                 </div>
 
-                <div className="px-6 pt-5 pb-7 flex flex-col space-y-4" style={{ background: "transparent" }}>
-                  <div className="grid grid-cols-1 gap-3.5 pt-1">
-                    <div className="flex items-start gap-3.5">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-[#E6C364] mt-0.5" style={{ background: "#282119", border: "1px solid #785A28" }}>
-                        <span className="material-symbols-outlined text-base">calendar_today</span>
-                      </div>
-                      <div>
-                        <span className="block text-[10.5px] uppercase tracking-wider text-[#A89682] font-semibold">Waktu &amp; Tanggal</span>
-                        <p className="text-[14px] font-semibold text-[#FAF5ED] leading-tight">{estimatedDate ? formatDate(estimatedDate) : "—"}</p>
-                        {sessions[0]?.time && <p className="text-[12px] text-[#C2B29F] font-normal mt-0.5">{sessions[0].time} WIB</p>}
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3.5">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-[#E6C364] mt-0.5" style={{ background: "#282119", border: "1px solid #785A28" }}>
-                        <span className="material-symbols-outlined text-base">location_on</span>
-                      </div>
-                      <div>
-                        <span className="block text-[10.5px] uppercase tracking-wider text-[#A89682] font-semibold">Lokasi Acara</span>
-                        <p className="text-[14px] font-semibold text-[#FAF5ED] leading-tight">{sessions[0]?.venue || "—"}</p>
-                        {sessions[0]?.address && <p className="text-[12px] text-[#C2B29F] leading-snug mt-0.5">{sessions[0].address}</p>}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-3 text-center" style={{ borderTop: "1px solid rgba(212, 175, 55, 0.15)" }}>
-                    <p className="text-[9.5px] tracking-[0.22em] text-[#9E8B77] uppercase font-medium">
-                      Aksaraa Digital Guestbook Platform
-                    </p>
-                  </div>
+                <div className="px-6 pt-4 pb-5 text-center">
+                  <p className="text-[9.5px] tracking-[0.22em] text-[#9E8B77] uppercase font-medium">
+                    Aksaraa Digital Guestbook Platform
+                  </p>
                 </div>
               </article>
 
@@ -370,88 +397,95 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
           </div>
         )}
 
-        <div ref={cardRef} id="wedding-pass-card" className="w-full rounded-2xl overflow-hidden border border-[rgba(26,24,23,0.08)] relative" style={{ background: "#FFFFFF", boxShadow: "0 16px 40px -12px rgba(26, 24, 23, 0.08), 0 4px 12px -2px rgba(26, 24, 23, 0.03)" }}>
-          <div className="absolute w-6 h-6 bg-[#ded1c1] rounded-full top-[58%] -translate-y-1/2 z-20 left-[-12px]" style={{ boxShadow: "inset -3px 0 4px rgba(26, 24, 23, 0.05)" }} />
-          <div className="absolute w-6 h-6 bg-[#ded1c1] rounded-full top-[58%] -translate-y-1/2 z-20 right-[-12px]" style={{ boxShadow: "inset 3px 0 4px rgba(26, 24, 23, 0.05)" }} />
-          <div className="absolute border-t-2 border-dashed border-[rgba(26,24,23,0.12)] top-[58%] left-4 right-4 z-10" />
-
-          <div className="p-6 sm:p-8 text-center flex flex-col items-center">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full mb-5" style={{ backgroundColor: "#FBF8F3", border: "1px solid rgba(212, 197, 185, 0.4)" }}>
-              <span className="material-symbols-outlined text-[#8D4D39] text-sm">auto_awesome</span>
-              <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1A1817]">Official Invitation</span>
-            </div>
-
-            <p className="text-xs uppercase tracking-[0.2em] text-[#5C5854] mb-1">The Wedding of</p>
-            <h2 className="text-3xl sm:text-4xl text-[#1A1817] font-medium mb-6" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{coupleName || "..."}</h2>
-
-            <div className="w-full rounded-xl p-4 mb-6 text-center" style={{ backgroundColor: "rgba(251, 248, 243, 0.8)", border: "1px solid rgba(26, 24, 23, 0.08)" }}>
-              <span className="text-[10px] uppercase tracking-[0.18em] text-[#8D4D39] font-bold block mb-1">Tamu Undangan</span>
-              <h3 className="text-2xl text-[#1A1817] font-semibold" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{guestName || "..."}</h3>
-
-              <div className="flex items-center justify-center gap-4 mt-3 pt-3" style={{ borderTop: "1px solid rgba(26, 24, 23, 0.06)" }}>
-                <div>
-                  <span className="block text-[10px] text-[#5C5854]/60 uppercase tracking-wider">Alokasi Duduk</span>
-                  <span className="font-semibold text-[#1A1817]">{tableNumber || "—"}</span>
-                </div>
-                <div className="w-px h-6" style={{ backgroundColor: "rgba(26, 24, 23, 0.08)" }} />
-                <div>
-                  <span className="block text-[10px] text-[#5C5854]/60 uppercase tracking-wider">Kuota Tamu</span>
-                  <span className="font-semibold text-[#1A1817]">{guestCount} Orang (Pax)</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center group cursor-pointer" onClick={() => setQrModalOpen(true)}>
-              <div className="p-4 rounded-xl relative" style={{ background: "#FFFFFF", border: "1px solid rgba(26, 24, 23, 0.1)", boxShadow: "0 8px 24px rgba(26, 24, 23, 0.04)" }}>
-                {qrDataUrl ? (
-                  <img src={qrDataUrl} alt="Digital Pass QR Code" className="w-48 h-48 object-contain" />
-                ) : (
-                  <div className="w-48 h-48 flex items-center justify-center">
-                    <div className="w-8 h-8 border-2 border-[#1A1817] border-t-transparent rounded-full animate-spin" />
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-[#1A1817]/5 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
-                  <span className="bg-white/95 text-[#1A1817] text-[11px] font-medium px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm">zoom_in</span> Perbesar QR
-                  </span>
-                </div>
-              </div>
-
-              {fallbackCode && (
-                <div className="mt-3 flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-mono text-[#5C5854]" style={{ backgroundColor: "#FBF8F3", border: "1px solid rgba(26, 24, 23, 0.08)" }}>
-                  <span>{fallbackCode}</span>
-                  <button onClick={handleCopyCode} className="hover:text-[#8D4D39] transition-colors ml-1" title="Salin Kode">
-                    <span className="material-symbols-outlined text-sm" style={{ color: copyOk ? "#059669" : undefined }}>{copyOk ? "check" : "content_copy"}</span>
-                  </button>
-                </div>
-              )}
+        <div ref={cardRef} id="wedding-pass-card" className="w-full rounded-2xl overflow-hidden border border-[rgba(26,24,23,0.08)] relative flex flex-col" style={{ background: "#FFFFFF", boxShadow: "0 16px 40px -12px rgba(26, 24, 23, 0.08), 0 4px 12px -2px rgba(26, 24, 23, 0.03)" }}>
+          <div className="relative h-56 shrink-0">
+            <StorageImage src={passPhoto} width={800} quality={75} alt="Foto resepsi" draggable={false} className="absolute inset-0 w-full h-full object-cover" loading="eager" />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(26, 23, 20, 0.08) 0%, rgba(26, 23, 20, 0.06) 40%, rgba(26, 23, 20, 0.56) 72%, rgba(26, 23, 20, 0.88) 100%)" }} />
+            <div className="absolute bottom-3.5 inset-x-5 z-10 text-left">
+              <p className="text-[11.5px] font-medium text-white/85 mb-0.5">The Wedding of</p>
+              <h2 className="text-[27px] leading-[1.08] font-bold text-white break-words" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", textShadow: "0 1px 8px rgba(0,0,0,0.35)" }}>
+                {coupleName || "..."}
+              </h2>
+              {hashtag ? <p className="text-[11px] font-medium text-white/75 mt-0.5 break-words">{hashtag}</p> : null}
             </div>
           </div>
 
-          <div className="pt-10 pb-6 px-6 sm:px-8 text-center" style={{ backgroundColor: "#FFFFFF" }}>
-            <div className="grid grid-cols-2 gap-4 text-left py-4 mb-6" style={{ borderTop: "1px solid rgba(26, 24, 23, 0.08)", borderBottom: "1px solid rgba(26, 24, 23, 0.08)" }}>
-              <div className="flex items-start gap-2.5">
-                <span className="material-symbols-outlined text-[#8D4D39] text-lg mt-0.5">calendar_today</span>
-                <div>
-                  <span className="block text-[10px] uppercase tracking-wider text-[#5C5854]/70">Waktu &amp; Tanggal</span>
-                  <p className="text-xs font-medium text-[#1A1817] mt-0.5">
-                    {estimatedDate ? `${formatDate(estimatedDate)}` : "—"}
-                    <br /><span className="text-[#5C5854] font-normal">{sessions[0]?.time || ""}</span>
-                  </p>
+          <div className="flex-1 px-4 pt-5 pb-4">
+            <div className="grid grid-cols-[160px,minmax(0,1fr)] gap-3.5 items-start">
+              <div className="flex flex-col items-center">
+                <div className="p-3 rounded-xl relative" style={{ background: "#FFFFFF", border: "1px solid rgba(26, 24, 23, 0.1)", boxShadow: "0 8px 24px rgba(26, 24, 23, 0.04)" }}>
+                  {qrDataUrl ? (
+                    <button type="button" onClick={() => setQrModalOpen(true)} title="Perbesar QR" className="block">
+                      <img src={qrDataUrl} alt="Digital Pass QR Code" className="w-32 h-32 object-contain" />
+                    </button>
+                  ) : (
+                    <div className="w-32 h-32 flex items-center justify-center">
+                      <div className="w-8 h-8 border-2 border-[#1A1817] border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  )}
                 </div>
+
+                {fallbackCode && (
+                  <div className="mt-2.5 flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10.5px] font-mono text-[#5C5854]" style={{ backgroundColor: "#FBF8F3", border: "1px solid rgba(26, 24, 23, 0.08)" }}>
+                    <span>{fallbackCode}</span>
+                    <button onClick={handleCopyCode} className="hover:text-[#8D4D39] transition-colors ml-1" title="Salin Kode">
+                      <span className="material-symbols-outlined text-sm" style={{ color: copyOk ? "#059669" : undefined }}>{copyOk ? "check" : "content_copy"}</span>
+                    </button>
+                  </div>
+                )}
+
+                <p className="mt-2 text-[9px] leading-snug text-center text-[#5C5854]/70">
+                  Bawa kartu ini dan perlihatkan kepada penerima tamu saat melakukan check-in di lokasi acara
+                </p>
               </div>
-              <div className="flex items-start gap-2.5">
-                <span className="material-symbols-outlined text-[#8D4D39] text-lg mt-0.5">location_on</span>
-                <div>
-                  <span className="block text-[10px] uppercase tracking-wider text-[#5C5854]/70">Lokasi Acara</span>
-                  <p className="text-xs font-medium text-[#1A1817] mt-0.5">
-                    {sessions[0]?.venue || "—"}
-                    {sessions[0]?.address && <br />}
-                    {sessions[0]?.address && <span className="text-[#5C5854] font-normal">{sessions[0].address}</span>}
-                  </p>
+
+              <div className="flex flex-col min-w-0 text-left">
+                <p className="text-[12px] font-semibold text-[#8D4D39]">You are invited to our wedding day!</p>
+                <p className="text-[11px] text-[#5C5854] mt-2.5">Dear</p>
+                <h3 className="text-[21px] font-semibold text-[#1A1817] leading-tight break-words" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+                  {guestName || "..."}
+                </h3>
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[9.5px] font-semibold text-[#1A1817]" style={{ backgroundColor: "#FBF8F3", border: "1px solid rgba(26, 24, 23, 0.12)" }}>
+                    Meja {tableNumber || "—"}
+                  </span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[9.5px] font-semibold text-[#1A1817]" style={{ backgroundColor: "#FBF8F3", border: "1px solid rgba(26, 24, 23, 0.12)" }}>
+                    {guestCount} Pax
+                  </span>
                 </div>
+
+                {passSessions.map((ev, i) => (
+                  <div key={i} className={i > 0 ? "mt-2 pt-2" : "mt-3.5"} style={i > 0 ? { borderTop: "1px dashed rgba(26, 24, 23, 0.15)" } : undefined}>
+                    {ev.name && (
+                      <p className="text-[10px] uppercase tracking-[0.16em] font-semibold text-[#8D4D39]">{ev.name}</p>
+                    )}
+                    <div className="flex items-start gap-2 mt-1.5">
+                      <span className="material-symbols-outlined text-[14px] text-[#8D4D39] shrink-0 mt-0.5">calendar_today</span>
+                      <div className="min-w-0">
+                        <p className="text-[12px] font-semibold text-[#1A1817] leading-tight">{ev.date || "—"}</p>
+                        {ev.time && <p className="text-[10.5px] text-[#5C5854] mt-0.5">{ev.time}</p>}
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2 mt-1.5">
+                      <span className="material-symbols-outlined text-[14px] text-[#8D4D39] shrink-0 mt-0.5">location_on</span>
+                      <div className="min-w-0">
+                        <p className="text-[12px] font-semibold text-[#1A1817] leading-tight">{ev.venue || "—"}</p>
+                        {ev.address && <p className="text-[10.5px] text-[#5C5854] leading-snug mt-0.5">{ev.address}</p>}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
+          </div>
+
+          <div className="relative w-full flex items-center">
+            <div className="w-6 h-6 absolute left-[-12px] top-1/2 -translate-y-1/2 z-20 rounded-full" style={{ background: "#ded1c1", boxShadow: "inset -3px 0 4px rgba(26, 24, 23, 0.05)" }} />
+            <div className="w-6 h-6 absolute right-[-12px] top-1/2 -translate-y-1/2 z-20 rounded-full" style={{ background: "#ded1c1", boxShadow: "inset 3px 0 4px rgba(26, 24, 23, 0.05)" }} />
+            <div className="w-full mx-7 border-b-2 border-dashed border-[rgba(26,24,23,0.12)]" />
+          </div>
+
+          <div className="pt-4 pb-5 px-6 text-center" style={{ backgroundColor: "#FFFFFF" }}>
             <p className="text-[10px] uppercase tracking-[0.2em] text-[#5C5854]/60 font-medium">Aksaraa Digital Guestbook Platform</p>
           </div>
         </div>
@@ -521,10 +555,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
         body { margin: 0; }
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
         @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .ticket-notch-left { width: 24px; height: 24px; border-radius: 0 100% 100% 0; background: linear-gradient(135deg, #ebdccb 0%, #dec4a9 100%); position: absolute; left: 0; transform: translateY(-50%); }
-        .ticket-notch-right { width: 24px; height: 24px; border-radius: 100% 0 0 100%; background: linear-gradient(225deg, #ebdccb 0%, #dec4a9 100%); position: absolute; right: 0; transform: translateY(-50%); }
         @keyframes shimmer { 0% { opacity: 0.85; } 50% { opacity: 1; transform: scale(1.02); } 100% { opacity: 0.85; } }
-        .shimmer-badge { animation: shimmer 3s infinite ease-in-out; }
       `}</style>
       </div>
   )

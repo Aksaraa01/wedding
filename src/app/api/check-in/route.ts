@@ -170,7 +170,7 @@ export async function GET(req: NextRequest) {
 
     const { data: profile, error: profileErr } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("bride_name, groom_name, bride_full_name, groom_full_name, display_name, slug, estimated_wedding_date, sessions, package_type, cover_photos, couple_illustration_url, invitation_disabled_at")
+      .select("bride_name, groom_name, bride_full_name, groom_full_name, display_name, slug, estimated_wedding_date, sessions, package_type, cover_photos, couple_illustration_url, gallery_photo_url, invitation_disabled_at")
       .eq("id", guest.wedding_profile_id)
       .single()
 

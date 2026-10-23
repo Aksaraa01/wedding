@@ -4,6 +4,8 @@ import { use, useEffect, useState } from "react"
 import QRCode from "qrcode"
 import ProfileMenu from "@/components/ProfileMenu"
 import { resolveCoupleName } from "@/lib/coupleName"
+import { resolveEventPhoto } from "@/lib/event-photo"
+import StorageImage from "@/components/StorageImage"
 import { useRouter, useSearchParams } from "next/navigation"
 
 function formatDate(dateStr: string): string {
@@ -62,9 +64,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
         setCategory(data.guest.category || null)
         setEventDate(formatDate(data.profile.estimated_wedding_date || ""))
         if (typeof data.photoQuota === "number") setPhotoQuota(data.photoQuota)
-        const covers = Array.isArray(data.profile.cover_photos) ? data.profile.cover_photos : []
-        const firstCover = covers.find((c: unknown) => typeof c === "string" && (c as string).trim()) as string | undefined
-        setCoverPhoto((firstCover as string) || data.profile.couple_illustration_url || "/defaults/couple.png")
+        setCoverPhoto(resolveEventPhoto(data.profile) || "/defaults/couple.png")
 
         if (!data.guest.is_checked_in) {
           await fetch("/api/check-in", {
@@ -156,7 +156,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
         </div>
         <section className="relative w-full aspect-square max-w-md mx-auto mb-6 flex flex-col items-center justify-center">
           <img src="https://wedding.aksaraa.com/frames/welcome-flower.png" alt="" className="absolute inset-0 w-full h-full object-contain pointer-events-none" style={{ transform: "scale(1.05)" }} />
-          <div className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden shadow-sm ring-1 ring-surface-variant z-10 mb-8 mt-12">{loading ? (<div className="w-full h-full bg-surface-container-high animate-pulse" />) : (<img alt="Couple Portrait" className="w-full h-full object-cover" src={coverPhoto || "/defaults/couple.png"} />)}</div>
+          <div className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden shadow-sm ring-1 ring-surface-variant z-10 mb-8 mt-12">{loading ? (<div className="w-full h-full bg-surface-container-high animate-pulse" />) : (<StorageImage alt="Couple Portrait" width={600} className="w-full h-full object-cover" src={coverPhoto || "/defaults/couple.png"} />)}</div>
           <div className="text-center space-y-2 mt-auto pb-5 px-8 py-6 rounded-xl border border-white/20 shadow-sm bg-white/10 z-10 w-full">
             <p className="text-label-md text-primary uppercase tracking-widest font-body-md">Selamat Datang,</p>
             {loading ? (<div className="h-8 bg-surface-container-high rounded animate-pulse w-48 mx-auto" />) : (<h1 className="font-headline-lg text-headline-lg text-primary lowercase tracking-tight"><span style={{ color: "rgb(28, 28, 22)", fontSize: "30px", fontWeight: 600, textTransform: "none", backgroundColor: "rgb(253, 249, 240)" }}>{guestName || "..."}</span></h1>)}

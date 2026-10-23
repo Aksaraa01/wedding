@@ -23,6 +23,7 @@ type Profile = {
   slug: string
   couple_illustration_url: string | null
   cover_photos: string[] | null
+  gallery_photo_url?: string | null
   couple_initials: string | null
   grayscale: boolean
   is_published: boolean
@@ -1456,7 +1457,7 @@ function EditorInner({ id }: { id: string }) {
         guest_id="preview"
         guest_qr_token={featureSet.has("qr_code_book") ? "preview" : undefined}
         guest_table_number="Meja 5"
-        guest_qr_url={featureSet.has("qr_code_book") ? `/qr/preview?preview=1&slug=${encodeURIComponent(data.slug || "")}&couple=${encodeURIComponent(resolveCoupleName(data))}&date=${encodeURIComponent(data.estimated_wedding_date || "")}&time=${encodeURIComponent(sessions[0]?.time || "")}&venue=${encodeURIComponent(sessions[0]?.venue || "")}&address=${encodeURIComponent(sessions[0]?.address || "")}` : undefined}
+        guest_qr_url={featureSet.has("qr_code_book") ? `/qr/preview?preview=1&slug=${encodeURIComponent(data.slug || "")}&couple=${encodeURIComponent(resolveCoupleName(data))}&date=${encodeURIComponent(data.estimated_wedding_date || "")}&time=${encodeURIComponent(sessions[0]?.time || "")}&venue=${encodeURIComponent(sessions[0]?.venue || "")}&address=${encodeURIComponent(sessions[0]?.address || "")}&photo=${encodeURIComponent(data.gallery_photo_url || "")}&hashtag=${encodeURIComponent(data.display_name || "")}` : undefined}
         display_name={data.display_name || undefined}
         cover_photos={data.cover_photos || undefined}
         couple_initials={data.couple_initials || undefined}
