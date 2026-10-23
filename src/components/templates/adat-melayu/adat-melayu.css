@@ -637,3 +637,10 @@ html:has(.adat-melayu-root.is-locked),body:has(.adat-melayu-root.is-locked){over
   box-shadow: 0 4px 15px rgb(23 22 18 / 0.24);
 }
 .adat-melayu-root .tpl-music-btn:hover { background: var(--sage-hover); }
+
+/* Short-content layout: never keep a tall empty section when the couple has no
+   video or only a few stories. */
+.adat-melayu-root .our-gallery-section { min-height: 0; height: auto; }
+.adat-melayu-root .love-story-section { min-height: 0; height: auto; padding-bottom: 64px; }
+.adat-melayu-root .story-card { min-height: 0; height: auto; }
+.adat-melayu-root .story-list { padding-bottom: 4px; }

@@ -652,3 +652,10 @@ html:has(.adat-batak-root.is-locked),body:has(.adat-batak-root.is-locked){overfl
 }
 
 .adat-batak-root .video-copy { top: 42%; }
+
+/* Short-content layout: never keep a tall empty section when the couple has no
+   video or only a few stories. */
+.adat-batak-root .our-gallery-section { min-height: 0; height: auto; }
+.adat-batak-root .love-story-section { min-height: 0; height: auto; padding-bottom: 64px; }
+.adat-batak-root .story-card { min-height: 0; height: auto; }
+.adat-batak-root .story-list { padding-bottom: 4px; }

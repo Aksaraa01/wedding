@@ -652,3 +652,10 @@ html:has(.adat-minang-root.is-locked),body:has(.adat-minang-root.is-locked){over
 }
 
 .adat-minang-root .video-copy { top: 46%; }
+
+/* Short-content layout: never keep a tall empty section when the couple has no
+   video or only a few stories. */
+.adat-minang-root .our-gallery-section { min-height: 0; height: auto; }
+.adat-minang-root .love-story-section { min-height: 0; height: auto; padding-bottom: 64px; }
+.adat-minang-root .story-card { min-height: 0; height: auto; }
+.adat-minang-root .story-list { padding-bottom: 4px; }

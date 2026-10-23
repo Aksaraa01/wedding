@@ -490,3 +490,10 @@ html:has(.altar-garden-root.is-locked),body:has(.altar-garden-root.is-locked){ov
 .altar-garden-root .inviting-list { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
 .altar-garden-root .inviting-list li { padding: 12px 0; color: var(--ink); font-family: var(--serif); font-size: 16px; line-height: 1.5; }
 .altar-garden-root .inviting-list li + li { border-top: 1px solid color-mix(in srgb, var(--altar-primary) 22%, transparent); }
+
+/* Short-content layout: never keep a tall empty section when the couple has no
+   video or only a few stories. */
+.altar-garden-root .our-gallery-section { min-height: 0; height: auto; }
+.altar-garden-root .love-story-section { min-height: 0; height: auto; padding-bottom: 64px; }
+.altar-garden-root .story-card { min-height: 0; height: auto; }
+.altar-garden-root .story-list { padding-bottom: 4px; }

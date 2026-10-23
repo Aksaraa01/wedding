@@ -490,3 +490,10 @@ html:has(.piano-garden-root.is-locked),body:has(.piano-garden-root.is-locked){ov
 .piano-garden-root .inviting-list { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
 .piano-garden-root .inviting-list li { padding: 12px 0; color: var(--ink); font-family: var(--serif); font-size: 16px; line-height: 1.5; }
 .piano-garden-root .inviting-list li + li { border-top: 1px solid color-mix(in srgb, var(--piano-primary) 22%, transparent); }
+
+/* Short-content layout: never keep a tall empty section when the couple has no
+   video or only a few stories. */
+.piano-garden-root .our-gallery-section { min-height: 0; height: auto; }
+.piano-garden-root .love-story-section { min-height: 0; height: auto; padding-bottom: 64px; }
+.piano-garden-root .story-card { min-height: 0; height: auto; }
+.piano-garden-root .story-list { padding-bottom: 4px; }
