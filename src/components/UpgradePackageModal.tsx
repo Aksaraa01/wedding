@@ -14,23 +14,30 @@ interface UpgradePackageModalProps {
   open: boolean
   onClose: () => void
   content: UpgradeModalContent
-  ctaHref: string
+  // Primary action target. Either route via ctaHref or run onCta (ops guard);
+  // when neither is given the primary button just closes.
+  ctaHref?: string
+  onCta?: () => void
   // Optional WhatsApp CTA: when set, replaces the "Nanti Saja" dismiss button
   // with "Hubungi Konsultan" (prefilled link opens in a new tab).
   waHref?: string
   // Optional explicit close (X) affordance for flows where the popup is the
   // only way forward and outside-click alone is too subtle.
   showClose?: boolean
+  // Ops guard: render only the primary action (no WA/dismiss secondary).
+  hideSecondary?: boolean
+  // Stacking control so the popup can sit above host modals (ops picker z-320).
+  zIndexClass?: string
 }
 
 // Shared upsell shell: locked-feature popup showing what the feature does
 // and which packages include it. Callers pass feature-specific content;
 // the shell (overlay, card, CTA + dismiss/WA) stays identical everywhere.
-export default function UpgradePackageModal({ open, onClose, content, ctaHref, waHref, showClose }: UpgradePackageModalProps) {
+export default function UpgradePackageModal({ open, onClose, content, ctaHref, onCta, waHref, showClose, hideSecondary, zIndexClass = "z-[60]" }: UpgradePackageModalProps) {
   const router = useRouter()
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+    <div className={`fixed inset-0 ${zIndexClass} bg-black/50 backdrop-blur-sm flex items-center justify-center p-4`} onClick={onClose}>
       <div className="relative bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
         {showClose && (
           <button
@@ -60,12 +67,16 @@ export default function UpgradePackageModal({ open, onClose, content, ctaHref, w
         </p>
         <div className="flex gap-2">
           <button
-            onClick={() => router.push(ctaHref)}
+            onClick={() => {
+              if (onCta) onCta()
+              else if (ctaHref) router.push(ctaHref)
+              else onClose()
+            }}
             className="flex-1 py-2.5 rounded-full bg-[#B34E3F] text-white text-[13px] font-semibold hover:bg-[#9E3B2D] transition-colors"
           >
             {content.cta}
           </button>
-          {waHref ? (
+          {!hideSecondary && (waHref ? (
             <a
               href={waHref}
               target="_blank"
@@ -81,7 +92,7 @@ export default function UpgradePackageModal({ open, onClose, content, ctaHref, w
             >
               Nanti Saja
             </button>
-          )}
+          ))}
         </div>
       </div>
     </div>

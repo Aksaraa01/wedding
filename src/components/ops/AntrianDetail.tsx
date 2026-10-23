@@ -24,7 +24,8 @@ import {
   coverPhotos,
   getPackageCategory,
 } from "@/lib/opsConstants"
-import { PACKAGE_FEATURES, calcTotalBook, matchGaleriTier, type GaleriTierRow, type PriceBook } from "@/lib/packages"
+import { PACKAGE_FEATURES, calcTotalBook, matchGaleriTier, lowestEligiblePackage, packageDisplayName, type GaleriTierRow, type PriceBook } from "@/lib/packages"
+import UpgradePackageModal from "@/components/UpgradePackageModal"
 import { useVisiblePoll } from "@/lib/useVisiblePoll"
 import {
   OPS_COLUMNS,
@@ -596,6 +597,7 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [invTplList, setInvTplList] = useState<any[]>([])
   const [invTplLoading, setInvTplLoading] = useState(false)
   const [invTplWorking, setInvTplWorking] = useState<string | null>(null)
+  const [invTplBlocked, setInvTplBlocked] = useState<any | null>(null)
   const [invTrackOptions, setInvTrackOptions] = useState<any[]>([])
   const [invUploading, setInvUploading] = useState<string | null>(null)
   const [invGiftAddrId, setInvGiftAddrId] = useState<string | null>(null)
@@ -1700,7 +1702,9 @@ export default function AntrianDetail({ id }: { id: string }) {
     if (invTplList.length > 0) return
     setInvTplLoading(true)
     try {
-      const res = await fetch(`/api/web-templates`)
+      // fresh=1 + no-store: eligibility edits must be current, this picker gates
+      // template assignment and a stale list causes ops human error.
+      const res = await fetch(`/api/web-templates?fresh=1`, { cache: "no-store" })
       const data = await res.json().catch(() => ({}))
       if (res.ok) setInvTplList(data.templates || [])
     } catch {}
@@ -1712,6 +1716,15 @@ export default function AntrianDetail({ id }: { id: string }) {
     if (!wpId || !tpl?.id || invTplWorking) return
     if (tpl.id === invitationData.template?.id) {
       setInvTplOpen(false)
+      return
+    }
+    // Package gate: block assigning a template outside the couple's package so
+    // ops can't mis-assign by mistake. The current template is exempt.
+    const pkg = invitationData?.profile?.package_type || ""
+    const elig = tpl.package_eligibility
+    const eligible = !Array.isArray(elig) || elig.length === 0 || (!!pkg && elig.includes(pkg))
+    if (!eligible) {
+      setInvTplBlocked(tpl)
       return
     }
     const prevName = invitationData.template?.name || "belum ada"
@@ -4284,6 +4297,33 @@ export default function AntrianDetail({ id }: { id: string }) {
           </div>
         </div>
       )}
+
+      {invTplBlocked && (() => {
+        const pkg = invitationData?.profile?.package_type || ""
+        const elig = Array.isArray(invTplBlocked.package_eligibility) ? invTplBlocked.package_eligibility : []
+        const min = lowestEligiblePackage(elig)
+        const minLabel = min ? packageDisplayName(min) : elig.length > 0 ? packageDisplayName(elig[0]) : "tertentu"
+        return (
+          <UpgradePackageModal
+            open
+            showClose
+            hideSecondary
+            zIndexClass="z-[340]"
+            onClose={() => setInvTplBlocked(null)}
+            onCta={() => setInvTplBlocked(null)}
+            content={{
+              title: invTplBlocked.name,
+              lockLabel: "Di Luar Paket",
+              benefits: [
+                `Paket pelanggan saat ini: ${pkg ? packageDisplayName(pkg) : "-"}`,
+                `Template tersedia mulai dari ${minLabel}`,
+              ],
+              eligiblePackages: elig.map((c: string) => packageDisplayName(c)),
+              cta: "Mengerti",
+            }}
+          />
+        )
+      })()}
 
       {showFbPayGate && (
         <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowFbPayGate(false)}>
