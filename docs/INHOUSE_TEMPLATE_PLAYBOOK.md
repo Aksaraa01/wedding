@@ -423,7 +423,16 @@ grep -o "127.0.0.1:54321\|<PROJECT_REF>.supabase.co\|supabase-demo" \
   .next/standalone/.next/server/chunks/src_lib_supabase_ts_*.js | sort | uniq -c
 ```
 
-Only `<PROJECT_REF>.supabase.co` may appear. Then rsync **sequentially**:
+Only `<PROJECT_REF>.supabase.co` may appear.
+
+**Deploy only the current task's changes.** If the working tree holds
+unrelated edits from other sessions, do not build from it. Create a throwaway
+worktree at `HEAD`, copy in only this task's files, clone `node_modules`
+(`cp -cR node_modules <worktree>/node_modules` — Turbopack rejects a symlink
+that points outside the project root), build there, and rsync from that
+worktree. The main tree keeps the other sessions' edits untouched.
+
+Then rsync **sequentially**:
 
 1. `.next/standalone/` → `/var/www/aksara-wedding/.next/standalone/`
 2. `.next/static/` → `.next/static/`

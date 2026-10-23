@@ -11,6 +11,7 @@ import DarkSplitRail from "./dark-split-rail"
 import Sandhya from "./sandhya"
 import Evermore from "./evermore"
 import PianoGarden from "./piano-garden"
+import AltarGarden from "./altar-garden"
 
 export type { TemplateProps } from "@/types/template"
 
@@ -26,6 +27,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   sandhya: Sandhya,
   evermore: Evermore,
   "piano-garden": PianoGarden,
+  "altar-garden": AltarGarden,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -428,6 +430,43 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         accentMuted: "#5d4b77",
         overlay: "#2b2535",
         dark: "#2b2535",
+      },
+      ornaments: { divider: "floral", border: "minimal", frame: "circle" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.2 },
+    },
+    content: {
+      cover_slots: 0,
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: false,
+      sections: {
+        opening_description: false,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: false,
+        dresscode: true,
+        livestream: true,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "altar-garden",
+    name: "Altar Garden",
+    description: "Undangan bergaya taman sage — sampul bunga, video pembuka, ayat, mempelai, hitung mundur, acara, dress code, galeri berjalan, kisah cinta, hadiah, dan ucapan dalam satu alur gulir.",
+    theme: {
+      fonts: { display: "Italianno", script: "Italianno", body: "Poppins" },
+      colors: {
+        surface: "#f4f5ee",
+        text: "#2b332a",
+        accent: "#85a57a",
+        accentMuted: "#3d4e3d",
+        overlay: "#2b332a",
+        dark: "#2b332a",
       },
       ornaments: { divider: "floral", border: "minimal", frame: "circle" },
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },

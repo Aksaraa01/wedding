@@ -90,7 +90,7 @@ export default async function TemplatePreviewPage({ params }: { params: Promise<
   if (!Component) notFound()
 
   const demoProps = DEMO_PROPS_BY_CODE[code] || DEMO_PROPS
-  const keepDemoIds = code === "evermore" || code === "piano-garden"
+  const keepDemoIds = code === "evermore" || code === "piano-garden" || code === "altar-garden"
   const previewProps: TemplateProps = {
     ...demoProps,
     preview_mode: true,

@@ -25,8 +25,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     placeholders: {
       sandhya: "Kami memohon maaf atas segala kekeliruan penulisan nama dan gelar.",
       "piano-garden": "Kami memohon maaf atas segala kekeliruan penulisan nama dan gelar.",
+      "altar-garden": "Kami memohon maaf atas segala kekeliruan penulisan nama dan gelar.",
     },
-    templates: ["sandhya", "piano-garden"],
+    templates: ["sandhya", "piano-garden", "altar-garden"],
   },
   {
     key: "profiles_intro",
@@ -52,8 +53,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     placeholders: {
       evermore: "Beberapa bingkai yang telah kami lalui bersama, tersimpan seperti foto lama di album keluarga.",
       "piano-garden": "Momen yang kami simpan erat, seperti kenangan dalam album keluarga.",
+      "altar-garden": "Momen yang kami simpan erat, seperti kenangan dalam album keluarga.",
     },
-    templates: ["evermore", "piano-garden"],
+    templates: ["evermore", "piano-garden", "altar-garden"],
   },
   {
     key: "gallery_quote",
@@ -64,8 +66,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       evermore: "Di antara sapaan pertama dan setiap hari esok, kami menemukan selamanya.",
       sandhya: "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku.",
       "piano-garden": "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku.",
+      "altar-garden": "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku.",
     },
-    templates: ["sandhya", "evermore", "piano-garden"],
+    templates: ["sandhya", "evermore", "piano-garden", "altar-garden"],
   },
   {
     key: "gift_intro_title",
@@ -74,8 +77,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       evermore: "Hadiah Pernikahan",
       sandhya: "Tanda Kasih",
       "piano-garden": "Tanda Kasih",
+      "altar-garden": "Tanda Kasih",
     },
-    templates: ["sandhya", "evermore", "piano-garden"],
+    templates: ["sandhya", "evermore", "piano-garden", "altar-garden"],
   },
   {
     key: "gift_intro_description",
@@ -86,8 +90,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       evermore: "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya dapat ditemukan di bawah ini.",
       sandhya: "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.",
       "piano-garden": "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.",
+      "altar-garden": "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.",
     },
-    templates: ["sandhya", "evermore", "piano-garden"],
+    templates: ["sandhya", "evermore", "piano-garden", "altar-garden"],
   },
   {
     key: "wishes_intro",
@@ -97,8 +102,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     placeholders: {
       evermore: "Tinggalkan beberapa harapan dan doa untuk kedua mempelai.",
       "piano-garden": "Tinggalkan pesan cinta dan doa untuk kedua mempelai.",
+      "altar-garden": "Tinggalkan pesan cinta dan doa untuk kedua mempelai.",
     },
-    templates: ["evermore", "piano-garden"],
+    templates: ["evermore", "piano-garden", "altar-garden"],
   },
   {
     key: "closing_message",
@@ -109,8 +115,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       evermore: "Merupakan suatu kehormatan dapat berbagi hari ini dengan Anda, dan terus menulis kisah kami dikelilingi orang-orang yang kami cintai.",
       sandhya: "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami.",
       "piano-garden": "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami.",
+      "altar-garden": "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami.",
     },
-    templates: ["sandhya", "evermore", "piano-garden"],
+    templates: ["sandhya", "evermore", "piano-garden", "altar-garden"],
   },
 ]
 
