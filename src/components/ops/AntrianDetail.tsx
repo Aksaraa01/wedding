@@ -292,6 +292,12 @@ function invSectionState(p: any, key: string, gift?: { accounts: any[]; address:
       if (gates.livestream?.included === false) return "locked"
       if (p?.livestream_visible === false) return "hidden"
       return !invHasStr(p?.livestream?.url) ? "empty" : "ok"
+    case "rundown":
+      if (p?.rundown_visible === false) return "hidden"
+      return "ok"
+    case "contacts":
+      if (p?.contacts_visible === false) return "hidden"
+      return "ok"
     case "musik":
       return p?.selected_track_id ? "ok" : "empty"
     default:
@@ -1193,7 +1199,9 @@ export default function AntrianDetail({ id }: { id: string }) {
       key === "story" ? p?.story_visible === false :
       key === "gift" ? p?.gift_section_visible === false :
       key === "dresscode" ? p?.dresscode_visible === false :
-      key === "livestream" ? p?.livestream_visible === false : false
+      key === "livestream" ? p?.livestream_visible === false :
+      key === "rundown" ? p?.rundown_visible === false :
+      key === "contacts" ? p?.contacts_visible === false : false
     const st = invSectionState(p, key === "profile" ? "profil" : key === "music" ? "musik" : key, key === "gift" ? { accounts: invitationData?.gift_accounts || [], address: invitationData?.gift_address || "" } : undefined, invNoPhoto)
     return { lockedInfo, hidden, incomplete: st === "empty" }
   }
@@ -1337,6 +1345,14 @@ export default function AntrianDetail({ id }: { id: string }) {
       livestream: p.livestream || {},
       dresscode_visible: p.dresscode_visible !== false,
       livestream_visible: p.livestream_visible !== false,
+      rundown: (Array.isArray(p.rundown) ? p.rundown : []).map((r: any) => ({
+        time: r?.time || "", description: r?.description || "",
+      })),
+      contacts: (Array.isArray(p.contacts) ? p.contacts : []).map((c: any) => ({
+        name: c?.name || "", description: c?.description || "", whatsapp: c?.whatsapp || "",
+      })),
+      rundown_visible: p.rundown_visible !== false,
+      contacts_visible: p.contacts_visible !== false,
       template_content: p.template_content || {},
       gift_section_visible: p.gift_section_visible !== false,
       inviting_families_visible: p.inviting_families_visible !== false,
@@ -1439,6 +1455,10 @@ export default function AntrianDetail({ id }: { id: string }) {
     visField("Tampil Turut Mengundang", f.inviting_families_visible, orig.inviting_families_visible !== false)
     visField("Tampil Dress Code", f.dresscode_visible !== false, orig.dresscode_visible !== false)
     visField("Tampil Live Streaming", f.livestream_visible !== false, orig.livestream_visible !== false)
+    visField("Tampil Rundown Acara", f.rundown_visible !== false, orig.rundown_visible !== false)
+    visField("Tampil Kontak Keluarga", f.contacts_visible !== false, orig.contacts_visible !== false)
+    arrField("Rundown Acara", f.rundown, orig.rundown)
+    arrField("Kontak Keluarga", f.contacts, orig.contacts)
     if (JSON.stringify(f.dresscode?.colors || []) !== JSON.stringify(orig.dresscode?.colors || [])) changed.push("Palet Dress Code")
     strField("Live Streaming", f.livestream?.url, orig.livestream?.url)
     const tcLabels: [string, string][] = [
@@ -1506,6 +1526,10 @@ export default function AntrianDetail({ id }: { id: string }) {
           livestream: f.livestream || {},
           dresscode_visible: f.dresscode_visible !== false,
           livestream_visible: f.livestream_visible !== false,
+          rundown: f.rundown || [],
+          contacts: f.contacts || [],
+          rundown_visible: f.rundown_visible !== false,
+          contacts_visible: f.contacts_visible !== false,
           template_content: f.template_content || {},
           inviting_families_visible: !!f.inviting_families_visible,
           selected_track_id: f.selected_track_id || null,
@@ -3670,6 +3694,149 @@ export default function AntrianDetail({ id }: { id: string }) {
                           </div>
                         ) : (
                           <p className="font-body-md text-xs italic text-on-surface-variant/70">Belum ada live streaming.</p>
+                        )}
+                      </div>
+                    )}
+                  </InvAccordion>
+                  )}
+
+                  {invContentSpec?.sections?.rundown && (
+                  <InvAccordion secKey="rundown" icon="schedule" label="RUNDOWN ACARA" {...invAccProps("rundown")}>
+                    {invEditing && invForm ? (
+                      <div className="mt-6 space-y-4">
+                        <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+                          <InvSectionToggle
+                            label="Tampilkan Rundown Acara"
+                            checked={invForm.rundown_visible !== false}
+                            onChange={() => handleToggleVisibility("rundown_visible", invForm.rundown_visible === false)}
+                          />
+                        </div>
+                        <p className="text-[11px] text-on-surface-variant italic">
+                          Susunan acara yang tampil di undangan. Kosongkan untuk menyembunyikan bagian ini.
+                        </p>
+                        {(invForm.rundown || []).map((item: any, i: number) => (
+                          <div key={i} className="bg-surface-container-low p-4 border border-outline-variant space-y-3">
+                            <div className="flex items-center justify-between">
+                              <span className="font-label-md text-[11px] uppercase tracking-widest text-secondary">Rundown {i + 1}</span>
+                              <button
+                                type="button"
+                                onClick={() => setInvForm({ ...invForm, rundown: (invForm.rundown || []).filter((_: any, index: number) => index !== i) })}
+                                className="text-red-500 hover:text-red-700 transition-colors"
+                              >
+                                <span className="material-symbols-outlined text-[18px]">delete</span>
+                              </button>
+                            </div>
+                            <input
+                              className="input-editorial w-full font-label-md text-[14px]"
+                              type="text"
+                              value={item.time || ""}
+                              onChange={(e) => setInvForm({ ...invForm, rundown: (invForm.rundown || []).map((row: any, index: number) => index === i ? { ...row, time: e.target.value } : row) })}
+                              placeholder="Contoh: 11.30 pagi"
+                            />
+                            <textarea
+                              className="input-editorial w-full font-label-md text-[14px] min-h-[60px] resize-none"
+                              value={item.description || ""}
+                              onChange={(e) => setInvForm({ ...invForm, rundown: (invForm.rundown || []).map((row: any, index: number) => index === i ? { ...row, description: e.target.value } : row) })}
+                              placeholder="Contoh: Tamu tiba ke venue"
+                            />
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => setInvForm({ ...invForm, rundown: [...(invForm.rundown || []), { time: "", description: "" }] })}
+                          className="w-full py-3.5 bg-secondary text-white rounded-full font-label-md text-[11px] uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">add</span>
+                          TAMBAH RUNDOWN
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="mt-6 space-y-3">
+                        {(invitationData?.profile?.rundown || []).length ? (
+                          (invitationData?.profile?.rundown || []).map((item: any, i: number) => (
+                            <div key={i} className="border-b border-outline-variant pb-3 last:border-0">
+                              <p className="font-label-md text-sm font-bold text-secondary">{item.time || `Rundown ${i + 1}`}</p>
+                              <p className="font-body-md text-xs text-on-surface-variant mt-1">{item.description || "—"}</p>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="font-body-md text-xs italic text-on-surface-variant/70">Belum ada rundown acara.</p>
+                        )}
+                      </div>
+                    )}
+                  </InvAccordion>
+                  )}
+
+                  {invContentSpec?.sections?.contacts && (
+                  <InvAccordion secKey="contacts" icon="contact_phone" label="HUBUNGI KAMI" {...invAccProps("contacts")}>
+                    {invEditing && invForm ? (
+                      <div className="mt-6 space-y-4">
+                        <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+                          <InvSectionToggle
+                            label="Tampilkan Kontak Keluarga"
+                            checked={invForm.contacts_visible !== false}
+                            onChange={() => handleToggleVisibility("contacts_visible", invForm.contacts_visible === false)}
+                          />
+                        </div>
+                        <p className="text-[11px] text-on-surface-variant italic">
+                          Kontak keluarga mempelai. Nomor WhatsApp dibuka melalui tautan wa.me.
+                        </p>
+                        {(invForm.contacts || []).map((contact: any, i: number) => (
+                          <div key={i} className="bg-surface-container-low p-4 border border-outline-variant space-y-3">
+                            <div className="flex items-center justify-between">
+                              <span className="font-label-md text-[11px] uppercase tracking-widest text-secondary">Kontak {i + 1}</span>
+                              <button
+                                type="button"
+                                onClick={() => setInvForm({ ...invForm, contacts: (invForm.contacts || []).filter((_: any, index: number) => index !== i) })}
+                                className="text-red-500 hover:text-red-700 transition-colors"
+                              >
+                                <span className="material-symbols-outlined text-[18px]">delete</span>
+                              </button>
+                            </div>
+                            <input
+                              className="input-editorial w-full font-label-md text-[14px]"
+                              type="text"
+                              value={contact.name || ""}
+                              onChange={(e) => setInvForm({ ...invForm, contacts: (invForm.contacts || []).map((row: any, index: number) => index === i ? { ...row, name: e.target.value } : row) })}
+                              placeholder="Nama kontak"
+                            />
+                            <input
+                              className="input-editorial w-full font-label-md text-[14px]"
+                              type="text"
+                              value={contact.description || ""}
+                              onChange={(e) => setInvForm({ ...invForm, contacts: (invForm.contacts || []).map((row: any, index: number) => index === i ? { ...row, description: e.target.value } : row) })}
+                              placeholder="Hubungan, mis. Keluarga Mempelai Pria"
+                            />
+                            <input
+                              className="input-editorial w-full font-label-md text-[14px]"
+                              type="text"
+                              value={contact.whatsapp || ""}
+                              onChange={(e) => setInvForm({ ...invForm, contacts: (invForm.contacts || []).map((row: any, index: number) => index === i ? { ...row, whatsapp: e.target.value } : row) })}
+                              placeholder="Nomor WhatsApp, mis. +62 812 3456 7890"
+                            />
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => setInvForm({ ...invForm, contacts: [...(invForm.contacts || []), { name: "", description: "", whatsapp: "" }] })}
+                          className="w-full py-3.5 bg-secondary text-white rounded-full font-label-md text-[11px] uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">add</span>
+                          TAMBAH KONTAK
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="mt-6 space-y-3">
+                        {(invitationData?.profile?.contacts || []).length ? (
+                          (invitationData?.profile?.contacts || []).map((contact: any, i: number) => (
+                            <div key={i} className="border-b border-outline-variant pb-3 last:border-0">
+                              <p className="font-label-md text-sm font-bold text-secondary">{contact.name || `Kontak ${i + 1}`}</p>
+                              <p className="font-body-md text-xs text-on-surface-variant mt-1">{contact.description || "—"}</p>
+                              {contact.whatsapp && <p className="font-body-md text-xs text-primary mt-1">{contact.whatsapp}</p>}
+                            </div>
+                          ))
+                        ) : (
+                          <p className="font-body-md text-xs italic text-on-surface-variant/70">Belum ada kontak keluarga.</p>
                         )}
                       </div>
                     )}

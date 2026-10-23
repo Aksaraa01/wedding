@@ -483,3 +483,10 @@ html:has(.piano-garden-root.is-locked),body:has(.piano-garden-root.is-locked){ov
 .piano-garden-root .gate-open{gap:8px}
 .piano-garden-root .video-buffering{position:absolute;right:16px;bottom:80px;z-index:2;display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:rgba(20,21,18,.5);backdrop-filter:blur(8px);color:#fff;pointer-events:none}
 @keyframes piano-gate-spin{to{transform:rotate(360deg)}}
+
+.piano-garden-root .inviting-section { position: relative; padding: 96px 30px 80px; background: var(--paper); }
+.piano-garden-root .inviting-card { position: relative; padding: 46px 24px; border: 4px solid var(--piano-primary); border-radius: 20px; background: rgb(255 252 243 / 0.8); box-shadow: 0 3px 7px rgb(0 0 0 / 0.2); text-align: center; }
+.piano-garden-root .inviting-title { margin: 0 0 28px; color: var(--brown); font-family: var(--display); font-size: 42px; font-weight: 400; line-height: 1.1; }
+.piano-garden-root .inviting-list { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.piano-garden-root .inviting-list li { padding: 12px 0; color: var(--ink); font-family: var(--serif); font-size: 16px; line-height: 1.5; }
+.piano-garden-root .inviting-list li + li { border-top: 1px solid color-mix(in srgb, var(--piano-primary) 22%, transparent); }

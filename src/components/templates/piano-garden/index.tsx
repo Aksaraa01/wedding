@@ -148,6 +148,9 @@ export default function PianoGarden(profile: TemplateProps) {
   const accounts = profile.gift_section_visible !== false ? (profile.gift_accounts || []).filter(Boolean) : []
   const giftAddress = profile.gift_section_visible !== false && gates.gift_address !== false ? (profile.gift_address || "") : ""
   const hasGift = profile.gift_section_visible !== false && (accounts.length > 0 || !!giftAddress)
+  const honored = gates.inviting_families !== false && profile.inviting_families_visible !== false
+    ? (profile.inviting_families || []).filter(Boolean)
+    : []
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.defaultMusic : "")
   const hasTrack = !!trackUrl
   const calendarUrl = gcalLink(events[0], groomShort, brideShort)
@@ -478,7 +481,7 @@ export default function PianoGarden(profile: TemplateProps) {
                 ref={videoRef}
                 muted
                 playsInline
-                preload="metadata"
+                preload={connectionOk ? "auto" : "metadata"}
                 poster={ASSET("fallback.webp")}
                 onPlaying={handleVideoPlaying}
                 onWaiting={handleVideoWaiting}
@@ -632,6 +635,29 @@ export default function PianoGarden(profile: TemplateProps) {
               </div>
             </div>
           </section>
+
+          {honored.length > 0 && (
+            <section className="inviting-section parallax-section" data-aos="fade-up" aria-label="Turut Mengundang">
+              <div className="inviting-card" data-aos="zoom-in" data-aos-delay="60" style={delay(60)}>
+                <h2 className="script inviting-title garden-text-reveal" data-aos="fade-down">
+                  Turut Mengundang
+                </h2>
+                <ul className="inviting-list">
+                  {honored.map((name, index) => (
+                    <li
+                      key={`${name}-${index}`}
+                      className="garden-text-reveal"
+                      data-aos="fade-up"
+                      data-aos-delay={120 + index * 70}
+                      style={delay(120 + index * 70)}
+                    >
+                      {name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          )}
 
           <section className="events-section" data-aos="fade-up" aria-label="Events">
             <img className="bouquet" src={ASSET("bouquet.webp")} alt="" data-aos="leaf-in" />

@@ -16,7 +16,7 @@ export async function GET(
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("id, bride_name, groom_name, slug, package_type, payment_status, selected_template_id, selected_track_id, couple_illustration_url, cover_photos, couple_initials, grayscale, is_published, published_at, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, display_name, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, opening_title, opening_description, active_wp_post_id, active_wp_post_url, portfolio_visible, portfolio_featured, dresscode, livestream, dresscode_visible, livestream_visible, template_content, gallery_photo_url")
+      .select("id, bride_name, groom_name, slug, package_type, payment_status, selected_template_id, selected_track_id, couple_illustration_url, cover_photos, couple_initials, grayscale, is_published, published_at, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, display_name, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, opening_title, opening_description, active_wp_post_id, active_wp_post_url, portfolio_visible, portfolio_featured, dresscode, livestream, dresscode_visible, livestream_visible, rundown, contacts, rundown_visible, contacts_visible, template_content, gallery_photo_url")
       .eq("id", id)
       .single()
 
@@ -93,6 +93,10 @@ export async function GET(
         livestream: profile.livestream || {},
         dresscode_visible: profile.dresscode_visible !== false,
         livestream_visible: profile.livestream_visible !== false,
+        rundown: profile.rundown || [],
+        contacts: profile.contacts || [],
+        rundown_visible: profile.rundown_visible !== false,
+        contacts_visible: profile.contacts_visible !== false,
         active_wp_post_id: profile.active_wp_post_id,
         active_wp_post_url: profile.active_wp_post_url,
         portfolio_visible: (profile as any).portfolio_visible === true,
@@ -129,7 +133,7 @@ export async function PUT(  req: NextRequest,
       "display_name", "sessions", "quote_text", "quote_source", "stories",
       "gallery_photos", "inviting_families", "rsvp_max_pax",
       "estimated_wedding_date", "gift_section_visible", "video_section_visible", "inviting_families_visible", "story_visible",
-      "opening_title", "opening_description", "portfolio_visible", "portfolio_featured", "dresscode", "livestream", "dresscode_visible", "livestream_visible", "template_content",
+      "opening_title", "opening_description", "portfolio_visible", "portfolio_featured", "dresscode", "livestream", "dresscode_visible", "livestream_visible", "rundown", "contacts", "rundown_visible", "contacts_visible", "template_content",
       "led_greeting_enabled", "led_greeting_duration_sec",
     ]
 

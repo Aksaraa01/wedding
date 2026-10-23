@@ -51,7 +51,22 @@ type Profile = {
   story_visible?: boolean
   opening_title?: string | null
   opening_description?: string | null
+  rundown?: RundownItem[] | null
+  contacts?: ContactItem[] | null
+  rundown_visible?: boolean
+  contacts_visible?: boolean
   template_content?: Record<string, string> | null
+}
+
+type RundownItem = {
+  time: string
+  description: string
+}
+
+type ContactItem = {
+  name: string
+  description: string
+  whatsapp: string
 }
 
 type Session = {
@@ -778,6 +793,20 @@ function EditorInner({ id }: { id: string }) {
     updateField("sessions", sessions.filter((_, i) => i !== index))
   }
 
+  const rundown: RundownItem[] = Array.isArray(data.rundown) ? data.rundown : []
+  const updateRundown = (index: number, field: keyof RundownItem, value: string) => {
+    updateField("rundown", rundown.map((item, i) => i === index ? { ...item, [field]: value } : item))
+  }
+  const addRundown = () => updateField("rundown", [...rundown, { time: "", description: "" }])
+  const removeRundown = (index: number) => updateField("rundown", rundown.filter((_, i) => i !== index))
+
+  const contacts: ContactItem[] = Array.isArray(data.contacts) ? data.contacts : []
+  const updateContact = (index: number, field: keyof ContactItem, value: string) => {
+    updateField("contacts", contacts.map((item, i) => i === index ? { ...item, [field]: value } : item))
+  }
+  const addContact = () => updateField("contacts", [...contacts, { name: "", description: "", whatsapp: "" }])
+  const removeContact = (index: number) => updateField("contacts", contacts.filter((_, i) => i !== index))
+
   const testMapsLink = (url: string) => {
     if (url) window.open(url, "_blank", "noopener,noreferrer")
   }
@@ -1297,6 +1326,8 @@ function EditorInner({ id }: { id: string }) {
       case "gift": return data.gift_section_visible === false
       case "dresscode": return data.dresscode_visible === false
       case "livestream": return data.livestream_visible === false
+      case "rundown": return data.rundown_visible === false
+      case "contacts": return data.contacts_visible === false
       default: return false
     }
   }
@@ -1486,6 +1517,10 @@ function EditorInner({ id }: { id: string }) {
         video_section_visible={data.video_section_visible !== false}
         inviting_families_visible={data.inviting_families_visible !== false}
         story_visible={data.story_visible !== false}
+        rundown={data.rundown || undefined}
+        contacts={data.contacts || undefined}
+        rundown_visible={data.rundown_visible !== false}
+        contacts_visible={data.contacts_visible !== false}
         track_url={selectedTrack?.audio_url || (isInhouse ? ASSETS.defaultMusic : undefined)}
         auto_play={autoPlay || undefined}
         rsvp_max_pax={data.rsvp_max_pax ?? 2}
@@ -2373,6 +2408,98 @@ function EditorInner({ id }: { id: string }) {
                     Tautan tayangan langsung. Judul, deskripsi, dan tombol mengikuti template.
                   </p>
                   </div>
+                </div>
+              ))}
+              {contentSpec?.sections?.rundown && renderSection("rundown", "schedule", "RUNDOWN ACARA", (
+                <div className="mt-6 space-y-4">
+                  <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+                    <SectionToggle
+                      label="Tampilkan Rundown Acara"
+                      checked={data.rundown_visible !== false}
+                      disabled={data.is_published === true}
+                      onChange={() => handleToggleVisibility("rundown_visible", data.rundown_visible === false)}
+                    />
+                  </div>
+                  <p className="text-[11px] text-on-surface-variant italic">
+                    Susunan acara yang tampil di undangan. Kosongkan untuk menyembunyikan bagian ini.
+                  </p>
+                  {rundown.map((item, i) => (
+                    <div key={i} className="bg-surface-container-low p-4 border border-outline-variant space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="font-label-md text-[11px] uppercase tracking-widest text-secondary">Rundown {i + 1}</span>
+                        <button onClick={() => removeRundown(i)} className="text-red-500 hover:text-red-700 transition-colors">
+                          <span className="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                      </div>
+                      <input
+                        className="input-editorial w-full font-label-md text-[14px]"
+                        type="text"
+                        value={item.time || ""}
+                        onChange={e => updateRundown(i, "time", e.target.value)}
+                        placeholder="Contoh: 11.30 pagi"
+                      />
+                      <textarea
+                        className="input-editorial w-full font-label-md text-[14px] min-h-[60px] resize-none"
+                        value={item.description || ""}
+                        onChange={e => updateRundown(i, "description", e.target.value)}
+                        placeholder="Contoh: Tamu tiba ke venue"
+                      />
+                    </div>
+                  ))}
+                  <button onClick={addRundown} className="w-full py-3.5 bg-secondary text-white rounded-full font-label-md text-[11px] uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                    <span className="material-symbols-outlined text-[16px]">add</span>
+                    TAMBAH RUNDOWN
+                  </button>
+                </div>
+              ))}
+              {contentSpec?.sections?.contacts && renderSection("contacts", "contact_phone", "HUBUNGI KAMI", (
+                <div className="mt-6 space-y-4">
+                  <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+                    <SectionToggle
+                      label="Tampilkan Kontak Keluarga"
+                      checked={data.contacts_visible !== false}
+                      disabled={data.is_published === true}
+                      onChange={() => handleToggleVisibility("contacts_visible", data.contacts_visible === false)}
+                    />
+                  </div>
+                  <p className="text-[11px] text-on-surface-variant italic">
+                    Kontak keluarga mempelai. Nomor WhatsApp akan dibuka melalui tautan wa.me.
+                  </p>
+                  {contacts.map((contact, i) => (
+                    <div key={i} className="bg-surface-container-low p-4 border border-outline-variant space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="font-label-md text-[11px] uppercase tracking-widest text-secondary">Kontak {i + 1}</span>
+                        <button onClick={() => removeContact(i)} className="text-red-500 hover:text-red-700 transition-colors">
+                          <span className="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                      </div>
+                      <input
+                        className="input-editorial w-full font-label-md text-[14px]"
+                        type="text"
+                        value={contact.name || ""}
+                        onChange={e => updateContact(i, "name", e.target.value)}
+                        placeholder="Nama kontak"
+                      />
+                      <input
+                        className="input-editorial w-full font-label-md text-[14px]"
+                        type="text"
+                        value={contact.description || ""}
+                        onChange={e => updateContact(i, "description", e.target.value)}
+                        placeholder="Hubungan, mis. Keluarga Mempelai Pria"
+                      />
+                      <input
+                        className="input-editorial w-full font-label-md text-[14px]"
+                        type="text"
+                        value={contact.whatsapp || ""}
+                        onChange={e => updateContact(i, "whatsapp", e.target.value)}
+                        placeholder="Nomor WhatsApp, mis. +62 812 3456 7890"
+                      />
+                    </div>
+                  ))}
+                  <button onClick={addContact} className="w-full py-3.5 bg-secondary text-white rounded-full font-label-md text-[11px] uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                    <span className="material-symbols-outlined text-[16px]">add</span>
+                    TAMBAH KONTAK
+                  </button>
                 </div>
               ))}
               {contentSpec?.extras && renderSection("extras", "auto_awesome", extrasLabel, (

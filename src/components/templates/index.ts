@@ -12,6 +12,7 @@ import Sandhya from "./sandhya"
 import Evermore from "./evermore"
 import PianoGarden from "./piano-garden"
 import AltarGarden from "./altar-garden"
+import AdatMelayu from "./adat-melayu"
 
 export type { TemplateProps } from "@/types/template"
 
@@ -28,6 +29,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   evermore: Evermore,
   "piano-garden": PianoGarden,
   "altar-garden": AltarGarden,
+  "adat-melayu": AdatMelayu,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -435,7 +437,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
-      cover_slots: 0,
+      cover_slots: 1,
+      cover_slot_labels: ["Foto Sampul"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,
@@ -447,7 +450,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         story: true,
         gallery: true,
         gift: true,
-        inviting: false,
+        inviting: true,
         dresscode: true,
         livestream: true,
       },
@@ -472,7 +475,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
-      cover_slots: 0,
+      cover_slots: 1,
+      cover_slot_labels: ["Foto Sampul"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,
@@ -484,9 +488,49 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         story: true,
         gallery: true,
         gift: true,
-        inviting: false,
+        inviting: true,
         dresscode: true,
         livestream: true,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "adat-melayu",
+    name: "Adat Melayu",
+    description: "Undangan adat Melayu bernuansa merah dan emas — ilustrasi rumah adat, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
+    theme: {
+      fonts: { display: "Pinyon Script", script: "Pinyon Script", body: "Poppins" },
+      colors: {
+        surface: "#fbf5e8",
+        text: "#2e2818",
+        accent: "#b1270d",
+        accentMuted: "#7a6332",
+        overlay: "#2e2818",
+        dark: "#2e2818",
+      },
+      ornaments: { divider: "floral", border: "minimal", frame: "arch" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.2 },
+    },
+    content: {
+      cover_slots: 1,
+      cover_slot_labels: ["Foto Sampul"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: false,
+      sections: {
+        opening_description: false,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: true,
+        livestream: true,
+        rundown: true,
+        contacts: true,
       },
       extras: true,
     },

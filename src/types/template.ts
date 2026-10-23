@@ -68,6 +68,10 @@ export type TemplateProps = {
   video_url?: string
   dresscode_visible?: boolean
   livestream_visible?: boolean
+  rundown_visible?: boolean
+  contacts_visible?: boolean
+  rundown?: { time?: string; description?: string }[]
+  contacts?: { name?: string; description?: string; whatsapp?: string }[]
   dresscode?: {
     title?: string
     description?: string
@@ -151,6 +155,8 @@ export type ContentSpec = {
     gift?: boolean
     dresscode?: boolean
     livestream?: boolean
+    rundown?: boolean
+    contacts?: boolean
   }
   // Template consumes profile.template_content (reference-only copy fields).
   extras?: boolean

@@ -649,3 +649,102 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
     feature_gates: { story: true, gift_address: true, inviting_families: true, video: true, qr_code_book: true },
   },
 }
+
+DEMO_PROPS_BY_CODE["adat-melayu"] = {
+  ...DEMO_PROPS_BY_CODE["altar-garden"],
+  slug: "demo",
+  groom_name: "Sandhya",
+  bride_name: "Joseph",
+  couple_initials: "SJ",
+  display_name: "#SandhyaJoseph",
+  groom_full_name: "Sandhya Kirana Adiwijaya",
+  bride_full_name: "Joseph Alexander Wicaksana",
+  groom_parents: "Putri dari Bapak Ahmad Fadillah & Ibu Nur Aisyah",
+  bride_parents: "Putra dari Bapak Muhammad Yusuf & Ibu Siti Khadijah",
+  groom_instagram: "@sandhya.kirana",
+  bride_instagram: "@joseph.alexander",
+  estimated_wedding_date: "2027-12-31",
+  quote_text:
+    "Bismillahirrahmanirrahim. Semoga Allah SWT senantiasa melimpahkan keberkahan, kasih, dan keharmonisan dalam perjalanan kami.",
+  quote_source: "Doa Pernikahan Adat Melayu",
+  sessions: [
+    {
+      name: "Akad Nikah",
+      date: "2027-12-31",
+      time: "08.00 - 10.00 WIB",
+      venue: "Balai Adat Melayu",
+      address:
+        "Jl. Hang Tuah No. 7, Kompleks Bandar Seni Raja Ali Haji, Kelurahan Sumahilang, Kecamatan Pekanbaru Kota, Kota Pekanbaru, Riau 28111",
+      maps_url: "https://maps.app.goo.gl/9bRvrJZZ1xcZSoqa6",
+    },
+    {
+      name: "Resepsi Pernikahan",
+      date: "2027-12-31",
+      time: "11.00 - 14.00 WIB",
+      venue: "Balai Adat Melayu",
+      address:
+        "Jl. Hang Tuah No. 7, Kompleks Bandar Seni Raja Ali Haji, Kelurahan Sumahilang, Kecamatan Pekanbaru Kota, Kota Pekanbaru, Riau 28111",
+      maps_url: "https://maps.app.goo.gl/UPxWi9HU1w4A9R1j6",
+    },
+  ],
+  stories: [
+    {
+      title: "Pertama Bertemu",
+      description:
+        "Kami pertama kali bertemu dalam sebuah acara keluarga di Pekanbaru. Sebuah sapaan sederhana menjadi awal dari kisah yang tidak pernah kami duga.",
+    },
+    {
+      title: "Melangkah Bersama",
+      description:
+        "Dari hari-hari yang sederhana, kami belajar untuk tumbuh bersama dan menemukan rumah dalam diri satu sama lain.",
+    },
+    {
+      title: "Memantapkan Hati",
+      description:
+        "Dengan doa dan restu kedua keluarga, kami memantapkan hati untuk mengikat janji pernikahan.",
+    },
+    {
+      title: "Hari Pernikahan",
+      description:
+        "Dengan penuh syukur, kami memulai perjalanan membangun keluarga kecil. Semoga keberkahan menyertai setiap langkah kami.",
+    },
+  ],
+  gift_accounts: [
+    { provider_name: "Bank Mandiri", account_number: "1230009876543", account_name: "Sandhya Kirana", type: "bank" },
+    { provider_name: "Bank Central Asia (BCA)", account_number: "8200891083", account_name: "Joseph Alexander", type: "bank" },
+  ],
+  gift_address:
+    "Jl. Hang Tuah No. 7, Kompleks Bandar Seni Raja Ali Haji, Kelurahan Sumahilang, Kecamatan Pekanbaru Kota, Kota Pekanbaru, Riau 28111",
+  gift_address_name: "Sandhya & Joseph",
+  inviting_families: [
+    "Keluarga Besar Bapak Ahmad Fadillah",
+    "Keluarga Besar Ibu Nur Aisyah",
+    "Keluarga Besar Bapak Muhammad Yusuf",
+    "Keluarga Besar Ibu Siti Khadijah",
+  ],
+  track_url: "/templates/adat-melayu/selamat-pengantin-baru.mp3",
+  template_content: {
+    cover_apology: "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.",
+    gallery_quote: "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama.",
+    gift_intro_title: "Love Gift",
+    gift_intro_description:
+      "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
+    wishes_intro:
+      "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
+    closing_message:
+      "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
+  },
+  rundown_visible: true,
+  contacts_visible: true,
+  rundown: [
+    { time: "11.30 pagi", description: "Tamu tiba ke venue" },
+    { time: "12.00 siang", description: "Kedatangan pengantin" },
+    { time: "12.15 siang", description: "Makan bersama tamu" },
+    { time: "1.30 siang", description: "Ucapan dan doa restu" },
+    { time: "2.00 siang", description: "Sesi foto bersama tamu" },
+  ],
+  contacts: [
+    { name: "Rizky Pratama", description: "Keluarga Mempelai Pria", whatsapp: "+62 812 3456 7890" },
+    { name: "Dewi Anggraini", description: "Keluarga Mempelai Wanita", whatsapp: "+62 812 9876 5432" },
+  ],
+}
