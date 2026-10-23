@@ -115,8 +115,8 @@ function RegistrasiCepatInner() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          bride_name: firstName.trim(),
-          groom_name: secondName.trim(),
+          bride_name: secondName.trim(),
+          groom_name: firstName.trim(),
           estimated_wedding_date: endOfYear,
           estimated_guest_count: 300,
           whatsapp_number: phone,

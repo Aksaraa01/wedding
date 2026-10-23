@@ -127,7 +127,7 @@ export default function QrPrintClient({ id, autoprint }: { id: string; autoprint
 
   useEffect(() => {
     if (!profile) return
-    const couple = [profile.bride_name, profile.groom_name].filter(Boolean).join(" & ")
+    const couple = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ")
     const date = profile.estimated_wedding_date
       ? ` - ${new Date(profile.estimated_wedding_date).toLocaleDateString("id-ID", { year: "numeric", month: "long", day: "numeric" })}`
       : ""

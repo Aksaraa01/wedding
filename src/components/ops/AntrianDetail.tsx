@@ -1760,7 +1760,7 @@ export default function AntrianDetail({ id }: { id: string }) {
 
   const profileSlug = currentWp?.slug || ""
   const waCustomerUrl = currentWp?.whatsapp_number
-    ? `https://wa.me/${currentWp.whatsapp_number.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Halo ${currentWp.bride_name} & ${currentWp.groom_name}, saya dari Aksaraa CORE OPS terkait proyek undangan Anda`)}`
+    ? `https://wa.me/${currentWp.whatsapp_number.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Halo ${currentWp.groom_name} & ${currentWp.bride_name}, saya dari Aksaraa CORE OPS terkait proyek undangan Anda`)}`
     : "#"
   const guestInvUrl = (g: { slug?: string | null; name?: string; qr_token?: string | null }) =>
     g.slug ? `https://${profileSlug}.wedding.aksaraa.com/?to=${encodeURIComponent(g.slug)}` : ""

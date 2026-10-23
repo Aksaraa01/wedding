@@ -56,10 +56,10 @@ function formatLongDate(iso: string | null): string {
 }
 
 
-function initialsOf(bride: string, groom: string): string {
-  const b = (bride.trim()[0] || "").toUpperCase()
+function initialsOf(groom: string, bride: string): string {
   const g = (groom.trim()[0] || "").toUpperCase()
-  return `${b}${g}` || "A"
+  const b = (bride.trim()[0] || "").toUpperCase()
+  return `${g}${b}` || "A"
 }
 
 function Folio({ right }: { right: React.ReactNode }) {
@@ -331,7 +331,7 @@ export default function LiveBookPage({ params }: { params: Promise<{ id: string 
     profile?.couple_illustration_url ||
     ""
   const venue = profile?.sessions?.[0]?.venue || ""
-  const mono = initialsOf(profile?.bride_name || "", profile?.groom_name || "")
+  const mono = initialsOf(profile?.groom_name || "", profile?.bride_name || "")
   const coupleName = resolveCoupleName(profile || {}) || "Mempelai"
   const total = entries.length + 1
   const pad = (n: number) => String(n).padStart(2, "0")

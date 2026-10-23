@@ -269,8 +269,8 @@ function DashboardInner({ id }: { id: string }) {
   })
 
   const settingsParams = new URLSearchParams({
-    user: profile.bride_name,
-    partner: profile.groom_name,
+    user: profile.groom_name,
+    partner: profile.bride_name,
     date: profile.estimated_wedding_date,
     guest: String(profile.estimated_guest_count ?? guestCount),
     edit: "true",
@@ -291,7 +291,7 @@ function DashboardInner({ id }: { id: string }) {
   // pilih-paket in edit mode.
   const customizeUrlFor = (tab: "undangan" | "dgbook" | "galeri") =>
     profile
-      ? `/customize?edit=true&tab=${tab}&user=${encodeURIComponent(profile.bride_name)}&partner=${encodeURIComponent(profile.groom_name)}&date=${encodeURIComponent(profile.estimated_wedding_date)}&guest=${encodeURIComponent(String(profile.estimated_guest_count ?? 300))}&profile_id=${id}`
+      ? `/customize?edit=true&tab=${tab}&user=${encodeURIComponent(profile.groom_name)}&partner=${encodeURIComponent(profile.bride_name)}&date=${encodeURIComponent(profile.estimated_wedding_date)}&guest=${encodeURIComponent(String(profile.estimated_guest_count ?? 300))}&profile_id=${id}`
       : "/customize"
   // Unified upsell content (shared UpgradePackageModal format: lock label +
   // benefit list + eligible packages). Eligible sets mirror PACKAGE_FEATURES
@@ -450,7 +450,7 @@ function DashboardInner({ id }: { id: string }) {
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0 pr-1">
-                    <h1 className={`font-serif leading-tight text-stone-900 font-normal tracking-tight break-words ${((profile.bride_name.trim().split(/\s+/).filter(Boolean).length + profile.groom_name.trim().split(/\s+/).filter(Boolean).length) > 4) ? "text-[22px] md:text-[42px] whitespace-normal line-clamp-2" : "text-[28px] md:text-[42px] whitespace-nowrap overflow-hidden text-ellipsis"}`}>{profile.bride_name} <br className="md:hidden"/><span className="font-serif italic font-normal text-[#c5a059] leading-none inline-block align-baseline tracking-wide select-none text-[22px] md:text-[42px]" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>&amp;</span> {profile.groom_name}</h1>
+                    <h1 className={`font-serif leading-tight text-stone-900 font-normal tracking-tight break-words ${((profile.bride_name.trim().split(/\s+/).filter(Boolean).length + profile.groom_name.trim().split(/\s+/).filter(Boolean).length) > 4) ? "text-[22px] md:text-[42px] whitespace-normal line-clamp-2" : "text-[28px] md:text-[42px] whitespace-nowrap overflow-hidden text-ellipsis"}`}>{profile.groom_name} <br className="md:hidden"/><span className="font-serif italic font-normal text-[#c5a059] leading-none inline-block align-baseline tracking-wide select-none text-[22px] md:text-[42px]" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>&amp;</span> {profile.bride_name}</h1>
                     <p className="text-stone-600 font-serif text-[14px] md:text-[17px] mt-1.5 tracking-wide flex items-center truncate">
                       <span className="material-symbols-outlined text-[14px] mr-1.5 text-[#a8824b] shrink-0 hidden md:inline">calendar_today</span>
                       {formattedDate}

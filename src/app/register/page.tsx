@@ -119,7 +119,7 @@ function RegisterInner() {
               Selamat datang di Aksaraa. Mari mulai cerita Anda.
             </h1>
             <p className="font-body-md text-sm md:text-body-md text-on-surface-variant mb-6 md:mb-10 opacity-80 italic">
-              Siapa nama Anda dan pasangan?
+              Siapa nama mempelai pertama dan kedua?
             </p>
             <div className="space-y-6 md:space-y-12 w-full">
               <div className="relative group">
@@ -128,7 +128,7 @@ function RegisterInner() {
                   value={userName}
                   onChange={(e) => { setUserName(e.target.value); setNameError("") }}
                   className="w-full bg-transparent border-none border-b border-outline-variant py-4 px-0 font-display-lg-mobile text-headline-md focus:ring-0 focus:border-primary placeholder:text-outline-variant transition-all duration-300 outline-none"
-                  placeholder="Nama Anda"
+                  placeholder="Nama Mempelai Pertama"
                   type="text"
                 />
                 <div className="absolute bottom-0 left-0 h-[1px] w-full bg-outline-variant/30 group-focus-within:bg-primary transition-all duration-500" />
@@ -139,7 +139,7 @@ function RegisterInner() {
                   value={partnerName}
                   onChange={(e) => { setPartnerName(e.target.value); setNameError("") }}
                   className="w-full bg-transparent border-none border-b border-outline-variant py-4 px-0 font-display-lg-mobile text-headline-md focus:ring-0 focus:border-primary placeholder:text-outline-variant transition-all duration-300 outline-none"
-                  placeholder="Nama Pasangan"
+                  placeholder="Nama Mempelai Kedua"
                   type="text"
                 />
                 <div className="absolute bottom-0 left-0 h-[1px] w-full bg-outline-variant/30 group-focus-within:bg-primary transition-all duration-500" />

@@ -1030,7 +1030,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
         <UpgradePackageModal
           open
           onClose={() => setShowLimitModal(false)}
-          ctaHref={`/customize?edit=true&tab=dgbook&user=${encodeURIComponent(profile?.bride_name || "")}&partner=${encodeURIComponent(profile?.groom_name || "")}&date=${encodeURIComponent(profile?.estimated_wedding_date || "")}&guest=${encodeURIComponent(String(profile?.estimated_guest_count || 300))}&profile_id=${id}`}
+          ctaHref={`/customize?edit=true&tab=dgbook&user=${encodeURIComponent(profile?.groom_name || "")}&partner=${encodeURIComponent(profile?.bride_name || "")}&date=${encodeURIComponent(profile?.estimated_wedding_date || "")}&guest=${encodeURIComponent(String(profile?.estimated_guest_count || 300))}&profile_id=${id}`}
           content={{
             title: "Fitur Buku Tamu Digital",
             lockLabel: "Paket Buku Tamu Digital",

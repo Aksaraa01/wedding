@@ -144,7 +144,7 @@ export default function OpsBoardPage() {
     if (!search) return true
     const q = search.toLowerCase()
     const wp = item.wedding_profile
-    const name = `${wp.bride_name} ${wp.groom_name}`.toLowerCase()
+    const name = `${wp.groom_name} ${wp.bride_name}`.toLowerCase()
     const phone = (wp.whatsapp_number || "").toLowerCase()
     return name.includes(q) || phone.includes(q)
   })
@@ -338,7 +338,7 @@ export default function OpsBoardPage() {
                         >
                           <div className="flex items-start justify-between gap-2 mb-2">
                             <p className="font-display-lg text-[15px] leading-tight">
-                              {wp.bride_name} &amp; {wp.groom_name}
+                              {wp.groom_name} &amp; {wp.bride_name}
                             </p>
                               {wp.express_service && (
                                 <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider bg-amber-50 border border-amber-300 text-amber-800 px-1.5 py-0.5 rounded-full shrink-0">Kilat</span>

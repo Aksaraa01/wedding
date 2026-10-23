@@ -83,8 +83,8 @@ export async function POST(req: Request) {
     }
     const galeriPrice = galeri?.price || 0
 
-    // Canonical slug built from FULL names (all input words, not just the first).
-    const slug = slugifyCouple(bride_name, groom_name)
+    // Canonical slug built from FULL names (Mempelai Pertama then Kedua).
+    const slug = slugifyCouple(groom_name, bride_name)
     if (!slug) {
       return NextResponse.json({ error: "Data pengantin tidak lengkap" }, { status: 400 })
     }

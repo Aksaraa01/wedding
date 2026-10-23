@@ -785,12 +785,12 @@ class AksaraaPlugin
     // their next "Perbarui undangan".
     private static function write_rank_math_seo(int $post_id, array $fields)
     {
-        $name1 = isset($fields['bride_full_name']) && trim((string) $fields['bride_full_name']) !== ''
-            ? trim((string) $fields['bride_full_name'])
-            : (isset($fields['bride_name']) ? trim((string) $fields['bride_name']) : '');
-        $name2 = isset($fields['groom_full_name']) && trim((string) $fields['groom_full_name']) !== ''
+        $name1 = isset($fields['groom_full_name']) && trim((string) $fields['groom_full_name']) !== ''
             ? trim((string) $fields['groom_full_name'])
             : (isset($fields['groom_name']) ? trim((string) $fields['groom_name']) : '');
+        $name2 = isset($fields['bride_full_name']) && trim((string) $fields['bride_full_name']) !== ''
+            ? trim((string) $fields['bride_full_name'])
+            : (isset($fields['bride_name']) ? trim((string) $fields['bride_name']) : '');
 
         if ($name1 === '' && $name2 === '') return;
 

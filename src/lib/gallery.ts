@@ -35,7 +35,7 @@ export function galeriCoupleName(e: {
 }): string {
   const stored = (e.gallery_couple_name || "").trim()
   if (stored) return stored
-  return `${e.bride_name || ""} & ${e.groom_name || ""}`.replace(/^ & | & $/g, "").trim()
+  return `${e.groom_name || ""} & ${e.bride_name || ""}`.replace(/^ & | & $/g, "").trim()
 }
 
 function firstCoverUrl(input: unknown): string {

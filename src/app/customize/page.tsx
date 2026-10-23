@@ -711,8 +711,8 @@ function Inner() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          bride_name: userName.trim(),
-          groom_name: partnerName.trim(),
+          bride_name: partnerName.trim(),
+          groom_name: userName.trim(),
           estimated_wedding_date: weddingDate,
           estimated_guest_count: guestCount,
           whatsapp_number: phone,
