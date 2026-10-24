@@ -902,3 +902,20 @@ DEMO_PROPS_BY_CODE["adat-jawa"] = {
   },
   feature_gates: { story: true, gift_address: true, inviting_families: true, video: true, qr_code_book: true },
 }
+
+DEMO_PROPS_BY_CODE["adat-palembang"] = {
+  ...DEMO_PROPS_BY_CODE["sandhya"],
+  slug: "demo",
+  display_name: "#AlbarnFaye2027",
+  estimated_wedding_date: DEMO_PROPS_BY_CODE["adat-melayu"].estimated_wedding_date,
+  quote_text: DEMO_PROPS_BY_CODE["adat-melayu"].quote_text,
+  quote_source: "Doa Pernikahan Adat Palembang",
+  sessions: DEMO_PROPS_BY_CODE["adat-melayu"].sessions,
+  stories: DEMO_PROPS_BY_CODE["adat-melayu"].stories,
+  template_content: DEMO_PROPS_BY_CODE["adat-melayu"].template_content,
+  rundown: DEMO_PROPS_BY_CODE["adat-melayu"].rundown,
+  contacts: DEMO_PROPS_BY_CODE["adat-melayu"].contacts,
+  rundown_visible: true,
+  contacts_visible: true,
+  track_url: "/templates/adat-palembang/pagar-pengantin.mp3",
+}

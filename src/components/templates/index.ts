@@ -15,6 +15,7 @@ import AltarGarden from "./altar-garden"
 import AdatMelayu from "./adat-melayu"
 import AdatBatak from "./adat-batak"
 import AdatMinang from "./adat-minang"
+import AdatPalembang from "./adat-palembang"
 import LunarBlossom from "./lunar-blossom"
 import AdatJawa from "./adat-jawa"
 
@@ -36,6 +37,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "adat-melayu": AdatMelayu,
   "adat-batak": AdatBatak,
   "adat-minang": AdatMinang,
+  "adat-palembang": AdatPalembang,
   "lunar-blossom": LunarBlossom,
   "adat-jawa": AdatJawa,
 }
@@ -688,6 +690,46 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         inviting: false,
         dresscode: false,
         livestream: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "adat-palembang",
+    name: "Adat Palembang",
+    description: "Undangan adat Palembang bernuansa marun dan emas — rumah limas, motif songket, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
+    theme: {
+      fonts: { display: "Pinyon Script", script: "Pinyon Script", body: "Poppins" },
+      colors: {
+        surface: "#f8eef0",
+        text: "#2e1418",
+        accent: "#4c030a",
+        accentMuted: "#6f2030",
+        overlay: "#2e1418",
+        dark: "#2e1418",
+      },
+      ornaments: { divider: "floral", border: "minimal", frame: "arch" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.2 },
+    },
+    content: {
+      cover_slots: 1,
+      cover_slot_labels: ["Foto Sampul"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: false,
+      sections: {
+        opening_description: false,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: true,
+        livestream: true,
+        rundown: true,
+        contacts: true,
       },
       extras: true,
     },
