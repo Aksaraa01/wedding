@@ -1,6 +1,6 @@
 {
  "canvasWidth": 484,
- "totalHeight": 10878,
+ "totalHeight": 12898,
  "sections": [
   {
    "id": "sec-2",
@@ -709,6 +709,15 @@
      "w": 127,
      "h": 127,
      "src": "/templates/adat-jawa/assets/the-wedding-of--8--82d829.webp"
+    },
+    {
+     "id": "aj-quote-source",
+     "type": "text",
+     "x": 127,
+     "y": 470,
+     "w": 231,
+     "h": 30,
+     "role": "quote-source"
     }
    ]
   },
@@ -862,9 +871,9 @@
      "id": "j5-15",
      "type": "text",
      "x": 16,
-     "y": 1004.6,
+     "y": 1024,
      "w": 452,
-     "h": 48,
+     "h": 40,
      "txt": "First son of H. Heru Stiawan",
      "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
      "size": "21.66px",
@@ -1182,9 +1191,9 @@
      "id": "j5-49",
      "type": "text",
      "x": 16,
-     "y": 1778.6,
+     "y": 1800,
      "w": 452,
-     "h": 48,
+     "h": 40,
      "txt": "First daughter of H. Heru Stiawan",
      "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
      "size": "21.66px",
@@ -1297,6 +1306,42 @@
      "w": 190,
      "h": 190,
      "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    },
+    {
+     "id": "aj-groom-full",
+     "type": "text",
+     "x": 16,
+     "y": 992,
+     "w": 452,
+     "h": 30,
+     "role": "groom-full"
+    },
+    {
+     "id": "aj-groom-ig",
+     "type": "text",
+     "x": 16,
+     "y": 1064,
+     "w": 452,
+     "h": 24,
+     "role": "groom-instagram"
+    },
+    {
+     "id": "aj-bride-full",
+     "type": "text",
+     "x": 16,
+     "y": 1768,
+     "w": 452,
+     "h": 30,
+     "role": "bride-full"
+    },
+    {
+     "id": "aj-bride-ig",
+     "type": "text",
+     "x": 16,
+     "y": 1840,
+     "w": 452,
+     "h": 24,
+     "role": "bride-instagram"
     }
    ]
   },
@@ -2037,9 +2082,36 @@
    ]
   },
   {
+   "id": "aj-story",
+   "kind": "story",
+   "top": 7179,
+   "height": 1400,
+   "bg": "#fff6e1",
+   "elements": [
+    {
+     "id": "aj-story-title",
+     "type": "text",
+     "x": 16,
+     "y": 70,
+     "w": 452,
+     "h": 90,
+     "role": "story-title"
+    },
+    {
+     "id": "aj-story-list",
+     "type": "text",
+     "x": 50,
+     "y": 190,
+     "w": 384,
+     "h": 1160,
+     "role": "story-list"
+    }
+   ]
+  },
+  {
    "id": "sec-9",
    "kind": "wishes",
-   "top": 7179,
+   "top": 8579,
    "height": 830,
    "bg": "rgb(255, 246, 225)",
    "elements": [
@@ -2239,9 +2311,36 @@
    ]
   },
   {
+   "id": "aj-honored",
+   "kind": "honored",
+   "top": 9409,
+   "height": 620,
+   "bg": "#fff6e1",
+   "elements": [
+    {
+     "id": "aj-honored-title",
+     "type": "text",
+     "x": 16,
+     "y": 70,
+     "w": 452,
+     "h": 90,
+     "role": "honored-title"
+    },
+    {
+     "id": "aj-honored-list",
+     "type": "text",
+     "x": 60,
+     "y": 190,
+     "w": 364,
+     "h": 360,
+     "role": "honored-list"
+    }
+   ]
+  },
+  {
    "id": "sec-10",
    "kind": "gift",
-   "top": 8009,
+   "top": 10029,
    "height": 726,
    "bg": "rgb(255, 255, 255)",
    "elements": [
@@ -2371,7 +2470,7 @@
   {
    "id": "sec-11",
    "kind": "gallery",
-   "top": 8735,
+   "top": 10755,
    "height": 647,
    "bg": "rgb(255, 255, 255)",
    "elements": [
@@ -2529,7 +2628,7 @@
   {
    "id": "sec-12",
    "kind": "video",
-   "top": 9382,
+   "top": 11402,
    "height": 387,
    "bg": "rgb(255, 255, 255)",
    "elements": [
@@ -2590,13 +2689,22 @@
      "w": 133,
      "h": 133,
      "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    },
+    {
+     "id": "aj-video",
+     "type": "video",
+     "x": 0,
+     "y": 116,
+     "w": 484,
+     "h": 272,
+     "role": "video"
     }
    ]
   },
   {
    "id": "sec-13",
    "kind": "closing",
-   "top": 9769,
+   "top": 11789,
    "height": 1109,
    "bg": "rgb(255, 246, 225)",
    "elements": [

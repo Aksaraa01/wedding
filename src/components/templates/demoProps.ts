@@ -886,6 +886,10 @@ DEMO_PROPS_BY_CODE["adat-jawa"] = {
     { name: "Resepsi", date: "2026-10-16", time: "13.00 WIB - Selesai", venue: "Sopo Godang HKBP", address: "Jl. Gereja No. 35 Pematangsiantar, Sumatera Utara", maps_url: "https://maps.app.goo.gl/UPxWi9HU1w4A9R1j6" },
   ],
   gallery_photos: [...DE_GALLERY, `${DE}/bride.webp`, `${DE}/groom.webp`],
+  stories: [
+    { title: "The First Hello", description: "It began with a simple introduction that slowly grew into a comfortable companionship.", image_url: `${DE}/cover.webp` },
+    { title: "Toward Forever", description: "After many chapters together, we chose to walk hand in hand toward forever.", image_url: `${DE}/cover-1.webp` },
+  ],
   video_url: "https://youtu.be/-ARVwU58l7A",
   gift_accounts: [
     { provider_name: "Bank Danamon", account_number: "903687866339", account_name: "David Albarn", type: "bank" },

@@ -79,6 +79,10 @@ const COPY = {
     galleryTitle: "Love in Frames",
     videoTitle: "Moving Memories",
     closingTitle: "Thank You",
+    storyTitle: "Our Story",
+    honoredTitle: "Also Inviting",
+    withLove: "With love,",
+    quoteTitle: "The Verse",
     closingMessage:
       "A beautiful day becomes even more meaningful because of your presence and prayers. Thank you for being part of our happiness.",
     seeLocation: "See Location",
@@ -106,6 +110,10 @@ const COPY = {
     galleryTitle: "Love in Frames",
     videoTitle: "Moving Memories",
     closingTitle: "Terima Kasih",
+    storyTitle: "Kisah Kami",
+    honoredTitle: "Turut Mengundang",
+    withLove: "Dengan cinta,",
+    quoteTitle: "Ayat",
     closingMessage:
       "Hari yang indah menjadi lebih bermakna karena kehadiran dan doa restu Anda. Terima kasih telah menjadi bagian dari kebahagiaan kami.",
     seeLocation: "Lihat Lokasi",
@@ -254,7 +262,7 @@ export default function AdatJawa(profile: TemplateProps) {
   const brideShort = (profile.bride_name || "").trim() || "Bride"
   const groomFull = (profile.groom_full_name || groomShort).trim()
   const brideFull = (profile.bride_full_name || brideShort).trim()
-  const coupleLabel = profile.display_name?.trim() || [groomShort, brideShort].filter(Boolean).join(" & ") || "The Wedding"
+  const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || "The Wedding"
   const guestName = profile.guest_name || (lang === "ID" ? "Tamu Undangan" : "Our Beloved Guest")
   const initials = (profile.couple_initials || "").trim() || initialsOf(brideShort, groomShort)
   const cover = coverPhoto(profile)
@@ -274,6 +282,8 @@ export default function AdatJawa(profile: TemplateProps) {
   const hasGift = profile.gift_section_visible !== false && (accounts.length > 0 || !!giftAddress)
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.defaultMusic : "")
   const hasTrack = !!trackUrl
+  const stories = gates.story !== false && profile.story_visible !== false ? (profile.stories || []).filter((st) => st.title || st.description || st.image_url) : []
+  const honored = gates.inviting_families !== false && profile.inviting_families_visible !== false ? (profile.inviting_families || []).filter(Boolean) : []
 
   const day0 = dateParts(event0?.date, lang)
   const day1 = dateParts(event1?.date, lang)
@@ -394,10 +404,13 @@ export default function AdatJawa(profile: TemplateProps) {
       case "hero-name": return `${groomShort} & ${brideShort}`
       case "quote": return profile.quote_text || ""
       case "quote-mark": return "“"
-      case "groom-title": return c.groomTitle
+      case "quote-source": return profile.quote_source || ""
+      case "groom-title": return groomShort
+      case "groom-full": return groomFull
       case "groom-parents": return profile.groom_parents || ""
-      case "groom-initial": return initials.slice(0, 1)
-      case "bride-title": return c.brideTitle
+      case "groom-initial": return initials
+      case "bride-title": return brideShort
+      case "bride-full": return brideFull
       case "bride-parents": return profile.bride_parents || ""
       case "couple-and": return c.and
       case "hashtag": return profile.display_name || ""
@@ -418,15 +431,31 @@ export default function AdatJawa(profile: TemplateProps) {
       case "gallery-title": return c.galleryTitle
       case "video-title": return c.videoTitle
       case "closing-title": return c.closingTitle
-      case "closing-names": return coupleLabel
+      case "closing-names": return `${c.withLove}\n${coupleLabel}`
       case "closing-message": return tc.closing_message || c.closingMessage
+      case "story-title": return c.storyTitle
+      case "honored-title": return c.honoredTitle
+      case "story-list":
+        return (
+          <ol className="aj-chapters">
+            {stories.map((st, i) => (
+              <li key={i}>
+                {st.image_url && <div className="aj-chapter__photo"><img src={st.image_url} alt="" draggable={false} /></div>}
+                {st.title && <p className="aj-chapter__title">{st.title}</p>}
+                {st.description && <p className="aj-chapter__text">{st.description}</p>}
+              </li>
+            ))}
+          </ol>
+        )
+      case "honored-list":
+        return <ul className="aj-honored">{honored.map((h, i) => <li key={i}>{h}</li>)}</ul>
       default: return null
     }
   }
 
   const renderElement = (e: LayoutElement) => {
     if (e.hidden) return null
-    if (e.type === "video") return null
+    if (e.type === "video" && !e.role) return null
     const key = e.id
     const style = elementStyle(e)
 
@@ -496,6 +525,22 @@ export default function AdatJawa(profile: TemplateProps) {
           {c.seeLocation}
         </a>
       )
+    }
+
+    if (e.role === "groom-instagram" || e.role === "bride-instagram") {
+      const raw = e.role === "groom-instagram" ? profile.groom_instagram : profile.bride_instagram
+      const handle = (raw || "").trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/^@/, "").replace(/\/+$/, "")
+      if (!handle) return null
+      return (
+        <div key={key} className={`aj-el aj-t aj-r-${e.role}`} style={roleStyle(e)}>
+          <a className="aj-ig" href={`https://instagram.com/${handle}`} target="_blank" rel="noopener noreferrer"><InstagramIcon /><span>@{handle}</span></a>
+        </div>
+      )
+    }
+
+    if (e.role === "video") {
+      if (!hasVideo) return null
+      return <div key={key} className="aj-el aj-video" style={style}><iframe src={videoEmbed} title={c.noVideo} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen /></div>
     }
 
     if (e.role === "cover-photo") {
@@ -568,6 +613,8 @@ export default function AdatJawa(profile: TemplateProps) {
 
       <div className="aj-shell" ref={shellRef}>
         {layout.sections.map((section) => {
+          if (section.kind === "story" && stories.length === 0) return null
+          if (section.kind === "honored" && honored.length === 0) return null
           if (section.kind === "gift" && !hasGift) return null
           if (section.kind === "video" && !hasVideo) return null
           if (section.kind === "gallery" && photos.length === 0) return null
