@@ -902,7 +902,7 @@ DEMO_PROPS_BY_CODE["adat-jawa"] = {
   inviting_families: ["The Albarn Family", "The Reed Family"],
   template_content: {
     gift_intro_description: "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.",
-    closing_message: "Hari yang indah menjadi lebih bermakna karena kehadiran dan doa restu Anda. Terima kasih telah menjadi bagian dari kebahagiaan kami.",
+    closing_message: "Terima kasih atas kehadiran dan doa terbaik Anda. Kami berharap kebahagiaan ini menjadi keajaiban dalam hidup kita.",
   },
   feature_gates: { story: true, gift_address: true, inviting_families: true, video: true, qr_code_book: true },
 }

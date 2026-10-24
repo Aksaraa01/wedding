@@ -16,6 +16,7 @@ import InvitationOverlay from "@/components/InvitationOverlay"
 import {
   countdownTarget,
   coverPhoto,
+  firstImage,
   flattenPhotos,
   groomPhoto,
   bridePhoto,
@@ -43,6 +44,8 @@ type LayoutElement = {
   role?: string
   hidden?: boolean
   opacity?: number
+  flip?: boolean
+  rotate180?: boolean
 }
 
 type LayoutSection = {
@@ -68,7 +71,7 @@ const COPY = {
     heroKicker: "The Wedding of",
     groomTitle: "The Groom",
     brideTitle: "The Bride",
-    and: "And",
+    and: "&",
     countdownTitle: "Save The Date",
     days: "Days",
     hours: "Hours",
@@ -99,7 +102,7 @@ const COPY = {
     heroKicker: "The Wedding of",
     groomTitle: "Mempelai Pria",
     brideTitle: "Mempelai Wanita",
-    and: "Dan",
+    and: "&",
     countdownTitle: "Hitung Mundur",
     days: "Hari",
     hours: "Jam",
@@ -140,11 +143,13 @@ function toDate(value?: string): Date | null {
 
 function dateParts(value: string | undefined, lang: "EN" | "ID") {
   const d = toDate(value)
-  if (!d) return { day: "", month: "", year: "" }
+  if (!d) return { day: "", weekday: "", date: "", month: "", year: "" }
   const days = lang === "ID" ? ID_DAYS : EN_DAYS
   const months = lang === "ID" ? ID_MONTHS : EN_MONTHS
   return {
     day: `${days[d.getDay()]}, ${d.getDate()}`,
+    weekday: `${days[d.getDay()]},`,
+    date: `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`,
     month: `${months[d.getMonth()]} ${d.getFullYear()}`,
     year: String(d.getFullYear()),
   }
@@ -171,7 +176,11 @@ function useCountdown(iso?: string, sessions?: TemplateProps["sessions"]) {
 }
 
 function elementStyle(e: LayoutElement): CSSProperties {
-  const transforms = [`translate(${e.x}px, ${e.y}px)`]
+  const transforms = [
+    `translate(${e.x}px, ${e.y}px)`,
+    ...(e.flip ? ["scaleX(-1)"] : []),
+    ...(e.rotate180 ? ["rotate(180deg)"] : []),
+  ]
   return { width: e.w, height: e.h, transform: transforms.join(" "), ...(e.opacity != null ? { opacity: e.opacity } : {}) }
 }
 
@@ -285,6 +294,7 @@ export default function AdatJawa(profile: TemplateProps) {
   const hasTrack = !!trackUrl
   const stories = gates.story !== false && profile.story_visible !== false ? (profile.stories || []).filter((st) => st.title || st.description || st.image_url) : []
   const honored = gates.inviting_families !== false && profile.inviting_families_visible !== false ? (profile.inviting_families || []).filter(Boolean) : []
+  const honoredH = Math.max(560, 175 + honored.length * 64 + 240)
 
   const day0 = dateParts(event0?.date, lang)
   const day1 = dateParts(event1?.date, lang)
@@ -416,13 +426,15 @@ export default function AdatJawa(profile: TemplateProps) {
       case "couple-and": return c.and
       case "hashtag": return profile.display_name || ""
       case "event-0-name": return event0?.name || c.eventNames[0]
-      case "event-0-day": return day0.day
+      case "event-0-day": return day0.weekday
+      case "event-0-date": return day0.date
       case "event-0-month": return day0.month
       case "event-0-time": return event0?.time || ""
       case "event-0-venue": return event0?.venue || ""
       case "event-0-address": return event0?.address || ""
       case "event-1-name": return event1?.name || c.eventNames[1]
-      case "event-1-day": return day1.day
+      case "event-1-day": return day1.weekday
+      case "event-1-date": return day1.date
       case "event-1-month": return day1.month
       case "event-1-time": return event1?.time || ""
       case "event-1-venue": return event1?.venue || ""
@@ -458,7 +470,9 @@ export default function AdatJawa(profile: TemplateProps) {
     if (e.hidden) return null
     if (e.type === "video" && !e.role) return null
     const key = e.id
-    const style = elementStyle(e)
+    const style = e.id === "ho-gebyok"
+      ? { ...elementStyle(e), transform: `translate(${e.x}px, ${honoredH - 200}px)${e.rotate180 ? " rotate(180deg)" : ""}` }
+      : elementStyle(e)
 
     if (e.role === "countdown") {
       return (
@@ -547,6 +561,10 @@ export default function AdatJawa(profile: TemplateProps) {
     if (e.role === "cover-photo") {
       return <div key={key} className="aj-el aj-photo aj-photo--cover" style={style}><img src={cover} alt="" draggable={false} /></div>
     }
+    if (e.role === "closing-photo") {
+      const closingCover = firstImage(Array.isArray(profile.cover_photos) ? profile.cover_photos[1] : undefined) || cover
+      return <div key={key} className="aj-el aj-photo aj-photo--cover" style={style}><img src={closingCover} alt="" draggable={false} /></div>
+    }
     if (e.role === "groom-photo") {
       return <div key={key} className="aj-el aj-photo aj-photo--person" style={style}><img src={groomImage} alt={groomShort} draggable={false} /></div>
     }
@@ -590,6 +608,7 @@ export default function AdatJawa(profile: TemplateProps) {
           <h1 className="aj-gate__names">{groomShort} <span>&amp;</span> {brideShort}</h1>
           <p className="aj-gate__date">{gateDate}</p>
         </div>
+        <p className="aj-gate__guest">{lang === "ID" ? "Kepada" : "Dear"},<br /><b>{guestName}</b></p>
         <button type="button" className="aj-gate__button" onClick={openInvitation}>
           <span>{c.open}</span>
           <EnvelopeIcon />
@@ -620,13 +639,23 @@ export default function AdatJawa(profile: TemplateProps) {
           if (section.kind === "gift" && !hasGift) return null
           if (section.kind === "video" && !hasVideo) return null
           if (section.kind === "gallery" && photos.length === 0) return null
+          const singleEvent = section.kind === "events" && events.length < 2
+          const evEls = singleEvent
+            ? section.elements.filter((el) => !el.role?.startsWith("event-1") && el.id !== "j7-28" && el.id !== "j7-29")
+            : section.elements
+          const showEls = section.kind === "wishes" && honored.length === 0
+            ? evEls.filter((el) => el.id !== "j9-gebyok")
+            : evEls
+          const secH = section.kind === "honored" ? honoredH : section.height
           return (
-            <section key={section.id} className={`aj-section aj-section--${section.kind}`} style={{ height: section.height * scale, background: section.bg }}>
+            <section key={section.id} className={`aj-section aj-section--${section.kind}${singleEvent ? " aj-section--events-single" : ""}`} style={{ height: (singleEvent ? Math.min(section.height, 1180) : secH) * scale, background: section.bg }}>
               {section.kind === "hero" && (
                 <video ref={heroVideoRef} className="aj-hero-video" src={A("opening.mp4")} muted playsInline preload="auto" autoPlay />
               )}
-              <div className="aj-art" style={{ width: layout.canvasWidth, height: section.height, transform: `scale(${scale})` }}>
-                {section.elements.map(renderElement)}
+              <div className="aj-art" style={{ width: layout.canvasWidth, height: singleEvent ? Math.min(section.height, 1180) : secH, transform: `scale(${scale})` }}>
+                {section.kind === "closing"
+                  ? [...section.elements].sort((a, b) => (a.role?.startsWith("closing-") ? 1 : 0) - (b.role?.startsWith("closing-") ? 1 : 0)).map(renderElement)
+                  : showEls.map(renderElement)}
               </div>
             </section>
           )
