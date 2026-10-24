@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import RouteUnlock from "@/components/RouteUnlock"
+import ChunkErrorWatcher from "@/components/ChunkErrorWatcher"
 import "./globals.css"
 import "./fonts.css"
 
@@ -51,6 +52,7 @@ export default function RootLayout({
       >
         {children}
         <RouteUnlock />
+        <ChunkErrorWatcher />
       </body>
     </html>
   )

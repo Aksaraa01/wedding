@@ -1,8 +1,22 @@
 "use client"
 
 import Link from "next/link"
+import { useEffect } from "react"
+import { isChunkLoadError, reloadForChunkError } from "@/lib/chunk-error"
 
-export default function GaleriError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function GaleriError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  useEffect(() => {
+    if (isChunkLoadError(error)) reloadForChunkError()
+  }, [error])
+
+  function handleRetry() {
+    if (isChunkLoadError(error)) {
+      window.location.reload()
+      return
+    }
+    reset()
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center text-center px-8 py-16" style={{ backgroundColor: "#fbf9f4" }}>
       <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ backgroundColor: "#4f1519" }}>
@@ -16,7 +30,7 @@ export default function GaleriError({ reset }: { error: Error & { digest?: strin
       </p>
       <div className="flex items-center gap-3 mt-6">
         <button
-          onClick={() => reset()}
+          onClick={handleRetry}
           className="py-2.5 px-6 rounded-full text-white text-[11px] tracking-wider uppercase font-semibold shadow-md active:scale-95 transition-all"
           style={{ backgroundColor: "#4f1519" }}
         >
