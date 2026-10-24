@@ -659,3 +659,29 @@ html:has(.adat-batak-root.is-locked),body:has(.adat-batak-root.is-locked){overfl
 .adat-batak-root .love-story-section { min-height: 0; height: auto; padding-bottom: 64px; }
 .adat-batak-root .story-card { min-height: 0; height: auto; }
 .adat-batak-root .story-list { padding-bottom: 4px; }
+
+/* Turut Mengundang ornament: same motif bands as the mempelai card. */
+.adat-batak-root .inviting-card { overflow: hidden; padding: 92px 24px 84px; border-width: 3px; }
+.adat-batak-root .inviting-card::before,
+.adat-batak-root .inviting-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 0;
+  height: 72px;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  pointer-events: none;
+}
+.adat-batak-root .inviting-card::before {
+  top: -2px;
+  background-image: url("/templates/adat-batak/motif-atas.webp");
+  background-position: top center;
+}
+.adat-batak-root .inviting-card::after {
+  bottom: -2px;
+  background-image: url("/templates/adat-batak/motif-bawah.webp");
+  background-position: bottom center;
+}
+.adat-batak-root .inviting-card > * { position: relative; z-index: 1; }

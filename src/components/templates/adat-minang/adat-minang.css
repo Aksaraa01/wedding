@@ -659,3 +659,29 @@ html:has(.adat-minang-root.is-locked),body:has(.adat-minang-root.is-locked){over
 .adat-minang-root .love-story-section { min-height: 0; height: auto; padding-bottom: 64px; }
 .adat-minang-root .story-card { min-height: 0; height: auto; }
 .adat-minang-root .story-list { padding-bottom: 4px; }
+
+/* Turut Mengundang ornament: same motif bands as the mempelai card. */
+.adat-minang-root .inviting-card { overflow: hidden; padding: 92px 24px 84px; border-width: 3px; }
+.adat-minang-root .inviting-card::before,
+.adat-minang-root .inviting-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 0;
+  height: 72px;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  pointer-events: none;
+}
+.adat-minang-root .inviting-card::before {
+  top: -2px;
+  background-image: url("/templates/adat-minang/motif-atas.webp");
+  background-position: top center;
+}
+.adat-minang-root .inviting-card::after {
+  bottom: -2px;
+  background-image: url("/templates/adat-minang/motif-bawah.webp");
+  background-position: bottom center;
+}
+.adat-minang-root .inviting-card > * { position: relative; z-index: 1; }
