@@ -973,3 +973,23 @@ DEMO_PROPS_BY_CODE["adat-bali"] = {
   contacts_visible: true,
   track_url: "/templates/adat-bali/sacred-bali.mp3",
 }
+
+DEMO_PROPS_BY_CODE["manjari"] = {
+  ...DEMO_PROPS_BY_CODE["sandhya"],
+  slug: "demo",
+  estimated_wedding_date: "2027-12-31",
+  sessions: (DEMO_PROPS_BY_CODE["sandhya"].sessions || []).map((s) => ({ ...s, date: "2027-12-31" })),
+  rundown: DEMO_PROPS_BY_CODE["adat-melayu"].rundown,
+  rundown_visible: true,
+  track_url: "/templates/manjari/lee-hi-only.mp3",
+  template_content: {
+    cover_apology: "We apologize for any misspelling of your name.",
+    love_story_title: "A Love Written in Time",
+    gallery_title: "Where Our Memories Live",
+    gallery_quote: "A lifetime with you is the most beautiful story I could ever choose.",
+    gift_intro_title: "Wedding Gift",
+    gift_intro_description: "Your presence is the greatest gift to us. If you would like to send another token of love, please use the details below:",
+    wishes_intro: "Please let us know whether you will join our wedding celebration by completing the form below.",
+    closing_message: "Thank you for being part of our story. Your presence, prayers, and warm wishes mean more to us than words can express.",
+  },
+}

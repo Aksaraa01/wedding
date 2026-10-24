@@ -55,8 +55,13 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "adat-jawa-2": "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.",
       "adat-jawa": "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.",
       "adat-bali": "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.",
+      "manjari": "We apologize for any misspelling of your name.",
     },
+<<<<<<< HEAD
     templates: ["sandhya", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali"],
+=======
+    templates: ["sandhya", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "manjari"],
+>>>>>>> 2aa4536 (feat(templates): add Manjari dark-elegance template)
   },
   {
     key: "profiles_intro",
@@ -92,7 +97,11 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "adat-jawa": "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
       "adat-bali": "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
     },
+<<<<<<< HEAD
     templates: ["evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali"],
+=======
+    templates: ["evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "manjari"],
+>>>>>>> 2aa4536 (feat(templates): add Manjari dark-elegance template)
   },
   {
     key: "gallery_quote",
@@ -112,8 +121,13 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "adat-jawa-2": "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama.",
       "adat-jawa": "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama.",
       "adat-bali": "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama.",
+      "manjari": "A lifetime with you is the most beautiful story I could ever choose.",
     },
+<<<<<<< HEAD
     templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali"],
+=======
+    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "manjari"],
+>>>>>>> 2aa4536 (feat(templates): add Manjari dark-elegance template)
   },
   {
     key: "gift_intro_title",
@@ -131,8 +145,13 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "adat-jawa-2": "Love Gift",
       "adat-jawa": "Love Gift",
       "adat-bali": "Love Gift",
+      "manjari": "Wedding Gift",
     },
+<<<<<<< HEAD
     templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali"],
+=======
+    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "manjari"],
+>>>>>>> 2aa4536 (feat(templates): add Manjari dark-elegance template)
   },
   {
     key: "gift_intro_description",
@@ -148,13 +167,18 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "adat-jawa-2": "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.",
       "adat-jawa": "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.",
       "adat-bali": "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
+      "manjari": "Your presence is the greatest gift to us. If you would like to send another token of love, please use the details below:",
       "adat-melayu": "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
       "adat-batak": "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
       "adat-minang": "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
       "adat-palembang": "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
       "adat-betawi": "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
     },
+<<<<<<< HEAD
     templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali"],
+=======
+    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari"],
+>>>>>>> 2aa4536 (feat(templates): add Manjari dark-elegance template)
   },
   {
     key: "wishes_intro",
@@ -173,8 +197,13 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "adat-jawa-2": "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
       "adat-jawa": "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
       "adat-bali": "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
+      "manjari": "Please let us know whether you will join our wedding celebration by completing the form below.",
     },
+<<<<<<< HEAD
     templates: ["evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali"],
+=======
+    templates: ["evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "manjari"],
+>>>>>>> 2aa4536 (feat(templates): add Manjari dark-elegance template)
   },
   {
     key: "closing_message",
@@ -190,13 +219,30 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "adat-jawa-2": "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami.",
       "adat-jawa": "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami.",
       "adat-bali": "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami.",
+      "manjari": "Thank you for being part of our story. Your presence, prayers, and warm wishes mean more to us than words can express.",
       "adat-melayu": "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
       "adat-batak": "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
       "adat-minang": "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
       "adat-palembang": "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
       "adat-betawi": "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
     },
+<<<<<<< HEAD
     templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali"],
+=======
+    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari"],
+  },
+  {
+    key: "love_story_title",
+    label: "Judul Love Story",
+    placeholders: { manjari: "A Love Written in Time" },
+    templates: ["manjari"],
+  },
+  {
+    key: "gallery_title",
+    label: "Judul Galeri",
+    placeholders: { manjari: "Where Our Memories Live" },
+    templates: ["manjari"],
+>>>>>>> 2aa4536 (feat(templates): add Manjari dark-elegance template)
   },
 ]
 

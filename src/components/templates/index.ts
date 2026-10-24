@@ -21,6 +21,7 @@ import LunarBlossom from "./lunar-blossom"
 import AdatJawa from "./adat-jawa"
 import AdatJawa2 from "./adat-jawa-2"
 import AdatBali from "./adat-bali"
+import Manjari from "./manjari"
 
 export type { TemplateProps } from "@/types/template"
 
@@ -46,6 +47,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "adat-jawa": AdatJawa,
   "adat-jawa-2": AdatJawa2,
   "adat-bali": AdatBali,
+  manjari: Manjari,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -856,6 +858,46 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         livestream: true,
         rundown: true,
         contacts: true,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "manjari",
+    name: "Manjari",
+    description: "Undangan dark elegance bernuansa burgundy dan ivory — amplop floral, ayat, kisah cinta, acara, live streaming, dress code, galeri, wishes, hadiah, turut mengundang, dan rundown.",
+    theme: {
+      fonts: { display: "Arapey", script: "Monsieur La Doulaise", body: "Baskervville" },
+      colors: {
+        surface: "#eff5f1",
+        text: "#132922",
+        accent: "#132922",
+        accentMuted: "#064e3b",
+        overlay: "#132922",
+        dark: "#132922",
+      },
+      ornaments: { divider: "floral", border: "minimal", frame: "arch" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.2 },
+    },
+    content: {
+      cover_slots: 3,
+      cover_slot_labels: ["Sampul", "Love Story", "Closing"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: false,
+      sections: {
+        opening_description: false,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: true,
+        livestream: true,
+        rundown: true,
+        contacts: false,
       },
       extras: true,
     },

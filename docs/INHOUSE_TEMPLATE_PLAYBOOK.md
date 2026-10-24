@@ -587,6 +587,32 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
   overwrite yours. Re-sync `standalone`, `.next/static` (both paths), and
   `public`, then restart PM2.
 
+## 8.6 Envelope / dark-elegance templates (Manjari lessons)
+
+- **Opening animations are delayed by design.** The envelope and polaroids start
+  around 2.6–3.35s after `preloader-done`; screenshots taken earlier look empty.
+  Wait at least 4s during QA, and ensure the root gets `preloader-done`.
+- **Story carousels may be hidden by the extracted CSS.** Reference rules can
+  leave `clip-path: inset(34% 24%); opacity:0` outside a media query. Add a
+  mobile override (`clip-path: inset(0); opacity:1; transform:none`) and verify
+  the cover-slot image is visible.
+- **Gift logos must be local.** `ASSETS.galeriEnvelope.aksaraaLogo` resolves to a
+  storage-relative path that 404s in local dev; download the Aksaraa logo into
+  `public/templates/<code>/` and use that.
+- **User video only.** Do not keep the reference parallax/local video; render
+  `profile.video_url` in the gallery video card. Hide it when empty.
+- **Mempelai copy vs section.** “Remove The Bride/The Groom” means remove those
+  **labels**, not the whole mempelai section. Keep names/parents/Instagram and
+  use the user’s `video_url` as the autoplay/muted/loop background (no controls,
+  no caption). Only omit the section when the brief explicitly says so.
+- **Desktop cover needs an explicit image.** The extracted CSS points at
+  `/templates/sandhya/gallery-1.webp`, which is not shipped. Set an inline
+  `backgroundImage` from `cover_photos[0]` on `.desktop-cover`.
+- **Copy extras:** add every `template_content` key read by the component
+  (`love_story_title`, `gallery_title`, `cover_apology`, `gallery_quote`,
+  `gift_intro_title`, `gift_intro_description`, `wishes_intro`,
+  `closing_message`) for the new code.
+
 ## 9. Failure catalogue (symptom → cause → fix)
 
 | Symptom | Cause | Fix |
@@ -628,6 +654,11 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 | Desktop leaves 1420px margins or a strip between columns | shell capped at 1420px, parallax still centered | `page-shell` 100%; `right-column::before` and `.right-parallax-background` `right:0` |
 | Editor/ops still show old code after deploy | another build is running / stale client chunks | compare `BUILD_ID`, grep remote chunks, re-sync all three trees, restart PM2, hard refresh |
 | Invitation shows test copy like “helllloooo” | saved `template_content` value | expose the extras field; do not clear user data silently |
+
+| Envelope opening looks empty in screenshots | animations start 2.6–3.35s after `preloader-done` | wait 4s; don’t remove the animation |
+| Love-story cover image invisible | extracted CSS keeps `clip-path`/`opacity:0` | add `clip-path:inset(0); opacity:1; transform:none` override |
+| Gift logo broken locally | storage-relative `ASSETS…aksaraaLogo` | vendor `aksaraa-logo.jpg` locally |
+| User video missing / reference video plays | local parallax video left in place | render `video_url` only; remove reference video |
 
 ---
 
