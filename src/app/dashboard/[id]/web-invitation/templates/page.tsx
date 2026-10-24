@@ -302,6 +302,12 @@ function TemplatesInner({ id }: { id: string }) {
                 {tierTag && selectedId !== tpl.id && (
                   <span className={`absolute top-2 left-2 z-10 text-white text-[8px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full shadow-sm ${tierBadgeClass(tpl.tier)}`}>{tierTag}</span>
                 )}
+                {!!profile?.package_type && !isEligible(tpl) && (
+                  <span className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 bg-[#B34E3F] text-white text-[8px] font-bold uppercase tracking-widest px-2 py-1 rounded-full shadow-sm">
+                    <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
+                    Premium
+                  </span>
+                )}
                 <img
                   alt={tpl.name}
                   className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
