@@ -1,6 +1,6 @@
 {
  "canvasWidth": 484,
- "totalHeight": 12898,
+ "totalHeight": 12798,
  "sections": [
   {
    "id": "sec-2",
@@ -645,7 +645,8 @@
      "font": "Zzzz Delp",
      "size": "35px",
      "color": "rgb(255, 242, 240)",
-     "role": "quote-mark"
+     "role": "quote-mark",
+     "hidden": true
     },
     {
      "id": "j4-14",
@@ -714,9 +715,9 @@
      "id": "aj-quote-source",
      "type": "text",
      "x": 127,
-     "y": 470,
+     "y": 211,
      "w": 231,
-     "h": 30,
+     "h": 40,
      "role": "quote-source"
     }
    ]
@@ -1369,7 +1370,7 @@
      "w": 305,
      "h": 305,
      "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp",
-     "opacity": 0.41
+     "opacity": 0.3
     },
     {
      "id": "j6-2",
@@ -1379,7 +1380,7 @@
      "w": 305,
      "h": 305,
      "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp",
-     "opacity": 0.41
+     "opacity": 0.3
     },
     {
      "id": "j6-3",
@@ -1389,7 +1390,7 @@
      "w": 305,
      "h": 305,
      "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp",
-     "opacity": 0.41
+     "opacity": 0.3
     },
     {
      "id": "j6-4",
@@ -1399,7 +1400,7 @@
      "w": 771,
      "h": 154,
      "src": "/templates/adat-jawa/assets/the-wedding-of--23--254c3b.webp",
-     "opacity": 0.51
+     "opacity": 0.38
     },
     {
      "id": "j6-5",
@@ -1610,7 +1611,8 @@
      "y": 706,
      "w": 484,
      "h": 860,
-     "src": "/templates/adat-jawa/assets/download--11--fram-7fe2c7.webp"
+     "src": "/templates/adat-jawa/assets/download--11--fram-7fe2c7.webp",
+     "opacity": 0.3
     },
     {
      "id": "j7-6",
@@ -1754,20 +1756,8 @@
      "y": -19.9,
      "w": 484,
      "h": 700,
-     "src": "/templates/adat-jawa/assets/download--11--fram-7fe2c7.webp"
-    },
-    {
-     "id": "j7-22",
-     "type": "text",
-     "x": 69,
-     "y": 597.9,
-     "w": 343,
-     "h": 43.5,
-     "txt": "Bride House",
-     "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
-     "size": "29px",
-     "color": "rgb(155, 18, 18)",
-     "role": "event-0-venue"
+     "src": "/templates/adat-jawa/assets/download--11--fram-7fe2c7.webp",
+     "opacity": 0.3
     },
     {
      "id": "j7-23",
@@ -1777,58 +1767,6 @@
      "w": 59,
      "h": 59,
      "src": "/templates/adat-jawa/assets/aHR0cHM6Ly9jZG4tYnVpbGRlci52aWRpbmcuY28vc3RlcHBlci8xMzczNC8xMzMvTG9jYXRpb24uZ2lm-edd6fc.webp"
-    },
-    {
-     "id": "j7-24",
-     "type": "text",
-     "x": 120,
-     "y": 406,
-     "w": 244,
-     "h": 48,
-     "txt": "Sabtu,",
-     "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
-     "size": "30px",
-     "color": "rgb(155, 18, 18)",
-     "role": "event-0-day"
-    },
-    {
-     "id": "j7-25",
-     "type": "text",
-     "x": 128,
-     "y": 345.7,
-     "w": 228,
-     "h": 69,
-     "txt": "Akad Nikah",
-     "font": "Zzzz Delp",
-     "size": "46px",
-     "color": "rgb(155, 18, 18)",
-     "role": "event-0-name"
-    },
-    {
-     "id": "j7-26",
-     "type": "text",
-     "x": 69,
-     "y": 638.2,
-     "w": 343,
-     "h": 75,
-     "txt": "Kota BNI, Jl. Jend. Sudirman No.Kav. 1, Karet Tengsin, Kecam",
-     "font": "Times Toman Italic",
-     "size": "14.66px",
-     "color": "rgb(155, 18, 18)",
-     "role": "event-0-address"
-    },
-    {
-     "id": "j7-27",
-     "type": "text",
-     "x": 147.1,
-     "y": 724,
-     "w": 200,
-     "h": 44,
-     "txt": "See location",
-     "font": "__Akkurat_471bd2",
-     "size": "14px",
-     "color": "rgb(255, 255, 255)",
-     "role": "event-0-map"
     },
     {
      "id": "j7-28",
@@ -1847,19 +1785,6 @@
      "w": 249.2,
      "h": 249.2,
      "src": "/templates/adat-jawa/assets/the-wedding-of--8--82d829.webp"
-    },
-    {
-     "id": "j7-30",
-     "type": "text",
-     "x": 118.5,
-     "y": 489.7,
-     "w": 244,
-     "h": 24,
-     "txt": "10.00 - 11.00 WIB",
-     "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
-     "size": "30px",
-     "color": "rgb(155, 18, 18)",
-     "role": "event-0-time"
     },
     {
      "id": "j7-31",
@@ -1988,6 +1913,102 @@
      "src": "/templates/adat-jawa/assets/the-wedding-of--14--14e150.webp"
     },
     {
+     "id": "j7-51",
+     "type": "photo",
+     "x": -51.2,
+     "y": 1207.6,
+     "w": 87,
+     "h": 87,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    },
+    {
+     "id": "j7-52",
+     "type": "photo",
+     "x": 447.4,
+     "y": 1227.7,
+     "w": 87,
+     "h": 87,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    },
+    {
+     "id": "j7-22",
+     "type": "text",
+     "x": 69,
+     "y": 597.9,
+     "w": 343,
+     "h": 43.5,
+     "txt": "Bride House",
+     "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
+     "size": "29px",
+     "color": "rgb(155, 18, 18)",
+     "role": "event-0-venue"
+    },
+    {
+     "id": "j7-24",
+     "type": "text",
+     "x": 120,
+     "y": 406,
+     "w": 244,
+     "h": 48,
+     "txt": "Sabtu,",
+     "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
+     "size": "30px",
+     "color": "rgb(155, 18, 18)",
+     "role": "event-0-day"
+    },
+    {
+     "id": "j7-25",
+     "type": "text",
+     "x": 128,
+     "y": 345.7,
+     "w": 228,
+     "h": 69,
+     "txt": "Akad Nikah",
+     "font": "Zzzz Delp",
+     "size": "46px",
+     "color": "rgb(155, 18, 18)",
+     "role": "event-0-name"
+    },
+    {
+     "id": "j7-26",
+     "type": "text",
+     "x": 69,
+     "y": 622.2,
+     "w": 343,
+     "h": 75,
+     "txt": "Kota BNI, Jl. Jend. Sudirman No.Kav. 1, Karet Tengsin, Kecam",
+     "font": "Times Toman Italic",
+     "size": "14.66px",
+     "color": "rgb(155, 18, 18)",
+     "role": "event-0-address"
+    },
+    {
+     "id": "j7-27",
+     "type": "text",
+     "x": 147.1,
+     "y": 724,
+     "w": 200,
+     "h": 44,
+     "txt": "See location",
+     "font": "__Akkurat_471bd2",
+     "size": "14px",
+     "color": "rgb(255, 255, 255)",
+     "role": "event-0-map"
+    },
+    {
+     "id": "j7-30",
+     "type": "text",
+     "x": 118.5,
+     "y": 489.7,
+     "w": 244,
+     "h": 24,
+     "txt": "10.00 - 11.00 WIB",
+     "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
+     "size": "30px",
+     "color": "rgb(155, 18, 18)",
+     "role": "event-0-time"
+    },
+    {
      "id": "j7-45",
      "type": "text",
      "x": 120,
@@ -2004,7 +2025,7 @@
      "id": "j7-46",
      "type": "text",
      "x": 70.5,
-     "y": 1150.2,
+     "y": 1134.2,
      "w": 343,
      "h": 75,
      "txt": "Kota BNI, Jl. Jend. Sudirman No.Kav. 1, Karet Tengsin, Kecam",
@@ -2064,24 +2085,6 @@
      "size": "14px",
      "color": "rgb(255, 255, 255)",
      "role": "event-1-map"
-    },
-    {
-     "id": "j7-51",
-     "type": "photo",
-     "x": -51.2,
-     "y": 1207.6,
-     "w": 87,
-     "h": 87,
-     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
-    },
-    {
-     "id": "j7-52",
-     "type": "photo",
-     "x": 447.4,
-     "y": 1227.7,
-     "w": 87,
-     "h": 87,
-     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
     }
    ]
   },
@@ -2105,7 +2108,7 @@
      "id": "aj-story-list",
      "type": "text",
      "x": 50,
-     "y": 190,
+     "y": 140,
      "w": 384,
      "h": 1160,
      "role": "story-list"
@@ -2190,15 +2193,6 @@
      "w": 380,
      "h": 380,
      "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp"
-    },
-    {
-     "id": "j9-8",
-     "type": "text",
-     "x": 47.5,
-     "y": 149.5,
-     "w": 389,
-     "h": 553,
-     "role": "wishes"
     },
     {
      "id": "j9-9",
@@ -2311,6 +2305,15 @@
      "w": 126,
      "h": 126,
      "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    },
+    {
+     "id": "j9-8",
+     "type": "text",
+     "x": 47.5,
+     "y": 149.5,
+     "w": 389,
+     "h": 553,
+     "role": "wishes"
     }
    ]
   },
@@ -2318,14 +2321,14 @@
    "id": "aj-honored",
    "kind": "honored",
    "top": 9409,
-   "height": 620,
+   "height": 520,
    "bg": "#fff6e1",
    "elements": [
     {
      "id": "aj-honored-title",
      "type": "text",
      "x": 16,
-     "y": 70,
+     "y": 40,
      "w": 452,
      "h": 90,
      "role": "honored-title"
@@ -2334,17 +2337,57 @@
      "id": "aj-honored-list",
      "type": "text",
      "x": 60,
-     "y": 190,
+     "y": 120,
      "w": 364,
      "h": 360,
      "role": "honored-list"
+    },
+    {
+     "id": "ho-o1",
+     "type": "photo",
+     "x": -120,
+     "y": -40,
+     "w": 260,
+     "h": 260,
+     "src": "/templates/adat-jawa/assets/Comp-11-9c8078.webp",
+     "opacity": 0.5
+    },
+    {
+     "id": "ho-o2",
+     "type": "photo",
+     "x": 344,
+     "y": -40,
+     "w": 260,
+     "h": 260,
+     "src": "/templates/adat-jawa/assets/Comp-11-9c8078.webp",
+     "opacity": 0.5
+    },
+    {
+     "id": "ho-o3",
+     "type": "photo",
+     "x": -100,
+     "y": 340,
+     "w": 240,
+     "h": 240,
+     "src": "/templates/adat-jawa/assets/Comp-11-9c8078.webp",
+     "opacity": 0.45
+    },
+    {
+     "id": "ho-o4",
+     "type": "photo",
+     "x": 324,
+     "y": 340,
+     "w": 240,
+     "h": 240,
+     "src": "/templates/adat-jawa/assets/Comp-11-9c8078.webp",
+     "opacity": 0.45
     }
    ]
   },
   {
    "id": "sec-10",
    "kind": "gift",
-   "top": 10029,
+   "top": 9929,
    "height": 726,
    "bg": "rgb(255, 255, 255)",
    "elements": [
@@ -2474,7 +2517,7 @@
   {
    "id": "sec-11",
    "kind": "gallery",
-   "top": 10755,
+   "top": 10655,
    "height": 647,
    "bg": "rgb(255, 255, 255)",
    "elements": [
@@ -2632,7 +2675,7 @@
   {
    "id": "sec-12",
    "kind": "video",
-   "top": 11402,
+   "top": 11302,
    "height": 387,
    "bg": "rgb(255, 255, 255)",
    "elements": [
@@ -2708,7 +2751,7 @@
   {
    "id": "sec-13",
    "kind": "closing",
-   "top": 11789,
+   "top": 11689,
    "height": 1109,
    "bg": "rgb(255, 246, 225)",
    "elements": [
@@ -2836,7 +2879,8 @@
      "y": 503.1,
      "w": 218,
      "h": 327,
-     "src": "/templates/adat-jawa/assets/93d7e91f-27bc-41c2-8f92-d7db2cf173a4-43090f.webp"
+     "src": "/templates/adat-jawa/assets/93d7e91f-27bc-41c2-8f92-d7db2cf173a4-43090f.webp",
+     "role": "cover-photo"
     },
     {
      "id": "j13-14",
@@ -2958,7 +3002,7 @@
      "id": "j13-26",
      "type": "text",
      "x": 118.5,
-     "y": 125.4,
+     "y": 150,
      "w": 247,
      "h": 96,
      "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
