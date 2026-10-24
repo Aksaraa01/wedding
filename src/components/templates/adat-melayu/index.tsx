@@ -154,9 +154,10 @@ export default function AdatMelayu(profile: TemplateProps) {
   const photos = flattenPhotos(profile.gallery_photos)
   const groomPhoto = groomPhotoOf(profile.groom_photo_url)
   const bridePhoto = bridePhotoOf(profile.bride_photo_url)
+  const coverSlots = flattenPhotos(profile.cover_photos)
   const coverPhoto = coverPhotoOf(profile)
-  const quotePhoto = photos[2] || photos[0] || coverPhoto
-  const closingPhoto = photos[0] || coverPhoto
+  const quotePhoto = coverSlots[1] || photos[2] || photos[0] || coverPhoto
+  const closingPhoto = coverSlots[2] || photos[0] || coverPhoto
   const videoEmbed = normalizeVideoUrl(profile.video_url)
   const hasVideo = gates.video !== false && profile.video_section_visible !== false && !!videoEmbed
   const hasGallery = photos.length > 0 || hasVideo

@@ -551,6 +551,37 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 
 ---
 
+## 8.5 Adat family checklist (hard lessons)
+
+- **Cover slots are semantic.** Adat templates expose **3** slots:
+  `["Sampul", "Kutipan", "Closing"]`. The component must use
+  `cover_photos[0]` for the cover, `[1]` for the verse/quote photo, and `[2]`
+  for the closing photo, with gallery fallbacks when a slot is empty. Merely
+  setting `cover_slots: 3` in the config without consuming slots 1/2 leaves the
+  Kutipan/Closing uploads unused.
+- **Every copy field needs an extras entry.** Any `template_content.<key>` read
+  by the component must be added to `templateExtras.ts` for that template code,
+  with a placeholder. Missing codes produce an empty “EKSTRA …” section even
+  though the component renders the key.
+- **Turut Mengundang ornament:** do not reuse the full `1000/652` motif band on
+  a short card. Use a compact band (`height:72px`, `background-size:100% 100%`,
+  `padding:92px 24px 84px`) so the title/list stay clear of the motif.
+- **Desktop full-bleed:** the reference shell is capped at `1420px`. For
+  Aksaraa, set `.page-shell { width:100%; max-width:none; }` and pin **both**
+  `.right-column::before` and `.right-parallax-background` to `right:0`;
+  otherwise the parallax image remains at the old centered offset and shows as
+  a strip between the cover and the panel.
+- **Demo content:** use the Sandhya demo couple/images + Adat Melayu copy. Do
+  not copy the reference couple, parents, venues, stories, or gallery images.
+- **Never silently rewrite saved `template_content`.** A real profile may hold
+  test copy (e.g. `closing_message: "helllloooo"`). Expose the field so the user
+  can change it; do not clear it without explicit approval.
+- **Deploy verification is mandatory.** Compare local/remote `BUILD_ID`, grep a
+  unique string from the change in the remote chunks, and verify the public
+  assets return 200. Multiple agents share the same VPS; a later deploy can
+  overwrite yours. Re-sync `standalone`, `.next/static` (both paths), and
+  `public`, then restart PM2.
+
 ## 9. Failure catalogue (symptom → cause → fix)
 
 | Symptom | Cause | Fix |
@@ -585,6 +616,13 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 | Contact buttons open the reference's WhatsApp numbers | `tpl-contact` markup copied verbatim | require real contact data; hide the section when absent |
 | Port drags in 40+ stylesheets / 20 fonts | whole asset graph copied instead of the template's rules | extract only classes the JSX renders + the fonts actually used |
 | Loader flashes for a moment as the video starts | transient `waiting` at playback start | delay the corner spinner ~1500ms; only show on a sustained stall, never before the first `playing` |
+
+| Adat cover slots still show only one / Kutipan-Closing empty | config still `cover_slots:1`, or component only reads slot 0 | set 3 labels and consume `cover_photos[0/1/2]` with gallery fallbacks |
+| Editor “EKSTRA ADAT …” is empty | template code missing from `templateExtras.ts` | add the code + placeholder for every `template_content` key the component reads |
+| Turut Mengundang is plain / motif overwhelms the card | no ornament, or full-aspect motif reused on a short card | add 72px motif bands + 92/84px padding |
+| Desktop leaves 1420px margins or a strip between columns | shell capped at 1420px, parallax still centered | `page-shell` 100%; `right-column::before` and `.right-parallax-background` `right:0` |
+| Editor/ops still show old code after deploy | another build is running / stale client chunks | compare `BUILD_ID`, grep remote chunks, re-sync all three trees, restart PM2, hard refresh |
+| Invitation shows test copy like “helllloooo” | saved `template_content` value | expose the extras field; do not clear user data silently |
 
 ---
 
