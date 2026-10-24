@@ -14,7 +14,6 @@ type Props = {
   guestId?: string
   guestName?: string
   coupleName?: string
-  lang: "EN" | "ID"
 }
 
 const PAGE_SIZE = 5
@@ -24,21 +23,33 @@ const DEMO_ID = "demo-wedding-profile-id"
 const DEMO_WISHES: Wish[] = [
   {
     id: "demo-1",
-    name: "The Leonardo Family",
-    message: "Wishing you a lifetime of love, laughter, and togetherness. Congratulations!",
+    name: "Keluarga Sandhya",
+    message: "Semoga keluarga kalian dipenuhi kasih, sukacita, dan kedamaian. Selamat menempuh hidup baru!",
     created_at: new Date(Date.now() - 86_400_000).toISOString(),
   },
   {
     id: "demo-2",
-    name: "University Friends",
-    message: "Finally! Wishing you both all the happiness in the world. We cannot wait to celebrate with you.",
+    name: "Sahabat Joseph",
+    message: "Akhirnya! Semoga kebahagiaan selalu menyertai kalian. Kami tidak sabar merayakan bersama.",
     created_at: new Date(Date.now() - 172_800_000).toISOString(),
   },
   {
     id: "demo-3",
-    name: "Colleagues",
-    message: "May your marriage be filled with blessings, patience, and endless joy.",
+    name: "Rekan Joseph",
+    message: "Semoga pernikahan kalian dipenuhi keberkahan, kesabaran, dan kebahagiaan. Selamat!",
     created_at: new Date(Date.now() - 259_200_000).toISOString(),
+  },
+  {
+    id: "demo-4",
+    name: "Keluarga Besar Sandhya",
+    message: "Sangat bahagia untuk kalian berdua. Semoga rumah tangga kalian penuh tawa dan kasih.",
+    created_at: new Date(Date.now() - 345_600_000).toISOString(),
+  },
+  {
+    id: "demo-5",
+    name: "Sahabat Lama",
+    message: "Dari kami yang menyaksikan kisah kalian — selamat dan semua cinta kami.",
+    created_at: new Date(Date.now() - 432_000_000).toISOString(),
   },
 ]
 
@@ -46,15 +57,15 @@ function wishAgo(iso?: string): string {
   if (!iso) return ""
   const diff = Date.now() - new Date(iso).getTime()
   const minutes = Math.floor(diff / 60_000)
-  if (minutes < 1) return "now"
-  if (minutes < 60) return `${minutes}m`
+  if (minutes < 1) return "Baru saja"
+  if (minutes < 60) return `${minutes} menit lalu`
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h`
+  if (hours < 24) return `${hours} jam lalu`
   const days = Math.floor(hours / 24)
-  return `${days}d`
+  return days === 1 ? "1 hari lalu" : `${days} hari lalu`
 }
 
-export default function Wishes({ weddingProfileId, guestId, guestName, coupleName, lang }: Props) {
+export default function Wishes({ weddingProfileId, guestId, guestName, coupleName }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const [name, setName] = useState(guestName || "")
@@ -75,7 +86,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, coupleNam
     }
     let cancelled = false
     fetch(`/api/wishes?wedding_profile_id=${encodeURIComponent(weddingProfileId)}&status=approved`)
-      .then((r) => (r.ok ? r.json() : null))
+      .then((response) => (response.ok ? response.json() : null))
       .then((data) => {
         if (cancelled) return
         setWishes(Array.isArray(data?.wishes) ? data.wishes : [])
@@ -94,7 +105,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, coupleNam
     if (!text || status === "sending") return
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback(lang === "ID" ? "Mode pratinjau — ucapan tidak disimpan." : "Preview mode — your wishes are not saved.")
+      setFeedback("Mode pratinjau — ucapan tidak disimpan.")
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")
@@ -105,33 +116,25 @@ export default function Wishes({ weddingProfileId, guestId, guestName, coupleNam
     setStatus("sending")
     setFeedback("")
     try {
-      const res = await fetch("/api/wishes", {
+      const response = await fetch("/api/wishes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           wedding_profile_id: weddingProfileId,
           guest_id: guestId || null,
-          name: name.trim() || guestName || "Our Beloved Guest",
+          name: name.trim() || guestName || "Tamu Undangan",
           message: text,
           source: "invitation",
         }),
       })
-      if (res.status === 409) {
+      if (response.status === 409) {
         setStatus("error")
-        setFeedback(
-          lang === "ID"
-            ? "Anda sudah mengirim ucapan. Terima kasih atas doanya."
-            : "You have already sent your wishes. Thank you for your love and prayers."
-        )
+        setFeedback("Anda sudah mengirim ucapan. Terima kasih atas cinta dan doanya.")
         return
       }
-      if (res.ok) {
+      if (response.ok) {
         setStatus("done")
-        setFeedback(
-          lang === "ID"
-            ? "Terima kasih! Ucapan Anda akan tampil setelah moderasi."
-            : "Thank you! Your wishes will appear after moderation."
-        )
+        setFeedback("Terima kasih! Ucapan Anda akan tampil setelah moderasi.")
         setMessage("")
         window.setTimeout(() => {
           setStatus("idle")
@@ -140,92 +143,118 @@ export default function Wishes({ weddingProfileId, guestId, guestName, coupleNam
         return
       }
       setStatus("error")
-      setFeedback(lang === "ID" ? "Terlalu banyak pesan. Coba lagi nanti." : "Too many messages right now. Please try again.")
+      setFeedback("Terlalu banyak pesan saat ini. Silakan coba lagi sebentar lagi.")
     } catch {
       setStatus("error")
-      setFeedback(lang === "ID" ? "Gagal mengirim. Periksa koneksi Anda." : "Could not send your wishes. Please check your connection.")
+      setFeedback("Gagal mengirim ucapan. Periksa koneksi Anda.")
     }
-  }, [weddingProfileId, guestId, guestName, name, message, status, lang])
+  }, [weddingProfileId, guestId, guestName, name, message, status])
 
   const totalPages = Math.max(1, Math.ceil(wishes.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages - 1)
-  const paged = useMemo(
+  const pagedWishes = useMemo(
     () => wishes.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE),
     [wishes, currentPage]
   )
 
   return (
-    <div className="aj-wishes">
-      <p className="aj-wishes__intro">
-        {lang === "ID"
-          ? `Tinggalkan pesan cinta dan doa untuk ${coupleName || "kedua mempelai"}.`
-          : `Leave a message of love and a prayer for ${coupleName || "the couple"}.`}
-      </p>
-
+    <section className="tpl-rsvp adat-rsvp" id="rsvp">
       <form
-        className="aj-wishes__form"
-        onSubmit={(e: FormEvent) => {
-          e.preventDefault()
+        className="tpl-rsvp__form"
+        onSubmit={(event: FormEvent) => {
+          event.preventDefault()
           void send()
         }}
       >
         {!guestName && (
-          <input
-            className="aj-wishes__input"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder={lang === "ID" ? "Nama Anda" : "Your name"}
-            maxLength={80}
-            autoComplete="name"
-            aria-label={lang === "ID" ? "Nama" : "Name"}
-          />
-        )}
-        <textarea
-          className="aj-wishes__textarea"
-          value={message}
-          onChange={(e) => setMessage(e.target.value.slice(0, MAX_CHARS))}
-          placeholder={lang === "ID" ? "Tulis ucapan & doa" : "Write your wishes"}
-          rows={2}
-          maxLength={MAX_CHARS}
-          aria-label={lang === "ID" ? "Ucapan" : "Wishes"}
-        />
-        <div className="aj-wishes__row">
-          <span className="aj-wishes__count">{message.length}/{MAX_CHARS}</span>
-          <button type="submit" className="aj-wishes__submit" disabled={status === "sending" || !message.trim()}>
-            {status === "sending" ? (lang === "ID" ? "Mengirim..." : "Sending...") : lang === "ID" ? "Kirim" : "Send"}
-          </button>
-        </div>
-        {feedback && <p className={`aj-wishes__feedback${status === "error" ? " is-error" : ""}`}>{feedback}</p>}
-      </form>
-
-      <div className="aj-wishes__list">
-        {!loaded && <p className="aj-wishes__empty">{lang === "ID" ? "Memuat ucapan..." : "Loading wishes..."}</p>}
-        {loaded && wishes.length === 0 && (
-          <p className="aj-wishes__empty">
-            {lang === "ID" ? "Belum ada ucapan. Jadilah yang pertama." : "No wishes yet. Be the first to leave one."}
-          </p>
-        )}
-        {paged.map((wish) => (
-          <article key={wish.id} className="aj-wishes__item">
-            <div className="aj-wishes__meta">
-              <b>{wish.name || (lang === "ID" ? "Tamu" : "Guest")}</b>
-              <span>{wishAgo(wish.created_at)}</span>
-            </div>
-            <p>{wish.message}</p>
-          </article>
-        ))}
-        {totalPages > 1 && (
-          <div className="aj-wishes__pager">
-            <button type="button" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={currentPage === 0} aria-label="Previous">
-              ‹
-            </button>
-            <span>{currentPage + 1} / {totalPages}</span>
-            <button type="button" onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={currentPage >= totalPages - 1} aria-label="Next">
-              ›
-            </button>
+          <div className="tpl-rsvp__field">
+            <label htmlFor="adat-melayu-rsvp-name">Nama</label>
+            <input
+              id="adat-melayu-rsvp-name"
+              className="tpl-rsvp__input"
+              type="text"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Nama Anda"
+              maxLength={80}
+              autoComplete="name"
+            />
           </div>
         )}
+
+        <div className="tpl-rsvp__field">
+          <label htmlFor="adat-melayu-rsvp-message">Doa &amp; Ucapan</label>
+          <textarea
+            id="adat-melayu-rsvp-message"
+            className="tpl-rsvp__textarea"
+            value={message}
+            onChange={(event) => setMessage(event.target.value.slice(0, MAX_CHARS))}
+            placeholder="Tulis doa dan ucapan"
+            rows={4}
+            maxLength={MAX_CHARS}
+          />
+          <p className="tpl-rsvp__counter">{message.length} / {MAX_CHARS}</p>
+        </div>
+
+        <button type="submit" className="tpl-rsvp__submit" disabled={status === "sending" || !message.trim()}>
+          {status === "sending" ? "Mengirim..." : "Kirim RSVP & Ucapan"}
+        </button>
+
+        {feedback && (
+          <p className={`rsvp-feedback${status === "error" ? " is-error" : ""}`} role="status">
+            {feedback}
+          </p>
+        )}
+      </form>
+
+      <div className="tpl-rsvp__wishes">
+        {!loaded && <p className="adat-rsvp__empty">Memuat ucapan…</p>}
+        {loaded && wishes.length === 0 && (
+          <p className="adat-rsvp__empty">
+            Belum ada ucapan. Jadilah yang pertama untuk {coupleName || "kedua mempelai"}.
+          </p>
+        )}
+
+        {wishes.length > 0 && (
+          <>
+            <div className="tpl-rsvp__wishes-list">
+              {pagedWishes.map((wish) => (
+                <div className="tpl-rsvp__wish" key={wish.id}>
+                  <div className="tpl-rsvp__wish-header">
+                    <div className="tpl-rsvp__wish-name">{wish.name || "Tamu Undangan"}</div>
+                    <div className="tpl-rsvp__wish-date">{wishAgo(wish.created_at)}</div>
+                  </div>
+                  <div className="tpl-rsvp__wish-message">{wish.message}</div>
+                </div>
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="tpl-rsvp__wishes-pagination">
+                <button
+                  type="button"
+                  className="tpl-rsvp__wishes-pg-btn"
+                  aria-label="Halaman sebelumnya"
+                  disabled={currentPage === 0}
+                  onClick={() => setPage((value) => Math.max(0, value - 1))}
+                >
+                  ‹
+                </button>
+                <span className="tpl-rsvp__wishes-pg-info">{currentPage + 1} / {totalPages}</span>
+                <button
+                  type="button"
+                  className="tpl-rsvp__wishes-pg-btn"
+                  aria-label="Halaman berikutnya"
+                  disabled={currentPage >= totalPages - 1}
+                  onClick={() => setPage((value) => Math.min(totalPages - 1, value + 1))}
+                >
+                  ›
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
-    </div>
+    </section>
   )
 }

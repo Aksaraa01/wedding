@@ -573,6 +573,11 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
   a strip between the cover and the panel.
 - **Demo content:** use the Sandhya demo couple/images + Adat Melayu copy. Do
   not copy the reference couple, parents, venues, stories, or gallery images.
+- **Replacing an existing custom template:** the reference may use the same
+  long-scroll family even when the current repo has a bespoke `layout.json`
+  component. Replace the component/CSS/Wishes and config together, keep unused
+  legacy assets, update the `web_templates` row + thumbnail, and re-test the
+  editor/ops gates. Do not leave the old component registered.
 - **Never silently rewrite saved `template_content`.** A real profile may hold
   test copy (e.g. `closing_message: "helllloooo"`). Expose the field so the user
   can change it; do not clear it without explicit approval.
