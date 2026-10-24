@@ -553,12 +553,12 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 
 ## 8.5 Adat family checklist (hard lessons)
 
-- **Cover slots are semantic.** Adat templates expose **3** slots:
+- **Cover slots are semantic.** Adat **and garden** templates expose **3** slots:
   `["Sampul", "Kutipan", "Closing"]`. The component must use
   `cover_photos[0]` for the cover, `[1]` for the verse/quote photo, and `[2]`
   for the closing photo, with gallery fallbacks when a slot is empty. Merely
   setting `cover_slots: 3` in the config without consuming slots 1/2 leaves the
-  Kutipan/Closing uploads unused.
+  Kutipan/Closing uploads unused. Apply the same contract to piano/altar garden.
 - **Every copy field needs an extras entry.** Any `template_content.<key>` read
   by the component must be added to `templateExtras.ts` for that template code,
   with a placeholder. Missing codes produce an empty “EKSTRA …” section even

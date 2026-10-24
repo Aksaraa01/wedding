@@ -19,6 +19,7 @@ import AdatPalembang from "./adat-palembang"
 import AdatBetawi from "./adat-betawi"
 import LunarBlossom from "./lunar-blossom"
 import AdatJawa from "./adat-jawa"
+import AdatBali from "./adat-bali"
 
 export type { TemplateProps } from "@/types/template"
 
@@ -42,6 +43,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "adat-betawi": AdatBetawi,
   "lunar-blossom": LunarBlossom,
   "adat-jawa": AdatJawa,
+  "adat-bali": AdatBali,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -449,8 +451,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
-      cover_slots: 1,
-      cover_slot_labels: ["Foto Sampul"],
+      cover_slots: 3,
+      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,
@@ -487,8 +489,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
-      cover_slots: 1,
-      cover_slot_labels: ["Foto Sampul"],
+      cover_slots: 3,
+      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,
@@ -758,6 +760,46 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         accentMuted: "#1f6144",
         overlay: "#132922",
         dark: "#132922",
+      },
+      ornaments: { divider: "floral", border: "minimal", frame: "arch" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.2 },
+    },
+    content: {
+      cover_slots: 3,
+      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: false,
+      sections: {
+        opening_description: false,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: true,
+        livestream: true,
+        rundown: true,
+        contacts: true,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "adat-bali",
+    name: "Adat Bali",
+    description: "Undangan adat Bali bernuansa plum dan krem — pura, gapura, ornamen Bali, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
+    theme: {
+      fonts: { display: "Pinyon Script", script: "Pinyon Script", body: "Poppins" },
+      colors: {
+        surface: "#faf3ea",
+        text: "#2a1f17",
+        accent: "#633750",
+        accentMuted: "#735b3f",
+        overlay: "#2a1f17",
+        dark: "#2a1f17",
       },
       ornaments: { divider: "floral", border: "minimal", frame: "arch" },
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
