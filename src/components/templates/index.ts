@@ -19,6 +19,7 @@ import AdatPalembang from "./adat-palembang"
 import AdatBetawi from "./adat-betawi"
 import LunarBlossom from "./lunar-blossom"
 import AdatJawa from "./adat-jawa"
+import AdatJawa2 from "./adat-jawa-2"
 import AdatBali from "./adat-bali"
 
 export type { TemplateProps } from "@/types/template"
@@ -43,6 +44,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "adat-betawi": AdatBetawi,
   "lunar-blossom": LunarBlossom,
   "adat-jawa": AdatJawa,
+  "adat-jawa-2": AdatJawa2,
   "adat-bali": AdatBali,
 }
 
@@ -703,6 +705,37 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         livestream: true,
         rundown: true,
         contacts: true,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "adat-jawa-2",
+    name: "Adat Jawa 2",
+    description: "Undangan adat Jawa bernuansa merah dan krem — gebyok, pendopo, gunung, video pembuka, ayat, mempelai, hitung mundur, acara, galeri, hadiah, dan ucapan dalam satu alur gulir.",
+    theme: {
+      fonts: { display: "Zzzz Delp", script: "Zzzz Delp", body: "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves" },
+      colors: { surface: "#fff6e1", text: "#9b1212", accent: "#9b1212", accentMuted: "#7a5a3a", overlay: "#9b1212", dark: "#9b1212" },
+      ornaments: { divider: "floral", border: "ornate", frame: "arch" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.2 },
+    },
+    content: {
+      cover_slots: 2,
+      cover_slot_labels: ["Foto Sampul", "Foto Pasangan Penutup"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: true,
+      sections: {
+        opening_description: false,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: false,
+        livestream: false,
       },
       extras: true,
     },
