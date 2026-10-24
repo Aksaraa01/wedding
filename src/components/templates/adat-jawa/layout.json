@@ -461,7 +461,8 @@
      "y": 324.4,
      "w": 197,
      "h": 184,
-     "src": "/templates/adat-jawa/assets/jawa-couple--1--c60bd5.webp"
+     "src": "/templates/adat-jawa/assets/jawa-couple--1--c60bd5.webp",
+     "role": "cover-photo"
     },
     {
      "id": "j3-30",
@@ -985,7 +986,8 @@
      "y": 544.6,
      "w": 305,
      "h": 367,
-     "src": "/templates/adat-jawa/assets/bride-jawa-cpw-ec4154.webp"
+     "src": "/templates/adat-jawa/assets/bride-jawa-cpw-ec4154.webp",
+     "role": "groom-photo"
     },
     {
      "id": "j5-29",
@@ -1088,7 +1090,8 @@
      "y": 1318.3,
      "w": 278,
      "h": 370,
-     "src": "/templates/adat-jawa/assets/bride-jawa-572e40.webp"
+     "src": "/templates/adat-jawa/assets/bride-jawa-572e40.webp",
+     "role": "bride-photo"
     },
     {
      "id": "j5-40",

@@ -246,6 +246,7 @@ export default function AdatJawa(profile: TemplateProps) {
 
   const shellRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const heroVideoRef = useRef<HTMLVideoElement | null>(null)
   const toastTimer = useRef<number | null>(null)
 
   const c = COPY[lang]
@@ -321,6 +322,8 @@ export default function AdatJawa(profile: TemplateProps) {
     window.setTimeout(() => {
       const audio = audioRef.current
       if (audio) audio.play().then(() => setPlaying(true), () => setPlaying(false))
+      const video = heroVideoRef.current
+      if (video) video.play().catch(() => {})
     }, 60)
   }, [])
 
@@ -376,9 +379,14 @@ export default function AdatJawa(profile: TemplateProps) {
   useEffect(() => {
     if (!opened || !hasTrack) return
     const audio = audioRef.current
-    if (!audio) return
-    audio.play().then(() => setPlaying(true), () => setPlaying(false))
+    if (audio) audio.play().then(() => setPlaying(true), () => setPlaying(false))
   }, [opened, hasTrack])
+
+  useEffect(() => {
+    if (!opened) return
+    const video = heroVideoRef.current
+    if (video) video.play().catch(() => {})
+  }, [opened])
 
   const roleNode = (role: string): ReactNode => {
     switch (role) {
@@ -418,6 +426,7 @@ export default function AdatJawa(profile: TemplateProps) {
 
   const renderElement = (e: LayoutElement) => {
     if (e.hidden) return null
+    if (e.type === "video") return null
     const key = e.id
     const style = elementStyle(e)
 
@@ -489,6 +498,9 @@ export default function AdatJawa(profile: TemplateProps) {
       )
     }
 
+    if (e.role === "cover-photo") {
+      return <div key={key} className="aj-el aj-photo aj-photo--cover" style={style}><img src={cover} alt="" draggable={false} /></div>
+    }
     if (e.role === "groom-photo") {
       return <div key={key} className="aj-el aj-photo aj-photo--person" style={style}><img src={groomImage} alt={groomShort} draggable={false} /></div>
     }
@@ -505,7 +517,7 @@ export default function AdatJawa(profile: TemplateProps) {
     }
 
     if (e.src) {
-      return <div key={key} className="aj-el aj-photo" style={style}><img src={e.src} alt="" loading="lazy" draggable={false} /></div>
+      return <div key={key} className="aj-el aj-photo" style={style}><img src={e.src} alt="" draggable={false} /></div>
     }
 
     if (e.txt) {
@@ -562,7 +574,7 @@ export default function AdatJawa(profile: TemplateProps) {
           return (
             <section key={section.id} className={`aj-section aj-section--${section.kind}`} style={{ height: section.height * scale, background: section.bg }}>
               {section.kind === "hero" && (
-                <video className="aj-hero-video" src={A("opening.mp4")} muted playsInline preload="metadata" autoPlay />
+                <video ref={heroVideoRef} className="aj-hero-video" src={A("opening.mp4")} muted playsInline preload="auto" autoPlay />
               )}
               <div className="aj-art" style={{ width: layout.canvasWidth, height: section.height, transform: `scale(${scale})` }}>
                 {section.elements.map(renderElement)}

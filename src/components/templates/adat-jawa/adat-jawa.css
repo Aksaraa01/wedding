@@ -35,8 +35,8 @@
 
 .aj-r-hero-kicker{font-family:var(--playfair);font-size:16px;color:var(--ink);align-items:center}
 .aj-r-hero-name{font-family:var(--display);font-size:50px;line-height:1.05;color:var(--ink);align-items:center}
-.aj-r-quote{font-family:var(--quote);font-size:15px;line-height:1.6;color:var(--ink);align-items:center;height:auto!important;min-height:196px;padding:8px 4px}
-.aj-r-quote-mark{font-family:var(--display);font-size:35px;color:var(--ink);align-items:center}
+.aj-r-quote{font-family:var(--quote);font-size:15px;line-height:1.6;color:#fff2f0;align-items:center;height:auto!important;min-height:196px;padding:0}
+.aj-r-quote-mark{font-family:var(--display);font-size:35px;color:#fff2f0;align-items:center}
 .aj-r-groom-title,.aj-r-bride-title{font-family:var(--display);font-size:56px;line-height:1.05;color:var(--ink);align-items:center}
 .aj-r-groom-parents,.aj-r-bride-parents{font-family:var(--serif);font-size:21.66px;line-height:1.25;color:var(--ink);align-items:center}
 .aj-r-groom-initial{font-family:var(--display);font-size:48px;color:var(--ink);align-items:center}
