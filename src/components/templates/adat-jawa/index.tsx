@@ -42,6 +42,7 @@ type LayoutElement = {
   color?: string | null
   role?: string
   hidden?: boolean
+  opacity?: number
 }
 
 type LayoutSection = {
@@ -171,7 +172,7 @@ function useCountdown(iso?: string, sessions?: TemplateProps["sessions"]) {
 
 function elementStyle(e: LayoutElement): CSSProperties {
   const transforms = [`translate(${e.x}px, ${e.y}px)`]
-  return { width: e.w, height: e.h, transform: transforms.join(" ") }
+  return { width: e.w, height: e.h, transform: transforms.join(" "), ...(e.opacity != null ? { opacity: e.opacity } : {}) }
 }
 
 function roleStyle(e: LayoutElement): CSSProperties {
@@ -604,7 +605,8 @@ export default function AdatJawa(profile: TemplateProps) {
       )}
 
       <div className="aj-desktop-cover" aria-hidden="true">
-        <img src={gate.background} alt="" />
+        <img src={A("cover-desktop.webp")} alt="" />
+        <h1 className="aj-desktop-cover__names">{groomShort} &amp; {brideShort}</h1>
       </div>
 
       <div className="aj-lang">

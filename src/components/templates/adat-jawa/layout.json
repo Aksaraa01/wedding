@@ -1368,7 +1368,8 @@
      "y": 459.1,
      "w": 305,
      "h": 305,
-     "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp"
+     "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp",
+     "opacity": 0.41
     },
     {
      "id": "j6-2",
@@ -1377,7 +1378,8 @@
      "y": 458.1,
      "w": 305,
      "h": 305,
-     "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp"
+     "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp",
+     "opacity": 0.41
     },
     {
      "id": "j6-3",
@@ -1386,7 +1388,8 @@
      "y": 156.4,
      "w": 305,
      "h": 305,
-     "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp"
+     "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp",
+     "opacity": 0.41
     },
     {
      "id": "j6-4",
@@ -1395,7 +1398,8 @@
      "y": -67.7,
      "w": 771,
      "h": 154,
-     "src": "/templates/adat-jawa/assets/the-wedding-of--23--254c3b.webp"
+     "src": "/templates/adat-jawa/assets/the-wedding-of--23--254c3b.webp",
+     "opacity": 0.51
     },
     {
      "id": "j6-5",
