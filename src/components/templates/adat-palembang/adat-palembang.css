@@ -681,3 +681,8 @@ html:has(.adat-palembang-root.is-locked),body:has(.adat-palembang-root.is-locked
   background-position: bottom center;
 }
 .adat-palembang-root .inviting-card > * { position: relative; z-index: 1; }
+
+/* Desktop full-bleed: fill ultrawide screens instead of a 1420px centered shell. */
+.adat-palembang-root .page-shell { width: 100%; max-width: none; }
+.adat-palembang-root .right-column::before { right: 0; }
+.adat-palembang-root .right-parallax-background { right: 0; }

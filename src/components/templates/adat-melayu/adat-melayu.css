@@ -670,3 +670,8 @@ html:has(.adat-melayu-root.is-locked),body:has(.adat-melayu-root.is-locked){over
   background-position: bottom center;
 }
 .adat-melayu-root .inviting-card > * { position: relative; z-index: 1; }
+
+/* Desktop full-bleed: fill ultrawide screens instead of a 1420px centered shell. */
+.adat-melayu-root .page-shell { width: 100%; max-width: none; }
+.adat-melayu-root .right-column::before { right: 0; }
+.adat-melayu-root .right-parallax-background { right: 0; }

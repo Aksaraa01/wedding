@@ -497,3 +497,8 @@ html:has(.altar-garden-root.is-locked),body:has(.altar-garden-root.is-locked){ov
 .altar-garden-root .love-story-section { min-height: 0; height: auto; padding-bottom: 64px; }
 .altar-garden-root .story-card { min-height: 0; height: auto; }
 .altar-garden-root .story-list { padding-bottom: 4px; }
+
+/* Desktop full-bleed: fill ultrawide screens instead of a 1420px centered shell. */
+.altar-garden-root .page-shell { width: 100%; max-width: none; }
+.altar-garden-root .right-column::before { right: 0; }
+.altar-garden-root .right-parallax-background { right: 0; }

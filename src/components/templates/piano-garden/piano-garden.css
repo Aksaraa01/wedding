@@ -497,3 +497,8 @@ html:has(.piano-garden-root.is-locked),body:has(.piano-garden-root.is-locked){ov
 .piano-garden-root .love-story-section { min-height: 0; height: auto; padding-bottom: 64px; }
 .piano-garden-root .story-card { min-height: 0; height: auto; }
 .piano-garden-root .story-list { padding-bottom: 4px; }
+
+/* Desktop full-bleed: fill ultrawide screens instead of a 1420px centered shell. */
+.piano-garden-root .page-shell { width: 100%; max-width: none; }
+.piano-garden-root .right-column::before { right: 0; }
+.piano-garden-root .right-parallax-background { right: 0; }

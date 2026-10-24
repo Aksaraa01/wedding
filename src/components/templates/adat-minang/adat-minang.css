@@ -685,3 +685,8 @@ html:has(.adat-minang-root.is-locked),body:has(.adat-minang-root.is-locked){over
   background-position: bottom center;
 }
 .adat-minang-root .inviting-card > * { position: relative; z-index: 1; }
+
+/* Desktop full-bleed: fill ultrawide screens instead of a 1420px centered shell. */
+.adat-minang-root .page-shell { width: 100%; max-width: none; }
+.adat-minang-root .right-column::before { right: 0; }
+.adat-minang-root .right-parallax-background { right: 0; }

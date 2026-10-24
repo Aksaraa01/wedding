@@ -685,3 +685,8 @@ html:has(.adat-batak-root.is-locked),body:has(.adat-batak-root.is-locked){overfl
   background-position: bottom center;
 }
 .adat-batak-root .inviting-card > * { position: relative; z-index: 1; }
+
+/* Desktop full-bleed: fill ultrawide screens instead of a 1420px centered shell. */
+.adat-batak-root .page-shell { width: 100%; max-width: none; }
+.adat-batak-root .right-column::before { right: 0; }
+.adat-batak-root .right-parallax-background { right: 0; }
