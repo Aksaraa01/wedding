@@ -1,0 +1,77 @@
+{
+ "width": 484,
+ "height": 678.8,
+ "elements": [
+  {
+   "x": 20.5,
+   "y": 325.8,
+   "w": 443,
+   "h": 0,
+   "txt": "",
+   "font": null,
+   "size": null,
+   "color": null
+  },
+  {
+   "x": 14.3,
+   "y": 117,
+   "w": 443,
+   "h": 32.3,
+   "txt": "The Wedding of",
+   "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
+   "size": "16px",
+   "color": "rgb(155, 18, 18)"
+  },
+  {
+   "x": 20.5,
+   "y": 155.9,
+   "w": 443,
+   "h": 63.3,
+   "txt": "Nama Mempelai",
+   "font": "Zzzz Delp",
+   "size": "42px",
+   "color": "rgb(155, 18, 18)"
+  },
+  {
+   "x": 20.5,
+   "y": 216.6,
+   "w": 443,
+   "h": 29.8,
+   "txt": "30 Mei 2024",
+   "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
+   "size": "21px",
+   "color": "rgb(155, 18, 18)"
+  },
+  {
+   "x": 20.5,
+   "y": 209.4,
+   "w": 443,
+   "h": 0,
+   "txt": "",
+   "font": null,
+   "size": null,
+   "color": null
+  },
+  {
+   "x": 20.5,
+   "y": 266.3,
+   "w": 443,
+   "h": 0,
+   "txt": "",
+   "font": null,
+   "size": null,
+   "color": null
+  },
+  {
+   "x": 17.4,
+   "y": 437.7,
+   "w": 449.3,
+   "h": 50.9,
+   "txt": "Open Invitation",
+   "font": "Times Toman Italic",
+   "size": "14px",
+   "color": "rgb(255, 255, 255)"
+  }
+ ],
+ "background": "/templates/adat-jawa/assets/gate-cover.webp"
+}

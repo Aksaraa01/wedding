@@ -1,0 +1,2932 @@
+{
+ "canvasWidth": 484,
+ "totalHeight": 10878,
+ "sections": [
+  {
+   "id": "sec-2",
+   "kind": "hero",
+   "top": 0,
+   "height": 826,
+   "bg": "rgb(255, 255, 255)",
+   "elements": [
+    {
+     "id": "j2-0",
+     "type": "video",
+     "x": 0,
+     "y": 0,
+     "w": 484,
+     "h": 826,
+     "src": "/templates/adat-jawa/assets/opening.mp4"
+    },
+    {
+     "id": "j2-1",
+     "type": "photo",
+     "x": -86.5,
+     "y": 695.8,
+     "w": 173,
+     "h": 173,
+     "src": "/templates/adat-jawa/assets/Comp-11-9c8078.webp"
+    },
+    {
+     "id": "j2-2",
+     "type": "photo",
+     "x": 397.5,
+     "y": 692.7,
+     "w": 173,
+     "h": 173,
+     "src": "/templates/adat-jawa/assets/Comp-11-9c8078.webp"
+    },
+    {
+     "id": "j2-3",
+     "type": "photo",
+     "x": 404.5,
+     "y": 629.3,
+     "w": 135,
+     "h": 135,
+     "src": "/templates/adat-jawa/assets/Comp-5-29ec5d.webp"
+    },
+    {
+     "id": "j2-4",
+     "type": "photo",
+     "x": -59.5,
+     "y": 632.7,
+     "w": 135,
+     "h": 135,
+     "src": "/templates/adat-jawa/assets/Comp-5-29ec5d.webp"
+    },
+    {
+     "id": "j2-5",
+     "type": "photo",
+     "x": 0,
+     "y": 763,
+     "w": 126,
+     "h": 126,
+     "src": "/templates/adat-jawa/assets/Comp-9-d8825a.webp"
+    },
+    {
+     "id": "j2-6",
+     "type": "photo",
+     "x": 348,
+     "y": 763,
+     "w": 126,
+     "h": 126,
+     "src": "/templates/adat-jawa/assets/Comp-9-d8825a.webp"
+    },
+    {
+     "id": "j2-7",
+     "type": "photo",
+     "x": -68,
+     "y": 553.2,
+     "w": 136,
+     "h": 136,
+     "src": "/templates/adat-jawa/assets/Flower-b-1-578253.webp"
+    },
+    {
+     "id": "j2-8",
+     "type": "photo",
+     "x": 416,
+     "y": 547.2,
+     "w": 136,
+     "h": 136,
+     "src": "/templates/adat-jawa/assets/Flower-b-1-578253.webp"
+    },
+    {
+     "id": "j2-9",
+     "type": "photo",
+     "x": -78.5,
+     "y": 451.7,
+     "w": 141,
+     "h": 141,
+     "src": "/templates/adat-jawa/assets/Comp-5-979780.webp"
+    },
+    {
+     "id": "j2-10",
+     "type": "photo",
+     "x": 413.5,
+     "y": 447.7,
+     "w": 140.9,
+     "h": 140.9,
+     "src": "/templates/adat-jawa/assets/Comp-5-979780.webp"
+    },
+    {
+     "id": "j2-11",
+     "type": "photo",
+     "x": 407,
+     "y": 307.2,
+     "w": 135,
+     "h": 135,
+     "src": "/templates/adat-jawa/assets/Comp-5-29ec5d.webp"
+    },
+    {
+     "id": "j2-12",
+     "type": "photo",
+     "x": -58,
+     "y": 310.5,
+     "w": 135,
+     "h": 135,
+     "src": "/templates/adat-jawa/assets/Comp-5-29ec5d.webp"
+    },
+    {
+     "id": "j2-13",
+     "type": "photo",
+     "x": -74.5,
+     "y": 217.8,
+     "w": 141,
+     "h": 141,
+     "src": "/templates/adat-jawa/assets/Comp-5-979780.webp"
+    },
+    {
+     "id": "j2-14",
+     "type": "photo",
+     "x": 417.6,
+     "y": 213.9,
+     "w": 140.9,
+     "h": 140.9,
+     "src": "/templates/adat-jawa/assets/Comp-5-979780.webp"
+    },
+    {
+     "id": "j2-15",
+     "type": "photo",
+     "x": -90,
+     "y": 172.8,
+     "w": 141,
+     "h": 141,
+     "src": "/templates/adat-jawa/assets/Comp-5-979780.webp"
+    },
+    {
+     "id": "j2-16",
+     "type": "photo",
+     "x": 423.5,
+     "y": 188,
+     "w": 121,
+     "h": 121,
+     "src": "/templates/adat-jawa/assets/Comp-5-979780.webp"
+    },
+    {
+     "id": "j2-17",
+     "type": "photo",
+     "x": -46.9,
+     "y": 769.5,
+     "w": 111,
+     "h": 208,
+     "src": "/templates/adat-jawa/assets/Bronze-Lily-08ad81.webp"
+    },
+    {
+     "id": "j2-18",
+     "type": "photo",
+     "x": 402.5,
+     "y": 729.8,
+     "w": 149,
+     "h": 171,
+     "src": "/templates/adat-jawa/assets/Flower-copy-39a1c1.webp"
+    }
+   ]
+  },
+  {
+   "id": "sec-3",
+   "kind": "wedding",
+   "top": 826,
+   "height": 760,
+   "bg": "rgba(0, 0, 0, 0)",
+   "elements": [
+    {
+     "id": "j3-0",
+     "type": "photo",
+     "x": 118.8,
+     "y": 37.2,
+     "w": 202.5,
+     "h": 234.4,
+     "src": "/templates/adat-jawa/assets/j-a5944b.webp"
+    },
+    {
+     "id": "j3-1",
+     "type": "photo",
+     "x": 412,
+     "y": -56.9,
+     "w": 236,
+     "h": 535,
+     "src": "/templates/adat-jawa/assets/download--11--054afc.webp"
+    },
+    {
+     "id": "j3-2",
+     "type": "photo",
+     "x": -163.7,
+     "y": -29.9,
+     "w": 236,
+     "h": 535,
+     "src": "/templates/adat-jawa/assets/download--11--054afc.webp"
+    },
+    {
+     "id": "j3-3",
+     "type": "photo",
+     "x": -18.7,
+     "y": 331.3,
+     "w": 492,
+     "h": 469,
+     "src": "/templates/adat-jawa/assets/j-a5944b.webp"
+    },
+    {
+     "id": "j3-4",
+     "type": "photo",
+     "x": 31.5,
+     "y": 298.9,
+     "w": 389,
+     "h": 389,
+     "src": "/templates/adat-jawa/assets/gunung-jawa-fc3cdc.webp"
+    },
+    {
+     "id": "j3-5",
+     "type": "photo",
+     "x": -37,
+     "y": 476.5,
+     "w": 536,
+     "h": 299,
+     "src": "/templates/adat-jawa/assets/img_6360--1--25459b.webp"
+    },
+    {
+     "id": "j3-6",
+     "type": "photo",
+     "x": 5.8,
+     "y": -153.5,
+     "w": 472.3,
+     "h": 725.7,
+     "src": "/templates/adat-jawa/assets/Gebyok-1-7b780e.webp"
+    },
+    {
+     "id": "j3-7",
+     "type": "photo",
+     "x": -313.1,
+     "y": 85.9,
+     "w": 427,
+     "h": 427,
+     "src": "/templates/adat-jawa/assets/Comp-11-9c8078.webp"
+    },
+    {
+     "id": "j3-8",
+     "type": "photo",
+     "x": 372.5,
+     "y": 79,
+     "w": 412,
+     "h": 412,
+     "src": "/templates/adat-jawa/assets/Comp-11-9c8078.webp"
+    },
+    {
+     "id": "j3-9",
+     "type": "photo",
+     "x": 301.3,
+     "y": 274.4,
+     "w": 493,
+     "h": 493,
+     "src": "/templates/adat-jawa/assets/Comp-11-9c8078.webp"
+    },
+    {
+     "id": "j3-10",
+     "type": "photo",
+     "x": -302.6,
+     "y": 276.9,
+     "w": 493,
+     "h": 493,
+     "src": "/templates/adat-jawa/assets/Comp-11-9c8078.webp"
+    },
+    {
+     "id": "j3-11",
+     "type": "photo",
+     "x": 342.8,
+     "y": 708.3,
+     "w": 260,
+     "h": 386,
+     "src": "/templates/adat-jawa/assets/Rose-Right-0e0b8c.webp"
+    },
+    {
+     "id": "j3-12",
+     "type": "photo",
+     "x": -116.2,
+     "y": 696,
+     "w": 260,
+     "h": 386,
+     "src": "/templates/adat-jawa/assets/Rose-Right-0e0b8c.webp"
+    },
+    {
+     "id": "j3-13",
+     "type": "photo",
+     "x": 364.5,
+     "y": 493,
+     "w": 239,
+     "h": 239,
+     "src": "/templates/adat-jawa/assets/the-wedding-of-e05188.webp"
+    },
+    {
+     "id": "j3-14",
+     "type": "photo",
+     "x": -146.1,
+     "y": 472.6,
+     "w": 273,
+     "h": 273,
+     "src": "/templates/adat-jawa/assets/the-wedding-of-e05188.webp"
+    },
+    {
+     "id": "j3-15",
+     "type": "photo",
+     "x": -69.5,
+     "y": 611,
+     "w": 112,
+     "h": 138,
+     "src": "/templates/adat-jawa/assets/Gold-King-Solomon-s-sealt-Large-cd2cc4.webp"
+    },
+    {
+     "id": "j3-16",
+     "type": "photo",
+     "x": 432,
+     "y": 622,
+     "w": 112,
+     "h": 138,
+     "src": "/templates/adat-jawa/assets/Gold-King-Solomon-s-sealt-Large-cd2cc4.webp"
+    },
+    {
+     "id": "j3-17",
+     "type": "photo",
+     "x": 9,
+     "y": 601,
+     "w": 150,
+     "h": 188,
+     "src": "/templates/adat-jawa/assets/red-flower-2-f6aedb.webp"
+    },
+    {
+     "id": "j3-18",
+     "type": "photo",
+     "x": 334,
+     "y": 599.6,
+     "w": 150,
+     "h": 188,
+     "src": "/templates/adat-jawa/assets/red-flower-2-f6aedb.webp"
+    },
+    {
+     "id": "j3-19",
+     "type": "photo",
+     "x": 390.6,
+     "y": 265.3,
+     "w": 219,
+     "h": 274,
+     "src": "/templates/adat-jawa/assets/red-flowers-747646.webp"
+    },
+    {
+     "id": "j3-20",
+     "type": "photo",
+     "x": -122.4,
+     "y": 272.6,
+     "w": 214,
+     "h": 268,
+     "src": "/templates/adat-jawa/assets/red-flowers-747646.webp"
+    },
+    {
+     "id": "j3-21",
+     "type": "text",
+     "x": 108.5,
+     "y": 54.2,
+     "w": 267,
+     "h": 55,
+     "txt": "The Wedding of",
+     "font": "Zzzz - Playfair Display",
+     "size": "16px",
+     "color": "rgb(155, 18, 18)",
+     "role": "hero-kicker"
+    },
+    {
+     "id": "j3-22",
+     "type": "photo",
+     "x": 37.5,
+     "y": -44.7,
+     "w": 409,
+     "h": 131,
+     "src": "/templates/adat-jawa/assets/Upper-Gebyok-1-f404ad.webp"
+    },
+    {
+     "id": "j3-23",
+     "type": "photo",
+     "x": -99.8,
+     "y": 514.7,
+     "w": 164,
+     "h": 264,
+     "src": "/templates/adat-jawa/assets/image-b763b6.webp"
+    },
+    {
+     "id": "j3-24",
+     "type": "photo",
+     "x": 428.2,
+     "y": 532.6,
+     "w": 164,
+     "h": 264,
+     "src": "/templates/adat-jawa/assets/image-b763b6.webp"
+    },
+    {
+     "id": "j3-25",
+     "type": "photo",
+     "x": 296.3,
+     "y": 0,
+     "w": 161,
+     "h": 155,
+     "src": "/templates/adat-jawa/assets/Ornament-copy-2-3--1--da7d47.webp"
+    },
+    {
+     "id": "j3-26",
+     "type": "photo",
+     "x": 28.3,
+     "y": 0,
+     "w": 161,
+     "h": 155,
+     "src": "/templates/adat-jawa/assets/Ornament-copy-2-3--1--da7d47.webp"
+    },
+    {
+     "id": "j3-27",
+     "type": "photo",
+     "x": 57.8,
+     "y": 620.9,
+     "w": 382.5,
+     "h": 247,
+     "src": "/templates/adat-jawa/assets/copy-of-home--10--f09f3d.webp"
+    },
+    {
+     "id": "j3-28",
+     "type": "photo",
+     "x": 66.4,
+     "y": 656,
+     "w": 355,
+     "h": 227,
+     "src": "/templates/adat-jawa/assets/image-c34e7a.webp"
+    },
+    {
+     "id": "j3-29",
+     "type": "photo",
+     "x": 143,
+     "y": 324.4,
+     "w": 197,
+     "h": 184,
+     "src": "/templates/adat-jawa/assets/jawa-couple--1--c60bd5.webp"
+    },
+    {
+     "id": "j3-30",
+     "type": "photo",
+     "x": 85.5,
+     "y": 212,
+     "w": 313,
+     "h": 313,
+     "src": "/templates/adat-jawa/assets/img_6328-232f1d.webp"
+    },
+    {
+     "id": "j3-31",
+     "type": "text",
+     "x": 16,
+     "y": 107.8,
+     "w": 452,
+     "h": 82,
+     "txt": "Vidi",
+     "font": "Zzzz Delp",
+     "size": "50px",
+     "color": "rgb(155, 18, 18)",
+     "role": "hero-name"
+    },
+    {
+     "id": "j3-32",
+     "type": "photo",
+     "x": -60.9,
+     "y": -61.1,
+     "w": 128,
+     "h": 239,
+     "src": "/templates/adat-jawa/assets/Bronze-Lily-08ad81.webp"
+    },
+    {
+     "id": "j3-33",
+     "type": "photo",
+     "x": 403,
+     "y": -101,
+     "w": 162,
+     "h": 185,
+     "src": "/templates/adat-jawa/assets/Flower-copy-39a1c1.webp"
+    }
+   ]
+  },
+  {
+   "id": "sec-4",
+   "kind": "quote",
+   "top": 1586,
+   "height": 771,
+   "bg": "rgba(0, 0, 0, 0)",
+   "elements": [
+    {
+     "id": "j4-0",
+     "type": "photo",
+     "x": -20.1,
+     "y": 28.1,
+     "w": 516,
+     "h": 743,
+     "src": "/templates/adat-jawa/assets/download--11--054afc.webp"
+    },
+    {
+     "id": "j4-1",
+     "type": "photo",
+     "x": 12.5,
+     "y": 621.9,
+     "w": 459,
+     "h": 218,
+     "src": "/templates/adat-jawa/assets/image-8208c7.webp"
+    },
+    {
+     "id": "j4-2",
+     "type": "photo",
+     "x": -244.5,
+     "y": -85.7,
+     "w": 973,
+     "h": 668,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--5--d5732d.webp"
+    },
+    {
+     "id": "j4-3",
+     "type": "photo",
+     "x": 0,
+     "y": 92.3,
+     "w": 485,
+     "h": 485,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--3--d30c46.webp"
+    },
+    {
+     "id": "j4-4",
+     "type": "photo",
+     "x": 57.8,
+     "y": -137.1,
+     "w": 382.5,
+     "h": 247,
+     "src": "/templates/adat-jawa/assets/copy-of-home--10--f09f3d.webp"
+    },
+    {
+     "id": "j4-5",
+     "type": "photo",
+     "x": 139,
+     "y": -65.4,
+     "w": 222,
+     "h": 104,
+     "src": "/templates/adat-jawa/assets/image-c34e7a.webp"
+    },
+    {
+     "id": "j4-6",
+     "type": "photo",
+     "x": 359,
+     "y": -39.7,
+     "w": 206,
+     "h": 306,
+     "src": "/templates/adat-jawa/assets/Rose-Right-0e0b8c.webp"
+    },
+    {
+     "id": "j4-7",
+     "type": "photo",
+     "x": -80,
+     "y": -56.4,
+     "w": 206,
+     "h": 306,
+     "src": "/templates/adat-jawa/assets/Rose-Right-0e0b8c.webp"
+    },
+    {
+     "id": "j4-8",
+     "type": "photo",
+     "x": -132,
+     "y": 291.4,
+     "w": 204,
+     "h": 248,
+     "src": "/templates/adat-jawa/assets/Palm-30b475.webp"
+    },
+    {
+     "id": "j4-9",
+     "type": "photo",
+     "x": 411,
+     "y": 318.6,
+     "w": 199,
+     "h": 242,
+     "src": "/templates/adat-jawa/assets/Palm-30b475.webp"
+    },
+    {
+     "id": "j4-10",
+     "type": "photo",
+     "x": -195.8,
+     "y": 346.7,
+     "w": 278,
+     "h": 447,
+     "src": "/templates/adat-jawa/assets/image-b763b6.webp"
+    },
+    {
+     "id": "j4-11",
+     "type": "text",
+     "x": 126.5,
+     "y": 260.8,
+     "w": 231,
+     "h": 196,
+     "txt": "\"Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia mencipt",
+     "font": "Cormorant Infant",
+     "size": "15px",
+     "color": "rgb(255, 242, 240)",
+     "role": "quote"
+    },
+    {
+     "id": "j4-12",
+     "type": "photo",
+     "x": 397,
+     "y": 351.1,
+     "w": 278,
+     "h": 447,
+     "src": "/templates/adat-jawa/assets/image-b763b6.webp"
+    },
+    {
+     "id": "j4-13",
+     "type": "text",
+     "x": 132.5,
+     "y": 210.7,
+     "w": 219,
+     "h": 52.5,
+     "txt": "Q",
+     "font": "Zzzz Delp",
+     "size": "35px",
+     "color": "rgb(255, 242, 240)",
+     "role": "quote-mark"
+    },
+    {
+     "id": "j4-14",
+     "type": "photo",
+     "x": -12,
+     "y": 741.9,
+     "w": 508,
+     "h": 272,
+     "src": "/templates/adat-jawa/assets/img_9408-72e9e7.webp"
+    },
+    {
+     "id": "j4-15",
+     "type": "photo",
+     "x": -92.3,
+     "y": 494.8,
+     "w": 313.2,
+     "h": 313.2,
+     "src": "/templates/adat-jawa/assets/Comp-1_1-c6c56d.webp"
+    },
+    {
+     "id": "j4-16",
+     "type": "photo",
+     "x": 274.9,
+     "y": 486.2,
+     "w": 318.7,
+     "h": 318.7,
+     "src": "/templates/adat-jawa/assets/Comp-1_1-c6c56d.webp"
+    },
+    {
+     "id": "j4-17",
+     "type": "photo",
+     "x": 245.7,
+     "y": 604.8,
+     "w": 284.3,
+     "h": 284.3,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--6--890c02.webp"
+    },
+    {
+     "id": "j4-18",
+     "type": "photo",
+     "x": -49.3,
+     "y": 608.8,
+     "w": 272.3,
+     "h": 272.3,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--6--890c02.webp"
+    },
+    {
+     "id": "j4-19",
+     "type": "photo",
+     "x": -73,
+     "y": 707.7,
+     "w": 146,
+     "h": 146,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--8--82d829.webp"
+    },
+    {
+     "id": "j4-20",
+     "type": "photo",
+     "x": 411,
+     "y": 715.4,
+     "w": 127,
+     "h": 127,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--8--82d829.webp"
+    }
+   ]
+  },
+  {
+   "id": "sec-5",
+   "kind": "couple",
+   "top": 2357,
+   "height": 2174,
+   "bg": "rgba(0, 0, 0, 0)",
+   "elements": [
+    {
+     "id": "j5-0",
+     "type": "photo",
+     "x": -4,
+     "y": 1566,
+     "w": 492,
+     "h": 873,
+     "src": "/templates/adat-jawa/assets/background-2--1--0f04ad.webp"
+    },
+    {
+     "id": "j5-1",
+     "type": "photo",
+     "x": -23.3,
+     "y": 2059.6,
+     "w": 566,
+     "h": 184,
+     "src": "/templates/adat-jawa/assets/untitled-1-24df18.webp"
+    },
+    {
+     "id": "j5-2",
+     "type": "photo",
+     "x": 321.3,
+     "y": 1907.7,
+     "w": 189,
+     "h": 189,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--18--f25abf.webp"
+    },
+    {
+     "id": "j5-3",
+     "type": "photo",
+     "x": -23,
+     "y": 1910.2,
+     "w": 189,
+     "h": 189,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--18--f25abf.webp"
+    },
+    {
+     "id": "j5-4",
+     "type": "photo",
+     "x": -7,
+     "y": 831.6,
+     "w": 498,
+     "h": 884,
+     "src": "/templates/adat-jawa/assets/background-2--1--1b663d.webp"
+    },
+    {
+     "id": "j5-5",
+     "type": "photo",
+     "x": 112.2,
+     "y": 1056.6,
+     "w": 444,
+     "h": 444,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--4682b2.webp"
+    },
+    {
+     "id": "j5-6",
+     "type": "photo",
+     "x": 21.8,
+     "y": 1507.6,
+     "w": 199,
+     "h": 199,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--11--1eda19.webp"
+    },
+    {
+     "id": "j5-7",
+     "type": "photo",
+     "x": 19.6,
+     "y": 1266.9,
+     "w": 246,
+     "h": 308,
+     "src": "/templates/adat-jawa/assets/Tree-New-copy-12-4deaad.webp"
+    },
+    {
+     "id": "j5-8",
+     "type": "photo",
+     "x": -7,
+     "y": -13.7,
+     "w": 498,
+     "h": 884,
+     "src": "/templates/adat-jawa/assets/background-2--1--1b663d.webp"
+    },
+    {
+     "id": "j5-9",
+     "type": "photo",
+     "x": -78,
+     "y": 319.6,
+     "w": 444,
+     "h": 444,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--4682b2.webp"
+    },
+    {
+     "id": "j5-10",
+     "type": "photo",
+     "x": 277.5,
+     "y": 665.6,
+     "w": 199,
+     "h": 199,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--11--1eda19.webp"
+    },
+    {
+     "id": "j5-11",
+     "type": "photo",
+     "x": 214,
+     "y": 494.1,
+     "w": 243,
+     "h": 304,
+     "src": "/templates/adat-jawa/assets/Tree-New-copy-12-4deaad.webp"
+    },
+    {
+     "id": "j5-12",
+     "type": "photo",
+     "x": 247.6,
+     "y": -60.9,
+     "w": 263,
+     "h": 262,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--7--372271.webp"
+    },
+    {
+     "id": "j5-13",
+     "type": "photo",
+     "x": -31,
+     "y": -65,
+     "w": 273,
+     "h": 273,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--7--372271.webp"
+    },
+    {
+     "id": "j5-14",
+     "type": "text",
+     "x": 16,
+     "y": 948.2,
+     "w": 452,
+     "h": 49,
+     "txt": "Mempelai Pria",
+     "font": "Zzzz Delp",
+     "size": "56px",
+     "color": "rgb(155, 18, 18)",
+     "role": "groom-title"
+    },
+    {
+     "id": "j5-15",
+     "type": "text",
+     "x": 16,
+     "y": 1004.6,
+     "w": 452,
+     "h": 48,
+     "txt": "First son of H. Heru Stiawan",
+     "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
+     "size": "21.66px",
+     "color": "rgb(155, 18, 18)",
+     "role": "groom-parents"
+    },
+    {
+     "id": "j5-16",
+     "type": "photo",
+     "x": -57.5,
+     "y": -72.1,
+     "w": 599,
+     "h": 367,
+     "src": "/templates/adat-jawa/assets/img_9408-72e9e7.webp"
+    },
+    {
+     "id": "j5-17",
+     "type": "photo",
+     "x": 149.5,
+     "y": 37.7,
+     "w": 185,
+     "h": 185,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--9--cd12da.webp"
+    },
+    {
+     "id": "j5-18",
+     "type": "photo",
+     "x": -45.8,
+     "y": -159,
+     "w": 267,
+     "h": 267,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--6--890c02.webp"
+    },
+    {
+     "id": "j5-19",
+     "type": "photo",
+     "x": -80,
+     "y": -79,
+     "w": 160,
+     "h": 160,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--8--82d829.webp"
+    },
+    {
+     "id": "j5-20",
+     "type": "photo",
+     "x": 242,
+     "y": -166.9,
+     "w": 285.7,
+     "h": 285.7,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--6--890c02.webp"
+    },
+    {
+     "id": "j5-21",
+     "type": "photo",
+     "x": 392,
+     "y": -65,
+     "w": 161,
+     "h": 161,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--8--82d829.webp"
+    },
+    {
+     "id": "j5-22",
+     "type": "photo",
+     "x": -240,
+     "y": -26.3,
+     "w": 380,
+     "h": 380,
+     "src": "/templates/adat-jawa/assets/the-wedding-of-e05188.webp"
+    },
+    {
+     "id": "j5-23",
+     "type": "photo",
+     "x": -218,
+     "y": -17.1,
+     "w": 380,
+     "h": 380,
+     "src": "/templates/adat-jawa/assets/the-wedding-of-e05188.webp"
+    },
+    {
+     "id": "j5-24",
+     "type": "photo",
+     "x": 329,
+     "y": -27.9,
+     "w": 380,
+     "h": 380,
+     "src": "/templates/adat-jawa/assets/the-wedding-of-e05188.webp"
+    },
+    {
+     "id": "j5-25",
+     "type": "photo",
+     "x": 351,
+     "y": -18.7,
+     "w": 380,
+     "h": 380,
+     "src": "/templates/adat-jawa/assets/the-wedding-of-e05188.webp"
+    },
+    {
+     "id": "j5-26",
+     "type": "photo",
+     "x": -142.3,
+     "y": 184.7,
+     "w": 251,
+     "h": 251,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--6--890c02.webp"
+    },
+    {
+     "id": "j5-27",
+     "type": "photo",
+     "x": -14.2,
+     "y": 497.4,
+     "w": 266,
+     "h": 266,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--16--2662c2.webp"
+    },
+    {
+     "id": "j5-28",
+     "type": "photo",
+     "x": 89.5,
+     "y": 544.6,
+     "w": 305,
+     "h": 367,
+     "src": "/templates/adat-jawa/assets/bride-jawa-cpw-ec4154.webp"
+    },
+    {
+     "id": "j5-29",
+     "type": "text",
+     "x": 16,
+     "y": 288.4,
+     "w": 452,
+     "h": 82,
+     "txt": "T",
+     "font": "Zzzz Delp",
+     "size": "48px",
+     "color": "rgb(155, 18, 18)",
+     "role": "groom-initial"
+    },
+    {
+     "id": "j5-30",
+     "type": "photo",
+     "x": 3,
+     "y": 521.6,
+     "w": 478,
+     "h": 409,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--17--051e2e.webp"
+    },
+    {
+     "id": "j5-31",
+     "type": "photo",
+     "x": 8,
+     "y": 627.9,
+     "w": 180,
+     "h": 180,
+     "src": "/templates/adat-jawa/assets/the-wedding-of-e05188.webp"
+    },
+    {
+     "id": "j5-32",
+     "type": "photo",
+     "x": 0,
+     "y": 686.6,
+     "w": 115.6,
+     "h": 115.6,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--8--82d829.webp"
+    },
+    {
+     "id": "j5-33",
+     "type": "photo",
+     "x": 21,
+     "y": 705.4,
+     "w": 144,
+     "h": 144,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--7--372271.webp"
+    },
+    {
+     "id": "j5-34",
+     "type": "photo",
+     "x": 269.7,
+     "y": 638.6,
+     "w": 233.6,
+     "h": 233.6,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--6--890c02.webp"
+    },
+    {
+     "id": "j5-35",
+     "type": "photo",
+     "x": 230.5,
+     "y": 728.4,
+     "w": 206.9,
+     "h": 207.4,
+     "src": "/templates/adat-jawa/assets/Rose-Right-0e0b8c.webp"
+    },
+    {
+     "id": "j5-36",
+     "type": "photo",
+     "x": 66,
+     "y": 785.5,
+     "w": 109.8,
+     "h": 109.8,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--8--82d829.webp"
+    },
+    {
+     "id": "j5-37",
+     "type": "photo",
+     "x": 280,
+     "y": 726.7,
+     "w": 164,
+     "h": 246,
+     "src": "/templates/adat-jawa/assets/img_5350-4dd65e.webp"
+    },
+    {
+     "id": "j5-38",
+     "type": "photo",
+     "x": 220.1,
+     "y": 1265.9,
+     "w": 270,
+     "h": 270,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--16--2662c2.webp"
+    },
+    {
+     "id": "j5-39",
+     "type": "photo",
+     "x": 105,
+     "y": 1318.3,
+     "w": 278,
+     "h": 370,
+     "src": "/templates/adat-jawa/assets/bride-jawa-572e40.webp"
+    },
+    {
+     "id": "j5-40",
+     "type": "photo",
+     "x": 3,
+     "y": 1298.6,
+     "w": 478,
+     "h": 409,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--17--051e2e.webp"
+    },
+    {
+     "id": "j5-41",
+     "type": "photo",
+     "x": -16.9,
+     "y": 1436.1,
+     "w": 239.1,
+     "h": 239.1,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--6--890c02.webp"
+    },
+    {
+     "id": "j5-42",
+     "type": "photo",
+     "x": 288.3,
+     "y": 1416.5,
+     "w": 180,
+     "h": 180,
+     "src": "/templates/adat-jawa/assets/the-wedding-of-e05188.webp"
+    },
+    {
+     "id": "j5-43",
+     "type": "photo",
+     "x": 346.3,
+     "y": 1458,
+     "w": 113,
+     "h": 113,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--8--82d829.webp"
+    },
+    {
+     "id": "j5-44",
+     "type": "photo",
+     "x": 309.5,
+     "y": 1486.9,
+     "w": 144,
+     "h": 144,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--7--372271.webp"
+    },
+    {
+     "id": "j5-45",
+     "type": "photo",
+     "x": 304.5,
+     "y": 1581.4,
+     "w": 88.6,
+     "h": 88.6,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--8--82d829.webp"
+    },
+    {
+     "id": "j5-46",
+     "type": "photo",
+     "x": 53.1,
+     "y": 1519.2,
+     "w": 208.9,
+     "h": 204.9,
+     "src": "/templates/adat-jawa/assets/Rose-Right-0e0b8c.webp"
+    },
+    {
+     "id": "j5-47",
+     "type": "photo",
+     "x": 61.8,
+     "y": 1527.3,
+     "w": 164,
+     "h": 246,
+     "src": "/templates/adat-jawa/assets/img_5350-4dd65e.webp"
+    },
+    {
+     "id": "j5-48",
+     "type": "text",
+     "x": 16,
+     "y": 1723.8,
+     "w": 452,
+     "h": 49,
+     "txt": "Mempelai Wanita",
+     "font": "Zzzz Delp",
+     "size": "56px",
+     "color": "rgb(155, 18, 18)",
+     "role": "bride-title"
+    },
+    {
+     "id": "j5-49",
+     "type": "text",
+     "x": 16,
+     "y": 1778.6,
+     "w": 452,
+     "h": 48,
+     "txt": "First daughter of H. Heru Stiawan",
+     "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
+     "size": "21.66px",
+     "color": "rgb(155, 18, 18)",
+     "role": "bride-parents"
+    },
+    {
+     "id": "j5-50",
+     "type": "text",
+     "x": 16,
+     "y": 1097.7,
+     "w": 452,
+     "h": 49,
+     "txt": "And",
+     "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
+     "size": "56px",
+     "color": "rgb(155, 18, 18)",
+     "role": "couple-and"
+    },
+    {
+     "id": "j5-51",
+     "type": "photo",
+     "x": 134.5,
+     "y": 1861.4,
+     "w": 215,
+     "h": 215,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--9--cd12da.webp"
+    },
+    {
+     "id": "j5-52",
+     "type": "photo",
+     "x": 110,
+     "y": 2007.6,
+     "w": 105,
+     "h": 105,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--8--82d829.webp"
+    },
+    {
+     "id": "j5-53",
+     "type": "photo",
+     "x": 273,
+     "y": 2009.6,
+     "w": 108,
+     "h": 108,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--8--82d829.webp"
+    },
+    {
+     "id": "j5-54",
+     "type": "photo",
+     "x": -15,
+     "y": 2130.6,
+     "w": 704,
+     "h": 141,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--23--254c3b.webp"
+    },
+    {
+     "id": "j5-55",
+     "type": "text",
+     "x": 16,
+     "y": 373.2,
+     "w": 452,
+     "h": 41,
+     "txt": "#VHForever",
+     "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
+     "size": "23px",
+     "color": "rgb(155, 18, 18)",
+     "role": "hashtag"
+    },
+    {
+     "id": "j5-56",
+     "type": "photo",
+     "x": -80,
+     "y": 1848.4,
+     "w": 126,
+     "h": 126,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--14--14e150.webp"
+    },
+    {
+     "id": "j5-57",
+     "type": "photo",
+     "x": 438,
+     "y": 1847.1,
+     "w": 128,
+     "h": 128,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--14--14e150.webp"
+    },
+    {
+     "id": "j5-58",
+     "type": "photo",
+     "x": 375.7,
+     "y": 197.1,
+     "w": 251,
+     "h": 251,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--6--890c02.webp"
+    },
+    {
+     "id": "j5-59",
+     "type": "photo",
+     "x": -121,
+     "y": 1907,
+     "w": 190,
+     "h": 190,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    },
+    {
+     "id": "j5-60",
+     "type": "photo",
+     "x": 415,
+     "y": 1905.2,
+     "w": 190,
+     "h": 190,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    }
+   ]
+  },
+  {
+   "id": "sec-6",
+   "kind": "countdown",
+   "top": 4531,
+   "height": 826,
+   "bg": "rgb(255, 255, 255)",
+   "elements": [
+    {
+     "id": "j6-0",
+     "type": "photo",
+     "x": 0,
+     "y": 407.4,
+     "w": 484,
+     "h": 860,
+     "src": "/templates/adat-jawa/assets/download--11--fram-7fe2c7.webp"
+    },
+    {
+     "id": "j6-1",
+     "type": "photo",
+     "x": 242,
+     "y": 459.1,
+     "w": 305,
+     "h": 305,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp"
+    },
+    {
+     "id": "j6-2",
+     "type": "photo",
+     "x": -63,
+     "y": 458.1,
+     "w": 305,
+     "h": 305,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp"
+    },
+    {
+     "id": "j6-3",
+     "type": "photo",
+     "x": 89.5,
+     "y": 156.4,
+     "w": 305,
+     "h": 305,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp"
+    },
+    {
+     "id": "j6-4",
+     "type": "photo",
+     "x": -85,
+     "y": -67.7,
+     "w": 771,
+     "h": 154,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--23--254c3b.webp"
+    },
+    {
+     "id": "j6-5",
+     "type": "photo",
+     "x": 52,
+     "y": 321.3,
+     "w": 380,
+     "h": 380,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--22--373d25.webp"
+    },
+    {
+     "id": "j6-6",
+     "type": "photo",
+     "x": -90,
+     "y": -41.7,
+     "w": 664,
+     "h": 596,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--21--1fb3d7.webp"
+    },
+    {
+     "id": "j6-7",
+     "type": "text",
+     "x": 10,
+     "y": 221.5,
+     "w": 464,
+     "h": 255,
+     "txt": "00",
+     "font": "Zzzzzzzz Monotype",
+     "size": "32px",
+     "color": "rgb(155, 18, 18)",
+     "role": "countdown"
+    },
+    {
+     "id": "j6-8",
+     "type": "photo",
+     "x": -42,
+     "y": 363.3,
+     "w": 193,
+     "h": 193,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--6--890c02.webp"
+    },
+    {
+     "id": "j6-9",
+     "type": "photo",
+     "x": -101,
+     "y": 397.3,
+     "w": 183,
+     "h": 183,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--9--cd12da.webp"
+    },
+    {
+     "id": "j6-10",
+     "type": "photo",
+     "x": 320,
+     "y": 360.1,
+     "w": 193,
+     "h": 193,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--6--890c02.webp"
+    },
+    {
+     "id": "j6-11",
+     "type": "photo",
+     "x": 389,
+     "y": 388.6,
+     "w": 190,
+     "h": 190,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--9--cd12da.webp"
+    },
+    {
+     "id": "j6-12",
+     "type": "photo",
+     "x": 172.5,
+     "y": -18.6,
+     "w": 139,
+     "h": 209,
+     "src": "/templates/adat-jawa/assets/img_5350-4dd65e.webp"
+    },
+    {
+     "id": "j6-13",
+     "type": "photo",
+     "x": 49.3,
+     "y": 764.2,
+     "w": 385.4,
+     "h": 151.3,
+     "src": "/templates/adat-jawa/assets/BUSH-2-copy-4-1-3559b6.webp"
+    },
+    {
+     "id": "j6-14",
+     "type": "photo",
+     "x": -77.3,
+     "y": 708.9,
+     "w": 224,
+     "h": 224,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--18--b78f06.webp"
+    },
+    {
+     "id": "j6-15",
+     "type": "photo",
+     "x": 331.2,
+     "y": 698.1,
+     "w": 244,
+     "h": 244,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--18--b78f06.webp"
+    },
+    {
+     "id": "j6-16",
+     "type": "photo",
+     "x": 129.5,
+     "y": 718.6,
+     "w": 224,
+     "h": 224,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--31--d5e732.webp"
+    },
+    {
+     "id": "j6-17",
+     "type": "photo",
+     "x": -86,
+     "y": 536,
+     "w": 142,
+     "h": 142,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    },
+    {
+     "id": "j6-18",
+     "type": "photo",
+     "x": 421,
+     "y": 528.2,
+     "w": 142,
+     "h": 142,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    },
+    {
+     "id": "j6-19",
+     "type": "photo",
+     "x": -6,
+     "y": 500.5,
+     "w": 86,
+     "h": 86,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    },
+    {
+     "id": "j6-20",
+     "type": "photo",
+     "x": 398,
+     "y": 499.5,
+     "w": 86,
+     "h": 86,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    }
+   ]
+  },
+  {
+   "id": "sec-7",
+   "kind": "events",
+   "top": 5357,
+   "height": 1822,
+   "bg": "rgb(255, 246, 225)",
+   "elements": [
+    {
+     "id": "j7-0",
+     "type": "photo",
+     "x": 432.5,
+     "y": 472.6,
+     "w": 80,
+     "h": 437.4,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--23--254c3b.webp"
+    },
+    {
+     "id": "j7-1",
+     "type": "photo",
+     "x": -28.8,
+     "y": 473.6,
+     "w": 80,
+     "h": 442.4,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--23--254c3b.webp"
+    },
+    {
+     "id": "j7-2",
+     "type": "photo",
+     "x": -133,
+     "y": 772.7,
+     "w": 219,
+     "h": 219,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--16--2662c2.webp"
+    },
+    {
+     "id": "j7-3",
+     "type": "photo",
+     "x": 396,
+     "y": 763.1,
+     "w": 227,
+     "h": 227,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--16--2662c2.webp"
+    },
+    {
+     "id": "j7-4",
+     "type": "photo",
+     "x": -49.4,
+     "y": 698.8,
+     "w": 539,
+     "h": 539,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--4682b2.webp"
+    },
+    {
+     "id": "j7-5",
+     "type": "photo",
+     "x": 0,
+     "y": 706,
+     "w": 484,
+     "h": 860,
+     "src": "/templates/adat-jawa/assets/download--11--fram-7fe2c7.webp"
+    },
+    {
+     "id": "j7-6",
+     "type": "photo",
+     "x": -165.5,
+     "y": 1225.9,
+     "w": 284,
+     "h": 284,
+     "src": "/templates/adat-jawa/assets/Comp-11-9c8078.webp"
+    },
+    {
+     "id": "j7-7",
+     "type": "photo",
+     "x": 25.8,
+     "y": 1303.6,
+     "w": 162,
+     "h": 162,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--16--3ff57a.webp"
+    },
+    {
+     "id": "j7-8",
+     "type": "photo",
+     "x": 364.1,
+     "y": 1208.1,
+     "w": 320,
+     "h": 320,
+     "src": "/templates/adat-jawa/assets/Comp-11-9c8078.webp"
+    },
+    {
+     "id": "j7-9",
+     "type": "photo",
+     "x": 302.8,
+     "y": 1307.8,
+     "w": 162,
+     "h": 162,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--16--3ff57a.webp"
+    },
+    {
+     "id": "j7-10",
+     "type": "photo",
+     "x": -7.5,
+     "y": 1445.1,
+     "w": 499,
+     "h": 360,
+     "src": "/templates/adat-jawa/assets/img_8135--1--f41d4d.webp"
+    },
+    {
+     "id": "j7-11",
+     "type": "photo",
+     "x": 93,
+     "y": 667.2,
+     "w": 298,
+     "h": 298,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--22--373d25.webp"
+    },
+    {
+     "id": "j7-12",
+     "type": "photo",
+     "x": 285.5,
+     "y": 14,
+     "w": 337,
+     "h": 337,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp"
+    },
+    {
+     "id": "j7-13",
+     "type": "photo",
+     "x": 355.9,
+     "y": 230.6,
+     "w": 380,
+     "h": 380,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--34--27c4ae.webp"
+    },
+    {
+     "id": "j7-14",
+     "type": "photo",
+     "x": -138,
+     "y": 8.8,
+     "w": 337,
+     "h": 337,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp"
+    },
+    {
+     "id": "j7-15",
+     "type": "photo",
+     "x": -38.8,
+     "y": 155.2,
+     "w": 539,
+     "h": 539,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--4682b2.webp"
+    },
+    {
+     "id": "j7-16",
+     "type": "photo",
+     "x": -262.5,
+     "y": 234.6,
+     "w": 380,
+     "h": 380,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--34--27c4ae.webp"
+    },
+    {
+     "id": "j7-17",
+     "type": "photo",
+     "x": 93.5,
+     "y": 159.3,
+     "w": 297,
+     "h": 297,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--22--373d25.webp"
+    },
+    {
+     "id": "j7-18",
+     "type": "photo",
+     "x": 0,
+     "y": -15.1,
+     "w": 484,
+     "h": 190,
+     "src": "/templates/adat-jawa/assets/BUSH-2-copy-4-1-3559b6.webp"
+    },
+    {
+     "id": "j7-19",
+     "type": "photo",
+     "x": 43,
+     "y": -204.9,
+     "w": 429.5,
+     "h": 429.5,
+     "src": "/templates/adat-jawa/assets/the-wedding-of-e05188.webp"
+    },
+    {
+     "id": "j7-20",
+     "type": "photo",
+     "x": 153,
+     "y": 58,
+     "w": 178,
+     "h": 178,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--15--0f92bf.webp"
+    },
+    {
+     "id": "j7-21",
+     "type": "photo",
+     "x": 0,
+     "y": -19.9,
+     "w": 484,
+     "h": 700,
+     "src": "/templates/adat-jawa/assets/download--11--fram-7fe2c7.webp"
+    },
+    {
+     "id": "j7-22",
+     "type": "text",
+     "x": 69,
+     "y": 597.9,
+     "w": 343,
+     "h": 43.5,
+     "txt": "Bride House",
+     "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
+     "size": "29px",
+     "color": "rgb(155, 18, 18)",
+     "role": "event-0-venue"
+    },
+    {
+     "id": "j7-23",
+     "type": "photo",
+     "x": 212.5,
+     "y": 537,
+     "w": 59,
+     "h": 59,
+     "src": "/templates/adat-jawa/assets/aHR0cHM6Ly9jZG4tYnVpbGRlci52aWRpbmcuY28vc3RlcHBlci8xMzczNC8xMzMvTG9jYXRpb24uZ2lm-edd6fc.webp"
+    },
+    {
+     "id": "j7-24",
+     "type": "text",
+     "x": 120,
+     "y": 406,
+     "w": 244,
+     "h": 48,
+     "txt": "Sabtu,",
+     "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
+     "size": "30px",
+     "color": "rgb(155, 18, 18)",
+     "role": "event-0-day"
+    },
+    {
+     "id": "j7-25",
+     "type": "text",
+     "x": 128,
+     "y": 345.7,
+     "w": 228,
+     "h": 69,
+     "txt": "Akad Nikah",
+     "font": "Zzzz Delp",
+     "size": "46px",
+     "color": "rgb(155, 18, 18)",
+     "role": "event-0-name"
+    },
+    {
+     "id": "j7-26",
+     "type": "text",
+     "x": 69,
+     "y": 638.2,
+     "w": 343,
+     "h": 75,
+     "txt": "Kota BNI, Jl. Jend. Sudirman No.Kav. 1, Karet Tengsin, Kecam",
+     "font": "Times Toman Italic",
+     "size": "14.66px",
+     "color": "rgb(155, 18, 18)",
+     "role": "event-0-address"
+    },
+    {
+     "id": "j7-27",
+     "type": "text",
+     "x": 147.1,
+     "y": 724,
+     "w": 200,
+     "h": 44,
+     "txt": "See location",
+     "font": "__Akkurat_471bd2",
+     "size": "14px",
+     "color": "rgb(255, 255, 255)",
+     "role": "event-0-map"
+    },
+    {
+     "id": "j7-28",
+     "type": "photo",
+     "x": -129,
+     "y": 373.7,
+     "w": 217.1,
+     "h": 217.1,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--8--82d829.webp"
+    },
+    {
+     "id": "j7-29",
+     "type": "photo",
+     "x": 391.3,
+     "y": 358.9,
+     "w": 249.2,
+     "h": 249.2,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--8--82d829.webp"
+    },
+    {
+     "id": "j7-30",
+     "type": "text",
+     "x": 118.5,
+     "y": 489.7,
+     "w": 244,
+     "h": 24,
+     "txt": "10.00 - 11.00 WIB",
+     "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
+     "size": "30px",
+     "color": "rgb(155, 18, 18)",
+     "role": "event-0-time"
+    },
+    {
+     "id": "j7-31",
+     "type": "photo",
+     "x": -73.9,
+     "y": -113.1,
+     "w": 222,
+     "h": 222,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--18--b78f06.webp"
+    },
+    {
+     "id": "j7-32",
+     "type": "photo",
+     "x": 345.5,
+     "y": -104.8,
+     "w": 211,
+     "h": 211,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--18--b78f06.webp"
+    },
+    {
+     "id": "j7-33",
+     "type": "photo",
+     "x": -25,
+     "y": 1121.3,
+     "w": 534,
+     "h": 534,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--25--930a33.webp"
+    },
+    {
+     "id": "j7-34",
+     "type": "photo",
+     "x": 214,
+     "y": 1049,
+     "w": 59,
+     "h": 59,
+     "src": "/templates/adat-jawa/assets/aHR0cHM6Ly9jZG4tYnVpbGRlci52aWRpbmcuY28vc3RlcHBlci8xMzczNC8xMzMvTG9jYXRpb24uZ2lm-edd6fc.webp"
+    },
+    {
+     "id": "j7-35",
+     "type": "photo",
+     "x": 358.6,
+     "y": 1413,
+     "w": 217,
+     "h": 139,
+     "src": "/templates/adat-jawa/assets/image-c34e7a.webp"
+    },
+    {
+     "id": "j7-36",
+     "type": "photo",
+     "x": -90.4,
+     "y": 1406.5,
+     "w": 217,
+     "h": 139,
+     "src": "/templates/adat-jawa/assets/image-c34e7a.webp"
+    },
+    {
+     "id": "j7-37",
+     "type": "photo",
+     "x": -116.7,
+     "y": 1242.5,
+     "w": 208,
+     "h": 335,
+     "src": "/templates/adat-jawa/assets/image-b763b6.webp"
+    },
+    {
+     "id": "j7-38",
+     "type": "photo",
+     "x": 397.4,
+     "y": 1228,
+     "w": 217,
+     "h": 349,
+     "src": "/templates/adat-jawa/assets/image-b763b6.webp"
+    },
+    {
+     "id": "j7-39",
+     "type": "photo",
+     "x": -109.1,
+     "y": 1041.9,
+     "w": 286,
+     "h": 286,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--14--2142a6.webp"
+    },
+    {
+     "id": "j7-40",
+     "type": "photo",
+     "x": 314,
+     "y": 1048.1,
+     "w": 276,
+     "h": 276,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--14--2142a6.webp"
+    },
+    {
+     "id": "j7-41",
+     "type": "photo",
+     "x": -6,
+     "y": 1729.9,
+     "w": 496,
+     "h": 263,
+     "src": "/templates/adat-jawa/assets/Pendopo-daf845.webp"
+    },
+    {
+     "id": "j7-42",
+     "type": "photo",
+     "x": 130,
+     "y": -107.1,
+     "w": 224,
+     "h": 224,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--31--d5e732.webp"
+    },
+    {
+     "id": "j7-43",
+     "type": "photo",
+     "x": 414.4,
+     "y": 502.3,
+     "w": 135,
+     "h": 135,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--14--14e150.webp"
+    },
+    {
+     "id": "j7-44",
+     "type": "photo",
+     "x": -68.8,
+     "y": 497.4,
+     "w": 137.7,
+     "h": 137.7,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--14--14e150.webp"
+    },
+    {
+     "id": "j7-45",
+     "type": "text",
+     "x": 120,
+     "y": 1001.7,
+     "w": 244,
+     "h": 24,
+     "txt": "15.00 - 17.00 WIB",
+     "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
+     "size": "30px",
+     "color": "rgb(155, 18, 18)",
+     "role": "event-1-time"
+    },
+    {
+     "id": "j7-46",
+     "type": "text",
+     "x": 70.5,
+     "y": 1150.2,
+     "w": 343,
+     "h": 75,
+     "txt": "Kota BNI, Jl. Jend. Sudirman No.Kav. 1, Karet Tengsin, Kecam",
+     "font": "Times Toman Italic",
+     "size": "14.66px",
+     "color": "rgb(155, 18, 18)",
+     "role": "event-1-address"
+    },
+    {
+     "id": "j7-47",
+     "type": "text",
+     "x": 121.5,
+     "y": 918,
+     "w": 244,
+     "h": 48,
+     "txt": "Sabtu,",
+     "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
+     "size": "30px",
+     "color": "rgb(155, 18, 18)",
+     "role": "event-1-day"
+    },
+    {
+     "id": "j7-48",
+     "type": "text",
+     "x": 118,
+     "y": 856.2,
+     "w": 248,
+     "h": 69,
+     "txt": "Resepsi Nikah",
+     "font": "Zzzz Delp",
+     "size": "46px",
+     "color": "rgb(155, 18, 18)",
+     "role": "event-1-name"
+    },
+    {
+     "id": "j7-49",
+     "type": "text",
+     "x": 70.5,
+     "y": 1109.9,
+     "w": 343,
+     "h": 43.5,
+     "txt": "Bride House",
+     "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
+     "size": "29px",
+     "color": "rgb(155, 18, 18)",
+     "role": "event-1-venue"
+    },
+    {
+     "id": "j7-50",
+     "type": "text",
+     "x": 148.6,
+     "y": 1236,
+     "w": 200,
+     "h": 44,
+     "txt": "See location",
+     "font": "__Akkurat_471bd2",
+     "size": "14px",
+     "color": "rgb(255, 255, 255)",
+     "role": "event-1-map"
+    },
+    {
+     "id": "j7-51",
+     "type": "photo",
+     "x": -51.2,
+     "y": 1207.6,
+     "w": 87,
+     "h": 87,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    },
+    {
+     "id": "j7-52",
+     "type": "photo",
+     "x": 447.4,
+     "y": 1227.7,
+     "w": 87,
+     "h": 87,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    }
+   ]
+  },
+  {
+   "id": "sec-9",
+   "kind": "wishes",
+   "top": 7179,
+   "height": 830,
+   "bg": "rgb(255, 246, 225)",
+   "elements": [
+    {
+     "id": "j9-0",
+     "type": "photo",
+     "x": -54,
+     "y": 737.7,
+     "w": 702,
+     "h": 309,
+     "src": "/templates/adat-jawa/assets/j-a5944b.webp"
+    },
+    {
+     "id": "j9-1",
+     "type": "photo",
+     "x": -0.3,
+     "y": 729,
+     "w": 702,
+     "h": 309,
+     "src": "/templates/adat-jawa/assets/j-a5944b.webp"
+    },
+    {
+     "id": "j9-2",
+     "type": "photo",
+     "x": 412.7,
+     "y": 285.3,
+     "w": 190,
+     "h": 190,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--18--f25abf.webp"
+    },
+    {
+     "id": "j9-3",
+     "type": "photo",
+     "x": -118.1,
+     "y": 286.9,
+     "w": 190,
+     "h": 190,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--18--f25abf.webp"
+    },
+    {
+     "id": "j9-4",
+     "type": "photo",
+     "x": -200.7,
+     "y": 719.6,
+     "w": 377.5,
+     "h": 309.4,
+     "src": "/templates/adat-jawa/assets/j-a5944b.webp"
+    },
+    {
+     "id": "j9-5",
+     "type": "photo",
+     "x": -198,
+     "y": 476.5,
+     "w": 380,
+     "h": 380,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp"
+    },
+    {
+     "id": "j9-6",
+     "type": "photo",
+     "x": 268,
+     "y": 193.5,
+     "w": 380,
+     "h": 380,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp"
+    },
+    {
+     "id": "j9-7",
+     "type": "photo",
+     "x": -211,
+     "y": 67.3,
+     "w": 380,
+     "h": 380,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp"
+    },
+    {
+     "id": "j9-8",
+     "type": "text",
+     "x": 47.5,
+     "y": 149.5,
+     "w": 389,
+     "h": 553,
+     "role": "wishes"
+    },
+    {
+     "id": "j9-9",
+     "type": "photo",
+     "x": 378,
+     "y": -72.3,
+     "w": 212,
+     "h": 265,
+     "src": "/templates/adat-jawa/assets/Tree-New-copy-5-bener-bbed9f.webp"
+    },
+    {
+     "id": "j9-10",
+     "type": "photo",
+     "x": -106,
+     "y": -100,
+     "w": 212,
+     "h": 265,
+     "src": "/templates/adat-jawa/assets/Tree-New-copy-5-bener-bbed9f.webp"
+    },
+    {
+     "id": "j9-11",
+     "type": "text",
+     "x": 107,
+     "y": 60.8,
+     "w": 270,
+     "h": 73.5,
+     "txt": "Words for Us",
+     "font": "Zzzz Delp",
+     "size": "49px",
+     "color": "rgb(155, 18, 18)",
+     "role": "wishes-title"
+    },
+    {
+     "id": "j9-12",
+     "type": "photo",
+     "x": 144,
+     "y": -133.7,
+     "w": 196,
+     "h": 196,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--26--bba4e9.webp"
+    },
+    {
+     "id": "j9-13",
+     "type": "photo",
+     "x": -87,
+     "y": 632.3,
+     "w": 250.7,
+     "h": 252.4,
+     "src": "/templates/adat-jawa/assets/Ornament-copy-2-3--1--da7d47.webp"
+    },
+    {
+     "id": "j9-14",
+     "type": "photo",
+     "x": 327.3,
+     "y": 632.8,
+     "w": 252,
+     "h": 253.4,
+     "src": "/templates/adat-jawa/assets/Ornament-copy-2-3--1--da7d47.webp"
+    },
+    {
+     "id": "j9-15",
+     "type": "photo",
+     "x": -90,
+     "y": 397.6,
+     "w": 132,
+     "h": 132,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--14--14e150.webp"
+    },
+    {
+     "id": "j9-16",
+     "type": "photo",
+     "x": -76,
+     "y": 463.6,
+     "w": 132,
+     "h": 132,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--14--14e150.webp"
+    },
+    {
+     "id": "j9-17",
+     "type": "photo",
+     "x": 438,
+     "y": 412.3,
+     "w": 134,
+     "h": 134,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--14--14e150.webp"
+    },
+    {
+     "id": "j9-18",
+     "type": "photo",
+     "x": 434,
+     "y": 466.6,
+     "w": 134,
+     "h": 134,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--14--14e150.webp"
+    },
+    {
+     "id": "j9-19",
+     "type": "photo",
+     "x": -63,
+     "y": 434.2,
+     "w": 126,
+     "h": 126,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    },
+    {
+     "id": "j9-20",
+     "type": "photo",
+     "x": 421,
+     "y": 439.2,
+     "w": 126,
+     "h": 126,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    }
+   ]
+  },
+  {
+   "id": "sec-10",
+   "kind": "gift",
+   "top": 8009,
+   "height": 726,
+   "bg": "rgb(255, 255, 255)",
+   "elements": [
+    {
+     "id": "j10-0",
+     "type": "photo",
+     "x": -61.2,
+     "y": 203.7,
+     "w": 782,
+     "h": 460,
+     "src": "/templates/adat-jawa/assets/img_6369-560b35.webp"
+    },
+    {
+     "id": "j10-1",
+     "type": "photo",
+     "x": -336.2,
+     "y": 86.3,
+     "w": 586,
+     "h": 439,
+     "src": "/templates/adat-jawa/assets/img_6369-560b35.webp"
+    },
+    {
+     "id": "j10-2",
+     "type": "text",
+     "x": 16,
+     "y": 47.8,
+     "w": 452,
+     "h": 69,
+     "txt": "Wedding Gift",
+     "font": "Zzzz Delp",
+     "size": "46px",
+     "color": "rgb(155, 18, 18)",
+     "role": "gift-title"
+    },
+    {
+     "id": "j10-3",
+     "type": "photo",
+     "x": -286.5,
+     "y": 77.5,
+     "w": 385,
+     "h": 385,
+     "src": "/templates/adat-jawa/assets/Comp-11-9c8078.webp"
+    },
+    {
+     "id": "j10-4",
+     "type": "photo",
+     "x": 344.5,
+     "y": -43.7,
+     "w": 385,
+     "h": 385,
+     "src": "/templates/adat-jawa/assets/Comp-11-9c8078.webp"
+    },
+    {
+     "id": "j10-5",
+     "type": "photo",
+     "x": -236.5,
+     "y": -40.7,
+     "w": 385,
+     "h": 385,
+     "src": "/templates/adat-jawa/assets/Comp-11-9c8078.webp"
+    },
+    {
+     "id": "j10-6",
+     "type": "photo",
+     "x": 373.5,
+     "y": 144.3,
+     "w": 385,
+     "h": 385,
+     "src": "/templates/adat-jawa/assets/Comp-11-9c8078.webp"
+    },
+    {
+     "id": "j10-7",
+     "type": "photo",
+     "x": -151,
+     "y": 261.9,
+     "w": 183,
+     "h": 223,
+     "src": "/templates/adat-jawa/assets/Palm-30b475.webp"
+    },
+    {
+     "id": "j10-8",
+     "type": "photo",
+     "x": 427,
+     "y": 253.7,
+     "w": 183,
+     "h": 223,
+     "src": "/templates/adat-jawa/assets/Palm-30b475.webp"
+    },
+    {
+     "id": "j10-9",
+     "type": "text",
+     "x": 58,
+     "y": 118.1,
+     "w": 368,
+     "h": 508,
+     "role": "gift"
+    },
+    {
+     "id": "j10-10",
+     "type": "photo",
+     "x": -37.5,
+     "y": 574.9,
+     "w": 559,
+     "h": 380,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--27--bb21f3.webp"
+    },
+    {
+     "id": "j10-11",
+     "type": "photo",
+     "x": -45.5,
+     "y": 198.4,
+     "w": 91,
+     "h": 91,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    },
+    {
+     "id": "j10-12",
+     "type": "photo",
+     "x": 438.5,
+     "y": 208.2,
+     "w": 91,
+     "h": 91,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    }
+   ]
+  },
+  {
+   "id": "sec-11",
+   "kind": "gallery",
+   "top": 8735,
+   "height": 647,
+   "bg": "rgb(255, 255, 255)",
+   "elements": [
+    {
+     "id": "j11-0",
+     "type": "photo",
+     "x": 412,
+     "y": 230.3,
+     "w": 380,
+     "h": 491.7,
+     "src": "/templates/adat-jawa/assets/Tree-New-copy-3-2-738353.webp"
+    },
+    {
+     "id": "j11-1",
+     "type": "photo",
+     "x": -58.5,
+     "y": 17,
+     "w": 601,
+     "h": 558,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--28--2a1490.webp"
+    },
+    {
+     "id": "j11-2",
+     "type": "photo",
+     "x": -309,
+     "y": 235.8,
+     "w": 380,
+     "h": 491.7,
+     "src": "/templates/adat-jawa/assets/Tree-New-copy-3-2-738353.webp"
+    },
+    {
+     "id": "j11-3",
+     "type": "photo",
+     "x": 32.5,
+     "y": 126,
+     "w": 419,
+     "h": 495,
+     "src": "/templates/adat-jawa/assets/jawa-couple--1--c60bd5.webp",
+     "role": "gallery"
+    },
+    {
+     "id": "j11-4",
+     "type": "photo",
+     "x": -33,
+     "y": -158.2,
+     "w": 553,
+     "h": 432,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--27--bb21f3.webp"
+    },
+    {
+     "id": "j11-5",
+     "type": "text",
+     "x": 87,
+     "y": -5.1,
+     "w": 310,
+     "h": 70.5,
+     "txt": "Love in Frames",
+     "font": "Zzzz Delp",
+     "size": "47px",
+     "color": "rgb(155, 18, 18)",
+     "role": "gallery-title"
+    },
+    {
+     "id": "j11-6",
+     "type": "photo",
+     "x": -296,
+     "y": 250.3,
+     "w": 380,
+     "h": 491.7,
+     "src": "/templates/adat-jawa/assets/Tree-New-copy-3-2-738353.webp"
+    },
+    {
+     "id": "j11-7",
+     "type": "photo",
+     "x": 412,
+     "y": 122.9,
+     "w": 380,
+     "h": 491.7,
+     "src": "/templates/adat-jawa/assets/Tree-New-copy-3-2-738353.webp"
+    },
+    {
+     "id": "j11-8",
+     "type": "photo",
+     "x": -29,
+     "y": 52.3,
+     "w": 141,
+     "h": 136,
+     "src": "/templates/adat-jawa/assets/Ornament-copy-2-3--1--da7d47.webp"
+    },
+    {
+     "id": "j11-9",
+     "type": "photo",
+     "x": 369.8,
+     "y": 50.8,
+     "w": 141,
+     "h": 136,
+     "src": "/templates/adat-jawa/assets/Ornament-copy-2-3--1--da7d47.webp"
+    },
+    {
+     "id": "j11-10",
+     "type": "photo",
+     "x": -141.9,
+     "y": 338.2,
+     "w": 252,
+     "h": 252,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--6--890c02.webp"
+    },
+    {
+     "id": "j11-11",
+     "type": "photo",
+     "x": -91.8,
+     "y": 410.2,
+     "w": 156.2,
+     "h": 156.2,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--8--82d829.webp"
+    },
+    {
+     "id": "j11-12",
+     "type": "photo",
+     "x": 377.7,
+     "y": 330.6,
+     "w": 252,
+     "h": 252,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--6--890c02.webp"
+    },
+    {
+     "id": "j11-13",
+     "type": "photo",
+     "x": 415.4,
+     "y": 399,
+     "w": 168.1,
+     "h": 168.1,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--8--82d829.webp"
+    },
+    {
+     "id": "j11-14",
+     "type": "photo",
+     "x": -70.1,
+     "y": 592.8,
+     "w": 120,
+     "h": 120,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    },
+    {
+     "id": "j11-15",
+     "type": "photo",
+     "x": 429.9,
+     "y": 597.5,
+     "w": 120,
+     "h": 120,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    }
+   ]
+  },
+  {
+   "id": "sec-12",
+   "kind": "video",
+   "top": 9382,
+   "height": 387,
+   "bg": "rgb(255, 255, 255)",
+   "elements": [
+    {
+     "id": "j12-0",
+     "type": "text",
+     "x": 16,
+     "y": 29.4,
+     "w": 452,
+     "h": 87,
+     "txt": "Moving Memories",
+     "font": "Zzzz Delp",
+     "size": "58px",
+     "color": "rgb(155, 18, 18)",
+     "role": "video-title"
+    },
+    {
+     "id": "j12-1",
+     "type": "photo",
+     "x": 453.3,
+     "y": 18.3,
+     "w": 166,
+     "h": 215,
+     "src": "/templates/adat-jawa/assets/Tree-New-copy-3-2-738353.webp"
+    },
+    {
+     "id": "j12-2",
+     "type": "photo",
+     "x": 110.6,
+     "y": -110,
+     "w": 265,
+     "h": 265,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--22--373d25.webp"
+    },
+    {
+     "id": "j12-3",
+     "type": "photo",
+     "x": -143.1,
+     "y": 16.5,
+     "w": 166,
+     "h": 215,
+     "src": "/templates/adat-jawa/assets/Tree-New-copy-3-2-738353.webp"
+    },
+    {
+     "id": "j12-4",
+     "type": "photo",
+     "x": -76.4,
+     "y": -47.9,
+     "w": 133,
+     "h": 133,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    },
+    {
+     "id": "j12-5",
+     "type": "photo",
+     "x": 427.8,
+     "y": -49.7,
+     "w": 133,
+     "h": 133,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--19--18729f.webp"
+    }
+   ]
+  },
+  {
+   "id": "sec-13",
+   "kind": "closing",
+   "top": 9769,
+   "height": 1109,
+   "bg": "rgb(255, 246, 225)",
+   "elements": [
+    {
+     "id": "j13-0",
+     "type": "photo",
+     "x": 83,
+     "y": 205.2,
+     "w": 329,
+     "h": 236,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--28--2a1490.webp"
+    },
+    {
+     "id": "j13-1",
+     "type": "photo",
+     "x": -61.5,
+     "y": 446.8,
+     "w": 534,
+     "h": 534,
+     "src": "/templates/adat-jawa/assets/gunung-jawa-fc3cdc.webp"
+    },
+    {
+     "id": "j13-2",
+     "type": "photo",
+     "x": 242,
+     "y": 21.9,
+     "w": 385,
+     "h": 385,
+     "src": "/templates/adat-jawa/assets/fdgdfg-d79a3e.webp"
+    },
+    {
+     "id": "j13-3",
+     "type": "photo",
+     "x": -150.5,
+     "y": 43.7,
+     "w": 385,
+     "h": 385,
+     "src": "/templates/adat-jawa/assets/fdgdfg-d79a3e.webp"
+    },
+    {
+     "id": "j13-4",
+     "type": "photo",
+     "x": 6,
+     "y": 8.7,
+     "w": 483,
+     "h": 385,
+     "src": "/templates/adat-jawa/assets/fdgdfg-d79a3e.webp"
+    },
+    {
+     "id": "j13-5",
+     "type": "photo",
+     "x": 232.5,
+     "y": -156.9,
+     "w": 377.5,
+     "h": 309.4,
+     "src": "/templates/adat-jawa/assets/j-a5944b.webp"
+    },
+    {
+     "id": "j13-6",
+     "type": "photo",
+     "x": -115,
+     "y": -137.7,
+     "w": 377.5,
+     "h": 309.4,
+     "src": "/templates/adat-jawa/assets/j-a5944b.webp"
+    },
+    {
+     "id": "j13-7",
+     "type": "photo",
+     "x": 53.3,
+     "y": -166.6,
+     "w": 377.5,
+     "h": 309.4,
+     "src": "/templates/adat-jawa/assets/j-a5944b.webp"
+    },
+    {
+     "id": "j13-8",
+     "type": "photo",
+     "x": 175.7,
+     "y": 248.1,
+     "w": 525,
+     "h": 525,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--30--3b3c0f.webp"
+    },
+    {
+     "id": "j13-9",
+     "type": "photo",
+     "x": -212.7,
+     "y": 252.9,
+     "w": 510,
+     "h": 510,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--30--3b3c0f.webp"
+    },
+    {
+     "id": "j13-10",
+     "type": "photo",
+     "x": 262.6,
+     "y": 295.4,
+     "w": 380,
+     "h": 380,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp"
+    },
+    {
+     "id": "j13-11",
+     "type": "photo",
+     "x": -152.2,
+     "y": 418.3,
+     "w": 380,
+     "h": 380,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--24--25c149.webp"
+    },
+    {
+     "id": "j13-12",
+     "type": "photo",
+     "x": -73.7,
+     "y": 627.6,
+     "w": 577,
+     "h": 473,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--20--e5c0b4.webp"
+    },
+    {
+     "id": "j13-13",
+     "type": "photo",
+     "x": 133,
+     "y": 503.1,
+     "w": 218,
+     "h": 327,
+     "src": "/templates/adat-jawa/assets/93d7e91f-27bc-41c2-8f92-d7db2cf173a4-43090f.webp"
+    },
+    {
+     "id": "j13-14",
+     "type": "photo",
+     "x": 61.5,
+     "y": 486.5,
+     "w": 361,
+     "h": 361,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--17--051e2e.webp"
+    },
+    {
+     "id": "j13-15",
+     "type": "photo",
+     "x": 171,
+     "y": 319.8,
+     "w": 142,
+     "h": 142,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--15--0f92bf.webp"
+    },
+    {
+     "id": "j13-16",
+     "type": "photo",
+     "x": 8,
+     "y": 679.1,
+     "w": 245.8,
+     "h": 242.8,
+     "src": "/templates/adat-jawa/assets/bunga-778095.webp"
+    },
+    {
+     "id": "j13-17",
+     "type": "photo",
+     "x": 221.6,
+     "y": 679.2,
+     "w": 245.7,
+     "h": 242.9,
+     "src": "/templates/adat-jawa/assets/bunga-778095.webp"
+    },
+    {
+     "id": "j13-18",
+     "type": "photo",
+     "x": 191,
+     "y": 221.6,
+     "w": 102,
+     "h": 153,
+     "src": "/templates/adat-jawa/assets/img_5350-4dd65e.webp"
+    },
+    {
+     "id": "j13-19",
+     "type": "photo",
+     "x": -87.9,
+     "y": 555,
+     "w": 616,
+     "h": 616,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--25--930a33.webp"
+    },
+    {
+     "id": "j13-20",
+     "type": "photo",
+     "x": -78.6,
+     "y": 844.8,
+     "w": 168.3,
+     "h": 168.3,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--8--82d829.webp"
+    },
+    {
+     "id": "j13-21",
+     "type": "photo",
+     "x": 382.8,
+     "y": 850.8,
+     "w": 157.4,
+     "h": 157.4,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--8--82d829.webp"
+    },
+    {
+     "id": "j13-22",
+     "type": "photo",
+     "x": -97.6,
+     "y": 496.2,
+     "w": 306,
+     "h": 306,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--14--2142a6.webp"
+    },
+    {
+     "id": "j13-23",
+     "type": "photo",
+     "x": 271.4,
+     "y": 490,
+     "w": 321,
+     "h": 321,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--14--2142a6.webp"
+    },
+    {
+     "id": "j13-24",
+     "type": "text",
+     "x": 16,
+     "y": 1021.7,
+     "w": 452,
+     "h": 93,
+     "txt": "Vidi & Hening",
+     "font": "Zzzz Delp",
+     "size": "62px",
+     "color": "rgb(155, 18, 18)",
+     "role": "closing-names"
+    },
+    {
+     "id": "j13-25",
+     "type": "text",
+     "x": 16,
+     "y": 45.1,
+     "w": 452,
+     "h": 96,
+     "txt": "Thank You",
+     "font": "Zzzz Delp",
+     "size": "64px",
+     "color": "rgb(155, 18, 18)",
+     "role": "closing-title"
+    },
+    {
+     "id": "j13-26",
+     "type": "text",
+     "x": 118.5,
+     "y": 125.4,
+     "w": 247,
+     "h": 96,
+     "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
+     "size": "27px",
+     "color": "rgb(155, 18, 18)",
+     "role": "closing-message"
+    },
+    {
+     "id": "j13-27",
+     "type": "text",
+     "x": 118.5,
+     "y": 997,
+     "w": 247,
+     "h": 24,
+     "font": "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves",
+     "size": "27px",
+     "color": "rgb(155, 18, 18)",
+     "hidden": true
+    },
+    {
+     "id": "j13-28",
+     "type": "photo",
+     "x": -90,
+     "y": 189.3,
+     "w": 180,
+     "h": 180,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--12--013405.webp"
+    },
+    {
+     "id": "j13-29",
+     "type": "photo",
+     "x": 388,
+     "y": 188.6,
+     "w": 180,
+     "h": 180,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--12--013405.webp"
+    },
+    {
+     "id": "j13-30",
+     "type": "photo",
+     "x": -61,
+     "y": 908.3,
+     "w": 145,
+     "h": 145,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--14--14e150.webp"
+    },
+    {
+     "id": "j13-31",
+     "type": "photo",
+     "x": 383,
+     "y": 906.1,
+     "w": 145,
+     "h": 145,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--14--14e150.webp"
+    },
+    {
+     "id": "j13-32",
+     "type": "photo",
+     "x": -117.8,
+     "y": 744,
+     "w": 235.5,
+     "h": 235.5,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--16--3ff57a.webp"
+    },
+    {
+     "id": "j13-33",
+     "type": "photo",
+     "x": 368.2,
+     "y": 749.2,
+     "w": 231.6,
+     "h": 231.6,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--16--3ff57a.webp"
+    },
+    {
+     "id": "j13-34",
+     "type": "photo",
+     "x": 52,
+     "y": -3251.8,
+     "w": 380,
+     "h": 380,
+     "src": "/templates/adat-jawa/assets/the-wedding-of--18--f25abf.webp"
+    }
+   ]
+  }
+ ]
+}

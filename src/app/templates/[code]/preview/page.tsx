@@ -90,7 +90,7 @@ export default async function TemplatePreviewPage({ params }: { params: Promise<
   if (!Component) notFound()
 
   const demoProps = DEMO_PROPS_BY_CODE[code] || DEMO_PROPS
-  const keepDemoIds = code === "evermore" || code === "piano-garden" || code === "altar-garden" || code === "adat-melayu" || code === "adat-batak" || code === "adat-minang" || code === "lunar-blossom"
+  const keepDemoIds = code === "evermore" || code === "piano-garden" || code === "altar-garden" || code === "adat-melayu" || code === "adat-batak" || code === "adat-minang" || code === "lunar-blossom" || code === "adat-jawa"
   const previewProps: TemplateProps = {
     ...demoProps,
     preview_mode: true,
