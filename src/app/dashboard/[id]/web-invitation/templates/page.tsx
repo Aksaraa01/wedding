@@ -16,7 +16,7 @@ const CATEGORY_FILTERS = [
   { id: "semua", label: "Semua" },
   { id: "adat", label: "Adat/Tradisional" },
   { id: "modern", label: "Modern Minimalis" },
-  { id: "elegansi", label: "Elegansi Dark" },
+  { id: "elegansi", label: "Elegant" },
   { id: "floral", label: "Floral" },
 ]
 
@@ -56,7 +56,7 @@ function matchesCategory(cat: string | null | undefined, filterId: string): bool
     case "modern":
       return c.includes("modern") || c.includes("minimalis") || c === "nasional"
     case "elegansi":
-      return c.includes("elegansi") || c.includes("dark")
+      return c.includes("elegant") || c.includes("elegansi") || c.includes("dark")
     case "floral":
       return c.includes("floral")
     default:

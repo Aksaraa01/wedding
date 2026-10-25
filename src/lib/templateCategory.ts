@@ -31,12 +31,12 @@ export const TEMPLATE_CATEGORIES: TemplateCategory[] = [
   },
   {
     id: "elegansi",
-    label: "Elegansi Dark",
-    h1: "Template Undangan Pernikahan Elegansi Dark",
+    label: "Elegant",
+    h1: "Template Undangan Pernikahan Elegant",
     description:
-      "Template undangan digital dark yang mewah dan dramatis: latar gelap, aksen emas, dan tipografi anggun untuk pernikahan malam yang berkesan.",
+      "Template undangan digital bergaya elegant: latar gelap atau terang, aksen emas, dan tipografi anggun untuk pernikahan yang berkesan.",
     intro:
-      "Tampil beda dengan undangan berlatar gelap: aksen emas, tipografi anggun, dan nuansa sinematik untuk pernikahan malam yang mewah.",
+      "Tampil beda dengan undangan bergaya elegant: aksen emas, tipografi anggun, dan nuansa sinematik untuk pernikahan yang mewah.",
   },
   {
     id: "floral",
@@ -68,7 +68,7 @@ export function matchesCategory(cat: string | null | undefined, filterId: string
     case "modern":
       return c.includes("modern") || c.includes("minimalis") || c === "nasional"
     case "elegansi":
-      return c.includes("elegansi") || c.includes("dark")
+      return c.includes("elegant") || c.includes("elegansi") || c.includes("dark")
     case "floral":
       return c.includes("floral")
     default:

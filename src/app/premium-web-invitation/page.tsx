@@ -13,7 +13,7 @@ const CATEGORY_FILTERS = [
   { id: "semua", label: "Semua" },
   { id: "adat", label: "Adat/Tradisional" },
   { id: "modern", label: "Modern Minimalis" },
-  { id: "elegansi", label: "Elegansi Dark" },
+  { id: "elegansi", label: "Elegant" },
   { id: "floral", label: "Floral" },
 ]
 
@@ -49,11 +49,13 @@ export default function PremiumWebInvitationPage() {
   const [previewTpl, setPreviewTpl] = useState<Template | null>(null)
   const allFilters = useMemo(() => {
     const distinct = [...new Set(templates.map((t) => (t.category || "").trim()).filter(Boolean))]
-    const baseIds = new Set(CATEGORY_FILTERS.map((f) => f.id))
     const extra = distinct
       .filter((c) => {
         const lower = c.toLowerCase()
-        return !baseIds.has(lower) && !["nasional", "budaya"].includes(lower)
+        if (["nasional", "budaya"].includes(lower)) return false
+        // Skip any category a built-in filter already covers (e.g. "Elegant"
+        // is matched by the base "elegansi" chip).
+        return !CATEGORY_FILTERS.some((f) => f.id !== "semua" && matchesCategory(c, f.id))
       })
       .map((c) => ({ id: c.toLowerCase(), label: c }))
     return [...CATEGORY_FILTERS, ...extra]
