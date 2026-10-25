@@ -2740,7 +2740,7 @@
      "w": 141,
      "h": 136,
      "src": "/templates/adat-jawa/assets/Ornament-copy-2-3--1--da7d47.webp",
-     "flipV": true
+     "flip": true
     },
     {
      "id": "j11-10",
