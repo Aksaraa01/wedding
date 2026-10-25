@@ -18,6 +18,7 @@ import { readFileSync, existsSync } from "node:fs"
 
 const args = process.argv.slice(2)
 const allowStale = args.includes("--allow-stale")
+const allowAhead = args.includes("--allow-ahead")
 const refIdx = args.indexOf("--ref")
 const expectRef = refIdx >= 0 ? args[refIdx + 1] : "ylmfgorryxzpdckkebnr"
 
@@ -40,6 +41,17 @@ if (!allowStale) {
         `local HEAD is ${behind} commit(s) behind origin/main.\n` +
           `  A deploy from this tree would overwrite newer work (this is what wiped adat-jawa-2).\n` +
           `  Run: git pull --rebase origin main   (or pass --allow-stale if intentional)`,
+      )
+    }
+    const ahead = execSync("git rev-list --count origin/main..HEAD", {
+      encoding: "utf8",
+      env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" },
+    }).trim()
+    if (!allowAhead && Number(ahead) > 0) {
+      fail(
+        `local HEAD is ${ahead} commit(s) ahead of origin/main.\n` +
+          `  Push first so other agents cannot build/deploy a tree without your work.\n` +
+          `  Run: git push origin HEAD:main   (or pass --allow-ahead if intentional)`,
       )
     }
     const head = execSync("git rev-parse --short HEAD", {

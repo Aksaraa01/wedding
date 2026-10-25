@@ -192,17 +192,23 @@ The VPS has 2GB RAM and CANNOT run `next build`. Build locally, rsync the standa
 > 2026-10-25: a deploy from a stale tree wiped `adat-jawa-2`, so its preview and
 > every CSS chunk 404'd for users until redeployed. Because two agents share this
 > repo and both deploy to the same VPS, ALWAYS:
-> 1. `git fetch && git status -sb` — HEAD must not be behind `origin/main` (and
->    never deploy from a detached HEAD; run `git checkout -B main origin/main`).
+> 1. `git fetch && git status -sb` — HEAD must be **exactly** `origin/main`
+>    (not behind, not ahead). Push your commit first; otherwise another agent can
+>    build from a tree without your work and deploy it after you.
 > 2. Use the guarded deploy instead of hand-rolled rsync:
 >    ```bash
 >    set -a; source .env.local.prod; set +a; npm run build
->    npm run deploy          # guard → snapshot → rsync → pm2 → smoke → auto-rollback
+>    npm run deploy          # lock → guard → snapshot → rsync → pm2 → smoke → BUILD_ID check
 >    ```
->    `npm run deploy:guard` refuses stale trees, wrong baked env, or a registered
->    template missing from the bundle. `npm run deploy:smoke` hits every
->    `/templates/{code}/preview` (document + RSC) and rolls back on failure.
-> 3. After deploying, a browser tab opened before the deploy can keep requesting a
+>    `npm run deploy:guard` refuses stale trees, **unpushed HEADs**, wrong baked
+>    env, or a registered template missing from the bundle. The deploy script
+>    also takes a server-side `.deploy.lock` (20 min stale TTL) so two agents
+>    cannot rsync simultaneously, and asserts the live BUILD_ID still matches
+>    after the smoke test.
+> 3. Never bypass the guard/lock (`--allow-stale`, `--skip-build-check`) unless
+>    the other agent is confirmed stopped. If the lock is held, wait — do not
+>    delete it manually.
+> 4. After deploying, a browser tab opened before the deploy can keep requesting a
 >    dead RSC/chunk and show a 404 until hard-reloaded (⌘⇧R) — check with a fresh
 >    tab before assuming the server is broken.
 

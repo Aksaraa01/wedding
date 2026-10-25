@@ -26,6 +26,20 @@ done
 
 step() { printf "\n\033[1m▸ %s\033[0m\n" "$1"; }
 
+# Serialize deploys across agents. Stale locks expire after 20 minutes.
+LOCK="$REMOTE/.deploy.lock"
+step "Acquire deploy lock"
+if ! ssh -i "$SSH_KEY" "$SERVER" "mkdir '$LOCK' 2>/dev/null"; then
+  if ssh -i "$SSH_KEY" "$SERVER" "find '$LOCK' -maxdepth 0 -mmin +20 2>/dev/null | grep -q ."; then
+    ssh -i "$SSH_KEY" "$SERVER" "rmdir '$LOCK' && mkdir '$LOCK'"
+  else
+    echo "✗ Another deploy is in progress (lock: $LOCK). Wait for it to finish."
+    exit 1
+  fi
+fi
+cleanup_lock() { ssh -i "$SSH_KEY" "$SERVER" "rmdir '$LOCK' 2>/dev/null" || true; }
+trap cleanup_lock EXIT
+
 if [ "$SKIP_GUARD" = "0" ]; then
   step "Pre-deploy guard"
   node scripts/predeploy-guard.mjs
@@ -55,7 +69,14 @@ ssh -i "$SSH_KEY" "$SERVER" "cd '$REMOTE' && pm2 startOrRestart ecosystem.config
 
 step "Post-deploy smoke test"
 if node scripts/postdeploy-smoke.mjs; then
-  step "Deployed successfully — BUILD_ID $(cat .next/standalone/.next/BUILD_ID)"
+  LOCAL_BUILD="$(cat .next/standalone/.next/BUILD_ID)"
+  sleep 2
+  REMOTE_BUILD="$(ssh -i "$SSH_KEY" "$SERVER" "cat '$REMOTE/.next/standalone/.next/BUILD_ID' 2>/dev/null || true")"
+  if [ "$REMOTE_BUILD" != "$LOCAL_BUILD" ]; then
+    echo "✗ Another deploy replaced this build (local=$LOCAL_BUILD remote=$REMOTE_BUILD)."
+    exit 1
+  fi
+  step "Deployed successfully — BUILD_ID $LOCAL_BUILD"
   ssh -i "$SSH_KEY" "$SERVER" "rm -rf '$SNAP'" >/dev/null 2>&1 || true
 else
   echo
