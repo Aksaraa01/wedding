@@ -4,7 +4,7 @@ import { FEATURE_LABELS } from "@/lib/opsConstants"
 
 // Real weddings for /portofolio: completed projects with explicit ops
 // consent (portfolio_visible). The index shows only curated featured picks
-// (portfolio_featured, max 5); detail pages + sitemap cover all visible.
+// (portfolio_featured); detail pages + sitemap cover all visible.
 // Server-only (service role). Shared by the index, detail, and sitemap.
 export type PortfolioEntry = {
   slug: string
@@ -20,7 +20,7 @@ export type PortfolioEntry = {
   features: string[]
 }
 
-export const PORTFOLIO_INDEX_CAP = 5
+export const PORTFOLIO_INDEX_CAP = 8
 
 function firstImage(value: unknown): string[] {
   if (typeof value === "string" && value.trim()) {
@@ -96,7 +96,7 @@ export async function getPortfolioEntries(): Promise<PortfolioEntry[]> {
     )
 }
 
-// Curated index entries: featured picks first, capped at PORTFOLIO_INDEX_CAP.
+// Curated index entries: featured picks first, capped at PORTFOLIO_INDEX_CAP (8).
 export function portfolioIndexEntries(entries: PortfolioEntry[]): PortfolioEntry[] {
   return entries
     .filter((e) => (e as PortfolioEntry & { featured: boolean }).featured)
