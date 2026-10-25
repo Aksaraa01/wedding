@@ -197,7 +197,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, coupleNam
         </div>
 
         <button type="submit" className="tpl-rsvp__submit" disabled={status === "sending" || !message.trim()}>
-          {status === "sending" ? "Mengirim..." : "Kirim RSVP & Ucapan"}
+          {status === "sending" ? "Mengirim..." : "Kirim Ucapan"}
         </button>
 
         {feedback && (

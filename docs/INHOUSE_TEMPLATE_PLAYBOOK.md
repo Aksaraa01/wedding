@@ -599,8 +599,14 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 - **Gift logos must be local.** `ASSETS.galeriEnvelope.aksaraaLogo` resolves to a
   storage-relative path that 404s in local dev; download the Aksaraa logo into
   `public/templates/<code>/` and use that.
-- **User video only.** Do not keep the reference parallax/local video; render
-  `profile.video_url` in the gallery video card. Hide it when empty.
+- **User video only.** Do not keep the reference parallax/local video. Render
+  `profile.video_url` in the gallery video card and as the mempelai background
+  **after opening**. Support both direct uploads (`mp4/webm/mov` → `<video
+  autoPlay muted loop playsInline>`) and YouTube (iframe). Hide when empty.
+- **Gift address must name the recipient.** Show `gift_address_name` above the
+  address; an address alone is not enough.
+- **Wishes submit copy:** use “Kirim Ucapan” (no RSVP wording) when the section
+  is Wishes-only.
 - **Mempelai copy vs section.** “Remove The Bride/The Groom” means remove those
   **labels**, not the whole mempelai section. Keep names/parents/Instagram and
   use the user’s `video_url` as the autoplay/muted/loop background (no controls,

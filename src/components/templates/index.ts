@@ -880,8 +880,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
-      cover_slots: 3,
-      cover_slot_labels: ["Sampul", "Love Story", "Closing"],
+      cover_slots: 5,
+      cover_slot_labels: ["Sampul", "Love Story 1", "Love Story 2", "Love Story 3", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,

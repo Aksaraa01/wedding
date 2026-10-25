@@ -39,6 +39,10 @@ function useCountdown(iso?: string, sessions?: TemplateProps["sessions"]) {
   }
 }
 
+function isDirectVideo(url: string): boolean {
+  return /\.(mp4|webm|mov)(\?|#|$)/i.test(url)
+}
+
 function youtubeBackground(url: string): string {
   const id = url.match(/\/embed\/([^?&/]+)/)?.[1] || url.match(/[?&]v=([^&]+)/)?.[1] || ""
   if (!id) return url
@@ -51,14 +55,16 @@ export default function Manjari(profile: TemplateProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [opened, setOpened] = useState(false)
   const [playing, setPlaying] = useState(false)
+  const [storyIndex, setStoryIndex] = useState(0)
 
   const tc = profile.template_content || {}
   const gates = profile.feature_gates || {}
   const photos = flattenPhotos(profile.gallery_photos)
   const coverSlots = flattenPhotos(profile.cover_photos)
   const cover = coverSlots[0] || coverPhotoOf(profile)
-  const loveStoryPhotos = coverSlots.slice(1).length > 0 ? coverSlots.slice(1) : [cover]
-  const closingPhoto = coverSlots[2] || cover || photos[0]
+  const middleSlots = coverSlots.slice(1, -1)
+  const loveStoryPhotos = middleSlots.length > 0 ? middleSlots : coverSlots.slice(1).length > 0 ? coverSlots.slice(1) : [cover]
+  const closingPhoto = coverSlots.length > 2 ? coverSlots[coverSlots.length - 1] : cover || photos[0]
   const events = (profile.sessions || []).filter(Boolean)
   const stories = (profile.stories || []).filter((s) => s && (s.title || s.description))
   const honored = gates.inviting_families !== false && profile.inviting_families_visible !== false
@@ -72,6 +78,7 @@ export default function Manjari(profile: TemplateProps) {
   const giftAddress = profile.gift_section_visible !== false && gates.gift_address !== false ? profile.gift_address || "" : ""
   const hasGift = profile.gift_section_visible !== false && (accounts.length > 0 || !!giftAddress)
   const videoEmbed = normalizeVideoUrl(profile.video_url)
+  const directVideo = isDirectVideo(profile.video_url || "")
   const hasVideo = gates.video !== false && profile.video_section_visible !== false && !!videoEmbed
   const hasGallery = photos.length > 0 || hasVideo
   const trackUrl = profile.track_url || (profile.template_demo ? DEMO_TRACK : "")
@@ -96,6 +103,12 @@ export default function Manjari(profile: TemplateProps) {
     document.body.style.overflow = opened ? "" : "hidden"
     return () => { document.body.style.overflow = "" }
   }, [opened])
+
+  useEffect(() => {
+    if (!opened || loveStoryPhotos.length < 2) return
+    const id = window.setInterval(() => setStoryIndex((v) => (v + 1) % loveStoryPhotos.length), 4000)
+    return () => window.clearInterval(id)
+  }, [opened, loveStoryPhotos.length])
 
   const toggleMusic = () => {
     const audio = audioRef.current
@@ -135,40 +148,53 @@ export default function Manjari(profile: TemplateProps) {
             {profile.quote_source && <p className="script-source reveal">{profile.quote_source}</p>}
           </section>
 
-          <section className="profile manjari-couple section-photo" data-section="mempelai">
-            <div className="manjari-couple__media">
-              {videoEmbed ? (
-                <iframe
-                  src={youtubeBackground(videoEmbed)}
-                  title=""
-                  allow="autoplay; encrypted-media; picture-in-picture"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                />
+          <section className="profile profile-bride section-photo manjari-profile-video" data-section="bride">
+            <div className="manjari-profile-media">
+              {opened && directVideo ? (
+                <video src={profile.video_url} autoPlay muted loop playsInline />
+              ) : opened && videoEmbed ? (
+                <iframe src={youtubeBackground(videoEmbed)} title="" allow="autoplay; encrypted-media; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" />
               ) : (
                 <img src={cover} alt="" />
               )}
             </div>
-            <div className="manjari-couple__shade" />
-            <div className="manjari-couple__copy">
-              <article>
-                <h2>{profile.groom_full_name || profile.groom_name}</h2>
-                {profile.groom_parents && <p>{profile.groom_parents}</p>}
-                {profile.groom_instagram && (
-                  <a href={`https://instagram.com/${profile.groom_instagram.replace(/^@/, "")}`} target="_blank" rel="noreferrer">
-                    @{profile.groom_instagram.replace(/^@/, "")}
-                  </a>
-                )}
-              </article>
-              <span className="manjari-couple__amp">&amp;</span>
-              <article>
-                <h2>{profile.bride_full_name || profile.bride_name}</h2>
-                {profile.bride_parents && <p>{profile.bride_parents}</p>}
-                {profile.bride_instagram && (
-                  <a href={`https://instagram.com/${profile.bride_instagram.replace(/^@/, "")}`} target="_blank" rel="noreferrer">
-                    @{profile.bride_instagram.replace(/^@/, "")}
-                  </a>
-                )}
-              </article>
+            <div className="manjari-profile-shade" />
+            <div className="profile__copy">
+              <h2 style={{ "--name-len": Math.max(1, (profile.groom_full_name || profile.groom_name || "").length) } as CSSProperties}>
+                {profile.groom_full_name || profile.groom_name}
+              </h2>
+              <i /><i className="short" />
+              {profile.groom_parents && <p className="profile__parents">{profile.groom_parents}</p>}
+              {profile.groom_instagram && (
+                <a className="pill pill-ivory profile__instagram" href={`https://instagram.com/${profile.groom_instagram.replace(/^@/, "")}`} target="_blank" rel="noreferrer">
+                  @{profile.groom_instagram.replace(/^@/, "")}
+                </a>
+              )}
+            </div>
+          </section>
+
+          <section className="profile profile-groom section-photo manjari-profile-video" data-section="groom">
+            <div className="manjari-profile-media">
+              {opened && directVideo ? (
+                <video src={profile.video_url} autoPlay muted loop playsInline />
+              ) : opened && videoEmbed ? (
+                <iframe src={youtubeBackground(videoEmbed)} title="" allow="autoplay; encrypted-media; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" />
+              ) : (
+                <img src={cover} alt="" />
+              )}
+            </div>
+            <div className="manjari-profile-shade" />
+            <div className="profile__copy profile__copy--right">
+              <h2 style={{ "--name-len": Math.max(1, (profile.bride_full_name || profile.bride_name || "").length) } as CSSProperties}>
+                {profile.bride_full_name || profile.bride_name}
+              </h2>
+              <i /><i className="short" />
+              {profile.bride_parents && <p className="profile__parents">{profile.bride_parents}</p>}
+              {profile.bride_instagram && (
+                <a className="pill pill-ivory profile__instagram" href={`https://instagram.com/${profile.bride_instagram.replace(/^@/, "")}`} target="_blank" rel="noreferrer">
+                  @{profile.bride_instagram.replace(/^@/, "")}
+                </a>
+              )}
             </div>
           </section>
 
@@ -177,7 +203,7 @@ export default function Manjari(profile: TemplateProps) {
             <div className="story-stage reveal">
               <div className="story-carousel" aria-label={`${coupleLabel}'s story gallery`}>
                 {loveStoryPhotos.slice(0, 4).map((src, index) => (
-                  <img key={`${src}-${index}`} className={index === 0 ? "active" : ""} src={src} alt="" />
+                  <img key={`${src}-${index}`} className={index === storyIndex % loveStoryPhotos.length ? "active" : ""} src={src} alt="" />
                 ))}
               </div>
               {stories.map((story, index) => (
@@ -264,7 +290,11 @@ export default function Manjari(profile: TemplateProps) {
               )}
               {hasVideo && (
                 <div className="gallery__video reveal">
-                  <iframe src={`${videoEmbed}${videoEmbed.includes("?") ? "&" : "?"}autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&playsinline=1`} title={`Video ${coupleLabel}`} allow="autoplay; encrypted-media; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" />
+                  {directVideo ? (
+                    <video src={profile.video_url} controls playsInline />
+                  ) : (
+                    <iframe src={`${videoEmbed}${videoEmbed.includes("?") ? "&" : "?"}autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&playsinline=1`} title={`Video ${coupleLabel}`} allow="autoplay; encrypted-media; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" />
+                  )}
                 </div>
               )}
             </section>
@@ -302,6 +332,7 @@ export default function Manjari(profile: TemplateProps) {
                 {giftAddress && (
                   <div className="manjari-gift-card">
                     <p className="manjari-gift-provider">Send a Gift</p>
+                    {profile.gift_address_name && <p className="manjari-gift-name">{profile.gift_address_name}</p>}
                     <p className="manjari-gift-address">{giftAddress}</p>
                   </div>
                 )}
