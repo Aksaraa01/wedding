@@ -145,11 +145,13 @@ export default function Manjari(profile: TemplateProps) {
           <div className="parallax-photo" aria-hidden="true" style={{ backgroundImage: `url(${cover})` }} />
 
           <section className="verse burgundy manjari-verse" data-section="verse">
-            {opened && directVideo ? (
-              <video className="manjari-verse-media" src={profile.video_url} autoPlay muted loop playsInline aria-hidden="true" />
-            ) : opened && videoEmbed ? (
-              <iframe className="manjari-verse-media" src={youtubeBackground(videoEmbed)} title="" allow="autoplay; encrypted-media; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" aria-hidden="true" />
-            ) : null}
+            <div className="pointer-events-none absolute inset-0 z-0">
+              {opened && directVideo ? (
+                <video className="manjari-verse-media" src={profile.video_url} autoPlay muted loop playsInline aria-hidden="true" />
+              ) : opened && videoEmbed ? (
+                <iframe className="manjari-verse-media" src={youtubeBackground(videoEmbed)} title="" allow="autoplay; encrypted-media; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" aria-hidden="true" />
+              ) : null}
+            </div>
             <div className="manjari-verse-shade" />
             <p className="verse__hashtag reveal">{profile.display_name || `#${`${profile.groom_name || ""}${profile.bride_name || ""}`.replace(/\s+/g, "")}`}</p>
             <blockquote className="reveal">{profile.quote_text || ""}</blockquote>
