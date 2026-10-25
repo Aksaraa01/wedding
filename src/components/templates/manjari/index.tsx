@@ -310,8 +310,7 @@ export default function Manjari(profile: TemplateProps) {
                   const logo = resolveBankLogo(account.provider_name || "")
                   return (
                     <div className="manjari-gift-card" key={`${account.account_number || "account"}-${index}`}>
-                      {logo && <img src={logo} alt={account.provider_name || "Bank"} className="manjari-gift-logo" />}
-                      <p className="manjari-gift-provider">{account.provider_name}</p>
+                      {logo && <img src={logo} alt="" className="manjari-gift-logo" />}
                       <p className="manjari-gift-name">{account.account_name}</p>
                       <p className="manjari-gift-number">{account.account_number}</p>
                     </div>
@@ -330,6 +329,7 @@ export default function Manjari(profile: TemplateProps) {
 
           {honored.length > 0 && (
             <section className="honored ivory" data-section="honored-guests">
+              <img className="manjari-section-ornament" src={A("wish-title.webp")} alt="" aria-hidden="true" />
               <h2 className="reveal">Turut Mengundang</h2>
               <div className="honored__grid">
                 <div className="honored__col reveal">
@@ -343,6 +343,7 @@ export default function Manjari(profile: TemplateProps) {
 
           {rundown.length > 0 && (
             <section className="manjari-rundown ivory" data-section="rundown">
+              <img className="manjari-section-ornament" src={A("wish-title.webp")} alt="" aria-hidden="true" />
               <h2>Rundown Acara</h2>
               <ul>
                 {rundown.map((item, index) => (
