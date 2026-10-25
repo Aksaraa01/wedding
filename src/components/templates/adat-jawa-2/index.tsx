@@ -45,6 +45,7 @@ type LayoutElement = {
   hidden?: boolean
   opacity?: number
   flip?: boolean
+  flipV?: boolean
   rotate180?: boolean
 }
 
@@ -179,6 +180,7 @@ function elementStyle(e: LayoutElement): CSSProperties {
   const transforms = [
     `translate(${e.x}px, ${e.y}px)`,
     ...(e.flip ? ["scaleX(-1)"] : []),
+    ...(e.flipV ? ["scaleY(-1)"] : []),
     ...(e.rotate180 ? ["rotate(180deg)"] : []),
   ]
   return { width: e.w, height: e.h, transform: transforms.join(" "), ...(e.opacity != null ? { opacity: e.opacity } : {}) }

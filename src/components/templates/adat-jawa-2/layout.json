@@ -1907,7 +1907,8 @@
      "w": 276,
      "h": 276,
      "src": "/templates/adat-jawa/assets/the-wedding-of--14--2142a6.webp",
-     "opacity": 0.3
+     "opacity": 0.3,
+     "flip": true
     },
     {
      "id": "j7-41",
@@ -2739,7 +2740,7 @@
      "w": 141,
      "h": 136,
      "src": "/templates/adat-jawa/assets/Ornament-copy-2-3--1--da7d47.webp",
-     "rotate180": true
+     "flipV": true
     },
     {
      "id": "j11-10",
