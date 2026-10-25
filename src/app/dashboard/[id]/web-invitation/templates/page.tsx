@@ -234,20 +234,18 @@ function TemplatesInner({ id }: { id: string }) {
               </button>
             )}
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {shownFilters.map((f) => (
-              <button
-                key={f.id}
-                onClick={() => setCategoryFilter(f.id)}
-                className={`shrink-0 rounded-full border px-5 py-2 font-label-md text-[11px] uppercase tracking-widest transition-colors whitespace-nowrap ${
-                  categoryFilter === f.id
-                    ? "bg-[#B34E3F] border-[#B34E3F] text-white"
-                    : "bg-white border-[#E2D9CF] text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F]"
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
+          <div className="flex items-center gap-2">
+            <label htmlFor="category-filter" className="shrink-0 font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant">Kategori:</label>
+            <select
+              id="category-filter"
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="rounded-full border border-outline-variant bg-surface px-4 py-2 text-sm focus:outline-none focus:border-brand-charcoal focus:ring-1 focus:ring-brand-charcoal"
+            >
+              {shownFilters.map((f) => (
+                <option key={f.id} value={f.id}>{f.label}</option>
+              ))}
+            </select>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="shrink-0 font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant">Foto:</span>

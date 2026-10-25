@@ -56,7 +56,7 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose }: Props) 
   }, [fullUrl, onClose])
 
   return (
-    <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-[200] bg-black/80" onClick={onClose}>
       <div className="absolute inset-0 sm:inset-4 lg:inset-8 flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between bg-white px-6 py-4 shrink-0 sm:rounded-t-lg">
           <h2 className="font-headline-md text-headline-md text-primary truncate pr-4">{name}</h2>
