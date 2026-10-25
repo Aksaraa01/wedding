@@ -62,6 +62,8 @@ export default function Manjari(profile: TemplateProps) {
   const photos = flattenPhotos(profile.gallery_photos)
   const coverSlots = flattenPhotos(profile.cover_photos)
   const cover = coverSlots[0] || coverPhotoOf(profile)
+  const groomPhoto = flattenPhotos(profile.groom_photo_url)[0] || cover
+  const bridePhoto = flattenPhotos(profile.bride_photo_url)[0] || cover
   const middleSlots = coverSlots.slice(1, -1)
   const loveStoryPhotos = middleSlots.length > 0 ? middleSlots : coverSlots.slice(1).length > 0 ? coverSlots.slice(1) : [cover]
   const closingPhoto = coverSlots.length > 2 ? coverSlots[coverSlots.length - 1] : cover || photos[0]
@@ -142,23 +144,19 @@ export default function Manjari(profile: TemplateProps) {
         <main className="invitation" id="invitation" aria-hidden={!opened}>
           <div className="parallax-photo" aria-hidden="true" style={{ backgroundImage: `url(${cover})` }} />
 
-          <section className="verse burgundy" data-section="verse">
+          <section className="verse burgundy manjari-verse" data-section="verse">
+            {opened && directVideo ? (
+              <video className="manjari-verse-media" src={profile.video_url} autoPlay muted loop playsInline aria-hidden="true" />
+            ) : opened && videoEmbed ? (
+              <iframe className="manjari-verse-media" src={youtubeBackground(videoEmbed)} title="" allow="autoplay; encrypted-media; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" aria-hidden="true" />
+            ) : null}
+            <div className="manjari-verse-shade" />
             <p className="verse__hashtag reveal">{profile.display_name || `#${`${profile.groom_name || ""}${profile.bride_name || ""}`.replace(/\s+/g, "")}`}</p>
             <blockquote className="reveal">{profile.quote_text || ""}</blockquote>
             {profile.quote_source && <p className="script-source reveal">{profile.quote_source}</p>}
           </section>
 
-          <section className="profile profile-bride section-photo manjari-profile-video" data-section="bride">
-            <div className="manjari-profile-media">
-              {opened && directVideo ? (
-                <video src={profile.video_url} autoPlay muted loop playsInline />
-              ) : opened && videoEmbed ? (
-                <iframe src={youtubeBackground(videoEmbed)} title="" allow="autoplay; encrypted-media; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" />
-              ) : (
-                <img src={cover} alt="" />
-              )}
-            </div>
-            <div className="manjari-profile-shade" />
+          <section className="profile profile-bride section-photo" data-section="bride" style={{ backgroundImage: `url(${bridePhoto})` }}>
             <div className="profile__copy">
               <h2 style={{ "--name-len": Math.max(1, (profile.groom_full_name || profile.groom_name || "").length) } as CSSProperties}>
                 {profile.groom_full_name || profile.groom_name}
@@ -173,17 +171,7 @@ export default function Manjari(profile: TemplateProps) {
             </div>
           </section>
 
-          <section className="profile profile-groom section-photo manjari-profile-video" data-section="groom">
-            <div className="manjari-profile-media">
-              {opened && directVideo ? (
-                <video src={profile.video_url} autoPlay muted loop playsInline />
-              ) : opened && videoEmbed ? (
-                <iframe src={youtubeBackground(videoEmbed)} title="" allow="autoplay; encrypted-media; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" />
-              ) : (
-                <img src={cover} alt="" />
-              )}
-            </div>
-            <div className="manjari-profile-shade" />
+          <section className="profile profile-groom section-photo" data-section="groom" style={{ backgroundImage: `url(${groomPhoto})` }}>
             <div className="profile__copy profile__copy--right">
               <h2 style={{ "--name-len": Math.max(1, (profile.bride_full_name || profile.bride_name || "").length) } as CSSProperties}>
                 {profile.bride_full_name || profile.bride_name}
