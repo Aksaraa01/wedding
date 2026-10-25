@@ -993,3 +993,18 @@ DEMO_PROPS_BY_CODE["manjari"] = {
     closing_message: "Thank you for being part of our story. Your presence, prayers, and warm wishes mean more to us than words can express.",
   },
 }
+
+DEMO_PROPS_BY_CODE["minang-royal"] = {
+  ...DEMO_PROPS_BY_CODE["sandhya"],
+  slug: "demo",
+  display_name: "#AlbarnFaye2027",
+  estimated_wedding_date: DEMO_PROPS_BY_CODE["adat-melayu"].estimated_wedding_date,
+  quote_text: DEMO_PROPS_BY_CODE["adat-melayu"].quote_text,
+  quote_source: "Doa Pernikahan Adat Minang",
+  sessions: DEMO_PROPS_BY_CODE["adat-melayu"].sessions,
+  stories: DEMO_PROPS_BY_CODE["adat-melayu"].stories,
+  template_content: DEMO_PROPS_BY_CODE["adat-melayu"].template_content,
+  rundown: DEMO_PROPS_BY_CODE["adat-melayu"].rundown,
+  rundown_visible: true,
+  track_url: "/templates/minang-royal/bergema.mp3",
+}

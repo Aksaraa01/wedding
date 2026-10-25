@@ -22,6 +22,7 @@ import AdatJawa from "./adat-jawa"
 import AdatJawa2 from "./adat-jawa-2"
 import AdatBali from "./adat-bali"
 import Manjari from "./manjari"
+import MinangRoyal from "./minang-royal"
 
 export type { TemplateProps } from "@/types/template"
 
@@ -48,6 +49,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "adat-jawa-2": AdatJawa2,
   "adat-bali": AdatBali,
   manjari: Manjari,
+  "minang-royal": MinangRoyal,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -882,6 +884,46 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     content: {
       cover_slots: 5,
       cover_slot_labels: ["Sampul", "Love Story 1", "Love Story 2", "Love Story 3", "Closing"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: false,
+      sections: {
+        opening_description: false,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: true,
+        livestream: true,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "minang-royal",
+    name: "Minang Royal",
+    description: "Undangan adat Minang bernuansa krem dan maroon — rumah gadang, ornamen royal, ayat, mempelai, hitung mundur, kisah cinta, acara, rundown, galeri, live streaming, hadiah, dan ucapan.",
+    theme: {
+      fonts: { display: "Bona Nova", script: "Playfair Display", body: "Playfair Display" },
+      colors: {
+        surface: "#f4e1c3",
+        text: "#650b04",
+        accent: "#650b04",
+        accentMuted: "#501817",
+        overlay: "#650b04",
+        dark: "#501817",
+      },
+      ornaments: { divider: "floral", border: "ornate", frame: "arch" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.2 },
+    },
+    content: {
+      cover_slots: 3,
+      cover_slot_labels: ["Sampul", "Love Story", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,

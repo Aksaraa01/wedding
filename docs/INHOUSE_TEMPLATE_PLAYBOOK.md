@@ -619,6 +619,18 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
   `gift_intro_title`, `gift_intro_description`, `wishes_intro`,
   `closing_message`) for the new code.
 
+## 8.7 External (side-to-side) references
+
+- **Asset hosts may 403 hotlinks.** Download with a browser `Referer` header
+  (`-H "Referer: https://<reference-host>/<path>"`) and vendor every asset
+  locally; never ship reference-host URLs or branding.
+- **Scope `body.<template>` CSS.** Reference themes often key variables and
+  fonts off `body.sintia`; replace it with the component root class and rewrite
+  asset URLs to `/templates/<code>/`.
+- **Keep the reference's section classes** (`top-cover`, `couple-wrap`,
+  `save-date-wrap`, `agenda-wrap`, `rundown-container`, `photo-wrap`, …) but
+  drive content from `TemplateProps`; do not copy reference couple data.
+
 ## 9. Failure catalogue (symptom → cause → fix)
 
 | Symptom | Cause | Fix |
