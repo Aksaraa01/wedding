@@ -156,7 +156,7 @@ export default function Manjari(profile: TemplateProps) {
             {profile.quote_source && <p className="script-source reveal">{profile.quote_source}</p>}
           </section>
 
-          <section className="profile profile-bride section-photo" data-section="bride" style={{ backgroundImage: `url(${bridePhoto})` }}>
+          <section className="profile profile-bride section-photo" data-section="bride" style={{ backgroundImage: `url(${groomPhoto})` }}>
             <div className="profile__copy">
               <h2 style={{ "--name-len": Math.max(1, (profile.groom_full_name || profile.groom_name || "").length) } as CSSProperties}>
                 {profile.groom_full_name || profile.groom_name}
@@ -171,7 +171,7 @@ export default function Manjari(profile: TemplateProps) {
             </div>
           </section>
 
-          <section className="profile profile-groom section-photo" data-section="groom" style={{ backgroundImage: `url(${groomPhoto})` }}>
+          <section className="profile profile-groom section-photo" data-section="groom" style={{ backgroundImage: `url(${bridePhoto})` }}>
             <div className="profile__copy profile__copy--right">
               <h2 style={{ "--name-len": Math.max(1, (profile.bride_full_name || profile.bride_name || "").length) } as CSSProperties}>
                 {profile.bride_full_name || profile.bride_name}
