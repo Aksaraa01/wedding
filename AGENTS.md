@@ -186,6 +186,26 @@ Run a local standalone build pointed at the **staging** Supabase and smoke test 
 ### Deploy
 The VPS has 2GB RAM and CANNOT run `next build`. Build locally, rsync the standalone output, then restart PM2 on the server.
 
+> **CRITICAL — never deploy from a stale tree.** A tree that is behind
+> `origin/main` produces a bundle *without* templates added by the other agent,
+> and `rsync --delete` replaces the live build with it. This happened on
+> 2026-10-25: a deploy from a stale tree wiped `adat-jawa-2`, so its preview and
+> every CSS chunk 404'd for users until redeployed. Because two agents share this
+> repo and both deploy to the same VPS, ALWAYS:
+> 1. `git fetch && git status -sb` — HEAD must not be behind `origin/main` (and
+>    never deploy from a detached HEAD; run `git checkout -B main origin/main`).
+> 2. Use the guarded deploy instead of hand-rolled rsync:
+>    ```bash
+>    set -a; source .env.local.prod; set +a; npm run build
+>    npm run deploy          # guard → snapshot → rsync → pm2 → smoke → auto-rollback
+>    ```
+>    `npm run deploy:guard` refuses stale trees, wrong baked env, or a registered
+>    template missing from the bundle. `npm run deploy:smoke` hits every
+>    `/templates/{code}/preview` (document + RSC) and rolls back on failure.
+> 3. After deploying, a browser tab opened before the deploy can keep requesting a
+>    dead RSC/chunk and show a 404 until hard-reloaded (⌘⇧R) — check with a fresh
+>    tab before assuming the server is broken.
+
 > **CRITICAL — verify baked env BEFORE deploying.** `NEXT_PUBLIC_*` values are
 > baked into the bundle at build time. If the wrong env file is sourced (or none
 > is), the build silently points at the wrong Supabase project and every DB read

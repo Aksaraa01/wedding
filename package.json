@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "check:egress": "./scripts/check-storage-egress.sh"
+    "check:egress": "./scripts/check-storage-egress.sh",
+    "deploy:guard": "node scripts/predeploy-guard.mjs",
+    "deploy:smoke": "node scripts/postdeploy-smoke.mjs",
+    "deploy": "./scripts/deploy.sh"
   },
   "dependencies": {
     "@img/sharp-libvips-linux-x64": "^1.3.3",
