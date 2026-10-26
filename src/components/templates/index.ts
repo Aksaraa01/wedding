@@ -23,7 +23,7 @@ import AdatJawa2 from "./adat-jawa-2"
 import AdatBali from "./adat-bali"
 import Manjari from "./manjari"
 import MinangRoyal from "./minang-royal"
-
+import Imagine from "./imagine"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -50,6 +50,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "adat-bali": AdatBali,
   manjari: Manjari,
   "minang-royal": MinangRoyal,
+  imagine: Imagine,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -944,8 +945,37 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       extras: true,
     },
   },
+  {
+    code: "imagine",
+    name: "Imagine",
+    description: "Undangan bernuansa teal dan emas — ornamen, ayat, mempelai, hitung mundur, acara, dress code, RSVP, live streaming, galeri, video, kisah cinta, hadiah, dan ucapan.",
+    theme: {
+      fonts: { display: "Cormorant Upright", script: "Cormorant Upright", body: "Ovo" },
+      colors: { surface: "#124541", text: "#fff9c7", accent: "#e4dcaf", accentMuted: "#37776d", overlay: "#124541", dark: "#124541" },
+      ornaments: { divider: "floral", border: "minimal", frame: "arch" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.2 },
+    },
+    content: {
+      cover_slots: 1,
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: true,
+      sections: {
+        opening_description: false,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: true,
+        livestream: true,
+      },
+      extras: true,
+    },
+  },
 ]
-
 export function getTemplateConfig(code: string): TemplateConfig | undefined {
   return TEMPLATE_CONFIGS.find((t) => t.code === code)
 }

@@ -21,14 +21,14 @@ import "./adat-batak.css"
 const ASSET = (name: string) => `/templates/adat-batak/${name}`
 
 const DEFAULT_QUOTE =
-  "Bismillahirrahmanirrahim. Semoga Allah SWT senantiasa melimpahkan keberkahan, kasih, dan keharmonisan dalam perjalanan kami."
-const DEFAULT_QUOTE_SOURCE = "Doa Pernikahan Adat Melayu"
+  "Demikianlah mereka bukan lagi dua, melainkan satu. Karena itu, apa yang telah dipersatukan Allah, tidak boleh diceraikan manusia."
+const DEFAULT_QUOTE_SOURCE = "Matius 19 : 6"
 const DEMO_TRACK = "/templates/adat-batak/dongan-matua.mp3"
 const DEFAULT_GALLERY_QUOTE = "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama."
 const DEFAULT_GIFT_DESCRIPTION =
   "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:"
 const DEFAULT_CLOSING =
-  "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan."
+  "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Tuhan senantiasa melimpahkan berkat-Nya."
 const DEFAULT_WISHES_SUBTITLE =
   "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu."
 

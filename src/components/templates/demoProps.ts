@@ -268,6 +268,101 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
     },
     feature_gates: { story: true, gift_address: true, inviting_families: true, video: true, qr_code_book: true },
   },
+  imagine: {
+    slug: "demo",
+    groom_name: "Albarn",
+    bride_name: "Faye",
+    couple_initials: "AF",
+    display_name: "#AlbarnFaye2026",
+    groom_full_name: "David Albarn",
+    bride_full_name: "Faye Reed",
+    estimated_wedding_date: "2026-10-16",
+    guest_name: "Tamu Undangan",
+    preview_mode: true,
+    wedding_profile_id: "demo-wedding-profile-id",
+    guest_id: "demo-guest-id",
+    cover_photos: [...DE_COVERS_COVER2],
+    couple_illustration_url: `${DE}/cover.webp`,
+    groom_photo_url: [`${DE}/groom.webp`],
+    bride_photo_url: [`${DE}/bride.webp`],
+    groom_parents: "Mr. & Mrs. Albarn",
+    bride_parents: "Mr. & Mrs. Reed",
+    groom_instagram: "@wedding.aksaraa",
+    bride_instagram: "@wedding.aksaraa",
+    opening_title: "Warmest Greetings",
+    opening_description:
+      "With great joy and gratitude, we invite you to share in the beginning of our forever. Your presence and blessings would mean the world to us.",
+    quote_text:
+      "And over all these virtues put on love, which binds them all together in perfect unity.",
+    quote_source: "Colossians 3 : 14",
+    sessions: [
+      {
+        name: "Holy Matrimony",
+        date: "2026-10-16",
+        time: "10.00 - 12.00 WIB",
+        venue: "Gereja HKBP Sukadame",
+        address: "Jl. Sisingamangaraja No. 333 Pematangsiantar, Sumatera Utara",
+        maps_url: "https://maps.app.goo.gl/9bRvrJZZ1xcZSoqa6",
+      },
+      {
+        name: "Reception",
+        date: "2026-10-16",
+        time: "13.00 WIB - Selesai",
+        venue: "Sopo Godang HKBP",
+        address: "Jl. Gereja No. 35 Pematangsiantar, Sumatera Utara",
+        maps_url: "https://maps.app.goo.gl/UPxWi9HU1w4A9R1j6",
+      },
+    ],
+    stories: [
+      {
+        title: "The First Hello",
+        description:
+          "It began with a simple introduction that slowly grew into a comfortable companionship. Time brought us closer and taught us to know each other deeply.",
+        image_url: `${DE}/cover.webp`,
+      },
+      {
+        title: "Toward Forever",
+        description:
+          "After many chapters together, we chose to walk hand in hand. Today we invite you to be part of the beginning of our journey.",
+        image_url: `${DE}/cover-1.webp`,
+      },
+    ],
+    gallery_photos: [...DE_GALLERY],
+    video_url: "https://youtu.be/-ARVwU58l7A",
+    gift_accounts: [
+      { provider_name: "Bank Danamon", account_number: "903687866339", account_name: "David Albarn", type: "bank" },
+      { provider_name: "Bank Central Asia (BCA)", account_number: "8200891083", account_name: "Faye Reed", type: "bank" },
+    ],
+    gift_address: "Jl. Sisingamangaraja No. 333, Pematangsiantar, Sumatera Utara, 21142",
+    gift_address_name: "David Albarn & Faye Reed",
+    track_url:
+      "https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/user-tracks/t-1790768253171-AUD-20260930-WA0016.mp3",
+    auto_play: false,
+    inviting_families: [
+      "The Albarn Family",
+      "The Reed Family",
+      "The Extended Families of Both",
+    ],
+    dresscode: {
+      colors: [
+        { hex: "#e8d9c5", name: "Sand" },
+        { hex: "#c98f6b", name: "Terracotta" },
+        { hex: "#7c5a43", name: "Cocoa" },
+        { hex: "#2c241d", name: "Espresso" },
+      ],
+    },
+    livestream: { url: "https://www.youtube.com/live/dummy-livestream-link" },
+    template_content: {
+      cover_apology: "Kami memohon maaf atas segala kekeliruan penulisan nama dan gelar.",
+      gallery_quote: "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku.",
+      gift_intro_title: "Tanda Kasih",
+      gift_intro_description:
+        "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.",
+      closing_message:
+        "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami.",
+    },
+    feature_gates: { story: true, gift_address: true, inviting_families: true, video: true, qr_code_book: true },
+  },
   evermore: {
     slug: "demo",
     groom_name: "David",
@@ -653,16 +748,16 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
 DEMO_PROPS_BY_CODE["adat-melayu"] = {
   ...DEMO_PROPS_BY_CODE["altar-garden"],
   slug: "demo",
-  groom_name: "Sandhya",
-  bride_name: "Joseph",
-  couple_initials: "SJ",
-  display_name: "#SandhyaJoseph",
-  groom_full_name: "Sandhya Kirana Adiwijaya",
-  bride_full_name: "Joseph Alexander Wicaksana",
-  groom_parents: "Putri dari Bapak Ahmad Fadillah & Ibu Nur Aisyah",
-  bride_parents: "Putra dari Bapak Muhammad Yusuf & Ibu Siti Khadijah",
-  groom_instagram: "@sandhya.kirana",
-  bride_instagram: "@joseph.alexander",
+  groom_name: "Ridho",
+  bride_name: "Aisyah",
+  couple_initials: "RA",
+  display_name: "#RidhoAisyah2027",
+  groom_full_name: "Ridho Pratama",
+  bride_full_name: "Aisyah Nurhaliza",
+  groom_parents: "Putra dari Bapak H. Abdul Rahman & Ibu Hj. Siti Aminah",
+  bride_parents: "Putri dari Bapak H. Muhammad Yusuf & Ibu Hj. Khadijah",
+  groom_instagram: "@ridho.pratama",
+  bride_instagram: "@aisyah.nurhaliza",
   estimated_wedding_date: "2027-12-31",
   quote_text:
     "Bismillahirrahmanirrahim. Semoga Allah SWT senantiasa melimpahkan keberkahan, kasih, dan keharmonisan dalam perjalanan kami.",
@@ -710,21 +805,22 @@ DEMO_PROPS_BY_CODE["adat-melayu"] = {
     },
   ],
   gift_accounts: [
-    { provider_name: "Bank Mandiri", account_number: "1230009876543", account_name: "Sandhya Kirana", type: "bank" },
-    { provider_name: "Bank Central Asia (BCA)", account_number: "8200891083", account_name: "Joseph Alexander", type: "bank" },
+    { provider_name: "Bank Mandiri", account_number: "1230009876543", account_name: "Ridho Pratama", type: "bank" },
+    { provider_name: "Bank Central Asia (BCA)", account_number: "8200891083", account_name: "Aisyah Nurhaliza", type: "bank" },
   ],
   gift_address:
     "Jl. Hang Tuah No. 7, Kompleks Bandar Seni Raja Ali Haji, Kelurahan Sumahilang, Kecamatan Pekanbaru Kota, Kota Pekanbaru, Riau 28111",
-  gift_address_name: "Sandhya & Joseph",
+  gift_address_name: "Ridho & Aisyah",
   inviting_families: [
-    "Keluarga Besar Bapak Ahmad Fadillah",
-    "Keluarga Besar Ibu Nur Aisyah",
-    "Keluarga Besar Bapak Muhammad Yusuf",
-    "Keluarga Besar Ibu Siti Khadijah",
+    "Keluarga Besar Bapak H. Abdul Rahman",
+    "Keluarga Besar Ibu Hj. Siti Aminah",
+    "Keluarga Besar Bapak H. Muhammad Yusuf",
+    "Keluarga Besar Ibu Hj. Khadijah",
   ],
   track_url: "/templates/adat-melayu/selamat-pengantin-baru.mp3",
   template_content: {
     cover_apology: "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.",
+    gallery_intro: "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
     gallery_quote: "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama.",
     gift_intro_title: "Love Gift",
     gift_intro_description:
@@ -752,7 +848,85 @@ DEMO_PROPS_BY_CODE["adat-melayu"] = {
 DEMO_PROPS_BY_CODE["adat-batak"] = {
   ...DEMO_PROPS_BY_CODE["adat-melayu"],
   slug: "demo",
+  groom_name: "Bona",
+  bride_name: "Ruth",
+  couple_initials: "BR",
+  display_name: "#BonaRuth2027",
+  groom_full_name: "Bona Simanjuntak",
+  bride_full_name: "Ruth Hutapea",
+  groom_parents: "Putra dari Bapak Ir. T. Simanjuntak & Ibu br. Siregar",
+  bride_parents: "Putri dari Bapak Drs. Hutapea & Ibu br. Nainggolan",
+  groom_instagram: "@bona.simanjuntak",
+  bride_instagram: "@ruth.hutapea",
+  quote_text:
+    "Demikianlah mereka bukan lagi dua, melainkan satu. Karena itu, apa yang telah dipersatukan Allah, tidak boleh diceraikan manusia.",
+  quote_source: "Matius 19 : 6",
+  sessions: [
+    {
+      name: "Ibadah Pernikahan",
+      date: "2027-12-31",
+      time: "08.00 - 10.00 WIB",
+      venue: "Gereja HKBP Pematangsiantar",
+      address: "Jl. Sisingamangaraja No. 333, Pematangsiantar, Sumatera Utara",
+      maps_url: "https://maps.app.goo.gl/9bRvrJZZ1xcZSoqa6",
+    },
+    {
+      name: "Resepsi Adat Batak",
+      date: "2027-12-31",
+      time: "11.00 - 14.00 WIB",
+      venue: "Sopo Godang HKBP",
+      address: "Jl. Gereja No. 35, Pematangsiantar, Sumatera Utara",
+      maps_url: "https://maps.app.goo.gl/UPxWi9HU1w4A9R1j6",
+    },
+  ],
+  stories: [
+    {
+      title: "Pertemuan Pertama",
+      description:
+        "Kami pertama kali bertemu dalam sebuah acara keluarga di Pematangsiantar. Sebuah sapaan sederhana menjadi awal dari kisah yang tidak pernah kami duga.",
+    },
+    {
+      title: "Melangkah Bersama",
+      description:
+        "Dari hari-hari sederhana, kami belajar tumbuh bersama dan menemukan rumah dalam diri satu sama lain.",
+    },
+    {
+      title: "Memantapkan Hati",
+      description:
+        "Dengan doa dan restu kedua keluarga, serta adat Batak yang menyatukan marga kami, kami memantapkan hati untuk menikah.",
+    },
+    {
+      title: "Hari Pernikahan",
+      description:
+        "Dengan penuh syukur, kami memulai perjalanan membangun keluarga kecil. Semoga berkat Tuhan menyertai setiap langkah kami.",
+    },
+  ],
+  gift_accounts: [
+    { provider_name: "Bank Mandiri", account_number: "1230009876543", account_name: "Bona Simanjuntak", type: "bank" },
+    { provider_name: "Bank Central Asia (BCA)", account_number: "8200891083", account_name: "Ruth Hutapea", type: "bank" },
+  ],
+  gift_address:
+    "Jl. Sisingamangaraja No. 333, Pematangsiantar, Sumatera Utara 21142",
+  gift_address_name: "Bona & Ruth",
+  inviting_families: [
+    "Keluarga Besar Bapak Ir. T. Simanjuntak",
+    "Keluarga Besar Ibu br. Siregar",
+    "Keluarga Besar Bapak Drs. Hutapea",
+    "Keluarga Besar Ibu br. Nainggolan",
+  ],
   track_url: "/templates/adat-batak/dongan-matua.mp3",
+  template_content: {
+    cover_apology: "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.",
+    gallery_intro: "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
+    gallery_quote: "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama.",
+    gift_intro_title: "Love Gift",
+    gift_intro_description:
+      "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
+    wishes_intro:
+      "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
+    closing_message:
+      "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Tuhan senantiasa melimpahkan berkat-Nya.",
+  },
 }
 
 DEMO_PROPS_BY_CODE["adat-minang"] = {
