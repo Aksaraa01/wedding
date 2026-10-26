@@ -60,7 +60,7 @@
 .adat-jawa-root .cover-gate, .adat-jawa-root .video-intro { position: relative; width: 100%; height: 100svh; min-height: 680px; background: rgb(0, 0, 0); opacity: 1; visibility: visible; z-index: 1; }
 .adat-jawa-root .video-intro { background: rgb(0, 0, 0); }
 .adat-jawa-root .gate-stage { position: absolute; inset: 0px; overflow: hidden; opacity: 0; visibility: hidden; transition: opacity 0.5s, visibility 0.5s; }
-.adat-jawa-root .gate-stage > img, .adat-jawa-root .gate-stage > video { width: 100%; height: 100%; object-fit: cover; }
+.adat-jawa-root .gate-stage > img, .adat-jawa-root .gate-stage > video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 .adat-jawa-root .gate-initial { opacity: 1; visibility: visible; }
 .adat-jawa-root .gate-shade { position: absolute; inset: 0px; pointer-events: none; background: rgba(0, 0, 0, 0.42); }
 .adat-jawa-root .gate-initial .gate-shade { height: 100%; background: linear-gradient(rgba(0, 0, 0, 0.34), rgba(0, 0, 0, 0.76)); }
@@ -447,7 +447,7 @@ html:has(.adat-jawa-root.is-locked),body:has(.adat-jawa-root.is-locked){overflow
 .adat-jawa-root .rsvp-feedback{margin-top:12px;font-size:12px;line-height:1.6;color:var(--adat-primary-deep);text-align:center}
 .adat-jawa-root .rsvp-feedback.is-error{color:#a4432f}
 .adat-jawa-root .adat-rsvp__empty{margin:8px 0 0;color:rgb(95,94,88);font-size:12px;line-height:18px;text-align:center}
-.adat-jawa-root .gate-stage>video,.adat-jawa-root .video-intro video{width:100%;height:100%;object-fit:cover}
+.adat-jawa-root .gate-stage>video,.adat-jawa-root .video-intro video{width:100%;height:100%;object-fit:cover;pointer-events:none}
 .adat-jawa-root .gift-card-shell .tpl-gift__account-type{order:-1;margin:0 0 2px;color:rgb(119,118,111);font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase}
 .adat-jawa-root .gift-card-shell .tpl-gift__account-name{order:1}
 .adat-jawa-root .gift-card-shell .tpl-gift__account-number{order:2}

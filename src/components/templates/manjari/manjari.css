@@ -157,7 +157,7 @@
 
 /* Kutipan video background; mempelai uses photos. */
 .manjari-root .manjari-verse{position:relative;overflow:hidden}
-.manjari-root .manjari-verse-media{position:absolute;top:50%;left:50%;z-index:0;width:177.78vh;height:100vh;min-width:100%;min-height:56.25vw;border:0;object-fit:cover;transform:translate(-50%,-50%) scale(1.08)}
+.manjari-root .manjari-verse-media{position:absolute;top:50%;left:50%;z-index:0;width:177.78vh;height:100vh;min-width:100%;min-height:56.25vw;border:0;object-fit:cover;transform:translate(-50%,-50%) scale(1.08);pointer-events:none}
 .manjari-root .manjari-verse-shade{position:absolute;inset:0;z-index:1;background:rgba(0,0,0,.5)}
 .manjari-root .manjari-verse > .verse__hashtag,.manjari-root .manjari-verse > blockquote,.manjari-root .manjari-verse > .script-source{position:relative;z-index:2}
 
