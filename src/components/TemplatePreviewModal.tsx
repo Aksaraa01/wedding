@@ -73,7 +73,7 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose }: Props) 
           </button>
         </div>
 
-        <div className="flex-1 relative min-h-0 bg-white overflow-hidden rounded-b-lg shadow-2xl">
+        <div className="flex-1 relative min-h-0 bg-white overflow-y-auto overflow-x-hidden rounded-b-lg shadow-2xl">
           {status === "loading" && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 bg-white">
               <span className="material-symbols-outlined text-4xl text-secondary animate-pulse">hourglass_top</span>
@@ -100,7 +100,7 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose }: Props) 
           <iframe
             ref={iframeRef}
             src={src}
-            className={`absolute inset-0 w-full h-full border-0 ${status === "loaded" ? "block" : "invisible"}`}
+            className={`w-full h-full border-0 ${status === "loaded" ? "block" : "invisible"}`}
             title={`Pratinjau ${name}`}
             allow="autoplay; encrypted-media"
             sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
