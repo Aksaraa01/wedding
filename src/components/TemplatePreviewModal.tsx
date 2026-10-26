@@ -51,15 +51,6 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose }: Props) 
 
   const handleLoad = useCallback(() => {
     if (safetyRef.current) clearTimeout(safetyRef.current)
-    try {
-      const doc = iframeRef.current?.contentDocument
-      const htmlEl = doc?.documentElement as HTMLElement | null
-      const bodyEl = doc?.body as HTMLElement | null
-      if (htmlEl) { htmlEl.style.overflow = "auto"; htmlEl.style.height = "100%" }
-      if (bodyEl) { bodyEl.style.overflow = "auto"; bodyEl.style.height = "100%"; (bodyEl.style as any).webkitOverflowScrolling = "touch" }
-    } catch {
-      // cross-origin or not ready — ignore
-    }
     setStatus("loaded")
   }, [])
   const handleError = useCallback(() => {
