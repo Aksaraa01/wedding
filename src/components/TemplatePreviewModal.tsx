@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect, useLayoutEffect, useCallback } from "react"
 
 type Props = {
   name: string
@@ -41,8 +41,25 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose }: Props) 
     }
   }, [])
 
+  // The modal is position:absolute (not fixed) because Android Chrome refuses
+  // to touch-scroll an iframe whose ancestor is position:fixed. Scroll the page
+  // to the top synchronously before paint so the absolute backdrop covers the
+  // viewport.
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   const handleLoad = useCallback(() => {
     if (safetyRef.current) clearTimeout(safetyRef.current)
+    try {
+      const doc = iframeRef.current?.contentDocument
+      const htmlEl = doc?.documentElement as HTMLElement | null
+      const bodyEl = doc?.body as HTMLElement | null
+      if (htmlEl) { htmlEl.style.overflow = "auto"; htmlEl.style.height = "100%" }
+      if (bodyEl) { bodyEl.style.overflow = "auto"; bodyEl.style.height = "100%"; (bodyEl.style as any).webkitOverflowScrolling = "touch" }
+    } catch {
+      // cross-origin or not ready — ignore
+    }
     setStatus("loaded")
   }, [])
   const handleError = useCallback(() => {
@@ -56,7 +73,7 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose }: Props) 
   }, [fullUrl, onClose])
 
   return (
-    <div className="fixed inset-0 z-[200] bg-black/80" onClick={onClose}>
+    <div className="absolute top-0 left-0 w-full z-[200] bg-black/80" style={{ height: "100dvh" }} onClick={onClose}>
       <div className="absolute inset-0 sm:inset-4 lg:inset-8 flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between bg-white px-6 py-4 shrink-0 sm:rounded-t-lg">
           <h2 className="font-headline-md text-headline-md text-primary truncate pr-4">{name}</h2>
@@ -65,7 +82,7 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose }: Props) 
           </button>
         </div>
 
-        <div className="flex-1 relative bg-white overflow-y-auto overflow-x-hidden rounded-b-lg shadow-2xl" style={{ WebkitOverflowScrolling: "touch" }}>
+        <div className="flex-1 relative min-h-0 bg-white overflow-hidden rounded-b-lg shadow-2xl">
           {status === "loading" && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 bg-white">
               <span className="material-symbols-outlined text-4xl text-secondary animate-pulse">hourglass_top</span>
@@ -92,11 +109,12 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose }: Props) 
           <iframe
             ref={iframeRef}
             src={src}
-            className={`w-full border-0 ${status === "loaded" ? "block h-full" : "invisible absolute"}`}
+            className={`absolute inset-0 w-full h-full border-0 ${status === "loaded" ? "block" : "invisible"}`}
             title={`Pratinjau ${name}`}
             allow="autoplay; encrypted-media"
             sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
             scrolling="yes"
+            style={{ touchAction: "pan-y" }}
             onLoad={handleLoad}
             onError={handleError}
           />
