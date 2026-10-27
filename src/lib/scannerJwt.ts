@@ -1,11 +1,14 @@
 import { createHash } from "crypto"
 
-const JWT_EXPIRY_SECONDS = 6 * 60 * 60
+// Scanner kiosks keep a short-lived access token and a long-lived refresh
+// token, so an event day (often 10h+) never hits a PIN wall mid-reception.
+export const SCANNER_ACCESS_TTL_SECONDS = 6 * 60 * 60
+export const SCANNER_REFRESH_TTL_SECONDS = 30 * 24 * 60 * 60
 const ALGORITHM = "HS256"
 
-function base64url(bytes: Uint8Array | string): string {
-  const str = typeof bytes === "string" ? bytes : Buffer.from(bytes).toString("base64")
-  return str.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "")
+function base64url(input: Uint8Array | string): string {
+  const buf = typeof input === "string" ? Buffer.from(input, "utf8") : Buffer.from(input)
+  return buf.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "")
 }
 
 function base64urlDecode(str: string): Uint8Array {
@@ -19,16 +22,15 @@ function getSecret(): string {
   return createHash("sha256").update(secret).digest("hex")
 }
 
-export async function signScannerJwt(weddingProfileId: string): Promise<string> {
-  const header = { alg: ALGORITHM, typ: "JWT" }
-  const now = Math.floor(Date.now() / 1000)
-  const payload = {
-    sub: weddingProfileId,
-    scope: "scanner",
-    iat: now,
-    exp: now + JWT_EXPIRY_SECONDS,
-  }
-  const headerB64 = base64url(JSON.stringify(header))
+// Short fingerprint of the profile PIN. Tokens carry it so rotating the PIN
+// revokes every kiosk token issued under the old one.
+export function pinFingerprint(pin: string | null | undefined): string {
+  if (!pin) return ""
+  return createHash("sha256").update(pin).digest("hex").slice(0, 16)
+}
+
+async function signPayload(payload: Record<string, unknown>): Promise<string> {
+  const headerB64 = base64url(JSON.stringify({ alg: ALGORITHM, typ: "JWT" }))
   const payloadB64 = base64url(JSON.stringify(payload))
   const data = `${headerB64}.${payloadB64}`
   const key = await crypto.subtle.importKey(
@@ -42,7 +44,50 @@ export async function signScannerJwt(weddingProfileId: string): Promise<string> 
   return `${data}.${base64url(new Uint8Array(sig))}`
 }
 
-export async function verifyScannerJwt(token: string): Promise<{ weddingProfileId: string } | null> {
+export async function signScannerJwt(
+  weddingProfileId: string,
+  pin?: string | null,
+): Promise<string> {
+  const now = Math.floor(Date.now() / 1000)
+  return signPayload({
+    sub: weddingProfileId,
+    scope: "scanner",
+    iat: now,
+    exp: now + SCANNER_ACCESS_TTL_SECONDS,
+    pin_hash: pinFingerprint(pin),
+  })
+}
+
+export async function signScannerRefreshToken(
+  weddingProfileId: string,
+  pin?: string | null,
+): Promise<string> {
+  const now = Math.floor(Date.now() / 1000)
+  return signPayload({
+    sub: weddingProfileId,
+    scope: "scanner_refresh",
+    iat: now,
+    exp: now + SCANNER_REFRESH_TTL_SECONDS,
+    pin_hash: pinFingerprint(pin),
+  })
+}
+
+type ScannerClaims = {
+  weddingProfileId: string
+  pinHash: string
+  scope: string
+  exp: number
+}
+
+// Tokens issued before the base64url fix encoded header/payload as raw JSON.
+// They are still HMAC-signed over the same bytes, so accept both shapes until
+// they expire instead of resurrecting a 401 mid-event.
+function decodeSegment(segment: string): unknown {
+  if (segment.trim().startsWith("{")) return JSON.parse(segment)
+  return JSON.parse(Buffer.from(base64urlDecode(segment)).toString())
+}
+
+async function verifyToken(token: string, scope: string): Promise<ScannerClaims | null> {
   try {
     const parts = token.split(".")
     if (parts.length !== 3) return null
@@ -57,15 +102,28 @@ export async function verifyScannerJwt(token: string): Promise<{ weddingProfileI
     )
     const valid = await crypto.subtle.verify("HMAC", key, base64urlDecode(sigB64), Buffer.from(data))
     if (!valid) return null
-    const payload = JSON.parse(Buffer.from(base64urlDecode(payloadB64)).toString())
+    const payload = decodeSegment(payloadB64) as Record<string, unknown>
     const now = Math.floor(Date.now() / 1000)
-    if (payload.exp < now) return null
-    if (payload.scope !== "scanner") return null
-    if (!payload.sub) return null
-    return { weddingProfileId: payload.sub }
+    if (typeof payload.exp !== "number" || payload.exp < now) return null
+    if (payload.scope !== scope) return null
+    if (!payload.sub || typeof payload.sub !== "string") return null
+    return {
+      weddingProfileId: payload.sub,
+      pinHash: typeof payload.pin_hash === "string" ? payload.pin_hash : "",
+      scope,
+      exp: payload.exp,
+    }
   } catch {
     return null
   }
+}
+
+export function verifyScannerJwt(token: string): Promise<ScannerClaims | null> {
+  return verifyToken(token, "scanner")
+}
+
+export function verifyScannerRefreshToken(token: string): Promise<ScannerClaims | null> {
+  return verifyToken(token, "scanner_refresh")
 }
 
 export function extractScannerJwt(req: Request): string | null {

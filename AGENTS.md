@@ -126,6 +126,27 @@ deploy flow, plus the do/don'ts and the failure catalogue from past sessions.
 2. Export HTTP method functions
 3. Use `supabaseAdmin` for DB access
 
+### Scanner kiosk (PIN + JWT)
+`src/lib/scannerJwt.ts` issues two HMAC-SHA256 tokens to the `/scanner/[slug]`
+kiosk after the PIN check:
+- **access token** — 6 h, `scope: "scanner"`, sent as `Authorization: Bearer`.
+- **refresh token** — 30 d, `scope: "scanner_refresh"`, kept in `localStorage`;
+  `POST /api/scanner/{slug}/refresh` trades either one for a new pair.
+
+Signing key = `sha256(SCANNER_JWT_SECRET || SUPABASE_SERVICE_ROLE_KEY)`. The
+payload carries `pin_hash` (`sha256(PIN)` prefix), so rotating
+`wedding_profiles.scanner_pin` revokes every kiosk token — the only case that is
+allowed to push the operator back to the PIN screen. The page refreshes silently
+when <2 h remain and on `visibilitychange`, because a phone asleep for hours
+misses any interval timer.
+
+Failure signature: `/api/check-in/search` and `/api/guest-photos?selfies=1`
+answer **401** while QR check-in keeps working (`POST /api/check-in` falls back
+to the body's `wedding_profile_id`). Search therefore *degrades* — an
+unverifiable token is ignored and the `wedding_profile_id` param is used — so a
+stale token can never block the concierge mid-event. Verify any change here with
+the round-trip script: `node --experimental-strip-types scripts/scanner-jwt-check.mjs`.
+
 ### Add a database schema change
 
 1. Make changes in local Supabase Studio (`http://127.0.0.1:54323`) or via SQL

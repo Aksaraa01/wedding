@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { signScannerJwt } from "@/lib/scannerJwt"
+import {
+  signScannerJwt,
+  signScannerRefreshToken,
+  SCANNER_ACCESS_TTL_SECONDS,
+  SCANNER_REFRESH_TTL_SECONDS,
+} from "@/lib/scannerJwt"
 
 export async function POST(
   req: NextRequest,
@@ -35,9 +40,17 @@ export async function POST(
       return NextResponse.json({ error: "PIN salah" }, { status: 403 })
     }
 
-    const token = await signScannerJwt(profile.id)
+    const token = await signScannerJwt(profile.id, profile.scanner_pin)
+    const refreshToken = await signScannerRefreshToken(profile.id, profile.scanner_pin)
 
-    return NextResponse.json({ valid: true, wedding_profile_id: profile.id, token })
+    return NextResponse.json({
+      valid: true,
+      wedding_profile_id: profile.id,
+      token,
+      refresh_token: refreshToken,
+      expires_in: SCANNER_ACCESS_TTL_SECONDS,
+      refresh_expires_in: SCANNER_REFRESH_TTL_SECONDS,
+    })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }

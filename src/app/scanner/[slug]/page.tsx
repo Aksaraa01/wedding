@@ -82,6 +82,9 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
   const [manualQuery, setManualQuery] = useState("")
   const [manualResults, setManualResults] = useState<GuestRecord[]>([])
   const [manualSearching, setManualSearching] = useState(false)
+  const [manualError, setManualError] = useState("")
+  const manualReqRef = useRef(0)
+  const tokenExpRef = useRef(0)
   const [offline, setOffline] = useState(false)
 
   const [showAddGuest, setShowAddGuest] = useState(false)
@@ -390,6 +393,56 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
   // IndexedDB and flush on the visibility refetch when the phone wakes).
   useVisiblePoll(trySync, 30000, pendingSync > 0)
 
+  // Decodes `exp` from either token shape (base64url now, raw JSON for tokens
+  // issued before the base64url fix). 0 = unknown.
+  const tokenExpiry = (token: string): number => {
+    try {
+      const seg = token.split(".")[1] || ""
+      const json = seg.trim().startsWith("{") ? seg : atob(seg.replace(/-/g, "+").replace(/_/g, "/"))
+      const exp = JSON.parse(json)?.exp
+      return typeof exp === "number" ? exp * 1000 : 0
+    } catch {
+      return 0
+    }
+  }
+
+  // Swaps the access token (or the stored refresh token) for a fresh pair. A
+  // 401 here means the PIN was rotated — the only case that re-asks the PIN.
+  const refreshScannerToken = useCallback(async (): Promise<string | null> => {
+    const stored = sessionStorage.getItem(`scanner_jwt_${slug}`)
+    const storedRefresh = localStorage.getItem(`scanner_refresh_${slug}`)
+    if (!stored && !storedRefresh) return null
+    try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" }
+      if (stored) headers["Authorization"] = `Bearer ${stored}`
+      const res = await fetch(`/api/scanner/${slug}/refresh`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ refresh_token: storedRefresh || undefined }),
+      })
+      if (res.status === 401) {
+        sessionStorage.removeItem(`scanner_jwt_${slug}`)
+        sessionStorage.removeItem(`scanner_pin_${slug}`)
+        localStorage.removeItem(`scanner_refresh_${slug}`)
+        setScannerToken(null)
+        setPinVerified(false)
+        setPinError("PIN scanner diperbarui. Masukkan PIN terbaru dari dashboard.")
+        return null
+      }
+      if (!res.ok) return null
+      const data = await res.json()
+      if (!data.token) return null
+      setScannerToken(data.token)
+      sessionStorage.setItem(`scanner_jwt_${slug}`, data.token)
+      if (data.refresh_token) localStorage.setItem(`scanner_refresh_${slug}`, data.refresh_token)
+      tokenExpRef.current = Date.now() + (data.expires_in || 21600) * 1000
+      return data.token as string
+    } catch {
+      // Offline — keep the session and let the search fall back to the profile id.
+      return null
+    }
+  }, [slug])
+
   const handleVerifyPin = async () => {
     setPinError("")
     const res = await fetch(`/api/scanner/${slug}/verify-pin`, {
@@ -402,10 +455,12 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
       if (data.token) {
         setScannerToken(data.token)
         sessionStorage.setItem(`scanner_jwt_${slug}`, data.token)
+        tokenExpRef.current = Date.now() + (data.expires_in || 21600) * 1000
       }
+      if (data.refresh_token) localStorage.setItem(`scanner_refresh_${slug}`, data.refresh_token)
       sessionStorage.setItem(`scanner_pin_${slug}`, "true")
       setPinVerified(true)
-      setShowNameInput(true)
+      setShowNameInput(!sessionStorage.getItem(`scanner_operator_${slug}`))
     } else {
       setPinError(data.error || "PIN salah")
     }
@@ -416,6 +471,30 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
     sessionStorage.setItem(`scanner_operator_${slug}`, operatorName.trim())
     setShowNameInput(false)
   }
+
+  // Silent token upkeep: a kiosk left open all day (or a phone asleep for hours)
+  // must never land on an expired token mid-reception.
+  useEffect(() => {
+    if (!pinVerified || !scannerToken) return
+    const dueSoon = () => {
+      if (!tokenExpRef.current) tokenExpRef.current = tokenExpiry(scannerToken)
+      const exp = tokenExpRef.current
+      return !exp || exp - Date.now() < 2 * 60 * 60 * 1000
+    }
+    const maybeRefresh = () => {
+      if (dueSoon()) refreshScannerToken()
+    }
+    maybeRefresh()
+    const onVisible = () => {
+      if (document.visibilityState === "visible") maybeRefresh()
+    }
+    document.addEventListener("visibilitychange", onVisible)
+    const timer = setInterval(maybeRefresh, 30 * 60 * 1000)
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible)
+      clearInterval(timer)
+    }
+  }, [pinVerified, scannerToken, refreshScannerToken])
 
   const handleClaimSouvenir = async (guestId: string) => {
     await claimSouvenirLocal(guestId)
@@ -439,21 +518,36 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
   const handleManualSearch = async (q: string) => {
     setManualQuery(q)
+    setManualError("")
     if (!q.trim() || !eventInfo) {
       setManualResults([])
       return
     }
+    const reqId = ++manualReqRef.current
     setManualSearching(true)
+    const url = `/api/check-in/search?q=${encodeURIComponent(q)}&wedding_profile_id=${eventInfo.wedding_profile_id}`
     try {
       const headers: HeadersInit = {}
       if (scannerToken) headers["Authorization"] = `Bearer ${scannerToken}`
-      const res = await fetch(`/api/check-in/search?q=${encodeURIComponent(q)}&wedding_profile_id=${eventInfo.wedding_profile_id}`, { headers })
+      let res = await fetch(url, { headers })
+      // Expired/legacy token: the route can resolve the profile from the query
+      // param, so retry bare instead of showing an empty panel mid-event.
+      if (res.status === 401) res = await fetch(url)
+      if (reqId !== manualReqRef.current) return
       if (res.ok) {
         const data = await res.json()
         setManualResults(data.guests || [])
+      } else {
+        setManualResults([])
+        setManualError("Gagal mencari tamu. Coba lagi.")
+      }
+    } catch {
+      if (reqId === manualReqRef.current) {
+        setManualResults([])
+        setManualError("Tidak ada koneksi. Coba lagi.")
       }
     } finally {
-      setManualSearching(false)
+      if (reqId === manualReqRef.current) setManualSearching(false)
     }
   }
 
@@ -797,6 +891,12 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
             <div className="py-2 text-center">
               <span className="w-5 h-5 border-2 border-[#B34E3F] border-t-transparent rounded-full animate-spin inline-block" />
             </div>
+          )}
+          {!manualSearching && manualError && (
+            <p className="py-2 text-center text-[11px] text-[#B34E3F]">{manualError}</p>
+          )}
+          {!manualSearching && !manualError && manualQuery.trim() !== "" && manualResults.length === 0 && (
+            <p className="py-2 text-center text-[11px] text-[#2C2A29]/50">Tamu tidak ditemukan</p>
           )}
           {manualResults.length > 0 && (
             <div className="divide-y divide-[#E2D9CF]/60 border border-[#E2D9CF] rounded-xl bg-white overflow-hidden">
