@@ -40,8 +40,9 @@ html.has-imagine-locked,body:has(.imagine-root.is-pre-open){overflow:hidden !imp
 
 /* --- cover photo + details --- */
 .imagine-root .prime-title-lines h1.prime-title{margin:0}
-.imagine-root .cover-preview{border-radius:16px;overflow:hidden}
+.imagine-root .cover-preview{border-radius:16px;overflow:hidden;position:relative}
 .imagine-root .cover-preview img{display:block;height:100%;object-fit:cover;width:100%}
+.imagine-root .cover-img-overlay{background:linear-gradient(0deg,hsla(0,0%,100%,.4),hsla(0,0%,100%,.4));bottom:0;content:"";height:100%;left:0;position:absolute;right:0;top:0;width:100%}
 .imagine-root .direction-arrow{display:flex;flex-direction:column;align-items:center;gap:2px}
 .imagine-root .arrow-chevron{animation:imagine-arrow-drop 1.6s ease-in-out infinite;color:var(--text-primary);opacity:.75}
 .imagine-root .arrow-chevron:nth-of-type(2){animation-delay:.2s}

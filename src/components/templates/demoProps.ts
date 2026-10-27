@@ -276,7 +276,7 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
     display_name: "#AlbarnFaye2026",
     groom_full_name: "David Albarn",
     bride_full_name: "Faye Reed",
-    estimated_wedding_date: "2026-10-16",
+    estimated_wedding_date: "2027-02-14",
     guest_name: "Tamu Undangan",
     preview_mode: true,
     wedding_profile_id: "demo-wedding-profile-id",
@@ -298,7 +298,7 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
     sessions: [
       {
         name: "Holy Matrimony",
-        date: "2026-10-16",
+        date: "2027-02-14",
         time: "10.00 - 12.00 WIB",
         venue: "Gereja HKBP Sukadame",
         address: "Jl. Sisingamangaraja No. 333 Pematangsiantar, Sumatera Utara",
@@ -306,7 +306,7 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
       },
       {
         name: "Reception",
-        date: "2026-10-16",
+        date: "2027-02-14",
         time: "13.00 WIB - Selesai",
         venue: "Sopo Godang HKBP",
         address: "Jl. Gereja No. 35 Pematangsiantar, Sumatera Utara",

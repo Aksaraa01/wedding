@@ -407,6 +407,7 @@ export default function Imagine(props: TemplateProps) {
                     <div className="cover-preview-wrap" data-aos="zoom-in" data-aos-duration="3000" data-aos-delay="1400">
                       <div className="cover-preview cover-show">
                         <img src={cover} alt="" />
+                        <div className="cover-img-overlay" />
                       </div>
                     </div>
                   )}
