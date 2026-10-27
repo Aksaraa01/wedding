@@ -444,6 +444,50 @@ function InvArea({ value, onChange, rows, placeholder }: { value: string; onChan
   return <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={rows || 3} placeholder={placeholder} className={`${invInputCls} resize-y`} />
 }
 
+interface InvAutoTextareaProps {
+  value: string
+  onChange: (v: string) => void
+  placeholder?: string
+  minRows?: number
+}
+
+// Free-text field that grows with its content: long copy flows onto the next
+// row instead of scrolling sideways inside a one-line input.
+function InvAutoTextarea({ value, onChange, placeholder, minRows = 1 }: InvAutoTextareaProps) {
+  const ref = useRef<HTMLTextAreaElement>(null)
+
+  const resize = useCallback(() => {
+    const el = ref.current
+    if (!el) return
+    el.style.height = "auto"
+    // scrollHeight omits the border, so add it back to avoid clipping the last line.
+    el.style.height = `${el.scrollHeight + 2}px`
+  }, [])
+
+  useEffect(() => { resize() }, [value, resize])
+
+  // A closed <details> renders no body, so scrollHeight is 0 until the
+  // accordion is opened — re-measure on the native toggle event.
+  useEffect(() => {
+    const details = ref.current?.closest("details")
+    if (!details) return
+    const onToggle = () => resize()
+    details.addEventListener("toggle", onToggle)
+    return () => details.removeEventListener("toggle", onToggle)
+  }, [resize])
+
+  return (
+    <textarea
+      ref={ref}
+      rows={minRows}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden"
+    />
+  )
+}
+
 function InvCheck({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <button type="button" onClick={() => onChange(!checked)} className="flex items-center gap-2 py-1">
@@ -599,6 +643,11 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [invTplWorking, setInvTplWorking] = useState<string | null>(null)
   const [invTplBlocked, setInvTplBlocked] = useState<any | null>(null)
   const [invTrackOptions, setInvTrackOptions] = useState<any[]>([])
+  const [invMusicUploading, setInvMusicUploading] = useState(false)
+  const [invMusicUploadError, setInvMusicUploadError] = useState("")
+  const [invMusicConfirmOpen, setInvMusicConfirmOpen] = useState(false)
+  const [invPendingMusicFile, setInvPendingMusicFile] = useState<File | null>(null)
+  const invMusicFileRef = useRef<HTMLInputElement>(null)
   const [invUploading, setInvUploading] = useState<string | null>(null)
   const [invGiftAddrId, setInvGiftAddrId] = useState<string | null>(null)
   const [invTrackSearch, setInvTrackSearch] = useState("")
@@ -1381,6 +1430,66 @@ export default function AntrianDetail({ id }: { id: string }) {
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => setInvTrackOptions(d?.tracks || []))
       .catch(() => {})
+  }
+
+  // Music upload mirrors the couple editor: the couple keeps at most one
+  // private upload, so a second one replaces (and deletes) the previous.
+  const invProfileId = invitationData?.profile?.id
+  const invMyCustomTrack = invTrackOptions.find(
+    (t: any) => t.is_custom === true && t.uploaded_by === invProfileId && t.is_public !== true
+  ) || null
+  const invSortedTracks = useMemo(() => {
+    const sel = invForm?.selected_track_id
+    return [...invTrackOptions].sort((a: any, b: any) => (a.id === sel ? 0 : 1) - (b.id === sel ? 0 : 1))
+  }, [invTrackOptions, invForm?.selected_track_id])
+
+  const invUploadMusic = async (file: File) => {
+    if (!invProfileId || invMusicUploading) return
+    setInvMusicUploading(true)
+    setInvMusicUploadError("")
+    try {
+      const fd = new FormData()
+      fd.append("file", file)
+      fd.append("wedding_profile_id", invProfileId)
+      const res = await fetch("/api/tracks", { method: "POST", body: fd })
+      const payload = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setInvMusicUploadError(payload.error || "Gagal mengunggah lagu")
+        return
+      }
+      const track = payload.track
+      setInvTrackOptions((prev: any[]) => [
+        track,
+        ...prev.filter((t: any) => !(t.is_custom === true && t.uploaded_by === invProfileId && t.is_public !== true)),
+      ])
+      setInvForm((prev: any) => (prev ? { ...prev, selected_track_id: track.id } : prev))
+    } catch {
+      setInvMusicUploadError("Gagal mengunggah lagu. Periksa koneksi.")
+    } finally {
+      setInvMusicUploading(false)
+    }
+  }
+
+  const invPickMusicFile = (file: File) => {
+    setInvMusicUploadError("")
+    if (invMyCustomTrack) {
+      setInvPendingMusicFile(file)
+      setInvMusicConfirmOpen(true)
+    } else {
+      invUploadMusic(file)
+    }
+  }
+
+  const invConfirmMusicReplace = () => {
+    setInvMusicConfirmOpen(false)
+    const file = invPendingMusicFile
+    setInvPendingMusicFile(null)
+    if (file) invUploadMusic(file)
+  }
+
+  const invCancelMusicReplace = () => {
+    setInvMusicConfirmOpen(false)
+    setInvPendingMusicFile(null)
   }
 
   const invUploadPhoto = async (key: string, file: File): Promise<string | null> => {
@@ -3866,32 +3975,21 @@ export default function AntrianDetail({ id }: { id: string }) {
                         {invExtraFields.map((field) => (
                           <div key={field.key} className="space-y-2">
                             <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">{field.label}</label>
-                            {field.multiline ? (
-                              <textarea
-                                className="input-editorial w-full font-body-md text-[14px] resize-none"
-                                rows={field.rows ?? 2}
-                                value={invForm.template_content?.[field.key] || ""}
-                                onChange={(e) => handleTemplateContentChange(field.key, e.target.value)}
-                                placeholder={field.placeholder}
-                              />
-                            ) : (
-                              <input
-                                className="input-editorial w-full font-body-md text-[14px]"
-                                type="text"
-                                value={invForm.template_content?.[field.key] || ""}
-                                onChange={(e) => handleTemplateContentChange(field.key, e.target.value)}
-                                placeholder={field.placeholder}
-                              />
-                            )}
+                            <InvAutoTextarea
+                              value={invForm.template_content?.[field.key] || ""}
+                              onChange={(v) => handleTemplateContentChange(field.key, v)}
+                              placeholder={field.placeholder}
+                              minRows={field.rows ?? 1}
+                            />
                           </div>
                         ))}
                       </div>
                     ) : (
                       <div className="space-y-2">
                         {invExtraFields.map((field) => (
-                          <div key={field.key} className="flex justify-between gap-4 border-b border-outline-variant/20 pb-2 text-sm">
+                          <div key={field.key} className="flex flex-wrap justify-between gap-x-4 gap-y-1 border-b border-outline-variant/20 pb-2 text-sm">
                             <span className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">{field.label}</span>
-                            <span className="font-body-md text-right">{invitationData?.profile?.template_content?.[field.key] || "—"}</span>
+                            <span className="font-body-md break-words whitespace-pre-line">{invitationData?.profile?.template_content?.[field.key] || "—"}</span>
                           </div>
                         ))}
                       </div>
@@ -4035,6 +4133,38 @@ export default function AntrianDetail({ id }: { id: string }) {
                   <InvAccordion secKey="music" icon="music_note" label="MUSIC" {...invAccProps("music")}>
                     {invEditing && invForm ? (
                       <div className="mt-6 space-y-4">
+                        {invMusicUploadError && (
+                          <p className="text-[11px] text-error font-medium">{invMusicUploadError}</p>
+                        )}
+                        <div>
+                          <button
+                            type="button"
+                            onClick={() => invMusicFileRef.current?.click()}
+                            disabled={invMusicUploading}
+                            className="w-full py-3.5 bg-secondary text-white rounded-full font-label-md text-[11px] tracking-widest uppercase hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                          >
+                            <span className={`material-symbols-outlined text-[18px] ${invMusicUploading ? "animate-spin" : ""}`}>
+                              {invMusicUploading ? "progress_activity" : "upload_file"}
+                            </span>
+                            {invMusicUploading ? "Mengunggah..." : "Unggah MP3"}
+                          </button>
+                          <input
+                            ref={invMusicFileRef}
+                            type="file"
+                            accept="audio/*,.mp3"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0]
+                              if (file) invPickMusicFile(file)
+                              e.target.value = ""
+                            }}
+                          />
+                          <p className="text-[10px] text-on-surface-variant mt-2">
+                            {invMyCustomTrack
+                              ? "Punya 1 lagu unggahan. Unggah lagi akan mengganti lagu tersebut."
+                              : "Maksimal 1 lagu unggahan. Lagu unggahan akan tampil di atas daftar."}
+                          </p>
+                        </div>
                         <div className="flex items-center gap-2 bg-surface-container-low px-3 py-2 border border-outline-variant">
                           <span className="material-symbols-outlined text-[20px] text-on-surface-variant">search</span>
                           <input
@@ -4045,10 +4175,11 @@ export default function AntrianDetail({ id }: { id: string }) {
                           />
                         </div>
                         <div className="space-y-1 max-h-64 overflow-y-auto custom-scrollbar -mx-4 px-4">
-                          {invTrackOptions
+                          {invSortedTracks
                             .filter((t) => t.title.toLowerCase().includes(invTrackSearch.toLowerCase()) || (t.artist && t.artist.toLowerCase().includes(invTrackSearch.toLowerCase())))
                             .map((track) => {
                               const isSelected = track.id === invForm.selected_track_id
+                              const isMine = track.is_custom === true && track.uploaded_by === invProfileId && track.is_public !== true
                               return (
                                 <div
                                   key={track.id}
@@ -4057,7 +4188,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                                     isSelected
                                       ? "bg-secondary-container/30 border border-secondary ring-1 ring-secondary"
                                       : "border border-transparent hover:bg-surface-container-low"
-                                  }`}
+                                  } ${isMine ? "border-l-2 border-l-secondary" : ""}`}
                                 >
                                   <div className="flex flex-col">
                                     <span className="font-label-md text-primary flex items-center gap-2">
@@ -4069,9 +4200,12 @@ export default function AntrianDetail({ id }: { id: string }) {
                                         </span>
                                       )}
                                     </span>
-                                    <span className="text-[10px] text-on-surface-variant">
-                                      {track.artist || "Instrumental"}
-                                    </span>
+                                    {(() => {
+                                      const subtitle = isMine ? "★ Lagu Saya" : (track.artist?.trim() || "")
+                                      return subtitle ? (
+                                        <span className="text-[10px] text-on-surface-variant">{subtitle}</span>
+                                      ) : null
+                                    })()}
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <span className={`material-symbols-outlined ${isSelected ? "text-secondary" : "text-on-surface-variant"}`}>
@@ -4081,7 +4215,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                                 </div>
                               )
                             })}
-                          {invTrackOptions.filter((t) => t.title.toLowerCase().includes(invTrackSearch.toLowerCase()) || (t.artist && t.artist.toLowerCase().includes(invTrackSearch.toLowerCase()))).length === 0 && (
+                          {invSortedTracks.filter((t) => t.title.toLowerCase().includes(invTrackSearch.toLowerCase()) || (t.artist && t.artist.toLowerCase().includes(invTrackSearch.toLowerCase()))).length === 0 && (
                             <p className="text-on-surface-variant font-body-md text-sm py-4 text-center">Tidak ada lagu ditemukan.</p>
                           )}
                         </div>
@@ -4215,6 +4349,34 @@ export default function AntrianDetail({ id }: { id: string }) {
                   Ya, Simpan
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {invMusicConfirmOpen && (
+        <div className="fixed inset-0 z-[305] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6" onClick={invCancelMusicReplace}>
+          <div className="bg-white w-full max-w-md rounded-2xl border border-outline-variant shadow-2xl p-8" onClick={(e) => e.stopPropagation()}>
+            <span className="material-symbols-outlined text-4xl text-secondary mb-4 block">music_note</span>
+            <h3 className="font-headline-md text-xl font-medium text-primary mb-3">Ganti Lagu?</h3>
+            <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
+              Upload hanya mendukung satu lagu. Lagu yang sudah diunggah sebelumnya akan dihapus dan digantikan dengan lagu yang baru.
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={invConfirmMusicReplace}
+                className="w-full py-3.5 bg-secondary text-on-secondary rounded-lg font-label-md text-xs uppercase tracking-widest font-semibold hover:opacity-90 transition-opacity"
+              >
+                Ganti &amp; Upload
+              </button>
+              <button
+                type="button"
+                onClick={invCancelMusicReplace}
+                className="w-full py-3 border border-outline-variant text-on-surface-variant rounded-lg font-label-md text-xs uppercase tracking-widest hover:bg-surface-container transition-colors"
+              >
+                Batal
+              </button>
             </div>
           </div>
         </div>
