@@ -1900,12 +1900,12 @@ function EditorInner({ id }: { id: string }) {
                   {isOpeningCustom && (
                     <div className="space-y-2">
                       <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Judul Custom</label>
-                      <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.opening_title || ""} onChange={e => updateField("opening_title", e.target.value)} placeholder="Perkenankanlah kami mengundang" />
+                      <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={data.opening_title || ""} onChange={v => updateField("opening_title", v)} placeholder="Perkenankanlah kami mengundang" />
                     </div>
                   )}
                   <div className="space-y-2">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Deskripsi</label>
-                    <textarea className="input-editorial w-full font-body-md text-[14px] h-24 resize-none disabled:opacity-60" value={data.opening_description || ""} onChange={e => updateField("opening_description", e.target.value)} placeholder="Merupakan suatu kehormatan dan kebahagiaan bagi kami…" disabled={!isOpeningCustom} />
+                    <AutoTextarea className="input-editorial w-full font-body-md text-[14px] resize-none disabled:opacity-60 overflow-hidden" value={data.opening_description || ""} onChange={v => updateField("opening_description", v)} placeholder="Merupakan suatu kehormatan dan kebahagiaan bagi kami…" disabled={!isOpeningCustom} minRows={3} />
                     {!template?.wp_manifest?.opening_description && (
                       <p className="text-[11px] text-on-surface-variant/70 mt-1 italic">Catatan: Template ini hanya menampilkan Judul. Deskripsi tidak akan tampil di undangan.</p>
                     )}
@@ -1956,11 +1956,11 @@ function EditorInner({ id }: { id: string }) {
                         </div>
                         )}
                         <div className="space-y-2">
-                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_name || ""} onChange={e => updateField("groom_name", e.target.value)} placeholder="Nama Mempelai Pertama" />
+                          <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={data.groom_name || ""} onChange={v => updateField("groom_name", v)} placeholder="Nama Mempelai Pertama" />
                           <p className="text-[11px] text-on-surface-variant italic">Nama Mempelai Pertama</p>
                         </div>
                         <div className="space-y-2">
-                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_full_name || ""} onChange={e => updateField("groom_full_name", e.target.value)} placeholder="Nama Lengkap Mempelai Pertama" />
+                          <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={data.groom_full_name || ""} onChange={v => updateField("groom_full_name", v)} placeholder="Nama Lengkap Mempelai Pertama" />
                           <p className="text-[11px] text-on-surface-variant italic">Nama Lengkap Mempelai Pertama</p>
                         </div>
                       </div>
@@ -1985,15 +1985,15 @@ function EditorInner({ id }: { id: string }) {
                         </>
                         )}
                         <div className="flex-1">
-                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.groom_name || ""} onChange={e => updateField("groom_name", e.target.value)} placeholder="Nama Mempelai Pertama" />
+                          <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={data.groom_name || ""} onChange={v => updateField("groom_name", v)} placeholder="Nama Mempelai Pertama" />
                           <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Mempelai Pertama</p>
-                          <input className="input-editorial w-full font-headline-md text-[18px] mt-3" type="text" value={data.groom_full_name || ""} onChange={e => updateField("groom_full_name", e.target.value)} placeholder="Nama Lengkap Mempelai Pertama" />
+                          <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] mt-3 resize-none overflow-hidden" value={data.groom_full_name || ""} onChange={v => updateField("groom_full_name", v)} placeholder="Nama Lengkap Mempelai Pertama" />
                           <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Lengkap Mempelai Pertama</p>
                         </div>
                       </div>
                     )}
                     <div className="mt-3">
-                      <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.groom_parents || ""} onChange={e => updateField("groom_parents", e.target.value)} placeholder="Nama Orang Tua Mempelai Pertama" />
+                      <AutoTextarea className="input-editorial w-full font-headline-md text-[16px] resize-none overflow-hidden" value={data.groom_parents || ""} onChange={v => updateField("groom_parents", v)} placeholder="Nama Orang Tua Mempelai Pertama" />
                       <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: Putra dari Bapak Hendra & Ibu Sari</p>
                     </div>
                     <div className="mt-3">
@@ -2042,11 +2042,11 @@ function EditorInner({ id }: { id: string }) {
                         </div>
                         )}
                         <div className="space-y-2">
-                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_name || ""} onChange={e => updateField("bride_name", e.target.value)} placeholder="Nama Mempelai Kedua" />
+                          <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={data.bride_name || ""} onChange={v => updateField("bride_name", v)} placeholder="Nama Mempelai Kedua" />
                           <p className="text-[11px] text-on-surface-variant italic">Nama Mempelai Kedua</p>
                         </div>
                         <div className="space-y-2">
-                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_full_name || ""} onChange={e => updateField("bride_full_name", e.target.value)} placeholder="Nama Lengkap Mempelai Kedua" />
+                          <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={data.bride_full_name || ""} onChange={v => updateField("bride_full_name", v)} placeholder="Nama Lengkap Mempelai Kedua" />
                           <p className="text-[11px] text-on-surface-variant italic">Nama Lengkap Mempelai Kedua</p>
                         </div>
                       </div>
@@ -2071,15 +2071,15 @@ function EditorInner({ id }: { id: string }) {
                         </>
                         )}
                         <div className="flex-1">
-                          <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.bride_name || ""} onChange={e => updateField("bride_name", e.target.value)} placeholder="Nama Mempelai Kedua" />
+                          <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={data.bride_name || ""} onChange={v => updateField("bride_name", v)} placeholder="Nama Mempelai Kedua" />
                           <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Mempelai Kedua</p>
-                          <input className="input-editorial w-full font-headline-md text-[18px] mt-3" type="text" value={data.bride_full_name || ""} onChange={e => updateField("bride_full_name", e.target.value)} placeholder="Nama Lengkap Mempelai Kedua" />
+                          <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] mt-3 resize-none overflow-hidden" value={data.bride_full_name || ""} onChange={v => updateField("bride_full_name", v)} placeholder="Nama Lengkap Mempelai Kedua" />
                           <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Lengkap Mempelai Kedua</p>
                         </div>
                       </div>
                     )}
                     <div className="mt-3">
-                      <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.bride_parents || ""} onChange={e => updateField("bride_parents", e.target.value)} placeholder="Nama Orang Tua Mempelai Kedua" />
+                      <AutoTextarea className="input-editorial w-full font-headline-md text-[16px] resize-none overflow-hidden" value={data.bride_parents || ""} onChange={v => updateField("bride_parents", v)} placeholder="Nama Orang Tua Mempelai Kedua" />
                       <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: Putri dari Bapak Wijaya & Ibu Dewi</p>
                     </div>
                     <div className="mt-3">
@@ -2098,12 +2098,12 @@ function EditorInner({ id }: { id: string }) {
                       <div className="flex items-end justify-between gap-2">
                         <div className="flex-1">
                           <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Nama Acara</label>
-                          <input
-                            className="input-editorial font-label-md text-[14px] font-bold w-full"
+                          <AutoTextarea
+                            className="input-editorial font-label-md text-[14px] font-bold w-full resize-none overflow-hidden"
                             style={session.name ? { color: "#8D4D39" } : undefined}
                             placeholder={i === 0 ? "Contoh: Akad Nikah / Pemberkatan" : "Contoh: Resepsi"}
                             value={session.name}
-                            onChange={e => updateSession(i, "name", e.target.value)}
+                            onChange={v => updateSession(i, "name", v)}
                           />
                         </div>
                         {sessions.length > 1 && (
@@ -2124,11 +2124,11 @@ function EditorInner({ id }: { id: string }) {
                       </div>
                       <div>
                         <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Nama Tempat</label>
-                        <input className="input-editorial w-full font-label-md text-[14px]" type="text" value={session.venue} onChange={e => updateSession(i, "venue", e.target.value)} placeholder="Nama venue atau lokasi" />
+                        <AutoTextarea className="input-editorial w-full font-label-md text-[14px] resize-none overflow-hidden" value={session.venue} onChange={v => updateSession(i, "venue", v)} placeholder="Nama venue atau lokasi" />
                       </div>
                       <div>
                         <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Alamat Lengkap</label>
-                        <textarea className="input-editorial w-full font-label-md text-[14px] min-h-[60px] resize-none" placeholder="Masukkan alamat lengkap..." value={session.address} onChange={e => updateSession(i, "address", e.target.value)} />
+                        <AutoTextarea className="input-editorial w-full font-label-md text-[14px] min-h-[60px] resize-none overflow-hidden" placeholder="Masukkan alamat lengkap..." value={session.address} onChange={v => updateSession(i, "address", v)} />
                       </div>
                       <div className="flex gap-2 items-end">
                         <div className="flex-1">
@@ -2256,19 +2256,17 @@ function EditorInner({ id }: { id: string }) {
                   </div>
                   <div className="space-y-2">
                     <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Isi Kutipan</label>
-                    <textarea
-                      className="input-editorial w-full font-body-md text-[14px] h-32 resize-none"
+                    <AutoTextarea
+                      className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden"
                       value={data.quote_text || ""}
-                      onChange={e => updateField("quote_text", e.target.value)}
-                    />
+                      onChange={v => updateField("quote_text", v)} minRows={4} />
                   </div>
                   <div className="space-y-2">
                     <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Sumber / Penulis</label>
-                    <input
-                      className="input-editorial w-full font-body-md text-[14px]"
-                      type="text"
+                    <AutoTextarea
+                      className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden"
                       value={data.quote_source || ""}
-                      onChange={e => updateField("quote_source", e.target.value)}
+                      onChange={v => updateField("quote_source", v)}
                     />
                   </div>
                 </div>
@@ -2327,7 +2325,7 @@ function EditorInner({ id }: { id: string }) {
                             title="Ubah kode warna"
                             aria-label={`Ubah kode warna ${c.name || i + 1}`}
                           />
-                          <input className="input-editorial flex-1 font-body-md text-[14px]" type="text" value={c.name || ""} onChange={e => { const colors = [...(data.dresscode?.colors || [])]; colors[i] = { ...colors[i], name: e.target.value }; updateField("dresscode", { ...(data.dresscode || {}), colors }) }} placeholder="Nama warna (mis. Ivory)" />
+                          <AutoTextarea className="input-editorial flex-1 font-body-md text-[14px] resize-none overflow-hidden" value={c.name || ""} onChange={v => { const colors = [...(data.dresscode?.colors || [])]; colors[i] = { ...colors[i], name: v }; updateField("dresscode", { ...(data.dresscode || {}), colors }) }} placeholder="Nama warna (mis. Ivory)" />
                           <button onClick={() => { const colors = (data.dresscode?.colors || []).filter((_: unknown, idx: number) => idx !== i); updateField("dresscode", { ...(data.dresscode || {}), colors }) }} className="text-red-500 hover:text-red-700">
                             <span className="material-symbols-outlined text-[18px]">delete</span>
                           </button>
@@ -2439,10 +2437,10 @@ function EditorInner({ id }: { id: string }) {
                         onChange={e => updateRundown(i, "time", e.target.value)}
                         placeholder="Contoh: 11.30 pagi"
                       />
-                      <textarea
-                        className="input-editorial w-full font-label-md text-[14px] min-h-[60px] resize-none"
+                      <AutoTextarea
+                        className="input-editorial w-full font-label-md text-[14px] min-h-[60px] resize-none overflow-hidden"
                         value={item.description || ""}
-                        onChange={e => updateRundown(i, "description", e.target.value)}
+                        onChange={v => updateRundown(i, "description", v)}
                         placeholder="Contoh: Tamu tiba ke venue"
                       />
                     </div>
@@ -2474,18 +2472,16 @@ function EditorInner({ id }: { id: string }) {
                           <span className="material-symbols-outlined text-[18px]">delete</span>
                         </button>
                       </div>
-                      <input
-                        className="input-editorial w-full font-label-md text-[14px]"
-                        type="text"
+                      <AutoTextarea
+                        className="input-editorial w-full font-label-md text-[14px] resize-none overflow-hidden"
                         value={contact.name || ""}
-                        onChange={e => updateContact(i, "name", e.target.value)}
+                        onChange={v => updateContact(i, "name", v)}
                         placeholder="Nama kontak"
                       />
-                      <input
-                        className="input-editorial w-full font-label-md text-[14px]"
-                        type="text"
+                      <AutoTextarea
+                        className="input-editorial w-full font-label-md text-[14px] resize-none overflow-hidden"
                         value={contact.description || ""}
-                        onChange={e => updateContact(i, "description", e.target.value)}
+                        onChange={v => updateContact(i, "description", v)}
                         placeholder="Hubungan, mis. Keluarga Mempelai Pria"
                       />
                       <input
@@ -2564,10 +2560,10 @@ function EditorInner({ id }: { id: string }) {
                           </>
                           )}
                           <div className="flex-1 space-y-3">
-                            <input className="input-editorial w-full font-headline-md text-[18px]" placeholder="Judul Cerita" type="text" value={story.title} onChange={e => updateStory(i, "title", e.target.value)} />
+                            <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" placeholder="Judul Cerita" value={story.title} onChange={v => updateStory(i, "title", v)} />
                           </div>
                         </div>
-                        <textarea className="input-editorial w-full font-body-md text-[14px] h-20 resize-none" placeholder="Ceritakan momen ini..." value={story.description} onChange={e => updateStory(i, "description", e.target.value)} />
+                        <AutoTextarea className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden" placeholder="Ceritakan momen ini..." value={story.description} onChange={v => updateStory(i, "description", v)} minRows={2} />
                       </div>
                     ))}
                     <button onClick={addStory} className="w-full py-3.5 bg-secondary text-white rounded-full font-label-md text-[11px] uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2">

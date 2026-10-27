@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef } from "react"
+import type { CSSProperties } from "react"
 
 interface AutoTextareaProps {
   value: string
@@ -9,12 +10,13 @@ interface AutoTextareaProps {
   placeholder?: string
   minRows?: number
   disabled?: boolean
+  style?: CSSProperties
 }
 
 // Free-text field that grows with its content: long copy flows onto the next
 // row instead of scrolling sideways inside a one-line input. Shared by the
 // couple editor and the ops queue editor card so both behave the same.
-export default function AutoTextarea({ value, onChange, className, placeholder, minRows = 1, disabled }: AutoTextareaProps) {
+export default function AutoTextarea({ value, onChange, className, placeholder, minRows = 1, disabled, style }: AutoTextareaProps) {
   const ref = useRef<HTMLTextAreaElement>(null)
 
   const resize = useCallback(() => {
@@ -45,6 +47,7 @@ export default function AutoTextarea({ value, onChange, className, placeholder, 
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       disabled={disabled}
+      style={style}
       className={className}
     />
   )

@@ -442,7 +442,12 @@ function InvText({ value, onChange, placeholder }: { value: string; onChange: (v
 }
 
 function InvArea({ value, onChange, rows, placeholder }: { value: string; onChange: (v: string) => void; rows?: number; placeholder?: string }) {
-  return <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={rows || 3} placeholder={placeholder} className={`${invInputCls} resize-y`} />
+  return <AutoTextarea className={`${invInputCls} resize-none overflow-hidden`} value={value} onChange={onChange} placeholder={placeholder} minRows={rows || 3} />
+}
+
+// Free-text field (names, addresses): long values wrap onto the next row.
+function InvFreeText({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
+  return <AutoTextarea className={`${invInputCls} resize-none overflow-hidden`} value={value} onChange={onChange} placeholder={placeholder} />
 }
 
 function InvCheck({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
@@ -533,7 +538,7 @@ function InvGiftAccounts({ items, onChange }: { items: any[]; onChange: (v: any[
             />
           </div>
           <InvField label="Nomor Rekening"><InvText value={a.account_number || ""} onChange={(v) => set(i, { account_number: v })} placeholder="1234567890" /></InvField>
-          <InvField label="Atas Nama"><InvText value={a.account_name || ""} onChange={(v) => set(i, { account_name: v })} placeholder="Nama pemilik" /></InvField>
+          <InvField label="Atas Nama"><InvFreeText value={a.account_name || ""} onChange={(v) => set(i, { account_name: v })} placeholder="Nama pemilik" /></InvField>
         </div>
       ))}
       <button type="button" onClick={() => onChange([...items, { provider_name: "", account_number: "", account_name: "", type: "bank", provider_logo_url: "" }])} className="w-full py-2.5 rounded-xl border border-dashed border-outline-variant font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant hover:border-secondary hover:text-secondary transition-colors">
@@ -3189,12 +3194,12 @@ export default function AntrianDetail({ id }: { id: string }) {
                         {invIsCustom && (
                           <div className="space-y-2">
                             <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Judul Custom</label>
-                            <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={invForm.opening_title || ""} onChange={(e) => setInvForm({ ...invForm, opening_title: e.target.value })} placeholder="Perkenankanlah kami mengundang" />
+                            <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={invForm.opening_title || ""} onChange={(v) => setInvForm({ ...invForm, opening_title: v })} placeholder="Perkenankanlah kami mengundang" />
                           </div>
                         )}
                         <div className="space-y-2">
                           <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Deskripsi</label>
-                          <textarea className="input-editorial w-full font-body-md text-[14px] h-24 resize-none disabled:opacity-60" value={invForm.opening_description || ""} onChange={(e) => setInvForm({ ...invForm, opening_description: e.target.value })} placeholder="Merupakan suatu kehormatan dan kebahagiaan bagi kami…" disabled={!invIsCustom} />
+                          <AutoTextarea className="input-editorial w-full font-body-md text-[14px] resize-none disabled:opacity-60 overflow-hidden" value={invForm.opening_description || ""} onChange={(v) => setInvForm({ ...invForm, opening_description: v })} placeholder="Merupakan suatu kehormatan dan kebahagiaan bagi kami…" disabled={!invIsCustom} minRows={3} />
                           {!invitationData.template?.wp_manifest?.opening_description && (
                             <p className="text-[11px] text-on-surface-variant/70 mt-1 italic">Catatan: Template ini hanya menampilkan Judul. Deskripsi tidak akan tampil di undangan.</p>
                           )}
@@ -3265,23 +3270,23 @@ export default function AntrianDetail({ id }: { id: string }) {
                                   <InvPhotoBox url={urls[0] || ""} uploading={invUploading === upKey(0)} onFile={(f) => putUrl(0, f)} />
                                   )}
                                   <div className="flex-1">
-                                    <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={isGroom ? invForm.groom_name || "" : invForm.bride_name || ""} onChange={(e) => setInvForm({ ...invForm, [isGroom ? "groom_name" : "bride_name"]: e.target.value })} placeholder={nameHint} />
+                                    <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={isGroom ? invForm.groom_name || "" : invForm.bride_name || ""} onChange={(v) => setInvForm({ ...invForm, [isGroom ? "groom_name" : "bride_name"]: v })} placeholder={nameHint} />
                                     <p className="text-[11px] text-on-surface-variant mt-1 italic">{nameHint}</p>
-                                    <input className="input-editorial w-full font-headline-md text-[18px] mt-3" type="text" value={isGroom ? invForm.groom_full_name || "" : invForm.bride_full_name || ""} onChange={(e) => setInvForm({ ...invForm, [isGroom ? "groom_full_name" : "bride_full_name"]: e.target.value })} placeholder={fullHint} />
+                                    <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] mt-3 resize-none overflow-hidden" value={isGroom ? invForm.groom_full_name || "" : invForm.bride_full_name || ""} onChange={(v) => setInvForm({ ...invForm, [isGroom ? "groom_full_name" : "bride_full_name"]: v })} placeholder={fullHint} />
                                     <p className="text-[11px] text-on-surface-variant mt-1 italic">{fullHint}</p>
                                   </div>
                                 </div>
                               )}
                               {slideshow && (
                                 <>
-                                  <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={isGroom ? invForm.groom_name || "" : invForm.bride_name || ""} onChange={(e) => setInvForm({ ...invForm, [isGroom ? "groom_name" : "bride_name"]: e.target.value })} placeholder={nameHint} />
+                                  <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={isGroom ? invForm.groom_name || "" : invForm.bride_name || ""} onChange={(v) => setInvForm({ ...invForm, [isGroom ? "groom_name" : "bride_name"]: v })} placeholder={nameHint} />
                                   <p className="text-[11px] text-on-surface-variant mt-1 italic">{nameHint}</p>
-                                  <input className="input-editorial w-full font-headline-md text-[18px] mt-3" type="text" value={isGroom ? invForm.groom_full_name || "" : invForm.bride_full_name || ""} onChange={(e) => setInvForm({ ...invForm, [isGroom ? "groom_full_name" : "bride_full_name"]: e.target.value })} placeholder={fullHint} />
+                                  <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] mt-3 resize-none overflow-hidden" value={isGroom ? invForm.groom_full_name || "" : invForm.bride_full_name || ""} onChange={(v) => setInvForm({ ...invForm, [isGroom ? "groom_full_name" : "bride_full_name"]: v })} placeholder={fullHint} />
                                   <p className="text-[11px] text-on-surface-variant mt-1 italic">{fullHint}</p>
                                 </>
                               )}
                               <div className="mt-3">
-                                <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={isGroom ? invForm.groom_parents || "" : invForm.bride_parents || ""} onChange={(e) => setInvForm({ ...invForm, [isGroom ? "groom_parents" : "bride_parents"]: e.target.value })} placeholder={isGroom ? "Nama Orang Tua Mempelai Pertama" : "Nama Orang Tua Mempelai Kedua"} />
+                                <AutoTextarea className="input-editorial w-full font-headline-md text-[16px] resize-none overflow-hidden" value={isGroom ? invForm.groom_parents || "" : invForm.bride_parents || ""} onChange={(v) => setInvForm({ ...invForm, [isGroom ? "groom_parents" : "bride_parents"]: v })} placeholder={isGroom ? "Nama Orang Tua Mempelai Pertama" : "Nama Orang Tua Mempelai Kedua"} />
                                 <p className="text-[11px] text-on-surface-variant mt-1 italic">{parHint}</p>
                               </div>
                               <div className="mt-3">
@@ -3398,12 +3403,12 @@ export default function AntrianDetail({ id }: { id: string }) {
                               <div className="flex items-end justify-between gap-2">
                                 <div className="flex-1">
                                   <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Nama Acara</label>
-                                  <input
-                                    className="input-editorial font-label-md text-[14px] font-bold w-full"
+                                  <AutoTextarea
+                                    className="input-editorial font-label-md text-[14px] font-bold w-full resize-none overflow-hidden"
                                     style={session.name ? { color: "#8D4D39" } : undefined}
                                     placeholder={i === 0 ? "Contoh: Akad Nikah / Pemberkatan" : "Contoh: Resepsi"}
                                     value={session.name || ""}
-                                    onChange={(e) => setS({ name: e.target.value })}
+                                    onChange={(v) => setS({ name: v })}
                                   />
                                 </div>
                                 {(invForm.sessions || []).length > 1 && (
@@ -3424,11 +3429,11 @@ export default function AntrianDetail({ id }: { id: string }) {
                               </div>
                               <div>
                                 <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Nama Tempat</label>
-                                <input className="input-editorial w-full font-label-md text-[14px]" type="text" value={session.venue || ""} onChange={(e) => setS({ venue: e.target.value })} placeholder="Nama venue atau lokasi" />
+                                <AutoTextarea className="input-editorial w-full font-label-md text-[14px] resize-none overflow-hidden" value={session.venue || ""} onChange={(v) => setS({ venue: v })} placeholder="Nama venue atau lokasi" />
                               </div>
                               <div>
                                 <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Alamat Lengkap</label>
-                                <textarea className="input-editorial w-full font-label-md text-[14px] min-h-[60px] resize-none" placeholder="Masukkan alamat lengkap..." value={session.address || ""} onChange={(e) => setS({ address: e.target.value })} />
+                                <AutoTextarea className="input-editorial w-full font-label-md text-[14px] min-h-[60px] resize-none overflow-hidden" placeholder="Masukkan alamat lengkap..." value={session.address || ""} onChange={(v) => setS({ address: v })} />
                               </div>
                               <div className="flex gap-2 items-end">
                                 <div className="flex-1">
@@ -3609,19 +3614,17 @@ export default function AntrianDetail({ id }: { id: string }) {
                         </div>
                         <div className="space-y-2">
                           <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Isi Kutipan</label>
-                          <textarea
-                            className="input-editorial w-full font-body-md text-[14px] h-32 resize-none"
+                          <AutoTextarea
+                            className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden"
                             value={invForm.quote_text || ""}
-                            onChange={(e) => setInvForm({ ...invForm, quote_text: e.target.value })}
-                          />
+                            onChange={(v) => setInvForm({ ...invForm, quote_text: v })} minRows={4} />
                         </div>
                         <div className="space-y-2">
                           <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">Sumber / Penulis</label>
-                          <input
-                            className="input-editorial w-full font-body-md text-[14px]"
-                            type="text"
+                          <AutoTextarea
+                            className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden"
                             value={invForm.quote_source || ""}
-                            onChange={(e) => setInvForm({ ...invForm, quote_source: e.target.value })}
+                            onChange={(v) => setInvForm({ ...invForm, quote_source: v })}
                           />
                         </div>
                       </div>
@@ -3701,7 +3704,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                                   title="Ubah kode warna"
                                   aria-label={`Ubah kode warna ${c.name || i + 1}`}
                                 />
-                                <input className="input-editorial flex-1 font-body-md text-[14px]" type="text" value={c.name || ""} onChange={(e) => handleDresscodeColorNameChange(i, e.target.value)} placeholder="Nama warna (mis. Ivory)" />
+                                <AutoTextarea className="input-editorial flex-1 font-body-md text-[14px] resize-none overflow-hidden" value={c.name || ""} onChange={(v) => handleDresscodeColorNameChange(i, v)} placeholder="Nama warna (mis. Ivory)" />
                                 <button onClick={() => handleDresscodeColorDelete(i)} className="text-red-500 hover:text-red-700">
                                   <span className="material-symbols-outlined text-[18px]">delete</span>
                                 </button>
@@ -3812,10 +3815,10 @@ export default function AntrianDetail({ id }: { id: string }) {
                               onChange={(e) => setInvForm({ ...invForm, rundown: (invForm.rundown || []).map((row: any, index: number) => index === i ? { ...row, time: e.target.value } : row) })}
                               placeholder="Contoh: 11.30 pagi"
                             />
-                            <textarea
-                              className="input-editorial w-full font-label-md text-[14px] min-h-[60px] resize-none"
+                            <AutoTextarea
+                              className="input-editorial w-full font-label-md text-[14px] min-h-[60px] resize-none overflow-hidden"
                               value={item.description || ""}
-                              onChange={(e) => setInvForm({ ...invForm, rundown: (invForm.rundown || []).map((row: any, index: number) => index === i ? { ...row, description: e.target.value } : row) })}
+                              onChange={(v) => setInvForm({ ...invForm, rundown: (invForm.rundown || []).map((row: any, index: number) => index === i ? { ...row, description: v } : row) })}
                               placeholder="Contoh: Tamu tiba ke venue"
                             />
                           </div>
@@ -3872,18 +3875,16 @@ export default function AntrianDetail({ id }: { id: string }) {
                                 <span className="material-symbols-outlined text-[18px]">delete</span>
                               </button>
                             </div>
-                            <input
-                              className="input-editorial w-full font-label-md text-[14px]"
-                              type="text"
+                            <AutoTextarea
+                              className="input-editorial w-full font-label-md text-[14px] resize-none overflow-hidden"
                               value={contact.name || ""}
-                              onChange={(e) => setInvForm({ ...invForm, contacts: (invForm.contacts || []).map((row: any, index: number) => index === i ? { ...row, name: e.target.value } : row) })}
+                              onChange={(v) => setInvForm({ ...invForm, contacts: (invForm.contacts || []).map((row: any, index: number) => index === i ? { ...row, name: v } : row) })}
                               placeholder="Nama kontak"
                             />
-                            <input
-                              className="input-editorial w-full font-label-md text-[14px]"
-                              type="text"
+                            <AutoTextarea
+                              className="input-editorial w-full font-label-md text-[14px] resize-none overflow-hidden"
                               value={contact.description || ""}
-                              onChange={(e) => setInvForm({ ...invForm, contacts: (invForm.contacts || []).map((row: any, index: number) => index === i ? { ...row, description: e.target.value } : row) })}
+                              onChange={(v) => setInvForm({ ...invForm, contacts: (invForm.contacts || []).map((row: any, index: number) => index === i ? { ...row, description: v } : row) })}
                               placeholder="Hubungan, mis. Keluarga Mempelai Pria"
                             />
                             <input
@@ -3992,10 +3993,10 @@ export default function AntrianDetail({ id }: { id: string }) {
                                   )}
                                   <div className="flex-1 space-y-3">
                                     <input className="input-editorial w-full font-headline-md text-[18px]" placeholder="Tahun" type="text" value={story.year || ""} onChange={(e) => setSt({ year: e.target.value })} />
-                                    <input className="input-editorial w-full font-headline-md text-[18px]" placeholder="Judul Cerita" type="text" value={story.title || ""} onChange={(e) => setSt({ title: e.target.value })} />
+                                    <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" placeholder="Judul Cerita" value={story.title || ""} onChange={(v) => setSt({ title: v })} />
                                   </div>
                                 </div>
-                                <textarea className="input-editorial w-full font-body-md text-[14px] h-20 resize-none" placeholder="Ceritakan momen ini..." value={story.description || ""} onChange={(e) => setSt({ description: e.target.value })} />
+                                <AutoTextarea className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden" placeholder="Ceritakan momen ini..." value={story.description || ""} onChange={(v) => setSt({ description: v })} minRows={2} />
                               </div>
                             )
                           })}
@@ -4054,7 +4055,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                             <InvLockedNotice availableIn={invAvailableIn(invitationData.profile, "gift_address")} />
                           ) : (
                             <div className="space-y-3">
-                              <InvField label="Nama Penerima"><InvText value={invForm.giftAddress.recipient_name} onChange={(v) => setInvForm({ ...invForm, giftAddress: { ...invForm.giftAddress, recipient_name: v } })} /></InvField>
+                              <InvField label="Nama Penerima"><InvFreeText value={invForm.giftAddress.recipient_name} onChange={(v) => setInvForm({ ...invForm, giftAddress: { ...invForm.giftAddress, recipient_name: v } })} /></InvField>
                               <InvField label="Alamat Lengkap"><InvArea value={invForm.giftAddress.full_address} onChange={(v) => setInvForm({ ...invForm, giftAddress: { ...invForm.giftAddress, full_address: v } })} rows={3} /></InvField>
                             </div>
                           )}
