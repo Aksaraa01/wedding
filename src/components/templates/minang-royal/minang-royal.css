@@ -55,33 +55,28 @@
 .minang-royal-root .tpl-rsvp__wish-message {font-size: 13px; line-height: 1.55; color: var(--tpl-rsvp-fg,#3a3a3a);}
 .minang-royal-root .tpl-rsvp__input[readonly] {cursor: not-allowed; opacity: 0.75;}
 .minang-royal-root .tpl-rsvp {padding: 60px 25px; text-align: center; background: var(--tpl-rsvp-bg,#f8f5f0); color: var(--tpl-rsvp-fg,#2a2a2a);}
-.minang-royal-root .gift-card-shell .tpl-gift__pagination .tpl-rsvp__wishes-pg-btn {width: 32px; height: 32px; border: 1px solid rgba(255, 252, 243, 0.68); background: rgba(255, 252, 243, 0.82); color: var(--adat-primary-deep); font-family: var(--serif); font-size: 26px; font-weight: 400; line-height: 1;}
-.minang-royal-root .gift-card-shell .tpl-gift__pagination .tpl-rsvp__wishes-pg-info {min-width: 48px; color: var(--warm-fg,#fff); font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 0.5px;}
-.minang-royal-root .adat-rsvp {padding: 0px; background: transparent; color: var(--ink);}
-.minang-royal-root .adat-rsvp .tpl-rsvp__form {max-width: 100%; margin-top: 28px;}
-.minang-royal-root .adat-rsvp .tpl-rsvp__counter, .minang-royal-root .adat-rsvp .tpl-rsvp__field label, .minang-royal-root .adat-rsvp .tpl-rsvp__wishes-label {color: rgb(146, 145, 140);}
-.minang-royal-root .adat-rsvp .tpl-rsvp__choice-label, .minang-royal-root .adat-rsvp .tpl-rsvp__input, .minang-royal-root .adat-rsvp .tpl-rsvp__select, .minang-royal-root .adat-rsvp .tpl-rsvp__textarea {border-color: rgba(23, 22, 18, 0.18); background: rgba(255, 252, 243, 0.76); color: var(--ink);}
-.minang-royal-root .adat-rsvp .tpl-rsvp__choice-input:checked + .tpl-rsvp__choice-label, .minang-royal-root .adat-rsvp .tpl-rsvp__submit {border-color: var(--adat-primary); background: var(--adat-primary); color: var(--warm-fg,#fff);}
-.minang-royal-root .adat-rsvp .tpl-rsvp__submit {width: 100%; border-radius: 999px;}
-.minang-royal-root .adat-rsvp .tpl-rsvp__wishes {margin-top: 36px;}
-.minang-royal-root .adat-rsvp .tpl-rsvp__wishes-label {display: none;}
-.minang-royal-root .adat-rsvp .tpl-rsvp__wishes-list {gap: 0px;}
-.minang-royal-root .adat-rsvp .tpl-rsvp__wish {padding: 16px 0px; border: 0px; border-radius: 0px; background: transparent; box-shadow: none;}
-.minang-royal-root .adat-rsvp .tpl-rsvp__wish-message, .minang-royal-root .adat-rsvp .tpl-rsvp__wish-name {color: var(--ink);}
-.minang-royal-root .adat-rsvp .tpl-rsvp__wish-name {font-size: 13px; font-weight: 600;}
-.minang-royal-root .adat-rsvp .tpl-rsvp__wish-message {color: rgb(95, 94, 88); font-size: 12px; line-height: 18px; max-width: 86%; text-align: left;}
-.minang-royal-root .adat-rsvp .tpl-rsvp__wish-header {justify-content: flex-start;}
-.minang-royal-root .adat-rsvp .tpl-rsvp__wish:nth-child(2n) {text-align: right;}
-.minang-royal-root .adat-rsvp .tpl-rsvp__wish:nth-child(2n) .tpl-rsvp__wish-header {justify-content: flex-end;}
-.minang-royal-root .adat-rsvp .tpl-rsvp__wish:nth-child(2n) .tpl-rsvp__wish-message {margin-left: auto; text-align: right;}
-.minang-royal-root .adat-rsvp .tpl-rsvp__wish-status--hadir {background: color-mix(in srgb,var(--adat-primary) 18%,transparent); color: var(--adat-primary-deep);}
-.minang-royal-root .adat-rsvp .tpl-rsvp__wish-status--tidak {background: rgba(23, 22, 18, 0.08); color: rgb(119, 118, 111);}
-.minang-royal-root .adat-rsvp .tpl-rsvp__wish-status--ragu {background: rgba(181, 145, 72, 0.15); color: rgb(141, 109, 53);}
-.minang-royal-root .adat-rsvp .tpl-rsvp__wishes-pagination {gap: 12px; margin: 28px 0px 8px;}
-.minang-royal-root .adat-rsvp .tpl-rsvp__wishes-pg-btn {width: 32px; height: 32px; border-color: rgba(23, 22, 18, 0.16); background: rgba(255, 252, 243, 0.86); color: var(--adat-primary-deep); font-family: var(--serif); font-size: 26px; font-weight: 400;}
-.minang-royal-root .adat-rsvp .tpl-rsvp__wishes-pg-info {min-width: 48px; color: rgb(119, 118, 111); font-family: var(--sans); font-size: 12px; font-weight: 600;}
-.minang-royal-root .adat-rsvp .tpl-rsvp__wish-date {display: none;}
-.minang-royal-root .adat-rsvp__empty {margin:8px 0 0;color:rgb(95,94,88);font-size:12px;line-height:18px;text-align:center}
+.minang-royal-root .adat-rsvp {padding:0px; background:transparent; color:var(--text-secondary);}
+.minang-royal-root .adat-rsvp .tpl-rsvp__form {max-width:100%; margin-top:28px;}
+.minang-royal-root .adat-rsvp .tpl-rsvp__counter, .minang-royal-root .adat-rsvp .tpl-rsvp__field label, .minang-royal-root .adat-rsvp .tpl-rsvp__wishes-label {color:rgba(244,225,195,.7);}
+.minang-royal-root .adat-rsvp .tpl-rsvp__input, .minang-royal-root .adat-rsvp .tpl-rsvp__textarea {border:1px solid rgba(244,225,195,.25); background:var(--background-secondary); color:var(--text-tertiary); border-radius:50px; padding:12px 16px; font-family:var(--body-text-family); font-size:var(--body-text-size);}
+.minang-royal-root .adat-rsvp .tpl-rsvp__textarea {border-radius:20px;}
+.minang-royal-root .adat-rsvp .tpl-rsvp__input::placeholder, .minang-royal-root .adat-rsvp .tpl-rsvp__textarea::placeholder {color:rgba(101,11,4,.55);}
+.minang-royal-root .adat-rsvp .tpl-rsvp__submit {width:100%; border-radius:50px; border-color:var(--button-background-secondary); background:var(--button-background-secondary); color:var(--button-text-secondary);}
+.minang-royal-root .adat-rsvp .tpl-rsvp__wishes {margin-top:36px;}
+.minang-royal-root .adat-rsvp .tpl-rsvp__wishes-label {display:none;}
+.minang-royal-root .adat-rsvp .tpl-rsvp__wishes-list {gap:0px;}
+.minang-royal-root .adat-rsvp .tpl-rsvp__wish {padding:16px 0px; border:0px; border-bottom:1px solid rgba(244,225,195,.18); border-radius:0px; background:transparent; box-shadow:none; text-align:left;}
+.minang-royal-root .adat-rsvp .tpl-rsvp__wish:last-child {border-bottom:0px;}
+.minang-royal-root .adat-rsvp .tpl-rsvp__wish-header {justify-content:flex-start;}
+.minang-royal-root .adat-rsvp .tpl-rsvp__wish-name {color:var(--text-primary); font-size:13px; font-weight:600;}
+.minang-royal-root .adat-rsvp .tpl-rsvp__wish-message {color:var(--text-secondary); opacity:.85; font-size:12px; line-height:18px; max-width:86%; text-align:left;}
+.minang-royal-root .adat-rsvp .tpl-rsvp__wishes-pagination {gap:12px; margin:28px 0px 8px;}
+.minang-royal-root .adat-rsvp .tpl-rsvp__wishes-pg-btn {width:32px; height:32px; border-color:rgba(244,225,195,.35); background:transparent; color:var(--text-secondary); font-family:var(--body-text-family); font-size:20px;}
+.minang-royal-root .adat-rsvp .tpl-rsvp__wishes-pg-info {min-width:48px; color:rgba(244,225,195,.7); font-family:var(--body-text-family); font-size:12px; font-weight:600;}
+.minang-royal-root .adat-rsvp .tpl-rsvp__wish-date {display:none;}
+.minang-royal-root .adat-rsvp__empty {margin:8px 0 0; color:rgba(244,225,195,.7); font-size:12px; line-height:18px; text-align:center;}
+.minang-royal-root .adat-rsvp .rsvp-feedback {margin:12px 0 0; color:var(--text-primary); font-family:var(--body-text-family); font-size:12px;}
+.minang-royal-root .adat-rsvp .rsvp-feedback.is-error {color:#ffb4a8;}
 
 /* Minang Royal additions */
 .minang-royal-root.is-locked{overflow:hidden}
@@ -89,3 +84,88 @@
 .minang-royal-root .mr-bank-logo{display:block;height:34px;width:auto;max-width:110px;margin:0 0 8px;padding:4px;background:#fff;border-radius:4px;object-fit:contain}
 .minang-royal-root .preview iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .minang-royal-root .preview.wide{position:relative;aspect-ratio:16/9;overflow:hidden}
+
+/* Cover monogram — the reference ships a logo image; we render the couple's initials instead. */
+.minang-royal-root section.cover .inner .head .logo-wrap {display:flex;align-items:center;justify-content:center}
+.minang-royal-root .mr-monogram {display:inline-flex;align-items:center;justify-content:center;width:96px;height:96px;border:1px solid var(--text-secondary);border-radius:50%;color:var(--text-primary);font-family:var(--heading-family);font-size:34px;letter-spacing:2px;line-height:1}
+
+/* Live-streaming play button (reference uses a font icon we do not ship). */
+/* Live streaming preview: e2a10e85 gives the pane width:100%; the scoped build
+   kept the 70px thumbnail rule instead, so restate the reference geometry. */
+.minang-royal-root .live-streaming .inner .body > .streaming-info > div > .preview.wide {width:100%;height:auto;aspect-ratio:16/9;margin:0 auto;overflow:hidden;position:relative;border-radius:12px}
+.minang-royal-root .live-streaming .inner .body > .streaming-info > div > .preview.wide > img {position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.minang-royal-root .live-streaming .preview > .play-btn {position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;height:70px;width:70px;padding:0;border:0;border-radius:50%;background-color:var(--light-clr);color:var(--tertiary-clr);opacity:.6;cursor:pointer;z-index:2;transition:all .4s ease-in-out}
+.minang-royal-root .live-streaming .preview > .play-btn svg {width:34px;height:34px;fill:currentColor}
+.minang-royal-root .live-streaming .preview > .play-btn:hover {opacity:1;transform:translate(-50%,-50%) scale(1.1)}
+.minang-royal-root section.video-gallery .inner .video-outer .video .preview > iframe {position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* Sections that sit on the maroon ground need explicit cream/gold copy. */
+.minang-royal-root .wedding-wish-title {color:var(--text-primary)}
+.minang-royal-root .notes-container .note-title {color:var(--text-primary)}
+.minang-royal-root .notes-container .note-description {color:var(--text-secondary)}
+.minang-royal-root .footnote .date {color:var(--text-secondary)}
+
+/* Turut Mengundang — ornament mirrors the mempelai separator. */
+.minang-royal-root .mr-inviting .note {position:relative;gap:16px}
+.minang-royal-root .mr-inviting .orn-kupu-kupu-2 {right:50%;top:18px;transform:translateX(50%) scaleX(-1)}
+.minang-royal-root .mr-inviting-list {display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none;text-align:center;color:var(--text-secondary);font-family:var(--body-text-family);font-size:var(--body-text-size);max-width:520px}
+
+/* Gift bank picker + copy affordance. */
+.minang-royal-root .mr-bank-select {width:100%;padding:14px 16px;border:1px solid var(--background-primary);border-radius:12px;background:transparent;color:var(--text-tertiary);font-family:var(--body-text-family);font-size:var(--body-text-size);appearance:none}
+.minang-royal-root .mr-copy {margin-left:.5em;padding:2px 10px;border:1px solid var(--background-primary);border-radius:999px;background:transparent;color:var(--background-primary);font-family:var(--body-text-family);font-size:11px;cursor:pointer;vertical-align:middle}
+.minang-royal-root .mr-copy:hover {background:var(--background-primary);color:var(--button-text-primary)}
+.minang-royal-root .wedding-wish-description {margin-top:8px;color:rgba(244,225,195,.82);font-family:var(--body-text-family);font-size:calc(var(--body-text-size) - 1px);font-style:italic}
+.minang-royal-root .mr-thanks-photo {width:min(320px,72vw);margin:40px auto -8px;padding:0 0 8px}
+.minang-royal-root .mr-thanks-photo img {display:block;width:100%;height:auto;border-radius:12px;object-fit:cover}
+/* Dress code + rundown rules recovered from the vendored reference sheets
+   (e2a10e85 / 96cdc8bb); the earlier scoped build dropped them. */
+.minang-royal-root .dress-wrapper{overflow:hidden;position:relative}.minang-royal-root .dress-inner{gap:16px;padding:16px}.minang-royal-root .dress-header, .minang-royal-root .dress-inner{display:flex;flex-direction:column}.minang-royal-root .dress-header{gap:8px}.minang-royal-root .dress-title{color:#000;color:var(--text-primary);font-family:var(--heading-family);font-size:24px;font-size:var(--heading-size);font-weight:500;font-weight:var(--heading-weight);text-align:center;text-transform:var(--heading-lettercase)}.minang-royal-root .dress-body{gap:8px}.minang-royal-root .dress-body, .minang-royal-root .dress-list{display:flex;flex-direction:column}.minang-royal-root .dress-list{gap:16px}.minang-royal-root .dress-item{display:flex;flex-direction:column;gap:8px}.minang-royal-root .dress-preview{align-items:center;background:#fff;border-radius:92px;display:flex;flex-direction:column;height:92px;justify-content:center;margin:0 auto;width:92px}.minang-royal-root .dress-icon{display:flex;flex-direction:column;gap:4px}.minang-royal-root .dress-icon-img{height:36px;margin:0 auto;object-fit:contain;object-position:center;width:36px}.minang-royal-root .dress-icon .dress-icon-label{color:#000;font-family:var(--montserrat);font-size:12px;font-weight:400;text-align:center}.minang-royal-root .dress-color-list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:0 auto;max-width:240px}.minang-royal-root .dress-color-item{background:#fff;background:var(--bg-color);border:1px solid #fff;border-radius:32px;height:32px;width:32px}.minang-royal-root .dress-footer{display:flex;flex-direction:column;gap:8px}
+
+.minang-royal-root .rundown-container{overflow:hidden;position:relative}.minang-royal-root .rundown-container .rundown-inner{display:flex;flex-direction:column;gap:8px;padding:40px 24px;position:relative}.minang-royal-root .rundown-inner .rundown-title{text-align:center}.minang-royal-root .rundown-inner .rundown-event-list{display:flex;flex-direction:column;gap:24px;width:100%}.minang-royal-root .rundown-event-list .rundown-event{align-items:center;display:flex;flex-direction:column;gap:12px}.minang-royal-root .rundown-event .rundown-event-title{font-size:calc(var(--heading-size) / 1.6)}.minang-royal-root .rundown-event .rundown-agenda-list{display:flex;flex-direction:column;gap:4px;max-width:100%;min-width:100%;width:100%}.minang-royal-root .rundown-agenda-list .rundown-agenda{display:flex;gap:16px;min-height:45px;min-width:100%}.minang-royal-root .rundown-agenda .rundown-agenda-time{align-self:center;max-width:80px;width:100%}.minang-royal-root .rundown-agenda .rundown-divider{align-items:center;display:flex;flex-direction:column;position:relative}.minang-royal-root .rundown-agenda .rundown-divider .rundown-line{border-left:2px dashed var(--text-primary);flex:1;position:relative}.minang-royal-root .rundown-agenda .rundown-divider .rundown-circle{background-color:var(--background-secondary);border:1px solid var(--text-primary);border-radius:50%;height:12px;left:50%;position:absolute;top:50%;transform:translate(-50%,-50%);width:12px}.minang-royal-root .rundown-agenda .rundown-agenda-content{align-items:center;display:flex;flex-grow:1;flex-wrap:wrap;gap:8px;max-width:100%;overflow:hidden}.minang-royal-root .rundown-agenda-content .rundown-agenda-text{text-wrap:wrap;width:100%}@media (min-width:640px){.minang-royal-root .rundown-container .rundown-inner{gap:16px}}
+
+.minang-royal-root .countdown{display:grid;grid-template-columns:auto auto;padding:0}.minang-royal-root .countdown, .minang-royal-root .countdown .count-item{align-items:center;justify-content:center}.minang-royal-root .countdown .count-item{background-color:var(--text-secondary);border-radius:12px;display:flex;flex-direction:column;height:120px;margin:10px;padding:0 2.5px 10px;text-align:center;width:90px}.minang-royal-root .activity-wrap{margin-top:60px;padding:20px 0;position:relative}.minang-royal-root .rundown-container{background-color:var(--background-secondary);background-image:var(--texture);background-size:100%}.minang-royal-root .rundown-agenda .rundown-agenda-time, .minang-royal-root .rundown-agenda-content .rundown-agenda-text, .minang-royal-root .rundown-event .rundown-event-title, .minang-royal-root .rundown-inner .rundown-title{color:var(--text-tertiary)}.minang-royal-root .rundown-divider .rundown-circle, .minang-royal-root .rundown-divider .rundown-line{border-color:var(--text-tertiary)}.minang-royal-root .dress-wrapper{margin-top:35px;padding-bottom:40px}
+
+/* Reference renders these cream-on-maroon even though the vendored sheet says
+   --text-tertiary; keep the rendered result. */
+.minang-royal-root .dress-desc,
+.minang-royal-root .dress-item-title,
+.minang-royal-root .dress-note {color:var(--text-secondary)}
+.minang-royal-root .wedding-gift-bank-wrap .bank-name {color:var(--text-primary)}
+.minang-royal-root .dress-icon .dress-icon-label {font-family:var(--body-text-family)}
+.minang-royal-root .wedding-gift-bank-wrap.mr-gift-address {margin-top:16px}
+
+/* Compat tokens the vendored sheets reference but the scoped build never defines. */
+.minang-royal-root {--tertiary-clr:#909090;--montserrat:"Montserrat",sans-serif}
+.minang-royal-root .dress-desc,
+.minang-royal-root .dress-item-title,
+.minang-royal-root .dress-note {font-family:var(--body-text-family);font-size:var(--body-text-size);font-weight:var(--body-text-weight);text-align:center;text-transform:var(--body-text-lettercase);color:var(--text-secondary)}
+.minang-royal-root .dress-note {font-style:italic}
+.minang-royal-root .dress-wrapper:not(.same-location) {margin-top:-35px}
+
+/* Note cards (Thank You / Turut Mengundang): the scoped build kept only the
+   position rule, so the reference flex/padding never applied. */
+.minang-royal-root .note {align-items:center;display:flex;flex-direction:column;gap:24px;margin:0 auto;padding:40px;width:100%}
+.minang-royal-root .note .note-title,
+.minang-royal-root .note .note-description {text-align:center}
+@media (min-width:768px) and (max-width:961px){.minang-royal-root .note {max-width:650px}}
+@media (min-width:1536px){.minang-royal-root .note {max-width:650px}}
+
+/* Copy affordance sits on the maroon bank card. */
+.minang-royal-root .mr-copy {border-color:var(--text-secondary);color:var(--text-secondary)}
+.minang-royal-root .mr-copy:hover {background:var(--text-secondary);color:var(--background-primary)}
+
+/* Native bank picker needs the selectize chevron the reference shows. */
+.minang-royal-root .mr-bank-select {background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23650b04' stroke-width='1.6'%3E%3Cpath d='M5 8l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;background-size:14px 14px;padding-right:42px}
+
+/* '11.30 pagi' is longer than the reference's '11:00 AM'; keep it on one line. */
+.minang-royal-root .rundown-agenda .rundown-agenda-time {max-width:96px}
+
+/* Leave room for the floral ornaments so the closing copy stays legible. */
+.minang-royal-root .footnote-wrap .footnote {padding-bottom:130px}
+.minang-royal-root .notes-container .note-apology {font-style:italic;opacity:.85;font-size:calc(var(--body-text-size) - 2px)}
+.minang-royal-root .footnote-wrap .footnote {padding-bottom:40px}
+
+/* Bona Nova is the reference heading family. It is not one of the app-wide
+   fonts, so vendor the same Google-hosted files the reference serves. */
+@font-face{font-family:"Bona Nova";font-style:normal;font-weight:400;font-display:swap;src:url("/templates/minang-royal/bona-nova-latin-400-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Bona Nova";font-style:italic;font-weight:400;font-display:swap;src:url("/templates/minang-royal/bona-nova-latin-400-italic.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}

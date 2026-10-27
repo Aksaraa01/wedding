@@ -29,8 +29,10 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     placeholders: {
       "lunar-blossom":
         "Dengan kasih karunia Tuhan, kami dengan hormat memohon kehadiran Anda pada pernikahan anak-anak kami tercinta",
+      "minang-royal":
+        "Untuk melaksanakan syariat agama-Mu, mengikuti sunnah rasul-Mu dalam membentuk keluarga yang Sakinah, Mawaddah, Warahmah yang Insya Allah akan diselenggarakan pada hari:",
     },
-    templates: ["lunar-blossom"],
+    templates: ["lunar-blossom", "minang-royal"],
   },
   {
     key: "cover_kicker",
@@ -58,8 +60,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "manjari": "We apologize for any misspelling of your name.",
       "still-ever": "We apologize for any misspelling of your name or title.",
       imagine: "We apologize for any misspelling of your name.",
+      "minang-royal": "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.",
     },
-    templates: ["sandhya", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever"],
+    templates: ["sandhya", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "minang-royal"],
   },
   {
     key: "quote_title",
@@ -102,8 +105,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "adat-jawa-2": "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
       "adat-jawa": "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
       "adat-bali": "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
+      "minang-royal": "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
     },
-    templates: ["evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali"],
+    templates: ["evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "minang-royal"],
   },
   {
     key: "gallery_quote",
@@ -129,6 +133,16 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever"],
   },
   {
+    key: "dresscode_note",
+    label: "Catatan Dresscode",
+    multiline: true,
+    rows: 2,
+    placeholders: {
+      "minang-royal": "Kenakan pakaian formal yang serasi dengan nuansa adat Minang.",
+    },
+    templates: ["minang-royal"],
+  },
+  {
     key: "gift_intro_title",
     label: "Judul Bagian Hadiah",
     placeholders: {
@@ -149,7 +163,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "still-ever": "Wedding Gift",
       imagine: "Wedding Gift",
     },
-    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever"],
+    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "minang-royal"],
   },
   {
     key: "gift_intro_description",
@@ -175,7 +189,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       imagine: "Your presence is the greatest gift to us. If you would like to send another token of love, please use the details below:",
       "still-ever": "Your presence is the greatest gift. Should you wish to send a token of love, the details are below.",
     },
-    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever"],
+    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever", "minang-royal"],
   },
   {
     key: "wishes_intro",
@@ -197,8 +211,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "manjari": "Please let us know whether you will join our wedding celebration by completing the form below.",
       "still-ever": "Leave a wish, a prayer, or a memory for us to keep.",
       imagine: "Leave a message of love and a prayer for the couple.",
+      "minang-royal": "Tinggalkan doa dan ucapan terbaik Anda untuk kedua mempelai.",
     },
-    templates: ["evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever"],
+    templates: ["evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "minang-royal"],
   },
   {
     key: "closing_message",
@@ -224,7 +239,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "minang-royal": "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
       imagine: "From the bottom of our hearts we just want to thank you for being part of our big day. We are extremely lucky to have each of you in our lives and honored you could be here with us.",
     },
-    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever"],
+    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever", "minang-royal"],
   },
   {
     key: "couple_description",

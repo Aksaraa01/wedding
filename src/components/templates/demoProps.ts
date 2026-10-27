@@ -1179,9 +1179,42 @@ DEMO_PROPS_BY_CODE["minang-royal"] = {
   quote_source: "Doa Pernikahan Adat Minang",
   sessions: DEMO_PROPS_BY_CODE["adat-melayu"].sessions,
   stories: DEMO_PROPS_BY_CODE["adat-melayu"].stories,
-  template_content: DEMO_PROPS_BY_CODE["adat-melayu"].template_content,
   rundown: DEMO_PROPS_BY_CODE["adat-melayu"].rundown,
   rundown_visible: true,
+  dresscode: {
+    title: "Dresscode",
+    description: "Formal Attire",
+    colors: [
+      { hex: "#650b04", name: "Maroon" },
+      { hex: "#f4e1c3", name: "Cream" },
+      { hex: "#ffde8f", name: "Gold" },
+      { hex: "#501817", name: "Deep Maroon" },
+    ],
+  },
+  inviting_families: [
+    "Keluarga Besar Bapak Ahmad Fadillah",
+    "Keluarga Besar Ibu Nur Aisyah",
+    "Keluarga Besar Bapak Muhammad Yusuf",
+    "Keluarga Besar Ibu Siti Khadijah",
+  ],
+  livestream: {
+    title: "Live Streaming",
+    description: "Saksikan momen akad dan resepsi kami secara langsung.",
+    url: "https://www.youtube.com/live/dummy-livestream-link",
+  },
+  template_content: {
+    events_intro:
+      "Untuk melaksanakan syariat agama-Mu, mengikuti sunnah rasul-Mu dalam membentuk keluarga yang Sakinah, Mawaddah, Warahmah yang Insya Allah akan diselenggarakan pada hari:",
+    cover_apology: "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.",
+    gallery_intro: "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
+    dresscode_note: "Kenakan pakaian formal yang serasi dengan nuansa adat Minang.",
+    gift_intro_title: "Love Gift",
+    gift_intro_description:
+      "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
+    wishes_intro: "Tinggalkan doa dan ucapan terbaik Anda untuk kedua mempelai.",
+    closing_message:
+      "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
+  },
   track_url: "/templates/minang-royal/bergema.mp3",
 }
 
