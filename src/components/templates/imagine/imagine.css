@@ -30,10 +30,11 @@ html.has-imagine-locked,body:has(.imagine-root.is-pre-open){overflow:hidden !imp
 .imagine-root.is-open .top-cover{opacity:0;display:flex;pointer-events:none;visibility:hidden;transition:opacity .9s ease .1s}
 .imagine-root.is-open .kat-page__side-to-side{opacity:1}
 
-.imagine-root .top-cover .link-wrap{display:flex;flex-direction:column;align-items:center}
+.imagine-root .top-cover .link-wrap{display:flex;flex-direction:column;align-items:center;gap:16px}
 .imagine-root .top-cover .link-wrap p{color:var(--text-secondary);font-family:var(--body-text-family);font-size:var(--body-text-size);margin:0 0 12px}
-.imagine-root .top-cover .link-wrap .link,
 .imagine-root .primary-pane .link-wrap .link{display:none}
+.imagine-root .top-cover-details--content .link-wrap .link{background-color:var(--button-background-primary);border:none;border-radius:999px;color:var(--button-text-primary);cursor:pointer;font-family:var(--body-text-family);font-size:var(--body-text-size);font-weight:400;line-height:normal;margin:0 auto;outline:none;padding:12px 20px;text-decoration:none;transition:all .25s ease-in-out}
+.imagine-root .top-cover-details--content .link-wrap .link:hover{background-color:rgba(var(--button-background-primary-rgb),.8);color:var(--button-text-primary)}
 .imagine-root .link-wrap{align-items:center;text-align:center}
 
 .imagine-root .primary-pane-hint{color:var(--text-secondary);opacity:.8;margin:4px 0 0}
@@ -145,3 +146,7 @@ html.has-imagine-locked,body:has(.imagine-root.is-pre-open){overflow:hidden !imp
   .imagine-root .hadiah-cards{grid-template-columns:1fr 1fr}
   .imagine-root .wedding-gift-cards{max-width:640px}
 }
+
+/* --- scrollbar parity with reference (body.aine) --- */
+.imagine-root.is-open::-webkit-scrollbar,html:has(.imagine-root.is-open)::-webkit-scrollbar{height:15px;width:10px}
+.imagine-root::-webkit-scrollbar-thumb,html:has(.imagine-root)::-webkit-scrollbar-thumb,textarea::-webkit-scrollbar-thumb{background-color:var(--background-primary);border-width:2px}
