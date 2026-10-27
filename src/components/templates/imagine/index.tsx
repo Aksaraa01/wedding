@@ -423,13 +423,10 @@ export default function Imagine(props: TemplateProps) {
                     <p className="bottom-text" data-aos="fade-up" data-aos-duration="3500" data-aos-delay="1400">
                       {display_name || ""}
                     </p>
-                    <div className="torsvp__btn-wrap" data-aos="fade-up" data-aos-duration="3500" data-aos-delay="1900">
-                      <a href="#toRsvp" className="torsvp__btn">RSVP</a>
-                      <div className="direction-arrow">
-                        <span className="arrow-chevron">▾</span>
-                        <span className="arrow-chevron">▾</span>
-                        <span className="arrow-chevron">▾</span>
-                      </div>
+                    <div className="direction-arrow" data-aos="fade-up" data-aos-duration="3500" data-aos-delay="1900">
+                      <span className="arrow-chevron">▾</span>
+                      <span className="arrow-chevron">▾</span>
+                      <span className="arrow-chevron">▾</span>
                     </div>
                   </div>
                 </div>

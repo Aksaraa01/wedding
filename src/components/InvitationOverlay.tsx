@@ -53,6 +53,15 @@ export default function InvitationOverlay({
     return () => window.removeEventListener("aksaraa:floating", handler)
   }, [])
 
+  // In-house template covers dispatch aksaraa:open-rsvp so the cover RSVP
+  // button (reference layout hyperlink) opens this modal — the RSVP form
+  // itself lives here, not as a template section.
+  useEffect(() => {
+    const open = () => { setRsvpOpen(true) }
+    window.addEventListener("aksaraa:open-rsvp", open)
+    return () => window.removeEventListener("aksaraa:open-rsvp", open)
+  }, [])
+
   const alreadyResponded = guestRsvpStatus === "HADIR" || guestRsvpStatus === "TIDAK_HADIR"
 
   const [rsvpName, setRsvpName] = useState(guestName)
