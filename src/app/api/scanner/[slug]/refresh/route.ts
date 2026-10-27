@@ -21,13 +21,20 @@ export async function POST(
   try {
     const { slug } = await params
     const body = await req.json().catch(() => ({}) as { refresh_token?: string })
-    const rawToken = extractScannerJwt(req) || body?.refresh_token || ""
+    const bearer = extractScannerJwt(req) || ""
+    const bodyRefresh = typeof body?.refresh_token === "string" ? body.refresh_token : ""
 
-    if (!rawToken) {
+    if (!bearer && !bodyRefresh) {
       return NextResponse.json({ error: "Token diperlukan" }, { status: 401 })
     }
 
-    const claims = (await verifyScannerJwt(rawToken)) || (await verifyScannerRefreshToken(rawToken))
+    // The kiosk always sends its (possibly expired) access token as the bearer,
+    // so a stale bearer must not shadow a valid refresh token in the body —
+    // otherwise expiry turns into a PIN wall mid-event.
+    const claims =
+      (bearer ? (await verifyScannerJwt(bearer)) || (await verifyScannerRefreshToken(bearer)) : null) ||
+      (bodyRefresh ? (await verifyScannerJwt(bodyRefresh)) || (await verifyScannerRefreshToken(bodyRefresh)) : null)
+
     if (!claims) {
       return NextResponse.json({ error: "Token scanner tidak valid atau kadaluarsa" }, { status: 401 })
     }

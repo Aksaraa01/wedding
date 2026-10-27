@@ -421,12 +421,14 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
         body: JSON.stringify({ refresh_token: storedRefresh || undefined }),
       })
       if (res.status === 401) {
+        // No usable credentials left (PIN rotated, or the refresh token was
+        // cleared). Never park the kiosk on the PIN screen mid-event: drop the
+        // tokens and keep working — the search route falls back to the profile
+        // id, and the next tab session asks for the PIN normally.
         sessionStorage.removeItem(`scanner_jwt_${slug}`)
-        sessionStorage.removeItem(`scanner_pin_${slug}`)
         localStorage.removeItem(`scanner_refresh_${slug}`)
         setScannerToken(null)
-        setPinVerified(false)
-        setPinError("PIN scanner diperbarui. Masukkan PIN terbaru dari dashboard.")
+        console.warn("[scanner] token refresh refused; continuing without a token")
         return null
       }
       if (!res.ok) return null

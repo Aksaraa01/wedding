@@ -144,8 +144,12 @@ Failure signature: `/api/check-in/search` and `/api/guest-photos?selfies=1`
 answer **401** while QR check-in keeps working (`POST /api/check-in` falls back
 to the body's `wedding_profile_id`). Search therefore *degrades* — an
 unverifiable token is ignored and the `wedding_profile_id` param is used — so a
-stale token can never block the concierge mid-event. Verify any change here with
-the round-trip script: `node --experimental-strip-types scripts/scanner-jwt-check.mjs`.
+stale token can never block the concierge mid-event. `/refresh` tries the bearer
+**and** the body's `refresh_token` independently (the kiosk always sends its old
+bearer, so a stale one must not shadow a good refresh token), and when both are
+dead the page drops the tokens and keeps running instead of showing the PIN
+screen. Verify any change here with the round-trip script:
+`node --experimental-strip-types scripts/scanner-jwt-check.mjs`.
 
 ### Add a database schema change
 
