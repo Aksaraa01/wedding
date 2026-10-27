@@ -17,11 +17,14 @@
 #  - The guard refuses a tree that is behind/ahead of origin/main OR that has
 #    uncommitted changes (another agent's WIP would be compiled in and shipped).
 #    Build from a clean worktree: git worktree add --detach /tmp/build origin/main
-#  - rsync runs with --checksum so only real content deltas cross the wire; a
-#    fresh worktree's checkout timestamps no longer re-push the ~160 MB of
-#    template media (that took ~13 min and kept the site serving a stale build).
-#  - origin/main is re-verified after the sync so a push that lands mid-deploy
-#    rolls back instead of stripping the newer work.
+#  - Sync is additive: nothing on the server is deleted during a deploy, so the
+#    running process keeps its chunks and the deploy window no longer 500s for
+#    users. Old chunk files are pruned after 7 days.
+#  - The build output goes over one tar stream (no per-file rsync negotiation —
+#    unusable at ~1.2 s RTT) and node_modules is skipped when unchanged.
+#    public/ still uses rsync --checksum so only changed media crosses the wire.
+#  - origin/main is re-verified after the sync: a push that lands mid-deploy
+#    rolls back instead of leaving the server on stale code.
 set -euo pipefail
 
 SSH_KEY="${SSH_KEY:-$HOME/.ssh/aksaraa_deploy}"
@@ -80,24 +83,69 @@ rollback() {
   "
 }
 
-# --checksum: hash both ends and ship only real content deltas. A fresh git
-# worktree stamps every file with the checkout time, which defeats rsync's
-# default size+mtime check and re-pushes the full ~160 MB of template media
-# (~13 min). Hashing is cheap; the transfer is not.
-RSYNC_OPTS="-az --checksum -e \"ssh -i $SSH_KEY\""
+# ---------- sync phase ----------
+# Two changes here, both aimed at the failure we hit on 2026-10-27:
+#
+#  1. Additive, never destructive. rsync --delete removed the RUNNING process's
+#     chunks before PM2 switched over, so every page load 500'd for the whole
+#     transfer (a chunk route matched the old manifest but the file was gone →
+#     500 instead of 404). Nothing is deleted now; the old build keeps serving
+#     until PM2 restarts, so the deploy window is invisible to users no matter
+#     how slow the link is.
+#
+#  2. One tar stream per tree instead of rsync. rsync negotiates every one of
+#     ~3400 files individually, which is unusable at ~1.2 s RTT. tar is a single
+#     stream with no round trips. public/ still uses rsync --checksum because
+#     only genuinely changed media should cross the wire (145 MB of templates).
+stream_to() { # $1=local dir  $2=remote dir  $3=extra tar args (may be empty)
+  # COPYFILE_DISABLE stops macOS tar from emitting AppleDouble ._ entries and
+  # per-file xattr headers (which doubled the file count and bloated the stream).
+  # -z because the link is the wall (~80 KB/s): JS/JSON gzips ~4x.
+  # shellcheck disable=SC2086
+  COPYFILE_DISABLE=1 tar -C "$1" $3 -czf - . \
+    | ssh -i "$SSH_KEY" "$SERVER" "mkdir -p '$2' && tar -C '$2' -xzf -"
+}
 
-step "Rsync standalone"
-eval rsync $RSYNC_OPTS --delete .next/standalone/ "\"$SERVER:$REMOTE/.next/standalone/\""
-step "Rsync static (.next/static)"
-eval rsync $RSYNC_OPTS --delete .next/static/ "\"$SERVER:$REMOTE/.next/static/\""
-step "Rsync static (standalone)"
-eval rsync $RSYNC_OPTS --delete .next/static/ "\"$SERVER:$REMOTE/.next/standalone/.next/static/\""
-step "Rsync public (must be last)"
-eval rsync $RSYNC_OPTS --delete public/ "\"$SERVER:$REMOTE/.next/standalone/public/\""
+# node_modules is identical between builds. Fingerprint the traced tree (file
+# list + sizes) and skip the whole 1100-file / 77 MB transfer when it matches.
+nm_stamp() {
+  ( cd .next/standalone/node_modules && find . -type f | LC_ALL=C sort | xargs stat -f '%N:%z' 2>/dev/null | shasum | cut -d' ' -f1 )
+}
+NM_STAMP="$(nm_stamp)"
+NM_REMOTE="$(ssh -i "$SSH_KEY" "$SERVER" "cat '$REMOTE/.next/standalone/node_modules/.deploy-stamp' 2>/dev/null" 2>/dev/null || true)"
+if [ -n "$NM_STAMP" ] && [ "$NM_STAMP" = "$NM_REMOTE" ]; then
+  step "node_modules unchanged — skipped"
+else
+  step "Sync node_modules (changed)"
+  COPYFILE_DISABLE=1 tar -C .next/standalone -czf - node_modules \
+    | ssh -i "$SSH_KEY" "$SERVER" "mkdir -p '$REMOTE/.next/standalone' && tar -C '$REMOTE/.next/standalone' -xzf - && printf '%s' '$NM_STAMP' > '$REMOTE/.next/standalone/node_modules/.deploy-stamp'"
+fi
 
-# The pre-deploy guard ran before the copy; a push that landed during it would
-# make this build stale (its --delete would then strip the newer work). Re-check
-# under the lock before switching the server over.
+step "Sync build output (tar stream, additive)"
+stream_to .next/standalone "$REMOTE/.next/standalone" "--exclude ./node_modules"
+
+step "Sync static (.next/static)"
+stream_to .next/static "$REMOTE/.next/static" ""
+
+step "Sync static (standalone)"
+stream_to .next/static "$REMOTE/.next/standalone/.next/static" ""
+
+step "Sync public (delta, additive, must be last)"
+rsync -az --checksum -e "ssh -i $SSH_KEY" public/ "$SERVER:$REMOTE/.next/standalone/public/"
+
+# Additive syncs mean old chunk files linger. They are inert (content-hashed
+# names, long immutable cache) but they add up at ~16 MB per build.
+step "Prune chunk files older than 7 days"
+ssh -i "$SSH_KEY" "$SERVER" "
+  for d in '$REMOTE/.next/standalone/.next/static' '$REMOTE/.next/static' '$REMOTE/.next/standalone/.next/server'; do
+    [ -d \"\$d\" ] && find \"\$d\" -type f -mtime +7 -delete 2>/dev/null || true
+  done
+  echo \"  .next is now \$(du -sh '$REMOTE/.next' 2>/dev/null | cut -f1)\"
+"
+
+# The pre-deploy guard ran before the copy. A push that lands during the sync
+# makes this build stale (it would leave the server running older code than
+# origin/main). Re-check under the lock before switching the server over.
 step "Re-verify origin/main did not move during the sync"
 if ! node scripts/predeploy-guard.mjs --sync-only; then
   echo "✗ Another agent pushed to origin/main while this build was syncing."

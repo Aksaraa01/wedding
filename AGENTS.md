@@ -269,15 +269,23 @@ The VPS has 2GB RAM and CANNOT run `next build`. Build locally, rsync the standa
    ```bash
    set -a; source .env.local.prod; set +a; npm run build
    ```
-2. Rsync standalone output to server (always run sequentially, or chunks/static/public will 404):
+2. `npm run deploy` syncs the build output (this is what `scripts/deploy.sh` does — prefer it over hand-rolled rsync):
    ```bash
-   rsync -avz -e "ssh -i $HOME/.ssh/aksaraa_deploy" --delete .next/standalone/ askaraa@103.93.135.176:/var/www/aksara-wedding/.next/standalone/
-   rsync -avz -e "ssh -i $HOME/.ssh/aksaraa_deploy" --delete .next/static/ askaraa@103.93.135.176:/var/www/aksara-wedding/.next/static/
-   rsync -avz -e "ssh -i $HOME/.ssh/aksaraa_deploy" --delete .next/static/ askaraa@103.93.135.176:/var/www/aksara-wedding/.next/standalone/.next/static/
-   rsync -avz -e "ssh -i $HOME/.ssh/aksaraa_deploy" --delete public/ askaraa@103.93.135.176:/var/www/aksara-wedding/.next/standalone/public/
+   # node_modules: skipped entirely when its file-list stamp is unchanged
+   # build output + static: one gzipped tar stream per tree (no per-file
+   #   negotiation — rsync's per-file round trips are unusable at high RTT)
+   # public/: rsync --checksum so only genuinely changed media crosses the wire
    ```
-   **CRITICAL: `public/` rsync MUST run AFTER `standalone/` rsync** — the `--delete` on standalone wipes remote `public/` (it doesn't exist locally in `.next/standalone/`). Running them in parallel causes a race where public gets deleted after being synced. Run all four sequentially.
+   **The sync is ADDITIVE — nothing on the server is deleted.** That is deliberate:
+   `rsync --delete` used to remove the *running* process's chunks before PM2
+   switched over, so every page load 500'd for the whole transfer (a chunk route
+   matched the old manifest but the file was gone → 500, not 404). Old chunk files
+   are now pruned by `find -mtime +7` on each deploy instead, so a slow link no
+   longer produces an outage.
    Note: Next 16 standalone output does NOT copy `public/`; the standalone server serves public from `.next/standalone/public/` (next to `server.js`). Syncing to `/var/www/aksara-wedding/public/` is NOT served — do not use it.
+   Note: `COPYFILE_DISABLE=1` must be set for macOS `tar`, otherwise it emits
+   AppleDouble `._*` entries and per-file xattr headers (doubles the file count
+   and bloats the stream).
 3. Reload PM2 on the server (reload is REQUIRED — the standalone server indexes the static folder at boot, so static synced after startup returns 404 until reload):
    ```bash
    ssh askaraa@103.93.135.176
