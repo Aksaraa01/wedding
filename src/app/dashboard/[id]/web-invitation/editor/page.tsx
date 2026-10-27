@@ -9,6 +9,7 @@ import type { RowGates } from "@/lib/featureGates"
 import { getIncompleteInvitationSections, parseStringList } from "@/lib/invitationCompleteness"
 import { pollWpJob } from "@/lib/wpJobPoll"
 import ProfileMenu from "@/components/ProfileMenu"
+import AutoTextarea from "@/components/AutoTextarea"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import { ASSETS } from "@/lib/assets"
 import { OPENING_PRESETS, OPENING_CUSTOM, matchOpeningPreset } from "@/lib/openingPresets"
@@ -2510,25 +2511,14 @@ function EditorInner({ id }: { id: string }) {
                   {extraFields.map((field) => (
                     <div key={field.key} className="space-y-2">
                       <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">{field.label}</label>
-                      {field.multiline ? (
-                        <textarea
-                          className="input-editorial w-full font-body-md text-[14px] resize-none"
-                          rows={field.rows ?? 2}
-                          value={data.template_content?.[field.key] || ""}
-                          onChange={e => updateTemplateContent(field.key, e.target.value)}
-                          placeholder={field.placeholder}
-                          disabled={data.is_published === true}
-                        />
-                      ) : (
-                        <input
-                          className="input-editorial w-full font-body-md text-[14px]"
-                          type="text"
-                          value={data.template_content?.[field.key] || ""}
-                          onChange={e => updateTemplateContent(field.key, e.target.value)}
-                          placeholder={field.placeholder}
-                          disabled={data.is_published === true}
-                        />
-                      )}
+                      <AutoTextarea
+                        className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden"
+                        value={data.template_content?.[field.key] || ""}
+                        onChange={(v) => updateTemplateContent(field.key, v)}
+                        placeholder={field.placeholder}
+                        minRows={field.rows ?? 1}
+                        disabled={data.is_published === true}
+                      />
                     </div>
                   ))}
                 </div>

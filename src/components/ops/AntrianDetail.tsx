@@ -26,6 +26,7 @@ import {
 } from "@/lib/opsConstants"
 import { PACKAGE_FEATURES, calcTotalBook, matchGaleriTier, lowestEligiblePackage, packageDisplayName, type GaleriTierRow, type PriceBook } from "@/lib/packages"
 import UpgradePackageModal from "@/components/UpgradePackageModal"
+import AutoTextarea from "@/components/AutoTextarea"
 import { useVisiblePoll } from "@/lib/useVisiblePoll"
 import {
   OPS_COLUMNS,
@@ -442,50 +443,6 @@ function InvText({ value, onChange, placeholder }: { value: string; onChange: (v
 
 function InvArea({ value, onChange, rows, placeholder }: { value: string; onChange: (v: string) => void; rows?: number; placeholder?: string }) {
   return <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={rows || 3} placeholder={placeholder} className={`${invInputCls} resize-y`} />
-}
-
-interface InvAutoTextareaProps {
-  value: string
-  onChange: (v: string) => void
-  placeholder?: string
-  minRows?: number
-}
-
-// Free-text field that grows with its content: long copy flows onto the next
-// row instead of scrolling sideways inside a one-line input.
-function InvAutoTextarea({ value, onChange, placeholder, minRows = 1 }: InvAutoTextareaProps) {
-  const ref = useRef<HTMLTextAreaElement>(null)
-
-  const resize = useCallback(() => {
-    const el = ref.current
-    if (!el) return
-    el.style.height = "auto"
-    // scrollHeight omits the border, so add it back to avoid clipping the last line.
-    el.style.height = `${el.scrollHeight + 2}px`
-  }, [])
-
-  useEffect(() => { resize() }, [value, resize])
-
-  // A closed <details> renders no body, so scrollHeight is 0 until the
-  // accordion is opened — re-measure on the native toggle event.
-  useEffect(() => {
-    const details = ref.current?.closest("details")
-    if (!details) return
-    const onToggle = () => resize()
-    details.addEventListener("toggle", onToggle)
-    return () => details.removeEventListener("toggle", onToggle)
-  }, [resize])
-
-  return (
-    <textarea
-      ref={ref}
-      rows={minRows}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden"
-    />
-  )
 }
 
 function InvCheck({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
@@ -3975,7 +3932,8 @@ export default function AntrianDetail({ id }: { id: string }) {
                         {invExtraFields.map((field) => (
                           <div key={field.key} className="space-y-2">
                             <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">{field.label}</label>
-                            <InvAutoTextarea
+                            <AutoTextarea
+                              className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden"
                               value={invForm.template_content?.[field.key] || ""}
                               onChange={(v) => handleTemplateContentChange(field.key, v)}
                               placeholder={field.placeholder}
