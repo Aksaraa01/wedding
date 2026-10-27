@@ -353,13 +353,15 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
     },
     livestream: { url: "https://www.youtube.com/live/dummy-livestream-link" },
     template_content: {
-      cover_apology: "Kami memohon maaf atas segala kekeliruan penulisan nama dan gelar.",
-      gallery_quote: "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku.",
-      gift_intro_title: "Tanda Kasih",
+      couple_description: "With the blessing of our families, we cordially invite you to the wedding of",
+      gift_intro_title: "Wedding Gift",
       gift_intro_description:
-        "Kehadiran Anda adalah hadiah terindah. Jika Anda ingin mengirimkan tanda kasih, detailnya tersedia di bawah ini.",
+        "Your presence is the greatest gift to us. If you would like to send another token of love, please use the details below:",
+      love_story_title: "Our Love Story",
+      gallery_title: "Gallery Of Us",
+      wishes_intro: "Leave a message of love and a prayer for Albarn & Faye.",
       closing_message:
-        "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan restu pada hari pernikahan kami.",
+        "From the bottom of our hearts we just want to thank you for being part of our big day. We are extremely lucky to have each of you in our lives and honored you could be here with us.",
     },
     feature_gates: { story: true, gift_address: true, inviting_families: true, video: true, qr_code_book: true },
   },
@@ -1181,4 +1183,28 @@ DEMO_PROPS_BY_CODE["minang-royal"] = {
   rundown: DEMO_PROPS_BY_CODE["adat-melayu"].rundown,
   rundown_visible: true,
   track_url: "/templates/minang-royal/bergema.mp3",
+}
+
+DEMO_PROPS_BY_CODE["still-ever"] = {
+  ...DEMO_PROPS_BY_CODE["sandhya"],
+  slug: "demo",
+  display_name: "#AlbarnFaye2027",
+  estimated_wedding_date: "2027-12-31",
+  sessions: (DEMO_PROPS_BY_CODE["sandhya"].sessions || []).map((s) => ({ ...s, date: "2027-12-31" })),
+  cover_photos: [...DE_COVERS_COVER2].slice(0, 3),
+  gallery_photos: [...DE_GALLERY],
+  track_url: ASSETS.defaultMusic,
+  template_content: {
+    cover_apology: "We apologize for any misspelling of your name or title.",
+    quote_title: "A Word From Us",
+    love_story_title: "How Our Story Began",
+    gallery_title: "The Days We Kept",
+    gallery_quote: "A lifetime with you is the story I would choose again and again.",
+    gift_intro_title: "Wedding Gift",
+    gift_intro_description:
+      "Your presence is the greatest gift. Should you wish to send a token of love, the details are below.",
+    wishes_intro: "Leave a wish, a prayer, or a memory for us to keep.",
+    closing_message:
+      "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say.",
+  },
 }

@@ -7,7 +7,6 @@ type Wish = {
   name: string | null
   message: string
   created_at: string
-  is_pinned?: boolean
 }
 
 type Props = {
@@ -25,19 +24,19 @@ const DEMO_WISHES: Wish[] = [
   {
     id: "demo-1",
     name: "The Leonardo Family",
-    message: "Wishing you a lifetime of love, laughter, and togetherness. Congratulations, Vincent & Felicia!",
+    message: "Wishing you a lifetime of love, laughter, and togetherness. Congratulations!",
     created_at: new Date(Date.now() - 86_400_000).toISOString(),
   },
   {
     id: "demo-2",
-    name: "Felicia's University Friends",
-    message: "Finally! Wishing you both all the happiness in the world. We cannot wait to celebrate with you.",
+    name: "Faye's University Friends",
+    message: "Finally! Wishing you both all the happiness in the world.",
     created_at: new Date(Date.now() - 172_800_000).toISOString(),
   },
   {
     id: "demo-3",
-    name: "Vincent's Colleagues",
-    message: "May your marriage be filled with blessings, patience, and endless joy. Congratulations!",
+    name: "Albarn's Colleagues",
+    message: "May your marriage be filled with blessings and endless joy. Congratulations!",
     created_at: new Date(Date.now() - 259_200_000).toISOString(),
   },
 ]
@@ -48,13 +47,12 @@ function wishAgo(iso?: string): string {
   const minutes = Math.floor(diff / 60_000)
   if (minutes < 1) return "Just now"
   if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.floor(hours / 24)
+  if (minutes < 1440) return `${Math.floor(minutes / 60)}h ago`
+  const days = Math.floor(minutes / 1440)
   return days === 1 ? "1 day ago" : `${days} days ago`
 }
 
-export default function Wishes({ weddingProfileId, guestId, guestName, coupleName }: Props) {
+export default function ImagineWishes({ weddingProfileId, guestId, guestName }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
   const [name, setName] = useState(guestName || "")
@@ -91,10 +89,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, coupleNam
       setStatus("done")
       setFeedback("Preview mode — your wishes are not saved.")
       setMessage("")
-      window.setTimeout(() => {
-        setStatus("idle")
-        setFeedback("")
-      }, 4000)
+      window.setTimeout(() => { setStatus("idle"); setFeedback("") }, 4000)
       return
     }
     setStatus("sending")
@@ -120,14 +115,11 @@ export default function Wishes({ weddingProfileId, guestId, guestName, coupleNam
         setStatus("done")
         setFeedback("Thank you! Your wishes will appear after moderation.")
         setMessage("")
-        window.setTimeout(() => {
-          setStatus("idle")
-          setFeedback("")
-        }, 5000)
+        window.setTimeout(() => { setStatus("idle"); setFeedback("") }, 5000)
         return
       }
       setStatus("error")
-      setFeedback("Too many messages right now. Please try again in a moment.")
+      setFeedback("Could not send your wishes. Please try again in a moment.")
     } catch {
       setStatus("error")
       setFeedback("Could not send your wishes. Please check your connection.")
@@ -142,96 +134,82 @@ export default function Wishes({ weddingProfileId, guestId, guestName, coupleNam
   )
 
   return (
-    <section className="sheet__section sheet__section--wishes" data-io>
-      <h3 className="display story__heading">Wishes &amp; Prayers</h3>
-      <p className="wishes__intro serif-i">
-        Leave a message of love and a prayer for {coupleName || "the couple"}.
-      </p>
-
-      <div className="tpl-rsvp">
-        <form
-          className="tpl-rsvp__form"
-          onSubmit={(e: FormEvent) => {
-            e.preventDefault()
-            void send()
-          }}
-        >
+    <>
+      <form
+        className="wedding-wish-form"
+        onSubmit={(e: FormEvent) => {
+          e.preventDefault()
+          void send()
+        }}
+      >
+        <div className="form-group guest-name-wrap">
           {!guestName && (
-            <div className="tpl-rsvp__field">
-              <label htmlFor="sandhya-wish-name">Name</label>
-              <input
-                id="sandhya-wish-name"
-                className="tpl-rsvp__input"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
-                maxLength={80}
-                autoComplete="name"
-              />
-            </div>
-          )}
-
-          <div className="tpl-rsvp__field">
-            <label htmlFor="sandhya-wish-message">Wishes &amp; Prayers</label>
-            <textarea
-              id="sandhya-wish-message"
-              className="tpl-rsvp__textarea"
-              value={message}
-              onChange={(e) => setMessage(e.target.value.slice(0, MAX_CHARS))}
-              placeholder="Write your wishes"
-              rows={4}
-              maxLength={MAX_CHARS}
+            <input
+              type="text"
+              name="name"
+              className="form-control guest-name"
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={80}
+              autoComplete="name"
             />
-          </div>
-          <p className="tpl-rsvp__counter">{message.length} / {MAX_CHARS}</p>
-
-          <button type="submit" className="tpl-rsvp__submit" disabled={status === "sending" || !message.trim()}>
-            {status === "sending" ? "Sending..." : "Send Wishes"}
-          </button>
-
-          {feedback && (
-            <p className={`tpl-rsvp__feedback${status === "error" ? " is-error" : ""}`} role="status">
-              {feedback}
-            </p>
           )}
-        </form>
-
-        {!loaded && weddingProfileId && <p className="tpl-rsvp__empty">Loading wishes…</p>}
-        {loaded && wishes.length === 0 && (
-          <p className="tpl-rsvp__empty">No wishes yet. Be the first to leave one.</p>
+        </div>
+        <div className="form-group guest-comment-wrap" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="300">
+          <textarea
+            className="form-control guest-comment"
+            rows={1}
+            placeholder="Give your wish"
+            value={message}
+            onChange={(e) => setMessage(e.target.value.slice(0, MAX_CHARS))}
+            maxLength={MAX_CHARS}
+          />
+        </div>
+        <p className="wish-counter">{message.length} / {MAX_CHARS}</p>
+        <div className="submit-comment-wrap" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="400">
+          <button type="submit" className="submit submit-comment" disabled={status === "sending" || !message.trim()}>
+            {status === "sending" ? "Sending…" : "Send"}
+          </button>
+        </div>
+        {feedback && (
+          <p className={`wish-feedback${status === "error" ? " is-error" : ""}`} role="status">{feedback}</p>
         )}
+      </form>
 
+      <div className="comment-wrap">
+        {!loaded && weddingProfileId && <p className="wish-empty">Loading wishes…</p>}
+        {loaded && wishes.length === 0 && (
+          <p className="wish-empty">No wishes yet. Be the first to leave one.</p>
+        )}
         {wishes.length > 0 && (
-          <div className="tpl-rsvp__wishes">
-            <ul className="tpl-rsvp__wishes-list">
-              {pagedWishes.map((wish) => (
-                <li key={wish.id} className="tpl-rsvp__wish">
-                  <div className="tpl-rsvp__wish-header">
-                    <span className="tpl-rsvp__wish-name">{wish.name || "Our Beloved Guest"}</span>
-                    <span className="tpl-rsvp__wish-date">{wishAgo(wish.created_at)}</span>
+          <>
+            <ul className="wish-list">
+              {pagedWishes.map((w) => (
+                <li key={w.id} className="wish-item">
+                  <div className="comment-head">
+                    <span className="wish-name">{w.name || "Our Beloved Guest"}</span>
+                    <span className="wish-date">{wishAgo(w.created_at)}</span>
                   </div>
-                  <p className="tpl-rsvp__wish-message">{wish.message}</p>
+                  <p className="comment-body">{w.message}</p>
                 </li>
               ))}
             </ul>
-
             {totalPages > 1 && (
-              <div className="tpl-rsvp__wishes-pagination">
+              <div className="more-comment-wrap">
                 <button
                   type="button"
-                  className="tpl-rsvp__wishes-pg-btn"
+                  className="wish-pg-btn"
                   disabled={currentPage === 0}
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                   aria-label="Previous page"
                 >
                   ‹
                 </button>
-                <span className="tpl-rsvp__wishes-pg-info">
-                  {currentPage + 1} / {totalPages}
-                </span>
+                <span className="wish-pg-info">{currentPage + 1} / {totalPages}</span>
                 <button
                   type="button"
-                  className="tpl-rsvp__wishes-pg-btn"
+                  className="wish-pg-btn"
                   disabled={currentPage >= totalPages - 1}
                   onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                   aria-label="Next page"
@@ -240,9 +218,9 @@ export default function Wishes({ weddingProfileId, guestId, guestName, coupleNam
                 </button>
               </div>
             )}
-          </div>
+          </>
         )}
       </div>
-    </section>
+    </>
   )
 }
