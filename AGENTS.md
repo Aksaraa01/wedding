@@ -200,11 +200,25 @@ The VPS has 2GB RAM and CANNOT run `next build`. Build locally, rsync the standa
 >    set -a; source .env.local.prod; set +a; npm run build
 >    npm run deploy          # lock → guard → snapshot → rsync → pm2 → smoke → BUILD_ID check
 >    ```
->    `npm run deploy:guard` refuses stale trees, **unpushed HEADs**, wrong baked
->    env, or a registered template missing from the bundle. The deploy script
->    also takes a server-side `.deploy.lock` (20 min stale TTL) so two agents
->    cannot rsync simultaneously, and asserts the live BUILD_ID still matches
->    after the smoke test.
+>    `npm run deploy:guard` refuses stale trees, **unpushed HEADs**, **dirty
+>    working trees**, wrong baked env, or a registered template missing from the
+>    bundle. The deploy script also takes a server-side `.deploy.lock` (20 min
+>    stale TTL) so two agents cannot rsync simultaneously, re-verifies
+>    `origin/main` after the sync (rolling back if a push landed mid-deploy),
+>    and asserts the live BUILD_ID still matches after the smoke test.
+>
+>    **Build from a clean worktree.** The guard refuses a tree with uncommitted
+>    changes, because those are usually another agent's WIP sharing this checkout
+>    and would be compiled into the bundle:
+>    ```bash
+>    git fetch origin && git worktree add --detach /tmp/build origin/main
+>    cd /tmp/build && cp -Rc "$OLDPWD/node_modules" ./node_modules
+>    set -a; source /path/to/repo/.env.local.prod; set +a
+>    npm run build && npm run deploy
+>    ```
+>    rsync runs with `--checksum`, so only real content deltas are transferred
+>    (a fresh worktree's checkout timestamps would otherwise re-push the whole
+>    ~160 MB of `public/` template media and stretch the outage window to ~13 min).
 > 3. Never bypass the guard/lock (`--allow-stale`, `--skip-build-check`) unless
 >    the other agent is confirmed stopped. If the lock is held, wait — do not
 >    delete it manually.

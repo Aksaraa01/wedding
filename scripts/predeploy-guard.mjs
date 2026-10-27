@@ -4,14 +4,18 @@
  *
  * Fails loudly when the build is not safe to ship:
  *  1. working tree is behind origin/main (the exact cause of the adat-jawa-2 wipe:
- *     a stale tree deployed over a newer build),
+ *     a stale tree deployed over a newer build), is ahead of it (unpushed work
+ *     other agents cannot see), or has uncommitted changes (another agent's WIP
+ *     would be compiled into the bundle),
  *  2. NEXT_PUBLIC_* env baked into the bundle points at the wrong Supabase project,
  *  3. a registered in-house template is missing from the built bundle.
  *
  * Usage:
  *   node scripts/predeploy-guard.mjs                 # prod (default)
  *   node scripts/predeploy-guard.mjs --ref jclolnjkjhyjilvymagr   # staging
- *   node scripts/predeploy-guard.mjs --allow-stale   # skip the git check
+ *   node scripts/predeploy-guard.mjs --allow-stale   # skip the git sync check
+ *   node scripts/predeploy-guard.mjs --allow-dirty   # skip the clean-tree check
+ *   node scripts/predeploy-guard.mjs --sync-only     # git checks only (post-rsync)
  */
 import { execSync } from "node:child_process"
 import { readFileSync, existsSync } from "node:fs"
@@ -19,8 +23,20 @@ import { readFileSync, existsSync } from "node:fs"
 const args = process.argv.slice(2)
 const allowStale = args.includes("--allow-stale")
 const allowAhead = args.includes("--allow-ahead")
+const allowDirty = args.includes("--allow-dirty")
+// --sync-only re-runs just the git checks (used after the rsync to catch a push
+// that landed while the deploy was copying files).
+const syncOnly = args.includes("--sync-only")
 const refIdx = args.indexOf("--ref")
 const expectRef = refIdx >= 0 ? args[refIdx + 1] : "ylmfgorryxzpdckkebnr"
+
+// Build noise + docs never affect the bundle or the served files.
+const DIRTY_ALLOWLIST = [
+  /^tsconfig\.tsbuildinfo$/,
+  /\.log$/,
+  /^docs\//,
+  /^(^|\/)\.DS_Store$/,
+]
 
 const fail = (msg) => {
   console.error(`\n✗ PREDEPLOY GUARD FAILED\n  ${msg}\n`)
@@ -64,6 +80,44 @@ if (!allowStale) {
     console.warn("! could not verify git sync (git unavailable) — continuing")
   }
 }
+
+// ---------- 1b. working tree must be clean ----------
+// Uncommitted work (typically another agent's WIP sharing this checkout) is
+// compiled into the bundle and deployed, and untracked files under src/ or
+// public/ are picked up by file-system routing and rsync even without a commit.
+if (!allowDirty && !syncOnly) {
+  let porcelain = ""
+  try {
+    porcelain = execSync("git status --porcelain --untracked-files=all", {
+      encoding: "utf8",
+      env: { ...process.env, DEVELOPER_DIR: "/Library/Developer/CommandLineTools" },
+    })
+  } catch {
+    console.warn("! could not read git status — continuing")
+  }
+  const dirty = porcelain
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((l) => l.replace(/^[A-Z?!]{1,2}\s+/, "").trim())
+    .filter((p) => p && !DIRTY_ALLOWLIST.some((re) => re.test(p)))
+  if (dirty.length > 0) {
+    fail(
+      `working tree has ${dirty.length} uncommitted path(s):\n` +
+        dirty.slice(0, 12).map((p) => `    ${p}`).join("\n") +
+        (dirty.length > 12 ? `\n    …and ${dirty.length - 12} more` : "") +
+        `\n  Building here would compile another agent's work-in-progress into the bundle.\n` +
+        `  Commit it, stash it, or build from a clean worktree:\n` +
+        `    git worktree add --detach /tmp/build origin/main && cd /tmp/build\n` +
+        `  (pass --allow-dirty if the changes are yours and intended)`,
+    )
+  }
+  ok("working tree clean")
+}
+
+// --sync-only stops here: deploy.sh re-runs this after the rsync to catch a
+// push that landed while files were copying.
+if (syncOnly) process.exit(0)
 
 // ---------- 2. baked Supabase env ----------
 const chunkDir = ".next/standalone/.next/server/chunks"
