@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import type { TemplateProps } from "@/types/template"
+import { ASSETS } from "@/lib/assets"
+import { AKSARAA_WA_NUMBER } from "@/lib/contact"
 import {
   countdownTarget,
   coverPhoto as coverPhotoOf,
@@ -91,6 +93,7 @@ export default function Manjari(profile: TemplateProps) {
   const countdown = useCountdown(profile.estimated_wedding_date, profile.sessions)
   const calendarUrl = gcalLink(events[0], profile.groom_name || "", profile.bride_name || "")
   const closingMessage = tc.closing_message || DEFAULT_CLOSING
+  const waHref = `https://wa.me/${AKSARAA_WA_NUMBER}?text=${encodeURIComponent("Halo Aksaraa Wedding, saya tertarik membuat undangan digital")}`
 
   const openInvitation = useCallback(() => {
     setOpened(true)
@@ -371,6 +374,21 @@ export default function Manjari(profile: TemplateProps) {
               </div>
               <h3>{coupleLabel}</h3>
               {profile.display_name && <span className="thanks__hashtag">{profile.display_name}</span>}
+              <footer className="tpl-footer manjari-footer">
+                <a
+                  className="tpl-footer__link"
+                  href={waHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Hubungi Aksaraa Wedding via WhatsApp"
+                >
+                  <span className="tpl-footer__badge">
+                    <img src={ASSETS.galeriEnvelope.aksaraaLogo} alt="Aksaraa Wedding" className="tpl-footer__logo" draggable={false} />
+                  </span>
+                  <span className="tpl-footer__cta">Wedding by Aksaraa</span>
+                </a>
+                <p className="tpl-footer__text">© {new Date().getFullYear()} {coupleLabel}. All rights reserved.</p>
+              </footer>
             </div>
           </section>
         </main>
