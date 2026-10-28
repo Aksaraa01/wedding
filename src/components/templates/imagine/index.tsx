@@ -180,31 +180,30 @@ export default function Imagine(props: TemplateProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const rootRef = useRef<HTMLDivElement | null>(null)
 
-  // AOS-like reveal: rAF + scroll driven (robust across browsers/tabs)
+  // AOS-like reveal: rAF + scroll driven (robust across browsers/tabs).
+  // Honors reference AOS semantics: duration/delay attrs, `.aos-animate`
+  // class (required by base css `.bg-tc.aos-animate` scaleAnimate).
   useEffect(() => {
     const root = rootRef.current
     if (!root) return
     let raf = 0
     const reveal = () => {
       raf = 0
-      root.querySelectorAll<HTMLElement>("[data-aos]:not(.aos-in)").forEach((el) => {
+      root.querySelectorAll<HTMLElement>("[data-aos]:not(.aos-animate)").forEach((el) => {
         const gate = el.closest(".top-cover")
+        const fire = () => {
+          el.style.transitionDuration = `${el.dataset.aosDuration || 400}ms`
+          el.style.transitionDelay = `${el.dataset.aosDelay || 0}ms`
+          el.classList.add("aos-animate")
+        }
         if (gate) {
           // Gate elements run their intro timeline while the gate is up;
           // skip once the gate is closed (post-open) — nothing is visible there.
-          if (!gate.classList.contains("is-hidden")) {
-            const delay = parseInt(el.dataset.aosDelay || "0", 10)
-            el.style.transitionDelay = `${delay}ms`
-            el.classList.add("aos-in")
-          }
+          if (!gate.classList.contains("is-hidden")) fire()
           return
         }
         const r = el.getBoundingClientRect()
-        if (r.top < window.innerHeight * 0.92 && r.bottom > 0) {
-          const delay = parseInt(el.dataset.aosDelay || "0", 10)
-          el.style.transitionDelay = `${delay}ms`
-          el.classList.add("aos-in")
-        }
+        if (r.top < window.innerHeight - 120 && r.bottom > 0) fire()
       })
     }
     const schedule = () => {
@@ -229,6 +228,13 @@ export default function Imagine(props: TemplateProps) {
     document.documentElement.classList.toggle("has-imagine-locked", !opened)
     return () => document.documentElement.classList.remove("has-imagine-locked")
   }, [opened])
+
+  // Reference shows no gate overlay on desktop (top-cover is display:none
+  // above 960px — the invitation sits immediately in the secondary pane).
+  // Auto-reveal there; mobile keeps the gate.
+  useEffect(() => {
+    if (window.matchMedia("(min-width: 961px)").matches) setOpened(true)
+  }, [])
 
   const openInvitation = () => {
     setOpened(true)
@@ -615,7 +621,10 @@ export default function Imagine(props: TemplateProps) {
                   </div>
                 </div>
                 {count && (
-                  <div className="save-date-body">
+                  // `.save-date` is the absolutely-centered overlay inside the
+                  // orn-23 frame (reference .save-date-wrap .save-date rule).
+                  <div className="save-date">
+                    <div className="save-date-body">
                     <div className="countdown">
                       {[
                         { n: count.d, t: "Days", cls: "count-day", aos: "fade-down-right", delay: 100 },
@@ -630,6 +639,7 @@ export default function Imagine(props: TemplateProps) {
                       ))}
                     </div>
                   </div>
+                </div>
                 )}
                 {dateParts && (
                   <div className="save-date-date" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="900">
@@ -1075,9 +1085,7 @@ export default function Imagine(props: TemplateProps) {
             className={`tpl-music-btn visible${musicOn ? " playing" : ""}`}
             onClick={toggleMusic}
             aria-label={musicOn ? "Pause music" : "Play music"}
-          >
-            {musicOn ? "❮❮" : "▶"}
-          </button>
+          />
         )}
       </section>
 

@@ -5,30 +5,36 @@
    wishes, gift cards, footer brand badge, music button.
    ============================================================ */
 
-/* --- data-aos reveal via IntersectionObserver --- */
-.imagine-root [data-aos]{opacity:0;transition:opacity 1s ease,transform 1s ease;transition-delay:0ms;will-change:opacity,transform}
-.imagine-root [data-aos].aos-in{opacity:1;transform:none}
-.imagine-root [data-aos="fade-down"]{transform:translateY(-24px)}
-.imagine-root [data-aos="fade-up"]{transform:translateY(24px)}
-.imagine-root [data-aos="fade-left"]{transform:translateX(24px)}
-.imagine-root [data-aos="fade-right"]{transform:translateX(-24px)}
-.imagine-root [data-aos="fade-up-right"]{transform:translate(-24px,24px)}
-.imagine-root [data-aos="fade-up-left"]{transform:translate(24px,24px)}
-.imagine-root [data-aos="fade-down-right"]{transform:translate(-24px,-24px)}
-.imagine-root [data-aos="fade-down-left"]{transform:translate(24px,-24px)}
-.imagine-root [data-aos="zoom-in"]{transform:scale(.88)}
-.imagine-root [data-aos="zoom-out"]{transform:scale(1.12)}
-.imagine-root [data-aos="zoom-in-up"]{transform:scale(.92) translateY(24px)}
-.imagine-root [data-aos="zoom-in-down"]{transform:scale(.92) translateY(-24px)}
-.imagine-root [data-aos="zoom-out-up"]{transform:scale(1.08) translateY(24px)}
+/* --- data-aos reveal via IntersectionObserver (AOS-parity rules) --- */
+.imagine-root [data-aos]{transition-duration:400ms;transition-timing-function:ease;will-change:opacity,transform}
+.imagine-root [data-aos^=fade]{opacity:0;transition-property:opacity,transform}
+.imagine-root [data-aos^=fade].aos-animate{opacity:1;transform:translateZ(0)}
+.imagine-root [data-aos=fade-up]{transform:translate3d(0,100px,0)}
+.imagine-root [data-aos=fade-down]{transform:translate3d(0,-100px,0)}
+.imagine-root [data-aos=fade-right]{transform:translate3d(-100px,0,0)}
+.imagine-root [data-aos=fade-left]{transform:translate3d(100px,0,0)}
+.imagine-root [data-aos=fade-up-right]{transform:translate3d(-100px,100px,0)}
+.imagine-root [data-aos=fade-up-left]{transform:translate3d(100px,100px,0)}
+.imagine-root [data-aos=fade-down-right]{transform:translate3d(-100px,-100px,0)}
+.imagine-root [data-aos=fade-down-left]{transform:translate3d(100px,-100px,0)}
+.imagine-root [data-aos^=zoom]{opacity:0;transition-property:opacity,transform}
+.imagine-root [data-aos^=zoom].aos-animate{opacity:1;transform:translateZ(0) scale(1)}
+.imagine-root [data-aos=zoom-in]{transform:scale(.6)}
+.imagine-root [data-aos=zoom-in-up]{transform:translate3d(0,100px,0) scale(.6)}
+.imagine-root [data-aos=zoom-in-down]{transform:translate3d(0,-100px,0) scale(.6)}
+.imagine-root [data-aos=zoom-out]{transform:scale(1.2)}
+.imagine-root [data-aos=zoom-out-up]{transform:translate3d(0,100px,0) scale(1.2)}
+.imagine-root [data-aos=zoom-out-down]{transform:translate3d(0,-100px,0) scale(1.2)}
 
-/* --- gate lock + open --- */
+/* --- gate lock + open (mobile-only overlay; reference hides top-cover >960px) --- */
 html.has-imagine-locked,body:has(.imagine-root.is-pre-open){overflow:hidden !important}
 .imagine-root.is-pre-open .kat-page__side-to-side{opacity:0}
-.imagine-root.is-pre-open .top-cover{display:flex}
 .imagine-root.is-pre-open .footer,.imagine-root.is-pre-open .music-outer{display:none}
-.imagine-root.is-open .top-cover{opacity:0;display:flex;pointer-events:none;visibility:hidden;transition:opacity .9s ease .1s}
+.imagine-root.is-open .top-cover{opacity:0;pointer-events:none;visibility:hidden;transition:opacity .9s ease .1s}
 .imagine-root.is-open .kat-page__side-to-side{opacity:1}
+@media (min-width:961px){
+  .imagine-root .top-cover{display:none !important}
+}
 
 .imagine-root .top-cover .link-wrap{display:flex;flex-direction:column;align-items:center;gap:16px}
 .imagine-root .top-cover .link-wrap p{color:var(--text-secondary);font-family:var(--body-text-family);font-size:var(--body-text-size);margin:0 0 12px}
@@ -130,12 +136,19 @@ html.has-imagine-locked,body:has(.imagine-root.is-pre-open){overflow:hidden !imp
 .imagine-root .tpl-footer__badge img{border-radius:50%;height:30px;object-fit:cover;width:30px}
 .imagine-root .tpl-footer__cta{color:var(--text-secondary);font-family:var(--body-text-family);font-size:13px;font-weight:600}
 
-/* --- floating music button --- */
-.imagine-root .music-outer{position:relative;z-index:60}
-.imagine-root .tpl-music-btn{align-items:center;background-color:var(--button-background-secondary);border-radius:50%;border:0;cursor:pointer;display:flex;font-size:16px;justify-content:center;height:44px;opacity:0;pointer-events:none;position:fixed;right:16px;transition:all .5s ease;width:44px;z-index:70}
+/* --- floating music button (reference spinning disc) --- */
+.imagine-root .music-outer{bottom:15px;display:inline-block;left:15px;position:fixed;vertical-align:top;z-index:999}
+@media (max-width:960px){
+  .imagine-root .music-outer{bottom:12px;left:12px}
+}
+.imagine-root .tpl-music-btn{background-image:url(/templates/imagine/music.png);background-position:50%;background-repeat:no-repeat;background-size:100% 100%;border:0;cursor:pointer;height:60px;left:0;opacity:0;pointer-events:none;position:fixed;top:0;transform:rotate(0deg);transition:all .8s cubic-bezier(.23,.56,.38,.78);width:60px;z-index:70}
 .imagine-root .tpl-music-btn.visible{opacity:1;pointer-events:all}
-.imagine-root .tpl-music-btn.playing{box-shadow:0 0 0 3px rgba(var(--background-tertiary-rgb),.4)}
+.imagine-root .tpl-music-btn.playing{animation:imagine-play-music 20s linear infinite}
 .imagine-root.is-pre-open .tpl-music-btn{opacity:0;pointer-events:none}
+@keyframes imagine-play-music{0%{transform:rotate(0)}100%{transform:rotate(-360deg)}}
+@media (max-width:960px){
+  .imagine-root .tpl-music-btn{height:45px;width:45px}
+}
 
 @media (max-width:960px){
   .imagine-root .invite-list{columns:2}
