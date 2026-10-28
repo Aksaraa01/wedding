@@ -80,27 +80,32 @@ html.has-imagine-locked,body:has(.imagine-root.is-pre-open){overflow:hidden !imp
 .imagine-root .dress-item-title{color:var(--text-primary);margin:0 0 8px}
 
 /* --- livestream --- */
-.imagine-root .live-streaming .title{color:var(--text-primary);text-align:center}
-.imagine-root .live-streaming .preview{text-align:center}
+.imagine-root .live-streaming .inner .head h1{margin:0}
+.imagine-root .live-streaming .inner .body>.streaming-info{display:block}
+.imagine-root .live-streaming .inner .body>.streaming-info>div>.preview.wide{height:auto;max-width:none;overflow:hidden;position:relative;width:100%}
+.imagine-root .live-streaming .inner .body>.streaming-info>div>.preview.wide>img{display:block;height:100%;max-width:100%;object-fit:cover;object-position:center;width:100%}
+.imagine-root .live-streaming .inner .body>.streaming-info>div>.preview>.play-btn{align-items:center;background-color:var(--background-secondary);border:none;border-radius:50%;cursor:pointer;display:flex;height:70px;justify-content:center;left:50%;opacity:.85;outline:none;position:absolute;top:50%;transform:translate(-50%,-50%);transition:all .25s ease-in-out;width:70px}
+.imagine-root .live-streaming .inner .body>.streaming-info>div>.preview>.play-btn:before{border-bottom:12px solid transparent;border-left:20px solid var(--button-text-secondary);border-top:12px solid transparent;content:"";display:block;margin-left:5px;width:0;height:0}
+.imagine-root .live-streaming .inner .body>.streaming-info>div>.preview>.play-btn:hover{opacity:1;transform:translate(-50%,-50%) scale(1.08)}
 
 /* --- video embed --- */
 .imagine-root .video-outer .iframe,
 .imagine-root .video-gallery .preview iframe{aspect-ratio:16/9;border:0;border-radius:16px;display:block;height:auto;overflow:hidden;width:100%}
 
-/* --- gift cards + address --- */
-.imagine-root .wedding-gift-cards{display:flex;flex-direction:column;gap:20px}
-.imagine-root .hadiah-cards{display:grid;gap:16px;grid-template-columns:1fr}
-.imagine-root .hadiah-card{color:var(--text-primary);padding:20px 24px 16px;position:relative;z-index:2}
-.imagine-root .hadiah-card .bank-name{margin:0 0 12px}
-.imagine-root .hadiah-card small{opacity:.75}
-.imagine-root .hadiah-card h4{margin:2px 0 10px}
-.imagine-root .wedding-gift-address-wrap{position:relative;z-index:2}
+/* --- gift (reference envelope form) --- */
+.imagine-root .wedding-gift-bank-wrap .bank-item{display:block;align-items:flex-start;padding:0}
+.imagine-root .wedding-gift-bank-wrap .bank-item + .bank-item{margin-top:28px}
+.imagine-root .wedding-gift-address-wrap{margin-top:40px;position:relative;z-index:2}
 .imagine-root .gift-address-box{background-color:var(--background-secondary);border-radius:12px;color:var(--text-secondary);padding:20px 24px;text-align:center}
 .imagine-root .gift-address-name{color:var(--text-primary);margin:0 0 8px}
 .imagine-root .gift-address-text{font-family:var(--body-text-family);font-size:15px;margin:4px 0 0}
 
 /* --- wishes --- */
 .imagine-root .photo-quote{color:var(--text-secondary);font-family:var(--body-text-family);font-size:15px;line-height:1.6;margin:8px 0 0;text-align:center}
+.imagine-root .love-story .story-slide{margin-bottom:56px}
+.imagine-root .love-story .story-slide:last-child{margin-bottom:0}
+.imagine-root .love-story .story-slide .orn-story{width:50%}
+.imagine-root .love-story .story-details{padding:16px 0 0}
 .imagine-root .cover-apology{color:var(--text-secondary);opacity:.85;font-family:var(--body-text-family);font-size:12px;font-style:italic;margin:12px 0 0;text-align:center}
 .imagine-root .wedding-wish-description{color:var(--text-secondary);font-family:var(--body-text-family);font-size:15px;margin:8px 0 0;text-align:center}
 .imagine-root .wedding-wish-head{text-align:center}
@@ -112,12 +117,13 @@ html.has-imagine-locked,body:has(.imagine-root.is-pre-open){overflow:hidden !imp
 .imagine-root .wish-feedback{color:var(--text-secondary);margin:8px 0 0;text-align:center}
 .imagine-root .wish-feedback.is-error{color:#f0b9a0}
 .imagine-root .wish-empty{color:var(--text-secondary);opacity:.8;text-align:center}
+.imagine-root .comment-wrap{display:block}
 .imagine-root .wish-list{list-style:none;margin:0;padding:0}
-.imagine-root .wish-item{background:rgba(var(--background-tertiary-rgb),.08);border:1px solid rgba(var(--background-tertiary-rgb),.35);border-radius:12px;color:var(--text-secondary);margin-bottom:12px;padding:14px 18px}
-.imagine-root .comment-head{align-items:center;display:flex;justify-content:space-between;margin-bottom:6px}
-.imagine-root .wish-name{color:var(--text-primary);font-weight:600}
-.imagine-root .wish-date{opacity:.7}
-.imagine-root .comment-body{font-family:var(--body-text-family);font-size:14px;line-height:1.6;margin:0}
+.imagine-root .comment-item{background-color:var(--background-secondary);border:none;border-radius:8px;color:var(--text-secondary);margin-bottom:24px;padding:12px}
+.imagine-root .comment-head{display:block;margin-bottom:8px;position:relative}
+.imagine-root .wish-name{color:var(--text-primary);font-family:var(--body-text-family);font-size:var(--body-text-size);font-weight:var(--body-text-weight)}
+.imagine-root .wish-date{color:var(--text-secondary);display:block;font-family:var(--body-text-family);font-size:calc(var(--body-text-size) - 4px);margin-top:8px}
+.imagine-root .comment-body{font-family:var(--body-text-family);font-size:var(--body-text-size);line-height:normal;margin:0}
 .imagine-root .more-comment-wrap{display:flex;gap:12px;justify-content:center;margin-top:16px}
 .imagine-root .wish-pg-btn,.imagine-root .wish-pg-info{align-items:center;align-self:center;background-color:var(--button-background-secondary);border:0;border-radius:999px;color:var(--button-text-secondary);display:flex;font-weight:600;height:36px;justify-content:center;width:36px}
 .imagine-root .wish-pg-info{background:transparent;color:var(--text-secondary);width:auto}
@@ -161,11 +167,9 @@ html.has-imagine-locked,body:has(.imagine-root.is-pre-open){overflow:hidden !imp
 
 @media (max-width:960px){
   .imagine-root .invite-list{columns:2}
-  .imagine-root .hadiah-cards{grid-template-columns:1fr}
 }
 @media (min-width:961px){
-  .imagine-root .hadiah-cards{grid-template-columns:1fr 1fr}
-  .imagine-root .wedding-gift-cards{max-width:640px}
+  .imagine-root .wedding-gift-form{max-width:640px}
 }
 
 /* --- scrollbar parity with reference (body.aine) --- */

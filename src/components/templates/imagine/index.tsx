@@ -17,6 +17,12 @@ const WINE_SVG = <svg className="activity-icon ic-wine" viewBox="0 0 512 512" fi
 
 const ASSET = (name: string) => `/templates/imagine/${name}`
 
+function ytThumbnail(url?: string): string | null {
+  if (!url) return null
+  const id = url.match(/(?:youtube\.com\/(?:watch\?[^#]*v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})/)?.[1]
+  return id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : null
+}
+
 function ornament(name: string, aos: string, duration = 1200, delay = 400) {
   return (
     <div className="image-wrap" data-aos={aos} data-aos-duration={String(duration)} data-aos-delay={String(delay)}>
@@ -785,16 +791,30 @@ export default function Imagine(props: TemplateProps) {
           {showLivestream && (
             <section className="live-streaming" data-section-order="livestream">
               <div className="inner">
-                <div className="title" data-aos="zoom-out" data-aos-duration="1000">
-                  <h1 data-aos="zoom-out-up" data-aos-duration="1000">{livestream?.title || "Live Streaming"}</h1>
+                <div className="head">
+                  <h1 data-aos="zoom-in" data-aos-duration="1000">{livestream?.title || "Live Streaming"}</h1>
                   {livestream?.description && (
                     <p data-aos="fade-up" data-aos-duration="1000">{livestream.description}</p>
                   )}
                 </div>
-                <div className="video-outer">
-                  <div className="video">
-                    <div className="preview" data-aos="zoom-in" data-aos-duration="1000">
-                      <a href={livestream?.url} target="_blank" rel="noreferrer" className="play-btn">
+                <div className="body">
+                  <div className="streaming-info">
+                    {ytThumbnail(livestream?.url) && (
+                      <div>
+                        <div className="preview wide youtube" data-aos="fade-up" data-aos-duration="1000">
+                          <img src={ytThumbnail(livestream?.url)!} alt="" />
+                          <a
+                            href={livestream?.url || "#"}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="play-btn"
+                            aria-label="Watch Live"
+                          />
+                        </div>
+                      </div>
+                    )}
+                    <div className="link" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
+                      <a href={livestream?.url || "#"} target="_blank" rel="noreferrer">
                         {livestream?.buttonLabel || "Watch Live"}
                       </a>
                     </div>
@@ -873,44 +893,38 @@ export default function Imagine(props: TemplateProps) {
                   </h1>
                 </div>
                 <div className="story-body">
-                  <div className="story__slider-preview">
-                    {stories.map((s, i) => (
-                      <div key={i}>
-                        <div className="story-preview">
-                          <div className="story-picture">
-                            {s.image_url && (
-                              <a href={s.image_url} target="_blank" rel="noreferrer">
-                                <img src={s.image_url} alt={s.title || `Story ${i + 1}`} />
-                              </a>
-                            )}
-                          </div>
-                          {s.title && (
-                            <h3 className="story-sub-title" data-aos="fade-up" data-aos-duration="1000">{s.title}</h3>
+                  {stories.map((s, i) => (
+                    <div key={i} className="story-slide">
+                      <div className="story-preview">
+                        <div className="story-picture">
+                          {s.image_url && (
+                            <a href={s.image_url} target="_blank" rel="noreferrer">
+                              <img src={s.image_url} alt={s.title || `Story ${i + 1}`} />
+                            </a>
                           )}
                         </div>
+                        {s.title && (
+                          <h3 className="story-sub-title" data-aos="fade-up" data-aos-duration="1000">{s.title}</h3>
+                        )}
                       </div>
-                    ))}
-                  </div>
-                  <div className="story__slider-caption-wrap">
-                    <div className="orn-story">
-                      <div className="image-wrap" data-aos="zoom-in" data-aos-duration="1000">
-                        <svg className="orn-story-svg" viewBox="0 0 108 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M54 0L58 5H50L54 0ZM0 7.5H44M64 7.5H108" stroke="#8F3B0C" strokeWidth="0.6" />
-                          <circle cx="46" cy="7.5" r="1" fill="#8F3B0C" />
-                          <circle cx="62" cy="7.5" r="1" fill="#8F3B0C" />
-                        </svg>
-                      </div>
-                    </div>
-                    <div className="story__slider-caption">
-                      {stories.map((s, i) => (
-                        <div key={i}>
+                      {s.description && (
+                        <>
+                          <div className="orn-story">
+                            <div className="image-wrap" data-aos="zoom-in" data-aos-duration="1000">
+                              <svg className="orn-story-svg" viewBox="0 0 108 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M54 0L58 5H50L54 0ZM0 7.5H44M64 7.5H108" stroke="#8F3B0C" strokeWidth="0.6" />
+                                <circle cx="46" cy="7.5" r="1" fill="#8F3B0C" />
+                                <circle cx="62" cy="7.5" r="1" fill="#8F3B0C" />
+                              </svg>
+                            </div>
+                          </div>
                           <div className="story-details">
                             <p className="story-caption" data-aos="fade-up" data-aos-duration="1000">{s.description}</p>
                           </div>
-                        </div>
-                      ))}
+                        </>
+                      )}
                     </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </section>
@@ -943,28 +957,32 @@ export default function Imagine(props: TemplateProps) {
                         <div className="orn-gift--front-top-2 right">{ornament("orn-01-min.png", "fade-up", 1200, 200)}</div>
                         <div className="orn-gift--front-top-2 left">{ornament("orn-01-min.png", "fade-up", 1200, 200)}</div>
                       </div>
-                      <div className="wedding-gift-cards">
-                        {(gift_accounts || []).length > 0 && (
-                          <div className="hadiah-cards">
-                            {(gift_accounts || []).map((acc, i) => (
-                              <div className="hadiah-card" key={i} data-aos="fade-up" data-aos-duration="1000" data-aos-delay={String(i * 150)}>
-                                <div className="hadiah-card-inner">
-                                  <h3 className="bank-name">{acc.provider_name}</h3>
-                                  <div>
-                                    <small className="bank-account-number-label">Account Number</small>
-                                    <h4 className="bank-account-number" data-copy={acc.account_number}>
-                                      {acc.account_number}
-                                    </h4>
+                      <div className="wedding-gift-form" data-aos="fade-up" data-aos-duration="1000">
+                        <div className="wedding-gift-details wedding-gift__first-slide wedding-gift-slide">
+                          <div className="wedding-gift-slide">
+                            {(gift_accounts || []).length > 0 && (
+                              <div className="wedding-gift-bank-wrap">
+                                {(gift_accounts || []).map((acc, i) => (
+                                  <div className="bank-item" key={i}>
+                                    <div className="bank-detail">
+                                      <h3 className="bank-name">{acc.provider_name}</h3>
+                                      <div>
+                                        <small className="bank-account-number-label">Account Number</small>
+                                        <h4 className="bank-account-number" data-copy={acc.account_number}>
+                                          {acc.account_number}
+                                        </h4>
+                                      </div>
+                                      <div>
+                                        <small className="bank-account-name-label">Account Name</small>
+                                        <h4 className="bank-account-name">{acc.account_name}</h4>
+                                      </div>
+                                    </div>
                                   </div>
-                                  <div>
-                                    <small className="bank-account-name-label">Account Name</small>
-                                    <h4 className="bank-account-name">{acc.account_name}</h4>
-                                  </div>
-                                </div>
+                                ))}
                               </div>
-                            ))}
+                            )}
                           </div>
-                        )}
+                        </div>
                         {gates.gift_address !== false && gift_address && (
                           <div className="wedding-gift-address-wrap" data-aos="fade-up" data-aos-duration="1000">
                             <div className="gift-address-box">
