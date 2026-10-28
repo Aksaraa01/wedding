@@ -119,7 +119,7 @@ html.has-imagine-locked,body:has(.imagine-root.is-pre-open){overflow:hidden !imp
 .imagine-root .wish-empty{color:var(--text-secondary);opacity:.8;text-align:center}
 .imagine-root .comment-wrap{display:block}
 .imagine-root .wish-list{list-style:none;margin:0;padding:0}
-.imagine-root .comment-item{background-color:var(--background-secondary);border:none;border-radius:8px;color:var(--text-secondary);margin-bottom:24px;padding:12px}
+.imagine-root .comment-item,.imagine-root .wish-item{background-color:var(--background-secondary);border:none;border-radius:8px;color:var(--text-secondary);margin-bottom:24px;padding:12px}
 .imagine-root .comment-head{display:block;margin-bottom:8px;position:relative}
 .imagine-root .wish-name{color:var(--text-primary);font-family:var(--body-text-family);font-size:var(--body-text-size);font-weight:var(--body-text-weight)}
 .imagine-root .wish-date{color:var(--text-secondary);display:block;font-family:var(--body-text-family);font-size:calc(var(--body-text-size) - 4px);margin-top:8px}
