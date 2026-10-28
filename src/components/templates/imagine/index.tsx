@@ -18,12 +18,6 @@ const WINE_SVG = <svg className="activity-icon ic-wine" viewBox="0 0 512 512" fi
 
 const ASSET = (name: string) => `/templates/imagine/${name}`
 
-function ytThumbnail(url?: string): string | null {
-  if (!url) return null
-  const id = url.match(/(?:youtube\.com\/(?:watch\?[^#]*v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})/)?.[1]
-  return id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : null
-}
-
 function ornament(name: string, aos: string, duration = 1200, delay = 400) {
   return (
     <div className="image-wrap" data-aos={aos} data-aos-duration={String(duration)} data-aos-delay={String(delay)}>
@@ -153,12 +147,19 @@ function youTubeId(url?: string) {
     /[?&]v=([A-Za-z0-9_-]{6,})/,
     /youtube\.com\/embed\/([A-Za-z0-9_-]{6,})/,
     /youtube\.com\/shorts\/([A-Za-z0-9_-]{6,})/,
+    /youtube\.com\/live\/([A-Za-z0-9_-]{6,})/,
   ]
   for (const p of patterns) {
     const m = url.match(p)
     if (m) return m[1]
   }
   return url.length >= 6 && /^[A-Za-z0-9_-]+$/.test(url) ? url : null
+}
+
+function youTubeThumb(url?: string, quality: "maxres" | "hq" = "maxres"): string | null {
+  const id = youTubeId(url)
+  if (!id) return null
+  return `https://i.ytimg.com/vi/${id}/${quality === "maxres" ? "maxresdefault" : "hqdefault"}.jpg`
 }
 
 export default function Imagine(props: TemplateProps) {
@@ -292,6 +293,7 @@ export default function Imagine(props: TemplateProps) {
   const remaining = useCountdown(countTarget)
   const count = remaining === null ? null : pads(remaining)
   const ytId = youTubeId(video_url)
+  const streamThumb = youTubeThumb(livestream?.url)
 
   const coupleLabel = `${groom_name || ""} & ${bride_name || ""}`.trim()
 
@@ -818,24 +820,31 @@ export default function Imagine(props: TemplateProps) {
                 </div>
                 <div className="body">
                   <div className="streaming-info">
-                    {ytThumbnail(livestream?.url) && (
-                      <div>
-                        <div className="preview wide youtube" data-aos="fade-up" data-aos-duration="1000">
-                          <img src={ytThumbnail(livestream?.url)!} alt="" />
-                          <a
-                            href={livestream?.url || "#"}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="play-btn"
-                            aria-label="Watch Live"
+                    <div>
+                      <div
+                        className={`preview wide${streamThumb ? " youtube" : ""}`}
+                        data-aos="fade-up"
+                        data-aos-duration="1000"
+                      >
+                        {streamThumb && (
+                          <img
+                            src={streamThumb}
+                            alt=""
+                            onError={(e) => {
+                              const el = e.currentTarget
+                              const fallback = youTubeThumb(livestream?.url, "hq")
+                              if (fallback && el.src !== fallback) el.src = fallback
+                            }}
                           />
-                        </div>
+                        )}
+                        <a
+                          href={livestream?.url || "#"}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="play-btn"
+                          aria-label={livestream?.buttonLabel || "Watch Live"}
+                        />
                       </div>
-                    )}
-                    <div className="link" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
-                      <a href={livestream?.url || "#"} target="_blank" rel="noreferrer">
-                        {livestream?.buttonLabel || "Watch Live"}
-                      </a>
                     </div>
                   </div>
                 </div>

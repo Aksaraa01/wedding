@@ -79,14 +79,16 @@ html.has-imagine-locked,body:has(.imagine-root.is-pre-open){overflow:hidden !imp
 .imagine-root .dress-header{text-align:center}
 .imagine-root .dress-item-title{color:var(--text-primary);margin:0 0 8px}
 
-/* --- livestream --- */
+/* --- livestream (reference: 200px wide preview + 70px play bubble) --- */
 .imagine-root .live-streaming .inner .head h1{margin:0}
 .imagine-root .live-streaming .inner .body>.streaming-info{display:block}
-.imagine-root .live-streaming .inner .body>.streaming-info>div>.preview.wide{height:auto;max-width:none;overflow:hidden;position:relative;width:100%}
-.imagine-root .live-streaming .inner .body>.streaming-info>div>.preview.wide>img{display:block;height:100%;max-width:100%;object-fit:cover;object-position:center;width:100%}
-.imagine-root .live-streaming .inner .body>.streaming-info>div>.preview>.play-btn{align-items:center;background-color:var(--background-secondary);border:none;border-radius:50%;cursor:pointer;display:flex;height:70px;justify-content:center;left:50%;opacity:.85;outline:none;position:absolute;top:50%;transform:translate(-50%,-50%);transition:all .25s ease-in-out;width:70px}
-.imagine-root .live-streaming .inner .body>.streaming-info>div>.preview>.play-btn:before{border-bottom:12px solid transparent;border-left:20px solid var(--button-text-secondary);border-top:12px solid transparent;content:"";display:block;margin-left:5px;width:0;height:0}
-.imagine-root .live-streaming .inner .body>.streaming-info>div>.preview>.play-btn:hover{opacity:1;transform:translate(-50%,-50%) scale(1.08)}
+.imagine-root .live-streaming .inner .body>.streaming-info>div>.preview.wide{background-color:var(--background-secondary);height:200px;max-width:none;overflow:hidden;position:relative;width:100%}
+.imagine-root .live-streaming .inner .body>.streaming-info>div>.preview.wide.youtube{background-color:transparent;height:auto}
+.imagine-root .live-streaming .inner .body>.streaming-info>div>.preview.wide>img{display:block;height:100%;object-fit:cover;object-position:center;width:100%}
+.imagine-root .live-streaming .inner .body>.streaming-info>div>.preview>.play-btn{align-items:center;background-color:var(--background-tertiary);border:none;border-radius:50%;cursor:pointer;display:flex;height:70px;justify-content:center;left:50%;opacity:.6;outline:none;position:absolute;top:50%;transform:translate(-50%,-50%);transition:all .4s ease-in-out;width:70px}
+.imagine-root .live-streaming .inner .body>.streaming-info>div>.preview>.play-btn:before{border-bottom:13px solid transparent;border-left:22px solid var(--text-primary);border-top:13px solid transparent;content:"";display:block;margin-left:6px;width:0;height:0}
+.imagine-root .live-streaming .inner .body>.streaming-info>div>.preview>.play-btn:hover{opacity:1;transform:translate(-50%,-50%) scale(1.1)}
+.imagine-root .live-streaming .inner .body>.streaming-info>div>.preview.wide.youtube{height:auto}
 
 /* --- video embed --- */
 .imagine-root .video-outer .iframe,
