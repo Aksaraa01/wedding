@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import "./imagine.css"
 import type { TemplateProps } from "@/types/template"
 import InvitationOverlay from "@/components/InvitationOverlay"
-import { photoList } from "@/components/templates/shared/lib"
+import { initialsOf, photoList } from "@/components/templates/shared/lib"
 import ImagineWishes from "./ImagineWishes"
 
 type Session = NonNullable<TemplateProps["sessions"]>[number]
@@ -165,6 +165,7 @@ function youTubeThumb(url?: string, quality: "maxres" | "hq" = "maxres"): string
 export default function Imagine(props: TemplateProps) {
   const {
     groom_name, bride_name, estimated_wedding_date, cover_photos,
+    couple_initials,
     groom_photo_url, bride_photo_url,
     groom_full_name, bride_full_name,
     groom_parents, bride_parents,
@@ -338,6 +339,8 @@ export default function Imagine(props: TemplateProps) {
   const streamImage = cover || youTubeThumb(livestream?.url) || ""
 
   const coupleLabel = `${groom_name || ""} & ${bride_name || ""}`.trim()
+  // "Singkatan Pasangan": explicit initials, else derived from the names.
+  const coupleInitials = (couple_initials || "").trim() || initialsOf(groom_name, bride_name)
 
   // Guest dock (QR + RSVP) is a per-guest affair: only real invitation links
   // render it — template previews simulate no guest context.
@@ -1166,6 +1169,11 @@ export default function Imagine(props: TemplateProps) {
                 <div className="footnote-details">
                   <div className="footnote-details--content">
                     <p className="top-text" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="600">Wedding Invitation</p>
+                    {coupleInitials && (
+                      <p className="footnote-initials" data-aos="zoom-in" data-aos-duration="1200" data-aos-delay="700">
+                        {coupleInitials}
+                      </p>
+                    )}
                     <h2 className="footnote-title" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="800">
                       {coupleLabel || "The Wedding"}
                     </h2>

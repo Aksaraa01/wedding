@@ -69,6 +69,9 @@ html.has-imagine-locked,body:has(.imagine-root.is-pre-open){overflow:hidden !imp
 .imagine-root .count-num{margin:0}
 .imagine-root .event-item + .event-item{margin-top:40px}
 
+/* --- closing monogram (Singkatan Pasangan) --- */
+.imagine-root .footnote-details--content .footnote-initials{color:var(--text-primary);font-family:var(--heading-family);font-size:calc(var(--heading-size) - 26px);letter-spacing:.18em;line-height:1;margin:6px 0 0;text-indent:.18em;text-transform:uppercase}
+
 /* --- couple head: keep the subtext clear of the hanging lamps --- */
 .imagine-root .couple-head .couple-description{padding:0 15%}
 
