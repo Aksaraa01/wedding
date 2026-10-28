@@ -361,6 +361,7 @@ export default function Imagine(props: TemplateProps) {
 
   const groomIg = instagramLink(groom_instagram)
   const brideIg = instagramLink(bride_instagram)
+  const igHandle = (handle?: string) => (handle || "").replace(/^@/, "").trim()
 
   return (
     <div
@@ -600,7 +601,14 @@ export default function Imagine(props: TemplateProps) {
                     )}
                     {groomIg && (
                       <div className="couple-link-wrap" data-aos="fade-up" data-aos-duration="1000">
-                        <a href={groomIg} target="_blank" rel="noreferrer" className="couple-link">{groom_instagram}</a>
+                        <a href={groomIg} target="_blank" rel="noreferrer" className="couple-link">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+                            <rect x="3" y="3" width="18" height="18" rx="5" />
+                            <circle cx="12" cy="12" r="4" />
+                            <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none" />
+                          </svg>
+                          <span>{igHandle(groom_instagram)}</span>
+                        </a>
                       </div>
                     )}
                   </div>
@@ -650,7 +658,14 @@ export default function Imagine(props: TemplateProps) {
                     )}
                     {brideIg && (
                       <div className="couple-link-wrap" data-aos="fade-up" data-aos-duration="1000">
-                        <a href={brideIg} target="_blank" rel="noreferrer" className="couple-link">{bride_instagram}</a>
+                        <a href={brideIg} target="_blank" rel="noreferrer" className="couple-link">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+                            <rect x="3" y="3" width="18" height="18" rx="5" />
+                            <circle cx="12" cy="12" r="4" />
+                            <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none" />
+                          </svg>
+                          <span>{igHandle(bride_instagram)}</span>
+                        </a>
                       </div>
                     )}
                   </div>
