@@ -1260,7 +1260,8 @@ export default function Imagine(props: TemplateProps) {
           guestRsvpMessage={guest_rsvp_message || undefined}
           rsvpMaxPax={rsvp_max_pax ?? 2}
           qrEnabled={gates.qr_code_book === true}
-          anchor="center"
+          anchor="bottom"
+          bottom={80}
         />
       )}
     </div>

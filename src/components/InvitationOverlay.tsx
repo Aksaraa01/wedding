@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, type FormEvent } from "react"
+import { createPortal } from "react-dom"
 
 interface InvitationOverlayProps {
   guestId?: string
@@ -40,10 +41,15 @@ export default function InvitationOverlay({
   bottom = 24,
 }: InvitationOverlayProps) {
   const [qrOpen, setQrOpen] = useState(false)
+  // Rendered into <body> so template-scoped element rules (p/span/button
+  // typography) cannot restyle the dock or the RSVP/QR modals.
+  const [mounted, setMounted] = useState(false)
   const [rsvpOpen, setRsvpOpen] = useState(false)
   // In-house templates dispatch aksaraa:floating when their modal opens so the
   // floating QR/RSVP dock hides instead of overlapping the modal.
   const [externalHidden, setExternalHidden] = useState(false)
+
+  useEffect(() => setMounted(true), [])
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -153,7 +159,7 @@ export default function InvitationOverlay({
     }
   }
 
-  return (
+  const ui = (
     <>
       {/* Floating dock — right-center column by default, or bottom-right for
           in-house rooms so it never overlaps the hotspot area. */}
@@ -435,4 +441,6 @@ export default function InvitationOverlay({
       )}
     </>
   )
+
+  return mounted ? createPortal(ui, document.body) : ui
 }

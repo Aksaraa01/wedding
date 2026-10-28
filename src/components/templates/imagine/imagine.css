@@ -73,8 +73,6 @@ html.has-imagine-locked,body:has(.imagine-root.is-pre-open){overflow:hidden !imp
 .imagine-root .couple-link svg{flex:none;height:15px;width:15px}
 .imagine-root .couple-link span{font-family:var(--body-text-family);letter-spacing:.02em}
 
-/* --- Material Symbols must survive the base `span{font-family:inherit}` rule --- */
-.imagine-root .material-symbols-outlined{font-family:"Material Symbols Outlined"!important;font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;direction:ltr;font-feature-settings:"liga";-webkit-font-feature-settings:"liga";-webkit-font-smoothing:antialiased}
 
 /* --- closing monogram (Singkatan Pasangan) --- */
 .imagine-root .footnote-details--content .footnote-initials{color:var(--text-primary);font-family:var(--heading-family);font-size:calc(var(--heading-size) - 26px);letter-spacing:.18em;line-height:1;margin:6px 0 0;text-indent:.18em;text-transform:uppercase}
