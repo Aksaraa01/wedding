@@ -28,6 +28,8 @@
 set -euo pipefail
 
 SSH_KEY="${SSH_KEY:-$HOME/.ssh/aksaraa_deploy}"
+# Keepalive matters: this link drops idle/lossy connections mid-transfer.
+SSH_OPTS=(-i "$SSH_KEY" -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o TCPKeepAlive=yes -o ConnectTimeout=30)
 SERVER="${SERVER:-askaraa@103.93.135.176}"
 REMOTE="/var/www/aksara-wedding"
 SNAP="$REMOTE/.next/.deploy-snapshot"
@@ -42,15 +44,15 @@ step() { printf "\n\033[1m▸ %s\033[0m\n" "$1"; }
 # Serialize deploys across agents. Stale locks expire after 20 minutes.
 LOCK="$REMOTE/.deploy.lock"
 step "Acquire deploy lock"
-if ! ssh -i "$SSH_KEY" "$SERVER" "mkdir '$LOCK' 2>/dev/null"; then
-  if ssh -i "$SSH_KEY" "$SERVER" "find '$LOCK' -maxdepth 0 -mmin +20 2>/dev/null | grep -q ."; then
-    ssh -i "$SSH_KEY" "$SERVER" "rmdir '$LOCK' && mkdir '$LOCK'"
+if ! ssh "${SSH_OPTS[@]}" "$SERVER" "mkdir '$LOCK' 2>/dev/null"; then
+  if ssh "${SSH_OPTS[@]}" "$SERVER" "find '$LOCK' -maxdepth 0 -mmin +20 2>/dev/null | grep -q ."; then
+    ssh "${SSH_OPTS[@]}" "$SERVER" "rmdir '$LOCK' && mkdir '$LOCK'"
   else
     echo "✗ Another deploy is in progress (lock: $LOCK). Wait for it to finish."
     exit 1
   fi
 fi
-cleanup_lock() { ssh -i "$SSH_KEY" "$SERVER" "rmdir '$LOCK' 2>/dev/null" || true; }
+cleanup_lock() { ssh "${SSH_OPTS[@]}" "$SERVER" "rmdir '$LOCK' 2>/dev/null" || true; }
 trap cleanup_lock EXIT
 
 if [ "$SKIP_GUARD" = "0" ]; then
@@ -59,7 +61,7 @@ if [ "$SKIP_GUARD" = "0" ]; then
 fi
 
 step "Snapshot current server build (for rollback)"
-ssh -i "$SSH_KEY" "$SERVER" "
+ssh "${SSH_OPTS[@]}" "$SERVER" "
   set -e
   rm -rf '$SNAP'
   mkdir -p '$SNAP'
@@ -71,7 +73,7 @@ ssh -i "$SSH_KEY" "$SERVER" "
 rollback() {
   if [ "$NO_ROLLBACK" != "0" ]; then return 0; fi
   step "Rolling back to previous build"
-  ssh -i "$SSH_KEY" "$SERVER" "
+  ssh "${SSH_OPTS[@]}" "$SERVER" "
     set -e
     cd '$REMOTE'
     rm -rf .next/standalone .next/static
@@ -98,45 +100,71 @@ rollback() {
 #     stream with no round trips. public/ still uses rsync --checksum because
 #     only genuinely changed media should cross the wire (145 MB of templates).
 stream_to() { # $1=local dir  $2=remote dir  $3=extra tar args (may be empty)
-  # COPYFILE_DISABLE stops macOS tar from emitting AppleDouble ._ entries and
-  # per-file xattr headers (which doubled the file count and bloated the stream).
+  # COPYFILE_DISABLE stops macOS tar emitting AppleDouble ._ entries (which
+  # doubled the file count: 238 entries for 117 files).
+  # --no-xattrs stops the per-file LIBARCHIVE.xattr pax headers; without it the
+  # GNU tar on the VPS warns on every single file (~2600 log lines per deploy).
   # -z because the link is the wall (~80 KB/s): JS/JSON gzips ~4x.
   # shellcheck disable=SC2086
-  COPYFILE_DISABLE=1 tar -C "$1" $3 -czf - . \
-    | ssh -i "$SSH_KEY" "$SERVER" "mkdir -p '$2' && tar -C '$2' -xzf -"
+  COPYFILE_DISABLE=1 tar -C "$1" $3 --no-xattrs -czf - . \
+    | ssh "${SSH_OPTS[@]}" "$SERVER" "mkdir -p '$2' && tar -C '$2' -xzf -"
+}
+
+# This link drops connections (75% loss observed), so every network step retries.
+retry() { # $1=attempts  $2=label  $3..=command
+  local n="$1" label="$2"; shift 2
+  local i=1
+  while true; do
+    if "$@"; then return 0; fi
+    if [ "$i" -ge "$n" ]; then echo "  ✗ ${label} failed after ${n} attempt(s)"; return 1; fi
+    i=$((i + 1))
+    echo "  ↻ ${label}: retry ${i}/${n}"
+    sleep 5
+  done
+}
+
+sync_nm() {
+  COPYFILE_DISABLE=1 tar -C .next/standalone --no-xattrs -czf - node_modules \
+    | ssh "${SSH_OPTS[@]}" "$SERVER" "mkdir -p '$REMOTE/.next/standalone' && tar -C '$REMOTE/.next/standalone' -xzf - && printf '%s' '$NM_STAMP' > '$REMOTE/.next/standalone/node_modules/.deploy-stamp'"
+}
+sync_standalone() { stream_to .next/standalone "$REMOTE/.next/standalone" "--exclude ./node_modules"; }
+sync_static_top() { stream_to .next/static "$REMOTE/.next/static" ""; }
+sync_static_sa() { stream_to .next/static "$REMOTE/.next/standalone/.next/static" ""; }
+sync_public() {
+  rsync -az --checksum --partial --timeout=180 \
+    -e "ssh ${SSH_OPTS[*]}" public/ "$SERVER:$REMOTE/.next/standalone/public/"
 }
 
 # node_modules is identical between builds. Fingerprint the traced tree (file
-# list + sizes) and skip the whole 1100-file / 77 MB transfer when it matches.
+# list + sizes) and skip the whole 1100-file / 47 MB transfer when it matches.
 nm_stamp() {
   ( cd .next/standalone/node_modules && find . -type f | LC_ALL=C sort | xargs stat -f '%N:%z' 2>/dev/null | shasum | cut -d' ' -f1 )
 }
 NM_STAMP="$(nm_stamp)"
-NM_REMOTE="$(ssh -i "$SSH_KEY" "$SERVER" "cat '$REMOTE/.next/standalone/node_modules/.deploy-stamp' 2>/dev/null" 2>/dev/null || true)"
+NM_REMOTE="$(ssh "${SSH_OPTS[@]}" "$SERVER" "cat '$REMOTE/.next/standalone/node_modules/.deploy-stamp' 2>/dev/null" 2>/dev/null || true)"
 if [ -n "$NM_STAMP" ] && [ "$NM_STAMP" = "$NM_REMOTE" ]; then
   step "node_modules unchanged — skipped"
 else
   step "Sync node_modules (changed)"
-  COPYFILE_DISABLE=1 tar -C .next/standalone -czf - node_modules \
-    | ssh -i "$SSH_KEY" "$SERVER" "mkdir -p '$REMOTE/.next/standalone' && tar -C '$REMOTE/.next/standalone' -xzf - && printf '%s' '$NM_STAMP' > '$REMOTE/.next/standalone/node_modules/.deploy-stamp'"
+  retry 3 "node_modules" sync_nm
 fi
 
 step "Sync build output (tar stream, additive)"
-stream_to .next/standalone "$REMOTE/.next/standalone" "--exclude ./node_modules"
+retry 3 "build output" sync_standalone
 
 step "Sync static (.next/static)"
-stream_to .next/static "$REMOTE/.next/static" ""
+retry 3 "static" sync_static_top
 
 step "Sync static (standalone)"
-stream_to .next/static "$REMOTE/.next/standalone/.next/static" ""
+retry 3 "static (standalone)" sync_static_sa
 
 step "Sync public (delta, additive, must be last)"
-rsync -az --checksum -e "ssh -i $SSH_KEY" public/ "$SERVER:$REMOTE/.next/standalone/public/"
+retry 3 "public" sync_public
 
 # Additive syncs mean old chunk files linger. They are inert (content-hashed
 # names, long immutable cache) but they add up at ~16 MB per build.
 step "Prune chunk files older than 7 days"
-ssh -i "$SSH_KEY" "$SERVER" "
+ssh "${SSH_OPTS[@]}" "$SERVER" "
   for d in '$REMOTE/.next/standalone/.next/static' '$REMOTE/.next/static' '$REMOTE/.next/standalone/.next/server'; do
     [ -d \"\$d\" ] && find \"\$d\" -type f -mtime +7 -delete 2>/dev/null || true
   done
@@ -155,19 +183,19 @@ if ! node scripts/predeploy-guard.mjs --sync-only; then
 fi
 
 step "Reload PM2 (ecosystem, --update-env)"
-ssh -i "$SSH_KEY" "$SERVER" "cd '$REMOTE' && pm2 startOrRestart ecosystem.config.js --only aksara-wedding --update-env >/dev/null && sleep 4 && pm2 list | grep aksara-wedding"
+ssh "${SSH_OPTS[@]}" "$SERVER" "cd '$REMOTE' && pm2 startOrRestart ecosystem.config.js --only aksara-wedding --update-env >/dev/null && sleep 4 && pm2 list | grep aksara-wedding"
 
 step "Post-deploy smoke test"
 if node scripts/postdeploy-smoke.mjs; then
   LOCAL_BUILD="$(cat .next/standalone/.next/BUILD_ID)"
   sleep 2
-  REMOTE_BUILD="$(ssh -i "$SSH_KEY" "$SERVER" "cat '$REMOTE/.next/standalone/.next/BUILD_ID' 2>/dev/null || true")"
+  REMOTE_BUILD="$(ssh "${SSH_OPTS[@]}" "$SERVER" "cat '$REMOTE/.next/standalone/.next/BUILD_ID' 2>/dev/null || true")"
   if [ "$REMOTE_BUILD" != "$LOCAL_BUILD" ]; then
     echo "✗ Another deploy replaced this build (local=$LOCAL_BUILD remote=$REMOTE_BUILD)."
     exit 1
   fi
   step "Deployed successfully — BUILD_ID $LOCAL_BUILD"
-  ssh -i "$SSH_KEY" "$SERVER" "rm -rf '$SNAP'" >/dev/null 2>&1 || true
+  ssh "${SSH_OPTS[@]}" "$SERVER" "rm -rf '$SNAP'" >/dev/null 2>&1 || true
 else
   echo
   echo "✗ Smoke test failed."
