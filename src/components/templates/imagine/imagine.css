@@ -94,6 +94,25 @@ html.has-imagine-locked,body:has(.imagine-root.is-pre-open){overflow:hidden !imp
 .imagine-root .video-outer .iframe,
 .imagine-root .video-gallery .preview iframe{aspect-ratio:16/9;border:0;border-radius:16px;display:block;height:auto;overflow:hidden;width:100%}
 
+/* --- gallery (sandhya marquee rows) --- */
+.imagine-root .gallery-carousel{margin-top:8px}
+.imagine-root .car-row{margin:0 -24px;overflow:hidden}
+.imagine-root .car-row + .car-row{margin-top:10px}
+.imagine-root .car-track{animation:tplMarquee var(--dur,48s) linear infinite;display:flex;width:max-content}
+.imagine-root .car-row--rev .car-track{animation-direction:reverse}
+.imagine-root .car-tile{flex:0 0 auto;height:170px;margin:0 5px;position:relative;width:128px}
+.imagine-root .car-tile a{display:block;height:100%;width:100%}
+.imagine-root .car-tile img{display:block;height:100%;object-fit:cover;width:100%}
+@keyframes tplMarquee{0%{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){
+  .imagine-root .car-track{animation:none}
+}
+
+/* --- our footage: no trailing padding, tight title->video gap --- */
+.imagine-root .video-gallery{padding-bottom:0}
+.imagine-root .video-gallery .inner>.title{padding:0 24px 12px}
+.imagine-root .video-gallery .inner .video-outer .video{margin:0;padding:0 24px}
+
 /* --- gift (sandhya-style cards, imagine palette) --- */
 .imagine-root .tpl-gift{display:flex;flex-direction:column;gap:16px;margin:0 auto;max-width:440px;position:relative;z-index:2}
 .imagine-root .tpl-gift__account,.imagine-root .tpl-gift__address{background-color:var(--background-secondary);border-radius:16px;box-shadow:var(--shadow-01);color:var(--text-secondary);padding:24px 20px;text-align:center}

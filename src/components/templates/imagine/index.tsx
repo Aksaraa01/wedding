@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import "./imagine.css"
 import type { TemplateProps } from "@/types/template"
 import InvitationOverlay from "@/components/InvitationOverlay"
@@ -874,14 +874,37 @@ export default function Imagine(props: TemplateProps) {
                   )}
                 </div>
                 <div className="photo-body">
-                  <div className="photo-box">
-                    <div className="aine-photos" data-num="5">
-                      {gallery_photos.map((p, i) => (
-                        <a key={i} data-aos="zoom-in" data-aos-duration="1000" href={p} target="_blank" rel="noreferrer">
-                          <img src={p} alt={`Gallery ${i + 1}`} />
-                        </a>
-                      ))}
+                  <div className="gallery-carousel">
+                    <div className="car-row">
+                      <div
+                        className="car-track"
+                        style={{ "--dur": `${Math.max(36, gallery_photos.length * 8)}s` } as CSSProperties}
+                      >
+                        {[...gallery_photos, ...gallery_photos].map((p, i) => (
+                          <figure className="car-tile" key={`ga-${i}`}>
+                            <a href={p} target="_blank" rel="noreferrer" aria-label={`Gallery photo ${(i % gallery_photos.length) + 1}`}>
+                              <img src={p} alt="" loading="lazy" />
+                            </a>
+                          </figure>
+                        ))}
+                      </div>
                     </div>
+                    {gallery_photos.length > 2 && (
+                      <div className="car-row car-row--rev">
+                        <div
+                          className="car-track"
+                          style={{ "--dur": `${Math.max(40, gallery_photos.length * 9)}s` } as CSSProperties}
+                        >
+                          {[...gallery_photos].reverse().concat([...gallery_photos].reverse()).map((p, i) => (
+                            <figure className="car-tile" key={`gb-${i}`}>
+                              <a href={p} target="_blank" rel="noreferrer" aria-label={`Gallery photo ${gallery_photos.length - (i % gallery_photos.length)}`}>
+                                <img src={p} alt="" loading="lazy" />
+                              </a>
+                            </figure>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
