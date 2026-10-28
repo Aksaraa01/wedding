@@ -354,7 +354,6 @@ export const DEMO_PROPS_BY_CODE: Record<string, TemplateProps> = {
     livestream: { url: "https://www.youtube.com/live/dummy-livestream-link" },
     template_content: {
       couple_description: "With the blessing of our families, we cordially invite you to the wedding of",
-      gallery_quote: "Every love story is beautiful, but ours is my favorite.",
       gift_intro_title: "Wedding Gift",
       gift_intro_description:
         "Your presence is the greatest gift to us. If you would like to send another token of love, please use the details below:",
@@ -1174,15 +1173,55 @@ DEMO_PROPS_BY_CODE["manjari"] = {
 DEMO_PROPS_BY_CODE["minang-royal"] = {
   ...DEMO_PROPS_BY_CODE["sandhya"],
   slug: "demo",
+  groom_full_name: "David Albarn",
+  bride_full_name: "Faye Reed",
+  groom_parents: "Putra dari Bapak H. Ahmad Fadillah & Ibu Hj. Nur Aisyah",
+  bride_parents: "Putri dari Bapak H. Muhammad Yusuf & Ibu Hj. Siti Khadijah",
+  cover_photos: [...DE_COVERS_COVER2].slice(0, 2),
+  opening_description:
+    "Bismillahirrahmanirrahim\nAssalamu'alaikum Warahmatullahi Wabarakatuh\nMaha Suci Allah yang telah menciptakan mahkluk-Nya berpasang-pasangan\nYa Allah, perkenankanlah putra-putri kami:",
   display_name: "#AlbarnFaye2027",
   estimated_wedding_date: DEMO_PROPS_BY_CODE["adat-melayu"].estimated_wedding_date,
   quote_text: DEMO_PROPS_BY_CODE["adat-melayu"].quote_text,
   quote_source: "Doa Pernikahan Adat Minang",
   sessions: DEMO_PROPS_BY_CODE["adat-melayu"].sessions,
   stories: DEMO_PROPS_BY_CODE["adat-melayu"].stories,
-  template_content: DEMO_PROPS_BY_CODE["adat-melayu"].template_content,
   rundown: DEMO_PROPS_BY_CODE["adat-melayu"].rundown,
   rundown_visible: true,
+  dresscode: {
+    title: "Dresscode",
+    description: "Formal Attire",
+    colors: [
+      { hex: "#650b04", name: "Maroon" },
+      { hex: "#f4e1c3", name: "Cream" },
+      { hex: "#ffde8f", name: "Gold" },
+      { hex: "#501817", name: "Deep Maroon" },
+    ],
+  },
+  inviting_families: [
+    "Keluarga Besar Bapak Ahmad Fadillah",
+    "Keluarga Besar Ibu Nur Aisyah",
+    "Keluarga Besar Bapak Muhammad Yusuf",
+    "Keluarga Besar Ibu Siti Khadijah",
+  ],
+  livestream: {
+    title: "Live Streaming",
+    description: "Saksikan momen akad dan resepsi kami secara langsung.",
+    url: "https://www.youtube.com/live/dummy-livestream-link",
+  },
+  template_content: {
+    events_intro:
+      "Untuk melaksanakan syariat agama-Mu, mengikuti sunnah rasul-Mu dalam membentuk keluarga yang Sakinah, Mawaddah, Warahmah yang Insya Allah akan diselenggarakan pada hari:",
+    cover_apology: "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.",
+    gallery_intro: "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
+    dresscode_note: "Kenakan pakaian formal yang serasi dengan nuansa adat Minang.",
+    gift_intro_title: "Love Gift",
+    gift_intro_description:
+      "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
+    wishes_intro: "Tinggalkan doa dan ucapan terbaik Anda untuk kedua mempelai.",
+    closing_message:
+      "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
+  },
   track_url: "/templates/minang-royal/bergema.mp3",
 }
 
@@ -1194,14 +1233,6 @@ DEMO_PROPS_BY_CODE["still-ever"] = {
   sessions: (DEMO_PROPS_BY_CODE["sandhya"].sessions || []).map((s) => ({ ...s, date: "2027-12-31" })),
   cover_photos: [...DE_COVERS_COVER2].slice(0, 3),
   gallery_photos: [...DE_GALLERY],
-  rundown_visible: true,
-  rundown: [
-    { time: "10.00", description: "Guests are seated at the chapel" },
-    { time: "10.30", description: "The ceremony begins" },
-    { time: "11.30", description: "Family photographs and greetings" },
-    { time: "12.30", description: "Reception and lunch together" },
-    { time: "14.00", description: "A closing word and farewell" },
-  ],
   track_url: ASSETS.defaultMusic,
   template_content: {
     cover_apology: "We apologize for any misspelling of your name or title.",

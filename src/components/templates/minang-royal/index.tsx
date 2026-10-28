@@ -121,10 +121,10 @@ export default function MinangRoyal(profile: TemplateProps) {
   const photos = flattenPhotos(profile.gallery_photos)
   const coverSlots = flattenPhotos(profile.cover_photos)
   const cover = coverSlots[0] || coverPhotoOf(profile)
-  const closingPhoto = coverSlots[2] || ""
+  const closingPhoto = coverSlots[1] || ""
   const groomPhoto = flattenPhotos(profile.groom_photo_url)[0] || cover
   const bridePhoto = flattenPhotos(profile.bride_photo_url)[0] || cover
-  const storyPhoto = coverSlots[1] || cover
+  const storyPhoto = cover
   const events = (profile.sessions || []).filter(Boolean)
   const groups = groupSessions(events)
   const stories = (profile.stories || []).filter((s) => s && (s.title || s.description))
