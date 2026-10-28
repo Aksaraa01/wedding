@@ -203,7 +203,9 @@ export default function Imagine(props: TemplateProps) {
           return
         }
         const r = el.getBoundingClientRect()
-        if (r.top < window.innerHeight - 120 && r.bottom > 0) fire()
+        // AOS reveals once the element is beneath the trigger line, even
+        // after the user has scrolled past it (bottom may be negative).
+        if (r.top < window.innerHeight - 120) fire()
       })
     }
     const schedule = () => {
