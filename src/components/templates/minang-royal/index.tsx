@@ -204,7 +204,19 @@ export default function MinangRoyal(profile: TemplateProps) {
             onClick={toggleMusic}
             aria-label={playing ? "Jeda musik" : "Putar musik"}
             aria-pressed={playing}
-          />
+          >
+            <span className="music-vinyl">
+              <span className="music-vinyl-groove music-vinyl-groove-1" />
+              <span className="music-vinyl-groove music-vinyl-groove-2" />
+              <span className="music-vinyl-label" />
+              <span className="music-vinyl-hole" />
+            </span>
+            <span className="music-tonearm">
+              <span className="music-tonearm-pivot" />
+              <span className="music-tonearm-arm" />
+              <span className="music-tonearm-head" />
+            </span>
+          </button>
         </div>
       )}
 
