@@ -7,6 +7,10 @@ type Props = {
   title?: string
   controls?: boolean
   signal?: number
+  // Background loops want to start muted on mount; a "watch the film" player
+  // must wait for the guest's click so it can start with sound.
+  autoplay?: boolean
+  onPlay?: () => void
 }
 
 type YTPlayer = {
@@ -56,10 +60,14 @@ function loadYouTubeApi(): Promise<any> {
 // Off-screen embeds often ignore autoplay=1. Building the player through the
 // IFrame API lets us explicitly mute + play on ready and whenever the frame
 // re-enters the viewport, which works on mobile Safari too.
-export default function AutoplayYouTube({ videoId, title = "Video", controls = false, signal = 0 }: Props) {
+export default function AutoplayYouTube({ videoId, title = "Video", controls = false, signal = 0, autoplay = true, onPlay }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null)
   const playerRef = useRef<YTPlayer | null>(null)
   const observerRef = useRef<IntersectionObserver | null>(null)
+  // Keep the latest callback out of the player effect: rebuilding the player
+  // on every parent render would restart the film.
+  const onPlayRef = useRef(onPlay)
+  onPlayRef.current = onPlay
 
   useEffect(() => {
     let cancelled = false
@@ -73,9 +81,11 @@ export default function AutoplayYouTube({ videoId, title = "Video", controls = f
           width: "100%",
           height: "100%",
           playerVars: {
-            autoplay: 1,
-            mute: 1,
-            loop: 1,
+            // A background loop starts muted so the browser allows autoplay; a
+            // "watch the film" player must stay silent-until-clicked instead.
+            autoplay: autoplay ? 1 : 0,
+            mute: autoplay ? 1 : 0,
+            loop: autoplay ? 1 : 0,
             playlist: videoId,
             controls: controls ? 1 : 0,
             playsinline: 1,
@@ -92,6 +102,7 @@ export default function AutoplayYouTube({ videoId, title = "Video", controls = f
           events: {
             onReady: (event: { target: YTPlayer }) => {
               const player = event.target
+              if (!autoplay) return
               try {
                 player.mute?.()
                 player.playVideo?.()
@@ -117,13 +128,13 @@ export default function AutoplayYouTube({ videoId, title = "Video", controls = f
               }
             },
             onStateChange: (event: { data: number; target: YTPlayer }) => {
-              if (event.data === 0) {
-                try {
-                  event.target.seekTo?.(0, true)
-                  event.target.playVideo?.()
-                } catch {
-                  /* ignore */
-                }
+              if (event.data === 1) onPlayRef.current?.()
+              if (event.data !== 0 || !autoplay) return
+              try {
+                event.target.seekTo?.(0, true)
+                event.target.playVideo?.()
+              } catch {
+                /* ignore */
               }
             },
           },
@@ -144,9 +155,10 @@ export default function AutoplayYouTube({ videoId, title = "Video", controls = f
       }
       playerRef.current = null
     }
-  }, [videoId, controls])
+  }, [videoId, controls, autoplay])
 
   useEffect(() => {
+    if (!autoplay) return
     const unlock = () => {
       try {
         playerRef.current?.mute?.()
@@ -161,17 +173,17 @@ export default function AutoplayYouTube({ videoId, title = "Video", controls = f
       window.removeEventListener("pointerdown", unlock, { capture: true })
       window.removeEventListener("keydown", unlock, { capture: true })
     }
-  }, [])
+  }, [autoplay])
 
   useEffect(() => {
-    if (!signal) return
+    if (!signal || !autoplay) return
     try {
       playerRef.current?.mute?.()
       playerRef.current?.playVideo?.()
     } catch {
       /* ignore */
     }
-  }, [signal])
+  }, [signal, autoplay])
 
   return <div ref={hostRef} aria-label={title} />
 }

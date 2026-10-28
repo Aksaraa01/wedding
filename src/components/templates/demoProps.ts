@@ -1231,8 +1231,16 @@ DEMO_PROPS_BY_CODE["still-ever"] = {
   display_name: "#AlbarnFaye2027",
   estimated_wedding_date: "2027-12-31",
   sessions: (DEMO_PROPS_BY_CODE["sandhya"].sessions || []).map((s) => ({ ...s, date: "2027-12-31" })),
-  cover_photos: [...DE_COVERS_COVER2].slice(0, 3),
+  cover_photos: [...DE_COVERS_COVER2].slice(0, 4),
   gallery_photos: [...DE_GALLERY],
+  rundown_visible: true,
+  rundown: [
+    { time: "10.00", description: "Guests are seated at the chapel" },
+    { time: "10.30", description: "The ceremony begins" },
+    { time: "11.30", description: "Family photographs and greetings" },
+    { time: "12.30", description: "Reception and lunch together" },
+    { time: "14.00", description: "A closing word and farewell" },
+  ],
   track_url: ASSETS.defaultMusic,
   template_content: {
     cover_apology: "We apologize for any misspelling of your name or title.",

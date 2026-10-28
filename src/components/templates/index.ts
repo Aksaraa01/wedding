@@ -24,6 +24,7 @@ import AdatBali from "./adat-bali"
 import Manjari from "./manjari"
 import MinangRoyal from "./minang-royal"
 import Imagine from "./imagine"
+import StillEver from "./still-ever"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -51,6 +52,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   manjari: Manjari,
   "minang-royal": MinangRoyal,
   imagine: Imagine,
+  "still-ever": StillEver,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -971,6 +973,46 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         inviting: true,
         dresscode: true,
         livestream: true,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "still-ever",
+    name: "Still & Ever",
+    description: "Undangan stationery bernuansa charcoal dan krem — kartu amplop bersegel lilin, sampul editorial, ayat, mempelai, turut mengundang, kisah cinta, hitung mundur, acara, rundown, dress code, galeri, live streaming, video, hadiah, dan ucapan.",
+    theme: {
+      fonts: { display: "DM Serif Display", script: "DM Serif Display", body: "DM Sans" },
+      colors: {
+        surface: "#242629",
+        text: "#f7f5f1",
+        accent: "#c5a16b",
+        accentMuted: "#d4d0ca",
+        overlay: "#17191b",
+        dark: "#242629",
+      },
+      ornaments: { divider: "line", border: "minimal", frame: "square" },
+      motion: { enabled: true, duration: 0.9, stagger: 0.18 },
+    },
+    content: {
+      cover_slots: 4,
+      cover_slot_labels: ["Sampul 1", "Sampul 2", "Sampul 3", "Closing"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: true,
+      sections: {
+        opening_description: false,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: true,
+        livestream: true,
+        rundown: true,
+        contacts: false,
       },
       extras: true,
     },
