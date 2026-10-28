@@ -1084,10 +1084,22 @@ export default function Imagine(props: TemplateProps) {
         {track_url && (
           <button
             type="button"
-            className={`tpl-music-btn visible${musicOn ? " playing" : ""}`}
-            onClick={toggleMusic}
+            className={`tpl-music-btn visible${musicOn ? "" : " paused"}`}
             aria-label={musicOn ? "Pause music" : "Play music"}
-          />
+            onClick={toggleMusic}
+          >
+            <span className="tpl-vinyl">
+              <span className="tpl-vinyl-groove tpl-vinyl-groove-1" />
+              <span className="tpl-vinyl-groove tpl-vinyl-groove-2" />
+              <span className="tpl-vinyl-label" />
+              <span className="tpl-vinyl-hole" />
+            </span>
+            <span className="tpl-tonearm">
+              <span className="tpl-tonearm-pivot" />
+              <span className="tpl-tonearm-arm" />
+              <span className="tpl-tonearm-head" />
+            </span>
+          </button>
         )}
       </section>
 
