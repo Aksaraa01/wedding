@@ -167,7 +167,11 @@ export default function Manjari(profile: TemplateProps) {
                 {profile.groom_full_name || profile.groom_name}
               </h2>
               <i /><i className="short" />
-              {profile.groom_parents && <p className="profile__parents">{profile.groom_parents}</p>}
+              {profile.groom_parents && (
+                <p className="profile__parents" style={{ "--parent-len": Math.max(1, profile.groom_parents.length) } as CSSProperties}>
+                  {profile.groom_parents}
+                </p>
+              )}
               {profile.groom_instagram && (
                 <a className="pill pill-ivory profile__instagram" href={`https://instagram.com/${profile.groom_instagram.replace(/^@/, "")}`} target="_blank" rel="noreferrer">
                   @{profile.groom_instagram.replace(/^@/, "")}
@@ -182,7 +186,11 @@ export default function Manjari(profile: TemplateProps) {
                 {profile.bride_full_name || profile.bride_name}
               </h2>
               <i /><i className="short" />
-              {profile.bride_parents && <p className="profile__parents">{profile.bride_parents}</p>}
+              {profile.bride_parents && (
+                <p className="profile__parents" style={{ "--parent-len": Math.max(1, profile.bride_parents.length) } as CSSProperties}>
+                  {profile.bride_parents}
+                </p>
+              )}
               {profile.bride_instagram && (
                 <a className="pill pill-ivory profile__instagram" href={`https://instagram.com/${profile.bride_instagram.replace(/^@/, "")}`} target="_blank" rel="noreferrer">
                   @{profile.bride_instagram.replace(/^@/, "")}
