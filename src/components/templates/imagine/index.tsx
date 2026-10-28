@@ -284,27 +284,38 @@ export default function Imagine(props: TemplateProps) {
     : []
   const hasRundown = rundownItems.length > 0
 
-  // Rundown timeline: each row lights up (and the connector fills) as it
-  // scrolls into view — same behaviour as the adat-melayu section.
+  // Rundown timeline reveal: same scroll/rAF strategy as the AOS shim above
+  // (IntersectionObserver callbacks can be deferred in background tabs).
   useEffect(() => {
     if (!opened) return
     const root = rootRef.current
-    if (!root || typeof IntersectionObserver === "undefined") return
+    if (!root) return
     const items = Array.from(root.querySelectorAll<HTMLElement>("[data-rundown-item]"))
     if (items.length === 0) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-reached")
-            observer.unobserve(entry.target)
-          }
-        })
-      },
-      { rootMargin: "0px 0px -18% 0px", threshold: 0.4 }
-    )
-    items.forEach((item) => observer.observe(item))
-    return () => observer.disconnect()
+    let raf = 0
+    const reveal = () => {
+      raf = 0
+      items.forEach((el) => {
+        if (el.classList.contains("is-reached")) return
+        const r = el.getBoundingClientRect()
+        if (r.top < window.innerHeight - 120) el.classList.add("is-reached")
+      })
+    }
+    const schedule = () => {
+      if (raf) cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(reveal)
+      reveal()
+    }
+    reveal()
+    window.addEventListener("scroll", schedule, { passive: true })
+    window.addEventListener("resize", schedule, { passive: true })
+    const t = window.setInterval(schedule, 700)
+    return () => {
+      if (raf) cancelAnimationFrame(raf)
+      window.removeEventListener("scroll", schedule)
+      window.removeEventListener("resize", schedule)
+      window.clearInterval(t)
+    }
   }, [opened, hasRundown])
 
   const showLivestream = livestream_visible !== false && !!livestream?.url && gates.video !== false
