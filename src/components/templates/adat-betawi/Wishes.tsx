@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
+import { wishNameState } from "../shared/wishName"
 
 type Wish = {
   id: string
@@ -13,6 +14,7 @@ type Props = {
   weddingProfileId?: string
   guestId?: string
   guestName?: string
+  guestLinkStrict?: boolean
   coupleName?: string
 }
 
@@ -65,10 +67,11 @@ function wishAgo(iso?: string): string {
   return days === 1 ? "1 hari lalu" : `${days} hari lalu`
 }
 
-export default function Wishes({ weddingProfileId, guestId, guestName, coupleName }: Props) {
+export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
-  const [name, setName] = useState(guestName || "")
+  const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
+  const [name, setName] = useState(prefilledName)
   const [message, setMessage] = useState("")
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle")
   const [feedback, setFeedback] = useState("")
@@ -166,21 +169,21 @@ export default function Wishes({ weddingProfileId, guestId, guestName, coupleNam
           void send()
         }}
       >
-        {!guestName && (
-          <div className="tpl-rsvp__field">
-            <label htmlFor="adat-melayu-rsvp-name">Nama</label>
-            <input
-              id="adat-melayu-rsvp-name"
-              className="tpl-rsvp__input"
-              type="text"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="Nama Anda"
-              maxLength={80}
-              autoComplete="name"
-            />
-          </div>
-        )}
+        <div className="tpl-rsvp__field">
+          <label htmlFor="adat-melayu-rsvp-name">Nama</label>
+          <input
+            id="adat-melayu-rsvp-name"
+            className="tpl-rsvp__input"
+            type="text"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="Nama Anda"
+            maxLength={80}
+            autoComplete="name"
+            readOnly={nameLocked}
+            aria-readonly={nameLocked}
+          />
+        </div>
 
         <div className="tpl-rsvp__field">
           <label htmlFor="adat-melayu-rsvp-message">Doa &amp; Ucapan</label>

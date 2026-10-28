@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
+import { wishNameState } from "../shared/wishName"
 
 type Wish = {
   id: string
@@ -13,6 +14,7 @@ type Props = {
   weddingProfileId?: string
   guestId?: string
   guestName?: string
+  guestLinkStrict?: boolean
   coupleName?: string
 }
 
@@ -52,10 +54,11 @@ function wishAgo(iso?: string): string {
   return days === 1 ? "1 day ago" : `${days} days ago`
 }
 
-export default function ImagineWishes({ weddingProfileId, guestId, guestName }: Props) {
+export default function ImagineWishes({ weddingProfileId, guestId, guestName, guestLinkStrict }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
-  const [name, setName] = useState(guestName || "")
+  const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
+  const [name, setName] = useState(prefilledName)
   const [message, setMessage] = useState("")
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle")
   const [feedback, setFeedback] = useState("")
@@ -143,18 +146,18 @@ export default function ImagineWishes({ weddingProfileId, guestId, guestName }: 
         }}
       >
         <div className="form-group guest-name-wrap">
-          {!guestName && (
-            <input
-              type="text"
-              name="name"
-              className="form-control guest-name"
-              placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength={80}
-              autoComplete="name"
-            />
-          )}
+          <input
+            type="text"
+            name="name"
+            className="form-control guest-name"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            maxLength={80}
+            autoComplete="name"
+            readOnly={nameLocked}
+            aria-readonly={nameLocked}
+          />
         </div>
         <div className="form-group guest-comment-wrap" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="300">
           <textarea

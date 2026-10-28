@@ -159,6 +159,7 @@ export default function Rail({ profile, accounts, giftAddress, giftAddressName, 
         weddingProfileId={profile.wedding_profile_id}
         guestId={profile.guest_id}
         guestName={profile.guest_name}
+        guestLinkStrict={profile.guest_link_strict}
       />
 
       <Closing photos={closingPhoto ? [closingPhoto] : []} coupleLabel={coupleLabel} />

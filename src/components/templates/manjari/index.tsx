@@ -317,7 +317,7 @@ export default function Manjari(profile: TemplateProps) {
               <p>{tc.wishes_intro || "Please let us know whether you will join our wedding celebration by completing the form below."}</p>
             </div>
             <div className="manjari-rsvp">
-              <Wishes weddingProfileId={profile.wedding_profile_id} guestId={profile.guest_id} guestName={profile.guest_name} coupleName={coupleLabel} />
+              <Wishes weddingProfileId={profile.wedding_profile_id} guestId={profile.guest_id} guestName={profile.guest_name} guestLinkStrict={profile.guest_link_strict} coupleName={coupleLabel} />
             </div>
           </section>
 

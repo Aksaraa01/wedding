@@ -418,6 +418,13 @@ Embed a section (pattern: `dark-split-rail/sections/Wishes.tsx`,
 - feed: alternating alignment, `timeAgo`, client-side pagination (10/page)
 - demo mode: if `wedding_profile_id === "demo-wedding-profile-id"`, render
   sample wishes and never POST
+- **name field**: always render it (never `{!guestName && …}` — the page always
+  passes a guest name, so that guard hides the field for everyone). Use
+  `wishNameState(guestName, guestId, guestLinkStrict)` from
+  `shared/wishName.ts`: terbatas links prefill the guest's name and lock it
+  (`readOnly`), fleksibel links prefill from `?to=` but stay editable, and
+  placeholder names ("Tamu Undangan", FALLBACK_GUEST_NAME, …) prefill empty.
+  Keep the template's own field markup/classes for the input.
 
 Place it where the reference does it (usually before the closing section).
 

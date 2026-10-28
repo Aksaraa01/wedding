@@ -1066,6 +1066,7 @@ export default function AdatMinang(profile: TemplateProps) {
               weddingProfileId={profile.wedding_profile_id}
               guestId={profile.guest_id}
               guestName={profile.guest_name}
+              guestLinkStrict={profile.guest_link_strict}
               coupleName={coupleLabel}
             />
           </section>

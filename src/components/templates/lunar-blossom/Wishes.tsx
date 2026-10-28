@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
+import { wishNameState } from "../shared/wishName"
 
 type Wish = {
   id: string
@@ -13,6 +14,7 @@ type Props = {
   weddingProfileId?: string
   guestId?: string
   guestName?: string
+  guestLinkStrict?: boolean
   coupleName?: string
   lang: "EN" | "ID"
 }
@@ -54,10 +56,11 @@ function wishAgo(iso?: string): string {
   return `${days}d`
 }
 
-export default function Wishes({ weddingProfileId, guestId, guestName, coupleName, lang }: Props) {
+export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName, lang }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
-  const [name, setName] = useState(guestName || "")
+  const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
+  const [name, setName] = useState(prefilledName)
   const [message, setMessage] = useState("")
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle")
   const [feedback, setFeedback] = useState("")
@@ -169,17 +172,17 @@ export default function Wishes({ weddingProfileId, guestId, guestName, coupleNam
           void send()
         }}
       >
-        {!guestName && (
-          <input
-            className="lb-wishes__input"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder={lang === "ID" ? "Nama Anda" : "Your name"}
-            maxLength={80}
-            autoComplete="name"
-            aria-label={lang === "ID" ? "Nama" : "Name"}
-          />
-        )}
+        <input
+          className="lb-wishes__input"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder={lang === "ID" ? "Nama Anda" : "Your name"}
+          maxLength={80}
+          autoComplete="name"
+          aria-label={lang === "ID" ? "Nama" : "Name"}
+          readOnly={nameLocked}
+          aria-readonly={nameLocked}
+        />
         <textarea
           className="lb-wishes__textarea"
           value={message}

@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react"
+import { wishNameState } from "../shared/wishName"
 
 type Wish = {
   id: string
@@ -14,6 +15,7 @@ type Props = {
   weddingProfileId?: string
   guestId?: string
   guestName?: string
+  guestLinkStrict?: boolean
   coupleName?: string
 }
 
@@ -72,10 +74,11 @@ function wishAgo(iso?: string): string {
   return days === 1 ? "1 day ago" : `${days} days ago`
 }
 
-export default function Wishes({ weddingProfileId, guestId, guestName, coupleName }: Props) {
+export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict, coupleName }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
-  const [name, setName] = useState(guestName || "")
+  const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
+  const [name, setName] = useState(prefilledName)
   const [message, setMessage] = useState("")
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle")
   const [feedback, setFeedback] = useState("")
@@ -171,20 +174,20 @@ export default function Wishes({ weddingProfileId, guestId, guestName, coupleNam
           void send()
         }}
       >
-        {!guestName && (
-          <>
-            <label htmlFor="evermore-wish-name">Name</label>
-            <input
-              id="evermore-wish-name"
-              className="rsvp-field"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="Enter your name"
-              maxLength={80}
-              autoComplete="name"
-            />
-          </>
-        )}
+        <>
+          <label htmlFor="evermore-wish-name">Name</label>
+          <input
+            id="evermore-wish-name"
+            className="rsvp-field"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="Enter your name"
+            maxLength={80}
+            autoComplete="name"
+            readOnly={nameLocked}
+            aria-readonly={nameLocked}
+          />
+        </>
 
         <label htmlFor="evermore-wish-message">Wishes &amp; Prayers</label>
         <textarea

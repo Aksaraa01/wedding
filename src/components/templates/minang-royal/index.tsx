@@ -686,7 +686,7 @@ export default function MinangRoyal(profile: TemplateProps) {
                 {tc.wishes_intro && <p className="wedding-wish-description">{tc.wishes_intro}</p>}
               </div>
               <div className="wedding-wish-body">
-                <Wishes weddingProfileId={profile.wedding_profile_id} guestId={profile.guest_id} guestName={profile.guest_name} coupleName={coupleLabel} />
+                <Wishes weddingProfileId={profile.wedding_profile_id} guestId={profile.guest_id} guestName={profile.guest_name} guestLinkStrict={profile.guest_link_strict} coupleName={coupleLabel} />
               </div>
             </div>
           </section>

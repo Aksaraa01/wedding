@@ -1143,6 +1143,7 @@ export default function Imagine(props: TemplateProps) {
                   weddingProfileId={wedding_profile_id}
                   guestId={guest_id}
                   guestName={guest_name}
+                  guestLinkStrict={guest_link_strict}
                   coupleName={coupleLabel}
                 />
               </div>

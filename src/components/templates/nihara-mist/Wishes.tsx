@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react"
 import { timeAgo } from "../shared/lib"
+import { wishNameState } from "../shared/wishName"
 
 type Wish = {
   id: string
@@ -14,14 +15,16 @@ type Props = {
   weddingProfileId?: string
   guestId?: string
   guestName?: string
+  guestLinkStrict?: boolean
 }
 
 const PAGE_SIZE = 10
 
-export default function Wishes({ weddingProfileId, guestId, guestName }: Props) {
+export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
-  const [name, setName] = useState(guestName || "")
+  const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
+  const [name, setName] = useState(prefilledName)
   const [message, setMessage] = useState("")
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle")
   const [feedback, setFeedback] = useState("")
@@ -106,18 +109,18 @@ export default function Wishes({ weddingProfileId, guestId, guestName }: Props) 
           void send()
         }}
       >
-        {!guestName && (
-          <label className="wishes__field">
-            <span className="wishes__label">Nama</span>
-            <input
-              className="wishes__input"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Nama Anda"
-              maxLength={80}
-            />
-          </label>
-        )}
+        <label className="wishes__field">
+          <span className="wishes__label">Nama</span>
+          <input
+            className="wishes__input"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Nama Anda"
+            maxLength={80}
+            readOnly={nameLocked}
+            aria-readonly={nameLocked}
+          />
+        </label>
 
         <label className="wishes__field">
           <span className="wishes__label">Ucapan &amp; Doa</span>

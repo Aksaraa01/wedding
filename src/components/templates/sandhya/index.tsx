@@ -872,6 +872,7 @@ export default function Sandhya(profile: TemplateProps) {
                 coupleName={coupleLabel}
                 weddingProfileId={profile.wedding_profile_id!}
                 guestName={guestName}
+                guestLinkStrict={profile.guest_link_strict}
               />
 
               <section className="sheet__section sheet__closing" data-io>

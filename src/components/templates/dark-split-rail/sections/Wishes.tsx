@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react"
 import { timeAgo } from "../../shared/lib"
 import { COLORS, FONT_BODY, FONT_BTN, FONT_DISPLAY } from "../fonts"
 import Section, { SectionHeading } from "../Section"
+import { wishNameState } from "../../shared/wishName"
 
 type Wish = {
   id: string
@@ -16,6 +17,7 @@ type Props = {
   weddingProfileId?: string
   guestId?: string
   guestName?: string
+  guestLinkStrict?: boolean
 }
 
 function ArrowLeftIcon({ className = "", size = 16 }: { className?: string; size?: number }) {
@@ -63,10 +65,11 @@ function initials(name?: string | null): string {
   return `${first}${second}`.toUpperCase()
 }
 
-export default function Wishes({ weddingProfileId, guestId, guestName }: Props) {
+export default function Wishes({ weddingProfileId, guestId, guestName, guestLinkStrict }: Props) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [loaded, setLoaded] = useState(false)
-  const [name, setName] = useState(guestName || "")
+  const { value: prefilledName, locked: nameLocked } = wishNameState(guestName, guestId, guestLinkStrict)
+  const [name, setName] = useState(prefilledName)
   const [message, setMessage] = useState("")
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle")
   const [feedback, setFeedback] = useState("")
@@ -156,20 +159,20 @@ export default function Wishes({ weddingProfileId, guestId, guestName }: Props) 
         }}
         className="mx-auto mt-8 max-w-[400px]"
       >
-        {!guestName && (
-          <>
-            <label className="block text-[10px] uppercase" style={{ ...FONT_BODY, letterSpacing: "2px", color: "rgba(242,241,238,0.7)" }}>
-              Nama
-            </label>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Nama Anda"
-              className="mt-2 w-full rounded-lg border bg-white/[0.04] px-4 py-3 text-[14px] outline-none focus:border-[#AF8D5C]"
-              style={{ ...FONT_DISPLAY, borderColor: "rgba(255,255,255,0.14)", color: COLORS.cream }}
-            />
-          </>
-        )}
+        <>
+          <label className="block text-[10px] uppercase" style={{ ...FONT_BODY, letterSpacing: "2px", color: "rgba(242,241,238,0.7)" }}>
+            Nama
+          </label>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Nama Anda"
+            className="mt-2 w-full rounded-lg border bg-white/[0.04] px-4 py-3 text-[14px] outline-none focus:border-[#AF8D5C]"
+            style={{ ...FONT_DISPLAY, borderColor: "rgba(255,255,255,0.14)", color: COLORS.cream }}
+            readOnly={nameLocked}
+            aria-readonly={nameLocked}
+          />
+        </>
 
         <label className="mt-5 block text-[10px] uppercase" style={{ ...FONT_BODY, letterSpacing: "2px", color: "rgba(242,241,238,0.7)" }}>
           Ucapan & Doa
