@@ -169,6 +169,7 @@ export default function Imagine(props: TemplateProps) {
     wedding_profile_id, guest_id, guest_slug, guest_link_strict, guest_name,
     guest_qr_url, guest_table_number, guest_rsvp_status, guest_rsvp_message,
     rsvp_max_pax, feature_gates,
+    preview_mode,
   } = props
 
   const gates = feature_gates || {}
@@ -261,7 +262,10 @@ export default function Imagine(props: TemplateProps) {
 
   const coupleLabel = `${groom_name || ""} & ${bride_name || ""}`.trim()
 
+  // Guest dock (QR + RSVP) is a per-guest affair: only real invitation links
+  // render it — template previews simulate no guest context.
   const showGuestDock =
+    !preview_mode &&
     opened &&
     (!!guest_id || (guest_link_strict === false && !!guest_slug)) &&
     !!wedding_profile_id
