@@ -2,8 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import type { TemplateProps } from "@/types/template"
-import { ASSETS } from "@/lib/assets"
-import { AKSARAA_WA_NUMBER } from "@/lib/contact"
 import {
   countdownTarget,
   coverPhoto as coverPhotoOf,
@@ -146,7 +144,6 @@ export default function MinangRoyal(profile: TemplateProps) {
   const hasTrack = !!trackUrl
   const guestName = profile.guest_name || "Our Beloved Guest"
   const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || "The Wedding"
-  const waHref = `https://wa.me/${AKSARAA_WA_NUMBER}?text=${encodeURIComponent("Halo Aksaraa Wedding, saya tertarik membuat undangan digital")}`
   const groomFull = profile.groom_full_name || profile.groom_name || ""
   const brideFull = profile.bride_full_name || profile.bride_name || ""
   const dateLong = dotDate(profile.estimated_wedding_date || events[0]?.date)
@@ -405,13 +402,13 @@ export default function MinangRoyal(profile: TemplateProps) {
                             return (
                               <div className="activity-item" key={`${event.name || "activity"}-${index}`}>
                                 <div className="activity-head">
-                                  <h1 className="activity-title">{event.name || "Wedding Ceremony"}</h1>
                                   {(dayName(group.date) || longDate(group.date)) && (
                                     <p className="activity-date">
                                       {dayName(group.date) && <span className="activity-day">{dayName(group.date)}</span>}
                                       {(longDate(group.date) || dateLong) && <span className="activity-date-text">{longDate(group.date) || dateLong}</span>}
                                     </p>
                                   )}
+                                  <h1 className="activity-title">{event.name || "Wedding Ceremony"}</h1>
                                   {event.time && <p className="activity-time">{event.time}</p>}
                                 </div>
                                 <div className="activity-details">
@@ -697,35 +694,18 @@ export default function MinangRoyal(profile: TemplateProps) {
           <div className="section-group top" data-section-order="footnote">
             <SectionSeparator />
             <section className="footnote-wrap">
-              <div className="footnote-stage">
-                <div className="ornaments-wrapper">
-                  <div className="orn-1 left"><div className="image-wrap"><img src={A("onr-footnote.png")} alt="" /></div></div>
-                  <div className="orn-1 right"><div className="image-wrap"><img src={A("onr-footnote.png")} alt="" /></div></div>
-                  <div className="orn-2 left"><div className="image-wrap"><img src={A("onr-footnote.png")} alt="" /></div></div>
-                  <div className="orn-2 right"><div className="image-wrap"><img src={A("onr-footnote.png")} alt="" /></div></div>
-                </div>
-                <div className="footnote">
-                  <p className="top-text">Wedding Invitation</p>
-                  <h2 className="footnote-title">{coupleLabel}</h2>
-                  <p className="date">{dateLong}</p>
-                  {profile.display_name && <p className="bottom-text">{profile.display_name}</p>}
-                </div>
+              <div className="ornaments-wrapper">
+                <div className="orn-1 left"><div className="image-wrap"><img src={A("onr-footnote.png")} alt="" /></div></div>
+                <div className="orn-1 right"><div className="image-wrap"><img src={A("onr-footnote.png")} alt="" /></div></div>
+                <div className="orn-2 left"><div className="image-wrap"><img src={A("onr-footnote.png")} alt="" /></div></div>
+                <div className="orn-2 right"><div className="image-wrap"><img src={A("onr-footnote.png")} alt="" /></div></div>
               </div>
-              <footer className="tpl-footer mr-footer">
-                <a
-                  href={waHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Hubungi Aksaraa Wedding via WhatsApp"
-                  className="tpl-footer__link"
-                >
-                  <span className="tpl-footer__badge">
-                    <img src={ASSETS.galeriEnvelope.aksaraaLogo} alt="Aksaraa Wedding" className="tpl-footer__logo" draggable={false} />
-                  </span>
-                  <span className="tpl-footer__cta">Wedding by Aksaraa</span>
-                </a>
-                <p className="tpl-footer__text">© {new Date().getFullYear()} {coupleLabel}. All rights reserved.</p>
-              </footer>
+              <div className="footnote">
+                <p className="top-text">Wedding Invitation</p>
+                <h2 className="footnote-title">{coupleLabel}</h2>
+                <p className="date">{dateLong}</p>
+                {profile.display_name && <p className="bottom-text">{profile.display_name}</p>}
+              </div>
             </section>
           </div>
         </section>

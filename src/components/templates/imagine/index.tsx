@@ -183,6 +183,17 @@ export default function Imagine(props: TemplateProps) {
 
   const [opened, setOpened] = useState(false)
   const [musicOn, setMusicOn] = useState(false)
+  const [copiedKey, setCopiedKey] = useState<string | null>(null)
+
+  const copyValue = (text: string, key: string) => {
+    try {
+      void navigator.clipboard?.writeText(text)
+    } catch {
+      /* clipboard unavailable */
+    }
+    setCopiedKey(key)
+    window.setTimeout(() => setCopiedKey(null), 2000)
+  }
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const rootRef = useRef<HTMLDivElement | null>(null)
 
@@ -957,44 +968,35 @@ export default function Imagine(props: TemplateProps) {
                         <div className="orn-gift--front-top-2 right">{ornament("orn-01-min.png", "fade-up", 1200, 200)}</div>
                         <div className="orn-gift--front-top-2 left">{ornament("orn-01-min.png", "fade-up", 1200, 200)}</div>
                       </div>
-                      <div className="wedding-gift-form" data-aos="fade-up" data-aos-duration="1000">
-                        <div className="wedding-gift-details wedding-gift__first-slide wedding-gift-slide">
-                          <div className="wedding-gift-slide">
-                            {(gift_accounts || []).length > 0 && (
-                              <div className="wedding-gift-bank-wrap">
-                                {(gift_accounts || []).map((acc, i) => (
-                                  <div className="bank-item" key={i}>
-                                    <div className="bank-detail">
-                                      <h3 className="bank-name">{acc.provider_name}</h3>
-                                      <div>
-                                        <small className="bank-account-number-label">Account Number</small>
-                                        <h4 className="bank-account-number" data-copy={acc.account_number}>
-                                          {acc.account_number}
-                                        </h4>
-                                      </div>
-                                      <div>
-                                        <small className="bank-account-name-label">Account Name</small>
-                                        <h4 className="bank-account-name">{acc.account_name}</h4>
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        {gates.gift_address !== false && gift_address && (
-                          <div className="wedding-gift-address-wrap" data-aos="fade-up" data-aos-duration="1000">
-                            <div className="gift-address-box">
-                              {gift_address_name && (
-                                <h3 className="gift-address-name">{gift_address_name}</h3>
-                              )}
-                              <small className="bank-account-name-label">Alamat Hadiah</small>
-                              <p className="gift-address-text">{gift_address}</p>
+                      {(gift_accounts || []).length > 0 && (
+                        <div className="tpl-gift" data-aos="fade-up" data-aos-duration="1000">
+                          {(gift_accounts || []).map((acc, i) => (
+                            <div className="tpl-gift__account" key={i}>
+                              <p className="tpl-gift__heading">{acc.provider_name}</p>
+                              <p className="tpl-gift__account-number">{acc.account_number}</p>
+                              <p className="tpl-gift__account-name">{acc.account_name}</p>
+                              <button
+                                type="button"
+                                className="tpl-gift__copy-btn"
+                                onClick={() => copyValue(acc.account_number || "", `acc-${i}`)}
+                              >
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <rect x="9" y="9" width="13" height="13" rx="2" />
+                                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                </svg>
+                                <span>{copiedKey === `acc-${i}` ? "Copied" : "Copy"}</span>
+                              </button>
                             </div>
-                          </div>
-                        )}
-                      </div>
+                          ))}
+                          {gates.gift_address !== false && gift_address && (
+                            <div className="tpl-gift__address" data-aos="fade-up" data-aos-duration="1000">
+                              <p className="tpl-gift__address-label">Send a Gift</p>
+                              <p className="tpl-gift__address-text">{gift_address}</p>
+                              {gift_address_name && <p className="tpl-gift__account-name">{gift_address_name}</p>}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1098,28 +1100,17 @@ export default function Imagine(props: TemplateProps) {
         </div>
       </section>
 
-      <section className="music-outer">
-        {track_url && (
-          <button
-            type="button"
-            className={`tpl-music-btn visible${musicOn ? "" : " paused"}`}
+      {track_url && (
+        <section className="music-outer">
+          <div
+            className={`music-box${musicOn ? " playing" : ""}`}
+            role="button"
+            tabIndex={0}
             aria-label={musicOn ? "Pause music" : "Play music"}
             onClick={toggleMusic}
-          >
-            <span className="tpl-vinyl">
-              <span className="tpl-vinyl-groove tpl-vinyl-groove-1" />
-              <span className="tpl-vinyl-groove tpl-vinyl-groove-2" />
-              <span className="tpl-vinyl-label" />
-              <span className="tpl-vinyl-hole" />
-            </span>
-            <span className="tpl-tonearm">
-              <span className="tpl-tonearm-pivot" />
-              <span className="tpl-tonearm-arm" />
-              <span className="tpl-tonearm-head" />
-            </span>
-          </button>
-        )}
-      </section>
+          />
+        </section>
+      )}
 
       {showGuestDock && (
         <InvitationOverlay
