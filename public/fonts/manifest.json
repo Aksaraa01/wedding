@@ -640,5 +640,47 @@
     "weight": "400",
     "style": "normal",
     "bytes": 17340
+  },
+  "dmsans-300.woff2": {
+    "family": "DM Sans",
+    "weight": "300",
+    "style": "normal",
+    "bytes": 36980
+  },
+  "dmsans-400.woff2": {
+    "family": "DM Sans",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 36980
+  },
+  "dmsans-500.woff2": {
+    "family": "DM Sans",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 36980
+  },
+  "dmsans-600.woff2": {
+    "family": "DM Sans",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 36980
+  },
+  "dmsans-700.woff2": {
+    "family": "DM Sans",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 36980
+  },
+  "dmserifdisplay-400-italic.woff2": {
+    "family": "DM Serif Display",
+    "weight": "400",
+    "style": "italic",
+    "bytes": 17660
+  },
+  "dmserifdisplay-400.woff2": {
+    "family": "DM Serif Display",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 17844
   }
 }

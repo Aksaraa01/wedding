@@ -35,6 +35,8 @@ const FAMILIES = [
   { name: "Parisienne", weights: ["400"], styles: ["normal"] },
   { name: "Caveat", weights: ["400", "500", "600", "700"], styles: ["normal"] },
   { name: "Knewave", weights: ["400"], styles: ["normal"] },
+  { name: "DM Sans", weights: ["300", "400", "500", "600", "700"], styles: ["normal"] },
+  { name: "DM Serif Display", weights: ["400"], styles: ["normal", "italic"] },
 ];
 
 function cssUrl(f) {
