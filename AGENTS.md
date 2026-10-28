@@ -209,112 +209,147 @@ Run a local standalone build pointed at the **staging** Supabase and smoke test 
 - Prod testing sometimes requires DB changes (status flips, feedback_submissions updates, payment flags, etc.). Apply them to the rafi-novi profile only, ideally via one-off scripts using `SUPABASE_SERVICE_ROLE_KEY` from `.env.local.prod`, and revert afterwards when the test is for a one-way action (e.g. status transitions with audit-log side-effects).
 
 ### Deploy
-The VPS has 2GB RAM and CANNOT run `next build`. Build locally, rsync the standalone output, then restart PM2 on the server.
+The VPS has 2GB RAM and CANNOT run `next build`. Build locally, ship the build
+output, then restart PM2 — all handled by `npm run deploy`.
 
-> **CRITICAL — never deploy from a stale tree.** A tree that is behind
-> `origin/main` produces a bundle *without* templates added by the other agent,
-> and `rsync --delete` replaces the live build with it. This happened on
-> 2026-10-25: a deploy from a stale tree wiped `adat-jawa-2`, so its preview and
-> every CSS chunk 404'd for users until redeployed. Because two agents share this
-> repo and both deploy to the same VPS, ALWAYS:
-> 1. `git fetch && git status -sb` — HEAD must be **exactly** `origin/main`
->    (not behind, not ahead). Push your commit first; otherwise another agent can
->    build from a tree without your work and deploy it after you.
-> 2. Use the guarded deploy instead of hand-rolled rsync:
->    ```bash
->    set -a; source .env.local.prod; set +a; npm run build
->    npm run deploy          # lock → guard → snapshot → rsync → pm2 → smoke → BUILD_ID check
->    ```
->    `npm run deploy:guard` refuses stale trees, **unpushed HEADs**, **dirty
->    working trees**, wrong baked env, or a registered template missing from the
->    bundle. The deploy script also takes a server-side `.deploy.lock` (20 min
->    stale TTL) so two agents cannot rsync simultaneously, re-verifies
->    `origin/main` after the sync (rolling back if a push landed mid-deploy),
->    and asserts the live BUILD_ID still matches after the smoke test.
+**Order is commit → push → build → deploy.** The guard refuses an unpushed HEAD,
+so pushing first is mandatory, not optional:
+
+```bash
+git add -A && git commit -m "feat: describe_change"
+git push origin main
+git fetch origin && git status -sb        # HEAD must be exactly origin/main
+set -a; source .env.local.prod; set +a
+npm run build
+npm run deploy
+```
+
+`npm run deploy` runs, in order:
+
+```
+lock → guard → snapshot → sync → prune → re-verify origin/main → pm2 → smoke → BUILD_ID check
+```
+
+A typical deploy takes ~3 minutes and **does not take the site down** — the sync
+is additive, so whatever version is live keeps serving until the PM2 reload.
+
+> **CRITICAL — never deploy from a stale or dirty tree.** Another agent shares
+> this repo and this VPS. A tree behind `origin/main` builds a bundle *without*
+> their work; a tree with uncommitted changes builds *their unfinished work in*.
+> Both have happened (2026-10-25: a stale deploy wiped `adat-jawa-2`). BEFORE
+> deploying, all three of these must hold:
+> 1. `git fetch && git status -sb` — HEAD is **exactly** `origin/main` (not
+>    behind, not ahead). Push your commit first.
+> 2. The working tree is **clean** (`npm run deploy:guard` enforces this;
+>    `tsconfig.tsbuildinfo`, `*.log`, `docs/**` and `.DS_Store` are allowed).
+> 3. The build was made from that same commit — **rebuild after any rebase or
+>    pull**. The guard compares the tree to `origin/main`, not the bundle to the
+>    commit, so a build made *before* a rebase still passes the guard and will
+>    silently revert whatever landed in between.
 >
->    **Build from a clean worktree.** The guard refuses a tree with uncommitted
->    changes, because those are usually another agent's WIP sharing this checkout
->    and would be compiled into the bundle:
->    ```bash
->    git fetch origin && git worktree add --detach /tmp/build origin/main
->    cd /tmp/build && cp -Rc "$OLDPWD/node_modules" ./node_modules
->    set -a; source /path/to/repo/.env.local.prod; set +a
->    npm run build && npm run deploy
->    ```
->    rsync runs with `--checksum`, so only real content deltas are transferred
->    (a fresh worktree's checkout timestamps would otherwise re-push the whole
->    ~160 MB of `public/` template media and stretch the outage window to ~13 min).
-> 3. Never bypass the guard/lock (`--allow-stale`, `--skip-build-check`) unless
->    the other agent is confirmed stopped. If the lock is held, wait — do not
->    delete it manually.
-> 4. After deploying, a browser tab opened before the deploy can keep requesting a
->    dead RSC/chunk and show a 404 until hard-reloaded (⌘⇧R) — check with a fresh
->    tab before assuming the server is broken.
+> Build from a clean worktree when the shared checkout is busy:
+> ```bash
+> git fetch origin && git worktree add --detach /tmp/build origin/main
+> cd /tmp/build && cp -Rc "$OLDPWD/node_modules" ./node_modules
+> set -a; source /path/to/repo/.env.local.prod; set +a
+> npm run build && npm run deploy
+> ```
+> Never bypass the guard or the lock (`--allow-stale`, `--allow-dirty`,
+> `--skip-build-check`) unless the other agent is confirmed stopped. If the lock
+> is held, wait — do not delete it manually.
+
+`npm run deploy:guard` checks: git sync (behind/ahead), clean tree, baked
+`NEXT_PUBLIC_*` env, and that every registered template is in the bundle. Flags:
+`--allow-stale`, `--allow-dirty`, `--ref <project>` (staging), `--sync-only`
+(the post-sync re-check). The deploy script also takes a server-side
+`.deploy.lock` (20 min stale TTL) so two agents cannot sync simultaneously,
+re-verifies `origin/main` after the sync (rolling back if a push landed
+mid-deploy), and asserts the live BUILD_ID still matches after the smoke test.
+
+#### What the sync does (and why it is additive)
+`scripts/deploy.sh` syncs in four moves — **none of them delete**:
+```bash
+# node_modules: skipped entirely when its file-list stamp is unchanged
+# build output + static: one gzipped tar stream per tree (rsync's per-file
+#   negotiation is unusable at this link's ~1.2 s RTT)
+# public/: rsync --checksum, so only genuinely changed media crosses the wire
+# old chunks: pruned by `find -mtime +7` after every deploy
+```
+**Additive is deliberate.** `rsync --delete` used to remove the *running*
+process's chunks before PM2 switched over, so every page load returned 500 for
+the entire transfer (a chunk route matched the old manifest, but the file was
+gone → 500, not 404). Nothing is deleted during a deploy now, so a slow link no
+longer produces an outage, and **a failed deploy is a no-op — just re-run it.**
+A pre-deploy browser tab keeps its JS chunks (they survive 7 days), but a
+client-side navigation may still fetch a stale RSC payload — hard-reload
+(⌘⇧R) if a tab behaves oddly after a deploy.
+
+Notes:
+- Next 16 standalone output does NOT copy `public/`; the standalone server serves
+  public from `.next/standalone/public/` (next to `server.js`). Syncing to
+  `/var/www/aksara-wedding/public/` is NOT served — do not use it.
+- `COPYFILE_DISABLE=1` **and** `--no-xattrs` must be set for macOS `tar`,
+  otherwise it emits AppleDouble `._*` entries (doubles the file count) and
+  per-file `LIBARCHIVE.xattr` pax headers that make GNU tar on the VPS warn
+  ~2600 times per deploy.
+- Every network step is wrapped in `retry 3` with SSH keepalive
+  (`ServerAliveInterval=15`, `CountMax=6`) because this link drops connections
+  mid-transfer; `public/` additionally uses `rsync --partial --timeout=180`.
 
 > **CRITICAL — verify baked env BEFORE deploying.** `NEXT_PUBLIC_*` values are
 > baked into the bundle at build time. If the wrong env file is sourced (or none
 > is), the build silently points at the wrong Supabase project and every DB read
 > on prod fails with `TypeError: fetch failed` (login *masks* this — its "user
 > not found" 401 is the `!user` branch when the query errors). This happened on
-> 2026-08-14: the deployed bundle baked `127.0.0.1:54321` + the local `supabase-demo`
-> anon key. After every `npm run build`, BEFORE rsyncing, assert the correct URL:
+> 2026-08-14: the deployed bundle baked `127.0.0.1:54321` + the local
+> `supabase-demo` anon key. The guard checks this automatically; to check by hand
+> before deploying:
 > ```bash
-> grep -o "127.0.0.1:54321\|<PROJECT_REF>.supabase.co\|supabase-demo" \
->   .next/standalone/.next/server/chunks/src_lib_supabase_ts_0_m2_rm._.js | sort | uniq -c
+> grep -rho "127\.0\.0\.1:54321\|ylmfgorryxzpdckkebnr\.supabase\.co\|jclolnjkjhyjilvymagr\.supabase\.co\|supabase-demo" \
+>   .next/standalone/.next/server/chunks | sort | uniq -c
 > ```
-> Only `<PROJECT_REF>.supabase.co` should appear. If it also shows the local URL/key,
-> rebuild with the correct env sourced (`set -a; source .env.local.prod; set +a; npm run build`).
+> Only `ylmfgorryxzpdckkebnr.supabase.co` should appear. If it also shows the
+> local or staging URL, rebuild with the right env sourced.
 
-1. Build locally (env MUST be sourced, see critical note above):
-   ```bash
-   set -a; source .env.local.prod; set +a; npm run build
-   ```
-2. `npm run deploy` syncs the build output (this is what `scripts/deploy.sh` does — prefer it over hand-rolled rsync):
-   ```bash
-   # node_modules: skipped entirely when its file-list stamp is unchanged
-   # build output + static: one gzipped tar stream per tree (no per-file
-   #   negotiation — rsync's per-file round trips are unusable at high RTT)
-   # public/: rsync --checksum so only genuinely changed media crosses the wire
-   ```
-   **The sync is ADDITIVE — nothing on the server is deleted.** That is deliberate:
-   `rsync --delete` used to remove the *running* process's chunks before PM2
-   switched over, so every page load 500'd for the whole transfer (a chunk route
-   matched the old manifest but the file was gone → 500, not 404). Old chunk files
-   are now pruned by `find -mtime +7` on each deploy instead, so a slow link no
-   longer produces an outage.
-   Note: Next 16 standalone output does NOT copy `public/`; the standalone server serves public from `.next/standalone/public/` (next to `server.js`). Syncing to `/var/www/aksara-wedding/public/` is NOT served — do not use it.
-   Note: `COPYFILE_DISABLE=1` must be set for macOS `tar`, otherwise it emits
-   AppleDouble `._*` entries and per-file xattr headers (doubles the file count
-   and bloats the stream).
-3. Reload PM2 on the server (reload is REQUIRED — the standalone server indexes the static folder at boot, so static synced after startup returns 404 until reload):
-   ```bash
-   ssh askaraa@103.93.135.176
-   cd /var/www/aksara-wedding && pm2 startOrRestart ecosystem.config.js --only aksara-wedding --update-env
-   pm2 save
-   ```
-   **CRITICAL: use `startOrRestart` with the ecosystem file, NOT bare `pm2 restart`.**
-   `pm2 restart` preserves the process's original launch-time env and never re-reads
-   `ecosystem.config.js`, so any env var added to the file later (e.g.
-   `WA_TARGET_GROUP_JID`, `WP_POLL_MS`) silently never reaches the process (this
-   broke WA group notifications). `startOrRestart` re-reads the file. After reload,
-   verify new vars landed (names only, never print values):
-   ```bash
-   ssh -i $HOME/.ssh/aksaraa_deploy askaraa@103.93.135.176 "pm2 env \$(pm2 id aksara-wedding 2>/dev/null | grep -o '[0-9]*') 2>/dev/null | grep -o '^[A-Za-z_][A-Za-z0-9_]*' | sort -u"
-   ```
-4. Smoke-test the AFFECTED prod API endpoints directly (MANDATORY — not just `/login`):
-   ```bash
-   curl -s -o /dev/null -w "%{http_code}\n" --max-time 25 "https://wedding.aksaraa.com/api/dashboard/<id>/web-invitation"
-   ```
-   Hit every API route touched by the change (GET and, on staging/test data only, the mutating verbs). Local staging smoke runs on macOS and CANNOT catch platform-specific failures: on 2026-09-25 a top-level `import sharp` crashed the whole web-invitation route on the Linux VPS (GET+PUT 500 → every editor empty) while local smoke passed green.
-   - NEVER top-level-import a platform-native module in a route file. Lazy-import it inside the function that needs it (`const { default: sharp } = await import("sharp")`) with try/catch fallback, so reads keep working even if the binding is missing.
-   - If a native module is required in prod, ensure its linux-x64 binding is an explicit dependency (e.g. `@img/sharp-linux-x64`, `@img/sharp-libvips-linux-x64`) so it gets traced into `.next/standalone/node_modules`, and verify post-deploy with a real mutating call on test data.
-5. After the VPS deploy is verified, commit and push the work:
-   ```bash
-   git add -A
-   git commit -m "feat: describe_change"
-   git push origin main
-   ```
-   Note: `tsconfig.tsbuildinfo` is local build noise — leave it uncommitted.
+#### Manual recovery only
+`npm run deploy` already reloads PM2. Use these by hand only when recovering:
+```bash
+ssh askaraa@103.93.135.176
+cd /var/www/aksara-wedding && pm2 startOrRestart ecosystem.config.js --only aksara-wedding --update-env
+pm2 save
+```
+**CRITICAL: use `startOrRestart` with the ecosystem file, NOT bare `pm2 restart`.**
+`pm2 restart` preserves the process's original launch-time env and never re-reads
+`ecosystem.config.js`, so any env var added to the file later (e.g.
+`WA_TARGET_GROUP_JID`, `WP_POLL_MS`) silently never reaches the process (this
+broke WA group notifications). `startOrRestart` re-reads the file. After reload,
+verify new vars landed (names only, never print values):
+```bash
+ssh -i $HOME/.ssh/aksaraa_deploy askaraa@103.93.135.176 "pm2 env \$(pm2 id aksara-wedding 2>/dev/null | grep -o '[0-9]*') 2>/dev/null | grep -o '^[A-Za-z_][A-Za-z0-9_]*' | sort -u"
+```
+
+#### Smoke-test the AFFECTED prod API endpoints directly (MANDATORY)
+`npm run deploy` smoke-tests all 24 template previews plus the critical APIs and
+rolls back automatically on failure, but it cannot know which routes *your*
+change touched — hit those yourself:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" --max-time 25 "https://wedding.aksaraa.com/api/dashboard/<id>/web-invitation"
+```
+Hit every API route touched by the change (GET and, on staging/test data only,
+the mutating verbs). Local staging smoke runs on macOS and CANNOT catch
+platform-specific failures: on 2026-09-25 a top-level `import sharp` crashed the
+whole web-invitation route on the Linux VPS (GET+PUT 500 → every editor empty)
+while local smoke passed green.
+- NEVER top-level-import a platform-native module in a route file. Lazy-import it
+  inside the function that needs it (`const { default: sharp } = await import("sharp")`)
+  with try/catch fallback, so reads keep working even if the binding is missing.
+- If a native module is required in prod, ensure its linux-x64 binding is an
+  explicit dependency (e.g. `@img/sharp-linux-x64`, `@img/sharp-libvips-linux-x64`)
+  so it gets traced into `.next/standalone/node_modules`, and verify post-deploy
+  with a real mutating call on test data.
+
+Note: `tsconfig.tsbuildinfo` is local build noise — leave it uncommitted.
 
 ### Start local development
 
