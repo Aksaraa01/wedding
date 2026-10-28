@@ -13,6 +13,7 @@ import {
   normalizeVideoUrl,
 } from "../shared/lib"
 import Wishes from "./Wishes"
+import InvitationOverlay from "@/components/InvitationOverlay"
 import { resolveBankLogo } from "@/lib/bankList"
 import "./manjari.css"
 
@@ -94,6 +95,14 @@ export default function Manjari(profile: TemplateProps) {
   const calendarUrl = gcalLink(events[0], profile.groom_name || "", profile.bride_name || "")
   const closingMessage = tc.closing_message || DEFAULT_CLOSING
   const waHref = `https://wa.me/${AKSARAA_WA_NUMBER}?text=${encodeURIComponent("Halo Aksaraa Wedding, saya tertarik membuat undangan digital")}`
+
+  // Shared floating dock (RSVP modal + guest QR). Same rule as the other
+  // in-house templates: only after the cover opens, and only for resolved
+  // guests (or flexible links that carry a slug).
+  const showGuestDock =
+    opened &&
+    (!!profile.guest_id || (profile.guest_link_strict === false && !!profile.guest_slug)) &&
+    !!profile.wedding_profile_id
 
   const openInvitation = useCallback(() => {
     setOpened(true)
@@ -401,6 +410,25 @@ export default function Manjari(profile: TemplateProps) {
           </section>
         </main>
       </div>
+
+      {showGuestDock && (
+        <InvitationOverlay
+          guestId={profile.guest_id}
+          guestSlug={profile.guest_slug}
+          allowFlexibleRsvp={profile.guest_link_strict === false}
+          guestName={profile.guest_name || "Tamu Undangan"}
+          coupleName={coupleLabel}
+          weddingProfileId={profile.wedding_profile_id!}
+          guestQrUrl={profile.guest_qr_url}
+          guestTableNumber={profile.guest_table_number}
+          guestRsvpStatus={profile.guest_rsvp_status}
+          guestRsvpMessage={profile.guest_rsvp_message || undefined}
+          rsvpMaxPax={profile.rsvp_max_pax ?? 2}
+          qrEnabled={profile.feature_gates?.qr_code_book === true}
+          anchor="bottom"
+          bottom={80}
+        />
+      )}
 
       <div className={`opening${opened ? " opened" : ""}`} id="cover" role="dialog" aria-modal="true" aria-labelledby="opening-title">
         <div className="opening__panel">

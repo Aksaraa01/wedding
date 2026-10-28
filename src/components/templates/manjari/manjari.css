@@ -178,3 +178,11 @@
 .manjari-root .thanks .tpl-footer__cta{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:10px;font-weight:400;letter-spacing:.3em;text-indent:.3em;text-transform:uppercase;color:rgba(255,255,255,.6);transition:color .3s ease}
 .manjari-root .thanks .tpl-footer__link:hover .tpl-footer__cta{color:rgba(255,255,255,.92)}
 .manjari-root .thanks .tpl-footer__text{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:11px;letter-spacing:.04em;color:rgba(255,255,255,.45)}
+
+/* RSVP submit — the ported `.adat-rsvp` block declares
+   `background: var(--adat-primary)`, which manjari never defines, so the pill
+   computed to transparent + inherited ivory and read as plain body text.
+   Pin it to the manjari pill palette (ivory on burgundy) so the Wishes section
+   has a real, visible submit button again. */
+.manjari-root .manjari-rsvp .tpl-rsvp__submit{border:1px solid var(--ivory);background:var(--ivory);color:var(--burgundy)}
+.manjari-root .manjari-rsvp .tpl-rsvp__submit:hover:not(:disabled){background:#fff}
