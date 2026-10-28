@@ -171,6 +171,7 @@ export default function Imagine(props: TemplateProps) {
     groom_instagram, bride_instagram,
     quote_text, quote_source,
     sessions, stories, gallery_photos,
+    rundown, rundown_visible,
     video_url, dresscode, dresscode_visible,
     livestream, livestream_visible,
     gift_accounts, gift_address, gift_address_name, gift_section_visible,
@@ -278,6 +279,34 @@ export default function Imagine(props: TemplateProps) {
   }
 
   const showGift = gift_section_visible !== false && (gift_accounts?.length || gift_address || tc.gift_intro_title)
+  const rundownItems = rundown_visible !== false
+    ? (rundown || []).filter((r) => r && (r.time || r.description))
+    : []
+  const hasRundown = rundownItems.length > 0
+
+  // Rundown timeline: each row lights up (and the connector fills) as it
+  // scrolls into view — same behaviour as the adat-melayu section.
+  useEffect(() => {
+    if (!opened) return
+    const root = rootRef.current
+    if (!root || typeof IntersectionObserver === "undefined") return
+    const items = Array.from(root.querySelectorAll<HTMLElement>("[data-rundown-item]"))
+    if (items.length === 0) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-reached")
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { rootMargin: "0px 0px -18% 0px", threshold: 0.4 }
+    )
+    items.forEach((item) => observer.observe(item))
+    return () => observer.disconnect()
+  }, [opened, hasRundown])
+
   const showLivestream = livestream_visible !== false && !!livestream?.url && gates.video !== false
   const showVideo = !!video_url && gates.video !== false && props.video_section_visible !== false
   const showStory = gates.story !== false && props.story_visible !== false && !!stories?.length
@@ -293,7 +322,9 @@ export default function Imagine(props: TemplateProps) {
   const remaining = useCountdown(countTarget)
   const count = remaining === null ? null : pads(remaining)
   const ytId = youTubeId(video_url)
-  const streamThumb = youTubeThumb(livestream?.url)
+  // Live streaming artwork: the invitation's cover photo, falling back to the
+  // YouTube still when the couple has no cover.
+  const streamImage = cover || youTubeThumb(livestream?.url) || ""
 
   const coupleLabel = `${groom_name || ""} & ${bride_name || ""}`.trim()
 
@@ -808,6 +839,28 @@ export default function Imagine(props: TemplateProps) {
             </section>
           )}
 
+          {/* RUNDOWN (adat-melayu timeline, imagine tokens) */}
+          {hasRundown && (
+            <section className="tpl-rundown" data-section-order="rundown" aria-label="Rundown Acara">
+              <div className="tpl-rundown__card" data-aos="fade-up" data-aos-duration="1000">
+                <h2 className="tpl-rundown__title" data-aos="zoom-in" data-aos-duration="1000">Rundown Acara</h2>
+                <div className="tpl-rundown__list">
+                  {rundownItems.map((item, index) => (
+                    <article
+                      className="tpl-rundown__item"
+                      data-rundown-item="true"
+                      key={`${item.time || "rundown"}-${index}`}
+                    >
+                      <span className="tpl-rundown__marker" aria-hidden="true" />
+                      {item.time && <strong className="tpl-rundown__time">{item.time}</strong>}
+                      {item.description && <p className="tpl-rundown__desc">{item.description}</p>}
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* LIVESTREAM */}
           {showLivestream && (
             <section className="live-streaming" data-section-order="livestream">
@@ -821,18 +874,14 @@ export default function Imagine(props: TemplateProps) {
                 <div className="body">
                   <div className="streaming-info">
                     <div>
-                      <div
-                        className={`preview wide${streamThumb ? " youtube" : ""}`}
-                        data-aos="fade-up"
-                        data-aos-duration="1000"
-                      >
-                        {streamThumb && (
+                      <div className="preview wide" data-aos="fade-up" data-aos-duration="1000">
+                        {streamImage && (
                           <img
-                            src={streamThumb}
+                            src={streamImage}
                             alt=""
                             onError={(e) => {
                               const el = e.currentTarget
-                              const fallback = youTubeThumb(livestream?.url, "hq")
+                              const fallback = youTubeThumb(livestream?.url)
                               if (fallback && el.src !== fallback) el.src = fallback
                             }}
                           />
