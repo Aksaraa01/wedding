@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import "./imagine.css"
 import type { TemplateProps } from "@/types/template"
 import InvitationOverlay from "@/components/InvitationOverlay"
+import { photoList } from "@/components/templates/shared/lib"
 import ImagineWishes from "./ImagineWishes"
 
 type Session = NonNullable<TemplateProps["sessions"]>[number]
@@ -77,22 +78,26 @@ function OrnGateFlanks() {
 /* Local-intro copilot comment lock: this file must not embed reference couple
    data. All strings below are structural layout labels or prop fallbacks. */
 
-function useCountdown(target?: string) {
-  const [remaining, setRemaining] = useState(() => diffFrom(target))
+function useCountdown(target: Date | null) {
+  const [now, setNow] = useState<number | null>(null)
   useEffect(() => {
-    setRemaining(diffFrom(target))
     if (!target) return
-    const t = window.setInterval(() => setRemaining(diffFrom(target)), 1000)
+    setNow(Date.now())
+    const t = window.setInterval(() => setNow(Date.now()), 1000)
     return () => window.clearInterval(t)
   }, [target])
-  return remaining
+  if (!target || now === null) return null
+  return Math.max(0, target.getTime() - now)
 }
 
-function diffFrom(target?: string) {
-  if (!target) return null
-  const ms = new Date(target).getTime() - Date.now()
-  if (Number.isNaN(ms)) return null
-  return Math.max(0, ms)
+function parseLocalDate(value?: string | null): Date | null {
+  const v = String(value || "").trim()
+  if (!v) return null
+  const m = v.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/)
+  const d = m
+    ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), Number(m[4] || 0), Number(m[5] || 0))
+    : new Date(v)
+  return Number.isNaN(d.getTime()) ? null : d
 }
 
 function pads(ms: number) {
@@ -105,9 +110,9 @@ function pads(ms: number) {
   }
 }
 
-function formatDateParts(dateStr?: string) {
+function formatDateParts(dateStr?: string | Date) {
   if (!dateStr) return null
-  const d = new Date(dateStr)
+  const d = dateStr instanceof Date ? dateStr : new Date(dateStr)
   if (Number.isNaN(d.getTime())) return null
   return {
     day: d.toLocaleDateString("en-US", { weekday: "long" }),
@@ -277,12 +282,15 @@ export default function Imagine(props: TemplateProps) {
   const showStory = gates.story !== false && props.story_visible !== false && !!stories?.length
   const families = gates.inviting_families !== false && inviting_families_visible !== false ? inviting_families || [] : []
 
-  const groomPhoto = Array.isArray(groom_photo_url) ? groom_photo_url[0] : groom_photo_url
-  const bridePhoto = Array.isArray(bride_photo_url) ? bride_photo_url[0] : bride_photo_url
+  const groomPhoto = photoList(groom_photo_url)[0]
+  const bridePhoto = photoList(bride_photo_url)[0]
   const cover = cover_photos?.[0] || ""
+  // Countdown targets the wedding date only. Once it reaches zero it stays
+  // visible as 00 : 00 : 00 : 00 instead of disappearing.
+  const countTarget = useMemo(() => parseLocalDate(estimated_wedding_date), [estimated_wedding_date])
   const dateParts = formatDateParts(estimated_wedding_date)
-  const remaining = useCountdown(estimated_wedding_date)
-  const count = remaining ? pads(remaining) : null
+  const remaining = useCountdown(countTarget)
+  const count = remaining === null ? null : pads(remaining)
   const ytId = youTubeId(video_url)
 
   const coupleLabel = `${groom_name || ""} & ${bride_name || ""}`.trim()
