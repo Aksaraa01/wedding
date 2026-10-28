@@ -357,6 +357,27 @@ consistent.
 | Story header | the inset photo next to "Our Story" was removed on client request — `.se-story__head` is a plain block (`display: block`), no `.se-story__inset` in the DOM or CSS (incl. the desktop mq); chapters still carry their own images |
 | Music parity | `<audio loop preload="none">`, starts on the open gesture, clamped to `music_start_seconds` / `music_end_seconds`, paused when the film starts (verified by clicking the film's play button → `aria-label` flipped to "Play music"), disc control measured 48×48 at 16px from the right/bottom, spin state follows playback |
 
+### Status (production, 2026-10-28)
+
+| Step | Result |
+|---|---|
+| Commits | `0b50d92` feat(fonts) + `30f069d` feat(still-ever), built in a detached worktree at `origin/main` so the other session's `minang-royal` WIP never entered the bundle |
+| Migration | `20261037000000_still_ever` applied to prod `ylmfgorryxzpdckkebnr` (row `id 308f8d71-372b-40a7-a021-17711e9ef8b4`) and recorded in `supabase_migrations.schema_migrations` |
+| Deploy | `BUILD_ID xx3hbw9zqICp_QOeq8Mcu`, all 25 previews `doc=200 rsc=200`, `/api/health` 200, dashboard web-invitation 200 |
+| Gallery | `/templates` → 62 cards incl. Still & Ever (`62+ template`), card links `/premium-web-invitation?template=still-ever` + `/register?template=still-ever` |
+| Preview | 390×844: DM Serif Display + DM Sans loaded (`document.fonts.check` true), gate opens, 15 sections, film + music mounted, `scrollWidth === innerWidth`, no console errors |
+| Fonts | `/fonts/dmserifdisplay-400.woff2` + `/fonts/dmsans-400.woff2` 200 |
+
+> Prerender gotcha: `/templates` is a build-time page (`templates.html`) and Next
+> caches the Supabase response in `.next/cache/fetch-cache`. Inserting the
+> `web_templates` row *after* the build, then rebuilding without
+> `rm -rf .next`, serves the old 61-card page (this happened once here). Always
+> register the row first, or clear `.next` before the build.
+>
+> After the deploy, the prod row was edited from the ops UI (thumbnail replaced
+> with an uploaded `template-media/*.jpg`, `package_eligibility` lost `gt`) —
+> that is operator-side data, not something this template's code controls.
+
 > Repo note: `imagine` was being edited by another session during this REA, so the
 > staging build must be produced from an isolated worktree at `HEAD` containing
 > only this task's files (playbook §8), never from the shared dirty tree.

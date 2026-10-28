@@ -522,6 +522,17 @@ worktree at `HEAD`, copy in only this task's files, clone `node_modules`
 that points outside the project root), build there, and rsync from that
 worktree. The main tree keeps the other sessions' edits untouched.
 
+**Register the `web_templates` row BEFORE the final build.** `/templates` is
+prerendered at build time (`revalidate = 3600`) and Next caches the Supabase
+response in `.next/cache/fetch-cache`, so a row inserted after `next build` is
+invisible on the public gallery — and a rebuild reuses the stale cached fetch
+and still renders the old count. Order: migration → row → `rm -rf .next` →
+build → deploy. Verify with
+`grep -c 'class="template-card' .next/server/app/templates.html` (must equal the
+active row count) and `grep -o '<code>' .next/server/app/templates.html`. The
+throwaway worktree used for the deploy keeps its own `.next/cache`, so it needs
+the `rm -rf .next` too.
+
 Then rsync **sequentially**:
 
 1. `.next/standalone/` → `/var/www/aksara-wedding/.next/standalone/`
