@@ -92,7 +92,7 @@ html.has-imagine-locked,body:has(.imagine-root.is-pre-open){overflow:hidden !imp
 
 /* --- video embed --- */
 .imagine-root .video-outer .iframe,
-.imagine-root .video-gallery .preview iframe{aspect-ratio:16/9;border:0;border-radius:16px;display:block;height:auto;overflow:hidden;width:100%}
+.imagine-root .video-gallery .preview iframe{aspect-ratio:16/9;border:0;border-radius:16px;display:block;height:100%;inset:0;overflow:hidden;position:absolute;width:100%}
 
 /* --- gallery (sandhya marquee rows) --- */
 .imagine-root .gallery-carousel{margin-top:8px}
