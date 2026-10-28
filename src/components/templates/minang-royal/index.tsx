@@ -390,10 +390,6 @@ export default function MinangRoyal(profile: TemplateProps) {
                   {groups.map((group, groupIndex) => (
                     <div className="event-item" key={`event-${group.date || groupIndex}`}>
                       <div className="section-group bottom combine-wrapper-04">
-                        <div className="event-head">
-                          <h1 className="event-day">{dayName(group.date) || "Wedding Day"}</h1>
-                          <p className="event-date">{longDate(group.date) || dateLong}</p>
-                        </div>
                         <div className="section-separator-wrap bottom">
                           <img src={A("orn-section-min.png")} alt="" className="section-separator" />
                         </div>
@@ -406,6 +402,12 @@ export default function MinangRoyal(profile: TemplateProps) {
                             return (
                               <div className="activity-item" key={`${event.name || "activity"}-${index}`}>
                                 <div className="activity-head">
+                                  {(dayName(group.date) || longDate(group.date)) && (
+                                    <p className="activity-date">
+                                      {dayName(group.date) && <span className="activity-day">{dayName(group.date)}</span>}
+                                      {(longDate(group.date) || dateLong) && <span className="activity-date-text">{longDate(group.date) || dateLong}</span>}
+                                    </p>
+                                  )}
                                   <h1 className="activity-title">{event.name || "Wedding Ceremony"}</h1>
                                   {event.time && <p className="activity-time">{event.time}</p>}
                                 </div>
