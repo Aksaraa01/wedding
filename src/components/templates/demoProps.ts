@@ -1256,3 +1256,74 @@ DEMO_PROPS_BY_CODE["still-ever"] = {
       "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say.",
   },
 }
+
+DEMO_PROPS_BY_CODE["embroidered-garden"] = {
+  ...DEMO_PROPS_BY_CODE["sandhya"],
+  slug: "demo",
+  display_name: "#AlbarnFaye2027",
+  estimated_wedding_date: "2027-12-31",
+  sessions: (DEMO_PROPS_BY_CODE["sandhya"].sessions || []).map((s) => ({ ...s, date: "2027-12-31" })),
+  cover_photos: [...DE_COVERS_COVER2].slice(0, 1),
+  gallery_photos: [
+    `${DE}/cover-2.webp`,
+    `${DE}/cover-3.webp`,
+    `${DE}/cover-4.webp`,
+    `${DE}/cover-5.webp`,
+    `${DE}/cover.webp`,
+    `${DE}/cover-1.webp`,
+  ],
+  groom_instagram: "@wedding.aksaraa",
+  bride_instagram: "@wedding.aksaraa",
+  stories: [
+    {
+      title: "First Met",
+      description:
+        "It began with a chance introduction at a friend's dinner, two chairs apart and a conversation that outlasted the dessert.",
+      image_url: `${DE}/cover.webp`,
+    },
+    {
+      title: "The Proposal",
+      description:
+        "Years later, on a quiet morning walk through the gardens we love, one question was asked and answered before the sun was fully up.",
+      image_url: `${DE}/cover-1.webp`,
+    },
+  ],
+  gift_accounts: [
+    { provider_name: "Bank Danamon", account_number: "903687866339", account_name: "David Albarn", type: "bank" },
+    { provider_name: "Bank Central Asia (BCA)", account_number: "8200891083", account_name: "Faye Reed", type: "bank" },
+    { provider_name: "DANA", account_number: "0812 3456 7890", account_name: "Faye Reed", type: "ewallet" },
+  ],
+  rundown_visible: true,
+  rundown: [
+    { time: "4:45 PM", description: "Guests arrive" },
+    { time: "5:00 PM", description: "Ceremony begins" },
+    { time: "6:00 PM", description: "Cocktail hour" },
+    { time: "7:00 PM", description: "Reception and dancing" },
+    { time: "11:00 PM", description: "Farewell" },
+  ],
+  inviting_families: [
+    "The Albarn Family",
+    "The Reed Family",
+    "The Extended Families of Both",
+  ],
+  track_url: ASSETS.defaultMusic,
+  template_content: {
+    welcome_invite: "You are invited to the wedding of",
+    welcome_message:
+      "We are so happy to celebrate this day with you, surrounded by the people we love most.",
+    events_intro: "We would be honoured to have you with us as we say our vows.",
+    inviting_intro:
+      "With deep gratitude we also present the families who extend this invitation alongside us.",
+    rundown_title: "Order of the Day",
+    rundown_intro: "Our ceremony will be followed by an apéritif, dinner and dancing.",
+    love_story_title: "Our Story",
+    story_intro: "Every chapter of our story has been leading to this day.",
+    cover_apology: "We apologize for any misspelling of your name or title.",
+    gift_intro_title: "Wedding Gift",
+    gift_intro_description:
+      "Your presence at our wedding is the greatest gift of all. Should you wish to celebrate with a gift, the details are below.",
+    wishes_intro: "Leave a wish, a prayer, or a memory for us to keep.",
+    closing_message:
+      "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say.",
+  },
+}

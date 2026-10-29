@@ -25,6 +25,7 @@ import Manjari from "./manjari"
 import MinangRoyal from "./minang-royal"
 import Imagine from "./imagine"
 import StillEver from "./still-ever"
+import EmbroideredGarden from "./embroidered-garden"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -53,6 +54,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "minang-royal": MinangRoyal,
   imagine: Imagine,
   "still-ever": StillEver,
+  "embroidered-garden": EmbroideredGarden,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -1011,6 +1013,49 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         inviting: true,
         dresscode: true,
         livestream: true,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "embroidered-garden",
+    name: "Embroidered Garden",
+    description: "Undangan bordir bergaya taman Provençal — gerbang pintu bertekstur, sulaman wistaria dan mawar, hitung mundur mutiara, turut mengundang, susunan acara, dress code, kisah cinta, hadiah, dan ucapan.",
+    theme: {
+      fonts: { display: "Cormorant Garamond", script: "Pinyon Script", body: "EB Garamond" },
+      colors: {
+        surface: "#f6f3ee",
+        text: "#2a4132",
+        accent: "#c98936",
+        accentMuted: "#6c7a73",
+        overlay: "#faf7f2",
+        dark: "#4b5852",
+      },
+      ornaments: { divider: "floral", border: "minimal", frame: "arch" },
+      motion: { enabled: true, duration: 0.9, stagger: 0.18 },
+    },
+    content: {
+      // The cover is the embroidered door film (fixed art, like the reference),
+      // so there is exactly one photo slot: the closing portrait. Empty ⇒ the
+      // château vignette.
+      cover_slots: 1,
+      cover_slot_labels: ["Foto Penutup"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: true,
+      sections: {
+        opening_description: false,
+        quote: false,
+        countdown: true,
+        video: false,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: true,
+        livestream: false,
         rundown: true,
         contacts: false,
       },
