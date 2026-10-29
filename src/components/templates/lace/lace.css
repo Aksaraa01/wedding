@@ -1,0 +1,1632 @@
+/* ─────────────────────────────────────────────────────────────
+   Lace — ivory & burgundy, drawn almost entirely with the template's
+   own lace art. Every rule is scoped under .lc-root so the invitation
+   can never leak into the dashboard chrome around a preview.
+   ───────────────────────────────────────────────────────────── */
+
+.lc-root {
+  --lc-ivory: #f7f5f3;
+  --lc-paper: #fcfaf7;
+  --lc-wine: #511f2b;
+  --lc-wine-2: #702b3c;
+  --lc-ink: #4e1e29;
+  --lc-body: #704952;
+  --lc-muted: #a08a90;
+  --lc-gold: #b3997a;
+  --lc-line: rgba(78, 30, 41, 0.16);
+  --lc-display: "Cormorant", "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  --lc-script: "WindSong", "Allura", "Parisienne", cursive;
+  --lc-sans: "DM Sans", "Inter", system-ui, -apple-system, sans-serif;
+
+  position: relative;
+  overflow-x: hidden;
+  background: var(--lc-ivory);
+  color: var(--lc-ink);
+  font-family: var(--lc-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.lc-root *,
+.lc-root *::before,
+.lc-root *::after {
+  box-sizing: border-box;
+}
+
+/* ── Shared type ─────────────────────────────────────────────── */
+.lc-display {
+  font-family: var(--lc-display);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.12;
+  color: var(--lc-ink);
+}
+
+.lc-script {
+  font-family: var(--lc-script);
+  font-weight: 400;
+  line-height: 1.05;
+  color: var(--lc-ink);
+}
+
+.lc-body {
+  font-family: var(--lc-sans);
+  font-size: 14.5px;
+  font-weight: 300;
+  line-height: 1.9;
+  letter-spacing: 0.005em;
+  color: var(--lc-body);
+}
+
+.lc-kicker {
+  font-family: var(--lc-display);
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--lc-body);
+}
+
+.lc-heading {
+  font-size: clamp(30px, 8.4vw, 44px);
+  text-align: center;
+}
+
+.lc-wrap {
+  width: 100%;
+  max-width: 720px;
+  margin-inline: auto;
+  padding-inline: 26px;
+}
+
+.lc-section {
+  position: relative;
+  padding-block: 62px;
+  background: var(--lc-ivory);
+}
+
+.lc-link {
+  display: inline-block;
+  font-family: var(--lc-sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--lc-ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--lc-line);
+  padding-bottom: 4px;
+  background: none;
+  cursor: pointer;
+}
+
+.lc-link--light {
+  color: rgba(250, 244, 240, 0.86);
+  border-bottom-color: rgba(250, 244, 240, 0.32);
+}
+
+.lc-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 210px;
+  padding: 15px 30px;
+  border: 1px solid rgba(78, 30, 41, 0.34);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--lc-ink);
+  font-family: var(--lc-sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-indent: 0.26em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+}
+
+.lc-pill:hover {
+  background: rgba(78, 30, 41, 0.06);
+}
+
+.lc-pill--light {
+  border-color: rgba(250, 244, 240, 0.42);
+  color: #faf4f0;
+}
+
+.lc-pill--light:hover {
+  background: rgba(250, 244, 240, 0.1);
+}
+
+/* Reveal-on-scroll */
+.lc-root [data-lc-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+
+.lc-root [data-lc-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Lace bands ──────────────────────────────────────────────── */
+.lc-band {
+  display: block;
+  width: 100%;
+  max-width: 1240px;
+  margin-inline: auto;
+  aspect-ratio: 1300 / 533;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  pointer-events: none;
+}
+
+.lc-band--top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+}
+
+/* The bottom edge is the rose-net border (band-border), mirrored so its
+   scallops hang past the panel onto the ivory. */
+.lc-band--bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  aspect-ratio: 1400 / 594;
+  transform: translateY(44%) scaleY(-1);
+}
+
+.lc-band--lead {
+  aspect-ratio: 1300 / 533;
+}
+
+/* ── Sealed cover (gate) ─────────────────────────────────────── */
+.lc-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: var(--lc-ivory);
+  transition: opacity 0.9s ease 0.15s, visibility 0.9s ease 0.15s;
+  cursor: pointer;
+}
+
+.lc-root.is-open .lc-gate {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.lc-gate__card {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.lc-gate__stage {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 100%;
+  width: auto;
+  aspect-ratio: 9 / 16;
+  transform: translateX(-50%);
+}
+
+.lc-gate__sealed,
+.lc-gate__film {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lc-gate__sealed {
+  transition: opacity 1.1s ease;
+}
+
+.lc-gate__film {
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.lc-gate.is-opening .lc-gate__film {
+  opacity: 1;
+}
+
+.lc-gate.is-opening .lc-gate__sealed {
+  opacity: 0;
+}
+
+.lc-gate__seal {
+  position: absolute;
+  left: 50.2%;
+  top: 50.9%;
+  width: 25%;
+  height: 17.6%;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.65s ease, transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.lc-seal {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.lc-gate.is-opening .lc-gate__seal {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.93);
+}
+
+.lc-gate__foot {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 0 24px calc(26px + env(safe-area-inset-bottom));
+  text-align: center;
+}
+
+.lc-gate__foot::before {
+  content: "";
+  position: absolute;
+  inset: -120px 0 0;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    rgba(247, 245, 243, 0) 0%,
+    rgba(247, 245, 243, 0.72) 44%,
+    rgba(247, 245, 243, 0.96) 72%,
+    #f7f5f3 100%
+  );
+  pointer-events: none;
+}
+
+.lc-gate__guest {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+}
+
+.lc-gate__guest span {
+  font-family: var(--lc-display);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+  text-transform: uppercase;
+  color: rgba(78, 30, 41, 0.62);
+}
+
+.lc-gate__guest strong {
+  font-family: var(--lc-display);
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--lc-ink);
+}
+
+.lc-gate__open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 30px;
+  border: 1px solid rgba(78, 30, 41, 0.32);
+  border-radius: 999px;
+  background: rgba(252, 250, 247, 0.55);
+  color: var(--lc-ink);
+  font-family: var(--lc-sans);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-indent: 0.26em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.lc-gate__open:hover {
+  background: var(--lc-paper);
+}
+
+.lc-gate__open:focus-visible {
+  outline: 1px solid var(--lc-ink);
+  outline-offset: 3px;
+}
+
+.lc-gate__signature {
+  font-family: var(--lc-sans);
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  text-transform: uppercase;
+  color: rgba(78, 30, 41, 0.42);
+}
+
+/* ── Cover section (the opened card) ─────────────────────────── */
+.lc-cover {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  padding-block: 22px;
+  background: radial-gradient(120% 90% at 50% 40%, #fbf9f6 0%, #f5f2ee 62%, #eee9e3 100%);
+}
+
+.lc-cover__card {
+  position: relative;
+  width: 100%;
+  height: calc(100svh - 44px);
+  overflow: hidden;
+  container-type: size;
+}
+
+.lc-cover__art {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+
+.lc-cover__body {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16% 12% 14%;
+  text-align: center;
+}
+
+.lc-cover__body .lc-kicker {
+  max-width: 84%;
+  font-size: 2.8cqw;
+  letter-spacing: 0.17em;
+  line-height: 1.5;
+  color: #6d4650;
+  text-wrap: balance;
+}
+
+.lc-cover__names {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 3cqw 0 0;
+  font-family: var(--lc-script);
+  font-weight: 400;
+  font-size: 15.5cqw;
+  line-height: 0.98;
+  color: var(--lc-ink);
+}
+
+.lc-cover__names em {
+  font-family: var(--lc-display);
+  font-style: normal;
+  font-size: 5.4cqw;
+  line-height: 1;
+  margin-block: 1.2cqw;
+  color: #7b4c56;
+}
+
+.lc-cover__date {
+  margin: 4.4cqw 0 0;
+  font-family: var(--lc-display);
+  font-size: 4.6cqw;
+  letter-spacing: 0.2em;
+  text-indent: 0.2em;
+  color: #5f3540;
+}
+
+.lc-cover__villa {
+  width: 62cqw;
+  margin-top: 5cqw;
+  opacity: 0.9;
+}
+
+.lc-cover__venue {
+  margin: 4cqw 0 0;
+  font-family: var(--lc-display);
+  font-size: 5.8cqw;
+  letter-spacing: 0.02em;
+  color: #5f3540;
+}
+
+.lc-cover__city {
+  margin: 1.6cqw 0 0;
+  font-family: var(--lc-sans);
+  font-size: 2.9cqw;
+  font-weight: 400;
+  letter-spacing: 0.26em;
+  text-indent: 0.26em;
+  text-transform: uppercase;
+  color: #9c7c6d;
+}
+
+/* ── Welcome ─────────────────────────────────────────────────── */
+.lc-welcome {
+  padding-top: 128px;
+  text-align: center;
+}
+
+.lc-welcome .lc-band--lead {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  opacity: 0.92;
+}
+
+.lc-welcome__art {
+  width: 132px;
+  margin: 0 auto 20px;
+}
+
+.lc-welcome__title {
+  max-width: 12ch;
+  margin: 0 auto;
+  font-size: clamp(27px, 7.4vw, 38px);
+  line-height: 1.2;
+  color: #5f3540;
+}
+
+.lc-welcome__message {
+  margin: 22px auto 0;
+  max-width: 34ch;
+}
+
+/* ── Burgundy panels ─────────────────────────────────────────── */
+.lc-panel {
+  position: relative;
+  background: var(--lc-wine);
+  color: #faf4f0;
+}
+
+.lc-panel__body {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 620px;
+  margin-inline: auto;
+  padding-inline: 26px;
+  text-align: center;
+}
+
+.lc-panel .lc-display,
+.lc-panel__title {
+  color: #fbf6f1;
+}
+
+.lc-panel__title {
+  font-size: clamp(32px, 9vw, 46px);
+}
+
+.lc-panel .lc-body {
+  color: rgba(250, 244, 240, 0.84);
+}
+
+/* ── Countdown ───────────────────────────────────────────────── */
+.lc-countdown {
+  padding-block: 0;
+  margin-top: -18px;
+  background: var(--lc-wine-2);
+}
+
+.lc-countdown .lc-band--top {
+  top: -2px;
+}
+
+.lc-bows {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(112%, 560px);
+  aspect-ratio: 1627 / 1513;
+  transform: translate(-50%, -50%);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.lc-countdown .lc-panel__body {
+  padding-block: 128px 150px;
+}
+
+.lc-clock {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 22px;
+}
+
+.lc-clock__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 64px;
+}
+
+.lc-clock__cell strong {
+  font-family: var(--lc-display);
+  font-size: clamp(30px, 9vw, 44px);
+  font-weight: 500;
+  line-height: 1;
+  color: #fbf6f1;
+  font-variant-numeric: tabular-nums;
+}
+
+.lc-clock__cell span {
+  margin-top: 9px;
+  font-family: var(--lc-sans);
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-indent: 0.2em;
+  text-transform: uppercase;
+  color: rgba(250, 244, 240, 0.66);
+}
+
+.lc-countdown .lc-link {
+  margin-top: 26px;
+}
+
+/* ── Location ────────────────────────────────────────────────── */
+.lc-location {
+  text-align: center;
+  padding-top: 84px;
+}
+
+.lc-location__venue {
+  margin: 14px 0 0;
+  font-size: clamp(30px, 9vw, 44px);
+}
+
+.lc-location__city {
+  margin: 10px 0 0;
+  font-family: var(--lc-sans);
+  font-size: 9.5px;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  text-transform: uppercase;
+  color: var(--lc-gold);
+}
+
+.lc-location__intro {
+  margin: 22px auto 0;
+  max-width: 36ch;
+}
+
+.lc-location__oval {
+  display: block;
+  width: min(86%, 420px);
+  margin: 30px auto 0;
+  opacity: 0.95;
+  filter: contrast(1.07) saturate(1.02);
+}
+
+.lc-location .lc-pill {
+  margin-top: 26px;
+}
+
+/* ── The Day ─────────────────────────────────────────────────── */
+.lc-day {
+  padding-top: 34px;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
+.lc-garland {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 18px;
+  aspect-ratio: 1774 / 887;
+}
+
+.lc-garland__base {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: 100% auto;
+}
+
+.lc-garland__strand {
+  position: absolute;
+  top: 30%;
+  width: calc(100% / 7.4);
+  aspect-ratio: 1 / 2.6;
+  background-repeat: no-repeat;
+  background-position: top center;
+  background-size: 100% auto;
+  transform: translateX(-50%);
+  left: calc(13.5% + var(--lc-strand) * 18%);
+}
+
+.lc-day__head {
+  text-align: center;
+}
+
+.lc-day__intro {
+  max-width: 30ch;
+  margin: 12px auto 0;
+  font-size: 13.5px;
+}
+
+.lc-day__list {
+  list-style: none;
+  margin: 34px auto 0;
+  padding-inline: 18px;
+}
+
+.lc-day__row {
+  display: grid;
+  grid-template-columns: 76px minmax(60px, auto) 22px 1fr;
+  align-items: center;
+  gap: 0 8px;
+  padding-block: 6px;
+}
+
+.lc-day__art {
+  margin: 0;
+}
+
+.lc-day__art img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.lc-day__time {
+  font-family: var(--lc-display);
+  font-size: 20px;
+  line-height: 1.1;
+  text-align: right;
+  color: #5f3540;
+  white-space: nowrap;
+}
+
+.lc-day__thread {
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lc-day__thread i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: rgba(78, 30, 41, 0.22);
+}
+
+.lc-day__row:first-child .lc-day__thread i {
+  top: 50%;
+}
+
+.lc-day__row:last-child .lc-day__thread i {
+  bottom: 50%;
+}
+
+.lc-day__thread::after {
+  content: "";
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--lc-wine);
+}
+
+.lc-day__text {
+  margin: 0;
+  font-family: var(--lc-sans);
+  font-size: 12.5px;
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--lc-body);
+}
+
+.lc-day__table {
+  display: block;
+  width: 100%;
+  max-width: 760px;
+  margin: -14px auto 0;
+}
+
+/* ── Dress code ──────────────────────────────────────────────── */
+.lc-dress {
+  padding-inline: 14px;
+  overflow: hidden;
+}
+
+.lc-dress__pearls {
+  position: absolute;
+  top: 8%;
+  bottom: 8%;
+  width: 22px;
+  background-repeat: repeat-y;
+  background-position: top center;
+  background-size: 100% auto;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.lc-dress__pearls--left {
+  left: 6px;
+}
+
+.lc-dress__pearls--right {
+  right: 6px;
+  transform: scaleX(-1);
+}
+
+.lc-dress__frame {
+  position: relative;
+  width: 100%;
+  max-width: 470px;
+  margin-inline: auto;
+  aspect-ratio: 848 / 1264;
+  container-type: size;
+}
+
+.lc-dress__art {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+}
+
+.lc-dress__inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 18% 15% 14%;
+}
+
+.lc-dress__inner .lc-heading {
+  font-size: 9.4cqw;
+}
+
+.lc-dress__title {
+  margin: 2.2cqw 0 0;
+  font-size: 5.4cqw;
+  color: #5f3540;
+}
+
+.lc-dress__couple {
+  width: 25cqw;
+  margin: 4.5cqw auto;
+}
+
+.lc-dress__note {
+  margin: 0;
+  font-size: 3.1cqw;
+  line-height: 1.7;
+}
+
+.lc-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3cqw 4.6cqw;
+  margin-top: 4cqw;
+}
+
+.lc-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4cqw;
+}
+
+.lc-swatch i {
+  display: block;
+  width: 6.4cqw;
+  height: 6.4cqw;
+  border-radius: 50%;
+  border: 1px solid rgba(78, 30, 41, 0.18);
+  background: var(--lc-swatch);
+}
+
+.lc-swatch em {
+  font-family: var(--lc-sans);
+  font-style: normal;
+  font-size: 2.7cqw;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8a6a72;
+}
+
+/* ── Turut Mengundang ────────────────────────────────────────── */
+.lc-honored {
+  margin-top: 46px;
+  padding-block: 150px 150px;
+}
+
+.lc-honored__title {
+  font-size: clamp(28px, 8.2vw, 40px);
+  letter-spacing: 0.02em;
+}
+
+.lc-honored__intro {
+  max-width: 32ch;
+  margin: 16px auto 0;
+  font-size: 13px;
+}
+
+.lc-honored__list {
+  list-style: none;
+  margin: 26px 0 0;
+  padding: 0;
+}
+
+.lc-honored__list li {
+  position: relative;
+  padding-block: 13px;
+  font-family: var(--lc-display);
+  font-size: 17px;
+  line-height: 1.5;
+  color: #fdf8f3;
+}
+
+.lc-honored__list li + li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 26px;
+  height: 1px;
+  transform: translateX(-50%);
+  background: rgba(250, 244, 240, 0.24);
+}
+
+/* ── Gift ────────────────────────────────────────────────────── */
+.lc-gift {
+  padding-top: 64px;
+  text-align: center;
+}
+
+.lc-gift__heading {
+  margin-bottom: 26px;
+}
+
+.lc-gift__panel {
+  position: relative;
+  padding: 0 10px;
+}
+
+.lc-gift__lace {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  pointer-events: none;
+}
+
+.lc-gift__inner {
+  position: relative;
+  padding: 74px 30px 66px;
+}
+
+.lc-gift__lead {
+  margin: 0 auto;
+  max-width: 12ch;
+  font-size: clamp(26px, 7.4vw, 36px);
+  line-height: 1.28;
+  color: #5f3540;
+}
+
+.lc-gift__intro {
+  max-width: 32ch;
+  margin: 16px auto 0;
+  font-size: 13.5px;
+}
+
+.lc-accounts {
+  list-style: none;
+  margin: 26px auto 0;
+  padding: 0;
+  max-width: 330px;
+  text-align: left;
+}
+
+.lc-account {
+  border-bottom: 1px solid var(--lc-line);
+}
+
+.lc-account:first-child {
+  border-top: 1px solid var(--lc-line);
+}
+
+.lc-account__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 15px 2px;
+  border: 0;
+  background: none;
+  color: var(--lc-ink);
+  font-family: var(--lc-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.lc-account__chev {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: var(--lc-ink);
+  stroke-width: 1.4;
+  transition: transform 0.35s ease;
+}
+
+.lc-account.is-open .lc-account__chev {
+  transform: rotate(180deg);
+}
+
+.lc-account__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s ease;
+}
+
+.lc-account.is-open .lc-account__panel {
+  grid-template-rows: 1fr;
+}
+
+.lc-account__inner {
+  overflow: hidden;
+  text-align: center;
+}
+
+.lc-account__number {
+  margin: 0;
+  padding-top: 4px;
+  font-family: var(--lc-sans);
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  color: var(--lc-ink);
+}
+
+.lc-account__name {
+  margin: 5px 0 0;
+  font-family: var(--lc-sans);
+  font-size: 11.5px;
+  color: var(--lc-muted);
+}
+
+.lc-account__inner .lc-link {
+  margin: 10px 0 16px;
+}
+
+.lc-address {
+  margin-top: 22px;
+}
+
+.lc-address__name {
+  margin: 0;
+  font-family: var(--lc-display);
+  font-size: 16px;
+  color: var(--lc-ink);
+}
+
+.lc-address__text {
+  margin: 8px 0 0;
+  font-family: var(--lc-sans);
+  font-size: 12.5px;
+  font-weight: 300;
+  line-height: 1.8;
+  color: var(--lc-body);
+}
+
+.lc-address .lc-link {
+  margin-top: 12px;
+}
+
+/* ── RSVP & wishes ───────────────────────────────────────────── */
+.lc-wishes {
+  margin-top: 34px;
+  padding-block: 150px 90px;
+}
+
+.lc-wishes__intro {
+  max-width: 34ch;
+  margin: 16px auto 0;
+  font-size: 13.5px;
+}
+
+.lc-wishes__inner {
+  margin-top: 34px;
+}
+
+.lc-form {
+  text-align: left;
+}
+
+.lc-field + .lc-field {
+  margin-top: 24px;
+}
+
+.lc-field label {
+  display: block;
+  margin-bottom: 9px;
+  font-family: var(--lc-sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(250, 244, 240, 0.78);
+}
+
+.lc-input {
+  width: 100%;
+  padding: 13px 15px;
+  border: 1px solid rgba(250, 244, 240, 0.34);
+  border-radius: 8px;
+  background: rgba(250, 244, 240, 0.04);
+  color: #fdf8f3;
+  font-family: var(--lc-sans);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+.lc-input::placeholder {
+  color: rgba(250, 244, 240, 0.42);
+}
+
+.lc-input:focus {
+  outline: none;
+  border-color: rgba(250, 244, 240, 0.72);
+  background: rgba(250, 244, 240, 0.07);
+}
+
+.lc-textarea {
+  resize: vertical;
+  min-height: 108px;
+}
+
+.lc-counter {
+  margin: 7px 0 0;
+  text-align: right;
+  font-family: var(--lc-sans);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: rgba(250, 244, 240, 0.42);
+}
+
+.lc-form__submit {
+  width: 100%;
+  margin-top: 26px;
+}
+
+.lc-form__submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lc-feedback {
+  margin: 14px 0 0;
+  font-family: var(--lc-sans);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  text-align: center;
+  color: rgba(250, 244, 240, 0.8);
+}
+
+.lc-feedback.is-error {
+  color: #f3c9c1;
+}
+
+.lc-feed {
+  margin-top: 40px;
+}
+
+.lc-feed__empty {
+  font-family: var(--lc-sans);
+  font-size: 12.5px;
+  font-weight: 300;
+  line-height: 1.8;
+  text-align: center;
+  color: rgba(250, 244, 240, 0.62);
+}
+
+.lc-feed__list {
+  display: grid;
+  gap: 14px;
+}
+
+.lc-wish {
+  padding: 16px 18px;
+  border: 1px solid rgba(250, 244, 240, 0.18);
+  border-radius: 10px;
+  background: rgba(250, 244, 240, 0.05);
+  text-align: left;
+}
+
+.lc-wish__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.lc-wish__name {
+  font-family: var(--lc-display);
+  font-size: 15px;
+  color: #fdf8f3;
+}
+
+.lc-wish__date {
+  flex: 0 0 auto;
+  font-family: var(--lc-sans);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(250, 244, 240, 0.42);
+}
+
+.lc-wish__text {
+  margin: 7px 0 0;
+  font-family: var(--lc-sans);
+  font-size: 12.5px;
+  font-weight: 300;
+  line-height: 1.75;
+  color: rgba(250, 244, 240, 0.82);
+}
+
+.lc-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.lc-pager__btn {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(250, 244, 240, 0.34);
+  border-radius: 50%;
+  background: none;
+  color: #faf4f0;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.lc-pager__btn:disabled {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+
+.lc-pager__info {
+  font-family: var(--lc-sans);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: rgba(250, 244, 240, 0.66);
+}
+
+/* ── Closing ─────────────────────────────────────────────────── */
+.lc-closing {
+  position: relative;
+  padding-block: 76px 44px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.lc-closing__art {
+  display: block;
+  width: 118px;
+  height: 128px;
+  margin: 0 auto 22px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.lc-closing__lead {
+  margin: 0 auto;
+  max-width: 16ch;
+  font-size: clamp(24px, 6.8vw, 32px);
+  line-height: 1.3;
+  color: #5f3540;
+}
+
+.lc-closing__message {
+  max-width: 34ch;
+  margin: 16px auto 0;
+  font-size: 13px;
+}
+
+.lc-closing__names {
+  margin: 26px 0 0;
+  font-size: clamp(34px, 10vw, 46px);
+}
+
+.lc-closing__date {
+  margin: 8px 0 0;
+  font-family: var(--lc-sans);
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+  text-transform: uppercase;
+  color: var(--lc-gold);
+}
+
+.lc-root .tpl-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 44px;
+  padding-top: 30px;
+  border-top: 1px solid var(--lc-line);
+  text-align: center;
+}
+
+.lc-root .tpl-footer__link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.lc-root .tpl-footer__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  padding: 7px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgba(81, 31, 43, 0.16);
+  transition: transform 0.3s ease;
+}
+
+.lc-root .tpl-footer__link:hover .tpl-footer__badge {
+  transform: scale(1.05);
+}
+
+.lc-root .tpl-footer__logo {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  object-fit: contain;
+}
+
+.lc-root .tpl-footer__cta {
+  font-family: var(--lc-sans);
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+  text-transform: uppercase;
+  color: var(--lc-gold);
+  transition: color 0.3s ease;
+}
+
+.lc-root .tpl-footer__link:hover .tpl-footer__cta {
+  color: var(--lc-ink);
+}
+
+.lc-root .tpl-footer__text {
+  margin: 0;
+  font-family: var(--lc-sans);
+  font-size: 10px;
+  line-height: 1.7;
+  letter-spacing: 0.05em;
+  color: var(--lc-muted);
+  text-wrap: balance;
+}
+
+/* ── Music disc ──────────────────────────────────────────────── */
+.lc-music {
+  position: fixed;
+  right: 16px;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 1px solid rgba(78, 30, 41, 0.14);
+  border-radius: 50%;
+  background: rgba(236, 231, 225, 0.92);
+  color: var(--lc-wine);
+  box-shadow: 0 8px 22px rgba(81, 31, 43, 0.16);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.lc-music:hover {
+  background: #efeae4;
+}
+
+.lc-music__ring {
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(81, 31, 43, 0.18);
+  border-radius: 50%;
+}
+
+.lc-music.is-playing .lc-music__ring {
+  animation: lc-spin 9s linear infinite;
+  border-top-color: rgba(81, 31, 43, 0.5);
+}
+
+.lc-music__icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding-left: 1px;
+}
+
+@keyframes lc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Toast ───────────────────────────────────────────────────── */
+.lc-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 86px;
+  z-index: 96;
+  transform: translateX(-50%);
+  padding: 11px 20px;
+  border-radius: 999px;
+  background: rgba(81, 31, 43, 0.94);
+  color: #fbf6f1;
+  font-family: var(--lc-sans);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  box-shadow: 0 10px 26px rgba(81, 31, 43, 0.26);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Desktop. Declared last on purpose: the base rules above set the
+   absolute/mobile geometry, and a media query earlier in the file
+   loses on equal specificity (this bit embroidered-garden).
+   ───────────────────────────────────────────────────────────── */
+@media (min-width: 768px) {
+  .lc-body {
+    font-size: 15.5px;
+  }
+
+  .lc-section {
+    padding-block: 88px;
+  }
+
+  .lc-wrap {
+    padding-inline: 40px;
+  }
+
+  .lc-panel__body {
+    max-width: 640px;
+  }
+
+  /* The whole invitation is a 720 px column, exactly like the mobile card at
+     390 px. Bands scale with that column (a 390-wide crown is 160 tall; at 720
+     it is 295), so every panel needs mobile-proportional padding or the lace
+     lands on the type. The mask softens the band's own cut side edges, which
+     are invisible full-bleed on mobile but obvious in a centred column. */
+  .lc-band {
+    max-width: 720px;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  }
+
+  .lc-welcome {
+    padding-top: 250px;
+  }
+
+  .lc-welcome__art {
+    width: 152px;
+  }
+
+  .lc-honored {
+    padding-block: 258px 250px;
+  }
+
+  .lc-wishes {
+    padding-block: 250px 120px;
+  }
+
+  .lc-countdown .lc-panel__body {
+    padding-block: 246px 280px;
+  }
+
+  .lc-clock {
+    gap: 26px;
+  }
+
+  .lc-clock__cell {
+    min-width: 92px;
+  }
+
+  .lc-clock__cell strong {
+    font-size: 46px;
+  }
+
+  .lc-location__oval {
+    width: min(70%, 400px);
+  }
+
+  .lc-day__list {
+    padding-inline: 40px;
+  }
+
+  .lc-day__row {
+    grid-template-columns: 96px minmax(70px, auto) 24px 1fr;
+    gap: 0 14px;
+    padding-block: 10px;
+  }
+
+  .lc-day__time {
+    font-size: 24px;
+  }
+
+  .lc-day__text {
+    font-size: 13.5px;
+  }
+
+  .lc-honored__list li {
+    font-size: 19px;
+  }
+
+  .lc-gift__inner {
+    padding: 92px 56px 86px;
+  }
+
+  .lc-form {
+    max-width: 440px;
+    margin-inline: auto;
+  }
+
+  .lc-wish {
+    padding: 18px 22px;
+  }
+
+  .lc-garland {
+    max-width: 700px;
+  }
+
+  .lc-closing__art {
+    width: 148px;
+    height: 160px;
+    margin-bottom: 26px;
+  }
+}
+
+/* Desktop cover: the lace film becomes a printed card on the linen, with
+   the greeting on the cloth below it, instead of a 9:16 strip stretched
+   over a wide screen. */
+@media (min-aspect-ratio: 4/5) {
+  .lc-gate {
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+    padding: 26px 24px;
+    background: radial-gradient(120% 95% at 50% 42%, #fbf9f6 0%, #f4f1ec 58%, #e9e3db 100%);
+  }
+
+  .lc-gate__card {
+    position: relative;
+    inset: auto;
+    height: min(74vh, calc(100vh - 236px));
+    width: auto;
+    aspect-ratio: 9 / 16;
+    flex: 0 0 auto;
+    box-shadow:
+      0 0 0 6px #fcfaf7,
+      0 0 0 7px rgba(179, 153, 122, 0.5),
+      0 30px 70px rgba(81, 31, 43, 0.2);
+  }
+
+  .lc-gate__stage {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: none;
+    aspect-ratio: auto;
+  }
+
+  .lc-gate__foot {
+    position: static;
+    gap: 12px;
+    padding: 0;
+  }
+
+  .lc-gate__foot::before {
+    display: none;
+  }
+
+  .lc-gate__guest strong {
+    font-size: 22px;
+  }
+
+  .lc-gate__open {
+    background: rgba(252, 250, 247, 0.7);
+    box-shadow: 0 10px 26px rgba(81, 31, 43, 0.1);
+  }
+
+  .lc-cover {
+    min-height: 100svh;
+    padding-block: 40px;
+  }
+
+  .lc-cover__card {
+    width: auto;
+    height: min(86vh, calc(100vh - 96px));
+    aspect-ratio: 9 / 16;
+    box-shadow:
+      0 0 0 7px #fcfaf7,
+      0 0 0 8px rgba(179, 153, 122, 0.42),
+      0 26px 64px rgba(81, 31, 43, 0.14);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-root [data-lc-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .lc-gate,
+  .lc-gate__sealed,
+  .lc-gate__film,
+  .lc-gate__seal,
+  .lc-account__chev,
+  .lc-account__panel {
+    transition: none;
+  }
+
+  .lc-music.is-playing .lc-music__ring {
+    animation: none;
+  }
+}

@@ -26,6 +26,7 @@ import MinangRoyal from "./minang-royal"
 import Imagine from "./imagine"
 import StillEver from "./still-ever"
 import EmbroideredGarden from "./embroidered-garden"
+import Lace from "./lace"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -55,6 +56,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   imagine: Imagine,
   "still-ever": StillEver,
   "embroidered-garden": EmbroideredGarden,
+  lace: Lace,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -1052,6 +1054,48 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         video: true,
         story: true,
         gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: true,
+        livestream: false,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "lace",
+    name: "Lace",
+    description: "Undangan bergaya renda ivory dan burgundy — sampul bersegel lilin, hitung mundur berpita renda, lokasi ilustrasi vila, susunan acara, dress code, turut mengundang, hadiah, dan ucapan.",
+    theme: {
+      fonts: { display: "Cormorant", script: "WindSong", body: "DM Sans" },
+      colors: {
+        surface: "#f7f5f3",
+        text: "#4e1e29",
+        accent: "#b3997a",
+        accentMuted: "#704952",
+        overlay: "#fcfaf7",
+        dark: "#511f2b",
+      },
+      ornaments: { divider: "floral", border: "minimal", frame: "arch" },
+      motion: { enabled: true, duration: 0.9, stagger: 0.18 },
+    },
+    content: {
+      // The reference is a photo-less design: the cover is a sealed portrait
+      // plate and every other surface is lace art. No photo slots at all, so
+      // the editor hides the photo fields and completeness waives gallery/video.
+      cover_slots: 0,
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: false,
+      sections: {
+        opening_description: false,
+        quote: false,
+        countdown: true,
+        video: false,
+        story: false,
+        gallery: false,
         gift: true,
         inviting: true,
         dresscode: true,

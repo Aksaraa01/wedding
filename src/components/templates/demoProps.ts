@@ -1328,3 +1328,78 @@ DEMO_PROPS_BY_CODE["embroidered-garden"] = {
       "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say.",
   },
 }
+
+// Photo-less reference design: every surface is lace art, so there are no
+// cover/gallery/story photos and no film. `track_url` is the shared default
+// demo track — never the reference site's own music.
+DEMO_PROPS_BY_CODE["lace"] = {
+  ...DEMO_PROPS_BY_CODE["sandhya"],
+  slug: "demo",
+  display_name: "#AlbarnFaye2027",
+  estimated_wedding_date: "2027-05-20",
+  sessions: [
+    {
+      name: "Ceremony",
+      date: "2027-05-20",
+      time: "4:45 PM – 11:00 PM",
+      venue: "Villa Aurelia",
+      address: "Rome, Italy",
+      maps_url: "https://maps.google.com/?q=Villa+Aurelia+Rome",
+    },
+  ],
+  cover_photos: [],
+  groom_photo_url: [],
+  bride_photo_url: [],
+  gallery_photos: [],
+  stories: [],
+  video_url: undefined,
+  groom_instagram: "@wedding.aksaraa",
+  bride_instagram: "@wedding.aksaraa",
+  gift_accounts: [
+    { provider_name: "Bank Central Asia (BCA)", account_number: "8200891083", account_name: "Faye Reed", type: "bank" },
+    { provider_name: "Bank Mandiri", account_number: "1370012345678", account_name: "David Albarn", type: "bank" },
+  ],
+  gift_address_name: "Albarn & Faye",
+  gift_address: "Via della Lungara 12, 00165 Roma RM, Italy",
+  rundown_visible: true,
+  rundown: [
+    { time: "4:45 PM", description: "Guests arrive and are welcomed with a glass of Prosecco." },
+    { time: "5:00 PM", description: "The ceremony begins in the garden courtyard." },
+    { time: "6:00 PM", description: "Cocktails and photographs on the terrace." },
+    { time: "7:00 PM", description: "Dinner is served beneath the garlands." },
+    { time: "9:00 PM", description: "The first dance, and dancing until late." },
+  ],
+  inviting_families: [
+    "The Reed Family",
+    "The Albarn Family",
+    "The Extended Families of Both",
+  ],
+  dresscode: {
+    title: "Formal Attire",
+    description: "We would love to see you in these tones — anything from a soft neutral to a deep burgundy.",
+    colors: [
+      { hex: "#f3ece4", name: "Ivory" },
+      { hex: "#c9b49a", name: "Sand" },
+      { hex: "#8c6a63", name: "Rosewood" },
+      { hex: "#511f2b", name: "Burgundy" },
+    ],
+  },
+  track_url: ASSETS.defaultMusic,
+  template_content: {
+    cover_kicker: "Together with their families",
+    welcome_invite: "Together with their families",
+    welcome_message:
+      "We are so happy to celebrate this day with you, surrounded by the people we love most.",
+    location_intro: "We look forward to welcoming you to the place where we will say our vows.",
+    rundown_title: "The Day",
+    rundown_intro: "Our ceremony will be followed by an aperitivo, dinner and dancing.",
+    inviting_intro: "Together with the families who share this invitation.",
+    gift_intro_title: "Wedding Gift",
+    gift_intro_description:
+      "Should you wish to give a gift, you may do so in cash or by bank transfer.",
+    wishes_intro:
+      "Nothing would make us happier than celebrating this day surrounded by our favourite people. Please let us know whether you'll be able to join us.",
+    closing_message:
+      "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say.",
+  },
+}
