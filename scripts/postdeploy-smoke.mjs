@@ -31,12 +31,22 @@ const status = (url, extra = []) => {
     return execSync(`curl -s -o /dev/null -w "%{http_code}" --max-time 45 --retry 1 ${extra.join(" ")} "${url}"`, {
       encoding: "utf8",
     }).trim()
-  } catch {
-    return "ERR"
+  } catch (e) {
+    // curl exits non-zero when it cannot complete the request at all. Keep the
+    // exit code: "site unreachable" (DNS/TCP/TLS) must fail the deploy, while a
+    // slow heavy render (exit 28, timeout) stays a warning.
+    return `ERR:${e?.status ?? "?"}`
   }
 }
+// curl exit codes that mean the site is not serving: 6 resolve, 7 connect,
+// 35 TLS handshake, 51 peer cert, 60 cert verify (e.g. an expired certificate).
+const HARD_NET_CODES = new Set([6, 7, 35, 51, 60])
 // A missing route is a hard failure; a timeout on a heavy RSC render is a warning.
-const isFatal = (code) => code !== "200" && code !== "ERR"
+const isFatal = (code) => {
+  if (code === "200") return false
+  if (code.startsWith("ERR:")) return HARD_NET_CODES.has(Number(code.slice(4)))
+  return true
+}
 
 let failed = 0
 console.log(`Smoke testing ${codes.length} template previews on ${base}`)
@@ -61,7 +71,7 @@ for (const path of ["/api/health", "/api/dashboard/6a7ad151-c3b4-43e8-8429-0b58b
 }
 
 if (failed) {
-  console.error(`\n✗ SMOKE TEST FAILED — ${failed} route(s) not serving.\n  Likely cause: deployed bundle is older than the code (stale tree).\n  Redeploy from a tree synced with origin/main, or roll back.`)
+  console.error(`\n✗ SMOKE TEST FAILED — ${failed} route(s) not serving.\n  ERR:6/7 = DNS/connection, ERR:35/51/60 = TLS (e.g. expired certificate).\n  Otherwise: deployed bundle is older than the code (stale tree).\n  Redeploy from a tree synced with origin/main, or roll back.`)
   process.exit(1)
 }
 console.log("\n✓ all template previews + APIs healthy")
