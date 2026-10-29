@@ -27,6 +27,8 @@ const ART_BOWS = A("bow-frame.webp")
 const ART_DRESS_FRAME = A("dress-frame.webp")
 const ART_DRESS_COUPLE = A("dress-couple.webp")
 const ART_BALCONY = A("balcony.webp")
+// Lace bow + empty oval medallion, borrowed from the reference's hotel cards.
+const ART_CARD = A("card-ornament.webp")
 const ART_GARLAND = A("garland.webp")
 const ART_GARLAND_STRANDS = [
   A("garland-0.webp"),
@@ -62,6 +64,9 @@ const DEFAULT_INVITING =
   "Together with the families who share this invitation."
 const DEFAULT_CLOSING =
   "We cannot wait to celebrate with you. Thank you for the love and the prayers you have given us along the way."
+
+// Roman numerals for the medallion in the event-card ornament.
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"]
 
 const EN_MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -178,13 +183,20 @@ function SealPlaque({ text }: { text: string }) {
 // centred at first, then carried upward with the tulle until it clears the top
 // edge. Sampled from frames of `opening.mp4`, so our plaque is glued to it
 // rather than floating on its own path.
+// Measured on the film itself (normalised cross-correlation against the seal
+// crop from frame 0), not eyeballed: the seal barely moves for the first half
+// second, then accelerates. `w` keeps a ~7 % margin around the seal so its rim
+// can never peek out from under the plaque.
 const SEAL_TRACK = [
-  { t: 0.0, cx: 50.7, cy: 51.0, w: 24.6 },
-  { t: 1.0, cx: 50.8, cy: 44.5, w: 24.4 },
-  { t: 1.6, cx: 50.9, cy: 36.0, w: 25.0 },
-  { t: 2.2, cx: 50.8, cy: 28.0, w: 25.4 },
-  { t: 2.8, cx: 53.0, cy: 6.0, w: 26.0 },
-  { t: 3.1, cx: 54.0, cy: -8.0, w: 26.5 },
+  { t: 0.0, cx: 51.2, cy: 51.0, w: 21.6 },
+  { t: 0.6, cx: 51.2, cy: 50.4, w: 21.6 },
+  { t: 1.0, cx: 51.2, cy: 48.1, w: 21.7 },
+  { t: 1.4, cx: 51.2, cy: 44.6, w: 21.9 },
+  { t: 1.8, cx: 51.4, cy: 37.9, w: 22.2 },
+  { t: 2.2, cx: 51.6, cy: 29.4, w: 22.6 },
+  { t: 2.6, cx: 51.8, cy: 15.8, w: 23.0 },
+  { t: 2.9, cx: 52.0, cy: 4.0, w: 23.6 },
+  { t: 3.2, cx: 52.2, cy: -12.0, w: 24.2 },
 ]
 
 function sealAt(time: number) {
@@ -248,15 +260,28 @@ export default function Lace(profile: TemplateProps) {
   const groomFull = profile.groom_full_name || groom
   const brideFull = profile.bride_full_name || bride
   const coupleLabel = [groom, bride].join(" & ")
+  // The wax stamp carries "Singkatan Pasangan" when the couple set it, and the
+  // initials derived from their names otherwise.
   const initials = initialsOf(profile.groom_name, profile.bride_name)
-  const sealText = initials.length === 2 ? `${initials[0]} & ${initials[1]}` : initials || "A & E"
+  const derivedSeal = initials.length === 2 ? `${initials[0]} & ${initials[1]}` : initials
+  const sealText = (profile.couple_initials || "").trim() || derivedSeal || "A & E"
   const guestName = profile.guest_name || "Tamu Undangan"
   const dateDot = formatDotDate(profile.estimated_wedding_date || main?.date)
-  const dateLong = longDate(profile.estimated_wedding_date || main?.date)
+  // The welcome block is the couple's "kalimat pembuka": its title is the
+  // heading, its description the body. `welcome_invite` / `welcome_message`
+  // remain the fallback so invitations authored before this mapping keep copy.
+  const welcomeTitle =
+    (profile.opening_title || "").trim() || tc.welcome_invite || "Together with their families"
   const welcomeMessage = (profile.opening_description || "").trim() || tc.welcome_message || DEFAULT_WELCOME
   const closingMessage = tc.closing_message || DEFAULT_CLOSING
 
-  const galleryPhotos = useMemo(() => flattenPhotos(profile.gallery_photos), [profile.gallery_photos])
+  // The lead tile spans both columns, so an even number of photos leaves the
+  // grid with a single orphan on the last row. Drop the last photo instead of
+  // shipping a ragged edge.
+  const galleryPhotos = useMemo(() => {
+    const all = flattenPhotos(profile.gallery_photos)
+    return all.length > 1 && all.length % 2 === 0 ? all.slice(0, -1) : all
+  }, [profile.gallery_photos])
   const film = videoSource(profile.video_url)
   const hasFilm =
     !!film && gates.video !== false && profile.video_section_visible !== false
@@ -485,7 +510,7 @@ export default function Lace(profile: TemplateProps) {
               aria-hidden="true"
             />
             <div className="lc-cover__body">
-              <p className="lc-kicker">{tc.cover_kicker || "Together with their families"}</p>
+              <p className="lc-kicker">{tc.cover_kicker || "The Wedding Of"}</p>
               <h1 className="lc-cover__names">
                 <span>{groom}</span>
                 <em>&amp;</em>
@@ -502,9 +527,7 @@ export default function Lace(profile: TemplateProps) {
           <span className="lc-band lc-band--lead" style={bandStyle(ART_BAND)} aria-hidden="true" />
           <div className="lc-wrap lc-welcome__body" data-lc-reveal>
             <img className="lc-welcome__art" src={STEP_CORE[0]} alt="" aria-hidden="true" loading="lazy" />
-            <h2 className="lc-display lc-welcome__title">
-              {tc.welcome_invite || "Together with their families"}
-            </h2>
+            <h2 className="lc-display lc-welcome__title">{welcomeTitle}</h2>
             <p className="lc-body lc-welcome__message">{welcomeMessage}</p>
           </div>
         </section>
@@ -610,20 +633,32 @@ export default function Lace(profile: TemplateProps) {
                     : "")
                 return (
                   <article className="lc-event" key={`${event.name || "event"}-${index}`} data-lc-reveal>
-                    <h3 className="lc-script lc-event__name">{event.name || "Wedding Event"}</h3>
-                    <p className="lc-event__when">
-                      {longDate(event.date) && <span>{longDate(event.date)}</span>}
-                      {event.time && <span>{event.time}</span>}
-                    </p>
-                    {event.venue && <p className="lc-display lc-event__venue">{event.venue}</p>}
-                    {event.address && <p className="lc-body lc-event__address">{event.address}</p>}
-                    {eventMaps && (
-                      <div className="lc-event__actions">
-                        <a className="lc-pill lc-pill--sm" href={eventMaps} target="_blank" rel="noreferrer">
-                          Get directions
-                        </a>
+                    {/* The reference's "Where to Stay" card: lace bow over an oval
+                        medallion, cut-corner plate below. The medallion carries
+                        the event number instead of a hotel's. */}
+                    <span className="lc-event__ornament" aria-hidden="true">
+                      <img src={ART_CARD} alt="" loading="lazy" />
+                      <b>{ROMAN[index] || String(index + 1)}</b>
+                    </span>
+
+                    <div className="lc-event__card">
+                      <div className="lc-event__frame">
+                        <h3 className="lc-display lc-event__name">{event.name || "Wedding Event"}</h3>
+                        <p className="lc-event__when">
+                          {longDate(event.date) && <span>{longDate(event.date)}</span>}
+                          {event.time && <span>{event.time}</span>}
+                        </p>
+                        {event.venue && <p className="lc-display lc-event__venue">{event.venue}</p>}
+                        {event.address && <p className="lc-body lc-event__address">{event.address}</p>}
+                        {eventMaps && (
+                          <div className="lc-event__actions">
+                            <a className="lc-pill lc-pill--sm" href={eventMaps} target="_blank" rel="noreferrer">
+                              Get directions
+                            </a>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </article>
                 )
               })}
@@ -693,12 +728,12 @@ export default function Lace(profile: TemplateProps) {
           </section>
         )}
 
-        {/* ── Turut Mengundang (the reference's Transportation slot) ── */}
+        {/* ── With Honor (the reference's Transportation slot) ─────── */}
         {honored.length > 0 && (
           <section className="lc-panel lc-honored" data-section="inviting">
             <span className="lc-band lc-band--top" style={bandStyle(ART_BAND)} aria-hidden="true" />
             <div className="lc-panel__body lc-honored__body" data-lc-reveal>
-              <h2 className="lc-display lc-panel__title lc-honored__title">Turut Mengundang</h2>
+              <h2 className="lc-display lc-panel__title lc-honored__title">With Honor</h2>
               {tc.inviting_intro !== "" && (
                 <p className="lc-body lc-honored__intro">{tc.inviting_intro || DEFAULT_INVITING}</p>
               )}
@@ -861,7 +896,6 @@ export default function Lace(profile: TemplateProps) {
             <p className="lc-display lc-closing__lead">We cannot wait to celebrate with you.</p>
             <p className="lc-body lc-closing__message">{closingMessage}</p>
             <p className="lc-script lc-closing__names">{coupleLabel}</p>
-            {dateLong && <p className="lc-closing__date">{dateLong}</p>}
 
             <footer className="tpl-footer">
               <a

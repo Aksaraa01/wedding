@@ -285,11 +285,13 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   const monogram = initialsOf(profile.groom_name, profile.bride_name) || "A&E"
   const guestName = profile.guest_name || "Tamu Undangan"
   const dateLong = longDate(profile.estimated_wedding_date)
-  // The welcome block carries the couple's "kalimat pembuka" (the greeting /
-  // doa they write once for every template). `welcome_message` stays as the
-  // fallback so invitations authored before this mapping keep their copy.
+  // The couple's "kalimat pembuka" — the greeting / doa they write once for
+  // every template. It belongs to the mempelai block (the cover carries only
+  // names and date), with `welcome_message` as the fallback for invitations
+  // authored before this mapping existed.
   const welcomeMessage =
     (profile.opening_description || "").trim() || tc.welcome_message || DEFAULT_WELCOME
+  const openingTitle = (profile.opening_title || "").trim() || "Together with their families"
   const closingMessage = tc.closing_message || DEFAULT_CLOSING
   const calendarUrl = gcalLink(events[0], profile.groom_name || "", profile.bride_name || "")
 
@@ -546,7 +548,6 @@ export default function EmbroideredGarden(profile: TemplateProps) {
               <span>{profile.bride_name || "Bride"}</span>
             </h1>
             {dateLong && <p className="eg-welcome__date">{dateLong}</p>}
-            <p className="eg-body eg-welcome__message">{welcomeMessage}</p>
           </div>
         </section>
 
@@ -569,7 +570,8 @@ export default function EmbroideredGarden(profile: TemplateProps) {
         {/* ── Couple ───────────────────────────────────────────── */}
         <section className="eg-section eg-couple" data-section="couple">
           <div className="eg-wrap" data-eg-reveal>
-            <p className="eg-kicker">Together with their families</p>
+            <p className="eg-kicker">{openingTitle}</p>
+            <p className="eg-body eg-couple__intro">{welcomeMessage}</p>
             <div className="eg-couple__grid">
               <article className="eg-person">
                 <figure className="eg-gilded">

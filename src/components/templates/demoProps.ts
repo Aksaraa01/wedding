@@ -1398,7 +1398,7 @@ DEMO_PROPS_BY_CODE["lace"] = {
   },
   track_url: ASSETS.defaultMusic,
   template_content: {
-    cover_kicker: "Together with their families",
+    cover_kicker: "The Wedding Of",
     welcome_invite: "Together with their families",
     welcome_message:
       "We are so happy to celebrate this day with you, surrounded by the people we love most.",

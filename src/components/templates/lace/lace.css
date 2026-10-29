@@ -270,9 +270,9 @@
    here — a transition would lag a frame behind the seal it is covering. */
 .lc-gate__seal {
   position: absolute;
-  left: 50.2%;
-  top: 50.9%;
-  width: 25%;
+  left: 51.2%;
+  top: 51%;
+  width: 21.6%;
   aspect-ratio: 200 / 240;
   transform: translate(-50%, -50%);
   will-change: left, top, width;
@@ -699,38 +699,106 @@
   max-width: 34ch;
 }
 
+/* The reference's "Where to Stay" plate: a blush card with cut corners, an
+   outer rule, an inner hairline set 6 px in, and a lace bow with an oval
+   medallion straddling the top edge. Sampled from the reference: fill
+   #f2e9e8, outer rule #baa2a6, inner hairline #dccecf. */
 .lc-events__list {
+  --lc-card-fill: #f2e9e8;
+  --lc-card-rule: #baa2a6;
+  --lc-card-hair: #dccecf;
+  --lc-card-chamfer: 16px;
+
   display: grid;
-  gap: 18px;
-  margin-top: 32px;
+  gap: 30px;
+  margin-top: 34px;
 }
 
 .lc-event {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  padding: 34px 22px 30px;
-  background: var(--lc-paper);
-  box-shadow:
-    0 0 0 1px rgba(179, 153, 122, 0.34),
-    0 18px 40px rgba(81, 31, 43, 0.05);
+  /* Room for the ornament, which straddles the plate's top edge. */
+  padding-top: 58px;
 }
 
-/* Inner gold rule, the same hairline that mats the gallery photos. */
-.lc-event::before {
+.lc-event__ornament {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 2;
+  width: min(84%, 330px);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.lc-event__ornament img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* The medallion is the empty oval in the middle of the bow; the numeral sits on
+   it, sized against the ornament's own width. */
+.lc-event__ornament b {
+  position: absolute;
+  left: 50%;
+  top: 47%;
+  transform: translate(-50%, -50%);
+  font-family: var(--lc-display);
+  font-size: clamp(15px, 4.6vw, 19px);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: #8d6b60;
+}
+
+.lc-event__card {
+  padding: 1px;
+  background: var(--lc-card-rule);
+  clip-path: polygon(
+    var(--lc-card-chamfer) 0,
+    calc(100% - var(--lc-card-chamfer)) 0,
+    100% var(--lc-card-chamfer),
+    100% calc(100% - var(--lc-card-chamfer)),
+    calc(100% - var(--lc-card-chamfer)) 100%,
+    var(--lc-card-chamfer) 100%,
+    0 calc(100% - var(--lc-card-chamfer)),
+    0 var(--lc-card-chamfer)
+  );
+}
+
+.lc-event__frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 62px 24px 32px;
+  background: var(--lc-card-fill);
+  clip-path: polygon(
+    var(--lc-card-chamfer) 0,
+    calc(100% - var(--lc-card-chamfer)) 0,
+    100% var(--lc-card-chamfer),
+    100% calc(100% - var(--lc-card-chamfer)),
+    calc(100% - var(--lc-card-chamfer)) 100%,
+    var(--lc-card-chamfer) 100%,
+    0 calc(100% - var(--lc-card-chamfer)),
+    0 var(--lc-card-chamfer)
+  );
+}
+
+/* Inner hairline: its own chamfered border, clipped by the same polygon. */
+.lc-event__frame::before {
   content: "";
   position: absolute;
-  inset: 7px;
-  border: 1px solid rgba(179, 153, 122, 0.26);
+  inset: 6px;
+  border: 1px solid var(--lc-card-hair);
+  clip-path: inherit;
   pointer-events: none;
 }
 
 .lc-event__name {
   position: relative;
   margin: 0;
-  font-size: clamp(30px, 8vw, 40px);
-  line-height: 1.1;
-  color: #5f3540;
+  font-size: clamp(27px, 7.4vw, 34px);
+  line-height: 1.14;
+  color: var(--lc-wine);
 }
 
 .lc-event__when {
@@ -739,29 +807,44 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 4px 14px;
-  margin: 12px 0 0;
+  gap: 3px 12px;
+  margin: 16px 0 0;
   font-family: var(--lc-sans);
   font-size: 9.5px;
   font-weight: 500;
   letter-spacing: 0.22em;
   text-indent: 0.22em;
   text-transform: uppercase;
-  color: var(--lc-gold);
+  color: #714751;
+}
+
+/* The reference separates the meta beats with a middot. */
+.lc-event__when span + span::before {
+  content: "·";
+  margin-right: 12px;
+  color: #a6888f;
 }
 
 .lc-event__venue {
   position: relative;
-  margin: 14px 0 0;
-  font-size: clamp(20px, 5.4vw, 25px);
+  margin: 18px 0 0;
+  font-size: clamp(19px, 5.2vw, 24px);
+  color: var(--lc-wine);
 }
 
 .lc-event__address {
   position: relative;
-  margin: 8px auto 0;
+  margin: 10px auto 0;
   max-width: 30ch;
-  font-size: 13px;
+  font-size: 13.5px;
   line-height: 1.8;
+  color: #714751;
+}
+
+/* The reference's card CTA is a wide outlined pill, not a small chip. */
+.lc-event .lc-pill {
+  min-width: 76%;
+  padding: 15px 24px;
 }
 
 .lc-event__actions {
@@ -773,7 +856,7 @@
   /* Pushed to the foot so side-by-side cards line their CTAs up even when one
      venue name wraps. */
   margin-top: auto;
-  padding-top: 22px;
+  padding-top: 26px;
 }
 
 /* ── The Day ─────────────────────────────────────────────────── */
@@ -975,6 +1058,20 @@
 .lc-dress__couple {
   width: 17cqw;
   margin: 2.8cqw auto;
+  /* The reference's illustration breathes while you read the block; a static
+     engraving reads as a missing asset next to the moving gift ornament. */
+  animation: lc-drift 9s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes lc-drift {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-3.2%) rotate(-0.6deg);
+  }
 }
 
 .lc-dress__note {

@@ -42,7 +42,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     multiline: true,
     rows: 2,
     placeholder: "Dua Insan Ini\\nAkan Menikah",
-    placeholders: { lace: "Together with their families" },
+    placeholders: { lace: "The Wedding Of" },
     templates: ["evermore", "lace"],
   },
   {

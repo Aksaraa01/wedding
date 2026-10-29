@@ -42,14 +42,14 @@ Twelve reference blocks, in order:
 | # | Reference section | What we shipped | Notes |
 |---|---|---|---|
 | 1 | Landing (sealed cover) | `cover` (gate) | Still sealed plate + our wax plaque + guest + "Open the Invitation". Tapping plays the reference's own envelope film (`opening.mp4`, 5 s) with the plaque riding the baked seal, then fades the gate over 2 s |
-| 2 | Opening / names | `cover` (section) | "Together with their families", names, `20.05.2027`, villa illustration — no venue/city (dropped on request) |
-| 3 | Welcome copy | `welcome` | Lace band lead-in, still-life vignette, the couple's *kalimat pembuka* |
+| 2 | Opening / names | `cover` (section) | "The Wedding Of" (cover kicker), names, `20.05.2027`, villa illustration — no venue/city (dropped on request) |
+| 3 | Welcome copy | `welcome` | Lace band lead-in, still-life vignette, the couple's *kalimat pembuka* — `opening_title` as the heading, `opening_description` as the body |
 | 4 | Mempelai | `couple` | Two matted portraits, script full names, parents, Instagram — added in-house, no reference block |
 | 5 | Countdown | `countdown` | Burgundy panel (`#511f2b` base, `#702b3c` body) with the bow frame at 55 % and lace bands top/bottom |
-| 6 | Events (akad / resepsi) | `events` | One card per `sessions` row: script name, date + time, venue, address, "Get directions". Replaces the reference Location block |
+| 6 | Events (akad / resepsi) | `events` | One card per `sessions` row, drawn as the reference's *Where to Stay* plate: blush fill `#f2e9e8`, cut corners, outer rule + inner hairline, lace bow over an oval medallion carrying the event number (I, II…), then name, date · time, venue, address, "Get directions". Replaces the Location block |
 | 7 | The Day | `day` | Pearl-garland header + timeline rows (vignette · time · thread · text) + banquet-table footer |
 | 8 | Dress code | `dresscode` | Lace frame, illustrated couple, swatch row, pearls down both edges |
-| 9 | **Transportation** | **`inviting` — "Turut Mengundang"** | Deliberate replacement, see §5 |
+| 9 | **Transportation** | **`inviting` — "With Honor"** | Deliberate replacement, see §5 |
 | 10 | Where to Stay | *dropped* | No Aksaraa field for it; keeping it would mean inventing hotel copy per couple |
 | 11 | Wedding Gift | `gift` | Lace panel (`panel-lace.webp`) around the accordion accounts + address |
 | 12 | Gallery + Film (in-house) | `gallery`, `video` | Ivory gallery grid (first tile 16:10, rest 4:5 in gold-matted ivory), burgundy film panel with a 16:9 autoplaying, muted, looping player |
@@ -97,18 +97,18 @@ Fonts — all self-hosted from `public/fonts`, declared in `src/app/fonts.css`:
 
 ---
 
-## 5. The Transportation → Turut Mengundang decision
+## 5. The Transportation → With Honor decision
 
 The reference's `Transportation` block is a shuttle/logistics block ("buses
 leave at…"). Aksaraa has no per-couple transportation data, and couples here
 expect their inviting families ("Turut Mengundang") somewhere in the flow.
 
 So the slot keeps the reference's *visual* language — burgundy panel, lace band
-top and bottom, ornament — and renders `inviting_families`. **The title stays
-Indonesian** ("Turut Mengundang") while every other string in the template is
-English, because that phrase is a fixed cultural label, not translatable copy.
-It is gated exactly like every other template: `feature_gates.inviting_families`
-and `inviting_families_visible`.
+top and bottom, ornament — and renders `inviting_families`. The title is
+**"With Honor"**, in English like the rest of the template (it read "Turut
+Mengundang" until the English pass). It is gated exactly like every other
+template: `feature_gates.inviting_families` and
+`inviting_families_visible`.
 
 An empty list removes the whole panel — no orphan heading.
 
@@ -116,13 +116,13 @@ An empty list removes the whole panel — no orphan heading.
 
 ## 6. Asset audit — what shipped
 
-28 files, 5.5 MB total, in `public/templates/lace/` (two of them video):
+29 files, 5.6 MB total, in `public/templates/lace/` (two of them video):
 
 | Group | Files |
 |---|---|
 | Cover | `cover-sealed.jpg` (1080×1920, first frame: tulle + pearls + baked seal), `opening.mp4` (1080×1920, 5.04 s — the reference's envelope film), `cover-frame.webp` (720×1280, seal-free still), `hero-bg.mp4` (720×1280, 2.4 s — the living cover backdrop) |
 | Lace bands | `band-lace.webp` (1300×533, crown: flowers + foliage), `band-border.webp` (1400×594, rose-and-net border), `panel-lace.webp` (992×925) |
-| Ornament | `bow-frame.webp` (1627×1513 full countdown frame), `pearls.webp` |
+| Ornament | `bow-frame.webp` (1627×1513 full countdown frame), `pearls.webp`, `card-ornament.webp` (902×267 lace bow + empty oval medallion, reused from the reference's Where to Stay cards) |
 | Cover art | `villa.svg` (219×105 line illustration, `#511F2C`) — the oval from the dropped Location block is not shipped |
 | Dress code | `dress-frame.webp` (848×1264), `dress-couple.webp` (640×994) |
 | The Day | `garland.webp` + `garland-0..4.webp` (pearl garland, base + 5 strands), `step-{welcome,ceremony,cocktail,champagne,dinner,dancing}.webp`, `table.webp` |
@@ -131,6 +131,8 @@ An empty list removes the whole panel — no orphan heading.
 
 `cover-film.mp4` and `oval-location.webp` were removed: the gate now plays the
 reference's envelope film (`opening.mp4`) and the Location block was dropped.
+`hotel-ornament.png` (kept as `card-ornament.webp`) is the one Where-to-Stay
+asset that stays — the event plates reuse it.
 
 **Dropped on purpose:** `until-were-gone-opt.mp3` (their music),
 `banquet-breeze-map.png` (a New York map — reference data), `dance-floor.mp4`,
@@ -307,7 +309,8 @@ so the crest dissolves into the paper instead of ending in a hard vertical line.
 ## 9. Registration checklist (what a new template touches)
 
 1. `src/components/templates/lace/{index.tsx,Wishes.tsx,lace.css}`
-2. `public/templates/lace/` (28 assets, incl. `opening.mp4` + `hero-bg.mp4`)
+2. `public/templates/lace/` (29 assets, incl. `opening.mp4`, `hero-bg.mp4` and
+   `card-ornament.webp`)
 3. `src/components/templates/index.ts` — `TEMPLATE_MAP` import + entry, and a
    `TEMPLATE_CONFIGS` entry (theme, `cover_slots: 0`, portraits on, gallery + video
    on, `extras: true`)
