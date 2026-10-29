@@ -202,9 +202,9 @@
   align-items: flex-end;
   justify-content: center;
   background: var(--lc-ivory);
-  /* The reference fades the whole gate out over ~2 s while the film is still
-     finishing, so the invitation is never slapped on at the end of a cut. */
-  transition: opacity 2s ease, visibility 2s ease;
+  /* Fade long enough to feel like a dissolve, short enough not to read as a
+     white-out — the veil has cleared before this starts. */
+  transition: opacity 0.65s ease, visibility 0.65s ease;
   cursor: pointer;
 }
 

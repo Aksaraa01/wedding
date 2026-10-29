@@ -331,15 +331,15 @@ export default function Lace(profile: TemplateProps) {
     film.play().catch(() => setFading(true))
   }, [hasTrack])
 
-  // The reference fades the gate over 2 s and only then hands the invitation
-  // over, so the frozen last frame of the film is already invisible by the time
-  // the cover takes its place.
+  // Hand over as soon as the gate has faded. The reference's 2 s fade reads as
+  // a long white-out on a slow phone, so both halves are shorter here: the veil
+  // has already cleared by the time we start fading.
   useEffect(() => {
     if (!fading || opened) return
     const id = window.setTimeout(() => {
       setOpened(true)
       window.scrollTo(0, 0)
-    }, 2_000)
+    }, 650)
     return () => window.clearTimeout(id)
   }, [fading, opened])
 
@@ -948,7 +948,7 @@ export default function Lace(profile: TemplateProps) {
               onTimeUpdate={(e) => {
                 const v = e.currentTarget
                 if (!v.duration) return
-                if (v.duration - v.currentTime < 1.1) setFading(true)
+                if (v.duration - v.currentTime < 1.6) setFading(true)
               }}
               onEnded={() => setFading(true)}
             />

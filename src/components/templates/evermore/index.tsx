@@ -671,10 +671,11 @@ export default function Evermore(profile: TemplateProps) {
           )}
 
           {honored.length > 0 && (
-            <section className="honored-guests" aria-labelledby="honored-title">
+            <section className="honored-guests" aria-label="Turut Mengundang">
+              {/* No heading: the ornament and the list carry the block on their
+                  own, as the reference does. The label survives for a11y. */}
               <div className="honored-guests-intro">
                 <span className="evermore-ornament honored-guests-heart" aria-hidden="true" style={{ "--ornament-mask": cssUrl(ASSET("solid-heart.svg")) } as CSSProperties} />
-                <h2 id="honored-title">Turut Mengundang</h2>
               </div>
               <div className="honored-guests-grid">
                 <div className="honored-guests-column">
