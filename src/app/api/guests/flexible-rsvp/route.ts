@@ -16,7 +16,8 @@ const ALLOWED = new Set(["HADIR", "TIDAK_HADIR"])
 const GUEST_FIELDS = "id, name, slug, table_number, qr_token, rsvp_status, rsvp_pax_count, rsvp_message, rsvp_responded_at"
 
 // Display name for a row created from a hand-typed ?to=: keep the guest's own
-// wording ("Budi / Ani"), strip markup/control characters, cap the length.
+// wording ("Budi & Ani") when it is a name, but render a slug-shaped value
+// ("Budi-&-Ani") as readable text. Strips markup/control characters, caps length.
 function toDisplayName(raw: string, fallbackSlug: string): string {
   const cleaned = (raw || "")
     .normalize("NFC")
@@ -24,6 +25,7 @@ function toDisplayName(raw: string, fallbackSlug: string): string {
     .replace(/[ \t]+/g, " ")
     .trim()
     .slice(0, 80)
+  if (cleaned && isValidGuestSlug(cleaned)) return prettifyGuestSlug(cleaned)
   return cleaned || prettifyGuestSlug(fallbackSlug) || "Tamu Undangan"
 }
 

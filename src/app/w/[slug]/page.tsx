@@ -11,7 +11,7 @@ import { getWpPostAlive } from "@/lib/wpPostCache"
 import { cachedRead } from "@/lib/refCache"
 import { ASSETS } from "@/lib/assets"
 import { toOgImageUrl } from "@/lib/storage"
-import { prettifyGuestSlug, FALLBACK_GUEST_NAME, findGuestForTo } from "@/lib/guest-link"
+import { prettifyGuestSlug, FALLBACK_GUEST_NAME, findGuestForTo, guestToFromParams } from "@/lib/guest-link"
 import { resolveCoupleName } from "@/lib/coupleName"
 import InvitationExpired from "@/components/InvitationExpired"
 
@@ -143,10 +143,14 @@ export default async function WeddingInvitation({
   searchParams,
 }: {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ to?: string; qr_token?: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
   const { slug } = await params
-  const { to, qr_token } = await searchParams
+  const query = await searchParams
+  // A raw "&" in the shared link ("?to=Sindy Sihombing&/Partner") arrives as an
+  // extra empty-valued param; rejoin the halves before resolving the guest.
+  const to = guestToFromParams(query) || undefined
+  const qr_token = (Array.isArray(query.qr_token) ? query.qr_token[0] : query.qr_token) || undefined
 
   // Crawler fast-path: link-preview bots (WhatsApp/Telegram/...) only need the
   // <head> metadata from generateMetadata above (guest-independent). Serve a

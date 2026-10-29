@@ -1,7 +1,9 @@
 // Pure helper — safe to import from client components.
-// Allowed guest-name charset: letters, digits, space, dot, comma, parentheses.
+// Allowed guest-name charset: letters, digits, space, dot, comma, parentheses
+// and "&" (the "and" joiner — it survives into slugs as "-&-", and the WP
+// guestbook/RSVP author rule allows it). Everything else is stripped.
 export function sanitizeGuestName(name: string): string {
-  return (name || "").replace(/[^A-Za-z0-9 .,()]/g, "")
+  return (name || "").replace(/[^A-Za-z0-9 .,()&]/g, "")
 }
 
 // Couple display names allow one extra glyph: the "&" separator
