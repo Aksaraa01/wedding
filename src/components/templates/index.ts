@@ -1049,7 +1049,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         opening_description: false,
         quote: false,
         countdown: true,
-        video: false,
+        video: true,
         story: true,
         gallery: true,
         gift: true,

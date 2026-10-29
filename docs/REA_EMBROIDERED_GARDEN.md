@@ -353,3 +353,43 @@ The story lightbox was generalised from `number | null` to
 `{ photos, index } | null`, so story tiles and gallery tiles share one viewer and
 one keyboard handler (`stepLightbox`). Tapping a gallery tile opens the gallery
 list at that photo, not the story list.
+
+### 11g. Desktop cover: the film becomes a printed card
+
+Full-bleed is right on a phone and wrong on a desktop: a 9:16 film stretched to
+`100vh` on a 1920-wide screen is a 607 px strip of sage with bare cream either
+side, the door seam runs through the greeting and the call to action, and the
+credit line is clipped by the bottom edge. Measured at 1920×1080, 1440×900,
+1280×800 and 1024×768 before the fix.
+
+`@media (min-aspect-ratio: 4/5)` now lays the gate out as a flex column:
+`.eg-gate__film` becomes a card (`height: min(76vh, 100vh - 250px)`, true 9:16,
+`box-shadow` used as the paper mat + gold hairline so the artwork keeps its
+exact geometry), and the greeting, button and credit move into the cloth below
+it as normal flow — static positioning, ink `#2f3b34` on cream, no text shadow.
+The medallion plaque still tracks the baked-on medallion because nothing crops
+the video: the film box stays exactly 9:16.
+
+Two traps worth remembering:
+
+- **Declaration order beats media queries.** The desktop block was first placed
+  next to `.eg-gate__film`, but `.eg-gate__guest`, `.eg-gate__open` and
+  `.eg-gate__signature` are declared *later* in the file, so their
+  `position: absolute` won on equal specificity and the greeting stayed glued
+  inside the card. The media query now lives at the end of the stylesheet.
+- Reserving only `100vh - 210px` overflowed the viewport at 768 px tall
+  (padding 56 + card 518 + gaps 45 + stack 152 = 771 > 768). `250px` clears it.
+
+Portrait tablets (834×1194, aspect 0.70) and phones keep the full-bleed film.
+
+### 11h. Wedding film section
+
+`profile.video_url` → `normalizeVideoUrl` → a gilded 16:10 poster (gallery[0],
+else the closing portrait, else the cover) with a gold play medallion, captioned
+`tc.video_caption`. Tapping opens the shared dark viewer (`.eg-lightbox` reuse)
+with a 16:9 `min(1024px, 100%)` box — a YouTube embed with
+`autoplay=1&rel=0&playsinline=1&modestbranding=1`, or a native `<video controls>`
+when the URL is a direct file (`.mp4/.webm/.mov/.m4v`). Escape and the scrim both
+close it, the guest RSVP dock hides while it is open, and the section disappears
+entirely when the URL is empty, `feature_gates.video === false`, or
+`video_section_visible === false`.

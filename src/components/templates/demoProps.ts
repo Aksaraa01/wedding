@@ -1264,6 +1264,7 @@ DEMO_PROPS_BY_CODE["embroidered-garden"] = {
   estimated_wedding_date: "2027-12-31",
   sessions: (DEMO_PROPS_BY_CODE["sandhya"].sessions || []).map((s) => ({ ...s, date: "2027-12-31" })),
   cover_photos: [...DE_COVERS_COVER2].slice(0, 1),
+  video_url: "https://youtu.be/-ARVwU58l7A",
   gallery_photos: [
     `${DE}/cover-2.webp`,
     `${DE}/cover-3.webp`,

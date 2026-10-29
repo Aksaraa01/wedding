@@ -5,7 +5,7 @@ import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { AKSARAA_WA_NUMBER } from "@/lib/contact"
 import InvitationOverlay from "@/components/InvitationOverlay"
-import { countdownTarget, coverPhoto as coverSlotPhoto, flattenPhotos, gcalLink, initialsOf } from "../shared/lib"
+import { countdownTarget, coverPhoto as coverSlotPhoto, flattenPhotos, gcalLink, initialsOf, normalizeVideoUrl } from "../shared/lib"
 import Wishes from "./Wishes"
 import "./embroidered-garden.css"
 
@@ -241,6 +241,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   const [opening, setOpening] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [lightbox, setLightbox] = useState<{ photos: string[]; index: number } | null>(null)
+  const [filmOpen, setFilmOpen] = useState(false)
   const [giftTab, setGiftTab] = useState<"accounts" | "address">("accounts")
   const [openAccount, setOpenAccount] = useState(-1)
 
@@ -300,6 +301,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
     !profile.template_demo &&
     opened &&
     lightbox === null &&
+    !filmOpen &&
     (!!profile.guest_id || (profile.guest_link_strict === false && !!profile.guest_slug)) &&
     !!profile.wedding_profile_id
 
@@ -413,6 +415,14 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   // the same list for the loop to be seamless.
   const galleryLoop = useMemo(() => [...gallery, ...gallery], [gallery])
 
+  // The couple's own film. YouTube links become an embed; a direct file plays in
+  // a <video>. Nothing renders when the editor left the URL empty.
+  const filmEmbed = normalizeVideoUrl(profile.video_url)
+  const filmIsFile = /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(filmEmbed)
+  const hasFilm =
+    !!filmEmbed && gates.video !== false && profile.video_section_visible !== false
+  const filmPoster = gallery[0] || closingPhoto || cover
+
   const stepLightbox = useCallback((delta: number) => {
     setLightbox((v) => {
       if (!v) return v
@@ -420,6 +430,15 @@ export default function EmbroideredGarden(profile: TemplateProps) {
       return total > 0 ? { ...v, index: (v.index + delta + total) % total } : v
     })
   }, [])
+
+  useEffect(() => {
+    if (!filmOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFilmOpen(false)
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [filmOpen])
 
   useEffect(() => {
     if (lightbox === null) return
@@ -810,6 +829,34 @@ export default function EmbroideredGarden(profile: TemplateProps) {
           </section>
         )}
 
+        {/* ── Wedding film ─────────────────────────────────────── */}
+        {hasFilm && (
+          <section className="eg-section eg-film" data-section="video">
+            <div className="eg-wrap eg-film__head" data-eg-reveal>
+              <h2 className="eg-display eg-heading">{tc.video_title || "Our Wedding Film"}</h2>
+              {tc.video_intro && <p className="eg-body eg-film__intro">{tc.video_intro}</p>}
+            </div>
+
+            <div className="eg-wrap eg-film__frame" data-eg-reveal>
+              <button
+                type="button"
+                className="eg-gilded eg-film__poster"
+                onClick={() => setFilmOpen(true)}
+                aria-label="Play our wedding film"
+              >
+                <img src={filmPoster} alt="" loading="lazy" />
+                <span className="eg-film__scrim" aria-hidden="true" />
+                <span className="eg-film__play" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                    <path d="M8 5.5v13l11-6.5-11-6.5Z" fill="currentColor" />
+                  </svg>
+                </span>
+              </button>
+              <p className="eg-film__caption">{tc.video_caption || "Press play to watch the day again"}</p>
+            </div>
+          </section>
+        )}
+
         {/* ── Gifts ────────────────────────────────────────────── */}
         {hasGift && (
           <section className="eg-section eg-gift" data-section="gift">
@@ -1032,6 +1079,38 @@ export default function EmbroideredGarden(profile: TemplateProps) {
               ›
             </button>
           )}
+        </div>
+      )}
+
+      {/* ── Wedding film player ────────────────────────────────── */}
+      {filmOpen && hasFilm && (
+        <div
+          className="eg-lightbox eg-lightbox--film"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Wedding film"
+          onClick={() => setFilmOpen(false)}
+        >
+          <button
+            type="button"
+            className="eg-lightbox__close"
+            onClick={() => setFilmOpen(false)}
+            aria-label="Close film"
+          >
+            ✕
+          </button>
+          <div className="eg-film__player" onClick={(e) => e.stopPropagation()}>
+            {filmIsFile ? (
+              <video src={filmEmbed} controls autoPlay playsInline />
+            ) : (
+              <iframe
+                src={`${filmEmbed}${filmEmbed.includes("?") ? "&" : "?"}autoplay=1&rel=0&playsinline=1&modestbranding=1`}
+                title={tc.video_title || "Our Wedding Film"}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            )}
+          </div>
         </div>
       )}
 

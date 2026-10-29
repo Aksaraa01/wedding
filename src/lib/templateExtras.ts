@@ -139,6 +139,28 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden"],
   },
   {
+    key: "video_title",
+    label: "Judul Video",
+    placeholders: { "embroidered-garden": "Our Wedding Film" },
+    templates: ["embroidered-garden"],
+  },
+  {
+    key: "video_intro",
+    label: "Pengantar Video",
+    multiline: true,
+    rows: 2,
+    placeholders: {
+      "embroidered-garden": "The day as it happened, kept in motion.",
+    },
+    templates: ["embroidered-garden"],
+  },
+  {
+    key: "video_caption",
+    label: "Keterangan Tombol Video",
+    placeholders: { "embroidered-garden": "Press play to watch the day again" },
+    templates: ["embroidered-garden"],
+  },
+  {
     key: "gift_intro_title",
     label: "Judul Bagian Hadiah",
     placeholders: {

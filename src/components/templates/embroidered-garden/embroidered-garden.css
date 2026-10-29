@@ -197,19 +197,6 @@ body:has(.eg-root.is-locked) {
   transition: transform 1.6s cubic-bezier(0.3, 0, 0.2, 1), filter 1.6s ease;
 }
 
-@media (min-aspect-ratio: 4/5) {
-  .eg-gate {
-    background: #f1ece2;
-  }
-
-  .eg-gate__film {
-    width: auto;
-    height: 100%;
-    aspect-ratio: 9 / 16;
-    box-shadow: 0 0 80px rgba(42, 65, 50, 0.18);
-  }
-}
-
 .eg-gate__media {
   width: 100%;
   height: 100%;
@@ -1069,7 +1056,111 @@ body:has(.eg-root.is-locked) {
   }
 }
 
+/* ── Wedding film (after the gallery) ────────────────────────── */
+.eg-film__head {
+  text-align: center;
+}
+
+.eg-film__intro {
+  margin: 14px auto 0;
+  max-width: 34ch;
+  font-size: 15px;
+  color: #45564d;
+}
+
+.eg-film__frame {
+  margin-top: 30px;
+}
+
+.eg-film__poster {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 7px;
+  border: 1px solid var(--eg-gold-soft);
+  background: var(--eg-paper);
+  cursor: pointer;
+}
+
+.eg-film__poster img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+/* Warm sage wash so the gold play medallion always reads, whatever photo the
+   couple put in slot one. */
+.eg-film__scrim {
+  position: absolute;
+  inset: 7px;
+  background: linear-gradient(180deg, rgba(42, 65, 50, 0.05) 0%, rgba(42, 65, 50, 0.42) 100%);
+  pointer-events: none;
+}
+
+.eg-film__play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  padding-left: 3px;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(250, 247, 242, 0.75);
+  border-radius: 50%;
+  background: rgba(250, 247, 242, 0.92);
+  color: var(--eg-gold);
+  box-shadow: 0 10px 26px rgba(20, 28, 23, 0.28);
+  transition: transform 0.35s ease, background 0.35s ease;
+}
+
+.eg-film__poster:hover .eg-film__play {
+  transform: translate(-50%, -50%) scale(1.06);
+  background: #faf7f2;
+}
+
+.eg-film__caption {
+  margin: 14px 0 0;
+  font-family: var(--eg-ui);
+  font-size: 9px;
+  letter-spacing: 0.26em;
+  text-indent: 0.26em;
+  text-transform: uppercase;
+  color: var(--eg-muted);
+}
+
+.eg-lightbox--film {
+  cursor: zoom-out;
+}
+
+.eg-film__player {
+  width: min(1024px, 100%);
+  aspect-ratio: 16 / 9;
+  max-height: 86svh;
+  border: 1px solid rgba(225, 209, 183, 0.5);
+  background: #000;
+  cursor: default;
+}
+
+.eg-film__player iframe,
+.eg-film__player video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eg-film__play,
+  .eg-film__poster:hover .eg-film__play {
+    transition: none;
+    transform: translate(-50%, -50%);
+  }
+}
+
 /* ── Gifts ───────────────────────────────────────────────────── */
+
 .eg-card--gift {
   max-width: 460px;
 }
@@ -1802,5 +1893,98 @@ body:has(.eg-root.is-locked) {
   .eg-root [data-eg-reveal] {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* Desktop: the film stops pretending to be a full-bleed phone screen. It is a
+   printed 9:16 invitation card lying on the linen, with the greeting and the
+   call to action on the cloth below it — so nothing crosses the door seam and
+   nothing is clipped by the viewport edge. */
+@media (min-aspect-ratio: 4/5) {
+  .eg-gate {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 28px 24px;
+    background: radial-gradient(120% 95% at 50% 42%, #faf7f1 0%, #f1ece2 58%, #e6dfd1 100%);
+  }
+
+  .eg-gate__film {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: auto;
+    height: min(76vh, calc(100vh - 250px));
+    aspect-ratio: 9 / 16;
+    transform: none;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 6px #faf7f2,
+      0 0 0 7px rgba(201, 137, 54, 0.45),
+      0 30px 70px rgba(42, 65, 50, 0.22);
+  }
+
+  .eg-gate.is-opening .eg-gate__film {
+    transform: scale(1.015);
+  }
+
+  .eg-gate__plaque {
+    /* The card is smaller than the viewport, so the tracked medallion needs a
+       touch more travel room than the phone layout gives it. */
+    will-change: left, top, width, height, opacity;
+  }
+
+  .eg-gate__names {
+    top: 23%;
+  }
+
+  .eg-gate__pair {
+    font-size: clamp(25px, 2.4vw, 33px);
+  }
+
+  .eg-gate__date {
+    margin-top: 8px;
+    font-size: 9px;
+    letter-spacing: 0.24em;
+    text-indent: 0.24em;
+  }
+
+  .eg-gate__guest {
+    position: static;
+    margin-top: 2px;
+    color: rgba(47, 59, 52, 0.62);
+    text-shadow: none;
+  }
+
+  .eg-gate__guest strong {
+    color: var(--eg-ink);
+    font-size: 18px;
+  }
+
+  .eg-gate__open {
+    position: static;
+    left: auto;
+    bottom: auto;
+    transform: none;
+    border-color: rgba(47, 59, 52, 0.28);
+    background: rgba(250, 247, 242, 0.72);
+    color: var(--eg-ink);
+    box-shadow: 0 10px 26px rgba(42, 65, 50, 0.12);
+  }
+
+  .eg-gate__open:hover {
+    background: #faf7f2;
+  }
+
+  .eg-gate__open:focus-visible {
+    outline-color: var(--eg-ink);
+  }
+
+  .eg-gate__signature {
+    position: static;
+    bottom: auto;
+    color: rgba(47, 59, 52, 0.42);
   }
 }
