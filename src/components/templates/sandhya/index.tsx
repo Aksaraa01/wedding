@@ -981,7 +981,7 @@ export default function Sandhya(profile: TemplateProps) {
       {showGuestDock && (
         <InvitationOverlay
           guestId={profile.guest_id}
-          
+          guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
           guestName={guestName}
           coupleName={coupleLabel}

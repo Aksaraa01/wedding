@@ -11,11 +11,24 @@ import { getWpPostAlive } from "@/lib/wpPostCache"
 import { cachedRead } from "@/lib/refCache"
 import { ASSETS } from "@/lib/assets"
 import { toOgImageUrl } from "@/lib/storage"
-import { prettifyGuestSlug, FALLBACK_GUEST_NAME } from "@/lib/guest-link"
+import { prettifyGuestSlug, FALLBACK_GUEST_NAME, findGuestForTo } from "@/lib/guest-link"
 import { resolveCoupleName } from "@/lib/coupleName"
 import InvitationExpired from "@/components/InvitationExpired"
 
 export const revalidate = 60
+
+// Fields resolved for an identified guest (see findGuestForTo call below).
+type GuestContext = {
+  id: string
+  name: string
+  slug: string | null
+  table_number: string | null
+  qr_token: string | null
+  rsvp_status: string | null
+  rsvp_pax_count: number | null
+  rsvp_message: string | null
+  invitation_opened_at: string | null
+}
 
 // Extract the first public image URL from a field that may be: a URL string, a
 // JSON-encoded array, or a nested array (slideshow cover slots -> array of URLs).
@@ -155,24 +168,11 @@ export default async function WeddingInvitation({
       const linkStrict = lite.guest_link_strict !== false
       let guestFound = false
       if (to) {
-        const { data: hit } = await supabaseAdmin
-          .from("guests")
-          .select("id")
-          .eq("wedding_profile_id", lite.id)
-          .eq("slug", to)
-          .maybeSingle()
-        guestFound = !!hit
-        if (!guestFound) {
-          // Case-insensitive fallback mirrors the guest page (which
-          // redirects to the canonical cased slug instead of 404ing).
-          const { data: hitCi } = await supabaseAdmin
-            .from("guests")
-            .select("id")
-            .eq("wedding_profile_id", lite.id)
-            .ilike("slug", to)
-            .maybeSingle()
-          guestFound = !!hitCi
-        }
+        // Same resolver as the full page: raw first (keeps every existing
+        // link working), then the normalized fallback for hand-typed names
+        // such as "Budi / Ani".
+        const hit = await findGuestForTo<{ id: string }>(lite.id, to, "id")
+        guestFound = !!hit.guest
       }
       if (!guestFound && qr_token) {
         const { data: hit } = await supabaseAdmin
@@ -224,27 +224,17 @@ export default async function WeddingInvitation({
   const guestContext = await (async () => {
     const fields = "id, name, slug, table_number, qr_token, rsvp_status, rsvp_pax_count, rsvp_message, invitation_opened_at"
     if (to) {
-      // Exact match first (preserves case-sensitive canonical slug).
-      const bySlug = await supabaseAdmin
-        .from("guests")
-        .select(fields)
-        .eq("wedding_profile_id", profile.id)
-        .eq("slug", to)
-        .maybeSingle()
-      if (bySlug.data) return bySlug.data
-
-      // Case-insensitive match -> auto-correct to the canonical (cased) slug so the
-      // guest name in the link always follows the exact input (uppercase).
-      const bySlugInsensitive = await supabaseAdmin
-        .from("guests")
-        .select(fields)
-        .eq("wedding_profile_id", profile.id)
-        .ilike("slug", to)
-        .maybeSingle()
-      if (bySlugInsensitive.data) {
-        const qs = new URLSearchParams({ to: bySlugInsensitive.data.slug })
-        if (qr_token) qs.set("qr_token", qr_token)
-        redirect(`/w/${canonicalSlug}?${qs.toString()}`)
+      const hit = await findGuestForTo<GuestContext>(profile.id, to, fields)
+      if (hit.guest) {
+        // Canonicalize the ?to= value (case, or a hand-typed display name such
+        // as "Budi / Ani") so every downstream consumer — the WP iframe, the
+        // RSVP dock, the QR — receives a slug.
+        if (hit.slug && hit.slug !== to) {
+          const qs = new URLSearchParams({ to: hit.slug })
+          if (qr_token) qs.set("qr_token", qr_token)
+          redirect(`/w/${canonicalSlug}?${qs.toString()}`)
+        }
+        return hit.guest
       }
     }
     if (qr_token) {

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react"
 import { createPortal } from "react-dom"
+import { normalizeGuestSlug } from "@/lib/guest-slug"
 
 interface InvitationOverlayProps {
   guestId?: string
@@ -92,7 +93,8 @@ export default function InvitationOverlay({
     try {
       let activeId = resolvedId
       if (!activeId) {
-        if (!allowFlexibleRsvp || !guestSlug) {
+        const flexSlug = normalizeGuestSlug(guestSlug)
+        if (!allowFlexibleRsvp || !flexSlug) {
           setRsvpError("Gagal menyimpan kehadiran. Silakan coba lagi.")
           setRsvpStatus("error")
           return
@@ -102,7 +104,11 @@ export default function InvitationOverlay({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             wedding_profile_id: weddingProfileId,
-            slug: guestSlug,
+            // Slug for the row, raw ?to= so a legacy slug still matches and
+            // the created row keeps the guest's own wording ("Budi / Ani").
+            slug: flexSlug,
+            raw_slug: guestSlug,
+            display_name: guestSlug,
             rsvp_status: rsvpAttend,
             rsvp_pax_count: rsvpAttend === "HADIR" ? Number(rsvpPax) : undefined,
             rsvp_message: rsvpMessage.trim() || undefined,
@@ -110,7 +116,11 @@ export default function InvitationOverlay({
         })
         const flexData = await flex.json().catch(() => ({}))
         if (!flex.ok || !flexData.guest?.id) {
-          setRsvpError(flexData.error || "Gagal menyimpan kehadiran. Silakan coba lagi.")
+          setRsvpError(
+            flex.status === 400
+              ? "Nama tamu tidak dikenali. Silakan minta tautan undangan pribadi Anda ke mempelai."
+              : flexData.error || "Gagal menyimpan kehadiran. Silakan coba lagi."
+          )
           setRsvpStatus("error")
           return
         }

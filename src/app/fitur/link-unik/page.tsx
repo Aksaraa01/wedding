@@ -37,6 +37,8 @@ export default function LinkUnikPage() {
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">Tautan Unik per Tamu</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
               Setiap tamu mendapat link undangan unik: `https://wedding.aksaraa.com/w/[slug]?to=[nama]`.
+              Nama tamu maupun slug sama-sama diterima — spasi dan simbol (mis. `/`) otomatis
+              dirapikan, jadi tidak ada tautan yang gagal dibuka.
               Link tidak bisa ditebak, tidak bisa dibagikan ke orang lain — hanya tamu bersangkutan yang bisa buka.
             </p>
           </div>

@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       .filter((r) => sanitizeGuestName(r.name || "").trim())
       .map((r) => ({
         wedding_profile_id: weddingProfileId,
-        name: sanitizeGuestName(r.name).trim(),
+        name: sanitizeGuestName(r.name).replace(/\s+/g, " ").trim(),
         phone_number: (r.phone_number || "").toString().trim(),
         category: (r.category || "").toString().trim(),
         table_number: (r.table_number || "").toString().trim(),

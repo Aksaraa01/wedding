@@ -62,7 +62,42 @@ add_action('wp_enqueue_scripts', function () {
 
 class AksaraaPlugin
 {
-    const SECRET = '***REMOVED***';
+    /**
+     * Secrets accepted on the X-Aksaraa-Secret header.
+     *
+     * Never commit these values. Set AKSARAA_WP_SECRET (current) in
+     * wp-config.php or the PHP-FPM environment. During rotation, also set
+     * AKSARAA_WP_SECRET_PREVIOUS, then remove it after the cutover window.
+     * WP_INTERNAL_SECRET* are accepted as aliases for the Next.js env names.
+     *
+     * @return string[]
+     */
+    private static function secrets(): array
+    {
+        $names = [
+            'AKSARAA_WP_SECRET',
+            'WP_INTERNAL_SECRET',
+            'AKSARAA_WP_SECRET_PREVIOUS',
+            'WP_INTERNAL_SECRET_PREVIOUS',
+        ];
+
+        $secrets = [];
+        foreach ($names as $name) {
+            if (defined($name)) {
+                $value = constant($name);
+                if (is_string($value) && $value !== '') {
+                    $secrets[] = $value;
+                }
+            }
+
+            $value = getenv($name);
+            if (is_string($value) && $value !== '') {
+                $secrets[] = $value;
+            }
+        }
+
+        return array_values(array_unique($secrets));
+    }
 
     public static function init()
     {
@@ -72,8 +107,13 @@ class AksaraaPlugin
     public static function auth(WP_REST_Request $request): bool
     {
         $given = (string) $request->get_header('X-Aksaraa-Secret');
-        if (strlen($given) !== strlen(self::SECRET)) return false;
-        return hash_equals(self::SECRET, $given);
+        if ($given === '') return false;
+
+        foreach (self::secrets() as $secret) {
+            if (hash_equals($secret, $given)) return true;
+        }
+
+        return false;
     }
 
     public static function register_routes()
@@ -2964,11 +3004,28 @@ add_filter('comment_form_fields', function ($fields) {
     return $fields;
 }, 99);
 
+// Guest names arrive through ?to= (hand-typed by couples: "Budi / Ani",
+// "Bapak/Ibu") or from a guest row whose name still carries symbols.
+// WeddingPress comment-kit / comment-kit2 validate the author client-side with
+// /^[^?%$=\/]{1,30}$/ and answer "Mohon maaf! Khusus untuk tamu undangan" for
+// anything containing ? % $ = / — so a slash silently blocked every guestbook
+// comment and RSVP. Normalize before the field is filled: a slash separates two
+// names, so it becomes "&"; the other reserved characters are dropped.
+// Keep in sync with clean() in the wp_footer script below.
+function aksaraa_clean_guest_name(string $name): string
+{
+    $name = wp_unslash($name);
+    $name = preg_replace('/\s*\/\s*/u', ' & ', $name);
+    $name = preg_replace('/[?%$=]/u', '', $name);
+    $name = preg_replace('/\s+/u', ' ', $name);
+    return trim(sanitize_text_field($name));
+}
+
 // Safety net (belt): preprocess_comment runs inside wp_new_comment AFTER the require_name_email gate,
 // so it cannot satisfy that gate — it only guarantees a non-empty author/email reach the DB.
 add_filter('preprocess_comment', function ($commentdata) {
     if (empty($commentdata['comment_author']) && isset($_GET['to']) && is_string($_GET['to']) && $_GET['to'] !== '') {
-        $commentdata['comment_author'] = sanitize_text_field(wp_unslash($_GET['to']));
+        $commentdata['comment_author'] = aksaraa_clean_guest_name($_GET['to']);
     }
     if (empty($commentdata['comment_author_email'])) {
         $commentdata['comment_author_email'] = 'anonymous@wordpress.com';
@@ -2981,10 +3038,31 @@ add_filter('preprocess_comment', function ($commentdata) {
 
 // Prefill `nama tamu` (Elementor Form + CUI author) from ?to= so the required author/name field is
 // never empty on the invitation; also append a hidden `email` as a client-side belt in case a form
-// bypasses the comment_form_default_fields filter above.
+// bypasses the comment_form_default_fields filter above. Values are cleaned with the same rule as
+// aksaraa_clean_guest_name() (the kit's own char class has no slash) and offending values typed or
+// prefilled by the widget are rewritten in place before submission.
 add_action('wp_footer', function () {
     if (!is_singular()) return;
-    echo '<script>(function(){function g(){try{return decodeURIComponent((new URLSearchParams(location.search).get("to")||"").replace(/\+/g," "))}catch(e){return""}}function fillName(){var to=g();if(!to)return;var sels=["input[name=\"author\"]","#author","input.cui-input[name=\"author\"]","input[name*=\"nama_tamu\"]","input[name*=\"nama tamu\"]","input[id*=\"nama_tamu\"]","input[id*=\"nama\"]","textarea[name*=\"nama_tamu\"]","input[name=\"form_fields[nama_tamu]\"]","input[name=\"form_fields[name]\"]","#form-field-nama_tamu","#form-field-nama","#form-field-author"];for(var i=0;i<sels.length;i++){try{var els=document.querySelectorAll(sels[i]);for(var j=0;j<els.length;j++){var el=els[j];if(el&&!el.value){el.value=to;el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}));}}}catch(e){}}}function ensureFields(e){var form=e&&e.target;if(!form||!form.matches||!form.matches("form[id^=\"commentform\"]"))return;var to=g();var a=form.querySelector("input[name=\"author\"]");if(a&&!a.value.trim()&&to){a.value=to;}if(!form.querySelector("input[name=\"email\"]")){var h=document.createElement("input");h.type="hidden";h.name="email";h.value="anonymous@wordpress.com";h.setAttribute("autocomplete","off");form.appendChild(h);}}fillName();document.addEventListener("DOMContentLoaded",fillName);document.addEventListener("submit",ensureFields,true);var obs=new MutationObserver(function(){fillName();});try{obs.observe(document.body,{childList:true,subtree:true});}catch(e){}if(window.jQuery){jQuery(document).on("elementor/popup/show",function(){setTimeout(fillName,200);});}document.addEventListener("click",function(e){var t=e.target;if(t&&t.closest&&t.closest(".elementor-button,.cui-link,.cui-button")){setTimeout(fillName,120);}},true);})();</script>';
+    echo '<script>(function(){'
+        . 'function clean(s){return String(s||"").replace(/\s*\/\s*/g," & ").replace(/[?%$=]/g,"").replace(/\s+/g," ").trim();}'
+        . 'function g(){try{return clean(decodeURIComponent((new URLSearchParams(location.search).get("to")||"").replace(/\+/g," ")))}catch(e){return""}}'
+        . 'var bad=/[?%$=\/]/;'
+        . 'var sels=["input[name=\"author\"]","#author","input.cui-input[name=\"author\"]","input[name*=\"nama_tamu\"]","input[name*=\"nama tamu\"]","input[id*=\"nama_tamu\"]","input[id*=\"nama\"]","textarea[name*=\"nama_tamu\"]","input[name=\"form_fields[nama_tamu]\"]","input[name=\"form_fields[name]\"]","#form-field-nama_tamu","#form-field-nama","#form-field-author"];'
+        . 'function setVal(el,to){if(!el)return;var v=el.value||"";if(!v.trim()){el.value=to;}else if(bad.test(v)){el.value=clean(v);}else{return;}el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}));}'
+        . 'function fillName(){var to=g();if(!to)return;for(var i=0;i<sels.length;i++){try{var els=document.querySelectorAll(sels[i]);for(var j=0;j<els.length;j++){setVal(els[j],to);}}catch(e){}}}'
+        . 'function ensureFields(e){var form=e&&e.target;if(!form||!form.querySelector)return;'
+        // The kit validates on its own submit handler (bubbling on document);
+        // this capture handler runs first, so a "/" never reaches validation.
+        . 'var a=form.querySelector("input[name=\"author\"]")||form.querySelector("#author");'
+        . 'if(a&&bad.test(a.value||"")){a.value=clean(a.value);a.dispatchEvent(new Event("input",{bubbles:true}));}'
+        . 'if(!form.matches||!form.matches("form[id^=\"commentform\"]"))return;'
+        . 'var to=g();if(a&&!a.value.trim()&&to){a.value=to;}'
+        . 'if(!form.querySelector("input[name=\"email\"]")){var h=document.createElement("input");h.type="hidden";h.name="email";h.value="anonymous@wordpress.com";h.setAttribute("autocomplete","off");form.appendChild(h);}}'
+        . 'fillName();document.addEventListener("DOMContentLoaded",fillName);document.addEventListener("submit",ensureFields,true);'
+        . 'var obs=new MutationObserver(function(){fillName();});try{obs.observe(document.body,{childList:true,subtree:true});}catch(e){}'
+        . 'if(window.jQuery){jQuery(document).on("elementor/popup/show",function(){setTimeout(fillName,200);});}'
+        . 'document.addEventListener("click",function(e){var t=e.target;if(t&&t.closest&&t.closest(".elementor-button,.cui-link,.cui-button")){setTimeout(fillName,120);}},true);'
+        . '})();</script>';
 });
 
 // WeddingPress comment kit (ck2) rejects author names longer than 30 chars in its
@@ -2993,6 +3071,8 @@ add_action('wp_footer', function () {
 // message is valid AND the failure is length-only, submit the same fields
 // directly to wp-comments-post.php (server accepts + auto-approves via
 // pre_comment_approved), then reload so the comment appears. Normal flow untouched.
+// Slashes no longer reach this branch: the prefill script above rewrites
+// ? % $ = / before validation, so only the 30-char cap remains as a trigger.
 add_action('wp_footer', function () {
     if (!is_singular()) return;
     echo '<script>(function(){'
@@ -3008,7 +3088,9 @@ add_action('wp_footer', function () {
         . 'if(content.length<2)return;'
         . 'var authorEl=form.querySelector("input#author")||form.querySelector("input[name=\\"author\\"]");'
         . 'var author=((authorEl||{}).value||"").replace(/\\s+/g," ").trim();'
-        . 'if(author.length<=30||/[?%$=\\/]/.test(author))return;'
+        // Only the 30-char cap can still fail here: the capture handler in the
+        // prefill script already rewrote ? % $ = / out of the value.
+        . 'if(author.length<=30)return;'
         . 'done=true;'
         . 'var data=new FormData();'
         . 'data.append("author",author);'

@@ -1,12 +1,31 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { autoGenerateGuestLinks, isFallbackGuestSlug, isValidGuestSlug, prettifyGuestSlug } from "@/lib/guest-link"
+import {
+  autoGenerateGuestLinks,
+  findGuestForTo,
+  isFallbackGuestSlug,
+  isValidGuestSlug,
+  normalizeGuestSlug,
+  prettifyGuestSlug,
+} from "@/lib/guest-link"
 import { markInvitationOpened } from "@/lib/recordInvitationOpen"
 import { checkRateLimit, getClientIp, rateLimited } from "@/lib/rateLimit"
 
 const ALLOWED = new Set(["HADIR", "TIDAK_HADIR"])
 
 const GUEST_FIELDS = "id, name, slug, table_number, qr_token, rsvp_status, rsvp_pax_count, rsvp_message, rsvp_responded_at"
+
+// Display name for a row created from a hand-typed ?to=: keep the guest's own
+// wording ("Budi / Ani"), strip markup/control characters, cap the length.
+function toDisplayName(raw: string, fallbackSlug: string): string {
+  const cleaned = (raw || "")
+    .normalize("NFC")
+    .replace(/[<>\u0000-\u001F\u007F]/g, "")
+    .replace(/[ \t]+/g, " ")
+    .trim()
+    .slice(0, 80)
+  return cleaned || prettifyGuestSlug(fallbackSlug) || "Tamu Undangan"
+}
 
 // Fleksibel-mode RSVP: resolves the inputted slug to an existing guest, or
 // provisions a visible "Fleksibel"-category row on first submit so RSVP,
@@ -15,23 +34,30 @@ const GUEST_FIELDS = "id, name, slug, table_number, qr_token, rsvp_status, rsvp_
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { wedding_profile_id, slug, rsvp_status, rsvp_pax_count, rsvp_message } = body
+    const { wedding_profile_id, slug, raw_slug, display_name, rsvp_status, rsvp_pax_count, rsvp_message } = body
 
     if (typeof wedding_profile_id !== "string" || !wedding_profile_id) {
       return NextResponse.json({ error: "Profil tidak valid" }, { status: 400 })
     }
-    if (!isValidGuestSlug(slug)) {
+
+    // ?to= may be a slug ("Budi-Santoso") or a hand-typed display name
+    // ("Budi / Ani"); both normalize to the same slug so the row and every
+    // later link agree.
+    const raw = typeof slug === "string" ? slug : ""
+    const normalized = normalizeGuestSlug(raw)
+
+    if (!isValidGuestSlug(normalized)) {
       return NextResponse.json({ error: "Nama tamu tidak valid" }, { status: 400 })
     }
     // The generic fallback identity is display-only and can never RSVP into a row.
-    if (isFallbackGuestSlug(slug)) {
+    if (isFallbackGuestSlug(raw) || isFallbackGuestSlug(normalized)) {
       return NextResponse.json({ error: "Tautan umum tidak dapat digunakan untuk RSVP. Gunakan tautan undangan dengan nama Anda." }, { status: 403 })
     }
     if (typeof rsvp_status !== "string" || !ALLOWED.has(rsvp_status)) {
       return NextResponse.json({ error: "Kehadiran tidak valid" }, { status: 400 })
     }
 
-    const rl = checkRateLimit(`flexrsvp:${getClientIp(req)}:${wedding_profile_id}:${slug}`, 10, 60_000)
+    const rl = checkRateLimit(`flexrsvp:${getClientIp(req)}:${wedding_profile_id}:${normalized}`, 10, 60_000)
     if (!rl.ok) return rateLimited(rl.retryAfterMs!)
 
     const { data: profile } = await supabaseAdmin
@@ -49,33 +75,23 @@ export async function POST(req: Request) {
 
     const maxPax = profile.rsvp_max_pax != null ? profile.rsvp_max_pax : 2
 
-    let guestId: string | null = null
-    const bySlug = await supabaseAdmin
-      .from("guests")
-      .select("id")
-      .eq("wedding_profile_id", wedding_profile_id)
-      .eq("slug", slug)
-      .maybeSingle()
-    if (bySlug.data) {
-      guestId = bySlug.data.id
-    } else {
-      const bySlugInsensitive = await supabaseAdmin
-        .from("guests")
-        .select("id")
-        .eq("wedding_profile_id", wedding_profile_id)
-        .ilike("slug", slug)
-        .maybeSingle()
-      if (bySlugInsensitive.data) guestId = bySlugInsensitive.data.id
-    }
+    // Resolve exactly like the invitation page: raw value first (legacy slugs
+    // such as "Ibu--Grace-…" are not slugify fixed points), then normalized.
+    const lookupValue = typeof raw_slug === "string" && raw_slug.trim() ? raw_slug : normalized
+    const found = await findGuestForTo<{ id: string }>(wedding_profile_id, lookupValue, "id")
+    let guestId: string | null = found.guest?.id ?? null
 
     if (!guestId) {
-      const name = prettifyGuestSlug(slug) || "Tamu Undangan"
+      const name = toDisplayName(
+        typeof display_name === "string" ? display_name : "",
+        normalized
+      )
       const { data: created, error: createError } = await supabaseAdmin
         .from("guests")
         .insert({
           wedding_profile_id,
           name,
-          slug,
+          slug: normalized,
           category: "Fleksibel",
           added_manually: false,
         })
@@ -87,7 +103,7 @@ export async function POST(req: Request) {
           .from("guests")
           .select("id")
           .eq("wedding_profile_id", wedding_profile_id)
-          .ilike("slug", slug)
+          .ilike("slug", normalized)
           .maybeSingle()
         if (!retry.data) {
           return NextResponse.json({ error: createError?.message || "Gagal menyimpan" }, { status: 500 })
@@ -95,7 +111,7 @@ export async function POST(req: Request) {
         guestId = retry.data.id
       } else {
         guestId = created.id
-        await autoGenerateGuestLinks(wedding_profile_id, [{ id: created.id, name, slug }])
+        await autoGenerateGuestLinks(wedding_profile_id, [{ id: created.id, name, slug: normalized }])
       }
     }
 
@@ -105,8 +121,8 @@ export async function POST(req: Request) {
     }
     if (rsvp_status === "HADIR") {
       const pax = Number(rsvp_pax_count)
-      const raw = Number.isFinite(pax) && pax > 0 ? pax : 1
-      updates.rsvp_pax_count = Math.max(1, Math.min(maxPax, raw))
+      const paxRaw = Number.isFinite(pax) && pax > 0 ? pax : 1
+      updates.rsvp_pax_count = Math.max(1, Math.min(maxPax, paxRaw))
     } else {
       updates.rsvp_pax_count = null
     }

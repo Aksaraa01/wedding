@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
     const guests = rows.map((r: Record<string, string>) => ({
       wedding_profile_id: wedding_profile_id,
-      name: sanitizeGuestName(r.name).trim(),
+      name: sanitizeGuestName(r.name).replace(/\s+/g, " ").trim(),
       phone_number: normalizePhone((r.phone_number || r.whatsapp || "").toString()),
       category: (r.category || r.relation || "").toString().trim(),
       table_number: (r.table_number || "").toString().trim(),

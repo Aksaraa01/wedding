@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { autoGenerateGuestLinks } from "@/lib/guest-link"
+import { autoGenerateGuestLinks, sanitizeGuestName } from "@/lib/guest-link"
 
 export async function GET(req: NextRequest) {
   try {
@@ -62,10 +62,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Nama tamu wajib diisi" }, { status: 400 })
     }
 
+    // The dashboard UI already strips the guest-name charset, but a direct API
+    // call could store "/" (or other symbols) that later break the WP guestbook
+    // and the slug. Keep the name and the slug it produces in agreement.
+    const cleanName = sanitizeGuestName(String(name)).replace(/\s+/g, " ").trim()
+    if (!cleanName) {
+      return NextResponse.json({ error: "Nama tamu wajib diisi" }, { status: 400 })
+    }
+
     const digits = (phone_number || "").replace(/\D/g, "").replace(/^0+/, "")
     const normalized = digits ? (digits.startsWith("62") ? `+${digits}` : `+62${digits}`) : ""
 
-    const nameMatch = name.trim()
+    const nameMatch = cleanName
     let dupQuery = supabaseAdmin
       .from("guests")
       .select("id")
@@ -88,7 +96,7 @@ export async function POST(req: Request) {
       .from("guests")
       .insert({
         wedding_profile_id,
-        name,
+        name: cleanName,
         phone_number: normalized,
         category,
         table_number,

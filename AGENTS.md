@@ -63,6 +63,12 @@
 - Derivatives: `media/thumbs/{width}/{original-path-without-ext}.webp` (`src/lib/storageUrl.ts`); generated on upload, backfill with `scripts/backfill-thumbs.mjs`. Originals stay for download/share/print/lightbox; UI thumbnails fall back to the original on error.
 - On the Linux standalone runtime, `supabase-js` rejects Node `Buffer` upload bodies with `ArrayBuffer: SharedArrayBuffer is not allowed`. Always wrap in-memory output as `new Blob([new Uint8Array(buf)], { type })` before `.storage.upload()` (see `src/lib/storage.ts`).
 
+### Guest links / `?to=`
+- `?to=` may be our generated slug **or** a hand-typed display name (`Budi / Ani`, `Bapak/Ibu`). Always resolve it with `findGuestForTo()` (`src/lib/guest-link.ts`), which tries raw exact → raw case-insensitive (slug-shaped only) → `normalizeGuestSlug(to)`. Never feed a raw `?to=` into `.ilike()` — `%`/`_` are LIKE wildcards and will match another guest (`?to=%` used to hijack/overwrite a random guest).
+- Raw-first is mandatory: stored slugs are *not* all slugify fixed points (`Ibu--Grace-…`, slugs over 80 chars). Normalization is only a fallback, so no existing link can break. `scripts/guest-slug-check.mjs` asserts this against the configured Supabase (`node --experimental-strip-types scripts/guest-slug-check.mjs`).
+- Never store a `/` in a slug: `normalizeGuestSlug()` / `slugifyName()` map it to `-`. Names may keep it, but link builders must use `guest.slug || slugifyName(guest.name)`.
+- WP guestbook/RSVP (WeddingPress comment-kit/kit2) validates the author with `/^[^?%$=\/]{1,30}$/` and answers “Mohon maaf! Khusus untuk tamu undangan”. The mu-plugin's `wp_footer` script fills the field with `aksaraa_clean_guest_name()` (`/` → ` & `, drops `? % $ =`); keep the PHP and JS rules in sync.
+
 ### Git
 - Commit directly to `origin main`
 - No PR workflow

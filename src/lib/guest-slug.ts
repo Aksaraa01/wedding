@@ -18,11 +18,25 @@ export function prettifyGuestSlug(slug: string | null | undefined): string {
   return ((slug || "").replace(/[-_]+/g, " ")).trim()
 }
 
+// Stored slugs (and ?to= after normalization) are capped at this length.
+export const MAX_GUEST_SLUG_LENGTH = 80
+
 // Raw ?to= values must look like slugs we generate (letters, digits, dot,
 // hyphen) and stay short — prevents junk rows from the flexible RSVP path.
 export function isValidGuestSlug(slug: string | null | undefined): boolean {
-  if (!slug || slug.length > 80) return false
+  if (!slug || slug.length > MAX_GUEST_SLUG_LENGTH) return false
   return /^[A-Za-z0-9.-]+$/.test(slug)
+}
+
+// Turn any hand-typed ?to= value into the slug we would have generated for it:
+// "Budi / Ani", "Budi  Ani" and "Budi-Ani" all become "Budi-Ani". Slashes and
+// other symbols never reach a stored slug, so URLs, LIKE lookups and WP
+// forwarding stay safe. Slugs are already slugify fixed points, so this is a
+// no-op for every link we generate ourselves.
+export function normalizeGuestSlug(raw: string | null | undefined): string {
+  const slug = slugifyName((raw || "").normalize("NFC"))
+  if (slug.length <= MAX_GUEST_SLUG_LENGTH) return slug
+  return slug.slice(0, MAX_GUEST_SLUG_LENGTH).replace(/-+$/, "")
 }
 
 // Generic fallback identity for Fleksibel bare links (no ?to=). It is
@@ -31,7 +45,14 @@ export const FALLBACK_GUEST_SLUG = "Teman-Partner"
 export const FALLBACK_GUEST_NAME = "Teman & Partner"
 
 export function isFallbackGuestSlug(slug: string | null | undefined): boolean {
-  return prettifyGuestSlug(slug).toLowerCase() === "teman & partner"
+  const raw = (slug || "").trim().toLowerCase()
+  if (!raw) return false
+  // The generic link ships as ?to=Teman-Partner (the slug form). Comparing the
+  // prettified value only ever matched "Teman & Partner", so the slug slipped
+  // through and created junk "Teman Partner" rows in Fleksibel mode.
+  if (raw === FALLBACK_GUEST_SLUG.toLowerCase()) return true
+  const pretty = prettifyGuestSlug(raw).toLowerCase()
+  return pretty === FALLBACK_GUEST_NAME.toLowerCase() || pretty === "teman partner"
 }
 
 // Guest identity categories for the Galeri photobooth. Single source of

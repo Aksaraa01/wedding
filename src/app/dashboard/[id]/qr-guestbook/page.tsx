@@ -8,7 +8,7 @@ import ProfileMenu from "@/components/ProfileMenu"
 import UpgradePackageModal from "@/components/UpgradePackageModal"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import { MSG_CATEGORIES, MSG_TEMPLATES, MSG_VARS, MsgCategory, cleanMessageForCell, isValidMsgCategory, renderMessage } from "@/lib/messageTemplates"
-import { FALLBACK_GUEST_SLUG, FALLBACK_GUEST_NAME } from "@/lib/guest-slug"
+import { FALLBACK_GUEST_SLUG, FALLBACK_GUEST_NAME, slugifyName } from "@/lib/guest-slug"
 import { paymentWaLink } from "@/lib/contact"
 import { resolveCoupleName } from "@/lib/coupleName"
 import { normalizePhone } from "@/lib/packages"
@@ -376,11 +376,16 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
     } catch {}
   }
 
+  // Always hand out a slug-shaped ?to=. A guest row without a generated slug
+  // (unpaid profile / QR-only row) would otherwise put the raw display name in
+  // the URL, and a name containing "/" breaks the WP guestbook + RSVP.
+  const guestLinkParam = (guest: Guest) => guest.slug || slugifyName(guest.name)
+
   const handleCopyUndangan = async (guest: Guest) => {
     if (!profile) return
-    const url = guest.slug
-      ? `https://${profile.slug}.wedding.aksaraa.com/?to=${encodeURIComponent(guest.slug)}`
-      : `https://${profile.slug}.wedding.aksaraa.com/w/${profile.slug}?to=${encodeURIComponent(guest.name)}&qr_token=${encodeURIComponent(guest.qr_token || "")}`
+    const url = guest.qr_token && !guest.slug
+      ? `https://${profile.slug}.wedding.aksaraa.com/w/${profile.slug}?to=${encodeURIComponent(guestLinkParam(guest))}&qr_token=${encodeURIComponent(guest.qr_token)}`
+      : `https://${profile.slug}.wedding.aksaraa.com/?to=${encodeURIComponent(guestLinkParam(guest))}`
     try {
       await navigator.clipboard.writeText(url)
       setCopiedId(guest.id)
@@ -396,10 +401,10 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
 
   const guestUndanganUrl = (guest: Guest) => {
     if (!profile) return ""
-    return guest.slug
-      ? `https://${profile.slug}.wedding.aksaraa.com/?to=${encodeURIComponent(guest.slug)}`
-      : guest.qr_token
-      ? `https://${profile.slug}.wedding.aksaraa.com/w/${profile.slug}?to=${encodeURIComponent(guest.name)}&qr_token=${encodeURIComponent(guest.qr_token)}`
+    return guest.qr_token && !guest.slug
+      ? `https://${profile.slug}.wedding.aksaraa.com/w/${profile.slug}?to=${encodeURIComponent(guestLinkParam(guest))}&qr_token=${encodeURIComponent(guest.qr_token)}`
+      : guest.slug || guest.qr_token
+      ? `https://${profile.slug}.wedding.aksaraa.com/?to=${encodeURIComponent(guestLinkParam(guest))}`
       : ""
   }
 
