@@ -380,6 +380,22 @@ body:has(.eg-root.is-locked) {
   text-align: center;
 }
 
+/* The plate is centred on the embroidery, which on wide screens is all wisteria
+   and pearls — a soft paper veil keeps the names legible without hiding the art. */
+.eg-welcome__body::before {
+  content: "";
+  position: absolute;
+  inset: -14% -8%;
+  z-index: -1;
+  background: radial-gradient(
+    62% 48% at 50% 50%,
+    rgba(246, 243, 238, 0.94) 0%,
+    rgba(246, 243, 238, 0.78) 46%,
+    rgba(246, 243, 238, 0) 78%
+  );
+  pointer-events: none;
+}
+
 .eg-welcome__names {
   display: flex;
   flex-direction: column;
