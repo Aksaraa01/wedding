@@ -1410,9 +1410,12 @@
    heading like it does in the reference. */
 .lc-wishes__mark {
   display: block;
-  width: clamp(84px, 24vw, 104px);
-  margin: 0 auto 20px;
-  color: rgba(250, 244, 240, 0.86);
+  /* The artwork is detailed, so it needs the reference's size (160 px on a
+     phone, 208 px on the wide column) rather than an icon-sized box. */
+  width: clamp(150px, 42vw, 200px);
+  height: auto;
+  margin: 0 auto 18px;
+  color: rgba(250, 244, 240, 0.9);
 }
 
 .lc-wishes__intro {

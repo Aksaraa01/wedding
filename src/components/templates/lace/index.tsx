@@ -7,6 +7,7 @@ import { AKSARAA_WA_NUMBER } from "@/lib/contact"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import { countdownTarget, flattenPhotos, formatDotDate, gcalLink, groomPhoto, bridePhoto, initialsOf, videoSource } from "../shared/lib"
 import Wishes from "./Wishes"
+import WishesHeart from "./WishesHeart"
 import "./lace.css"
 
 // Art shipped with the template. Decorative surfaces only — never couple data.
@@ -212,32 +213,6 @@ function sealAt(time: number) {
     }
   }
   return SEAL_TRACK[SEAL_TRACK.length - 1]
-}
-
-// The reference's RSVP mark: a line-drawn heart tied with a ribbon and holding
-// the couple. It is inline SVG (there is no shipped asset for it) so it inherits
-// the panel's ink and stays crisp at any size.
-function HeartMonogram() {
-  return (
-    <svg className="lc-wishes__mark" viewBox="0 0 120 130" role="presentation" aria-hidden="true">
-      <g fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        {/* ribbon */}
-        <path d="M60 26c-8-9-19-13-24-6-5 7 3 14 24 8" />
-        <path d="M60 26c8-9 19-13 24-6 5 7-3 14-24 8" />
-        <circle cx="60" cy="27" r="3.2" />
-        <path d="M57 30c-4 12-13 20-18 33" opacity="0.85" />
-        <path d="M63 30c4 12 13 20 18 33" opacity="0.85" />
-        {/* heart */}
-        <path d="M60 112C36 95 20 79 20 61c0-14 10-23 22-23 8 0 14 4 18 11 4-7 10-11 18-11 12 0 22 9 22 23 0 18-16 34-40 51Z" />
-        {/* the couple: shoulders lean into each other */}
-        <circle cx="53" cy="62" r="5.6" />
-        <path d="M41 89c1-11 5-18 12-20 6 2 9 9 9 20" />
-        <circle cx="68" cy="63.5" r="5" />
-        <path d="M61 89c0-10 3-16 7-18 5 2 8 8 9 18" />
-        <path d="M68 58.5c1.6-3.6 6-3.9 7.6-.6" />
-      </g>
-    </svg>
-  )
 }
 
 export default function Lace(profile: TemplateProps) {
@@ -898,7 +873,7 @@ export default function Lace(profile: TemplateProps) {
         <section className="lc-panel lc-wishes" data-section="wishes">
           <span className="lc-band lc-band--top" style={bandStyle(ART_BAND)} aria-hidden="true" />
           <div className="lc-panel__body lc-wishes__body" data-lc-reveal>
-            <HeartMonogram />
+            <WishesHeart className="lc-wishes__mark" />
             <h2 className="lc-display lc-panel__title">Wishes</h2>
             <p className="lc-body lc-wishes__intro">
               {tc.wishes_intro ||
