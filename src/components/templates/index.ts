@@ -1067,7 +1067,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "lace",
     name: "Lace",
-    description: "Undangan bergaya renda ivory dan burgundy — sampul bersegel lilin, hitung mundur berpita renda, lokasi ilustrasi vila, susunan acara, dress code, turut mengundang, hadiah, dan ucapan.",
+    description: "Undangan bergaya renda ivory dan burgundy — sampul bertulle bersegel lilin, sambutan, mempelai, hitung mundur berpita renda, acara, susunan acara, dress code, turut mengundang, galeri, video, hadiah, dan ucapan.",
     theme: {
       fonts: { display: "Cormorant", script: "WindSong", body: "DM Sans" },
       colors: {
@@ -1082,20 +1082,20 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.9, stagger: 0.18 },
     },
     content: {
-      // The reference is a photo-less design: the cover is a sealed portrait
-      // plate and every other surface is lace art. No photo slots at all, so
-      // the editor hides the photo fields and completeness waives gallery/video.
+      // No cover photo (the cover is a sealed plate of lace art), but the
+      // mempelai block DOES take a portrait per person, and the gallery + film
+      // are used too. Only the cover slots are switched off.
       cover_slots: 0,
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,
       sections: {
-        opening_description: false,
+        opening_description: true,
         quote: false,
         countdown: true,
-        video: false,
+        video: true,
         story: false,
-        gallery: false,
+        gallery: true,
         gift: true,
         inviting: true,
         dresscode: true,

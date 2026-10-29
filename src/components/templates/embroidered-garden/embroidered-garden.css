@@ -414,6 +414,8 @@ body:has(.eg-root.is-locked) {
   max-width: 34ch;
   font-size: 15.5px;
   color: #45564d;
+  /* Line breaks in the kalimat pembuka (salam, doa) are intentional. */
+  white-space: pre-line;
 }
 
 /* ── Countdown ───────────────────────────────────────────────── */
@@ -1141,6 +1143,16 @@ body:has(.eg-root.is-locked) {
   border: 1px solid rgba(225, 209, 183, 0.5);
   background: #000;
   cursor: default;
+}
+
+/* Inline autoplay player: the same gilded frame as the poster it replaces. */
+.eg-film__player--inline {
+  margin-inline: auto;
+  max-height: none;
+  aspect-ratio: 16 / 10;
+  padding: 7px;
+  border: 1px solid var(--eg-gold-soft);
+  background: var(--eg-paper);
 }
 
 .eg-film__player iframe,

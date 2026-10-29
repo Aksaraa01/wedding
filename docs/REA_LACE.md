@@ -41,28 +41,34 @@ Twelve reference blocks, in order:
 
 | # | Reference section | What we shipped | Notes |
 |---|---|---|---|
-| 1 | Landing (sealed cover) | `cover` (gate) | Sealed portrait plate + wax seal + guest + "Open the Invitation". Tapping plays the frame film, then hands over |
-| 2 | Opening / names | `cover` (section) | "Together with their families", names, `20.05.2027`, villa illustration, venue, city |
-| 3 | Welcome copy | `welcome` | Lace band lead-in, still-life vignette, greeting |
-| 4 | Countdown | `countdown` | Burgundy panel (`#511f2b` base, `#702b3c` body) with the bow frame at 55 % and lace bands top/bottom |
-| 5 | Location | `location` | Script venue, gold city caps, lace oval plate, "Get directions" |
-| 6 | The Day | `day` | Pearl-garland header + timeline rows (vignette · time · thread · text) + banquet-table footer |
-| 7 | Dress code | `dresscode` | Lace frame, illustrated couple, swatch row, pearls down both edges |
-| 8 | **Transportation** | **`inviting` — "Turut Mengundang"** | Deliberate replacement, see §5 |
-| 9 | Where to Stay | *dropped* | No Aksaraa field for it; keeping it would mean inventing hotel copy per couple |
-| 10 | Wedding Gift | `gift` | Lace panel (`panel-lace.webp`) around the accordion accounts + address |
-| 11 | RSVP | `wishes` | Name + note form, then the approved-wishes feed, 5 per page |
-| 12 | Closing | `closing` | "We cannot wait to celebrate with you.", names in script, long date, balcony art, Aksaraa footer |
+| 1 | Landing (sealed cover) | `cover` (gate) | Still sealed plate + our wax plaque + guest + "Open the Invitation". Tapping plays the reference's own envelope film (`opening.mp4`, 5 s) with the plaque riding the baked seal, then fades the gate over 2 s |
+| 2 | Opening / names | `cover` (section) | "Together with their families", names, `20.05.2027`, villa illustration — no venue/city (dropped on request) |
+| 3 | Welcome copy | `welcome` | Lace band lead-in, still-life vignette, the couple's *kalimat pembuka* |
+| 4 | Mempelai | `couple` | Two matted portraits, script full names, parents, Instagram — added in-house, no reference block |
+| 5 | Countdown | `countdown` | Burgundy panel (`#511f2b` base, `#702b3c` body) with the bow frame at 55 % and lace bands top/bottom |
+| 6 | Events (akad / resepsi) | `events` | One card per `sessions` row: script name, date + time, venue, address, "Get directions". Replaces the reference Location block |
+| 7 | The Day | `day` | Pearl-garland header + timeline rows (vignette · time · thread · text) + banquet-table footer |
+| 8 | Dress code | `dresscode` | Lace frame, illustrated couple, swatch row, pearls down both edges |
+| 9 | **Transportation** | **`inviting` — "Turut Mengundang"** | Deliberate replacement, see §5 |
+| 10 | Where to Stay | *dropped* | No Aksaraa field for it; keeping it would mean inventing hotel copy per couple |
+| 11 | Wedding Gift | `gift` | Lace panel (`panel-lace.webp`) around the accordion accounts + address |
+| 12 | Gallery + Film (in-house) | `gallery`, `video` | Ivory gallery grid (first tile 16:10, rest 4:5 in gold-matted ivory), burgundy film panel with a 16:9 autoplaying, muted, looping player |
+| 13 | Wishes | `wishes` | Name + note form, then the approved-wishes feed, 5 per page — titled "Wishes", not "RSVP" |
+| 14 | Closing | `closing` | "We cannot wait to celebrate with you.", names in script, long date, balcony art, Aksaraa footer |
 
 Section order shipped:
 
 ```
-cover → welcome → countdown → location → day → dresscode
-      → inviting → gift → wishes → closing
+cover → welcome → couple → countdown → events → day → dresscode
+      → inviting → gallery → video → gift → wishes → closing
 ```
 
-`gallery`, `story`, `video`, `quote`, `livestream` are **off** in
+`story`, `quote` and `livestream` stay **off** in
 `TEMPLATE_CONFIGS["lace"].content.sections` — the design has no surface for them.
+`gallery` and `video` are **on**: they are the only blocks that carry the couple's
+own photographs and film. The reference's `location` block is gone; the venue now
+lives inside the event cards, so `location_intro` was removed from
+`src/lib/templateExtras.ts`.
 
 ---
 
@@ -110,18 +116,21 @@ An empty list removes the whole panel — no orphan heading.
 
 ## 6. Asset audit — what shipped
 
-28 files, 3.3 MB total, in `public/templates/lace/`:
+28 files, 5.5 MB total, in `public/templates/lace/` (two of them video):
 
 | Group | Files |
 |---|---|
-| Cover | `cover-sealed.jpg` (1080×1920, the baked-seal plate), `cover-frame.webp` (720×1280, seal-free frame extracted from the film), `cover-film.mp4` (720×1280, 2.4 s) |
+| Cover | `cover-sealed.jpg` (1080×1920, first frame: tulle + pearls + baked seal), `opening.mp4` (1080×1920, 5.04 s — the reference's envelope film), `cover-frame.webp` (720×1280, seal-free still), `hero-bg.mp4` (720×1280, 2.4 s — the living cover backdrop) |
 | Lace bands | `band-lace.webp` (1300×533, crown: flowers + foliage), `band-border.webp` (1400×594, rose-and-net border), `panel-lace.webp` (992×925) |
 | Ornament | `bow-frame.webp` (1627×1513 full countdown frame), `pearls.webp` |
-| Location | `oval-location.webp` (1100×1629 lace oval), `villa.svg` (219×105 line illustration, `#511F2C`) |
+| Cover art | `villa.svg` (219×105 line illustration, `#511F2C`) — the oval from the dropped Location block is not shipped |
 | Dress code | `dress-frame.webp` (848×1264), `dress-couple.webp` (640×994) |
 | The Day | `garland.webp` + `garland-0..4.webp` (pearl garland, base + 5 strands), `step-{welcome,ceremony,cocktail,champagne,dinner,dancing}.webp`, `table.webp` |
 | Scenery | `balcony.webp`, `tulle.webp` |
 | Listing | `thumbnail.webp` (720×1520, 9:19 crop of the sealed plate) |
+
+`cover-film.mp4` and `oval-location.webp` were removed: the gate now plays the
+reference's envelope film (`opening.mp4`) and the Location block was dropped.
 
 **Dropped on purpose:** `until-were-gone-opt.mp3` (their music),
 `banquet-breeze-map.png` (a New York map — reference data), `dance-floor.mp4`,
@@ -136,52 +145,70 @@ plate on a cream background where banding shows at lower quality.
 
 ---
 
-## 7. Photo-less: why `no_photo` is true
+## 7. Photos: no cover, but portraits + gallery + film
 
-The reference has **no photo slots** — every surface is either lace art or type.
-Shipping it with photo slots would have meant inventing a gallery that the design
-does not have room for.
+The reference's surfaces are lace art, but a real couple expects their own faces
+and photographs somewhere. Lace therefore ships:
 
-Therefore:
+- `web_templates.no_photo = false` — photos ARE used
+- `content.cover_slots = 0` — the cover is a sealed plate of art, so there is no
+  cover-photo upload at all (the editor hides it off `cover_slots === 0`)
+- `content.groom_photo` / `bride_photo` = `"single"` — one matted 4:5 portrait
+  per person in the `couple` block
+- `sections.gallery = true`, `sections.video = true`
+- `story_photo = false` — there is no love-story block
 
-- `web_templates.no_photo = true` for `lace`
-- `TEMPLATE_CONFIGS["lace"].content.cover_slots = 0`, and the gallery / story /
-  video / quote sections are off
-- `src/lib/invitationCompleteness.ts` already waives `galeri` and `video` when
-  `no_photo_template` is true (lines ~127–137), so a couple on Lace can publish
-  without ever opening a photo field
-- the editor hides the photo accordions off the same flag
+`person_photos` exists in `ContentSpec` for designs that show no portraits at
+all; Lace leaves it absent (⇒ portraits allowed). The editor and ops both gate
+cover fields on `cover_slots` and portrait fields on `person_photos`, so neither
+ever offers an upload the template would not render.
 
-Stored photos are never deleted — switching a couple to a photo template brings
-their existing photos back.
+Stored photos are never deleted — switching a couple to another template keeps
+everything they uploaded.
 
 ---
 
 ## 8. Build log — what actually shipped (and why)
 
-### 8a. The gate is a pure sealed cover
+### 8a. The gate is the reference's envelope film
 
-Two separate art files, and they must not be confused:
+The opening **is** a film, and it is the reference's own: `bellagio-2-opt.mp4`
+(1080×1920, 5.04 s, 1.9 MB), shipped here as `opening.mp4`. Its first frame is a
+tulle veil gathered by a wax seal; by 3 s the veil has lifted off and the seal
+has travelled out of the top of the frame. `hero-bg.mp4` is a *different* asset —
+the muted 2.4 s loop behind the opened hero — and is used as the cover card's
+living backdrop (`cover-sealed.jpg` / `cover-frame.webp` are stills frame-grabbed
+from the two videos, used as posters and as no-video fallbacks).
 
-- `cover-sealed.jpg` — the reference poster, **with** a `B & A` wax seal baked
-  into the pixels at centre 50.2 % / 50.9 %, 23.7 % × 16.35 % of the plate.
-- `cover-frame.webp` — a frame pulled out of `cover-film.mp4`, **no** seal.
+Three things follow from the film:
 
-Because the bake is not a DOM element it cannot be removed — only covered. Our
-seal is an SVG plaque sized **25 % × 17.6 %** (slightly larger than the measured
-footprint) on the same centre, carrying *our* couple's initials. That is why the
-gate shows `cover-sealed.jpg` and the film shows `cover-frame.webp`.
+1. **The seal is baked into the pixels.** It carries the reference couple's
+   initials and cannot be edited. As in Embroidered Garden, we cover it with our
+   own SVG plaque (`.lc-gate__seal`) sized to the measured footprint.
+2. **It moves, so the plaque must move with it.** `SEAL_TRACK` in `index.tsx` is
+   a list of `{t, cx, cy, w}` samples read off the film's frames (centre 51 % at
+   t=0 → 44.5 % at 1 s → 36 % at 1.6 s → out of frame by 3.1 s). A
+   `requestAnimationFrame` loop reads `video.currentTime` and writes
+   left/top/width, so the plaque is glued to the seal instead of drifting on its
+   own timeline. Sampling the film *once* (rather than trusting a CSS
+   transition) is what keeps the baked rim from peeking out mid-flight.
+3. **Timing.** The gate fades over 2 s from the film's last second (`rest < 1.1`
+   in `onTimeUpdate`) and the invitation is handed over when the fade completes —
+   the same two-beat exit the reference uses. `onEnded` only guarantees the fade
+   started; an 8 s cap covers a stalled download, and a `play()` rejection drops
+   straight to the fade. `prefers-reduced-motion` skips the film entirely
+   (`display: none`, poster remains).
 
-The gate owns the tap on the whole surface (`onClick` on `.lc-gate`, with the
-button as a duplicate affordance) and the video's `ended` event reveals the
-invitation, capped at 4.5 s so a stalled download can never trap a guest.
-`prefers-reduced-motion` skips the film entirely.
+The gate owns the whole surface as the tap target, and the film is paused once
+the invitation is open so it never decodes behind the page.
 
 ### 8b. Names live in the cover section, not on the gate
 
 Mirrors the reference's landing → opening flow: the gate is sealed and anonymous
-except for the guest's name; the couple's names, date, venue and city appear in
-the `cover` section the moment the invitation opens.
+except for the guest's name; the couple's names, date and villa illustration
+appear in the `cover` section the moment the invitation opens. The venue and city
+lines were removed on request and the stack was moved down (`padding: 24% 12% 3%`)
+so it reads as centred in the frame rather than hugging the lace crown.
 
 ### 8c. Band overhang: the bottom border is mirrored
 
@@ -280,18 +307,20 @@ so the crest dissolves into the paper instead of ending in a hard vertical line.
 ## 9. Registration checklist (what a new template touches)
 
 1. `src/components/templates/lace/{index.tsx,Wishes.tsx,lace.css}`
-2. `public/templates/lace/` (28 assets)
+2. `public/templates/lace/` (28 assets, incl. `opening.mp4` + `hero-bg.mp4`)
 3. `src/components/templates/index.ts` — `TEMPLATE_MAP` import + entry, and a
-   `TEMPLATE_CONFIGS` entry (theme, `cover_slots: 0`, section flags, `extras: true`)
+   `TEMPLATE_CONFIGS` entry (theme, `cover_slots: 0`, portraits on, gallery + video
+   on, `extras: true`)
 4. `src/components/templates/demoProps.ts` — `DEMO_PROPS_BY_CODE["lace"]`
-5. `src/lib/templateExtras.ts` — per-template placeholders; `location_intro` was
-   added as a new field for this template
-6. `src/lib/templateSections.ts` — `TEMPLATES_WITHOUT_OPENING` (no "Kalimat
-   Pembuka" block)
+5. `src/lib/templateExtras.ts` — per-template placeholders; Lace contributes
+   `profiles_intro` (mempelai), `events_intro` (acara), the gallery/film copy and
+   the wishes/closing copy
+6. `src/lib/templateSections.ts` — **not** in `TEMPLATES_WITHOUT_OPENING`: Lace
+   edits the couple's *kalimat pembuka*, so the accordion is required
 7. `src/app/templates/[code]/preview/page.tsx` — added to `keepDemoIds` so the
-   RSVP feed shows the demo wishes
+   wishes feed shows the demo wishes
 8. `supabase/migrations/20261039000000_lace.sql` — the `web_templates` row
-   (`no_photo = true`, `sort_order = 3`, category `Floral`, tier `Baru`)
+   (`no_photo = false`, `sort_order = 3`, category `Floral`, tier `Baru`)
 
 ## 10. Still open
 

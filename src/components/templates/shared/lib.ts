@@ -195,6 +195,33 @@ export function normalizeVideoUrl(url?: string | null): string {
   }
 }
 
+// A couple's video URL resolved into something we can actually play inline.
+// Direct files play in a <video>; provider pages become an embed URL with the
+// autoplay query already appended. Autoplay is always silent + looped because
+// every browser blocks autoplay with sound, and a wedding film that starts
+// blaring is not what a guest wants mid-scroll.
+export type VideoSource =
+  | { kind: "file"; src: string }
+  | { kind: "embed"; src: string }
+
+export function videoSource(url?: string | null): VideoSource | null {
+  const base = normalizeVideoUrl(url)
+  if (!base) return null
+  if (/\.(mp4|webm|mov|m4v|ogv)(\?|#|$)/i.test(base)) return { kind: "file", src: base }
+  const sep = base.includes("?") ? "&" : "?"
+  const yt = base.match(/youtube\.com\/embed\/([A-Za-z0-9_-]{11})/)
+  if (yt) {
+    return {
+      kind: "embed",
+      src: `${base}${sep}autoplay=1&mute=1&loop=1&playlist=${yt[1]}&controls=1&rel=0&modestbranding=1&playsinline=1`,
+    }
+  }
+  if (/player\.vimeo\.com/.test(base)) {
+    return { kind: "embed", src: `${base}${sep}autoplay=1&muted=1&loop=1&title=0&byline=0` }
+  }
+  return { kind: "embed", src: `${base}${sep}autoplay=1&mute=1&playsinline=1` }
+}
+
 // Relative time (id-ID), e.g. "2m lalu".
 export function timeAgo(iso?: string): string {
   if (!iso) return ""

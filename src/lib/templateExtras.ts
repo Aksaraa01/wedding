@@ -32,8 +32,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "lunar-blossom":
         "Dengan kasih karunia Tuhan, kami dengan hormat memohon kehadiran Anda pada pernikahan anak-anak kami tercinta",
       "embroidered-garden": "We would be honoured to have you with us as we say our vows.",
+      lace: "We would be honoured to have you with us as we say our vows.",
     },
-    templates: ["lunar-blossom", "embroidered-garden"],
+    templates: ["lunar-blossom", "embroidered-garden", "lace"],
   },
   {
     key: "cover_kicker",
@@ -80,7 +81,10 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     multiline: true,
     rows: 2,
     placeholder: "Dua hati, satu playlist, dan nol kesepakatan soal mau makan apa.",
-    templates: ["evermore"],
+    placeholders: {
+      lace: "With the blessing of our families, we invite you to share in the beginning of our forever.",
+    },
+    templates: ["evermore", "lace"],
   },
   {
     key: "story_intro",
@@ -101,6 +105,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     placeholders: {
       "embroidered-garden":
         "The frames we keep closest — an afternoon in the garden, a table we shared, and the walk that led us here.",
+      lace: "A few frames from the days that led us here — the quiet ones we keep closest.",
       evermore: "Beberapa bingkai yang telah kami lalui bersama, tersimpan seperti foto lama di album keluarga.",
       "piano-garden": "Momen yang kami simpan erat, seperti kenangan dalam album keluarga.",
       "altar-garden": "Momen yang kami simpan erat, seperti kenangan dalam album keluarga.",
@@ -113,7 +118,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "adat-jawa": "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
       "adat-bali": "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
     },
-    templates: ["evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "embroidered-garden"],
+    templates: ["evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "embroidered-garden", "lace"],
   },
   {
     key: "gallery_quote",
@@ -143,8 +148,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "video_title",
     label: "Judul Video",
-    placeholders: { "embroidered-garden": "Our Wedding Film" },
-    templates: ["embroidered-garden"],
+    placeholders: { "embroidered-garden": "Our Wedding Film", lace: "Our Film" },
+    templates: ["embroidered-garden", "lace"],
   },
   {
     key: "video_intro",
@@ -153,14 +158,15 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     rows: 2,
     placeholders: {
       "embroidered-garden": "The day as it happened, kept in motion.",
+      lace: "The day as it happened, kept in motion.",
     },
-    templates: ["embroidered-garden"],
+    templates: ["embroidered-garden", "lace"],
   },
   {
     key: "video_caption",
     label: "Keterangan Tombol Video",
     placeholders: { "embroidered-garden": "Press play to watch the day again" },
-    templates: ["embroidered-garden"],
+    templates: ["embroidered-garden", "lace"],
   },
   {
     key: "gift_intro_title",
@@ -292,16 +298,6 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     templates: ["embroidered-garden", "lace"],
   },
   {
-    key: "location_intro",
-    label: "Pengantar Lokasi",
-    multiline: true,
-    rows: 2,
-    placeholders: {
-      lace: "We look forward to welcoming you to the place where we will say our vows.",
-    },
-    templates: ["lace"],
-  },
-  {
     key: "inviting_intro",
     label: "Pengantar Turut Mengundang",
     multiline: true,
@@ -344,8 +340,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "still-ever": "The Days We Kept",
       imagine: "Gallery Of Us",
       "embroidered-garden": "Our Moments",
+      lace: "Our Moments",
     },
-    templates: ["manjari", "imagine", "still-ever", "embroidered-garden"],
+    templates: ["manjari", "imagine", "still-ever", "embroidered-garden", "lace"],
   },
 ]
 

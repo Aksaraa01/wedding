@@ -139,6 +139,10 @@ export type ContentSpec = {
   cover_slideshows?: number[]
   groom_photo?: PhotoStyle
   bride_photo?: PhotoStyle
+  // Whether the groom/bride portrait fields are used at all. Absent ⇒ true.
+  // Set false for designs that show no portraits (e.g. lace), so the editor
+  // does not offer an upload that the template would never render.
+  person_photos?: boolean
   // Whether love-story milestones render/accept a photo. Absent ⇒ true.
   // Set false for text-only story layouts (e.g. piano-garden).
   story_photo?: boolean

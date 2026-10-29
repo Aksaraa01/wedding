@@ -478,6 +478,11 @@ function EditorInner({ id }: { id: string }) {
   // Stored photos are kept so switching back to a with-photo template restores
   // them — hide must never equal delete.
   const isNoPhoto = template?.no_photo === true
+  // Cover slots and portraits are separate questions: a design can have none of
+  // either but still take a gallery + film (lace). An upload field the template
+  // never renders is worse than no field at all.
+  const hasCoverPhotos = !isNoPhoto && (contentSpec?.cover_slots ?? 1) > 0
+  const hasPersonPhotos = !isNoPhoto && contentSpec?.person_photos !== false
   // Text-only love story (e.g. piano-garden): hide the milestone photo field
   // while keeping stored image_url data intact.
   const showStoryPhoto = contentSpec?.story_photo !== false && !isNoPhoto
@@ -1755,7 +1760,7 @@ function EditorInner({ id }: { id: string }) {
               {renderSection("sampul", "photo_album", "SAMPUL",
                 <div className="mt-6 space-y-8">
                   {/* Tanpa-photo: cover slots hidden, initials/date stay */}
-                  {!isNoPhoto && (
+                  {hasCoverPhotos && (
                   <div className="space-y-3">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Foto Sampul</label>
                     <p className="text-[11px] text-on-surface-variant italic">
@@ -1920,7 +1925,7 @@ function EditorInner({ id }: { id: string }) {
                     {isSlideshowField("groom_photo_url") ? (
                       <div className="space-y-3">
                         {/* Tanpa-photo: slideshow grid hidden, names stay */}
-                        {!isNoPhoto && (
+                        {hasPersonPhotos && (
                         <div className="border border-outline-variant rounded p-2 bg-surface-container-lowest">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-secondary">Slideshow (harus 2 foto)</span>
                           <div className="grid grid-cols-2 gap-2 mt-2">
@@ -1967,7 +1972,7 @@ function EditorInner({ id }: { id: string }) {
                     ) : (
                       <div className="flex gap-4 items-end">
                         {/* Tanpa-photo: person photo hidden, names stay */}
-                        {!isNoPhoto && (
+                        {hasPersonPhotos && (
                         <>
                         <div onClick={() => { if (photoUploading !== "groom_photo_url") groomPhotoRef.current?.click() }} className={`w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center relative overflow-hidden shrink-0 ${photoUploading === "groom_photo_url" ? "cursor-wait" : "cursor-pointer hover:bg-surface-container-highest"} transition-colors`}>
                           {photoUploading === "groom_photo_url" ? (
@@ -2006,7 +2011,7 @@ function EditorInner({ id }: { id: string }) {
                     {isSlideshowField("bride_photo_url") ? (
                       <div className="space-y-3">
                         {/* Tanpa-photo: slideshow grid hidden, names stay */}
-                        {!isNoPhoto && (
+                        {hasPersonPhotos && (
                         <div className="border border-outline-variant rounded p-2 bg-surface-container-lowest">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-secondary">Slideshow (harus 2 foto)</span>
                           <div className="grid grid-cols-2 gap-2 mt-2">
@@ -2053,7 +2058,7 @@ function EditorInner({ id }: { id: string }) {
                     ) : (
                       <div className="flex gap-4 items-end">
                         {/* Tanpa-photo: person photo hidden, names stay */}
-                        {!isNoPhoto && (
+                        {hasPersonPhotos && (
                         <>
                         <div onClick={() => { if (photoUploading !== "bride_photo_url") bridePhotoRef.current?.click() }} className={`w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center relative overflow-hidden shrink-0 ${photoUploading === "bride_photo_url" ? "cursor-wait" : "cursor-pointer hover:bg-surface-container-highest"} transition-colors`}>
                           {photoUploading === "bride_photo_url" ? (

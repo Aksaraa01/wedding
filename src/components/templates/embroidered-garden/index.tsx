@@ -5,7 +5,7 @@ import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { AKSARAA_WA_NUMBER } from "@/lib/contact"
 import InvitationOverlay from "@/components/InvitationOverlay"
-import { countdownTarget, coverPhoto as coverSlotPhoto, flattenPhotos, gcalLink, initialsOf, normalizeVideoUrl } from "../shared/lib"
+import { countdownTarget, coverPhoto as coverSlotPhoto, flattenPhotos, gcalLink, initialsOf, videoSource } from "../shared/lib"
 import Wishes from "./Wishes"
 import "./embroidered-garden.css"
 
@@ -241,7 +241,6 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   const [opening, setOpening] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [lightbox, setLightbox] = useState<{ photos: string[]; index: number } | null>(null)
-  const [filmOpen, setFilmOpen] = useState(false)
   const [giftTab, setGiftTab] = useState<"accounts" | "address">("accounts")
   const [openAccount, setOpenAccount] = useState(-1)
 
@@ -286,7 +285,11 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   const monogram = initialsOf(profile.groom_name, profile.bride_name) || "A&E"
   const guestName = profile.guest_name || "Tamu Undangan"
   const dateLong = longDate(profile.estimated_wedding_date)
-  const welcomeMessage = tc.welcome_message || DEFAULT_WELCOME
+  // The welcome block carries the couple's "kalimat pembuka" (the greeting /
+  // doa they write once for every template). `welcome_message` stays as the
+  // fallback so invitations authored before this mapping keep their copy.
+  const welcomeMessage =
+    (profile.opening_description || "").trim() || tc.welcome_message || DEFAULT_WELCOME
   const closingMessage = tc.closing_message || DEFAULT_CLOSING
   const calendarUrl = gcalLink(events[0], profile.groom_name || "", profile.bride_name || "")
 
@@ -301,7 +304,6 @@ export default function EmbroideredGarden(profile: TemplateProps) {
     !profile.template_demo &&
     opened &&
     lightbox === null &&
-    !filmOpen &&
     (!!profile.guest_id || (profile.guest_link_strict === false && !!profile.guest_slug)) &&
     !!profile.wedding_profile_id
 
@@ -416,12 +418,12 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   const galleryLoop = useMemo(() => [...gallery, ...gallery], [gallery])
 
   // The couple's own film. YouTube links become an embed; a direct file plays in
-  // a <video>. Nothing renders when the editor left the URL empty.
-  const filmEmbed = normalizeVideoUrl(profile.video_url)
-  const filmIsFile = /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(filmEmbed)
+  // a <video>. It autoplays muted+looped inline (see `videoSource`) — a poster
+  // that waits for a tap buried the film for every guest who never scrolled back
+  // to it. Nothing renders when the editor left the URL empty.
+  const film = videoSource(profile.video_url)
   const hasFilm =
-    !!filmEmbed && gates.video !== false && profile.video_section_visible !== false
-  const filmPoster = gallery[0] || closingPhoto || cover
+    !!film && gates.video !== false && profile.video_section_visible !== false
 
   const stepLightbox = useCallback((delta: number) => {
     setLightbox((v) => {
@@ -430,15 +432,6 @@ export default function EmbroideredGarden(profile: TemplateProps) {
       return total > 0 ? { ...v, index: (v.index + delta + total) % total } : v
     })
   }, [])
-
-  useEffect(() => {
-    if (!filmOpen) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setFilmOpen(false)
-    }
-    window.addEventListener("keydown", onKey)
-    return () => window.removeEventListener("keydown", onKey)
-  }, [filmOpen])
 
   useEffect(() => {
     if (lightbox === null) return
@@ -838,21 +831,22 @@ export default function EmbroideredGarden(profile: TemplateProps) {
             </div>
 
             <div className="eg-wrap eg-film__frame" data-eg-reveal>
-              <button
-                type="button"
-                className="eg-gilded eg-film__poster"
-                onClick={() => setFilmOpen(true)}
-                aria-label="Play our wedding film"
-              >
-                <img src={filmPoster} alt="" loading="lazy" />
-                <span className="eg-film__scrim" aria-hidden="true" />
-                <span className="eg-film__play" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-                    <path d="M8 5.5v13l11-6.5-11-6.5Z" fill="currentColor" />
-                  </svg>
-                </span>
-              </button>
-              <p className="eg-film__caption">{tc.video_caption || "Press play to watch the day again"}</p>
+              <div className="eg-gilded eg-film__player eg-film__player--inline">
+                {film!.kind === "file" ? (
+                  <video src={film!.src} autoPlay muted loop playsInline controls preload="metadata" />
+                ) : (
+                  <iframe
+                    src={film!.src}
+                    title={tc.video_title || "Our Wedding Film"}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    loading="lazy"
+                  />
+                )}
+              </div>
+              <p className="eg-film__caption">
+                {tc.video_caption || "Press play to hear it again"}
+              </p>
             </div>
           </section>
         )}
@@ -1079,38 +1073,6 @@ export default function EmbroideredGarden(profile: TemplateProps) {
               ›
             </button>
           )}
-        </div>
-      )}
-
-      {/* ── Wedding film player ────────────────────────────────── */}
-      {filmOpen && hasFilm && (
-        <div
-          className="eg-lightbox eg-lightbox--film"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Wedding film"
-          onClick={() => setFilmOpen(false)}
-        >
-          <button
-            type="button"
-            className="eg-lightbox__close"
-            onClick={() => setFilmOpen(false)}
-            aria-label="Close film"
-          >
-            ✕
-          </button>
-          <div className="eg-film__player" onClick={(e) => e.stopPropagation()}>
-            {filmIsFile ? (
-              <video src={filmEmbed} controls autoPlay playsInline />
-            ) : (
-              <iframe
-                src={`${filmEmbed}${filmEmbed.includes("?") ? "&" : "?"}autoplay=1&rel=0&playsinline=1&modestbranding=1`}
-                title={tc.video_title || "Our Wedding Film"}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
-            )}
-          </div>
         </div>
       )}
 

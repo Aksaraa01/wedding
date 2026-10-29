@@ -1241,6 +1241,10 @@ export default function AntrianDetail({ id }: { id: string }) {
   // show fields the template does not render.
   const invContentSpec = invTpl?.code ? getTemplateContentSpec(invTpl.code) : undefined
   const invShowStoryPhoto = invContentSpec?.story_photo !== false && !invNoPhoto
+  // Same split as the couple editor: a design can take a gallery/film but no
+  // cover or portrait photos (lace).
+  const invHasCoverPhotos = !invNoPhoto && (invContentSpec?.cover_slots ?? 1) > 0
+  const invHasPersonPhotos = !invNoPhoto && invContentSpec?.person_photos !== false
   const invExtraFields = getTemplateExtraFields(invTpl?.code)
   const invExtrasLabel = templateExtrasLabel(invTpl?.name)
   const invCoverSlotCount = invContentSpec?.cover_slots ?? (Array.isArray(invTpl?.wp_manifest?.cover_photos) ? invTpl.wp_manifest.cover_photos.length : 0)
@@ -2973,7 +2977,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                 {invEditing && invForm ? (
                   <div className="mt-6 space-y-8">
                     {/* Tanpa-photo: cover slots hidden, date/initials stay */}
-                    {!invNoPhoto && (
+                    {invHasCoverPhotos && (
                     <div className="space-y-3">
                       <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Foto Sampul</label>
                       <p className="text-[11px] text-on-surface-variant italic">
@@ -3238,7 +3242,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                               {slideshow ? (
                                 <>
                                 {/* Tanpa-photo: slideshow grid hidden, names stay */}
-                                {!invNoPhoto && (
+                                {invHasPersonPhotos && (
                                 <div className="border border-outline-variant rounded p-2 bg-surface-container-lowest">
                                   <span className="text-[10px] font-bold uppercase tracking-wider text-secondary">Slideshow (harus 2 foto)</span>
                                   <div className="grid grid-cols-2 gap-2 mt-2">
@@ -3259,7 +3263,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                               ) : (
                                 <div className="flex gap-4 items-end">
                                   {/* Tanpa-photo: person photo hidden, names stay */}
-                                  {!invNoPhoto && (
+                                  {invHasPersonPhotos && (
                                   <InvPhotoBox url={urls[0] || ""} uploading={invUploading === upKey(0)} onFile={(f) => putUrl(0, f)} />
                                   )}
                                   <div className="flex-1">

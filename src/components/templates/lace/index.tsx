@@ -5,24 +5,27 @@ import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { AKSARAA_WA_NUMBER } from "@/lib/contact"
 import InvitationOverlay from "@/components/InvitationOverlay"
-import { countdownTarget, formatDotDate, gcalLink, initialsOf } from "../shared/lib"
+import { countdownTarget, flattenPhotos, formatDotDate, gcalLink, groomPhoto, bridePhoto, initialsOf, videoSource } from "../shared/lib"
 import Wishes from "./Wishes"
 import "./lace.css"
 
 // Art shipped with the template. Decorative surfaces only — never couple data.
 const A = (name: string) => `/templates/lace/${name}`
+// The landing is the reference's own opening film: a tulle veil, gathered by a
+// wax seal, that lifts away to reveal the lace frame. The seal is painted into
+// the film (it cannot be edited), so we cover it with our own plaque and ride
+// the film's clock — the same approach as Embroidered Garden's door medallion.
+const ART_OPENING = A("opening.mp4")
 const ART_SEALED = A("cover-sealed.jpg")
-const COVER_FILM = A("cover-film.mp4")
+const ART_HERO = A("hero-bg.mp4")
 const ART_FRAME = A("cover-frame.webp")
 const ART_VILLA = A("villa.svg")
 const ART_BAND = A("band-lace.webp")
 const ART_BORDER = A("band-border.webp")
 const ART_PANEL = A("panel-lace.webp")
 const ART_BOWS = A("bow-frame.webp")
-const ART_OVAL = A("oval-location.webp")
 const ART_DRESS_FRAME = A("dress-frame.webp")
 const ART_DRESS_COUPLE = A("dress-couple.webp")
-const ART_TULLE = A("tulle.webp")
 const ART_BALCONY = A("balcony.webp")
 const ART_GARLAND = A("garland.webp")
 const ART_GARLAND_STRANDS = [
@@ -53,8 +56,8 @@ function stepArt(index: number, total: number): string {
 
 const DEFAULT_WELCOME =
   "We are so happy to celebrate this day with you, surrounded by the people we love most."
-const DEFAULT_LOCATION =
-  "We look forward to welcoming you to the place where we will say our vows."
+const DEFAULT_EVENTS_INTRO =
+  "We would be honoured to have you with us as we say our vows."
 const DEFAULT_INVITING =
   "Together with the families who share this invitation."
 const DEFAULT_CLOSING =
@@ -171,15 +174,46 @@ function SealPlaque({ text }: { text: string }) {
   )
 }
 
+// Where the baked seal sits, second by second, in % of the 1080×1920 film:
+// centred at first, then carried upward with the tulle until it clears the top
+// edge. Sampled from frames of `opening.mp4`, so our plaque is glued to it
+// rather than floating on its own path.
+const SEAL_TRACK = [
+  { t: 0.0, cx: 50.7, cy: 51.0, w: 24.6 },
+  { t: 1.0, cx: 50.8, cy: 44.5, w: 24.4 },
+  { t: 1.6, cx: 50.9, cy: 36.0, w: 25.0 },
+  { t: 2.2, cx: 50.8, cy: 28.0, w: 25.4 },
+  { t: 2.8, cx: 53.0, cy: 6.0, w: 26.0 },
+  { t: 3.1, cx: 54.0, cy: -8.0, w: 26.5 },
+]
+
+function sealAt(time: number) {
+  if (time <= SEAL_TRACK[0].t) return SEAL_TRACK[0]
+  for (let i = 1; i < SEAL_TRACK.length; i++) {
+    const prev = SEAL_TRACK[i - 1]
+    const next = SEAL_TRACK[i]
+    if (time > next.t) continue
+    const k = (time - prev.t) / (next.t - prev.t)
+    return {
+      cx: prev.cx + (next.cx - prev.cx) * k,
+      cy: prev.cy + (next.cy - prev.cy) * k,
+      w: prev.w + (next.w - prev.w) * k,
+    }
+  }
+  return SEAL_TRACK[SEAL_TRACK.length - 1]
+}
+
 export default function Lace(profile: TemplateProps) {
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const gateFilmRef = useRef<HTMLVideoElement | null>(null)
+  const sealRef = useRef<HTMLSpanElement | null>(null)
   const gateRef = useRef(false)
   const toastTimer = useRef<number | null>(null)
 
   const [opened, setOpened] = useState(false)
   const [opening, setOpening] = useState(false)
+  const [fading, setFading] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [openAccount, setOpenAccount] = useState(-1)
   const [toast, setToast] = useState("")
@@ -189,8 +223,9 @@ export default function Lace(profile: TemplateProps) {
 
   const sessions = (profile.sessions || []).filter(Boolean)
   const main = sessions[0]
-  const venue = main?.venue?.trim() || ""
-  const address = main?.address?.trim() || ""
+  // Every session that names something (akad, resepsi) is an event card. The
+  // reference's separate "Location" block is gone — the venue lives here.
+  const events = sessions.filter((s) => !!(s.name || s.venue || s.date || s.address))
 
   const honored =
     gates.inviting_families !== false && profile.inviting_families_visible !== false
@@ -209,20 +244,23 @@ export default function Lace(profile: TemplateProps) {
 
   const groom = profile.groom_name || "The Groom"
   const bride = profile.bride_name || "The Bride"
+  // The mempelai block names the couple in full, the way the families wrote it.
+  const groomFull = profile.groom_full_name || groom
+  const brideFull = profile.bride_full_name || bride
   const coupleLabel = [groom, bride].join(" & ")
   const initials = initialsOf(profile.groom_name, profile.bride_name)
   const sealText = initials.length === 2 ? `${initials[0]} & ${initials[1]}` : initials || "A & E"
   const guestName = profile.guest_name || "Tamu Undangan"
   const dateDot = formatDotDate(profile.estimated_wedding_date || main?.date)
   const dateLong = longDate(profile.estimated_wedding_date || main?.date)
-  const welcomeMessage = tc.welcome_message || DEFAULT_WELCOME
+  const welcomeMessage = (profile.opening_description || "").trim() || tc.welcome_message || DEFAULT_WELCOME
   const closingMessage = tc.closing_message || DEFAULT_CLOSING
 
-  const mapsHref =
-    main?.maps_url ||
-    (venue || address
-      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([venue, address].filter(Boolean).join(", "))}`
-      : "")
+  const galleryPhotos = useMemo(() => flattenPhotos(profile.gallery_photos), [profile.gallery_photos])
+  const film = videoSource(profile.video_url)
+  const hasFilm =
+    !!film && gates.video !== false && profile.video_section_visible !== false
+
   const calendarUrl = gcalLink(main, profile.groom_name || "", profile.bride_name || "")
 
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.defaultMusic : "")
@@ -242,9 +280,10 @@ export default function Lace(profile: TemplateProps) {
     "Halo Aksaraa Wedding, saya tertarik membuat undangan digital"
   )}`
 
-  // The wax seal is the tap: it lifts, the frame film plays, and the invitation
-  // is handed over when it finishes (or after a hard cap, so a stalled download
-  // can never trap the guest).
+  // The wax seal is the tap: the opening film plays from its sealed first frame,
+  // the tulle lifts, and the invitation is handed over as the film's last second
+  // clears — exactly the reference's timing (fade out over 2 s while the film
+  // still runs). A hard cap keeps a stalled download from trapping a guest.
   const openGate = useCallback(() => {
     if (gateRef.current) return
     gateRef.current = true
@@ -255,29 +294,59 @@ export default function Lace(profile: TemplateProps) {
     }
     const reduced =
       typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    const reveal = () => {
-      setOpened(true)
-      window.scrollTo(0, 0)
-    }
-    const video = videoRef.current
-    if (video && !reduced) {
-      const cap = window.setTimeout(reveal, 4_500)
-      video.addEventListener(
-        "ended",
-        () => {
-          window.clearTimeout(cap)
-          reveal()
-        },
-        { once: true }
-      )
-      video.play().catch(() => {
-        window.clearTimeout(cap)
-        window.setTimeout(reveal, 900)
-      })
+    const film = gateFilmRef.current
+    if (!film || reduced) {
+      setFading(true)
       return
     }
-    window.setTimeout(reveal, reduced ? 120 : 900)
+    // Whatever happens to the file, never leave the gate on screen.
+    window.setTimeout(() => {
+      setOpened(true)
+      window.scrollTo(0, 0)
+    }, 8_000)
+    film.play().catch(() => setFading(true))
   }, [hasTrack])
+
+  // The reference fades the gate over 2 s and only then hands the invitation
+  // over, so the frozen last frame of the film is already invisible by the time
+  // the cover takes its place.
+  useEffect(() => {
+    if (!fading || opened) return
+    const id = window.setTimeout(() => {
+      setOpened(true)
+      window.scrollTo(0, 0)
+    }, 2_000)
+    return () => window.clearTimeout(id)
+  }, [fading, opened])
+
+  // The plaque has to travel with the seal painted into the film, so it is
+  // driven by the film's own clock instead of a CSS transition.
+  useEffect(() => {
+    if (!opening || opened) return
+    const plaque = sealRef.current
+    const film = gateFilmRef.current
+    if (!plaque || !film) return
+    let raf = 0
+    const apply = () => {
+      const { cx, cy, w } = sealAt(film.currentTime)
+      plaque.style.left = `${cx}%`
+      plaque.style.top = `${cy}%`
+      plaque.style.width = `${w}%`
+      // Once the film has carried it past the top edge there is nothing left to
+      // cover, and a plaque hovering over the frame would look like a sticker.
+      plaque.style.opacity = cy < -8 ? "0" : "1"
+      raf = window.requestAnimationFrame(apply)
+    }
+    apply()
+    return () => window.cancelAnimationFrame(raf)
+  }, [opening, opened])
+
+  // The gate carries the opening film only; once the invitation is handed over
+  // the cover's own backdrop takes it from there.
+  useEffect(() => {
+    if (!opened) return
+    gateFilmRef.current?.pause()
+  }, [opened])
 
   useEffect(() => {
     document.body.style.overflow = opened ? "" : "hidden"
@@ -404,6 +473,17 @@ export default function Lace(profile: TemplateProps) {
         <section className="lc-cover" data-section="cover">
           <div className="lc-cover__card">
             <div className="lc-cover__art" style={bandStyle(ART_FRAME)} aria-hidden="true" />
+            <video
+              className="lc-cover__living"
+              src={ART_HERO}
+              poster={ART_FRAME}
+              muted
+              loop
+              playsInline
+              autoPlay
+              preload="metadata"
+              aria-hidden="true"
+            />
             <div className="lc-cover__body">
               <p className="lc-kicker">{tc.cover_kicker || "Together with their families"}</p>
               <h1 className="lc-cover__names">
@@ -413,7 +493,6 @@ export default function Lace(profile: TemplateProps) {
               </h1>
               {dateDot && <p className="lc-cover__date">{dateDot}</p>}
               <img className="lc-cover__villa" src={ART_VILLA} alt="" aria-hidden="true" />
-              {venue && <p className="lc-cover__venue">{venue}</p>}              {address && <p className="lc-cover__city">{address}</p>}
             </div>
           </div>
         </section>
@@ -427,6 +506,68 @@ export default function Lace(profile: TemplateProps) {
               {tc.welcome_invite || "Together with their families"}
             </h2>
             <p className="lc-body lc-welcome__message">{welcomeMessage}</p>
+          </div>
+        </section>
+
+        {/* ── Mempelai (the couple) ────────────────────────────── */}
+        <section className="lc-section lc-couple" data-section="couple">
+          <div className="lc-wrap lc-couple__head" data-lc-reveal>
+            <h2 className="lc-display lc-heading">The Bride &amp; Groom</h2>
+            {tc.profiles_intro && <p className="lc-body lc-couple__intro">{tc.profiles_intro}</p>}
+          </div>
+
+          <div className="lc-wrap lc-couple__pair">
+            <article className="lc-person" data-lc-reveal>
+              <figure className="lc-person__photo">
+                <img src={groomPhoto(profile.groom_photo_url)} alt={groomFull} loading="lazy" />
+              </figure>
+              <h3 className="lc-script lc-person__name">{groomFull}</h3>
+              {profile.groom_parents && (
+                <p className="lc-body lc-person__parents">{profile.groom_parents}</p>
+              )}
+              {profile.groom_instagram && (
+                <a
+                  className="lc-link lc-person__ig"
+                  href={`https://instagram.com/${profile.groom_instagram.replace(/^@/, "")}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`Instagram ${profile.groom_instagram}`}
+                >
+                  {profile.groom_instagram.startsWith("@")
+                    ? profile.groom_instagram
+                    : `@${profile.groom_instagram}`}
+                </a>
+              )}
+            </article>
+
+            <span className="lc-couple__amp" aria-hidden="true">
+              <i />
+              <em>&amp;</em>
+              <i />
+            </span>
+
+            <article className="lc-person" data-lc-reveal>
+              <figure className="lc-person__photo">
+                <img src={bridePhoto(profile.bride_photo_url)} alt={brideFull} loading="lazy" />
+              </figure>
+              <h3 className="lc-script lc-person__name">{brideFull}</h3>
+              {profile.bride_parents && (
+                <p className="lc-body lc-person__parents">{profile.bride_parents}</p>
+              )}
+              {profile.bride_instagram && (
+                <a
+                  className="lc-link lc-person__ig"
+                  href={`https://instagram.com/${profile.bride_instagram.replace(/^@/, "")}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`Instagram ${profile.bride_instagram}`}
+                >
+                  {profile.bride_instagram.startsWith("@")
+                    ? profile.bride_instagram
+                    : `@${profile.bride_instagram}`}
+                </a>
+              )}
+            </article>
           </div>
         </section>
 
@@ -448,20 +589,44 @@ export default function Lace(profile: TemplateProps) {
           </section>
         )}
 
-        {/* ── Location ─────────────────────────────────────────── */}
-        {(venue || address) && (
-          <section className="lc-section lc-location" data-section="location">
-            <div className="lc-wrap lc-location__body" data-lc-reveal>
-              <h2 className="lc-display lc-heading">Location</h2>
-              {venue && <p className="lc-script lc-location__venue">{venue}</p>}
-              {address && <p className="lc-location__city">{address}</p>}
-              <p className="lc-body lc-location__intro">{tc.location_intro || DEFAULT_LOCATION}</p>
-              <img className="lc-location__oval" src={ART_OVAL} alt="" aria-hidden="true" loading="lazy" />
-              {mapsHref && (
-                <a className="lc-pill" href={mapsHref} target="_blank" rel="noreferrer">
-                  Get directions
-                </a>
-              )}
+        {/* ── The events (akad / resepsi) ──────────────────────── */}
+        {events.length > 0 && (
+          <section className="lc-section lc-events" data-section="events">
+            <div className="lc-wrap lc-events__head" data-lc-reveal>
+              <h2 className="lc-display lc-heading">The Celebration</h2>
+              <p className="lc-body lc-events__intro">
+                {tc.events_intro || DEFAULT_EVENTS_INTRO}
+              </p>
+            </div>
+
+            <div className="lc-wrap lc-events__list">
+              {events.map((event, index) => {
+                const eventMaps =
+                  event.maps_url ||
+                  (event.venue || event.address
+                    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                        [event.venue, event.address].filter(Boolean).join(", ")
+                      )}`
+                    : "")
+                return (
+                  <article className="lc-event" key={`${event.name || "event"}-${index}`} data-lc-reveal>
+                    <h3 className="lc-script lc-event__name">{event.name || "Wedding Event"}</h3>
+                    <p className="lc-event__when">
+                      {longDate(event.date) && <span>{longDate(event.date)}</span>}
+                      {event.time && <span>{event.time}</span>}
+                    </p>
+                    {event.venue && <p className="lc-display lc-event__venue">{event.venue}</p>}
+                    {event.address && <p className="lc-body lc-event__address">{event.address}</p>}
+                    {eventMaps && (
+                      <div className="lc-event__actions">
+                        <a className="lc-pill lc-pill--sm" href={eventMaps} target="_blank" rel="noreferrer">
+                          Get directions
+                        </a>
+                      </div>
+                    )}
+                  </article>
+                )
+              })}
             </div>
           </section>
         )}
@@ -547,6 +712,58 @@ export default function Lace(profile: TemplateProps) {
           </section>
         )}
 
+        {/* ── Gallery ──────────────────────────────────────────── */}
+        {galleryPhotos.length > 0 && (
+          <section className="lc-section lc-gallery" data-section="gallery">
+            <span className="lc-band lc-band--lead lc-gallery__band" style={bandStyle(ART_BAND)} aria-hidden="true" />
+            <div className="lc-wrap lc-gallery__head" data-lc-reveal>
+              <h2 className="lc-display lc-heading">{tc.gallery_title || "Our Moments"}</h2>
+              {tc.gallery_intro && <p className="lc-body lc-gallery__intro">{tc.gallery_intro}</p>}
+            </div>
+            <div className="lc-wrap lc-gallery__grid">
+              {galleryPhotos.map((url, index) => (
+                <figure className="lc-gallery__tile" key={`${url}-${index}`} data-lc-reveal>
+                  <img src={url} alt="" loading="lazy" />
+                </figure>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ── Wedding film ─────────────────────────────────────── */}
+        {hasFilm && (
+          <section className="lc-panel lc-film" data-section="video">
+            <span className="lc-band lc-band--top" style={bandStyle(ART_BAND)} aria-hidden="true" />
+            <div className="lc-panel__body lc-film__body" data-lc-reveal>
+              <h2 className="lc-display lc-panel__title">{tc.video_title || "Our Film"}</h2>
+              {tc.video_intro && <p className="lc-body lc-film__intro">{tc.video_intro}</p>}
+              <div className="lc-film__window">
+                {film!.kind === "file" ? (
+                  <video
+                    src={film!.src}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    controls
+                    preload="metadata"
+                  />
+                ) : (
+                  <iframe
+                    src={film!.src}
+                    title={tc.video_title || "Our Film"}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                    allowFullScreen
+                    loading="lazy"
+                  />
+                )}
+              </div>
+              {tc.video_caption && <p className="lc-film__caption">{tc.video_caption}</p>}
+            </div>
+            <span className="lc-band lc-band--bottom" style={bandStyle(ART_BORDER)} aria-hidden="true" />
+          </section>
+        )}
+
         {/* ── Gifts ────────────────────────────────────────────── */}
         {hasGift && (
           <section className="lc-section lc-gift" data-section="gift">
@@ -618,13 +835,14 @@ export default function Lace(profile: TemplateProps) {
           </section>
         )}
 
-        {/* ── RSVP & wishes ────────────────────────────────────── */}
+        {/* ── Wishes (RSVP + the wish feed) ─────────────────────── */}
         <section className="lc-panel lc-wishes" data-section="wishes">
           <span className="lc-band lc-band--top" style={bandStyle(ART_BAND)} aria-hidden="true" />
           <div className="lc-panel__body lc-wishes__body" data-lc-reveal>
-            <h2 className="lc-display lc-panel__title">RSVP</h2>
+            <h2 className="lc-display lc-panel__title">Wishes</h2>
             <p className="lc-body lc-wishes__intro">
-              {tc.wishes_intro || "Nothing would make us happier than celebrating this day surrounded by you."}
+              {tc.wishes_intro ||
+                "Nothing would make us happier than celebrating this day surrounded by the people we love. Leave us a wish and let us know you are coming."}
             </p>
             <Wishes
               weddingProfileId={profile.wedding_profile_id}
@@ -673,7 +891,7 @@ export default function Lace(profile: TemplateProps) {
 
       {/* ── Sealed cover ─────────────────────────────────────────── */}
       <div
-        className={`lc-gate${opening ? " is-opening" : ""}`}
+        className={`lc-gate${opening ? " is-opening" : ""}${fading ? " is-fading" : ""}`}
         role="dialog"
         aria-modal="true"
         aria-label="Open the invitation"
@@ -681,17 +899,30 @@ export default function Lace(profile: TemplateProps) {
       >
         <div className="lc-gate__card">
           <div className="lc-gate__stage">
-            <img className="lc-gate__sealed" src={ART_SEALED} alt="" />
+            {/* Sealed first frame — what the guest sees before the tap, and the
+                stand-in if the film cannot load. */}
+            <img className="lc-gate__poster" src={ART_SEALED} alt="" />
+            {/* The reference's opening film: the tulle lifts, the veil clears. */}
             <video
-              ref={videoRef}
+              ref={gateFilmRef}
               className="lc-gate__film"
-              src={COVER_FILM}
-              poster={ART_FRAME}
+              src={ART_OPENING}
+              poster={ART_SEALED}
               muted
               playsInline
-              preload="metadata"
+              preload="auto"
+              aria-hidden="true"
+              onTimeUpdate={(e) => {
+                const v = e.currentTarget
+                if (!v.duration) return
+                if (v.duration - v.currentTime < 1.1) setFading(true)
+              }}
+              onEnded={() => setFading(true)}
             />
-            <span className="lc-gate__seal">
+            {/* The film ships with the reference couple's seal painted in at
+                centre. It is not a DOM element, so it can only be covered —
+                this plaque rides the film's clock with it. */}
+            <span className="lc-gate__seal" ref={sealRef}>
               <SealPlaque text={sealText} />
             </span>
           </div>
