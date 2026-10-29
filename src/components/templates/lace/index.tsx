@@ -62,8 +62,6 @@ const DEFAULT_EVENTS_INTRO =
   "We would be honoured to have you with us as we say our vows."
 const DEFAULT_INVITING =
   "Together with the families who share this invitation."
-const DEFAULT_CLOSING =
-  "We cannot wait to celebrate with you. Thank you for the love and the prayers you have given us along the way."
 
 // Roman numerals for the medallion in the event-card ornament.
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"]
@@ -185,18 +183,19 @@ function SealPlaque({ text }: { text: string }) {
 // rather than floating on its own path.
 // Measured on the film itself (normalised cross-correlation against the seal
 // crop from frame 0), not eyeballed: the seal barely moves for the first half
-// second, then accelerates. `w` keeps a ~7 % margin around the seal so its rim
-// can never peek out from under the plaque.
+// second, then accelerates. `cx` is pulled ~0.8 % left of the baked seal so the
+// plaque reads as centred in the frame, and `w` carries the extra margin that
+// buys — the seal's rim can still never peek out from under it.
 const SEAL_TRACK = [
-  { t: 0.0, cx: 51.2, cy: 51.0, w: 21.6 },
-  { t: 0.6, cx: 51.2, cy: 50.4, w: 21.6 },
-  { t: 1.0, cx: 51.2, cy: 48.1, w: 21.7 },
-  { t: 1.4, cx: 51.2, cy: 44.6, w: 21.9 },
-  { t: 1.8, cx: 51.4, cy: 37.9, w: 22.2 },
-  { t: 2.2, cx: 51.6, cy: 29.4, w: 22.6 },
-  { t: 2.6, cx: 51.8, cy: 15.8, w: 23.0 },
-  { t: 2.9, cx: 52.0, cy: 4.0, w: 23.6 },
-  { t: 3.2, cx: 52.2, cy: -12.0, w: 24.2 },
+  { t: 0.0, cx: 50.4, cy: 51.0, w: 22.8 },
+  { t: 0.6, cx: 50.4, cy: 50.4, w: 22.8 },
+  { t: 1.0, cx: 50.4, cy: 48.1, w: 22.9 },
+  { t: 1.4, cx: 50.4, cy: 44.6, w: 23.1 },
+  { t: 1.8, cx: 50.5, cy: 37.9, w: 23.4 },
+  { t: 2.2, cx: 50.6, cy: 29.4, w: 23.8 },
+  { t: 2.6, cx: 50.7, cy: 15.8, w: 24.2 },
+  { t: 2.9, cx: 50.8, cy: 4.0, w: 24.8 },
+  { t: 3.2, cx: 50.9, cy: -12.0, w: 25.4 },
 ]
 
 function sealAt(time: number) {
@@ -213,6 +212,32 @@ function sealAt(time: number) {
     }
   }
   return SEAL_TRACK[SEAL_TRACK.length - 1]
+}
+
+// The reference's RSVP mark: a line-drawn heart tied with a ribbon and holding
+// the couple. It is inline SVG (there is no shipped asset for it) so it inherits
+// the panel's ink and stays crisp at any size.
+function HeartMonogram() {
+  return (
+    <svg className="lc-wishes__mark" viewBox="0 0 120 130" role="presentation" aria-hidden="true">
+      <g fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        {/* ribbon */}
+        <path d="M60 26c-8-9-19-13-24-6-5 7 3 14 24 8" />
+        <path d="M60 26c8-9 19-13 24-6 5 7-3 14-24 8" />
+        <circle cx="60" cy="27" r="3.2" />
+        <path d="M57 30c-4 12-13 20-18 33" opacity="0.85" />
+        <path d="M63 30c4 12 13 20 18 33" opacity="0.85" />
+        {/* heart */}
+        <path d="M60 112C36 95 20 79 20 61c0-14 10-23 22-23 8 0 14 4 18 11 4-7 10-11 18-11 12 0 22 9 22 23 0 18-16 34-40 51Z" />
+        {/* the couple: shoulders lean into each other */}
+        <circle cx="53" cy="62" r="5.6" />
+        <path d="M41 89c1-11 5-18 12-20 6 2 9 9 9 20" />
+        <circle cx="68" cy="63.5" r="5" />
+        <path d="M61 89c0-10 3-16 7-18 5 2 8 8 9 18" />
+        <path d="M68 58.5c1.6-3.6 6-3.9 7.6-.6" />
+      </g>
+    </svg>
+  )
 }
 
 export default function Lace(profile: TemplateProps) {
@@ -273,7 +298,6 @@ export default function Lace(profile: TemplateProps) {
   const welcomeTitle =
     (profile.opening_title || "").trim() || tc.welcome_invite || "Together with their families"
   const welcomeMessage = (profile.opening_description || "").trim() || tc.welcome_message || DEFAULT_WELCOME
-  const closingMessage = tc.closing_message || DEFAULT_CLOSING
 
   // The lead tile spans both columns, so an even number of photos leaves the
   // grid with a single orphan on the last row. Drop the last photo instead of
@@ -874,6 +898,7 @@ export default function Lace(profile: TemplateProps) {
         <section className="lc-panel lc-wishes" data-section="wishes">
           <span className="lc-band lc-band--top" style={bandStyle(ART_BAND)} aria-hidden="true" />
           <div className="lc-panel__body lc-wishes__body" data-lc-reveal>
+            <HeartMonogram />
             <h2 className="lc-display lc-panel__title">Wishes</h2>
             <p className="lc-body lc-wishes__intro">
               {tc.wishes_intro ||
@@ -894,7 +919,6 @@ export default function Lace(profile: TemplateProps) {
           <span className="lc-closing__art" style={bandStyle(ART_BALCONY)} aria-hidden="true" />
           <div className="lc-wrap lc-closing__body" data-lc-reveal>
             <p className="lc-display lc-closing__lead">We cannot wait to celebrate with you.</p>
-            <p className="lc-body lc-closing__message">{closingMessage}</p>
             <p className="lc-script lc-closing__names">{coupleLabel}</p>
 
             <footer className="tpl-footer">

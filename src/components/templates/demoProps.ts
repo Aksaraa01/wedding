@@ -1412,6 +1412,7 @@ DEMO_PROPS_BY_CODE["lace"] = {
     gallery_intro: "A few frames from the days that led us here — the quiet ones we keep closest.",
     video_title: "Our Film",
     video_intro: "The day as it happened, kept in motion.",
+    video_caption: "Filmed on the day, from the first look to the last dance.",
     gift_intro_title: "Wedding Gift",
     gift_intro_description:
       "Should you wish to give a gift, you may do so in cash or by bank transfer.",

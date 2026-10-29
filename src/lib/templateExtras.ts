@@ -164,8 +164,13 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   },
   {
     key: "video_caption",
-    label: "Keterangan Tombol Video",
-    placeholders: { "embroidered-garden": "Press play to watch the day again" },
+    // Neither template has a play button any more — the film autoplays inline —
+    // so this is the caption printed under the player, not a button label.
+    label: "Keterangan Video",
+    placeholders: {
+      "embroidered-garden": "Press play to hear it again",
+      lace: "Filmed on the day, from the first look to the last dance.",
+    },
     templates: ["embroidered-garden", "lace"],
   },
   {
@@ -273,7 +278,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "minang-royal": "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
       imagine: "From the bottom of our hearts we just want to thank you for being part of our big day. We are extremely lucky to have each of you in our lives and honored you could be here with us.",
     },
-    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "lace"],
+    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden"],
   },
   {
     key: "couple_description",

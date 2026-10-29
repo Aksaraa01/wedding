@@ -53,8 +53,8 @@ Twelve reference blocks, in order:
 | 10 | Where to Stay | *dropped* | No Aksaraa field for it; keeping it would mean inventing hotel copy per couple |
 | 11 | Wedding Gift | `gift` | Lace panel (`panel-lace.webp`) around the accordion accounts + address |
 | 12 | Gallery + Film (in-house) | `gallery`, `video` | Ivory gallery grid (first tile 16:10, rest 4:5 in gold-matted ivory), burgundy film panel with a 16:9 autoplaying, muted, looping player |
-| 13 | Wishes | `wishes` | Name + note form, then the approved-wishes feed, 5 per page — titled "Wishes", not "RSVP" |
-| 14 | Closing | `closing` | "We cannot wait to celebrate with you.", names in script, long date, balcony art, Aksaraa footer |
+| 13 | Wishes | `wishes` | The reference's ribboned-heart mark (inline SVG, no asset ships for it), title "Wishes" (not "RSVP"), name + note form, then the approved-wishes feed, 5 per page |
+| 14 | Closing | `closing` | "We cannot wait to celebrate with you.", names in script, balcony art, Aksaraa footer — no date and no second paragraph |
 
 Section order shipped:
 
@@ -188,12 +188,15 @@ Three things follow from the film:
    initials and cannot be edited. As in Embroidered Garden, we cover it with our
    own SVG plaque (`.lc-gate__seal`) sized to the measured footprint.
 2. **It moves, so the plaque must move with it.** `SEAL_TRACK` in `index.tsx` is
-   a list of `{t, cx, cy, w}` samples read off the film's frames (centre 51 % at
-   t=0 → 44.5 % at 1 s → 36 % at 1.6 s → out of frame by 3.1 s). A
-   `requestAnimationFrame` loop reads `video.currentTime` and writes
-   left/top/width, so the plaque is glued to the seal instead of drifting on its
-   own timeline. Sampling the film *once* (rather than trusting a CSS
-   transition) is what keeps the baked rim from peeking out mid-flight.
+   a list of `{t, cx, cy, w}` samples taken by template-matching the seal crop
+   across the film (cy 51 % at t=0 → 48.1 % at 1 s → 44.6 % at 1.4 s → 37.9 % at
+   1.8 s → 29.4 % at 2.2 s → out of frame by 3.1 s). A `requestAnimationFrame`
+   loop reads `video.currentTime` and writes left/top/width, so the plaque is
+   glued to the seal instead of drifting on its own timeline. Eyeballed samples
+   were ~5 % ahead between 1 and 2 s, which is exactly when the baked seal slid
+   out from under it. `cx` is pulled ~0.8 % left of the measured centre so the
+   plaque reads as centred in the frame, and the width carries the margin that
+   buys (22.8 % at rest).
 3. **Timing.** The gate fades over 2 s from the film's last second (`rest < 1.1`
    in `onTimeUpdate`) and the invitation is handed over when the fade completes —
    the same two-beat exit the reference uses. `onEnded` only guarantees the fade

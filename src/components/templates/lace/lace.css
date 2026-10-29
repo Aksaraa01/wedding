@@ -270,9 +270,9 @@
    here — a transition would lag a frame behind the seal it is covering. */
 .lc-gate__seal {
   position: absolute;
-  left: 51.2%;
+  left: 50.4%;
   top: 51%;
-  width: 21.6%;
+  width: 22.8%;
   aspect-ratio: 200 / 240;
   transform: translate(-50%, -50%);
   will-change: left, top, width;
@@ -1060,17 +1060,19 @@
   margin: 2.8cqw auto;
   /* The reference's illustration breathes while you read the block; a static
      engraving reads as a missing asset next to the moving gift ornament. */
-  animation: lc-drift 9s ease-in-out infinite;
+  animation: lc-drift 7s ease-in-out infinite;
   will-change: transform;
 }
 
+/* Percentages resolved against a ~70 px illustration are sub-pixel, which read
+   as "no animation at all" — move in px so the drift is actually visible. */
 @keyframes lc-drift {
   0%,
   100% {
-    transform: translateY(0) rotate(0deg);
+    transform: translateY(2px) rotate(0.8deg);
   }
   50% {
-    transform: translateY(-3.2%) rotate(-0.6deg);
+    transform: translateY(-7px) rotate(-1.2deg);
   }
 }
 
@@ -1402,6 +1404,15 @@
 .lc-wishes {
   margin-top: 34px;
   padding-block: 150px 90px;
+}
+
+/* Reference RSVP mark: thin line art in the panel's cream, sitting above the
+   heading like it does in the reference. */
+.lc-wishes__mark {
+  display: block;
+  width: clamp(84px, 24vw, 104px);
+  margin: 0 auto 20px;
+  color: rgba(250, 244, 240, 0.86);
 }
 
 .lc-wishes__intro {
