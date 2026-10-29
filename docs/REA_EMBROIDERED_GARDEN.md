@@ -323,3 +323,33 @@ Per client feedback: kicker → title (*below* the floral arch) → intro → ev
 name → date and time (each on its own line) → venue → address → map link.
 "Add to calendar" was removed from this card — the countdown card already has
 it.
+
+### 11e. Cover: greeting above the call to action, whole-surface tap
+
+The guest greeting (`Dear,` + `guestName`, defaulting to `Tamu Undangan`) sits
+inside `.eg-gate__guest` at `bottom: max(126px, safe-area + 116px)`, i.e. 33 px
+above the "Tap to open" button at 390×844. It fades out with the button once the
+doors start (`guestOpacity: 0`), so the parted curtain is left clean. The tap
+handler is on the whole `.eg-gate`, not the button, so a tap anywhere on the
+cover opens it (verified by clicking y=300, mid-poster).
+
+Landscape is handled with a `min-aspect-ratio: 4/5` media query: the film keeps
+its whole 9:16 panel (`width: auto; height: 100%; aspect-ratio: 9/16`) on
+`#f1ece2` instead of being `cover`-cropped, which used to push the names off the
+top of the screen on a desktop viewport.
+
+### 11f. Gallery: two marquees, one viewer
+
+Sandhya's concept — a quote between two sliding photo rows — rebuilt in this
+palette. Two `.eg-gallery__row`s of `.eg-gilded` tiles (132 px wide, 3:4, gold
+hairline, paper mat), the second running in reverse, with `gallery_title`,
+`gallery_intro` and `gallery_quote` extras. The track is exactly
+`[...gallery, ...gallery]` and animates to `translateX(-50%)`, so the loop is
+seamless whatever the photo count; hover pauses, `prefers-reduced-motion` removes
+the animation, and both ends are mask-faded into the paper. Rows fade at 7% so a
+tile never pops in mid-slide.
+
+The story lightbox was generalised from `number | null` to
+`{ photos, index } | null`, so story tiles and gallery tiles share one viewer and
+one keyboard handler (`stepLightbox`). Tapping a gallery tile opens the gallery
+list at that photo, not the story list.
