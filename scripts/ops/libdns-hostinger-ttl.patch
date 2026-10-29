@@ -1,0 +1,42 @@
+diff --git a/provider.go b/provider.go
+index 32849fd..4b2a4f4 100644
+--- a/provider.go
++++ b/provider.go
+@@ -269,6 +269,21 @@ func toConcrete(records []libdns.Record) []libdns.Record {
+ // groupRecords groups libdns records by (name, type) into the Hostinger
+ // zone record format. When multiple records share the same (name, type),
+ // the minimum TTL is used for the group.
++// hostingerMinTTL is the smallest TTL the Hostinger DNS API accepts; it
++// answers HTTP 422 "[DNS:4005] Resource record TTL must be at least 60
++// seconds" for anything lower. ACME DNS-01 challenge records arrive from
++// certmagic with TTL 0 ("provider default"), which used to be forwarded as-is
++// and made every challenge fail. Clamp instead of trusting the caller.
++const hostingerMinTTL = 300
++
++func ttlSeconds(d time.Duration) int {
++	ttl := int(d / time.Second)
++	if ttl < hostingerMinTTL {
++		return hostingerMinTTL
++	}
++	return ttl
++}
++
+ func groupRecords(records []libdns.Record) []dnsZoneRecord {
+ 	type rrsetKey struct{ Name, Type string }
+ 	groups := make(map[rrsetKey]*dnsZoneRecord)
+@@ -286,13 +301,13 @@ func groupRecords(records []libdns.Record) []dnsZoneRecord {
+ 			groups[key] = &dnsZoneRecord{
+ 				Name: name,
+ 				Type: rr.Type,
+-				TTL:  int(rr.TTL / time.Second),
++				TTL:  ttlSeconds(rr.TTL),
+ 			}
+ 			order = append(order, key)
+ 		}
+ 		groups[key].Records = append(groups[key].Records, recordContent{Content: rr.Data})
+ 
+-		if ttl := int(rr.TTL / time.Second); ttl < groups[key].TTL {
++		if ttl := ttlSeconds(rr.TTL); ttl < groups[key].TTL {
+ 			groups[key].TTL = ttl
+ 		}
+ 	}

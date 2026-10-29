@@ -357,6 +357,12 @@ while local smoke passed green.
 
 Note: `tsconfig.tsbuildinfo` is local build noise — leave it uncommitted.
 
+### TLS certificates & Caddy (VPS)
+- `/usr/bin/caddy` is a **custom `xcaddy` build**, not the apt package: the official deb ships zero `dns.providers` modules, while `/etc/caddy/Caddyfile` needs `tls { dns hostinger … }` for the wildcards. The package is `apt-mark hold`-ed; a plain `apt upgrade` would install a binary that cannot parse the Caddyfile. Rebuild with `scripts/ops/build-caddy-linux.sh` (it applies `scripts/ops/libdns-hostinger-ttl.patch`) and follow `scripts/ops/deploy-caddy.md`.
+- The patch exists because `libdns-hostinger` forwards ACME's `TTL 0` to the Hostinger API, which rejects it (`HTTP 422 [DNS:4005] … at least 60 seconds`). Without it DNS-01 renewal fails **silently** — on 2026-10-29 that expired every wildcard cert (`wedding.`, `wp.`, `www.`, all couple subdomains) 31 days after the first failed renewal.
+- Guard: `cert-expiry-check.timer` (daily 06:00 WIB) runs `scripts/ops/cert-expiry-check.sh` on the VPS and WhatsApps the ops group when a host stops verifying, expires in <14 days, or Caddy logged a renewal failure in the last 6 h. `--dry-run` prints instead of sending.
+- `npm run deploy`'s smoke test treats TLS/DNS curl failures as fatal; do not weaken that back to "ERR is fine".
+
 ### Start local development
 
 ```bash
