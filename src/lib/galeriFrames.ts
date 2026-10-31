@@ -361,7 +361,8 @@ type EditorialLayout = ArtLayout & { topBand: number; textBand: number }
 
 // Warm paper stage, white polaroid card, white mat, thick signature margin.
 function polaroidLayout(W: number, aspect: number): PolaroidLayout {
-  const stagePad = W * 0.045
+  // No outer stage: the downloaded JPG is the print itself, edge to edge.
+  const stagePad = 0
   const cardW = W - stagePad * 2
   // Same composition as portrait at every aspect: photo on top, signature
   // band underneath. Only the band gets thinner on landscape prints.
@@ -393,16 +394,17 @@ function polaroidLayout(W: number, aspect: number): PolaroidLayout {
 // Cream stationery card: label + serif couple + stacked date, hairline mat,
 // "A NEW CHAPTER TOGETHER" footer, watercolour cluster bleeding bottom-right.
 function ivoryLayout(W: number, aspect: number): IvoryLayout {
-  const stagePad = W * 0.035
+  // No outer stage: the card fills the canvas (full frame in downloads).
+  const stagePad = 0
   const cardX = stagePad
   const cardY = stagePad
   const cardW = W - stagePad * 2
   // Same composition as portrait (header above, footer below the photo); the
   // landscape numbers are just tighter so the card stays wide.
   const landscape = aspect < 1
-  const padTop = cardW * (landscape ? 0.05 : 0.06)
-  const headerH = cardW * (landscape ? 0.15 : 0.27)
-  const gap1 = cardW * (landscape ? 0.03 : 0.04)
+  const padTop = cardW * (landscape ? 0.045 : 0.055)
+  const headerH = cardW * (landscape ? 0.145 : 0.245)
+  const gap1 = cardW * (landscape ? 0.025 : 0.03)
   const photoInset = cardW * (landscape ? 0.055 : 0.085)
   const photoW = cardW - photoInset * 2
   const photoH = photoW * aspect
@@ -576,89 +578,68 @@ async function paintIvoryCard(
   ctx.shadowBlur = W * 0.03
   ctx.shadowOffsetY = W * 0.008
   ctx.fillStyle = "#f8f5ee"
-  roundRectPath(ctx, L.cardX, L.cardY, L.cardW, L.cardH, W * 0.035)
+  roundRectPath(ctx, L.cardX, L.cardY, L.cardW, L.cardH, 0)
   ctx.fill()
   ctx.restore()
   ctx.save()
   ctx.strokeStyle = "rgba(27,28,25,0.08)"
   ctx.lineWidth = Math.max(1, W * 0.0012)
-  roundRectPath(ctx, L.cardX, L.cardY, L.cardW, L.cardH, W * 0.035)
+  roundRectPath(ctx, L.cardX, L.cardY, L.cardW, L.cardH, 0)
   ctx.stroke()
   ctx.restore()
 
-  // Header: eyebrow label (left), stacked numeric date (right, behind a rule).
+  // Header — centred in BOTH orientations: eyebrow, couple name, date.
   const landscape = aspect < 1
+  const cx = L.cardX + L.cardW / 2
   ctx.save()
   ctx.fillStyle = "#1b1c19"
   const label = fitTracked(
     ctx,
     "THE WEDDING OF",
-    L.cardW * 0.42,
-    L.cardW * (landscape ? 0.022 : 0.026),
+    L.cardW * 0.5,
+    L.cardW * (landscape ? 0.018 : 0.022),
     "600",
     '"Plus Jakarta Sans", sans-serif',
     0.3,
-    L.cardW * 0.014
+    L.cardW * 0.012
   )
   ctx.font = `600 ${label.size}px "Plus Jakarta Sans", sans-serif`
-  drawTracked(ctx, "THE WEDDING OF", leftX, headerTop + L.cardW * (landscape ? 0.028 : 0.04), label.tracking, "left")
-  ctx.restore()
+  drawTracked(ctx, "THE WEDDING OF", cx, headerTop + L.cardW * (landscape ? 0.02 : 0.026), label.tracking, "center")
 
-  const parts = dateParts(text.date)
-  if (landscape) {
-    // Compact single-line date, right aligned (the tall stacked stamp would
-    // push the card back to portrait proportions).
-    if (parts) {
-      const line = [parts.d, parts.m, parts.y].filter(Boolean).join(" · ")
-      ctx.save()
-      ctx.fillStyle = "#1b1c19"
-      const stamp = fitTracked(ctx, line, L.cardW * 0.24, L.cardW * 0.022, "600", '"Plus Jakarta Sans", sans-serif', 0.18, L.cardW * 0.014)
-      ctx.font = `600 ${stamp.size}px "Plus Jakarta Sans", sans-serif`
-      drawTracked(ctx, line, rightX, headerTop + L.cardW * 0.028, stamp.tracking, "right")
-      ctx.restore()
-    }
-  } else if (parts) {
-    const stampLines = [parts.d, parts.m, parts.y].filter(Boolean)
-    const dateSize = L.cardW * 0.03
-    const lineH = dateSize * 1.55
-    const stackTop = headerTop + L.cardW * 0.012
-    ctx.save()
-    ctx.fillStyle = "#1b1c19"
-    ctx.font = `600 ${dateSize}px "Plus Jakarta Sans", sans-serif`
-    stampLines.forEach((line, i) => {
-      drawTracked(ctx, line, rightX, stackTop + dateSize + i * lineH, dateSize * 0.22, "right")
-    })
-    // Hairline divider between the couple block and the date stack.
-    ctx.strokeStyle = "rgba(27,28,25,0.28)"
-    ctx.lineWidth = Math.max(1, W * 0.0013)
-    const ruleX = rightX - L.cardW * 0.12
-    ctx.beginPath()
-    ctx.moveTo(ruleX, stackTop + L.cardW * 0.004)
-    ctx.lineTo(ruleX, stackTop + stampLines.length * lineH - L.cardW * 0.012)
-    ctx.stroke()
-    ctx.restore()
-  }
-
-  // Couple name: stately uppercase serif, up to two lines.
-  const couple = (text.couple || "").trim().toUpperCase() || "MEM PELAI"
-  const nameMaxW = landscape ? rightX - leftX - L.cardW * 0.28 : rightX - leftX - L.cardW * 0.19
+  const couple = (text.couple || "").trim().toUpperCase() || "MEMPELAI"
   const name = fitLines(ctx, couple, {
-    maxWidth: nameMaxW,
+    maxWidth: L.cardW * 0.86,
     maxLines: landscape ? 1 : 2,
-    size: L.cardW * (landscape ? 0.052 : 0.072),
-    minSize: L.cardW * 0.03,
+    size: L.cardW * (landscape ? 0.05 : 0.072),
+    minSize: L.cardW * (landscape ? 0.032 : 0.042),
     weight: "400",
     family: '"Playfair Display", serif',
   })
-  ctx.save()
-  ctx.fillStyle = "#1b1c19"
-  ctx.textAlign = "left"
-  const nameLineH = name.size * 1.14
-  let nameY = headerTop + L.cardW * (landscape ? 0.105 : 0.08) + name.size
+  ctx.textAlign = "center"
+  const nameLineH = name.size * 1.12
+  let nameY = headerTop + L.cardW * (landscape ? 0.052 : 0.062) + name.size
   for (const line of name.lines) {
     ctx.font = `400 ${name.size}px "Playfair Display", serif`
-    ctx.fillText(line, leftX, nameY)
+    ctx.fillText(line, cx, nameY)
     nameY += nameLineH
+  }
+
+  const parts = dateParts(text.date)
+  const dateLine = parts ? [parts.d, parts.m, parts.y].filter(Boolean).join(" · ") : (text.date || "").trim()
+  if (dateLine) {
+    const stamp = fitTracked(
+      ctx,
+      dateLine,
+      L.cardW * 0.7,
+      L.cardW * (landscape ? 0.017 : 0.024),
+      "600",
+      '"Plus Jakarta Sans", sans-serif',
+      0.22,
+      L.cardW * 0.012
+    )
+    ctx.font = `600 ${stamp.size}px "Plus Jakarta Sans", sans-serif`
+    ctx.fillStyle = "#534342"
+    drawTracked(ctx, dateLine, cx, nameY - nameLineH + L.cardW * (landscape ? 0.038 : 0.046), stamp.tracking, "center")
   }
   ctx.restore()
 
@@ -784,20 +765,20 @@ async function paintEditorialCard(
   if (date) {
     const stamp = fitTracked(ctx, date, W * 0.6, W * (landscape ? 0.0175 : 0.023), "600", '"Plus Jakarta Sans", sans-serif', 0.16, W * 0.012)
     ctx.font = `600 ${stamp.size}px "Plus Jakarta Sans", sans-serif`
-    drawTracked(ctx, date, W - W * 0.05, L.photoY + W * (landscape ? 0.04 : 0.048), stamp.tracking, "right")
+    drawTracked(ctx, date, W - W * 0.05, L.photoY + W * (landscape ? 0.03 : 0.048), stamp.tracking, "right")
   }
   ctx.shadowColor = "rgba(255,255,255,0.92)"
   ctx.shadowBlur = W * 0.016
   // Masthead: italic "the" baseline-aligned before the display "Wedding".
-  const theSize = W * (landscape ? 0.028 : 0.052)
-  const weddingSize = W * (landscape ? 0.06 : 0.132)
+  const theSize = W * (landscape ? 0.024 : 0.052)
+  const weddingSize = W * (landscape ? 0.05 : 0.132)
   ctx.font = `italic 400 ${theSize}px "Playfair Display", serif`
   const theW = ctx.measureText("the").width
   ctx.font = `400 ${weddingSize}px "Playfair Display", serif`
   const weddingW = ctx.measureText("Wedding").width
   const gap = W * 0.008
   const mastheadX = (W - (theW + gap + weddingW)) / 2
-  const mastheadY = L.photoY + W * (landscape ? 0.1 : 0.175)
+  const mastheadY = L.photoY + W * (landscape ? 0.075 : 0.175)
   ctx.fillStyle = "#1b1c19"
   ctx.font = `italic 400 ${theSize}px "Playfair Display", serif`
   ctx.textAlign = "left"
@@ -805,9 +786,9 @@ async function paintEditorialCard(
   ctx.font = `400 ${weddingSize}px "Playfair Display", serif`
   ctx.fillText("Wedding", mastheadX + theW + gap, mastheadY)
   // Editorial subtitle.
-  const eyebrow = fitTracked(ctx, "FOREVER BEGINS HERE", W * 0.62, W * (landscape ? 0.014 : 0.0215), "600", '"Plus Jakarta Sans", sans-serif', 0.4, W * 0.01)
+  const eyebrow = fitTracked(ctx, "FOREVER BEGINS HERE", W * 0.62, W * (landscape ? 0.0125 : 0.0215), "600", '"Plus Jakarta Sans", sans-serif', 0.4, W * 0.009)
   ctx.font = `600 ${eyebrow.size}px "Plus Jakarta Sans", sans-serif`
-  drawTracked(ctx, "FOREVER BEGINS HERE", W / 2, L.photoY + W * (landscape ? 0.135 : 0.245), eyebrow.tracking, "center")
+  drawTracked(ctx, "FOREVER BEGINS HERE", W / 2, L.photoY + W * (landscape ? 0.112 : 0.245), eyebrow.tracking, "center")
   ctx.restore()
 
   // White text band under the cover (portrait only).
