@@ -63,10 +63,48 @@ const MEDALLION_TRACK: { t: number; cx: number; w: number; h: number }[] = [
   { t: 4.4, cx: 109.0, w: 30.7, h: 32.8 },
 ]
 
-// The cream curtain starts parting at ~5s and is fully dressed open at ~9.6s;
-// the film reveals the invitation at its end (10.3s). The couple's names are
-// held back until the curtain is open, then fade in for the final beat.
-const NAMES_AT = 8.4
+// The cream curtain is painted into the film, so the names cannot sit "behind"
+// it in the DOM — they are clipped to the gap the curtains actually open. These
+// are the measured inner edges of that gap as a percentage of the film width,
+// at the top (30%) and bottom (43%) of the names' band, sampled every 0.4s.
+// The clip is a hair inside the pearl trim, so the copy never spills onto the
+// fabric, and the reveal follows the real opening instead of a timer.
+const CURTAIN_GAP: { t: number; lt: number; rt: number; lb: number; rb: number }[] = [
+  { t: 0.0, lt: 50, rt: 50, lb: 50, rb: 50 },
+  { t: 5.4, lt: 50, rt: 50, lb: 50, rb: 50 },
+  { t: 5.8, lt: 46.2, rt: 53.1, lb: 45.6, rb: 54.6 },
+  { t: 6.2, lt: 42.7, rt: 56.2, lb: 41.6, rb: 58.8 },
+  { t: 6.6, lt: 38.2, rt: 60.0, lb: 36.6, rb: 63.6 },
+  { t: 7.0, lt: 34.3, rt: 64.2, lb: 32.0, rb: 68.2 },
+  { t: 7.4, lt: 30.8, rt: 67.6, lb: 27.8, rb: 72.3 },
+  { t: 7.8, lt: 27.2, rt: 70.7, lb: 23.7, rb: 76.1 },
+  { t: 8.2, lt: 24.6, rt: 72.9, lb: 20.2, rb: 78.1 },
+  { t: 8.6, lt: 22.8, rt: 74.7, lb: 19.8, rb: 79.1 },
+  { t: 9.0, lt: 21.6, rt: 75.8, lb: 18.9, rb: 80.1 },
+  { t: 9.4, lt: 21.4, rt: 76.3, lb: 17.9, rb: 80.9 },
+  { t: 10.3, lt: 21.4, rt: 76.3, lb: 17.9, rb: 80.9 },
+]
+
+function curtainGapAt(time: number) {
+  const first = CURTAIN_GAP[0]
+  if (time <= first.t) return first
+  const last = CURTAIN_GAP[CURTAIN_GAP.length - 1]
+  if (time >= last.t) return last
+  for (let i = 1; i < CURTAIN_GAP.length; i++) {
+    const b = CURTAIN_GAP[i]
+    if (time > b.t) continue
+    const a = CURTAIN_GAP[i - 1]
+    const k = (time - a.t) / (b.t - a.t)
+    return {
+      t: time,
+      lt: a.lt + (b.lt - a.lt) * k,
+      rt: a.rt + (b.rt - a.rt) * k,
+      lb: a.lb + (b.lb - a.lb) * k,
+      rb: a.rb + (b.rb - a.rb) * k,
+    }
+  }
+  return last
+}
 
 function medallionAt(time: number) {
   const first = MEDALLION_TRACK[0]
@@ -250,7 +288,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const plaqueRef = useRef<HTMLSpanElement | null>(null)
-  const namesRef = useRef<HTMLDivElement | null>(null)
+  const veilRef = useRef<HTMLDivElement | null>(null)
   const gateRef = useRef(false)
   const toastTimer = useRef<number | null>(null)
 
@@ -386,11 +424,10 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   useEffect(() => {
     if (!opening) return
     const plaque = plaqueRef.current
-    const names = namesRef.current
+    const veil = veilRef.current
     const video = videoRef.current
     if (!plaque) return
     let raf = 0
-    let shown = false
     let presented: number | null = null
     let frameHandle = 0
     const rvfc = video as
@@ -413,16 +450,17 @@ export default function EmbroideredGarden(profile: TemplateProps) {
       plaque.style.left = `${cx}%`
       plaque.style.width = `${w}%`
       plaque.style.height = `${h}%`
-      // The medallion owns the middle of the doors, so the cover copy starts
-      // above it; once the doors are clear of that space, it drifts down to
-      // sit in the area the cream curtain uncovers.
-      if (names) {
-        const k = Math.min(1, Math.max(0, (time - 3.5) / 3))
-        names.style.top = `${(24 + k * 10).toFixed(2)}%`
-      }
-      if (!shown && time >= NAMES_AT) {
-        shown = true
-        setNamesIn(true)
+      // The names are printed on the paper behind the curtain, so they are
+      // clipped to the trapezoid the curtain has opened. Once the curtain is
+      // dressed open the clip widens to the whole frame so nothing stays cut.
+      if (veil) {
+        const gap = curtainGapAt(time)
+        const open = Math.min(1, Math.max(0, (time - 9.2) / 0.6))
+        const lt = gap.lt * (1 - open)
+        const rt = gap.rt + (100 - gap.rt) * open
+        const lb = gap.lb * (1 - open)
+        const rb = gap.rb + (100 - gap.rb) * open
+        veil.style.clipPath = `polygon(${lt.toFixed(2)}% 30%, ${rt.toFixed(2)}% 30%, ${rb.toFixed(2)}% 43%, ${lb.toFixed(2)}% 43%)`
       }
       raf = window.requestAnimationFrame(apply)
     }
@@ -431,7 +469,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
       window.cancelAnimationFrame(raf)
       rvfc?.cancelVideoFrameCallback?.(frameHandle)
     }
-  }, [opening, setNamesIn])
+  }, [opening])
 
   useEffect(() => {
     document.body.style.overflow = opened ? "" : "hidden"
@@ -1081,9 +1119,11 @@ export default function EmbroideredGarden(profile: TemplateProps) {
             <DoorCartouche initials={monogram} />
           </span>
 
-          <div className="eg-gate__names" ref={namesRef}>
-            <p className="eg-gate__pair">{coupleLabel}</p>
-            {dateLong && <p className="eg-gate__date">{dateLong}</p>}
+          <div className="eg-gate__veil" ref={veilRef}>
+            <div className="eg-gate__names">
+              <p className="eg-gate__pair">{coupleLabel}</p>
+              {dateLong && <p className="eg-gate__date">{dateLong}</p>}
+            </div>
           </div>
         </div>
 

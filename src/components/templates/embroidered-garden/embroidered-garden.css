@@ -234,23 +234,32 @@ body:has(.eg-root.is-locked) {
   overflow: visible;
 }
 
+/* The veil is the full film box and is clipped to the gap the painted curtain
+   opens (percentages measured off the film, set per frame in index.tsx). The
+   names inside therefore read as printed behind the curtain rather than as an
+   overlay that fades in. */
+.eg-gate__veil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  clip-path: inset(0 50% 0 50%);
+}
+
+.eg-gate.is-names .eg-gate__veil {
+  /* No film (blocked autoplay / reduced motion): show the names at once. */
+  clip-path: none;
+}
+
 .eg-gate__names {
   position: absolute;
   left: 0;
   right: 0;
-  /* Starts above the medallion, then drifts to 34% as the curtain parts
-     (driven from the film clock in index.tsx). It stays hidden until the
-     curtain is open, so the cover never shows the names over closed doors. */
-  top: 24%;
+  /* Sits in the band measured behind the curtain (30%–43% of the film). Its
+     reveal is the curtain itself, so there is no fade and no drift. */
+  top: 30%;
   text-align: center;
   color: #2f3b34;
   text-shadow: 0 1px 14px rgba(250, 246, 238, 0.85);
-  opacity: 0;
-  transition: opacity 0.7s ease;
-}
-
-.eg-gate.is-names .eg-gate__names {
-  opacity: 1;
 }
 
 .eg-gate__guest {
