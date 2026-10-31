@@ -150,9 +150,8 @@ export default function GalleryGatePage({ params }: { params: Promise<{ token: s
   }
 
   const couple = data.event?.couple_name || ""
-  // Envelope chrome shows the active frame's art in its TL/BR slots
-  // (frame-2 Sage = botanicalTopLeft + flowerBottomRight). Unframed
-  // events keep the previous flowerTopLeft/flowerBottomRight look.
+  // Envelope chrome shows the active frame's art in its TL/BR slots (ivory
+  // carries the dahlia cluster). Unframed events keep the default flowers.
   const gateFlorals = frameStageFlorals(normalizeFrameSelection(data.event?.frame))
   const gateTL = gateFlorals.tl || gateFlorals.tr || ASSETS.galeriEnvelope.flowerTopLeft
   const gateBR = gateFlorals.br || gateFlorals.bl || ASSETS.galeriEnvelope.flowerBottomRight

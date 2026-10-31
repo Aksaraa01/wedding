@@ -88,8 +88,8 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
   // preview. "none" keeps the original maroon capture UI untouched.
   const frameSelection = normalizeFrameSelection(frameId)
   const framedMode = frameSelection !== "none"
-  // Preview chrome shows the SAME corners the canvas bake draws for the
-  // active frame (frame-2 Sage = TL+BR, not the frame-1 TR+BL hardcodes).
+  // Preview chrome shows the SAME art the canvas bake draws for the active
+  // frame (the ivory card carries the dahlia cluster).
   const stageFlorals = frameStageFlorals(frameSelection)
   const [facing, setFacing] = useState<"environment" | "user">("environment")
   const [flash, setFlash] = useState(false)
