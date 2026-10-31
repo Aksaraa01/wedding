@@ -78,8 +78,8 @@ export const GALERI_FRAME_THUMBS: Record<GaleriFrameId, string> = {
   "frame-5": "/frames/frame-5.png",
 }
 
-// Same-origin floral art for the ivory card (mauve watercolour cluster).
-const IVORY_FLORAL = "/frames/flower-corner.png"
+// Same-origin floral art for the ivory card (the mock's pink dahlia cluster).
+const IVORY_FLORAL = "/frames/ivory-dahlia.png"
 
 export type StageFlorals = { tl: string | null; tr: string | null; bl: string | null; br: string | null }
 
@@ -859,15 +859,15 @@ function ivoryLayout(W: number, aspect: number): IvoryLayout {
   const cardX = stagePad
   const cardY = stagePad
   const cardW = W - stagePad * 2
-  const padTop = cardW * 0.065
-  const headerH = cardW * 0.33
-  const gap1 = cardW * 0.045
-  const photoInset = cardW * 0.055
+  const padTop = cardW * 0.06
+  const headerH = cardW * 0.27
+  const gap1 = cardW * 0.04
+  const photoInset = cardW * 0.085
   const photoW = cardW - photoInset * 2
   const photoH = photoW * aspect
-  const gap2 = cardW * 0.06
-  const footerH = cardW * 0.17
-  const padBottom = cardW * 0.07
+  const gap2 = cardW * 0.055
+  const footerH = cardW * 0.16
+  const padBottom = cardW * 0.065
   const cardH = padTop + headerH + gap1 + photoH + gap2 + footerH + padBottom
   return {
     H: Math.round(cardH + stagePad * 2),
@@ -1076,7 +1076,7 @@ async function paintIvoryCard(
   ctx.fillStyle = "#1b1c19"
   ctx.textAlign = "left"
   const nameLineH = name.size * 1.14
-  let nameY = headerTop + L.cardW * 0.085 + name.size
+  let nameY = headerTop + L.cardW * 0.08 + name.size
   for (const line of name.lines) {
     ctx.font = `400 ${name.size}px "Playfair Display", serif`
     ctx.fillText(line, leftX, nameY)
@@ -1120,11 +1120,11 @@ async function paintIvoryCard(
 
   // Watercolour cluster: overlaps the photo, bleeds off the card corner.
   if (floral) {
-    const fw = W * 0.5
+    const fw = W * 0.46
     const fh = (fw * floral.naturalHeight) / Math.max(1, floral.naturalWidth)
     ctx.save()
     ctx.globalAlpha = 0.98
-    ctx.drawImage(floral, W - fw * 0.9, L.H - fh * 0.84, fw, fh)
+    ctx.drawImage(floral, W - fw * 0.82, L.H - fh * 0.98, fw, fh)
     ctx.restore()
   }
 }

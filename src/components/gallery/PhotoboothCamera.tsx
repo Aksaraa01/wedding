@@ -12,7 +12,7 @@ const MAX_CAPTION = 140
 const SERIF: React.CSSProperties = { fontFamily: "'Playfair Display', serif" }
 const SANS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" }
 
-type Shot = { file: File; previewUrl: string; captureId: string }
+type Shot = { file: File; previewUrl: string; captureId: string; aspect: number }
 
 type ExtendedCapabilities = MediaTrackCapabilities & {
   torch?: boolean
@@ -122,38 +122,49 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     if (video) video.style.transform = `scale(${target})`
   }
 
-  const captureFromVideo = async (): Promise<File | null> => {
+  const captureFromVideo = async (): Promise<{ file: File; aspect: number } | null> => {
     const video = videoRef.current
     const canvas = canvasRef.current
     if (!video || !canvas || !video.videoWidth) return null
     const vw = video.videoWidth
     const vh = video.videoHeight
-    // 4:3 cover crop, capped at 1800px — matches the gallery card frame and
-    // the keepsake-book print size.
-    const targetAspect = 4 / 3
-    const videoAspect = vw / vh
-    let sx = 0, sy = 0, sw = vw, sh = vh
-    if (videoAspect > targetAspect) {
-      sw = Math.round(vh * targetAspect)
-      sx = Math.round((vw - sw) / 2)
+    // Capture EXACTLY what the guest sees: the <video> is full-bleed with
+    // object-cover, so the visible region is the element's own aspect (a tall
+    // portrait frame on phones). Forcing 4:3 here handed back a landscape
+    // image of a portrait viewfinder.
+    const Ew = video.clientWidth || window.innerWidth || vw
+    const Eh = video.clientHeight || window.innerHeight || vh
+    const targetAspect = Math.min(2.5, Math.max(0.4, Ew / Eh))
+    const scaleCover = Math.max(Ew / vw, Eh / vh)
+    let sw = Ew / scaleCover
+    let sh = Eh / scaleCover
+    let sx = (vw - sw) / 2
+    let sy = (vh - sh) / 2
+    if (sw / sh > targetAspect) {
+      const sw2 = sh * targetAspect
+      sx += (sw - sw2) / 2
+      sw = sw2
     } else {
-      sh = Math.round(vw / targetAspect)
-      sy = Math.round((vh - sh) / 2)
+      const sh2 = sw / targetAspect
+      sy += (sh - sh2) / 2
+      sh = sh2
     }
-    const scale = Math.min(1, 1800 / Math.max(sw, sh))
-    canvas.width = Math.round(sw * scale)
-    canvas.height = Math.round(sh * scale)
+    // Cap the long edge at 1800px — same budget as the old 4:3 crop.
+    const outScale = Math.min(1, 1800 / Math.max(sw, sh))
+    canvas.width = Math.round(sw * outScale)
+    canvas.height = Math.round(sh * outScale)
     const ctx = canvas.getContext("2d")
     if (!ctx) return null
     ctx.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height)
     const blob = await new Promise<Blob | null>((res) => canvas.toBlob((b) => res(b), "image/jpeg", 0.88))
     if (!blob) return null
-    return new File([blob], `capture-${Date.now()}.jpg`, { type: "image/jpeg" })
+    const aspect = canvas.width / Math.max(1, canvas.height)
+    return { file: new File([blob], `capture-${Date.now()}.jpg`, { type: "image/jpeg" }), aspect }
   }
 
-  const takeShot = async (file: File) => {
+  const takeShot = async (file: File, aspect: number) => {
     const compressed = await compressImage(file)
-    setShot({ file: compressed, previewUrl: URL.createObjectURL(compressed), captureId: newCaptureId() })
+    setShot({ file: compressed, previewUrl: URL.createObjectURL(compressed), captureId: newCaptureId(), aspect })
     setCaption("")
     setError("")
   }
@@ -163,8 +174,8 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
       setError("Slot foto Anda sudah habis.")
       return
     }
-    const file = await captureFromVideo()
-    if (!file) {
+    const captured = await captureFromVideo()
+    if (!captured) {
       setError("Gagal mengambil foto. Coba lagi.")
       return
     }
@@ -181,7 +192,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
         }, 120)
       }
     }
-    await takeShot(file)
+    await takeShot(captured.file, captured.aspect)
   }
 
   const handleUpload = async () => {
@@ -448,7 +459,10 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
                 </div>
               </div>
 
-              <div className="relative w-full max-w-[340px] aspect-[4/3] rounded-[1rem] overflow-hidden bg-black shadow-2xl flex items-center justify-center select-none">
+              <div
+                className="relative w-full max-w-[340px] rounded-[1rem] overflow-hidden bg-black shadow-2xl flex items-center justify-center select-none"
+                style={{ aspectRatio: String(shot.aspect || 4 / 3) }}
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={shot.previewUrl} alt="Pratinjau foto" className="w-full h-full object-cover" style={cameraFilter ? { filter: cameraFilter } : undefined} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none" />
