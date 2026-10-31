@@ -25,6 +25,26 @@ function fitGuide(w: number, h: number, aspect: number, margin = 0.9) {
   return { x: (w - gw) / 2, y: (h - gh) / 2, w: gw, h: gh }
 }
 
+// Capture window placement: inside the free area between the two-row header
+// and the control bar/rail, biased upward so it never hides behind the
+// overlays. Used by both the viewfinder and the shutter so they always agree.
+function captureGuide(viewW: number, viewH: number, aspect: number, landscape: boolean) {
+  const reserveTop = landscape ? 10 : 112
+  const reserveBottom = landscape ? 10 : 156
+  const reserveRight = landscape ? 78 : 8
+  const availW = Math.max(120, viewW - 8 - reserveRight)
+  const availH = Math.max(120, viewH - reserveTop - reserveBottom)
+  const fit = fitGuide(availW, availH, aspect, 1)
+  return {
+    x: 8 + (availW - fit.w) / 2,
+    // Biased upward: the window sits close under the header instead of dead
+    // centre, so the guest's face lands in frame without tilting the phone.
+    y: reserveTop + (availH - fit.h) * 0.25,
+    w: fit.w,
+    h: fit.h,
+  }
+}
+
 type ExtendedCapabilities = MediaTrackCapabilities & {
   torch?: boolean
   zoom?: { min: number; max: number; step: number }
@@ -175,7 +195,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
       ? Math.min(2.6, Math.max(1.4, screenRatio))
       : 16 / 9
     : 4 / 5
-  const guide = view.w > 0 && view.h > 0 ? fitGuide(view.w, view.h, targetAspect, 0.97) : null
+  const guide = view.w > 0 && view.h > 0 ? captureGuide(view.w, view.h, targetAspect, screenLandscape) : null
 
   // The viewfinder box mounts after the first layout pass, and remounts on
   // retake: re-attach the already-open stream so the preview never waits for a
@@ -291,7 +311,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     // orientation (auto = the live layout box), and the rect is mapped through
     // the object-cover transform so the framing is whatever the guest sees.
     const shotAspect = targetAspect
-    const g = fitGuide(Ew, Eh, shotAspect)
+    const g = captureGuide(Ew, Eh, shotAspect, screenLandscape)
     const cover = Math.max(Ew / vw, Eh / vh)
     const offX = (Ew - vw * cover) / 2
     const offY = (Eh - vh * cover) / 2
@@ -429,33 +449,47 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
           </div>
           <div id="gt-flash" className="absolute inset-0 bg-white opacity-0 pointer-events-none z-40 transition-opacity duration-150" />
 
-          <header className="relative z-20 w-full px-4 pt-4 flex items-center justify-between">
-            <button
-              aria-label="Kembali"
-              onClick={() => router.push(backHref)}
-              className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md text-white flex items-center justify-center border border-white/20 active:scale-95 transition-transform"
-            >
-              <span className="material-symbols-outlined text-[20px]">close</span>
-            </button>
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-white/20">
-              <div className="flex flex-col text-left">
-                <span className="text-[12px] text-white leading-none font-semibold" style={{ fontFamily: "Playfair Display" }}>{coupleName}</span>
-                {dateLabel && <span className="text-[8px] uppercase tracking-widest text-[#ffddba] opacity-90 leading-tight mt-0.5">{dateLabel}</span>}
+          <header
+            className={`relative z-20 w-full px-4 pt-4 flex gap-2 ${
+              screenLandscape ? "flex-row items-center justify-between" : "flex-col"
+            }`}
+          >
+            {/* Row 1 — the main chip: couple + date on one line. */}
+            <div className={`flex items-center gap-2 ${screenLandscape ? "max-w-[54%] shrink-0" : ""}`}>
+              <button
+                aria-label="Kembali"
+                onClick={() => router.push(backHref)}
+                className="w-10 h-10 shrink-0 rounded-full bg-black/60 backdrop-blur-md text-white flex items-center justify-center border border-white/20 active:scale-95 transition-transform"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+              <div className="flex-1 min-w-0 flex items-center px-3.5 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-white/20">
+                <div className="flex flex-col text-left min-w-0">
+                  <span className="text-[13px] text-white leading-tight font-semibold truncate" style={{ fontFamily: "Playfair Display" }}>{coupleName}</span>
+                  {dateLabel && <span className="text-[8.5px] uppercase tracking-[0.18em] text-[#ffddba] opacity-90 leading-tight mt-0.5 truncate">{dateLabel}</span>}
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-1.5">
-              <div className="flex items-center gap-1 px-2.5 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-white/20">
+            {/* Row 2 — count + camera (+ fullscreen). */}
+            <div className="flex items-center justify-center gap-1.5">
+              <div className="flex items-center gap-1 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-full border border-white/20">
                 <span className="w-2 h-2 rounded-full bg-[#ffddba] animate-pulse" />
-                <span className="text-[10px] text-white tracking-wider uppercase font-semibold">{frameLabel}{cameraName ? ` • ${cameraName}` : ""}</span>
+                <span className="text-[10px] text-white tracking-wider uppercase font-semibold whitespace-nowrap">{frameLabel}</span>
               </div>
+              {cameraName && (
+                <div className="flex items-center gap-1 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-full border border-white/20">
+                  <span className="material-symbols-outlined text-[13px] text-white/80">camera</span>
+                  <span className="text-[10px] text-white tracking-wider uppercase font-semibold whitespace-nowrap">{cameraName}</span>
+                </div>
+              )}
               {fullscreenSupported && (
                 <button
                   aria-label={isFullscreen ? "Keluar layar penuh" : "Layar penuh"}
                   onClick={() => void toggleFullscreen()}
-                  className={`h-9 rounded-full bg-black/60 backdrop-blur-md text-white flex items-center justify-center gap-1 border border-white/20 active:scale-95 transition-transform ${isFullscreen ? "w-9" : "px-2.5"}`}
+                  className={`h-7 rounded-full bg-black/60 backdrop-blur-md text-white flex items-center justify-center gap-1 border border-white/20 active:scale-95 transition-transform ${isFullscreen ? "w-7" : "px-2.5"}`}
                 >
-                  <span className="material-symbols-outlined text-[18px]">{isFullscreen ? "fullscreen_exit" : "fullscreen"}</span>
-                  {!isFullscreen && !screenLandscape && <span className="text-[10px] font-semibold uppercase tracking-wider">Penuh</span>}
+                  <span className="material-symbols-outlined text-[16px]">{isFullscreen ? "fullscreen_exit" : "fullscreen"}</span>
+                  {!isFullscreen && <span className="text-[9px] font-semibold uppercase tracking-wider">Penuh</span>}
                 </button>
               )}
             </div>
