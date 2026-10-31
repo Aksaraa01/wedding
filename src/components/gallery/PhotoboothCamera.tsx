@@ -482,7 +482,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
                   <span className="text-[10px] text-white tracking-wider uppercase font-semibold whitespace-nowrap">{cameraName}</span>
                 </div>
               )}
-              {fullscreenSupported && (
+              {fullscreenSupported && !screenLandscape && (
                 <button
                   aria-label={isFullscreen ? "Keluar layar penuh" : "Layar penuh"}
                   onClick={() => void toggleFullscreen()}
@@ -505,6 +505,16 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
             <p className="relative z-20 mx-6 mt-3 text-center text-[12px] text-white bg-black/70 rounded-xl px-4 py-2">{fullscreenHint}</p>
           )}
 
+          {screenLandscape && fullscreenSupported && (
+            <button
+              aria-label={isFullscreen ? "Keluar layar penuh" : "Layar penuh"}
+              onClick={() => void toggleFullscreen()}
+              className="absolute bottom-3 left-3 z-20 h-9 px-2.5 rounded-full bg-black/60 backdrop-blur-md text-white flex items-center justify-center gap-1 border border-white/20 active:scale-95 transition-transform"
+            >
+              <span className="material-symbols-outlined text-[18px]">{isFullscreen ? "fullscreen_exit" : "fullscreen"}</span>
+              {!isFullscreen && <span className="text-[9px] font-semibold uppercase tracking-wider">Penuh</span>}
+            </button>
+          )}
           {screenLandscape && (
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 p-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20">
               <button
