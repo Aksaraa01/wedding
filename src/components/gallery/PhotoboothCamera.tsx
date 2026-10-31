@@ -85,6 +85,8 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
   const [cameraError, setCameraError] = useState("")
   const [screenAspect, setScreenAspect] = useState(0)
   const [view, setView] = useState({ w: 0, h: 0 })
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [fullscreenSupported, setFullscreenSupported] = useState(false)
   // Capture orientation: follow the device layout by default, but let the guest
   // force Tegak/Mendatar (rotation lock and some in-app browsers never rotate
   // the page, so the box alone cannot tell us how they are holding it).
@@ -163,10 +165,16 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
         : view.w > 0 && view.h > 0
           ? view.w >= view.h
           : screenAspect >= 1
-  // 16:9 matches a landscape phone screen; 4:5 keeps portrait cards from
-  // turning into very tall strips.
-  const targetAspect = landscapeView ? 16 / 9 : 4 / 5
-  const guide = view.w > 0 && view.h > 0 ? fitGuide(view.w, view.h, targetAspect) : null
+  // Tegak = 4:5 (fills the width on a portrait screen). Mendatar = the actual
+  // landscape screen ratio when the page is landscape (so the guide fills the
+  // screen with no empty side bands); 16:9 when forced on a portrait screen.
+  const screenRatio = view.w > 0 && view.h > 0 ? view.w / view.h : screenAspect || 1
+  const targetAspect = landscapeView
+    ? screenLandscape && screenRatio > 1
+      ? Math.min(2.6, Math.max(1.4, screenRatio))
+      : 16 / 9
+    : 4 / 5
+  const guide = view.w > 0 && view.h > 0 ? fitGuide(view.w, view.h, targetAspect, 0.97) : null
 
   // The viewfinder box mounts after the first layout pass, and remounts on
   // retake: re-attach the already-open stream so the preview never waits for a
@@ -186,6 +194,43 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     if (!track?.applyConstraints || !torchOn) return
     track.applyConstraints({ advanced: [{ torch: flash }] }).catch(() => {})
   }, [flash, torchOn])
+
+  // Fullscreen removes the browser chrome so the viewfinder can use the whole
+  // display. iOS Safari does not expose the API for non-video elements, so the
+  // control only renders where it actually works.
+  useEffect(() => {
+    type FsDoc = Document & { webkitFullscreenElement?: Element | null }
+    type FsEl = HTMLElement & { webkitRequestFullscreen?: () => Promise<void> }
+    const doc = document as FsDoc
+    const el = document.documentElement as FsEl
+    setFullscreenSupported(typeof el.requestFullscreen === "function" || typeof el.webkitRequestFullscreen === "function")
+    const update = () => setIsFullscreen(Boolean(document.fullscreenElement || doc.webkitFullscreenElement))
+    update()
+    document.addEventListener("fullscreenchange", update)
+    document.addEventListener("webkitfullscreenchange", update as EventListener)
+    return () => {
+      document.removeEventListener("fullscreenchange", update)
+      document.removeEventListener("webkitfullscreenchange", update as EventListener)
+    }
+  }, [])
+
+  const toggleFullscreen = async () => {
+    type FsDoc = Document & { webkitFullscreenElement?: Element | null; webkitExitFullscreen?: () => Promise<void> }
+    type FsEl = HTMLElement & { webkitRequestFullscreen?: () => Promise<void> }
+    const doc = document as FsDoc
+    const el = document.documentElement as FsEl
+    try {
+      const active = document.fullscreenElement || doc.webkitFullscreenElement
+      if (active) {
+        if (document.exitFullscreen) await document.exitFullscreen()
+        else await doc.webkitExitFullscreen?.()
+      } else if (typeof el.requestFullscreen === "function") {
+        await el.requestFullscreen({ navigationUI: "hide" }).catch(() => el.webkitRequestFullscreen?.())
+      } else {
+        await el.webkitRequestFullscreen?.()
+      }
+    } catch {}
+  }
 
   const applyZoom = (label: string) => {
     setZoom(label)
@@ -213,7 +258,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     // Take exactly the rect the viewfinder outlines. Aspect follows the chosen
     // orientation (auto = the live layout box), and the rect is mapped through
     // the object-cover transform so the framing is whatever the guest sees.
-    const shotAspect = landscapeView ? 16 / 9 : 4 / 5
+    const shotAspect = targetAspect
     const g = fitGuide(Ew, Eh, shotAspect)
     const cover = Math.max(Ew / vw, Eh / vh)
     const offX = (Ew - vw * cover) / 2
@@ -313,7 +358,14 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     <main className="relative w-full h-[100dvh] min-h-[100dvh] overflow-hidden bg-black select-none flex flex-col justify-between">
       {!shot ? (
         <>
-          <div ref={screenRef} className="absolute inset-0 z-0 overflow-hidden bg-black">
+          <div
+            ref={screenRef}
+            className="absolute inset-0 z-0 overflow-hidden bg-black"
+            // A tap on the preview drops the browser chrome (trusted gesture).
+            onClick={() => {
+              if (!isFullscreen && fullscreenSupported) void toggleFullscreen()
+            }}
+          >
             {/* Full-screen viewfinder; the outlined rect is exactly the shot. */}
             <video
               ref={videoRef}
@@ -359,9 +411,20 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
                 {dateLabel && <span className="text-[8px] uppercase tracking-widest text-[#ffddba] opacity-90 leading-tight mt-0.5">{dateLabel}</span>}
               </div>
             </div>
-            <div className="flex items-center gap-1 px-2.5 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-white/20">
-              <span className="w-2 h-2 rounded-full bg-[#ffddba] animate-pulse" />
-              <span className="text-[10px] text-white tracking-wider uppercase font-semibold">{frameLabel}{cameraName ? ` • ${cameraName}` : ""}</span>
+            <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1 px-2.5 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-white/20">
+                <span className="w-2 h-2 rounded-full bg-[#ffddba] animate-pulse" />
+                <span className="text-[10px] text-white tracking-wider uppercase font-semibold">{frameLabel}{cameraName ? ` • ${cameraName}` : ""}</span>
+              </div>
+              {fullscreenSupported && (
+                <button
+                  aria-label={isFullscreen ? "Keluar layar penuh" : "Layar penuh"}
+                  onClick={() => void toggleFullscreen()}
+                  className="w-9 h-9 rounded-full bg-black/60 backdrop-blur-md text-white flex items-center justify-center border border-white/20 active:scale-95 transition-transform"
+                >
+                  <span className="material-symbols-outlined text-[18px]">{isFullscreen ? "fullscreen_exit" : "fullscreen"}</span>
+                </button>
+              )}
             </div>
           </header>
 
@@ -473,13 +536,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
             </div>
           </div>
 
-          <div
-            className={
-              screenLandscape
-                ? "flex-1 min-h-0 w-full flex flex-row items-stretch justify-center gap-4 pt-2"
-                : "flex-1 min-h-0 w-full flex flex-col items-center gap-3 pt-1"
-            }
-          >
+          <div className="flex-1 min-h-0 w-full flex flex-col items-center gap-3 pt-1">
             {/* The card IS the uploaded JPG: same painter, same frame art.
                 It scales to whatever space is left, so nothing ever scrolls. */}
             <div className="flex-1 min-h-0 flex items-center justify-center w-full">
@@ -494,13 +551,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
               />
             </div>
 
-            <div
-              className={
-                screenLandscape
-                  ? "w-[44%] max-w-[380px] shrink-0 flex flex-col justify-center gap-3"
-                  : "w-full max-w-[540px] shrink-0 flex flex-col gap-3"
-              }
-            >
+            <div className="w-full max-w-[540px] shrink-0 flex flex-col gap-3">
             {/* Caption lives OUTSIDE the frame: it is stored with the photo
                 and shown in the gallery / keepsake book. */}
             <div className="w-full rounded-[1.1rem] border border-[#d9c1c0]/60 bg-white px-4 py-2.5 shadow-sm">
