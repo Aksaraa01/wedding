@@ -909,7 +909,7 @@ export default function GaleriKenangan({ params }: { params: Promise<{ id: strin
                             : `${GALERI_FRAME_NAMES[activeFrame]} aktif — diterapkan ke setiap foto tamu saat diunggah.`}
                         </p>
                       </div>
-                      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1 md:grid md:grid-cols-6 md:overflow-visible md:mx-0 md:px-0">
+                      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1 md:grid md:grid-cols-5 md:overflow-visible md:mx-0 md:px-0">
                         <button
                           onClick={() => void saveFrame("none")}
                           disabled={frameSaving !== null}

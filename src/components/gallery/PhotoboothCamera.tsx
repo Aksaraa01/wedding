@@ -6,6 +6,7 @@ import { compressImage } from "@/lib/imageCompress"
 import { applyGaleriFrame, frameStageFlorals, normalizeFrameSelection } from "@/lib/galeriFrames"
 import { newCaptureId } from "@/lib/gallery-client"
 import { ASSETS } from "@/lib/assets"
+import GaleriCardPreview from "@/components/gallery/GaleriCardPreview"
 
 const MAX_CAPTION = 140
 const SERIF: React.CSSProperties = { fontFamily: "'Playfair Display', serif" }
@@ -51,9 +52,13 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
   const streamRef = useRef<MediaStream | null>(null)
 
   const [used, setUsed] = useState(initialUsed)
+  // The couple's frame drives both the upload bake and the caption-screen
+  // preview. "none" keeps the original maroon capture UI untouched.
+  const frameSelection = normalizeFrameSelection(frameId)
+  const framedMode = frameSelection !== "none"
   // Preview chrome shows the SAME corners the canvas bake draws for the
   // active frame (frame-2 Sage = TL+BR, not the frame-1 TR+BL hardcodes).
-  const stageFlorals = frameStageFlorals(normalizeFrameSelection(frameId))
+  const stageFlorals = frameStageFlorals(frameSelection)
   const [facing, setFacing] = useState<"environment" | "user">("environment")
   const [flash, setFlash] = useState(false)
   const [torchOn, setTorchOn] = useState(false)
@@ -188,10 +193,11 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     setUploading(true)
     setError("")
     try {
-      // Bake the couple-selected frame into the JPG (couple/date/caption).
-      // applyGaleriFrame never throws: worst case the raw shot uploads.
+      // Bake the couple-selected frame into the JPG (couple/date + caption on
+      // the legacy frames). applyGaleriFrame never throws: worst case the raw
+      // shot uploads.
       const framed = await applyGaleriFrame(shot.file, {
-        frame: normalizeFrameSelection(frameId),
+        frame: frameSelection,
         couple: coupleName,
         date: dateLabel || "",
         caption: caption.trim(),
@@ -305,6 +311,100 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
             </div>
           </footer>
         </>
+      ) : framedMode ? (
+        <div className="relative flex-1 flex flex-col w-full px-5 pt-4 pb-8 overflow-y-auto" style={{ ...SANS, backgroundColor: "#fbf9f4", color: "#1b1c19" }}>
+          <div className="w-full flex items-center gap-3 h-16 max-w-lg mx-auto">
+            <button
+              aria-label="Kembali"
+              onClick={() => {
+                if (shot) URL.revokeObjectURL(shot.previewUrl)
+                setShot(null)
+                setCaption("")
+                setError("")
+              }}
+              className="w-11 h-11 -ml-1 rounded-full flex items-center justify-center text-[#1b1c19] hover:bg-[#f0eee9] transition-colors shrink-0"
+            >
+              <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+            </button>
+            <div className="flex flex-col min-w-0">
+              <span className="text-[11px] uppercase tracking-[0.14em] font-semibold truncate" style={{ color: "#6b2b2d" }}>{coupleName}</span>
+              <h1 className="text-[18px] leading-[26px] font-semibold -mt-0.5" style={SERIF}>Live Capture Session</h1>
+            </div>
+            <div className="ml-auto shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full" style={{ backgroundColor: "#f0eee9", color: "#4f1519" }}>
+              <span className="material-symbols-outlined text-[14px]">camera_roll</span>
+              <span className="text-[10px] tracking-wider uppercase font-semibold">
+                {quota > 0 ? `Foto ${Math.min(used + 1, quota)}/${quota}` : "Foto"}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col w-full pb-6 max-w-lg mx-auto gap-4">
+            {/* The card IS the uploaded JPG: same painter, same frame art. */}
+            <GaleriCardPreview
+              imageUrl={shot.previewUrl}
+              frame={frameSelection}
+              couple={coupleName}
+              date={dateLabel || ""}
+              caption={caption}
+              cameraFilter={cameraFilter}
+              className="mx-auto max-w-[360px] rounded-[0.85rem] shadow-[0_18px_40px_-18px_rgba(27,28,25,0.35)]"
+            />
+
+            {/* Caption lives OUTSIDE the frame: it is stored with the photo
+                and shown in the gallery / keepsake book. */}
+            <div className="w-full rounded-[1.1rem] border border-[#d9c1c0]/60 bg-white px-4 py-3 shadow-sm">
+              <div className="flex items-center justify-between mb-1.5">
+                <label htmlFor="gt-caption" className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.14em] font-semibold" style={{ color: "#6b2b2d" }}>
+                  <span className="material-symbols-outlined text-[15px] opacity-80">edit_note</span>
+                  Pesan Kenangan
+                </label>
+                <span className="text-[10px] font-medium tracking-wide text-[#444841]/60">{caption.length}/{MAX_CAPTION}</span>
+              </div>
+              <textarea
+                id="gt-caption"
+                rows={2}
+                maxLength={MAX_CAPTION}
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
+                placeholder={`Tulis ucapan atau cerita untuk ${coupleName}...`}
+                className="w-full bg-transparent resize-none border-0 p-0 text-[#1b1c19] placeholder:text-[#444841]/40 text-[13px] focus:outline-none focus:ring-0 leading-relaxed"
+              />
+              <p className="text-[10.5px] leading-snug text-[#444841]/70 mt-1.5">
+                Pesan tersimpan bersama foto di galeri &amp; buku kenangan.
+              </p>
+            </div>
+
+            {error && (
+              <p className="text-[13px] text-[#93000a] text-center" role="alert">{error}</p>
+            )}
+
+            <div className="w-full grid grid-cols-2 gap-3.5">
+              <button
+                onClick={() => {
+                  URL.revokeObjectURL(shot.previewUrl)
+                  setShot(null)
+                  setCaption("")
+                  setError("")
+                }}
+                disabled={uploading}
+                className="h-12 w-full rounded-full border border-[#6b2b2d]/35 bg-white hover:bg-[#f5f3ee] active:scale-95 transition-all duration-200 flex items-center justify-center gap-1.5 text-[13px] font-semibold tracking-wide shadow-sm disabled:opacity-50"
+                style={{ color: "#6b2b2d" }}
+              >
+                <span className="material-symbols-outlined text-[18px]">replay</span>
+                Ulangi Foto
+              </button>
+              <button
+                onClick={handleUpload}
+                disabled={uploading}
+                className="h-12 w-full rounded-full hover:brightness-110 active:scale-95 transition-all duration-200 flex items-center justify-center gap-1.5 font-semibold text-[13px] tracking-wide shadow-md disabled:opacity-50"
+                style={{ backgroundColor: "#6b2b2d", color: "#fbf9f4" }}
+              >
+                {uploading ? "Mengunggah..." : "Lanjut"}
+                {!uploading && <span className="material-symbols-outlined text-[18px]">arrow_forward</span>}
+              </button>
+            </div>
+          </div>
+        </div>
       ) : (
         <div className="relative flex-1 flex flex-col w-full px-5 pt-4 pb-8 overflow-y-auto" style={{ ...SANS, backgroundColor: "#fbf9f4", color: "#1b1c19" }}>
           <div className="w-full flex items-center gap-3 h-16 max-w-lg mx-auto">

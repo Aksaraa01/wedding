@@ -4,6 +4,8 @@ import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import PhotoboothCamera from "@/components/gallery/PhotoboothCamera"
 import { resolveCoupleName } from "@/lib/coupleName"
+import { preloadFrameArt } from "@/lib/galeriFrames"
+import { cameraCss, cameraPreset, normalizeCameraId } from "@/lib/galeriCameras"
 
 type Ready = {
   guestId: string
@@ -12,6 +14,11 @@ type Ready = {
   category: string
   couple: string
   dateLabel: string
+  // Couple-selected look from galeri-kenangan; baked into every capture so
+  // the check-in flow matches the Galeri Tamu frames.
+  frame: string
+  cameraFilter: string
+  cameraName: string
   quota: number
   used: number
 }
@@ -34,6 +41,9 @@ export default function WelcomeKameraPage({ params }: { params: Promise<{ token:
   const [blocked, setBlocked] = useState("")
 
   useEffect(() => {
+    // Warm the couple's frame art + fonts on mount: check-in happens on event
+    // Wi-Fi, and loading decor mid-upload is the failure window.
+    preloadFrameArt()
     ;(async () => {
       try {
         const isTok = token.startsWith("AKS-")
@@ -61,6 +71,9 @@ export default function WelcomeKameraPage({ params }: { params: Promise<{ token:
           category: data.guest.category || "Umum",
           couple: resolveCoupleName(data.profile),
           dateLabel: formatDateLabel(data.profile.estimated_wedding_date || ""),
+          frame: typeof data.profile.gallery_frame === "string" ? data.profile.gallery_frame : "none",
+          cameraFilter: cameraCss(normalizeCameraId(data.profile.gallery_camera)),
+          cameraName: cameraPreset(data.profile.gallery_camera).name,
           quota,
           used,
         })
@@ -113,6 +126,9 @@ export default function WelcomeKameraPage({ params }: { params: Promise<{ token:
     <PhotoboothCamera
       coupleName={ready.couple}
       dateLabel={ready.dateLabel}
+      frameId={ready.frame}
+      cameraFilter={ready.cameraFilter}
+      cameraName={ready.cameraName}
       quota={ready.quota}
       initialUsed={ready.used}
       backHref={`/welcome/${encodeURIComponent(token)}`}

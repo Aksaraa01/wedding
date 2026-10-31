@@ -10,6 +10,7 @@ import {
   type GaleriTierRow,
 } from "@/lib/packages"
 import { GALERI_CAMERAS } from "@/lib/galeriCameras"
+import { GALERI_FRAME_IDS } from "@/lib/galeriFrames"
 
 export type GaleriSelection = {
   photos: number
@@ -243,7 +244,7 @@ export default function GaleriConfigurator({ initialPhotos = 5, initialGuests = 
                   {(() => {
                     const films = GALERI_CAMERAS.filter((c) => c.id !== "normal")
                     const top2 = films.slice(0, 2).map((c) => c.name).join(", ")
-                    return `Pilih dari ${films.length} tipe kamera film (${top2}, dll.) dan 6 opsi bingkai di dashboard — diterapkan otomatis ke setiap foto.`
+                    return `Pilih dari ${films.length} tipe kamera film (${top2}, dll.) dan ${GALERI_FRAME_IDS.length} opsi bingkai di dashboard — diterapkan otomatis ke setiap foto.`
                   })()}
                 </p>
               </div>
