@@ -322,7 +322,12 @@ export default function ScannerPage({ params }: { params: Promise<{ slug: string
 
     const initDB = async () => {
       try {
-        const res = await fetch(`/api/dashboard/${eventInfo.wedding_profile_id}/qr-guestbook`)
+        // qr-guestbook is session-gated; the kiosk authenticates with its
+        // scanner JWT instead of a couple cookie.
+        const jwt = sessionStorage.getItem(`scanner_jwt_${slug}`)
+        const res = await fetch(`/api/dashboard/${eventInfo.wedding_profile_id}/qr-guestbook`, {
+          headers: jwt ? { Authorization: `Bearer ${jwt}` } : {},
+        })
         if (res.ok) {
           const data = await res.json()
           const records: GuestRecord[] = (data.guests || []).map((g: any) => ({

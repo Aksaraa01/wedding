@@ -4,15 +4,18 @@ import { getRowGates, getFeatureIncluded, getPhotoQuota } from "@/lib/featureGat
 import { getIncompleteInvitationSections, parseStringList } from "@/lib/invitationCompleteness"
 import { ensureOgImage, ogPublicUrlFor, resolveCoverImage } from "@/lib/ogImage"
 import { getPublishBlockers } from "@/lib/publishBlockers"
+import { requireProfileAccess } from "@/lib/requireProfileAccess"
 
 export const dynamic = "force-dynamic"
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params
+    const auth = await requireProfileAccess(req, id)
+    if (auth) return auth
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("wedding_profiles")
@@ -123,6 +126,8 @@ export async function PUT(  req: NextRequest,
 ) {
   try {
     const { id } = await params
+    const auth = await requireProfileAccess(req, id)
+    if (auth) return auth
     const body = await req.json()
     const allowed = [
       "selected_template_id", "selected_track_id", "has_seen_tour",

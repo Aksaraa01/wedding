@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { requireProfileAccess } from "@/lib/requireProfileAccess"
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params
+    const auth = await requireProfileAccess(req, id)
+    if (auth) return auth
 
     const { count: total, error: countErr } = await supabaseAdmin
       .from("guests")

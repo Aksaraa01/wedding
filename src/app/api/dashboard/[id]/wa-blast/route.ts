@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { getFeatureIncluded } from "@/lib/featureGates"
+import { requireProfileAccess } from "@/lib/requireProfileAccess"
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params
+    const auth = await requireProfileAccess(req, id)
+    if (auth) return auth
 
     const { count: totalGuests } = await supabaseAdmin
       .from("guests")
@@ -62,6 +65,8 @@ export async function POST(
 ) {
   try {
     const { id } = await params
+    const auth = await requireProfileAccess(req, id)
+    if (auth) return auth
     const body = await req.json()
 
     const { data: profile } = await supabaseAdmin

@@ -2,13 +2,18 @@ import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { autoGenerateGuestLinks } from "@/lib/guest-link"
 import { getFeatureIncluded } from "@/lib/featureGates"
+import { requireProfileAccess } from "@/lib/requireProfileAccess"
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params
+    // The scanner kiosk reads this without a couple session — it presents a
+    // scanner JWT scoped to the same profile instead.
+    const auth = await requireProfileAccess(req, id, { allowScanner: true })
+    if (auth) return auth
 
     const baseFields = "id, name, phone_number, table_number, category, guest_count, rsvp_status, rsvp_pax_count, qr_token, slug, is_checked_in, checkin_timestamp, souvenir_claimed, added_manually, is_vip"
     let guestsResult = await supabaseAdmin
@@ -59,6 +64,8 @@ export async function PUT(
 ) {
   try {
     const { id } = await params
+    const auth = await requireProfileAccess(req, id)
+    if (auth) return auth
     const body = await req.json().catch(() => ({}))
 
     if (typeof body.guest_link_strict !== "boolean") {
@@ -88,6 +95,8 @@ export async function POST(
 ) {
   try {
     const { id } = await params
+    const auth = await requireProfileAccess(req, id)
+    if (auth) return auth
     const body = await req.json().catch(() => ({}))
     const requestedGuestId = typeof body.guest_id === "string" ? body.guest_id : null
 
