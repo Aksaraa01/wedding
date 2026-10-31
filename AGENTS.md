@@ -187,6 +187,35 @@ screen. Verify any change here with the round-trip script:
    git push
    ```
 
+#### Migration versions must be unique — `db push` replays anything unrecorded
+
+`supabase db push` decides what to run from `supabase_migrations.schema_migrations`,
+not from the data. Template registrations (`web_templates` inserts) are
+`ON CONFLICT (code) DO UPDATE` and include **ops-edited** columns
+(`preview_image_url`, `demo_url`, `sort_order`, `category`,
+`package_eligibility`, `tier`, `is_active`), so replaying one silently replaces
+the uploaded screenshot and ordering that environment already has.
+
+- Never let two files share a version — the second can never be recorded, so it
+  re-applies on every later push. Check before pushing:
+  `ls supabase/migrations/*.sql | sed 's|.*/||' | cut -d_ -f1 | sort | uniq -d`
+  (must print nothing). Rename the newer file to the next free version
+  (`…27000000` → `…27000001`), never delete it — a fresh `db reset` needs it.
+- When a migration's effect already exists in a database but its version is
+  missing from that history table, record it **without executing**:
+  ```bash
+  npx supabase migration repair --status applied <version> [<version>…] --linked
+  ```
+- Do that before `db push` on staging/prod. Production was found missing 8
+  versions whose rows already existed (`evermore`, `piano_garden`,
+  `altar_garden`, `imagine`, `lace`, `20261027000001`, `20261030000001`,
+  `20261034000001`); pushing them unchecked would overwrite those templates'
+  uploaded thumbnails. Rows in either environment can be read directly with
+  `psql -h aws-0-ap-northeast-1.pooler.supabase.com -U postgres.<ref>` and
+  `SUPABASE_DB_PASSWORD` (prod has no IPv4 on `db.<ref>.supabase.co`).
+- `npx supabase db reset` wipes local dev data; prefer `npx supabase migration
+  up --local` (it refuses `--include-all` while duplicate versions exist).
+
 ### Staging smoke test (BEFORE deploying to VPS)
 Run a local standalone build pointed at the **staging** Supabase and smoke test it before resyncing to the VPS. Staging data is duplicated from production (script: `/var/folders/h9/00699n8j5_72btn55c8dfg400000gn/T/opencode/musictest/copy-to-staging.mjs` — copies reference tables + profiles + guests + wishes + ops data; `wedding_profiles.user_id` is nulled since `auth.users` isn't in staging).
 
