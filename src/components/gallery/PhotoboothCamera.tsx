@@ -247,6 +247,23 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     }
   }
 
+  // Chrome only grants fullscreen on a user gesture, so arm a one-shot
+  // listener: the first tap anywhere in the camera puts it fullscreen.
+  const fullscreenArmed = useRef(false)
+  useEffect(() => {
+    if (!fullscreenSupported) return
+    const onFirstTap = () => {
+      if (fullscreenArmed.current) return
+      fullscreenArmed.current = true
+      if (!document.fullscreenElement && !(document as Document & { webkitFullscreenElement?: Element | null }).webkitFullscreenElement) {
+        void toggleFullscreen()
+      }
+    }
+    window.addEventListener("pointerdown", onFirstTap, { once: true })
+    return () => window.removeEventListener("pointerdown", onFirstTap)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fullscreenSupported])
+
   const applyZoom = (label: string) => {
     setZoom(label)
     const target = label === "1×" ? 1 : Number(label) || 1
@@ -435,9 +452,10 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
                 <button
                   aria-label={isFullscreen ? "Keluar layar penuh" : "Layar penuh"}
                   onClick={() => void toggleFullscreen()}
-                  className="w-9 h-9 rounded-full bg-black/60 backdrop-blur-md text-white flex items-center justify-center border border-white/20 active:scale-95 transition-transform"
+                  className={`h-9 rounded-full bg-black/60 backdrop-blur-md text-white flex items-center justify-center gap-1 border border-white/20 active:scale-95 transition-transform ${isFullscreen ? "w-9" : "px-2.5"}`}
                 >
                   <span className="material-symbols-outlined text-[18px]">{isFullscreen ? "fullscreen_exit" : "fullscreen"}</span>
+                  {!isFullscreen && !screenLandscape && <span className="text-[10px] font-semibold uppercase tracking-wider">Penuh</span>}
                 </button>
               )}
             </div>
