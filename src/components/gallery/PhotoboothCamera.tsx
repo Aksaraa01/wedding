@@ -14,6 +14,17 @@ const SANS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif
 
 type Shot = { file: File; previewUrl: string; captureId: string; aspect: number }
 
+// Largest centered rect of `aspect` (w/h) that fits inside w x h.
+function fitGuide(w: number, h: number, aspect: number, margin = 0.9) {
+  let gw = w * margin
+  let gh = gw / aspect
+  if (gh > h * margin) {
+    gh = h * margin
+    gw = gh * aspect
+  }
+  return { x: (w - gw) / 2, y: (h - gh) / 2, w: gw, h: gh }
+}
+
 type ExtendedCapabilities = MediaTrackCapabilities & {
   torch?: boolean
   zoom?: { min: number; max: number; step: number }
@@ -62,12 +73,21 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
   const [facing, setFacing] = useState<"environment" | "user">("environment")
   const [flash, setFlash] = useState(false)
   const [torchOn, setTorchOn] = useState(false)
+  // Real (sensor) zoom only: a CSS "zoom" would no longer be part of what the
+  // capture takes now that the shutter grabs the full camera frame.
+  const [zoomSupported, setZoomSupported] = useState(false)
   const [zoom, setZoom] = useState("1×")
   const [shot, setShot] = useState<Shot | null>(null)
   const [caption, setCaption] = useState("")
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState("")
   const [cameraError, setCameraError] = useState("")
+  // Camera frame vs screen orientation: the capture window is 4:3 / 3:4, so
+  // steer the guest when the frame and the screen disagree (landscape phone +
+  // portrait page, etc.).
+  const [streamAspect, setStreamAspect] = useState(0)
+  const [screenAspect, setScreenAspect] = useState(0)
+  const [view, setView] = useState({ w: 0, h: 0 })
 
   const remaining = Math.max(0, quota - used)
 
@@ -86,6 +106,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
       }
       const track = stream.getVideoTracks()[0] as ExtendedTrack | undefined
       setTorchOn(!!track?.getCapabilities?.().torch)
+      setZoomSupported(!!track?.getCapabilities?.().zoom)
     } catch {
       setCameraError("Kamera tidak dapat diakses. Izinkan akses kamera.")
     }
@@ -98,6 +119,40 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     }
   }, [facing, shot, startCamera])
 
+  // Track the screen aspect so the hint follows rotation (and InAppBrowser
+  // quirks where the page does not re-layout).
+  useEffect(() => {
+    const measure = () => setScreenAspect(window.innerWidth / Math.max(1, window.innerHeight))
+    measure()
+    window.addEventListener("resize", measure)
+    window.addEventListener("orientationchange", measure)
+    return () => {
+      window.removeEventListener("resize", measure)
+      window.removeEventListener("orientationchange", measure)
+    }
+  }, [])
+
+  // The capture window is a designed crop of the camera frame (4:3 landscape /
+  // 3:4 portrait) — that keeps guest photos and the baked cards proportional.
+  // The viewfinder draws the same rect, so what is inside it is what lands in
+  // the photo no matter which way the page decided to lay out.
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    const measure = () => setView({ w: video.clientWidth, h: video.clientHeight })
+    measure()
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null
+    if (ro) ro.observe(video)
+    window.addEventListener("resize", measure)
+    return () => {
+      if (ro) ro.disconnect()
+      window.removeEventListener("resize", measure)
+    }
+  }, [shot])
+
+  const targetAspect = streamAspect >= 1 ? 4 / 3 : 4 / 5
+  const guide = view.w > 0 && view.h > 0 ? fitGuide(view.w, view.h, targetAspect) : null
+
   useEffect(() => {
     const track = streamRef.current?.getVideoTracks()[0] as ExtendedTrack | undefined
     if (!track?.applyConstraints || !torchOn) return
@@ -107,19 +162,15 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
   const applyZoom = (label: string) => {
     setZoom(label)
     const target = label === "1×" ? 1 : Number(label) || 1
-    const video = videoRef.current
     const track = streamRef.current?.getVideoTracks()[0] as ExtendedTrack | undefined
     if (track?.getCapabilities) {
       try {
         const caps = track.getCapabilities()
         if (caps.zoom && target >= caps.zoom.min && target <= caps.zoom.max) {
           track.applyConstraints?.({ advanced: [{ zoom: target }] }).catch(() => {})
-          if (video) video.style.transform = "scale(1)"
-          return
         }
       } catch {}
     }
-    if (video) video.style.transform = `scale(${target})`
   }
 
   const captureFromVideo = async (): Promise<{ file: File; aspect: number } | null> => {
@@ -128,31 +179,24 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     if (!video || !canvas || !video.videoWidth) return null
     const vw = video.videoWidth
     const vh = video.videoHeight
-    // Capture EXACTLY what the guest sees: the <video> is full-bleed with
-    // object-cover, so the visible region is the element's own aspect (a tall
-    // portrait frame on phones). Forcing 4:3 here handed back a landscape
-    // image of a portrait viewfinder.
-    const Ew = video.clientWidth || window.innerWidth || vw
-    const Eh = video.clientHeight || window.innerHeight || vh
-    const targetAspect = Math.min(2.5, Math.max(0.4, Ew / Eh))
-    const scaleCover = Math.max(Ew / vw, Eh / vh)
-    let sw = Ew / scaleCover
-    let sh = Eh / scaleCover
-    let sx = (vw - sw) / 2
-    let sy = (vh - sh) / 2
-    if (sw / sh > targetAspect) {
-      const sw2 = sh * targetAspect
-      sx += (sw - sw2) / 2
-      sw = sw2
-    } else {
-      const sh2 = sw / targetAspect
-      sy += (sh - sh2) / 2
-      sh = sh2
-    }
-    // Cap the long edge at 1800px — same budget as the old 4:3 crop.
-    const outScale = Math.min(1, 1800 / Math.max(sw, sh))
-    canvas.width = Math.round(sw * outScale)
-    canvas.height = Math.round(sh * outScale)
+    const Ew = video.clientWidth || view.w
+    const Eh = video.clientHeight || view.h
+    if (!Ew || !Eh) return null
+    // Take exactly the rect the viewfinder outlines (4:3 / 3:4). Mapping it
+    // through the object-cover transform keeps the guest's framing regardless
+    // of whether the page rotated with the phone.
+    const g = fitGuide(Ew, Eh, targetAspect)
+    const cover = Math.max(Ew / vw, Eh / vh)
+    const offX = (Ew - vw * cover) / 2
+    const offY = (Eh - vh * cover) / 2
+    const sw = g.w / cover
+    const sh = g.h / cover
+    const sx = Math.max(0, Math.min(vw - sw, (g.x - offX) / cover))
+    const sy = Math.max(0, Math.min(vh - sh, (g.y - offY) / cover))
+    // Cap the long edge at 1800px — the same budget the upload cap expects.
+    const out = Math.min(1, 1800 / Math.max(sw, sh))
+    canvas.width = Math.round(sw * out)
+    canvas.height = Math.round(sh * out)
     const ctx = canvas.getContext("2d")
     if (!ctx) return null
     ctx.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height)
@@ -235,15 +279,52 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
   }
 
   const frameLabel = quota > 0 ? `Frame ${Math.min(used + 1, quota)}/${quota}` : ""
+  // The viewfinder shows the whole camera frame, so steer the guest when the
+  // frame and the screen disagree (landscape phone + portrait page, etc.).
+  const rotateHint =
+    streamAspect > 0 && screenAspect > 0 && Math.abs(Math.log(streamAspect / Math.max(0.01, screenAspect))) > 0.3
+      ? streamAspect > 1
+        ? "Putar ponsel ke posisi mendatar"
+        : "Putar ponsel ke posisi tegak"
+      : ""
 
   return (
     <main className="relative w-full flex-1 min-h-[100dvh] overflow-hidden bg-black select-none flex flex-col justify-between">
       {!shot ? (
         <>
-          <div className="absolute inset-0 z-0 overflow-hidden">
-            <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" style={cameraFilter ? { filter: cameraFilter } : undefined} />
+          <div className="absolute inset-0 z-0 overflow-hidden bg-black">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              onLoadedMetadata={(e) => {
+                const v = e.currentTarget
+                if (v.videoWidth && v.videoHeight) setStreamAspect(v.videoWidth / v.videoHeight)
+              }}
+              className="w-full h-full object-cover"
+              style={cameraFilter ? { filter: cameraFilter } : undefined}
+            />
             <canvas ref={canvasRef} className="hidden" />
             <div className="absolute inset-0 bg-black/15 pointer-events-none" />
+            {guide && (
+              <div
+                className="absolute z-10 pointer-events-none rounded-[10px]"
+                style={{
+                  left: guide.x,
+                  top: guide.y,
+                  width: guide.w,
+                  height: guide.h,
+                  boxShadow: "0 0 0 9999px rgba(0,0,0,0.45)",
+                  outline: "1px solid rgba(255,255,255,0.35)",
+                }}
+              >
+                <span className="absolute w-5 h-5 border-t-2 border-l-2 border-white/85 rounded-tl-sm" style={{ top: 6, left: 6 }} />
+                <span className="absolute w-5 h-5 border-t-2 border-r-2 border-white/85 rounded-tr-sm" style={{ top: 6, right: 6 }} />
+                <span className="absolute w-5 h-5 border-b-2 border-l-2 border-white/85 rounded-bl-sm" style={{ bottom: 6, left: 6 }} />
+                <span className="absolute w-5 h-5 border-b-2 border-r-2 border-white/85 rounded-br-sm" style={{ bottom: 6, right: 6 }} />
+              </div>
+            )}
           </div>
           <div id="gt-flash" className="absolute inset-0 bg-white opacity-0 pointer-events-none z-40 transition-opacity duration-150" />
 
@@ -272,6 +353,12 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
           )}
           {error && (
             <p className="relative z-20 mx-6 mt-3 text-center text-[13px] text-white bg-black/60 rounded-xl px-4 py-3">{error}</p>
+          )}
+          {rotateHint && (
+            <p className="relative z-20 mx-auto mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-[11px] font-medium text-white/90">
+              <span className="material-symbols-outlined text-[14px]">screen_rotation</span>
+              {rotateHint}
+            </p>
           )}
 
           <footer className="relative z-20 w-full px-6 pb-6 pt-3 flex flex-col items-center gap-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
@@ -309,17 +396,19 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
                 <span className="text-[10px] text-white/90 font-medium tracking-wider uppercase">Putar</span>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {(["1×", "2", "3"] as const).map((z) => (
-                <button
-                  key={z}
-                  onClick={() => applyZoom(z)}
-                  className={`w-9 h-9 rounded-full text-[12px] font-bold ${zoom === z ? "bg-white text-black" : "bg-black/60 text-white border border-white/30"}`}
-                >
-                  {z}
-                </button>
-              ))}
-            </div>
+            {zoomSupported && (
+              <div className="flex items-center gap-2">
+                {(["1×", "2", "3"] as const).map((z) => (
+                  <button
+                    key={z}
+                    onClick={() => applyZoom(z)}
+                    className={`w-9 h-9 rounded-full text-[12px] font-bold ${zoom === z ? "bg-white text-black" : "bg-black/60 text-white border border-white/30"}`}
+                  >
+                    {z}
+                  </button>
+                ))}
+              </div>
+            )}
           </footer>
         </>
       ) : framedMode ? (

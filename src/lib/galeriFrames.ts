@@ -889,7 +889,7 @@ function editorialLayout(W: number, aspect: number): EditorialLayout {
   const topBand = W * 0.022
   const photoW = W
   const photoH = photoW * aspect
-  const textBand = W * 0.3
+  const textBand = W * 0.26
   return {
     H: Math.round(topBand + photoH + textBand),
     topBand,
