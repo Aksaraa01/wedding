@@ -82,12 +82,12 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState("")
   const [cameraError, setCameraError] = useState("")
-  // Camera frame vs screen orientation: the capture window is 4:3 / 3:4, so
-  // steer the guest when the frame and the screen disagree (landscape phone +
-  // portrait page, etc.).
-  const [streamAspect, setStreamAspect] = useState(0)
   const [screenAspect, setScreenAspect] = useState(0)
   const [view, setView] = useState({ w: 0, h: 0 })
+  // Capture orientation: follow the device layout by default, but let the guest
+  // force Tegak/Mendatar (rotation lock and some in-app browsers never rotate
+  // the page, so the box alone cannot tell us how they are holding it).
+  const [orientation, setOrientation] = useState<"auto" | "portrait" | "landscape">("auto")
 
   const remaining = Math.max(0, quota - used)
 
@@ -132,10 +132,11 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     }
   }, [])
 
-  // The capture window is a designed crop of the camera frame (4:3 landscape /
-  // 3:4 portrait) — that keeps guest photos and the baked cards proportional.
-  // The viewfinder draws the same rect, so what is inside it is what lands in
-  // the photo no matter which way the page decided to lay out.
+  // The capture window is a designed crop (4:3 when the phone is landscape,
+  // 4:5 when portrait) — that keeps guest photos and the baked cards
+  // proportional. It follows the LIVE element box, never a cached stream size:
+  // several browsers swap the camera frame on rotation without firing
+  // `loadedmetadata`, which made a landscape phone crop as portrait.
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
@@ -143,14 +144,28 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     measure()
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null
     if (ro) ro.observe(video)
+    video.addEventListener("loadedmetadata", measure)
+    video.addEventListener("resize", measure)
     window.addEventListener("resize", measure)
+    window.addEventListener("orientationchange", measure)
     return () => {
       if (ro) ro.disconnect()
+      video.removeEventListener("loadedmetadata", measure)
+      video.removeEventListener("resize", measure)
       window.removeEventListener("resize", measure)
+      window.removeEventListener("orientationchange", measure)
     }
   }, [shot])
 
-  const targetAspect = streamAspect >= 1 ? 4 / 3 : 4 / 5
+  const landscapeView =
+    orientation === "landscape"
+      ? true
+      : orientation === "portrait"
+        ? false
+        : view.w > 0 && view.h > 0
+          ? view.w >= view.h
+          : screenAspect >= 1
+  const targetAspect = landscapeView ? 4 / 3 : 4 / 5
   const guide = view.w > 0 && view.h > 0 ? fitGuide(view.w, view.h, targetAspect) : null
 
   useEffect(() => {
@@ -182,10 +197,11 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     const Ew = video.clientWidth || view.w
     const Eh = video.clientHeight || view.h
     if (!Ew || !Eh) return null
-    // Take exactly the rect the viewfinder outlines (4:3 / 3:4). Mapping it
-    // through the object-cover transform keeps the guest's framing regardless
-    // of whether the page rotated with the phone.
-    const g = fitGuide(Ew, Eh, targetAspect)
+    // Take exactly the rect the viewfinder outlines. Aspect follows the chosen
+    // orientation (auto = the live layout box), and the rect is mapped through
+    // the object-cover transform so the framing is whatever the guest sees.
+    const shotAspect = landscapeView ? 4 / 3 : 4 / 5
+    const g = fitGuide(Ew, Eh, shotAspect)
     const cover = Math.max(Ew / vw, Eh / vh)
     const offX = (Ew - vw * cover) / 2
     const offY = (Eh - vh * cover) / 2
@@ -279,14 +295,6 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
   }
 
   const frameLabel = quota > 0 ? `Frame ${Math.min(used + 1, quota)}/${quota}` : ""
-  // The viewfinder shows the whole camera frame, so steer the guest when the
-  // frame and the screen disagree (landscape phone + portrait page, etc.).
-  const rotateHint =
-    streamAspect > 0 && screenAspect > 0 && Math.abs(Math.log(streamAspect / Math.max(0.01, screenAspect))) > 0.3
-      ? streamAspect > 1
-        ? "Putar ponsel ke posisi mendatar"
-        : "Putar ponsel ke posisi tegak"
-      : ""
 
   return (
     <main className="relative w-full flex-1 min-h-[100dvh] overflow-hidden bg-black select-none flex flex-col justify-between">
@@ -298,10 +306,6 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
               autoPlay
               playsInline
               muted
-              onLoadedMetadata={(e) => {
-                const v = e.currentTarget
-                if (v.videoWidth && v.videoHeight) setStreamAspect(v.videoWidth / v.videoHeight)
-              }}
               className="w-full h-full object-cover"
               style={cameraFilter ? { filter: cameraFilter } : undefined}
             />
@@ -354,14 +358,26 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
           {error && (
             <p className="relative z-20 mx-6 mt-3 text-center text-[13px] text-white bg-black/60 rounded-xl px-4 py-3">{error}</p>
           )}
-          {rotateHint && (
-            <p className="relative z-20 mx-auto mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-[11px] font-medium text-white/90">
-              <span className="material-symbols-outlined text-[14px]">screen_rotation</span>
-              {rotateHint}
-            </p>
-          )}
 
           <footer className="relative z-20 w-full px-6 pb-6 pt-3 flex flex-col items-center gap-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+            <div className="flex items-center gap-1.5 p-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20">
+              <button
+                aria-label="Foto tegak"
+                onClick={() => setOrientation("portrait")}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold tracking-wider uppercase transition-colors ${!landscapeView ? "bg-white text-black" : "text-white/80"}`}
+              >
+                <span className="material-symbols-outlined text-[14px]">crop_portrait</span>
+                Tegak
+              </button>
+              <button
+                aria-label="Foto mendatar"
+                onClick={() => setOrientation("landscape")}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold tracking-wider uppercase transition-colors ${landscapeView ? "bg-white text-black" : "text-white/80"}`}
+              >
+                <span className="material-symbols-outlined text-[14px]">crop_landscape</span>
+                Mendatar
+              </button>
+            </div>
             <div className="w-full flex items-center justify-between max-w-xs px-2">
               <div className="flex flex-col items-center gap-1">
                 <button
