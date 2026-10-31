@@ -178,13 +178,14 @@ export default function StillEver(profile: TemplateProps) {
     !!profile.wedding_profile_id
 
   // The reference cover is an envelope: the wax seal breaks off, the flap
-  // (carrying the stationery card) flips over its top edge, the cover holds for
-  // a beat, then it leaves and the invitation is revealed. Music must start on
-  // the gesture, so it is triggered here rather than after the animation.
+  // (carrying the stationery card) flips over its top edge, then the cover
+  // leaves and the invitation is revealed. Music must start on the gesture, so
+  // it is triggered here rather than after the animation.
   //
   // The flap lifts off a lit interior: the inside of the jacket glows warmer as
   // the fold opens, and a warm bloom covers the swap so the invitation is
-  // revealed out of that light instead of a hard cut (or a blackout).
+  // revealed out of that light instead of a hard cut (or a blackout). The bloom
+  // is a short hand-over, not a held beat: lit at 450ms, next frame at 1.5s.
   const openEnvelope = useCallback(() => {
     if (gateOpeningRef.current) return
     gateOpeningRef.current = true
@@ -194,12 +195,12 @@ export default function StillEver(profile: TemplateProps) {
       if (audio) audio.play().then(() => setPlaying(true), () => setPlaying(false))
     }
     const reduced = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    window.setTimeout(() => setBloom("in"), reduced ? 0 : 780)
+    window.setTimeout(() => setBloom("in"), reduced ? 0 : 450)
     window.setTimeout(() => {
       setOpened(true)
       setBloom("out")
       window.scrollTo(0, 0)
-    }, reduced ? 120 : 2800)
+    }, reduced ? 120 : 1500)
   }, [hasTrack])
 
   useEffect(() => {
@@ -417,7 +418,6 @@ export default function StillEver(profile: TemplateProps) {
               <figure className="se-person__photo">
                 <img src={groomPhoto} alt={profile.groom_full_name || profile.groom_name || "The groom"} loading="lazy" />
               </figure>
-              <p className="se-eyebrow">The Groom</p>
               <h2 className="se-display se-person__name">{profile.groom_name}</h2>
               {profile.groom_full_name && <p className="se-person__full">{profile.groom_full_name}</p>}
               {profile.groom_parents && <p className="se-text se-person__parents">{profile.groom_parents}</p>}
@@ -437,7 +437,6 @@ export default function StillEver(profile: TemplateProps) {
               <figure className="se-person__photo">
                 <img src={bridePhoto} alt={profile.bride_full_name || profile.bride_name || "The bride"} loading="lazy" />
               </figure>
-              <p className="se-eyebrow">The Bride</p>
               <h2 className="se-display se-person__name">{profile.bride_name}</h2>
               {profile.bride_full_name && <p className="se-person__full">{profile.bride_full_name}</p>}
               {profile.bride_parents && <p className="se-text se-person__parents">{profile.bride_parents}</p>}
@@ -459,7 +458,6 @@ export default function StillEver(profile: TemplateProps) {
         {honored.length > 0 && (
           <section className="se-section se-honored" data-section="inviting">
             <div className="se-wrap se-honored__inner" data-se-reveal>
-              <p className="se-eyebrow">Turut Mengundang</p>
               <h2 className="se-display se-heading">With Honour</h2>
               <span className="se-rule-short se-rule-short--center" aria-hidden="true" />
               <p className="se-text se-honored__intro">

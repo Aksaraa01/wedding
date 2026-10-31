@@ -47,9 +47,26 @@ const MEDALLION_TRACK: { t: number; cx: number; w: number; h: number }[] = [
   { t: 1.6, cx: 58.9, w: 36.5, h: 30.7 },
   { t: 2.0, cx: 63.3, w: 34.9, h: 30.7 },
   { t: 2.4, cx: 67.7, w: 33.9, h: 31.3 },
-  { t: 2.8, cx: 71.9, w: 33.2, h: 31.7 },
-  { t: 3.2, cx: 76.1, w: 32.6, h: 32.1 },
+  // From here the door swings away from camera, so the medallion accelerates
+  // out of frame. These centres were measured frame by frame on the film
+  // (2.8s → 74.4%, 3.2s → 81.3%, 3.6s → 90.0%, 4.0s → 100.0%): the old
+  // 10.5%/s drift could not keep up and let the baked-on reference initials
+  // peek out from under the plaque.
+  { t: 2.8, cx: 74.4, w: 33.2, h: 31.7 },
+  { t: 3.0, cx: 77.9, w: 32.9, h: 31.9 },
+  { t: 3.2, cx: 81.3, w: 32.5, h: 32.1 },
+  { t: 3.4, cx: 85.2, w: 32.2, h: 32.3 },
+  { t: 3.6, cx: 90.0, w: 31.9, h: 32.4 },
+  { t: 3.8, cx: 95.3, w: 31.6, h: 32.5 },
+  { t: 4.0, cx: 100.0, w: 31.3, h: 32.6 },
+  { t: 4.2, cx: 104.5, w: 31.0, h: 32.7 },
+  { t: 4.4, cx: 109.0, w: 30.7, h: 32.8 },
 ]
+
+// The cream curtain starts parting at ~5s and is fully dressed open at ~9.6s;
+// the film reveals the invitation at its end (10.3s). The couple's names are
+// held back until the curtain is open, then fade in for the final beat.
+const NAMES_AT = 8.4
 
 function medallionAt(time: number) {
   const first = MEDALLION_TRACK[0]
@@ -57,7 +74,7 @@ function medallionAt(time: number) {
   const last = MEDALLION_TRACK[MEDALLION_TRACK.length - 1]
   if (time >= last.t) {
     // Keep drifting off to the right once the sampling window ends.
-    const drift = (time - last.t) * 10.5
+    const drift = (time - last.t) * 30
     return { t: time, cx: last.cx + drift, w: last.w, h: last.h }
   }
   for (let i = 1; i < MEDALLION_TRACK.length; i++) {
@@ -239,6 +256,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
 
   const [opened, setOpened] = useState(false)
   const [opening, setOpening] = useState(false)
+  const [namesIn, setNamesIn] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [lightbox, setLightbox] = useState<{ photos: string[]; index: number } | null>(null)
   const [giftTab, setGiftTab] = useState<"accounts" | "address">("accounts")
@@ -346,10 +364,13 @@ export default function EmbroideredGarden(profile: TemplateProps) {
       )
       video.play().catch(() => {
         window.clearTimeout(cap)
+        // No film: the names are the only cover copy left, so show them now.
+        setNamesIn(true)
         window.setTimeout(reveal, 800)
       })
       return
     }
+    setNamesIn(true)
     window.setTimeout(reveal, reduced ? 120 : 1200)
   }, [hasTrack])
 
@@ -362,6 +383,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
     const names = namesRef.current
     if (!plaque) return
     let raf = 0
+    let shown = false
     const apply = () => {
       const time = videoRef.current?.currentTime ?? 0
       const { cx, w, h } = medallionAt(time)
@@ -375,11 +397,15 @@ export default function EmbroideredGarden(profile: TemplateProps) {
         const k = Math.min(1, Math.max(0, (time - 3.5) / 3))
         names.style.top = `${(24 + k * 10).toFixed(2)}%`
       }
+      if (!shown && time >= NAMES_AT) {
+        shown = true
+        setNamesIn(true)
+      }
       raf = window.requestAnimationFrame(apply)
     }
     apply()
     return () => window.cancelAnimationFrame(raf)
-  }, [opening])
+  }, [opening, setNamesIn])
 
   useEffect(() => {
     document.body.style.overflow = opened ? "" : "hidden"
@@ -1003,7 +1029,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
 
       {/* ── Door cover gate ─────────────────────────────────────── */}
       <div
-        className={`eg-gate${opening ? " is-opening" : ""}`}
+        className={`eg-gate${opening ? " is-opening" : ""}${namesIn ? " is-names" : ""}`}
         role="dialog"
         aria-modal="true"
         aria-label="Open the invitation"
