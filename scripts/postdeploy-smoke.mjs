@@ -53,7 +53,10 @@ console.log(`Smoke testing ${codes.length} template previews on ${base}`)
 for (const code of codes) {
   const url = `${base}/templates/${code}/preview`
   const doc = status(url)
-  const rsc = status(url, ['-H "RSC: 1"'])
+  // -L: Next 16.4 canonicalises RSC requests by answering 307 -> ?_rsc and
+  // serving the flight payload there (the client router follows it). Without
+  // -L every preview "failed" on a redirect that real navigation handles.
+  const rsc = status(url, ['-L', '-H "RSC: 1"'])
   const okBoth = doc === "200" && rsc === "200"
   const fatal = isFatal(doc) || isFatal(rsc)
   if (fatal) failed++
