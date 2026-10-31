@@ -377,15 +377,38 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   // The monogram is painted into the film and travels with the right-hand door
   // as it swings. Ride the video's own clock so our cartouche stays glued to
   // that spot instead of sitting still and fading like a sticker.
+  //
+  // The clock has to be the *presented* frame, not `currentTime`: while the
+  // 15 MB film buffers the two diverge, the cover slides ahead of the doors and
+  // the reference initials under it are exposed. requestVideoFrameCallback
+  // reports the frame actually on screen; without it we fall back to
+  // currentTime, which is exact on a fully buffered film.
   useEffect(() => {
     if (!opening) return
     const plaque = plaqueRef.current
     const names = namesRef.current
+    const video = videoRef.current
     if (!plaque) return
     let raf = 0
     let shown = false
+    let presented: number | null = null
+    let frameHandle = 0
+    const rvfc = video as
+      | (HTMLVideoElement & {
+          requestVideoFrameCallback?: (cb: (now: number, meta: { mediaTime: number }) => void) => number
+          cancelVideoFrameCallback?: (handle: number) => void
+        })
+      | null
+    const requestFrame = rvfc?.requestVideoFrameCallback?.bind(rvfc)
+    if (requestFrame) {
+      const onFrame = (_now: number, meta: { mediaTime: number }) => {
+        presented = meta.mediaTime
+        frameHandle = requestFrame(onFrame)
+      }
+      frameHandle = requestFrame(onFrame)
+    }
     const apply = () => {
-      const time = videoRef.current?.currentTime ?? 0
+      const time = presented ?? video?.currentTime ?? 0
       const { cx, w, h } = medallionAt(time)
       plaque.style.left = `${cx}%`
       plaque.style.width = `${w}%`
@@ -404,7 +427,10 @@ export default function EmbroideredGarden(profile: TemplateProps) {
       raf = window.requestAnimationFrame(apply)
     }
     apply()
-    return () => window.cancelAnimationFrame(raf)
+    return () => {
+      window.cancelAnimationFrame(raf)
+      rvfc?.cancelVideoFrameCallback?.(frameHandle)
+    }
   }, [opening, setNamesIn])
 
   useEffect(() => {
