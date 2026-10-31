@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import RouteUnlock from "@/components/RouteUnlock"
 import ChunkErrorWatcher from "@/components/ChunkErrorWatcher"
+import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo"
 import "./globals.css"
 import "./fonts.css"
 
@@ -11,17 +12,24 @@ export const metadata: Metadata = {
   },
   description:
     "Aksaraa Wedding: undangan pernikahan digital, buku tamu digital QR, galeri foto tamu, wish wall, dan reminder WhatsApp untuk hari bahagia Anda.",
-  metadataBase: new URL("https://wedding.aksaraa.com"),
-  alternates: { canonical: "https://wedding.aksaraa.com/hero" },
+  metadataBase: new URL(SITE_URL),
   openGraph: {
     type: "website",
     locale: "id_ID",
-    siteName: "Aksaraa Wedding",
+    url: SITE_URL,
+    siteName: SITE_NAME,
     title: "Undangan Pernikahan Digital, Buku Tamu & Galeri Foto Tamu — Aksaraa Wedding",
     description:
       "Undangan website, RSVP, buku tamu digital QR, galeri foto tamu, dan reminder WhatsApp — semua dalam satu genggaman.",
+    images: [DEFAULT_OG_IMAGE],
   },
-  twitter: { card: "summary_large_image" },
+  twitter: {
+    card: "summary_large_image",
+    title: "Undangan Pernikahan Digital, Buku Tamu & Galeri Foto Tamu — Aksaraa Wedding",
+    description:
+      "Undangan website, RSVP, buku tamu digital QR, galeri foto tamu, dan reminder WhatsApp — semua dalam satu genggaman.",
+    images: [DEFAULT_OG_IMAGE.url],
+  },
   robots: { index: true, follow: true },
   verification: { google: "ifDL7s6gKstun8HclzEYCap2-w4Ss1biIA5EtVlRVFg" },
   icons: { icon: "/icon.svg" },

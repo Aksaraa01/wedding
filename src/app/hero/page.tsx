@@ -6,10 +6,12 @@ import HeroSection from "@/components/HeroSection"
 import FeaturesSection from "@/components/FeaturesSection"
 import Footer from "@/components/Footer"
 import SeoFaq from "@/components/SeoFaq"
+import SeoOrganization from "@/components/SeoOrganization"
 
 export default function HeroPage() {
   return (
     <>
+      <SeoOrganization />
       <PageTheme mode="light" />
       <CustomCursor />
       <BackgroundElements />
