@@ -87,6 +87,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
   const [view, setView] = useState({ w: 0, h: 0 })
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [fullscreenSupported, setFullscreenSupported] = useState(false)
+  const [fullscreenHint, setFullscreenHint] = useState("")
   // Capture orientation: follow the device layout by default, but let the guest
   // force Tegak/Mendatar (rotation lock and some in-app browsers never rotate
   // the page, so the box alone cannot tell us how they are holding it).
@@ -214,22 +215,36 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     }
   }, [])
 
-  const toggleFullscreen = async () => {
+  const toggleFullscreen = async (): Promise<boolean> => {
     type FsDoc = Document & { webkitFullscreenElement?: Element | null; webkitExitFullscreen?: () => Promise<void> }
     type FsEl = HTMLElement & { webkitRequestFullscreen?: () => Promise<void> }
     const doc = document as FsDoc
-    const el = document.documentElement as FsEl
     try {
       const active = document.fullscreenElement || doc.webkitFullscreenElement
       if (active) {
         if (document.exitFullscreen) await document.exitFullscreen()
         else await doc.webkitExitFullscreen?.()
-      } else if (typeof el.requestFullscreen === "function") {
-        await el.requestFullscreen({ navigationUI: "hide" }).catch(() => el.webkitRequestFullscreen?.())
-      } else {
-        await el.webkitRequestFullscreen?.()
+        return true
       }
-    } catch {}
+      // Try <html>, then <body>, then the vendor-prefixed variants — in-app
+      // browsers implement different subsets.
+      const targets = [document.documentElement as FsEl, document.body as FsEl]
+      for (const el of targets) {
+        try {
+          if (typeof el.requestFullscreen === "function") {
+            await el.requestFullscreen({ navigationUI: "hide" })
+            if (document.fullscreenElement || doc.webkitFullscreenElement) return true
+          } else if (typeof el.webkitRequestFullscreen === "function") {
+            await el.webkitRequestFullscreen()
+            if (document.fullscreenElement || doc.webkitFullscreenElement) return true
+          }
+        } catch {}
+      }
+      setFullscreenHint("Layar penuh diblokir browser ini — tutup tab aplikasi lalu buka di Chrome")
+      return false
+    } catch {
+      return false
+    }
   }
 
   const applyZoom = (label: string) => {
@@ -384,8 +399,8 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
                   top: guide.y,
                   width: guide.w,
                   height: guide.h,
-                  boxShadow: "0 0 0 9999px rgba(0,0,0,0.42)",
-                  outline: "1px solid rgba(255,255,255,0.28)",
+                  boxShadow: "0 0 0 9999px rgba(0,0,0,0.22)",
+                  outline: "1px solid rgba(255,255,255,0.35)",
                 }}
               >
                 <span className="absolute w-5 h-5 border-t-2 border-l-2 border-white/85 rounded-tl-sm" style={{ top: 6, left: 6 }} />
@@ -434,6 +449,9 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
           {error && (
             <p className="relative z-20 mx-6 mt-3 text-center text-[13px] text-white bg-black/60 rounded-xl px-4 py-3">{error}</p>
           )}
+          {fullscreenHint && (
+            <p className="relative z-20 mx-6 mt-3 text-center text-[12px] text-white bg-black/70 rounded-xl px-4 py-2">{fullscreenHint}</p>
+          )}
 
           <footer
             className={
@@ -445,7 +463,10 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
             <div className="flex items-center gap-1.5 p-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20">
               <button
                 aria-label="Foto tegak"
-                onClick={() => setOrientation("portrait")}
+                onClick={() => {
+                  setOrientation("portrait")
+                  if (!isFullscreen && fullscreenSupported) void toggleFullscreen()
+                }}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold tracking-wider uppercase transition-colors ${!landscapeView ? "bg-white text-black" : "text-white/80"}`}
               >
                 <span className="material-symbols-outlined text-[14px]">crop_portrait</span>
@@ -453,7 +474,10 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
               </button>
               <button
                 aria-label="Foto mendatar"
-                onClick={() => setOrientation("landscape")}
+                onClick={() => {
+                  setOrientation("landscape")
+                  if (!isFullscreen && fullscreenSupported) void toggleFullscreen()
+                }}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold tracking-wider uppercase transition-colors ${landscapeView ? "bg-white text-black" : "text-white/80"}`}
               >
                 <span className="material-symbols-outlined text-[14px]">crop_landscape</span>
