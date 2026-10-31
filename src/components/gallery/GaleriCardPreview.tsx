@@ -70,13 +70,13 @@ export default function GaleriCardPreview({
   return (
     <div
       ref={wrapRef}
-      className={`relative w-full overflow-hidden ${className}`}
-      style={status === "ready" ? undefined : { aspectRatio: "4 / 5" }}
+      className={`relative flex items-center justify-center min-h-0 w-full ${className}`}
+      style={status === "ready" ? { height: "100%" } : { aspectRatio: "4 / 5", height: "auto" }}
     >
       <canvas
         ref={canvasRef}
         aria-label="Pratinjau bingkai foto"
-        className={`block w-full h-auto transition-opacity duration-300 ${status === "ready" ? "opacity-100" : "opacity-0"}`}
+        className={`block max-w-full max-h-full w-auto h-auto transition-opacity duration-300 ${status === "ready" ? "opacity-100" : "opacity-0"}`}
       />
       {status === "loading" && (
         <div className="absolute inset-0 flex items-center justify-center bg-[#f0eee9]">
@@ -90,7 +90,7 @@ export default function GaleriCardPreview({
         <img
           src={imageUrl}
           alt="Pratinjau foto"
-          className="block w-full h-full object-cover"
+          className="block max-w-full max-h-full w-auto h-auto object-contain"
           style={cameraFilter ? { filter: cameraFilter } : undefined}
         />
       )}

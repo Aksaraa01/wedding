@@ -154,6 +154,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     }
   }, [shot])
 
+  const screenLandscape = view.w > 0 && view.h > 0 ? view.w >= view.h : screenAspect >= 1
   const landscapeView =
     orientation === "landscape"
       ? true
@@ -309,37 +310,38 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
   const frameLabel = quota > 0 ? `Frame ${Math.min(used + 1, quota)}/${quota}` : ""
 
   return (
-    <main className="relative w-full flex-1 min-h-[100dvh] overflow-hidden bg-black select-none flex flex-col justify-between">
+    <main className="relative w-full h-[100dvh] min-h-[100dvh] overflow-hidden bg-black select-none flex flex-col justify-between">
       {!shot ? (
         <>
           <div ref={screenRef} className="absolute inset-0 z-0 overflow-hidden bg-black">
-            {(
-              // The viewfinder is drawn at the capture shape, as large as the
-              // device allows: what is inside it is exactly what gets shot.
+            {/* Full-screen viewfinder; the outlined rect is exactly the shot. */}
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="absolute inset-0 w-full h-full object-cover"
+              style={cameraFilter ? { filter: cameraFilter } : undefined}
+            />
+            <canvas ref={canvasRef} className="hidden" />
+            {guide && (
               <div
-                className="absolute overflow-hidden rounded-[10px] shadow-2xl"
-                style={
-                  guide
-                    ? { left: guide.x, top: guide.y, width: guide.w, height: guide.h }
-                    : { left: 0, top: 0, width: "100%", height: "100%" }
-                }
+                className="absolute pointer-events-none rounded-[6px]"
+                style={{
+                  left: guide.x,
+                  top: guide.y,
+                  width: guide.w,
+                  height: guide.h,
+                  boxShadow: "0 0 0 9999px rgba(0,0,0,0.42)",
+                  outline: "1px solid rgba(255,255,255,0.28)",
+                }}
               >
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  className="w-full h-full object-cover"
-                  style={cameraFilter ? { filter: cameraFilter } : undefined}
-                />
-                <div className="absolute inset-0 bg-black/10 pointer-events-none" />
                 <span className="absolute w-5 h-5 border-t-2 border-l-2 border-white/85 rounded-tl-sm" style={{ top: 6, left: 6 }} />
                 <span className="absolute w-5 h-5 border-t-2 border-r-2 border-white/85 rounded-tr-sm" style={{ top: 6, right: 6 }} />
                 <span className="absolute w-5 h-5 border-b-2 border-l-2 border-white/85 rounded-bl-sm" style={{ bottom: 6, left: 6 }} />
                 <span className="absolute w-5 h-5 border-b-2 border-r-2 border-white/85 rounded-br-sm" style={{ bottom: 6, right: 6 }} />
               </div>
             )}
-            <canvas ref={canvasRef} className="hidden" />
           </div>
           <div id="gt-flash" className="absolute inset-0 bg-white opacity-0 pointer-events-none z-40 transition-opacity duration-150" />
 
@@ -370,7 +372,13 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
             <p className="relative z-20 mx-6 mt-3 text-center text-[13px] text-white bg-black/60 rounded-xl px-4 py-3">{error}</p>
           )}
 
-          <footer className="relative z-20 w-full px-6 pb-6 pt-3 flex flex-col items-center gap-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+          <footer
+            className={
+              screenLandscape
+                ? "absolute right-1.5 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-2.5"
+                : "relative z-20 w-full px-6 pb-6 pt-3 flex flex-col items-center gap-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent"
+            }
+          >
             <div className="flex items-center gap-1.5 p-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20">
               <button
                 aria-label="Foto tegak"
@@ -389,7 +397,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
                 Mendatar
               </button>
             </div>
-            <div className="w-full flex items-center justify-between max-w-xs px-2">
+            <div className={screenLandscape ? "flex flex-col items-center gap-2.5" : "w-full flex items-center justify-between max-w-xs px-2"}>
               <div className="flex flex-col items-center gap-1">
                 <button
                   aria-label="Flash kamera"
@@ -399,7 +407,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
                 >
                   <span className="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">{flash && torchOn ? "flash_on" : "flash_off"}</span>
                 </button>
-                <span className="text-[10px] text-white/90 font-medium tracking-wider uppercase">Flash</span>
+                {!screenLandscape && <span className="text-[10px] text-white/90 font-medium tracking-wider uppercase">Flash</span>}
               </div>
               <button
                 aria-label="Ambil foto"
@@ -420,7 +428,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
                 >
                   <span className="material-symbols-outlined text-[24px]">flip_camera_ios</span>
                 </button>
-                <span className="text-[10px] text-white/90 font-medium tracking-wider uppercase">Putar</span>
+                {!screenLandscape && <span className="text-[10px] text-white/90 font-medium tracking-wider uppercase">Putar</span>}
               </div>
             </div>
             {zoomSupported && (
@@ -439,8 +447,8 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
           </footer>
         </>
       ) : framedMode ? (
-        <div className="relative flex-1 flex flex-col w-full px-5 pt-4 pb-8 overflow-y-auto" style={{ ...SANS, backgroundColor: "#fbf9f4", color: "#1b1c19" }}>
-          <div className="w-full flex items-center gap-3 h-16 max-w-lg mx-auto">
+        <div className="relative flex-1 flex flex-col w-full min-h-0 px-4 pt-3 pb-4 overflow-hidden" style={{ ...SANS, backgroundColor: "#fbf9f4", color: "#1b1c19" }}>
+          <div className="w-full flex items-center gap-3 h-14 max-w-lg mx-auto shrink-0">
             <button
               aria-label="Kembali"
               onClick={() => {
@@ -465,21 +473,37 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
             </div>
           </div>
 
-          <div className="flex flex-col w-full pb-6 max-w-lg mx-auto gap-4">
-            {/* The card IS the uploaded JPG: same painter, same frame art. */}
-            <GaleriCardPreview
-              imageUrl={shot.previewUrl}
-              frame={frameSelection}
-              couple={coupleName}
-              date={dateLabel || ""}
-              caption={caption}
-              cameraFilter={cameraFilter}
-              className="mx-auto w-full max-w-[540px] rounded-[0.85rem] shadow-[0_18px_40px_-18px_rgba(27,28,25,0.35)]"
-            />
+          <div
+            className={
+              screenLandscape
+                ? "flex-1 min-h-0 w-full flex flex-row items-stretch justify-center gap-4 pt-2"
+                : "flex-1 min-h-0 w-full flex flex-col items-center gap-3 pt-1"
+            }
+          >
+            {/* The card IS the uploaded JPG: same painter, same frame art.
+                It scales to whatever space is left, so nothing ever scrolls. */}
+            <div className="flex-1 min-h-0 flex items-center justify-center w-full">
+              <GaleriCardPreview
+                imageUrl={shot.previewUrl}
+                frame={frameSelection}
+                couple={coupleName}
+                date={dateLabel || ""}
+                caption={caption}
+                cameraFilter={cameraFilter}
+                className="max-h-full rounded-[0.85rem] shadow-[0_18px_40px_-18px_rgba(27,28,25,0.35)]"
+              />
+            </div>
 
+            <div
+              className={
+                screenLandscape
+                  ? "w-[44%] max-w-[380px] shrink-0 flex flex-col justify-center gap-3"
+                  : "w-full max-w-[540px] shrink-0 flex flex-col gap-3"
+              }
+            >
             {/* Caption lives OUTSIDE the frame: it is stored with the photo
                 and shown in the gallery / keepsake book. */}
-            <div className="w-full rounded-[1.1rem] border border-[#d9c1c0]/60 bg-white px-4 py-3 shadow-sm">
+            <div className="w-full rounded-[1.1rem] border border-[#d9c1c0]/60 bg-white px-4 py-2.5 shadow-sm">
               <div className="flex items-center justify-between mb-1.5">
                 <label htmlFor="gt-caption" className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.14em] font-semibold" style={{ color: "#6b2b2d" }}>
                   <span className="material-symbols-outlined text-[15px] opacity-80">edit_note</span>
@@ -529,6 +553,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
                 {uploading ? "Mengunggah..." : "Lanjut"}
                 {!uploading && <span className="material-symbols-outlined text-[18px]">arrow_forward</span>}
               </button>
+            </div>
             </div>
           </div>
         </div>
