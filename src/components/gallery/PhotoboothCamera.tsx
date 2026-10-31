@@ -463,10 +463,10 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
               >
                 <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
-              <div className="flex-1 min-w-0 flex items-center px-3.5 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-white/20">
-                <div className="flex flex-col text-left min-w-0">
-                  <span className="text-[13px] text-white leading-tight font-semibold truncate" style={{ fontFamily: "Playfair Display" }}>{coupleName}</span>
-                  {dateLabel && <span className="text-[8.5px] uppercase tracking-[0.18em] text-[#ffddba] opacity-90 leading-tight mt-0.5 truncate">{dateLabel}</span>}
+              <div className="flex-1 min-w-0 flex items-center justify-center px-3.5 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-white/20">
+                <div className="flex flex-col items-center text-center min-w-0">
+                  <span className="w-full text-[13px] text-white leading-tight font-semibold truncate text-center" style={{ fontFamily: "Playfair Display" }}>{coupleName}</span>
+                  {dateLabel && <span className="w-full text-[8.5px] uppercase tracking-[0.18em] text-[#ffddba] opacity-90 leading-tight mt-0.5 truncate text-center">{dateLabel}</span>}
                 </div>
               </div>
             </div>
@@ -505,6 +505,32 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
             <p className="relative z-20 mx-6 mt-3 text-center text-[12px] text-white bg-black/70 rounded-xl px-4 py-2">{fullscreenHint}</p>
           )}
 
+          {screenLandscape && (
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 p-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20">
+              <button
+                aria-label="Foto tegak"
+                onClick={() => {
+                  setOrientation("portrait")
+                  if (!isFullscreen && fullscreenSupported) void toggleFullscreen()
+                }}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold tracking-wider uppercase transition-colors ${!landscapeView ? "bg-white text-black" : "text-white/80"}`}
+              >
+                <span className="material-symbols-outlined text-[14px]">crop_portrait</span>
+                Tegak
+              </button>
+              <button
+                aria-label="Foto mendatar"
+                onClick={() => {
+                  setOrientation("landscape")
+                  if (!isFullscreen && fullscreenSupported) void toggleFullscreen()
+                }}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold tracking-wider uppercase transition-colors ${landscapeView ? "bg-white text-black" : "text-white/80"}`}
+              >
+                <span className="material-symbols-outlined text-[14px]">crop_landscape</span>
+                Mendatar
+              </button>
+            </div>
+          )}
           <footer
             className={
               screenLandscape
@@ -512,7 +538,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
                 : "relative z-20 w-full px-6 pb-6 pt-3 flex flex-col items-center gap-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent"
             }
           >
-            <div className="flex items-center gap-1.5 p-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20">
+            <div className={`flex items-center gap-1.5 p-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 ${screenLandscape ? "hidden" : ""}`}>
               <button
                 aria-label="Foto tegak"
                 onClick={() => {
