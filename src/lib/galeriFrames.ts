@@ -1412,8 +1412,8 @@ async function paintEditorialCard(
   const name = fitLines(ctx, couple, {
     maxWidth: W * (landscape ? 0.6 : 0.61),
     maxLines: landscape ? 1 : 2,
-    size: W * (landscape ? 0.055 : 0.098),
-    minSize: W * (landscape ? 0.034 : 0.042),
+    size: W * (landscape ? 0.042 : 0.098),
+    minSize: W * (landscape ? 0.028 : 0.042),
     weight: "700",
     family: '"Playfair Display", serif',
   })
