@@ -588,58 +588,78 @@ async function paintIvoryCard(
   ctx.stroke()
   ctx.restore()
 
-  // Header — centred in BOTH orientations: eyebrow, couple name, date.
+  // Header (as before the centred experiment): label + couple on the left,
+  // date at the right — stacked dd/mm/yyyy behind a rule in portrait, one line
+  // in landscape.
   const landscape = aspect < 1
-  const cx = L.cardX + L.cardW / 2
   ctx.save()
   ctx.fillStyle = "#1b1c19"
   const label = fitTracked(
     ctx,
     "THE WEDDING OF",
-    L.cardW * 0.5,
-    L.cardW * (landscape ? 0.018 : 0.022),
+    L.cardW * 0.42,
+    L.cardW * (landscape ? 0.022 : 0.026),
     "600",
     '"Plus Jakarta Sans", sans-serif',
     0.3,
-    L.cardW * 0.012
+    L.cardW * 0.014
   )
   ctx.font = `600 ${label.size}px "Plus Jakarta Sans", sans-serif`
-  drawTracked(ctx, "THE WEDDING OF", cx, headerTop + L.cardW * (landscape ? 0.02 : 0.026), label.tracking, "center")
+  drawTracked(ctx, "THE WEDDING OF", leftX, headerTop + L.cardW * (landscape ? 0.028 : 0.04), label.tracking, "left")
+  ctx.restore()
 
+  const parts = dateParts(text.date)
+  if (landscape) {
+    if (parts) {
+      const line = [parts.d, parts.m, parts.y].filter(Boolean).join(" · ")
+      ctx.save()
+      ctx.fillStyle = "#1b1c19"
+      const stamp = fitTracked(ctx, line, L.cardW * 0.24, L.cardW * 0.022, "600", '"Plus Jakarta Sans", sans-serif', 0.18, L.cardW * 0.014)
+      ctx.font = `600 ${stamp.size}px "Plus Jakarta Sans", sans-serif`
+      drawTracked(ctx, line, rightX, headerTop + L.cardW * 0.028, stamp.tracking, "right")
+      ctx.restore()
+    }
+  } else if (parts) {
+    const stampLines = [parts.d, parts.m, parts.y].filter(Boolean)
+    const dateSize = L.cardW * 0.03
+    const lineH = dateSize * 1.55
+    const stackTop = headerTop + L.cardW * 0.012
+    ctx.save()
+    ctx.fillStyle = "#1b1c19"
+    ctx.font = `600 ${dateSize}px "Plus Jakarta Sans", sans-serif`
+    stampLines.forEach((line, i) => {
+      drawTracked(ctx, line, rightX, stackTop + dateSize + i * lineH, dateSize * 0.22, "right")
+    })
+    ctx.strokeStyle = "rgba(27,28,25,0.28)"
+    ctx.lineWidth = Math.max(1, W * 0.0013)
+    const ruleX = rightX - L.cardW * 0.12
+    ctx.beginPath()
+    ctx.moveTo(ruleX, stackTop + L.cardW * 0.004)
+    ctx.lineTo(ruleX, stackTop + stampLines.length * lineH - L.cardW * 0.012)
+    ctx.stroke()
+    ctx.restore()
+  }
+
+  // Couple name: stately uppercase serif.
   const couple = (text.couple || "").trim().toUpperCase() || "MEMPELAI"
+  const nameMaxW = landscape ? rightX - leftX - L.cardW * 0.28 : rightX - leftX - L.cardW * 0.19
   const name = fitLines(ctx, couple, {
-    maxWidth: L.cardW * 0.86,
+    maxWidth: nameMaxW,
     maxLines: landscape ? 1 : 2,
-    size: L.cardW * (landscape ? 0.05 : 0.072),
-    minSize: L.cardW * (landscape ? 0.032 : 0.042),
+    size: L.cardW * (landscape ? 0.052 : 0.072),
+    minSize: L.cardW * 0.03,
     weight: "400",
     family: '"Playfair Display", serif',
   })
-  ctx.textAlign = "center"
-  const nameLineH = name.size * 1.12
-  let nameY = headerTop + L.cardW * (landscape ? 0.052 : 0.062) + name.size
+  ctx.save()
+  ctx.fillStyle = "#1b1c19"
+  ctx.textAlign = "left"
+  const nameLineH = name.size * 1.14
+  let nameY = headerTop + L.cardW * (landscape ? 0.075 : 0.08) + name.size
   for (const line of name.lines) {
     ctx.font = `400 ${name.size}px "Playfair Display", serif`
-    ctx.fillText(line, cx, nameY)
+    ctx.fillText(line, leftX, nameY)
     nameY += nameLineH
-  }
-
-  const parts = dateParts(text.date)
-  const dateLine = parts ? [parts.d, parts.m, parts.y].filter(Boolean).join(" · ") : (text.date || "").trim()
-  if (dateLine) {
-    const stamp = fitTracked(
-      ctx,
-      dateLine,
-      L.cardW * 0.7,
-      L.cardW * (landscape ? 0.017 : 0.024),
-      "600",
-      '"Plus Jakarta Sans", sans-serif',
-      0.22,
-      L.cardW * 0.012
-    )
-    ctx.font = `600 ${stamp.size}px "Plus Jakarta Sans", sans-serif`
-    ctx.fillStyle = "#534342"
-    drawTracked(ctx, dateLine, cx, nameY - nameLineH + L.cardW * (landscape ? 0.038 : 0.046), stamp.tracking, "center")
   }
   ctx.restore()
 
