@@ -1024,8 +1024,8 @@ async function paintPolaroidCard(
     const signature = fitLines(ctx, couple, {
       maxWidth: L.bandW * 0.86,
       maxLines: 2,
-      size: L.cardW * 0.052,
-      minSize: L.cardW * 0.026,
+      size: L.cardW * 0.037,
+      minSize: L.cardW * 0.02,
       weight: "600",
       family: '"Caveat", cursive',
     })
@@ -1037,7 +1037,7 @@ async function paintPolaroidCard(
       y += lineH
     }
     if (date) {
-      const stamp = fitTracked(ctx, date.toUpperCase(), L.bandW * 0.84, L.cardW * 0.017, "600", '"Plus Jakarta Sans", sans-serif', 0.24, L.cardW * 0.012)
+      const stamp = fitTracked(ctx, date.toUpperCase(), L.bandW * 0.84, L.cardW * 0.0125, "600", '"Plus Jakarta Sans", sans-serif', 0.24, L.cardW * 0.009)
       ctx.font = `600 ${stamp.size}px "Plus Jakarta Sans", sans-serif`
       ctx.fillStyle = "#534342"
       drawTracked(ctx, date.toUpperCase(), cx, L.cardY + L.cardH * 0.68, stamp.tracking, "center")
@@ -1105,7 +1105,7 @@ async function paintIvoryCard(
     paintArtPhoto(ctx, paintPhoto, L.photoX, L.photoY, L.photoW, L.photoH)
     drawVignette(ctx, { ox: L.photoX, oy: L.photoY, w: L.photoW, h: L.photoH })
     ctx.restore()
-    const matInsetL = L.cardW * 0.018
+    const matInsetL = L.cardW * 0.014
     ctx.save()
     ctx.strokeStyle = "rgba(27,28,25,0.22)"
     ctx.lineWidth = Math.max(1, W * 0.0014)
@@ -1129,21 +1129,21 @@ async function paintIvoryCard(
 
     ctx.save()
     ctx.fillStyle = "#1b1c19"
-    const lLabel = fitTracked(ctx, "THE WEDDING OF", colW, L.cardW * 0.021, "600", '"Plus Jakarta Sans", sans-serif', 0.28, L.cardW * 0.012)
+    const lLabel = fitTracked(ctx, "THE WEDDING OF", colW, L.cardW * 0.015, "600", '"Plus Jakarta Sans", sans-serif', 0.28, L.cardW * 0.009)
     ctx.font = `600 ${lLabel.size}px "Plus Jakarta Sans", sans-serif`
-    drawTracked(ctx, "THE WEDDING OF", colX, topY + L.cardW * 0.03, lLabel.tracking, "left")
+    drawTracked(ctx, "THE WEDDING OF", colX, topY + L.cardW * 0.024, lLabel.tracking, "left")
 
     const couple = (text.couple || "").trim().toUpperCase() || "MEMPELAI"
     const name = fitLines(ctx, couple, {
       maxWidth: colW,
       maxLines: 3,
-      size: L.cardW * 0.052,
-      minSize: L.cardW * 0.028,
+      size: L.cardW * 0.037,
+      minSize: L.cardW * 0.02,
       weight: "400",
       family: '"Playfair Display", serif',
     })
     ctx.fillStyle = "#1b1c19"
-    let nameY = topY + L.cardW * 0.075 + name.size
+    let nameY = topY + L.cardW * 0.056 + name.size
     for (const line of name.lines) {
       ctx.font = `400 ${name.size}px "Playfair Display", serif`
       ctx.fillText(line, colX, nameY, colW)
@@ -1153,7 +1153,7 @@ async function paintIvoryCard(
     const lParts = dateParts(text.date)
     if (lParts) {
       const line = [lParts.d, lParts.m, lParts.y].filter(Boolean).join(" · ")
-      const stamp = fitTracked(ctx, line, colW, L.cardW * 0.021, "600", '"Plus Jakarta Sans", sans-serif', 0.18, L.cardW * 0.012)
+      const stamp = fitTracked(ctx, line, colW, L.cardW * 0.015, "600", '"Plus Jakarta Sans", sans-serif', 0.18, L.cardW * 0.009)
       ctx.font = `600 ${stamp.size}px "Plus Jakarta Sans", sans-serif`
       ctx.fillStyle = "#534342"
       drawTracked(ctx, line, colX, nameY + L.cardW * 0.015, stamp.tracking, "left")
@@ -1161,19 +1161,19 @@ async function paintIvoryCard(
 
     // Footer pinned to the bottom of the column.
     ctx.fillStyle = "#1b1c19"
-    const footA = fitTracked(ctx, "A NEW CHAPTER", colW * 0.96, L.cardW * 0.02, "600", '"Plus Jakarta Sans", sans-serif', 0.24, L.cardW * 0.012)
-    const footB = fitTracked(ctx, "TOGETHER", colW * 0.6, L.cardW * 0.02, "600", '"Plus Jakarta Sans", sans-serif', 0.24, L.cardW * 0.012)
-    const footY = L.cardY + L.cardH - L.padY - L.cardW * 0.05
+    const footA = fitTracked(ctx, "A NEW CHAPTER", colW * 0.96, L.cardW * 0.014, "600", '"Plus Jakarta Sans", sans-serif', 0.24, L.cardW * 0.009)
+    const footB = fitTracked(ctx, "TOGETHER", colW * 0.6, L.cardW * 0.014, "600", '"Plus Jakarta Sans", sans-serif', 0.24, L.cardW * 0.009)
+    const footY = L.cardY + L.cardH - L.padY - L.cardW * 0.038
     ctx.font = `600 ${footA.size}px "Plus Jakarta Sans", sans-serif`
     drawTracked(ctx, "A NEW CHAPTER", colX, footY, footA.tracking, "left")
     ctx.font = `600 ${footB.size}px "Plus Jakarta Sans", sans-serif`
-    drawTracked(ctx, "TOGETHER", colX, footY + L.cardW * 0.042, footB.tracking, "left")
-    const ruleStartL = colX + measureTracked(ctx, "TOGETHER", footB.tracking) + L.cardW * 0.02
+    drawTracked(ctx, "TOGETHER", colX, footY + L.cardW * 0.032, footB.tracking, "left")
+    const ruleStartL = colX + measureTracked(ctx, "TOGETHER", footB.tracking) + L.cardW * 0.015
     ctx.strokeStyle = "rgba(27,28,25,0.35)"
     ctx.lineWidth = Math.max(1, W * 0.0013)
     ctx.beginPath()
-    ctx.moveTo(ruleStartL, footY + L.cardW * 0.042 - footB.size * 0.32)
-    ctx.lineTo(Math.min(ruleStartL + L.cardW * 0.06, colX + colW), footY + L.cardW * 0.042 - footB.size * 0.32)
+    ctx.moveTo(ruleStartL, footY + L.cardW * 0.032 - footB.size * 0.32)
+    ctx.lineTo(Math.min(ruleStartL + L.cardW * 0.045, colX + colW), footY + L.cardW * 0.032 - footB.size * 0.32)
     ctx.stroke()
     ctx.restore()
 
@@ -1333,6 +1333,7 @@ async function paintEditorialCard(
   aspect: number
 ): Promise<void> {
   const L = editorialLayout(W, aspect)
+  const landscape = aspect < 1
   await ensureFrameFonts()
   ctx.fillStyle = "#ffffff"
   ctx.fillRect(0, 0, W, L.H)
@@ -1368,22 +1369,22 @@ async function paintEditorialCard(
   ctx.fillStyle = "#1b1c19"
   const date = (text.date || "").trim().toUpperCase()
   if (date) {
-    const stamp = fitTracked(ctx, date, W * 0.6, W * 0.023, "600", '"Plus Jakarta Sans", sans-serif', 0.16, W * 0.013)
+    const stamp = fitTracked(ctx, date, W * 0.6, W * (landscape ? 0.0175 : 0.023), "600", '"Plus Jakarta Sans", sans-serif', 0.16, W * 0.012)
     ctx.font = `600 ${stamp.size}px "Plus Jakarta Sans", sans-serif`
-    drawTracked(ctx, date, W - W * 0.05, L.photoY + W * 0.048, stamp.tracking, "right")
+    drawTracked(ctx, date, W - W * 0.05, L.photoY + W * (landscape ? 0.04 : 0.048), stamp.tracking, "right")
   }
   ctx.shadowColor = "rgba(255,255,255,0.92)"
   ctx.shadowBlur = W * 0.016
   // Masthead: italic "the" baseline-aligned before the display "Wedding".
-  const theSize = W * 0.052
-  const weddingSize = W * 0.132
+  const theSize = W * (landscape ? 0.04 : 0.052)
+  const weddingSize = W * (landscape ? 0.098 : 0.132)
   ctx.font = `italic 400 ${theSize}px "Playfair Display", serif`
   const theW = ctx.measureText("the").width
   ctx.font = `400 ${weddingSize}px "Playfair Display", serif`
   const weddingW = ctx.measureText("Wedding").width
   const gap = W * 0.008
   const mastheadX = (W - (theW + gap + weddingW)) / 2
-  const mastheadY = L.photoY + W * 0.175
+  const mastheadY = L.photoY + W * (landscape ? 0.152 : 0.175)
   ctx.fillStyle = "#1b1c19"
   ctx.font = `italic 400 ${theSize}px "Playfair Display", serif`
   ctx.textAlign = "left"
@@ -1391,13 +1392,12 @@ async function paintEditorialCard(
   ctx.font = `400 ${weddingSize}px "Playfair Display", serif`
   ctx.fillText("Wedding", mastheadX + theW + gap, mastheadY)
   // Editorial subtitle.
-  const eyebrow = fitTracked(ctx, "FOREVER BEGINS HERE", W * 0.62, W * 0.0215, "600", '"Plus Jakarta Sans", sans-serif', 0.4, W * 0.012)
+  const eyebrow = fitTracked(ctx, "FOREVER BEGINS HERE", W * 0.62, W * (landscape ? 0.0165 : 0.0215), "600", '"Plus Jakarta Sans", sans-serif', 0.4, W * 0.011)
   ctx.font = `600 ${eyebrow.size}px "Plus Jakarta Sans", sans-serif`
-  drawTracked(ctx, "FOREVER BEGINS HERE", W / 2, L.photoY + W * 0.245, eyebrow.tracking, "center")
+  drawTracked(ctx, "FOREVER BEGINS HERE", W / 2, L.photoY + W * (landscape ? 0.2 : 0.245), eyebrow.tracking, "center")
   ctx.restore()
 
   // White text band under the cover (portrait only).
-  const landscape = aspect < 1
   const bandTop = L.photoY + L.photoH
   if (!landscape) {
     ctx.fillStyle = "#ffffff"
@@ -1409,8 +1409,8 @@ async function paintEditorialCard(
   const name = fitLines(ctx, couple, {
     maxWidth: W * (landscape ? 0.6 : 0.61),
     maxLines: landscape ? 1 : 2,
-    size: W * (landscape ? 0.072 : 0.098),
-    minSize: W * 0.042,
+    size: W * (landscape ? 0.055 : 0.098),
+    minSize: W * (landscape ? 0.034 : 0.042),
     weight: "700",
     family: '"Playfair Display", serif',
   })
@@ -1418,7 +1418,7 @@ async function paintEditorialCard(
   ctx.fillStyle = "#1b1c19"
   ctx.textAlign = "left"
   const lineH = name.size * 0.9
-  const lastBaseline = landscape ? bandTop - W * 0.05 : bandTop + L.textBand * 0.82
+  const lastBaseline = landscape ? bandTop - W * 0.042 : bandTop + L.textBand * 0.82
   let nameY = lastBaseline - (name.lines.length - 1) * lineH
   for (const line of name.lines) {
     ctx.font = `700 ${name.size}px "Playfair Display", serif`
@@ -1430,20 +1430,20 @@ async function paintEditorialCard(
   // Credit block: tracked label + script sign-off, bottom-right.
   ctx.save()
   ctx.fillStyle = "#534342"
-  const cred = fitTracked(ctx, "CHEERS TO THE COUPLE", W * 0.29, W * (landscape ? 0.017 : 0.0195), "600", '"Plus Jakarta Sans", sans-serif', 0.2, W * 0.011)
+  const cred = fitTracked(ctx, "CHEERS TO THE COUPLE", W * 0.29, W * (landscape ? 0.0135 : 0.0195), "600", '"Plus Jakarta Sans", sans-serif', 0.2, W * 0.01)
   ctx.font = `600 ${cred.size}px "Plus Jakarta Sans", sans-serif`
   drawTracked(
     ctx,
     "CHEERS TO THE COUPLE",
     W - W * 0.05,
-    landscape ? bandTop - W * 0.115 : bandTop + L.textBand * 0.6,
+    landscape ? bandTop - W * 0.1 : bandTop + L.textBand * 0.6,
     cred.tracking,
     "right"
   )
   const script = fitLines(ctx, "Happily Ever After!", {
     maxWidth: W * 0.3,
     maxLines: 1,
-    size: W * (landscape ? 0.038 : 0.045),
+    size: W * (landscape ? 0.03 : 0.045),
     minSize: W * 0.024,
     weight: "600",
     family: '"Dancing Script", cursive',
@@ -1451,7 +1451,7 @@ async function paintEditorialCard(
   ctx.fillStyle = "#1b1c19"
   ctx.textAlign = "right"
   ctx.font = `600 ${script.size}px "Dancing Script", cursive`
-  if (script.lines[0]) ctx.fillText(script.lines[0], W - W * 0.05, landscape ? bandTop - W * 0.035 : bandTop + L.textBand * 0.86)
+  if (script.lines[0]) ctx.fillText(script.lines[0], W - W * 0.05, landscape ? bandTop - W * 0.028 : bandTop + L.textBand * 0.86)
   ctx.restore()
 }
 
