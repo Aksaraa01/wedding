@@ -1115,11 +1115,13 @@ async function paintIvoryCard(
     // Cluster hugs the photo's bottom-right corner (must not cover the
     // stationery column on the right).
     if (floral) {
-      const fw = L.photoW * 0.42
+      // Small corner cluster: in landscape the card is short, so a big bloom
+      // would eat half the photo.
+      const fw = L.photoW * 0.24
       const fh = (fw * floral.naturalHeight) / Math.max(1, floral.naturalWidth)
       ctx.save()
-      ctx.globalAlpha = 0.98
-      ctx.drawImage(floral, L.photoX + L.photoW - fw * 1.02, L.photoY + L.photoH - fh * 0.82, fw, fh)
+      ctx.globalAlpha = 0.97
+      ctx.drawImage(floral, L.photoX + L.photoW - fw * 0.95, L.photoY + L.photoH - fh * 0.72, fw, fh)
       ctx.restore()
     }
 
@@ -1345,11 +1347,12 @@ async function paintEditorialCard(
   ctx.clip()
   paintArtPhoto(ctx, paintPhoto, L.photoX, L.photoY, L.photoW, L.photoH)
   // White scrims: top for the masthead copy, bottom blend into the text band.
-  const topScrim = ctx.createLinearGradient(0, L.photoY, 0, L.photoY + W * 0.34)
-  topScrim.addColorStop(0, "rgba(255,255,255,0.86)")
+  const scrimH = W * (aspect < 1 ? 0.24 : 0.34)
+  const topScrim = ctx.createLinearGradient(0, L.photoY, 0, L.photoY + scrimH)
+  topScrim.addColorStop(0, "rgba(255,255,255,0.8)")
   topScrim.addColorStop(1, "rgba(255,255,255,0)")
   ctx.fillStyle = topScrim
-  ctx.fillRect(L.photoX, L.photoY, L.photoW, W * 0.34)
+  ctx.fillRect(L.photoX, L.photoY, L.photoW, scrimH)
   const fadeH = W * (aspect < 1 ? 0.3 : 0.2)
   const fadeStrong = aspect < 1 ? "rgba(255,255,255,0.94)" : "rgba(255,255,255,1)"
   const bottomFade = ctx.createLinearGradient(0, L.photoY + L.photoH - fadeH, 0, L.photoY + L.photoH)
@@ -1376,15 +1379,15 @@ async function paintEditorialCard(
   ctx.shadowColor = "rgba(255,255,255,0.92)"
   ctx.shadowBlur = W * 0.016
   // Masthead: italic "the" baseline-aligned before the display "Wedding".
-  const theSize = W * (landscape ? 0.04 : 0.052)
-  const weddingSize = W * (landscape ? 0.098 : 0.132)
+  const theSize = W * (landscape ? 0.028 : 0.052)
+  const weddingSize = W * (landscape ? 0.06 : 0.132)
   ctx.font = `italic 400 ${theSize}px "Playfair Display", serif`
   const theW = ctx.measureText("the").width
   ctx.font = `400 ${weddingSize}px "Playfair Display", serif`
   const weddingW = ctx.measureText("Wedding").width
   const gap = W * 0.008
   const mastheadX = (W - (theW + gap + weddingW)) / 2
-  const mastheadY = L.photoY + W * (landscape ? 0.152 : 0.175)
+  const mastheadY = L.photoY + W * (landscape ? 0.1 : 0.175)
   ctx.fillStyle = "#1b1c19"
   ctx.font = `italic 400 ${theSize}px "Playfair Display", serif`
   ctx.textAlign = "left"
@@ -1392,9 +1395,9 @@ async function paintEditorialCard(
   ctx.font = `400 ${weddingSize}px "Playfair Display", serif`
   ctx.fillText("Wedding", mastheadX + theW + gap, mastheadY)
   // Editorial subtitle.
-  const eyebrow = fitTracked(ctx, "FOREVER BEGINS HERE", W * 0.62, W * (landscape ? 0.0165 : 0.0215), "600", '"Plus Jakarta Sans", sans-serif', 0.4, W * 0.011)
+  const eyebrow = fitTracked(ctx, "FOREVER BEGINS HERE", W * 0.62, W * (landscape ? 0.014 : 0.0215), "600", '"Plus Jakarta Sans", sans-serif', 0.4, W * 0.01)
   ctx.font = `600 ${eyebrow.size}px "Plus Jakarta Sans", sans-serif`
-  drawTracked(ctx, "FOREVER BEGINS HERE", W / 2, L.photoY + W * (landscape ? 0.2 : 0.245), eyebrow.tracking, "center")
+  drawTracked(ctx, "FOREVER BEGINS HERE", W / 2, L.photoY + W * (landscape ? 0.135 : 0.245), eyebrow.tracking, "center")
   ctx.restore()
 
   // White text band under the cover (portrait only).
