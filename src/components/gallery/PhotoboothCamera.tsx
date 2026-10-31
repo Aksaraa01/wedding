@@ -59,6 +59,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
   const { coupleName, dateLabel, frameId, cameraFilter, cameraName, quota, initialUsed, backHref, doneHref, uploadShot } = props
   const router = useRouter()
   const videoRef = useRef<HTMLVideoElement>(null)
+  const screenRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
 
@@ -138,20 +139,16 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
   // several browsers swap the camera frame on rotation without firing
   // `loadedmetadata`, which made a landscape phone crop as portrait.
   useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
-    const measure = () => setView({ w: video.clientWidth, h: video.clientHeight })
+    const screen = screenRef.current
+    if (!screen) return
+    const measure = () => setView({ w: screen.clientWidth, h: screen.clientHeight })
     measure()
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null
-    if (ro) ro.observe(video)
-    video.addEventListener("loadedmetadata", measure)
-    video.addEventListener("resize", measure)
+    if (ro) ro.observe(screen)
     window.addEventListener("resize", measure)
     window.addEventListener("orientationchange", measure)
     return () => {
       if (ro) ro.disconnect()
-      video.removeEventListener("loadedmetadata", measure)
-      video.removeEventListener("resize", measure)
       window.removeEventListener("resize", measure)
       window.removeEventListener("orientationchange", measure)
     }
@@ -165,8 +162,23 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
         : view.w > 0 && view.h > 0
           ? view.w >= view.h
           : screenAspect >= 1
-  const targetAspect = landscapeView ? 4 / 3 : 4 / 5
+  // 16:9 matches a landscape phone screen; 4:5 keeps portrait cards from
+  // turning into very tall strips.
+  const targetAspect = landscapeView ? 16 / 9 : 4 / 5
   const guide = view.w > 0 && view.h > 0 ? fitGuide(view.w, view.h, targetAspect) : null
+
+  // The viewfinder box mounts after the first layout pass, and remounts on
+  // retake: re-attach the already-open stream so the preview never waits for a
+  // second getUserMedia.
+  useEffect(() => {
+    const video = videoRef.current
+    const stream = streamRef.current
+    if (!video || !stream) return
+    if (video.srcObject !== stream) {
+      video.srcObject = stream
+      void video.play().catch(() => {})
+    }
+  }, [view.w, view.h, shot])
 
   useEffect(() => {
     const track = streamRef.current?.getVideoTracks()[0] as ExtendedTrack | undefined
@@ -200,7 +212,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     // Take exactly the rect the viewfinder outlines. Aspect follows the chosen
     // orientation (auto = the live layout box), and the rect is mapped through
     // the object-cover transform so the framing is whatever the guest sees.
-    const shotAspect = landscapeView ? 4 / 3 : 4 / 5
+    const shotAspect = landscapeView ? 16 / 9 : 4 / 5
     const g = fitGuide(Ew, Eh, shotAspect)
     const cover = Math.max(Ew / vw, Eh / vh)
     const offX = (Ew - vw * cover) / 2
@@ -300,35 +312,34 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
     <main className="relative w-full flex-1 min-h-[100dvh] overflow-hidden bg-black select-none flex flex-col justify-between">
       {!shot ? (
         <>
-          <div className="absolute inset-0 z-0 overflow-hidden bg-black">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className="w-full h-full object-cover"
-              style={cameraFilter ? { filter: cameraFilter } : undefined}
-            />
-            <canvas ref={canvasRef} className="hidden" />
-            <div className="absolute inset-0 bg-black/15 pointer-events-none" />
-            {guide && (
+          <div ref={screenRef} className="absolute inset-0 z-0 overflow-hidden bg-black">
+            {(
+              // The viewfinder is drawn at the capture shape, as large as the
+              // device allows: what is inside it is exactly what gets shot.
               <div
-                className="absolute z-10 pointer-events-none rounded-[10px]"
-                style={{
-                  left: guide.x,
-                  top: guide.y,
-                  width: guide.w,
-                  height: guide.h,
-                  boxShadow: "0 0 0 9999px rgba(0,0,0,0.45)",
-                  outline: "1px solid rgba(255,255,255,0.35)",
-                }}
+                className="absolute overflow-hidden rounded-[10px] shadow-2xl"
+                style={
+                  guide
+                    ? { left: guide.x, top: guide.y, width: guide.w, height: guide.h }
+                    : { left: 0, top: 0, width: "100%", height: "100%" }
+                }
               >
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover"
+                  style={cameraFilter ? { filter: cameraFilter } : undefined}
+                />
+                <div className="absolute inset-0 bg-black/10 pointer-events-none" />
                 <span className="absolute w-5 h-5 border-t-2 border-l-2 border-white/85 rounded-tl-sm" style={{ top: 6, left: 6 }} />
                 <span className="absolute w-5 h-5 border-t-2 border-r-2 border-white/85 rounded-tr-sm" style={{ top: 6, right: 6 }} />
                 <span className="absolute w-5 h-5 border-b-2 border-l-2 border-white/85 rounded-bl-sm" style={{ bottom: 6, left: 6 }} />
                 <span className="absolute w-5 h-5 border-b-2 border-r-2 border-white/85 rounded-br-sm" style={{ bottom: 6, right: 6 }} />
               </div>
             )}
+            <canvas ref={canvasRef} className="hidden" />
           </div>
           <div id="gt-flash" className="absolute inset-0 bg-white opacity-0 pointer-events-none z-40 transition-opacity duration-150" />
 
@@ -463,7 +474,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
               date={dateLabel || ""}
               caption={caption}
               cameraFilter={cameraFilter}
-              className="mx-auto max-w-[360px] rounded-[0.85rem] shadow-[0_18px_40px_-18px_rgba(27,28,25,0.35)]"
+              className="mx-auto w-full max-w-[540px] rounded-[0.85rem] shadow-[0_18px_40px_-18px_rgba(27,28,25,0.35)]"
             />
 
             {/* Caption lives OUTSIDE the frame: it is stored with the photo
