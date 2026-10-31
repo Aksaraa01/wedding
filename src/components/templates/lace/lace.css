@@ -1607,6 +1607,71 @@
   overflow: hidden;
 }
 
+/* Two cover slots: the first is the backdrop, behind an ivory veil heavy
+   enough to keep the burgundy copy readable over any photo. */
+.lc-closing__bg {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  transform: scale(1.03);
+}
+
+.lc-closing__bgveil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(247, 245, 243, 0.97) 0%,
+    rgba(247, 245, 243, 0.87) 34%,
+    rgba(247, 245, 243, 0.88) 68%,
+    rgba(247, 245, 243, 0.97) 100%
+  );
+}
+
+.lc-closing__body {
+  position: relative;
+  z-index: 1;
+}
+
+/* The second slot slides as a photo strip. The track holds two identical sets,
+   so translating it by half its width loops without a seam. */
+.lc-closing__strip {
+  margin: 32px auto 0;
+  width: 100%;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%);
+}
+
+.lc-closing__track {
+  display: flex;
+  width: max-content;
+  animation: lc-closing-slide 34s linear infinite;
+  will-change: transform;
+}
+
+.lc-closing__track img {
+  display: block;
+  width: 148px;
+  height: 100px;
+  margin-right: 10px;
+  object-fit: cover;
+  border-radius: 2px;
+  filter: saturate(0.92);
+  box-shadow: 0 1px 0 rgba(179, 153, 122, 0.3);
+}
+
+@keyframes lc-closing-slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 .lc-closing__art {
   display: block;
   width: 118px;
@@ -2043,5 +2108,10 @@
   .lc-cover__living,
   .lc-gate__film {
     display: none;
+  }
+
+  .lc-closing__track {
+    animation: none;
+    justify-content: center;
   }
 }

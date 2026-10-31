@@ -1359,7 +1359,7 @@ DEMO_PROPS_BY_CODE["lace"] = {
   bride_full_name: "Faye Reed",
   groom_parents: "The Son of Mr. James Albarn & Mrs. Clara Albarn",
   bride_parents: "The Daughter of Mr. Edward Reed & Mrs. Anne Reed",
-  cover_photos: [],
+  cover_photos: [`${DE}/cover-2.webp`, `${DE}/cover-4.webp`],
   groom_photo_url: [`${DE}/groom.webp`],
   bride_photo_url: [`${DE}/bride.webp`],
   gallery_photos: [...DE_GALLERY].slice(0, 6),

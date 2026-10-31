@@ -1082,10 +1082,11 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.9, stagger: 0.18 },
     },
     content: {
-      // No cover photo (the cover is a sealed plate of lace art), but the
-      // mempelai block DOES take a portrait per person, and the gallery + film
-      // are used too. Only the cover slots are switched off.
-      cover_slots: 0,
+      // The cover is a sealed plate of lace art, but the closing takes two
+      // cover photos: the first is its backdrop, the second slides across it as
+      // a photo strip. Mempelai portraits and the gallery + film are used too.
+      cover_slots: 2,
+      cover_slot_labels: ["Foto Latar Penutup", "Foto Geser Penutup"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,

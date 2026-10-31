@@ -260,6 +260,12 @@ export default function Lace(profile: TemplateProps) {
   const groomFull = profile.groom_full_name || groom
   const brideFull = profile.bride_full_name || bride
   const coupleLabel = [groom, bride].join(" & ")
+  // Closing: two cover slots. The first is the section backdrop, the second
+  // slides across it as a strip. A single filled slot is used for both, so the
+  // design still works when only one photo is uploaded.
+  const closingCovers = useMemo(() => flattenPhotos(profile.cover_photos), [profile.cover_photos])
+  const closingBackdrop = closingCovers[0] || closingCovers[1] || ""
+  const closingStrip = closingCovers[1] || closingCovers[0] || ""
   // The wax stamp carries "Singkatan Pasangan" when the couple set it, and the
   // initials derived from their names otherwise.
   const initials = initialsOf(profile.groom_name, profile.bride_name)
@@ -891,10 +897,31 @@ export default function Lace(profile: TemplateProps) {
 
         {/* ── Closing ──────────────────────────────────────────── */}
         <section className="lc-closing" data-section="closing">
-          <span className="lc-closing__art" style={bandStyle(ART_BALCONY)} aria-hidden="true" />
+          {closingBackdrop ? (
+            <>
+              <span
+                className="lc-closing__bg"
+                style={bandStyle(closingBackdrop)}
+                aria-hidden="true"
+              />
+              <span className="lc-closing__bgveil" aria-hidden="true" />
+            </>
+          ) : (
+            <span className="lc-closing__art" style={bandStyle(ART_BALCONY)} aria-hidden="true" />
+          )}
           <div className="lc-wrap lc-closing__body" data-lc-reveal>
             <p className="lc-display lc-closing__lead">We cannot wait to celebrate with you.</p>
             <p className="lc-script lc-closing__names">{coupleLabel}</p>
+
+            {closingStrip && (
+              <div className="lc-closing__strip" aria-hidden="true">
+                <div className="lc-closing__track">
+                  {Array.from({ length: 8 }).map((_, index) => (
+                    <img key={index} src={closingStrip} alt="" loading="lazy" draggable={false} />
+                  ))}
+                </div>
+              </div>
+            )}
 
             <footer className="tpl-footer">
               <a
