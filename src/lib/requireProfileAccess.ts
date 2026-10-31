@@ -12,13 +12,13 @@ type Options = {
   allowScanner?: boolean
 }
 
-export async function requireProfileAccess(
+export async function canAccessProfile(
   req: Request,
   profileId: string,
   options: Options = {},
-): Promise<NextResponse | null> {
+): Promise<boolean> {
   const couple = await verifySession(getSessionToken(req, COUPLE_COOKIE), "couple")
-  if (couple?.sub === profileId) return null
+  if (couple?.sub === profileId) return true
 
   const ops = await verifySession(getSessionToken(req, OPS_COOKIE), "ops")
   if (ops) {
@@ -28,16 +28,25 @@ export async function requireProfileAccess(
       .eq("id", ops.sub)
       .eq("is_active", true)
       .maybeSingle()
-    if (employee) return null
+    if (employee) return true
   }
 
   if (options.allowScanner) {
     const token = extractScannerJwt(req)
     if (token) {
       const scanner = await verifyScannerJwt(token)
-      if (scanner?.weddingProfileId === profileId) return null
+      if (scanner?.weddingProfileId === profileId) return true
     }
   }
 
+  return false
+}
+
+export async function requireProfileAccess(
+  req: Request,
+  profileId: string,
+  options: Options = {},
+): Promise<NextResponse | null> {
+  if (await canAccessProfile(req, profileId, options)) return null
   return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 }
