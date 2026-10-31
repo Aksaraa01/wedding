@@ -39,6 +39,13 @@ const nextConfig = {
               source: "/templates/:path*",
               headers: [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }],
             },
+            // Preview pages are how templates are reviewed. A week-long cache
+            // meant a fresh deploy stayed invisible on a returning browser, so
+            // they must always revalidate.
+            {
+              source: "/templates/:code/preview",
+              headers: [{ key: "Cache-Control", value: "private, no-store" }],
+            },
           ]
         : []),
     ]
