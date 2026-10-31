@@ -65,13 +65,15 @@ for (const code of codes) {
 }
 
 console.log("\nCritical APIs")
-for (const path of ["/api/health", "/api/dashboard/6a7ad151-c3b4-43e8-8429-0b58b4d0736b/web-invitation"]) {
-  const s = status(base + path)
-  // /api/health may not exist on every build; only the dashboard route is fatal.
-  const fatal = path.includes("web-invitation") && isFatal(s)
-  if (fatal) failed++
-  console.log(`  ${fatal ? "✗" : "·"} ${path} -> ${s}`)
-}
+const health = status(base + "/api/health")
+console.log(`  · /api/health -> ${health} (not fatal; may not exist on every build)`)
+
+// The dashboard editor API is session-gated. 401 is the healthy answer here:
+// a 200 would mean the route is open again to anyone holding a profile UUID.
+const editorApi = status(`${base}/api/dashboard/6a7ad151-c3b4-43e8-8429-0b58b4d0736b/web-invitation`)
+const editorOk = editorApi === "401"
+if (!editorOk) failed++
+console.log(`  ${editorOk ? "·" : "✗"} web-invitation (no session) -> ${editorApi} ${editorOk ? "= gate holds" : "= EXPECTED 401 (route is unauthenticated!)"}`)
 
 if (failed) {
   console.error(`\n✗ SMOKE TEST FAILED — ${failed} route(s) not serving.\n  ERR:6/7 = DNS/connection, ERR:35/51/60 = TLS (e.g. expired certificate).\n  Otherwise: deployed bundle is older than the code (stale tree).\n  Redeploy from a tree synced with origin/main, or roll back.`)
