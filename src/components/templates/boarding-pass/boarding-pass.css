@@ -873,8 +873,10 @@ body:has(.bp-root.is-locked) {
   position: absolute;
   width: 38.46%;
   height: 19%;
-  background: #fff;
-  border-radius: 2px;
+  /* .tp-perangko — the punched stamp edge: cream dots around white paper */
+  background:
+    radial-gradient(circle at 5px 5px, var(--bp-cream) 3px, transparent 3.4px) -5px -5px / 10px 10px,
+    #fff;
   box-shadow: 0 0.4cqw 1.4cqw rgba(29, 42, 45, 0.12);
 }
 
@@ -905,31 +907,43 @@ body:has(.bp-root.is-locked) {
   display: block;
 }
 
-/* postmark: two rings plus three wavy lines, drawn in CSS */
+/* .tp-cap — the reference's postmark: double ring over three wavy lines */
 .bp-stamp__postmark {
   position: absolute;
   width: 80%;
   height: 33.7%;
-  border-radius: 50%;
-  border: 1.5px solid rgba(31, 90, 96, 0.55);
-  background:
-    radial-gradient(circle, transparent 62%, rgba(31, 90, 96, 0.35) 63%, transparent 66%);
-  opacity: 0.85;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  opacity: 0.88;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
 }
 
-.bp-stamp--a .bp-stamp__postmark { left: 16%; top: -8.4%; }
-.bp-stamp--b .bp-stamp__postmark { left: -10%; top: -8.4%; }
-.bp-stamp--c .bp-stamp__postmark { left: 16%; top: -8.4%; }
+.bp-stamp__postmark--l {
+  left: 16%;
+  top: -8.4%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 64'%3E%3Ccircle cx='88' cy='32' r='27' fill='none' stroke='%231F5A60' stroke-width='1.6'/%3E%3Ccircle cx='88' cy='32' r='21.5' fill='none' stroke='%231F5A60' stroke-width='.8'/%3E%3Cpath d='M2 20 q7 -5 14 0 t14 0 t14 0 t14 0 M2 32 q7 -5 14 0 t14 0 t14 0 t14 0 M2 44 q7 -5 14 0 t14 0 t14 0 t14 0' fill='none' stroke='%231F5A60' stroke-width='1.4'/%3E%3C/svg%3E");
+}
 
+.bp-stamp__postmark--r {
+  left: -10%;
+  top: -8.4%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 64'%3E%3Ccircle cx='32' cy='32' r='27' fill='none' stroke='%231F5A60' stroke-width='1.6'/%3E%3Ccircle cx='32' cy='32' r='21.5' fill='none' stroke='%231F5A60' stroke-width='.8'/%3E%3Cpath d='M62 20 q7 -5 14 0 t14 0 t14 0 t14 0 M62 32 q7 -5 14 0 t14 0 t14 0 t14 0 M62 44 q7 -5 14 0 t14 0 t14 0 t14 0' fill='none' stroke='%231F5A60' stroke-width='1.4'/%3E%3C/svg%3E");
+}
+
+/* the year sits inside the ring: 88/120 or 32/120 of the postmark width */
 .bp-stamp__year {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
   font-family: var(--bp-mono);
   font-size: 2.6cqw;
   letter-spacing: 0.26cqw;
   color: var(--bp-teal);
 }
+
+.bp-stamp__postmark--l .bp-stamp__year { left: 73.3%; }
+.bp-stamp__postmark--r .bp-stamp__year { left: 26.7%; }
 
 .bp-story__copy {
   position: absolute;
@@ -1120,7 +1134,7 @@ body:has(.bp-root.is-locked) {
   position: relative;
   container-type: inline-size;
   aspect-ratio: 390 / 460;
-  padding: 4.6% 4.6% 0;
+  padding: 10.26% 4.6% 0;
   display: flex;
   flex-direction: column;
 }
@@ -1535,11 +1549,12 @@ body:has(.bp-root.is-locked) {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 6.1cqw 3.4cqw 0;
-  /* teal band 96px tall, then paper — plus the punched hole at its centre */
+  padding: 16.9cqw 3.4cqw 0;
+  /* teal band 96px tall, then paper; punched hole at 34px with a ring, as in
+     .tp-label: cream 8px, darker rim to 12px */
   background:
-    radial-gradient(circle at 50% 6.8cqw, var(--bp-cream) 2.05cqw, transparent 2.15cqw),
-    linear-gradient(var(--bp-teal) 0 15.3cqw, var(--bp-paper) 15.3cqw 100%);
+    radial-gradient(circle at 50% 8.7cqw, var(--bp-cream) 2.05cqw, rgb(228, 220, 205) 2.2cqw, rgb(228, 220, 205) 3.08cqw, transparent 3.2cqw),
+    linear-gradient(var(--bp-teal) 0 24.6cqw, var(--bp-paper) 24.6cqw 100%);
   border-radius: 4.6cqw;
   box-shadow: 0 1.6cqw 3cqw rgba(29, 42, 45, 0.14);
 }
@@ -1554,7 +1569,7 @@ body:has(.bp-root.is-locked) {
 }
 
 .bp-tag__body {
-  margin: 4.6cqw 0 0;
+  margin: 8.2cqw 0 0;
   font-family: var(--bp-body);
   font-size: 3.08cqw;
   line-height: 1.7;
@@ -1786,17 +1801,20 @@ body:has(.bp-root.is-locked) {
   object-fit: cover;
 }
 
-/* a YouTube iframe has to over-scale to cover a 390x760 frame */
+/* A 16:9 film in a 390x760 frame: size the iframe by the frame's HEIGHT
+   (760/390*100cqw = 194.9cqw) and let its width follow 16:9, so the video
+   covers the whole panel with no letterboxing. */
 .bp-closing__media--embed iframe {
   inset: auto;
   top: 50%;
   left: 50%;
-  width: 177.78cqw;
-  height: 100cqw;
-  min-width: 100%;
-  min-height: 100%;
-  transform: translate(-50%, -50%) scale(1.25);
+  height: 194.87cqw;
+  width: 346.44cqw;
+  min-width: 0;
+  min-height: 0;
+  transform: translate(-50%, -50%);
   pointer-events: none;
+  border: 0;
 }
 
 /* .tp-selubung-ombak */

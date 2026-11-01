@@ -159,24 +159,35 @@ The port needs **`DM Mono` (400)** and **`Jost` (400/500/600)** added to
 
 ---
 
-## 6. Asset audit
+## 6. Asset audit (verified against the rendered DOM + CSS)
 
-| Group | Files | Bytes | Verdict |
-|---|---|---|---|
-| **Clipart ornaments** | palm tree (520×729), hibiscus (560×550), rings line-art (360×268), + 3 more 360×247 / 560×597 / 520×550 | 39 KB–568 KB, **≈ 2.6 MB** | **Do not vendor.** Stock clipart, and heavier than the CSS it replaces |
-| Couple photos (demo) | 5 × 867×1300 JPG | — | demo data, never ship |
-| Gallery (demo) | 4 × `pexels-photo-*.jpeg` (external Unsplash/Pexels URLs) | — | licensed stock, never ship |
-| Cover/hero still | `b13b4f10` 865×1300 PNG | 578 KB | demo photo |
-| Cover video | 1 × `<video muted autoplay loop preload="metadata">` | — | couple's own film |
-| Music | 1 × `<audio loop preload="auto">` | — | couple's own track |
+Every image reference in the reference was enumerated; the split below is the one
+that matters.
 
-**The clipart is the only real decision here, and the answer is: rebuild it.** We
-don't need a palm tree or a hibiscus to read as a boarding pass — those are a
-beach theme the *reference couple* chose. What makes the design work is paper,
-perforation, mono type and a departure board, all of which are CSS. Ship our own
-inline SVG for the few marks we do want (rings, a stamp, the torn-edge wave).
+### Vendored — the template's own art (6 files, ~0.7 MB webp)
 
----
+| Asset | Role in the reference |
+|---|---|
+| `palm.webp` | welcome, bottom-left ornament (`.tp-ornamen` 104×146) |
+| `hibiscus.webp` | welcome, bottom-right ornament (112×110) |
+| `rings.webp` | flight card 01 stub (66×49) |
+| `shells.webp` | flight card 02 stub (74×51) |
+| `sprig.webp` | love story, top-left (84×90, rotated) |
+| `frond.webp` | dress-code tag (118×125) |
+
+### Not vendored — per-couple data (correct to leave out)
+
+| Asset | Mapping |
+|---|---|
+| `b13b4f10…png` — **cut-out portrait of the reference couple** behind the hero names (128.2 % wide, −17.7 % left, −22.2 % bottom, z-index 1) | `couple_illustration_url` — renders only when the couple has one |
+| 5 couple JPGs (`c2ace7a0`, `dab9fa90`, `f40bc280`, `01012c50`, `0be84f90`) | cover slot, hero still, portraits, closing still |
+| 4 `pexels-photo-*.jpeg` | gallery — licensed stock used as demo data |
+| `445f8490…mp3` | `track_url` |
+| `2120db70…mp4` | `video_url` (the closing plays it) |
+| owl icon, IG icon, loading gif | platform chrome — replaced by the Aksaraa badge |
+
+Shipping any of the second group would put another couple's faces — and licensed
+stock — into every customer's invitation.
 
 ## 7. Copy inventory
 
@@ -305,10 +316,11 @@ already ship, so they are not "extra sections".
 | Item | Status |
 |---|---|
 | DM Serif Display, DM Mono, Jost, Caveat | **OFL** — self-host freely |
-| Palm / hibiscus / rings clipart | **Stock clipart — do not vendor.** Rebuild what we need as inline SVG |
+| Palm / hibiscus / rings / shells / sprig / frond | **Vendored on the owner's explicit instruction** ("we want from reference"). These are the preset's own art; the licensing question is the owner's to clear, and it is recorded here rather than silently assumed. Everything else in that art set was rebuilt as CSS |
 | Demo photos (incl. 4 Unsplash/Pexels URLs) | Never ship |
 | Platform credit `UNDANGAN DIGITAL OLEH owlink.id`, owl + IG footer | **Remove**, replace with the Aksaraa badge exactly as Sandhya/N Film do |
 | `bebas_neu` | A custom uploaded font referenced by the skin but **used by zero elements** in the render — nothing to substitute |
+| Reference couple's cut-out portrait | Not vendored; the slot is bound to `couple_illustration_url` |
 
 ---
 
