@@ -128,15 +128,20 @@ export default function BoardingPass(profile: TemplateProps) {
   const baseStill = coverPhotoOf(profile) || gallery[0] || ""
   const coverStill = slots[0] || baseStill
   const heroStill = slots[1] || gallery[0] || baseStill
-  const closingStill = slots[2] || gallery[gallery.length - 1] || heroStill
+  // Closing plate: slot 3, else one of the cover photos (owner's rule — never a
+  // gallery frame, which can be a completely different scene).
+  const closingStill = slots[2] || slots[0] || heroStill
 
   const groomShot = groomPhotoOf(profile.groom_photo_url) || heroStill
   const brideShot = bridePhotoOf(profile.bride_photo_url) || heroStill
 
   const events = useMemo(() => (profile.sessions || []).filter(Boolean), [profile.sessions])
   const stories = useMemo(
-    () => (profile.stories || []).filter((story) => story && (story.title || story.description)),
-    [profile.stories]
+    () =>
+      gates.story === false || profile.story_visible === false
+        ? []
+        : (profile.stories || []).filter((story) => story && (story.title || story.description)),
+    [profile.stories, gates.story, profile.story_visible]
   )
   const rundown =
     profile.rundown_visible !== false ? (profile.rundown || []).filter((item) => item && (item.time || item.description)) : []
@@ -181,6 +186,9 @@ export default function BoardingPass(profile: TemplateProps) {
   const galleryIntro = (tc.gallery_intro || "").trim() || "oleh-oleh dari perjalanan kami"
   const giftIntroTitle = (tc.gift_intro_title || "").trim() || "Tanda Kasih"
   const giftIntro = (tc.gift_intro_description || "").trim()
+  // Dress-code prose lives in template_content because the editor exposes no
+  // description field for that section.
+  const dressIntro = (tc.dresscode_intro || "").trim() || (profile.dresscode?.description || "").trim()
   const wishesIntro = (tc.wishes_intro || "").trim() || "Titipkan pesan dan doa terbaik untuk perjalanan baru kami."
   const invitingIntro = (tc.inviting_intro || "").trim()
   const apology = (tc.cover_apology || "").trim() || "Tunjukkan tiket ini dengan senyuman."
@@ -516,7 +524,7 @@ export default function BoardingPass(profile: TemplateProps) {
         {/* 7 — events as flight cards with a gate/seat stub. */}
         {events.length > 0 && (
           <section className="bp-section bp-section--flush" data-section="acara" aria-label="Itinerary">
-            <div className="bp-flights">
+            <div className="bp-flights" style={{ aspectRatio: events.length > 1 ? "390 / 806" : "390 / 500" }}>
               <div className="bp-flights__head">
                 <p className="bp-mono bp-mono--teal">Itinerary</p>
                 <h2 className="bp-title">Jadwal Keberangkatan</h2>
@@ -791,7 +799,7 @@ export default function BoardingPass(profile: TemplateProps) {
 
               <div className="bp-tag">
                 <p className="bp-tag__title">{(profile.dresscode?.title || "").trim() || "Dress Code"}</p>
-                {profile.dresscode?.description && <p className="bp-tag__body">{profile.dresscode.description}</p>}
+                {dressIntro && <p className="bp-tag__body">{dressIntro}</p>}
                 <div className="bp-swatches">
                   {dressColors.map((color, index) => (
                     <div className="bp-swatch" key={`${color.hex || "swatch"}-${index}`}>

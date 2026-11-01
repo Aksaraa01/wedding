@@ -246,6 +246,17 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "lace", "n-film", "ivory-lace", "boarding-pass"],
   },
   {
+    key: "dresscode_intro",
+    label: "Pengantar Dress Code",
+    multiline: true,
+    rows: 3,
+    placeholders: {
+      "boarding-pass":
+        "Kami akan senang bila Anda hadir dengan nuansa warna berikut, agar setiap bingkai dari hari itu terasa satu cerita.",
+    },
+    templates: ["boarding-pass"],
+  },
+  {
     key: "gift_intro_description",
     label: "Deskripsi Bagian Hadiah",
     multiline: true,

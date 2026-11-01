@@ -1680,8 +1680,6 @@ DEMO_PROPS_BY_CODE["boarding-pass"] = {
   ],
   dresscode_visible: true,
   dresscode: {
-    // No description here: the editor only exposes colours for this section, so a
-    // hardcoded sentence would be copy nobody can change.
     colors: [
       { hex: "#fffcf6", name: "Ivory" },
       { hex: "#1f5a60", name: "Teal" },
@@ -1690,6 +1688,8 @@ DEMO_PROPS_BY_CODE["boarding-pass"] = {
     ],
   },
   template_content: {
+    dresscode_intro:
+      "Kami akan senang bila Anda hadir dengan nuansa warna berikut, agar setiap bingkai dari hari itu terasa satu cerita.",
     cover_kicker: "AF 27 · 01A",
     cover_apology: "Tunjukkan tiket ini dengan senyuman.",
     gallery_intro: "oleh-oleh dari perjalanan kami",

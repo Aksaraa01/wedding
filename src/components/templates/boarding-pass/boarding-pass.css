@@ -1109,7 +1109,7 @@ body:has(.bp-root.is-locked) {
   width: 60%;
   text-align: center;
   font-family: var(--bp-serif);  /* DM Serif Display, as in the reference */
-  font-size: 6.15cqw;            /* 24px on the 390 canvas */
+  font-size: 5.13cqw;            /* 20px on the 390 canvas */
   line-height: 1.1;
   letter-spacing: 0;
   text-transform: none;
@@ -1117,7 +1117,7 @@ body:has(.bp-root.is-locked) {
 }
 
 .bp-flight__stubValue--soft {
-  font-size: 5.13cqw;            /* 20px */
+  font-size: 4.35cqw;            /* 17px */
   color: var(--bp-ink);
 }
 
