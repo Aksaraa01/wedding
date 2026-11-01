@@ -1626,10 +1626,10 @@ DEMO_PROPS_BY_CODE["boarding-pass"] = {
   // public/templates/boarding-pass so the preview reads exactly like it.
   display_name: "#AlbarnFayeForever",
   estimated_wedding_date: "2027-12-11",
-  couple_illustration_url: BP("hero-cutout.webp"),
-  cover_photos: [BP("couple-1.webp"), BP("couple-2.webp"), BP("couple-3.webp")],
-  groom_photo_url: [`${DE}/cover-2.webp`],
-  bride_photo_url: [`${DE}/cover-3.webp`],
+  // cover + hero are the reference's beach frame; closing borrows a couple frame
+  cover_photos: [BP("hero-beach.webp"), BP("hero-beach.webp"), BP("couple-3.webp")],
+  groom_photo_url: [BP("couple-1.webp")],
+  bride_photo_url: [BP("couple-2.webp")],
   gallery_photos: [BP("gallery-1.webp"), BP("gallery-2.webp"), BP("gallery-3.webp"), BP("gallery-4.webp"),
                    BP("couple-3.webp"), BP("couple-4.webp"), BP("couple-5.webp"), BP("couple-1.webp")],
   sessions: [
@@ -1680,8 +1680,8 @@ DEMO_PROPS_BY_CODE["boarding-pass"] = {
   ],
   dresscode_visible: true,
   dresscode: {
-    description:
-      "Kami akan senang bila Anda hadir dengan nuansa warna berikut, agar setiap bingkai dari hari itu terasa satu cerita.",
+    // No description here: the editor only exposes colours for this section, so a
+    // hardcoded sentence would be copy nobody can change.
     colors: [
       { hex: "#fffcf6", name: "Ivory" },
       { hex: "#1f5a60", name: "Teal" },

@@ -498,19 +498,6 @@ body:has(.bp-root.is-locked) {
 }
 
 /* .tp-selubung-senja */
-/* the couple's cut-out portrait, behind the names (reference image layer) */
-.bp-hero__cutout {
-  position: absolute;
-  left: -17.7%;
-  bottom: -22.2%;
-  z-index: 1;
-  width: 128.2%;
-  height: 99%;
-  object-fit: contain;
-  object-position: bottom center;
-  pointer-events: none;
-}
-
 .bp-hero__wash {
   position: absolute;
   inset: 0;
@@ -677,25 +664,20 @@ body:has(.bp-root.is-locked) {
   position: absolute;
   z-index: 1;
   pointer-events: none;
-  object-fit: cover;
-  opacity: 0.9;
-  filter: saturate(0.9) contrast(1.02);
+  color: rgba(31, 90, 96, 0.5);
 }
 
 .bp-welcome__sprig--l {
   left: -3.6cqw;
   bottom: 0;
   width: 26.7cqw;
-  height: 34cqw;
-  border-radius: 2px;
 }
 
 .bp-welcome__sprig--r {
   right: 0;
   bottom: 2.6cqw;
   width: 28.7cqw;
-  height: 32cqw;
-  border-radius: 2px;
+  transform: scaleX(-1);
 }
 
 .bp-welcome__tail {
