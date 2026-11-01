@@ -35,6 +35,84 @@ A section renders only when both allow it (plus non-empty data).
 
 ---
 
+## 0.5 The minimum-section contract (read before porting)
+
+A reference is a *design*, not a feature list. Some references ship fewer
+sections than a paying couple expects (a Netflix-style poster with no dress
+code), some ship more (a "Where to Stay" block we have no data for). Both are
+resolved here, and the resolution is **not** left to taste.
+
+### The 16 sections every in-house template ships
+
+In this order. "Gate" means the section also requires the package gate **and**
+the editor toggle (playbook §0) — a section renders only when gate, toggle and
+data all allow it.
+
+| # | Section | Content source | Gate / condition |
+|---|---|---|---|
+| 1 | **Cover** | couple names, date, `guest_name`, open button | always |
+| 2 | **Opening video** (only when the couple has one) | `video_url` — direct upload → `<video autoPlay muted loop playsInline>`, YouTube → iframe | `feature_gates.video` **and** `video_section_visible` |
+| 3 | **Welcome** | greeting card that opens the invitation (names, date, "the wedding of") | always; hide when it would be empty |
+| 4 | **Kalimat pembuka** | `opening_title` + `opening_description` | `!hidesOpeningSection(code)` |
+| 5 | **Mempelai** | `groom_full_name` / `bride_full_name`, photos, parents, Instagram | `person_photos !== false` for the portraits |
+| 6 | **Love story** | `stories[]` (title, description, image_url) | `feature_gates.story` **and** `story_visible !== false`; photos per `story_photo` |
+| 7 | **Event** | `sessions[]` (name, date, time, venue, address, maps_url) | always — completeness blocks publish without it |
+| 8 | **Countdown** | `estimated_wedding_date` | always when a date exists |
+| 9 | **Turut mengundang** | `inviting_families[]` | `feature_gates.inviting_families` **and** `inviting_families_visible !== false` |
+| 10 | **Rundown** | `rundown[]` (`{time, description}`) | `rundown_visible !== false` |
+| 11 | **Gallery** | `gallery_photos[]` | `no_photo` template ⇒ skipped; otherwise needs data |
+| 12 | **Video** | `video_url` | `feature_gates.video` **and** `video_section_visible` |
+| 13 | **Wedding gift** | `gift_accounts[]` + `gift_address_name` + `gift_address` | `gift_section_visible !== false`; the address additionally needs `feature_gates.gift_address` |
+| 14 | **Dress code** | `dresscode` `{title, description, colors[]}` | `dresscode_visible !== false` |
+| 15 | **Wishes** | name field + message field + approved feed (`/api/wishes`) | always |
+| 16 | **Closing** | `template_content.closing_message` + couple names | always |
+
+Sections 3 and 4 may share one surface when the design only has room for one
+block (Lace does exactly this: the welcome band carries `opening_title` as its
+heading and `opening_description` as its body). They may never be *dropped* —
+a template with no surface for the couple's own words is not shippable.
+
+### The five rules
+
+1. **A missing minimum section is ADDED, never skipped.** Rebuild it in the
+   reference's own visual language — same palette, same type scale, same
+   ornament vocabulary, same section rhythm. Never bolt a generic section onto
+   a designed one: a plain white dress-code card inside a black poster template
+   is a bug, not a port. Ask "how would this designer have drawn this?" and
+   answer it with the reference's own primitives (its rules, its label style,
+   its button shape, its photo treatment).
+2. **A reference section OUTSIDE the list needs approval before it ships.**
+   Report it to the owner with three things: what it is, which `wedding_profiles`
+   column would feed it (or that none exists), and what the invitation loses if
+   it is dropped. Then wait. Do not ship it silently, and do not quietly drop it
+   either — `docs/REA_*.md` is where that report lives.
+3. **Mempelai carries no "The Groom" / "The Bride" copy** unless the brief
+   explicitly asks for it. Two portraits side by side with their own names,
+   parents and Instagram is the default. Do not duplicate the whole block per
+   person, and do not add gendered labels as filler.
+4. **RSVP is not a section.** It is the shared floating dock — see §6.
+5. **"Package-gated" is not "optional".** Love story, the cinematic video and
+   Turut Mengundang are gated per package, but the template must still
+   *implement* them — the gate decides whether a given couple sees the section,
+   never whether the design supports it. Opting a section out in the content
+   spec is a **deviation** that has to be justified in the template's
+   `docs/REA_*.md`, not a design preference. `story: false` in a new template is
+   almost always wrong: love story ships in every registered in-house template
+   and `feature_gates.story` is included in every package. Lace used to be the
+   one documented exception; its love story shipped in the "With Honor → gallery"
+   slot (see `docs/REA_LACE.md`), so there are no exceptions left. Also make the
+   component itself test `gates.story` **and** `story_visible` — an ungated
+   `stories` array renders for couples whose package or toggle says no.
+
+### Section order
+
+Ship the order above. When the reference's order differs (most do), keep the
+reference's *pairing* of adjacent blocks and move only what the contract
+requires. Record the final order in the template's `docs/REA_*.md`; the next
+agent diffing the reference needs to know the reorder was deliberate.
+
+---
+
 ## 1. Phase 1 — Port the component
 
 1. Create `src/components/templates/<code>/`:
@@ -70,7 +148,9 @@ A section renders only when both allow it (plus non-empty data).
      // labels for cover slots if the template names them differently
    }
    ```
-   Anything `false` here must be hidden in editor **and** ops.
+   Anything `false` here must be hidden in editor **and** ops, and must be
+   justified against the minimum-section contract (§0.5). "The reference does
+   not have it" is **not** a justification — it is work to do.
    Per-section photo capability: set `story_photo: false` when the love-story
    layout is text-only (piano-garden). Editor and ops then hide the milestone
    photo field and exclude it from completeness, while stored `image_url` data
@@ -428,14 +508,30 @@ Embed a section (pattern: `dark-split-rail/sections/Wishes.tsx`,
 
 Place it where the reference does it (usually before the closing section).
 
-### Floating RSVP / QR check-in
+### Floating RSVP / QR check-in — the only RSVP UI
+
+**There is no RSVP section.** A template never builds its own RSVP form. RSVP
+(attendance, pax, the guest's QR) belongs to the shared `InvitationOverlay`
+dock, because that is the surface the check-in scanner, the wishes API and the
+guest-link rules are all written against. A bespoke form inside a template
+creates a second source of truth for attendance and silently breaks QR
+check-in. If a reference shows an RSVP block, port the *wishes* half as a
+section (§6 above) and drop the RSVP half.
 
 `InvitationOverlay` is the dock (RSVP modal + guest QR). It must be rendered
 **inside the template**; the in-house branch of `src/app/w/[slug]/page.tsx`
 does not render it.
 
+It renders **only on a real invitation link**. `preview_mode` (editor preview)
+and `template_demo` (public `/templates/<code>/preview`) must both suppress it:
+the dock has no guest to check in, and its RSVP call would post to the demo
+profile. Missing these two guards is the single most common dock regression —
+older templates still have it.
+
 ```ts
 const showGuestDock =
+  !profile.preview_mode &&
+  !profile.template_demo &&
   opened &&
   lightbox === null &&
   !videoModal &&
@@ -464,8 +560,16 @@ const showGuestDock =
 )}
 ```
 
-- Only after `opened` (cover/splash stays clean).
-- Only for identified guests, or flexible links with a slug.
+- **Known deviations — do not copy these as a pattern.** Ten older templates still
+omit the two guards: `sandhya`, `manjari`, `dark-split-rail`, `nihara-mist`,
+`impasto-mosque`, `skyline-penthouse`, `pixel-paradise`, `pixel-quest`,
+`pastel-dream-cathedral`, `pastel-coastal-cut`. Most are masked because they are
+absent from `keepDemoIds` (so `wedding_profile_id` is undefined in preview);
+`manjari` is in `keepDemoIds` and therefore does render the dock on
+`/templates/manjari/preview`. New templates must carry the guards even when the
+masking hides the bug.
+
+Only after `opened` (cover/splash stays clean).- Only for identified guests, or flexible links with a slug.
 - Hide while the template's own modals are open.
 - `qrEnabled` comes from the package gate `qr_code_book`; the URL from
   `guest_qr_url`.
@@ -661,6 +765,11 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 | Save silently ignored | column missing from PUT allowlist | add to PUT allowlist |
 | Preview wishes empty / form posts to real DB | missing demo ids | add `demo-wedding-profile-id` guard |
 | No RSVP/QR button on in-house invite | `InvitationOverlay` only in WP branch | render it inside the template |
+| RSVP/QR button appears on `/templates/<code>/preview` or in the editor preview | `showGuestDock` missing the `!preview_mode && !template_demo` guards | add both (§6) — the dock has no guest and would post to the demo profile |
+| Two attendance sources / staff see RSVPs in two places | the template built its own RSVP form | delete it; RSVP is `InvitationOverlay` only (§0.5 rule 4) |
+| Template ships without welcome / rundown / dress code / video | the reference lacked the section and was copied literally | add it in the reference's own visual language (§0.5 rule 1) |
+| A stray reference block (Where to Stay, Transport, Rundown) shipped | ported without approval | report it in `docs/REA_*.md` and wait (§0.5 rule 2) |
+| Mempelai block repeats per person with "The Groom"/"The Bride" | copied a reference that labels each person | two portraits + own names only (§0.5 rule 3) |
 | "Open Invitation" requires a swipe | `openInvitation` stayed on cover | `go(scenes[1], true)` |
 | Fonts 404 | font pipeline not run | `node scripts/fetch-fonts.js && node scripts/gen-font-css.js` |
 | Local dev blocked from `127.0.0.1` | `allowedDevOrigins` | add `["127.0.0.1","localhost"]` |
@@ -700,6 +809,11 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 
 ## 10. Definition of done
 
+- [ ] **All 16 minimum sections present** (§0.5), each rebuilt in the reference's
+      own visual language, with the canonical order recorded in `docs/REA_*.md`
+- [ ] **No reference section outside the minimum shipped without approval**
+- [ ] **RSVP is the `InvitationOverlay` dock only** — no bespoke RSVP form, and
+      the dock is suppressed in `preview_mode` and `template_demo`
 - [ ] Template registered + content spec + demo props + `templateExtras`
 - [ ] Preview route `keepDemoIds` includes the code (server-backed sections)
 - [ ] Reference assets audited/vendored, no licensed media or third-party logos
