@@ -1183,7 +1183,9 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       cover_slot_labels: ["Foto Sampul", "Foto Kisah Cinta", "Foto Penutup"],
       groom_photo: "single",
       bride_photo: "single",
-      story_photo: true,
+      // The love-story backdrop is cover_photos[1]; story milestones carry no
+      // photo of their own, so the editor/ops hide the milestone image field.
+      story_photo: false,
       sections: {
         opening_description: true,
         quote: false,

@@ -1038,30 +1038,17 @@ body:has(.il-root.is-locked) {
   padding: 0;
   background: var(--il-paper-3);
   overflow: hidden;
-  cursor: pointer;
   box-shadow: 0 18px 40px -28px rgba(34, 34, 32, 0.55);
 }
 
-.il-film__still img {
+.il-film__still video,
+.il-film__still iframe {
   width: 100%;
   height: 100%;
+  border: 0;
   object-fit: cover;
+  display: block;
   filter: grayscale(1);
-}
-
-.il-film__notes {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(253, 252, 248, 0.18);
-}
-
-.il-film__notes img {
-  width: 46%;
-  height: auto;
-  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.65));
 }
 
 .il-film__vinyl {
@@ -1464,10 +1451,15 @@ body:has(.il-root.is-locked) {
 .il-closing__photo {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  background: var(--il-paper-3);
 }
 
+/* The closing plate fits the photograph: it is the last thing a guest sees, so
+   cropping it (aspect-ratio + object-fit: cover) cut heads off. */
 .il-closing__photo img {
+  width: 100%;
+  height: auto;
+  display: block;
   filter: grayscale(1);
 }
 
@@ -1482,6 +1474,16 @@ body:has(.il-root.is-locked) {
   text-transform: uppercase;
   color: #fff;
   text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45);
+}
+
+.il-hashtag {
+  margin: 22px 0 0;
+  text-align: center;
+  font-family: var(--il-body);
+  font-size: 10.5px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--il-gold-deep);
 }
 
 .il-closing__message {
@@ -1613,25 +1615,42 @@ body:has(.il-root.is-locked) {
   position: fixed;
   inset: 0;
   z-index: 70;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: var(--il-paper);
-  transition: opacity 0.7s ease, visibility 0.7s ease;
+  overflow: hidden;
+  background: transparent;
   cursor: pointer;
 }
 
 .il-gate.is-open {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
+  display: none;
 }
 
-.il-gate__card {
+/* Two clipped copies of the same envelope. On open the flap half travels up
+   and the lower half travels down, revealing the invitation between them. */
+.il-gate__half {
   position: absolute;
   inset: 0;
   overflow: hidden;
+  background: var(--il-paper);
+  transition: transform 1.15s cubic-bezier(0.66, 0, 0.34, 1);
+  will-change: transform;
+}
+
+/* The flap: the top band down to where the lace V runs, plus a centre tab that
+   carries the wax stamp (so the stamp travels with the flap, not the body). */
+.il-gate__half--flap {
+  clip-path: polygon(0 0, 100% 0, 100% 38%, 66% 38%, 66% 63%, 34% 63%, 34% 38%, 0 38%);
+}
+
+.il-gate.is-opening .il-gate__half--flap {
+  transform: translateY(-101%);
+}
+
+.il-gate.is-opening .il-gate__half--body {
+  transform: translateY(101%);
+}
+
+.il-gate.is-opening .il-gate__brand {
+  opacity: 0;
 }
 
 .il-gate__lace {
@@ -1750,7 +1769,10 @@ body:has(.il-root.is-locked) {
 .il-gate__brand {
   position: absolute;
   bottom: 18px;
+  left: 0;
+  right: 0;
   z-index: 3;
+  transition: opacity 0.5s ease;
   font-family: var(--il-caps);
   font-size: 8px;
   letter-spacing: 0.3em;
@@ -1900,7 +1922,8 @@ body:has(.il-root.is-locked) {
   }
 
   .il-closing__photo {
-    aspect-ratio: 16 / 10;
+    max-width: 760px;
+    margin-inline: auto;
   }
 
   .il-music {
@@ -1932,7 +1955,7 @@ body:has(.il-root.is-locked) {
     animation: none;
   }
 
-  .il-gate {
+  .il-gate__half {
     transition: none;
   }
 }
