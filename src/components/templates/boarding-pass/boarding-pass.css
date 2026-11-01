@@ -598,7 +598,7 @@ body:has(.bp-root.is-locked) {
      with the ornaments sitting at its bottom edge. aspect-ratio (not cqw) sizes
      the element from its own width; cqw on the container itself would resolve
      against the viewport. */
-  aspect-ratio: 390 / 590;
+  aspect-ratio: 390 / 500;
 }
 
 .bp-welcome__inner {
@@ -1066,7 +1066,7 @@ body:has(.bp-root.is-locked) {
 }
 
 .bp-flight__venue {
-  margin: 1.4cqw 0 0;
+  margin: 3.4cqw 0 0;
   font-family: var(--bp-body);
   font-size: 3.08cqw;
   line-height: 1.45;
@@ -1277,7 +1277,9 @@ body:has(.bp-root.is-locked) {
 .bp-board__actions {
   display: flex;
   justify-content: center;
-  margin-top: 11cqw;
+  margin-top: 6.2cqw;
+  padding-top: 6.2cqw;
+  border-top: 1.5px dashed rgba(191, 214, 208, 0.28);
 }
 
 .bp-board__actions .bp-btn {
