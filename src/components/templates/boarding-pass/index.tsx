@@ -426,8 +426,23 @@ export default function BoardingPass(profile: TemplateProps) {
 
         {/* 4 — welcome: centred stack with a corner ornament either side. */}
         <section className="bp-welcome" data-section="welcome" aria-label="Salam hangat">
-          <img className="bp-welcome__sprig bp-welcome__sprig--l" src={ART("palm")} alt="" aria-hidden="true" loading="lazy" />
-          <img className="bp-welcome__sprig bp-welcome__sprig--r" src={ART("hibiscus")} alt="" aria-hidden="true" loading="lazy" />
+          {/* Welcome-only imagery comes from the couple's own photos (demo props in
+              preview), falling back to the vendored ornament when a couple has
+              uploaded nothing. */}
+          <img
+            className="bp-welcome__sprig bp-welcome__sprig--l"
+            src={groomShot || ART("palm")}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+          />
+          <img
+            className="bp-welcome__sprig bp-welcome__sprig--r"
+            src={brideShot || ART("hibiscus")}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+          />
           <div className="bp-welcome__inner">
             <p className="bp-welcome__kicker">{openingTitle}</p>
             <p className="bp-welcome__body">{openingDescription}</p>

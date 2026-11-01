@@ -1628,8 +1628,8 @@ DEMO_PROPS_BY_CODE["boarding-pass"] = {
   estimated_wedding_date: "2027-12-11",
   couple_illustration_url: BP("hero-cutout.webp"),
   cover_photos: [BP("couple-1.webp"), BP("couple-2.webp"), BP("couple-3.webp")],
-  groom_photo_url: [BP("couple-1.webp")],
-  bride_photo_url: [BP("couple-2.webp")],
+  groom_photo_url: [`${DE}/cover-2.webp`],
+  bride_photo_url: [`${DE}/cover-3.webp`],
   gallery_photos: [BP("gallery-1.webp"), BP("gallery-2.webp"), BP("gallery-3.webp"), BP("gallery-4.webp"),
                    BP("couple-3.webp"), BP("couple-4.webp"), BP("couple-5.webp"), BP("couple-1.webp")],
   sessions: [

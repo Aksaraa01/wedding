@@ -676,21 +676,26 @@ body:has(.bp-root.is-locked) {
 .bp-welcome__sprig {
   position: absolute;
   z-index: 1;
-  color: rgba(31, 90, 96, 0.5);
   pointer-events: none;
+  object-fit: cover;
+  opacity: 0.9;
+  filter: saturate(0.9) contrast(1.02);
 }
 
 .bp-welcome__sprig--l {
   left: -3.6cqw;
   bottom: 0;
   width: 26.7cqw;
+  height: 34cqw;
+  border-radius: 2px;
 }
 
 .bp-welcome__sprig--r {
   right: 0;
   bottom: 2.6cqw;
   width: 28.7cqw;
-  transform: scaleX(-1);
+  height: 32cqw;
+  border-radius: 2px;
 }
 
 .bp-welcome__tail {
