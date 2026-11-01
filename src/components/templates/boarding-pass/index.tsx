@@ -403,6 +403,15 @@ export default function BoardingPass(profile: TemplateProps) {
         {/* 2/3 — hero: stacked names, oversized ampersand, torn paper edge. */}
         <section className="bp-hero" data-section="hero" aria-label="Undangan pernikahan">
           {heroStill && <img className="bp-hero__photo" src={heroStill} alt="" aria-hidden="true" />}
+          {profile.couple_illustration_url && (
+            <img
+              className="bp-hero__cutout"
+              src={profile.couple_illustration_url}
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+            />
+          )}
           <div className="bp-hero__wash" aria-hidden="true" />
           <div className="bp-hero__body">
             <p className="bp-hero__kicker">Pernikahan</p>
