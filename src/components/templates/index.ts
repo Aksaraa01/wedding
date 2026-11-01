@@ -27,6 +27,7 @@ import Imagine from "./imagine"
 import StillEver from "./still-ever"
 import EmbroideredGarden from "./embroidered-garden"
 import Lace from "./lace"
+import NFilm from "./n-film"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -57,6 +58,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "still-ever": StillEver,
   "embroidered-garden": EmbroideredGarden,
   lace: Lace,
+  "n-film": NFilm,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -1100,6 +1102,49 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         gallery: true,
         gift: true,
         inviting: true,
+        dresscode: true,
+        livestream: false,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "n-film",
+    name: "N Film",
+    description:
+      "Undangan bergaya film dan layanan streaming — sampul pemilih tamu, poster nama, daftar episode kisah cinta, hitung mundur, galeri, dan film.",
+    theme: {
+      fonts: { display: "Anton", script: "Anton", body: "Archivo" },
+      colors: {
+        surface: "#0b0b0b",
+        text: "#f5f5f1",
+        accent: "#e50914",
+        accentMuted: "#8c8c8c",
+        overlay: "#0b0b0b",
+        dark: "#050505",
+      },
+      ornaments: { divider: "line", border: "none", frame: "square" },
+      motion: { enabled: true, duration: 0.62, stagger: 0.12 },
+    },
+    content: {
+      // Three semantic slots: the cover/film poster, the masthead still, and the
+      // closing still. Portraits come from the mempelai photo fields.
+      cover_slots: 3,
+      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: true,
+      sections: {
+        opening_description: true,
+        quote: true,
+        countdown: true,
+        inviting: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
         dresscode: true,
         livestream: false,
         rundown: true,

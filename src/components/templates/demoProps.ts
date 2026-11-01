@@ -1441,3 +1441,72 @@ DEMO_PROPS_BY_CODE["lace"] = {
       "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say.",
   },
 }
+
+DEMO_PROPS_BY_CODE["n-film"] = {
+  ...DEMO_PROPS_BY_CODE["sandhya"],
+  slug: "demo",
+  display_name: "#AlbarnFaye2027",
+  estimated_wedding_date: "2027-08-24",
+  sessions: (DEMO_PROPS_BY_CODE["sandhya"].sessions || []).map((session) => ({ ...session, date: "2027-08-24" })),
+  cover_photos: [`${DE}/cover-2.webp`, `${DE}/cover.webp`, `${DE}/cover-4.webp`],
+  gallery_photos: [...DE_GALLERY],
+  stories: [
+    {
+      title: "The First Encounter",
+      description:
+        "Two strangers, one rainy evening, and a conversation that never really ended.",
+      image_url: `${DE}/cover-1.webp`,
+    },
+    {
+      title: "The Promise",
+      description: "Through every season and every distance, they kept choosing each other.",
+      image_url: `${DE}/cover-2.webp`,
+    },
+    {
+      title: "The Proposal",
+      description: "One question, one ring, and the easiest yes.",
+      image_url: `${DE}/cover-3.webp`,
+    },
+    {
+      title: "The New Beginning",
+      description:
+        "Not the end of the story, but the first page of a new chapter, together.",
+      image_url: `${DE}/cover-4.webp`,
+    },
+  ],
+  rundown_visible: true,
+  rundown: [
+    { time: "10.00", description: "Guests are seated" },
+    { time: "10.30", description: "The ceremony begins" },
+    { time: "11.30", description: "Family photographs and greetings" },
+    { time: "12.30", description: "Reception and lunch together" },
+    { time: "14.00", description: "A closing word and farewell" },
+  ],
+  dresscode_visible: true,
+  dresscode: {
+    description:
+      "We would love to see you in these tones, so the frames we keep from the day sit together.",
+    colors: [
+      { hex: "#f5f5f1", name: "Paper" },
+      { hex: "#e50914", name: "Cinema Red" },
+      { hex: "#8c8c8c", name: "Silver" },
+      { hex: "#141414", name: "Midnight" },
+    ],
+  },
+  template_content: {
+    cover_kicker: "#AlbarnFayeForever",
+    cover_title: "Now Showing",
+    open_button: "Start the Film",
+    cover_apology: "We apologize for any misspelling of your name or title.",
+    hero_badge: "#1",
+    hero_meta: "100% Love · 2027 · Forever · Romance",
+    gallery_intro: "click to preview",
+    gift_intro_title: "Wedding Gift",
+    gift_intro_description:
+      "Having our family, friends, and loved ones share in our special day is the greatest gift. If you would like to express your love through a gift, we have provided the details below.",
+    wishes_intro: "Leave a wish, a prayer, or a memory for us to keep.",
+    inviting_intro: "With the blessings of their families, we invite you to celebrate with us.",
+    closing_message:
+      "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say.",
+  },
+}

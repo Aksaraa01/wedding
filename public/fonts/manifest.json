@@ -682,5 +682,29 @@
     "weight": "400",
     "style": "normal",
     "bytes": 17844
+  },
+  "anton-400.woff2": {
+    "family": "Anton",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 12004
+  },
+  "archivo-400.woff2": {
+    "family": "Archivo",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 34940
+  },
+  "archivo-600.woff2": {
+    "family": "Archivo",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 34940
+  },
+  "archivo-700.woff2": {
+    "family": "Archivo",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 34940
   }
 }

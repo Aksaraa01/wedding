@@ -25,6 +25,8 @@
   --font-knewave: 'Knewave', cursive;
   --font-dmsans: 'DM Sans', sans-serif;
   --font-dmserif: 'DM Serif Display', serif;
+  --font-anton: 'Anton', sans-serif;
+  --font-archivo: 'Archivo', sans-serif;
 }
 @font-face {
   font-family: 'Inter';
@@ -823,4 +825,32 @@
   font-weight: 400;
   font-display: swap;
   src: url('/fonts/dmserifdisplay-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Anton';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/anton-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/archivo-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/archivo-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/archivo-700.woff2') format('woff2');
 }
