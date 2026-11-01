@@ -1524,6 +1524,7 @@ DEMO_PROPS_BY_CODE["ivory-lace"] = {
     "We are so happy to share this day with you. Here you will find everything about the celebration — the ceremony, the day itself, and the people we cannot wait to see.",
   wedding_profile_id: "demo-wedding-profile-id",
   guest_id: "demo-guest-id",
+  cover_photos: [`${DE}/cover-1.webp`, `${DE}/cover-3.webp`, `${DE}/cover-2.webp`, `${DE}/cover-4.webp`, `${DE}/cover-5.webp`],
   gallery_photos: [...DE_GALLERY].slice(0, 6),
   stories: [
     {

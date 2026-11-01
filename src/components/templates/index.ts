@@ -1179,8 +1179,14 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       // Three semantic photo slots: the hero, the love-story backdrop and the
       // closing plate. Portraits come from the mempelai photo fields, the grid
       // from gallery_photos.
-      cover_slots: 3,
-      cover_slot_labels: ["Foto Sampul", "Foto Kisah Cinta", "Foto Penutup"],
+      cover_slots: 5,
+      cover_slot_labels: [
+        "Foto Sampul",
+        "Foto Kisah Cinta",
+        "Foto Acara 1",
+        "Foto Acara 2",
+        "Foto Penutup",
+      ],
       groom_photo: "single",
       bride_photo: "single",
       // The love-story backdrop is cover_photos[1]; story milestones carry no

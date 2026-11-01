@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { AKSARAA_WA_NUMBER } from "@/lib/contact"
@@ -175,15 +175,16 @@ export default function IvoryLace(profile: TemplateProps) {
   const monogram = ((profile.couple_initials || "").trim() || derivedMonogram || "A&M").replace(/\s|&/g, "")
 
   const covers = useMemo(() => flattenPhotos(profile.cover_photos), [profile.cover_photos])
+  // Cover slots are semantic (see TEMPLATE_CONFIGS): 0 hero, 1 love story,
+  // 2/3 the event photographs, 4 closing.
   const coverImage = covers[0] || ""
   const storyImage = covers[1] || covers[0] || ""
-  const closingImage = covers[2] || covers[1] || covers[0] || ""
+  const closingImage = covers[4] || covers[3] || covers[1] || covers[0] || ""
 
   const galleryPhotos = useMemo(() => flattenPhotos(profile.gallery_photos), [profile.gallery_photos])
-  const eventPhotos = useMemo(
-    () => [...galleryPhotos, ...covers].filter(Boolean),
-    [galleryPhotos, covers]
-  )
+  // Each event has its own upload (cover slot 2, 3 …); a gallery photo is only
+  // a fallback so an event card is never empty.
+  const eventPhoto = (index: number) => covers[2 + index] || galleryPhotos[index] || covers[0] || ""
 
   const stories =
     gates.story !== false && profile.story_visible !== false
@@ -467,7 +468,7 @@ export default function IvoryLace(profile: TemplateProps) {
             </div>
 
             {events.map((event, index) => {
-              const photo = eventPhotos.length > 0 ? eventPhotos[index % eventPhotos.length] : ""
+              const photo = eventPhoto(index)
               const maps =
                 event.maps_url ||
                 (event.venue || event.address
@@ -896,11 +897,18 @@ function CountdownClock({ iso, sessions }: { iso?: string; sessions?: TemplatePr
   ]
   return (
     <div className="il-clock" aria-label="Wedding countdown">
-      {cells.map(([value, label]) => (
-        <div className="il-clock__cell" key={label}>
-          <strong>{value}</strong>
-          <span>{label}</span>
-        </div>
+      {cells.map(([value, label], index) => (
+        <Fragment key={label}>
+          <div className="il-clock__cell">
+            <strong>{value}</strong>
+            <span>{label}</span>
+          </div>
+          {index < cells.length - 1 && (
+            <span className="il-clock__sep" aria-hidden="true">
+              :
+            </span>
+          )}
+        </Fragment>
       ))}
     </div>
   )
