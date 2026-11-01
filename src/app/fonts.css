@@ -27,6 +27,8 @@
   --font-dmserif: 'DM Serif Display', serif;
   --font-anton: 'Anton', sans-serif;
   --font-archivo: 'Archivo', sans-serif;
+  --font-dmmono: 'DM Mono', sans-serif;
+  --font-jost: 'Jost', sans-serif;
 }
 @font-face {
   font-family: 'Inter';
@@ -853,4 +855,32 @@
   font-weight: 700;
   font-display: swap;
   src: url('/fonts/archivo-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'DM Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/dmmono-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Jost';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/jost-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Jost';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/jost-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Jost';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/jost-600.woff2') format('woff2');
 }

@@ -40,6 +40,10 @@ const FAMILIES = [
   // N Film: poster display + functional sans (both OFL, no substitution needed)
   { name: "Anton", weights: ["400"], styles: ["normal"] },
   { name: "Archivo", weights: ["400", "600", "700"], styles: ["normal"] },
+  // Boarding Pass: mono data + geometric body (DM Serif Display and Caveat
+  // are already vendored and carry the display/script roles)
+  { name: "DM Mono", weights: ["400"], styles: ["normal"] },
+  { name: "Jost", weights: ["400", "500", "600"], styles: ["normal"] },
 ];
 
 function cssUrl(f) {
