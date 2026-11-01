@@ -189,6 +189,10 @@ export default function BoardingPass(profile: TemplateProps) {
   // Dress-code prose lives in template_content because the editor exposes no
   // description field for that section.
   const dressIntro = (tc.dresscode_intro || "").trim() || (profile.dresscode?.description || "").trim()
+  const heroTagline = (tc.hero_tagline || "").trim() || "tujuan akhir: hari bahagia kami"
+  const boardFooter = (tc.board_footer || "").trim() || "sampai jumpa di gerbang keberangkatan"
+  const eventsNote = (tc.events_note || "").trim() || "Mohon hadir 30 menit sebelum boarding."
+  const seatClass = (tc.seat_class || "").trim() || "VIP"
   const wishesIntro = (tc.wishes_intro || "").trim() || "Titipkan pesan dan doa terbaik untuk perjalanan baru kami."
   const invitingIntro = (tc.inviting_intro || "").trim()
   const apology = (tc.cover_apology || "").trim() || "Tunjukkan tiket ini dengan senyuman."
@@ -418,7 +422,7 @@ export default function BoardingPass(profile: TemplateProps) {
               {brideName || "Mempelai"}
             </h1>
             {dateShort && <p className="bp-hero__date">{dateShort}</p>}
-            <p className="bp-hero__script">tujuan akhir: hari bahagia kami</p>
+            <p className="bp-hero__script">{heroTagline}</p>
           </div>
           <span className="bp-hero__wave" aria-hidden="true" />
         </section>
@@ -445,7 +449,7 @@ export default function BoardingPass(profile: TemplateProps) {
         {/* 5 — mempelai as a passenger manifest with passport cards. */}
         {passengers.length > 0 && (
           <section className="bp-section bp-section--flush" data-section="mempelai" aria-label="Daftar penumpang">
-            <div className="bp-manifest">
+            <div className="bp-manifest" style={{ aspectRatio: passengers.length > 1 ? "390 / 840" : "390 / 480" }}>
               <div className="bp-manifest__head">
                 <p className="bp-mono bp-mono--teal">Daftar Penumpang</p>
                 <h2 className="bp-title">Kedua Mempelai</h2>
@@ -488,7 +492,13 @@ export default function BoardingPass(profile: TemplateProps) {
         {/* 6 — love story as stamped postcards. */}
         {stories.length > 0 && (
           <section className="bp-section bp-section--flush" data-section="story" aria-label="Kisah kami">
-            <div className="bp-storylist">
+            <div
+              className="bp-storylist"
+              style={{
+                aspectRatio:
+                  stories.length >= 3 ? "390 / 1000" : stories.length === 2 ? "390 / 700" : "390 / 420",
+              }}
+            >
               <img className="bp-storylist__orn" src={ART("sprig")} alt="" aria-hidden="true" loading="lazy" />
               <div className="bp-storylist__head">
                 <p className="bp-mono bp-mono--teal">Kisah Kami</p>
@@ -529,7 +539,7 @@ export default function BoardingPass(profile: TemplateProps) {
                 <p className="bp-mono bp-mono--teal">Itinerary</p>
                 <h2 className="bp-title">Jadwal Keberangkatan</h2>
                 <p className="bp-body bp-body--tight" style={{ marginTop: "1.5cqw" }}>
-                  Mohon hadir 30 menit sebelum boarding.
+                  {eventsNote}
                 </p>
               </div>
 
@@ -574,7 +584,7 @@ export default function BoardingPass(profile: TemplateProps) {
                       Kursi
                     </span>
                     <span className="bp-flight__stubValue" style={{ top: "62.1%", color: "var(--bp-ink)" }}>
-                      VIP
+                      {seatClass}
                     </span>
                     <span className="bp-flight__barcode" aria-hidden="true" />
                   </div>
@@ -585,6 +595,7 @@ export default function BoardingPass(profile: TemplateProps) {
         )}
 
         {/* 8 — countdown as a departure board. */}
+        {countdown && (
         <section className="bp-section bp-section--flush" data-section="countdown" aria-label="Papan keberangkatan">
           <div className="bp-countdown">
             <div className="bp-board">
@@ -619,10 +630,11 @@ export default function BoardingPass(profile: TemplateProps) {
                   Simpan ke Kalender
                 </a>
               </div>
-              <p className="bp-board__foot">sampai jumpa di gerbang keberangkatan</p>
+              <p className="bp-board__foot">{boardFooter}</p>
             </div>
           </div>
         </section>
+        )}
 
         {/* 9 — turut mengundang. */}
         {honored.length > 0 && (

@@ -246,6 +246,30 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "lace", "n-film", "ivory-lace", "boarding-pass"],
   },
   {
+    key: "hero_tagline",
+    label: "Tagline Sampul Depan",
+    placeholders: { "boarding-pass": "tujuan akhir: hari bahagia kami" },
+    templates: ["boarding-pass"],
+  },
+  {
+    key: "board_footer",
+    label: "Catatan Papan Keberangkatan",
+    placeholders: { "boarding-pass": "sampai jumpa di gerbang keberangkatan" },
+    templates: ["boarding-pass"],
+  },
+  {
+    key: "events_note",
+    label: "Catatan Bagian Acara",
+    placeholders: { "boarding-pass": "Mohon hadir 30 menit sebelum boarding." },
+    templates: ["boarding-pass"],
+  },
+  {
+    key: "seat_class",
+    label: "Kelas Kursi",
+    placeholders: { "boarding-pass": "VIP" },
+    templates: ["boarding-pass"],
+  },
+  {
     key: "dresscode_intro",
     label: "Pengantar Dress Code",
     multiline: true,

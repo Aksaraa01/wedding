@@ -1688,6 +1688,10 @@ DEMO_PROPS_BY_CODE["boarding-pass"] = {
     ],
   },
   template_content: {
+    hero_tagline: "tujuan akhir: hari bahagia kami",
+    board_footer: "sampai jumpa di gerbang keberangkatan",
+    events_note: "Mohon hadir 30 menit sebelum boarding.",
+    seat_class: "VIP",
     dresscode_intro:
       "Kami akan senang bila Anda hadir dengan nuansa warna berikut, agar setiap bingkai dari hari itu terasa satu cerita.",
     cover_kicker: "AF 27 · 01A",
