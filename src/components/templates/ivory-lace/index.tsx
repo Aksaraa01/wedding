@@ -152,7 +152,6 @@ export default function IvoryLace(profile: TemplateProps) {
   const toastTimer = useRef<number | null>(null)
 
   const [opened, setOpened] = useState(false)
-  const [opening, setOpening] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [lightbox, setLightbox] = useState<number | null>(null)
   const [openAccount, setOpenAccount] = useState(-1)
@@ -238,26 +237,15 @@ export default function IvoryLace(profile: TemplateProps) {
     (!!profile.guest_id || (profile.guest_link_strict === false && !!profile.guest_slug)) &&
     !!profile.wedding_profile_id
 
-  // The reference splits the envelope: the flap half rises, the lower half
-  // drops, and the invitation is revealed between them. The gate stays mounted
-  // for the duration of the travel, then unmounts from the top of the page.
   const openInvitation = useCallback(() => {
-    if (opening || opened) return
-    setOpening(true)
+    if (opened) return
+    setOpened(true)
     if (hasTrack) {
       const audio = audioRef.current
       if (audio) audio.play().then(() => setPlaying(true), () => setPlaying(false))
     }
-    const reduced =
-      typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    window.setTimeout(
-      () => {
-        setOpened(true)
-        window.scrollTo(0, 0)
-      },
-      reduced ? 0 : 1150
-    )
-  }, [hasTrack, opening, opened])
+    window.scrollTo(0, 0)
+  }, [hasTrack, opened])
 
   useEffect(() => {
     document.body.style.overflow = opened ? "" : "hidden"
@@ -815,19 +803,15 @@ export default function IvoryLace(profile: TemplateProps) {
       </main>
 
       {/* ── Sealed envelope ──────────────────────────────────────── */}
-      {/* The reference opens by splitting the envelope: the V flap and the wax
-          stamp lift away, while the body of the envelope drops. Two copies of
-          the same artwork, one clipped to the flap (plus a tab for the stamp),
-          the other whole. */}
       <div
-        className={`il-gate${opening ? " is-opening" : ""}${opened ? " is-open" : ""}`}
+        className={`il-gate${opened ? " is-open" : ""}`}
         role="dialog"
         aria-modal="true"
         aria-label="Open the invitation"
         onClick={openInvitation}
       >
-        <div className="il-gate__half il-gate__half--flap">
-          <span className="il-gate__lace" style={bg(ART_ENVELOPE)} />
+        <div className="il-gate__card">
+          <span className="il-gate__lace" style={bg(ART_ENVELOPE)} aria-hidden="true" />
           <div className="il-gate__body">
             <p className="il-script il-gate__letter">A Letter From Our Hearts</p>
             <HeartRule className="il-gate__rule" />
@@ -837,12 +821,6 @@ export default function IvoryLace(profile: TemplateProps) {
               <span>{bride}</span>
             </h1>
             <img className="il-gate__seal" src={ART_SEAL} alt="" aria-hidden="true" draggable={false} />
-          </div>
-        </div>
-
-        <div className="il-gate__half il-gate__half--body">
-          <span className="il-gate__lace" style={bg(ART_ENVELOPE)} />
-          <div className="il-gate__body">
             <button type="button" className="il-gate__open" onClick={openInvitation}>
               Open
             </button>
@@ -852,7 +830,6 @@ export default function IvoryLace(profile: TemplateProps) {
             </p>
           </div>
         </div>
-
         <span className="il-gate__brand">Wedding by Aksaraa</span>
       </div>
 

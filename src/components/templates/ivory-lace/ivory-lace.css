@@ -1615,42 +1615,22 @@ body:has(.il-root.is-locked) {
   position: fixed;
   inset: 0;
   z-index: 70;
-  overflow: hidden;
-  background: transparent;
+  display: block;
+  background: var(--il-paper);
+  transition: opacity 0.7s ease, visibility 0.7s ease;
   cursor: pointer;
 }
 
 .il-gate.is-open {
-  display: none;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
-/* Two clipped copies of the same envelope. On open the flap half travels up
-   and the lower half travels down, revealing the invitation between them. */
-.il-gate__half {
+.il-gate__card {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background: var(--il-paper);
-  transition: transform 1.15s cubic-bezier(0.66, 0, 0.34, 1);
-  will-change: transform;
-}
-
-/* The flap: the top band down to where the lace V runs, plus a centre tab that
-   carries the wax stamp (so the stamp travels with the flap, not the body). */
-.il-gate__half--flap {
-  clip-path: polygon(0 0, 100% 0, 100% 38%, 66% 38%, 66% 63%, 34% 63%, 34% 38%, 0 38%);
-}
-
-.il-gate.is-opening .il-gate__half--flap {
-  transform: translateY(-101%);
-}
-
-.il-gate.is-opening .il-gate__half--body {
-  transform: translateY(101%);
-}
-
-.il-gate.is-opening .il-gate__brand {
-  opacity: 0;
 }
 
 .il-gate__lace {
@@ -1955,7 +1935,7 @@ body:has(.il-root.is-locked) {
     animation: none;
   }
 
-  .il-gate__half {
+  .il-gate {
     transition: none;
   }
 }
