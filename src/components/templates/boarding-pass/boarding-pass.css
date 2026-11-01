@@ -1052,9 +1052,9 @@ body:has(.bp-root.is-locked) {
 }
 
 .bp-flight__date {
-  margin: 3.1cqw 0 0;
-  font-family: var(--bp-mono);
-  font-size: 3.08cqw;
+  margin: 3.6cqw 0 0;
+  font-family: var(--bp-body);
+  font-size: 3.33cqw;
   color: var(--bp-ink);
 }
 
@@ -1121,14 +1121,16 @@ body:has(.bp-root.is-locked) {
   right: 8%;
   width: 60%;
   text-align: center;
-  font-family: var(--bp-mono);
-  font-size: 6.15cqw;   /* 24px on the 390 canvas */
+  font-family: var(--bp-serif);  /* DM Serif Display, as in the reference */
+  font-size: 6.15cqw;            /* 24px on the 390 canvas */
   line-height: 1.1;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--bp-teal);
 }
 
 .bp-flight__stubValue--soft {
-  font-size: 5.13cqw;   /* 20px */
+  font-size: 5.13cqw;            /* 20px */
   color: var(--bp-ink);
 }
 
@@ -1137,15 +1139,15 @@ body:has(.bp-root.is-locked) {
 .bp-flight__stub::after {
   content: "";
   position: absolute;
-  left: -0.85cqw;
-  width: 1.7cqw;
-  height: 1.7cqw;
+  left: -2.4cqw;
+  width: 4.8cqw;
+  height: 4.8cqw;
   border-radius: 50%;
   background: var(--bp-cream);
 }
 
-.bp-flight__stub::before { top: -0.85cqw; }
-.bp-flight__stub::after { bottom: -0.85cqw; }
+.bp-flight__stub::before { top: -2.4cqw; }
+.bp-flight__stub::after { bottom: -2.4cqw; }
 
 .bp-flight__barcode {
   position: absolute;
