@@ -428,6 +428,30 @@ Registration: migration `20261043000000_boarding_pass.sql` (next free version �
 - **RSVP** is the dock only, suppressed in `preview_mode` / `template_demo`.
 - **Footer** is Sandhya's closing block (64 px badge, CTA, copyright).
 
+### Reference-faithful pass (after review)
+
+The first cut got the *ticket* right but not the *cover*: it wrapped a pass in a
+cream mat, which buried the photograph. The reference composition was re-measured
+widget by widget from the rendered DOM and rebuilt:
+
+| Block | Reference geometry | Now |
+|---|---|---|
+| **Cover** | photo, `tp-sampul-redup` wash, ticket **338×402 at (26,137)**, stub **338×154 at (26,539)**, photo visible above and below | same, as one `aspect-ratio: 390/844` block |
+| **Ticket notches** | corner notches painted as `radial-gradient(transparent 12px, paper 12.5px)` on the card's own background | same technique — the photo shows through, no mask needed |
+| **Stub** | perforation on the seam, barcode 190×30, code, **open button inside the stub** | same |
+| **Hero** | names **stacked** (Arga / & / Kirana), kicker, date, script tagline, torn-paper wave at the bottom | same, 390×760 |
+| **Welcome** | centred stack, small wave divider, verse, source, **two corner ornaments** | same, 390×590, ornaments drawn as teal line art |
+
+Everything is expressed in `cqw` against a container on each block and sized by
+`aspect-ratio`, so the whole composition scales as one piece instead of
+reflowing. One trap: `min-height` in `cqw` **on the container itself** resolves
+against the viewport, not the element — it made the welcome 1210 px instead of
+651 px. `aspect-ratio` is the correct way to size the container.
+
+The two ornaments are the only place the reference's art would have been reused:
+it uses a palm frond and a hibiscus (stock clipart). They are redrawn as teal
+line art so nothing licensed ships.
+
 ### Verified locally
 
 `tsc --noEmit` clean; preview **200**; all four faces load (DM Serif Display,

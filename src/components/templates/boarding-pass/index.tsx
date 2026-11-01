@@ -73,11 +73,28 @@ function leadingYear(title?: string): string {
   return m ? m[0] : ""
 }
 
-const RINGS = (
-  <svg className="bp-rings" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-    <circle cx="26" cy="34" r="12.5" stroke="currentColor" strokeWidth="1.4" />
-    <circle cx="38" cy="34" r="12.5" stroke="currentColor" strokeWidth="1.4" />
-    <path d="M32 13.5l3.6 4.6-3.6 4.4-3.6-4.4z" stroke="currentColor" strokeWidth="1.2" />
+// Corner ornaments for the welcome section. The reference places two pieces of
+// clipart there (a palm frond and a hibiscus); stock art is not vendored, so the
+// same role is drawn here as teal line art.
+const SPRIG_FROND = (
+  <svg viewBox="0 0 104 146" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" aria-hidden="true">
+    <path d="M56 144C54 110 56 78 66 48" />
+    <path d="M60 122c-14-4-24-14-28-26" />
+    <path d="M62 105c14-2 24-10 30-22" />
+    <path d="M64 88c-14-4-22-14-25-26" />
+    <path d="M67 72c13-3 21-11 26-21" />
+    <path d="M69 56c-12-4-19-13-21-24" />
+    <path d="M72 44c11-4 18-11 22-20" />
+  </svg>
+)
+
+const SPRIG_SPRAY = (
+  <svg viewBox="0 0 112 110" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" aria-hidden="true">
+    <path d="M18 106C34 78 52 58 86 38" />
+    <path d="M44 78c-12 2-22-2-28-11" />
+    <path d="M58 62c-11 3-21 0-27-8" />
+    <circle cx="28" cy="26" r="11" />
+    <path d="M28 15v-6M28 37v6M17 26h-6M39 26h6M20 18l-4-4M36 18l4-4M20 34l-4 4M36 34l4 4" />
   </svg>
 )
 
@@ -173,6 +190,10 @@ export default function BoardingPass(profile: TemplateProps) {
   const ticketCode = (tc.cover_kicker || "").trim() || `${initials} ${yearShort} · 01A`.trim()
 
   const openingTitle = (profile.opening_title || "").trim() || DEFAULT_OPENING_TITLE
+  // The reference prints a kicker ("Salam Hangat") and then the couple's own
+  // greeting. When the couple has not set one, the default would repeat the
+  // kicker, so it is skipped instead of printed twice.
+  const greetingLine = openingTitle && openingTitle !== "Salam Hangat" ? openingTitle : ""
   const openingDescription = (profile.opening_description || "").trim() || DEFAULT_OPENING_DESCRIPTION
   const hasQuote = !!((profile.quote_text || "").trim())
   const closingMessage = (tc.closing_message || "").trim() || DEFAULT_CLOSING
@@ -335,107 +356,107 @@ export default function BoardingPass(profile: TemplateProps) {
         <audio ref={audioRef} src={trackUrl} loop preload="auto" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} />
       )}
 
-      {/* 1 — the boarding pass IS the cover and the gate. */}
+      <div className="bp-col">
+      {/* 1 — cover: the couple's photograph, a wash, and one boarding pass. */}
       {!opened && (
-        <section className="bp-gate" data-section="sampul" aria-label="Buka undangan">
-          {coverStill && <img className="bp-gate__photo" src={coverStill} alt="" aria-hidden="true" />}
-          <div className="bp-gate__wash" aria-hidden="true" />
-          <div className="bp-gate__inner">
-            <div className="bp-mat">
-              <div className="bp-ticket">
-                <div className="bp-ticket__head">
-                  <span className="bp-mono bp-mono--teal">Boarding Pass</span>
-                  <span className="bp-mono">Kelas VIP</span>
-                </div>
-                <div className="bp-barcode" aria-hidden="true" />
+        <section className="bp-cover" data-section="sampul" aria-label="Buka undangan">
+          {coverStill && <img className="bp-cover__photo" src={coverStill} alt="" aria-hidden="true" />}
+          <span className="bp-cover__wash" aria-hidden="true" />
 
-                <div className="bp-route">
-                  <div className="bp-field">
-                    <span className="bp-mono">Dari</span>
-                  </div>
-                  <div className="bp-route__names">
-                    <p className="bp-route__name">{groomName || "Mempelai"}</p>
-                    <span className="bp-route__amp">&amp;</span>
-                    <p className="bp-route__name">{brideName || "Mempelai"}</p>
-                  </div>
-                  <div className="bp-field" style={{ alignItems: "flex-end" }}>
-                    <span className="bp-mono">Tujuan</span>
-                  </div>
-                </div>
-                <div className="bp-route__line" aria-hidden="true" />
+          <div className="bp-pass bp-pass--top">
+            <div className="bp-pass__head">
+              <span className="bp-micro bp-micro--teal">Boarding Pass</span>
+              <span className="bp-micro">Kelas VIP</span>
+            </div>
+            <span className="bp-pass__rule" aria-hidden="true" />
 
-                <div className="bp-ticket__grid">
-                  <div className="bp-field">
-                    <span className="bp-mono">Penumpang</span>
-                    <span className="bp-field__value bp-fill">{guestName}</span>
-                  </div>
-                  <div className="bp-field">
-                    <span className="bp-mono">Tanggal</span>
-                    <span className="bp-field__value bp-field__value--mono">{dateShort}</span>
-                  </div>
-                  <div className="bp-field">
-                    <span className="bp-mono">Boarding</span>
-                    <span className="bp-field__value bp-field__value--mono">{boardingTime || "08.00"}</span>
-                  </div>
-                  <div className="bp-field">
-                    <span className="bp-mono">Gerbang</span>
-                    <span className="bp-field__value bp-field__value--script">{gateOrSeat || "Pelaminan"}</span>
-                  </div>
-                  <div className="bp-field" style={{ gridColumn: "1 / -1" }}>
-                    <span className="bp-mono">Tujuan</span>
-                    <span className="bp-field__value bp-field__value--script">{destination || coupleLabel}</span>
-                  </div>
-                </div>
-
-                <p className="bp-ticket__note">{apology}</p>
-
-                <span className="bp-ticket__tear" aria-hidden="true">
-                  <span className="bp-notch bp-notch--l" />
-                  <span className="bp-notch bp-notch--r" />
-                </span>
-
-                <div className="bp-ticket__code">
-                  <span className="bp-mono bp-mono--teal">Undangan Pernikahan</span>
-                  <span className="bp-mono">{ticketCode}</span>
-                </div>
-              </div>
+            <div className="bp-pass__duo">
+              <span className="bp-micro">Dari</span>
+              <span className="bp-micro bp-pass__right">Tujuan</span>
+            </div>
+            <div className="bp-pass__names">
+              <span className="bp-pass__name">{groomName || "Mempelai"}</span>
+              <span className="bp-pass__name bp-pass__right">{brideName || "Mempelai"}</span>
+            </div>
+            <div className="bp-route" aria-hidden="true">
+              <span className="bp-route__amp">&amp;</span>
             </div>
 
-            <div className="bp-gate__cta">
-              <button type="button" className="bp-btn" onClick={openInvitation}>
-                Buka Undangan
-              </button>
+            <div className="bp-pass__duo" style={{ marginTop: "3.4cqw" }}>
+              <span className="bp-micro">Penumpang</span>
             </div>
+            <p className="bp-pass__guest">{guestName}</p>
+
+            <div className="bp-pass__duo">
+              <span className="bp-micro">Tanggal</span>
+              <span className="bp-micro bp-pass__right">Gerbang</span>
+            </div>
+            <div className="bp-pass__row">
+              <span className="bp-pass__value">{dateShort}</span>
+              <span className="bp-pass__script bp-pass__right">{gateOrSeat || "Pelaminan"}</span>
+            </div>
+
+            <div className="bp-pass__duo">
+              <span className="bp-micro">Boarding</span>
+              <span className="bp-micro bp-pass__right">Tujuan</span>
+            </div>
+            <div className="bp-pass__row">
+              <span className="bp-pass__value">{boardingTime || "08.00 WIB"}</span>
+              <span className="bp-pass__script bp-pass__right">{destination || coupleLabel}</span>
+            </div>
+
+            <p className="bp-pass__note">{apology}</p>
+          </div>
+
+          <div className="bp-pass bp-pass--stub">
+            <span className="bp-micro bp-micro--teal bp-pass__center">Undangan Pernikahan</span>
+            <span className="bp-pass__barcode" aria-hidden="true" />
+            <span className="bp-micro bp-pass__center">{ticketCode}</span>
+            <button type="button" className="bp-btn bp-pass__open" onClick={openInvitation}>
+              Buka Undangan
+            </button>
           </div>
         </section>
       )}
 
-      <div className="bp-col">
-        {/* 2/3 — hero. */}
+        {/* 2/3 — hero: stacked names, oversized ampersand, torn paper edge. */}
         <section className="bp-hero" data-section="hero" aria-label="Undangan pernikahan">
           {heroStill && <img className="bp-hero__photo" src={heroStill} alt="" aria-hidden="true" />}
           <div className="bp-hero__wash" aria-hidden="true" />
           <div className="bp-hero__body">
-            <p className="bp-hero__kicker">Undangan Pernikahan</p>
-            <h1 className="bp-hero__names">{coupleLabel}</h1>
-            <p className="bp-hero__date">{dateShort}</p>
+            <p className="bp-hero__kicker">Pernikahan</p>
+            <h1 className="bp-hero__names">
+              {groomName || "Mempelai"}
+              <span className="bp-hero__amp">&amp;</span>
+              {brideName || "Mempelai"}
+            </h1>
+            {dateShort && <p className="bp-hero__date">{dateShort}</p>}
             <p className="bp-hero__script">tujuan akhir: hari bahagia kami</p>
           </div>
+          <span className="bp-hero__wave" aria-hidden="true" />
         </section>
 
-        {/* 4 — welcome. */}
-        <section className="bp-section bp-welcome" data-section="welcome" aria-label="Salam hangat">
-          <div className="bp-card" data-bp-reveal>
-            {RINGS}
-            <h2 className="bp-welcome__title">{openingTitle}</h2>
-            <p className="bp-body">{openingDescription}</p>
-            {dateLong && <p className="bp-mono" style={{ marginTop: 14 }}>{dateLong}</p>}
+        {/* 4 — welcome: centred stack with a corner ornament either side. */}
+        <section className="bp-welcome" data-section="welcome" aria-label="Salam hangat">
+          <span className="bp-welcome__sprig bp-welcome__sprig--l" aria-hidden="true">
+            {SPRIG_FROND}
+          </span>
+          <span className="bp-welcome__sprig bp-welcome__sprig--r" aria-hidden="true">
+            {SPRIG_SPRAY}
+          </span>
+          <div className="bp-welcome__inner">
+            <p className="bp-welcome__kicker">Salam Hangat</p>
+            {greetingLine && <p className="bp-welcome__greeting">{greetingLine}</p>}
+            <p className="bp-welcome__body">{openingDescription}</p>
+            <span className="bp-welcome__wave" aria-hidden="true" />
             {hasQuote && (
-              <div className="bp-verse">
-                <p className="bp-verse__text">&ldquo;{profile.quote_text}&rdquo;</p>
-                {profile.quote_source && <p className="bp-verse__source">{profile.quote_source}</p>}
-              </div>
+              <>
+                <p className="bp-welcome__verse">&ldquo;{profile.quote_text}&rdquo;</p>
+                {profile.quote_source && <p className="bp-welcome__source">{profile.quote_source}</p>}
+              </>
             )}
+            {dateLong && <p className="bp-welcome__date">{dateLong}</p>}
+            <span className="bp-welcome__tail" aria-hidden="true" />
           </div>
         </section>
 
