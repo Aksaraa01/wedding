@@ -1363,7 +1363,26 @@ DEMO_PROPS_BY_CODE["lace"] = {
   groom_photo_url: [`${DE}/groom.webp`],
   bride_photo_url: [`${DE}/bride.webp`],
   gallery_photos: [...DE_GALLERY].slice(0, 6),
-  stories: [],
+  stories: [
+    {
+      title: "First Met",
+      description:
+        "It began with a chance introduction at a friend's dinner, two chairs apart and a conversation that outlasted the dessert.",
+      image_url: `${DE}/cover-3.webp`,
+    },
+    {
+      title: "The Little Things",
+      description:
+        "Slow mornings, long walks home, and a habit of saving the last bite for each other — the years that made the answer obvious.",
+      image_url: `${DE}/cover-5.webp`,
+    },
+    {
+      title: "The Proposal",
+      description:
+        "On a quiet morning in the garden we love, one question was asked and answered before the sun was fully up.",
+      image_url: `${DE}/cover.webp`,
+    },
+  ],
   video_url: "https://youtu.be/-ARVwU58l7A",
   groom_instagram: "@wedding.aksaraa",
   bride_instagram: "@wedding.aksaraa",

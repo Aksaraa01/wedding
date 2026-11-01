@@ -247,6 +247,12 @@ export default function Lace(profile: TemplateProps) {
     profile.rundown_visible !== false
       ? (profile.rundown || []).filter((i) => i && (i.time || i.description))
       : []
+  // Love story: package gate AND the couple's own toggle, then drop milestones
+  // that carry nothing at all so an empty list never renders an orphan heading.
+  const stories =
+    gates.story !== false && profile.story_visible !== false
+      ? (profile.stories || []).filter((s) => s && (s.title || s.description || s.image_url))
+      : []
   const dressColors = (profile.dresscode?.colors || []).filter((c) => c && (c.hex || c.name))
   const hasDresscode = profile.dresscode_visible !== false && dressColors.length > 0
   const accounts = profile.gift_section_visible !== false ? (profile.gift_accounts || []).filter(Boolean) : []
@@ -749,6 +755,44 @@ export default function Lace(profile: TemplateProps) {
               </ul>
             </div>
             <span className="lc-band lc-band--bottom" style={bandStyle(ART_BORDER)} aria-hidden="true" />
+          </section>
+        )}
+
+        {/* ── Our Story ────────────────────────────────────────── */}
+        {stories.length > 0 && (
+          <section className="lc-section lc-story" data-section="story">
+            <div className="lc-wrap lc-story__head" data-lc-reveal>
+              <h2 className="lc-display lc-heading">{tc.love_story_title || "How Our Story Began"}</h2>
+              {tc.story_intro && <p className="lc-body lc-story__intro">{tc.story_intro}</p>}
+            </div>
+            <ol className="lc-wrap lc-story__list">
+              {stories.map((story, index) => {
+                const label = (story.year || "").trim() || pad2(index + 1)
+                return (
+                  <li
+                    className={`lc-story__chapter${story.image_url ? "" : " lc-story__chapter--note"}`}
+                    key={`${story.title || "chapter"}-${index}`}
+                    data-lc-reveal
+                  >
+                    {index > 0 && (
+                      <span className="lc-story__seam" aria-hidden="true">
+                        <i />
+                      </span>
+                    )}
+                    {story.image_url && (
+                      <figure className="lc-story__photo">
+                        <img src={story.image_url} alt="" loading="lazy" />
+                      </figure>
+                    )}
+                    <div className="lc-story__text">
+                      <p className="lc-story__label">{label}</p>
+                      {story.title && <h3 className="lc-display lc-story__title">{story.title}</h3>}
+                      {story.description && <p className="lc-body lc-story__desc">{story.description}</p>}
+                    </div>
+                  </li>
+                )
+              })}
+            </ol>
           </section>
         )}
 

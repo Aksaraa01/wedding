@@ -63,6 +63,9 @@ export type TemplateProps = {
     title?: string
     description?: string
     image_url?: string
+    // Optional milestone year, edited from ops. Rendered as the chapter label
+    // where a template has room for one (lace).
+    year?: string
   }[]
   gallery_photos?: string[]
   video_url?: string

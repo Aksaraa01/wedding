@@ -15,7 +15,7 @@ and what actually shipped (including the traps that cost time).
 | Fonts available? | **No** — the reference uses Adobe Fonts. Substituted with locally hosted `Cormorant` (display), `WindSong` (script) and `DM Sans` (body) from `public/fonts` |
 | Music | The reference has its own track (`until-were-gone-opt.mp3`). **Not shipped.** The demo uses `ASSETS.defaultMusic`; a couple's real invitation uses their own upload |
 | Branding removed | Footer credit "Made with love by The Digital Yes", the reference couple (Beatriz & Alexander), the reference venue/date, the baked `B & A` wax seal on the cover plate |
-| Photo slots | **Zero.** See §7 |
+| Photo slots | Portraits, love-story milestones, gallery and closing photos (the cover itself is the sealed lace plate). See §7 |
 
 ---
 
@@ -50,23 +50,29 @@ Twelve reference blocks, in order:
 | 7 | The Day | `day` | Pearl-garland header + timeline rows (vignette · time · thread · text) + banquet-table footer |
 | 8 | Dress code | `dresscode` | Lace frame, illustrated couple, swatch row, pearls down both edges |
 | 9 | **Transportation** | **`inviting` — "With Honor"** | Deliberate replacement, see §5 |
-| 10 | Where to Stay | *dropped* | No Aksaraa field for it; keeping it would mean inventing hotel copy per couple |
-| 11 | Wedding Gift | `gift` | Lace panel (`panel-lace.webp`) around the accordion accounts + address |
-| 12 | Gallery + Film (in-house) | `gallery`, `video` | Ivory gallery grid (first tile 16:10, rest 4:5 in gold-matted ivory), burgundy film panel with a 16:9 autoplaying, muted, looping player |
-| 13 | Wishes | `wishes` | The reference's ribboned-heart mark (inline SVG, no asset ships for it), title "Wishes" (not "RSVP"), name + note form, then the approved-wishes feed, 5 per page |
-| 14 | Closing | `closing` | "We cannot wait to celebrate with you.", names in script, balcony art, Aksaraa footer — no date and no second paragraph |
+| 10 | *— (in-house)* | `story` — "How Our Story Began" | Love story with photos, inserted between With Honor and the gallery. Each milestone is a matted ivory photo (same gold hairline as the portraits), a gold year/`01` label, a display title and body copy; a hairline-and-dot seam separates chapters, and photo/text alternate sides on desktop |
+| 11 | Where to Stay | *dropped* | No Aksaraa field for it; keeping it would mean inventing hotel copy per couple |
+| 12 | Wedding Gift | `gift` | Lace panel (`panel-lace.webp`) around the accordion accounts + address |
+| 13 | Gallery + Film (in-house) | `gallery`, `video` | Ivory gallery grid (first tile 16:10, rest 4:5 in gold-matted ivory), burgundy film panel with a 16:9 autoplaying, muted, looping player |
+| 14 | Wishes | `wishes` | The reference's ribboned-heart mark (inline SVG, no asset ships for it), title "Wishes" (not "RSVP"), name + note form, then the approved-wishes feed, 5 per page |
+| 15 | Closing | `closing` | "We cannot wait to celebrate with you.", names in script, balcony art, Aksaraa footer — no date and no second paragraph |
 
 Section order shipped:
 
 ```
 cover → welcome → couple → countdown → events → day → dresscode
-      → inviting → gallery → video → gift → wishes → closing
+      → inviting → story → gallery → video → gift → wishes → closing
 ```
 
-`story`, `quote` and `livestream` stay **off** in
-`TEMPLATE_CONFIGS["lace"].content.sections` — the design has no surface for them.
-`gallery` and `video` are **on**: they are the only blocks that carry the couple's
-own photographs and film. The reference's `location` block is gone; the venue now
+`quote` and `livestream` stay **off** in
+`TEMPLATE_CONFIGS["lace"].content.sections` — the reference has no surface for
+them. `story`, `gallery` and `video` are **on**: they are the blocks that carry
+the couple's own photographs and film. The love story was added after the first
+release (it shipped as the one documented exception to the minimum-section
+contract); it renders only when `feature_gates.story` and `story_visible` both
+allow it, and it takes the section slot that used to buffer the gallery, so the
+150 px / 250 px top padding there had to clear the hanging lace border of the
+"With Honor" panel. The reference's `location` block is gone; the venue now
 lives inside the event cards, so `location_intro` was removed from
 `src/lib/templateExtras.ts`.
 
@@ -147,23 +153,28 @@ plate on a cream background where banding shows at lower quality.
 
 ---
 
-## 7. Photos: no cover, but portraits + gallery + film
+## 7. Photos: no cover plate, but portraits + story + gallery + film
 
 The reference's surfaces are lace art, but a real couple expects their own faces
 and photographs somewhere. Lace therefore ships:
 
 - `web_templates.no_photo = false` — photos ARE used
-- `content.cover_slots = 0` — the cover is a sealed plate of art, so there is no
-  cover-photo upload at all (the editor hides it off `cover_slots === 0`)
+- `content.cover_slots = 2` — the cover itself is a sealed plate of art, so no
+  photo is uploaded for it; the two slots are the closing backdrop and the strip
+  that slides across it (`["Foto Latar Penutup", "Foto Geser Penutup"]`)
 - `content.groom_photo` / `bride_photo` = `"single"` — one matted 4:5 portrait
   per person in the `couple` block
+- `sections.story = true`, `story_photo = true` — one matted photo per love-story
+  milestone, in the same ivory mat + gold hairline as the portraits. A milestone
+  without a photo still renders (centred, text-only), so stored `image_url` data
+  is never a precondition for the block to show
 - `sections.gallery = true`, `sections.video = true`
-- `story_photo = false` — there is no love-story block
 
 `person_photos` exists in `ContentSpec` for designs that show no portraits at
 all; Lace leaves it absent (⇒ portraits allowed). The editor and ops both gate
-cover fields on `cover_slots` and portrait fields on `person_photos`, so neither
-ever offers an upload the template would not render.
+cover fields on `cover_slots`, portrait fields on `person_photos` and the
+love-story photo field on `story_photo`, so neither ever offers an upload the
+template would not render.
 
 Stored photos are never deleted — switching a couple to another template keeps
 everything they uploaded.
@@ -307,6 +318,37 @@ mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparen
 
 so the crest dissolves into the paper instead of ending in a hard vertical line.
 
+### 8k. The love story was added after release (the exception is retired)
+
+The first release skipped `story` and documented it as the one deliberate
+exception to the minimum-section contract. It shipped later, in the slot between
+**With Honor and the gallery**, because the section already buffered that
+burgundy panel's hanging rose border.
+
+What it is, in the theme's own vocabulary:
+
+- **No new art.** The photo is the same printed-photo mat as the portraits and
+  gallery tiles (6 px ivory border + `0 0 0 1px rgba(179,153,122,.38)`), so a
+  phone snapshot and a studio frame both read as keepsakes.
+- **Type ladder** = the rest of the invitation: `lc-display` title in
+  `#5f3540`, `lc-body` description, and a gold small-caps label carrying the
+  milestone `year` when ops filled it, otherwise `01`, `02`…
+- **Seam** between chapters reuses the couple block's hairline · dot · hairline
+  (`--lc-line` with a `--lc-gold` dot) — the same seam that divides the two
+  families, here dividing chapters.
+- **Desktop** alternates photo/text sides with `:nth-of-type(even) { order }`;
+  the seam spans both columns. Chapters without a photo (`--note`) collapse to a
+  single centred column instead of leaving a hole.
+- **Gating** is `feature_gates.story` **and** `story_visible`, and milestones
+  with no title, description or photo are dropped, so an empty list never
+  produces an orphan heading. The block takes the 150 px / 250 px top padding
+  that used to belong to the gallery (it clears the panel's overhang); the
+  gallery keeps its own crown and padding, which now reads as a page break.
+
+Copy lives under `love_story_title` and `story_intro` in
+`src/lib/templateExtras.ts` (English, matching the rest of Lace), and the demo
+carries three photo milestones so the preview shows the block.
+
 ---
 
 ## 9. Registration checklist (what a new template touches)
@@ -315,12 +357,12 @@ so the crest dissolves into the paper instead of ending in a hard vertical line.
 2. `public/templates/lace/` (29 assets, incl. `opening.mp4`, `hero-bg.mp4` and
    `card-ornament.webp`)
 3. `src/components/templates/index.ts` — `TEMPLATE_MAP` import + entry, and a
-   `TEMPLATE_CONFIGS` entry (theme, `cover_slots: 0`, portraits on, gallery + video
-   on, `extras: true`)
+   `TEMPLATE_CONFIGS` entry (theme, `cover_slots: 2` closing photos, portraits on,
+   story + gallery + video on with `story_photo: true`, `extras: true`)
 4. `src/components/templates/demoProps.ts` — `DEMO_PROPS_BY_CODE["lace"]`
 5. `src/lib/templateExtras.ts` — per-template placeholders; Lace contributes
-   `profiles_intro` (mempelai), `events_intro` (acara), the gallery/film copy and
-   the wishes/closing copy
+   `profiles_intro` (mempelai), `events_intro` (acara), `love_story_title` +
+   `story_intro` (kisah cinta), the gallery/film copy and the wishes/closing copy
 6. `src/lib/templateSections.ts` — **not** in `TEMPLATES_WITHOUT_OPENING`: Lace
    edits the couple's *kalimat pembuka*, so the accordion is required
 7. `src/app/templates/[code]/preview/page.tsx` — added to `keepDemoIds` so the

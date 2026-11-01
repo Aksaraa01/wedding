@@ -1067,7 +1067,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "lace",
     name: "Lace",
-    description: "Undangan bergaya renda ivory dan burgundy — sampul bertulle bersegel lilin, sambutan, mempelai, hitung mundur berpita renda, acara, susunan acara, dress code, turut mengundang, galeri, video, hadiah, dan ucapan.",
+    description: "Undangan bergaya renda ivory dan burgundy — sampul bertulle bersegel lilin, sambutan, mempelai, hitung mundur berpita renda, acara, susunan acara, dress code, turut mengundang, kisah cinta, galeri, video, hadiah, dan ucapan.",
     theme: {
       fonts: { display: "Cormorant", script: "WindSong", body: "DM Sans" },
       colors: {
@@ -1084,18 +1084,19 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     content: {
       // The cover is a sealed plate of lace art, but the closing takes two
       // cover photos: the first is its backdrop, the second slides across it as
-      // a photo strip. Mempelai portraits and the gallery + film are used too.
+      // a photo strip. Mempelai portraits, the love story, the gallery + film
+      // are used too.
       cover_slots: 2,
       cover_slot_labels: ["Foto Latar Penutup", "Foto Geser Penutup"],
       groom_photo: "single",
       bride_photo: "single",
-      story_photo: false,
+      story_photo: true,
       sections: {
         opening_description: true,
         quote: false,
         countdown: true,
         video: true,
-        story: false,
+        story: true,
         gallery: true,
         gift: true,
         inviting: true,

@@ -319,7 +319,12 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   const groomPhoto = flattenPhotos(profile.groom_photo_url)[0] || cover
   const bridePhoto = flattenPhotos(profile.bride_photo_url)[0] || cover
 
-  const stories = (profile.stories || []).filter((s) => s && (s.title || s.description || s.image_url))
+  // Love story: package gate AND the couple's own toggle, then drop milestones
+  // that carry nothing at all so an empty list never renders an orphan heading.
+  const stories =
+    gates.story !== false && profile.story_visible !== false
+      ? (profile.stories || []).filter((s) => s && (s.title || s.description || s.image_url))
+      : []
   const events = (profile.sessions || []).filter(Boolean)
   const honored =
     gates.inviting_families !== false && profile.inviting_families_visible !== false

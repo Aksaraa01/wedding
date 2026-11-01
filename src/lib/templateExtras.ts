@@ -93,9 +93,10 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     rows: 2,
     placeholder: "Dari pertemuan tak sengaja hingga seumur hidup saling memilih.",
     placeholders: {
+      lace: "Every chapter of our story has been leading to this day.",
       "embroidered-garden": "Every chapter of our story has been leading to this day.",
     },
-    templates: ["evermore", "embroidered-garden"],
+    templates: ["evermore", "embroidered-garden", "lace"],
   },
   {
     key: "gallery_intro",
@@ -334,8 +335,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "love_story_title",
     label: "Judul Love Story",
-    placeholders: { manjari: "A Love Written in Time", "still-ever": "How Our Story Began", imagine: "Our Love Story", "embroidered-garden": "Our Story" },
-    templates: ["manjari", "imagine", "still-ever", "embroidered-garden"],
+    placeholders: { lace: "How Our Story Began", manjari: "A Love Written in Time", "still-ever": "How Our Story Began", imagine: "Our Love Story", "embroidered-garden": "Our Story" },
+    templates: ["manjari", "imagine", "still-ever", "embroidered-garden", "lace"],
   },
   {
     key: "gallery_title",

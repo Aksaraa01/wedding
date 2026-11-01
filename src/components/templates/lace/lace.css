@@ -1159,6 +1159,98 @@
   background: rgba(250, 244, 240, 0.24);
 }
 
+/* ── Our Story ───────────────────────────────────────────────── */
+/* Follows the burgundy "With Honor" panel, so the top padding clears its
+   hanging lace border exactly like the gallery used to. */
+.lc-story {
+  padding-top: 150px;
+  padding-bottom: 0;
+  text-align: center;
+}
+
+.lc-story__intro {
+  margin: 14px auto 0;
+  max-width: 34ch;
+}
+
+.lc-story__list {
+  list-style: none;
+  margin: 34px auto 0;
+}
+
+.lc-story__chapter {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+}
+
+/* Hairline · dot · hairline — the seam the couple block draws between the two
+   families, reused to separate chapters. */
+.lc-story__seam {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(180px, 52%);
+  margin: 10px auto 16px;
+}
+
+.lc-story__seam::before,
+.lc-story__seam::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--lc-line);
+}
+
+.lc-story__seam i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--lc-gold);
+}
+
+/* Same printed-photo mat as the portraits and gallery tiles. */
+.lc-story__photo {
+  margin: 0;
+  width: min(66%, 240px);
+  padding: 6px;
+  background: #fdfbf8;
+  box-shadow:
+    0 0 0 1px rgba(179, 153, 122, 0.38),
+    0 16px 34px rgba(81, 31, 43, 0.07);
+}
+
+.lc-story__photo img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+.lc-story__label {
+  margin: 0;
+  font-family: var(--lc-display);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-indent: 0.26em;
+  text-transform: uppercase;
+  color: var(--lc-gold);
+}
+
+.lc-story__title {
+  margin: 10px 0 0;
+  font-size: clamp(24px, 6.6vw, 31px);
+  line-height: 1.18;
+  color: #5f3540;
+}
+
+.lc-story__desc {
+  margin: 10px auto 0;
+  max-width: 34ch;
+  white-space: pre-line;
+}
+
 /* ── Gallery ─────────────────────────────────────────────────── */
 .lc-gallery {
   padding-top: 150px;
@@ -1884,6 +1976,57 @@
 
   .lc-welcome__art {
     width: 152px;
+  }
+
+  .lc-story {
+    padding-top: 250px;
+  }
+
+  .lc-story__list {
+    margin-top: 48px;
+  }
+
+  /* Photo and text take turns on either side of a centred seam, like pages of
+     an album — the text stays left-aligned so the lines keep a single edge. */
+  .lc-story__chapter {
+    grid-template-columns: minmax(0, 236px) minmax(0, 1fr);
+    justify-items: start;
+    align-items: center;
+    gap: 6px 32px;
+    text-align: left;
+  }
+
+  .lc-story__chapter:nth-of-type(even) .lc-story__text {
+    order: 1;
+  }
+
+  .lc-story__chapter:nth-of-type(even) .lc-story__photo {
+    order: 2;
+  }
+
+  .lc-story__seam {
+    grid-column: 1 / -1;
+    width: 190px;
+    margin: 26px auto 30px;
+  }
+
+  .lc-story__photo {
+    width: 100%;
+  }
+
+  .lc-story__desc {
+    margin-inline: 0;
+    max-width: 40ch;
+  }
+
+  .lc-story__chapter--note {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+  }
+
+  .lc-story__chapter--note .lc-story__desc {
+    margin-inline: auto;
   }
 
   .lc-gallery {
