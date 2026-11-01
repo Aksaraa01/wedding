@@ -308,20 +308,18 @@ export default function BoardingPass(profile: TemplateProps) {
   const passengers = [
     {
       key: "groom",
-      role: "Mempelai Pria",
+      role: "Mempelai",
       shot: groomShot,
       name: (profile.groom_full_name || groomName).trim(),
       parents: (profile.groom_parents || "").trim(),
-      relation: "Putra dari",
       instagram: igHandle(profile.groom_instagram),
     },
     {
       key: "bride",
-      role: "Mempelai Wanita",
+      role: "Mempelai",
       shot: brideShot,
       name: (profile.bride_full_name || brideName).trim(),
       parents: (profile.bride_parents || "").trim(),
-      relation: "Putri dari",
       instagram: igHandle(profile.bride_instagram),
     },
   ].filter((person) => person.name)
@@ -431,8 +429,7 @@ export default function BoardingPass(profile: TemplateProps) {
           <img className="bp-welcome__sprig bp-welcome__sprig--l" src={ART("palm")} alt="" aria-hidden="true" loading="lazy" />
           <img className="bp-welcome__sprig bp-welcome__sprig--r" src={ART("hibiscus")} alt="" aria-hidden="true" loading="lazy" />
           <div className="bp-welcome__inner">
-            <p className="bp-welcome__kicker">Salam Hangat</p>
-            {greetingLine && <p className="bp-welcome__greeting">{greetingLine}</p>}
+            <p className="bp-welcome__kicker">{openingTitle}</p>
             <p className="bp-welcome__body">{openingDescription}</p>
             <span className="bp-welcome__wave" aria-hidden="true" />
             {hasQuote && (
@@ -459,6 +456,7 @@ export default function BoardingPass(profile: TemplateProps) {
                 <article className={`bp-passport bp-passport--${index === 0 ? "a" : "b"}`} key={person.key}>
                   <span className="bp-passport__no">Penumpang {pad2(index + 1)}</span>
                   <span className="bp-passport__role">{person.role}</span>
+                  <span className="bp-passport__rule" aria-hidden="true" />
                   <span className="bp-passport__photo">
                     {person.shot && <img src={person.shot} alt={person.name} loading="lazy" />}
                   </span>
@@ -466,14 +464,7 @@ export default function BoardingPass(profile: TemplateProps) {
                     Nama Lengkap
                   </span>
                   <h3 className="bp-passport__name">{person.name}</h3>
-                  {person.parents && (
-                    <>
-                      <span className="bp-passport__label" style={{ top: "44.67%" }}>
-                        {person.relation}
-                      </span>
-                      <p className="bp-passport__parents">{person.parents}</p>
-                    </>
-                  )}
+                  {person.parents && <p className="bp-passport__parents">{person.parents}</p>}
                   <p className="bp-passport__mrz">{mrzLine(person.name)}</p>
                   {person.instagram && (
                     <a
@@ -821,7 +812,6 @@ export default function BoardingPass(profile: TemplateProps) {
               </div>
 
               <img className="bp-dress__orn" src={ART("frond")} alt="" aria-hidden="true" loading="lazy" />
-              <p className="bp-dress__note">sentuh label untuk membuka</p>
             </div>
           </section>
         )}

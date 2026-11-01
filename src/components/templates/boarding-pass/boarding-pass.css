@@ -732,7 +732,9 @@ body:has(.bp-root.is-locked) {
   left: 5.641%;
   width: 88.718%;
   height: 35.714%;
+  /* .tp-paspor: paper plus a dot pattern radiating from the top-right */
   background-color: var(--bp-paper);
+  background-image: repeating-radial-gradient(circle at 100% 0, rgba(31, 90, 96, 0.05) 0 1px, transparent 1px 9px);
   border: 1px solid rgba(31, 90, 96, 0.12);
   border-radius: 4.1cqw;
   box-shadow: 0 1.2cqw 2.6cqw rgba(29, 42, 45, 0.08);
@@ -762,6 +764,15 @@ body:has(.bp-root.is-locked) {
   letter-spacing: 0.52cqw;
   text-transform: uppercase;
   color: var(--bp-muted);
+}
+
+.bp-passport__rule {
+  position: absolute;
+  left: 5.78%;
+  top: 13.33%;   /* 40px into a 300px card */
+  width: 88.44%;
+  height: 1px;
+  background: rgba(29, 42, 45, 0.16);
 }
 
 .bp-passport__photo {
@@ -807,7 +818,7 @@ body:has(.bp-root.is-locked) {
 .bp-passport__parents {
   position: absolute;
   left: 42.77%;
-  top: 50%;
+  top: 44.67%;
   width: 51%;
   margin: 0;
   font-family: var(--bp-body);
@@ -1035,7 +1046,7 @@ body:has(.bp-root.is-locked) {
 .bp-flight__name {
   margin: 1.6cqw 0 0;
   font-family: var(--bp-serif);
-  font-size: 5.64cqw;
+  font-size: 7.18cqw;   /* 28px */
   line-height: 1.2;
   color: var(--bp-ink);
 }
@@ -1111,9 +1122,30 @@ body:has(.bp-root.is-locked) {
   width: 60%;
   text-align: center;
   font-family: var(--bp-mono);
-  font-size: 2.87cqw;
+  font-size: 6.15cqw;   /* 24px on the 390 canvas */
+  line-height: 1.1;
   color: var(--bp-teal);
 }
+
+.bp-flight__stubValue--soft {
+  font-size: 5.13cqw;   /* 20px */
+  color: var(--bp-ink);
+}
+
+/* the tear: a half-circle punched at each end of the dashed perforation */
+.bp-flight__stub::before,
+.bp-flight__stub::after {
+  content: "";
+  position: absolute;
+  left: -0.85cqw;
+  width: 1.7cqw;
+  height: 1.7cqw;
+  border-radius: 50%;
+  background: var(--bp-cream);
+}
+
+.bp-flight__stub::before { top: -0.85cqw; }
+.bp-flight__stub::after { bottom: -0.85cqw; }
 
 .bp-flight__barcode {
   position: absolute;
