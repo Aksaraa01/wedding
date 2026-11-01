@@ -4,6 +4,7 @@ import { ASSETS } from "@/lib/assets"
 const TM = "https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/template-media"
 
 const DE = "/images/dark-elegance"
+const BP = (name: string) => `/templates/boarding-pass/${name}`
 const DE_COVERS = [
   `${DE}/cover.webp`,
   `${DE}/cover-1.webp`,
@@ -1621,8 +1622,16 @@ DEMO_PROPS_BY_CODE["ivory-lace"] = {
 DEMO_PROPS_BY_CODE["boarding-pass"] = {
   ...DEMO_PROPS_BY_CODE["sandhya"],
   slug: "demo",
+  // Demo imagery is the reference design's own set, vendored into
+  // public/templates/boarding-pass so the preview reads exactly like it.
   display_name: "#AlbarnFayeForever",
   estimated_wedding_date: "2027-12-11",
+  couple_illustration_url: BP("hero-cutout.webp"),
+  cover_photos: [BP("couple-1.webp"), BP("couple-2.webp"), BP("couple-3.webp")],
+  groom_photo_url: [BP("couple-1.webp")],
+  bride_photo_url: [BP("couple-2.webp")],
+  gallery_photos: [BP("gallery-1.webp"), BP("gallery-2.webp"), BP("gallery-3.webp"), BP("gallery-4.webp"),
+                   BP("couple-3.webp"), BP("couple-4.webp"), BP("couple-5.webp"), BP("couple-1.webp")],
   sessions: [
     {
       name: "Akad Nikah",
@@ -1641,33 +1650,31 @@ DEMO_PROPS_BY_CODE["boarding-pass"] = {
       maps_url: "https://maps.app.goo.gl/UPxWi9HU1w4A9R1j6",
     },
   ],
-  cover_photos: [`${DE}/cover-2.webp`, `${DE}/cover.webp`, `${DE}/cover-4.webp`],
-  gallery_photos: [...DE_GALLERY].slice(0, 8),
   stories: [
     {
       title: "2019 · Pertemuan Pertama",
       description:
         "Kami berkenalan di sebuah acara kantor yang sebenarnya sama-sama ingin kami lewatkan. Satu obrolan di dekat meja kopi berlanjut sampai lampu ruangan dimatikan.",
-      image_url: `${DE}/cover-1.webp`,
+      image_url: BP("couple-3.webp"),
     },
     {
       title: "2022 · Jatuh Hati",
       description:
         "Dari teman bertukar cerita menjadi teman seperjalanan. Kami belajar bahwa jalan pulang terasa paling dekat bila ditempuh berdua.",
-      image_url: `${DE}/cover-2.webp`,
+      image_url: BP("couple-4.webp"),
     },
     {
       title: "2025 · Sebuah Janji",
       description:
         "Di tepi pantai saat matahari turun, satu pertanyaan sederhana dijawab dengan anggukan dan tawa yang bercampur haru.",
-      image_url: `${DE}/cover-3.webp`,
+      image_url: BP("couple-5.webp"),
     },
   ],
   rundown_visible: true,
   rundown: [
     { time: "07.30", description: "Tamu tiba dan registrasi di gerbang" },
     { time: "08.00", description: "Akad nikah dimulai" },
-    { time: "09.30", description: "Sungkem dan foto keluarga" },
+    { time: "09.30", description: "Sungkeman dan foto keluarga" },
     { time: "11.00", description: "Resepsi dibuka" },
     { time: "14.00", description: "Penutup dan pamit" },
   ],
