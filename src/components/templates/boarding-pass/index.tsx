@@ -511,11 +511,13 @@ export default function BoardingPass(profile: TemplateProps) {
                 const title = year ? (story.title || "").replace(year, "").replace(/^[\s·—-]+/, "").trim() : story.title
                 const photo = story.image_url || gallery[index % Math.max(1, gallery.length)]
                 return (
-                  <div className={`bp-stamp bp-stamp--${slot}`} key={`${story.title || "story"}-${index}`}>
-                    {photo && <img className="bp-stamp__photo" src={photo} alt="" loading="lazy" />}
-                    <span className={`bp-stamp__postmark bp-stamp__postmark--${slot === "b" ? "r" : "l"}`}>
-                      <span className="bp-stamp__year">{year || String(index + 1).padStart(2, "0")}</span>
-                    </span>
+                  <div key={`${story.title || "story"}-${index}`} style={{ display: "contents" }}>
+                    <div className={`bp-stamp bp-stamp--${slot}`}>
+                      {photo && <img className="bp-stamp__photo" src={photo} alt="" loading="lazy" />}
+                      <span className={`bp-stamp__postmark bp-stamp__postmark--${slot === "b" ? "r" : "l"}`}>
+                        <span className="bp-stamp__year">{year || String(index + 1).padStart(2, "0")}</span>
+                      </span>
+                    </div>
                     <div className={`bp-story__copy bp-story__copy--${slot}`}>
                       <h3 className="bp-story__title">{title || "Perjalanan Kami"}</h3>
                       {story.description && <p className="bp-story__text">{story.description}</p>}

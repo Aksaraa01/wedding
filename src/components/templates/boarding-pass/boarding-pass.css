@@ -880,9 +880,9 @@ body:has(.bp-root.is-locked) {
   box-shadow: 0 0.4cqw 1.4cqw rgba(29, 42, 45, 0.12);
 }
 
-.bp-stamp--a { left: 6.67%; top: 15%; }
-.bp-stamp--b { left: 54.87%; top: 42%; }
-.bp-stamp--c { left: 6.67%; top: 69%; }
+.bp-stamp--a { left: 6.67%; top: 15%; transform: rotate(-3.5deg); }
+.bp-stamp--b { left: 54.87%; top: 42%; transform: rotate(3deg); }
+.bp-stamp--c { left: 6.67%; top: 69%; transform: rotate(-2.5deg); }
 
 /* perforated postage frame */
 .bp-stamp__frame {
@@ -1177,12 +1177,15 @@ body:has(.bp-root.is-locked) {
 .bp-flaps {
   display: flex;
   justify-content: center;
-  gap: 2.05cqw;
+  gap: 1.6cqw;
   margin-top: 6.9cqw;
+  padding: 0 0.6cqw;
 }
 
 .bp-flap {
   display: flex;
+  flex: 1 1 0;
+  min-width: 0;
   flex-direction: column;
   align-items: center;
   gap: 2cqw;
@@ -1190,15 +1193,17 @@ body:has(.bp-root.is-locked) {
 
 .bp-flap__digits {
   display: block;
-  min-width: 15.9cqw;
-  padding: 2.3cqw 1.5cqw 2.05cqw;
+  width: 100%;
+  padding: 2.3cqw 0.6cqw 2.05cqw;
   border-radius: 1.8cqw;
   font-family: var(--bp-mono);
-  font-size: 7.69cqw;
+  /* 3-digit day counts must fit: size to the tile, not a fixed em */
+  font-size: 6.6cqw;
   line-height: 1;
+  text-align: center;
   color: var(--bp-paper);
-  background: linear-gradient(#0f3236 0 49%, #0a2427 49% 51%, #133a3f 51% 100%);
-  box-shadow: inset 0 -0.5cqw 0 rgba(0, 0, 0, 0.28), 0 0.5cqw 0 rgba(0, 0, 0, 0.18);
+  background: linear-gradient(#1d565e 0 49%, #17474e 49% 51%, #21606a 51% 100%);
+  box-shadow: inset 0 -0.5cqw 0 rgba(0, 0, 0, 0.22), 0 0.5cqw 0 rgba(0, 0, 0, 0.14);
 }
 
 .bp-flap__label {
@@ -1581,7 +1586,7 @@ body:has(.bp-root.is-locked) {
   flex-wrap: wrap;
   justify-content: center;
   align-items: flex-start;
-  gap: 3.4cqw;
+  gap: 2.8cqw;
   margin: 4.1cqw auto 0;
   max-width: 100%;
 }
@@ -1590,13 +1595,13 @@ body:has(.bp-root.is-locked) {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5cqw;
-  width: 12cqw;
+  gap: 1.4cqw;
+  width: 11cqw;
 }
 
 .bp-swatch__dot {
-  width: 9.2cqw;
-  height: 9.2cqw;
+  width: 8.4cqw;
+  height: 8.4cqw;
   border-radius: 50%;
   border: 1px solid rgba(31, 90, 96, 0.28);
   box-shadow: 0 0.6cqw 1.6cqw rgba(29, 42, 45, 0.16);
