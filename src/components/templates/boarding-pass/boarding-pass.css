@@ -988,13 +988,12 @@ body:has(.bp-root.is-locked) {
 .bp-flights {
   position: relative;
   container-type: inline-size;
-  aspect-ratio: 390 / 806;
 }
 
 .bp-flights__head {
   position: absolute;
   left: 0;
-  top: 5.96%;
+  top: 12.3cqw;   /* 48px on the 390 canvas, width-relative */
   width: 100%;
   text-align: center;
 }
@@ -1003,7 +1002,7 @@ body:has(.bp-root.is-locked) {
   position: absolute;
   left: 4.615%;
   width: 90.769%;
-  height: 35.98%;
+  height: 74.36cqw;   /* 290px on the 390 canvas, width-relative */
   display: grid;
   grid-template-columns: 1fr 30.5%;
   background: var(--bp-paper);
@@ -1011,8 +1010,8 @@ body:has(.bp-root.is-locked) {
   box-shadow: 0 1.2cqw 2.4cqw rgba(29, 42, 45, 0.1);
 }
 
-.bp-flight--a { top: 19.6%; }
-.bp-flight--b { top: 59.6%; }
+.bp-flight--a { top: 40.5cqw; }
+.bp-flight--b { top: 123cqw; }
 
 .bp-flight__main {
   padding: 4.6% 4% 4.5% 6.2%;

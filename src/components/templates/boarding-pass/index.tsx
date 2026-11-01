@@ -161,8 +161,13 @@ export default function BoardingPass(profile: TemplateProps) {
   const film = videoSource(profile.video_url)
   const hasVideo = gates.video !== false && profile.video_section_visible !== false && !!film
   const openingFilm = film && film.kind === "file" ? film.src : ""
+  // The closing only plays a film when the video section is allowed by the package
+  // gate and the editor toggle; otherwise it falls back to a cover photo.
+  const closingFilm = hasVideo ? film : null
   const youtubeId =
-    film && film.kind === "embed" ? (film.src.match(/youtube\.com\/embed\/([A-Za-z0-9_-]{11})/)?.[1] || "") : ""
+    closingFilm && closingFilm.kind === "embed"
+      ? closingFilm.src.match(/youtube\.com\/embed\/([A-Za-z0-9_-]{11})/)?.[1] || ""
+      : ""
 
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
@@ -851,9 +856,9 @@ export default function BoardingPass(profile: TemplateProps) {
             <div className="bp-closing__media bp-closing__media--embed">
               <AutoplayYouTube videoId={youtubeId} title={`Film ${coupleLabel}`} autoplay />
             </div>
-          ) : film && film.kind === "file" ? (
+          ) : closingFilm && closingFilm.kind === "file" ? (
             <div className="bp-closing__media">
-              <video src={film.src} muted autoPlay loop playsInline preload="metadata" />
+              <video src={closingFilm.src} muted autoPlay loop playsInline preload="metadata" />
             </div>
           ) : (
             closingStill && (
