@@ -1,9 +1,11 @@
 # REA — Our Wedding Link "Boarding Pass" → Aksaraa in-house template
 
 Reference: <https://our-wedding.link/design/boarding-pass> · analysed 2026-11-01
-Proposed template code: `boarding-pass` · Source type: `inhouse`
-**Status: analysis only.** Nothing is ported yet — §13 contains the one decision
-(an INFO TAMU sheet) that has to be made before the component is written.
+Template code: `boarding-pass` · Source type: `inhouse`
+**Status: ported** — component, skin, fonts, registration and demo props are in
+the tree (§15). The `web_templates` row is applied to production; staging is
+applied with it. The `INFO TAMU` sheet (§9 A) was dropped as recommended, so
+dress code ships as its own section.
 
 Method: same as `docs/REA_N_FILM.md`. Resolved the SSR payload (`window.__NUXT__`),
 dumped the rendered DOM (170 KB) and all 4 378 computed CSS rules, then measured
@@ -200,7 +202,7 @@ are present but merged into another surface, and three are missing.
 | 1 | Cover | ✅ the boarding pass itself | keep |
 | 2 | Opening video | ✅ muted looping film behind the cover | keep — feed it `video_url` |
 | 3 | Welcome | ✅ `SALAM HANGAT` | keep |
-| 4 | Kalimat pembuka | ⚠️ the greeting paragraph inside `SALAM HANGAT` | **split out** as the couple's own word card |
+| 4 | Kalimat pembuka | ⚠️ the greeting paragraph inside `SALAM HANGAT` | **shares the welcome card** with #3 — `opening_title` as the heading, `opening_description` as the body. Playbook §0.5 allows 3+4 to share one surface (Lace does the same) |
 | 5 | Mempelai | ✅ `DAFTAR PENUMPANG` passport cards | keep — see note below |
 | 6 | Love story | ✅ `KISAH KAMI` | keep |
 | 7 | Event | ✅ `ITINERARY` flights | keep |
@@ -352,7 +354,7 @@ key is required.
 
 Registration: migration `20261043000000_boarding_pass.sql` (next free version —
 `20261042000000` is N Film, `20261044000000` is Ivory Lace),
-`sort_order = 34` (33 is N Film; prod max is 33), `category 'Modern'`,
+`sort_order = 3` (the catalogue now groups in-house templates from 1: Lace is 1, N Film is 2), `category 'Modern'`,
 `tier 'Baru'`, `no_photo = false`.
 
 ---
@@ -390,13 +392,61 @@ Registration: migration `20261043000000_boarding_pass.sql` (next free version �
 
 ---
 
-## 15. Still open
+## 15. Build log — what actually shipped
 
-1. **§9 A — the `INFO TAMU` sheet.** Ship it (needs a data source) or drop it and
-   keep dress code inline? **Recommended: drop.**
-2. **Language.** The reference is Indonesian and, unusually, *good* Indonesian —
-   the boarding-pass puns only work in Indonesian. Recommend keeping Indonesian
-   for this template (unlike N Film, which we shipped in English).
-3. **Story years.** `stories[]` has no year column; the reference prints one per
-   entry. Proposal: read a leading `YYYY` from the story title and fall back to
-   no year, without a schema change.
+### Files
+
+| File | |
+|---|---|
+| `src/components/templates/boarding-pass/index.tsx` | gate, 16 sections (welcome + kalimat pembuka share one card), lightbox, film modal, gift tabs, music, dock |
+| `.../boarding-pass.css` | the document system: ticket with punched notches, perforation, barcode, route line, passport cards, MRZ, flights, departure board, stamps |
+| `.../Wishes.tsx` | name + wish + approved feed, 5 per page |
+| `public/templates/boarding-pass/thumbnail.webp` | 720×1520 poster, generated |
+| `src/components/templates/index.ts` | `TEMPLATE_MAP` + `TEMPLATE_CONFIGS` |
+| `src/components/templates/demoProps.ts` | `DEMO_PROPS_BY_CODE["boarding-pass"]` (Albarn/Faye, Indonesian) |
+| `src/lib/templateExtras.ts` | `boarding-pass` added to 8 existing keys |
+| `src/app/templates/[code]/preview/page.tsx` | `keepDemoIds` |
+| `scripts/fetch-fonts.js`, `scripts/gen-font-css.js` | `DM Mono` + `Jost` (OFL) |
+| `supabase/migrations/20261043000000_boarding_pass.sql` | `web_templates` row, `sort_order` 3 |
+
+### Decisions as built
+
+- **No raster ornament.** Every mark is CSS: punched notches are cream circles
+  anchored to the tear line (`top: -9px` inside `.bp-ticket__tear`), the barcode
+  is two `repeating-linear-gradient`s, the route line is two endpoint dots plus
+  a dashed rule, the board is a four-stop gradient with inset shadows.
+- **Notches need the cream mat.** A "hole" only reads as a hole when the surface
+  behind it is the same cream, so the ticket sits on a `.bp-mat`, not directly on
+  the photograph.
+- **Cover is the gate** (`is-locked`, opens on `Buka Undangan`, plays the
+  preloaded track, `scrollTo(0,0)`).
+- **Gate/seat** is `guest_table_number` when present, otherwise the poetic
+  `Pelaminan`; the venue is the `TUJUAN` field so the two never repeat.
+- **MRZ** is derived (`P<IDN<<NAME<<<<…`, padded to 44) — never hardcoded.
+- **Story years** come from a leading `YYYY` in the title and are stripped from
+  the rendered heading, as proposed in §15.3 of the analysis.
+- **RSVP** is the dock only, suppressed in `preview_mode` / `template_demo`.
+- **Footer** is Sandhya's closing block (64 px badge, CTA, copyright).
+
+### Verified locally
+
+`tsc --noEmit` clean; preview **200**; all four faces load (DM Serif Display,
+DM Mono, Jost, Caveat); 15 rendered `data-section` blocks (16 minimums, #3/#4
+shared); no horizontal overflow; gate locks scroll then releases; notches sit on
+the tear line (measured `notchOnTear: true`); board renders 4 DM Mono 30 px
+flaps; swatches centred; footer badge 64 px; **no dock in preview**; console
+clean.
+
+## 16. Still open
+
+1. **~~§9 A — the `INFO TAMU` sheet.~~** Dropped. Dress code ships as its own
+   section; the sheet needed lodging/tips data we do not have.
+2. **Language — settled: Indonesian.** The boarding-pass puns only work in
+   Indonesian, and the reference's Indonesian is good. Demo content and extras
+   placeholders are Indonesian (N Film went English; the two now differ on
+   purpose).
+3. **~~Story years.~~** Implemented: a leading `YYYY` in the story title is read
+   and stripped from the rendered heading, with no schema change.
+4. **Visual QA.** Verified by measurement only — this environment cannot capture
+   screenshots. Balance, optical spacing and how a couple's own photos sit inside
+   the ticket/passport frames are unconfirmed.

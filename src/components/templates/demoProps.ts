@@ -1616,3 +1616,82 @@ DEMO_PROPS_BY_CODE["ivory-lace"] = {
       "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say.",
   },
 }
+
+DEMO_PROPS_BY_CODE["boarding-pass"] = {
+  ...DEMO_PROPS_BY_CODE["sandhya"],
+  slug: "demo",
+  display_name: "#AlbarnFayeForever",
+  estimated_wedding_date: "2027-12-11",
+  sessions: [
+    {
+      name: "Akad Nikah",
+      date: "2027-12-11",
+      time: "08.00 - 10.00 WIB",
+      venue: "Masjid Al-Bahar",
+      address: "Jl. Pesisir No. 12, Badung, Bali",
+      maps_url: "https://maps.app.goo.gl/9bRvrJZZ1xcZSoqa6",
+    },
+    {
+      name: "Resepsi",
+      date: "2027-12-11",
+      time: "11.00 - 14.00 WIB",
+      venue: "Taman Nyiur",
+      address: "Jl. Pesisir No. 30, Badung, Bali",
+      maps_url: "https://maps.app.goo.gl/UPxWi9HU1w4A9R1j6",
+    },
+  ],
+  cover_photos: [`${DE}/cover-2.webp`, `${DE}/cover.webp`, `${DE}/cover-4.webp`],
+  gallery_photos: [...DE_GALLERY].slice(0, 8),
+  stories: [
+    {
+      title: "2019 · Pertemuan Pertama",
+      description:
+        "Kami berkenalan di sebuah acara kantor yang sebenarnya sama-sama ingin kami lewatkan. Satu obrolan di dekat meja kopi berlanjut sampai lampu ruangan dimatikan.",
+      image_url: `${DE}/cover-1.webp`,
+    },
+    {
+      title: "2022 · Jatuh Hati",
+      description:
+        "Dari teman bertukar cerita menjadi teman seperjalanan. Kami belajar bahwa jalan pulang terasa paling dekat bila ditempuh berdua.",
+      image_url: `${DE}/cover-2.webp`,
+    },
+    {
+      title: "2025 · Sebuah Janji",
+      description:
+        "Di tepi pantai saat matahari turun, satu pertanyaan sederhana dijawab dengan anggukan dan tawa yang bercampur haru.",
+      image_url: `${DE}/cover-3.webp`,
+    },
+  ],
+  rundown_visible: true,
+  rundown: [
+    { time: "07.30", description: "Tamu tiba dan registrasi di gerbang" },
+    { time: "08.00", description: "Akad nikah dimulai" },
+    { time: "09.30", description: "Sungkem dan foto keluarga" },
+    { time: "11.00", description: "Resepsi dibuka" },
+    { time: "14.00", description: "Penutup dan pamit" },
+  ],
+  dresscode_visible: true,
+  dresscode: {
+    description:
+      "Kami akan senang bila Anda hadir dengan nuansa warna berikut, agar setiap bingkai dari hari itu terasa satu cerita.",
+    colors: [
+      { hex: "#fffcf6", name: "Ivory" },
+      { hex: "#1f5a60", name: "Teal" },
+      { hex: "#bfd6d0", name: "Mint" },
+      { hex: "#e4dccd", name: "Sand" },
+    ],
+  },
+  template_content: {
+    cover_kicker: "AF 27 · 01A",
+    cover_apology: "Tunjukkan tiket ini dengan senyuman.",
+    gallery_intro: "oleh-oleh dari perjalanan kami",
+    gift_intro_title: "Tanda Kasih",
+    gift_intro_description:
+      "Doa restu Anda adalah bekal terbaik untuk perjalanan kami. Bila ingin memberi lebih, kami menerimanya dengan penuh syukur.",
+    wishes_intro: "Titipkan pesan dan doa terbaik untuk perjalanan baru kami.",
+    inviting_intro:
+      "Dengan penuh rasa syukur, kami mengundang Anda untuk ikut dalam perjalanan ini bersama keluarga kami.",
+    closing_message:
+      "Merupakan suatu kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu. Terima kasih telah menjadi bagian dari perjalanan kami.",
+  },
+}
