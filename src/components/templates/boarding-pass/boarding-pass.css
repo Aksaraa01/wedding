@@ -683,48 +683,81 @@ body:has(.bp-root.is-locked) {
   height: 9cqw;
 }
 
-/* ----------------------------------------------------- 5. daftar penumpang */
+/* ------------------------------------------- 5. daftar penumpang (passport)
+   Reference: two 346x300 passport cards at (22,136) and (22,504) with a "&"
+   between them. Card contents sit at fixed slots: stamp label row, a 112x142
+   portrait, the field stack, the MRZ line and the Instagram pill. */
 
 .bp-manifest {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  position: relative;
+  container-type: inline-size;
+  aspect-ratio: 390 / 840;
+}
+
+.bp-manifest__head {
+  position: absolute;
+  left: 0;
+  top: 5.7%;
+  width: 100%;
+  text-align: center;
+}
+
+.bp-manifest__amp {
+  position: absolute;
+  left: 43.6%;
+  top: 53.1%;
+  width: 12.8%;
+  text-align: center;
+  font-family: var(--bp-serif);
+  font-size: 4.1cqw;
+  color: var(--bp-teal);
 }
 
 .bp-passport {
-  padding: 16px;
+  position: absolute;
+  left: 5.641%;
+  width: 88.718%;
+  height: 35.714%;
+  background-color: var(--bp-paper);
+  border: 1px solid rgba(31, 90, 96, 0.12);
+  border-radius: 4.1cqw;
+  box-shadow: 0 1.2cqw 2.6cqw rgba(29, 42, 45, 0.08);
+  container-type: inline-size;
 }
 
-.bp-passport__head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1.5px dashed rgba(31, 90, 96, 0.3);
-}
+.bp-passport--a { top: 16.19%; }
+.bp-passport--b { top: 60%; }
 
 .bp-passport__no {
+  position: absolute;
+  left: 5.78%;
+  top: 6%;
   font-family: var(--bp-mono);
-  font-size: 8.5px;
-  letter-spacing: 2px;
+  font-size: 2.46cqw;
+  letter-spacing: 0.75cqw;
   text-transform: uppercase;
   color: var(--bp-teal);
 }
 
-.bp-passport__body {
-  display: grid;
-  grid-template-columns: 92px 1fr;
-  gap: 14px;
-  padding-top: 12px;
+.bp-passport__role {
+  position: absolute;
+  right: 5.78%;
+  top: 6.33%;
+  font-family: var(--bp-mono);
+  font-size: 2.46cqw;
+  letter-spacing: 0.52cqw;
+  text-transform: uppercase;
+  color: var(--bp-muted);
 }
 
 .bp-passport__photo {
-  width: 92px;
-  aspect-ratio: 3 / 4;
+  position: absolute;
+  left: 5.78%;
+  top: 18.67%;
+  width: 32.37%;
+  height: 47.33%;
   overflow: hidden;
   border: 1px solid rgba(29, 42, 45, 0.16);
-  border-radius: 4px;
   background: #e9e5de;
 }
 
@@ -735,214 +768,380 @@ body:has(.bp-root.is-locked) {
   display: block;
 }
 
-.bp-passport__fields {
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-  min-width: 0;
+.bp-passport__label {
+  position: absolute;
+  left: 42.77%;
+  font-family: var(--bp-mono);
+  font-size: 2.46cqw;
+  letter-spacing: 0.52cqw;
+  text-transform: uppercase;
+  color: var(--bp-muted);
 }
 
 .bp-passport__name {
+  position: absolute;
+  left: 42.77%;
+  top: 24%;
+  width: 51%;
   margin: 0;
   font-family: var(--bp-serif);
-  font-size: 21px;
-  line-height: 1.2;
-  color: var(--bp-ink);
-}
-
-.bp-passport__parents {
-  margin: 0;
-  font-family: var(--bp-body);
-  font-size: 11.5px;
-  line-height: 1.55;
-  color: var(--bp-muted-2);
-}
-
-.bp-passport__ig {
-  align-self: flex-start;
-}
-
-.bp-mrz {
-  margin: 14px 0 0;
-  padding-top: 10px;
-  border-top: 1.5px dashed rgba(31, 90, 96, 0.24);
-  font-family: var(--bp-mono);
-  font-size: 9px;
-  letter-spacing: 1.6px;
-  color: rgba(31, 90, 96, 0.75);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: clip;
-}
-
-/* --------------------------------------------------------- 6. kisah kami */
-
-.bp-timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.bp-story {
-  display: grid;
-  grid-template-columns: 64px 1fr;
-  gap: 14px;
-  padding: 18px 0;
-  border-top: 1.5px dashed rgba(31, 90, 96, 0.28);
-}
-
-.bp-story:first-child {
-  border-top: 0;
-  padding-top: 4px;
-}
-
-.bp-story__year {
-  font-family: var(--bp-mono);
-  font-size: 11.5px;
-  letter-spacing: 1px;
-  color: var(--bp-teal);
-  padding-top: 3px;
-}
-
-.bp-story__title {
-  margin: 0 0 6px;
-  font-family: var(--bp-serif);
-  font-size: 20px;
-  line-height: 1.25;
-  color: var(--bp-ink);
-}
-
-.bp-story__photo {
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  margin-top: 10px;
-  border: 5px solid #fff;
-  box-shadow: 0 8px 18px rgba(29, 42, 45, 0.1);
-}
-
-.bp-story__end {
-  margin: 18px 0 0;
-  text-align: center;
-  font-family: var(--bp-script);
-  font-size: 20px;
-  color: var(--bp-teal);
-}
-
-/* ---------------------------------------------------------- 7. itinerary */
-
-.bp-flights {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.bp-flight {
-  display: grid;
-  grid-template-columns: 1fr 74px;
-  align-items: stretch;
-  overflow: hidden;
-}
-
-.bp-flight__main {
-  padding: 16px 14px 16px 16px;
-}
-
-.bp-flight__stub {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 12px 6px;
-  border-left: 1.5px dashed rgba(31, 90, 96, 0.28);
-  background: rgba(31, 90, 96, 0.03);
-}
-
-.bp-flight__no {
-  font-family: var(--bp-serif);
-  font-size: 26px;
-  line-height: 1;
-  color: var(--bp-teal);
-}
-
-.bp-flight__stubLabel {
-  font-family: var(--bp-mono);
-  font-size: 7px;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-  color: var(--bp-muted);
-  text-align: center;
-}
-
-.bp-flight__name {
-  margin: 0 0 8px;
-  font-family: var(--bp-serif);
-  font-size: 24px;
+  font-size: 6.36cqw;
   line-height: 1.15;
   color: var(--bp-ink);
 }
 
-.bp-flight__line {
+.bp-passport__parents {
+  position: absolute;
+  left: 42.77%;
+  top: 50%;
+  width: 51%;
   margin: 0;
   font-family: var(--bp-body);
-  font-size: 12.5px;
-  line-height: 1.6;
-  color: var(--bp-muted-2);
+  font-size: 3.32cqw;
+  line-height: 1.4;
+  color: rgba(29, 42, 45, 0.9);
 }
 
-.bp-flight__line--mono {
+.bp-passport__mrz {
+  position: absolute;
+  left: 5.78%;
+  top: 70.67%;
+  width: 88.44%;
+  margin: 0;
   font-family: var(--bp-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
+  font-size: 2.6cqw;
+  letter-spacing: 0.46cqw;
+  color: rgba(29, 42, 45, 0.42);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.bp-passport__ig {
+  position: absolute;
+  left: 5.78%;
+  top: 81.33%;
+  width: 38.15%;
+  height: 10.5%;
+  font-size: 2.46cqw;
+  letter-spacing: 0.52cqw;
+}
+
+/* ------------------------------------------- 6. kisah kami (stamp + postmark)
+   Reference: each beat is a 150x190 postage stamp holding the photograph, with
+   a 120x64 postmark overlapping its corner and the year inside the ring. The
+   three entries alternate left / right. */
+
+.bp-storylist {
+  position: relative;
+  container-type: inline-size;
+  aspect-ratio: 390 / 1000;
+}
+
+.bp-storylist__head {
+  position: absolute;
+  left: 0;
+  top: 4.8%;
+  width: 100%;
+  text-align: center;
+}
+
+.bp-storylist__orn {
+  position: absolute;
+  left: -7.7%;
+  top: 1.6%;
+  width: 21.5%;
+  transform: rotate(-12deg);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.bp-stamp {
+  position: absolute;
+  width: 38.46%;
+  height: 19%;
+  background: #fff;
+  border-radius: 2px;
+  box-shadow: 0 0.4cqw 1.4cqw rgba(29, 42, 45, 0.12);
+}
+
+.bp-stamp--a { left: 6.67%; top: 15%; }
+.bp-stamp--b { left: 54.87%; top: 42%; }
+.bp-stamp--c { left: 6.67%; top: 69%; }
+
+/* perforated postage frame */
+.bp-stamp__frame {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  box-shadow: 0 0.4cqw 1.4cqw rgba(29, 42, 45, 0.1);
+  -webkit-mask:
+    radial-gradient(circle at 5px 5px, transparent 3px, #000 3.4px) -5px -5px / 10px 10px,
+    linear-gradient(#000 0 0) 4px 4px / calc(100% - 8px) calc(100% - 8px) no-repeat,
+    radial-gradient(circle at 5px 5px, #000 3px, transparent 3.4px) 0 0 / 10px 10px;
+  mask:
+    radial-gradient(circle at 5px 5px, #000 3px, transparent 3.4px) 0 0 / 10px 10px;
+}
+
+.bp-stamp__photo {
+  position: absolute;
+  inset: 4.7%;
+  width: 90.6%;
+  height: 90.6%;
+  object-fit: cover;
+  display: block;
+}
+
+/* postmark: two rings plus three wavy lines, drawn in CSS */
+.bp-stamp__postmark {
+  position: absolute;
+  width: 80%;
+  height: 33.7%;
+  border-radius: 50%;
+  border: 1.5px solid rgba(31, 90, 96, 0.55);
+  background:
+    radial-gradient(circle, transparent 62%, rgba(31, 90, 96, 0.35) 63%, transparent 66%);
+  opacity: 0.85;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bp-stamp--a .bp-stamp__postmark { left: 16%; top: -8.4%; }
+.bp-stamp--b .bp-stamp__postmark { left: -10%; top: -8.4%; }
+.bp-stamp--c .bp-stamp__postmark { left: 16%; top: -8.4%; }
+
+.bp-stamp__year {
+  font-family: var(--bp-mono);
+  font-size: 2.6cqw;
+  letter-spacing: 0.26cqw;
+  color: var(--bp-teal);
+}
+
+.bp-story__copy {
+  position: absolute;
+  width: 42%;
+}
+
+.bp-story__copy--a { left: 52.3%; top: 16.2%; }
+.bp-story__copy--b { left: 6.15%; top: 43.2%; }
+.bp-story__copy--c { left: 52.3%; top: 70.2%; }
+
+.bp-story__title {
+  margin: 0;
+  font-family: var(--bp-serif);
+  font-size: 5.13cqw;
+  line-height: 1.2;
   color: var(--bp-ink);
+}
+
+.bp-story__text {
+  margin: 2.4cqw 0 0;
+  font-family: var(--bp-body);
+  font-size: 3.08cqw;
+  line-height: 1.7;
+  color: rgba(29, 42, 45, 0.84);
+}
+
+.bp-storylist__end {
+  position: absolute;
+  left: 5.1%;
+  top: 93%;
+  width: 89.7%;
+  margin: 0;
+  text-align: center;
+  font-family: var(--bp-script);
+  font-size: 5.13cqw;
+  color: var(--bp-teal);
+}
+
+/* ------------------------------------------- 7. itinerary (flight cards)
+   Reference: a 354x290 card at (18,158) with a vertical perforation at 68.6%,
+   a stub on the right holding the ornament, gate, seat and a mini barcode, and
+   two actions under the copy (map + calendar). */
+
+.bp-flights {
+  position: relative;
+  container-type: inline-size;
+  aspect-ratio: 390 / 806;
+}
+
+.bp-flights__head {
+  position: absolute;
+  left: 0;
+  top: 5.96%;
+  width: 100%;
+  text-align: center;
+}
+
+.bp-flight {
+  position: absolute;
+  left: 4.615%;
+  width: 90.769%;
+  height: 35.98%;
+  display: grid;
+  grid-template-columns: 1fr 30.5%;
+  background: var(--bp-paper);
+  border-radius: 4.1cqw;
+  box-shadow: 0 1.2cqw 2.4cqw rgba(29, 42, 45, 0.1);
+}
+
+.bp-flight--a { top: 19.6%; }
+.bp-flight--b { top: 59.6%; }
+
+.bp-flight__main {
+  padding: 4.6% 4% 4.5% 6.2%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.bp-flight__no {
+  margin: 0;
+  font-family: var(--bp-mono);
+  font-size: 2.46cqw;
+  letter-spacing: 0.73cqw;
+  text-transform: uppercase;
+  color: var(--bp-teal);
+}
+
+.bp-flight__name {
+  margin: 1.6cqw 0 0;
+  font-family: var(--bp-serif);
+  font-size: 5.64cqw;
+  line-height: 1.2;
+  color: var(--bp-ink);
+}
+
+.bp-flight__date {
+  margin: 3.1cqw 0 0;
+  font-family: var(--bp-mono);
+  font-size: 3.08cqw;
+  color: var(--bp-ink);
+}
+
+.bp-flight__time {
+  margin: 1.4cqw 0 0;
+  font-family: var(--bp-mono);
+  font-size: 3.08cqw;
+  color: var(--bp-teal);
+}
+
+.bp-flight__venue {
+  margin: 1.4cqw 0 0;
+  font-family: var(--bp-body);
+  font-size: 3.08cqw;
+  line-height: 1.45;
+  color: rgba(29, 42, 45, 0.88);
 }
 
 .bp-flight__actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
+  gap: 2.05cqw;
+  margin-top: auto;
+  padding-top: 3.1cqw;
 }
 
 .bp-flight__actions .bp-btn {
-  height: 30px;
-  padding: 0 12px;
-  font-size: 8.5px;
+  height: 8.7cqw;
+  min-height: 30px;
+  font-size: 2.18cqw;
+  letter-spacing: 0.46cqw;
+  padding: 0 3.1cqw;
 }
 
-/* --------------------------------------------------- 8. papan keberangkatan */
+/* the stub */
+.bp-flight__stub {
+  position: relative;
+  border-left: 1.5px dashed rgba(31, 90, 96, 0.28);
+  background: rgba(31, 90, 96, 0.03);
+  border-radius: 0 4.1cqw 4.1cqw 0;
+}
+
+.bp-flight__orn {
+  position: absolute;
+  right: 8%;
+  top: 10.3%;
+  width: 62%;
+  opacity: 0.9;
+}
+
+.bp-flight__stubLabel {
+  position: absolute;
+  right: 8%;
+  width: 60%;
+  text-align: center;
+  font-family: var(--bp-mono);
+  font-size: 2.18cqw;
+  letter-spacing: 0.46cqw;
+  text-transform: uppercase;
+  color: var(--bp-muted);
+}
+
+.bp-flight__stubValue {
+  position: absolute;
+  right: 8%;
+  width: 60%;
+  text-align: center;
+  font-family: var(--bp-mono);
+  font-size: 2.87cqw;
+  color: var(--bp-teal);
+}
+
+.bp-flight__barcode {
+  position: absolute;
+  right: 18%;
+  bottom: 6.5%;
+  width: 52%;
+  height: 10.3%;
+  opacity: 0.55;
+  background:
+    repeating-linear-gradient(90deg, var(--bp-ink) 0 1.5px, transparent 1.5px 2.5px, var(--bp-ink) 2.5px 3.5px, transparent 3.5px 4.5px);
+}
+
+/* ------------------------------------- 8. papan keberangkatan (departure board)
+   Reference: a 354x420 teal board at (18,40) on the cream page, with the
+   split-flap clock, a destination/status pair and the calendar action. */
+
+.bp-countdown {
+  position: relative;
+  container-type: inline-size;
+  aspect-ratio: 390 / 460;
+  padding: 4.6% 4.6% 0;
+  display: flex;
+  flex-direction: column;
+}
 
 .bp-board {
   position: relative;
-  padding: 26px 20px;
-  border-radius: 18px;
+  flex: 1;
+  border-radius: 4.6cqw;
   background:
     radial-gradient(circle at 14px 14px, rgba(191, 214, 208, 0.32) 2.4px, transparent 3px),
     radial-gradient(circle at calc(100% - 14px) 14px, rgba(191, 214, 208, 0.32) 2.4px, transparent 3px),
     radial-gradient(circle at 14px calc(100% - 14px), rgba(191, 214, 208, 0.32) 2.4px, transparent 3px),
     radial-gradient(circle at calc(100% - 14px) calc(100% - 14px), rgba(191, 214, 208, 0.32) 2.4px, transparent 3px),
     var(--bp-teal-deep);
-  box-shadow: 0 20px 40px rgba(22, 63, 68, 0.26), inset 0 0 0 1px rgba(191, 214, 208, 0.12);
+  box-shadow: 0 5.1cqw 10cqw rgba(22, 63, 68, 0.26), inset 0 0 0 1px rgba(191, 214, 208, 0.12);
+  padding: 6.8% 4% 0;
   text-align: center;
   color: var(--bp-paper);
+  display: flex;
+  flex-direction: column;
 }
 
 .bp-board__label {
   margin: 0;
   font-family: var(--bp-mono);
-  font-size: 8.5px;
-  letter-spacing: 0.22em;
+  font-size: 2.18cqw;
+  letter-spacing: 0.77cqw;
   text-transform: uppercase;
-  color: rgba(191, 214, 208, 0.8);
+  color: rgb(191, 214, 208);
 }
 
 .bp-board__title {
-  margin: 8px 0 0;
+  margin: 1.4cqw 0 0;
   font-family: var(--bp-serif);
-  font-size: 26px;
+  font-size: 6.92cqw;
   line-height: 1.15;
   color: var(--bp-paper);
 }
@@ -950,41 +1149,34 @@ body:has(.bp-root.is-locked) {
 .bp-flaps {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin-top: 18px;
+  gap: 2.05cqw;
+  margin-top: 6.9cqw;
 }
 
 .bp-flap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 2cqw;
 }
 
 .bp-flap__digits {
   display: block;
-  min-width: 62px;
-  padding: 9px 6px 8px;
-  border-radius: 7px;
+  min-width: 15.9cqw;
+  padding: 2.3cqw 1.5cqw 2.05cqw;
+  border-radius: 1.8cqw;
   font-family: var(--bp-mono);
-  font-size: 30px;
+  font-size: 7.69cqw;
   line-height: 1;
   color: var(--bp-paper);
-  background: linear-gradient(
-    #0f3236 0%,
-    #0f3236 49%,
-    #0a2427 49%,
-    #0a2427 51%,
-    #133a3f 51%,
-    #133a3f 100%
-  );
-  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.28), 0 2px 0 rgba(0, 0, 0, 0.18);
+  background: linear-gradient(#0f3236 0 49%, #0a2427 49% 51%, #133a3f 51% 100%);
+  box-shadow: inset 0 -0.5cqw 0 rgba(0, 0, 0, 0.28), 0 0.5cqw 0 rgba(0, 0, 0, 0.18);
 }
 
 .bp-flap__label {
   font-family: var(--bp-mono);
-  font-size: 8px;
-  letter-spacing: 0.2em;
+  font-size: 2.05cqw;
+  letter-spacing: 0.51cqw;
   text-transform: uppercase;
   color: rgba(191, 214, 208, 0.8);
 }
@@ -992,32 +1184,47 @@ body:has(.bp-root.is-locked) {
 .bp-board__meta {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 20px;
-  padding-top: 16px;
+  gap: 2cqw;
+  margin-top: 6.4cqw;
+  padding-top: 4.1cqw;
   border-top: 1.5px dashed rgba(191, 214, 208, 0.28);
   text-align: left;
 }
 
 .bp-board__metaLabel {
   font-family: var(--bp-mono);
-  font-size: 8px;
-  letter-spacing: 0.18em;
+  font-size: 2.05cqw;
+  letter-spacing: 0.46cqw;
   text-transform: uppercase;
-  color: rgba(191, 214, 208, 0.7);
+  color: rgba(191, 214, 208, 0.8);
 }
 
 .bp-board__metaValue {
-  margin-top: 3px;
+  margin-top: 0.8cqw;
   font-family: var(--bp-serif);
-  font-size: 15px;
+  font-size: 3.85cqw;
   color: var(--bp-paper);
 }
 
 .bp-board__actions {
   display: flex;
   justify-content: center;
-  margin-top: 18px;
+  margin-top: 6.2cqw;
+}
+
+.bp-board__actions .bp-btn {
+  width: 56.5%;
+  height: 8.7cqw;
+  font-size: 2.18cqw;
+  letter-spacing: 0.46cqw;
+}
+
+.bp-board__foot {
+  margin: auto 0 6.4cqw;
+  font-family: var(--bp-body);
+  font-size: 2.87cqw;
+  color: rgb(191, 214, 208);
+  text-align: center;
 }
 
 /* --------------------------------------------------- 9. turut mengundang */
@@ -1270,11 +1477,74 @@ body:has(.bp-root.is-locked) {
   white-space: pre-line;
 }
 
-/* ---------------------------------------------------------- 14. dresscode */
+/* --------------------------------------- 14. dress code (baggage tag)
+   The reference draws this as a luggage tag: a 230x330 label hanging from a
+   string, teal band across the top with a punched hole, cream body below. Its
+   own section there is just the tag that opens an info sheet; here the tag
+   carries the dress code itself so the minimum section has a surface. */
 
-.bp-dress .bp-card {
-  padding: 22px 18px;
+.bp-dress {
+  position: relative;
+  container-type: inline-size;
+  aspect-ratio: 390 / 628;
+}
+
+.bp-dress__head {
+  position: absolute;
+  left: 0;
+  top: 7.64%;
+  width: 100%;
   text-align: center;
+}
+
+/* .tp-tali — the string through the hole */
+.bp-dress__string {
+  position: absolute;
+  left: 43.59%;
+  top: 20.06%;
+  width: 12.82%;
+  height: 11.15%;
+  border: 2px solid rgba(29, 42, 45, 0.55);
+  border-bottom: 0;
+  border-radius: 50% 50% 0 0;
+  pointer-events: none;
+}
+
+/* .tp-label */
+.bp-tag {
+  position: absolute;
+  left: 20.51%;
+  top: 28.34%;
+  width: 58.97%;
+  height: 52.55%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 6.1cqw 3.4cqw 0;
+  /* teal band 96px tall, then paper — plus the punched hole at its centre */
+  background:
+    radial-gradient(circle at 50% 6.8cqw, var(--bp-cream) 2.05cqw, transparent 2.15cqw),
+    linear-gradient(var(--bp-teal) 0 15.3cqw, var(--bp-paper) 15.3cqw 100%);
+  border-radius: 4.6cqw;
+  box-shadow: 0 1.6cqw 3cqw rgba(29, 42, 45, 0.14);
+}
+
+.bp-tag__title {
+  margin: 0;
+  font-family: var(--bp-mono);
+  font-size: 2.56cqw;
+  letter-spacing: 0.82cqw;
+  text-transform: uppercase;
+  color: var(--bp-paper);
+}
+
+.bp-tag__body {
+  margin: 4.6cqw 0 0;
+  font-family: var(--bp-body);
+  font-size: 3.08cqw;
+  line-height: 1.7;
+  color: rgba(29, 42, 45, 0.86);
 }
 
 .bp-swatches {
@@ -1282,34 +1552,56 @@ body:has(.bp-root.is-locked) {
   flex-wrap: wrap;
   justify-content: center;
   align-items: flex-start;
-  gap: 18px;
-  max-width: 320px;
-  margin: 16px auto 0;
+  gap: 3.4cqw;
+  margin: 4.1cqw auto 0;
+  max-width: 100%;
 }
 
 .bp-swatch {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 7px;
-  width: 58px;
+  gap: 1.5cqw;
+  width: 12cqw;
 }
 
 .bp-swatch__dot {
-  width: 44px;
-  height: 44px;
+  width: 9.2cqw;
+  height: 9.2cqw;
   border-radius: 50%;
   border: 1px solid rgba(31, 90, 96, 0.28);
-  box-shadow: 0 4px 12px rgba(29, 42, 45, 0.16);
+  box-shadow: 0 0.6cqw 1.6cqw rgba(29, 42, 45, 0.16);
 }
 
 .bp-swatch__name {
   font-family: var(--bp-mono);
-  font-size: 8px;
-  letter-spacing: 0.16em;
+  font-size: 2.05cqw;
+  letter-spacing: 0.26cqw;
   text-transform: uppercase;
   color: var(--bp-muted);
   text-align: center;
+}
+
+.bp-dress__orn {
+  position: absolute;
+  left: 64.1%;
+  top: 68.8%;
+  width: 30.3%;
+  pointer-events: none;
+}
+
+.bp-dress__note {
+  position: absolute;
+  left: 5.1%;
+  top: 90.8%;
+  width: 89.7%;
+  margin: 0;
+  text-align: center;
+  font-family: var(--bp-mono);
+  font-size: 2.18cqw;
+  letter-spacing: 0.46cqw;
+  text-transform: uppercase;
+  color: var(--bp-teal);
 }
 
 /* ------------------------------------------------------------- 15. wishes */
@@ -1453,53 +1745,118 @@ body:has(.bp-root.is-locked) {
   color: var(--bp-muted);
 }
 
-/* ------------------------------------------------------------ 16. closing */
+/* ------------------------------------------------- 16. closing (the film)
+   Reference: a full-bleed film behind a teal wash, torn paper waves at both
+   edges, the farewell in script, the names, and the closing words. The film is
+   the couple's own video (YouTube embeds loop silently). */
 
 .bp-closing {
   position: relative;
-  padding: 54px 22px 44px;
+  container-type: inline-size;
+  aspect-ratio: 390 / 760;
+  overflow: hidden;
   background: var(--bp-teal-deep);
   color: var(--bp-paper);
   text-align: center;
-  overflow: hidden;
 }
 
-.bp-closing__photo {
+.bp-closing__media,
+.bp-closing__media iframe,
+.bp-closing__media video,
+.bp-closing__media img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  border: 0;
   object-fit: cover;
-  opacity: 0.28;
+}
+
+/* a YouTube iframe has to over-scale to cover a 390x760 frame */
+.bp-closing__media--embed iframe {
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  width: 177.78cqw;
+  height: 100cqw;
+  min-width: 100%;
+  min-height: 100%;
+  transform: translate(-50%, -50%) scale(1.25);
+  pointer-events: none;
+}
+
+/* .tp-selubung-ombak */
+.bp-closing__wash {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    rgba(14, 40, 44, 0.35) 0%,
+    rgba(14, 40, 44, 0.5) 35%,
+    rgba(14, 40, 44, 0.55) 70%,
+    rgba(14, 40, 44, 0.35) 100%
+  );
+}
+
+.bp-closing__wave {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  height: 5.79%;
+  pointer-events: none;
+}
+
+.bp-closing__wave--top {
+  top: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 44' preserveAspectRatio='none'%3E%3Cpath d='M0 24 C 40 36 80 36 125 25 S 215 9 260 20 S 345 34 390 26' fill='none' stroke='%23ffffff' stroke-opacity='.55' stroke-width='2'/%3E%3Cpath d='M0 0 L 390 0 L 390 20 C 345 28 305 28 260 16 S 170 1 125 13 S 40 30 0 18 Z' fill='%23F3EDE2'/%3E%3C/svg%3E") center top / 100% 100% no-repeat;
+}
+
+.bp-closing__wave--bottom {
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 44' preserveAspectRatio='none'%3E%3Cpath d='M0 20 C 45 6 90 8 135 19 S 225 33 270 21 S 350 7 390 16' fill='none' stroke='%23ffffff' stroke-opacity='.55' stroke-width='2'/%3E%3Cpath d='M0 26 C 45 12 90 14 135 25 S 225 39 270 27 S 350 13 390 22 L 390 44 L 0 44 Z' fill='%23F3EDE2'/%3E%3C/svg%3E") center bottom / 100% 100% no-repeat;
 }
 
 .bp-closing__body {
   position: relative;
-  z-index: 1;
+  z-index: 3;
+  padding-top: 31%;
 }
 
 .bp-closing__script {
   margin: 0;
   font-family: var(--bp-script);
-  font-size: 32px;
+  font-size: 8.2cqw;
   line-height: 1.15;
   color: var(--bp-paper);
+  text-shadow: 0 0.2cqw 3.6cqw rgba(8, 30, 34, 0.45);
 }
 
 .bp-closing__names {
-  margin: 6px 0 0;
+  margin: 2.8% 0 0;
   font-family: var(--bp-serif);
-  font-size: 22px;
-  color: var(--bp-mint);
+  font-size: 6.41cqw;
+  color: var(--bp-paper);
+  text-shadow: 0 0.2cqw 3.6cqw rgba(8, 30, 34, 0.45);
 }
 
 .bp-closing__message {
-  margin: 18px auto 0;
-  max-width: 34ch;
+  margin: 6.6% auto 0;
+  width: 79.5%;
   font-family: var(--bp-body);
-  font-size: 12.5px;
+  font-size: 3.08cqw;
   line-height: 1.8;
-  color: rgba(255, 252, 246, 0.78);
+  color: rgba(255, 252, 246, 0.96);
+}
+
+.bp-closing__salam {
+  margin: 5.4% auto 0;
+  width: 84.6%;
+  font-family: var(--bp-body);
+  font-size: 3.08cqw;
+  line-height: 1.7;
+  color: rgba(255, 252, 246, 0.92);
 }
 
 /* -------------------------------------------------------------- the badge */
@@ -1732,4 +2089,13 @@ body:has(.bp-root.is-locked) {
   .bp-music.is-on svg {
     animation: none;
   }
+}
+
+/* sections whose children are positioned on the reference canvas */
+.bp-section--flush {
+  padding: 0;
+}
+
+.bp-welcome__sprig {
+  display: block;
 }

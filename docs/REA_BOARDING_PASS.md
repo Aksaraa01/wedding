@@ -452,6 +452,30 @@ The two ornaments are the only place the reference's art would have been reused:
 it uses a palm frond and a hibiscus (stock clipart). They are redrawn as teal
 line art so nothing licensed ships.
 
+### Second reference pass — the rest of the sections
+
+The first rebuild fixed only the cover/hero/welcome. Every remaining section was
+then re-measured widget-by-widget from the rendered DOM and rebuilt, and the
+reference's own ornaments were vendored (the owner asked for them explicitly;
+they are the preset's art, not ours to redistribute beyond this platform):
+
+| Section | Reference geometry | Built |
+|---|---|---|
+| Mempelai | two **346×300 passport cards** at (22,136)/(22,504) with a `&` between, 112×142 portrait inside, MRZ at y212, IG pill | same, 390×840 block |
+| Event | two **354×290 flight cards** at (18,158)/(18,480): copy column + 30.5 % stub holding the ornament, Gerbang, Kursi and a mini barcode, with map + calendar actions | same, 390×806 |
+| Countdown | a **354×420 departure board** on the cream page, split-flap clock, destination/status pair, calendar action, footer line | same, 390×460 |
+| Love story | three **150×190 postage stamps** with a 120×64 postmark over the corner, the year inside the ring, copy alternating left/right, top-left ornament | same, 390×1000 |
+| Dress code | a **230×330 baggage tag** hanging from a 50×70 string loop, teal band with a punched hole, ornament, "sentuh label" note | same, 390×628 |
+| Closing | full-bleed **film** + `tp-selubung-ombak` wash + torn waves top and bottom | same, 390×760 |
+
+Verified ratios (measured vs reference): manifest 2.154/2.154, story 2.564/2.564,
+flights 2.067/2.067, board 1.179/1.179, tag 1.610/1.610, closing 1.949/1.949.
+Six ornaments render, no horizontal overflow, console clean.
+
+**Closing plays the couple's film, not the cover photo** (owner's instruction):
+YouTube → `AutoplayYouTube` looping silently behind the wash; direct upload →
+muted looping `<video>`; neither → the closing still.
+
 ### Verified locally
 
 `tsc --noEmit` clean; preview **200**; all four faces load (DM Serif Display,

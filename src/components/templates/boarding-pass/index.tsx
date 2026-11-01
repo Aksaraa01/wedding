@@ -5,6 +5,7 @@ import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { AKSARAA_WA_NUMBER } from "@/lib/contact"
 import InvitationOverlay from "@/components/InvitationOverlay"
+import AutoplayYouTube from "../shared/AutoplayYouTube"
 import {
   countdownTarget,
   coverPhoto as coverPhotoOf,
@@ -73,30 +74,8 @@ function leadingYear(title?: string): string {
   return m ? m[0] : ""
 }
 
-// Corner ornaments for the welcome section. The reference places two pieces of
-// clipart there (a palm frond and a hibiscus); stock art is not vendored, so the
-// same role is drawn here as teal line art.
-const SPRIG_FROND = (
-  <svg viewBox="0 0 104 146" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" aria-hidden="true">
-    <path d="M56 144C54 110 56 78 66 48" />
-    <path d="M60 122c-14-4-24-14-28-26" />
-    <path d="M62 105c14-2 24-10 30-22" />
-    <path d="M64 88c-14-4-22-14-25-26" />
-    <path d="M67 72c13-3 21-11 26-21" />
-    <path d="M69 56c-12-4-19-13-21-24" />
-    <path d="M72 44c11-4 18-11 22-20" />
-  </svg>
-)
-
-const SPRIG_SPRAY = (
-  <svg viewBox="0 0 112 110" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" aria-hidden="true">
-    <path d="M18 106C34 78 52 58 86 38" />
-    <path d="M44 78c-12 2-22-2-28-11" />
-    <path d="M58 62c-11 3-21 0-27-8" />
-    <circle cx="28" cy="26" r="11" />
-    <path d="M28 15v-6M28 37v6M17 26h-6M39 26h6M20 18l-4-4M36 18l4-4M20 34l-4 4M36 34l4 4" />
-  </svg>
-)
+// Reference ornaments, vendored from the preset's own art set.
+const ART = (name: string) => `/templates/boarding-pass/${name}.webp`
 
 function Clock({ target }: { target: Date | null }) {
   const [now, setNow] = useState<number | null>(null)
@@ -177,6 +156,8 @@ export default function BoardingPass(profile: TemplateProps) {
   const film = videoSource(profile.video_url)
   const hasVideo = gates.video !== false && profile.video_section_visible !== false && !!film
   const openingFilm = film && film.kind === "file" ? film.src : ""
+  const youtubeId =
+    film && film.kind === "embed" ? (film.src.match(/youtube\.com\/embed\/([A-Za-z0-9_-]{11})/)?.[1] || "") : ""
 
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
@@ -438,12 +419,8 @@ export default function BoardingPass(profile: TemplateProps) {
 
         {/* 4 — welcome: centred stack with a corner ornament either side. */}
         <section className="bp-welcome" data-section="welcome" aria-label="Salam hangat">
-          <span className="bp-welcome__sprig bp-welcome__sprig--l" aria-hidden="true">
-            {SPRIG_FROND}
-          </span>
-          <span className="bp-welcome__sprig bp-welcome__sprig--r" aria-hidden="true">
-            {SPRIG_SPRAY}
-          </span>
+          <img className="bp-welcome__sprig bp-welcome__sprig--l" src={ART("palm")} alt="" aria-hidden="true" loading="lazy" />
+          <img className="bp-welcome__sprig bp-welcome__sprig--r" src={ART("hibiscus")} alt="" aria-hidden="true" loading="lazy" />
           <div className="bp-welcome__inner">
             <p className="bp-welcome__kicker">Salam Hangat</p>
             {greetingLine && <p className="bp-welcome__greeting">{greetingLine}</p>}
@@ -460,114 +437,145 @@ export default function BoardingPass(profile: TemplateProps) {
           </div>
         </section>
 
-        {/* 5 — mempelai as a passenger manifest. */}
+        {/* 5 — mempelai as a passenger manifest with passport cards. */}
         {passengers.length > 0 && (
-          <section className="bp-section" data-section="mempelai" aria-label="Daftar penumpang">
-            <div className="bp-head" data-bp-reveal>
-              <p className="bp-mono bp-mono--teal">Daftar Penumpang</p>
-              <h2 className="bp-title">Kedua Mempelai</h2>
-            </div>
+          <section className="bp-section bp-section--flush" data-section="mempelai" aria-label="Daftar penumpang">
             <div className="bp-manifest">
+              <div className="bp-manifest__head">
+                <p className="bp-mono bp-mono--teal">Daftar Penumpang</p>
+                <h2 className="bp-title">Kedua Mempelai</h2>
+              </div>
+
               {passengers.map((person, index) => (
-                <article className="bp-card bp-passport" key={person.key} data-bp-reveal>
-                  <div className="bp-passport__head">
-                    <span className="bp-passport__no">Penumpang {pad2(index + 1)}</span>
-                    <span className="bp-mono">{person.role}</span>
-                  </div>
-                  <div className="bp-passport__body">
-                    <span className="bp-passport__photo">
-                      {person.shot && <img src={person.shot} alt={person.name} loading="lazy" />}
-                    </span>
-                    <div className="bp-passport__fields">
-                      <span className="bp-mono">Nama Lengkap</span>
-                      <h3 className="bp-passport__name">{person.name}</h3>
-                      {person.parents && (
-                        <>
-                          <span className="bp-mono">{person.relation}</span>
-                          <p className="bp-passport__parents">{person.parents}</p>
-                        </>
-                      )}
-                      {person.instagram && (
-                        <a
-                          className="bp-btn bp-passport__ig"
-                          href={`https://instagram.com/${person.instagram}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          @{person.instagram}
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                  <p className="bp-mrz">{mrzLine(person.name)}</p>
+                <article className={`bp-passport bp-passport--${index === 0 ? "a" : "b"}`} key={person.key}>
+                  <span className="bp-passport__no">Penumpang {pad2(index + 1)}</span>
+                  <span className="bp-passport__role">{person.role}</span>
+                  <span className="bp-passport__photo">
+                    {person.shot && <img src={person.shot} alt={person.name} loading="lazy" />}
+                  </span>
+                  <span className="bp-passport__label" style={{ top: "18.67%" }}>
+                    Nama Lengkap
+                  </span>
+                  <h3 className="bp-passport__name">{person.name}</h3>
+                  {person.parents && (
+                    <>
+                      <span className="bp-passport__label" style={{ top: "44.67%" }}>
+                        {person.relation}
+                      </span>
+                      <p className="bp-passport__parents">{person.parents}</p>
+                    </>
+                  )}
+                  <p className="bp-passport__mrz">{mrzLine(person.name)}</p>
+                  {person.instagram && (
+                    <a
+                      className="bp-btn bp-passport__ig"
+                      href={`https://instagram.com/${person.instagram}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      @{person.instagram}
+                    </a>
+                  )}
                 </article>
               ))}
+
+              <span className="bp-manifest__amp" aria-hidden="true">
+                &amp;
+              </span>
             </div>
           </section>
         )}
 
-        {/* 6 — love story. */}
+        {/* 6 — love story as stamped postcards. */}
         {stories.length > 0 && (
-          <section className="bp-section" data-section="story" aria-label="Kisah kami">
-            <div className="bp-head bp-head--left" data-bp-reveal>
-              <p className="bp-mono bp-mono--teal">Kisah Kami</p>
-              <h2 className="bp-title">Catatan Perjalanan</h2>
-            </div>
-            <div className="bp-timeline">
-              {stories.map((story, index) => {
+          <section className="bp-section bp-section--flush" data-section="story" aria-label="Kisah kami">
+            <div className="bp-storylist">
+              <img className="bp-storylist__orn" src={ART("sprig")} alt="" aria-hidden="true" loading="lazy" />
+              <div className="bp-storylist__head">
+                <p className="bp-mono bp-mono--teal">Kisah Kami</p>
+                <h2 className="bp-title">Catatan Perjalanan</h2>
+              </div>
+
+              {stories.slice(0, 3).map((story, index) => {
+                const slot = ["a", "b", "c"][index] as "a" | "b" | "c"
                 const year = leadingYear(story.title)
-                const cleanTitle = year ? (story.title || "").replace(year, "").replace(/^[\s·—-]+/, "").trim() : story.title
+                const title = year ? (story.title || "").replace(year, "").replace(/^[\s·—-]+/, "").trim() : story.title
                 const photo = story.image_url || gallery[index % Math.max(1, gallery.length)]
                 return (
-                  <article className="bp-story" key={`${story.title || "story"}-${index}`} data-bp-reveal>
-                    <span className="bp-story__year">{year || String(index + 1).padStart(2, "0")}</span>
-                    <div>
-                      <h3 className="bp-story__title">{cleanTitle || "Perjalanan Kami"}</h3>
-                      {story.description && <p className="bp-body">{story.description}</p>}
-                      {photo && <img className="bp-story__photo" src={photo} alt="" loading="lazy" />}
+                  <div className={`bp-stamp bp-stamp--${slot}`} key={`${story.title || "story"}-${index}`}>
+                    {photo && <img className="bp-stamp__photo" src={photo} alt="" loading="lazy" />}
+                    <span className="bp-stamp__postmark">
+                      <span className="bp-stamp__year">{year || String(index + 1).padStart(2, "0")}</span>
+                    </span>
+                    <div className={`bp-story__copy bp-story__copy--${slot}`}>
+                      <h3 className="bp-story__title">{title || "Perjalanan Kami"}</h3>
+                      {story.description && <p className="bp-story__text">{story.description}</p>}
                     </div>
-                  </article>
+                  </div>
                 )
               })}
+
+              <p className="bp-storylist__end">…dan perjalanan kami baru saja dimulai.</p>
             </div>
-            <p className="bp-story__end">…dan perjalanan kami baru saja dimulai.</p>
           </section>
         )}
 
-        {/* 7 — events as flights. */}
+        {/* 7 — events as flight cards with a gate/seat stub. */}
         {events.length > 0 && (
-          <section className="bp-section" data-section="acara" aria-label="Itinerary">
-            <div className="bp-head" data-bp-reveal>
-              <p className="bp-mono bp-mono--teal">Itinerary</p>
-              <h2 className="bp-title">Jadwal Keberangkatan</h2>
-              <p className="bp-body bp-body--tight">Mohon hadir 30 menit sebelum boarding.</p>
-            </div>
+          <section className="bp-section bp-section--flush" data-section="acara" aria-label="Itinerary">
             <div className="bp-flights">
+              <div className="bp-flights__head">
+                <p className="bp-mono bp-mono--teal">Itinerary</p>
+                <h2 className="bp-title">Jadwal Keberangkatan</h2>
+                <p className="bp-body bp-body--tight" style={{ marginTop: "1.5cqw" }}>
+                  Mohon hadir 30 menit sebelum boarding.
+                </p>
+              </div>
+
               {events.map((event, index) => (
-                <article className="bp-card bp-flight" key={`${event.name || "flight"}-${index}`} data-bp-reveal>
+                <article className={`bp-flight bp-flight--${index === 0 ? "a" : "b"}`} key={`${event.name || "flight"}-${index}`}>
                   <div className="bp-flight__main">
+                    <p className="bp-flight__no">Penerbangan {pad2(index + 1)}</p>
                     <h3 className="bp-flight__name">{event.name || "Acara"}</h3>
-                    {event.date && <p className="bp-flight__line bp-flight__line--mono">{longDate(event.date) || event.date}</p>}
-                    {event.time && <p className="bp-flight__line bp-flight__line--mono">{event.time}</p>}
-                    {event.venue && <p className="bp-flight__line" style={{ marginTop: 8 }}>{event.venue}</p>}
-                    {event.address && <p className="bp-flight__line">{event.address}</p>}
+                    {event.date && <p className="bp-flight__date">{longDate(event.date) || event.date}</p>}
+                    {event.time && <p className="bp-flight__time">{event.time}</p>}
+                    {event.venue && <p className="bp-flight__venue">{event.venue}</p>}
+                    {event.address && <p className="bp-flight__venue">{event.address}</p>}
                     <div className="bp-flight__actions">
                       {event.maps_url && (
-                        <a className="bp-btn" href={event.maps_url} target="_blank" rel="noopener noreferrer">
+                        <a className="bp-btn bp-btn--solid" href={event.maps_url} target="_blank" rel="noopener noreferrer">
                           Lihat Peta
                         </a>
                       )}
+                      <a
+                        className="bp-btn"
+                        href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+                          (event.name || "Wedding") + " — " + coupleLabel
+                        )}${event.date ? `&dates=${event.date.replace(/-/g, "")}/${event.date.replace(/-/g, "")}` : ""}${
+                          event.venue ? `&location=${encodeURIComponent(event.venue)}` : ""
+                        }`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Simpan
+                      </a>
                     </div>
                   </div>
                   <div className="bp-flight__stub">
-                    <span className="bp-flight__no">{pad2(index + 1)}</span>
-                    <span className="bp-flight__stubLabel">Penerbangan</span>
-                    {gateOrSeat && (
-                      <>
-                        <span className="bp-flight__stubLabel" style={{ marginTop: 8 }}>Gerbang</span>
-                        <span className="bp-mono" style={{ color: "var(--bp-ink)", letterSpacing: "1px" }}>{gateOrSeat}</span>
-                      </>
-                    )}
+                    <img className="bp-flight__orn" src={ART(index === 0 ? "rings" : "shells")} alt="" aria-hidden="true" loading="lazy" />
+                    <span className="bp-flight__stubLabel" style={{ top: "35.2%" }}>
+                      Gerbang
+                    </span>
+                    <span className="bp-flight__stubValue" style={{ top: "41.4%" }}>
+                      {gateOrSeat || (index === 0 ? "A1" : "B2")}
+                    </span>
+                    <span className="bp-flight__stubLabel" style={{ top: "55.9%" }}>
+                      Kursi
+                    </span>
+                    <span className="bp-flight__stubValue" style={{ top: "62.1%", color: "var(--bp-ink)" }}>
+                      VIP
+                    </span>
+                    <span className="bp-flight__barcode" aria-hidden="true" />
                   </div>
                 </article>
               ))}
@@ -576,37 +584,43 @@ export default function BoardingPass(profile: TemplateProps) {
         )}
 
         {/* 8 — countdown as a departure board. */}
-        <section className="bp-section" data-section="countdown" aria-label="Papan keberangkatan">
-          <div className="bp-board" data-bp-reveal>
-            <p className="bp-board__label">Papan Keberangkatan</p>
-            <h2 className="bp-board__title">Menuju Hari Bahagia</h2>
-            <Clock target={countdown} />
-            <div className="bp-board__meta">
-              <div>
-                <p className="bp-board__metaLabel">Tujuan</p>
-                <p className="bp-board__metaValue">Hari Bahagia</p>
+        <section className="bp-section bp-section--flush" data-section="countdown" aria-label="Papan keberangkatan">
+          <div className="bp-countdown">
+            <div className="bp-board">
+              <p className="bp-board__label">Papan Keberangkatan</p>
+              <h2 className="bp-board__title">Menuju Hari Bahagia</h2>
+              <Clock target={countdown} />
+              <div className="bp-board__meta">
+                <div>
+                  <p className="bp-board__metaLabel">Tujuan</p>
+                  <p className="bp-board__metaValue">Hari Bahagia</p>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <p className="bp-board__metaLabel">Status</p>
+                  <p className="bp-board__metaValue" style={{ color: "rgb(191, 214, 208)" }}>
+                    Tepat Waktu
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="bp-board__metaLabel">Status</p>
-                <p className="bp-board__metaValue">Tepat Waktu</p>
+              <div className="bp-board__actions">
+                <a
+                  className="bp-btn bp-btn--onDark"
+                  href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+                    coupleLabel + " Wedding"
+                  )}${
+                    profile.estimated_wedding_date
+                      ? `&dates=${profile.estimated_wedding_date.replace(/-/g, "")}/${profile.estimated_wedding_date.replace(/-/g, "")}`
+                      : ""
+                  }${firstSession?.venue ? `&location=${encodeURIComponent(firstSession.venue)}` : ""}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Simpan ke Kalender
+                </a>
               </div>
-            </div>
-            <div className="bp-board__actions">
-              <a
-                className="bp-btn bp-btn--onDark"
-                href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(coupleLabel + " Wedding")}${
-                  profile.estimated_wedding_date ? `&dates=${profile.estimated_wedding_date.replace(/-/g, "")}/${profile.estimated_wedding_date.replace(/-/g, "")}` : ""
-                }${firstSession?.venue ? `&location=${encodeURIComponent(firstSession.venue)}` : ""}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Simpan ke Kalender
-              </a>
+              <p className="bp-board__foot">sampai jumpa di gerbang keberangkatan</p>
             </div>
           </div>
-          <p className="bp-mono" style={{ textAlign: "center", marginTop: 14 }}>
-            sampai jumpa di gerbang keberangkatan
-          </p>
         </section>
 
         {/* 9 — turut mengundang. */}
@@ -771,23 +785,32 @@ export default function BoardingPass(profile: TemplateProps) {
           </section>
         )}
 
-        {/* 14 — dress code. */}
+        {/* 14 — dress code, as a baggage tag on a string. */}
         {hasDresscode && (
-          <section className="bp-section bp-dress" data-section="dresscode" aria-label="Dress code">
-            <div className="bp-card" data-bp-reveal>
-              <p className="bp-mono bp-mono--teal">Sebelum Berangkat</p>
-              <h2 className="bp-title" style={{ marginTop: 8 }}>
-                {(profile.dresscode?.title || "").trim() || "Dress Code"}
-              </h2>
-              {profile.dresscode?.description && <p className="bp-body" style={{ marginTop: 8 }}>{profile.dresscode.description}</p>}
-              <div className="bp-swatches">
-                {dressColors.map((color, index) => (
-                  <div className="bp-swatch" key={`${color.hex || "swatch"}-${index}`}>
-                    <span className="bp-swatch__dot" style={{ background: color.hex || "#e9e5de" }} />
-                    {color.name && <span className="bp-swatch__name">{color.name}</span>}
-                  </div>
-                ))}
+          <section className="bp-section bp-section--flush" data-section="dresscode" aria-label="Dress code">
+            <div className="bp-dress">
+              <div className="bp-dress__head">
+                <p className="bp-mono bp-mono--teal">Sebelum Berangkat</p>
+                <h2 className="bp-title">Dress Code</h2>
               </div>
+
+              <span className="bp-dress__string" aria-hidden="true" />
+
+              <div className="bp-tag">
+                <p className="bp-tag__title">{(profile.dresscode?.title || "").trim() || "Dress Code"}</p>
+                {profile.dresscode?.description && <p className="bp-tag__body">{profile.dresscode.description}</p>}
+                <div className="bp-swatches">
+                  {dressColors.map((color, index) => (
+                    <div className="bp-swatch" key={`${color.hex || "swatch"}-${index}`}>
+                      <span className="bp-swatch__dot" style={{ background: color.hex || "#e9e5de" }} />
+                      {color.name && <span className="bp-swatch__name">{color.name}</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <img className="bp-dress__orn" src={ART("frond")} alt="" aria-hidden="true" loading="lazy" />
+              <p className="bp-dress__note">sentuh label untuk membuka</p>
             </div>
           </section>
         )}
@@ -810,12 +833,31 @@ export default function BoardingPass(profile: TemplateProps) {
           />
         </section>
 
-        {/* 16 — closing. */}
+        {/* 16 — closing over the couple's own film. */}
         <section className="bp-closing" data-section="closing" aria-label="Penutup">
-          {closingStill && <img className="bp-closing__photo" src={closingStill} alt="" aria-hidden="true" />}
+          {youtubeId ? (
+            <div className="bp-closing__media bp-closing__media--embed">
+              <AutoplayYouTube videoId={youtubeId} title={`Film ${coupleLabel}`} autoplay />
+            </div>
+          ) : film && film.kind === "file" ? (
+            <div className="bp-closing__media">
+              <video src={film.src} muted autoPlay loop playsInline preload="metadata" />
+            </div>
+          ) : (
+            closingStill && (
+              <div className="bp-closing__media">
+                <img src={closingStill} alt="" aria-hidden="true" />
+              </div>
+            )
+          )}
+
+          <span className="bp-closing__wash" aria-hidden="true" />
+          <span className="bp-closing__wave bp-closing__wave--top" aria-hidden="true" />
+          <span className="bp-closing__wave bp-closing__wave--bottom" aria-hidden="true" />
+
           <div className="bp-closing__body">
             <p className="bp-closing__script" data-bp-reveal>
-              Sampai jumpa,
+              Sampai jumpa di pantai,
             </p>
             <p className="bp-closing__names" data-bp-reveal>
               {coupleLabel}
