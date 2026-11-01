@@ -28,6 +28,7 @@ import StillEver from "./still-ever"
 import EmbroideredGarden from "./embroidered-garden"
 import Lace from "./lace"
 import NFilm from "./n-film"
+import IvoryLace from "./ivory-lace"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -59,6 +60,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "embroidered-garden": EmbroideredGarden,
   lace: Lace,
   "n-film": NFilm,
+  "ivory-lace": IvoryLace,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -1139,6 +1141,50 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       sections: {
         opening_description: true,
         quote: true,
+        countdown: true,
+        inviting: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        dresscode: true,
+        livestream: false,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "ivory-lace",
+    name: "Ivory Lace",
+    description:
+      "Undangan editorial kertas ivory — amplop renda bersegel lilin, monogram wreath, mempelai, kisah cinta, kalender dan hitung mundur, acara, susunan acara, galeri, film, hadiah, dress code, dan ucapan.",
+    theme: {
+      fonts: { display: "Ferly", script: "Pinyon Script", body: "Poppins" },
+      colors: {
+        surface: "#fdfcf8",
+        text: "#222220",
+        accent: "#cabca2",
+        accentMuted: "#94826d",
+        overlay: "#fbfaf6",
+        dark: "#673637",
+      },
+      ornaments: { divider: "line", border: "minimal", frame: "square" },
+      motion: { enabled: true, duration: 0.9, stagger: 0.16 },
+    },
+    content: {
+      // Three semantic photo slots: the hero, the love-story backdrop and the
+      // closing plate. Portraits come from the mempelai photo fields, the grid
+      // from gallery_photos.
+      cover_slots: 3,
+      cover_slot_labels: ["Foto Sampul", "Foto Kisah Cinta", "Foto Penutup"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: true,
+      sections: {
+        opening_description: true,
+        quote: false,
         countdown: true,
         inviting: true,
         video: true,
