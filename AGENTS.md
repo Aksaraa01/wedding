@@ -321,6 +321,14 @@ A pre-deploy browser tab keeps its JS chunks (they survive 7 days), but a
 client-side navigation may still fetch a stale RSC payload — hard-reload
 (⌘⇧R) if a tab behaves oddly after a deploy.
 
+The deploy also deletes `.next/standalone/.next/server/route-cache` right before
+the PM2 reload. That cache outlives a deploy and is keyed by route, not by build,
+so a page rendered before a data change (e.g. a newly registered template row)
+keeps serving its old HTML with `x-nextjs-cache: HIT` even though the deployed
+bundle and `BUILD_ID` are correct. If a page still looks stale by hand:
+`rm -rf /var/www/aksara-wedding/.next/standalone/.next/server/route-cache` then
+`pm2 startOrRestart ecosystem.config.js --only aksara-wedding --update-env`.
+
 Notes:
 - Next 16 standalone output does NOT copy `public/`; the standalone server serves
   public from `.next/standalone/public/` (next to `server.js`). Syncing to

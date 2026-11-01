@@ -182,6 +182,13 @@ if ! node scripts/predeploy-guard.mjs --sync-only; then
   exit 1
 fi
 
+# The persistent route cache outlives a deploy: an entry rendered before this
+# build keeps serving its old page (this is how a newly registered template
+# stayed invisible on /templates long after its row existed). Drop it so the
+# first request after the reload re-renders from the deployed build.
+step "Invalidate the persistent route cache"
+ssh "${SSH_OPTS[@]}" "$SERVER" "rm -rf '$REMOTE/.next/standalone/.next/server/route-cache'" || true
+
 step "Reload PM2 (ecosystem, --update-env)"
 ssh "${SSH_OPTS[@]}" "$SERVER" "cd '$REMOTE' && pm2 startOrRestart ecosystem.config.js --only aksara-wedding --update-env >/dev/null && sleep 4 && pm2 list | grep aksara-wedding"
 

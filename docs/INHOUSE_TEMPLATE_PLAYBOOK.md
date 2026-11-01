@@ -798,6 +798,7 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 | Turut Mengundang is plain / motif overwhelms the card | no ornament, or full-aspect motif reused on a short card | add 72px motif bands + 92/84px padding |
 | Desktop leaves 1420px margins or a strip between columns | shell capped at 1420px, parallax still centered | `page-shell` 100%; `right-column::before` and `.right-parallax-background` `right:0` |
 | Editor/ops still show old code after deploy | another build is running / stale client chunks | compare `BUILD_ID`, grep remote chunks, re-sync all three trees, restart PM2, hard refresh |
+| New template missing from the live gallery after deploy | the persistent route cache (`server/route-cache/APP_PAGE/...`) served a `/templates` page rendered before the row existed — additive deploys never delete it | `npm run deploy` now drops `route-cache` before the PM2 reload; by hand, `rm -rf .next/standalone/.next/server/route-cache` then restart |
 | Invitation shows test copy like “helllloooo” | saved `template_content` value | expose the extras field; do not clear user data silently |
 
 | Envelope opening looks empty in screenshots | animations start 2.6–3.35s after `preloader-done` | wait 4s; don’t remove the animation |
