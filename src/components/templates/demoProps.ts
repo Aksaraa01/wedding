@@ -1512,3 +1512,107 @@ DEMO_PROPS_BY_CODE["n-film"] = {
       "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say.",
   },
 }
+
+DEMO_PROPS_BY_CODE["ivory-lace"] = {
+  ...DEMO_PROPS_BY_CODE["sandhya"],
+  slug: "demo",
+  display_name: "#AlbarnFaye2027",
+  estimated_wedding_date: "2027-04-17",
+  guest_name: "Tamu Undangan",
+  opening_title: "Dear Family & Friends",
+  opening_description:
+    "We are so happy to share this day with you. Here you will find everything about the celebration — the ceremony, the day itself, and the people we cannot wait to see.",
+  wedding_profile_id: "demo-wedding-profile-id",
+  guest_id: "demo-guest-id",
+  gallery_photos: [...DE_GALLERY].slice(0, 6),
+  stories: [
+    {
+      title: "The First Chapter",
+      description:
+        "It began with a borrowed umbrella and an afternoon that ran long. What was meant to be a short walk home turned into the first of a thousand conversations we never wanted to end.",
+      image_url: `${DE}/cover-2.webp`,
+    },
+    {
+      title: "The Promise",
+      description:
+        "Years later, on a quiet morning by the water, one small question changed the shape of every day that followed. We have been planning this celebration ever since.",
+      image_url: `${DE}/cover-4.webp`,
+    },
+  ],
+  sessions: [
+    {
+      name: "The Ceremony",
+      date: "2027-04-17",
+      time: "Four in the afternoon",
+      venue: "The Orangery",
+      address: "Ashford Park, Kent, England",
+      maps_url: "https://maps.google.com/?q=Ashford+Park+Kent",
+    },
+    {
+      name: "The Reception",
+      date: "2027-04-17",
+      time: "Six in the evening",
+      venue: "The Orangery — Garden Terrace",
+      address: "Ashford Park, Kent, England",
+      maps_url: "https://maps.google.com/?q=Ashford+Park+Kent",
+    },
+  ],
+  video_url: "https://youtu.be/-ARVwU58l7A",
+  rundown_visible: true,
+  rundown: [
+    { time: "04:00 PM", description: "Guests arrive and are welcomed in the garden" },
+    { time: "04:30 PM", description: "The ceremony begins beneath the orangery arch" },
+    { time: "05:15 PM", description: "Congratulations and photographs on the lawn" },
+    { time: "06:00 PM", description: "Dinner is served at long tables" },
+    { time: "08:00 PM", description: "Cake, toasts, and the first dance" },
+    { time: "09:30 PM", description: "Dancing under the lanterns" },
+    { time: "11:00 PM", description: "A quiet farewell" },
+  ],
+  inviting_families: ["The Whitmore Family", "The Sinclair Family", "The Families of Both"],
+  dresscode: {
+    title: "Garden Formal",
+    description:
+      "We would love to see you in soft neutrals, muted hues, or timeless classic tones — anything that feels at home in a spring garden.",
+    colors: [
+      { hex: "#22211f", name: "Ink" },
+      { hex: "#4a4a48", name: "Charcoal" },
+      { hex: "#f2ede3", name: "Ivory" },
+      { hex: "#a3927c", name: "Taupe" },
+    ],
+  },
+  gift_accounts: [
+    { provider_name: "Bank Central Asia (BCA)", account_number: "8200891083", account_name: "Faye Reed", type: "bank" },
+    { provider_name: "Bank Mandiri", account_number: "1370012345678", account_name: "David Albarn", type: "bank" },
+  ],
+  gift_address_name: "Albarn & Faye",
+  gift_address: "12 Ashford Park Lane, Kent TN24 8TE, England",
+  // Manjari's in-house track (the reference has no music of its own).
+  track_url: "/templates/manjari/lee-hi-only.mp3",
+  template_content: {
+    cover_kicker: "The Wedding Of",
+    cover_apology: "We apologize for any misspelling of your name or title.",
+    welcome_invite: "Dear Family & Friends",
+    welcome_message:
+      "We are so happy to share this day with you. Here you will find everything about the celebration — the ceremony, the day itself, and the people we cannot wait to see.",
+    profiles_intro: "Two families, two homes, and one day we will remember for the rest of our lives.",
+    love_story_title: "Our Love Story",
+    story_intro: "The chapters that brought us here",
+    events_intro: "We would be honoured to have you with us as we say our vows.",
+    rundown_title: "Wedding Time Line",
+    rundown_intro: "How the day will unfold, from the first arrival to the last farewell.",
+    gallery_title: "Our Moments",
+    gallery_intro: "A few frames from the days that led us here — the quiet ones we keep closest.",
+    gallery_quote: "Every love story is beautiful, but ours is my favourite.",
+    video_title: "Our Film",
+    video_intro: "The day as it happened, kept in motion.",
+    video_caption: "Filmed on the day, from the first look to the last dance.",
+    gift_intro_title: "Wedding Gift",
+    gift_intro_description:
+      "Your presence is the greatest gift. Should you wish to send a token of love, the details are below.",
+    inviting_intro: "Together with the families who share this invitation.",
+    wishes_intro:
+      "Nothing would make us happier than celebrating this day surrounded by the people we love. Leave us a wish, and let us know you are coming.",
+    closing_message:
+      "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say.",
+  },
+}
