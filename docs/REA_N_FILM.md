@@ -820,6 +820,29 @@ Still not pixel-verified: this environment cannot capture screenshots (no
 visible desktop window), so parity below the token level — balance, optical
 spacing, how a given couple's photos sit in the frames — is unconfirmed.
 
+### Client-review fixes (post-deploy)
+
+Four defects reported after the first deploy, all fixed:
+
+1. **The cover hashtag ignored the editor.** `display_name` is the editor/ops
+   field **"Hashtag Instagram Post"** (`strField("Hashtag", f.display_name, …)`),
+   and the editor help says an empty value *hides* the hashtag. The component now
+   reads `display_name` first, with `template_content.cover_kicker` only as the
+   legacy fallback, and no derived `#GroomBrideForever` — a derived value would
+   resurrect a hashtag the couple deliberately cleared.
+2. **The closing photo was cropped at the top.** It was an absolutely-positioned
+   `object-fit: cover` layer sized by the copy. It is now an in-flow image at
+   natural height, so the whole photograph shows; the copy is absolutely
+   positioned over its bottom with a bottom-only veil. `min-height: 320px`
+   guards a very wide photo from clipping the text block.
+3. **Footer now mirrors Sandhya's in-house closing block** — 64 px white badge
+   with the Aksaraa logo, `Wedding by Aksaraa` at 10 px / 0.3 em tracking, and
+   the `© <year> <couple>. All rights reserved.` line. The previous
+   "Digital Invitation by" line is gone.
+4. **Dress-code swatches are centred** (`justify-content: center`, 320 px
+   measure), so a single colour still reads as deliberate instead of drifting to
+   the left edge.
+
 ### Not done yet
 
 1. **Database.** `20261042000000_n_film.sql` is authored but not pushed:

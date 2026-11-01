@@ -159,7 +159,11 @@ export default function NFilm(profile: TemplateProps) {
   const guestName = (profile.guest_name || "").trim() || "Beloved Guest"
   const dateLock = dotDate(profile.estimated_wedding_date)
   const year = yearOf(profile.estimated_wedding_date)
-  const hashtag = texts.kicker || (groomName && brideName ? `#${groomName}${brideName}Forever` : "")
+  // The editor/ops field "Hashtag Instagram Post" is `display_name`. It is the
+  // source of truth: the editor says an empty value hides the hashtag, so there
+  // is deliberately no derived fallback. `cover_kicker` stays as the legacy
+  // extra for couples who set it before display_name existed.
+  const hashtag = (profile.display_name || "").trim() || texts.kicker
   const metaLine = texts.meta || [year ? "100% Love" : "", year, "Forever", "Romance"].filter(Boolean).join(" · ")
   const countdown = useMemo(() => countdownTarget(events, profile.estimated_wedding_date), [events, profile.estimated_wedding_date])
 
@@ -733,13 +737,21 @@ export default function NFilm(profile: TemplateProps) {
         </section>
 
         <footer className="nf-foot">
-          <p className="nf-foot__by">Digital Invitation by</p>
-          <a className="nf-foot__link" href={waHref} target="_blank" rel="noopener noreferrer" aria-label="Contact Aksaraa Wedding on WhatsApp">
+          <a
+            className="nf-foot__link"
+            href={waHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Hubungi Aksaraa Wedding via WhatsApp"
+          >
             <span className="nf-foot__badge">
-              <img src={ASSETS.galeriEnvelope.aksaraaLogo} alt="Aksaraa Wedding" draggable={false} />
+              <img className="nf-foot__logo" src={ASSETS.galeriEnvelope.aksaraaLogo} alt="Aksaraa Wedding" draggable={false} />
             </span>
             <span className="nf-foot__cta">Wedding by Aksaraa</span>
           </a>
+          <p className="nf-foot__text">
+            © {new Date().getFullYear()} {coupleLabel}. All rights reserved.
+          </p>
         </footer>
       </div>
 

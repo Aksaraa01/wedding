@@ -1445,7 +1445,9 @@ DEMO_PROPS_BY_CODE["lace"] = {
 DEMO_PROPS_BY_CODE["n-film"] = {
   ...DEMO_PROPS_BY_CODE["sandhya"],
   slug: "demo",
-  display_name: "#AlbarnFaye2027",
+  // display_name is the editor/ops "Hashtag Instagram Post" — the demo carries it
+  // so the cover shows the same value a couple would type.
+  display_name: "#AlbarnFayeForever",
   estimated_wedding_date: "2027-08-24",
   sessions: (DEMO_PROPS_BY_CODE["sandhya"].sessions || []).map((session) => ({ ...session, date: "2027-08-24" })),
   cover_photos: [`${DE}/cover-2.webp`, `${DE}/cover.webp`, `${DE}/cover-4.webp`],

@@ -1063,8 +1063,11 @@ body:has(.nf-root.is-locked) {
 .nf-swatches {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
   gap: 22px;
-  margin-top: 20px;
+  max-width: 320px;
+  margin: 20px auto 0;
 }
 
 .nf-swatch {
@@ -1250,14 +1253,19 @@ body:has(.nf-root.is-locked) {
   position: relative;
   overflow: hidden;
   padding: 0;
+  /* Guard: a very wide closing photo would otherwise be shorter than the copy
+     and clip the top of the text block. */
+  min-height: 320px;
 }
 
 .nf-closing__still {
-  position: absolute;
-  inset: 0;
+  /* In flow, natural height: the closing photo is shown whole instead of being
+     cropped to whatever height the copy happens to need. */
+  position: static;
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  object-fit: unset;
   filter: contrast(1.06) saturate(0.88) brightness(0.95);
 }
 
@@ -1267,18 +1275,19 @@ body:has(.nf-root.is-locked) {
   z-index: 1;
   pointer-events: none;
   background: var(--nf-black);
-  -webkit-mask-image:
-    linear-gradient(#000 0%, rgba(0, 0, 0, 0.55) 6%, transparent 18%),
-    linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.9) 30%, rgba(0, 0, 0, 0.28) 66%, rgba(0, 0, 0, 0.1) 100%);
-  mask-image:
-    linear-gradient(#000 0%, rgba(0, 0, 0, 0.55) 6%, transparent 18%),
-    linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.9) 30%, rgba(0, 0, 0, 0.28) 66%, rgba(0, 0, 0, 0.1) 100%);
+  /* Bottom-only: the top of the photo is no longer cropped, so it must not be
+     darkened either. */
+  -webkit-mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.88) 26%, rgba(0, 0, 0, 0.35) 54%, transparent 78%);
+  mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.88) 26%, rgba(0, 0, 0, 0.35) 54%, transparent 78%);
 }
 
 .nf-closing__body {
-  position: relative;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 2;
-  padding: 120px 22px 60px;
+  padding: 40px 22px 42px;
   text-align: center;
 }
 
@@ -1303,54 +1312,72 @@ body:has(.nf-root.is-locked) {
 
 /* --------------------------------------------------------------- the badge */
 
+/* Footer — mirrors the Sandhya in-house closing block (Aksaraa logo → WhatsApp) */
 .nf-foot {
-  padding: 26px 16px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 30px 22px 36px;
   text-align: center;
   background: var(--nf-black);
 }
 
-.nf-foot__by {
-  margin: 0;
-  font-family: var(--nf-sans);
-  font-size: 9.5px;
-  letter-spacing: 2.4px;
-  text-transform: uppercase;
-  color: var(--nf-muted);
-}
-
 .nf-foot__link {
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  margin-top: 12px;
+  gap: 12px;
   text-decoration: none;
 }
 
 .nf-foot__badge {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: #fff;
-  overflow: hidden;
+  width: 64px;
+  height: 64px;
+  padding: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  transition: transform 0.3s ease;
 }
 
-.nf-foot__badge img {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
+.nf-foot__link:hover .nf-foot__badge {
+  transform: scale(1.05);
+}
+
+.nf-foot__logo {
   display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 999px;
 }
 
 .nf-foot__cta {
-  font-family: var(--nf-sans);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 2px;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
   text-transform: uppercase;
-  color: var(--nf-paper);
+  color: rgba(255, 255, 255, 0.6);
+  transition: color 0.3s ease;
+}
+
+.nf-foot__link:hover .nf-foot__cta {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.nf-foot__text {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.45);
 }
 
 /* ----------------------------------------------------- music + floating dock */
