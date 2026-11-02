@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "check:egress": "./scripts/check-storage-egress.sh",
+    "audit:copy": "node scripts/template-copy-audit.mjs",
     "deploy:guard": "node scripts/predeploy-guard.mjs",
     "deploy:smoke": "node scripts/postdeploy-smoke.mjs",
     "deploy": "./scripts/deploy.sh"

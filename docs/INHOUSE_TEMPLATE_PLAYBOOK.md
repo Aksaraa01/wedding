@@ -113,6 +113,119 @@ agent diffing the reference needs to know the reorder was deliberate.
 
 ---
 
+## 0.6 The per-section contract table (fill before the first review)
+
+Looking like the reference is the easy half. The expensive bugs on
+`boarding-pass` were not visual — 5 of 7 feedback rounds were a section
+ignoring its gate, a container sized for the demo's data, or copy the editor
+could not reach. Fill this table in `docs/REA_<CODE>.md` **before** asking for
+a review. One row per rendered section, plus one row per repeating block
+(events, portraits, stories, gallery, accounts).
+
+```md
+| # | Section | Renders from | Gate + toggle | Count / variant branch | Copy source | Motion |
+|---|---|---|---|---|---|---|
+| 6 | Mempelai | `groom_name`, `bride_name`, portraits | `person_photos !== false` | 2 portraits; 1 photo ⇒ shared fallback | names: profile; heading: `template_content.mempelai_title` | `fadeInUp` on 2 cards, 0.08s step |
+```
+
+Rules for filling it:
+
+1. **Copy source is a field, never a vibe.** It must name a profile column or a
+   `template_content.<key>` registered in `src/lib/templateExtras.ts`. A
+   literal is only allowed for a structural label, and that label must be in
+   the `allow` block of `scripts/template-copy-allowlist.json` with the reason
+   it must stay fixed (brand badge, WCAG name, countdown unit).
+2. **Count / variant branch names the edge, not the demo.** Write what happens
+   at 0, 1 and many. If a card is tuned for two events, two portraits or three
+   stories, the one-item branch is a bug until it is written down and tested.
+3. **Gate + toggle is both.** `feature_gates.<key>` **and**
+   `<section>_visible !== false`. "Omit" means "always". Never test one.
+4. **Motion names the mechanism**: keyframe, trigger, delay range — not
+   "elegant fade".
+5. **The section is not done until the row is true in code**, not just in the
+   doc.
+
+### The copy audit (run before every review)
+
+```bash
+npm run audit:copy -- <code>     # one template
+npm run audit:copy               # every template
+```
+
+`scripts/template-copy-audit.mjs` parses the component TSX and fails on any
+user-visible literal that is neither data-driven nor in the ledger:
+
+- JSX text nodes (`<h2>Kedua Mempelai</h2>`),
+- visible attributes (`alt`, `title`, `placeholder`, `aria-label`, …),
+- literal JSX children (`{"Kirim"}`), ternary copy (`{sending ? … : …}`),
+- copy-named object properties (`{ label: "Days" }`).
+
+The ledger (`scripts/template-copy-allowlist.json`) has two halves:
+
+- `legacy` — frozen literals from templates built before the audit. **Debt,
+  not precedent.** Do not add to it.
+- `allow` — named structural exceptions with a reason.
+
+A new template starts with **neither** entry. If the audit fails, the fix is
+to wire the string to a field, not to add a `legacy` row.
+
+### The state matrix (test the branch that broke)
+
+Render the template in all of these before review — the demo default is one
+row, never the whole table:
+
+| State | Expected |
+|---|---|
+| Every gate `false` | only ungated sections render; no empty shells |
+| Every gate `true`, every toggle on | full 16-section order |
+| `sessions.length === 1` | one event, no stretched/blank second card |
+| `stories = []` / `story_visible = false` | no story block, no heading left behind |
+| `gallery_photos.length === 1` | no marquee gap, no `NaN` transform |
+| gift: accounts only / address only / none | tabs hide when they cannot switch; section hides when empty |
+| video hidden but `video_url` set | no `<video>` autoplay, closing falls back to a photo |
+| `prefers-reduced-motion: reduce` | all copy visible, no transforms |
+| JS disabled (`scripting: none`) | reveal targets stay visible |
+| 390×844 and 1440×900 | `scrollWidth === innerWidth`; no crushed percentage children |
+
+---
+
+## 0.7 Motion is code, not a screenshot
+
+Copy the reference's **mechanism** before copying its look. If the reference
+uses animate.css + WOW.js (boarding-pass did: 159 targets, `fadeIn` /
+`fadeInUp` / `zoomIn`, 0.06–0.52 s delays), port exactly that: the same
+keyframe names, the same per-element delay, one `IntersectionObserver` that
+adds a class once.
+
+Hard rules:
+
+- **Never keyframe `transform` on an element that carries its own tilt.** The
+  animate.css `transform` keyframes overwrite `rotate()`/`translate()` set for
+  the design. Drive the individual properties instead:
+  ```css
+  @keyframes tpl-fade-up { from { translate: 0 24px; scale: .98 } to { translate: 0 0; scale: 1 } }
+  ```
+- **Reveal states degrade safely.** `prefers-reduced-motion: reduce` and
+  `@media (scripting: none)` must leave every reveal target at `opacity: 1;
+  translate: none; scale: 1` — never `opacity: 0` waiting for JS.
+- **One observer, one class.** Don't build per-section scroll listeners.
+- Verify by sampling `getComputedStyle` over time (opacity/translate/scale at
+  open, at 150 ms, and after a full scroll), not by eyeballing a screenshot.
+
+### Variable-size containers
+
+- A child must not size itself as a percentage of a container whose height is
+  derived from its children. Percentage heights resolve against the parent's
+  *computed* height, so a two-item grid and a one-item grid crush differently.
+- Use container units (`cqw`) for width-relative geometry and `aspect-ratio`
+  when a block must stay proportional. **`min-height` in `cqw` resolves against
+  the viewport, not the container** — it is not a substitute for
+  `aspect-ratio`.
+- Declare the container (`container-type: inline-size`) on the block that owns
+  the geometry, then express inner sizes as `cqw`. Test the one-item branch.
+
+---
+
 ## 1. Phase 1 — Port the component
 
 1. Create `src/components/templates/<code>/`:
@@ -584,7 +697,8 @@ Only after `opened` (cover/splash stays clean).- Only for identified guests, or 
 ## 7. Phase 7 — Verification (mandatory)
 
 1. `npx tsc --noEmit`
-2. Staging build with `.env.staging`:
+2. `npm run audit:copy -- <code>` (must be clean — §0.6)
+3. Staging build with `.env.staging`:
    ```bash
    pkill -f "next-server"
    set -a; source .env.staging; set +a; npm run build
@@ -611,7 +725,9 @@ Only after `opened` (cover/splash stays clean).- Only for identified guests, or 
      wishes form/list pagination, closing, guest dock in a real guest link.
    - Console must be free of `Runtime.exceptionThrown` and React hydration
      warnings.
-7. Production: see Deploy below. Test **only** the rafi-novi couple
+7. Run the **state matrix** (§0.6) against the preview route, not only the
+   demo data.
+8. Production: see Deploy below. Test **only** the rafi-novi couple
    (`6a7ad151-c3b4-43e8-8429-0b58b4d0736b`, slug `rafi-novi`).
 
 ---
@@ -792,6 +908,12 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 | Contact buttons open the reference's WhatsApp numbers | `tpl-contact` markup copied verbatim | require real contact data; hide the section when absent |
 | Port drags in 40+ stylesheets / 20 fonts | whole asset graph copied instead of the template's rules | extract only classes the JSX renders + the fonts actually used |
 | Loader flashes for a moment as the video starts | transient `waiting` at playback start | delay the corner spinner ~1500ms; only show on a sustained stall, never before the first `playing` |
+| Editor cannot change a section heading ("Catatan Perjalanan", "Potret Kami") | heading is a JSX literal | move it to `template_content.<section>_title`, register the extra, read it; `npm run audit:copy -- <code>` must pass |
+| One-event / one-passenger layout collapses or leaves a blank half | children sized as a % of a container whose height depends on item count | `container-type: inline-size` + `cqw`, `aspect-ratio` for proportional blocks |
+| `min-height` in `cqw` looks right on the demo but wrong with one item | `cqw` resolves against the viewport, not the container | use `aspect-ratio` (or container height), not `min-height: …cqw` |
+| Copy stays invisible after a reveal animation | animate.css still uses a `from { opacity: 0 }` state in the fallback path | `prefers-reduced-motion` + `@media (scripting: none)` set `opacity: 1; translate: none; scale: 1` |
+| Tilted element snaps straight when it animates in | keyframes animate `transform`, overwriting the design's `rotate()` | animate individual `translate` / `scale` properties |
+| Motion is "close enough" but feels wrong | ported from screenshots instead of the reference's DOM/CSS/JS | copy keyframe names, delays and the observer trigger; verify by sampling computed styles |
 
 | Adat cover slots still show only one / Kutipan-Closing empty | config still `cover_slots:1`, or component only reads slot 0 | set 3 labels and consume `cover_photos[0/1/2]` with gallery fallbacks |
 | Editor “EKSTRA ADAT …” is empty | template code missing from `templateExtras.ts` | add the code + placeholder for every `template_content` key the component reads |
@@ -812,6 +934,11 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 
 - [ ] **All 16 minimum sections present** (§0.5), each rebuilt in the reference's
       own visual language, with the canonical order recorded in `docs/REA_*.md`
+- [ ] **Section contract table filled** in `docs/REA_*.md` (§0.6) — every row's
+      data, gate, count branch, copy source and motion verified in code
+- [ ] **`npm run audit:copy -- <code>` passes with no new `legacy` entry**
+- [ ] **State matrix tested** (§0.6): all gates off, all on, one event, no
+      stories, one photo, gift variants, video hidden, reduced motion, no JS
 - [ ] **No reference section outside the minimum shipped without approval**
 - [ ] **RSVP is the `InvitationOverlay` dock only** — no bespoke RSVP form, and
       the dock is suppressed in `preview_mode` and `template_demo`
