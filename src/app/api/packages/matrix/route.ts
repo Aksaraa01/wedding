@@ -28,7 +28,10 @@ const COLUMNS = [
 ] as const
 
 function mapCell(value: string, emphasis: string) {
-  return { value, class: EMPHASIS_CLASS[emphasis] || "" }
+  // The matrix stores an em dash for "not included". Show a plain hyphen in the
+  // public comparison table so the dashes never read like machine prose.
+  const display = value === "—" || value === "–" ? "-" : value
+  return { value: display, class: EMPHASIS_CLASS[emphasis] || "" }
 }
 
 export async function GET() {
