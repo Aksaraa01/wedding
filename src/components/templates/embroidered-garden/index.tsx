@@ -26,7 +26,11 @@ const ART_RSVP_ENVELOPE = A("rsvp-envelope.webp")
 const ART_RSVP_TOPIARY = A("rsvp-topiary.webp")
 const ART_CLOSING = A("closing-chateau.webp")
 const ART_DOOR_POSTER = A("cover-door-poster.webp")
-const DOOR_FILM = A("cover-door.mp4")
+// The film was re-muxed with `moov` before `mdat` (scripts/mp4-faststart.mjs):
+// the bytes are identical, but the browser can now start playing after the
+// first few hundred KB instead of waiting for the whole file. `?v=2` busts the
+// week-long cache that otherwise keeps the old, non-faststart file.
+const DOOR_FILM = `${A("cover-door.mp4")}?v=2`
 // Rundown rows get one illustration each. The first and last rows always use
 // the champagne vignette (the client wants 1 & 5 to match); rows in between
 // cycle the three middle vignettes, so a list longer than five repeats them in
@@ -291,10 +295,13 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   const veilRef = useRef<HTMLDivElement | null>(null)
   const gateRef = useRef(false)
   const toastTimer = useRef<number | null>(null)
+  const teardownRef = useRef<(() => void) | null>(null)
 
   const [opened, setOpened] = useState(false)
   const [opening, setOpening] = useState(false)
   const [namesIn, setNamesIn] = useState(false)
+  const [buffering, setBuffering] = useState(false)
+  const [connectionOk, setConnectionOk] = useState(true)
   const [playing, setPlaying] = useState(false)
   const [lightbox, setLightbox] = useState<{ photos: string[]; index: number } | null>(null)
   const [giftTab, setGiftTab] = useState<"accounts" | "address">("accounts")
@@ -375,8 +382,10 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   )}`
 
   // The cover is a pair of doors: the film only starts on the tap that opens the
-  // invitation, and the invitation is revealed when it finishes (or after a hard
-  // cap, so a stalled download can never trap the guest).
+  // invitation, and the invitation is revealed when the film reaches its own
+  // end. The reveal follows the *media* clock, never a wall-clock cap — a fixed
+  // timeout used to cut the last seconds whenever the download ran behind
+  // playback. The watchdog below only rescues a stream that has stopped moving.
   const openGate = useCallback(() => {
     if (gateRef.current) return
     gateRef.current = true
@@ -392,37 +401,145 @@ export default function EmbroideredGarden(profile: TemplateProps) {
       window.scrollTo(0, 0)
     }
     const video = videoRef.current
-    if (video && !reduced) {
-      // The film is two beats: the sage doors (0–3.3s) and then the cream
-      // curtain parting (5–9s). Reveal at the film's own end; the cap only
-      // saves a guest whose network stalled the video.
-      const cap = window.setTimeout(reveal, 11_500)
-      video.addEventListener(
-        "ended",
-        () => {
-          window.clearTimeout(cap)
-          reveal()
-        },
-        { once: true }
-      )
-      video.play().catch(() => {
-        window.clearTimeout(cap)
-        // No film: the names are the only cover copy left, so show them now.
-        setNamesIn(true)
-        window.setTimeout(reveal, 800)
-      })
+    if (!video || reduced) {
+      setNamesIn(true)
+      window.setTimeout(reveal, reduced ? 120 : 1200)
       return
     }
-    setNamesIn(true)
-    window.setTimeout(reveal, reduced ? 120 : 1200)
+
+    // A data-saver request is an explicit choice: keep the poster and hand
+    // over. `effectiveType` alone is only a hint (several browsers report it
+    // wrongly), so a 2G report just shortens the first-frame budget below.
+    const conn = (navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string }
+    }).connection
+    if (conn?.saveData) {
+      setNamesIn(true)
+      window.setTimeout(reveal, 800)
+      return
+    }
+    const startBudget = /^(slow-)?2g$/.test(conn?.effectiveType || "") ? 12_000 : 25_000
+
+    let done = false
+    let started = false
+    let lastTime = -1
+    let lastAdvanceAt = Date.now()
+    let watchdog = 0
+    let bufferTimer = 0
+
+    const clearBufferTimer = () => {
+      if (bufferTimer) window.clearTimeout(bufferTimer)
+      bufferTimer = 0
+    }
+
+    const cleanup = () => {
+      if (watchdog) window.clearInterval(watchdog)
+      watchdog = 0
+      clearBufferTimer()
+      video.removeEventListener("playing", onPlaying)
+      video.removeEventListener("waiting", onWaiting)
+      video.removeEventListener("stalled", onWaiting)
+      video.removeEventListener("timeupdate", onTimeUpdate)
+      video.removeEventListener("ended", finish)
+      video.removeEventListener("error", onError)
+      teardownRef.current = null
+    }
+
+    const finish = () => {
+      if (done) return
+      done = true
+      cleanup()
+      setBuffering(false)
+      reveal()
+    }
+
+    const onPlaying = () => {
+      started = true
+      lastTime = video.currentTime
+      lastAdvanceAt = Date.now()
+      clearBufferTimer()
+      setBuffering(false)
+    }
+
+    const onWaiting = () => {
+      if (bufferTimer) return
+      bufferTimer = window.setTimeout(() => {
+        bufferTimer = 0
+        if (!done) setBuffering(true)
+      }, 600)
+    }
+
+    const onTimeUpdate = () => {
+      // Ignore the tick that a stalled video emits at t=0: it is not playback.
+      if (!started && (!video.paused || video.currentTime > 0)) onPlaying()
+      if (video.currentTime !== lastTime) {
+        lastTime = video.currentTime
+        lastAdvanceAt = Date.now()
+      }
+      // `ended` is the normal exit; this catches the streams where the event is
+      // swallowed after a stalled range request.
+      const duration = video.duration
+      if (Number.isFinite(duration) && duration > 0 && duration - video.currentTime <= 0.15) {
+        finish()
+      }
+    }
+
+    const onError = () => {
+      // No film: the names are the only cover copy left, so show them now.
+      setNamesIn(true)
+      window.setTimeout(finish, 800)
+    }
+
+    video.addEventListener("playing", onPlaying)
+    video.addEventListener("waiting", onWaiting)
+    video.addEventListener("stalled", onWaiting)
+    video.addEventListener("timeupdate", onTimeUpdate)
+    video.addEventListener("ended", finish)
+    video.addEventListener("error", onError)
+    teardownRef.current = cleanup
+
+    // The first frame is what the guest is waiting for after the tap.
+    if (video.readyState < 3) setBuffering(true)
+
+    const tappedAt = Date.now()
+    watchdog = window.setInterval(() => {
+      if (done) return
+      if (!started) {
+        // Budget for a slow first frame, but never hold the gate open forever
+        // on a link that cannot deliver the file at all.
+        if (Date.now() - tappedAt > startBudget) finish()
+        return
+      }
+      if (Date.now() - lastAdvanceAt > 8_000) finish()
+    }, 500)
+
+    video.play().catch(() => {
+      setNamesIn(true)
+      window.setTimeout(finish, 800)
+    })
   }, [hasTrack])
+
+  useEffect(() => {
+    const conn = (navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string }
+    }).connection
+    if (!conn) return
+    if (conn.saveData || /(^|-)2g$|^3g$/.test(conn.effectiveType || "")) setConnectionOk(false)
+  }, [])
+
+  // Never leave the interval/listeners behind if the preview unmounts mid-film.
+  useEffect(() => {
+    return () => {
+      teardownRef.current?.()
+    }
+  }, [])
 
   // The monogram is painted into the film and travels with the right-hand door
   // as it swings. Ride the video's own clock so our cartouche stays glued to
   // that spot instead of sitting still and fading like a sticker.
   //
   // The clock has to be the *presented* frame, not `currentTime`: while the
-  // 15 MB film buffers the two diverge, the cover slides ahead of the doors and
+  // 2.4 MB film buffers the two diverge, the cover slides ahead of the doors and
   // the reference initials under it are exposed. requestVideoFrameCallback
   // reports the frame actually on screen; without it we fall back to
   // currentTime, which is exact on a fully buffered film.
@@ -1112,7 +1229,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
             poster={ART_DOOR_POSTER}
             muted
             playsInline
-            preload="metadata"
+            preload={connectionOk ? "auto" : "metadata"}
           />
 
           {/* The door film ships with the reference couple's monogram painted
@@ -1142,6 +1259,16 @@ export default function EmbroideredGarden(profile: TemplateProps) {
         <button type="button" className="eg-gate__open" onClick={openGate}>
           <span>Tap to open</span>
         </button>
+
+        {/* The gate no longer runs a fixed reveal timer, so it has to say
+            something while the first frame is still arriving. */}
+        {buffering && (
+          <span className="eg-gate__buffer" role="status" aria-live="polite">
+            <span className="eg-gate__buffer-ring" aria-hidden="true" />
+            <span>Preparing the film</span>
+          </span>
+        )}
+
         <span className="eg-gate__signature">Wedding by Aksaraa</span>
       </div>
 

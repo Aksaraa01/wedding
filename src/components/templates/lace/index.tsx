@@ -222,10 +222,12 @@ export default function Lace(profile: TemplateProps) {
   const sealRef = useRef<HTMLSpanElement | null>(null)
   const gateRef = useRef(false)
   const toastTimer = useRef<number | null>(null)
+  const teardownRef = useRef<(() => void) | null>(null)
 
   const [opened, setOpened] = useState(false)
   const [opening, setOpening] = useState(false)
   const [fading, setFading] = useState(false)
+  const [buffering, setBuffering] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [openAccount, setOpenAccount] = useState(-1)
   const [toast, setToast] = useState("")
@@ -317,9 +319,10 @@ export default function Lace(profile: TemplateProps) {
   )}`
 
   // The wax seal is the tap: the opening film plays from its sealed first frame,
-  // the tulle lifts, and the invitation is handed over as the film's last second
-  // clears — exactly the reference's timing (fade out over 2 s while the film
-  // still runs). A hard cap keeps a stalled download from trapping a guest.
+  // the tulle lifts, and the invitation is handed over only once the film has
+  // reached its own last frame. The hand-over follows the *media* clock — the
+  // fixed eight-second cap used to cut the ending whenever the download ran
+  // behind playback. The watchdog below only rescues a stream that has stopped.
   const openGate = useCallback(() => {
     if (gateRef.current) return
     gateRef.current = true
@@ -335,13 +338,113 @@ export default function Lace(profile: TemplateProps) {
       setFading(true)
       return
     }
-    // Whatever happens to the file, never leave the gate on screen.
-    window.setTimeout(() => {
-      setOpened(true)
-      window.scrollTo(0, 0)
-    }, 8_000)
-    film.play().catch(() => setFading(true))
+
+    // A data-saver request is an explicit choice: dissolve straight into the
+    // invitation. `effectiveType` alone is only a hint (several browsers report
+    // it wrongly), so a 2G report just shortens the first-frame budget below.
+    const conn = (navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string }
+    }).connection
+    if (conn?.saveData) {
+      setFading(true)
+      return
+    }
+    const startBudget = /^(slow-)?2g$/.test(conn?.effectiveType || "") ? 12_000 : 25_000
+
+    let done = false
+    let started = false
+    let lastTime = -1
+    let lastAdvanceAt = Date.now()
+    let watchdog = 0
+    let bufferTimer = 0
+
+    const clearBufferTimer = () => {
+      if (bufferTimer) window.clearTimeout(bufferTimer)
+      bufferTimer = 0
+    }
+
+    const cleanup = () => {
+      if (watchdog) window.clearInterval(watchdog)
+      watchdog = 0
+      clearBufferTimer()
+      film.removeEventListener("playing", onPlaying)
+      film.removeEventListener("waiting", onWaiting)
+      film.removeEventListener("stalled", onWaiting)
+      film.removeEventListener("timeupdate", onTimeUpdate)
+      film.removeEventListener("ended", finish)
+      film.removeEventListener("error", finish)
+      teardownRef.current = null
+    }
+
+    const finish = () => {
+      if (done) return
+      done = true
+      cleanup()
+      setBuffering(false)
+      setFading(true)
+    }
+
+    const onPlaying = () => {
+      started = true
+      lastTime = film.currentTime
+      lastAdvanceAt = Date.now()
+      clearBufferTimer()
+      setBuffering(false)
+    }
+
+    const onWaiting = () => {
+      if (bufferTimer) return
+      bufferTimer = window.setTimeout(() => {
+        bufferTimer = 0
+        if (!done) setBuffering(true)
+      }, 600)
+    }
+
+    const onTimeUpdate = () => {
+      // Ignore the tick that a stalled film emits at t=0: it is not playback.
+      if (!started && (!film.paused || film.currentTime > 0)) onPlaying()
+      if (film.currentTime !== lastTime) {
+        lastTime = film.currentTime
+        lastAdvanceAt = Date.now()
+      }
+      const duration = film.duration
+      if (Number.isFinite(duration) && duration > 0 && duration - film.currentTime <= 0.15) {
+        finish()
+      }
+    }
+
+    film.addEventListener("playing", onPlaying)
+    film.addEventListener("waiting", onWaiting)
+    film.addEventListener("stalled", onWaiting)
+    film.addEventListener("timeupdate", onTimeUpdate)
+    film.addEventListener("ended", finish)
+    film.addEventListener("error", finish)
+    teardownRef.current = cleanup
+
+    // The first frame is what the guest is waiting for after the tap.
+    if (film.readyState < 3) setBuffering(true)
+
+    const tappedAt = Date.now()
+    watchdog = window.setInterval(() => {
+      if (done) return
+      if (!started) {
+        // Budget for a slow first frame, but never hold the gate open forever
+        // on a link that cannot deliver the file at all.
+        if (Date.now() - tappedAt > startBudget) finish()
+        return
+      }
+      if (Date.now() - lastAdvanceAt > 8_000) finish()
+    }, 500)
+
+    film.play().catch(() => finish())
   }, [hasTrack])
+
+  // Never leave the interval/listeners behind if the preview unmounts mid-film.
+  useEffect(() => {
+    return () => {
+      teardownRef.current?.()
+    }
+  }, [])
 
   // Hand over as soon as the gate has faded. The reference's 2 s fade reads as
   // a long white-out on a slow phone, so both halves are shorter here: the veil
@@ -1016,21 +1119,24 @@ export default function Lace(profile: TemplateProps) {
               playsInline
               preload="auto"
               aria-hidden="true"
-              onTimeUpdate={(e) => {
-                const v = e.currentTarget
-                if (!v.duration) return
-                if (v.duration - v.currentTime < 1.6) setFading(true)
-              }}
-              onEnded={() => setFading(true)}
             />
             {/* The film ships with the reference couple's seal painted in at
-                centre. It is not a DOM element, so it can only be covered, 
+                centre. It is not a DOM element, so it can only be covered,
                 this plaque rides the film's clock with it. */}
             <span className="lc-gate__seal" ref={sealRef}>
               <SealPlaque text={sealText} />
             </span>
           </div>
         </div>
+
+        {/* The gate no longer runs a fixed hand-over timer, so it has to say
+            something while the first frame is still arriving. */}
+        {buffering && (
+          <span className="lc-gate__buffer" role="status" aria-live="polite">
+            <span className="lc-gate__buffer-ring" aria-hidden="true" />
+            <span>Preparing the film</span>
+          </span>
+        )}
 
         <div className="lc-gate__foot">
           <p className="lc-gate__guest">

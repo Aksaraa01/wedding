@@ -350,6 +350,45 @@ body:has(.eg-root.is-locked) {
   transition: opacity 0.4s ease;
 }
 
+/* Shown only while the first frame is still arriving (or the film stalls mid
+   playback). The gate has no fixed reveal timer any more, so it has to say
+   something when the network is slow. */
+.eg-gate__buffer {
+  position: absolute;
+  left: 50%;
+  bottom: max(48px, calc(env(safe-area-inset-bottom, 0px) + 40px));
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgba(24, 34, 27, 0.42);
+  color: #f7f2e7;
+  font-family: var(--eg-ui);
+  font-size: 9px;
+  letter-spacing: 0.26em;
+  text-indent: 0.26em;
+  text-transform: uppercase;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+
+.eg-gate__buffer-ring {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border-radius: 50%;
+  border: 1.5px solid rgba(247, 242, 231, 0.3);
+  border-top-color: #f7f2e7;
+  animation: eg-buffer-spin 0.9s linear infinite;
+}
+
+@keyframes eg-buffer-spin {
+  to { transform: rotate(360deg); }
+}
+
 .eg-gate__signature {
   position: absolute;
   left: 0;
