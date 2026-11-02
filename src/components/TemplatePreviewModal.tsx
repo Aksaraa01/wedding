@@ -13,12 +13,17 @@ type Props = {
 // A template preview is an iframe of a full WordPress/Elementor page. On a weak
 // connection that can take a while, so after a few seconds we surface a
 // dismissible network notice instead of leaving the visitor staring at a spinner.
-const SLOW_NETWORK_MS = 8000
+const SLOW_NETWORK_MS = 7000
+// iframe `load` waits for every image and embed. A single slow image on the WP
+// origin can delay it for a minute, so reveal the document anyway and let it
+// paint progressively.
+const REVEAL_FALLBACK_MS = 9000
 const HARD_TIMEOUT_MS = 45000
 
 export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHref }: Props) {
   const hasPreview = Boolean(demoUrl)
   const [status, setStatus] = useState<"loading" | "loaded" | "errored">(hasPreview ? "loading" : "errored")
+  const [revealed, setRevealed] = useState(false)
   const [slow, setSlow] = useState(false)
   const [offline, setOffline] = useState(false)
   const [noticeDismissed, setNoticeDismissed] = useState(false)
@@ -54,6 +59,13 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
     return () => clearTimeout(id)
   }, [status, attempt, hasPreview])
 
+  // Do not keep the preview hidden until every asset on the WP page settles.
+  useEffect(() => {
+    if (!hasPreview || status !== "loading" || revealed) return
+    const id = setTimeout(() => setRevealed(true), REVEAL_FALLBACK_MS)
+    return () => clearTimeout(id)
+  }, [status, attempt, hasPreview, revealed])
+
   useEffect(() => {
     const sync = () => setOffline(typeof navigator !== "undefined" && navigator.onLine === false)
     sync()
@@ -85,6 +97,7 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
     if (safetyRef.current) clearTimeout(safetyRef.current)
     setStatus("loaded")
     setSlow(false)
+    setRevealed(true)
   }, [])
   const handleError = useCallback(() => {
     if (safetyRef.current) clearTimeout(safetyRef.current)
@@ -101,9 +114,10 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
     if (!hasPreview) return
     setStatus("loading")
     setSlow(false)
+    setRevealed(false)
     setNoticeDismissed(false)
     setAttempt(a => a + 1)
-  }, [])
+  }, [hasPreview])
 
   const showNotice = status === "loading" && !noticeDismissed && (offline || slow)
 
@@ -149,7 +163,7 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
             </div>
           )}
 
-          {status === "loading" && (
+          {status === "loading" && !revealed && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 bg-white px-6">
               <span className="material-symbols-outlined text-4xl text-secondary animate-pulse">hourglass_top</span>
               <p className="font-body-md text-body-md text-on-surface-variant text-center">
@@ -200,7 +214,7 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
               key={attempt}
               ref={iframeRef}
               src={src}
-              className={`w-full h-full border-0 ${status === "loaded" ? "block" : "invisible"}`}
+              className={`w-full h-full border-0 ${revealed ? "block" : "invisible"}`}
               title={`Pratinjau ${name}`}
               allow="autoplay; encrypted-media"
               sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
