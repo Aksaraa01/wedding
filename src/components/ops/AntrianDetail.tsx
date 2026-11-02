@@ -3188,7 +3188,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                             className="mt-0.5 h-4 w-4 shrink-0 accent-[#B34E3F]"
                           />
                           <span className="text-[11px] leading-snug text-on-surface-variant">
-                            Tanpa foto thumbnail (gunakan gambar bawaan Aksaraa)
+                            Tanpa gambar thumbnail (tautan tampil tanpa foto)
                           </span>
                         </label>
                       </div>

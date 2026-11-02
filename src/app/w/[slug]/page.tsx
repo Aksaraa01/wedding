@@ -111,12 +111,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       : 0
     noCoverSlots = (tplRow as any)?.no_photo === true || (specSlots ?? manifestSlots) === 0
   }
-  // "Tanpa foto thumbnail": the couple opted out of a personal photo entirely,
-  // so never fall through to their cover/portrait (the generic default is used).
+  // "Tanpa foto thumbnail": the couple opted out of a personal photo entirely.
+  // That means NO og:image at all (title + description only) — never the couple
+  // portrait and not a stock placeholder either.
   const linkThumbDisabled = (profile as any).link_thumbnail_disabled === true && covers.length === 0
   const defaultImage = profile.slug ? `https://${profile.slug}.wedding.aksaraa.com/defaults/couple.png` : undefined
   const image = linkThumbDisabled
-    ? defaultImage
+    ? undefined
     : noCoverSlots
       ? (linkThumb || defaultImage)
       : ogVariant
@@ -156,7 +157,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       images: ogImage ? [{ url: ogImage, alt: ogAlt, type: "image/jpeg", ...ogDims }] : undefined,
     },
     twitter: {
-      card: "summary_large_image",
+      card: ogImage ? "summary_large_image" : "summary",
       title,
       description,
       images: ogImage ? [ogImage] : undefined,
