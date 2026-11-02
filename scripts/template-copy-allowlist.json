@@ -1566,7 +1566,8 @@
         "Foto sebelumnya": "WCAG name for the lightbox previous control",
         "Foto berikutnya": "WCAG name for the lightbox next control",
         "Halaman sebelumnya": "WCAG name for the wishes previous-page control",
-        "Halaman berikutnya": "WCAG name for the wishes next-page control"
+        "Halaman berikutnya": "WCAG name for the wishes next-page control",
+        "Putar video pembuka": "WCAG name for the opening-film play control"
       }
     }
   }

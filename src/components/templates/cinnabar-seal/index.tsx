@@ -149,6 +149,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
   const [playing, setPlaying] = useState(false)
   const [lightbox, setLightbox] = useState<number | null>(null)
   const [filmOpen, setFilmOpen] = useState(false)
+  const [openingEmbedOn, setOpeningEmbedOn] = useState(false)
   const [toast, setToast] = useState("")
 
   const tc = profile.template_content || {}
@@ -461,10 +462,22 @@ export default function CinnabarSeal(profile: TemplateProps) {
           <section className="cn-opening-film" data-section="video-pembuka" aria-label="Video pembuka">
             {openingFilm ? (
               <video src={openingFilm} autoPlay muted loop playsInline preload="metadata" poster={heroStill} />
-            ) : (
-              <div className="cn-opening-film__embed">
+            ) : openingEmbedOn ? (
+              <div className="cn-opening-film__embed is-playing">
                 <AutoplayYouTube videoId={youtubeId} title={videoTitle} autoplay />
               </div>
+            ) : (
+              <>
+                {heroStill && <img className="cn-opening-film__poster" src={heroStill} alt="" aria-hidden="true" />}
+                <button
+                  type="button"
+                  className="cn-opening-film__play"
+                  onClick={() => setOpeningEmbedOn(true)}
+                  aria-label="Putar video pembuka"
+                >
+                  <span className="cn-film__play" aria-hidden="true" />
+                </button>
+              </>
             )}
             <span className="cn-opening-film__frame" aria-hidden="true" />
           </section>
