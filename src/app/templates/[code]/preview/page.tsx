@@ -1,11 +1,19 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
-import { getTemplateComponent, getTemplateConfig } from "@/components/templates"
+import { TEMPLATE_CONFIGS, getTemplateComponent, getTemplateConfig } from "@/components/templates"
 import { DEMO_PROPS_BY_CODE } from "@/components/templates/demoProps"
 import { ASSETS } from "@/lib/assets"
 import type { TemplateProps } from "@/types/template"
 
-export const dynamic = "force-dynamic"
+// Every demo page renders the same fixed demo props: nothing is resolved per
+// request (no DB, no headers, no cookies). Prerender one page per template at
+// build time and revalidate hourly, so the preview does not pay SSR latency on
+// every open and can be cached at the edge.
+export const revalidate = 3600
+
+export function generateStaticParams() {
+  return TEMPLATE_CONFIGS.filter((tpl) => getTemplateComponent(tpl.code)).map((tpl) => ({ code: tpl.code }))
+}
 
 const DEMO_PROPS: TemplateProps = {
   bride_name: "Annisa",

@@ -161,3 +161,23 @@ ok(`all ${codes.length} registered templates present in bundle`)
 
 const buildId = readFileSync(".next/standalone/.next/BUILD_ID", "utf8").trim()
 ok(`BUILD_ID ${buildId} — safe to rsync`)
+
+// ---------- 4. media budget (report only) ----------
+// Every template's art is served straight from the box, whose measured egress is
+// ~4 Mbps in total. This prints the offenders on every deploy so the growth is
+// impossible to miss, but it must not block a deploy that is unrelated to media:
+// run `node scripts/check-media-budget.mjs` (no --warn) to fail locally.
+try {
+  const report = execSync("node scripts/check-media-budget.mjs --warn 2>&1 || true", {
+    encoding: "utf8",
+    maxBuffer: 32 * 1024 * 1024,
+  })
+  const summary = report
+    .split("\n")
+    .filter((line) => line.startsWith("Total ") || line.startsWith("  x "))
+    .slice(0, 12)
+    .join("\n")
+  console.log(`\n— media budget (report only) —\n${summary}`)
+} catch {
+  console.warn("! media budget check could not run")
+}

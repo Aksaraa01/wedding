@@ -7,6 +7,7 @@
 // Usage: node scripts/mp4-faststart.mjs <file> [--out <file>]
 import { readFileSync, writeFileSync } from "node:fs"
 import { createHash } from "node:crypto"
+import { pathToFileURL } from "node:url"
 
 const CONTAINERS = new Set(["moov", "trak", "mdia", "minf", "stbl", "edts", "mvex"])
 
@@ -64,6 +65,25 @@ function sha(buf) {
   return createHash("sha256").update(buf).digest("hex").slice(0, 16)
 }
 
+// Reusable probe: `moov` must sit before `mdat`, otherwise the browser has to
+// pull almost the whole file before it can decode the first frame.
+export function mp4AtomOrder(file) {
+  const buf = readFileSync(file)
+  const boxes = readBoxes(buf, 0, buf.length)
+  const moov = boxes.find((b) => b.type === "moov")
+  const mdat = boxes.find((b) => b.type === "mdat")
+  if (!moov || !mdat) return { ok: false, reason: "moov/mdat missing" }
+  return { ok: moov.start < mdat.start, moovStart: moov.start, mdatStart: mdat.start }
+}
+
+const invokedDirectly = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href
+if (!invokedDirectly) {
+  // Imported as a module (scripts/check-media-budget.mjs) — no CLI side effects.
+} else {
+  main()
+}
+
+function main() {
 const args = process.argv.slice(2)
 if (!args.length) {
   console.error("usage: node scripts/mp4-faststart.mjs <file> [--out <file>]")
@@ -109,3 +129,4 @@ if (sha(oldPayload) !== sha(newPayload)) throw new Error("verification failed: m
 
 console.log(`${output}: moov moved before mdat (+${delta} bytes shift, ${patched} chunk offsets patched)`)
 console.log(`  mdat payload identical (${newPayload.length} bytes, sha256 ${sha(newPayload)})`)
+}

@@ -10,14 +10,14 @@ type Props = {
   selectHref?: string
 }
 
-// A template preview is an iframe of a full WordPress/Elementor page. On a weak
-// connection that can take a while, so after a few seconds we surface a
-// dismissible network notice instead of leaving the visitor staring at a spinner.
-const SLOW_NETWORK_MS = 7000
-// iframe `load` waits for every image and embed. A single slow image on the WP
-// origin can delay it for a minute, so reveal the document anyway and let it
-// paint progressively.
-const REVEAL_FALLBACK_MS = 9000
+// A template preview is a full page in an iframe: the document itself arrives in
+// a few hundred ms, while the decorative art and embeds keep streaming after it.
+// `load` therefore only fires once every subresource (including third-party
+// images and YouTube) has settled, which says nothing about whether the guest is
+// waiting or the network is bad. Reveal the document early, and only warn when
+// assets are still missing well after the frame is visible.
+const REVEAL_FALLBACK_MS = 2500
+const SLOW_ASSETS_MS = 8000
 const HARD_TIMEOUT_MS = 45000
 
 export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHref }: Props) {
@@ -55,7 +55,7 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
 
   useEffect(() => {
     if (!hasPreview || status !== "loading") return
-    const id = setTimeout(() => setSlow(true), SLOW_NETWORK_MS)
+    const id = setTimeout(() => setSlow(true), SLOW_ASSETS_MS)
     return () => clearTimeout(id)
   }, [status, attempt, hasPreview])
 
@@ -151,8 +151,16 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
               <p className="font-body-md text-[13px] leading-5 flex-1">
                 {offline
                   ? "Anda sedang offline. Pratinjau akan dimuat ulang saat koneksi kembali."
-                  : "Jaringan lambat. Pratinjau masih dimuat dan mungkin butuh beberapa saat."}
+                  : "Pratinjau masih memuat aset. Anda bisa membukanya di tab baru."}
               </p>
+              {!offline && (
+                <button
+                  onClick={openTab}
+                  className="shrink-0 font-label-md text-[10px] uppercase tracking-widest underline underline-offset-4 hover:no-underline"
+                >
+                  Tab baru
+                </button>
+              )}
               <button
                 onClick={() => setNoticeDismissed(true)}
                 className="shrink-0 rounded-full p-0.5 hover:bg-amber-100"
@@ -169,7 +177,7 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
               <p className="font-body-md text-body-md text-on-surface-variant text-center">
                 {offline ? "Menunggu koneksi…" : "Memuat pratinjau…"}
               </p>
-              {slow && !offline && (
+              {!offline && (
                 <button
                   onClick={openTab}
                   className="font-label-md text-label-md uppercase tracking-widest text-secondary underline underline-offset-4"
@@ -177,6 +185,25 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
                   Buka di tab baru
                 </button>
               )}
+            </div>
+          )}
+
+          {/* The frame is revealed early so the page can paint progressively, but
+              the browser is still fetching assets behind it. Keep a quiet hint (and
+              the escape hatch) visible until everything has settled. */}
+          {status === "loading" && revealed && !offline && (
+            <div className="pointer-events-none absolute bottom-4 right-4 z-20 flex items-center gap-2 rounded-full bg-black/60 px-3 py-1.5 text-white backdrop-blur">
+              <span
+                className="h-3 w-3 animate-spin rounded-full border-2 border-white/30 border-t-white"
+                aria-hidden="true"
+              />
+              <span className="font-body-md text-[11px] leading-none">Memuat aset…</span>
+              <button
+                onClick={openTab}
+                className="pointer-events-auto font-body-md text-[11px] leading-none underline underline-offset-2"
+              >
+                Tab baru
+              </button>
             </div>
           )}
 
