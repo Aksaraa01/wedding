@@ -141,8 +141,6 @@ export default function Iris(profile: TemplateProps) {
   const [lightbox, setLightbox] = useState<number | null>(null)
   const [giftOpen, setGiftOpen] = useState(false)
   const [toast, setToast] = useState("")
-  const [openingStarted, setOpeningStarted] = useState(false)
-  const [openingFallback, setOpeningFallback] = useState(false)
   const [filmStarted, setFilmStarted] = useState(false)
   const [filmFallback, setFilmFallback] = useState(false)
 
@@ -187,16 +185,13 @@ export default function Iris(profile: TemplateProps) {
 
   const film = videoSource(profile.video_url)
   const hasVideo = gates.video !== false && profile.video_section_visible !== false && !!film
-  const openingFilm = hasVideo && film && film.kind === "file" ? film.src : ""
   const youtubeId =
     hasVideo && film && film.kind === "embed"
       ? film.src.match(/youtube\.com\/embed\/([A-Za-z0-9_-]{11})/)?.[1] || ""
       : ""
-  const hasOpeningMedia = !!openingFilm || (hasVideo && !!youtubeId) || !!coverStill
   const ytBase = youtubeId
     ? `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&playsinline=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1`
     : ""
-  const openingEmbedUrl = `${ytBase}&controls=0&fs=0`
   const filmEmbedUrl = `${ytBase}&controls=1&fs=1`
 
   const groomName = (profile.groom_name || "").trim()
@@ -223,7 +218,6 @@ export default function Iris(profile: TemplateProps) {
   const coverKicker = (tc.cover_kicker || "").trim() || "The Wedding of"
   const openLabel = (tc.open_button || "").trim() || "Buka Undangan"
   const apology = (tc.cover_apology || "").trim()
-  const welcomeMessage = (tc.welcome_message || "").trim()
   const openingKicker = (tc.opening_kicker || "").trim() || "Ayat Suci"
   const mempelaiKicker = (tc.mempelai_kicker || "").trim() || "With Love"
   const mempelaiIntro = (tc.profiles_intro || "").trim()
@@ -410,11 +404,6 @@ export default function Iris(profile: TemplateProps) {
                 </>
               )}
             </h1>
-            {dateShort && (
-              <p className="ir-cover__date" {...ON_LOAD("fade", 0.16)}>
-                {dateShort}
-              </p>
-            )}
           </div>
           <div className="ir-cover__foot">
             <p className="ir-cover__to" {...ON_LOAD("fade", 0.22)}>
@@ -432,102 +421,36 @@ export default function Iris(profile: TemplateProps) {
           </div>
         </section>
 
-        {/* 2 — opening film */}
-        {hasOpeningMedia && (
-          <section className="ir-opening" data-section="video-pembuka" aria-label="Video pembuka">
-            {openingFilm ? (
-              <video
-                src={openingFilm}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                poster={coverStill}
-                onPlaying={() => setOpeningStarted(true)}
-              />
-            ) : hasVideo && youtubeId ? (
-              openingFallback ? (
-                <iframe
-                  className="ir-opening__iframe"
-                  src={openingEmbedUrl}
-                  title={videoTitle}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              ) : (
-                <div className="ir-opening__embed">
-                  <AutoplayYouTube videoId={youtubeId} title={videoTitle} autoplay onPlay={() => setOpeningStarted(true)} />
-                </div>
-              )
-            ) : null}
-            {coverStill && (!openingStarted || !hasVideo) && (
-              <img className="ir-opening__poster" src={coverStill} alt="" aria-hidden="true" />
-            )}
-            {hasVideo && !openingStarted && (
-              <button
-                type="button"
-                className="ir-play"
-                onClick={() => {
-                  setOpeningFallback(true)
-                  setOpeningStarted(true)
-                }}
-                aria-label="Putar video pembuka"
-              />
-            )}
-          </section>
-        )}
-
-        {/* 3 — welcome */}
-        <section className="ir-welcome" data-section="welcome" aria-label="Undangan pernikahan">
-          <img className="ir-welcome__texture" src={ART("paper-texture")} alt="" aria-hidden="true" />
-          <img className="ir-welcome__top" src={ART("floral-top")} alt="" aria-hidden="true" />
-          <div className="ir-welcome__body">
-            <p className="ir-kicker" {...IN("up")}>{coverKicker}</p>
-            <h2 className="ir-names" {...IN("up", 0.06)}>
-              {groomName || "Mempelai"}
-              {brideName && (
-                <>
-                  <span className="ir-names__and">and</span>
-                  {brideName}
-                </>
-              )}
-            </h2>
-            {dateShort && (
-              <p className="ir-welcome__date" {...IN("fade", 0.12)}>{dateShort}</p>
-            )}
-            {welcomeMessage && (
-              <p className="ir-body" {...IN("fade", 0.16)}>{welcomeMessage}</p>
-            )}
-          </div>
-        </section>
-
-        {/* 4 — kalimat pembuka / verse */}
+        {/* 3/4 — verse / kalimat pembuka */}
         <section className="ir-section ir-verse" data-section="pembuka" aria-label="Salam hangat">
           <img className="ir-verse__top" src={ART("floral-top")} alt="" aria-hidden="true" />
           <div className="ir-verse__oval" {...IN("zoom")}>
             <OvalPhoto src={welcomeStill} alt={coupleLabel} />
           </div>
-          <p className="ir-kicker" {...IN("up", 0.06)}>{openingKicker}</p>
-          {openingTitle && (
-            <h2 className="ir-script ir-script--md" {...IN("up", 0.08)}>{openingTitle}</h2>
-          )}
-          <p className="ir-body" {...IN("fade", 0.12)}>{openingDescription}</p>
-          {quoteText && (
-            <blockquote className="ir-quote" {...IN("fade", 0.18)}>
+          {quoteText ? (
+            <blockquote className="ir-quote ir-quote--verse" {...IN("fade", 0.08)}>
               <p>{quoteText}</p>
               {profile.quote_source && <cite>{profile.quote_source}</cite>}
             </blockquote>
+          ) : (
+            <>
+              <p className="ir-kicker" {...IN("up", 0.06)}>{openingKicker}</p>
+              {openingTitle && <h2 className="ir-script ir-script--md" {...IN("up", 0.08)}>{openingTitle}</h2>}
+              <p className="ir-body" {...IN("fade", 0.12)}>{openingDescription}</p>
+            </>
           )}
         </section>
 
         {/* 5 — mempelai */}
         <section className="ir-section ir-people" data-section="mempelai" aria-label="Mempelai">
           <img className="ir-people__drape" src={ART("closing-drape")} alt="" aria-hidden="true" />
-          <p className="ir-script ir-script--sm" {...IN("up")}>{mempelaiKicker}</p>
-          {mempelaiIntro && (
-            <p className="ir-body" {...IN("fade", 0.06)}>{mempelaiIntro}</p>
-          )}
+          <div className="ir-people__head">
+            <img className="ir-people__dove" src={ART("dove")} alt="" aria-hidden="true" />
+            <p className="ir-people__kicker">{mempelaiKicker}</p>
+            {mempelaiIntro && (
+              <p className="ir-body" {...IN("fade", 0.06)}>{mempelaiIntro}</p>
+            )}
+          </div>
           {[
             { key: "bride", name: profile.bride_full_name || brideName, photo: brideShot, parents: profile.bride_parents, ig: brideIg },
             { key: "groom", name: profile.groom_full_name || groomName, photo: groomShot, parents: profile.groom_parents, ig: groomIg },
@@ -678,7 +601,7 @@ export default function Iris(profile: TemplateProps) {
         {/* 11 — gallery */}
         {gallery.length > 0 && (
           <section className="ir-section ir-gallery" data-section="galeri" aria-label="Galeri foto">
-            <h2 className="ir-script ir-script--xl" {...IN("up")}>{galleryTitle}</h2>
+            <h2 className="ir-script ir-script--xl">{galleryTitle}</h2>
             {galleryIntro && <p className="ir-body" {...IN("fade", 0.08)}>{galleryIntro}</p>}
             <div className={`ir-gallery__grid${gallery.length === 1 ? " is-single" : ""}`}>
               {gallery.map((photo, index) => (
@@ -815,6 +738,7 @@ export default function Iris(profile: TemplateProps) {
         {/* 15 — wishes */}
         <section className="ir-section ir-wishes" data-section="wishes" aria-label="Ucapan dan doa">
           <img className="ir-wishes__curve" src={ART("curve-divider")} alt="" aria-hidden="true" />
+          <img className="ir-wishes__floral" src={ART("floral-corner-a")} alt="" aria-hidden="true" />
           <p className="ir-script ir-script--lg" {...IN("up")}>{wishesKicker}</p>
           {wishesTitle && <p className="ir-kicker" {...IN("up", 0.04)}>{wishesTitle}</p>}
           {wishesIntro && <p className="ir-body" {...IN("fade", 0.08)}>{wishesIntro}</p>}
@@ -832,11 +756,9 @@ export default function Iris(profile: TemplateProps) {
 
         {/* 16 — closing */}
         <section className="ir-closing" data-section="closing" aria-label="Penutup">
-          <img className="ir-closing__drape" src={ART("closing-drape")} alt="" aria-hidden="true" />
           <div className="ir-closing__oval" {...IN("zoom")}>
             {closingStill ? <img src={closingStill} alt="" aria-hidden="true" /> : null}
           </div>
-          <p className="ir-kicker" {...IN("up")}>{closingKicker}</p>
           <p className="ir-body" {...IN("fade", 0.08)}>{closingMessage}</p>
           <p className="ir-closing__see" {...IN("up", 0.12)}>{closingSee}</p>
           <p className="ir-closing__names" {...IN("up", 0.16)}>{coupleLabel}</p>

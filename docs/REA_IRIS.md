@@ -103,9 +103,9 @@ flow/`aspect-ratio` based, never percentage heights of count-derived parents.
 
 | # | Section | Renders from | Gate + toggle | Count / variant branch | Copy source | Motion |
 |---|---|---|---|---|---|---|
-| 1 | Cover | `cover_photos[0]`, names, `guest_name` | always | no photo ⇒ cream fallback; no guest ⇒ "Tamu Undangan" | `cover_kicker`, `open_button`, `cover_apology` | load |
-| 2 | Opening film | `video_url` | `feature_gates.video` && `video_section_visible` | full-bleed video; no video ⇒ cover photo; autoplay muted with a play control fallback | none | fade |
-| 3 | Welcome | cover art, names, date | always | short welcome block, no gate | `welcome_message` | up |
+| 1 | Cover / welcome | `cover_photos[0]`, names, `guest_name` | always | the gate and the welcome are one surface: after opening the button hides and the garden cover with names/guest stays as the first screen; no photo ⇒ cover art; no guest ⇒ "Tamu Undangan" | `cover_kicker`, `open_button`, `cover_apology` | load |
+| 2 | Opening film | — | — | **not a separate section**: the reference opens onto the verse after the cover; the couple's video is §12. | — | — |
+| 3 | Welcome | cover surface (row 1) | always | shared with the cover; no second greeting block | `cover_kicker` | load |
 | 4 | Kalimat pembuka | `opening_title/description`, `quote_text/source` | always | no quote ⇒ opening copy only | profile + `opening_kicker` | up |
 | 5 | Mempelai | `groom_*`/`bride_*`, parents, IG, photos | `person_photos !== false` | missing parent/IG row omitted; 1 name ⇒ no `&` | profile + `mempelai_kicker`, `parents_label` | fade/up |
 | 6 | Love story | `stories[]` | `feature_gates.story` && `story_visible !== false` | 0 ⇒ omitted; 1 ⇒ one item | `love_story_title`, `story_intro` | up |
@@ -120,14 +120,16 @@ flow/`aspect-ratio` based, never percentage heights of count-derived parents.
 | 15 | Wishes | `/api/wishes` + guest identity | always | demo feed; 0 approved ⇒ empty state | `wishes_kicker/title/intro` + form keys | up |
 | 16 | Closing | `cover_photos[2]`, `closing_message`, names | always | no slot 2 ⇒ cover photo | `closing_kicker`, `closing_message` | fade/up |
 
-Order shipped: cover → opening film → welcome → pembuka → mempelai → story →
-event → countdown (inside the save-date block, reference position) → inviting →
-rundown → gallery → video → gift → dresscode → wishes → closing.
+Order shipped: cover/welcome → verse → mempelai → story → save-date/countdown
+→ event → inviting → rundown → gallery → film → gift → dresscode → wishes →
+closing.
 
 Reference order was cover → verse → profil → save-date → event → dresscode →
-RSVP → live streaming → gallery → story → gift → wishes → closing. Event moved
-before story/gallery to keep the reference's save-date → event pairing; RSVP is
-the dock; live streaming is not part of the contract.
+RSVP → live streaming → gallery → story → gift → wishes → closing. The cover is
+also the welcome surface (the reference has no second greeting screen), and the
+opening film is not duplicated: the video ships once, at the reference's video
+position. Event moved before story to keep the reference's save-date → event
+pairing; RSVP is the dock; live streaming is not part of the contract.
 
 ---
 
@@ -138,7 +140,9 @@ the dock; live streaming is not part of the contract.
 | RSVP form | **Dropped**, the shared `InvitationOverlay` dock owns RSVP. |
 | Live streaming band | **Not shipped** — no editor field/list in the contract. The gold band language is reused for the wedding film. |
 | "Putri dari" / "Putra dari" | Neutral `parents_label` (default "Anak dari"). |
-| Opening video / welcome / inviting / rundown | **ADDED** in the reference's cream + gold + script language. |
+| Opening video | **Not a separate section.** The reference opens onto the verse after the cover; the couple's video is rendered once in §12 to avoid two full-screen players. |
+| Welcome | **Shared with the cover**: the opened cover keeps the names and guest and is the first screen, exactly like the reference. |
+| Inviting / rundown | **ADDED** in the reference's cream + gold + script language. |
 | Dress code | Moved after gift to follow the contract; same script heading and swatches. |
 | Reference couple data/photos | Not copied; demo uses Aksaraa photos and live profile fields. |
 | Desktop | Same 480 px column (reference has no desktop composition). |

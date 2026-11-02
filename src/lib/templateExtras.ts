@@ -409,7 +409,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
         "We are so happy to celebrate this day with you, surrounded by the people we love most.",
       lace: "We are so happy to celebrate this day with you, surrounded by the people we love most.",
     },
-    templates: ["embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris"],
+    templates: ["embroidered-garden", "lace", "ivory-lace", "cinnabar-seal"],
   },
   {
     key: "inviting_intro",

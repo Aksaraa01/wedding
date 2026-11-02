@@ -1783,8 +1783,6 @@ DEMO_PROPS_BY_CODE["cinnabar-seal"] = {
   template_content: {
     cover_kicker: "The Wedding Of",
     open_button: "Open Invitation",
-    cover_apology: "Kami mohon maaf atas segala kekeliruan penulisan nama dan gelar.",
-    welcome_message: "Kami mengundang Anda untuk menjadi bagian dari hari istimewa kami.",
     opening_kicker: "With Blessings",
     mempelai_kicker: "Mempelai",
     parents_label: "Anak dari",
@@ -1905,8 +1903,6 @@ DEMO_PROPS_BY_CODE.iris = {
   template_content: {
     cover_kicker: "The Wedding of",
     open_button: "Buka Undangan",
-    cover_apology: "Kami mohon maaf atas segala kekeliruan penulisan nama dan gelar.",
-    welcome_message: "Kami mengundang Anda untuk menjadi bagian dari hari istimewa kami.",
     opening_kicker: "Ayat Suci",
     mempelai_kicker: "With Love",
     parents_label: "Anak dari",
