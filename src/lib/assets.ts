@@ -1,3 +1,4 @@
+import { toTransformedUrl } from "@/lib/storageUrl"
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 const STORAGE_BASE = `${SUPABASE_URL}/storage/v1/object/public/media/seeded`
 // Env-relative so staging/dev traffic bills its own project, never prod.
@@ -144,13 +145,13 @@ export const ASSETS = {
   impastoMosque: {
     coverBg: s("impasto-mosque/cover-bg.jpg"),
     bg: s("impasto-mosque/bg.jpg"),
-    brush: s("impasto-mosque/brush.jpg"),
+    brush: toTransformedUrl(s("impasto-mosque/brush.jpg"), { width: 1200 }),
     coupleCover: s("impasto-mosque/couple-cover.png"),
   },
   pastelDreamCathedral: {
-    coverBg: "/images/church.jpeg",
-    bg: "/images/church.jpeg",
-    brush: s("impasto-mosque/brush.jpg"),
+    coverBg: "/images/church.webp",
+    bg: "/images/church.webp",
+    brush: toTransformedUrl(s("impasto-mosque/brush.jpg"), { width: 1200 }),
   },
   pastelCoastal: {
     bg: s("pastel-coastal-cut/bg.jpg"),
