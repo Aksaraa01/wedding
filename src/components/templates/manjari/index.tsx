@@ -138,7 +138,7 @@ export default function Manjari(profile: TemplateProps) {
 
   return (
     <div ref={rootRef} className={`manjari-root preloader-done${opened ? "" : " locked"}`} style={rootStyle}>
-      {hasTrack && <audio ref={audioRef} loop preload="auto" src={trackUrl} />}
+      {hasTrack && <audio ref={audioRef} loop preload="metadata" data-warm-audio="" src={trackUrl} />}
       {hasTrack && (
         <button type="button" className={`manjari-music${playing ? " is-playing" : ""}`} onClick={toggleMusic} aria-label={playing ? "Pause music" : "Play music"}>
           <span>{playing ? "❚❚" : "♪"}</span>

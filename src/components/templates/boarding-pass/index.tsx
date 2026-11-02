@@ -361,7 +361,7 @@ export default function BoardingPass(profile: TemplateProps) {
       data-template="boarding-pass"
     >
       {trackUrl && (
-        <audio ref={audioRef} src={trackUrl} loop preload="auto" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} />
+        <audio ref={audioRef} src={trackUrl} loop preload="metadata" data-warm-audio="" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} />
       )}
 
       <div className="bp-col">

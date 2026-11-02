@@ -373,7 +373,7 @@ export default function Imagine(props: TemplateProps) {
           ref={audioRef}
           src={track_url}
           loop
-          preload="auto"
+          preload="metadata" data-warm-audio=""
           style={{ display: "none" }}
         />
       )}

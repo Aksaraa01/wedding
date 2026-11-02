@@ -195,7 +195,7 @@ export default function MinangRoyal(profile: TemplateProps) {
 
   return (
     <div className="minang-royal-root">
-      {hasTrack && <audio ref={audioRef} loop preload="auto" src={trackUrl} />}
+      {hasTrack && <audio ref={audioRef} loop preload="metadata" data-warm-audio="" src={trackUrl} />}
       {hasTrack && (
         <div className="music-outer">
           <button

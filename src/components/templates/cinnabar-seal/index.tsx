@@ -415,7 +415,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
 
   return (
     <div ref={rootRef} className={`cn-root${opened ? " is-open" : ""}`}>
-      {trackUrl && <audio ref={audioRef} src={trackUrl} loop preload="auto" />}
+      {trackUrl && <audio ref={audioRef} src={trackUrl} loop preload="metadata" data-warm-audio="" />}
 
       <div className="cn-page">
         {/* 1 — cover gate */}

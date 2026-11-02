@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import RouteUnlock from "@/components/RouteUnlock"
 import CloudflareBeacon from "@/components/CloudflareBeacon"
+import AudioWarmup from "@/components/AudioWarmup"
 import ChunkErrorWatcher from "@/components/ChunkErrorWatcher"
 import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo"
 import "./globals.css"
@@ -67,6 +68,7 @@ export default function RootLayout({
         <RouteUnlock />
         <ChunkErrorWatcher />
         <CloudflareBeacon />
+        <AudioWarmup />
       </body>
     </html>
   )

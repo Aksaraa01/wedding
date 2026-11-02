@@ -321,7 +321,7 @@ export default function NFilm(profile: TemplateProps) {
       data-template="n-film"
     >
       {trackUrl && (
-        <audio ref={audioRef} src={trackUrl} loop preload="auto" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} />
+        <audio ref={audioRef} src={trackUrl} loop preload="metadata" data-warm-audio="" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} />
       )}
 
       {/* 1 — cover. The poster IS the gate: the guest picks a name to open. */}

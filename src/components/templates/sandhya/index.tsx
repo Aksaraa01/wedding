@@ -476,7 +476,7 @@ export default function Sandhya(profile: TemplateProps) {
   return (
     <div ref={rootRef} className="sandhya-root" style={{ "--warm": themeValue, background: "transparent" } as React.CSSProperties}>
       {hasTrack && (
-        <audio ref={audioRef} loop preload="auto">
+        <audio ref={audioRef} loop preload="metadata" data-warm-audio="">
           <source src={profile.track_url} type="audio/mpeg" />
         </audio>
       )}

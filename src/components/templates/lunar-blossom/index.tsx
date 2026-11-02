@@ -854,7 +854,7 @@ export default function LunarBlossom(profile: TemplateProps) {
   if (!opened) {
     return (
       <div className="lb-root lb-gate" style={{ backgroundImage: `url(${gate.background})` }}>
-        {hasTrack && <audio src={trackUrl} loop preload="auto" />}
+        {hasTrack && <audio src={trackUrl} loop preload="metadata" data-warm-audio="" />}
         <div className="lb-gate__scrim" aria-hidden="true" />
         <div className="lb-gate__lang">
           <button type="button" onClick={() => setLang((v) => (v === "EN" ? "ID" : "EN"))}>
@@ -886,7 +886,7 @@ export default function LunarBlossom(profile: TemplateProps) {
   return (
     <div className="lb-root">
       {hasTrack && (
-        <audio ref={audioRef} src={trackUrl} loop preload="auto" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} />
+        <audio ref={audioRef} src={trackUrl} loop preload="metadata" data-warm-audio="" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} />
       )}
 
       <div className="lb-desktop-cover" aria-hidden="true">

@@ -470,7 +470,7 @@ export default function NiharaMist(profile: TemplateProps) {
   return (
     <div ref={rootRef} className="nihara-mist">
       {hasTrack && (
-        <audio ref={audioRef} loop preload="auto">
+        <audio ref={audioRef} loop preload="metadata" data-warm-audio="">
           <source src={profile.track_url} type="audio/mpeg" />
         </audio>
       )}

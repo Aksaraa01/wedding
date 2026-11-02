@@ -601,7 +601,7 @@ export default function AdatJawa(profile: TemplateProps) {
   if (!opened) {
     return (
       <div className="aj-root aj-gate" style={{ backgroundImage: `url(${gate.background})` }}>
-        {hasTrack && <audio src={trackUrl} loop preload="auto" />}
+        {hasTrack && <audio src={trackUrl} loop preload="metadata" data-warm-audio="" />}
         <div className="aj-gate__scrim" aria-hidden="true" />
         <div className="aj-gate__lang">
           <button type="button" onClick={() => setLang((v) => (v === "EN" ? "ID" : "EN"))}>{lang}</button>
@@ -623,7 +623,7 @@ export default function AdatJawa(profile: TemplateProps) {
   return (
     <div className="aj-root">
       {hasTrack && (
-        <audio ref={audioRef} src={trackUrl} loop preload="auto" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} />
+        <audio ref={audioRef} src={trackUrl} loop preload="metadata" data-warm-audio="" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} />
       )}
 
       <div className="aj-desktop-cover" aria-hidden="true">

@@ -334,7 +334,7 @@ export default function IvoryLace(profile: TemplateProps) {
         <audio
           ref={audioRef}
           loop
-          preload="auto"
+          preload="metadata" data-warm-audio=""
           src={trackUrl}
           onPlay={() => setPlaying(true)}
           onPause={() => setPlaying(false)}
