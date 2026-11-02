@@ -8,6 +8,7 @@ import { FIELD_LABELS, WIDGET_SETTINGS } from "@/lib/fieldLabels"
 import { OBJECT_ARRAY_FIELDS, SIMPLE_ARRAY_FIELDS, SUBFIELD_LABELS } from "@/lib/manifest"
 import { PACKAGE_LABELS, PACKAGE_CATEGORY, PACKAGE_CODES } from "@/lib/packages"
 import { normalizeTemplateTier, tierBadgeClass } from "@/lib/templateTier"
+import { POPULAR_RANK_MAX } from "@/lib/templatePopularRank"
 import ElementSelect from "@/components/ops/ElementSelect"
 import { hasTemplate } from "@/components/templates"
 import { compressImage } from "@/lib/imageCompress"
@@ -132,7 +133,6 @@ export default function OpsTemplatesPage() {
     package_eligibility: [] as string[],
     category: "",
     tier: "" as string,
-    popular_rank: "" as number | "",
     source_type: "wp" as "wp" | "inhouse",
     wp_master_slug: "",
     no_photo: false,
@@ -142,6 +142,14 @@ export default function OpsTemplatesPage() {
   const previewFileRef = useRef<HTMLInputElement>(null)
   const [wpCheck, setWpCheck] = useState<{ checking: boolean; ok?: boolean; title?: string; msg?: string }>({ checking: false })
   const [searchQuery, setSearchQuery] = useState("")
+
+  // "Atur Top 10 Populer": a dedicated lineup panel (drag to reorder), not a
+  // field inside the edit modal. Slots are positional — index 0 is rank 1.
+  const [showTop10, setShowTop10] = useState(false)
+  const [topDraft, setTopDraft] = useState<(string | null)[]>([])
+  const [topSaving, setTopSaving] = useState(false)
+  const [topError, setTopError] = useState("")
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
 
   // mapping state — simple fields: {field: [{elementId, settings}]},
   // object-array fields (sessions/gift/stories): {field: [{subfield: {elementId, settings}}]}
@@ -233,7 +241,7 @@ export default function OpsTemplatesPage() {
     setManifest({})
     setElements([])
     setPopups([])
-    setForm({ code: "", name: "", description: "", preview_image_url: "", demo_url: "", is_active: true, sort_order: templates.length, package_eligibility: [...PACKAGE_CODES], category: "", tier: "", popular_rank: "", source_type: "wp", wp_master_slug: "", no_photo: false })
+    setForm({ code: "", name: "", description: "", preview_image_url: "", demo_url: "", is_active: true, sort_order: templates.length, package_eligibility: [...PACKAGE_CODES], category: "", tier: "", source_type: "wp", wp_master_slug: "", no_photo: false })
   }
 
   const startEdit = (t: Template, openMapping = false) => {
@@ -255,11 +263,67 @@ export default function OpsTemplatesPage() {
       package_eligibility: t.package_eligibility && t.package_eligibility.length > 0 ? t.package_eligibility : [...PACKAGE_CODES],
       category: t.category || "",
       tier: (t as any).tier || "",
-      popular_rank: typeof t.popular_rank === "number" ? t.popular_rank : "",
       source_type: t.source_type === "inhouse" ? "inhouse" : "wp",
       wp_master_slug: t.wp_master_slug || "",
       no_photo: (t as any).no_photo === true,
     })
+  }
+
+  const openTop10 = () => {
+    const ranked = templates
+      .filter((t) => typeof t.popular_rank === "number")
+      .sort((a, b) => (a.popular_rank as number) - (b.popular_rank as number))
+    const slots: (string | null)[] = Array.from({ length: POPULAR_RANK_MAX }, (_, i) => ranked[i]?.id ?? null)
+    setTopDraft(slots)
+    setTopError("")
+    setShowTop10(true)
+  }
+
+  const setTopSlot = (index: number, templateId: string | null) => {
+    setTopDraft((draft) => {
+      const next = [...draft]
+      if (templateId) {
+        // A template lives in one slot only: clear any older slot holding it.
+        const previous = next.indexOf(templateId)
+        if (previous !== -1) next[previous] = null
+      }
+      next[index] = templateId
+      return next
+    })
+  }
+
+  const moveTopSlot = (from: number, to: number) => {
+    if (from === to) return
+    setTopDraft((draft) => {
+      const next = [...draft]
+      const [moved] = next.splice(from, 1)
+      next.splice(to, 0, moved)
+      return next
+    })
+  }
+
+  const saveTop10 = async () => {
+    if (!employee || topSaving) return
+    setTopSaving(true)
+    setTopError("")
+    try {
+      const res = await fetch("/api/ops/templates/popular-rank", {
+        method: "POST",
+        headers: opsHeaders(employee),
+        body: JSON.stringify({ ordered: topDraft }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setTopError(data.error || "Gagal menyimpan Top 10")
+        return
+      }
+      await fetchTemplates()
+      setShowTop10(false)
+    } catch {
+      setTopError("Gagal menyimpan Top 10")
+    } finally {
+      setTopSaving(false)
+    }
   }
 
   const handlePreviewUpload = async (file: File) => {
@@ -315,7 +379,6 @@ export default function OpsTemplatesPage() {
     }
     const body = {
       ...form,
-      popular_rank: form.popular_rank === "" ? null : Number(form.popular_rank),
       source_type: isInhouse ? "inhouse" : "wp",
       description: form.description || null,
       preview_image_url: form.preview_image_url || null,
@@ -763,13 +826,22 @@ export default function OpsTemplatesPage() {
               <h2 className="font-headline-md text-[26px] text-primary font-bold">Manajemen Template</h2>
               <p className="text-sm text-on-surface-variant mt-1">Kelola template undangan, eligibilitas paket, dan mapping elemen WordPress.</p>
             </div>
-            <button
-              onClick={startNew}
-              className="inline-flex items-center justify-center gap-2 bg-primary text-white px-6 py-3 font-label-md text-xs uppercase tracking-widest hover:bg-secondary transition-all"
-            >
-              <span className="material-symbols-outlined text-[18px]">add</span>
-              Tambah Template
-            </button>
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={openTop10}
+                className="inline-flex items-center justify-center gap-2 border border-primary text-primary px-6 py-3 font-label-md text-xs uppercase tracking-widest hover:bg-primary hover:text-white transition-all"
+              >
+                <span className="material-symbols-outlined text-[18px]">leaderboard</span>
+                Atur Top 10 Populer
+              </button>
+              <button
+                onClick={startNew}
+                className="inline-flex items-center justify-center gap-2 bg-primary text-white px-6 py-3 font-label-md text-xs uppercase tracking-widest hover:bg-secondary transition-all"
+              >
+                <span className="material-symbols-outlined text-[18px]">add</span>
+                Tambah Template
+              </button>
+            </div>
           </div>
 
           <div className="mb-6 flex flex-col sm:flex-row gap-3">
@@ -860,6 +932,132 @@ export default function OpsTemplatesPage() {
             </div>
           )}
 
+          {showTop10 && (
+            <div className="fixed inset-0 z-[60] bg-black/50 flex items-start justify-center overflow-y-auto py-6 px-3 sm:py-10">
+              <div className="bg-surface w-full max-w-2xl p-5 sm:p-8 my-6 sm:my-10 shadow-xl border border-outline-variant">
+                <div className="flex items-start justify-between gap-4 mb-1">
+                  <div>
+                    <h3 className="font-headline-md text-[20px] text-primary font-bold">Atur Top 10 Populer</h3>
+                    <p className="text-xs text-on-surface-variant mt-1">
+                      Geser kartu untuk mengubah urutan. Slot #1 tampil paling kiri di galeri publik dan di pemilih template dashboard.
+                    </p>
+                  </div>
+                  <button onClick={() => setShowTop10(false)} className="text-on-surface-variant hover:text-primary shrink-0">
+                    <span className="material-symbols-outlined">close</span>
+                  </button>
+                </div>
+
+                <ul className="mt-5 space-y-2">
+                  {topDraft.map((templateId, index) => {
+                    const tpl = templates.find((t) => t.id === templateId)
+                    const options = templates.filter((t) => t.id === templateId || !topDraft.includes(t.id))
+                    return (
+                      <li
+                        key={index}
+                        draggable
+                        onDragStart={() => setDragIndex(index)}
+                        onDragEnd={() => setDragIndex(null)}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => {
+                          e.preventDefault()
+                          if (dragIndex !== null) moveTopSlot(dragIndex, index)
+                          setDragIndex(null)
+                        }}
+                        className={`flex items-center gap-2 sm:gap-3 border bg-white px-2 py-2 sm:px-3 transition-colors ${
+                          dragIndex === index ? "border-primary opacity-60" : "border-outline-variant"
+                        } ${tpl ? "cursor-grab active:cursor-grabbing" : ""}`}
+                      >
+                        <span className="material-symbols-outlined text-on-surface-variant/60 text-[18px] shrink-0 select-none">drag_indicator</span>
+                        <span className="w-8 shrink-0 text-center font-bold text-[13px] text-primary">#{index + 1}</span>
+
+                        {tpl ? (
+                          <>
+                            <div className="h-10 w-7 shrink-0 overflow-hidden rounded-sm border border-outline-variant/40 bg-surface-dim">
+                              {tpl.preview_image_url && (
+                                <img src={tpl.preview_image_url} alt="" className="h-full w-full object-cover object-top" />
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-[13px] font-semibold text-primary">{tpl.name}</p>
+                              <p className="truncate font-mono text-[10px] text-on-surface-variant">
+                                {tpl.code}
+                                {!tpl.is_active && " · nonaktif"}
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setTopSlot(index, null)}
+                              title="Kosongkan slot"
+                              className="flex h-6 w-6 shrink-0 items-center justify-center text-on-surface-variant hover:text-error"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">close</span>
+                            </button>
+                          </>
+                        ) : (
+                          <select
+                            value=""
+                            onChange={(e) => setTopSlot(index, e.target.value || null)}
+                            className="input-editorial min-w-0 flex-1 font-label-md text-[13px]"
+                          >
+                            <option value="">— Pilih template —</option>
+                            {options.map((t) => (
+                              <option key={t.id} value={t.id}>
+                                {t.name}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+
+                        <div className="flex shrink-0 flex-col">
+                          <button
+                            type="button"
+                            onClick={() => moveTopSlot(index, Math.max(0, index - 1))}
+                            disabled={index === 0}
+                            title="Naikkan"
+                            aria-label={`Naikkan ${tpl?.name || `slot ${index + 1}`}`}
+                            className="flex h-6 w-7 items-center justify-center text-on-surface-variant hover:text-primary disabled:opacity-25"
+                          >
+                            <span className="material-symbols-outlined text-[16px] leading-none">keyboard_arrow_up</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => moveTopSlot(index, Math.min(topDraft.length - 1, index + 1))}
+                            disabled={index === topDraft.length - 1}
+                            title="Turunkan"
+                            aria-label={`Turunkan ${tpl?.name || `slot ${index + 1}`}`}
+                            className="flex h-6 w-7 items-center justify-center text-on-surface-variant hover:text-primary disabled:opacity-25"
+                          >
+                            <span className="material-symbols-outlined text-[16px] leading-none">keyboard_arrow_down</span>
+                          </button>
+                        </div>
+                      </li>
+                    )
+                  })}
+                </ul>
+
+                {topError && (
+                  <div className="mt-4 px-3 py-2 bg-error/10 border border-error text-error text-sm">{topError}</div>
+                )}
+
+                <div className="sticky bottom-0 -mx-5 mt-5 flex flex-wrap gap-3 border-t border-outline-variant bg-surface px-5 pt-3 pb-1 sm:-mx-8 sm:px-8">
+                  <button
+                    onClick={saveTop10}
+                    disabled={topSaving}
+                    className="bg-primary text-white px-8 py-3 font-label-md text-xs uppercase tracking-widest hover:bg-secondary transition-all disabled:opacity-50"
+                  >
+                    {topSaving ? "Menyimpan..." : "Simpan Top 10"}
+                  </button>
+                  <button
+                    onClick={() => setShowTop10(false)}
+                    className="border border-outline-variant text-on-surface-variant px-8 py-3 font-label-md text-xs uppercase tracking-widest hover:border-primary hover:text-primary transition-all"
+                  >
+                    Batal
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {showForm && (
             <div className="fixed inset-0 z-40 bg-black/50 flex items-start justify-center overflow-y-auto py-10">
               <div className="bg-surface w-full max-w-2xl p-8 my-10 shadow-xl border border-outline-variant">
@@ -934,33 +1132,6 @@ export default function OpsTemplatesPage() {
                       <option value="Populer">Populer</option>
                       <option value="Signature">Signature</option>
                     </select>
-                  </div>
-                  <div className="border border-outline-variant bg-surface-dim/40 p-4">
-                    <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary mb-3">Galeri Publik</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Urutan Top 10 Populer</label>
-                        <select
-                          className="input-editorial w-full font-label-md text-[14px]"
-                          value={form.popular_rank === "" ? "" : String(form.popular_rank)}
-                          onChange={(e) => setForm({ ...form, popular_rank: e.target.value === "" ? "" : Number(e.target.value) })}
-                        >
-                          <option value="">Tidak masuk Top 10</option>
-                          {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-                            <option key={n} value={n}>Posisi #{n}</option>
-                          ))}
-                        </select>
-                        <p className="text-[11px] text-on-surface-variant mt-1">
-                          #1 tampil paling kiri di baris <span className="font-semibold">Top 10 Populer</span> pada galeri publik &amp; pemilih template dashboard.
-                        </p>
-                      </div>
-                      <div>
-                        <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Top 10 Terbaru</label>
-                        <p className="text-[11px] text-on-surface-variant">
-                          Otomatis — diurutkan dari tanggal template dibuat (terbaru lebih dulu). Tidak perlu diisi.
-                        </p>
-                      </div>
-                    </div>
                   </div>
                   <div>
                     <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Deskripsi</label>
