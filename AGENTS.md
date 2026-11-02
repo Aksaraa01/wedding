@@ -132,10 +132,15 @@ its own management grid on purpose. Never re-add a fifth copy of the old grid.
   → `/register?template=CODE`); the dashboard passes `onPreview`/`onSelect` and
   keeps the package gate (`isLocked`) + Active badge.
 - "Populer" is ops-owned, never computed: `web_templates.popular_rank` (1..10,
-  unique partial index) edited in /ops/templates → "Galeri Publik". The migration
-  seed uses real usage (a current selection weighs 3x, a `wp_sync_jobs`
-  duplicate 1x) and pads the remaining slots from `sort_order`. "Terbaru" is
-  `created_at desc` — no column, no maintenance.
+  unique partial index). It is NOT a field in the edit modal — ops uses the
+  "Atur Top 10 Populer" button in /ops/templates, which opens a drag-and-drop
+  lineup of 10 slots (up/down buttons for touch, a name-only dropdown to fill an
+  empty slot) and saves the whole order through
+  `POST /api/ops/templates/popular-rank`. That route nulls every rank before
+  re-assigning, because the unique index makes in-place swaps collide. The
+  migration seed uses real usage (a current selection weighs 3x, a
+  `wp_sync_jobs` duplicate 1x) and pads the remaining slots from `sort_order`.
+  "Terbaru" is `created_at desc` — no column, no maintenance.
 - Ordering/padding/row-building math lives in `src/lib/templateGallery.ts`
   (pure, client-safe). Category bucketing still comes from
   `src/lib/templateCategory.ts`; `galleryRows()` guarantees no template falls
