@@ -150,7 +150,9 @@ export default function CinnabarSeal(profile: TemplateProps) {
   const [lightbox, setLightbox] = useState<number | null>(null)
   const [giftOpen, setGiftOpen] = useState(false)
   const [openingStarted, setOpeningStarted] = useState(false)
+  const [openingFallback, setOpeningFallback] = useState(false)
   const [filmStarted, setFilmStarted] = useState(false)
+  const [filmFallback, setFilmFallback] = useState(false)
   const [toast, setToast] = useState("")
 
   const tc = profile.template_content || {}
@@ -201,6 +203,11 @@ export default function CinnabarSeal(profile: TemplateProps) {
       ? film.src.match(/youtube\.com\/embed\/([A-Za-z0-9_-]{11})/)?.[1] || ""
       : ""
   const hasOpeningMedia = !!openingFilm || (hasVideo && !!youtubeId) || !!coverStill
+  const youtubeEmbedBase = youtubeId
+    ? `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&playsinline=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1`
+    : ""
+  const openingEmbedUrl = `${youtubeEmbedBase}&controls=0&fs=0`
+  const filmEmbedUrl = `${youtubeEmbedBase}&controls=1&fs=1`
 
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
@@ -471,7 +478,15 @@ export default function CinnabarSeal(profile: TemplateProps) {
               onPlaying={() => setOpeningStarted(true)}
             />
           ) : hasVideo && youtubeId ? (
-            <>
+            openingFallback ? (
+              <iframe
+                className="cn-opening-film__iframe"
+                src={openingEmbedUrl}
+                title={videoTitle}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
               <div className="cn-opening-film__embed">
                 <AutoplayYouTube
                   videoId={youtubeId}
@@ -480,7 +495,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
                   onPlay={() => setOpeningStarted(true)}
                 />
               </div>
-            </>
+            )
           ) : null}
           {coverStill && (!openingStarted || !hasVideo) && (
             <img className="cn-opening-film__poster" src={coverStill} alt="" aria-hidden="true" />
@@ -489,7 +504,10 @@ export default function CinnabarSeal(profile: TemplateProps) {
             <button
               type="button"
               className="cn-play"
-              onClick={() => setOpeningStarted(true)}
+              onClick={() => {
+                setOpeningFallback(true)
+                setOpeningStarted(true)
+              }}
               aria-label="Putar video pembuka"
             />
           )}
@@ -835,13 +853,23 @@ export default function CinnabarSeal(profile: TemplateProps) {
                     onPlaying={() => setFilmStarted(true)}
                   />
                 ) : youtubeId ? (
-                  <AutoplayYouTube
-                    videoId={youtubeId}
-                    title={videoTitle}
-                    controls
-                    autoplay
-                    onPlay={() => setFilmStarted(true)}
-                  />
+                  filmFallback ? (
+                    <iframe
+                      className="cn-film__iframe"
+                      src={filmEmbedUrl}
+                      title={videoTitle}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <AutoplayYouTube
+                      videoId={youtubeId}
+                      title={videoTitle}
+                      controls
+                      autoplay
+                      onPlay={() => setFilmStarted(true)}
+                    />
+                  )
                 ) : (
                   <iframe
                     src={film.src}
@@ -858,7 +886,10 @@ export default function CinnabarSeal(profile: TemplateProps) {
                 <button
                   type="button"
                   className="cn-play"
-                  onClick={() => setFilmStarted(true)}
+                  onClick={() => {
+                    setFilmFallback(true)
+                    setFilmStarted(true)
+                  }}
                   aria-label="Putar film"
                 />
               )}

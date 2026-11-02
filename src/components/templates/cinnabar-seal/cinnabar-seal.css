@@ -395,7 +395,8 @@ html:has(body.cn-locked) {
   height: 100svh;
   transform: translate(-50%, -50%);
 }
-.cn-opening-film__embed iframe {
+.cn-opening-film__embed iframe,
+.cn-opening-film__iframe {
   position: absolute;
   top: 50%;
   left: 50%;
