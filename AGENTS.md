@@ -433,11 +433,25 @@ while local smoke passed green.
 
 Note: `tsconfig.tsbuildinfo` is local build noise — leave it uncommitted.
 
+### Cloudflare (DNS, CDN, edge certificates)
+- **DNS `aksaraa.com` lives at Cloudflare** (NS `elinore`/`martin.ns.cloudflare.com`, zone id `d5a2cc0c9e27fe48db14f1c5c6930e46`). Hostinger is only the registrar now; its DNS API is no longer authoritative.
+- **Proxied (orange cloud):** `aksaraa.com`, `www`, `wedding.aksaraa.com`, `cdn.aksaraa.com`, `wp.aksaraa.com`, `education.aksaraa.com`, `staging.aksaraa.com`.
+- **DNS-only (grey cloud) BY DESIGN:** `*.wedding.aksaraa.com` (couple invitations) and `stg.education.aksaraa.com`. Cloudflare Universal SSL covers **one** level (`aksaraa.com` + `*.aksaraa.com`); a two-level host (`slug.wedding.aksaraa.com`) fails the TLS handshake at the edge. Proxying it requires Advanced Certificate Manager ($10/mo, Total TLS / advanced cert) — that is a product decision, not a config tweak. Invitations render straight from the origin.
+- **Never cache preview HTML at the edge.** Next answers RSC requests with a `307 ...?_rsc`; Cloudflare stores that redirect under the plain URL and serves it to normal navigation (this broke 4 previews on 2026-11-02). Cache rules: (1) bypass `/api|scanner|qr|led/`, `/w/`, any `?to=`; (2) bypass `wp` `/wp-json|/wp-admin|/wp-login`; (3) `/templates/*` **except** paths containing `/preview` → edge 30 d; (4) `/_next/static|/fonts|/images|/media|/defaults` → 1 y; (5) `wp` `/wp-content/*` → 30 d. Rule order matters (first match wins).
+- **`cdn.aksaraa.com`** is a static-only host: Caddy `file_server` over `.next/standalone/public` (no Node), `Access-Control-Allow-Origin: *` (fonts need it), 7-day `Cache-Control`. The couple-host blocks `redir /templates/*`, `/fonts/*`, `/images/*` → `https://cdn.aksaraa.com{uri}` (**302**, so rollback is instant: delete the three lines). This is how guest art reaches the edge without proxying the invitation host.
+- **Cache rule / CDN changes are made through the API** (`/zones/:id/rulesets/phases/http_request_cache_settings/entrypoint`). `matches` (regex) is **not** available on the Free plan — use `starts_with`/`contains`.
+- **Preflight is mandatory** before changing proxy status: `scripts/ops/cloudflare-preflight.sh` resolves every hostname pattern via DoH, verifies the certificate with curl against the edge IP, and requires `cf-ray` for proxied hosts. It exists because proxying `*.wedding.aksaraa.com` without ACM took couple invitations down on 2026-11-02.
+- **Server config is snapshotted** at `scripts/ops/Caddyfile.prod`; `npm run deploy` does not manage `/etc/caddy/Caddyfile`, so edit the server and update the snapshot in the same change.
+
 ### TLS certificates & Caddy (VPS)
-- `/usr/bin/caddy` is a **custom `xcaddy` build**, not the apt package: the official deb ships zero `dns.providers` modules, while `/etc/caddy/Caddyfile` needs `tls { dns hostinger … }` for the wildcards. The package is `apt-mark hold`-ed; a plain `apt upgrade` would install a binary that cannot parse the Caddyfile. Rebuild with `scripts/ops/build-caddy-linux.sh` (it applies `scripts/ops/libdns-hostinger-ttl.patch`) and follow `scripts/ops/deploy-caddy.md`.
-- The patch exists because `libdns-hostinger` forwards ACME's `TTL 0` to the Hostinger API, which rejects it (`HTTP 422 [DNS:4005] … at least 60 seconds`). Without it DNS-01 renewal fails **silently** — on 2026-10-29 that expired every wildcard cert (`wedding.`, `wp.`, `www.`, all couple subdomains) 31 days after the first failed renewal.
+- `/usr/bin/caddy` is a **custom `xcaddy` build**, not the apt package: the official deb ships zero `dns.providers` modules. Since the DNS move it is built with **both** `caddy-dns/cloudflare` (**v0.2.4 or newer — v0.2.2 rejects the `cfat_` token format**) and the legacy `caddy-dns-hostinger`, plus the `libdns-hostinger` TTL patch, so the Caddyfile can still be reverted during a migration window. The package is `apt-mark hold`-ed. Rebuild with `scripts/ops/build-caddy-linux.sh`, deploy per `scripts/ops/deploy-caddy.md`.
+- ACME is DNS-01 via **`tls { dns cloudflare {env.CLOUDFLARE_API_TOKEN} }`** for `wp.aksaraa.com`, `*.aksaraa.com` and `wedding.aksaraa.com, *.wedding.aksaraa.com`; `aksaraa.com` uses HTTP-01 (verified to pass through the proxy). The token lives in `/etc/systemd/system/caddy.service.d/override.conf` (chmod 600), not in the repo.
+- DNS-01 issuance was verified end-to-end against Let's Encrypt **staging** on 2026-11-02 (cert issued in ~12 s, TXT cleaned up). Caddy's propagation check uses the VPS resolver, which can lag a nameserver change by the delegation TTL (86400) — retry a day later instead of "fixing" the token.
 - Guard: `cert-expiry-check.timer` (daily 06:00 WIB) runs `scripts/ops/cert-expiry-check.sh` on the VPS and WhatsApps the ops group when a host stops verifying, expires in <14 days, or Caddy logged a renewal failure in the last 6 h. `--dry-run` prints instead of sending.
 - `npm run deploy`'s smoke test treats TLS/DNS curl failures as fatal; do not weaken that back to "ERR is fine".
+
+### Client IP & rate limits
+- Caddy runs with `trusted_proxies` limited to **Cloudflare's published ranges** plus `trusted_proxies_strict`, and overwrites `X-Real-IP` on every proxied request (`header_up X-Real-IP {client_ip}`). `src/lib/rateLimit.ts` reads `X-Real-IP` first, so a direct request to a DNS-only host (couple subdomains) cannot spoof a bucket by sending its own `X-Forwarded-For`/`CF-Connecting-IP`.
 
 ### Start local development
 
