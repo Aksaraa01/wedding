@@ -9,12 +9,21 @@ const buckets = new Map<string, { count: number; resetAt: number }>()
 const MAX_BUCKETS = 10_000
 
 export function getClientIp(req: Request): string {
+  // Caddy derives the real client from Cloudflare's headers (trusted_proxies
+  // only, `trusted_proxies_strict`) and overwrites X-Real-IP on every proxied
+  // request, so this header cannot be spoofed by the caller. X-Forwarded-For
+  // remains as a fallback for direct/local requests.
+  const real = req.headers.get("x-real-ip")
+  if (real) {
+    const first = real.split(",")[0]?.trim()
+    if (first) return first
+  }
   const forwarded = req.headers.get("x-forwarded-for")
   if (forwarded) {
     const first = forwarded.split(",")[0]?.trim()
     if (first) return first
   }
-  return req.headers.get("x-real-ip") || "unknown"
+  return "unknown"
 }
 
 interface RateLimitResult {
