@@ -31,6 +31,7 @@ import NFilm from "./n-film"
 import BoardingPass from "./boarding-pass"
 import IvoryLace from "./ivory-lace"
 import CinnabarSeal from "./cinnabar-seal"
+import Iris from "./iris"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -65,6 +66,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "boarding-pass": BoardingPass,
   "ivory-lace": IvoryLace,
   "cinnabar-seal": CinnabarSeal,
+  iris: Iris,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -1295,6 +1297,48 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       extras: true,
     },
   },
+  {
+    code: "iris",
+    name: "Iris",
+    description:
+      "Undangan taman klasik dengan bingkai emas, lukisan cat air, foto oval, hitung mundur hijau, dan tipografi skrip Garlicha.",
+    theme: {
+      fonts: { display: "Braven", script: "Garlicha", body: "Brygada 1918" },
+      colors: {
+        surface: "#fffdf7",
+        text: "#a17824",
+        accent: "#a17824",
+        accentMuted: "#e7dcc4",
+        overlay: "#41552f",
+        dark: "#41552f",
+      },
+      ornaments: { divider: "floral", border: "ornate", frame: "arch" },
+      motion: { enabled: true, duration: 0.9, stagger: 0.1 },
+    },
+    content: {
+      cover_slots: 3,
+      cover_slot_labels: ["Sampul", "Ayat", "Closing"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: true,
+      sections: {
+        opening_description: true,
+        quote: true,
+        countdown: true,
+        inviting: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        dresscode: true,
+        livestream: false,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+
 ]
 export function getTemplateConfig(code: string): TemplateConfig | undefined {
   return TEMPLATE_CONFIGS.find((t) => t.code === code)

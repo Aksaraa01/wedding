@@ -1,0 +1,1460 @@
+/* Iris — cream, gold and watercolour garden invitation.
+   Reference: studio.goodchoice.id/iris. Geometry is container-relative (cqw)
+   so the 390 reference scales inside the 480 px column. */
+
+@font-face {
+  font-family: "Brygada 1918";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/brygada1918-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Brygada 1918";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/brygada1918-500.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Brygada 1918";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/brygada1918-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Braven";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/iris-braven.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Garlicha";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/iris-garlicha.woff2") format("woff2");
+}
+
+body.ir-locked,
+html:has(body.ir-locked) {
+  overflow: hidden;
+}
+
+.ir-root {
+  --ir-gold: #a17824;
+  --ir-gold-dark: #8a6520;
+  --ir-gold-soft: rgba(161, 120, 36, 0.35);
+  --ir-cream: #fffdf7;
+  --ir-cream-2: #faf5ea;
+  --ir-green: #41552f;
+  --ir-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  background: #f3ecdf;
+  color: var(--ir-gold);
+  font-family: "Brygada 1918", serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+.ir-root *,
+.ir-root *::before,
+.ir-root *::after {
+  box-sizing: border-box;
+}
+.ir-root img {
+  display: block;
+  max-width: 100%;
+}
+.ir-root :where(h1, h2, h3, h4, p, ul, ol, figure, blockquote) {
+  margin: 0;
+}
+.ir-root :where(button) {
+  font: inherit;
+  color: inherit;
+}
+
+.ir-page {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--ir-cream);
+  container-type: inline-size;
+  overflow: clip;
+}
+
+/* ---------- type ---------- */
+.ir-kicker {
+  font-family: "Brygada 1918", serif;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.07em;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--ir-gold);
+}
+.ir-names {
+  font-family: "Braven", serif;
+  font-size: 46px;
+  font-weight: 400;
+  line-height: 0.92;
+  letter-spacing: 0;
+  text-align: center;
+  color: var(--ir-gold);
+}
+.ir-names__and {
+  display: block;
+  margin: 2px 0;
+  font-family: "Garlicha", cursive;
+  font-size: 37px;
+  line-height: 1;
+}
+.ir-script {
+  font-family: "Garlicha", cursive;
+  font-size: 55px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-align: center;
+  color: var(--ir-gold);
+}
+.ir-script--sm {
+  font-size: 41px;
+}
+.ir-script--md {
+  font-size: 47px;
+}
+.ir-script--lg {
+  font-size: 65px;
+}
+.ir-script--xl {
+  font-size: 79px;
+}
+.ir-body {
+  max-width: 34ch;
+  margin: 14px auto 0;
+  font-family: "Brygada 1918", serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--ir-gold);
+}
+.ir-quote {
+  max-width: 34ch;
+  margin: 22px auto 0;
+  padding: 0;
+  text-align: center;
+}
+.ir-quote p {
+  font-family: "Brygada 1918", serif;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ir-gold);
+}
+.ir-quote cite {
+  display: block;
+  margin-top: 10px;
+  font-family: "Brygada 1918", serif;
+  font-size: 22px;
+  font-style: normal;
+  color: var(--ir-gold);
+}
+.ir-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 30px;
+  border: 0;
+  border-radius: 999px;
+  font-family: "Brygada 1918", serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+.ir-btn--gold {
+  background: var(--ir-gold);
+  color: #fff;
+}
+.ir-btn--sm {
+  min-height: 38px;
+  padding: 0 24px;
+  font-size: 13px;
+}
+.ir-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--ir-gold);
+  color: #fff;
+  font-family: "Brygada 1918", serif;
+  font-size: 14px;
+  text-decoration: none;
+}
+.ir-pill svg {
+  width: 13px;
+  height: 13px;
+  fill: currentColor;
+}
+
+/* ---------- cover ---------- */
+.ir-cover {
+  position: relative;
+  min-height: 640px;
+  height: 100svh;
+  max-height: 940px;
+  overflow: hidden;
+  background: var(--ir-cream);
+  isolation: isolate;
+}
+.ir-cover.is-open {
+  display: none;
+}
+.ir-cover__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  z-index: -2;
+}
+.ir-cover__frame {
+  position: absolute;
+  left: 50%;
+  top: 5%;
+  width: 100%;
+  height: 62%;
+  transform: translateX(-50%);
+  background: url("/templates/iris/iris-frame.webp") center / contain no-repeat;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14cqw;
+  text-align: center;
+}
+.ir-cover__kicker {
+  font-family: "Brygada 1918", serif;
+  font-size: 13px;
+  letter-spacing: 0.07em;
+  color: var(--ir-gold);
+}
+.ir-cover__names {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 6px;
+  font-family: "Braven", serif;
+  font-size: 43px;
+  font-weight: 400;
+  line-height: 0.9;
+  color: var(--ir-gold);
+}
+.ir-cover__and {
+  margin: 3px 0;
+  font-family: "Garlicha", cursive;
+  font-size: 37px;
+  line-height: 1;
+}
+.ir-cover__date {
+  margin-top: 10px;
+  font-family: "Brygada 1918", serif;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  color: var(--ir-gold);
+}
+.ir-cover__foot {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 70px;
+  z-index: 2;
+  text-align: center;
+  text-shadow: 0 1px 6px rgba(255, 255, 255, 0.7);
+}
+.ir-cover__foot::before {
+  content: "";
+  position: absolute;
+  inset: -40px -24px -24px;
+  z-index: -1;
+  background: radial-gradient(ellipse at 50% 55%, rgba(255, 253, 247, 0.94) 0%, rgba(255, 253, 247, 0.68) 48%, rgba(255, 253, 247, 0) 78%);
+}
+.ir-cover__to {
+  font-family: "Brygada 1918", serif;
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--ir-gold);
+}
+.ir-cover__guest {
+  margin-top: 6px;
+  font-family: "Brygada 1918", serif;
+  font-size: 21px;
+  color: var(--ir-gold);
+}
+.ir-cover__foot .ir-btn {
+  margin-top: 16px;
+}
+.ir-cover__apology {
+  margin-top: 8px;
+  font-family: "Brygada 1918", serif;
+  font-size: 9px;
+  line-height: 1.5;
+  color: rgba(161, 120, 36, 0.7);
+}
+
+/* ---------- opening film ---------- */
+.ir-opening {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  min-height: 620px;
+  max-height: 940px;
+  background: #2a2416;
+  overflow: hidden;
+}
+.ir-opening video {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ir-opening__poster {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ir-opening__embed {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+}
+.ir-opening__embed > div {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 177.78svh;
+  height: 100svh;
+  transform: translate(-50%, -50%);
+}
+.ir-opening__embed iframe,
+.ir-opening__iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 177.78svh;
+  height: 100svh;
+  border: 0;
+  transform: translate(-50%, -50%);
+}
+.ir-play {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 64px;
+  height: 64px;
+  margin: auto;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  background: rgba(65, 85, 47, 0.42);
+  backdrop-filter: blur(2px);
+  cursor: pointer;
+}
+.ir-play::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 0;
+  height: 0;
+  margin: auto;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-left: 12px solid #fff;
+  transform: translateX(3px);
+}
+
+/* ---------- welcome ---------- */
+.ir-welcome {
+  position: relative;
+  padding: 200px 24px 80px;
+  background: var(--ir-cream);
+  overflow: hidden;
+  text-align: center;
+}
+.ir-welcome__texture {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.55;
+}
+.ir-welcome__top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  opacity: 0.97;
+}
+.ir-welcome__body {
+  position: relative;
+  z-index: 1;
+}
+.ir-welcome .ir-names {
+  margin-top: 8px;
+}
+.ir-welcome__date {
+  margin-top: 12px;
+  font-family: "Brygada 1918", serif;
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  color: var(--ir-gold);
+}
+
+/* ---------- generic section ---------- */
+.ir-section {
+  position: relative;
+  padding: 64px 24px 76px;
+  background: var(--ir-cream);
+  overflow: clip;
+  text-align: center;
+}
+
+/* ---------- verse ---------- */
+.ir-verse {
+  padding-top: 0;
+}
+.ir-verse__top {
+  width: 100%;
+  margin-bottom: -30px;
+}
+.ir-verse__oval {
+  position: relative;
+  z-index: 1;
+  width: 76cqw;
+  max-width: 340px;
+  margin: 0 auto 24px;
+}
+.ir-oval {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 392 / 476;
+}
+.ir-oval__photo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 74%;
+  height: 78%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  object-fit: cover;
+}
+.ir-oval__photo--empty {
+  background: linear-gradient(160deg, #efe4cd, #dfd0b2);
+}
+.ir-oval__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ---------- mempelai ---------- */
+.ir-people {
+  padding-top: 190px;
+  background: var(--ir-cream);
+  isolation: isolate;
+}
+.ir-people__drape {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 120cqw;
+  object-fit: cover;
+  object-position: top;
+  z-index: 0;
+}
+.ir-people > :not(.ir-people__drape) {
+  position: relative;
+  z-index: 1;
+}
+.ir-people .ir-script {
+  position: relative;
+}
+.ir-person {
+  position: relative;
+  margin-top: 38px;
+}
+.ir-person__portrait {
+  position: relative;
+  width: 52cqw;
+  max-width: 240px;
+  aspect-ratio: 2 / 3;
+  margin: 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 10px 26px rgba(120, 90, 30, 0.16);
+}
+.ir-person__portrait > img:first-child {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ir-person__empty {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, #f4ead8, #e3d3b5);
+}
+.ir-person__corner {
+  position: absolute;
+  right: -14%;
+  bottom: -8%;
+  width: 46%;
+  z-index: 2;
+  pointer-events: none;
+}
+.ir-person--groom .ir-person__corner {
+  right: auto;
+  left: -14%;
+}
+.ir-person__name {
+  margin-top: 18px;
+  font-family: "Braven", serif;
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--ir-gold);
+}
+.ir-person__label {
+  margin-top: 8px;
+  font-family: "Brygada 1918", serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--ir-gold);
+}
+.ir-person__parents {
+  max-width: 34ch;
+  margin: 4px auto 0;
+  font-family: "Brygada 1918", serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(161, 120, 36, 0.9);
+}
+.ir-person .ir-pill {
+  margin-top: 12px;
+}
+.ir-people__amp {
+  display: block;
+  margin-top: 24px;
+  font-family: "Garlicha", cursive;
+  font-size: 44px;
+  line-height: 1;
+  color: var(--ir-gold);
+}
+
+/* ---------- story ---------- */
+.ir-story__list {
+  margin-top: 34px;
+}
+.ir-story__item {
+  margin-top: 42px;
+  text-align: left;
+}
+.ir-story__item:first-child {
+  margin-top: 28px;
+}
+.ir-story__photo {
+  width: 38.5cqw;
+  max-width: 180px;
+  aspect-ratio: 2 / 3;
+  border-radius: 24px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 20px rgba(120, 90, 30, 0.12);
+}
+.ir-story__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ir-story__item.is-right {
+  text-align: right;
+}
+.ir-story__item.is-right .ir-story__photo {
+  margin-left: auto;
+}
+.ir-story__title {
+  font-family: "Brygada 1918", serif;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--ir-gold);
+}
+.ir-story__body {
+  margin-top: 8px;
+  font-family: "Brygada 1918", serif;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: justify;
+  color: var(--ir-gold);
+}
+
+/* ---------- save date / countdown / event ---------- */
+.ir-save {
+  padding-top: 36px;
+}
+.ir-save__stage {
+  position: relative;
+  width: 100%;
+  height: 136cqw;
+  max-height: 620px;
+}
+.ir-save__stage img {
+  position: absolute;
+}
+.ir-save__envelope {
+  left: 9cqw;
+  top: 0;
+  width: 82cqw;
+  z-index: 1;
+}
+.ir-save__photo {
+  top: 3cqw;
+  width: 31cqw;
+  height: 37cqw;
+  object-fit: cover;
+  border: 3px solid #fff;
+  border-radius: 6px;
+  box-shadow: 0 6px 14px rgba(120, 90, 30, 0.18);
+  z-index: 2;
+}
+.ir-save__photo--a {
+  left: 18cqw;
+  transform: rotate(-7deg);
+}
+.ir-save__photo--b {
+  left: 51cqw;
+  transform: rotate(6deg);
+}
+.ir-save__dove {
+  right: 7cqw;
+  top: 4cqw;
+  width: 10cqw;
+  z-index: 4;
+}
+.ir-save__mirror {
+  position: absolute;
+  left: 2cqw;
+  top: 38cqw;
+  width: 40cqw;
+  z-index: 3;
+}
+.ir-save__mirror img {
+  position: static;
+  width: 100%;
+}
+.ir-save__mirrorDate {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  width: 62%;
+  transform: translate(-50%, -50%);
+  font-family: "Braven", serif;
+  font-size: 17px;
+  line-height: 1.08;
+  text-align: center;
+  color: var(--ir-gold);
+}
+.ir-save__heart {
+  position: absolute;
+  right: 5cqw;
+  top: 33cqw;
+  width: 35cqw;
+  z-index: 2;
+}
+.ir-save__heart img {
+  position: static;
+  width: 100%;
+}
+.ir-save__heartNames {
+  position: absolute;
+  left: 50%;
+  top: 68%;
+  width: 84%;
+  transform: translate(-50%, -50%);
+  font-family: "Garlicha", cursive;
+  font-size: 14px;
+  line-height: 0.95;
+  text-align: center;
+  color: var(--ir-gold);
+}
+.ir-save__umbrellas {
+  right: 0;
+  top: 64cqw;
+  width: 24cqw;
+  z-index: 1;
+  opacity: 0.95;
+}
+.ir-save__heading {
+  margin-top: 6px;
+  font-family: "Braven", serif;
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.5px;
+  text-align: center;
+  color: var(--ir-gold);
+  text-transform: uppercase;
+}
+.ir-save__label em {
+  font-family: "Garlicha", cursive;
+  font-size: 37px;
+  font-style: normal;
+  text-transform: none;
+}
+.ir-clock {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  width: 86cqw;
+  max-width: 340px;
+  margin: 18px auto 0;
+}
+.ir-clock__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0 9px;
+  border-radius: 10px;
+  background: var(--ir-green);
+  color: #fff;
+}
+.ir-clock__value {
+  font-family: "Brygada 1918", serif;
+  font-size: 24px;
+  line-height: 1;
+}
+.ir-clock__label {
+  margin-top: 4px;
+  font-family: "Brygada 1918", serif;
+  font-size: 13px;
+  line-height: 1;
+  color: #fff;
+}
+.ir-arch {
+  width: 100%;
+  margin: 24px auto 0;
+}
+.ir-events {
+  margin-top: 18px;
+  padding: 105cqw 0 16px;
+  background: url("/templates/iris/floral-arch.webp") top center / 100% auto no-repeat;
+}
+.ir-event {
+  padding: 24px 0 8px;
+}
+.ir-event + .ir-event {
+  border-top: 1px solid rgba(161, 120, 36, 0.18);
+}
+.ir-event__name {
+  font-family: "Garlicha", cursive;
+  font-size: 47px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--ir-gold);
+}
+.ir-event__date {
+  margin-top: 10px;
+  font-family: "Brygada 1918", serif;
+  font-size: 18px;
+  color: var(--ir-gold);
+}
+.ir-event__time {
+  margin-top: 2px;
+  font-family: "Brygada 1918", serif;
+  font-size: 18px;
+  color: var(--ir-gold);
+}
+.ir-event__venue {
+  margin-top: 14px;
+  font-family: "Brygada 1918", serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ir-gold);
+}
+.ir-event__address {
+  max-width: 34ch;
+  margin: 6px auto 0;
+  font-family: "Brygada 1918", serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(161, 120, 36, 0.9);
+}
+.ir-event .ir-btn {
+  margin-top: 16px;
+}
+
+/* ---------- inviting ---------- */
+.ir-inviting {
+  padding-top: 80px;
+}
+.ir-corner {
+  position: absolute;
+  width: 30cqw;
+  opacity: 0.9;
+  pointer-events: none;
+}
+.ir-corner--left {
+  left: -12cqw;
+  top: -2cqw;
+  width: 26cqw;
+  opacity: 0.75;
+  z-index: 0;
+}
+.ir-inviting > :not(.ir-corner) {
+  position: relative;
+  z-index: 1;
+}
+.ir-family {
+  list-style: none;
+  max-width: 34ch;
+  margin: 26px auto 0;
+  padding: 0;
+}
+.ir-family li {
+  padding: 10px 0;
+  font-family: "Brygada 1918", serif;
+  font-size: 20px;
+  line-height: 1.35;
+  color: var(--ir-gold);
+}
+.ir-family li + li {
+  border-top: 1px solid rgba(161, 120, 36, 0.18);
+}
+
+/* ---------- rundown ---------- */
+.ir-timeline {
+  list-style: none;
+  max-width: 330px;
+  margin: 30px auto 0;
+  padding: 0;
+  position: relative;
+}
+.ir-timeline::before {
+  content: "";
+  position: absolute;
+  left: 82px;
+  top: 10px;
+  bottom: 10px;
+  width: 1px;
+  background: rgba(161, 120, 36, 0.28);
+}
+.ir-timeline__row {
+  display: grid;
+  grid-template-columns: 66px 20px 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 8px 0;
+  text-align: left;
+}
+.ir-timeline__time {
+  font-family: "Brygada 1918", serif;
+  font-size: 18px;
+  text-align: right;
+  color: var(--ir-gold);
+}
+.ir-timeline__dot {
+  width: 7px;
+  height: 7px;
+  margin: 7px auto 0;
+  border-radius: 50%;
+  background: var(--ir-gold);
+}
+.ir-timeline__text {
+  font-family: "Brygada 1918", serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(161, 120, 36, 0.92);
+}
+
+/* ---------- gallery ---------- */
+.ir-gallery__grid {
+  column-count: 2;
+  column-gap: 8px;
+  margin-top: 28px;
+  text-align: left;
+}
+.ir-gallery__item {
+  display: block;
+  width: 100%;
+  margin: 0 0 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 18px;
+  background: #f1e8d8;
+  overflow: hidden;
+  break-inside: avoid;
+  cursor: zoom-in;
+}
+.ir-gallery__item img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+.ir-gallery__grid.is-single {
+  column-count: 1;
+  width: 70%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ---------- film ---------- */
+.ir-film__inline {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin: 24px auto 0;
+  padding: 6px;
+  border: 1px solid var(--ir-gold);
+  border-radius: 8px;
+  background: #1e1a12;
+}
+.ir-film__media {
+  position: absolute;
+  inset: 6px;
+  z-index: 1;
+}
+.ir-film__poster {
+  position: absolute;
+  inset: 6px;
+  z-index: 2;
+  width: calc(100% - 12px);
+  height: calc(100% - 12px);
+  object-fit: cover;
+}
+.ir-film__media video,
+.ir-film__media iframe,
+.ir-film__media > div {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+}
+
+/* ---------- gift ---------- */
+.ir-gift {
+  position: relative;
+  overflow: hidden;
+}
+.ir-gift__flower {
+  position: absolute;
+  right: -12cqw;
+  top: 22cqw;
+  width: 36cqw;
+  opacity: 0.8;
+  pointer-events: none;
+  z-index: 0;
+}
+.ir-gift > :not(.ir-gift__flower) {
+  position: relative;
+  z-index: 1;
+}
+.ir-gift .ir-btn {
+  margin-top: 20px;
+}
+.ir-gift__details {
+  margin-top: 22px;
+}
+.ir-account {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 14px 18px;
+  border: 1px solid rgba(161, 120, 36, 0.35);
+  border-radius: 10px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+.ir-account__bank {
+  font-family: "Brygada 1918", serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ir-gold);
+}
+.ir-account__number {
+  font-family: "Brygada 1918", serif;
+  font-size: 19px;
+  color: var(--ir-gold);
+}
+.ir-account__name {
+  font-family: "Brygada 1918", serif;
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(161, 120, 36, 0.9);
+}
+
+/* ---------- dresscode ---------- */
+.ir-dress .ir-script {
+  margin-bottom: 4px;
+}
+.ir-swatches {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 28px auto 0;
+  padding: 0;
+  list-style: none;
+}
+.ir-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 74px;
+}
+.ir-swatch__dot {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgba(161, 120, 36, 0.2);
+}
+.ir-swatch__name {
+  font-family: "Brygada 1918", serif;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  line-height: 1.4;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--ir-gold);
+}
+
+/* ---------- wishes ---------- */
+.ir-wishes {
+  position: relative;
+  overflow: hidden;
+}
+.ir-wishes__curve {
+  position: absolute;
+  left: -22cqw;
+  right: auto;
+  top: auto;
+  bottom: -8cqw;
+  width: 70cqw;
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
+}
+.ir-wishes > *:not(.ir-wishes__curve) {
+  position: relative;
+  z-index: 1;
+}
+.ir-wishes__body {
+  max-width: 360px;
+  margin: 22px auto 0;
+  padding: 20px 16px;
+  border: 1px solid rgba(161, 120, 36, 0.28);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+}
+.ir-wish-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.ir-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  text-align: left;
+}
+.ir-field__label {
+  font-family: "Brygada 1918", serif;
+  font-size: 13px;
+  color: var(--ir-gold);
+}
+.ir-field__input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid rgba(161, 120, 36, 0.4);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ir-gold);
+  font-family: "Brygada 1918", serif;
+  font-size: 14px;
+  outline: none;
+}
+textarea.ir-field__input {
+  border-radius: 12px;
+  resize: vertical;
+}
+.ir-field__input:focus {
+  border-color: var(--ir-gold);
+}
+.ir-field__input::placeholder {
+  color: rgba(161, 120, 36, 0.45);
+}
+.ir-field__counter {
+  font-family: "Brygada 1918", serif;
+  font-size: 10px;
+  text-align: right;
+  color: rgba(161, 120, 36, 0.5);
+}
+.ir-field__feedback {
+  font-family: "Brygada 1918", serif;
+  font-size: 12px;
+  line-height: 1.5;
+  color: rgba(161, 120, 36, 0.8);
+}
+.ir-field__feedback.is-error {
+  color: #9a3f32;
+}
+.ir-wishlist {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 22px;
+}
+.ir-wish {
+  padding-left: 12px;
+  border-left: 1px solid rgba(161, 120, 36, 0.4);
+  text-align: left;
+}
+.ir-wish__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.ir-wish__name {
+  font-family: "Brygada 1918", serif;
+  font-size: 13px;
+  font-weight: 700;
+}
+.ir-wish__date {
+  font-family: "Brygada 1918", serif;
+  font-size: 10px;
+  color: rgba(161, 120, 36, 0.55);
+}
+.ir-wish__text {
+  margin-top: 3px;
+  font-family: "Brygada 1918", serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(161, 120, 36, 0.9);
+}
+.ir-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.ir-pager__btn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(161, 120, 36, 0.4);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ir-gold);
+  cursor: pointer;
+}
+.ir-pager__info {
+  font-family: "Brygada 1918", serif;
+  font-size: 10px;
+  color: rgba(161, 120, 36, 0.6);
+}
+
+/* ---------- closing ---------- */
+.ir-closing {
+  position: relative;
+  padding: 0 24px 0;
+  background: var(--ir-cream);
+  overflow: hidden;
+  text-align: center;
+}
+.ir-closing__drape {
+  width: 100%;
+  height: 125cqw;
+  object-fit: cover;
+  object-position: top;
+}
+.ir-closing__oval {
+  position: relative;
+  width: 50cqw;
+  max-width: 230px;
+  aspect-ratio: 2 / 3;
+  margin: -16cqw auto 18px;
+  border: 5px solid var(--ir-cream);
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 10px 26px rgba(120, 90, 30, 0.18);
+  z-index: 2;
+}
+.ir-closing__oval img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ir-closing__see {
+  margin-top: 12px;
+  font-family: "Brygada 1918", serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ir-gold);
+}
+.ir-closing__names {
+  margin-top: 8px;
+  font-family: "Garlicha", cursive;
+  font-size: 42px;
+  line-height: 1;
+  color: var(--ir-gold);
+}
+.ir-closing__garden {
+  width: calc(100% + 48px);
+  height: 100cqw;
+  margin: 24px -24px 0;
+  object-fit: cover;
+  object-position: center bottom;
+}
+.ir-footer {
+  padding: 22px 24px 26px;
+  background: var(--ir-gold);
+  color: #fff;
+  text-align: center;
+}
+.ir-footer__link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.ir-footer__badge {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #fff;
+  overflow: hidden;
+}
+.ir-footer__badge img {
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+}
+.ir-footer__cta {
+  font-family: "Brygada 1918", serif;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.ir-footer__text {
+  margin-top: 10px;
+  font-family: "Brygada 1918", serif;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* ---------- music / lightbox / toast ---------- */
+.ir-music {
+  position: fixed;
+  right: 16px;
+  top: 16px;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  width: 40px;
+  height: 40px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 50%;
+  background: rgba(65, 85, 47, 0.62);
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+.ir-music__bar {
+  width: 2px;
+  height: 8px;
+  background: #fff;
+  animation: irBar 0.9s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+.ir-music.is-on .ir-music__bar {
+  animation-play-state: running;
+}
+.ir-music__bar:nth-child(2) {
+  height: 14px;
+  animation-delay: 0.16s;
+}
+.ir-music__bar:nth-child(3) {
+  height: 10px;
+  animation-delay: 0.32s;
+}
+.ir-music.is-off .ir-music__bar {
+  animation: none;
+  height: 3px;
+}
+@keyframes irBar {
+  from { height: 4px; }
+  to { height: 15px; }
+}
+.ir-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(30, 24, 12, 0.9);
+  backdrop-filter: blur(3px);
+}
+.ir-lightbox img {
+  max-width: 100%;
+  max-height: 86svh;
+  object-fit: contain;
+}
+.ir-lightbox__close {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.ir-lightbox__nav {
+  position: absolute;
+  top: 50%;
+  width: 42px;
+  height: 42px;
+  margin-top: -21px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+}
+.ir-lightbox__nav--prev { left: 14px; }
+.ir-lightbox__nav--next { right: 14px; }
+.ir-lightbox__count {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  font-family: "Brygada 1918", serif;
+  font-size: 11px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+}
+.ir-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 34px;
+  z-index: 90;
+  transform: translateX(-50%);
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgba(65, 85, 47, 0.95);
+  color: #fff;
+  font-family: "Brygada 1918", serif;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* ---------- reveal motion ---------- */
+[data-ir-reveal],
+[data-ir-load] {
+  opacity: 0;
+}
+[data-ir-reveal].is-in,
+[data-ir-load].is-in {
+  animation-duration: 0.9s;
+  animation-timing-function: var(--ir-ease);
+  animation-fill-mode: both;
+  animation-delay: var(--ir-delay, 0s);
+}
+.is-in[data-ir-reveal="fade"],
+.is-in[data-ir-load="fade"] { animation-name: irFade; }
+.is-in[data-ir-reveal="up"],
+.is-in[data-ir-load="up"] { animation-name: irUp; }
+.is-in[data-ir-reveal="zoom"],
+.is-in[data-ir-load="zoom"] { animation-name: irZoom; }
+@keyframes irFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes irUp {
+  from { opacity: 0; translate: 0 26px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes irZoom {
+  from { opacity: 0; scale: 0.9; }
+  to { opacity: 1; scale: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-ir-reveal],
+  [data-ir-load] {
+    opacity: 1 !important;
+    animation: none !important;
+    translate: none !important;
+    scale: none !important;
+  }
+  .ir-music__bar {
+    animation: none;
+    height: 8px;
+  }
+}
+@media (scripting: none) {
+  [data-ir-reveal],
+  [data-ir-load] {
+    opacity: 1 !important;
+    animation: none !important;
+    translate: none !important;
+    scale: none !important;
+  }
+}
+
+@media (max-width: 359px) {
+  .ir-swatches { gap: 6px; }
+  .ir-swatch { width: 68px; }
+  .ir-save__heading { font-size: 34px; }
+}

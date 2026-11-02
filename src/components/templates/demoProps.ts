@@ -1831,3 +1831,123 @@ DEMO_PROPS_BY_CODE["cinnabar-seal"] = {
       "Merupakan suatu kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan doa restu. Terima kasih telah menjadi bagian dari cerita kami.",
   },
 }
+
+DEMO_PROPS_BY_CODE.iris = {
+  ...DEMO_PROPS_BY_CODE["sandhya"],
+  slug: "demo",
+  display_name: "Albarn & Faye",
+  couple_initials: "AF",
+  estimated_wedding_date: "2027-11-12",
+  cover_photos: [`${DE}/cover.webp`, `${DE}/cover-1.webp`, `${DE}/cover-2.webp`],
+  groom_photo_url: [`${DE}/groom.webp`],
+  bride_photo_url: [`${DE}/bride.webp`],
+  gallery_photos: [
+    `${DE}/cover-3.webp`, `${DE}/cover-4.webp`, `${DE}/cover-5.webp`, `${DE}/cover-6.webp`,
+    `${DE}/cover.webp`, `${DE}/cover-1.webp`, `${DE}/cover-2.webp`, `${DE}/bride.webp`,
+  ],
+  sessions: [
+    {
+      name: "Pemberkatan",
+      date: "2027-11-12",
+      time: "09.00 WIB",
+      venue: "The Dharmawangsa Jakarta",
+      address: "Jl. Brawijaya Raya No. 26, Pulo, Kec. Kebayoran Baru, Jakarta Selatan 12160",
+      maps_url: "https://maps.app.goo.gl/9bRvrJZZ1xcZSoqa6",
+    },
+    {
+      name: "Resepsi",
+      date: "2027-11-12",
+      time: "18.30 WIB",
+      venue: "The Dharmawangsa Jakarta",
+      address: "Jl. Brawijaya Raya No. 26, Pulo, Kec. Kebayoran Baru, Jakarta Selatan 12160",
+      maps_url: "https://maps.app.goo.gl/UPxWi9HU1w4A9R1j6",
+    },
+  ],
+  stories: [
+    {
+      title: "Awal Pertemuan",
+      description:
+        "Kami bertemu di sebuah acara keluarga di Jakarta. Percakapan singkat tentang kopi berlanjut menjadi obrolan panjang yang tidak ingin kami akhiri.",
+      image_url: `${DE}/cover-3.webp`,
+    },
+    {
+      title: "Menjalin Hubungan",
+      description:
+        "Dari teman menjadi teman seperjalanan. Kami belajar bahwa rumah bukan hanya soal tempat, tetapi tentang siapa yang menunggu di sana.",
+      image_url: `${DE}/cover-4.webp`,
+    },
+    {
+      title: "Sebuah Janji",
+      description:
+        "Di sebuah taman pada sore hari, pertanyaan sederhana dijawab dengan senyum dan anggukan yang menyatukan kami untuk selamanya.",
+      image_url: `${DE}/cover-5.webp`,
+    },
+  ],
+  rundown_visible: true,
+  rundown: [
+    { time: "08.30", description: "Tamu tiba dan registrasi" },
+    { time: "09.00", description: "Pemberkatan dimulai" },
+    { time: "10.30", description: "Sesi foto keluarga" },
+    { time: "18.30", description: "Resepsi dibuka" },
+    { time: "21.00", description: "Salam perpisahan" },
+  ],
+  dresscode_visible: true,
+  dresscode: {
+    title: "Dresscode",
+    description: "Kami dengan hormat menganjurkan para tamu mengenakan warna-warna ini untuk hari istimewa kami.",
+    colors: [
+      { hex: "#5c1f1c", name: "Maroon" },
+      { hex: "#e8cf9e", name: "Champagne" },
+      { hex: "#b06a3b", name: "Terracotta" },
+      { hex: "#3b2a1e", name: "Coklat" },
+    ],
+  },
+  template_content: {
+    cover_kicker: "The Wedding of",
+    open_button: "Buka Undangan",
+    cover_apology: "Kami mohon maaf atas segala kekeliruan penulisan nama dan gelar.",
+    welcome_message: "Kami mengundang Anda untuk menjadi bagian dari hari istimewa kami.",
+    opening_kicker: "Ayat Suci",
+    mempelai_kicker: "With Love",
+    parents_label: "Anak dari",
+    profiles_intro:
+      "Tanpa mengurangi rasa hormat, kami bermaksud mengundang Bapak/Ibu/Saudara/i untuk menghadiri acara pernikahan kami.",
+    love_story_title: "Kisah Cinta",
+    story_intro: "Bab-bab kecil yang membawa kami sampai ke hari ini.",
+    save_date_label: "SAVE the DATE",
+    events_intro: "Kami akan senang bila Anda berkenan hadir di hari bahagia kami.",
+    maps_label: "Lihat Lokasi",
+    inviting_kicker: "Turut Mengundang",
+    inviting_title: "Keluarga & Sahabat",
+    inviting_intro: "Dengan penuh rasa syukur, kami mengundang Anda untuk ikut dalam perayaan ini bersama keluarga kami.",
+    rundown_kicker: "Rundown",
+    rundown_title: "Rangkaian Acara",
+    rundown_intro: "Bagaimana hari itu akan berjalan, dari kedatangan pertama hingga salam perpisahan.",
+    gallery_title: "Gallery",
+    gallery_intro: "Bingkai-bingkai yang kami simpan untuk dikenang bersama.",
+    video_title: "Our Film",
+    video_intro: "Hari itu, direkam agar bisa kami putar kembali kapan saja.",
+    gift_intro_title: "Wedding Gift",
+    gift_intro_description:
+      "Kehadiran dan doa Anda adalah hadiah terindah bagi kami. Namun, apabila berkenan memberikan tanda kasih, silakan gunakan informasi di bawah ini.",
+    gift_button: "Kirim Hadiah",
+    dresscode_kicker: "Dresscode",
+    dresscode_intro:
+      "Kami dengan hormat menganjurkan para tamu mengenakan warna-warna ini untuk hari istimewa kami.",
+    wishes_kicker: "Ucapan & Doa",
+    wishes_title: "",
+    wishes_intro: "Sampaikan doa dan harapan terbaik di sini, saat kami memulai perjalanan baru bersama.",
+    wishes_name_label: "Nama",
+    wishes_name_placeholder: "Nama lengkap",
+    wishes_message_label: "Ucapan & Doa",
+    wishes_message_placeholder: "Titipkan pesan dan doa terbaik",
+    wishes_submit: "Kirim Ucapan",
+    wishes_empty: "Belum ada ucapan. Jadilah yang pertama.",
+    closing_kicker: "Terima Kasih",
+    closing_message:
+      "Menjadi sebuah kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dalam hari bahagia kami. Terima kasih atas segala ucapan, doa, dan perhatian yang diberikan.",
+    copy_account_toast: "Nomor rekening disalin",
+    copy_address_toast: "Alamat disalin",
+    copy_address_button: "Salin Alamat",
+  },
+}
