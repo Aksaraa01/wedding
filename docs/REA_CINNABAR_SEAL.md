@@ -187,7 +187,7 @@ based — never a percentage of a count-derived parent height.
 | # | Section | Renders from | Gate + toggle | Count / variant branch | Copy source | Motion |
 |---|---|---|---|---|---|---|
 | 1 | Cover | `cover_photos[0]`, names, `estimated_wedding_date`, `guest_name` | always | 0 photos ⇒ `#4a0f12` flat; 1 name ⇒ no `&` | `template_content.cover_kicker`, `open_button`, `cover_apology` | load fade/up |
-| 2 | Opening film | `video_url` (file or embed) | `feature_gates.video` && `video_section_visible` for the *video* only | section always renders: video autoplays muted when allowed; otherwise the cover photo (`cover_photos[0]`, else gallery[0]) fills the frame | none | fade |
+| 2 | Opening film | `video_url` (file or embed) | `feature_gates.video` && `video_section_visible` for the *video* only | full-bleed `100svh`: video autoplays muted and is cover-scaled (a 16:9 YouTube iframe is scaled to `177.78svh` and centre-cropped); otherwise the cover photo (`cover_photos[0]`, else gallery[0]) fills the frame | none | fade |
 | 3 | Welcome | `cover_photos[1]`, names, date | always | no photo ⇒ cover photo | `template_content.welcome_line` | load fade/up |
 | 4 | Kalimat pembuka | `opening_title`, `opening_description` | `!hidesOpeningSection` | kicker only when a title exists; empty description ⇒ paragraph omitted | profile + `opening_kicker` | up |
 | 5 | Mempelai | `groom_*` / `bride_*`, parents, IG, photos | `person_photos !== false` per portrait | missing parent/IG row ⇒ row omitted; missing photo ⇒ BP frame only | names/parents/IG profile; `mempelai_kicker`, `parents_label` | fade/up |
@@ -224,7 +224,7 @@ the contract; RSVP dropped; dress code moved after gift to match the contract.
 | "Daughter of" / "Son of" | Replaced with `parents_label` (default "Anak dari"). |
 | Reference couple names/photos/story text | Not copied. Demo uses Aksaraa sample data; all strings are live data. |
 | Desktop layout | Centred 480 px column (reference has no desktop design). |
-| Opening film / film section | Both autoplay muted so the first screen after the gate is motion; a poster (or the cover photo) holds the frame until the player actually starts, so a blocked embed never leaves a black box. |
+| Opening film / film section | Both autoplay muted so the first screen after the gate is motion. The opening is full-bleed `100svh` (no frame or padding), with the 16:9 YouTube iframe scaled to cover the portrait viewport. A poster (or the cover photo) holds the frame until the player actually starts, so a blocked embed never leaves a black box. |
 | Gift copy | Printed on the white card exactly like the reference; the reference's "Make a gift now" button now discloses the account/address details instead of opening a modal. |
 | Envelope "Make a gift now" button | Replaced with account cards + address in the same envelope/red-button language, because the invitation must expose the actual account numbers (playbook §0.5). |
 

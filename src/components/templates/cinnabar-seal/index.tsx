@@ -476,7 +476,6 @@ export default function CinnabarSeal(profile: TemplateProps) {
           ) : coverStill ? (
             <img className="cn-opening-film__poster is-fallback" src={coverStill} alt="" aria-hidden="true" />
           ) : null}
-          <span className="cn-opening-film__frame" aria-hidden="true" />
         </section>
         )}
 
