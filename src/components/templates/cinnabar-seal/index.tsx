@@ -215,7 +215,10 @@ export default function CinnabarSeal(profile: TemplateProps) {
   const guestName = (profile.guest_name || "").trim() || WISH_ME
   const dateLong = formatLongDate(profile.estimated_wedding_date)
   const dateDotted = dottedDate(profile.estimated_wedding_date)
-  const initials = initialsOf(groomName, brideName) || "CS"
+  // The editor owns the cover monogram ("Singkatan Pasangan"); only fall back
+  // to the names when the couple has not filled it.
+  const editorInitials = (profile.couple_initials || "").replace(/[^A-Za-z]/g, "").toUpperCase()
+  const initials = editorInitials.slice(0, 2) || initialsOf(groomName, brideName) || "CS"
   const year = String(parseDate(profile.estimated_wedding_date)?.getFullYear() || new Date().getFullYear())
 
   const groomIg = igHandle(profile.groom_instagram)
