@@ -126,21 +126,6 @@ function Garland({ className }: { className?: string }) {
   )
 }
 
-function ArchRule({ className }: { className?: string }) {
-  return (
-    <svg
-      className={`nl-archrule${className ? ` ${className}` : ""}`}
-      viewBox="0 0 120 160"
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
-      <path d="M60 2v156" />
-      <path d="M60 2C22 8 6 40 6 78v80" />
-      <path d="M60 2c38 6 54 38 54 76v80" />
-    </svg>
-  )
-}
-
 // ── Component ──────────────────────────────────────────────────────────────
 
 export default function NavyLove(profile: TemplateProps) {
