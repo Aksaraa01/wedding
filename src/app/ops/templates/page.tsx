@@ -27,6 +27,7 @@ type Template = {
   // Tanpa-photo group (separate dimension, never a badge): photo fields are
   // hidden in editor + ops and excluded from completeness.
   no_photo?: boolean | null
+  popular_rank?: number | null
   source_type: string | null
   wp_master_slug: string | null
   wp_manifest: Record<string, any> | null
@@ -131,6 +132,7 @@ export default function OpsTemplatesPage() {
     package_eligibility: [] as string[],
     category: "",
     tier: "" as string,
+    popular_rank: "" as number | "",
     source_type: "wp" as "wp" | "inhouse",
     wp_master_slug: "",
     no_photo: false,
@@ -231,7 +233,7 @@ export default function OpsTemplatesPage() {
     setManifest({})
     setElements([])
     setPopups([])
-    setForm({ code: "", name: "", description: "", preview_image_url: "", demo_url: "", is_active: true, sort_order: templates.length, package_eligibility: [...PACKAGE_CODES], category: "", tier: "", source_type: "wp", wp_master_slug: "", no_photo: false })
+    setForm({ code: "", name: "", description: "", preview_image_url: "", demo_url: "", is_active: true, sort_order: templates.length, package_eligibility: [...PACKAGE_CODES], category: "", tier: "", popular_rank: "", source_type: "wp", wp_master_slug: "", no_photo: false })
   }
 
   const startEdit = (t: Template, openMapping = false) => {
@@ -253,6 +255,7 @@ export default function OpsTemplatesPage() {
       package_eligibility: t.package_eligibility && t.package_eligibility.length > 0 ? t.package_eligibility : [...PACKAGE_CODES],
       category: t.category || "",
       tier: (t as any).tier || "",
+      popular_rank: typeof t.popular_rank === "number" ? t.popular_rank : "",
       source_type: t.source_type === "inhouse" ? "inhouse" : "wp",
       wp_master_slug: t.wp_master_slug || "",
       no_photo: (t as any).no_photo === true,
@@ -312,6 +315,7 @@ export default function OpsTemplatesPage() {
     }
     const body = {
       ...form,
+      popular_rank: form.popular_rank === "" ? null : Number(form.popular_rank),
       source_type: isInhouse ? "inhouse" : "wp",
       description: form.description || null,
       preview_image_url: form.preview_image_url || null,
@@ -815,6 +819,9 @@ export default function OpsTemplatesPage() {
                     {normalizeTemplateTier((t as any).tier) && (
                       <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full shrink-0 ${tierBadgeClass((t as any).tier)}`}>{(t as any).tier}</span>
                     )}
+                    {typeof t.popular_rank === "number" && (
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-amber-100 text-amber-800 shrink-0">#{t.popular_rank} Populer</span>
+                    )}
                     {t.source_type === "inhouse" && (
                       <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-cyan-50 text-cyan-700 border border-cyan-200 shrink-0">In-House</span>
                     )}
@@ -927,6 +934,33 @@ export default function OpsTemplatesPage() {
                       <option value="Populer">Populer</option>
                       <option value="Signature">Signature</option>
                     </select>
+                  </div>
+                  <div className="border border-outline-variant bg-surface-dim/40 p-4">
+                    <p className="font-label-md text-[10px] uppercase tracking-widest text-secondary mb-3">Galeri Publik</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Urutan Top 10 Populer</label>
+                        <select
+                          className="input-editorial w-full font-label-md text-[14px]"
+                          value={form.popular_rank === "" ? "" : String(form.popular_rank)}
+                          onChange={(e) => setForm({ ...form, popular_rank: e.target.value === "" ? "" : Number(e.target.value) })}
+                        >
+                          <option value="">Tidak masuk Top 10</option>
+                          {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                            <option key={n} value={n}>Posisi #{n}</option>
+                          ))}
+                        </select>
+                        <p className="text-[11px] text-on-surface-variant mt-1">
+                          #1 tampil paling kiri di baris <span className="font-semibold">Top 10 Populer</span> pada galeri publik &amp; pemilih template dashboard.
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Top 10 Terbaru</label>
+                        <p className="text-[11px] text-on-surface-variant">
+                          Otomatis — diurutkan dari tanggal template dibuat (terbaru lebih dulu). Tidak perlu diisi.
+                        </p>
+                      </div>
+                    </div>
                   </div>
                   <div>
                     <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Deskripsi</label>

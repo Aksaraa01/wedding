@@ -1,10 +1,10 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { supabaseAdmin } from "@/lib/supabase"
-import { normalizeTemplateTier, tierBadgeClass } from "@/lib/templateTier"
-import { TEMPLATE_CATEGORIES } from "@/lib/templateCategory"
 import Navigation from "@/components/Navigation"
 import SeoFaq from "@/components/SeoFaq"
+import TemplateGallery from "@/components/template-gallery/TemplateGallery"
+import type { GalleryTemplate } from "@/lib/templateGallery"
 
 export const metadata: Metadata = {
   title: "Galeri Template Undangan Pernikahan Digital",
@@ -20,24 +20,14 @@ export const metadata: Metadata = {
 
 export const revalidate = 3600
 
-type TemplateRow = {
-  id: string
-  code: string
-  name: string
-  preview_image_url: string | null
-  category: string | null
-  tier: string | null
-  no_photo: boolean | null
-}
-
-async function getTemplates(): Promise<TemplateRow[]> {
+async function getTemplates(): Promise<GalleryTemplate[]> {
   const { data } = await supabaseAdmin
     .from("web_templates")
-    .select("id,code,name,preview_image_url,category,tier,no_photo")
+    .select("id,code,name,preview_image_url,category,tier,no_photo,popular_rank,sort_order,created_at")
     .eq("is_active", true)
     .order("sort_order", { ascending: true })
     .order("name", { ascending: true })
-  return (data as TemplateRow[] | null) || []
+  return (data as GalleryTemplate[] | null) || []
 }
 
 export default async function TemplatesIndexPage() {
@@ -46,92 +36,28 @@ export default async function TemplatesIndexPage() {
   return (
     <main className="bg-[#FAF7F2] min-h-screen pt-24 md:pt-32 pb-10">
       <Navigation />
-      <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto text-center mb-12">
-        <h1 className="font-headline-lg text-[26px] leading-[1.15] md:leading-normal md:text-headline-lg text-primary mb-4 md:mb-6">
+      <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto text-center mb-7 md:mb-14">
+        <h1 className="font-headline-lg text-[21px] leading-[1.25] md:leading-normal md:text-headline-lg text-primary mb-3 md:mb-6">
           Galeri Template Undangan Pernikahan Digital
         </h1>
-        <p className="text-base md:text-body-lg leading-relaxed text-on-surface-variant max-w-2xl mx-auto">
-          {templates.length}+ template undangan website pernikahan: adat, modern, floral, elegansi dark,
-          hingga tanpa foto. Setiap desain sudah lengkap dengan RSVP online, amplop digital, dan galeri foto.
+        <p className="text-[13px] leading-[1.6] md:text-body-lg md:leading-relaxed text-on-surface-variant max-w-2xl mx-auto">
+          {templates.length}+ template undangan website pernikahan: adat, modern, floral, hingga tanpa foto.
+          <span className="hidden md:inline">
+            {" "}Setiap desain sudah lengkap dengan RSVP online, amplop digital, dan galeri foto.
+          </span>
         </p>
-        <div className="mt-6 flex flex-col sm:flex-row sm:flex-wrap sm:justify-center gap-3">
+        <div className="mt-4 md:mt-6 flex flex-row justify-center gap-2 md:gap-3">
           <Link
             href="/customize"
-            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#B34E3F] text-white text-xs font-semibold tracking-widest uppercase active:bg-[#9A3F32] hover:bg-[#9A3F32] transition-colors text-center"
+            className="px-5 md:px-8 py-2.5 md:py-3.5 rounded-full bg-[#B34E3F] text-white text-[10px] md:text-xs font-semibold tracking-widest uppercase active:bg-[#9A3F32] hover:bg-[#9A3F32] transition-colors text-center whitespace-nowrap"
           >
             Lihat Harga &amp; Paket
           </Link>
-          <Link
-            href="/premium-web-invitation"
-            className="w-full sm:w-auto px-8 py-3.5 rounded-full border border-[#B34E3F] text-[#B34E3F] text-xs font-semibold tracking-widest uppercase active:bg-[#B34E3F] hover:bg-[#B34E3F] active:text-white hover:text-white transition-colors text-center"
-          >
-            Cara Membuat
-          </Link>
-        </div>
-        <div className="mt-5 -mx-margin-mobile px-margin-mobile md:mx-0 md:px-0">
-          <div className="flex gap-2 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-1 md:flex-wrap md:justify-center md:overflow-visible">
-            {TEMPLATE_CATEGORIES.map((c) => (
-              <Link
-                key={c.id}
-                href={`/templates/kategori/${c.id}`}
-                className="shrink-0 snap-start rounded-full border border-[#E2D9CF] bg-white px-4 py-2.5 md:py-2 font-label-md text-[11px] uppercase tracking-widest text-[#2C2A29] active:border-[#B34E3F] md:hover:border-[#B34E3F] md:hover:text-[#B34E3F] transition-colors"
-              >
-                {c.label}
-              </Link>
-            ))}
-          </div>
         </div>
       </section>
 
-      {/* Template Grid — same card design as /premium-web-invitation */}
-      <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mb-16">
-        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 no-scrollbar lg:grid lg:grid-cols-4 xl:grid-cols-5 lg:gap-x-4 lg:gap-y-10 lg:overflow-visible">
-          {templates.map((t) => {
-            const styleTag = (t.category || "Modern").toUpperCase()
-            const tierTag = normalizeTemplateTier(t.tier)?.toUpperCase() ?? null
-            return (
-              <article key={t.id} className="template-card group flex flex-col shrink-0 snap-start w-[72vw] max-w-[300px] lg:w-auto lg:max-w-none bg-white border border-[#E2D9CF] rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
-                <div className="relative overflow-hidden aspect-[9/19] bg-[#FAF7F2]">
-                  {t.preview_image_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      alt={`Template undangan pernikahan digital ${t.name}`}
-                      className="w-full h-full object-cover object-top transition-transform duration-[1.5s] group-hover:scale-105"
-                      src={t.preview_image_url}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[#B34E3F] text-sm">
-                      {t.name}
-                    </div>
-                  )}
-                  {tierTag && (
-                    <span className={`absolute top-3 left-3 text-white text-[9px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full shadow-sm ${tierBadgeClass(t.tier)}`}>{tierTag}</span>
-                  )}
-                </div>
-                <div className="p-4 flex flex-col gap-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="font-headline-md text-[14px] leading-tight text-[#2C2A29] flex-1">{t.name}</h2>
-                    <span className="shrink-0 px-2 py-0.5 bg-[#F5EFE6] border border-[#E2D9CF] text-[#2C2A29] text-[9px] font-bold tracking-widest uppercase rounded-full">{styleTag}</span>
-                  </div>
-                  <div className="flex gap-2 mt-1">
-                    <Link
-                      href={`/premium-web-invitation?template=${encodeURIComponent(t.code)}`}
-                      className="flex-1 py-2.5 font-label-md text-[10px] uppercase tracking-widest rounded-full bg-[#F5EFE6] border border-[#E2D9CF] text-[#2C2A29] hover:bg-[#E2D9CF] transition-colors text-center"
-                    >
-                      Lihat Template
-                    </Link>
-                    <Link
-                      href={`/register?template=${encodeURIComponent(t.code)}`}
-                      className="flex-1 py-2.5 font-label-md text-[10px] uppercase tracking-widest rounded-full bg-[#B34E3F] border border-[#B34E3F] text-white hover:bg-[#9E3B2D] transition-colors text-center"
-                    >
-                      Pilih
-                    </Link>
-                  </div>
-                </div>
-              </article>
-            )
-          })}
-        </div>
+      <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mb-14">
+        <TemplateGallery templates={templates} previewInModal />
       </section>
 
       <SeoFaq
@@ -143,7 +69,7 @@ export default async function TemplatesIndexPage() {
           },
           {
             q: "Apakah ada template undangan adat dan tanpa foto?",
-            a: "Ada. Gunakan kategori Adat/Tradisional untuk nuansa budaya, atau Tanpa Foto bila mengutamakan privasi. Keduanya tetap lengkap dengan RSVP dan amplop digital.",
+            a: "Ada. Gunakan kategori Adat/Tradisional untuk nuansa budaya, atau filter Tanpa Foto bila mengutamakan privasi. Keduanya tetap lengkap dengan RSVP dan amplop digital.",
           },
           {
             q: "Bisakah ganti template setelah undangan jadi?",

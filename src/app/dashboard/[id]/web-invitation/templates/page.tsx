@@ -1,24 +1,15 @@
 "use client"
 
-import { useState, useEffect, use, useMemo } from "react"
+import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import TemplatePreviewModal from "@/components/TemplatePreviewModal"
 import UpgradePackageModal from "@/components/UpgradePackageModal"
 import { pollWpJob } from "@/lib/wpJobPoll"
 import { getTemplateComponent } from "@/components/templates"
-import { normalizeTemplateTier, tierBadgeClass } from "@/lib/templateTier"
-import { toTransformedUrl } from "@/lib/storageUrl"
+import TemplateGallery from "@/components/template-gallery/TemplateGallery"
 import { packageDisplayName, lowestEligiblePackage } from "@/lib/packages"
 import { templateUpgradeWaLink } from "@/lib/contact"
-
-const CATEGORY_FILTERS = [
-  { id: "semua", label: "Semua" },
-  { id: "adat", label: "Adat/Tradisional" },
-  { id: "modern", label: "Modern Minimalis" },
-  { id: "elegansi", label: "Elegant" },
-  { id: "floral", label: "Floral" },
-]
 
 type Template = {
   id: string
@@ -45,25 +36,6 @@ type Profile = {
   estimated_wedding_date?: string | null
 }
 
-// Same predicate drives filtering and zero-count hiding, so chips never lie.
-function matchesCategory(cat: string | null | undefined, filterId: string): boolean {
-  const c = (cat || "").trim().toLowerCase()
-  switch (filterId) {
-    case "semua":
-      return true
-    case "adat":
-      return c.includes("adat") || c.includes("tradisional") || c === "budaya"
-    case "modern":
-      return c.includes("modern") || c.includes("minimalis") || c === "nasional"
-    case "elegansi":
-      return c.includes("elegant") || c.includes("elegansi") || c.includes("dark")
-    case "floral":
-      return c.includes("floral")
-    default:
-      return c === filterId
-  }
-}
-
 function TemplatesInner({ id }: { id: string }) {
   const router = useRouter()
   const [templates, setTemplates] = useState<Template[]>([])
@@ -73,55 +45,6 @@ function TemplatesInner({ id }: { id: string }) {
   const [error, setError] = useState<string | null>(null)
   const [previewTpl, setPreviewTpl] = useState<Template | null>(null)
   const [upgradeTpl, setUpgradeTpl] = useState<Template | null>(null)
-  const [categoryFilter, setCategoryFilter] = useState<string>("semua")
-  const [photoFilter, setPhotoFilter] = useState<"semua" | "tanpa">("semua")
-  const [searchQuery, setSearchQuery] = useState<string>("")
-  const allFilters = useMemo(() => {
-    const distinct = [...new Set(templates.map((t) => (t.category || "").trim()).filter(Boolean))]
-    const extra = distinct
-      .filter((c) => {
-        const lower = c.toLowerCase()
-        if (["nasional", "budaya"].includes(lower)) return false
-        // Skip any category a built-in filter already covers (e.g. the DB
-        // value "Elegansi Dark" is matched by the base "elegansi" chip).
-        return !CATEGORY_FILTERS.some((f) => f.id !== "semua" && matchesCategory(c, f.id))
-      })
-      .map((c) => ({ id: c.toLowerCase(), label: c }))
-    const seen = new Set(CATEGORY_FILTERS.map((f) => f.id))
-    const dedupedExtra = extra.filter((f) => {
-      if (seen.has(f.id)) return false
-      seen.add(f.id)
-      return true
-    })
-    return [...CATEGORY_FILTERS, ...dedupedExtra]
-  }, [templates])
-
-  const visibleTemplates = templates.filter((t) => {
-    const catOk = matchesCategory(t.category, categoryFilter)
-    const photoOk = photoFilter !== "tanpa" || t.no_photo === true
-    const q = searchQuery.trim().toLowerCase()
-    const searchOk = !q || [t.name, t.category, t.description, t.code]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase()
-      .includes(q)
-    return catOk && photoOk && searchOk
-  })
-
-  // Independent photo group (not a category): always visible, even while no
-  // template carries the flag yet — the empty state below covers zero matches.
-  // Filters with no matching templates are hidden (except "Semua"), so empty
-  // categories like "Elegansi Dark" never appear as dead filter chips.
-  const shownFilters = allFilters
-    .map((f) => ({ ...f, count: templates.filter((t) => matchesCategory(t.category, f.id)).length }))
-    .filter((f) => f.id === "semua" || f.count > 0 || f.id === categoryFilter)
-
-  useEffect(() => {
-    if (categoryFilter !== "semua" && !templates.some((t) => matchesCategory(t.category, categoryFilter))) {
-      setCategoryFilter("semua")
-    }
-  }, [templates, categoryFilter])
-
   useEffect(() => {
     ;(async () => {
       const invData = await fetch(`/api/dashboard/${id}/web-invitation`).then((r) => r.json())
@@ -212,153 +135,15 @@ function TemplatesInner({ id }: { id: string }) {
           <h1 className="font-headline-lg text-[18px] sm:text-[28px] leading-tight mb-3">Pilih Undangan Digital Anda</h1>
         </section>
 
-        <div className="flex flex-col gap-3 mb-8">
-          <div className="relative w-full max-w-xl min-w-[240px]">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari template, kategori…"
-              aria-label="Cari template"
-              className="w-full pl-10 pr-10 py-2.5 rounded-full border border-outline-variant bg-surface text-sm placeholder:text-on-surface-variant/60 focus:outline-none focus:border-brand-charcoal focus:ring-1 focus:ring-brand-charcoal [&::-webkit-search-cancel-button]:hidden"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                aria-label="Hapus pencarian"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-brand-charcoal"
-              >
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <label htmlFor="category-filter" className="shrink-0 font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant">Kategori:</label>
-            <select
-              id="category-filter"
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="rounded-full border border-outline-variant bg-surface px-4 py-2 text-sm focus:outline-none focus:border-brand-charcoal focus:ring-1 focus:ring-brand-charcoal"
-            >
-              {shownFilters.map((f) => (
-                <option key={f.id} value={f.id}>{f.label}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="shrink-0 font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant">Foto:</span>
-            {([
-              { id: "semua", label: "Semua" },
-              { id: "tanpa", label: "Tanpa Photo" },
-            ] as const).map((f) => (
-              <button
-                key={f.id}
-                onClick={() => setPhotoFilter(f.id)}
-                className={`shrink-0 rounded-full border px-5 py-2 font-label-md text-[11px] uppercase tracking-widest transition-colors whitespace-nowrap ${
-                  photoFilter === f.id
-                    ? "bg-[#2C2A29] border-[#2C2A29] text-white"
-                    : "bg-white border-[#E2D9CF] text-[#2C2A29] hover:border-[#2C2A29] hover:text-[#2C2A29]"
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {visibleTemplates.length === 0 && (
-          <div className="py-12 text-center">
-            <p className="font-body-md text-sm text-on-surface-variant mb-4">
-              {photoFilter === "tanpa" ? "Belum ada template Tanpa Photo yang cocok." : searchQuery.trim() ? `Tidak ada template untuk “${searchQuery.trim()}”.` : "Tidak ada template yang cocok dengan filter."}
-            </p>
-            <button
-              onClick={() => { setPhotoFilter("semua"); setCategoryFilter("semua"); setSearchQuery("") }}
-              className="rounded-full border border-[#B34E3F] text-[#B34E3F] px-5 py-2 font-label-md text-[11px] uppercase tracking-widest hover:bg-[#B34E3F] hover:text-white transition-colors"
-            >
-              Tampilkan Semua
-            </button>
-          </div>
-        )}
-        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 no-scrollbar lg:grid lg:grid-cols-4 xl:grid-cols-5 lg:gap-x-4 lg:gap-y-10 lg:overflow-visible">
-          {visibleTemplates.map((tpl, idx) => {
-            const styleTag = (tpl.category || "Modern").toUpperCase()
-            const tierTag = normalizeTemplateTier(tpl.tier)?.toUpperCase() ?? null
-            return (
-            <article key={tpl.id} className="group flex flex-col shrink-0 snap-start w-[72vw] max-w-[300px] lg:w-auto lg:max-w-none bg-white border border-[#E2D9CF] rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
-              <div
-                data-tour={idx === 0 ? "template-preview" : undefined}
-                className="relative overflow-hidden aspect-[9/19] bg-[#FAF7F2] cursor-pointer"
-                onClick={() => setPreviewTpl(tpl)}
-              >
-                {selectedId === tpl.id && (
-                  <div className="absolute top-2 left-2 z-10 bg-[#10B981] px-2.5 py-1 rounded-full">
-                    <span className="text-[8px] font-bold uppercase tracking-widest text-white">Active</span>
-                  </div>
-                )}
-                {tierTag && selectedId !== tpl.id && (
-                  <span className={`absolute top-2 left-2 z-10 text-white text-[8px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full shadow-sm ${tierBadgeClass(tpl.tier)}`}>{tierTag}</span>
-                )}
-                {!!profile?.package_type && !isEligible(tpl) && (
-                  <span className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 bg-[#B34E3F] text-white text-[8px] font-bold uppercase tracking-widest px-2 py-1 rounded-full shadow-sm">
-                    <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
-                    Premium
-                  </span>
-                )}
-                <img
-                  alt={tpl.name}
-                  className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                  src={toTransformedUrl(tpl.preview_image_url, { width: 400 })}
-                  loading={idx < 2 ? "eager" : "lazy"}
-                  decoding="async"
-                  sizes="(max-width: 768px) 72vw, 240px"
-                  data-original={tpl.preview_image_url}
-                  onError={(e) => {
-                    const img = e.currentTarget
-                    if (img.dataset.fellBack) return
-                    img.dataset.fellBack = "1"
-                    if (img.dataset.original) img.src = img.dataset.original
-                  }}
-                  onMouseEnter={() => {
-                    const link = document.createElement("link")
-                    link.rel = "prefetch"
-                    link.href = tpl.demo_url
-                    link.as = "document"
-                    document.head.appendChild(link)
-                  }}
-                />
-              </div>
-
-              <div className="p-4 flex flex-col gap-2">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="font-headline-md text-[14px] leading-tight text-[#2C2A29] flex-1">{tpl.name}</h2>
-                  <span className="shrink-0 px-2 py-0.5 bg-[#F5EFE6] border border-[#E2D9CF] text-[#2C2A29] text-[8px] font-bold tracking-widest uppercase rounded-full">{styleTag}</span>
-                </div>
-                <div className="flex gap-2 mt-1">
-                  <button
-                    onClick={() => setPreviewTpl(tpl)}
-                    className="flex-1 py-2.5 font-label-md text-[10px] uppercase tracking-widest rounded-full bg-[#F5EFE6] border border-[#E2D9CF] text-[#2C2A29] hover:bg-[#E2D9CF] transition-colors"
-                  >
-                    Lihat Template
-                  </button>
-                  <button
-                    data-tour={idx === 0 ? "pilih-koleksi" : undefined}
-                    onClick={() => handleSelect(tpl.id)}
-                    disabled={saving}
-                    className={`flex-1 py-2.5 font-label-md text-[10px] uppercase tracking-widest rounded-full border transition-colors ${
-                      selectedId === tpl.id
-                        ? "bg-[#B34E3F] border-[#B34E3F] text-white"
-                        : "bg-[#B34E3F] border-[#B34E3F] text-white hover:bg-[#9E3B2D]"
-                    }`}
-                  >
-                    {saving ? "Menyimpan..." : selectedId === tpl.id ? "Terpilih" : "Pilih"}
-                  </button>
-                </div>
-              </div>
-            </article>
-          )})}
-        </div>
+        <TemplateGallery
+          templates={templates}
+          showSearch
+          selectedId={selectedId}
+          isLocked={(t) => !!profile?.package_type && !isEligible(t as Template)}
+          onPreview={(t) => setPreviewTpl(t as Template)}
+          onSelect={(t) => handleSelect(t.id)}
+          saving={saving}
+        />
 
         {error && (
           <div className="mt-8 p-4 border border-error bg-error/10 text-on-surface">

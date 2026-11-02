@@ -10,7 +10,7 @@ export async function GET(req: Request) {
 
   let query = supabaseAdmin
     .from("web_templates")
-    .select("id,code,name,preview_image_url,demo_url,category,tier,package_eligibility,sort_order,is_active,source_type,wp_master_slug,no_photo")
+    .select("id,code,name,description,preview_image_url,demo_url,category,tier,package_eligibility,sort_order,is_active,source_type,wp_master_slug,no_photo,popular_rank,created_at")
     .eq("is_active", true)
     .order("sort_order", { ascending: true })
     .order("name", { ascending: true })

@@ -116,6 +116,34 @@ When duplicating Elementor posts/popups, the following will silently corrupt dat
 13. **Template-change chain order is duplicate → patch → cleanup (never delete-then-patch).** `runDuplicate` creates the post but does NOT switch `active_wp_post_id`; the worker auto-chains a finalize patch (`payload.finalize`) that switches the profile and only then enqueues cleanup of the old post. On finalize failure the profile stays on the old (complete) post and the orphaned duplicate is cleaned instead. A second template pick while any chain job is queued/processing gets HTTP 409 (`hasOpenWpChain`) — template-select and `/api/wp/duplicate` enforce this; manual Perbarui patches stay usable. `wp_sync_jobs.source` records the caller (`dashboard`|`ops`) for forensics.
 14. **PATCH must prove gallery writes (read-after-write).** `verify_gallery_counts()` in `patch_elements` fails the job loudly when a mapped gallery slot's item count ≠ submitted photo count or any item has `id: 0` (unsideloaded). Slots absent from the tree are skipped (manifest is shared with popups). Render-HTML caches (`_elementor_element_cache`, `_elementor_page_assets`) are deleted on EVERY patch, even when nothing changed — a lazy rebuild beats stale tiles.
 
+### Template gallery (public site + couple dashboard)
+`src/components/template-gallery/` renders every user-facing template list:
+`/templates`, `/templates/kategori/*`, `/premium-web-invitation` and
+`/dashboard/[id]/web-invitation/templates`. The ops console (/ops/templates) keeps
+its own management grid on purpose. Never re-add a fifth copy of the old grid.
+
+- Layout: "Top 10 Populer" (big outlined rank numbers behind each plate), then
+  "Top 10 Terbaru", then one shelf per category with "Lihat semua". Chips
+  (category + Foto: Semua/Dengan Foto/Tanpa Foto) collapse the shelves into one
+  result grid instead of filtering the shelves in place.
+- `TemplateTile` frames each 9:19 `preview_image_url` on a warm plate; the tier
+  colour sits under the name, so do not reintroduce the tier pill on the image.
+  Public tiles open `TemplatePreviewModal` (its header carries "Pilih Template"
+  → `/register?template=CODE`); the dashboard passes `onPreview`/`onSelect` and
+  keeps the package gate (`isLocked`) + Active badge.
+- "Populer" is ops-owned, never computed: `web_templates.popular_rank` (1..10,
+  unique partial index) edited in /ops/templates → "Galeri Publik". The migration
+  seed uses real usage (a current selection weighs 3x, a `wp_sync_jobs`
+  duplicate 1x) and pads the remaining slots from `sort_order`. "Terbaru" is
+  `created_at desc` — no column, no maintenance.
+- Ordering/padding/row-building math lives in `src/lib/templateGallery.ts`
+  (pure, client-safe). Category bucketing still comes from
+  `src/lib/templateCategory.ts`; `galleryRows()` guarantees no template falls
+  off the page (unmatched rows land in "Lainnya").
+- Cache: `/templates` is ISR (1 h) and `/api/web-templates` is cached for 1 h
+  unless `fresh=1`. A re-ranked template therefore shows up within the hour on
+  the public site and immediately in the dashboard picker.
+
 ## Common Tasks
 
 ### Add a new page route

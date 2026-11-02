@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { requireOpsEmployee } from "@/lib/ops-auth"
 import { normalizeTemplateTier } from "@/lib/templateTier"
+import { parsePopularRank } from "@/lib/templatePopularRank"
 
 // GET /api/ops/templates — all templates (active + inactive), for ops management
 export async function GET(req: Request) {
@@ -51,6 +52,22 @@ export async function POST(req: Request) {
     }
   }
 
+  const parsedRank = parsePopularRank(body.popular_rank)
+  if (!parsedRank.ok) return NextResponse.json({ error: parsedRank.error }, { status: 400 })
+  if (typeof parsedRank.value === "number") {
+    const { data: holder } = await supabaseAdmin
+      .from("web_templates")
+      .select("id, name")
+      .eq("popular_rank", parsedRank.value)
+      .maybeSingle()
+    if (holder) {
+      return NextResponse.json(
+        { error: `Urutan populer #${parsedRank.value} sudah dipakai oleh "${holder.name}". Kosongkan dulu template itu.` },
+        { status: 409 },
+      )
+    }
+  }
+
   const tier = body.tier === undefined ? "Baru" : normalizeTemplateTier(body.tier)
   const sourceType = body.source_type === "inhouse" ? "inhouse" : "wp"
   const isInhouse = sourceType === "inhouse"
@@ -67,6 +84,7 @@ export async function POST(req: Request) {
       package_eligibility: Array.isArray(body.package_eligibility) ? body.package_eligibility : [],
       category: body.category ? String(body.category).trim() : null,
       tier,
+      popular_rank: parsedRank.value,
       source_type: sourceType,
       wp_master_slug: isInhouse ? null : (body.wp_master_slug || null),
       wp_manifest: isInhouse ? null : (body.wp_manifest && typeof body.wp_manifest === "object" ? body.wp_manifest : null),

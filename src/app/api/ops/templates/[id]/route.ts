@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { requireOpsEmployee } from "@/lib/ops-auth"
 import { normalizeTemplateTier } from "@/lib/templateTier"
+import { parsePopularRank } from "@/lib/templatePopularRank"
 
 // PUT /api/ops/templates/[id] — update template (demo_url uniqueness enforced)
 export async function PUT(req: Request, ctx: { params: Promise<{ id: string }> }) {
@@ -52,6 +53,27 @@ export async function PUT(req: Request, ctx: { params: Promise<{ id: string }> }
     }
   }
 
+  let nextRank: number | null | undefined
+  if ("popular_rank" in body) {
+    const parsed = parsePopularRank(body.popular_rank)
+    if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 })
+    nextRank = parsed.value
+  }
+  if (typeof nextRank === "number") {
+    const { data: holder } = await supabaseAdmin
+      .from("web_templates")
+      .select("id, name")
+      .eq("popular_rank", nextRank)
+      .neq("id", id)
+      .maybeSingle()
+    if (holder) {
+      return NextResponse.json(
+        { error: `Urutan populer #${nextRank} sudah dipakai oleh "${holder.name}". Kosongkan dulu template itu.` },
+        { status: 409 },
+      )
+    }
+  }
+
   const patch: Record<string, unknown> = {}
   if ("name" in body) patch.name = String(body.name || "").trim()
   if ("description" in body) patch.description = body.description || null
@@ -63,6 +85,7 @@ export async function PUT(req: Request, ctx: { params: Promise<{ id: string }> }
   if ("category" in body) patch.category = body.category ? String(body.category).trim() : null
   if ("tier" in body) patch.tier = normalizeTemplateTier(body.tier)
   if ("no_photo" in body) patch.no_photo = body.no_photo === true
+  if (nextRank !== undefined) patch.popular_rank = nextRank
   // source_type switches effective; switching to in-house clears the WP contract.
   if ("source_type" in body) {
     const isInhouse = body.source_type === "inhouse"

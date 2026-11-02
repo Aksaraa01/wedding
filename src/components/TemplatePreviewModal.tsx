@@ -6,9 +6,11 @@ type Props = {
   name: string
   demoUrl: string
   onClose: () => void
+  /** Public gallery: choose this design without leaving the preview. */
+  selectHref?: string
 }
 
-export default function TemplatePreviewModal({ name, demoUrl, onClose }: Props) {
+export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHref }: Props) {
   const [status, setStatus] = useState<"loading" | "loaded" | "errored">("loading")
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const safetyRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -66,11 +68,21 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose }: Props) 
   return (
     <div className="absolute top-0 left-0 w-full z-[200] bg-black/80" style={{ height: "100dvh" }} onClick={onClose}>
       <div className="absolute inset-0 sm:inset-4 lg:inset-8 flex flex-col" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between bg-white px-6 py-4 shrink-0 sm:rounded-t-lg">
-          <h2 className="font-headline-md text-headline-md text-primary truncate pr-4">{name}</h2>
-          <button onClick={onClose} className="text-on-surface-variant hover:text-primary shrink-0">
-            <span className="material-symbols-outlined">close</span>
-          </button>
+        <div className="flex items-center justify-between gap-3 bg-white px-4 py-3 sm:px-6 sm:py-4 shrink-0 sm:rounded-t-lg">
+          <h2 className="font-headline-md text-[16px] sm:text-headline-md text-primary truncate pr-2">{name}</h2>
+          <div className="flex shrink-0 items-center gap-2 sm:gap-4">
+            {selectHref && (
+              <a
+                href={selectHref}
+                className="rounded-full bg-primary px-4 py-2 font-label-md text-[10px] uppercase tracking-widest text-on-primary transition-colors hover:bg-secondary sm:px-6 sm:py-2.5 sm:text-[11px]"
+              >
+                Pilih Template
+              </a>
+            )}
+            <button onClick={onClose} aria-label="Tutup pratinjau" className="text-on-surface-variant hover:text-primary shrink-0">
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 relative min-h-0 bg-white overflow-y-auto overflow-x-hidden rounded-b-lg shadow-2xl">
