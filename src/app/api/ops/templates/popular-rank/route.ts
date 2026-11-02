@@ -3,6 +3,34 @@ import { supabaseAdmin } from "@/lib/supabase"
 import { requireOpsEmployee } from "@/lib/ops-auth"
 import { POPULAR_RANK_MAX } from "@/lib/templatePopularRank"
 
+// GET /api/ops/templates/popular-rank — suggested lineup from real usage.
+// The ops panel uses it to prefill empty slots (and for "Muat dari data"),
+// so nobody has to start from an alphabetical list.
+export async function GET(req: Request) {
+  const guard = await requireOpsEmployee(req, { allowedRoles: ["admin", "creative"] })
+  if (!guard.ok) return guard.res
+
+  const { data, error } = await supabaseAdmin
+    .from("web_template_popularity")
+    .select("template_id, code, name, score, selected_count, pick_count, feedback_count")
+    .order("score", { ascending: false })
+    .order("name", { ascending: true })
+    .limit(POPULAR_RANK_MAX)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  const { data: saves } = await supabaseAdmin
+    .from("web_templates")
+    .select("id,name,popular_rank")
+    .not("popular_rank", "is", null)
+    .order("popular_rank", { ascending: true })
+
+  return NextResponse.json({
+    suggested: data || [],
+    ranked: saves || [],
+  })
+}
+
 // POST /api/ops/templates/popular-rank — replace the whole "Top 10 Populer"
 // lineup in one call. `ordered` is the slot list (index 0 = rank 1); null marks
 // an empty slot. Replacing wholesale keeps the drag-and-drop panel honest: what

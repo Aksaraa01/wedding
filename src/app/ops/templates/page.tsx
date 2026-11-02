@@ -150,6 +150,8 @@ export default function OpsTemplatesPage() {
   const [topSaving, setTopSaving] = useState(false)
   const [topError, setTopError] = useState("")
   const [dragIndex, setDragIndex] = useState<number | null>(null)
+  const [suggested, setSuggested] = useState<{ template_id: string; name: string; score: number }[]>([])
+  const [topLoading, setTopLoading] = useState(false)
 
   // mapping state — simple fields: {field: [{elementId, settings}]},
   // object-array fields (sessions/gift/stories): {field: [{subfield: {elementId, settings}}]}
@@ -269,14 +271,55 @@ export default function OpsTemplatesPage() {
     })
   }
 
+  // Opens the lineup: what ops already saved keeps its slot, and every empty
+  // slot is filled from the real-usage ranking instead of an alphabetical list.
   const openTop10 = () => {
     const ranked = templates
       .filter((t) => typeof t.popular_rank === "number")
       .sort((a, b) => (a.popular_rank as number) - (b.popular_rank as number))
-    const slots: (string | null)[] = Array.from({ length: POPULAR_RANK_MAX }, (_, i) => ranked[i]?.id ?? null)
-    setTopDraft(slots)
+    const saved = ranked.map((t) => t.id)
+    setTopDraft(fillFromSuggestions(saved, []))
     setTopError("")
     setShowTop10(true)
+    void loadTopSuggestions()
+  }
+
+  const fillFromSuggestions = (ids: (string | null)[], suggestionIds: string[]) => {
+    const slots: (string | null)[] = Array.from({ length: POPULAR_RANK_MAX }, (_, i) => ids[i] ?? null)
+    const used = new Set(slots.filter(Boolean) as string[])
+    let cursor = 0
+    for (let i = 0; i < slots.length; i += 1) {
+      if (slots[i]) continue
+      while (cursor < suggestionIds.length && used.has(suggestionIds[cursor])) cursor += 1
+      if (cursor >= suggestionIds.length) break
+      slots[i] = suggestionIds[cursor]
+      used.add(suggestionIds[cursor])
+      cursor += 1
+    }
+    return slots
+  }
+
+  const loadTopSuggestions = async () => {
+    if (!employee) return
+    setTopLoading(true)
+    try {
+      const res = await fetch("/api/ops/templates/popular-rank", { headers: opsHeaders(employee) })
+      const data = await res.json()
+      if (!res.ok) return
+      const list = (data.suggested || []) as { template_id: string; name: string; score: number }[]
+      setSuggested(list)
+      const suggestionIds = list.map((row) => row.template_id)
+      setTopDraft((draft) => fillFromSuggestions(draft, suggestionIds))
+    } finally {
+      setTopLoading(false)
+    }
+  }
+
+  // "Muat dari data": rebuild the whole lineup from the usage query.
+  const refreshTopFromData = () => {
+    if (!confirm("Ganti seluruh urutan slot dengan hasil data pemakaian? Perubahan yang belum disimpan akan hilang.")) return
+    const suggestionIds = suggested.map((row) => row.template_id)
+    setTopDraft(fillFromSuggestions(Array(POPULAR_RANK_MAX).fill(null), suggestionIds))
   }
 
   const setTopSlot = (index: number, templateId: string | null) => {
@@ -947,7 +990,22 @@ export default function OpsTemplatesPage() {
                   </button>
                 </div>
 
-                <ul className="mt-5 space-y-2">
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-y border-outline-variant/60 py-2.5">
+                  <p className="text-[11px] text-on-surface-variant">
+                    Slot kosong diisi otomatis dari data pemakaian: dipilih sekarang ×3, pilih template (WP), dan feedback.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={refreshTopFromData}
+                    disabled={topLoading || suggested.length === 0}
+                    className="inline-flex items-center gap-1.5 border border-outline-variant px-3 py-1.5 font-label-md text-[10px] uppercase tracking-widest text-secondary hover:border-primary hover:text-primary transition-colors disabled:opacity-40"
+                  >
+                    <span className="material-symbols-outlined text-[15px]">refresh</span>
+                    {topLoading ? "Memuat..." : "Muat dari data"}
+                  </button>
+                </div>
+
+                <ul className="mt-4 space-y-2">
                   {topDraft.map((templateId, index) => {
                     const tpl = templates.find((t) => t.id === templateId)
                     const options = templates.filter((t) => t.id === templateId || !topDraft.includes(t.id))
@@ -984,6 +1042,18 @@ export default function OpsTemplatesPage() {
                                 {!tpl.is_active && " · nonaktif"}
                               </p>
                             </div>
+                            {(() => {
+                              const score = suggested.find((row) => row.template_id === tpl.id)?.score
+                              if (!score) return null
+                              return (
+                                <span
+                                  title="Skor pemakaian: dipilih sekarang ×3, pilih template (WP), feedback"
+                                  className="shrink-0 rounded-full bg-surface-dim px-2 py-0.5 text-[10px] font-semibold text-on-surface-variant"
+                                >
+                                  skor {score}
+                                </span>
+                              )
+                            })()}
                             <button
                               type="button"
                               onClick={() => setTopSlot(index, null)}

@@ -136,7 +136,11 @@ its own management grid on purpose. Never re-add a fifth copy of the old grid.
   "Atur Top 10 Populer" button in /ops/templates, which opens a drag-and-drop
   lineup of 10 slots (up/down buttons for touch, a name-only dropdown to fill an
   empty slot) and saves the whole order through
-  `POST /api/ops/templates/popular-rank`. That route nulls every rank before
+  `POST /api/ops/templates/popular-rank`. Opening the panel prefills empty slots
+  from `GET` on the same route, which reads `web_template_popularity` (the
+  real-usage view: current selection ×3, WP pick, feedback); "Muat dari data"
+  rebuilds the whole lineup from it. Manual order still wins after saving. That
+  route nulls every rank before
   re-assigning, because the unique index makes in-place swaps collide. The
   migration seed uses real usage (a current selection weighs 3x, a
   `wp_sync_jobs` duplicate 1x) and pads the remaining slots from `sort_order`.
