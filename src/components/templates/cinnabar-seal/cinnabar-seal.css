@@ -361,7 +361,23 @@ html:has(body.cn-locked) {
   max-height: 920px;
   background: #2a080b;
   overflow: hidden;
+  /* The player is sized from this box, not from the viewport: `100svh` left
+     dark bars whenever min-/max-height changed the section's height. */
+  container-type: size;
 }
+
+/* A wide viewport (desktop) cannot be covered by a 16:9 player without a heavy
+   side crop, so the frame itself becomes 16:9 there: the film is shown whole,
+   with no bars and no crop. Portrait phones keep the full-bleed frame. */
+@media (min-aspect-ratio: 16/9) {
+  .cn-opening-film {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    aspect-ratio: 16 / 9;
+  }
+}
+
 .cn-opening-film video {
   position: absolute;
   inset: 0;
@@ -385,23 +401,16 @@ html:has(body.cn-locked) {
   z-index: 1;
   overflow: hidden;
 }
-/* A 16:9 YouTube frame inside a portrait viewport must be scaled to cover,
-   otherwise it letterboxes into black bars. */
-.cn-opening-film__embed > div {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 177.78svh;
-  height: 100svh;
-  transform: translate(-50%, -50%);
-}
+/* A 16:9 player inside a box of any other shape letterboxes or crops. Both the
+   player and its host are therefore cover-sized from the frame itself. */
+.cn-opening-film__embed > div,
 .cn-opening-film__embed iframe,
 .cn-opening-film__iframe {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 177.78svh;
-  height: 100svh;
+  width: max(100cqw, 177.78cqh);
+  height: max(100cqh, 56.25cqw);
   border: 0;
   transform: translate(-50%, -50%);
 }
@@ -1114,22 +1123,25 @@ html:has(body.cn-locked) {
   max-width: 420px;
   aspect-ratio: 16 / 9;
   margin: 28px auto 0;
-  padding: 10px;
   border: 1px solid rgba(214, 182, 118, 0.45);
   background: #2a080b;
+  /* The gold border is drawn on the frame itself, so the player fills the whole
+     16:9 box. The old 10px mat made the inner box 1.86:1, which letterboxed a
+     16:9 embed inside it. */
+  overflow: hidden;
 }
 .cn-film__poster {
   position: absolute;
-  inset: 10px;
+  inset: 0;
   z-index: 2;
-  width: calc(100% - 20px);
-  height: calc(100% - 20px);
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   filter: brightness(0.72) saturate(0.9);
 }
 .cn-film__media {
   position: absolute;
-  inset: 10px;
+  inset: 0;
   z-index: 1;
 }
 .cn-film__media video,
