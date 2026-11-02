@@ -116,6 +116,15 @@ function Fleuron() {
   )
 }
 
+function ArchFrame() {
+  return (
+    <svg className="nl-archframe" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M7 100V33C7 13 24 5 50 5s43 8 43 28v67" />
+      <path d="M11.5 100V34C11.5 16 27 9 50 9s38.5 7 38.5 25v66" />
+    </svg>
+  )
+}
+
 function Garland({ className }: { className?: string }) {
   return (
     <svg className={`nl-garland${className ? ` ${className}` : ""}`} viewBox="0 0 200 14" aria-hidden="true">
@@ -134,6 +143,13 @@ export default function NavyLove(profile: TemplateProps) {
   const toastTimer = useRef<number | null>(null)
 
   const [opened, setOpened] = useState(false)
+  // The keepsake is the only thing on the first screen after the envelope; the
+  // rest of the invitation is opened from "The Details" (reference flow).
+  const [detailed, setDetailed] = useState(false)
+  // Reveal animation is armed through state: React rewrites the root className
+  // on every open/detail transition, so a manually added class would be lost.
+  const [revealArmed, setRevealArmed] = useState(false)
+  const restRef = useRef<HTMLDivElement | null>(null)
   const [playing, setPlaying] = useState(false)
   const [lightbox, setLightbox] = useState<number | null>(null)
   const [openAccount, setOpenAccount] = useState(-1)
@@ -234,6 +250,15 @@ export default function NavyLove(profile: TemplateProps) {
     window.scrollTo(0, 0)
   }, [hasTrack, opened])
 
+  const openDetails = useCallback(() => {
+    setDetailed(true)
+    window.requestAnimationFrame(() => {
+      const target = restRef.current
+      if (!target) return
+      window.scrollTo(0, target.offsetTop - 8)
+    })
+  }, [])
+
   useEffect(() => {
     document.body.style.overflow = opened ? "" : "hidden"
     return () => {
@@ -246,10 +271,9 @@ export default function NavyLove(profile: TemplateProps) {
     const root = rootRef.current
     if (!root || !opened) return
     const items = Array.from(root.querySelectorAll<HTMLElement>("[data-nl-reveal]"))
-    if (!("IntersectionObserver" in window)) {
-      items.forEach((item) => item.classList.add("is-in"))
-      return
-    }
+    // Fail visible: the hidden state only applies while the observer is armed.
+    if (!("IntersectionObserver" in window)) return
+    setRevealArmed(true)
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -262,7 +286,7 @@ export default function NavyLove(profile: TemplateProps) {
     )
     items.forEach((item) => io.observe(item))
     return () => io.disconnect()
-  }, [opened])
+  }, [opened, detailed])
 
   useEffect(() => {
     if (lightbox === null) return
@@ -313,7 +337,10 @@ export default function NavyLove(profile: TemplateProps) {
   const style = (image: string) => ({ backgroundImage: `url(${image})` }) as CSSProperties
 
   return (
-    <div ref={rootRef} className={`nl-root${opened ? " is-open" : " is-locked"}`}>
+    <div
+      ref={rootRef}
+      className={`nl-root${opened ? " is-open" : " is-locked"}${revealArmed ? " is-armed" : ""}`}
+    >
       {hasTrack && (
         <audio
           ref={audioRef}
@@ -334,6 +361,7 @@ export default function NavyLove(profile: TemplateProps) {
             <div className="nl-keepsake__envelope" aria-hidden="true">
               <img className="nl-keepsake__flap" src={ART_ARCH} alt="" />
               <img className="nl-keepsake__pocket" src={ART_POCKET} alt="" />
+              <span className="nl-keepsake__monogram">{monogram}</span>
               <img className="nl-keepsake__petals is-a" src={ART_SPRIG_B} alt="" />
               <img className="nl-keepsake__petals is-b" src={ART_SPRIG_C} alt="" />
             </div>
@@ -341,6 +369,8 @@ export default function NavyLove(profile: TemplateProps) {
             <div className="nl-keepsake__card">
               <img className="nl-card__back" src={ART_CARD_NAVY} alt="" aria-hidden="true" />
               <div className="nl-card" data-nl-reveal>
+                <ArchFrame />
+                <img className="nl-card__sprig" src={ART_SPRIG_B} alt="" aria-hidden="true" loading="lazy" />
                 <p className="nl-eyebrow nl-card__invite">{welcomeHeading}</p>
                 <h2 className="nl-card__names">
                   <span>{groom}</span>
@@ -352,6 +382,7 @@ export default function NavyLove(profile: TemplateProps) {
                 {longEventDate && <p className="nl-card__date">{longEventDate}</p>}
                 {main?.venue && <p className="nl-card__venue">{main.venue}</p>}
                 <Fleuron />
+                {welcomeMessage && <p className="nl-card__note">{welcomeMessage}</p>}
               </div>
             </div>
 
@@ -366,12 +397,6 @@ export default function NavyLove(profile: TemplateProps) {
 
             <img className="nl-keepsake__sprig" src={ART_SPRIG_C} alt="" aria-hidden="true" loading="lazy" />
           </div>
-
-          {welcomeMessage && (
-            <p className="nl-wrap nl-welcome__note" data-nl-reveal>
-              {welcomeMessage}
-            </p>
-          )}
 
           {hasTrack && opened && (
             <div className="nl-music" data-nl-reveal>
@@ -393,7 +418,37 @@ export default function NavyLove(profile: TemplateProps) {
               </span>
             </div>
           )}
+
+          <button
+            type="button"
+            className="nl-door"
+            onClick={openDetails}
+            aria-label="Open the wedding details, timeline and map"
+            data-nl-reveal
+          >
+            <span className="nl-door__plaque">
+              <img className="nl-door__plaque-bg" src={ART_PLAQUE} alt="" aria-hidden="true" />
+              <span className="nl-door__title">The Details</span>
+              <span className="nl-door__rule" aria-hidden="true" />
+              <span className="nl-door__list">
+                <em>Wedding Timeline</em>
+                <em>Dress Code Guide</em>
+                <em>Gift Registry</em>
+                <em>Our Wishes</em>
+              </span>
+            </span>
+
+            <span className="nl-door__card">
+              <img className="nl-door__etching" src={ART_VENUE} alt="" aria-hidden="true" />
+              <span className="nl-door__cta">
+                <img className="nl-door__label" src={ART_LABEL} alt="" aria-hidden="true" />
+                <b>View Details &amp; Map ➜</b>
+              </span>
+            </span>
+          </button>
         </section>
+
+        <div className="nl-rest" ref={restRef} hidden={!detailed}>
 
         {/* ── 2. Opening film ──────────────────────────────────── */}
         {hasVideo && (
@@ -822,6 +877,7 @@ export default function NavyLove(profile: TemplateProps) {
             </footer>
           </div>
         </section>
+        </div>
       </main>
 
       {/* ── Cover: sealed envelope ───────────────────────────────── */}

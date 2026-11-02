@@ -141,33 +141,42 @@ order moves countdown to #8 and the story to #6. The reference's six-item nav
 plaque, `Go Back` / `Go RSVP` / `Go Envelope` links and the page split are
 **site chrome** — dropped, we ship one scroll.
 
-### 3.3 The post-open screen is the keepsake, and the film follows it
+### 3.3 Two stages: the keepsake page, then "The Details"
 
-First implementation shipped the contract order literally: cover → **opening film**
-→ welcome. That was wrong for this design, and the owner said so: the reference
-does not open onto a video, it opens onto a **paper object** — the card you just
-took out of the envelope. A full-bleed film band in that slot turns the reveal
-into "a website with sections".
+The reference does not open onto the invitation. It opens onto **one screen** —
+the kept letter — and the rest of the site is reached from `The Details`. Two
+builds were needed to get there:
 
-So the shipped order deviates from the contract table in one place:
+1. first build: cover → film → welcome (contract order read literally). Wrong:
+   the reveal landed on a video band, and the screen read as a website.
+2. shipped: cover → **keepsake page** → (`The Details`) → the invitation.
 
-```
-gate (envelope) → keepsake (welcome + kalimat pembuka) → opening film (#2) → mempelai → …
-```
+What the keepsake page contains, in the reference's own layering:
 
-The film keeps its `data-section="video-intro"` and its contract number; only its
-position moved. Two consequences worth knowing:
+| Layer | Asset | Notes |
+|---|---|---|
+| open envelope, lace flap | `arch.webp` | behind the pocket |
+| envelope pocket | `pocket.webp` (`43f5117d`) | in front of the flap, monogram on it |
+| blossoms spilling out of the V | `sprig-b` / `sprig-c` | the reference uses petals; these are the pool's closest pieces |
+| the letter | cream card + `card-navy.webp` behind it, hairline arch frame, `sprig-b` breaking the arch, fleuron | names in Cinzel, invite lines in Cormorant SC, `opening_description` inside the card |
+| the couple's photo | `frame-portrait.webp` | deckled frame, tucked over the card's left edge |
+| the record | `vinyl.webp` + torn label caption | toggles `track_url` |
+| the door | `plaque.webp` + `venue-etching.webp` + `label.webp` | "The Details", a four-line index, and `View Details & Map ➜` |
 
-- the first thing after `Buka Undangan` is the envelope's own contents, which is
-  what makes the opening feel like a keepsake rather than a page change;
-- `#2` and `#12` now sit far apart (keepsake → film → … → film plate), so a
-  couple with one video sees the silent loop once and the controlled player once,
-  with the letter, the couple and the story in between.
+Tapping the door sets `detailed`, reveals `<div class="nl-rest">` and scrolls to
+it. The rest of the invitation is **not in the flow before that** — it is
+`hidden`, so the document is 1 157 px tall instead of 9 275 px, and the guest
+sees one object, exactly like the reference.
 
-The keepsake is built from the vendored pieces, not CSS shapes: `arch.webp` (lace
-flap), `pocket.webp` (the navy envelope body, re-vendored from `43f5117d`), two
-`8f1fa8f2`/`f27bf5e7` sprigs as the blossoms spilling out of the V, `card-navy.webp`
-behind the cream card, `frame-portrait.webp` around the couple's photo.
+Consequences:
+
+- the film (#2) no longer sits directly under the cover; it is the first block
+  behind the door, still `data-section="video-intro"`;
+- the reveal-on-scroll system **fails visible**: `[data-nl-reveal]` is visible by
+  default and only hidden once `IntersectionObserver` is armed, so a browser
+  without IO (or a hidden panel) can never render a blank page;
+- a second reveal effect run is armed when `detailed` flips, otherwise the newly
+  shown sections would stay at opacity 0.
 
 ### 3.1 Reference blocks outside the contract — approval requested
 

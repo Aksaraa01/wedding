@@ -369,8 +369,17 @@ body:has(.nl-root.is-locked) {
 
 .nl-welcome {
   position: relative;
-  padding: 28px 0 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100svh;
+  padding: 26px 0 30px;
   background: var(--nl-paper-bright);
+}
+
+/* Everything below the keepsake is opened from "The Details". */
+.nl-rest[hidden] {
+  display: none !important;
 }
 
 .nl-keepsake {
@@ -383,9 +392,9 @@ body:has(.nl-root.is-locked) {
 /* Flap behind, pocket in front: the envelope the card was taken out of. */
 .nl-keepsake__envelope {
   position: relative;
-  width: 88%;
-  margin-left: 12%;
-  aspect-ratio: 799 / 1180;
+  width: 78%;
+  margin-left: 20%;
+  aspect-ratio: 799 / 1120;
   filter: drop-shadow(0 18px 26px rgba(23, 42, 58, 0.22));
 }
 
@@ -419,6 +428,19 @@ body:has(.nl-root.is-locked) {
   transform: translateX(-50%);
 }
 
+.nl-keepsake__monogram {
+  position: absolute;
+  left: 50%;
+  bottom: 41%;
+  z-index: 1;
+  transform: translateX(-50%);
+  font-family: var(--nl-script);
+  font-size: 1.15rem;
+  line-height: 1;
+  color: rgba(245, 240, 235, 0.9);
+  letter-spacing: 0.02em;
+}
+
 .nl-keepsake__petals.is-b {
   left: 28%;
   top: 28%;
@@ -445,7 +467,7 @@ body:has(.nl-root.is-locked) {
 
 .nl-card {
   position: relative;
-  padding: 26px 14px 22px 22px;
+  padding: 78px 20px 30px 26px;
   background-color: #fffdf7;
   background-image: url("/templates/navy-love/paper.webp");
   background-size: cover;
@@ -459,10 +481,39 @@ body:has(.nl-root.is-locked) {
   mask-size: 100% 100%;
 }
 
+
+/* The blossom that breaks the card's arch, as in the reference. */
+.nl-card__sprig {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 30px;
+  height: auto;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.nl-archframe {
+  position: absolute;
+  inset: 12px 10px 14px;
+  width: calc(100% - 20px);
+  height: calc(100% - 26px);
+  fill: none;
+  stroke: rgba(148, 130, 109, 0.5);
+  stroke-width: 0.4;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.nl-archframe path {
+  fill: none;
+}
+
 .nl-card__invite {
   margin: 0;
-  font-size: 10.5px;
-  letter-spacing: 0.17em;
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: 0.19em;
 }
 
 .nl-card__names {
@@ -470,10 +521,10 @@ body:has(.nl-root.is-locked) {
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  margin: 10px 0 12px;
+  margin: 12px 0 14px;
   font-family: var(--nl-display);
   font-weight: 400;
-  font-size: clamp(1.45rem, 6.4vw, 1.9rem);
+  font-size: clamp(1.85rem, 8.4vw, 2.4rem);
   line-height: 1.12;
   letter-spacing: 0.02em;
   color: var(--nl-navy);
@@ -498,7 +549,7 @@ body:has(.nl-root.is-locked) {
   margin: 0;
   font-family: var(--nl-display);
   font-weight: 700;
-  font-size: 12px;
+  font-size: 12.5px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--nl-navy);
@@ -508,6 +559,16 @@ body:has(.nl-root.is-locked) {
   margin-top: 3px;
   font-weight: 400;
   letter-spacing: 0.16em;
+}
+
+.nl-card__note {
+  margin: 16px auto 0;
+  max-width: 30ch;
+  font-family: var(--nl-body);
+  font-size: 0.82rem;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--nl-slate);
 }
 
 /* Photo in the vendored deckled frame, tucked over the card's left edge. */
@@ -554,17 +615,138 @@ body:has(.nl-root.is-locked) {
   opacity: 0.85;
 }
 
-.nl-welcome__note {
-  margin: 30px auto 0;
-  max-width: 34ch;
-  font-family: var(--nl-body);
-  font-size: 1.04rem;
-  font-style: italic;
-  line-height: 1.5;
-  text-align: center;
-  color: var(--nl-slate);
+
+
+/* ── The door: "The Details" ───────────────────────────────────────────── */
+
+.nl-door {
+  position: relative;
+  display: block;
+  width: min(100%, 400px);
+  margin: 22px auto 26px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: left;
 }
 
+.nl-door__plaque {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 68%;
+  aspect-ratio: 799 / 446;
+  padding: 14px 16px 18px;
+  text-align: center;
+}
+
+.nl-door__plaque-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  z-index: 0;
+}
+
+.nl-door__title {
+  position: relative;
+  z-index: 1;
+  display: block;
+  font-family: var(--nl-display);
+  font-size: 1.1rem;
+  line-height: 1.1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--nl-ivory);
+}
+
+.nl-door__rule {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 28px;
+  height: 1px;
+  margin: 7px auto 8px;
+  background: rgba(245, 240, 235, 0.42);
+}
+
+.nl-door__list {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 2px;
+}
+
+.nl-door__list em {
+  font-family: var(--nl-caps);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 9.5px;
+  line-height: 1.5;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(245, 240, 235, 0.86);
+}
+
+.nl-door__card {
+  position: absolute;
+  right: -3%;
+  bottom: -20px;
+  display: block;
+  width: 46%;
+  transform: rotate(2.4deg);
+  filter: drop-shadow(0 10px 16px rgba(23, 42, 58, 0.18));
+}
+
+.nl-door__etching {
+  display: block;
+  width: 100%;
+  height: auto;
+  -webkit-mask-image: var(--nl-torn-soft);
+  mask-image: var(--nl-torn-soft);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+.nl-door__cta {
+  position: relative;
+  display: block;
+  margin-top: 4px;
+  padding: 8px 14px;
+  font-family: var(--nl-body);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--nl-navy);
+}
+
+.nl-door__label {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  z-index: -1;
+}
+
+.nl-door__cta b {
+  position: relative;
+  font-weight: 700;
+}
+
+.nl-door:hover .nl-door__plaque,
+.nl-door:focus-visible .nl-door__plaque {
+  transform: translateY(-2px);
+}
+
+.nl-door__plaque {
+  transition: transform 0.3s ease;
+}
 
 /* ── Music player (vinyl) ──────────────────────────────────────────────── */
 
@@ -1884,6 +2066,12 @@ body:has(.nl-root.is-locked) {
 /* ── Reveal ────────────────────────────────────────────────────────────── */
 
 .nl-root [data-nl-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Armed only after a working IntersectionObserver is in place. */
+.nl-root.is-armed [data-nl-reveal] {
   opacity: 0;
   transform: translateY(16px);
   transition: opacity 0.7s cubic-bezier(0.22, 0.61, 0.36, 1),
@@ -1891,13 +2079,13 @@ body:has(.nl-root.is-locked) {
   will-change: opacity, transform;
 }
 
-.nl-root [data-nl-reveal].is-in {
+.nl-root.is-armed [data-nl-reveal].is-in {
   opacity: 1;
   transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nl-root [data-nl-reveal] {
+  .nl-root.is-armed [data-nl-reveal] {
     opacity: 1;
     transform: none;
     transition: none;
