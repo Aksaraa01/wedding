@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
-import Script from "next/script"
 import RouteUnlock from "@/components/RouteUnlock"
+import CloudflareBeacon from "@/components/CloudflareBeacon"
 import ChunkErrorWatcher from "@/components/ChunkErrorWatcher"
 import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo"
 import "./globals.css"
@@ -66,16 +66,7 @@ export default function RootLayout({
         {children}
         <RouteUnlock />
         <ChunkErrorWatcher />
-        {/* Cloudflare Web Analytics (cookieless). Deliberately injected in the
-            app instead of CF's auto-install: guest invitations live on DNS-only
-            couple subdomains where Cloudflare never touches the HTML, and those
-            are exactly the pages whose real LCP we need to see. The token is a
-            public site tag, not a secret. */}
-        <Script
-          src="https://static.cloudflareinsights.com/beacon.min.js"
-          data-cf-beacon='{"token":"60ffb5fbf13543519fb77d6e861b195e"}'
-          strategy="afterInteractive"
-        />
+        <CloudflareBeacon />
       </body>
     </html>
   )
