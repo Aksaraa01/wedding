@@ -31,7 +31,6 @@ import NFilm from "./n-film"
 import BoardingPass from "./boarding-pass"
 import IvoryLace from "./ivory-lace"
 import CinnabarSeal from "./cinnabar-seal"
-import NavyLove from "./navy-love"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -66,7 +65,6 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "boarding-pass": BoardingPass,
   "ivory-lace": IvoryLace,
   "cinnabar-seal": CinnabarSeal,
-  "navy-love": NavyLove,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -1283,52 +1281,6 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       sections: {
         opening_description: true,
         quote: true,
-        countdown: true,
-        inviting: true,
-        video: true,
-        story: true,
-        gallery: true,
-        gift: true,
-        dresscode: true,
-        livestream: false,
-        rundown: true,
-        contacts: false,
-      },
-      extras: true,
-    },
-  },
-  {
-    code: "navy-love",
-    name: "Navy Love",
-    description:
-      "Undangan kertas scrapbook navy & ivory, amplop renda bermonogram, kartu deckled, label kertas sobek, kaligrafi floral, hitung mundur, susunan acara, galeri, film, hadiah, dress code, dan ucapan.",
-    theme: {
-      fonts: { display: "Cinzel", script: "Parisienne", body: "Cormorant Garamond" },
-      colors: {
-        surface: "#fbf8f1",
-        text: "#172a3a",
-        accent: "#7d8fa0",
-        accentMuted: "#4c6072",
-        overlay: "#f6f1e7",
-        dark: "#1b2a4a",
-      },
-      ornaments: { divider: "line", border: "minimal", frame: "square" },
-      motion: { enabled: true, duration: 0.7, stagger: 0.12 },
-    },
-    content: {
-      // Three semantic photo slots — one per photo surface the design has:
-      // the welcome card, the love-story plate and the closing. The event block
-      // is paper only (no photo slots), the gallery uses gallery_photos.
-      cover_slots: 3,
-      cover_slot_labels: ["Foto Kartu Ucapan", "Foto Kisah Cinta", "Foto Penutup"],
-      groom_photo: "single",
-      bride_photo: "single",
-      // Story milestones are paper slips; the story photographs come from
-      // cover_photos[1] and the first milestone image.
-      story_photo: true,
-      sections: {
-        opening_description: true,
-        quote: false,
         countdown: true,
         inviting: true,
         video: true,

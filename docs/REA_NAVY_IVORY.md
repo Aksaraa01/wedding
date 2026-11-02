@@ -4,10 +4,17 @@ Reverse-engineering analysis for a new in-house template, working code
 **`navy-ivory`**. Same shape as `docs/REA_IVORY_LACE.md`, written against the
 **§0.5 minimum-section contract** (`docs/INHOUSE_TEMPLATE_PLAYBOOK.md`).
 
-**Status: shipped.** Phase 0 decisions (§11) were answered by the owner on
-2026-11-02 and Phase 1 is built: `src/components/templates/navy-love/`,
-`public/templates/navy-love/`, `20261045000000_navy_love.sql`. This document is
-kept as the teardown record — the evidence behind every choice below.
+**Status: withdrawn (2026-11-02).** Ported, deployed, then pulled from the
+library by the owner after review: the keepsake screen never reached the
+reference's fidelity. Everything is removed — component, assets, registry
+entry, demo props, extras and the `web_templates` row
+(`20261049000000_remove_navy_love.sql`), and the three fonts it added are gone
+from the pipeline again.
+
+This document is kept as the **teardown record**: the reference analysis, the
+coordinates that were extracted, and the decisions above are still accurate and
+reusable if the port is ever attempted again. What follows describes the design,
+not a shipped template.
 
 ---
 

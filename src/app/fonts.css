@@ -29,8 +29,6 @@
   --font-archivo: 'Archivo', sans-serif;
   --font-dmmono: 'DM Mono', sans-serif;
   --font-jost: 'Jost', sans-serif;
-  --font-cormorantsc: 'Cormorant SC', serif;
-  --font-josefin: 'Josefin Sans', sans-serif;
 }
 @font-face {
   font-family: 'Inter';
@@ -383,13 +381,6 @@
   src: url('/fonts/cinzel-600.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Cinzel';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/cinzel-700.woff2') format('woff2');
-}
-@font-face {
   font-family: 'Pinyon Script';
   font-style: normal;
   font-weight: 400;
@@ -698,20 +689,6 @@
   src: url('/fonts/cormorant-600.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Cormorant SC';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/cormorantsc-400.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Cormorant SC';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/cormorantsc-700.woff2') format('woff2');
-}
-@font-face {
   font-family: 'Bitter';
   font-style: italic;
   font-weight: 300;
@@ -906,18 +883,4 @@
   font-weight: 600;
   font-display: swap;
   src: url('/fonts/jost-600.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Josefin Sans';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/josefinsans-400.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Josefin Sans';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/josefinsans-700.woff2') format('woff2');
 }
