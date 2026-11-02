@@ -151,20 +151,12 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
               <p className="font-body-md text-[13px] leading-5 flex-1">
                 {offline
                   ? "Anda sedang offline. Pratinjau akan dimuat ulang saat koneksi kembali."
-                  : "Pratinjau masih memuat aset. Anda bisa membukanya di tab baru."}
+                  : "Pratinjau masih memuat aset."}
               </p>
-              {!offline && (
-                <button
-                  onClick={openTab}
-                  className="shrink-0 font-label-md text-[10px] uppercase tracking-widest underline underline-offset-4 hover:no-underline"
-                >
-                  Tab baru
-                </button>
-              )}
               <button
                 onClick={() => setNoticeDismissed(true)}
                 className="shrink-0 rounded-full p-0.5 hover:bg-amber-100"
-                aria-label="Tutup info jaringan"
+                aria-label="Tutup info pratinjau"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
               </button>
@@ -177,20 +169,13 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
               <p className="font-body-md text-body-md text-on-surface-variant text-center">
                 {offline ? "Menunggu koneksi…" : "Memuat pratinjau…"}
               </p>
-              {!offline && (
-                <button
-                  onClick={openTab}
-                  className="font-label-md text-label-md uppercase tracking-widest text-secondary underline underline-offset-4"
-                >
-                  Buka di tab baru
-                </button>
-              )}
             </div>
           )}
 
           {/* The frame is revealed early so the page can paint progressively, but
-              the browser is still fetching assets behind it. Keep a quiet hint (and
-              the escape hatch) visible until everything has settled. */}
+              the browser is still fetching assets behind it. This is not a failure,
+              so it only reports progress: the retry / open-in-new-tab actions stay
+              in the errored state where they are actually needed. */}
           {status === "loading" && revealed && !offline && (
             <div className="pointer-events-none absolute bottom-4 right-4 z-20 flex items-center gap-2 rounded-full bg-black/60 px-3 py-1.5 text-white backdrop-blur">
               <span
@@ -198,12 +183,6 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
                 aria-hidden="true"
               />
               <span className="font-body-md text-[11px] leading-none">Memuat aset…</span>
-              <button
-                onClick={openTab}
-                className="pointer-events-auto font-body-md text-[11px] leading-none underline underline-offset-2"
-              >
-                Tab baru
-              </button>
             </div>
           )}
 
@@ -219,14 +198,14 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
                 <div className="flex flex-col sm:flex-row items-center gap-3">
                   <button
                     onClick={retry}
-                    className="bg-white border border-secondary text-secondary px-8 py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-secondary hover:text-white transition-colors flex items-center gap-2"
+                    className="bg-primary text-on-primary px-8 py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-secondary transition-colors flex items-center gap-2"
                   >
                     <span className="material-symbols-outlined text-[18px]">refresh</span>
                     Coba Lagi
                   </button>
                   <button
                     onClick={openTab}
-                    className="bg-primary text-on-primary px-8 py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-secondary transition-colors flex items-center gap-2"
+                    className="bg-white border border-secondary text-secondary px-8 py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-secondary hover:text-white transition-colors flex items-center gap-2"
                   >
                     <span className="material-symbols-outlined text-[18px]">open_in_new</span>
                     Buka di Tab Baru
