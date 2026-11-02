@@ -373,7 +373,7 @@ body:has(.nl-root.is-locked) {
   flex-direction: column;
   justify-content: center;
   min-height: 100svh;
-  padding: 26px 0 30px;
+  padding: 6px 0 26px;
   background: var(--nl-paper-bright);
 }
 
@@ -382,157 +382,240 @@ body:has(.nl-root.is-locked) {
   display: none !important;
 }
 
+/* The reference's collage, rebuilt on its own grid: a 390 x 720 canvas where
+   every object keeps the position, size and stacking order of the export. */
 .nl-keepsake {
   position: relative;
-  width: min(100%, 560px);
-  margin-inline: auto;
-  padding-inline: 20px;
-}
-
-/* Flap behind, pocket in front: the envelope the card was taken out of. */
-.nl-keepsake__envelope {
-  position: relative;
-  width: 78%;
-  margin-left: 20%;
-  aspect-ratio: 799 / 1120;
-  filter: drop-shadow(0 18px 26px rgba(23, 42, 58, 0.22));
-}
-
-.nl-keepsake__flap,
-.nl-keepsake__pocket {
-  position: absolute;
-  left: 0;
   width: 100%;
-  height: auto;
 }
 
-.nl-keepsake__flap {
-  top: 0;
+.nl-kc {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 390 / 720;
 }
 
-.nl-keepsake__pocket {
-  bottom: 0;
-}
-
-/* Blossoms spilling out of the envelope's V, in front of the pocket. */
-.nl-keepsake__petals {
+.nl-kc > * {
   position: absolute;
   height: auto;
-  opacity: 0.97;
 }
 
-.nl-keepsake__petals.is-a {
-  left: 50%;
-  top: 20%;
-  width: 40%;
-  transform: translateX(-50%);
-}
-
-.nl-keepsake__monogram {
-  position: absolute;
-  left: 50%;
-  bottom: 41%;
+.nl-kc__pocket {
+  left: 3.6%;
+  top: 6.1%;
+  width: 93.3%;
   z-index: 1;
-  transform: translateX(-50%);
-  font-family: var(--nl-script);
-  font-size: 1.15rem;
-  line-height: 1;
-  color: rgba(245, 240, 235, 0.9);
-  letter-spacing: 0.02em;
 }
 
-.nl-keepsake__petals.is-b {
-  left: 28%;
-  top: 28%;
-  width: 30%;
-  transform: rotate(-12deg);
-}
-
-.nl-keepsake__card {
-  position: relative;
+.nl-kc__flap {
+  left: 13.3%;
+  top: 4%;
+  width: 73.6%;
   z-index: 2;
-  width: 66%;
-  margin: -38% 0 0 34%;
-  filter: drop-shadow(0 14px 20px rgba(23, 42, 58, 0.18));
 }
 
-.nl-card__back {
-  position: absolute;
-  inset: -6% -9% -5% 7%;
-  width: 102%;
-  height: 111%;
-  object-fit: fill;
-  transform: rotate(3deg);
+.nl-kc__backing {
+  left: 3.3%;
+  top: 32.4%;
+  width: 126.7%;
+  z-index: 3;
 }
 
-.nl-card {
-  position: relative;
-  padding: 78px 20px 30px 26px;
-  background-color: #fffdf7;
+.nl-kc__sketch {
+  left: -8.2%;
+  top: 31.4%;
+  width: 58.2%;
+  z-index: 4;
+}
+
+.nl-kc__navy {
+  left: 19.5%;
+  top: 31.9%;
+  width: 81.8%;
+  z-index: 5;
+}
+
+.nl-kc__pocket,
+.nl-kc__flap,
+.nl-kc__backing,
+.nl-kc__navy {
+  filter: drop-shadow(0 10px 18px rgba(23, 42, 58, 0.16));
+}
+
+/* The navy card the letter sits on, then the letter itself (drawn paper —
+   the reference's cream letter is a Canva shape, not an exported image). */
+.nl-kc__letter-backer {
+  left: 35.6%;
+  top: 33.2%;
+  width: 66.4%;
+  z-index: 6;
+}
+
+.nl-kc__letter {
+  left: 45%;
+  top: 32.3%;
+  width: 54%;
+  aspect-ratio: 586 / 799;
+  z-index: 7;
+  padding: 0;
+  background-color: #f7f2e7;
   background-image: url("/templates/navy-love/paper.webp");
   background-size: cover;
   background-position: center;
   background-blend-mode: soft-light;
-  box-shadow: inset 0 0 0 1px rgba(23, 42, 58, 0.07);
-  text-align: center;
-  -webkit-mask-image: var(--nl-torn-soft);
-  mask-image: var(--nl-torn-soft);
+  -webkit-mask-image: var(--nl-torn);
+  mask-image: var(--nl-torn);
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
+  filter: drop-shadow(0 12px 18px rgba(23, 42, 58, 0.2));
 }
 
-
-/* The blossom that breaks the card's arch, as in the reference. */
-.nl-card__sprig {
+.nl-kc__letter-body {
   position: absolute;
-  top: 8px;
-  left: 50%;
-  width: 30px;
-  height: auto;
-  transform: translateX(-50%);
-  z-index: 1;
+  inset: 14% 7% 7%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
-.nl-archframe {
+/* Photo, in front of the letter's left edge */
+.nl-kc__frame {
+  left: 2.3%;
+  top: 42.5%;
+  width: 49.2%;
+  z-index: 8;
+  filter: drop-shadow(0 10px 16px rgba(23, 42, 58, 0.2));
+}
+
+.nl-kc__photo {
+  left: 6.4%;
+  top: 40.4%;
+  width: 43.6%;
+  z-index: 9;
+  filter: drop-shadow(0 8px 14px rgba(23, 42, 58, 0.24));
+}
+
+/* Blossoms behind/around the envelope */
+.nl-kc__sprig-l {
+  left: 8.2%;
+  top: 20.1%;
+  width: 23.6%;
+  z-index: 10;
+}
+
+.nl-kc__sprig-r {
+  left: 71%;
+  top: 24.2%;
+  width: 21%;
+  z-index: 10;
+}
+
+/* Monogram medallion on the pocket */
+.nl-kc__medallion {
+  left: 46.4%;
+  top: 34%;
+  width: 7.4%;
+  aspect-ratio: 1;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+}
+
+.nl-kc__medallion img {
   position: absolute;
-  inset: 12px 10px 14px;
-  width: calc(100% - 20px);
-  height: calc(100% - 26px);
-  fill: none;
-  stroke: rgba(148, 130, 109, 0.5);
-  stroke-width: 0.4;
-  vector-effect: non-scaling-stroke;
-  pointer-events: none;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-.nl-archframe path {
-  fill: none;
+.nl-kc__medallion b {
+  position: relative;
+  font-family: var(--nl-script);
+  font-weight: 400;
+  font-size: 0.72rem;
+  line-height: 1;
+  color: var(--nl-navy);
 }
+
+/* Record + caption */
+.nl-kc__vinyl {
+  left: 2.6%;
+  top: 73%;
+  width: 33%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  z-index: 11;
+  filter: drop-shadow(0 10px 16px rgba(23, 42, 58, 0.3));
+}
+
+.nl-kc__vinyl img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  animation: nl-spin 12s linear infinite;
+  animation-play-state: paused;
+}
+
+.nl-kc__vinyl.is-playing img {
+  animation-play-state: running;
+}
+
+.nl-kc__caption {
+  left: 33%;
+  top: 76.5%;
+  width: 62%;
+  z-index: 11;
+  padding: 14px 22px;
+  font-family: var(--nl-body);
+  font-size: 0.78rem;
+  font-style: italic;
+  line-height: 1.35;
+  text-align: center;
+  color: var(--nl-slate);
+  transform: rotate(-1.4deg);
+}
+
+.nl-kc__caption > span {
+  position: relative;
+}
+
+/* ── The letter's type (reference scale: names 41px at 390) ────────────── */
 
 .nl-card__invite {
-  margin: 0;
-  font-size: 11px;
-  line-height: 1.6;
-  letter-spacing: 0.19em;
+  margin: 0 auto;
+  max-width: 86%;
+  font-size: 9px;
+  line-height: 1.7;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-wrap: balance;
 }
 
 .nl-card__names {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  margin: 12px 0 14px;
+  gap: 1px;
+  margin: 10px 0 12px;
   font-family: var(--nl-display);
   font-weight: 400;
-  font-size: clamp(1.85rem, 8.4vw, 2.4rem);
-  line-height: 1.12;
-  letter-spacing: 0.02em;
+  font-size: clamp(1.35rem, 7vw, 1.85rem);
+  line-height: 1.06;
+  letter-spacing: 0.01em;
   color: var(--nl-navy);
 }
 
 .nl-card__names i {
   font-style: normal;
-  font-size: 0.8em;
+  font-size: 0.78em;
   line-height: 1;
 }
 
@@ -541,16 +624,17 @@ body:has(.nl-root.is-locked) {
   width: 46px;
   height: 1px;
   margin: 12px auto 10px;
-  background: var(--nl-line);
+  background: var(--nl-rule-gold, rgba(148, 130, 109, 0.6));
 }
 
 .nl-card__date,
 .nl-card__venue {
   margin: 0;
+  max-width: 100%;
   font-family: var(--nl-display);
   font-weight: 700;
-  font-size: 12.5px;
-  letter-spacing: 0.2em;
+  font-size: 9px;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
   color: var(--nl-navy);
 }
@@ -558,64 +642,56 @@ body:has(.nl-root.is-locked) {
 .nl-card__venue {
   margin-top: 3px;
   font-weight: 400;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.15em;
 }
 
-.nl-card__note {
-  margin: 16px auto 0;
-  max-width: 30ch;
+.nl-archframe {
+  position: absolute;
+  inset: 7% 5% 6%;
+  width: 90%;
+  height: 87%;
+  fill: none;
+  stroke: rgba(150, 132, 104, 0.75);
+  stroke-width: 0.5;
+  pointer-events: none;
+}
+
+.nl-archframe path {
+  fill: none;
+}
+
+.nl-card__sprig {
+  position: absolute;
+  top: 2.5%;
+  left: 50%;
+  width: 13%;
+  height: auto;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.nl-fleuron {
+  display: block;
+  width: 26px;
+  height: 15px;
+  margin: 12px auto 0;
+  fill: none;
+  stroke: rgba(150, 132, 104, 0.85);
+  stroke-width: 1;
+}
+
+/* The couple's words, under the collage */
+.nl-welcome__note {
+  margin: 18px auto 0;
+  max-width: 34ch;
+  padding-inline: 22px;
   font-family: var(--nl-body);
-  font-size: 0.82rem;
+  font-size: 1rem;
   font-style: italic;
-  line-height: 1.45;
+  line-height: 1.5;
+  text-align: center;
   color: var(--nl-slate);
 }
-
-/* Photo in the vendored deckled frame, tucked over the card's left edge. */
-.nl-keepsake__photo {
-  position: absolute;
-  z-index: 3;
-  left: -1%;
-  top: 40%;
-  width: 40%;
-  aspect-ratio: 412 / 588;
-  margin: 0;
-  transform: rotate(-3.2deg);
-  filter: drop-shadow(0 10px 18px rgba(23, 42, 58, 0.22));
-}
-
-.nl-keepsake__photo-inner {
-  position: absolute;
-  inset: 13% 14% 15% 14%;
-  overflow: hidden;
-}
-
-.nl-keepsake__photo-inner img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.nl-keepsake__photo-frame {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
-}
-
-.nl-keepsake__sprig {
-  position: absolute;
-  right: -4px;
-  top: 52%;
-  width: 46px;
-  height: auto;
-  transform: rotate(8deg);
-  opacity: 0.85;
-}
-
-
 
 /* ── The door: "The Details" ───────────────────────────────────────────── */
 

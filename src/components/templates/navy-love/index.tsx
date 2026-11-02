@@ -26,7 +26,12 @@ const ART_CREST = ART("crest.webp")
 const ART_ARCH = ART("arch.webp")
 const ART_POCKET = ART("pocket.webp")
 const ART_PLAQUE = ART("plaque.webp")
-const ART_CARD_NAVY = ART("card-navy.webp")
+const ART_BACKING = ART("backing.webp")
+const ART_SKETCH = ART("sketch.webp")
+
+const ART_NAVY_CARD = ART("navy-card.webp")
+const ART_LETTER_BACKER = ART("letter-backer.webp")
+const ART_SPRIG_R = ART("sprig-r.webp")
 const ART_FRAME_PORTRAIT = ART("frame-portrait.webp")
 const ART_FRAME_LANDSCAPE = ART("frame-landscape.webp")
 const ART_LABEL = ART("label.webp")
@@ -355,68 +360,78 @@ export default function NavyLove(profile: TemplateProps) {
       <main className="nl-invitation" aria-hidden={!opened}>
         {/* ── 3+4. Welcome / kalimat pembuka ───────────────────── */}
         <section className="nl-welcome" data-section="welcome">
+          {/* The reference's keepsake, rebuilt at its own coordinates (see
+              docs/REA_NAVY_IVORY.md 3.3): one collage that bleeds off both
+              edges, envelope behind, letter on top of the navy card. */}
           <div className="nl-keepsake">
-            {/* The open envelope: lace flap behind, pocket in front, petals
-                rising out of the V, the card is tucked into it. */}
-            <div className="nl-keepsake__envelope" aria-hidden="true">
-              <img className="nl-keepsake__flap" src={ART_ARCH} alt="" />
-              <img className="nl-keepsake__pocket" src={ART_POCKET} alt="" />
-              <span className="nl-keepsake__monogram">{monogram}</span>
-              <img className="nl-keepsake__petals is-a" src={ART_SPRIG_B} alt="" />
-              <img className="nl-keepsake__petals is-b" src={ART_SPRIG_C} alt="" />
-            </div>
+            <div className="nl-kc">
+              <img className="nl-kc__backing" src={ART_BACKING} alt="" aria-hidden="true" />
+              <img className="nl-kc__sketch" src={ART_SKETCH} alt="" aria-hidden="true" />
+              <img className="nl-kc__navy" src={ART_NAVY_CARD} alt="" aria-hidden="true" />
+              <img className="nl-kc__pocket" src={ART_POCKET} alt="" aria-hidden="true" />
+              <img className="nl-kc__flap" src={ART_ARCH} alt="" aria-hidden="true" />
+              <img className="nl-kc__sprig-l" src={ART_SPRIG_B} alt="" aria-hidden="true" />
+              <img className="nl-kc__sprig-r" src={ART_SPRIG_R} alt="" aria-hidden="true" />
 
-            <div className="nl-keepsake__card">
-              <img className="nl-card__back" src={ART_CARD_NAVY} alt="" aria-hidden="true" />
-              <div className="nl-card" data-nl-reveal>
+              <img className="nl-kc__letter-backer" src={ART_LETTER_BACKER} alt="" aria-hidden="true" />
+
+              <div className="nl-kc__letter">
                 <ArchFrame />
-                <img className="nl-card__sprig" src={ART_SPRIG_B} alt="" aria-hidden="true" loading="lazy" />
-                <p className="nl-eyebrow nl-card__invite">{welcomeHeading}</p>
-                <h2 className="nl-card__names">
-                  <span>{groom}</span>
-                  <i>&amp;</i>
-                  <span>{bride}</span>
-                </h2>
-                <p className="nl-eyebrow nl-card__invite">{welcomeNote}</p>
-                <span className="nl-card__rule" aria-hidden="true" />
-                {longEventDate && <p className="nl-card__date">{longEventDate}</p>}
-                {main?.venue && <p className="nl-card__venue">{main.venue}</p>}
-                <Fleuron />
-                {welcomeMessage && <p className="nl-card__note">{welcomeMessage}</p>}
+                <img className="nl-card__sprig" src={ART_SPRIG_B} alt="" aria-hidden="true" />
+                <div className="nl-kc__letter-body">
+                  <p className="nl-eyebrow nl-card__invite">{welcomeHeading}</p>
+                  <h2 className="nl-card__names">
+                    <span>{groom}</span>
+                    <i>&amp;</i>
+                    <span>{bride}</span>
+                  </h2>
+                  <p className="nl-eyebrow nl-card__invite">{welcomeNote}</p>
+                  <span className="nl-card__rule" aria-hidden="true" />
+                  {longEventDate && <p className="nl-card__date">{longEventDate}</p>}
+                  {main?.venue && <p className="nl-card__venue">{main.venue}</p>}
+                  <Fleuron />
+                </div>
               </div>
+
+              {cardPhoto && (
+                <>
+                  <img className="nl-kc__frame" src={ART_FRAME_PORTRAIT} alt="" aria-hidden="true" />
+                  <img className="nl-kc__photo" src={cardPhoto} alt="" data-nl-reveal />
+                </>
+              )}
+
+              <span className="nl-kc__medallion" aria-hidden="true">
+                <img src={ART_CREST} alt="" />
+                <b>{monogram}</b>
+              </span>
+
+              {hasTrack && opened && (
+                <>
+                  <button
+                    type="button"
+                    className={`nl-kc__vinyl${playing ? " is-playing" : ""}`}
+                    onClick={toggleMusic}
+                    aria-label={playing ? "Pause music" : "Play music"}
+                    aria-pressed={playing}
+                  >
+                    <img src={ART_VINYL} alt="" draggable={false} />
+                    <span className="nl-music__glyph" aria-hidden="true">
+                      {playing ? <i className="nl-music__pause" /> : <i className="nl-music__play" />}
+                    </span>
+                  </button>
+                  <span className="nl-kc__caption">
+                    <img className="nl-music__plaque" src={ART_LABEL} alt="" aria-hidden="true" />
+                    <span>{tc.music_caption || DEFAULT_MUSIC_CAPTION}</span>
+                  </span>
+                </>
+              )}
             </div>
-
-            {cardPhoto && (
-              <figure className="nl-keepsake__photo" data-nl-reveal>
-                <span className="nl-keepsake__photo-inner">
-                  <img src={cardPhoto} alt="" loading="lazy" />
-                </span>
-                <img className="nl-keepsake__photo-frame" src={ART_FRAME_PORTRAIT} alt="" aria-hidden="true" loading="lazy" />
-              </figure>
-            )}
-
-            <img className="nl-keepsake__sprig" src={ART_SPRIG_C} alt="" aria-hidden="true" loading="lazy" />
           </div>
 
-          {hasTrack && opened && (
-            <div className="nl-music" data-nl-reveal>
-              <button
-                type="button"
-                className={`nl-music__disc${playing ? " is-playing" : ""}`}
-                onClick={toggleMusic}
-                aria-label={playing ? "Pause music" : "Play music"}
-                aria-pressed={playing}
-              >
-                <img src={ART_VINYL} alt="" draggable={false} />
-                <span className="nl-music__glyph" aria-hidden="true">
-                  {playing ? <i className="nl-music__pause" /> : <i className="nl-music__play" />}
-                </span>
-              </button>
-              <span className="nl-music__caption">
-                <img className="nl-music__plaque" src={ART_LABEL} alt="" aria-hidden="true" />
-                <span>{tc.music_caption || DEFAULT_MUSIC_CAPTION}</span>
-              </span>
-            </div>
+          {welcomeMessage && (
+            <p className="nl-wrap nl-welcome__note" data-nl-reveal>
+              {welcomeMessage}
+            </p>
           )}
 
           <button
