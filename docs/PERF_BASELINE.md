@@ -141,3 +141,22 @@ Perubahan yang diukur:
 
 Sisa penyebab LCP: YouTube (673+472 KB), foto Supabase (326–2.159 KB, **0%
 thumbnail**), `public/images/church.jpeg` 1.010 KB, chunk JS 341 KB.
+
+
+### 6.1 Tambahan (2026-11-03, setelah thumbnail disambungkan)
+
+| Undangan | Byte awal | Byte akhir | LCP awal | LCP akhir |
+|---|---|---|---|---|
+| manjari | 7.429 KB | **3.227 KB** (−57%) | 42,7 s | **17,4 s** |
+| pastel-dream | 7.731 KB | **2.584 KB** (−67%) | 8,7 s | **4,4 s** |
+
+Perubahan tambahan:
+
+| Perubahan | Efek |
+|---|---|
+| Guest/preview render memakai `thumbs/` (1200 cover, 800 galeri/portrait/story) | −1,1 s.d. −1,8 MB per undangan |
+| `church.jpeg` 1.010 KB → `church.webp` 435 KB (q92, PSNR 40,1 dB) | −575 KB |
+| Brush impasto 2.156 KB → thumb 1200w | −1,8 MB |
+
+Sisa: chunk JS 341 KB, YouTube 673+472 KB pada template yang film-nya dekat cover
+(autoplay sengaja dipertahankan), font Roboto 34 KB.

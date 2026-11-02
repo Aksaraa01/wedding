@@ -477,11 +477,16 @@ from regressing — break one and the page gets measurably slower:
    couple subdomains logged a failed request on every guest page. Guest-side
    measurement needs its own endpoint; it does not exist yet.
 
-Known gap: couple photos served from `media/template-media/…` have **no
-`thumbs/` variants** (verified 0% coverage on 51 photos across the six published
-invitations), so templates still load the multi-hundred-KB originals. Running
-`scripts/backfill-thumbs.mjs` and then using `toTransformedUrl` in
-`buildProfileFields` is the next byte win (2–3 MB per invitation).
+5. **Couple media renders from the pre-generated thumbs, never the originals.**
+   `thumbUrl()`/`thumbStoryImages()` (`src/lib/storageUrl.ts`) are applied in the
+   two render paths — `src/app/w/[slug]/page.tsx` (guest) and
+   `src/app/preview/[id]/page.tsx` (editor) — at 1200w for covers and 800w for
+   gallery/portraits/stories. Coverage was verified at 100% (938 media paths,
+   plus 51/51 on the published invitations). **Do not apply this in
+   `buildProfileFields`**: the WP manifest must sideload the originals into the
+   media library, and OG already uses the 1200w variant via `toOgImageUrl`.
+   New media always gets thumbs at upload (`storage.ts`, `IMAGE_PREFIXES`); for
+   legacy objects run `scripts/backfill-thumbs.mjs`.
 
 ### Start local development
 
