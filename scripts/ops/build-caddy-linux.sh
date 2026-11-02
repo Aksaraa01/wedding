@@ -24,6 +24,10 @@ cd "$(dirname "$0")"
 CADDY_VERSION="${CADDY_VERSION:-v2.11.4}"
 HOSTINGER_PLUGIN_VERSION="${HOSTINGER_PLUGIN_VERSION:-v0.1.3}"
 LIBDNS_VERSION="${LIBDNS_VERSION:-v0.1.2}"
+# DNS is now hosted on Cloudflare, so ACME DNS-01 must go through it. The
+# hostinger provider stays in the binary only so the Caddyfile can be reverted
+# during the migration window; drop it once the switch is settled.
+CLOUDFLARE_PLUGIN_VERSION="${CLOUDFLARE_PLUGIN_VERSION:-v0.2.4}"
 OUT="caddy-${CADDY_VERSION}-linux-amd64"
 
 command -v xcaddy >/dev/null || { echo "xcaddy not found: go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest" >&2; exit 1; }
@@ -37,6 +41,7 @@ git -C "${WORK}/libdns-hostinger" apply "${PWD}/libdns-hostinger-ttl.patch"
 
 GOOS=linux GOARCH=amd64 CGO_ENABLED=0 GOTOOLCHAIN=auto xcaddy build "${CADDY_VERSION}" \
   --with "github.com/sbrunk/caddy-dns-hostinger@${HOSTINGER_PLUGIN_VERSION}" \
+  --with "github.com/caddy-dns/cloudflare@${CLOUDFLARE_PLUGIN_VERSION}" \
   --replace "github.com/sbrunk/libdns-hostinger=${WORK}/libdns-hostinger" \
   --output "${PWD}/${OUT}"
 

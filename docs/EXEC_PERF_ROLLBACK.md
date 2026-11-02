@@ -117,6 +117,17 @@ pindah ke Cloudflare, renewal akan gagal (insiden 2026-10-29 terulang).
 5. `caddy validate --config /etc/caddy/Caddyfile`, `systemctl daemon-reload`, `restart caddy`.
 6. Paksa uji renewal: `journalctl -u caddy | grep -i acme` + `caddy reload`; verifikasi cert tetap valid dan tanggal tidak berubah sampai renewal terjadwal.
 
+### 2.2b Hasil eksekusi (2026-11-02)
+
+- Binary baru: `v2.11.4` + `dns.providers.cloudflare` **v0.2.4** + `dns.providers.hostinger` + `gzip/zstd`.
+  **v0.2.2 tidak bisa dipakai**: validator token-nya hanya menerima format lama, sedangkan token Cloudflare sekarang berformat `cfat_` (ditolak dengan pesan "appears invalid").
+- `CLOUDFLARE_API_TOKEN` dipindah dari file env ke `/etc/systemd/system/caddy.service.d/override.conf` (chmod 600); `HOSTINGER_API_TOKEN` **dihapus**.
+- Backup saat deploy: `/usr/bin/caddy.bak-20261102-231127`, `/etc/caddy/Caddyfile.bak-20261102-231127`, `override.conf.bak-20261102-231127`.
+- Uji `caddy validate` + restart: bersih, tidak ada error ACME di journal, sertifikat origin tetap (wedding/wp 27 Jan 2027, aksaraa.com 13 Des 2026).
+- **Uji DNS-01 staging belum bisa membuktikan issuance**: resolver POP yang melayani VPS masih menyajikan NS lama (Hostinger) karena TTL delegasi 86400 baru berubah hari ini. Cloudflare **menerima pembuatan TXT** (auth + izin token terbukti), tetapi pengecekan propagasi Certmagic menunggu NS yang salah lalu timeout. Bahkan DoH dari VPS mengembalikan NS lama, jadi ini cache POP, bukan masalah token. **Ulangi uji DNS-01 setelah TTL habis (≥ 24 jam) dan sebelum 28 Des 2026.**
+- Percobaan mengalihkan systemd-resolved ke DNS-over-TLS sudah dibatalkan (tidak menolong, karena cache ada di POP resolver).
+- `cert-expiry-check.sh --dry-run`: `aksaraa.com 40d ok, www/wedding/wp 85d ok` ✅
+
 ### 2.3 Rollback (RTO < 10 menit)
 
 - Binary: `sudo cp /usr/bin/caddy.bak-<ts> /usr/bin/caddy && sudo cp /etc/caddy/Caddyfile.bak-<ts> /etc/caddy/Caddyfile && sudo systemctl restart caddy`.
