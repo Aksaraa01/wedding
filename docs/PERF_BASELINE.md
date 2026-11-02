@@ -116,3 +116,28 @@ third-party, dan iframe ditahan putih sampai 9 detik.
 | Overlay preview hilang | 9.000 ms | ≤2.500 ms |
 | Banner "memuat aset" | 7.000 ms (menuduh jaringan) | ≥8.000 ms, netral |
 | Cache hit `/templates/*` | 0% | ≥85% |
+
+
+---
+
+## 6. Hasil setelah optimasi (2026-11-03)
+
+Lighthouse, mobile, simulated throttling, halaman tamu production.
+
+| Undangan | Byte | FCP | LCP | Score |
+|---|---|---|---|---|
+| manjari (sebelum) | 7.429 KB | 3,5 s | 42,7 s | 64 |
+| manjari (sesudah audio + font) | **4.329 KB** | 3,8 s | **24,5 s** | 64 |
+| pastel-dream (sebelum) | 7.731 KB | 6,1 s | 8,7 s | 55 |
+| pastel-dream (sesudah) | **6.801 KB** | **3,3 s** | **4,0 s** | **74** |
+
+Perubahan yang diukur:
+
+| Perubahan | Efek terukur |
+|---|---|
+| Audio `preload=auto` → `metadata` + warm on first touch | transfer audio 3.158 KB → **97 KB** (manjari) |
+| Material Symbols subset (171 ikon) | font 1.112 KB → **182 KB** (pastel-dream) |
+| YouTube dimount 2 layar lebih awal | 0 di manjari (section film dekat cover, sengaja tetap dimuat); menghemat di template yang film-nya jauh |
+
+Sisa penyebab LCP: YouTube (673+472 KB), foto Supabase (326–2.159 KB, **0%
+thumbnail**), `public/images/church.jpeg` 1.010 KB, chunk JS 341 KB.

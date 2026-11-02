@@ -453,6 +453,36 @@ Note: `tsconfig.tsbuildinfo` is local build noise — leave it uncommitted.
 ### Client IP & rate limits
 - Caddy runs with `trusted_proxies` limited to **Cloudflare's published ranges** plus `trusted_proxies_strict`, and overwrites `X-Real-IP` on every proxied request (`header_up X-Real-IP {client_ip}`). `src/lib/rateLimit.ts` reads `X-Real-IP` first, so a direct request to a DNS-only host (couple subdomains) cannot spoof a bucket by sending its own `X-Forwarded-For`/`CF-Connecting-IP`.
 
+### Invitation page performance invariants
+Guest invitations run on DNS-only couple subdomains (no CDN for HTML/JS), so
+their first screen is paid for at the origin's ~4 Mbps. Four rules keep that
+from regressing — break one and the page gets measurably slower:
+
+1. **Music must not download before the guest opens the invitation.** Audio
+   elements use `preload="metadata"` and `data-warm-audio`; `AudioWarmup`
+   (root layout) upgrades them to `preload="auto"` on the first
+   pointerdown/touchstart/keydown. `preload="auto"` on `<audio>` was costing
+   0.9–3.2 MB per visit (manjari: 3.1 MB, Lighthouse-verified).
+2. **Material Symbols is subset in `src/app/layout.tsx`** (`&icon_names=…`, 171
+   icons, 179 KB instead of 1.1 MB). `scripts/check-material-icons.mjs` runs in
+   the deploy guard; a new `material-symbols-outlined` name that is not in the
+   subset fails the guard — otherwise it silently renders a blank glyph.
+3. **YouTube players mount late, not on load.** `AutoplayYouTube` creates the
+   player when its host is within 200% of the viewport and shows the YouTube
+   poster until then (`autoplay=1&mute=1` unchanged). Mounting on load pulled
+   ~1.5 MB on every invitation, including guests who never reach the film.
+4. **Cloudflare Web Analytics is gated to `wedding.aksaraa.com`**
+   (`CloudflareBeacon`). Cloudflare RUM rejects beacons from unregistered
+   hostnames with a CORS error and does not accept wildcards, so injecting it on
+   couple subdomains logged a failed request on every guest page. Guest-side
+   measurement needs its own endpoint; it does not exist yet.
+
+Known gap: couple photos served from `media/template-media/…` have **no
+`thumbs/` variants** (verified 0% coverage on 51 photos across the six published
+invitations), so templates still load the multi-hundred-KB originals. Running
+`scripts/backfill-thumbs.mjs` and then using `toTransformedUrl` in
+`buildProfileFields` is the next byte win (2–3 MB per invitation).
+
 ### Start local development
 
 ```bash
