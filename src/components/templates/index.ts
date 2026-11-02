@@ -30,6 +30,7 @@ import Lace from "./lace"
 import NFilm from "./n-film"
 import BoardingPass from "./boarding-pass"
 import IvoryLace from "./ivory-lace"
+import CinnabarSeal from "./cinnabar-seal"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -63,6 +64,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "n-film": NFilm,
   "boarding-pass": BoardingPass,
   "ivory-lace": IvoryLace,
+  "cinnabar-seal": CinnabarSeal,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -1232,6 +1234,47 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       // closing panel. Portraits come from the mempelai photo fields.
       cover_slots: 3,
       cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: true,
+      sections: {
+        opening_description: true,
+        quote: true,
+        countdown: true,
+        inviting: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        dresscode: true,
+        livestream: false,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "cinnabar-seal",
+    name: "Cinnabar Seal",
+    description:
+      "Undangan bernuansa marun dan emas dengan cap cinnabar, ornamen lampion, dan tata letak surat klasik Tionghoa.",
+    theme: {
+      fonts: { display: "Cormorant Garamond", script: "Cormorant Garamond", body: "Montserrat" },
+      colors: {
+        surface: "#4a0f12",
+        text: "#f3e8d8",
+        accent: "#d6b676",
+        accentMuted: "#9c1c22",
+        overlay: "#250708",
+        dark: "#3a0a0d",
+      },
+      ornaments: { divider: "floral", border: "minimal", frame: "square" },
+      motion: { enabled: true, duration: 0.9, stagger: 0.12 },
+    },
+    content: {
+      cover_slots: 3,
+      cover_slot_labels: ["Sampul", "Sambutan", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: true,

@@ -1707,3 +1707,126 @@ DEMO_PROPS_BY_CODE["boarding-pass"] = {
       "Merupakan suatu kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu. Terima kasih telah menjadi bagian dari perjalanan kami.",
   },
 }
+
+
+DEMO_PROPS_BY_CODE["cinnabar-seal"] = {
+  ...DEMO_PROPS_BY_CODE["sandhya"],
+  slug: "demo",
+  // Aksaraa's own sample couple (dark-elegance set), never the reference's.
+  display_name: "Albarn & Faye",
+  couple_initials: "AF",
+  estimated_wedding_date: "2027-03-20",
+  cover_photos: [`${DE}/cover.webp`, `${DE}/cover-1.webp`, `${DE}/cover-2.webp`],
+  groom_photo_url: [`${DE}/groom.webp`],
+  bride_photo_url: [`${DE}/bride.webp`],
+  gallery_photos: [
+    `${DE}/cover-3.webp`, `${DE}/cover-4.webp`, `${DE}/cover-5.webp`, `${DE}/cover-6.webp`,
+    `${DE}/cover.webp`, `${DE}/cover-1.webp`, `${DE}/cover-2.webp`, `${DE}/bride.webp`,
+  ],
+  sessions: [
+    {
+      name: "Tea Pai",
+      date: "2027-03-20",
+      time: "09.00 – 11.00 WIB",
+      venue: "Kediaman Keluarga Reed",
+      address: "Jl. Kemang Raya No. 18, Jakarta Selatan",
+      maps_url: "https://maps.app.goo.gl/9bRvrJZZ1xcZSoqa6",
+    },
+    {
+      name: "Reception",
+      date: "2027-03-20",
+      time: "18.30 – 21.30 WIB",
+      venue: "Grand Ballroom Lotus",
+      address: "Jl. Gunung Sahari No. 7, Jakarta Utara",
+      maps_url: "https://maps.app.goo.gl/UPxWi9HU1w4A9R1j6",
+    },
+  ],
+  stories: [
+    {
+      title: "The First Cup",
+      description:
+        "Kami bertemu di sebuah kedai teh tua di sudut kota. Meja terakhir harus dibagi dua orang asing, dan percakapan itu tidak pernah benar-benar selesai.",
+      image_url: `${DE}/cover-3.webp`,
+    },
+    {
+      title: "Beneath the Lanterns",
+      description:
+        "Di malam yang tenang di sepanjang jalan berlampion merah, sebuah pertanyaan akhirnya diucapkan. Jawabannya sederhana: ya.",
+      image_url: `${DE}/cover-4.webp`,
+    },
+    {
+      title: "Towards Forever",
+      description:
+        "Kini kami melangkah melewati pintu yang sama, membawa restu keluarga dan janji untuk saling menjaga.",
+      image_url: `${DE}/cover-5.webp`,
+    },
+  ],
+  rundown_visible: true,
+  rundown: [
+    { time: "08.30", description: "Tamu tiba dan registrasi" },
+    { time: "09.00", description: "Upacara Tea Pai dimulai" },
+    { time: "10.30", description: "Sesi foto keluarga" },
+    { time: "18.30", description: "Resepsi dibuka" },
+    { time: "21.00", description: "Salam perpisahan" },
+  ],
+  dresscode_visible: true,
+  dresscode: {
+    title: "Shades of Red",
+    description: "Kami akan senang bila Anda hadir dengan nuansa warna berikut.",
+    colors: [
+      { hex: "#f3e8d8", name: "Ivory" },
+      { hex: "#d6b676", name: "Gold" },
+      { hex: "#9c1c22", name: "Lacquer Red" },
+      { hex: "#2b0709", name: "Ink" },
+    ],
+  },
+  template_content: {
+    cover_kicker: "The Wedding Of",
+    open_button: "Open Invitation",
+    cover_apology: "Kami mohon maaf atas segala kekeliruan penulisan nama dan gelar.",
+    welcome_message: "Kami mengundang Anda untuk menjadi bagian dari hari istimewa kami.",
+    opening_kicker: "With Blessings",
+    mempelai_kicker: "Mempelai",
+    parents_label: "Anak dari",
+    story_kicker: "Our",
+    love_story_title: "Love Story",
+    story_intro: "Bab-bab kecil yang membawa kami sampai ke hari ini.",
+    events_kicker: "Save the Date",
+    events_title: "The Celebration",
+    events_intro: "Kami akan senang bila Anda berkenan hadir di hari bahagia kami.",
+    maps_label: "Lihat Lokasi",
+    inviting_kicker: "Turut Mengundang",
+    inviting_title: "Keluarga & Sahabat",
+    inviting_intro:
+      "Dengan penuh rasa syukur, kami mengundang Anda untuk ikut dalam perayaan ini bersama keluarga kami.",
+    rundown_kicker: "Rundown",
+    rundown_title: "Rangkaian Acara",
+    rundown_intro: "Bagaimana hari itu akan berjalan, dari kedatangan pertama hingga salam perpisahan.",
+    gallery_kicker: "Precious",
+    gallery_title: "Moments",
+    gallery_intro: "Bingkai kecil dari perjalanan kami, disimpan untuk dikenang bersama.",
+    video_kicker: "Our Film",
+    video_title: "The Wedding Film",
+    gift_kicker: "Digital Envelope",
+    gift_intro_title: "Send your gift",
+    gift_intro_description:
+      "Doa restu Anda adalah hadiah terindah. Bila ingin memberi lebih, kami menerimanya dengan penuh syukur.",
+    dresscode_kicker: "Dress Code",
+    dresscode_intro:
+      "Kami akan senang bila Anda hadir dengan nuansa warna berikut, agar setiap bingkai dari hari itu terasa satu cerita.",
+    wishes_kicker: "Words for Us",
+    wishes_title: "Wishes",
+    wishes_intro: "Titipkan pesan dan doa terbaik untuk perjalanan baru kami.",
+    wishes_name_label: "Nama",
+    wishes_name_placeholder: "Nama lengkap",
+    wishes_message_label: "Ucapan & Doa",
+    wishes_message_placeholder: "Titipkan pesan dan doa terbaik",
+    wishes_submit: "Kirim Ucapan",
+    wishes_empty: "Belum ada ucapan. Jadilah yang pertama.",
+    copy_account_toast: "Nomor rekening disalin",
+    copy_address_toast: "Alamat disalin",
+    closing_kicker: "Thank You",
+    closing_message:
+      "Merupakan suatu kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan doa restu. Terima kasih telah menjadi bagian dari cerita kami.",
+  },
+}

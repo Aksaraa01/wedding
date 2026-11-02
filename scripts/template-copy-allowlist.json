@@ -1530,6 +1530,44 @@
         "Write a wish for the couple",
         "Your name"
       ]
+    },
+    "cinnabar-seal": {
+      "allow": {
+        "Dear": "fixed letter salutation on the cover, part of the stationery convention",
+        "Days": "countdown unit; the design's ticket/timeline unit labels are not locally editable",
+        "Hours": "countdown unit; the design's ticket/timeline unit labels are not locally editable",
+        "Minutes": "countdown unit; the design's ticket/timeline unit labels are not locally editable",
+        "Seconds": "countdown unit; the design's ticket/timeline unit labels are not locally editable",
+        "Mengirim…": "transient send state in the wishes form",
+        "Memuat ucapan…": "transient loading state in the wishes feed",
+        "Hitung mundur menuju hari bahagia": "WCAG name for the countdown group",
+        "Buka undangan": "WCAG name for the cover gate",
+        "Video pembuka": "WCAG name for the opening film block",
+        "Undangan pernikahan": "WCAG name for the welcome section",
+        "Salam hangat": "WCAG name for the opening section",
+        "Mempelai": "WCAG name for the couple section",
+        "Kisah kami": "WCAG name for the story section",
+        "Jadwal acara": "WCAG name for the event section",
+        "Turut mengundang": "WCAG name for the invited-families section",
+        "Rundown acara": "WCAG name for the rundown section",
+        "Galeri foto": "WCAG name for the gallery section",
+        "Film pernikahan": "WCAG name for the film section and its modal",
+        "Putar film": "WCAG name for the film play button",
+        "Tanda kasih": "WCAG name for the gift section",
+        "Dress code": "WCAG name for the dress-code section",
+        "Ucapan dan doa": "WCAG name for the wishes section",
+        "Penutup": "WCAG name for the closing section",
+        "Hubungi Aksaraa Wedding via WhatsApp": "WCAG name for the Aksaraa contact link",
+        "Aksaraa Wedding": "brand logo alt text",
+        "Wedding by Aksaraa": "Aksaraa brand badge, never couple-editable",
+        ". All rights reserved.": "fixed copyright suffix",
+        "Penampil foto": "WCAG name for the lightbox dialog",
+        "Tutup": "WCAG name for close buttons",
+        "Foto sebelumnya": "WCAG name for the lightbox previous control",
+        "Foto berikutnya": "WCAG name for the lightbox next control",
+        "Halaman sebelumnya": "WCAG name for the wishes previous-page control",
+        "Halaman berikutnya": "WCAG name for the wishes next-page control"
+      }
     }
   }
 }
