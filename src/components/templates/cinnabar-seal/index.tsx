@@ -149,8 +149,8 @@ export default function CinnabarSeal(profile: TemplateProps) {
   const [playing, setPlaying] = useState(false)
   const [lightbox, setLightbox] = useState<number | null>(null)
   const [giftOpen, setGiftOpen] = useState(false)
-  const [openingPlaying, setOpeningPlaying] = useState(false)
-  const [filmPlaying, setFilmPlaying] = useState(false)
+  const [openingStarted, setOpeningStarted] = useState(false)
+  const [filmStarted, setFilmStarted] = useState(false)
   const [toast, setToast] = useState("")
 
   const tc = profile.template_content || {}
@@ -460,22 +460,39 @@ export default function CinnabarSeal(profile: TemplateProps) {
         {hasOpeningMedia && (
         <section className="cn-opening-film" data-section="video-pembuka" aria-label="Video pembuka">
           {openingFilm ? (
-            <video src={openingFilm} autoPlay muted loop playsInline preload="metadata" poster={heroStill} />
+            <video
+              src={openingFilm}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster={heroStill}
+              onPlaying={() => setOpeningStarted(true)}
+            />
           ) : hasVideo && youtubeId ? (
             <>
-              {coverStill && <img className="cn-opening-film__poster" src={coverStill} alt="" aria-hidden="true" />}
-              <div className={`cn-opening-film__embed${openingPlaying ? " is-playing" : ""}`}>
+              <div className="cn-opening-film__embed">
                 <AutoplayYouTube
                   videoId={youtubeId}
                   title={videoTitle}
                   autoplay
-                  onPlay={() => setOpeningPlaying(true)}
+                  onPlay={() => setOpeningStarted(true)}
                 />
               </div>
             </>
-          ) : coverStill ? (
-            <img className="cn-opening-film__poster is-fallback" src={coverStill} alt="" aria-hidden="true" />
           ) : null}
+          {coverStill && (!openingStarted || !hasVideo) && (
+            <img className="cn-opening-film__poster" src={coverStill} alt="" aria-hidden="true" />
+          )}
+          {hasVideo && !openingStarted && (
+            <button
+              type="button"
+              className="cn-play"
+              onClick={() => setOpeningStarted(true)}
+              aria-label="Putar video pembuka"
+            />
+          )}
         </section>
         )}
 
@@ -804,8 +821,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
               </p>
             )}
             <div className="cn-film__inline" {...IN("up", 0.12)}>
-              {eventCover && <img className="cn-film__poster" src={eventCover} alt="" aria-hidden="true" />}
-              <div className={`cn-film__media${filmPlaying ? " is-playing" : ""}`}>
+              <div className="cn-film__media">
                 {film.kind === "file" ? (
                   <video
                     src={film.src}
@@ -816,7 +832,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
                     controls
                     preload="metadata"
                     poster={eventCover}
-                    onPlaying={() => setFilmPlaying(true)}
+                    onPlaying={() => setFilmStarted(true)}
                   />
                 ) : youtubeId ? (
                   <AutoplayYouTube
@@ -824,7 +840,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
                     title={videoTitle}
                     controls
                     autoplay
-                    onPlay={() => setFilmPlaying(true)}
+                    onPlay={() => setFilmStarted(true)}
                   />
                 ) : (
                   <iframe
@@ -835,6 +851,17 @@ export default function CinnabarSeal(profile: TemplateProps) {
                   />
                 )}
               </div>
+              {eventCover && !filmStarted && (
+                <img className="cn-film__poster" src={eventCover} alt="" aria-hidden="true" />
+              )}
+              {!filmStarted && (
+                <button
+                  type="button"
+                  className="cn-play"
+                  onClick={() => setFilmStarted(true)}
+                  aria-label="Putar film"
+                />
+              )}
             </div>
           </section>
         )}
