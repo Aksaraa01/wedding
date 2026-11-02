@@ -128,6 +128,29 @@ pindah ke Cloudflare, renewal akan gagal (insiden 2026-10-29 terulang).
 - Percobaan mengalihkan systemd-resolved ke DNS-over-TLS sudah dibatalkan (tidak menolong, karena cache ada di POP resolver).
 - `cert-expiry-check.sh --dry-run`: `aksaraa.com 40d ok, www/wedding/wp 85d ok` ✅
 
+### 2.2c Uji DNS-01 (lanjutan, 2026-11-02 malam)
+
+Cache NS pada resolver yang melayani VPS sudah kedaluwarsa, dan uji ulang
+berhasil:
+
+```
+trying to solve challenge  identifier=acme-test.aksaraa.com challenge_type=dns-01
+certificate obtained successfully  identifier=acme-test.aksaraa.com
+```
+
+Sertifikat staging LE terbit dalam ~12 detik, record TXT dibersihkan otomatis,
+dan tidak ada sisa record di zone. **Jalur renewal produksi (LE + DNS-01
+Cloudflare) sekarang terbukti bekerja.**
+
+### 2.4 Preflight wajib sebelum mengubah proxy
+
+`scripts/ops/cloudflare-preflight.sh` memeriksa setiap pola host (apex, satu
+level, dua level, DNS-only) lewat DoH + verifikasi TLS + `cf-ray`. Jalankan
+sebelum dan sesudah mengubah status proxy; exit 1 = jangan lanjut.
+
+Snapshot konfigurasi server ada di `scripts/ops/Caddyfile.prod` supaya blok
+`cdn`, redirect aset, dan `tls { dns cloudflare }` tidak hanya hidup di VPS.
+
 ### 2.3 Rollback (RTO < 10 menit)
 
 - Binary: `sudo cp /usr/bin/caddy.bak-<ts> /usr/bin/caddy && sudo cp /etc/caddy/Caddyfile.bak-<ts> /etc/caddy/Caddyfile && sudo systemctl restart caddy`.

@@ -1,0 +1,121 @@
+# NOTE: /usr/bin/caddy is a custom xcaddy build
+# (official deb ships no dns.providers modules). It carries a patch so the
+# Hostinger DNS provider sends a TTL >= 60s for ACME challenge records, and the
+# caddy package is apt-mark held. Rebuild: scripts/ops/build-caddy-linux.sh,
+# deploy: scripts/ops/deploy-caddy.md. Do not `apt install --reinstall caddy`.
+
+aksaraa.com, www.aksaraa.com {
+	@root path /
+	rewrite @root /landing
+
+	reverse_proxy 127.0.0.1:3002
+
+	header / {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+	}
+
+	encode gzip
+}
+
+education.aksaraa.com {
+	reverse_proxy localhost:3000
+
+	header / {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+	}
+
+	encode gzip
+}
+
+wp.aksaraa.com {
+	tls {
+		dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+	}
+
+	root * /var/www/wp
+	encode gzip
+	php_fastcgi unix//run/php/php8.1-fpm.sock
+	file_server
+	try_files {path} {path}/ /index.php?{query}
+}
+
+*.aksaraa.com {
+	tls {
+		dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+	}
+
+	@couple {
+		header_regexp couple Host ^(?<slug>[a-zA-Z0-9-]+)\.aksaraa\.com$
+		not host www.aksaraa.com
+		not host wp.aksaraa.com
+	}
+
+	handle @couple {
+		rewrite /scanner /scanner/{re.couple.slug}
+		rewrite /scanner/ /scanner/{re.couple.slug}
+		rewrite /led /led/{re.couple.slug}
+		rewrite /led/ /led/{re.couple.slug}
+		rewrite / /w/{re.couple.slug}
+
+		@coupleCatchall not path / /api/* /_next/* /_static/* /fonts/* /templates/* /media/* /images/* /_vercel/* /favicon.ico /icon* /defaults/* /w/* /dashboard/* /qr/* /q/* /welcome/* /scanner/* /led/*
+		rewrite @coupleCatchall /w/{re.couple.slug}{path}
+		redir /templates/* https://cdn.aksaraa.com{uri} 302
+		redir /fonts/* https://cdn.aksaraa.com{uri} 302
+		redir /images/* https://cdn.aksaraa.com{uri} 302
+	}
+
+	reverse_proxy 127.0.0.1:3002
+}
+wedding.aksaraa.com, *.wedding.aksaraa.com {
+	tls {
+		dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+	}
+
+	@couple {
+		header_regexp couple Host ^(?<slug>[a-zA-Z0-9-]+)\.wedding\.aksaraa\.com$
+		not host wedding.aksaraa.com www.wedding.aksaraa.com
+	}
+
+	handle @couple {
+		rewrite /scanner /scanner/{re.couple.slug}
+		rewrite /scanner/ /scanner/{re.couple.slug}
+		rewrite /led /led/{re.couple.slug}
+		rewrite /led/ /led/{re.couple.slug}
+		rewrite / /w/{re.couple.slug}
+
+		@coupleCatchall not path / /api/* /_next/* /_static/* /fonts/* /templates/* /media/* /images/* /_vercel/* /favicon.ico /icon* /defaults/* /w/* /dashboard/* /qr/* /q/* /welcome/* /scanner/* /led/*
+		rewrite @coupleCatchall /w/{re.couple.slug}{path}
+		redir /templates/* https://cdn.aksaraa.com{uri} 302
+		redir /fonts/* https://cdn.aksaraa.com{uri} 302
+		redir /images/* https://cdn.aksaraa.com{uri} 302
+	}
+
+	reverse_proxy 127.0.0.1:3002
+}
+
+stg.education.aksaraa.com {
+	basic_auth {
+		aksaraa $2a$14$Pn3LOv9m1brHUI6t1DhP1ODuC1fgH8fXqOs3l26aQ/AONBqEV5tY.
+	}
+	reverse_proxy 127.0.0.1:3100
+}
+
+# Old staging hostname: permanent redirect to the canonical one.
+staging.aksaraa.com {
+	redir https://stg.education.aksaraa.com{uri} permanent
+}
+
+# Static asset host for guest invitations. The invitation page stays on the
+# couple subdomain (DNS-only, no 2-level cert), while every byte of template art,
+# fonts and images is served from here through Cloudflare's edge cache.
+cdn.aksaraa.com {
+	root * /var/www/aksara-wedding/.next/standalone/public
+	encode zstd gzip
+	header {
+		Access-Control-Allow-Origin "*"
+		Cache-Control "public, max-age=604800, stale-while-revalidate=86400"
+	}
+	file_server
+}
