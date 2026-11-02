@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 type Props = {
   videoId: string
@@ -62,6 +62,11 @@ function loadYouTubeApi(): Promise<any> {
 // re-enters the viewport, which works on mobile Safari too.
 export default function AutoplayYouTube({ videoId, title = "Video", controls = false, signal = 0, autoplay = true, onPlay }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null)
+  // The player (≈470 KB of YouTube JS plus the video itself) used to be created
+  // on mount, so a film section below the fold cost ~1.5 MB before the guest ever
+  // scrolled to it. It now mounts two screens early; autoplay is unchanged, and a
+  // YouTube poster fills the slot until then.
+  const [active, setActive] = useState(false)
   const playerRef = useRef<YTPlayer | null>(null)
   const observerRef = useRef<IntersectionObserver | null>(null)
   // Keep the latest callback out of the player effect: rebuilding the player
@@ -70,6 +75,30 @@ export default function AutoplayYouTube({ videoId, title = "Video", controls = f
   onPlayRef.current = onPlay
 
   useEffect(() => {
+    const host = hostRef.current
+    if (!host) return
+    // Two screens of margin: the player is fully ready (and autoplaying) before
+    // the film can be seen. Loading it on mount instead costs ~1.5 MB on every
+    // invitation, including guests who never scroll this far; the poster above
+    // means the section is never an empty black box.
+    if (typeof IntersectionObserver === "undefined") {
+      setActive(true)
+      return
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return
+        setActive(true)
+        io.disconnect()
+      },
+      { rootMargin: "200% 0px" }
+    )
+    io.observe(host)
+    return () => io.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!active) return
     let cancelled = false
 
     loadYouTubeApi()
@@ -155,7 +184,7 @@ export default function AutoplayYouTube({ videoId, title = "Video", controls = f
       }
       playerRef.current = null
     }
-  }, [videoId, controls, autoplay])
+  }, [active, videoId, controls, autoplay])
 
   useEffect(() => {
     if (!autoplay) return
@@ -185,5 +214,16 @@ export default function AutoplayYouTube({ videoId, title = "Video", controls = f
     }
   }, [signal, autoplay])
 
-  return <div ref={hostRef} aria-label={title} />
+  return (
+    <div ref={hostRef} aria-label={title} className="relative h-full w-full">
+      {!active && (
+        <img
+          src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      )}
+    </div>
+  )
 }
