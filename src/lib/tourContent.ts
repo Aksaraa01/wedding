@@ -97,7 +97,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: 11,
     title: "Atur Template Pesan Undangan",
-    description: "Pilih dan sesuaikan Template Pesan Undangan sesuai gaya bahasa Anda. Template ini terkirim bersama tautan ke setiap tamu — tinggal salin dan bagikan via WhatsApp.",
+    description: "Pilih dan sesuaikan Template Pesan Undangan sesuai gaya bahasa Anda. Template ini terkirim bersama tautan ke setiap tamu, tinggal salin dan bagikan via WhatsApp.",
     target: "[data-tour='template-pesan']",
     route: "qr-guestbook",
     feature: "unique_link_generator",
@@ -105,7 +105,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: 12,
     title: "Tambah Tamu dari Sini",
-    description: "Ketuk Tambah Tamu untuk menambah tamu. Anda akan diarahkan ke halaman daftar tamu — isi nama, nomor WhatsApp, dan meja, maka tautan undangannya langsung aktif.",
+    description: "Ketuk Tambah Tamu untuk menambah tamu. Anda akan diarahkan ke halaman daftar tamu, isi nama, nomor WhatsApp, dan meja, maka tautan undangannya langsung aktif.",
     target: "[data-tour='tambah-tamu']",
     route: "qr-guestbook",
     feature: "unique_link_generator",
@@ -143,7 +143,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: 17,
     title: "Sambut dengan Buku Tamu Digital",
-    description: "Pada hari-H, buka Buku Tamu Digital. Usher cukup memindai QR tamu dari HP — kehadiran tercatat otomatis, tanpa alat tambahan.",
+    description: "Pada hari-H, buka Buku Tamu Digital. Usher cukup memindai QR tamu dari HP, kehadiran tercatat otomatis, tanpa alat tambahan.",
     target: "[data-tour='buku-tamu']",
     route: "qr-live",
     feature: "qr_code_book",

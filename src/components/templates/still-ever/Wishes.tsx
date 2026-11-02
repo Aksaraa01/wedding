@@ -50,7 +50,7 @@ const DEMO_WISHES: Wish[] = [
   {
     id: "demo-5",
     name: "An Old Friend",
-    message: "From the people who watched you become who you are — congratulations, and all of our love.",
+    message: "From the people who watched you become who you are, congratulations, and all of our love.",
     created_at: new Date(Date.now() - 432_000_000).toISOString(),
   },
 ]
@@ -108,7 +108,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
     if (!text || status === "sending") return
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback("Preview mode — your wish was not saved.")
+      setFeedback("Preview mode, your wish was not saved.")
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")

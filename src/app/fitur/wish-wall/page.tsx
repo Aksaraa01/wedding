@@ -3,14 +3,14 @@ import Navigation from "@/components/Navigation"
 import Link from "next/link"
 
 export const metadata: Metadata = {
-  title: "Wish Wall Digital — Papan Ucapan Pernikahan",
+  title: "Wish Wall Digital: Papan Ucapan Pernikahan",
   description:
     "Wish wall digital untuk pernikahan: tamu kirim doa dari HP, tampil live di layar venue dengan moderasi instan, download kenangan.",
   alternates: { canonical: "https://wedding.aksaraa.com/fitur/wish-wall" },
   openGraph: {
-    title: "Wish Wall Digital — Papan Ucapan Pernikahan | Aksaraa",
+    title: "Wish Wall Digital: Papan Ucapan Pernikahan | Aksaraa",
     description:
-      "Papan ucapan digital dengan moderasi instan — doa tamu tampil live di layar LED venue, moderasi instan.",
+      "Papan ucapan digital dengan moderasi instan, doa tamu tampil live di layar LED venue, moderasi instan.",
   },
 }
 
@@ -28,7 +28,7 @@ export default function WishWallPage() {
           Wish Wall Digital: Papan Ucapan Pernikahan
         </h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant mb-8">
-          Doa dan ucapan tamu tampil live sebagai karya visual elegan di layar venue — moderasi instan,
+          Doa dan ucapan tamu tampil live sebagai karya visual elegan di layar venue, moderasi instan,
           langsung dari smartphone tamu, tanpa aplikasi.
         </p>
 
@@ -36,14 +36,14 @@ export default function WishWallPage() {
           <div className="bg-white border border-[#E2D9CF] rounded-2xl p-6 md:p-8">
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">Tampil Live di Layar Venue</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
-              Ucapan tamu tampil real-time di layar LED/proyektor — animasi elegan, font elegan, warna custom.
+              Ucapan tamu tampil real-time di layar LED/proyektor, animasi elegan, font elegan, warna custom.
               Mode fullscreen untuk momen puncak acara.
             </p>
           </div>
           <div className="bg-white border border-[#E2D9CF] rounded-2xl p-6 md:p-8">
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">Moderasi Instan</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
-              Mempelai/WO setujui setiap ucapan sebelum tayang — ucapan tidak pantas tidak akan muncul.
+              Mempelai/WO setujui setiap ucapan sebelum tayang, ucapan tidak pantas tidak akan muncul.
               Notifikasi instan saat ada ucapan baru.
             </p>
           </div>
@@ -57,7 +57,7 @@ export default function WishWallPage() {
           <div className="bg-white border border-[#E2D9CF] rounded-2xl p-6 md:p-8">
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">Kustomisasi Visual Penuh</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
-              Tema visual disesuaikan template undangan: font, warna, animasi, background — konsisten
+              Tema visual disesuaikan template undangan: font, warna, animasi, background, konsisten
               dengan brand pernikahan Anda.
             </p>
           </div>

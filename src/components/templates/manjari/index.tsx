@@ -295,7 +295,7 @@ export default function Manjari(profile: TemplateProps) {
               {(tc.gallery_quote || profile.display_name) && (
                 <figure className="gallery__quote reveal">
                   <blockquote>“{tc.gallery_quote || "A lifetime with you is the most beautiful story I could ever choose."}”</blockquote>
-                  <figcaption>— {coupleLabel}</figcaption>
+                  <figcaption>, {coupleLabel}</figcaption>
                 </figure>
               )}
               {hasVideo && (

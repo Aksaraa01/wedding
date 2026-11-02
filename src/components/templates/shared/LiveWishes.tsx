@@ -63,7 +63,7 @@ export default function LiveWishes({ open, onOpenChange, weddingProfileId, guest
     if (!text || status === "sending") return
     if (!weddingProfileId) {
       setStatus("done")
-      setFeedback("Mode pratinjau — ucapan tidak tersimpan.")
+      setFeedback("Mode pratinjau, ucapan tidak tersimpan.")
       setMessage("")
       setTimeout(() => {
         setStatus("idle")
@@ -154,7 +154,7 @@ export default function LiveWishes({ open, onOpenChange, weddingProfileId, guest
                   </p>
                 ) : wishes.length === 0 ? (
                   <p className="text-center text-[10px] text-slate-500 py-6" style={FONT_BODY}>
-                    {weddingProfileId ? "Belum ada doa &amp; ucapan. Jadilah yang pertama!" : "Mode pratinjau — daftar ucapan tidak dimuat."}
+                    {weddingProfileId ? "Belum ada doa &amp; ucapan. Jadilah yang pertama!" : "Mode pratinjau, daftar ucapan tidak dimuat."}
                   </p>
                 ) : (
                   wishes.map((w, i) => (

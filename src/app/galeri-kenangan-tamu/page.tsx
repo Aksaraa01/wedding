@@ -117,7 +117,7 @@ export default function GaleriKenanganTamuPage() {
               Galeri Foto Tamu <span className="italic text-secondary">Disposable Camera</span> Pernikahan Anda.
             </h1>
             <p className="font-body-lg text-body-lg text-secondary max-w-lg">
-              Tamu pindai QR dan langsung mengunggah foto yang tampil live — arsip kenangan candid ala disposable camera, tanpa aplikasi tambahan.
+              Tamu pindai QR dan langsung mengunggah foto yang tampil live, arsip kenangan candid ala disposable camera, tanpa aplikasi tambahan.
             </p>
             <button
               onClick={() => router.push("/customize?tab=galeri")}
@@ -330,11 +330,11 @@ export default function GaleriKenanganTamuPage() {
           items={[
             {
               q: "Apa itu galeri foto tamu ala disposable camera?",
-              a: "Konsep seperti kamera disposable di setiap meja: tamu memotret dari sudut pandang mereka dan foto langsung tampil di galeri live — candid, spontan, dan penuh kejutan.",
+              a: "Konsep seperti kamera disposable di setiap meja: tamu memotret dari sudut pandang mereka dan foto langsung tampil di galeri live, candid, spontan, dan penuh kejutan.",
             },
             {
               q: "Bagaimana tamu mengunggah foto?",
-              a: "Tamu memindai QR di meja atau undangan, mengambil atau memilih foto dari HP, lalu mengunggah — foto tampil di galeri dalam hitungan detik.",
+              a: "Tamu memindai QR di meja atau undangan, mengambil atau memilih foto dari HP, lalu mengunggah, foto tampil di galeri dalam hitungan detik.",
             },
             {
               q: "Apakah tamu perlu menginstal aplikasi?",

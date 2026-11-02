@@ -1024,7 +1024,7 @@ export default function Lace(profile: TemplateProps) {
               onEnded={() => setFading(true)}
             />
             {/* The film ships with the reference couple's seal painted in at
-                centre. It is not a DOM element, so it can only be covered —
+                centre. It is not a DOM element, so it can only be covered, 
                 this plaque rides the film's clock with it. */}
             <span className="lc-gate__seal" ref={sealRef}>
               <SealPlaque text={sealText} />

@@ -260,7 +260,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
           }
         } catch {}
       }
-      setFullscreenHint("Layar penuh diblokir browser ini — tutup tab aplikasi lalu buka di Chrome")
+      setFullscreenHint("Layar penuh diblokir browser ini, tutup tab aplikasi lalu buka di Chrome")
       return false
     } catch {
       return false
@@ -759,7 +759,7 @@ export default function PhotoboothCamera(props: PhotoboothCameraProps) {
                 <h2 className="text-[28px] leading-9 font-medium tracking-tight" style={SERIF}>{coupleName}</h2>
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full backdrop-blur-sm shadow-sm mt-1" style={{ backgroundColor: "rgba(79, 21, 25, 0.55)" }}>
                   <span className="material-symbols-outlined text-[14px]" style={{ color: "#ffdea4" }}>camera_roll</span>
-                  <span className="text-[11px] text-[#fbf9f4] tracking-wider italic">Foto {Math.min(used + 1, quota) || 1} dari {quota || "–"}</span>
+                  <span className="text-[11px] text-[#fbf9f4] tracking-wider italic">Foto {Math.min(used + 1, quota) || 1} dari {quota || "-"}</span>
                 </div>
               </div>
 

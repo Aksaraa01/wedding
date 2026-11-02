@@ -3,7 +3,7 @@ import Navigation from "@/components/Navigation"
 import Link from "next/link"
 
 export const metadata: Metadata = {
-  title: "RSVP Otomatis — Konfirmasi Kehadiran Digital",
+  title: "RSVP Otomatis: Konfirmasi Kehadiran Digital",
   description:
     "RSVP otomatis pernikahan: tamu konfirmasi lewat HP, rekap real-time di dashboard, export Excel untuk katering, notifikasi WA.",
   alternates: { canonical: "https://wedding.aksaraa.com/fitur/rsvp-otomatis" },
@@ -28,7 +28,7 @@ export default function RsvpOtomatisPage() {
           RSVP Otomatis: Konfirmasi Kehadiran Digital
         </h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant mb-8">
-          Tamu konfirmasi kehadiran lewat HP — rekap real-time di dashboard, export Excel untuk catering,
+          Tamu konfirmasi kehadiran lewat HP, rekap real-time di dashboard, export Excel untuk catering,
           notifikasi WA otomatis untuk tamu yang belum konfirmasi.
         </p>
 
@@ -43,7 +43,7 @@ export default function RsvpOtomatisPage() {
           <div className="bg-white border border-[#E2D9CF] rounded-2xl p-6 md:p-8">
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">Rekap Real-Time & Export Excel</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
-              Dashboard mempelai menampilkan total Hadir/Tidak Hadir, jumlah pax, pesan tamu — update real-time.
+              Dashboard mempelai menampilkan total Hadir/Tidak Hadir, jumlah pax, pesan tamu, update real-time.
               Export Excel satu klik untuk catering & seating plan.
             </p>
           </div>
@@ -57,7 +57,7 @@ export default function RsvpOtomatisPage() {
           <div className="bg-white border border-[#E2D9CF] rounded-2xl p-6 md:p-8">
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">Tautan Unik per Tamu</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
-              Setiap tamu mendapat link & QR unik — mencegah tamu tak diundang, rekap per nama akurat,
+              Setiap tamu mendapat link & QR unik, mencegah tamu tak diundang, rekap per nama akurat,
               nomor meja terotomatisasi. Anti duplikasi & tamu liar.
             </p>
           </div>

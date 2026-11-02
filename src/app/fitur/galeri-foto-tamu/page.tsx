@@ -5,12 +5,12 @@ import Link from "next/link"
 export const metadata: Metadata = {
   title: "Galeri Foto Tamu (Disposable Camera Digital)",
   description:
-    "Galeri foto tamu digital: tamu upload foto candid via QR di meja, tampil live seperti disposable camera — tanpa aplikasi, real-time.",
+    "Galeri foto tamu digital: tamu upload foto candid via QR di meja, tampil live seperti disposable camera, tanpa aplikasi, real-time.",
   alternates: { canonical: "https://wedding.aksaraa.com/fitur/galeri-foto-tamu" },
   openGraph: {
     title: "Galeri Foto Tamu Disposable Camera Digital | Aksaraa",
     description:
-      "Tamu upload foto candid via QR di meja, tampil live di galeri live — disposable camera digital untuk pernikahan.",
+      "Tamu upload foto candid via QR di meja, tampil live di galeri live, disposable camera digital untuk pernikahan.",
   },
 }
 
@@ -28,7 +28,7 @@ export default function GaleriFotoTamuPage() {
           Galeri Foto Tamu: Disposable Camera Digital
         </h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant mb-8">
-          Tamu upload foto candid via QR di meja, tampil live di galeri live — arsip kenangan candid
+          Tamu upload foto candid via QR di meja, tampil live di galeri live, arsip kenangan candid
           ala disposable camera, tanpa aplikasi, tanpa kamera fisik.
         </p>
 
@@ -37,13 +37,13 @@ export default function GaleriFotoTamuPage() {
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">QR di Setiap Meja</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
               Setiap meja mendapat QR unik. Tamu scan → buka galeri → ambil/pilih foto → upload.
-              Foto tampil di galeri live dalam hitungan detik — tanpa aplikasi, di browser HP.
+              Foto tampil di galeri live dalam hitungan detik, tanpa aplikasi, di browser HP.
             </p>
           </div>
           <div className="bg-white border border-[#E2D9CF] rounded-2xl p-6 md:p-8">
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">Tampil Live Like Disposable Camera</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
-              Foto tamu tampil real-time di galeri live (web/app) — slideshow otomatis, grid masonry,
+              Foto tamu tampil real-time di galeri live (web/app), slideshow otomatis, grid masonry,
               fullscreen. Seperti disposable camera di meja, tapi digital & unlimited.
             </p>
           </div>
@@ -74,7 +74,7 @@ export default function GaleriFotoTamuPage() {
             <span>✓ Filter per meja / per tamu</span>
             <span>✓ Download ZIP semua foto (original quality)</span>
             <span>✓ Mode fullscreen untuk proyektor</span>
-            <span>✓ Tanpa aplikasi — browser HP cukup</span>
+            <span>✓ Tanpa aplikasi, browser HP cukup</span>
           </div>
         </div>
 

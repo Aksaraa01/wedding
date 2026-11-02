@@ -5,12 +5,12 @@ import Link from "next/link"
 export const metadata: Metadata = {
   title: "Undangan Digital Pernikahan",
   description:
-    "Undangan website premium dengan desain elegan, countdown, love story, galeri foto, dan RSVP terintegrasi — siap dibagikan via WhatsApp.",
+    "Undangan website premium dengan desain elegan, countdown, love story, galeri foto, dan RSVP terintegrasi, siap dibagikan via WhatsApp.",
   alternates: { canonical: "https://wedding.aksaraa.com/fitur/undangan-digital" },
   openGraph: {
     title: "Undangan Digital Pernikahan Premium | Aksaraa",
     description:
-      "Undangan website elegan dengan countdown, love story, galeri foto, RSVP terintegrasi — siap bagikan via WhatsApp.",
+      "Undangan website elegan dengan countdown, love story, galeri foto, RSVP terintegrasi, siap bagikan via WhatsApp.",
   },
 }
 
@@ -28,7 +28,7 @@ export default function UndanganDigitalPage() {
           Undangan Digital Pernikahan Premium
         </h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant mb-8">
-          Undangan website elegan dengan desain premium — countdown timer, love story, galeri foto prewedding,
+          Undangan website elegan dengan desain premium, countdown timer, love story, galeri foto prewedding,
           RSVP terintegrasi, dan amplop digital. Siap dibagikan lewat WhatsApp dalam hitungan menit.
         </p>
 
@@ -51,14 +51,14 @@ export default function UndanganDigitalPage() {
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">Galeri Foto & Video Prewedding</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
               Galeri foto full-screen dengan lightbox, video prewedding embed YouTube/IG, slideshow otomatis
-              di halaman depan — momen indah tampil penuh.
+              di halaman depan, momen indah tampil penuh.
             </p>
           </div>
           <div className="bg-white border border-[#E2D9CF] rounded-2xl p-6 md:p-8">
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">Detail Acara & Google Maps</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
               Info lengkap akad & resepsi: tanggal, waktu, venue, alamat lengkap, tombol navigasi Google Maps
-              one-tap, dan dress code — tamu tidak tersesat.
+              one-tap, dan dress code, tamu tidak tersesat.
             </p>
           </div>
         </div>

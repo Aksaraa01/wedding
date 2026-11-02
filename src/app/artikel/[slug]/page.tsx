@@ -108,7 +108,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     ...ARTICLES.filter((a) => a.slug !== article.slug && a.category !== article.category),
   ].slice(0, 3)
 
-  const shareText = encodeURIComponent(`${article.title} — ${article.description}`)
+  const shareText = encodeURIComponent(`${article.title} | ${article.description}`)
   const shareUrl = encodeURIComponent(url)
 
   return (
@@ -229,7 +229,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               Siap membuat undangan digital Anda?
             </h2>
             <p className="text-sm text-on-surface-variant mb-5">
-              Pilih template, isi data, bagikan link — jadi dalam 15 menit.
+              Pilih template, isi data, bagikan link. Jadi dalam 15 menit.
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               <Link

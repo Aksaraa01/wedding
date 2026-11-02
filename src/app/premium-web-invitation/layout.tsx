@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Template Undangan Pernikahan Digital Premium | Aksaraa",
     description:
-      "Ratusan template undangan website pernikahan — adat, modern, floral, tanpa foto — siap pakai dengan RSVP dan amplop digital.",
+      "Ratusan template undangan website pernikahan, adat, modern, floral, tanpa foto, siap pakai dengan RSVP dan amplop digital.",
   },
 }
 

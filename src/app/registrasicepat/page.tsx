@@ -262,8 +262,8 @@ function RegistrasiCepatInner() {
               )}
               {(voucherAmount != null || voucherNote) && (
                 <p className="font-body-md text-sm text-green-700 mt-2">
-                  Voucher diterapkan{voucherNote ? ` — ${voucherNote}` : ""}
-                  {voucherAmount != null ? ` — potongan Rp${voucherAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}` : ""}.
+                  Voucher diterapkan{voucherNote ? `, ${voucherNote}` : ""}
+                  {voucherAmount != null ? `, potongan Rp${voucherAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}` : ""}.
                 </p>
               )}
             </div>

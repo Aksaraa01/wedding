@@ -67,7 +67,7 @@ export default function GiftPopup({ accounts, giftAddress, giftAddressName, onCl
                     </span>
                     <span className="material-symbols-outlined text-[22px] text-[#F2F1EE]/70">credit_card</span>
                   </div>
-                  <p className="mt-5 text-[22px] font-semibold tracking-wider select-text">{num || "—"}</p>
+                  <p className="mt-5 text-[22px] font-semibold tracking-wider select-text">{num || ", "}</p>
                   {a.account_name && <p className="mt-1 text-[13px] text-[#F2F1EE]/80">{a.account_name}</p>}
                   {plain && (
                     <CopyButton

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Portofolio Pernikahan Pasangan Aksaraa",
     description:
-      "Undangan digital nyata untuk hari bahagia nyata — jelajahi kisah dan galeri para pasangan.",
+      "Undangan digital nyata untuk hari bahagia nyata, jelajahi kisah dan galeri para pasangan.",
   },
 }
 
@@ -28,7 +28,7 @@ export default async function PortofolioIndexPage() {
           Portofolio Pernikahan Pasangan Aksaraa
         </h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
-          Undangan digital nyata untuk hari bahagia nyata — jelajahi kisah, foto, dan detail acara
+          Undangan digital nyata untuk hari bahagia nyata, jelajahi kisah, foto, dan detail acara
           para pasangan yang merayakan bersama Aksaraa.
         </p>
       </section>

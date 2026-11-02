@@ -117,7 +117,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "skyline-penthouse",
     name: "Skyline Penthouse",
-    description: "Penthouse metropolitan gelap interaktif — hotspot menyala membuka galeri, kisah cinta, acara, mempelai & kado.",
+    description: "Penthouse metropolitan gelap interaktif, hotspot menyala membuka galeri, kisah cinta, acara, mempelai & kado.",
     theme: {
       fonts: { display: "Playfair Display", script: "Playfair Display", body: "Plus Jakarta Sans" },
       colors: {
@@ -150,7 +150,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "pixel-paradise",
     name: "Pixel Paradise",
-    description: "Penthouse arcade retro — ruang piksel interaktif dengan neon cyan/pink; buka galeri, kisah cinta, acara, kado lewat objek di dinding ruangan.",
+    description: "Penthouse arcade retro, ruang piksel interaktif dengan neon cyan/pink; buka galeri, kisah cinta, acara, kado lewat objek di dinding ruangan.",
     theme: {
       fonts: { display: "Playfair Display", script: "Playfair Display", body: "Plus Jakarta Sans" },
       colors: {
@@ -183,7 +183,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "pixel_quest",
     name: "Pixel Quest Level Up Together",
-    description: "Petualangan 6 langkah bergaya arcade retro — latar dan karakter berubah tiap tahap, dari Press Start hingga Quest Complete.",
+    description: "Petualangan 6 langkah bergaya arcade retro, latar dan karakter berubah tiap tahap, dari Press Start hingga Quest Complete.",
     theme: {
       fonts: { display: "Playfair Display", script: "Playfair Display", body: "Plus Jakarta Sans" },
       colors: {
@@ -216,7 +216,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "impasto-mosque-dark-gold",
     name: "Impasto Mosque Dark Gold",
-    description: "Undangan gulir bernuansa lukisan minyak masjid — halaman per halaman dengan transisi mulus di atas satu latar.",
+    description: "Undangan gulir bernuansa lukisan minyak masjid, halaman per halaman dengan transisi mulus di atas satu latar.",
     theme: {
       fonts: { display: "Cormorant Garamond", script: "Alex Brush", body: "Montserrat" },
       colors: {
@@ -249,7 +249,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "pastel-dream-cathedral",
     name: "Pastel Dream Cathedral",
-    description: "Undangan gulir bernuansa lukisan minyak katedral — halaman per halaman dengan transisi mulus di atas satu latar.",
+    description: "Undangan gulir bernuansa lukisan minyak katedral, halaman per halaman dengan transisi mulus di atas satu latar.",
     theme: {
       fonts: { display: "Cormorant Garamond", script: "Alex Brush", body: "Montserrat" },
       colors: {
@@ -282,7 +282,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "pastel-coastal-cut",
     name: "Pastel Coastal Cut",
-    description: "Undangan gulir bernuansa papercraft pantai pastel — awan kertas, kerang mutiara, dan burung camar di atas satu lukisan pesisir.",
+    description: "Undangan gulir bernuansa papercraft pantai pastel, awan kertas, kerang mutiara, dan burung camar di atas satu lukisan pesisir.",
     theme: {
       fonts: { display: "Cormorant Garamond", script: "Alex Brush", body: "Montserrat" },
       colors: {
@@ -315,7 +315,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "dark-split-rail",
     name: "Dark Split Rail",
-    description: "Undangan split-screen gelap sinematik — panel foto/video di kiri dan rel konten elegan di kanan, dengan animasi reveal blur.",
+    description: "Undangan split-screen gelap sinematik, panel foto/video di kiri dan rel konten elegan di kanan, dengan animasi reveal blur.",
     theme: {
       fonts: { display: "Times New Roman", script: "Baskervville", body: "Public Sans" },
       colors: {
@@ -385,7 +385,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "evermore",
     name: "Evermore",
-    description: "Undangan bergaya scrapbook tahun 70-an — sampul ilustrasi anak, foto mempelai berbingkai pita, kisah cinta, galeri polaroid, hadiah, dan ucapan dalam satu alur gulir.",
+    description: "Undangan bergaya scrapbook tahun 70-an, sampul ilustrasi anak, foto mempelai berbingkai pita, kisah cinta, galeri polaroid, hadiah, dan ucapan dalam satu alur gulir.",
     theme: {
       fonts: { display: "Knewave", script: "Caveat", body: "Caveat" },
       colors: {
@@ -422,7 +422,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "sandhya",
     name: "Sandhya",
-    description: "Undangan sinematik bernuansa senja — sampul berlapis bunga, ayat, mempelai, acara, dress code, galeri, hadiah, dan ucapan dalam satu alur gulir.",
+    description: "Undangan sinematik bernuansa senja, sampul berlapis bunga, ayat, mempelai, acara, dress code, galeri, hadiah, dan ucapan dalam satu alur gulir.",
     theme: {
       fonts: { display: "Cormorant", script: "Allura", body: "Bitter" },
       colors: {
@@ -459,7 +459,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "piano-garden",
     name: "Piano Garden",
-    description: "Undangan bergaya taman pastel — sampul bunga, video pembuka, ayat, mempelai, hitung mundur, acara, dress code, galeri berjalan, kisah cinta, hadiah, dan ucapan dalam satu alur gulir.",
+    description: "Undangan bergaya taman pastel, sampul bunga, video pembuka, ayat, mempelai, hitung mundur, acara, dress code, galeri berjalan, kisah cinta, hadiah, dan ucapan dalam satu alur gulir.",
     theme: {
       fonts: { display: "Italianno", script: "Italianno", body: "Poppins" },
       colors: {
@@ -497,7 +497,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "altar-garden",
     name: "Altar Garden",
-    description: "Undangan bergaya taman sage — sampul bunga, video pembuka, ayat, mempelai, hitung mundur, acara, dress code, galeri berjalan, kisah cinta, hadiah, dan ucapan dalam satu alur gulir.",
+    description: "Undangan bergaya taman sage, sampul bunga, video pembuka, ayat, mempelai, hitung mundur, acara, dress code, galeri berjalan, kisah cinta, hadiah, dan ucapan dalam satu alur gulir.",
     theme: {
       fonts: { display: "Italianno", script: "Italianno", body: "Poppins" },
       colors: {
@@ -535,7 +535,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "adat-melayu",
     name: "Adat Melayu",
-    description: "Undangan adat Melayu bernuansa merah dan emas — ilustrasi rumah adat, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
+    description: "Undangan adat Melayu bernuansa merah dan emas, ilustrasi rumah adat, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
     theme: {
       fonts: { display: "Pinyon Script", script: "Pinyon Script", body: "Poppins" },
       colors: {
@@ -575,7 +575,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "adat-batak",
     name: "Adat Batak",
-    description: "Undangan adat Batak bernuansa merah dan emas — rumah bolon, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
+    description: "Undangan adat Batak bernuansa merah dan emas, rumah bolon, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
     theme: {
       fonts: { display: "Pinyon Script", script: "Pinyon Script", body: "Poppins" },
       colors: {
@@ -615,7 +615,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "adat-minang",
     name: "Adat Minang",
-    description: "Undangan adat Minang bernuansa marun dan emas — rumah gadang, payung adat, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
+    description: "Undangan adat Minang bernuansa marun dan emas, rumah gadang, payung adat, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
     theme: {
       fonts: { display: "Pinyon Script", script: "Pinyon Script", body: "Poppins" },
       colors: {
@@ -655,7 +655,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "lunar-blossom",
     name: "Lunar Blossom",
-    description: "Undangan bergaya lukisan bunga oriental — gerbang pembuka, nama bergaya kaligrafi, ayat, mempelai, hitung mundur, acara, galeri, hadiah, dan ucapan dalam satu alur gulir.",
+    description: "Undangan bergaya lukisan bunga oriental, gerbang pembuka, nama bergaya kaligrafi, ayat, mempelai, hitung mundur, acara, galeri, hadiah, dan ucapan dalam satu alur gulir.",
     theme: {
       fonts: { display: "Zzzzz Edwardian", script: "Itc Edwardian Script", body: "Athelas" },
       colors: {
@@ -693,7 +693,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "adat-jawa",
     name: "Adat Jawa",
-    description: "Undangan adat Jawa bernuansa cokelat dan krem — gebyok, pendopo, gunung, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
+    description: "Undangan adat Jawa bernuansa cokelat dan krem, gebyok, pendopo, gunung, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
     theme: {
       fonts: { display: "Pinyon Script", script: "Pinyon Script", body: "Poppins" },
       colors: {
@@ -733,7 +733,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "adat-jawa-2",
     name: "Adat Jawa 2",
-    description: "Undangan adat Jawa bernuansa merah dan krem — gebyok, pendopo, gunung, video pembuka, ayat, mempelai, hitung mundur, acara, galeri, hadiah, dan ucapan dalam satu alur gulir.",
+    description: "Undangan adat Jawa bernuansa merah dan krem, gebyok, pendopo, gunung, video pembuka, ayat, mempelai, hitung mundur, acara, galeri, hadiah, dan ucapan dalam satu alur gulir.",
     theme: {
       fonts: { display: "Zzzz Delp", script: "Zzzz Delp", body: "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz. Mrs Eaves" },
       colors: { surface: "#fff6e1", text: "#9b1212", accent: "#9b1212", accentMuted: "#7a5a3a", overlay: "#9b1212", dark: "#9b1212" },
@@ -764,7 +764,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "adat-palembang",
     name: "Adat Palembang",
-    description: "Undangan adat Palembang bernuansa marun dan emas — rumah limas, motif songket, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
+    description: "Undangan adat Palembang bernuansa marun dan emas, rumah limas, motif songket, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
     theme: {
       fonts: { display: "Pinyon Script", script: "Pinyon Script", body: "Poppins" },
       colors: {
@@ -804,7 +804,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "adat-betawi",
     name: "Adat Betawi",
-    description: "Undangan adat Betawi bernuansa hijau dan krem — rumah kebaya, ornamen Betawi, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
+    description: "Undangan adat Betawi bernuansa hijau dan krem, rumah kebaya, ornamen Betawi, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
     theme: {
       fonts: { display: "Pinyon Script", script: "Pinyon Script", body: "Poppins" },
       colors: {
@@ -844,7 +844,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "adat-bali",
     name: "Adat Bali",
-    description: "Undangan adat Bali bernuansa plum dan krem — pura, gapura, ornamen Bali, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
+    description: "Undangan adat Bali bernuansa plum dan krem, pura, gapura, ornamen Bali, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
     theme: {
       fonts: { display: "Pinyon Script", script: "Pinyon Script", body: "Poppins" },
       colors: {
@@ -884,7 +884,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "manjari",
     name: "Manjari",
-    description: "Undangan dark elegance bernuansa burgundy dan ivory — amplop floral, ayat, kisah cinta, acara, live streaming, dress code, galeri, wishes, hadiah, turut mengundang, dan rundown.",
+    description: "Undangan dark elegance bernuansa burgundy dan ivory, amplop floral, ayat, kisah cinta, acara, live streaming, dress code, galeri, wishes, hadiah, turut mengundang, dan rundown.",
     theme: {
       fonts: { display: "Arapey", script: "Monsieur La Doulaise", body: "Baskervville" },
       colors: {
@@ -924,7 +924,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "minang-royal",
     name: "Minang Royal",
-    description: "Undangan adat Minang bernuansa krem dan maroon — rumah gadang, ornamen royal, ayat, mempelai, hitung mundur, kisah cinta, acara, rundown, galeri, live streaming, hadiah, dan ucapan.",
+    description: "Undangan adat Minang bernuansa krem dan maroon, rumah gadang, ornamen royal, ayat, mempelai, hitung mundur, kisah cinta, acara, rundown, galeri, live streaming, hadiah, dan ucapan.",
     theme: {
       fonts: { display: "Bona Nova", script: "Playfair Display", body: "Playfair Display" },
       colors: {
@@ -964,7 +964,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "imagine",
     name: "Imagine",
-    description: "Undangan bernuansa teal dan emas — ornamen, ayat, mempelai, hitung mundur, acara, dress code, RSVP, live streaming, galeri, video, kisah cinta, hadiah, dan ucapan.",
+    description: "Undangan bernuansa teal dan emas, ornamen, ayat, mempelai, hitung mundur, acara, dress code, RSVP, live streaming, galeri, video, kisah cinta, hadiah, dan ucapan.",
     theme: {
       fonts: { display: "Cormorant Upright", script: "Cormorant Upright", body: "Ovo" },
       colors: { surface: "#124541", text: "#fff9c7", accent: "#e4dcaf", accentMuted: "#37776d", overlay: "#124541", dark: "#124541" },
@@ -994,7 +994,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "still-ever",
     name: "Still & Ever",
-    description: "Undangan stationery bernuansa charcoal dan krem — kartu amplop bersegel lilin, sampul editorial, ayat, mempelai, turut mengundang, kisah cinta, hitung mundur, acara, rundown, dress code, galeri, live streaming, video, hadiah, dan ucapan.",
+    description: "Undangan stationery bernuansa charcoal dan krem, kartu amplop bersegel lilin, sampul editorial, ayat, mempelai, turut mengundang, kisah cinta, hitung mundur, acara, rundown, dress code, galeri, live streaming, video, hadiah, dan ucapan.",
     theme: {
       fonts: { display: "DM Serif Display", script: "DM Serif Display", body: "DM Sans" },
       colors: {
@@ -1034,7 +1034,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "embroidered-garden",
     name: "Embroidered Garden",
-    description: "Undangan bordir bergaya taman Provençal — gerbang pintu bertekstur, sulaman wistaria dan mawar, hitung mundur mutiara, turut mengundang, susunan acara, dress code, kisah cinta, hadiah, dan ucapan.",
+    description: "Undangan bordir bergaya taman Provençal, gerbang pintu bertekstur, sulaman wistaria dan mawar, hitung mundur mutiara, turut mengundang, susunan acara, dress code, kisah cinta, hadiah, dan ucapan.",
     theme: {
       fonts: { display: "Cormorant Garamond", script: "Pinyon Script", body: "EB Garamond" },
       colors: {
@@ -1077,7 +1077,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     code: "lace",
     name: "Lace",
-    description: "Undangan bergaya renda ivory dan burgundy — sampul bertulle bersegel lilin, sambutan, mempelai, hitung mundur berpita renda, acara, susunan acara, dress code, turut mengundang, kisah cinta, galeri, video, hadiah, dan ucapan.",
+    description: "Undangan bergaya renda ivory dan burgundy, sampul bertulle bersegel lilin, sambutan, mempelai, hitung mundur berpita renda, acara, susunan acara, dress code, turut mengundang, kisah cinta, galeri, video, hadiah, dan ucapan.",
     theme: {
       fonts: { display: "Cormorant", script: "WindSong", body: "DM Sans" },
       colors: {
@@ -1122,7 +1122,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     code: "n-film",
     name: "N Film",
     description:
-      "Undangan bergaya film dan layanan streaming — sampul pemilih tamu, poster nama, daftar episode kisah cinta, hitung mundur, galeri, dan film.",
+      "Undangan bergaya film dan layanan streaming, sampul pemilih tamu, poster nama, daftar episode kisah cinta, hitung mundur, galeri, dan film.",
     theme: {
       fonts: { display: "Anton", script: "Anton", body: "Archivo" },
       colors: {
@@ -1165,7 +1165,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     code: "ivory-lace",
     name: "Ivory Lace",
     description:
-      "Undangan editorial kertas ivory — amplop renda bersegel lilin, monogram wreath, mempelai, kisah cinta, kalender dan hitung mundur, acara, susunan acara, galeri, film, hadiah, dress code, dan ucapan.",
+      "Undangan editorial kertas ivory, amplop renda bersegel lilin, monogram wreath, mempelai, kisah cinta, kalender dan hitung mundur, acara, susunan acara, galeri, film, hadiah, dress code, dan ucapan.",
     theme: {
       fonts: { display: "Ferly", script: "Pinyon Script", body: "Poppins" },
       colors: {
@@ -1217,7 +1217,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     code: "boarding-pass",
     name: "Boarding Pass",
     description:
-      "Undangan berbentuk tiket pesawat dan paspor perjalanan — papan keberangkatan, manifest penumpang, itinerary, dan buku tamu.",
+      "Undangan berbentuk tiket pesawat dan paspor perjalanan, papan keberangkatan, manifest penumpang, itinerary, dan buku tamu.",
     theme: {
       fonts: { display: "DM Serif Display", script: "Caveat", body: "Jost" },
       colors: {
@@ -1301,7 +1301,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     code: "navy-love",
     name: "Navy Love",
     description:
-      "Undangan kertas scrapbook navy–ivory — amplop renda bermonogram, kartu deckled, label kertas sobek, kaligrafi floral, hitung mundur, susunan acara, galeri, film, hadiah, dress code, dan ucapan.",
+      "Undangan kertas scrapbook navy & ivory, amplop renda bermonogram, kartu deckled, label kertas sobek, kaligrafi floral, hitung mundur, susunan acara, galeri, film, hadiah, dress code, dan ucapan.",
     theme: {
       fonts: { display: "Cinzel", script: "Parisienne", body: "Cormorant Garamond" },
       colors: {

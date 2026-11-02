@@ -323,7 +323,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
                       </h3>
                       <div className="flex flex-wrap gap-1.5 mt-2.5">
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold text-[#F3E2B3]" style={{ background: "#25201A", border: "1px solid #7D5D2B" }}>
-                          Meja {tableNumber || "—"}
+                          Meja {tableNumber || "-"}
                         </span>
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold text-[#F3E2B3]" style={{ background: "#25201A", border: "1px solid #7D5D2B" }}>
                           {guestCount} Pax
@@ -338,14 +338,14 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
                           <div className="flex items-start gap-2 mt-1.5">
                             <span className="material-symbols-outlined text-[15px] text-[#E6C364] shrink-0 mt-0.5">calendar_today</span>
                             <div className="min-w-0">
-                              <p className="text-[13px] font-semibold text-[#FAF5ED] leading-tight">{ev.date || "—"}</p>
+                              <p className="text-[13px] font-semibold text-[#FAF5ED] leading-tight">{ev.date || "-"}</p>
                               {ev.time && <p className="text-[11.5px] text-[#C2B29F] mt-0.5">{ev.time}</p>}
                             </div>
                           </div>
                           <div className="flex items-start gap-2 mt-1.5">
                             <span className="material-symbols-outlined text-[15px] text-[#E6C364] shrink-0 mt-0.5">location_on</span>
                             <div className="min-w-0">
-                              <p className="text-[13px] font-semibold text-[#FAF5ED] leading-tight">{ev.venue || "—"}</p>
+                              <p className="text-[13px] font-semibold text-[#FAF5ED] leading-tight">{ev.venue || "-"}</p>
                               {ev.address && <p className="text-[11.5px] text-[#C2B29F] leading-snug mt-0.5">{ev.address}</p>}
                             </div>
                           </div>
@@ -447,7 +447,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
                 </h3>
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   <span className="inline-flex items-center px-2 py-0.5 rounded text-[9.5px] font-semibold text-[#1A1817]" style={{ backgroundColor: "#FBF8F3", border: "1px solid rgba(26, 24, 23, 0.12)" }}>
-                    Meja {tableNumber || "—"}
+                    Meja {tableNumber || "-"}
                   </span>
                   <span className="inline-flex items-center px-2 py-0.5 rounded text-[9.5px] font-semibold text-[#1A1817]" style={{ backgroundColor: "#FBF8F3", border: "1px solid rgba(26, 24, 23, 0.12)" }}>
                     {guestCount} Pax
@@ -462,14 +462,14 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
                     <div className="flex items-start gap-2 mt-1.5">
                       <span className="material-symbols-outlined text-[14px] text-[#8D4D39] shrink-0 mt-0.5">calendar_today</span>
                       <div className="min-w-0">
-                        <p className="text-[12px] font-semibold text-[#1A1817] leading-tight">{ev.date || "—"}</p>
+                        <p className="text-[12px] font-semibold text-[#1A1817] leading-tight">{ev.date || "-"}</p>
                         {ev.time && <p className="text-[10.5px] text-[#5C5854] mt-0.5">{ev.time}</p>}
                       </div>
                     </div>
                     <div className="flex items-start gap-2 mt-1.5">
                       <span className="material-symbols-outlined text-[14px] text-[#8D4D39] shrink-0 mt-0.5">location_on</span>
                       <div className="min-w-0">
-                        <p className="text-[12px] font-semibold text-[#1A1817] leading-tight">{ev.venue || "—"}</p>
+                        <p className="text-[12px] font-semibold text-[#1A1817] leading-tight">{ev.venue || "-"}</p>
                         {ev.address && <p className="text-[10.5px] text-[#5C5854] leading-snug mt-0.5">{ev.address}</p>}
                       </div>
                     </div>

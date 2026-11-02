@@ -175,7 +175,7 @@ export default function WelcomePage({ params }: { params: Promise<{ token: strin
             <div className="absolute -bottom-2 -left-2 w-4 h-4 rounded-full bg-surface border-r border-outline-variant/40"></div>
             <div className="absolute -bottom-2 -right-2 w-4 h-4 rounded-full bg-surface border-l border-outline-variant/40"></div>
             <p className="font-label-md text-[10px] uppercase opacity-80 tracking-[0.2em] mb-1">Penempatan Meja</p>
-            {loading ? (<div className="h-8 bg-white/20 rounded animate-pulse w-24 mx-auto" />) : (<h2 className="font-headline-xl text-4xl font-bold tracking-tight my-1">{tableNumber || "—"}</h2>)}
+            {loading ? (<div className="h-8 bg-white/20 rounded animate-pulse w-24 mx-auto" />) : (<h2 className="font-headline-xl text-4xl font-bold tracking-tight my-1">{tableNumber || "-"}</h2>)}
             {!loading && category && (
               <span className="inline-block px-3 py-1 bg-on-primary/10 rounded-full text-xs font-medium tracking-wide italic opacity-95 mt-1 border border-on-primary/10">
                 {category}

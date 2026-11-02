@@ -9,7 +9,7 @@ export const MESSAGE_TEMPLATES: Record<string, ReminderTemplate> = {
   },
   hangat: {
     label: "Hangat & Personal",
-    text: "Halo {Nama Tamu}! 🥂\n\nKami tidak sabar untuk merayakan hari spesial kami bersama Anda. Terima kasih telah menjadi bagian dari cerita cinta kami.\n\nSilakan akses undangan digital dan konfirmasi kehadiran Anda di:\n{Tautan Unik}\n\nQR Code masuk sudah menanti — jangan sampai ketinggalan ya!\n\nSampai jumpa di hari bahagia kami!\n{Nama Pengantin} ❤️",
+    text: "Halo {Nama Tamu}! 🥂\n\nKami tidak sabar untuk merayakan hari spesial kami bersama Anda. Terima kasih telah menjadi bagian dari cerita cinta kami.\n\nSilakan akses undangan digital dan konfirmasi kehadiran Anda di:\n{Tautan Unik}\n\nQR Code masuk sudah menanti, jangan sampai ketinggalan ya!\n\nSampai jumpa di hari bahagia kami!\n{Nama Pengantin} ❤️",
   },
   singkat: {
     label: "Singkat & Padat",

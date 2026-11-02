@@ -60,7 +60,7 @@ export default function GuestGalleryView(props: GalleryViewProps) {
 
   const shareTextFor = (p: GalleryViewPhoto) => {
     const base = p.caption?.trim() ? p.caption.trim() : `Kenangan dari ${ownerOf(p) || "tamu"}`
-    return `${base} — untuk ${coupleName || "mempelai"} ${p.image_url}`
+    return `${base}, untuk ${coupleName || "mempelai"} ${p.image_url}`
   }
 
   const handleDownload = async (p: GalleryViewPhoto) => {
@@ -85,7 +85,7 @@ export default function GuestGalleryView(props: GalleryViewProps) {
       const file = new File([blob], `kenangan-${p.id}.jpg`, { type: blob.type || "image/jpeg" })
       const outcome = await sharePhoto({ file, title: `Kenangan untuk ${coupleName || "mempelai"}`, text: shareTextFor(p) })
       if (outcome === "unsupported") {
-        setNotice("Perangkat tidak mendukung berbagi langsung — gunakan tombol di bawah.")
+        setNotice("Perangkat tidak mendukung berbagi langsung, gunakan tombol di bawah.")
       }
     } catch {
       setNotice("Gagal berbagi. Coba unduh manual.")
@@ -259,7 +259,7 @@ export default function GuestGalleryView(props: GalleryViewProps) {
                             WhatsApp
                           </a>
                           <a
-                            href={`https://t.me/share/url?url=${encodeURIComponent(p.image_url)}&text=${encodeURIComponent(p.caption?.trim() ? `${p.caption.trim()} — untuk ${coupleName}` : `Kenangan untuk ${coupleName}`)}`}
+                            href={`https://t.me/share/url?url=${encodeURIComponent(p.image_url)}&text=${encodeURIComponent(p.caption?.trim() ? `${p.caption.trim()}, untuk ${coupleName}` : `Kenangan untuk ${coupleName}`)}`}
                             target="_blank"
                             rel="noreferrer"
                             className="flex-1 min-w-[100px] text-center px-3 py-2 rounded-full bg-white border border-[#E2D9CF] text-[11px] font-semibold text-[#2C2A29]"

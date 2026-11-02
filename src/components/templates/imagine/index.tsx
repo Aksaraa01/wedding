@@ -267,7 +267,7 @@ export default function Imagine(props: TemplateProps) {
     setOpened(true)
     window.scrollTo(0, 0)
     if (audioRef.current) {
-      audioRef.current.play().catch(() => { /* gesture-race — user can use the music button */ })
+      audioRef.current.play().catch(() => { /* gesture-race, user can use the music button */ })
       setMusicOn(true)
     }
   }

@@ -45,7 +45,7 @@ export default function ArtikelIndexPage() {
         </h1>
         <p className="text-base md:text-body-lg leading-relaxed text-on-surface-variant max-w-2xl mx-auto">
           Panduan praktis seputar undangan pernikahan digital, wedding planner, checklist persiapan,
-          dan galeri foto tamu — ditulis untuk calon pengantin Indonesia.
+          dan galeri foto tamu, ditulis untuk calon pengantin Indonesia.
         </p>
       </section>
 

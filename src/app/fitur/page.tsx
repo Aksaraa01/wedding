@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     "Jelajahi 8 fitur unggulan undangan digital Aksaraa: RSVP otomatis, buku tamu QR, galeri foto, wish wall, reminder WA, amplop digital, dan banyak lagi.",
   alternates: { canonical: "https://wedding.aksaraa.com/fitur" },
   openGraph: {
-    title: "Fitur Lengkap Undangan Digital — Aksaraa Wedding",
+    title: "Fitur Lengkap Undangan Digital | Aksaraa Wedding",
     description:
       "Semua fitur undangan digital dalam satu platform: RSVP, buku tamu QR, galeri foto tamu, wish wall, reminder WA, amplop digital, dan banyak lagi.",
   },
@@ -27,7 +27,7 @@ export default function FitursPage() {
       key: "wish_wall",
       label: "Wish Wall Digital",
       icon: "favorite",
-      desc: "Papan ucapan interaktif — tamu kirim doa dari HP, tampil live di layar venue dengan moderasi instan.",
+      desc: "Papan ucapan interaktif, tamu kirim doa dari HP, tampil live di layar venue dengan moderasi instan.",
       href: "/fitur/wish-wall",
     },
     {
@@ -41,7 +41,7 @@ export default function FitursPage() {
       key: "kolom_direct_transfer",
       label: "Amplop Digital & Alamat Kado",
       icon: "featured_seasonal_and_gifts",
-      desc: "Amplop digital + rekening bank/e-wallet + alamat pengiriman kado fisik — terintegrasi di undangan.",
+      desc: "Amplop digital + rekening bank/e-wallet + alamat pengiriman kado fisik, terintegrasi di undangan.",
       href: "/fitur/amplop-digital",
     },
     {
@@ -69,7 +69,7 @@ export default function FitursPage() {
       key: "kolom_direct_transfer",
       label: "Reservasi Otomatis & Link Unik",
       icon: "unique_link_generator",
-      desc: "Tautan unik per tamu + QR Pass + nomor meja terotomatisasi — anti tamu tak diundang.",
+      desc: "Tautan unik per tamu + QR Pass + nomor meja terotomatisasi, anti tamu tak diundang.",
       href: "/fitur/link-unik",
     },
   ]
@@ -82,7 +82,7 @@ export default function FitursPage() {
           Fitur Lengkap Undangan Digital
         </h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
-          Semua yang Anda butuhkan untuk pernikahan modern dalam satu platform — dari undangan hingga hari-H.
+          Semua yang Anda butuhkan untuk pernikahan modern dalam satu platform, dari undangan hingga hari-H.
         </p>
       </section>
 
@@ -118,7 +118,7 @@ export default function FitursPage() {
           Siap membuat undangan digital Anda?
         </h2>
         <p className="text-sm text-on-surface-variant mb-5">
-          Pilih template, isi data, bagikan link — jadi dalam 15 menit.
+          Pilih template, isi data, bagikan link. Jadi dalam 15 menit.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           <a

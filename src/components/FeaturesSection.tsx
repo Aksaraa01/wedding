@@ -13,13 +13,13 @@ const MODULES = [
   {
     icon: "qr_code_2",
     title: "Buku Tamu Digital QR",
-    desc: "Check-in QR, e-pass tamu, layar sapa, rekap kehadiran otomatis — buku tamu digital modern.",
+    desc: "Check-in QR, e-pass tamu, layar sapa, rekap kehadiran otomatis, buku tamu digital modern.",
     href: "/fitur/buku-tamu-qr",
   },
   {
     icon: "settings_input_component",
     title: "Wish Wall Digital",
-    desc: "Ucapan tamu tampil live di layar venue dengan moderasi instan — papan ucapan modern.",
+    desc: "Ucapan tamu tampil live di layar venue dengan moderasi instan, papan ucapan modern.",
     href: "/fitur/wish-wall",
   },
   {
@@ -31,7 +31,7 @@ const MODULES = [
   {
     icon: "featured_seasonal_and_gifts",
     title: "Amplop Digital & Kado",
-    desc: "Rekening bank, e-wallet, QRIS, alamat kado — terintegrasi di undangan, aman & praktis.",
+    desc: "Rekening bank, e-wallet, QRIS, alamat kado, terintegrasi di undangan, aman & praktis.",
     href: "/fitur/amplop-digital",
   },
   {
@@ -43,7 +43,7 @@ const MODULES = [
   {
     icon: "qr_code_2",
     title: "Link Unik & QR Pass",
-    desc: "Tautan & QR unik per tamu — anti tamu tak diundang, rekap akurat, nomor meja otomatis.",
+    desc: "Tautan & QR unik per tamu, anti tamu tak diundang, rekap akurat, nomor meja otomatis.",
     href: "/fitur/link-unik",
   },
   {

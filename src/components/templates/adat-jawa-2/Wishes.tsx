@@ -97,7 +97,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
     if (!text || status === "sending") return
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback(lang === "ID" ? "Mode pratinjau — ucapan tidak disimpan." : "Preview mode — your wishes are not saved.")
+      setFeedback(lang === "ID" ? "Mode pratinjau, ucapan tidak disimpan." : "Preview mode, your wishes are not saved.")
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")

@@ -191,7 +191,7 @@ export default function VirtualWishWallPage() {
               Wish Wall Digital: <br />Papan <span className="italic font-medium text-[#B34E3F]">Ucapan Pernikahan</span> di Layar.
             </h1>
             <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl leading-relaxed">
-              Doa dan ucapan tamu tampil live di layar LED venue — buku tamu ucapan digital dengan moderasi instan, langsung dari smartphone tamu.
+              Doa dan ucapan tamu tampil live di layar LED venue, buku tamu ucapan digital dengan moderasi instan, langsung dari smartphone tamu.
             </p>
             <div className="flex flex-wrap gap-5 pt-4">
               <button onClick={() => router.push("/register")} className="bg-[#B34E3F] text-white px-10 py-5 rounded-full font-label-caps text-[14px] flex items-center gap-3 group transition-all hover:bg-[#9E3B2D] shadow-lg shadow-[#B34E3F]/20">
@@ -520,7 +520,7 @@ export default function VirtualWishWallPage() {
             },
             {
               q: "Bagaimana moderasi ucapannya?",
-              a: "Mempelai atau wedding organizer menyetujui setiap pesan secara instan sebelum tayang — ucapan yang kurang pantas tidak akan muncul di layar.",
+              a: "Mempelai atau wedding organizer menyetujui setiap pesan secara instan sebelum tayang, ucapan yang kurang pantas tidak akan muncul di layar.",
             },
             {
               q: "Apakah bisa tampil di layar atau LED venue?",
@@ -528,7 +528,7 @@ export default function VirtualWishWallPage() {
             },
             {
               q: "Apakah tamu perlu aplikasi khusus?",
-              a: "Tidak. Tamu menulis ucapan lewat browser HP masing-masing — semudah mengisi buku tamu, semegah instalasi digital.",
+              a: "Tidak. Tamu menulis ucapan lewat browser HP masing-masing, semudah mengisi buku tamu, semegah instalasi digital.",
             },
           ]}
         />

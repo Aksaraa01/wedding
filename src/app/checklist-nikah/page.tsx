@@ -94,7 +94,7 @@ export default function ChecklistNikahPage() {
           Checklist Persiapan Pernikahan
         </h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
-          Daftar persiapan nikah dari 12 bulan hingga hari-H. Centang yang sudah beres —
+          Daftar persiapan nikah dari 12 bulan hingga hari-H. Centang yang sudah beres, 
           progres tersimpan otomatis di HP Anda dan bisa dicetak.
         </p>
         <div className="mt-6 bg-white border border-[#E2D9CF] rounded-2xl px-6 py-4">
@@ -165,7 +165,7 @@ export default function ChecklistNikahPage() {
           },
           {
             q: "Bagaimana agar tidak ada yang terlewat?",
-            a: "Gunakan checklist bertahap di halaman ini — centang tiap tahap dan progres tersimpan otomatis di HP Anda.",
+            a: "Gunakan checklist bertahap di halaman ini, centang tiap tahap dan progres tersimpan otomatis di HP Anda.",
           },
           {
             q: "Berapa budget yang perlu disiapkan?",

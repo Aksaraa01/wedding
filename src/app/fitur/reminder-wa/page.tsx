@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Reminder WhatsApp Otomatis untuk Tamu | Aksaraa",
     description:
-      "Blast undangan & pengingat otomatis via WA — personal per tamu, tautan unik, nomor meja, RSVP via WA.",
+      "Blast undangan & pengingat otomatis via WA, personal per tamu, tautan unik, nomor meja, RSVP via WA.",
   },
 }
 
@@ -28,7 +28,7 @@ export default function ReminderWaPage() {
           Reminder WhatsApp Otomatis
         </h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant mb-8">
-          Blast undangan & pengingat otomatis via WhatsApp — setiap tamu dapat pesan personal dengan
+          Blast undangan & pengingat otomatis via WhatsApp, setiap tamu dapat pesan personal dengan
           tautan undangan unik, nomor meja, dan RSVP via WA. Tanpa broadcast manual satu per satu.
         </p>
 
@@ -37,14 +37,14 @@ export default function ReminderWaPage() {
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">Blast Otomatis Terjadwal</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
               Atur jadwal blast: undangan H-30, reminder H-7, pengingat H-1. Sistem kirim otomatis
-              via WhatsApp Business API — tanpa broadcast manual, tanpa risiko spam/blocked.
+              via WhatsApp Business API, tanpa broadcast manual, tanpa risiko spam/blocked.
             </p>
           </div>
           <div className="bg-white border border-[#E2D9CF] rounded-2xl p-6 md:p-8">
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">Pesan Personal per Tamu</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
               Setiap pesan berisi nama tamu, tautan undangan unik, dan nomor meja masing-masing.
-              Bukan broadcast generik — tamu merasa diperlakukan personal.
+              Bukan broadcast generik, tamu merasa diperlakukan personal.
             </p>
           </div>
           <div className="bg-white border border-[#E2D9CF] rounded-2xl p-6 md:p-8">
@@ -58,7 +58,7 @@ export default function ReminderWaPage() {
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">Nomor Meja & Tautan Unik per Tamu</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
               Setiap pesan WA berisi nama tamu, tautan undangan unik, dan nomor meja masing-masing.
-              Bukan broadcast generik — tamu merasa diperlakukan personal.
+              Bukan broadcast generik, tamu merasa diperlakukan personal.
             </p>
           </div>
         </div>

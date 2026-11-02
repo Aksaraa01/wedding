@@ -4,13 +4,13 @@ import Navigation from "@/components/Navigation"
 export const metadata: Metadata = {
   title: {
     template: "%s | Fitur",
-    default: "Fitur Lengkap Undangan Digital — Aksaraa Wedding",
+    default: "Fitur Lengkap Undangan Digital | Aksaraa Wedding",
   },
   description:
     "Jelajahi semua fitur undangan digital Aksaraa: undangan website, RSVP otomatis, buku tamu QR, galeri foto tamu, wish wall, reminder WA, dan banyak lagi.",
   alternates: { canonical: "https://wedding.aksaraa.com/fitur" },
   openGraph: {
-    title: "Fitur Lengkap Undangan Digital — Aksaraa Wedding",
+    title: "Fitur Lengkap Undangan Digital | Aksaraa Wedding",
     description:
       "Semua fitur undangan digital dalam satu platform: RSVP, buku tamu QR, galeri foto, wish wall, reminder WA, amplop digital, dan banyak lagi.",
   },

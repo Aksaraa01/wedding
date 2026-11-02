@@ -79,7 +79,7 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
   const { code } = await params
   const config = getTemplateConfig(code)
   return {
-    title: `Demo — ${config?.name || code}`,
+    title: `Demo: ${config?.name || code}`,
     robots: { index: false, follow: false },
   }
 }

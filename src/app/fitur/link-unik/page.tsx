@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Link Unik & QR Pass per Tamu | Aksaraa",
     description:
-      "Tautan unik & QR Pass per tamu — anti tamu tak diundang, rekap RSVP akurat, nomor meja otomatis.",
+      "Tautan unik & QR Pass per tamu, anti tamu tak diundang, rekap RSVP akurat, nomor meja otomatis.",
   },
 }
 
@@ -28,7 +28,7 @@ export default function LinkUnikPage() {
           Link Unik & QR Pass per Tamu
         </h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant mb-8">
-          Setiap tamu mendapat tautan undangan & QR Pass unik — anti tamu tak diundang, rekap RSVP
+          Setiap tamu mendapat tautan undangan & QR Pass unik, anti tamu tak diundang, rekap RSVP
           akurat per nama, nomor meja otomatis, aman & personal.
         </p>
 
@@ -37,9 +37,9 @@ export default function LinkUnikPage() {
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">Tautan Unik per Tamu</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
               Setiap tamu mendapat link undangan unik: `https://wedding.aksaraa.com/w/[slug]?to=[nama]`.
-              Nama tamu maupun slug sama-sama diterima — spasi dan simbol (mis. `/`) otomatis
+              Nama tamu maupun slug sama-sama diterima, spasi dan simbol (mis. `/`) otomatis
               dirapikan, jadi tidak ada tautan yang gagal dibuka.
-              Link tidak bisa ditebak, tidak bisa dibagikan ke orang lain — hanya tamu bersangkutan yang bisa buka.
+              Link tidak bisa ditebak, tidak bisa dibagikan ke orang lain, hanya tamu bersangkutan yang bisa buka.
             </p>
           </div>
           <div className="bg-white border border-[#E2D9CF] rounded-2xl p-6 md:p-8">
@@ -53,7 +53,7 @@ export default function LinkUnikPage() {
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">Nomor Meja Otomatis</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
               Nomor meja tergenerate otomatis per tamu/kelompok. Tampil di e-pass, link undangan,
-              layar sapa, & rekap seating plan — export Excel untuk seating plan venue.
+              layar sapa, & rekap seating plan, export Excel untuk seating plan venue.
             </p>
           </div>
           <div className="bg-white border border-[#E2D9CF] rounded-2xl p-6 md:p-8">

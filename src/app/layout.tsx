@@ -7,7 +7,7 @@ import "./fonts.css"
 
 export const metadata: Metadata = {
   title: {
-    default: "Undangan Pernikahan Digital, Buku Tamu & Galeri Foto Tamu — Aksaraa Wedding",
+    default: "Undangan Pernikahan Digital, Buku Tamu & Galeri Foto Tamu | Aksaraa Wedding",
     template: "%s | Aksaraa Wedding",
   },
   description:
@@ -18,16 +18,16 @@ export const metadata: Metadata = {
     locale: "id_ID",
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: "Undangan Pernikahan Digital, Buku Tamu & Galeri Foto Tamu — Aksaraa Wedding",
+    title: "Undangan Pernikahan Digital, Buku Tamu & Galeri Foto Tamu | Aksaraa Wedding",
     description:
-      "Undangan website, RSVP, buku tamu digital QR, galeri foto tamu, dan reminder WhatsApp — semua dalam satu genggaman.",
+      "Undangan website, RSVP, buku tamu digital QR, galeri foto tamu, dan reminder WhatsApp, semua dalam satu genggaman.",
     images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Undangan Pernikahan Digital, Buku Tamu & Galeri Foto Tamu — Aksaraa Wedding",
+    title: "Undangan Pernikahan Digital, Buku Tamu & Galeri Foto Tamu | Aksaraa Wedding",
     description:
-      "Undangan website, RSVP, buku tamu digital QR, galeri foto tamu, dan reminder WhatsApp — semua dalam satu genggaman.",
+      "Undangan website, RSVP, buku tamu digital QR, galeri foto tamu, dan reminder WhatsApp, semua dalam satu genggaman.",
     images: [DEFAULT_OG_IMAGE.url],
   },
   robots: { index: true, follow: true },
@@ -53,6 +53,10 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block"
         />
+        {/* Template previews are iframes on wp.aksaraa.com. Warm up DNS + TLS
+            while the visitor is still scrolling so the modal opens sooner. */}
+        <link rel="dns-prefetch" href="https://wp.aksaraa.com" />
+        <link rel="preconnect" href="https://wp.aksaraa.com" />
       </head>
       <body
         className="font-body-md bg-background text-on-surface"

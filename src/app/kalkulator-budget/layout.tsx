@@ -3,12 +3,12 @@ import type { Metadata } from "next"
 export const metadata: Metadata = {
   title: "Kalkulator Budget Pernikahan: Hitung Estimasi Biaya Nikah",
   description:
-    "Hitung estimasi budget pernikahan: atur jumlah tamu, sesuaikan pos venue, katering, MUA, dekor, WO — total otomatis plus tips hemat undangan digital.",
+    "Hitung estimasi budget pernikahan: atur jumlah tamu, sesuaikan pos venue, katering, MUA, dekor, WO, total otomatis plus tips hemat undangan digital.",
   alternates: { canonical: "https://wedding.aksaraa.com/kalkulator-budget" },
   openGraph: {
     title: "Kalkulator Budget Pernikahan | Aksaraa",
     description:
-      "Estimasi biaya nikah otomatis: venue, katering, MUA, dekor, WO, souvenir — plus tips menghemat jutaan rupiah.",
+      "Estimasi biaya nikah otomatis: venue, katering, MUA, dekor, WO, souvenir, plus tips menghemat jutaan rupiah.",
   },
 }
 

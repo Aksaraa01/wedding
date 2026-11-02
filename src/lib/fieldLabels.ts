@@ -25,7 +25,7 @@ export const FIELD_LABELS: Record<string, string> = {
   inviting_families_section: "Bagian Turut Mengundang (kontainer yg disembunyikan saat toggle OFF)",
   story_section: "Bagian Kisah Cinta (kontainer yg disembunyikan saat toggle OFF)",
   stories: "Kisah Cinta",
-  stories_container: "Kisah Cinta (kontainer, duplikat otomatis per cerita — gantikan mapping Kisah Cinta biasa)",
+  stories_container: "Kisah Cinta (kontainer, duplikat otomatis per cerita: gantikan mapping Kisah Cinta biasa)",
   video_url: "Video",
   quote_text: "Kutipan",
   quote_source: "Sumber Kutipan",
@@ -33,8 +33,8 @@ export const FIELD_LABELS: Record<string, string> = {
   bride_instagram: "Instagram Mempelai Kedua",
   inviting_families: "Turut Mengundang",
   countdown: "Hitung Mundur (Tanggal Acara)",
-  opening_title: "Kalimat Pembuka — Judul",
-  opening_description: "Kalimat Pembuka — Deskripsi",
+  opening_title: "Kalimat Pembuka: Judul",
+  opening_description: "Kalimat Pembuka: Deskripsi",
   calendar_link: "Link Google Calendar",
 }
 

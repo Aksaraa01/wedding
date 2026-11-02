@@ -110,7 +110,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
     if (!text || status === "sending") return
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback("Mode pratinjau — ucapan Anda tidak disimpan.")
+      setFeedback("Mode pratinjau, ucapan Anda tidak disimpan.")
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")
@@ -222,7 +222,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         {!loaded && <p className="cn-field__feedback">Memuat ucapan…</p>}
         {loaded && wishes.length === 0 && (
           <p className="cn-field__feedback">
-            {copy.empty} {coupleName ? `— ${coupleName}` : ""}
+            {copy.empty}{coupleName ? ` (${coupleName})` : ""}
           </p>
         )}
 

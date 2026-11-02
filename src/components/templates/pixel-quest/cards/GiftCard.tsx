@@ -37,7 +37,7 @@ export default function GiftCard({
             </div>
             <div className="mt-2 flex items-center justify-between bg-slate-900/80 px-2.5 py-1.5 rounded-lg border border-slate-700 gap-2">
               <div className="min-w-0">
-                <span className="font-mono text-xs font-bold text-white tracking-widest block truncate">{num || "—"}</span>
+                <span className="font-mono text-xs font-bold text-white tracking-widest block truncate">{num || ", "}</span>
                 {a.account_name && <span className="text-[9px] text-slate-400 truncate block">a.n {a.account_name}</span>}
               </div>
               {plain && (

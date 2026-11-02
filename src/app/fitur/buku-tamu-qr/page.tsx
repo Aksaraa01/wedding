@@ -3,14 +3,14 @@ import Navigation from "@/components/Navigation"
 import Link from "next/link"
 
 export const metadata: Metadata = {
-  title: "Buku Tamu Digital QR — Check-in & E-Pass",
+  title: "Buku Tamu Digital QR: Check-in & E-Pass",
   description:
     "Buku tamu digital QR: check-in QR di pintu masuk, e-pass berisi nama & nomor meja, layar sapa, rekap kehadiran real-time.",
   alternates: { canonical: "https://wedding.aksaraa.com/fitur/buku-tamu-qr" },
   openGraph: {
-    title: "Buku Tamu Digital QR — Check-in & E-Pass | Aksaraa",
+    title: "Buku Tamu Digital QR: Check-in & E-Pass | Aksaraa",
     description:
-      "Check-in QR, e-pass tamu, layar sapa, rekap kehadiran otomatis — buku tamu digital modern untuk resepsi.",
+      "Check-in QR, e-pass tamu, layar sapa, rekap kehadiran otomatis, buku tamu digital modern untuk resepsi.",
   },
 }
 
@@ -29,7 +29,7 @@ export default function BukuTamuQrPage() {
         </h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant mb-8">
           Check-in QR di pintu masuk, e-pass berisi nama & nomor meja, layar sapa, dan rekap kehadiran
-          otomatis — buku tamu digital modern untuk resepsi pernikahan yang berkesan.
+          otomatis, buku tamu digital modern untuk resepsi pernikahan yang berkesan.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
@@ -51,7 +51,7 @@ export default function BukuTamuQrPage() {
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">Layar Sapa & Rekap Real-Time</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
               Nama tamu tampil di layar sapa saat check-in (animasi elegan). Dashboard mempelai/WO:
-              total hadir, per kategori, per meja, VIP, souvenir — update real-time, export Excel.
+              total hadir, per kategori, per meja, VIP, souvenir, update real-time, export Excel.
             </p>
           </div>
           <div className="bg-white border border-[#E2D9CF] rounded-2xl p-6 md:p-8">

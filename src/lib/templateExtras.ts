@@ -141,10 +141,10 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     rows: 3,
     placeholders: {
       "cinnabar-seal": "Bingkai kecil dari perjalanan kami, disimpan untuk dikenang bersama.",
-      "ivory-lace": "A few frames from the days that led us here — the quiet ones we keep closest.",
+      "ivory-lace": "A few frames from the days that led us here, the quiet ones we keep closest.",
       "embroidered-garden":
-        "The frames we keep closest — an afternoon in the garden, a table we shared, and the walk that led us here.",
-      lace: "A few frames from the days that led us here — the quiet ones we keep closest.",
+        "The frames we keep closest, an afternoon in the garden, a table we shared, and the walk that led us here.",
+      lace: "A few frames from the days that led us here, the quiet ones we keep closest.",
       evermore: "Beberapa bingkai yang telah kami lalui bersama, tersimpan seperti foto lama di album keluarga.",
       "piano-garden": "Momen yang kami simpan erat, seperti kenangan dalam album keluarga.",
       "altar-garden": "Momen yang kami simpan erat, seperti kenangan dalam album keluarga.",
@@ -157,9 +157,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "adat-jawa": "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
       "adat-bali": "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
     
-      "n-film": "A few frames from the days that led us here — the quiet ones we keep closest.",
+      "n-film": "A few frames from the days that led us here, the quiet ones we keep closest.",
     
-      "boarding-pass": "Oleh-oleh dari perjalanan kami — bingkai yang paling kami simpan.",
+      "boarding-pass": "Oleh-oleh dari perjalanan kami, bingkai yang paling kami simpan.",
     },
     templates: ["evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "navy-love"],
   },

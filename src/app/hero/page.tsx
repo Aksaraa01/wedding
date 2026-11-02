@@ -32,7 +32,7 @@ export default function HeroPage() {
             },
             {
               q: "Apakah tamu harus install aplikasi?",
-              a: "Tidak. Semua fitur — undangan, RSVP, buku tamu, galeri, dan ucapan — berjalan langsung di browser HP tamu.",
+              a: "Tidak. Semua fitur, undangan, RSVP, buku tamu, galeri, dan ucapan, berjalan langsung di browser HP tamu.",
             },
             {
               q: "Apakah cocok untuk resepsi besar?",

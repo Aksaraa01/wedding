@@ -1351,7 +1351,7 @@ DEMO_PROPS_BY_CODE["lace"] = {
       name: "The Reception",
       date: "2027-05-20",
       time: "7:00 PM – 11:00 PM",
-      venue: "Villa Aurelia — Garden Terrace",
+      venue: "Villa Aurelia, Garden Terrace",
       address: "Via della Lungara 12, 00165 Roma RM, Italy",
       maps_url: "https://maps.google.com/?q=Villa+Aurelia+Rome",
     },
@@ -1374,7 +1374,7 @@ DEMO_PROPS_BY_CODE["lace"] = {
     {
       title: "The Little Things",
       description:
-        "Slow mornings, long walks home, and a habit of saving the last bite for each other — the years that made the answer obvious.",
+        "Slow mornings, long walks home, and a habit of saving the last bite for each other, the years that made the answer obvious.",
       image_url: `${DE}/cover-5.webp`,
     },
     {
@@ -1408,7 +1408,7 @@ DEMO_PROPS_BY_CODE["lace"] = {
   ],
   dresscode: {
     title: "Formal Attire",
-    description: "We would love to see you in these tones — anything from a soft neutral to a deep burgundy.",
+    description: "We would love to see you in these tones, anything from a soft neutral to a deep burgundy.",
     colors: [
       { hex: "#f3ece4", name: "Ivory" },
       { hex: "#c9b49a", name: "Sand" },
@@ -1429,7 +1429,7 @@ DEMO_PROPS_BY_CODE["lace"] = {
     rundown_intro: "Our ceremony will be followed by an aperitivo, dinner and dancing.",
     inviting_intro: "Together with the families who share this invitation.",
     gallery_title: "Our Moments",
-    gallery_intro: "A few frames from the days that led us here — the quiet ones we keep closest.",
+    gallery_intro: "A few frames from the days that led us here, the quiet ones we keep closest.",
     video_title: "Our Film",
     video_intro: "The day as it happened, kept in motion.",
     video_caption: "Filmed on the day, from the first look to the last dance.",
@@ -1522,7 +1522,7 @@ DEMO_PROPS_BY_CODE["ivory-lace"] = {
   guest_name: "Tamu Undangan",
   opening_title: "Dear Family & Friends",
   opening_description:
-    "We are so happy to share this day with you. Here you will find everything about the celebration — the ceremony, the day itself, and the people we cannot wait to see.",
+    "We are so happy to share this day with you. Here you will find everything about the celebration, the ceremony, the day itself, and the people we cannot wait to see.",
   wedding_profile_id: "demo-wedding-profile-id",
   guest_id: "demo-guest-id",
   cover_photos: [`${DE}/cover-1.webp`, `${DE}/cover-3.webp`, `${DE}/cover-2.webp`, `${DE}/cover-4.webp`, `${DE}/cover-5.webp`],
@@ -1554,7 +1554,7 @@ DEMO_PROPS_BY_CODE["ivory-lace"] = {
       name: "The Reception",
       date: "2027-04-17",
       time: "Six in the evening",
-      venue: "The Orangery — Garden Terrace",
+      venue: "The Orangery, Garden Terrace",
       address: "Ashford Park, Kent, England",
       maps_url: "https://maps.google.com/?q=Ashford+Park+Kent",
     },
@@ -1574,7 +1574,7 @@ DEMO_PROPS_BY_CODE["ivory-lace"] = {
   dresscode: {
     title: "Garden Formal",
     description:
-      "We would love to see you in soft neutrals, muted hues, or timeless classic tones — anything that feels at home in a spring garden.",
+      "We would love to see you in soft neutrals, muted hues, or timeless classic tones, anything that feels at home in a spring garden.",
     colors: [
       { hex: "#22211f", name: "Ink" },
       { hex: "#4a4a48", name: "Charcoal" },
@@ -1595,7 +1595,7 @@ DEMO_PROPS_BY_CODE["ivory-lace"] = {
     cover_apology: "We apologize for any misspelling of your name or title.",
     welcome_invite: "Dear Family & Friends",
     welcome_message:
-      "We are so happy to share this day with you. Here you will find everything about the celebration — the ceremony, the day itself, and the people we cannot wait to see.",
+      "We are so happy to share this day with you. Here you will find everything about the celebration, the ceremony, the day itself, and the people we cannot wait to see.",
     profiles_intro: "Two families, two homes, and one day we will remember for the rest of our lives.",
     love_story_title: "Our Love Story",
     story_intro: "The chapters that brought us here",
@@ -1603,7 +1603,7 @@ DEMO_PROPS_BY_CODE["ivory-lace"] = {
     rundown_title: "Wedding Time Line",
     rundown_intro: "How the day will unfold, from the first arrival to the last farewell.",
     gallery_title: "Our Moments",
-    gallery_intro: "A few frames from the days that led us here — the quiet ones we keep closest.",
+    gallery_intro: "A few frames from the days that led us here, the quiet ones we keep closest.",
     gallery_quote: "Every love story is beautiful, but ours is my favourite.",
     video_title: "Our Film",
     video_intro: "The day as it happened, kept in motion.",

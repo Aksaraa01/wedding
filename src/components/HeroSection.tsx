@@ -296,7 +296,7 @@ export default function HeroSection() {
         </h1>
 
         <p className="text-base md:text-lg text-[#B09BA6] max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-10 font-light drop-shadow-md">
-          Buat undangan website pernikahan dengan 100+ desain menawan — lengkap dengan RSVP online,
+          Buat undangan website pernikahan dengan 100+ desain menawan, lengkap dengan RSVP online,
           buku tamu digital QR, galeri foto tamu, dan reminder WhatsApp otomatis.
         </p>
 

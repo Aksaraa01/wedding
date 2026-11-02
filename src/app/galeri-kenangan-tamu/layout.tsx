@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Galeri Foto Tamu & Disposable Camera Pernikahan | Aksaraa",
     description:
-      "Tamu scan QR dan upload foto yang tampil live — arsip kenangan candid ala disposable camera untuk pernikahan Anda.",
+      "Tamu scan QR dan upload foto yang tampil live, arsip kenangan candid ala disposable camera untuk pernikahan Anda.",
   },
 }
 

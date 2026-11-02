@@ -184,7 +184,7 @@ export default function GaleriConfigurator({ initialPhotos = 5, initialGuests = 
 
           {tiersError && (
             <div className="rounded-full bg-red-50 border border-red-200 px-4 py-2.5 text-[12px] text-red-600">
-              Gagal memuat matriks tarif — periksa koneksi lalu geser ulang slider.
+              Gagal memuat matriks tarif, periksa koneksi lalu geser ulang slider.
             </div>
           )}
         </div>
@@ -200,7 +200,7 @@ export default function GaleriConfigurator({ initialPhotos = 5, initialGuests = 
               {!tierRows ? "Memuat harga..." : matched && matched.price > 0 ? matched.tier : "Kombinasi belum tersedia"}
             </span>
             <span className="text-[20px] sm:text-[26px] font-semibold tracking-tight leading-none whitespace-nowrap shrink-0" style={SERIF}>
-              {tierRows ? (matched && matched.price > 0 ? formatRp(matched.price) : "—") : "•••"}
+              {tierRows ? (matched && matched.price > 0 ? formatRp(matched.price) : "-") : "•••"}
             </span>
           </div>
           {action}
@@ -244,7 +244,7 @@ export default function GaleriConfigurator({ initialPhotos = 5, initialGuests = 
                   {(() => {
                     const films = GALERI_CAMERAS.filter((c) => c.id !== "normal")
                     const top2 = films.slice(0, 2).map((c) => c.name).join(", ")
-                    return `Pilih dari ${films.length} tipe kamera film (${top2}, dll.) dan ${GALERI_FRAME_IDS.length} opsi bingkai di dashboard — diterapkan otomatis ke setiap foto.`
+                    return `Pilih dari ${films.length} tipe kamera film (${top2}, dll.) dan ${GALERI_FRAME_IDS.length} opsi bingkai di dashboard, diterapkan otomatis ke setiap foto.`
                   })()}
                 </p>
               </div>

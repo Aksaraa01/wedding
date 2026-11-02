@@ -284,7 +284,7 @@ export default function NFilm(profile: TemplateProps) {
     (value: string, label: string) => {
       const done = () => showToast(`${label} copied`)
       if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(value).then(done, () => showToast("Copy failed — please copy manually"))
+        navigator.clipboard.writeText(value).then(done, () => showToast("Copy failed. Please copy manually."))
         return
       }
       showToast("Copy is not available in this browser")

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Buku Tamu Digital QR untuk Resepsi | Aksaraa",
     description:
-      "Check-in QR, e-pass tamu, layar sapa, dan rekap kehadiran otomatis — buku tamu digital modern untuk hari bahagia Anda.",
+      "Check-in QR, e-pass tamu, layar sapa, dan rekap kehadiran otomatis, buku tamu digital modern untuk hari bahagia Anda.",
   },
 }
 

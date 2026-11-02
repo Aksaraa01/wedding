@@ -59,7 +59,7 @@ export default async function TemplateCategoryPage({ params }: { params: Promise
         <h1 className="font-headline-lg text-[26px] leading-[1.15] md:leading-normal md:text-headline-lg text-primary mb-4 md:mb-6">
           {cat.h1}
         </h1>
-        <p className="text-base md:text-body-lg leading-relaxed text-on-surface-variant max-w-2xl mx-auto">
+        <p className="text-[13px] leading-[1.6] md:text-body-lg md:leading-relaxed text-on-surface-variant max-w-2xl mx-auto">
           {cat.intro} Setiap desain sudah lengkap dengan RSVP online, amplop digital, dan galeri foto.
         </p>
         <div className="mt-6 flex justify-center">

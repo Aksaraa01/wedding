@@ -51,7 +51,7 @@ const DEMO_WISHES: Wish[] = [
   {
     id: "demo-5",
     name: "Teman Lama",
-    message: "Dari orang-orang yang menyaksikan kalian tumbuh — selamat, dan semua cinta kami untuk kalian.",
+    message: "Dari orang-orang yang menyaksikan kalian tumbuh, selamat, dan semua cinta kami untuk kalian.",
     created_at: new Date(Date.now() - 432_000_000).toISOString(),
   },
 ]
@@ -113,7 +113,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
     if (!text || status === "sending") return
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback("Mode pratinjau — ucapan Anda tidak disimpan.")
+      setFeedback("Mode pratinjau, ucapan Anda tidak disimpan.")
       setMessage("")
       window.setTimeout(() => {
         setStatus("idle")

@@ -6,7 +6,7 @@ const description =
   "Buat undangan pernikahan digital dengan 100+ desain menawan: RSVP online, buku tamu digital QR, galeri foto tamu, dan reminder WhatsApp otomatis."
 const socialTitle = `${title} | Aksaraa`
 const socialDescription =
-  "Undangan website, RSVP, buku tamu digital QR, galeri foto tamu, dan reminder WhatsApp — semua dalam satu genggaman."
+  "Undangan website, RSVP, buku tamu digital QR, galeri foto tamu, dan reminder WhatsApp, semua dalam satu genggaman."
 
 export const metadata: Metadata = {
   title,

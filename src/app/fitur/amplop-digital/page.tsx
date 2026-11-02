@@ -5,12 +5,12 @@ import Link from "next/link"
 export const metadata: Metadata = {
   title: "Amplop Digital & Alamat Kado",
   description:
-    "Amplop digital pernikahan: rekening bank, e-wallet, QRIS, dan alamat pengiriman kado fisik — terintegrasi di undangan, aman & praktis.",
+    "Amplop digital pernikahan: rekening bank, e-wallet, QRIS, dan alamat pengiriman kado fisik, terintegrasi di undangan, aman & praktis.",
   alternates: { canonical: "https://wedding.aksaraa.com/fitur/amplop-digital" },
   openGraph: {
     title: "Amplop Digital & Alamat Kado | Aksaraa",
     description:
-      "Amplop digital pernikahan: rekening bank, e-wallet, QRIS, alamat kado fisik — aman, praktis, terintegrasi.",
+      "Amplop digital pernikahan: rekening bank, e-wallet, QRIS, alamat kado fisik, aman, praktis, terintegrasi.",
   },
 }
 
@@ -28,7 +28,7 @@ export default function AmplopDigitalPage() {
           Amplop Digital & Alamat Kado Fisik
         </h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant mb-8">
-          Tanda kasih tamu terkelola rapi: rekening bank, e-wallet, QRIS, dan alamat pengiriman kado fisik —
+          Tanda kasih tamu terkelola rapi: rekening bank, e-wallet, QRIS, dan alamat pengiriman kado fisik, 
           terintegrasi di undangan, aman & praktis tanpa amplop fisik.
         </p>
 
@@ -37,7 +37,7 @@ export default function AmplopDigitalPage() {
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">Rekening Bank & E-Wallet</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
               Tambahkan banyak rekening: bank (BCA, BRI, BNI, Mandiri, dll) & e-wallet (GoPay, OVO, Dana, ShopeePay).
-              Masing-masing dengan nama pemilik, nomor rekening, & logo bank — tampil rapi di undangan.
+              Masing-masing dengan nama pemilik, nomor rekening, & logo bank, tampil rapi di undangan.
             </p>
           </div>
           <div className="bg-white border border-[#E2D9CF] rounded-2xl p-6 md:p-8">
@@ -58,7 +58,7 @@ export default function AmplopDigitalPage() {
             <h2 className="font-headline-md text-lg text-[#2C2A29] mb-3">Copy Satu Ketuk & Buka Maps</h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
               Tombol copy nomor rekening/alamat satu ketuk. Tombol buka Google Maps/Waze langsung ke alamat
-              pengiriman — tamu tidak perlu copy-paste manual.
+              pengiriman, tamu tidak perlu copy-paste manual.
             </p>
           </div>
         </div>

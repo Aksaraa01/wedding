@@ -1116,7 +1116,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
           />
 
           {/* The door film ships with the reference couple's monogram painted
-              into the artwork — it is not a DOM element, so it cannot be
+              into the artwork, it is not a DOM element, so it cannot be
               edited, only covered. This cartouche is drawn to the measured
               footprint of that medallion (36.4% x 28.8%, centre 50.4/50.6) and
               carries OUR couple's initials. */}

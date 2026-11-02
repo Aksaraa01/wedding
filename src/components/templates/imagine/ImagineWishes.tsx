@@ -90,7 +90,7 @@ export default function ImagineWishes({ weddingProfileId, guestId, guestName, gu
     if (!text || status === "sending") return
     if (!weddingProfileId || weddingProfileId === DEMO_ID) {
       setStatus("done")
-      setFeedback("Preview mode — your wishes are not saved.")
+      setFeedback("Preview mode, your wishes are not saved.")
       setMessage("")
       window.setTimeout(() => { setStatus("idle"); setFeedback("") }, 4000)
       return

@@ -277,7 +277,7 @@ export default function QrPrintClient({ id, autoprint }: { id: string; autoprint
                           {guest.is_vip && <span className="qrp-vip-pill">VIP</span>}
                           <div className="qrp-names">
                             <span className="qrp-eyebrow">The Wedding Of</span>
-                            <strong className="qrp-couple">{coupleName || "—"}</strong>
+                            <strong className="qrp-couple">{coupleName || ", "}</strong>
                             {hashtag && <span className="qrp-tag">{hashtag}</span>}
                           </div>
                         </div>
@@ -301,13 +301,13 @@ export default function QrPrintClient({ id, autoprint }: { id: string; autoprint
                               <span className="qrp-invited">You are invited to our wedding day!</span>
                               <em className="qrp-dear">Dear</em>
                               <strong className="qrp-guest">{guest.name}</strong>
-                              <span className="qrp-stats">Meja {guest.table_number || "—"} · {pax} Pax</span>
+                              <span className="qrp-stats">Meja {guest.table_number || ", "} · {pax} Pax</span>
                               {printSessions.map((ev, i) => (
                                 <span key={i} className={`qrp-sess ${i > 0 ? "qrp-sess-follow" : ""}`}>
                                   {ev.name && <span className="qrp-label">{ev.name}</span>}
-                                  <span className="qrp-detail">{ev.date || "—"}{ev.time ? ` · ${ev.time}` : ""}</span>
+                                  <span className="qrp-detail">{ev.date || ", "}{ev.time ? ` · ${ev.time}` : ""}</span>
                                   <span className="qrp-detail">
-                                    {ev.venue || "—"}
+                                    {ev.venue || ", "}
                                     {ev.address ? <><br />{ev.address}</> : null}
                                   </span>
                                 </span>

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Harga Undangan Pernikahan Digital & Paket Fitur | Aksaraa",
     description:
-      "Pilih paket undangan digital sesuai kebutuhan — undangan website, buku tamu QR, galeri tamu, wish wall, dan reminder WA.",
+      "Pilih paket undangan digital sesuai kebutuhan, undangan website, buku tamu QR, galeri tamu, wish wall, dan reminder WA.",
   },
 }
 

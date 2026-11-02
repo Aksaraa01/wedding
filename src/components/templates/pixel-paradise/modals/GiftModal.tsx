@@ -93,7 +93,7 @@ export default function GiftModal({
             <div className="flex items-end justify-between gap-2 mt-1">
               <div>
                 <div className="text-[19px] font-semibold text-[#8ed5ff] tracking-wider leading-none select-text" style={{ ...MONO, textShadow: "0 0 8px rgba(142,213,255,0.4)" }}>
-                  {num || "—"}
+                  {num || ", "}
                 </div>
                 {a.account_name && (
                   <p className="text-[13px] font-medium text-slate-200 mt-2 flex items-center gap-1.5">

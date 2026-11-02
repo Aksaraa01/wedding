@@ -122,7 +122,7 @@ export default function PremiumWebInvitationPage() {
             Template Undangan Pernikahan Digital Premium
           </h1>
           <p className="text-[13px] leading-relaxed md:font-body-lg md:text-body-lg max-w-2xl mx-auto transition-all duration-700 text-on-surface-variant opacity-100 translate-y-0">
-            Pilih dari 100+ template undangan website pernikahan — adat, modern, floral, hingga tanpa foto.
+            Pilih dari 100+ template undangan website pernikahan, adat, modern, floral, hingga tanpa foto.
             Setiap desain sudah lengkap dengan RSVP online, amplop digital, dan galeri foto.
           </p>
         </section>
@@ -153,7 +153,7 @@ export default function PremiumWebInvitationPage() {
           items={[
             {
               q: "Apa itu undangan pernikahan digital?",
-              a: "Undangan pernikahan digital adalah undangan website yang dibagikan lewat link WhatsApp — berisi profil mempelai, jadwal acara, RSVP online, amplop digital, galeri foto, dan peta lokasi dalam satu halaman.",
+              a: "Undangan pernikahan digital adalah undangan website yang dibagikan lewat link WhatsApp, berisi profil mempelai, jadwal acara, RSVP online, amplop digital, galeri foto, dan peta lokasi dalam satu halaman.",
             },
             {
               q: "Berapa harga undangan digital di Aksaraa?",
@@ -165,7 +165,7 @@ export default function PremiumWebInvitationPage() {
             },
             {
               q: "Apakah tamu perlu menginstal aplikasi?",
-              a: "Tidak. Tamu cukup membuka tautan undangan di browser HP — RSVP, amplop digital, dan galeri langsung bisa digunakan.",
+              a: "Tidak. Tamu cukup membuka tautan undangan di browser HP, RSVP, amplop digital, dan galeri langsung bisa digunakan.",
             },
           ]}
         />

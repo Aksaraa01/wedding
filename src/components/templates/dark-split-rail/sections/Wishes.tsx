@@ -102,7 +102,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
     if (!text || status === "sending") return
     if (!weddingProfileId) {
       setStatus("done")
-      setFeedback("Mode pratinjau — ucapan tidak tersimpan.")
+      setFeedback("Mode pratinjau, ucapan tidak tersimpan.")
       setMessage("")
       setTimeout(() => {
         setStatus("idle")

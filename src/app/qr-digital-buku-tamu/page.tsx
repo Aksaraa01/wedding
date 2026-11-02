@@ -108,7 +108,7 @@ export default function QrDigitalBukuTamuPage() {
                 Buku Tamu Digital QR untuk <span className="italic text-secondary" style={{ color: "#8d4d39" }}>Resepsi Berkesan</span>
               </h1>
               <p className="font-body-lg text-body-lg text-[#e5e2dd] max-w-lg mb-8 opacity-90">
-                Check-in QR, e-pass tamu, layar sapa, dan rekap kehadiran otomatis — buku tamu digital modern untuk resepsi pernikahan Anda.
+                Check-in QR, e-pass tamu, layar sapa, dan rekap kehadiran otomatis, buku tamu digital modern untuk resepsi pernikahan Anda.
               </p>
               <a
                 href="#features"
@@ -339,7 +339,7 @@ export default function QrDigitalBukuTamuPage() {
             },
             {
               q: "Bagaimana cara kerja QR check-in?",
-              a: "Setiap tamu mendapat QR unik. Di pintu masuk, petugas memindai QR dengan scanner — data kehadiran, kategori, dan souvenir tercatat seketika.",
+              a: "Setiap tamu mendapat QR unik. Di pintu masuk, petugas memindai QR dengan scanner, data kehadiran, kategori, dan souvenir tercatat seketika.",
             },
             {
               q: "Apakah butuh perangkat khusus di venue?",

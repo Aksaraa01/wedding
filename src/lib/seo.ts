@@ -8,5 +8,5 @@ export const DEFAULT_OG_IMAGE = {
   width: 1200,
   height: 630,
   type: "image/jpeg",
-  alt: "Aksaraa Wedding — undangan pernikahan digital dengan RSVP, buku tamu QR, galeri foto tamu, dan reminder WhatsApp",
+  alt: "Aksaraa Wedding, undangan pernikahan digital dengan RSVP, buku tamu QR, galeri foto tamu, dan reminder WhatsApp",
 } as const

@@ -54,7 +54,7 @@ export default function KalkulatorBudgetPage() {
           Kalkulator Budget Pernikahan
         </h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
-          Hitung estimasi biaya nikah: atur jumlah tamu dan sesuaikan tiap pos — total terhitung otomatis.
+          Hitung estimasi biaya nikah: atur jumlah tamu dan sesuaikan tiap pos, total terhitung otomatis.
           Undangan digital Aksaraa menghemat jutaan rupiah biaya cetak.
         </p>
       </section>
@@ -139,7 +139,7 @@ export default function KalkulatorBudgetPage() {
           },
           {
             q: "Apakah estimasi ini mengikat?",
-            a: "Tidak. Ini estimasi awal untuk perencanaan — angka final tergantung negosiasi vendor. Simpan hasil hitungan lalu [konsultasikan paket undangan](/customize) yang sesuai budget Anda.",
+            a: "Tidak. Ini estimasi awal untuk perencanaan, angka final tergantung negosiasi vendor. Simpan hasil hitungan lalu [konsultasikan paket undangan](/customize) yang sesuai budget Anda.",
           },
         ]}
       />

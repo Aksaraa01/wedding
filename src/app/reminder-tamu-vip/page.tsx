@@ -111,7 +111,7 @@ export default function ReminderTamuVIPPage() {
                 Reminder WhatsApp Otomatis untuk <span className="italic text-secondary">Tamu Undangan</span>.
               </h1>
               <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl mb-8 reveal-item">
-                Blast undangan dan pengingat otomatis via WhatsApp — lengkap dengan RSVP, tautan unik, dan nomor meja untuk setiap tamu.
+                Blast undangan dan pengingat otomatis via WhatsApp, lengkap dengan RSVP, tautan unik, dan nomor meja untuk setiap tamu.
               </p>
               <button
                 onClick={() => router.push("/register")}
@@ -344,11 +344,11 @@ export default function ReminderTamuVIPPage() {
           items={[
             {
               q: "Apa itu reminder WhatsApp otomatis?",
-              a: "Sistem yang mengirim undangan dan pengingat kehadiran ke setiap tamu via WhatsApp secara terjadwal — tanpa broadcast manual satu per satu.",
+              a: "Sistem yang mengirim undangan dan pengingat kehadiran ke setiap tamu via WhatsApp secara terjadwal, tanpa broadcast manual satu per satu.",
             },
             {
               q: "Apakah setiap tamu mendapat pesan personal?",
-              a: "Ya. Setiap pesan memuat nama tamu, tautan undangan unik, dan nomor meja masing-masing — bukan pesan massal yang generik.",
+              a: "Ya. Setiap pesan memuat nama tamu, tautan undangan unik, dan nomor meja masing-masing, bukan pesan massal yang generik.",
             },
             {
               q: "Apakah RSVP bisa lewat WhatsApp?",

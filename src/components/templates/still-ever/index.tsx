@@ -642,7 +642,7 @@ export default function StillEver(profile: TemplateProps) {
                   <blockquote>
                     “{tc.gallery_quote || "A lifetime with you is the story I would choose again and again."}”
                   </blockquote>
-                  <figcaption>— {coupleLabel}</figcaption>
+                  <figcaption>, {coupleLabel}</figcaption>
                 </figure>
               )}
             </div>

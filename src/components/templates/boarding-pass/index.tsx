@@ -322,7 +322,7 @@ export default function BoardingPass(profile: TemplateProps) {
     (value: string, label: string) => {
       const done = () => showToast(`${label} disalin`)
       if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(value).then(done, () => showToast("Gagal menyalin — salin manual"))
+        navigator.clipboard.writeText(value).then(done, () => showToast("Gagal menyalin. Silakan salin manual."))
         return
       }
       showToast("Penyalinan tidak tersedia di peramban ini")
@@ -590,7 +590,7 @@ export default function BoardingPass(profile: TemplateProps) {
                       <a
                         className="bp-btn"
                         href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
-                          (event.name || "Wedding") + " — " + coupleLabel
+                          (event.name || "Wedding") + ", " + coupleLabel
                         )}${event.date ? `&dates=${event.date.replace(/-/g, "")}/${event.date.replace(/-/g, "")}` : ""}${
                           event.venue ? `&location=${encodeURIComponent(event.venue)}` : ""
                         }`}

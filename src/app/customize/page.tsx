@@ -758,7 +758,7 @@ function Inner() {
     if (!isEdit) {
       const r = await applyVoucher(clean, effectivePackage)
       if (r.ok) {
-        setVoucherModalSuccess(`Kode ${clean} valid — potongan ${formatRp(r.amount)}.`)
+        setVoucherModalSuccess(`Kode ${clean} valid, potongan ${formatRp(r.amount)}.`)
         setVoucherModalOpen(false)
       }
       return
@@ -1307,7 +1307,7 @@ function Inner() {
                   <h4 className="font-headline-md text-xl md:text-2xl mb-1">Tambah Galeri Tamu</h4>
                   <p className="font-body-md text-[13px] md:text-body-md text-on-surface-variant">
                     Candid foto dari sisi tamu.
-                    {galeriAddonOn && galeriAddonSel ? ` ${galeriAddonSel.tier} — ${formatRp(galeriAddonSel.price)}.` : " Aktifkan untuk konfigurasi."}
+                    {galeriAddonOn && galeriAddonSel ? ` ${galeriAddonSel.tier}, ${formatRp(galeriAddonSel.price)}.` : " Aktifkan untuk konfigurasi."}
                   </p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-4">
@@ -1327,12 +1327,12 @@ function Inner() {
                 </label>
               </div>
               {isEdit && originalPackage === "gt" && profilePaymentStatus !== "UNPAID" && galeriAddonOn && (
-                <p className="mt-2 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5">Paket Galeri Tamu yang sudah dibayar otomatis terbawa — tidak dapat dimatikan. Ubah kuota jika perlu.</p>
+                <p className="mt-2 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5">Paket Galeri Tamu yang sudah dibayar otomatis terbawa, tidak dapat dimatikan. Ubah kuota jika perlu.</p>
               )}
               {galeriAddonOn && (
                 <div className="mt-4 flex items-center justify-between gap-3 flex-wrap">
                   <p className="font-body-md text-[13px] text-on-surface-variant">
-                    {galeriAddonSel ? `${galeriAddonSel.photos} foto/tamu • ${galeriAddonSel.guests} tamu • ${galeriAddonSel.tier} — ${formatRp(galeriAddonSel.price)}` : "Menyiapkan harga..."}
+                    {galeriAddonSel ? `${galeriAddonSel.photos} foto/tamu • ${galeriAddonSel.guests} tamu • ${galeriAddonSel.tier}, ${formatRp(galeriAddonSel.price)}` : "Menyiapkan harga..."}
                   </p>
                   <button
                     onClick={() => setGaleriPopupOpen(true)}
@@ -1358,7 +1358,7 @@ function Inner() {
                   <h4 className="font-headline-md text-xl md:text-2xl mb-1">Tambah Kuota Galeri</h4>
                   <p className="font-body-md text-[13px] md:text-body-md text-on-surface-variant">
                     Candid foto dari sisi tamu.
-                    {galeriAddonOn && galeriAddonSel ? ` ${galeriAddonSel.tier} — ${formatRp(galeriAddonSel.price)}.` : " Aktifkan untuk konfigurasi."}
+                    {galeriAddonOn && galeriAddonSel ? ` ${galeriAddonSel.tier}, ${formatRp(galeriAddonSel.price)}.` : " Aktifkan untuk konfigurasi."}
                   </p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-4">
@@ -1379,7 +1379,7 @@ function Inner() {
               {galeriAddonOn && (
                 <div className="mt-4 flex items-center justify-between gap-3 flex-wrap">
                   <p className="font-body-md text-[13px] text-on-surface-variant">
-                    {galeriAddonSel ? `${galeriAddonSel.photos} foto/tamu • ${galeriAddonSel.guests} tamu • ${galeriAddonSel.tier} — ${formatRp(galeriAddonSel.price)}` : "Menyiapkan harga..."}
+                    {galeriAddonSel ? `${galeriAddonSel.photos} foto/tamu • ${galeriAddonSel.guests} tamu • ${galeriAddonSel.tier}, ${formatRp(galeriAddonSel.price)}` : "Menyiapkan harga..."}
                   </p>
                   <button
                     onClick={() => setGaleriPopupOpen(true)}
@@ -1828,7 +1828,7 @@ function Inner() {
         if (selectedPackage !== originalPackage) {
           summary.push(`Paket: ${packageDisplayName(originalPackage)} → ${packageDisplayName(selectedPackage)}`)
         }
-        if (waBlastTier !== originalWaTier) summary.push(`WA Blast: ${originalWaTier || "—"} → ${waBlastTier || "—"}`)
+        if (waBlastTier !== originalWaTier) summary.push(`WA Blast: ${originalWaTier || "-"} → ${waBlastTier || "-"}`)
         if (expressService !== originalExpress) summary.push(`Express: ${originalExpress ? "Ya" : "Tidak"} → ${expressService ? "Ya" : "Tidak"}`)
         if (undanganFisik !== originalFisik) summary.push(`Fisik: ${originalFisik ? "Ya" : "Tidak"} → ${undanganFisik ? "Ya" : "Tidak"}`)
         if (curGaleriSnapshot !== originalGaleri) {
@@ -1966,7 +1966,7 @@ function Inner() {
                             const cell = row.columns[col.code]
                             return (
                               <td key={col.code} className={`py-3.5 px-3 text-center ${cell?.class || ""} ${selectedPackage === col.code ? "font-semibold" : ""}`}>
-                                {cell?.value || "—"}
+                                {cell?.value || "-"}
                               </td>
                             )
                           })}

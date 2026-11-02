@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Wish Wall Digital untuk Pernikahan | Aksaraa",
     description:
-      "Papan ucapan digital dengan moderasi instan — doa tamu tayang live dan elegan di layar resepsi Anda.",
+      "Papan ucapan digital dengan moderasi instan, doa tamu tayang live dan elegan di layar resepsi Anda.",
   },
 }
 

@@ -96,11 +96,11 @@ export default function CombinedPage({
                     {a.provider_name || "Bank"}
                   </p>
                   <p className="text-[20px] font-bold tracking-wider" style={{ ...FONT_DISPLAY, color: "#b37a56" }}>
-                    {num || "—"}
+                    {num || ", "}
                   </p>
                   <div className="flex items-center justify-between gap-2 mt-2 pt-2.5 border-t border-[#d4af37]/20">
                     <p className="text-[13px] font-medium" style={{ ...FONT_BODY, color: "#221C16" }}>
-                      a.n. {a.account_name || "—"}
+                      a.n. {a.account_name || ", "}
                     </p>
                     {plain && (
                       <CopyButton

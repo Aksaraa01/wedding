@@ -330,7 +330,7 @@ export default function NavyLove(profile: TemplateProps) {
         <section className="nl-welcome" data-section="welcome">
           <div className="nl-keepsake">
             {/* The open envelope: lace flap behind, pocket in front, petals
-                rising out of the V — the card is tucked into it. */}
+                rising out of the V, the card is tucked into it. */}
             <div className="nl-keepsake__envelope" aria-hidden="true">
               <img className="nl-keepsake__flap" src={ART_ARCH} alt="" />
               <img className="nl-keepsake__pocket" src={ART_POCKET} alt="" />
