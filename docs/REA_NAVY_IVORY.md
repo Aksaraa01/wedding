@@ -111,8 +111,8 @@ sprig — never a generic white card.
 | # | Contract | Reference block | How it ships |
 |---|---|---|---|
 | 1 | **Cover** | `ENVELOPE` page | Gate: botanical wallpaper, `THE WEDDING` (Cormorant SC, tracked), names in Cinzel, navy lace envelope plate + cream crest, `?to=` guest name, `BUKA UNDANGAN`. Reference has **no flap animation** — a short fade + scroll-to-top on open |
-| 2 | **Opening video** | *absent* | **Added** (owner decision, §11.3): the full-bleed 16:9 film plate sits directly under the cover, in a torn cream mat on a navy band — silent autoplay for uploads, autoplay+mute embed for YouTube. Same asset as #12, different surface |
-| 3 | **Welcome** | welcome card ("Together with their families / invite you to celebrate their marriage") | Deckled cream card on a navy card offset: sprig + thin arch rule, `welcome_heading`, names (Cinzel), `welcome_note`, date + venue (Cinzel small caps), fleuron |
+| 2 | **Opening video** | *absent* | **Added** (owner decision, §11.3): full-bleed 16:9 film plate in a torn cream mat on a navy band — silent autoplay for uploads, autoplay+mute embed for YouTube. **Ships after the welcome keepsake, not before it** (see §3.3) |
+| 3 | **Welcome** | welcome card + the open envelope collage | The **keepsake**: lace flap behind, navy pocket in front, blossoms spilling out of the V, the cream card tucked into the pocket with a navy deckled card behind it, the couple's photo in the vendored deckled frame at its left, the vinyl player at its foot. `welcome_invite` / `card_invite` / names / date / venue / fleuron inside the card |
 | 4 | **Kalimat pembuka** | the card's body | Same surface (§0.5 allows 3+4 to share): `opening_title` = card heading line, `opening_description` = body. Never dropped |
 | 5 | **Mempelai** | *absent* | **Added**: two cream deckled frames (line-art oval frame, reference's own), own names, parents, Instagram. No "The Groom"/"The Bride" (§0.5 rule 3) |
 | 6 | **Love story** | `love-story` page | Torn-edge b&w plate + polaroid with tape, `story_intro` paragraph, then `stories[]` milestones as paper slips (title / description / photo) |
@@ -140,6 +140,34 @@ Movements, deliberate and recorded (§0.5): the reference puts its countdown
 order moves countdown to #8 and the story to #6. The reference's six-item nav
 plaque, `Go Back` / `Go RSVP` / `Go Envelope` links and the page split are
 **site chrome** — dropped, we ship one scroll.
+
+### 3.3 The post-open screen is the keepsake, and the film follows it
+
+First implementation shipped the contract order literally: cover → **opening film**
+→ welcome. That was wrong for this design, and the owner said so: the reference
+does not open onto a video, it opens onto a **paper object** — the card you just
+took out of the envelope. A full-bleed film band in that slot turns the reveal
+into "a website with sections".
+
+So the shipped order deviates from the contract table in one place:
+
+```
+gate (envelope) → keepsake (welcome + kalimat pembuka) → opening film (#2) → mempelai → …
+```
+
+The film keeps its `data-section="video-intro"` and its contract number; only its
+position moved. Two consequences worth knowing:
+
+- the first thing after `Buka Undangan` is the envelope's own contents, which is
+  what makes the opening feel like a keepsake rather than a page change;
+- `#2` and `#12` now sit far apart (keepsake → film → … → film plate), so a
+  couple with one video sees the silent loop once and the controlled player once,
+  with the letter, the couple and the story in between.
+
+The keepsake is built from the vendored pieces, not CSS shapes: `arch.webp` (lace
+flap), `pocket.webp` (the navy envelope body, re-vendored from `43f5117d`), two
+`8f1fa8f2`/`f27bf5e7` sprigs as the blossoms spilling out of the V, `card-navy.webp`
+behind the cream card, `frame-portrait.webp` around the couple's photo.
 
 ### 3.1 Reference blocks outside the contract — approval requested
 
@@ -241,8 +269,8 @@ either a 2×/3× mirror or unused.
 | `acf520/{36cd98}/{22277c}/{5504ae}/{66dff3}.svg` | timeline line icons: heels, banquet table, cocktails, rings, chandelier | `icon-*.svg` |
 | `b7d3f8…svg` | hand-drawn rose bouquet | `bouquet.svg` |
 
-**Shipped:** 29 files, **865 KB** total (23 webp + `torn.svg`, `torn-soft.svg`,
-5 icon masks + `thumbnail.webp`). The 1.45 MB registry PNG became a 117 KB webp;
+**Shipped:** 30 files, **~880 KB** total (24 webp + `torn.svg`, `torn-soft.svg`,
+5 icon masks + `thumbnail.webp`), `pocket.webp` included. The 1.45 MB registry PNG became a 117 KB webp;
 the 800 KB oval-frame SVG was dropped in favour of the cropped PNG frames.
 
 **Icons are masks, not images.** The SVGs ship black / dark-maroon / **orange**

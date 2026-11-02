@@ -24,6 +24,7 @@ const ART_WALLPAPER = ART("wallpaper.webp")
 const ART_ENVELOPE = ART("envelope.webp")
 const ART_CREST = ART("crest.webp")
 const ART_ARCH = ART("arch.webp")
+const ART_POCKET = ART("pocket.webp")
 const ART_PLAQUE = ART("plaque.webp")
 const ART_CARD_NAVY = ART("card-navy.webp")
 const ART_FRAME_PORTRAIT = ART("frame-portrait.webp")
@@ -340,38 +341,21 @@ export default function NavyLove(profile: TemplateProps) {
       )}
 
       <main className="nl-invitation" aria-hidden={!opened}>
-        {/* ── 2. Opening film ──────────────────────────────────── */}
-        {hasVideo && (
-          <section className="nl-filmintro" data-section="video-intro">
-            <div className="nl-wrap">
-              <p className="nl-eyebrow nl-eyebrow--ivory">{tc.film_eyebrow || "A Film"}</p>
-            </div>
-            <div className="nl-filmintro__stage" data-nl-reveal>
-              <div className="nl-filmintro__mat">
-                {film!.kind === "file" ? (
-                  <video src={film!.src} autoPlay muted loop playsInline preload="metadata" />
-                ) : (
-                  <iframe
-                    src={film!.src}
-                    title={tc.video_title || "Wedding film"}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                    allowFullScreen
-                  />
-                )}
-              </div>
-            </div>
-          </section>
-        )}
-
         {/* ── 3+4. Welcome / kalimat pembuka ───────────────────── */}
         <section className="nl-welcome" data-section="welcome">
-          <div className="nl-stage">
-            <img className="nl-stage__arch" src={ART_ARCH} alt="" aria-hidden="true" />
+          <div className="nl-keepsake">
+            {/* The open envelope: lace flap behind, pocket in front, petals
+                rising out of the V — the card is tucked into it. */}
+            <div className="nl-keepsake__envelope" aria-hidden="true">
+              <img className="nl-keepsake__flap" src={ART_ARCH} alt="" />
+              <img className="nl-keepsake__pocket" src={ART_POCKET} alt="" />
+              <img className="nl-keepsake__petals is-a" src={ART_SPRIG_B} alt="" />
+              <img className="nl-keepsake__petals is-b" src={ART_SPRIG_C} alt="" />
+            </div>
 
-            <div className="nl-stage__card">
+            <div className="nl-keepsake__card">
               <img className="nl-card__back" src={ART_CARD_NAVY} alt="" aria-hidden="true" />
               <div className="nl-card" data-nl-reveal>
-                <img className="nl-card__sprig" src={ART_SPRIG_B} alt="" aria-hidden="true" loading="lazy" />
                 <p className="nl-eyebrow nl-card__invite">{welcomeHeading}</p>
                 <h2 className="nl-card__names">
                   <span>{groom}</span>
@@ -387,15 +371,15 @@ export default function NavyLove(profile: TemplateProps) {
             </div>
 
             {cardPhoto && (
-              <figure className="nl-stage__photo" data-nl-reveal>
-                <span className="nl-stage__photo-inner">
+              <figure className="nl-keepsake__photo" data-nl-reveal>
+                <span className="nl-keepsake__photo-inner">
                   <img src={cardPhoto} alt="" loading="lazy" />
                 </span>
-                <img className="nl-stage__photo-frame" src={ART_FRAME_PORTRAIT} alt="" aria-hidden="true" loading="lazy" />
+                <img className="nl-keepsake__photo-frame" src={ART_FRAME_PORTRAIT} alt="" aria-hidden="true" loading="lazy" />
               </figure>
             )}
 
-            <img className="nl-stage__sprig" src={ART_SPRIG_C} alt="" aria-hidden="true" loading="lazy" />
+            <img className="nl-keepsake__sprig" src={ART_SPRIG_C} alt="" aria-hidden="true" loading="lazy" />
           </div>
 
           {welcomeMessage && (
@@ -425,6 +409,29 @@ export default function NavyLove(profile: TemplateProps) {
             </div>
           )}
         </section>
+
+        {/* ── 2. Opening film ──────────────────────────────────── */}
+        {hasVideo && (
+          <section className="nl-filmintro" data-section="video-intro">
+            <div className="nl-wrap">
+              <p className="nl-eyebrow nl-eyebrow--ivory">{tc.film_eyebrow || "A Film"}</p>
+            </div>
+            <div className="nl-filmintro__stage" data-nl-reveal>
+              <div className="nl-filmintro__mat">
+                {film!.kind === "file" ? (
+                  <video src={film!.src} autoPlay muted loop playsInline preload="metadata" />
+                ) : (
+                  <iframe
+                    src={film!.src}
+                    title={tc.video_title || "Wedding film"}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                    allowFullScreen
+                  />
+                )}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* ── 5. Mempelai ──────────────────────────────────────── */}
         <section className="nl-section nl-couple" data-section="couple">
