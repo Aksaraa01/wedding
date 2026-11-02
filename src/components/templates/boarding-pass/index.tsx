@@ -77,7 +77,16 @@ function leadingYear(title?: string): string {
 // Reference ornaments, vendored from the preset's own art set.
 const ART = (name: string) => `/templates/boarding-pass/${name}.webp`
 
-function Clock({ target }: { target: Date | null }) {
+// The reference animates every block in with animate.css 4.1.1 driven by WOW.js:
+// `fadeIn` for text, `fadeInUp` for titles/tickets/buttons, `zoomIn` for the
+// passport stamps, each with its own delay (0.06–0.52s) as it enters the
+// viewport. `IN` tags an element with the same animation and delay so the
+// choreography stays readable next to the markup it applies to.
+type Reveal = "fade" | "up" | "zoom"
+const IN = (kind: Reveal, delay = 0): Record<string, string> =>
+  delay > 0 ? { "data-bp-reveal": kind, "data-bp-delay": `${delay}s` } : { "data-bp-reveal": kind }
+
+function Clock({ target, reveal }: { target: Date | null; reveal?: Record<string, string> }) {
   const [now, setNow] = useState<number | null>(null)
   useEffect(() => {
     if (!target) return
@@ -95,7 +104,7 @@ function Clock({ target }: { target: Date | null }) {
   ]
 
   return (
-    <div className="bp-flaps" aria-label="Hitung mundur menuju hari bahagia">
+    <div className="bp-flaps" aria-label="Hitung mundur menuju hari bahagia" {...reveal}>
       {units.map((unit) => (
         <div className="bp-flap" key={unit.label}>
           <span className="bp-flap__digits">{target ? unit.value : "--"}</span>
@@ -257,16 +266,19 @@ export default function BoardingPass(profile: TemplateProps) {
       targets.forEach((el) => el.classList.add("is-visible"))
       return
     }
+    // WOW.js reveals an element as soon as its top edge crosses the viewport
+    // bottom, so no offset and no threshold: the first visible pixel starts it.
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible")
-            observer.unobserve(entry.target)
-          }
+          if (!entry.isIntersecting) return
+          const el = entry.target as HTMLElement
+          el.style.animationDelay = el.dataset.bpDelay || "0s"
+          el.classList.add("is-visible")
+          observer.unobserve(el)
         })
       },
-      { rootMargin: "0px 0px -8% 0px", threshold: 0.08 }
+      { rootMargin: "0px", threshold: 0 }
     )
     targets.forEach((el) => observer.observe(el))
     return () => observer.disconnect()
@@ -359,56 +371,56 @@ export default function BoardingPass(profile: TemplateProps) {
           {coverStill && <img className="bp-cover__photo" src={coverStill} alt="" aria-hidden="true" />}
           <span className="bp-cover__wash" aria-hidden="true" />
 
-          <div className="bp-pass bp-pass--top">
+          <div className="bp-pass bp-pass--top" {...IN("up")}>
             <div className="bp-pass__head">
-              <span className="bp-micro bp-micro--teal">Boarding Pass</span>
-              <span className="bp-micro">Kelas VIP</span>
+              <span className="bp-micro bp-micro--teal" {...IN("fade")}>Boarding Pass</span>
+              <span className="bp-micro" {...IN("fade")}>Kelas VIP</span>
             </div>
-            <span className="bp-pass__rule" aria-hidden="true" />
+            <span className="bp-pass__rule" aria-hidden="true" {...IN("fade")} />
 
             <div className="bp-pass__duo">
-              <span className="bp-micro">Dari</span>
-              <span className="bp-micro bp-pass__right">Tujuan</span>
+              <span className="bp-micro" {...IN("fade")}>Dari</span>
+              <span className="bp-micro bp-pass__right" {...IN("fade")}>Tujuan</span>
             </div>
             <div className="bp-pass__names">
-              <span className="bp-pass__name">{groomName || "Mempelai"}</span>
-              <span className="bp-pass__name bp-pass__right">{brideName || "Mempelai"}</span>
+              <span className="bp-pass__name" {...IN("up")}>{groomName || "Mempelai"}</span>
+              <span className="bp-pass__name bp-pass__right" {...IN("up")}>{brideName || "Mempelai"}</span>
             </div>
-            <div className="bp-route" aria-hidden="true">
+            <div className="bp-route" aria-hidden="true" {...IN("fade")}>
               <span className="bp-route__amp">&amp;</span>
             </div>
 
             <div className="bp-pass__duo" style={{ marginTop: "3.4cqw" }}>
-              <span className="bp-micro">Penumpang</span>
+              <span className="bp-micro" {...IN("fade")}>Penumpang</span>
             </div>
-            <p className="bp-pass__guest">{guestName}</p>
+            <p className="bp-pass__guest" {...IN("fade")}>{guestName}</p>
 
             <div className="bp-pass__duo">
-              <span className="bp-micro">Tanggal</span>
-              <span className="bp-micro bp-pass__right">Gerbang</span>
+              <span className="bp-micro" {...IN("fade")}>Tanggal</span>
+              <span className="bp-micro bp-pass__right" {...IN("fade")}>Gerbang</span>
             </div>
             <div className="bp-pass__row">
-              <span className="bp-pass__value">{dateShort}</span>
-              <span className="bp-pass__script bp-pass__right">{gateOrSeat || "Pelaminan"}</span>
+              <span className="bp-pass__value" {...IN("fade")}>{dateShort}</span>
+              <span className="bp-pass__script bp-pass__right" {...IN("fade")}>{gateOrSeat || "Pelaminan"}</span>
             </div>
 
             <div className="bp-pass__duo">
-              <span className="bp-micro">Boarding</span>
-              <span className="bp-micro bp-pass__right">Tujuan</span>
+              <span className="bp-micro" {...IN("fade")}>Boarding</span>
+              <span className="bp-micro bp-pass__right" {...IN("fade")}>Tujuan</span>
             </div>
             <div className="bp-pass__row">
-              <span className="bp-pass__value">{boardingTime || "08.00 WIB"}</span>
-              <span className="bp-pass__script bp-pass__right">{destination || coupleLabel}</span>
+              <span className="bp-pass__value" {...IN("fade")}>{boardingTime || "08.00 WIB"}</span>
+              <span className="bp-pass__script bp-pass__right" {...IN("fade")}>{destination || coupleLabel}</span>
             </div>
 
-            <p className="bp-pass__note">{apology}</p>
+            <p className="bp-pass__note" {...IN("fade")}>{apology}</p>
           </div>
 
-          <div className="bp-pass bp-pass--stub">
-            <span className="bp-micro bp-micro--teal bp-pass__center">Undangan Pernikahan</span>
-            <span className="bp-pass__barcode" aria-hidden="true" />
-            <span className="bp-micro bp-pass__center">{ticketCode}</span>
-            <button type="button" className="bp-btn bp-pass__open" onClick={openInvitation}>
+          <div className="bp-pass bp-pass--stub" {...IN("up")}>
+            <span className="bp-micro bp-micro--teal bp-pass__center" {...IN("fade")}>Undangan Pernikahan</span>
+            <span className="bp-pass__barcode" aria-hidden="true" {...IN("fade")} />
+            <span className="bp-micro bp-pass__center" {...IN("fade")}>{ticketCode}</span>
+            <button type="button" className="bp-btn bp-pass__open" onClick={openInvitation} {...IN("up")}>
               Buka Undangan
             </button>
           </div>
@@ -420,34 +432,34 @@ export default function BoardingPass(profile: TemplateProps) {
           {heroStill && <img className="bp-hero__photo" src={heroStill} alt="" aria-hidden="true" />}
           <div className="bp-hero__wash" aria-hidden="true" />
           <div className="bp-hero__body">
-            <p className="bp-hero__kicker">Pernikahan</p>
+            <p className="bp-hero__kicker" {...IN("fade")}>Pernikahan</p>
             <h1 className="bp-hero__names">
-              {groomName || "Mempelai"}
-              <span className="bp-hero__amp">&amp;</span>
-              {brideName || "Mempelai"}
+              <span className="bp-hero__name" {...IN("up", 0.1)}>{groomName || "Mempelai"}</span>
+              <span className="bp-hero__amp" {...IN("fade", 0.22)}>&amp;</span>
+              <span className="bp-hero__name" {...IN("up", 0.3)}>{brideName || "Mempelai"}</span>
             </h1>
-            {dateShort && <p className="bp-hero__date">{dateShort}</p>}
-            <p className="bp-hero__script">{heroTagline}</p>
+            {dateShort && <p className="bp-hero__date" {...IN("fade", 0.42)}>{dateShort}</p>}
+            <p className="bp-hero__script" {...IN("fade", 0.52)}>{heroTagline}</p>
           </div>
           <span className="bp-hero__wave" aria-hidden="true" />
         </section>
 
         {/* 4 — welcome: centred stack with a corner ornament either side. */}
         <section className="bp-welcome" data-section="welcome" aria-label="Salam hangat">
-          <img className="bp-welcome__sprig bp-welcome__sprig--l" src={ART("palm")} alt="" aria-hidden="true" loading="lazy" />
-          <img className="bp-welcome__sprig bp-welcome__sprig--r" src={ART("hibiscus")} alt="" aria-hidden="true" loading="lazy" />
+          <img className="bp-welcome__sprig bp-welcome__sprig--l" src={ART("palm")} alt="" aria-hidden="true" loading="lazy" {...IN("up", 0.2)} />
+          <img className="bp-welcome__sprig bp-welcome__sprig--r" src={ART("hibiscus")} alt="" aria-hidden="true" loading="lazy" {...IN("fade", 0.26)} />
           <div className="bp-welcome__inner">
-            <p className="bp-welcome__kicker">{openingTitle}</p>
-            <p className="bp-welcome__body">{openingDescription}</p>
-            <span className="bp-welcome__wave" aria-hidden="true" />
+            <p className="bp-welcome__kicker" {...IN("fade")}>{openingTitle}</p>
+            <p className="bp-welcome__body" {...IN("up", 0.06)}>{openingDescription}</p>
+            <span className="bp-welcome__wave" aria-hidden="true" {...IN("fade", 0.16)} />
             {hasQuote && (
               <>
-                <p className="bp-welcome__verse">&ldquo;{profile.quote_text}&rdquo;</p>
-                {profile.quote_source && <p className="bp-welcome__source">{profile.quote_source}</p>}
+                <p className="bp-welcome__verse" {...IN("fade", 0.2)}>&ldquo;{profile.quote_text}&rdquo;</p>
+                {profile.quote_source && <p className="bp-welcome__source" {...IN("fade", 0.24)}>{profile.quote_source}</p>}
               </>
             )}
-            {dateLong && <p className="bp-welcome__date">{dateLong}</p>}
-            <span className="bp-welcome__tail" aria-hidden="true" />
+            {dateLong && <p className="bp-welcome__date" {...IN("fade", 0.28)}>{dateLong}</p>}
+            <span className="bp-welcome__tail" aria-hidden="true" {...IN("fade", 0.26)} />
           </div>
         </section>
 
@@ -456,27 +468,32 @@ export default function BoardingPass(profile: TemplateProps) {
           <section className="bp-section bp-section--flush" data-section="mempelai" aria-label="Daftar penumpang">
             <div className="bp-manifest" style={{ aspectRatio: passengers.length > 1 ? "390 / 840" : "390 / 480" }}>
               <div className="bp-manifest__head">
-                <p className="bp-mono bp-mono--teal">Daftar Penumpang</p>
-                <h2 className="bp-title">Kedua Mempelai</h2>
+                <p className="bp-mono bp-mono--teal" {...IN("fade")}>Daftar Penumpang</p>
+                <h2 className="bp-title" {...IN("up", 0.08)}>Kedua Mempelai</h2>
               </div>
 
               {passengers.map((person, index) => (
-                <article className={`bp-passport bp-passport--${index === 0 ? "a" : "b"}`} key={person.key}>
-                  <span className="bp-passport__no">Penumpang {pad2(index + 1)}</span>
-                  <span className="bp-passport__role">{person.role}</span>
-                  <span className="bp-passport__rule" aria-hidden="true" />
-                  <span className="bp-passport__photo">
+                <article
+                  className={`bp-passport bp-passport--${index === 0 ? "a" : "b"}`}
+                  key={person.key}
+                  {...IN("up")}
+                >
+                  <span className="bp-passport__no" {...IN("fade", 0.08)}>Penumpang {pad2(index + 1)}</span>
+                  <span className="bp-passport__role" {...IN("fade", 0.08)}>{person.role}</span>
+                  <span className="bp-passport__rule" aria-hidden="true" {...IN("fade", 0.08)} />
+                  <span className="bp-passport__photo" {...IN("fade", 0.12)}>
                     {person.shot && <img src={person.shot} alt={person.name} loading="lazy" />}
                   </span>
-                  <span className="bp-passport__label" style={{ top: "18.67%" }}>
+                  <span className="bp-passport__label" style={{ top: "18.67%" }} {...IN("fade", 0.16)}>
                     Nama Lengkap
                   </span>
-                  <h3 className="bp-passport__name">{person.name}</h3>
-                  {person.parents && <p className="bp-passport__parents">{person.parents}</p>}
-                  <p className="bp-passport__mrz">{mrzLine(person.name)}</p>
+                  <h3 className="bp-passport__name" {...IN("up", 0.2)}>{person.name}</h3>
+                  {person.parents && <p className="bp-passport__parents" {...IN("fade", 0.26)}>{person.parents}</p>}
+                  <p className="bp-passport__mrz" {...IN("fade", 0.3)}>{mrzLine(person.name)}</p>
                   {person.instagram && (
                     <a
                       className="bp-btn bp-passport__ig"
+                      {...IN("up", 0.34)}
                       href={`https://instagram.com/${person.instagram}`}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -487,7 +504,7 @@ export default function BoardingPass(profile: TemplateProps) {
                 </article>
               ))}
 
-              <span className="bp-manifest__amp" aria-hidden="true">
+              <span className="bp-manifest__amp" aria-hidden="true" {...IN("fade")}>
                 &amp;
               </span>
             </div>
@@ -504,10 +521,10 @@ export default function BoardingPass(profile: TemplateProps) {
                   stories.length >= 3 ? "390 / 1000" : stories.length === 2 ? "390 / 700" : "390 / 420",
               }}
             >
-              <img className="bp-storylist__orn" src={ART("sprig")} alt="" aria-hidden="true" loading="lazy" />
+              <img className="bp-storylist__orn" src={ART("sprig")} alt="" aria-hidden="true" loading="lazy" {...IN("fade", 0.12)} />
               <div className="bp-storylist__head">
-                <p className="bp-mono bp-mono--teal">Kisah Kami</p>
-                <h2 className="bp-title">Catatan Perjalanan</h2>
+                <p className="bp-mono bp-mono--teal" {...IN("fade")}>Kisah Kami</p>
+                <h2 className="bp-title" {...IN("up", 0.08)}>Catatan Perjalanan</h2>
               </div>
 
               {stories.slice(0, 3).map((story, index) => {
@@ -517,21 +534,24 @@ export default function BoardingPass(profile: TemplateProps) {
                 const photo = story.image_url || gallery[index % Math.max(1, gallery.length)]
                 return (
                   <div key={`${story.title || "story"}-${index}`} style={{ display: "contents" }}>
-                    <div className={`bp-stamp bp-stamp--${slot}`}>
+                    <div className={`bp-stamp bp-stamp--${slot}`} {...IN("fade", 0.12)}>
                       {photo && <img className="bp-stamp__photo" src={photo} alt="" loading="lazy" />}
-                      <span className={`bp-stamp__postmark bp-stamp__postmark--${slot === "b" ? "r" : "l"}`}>
+                      <span
+                        className={`bp-stamp__postmark bp-stamp__postmark--${slot === "b" ? "r" : "l"}`}
+                        {...IN("zoom", 0.2)}
+                      >
                         <span className="bp-stamp__year">{year || String(index + 1).padStart(2, "0")}</span>
                       </span>
                     </div>
                     <div className={`bp-story__copy bp-story__copy--${slot}`}>
-                      <h3 className="bp-story__title">{title || "Perjalanan Kami"}</h3>
-                      {story.description && <p className="bp-story__text">{story.description}</p>}
+                      <h3 className="bp-story__title" {...IN("up", 0.12)}>{title || "Perjalanan Kami"}</h3>
+                      {story.description && <p className="bp-story__text" {...IN("fade", 0.18)}>{story.description}</p>}
                     </div>
                   </div>
                 )
               })}
 
-              <p className="bp-storylist__end">…dan perjalanan kami baru saja dimulai.</p>
+              <p className="bp-storylist__end" {...IN("fade")}>…dan perjalanan kami baru saja dimulai.</p>
             </div>
           </section>
         )}
@@ -541,25 +561,29 @@ export default function BoardingPass(profile: TemplateProps) {
           <section className="bp-section bp-section--flush" data-section="acara" aria-label="Itinerary">
             <div className="bp-flights" style={{ aspectRatio: events.length > 1 ? "390 / 806" : "390 / 500" }}>
               <div className="bp-flights__head">
-                <p className="bp-mono bp-mono--teal">Itinerary</p>
-                <h2 className="bp-title">Jadwal Keberangkatan</h2>
-                <p className="bp-body bp-body--tight" style={{ marginTop: "1.5cqw" }}>
+                <p className="bp-mono bp-mono--teal" {...IN("fade")}>Itinerary</p>
+                <h2 className="bp-title" {...IN("up", 0.08)}>Jadwal Keberangkatan</h2>
+                <p className="bp-body bp-body--tight" style={{ marginTop: "1.5cqw" }} {...IN("fade", 0.12)}>
                   {eventsNote}
                 </p>
               </div>
 
               {events.map((event, index) => (
-                <article className={`bp-flight bp-flight--${index === 0 ? "a" : "b"}`} key={`${event.name || "flight"}-${index}`}>
+                <article
+                  className={`bp-flight bp-flight--${index === 0 ? "a" : "b"}`}
+                  key={`${event.name || "flight"}-${index}`}
+                  {...IN("up")}
+                >
                   <div className="bp-flight__main">
-                    <p className="bp-flight__no">Penerbangan {pad2(index + 1)}</p>
-                    <h3 className="bp-flight__name">{event.name || "Acara"}</h3>
-                    {event.date && <p className="bp-flight__date">{longDate(event.date) || event.date}</p>}
-                    {event.time && <p className="bp-flight__time">{event.time}</p>}
-                    {event.venue && <p className="bp-flight__venue">{event.venue}</p>}
-                    {event.address && <p className="bp-flight__venue">{event.address}</p>}
+                    <p className="bp-flight__no" {...IN("fade", 0.08)}>Penerbangan {pad2(index + 1)}</p>
+                    <h3 className="bp-flight__name" {...IN("up", 0.12)}>{event.name || "Acara"}</h3>
+                    {event.date && <p className="bp-flight__date" {...IN("fade", 0.16)}>{longDate(event.date) || event.date}</p>}
+                    {event.time && <p className="bp-flight__time" {...IN("fade", 0.18)}>{event.time}</p>}
+                    {event.venue && <p className="bp-flight__venue" {...IN("fade", 0.2)}>{event.venue}</p>}
+                    {event.address && <p className="bp-flight__venue" {...IN("fade", 0.2)}>{event.address}</p>}
                     <div className="bp-flight__actions">
                       {event.maps_url && (
-                        <a className="bp-btn bp-btn--solid" href={event.maps_url} target="_blank" rel="noopener noreferrer">
+                        <a className="bp-btn bp-btn--solid" href={event.maps_url} target="_blank" rel="noopener noreferrer" {...IN("up", 0.24)}>
                           Lihat Peta
                         </a>
                       )}
@@ -572,26 +596,27 @@ export default function BoardingPass(profile: TemplateProps) {
                         }`}
                         target="_blank"
                         rel="noopener noreferrer"
+                        {...IN("up", 0.26)}
                       >
                         Simpan
                       </a>
                     </div>
                   </div>
                   <div className="bp-flight__stub">
-                    <img className="bp-flight__orn" src={ART(index === 0 ? "rings" : "shells")} alt="" aria-hidden="true" loading="lazy" />
-                    <span className="bp-flight__stubLabel" style={{ top: "35.2%" }}>
+                    <img className="bp-flight__orn" src={ART(index === 0 ? "rings" : "shells")} alt="" aria-hidden="true" loading="lazy" {...IN("fade", 0.16)} />
+                    <span className="bp-flight__stubLabel" style={{ top: "35.2%" }} {...IN("fade", 0.2)}>
                       Gerbang
                     </span>
-                    <span className="bp-flight__stubValue" style={{ top: "41.4%" }}>
+                    <span className="bp-flight__stubValue" style={{ top: "41.4%" }} {...IN("fade", 0.22)}>
                       {gateOrSeat || (index === 0 ? "A1" : "B2")}
                     </span>
-                    <span className="bp-flight__stubLabel" style={{ top: "55.9%" }}>
+                    <span className="bp-flight__stubLabel" style={{ top: "55.9%" }} {...IN("fade", 0.24)}>
                       Kursi
                     </span>
-                    <span className="bp-flight__stubValue" style={{ top: "62.1%", color: "var(--bp-ink)" }}>
+                    <span className="bp-flight__stubValue" style={{ top: "62.1%", color: "var(--bp-ink)" }} {...IN("fade", 0.26)}>
                       {seatClass}
                     </span>
-                    <span className="bp-flight__barcode" aria-hidden="true" />
+                    <span className="bp-flight__barcode" aria-hidden="true" {...IN("fade", 0.28)} />
                   </div>
                 </article>
               ))}
@@ -603,23 +628,23 @@ export default function BoardingPass(profile: TemplateProps) {
         {countdown && (
         <section className="bp-section bp-section--flush" data-section="countdown" aria-label="Papan keberangkatan">
           <div className="bp-countdown">
-            <div className="bp-board">
-              <p className="bp-board__label">Papan Keberangkatan</p>
-              <h2 className="bp-board__title">Menuju Hari Bahagia</h2>
-              <Clock target={countdown} />
+            <div className="bp-board" {...IN("up")}>
+              <p className="bp-board__label" {...IN("fade", 0.08)}>Papan Keberangkatan</p>
+              <h2 className="bp-board__title" {...IN("up", 0.12)}>Menuju Hari Bahagia</h2>
+              <Clock target={countdown} reveal={IN("up", 0.18)} />
               <div className="bp-board__meta">
                 <div>
-                  <p className="bp-board__metaLabel">Tujuan</p>
-                  <p className="bp-board__metaValue">Hari Bahagia</p>
+                  <p className="bp-board__metaLabel" {...IN("fade", 0.22)}>Tujuan</p>
+                  <p className="bp-board__metaValue" {...IN("fade", 0.26)}>Hari Bahagia</p>
                 </div>
                 <div style={{ textAlign: "right" }}>
-                  <p className="bp-board__metaLabel">Status</p>
-                  <p className="bp-board__metaValue" style={{ color: "rgb(191, 214, 208)" }}>
+                  <p className="bp-board__metaLabel" {...IN("fade", 0.22)}>Status</p>
+                  <p className="bp-board__metaValue" style={{ color: "rgb(191, 214, 208)" }} {...IN("fade", 0.26)}>
                     Tepat Waktu
                   </p>
                 </div>
               </div>
-              <div className="bp-board__actions">
+              <div className="bp-board__actions" {...IN("up", 0.32)}>
                 <a
                   className="bp-btn bp-btn--onDark"
                   href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
@@ -635,7 +660,7 @@ export default function BoardingPass(profile: TemplateProps) {
                   Simpan ke Kalender
                 </a>
               </div>
-              <p className="bp-board__foot">{boardFooter}</p>
+              <p className="bp-board__foot" {...IN("fade", 0.36)}>{boardFooter}</p>
             </div>
           </div>
         </section>
@@ -644,12 +669,12 @@ export default function BoardingPass(profile: TemplateProps) {
         {/* 9 — turut mengundang. */}
         {honored.length > 0 && (
           <section className="bp-section bp-inviting" data-section="inviting" aria-label="Turut mengundang">
-            <div className="bp-card" data-bp-reveal>
-              <p className="bp-mono bp-mono--teal">Turut Mengundang</p>
-              {invitingIntro && <p className="bp-body" style={{ marginTop: 10 }}>{invitingIntro}</p>}
+            <div className="bp-card" {...IN("up")}>
+              <p className="bp-mono bp-mono--teal" {...IN("fade")}>Turut Mengundang</p>
+              {invitingIntro && <p className="bp-body" style={{ marginTop: 10 }} {...IN("fade", 0.08)}>{invitingIntro}</p>}
               <ul className="bp-inviting__list">
                 {honored.map((family, index) => (
-                  <li className="bp-inviting__row" key={`${family}-${index}`}>
+                  <li className="bp-inviting__row" key={`${family}-${index}`} {...IN("fade", Math.min(0.12 + index * 0.04, 0.36))}>
                     {family}
                   </li>
                 ))}
@@ -661,13 +686,13 @@ export default function BoardingPass(profile: TemplateProps) {
         {/* 10 — rundown as a departure timetable. */}
         {rundown.length > 0 && (
           <section className="bp-section" data-section="rundown" aria-label="Jadwal acara">
-            <div className="bp-head bp-head--left" data-bp-reveal>
-              <p className="bp-mono bp-mono--teal">Jadwal Keberangkatan</p>
-              <h2 className="bp-title">Run of Show</h2>
+            <div className="bp-head bp-head--left">
+              <p className="bp-mono bp-mono--teal" {...IN("fade")}>Jadwal Keberangkatan</p>
+              <h2 className="bp-title" {...IN("up", 0.08)}>Run of Show</h2>
             </div>
-            <div data-bp-reveal>
+            <div>
               {rundown.map((item, index) => (
-                <div className="bp-run" key={`${item.time || "run"}-${index}`}>
+                <div className="bp-run" key={`${item.time || "run"}-${index}`} {...IN("fade", Math.min(0.12 + index * 0.04, 0.36))}>
                   <span className="bp-run__time">{item.time}</span>
                   <span className="bp-run__text">{item.description}</span>
                 </div>
@@ -679,14 +704,14 @@ export default function BoardingPass(profile: TemplateProps) {
         {/* 11 — album. */}
         {gallery.length > 0 && (
           <section className="bp-section" data-section="galeri" aria-label="Album perjalanan">
-            <div className="bp-head" data-bp-reveal>
-              <p className="bp-mono bp-mono--teal">Album Perjalanan</p>
-              <h2 className="bp-title">Potret Kami</h2>
-              <p className="bp-mono" style={{ textTransform: "lowercase", letterSpacing: "1.2px" }}>
+            <div className="bp-head">
+              <p className="bp-mono bp-mono--teal" {...IN("fade")}>Album Perjalanan</p>
+              <h2 className="bp-title" {...IN("up", 0.06)}>Potret Kami</h2>
+              <p className="bp-mono" style={{ textTransform: "lowercase", letterSpacing: "1.2px" }} {...IN("fade", 0.12)}>
                 {galleryIntro}
               </p>
             </div>
-            <div className="bp-album">
+            <div className="bp-album" {...IN("up", 0.16)}>
               {gallery.map((photo, index) => (
                 <button
                   type="button"
@@ -695,7 +720,6 @@ export default function BoardingPass(profile: TemplateProps) {
                   onClick={() => setLightbox(index)}
                   aria-label={`Buka foto ${index + 1} dari ${gallery.length}`}
                   style={{ aspectRatio: ratios[index] || "3 / 4" }}
-                  data-bp-reveal
                 >
                   <img
                     src={photo}
@@ -722,11 +746,11 @@ export default function BoardingPass(profile: TemplateProps) {
         {/* 12 — the film. */}
         {hasVideo && (
           <section className="bp-section" data-section="video" aria-label="Dalam perjalanan">
-            <div className="bp-head" data-bp-reveal>
-              <p className="bp-mono bp-mono--teal">Dalam Perjalanan</p>
-              <h2 className="bp-title">Film Kami</h2>
+            <div className="bp-head">
+              <p className="bp-mono bp-mono--teal" {...IN("fade")}>Dalam Perjalanan</p>
+              <h2 className="bp-title" {...IN("up", 0.06)}>Film Kami</h2>
             </div>
-            <div className="bp-film" data-bp-reveal>
+            <div className="bp-film" {...IN("up", 0.18)}>
               <button type="button" className="bp-film__plate" onClick={() => setVideoOpen(true)} aria-label="Putar film">
                 {heroStill && <img src={heroStill} alt="" loading="lazy" />}
                 <span className="bp-film__stamp" aria-hidden="true">
@@ -735,7 +759,7 @@ export default function BoardingPass(profile: TemplateProps) {
                   </svg>
                 </span>
               </button>
-              <p className="bp-film__caption bp-mono">sentuh untuk memutar</p>
+              <p className="bp-film__caption bp-mono" {...IN("fade", 0.22)}>sentuh untuk memutar</p>
             </div>
           </section>
         )}
@@ -743,14 +767,14 @@ export default function BoardingPass(profile: TemplateProps) {
         {/* 13 — gift. */}
         {hasGift && (
           <section className="bp-section" data-section="gift" aria-label="Tanda kasih">
-            <div className="bp-head" data-bp-reveal>
-              <p className="bp-mono bp-mono--teal">Tanda Kasih</p>
-              <h2 className="bp-title">{giftIntroTitle}</h2>
-              {giftIntro && <p className="bp-body">{giftIntro}</p>}
+            <div className="bp-head">
+              <p className="bp-mono bp-mono--teal" {...IN("fade")}>Tanda Kasih</p>
+              <h2 className="bp-title" {...IN("up", 0.06)}>{giftIntroTitle}</h2>
+              {giftIntro && <p className="bp-body" {...IN("fade", 0.12)}>{giftIntro}</p>}
             </div>
 
             {canSwitchGiftTab && (
-              <div className="bp-tabs" role="tablist" aria-label="Cara memberi hadiah">
+              <div className="bp-tabs" role="tablist" aria-label="Cara memberi hadiah" {...IN("up", 0.18)}>
                 <button
                   type="button"
                   role="tab"
@@ -775,7 +799,11 @@ export default function BoardingPass(profile: TemplateProps) {
             {accounts.length > 0 && (!canSwitchGiftTab || giftTab === "accounts") && (
               <div>
                 {accounts.map((account, index) => (
-                  <div className="bp-account" key={`${account.account_number || "account"}-${index}`}>
+                  <div
+                    className="bp-account"
+                    key={`${account.account_number || "account"}-${index}`}
+                    {...IN("fade", Math.min(0.22 + index * 0.04, 0.34))}
+                  >
                     {account.provider_name && <p className="bp-account__bank">{account.provider_name}</p>}
                     <p className="bp-account__no">
                       <span>{account.account_number}</span>
@@ -792,7 +820,7 @@ export default function BoardingPass(profile: TemplateProps) {
             )}
 
             {giftAddress && (!canSwitchGiftTab || giftTab === "address") && (
-              <div className="bp-address">
+              <div className="bp-address" {...IN("fade", 0.22)}>
                 {profile.gift_address_name && <p className="bp-address__name">{profile.gift_address_name}</p>}
                 <p className="bp-address__text">{giftAddress}</p>
                 <button type="button" className="bp-copy" style={{ marginTop: 10 }} onClick={() => copy(giftAddress, "Alamat")}>
@@ -808,16 +836,16 @@ export default function BoardingPass(profile: TemplateProps) {
           <section className="bp-section bp-section--flush" data-section="dresscode" aria-label="Dress code">
             <div className="bp-dress">
               <div className="bp-dress__head">
-                <p className="bp-mono bp-mono--teal">Sebelum Berangkat</p>
-                <h2 className="bp-title">Dress Code</h2>
+                <p className="bp-mono bp-mono--teal" {...IN("fade")}>Sebelum Berangkat</p>
+                <h2 className="bp-title" {...IN("up", 0.06)}>Dress Code</h2>
               </div>
 
-              <span className="bp-dress__string" aria-hidden="true" />
+              <span className="bp-dress__string" aria-hidden="true" {...IN("fade", 0.16)} />
 
-              <div className="bp-tag">
-                <p className="bp-tag__title">{(profile.dresscode?.title || "").trim() || "Dress Code"}</p>
-                {dressIntro && <p className="bp-tag__body">{dressIntro}</p>}
-                <div className="bp-swatches">
+              <div className="bp-tag" {...IN("up", 0.2)}>
+                <p className="bp-tag__title" {...IN("fade", 0.24)}>{(profile.dresscode?.title || "").trim() || "Dress Code"}</p>
+                {dressIntro && <p className="bp-tag__body" {...IN("fade", 0.26)}>{dressIntro}</p>}
+                <div className="bp-swatches" {...IN("fade", 0.3)}>
                   {dressColors.map((color, index) => (
                     <div className="bp-swatch" key={`${color.hex || "swatch"}-${index}`}>
                       <span className="bp-swatch__dot" style={{ background: color.hex || "#e9e5de" }} />
@@ -827,27 +855,29 @@ export default function BoardingPass(profile: TemplateProps) {
                 </div>
               </div>
 
-              <img className="bp-dress__orn" src={ART("frond")} alt="" aria-hidden="true" loading="lazy" />
+              <img className="bp-dress__orn" src={ART("frond")} alt="" aria-hidden="true" loading="lazy" {...IN("fade", 0.28)} />
             </div>
           </section>
         )}
 
         {/* 15 — wishes. RSVP is the dock. */}
         <section className="bp-section" data-section="wishes" aria-labelledby="bp-wishes-title">
-          <div className="bp-head bp-head--left" data-bp-reveal>
-            <p className="bp-mono bp-mono--teal">Buku Tamu</p>
-            <h2 className="bp-title" id="bp-wishes-title">
+          <div className="bp-head bp-head--left">
+            <p className="bp-mono bp-mono--teal" {...IN("fade")}>Buku Tamu</p>
+            <h2 className="bp-title" id="bp-wishes-title" {...IN("up", 0.06)}>
               Pesan &amp; Doa
             </h2>
           </div>
-          <Wishes
-            weddingProfileId={profile.wedding_profile_id}
-            guestId={profile.guest_id}
-            guestName={profile.guest_name}
-            guestLinkStrict={profile.guest_link_strict}
-            coupleName={coupleLabel}
-            intro={wishesIntro}
-          />
+          <div {...IN("up", 0.18)}>
+            <Wishes
+              weddingProfileId={profile.wedding_profile_id}
+              guestId={profile.guest_id}
+              guestName={profile.guest_name}
+              guestLinkStrict={profile.guest_link_strict}
+              coupleName={coupleLabel}
+              intro={wishesIntro}
+            />
+          </div>
         </section>
 
         {/* 16 — closing over the couple's own film. */}
@@ -873,13 +903,13 @@ export default function BoardingPass(profile: TemplateProps) {
           <span className="bp-closing__wave bp-closing__wave--bottom" aria-hidden="true" />
 
           <div className="bp-closing__body">
-            <p className="bp-closing__script" data-bp-reveal>
+            <p className="bp-closing__script" {...IN("fade")}>
               Sampai jumpa di pantai,
             </p>
-            <p className="bp-closing__names" data-bp-reveal>
+            <p className="bp-closing__names" {...IN("up", 0.12)}>
               {coupleLabel}
             </p>
-            <p className="bp-closing__message" data-bp-reveal>
+            <p className="bp-closing__message" {...IN("fade", 0.22)}>
               {closingMessage}
             </p>
           </div>
