@@ -1260,12 +1260,11 @@ export default function EmbroideredGarden(profile: TemplateProps) {
           <span>Tap to open</span>
         </button>
 
-        {/* The gate no longer runs a fixed reveal timer, so it has to say
-            something while the first frame is still arriving. */}
+        {/* Same badge as the adat family's video spinner: a small circular
+            indicator in the corner, so the gate never reads as a status bar. */}
         {buffering && (
-          <span className="eg-gate__buffer" role="status" aria-live="polite">
+          <span className="eg-gate__buffer" role="status" aria-label="Memuat video">
             <span className="eg-gate__buffer-ring" aria-hidden="true" />
-            <span>Preparing the film</span>
           </span>
         )}
 

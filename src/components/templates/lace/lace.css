@@ -220,41 +220,36 @@
   pointer-events: none;
 }
 
-/* Shown only while the first frame is still arriving (or the film stalls mid
-   playback). The gate has no fixed hand-over timer any more, so it has to say
-   something when the network is slow. */
+/* Same badge as the adat family's video spinner: a small circular indicator in
+   the corner, shown only while the first frame is still arriving (or the film
+   stalls mid playback). */
 .lc-gate__buffer {
   position: absolute;
-  left: 50%;
-  bottom: calc(96px + env(safe-area-inset-bottom));
-  transform: translateX(-50%);
+  right: 16px;
+  bottom: 80px;
   z-index: 4;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 9px 16px;
-  border: 1px solid rgba(81, 31, 43, 0.18);
-  border-radius: 999px;
-  background: rgba(252, 250, 247, 0.88);
-  color: rgba(78, 30, 41, 0.72);
-  font-family: var(--lc-display);
-  font-size: 10px;
-  letter-spacing: 0.22em;
-  text-indent: 0.22em;
-  text-transform: uppercase;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(20, 21, 18, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
   pointer-events: none;
 }
 
 .lc-gate__buffer-ring {
-  width: 12px;
-  height: 12px;
-  flex: none;
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
   border-radius: 50%;
-  border: 1.5px solid rgba(81, 31, 43, 0.22);
-  border-top-color: var(--lc-wine);
-  animation: lc-gate-spin 0.9s linear infinite;
+  animation: lc-gate-spin 0.7s linear infinite;
 }
 
 @keyframes lc-gate-spin {

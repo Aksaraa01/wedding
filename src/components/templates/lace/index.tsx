@@ -1129,12 +1129,11 @@ export default function Lace(profile: TemplateProps) {
           </div>
         </div>
 
-        {/* The gate no longer runs a fixed hand-over timer, so it has to say
-            something while the first frame is still arriving. */}
+        {/* Same badge as the adat family's video spinner: a small circular
+            indicator in the corner, so the gate never reads as a status bar. */}
         {buffering && (
-          <span className="lc-gate__buffer" role="status" aria-live="polite">
+          <span className="lc-gate__buffer" role="status" aria-label="Memuat video">
             <span className="lc-gate__buffer-ring" aria-hidden="true" />
-            <span>Preparing the film</span>
           </span>
         )}
 
