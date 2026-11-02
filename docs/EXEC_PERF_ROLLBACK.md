@@ -94,6 +94,34 @@ Ditambah 4 template in-house yang belum tayang → uji lewat
 `/templates/<code>/preview` (`adat-batak`, `cinnabar-seal`, `dark-split-rail`,
 `still-ever`).
 
+### 1.5 Pelajaran: jangan cache HTML preview di edge
+
+Percobaan pertama memasang cache rule untuk `/templates/*/preview` membuat 4
+halaman mengembalikan **307** ke `?_rsc`. Penyebabnya: Next menjawab request RSC
+(dikirim oleh klien router dan oleh smoke test) dengan redirect 307, dan
+Cloudflare menyimpan respons itu di bawah URL tanpa query — lalu menyajikannya ke
+navigasi biasa. Cache rule tidak bisa memfilter berdasarkan status respons, jadi
+solusinya:
+
+- rule khusus preview **dihapus** (HTML preview sekarang `cf-cache-status:
+  DYNAMIC`, origin hanya butuh ~15 ms), dan
+- rule `/templates/*` diberi pengecualian
+  `and not http.request.uri.path contains "/preview"`.
+
+Akibat percobaan itu, dua deploy gagal di smoke test dan **rollback otomatis
+bekerja** (kembali ke `rVxj73iYIKYOySLFsYCaC`), lalu deploy sukses setelah cache
+dipurgasi. Catat: purge `purge_everything` aman dilakukan karena cache hanya berisi
+aset statis yang akan terisi ulang.
+
+### 1.6 Analitik tamu (Cloudflare Web Analytics)
+
+Beacon dipasang di root layout tapi **hanya untuk `wedding.aksaraa.com`**.
+Cloudflare RUM menolak beacon dari hostname yang tidak terdaftar (CORS error) dan
+tidak menerima wildcard (`*.wedding.aksaraa.com` → `host.invalid`). Karena
+undangan tamu ada di subdomain DNS-only, halaman tamu **belum terukur** oleh CF.
+Perlu jalur sendiri (endpoint RUM sendiri atau pendaftaran site per pasangan)
+kalau angka tamu sungguhan dibutuhkan.
+
 ---
 
 ## 2. Langkah 2 — Rebuild Caddy `dns cloudflare` (sebelum awal Desember)
