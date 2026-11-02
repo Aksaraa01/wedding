@@ -17,7 +17,8 @@ const SLOW_NETWORK_MS = 8000
 const HARD_TIMEOUT_MS = 45000
 
 export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHref }: Props) {
-  const [status, setStatus] = useState<"loading" | "loaded" | "errored">("loading")
+  const hasPreview = Boolean(demoUrl)
+  const [status, setStatus] = useState<"loading" | "loaded" | "errored">(hasPreview ? "loading" : "errored")
   const [slow, setSlow] = useState(false)
   const [offline, setOffline] = useState(false)
   const [noticeDismissed, setNoticeDismissed] = useState(false)
@@ -38,19 +39,20 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
 
   // Hard timeout: never spin forever. Network-slow is handled by the notice below.
   useEffect(() => {
+    if (!hasPreview) return
     safetyRef.current = setTimeout(() => {
       setStatus(s => (s === "loading" ? "errored" : s))
     }, HARD_TIMEOUT_MS)
     return () => {
       if (safetyRef.current) clearTimeout(safetyRef.current)
     }
-  }, [attempt])
+  }, [attempt, hasPreview])
 
   useEffect(() => {
-    if (status !== "loading") return
+    if (!hasPreview || status !== "loading") return
     const id = setTimeout(() => setSlow(true), SLOW_NETWORK_MS)
     return () => clearTimeout(id)
-  }, [status, attempt])
+  }, [status, attempt, hasPreview])
 
   useEffect(() => {
     const sync = () => setOffline(typeof navigator !== "undefined" && navigator.onLine === false)
@@ -90,11 +92,13 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
   }, [])
 
   const openTab = useCallback(() => {
+    if (!fullUrl) return
     window.open(fullUrl, "_blank", "noopener,noreferrer")
     onClose()
   }, [fullUrl, onClose])
 
   const retry = useCallback(() => {
+    if (!hasPreview) return
     setStatus("loading")
     setSlow(false)
     setNoticeDismissed(false)
@@ -166,40 +170,46 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 z-10 bg-white px-6">
               <span className="material-symbols-outlined text-5xl text-outline/50">play_disabled</span>
               <p className="font-body-md text-body-md text-on-surface-variant text-center max-w-xs">
-                Pratinjau tidak dapat dimuat secara otomatis
+                {hasPreview
+                  ? "Pratinjau tidak dapat dimuat secara otomatis"
+                  : "Pratinjau belum tersedia untuk template ini"}
               </p>
-              <div className="flex flex-col sm:flex-row items-center gap-3">
-                <button
-                  onClick={retry}
-                  className="bg-white border border-secondary text-secondary px-8 py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-secondary hover:text-white transition-colors flex items-center gap-2"
-                >
-                  <span className="material-symbols-outlined text-[18px]">refresh</span>
-                  Coba Lagi
-                </button>
-                <button
-                  onClick={openTab}
-                  className="bg-primary text-on-primary px-8 py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-secondary transition-colors flex items-center gap-2"
-                >
-                  <span className="material-symbols-outlined text-[18px]">open_in_new</span>
-                  Buka di Tab Baru
-                </button>
-              </div>
+              {hasPreview && (
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                  <button
+                    onClick={retry}
+                    className="bg-white border border-secondary text-secondary px-8 py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-secondary hover:text-white transition-colors flex items-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">refresh</span>
+                    Coba Lagi
+                  </button>
+                  <button
+                    onClick={openTab}
+                    className="bg-primary text-on-primary px-8 py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-secondary transition-colors flex items-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">open_in_new</span>
+                    Buka di Tab Baru
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
-          <iframe
-            key={attempt}
-            ref={iframeRef}
-            src={src}
-            className={`w-full h-full border-0 ${status === "loaded" ? "block" : "invisible"}`}
-            title={`Pratinjau ${name}`}
-            allow="autoplay; encrypted-media"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-            scrolling="yes"
-            style={{ touchAction: "pan-y" }}
-            onLoad={handleLoad}
-            onError={handleError}
-          />
+          {hasPreview && (
+            <iframe
+              key={attempt}
+              ref={iframeRef}
+              src={src}
+              className={`w-full h-full border-0 ${status === "loaded" ? "block" : "invisible"}`}
+              title={`Pratinjau ${name}`}
+              allow="autoplay; encrypted-media"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+              scrolling="yes"
+              style={{ touchAction: "pan-y" }}
+              onLoad={handleLoad}
+              onError={handleError}
+            />
+          )}
         </div>
       </div>
     </div>
