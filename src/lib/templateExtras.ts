@@ -664,6 +664,13 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     placeholders: { "navy-love": "Your presence is the greatest gift of all" },
     templates: ["navy-love"],
   },
+  {
+    key: "gift_button",
+    label: "Teks Tombol Hadiah",
+    placeholder: "Make a Gift Now",
+    templates: ["cinnabar-seal"],
+  },
+
 ]
 
 export function getTemplateExtraFields(templateCode: string | null | undefined): TemplateExtraField[] {

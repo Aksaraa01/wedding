@@ -187,7 +187,7 @@ based — never a percentage of a count-derived parent height.
 | # | Section | Renders from | Gate + toggle | Count / variant branch | Copy source | Motion |
 |---|---|---|---|---|---|---|
 | 1 | Cover | `cover_photos[0]`, names, `estimated_wedding_date`, `guest_name` | always | 0 photos ⇒ `#4a0f12` flat; 1 name ⇒ no `&` | `template_content.cover_kicker`, `open_button`, `cover_apology` | load fade/up |
-| 2 | Opening video | `video_url` (direct file only) | `feature_gates.video` && `video_section_visible` | embed ⇒ skipped here, plays in §12; no video ⇒ section omitted | none | fade |
+| 2 | Opening film | `video_url` (file or embed) | `feature_gates.video` && `video_section_visible` for the *video* only | section always renders: video autoplays muted when allowed; otherwise the cover photo (`cover_photos[0]`, else gallery[0]) fills the frame | none | fade |
 | 3 | Welcome | `cover_photos[1]`, names, date | always | no photo ⇒ cover photo | `template_content.welcome_line` | load fade/up |
 | 4 | Kalimat pembuka | `opening_title`, `opening_description` | `!hidesOpeningSection` | kicker only when a title exists; empty description ⇒ paragraph omitted | profile + `opening_kicker` | up |
 | 5 | Mempelai | `groom_*` / `bride_*`, parents, IG, photos | `person_photos !== false` per portrait | missing parent/IG row ⇒ row omitted; missing photo ⇒ BP frame only | names/parents/IG profile; `mempelai_kicker`, `parents_label` | fade/up |
@@ -197,13 +197,13 @@ based — never a percentage of a count-derived parent height.
 | 9 | Turut mengundang | `inviting_families[]` | `feature_gates.inviting_families` && `inviting_families_visible !== false` | 0 ⇒ section omitted; long names wrap | `inviting_kicker`, `inviting_title`, `inviting_intro` | up |
 | 10 | Rundown | `rundown[]` | `rundown_visible !== false` | 0 ⇒ omitted; time-less row renders description only | `rundown_kicker`, `rundown_title` | up |
 | 11 | Gallery | `gallery_photos[]` | always with data | 1 photo ⇒ single 3:4 frame, no offset column; odd count ⇒ last spans centred | none (titles not needed) | fade |
-| 12 | Video | `video_url` (file or embed) | `feature_gates.video` && `video_section_visible` | hidden video ⇒ no poster, no autoplay, closing falls back to photo | `video_kicker`, `video_title` | up |
-| 13 | Gift | `gift_accounts[]`, `gift_address` | `gift_section_visible !== false`; address also `feature_gates.gift_address` | accounts only ⇒ no address card; address only ⇒ no account list; none ⇒ omitted | `gift_kicker`, `gift_intro_title`, `gift_intro_description` | fade/up |
+| 12 | Video | `video_url` (file or embed) | `feature_gates.video` && `video_section_visible` | plays inline on mount (muted autoplay; poster until the player starts); hidden video ⇒ section omitted and closing falls back to photo | `video_kicker`, `video_title`, `video_intro` | up |
+| 13 | Gift | `gift_accounts[]`, `gift_address` | `gift_section_visible !== false`; address also `feature_gates.gift_address` | cream paper stage with the copy printed on the white card; accounts only ⇒ no address card; address only ⇒ no account list; none ⇒ omitted; the button discloses the details | `gift_kicker`, `gift_intro_title`, `gift_intro_description`, `gift_button`, `copy_address_button` | fade/up |
 | 14 | Dress code | `dresscode.title/description/colors[]` | `dresscode_visible !== false` | 0 colours ⇒ prose only; long names wrap under 46 px swatch | profile title/desc; `dresscode_kicker`, `dresscode_intro` | up |
 | 15 | Wishes | `/api/wishes` + guest identity | always | demo ⇒ seeded feed; 0 approved ⇒ empty state | `wishes_kicker`, `wishes_title`, `wishes_intro`; form microcopy allowlisted | up |
 | 16 | Closing | `cover_photos[2]`, `closing_message`, names, date | always | no slot 2 ⇒ cover photo; video gate off ⇒ photo | `closing_kicker`, `closing_message` | load/up |
 
-Order shipped: cover → opening video (**ADDED**, contract #2) → welcome →
+Order shipped: cover → opening film (**ADDED**, contract #2) → welcome →
 pembuka → mempelai → story → event → countdown (in welcome, reference
 position) → inviting (**ADDED**) → rundown (**ADDED**) → gallery → video
 (**ADDED** block) → gift → dresscode → wishes → closing.
@@ -224,6 +224,8 @@ the contract; RSVP dropped; dress code moved after gift to match the contract.
 | "Daughter of" / "Son of" | Replaced with `parents_label` (default "Anak dari"). |
 | Reference couple names/photos/story text | Not copied. Demo uses Aksaraa sample data; all strings are live data. |
 | Desktop layout | Centred 480 px column (reference has no desktop design). |
+| Opening film / film section | Both autoplay muted so the first screen after the gate is motion; a poster (or the cover photo) holds the frame until the player actually starts, so a blocked embed never leaves a black box. |
+| Gift copy | Printed on the white card exactly like the reference; the reference's "Make a gift now" button now discloses the account/address details instead of opening a modal. |
 | Envelope "Make a gift now" button | Replaced with account cards + address in the same envelope/red-button language, because the invitation must expose the actual account numbers (playbook §0.5). |
 
 No section outside the 16 ships without approval.

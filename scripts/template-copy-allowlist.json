@@ -1552,7 +1552,6 @@
         "Rundown acara": "WCAG name for the rundown section",
         "Galeri foto": "WCAG name for the gallery section",
         "Film pernikahan": "WCAG name for the film section and its modal",
-        "Putar film": "WCAG name for the film play button",
         "Tanda kasih": "WCAG name for the gift section",
         "Dress code": "WCAG name for the dress-code section",
         "Ucapan dan doa": "WCAG name for the wishes section",
@@ -1566,8 +1565,7 @@
         "Foto sebelumnya": "WCAG name for the lightbox previous control",
         "Foto berikutnya": "WCAG name for the lightbox next control",
         "Halaman sebelumnya": "WCAG name for the wishes previous-page control",
-        "Halaman berikutnya": "WCAG name for the wishes next-page control",
-        "Putar video pembuka": "WCAG name for the opening-film play control"
+        "Halaman berikutnya": "WCAG name for the wishes next-page control"
       }
     }
   }

@@ -1809,6 +1809,7 @@ DEMO_PROPS_BY_CODE["cinnabar-seal"] = {
     video_title: "The Wedding Film",
     gift_kicker: "Digital Envelope",
     gift_intro_title: "Send your gift",
+    gift_button: "Make a Gift Now",
     gift_intro_description:
       "Doa restu Anda adalah hadiah terindah. Bila ingin memberi lebih, kami menerimanya dengan penuh syukur.",
     dresscode_kicker: "Dress Code",

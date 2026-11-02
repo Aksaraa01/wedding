@@ -148,8 +148,9 @@ export default function CinnabarSeal(profile: TemplateProps) {
   const [opened, setOpened] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [lightbox, setLightbox] = useState<number | null>(null)
-  const [filmOpen, setFilmOpen] = useState(false)
-  const [openingEmbedOn, setOpeningEmbedOn] = useState(false)
+  const [giftOpen, setGiftOpen] = useState(false)
+  const [openingPlaying, setOpeningPlaying] = useState(false)
+  const [filmPlaying, setFilmPlaying] = useState(false)
   const [toast, setToast] = useState("")
 
   const tc = profile.template_content || {}
@@ -199,6 +200,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
     hasVideo && film && film.kind === "embed"
       ? film.src.match(/youtube\.com\/embed\/([A-Za-z0-9_-]{11})/)?.[1] || ""
       : ""
+  const hasOpeningMedia = !!openingFilm || (hasVideo && !!youtubeId) || !!coverStill
 
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
@@ -248,6 +250,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
   const giftKicker = (tc.gift_kicker || "").trim() || "Digital Envelope"
   const giftTitle = (tc.gift_intro_title || "").trim() || "Send your gift"
   const giftIntro = (tc.gift_intro_description || "").trim()
+  const giftButton = (tc.gift_button || "").trim() || "Make a Gift Now"
   const dressKicker = (tc.dresscode_kicker || "").trim() || "Dress Code"
   const wishesKicker = (tc.wishes_kicker || "").trim() || "Words for Us"
   const wishesTitle = (tc.wishes_title || "").trim() || "Wishes"
@@ -278,7 +281,6 @@ export default function CinnabarSeal(profile: TemplateProps) {
     !profile.template_demo &&
     opened &&
     lightbox === null &&
-    !filmOpen &&
     (!!profile.guest_id || (profile.guest_link_strict === false && !!profile.guest_slug)) &&
     !!profile.wedding_profile_id
 
@@ -377,7 +379,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
     )
     targets.forEach((target) => observer.observe(target))
     return () => observer.disconnect()
-  }, [stories.length, rundown.length, honored.length, gallery.length, accounts.length, events.length])
+  }, [stories.length, rundown.length, honored.length, gallery.length, accounts.length, events.length, giftOpen])
 
   useEffect(() => {
     const locked = !opened
@@ -386,20 +388,17 @@ export default function CinnabarSeal(profile: TemplateProps) {
   }, [opened])
 
   useEffect(() => {
-    if (lightbox === null && !filmOpen) return
+    if (lightbox === null) return
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setLightbox(null)
-        setFilmOpen(false)
-      }
-      if (lightbox !== null && gallery.length > 1) {
+      if (event.key === "Escape") setLightbox(null)
+      if (gallery.length > 1) {
         if (event.key === "ArrowLeft") stepLightbox(-1)
         if (event.key === "ArrowRight") stepLightbox(1)
       }
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
-  }, [lightbox, filmOpen, gallery.length, stepLightbox])
+  }, [lightbox, gallery.length, stepLightbox])
 
   const albumCover = stories.find((story) => story.image_url)?.image_url || heroStill
   const eventCover = heroStill || gallery[0] || baseStill
@@ -457,30 +456,28 @@ export default function CinnabarSeal(profile: TemplateProps) {
       </section>
 
       <main className="cn-main">
-        {/* 2 — opening film (ambient, direct upload or YouTube) */}
-        {hasVideo && (openingFilm || youtubeId) && (
-          <section className="cn-opening-film" data-section="video-pembuka" aria-label="Video pembuka">
-            {openingFilm ? (
-              <video src={openingFilm} autoPlay muted loop playsInline preload="metadata" poster={heroStill} />
-            ) : openingEmbedOn ? (
-              <div className="cn-opening-film__embed is-playing">
-                <AutoplayYouTube videoId={youtubeId} title={videoTitle} autoplay />
+        {/* 2 — opening film: autoplay when allowed, cover photo otherwise */}
+        {hasOpeningMedia && (
+        <section className="cn-opening-film" data-section="video-pembuka" aria-label="Video pembuka">
+          {openingFilm ? (
+            <video src={openingFilm} autoPlay muted loop playsInline preload="metadata" poster={heroStill} />
+          ) : hasVideo && youtubeId ? (
+            <>
+              {coverStill && <img className="cn-opening-film__poster" src={coverStill} alt="" aria-hidden="true" />}
+              <div className={`cn-opening-film__embed${openingPlaying ? " is-playing" : ""}`}>
+                <AutoplayYouTube
+                  videoId={youtubeId}
+                  title={videoTitle}
+                  autoplay
+                  onPlay={() => setOpeningPlaying(true)}
+                />
               </div>
-            ) : (
-              <>
-                {heroStill && <img className="cn-opening-film__poster" src={heroStill} alt="" aria-hidden="true" />}
-                <button
-                  type="button"
-                  className="cn-opening-film__play"
-                  onClick={() => setOpeningEmbedOn(true)}
-                  aria-label="Putar video pembuka"
-                >
-                  <span className="cn-film__play" aria-hidden="true" />
-                </button>
-              </>
-            )}
-            <span className="cn-opening-film__frame" aria-hidden="true" />
-          </section>
+            </>
+          ) : coverStill ? (
+            <img className="cn-opening-film__poster is-fallback" src={coverStill} alt="" aria-hidden="true" />
+          ) : null}
+          <span className="cn-opening-film__frame" aria-hidden="true" />
+        </section>
         )}
 
         {/* 3 — welcome / hero */}
@@ -795,7 +792,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
           </section>
         )}
 
-        {/* 12 — film */}
+        {/* 12 — film, playing inline */}
         {hasVideo && film && (
           <section className="cn-section cn-film" data-section="video" aria-label="Film pernikahan">
             <p className="cn-kicker cn-kicker--gold cn-center" {...IN("up")}>
@@ -807,66 +804,109 @@ export default function CinnabarSeal(profile: TemplateProps) {
                 {videoIntro}
               </p>
             )}
-            <button
-              type="button"
-              className="cn-film__plate"
-              onClick={() => setFilmOpen(true)}
-              aria-label="Putar film"
-              {...IN("up", 0.12)}
-            >
-              {eventCover ? <img src={eventCover} alt="" aria-hidden="true" /> : null}
-              <span className="cn-film__play" aria-hidden="true" />
-            </button>
+            <div className="cn-film__inline" {...IN("up", 0.12)}>
+              {eventCover && <img className="cn-film__poster" src={eventCover} alt="" aria-hidden="true" />}
+              <div className={`cn-film__media${filmPlaying ? " is-playing" : ""}`}>
+                {film.kind === "file" ? (
+                  <video
+                    src={film.src}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    controls
+                    preload="metadata"
+                    poster={eventCover}
+                    onPlaying={() => setFilmPlaying(true)}
+                  />
+                ) : youtubeId ? (
+                  <AutoplayYouTube
+                    videoId={youtubeId}
+                    title={videoTitle}
+                    controls
+                    autoplay
+                    onPlay={() => setFilmPlaying(true)}
+                  />
+                ) : (
+                  <iframe
+                    src={film.src}
+                    title={videoTitle}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                )}
+              </div>
+            </div>
           </section>
         )}
 
-        {/* 13 — gift */}
+        {/* 13 — gift. The reference prints the copy on the white card, on paper. */}
         {hasGift && (
           <section className="cn-section cn-gift" data-section="gift" aria-label="Tanda kasih">
-            <div className="cn-envelope" aria-hidden="true" {...IN("fade")}>
-              <img className="cn-envelope__back" src={ART("envelope-back")} alt="" />
-              <img className="cn-envelope__card" src={ART("envelope-card")} alt="" />
-              <img className="cn-envelope__seal" src={ART("envelope-seal")} alt="" />
+            <div className="cn-envelope" {...IN("fade")}>
+              <img className="cn-envelope__branch" src={ART("envelope-seal")} alt="" aria-hidden="true" />
+              <img className="cn-envelope__red" src={ART("envelope-back")} alt="" aria-hidden="true" />
+              <div className="cn-envelope__card">
+                <img src={ART("envelope-card")} alt="" aria-hidden="true" />
+                <div className="cn-envelope__copy">
+                  <p className="cn-envelope__kicker">{giftKicker}</p>
+                  <p className="cn-envelope__title">
+                    <SplitAccent text={giftTitle} />
+                  </p>
+                  <span className="cn-glyph cn-glyph--cloud cn-envelope__cloud" aria-hidden="true" />
+                </div>
+              </div>
             </div>
-            <p className="cn-kicker cn-kicker--gold cn-center" {...IN("up")}>
-              {giftKicker}
-            </p>
-            <h2 className="cn-title cn-title--lg cn-center" {...IN("up", 0.06)}>
-              <em>{giftTitle}</em>
-            </h2>
+
             {giftIntro && (
               <p className="cn-body cn-center" {...IN("fade", 0.12)}>
                 {giftIntro}
               </p>
             )}
 
-            {accounts.length > 0 && (
-              <div className="cn-accounts">
-                {accounts.map((account, index) => (
-                  <button
-                    type="button"
-                    className="cn-account"
-                    key={`${account.account_number || "acc"}-${index}`}
-                    onClick={() =>
-                      copyText(account.account_number || "", accountToast)
-                    }
-                    {...IN("up", Math.min(0.06 * index, 0.24))}
-                  >
-                    {account.provider_name && <span className="cn-account__bank">{account.provider_name}</span>}
-                    {account.account_number && <span className="cn-account__number">{account.account_number}</span>}
-                    {account.account_name && <span className="cn-account__name">{account.account_name}</span>}
-                  </button>
-                ))}
-              </div>
-            )}
+            <button
+              type="button"
+              className="cn-btn cn-btn--solid cn-gift__btn"
+              onClick={() => setGiftOpen((open) => !open)}
+              aria-expanded={giftOpen}
+              {...IN("up", 0.18)}
+            >
+              {giftButton}
+            </button>
 
-            {giftAddress && (
-              <div className="cn-address" {...IN("up", 0.1)}>
-                {profile.gift_address_name && <p className="cn-address__name">{profile.gift_address_name}</p>}
-                <p className="cn-address__text">{giftAddress}</p>
-                <button type="button" className="cn-btn cn-btn--outline" onClick={() => copyText(giftAddress, addressToast)}>
-                  {copyAddressLabel}
-                </button>
+            {giftOpen && (
+              <div className="cn-gift__details">
+                {accounts.length > 0 && (
+                  <div className="cn-accounts">
+                    {accounts.map((account, index) => (
+                      <button
+                        type="button"
+                        className="cn-account"
+                        key={`${account.account_number || "acc"}-${index}`}
+                        onClick={() => copyText(account.account_number || "", accountToast)}
+                        {...IN("up", Math.min(0.06 * index, 0.24))}
+                      >
+                        {account.provider_name && <span className="cn-account__bank">{account.provider_name}</span>}
+                        {account.account_number && <span className="cn-account__number">{account.account_number}</span>}
+                        {account.account_name && <span className="cn-account__name">{account.account_name}</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {giftAddress && (
+                  <div className="cn-address" {...IN("up", 0.1)}>
+                    {profile.gift_address_name && <p className="cn-address__name">{profile.gift_address_name}</p>}
+                    <p className="cn-address__text">{giftAddress}</p>
+                    <button
+                      type="button"
+                      className="cn-btn cn-btn--outline"
+                      onClick={() => copyText(giftAddress, addressToast)}
+                    >
+                      {copyAddressLabel}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </section>
@@ -1026,28 +1066,6 @@ export default function CinnabarSeal(profile: TemplateProps) {
           <span className="cn-lightbox__count" aria-hidden="true">
             {lightbox + 1} / {gallery.length}
           </span>
-        </div>
-      )}
-
-      {filmOpen && film && (
-        <div className="cn-film-modal" role="dialog" aria-modal="true" aria-label="Film pernikahan" onClick={() => setFilmOpen(false)}>
-          <button type="button" className="cn-lightbox__close" aria-label="Tutup" onClick={() => setFilmOpen(false)}>
-            ×
-          </button>
-          <div className="cn-film-modal__box" onClick={(event) => event.stopPropagation()}>
-            {film.kind === "file" ? (
-              <video src={film.src} controls autoPlay playsInline />
-            ) : youtubeId ? (
-              <AutoplayYouTube videoId={youtubeId} title={videoTitle} controls autoplay />
-            ) : (
-              <iframe
-                src={film.src}
-                title={videoTitle}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            )}
-          </div>
         </div>
       )}
 
