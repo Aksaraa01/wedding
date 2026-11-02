@@ -1274,8 +1274,13 @@ function EditorInner({ id }: { id: string }) {
         return
       }
       if (container) {
-        const top = el.offsetTop - 24
-        container.scrollTo({ top, behavior: "smooth" })
+        // offsetTop is measured against the nearest positioned ancestor (the
+        // body here), not the scroll container, so it overshoots by the pane's
+        // own top offset and leaves the header above the fold. Use rect math.
+        const containerRect = container.getBoundingClientRect()
+        const elRect = el.getBoundingClientRect()
+        const top = container.scrollTop + (elRect.top - containerRect.top) - 24
+        container.scrollTo({ top: Math.max(0, top), behavior: "smooth" })
       } else {
         el.scrollIntoView({ behavior: "smooth", block: "start" })
       }
@@ -1553,9 +1558,10 @@ function EditorInner({ id }: { id: string }) {
   return (
     <>
       <PageTheme mode="light" />
-      {/* dvh tracks the real visible height as mobile browser chrome
-          shows/hides; h-screen stays as fallback for older browsers. */}
-      <div className="h-screen flex flex-col text-on-surface font-body-md overflow-hidden" style={{ ...DASH_SATIN_BG, height: "100dvh" }}>
+      {/* Fixed to the viewport, not 100dvh: on mobile the dynamic toolbar makes
+          dvh lag behind the visible height, which leaves the cream body showing
+          below the shell after a re-render and makes the layout look shifted up. */}
+      <div className="fixed inset-0 flex flex-col text-on-surface font-body-md overflow-hidden" style={DASH_SATIN_BG}>
 
         {/* TOP BAR */}
         <header className="border-b border-outline-variant flex items-center px-6 lg:px-8 w-full h-20 z-50 shrink-0 gap-4" style={DASH_HERO_BG}>
@@ -2504,26 +2510,6 @@ function EditorInner({ id }: { id: string }) {
                   </button>
                 </div>
               ))}
-              {contentSpec?.extras && renderSection("extras", "auto_awesome", extrasLabel, (
-                <div className="mt-6 space-y-4">
-                  <p className="text-[11px] text-on-surface-variant italic">
-                    Copy khusus template {template?.name}. Kosongkan untuk memakai teks bawaan.
-                  </p>
-                  {extraFields.map((field) => (
-                    <div key={field.key} className="space-y-2">
-                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">{field.label}</label>
-                      <AutoTextarea
-                        className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden"
-                        value={data.template_content?.[field.key] || ""}
-                        onChange={(v) => updateTemplateContent(field.key, v)}
-                        placeholder={field.placeholder}
-                        minRows={field.rows ?? 1}
-                        disabled={data.is_published === true}
-                      />
-                    </div>
-                  ))}
-                </div>
-              ))}
               {renderSection("story", "auto_stories", "STORY",
                 gates.story.included ? (
                   <div className="mt-6 space-y-6">
@@ -2735,6 +2721,26 @@ function EditorInner({ id }: { id: string }) {
                   </div>
                 </div>
               </>)}
+              {contentSpec?.extras && renderSection("extras", "auto_awesome", extrasLabel, (
+                <div className="mt-6 space-y-4">
+                  <p className="text-[11px] text-on-surface-variant italic">
+                    Copy khusus template {template?.name}. Kosongkan untuk memakai teks bawaan.
+                  </p>
+                  {extraFields.map((field) => (
+                    <div key={field.key} className="space-y-2">
+                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">{field.label}</label>
+                      <AutoTextarea
+                        className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden"
+                        value={data.template_content?.[field.key] || ""}
+                        onChange={(v) => updateTemplateContent(field.key, v)}
+                        placeholder={field.placeholder}
+                        minRows={field.rows ?? 1}
+                        disabled={data.is_published === true}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ))}
               {renderSection("feedback", "rate_review", "TAMBAH LAINNYA",
                 <div className="mt-6 space-y-4">
                   <div className="flex items-start gap-4">

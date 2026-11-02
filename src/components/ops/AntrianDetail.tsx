@@ -355,14 +355,19 @@ function InvAccordion({ secKey, icon, label, lockedInfo, hidden, incomplete, def
       className="group scroll-mt-6 border rounded-xl overflow-visible bg-white border-[#B34E3F] open:bg-[#B34E3F] open:border-[#B34E3F]"
     >
       <summary
-        onClick={() => {
+        onClick={(e) => {
           // Single-open at DOM level (no React state): after the native
           // toggle, close every other section. Immune to render timing.
+          const el = e.currentTarget.closest("details")
           requestAnimationFrame(() => {
             try {
-              document.querySelectorAll("[data-inv-section]").forEach((el) => {
-                if (el.getAttribute("data-inv-section") !== secKey) el.removeAttribute("open")
+              document.querySelectorAll("[data-inv-section]").forEach((other) => {
+                if (other !== el) other.removeAttribute("open")
               })
+              // Collapsing the previously open section above shrinks the page,
+              // so keep the section just opened anchored to the top instead of
+              // letting the viewport land on empty background below it.
+              if (el && el.open) el.scrollIntoView({ behavior: "smooth", block: "start" })
             } catch {}
           })
         }}
@@ -3920,38 +3925,6 @@ export default function AntrianDetail({ id }: { id: string }) {
                   </InvAccordion>
                   )}
 
-                  {invContentSpec?.extras && (
-                  <InvAccordion secKey="extras" icon="auto_awesome" label={invExtrasLabel} {...invAccProps("extras")}>
-                    {invEditing && invForm ? (
-                      <div className="mt-6 space-y-4">
-                        <p className="text-[11px] text-on-surface-variant italic">
-                          Copy khusus template {invTpl?.name}. Kosongkan untuk memakai teks bawaan.
-                        </p>
-                        {invExtraFields.map((field) => (
-                          <div key={field.key} className="space-y-2">
-                            <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">{field.label}</label>
-                            <AutoTextarea
-                              className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden"
-                              value={invForm.template_content?.[field.key] || ""}
-                              onChange={(v) => handleTemplateContentChange(field.key, v)}
-                              placeholder={field.placeholder}
-                              minRows={field.rows ?? 1}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        {invExtraFields.map((field) => (
-                          <div key={field.key} className="flex flex-wrap justify-between gap-x-4 gap-y-1 border-b border-outline-variant/20 pb-2 text-sm">
-                            <span className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">{field.label}</span>
-                            <span className="font-body-md break-words whitespace-pre-line">{invitationData?.profile?.template_content?.[field.key] || "—"}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </InvAccordion>
-                  )}
 
                   <InvAccordion secKey="story" icon="auto_stories" label="STORY" {...invAccProps("story")}>
                     {invEditing && invForm && invSectionState(invitationData.profile, "story") !== "locked" ? (
@@ -4188,6 +4161,38 @@ export default function AntrianDetail({ id }: { id: string }) {
                       <p className="font-body-md text-xs italic text-on-surface-variant/70">Belum dipilih.</p>
                     )}
                   </InvAccordion>
+                  {invContentSpec?.extras && (
+                  <InvAccordion secKey="extras" icon="auto_awesome" label={invExtrasLabel} {...invAccProps("extras")}>
+                    {invEditing && invForm ? (
+                      <div className="mt-6 space-y-4">
+                        <p className="text-[11px] text-on-surface-variant italic">
+                          Copy khusus template {invTpl?.name}. Kosongkan untuk memakai teks bawaan.
+                        </p>
+                        {invExtraFields.map((field) => (
+                          <div key={field.key} className="space-y-2">
+                            <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">{field.label}</label>
+                            <AutoTextarea
+                              className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden"
+                              value={invForm.template_content?.[field.key] || ""}
+                              onChange={(v) => handleTemplateContentChange(field.key, v)}
+                              placeholder={field.placeholder}
+                              minRows={field.rows ?? 1}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {invExtraFields.map((field) => (
+                          <div key={field.key} className="flex flex-wrap justify-between gap-x-4 gap-y-1 border-b border-outline-variant/20 pb-2 text-sm">
+                            <span className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">{field.label}</span>
+                            <span className="font-body-md break-words whitespace-pre-line">{invitationData?.profile?.template_content?.[field.key] || "—"}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </InvAccordion>
+                  )}
 
                   {invitationData.template ? (
                     <>
