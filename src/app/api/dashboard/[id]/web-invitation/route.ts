@@ -5,6 +5,7 @@ import { getIncompleteInvitationSections, parseStringList } from "@/lib/invitati
 import { ensureOgImage, ogPublicUrlFor, resolveCoverImage } from "@/lib/ogImage"
 import { getPublishBlockers } from "@/lib/publishBlockers"
 import { requireProfileAccess } from "@/lib/requireProfileAccess"
+import { getTemplateContentSpec } from "@/components/templates"
 
 export const dynamic = "force-dynamic"
 
@@ -19,7 +20,7 @@ export async function GET(
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("id, bride_name, groom_name, slug, package_type, payment_status, selected_template_id, selected_track_id, couple_illustration_url, cover_photos, couple_initials, grayscale, is_published, published_at, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, display_name, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, opening_title, opening_description, active_wp_post_id, active_wp_post_url, portfolio_visible, portfolio_featured, dresscode, livestream, dresscode_visible, livestream_visible, rundown, contacts, rundown_visible, contacts_visible, template_content, gallery_photo_url")
+      .select("id, bride_name, groom_name, slug, package_type, payment_status, selected_template_id, selected_track_id, couple_illustration_url, link_thumbnail_url, link_thumbnail_disabled, cover_photos, couple_initials, grayscale, is_published, published_at, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, display_name, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, opening_title, opening_description, active_wp_post_id, active_wp_post_url, portfolio_visible, portfolio_featured, dresscode, livestream, dresscode_visible, livestream_visible, rundown, contacts, rundown_visible, contacts_visible, template_content, gallery_photo_url")
       .eq("id", id)
       .single()
 
@@ -61,6 +62,8 @@ export async function GET(
         selected_template_id: profile.selected_template_id || null,
         selected_track_id: profile.selected_track_id,
         couple_illustration_url: profile.couple_illustration_url,
+        link_thumbnail_url: profile.link_thumbnail_url || "",
+        link_thumbnail_disabled: profile.link_thumbnail_disabled === true,
         cover_photos: profile.cover_photos,
         couple_initials: profile.couple_initials,
         grayscale: profile.grayscale,
@@ -131,7 +134,7 @@ export async function PUT(  req: NextRequest,
     const body = await req.json()
     const allowed = [
       "selected_template_id", "selected_track_id", "has_seen_tour",
-      "couple_illustration_url", "cover_photos", "couple_initials", "grayscale", "is_published",
+      "couple_illustration_url", "link_thumbnail_url", "link_thumbnail_disabled", "cover_photos", "couple_initials", "grayscale", "is_published",
       "groom_full_name", "bride_full_name", "groom_name", "bride_name",
       "groom_photo_url", "bride_photo_url",
       "groom_parents", "bride_parents", "groom_instagram", "bride_instagram", "video_url",
@@ -189,14 +192,29 @@ export async function PUT(  req: NextRequest,
     // first, then first cover — same priority as guest metadata). Runs only
     // when cover fields are part of this save; any failure falls back to the
     // normal cover chain and never blocks the save itself.
-    if (body.couple_illustration_url !== undefined || body.cover_photos !== undefined) {
+    if (body.couple_illustration_url !== undefined || body.cover_photos !== undefined || body.link_thumbnail_url !== undefined || body.link_thumbnail_disabled !== undefined) {
       try {
         const { data: current } = await supabaseAdmin
           .from("wedding_profiles")
-          .select("couple_illustration_url, cover_photos, og_image_url, og_image_width, og_image_height")
+          .select("selected_template_id, link_thumbnail_url, link_thumbnail_disabled, couple_illustration_url, cover_photos, og_image_url, og_image_width, og_image_height")
           .eq("id", id)
           .maybeSingle()
+        // A template with no cover slot must never fall back to stored covers:
+        // those are hidden by the design and the couple's chosen thumbnail (or
+        // explicit opt-out) is the only valid source.
+        const templateId = body.selected_template_id !== undefined ? body.selected_template_id : current?.selected_template_id
+        const { data: tplRow } = templateId
+          ? await supabaseAdmin.from("web_templates").select("code, no_photo, wp_manifest").eq("id", templateId).maybeSingle()
+          : { data: null }
+        const specSlots = getTemplateContentSpec((tplRow as any)?.code || null)?.cover_slots
+        const manifestSlots = Array.isArray((tplRow as any)?.wp_manifest?.cover_photos)
+          ? (tplRow as any).wp_manifest.cover_photos.length
+          : undefined
+        const hasCoverSlots = (tplRow as any)?.no_photo !== true && (specSlots ?? manifestSlots ?? 0) > 0
         const effective = resolveCoverImage({
+          has_cover_slots: hasCoverSlots,
+          link_thumbnail_url: body.link_thumbnail_url !== undefined ? body.link_thumbnail_url : current?.link_thumbnail_url,
+          link_thumbnail_disabled: body.link_thumbnail_disabled !== undefined ? body.link_thumbnail_disabled : current?.link_thumbnail_disabled,
           couple_illustration_url: body.couple_illustration_url !== undefined ? body.couple_illustration_url : current?.couple_illustration_url,
           cover_photos: body.cover_photos !== undefined ? body.cover_photos : current?.cover_photos,
         })

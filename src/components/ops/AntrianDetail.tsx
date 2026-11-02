@@ -1182,9 +1182,13 @@ export default function AntrianDetail({ id }: { id: string }) {
         ["livestream", "LIVE STREAMING"],
       ]
       const gift = { accounts: data.gift_accounts || [], address: data.gift_address || "" }
+      const specSlots = getTemplateContentSpec(data.template?.code)?.cover_slots
+      const manifestSlots = Array.isArray(data.template?.wp_manifest?.cover_photos) ? data.template.wp_manifest.cover_photos.length : undefined
+      const hasCoverSlots = data.template?.no_photo !== true && (specSlots ?? manifestSlots ?? 0) > 0
       const empty = defs
         .filter(([k]) => {
           if (k === "pembuka" && hidesOpeningSection(data.template?.code)) return false
+          if (k === "sampul") return !hasCoverSlots && p?.link_thumbnail_disabled !== true && !invHasStr(p?.link_thumbnail_url)
           if (k === "dresscode" && !getTemplateContentSpec(data.template?.code)?.sections?.dresscode) return false
           if (k === "livestream" && !getTemplateContentSpec(data.template?.code)?.sections?.livestream) return false
           return invSectionState(p, k, k === "gift" ? gift : undefined, data.template?.no_photo === true) === "empty"
@@ -1220,7 +1224,9 @@ export default function AntrianDetail({ id }: { id: string }) {
       key === "livestream" ? p?.livestream_visible === false :
       key === "rundown" ? p?.rundown_visible === false :
       key === "contacts" ? p?.contacts_visible === false : false
-    const st = invSectionState(p, key === "profile" ? "profil" : key === "music" ? "musik" : key, key === "gift" ? { accounts: invitationData?.gift_accounts || [], address: invitationData?.gift_address || "" } : undefined, invNoPhoto)
+    const st = key === "sampul"
+      ? (invHasCoverPhotos || p?.link_thumbnail_disabled === true || invHasStr(p?.link_thumbnail_url) ? "ok" : "empty")
+      : invSectionState(p, key === "profile" ? "profil" : key === "music" ? "musik" : key, key === "gift" ? { accounts: invitationData?.gift_accounts || [], address: invitationData?.gift_address || "" } : undefined, invNoPhoto)
     return { lockedInfo, hidden, incomplete: st === "empty" }
   }
 
@@ -1248,11 +1254,13 @@ export default function AntrianDetail({ id }: { id: string }) {
   const invShowStoryPhoto = invContentSpec?.story_photo !== false && !invNoPhoto
   // Same split as the couple editor: a design can take a gallery/film but no
   // cover or portrait photos (lace).
-  const invHasCoverPhotos = !invNoPhoto && (invContentSpec?.cover_slots ?? 1) > 0
   const invHasPersonPhotos = !invNoPhoto && invContentSpec?.person_photos !== false
   const invExtraFields = getTemplateExtraFields(invTpl?.code)
   const invExtrasLabel = templateExtrasLabel(invTpl?.name)
   const invCoverSlotCount = invContentSpec?.cover_slots ?? (Array.isArray(invTpl?.wp_manifest?.cover_photos) ? invTpl.wp_manifest.cover_photos.length : 0)
+  // Zero slots means no cover drives the link preview, so the couple must pick
+  // a dedicated thumbnail (or opt out) in the SAMPUL accordion.
+  const invHasCoverPhotos = !invNoPhoto && invCoverSlotCount > 0
   const invCoverSlotLabel = (i: number) => invContentSpec?.cover_slot_labels?.[i] || `Slot ${i + 1}`
   const invIsCoverSlideshowSlot = (i: number) => {
     if (invContentSpec) return !!invContentSpec.cover_slideshows?.includes(i)
@@ -1343,6 +1351,8 @@ export default function AntrianDetail({ id }: { id: string }) {
       bride_parents: p.bride_parents || "",
       bride_instagram: p.bride_instagram || "",
       couple_illustration_url: p.couple_illustration_url || "",
+      link_thumbnail_url: p.link_thumbnail_url || "",
+      link_thumbnail_disabled: p.link_thumbnail_disabled === true,
       cover_photos: photoStrArr(p.cover_photos),
       groom_photo_url: photoList(p.groom_photo_url),
       bride_photo_url: photoList(p.bride_photo_url),
@@ -1564,6 +1574,9 @@ export default function AntrianDetail({ id }: { id: string }) {
     if (!sameStr(f.giftAddress.recipient_name, invitationData.gift_address_name) || !sameStr(f.giftAddress.full_address, invitationData.gift_address)) {
       changed.push("Alamat Kado")
     }
+    if (!sameStr(f.link_thumbnail_url, orig.link_thumbnail_url) || (f.link_thumbnail_disabled === true) !== (orig.link_thumbnail_disabled === true)) {
+      changed.push("Thumbnail Tautan")
+    }
     return changed
   }
 
@@ -1588,6 +1601,8 @@ export default function AntrianDetail({ id }: { id: string }) {
           bride_parents: f.bride_parents || null,
           bride_instagram: f.bride_instagram || null,
           couple_illustration_url: f.couple_illustration_url || null,
+          link_thumbnail_url: f.link_thumbnail_url || null,
+          link_thumbnail_disabled: f.link_thumbnail_disabled === true,
           cover_photos: f.cover_photos,
           gallery_photos: f.gallery_photos,
           groom_photo_url: f.groom_photo_url,
@@ -2986,9 +3001,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                     <div className="space-y-3">
                       <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Foto Sampul</label>
                       <p className="text-[11px] text-on-surface-variant italic">
-                        {invCoverSlotCount > 0
-                          ? `${invCoverSlotCount} slot foto sampul tersedia pada template. Isi setiap slot untuk mengganti foto.`
-                          : "Pilih template lain dengan foto sampul"}
+                        {`${invCoverSlotCount} slot foto sampul tersedia pada template. Isi setiap slot untuk mengganti foto.`}
                       </p>
                       <div className="grid grid-cols-2 gap-3">
                         {Array.from({ length: invCoverSlotCount }).map((_, i) => {
@@ -3099,6 +3112,86 @@ export default function AntrianDetail({ id }: { id: string }) {
                         })}
                       </div>
                     </div>
+                    )}
+                    {invHasCoverPhotos ? (
+                      <div className="flex items-start gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2.5">
+                        <span className="material-symbols-outlined text-[18px] text-secondary shrink-0">info</span>
+                        <p className="text-[11px] text-on-surface-variant leading-snug">
+                          Foto sampul pertama juga dipakai sebagai thumbnail tautan undangan (WhatsApp dan media sosial).
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3 rounded-xl border border-outline-variant p-4">
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">
+                            Thumbnail Tautan Undangan
+                          </label>
+                          {invForm.link_thumbnail_disabled !== true && (
+                            <span className="shrink-0 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-amber-700">
+                              Wajib
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-on-surface-variant leading-snug">
+                          Template ini tidak punya foto sampul. Unggah gambar yang tampil saat tautan undangan dibagikan
+                          (WhatsApp, media sosial). Rasio ideal 1.91:1.
+                        </p>
+                        <div className="flex items-center gap-3">
+                          <label
+                            className="relative w-24 aspect-[1.91/1] shrink-0 cursor-pointer overflow-hidden rounded border border-dashed border-outline-variant bg-surface-dim flex items-center justify-center"
+                            title={invForm.link_thumbnail_url ? "Ganti thumbnail" : "Unggah thumbnail"}
+                          >
+                            {invUploading === "link-thumb" ? (
+                              <span className="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
+                            ) : invForm.link_thumbnail_url ? (
+                              <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${invForm.link_thumbnail_url})` }} />
+                            ) : (
+                              <span className="material-symbols-outlined text-on-surface-variant">add_photo_alternate</span>
+                            )}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={async (e) => {
+                                const f = e.target.files?.[0]
+                                e.target.value = ""
+                                if (!f) return
+                                const u = await invUploadPhoto("link-thumb", f)
+                                if (u) setInvForm({ ...invForm, link_thumbnail_url: u, link_thumbnail_disabled: false })
+                              }}
+                            />
+                          </label>
+                          <div className="min-w-0 space-y-1">
+                            <label className="inline-flex cursor-pointer rounded-full bg-secondary px-4 py-2 font-label-md text-[10px] uppercase tracking-widest text-white hover:opacity-90">
+                              {invForm.link_thumbnail_url ? "Ganti Gambar" : "Unggah Gambar"}
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={async (e) => {
+                                  const f = e.target.files?.[0]
+                                  e.target.value = ""
+                                  if (!f) return
+                                  const u = await invUploadPhoto("link-thumb", f)
+                                  if (u) setInvForm({ ...invForm, link_thumbnail_url: u, link_thumbnail_disabled: false })
+                                }}
+                              />
+                            </label>
+                            <p className="text-[10px] text-on-surface-variant">JPG atau PNG. Rekomendasi 1200 × 630 px.</p>
+                          </div>
+                        </div>
+                        <label className="flex items-start gap-2 pt-1">
+                          <input
+                            type="checkbox"
+                            checked={invForm.link_thumbnail_disabled === true}
+                            onChange={(e) => setInvForm({ ...invForm, link_thumbnail_disabled: e.target.checked })}
+                            className="mt-0.5 h-4 w-4 shrink-0 accent-[#B34E3F]"
+                          />
+                          <span className="text-[11px] leading-snug text-on-surface-variant">
+                            Tanpa foto thumbnail (gunakan gambar bawaan Aksaraa)
+                          </span>
+                        </label>
+                      </div>
                     )}
                     <div className="space-y-2">
                       <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Tanggal Acara</label>

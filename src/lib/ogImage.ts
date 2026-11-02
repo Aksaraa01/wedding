@@ -38,9 +38,15 @@ export function ogPublicUrlFor(coverUrl: string): string | null {
   return data.publicUrl
 }
 
-// Same priority as the guest metadata: illustration first, then covers.
+// Same priority as the guest metadata: an explicitly uploaded link thumbnail
+// wins, then the illustration, then covers. `link_thumbnail_disabled` is the
+// explicit "tanpa foto thumbnail" opt-out: no personal photo at all, so the
+// share card uses the generic default.
 // Shared by the PUT hook and generateMetadata so they can never diverge.
 export function resolveCoverImage(input: {
+  link_thumbnail_url?: unknown
+  link_thumbnail_disabled?: unknown
+  has_cover_slots?: boolean
   couple_illustration_url: unknown
   cover_photos: unknown
 }): string | undefined {
@@ -54,7 +60,10 @@ export function resolveCoverImage(input: {
     }
     return undefined
   }
-  return first(input.couple_illustration_url) || first(parseStringList(input.cover_photos))
+  const cover = first(parseStringList(input.cover_photos))
+  if (input.has_cover_slots !== false && cover) return first(input.couple_illustration_url) || cover
+  if (input.link_thumbnail_disabled === true) return undefined
+  return first(input.link_thumbnail_url) || (input.has_cover_slots === false ? undefined : first(input.couple_illustration_url)) || undefined
 }
 
 function smallerInputFor(coverUrl: string): string {

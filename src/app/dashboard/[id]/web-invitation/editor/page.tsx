@@ -23,6 +23,8 @@ type Profile = {
   groom_name: string
   slug: string
   couple_illustration_url: string | null
+  link_thumbnail_url?: string | null
+  link_thumbnail_disabled?: boolean | null
   cover_photos: string[] | null
   gallery_photo_url?: string | null
   couple_initials: string | null
@@ -348,6 +350,7 @@ function EditorInner({ id }: { id: string }) {
 
   const coverReplaceRef = useRef<HTMLInputElement>(null)
   const coverSlideRef = useRef<HTMLInputElement>(null)
+  const linkThumbRef = useRef<HTMLInputElement>(null)
   const sidebarScrollRef = useRef<HTMLDivElement>(null)
   const hasAutoFocusedFeedback = useRef(false)
   const groomPhotoRef = useRef<HTMLInputElement>(null)
@@ -369,6 +372,8 @@ function EditorInner({ id }: { id: string }) {
           ...prev,
           ...p,
           display_name: p.display_name || "",
+          link_thumbnail_url: p.link_thumbnail_url || "",
+          link_thumbnail_disabled: p.link_thumbnail_disabled === true,
           inviting_families: Array.isArray(p.inviting_families) ? p.inviting_families : [],
           cover_photos: Array.isArray(p.cover_photos) ? p.cover_photos : [],
           groom_photo_url: parsePhotoList(p.groom_photo_url),
@@ -480,8 +485,14 @@ function EditorInner({ id }: { id: string }) {
   const isNoPhoto = template?.no_photo === true
   // Cover slots and portraits are separate questions: a design can have none of
   // either but still take a gallery + film (lace). An upload field the template
-  // never renders is worse than no field at all.
-  const hasCoverPhotos = !isNoPhoto && (contentSpec?.cover_slots ?? 1) > 0
+  // never renders is worse than no field at all. The slot count is the single
+  // source of truth: in-house specs declare it, WP templates expose it through
+  // the cover mapping in wp_manifest. Zero slots means the couple must choose a
+  // separate link thumbnail (see SAMPUL below).
+  const coverSlotCount = contentSpec?.cover_slots ?? (Array.isArray(template?.wp_manifest?.cover_photos)
+    ? template.wp_manifest.cover_photos.length
+    : 0)
+  const hasCoverPhotos = !isNoPhoto && coverSlotCount > 0
   const hasPersonPhotos = !isNoPhoto && contentSpec?.person_photos !== false
   // Text-only love story (e.g. piano-garden): hide the milestone photo field
   // while keeping stored image_url data intact.
@@ -855,9 +866,6 @@ function EditorInner({ id }: { id: string }) {
   const galleryMax = photoQuota == null ? null : Math.max(0, photoQuota - groomPhotoCount - bridePhotoCount)
   const canAddGallery = galleryMax == null || galleryPhotos.length < galleryMax
 
-  const coverSlotCount = contentSpec?.cover_slots ?? (Array.isArray(template?.wp_manifest?.cover_photos)
-    ? template.wp_manifest.cover_photos.length
-    : 0)
   const coverSlotLabel = (i: number) => contentSpec?.cover_slot_labels?.[i] || `Slot ${i + 1}`
   const coverSlots = Array.from({ length: coverSlotCount })
 
@@ -924,8 +932,29 @@ function EditorInner({ id }: { id: string }) {
     }
   }, [])
 
-  const uploadGalleryFiles = async (files: FileList | File[]) => {
+  // Link-preview thumbnail for templates that render no cover slot. The image
+  // drives og:image; "tanpa foto thumbnail" opts out and uses the generic
+  // default instead of the couple portrait.
+  const uploadLinkThumbnail = async (file: File) => {
     if (data.is_published === true || reviewMode) return
+    setCoverUploading("link-thumb")
+    try {
+      const url = await uploadImageFile(file)
+      if (!url) return
+      setData(prev => ({ ...prev, link_thumbnail_url: url, link_thumbnail_disabled: false }))
+      save({ link_thumbnail_url: url, link_thumbnail_disabled: false })
+    } finally {
+      setCoverUploading(null)
+    }
+  }
+
+  const toggleLinkThumbnailDisabled = (next: boolean) => {
+    if (data.is_published === true || reviewMode) return
+    setData(prev => ({ ...prev, link_thumbnail_disabled: next }))
+    save({ link_thumbnail_disabled: next })
+  }
+
+  const uploadGalleryFiles = async (files: FileList | File[]) => {    if (data.is_published === true || reviewMode) return
     if (galleryUploading) return
     const list = Array.from(files).filter(f => f.type.startsWith("image/"))
     if (list.length === 0) return
@@ -1223,6 +1252,9 @@ function EditorInner({ id }: { id: string }) {
     has_template: !!template,
     cover_photos: data.cover_photos,
     couple_illustration_url: data.couple_illustration_url,
+    link_thumbnail_url: data.link_thumbnail_url,
+    link_thumbnail_disabled: data.link_thumbnail_disabled === true,
+    has_cover_slots: hasCoverPhotos,
     opening_title: data.opening_title,
     opening_description: data.opening_description,
     display_name: data.display_name,
@@ -1770,9 +1802,7 @@ function EditorInner({ id }: { id: string }) {
                   <div className="space-y-3">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Foto Sampul</label>
                     <p className="text-[11px] text-on-surface-variant italic">
-                      {coverSlotCount > 0
-                        ? `${coverSlotCount} slot foto tersedia pada template${contentSpec?.cover_slot_labels ? ` (${contentSpec.cover_slot_labels.join(" · ")})` : ""}. Isi setiap slot untuk mengganti foto.`
-                        : "Pilih template lain dengan foto sampul"}
+                      {`${coverSlotCount} slot foto tersedia pada template${contentSpec?.cover_slot_labels ? ` (${contentSpec.cover_slot_labels.join(" · ")})` : ""}. Isi setiap slot untuk mengganti foto.`}
                     </p>
                     <div className="grid grid-cols-2 gap-3">
                       {coverSlots.map((_, i) => {
@@ -1862,6 +1892,82 @@ function EditorInner({ id }: { id: string }) {
                     <input ref={coverReplaceRef} type="file" accept="image/*" multiple className="hidden" onChange={async e => { const files = e.target.files ? Array.from(e.target.files).filter(f => f.type.startsWith("image/")) : []; const pairs: { index: number; file: File }[] = []; if (files.length && coverReplaceIndex !== null) { for (let k = 0; k < files.length; k++) { const idx = coverReplaceIndex + k; if (idx >= coverSlotCount) break; if (isCoverSlideshowSlot(idx)) continue; pairs.push({ index: idx, file: files[k] }) } setCoverReplaceIndex(null) } else if (files.length) { for (let k = 0; k < files.length; k++) { if (k >= coverSlotCount) break; if (isCoverSlideshowSlot(k)) continue; pairs.push({ index: k, file: files[k] }) } } e.target.value = ""; if (pairs.length) await runCoverUploads(pairs) }} />
                     <input ref={coverSlideRef} type="file" accept="image/*" multiple className="hidden" onChange={async e => { const files = e.target.files ? Array.from(e.target.files).filter(f => f.type.startsWith("image/")) : []; const pairs: { slot: number; slide: number; file: File }[] = []; if (files.length && coverSlideTarget !== null) { let si = coverSlideTarget.slot, sl = coverSlideTarget.slide; for (const f of files) { pairs.push({ slot: si, slide: sl, file: f }); sl++; if (sl > 1) { sl = 0; si++; while (si < coverSlotCount && !isCoverSlideshowSlot(si)) si++; if (si >= coverSlotCount) break } } setCoverSlideTarget(null) } e.target.value = ""; if (pairs.length) await runCoverSlideUploads(pairs) }} />
                   </div>
+                  )}
+                  {hasCoverPhotos ? (
+                    <div className="flex items-start gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2.5">
+                      <span className="material-symbols-outlined text-[18px] text-secondary shrink-0">info</span>
+                      <p className="text-[11px] text-on-surface-variant leading-snug">
+                        Foto sampul pertama juga dipakai sebagai thumbnail tautan undangan (WhatsApp dan media sosial).
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 rounded-xl border border-outline-variant p-4">
+                      <div className="flex items-center justify-between gap-2">
+                        <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">
+                          Thumbnail Tautan Undangan
+                        </label>
+                        {!data.link_thumbnail_disabled && (
+                          <span className="shrink-0 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-amber-700">
+                            Wajib
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-on-surface-variant leading-snug">
+                        Template ini tidak punya foto sampul. Unggah gambar yang tampil saat tautan undangan dibagikan
+                        (WhatsApp, media sosial). Rasio ideal 1.91:1.
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => linkThumbRef.current?.click()}
+                          disabled={data.is_published === true}
+                          className="relative w-24 aspect-[1.91/1] shrink-0 overflow-hidden rounded border border-dashed border-outline-variant bg-surface-dim flex items-center justify-center disabled:opacity-50"
+                          title={data.link_thumbnail_url ? "Ganti thumbnail" : "Unggah thumbnail"}
+                        >
+                          {coverUploading === "link-thumb" ? (
+                            <span className="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
+                          ) : data.link_thumbnail_url ? (
+                            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${data.link_thumbnail_url})` }} />
+                          ) : (
+                            <span className="material-symbols-outlined text-on-surface-variant">add_photo_alternate</span>
+                          )}
+                        </button>
+                        <div className="min-w-0 space-y-1">
+                          <button
+                            type="button"
+                            onClick={() => linkThumbRef.current?.click()}
+                            disabled={data.is_published === true || coverUploading === "link-thumb"}
+                            className="rounded-full bg-secondary px-4 py-2 font-label-md text-[10px] uppercase tracking-widest text-white hover:opacity-90 disabled:opacity-50"
+                          >
+                            {data.link_thumbnail_url ? "Ganti Gambar" : "Unggah Gambar"}
+                          </button>
+                          <p className="text-[10px] text-on-surface-variant">JPG atau PNG. Rekomendasi 1200 × 630 px.</p>
+                        </div>
+                      </div>
+                      <input
+                        ref={linkThumbRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async e => {
+                          const file = e.target.files?.[0]
+                          e.target.value = ""
+                          if (file) await uploadLinkThumbnail(file)
+                        }}
+                      />
+                      <label className="flex items-start gap-2 pt-1">
+                        <input
+                          type="checkbox"
+                          checked={data.link_thumbnail_disabled === true}
+                          onChange={e => toggleLinkThumbnailDisabled(e.target.checked)}
+                          disabled={data.is_published === true}
+                          className="mt-0.5 h-4 w-4 shrink-0 accent-[#B34E3F]"
+                        />
+                        <span className="text-[11px] leading-snug text-on-surface-variant">
+                          Tanpa foto thumbnail (gunakan gambar bawaan Aksaraa)
+                        </span>
+                      </label>
+                    </div>
                   )}
                   <div className="space-y-2">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Tanggal Acara</label>

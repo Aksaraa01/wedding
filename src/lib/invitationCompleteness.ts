@@ -38,6 +38,11 @@ export type InvitationCompletenessInput = {
   has_template: boolean
   cover_photos: unknown
   couple_illustration_url: unknown
+  // Templates without a cover slot need an explicit link thumbnail: it is the
+  // only image the OG/social card can use, and it must be uploaded by the user.
+  link_thumbnail_url?: unknown
+  link_thumbnail_disabled?: unknown
+  has_cover_slots?: boolean
   opening_title: unknown
   opening_description: unknown
   display_name: unknown
@@ -100,10 +105,12 @@ function isSectionIncomplete(key: string, d: InvitationCompletenessInput): boole
     case "tema":
       return !d.has_template
     case "sampul":
-      // Not required: an empty cover renders the default couple photo
-      // (coverPhoto() fallback / WP default injection), so it must not block
-      // confirmation.
-      return false
+      // Templates with cover slots fall back to the first cover for the link
+      // preview. Templates without any cover slot must either upload a
+      // dedicated thumbnail or explicitly opt out ("tanpa foto thumbnail").
+      if (d.has_cover_slots) return false
+      if (d.link_thumbnail_disabled === true) return false
+      return !hasStr(d.link_thumbnail_url)
     case "pembuka":
       if (d.no_opening_section) return false
       return !hasStr(d.opening_title) && !hasStr(d.opening_description)

@@ -2,7 +2,7 @@ import { supabaseAdmin } from "@/lib/supabase"
 import { notFound, redirect } from "next/navigation"
 import { headers } from "next/headers"
 import type { Metadata } from "next"
-import { getTemplateComponent } from "@/components/templates"
+import { getTemplateComponent, getTemplateContentSpec } from "@/components/templates"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import InvitationOpenedTracker from "@/components/InvitationOpenedTracker"
 import { isBotUserAgent, markInvitationOpened } from "@/lib/recordInvitationOpen"
@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("slug, display_name, bride_name, groom_name, bride_full_name, groom_full_name, estimated_wedding_date, couple_illustration_url, cover_photos, og_image_url, og_image_width, og_image_height")
+    .select("slug, display_name, bride_name, groom_name, bride_full_name, groom_full_name, estimated_wedding_date, selected_template_id, couple_illustration_url, link_thumbnail_url, link_thumbnail_disabled, cover_photos, og_image_url, og_image_width, og_image_height")
     .ilike("slug", slug)
     .single()
 
@@ -86,18 +86,45 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     }
   }
   // Social thumbnail priority (shared with the PUT og hook — same order):
-  // 1) dedicated og variant (guaranteed sub-300KB JPEG), 2) first JPEG
-  //    cover (transforms stay JPEG and small), 3) any image, 4) default.
+  // 1) dedicated og variant (guaranteed sub-300KB JPEG), 2) uploaded link
+  //    thumbnail, 3) first JPEG cover (transforms stay JPEG and small),
+  //    4) any image, 5) default.
   const isJpeg = (u: string) => /\.jpe?g($|\?)/i.test(u)
   const firstJpeg = (list: string[]) => list.find(isJpeg)
   const ogVariant = typeof (profile as any).og_image_url === "string" && (profile as any).og_image_url.trim()
     ? (profile as any).og_image_url.trim()
     : undefined
-  const image = ogVariant
-    || firstJpeg([firstImageUrl(profile.couple_illustration_url), ...covers].filter((u): u is string => !!u))
-    || firstImageUrl(profile.couple_illustration_url)
-    || firstImageUrl(covers)
-    || (profile.slug ? `https://${profile.slug}.wedding.aksaraa.com/defaults/couple.png` : undefined)
+  const linkThumb = firstImageUrl((profile as any).link_thumbnail_url)
+  // A design with no cover slot must never fall back to the couple's stored
+  // cover/illustration (those are hidden by the template). Only the uploaded
+  // link thumbnail is valid there; otherwise the generic default is used.
+  let noCoverSlots = false
+  if ((profile as any).selected_template_id) {
+    const { data: tplRow } = await supabaseAdmin
+      .from("web_templates")
+      .select("code, no_photo, wp_manifest")
+      .eq("id", (profile as any).selected_template_id)
+      .maybeSingle()
+    const specSlots = getTemplateContentSpec((tplRow as any)?.code || null)?.cover_slots
+    const manifestSlots = Array.isArray((tplRow as any)?.wp_manifest?.cover_photos)
+      ? (tplRow as any).wp_manifest.cover_photos.length
+      : 0
+    noCoverSlots = (tplRow as any)?.no_photo === true || (specSlots ?? manifestSlots) === 0
+  }
+  // "Tanpa foto thumbnail": the couple opted out of a personal photo entirely,
+  // so never fall through to their cover/portrait (the generic default is used).
+  const linkThumbDisabled = (profile as any).link_thumbnail_disabled === true && covers.length === 0
+  const defaultImage = profile.slug ? `https://${profile.slug}.wedding.aksaraa.com/defaults/couple.png` : undefined
+  const image = linkThumbDisabled
+    ? defaultImage
+    : noCoverSlots
+      ? (linkThumb || defaultImage)
+      : ogVariant
+        || linkThumb
+        || firstJpeg([firstImageUrl(profile.couple_illustration_url), ...covers].filter((u): u is string => !!u))
+        || firstImageUrl(profile.couple_illustration_url)
+        || firstImageUrl(covers)
+        || defaultImage
   // Crawlers (WhatsApp/Telegram) fetch this per share — serve a transform of
   // the raw cover instead of the multi-MB original. The dedicated og variant
   // (when present) is already a small JPEG and passes through untouched.
