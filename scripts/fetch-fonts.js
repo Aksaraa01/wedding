@@ -20,7 +20,7 @@ const FAMILIES = [
   { name: "Press Start 2P", weights: ["400"], styles: ["normal"] },
   { name: "Alex Brush", weights: ["400"], styles: ["normal"] },
   { name: "Montserrat", weights: ["300", "400", "500", "600", "700", "800"], styles: ["normal"] },
-  { name: "Cinzel", weights: ["400", "600"], styles: ["normal"] },
+  { name: "Cinzel", weights: ["400", "600", "700"], styles: ["normal"] },
   { name: "Pinyon Script", weights: ["400"], styles: ["normal"] },
   { name: "Public Sans", weights: ["300", "400", "500", "600", "700"], styles: ["normal"] },
   { name: "Baskervville", weights: ["400"], styles: ["normal"] },
@@ -30,6 +30,7 @@ const FAMILIES = [
   { name: "Mulish", weights: ["300", "400", "500", "600", "700"], styles: ["normal", "italic"] },
   { name: "WindSong", weights: ["400"], styles: ["normal"] },
   { name: "Cormorant", weights: ["300", "400", "500", "600"], styles: ["normal", "italic"] },
+  { name: "Cormorant SC", weights: ["400", "700"], styles: ["normal"] },
   { name: "Bitter", weights: ["300", "400", "500"], styles: ["normal", "italic"] },
   { name: "Allura", weights: ["400"], styles: ["normal"] },
   { name: "Parisienne", weights: ["400"], styles: ["normal"] },
@@ -44,6 +45,9 @@ const FAMILIES = [
   // are already vendored and carry the display/script roles)
   { name: "DM Mono", weights: ["400"], styles: ["normal"] },
   { name: "Jost", weights: ["400", "500", "600"], styles: ["normal"] },
+  // Navy Love: navy/ivory stationery — tracked small-caps labels + a tiny
+  // functional caption face.
+  { name: "Josefin Sans", weights: ["400", "700"], styles: ["normal"] },
 ];
 
 function cssUrl(f) {

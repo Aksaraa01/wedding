@@ -299,6 +299,12 @@
     "style": "normal",
     "bytes": 25888
   },
+  "cinzel-700.woff2": {
+    "family": "Cinzel",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 25888
+  },
   "pinyonscript-400.woff2": {
     "family": "Pinyon Script",
     "weight": "400",
@@ -563,6 +569,18 @@
     "style": "normal",
     "bytes": 35280
   },
+  "cormorantsc-400.woff2": {
+    "family": "Cormorant SC",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 20832
+  },
+  "cormorantsc-700.woff2": {
+    "family": "Cormorant SC",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 20328
+  },
   "bitter-300-italic.woff2": {
     "family": "Bitter",
     "weight": "300",
@@ -730,5 +748,17 @@
     "weight": "600",
     "style": "normal",
     "bytes": 26588
+  },
+  "josefinsans-400.woff2": {
+    "family": "Josefin Sans",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 28676
+  },
+  "josefinsans-700.woff2": {
+    "family": "Josefin Sans",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 28676
   }
 }

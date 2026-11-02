@@ -1830,3 +1830,64 @@ DEMO_PROPS_BY_CODE["cinnabar-seal"] = {
       "Merupakan suatu kebahagiaan bagi kami apabila Anda berkenan hadir dan memberikan doa restu. Terima kasih telah menjadi bagian dari cerita kami.",
   },
 }
+
+DEMO_PROPS_BY_CODE["navy-love"] = {
+  ...DEMO_PROPS_BY_CODE["sandhya"],
+  slug: "demo",
+  display_name: "#AlbarnFaye2027",
+  estimated_wedding_date: "2027-04-17",
+  sessions: (DEMO_PROPS_BY_CODE["sandhya"].sessions || []).map((session) => ({
+    ...session,
+    date: "2027-04-17",
+  })),
+  cover_photos: [`${DE}/cover-1.webp`, `${DE}/cover-3.webp`, `${DE}/cover-5.webp`],
+  opening_title: "Together with their families",
+  opening_description:
+    "With grateful hearts we invite you to share the beginning of our forever. Your presence and your blessings would mean the world to us.",
+  rundown: [
+    { time: "10:00 AM", description: "Holy Matrimony" },
+    { time: "11:30 AM", description: "Cocktail Hour" },
+    { time: "1:00 PM", description: "Reception" },
+    { time: "2:00 PM", description: "Dinner" },
+    { time: "4:00 PM", description: "Party" },
+  ],
+  dresscode: {
+    title: "Formal Attire Requested",
+    description:
+      "We kindly invite our guests to dress formally in these tones, so the frames we keep from the day sit together.",
+    colors: [
+      { hex: "#f6f1e7", name: "Ivory" },
+      { hex: "#fbf8f1", name: "Pearl" },
+      { hex: "#7d8fa0", name: "Slate" },
+      { hex: "#4c6072", name: "Steel" },
+      { hex: "#172a3a", name: "Navy" },
+    ],
+  },
+  template_content: {
+    ...DEMO_PROPS_BY_CODE["sandhya"].template_content,
+    welcome_invite: "Together with their families",
+    card_invite: "invite you to celebrate their marriage",
+    music_caption: "Our favourite song, the soundtrack to our story",
+    story_intro:
+      "Every love story begins with a simple hello. Ours grew through laughter, adventures, and the little moments that became everything.",
+    events_intro: "Ceremony and reception, both a short walk from the lake.",
+    profiles_intro: "The two people this day belongs to.",
+    rundown_intro: "How the afternoon will unfold.",
+    gallery_title: "Our Moments",
+    gallery_intro: "A few of the frames we keep coming back to.",
+    video_title: "Our Film",
+    film_eyebrow: "A Film",
+    video_intro: "Two minutes of the day we keep replaying.",
+    gift_intro_title: "Wedding Gift",
+    gift_lede: "Your presence is the greatest gift of all",
+    gift_intro_description:
+      "If you would like to send a token of love, the details are below. Thank you for your kindness.",
+    wishes_title: "Wishes",
+    wishes_intro:
+      "Nothing would make us happier than celebrating this day surrounded by the people we love. Leave us a wish.",
+    inviting_intro: "Together with the families who share this invitation.",
+    closing_message:
+      "It is an honour and a joy to have you with us. Thank you for being part of our story.",
+    cover_apology: "",
+  },
+}
