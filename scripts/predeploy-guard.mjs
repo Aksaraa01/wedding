@@ -162,6 +162,18 @@ ok(`all ${codes.length} registered templates present in bundle`)
 const buildId = readFileSync(".next/standalone/.next/BUILD_ID", "utf8").trim()
 ok(`BUILD_ID ${buildId} — safe to rsync`)
 
+// ---------- 3b. Material Symbols subset ----------
+// A used-but-unsubset icon renders as a blank glyph in production. Cheap local
+// grep, no network.
+try {
+  const out = execSync("node scripts/check-material-icons.mjs 2>&1 || true", { encoding: "utf8" })
+  const line = out.trim().split("\n").pop() || ""
+  if (out.includes("✗")) fail(`Material Symbols subset is missing icons:\n${out}`)
+  ok(line)
+} catch {
+  console.warn("! could not check the Material Symbols subset")
+}
+
 // ---------- 4. media budget (report only) ----------
 // Every template's art is served straight from the box, whose measured egress is
 // ~4 Mbps in total. This prints the offenders on every deploy so the growth is
