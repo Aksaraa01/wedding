@@ -119,6 +119,38 @@ export function toTransformedUrl(
   return `${base}${OBJECT_MARKER}${thumbPath}`
 }
 
+// Guest/preview rendering: swap couple media for the pre-generated WebP
+// derivatives (thumbs/400|800|1200). `storageUrl` already knows the widths per
+// path, so unsupported types and paths pass through untouched. Values may be a
+// URL, an array (possibly nested), or a JSON-encoded string — the shape is
+// preserved because templates feed both `flattenPhotos()` and CSS backgrounds.
+// NOT used by `buildProfileFields` (the WP manifest must sideload the originals).
+export function thumbUrl(value: unknown, width: number): unknown {
+  if (typeof value === "string") {
+    const s = value.trim()
+    if (!s) return value
+    if (s.startsWith("[") || s.startsWith("{")) {
+      try {
+        return JSON.stringify(thumbUrl(JSON.parse(s), width))
+      } catch {
+        return value
+      }
+    }
+    return toTransformedUrl(s, { width })
+  }
+  if (Array.isArray(value)) return value.map((v) => thumbUrl(v, width))
+  return value
+}
+
+export function thumbStoryImages(stories: unknown, width = 800): unknown {
+  if (!Array.isArray(stories)) return stories
+  return stories.map((story) =>
+    story && typeof story === "object" && "image_url" in story
+      ? { ...(story as Record<string, unknown>), image_url: thumbUrl((story as Record<string, unknown>).image_url, width) }
+      : story
+  )
+}
+
 // OG/social preview: crawlers fetch this per share, so serve the 1200w
 // derivative instead of the multi-MB original. Dedicated og variants pass
 // through untouched — re-encoding them would only waste storage.

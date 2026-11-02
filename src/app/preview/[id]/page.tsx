@@ -2,6 +2,7 @@ import { supabaseAdmin } from "@/lib/supabase"
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { getTemplateComponent } from "@/components/templates"
+import { thumbUrl, thumbStoryImages } from "@/lib/storageUrl"
 import { getRowGates, getFeatureIncluded } from "@/lib/featureGates"
 import { cachedRead } from "@/lib/refCache"
 import { ASSETS } from "@/lib/assets"
@@ -72,15 +73,15 @@ export default async function CouplePreview({ params }: { params: Promise<{ id: 
       estimated_wedding_date={profile.estimated_wedding_date}
       slug={profile.slug || ""}
       guest_name="Tamu Undangan"
-      couple_illustration_url={profile.couple_illustration_url || undefined}
-      cover_photos={profile.cover_photos || undefined}
+      couple_illustration_url={(thumbUrl(profile.couple_illustration_url, 800) as string) || undefined}
+      cover_photos={(thumbUrl(profile.cover_photos, 1200) as typeof profile.cover_photos) || undefined}
       couple_initials={profile.couple_initials || undefined}
       display_name={profile.display_name || undefined}
       grayscale={profile.grayscale || undefined}
       groom_full_name={profile.groom_full_name || undefined}
       bride_full_name={profile.bride_full_name || undefined}
-      groom_photo_url={profile.groom_photo_url || undefined}
-      bride_photo_url={profile.bride_photo_url || undefined}
+      groom_photo_url={(thumbUrl(profile.groom_photo_url, 800) as typeof profile.groom_photo_url) || undefined}
+      bride_photo_url={(thumbUrl(profile.bride_photo_url, 800) as typeof profile.bride_photo_url) || undefined}
       groom_parents={profile.groom_parents || undefined}
       bride_parents={profile.bride_parents || undefined}
       groom_instagram={profile.groom_instagram || undefined}
@@ -101,8 +102,8 @@ export default async function CouplePreview({ params }: { params: Promise<{ id: 
       sessions={profile.sessions || undefined}
       quote_text={profile.quote_text || undefined}
       quote_source={profile.quote_source || undefined}
-      stories={rowGates.story.included ? profile.stories || undefined : undefined}
-      gallery_photos={profile.gallery_photos || undefined}
+      stories={rowGates.story.included ? (thumbStoryImages(profile.stories) as typeof profile.stories) || undefined : undefined}
+      gallery_photos={(thumbUrl(profile.gallery_photos, 800) as typeof profile.gallery_photos) || undefined}
       gift_accounts={giftAccounts.length > 0 ? giftAccounts : undefined}
       gift_address={rowGates.gift_address.included ? giftAddress : undefined}
       gift_address_name={giftAddressName || undefined}
