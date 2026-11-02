@@ -301,7 +301,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   const [opening, setOpening] = useState(false)
   const [namesIn, setNamesIn] = useState(false)
   const [buffering, setBuffering] = useState(false)
-  const [connectionOk, setConnectionOk] = useState(true)
+  const [saveData, setSaveData] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [lightbox, setLightbox] = useState<{ photos: string[]; index: number } | null>(null)
   const [giftTab, setGiftTab] = useState<"accounts" | "address">("accounts")
@@ -519,12 +519,12 @@ export default function EmbroideredGarden(profile: TemplateProps) {
     })
   }, [hasTrack])
 
+  // Only an explicit data-saver request suppresses the preload. `effectiveType`
+  // is not trustworthy (browsers report 2G on fast links), and demoting to
+  // `metadata` is what made a 3G guest wait at the gate instead of pressing play.
   useEffect(() => {
-    const conn = (navigator as Navigator & {
-      connection?: { saveData?: boolean; effectiveType?: string }
-    }).connection
-    if (!conn) return
-    if (conn.saveData || /(^|-)2g$|^3g$/.test(conn.effectiveType || "")) setConnectionOk(false)
+    const conn = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection
+    if (conn?.saveData) setSaveData(true)
   }, [])
 
   // Never leave the interval/listeners behind if the preview unmounts mid-film.
@@ -1229,7 +1229,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
             poster={ART_DOOR_POSTER}
             muted
             playsInline
-            preload={connectionOk ? "auto" : "metadata"}
+            preload={saveData ? "metadata" : "auto"}
           />
 
           {/* The door film ships with the reference couple's monogram painted
