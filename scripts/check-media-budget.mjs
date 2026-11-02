@@ -75,8 +75,10 @@ for (const code of templates) {
   }
 
   for (const video of videos) {
+    // Quality-first decision (2026-11-02): template films are never re-encoded
+    // and never trimmed, so video size is reported, not enforced.
     if (video.size > LIMITS.videoFailKB * 1024) {
-      fails.push(`${video.file} is ${kb(video.size)} KB (video limit ${LIMITS.videoFailKB} KB)`)
+      warn.push(`${video.file} is ${kb(video.size)} KB (video, informational: no re-encode/trim allowed)`)
     }
     const order = mp4AtomOrder(join(ROOT, video.file))
     if (!order.ok) {

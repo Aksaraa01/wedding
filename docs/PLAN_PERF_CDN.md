@@ -44,8 +44,10 @@ dari edge, dan lonjakan tamu saat acara tidak lagi menghabiskan uplink VPS.
 
 ## 1. Prinsip
 
-1. **Tidak menurunkan kualitas** yang terlihat. Setiap re-encode video/gambar
-   harus lolos perbandingan (SSIM ≥ 0,98 / A-B screenshot) sebelum dipakai.
+1. **Tidak menurunkan kualitas** yang terlihat. **Keputusan klien 2026-11-02:
+   video template tidak di-re-encode dan tidak dipotong durasinya.** Encode ulang
+   dan trim (`-c copy`) dibatalkan; byte video tetap apa adanya. Percepatan
+   video hanya boleh datang dari CDN (Fase 2), bukan dari mengubah file.
 2. **Satu perubahan = satu deploy**, supaya rollback presisi.
 3. **Additive & reversible**: tidak menghapus aset lama sampai 30 hari setelah
    cutover; tidak menyentuh data yang tidak perlu.
@@ -170,30 +172,26 @@ encode zstd gzip br
 (urutan preferensi; `br` untuk browser modern). HTML saat ini hanya gzip 12 KB →
 brotli ±9 KB. Kecil, tapi gratis dan menyentuh semua respons.
 
-### 3.4 Video cover
+### 3.4 Video cover — DIBATALKAN
 
-Kandidat (diurut ukuran): `embroidered-garden/cover-door.mp4` (2,4 MB),
-`lunar-blossom/opening.mp4` (5,3 MB), `piano-garden/opening-garden.mp4` (4,1 MB),
-`altar-garden` (3,8 MB), `adat-*` (2,6–3,1 MB), `lace/opening.mp4` (1,9 MB).
+**Keputusan klien 2026-11-02: quality-first.** Tidak ada re-encode dan tidak ada
+pemotongan durasi. Byte video tidak diubah sama sekali.
 
-Prosedur (tidak boleh menurunkan kualitas yang terlihat):
+Alasan teknis yang mendukung keputusan ini (hasil uji kandidat, lihat
+`docs/PERF_BASELINE.md`):
 
-```bash
-# 1) encode kandidat 720p, kualitas tinggi
-ffmpeg -i in.mp4 -c:v libx264 -crf 23 -preset slow -vf scale=720:-2 \
-       -movflags +faststart -an out.mp4
-# 2) ukur kemiripan
-ffmpeg -i in.mp4 -i out.mp4 -lavfi ssim -f null -   # target SSIM >= 0.98
-# 3) A/B di HP (frame yang sama pada 0s/3s/6s/9s)
-```
+- Sumber sudah efisien: re-encode CRF 26 pada `adat-*` (540×960, 20 s)
+  menghasilkan 3,2–3,6 MB **lebih besar** dari aslinya (2,7–3,1 MB).
+- Hanya 3 file yang lolos SSIM ≥ 0,98 dengan hasil lebih kecil, dan semuanya
+  tetap lossy: `adat-jawa/assets/opening.mp4` (−74%, SSIM 0,9835),
+  `lunar-blossom/opening.mp4` (−74%, SSIM 0,9831), `lace/opening.mp4`
+  (−18%, SSIM 0,9810). Ketiganya **tidak dipakai**.
 
-Kalau SSIM < 0,98 **atau** hasil A/B terlihat beda → pertahankan original dan
-catat di `docs/PERF_BASELINE.md`. Jalankan `node scripts/mp4-faststart.mjs`
-untuk setiap hasil, lalu bump `?v=` pada URL di komponen.
+Konsekuensi: penghematan byte video = 0. Percepatan video bergantung pada
+cache edge Cloudflare (Fase 2), yang tidak mengubah file sama sekali.
 
-Target: tidak ada video cover >1,2 MB.
-
-**Acceptance:** semua video cover ≤1,2 MB, SSIM ≥0,98, tidak ada regresi visual.
+Budget media karena itu **informasional** untuk video: file di atas 1,2 MB
+dilaporkan sebagai warning, bukan pelanggaran.
 
 ### 3.5 Gambar above-the-fold
 
