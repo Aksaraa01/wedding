@@ -1,0 +1,2220 @@
+/* Boarding Pass — a travel document as an invitation.
+   Paper + ink, no raster ornament. Scoped entirely under .bp-root. */
+
+.bp-root {
+  --bp-paper: #fffcf6;
+  --bp-cream: #f3ede2;
+  --bp-teal: #1f5a60;
+  --bp-teal-deep: #163f44;
+  --bp-mint: #bfd6d0;
+  --bp-ink: #1d2a2d;
+  --bp-muted: rgba(29, 42, 45, 0.55);
+  --bp-muted-2: rgba(29, 42, 45, 0.68);
+  --bp-hair: rgba(31, 90, 96, 0.22);
+  --bp-shadow: 0 16px 34px rgba(29, 42, 45, 0.14);
+  --bp-dot: rgba(31, 90, 96, 0.32);
+
+  --bp-mono: var(--font-dmmono, "DM Mono", "SFMono-Regular", ui-monospace, monospace);
+  --bp-serif: var(--font-dmserif, "DM Serif Display", Georgia, serif);
+  --bp-script: var(--font-caveat, "Caveat", cursive);
+  --bp-body: var(--font-jost, "Jost", system-ui, sans-serif);
+
+  position: relative;
+  width: 100%;
+  background: var(--bp-cream);
+  color: var(--bp-ink);
+  font-family: var(--bp-body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* the page ground is a faint passport-dot pattern */
+.bp-root::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle at 0 0, rgba(31, 90, 96, 0.07) 1px, transparent 1px);
+  background-size: 9px 9px;
+  opacity: 0.7;
+  display: none;
+}
+
+.bp-col {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  background: var(--bp-cream);
+  overflow: clip;
+}
+
+@media (min-width: 900px) {
+  .bp-root::before {
+    display: block;
+  }
+}
+
+html:has(.bp-root.is-locked),
+body:has(.bp-root.is-locked) {
+  overflow: hidden;
+  height: 100%;
+}
+
+.bp-root * {
+  box-sizing: border-box;
+}
+
+/* ------------------------------------------------------------------ atoms */
+
+.bp-mono {
+  font-family: var(--bp-mono);
+  font-size: 8.5px;
+  font-weight: 400;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--bp-muted);
+}
+
+.bp-mono--teal {
+  color: var(--bp-teal);
+  letter-spacing: 2.6px;
+  font-size: 10px;
+}
+
+.bp-display {
+  margin: 0;
+  font-family: var(--bp-serif);
+  font-weight: 400;
+  line-height: 1.12;
+  color: var(--bp-ink);
+}
+
+.bp-script {
+  font-family: var(--bp-script);
+  font-weight: 400;
+  color: var(--bp-ink);
+}
+
+.bp-body {
+  margin: 0;
+  font-family: var(--bp-body);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.8;
+  color: var(--bp-muted-2);
+}
+
+.bp-body--tight {
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--bp-muted);
+}
+
+/* dotted "write here" rule — the reference's .tp-isian */
+.bp-fill {
+  border-bottom: 1.5px dotted var(--bp-dot);
+  padding-bottom: 3px;
+}
+
+.bp-hair {
+  display: block;
+  width: 100%;
+  height: 0;
+  border: 0;
+  border-top: 1.5px dashed rgba(31, 90, 96, 0.3);
+  margin: 0;
+}
+
+/* ------------------------------------------------------------------ cards */
+
+.bp-card {
+  position: relative;
+  background: var(--bp-paper);
+  border-radius: 16px;
+  border: 1px solid rgba(31, 90, 96, 0.12);
+  box-shadow: var(--bp-shadow);
+}
+
+.bp-section {
+  position: relative;
+  padding: 46px 22px;
+}
+
+.bp-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 22px;
+  text-align: center;
+}
+
+.bp-head--left {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.bp-title {
+  margin: 0;
+  font-family: var(--bp-serif);
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1.14;
+  color: var(--bp-ink);
+}
+
+.bp-subtitle {
+  margin: 0;
+  font-family: var(--bp-serif);
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--bp-muted-2);
+}
+
+/* --------------------------------------------------------------- buttons */
+
+.bp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--bp-teal);
+  box-shadow: inset 0 0 0 1.2px var(--bp-teal);
+  font-family: var(--bp-mono);
+  font-size: 9.5px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.bp-btn:hover {
+  background: var(--bp-teal);
+  color: var(--bp-paper);
+}
+
+.bp-btn--solid {
+  background: var(--bp-teal);
+  color: var(--bp-paper);
+  box-shadow: none;
+}
+
+.bp-btn--solid:hover {
+  background: var(--bp-teal-deep);
+  color: var(--bp-paper);
+}
+
+.bp-btn--onDark {
+  color: var(--bp-paper);
+  box-shadow: inset 0 0 0 1.2px rgba(191, 214, 208, 0.7);
+}
+
+.bp-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ============================================================ cover
+   The reference composition: the couple's photograph full-bleed, a teal wash
+   over it, and ONE paper boarding pass floating on top — a 338x402 top card at
+   (26,137) and a 338x154 stub at (26,539), with the photo still visible above
+   and below the ticket. Geometry below is the reference's own, expressed as a
+   percentage of the 390x844 canvas so it scales as one piece. */
+
+.bp-cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 390 / 844;
+  overflow: hidden;
+  background: var(--bp-teal-deep);
+  container-type: inline-size;
+}
+
+.bp-cover__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* .tp-sampul-redup */
+.bp-cover__wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    rgba(10, 30, 34, 0.3) 0%,
+    rgba(10, 30, 34, 0.06) 28%,
+    rgba(10, 30, 34, 0.08) 72%,
+    rgba(10, 30, 34, 0.4) 100%
+  );
+}
+
+/* the pass itself: two paper cards, notched where they meet */
+.bp-pass {
+  position: absolute;
+  left: 6.6667%;
+  width: 86.6667%;
+  background-color: var(--bp-paper);
+  color: var(--bp-ink);
+}
+
+.bp-pass--top {
+  top: 16.2322%;
+  height: 47.6303%;
+  padding: 5.64cqw 6.15cqw 0;
+  border-radius: 4.6cqw 4.6cqw 1.54cqw 1.54cqw;
+  /* notch at each bottom corner: transparent within 12px, paper beyond */
+  background-image:
+    repeating-radial-gradient(circle at 94% 10%, rgba(31, 90, 96, 0.055) 0 1px, transparent 1px 8px),
+    radial-gradient(circle at 0 100%, transparent 3.08cqw, var(--bp-paper) 3.21cqw),
+    radial-gradient(circle at 100% 100%, transparent 3.08cqw, var(--bp-paper) 3.21cqw);
+  background-size: 100% 78%, 51% 100%, 51% 100%;
+  background-position: 0 0, left top, right top;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 1.6cqw 2.3cqw rgba(8, 30, 34, 0.32));
+  display: flex;
+  flex-direction: column;
+}
+
+.bp-pass--stub {
+  top: 63.8626%;
+  height: 18.2464%;
+  padding: 4.6cqw 6.15cqw;
+  border-radius: 1.54cqw 1.54cqw 4.6cqw 4.6cqw;
+  /* perforation on the seam + a notch at each top corner */
+  background-image:
+    repeating-linear-gradient(90deg, rgba(31, 90, 96, 0.5) 0 6px, transparent 6px 12px),
+    radial-gradient(circle at 0 0, transparent 3.08cqw, var(--bp-paper) 3.21cqw),
+    radial-gradient(circle at 100% 0, transparent 3.08cqw, var(--bp-paper) 3.21cqw);
+  background-size: calc(100% - 9.2cqw) 1.5px, 51% 100%, 51% 100%;
+  background-position: 4.6cqw 0, left top, right top;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 1.2cqw 1.8cqw rgba(8, 30, 34, 0.24));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* micro type: the reference's printed field labels */
+.bp-micro {
+  font-family: var(--bp-mono);
+  font-size: 2.18cqw;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.46cqw;
+  text-transform: uppercase;
+  color: var(--bp-muted);
+}
+
+.bp-micro--teal {
+  color: var(--bp-teal);
+  font-size: 2.56cqw;
+  letter-spacing: 0.67cqw;
+}
+
+.bp-pass__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2cqw;
+}
+
+.bp-pass__rule {
+  display: block;
+  height: 1px;
+  margin: 3.6cqw 0 0;
+  background: rgba(29, 42, 45, 0.18);
+}
+
+.bp-pass__duo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2cqw;
+  margin-top: 4.1cqw;
+}
+
+.bp-pass__right {
+  text-align: right;
+}
+
+.bp-pass__names {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2cqw;
+  margin-top: 1.3cqw;
+}
+
+.bp-pass__name {
+  font-family: var(--bp-serif);
+  font-size: 7.69cqw;
+  line-height: 1.1;
+  color: var(--bp-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* the route: dashed line with an endpoint dot either side and "&" above */
+.bp-route {
+  position: relative;
+  height: 4.1cqw;
+  margin-top: 1.5cqw;
+}
+
+.bp-route::before {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 1.5px;
+  transform: translateY(-50%);
+  background:
+    radial-gradient(circle at 5px 50%, var(--bp-teal) 3.5px, transparent 4px),
+    radial-gradient(circle at calc(100% - 5px) 50%, var(--bp-teal) 3.5px, transparent 4px),
+    repeating-linear-gradient(90deg, rgba(31, 90, 96, 0.55) 0 5px, transparent 5px 10px) 12px 50% / calc(100% - 24px) 1.5px no-repeat;
+}
+
+.bp-route__amp {
+  position: absolute;
+  left: 50%;
+  top: -3.4cqw;
+  transform: translateX(-50%);
+  font-family: var(--bp-serif);
+  font-size: 4.87cqw;
+  line-height: 1;
+  color: var(--bp-teal);
+}
+
+.bp-pass__guest {
+  margin: 0.6cqw 0 0;
+  padding-bottom: 0.4cqw;
+  font-family: var(--bp-serif);
+  font-size: 3.9cqw;
+  line-height: 1.3;
+  color: var(--bp-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-bottom: 1.5px dotted var(--bp-dot);
+}
+
+.bp-pass__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2cqw;
+  margin-top: 0.8cqw;
+}
+
+.bp-pass__value {
+  font-family: var(--bp-mono);
+  font-size: 3.33cqw;
+  letter-spacing: 0.02em;
+  color: var(--bp-ink);
+  white-space: nowrap;
+}
+
+.bp-pass__script {
+  font-family: var(--bp-script);
+  font-size: 6.15cqw;
+  line-height: 1;
+  color: var(--bp-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+}
+
+.bp-pass__note {
+  margin: 3.4cqw 0 0;
+  font-family: var(--bp-body);
+  font-size: 2.82cqw;
+  line-height: 1.4;
+  text-align: center;
+  color: rgba(29, 42, 45, 0.58);
+}
+
+.bp-pass__barcode {
+  display: block;
+  width: 48.7%;
+  height: 5.2cqw;
+  opacity: 0.8;
+  background:
+    repeating-linear-gradient(90deg, var(--bp-ink) 0 2px, transparent 2px 5px, var(--bp-ink) 5px 6px, transparent 6px 9px),
+    repeating-linear-gradient(90deg, transparent 0 11px, var(--bp-ink) 11px 14px, transparent 14px 23px);
+}
+
+.bp-pass__center {
+  text-align: center;
+}
+
+.bp-pass__open {
+  width: 100%;
+  height: 8.7cqw;
+  font-size: 2.44cqw;
+  letter-spacing: 0.44cqw;
+}
+
+.bp-root.is-open .bp-cover {
+  display: none;
+}
+
+/* ============================================================ 2. hero
+   Reference: photograph, names stacked with an oversized "&", date, script
+   tagline, and the torn paper wave at the bottom. */
+
+.bp-hero {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 390 / 760;
+  overflow: hidden;
+  background: var(--bp-teal-deep);
+  container-type: inline-size;
+  text-align: center;
+  color: var(--bp-paper);
+}
+
+.bp-hero__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* .tp-selubung-senja */
+.bp-hero__wash {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    rgba(10, 30, 34, 0) 0%,
+    rgba(10, 30, 34, 0.05) 40%,
+    rgba(10, 30, 34, 0.42) 62%,
+    rgba(10, 30, 34, 0.58) 86%,
+    rgba(10, 30, 34, 0.5) 100%
+  );
+}
+
+.bp-hero__body {
+  position: relative;
+  z-index: 3;
+  padding: 10.2% 5% 0;
+}
+
+.bp-hero__kicker {
+  margin: 0;
+  font-family: var(--bp-mono);
+  font-size: 2.18cqw;
+  letter-spacing: 1.08cqw;
+  text-transform: uppercase;
+  color: rgba(255, 252, 246, 0.9);
+}
+
+.bp-hero__names {
+  margin: 2.8% 0 0;
+  font-family: var(--bp-serif);
+  font-size: 13.85cqw;
+  line-height: 1.08;
+  color: var(--bp-paper);
+  text-shadow: 0 0.2cqw 3.6cqw rgba(8, 30, 34, 0.45);
+}
+
+.bp-hero__amp {
+  display: block;
+  font-size: 8.7cqw;
+  line-height: 1;
+  color: rgba(255, 252, 246, 0.92);
+}
+
+.bp-hero__date {
+  margin: 6.6% 0 0;
+  font-family: var(--bp-mono);
+  font-size: 2.56cqw;
+  letter-spacing: 0.77cqw;
+  text-transform: uppercase;
+  color: var(--bp-paper);
+}
+
+.bp-hero__script {
+  margin: 3.2% 0 0;
+  font-family: var(--bp-script);
+  font-size: 5.64cqw;
+  color: rgba(255, 252, 246, 0.95);
+}
+
+/* .tp-ombak-bawah — the torn paper edge into the next section */
+.bp-hero__wave {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  height: 5.79%;
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 44' preserveAspectRatio='none'%3E%3Cpath d='M0 20 C 45 6 90 8 135 19 S 225 33 270 21 S 350 7 390 16' fill='none' stroke='%23ffffff' stroke-opacity='.55' stroke-width='2'/%3E%3Cpath d='M0 26 C 45 12 90 14 135 25 S 225 39 270 27 S 350 13 390 22 L 390 44 L 0 44 Z' fill='%23F3EDE2'/%3E%3C/svg%3E") center bottom / 100% 100% no-repeat;
+}
+
+/* ================================================= 3/4. salam hangat
+   Centred stack: kicker, greeting, paragraph, small wave, verse, source, and an
+   ornament in each bottom corner (the reference's palm/hibiscus art — redrawn
+   here as teal line art rather than vendoring stock clipart). */
+
+.bp-welcome {
+  position: relative;
+  container-type: inline-size;
+  padding: 9.5cqw 0 0;
+  overflow: hidden;
+  /* The reference canvas for this block is 390x590 — a full beat of whitespace
+     with the ornaments sitting at its bottom edge. aspect-ratio (not cqw) sizes
+     the element from its own width; cqw on the container itself would resolve
+     against the viewport. */
+  aspect-ratio: 390 / 500;
+}
+
+.bp-welcome__inner {
+  position: relative;
+  z-index: 2;
+  padding: 0 5.1cqw;
+  text-align: center;
+}
+
+.bp-welcome__kicker {
+  margin: 0;
+  font-family: var(--bp-mono);
+  font-size: 2.56cqw;
+  letter-spacing: 0.67cqw;
+  text-transform: uppercase;
+  color: var(--bp-teal);
+}
+
+.bp-welcome__greeting {
+  margin: 4.1cqw 0 0;
+  font-family: var(--bp-body);
+  font-size: 3.33cqw;
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--bp-ink);
+}
+
+.bp-welcome__body {
+  margin: 3.6cqw auto 0;
+  max-width: 82cqw;
+  font-family: var(--bp-body);
+  font-size: 3.33cqw;
+  line-height: 1.85;
+  color: rgba(29, 42, 45, 0.86);
+}
+
+/* .tp-gelombang */
+.bp-welcome__wave {
+  display: block;
+  width: 18.5cqw;
+  height: 3.08cqw;
+  margin: 6.4cqw auto 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 12'%3E%3Cpath d='M1 6 Q 7 1 13 6 T 25 6 T 37 6 T 49 6 T 61 6 T 71 6' fill='none' stroke='%231F5A60' stroke-opacity='.55' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E") center center / 100% 100% no-repeat;
+}
+
+.bp-welcome__verse {
+  margin: 7.7cqw auto 0;
+  max-width: 79.5cqw;
+  font-family: var(--bp-body);
+  font-size: 3.33cqw;
+  font-style: italic;
+  line-height: 1.85;
+  color: rgba(29, 42, 45, 0.78);
+}
+
+.bp-welcome__source {
+  margin: 4.1cqw 0 0;
+  font-family: var(--bp-mono);
+  font-size: 2.18cqw;
+  letter-spacing: 0.61cqw;
+  text-transform: uppercase;
+  color: var(--bp-teal);
+}
+
+.bp-welcome__date {
+  margin: 3.1cqw 0 0;
+  font-family: var(--bp-mono);
+  font-size: 2.18cqw;
+  letter-spacing: 0.46cqw;
+  text-transform: uppercase;
+  color: var(--bp-muted);
+}
+
+/* the two corner ornaments */
+.bp-welcome__sprig {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  color: rgba(31, 90, 96, 0.5);
+}
+
+.bp-welcome__sprig--l {
+  left: -3.6cqw;
+  bottom: 0;
+  width: 26.7cqw;
+}
+
+.bp-welcome__sprig--r {
+  right: 0;
+  bottom: 2.6cqw;
+  width: 28.7cqw;
+  transform: scaleX(-1);
+}
+
+.bp-welcome__tail {
+  height: 9cqw;
+}
+
+/* ------------------------------------------- 5. daftar penumpang (passport)
+   Reference: two 346x300 passport cards at (22,136) and (22,504) with a "&"
+   between them. Card contents sit at fixed slots: stamp label row, a 112x142
+   portrait, the field stack, the MRZ line and the Instagram pill. */
+
+.bp-manifest {
+  position: relative;
+  container-type: inline-size;
+  aspect-ratio: 390 / 840;
+}
+
+.bp-manifest__head {
+  position: absolute;
+  left: 0;
+  top: 5.7%;
+  width: 100%;
+  text-align: center;
+}
+
+.bp-manifest__amp {
+  position: absolute;
+  left: 43.6%;
+  top: 53.1%;
+  width: 12.8%;
+  text-align: center;
+  font-family: var(--bp-serif);
+  font-size: 4.1cqw;
+  color: var(--bp-teal);
+}
+
+.bp-passport {
+  position: absolute;
+  left: 5.641%;
+  width: 88.718%;
+  height: 35.714%;
+  /* .tp-paspor: paper plus a dot pattern radiating from the top-right */
+  background-color: var(--bp-paper);
+  background-image: repeating-radial-gradient(circle at 100% 0, rgba(31, 90, 96, 0.05) 0 1px, transparent 1px 9px);
+  border: 1px solid rgba(31, 90, 96, 0.12);
+  border-radius: 4.1cqw;
+  box-shadow: 0 1.2cqw 2.6cqw rgba(29, 42, 45, 0.08);
+  container-type: inline-size;
+}
+
+.bp-passport--a { top: 16.19%; }
+.bp-passport--b { top: 60%; }
+
+.bp-passport__no {
+  position: absolute;
+  left: 5.78%;
+  top: 6%;
+  font-family: var(--bp-mono);
+  font-size: 2.46cqw;
+  letter-spacing: 0.75cqw;
+  text-transform: uppercase;
+  color: var(--bp-teal);
+}
+
+.bp-passport__role {
+  position: absolute;
+  right: 5.78%;
+  top: 6.33%;
+  font-family: var(--bp-mono);
+  font-size: 2.46cqw;
+  letter-spacing: 0.52cqw;
+  text-transform: uppercase;
+  color: var(--bp-muted);
+}
+
+.bp-passport__rule {
+  position: absolute;
+  left: 5.78%;
+  top: 13.33%;   /* 40px into a 300px card */
+  width: 88.44%;
+  height: 1px;
+  background: rgba(29, 42, 45, 0.16);
+}
+
+.bp-passport__photo {
+  position: absolute;
+  left: 5.78%;
+  top: 18.67%;
+  width: 32.37%;
+  height: 47.33%;
+  overflow: hidden;
+  border: 1px solid rgba(29, 42, 45, 0.16);
+  background: #e9e5de;
+}
+
+.bp-passport__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bp-passport__label {
+  position: absolute;
+  left: 42.77%;
+  font-family: var(--bp-mono);
+  font-size: 2.46cqw;
+  letter-spacing: 0.52cqw;
+  text-transform: uppercase;
+  color: var(--bp-muted);
+}
+
+.bp-passport__name {
+  position: absolute;
+  left: 42.77%;
+  top: 24%;
+  width: 51%;
+  margin: 0;
+  font-family: var(--bp-serif);
+  font-size: 6.36cqw;
+  line-height: 1.15;
+  color: var(--bp-ink);
+}
+
+.bp-passport__parents {
+  position: absolute;
+  left: 42.77%;
+  top: 44.67%;
+  width: 51%;
+  margin: 0;
+  font-family: var(--bp-body);
+  font-size: 3.32cqw;
+  line-height: 1.4;
+  color: rgba(29, 42, 45, 0.9);
+}
+
+.bp-passport__mrz {
+  position: absolute;
+  left: 5.78%;
+  top: 70.67%;
+  width: 88.44%;
+  margin: 0;
+  font-family: var(--bp-mono);
+  font-size: 2.6cqw;
+  letter-spacing: 0.46cqw;
+  color: rgba(29, 42, 45, 0.42);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.bp-passport__ig {
+  position: absolute;
+  left: 5.78%;
+  top: 81.33%;
+  width: 38.15%;
+  height: 10.5%;
+  font-size: 2.46cqw;
+  letter-spacing: 0.52cqw;
+}
+
+/* ------------------------------------------- 6. kisah kami (stamp + postmark)
+   Reference: each beat is a 150x190 postage stamp holding the photograph, with
+   a 120x64 postmark overlapping its corner and the year inside the ring. The
+   three entries alternate left / right. */
+
+.bp-storylist {
+  position: relative;
+  container-type: inline-size;
+  aspect-ratio: 390 / 1000;
+}
+
+.bp-storylist__head {
+  position: absolute;
+  left: 0;
+  top: 4.8%;
+  width: 100%;
+  text-align: center;
+}
+
+.bp-storylist__orn {
+  position: absolute;
+  left: -7.7%;
+  top: 1.6%;
+  width: 21.5%;
+  transform: rotate(-12deg);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.bp-stamp {
+  position: absolute;
+  width: 38.46%;
+  height: 19%;
+  /* .tp-perangko — the punched stamp edge: cream dots around white paper */
+  background:
+    radial-gradient(circle at 5px 5px, var(--bp-cream) 3px, transparent 3.4px) -5px -5px / 10px 10px,
+    #fff;
+  box-shadow: 0 0.4cqw 1.4cqw rgba(29, 42, 45, 0.12);
+}
+
+.bp-stamp--a { left: 6.67%; top: 15%; transform: rotate(-3.5deg); }
+.bp-stamp--b { left: 54.87%; top: 42%; transform: rotate(3deg); }
+.bp-stamp--c { left: 6.67%; top: 69%; transform: rotate(-2.5deg); }
+
+/* perforated postage frame */
+.bp-stamp__frame {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  box-shadow: 0 0.4cqw 1.4cqw rgba(29, 42, 45, 0.1);
+  -webkit-mask:
+    radial-gradient(circle at 5px 5px, transparent 3px, #000 3.4px) -5px -5px / 10px 10px,
+    linear-gradient(#000 0 0) 4px 4px / calc(100% - 8px) calc(100% - 8px) no-repeat,
+    radial-gradient(circle at 5px 5px, #000 3px, transparent 3.4px) 0 0 / 10px 10px;
+  mask:
+    radial-gradient(circle at 5px 5px, #000 3px, transparent 3.4px) 0 0 / 10px 10px;
+}
+
+.bp-stamp__photo {
+  position: absolute;
+  inset: 4.7%;
+  width: 90.6%;
+  height: 90.6%;
+  object-fit: cover;
+  display: block;
+}
+
+/* .tp-cap — the reference's postmark: double ring over three wavy lines */
+.bp-stamp__postmark {
+  position: absolute;
+  width: 80%;
+  height: 33.7%;
+  opacity: 0.88;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+}
+
+.bp-stamp__postmark--l {
+  left: 16%;
+  top: -8.4%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 64'%3E%3Ccircle cx='88' cy='32' r='27' fill='none' stroke='%231F5A60' stroke-width='1.6'/%3E%3Ccircle cx='88' cy='32' r='21.5' fill='none' stroke='%231F5A60' stroke-width='.8'/%3E%3Cpath d='M2 20 q7 -5 14 0 t14 0 t14 0 t14 0 M2 32 q7 -5 14 0 t14 0 t14 0 t14 0 M2 44 q7 -5 14 0 t14 0 t14 0 t14 0' fill='none' stroke='%231F5A60' stroke-width='1.4'/%3E%3C/svg%3E");
+}
+
+.bp-stamp__postmark--r {
+  left: -10%;
+  top: -8.4%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 64'%3E%3Ccircle cx='32' cy='32' r='27' fill='none' stroke='%231F5A60' stroke-width='1.6'/%3E%3Ccircle cx='32' cy='32' r='21.5' fill='none' stroke='%231F5A60' stroke-width='.8'/%3E%3Cpath d='M62 20 q7 -5 14 0 t14 0 t14 0 t14 0 M62 32 q7 -5 14 0 t14 0 t14 0 t14 0 M62 44 q7 -5 14 0 t14 0 t14 0 t14 0' fill='none' stroke='%231F5A60' stroke-width='1.4'/%3E%3C/svg%3E");
+}
+
+/* the year sits inside the ring: 88/120 or 32/120 of the postmark width */
+.bp-stamp__year {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--bp-mono);
+  font-size: 2.6cqw;
+  letter-spacing: 0.26cqw;
+  color: var(--bp-teal);
+}
+
+.bp-stamp__postmark--l .bp-stamp__year { left: 73.3%; }
+.bp-stamp__postmark--r .bp-stamp__year { left: 26.7%; }
+
+.bp-story__copy {
+  position: absolute;
+  width: 42%;
+}
+
+.bp-story__copy--a { left: 52.3%; top: 16.2%; }
+.bp-story__copy--b { left: 6.15%; top: 43.2%; }
+.bp-story__copy--c { left: 52.3%; top: 70.2%; }
+
+.bp-story__title {
+  margin: 0;
+  font-family: var(--bp-serif);
+  font-size: 5.13cqw;
+  line-height: 1.2;
+  color: var(--bp-ink);
+}
+
+.bp-story__text {
+  margin: 2.4cqw 0 0;
+  font-family: var(--bp-body);
+  font-size: 3.08cqw;
+  line-height: 1.7;
+  color: rgba(29, 42, 45, 0.84);
+}
+
+.bp-storylist__end {
+  position: absolute;
+  left: 5.1%;
+  top: 93%;
+  width: 89.7%;
+  margin: 0;
+  text-align: center;
+  font-family: var(--bp-script);
+  font-size: 5.13cqw;
+  color: var(--bp-teal);
+}
+
+/* ------------------------------------------- 7. itinerary (flight cards)
+   Reference: a 354x290 card at (18,158) with a vertical perforation at 68.6%,
+   a stub on the right holding the ornament, gate, seat and a mini barcode, and
+   two actions under the copy (map + calendar). */
+
+.bp-flights {
+  position: relative;
+  container-type: inline-size;
+}
+
+.bp-flights__head {
+  position: absolute;
+  left: 0;
+  top: 12.3cqw;   /* 48px on the 390 canvas, width-relative */
+  width: 100%;
+  text-align: center;
+}
+
+.bp-flight {
+  position: absolute;
+  left: 4.615%;
+  width: 90.769%;
+  height: 74.36cqw;   /* 290px on the 390 canvas, width-relative */
+  display: grid;
+  grid-template-columns: 1fr 30.5%;
+  background: var(--bp-paper);
+  border-radius: 4.1cqw;
+  box-shadow: 0 1.2cqw 2.4cqw rgba(29, 42, 45, 0.1);
+}
+
+.bp-flight--a { top: 40.5cqw; }
+.bp-flight--b { top: 123cqw; }
+
+.bp-flight__main {
+  padding: 4.6% 4% 4.5% 6.2%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.bp-flight__no {
+  margin: 0;
+  font-family: var(--bp-mono);
+  font-size: 2.46cqw;
+  letter-spacing: 0.73cqw;
+  text-transform: uppercase;
+  color: var(--bp-teal);
+}
+
+.bp-flight__name {
+  margin: 1.6cqw 0 0;
+  font-family: var(--bp-serif);
+  font-size: 7.18cqw;   /* 28px */
+  line-height: 1.2;
+  color: var(--bp-ink);
+}
+
+.bp-flight__date {
+  margin: 3.6cqw 0 0;
+  font-family: var(--bp-body);
+  font-size: 3.33cqw;
+  color: var(--bp-ink);
+}
+
+.bp-flight__time {
+  margin: 1.4cqw 0 0;
+  font-family: var(--bp-mono);
+  font-size: 3.08cqw;
+  color: var(--bp-teal);
+}
+
+.bp-flight__venue {
+  margin: 3.4cqw 0 0;
+  font-family: var(--bp-body);
+  font-size: 3.08cqw;
+  line-height: 1.45;
+  color: rgba(29, 42, 45, 0.88);
+}
+
+.bp-flight__actions {
+  display: flex;
+  gap: 2.05cqw;
+  margin-top: auto;
+  padding-top: 3.1cqw;
+}
+
+.bp-flight__actions .bp-btn {
+  height: 8.7cqw;
+  min-height: 30px;
+  font-size: 2.18cqw;
+  letter-spacing: 0.46cqw;
+  padding: 0 3.1cqw;
+}
+
+/* the stub */
+.bp-flight__stub {
+  position: relative;
+  border-left: 1.5px dashed rgba(31, 90, 96, 0.28);
+  background: rgba(31, 90, 96, 0.03);
+  border-radius: 0 4.1cqw 4.1cqw 0;
+}
+
+.bp-flight__orn {
+  position: absolute;
+  right: 8%;
+  top: 10.3%;
+  width: 62%;
+  opacity: 0.9;
+}
+
+.bp-flight__stubLabel {
+  position: absolute;
+  right: 8%;
+  width: 60%;
+  text-align: center;
+  font-family: var(--bp-mono);
+  font-size: 2.18cqw;
+  letter-spacing: 0.46cqw;
+  text-transform: uppercase;
+  color: var(--bp-muted);
+}
+
+.bp-flight__stubValue {
+  position: absolute;
+  right: 8%;
+  width: 60%;
+  text-align: center;
+  font-family: var(--bp-serif);  /* DM Serif Display, as in the reference */
+  font-size: 5.13cqw;            /* 20px on the 390 canvas */
+  line-height: 1.1;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--bp-teal);
+}
+
+.bp-flight__stubValue--soft {
+  font-size: 4.35cqw;            /* 17px */
+  color: var(--bp-ink);
+}
+
+/* the tear: a half-circle punched at each end of the dashed perforation */
+.bp-flight__stub::before,
+.bp-flight__stub::after {
+  content: "";
+  position: absolute;
+  left: -2.4cqw;
+  width: 4.8cqw;
+  height: 4.8cqw;
+  border-radius: 50%;
+  background: var(--bp-cream);
+}
+
+.bp-flight__stub::before { top: -2.4cqw; }
+.bp-flight__stub::after { bottom: -2.4cqw; }
+
+.bp-flight__barcode {
+  position: absolute;
+  right: 18%;
+  bottom: 6.5%;
+  width: 52%;
+  height: 10.3%;
+  opacity: 0.55;
+  background:
+    repeating-linear-gradient(90deg, var(--bp-ink) 0 1.5px, transparent 1.5px 2.5px, var(--bp-ink) 2.5px 3.5px, transparent 3.5px 4.5px);
+}
+
+/* ------------------------------------- 8. papan keberangkatan (departure board)
+   Reference: a 354x420 teal board at (18,40) on the cream page, with the
+   split-flap clock, a destination/status pair and the calendar action. */
+
+.bp-countdown {
+  position: relative;
+  container-type: inline-size;
+  aspect-ratio: 390 / 460;
+  padding: 10.26% 4.6% 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.bp-board {
+  position: relative;
+  flex: 1;
+  border-radius: 4.6cqw;
+  background:
+    radial-gradient(circle at 14px 14px, rgba(191, 214, 208, 0.32) 2.4px, transparent 3px),
+    radial-gradient(circle at calc(100% - 14px) 14px, rgba(191, 214, 208, 0.32) 2.4px, transparent 3px),
+    radial-gradient(circle at 14px calc(100% - 14px), rgba(191, 214, 208, 0.32) 2.4px, transparent 3px),
+    radial-gradient(circle at calc(100% - 14px) calc(100% - 14px), rgba(191, 214, 208, 0.32) 2.4px, transparent 3px),
+    var(--bp-teal-deep);
+  box-shadow: 0 5.1cqw 10cqw rgba(22, 63, 68, 0.26), inset 0 0 0 1px rgba(191, 214, 208, 0.12);
+  padding: 6.8% 4% 0;
+  text-align: center;
+  color: var(--bp-paper);
+  display: flex;
+  flex-direction: column;
+}
+
+.bp-board__label {
+  margin: 0;
+  font-family: var(--bp-mono);
+  font-size: 2.18cqw;
+  letter-spacing: 0.77cqw;
+  text-transform: uppercase;
+  color: rgb(191, 214, 208);
+}
+
+.bp-board__title {
+  margin: 1.4cqw 0 0;
+  font-family: var(--bp-serif);
+  font-size: 6.92cqw;
+  line-height: 1.15;
+  color: var(--bp-paper);
+}
+
+.bp-flaps {
+  display: flex;
+  justify-content: center;
+  gap: 1.6cqw;
+  margin-top: 11cqw;
+  padding: 0 0.6cqw;
+}
+
+.bp-flap {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 2cqw;
+}
+
+.bp-flap__digits {
+  display: block;
+  width: 100%;
+  padding: 2.3cqw 0.6cqw 2.05cqw;
+  border-radius: 1.8cqw;
+  font-family: var(--bp-mono);
+  /* 3-digit day counts must fit: size to the tile, not a fixed em */
+  font-size: 6.6cqw;
+  line-height: 1;
+  text-align: center;
+  color: var(--bp-paper);
+  background: linear-gradient(#1d565e 0 49%, #17474e 49% 51%, #21606a 51% 100%);
+  box-shadow: inset 0 -0.5cqw 0 rgba(0, 0, 0, 0.22), 0 0.5cqw 0 rgba(0, 0, 0, 0.14);
+}
+
+.bp-flap__label {
+  font-family: var(--bp-mono);
+  font-size: 2.05cqw;
+  letter-spacing: 0.51cqw;
+  text-transform: uppercase;
+  color: rgba(191, 214, 208, 0.8);
+}
+
+.bp-board__meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2cqw;
+  margin-top: 10.3cqw;
+  padding-top: 4.1cqw;
+  border-top: 1.5px dashed rgba(191, 214, 208, 0.28);
+  text-align: left;
+}
+
+.bp-board__metaLabel {
+  font-family: var(--bp-mono);
+  font-size: 2.05cqw;
+  letter-spacing: 0.46cqw;
+  text-transform: uppercase;
+  color: rgba(191, 214, 208, 0.8);
+}
+
+.bp-board__metaValue {
+  margin-top: 0.8cqw;
+  font-family: var(--bp-mono);
+  font-size: 3.59cqw;      /* 14px on the 390 canvas */
+  line-height: 1.4;
+  letter-spacing: 0.26cqw; /* 1px */
+  text-transform: uppercase;
+  color: var(--bp-paper);
+}
+
+.bp-board__actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 6.2cqw;
+  padding-top: 6.2cqw;
+  border-top: 1.5px dashed rgba(191, 214, 208, 0.28);
+}
+
+.bp-board__actions .bp-btn {
+  width: 56.5%;
+  height: 8.7cqw;
+  font-size: 2.18cqw;
+  letter-spacing: 0.46cqw;
+}
+
+.bp-board__foot {
+  margin: 5.1cqw 0 0;
+  font-family: var(--bp-script); /* Caveat 19px in the reference */
+  font-size: 4.87cqw;
+  line-height: 1.2;
+  color: rgb(191, 214, 208);
+  text-align: center;
+}
+
+/* --------------------------------------------------- 9. turut mengundang */
+
+.bp-inviting .bp-card {
+  padding: 22px 20px;
+  text-align: center;
+}
+
+.bp-inviting__list {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bp-inviting__row {
+  padding: 10px 0;
+  font-family: var(--bp-body);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--bp-ink);
+  border-bottom: 1.5px dotted var(--bp-dot);
+  text-wrap: balance;
+}
+
+.bp-inviting__row:last-child {
+  border-bottom: 0;
+}
+
+/* ------------------------------------------------------------ 10. rundown */
+
+.bp-run {
+  display: grid;
+  grid-template-columns: 62px 1fr;
+  gap: 12px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-top: 1.5px dashed rgba(31, 90, 96, 0.3);
+}
+
+.bp-run:first-child {
+  border-top: 0;
+}
+
+.bp-run__time {
+  font-family: var(--bp-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  color: var(--bp-teal);
+}
+
+.bp-run__text {
+  font-family: var(--bp-body);
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--bp-muted-2);
+}
+
+/* ------------------------------------------------------------- 11. album */
+
+.bp-album {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.bp-shot {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 5px solid #fff;
+  border-radius: 2px;
+  background: #e9e5de;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  cursor: zoom-in;
+  box-shadow: 0 8px 18px rgba(29, 42, 45, 0.1);
+}
+
+.bp-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* -------------------------------------------------------------- 12. film */
+
+.bp-film {
+  margin-top: 4px;
+}
+
+.bp-film__plate {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  border: 6px solid #fff;
+  border-radius: 2px;
+  background: #e9e5de;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(29, 42, 45, 0.14);
+}
+
+.bp-film__plate img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* a round "stamp" as the play affordance */
+.bp-film__stamp {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  margin: -27px 0 0 -27px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 252, 246, 0.92);
+  background: rgba(22, 63, 68, 0.55);
+  color: var(--bp-paper);
+  opacity: 0.9;
+}
+
+.bp-film__stamp svg {
+  width: 18px;
+  height: 18px;
+  margin-left: 2px;
+}
+
+.bp-film__caption {
+  margin: 12px 0 0;
+  text-align: center;
+}
+
+/* -------------------------------------------------------------- 13. gift */
+
+.bp-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.bp-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 32px;
+  border: 1px solid var(--bp-hair);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--bp-teal);
+  font-family: var(--bp-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.bp-tab.is-active {
+  background: var(--bp-teal);
+  border-color: var(--bp-teal);
+  color: var(--bp-paper);
+}
+
+.bp-account {
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--bp-paper);
+  border: 1px solid var(--bp-hair);
+  box-shadow: 0 6px 16px rgba(29, 42, 45, 0.08);
+}
+
+.bp-account + .bp-account {
+  margin-top: 10px;
+}
+
+.bp-account__bank {
+  font-family: var(--bp-mono);
+  font-size: 8.5px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--bp-muted);
+}
+
+.bp-account__no {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 6px;
+  font-family: var(--bp-mono);
+  font-size: 17px;
+  letter-spacing: 0.04em;
+  color: var(--bp-ink);
+}
+
+.bp-account__name {
+  margin-top: 4px;
+  font-family: var(--bp-body);
+  font-size: 12px;
+  color: var(--bp-muted-2);
+}
+
+.bp-copy {
+  flex: 0 0 auto;
+  height: 26px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--bp-hair);
+  color: var(--bp-teal);
+  font-family: var(--bp-mono);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.bp-address {
+  margin-top: 10px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--bp-paper);
+  border: 1px solid var(--bp-hair);
+}
+
+.bp-address__name {
+  font-family: var(--bp-serif);
+  font-size: 17px;
+  color: var(--bp-ink);
+}
+
+.bp-address__text {
+  margin: 6px 0 0;
+  font-family: var(--bp-body);
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--bp-muted-2);
+  white-space: pre-line;
+}
+
+/* --------------------------------------- 14. dress code (baggage tag)
+   The reference draws this as a luggage tag: a 230x330 label hanging from a
+   string, teal band across the top with a punched hole, cream body below. Its
+   own section there is just the tag that opens an info sheet; here the tag
+   carries the dress code itself so the minimum section has a surface. */
+
+.bp-dress {
+  position: relative;
+  container-type: inline-size;
+  aspect-ratio: 390 / 628;
+}
+
+.bp-dress__head {
+  position: absolute;
+  left: 0;
+  top: 7.64%;
+  width: 100%;
+  text-align: center;
+}
+
+/* .tp-tali — the string through the hole */
+.bp-dress__string {
+  position: absolute;
+  left: 43.59%;
+  top: 20.06%;
+  width: 12.82%;
+  height: 11.15%;
+  border: 2px solid rgba(29, 42, 45, 0.55);
+  border-bottom: 0;
+  border-radius: 50% 50% 0 0;
+  pointer-events: none;
+}
+
+/* .tp-label */
+.bp-tag {
+  position: absolute;
+  left: 20.51%;
+  top: 28.34%;
+  width: 58.97%;
+  height: 52.55%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 16.9cqw 3.4cqw 0;
+  /* teal band 96px tall, then paper; punched hole at 34px with a ring, as in
+     .tp-label: cream 8px, darker rim to 12px */
+  background:
+    radial-gradient(circle at 50% 8.7cqw, var(--bp-cream) 2.05cqw, rgb(228, 220, 205) 2.2cqw, rgb(228, 220, 205) 3.08cqw, transparent 3.2cqw),
+    linear-gradient(var(--bp-teal) 0 24.6cqw, var(--bp-paper) 24.6cqw 100%);
+  border-radius: 4.6cqw;
+  box-shadow: 0 1.6cqw 3cqw rgba(29, 42, 45, 0.14);
+}
+
+.bp-tag__title {
+  margin: 0;
+  font-family: var(--bp-mono);
+  font-size: 2.56cqw;
+  letter-spacing: 0.82cqw;
+  text-transform: uppercase;
+  color: var(--bp-paper);
+}
+
+.bp-tag__body {
+  margin: 8.2cqw 0 0;
+  font-family: var(--bp-body);
+  font-size: 3.08cqw;
+  line-height: 1.7;
+  color: rgba(29, 42, 45, 0.86);
+}
+
+.bp-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2.8cqw;
+  margin: 4.1cqw auto 0;
+  max-width: 100%;
+}
+
+.bp-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4cqw;
+  width: 11cqw;
+}
+
+.bp-swatch__dot {
+  width: 8.4cqw;
+  height: 8.4cqw;
+  border-radius: 50%;
+  border: 1px solid rgba(31, 90, 96, 0.28);
+  box-shadow: 0 0.6cqw 1.6cqw rgba(29, 42, 45, 0.16);
+}
+
+.bp-swatch__name {
+  font-family: var(--bp-mono);
+  font-size: 2.05cqw;
+  letter-spacing: 0.26cqw;
+  text-transform: uppercase;
+  color: var(--bp-muted);
+  text-align: center;
+}
+
+.bp-dress__orn {
+  position: absolute;
+  left: 64.1%;
+  top: 68.8%;
+  width: 30.3%;
+  pointer-events: none;
+}
+
+.bp-dress__note {
+  position: absolute;
+  left: 5.1%;
+  top: 90.8%;
+  width: 89.7%;
+  margin: 0;
+  text-align: center;
+  font-family: var(--bp-mono);
+  font-size: 2.18cqw;
+  letter-spacing: 0.46cqw;
+  text-transform: uppercase;
+  color: var(--bp-teal);
+}
+
+/* ------------------------------------------------------------- 15. wishes */
+
+.bp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.bp-fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.bp-input {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid var(--bp-hair);
+  border-radius: 10px;
+  background: var(--bp-paper);
+  color: var(--bp-ink);
+  font-family: var(--bp-body);
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.bp-input::placeholder {
+  color: rgba(29, 42, 45, 0.35);
+}
+
+.bp-input:focus {
+  outline: none;
+  border-color: var(--bp-teal);
+  box-shadow: 0 0 0 3px rgba(31, 90, 96, 0.12);
+}
+
+.bp-input[readonly] {
+  color: var(--bp-muted-2);
+}
+
+.bp-counter {
+  margin: 0;
+  font-family: var(--bp-mono);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  color: var(--bp-muted);
+  text-align: right;
+}
+
+.bp-feedback {
+  margin: 0;
+  font-family: var(--bp-body);
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--bp-muted-2);
+}
+
+.bp-feedback.is-error {
+  color: #9a2f2f;
+}
+
+.bp-wishlist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.bp-wish {
+  padding: 14px 14px 12px;
+  border-radius: 12px;
+  background: var(--bp-paper);
+  border: 1px solid rgba(31, 90, 96, 0.12);
+  box-shadow: 0 6px 16px rgba(29, 42, 45, 0.06);
+}
+
+.bp-wish__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.bp-wish__name {
+  font-family: var(--bp-serif);
+  font-size: 15px;
+  color: var(--bp-ink);
+}
+
+.bp-wish__date {
+  font-family: var(--bp-mono);
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bp-muted);
+  white-space: nowrap;
+}
+
+.bp-wish__text {
+  margin: 7px 0 0;
+  font-family: var(--bp-body);
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--bp-muted-2);
+}
+
+.bp-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.bp-pager__btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 0;
+  box-shadow: inset 0 0 0 1px var(--bp-hair);
+  background: transparent;
+  color: var(--bp-teal);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.bp-pager__btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.bp-pager__info {
+  font-family: var(--bp-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  color: var(--bp-muted);
+}
+
+/* ------------------------------------------------- 16. closing (the film)
+   Reference: a full-bleed film behind a teal wash, torn paper waves at both
+   edges, the farewell in script, the names, and the closing words. The film is
+   the couple's own video (YouTube embeds loop silently). */
+
+.bp-closing {
+  position: relative;
+  container-type: inline-size;
+  aspect-ratio: 390 / 760;
+  overflow: hidden;
+  background: var(--bp-teal-deep);
+  color: var(--bp-paper);
+  text-align: center;
+}
+
+.bp-closing__media,
+.bp-closing__media iframe,
+.bp-closing__media video,
+.bp-closing__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+}
+
+/* A 16:9 film in a 390x760 frame: size the iframe by the frame's HEIGHT
+   (760/390*100cqw = 194.9cqw) and let its width follow 16:9, so the video
+   covers the whole panel with no letterboxing. */
+.bp-closing__media--embed iframe {
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  height: 194.87cqw;
+  width: 346.44cqw;
+  min-width: 0;
+  min-height: 0;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  border: 0;
+}
+
+/* .tp-selubung-ombak */
+.bp-closing__wash {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    rgba(14, 40, 44, 0.35) 0%,
+    rgba(14, 40, 44, 0.5) 35%,
+    rgba(14, 40, 44, 0.55) 70%,
+    rgba(14, 40, 44, 0.35) 100%
+  );
+}
+
+.bp-closing__wave {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  height: 5.79%;
+  pointer-events: none;
+}
+
+.bp-closing__wave--top {
+  top: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 44' preserveAspectRatio='none'%3E%3Cpath d='M0 24 C 40 36 80 36 125 25 S 215 9 260 20 S 345 34 390 26' fill='none' stroke='%23ffffff' stroke-opacity='.55' stroke-width='2'/%3E%3Cpath d='M0 0 L 390 0 L 390 20 C 345 28 305 28 260 16 S 170 1 125 13 S 40 30 0 18 Z' fill='%23F3EDE2'/%3E%3C/svg%3E") center top / 100% 100% no-repeat;
+}
+
+.bp-closing__wave--bottom {
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 44' preserveAspectRatio='none'%3E%3Cpath d='M0 20 C 45 6 90 8 135 19 S 225 33 270 21 S 350 7 390 16' fill='none' stroke='%23ffffff' stroke-opacity='.55' stroke-width='2'/%3E%3Cpath d='M0 26 C 45 12 90 14 135 25 S 225 39 270 27 S 350 13 390 22 L 390 44 L 0 44 Z' fill='%23F3EDE2'/%3E%3C/svg%3E") center bottom / 100% 100% no-repeat;
+}
+
+.bp-closing__body {
+  position: relative;
+  z-index: 3;
+  padding-top: 31%;
+}
+
+.bp-closing__script {
+  margin: 0;
+  font-family: var(--bp-script);
+  font-size: 8.2cqw;
+  line-height: 1.15;
+  color: var(--bp-paper);
+  text-shadow: 0 0.2cqw 3.6cqw rgba(8, 30, 34, 0.45);
+}
+
+.bp-closing__names {
+  margin: 2.8% 0 0;
+  font-family: var(--bp-serif);
+  font-size: 6.41cqw;
+  color: var(--bp-paper);
+  text-shadow: 0 0.2cqw 3.6cqw rgba(8, 30, 34, 0.45);
+}
+
+.bp-closing__message {
+  margin: 6.6% auto 0;
+  width: 79.5%;
+  font-family: var(--bp-body);
+  font-size: 3.08cqw;
+  line-height: 1.8;
+  color: rgba(255, 252, 246, 0.96);
+}
+
+.bp-closing__salam {
+  margin: 5.4% auto 0;
+  width: 84.6%;
+  font-family: var(--bp-body);
+  font-size: 3.08cqw;
+  line-height: 1.7;
+  color: rgba(255, 252, 246, 0.92);
+}
+
+/* -------------------------------------------------------------- the badge */
+
+.bp-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 30px 22px 36px;
+  background: var(--bp-cream);
+  text-align: center;
+}
+
+.bp-foot__link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.bp-foot__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  padding: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 8px 24px rgba(29, 42, 45, 0.28);
+  transition: transform 0.3s ease;
+}
+
+.bp-foot__link:hover .bp-foot__badge {
+  transform: scale(1.05);
+}
+
+.bp-foot__logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 999px;
+}
+
+.bp-foot__cta {
+  font-family: var(--bp-mono);
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--bp-muted);
+  transition: color 0.3s ease;
+}
+
+.bp-foot__link:hover .bp-foot__cta {
+  color: var(--bp-teal);
+}
+
+.bp-foot__text {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: rgba(29, 42, 45, 0.45);
+}
+
+/* ------------------------------------------------- music, modals, toast */
+
+.bp-music {
+  position: fixed;
+  z-index: 60;
+  right: 14px;
+  bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(31, 90, 96, 0.28);
+  background: rgba(255, 252, 246, 0.9);
+  color: var(--bp-teal);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  box-shadow: 0 6px 18px rgba(29, 42, 45, 0.18);
+}
+
+.bp-root.is-open .bp-music {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.bp-music svg {
+  width: 17px;
+  height: 17px;
+}
+
+.bp-music.is-on svg {
+  animation: bp-spin 2.6s linear infinite;
+}
+
+@keyframes bp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.bp-lightbox,
+.bp-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(16, 40, 43, 0.94);
+}
+
+.bp-lightbox img {
+  max-width: 100%;
+  max-height: 84svh;
+  object-fit: contain;
+  border-radius: 2px;
+}
+
+.bp-modal__box {
+  width: 100%;
+  max-width: 900px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #000;
+}
+
+.bp-modal__box video,
+.bp-modal__box iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  object-fit: cover;
+}
+
+.bp-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 252, 246, 0.3);
+  background: rgba(16, 40, 43, 0.75);
+  color: var(--bp-paper);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.bp-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 252, 246, 0.3);
+  background: rgba(16, 40, 43, 0.75);
+  color: var(--bp-paper);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.bp-nav--prev {
+  left: 12px;
+}
+
+.bp-nav--next {
+  right: 12px;
+}
+
+.bp-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 76px;
+  z-index: 95;
+  transform: translateX(-50%);
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--bp-teal);
+  color: var(--bp-paper);
+  font-family: var(--bp-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* -------------------------------------------------------------- motion
+
+   The reference animates every block in with animate.css 4.1.1, revealed by
+   WOW.js as it crosses the viewport bottom: `fadeIn` for text, `fadeInUp` for
+   titles/tickets/buttons, `zoomIn` for the passport stamps — same 1s easing,
+   same per-element delays. The keyframes below are animate.css's own.
+
+   One deliberate difference: animate.css drives `transform`, which would
+   override the tilt on the stamps and the rotated baggage tag. The individual
+   `translate`/`scale` properties compose with an element's `transform`
+   instead, so the rotation survives the animation. */
+
+@keyframes bpFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes bpFadeInUp {
+  from { opacity: 0; translate: 0 100%; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+@keyframes bpZoomIn {
+  from { opacity: 0; scale: 0.3; }
+  50% { opacity: 1; }
+  to { opacity: 1; scale: 1; }
+}
+
+[data-bp-reveal] {
+  opacity: 0;
+}
+
+[data-bp-reveal].is-visible {
+  animation-name: bpFadeIn;
+  animation-duration: 1s;
+  animation-timing-function: ease;
+  animation-fill-mode: both;
+}
+
+[data-bp-reveal="up"].is-visible {
+  animation-name: bpFadeInUp;
+}
+
+[data-bp-reveal="zoom"].is-visible {
+  animation-name: bpZoomIn;
+}
+
+/* No individual transform properties (pre-2022 engines): fade only, so the
+   element still arrives and nothing is left off-screen. */
+@supports not (translate: 0 1px) {
+  [data-bp-reveal="up"].is-visible,
+  [data-bp-reveal="zoom"].is-visible {
+    animation-name: bpFadeIn;
+  }
+}
+
+/* Without JS the observer never runs; show the content rather than nothing. */
+@media (scripting: none) {
+  [data-bp-reveal] {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bp-root *,
+  .bp-root *::before,
+  .bp-root *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  [data-bp-reveal],
+  [data-bp-reveal].is-visible {
+    opacity: 1;
+    animation-name: none;
+  }
+  .bp-music.is-on svg {
+    animation: none;
+  }
+}
+
+/* the two hero names animate independently, as in the reference */
+.bp-hero__name {
+  display: block;
+}
+
+/* sections whose children are positioned on the reference canvas */
+.bp-section--flush {
+  padding: 0;
+}
+
+.bp-welcome__sprig {
+  display: block;
+}
