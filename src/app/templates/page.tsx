@@ -23,7 +23,7 @@ export const revalidate = 3600
 async function getTemplates(): Promise<GalleryTemplate[]> {
   const { data } = await supabaseAdmin
     .from("web_templates")
-    .select("id,code,name,preview_image_url,demo_url,category,tier,no_photo,popular_rank,sort_order,created_at")
+    .select("id,code,name,preview_image_url,demo_url,category,tier,no_photo,popular_rank,sort_order,created_at,package_eligibility")
     .eq("is_active", true)
     .order("sort_order", { ascending: true })
     .order("name", { ascending: true })
@@ -57,7 +57,7 @@ export default async function TemplatesIndexPage() {
       </section>
 
       <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mb-14">
-        <TemplateGallery templates={templates} previewInModal />
+        <TemplateGallery templates={templates} previewInModal showPackageFilter />
       </section>
 
       <SeoFaq

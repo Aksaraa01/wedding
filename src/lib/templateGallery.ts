@@ -29,6 +29,24 @@ export type GalleryTemplate = {
 
 export type PhotoFilter = "semua" | "dengan" | "tanpa"
 
+// Public package filter. A template's package_eligibility lists the package
+// codes it ships in, so each bucket is a set of codes that group together in
+// the catalogue: the bonus print package reads as "Basic", the entry paid tier
+// as "Essensial", and everything above it (incl. the full-custom bonus) as
+// "Signature & Up". Empty/absent eligibility means "every package".
+export type PackageFilter = "semua" | "basic" | "essensial" | "signature-up"
+
+export const PACKAGE_FILTERS: { id: PackageFilter; label: string; codes: string[] }[] = [
+  { id: "semua", label: "Semua", codes: [] },
+  { id: "basic", label: "Basic", codes: ["cetak_undangan_bonus"] },
+  { id: "essensial", label: "Essensial", codes: ["essential"] },
+  {
+    id: "signature-up",
+    label: "Signature & Up",
+    codes: ["signature", "prestige", "elite", "bonus_full_custom"],
+  },
+]
+
 export type GalleryRow = {
   id: string
   label: string
@@ -51,6 +69,15 @@ export function matchesPhoto(t: GalleryTemplate, filter: PhotoFilter): boolean {
   if (filter === "tanpa") return t.no_photo === true
   if (filter === "dengan") return t.no_photo !== true
   return true
+}
+
+export function matchesPackage(t: GalleryTemplate, filter: PackageFilter): boolean {
+  if (filter === "semua") return true
+  const group = PACKAGE_FILTERS.find((g) => g.id === filter)
+  if (!group) return true
+  const elig = t.package_eligibility
+  if (!Array.isArray(elig) || elig.length === 0) return true
+  return elig.some((code) => group.codes.includes(code))
 }
 
 export function matchesSearch(t: GalleryTemplate, query: string): boolean {

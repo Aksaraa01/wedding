@@ -4,12 +4,15 @@ import { useMemo, useState } from "react"
 import Link from "next/link"
 import { matchesCategory } from "@/lib/templateCategory"
 import {
+  PACKAGE_FILTERS,
   galleryRows,
+  matchesPackage,
   matchesPhoto,
   matchesSearch,
   newestTemplates,
   popularTemplates,
   type GalleryTemplate,
+  type PackageFilter,
   type PhotoFilter,
 } from "@/lib/templateGallery"
 import TemplatePreviewModal from "@/components/TemplatePreviewModal"
@@ -25,6 +28,8 @@ export interface TemplateGalleryProps {
   showFilterBar?: boolean
   showSearch?: boolean
   showShelves?: boolean
+  /** Public surfaces only: adds the "Paket" segmented filter. */
+  showPackageFilter?: boolean
   /** Interactive picker (dashboard): selection + package gate are rendered. */
   /** Public surfaces: open the preview in the shared modal. */
   previewInModal?: boolean
@@ -42,6 +47,47 @@ const PHOTO_FILTERS: { id: PhotoFilter; label: string }[] = [
   { id: "tanpa", label: "Tanpa Foto" },
 ]
 
+function SegmentedFilter<T extends string>({
+  label,
+  ariaLabel,
+  options,
+  value,
+  onChange,
+}: {
+  label: string
+  ariaLabel: string
+  options: { id: T; label: string }[]
+  value: T
+  onChange: (id: T) => void
+}) {
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+      <span className="shrink-0 font-label-md text-[10px] uppercase tracking-widest text-[#8A827B]">{label}</span>
+      <div
+        role="group"
+        aria-label={ariaLabel}
+        className="inline-flex rounded-full border border-[#E2D9CF] bg-[#F2EDE5] p-0.5"
+      >
+        {options.map((f) => (
+          <button
+            key={f.id}
+            type="button"
+            onClick={() => onChange(f.id)}
+            aria-pressed={value === f.id}
+            className={`whitespace-nowrap rounded-full px-3.5 py-1.5 font-label-md text-[10px] uppercase tracking-widest transition-colors ${
+              value === f.id
+                ? "bg-white text-[#2C2A29] shadow-[0_1px_3px_rgba(44,42,41,0.12)]"
+                : "text-[#8A827B] hover:text-[#2C2A29]"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function TemplateGallery({
   templates,
   initialCategory,
@@ -49,6 +95,7 @@ export default function TemplateGallery({
   showFilterBar = true,
   showSearch = false,
   showShelves = true,
+  showPackageFilter = false,
   selectedId = null,
   isLocked,
   onPreview,
@@ -58,6 +105,7 @@ export default function TemplateGallery({
 }: TemplateGalleryProps) {
   const [categoryFilter, setCategoryFilter] = useState(initialCategory || "semua")
   const [photoFilter, setPhotoFilter] = useState<PhotoFilter>("semua")
+  const [packageFilter, setPackageFilter] = useState<PackageFilter>("semua")
   const [searchQuery, setSearchQuery] = useState("")
   const [modalTemplate, setModalTemplate] = useState<GalleryTemplate | null>(null)
 
@@ -76,16 +124,19 @@ export default function TemplateGallery({
         (t) =>
           matchesCategory(t.category, categoryFilter) &&
           matchesPhoto(t, photoFilter) &&
+          matchesPackage(t, packageFilter) &&
           matchesSearch(t, searchQuery),
       ),
-    [templates, categoryFilter, photoFilter, searchQuery],
+    [templates, categoryFilter, photoFilter, packageFilter, searchQuery],
   )
 
-  const filterActive = categoryFilter !== "semua" || photoFilter !== "semua" || searchQuery.trim() !== ""
+  const filterActive =
+    categoryFilter !== "semua" || photoFilter !== "semua" || packageFilter !== "semua" || searchQuery.trim() !== ""
 
   const resetFilters = () => {
     setCategoryFilter(initialCategory || "semua")
     setPhotoFilter("semua")
+    setPackageFilter("semua")
     setSearchQuery("")
   }
 
@@ -204,32 +255,22 @@ export default function TemplateGallery({
                   </button>
                 ))}
               </div>
-              <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
-                <span className="shrink-0 font-label-md text-[10px] uppercase tracking-widest text-[#8A827B]">
-                  Foto
-                </span>
-                <div
-                  role="group"
-                  aria-label="Filter foto"
-                  className="inline-flex rounded-full border border-[#E2D9CF] bg-[#F2EDE5] p-0.5"
-                >
-                  {PHOTO_FILTERS.map((f) => (
-                    <button
-                      key={f.id}
-                      type="button"
-                      onClick={() => setPhotoFilter(f.id)}
-                      aria-pressed={photoFilter === f.id}
-                      className={`whitespace-nowrap rounded-full px-3.5 py-1.5 font-label-md text-[10px] uppercase tracking-widest transition-colors ${
-                        photoFilter === f.id
-                          ? "bg-white text-[#2C2A29] shadow-[0_1px_3px_rgba(44,42,41,0.12)]"
-                          : "text-[#8A827B] hover:text-[#2C2A29]"
-                      }`}
-                    >
-                      {f.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <SegmentedFilter
+                label="Foto"
+                ariaLabel="Filter foto"
+                options={PHOTO_FILTERS}
+                value={photoFilter}
+                onChange={setPhotoFilter}
+              />
+              {showPackageFilter && (
+                <SegmentedFilter
+                  label="Paket"
+                  ariaLabel="Filter paket"
+                  options={PACKAGE_FILTERS}
+                  value={packageFilter}
+                  onChange={setPackageFilter}
+                />
+              )}
             </>
           )}
         </div>
@@ -240,11 +281,13 @@ export default function TemplateGallery({
           <div className="py-14 text-center">
             <p className="mb-4 font-body-md text-sm text-on-surface-variant">
               {emptyMessage ||
-                (photoFilter === "tanpa"
-                  ? "Belum ada template Tanpa Foto yang cocok."
-                  : searchQuery.trim()
-                    ? `Tidak ada template untuk “${searchQuery.trim()}”.`
-                    : "Tidak ada template yang cocok dengan filter.")}
+                (packageFilter !== "semua"
+                  ? `Belum ada template untuk paket ${PACKAGE_FILTERS.find((f) => f.id === packageFilter)?.label}.`
+                  : photoFilter === "tanpa"
+                    ? "Belum ada template Tanpa Foto yang cocok."
+                    : searchQuery.trim()
+                      ? `Tidak ada template untuk “${searchQuery.trim()}”.`
+                      : "Tidak ada template yang cocok dengan filter.")}
             </p>
             <button
               type="button"

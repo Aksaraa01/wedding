@@ -132,6 +132,7 @@ export default function PremiumWebInvitationPage() {
         <section className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mb-16">
           <TemplateGallery
             templates={templates}
+            showPackageFilter
             onPreview={(tpl) => setPreviewTpl(tpl as Template)}
           />
         </section>
