@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { AKSARAA_WA_NUMBER } from "@/lib/contact"
@@ -154,7 +154,6 @@ export default function IvoryLace(profile: TemplateProps) {
   const [opened, setOpened] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [lightbox, setLightbox] = useState<number | null>(null)
-  const [filmPlaying, setFilmPlaying] = useState(false)
   const [openAccount, setOpenAccount] = useState(-1)
   const [toast, setToast] = useState("")
 
@@ -176,15 +175,16 @@ export default function IvoryLace(profile: TemplateProps) {
   const monogram = ((profile.couple_initials || "").trim() || derivedMonogram || "A&M").replace(/\s|&/g, "")
 
   const covers = useMemo(() => flattenPhotos(profile.cover_photos), [profile.cover_photos])
+  // Cover slots are semantic (see TEMPLATE_CONFIGS): 0 hero, 1 love story,
+  // 2/3 the event photographs, 4 closing.
   const coverImage = covers[0] || ""
   const storyImage = covers[1] || covers[0] || ""
-  const closingImage = covers[2] || covers[1] || covers[0] || ""
+  const closingImage = covers[4] || covers[3] || covers[1] || covers[0] || ""
 
   const galleryPhotos = useMemo(() => flattenPhotos(profile.gallery_photos), [profile.gallery_photos])
-  const eventPhotos = useMemo(
-    () => [...galleryPhotos, ...covers].filter(Boolean),
-    [galleryPhotos, covers]
-  )
+  // Each event has its own upload (cover slot 2, 3 …); a gallery photo is only
+  // a fallback so an event card is never empty.
+  const eventPhoto = (index: number) => covers[2 + index] || galleryPhotos[index] || covers[0] || ""
 
   const stories =
     gates.story !== false && profile.story_visible !== false
@@ -210,7 +210,6 @@ export default function IvoryLace(profile: TemplateProps) {
   const hasGift = accounts.length > 0 || !!giftAddress
 
   const film = videoSource(profile.video_url)
-  const filmStill = covers[1] || galleryPhotos[0] || covers[0] || ""
   const hasVideo = !!film && gates.video !== false && profile.video_section_visible !== false
 
   const eventDay = useMemo(() => eventDate(profile), [profile])
@@ -221,6 +220,13 @@ export default function IvoryLace(profile: TemplateProps) {
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.defaultMusic : "")
   const hasTrack = !!trackUrl
 
+  // Instagram hashtag, the same convention as the adat templates: the couple's
+  // display name when it starts with "#", their names otherwise.
+  const rawHashtag = (profile.display_name || "").trim()
+  const hashtag = rawHashtag.startsWith("#")
+    ? rawHashtag
+    : `#${`${groom}${bride}`.replace(/[^A-Za-z0-9]/g, "")}`
+
   const welcomeTitle = (profile.opening_title || "").trim() || tc.welcome_invite || "Dear Family & Friends"
   const welcomeMessage = (profile.opening_description || "").trim() || tc.welcome_message || DEFAULT_WELCOME
 
@@ -229,18 +235,18 @@ export default function IvoryLace(profile: TemplateProps) {
     !profile.template_demo &&
     opened &&
     lightbox === null &&
-    !filmPlaying &&
     (!!profile.guest_id || (profile.guest_link_strict === false && !!profile.guest_slug)) &&
     !!profile.wedding_profile_id
 
   const openInvitation = useCallback(() => {
+    if (opened) return
     setOpened(true)
     if (hasTrack) {
       const audio = audioRef.current
       if (audio) audio.play().then(() => setPlaying(true), () => setPlaying(false))
     }
     window.scrollTo(0, 0)
-  }, [hasTrack])
+  }, [hasTrack, opened])
 
   useEffect(() => {
     document.body.style.overflow = opened ? "" : "hidden"
@@ -462,7 +468,7 @@ export default function IvoryLace(profile: TemplateProps) {
             </div>
 
             {events.map((event, index) => {
-              const photo = eventPhotos.length > 0 ? eventPhotos[index % eventPhotos.length] : ""
+              const photo = eventPhoto(index)
               const maps =
                 event.maps_url ||
                 (event.venue || event.address
@@ -633,31 +639,11 @@ export default function IvoryLace(profile: TemplateProps) {
               <h2 className="il-display il-heading">{tc.video_title || "Our Film"}</h2>
               {tc.video_intro && <p className="il-body il-film__intro">{tc.video_intro}</p>}
 
-              {!filmPlaying ? (
-                <>
-                  {/* The reference's player plate: a sprig, a framed still and a
-                      record, with "Click to Play" underneath. */}
-                  <div className="il-film__player">
-                    <img className="il-film__sprig" src={ART_SPRIG} alt="" aria-hidden="true" loading="lazy" />
-                    <button
-                      type="button"
-                      className="il-film__still"
-                      onClick={() => setFilmPlaying(true)}
-                      aria-label="Play the wedding film"
-                    >
-                      {filmStill && <img src={filmStill} alt="" loading="lazy" />}
-                      <span className="il-film__notes" aria-hidden="true">
-                        <img src={ART_NOTES} alt="" />
-                      </span>
-                    </button>
-                    <img className="il-film__vinyl" src={ART_VINYL} alt="" aria-hidden="true" loading="lazy" />
-                  </div>
-                  <p className="il-film__play">Click to Play</p>
-                </>
-              ) : (
-                <div className="il-film__window">
+              <div className="il-film__player">
+                <img className="il-film__sprig" src={ART_SPRIG} alt="" aria-hidden="true" loading="lazy" />
+                <div className="il-film__still">
                   {film!.kind === "file" ? (
-                    <video src={film!.src} autoPlay muted loop playsInline controls preload="metadata" />
+                    <video src={film!.src} autoPlay muted loop playsInline preload="metadata" />
                   ) : (
                     <iframe
                       src={film!.src}
@@ -667,7 +653,8 @@ export default function IvoryLace(profile: TemplateProps) {
                     />
                   )}
                 </div>
-              )}
+                <img className="il-film__vinyl" src={ART_VINYL} alt="" aria-hidden="true" loading="lazy" />
+              </div>
               {tc.video_caption && <p className="il-film__caption">{tc.video_caption}</p>}
             </div>
           </section>
@@ -782,6 +769,7 @@ export default function IvoryLace(profile: TemplateProps) {
                 <figcaption className="il-closing__names">{coupleLabel}</figcaption>
               </figure>
             )}
+            <p className="il-hashtag">{hashtag}</p>
             <p className="il-body il-closing__message">
               {tc.closing_message || "We cannot wait to celebrate with you."}
             </p>
@@ -909,11 +897,18 @@ function CountdownClock({ iso, sessions }: { iso?: string; sessions?: TemplatePr
   ]
   return (
     <div className="il-clock" aria-label="Wedding countdown">
-      {cells.map(([value, label]) => (
-        <div className="il-clock__cell" key={label}>
-          <strong>{value}</strong>
-          <span>{label}</span>
-        </div>
+      {cells.map(([value, label], index) => (
+        <Fragment key={label}>
+          <div className="il-clock__cell">
+            <strong>{value}</strong>
+            <span>{label}</span>
+          </div>
+          {index < cells.length - 1 && (
+            <span className="il-clock__sep" aria-hidden="true">
+              :
+            </span>
+          )}
+        </Fragment>
       ))}
     </div>
   )

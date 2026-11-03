@@ -14,6 +14,7 @@ import PianoGarden from "./piano-garden"
 import AltarGarden from "./altar-garden"
 import AdatMelayu from "./adat-melayu"
 import AdatBatak from "./adat-batak"
+import AdatBugis from "./adat-bugis"
 import AdatMinang from "./adat-minang"
 import AdatPalembang from "./adat-palembang"
 import AdatBetawi from "./adat-betawi"
@@ -28,6 +29,7 @@ import StillEver from "./still-ever"
 import EmbroideredGarden from "./embroidered-garden"
 import Lace from "./lace"
 import NFilm from "./n-film"
+import BoardingPass from "./boarding-pass"
 import IvoryLace from "./ivory-lace"
 export type { TemplateProps } from "@/types/template"
 
@@ -46,6 +48,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "altar-garden": AltarGarden,
   "adat-melayu": AdatMelayu,
   "adat-batak": AdatBatak,
+  "adat-bugis": AdatBugis,
   "adat-minang": AdatMinang,
   "adat-palembang": AdatPalembang,
   "adat-betawi": AdatBetawi,
@@ -60,6 +63,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "embroidered-garden": EmbroideredGarden,
   lace: Lace,
   "n-film": NFilm,
+  "boarding-pass": BoardingPass,
   "ivory-lace": IvoryLace,
 }
 
@@ -539,6 +543,46 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         accentMuted: "#7a6332",
         overlay: "#2e2818",
         dark: "#2e2818",
+      },
+      ornaments: { divider: "floral", border: "minimal", frame: "arch" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.2 },
+    },
+    content: {
+      cover_slots: 3,
+      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: false,
+      sections: {
+        opening_description: false,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: true,
+        livestream: true,
+        rundown: true,
+        contacts: true,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "adat-bugis",
+    name: "Adat Bugis",
+    description: "Undangan adat Bugis bernuansa hijau tua dan emas — ilustrasi rumah panggung, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
+    theme: {
+      fonts: { display: "Pinyon Script", script: "Pinyon Script", body: "Poppins" },
+      colors: {
+        surface: "#f4f5ee",
+        text: "#2b332a",
+        accent: "#29421c",
+        accentMuted: "#3d4e3d",
+        overlay: "#2b332a",
+        dark: "#2b332a",
       },
       ornaments: { divider: "floral", border: "minimal", frame: "arch" },
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
@@ -1177,14 +1221,65 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       // Three semantic photo slots: the hero, the love-story backdrop and the
       // closing plate. Portraits come from the mempelai photo fields, the grid
       // from gallery_photos.
+      cover_slots: 5,
+      cover_slot_labels: [
+        "Foto Sampul",
+        "Foto Kisah Cinta",
+        "Foto Acara 1",
+        "Foto Acara 2",
+        "Foto Penutup",
+      ],
+      groom_photo: "single",
+      bride_photo: "single",
+      // The love-story backdrop is cover_photos[1]; story milestones carry no
+      // photo of their own, so the editor/ops hide the milestone image field.
+      story_photo: false,
+      sections: {
+        opening_description: true,
+        quote: false,
+        countdown: true,
+        inviting: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        dresscode: true,
+        livestream: false,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "boarding-pass",
+    name: "Boarding Pass",
+    description:
+      "Undangan berbentuk tiket pesawat dan paspor perjalanan — papan keberangkatan, manifest penumpang, itinerary, dan buku tamu.",
+    theme: {
+      fonts: { display: "DM Serif Display", script: "Caveat", body: "Jost" },
+      colors: {
+        surface: "#f3ede2",
+        text: "#1d2a2d",
+        accent: "#1f5a60",
+        accentMuted: "#bfd6d0",
+        overlay: "#163f44",
+        dark: "#163f44",
+      },
+      ornaments: { divider: "line", border: "minimal", frame: "square" },
+      motion: { enabled: true, duration: 0.6, stagger: 0.12 },
+    },
+    content: {
+      // Three semantic slots: the cover photograph, the hero still, and the
+      // closing panel. Portraits come from the mempelai photo fields.
       cover_slots: 3,
-      cover_slot_labels: ["Foto Sampul", "Foto Kisah Cinta", "Foto Penutup"],
+      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: true,
       sections: {
         opening_description: true,
-        quote: false,
+        quote: true,
         countdown: true,
         inviting: true,
         video: true,

@@ -1,9 +1,11 @@
 # REA — Our Wedding Link "Boarding Pass" → Aksaraa in-house template
 
 Reference: <https://our-wedding.link/design/boarding-pass> · analysed 2026-11-01
-Proposed template code: `boarding-pass` · Source type: `inhouse`
-**Status: analysis only.** Nothing is ported yet — §13 contains the one decision
-(an INFO TAMU sheet) that has to be made before the component is written.
+Template code: `boarding-pass` · Source type: `inhouse`
+**Status: ported** — component, skin, fonts, registration and demo props are in
+the tree (§15). The `web_templates` row is applied to production; staging is
+applied with it. The `INFO TAMU` sheet (§9 A) was dropped as recommended, so
+dress code ships as its own section.
 
 Method: same as `docs/REA_N_FILM.md`. Resolved the SSR payload (`window.__NUXT__`),
 dumped the rendered DOM (170 KB) and all 4 378 computed CSS rules, then measured
@@ -157,24 +159,35 @@ The port needs **`DM Mono` (400)** and **`Jost` (400/500/600)** added to
 
 ---
 
-## 6. Asset audit
+## 6. Asset audit (verified against the rendered DOM + CSS)
 
-| Group | Files | Bytes | Verdict |
-|---|---|---|---|
-| **Clipart ornaments** | palm tree (520×729), hibiscus (560×550), rings line-art (360×268), + 3 more 360×247 / 560×597 / 520×550 | 39 KB–568 KB, **≈ 2.6 MB** | **Do not vendor.** Stock clipart, and heavier than the CSS it replaces |
-| Couple photos (demo) | 5 × 867×1300 JPG | — | demo data, never ship |
-| Gallery (demo) | 4 × `pexels-photo-*.jpeg` (external Unsplash/Pexels URLs) | — | licensed stock, never ship |
-| Cover/hero still | `b13b4f10` 865×1300 PNG | 578 KB | demo photo |
-| Cover video | 1 × `<video muted autoplay loop preload="metadata">` | — | couple's own film |
-| Music | 1 × `<audio loop preload="auto">` | — | couple's own track |
+Every image reference in the reference was enumerated; the split below is the one
+that matters.
 
-**The clipart is the only real decision here, and the answer is: rebuild it.** We
-don't need a palm tree or a hibiscus to read as a boarding pass — those are a
-beach theme the *reference couple* chose. What makes the design work is paper,
-perforation, mono type and a departure board, all of which are CSS. Ship our own
-inline SVG for the few marks we do want (rings, a stamp, the torn-edge wave).
+### Vendored — the template's own art (6 files, ~0.7 MB webp)
 
----
+| Asset | Role in the reference |
+|---|---|
+| `palm.webp` | welcome, bottom-left ornament (`.tp-ornamen` 104×146) |
+| `hibiscus.webp` | welcome, bottom-right ornament (112×110) |
+| `rings.webp` | flight card 01 stub (66×49) |
+| `shells.webp` | flight card 02 stub (74×51) |
+| `sprig.webp` | love story, top-left (84×90, rotated) |
+| `frond.webp` | dress-code tag (118×125) |
+
+### Not vendored — per-couple data (correct to leave out)
+
+| Asset | Mapping |
+|---|---|
+| `b13b4f10…png` — **cut-out portrait of the reference couple** behind the hero names (128.2 % wide, −17.7 % left, −22.2 % bottom, z-index 1) | `couple_illustration_url` — renders only when the couple has one |
+| 5 couple JPGs (`c2ace7a0`, `dab9fa90`, `f40bc280`, `01012c50`, `0be84f90`) | cover slot, hero still, portraits, closing still |
+| 4 `pexels-photo-*.jpeg` | gallery — licensed stock used as demo data |
+| `445f8490…mp3` | `track_url` |
+| `2120db70…mp4` | `video_url` (the closing plays it) |
+| owl icon, IG icon, loading gif | platform chrome — replaced by the Aksaraa badge |
+
+Shipping any of the second group would put another couple's faces — and licensed
+stock — into every customer's invitation.
 
 ## 7. Copy inventory
 
@@ -200,7 +213,7 @@ are present but merged into another surface, and three are missing.
 | 1 | Cover | ✅ the boarding pass itself | keep |
 | 2 | Opening video | ✅ muted looping film behind the cover | keep — feed it `video_url` |
 | 3 | Welcome | ✅ `SALAM HANGAT` | keep |
-| 4 | Kalimat pembuka | ⚠️ the greeting paragraph inside `SALAM HANGAT` | **split out** as the couple's own word card |
+| 4 | Kalimat pembuka | ⚠️ the greeting paragraph inside `SALAM HANGAT` | **shares the welcome card** with #3 — `opening_title` as the heading, `opening_description` as the body. Playbook §0.5 allows 3+4 to share one surface (Lace does the same) |
 | 5 | Mempelai | ✅ `DAFTAR PENUMPANG` passport cards | keep — see note below |
 | 6 | Love story | ✅ `KISAH KAMI` | keep |
 | 7 | Event | ✅ `ITINERARY` flights | keep |
@@ -303,10 +316,11 @@ already ship, so they are not "extra sections".
 | Item | Status |
 |---|---|
 | DM Serif Display, DM Mono, Jost, Caveat | **OFL** — self-host freely |
-| Palm / hibiscus / rings clipart | **Stock clipart — do not vendor.** Rebuild what we need as inline SVG |
+| Palm / hibiscus / rings / shells / sprig / frond | **Vendored on the owner's explicit instruction** ("we want from reference"). These are the preset's own art; the licensing question is the owner's to clear, and it is recorded here rather than silently assumed. Everything else in that art set was rebuilt as CSS |
 | Demo photos (incl. 4 Unsplash/Pexels URLs) | Never ship |
 | Platform credit `UNDANGAN DIGITAL OLEH owlink.id`, owl + IG footer | **Remove**, replace with the Aksaraa badge exactly as Sandhya/N Film do |
 | `bebas_neu` | A custom uploaded font referenced by the skin but **used by zero elements** in the render — nothing to substitute |
+| Reference couple's cut-out portrait | Not vendored; the slot is bound to `couple_illustration_url` |
 
 ---
 
@@ -352,7 +366,7 @@ key is required.
 
 Registration: migration `20261043000000_boarding_pass.sql` (next free version —
 `20261042000000` is N Film, `20261044000000` is Ivory Lace),
-`sort_order = 34` (33 is N Film; prod max is 33), `category 'Modern'`,
+`sort_order = 3` (the catalogue now groups in-house templates from 1: Lace is 1, N Film is 2), `category 'Modern'`,
 `tier 'Baru'`, `no_photo = false`.
 
 ---
@@ -390,13 +404,109 @@ Registration: migration `20261043000000_boarding_pass.sql` (next free version �
 
 ---
 
-## 15. Still open
+## 15. Build log — what actually shipped
 
-1. **§9 A — the `INFO TAMU` sheet.** Ship it (needs a data source) or drop it and
-   keep dress code inline? **Recommended: drop.**
-2. **Language.** The reference is Indonesian and, unusually, *good* Indonesian —
-   the boarding-pass puns only work in Indonesian. Recommend keeping Indonesian
-   for this template (unlike N Film, which we shipped in English).
-3. **Story years.** `stories[]` has no year column; the reference prints one per
-   entry. Proposal: read a leading `YYYY` from the story title and fall back to
-   no year, without a schema change.
+### Files
+
+| File | |
+|---|---|
+| `src/components/templates/boarding-pass/index.tsx` | gate, 16 sections (welcome + kalimat pembuka share one card), lightbox, film modal, gift tabs, music, dock |
+| `.../boarding-pass.css` | the document system: ticket with punched notches, perforation, barcode, route line, passport cards, MRZ, flights, departure board, stamps |
+| `.../Wishes.tsx` | name + wish + approved feed, 5 per page |
+| `public/templates/boarding-pass/thumbnail.webp` | 720×1520 poster, generated |
+| `src/components/templates/index.ts` | `TEMPLATE_MAP` + `TEMPLATE_CONFIGS` |
+| `src/components/templates/demoProps.ts` | `DEMO_PROPS_BY_CODE["boarding-pass"]` (Albarn/Faye, Indonesian) |
+| `src/lib/templateExtras.ts` | `boarding-pass` added to 8 existing keys |
+| `src/app/templates/[code]/preview/page.tsx` | `keepDemoIds` |
+| `scripts/fetch-fonts.js`, `scripts/gen-font-css.js` | `DM Mono` + `Jost` (OFL) |
+| `supabase/migrations/20261043000000_boarding_pass.sql` | `web_templates` row, `sort_order` 3 |
+
+### Decisions as built
+
+- **No raster ornament.** Every mark is CSS: punched notches are cream circles
+  anchored to the tear line (`top: -9px` inside `.bp-ticket__tear`), the barcode
+  is two `repeating-linear-gradient`s, the route line is two endpoint dots plus
+  a dashed rule, the board is a four-stop gradient with inset shadows.
+- **Notches need the cream mat.** A "hole" only reads as a hole when the surface
+  behind it is the same cream, so the ticket sits on a `.bp-mat`, not directly on
+  the photograph.
+- **Cover is the gate** (`is-locked`, opens on `Buka Undangan`, plays the
+  preloaded track, `scrollTo(0,0)`).
+- **Gate/seat** is `guest_table_number` when present, otherwise the poetic
+  `Pelaminan`; the venue is the `TUJUAN` field so the two never repeat.
+- **MRZ** is derived (`P<IDN<<NAME<<<<…`, padded to 44) — never hardcoded.
+- **Story years** come from a leading `YYYY` in the title and are stripped from
+  the rendered heading, as proposed in §15.3 of the analysis.
+- **RSVP** is the dock only, suppressed in `preview_mode` / `template_demo`.
+- **Footer** is Sandhya's closing block (64 px badge, CTA, copyright).
+
+### Reference-faithful pass (after review)
+
+The first cut got the *ticket* right but not the *cover*: it wrapped a pass in a
+cream mat, which buried the photograph. The reference composition was re-measured
+widget by widget from the rendered DOM and rebuilt:
+
+| Block | Reference geometry | Now |
+|---|---|---|
+| **Cover** | photo, `tp-sampul-redup` wash, ticket **338×402 at (26,137)**, stub **338×154 at (26,539)**, photo visible above and below | same, as one `aspect-ratio: 390/844` block |
+| **Ticket notches** | corner notches painted as `radial-gradient(transparent 12px, paper 12.5px)` on the card's own background | same technique — the photo shows through, no mask needed |
+| **Stub** | perforation on the seam, barcode 190×30, code, **open button inside the stub** | same |
+| **Hero** | names **stacked** (Arga / & / Kirana), kicker, date, script tagline, torn-paper wave at the bottom | same, 390×760 |
+| **Welcome** | centred stack, small wave divider, verse, source, **two corner ornaments** | same, 390×590, ornaments drawn as teal line art |
+
+Everything is expressed in `cqw` against a container on each block and sized by
+`aspect-ratio`, so the whole composition scales as one piece instead of
+reflowing. One trap: `min-height` in `cqw` **on the container itself** resolves
+against the viewport, not the element — it made the welcome 1210 px instead of
+651 px. `aspect-ratio` is the correct way to size the container.
+
+The two ornaments are the only place the reference's art would have been reused:
+it uses a palm frond and a hibiscus (stock clipart). They are redrawn as teal
+line art so nothing licensed ships.
+
+### Second reference pass — the rest of the sections
+
+The first rebuild fixed only the cover/hero/welcome. Every remaining section was
+then re-measured widget-by-widget from the rendered DOM and rebuilt, and the
+reference's own ornaments were vendored (the owner asked for them explicitly;
+they are the preset's art, not ours to redistribute beyond this platform):
+
+| Section | Reference geometry | Built |
+|---|---|---|
+| Mempelai | two **346×300 passport cards** at (22,136)/(22,504) with a `&` between, 112×142 portrait inside, MRZ at y212, IG pill | same, 390×840 block |
+| Event | two **354×290 flight cards** at (18,158)/(18,480): copy column + 30.5 % stub holding the ornament, Gerbang, Kursi and a mini barcode, with map + calendar actions | same, 390×806 |
+| Countdown | a **354×420 departure board** on the cream page, split-flap clock, destination/status pair, calendar action, footer line | same, 390×460 |
+| Love story | three **150×190 postage stamps** with a 120×64 postmark over the corner, the year inside the ring, copy alternating left/right, top-left ornament | same, 390×1000 |
+| Dress code | a **230×330 baggage tag** hanging from a 50×70 string loop, teal band with a punched hole, ornament, "sentuh label" note | same, 390×628 |
+| Closing | full-bleed **film** + `tp-selubung-ombak` wash + torn waves top and bottom | same, 390×760 |
+
+Verified ratios (measured vs reference): manifest 2.154/2.154, story 2.564/2.564,
+flights 2.067/2.067, board 1.179/1.179, tag 1.610/1.610, closing 1.949/1.949.
+Six ornaments render, no horizontal overflow, console clean.
+
+**Closing plays the couple's film, not the cover photo** (owner's instruction):
+YouTube → `AutoplayYouTube` looping silently behind the wash; direct upload →
+muted looping `<video>`; neither → the closing still.
+
+### Verified locally
+
+`tsc --noEmit` clean; preview **200**; all four faces load (DM Serif Display,
+DM Mono, Jost, Caveat); 15 rendered `data-section` blocks (16 minimums, #3/#4
+shared); no horizontal overflow; gate locks scroll then releases; notches sit on
+the tear line (measured `notchOnTear: true`); board renders 4 DM Mono 30 px
+flaps; swatches centred; footer badge 64 px; **no dock in preview**; console
+clean.
+
+## 16. Still open
+
+1. **~~§9 A — the `INFO TAMU` sheet.~~** Dropped. Dress code ships as its own
+   section; the sheet needed lodging/tips data we do not have.
+2. **Language — settled: Indonesian.** The boarding-pass puns only work in
+   Indonesian, and the reference's Indonesian is good. Demo content and extras
+   placeholders are Indonesian (N Film went English; the two now differ on
+   purpose).
+3. **~~Story years.~~** Implemented: a leading `YYYY` in the story title is read
+   and stripped from the rendered heading, with no schema change.
+4. **Visual QA.** Verified by measurement only — this environment cannot capture
+   screenshots. Balance, optical spacing and how a couple's own photos sit inside
+   the ticket/passport frames are unconfirmed.

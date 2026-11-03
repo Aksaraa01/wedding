@@ -25,6 +25,14 @@
 }
 
 @font-face {
+  font-family: "Ivory Seasons";
+  src: url("/templates/ivory-lace/fonts/theseasons-700.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: "Ivory Garet";
   src: url("/templates/ivory-lace/fonts/garet-400.woff") format("woff");
   font-weight: 400;
@@ -110,7 +118,9 @@ body:has(.il-root.is-locked) {
 
 .il-display {
   font-family: var(--il-display);
-  font-weight: 300;
+  /* Ferly ships a single weight in the reference; the headings need more
+     contrast than the raw 400 cut gives on paper, so it is emboldened here. */
+  font-weight: 700;
   font-size: clamp(1.42rem, 6.6vw, 2.15rem);
   line-height: 1.3;
   letter-spacing: 0.2em;
@@ -123,6 +133,7 @@ body:has(.il-root.is-locked) {
 .il-heading {
   font-size: clamp(1.36rem, 6.2vw, 2rem);
   letter-spacing: 0.24em;
+  font-weight: 700;
 }
 
 .il-script {
@@ -136,7 +147,7 @@ body:has(.il-root.is-locked) {
   font-size: 13px;
   line-height: 1.85;
   letter-spacing: 0.03em;
-  color: var(--il-ink-soft);
+  color: var(--il-ink);
   margin: 0;
   text-align: center;
 }
@@ -624,23 +635,34 @@ body:has(.il-root.is-locked) {
 
 .il-event__venue {
   margin-top: 10px;
-  font-size: clamp(1.5rem, 7vw, 2rem);
+  font-size: clamp(1.6rem, 7.6vw, 2.15rem);
+  color: var(--il-ink);
 }
 
 .il-event__meta,
 .il-event__address {
-  margin-top: 8px;
-  font-size: 11.5px;
-  letter-spacing: 0.14em;
+  margin-top: 10px;
+  font-size: 12px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+  color: var(--il-ink);
 }
 
 .il-event__pin {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  margin-top: 22px;
+  gap: 8px;
+  margin-top: 26px;
+  text-decoration: none;
+  color: var(--il-ink);
+}
+
+.il-event__pin-label {
+  font-family: var(--il-body);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--il-ink);
 }
 
 .il-pin {
@@ -689,11 +711,11 @@ body:has(.il-root.is-locked) {
 }
 
 .il-calendar__month {
-  margin: 0 0 16px;
+  margin: 0 0 18px;
   text-align: center;
   font-family: var(--il-display);
-  font-size: 13px;
-  letter-spacing: 0.26em;
+  font-size: 18px;
+  letter-spacing: 0.2em;
   color: var(--il-ink);
 }
 
@@ -742,14 +764,25 @@ body:has(.il-root.is-locked) {
 }
 
 .il-clock {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  max-width: 420px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+  max-width: 520px;
   margin: 0 auto;
-  gap: 4px;
+}
+
+/* The reference prints the clock as "60 : 15 : 28 : 01". */
+.il-clock__sep {
+  font-family: var(--il-date);
+  font-weight: 700;
+  font-size: clamp(1.35rem, 6.4vw, 1.85rem);
+  line-height: 1.1;
+  color: var(--il-ink);
 }
 
 .il-clock__cell {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -757,12 +790,16 @@ body:has(.il-root.is-locked) {
 }
 
 .il-clock__cell strong {
-  font-family: var(--il-display);
-  font-weight: 300;
-  font-size: clamp(1.5rem, 8vw, 2.1rem);
-  letter-spacing: 0.04em;
+  /* The reference countdown is a bold, narrow serif (Times-like numerals). */
+  font-family: var(--il-date);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 9vw, 2.5rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
   color: var(--il-ink);
   font-variant-numeric: tabular-nums;
+  display: inline-block;
+  transform: scaleX(0.94);
 }
 
 .il-clock__cell span {
@@ -1038,30 +1075,17 @@ body:has(.il-root.is-locked) {
   padding: 0;
   background: var(--il-paper-3);
   overflow: hidden;
-  cursor: pointer;
   box-shadow: 0 18px 40px -28px rgba(34, 34, 32, 0.55);
 }
 
-.il-film__still img {
+.il-film__still video,
+.il-film__still iframe {
   width: 100%;
   height: 100%;
+  border: 0;
   object-fit: cover;
+  display: block;
   filter: grayscale(1);
-}
-
-.il-film__notes {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(253, 252, 248, 0.18);
-}
-
-.il-film__notes img {
-  width: 46%;
-  height: auto;
-  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.65));
 }
 
 .il-film__vinyl {
@@ -1464,10 +1488,15 @@ body:has(.il-root.is-locked) {
 .il-closing__photo {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  background: var(--il-paper-3);
 }
 
+/* The closing plate fits the photograph: it is the last thing a guest sees, so
+   cropping it (aspect-ratio + object-fit: cover) cut heads off. */
 .il-closing__photo img {
+  width: 100%;
+  height: auto;
+  display: block;
   filter: grayscale(1);
 }
 
@@ -1482,6 +1511,16 @@ body:has(.il-root.is-locked) {
   text-transform: uppercase;
   color: #fff;
   text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45);
+}
+
+.il-hashtag {
+  margin: 22px 0 0;
+  text-align: center;
+  font-family: var(--il-body);
+  font-size: 10.5px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--il-gold-deep);
 }
 
 .il-closing__message {
@@ -1613,10 +1652,7 @@ body:has(.il-root.is-locked) {
   position: fixed;
   inset: 0;
   z-index: 70;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  display: block;
   background: var(--il-paper);
   transition: opacity 0.7s ease, visibility 0.7s ease;
   cursor: pointer;
@@ -1750,7 +1786,10 @@ body:has(.il-root.is-locked) {
 .il-gate__brand {
   position: absolute;
   bottom: 18px;
+  left: 0;
+  right: 0;
   z-index: 3;
+  transition: opacity 0.5s ease;
   font-family: var(--il-caps);
   font-size: 8px;
   letter-spacing: 0.3em;
@@ -1900,7 +1939,8 @@ body:has(.il-root.is-locked) {
   }
 
   .il-closing__photo {
-    aspect-ratio: 16 / 10;
+    max-width: 760px;
+    margin-inline: auto;
   }
 
   .il-music {

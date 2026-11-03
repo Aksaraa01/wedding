@@ -4,6 +4,7 @@ import { ASSETS } from "@/lib/assets"
 const TM = "https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/template-media"
 
 const DE = "/images/dark-elegance"
+const BP = (name: string) => `/templates/boarding-pass/${name}`
 const DE_COVERS = [
   `${DE}/cover.webp`,
   `${DE}/cover-1.webp`,
@@ -931,6 +932,87 @@ DEMO_PROPS_BY_CODE["adat-batak"] = {
   },
 }
 
+DEMO_PROPS_BY_CODE["adat-bugis"] = {
+  ...DEMO_PROPS_BY_CODE["adat-melayu"],
+  slug: "demo",
+  groom_name: "Andi",
+  bride_name: "Nurul",
+  couple_initials: "AN",
+  display_name: "#AndiNurul2027",
+  groom_full_name: "Andi Muh. Fadhil Pratama",
+  bride_full_name: "Nurul Aisyah Ramadhani",
+  groom_parents: "Putra dari Bapak H. Andi Muhammad Idris & Ibu Hj. Andi Nurhayati",
+  bride_parents: "Putri dari Bapak H. Abdul Karim & Ibu Hj. Siti Rahmah",
+  groom_instagram: "@wedding.aksaraa",
+  bride_instagram: "@wedding.aksaraa",
+  quote_source: "Doa Pernikahan Adat Bugis",
+  sessions: [
+    {
+      name: "Mappacci",
+      date: "2027-12-31",
+      time: "08.00 - 10.00 WITA",
+      venue: "Balai Adat Bugis",
+      address: "Jl. Sultan Hasanuddin No. 12, Makassar, Sulawesi Selatan",
+      maps_url: "https://maps.google.com/?q=Balai+Adat+Bugis+Makassar",
+    },
+    {
+      name: "Resepsi Pernikahan",
+      date: "2027-12-31",
+      time: "11.00 - 14.00 WITA",
+      venue: "Balai Adat Bugis",
+      address: "Jl. Sultan Hasanuddin No. 12, Makassar, Sulawesi Selatan",
+      maps_url: "https://maps.google.com/?q=Balai+Adat+Bugis+Makassar",
+    },
+  ],
+  stories: [
+    {
+      title: "Pertemuan Pertama",
+      description:
+        "Kami pertama kali bertemu dalam sebuah acara keluarga di Makassar. Sebuah sapaan sederhana menjadi awal dari kisah yang tidak pernah kami duga.",
+    },
+    {
+      title: "Melangkah Bersama",
+      description:
+        "Dari hari-hari sederhana, kami belajar tumbuh bersama dan menemukan rumah dalam diri satu sama lain.",
+    },
+    {
+      title: "Memantapkan Hati",
+      description:
+        "Dengan doa dan restu kedua keluarga, serta adat Bugis yang menyatukan kami, kami memantapkan hati untuk menikah.",
+    },
+    {
+      title: "Hari Pernikahan",
+      description:
+        "Dengan penuh syukur, kami memulai perjalanan membangun keluarga kecil. Semoga keberkahan menyertai setiap langkah kami.",
+    },
+  ],
+  gift_accounts: [
+    { provider_name: "Bank Mandiri", account_number: "1230009876543", account_name: "Andi Muh. Fadhil Pratama", type: "bank" },
+    { provider_name: "Bank Central Asia (BCA)", account_number: "8200891083", account_name: "Nurul Aisyah Ramadhani", type: "bank" },
+  ],
+  gift_address: "Jl. Sultan Hasanuddin No. 12, Makassar, Sulawesi Selatan",
+  gift_address_name: "Andi & Nurul",
+  inviting_families: [
+    "Keluarga Besar Bapak H. Andi Muhammad Idris",
+    "Keluarga Besar Ibu Hj. Andi Nurhayati",
+    "Keluarga Besar Bapak H. Abdul Karim",
+    "Keluarga Besar Ibu Hj. Siti Rahmah",
+  ],
+  track_url: "/templates/adat-bugis/mula-macenning.mp3",
+  template_content: {
+    cover_apology: "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.",
+    gallery_intro: "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
+    gallery_quote: "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama.",
+    gift_intro_title: "Love Gift",
+    gift_intro_description:
+      "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
+    wishes_intro:
+      "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
+    closing_message:
+      "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
+  },
+}
+
 DEMO_PROPS_BY_CODE["adat-minang"] = {
   ...DEMO_PROPS_BY_CODE["sandhya"],
   slug: "demo",
@@ -1524,6 +1606,7 @@ DEMO_PROPS_BY_CODE["ivory-lace"] = {
     "We are so happy to share this day with you. Here you will find everything about the celebration — the ceremony, the day itself, and the people we cannot wait to see.",
   wedding_profile_id: "demo-wedding-profile-id",
   guest_id: "demo-guest-id",
+  cover_photos: [`${DE}/cover-1.webp`, `${DE}/cover-3.webp`, `${DE}/cover-2.webp`, `${DE}/cover-4.webp`, `${DE}/cover-5.webp`],
   gallery_photos: [...DE_GALLERY].slice(0, 6),
   stories: [
     {
@@ -1614,5 +1697,94 @@ DEMO_PROPS_BY_CODE["ivory-lace"] = {
       "Nothing would make us happier than celebrating this day surrounded by the people we love. Leave us a wish, and let us know you are coming.",
     closing_message:
       "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say.",
+  },
+}
+
+DEMO_PROPS_BY_CODE["boarding-pass"] = {
+  ...DEMO_PROPS_BY_CODE["sandhya"],
+  slug: "demo",
+  // Demo imagery is the reference design's own set, vendored into
+  // public/templates/boarding-pass so the preview reads exactly like it.
+  display_name: "#AlbarnFayeForever",
+  estimated_wedding_date: "2027-12-11",
+  // cover + hero are the reference's beach frame; closing borrows a couple frame
+  cover_photos: [BP("hero-beach.webp"), BP("hero-beach.webp"), BP("couple-3.webp")],
+  groom_photo_url: [BP("couple-1.webp")],
+  bride_photo_url: [BP("couple-2.webp")],
+  gallery_photos: [BP("gallery-1.webp"), BP("gallery-2.webp"), BP("gallery-3.webp"), BP("gallery-4.webp"),
+                   BP("couple-3.webp"), BP("couple-4.webp"), BP("couple-5.webp"), BP("couple-1.webp")],
+  sessions: [
+    {
+      name: "Akad Nikah",
+      date: "2027-12-11",
+      time: "08.00 - 10.00 WIB",
+      venue: "Masjid Al-Bahar",
+      address: "Jl. Pesisir No. 12, Badung, Bali",
+      maps_url: "https://maps.app.goo.gl/9bRvrJZZ1xcZSoqa6",
+    },
+    {
+      name: "Resepsi",
+      date: "2027-12-11",
+      time: "11.00 - 14.00 WIB",
+      venue: "Taman Nyiur",
+      address: "Jl. Pesisir No. 30, Badung, Bali",
+      maps_url: "https://maps.app.goo.gl/UPxWi9HU1w4A9R1j6",
+    },
+  ],
+  stories: [
+    {
+      title: "2019 · Pertemuan Pertama",
+      description:
+        "Kami berkenalan di sebuah acara kantor yang sebenarnya sama-sama ingin kami lewatkan. Satu obrolan di dekat meja kopi berlanjut sampai lampu ruangan dimatikan.",
+      image_url: BP("couple-3.webp"),
+    },
+    {
+      title: "2022 · Jatuh Hati",
+      description:
+        "Dari teman bertukar cerita menjadi teman seperjalanan. Kami belajar bahwa jalan pulang terasa paling dekat bila ditempuh berdua.",
+      image_url: BP("couple-4.webp"),
+    },
+    {
+      title: "2025 · Sebuah Janji",
+      description:
+        "Di tepi pantai saat matahari turun, satu pertanyaan sederhana dijawab dengan anggukan dan tawa yang bercampur haru.",
+      image_url: BP("couple-5.webp"),
+    },
+  ],
+  rundown_visible: true,
+  rundown: [
+    { time: "07.30", description: "Tamu tiba dan registrasi di gerbang" },
+    { time: "08.00", description: "Akad nikah dimulai" },
+    { time: "09.30", description: "Sungkeman dan foto keluarga" },
+    { time: "11.00", description: "Resepsi dibuka" },
+    { time: "14.00", description: "Penutup dan pamit" },
+  ],
+  dresscode_visible: true,
+  dresscode: {
+    colors: [
+      { hex: "#fffcf6", name: "Ivory" },
+      { hex: "#1f5a60", name: "Teal" },
+      { hex: "#bfd6d0", name: "Mint" },
+      { hex: "#e4dccd", name: "Sand" },
+    ],
+  },
+  template_content: {
+    hero_tagline: "tujuan akhir: hari bahagia kami",
+    board_footer: "sampai jumpa di gerbang keberangkatan",
+    events_note: "Mohon hadir 30 menit sebelum boarding.",
+    seat_class: "VIP",
+    dresscode_intro:
+      "Kami akan senang bila Anda hadir dengan nuansa warna berikut, agar setiap bingkai dari hari itu terasa satu cerita.",
+    cover_kicker: "AF 27 · 01A",
+    cover_apology: "Tunjukkan tiket ini dengan senyuman.",
+    gallery_intro: "oleh-oleh dari perjalanan kami",
+    gift_intro_title: "Tanda Kasih",
+    gift_intro_description:
+      "Doa restu Anda adalah bekal terbaik untuk perjalanan kami. Bila ingin memberi lebih, kami menerimanya dengan penuh syukur.",
+    wishes_intro: "Titipkan pesan dan doa terbaik untuk perjalanan baru kami.",
+    inviting_intro:
+      "Dengan penuh rasa syukur, kami mengundang Anda untuk ikut dalam perjalanan ini bersama keluarga kami.",
+    closing_message:
+      "Merupakan suatu kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu. Terima kasih telah menjadi bagian dari perjalanan kami.",
   },
 }

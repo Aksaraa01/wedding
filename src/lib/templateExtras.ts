@@ -44,8 +44,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     multiline: true,
     rows: 2,
     placeholder: "Dua Insan Ini\\nAkan Menikah",
-    placeholders: { "ivory-lace": "The Wedding Of", lace: "The Wedding Of", "n-film": "#AlbarnFayeForever" },
-    templates: ["evermore", "lace", "n-film", "ivory-lace"],
+    placeholders: { "ivory-lace": "The Wedding Of", lace: "The Wedding Of", "n-film": "#AlbarnFayeForever" , "boarding-pass": "#AlbarnFayeForever" },
+    templates: ["evermore", "lace", "n-film", "ivory-lace", "boarding-pass"],
   },
   {
     key: "cover_title",
@@ -81,6 +81,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "altar-garden": "Kami memohon maaf atas segala kekeliruan penulisan nama dan gelar.",
       "adat-melayu": "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.",
       "adat-batak": "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.",
+      "adat-bugis": "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.",
       "adat-minang": "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.",
       "adat-palembang": "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.",
       "adat-betawi": "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.",
@@ -93,8 +94,10 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       imagine: "We apologize for any misspelling of your name.",
     
       "n-film": "We apologize for any misspelling of your name or title.",
+    
+      "boarding-pass": "Tunjukkan tiket ini dengan senyuman.",
     },
-    templates: ["sandhya", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "n-film", "ivory-lace"],
+    templates: ["sandhya", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "n-film", "ivory-lace", "boarding-pass"],
   },
   {
     key: "quote_title",
@@ -144,6 +147,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "altar-garden": "Momen yang kami simpan erat, seperti kenangan dalam album keluarga.",
       "adat-melayu": "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
       "adat-batak": "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
+      "adat-bugis": "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
       "adat-minang": "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
       "adat-palembang": "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
       "adat-betawi": "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
@@ -152,8 +156,10 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "adat-bali": "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
     
       "n-film": "A few frames from the days that led us here — the quiet ones we keep closest.",
+    
+      "boarding-pass": "Oleh-oleh dari perjalanan kami — bingkai yang paling kami simpan.",
     },
-    templates: ["evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "embroidered-garden", "lace", "n-film", "ivory-lace"],
+    templates: ["evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass"],
   },
   {
     key: "gallery_quote",
@@ -170,6 +176,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "altar-garden": "Setiap kisah cinta itu indah, tetapi kisah kita adalah favoritku.",
       "adat-melayu": "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama.",
       "adat-batak": "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama.",
+      "adat-bugis": "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama.",
       "adat-minang": "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama.",
       "adat-palembang": "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama.",
       "adat-betawi": "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama.",
@@ -179,7 +186,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "manjari": "A lifetime with you is the most beautiful story I could ever choose.",
       "still-ever": "A lifetime with you is the story I would choose again and again.",
     },
-    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "ivory-lace"],
+    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "ivory-lace"],
   },
   {
     key: "video_title",
@@ -222,6 +229,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "altar-garden": "Tanda Kasih",
       "adat-melayu": "Love Gift",
       "adat-batak": "Love Gift",
+      "adat-bugis": "Love Gift",
       "adat-minang": "Love Gift",
       "adat-palembang": "Love Gift",
       "adat-betawi": "Love Gift",
@@ -236,8 +244,45 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       imagine: "Wedding Gift",
     
       "n-film": "Wedding Gift",
+    
+      "boarding-pass": "Tanda Kasih",
     },
-    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "lace", "n-film", "ivory-lace"],
+    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "lace", "n-film", "ivory-lace", "boarding-pass"],
+  },
+  {
+    key: "hero_tagline",
+    label: "Tagline Sampul Depan",
+    placeholders: { "boarding-pass": "tujuan akhir: hari bahagia kami" },
+    templates: ["boarding-pass"],
+  },
+  {
+    key: "board_footer",
+    label: "Catatan Papan Keberangkatan",
+    placeholders: { "boarding-pass": "sampai jumpa di gerbang keberangkatan" },
+    templates: ["boarding-pass"],
+  },
+  {
+    key: "events_note",
+    label: "Catatan Bagian Acara",
+    placeholders: { "boarding-pass": "Mohon hadir 30 menit sebelum boarding." },
+    templates: ["boarding-pass"],
+  },
+  {
+    key: "seat_class",
+    label: "Kelas Kursi",
+    placeholders: { "boarding-pass": "VIP" },
+    templates: ["boarding-pass"],
+  },
+  {
+    key: "dresscode_intro",
+    label: "Pengantar Dress Code",
+    multiline: true,
+    rows: 3,
+    placeholders: {
+      "boarding-pass":
+        "Kami akan senang bila Anda hadir dengan nuansa warna berikut, agar setiap bingkai dari hari itu terasa satu cerita.",
+    },
+    templates: ["boarding-pass"],
   },
   {
     key: "gift_intro_description",
@@ -257,6 +302,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "manjari": "Your presence is the greatest gift to us. If you would like to send another token of love, please use the details below:",
       "adat-melayu": "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
       "adat-batak": "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
+      "adat-bugis": "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
       "adat-minang": "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
       "adat-palembang": "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
       "adat-betawi": "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
@@ -268,8 +314,10 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       lace: "Should you wish to give a gift, you may do so in cash or by bank transfer.",
     
       "n-film": "Having our family, friends, and loved ones share in our special day is the greatest gift. If you would like to express your love through a gift, we have provided the details below.",
+    
+      "boarding-pass": "Doa restu Anda adalah bekal terbaik untuk perjalanan kami. Bila ingin memberi lebih, kami menerimanya dengan penuh syukur.",
     },
-    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "n-film", "ivory-lace"],
+    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-bugis", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass"],
   },
   {
     key: "wishes_intro",
@@ -283,6 +331,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "altar-garden": "Tinggalkan pesan cinta dan doa untuk kedua mempelai.",
       "adat-melayu": "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
       "adat-batak": "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
+      "adat-bugis": "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
       "adat-minang": "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
       "adat-palembang": "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
       "adat-betawi": "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
@@ -296,8 +345,10 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       imagine: "Leave a message of love and a prayer for the couple.",
     
       "n-film": "Leave a wish, a prayer, or a memory for us to keep.",
+    
+      "boarding-pass": "Titipkan pesan dan doa terbaik untuk perjalanan baru kami.",
     },
-    templates: ["evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "n-film", "ivory-lace"],
+    templates: ["evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass"],
   },
   {
     key: "closing_message",
@@ -320,6 +371,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       lace: "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say.",
       "adat-melayu": "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
       "adat-batak": "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
+      "adat-bugis": "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
       "adat-minang": "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
       "adat-palembang": "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
       "adat-betawi": "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
@@ -327,8 +379,10 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       imagine: "From the bottom of our hearts we just want to thank you for being part of our big day. We are extremely lucky to have each of you in our lives and honored you could be here with us.",
     
       "n-film": "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say.",
+    
+      "boarding-pass": "Merupakan suatu kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu. Terima kasih telah menjadi bagian dari perjalanan kami.",
     },
-    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "n-film", "ivory-lace"],
+    templates: ["sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-bugis", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "n-film", "ivory-lace", "boarding-pass"],
   },
   {
     key: "couple_description",
@@ -365,8 +419,10 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       lace: "Together with the families who share this invitation.",
     
       "n-film": "With the blessings of their families, we invite you to celebrate with us.",
+    
+      "boarding-pass": "Dengan penuh rasa syukur, kami mengundang Anda untuk ikut dalam perjalanan ini bersama keluarga kami.",
     },
-    templates: ["embroidered-garden", "lace", "n-film", "ivory-lace"],
+    templates: ["embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass"],
   },
   {
     key: "rundown_title",

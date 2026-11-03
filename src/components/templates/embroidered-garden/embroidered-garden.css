@@ -350,6 +350,42 @@ body:has(.eg-root.is-locked) {
   transition: opacity 0.4s ease;
 }
 
+/* Same badge as the adat family's video spinner: a small circular indicator in
+   the corner, shown only while the first frame is still arriving (or the film
+   stalls mid playback). */
+.eg-gate__buffer {
+  position: absolute;
+  right: 16px;
+  bottom: 80px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(20, 21, 18, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  pointer-events: none;
+}
+
+.eg-gate__buffer-ring {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: eg-buffer-spin 0.7s linear infinite;
+}
+
+@keyframes eg-buffer-spin {
+  to { transform: rotate(360deg); }
+}
+
 .eg-gate__signature {
   position: absolute;
   left: 0;
