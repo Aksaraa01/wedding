@@ -52,7 +52,7 @@ function CopyButton({ value, display }: { value: string; display: string }) {
           : "bg-[#38bdf8]/10 border-[#38bdf8]/50 text-[#8ed5ff] shadow-[0_0_12px_rgba(56,189,248,0.3)] hover:bg-[#38bdf8]/25 hover:text-white"
       }`}
     >
-      <span className="material-symbols-outlined text-[16px]">{state === "copied" ? "done" : "content_copy"}</span>
+      <span className="material-symbols-outlined text-[16px]">{state === "copied" ? "check" : "content_copy"}</span>
       <span>{state === "copied" ? "Copied!" : display}</span>
     </button>
   )

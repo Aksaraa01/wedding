@@ -68,7 +68,7 @@ export function CopyButton({
       className={`${className} ${copied ? "border-emerald-500/50 text-emerald-300" : ""}`}
     >
       <span className={`material-symbols-outlined text-[16px] ${iconClassName}`}>
-        {copied ? "done" : "content_copy"}
+        {copied ? "check" : "content_copy"}
       </span>
       <span>{copied ? copiedDisplay : display}</span>
     </button>

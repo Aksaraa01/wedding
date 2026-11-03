@@ -23,7 +23,7 @@ const MODULES = [
     href: "/fitur/wish-wall",
   },
   {
-    icon: "chat_bubble_outline",
+    icon: "chat_bubble",
     title: "Reminder WhatsApp Otomatis",
     desc: "Blast undangan & pengingat H-7/H-1 otomatis via WA, personal per tamu + tautan unik + nomor meja.",
     href: "/fitur/reminder-wa",

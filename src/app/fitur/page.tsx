@@ -61,14 +61,14 @@ export default function FitursPage() {
     {
       key: "wa_blast",
       label: "Reminder WhatsApp Otomatis",
-      icon: "chat_bubble_outline",
+      icon: "chat_bubble",
       desc: "Blast undangan & pengingat H-7/H-1 otomatis via WA, personal per tamu + tautan unik + nomor meja.",
       href: "/fitur/reminder-wa",
     },
     {
       key: "kolom_direct_transfer",
       label: "Reservasi Otomatis & Link Unik",
-      icon: "unique_link_generator",
+      icon: "qr_code_2",
       desc: "Tautan unik per tamu + QR Pass + nomor meja terotomatisasi, anti tamu tak diundang.",
       href: "/fitur/link-unik",
     },

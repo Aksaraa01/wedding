@@ -3259,7 +3259,7 @@ export default function AntrianDetail({ id }: { id: string }) {
 
                 <div className="p-6 space-y-4">
                   {!hidesOpeningSection(invitationData?.template?.code) && (
-                  <InvAccordion secKey="pembuka" icon="chat_bubble_outline" label="KALIMAT PEMBUKA" {...invAccProps("pembuka")}>
+                  <InvAccordion secKey="pembuka" icon="chat_bubble" label="KALIMAT PEMBUKA" {...invAccProps("pembuka")}>
                     {invEditing && invForm ? (
                       <div className="mt-6 space-y-4">
                         <div className="space-y-2">
@@ -3570,7 +3570,7 @@ export default function AntrianDetail({ id }: { id: string }) {
 
                   {/* Tanpa-photo: whole gallery section removed (photos-only) */}
                   {!invNoPhoto && (
-                  <InvAccordion secKey="galeri" icon="collections" label="GALERI" {...invAccProps("galeri")}>
+                  <InvAccordion secKey="galeri" icon="photo_library" label="GALERI" {...invAccProps("galeri")}>
                     {invEditing && invForm ? (
                       <div className="mt-6 space-y-8">
                         <div className="space-y-4">

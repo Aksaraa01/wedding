@@ -1987,7 +1987,7 @@ function EditorInner({ id }: { id: string }) {
                 </div>
               )}
 
-              {!hidesOpeningSection(template?.code) && renderSection("pembuka", "chat_bubble_outline", "KALIMAT PEMBUKA",
+              {!hidesOpeningSection(template?.code) && renderSection("pembuka", "chat_bubble", "KALIMAT PEMBUKA",
                 <div className="mt-6 space-y-4">
                   <div className="space-y-2">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Judul</label>
@@ -2266,7 +2266,7 @@ function EditorInner({ id }: { id: string }) {
               )}
 
               {/* Tanpa-photo: whole gallery section removed (photos-only) */}
-              {!isNoPhoto && renderSection("galeri", "collections", "GALERI",
+              {!isNoPhoto && renderSection("galeri", "photo_library", "GALERI",
                 <div className="mt-6 space-y-8">
                   <div className="space-y-4">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">

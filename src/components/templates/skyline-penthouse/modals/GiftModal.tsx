@@ -54,7 +54,7 @@ function CopyButton({ value, display }: { value: string; display: string }) {
       }`}
       style={BODY}
     >
-      <span className="material-symbols-outlined text-[16px]">{state === "copied" ? "done" : "content_copy"}</span>
+      <span className="material-symbols-outlined text-[16px]">{state === "copied" ? "check" : "content_copy"}</span>
       <span>{state === "copied" ? "Copied!" : display}</span>
     </button>
   )
