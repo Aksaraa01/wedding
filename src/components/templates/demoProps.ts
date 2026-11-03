@@ -1018,6 +1018,87 @@ DEMO_PROPS_BY_CODE["adat-dayak"] = {
   },
 }
 
+DEMO_PROPS_BY_CODE["adat-banjar"] = {
+  ...DEMO_PROPS_BY_CODE["adat-melayu"],
+  slug: "demo",
+  groom_name: "Joseph",
+  bride_name: "Sandhya",
+  couple_initials: "SJ",
+  display_name: "#SandhyaJoseph2027",
+  groom_full_name: "Joseph Alexander Wicaksana",
+  bride_full_name: "Sandhya Kirana Adiwijaya",
+  groom_parents: "Putra dari Bapak Muhammad Yusuf & Ibu Siti Khadijah",
+  bride_parents: "Putri dari Bapak Ahmad Fadillah & Ibu Nur Aisyah",
+  groom_instagram: "@joseph.alexander",
+  bride_instagram: "@sandhya.kirana",
+  quote_source: "Doa Pernikahan Adat Banjar",
+  sessions: [
+    {
+      name: "Akad Nikah",
+      date: "2027-12-31",
+      time: "08.00 - 10.00 WIB",
+      venue: "Rumah Bubungan Tinggi Banjar",
+      address: "Jl. Ahmad Yani No. 7, Banjarbaru, Kalimantan Selatan",
+      maps_url: "https://maps.google.com/?q=Rumah+Bubungan+Tinggi+Banjar+Banjarmasin",
+    },
+    {
+      name: "Resepsi Pernikahan",
+      date: "2027-12-31",
+      time: "11.00 - 14.00 WIB",
+      venue: "Rumah Bubungan Tinggi Banjar",
+      address: "Jl. Ahmad Yani No. 7, Banjarbaru, Kalimantan Selatan",
+      maps_url: "https://maps.google.com/?q=Rumah+Bubungan+Tinggi+Banjar+Banjarmasin",
+    },
+  ],
+  stories: [
+    {
+      title: "Pertama Bertemu",
+      description:
+        "Kami pertama kali bertemu dalam sebuah acara keluarga di Banjarmasin. Sebuah sapaan sederhana menjadi awal dari kisah yang tidak pernah kami duga.",
+    },
+    {
+      title: "Melangkah Bersama",
+      description:
+        "Dari hari-hari yang sederhana, kami belajar untuk tumbuh bersama dan menemukan rumah dalam diri satu sama lain.",
+    },
+    {
+      title: "Memantapkan Hati",
+      description:
+        "Dengan doa dan restu kedua keluarga, serta adat Banjar yang menyatukan kami, kami memantapkan hati untuk mengikat janji pernikahan.",
+    },
+    {
+      title: "Hari Pernikahan",
+      description:
+        "Dengan penuh syukur, kami memulai perjalanan membangun keluarga kecil. Semoga keberkahan menyertai setiap langkah kami.",
+    },
+  ],
+  gift_accounts: [
+    { provider_name: "Bank Mandiri", account_number: "1230009876543", account_name: "Joseph Alexander Wicaksana", type: "bank" },
+    { provider_name: "Bank Central Asia (BCA)", account_number: "8200891083", account_name: "Sandhya Kirana Adiwijaya", type: "bank" },
+  ],
+  gift_address: "Jl. Ahmad Yani No. 7, Banjarbaru, Kalimantan Selatan",
+  gift_address_name: "Joseph & Sandhya",
+  inviting_families: [
+    "Keluarga Bapak Muhammad Yusuf",
+    "Keluarga Ibu Siti Khadijah",
+    "Keluarga Bapak Ahmad Fadillah",
+    "Keluarga Ibu Nur Aisyah",
+  ],
+  track_url: "/templates/adat-banjar/h-anang-ardiansyah-kembang-goyang.mp3",
+  template_content: {
+    cover_apology: "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.",
+    gallery_intro: "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
+    gallery_quote: "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama.",
+    gift_intro_title: "Love Gift",
+    gift_intro_description:
+      "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
+    wishes_intro:
+      "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
+    closing_message:
+      "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
+  },
+}
+
 DEMO_PROPS_BY_CODE["adat-batak"] = {
   ...DEMO_PROPS_BY_CODE["adat-melayu"],
   slug: "demo",

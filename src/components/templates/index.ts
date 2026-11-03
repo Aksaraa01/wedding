@@ -16,6 +16,7 @@ import AdatMelayu from "./adat-melayu"
 import AdatBatak from "./adat-batak"
 import AdatBugis from "./adat-bugis"
 import AdatDayak from "./adat-dayak"
+import AdatBanjar from "./adat-banjar"
 import AdatMinang from "./adat-minang"
 import AdatPalembang from "./adat-palembang"
 import AdatBetawi from "./adat-betawi"
@@ -53,6 +54,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "adat-batak": AdatBatak,
   "adat-bugis": AdatBugis,
   "adat-dayak": AdatDayak,
+  "adat-banjar": AdatBanjar,
   "adat-minang": AdatMinang,
   "adat-palembang": AdatPalembang,
   "adat-betawi": AdatBetawi,
@@ -629,6 +631,46 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         accentMuted: "#6e6e72",
         overlay: "#0b0b0c",
         dark: "#0b0b0c",
+      },
+      ornaments: { divider: "floral", border: "minimal", frame: "arch" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.2 },
+    },
+    content: {
+      cover_slots: 3,
+      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: false,
+      sections: {
+        opening_description: false,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: true,
+        livestream: true,
+        rundown: true,
+        contacts: true,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "adat-banjar",
+    name: "Adat Banjar",
+    description: "Undangan adat Banjar bernuansa deep maroon dan warm paper — ilustrasi rumah bubungan tinggi banjar, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
+    theme: {
+      fonts: { display: "Pinyon Script", script: "Pinyon Script", body: "Poppins" },
+      colors: {
+        surface: "#fffcf3",
+        text: "#171612",
+        accent: "#361111",
+        accentMuted: "#5a2020",
+        overlay: "#171612",
+        dark: "#171612",
       },
       ornaments: { divider: "floral", border: "minimal", frame: "arch" },
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
