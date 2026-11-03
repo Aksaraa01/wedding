@@ -1,0 +1,823 @@
+import test from "node:test"
+import assert from "node:assert/strict"
+
+import { BOUNDARIES, classify, decide } from "../src/lib/cs/policy.ts"
+import {
+  CODE_TTL_MS,
+  MAX_CODE_ATTEMPTS,
+  canAccessProfile,
+  canRequestCode,
+  checkVerification,
+  generateCode,
+  maskPhone,
+  normalizeWhatsApp,
+  samePhone,
+  toJid,
+} from "../src/lib/cs/identity.ts"
+import { validateReply } from "../src/lib/cs/guard.ts"
+import { isPlaceholderTemplate, matchesTemplateCategory } from "../src/lib/cs/templateFilter.ts"
+import { sanitizeReply } from "../src/lib/cs/text.ts"
+import { isCustomerFeature, isSellablePackage } from "../src/lib/cs/catalog.ts"
+import { POLICIES, formatPolicies, resolvePolicies } from "../src/lib/cs/policies.ts"
+import { ctaFor, detectPackageInterest, extractVoucherCode } from "../src/lib/cs/playbook.ts"
+import {
+  applyAnswer,
+  buildPatch,
+  nextQuestion,
+  requiresConfirmation,
+  validateField,
+} from "../src/lib/cs/profileFields.ts"
+
+const NOW = new Date("2026-11-03T10:00:00+07:00")
+const ctx = {
+  verified: false,
+  hasProfile: false,
+  published: false,
+  strikeCount: 0,
+  sentiment: "neutral",
+}
+
+// ---------- policy: klasifikasi intent ----------
+
+test("classify: pertanyaan paket", () => {
+  assert.equal(classify("halo kak, paket yg paling worth it yg mana ya? budget 5jt"), "recommendation")
+})
+
+test("classify: nego masuk discount", () => {
+  assert.equal(classify("mahal bgt ya kak, bisa kurang ga?"), "discount")
+})
+
+test("classify: keluhan keterlambatan", () => {
+  assert.equal(classify("knp undangan aku blm jadi? udh 2 minggu dari DP"), "complaint")
+})
+
+test("classify: refund", () => {
+  assert.equal(classify("saya mau refund aja"), "refund")
+})
+
+test("classify: ubah tanggal", () => {
+  assert.equal(classify("bisa ganti tanggal acara ga?"), "reschedule")
+})
+
+test("classify: minta manusia", () => {
+  assert.equal(classify("minta cs manusia dong"), "human_request")
+})
+
+test("classify: di luar topik", () => {
+  assert.equal(classify("menurut kamu presiden kita siapa"), "out_of_scope")
+})
+
+test("classify: isi data", () => {
+  assert.equal(classify("saya mau bantu isi data mempelai"), "data_collection")
+})
+
+test("classify: status", () => {
+  assert.equal(classify("status pesanan saya sudah sampai mana?"), "status")
+})
+
+test("classify: teknis", () => {
+  assert.equal(classify("link undangan ga bisa dibuka di android"), "technical")
+})
+
+test("paket: 'aku mau signature' terdeteksi", () => {
+  assert.equal(detectPackageInterest("aku mau signature kak"), "signature")
+  assert.equal(detectPackageInterest("mau buku tamu prestige"), "dgb_prestige")
+  assert.equal(detectPackageInterest("ambil galeri tamu"), "gt")
+})
+
+test("classify: pertanyaan undangan cetak", () => {
+  assert.equal(classify("ada undangan cetak ga?"), "print_question")
+})
+
+test("classify: pilih paket → select_package", () => {
+  assert.equal(classify("aku mau signature kak"), "select_package")
+})
+
+test("decide: pilih paket → cta", () => {
+  const d = decide("select_package", ctx)
+  assert.equal(d.action, "playbook")
+  assert.equal(d.step, "cta")
+})
+
+test("cta: paket terpilih memberi link register paket itu", () => {
+  const cta = ctaFor({ package_interest: "signature" })
+  assert.match(cta.url, /register\?package=signature/)
+})
+
+test("guard: meminta kode voucher ditolak", () => {
+  const r = validateReply({ reply: "Kalau Kakak punya kode voucher, kirim saja ke sini ya." })
+  assert.equal(r.ok, false)
+  assert.ok(r.violations.some((v) => v.code === "bureaucratic_phrase"))
+})
+
+test("voucher: kode diekstrak dari pesan", () => {
+  assert.equal(extractVoucherCode("voucher CTK01 masih berlaku?"), "CTK01")
+  assert.equal(extractVoucherCode("harganya Rp299.000 ya"), null)
+})
+
+test("decide: klien kirim kode → check_voucher", () => {
+  const d = decide("voucher", { ...ctx, voucherCode: "CTK01" })
+  assert.equal(d.action, "tool")
+  assert.equal(d.tool, "check_voucher")
+})
+
+test("guard: kode yang dikirim klien wajib disebut", () => {
+  const missing = validateReply({
+    reply: "Voucher itu masih aktif, potongan Rp 50.000.",
+    evidence: [{ amount: 50000 }],
+    expectedVoucherCode: "CTK01",
+  })
+  assert.equal(missing.ok, false)
+  assert.ok(missing.violations.some((v) => v.code === "missing_voucher_code"))
+
+  const ok = validateReply({
+    reply: "CTK01 masih aktif, potongan Rp 50.000.",
+    evidence: [{ amount: 50000 }],
+    expectedVoucherCode: "CTK01",
+  })
+  assert.equal(ok.ok, true, JSON.stringify(ok.violations))
+})
+
+test("classify: tanya voucher masuk voucher", () => {
+  assert.equal(classify("ada voucher ga kak?"), "voucher")
+  assert.equal(classify("promo apa saja yang aktif?"), "voucher")
+})
+
+test("classify: minta diskon tetap discount", () => {
+  assert.equal(classify("bisa diskon ga kak?"), "discount")
+})
+
+test("decide: voucher pakai tool list_vouchers", () => {
+  const d = decide("voucher", ctx)
+  assert.equal(d.action, "tool")
+  assert.equal(d.tool, "list_vouchers")
+})
+
+test("classify: estimasi waktu pengerjaan", () => {
+  assert.equal(classify("berapa lama pengerjaannya?"), "timeline")
+})
+
+test("decide: estimasi waktu dijawab langsung", () => {
+  const d = decide("timeline", ctx)
+  assert.equal(d.action, "answer")
+})
+
+test("classify: minta berhenti dihubungi", () => {
+  assert.equal(classify("jangan chat saya lagi ya"), "opt_out")
+})
+
+test("classify: nanti dulu", () => {
+  assert.equal(classify("nanti aku diskusi dulu ya kak"), "timing")
+})
+
+test("classify: mau daftar", () => {
+  assert.equal(classify("mau daftar gimana caranya"), "cta_register")
+})
+
+test("classify: bandingkan vendor", () => {
+  assert.equal(classify("mau bandingkan sama vendor lain"), "comparison")
+})
+
+// ---------- policy: keputusan ----------
+
+test("decide: discount pertama ditangani, bukan langsung eskalasi", () => {
+  const d = decide("discount", ctx)
+  assert.equal(d.action, "playbook")
+  assert.equal(d.step, "objection")
+  assert.equal(d.strategy, "price")
+})
+
+test("decide: discount kedua dieskalasi", () => {
+  const d = decide("discount", { ...ctx, objectionCount: 1 })
+  assert.equal(d.action, "escalate")
+  assert.equal(d.reason, "discount")
+})
+
+test("decide: komplain eskalasi prioritas tinggi", () => {
+  const d = decide("complaint", { ...ctx, sentiment: "angry" })
+  assert.equal(d.action, "escalate")
+  assert.equal(d.priority, "high")
+})
+
+test("decide: harga lewat tool quote", () => {
+  const d = decide("price", ctx)
+  assert.equal(d.action, "tool")
+  assert.equal(d.tool, "quote")
+})
+
+test("decide: isi data tanpa verifikasi minta verifikasi", () => {
+  const d = decide("data_collection", ctx)
+  assert.equal(d.action, "verify")
+})
+
+test("decide: isi data terverifikasi tapi tanpa profil eskalasi", () => {
+  const d = decide("data_collection", { ...ctx, verified: true, hasProfile: false })
+  assert.equal(d.action, "escalate")
+  assert.equal(d.reason, "no_profile")
+})
+
+test("decide: status terverifikasi pakai tool", () => {
+  const d = decide("status", { ...ctx, verified: true, hasProfile: true })
+  assert.equal(d.action, "tool")
+  assert.equal(d.tool, "profile_status")
+})
+
+test("decide: out of scope ditolak", () => {
+  assert.equal(decide("out_of_scope", ctx).action, "refuse")
+})
+
+test("decide: dua kali tidak paham eskalasi", () => {
+  const d = decide("unknown", { ...ctx, strikeCount: 2 })
+  assert.equal(d.action, "escalate")
+  assert.equal(d.reason, "low_confidence")
+})
+
+test("decide: minta berhenti → opt_out", () => {
+  assert.equal(decide("opt_out", ctx).action, "opt_out")
+})
+
+test("decide: mau daftar → playbook cta", () => {
+  const d = decide("cta_register", ctx)
+  assert.equal(d.action, "playbook")
+  assert.equal(d.step, "cta")
+})
+
+test("decide: sapaan tidak memicu formulir", () => {
+  const d = decide("unknown", { ...ctx, missingFacts: 2, leadStage: "new" })
+  assert.equal(d.action, "answer")
+})
+
+test("decide: minta rekomendasi paket → kualifikasi satu hal", () => {
+  const d = decide("recommendation", ctx)
+  assert.equal(d.action, "playbook")
+  assert.equal(d.step, "qualify")
+})
+
+test("decide: sapaan tanpa kebutuhan kualifikasi → jawab", () => {
+  const d = decide("unknown", { ...ctx, missingFacts: 3, leadStage: "recommending" })
+  assert.equal(d.action, "answer")
+})
+
+test("boundaries menyebut larangan uang dan tanggal", () => {
+  const all = BOUNDARIES.join(" ").toLowerCase()
+  assert.ok(all.includes("harga"))
+  assert.ok(all.includes("tanggal"))
+  assert.ok(all.includes("verifikasi"))
+})
+
+// ---------- identity ----------
+
+test("normalizeWhatsApp: 08xx menjadi +62xx", () => {
+  assert.equal(normalizeWhatsApp("0812-3456-7890"), "+6281234567890")
+})
+
+test("normalizeWhatsApp: +62 dan 62 sama", () => {
+  assert.equal(normalizeWhatsApp("+62 812 3456 7890"), "+6281234567890")
+  assert.equal(normalizeWhatsApp("6281234567890"), "+6281234567890")
+})
+
+test("normalizeWhatsApp: kosong tetap kosong", () => {
+  assert.equal(normalizeWhatsApp("abc"), "")
+})
+
+test("samePhone toleran format", () => {
+  assert.equal(samePhone("+62 812-3456-7890", "081234567890"), true)
+  assert.equal(samePhone("081234567890", "081234567891"), false)
+})
+
+test("toJid untuk Baileys", () => {
+  assert.equal(toJid("081234567890"), "6281234567890@s.whatsapp.net")
+})
+
+test("maskPhone menyembunyikan tengah", () => {
+  const masked = maskPhone("+6281234567890")
+  assert.ok(masked.startsWith("+62812"))
+  assert.ok(masked.endsWith("890"))
+  assert.ok(masked.includes("*"))
+})
+
+test("kode 6 digit", () => {
+  assert.match(generateCode(() => 0.5), /^\d{6}$/)
+})
+
+test("canRequestCode: nomor belum terdaftar", () => {
+  const r = canRequestCode({ registeredPhone: null, claimedPhone: "081234567890", attempts: 0 })
+  assert.equal(r.ok, false)
+  assert.equal(r.reason, "not_registered")
+})
+
+test("canRequestCode: nomor tidak cocok", () => {
+  const r = canRequestCode({
+    registeredPhone: "+628111111111",
+    claimedPhone: "081234567890",
+    attempts: 0,
+  })
+  assert.equal(r.ok, false)
+  assert.equal(r.reason, "phone_mismatch")
+})
+
+test("canRequestCode: cocok", () => {
+  const r = canRequestCode({
+    registeredPhone: "+6281234567890",
+    claimedPhone: "0812-3456-7890",
+    attempts: 0,
+  })
+  assert.equal(r.ok, true)
+})
+
+test("checkVerification: kode kedaluwarsa", () => {
+  const now = 1_000_000_000
+  const r = checkVerification({
+    registeredPhone: "+6281234567890",
+    claimedPhone: "081234567890",
+    codeIssuedAt: now - CODE_TTL_MS - 1,
+    attempts: 0,
+    now,
+  })
+  assert.equal(r.ok, false)
+  assert.equal(r.reason, "expired")
+})
+
+test("checkVerification: percobaan habis", () => {
+  const now = 1_000_000_000
+  const r = checkVerification({
+    registeredPhone: "+6281234567890",
+    claimedPhone: "081234567890",
+    codeIssuedAt: now,
+    attempts: MAX_CODE_ATTEMPTS,
+    now,
+  })
+  assert.equal(r.ok, false)
+  assert.equal(r.reason, "too_many_attempts")
+})
+
+test("canAccessProfile: sesi masih berlaku", () => {
+  const now = 1_000_000_000
+  const r = canAccessProfile({
+    registeredPhone: "+6281234567890",
+    senderPhone: "081234567890",
+    verifiedAt: now - 60_000,
+    now,
+  })
+  assert.equal(r.ok, true)
+})
+
+test("canAccessProfile: sesi kedaluwarsa", () => {
+  const now = 1_000_000_000
+  const r = canAccessProfile({
+    registeredPhone: "+6281234567890",
+    senderPhone: "081234567890",
+    verifiedAt: now - 25 * 60 * 60_000,
+    now,
+  })
+  assert.equal(r.ok, false)
+  assert.equal(r.reason, "expired")
+})
+
+test("canAccessProfile: nomor pengirim beda", () => {
+  const now = 1_000_000_000
+  const r = canAccessProfile({
+    registeredPhone: "+6281234567890",
+    senderPhone: "081200000000",
+    verifiedAt: now,
+    now,
+  })
+  assert.equal(r.ok, false)
+  assert.equal(r.reason, "phone_mismatch")
+})
+
+// ---------- guard ----------
+
+const priceEvidence = [{ name: "quote", data: { Signature: 2_500_000, Prestige: 4_000_000 } }]
+
+test("guard: harga yang ada di tool lolos", () => {
+  const r = validateReply({
+    reply: "Signature Rp 2.500.000 ya Kak, atau Prestige Rp 4.000.000.",
+    evidence: priceEvidence,
+  })
+  assert.equal(r.ok, true, JSON.stringify(r.violations))
+})
+
+test("guard: harga karangan ditolak", () => {
+  const r = validateReply({ reply: "Prestige cuma Rp 3.000.000 Kak.", evidence: priceEvidence })
+  assert.equal(r.ok, false)
+  assert.ok(r.violations.some((v) => v.code === "ungrounded_price"))
+})
+
+test("guard: harga tanpa tool ditolak", () => {
+  const r = validateReply({ reply: "Harganya 2,5 juta ya Kak." })
+  assert.equal(r.ok, false)
+  assert.ok(r.violations.some((v) => v.code === "ungrounded_price"))
+})
+
+test("guard: 'selesai dalam hitungan menit' bukan deadline", () => {
+  const r = validateReply({
+    reply: "Kalau data diisi sendiri, undangan bisa selesai dalam hitungan menit setelah data lengkap.",
+  })
+  assert.equal(r.ok, true, JSON.stringify(r.violations))
+})
+
+test("guard: 'belum bisa dijamin' bukan klaim jaminan", () => {
+  const r = validateReply({
+    reply: "Kuotanya belum bisa dijamin sampai registrasi berhasil, Kak.",
+  })
+  assert.equal(r.ok, true, JSON.stringify(r.violations))
+})
+
+test("guard: 'dijamin selesai' tetap ditolak", () => {
+  const r = validateReply({ reply: "Dijamin selesai besok ya Kak." })
+  assert.equal(r.ok, false)
+  assert.ok(r.violations.some((v) => v.code === "guarantee_claim"))
+})
+
+test("guard: klaim nett tanpa bukti ditolak", () => {
+  const r = validateReply({ reply: "Harga kami sudah nett ya Kak." })
+  assert.equal(r.ok, false)
+  assert.ok(r.violations.some((v) => v.code === "policy_claim"))
+})
+
+test("guard: klaim nett dengan bukti lolos", () => {
+  const r = validateReply({
+    reply: "Harga kami sudah nett ya Kak.",
+    evidence: [{ name: "pricing_policy", data: { nett: true } }],
+  })
+  assert.equal(r.ok, true, JSON.stringify(r.violations))
+})
+
+test("guard: klaim 1 link 2 orang tanpa bukti ditolak", () => {
+  const r = validateReply({ reply: "Bisa Kak, satu link bisa untuk dua orang." })
+  assert.equal(r.ok, false)
+  assert.ok(r.violations.some((v) => v.code === "capability_claim"))
+})
+
+test("guard: klaim 1 link 2 orang dengan bukti lolos", () => {
+  const r = validateReply({
+    reply: "Bisa Kak, satu link bisa untuk dua orang.",
+    evidence: [{ name: "guest_link", data: { multi_guest_link: true } }],
+  })
+  assert.equal(r.ok, true, JSON.stringify(r.violations))
+})
+
+test("guard: nomor HP orang lain ditolak", () => {
+  const r = validateReply({
+    reply: "Nomor tamunya 081234567890 ya Kak.",
+    verifiedPhone: "+628999999999",
+  })
+  assert.equal(r.ok, false)
+  assert.ok(r.violations.some((v) => v.code === "pii_phone"))
+})
+
+test("guard: nomor sendiri boleh", () => {
+  const r = validateReply({
+    reply: "Nomor terdaftar Kakak 081234567890 ya.",
+    verifiedPhone: "+6281234567890",
+  })
+  assert.equal(r.ok, true, JSON.stringify(r.violations))
+})
+
+test("guard: domain asing ditolak", () => {
+  const r = validateReply({ reply: "Cek di https://aksaraa-invitation.com ya Kak." })
+  assert.equal(r.ok, false)
+  assert.ok(r.violations.some((v) => v.code === "bad_link"))
+})
+
+test("guard: domain resmi lolos", () => {
+  const r = validateReply({ reply: "Lihat di https://wedding.aksaraa.com/templates ya Kak." })
+  assert.equal(r.ok, true, JSON.stringify(r.violations))
+})
+
+test("guard: 3 link dalam satu paragraf ditolak", () => {
+  const r = validateReply({
+    reply:
+      "Ada Minang https://wedding.aksaraa.com/templates/minang-royal/preview, Melayu https://wedding.aksaraa.com/templates/adat-melayu/preview, dan Jawa https://wedding.aksaraa.com/templates/adat-jawa/preview.",
+  })
+  assert.equal(r.ok, false)
+  assert.ok(r.violations.some((v) => v.code === "list_not_formatted"))
+})
+
+test("guard: 3 link sebagai daftar poin lolos", () => {
+  const r = validateReply({
+    reply:
+      "Ada 3, Kak:\n• Minang Royal — https://wedding.aksaraa.com/templates/minang-royal/preview\n• Adat Melayu — https://wedding.aksaraa.com/templates/adat-melayu/preview\n• Adat Jawa — https://wedding.aksaraa.com/templates/adat-jawa/preview",
+  })
+  assert.equal(r.ok, true, JSON.stringify(r.violations))
+})
+
+test("guard: kode voucher tidak boleh disebut tanpa diminta", () => {
+  const r = validateReply({
+    reply: "Ada AKSARAA-RACEOGL7 untuk semua paket.",
+    expectNoVoucherCodes: true,
+  })
+  assert.equal(r.ok, false)
+  assert.ok(r.violations.some((v) => v.code === "voucher_code_leak"))
+})
+
+test("guard: narasi potongan tanpa kode lolos", () => {
+  const r = validateReply({
+    reply:
+      "Saat ini ada potongan Rp 50.000 untuk semua paket, dan 10% untuk paket Signature. Bisa dipilih saat registrasi.",
+    evidence: [{ discount: 50000 }],
+    expectNoVoucherCodes: true,
+  })
+  assert.equal(r.ok, true, JSON.stringify(r.violations))
+})
+
+test("guard: kode boleh kalau klien yang mengirim", () => {
+  const r = validateReply({
+    reply: "CTK01 masih berlaku, potongan Rp 50.000.",
+    evidence: [{ amount: 50000 }],
+    expectNoVoucherCodes: false,
+  })
+  assert.equal(r.ok, true, JSON.stringify(r.violations))
+})
+
+test("guard: 'Sistem' sebagai nama paket boleh, 'sistem' internal ditolak", () => {
+  const ok = validateReply({ reply: "Voucher berlaku untuk paket Buku Tamu Sistem dan Pro." })
+  assert.equal(ok.ok, true, JSON.stringify(ok.violations))
+
+  const bad = validateReply({ reply: "Aku cek dulu ke sistem ya Kak." })
+  assert.equal(bad.ok, false)
+  assert.ok(bad.violations.some((v) => v.code === "bureaucratic_phrase"))
+})
+
+test("guard: istilah internal ditolak", () => {
+  const r = validateReply({ reply: "Aku ambil dari database dulu ya Kak." })
+  assert.equal(r.ok, false)
+  assert.ok(r.violations.some((v) => v.code === "internal_leak"))
+})
+
+test("guard: 'Rp 2.500.000 Kak' tidak dianggap miliaran", () => {
+  const r = validateReply({
+    reply: "Harganya Rp 2.500.000 Kak.",
+    evidence: priceEvidence,
+  })
+  assert.equal(r.ok, true, JSON.stringify(r.violations))
+})
+
+test("guard: '299k' tetap dibaca 299 ribu", () => {
+  const r = validateReply({
+    reply: "Harganya 299k ya Kak.",
+    evidence: [{ name: "quote", data: { total: 299000 } }],
+  })
+  assert.equal(r.ok, true, JSON.stringify(r.violations))
+})
+
+test("guard: konteks harga tanpa nominal ditolak", () => {
+  const r = validateReply({
+    reply: "Oke, harga paket Signature sudah aku cek ya Kak.",
+    evidence: priceEvidence,
+    expectPrice: true,
+  })
+  assert.equal(r.ok, false)
+  assert.ok(r.violations.some((v) => v.code === "missing_price"))
+})
+
+test("guard: konteks harga dengan nominal lolos", () => {
+  const r = validateReply({
+    reply: "Paket Signature Rp 2.500.000 ya Kak.",
+    evidence: priceEvidence,
+    expectPrice: true,
+  })
+  assert.equal(r.ok, true, JSON.stringify(r.violations))
+})
+
+test("guard: frasa administrasi ditolak", () => {
+  const r = validateReply({ reply: "Baik, sudah saya catat ya Kak." })
+  assert.equal(r.ok, false)
+  assert.ok(r.violations.some((v) => v.code === "bureaucratic_phrase"))
+})
+
+test("guard: 'aku catat ya' lebih manusiawi dan lolos", () => {
+  const r = validateReply({ reply: "Oke, aku catat ya Kak. Bener kan?" })
+  assert.equal(r.ok, true, JSON.stringify(r.violations))
+})
+
+test("guard: lebih dari satu pertanyaan ditolak", () => {
+  const r = validateReply({
+    reply: "Harga Signature Rp 2.500.000. Tanggalnya kapan? Tamunya berapa?",
+    evidence: priceEvidence,
+  })
+  assert.equal(r.ok, false)
+  assert.ok(r.violations.some((v) => v.code === "too_many_questions"))
+})
+
+test("guard: balasan kepanjangan hanya warning", () => {
+  const long = Array.from({ length: 120 }, () => "kata").join(" ")
+  const r = validateReply({ reply: long })
+  assert.equal(r.ok, true)
+  assert.ok(r.violations.some((v) => v.code === "too_long" && v.severity === "warn"))
+})
+
+test("guard: balasan kosong ditolak", () => {
+  assert.equal(validateReply({ reply: "   " }).ok, false)
+})
+
+// ---------- profile fields ----------
+
+test("field: display_name valid", () => {
+  const r = validateField("display_name", "Rafi & Novi")
+  assert.equal(r.ok, true)
+})
+
+test("field: display_name terlalu pendek", () => {
+  const r = validateField("display_name", "A")
+  assert.equal(r.ok, false)
+})
+
+test("field: guest count di luar batas", () => {
+  assert.equal(validateField("estimated_guest_count", 0).ok, false)
+  assert.equal(validateField("estimated_guest_count", 6000).ok, false)
+  assert.equal(validateField("estimated_guest_count", "350").ok, true)
+})
+
+test("field: instagram membuang @", () => {
+  const r = validateField("groom_instagram", "@rafi.wedding")
+  assert.equal(r.ok, true)
+  if (r.ok) assert.equal(r.value, "rafi.wedding")
+})
+
+test("field: instagram tidak valid", () => {
+  assert.equal(validateField("groom_instagram", "rafi saputra!").ok, false)
+})
+
+test("field: sesi acara valid", () => {
+  const r = validateField(
+    "sessions",
+    [
+      {
+        name: "Akad",
+        date: "2026-12-12",
+        time: "08:00",
+        venue: "Masjid Al Azhar",
+        address: "Jl. Sisingamangaraja, Jakarta Selatan",
+        maps_url: "https://maps.google.com/?q=masjid",
+      },
+    ],
+    NOW
+  )
+  assert.equal(r.ok, true, r.ok ? "" : r.message)
+})
+
+test("field: sesi acara di masa lalu ditolak", () => {
+  const r = validateField(
+    "sessions",
+    [{ name: "Akad", date: "2025-01-01", time: "08:00", venue: "Masjid", address: "Jl. Contoh No. 1" }],
+    NOW
+  )
+  assert.equal(r.ok, false)
+})
+
+test("field: jam acara salah format", () => {
+  const r = validateField(
+    "sessions",
+    [{ name: "Akad", date: "2026-12-12", time: "8 pagi", venue: "Masjid", address: "Jl. Contoh No. 1" }],
+    NOW
+  )
+  assert.equal(r.ok, false)
+})
+
+test("field: link maps bukan google ditolak", () => {
+  const r = validateField(
+    "sessions",
+    [
+      {
+        name: "Akad",
+        date: "2026-12-12",
+        time: "08:00",
+        venue: "Masjid",
+        address: "Jl. Contoh No. 1",
+        maps_url: "https://evil.example.com/maps",
+      },
+    ],
+    NOW
+  )
+  assert.equal(r.ok, false)
+})
+
+test("field: paket tidak boleh ditulis bot", () => {
+  const r = validateField("package_type", "elite")
+  assert.equal(r.ok, false)
+  if (!r.ok) assert.equal(r.code, "forbidden_field")
+})
+
+test("field: tanggal undangan tidak boleh ditulis bot", () => {
+  const r = validateField("estimated_wedding_date", "2026-12-12")
+  assert.equal(r.ok, false)
+  if (!r.ok) assert.equal(r.code, "forbidden_field")
+})
+
+test("field: status pembayaran tidak boleh ditulis bot", () => {
+  assert.equal(validateField("payment_status", "FULLY_PAID").ok, false)
+})
+
+test("draft: applyAnswer menggabungkan", () => {
+  const r = applyAnswer({}, "display_name", "Rafi & Novi", NOW)
+  assert.equal(r.ok, true)
+  if (!r.ok) return
+  const draft = r.value
+  assert.equal(draft.display_name, "Rafi & Novi")
+})
+
+test("draft: nextQuestion melewati field yang sudah ada", () => {
+  const next = nextQuestion({ display_name: "Rafi & Novi" })
+  assert.ok(next)
+  assert.notEqual(next.key, "display_name")
+})
+
+test("draft: patch men-stringify inviting_families", () => {
+  const { patch } = buildPatch({ inviting_families: ["Keluarga Bapak Sutanto", "Keluarga Ibu Hartini"] })
+  assert.equal(typeof patch.inviting_families, "string")
+  assert.deepEqual(JSON.parse(patch.inviting_families), [
+    "Keluarga Bapak Sutanto",
+    "Keluarga Ibu Hartini",
+  ])
+})
+
+test("draft: patch menolak field terlarang", () => {
+  const result = buildPatch({ package_type: "elite", display_name: "Rafi & Novi" })
+  assert.equal(result.ok, false)
+  assert.deepEqual(result.rejected, ["package_type"])
+  assert.equal(result.patch.package_type, undefined)
+})
+
+test("draft: field yang butuh konfirmasi", () => {
+  assert.equal(requiresConfirmation("sessions"), true)
+  assert.equal(requiresConfirmation("display_name"), false)
+})
+
+// ---------- filter kategori template ----------
+
+test("template: 'adat' cocok dengan Adat/Tradisional, Adat, dan Budaya", () => {
+  assert.equal(matchesTemplateCategory({ category: "Adat/Tradisional" }, "adat"), true)
+  assert.equal(matchesTemplateCategory({ category: "Adat" }, "adat"), true)
+  assert.equal(matchesTemplateCategory({ category: "Budaya" }, "adat"), true)
+})
+
+test("template: 'adat' tidak cocok dengan Floral", () => {
+  assert.equal(matchesTemplateCategory({ category: "Floral" }, "adat"), false)
+})
+
+test("template: 'modern' cocok dengan Modern Minimalis", () => {
+  assert.equal(matchesTemplateCategory({ category: "Modern Minimalis" }, "modern"), true)
+})
+
+test("template: 'interaktif' cocok dengan Undangan Interaksi", () => {
+  assert.equal(matchesTemplateCategory({ category: "Undangan Interaksi" }, "interaktif"), true)
+})
+
+test("template: tanpa filter mengembalikan semua", () => {
+  assert.equal(matchesTemplateCategory({ category: "Floral" }, ""), true)
+})
+
+test("template: placeholder 'Template-2' disaring", () => {
+  assert.equal(isPlaceholderTemplate("Template-2"), true)
+  assert.equal(isPlaceholderTemplate("Adat Jawa"), false)
+  assert.equal(isPlaceholderTemplate("Cinnabar Seal"), false)
+})
+
+test("template: 'adat batak' mengenali Sai Horas", () => {
+  assert.equal(matchesTemplateCategory({ name: "Sai Horas", category: "Adat/Tradisional" }, "adat batak"), true)
+  assert.equal(matchesTemplateCategory({ name: "Minang Royal", category: "Adat/Tradisional" }, "adat batak"), false)
+})
+
+test("template: 'adat jawa' hanya cocok dengan Jawa", () => {
+  assert.equal(matchesTemplateCategory({ name: "Adat Jawa" }, "adat jawa"), true)
+  assert.equal(matchesTemplateCategory({ name: "Adat Melayu" }, "adat jawa"), false)
+})
+
+test("teks: penanda daftar dibersihkan dari aksara asing", () => {
+  assert.equal(sanitizeReply("•\u0945 Adat Jawa"), "• Adat Jawa")
+  assert.equal(sanitizeReply("• Minang Royal"), "• Minang Royal")
+})
+
+test("teks: karakter tak terlihat dihapus", () => {
+  assert.equal(sanitizeReply("Halo\u200B Kak"), "Halo Kak")
+})
+
+test("katalog: paket bonus/cetak tidak dijual", () => {
+  assert.equal(isSellablePackage("signature"), true)
+  assert.equal(isSellablePackage("essential"), true)
+  assert.equal(isSellablePackage("cetak_undangan_bonus"), false)
+  assert.equal(isSellablePackage("bonus_full_custom"), false)
+})
+
+test("katalog: fitur undangan fisik disembunyikan", () => {
+  assert.equal(isCustomerFeature("wish_wall"), true)
+  assert.equal(isCustomerFeature("undangan_fisik"), false)
+})
+
+test("policies: default dipakai kalau belum diatur", () => {
+  const resolved = resolvePolicies(null)
+  assert.equal(resolved.timelineSelf, POLICIES.timelineSelf)
+  assert.equal(resolved.timelineAssisted, POLICIES.timelineAssisted)
+})
+
+test("policies: bisa dioverride dari guardrails", () => {
+  const resolved = resolvePolicies({ timeline_self: "Paling cepat 10 menit." })
+  assert.equal(resolved.timelineSelf, "Paling cepat 10 menit.")
+  assert.equal(resolved.timelineAssisted, POLICIES.timelineAssisted)
+})
+
+test("policies: teks menyebut hitungan menit", () => {
+  assert.match(formatPolicies(POLICIES), /hitungan menit/)
+})

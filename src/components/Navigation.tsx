@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import CsWidget from "@/components/cs/CsWidget"
 
 const PRODUCTS = [
   { label: "Premium Web Invitation", href: "/premium-web-invitation" },
@@ -238,6 +239,7 @@ export default function Navigation() {
           </div>
         </div>
       </div>
+      <CsWidget />
     </>
   )
 }

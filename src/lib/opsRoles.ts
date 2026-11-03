@@ -5,6 +5,7 @@ export type OpsRole = (typeof OPS_ROLES)[number]
 
 export const TAB_ROLES: Record<string, OpsRole[]> = {
   antrian: ["admin", "sales", "creative"],
+  cs: ["admin", "sales"],
   music: ["admin", "creative"],
   template: ["admin", "creative"],
   voucher: ["admin", "sales"],

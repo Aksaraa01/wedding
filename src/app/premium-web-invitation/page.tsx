@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
+import CsWidget from "@/components/cs/CsWidget"
 import TemplatePreviewModal from "@/components/TemplatePreviewModal"
 import SeoFaq from "@/components/SeoFaq"
 import TemplateGallery from "@/components/template-gallery/TemplateGallery"
@@ -179,6 +180,7 @@ export default function PremiumWebInvitationPage() {
           onClose={() => setPreviewTpl(null)}
         />
       )}
+      <CsWidget />
     </>
   )
 }

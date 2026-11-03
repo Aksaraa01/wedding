@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
+import CsWidget from "@/components/cs/CsWidget"
 import SeoFaq from "@/components/SeoFaq"
 import { ASSETS } from "@/lib/assets"
 
@@ -347,6 +348,7 @@ export default function GaleriKenanganTamuPage() {
           ]}
         />
       </main>
+      <CsWidget />
     </>
   )
 }

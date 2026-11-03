@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
+import CsWidget from "@/components/cs/CsWidget"
 import SeoFaq from "@/components/SeoFaq"
 
 // Local copies of the reference artwork (downloaded from the design HTML).
@@ -379,6 +380,7 @@ export default function QrDigitalBukuTamuPage() {
           </div>
         </div>
       </footer>
+      <CsWidget />
     </>
   )
 }
