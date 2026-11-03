@@ -83,7 +83,14 @@ function CsAvatar({ className = "h-7 w-7" }: { className?: string }) {
   )
 }
 
+const CS_WIDGET_ENABLED = process.env.NEXT_PUBLIC_CS_WIDGET === "1"
+
 export default function CsWidget() {
+  if (!CS_WIDGET_ENABLED) return null
+  return <CsWidgetInner />
+}
+
+function CsWidgetInner() {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([
     { id: "greeting", role: "assistant", text: GREETING },
