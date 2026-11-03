@@ -929,6 +929,95 @@ DEMO_PROPS_BY_CODE["adat-bugis"] = {
   },
 }
 
+DEMO_PROPS_BY_CODE["adat-dayak"] = {
+  ...DEMO_PROPS_BY_CODE["adat-melayu"],
+  slug: "demo",
+  groom_name: "Andi",
+  bride_name: "Nurul",
+  couple_initials: "AN",
+  display_name: "#AndiNurul2027",
+  groom_full_name: "Andi Muh. Fadhil Pratama",
+  bride_full_name: "Nurul Aisyah Ramadhani",
+  groom_parents: "Putra dari Bapak H. Andi Muhammad Idris & Ibu Hj. Andi Nurhayati",
+  bride_parents: "Putri dari Bapak H. Abdul Karim & Ibu Hj. Siti Rahmah",
+  groom_instagram: "@wedding.aksaraa",
+  bride_instagram: "@wedding.aksaraa",
+  quote_source: "Doa Pernikahan Adat Dayak",
+  sessions: [
+    {
+      name: "Penerimaan / Siaga",
+      date: "2027-12-31",
+      time: "14.00 - 16.00 WITA",
+      venue: "Rumah Betang Dayak",
+      address: "Jl. Tjilik Riwut No. 7, Palangka Raya, Kalimantan Tengah",
+      maps_url: "https://maps.google.com/?q=Rumah+Betang+Dayak+Palangka+Raya",
+    },
+    {
+      name: "Akad Nikah",
+      date: "2027-12-31",
+      time: "16.30 - 18.00 WITA",
+      venue: "Rumah Betang Dayak",
+      address: "Jl. Tjilik Riwut No. 7, Palangka Raya, Kalimantan Tengah",
+      maps_url: "https://maps.google.com/?q=Rumah+Betang+Dayak+Palangka+Raya",
+    },
+    {
+      name: "Resepsi Pernikahan",
+      date: "2027-12-31",
+      time: "19.00 - 21.00 WITA",
+      venue: "Rumah Betang Dayak",
+      address: "Jl. Tjilik Riwut No. 7, Palangka Raya, Kalimantan Tengah",
+      maps_url: "https://maps.google.com/?q=Rumah+Betang+Dayak+Palangka+Raya",
+    },
+  ],
+  stories: [
+    {
+      title: "Pertama Bertemu",
+      description:
+        "Kami pertama kali bertemu dalam sebuah acara keluarga di Palangka Raya. Sebuah sapaan sederhana menjadi awal dari kisah yang tidak pernah kami duga.",
+    },
+    {
+      title: "Melangkah Bersama",
+      description:
+        "Dari hari-hari yang sederhana, kami belajar untuk tumbuh bersama dan menemukan rumah dalam diri satu sama lain.",
+    },
+    {
+      title: "Memantapkan Hati",
+      description:
+        "Dengan doa dan restu kedua keluarga, serta adat Dayak yang menyatukan kami, kami memantapkan hati untuk mengikat janji pernikahan.",
+    },
+    {
+      title: "Hari Pernikahan",
+      description:
+        "Dengan penuh syukur, kami memulai perjalanan membangun keluarga kecil. Semoga keberkahan menyertai setiap langkah kami.",
+    },
+  ],
+  gift_accounts: [
+    { provider_name: "Bank Mandiri", account_number: "1230009876543", account_name: "Andi Muh. Fadhil Pratama", type: "bank" },
+    { provider_name: "Bank Central Asia (BCA)", account_number: "8200891083", account_name: "Nurul Aisyah Ramadhani", type: "bank" },
+  ],
+  gift_address: "Jl. Tjilik Riwut No. 7, Palangka Raya, Kalimantan Tengah",
+  gift_address_name: "Andi & Nurul",
+  inviting_families: [
+    "Keluarga Besar Bapak H. Andi Muhammad Idris",
+    "Keluarga Besar Ibu Hj. Andi Nurhayati",
+    "Keluarga Besar Bapak H. Abdul Karim",
+    "Keluarga Besar Ibu Hj. Siti Rahmah",
+  ],
+  track_url: "/templates/adat-dayak/purnawandi-wawan-tabayang.mp3",
+  template_content: {
+    cover_apology: "Kami mohon maaf apabila terdapat kesalahan dalam penulisan nama dan gelar.",
+    gallery_intro: "Beberapa bingkai yang kami simpan erat, menjadi saksi perjalanan menuju hari bahagia.",
+    gallery_quote: "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama.",
+    gift_intro_title: "Love Gift",
+    gift_intro_description:
+      "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:",
+    wishes_intro:
+      "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
+    closing_message:
+      "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
+  },
+}
+
 DEMO_PROPS_BY_CODE["adat-batak"] = {
   ...DEMO_PROPS_BY_CODE["adat-melayu"],
   slug: "demo",

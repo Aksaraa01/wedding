@@ -1,0 +1,704 @@
+.adat-dayak-root .tpl-footer{ padding: 40px 25px 30px; text-align: center; }.adat-dayak-root .tpl-footer__logo{ display: block; height: 32px; width: auto; margin: 0px auto 6px; }.adat-dayak-root .tpl-footer__text{ font-family: inherit; font-size: 11px; color: var(--tpl-footer-text,rgba(255,255,255,.5)); margin-bottom: 16px; }.adat-dayak-root .tpl-footer__socials{ display: flex; justify-content: center; gap: 16px; }.adat-dayak-root .tpl-footer__social{ width: 36px; height: 36px; border-radius: 50%; background: var(--tpl-footer-social-bg,rgba(255,255,255,.15)); display: flex; align-items: center; justify-content: center; color: var(--tpl-footer-social-color,rgba(255,255,255,.8)); transition: 0.3s; }.adat-dayak-root .tpl-footer__social:hover{ background: var(--tpl-footer-social-bg-hover,rgba(255,255,255,.3)); color: var(--tpl-footer-social-color-hover,#ffffff); }.adat-dayak-root .tpl-footer__social svg{ width: 16px; height: 16px; }.adat-dayak-root .tpl-rsvp{ padding: 60px 25px; text-align: center; background: var(--tpl-rsvp-bg,#f8f5f0); color: var(--tpl-rsvp-fg,#2a2a2a); }.adat-dayak-root .tpl-rsvp__label{ font-family: var(--tpl-rsvp-heading-font,inherit); font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: var(--tpl-rsvp-muted,#8a8a8a); margin-bottom: 28px; }.adat-dayak-root .tpl-rsvp__form{ max-width: 420px; margin: 0px auto; text-align: left; gap: 16px; }.adat-dayak-root .tpl-rsvp__field, .adat-dayak-root .tpl-rsvp__form{ display: flex; flex-direction: column; }.adat-dayak-root .tpl-rsvp__field{ gap: 6px; }.adat-dayak-root .tpl-rsvp__field label{ font-size: 12px; font-weight: 500; color: var(--tpl-rsvp-muted,#6a6a6a); letter-spacing: 0.5px; }.adat-dayak-root .tpl-rsvp__input, .adat-dayak-root .tpl-rsvp__select, .adat-dayak-root .tpl-rsvp__textarea{ width: 100%; padding: 10px 12px; font-family: inherit; font-size: 14px; color: var(--tpl-rsvp-fg,#2a2a2a); background: var(--tpl-rsvp-input-bg,#ffffff); border: 1px solid var(--tpl-rsvp-input-border,#d8d8d8); border-radius: 8px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }.adat-dayak-root .tpl-rsvp__select{ appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%236a6a6a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='5 8 10 13 15 8'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 14px 14px; }.adat-dayak-root .tpl-rsvp__input:focus, .adat-dayak-root .tpl-rsvp__select:focus, .adat-dayak-root .tpl-rsvp__textarea:focus{ border-color: var(--tpl-rsvp-accent,#8b6f47); box-shadow: 0 0 0 3px var(--tpl-rsvp-accent-soft,rgba(139,111,71,.15)); }.adat-dayak-root .tpl-rsvp__textarea{ resize: vertical; min-height: 80px; }.adat-dayak-root .tpl-rsvp__choices{ display: flex; flex-wrap: wrap; gap: 8px; }.adat-dayak-root .tpl-rsvp__choice-input{ position: absolute; opacity: 0; pointer-events: none; }.adat-dayak-root .tpl-rsvp__choice-label{ display: inline-flex; align-items: center; padding: 7px 14px; font-size: 12px; font-weight: 500; border-radius: 999px; border: 1px solid var(--tpl-rsvp-input-border,#d8d8d8); background: var(--tpl-rsvp-input-bg,#ffffff); color: var(--tpl-rsvp-fg,#2a2a2a); cursor: pointer; transition: 0.2s; user-select: none; }.adat-dayak-root .tpl-rsvp__choice-label:hover{ border-color: var(--tpl-rsvp-accent,#8b6f47); }.adat-dayak-root .tpl-rsvp__choice-input:checked + .tpl-rsvp__choice-label{ background: var(--tpl-rsvp-accent,#8b6f47); border-color: var(--tpl-rsvp-accent,#8b6f47); color: var(--tpl-rsvp-accent-fg,#ffffff); }.adat-dayak-root .tpl-rsvp__choice-input:focus-visible + .tpl-rsvp__choice-label{ outline: 2px solid var(--tpl-rsvp-accent,#8b6f47); outline-offset: 2px; }.adat-dayak-root .tpl-rsvp__counter{ margin-top: 4px; font-size: 10px; letter-spacing: 0.5px; color: var(--tpl-rsvp-muted,#8a8a8a); text-align: right; }.adat-dayak-root .tpl-rsvp__submit{ margin-top: 4px; padding: 12px 16px; font-family: inherit; font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--tpl-rsvp-accent-fg,#ffffff); background: var(--tpl-rsvp-accent,#8b6f47); border-width: medium; border-style: none; border-color: currentcolor; border-image: none; border-radius: 8px; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }.adat-dayak-root .tpl-rsvp__submit:hover:not(:disabled){ opacity: 0.9; }.adat-dayak-root .tpl-rsvp__submit:active:not(:disabled){ transform: translateY(1px); }.adat-dayak-root .tpl-rsvp__submit:disabled{ opacity: 0.6; cursor: not-allowed; }.adat-dayak-root .tpl-rsvp__locked{ max-width: 420px; margin: 0px auto; padding: 24px 20px; text-align: center; color: var(--tpl-rsvp-fg,#2a2a2a); background: var(--tpl-rsvp-card-bg,#ffffff); border: 1px solid var(--tpl-rsvp-card-border,#e4e4e4); border-radius: 10px; }.adat-dayak-root .tpl-rsvp__locked-title{ margin: 0px 0px 10px; font-family: var(--tpl-rsvp-heading-font,inherit); font-weight: 600; }.adat-dayak-root .tpl-rsvp__locked-description{ margin: 0px; color: var(--tpl-rsvp-muted,#6a6a6a); line-height: 1.65; }.adat-dayak-root .tpl-rsvp__confirmation{ max-width: 420px; margin: 0px auto; padding: 20px; text-align: left; color: var(--tpl-rsvp-fg,#2a2a2a); background: var(--tpl-rsvp-card-bg,#ffffff); border: 1px solid var(--tpl-rsvp-card-border,#e4e4e4); border-radius: 10px; }.adat-dayak-root .tpl-rsvp__confirmation-title{ margin-bottom: 12px; font-family: var(--tpl-rsvp-heading-font,inherit); font-size: 16px; font-weight: 600; }.adat-dayak-root .tpl-rsvp__confirmation-list{ margin: 0px; }.adat-dayak-root .tpl-rsvp__confirmation-row{ display: grid; gap: 4px; padding: 10px 0px; border-bottom: 1px solid var(--tpl-rsvp-card-border,#e4e4e4); }.adat-dayak-root .tpl-rsvp__confirmation-label{ color: var(--tpl-rsvp-muted,#6a6a6a); font-size: 12px; font-weight: 500; }.adat-dayak-root .tpl-rsvp__confirmation-value{ margin: 0px; font-size: 14px; }.adat-dayak-root .tpl-rsvp__confirmation-message{ line-height: 1.55; white-space: pre-wrap; }.adat-dayak-root .tpl-rsvp__confirmation-timestamp{ margin: 12px 0px; color: var(--tpl-rsvp-muted,#8a8a8a); font-size: 11px; }.adat-dayak-root .tpl-rsvp__confirmation-edit{ width: 100%; margin-top: 0px; }@media (min-width: 420px){.adat-dayak-root .tpl-rsvp__confirmation-row:not(.tpl-rsvp__confirmation-row--message){ grid-template-columns: minmax(110px, 0.8fr) 1.2fr; }
+}.adat-dayak-root .tpl-rsvp__wishes{ max-width: 520px; margin: 48px auto 0px; }.adat-dayak-root .tpl-rsvp__wishes-label{ font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: var(--tpl-rsvp-muted,#8a8a8a); margin-bottom: 20px; }.adat-dayak-root .tpl-rsvp__wishes-list{ display: flex; flex-direction: column; gap: 12px; text-align: left; }.adat-dayak-root .tpl-rsvp__wishes-pagination{ display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 20px; }.adat-dayak-root .tpl-rsvp__wishes-pg-btn{ display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; font-family: inherit; font-size: 18px; line-height: 1; color: var(--tpl-rsvp-fg,#2a2a2a); background: var(--tpl-rsvp-card-bg,#ffffff); border: 1px solid var(--tpl-rsvp-card-border,#e4e4e4); border-radius: 999px; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }.adat-dayak-root .tpl-rsvp__pagination-icon{ width: 16px; height: 16px; stroke-width: 1.5; }.adat-dayak-root .tpl-rsvp__wishes-pg-btn:hover:not(:disabled){ opacity: 0.75; }.adat-dayak-root .tpl-rsvp__wishes-pg-btn:active:not(:disabled){ transform: translateY(1px); }.adat-dayak-root .tpl-rsvp__wishes-pg-btn:disabled{ opacity: 0.35; cursor: not-allowed; }.adat-dayak-root .tpl-rsvp__wishes-pg-info{ font-size: 12px; letter-spacing: 0.5px; color: var(--tpl-rsvp-muted,#8a8a8a); min-width: 60px; text-align: center; }.adat-dayak-root .tpl-rsvp__wish{ background: var(--tpl-rsvp-card-bg,#ffffff); border: 1px solid var(--tpl-rsvp-card-border,#e4e4e4); border-radius: 10px; padding: 14px 16px; }.adat-dayak-root .tpl-rsvp__wish-header{ display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 6px; }.adat-dayak-root .tpl-rsvp__wish-name{ font-weight: 600; font-size: 14px; color: var(--tpl-rsvp-fg,#2a2a2a); }.adat-dayak-root .tpl-rsvp__wish-date{ font-size: 10px; color: var(--tpl-rsvp-muted,#8a8a8a); letter-spacing: 0.5px; white-space: nowrap; }.adat-dayak-root .tpl-rsvp__wish-status{ display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 8px; }.adat-dayak-root .tpl-rsvp__wish-status--hadir{ background: var(--tpl-rsvp-status-hadir,rgba(34,139,34,.12)); color: var(--tpl-rsvp-status-hadir-color,#228b22); }.adat-dayak-root .tpl-rsvp__wish-status--tidak{ background: var(--tpl-rsvp-status-tidak,rgba(178,34,34,.12)); color: var(--tpl-rsvp-status-tidak-color,#b22222); }.adat-dayak-root .tpl-rsvp__wish-status--ragu{ background: var(--tpl-rsvp-status-ragu,rgba(218,165,32,.15)); color: var(--tpl-rsvp-status-ragu-color,#b8860b); }.adat-dayak-root .tpl-rsvp__wish-message{ font-size: 13px; line-height: 1.55; color: var(--tpl-rsvp-fg,#3a3a3a); }.adat-dayak-root .tpl-rsvp__input[readonly]{ cursor: not-allowed; opacity: 0.75; }.adat-dayak-root .tpl-gift{ padding: 60px 25px; text-align: center; background: var(--tpl-gift-bg,#f8f5f0); color: var(--tpl-gift-fg,#2a2a2a); }.adat-dayak-root .tpl-gift__label{ font-family: var(--tpl-gift-heading-font,inherit); font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: var(--tpl-gift-muted,#8a8a8a); margin-bottom: 28px; }.adat-dayak-root .tpl-gift__tabs{ display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--tpl-gift-tab-bg,rgba(0,0,0,.05)); margin-bottom: 24px; }.adat-dayak-root .tpl-gift__tab{ padding: 8px 18px; font-family: inherit; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; border-radius: 999px; background: transparent; color: var(--tpl-gift-muted,#6a6a6a); cursor: pointer; transition: 0.2s; }.adat-dayak-root .tpl-gift__tab:hover{ color: var(--tpl-gift-fg,#2a2a2a); }.adat-dayak-root .tpl-gift__tab.is-active{ background: var(--tpl-gift-tab-bg-active,#ffffff); color: var(--tpl-gift-accent,#8b6f47); box-shadow: rgba(0, 0, 0, 0.08) 0px 1px 3px; }.adat-dayak-root .tpl-gift__accounts{ display: flex; flex-direction: column; gap: 12px; max-width: 400px; margin: 0px auto; }.adat-dayak-root .tpl-gift__account{ background: var(--tpl-gift-card-bg,#ffffff); border: 1px solid var(--tpl-gift-card-border,#e4e4e4); border-radius: 12px; padding: 20px 18px; text-align: center; }.adat-dayak-root .tpl-gift__account-type{ font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--tpl-gift-muted,#8a8a8a); margin-bottom: 4px; }.adat-dayak-root .tpl-gift__account-logo{ display: block; height: 28px; width: auto; max-width: 120px; margin: 0px auto 8px; object-fit: contain; }.adat-dayak-root .tpl-gift__account-name{ font-size: 13px; color: var(--tpl-gift-fg,#2a2a2a); margin-bottom: 2px; }.adat-dayak-root .tpl-gift__account-number{ font-family: var(--tpl-gift-mono-font,ui-monospace,monospace); font-size: 18px; font-weight: 600; color: var(--tpl-gift-fg,#2a2a2a); letter-spacing: 1.5px; margin-bottom: 10px; }.adat-dayak-root .tpl-gift__copy-btn{ display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; font-family: inherit; font-size: 11px; font-weight: 500; letter-spacing: 0.5px; color: var(--tpl-gift-accent,#8b6f47); background: transparent; border: 1px solid var(--tpl-gift-accent,#8b6f47); border-radius: 999px; cursor: pointer; transition: 0.2s; }.adat-dayak-root .tpl-gift__copy-icon{ width: 13px; height: 13px; flex: 0 0 auto; }.adat-dayak-root .tpl-gift__copy-btn:hover{ background: var(--tpl-gift-accent,#8b6f47); color: var(--tpl-gift-accent-fg,#ffffff); }.adat-dayak-root .tpl-gift__address{ max-width: 400px; margin: 24px auto 0px; padding: 18px; background: var(--tpl-gift-card-bg,#ffffff); border: 1px solid var(--tpl-gift-card-border,#e4e4e4); border-radius: 12px; }.adat-dayak-root .tpl-gift__address-label{ font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--tpl-gift-muted,#8a8a8a); margin-bottom: 6px; }.adat-dayak-root .tpl-gift__address-text{ font-size: 13px; color: var(--tpl-gift-fg,#2a2a2a); line-height: 1.55; margin-bottom: 12px; }.adat-dayak-root .tpl-gift__registry{ display: grid; grid-template-columns: 1fr; gap: 12px; max-width: 520px; margin: 0px auto; text-align: left; }.adat-dayak-root .tpl-gift__pagination{ grid-column: 1 / -1; }.adat-dayak-root .tpl-gift__pagination-icon{ width: 16px; height: 16px; stroke-width: 1.5; }.adat-dayak-root .tpl-gift__item{ display: flex; align-items: flex-start; gap: 14px; padding: 14px; background: var(--tpl-gift-card-bg,#ffffff); border: 1px solid var(--tpl-gift-card-border,#e4e4e4); border-radius: 12px; transition: opacity 0.2s; }.adat-dayak-root .tpl-gift__item.is-soldout{ opacity: 0.55; }.adat-dayak-root .tpl-gift__item-img{ width: 84px; height: 84px; flex-shrink: 0; object-fit: cover; border-radius: 8px; background: var(--tpl-gift-tab-bg,rgba(0,0,0,.05)); }.adat-dayak-root .tpl-gift__item-body{ display: flex; flex-direction: column; flex: 1 1 0%; min-width: 0px; }.adat-dayak-root .tpl-gift__item-title{ font-size: 14px; font-weight: 600; color: var(--tpl-gift-fg,#2a2a2a); margin-bottom: 4px; }.adat-dayak-root .tpl-gift__item-price{ font-size: 12px; color: var(--tpl-gift-accent,#8b6f47); font-weight: 500; margin-bottom: 4px; }.adat-dayak-root .tpl-gift__item-meta{ margin-bottom: 8px; }.adat-dayak-root .tpl-gift__item-claimers, .adat-dayak-root .tpl-gift__item-meta{ font-size: 11px; color: var(--tpl-gift-muted,#8a8a8a); }.adat-dayak-root .tpl-gift__item-claimers{ margin-bottom: 10px; line-height: 1.55; }.adat-dayak-root .tpl-gift__item-claimers strong{ color: var(--tpl-gift-fg,#2a2a2a); font-weight: 600; }.adat-dayak-root .tpl-gift__item-actions{ display: flex; flex-direction: column; gap: 8px; margin-top: auto; }.adat-dayak-root .tpl-gift__claim-btn{ width: 100%; padding: 8px 12px; font-family: inherit; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--tpl-gift-accent-fg,#ffffff); background: var(--tpl-gift-accent,#8b6f47); border-width: medium; border-style: none; border-color: currentcolor; border-image: none; border-radius: 6px; cursor: pointer; transition: opacity 0.2s; }.adat-dayak-root .tpl-gift__claim-btn:hover:not(:disabled){ opacity: 0.9; }.adat-dayak-root .tpl-gift__claim-btn:disabled{ cursor: not-allowed; opacity: 0.5; }.adat-dayak-root .tpl-gift__store-btn{ width: 100%; padding: 8px 12px; font-family: inherit; font-size: 11px; text-align: center; color: var(--tpl-gift-fg,#2a2a2a); background: transparent; border: 1px solid var(--tpl-gift-card-border,#d8d8d8); border-radius: 6px; text-decoration: none; transition: 0.2s; }.adat-dayak-root .tpl-gift__store-btn:hover{ border-color: var(--tpl-gift-accent,#8b6f47); color: var(--tpl-gift-accent,#8b6f47); }.adat-dayak-root .tpl-gift__dialog-backdrop{ position: fixed; inset: 0px; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 1000; animation: 0.2s ease 0s 1 normal none running tplGiftFadeIn; }.adat-dayak-root .tpl-gift__dialog{ background: var(--tpl-gift-card-bg,#ffffff); color: var(--tpl-gift-fg,#2a2a2a); border-radius: 14px; padding: 24px; width: 100%; max-width: 360px; text-align: left; animation: 0.25s ease 0s 1 normal none running tplGiftSlideUp; }.adat-dayak-root .tpl-gift__dialog-title{ font-size: 16px; font-weight: 600; margin-bottom: 4px; }.adat-dayak-root .tpl-gift__dialog-subtitle{ font-size: 12px; color: var(--tpl-gift-muted,#8a8a8a); margin-bottom: 16px; }.adat-dayak-root .tpl-gift__dialog-input{ width: 100%; padding: 10px 12px; font-family: inherit; font-size: 14px; color: var(--tpl-gift-fg,#2a2a2a); background: var(--tpl-gift-tab-bg,#f5f5f5); border: 1px solid var(--tpl-gift-card-border,#d8d8d8); border-radius: 8px; outline: none; transition: border-color 0.2s; margin-bottom: 16px; }.adat-dayak-root .tpl-gift__dialog-input:focus{ border-color: var(--tpl-gift-accent,#8b6f47); }.adat-dayak-root .tpl-gift__dialog-actions{ display: flex; gap: 8px; }.adat-dayak-root .tpl-gift__dialog-actions button{ flex: 1 1 0%; padding: 10px 14px; font-family: inherit; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; border-radius: 8px; cursor: pointer; transition: opacity 0.2s; }.adat-dayak-root .tpl-gift__dialog-cancel{ background: transparent; color: var(--tpl-gift-muted,#6a6a6a); border: 1px solid var(--tpl-gift-card-border,#d8d8d8); }.adat-dayak-root .tpl-gift__dialog-cancel:hover{ color: var(--tpl-gift-fg,#2a2a2a); }.adat-dayak-root .tpl-gift__dialog-confirm{ background: var(--tpl-gift-accent,#8b6f47); color: var(--tpl-gift-accent-fg,#ffffff); border-width: medium; border-style: none; border-color: currentcolor; border-image: none; }.adat-dayak-root .tpl-gift__dialog-confirm:hover:not(:disabled){ opacity: 0.9; }.adat-dayak-root .tpl-gift__dialog-confirm:disabled{ opacity: 0.55; cursor: not-allowed; }@keyframes tplGiftFadeIn{ 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}@keyframes tplGiftSlideUp{ 
+  0% { transform: translateY(12px); opacity: 0; }
+  100% { transform: translateY(0px); opacity: 1; }
+}.adat-dayak-root .tpl-gift__dialog-input[readonly]{ cursor: not-allowed; opacity: 0.75; }.adat-dayak-root .tpl-gift__claim-btn--cancel{ background: transparent; border: 1px solid; opacity: 0.8; }.adat-dayak-root .tpl-gift__qris{ display: flex; flex-direction: column; align-items: center; gap: 10px; background: var(--tpl-gift-card-bg,#ffffff); border: 1px solid var(--tpl-gift-card-border,#e4e4e4); border-radius: 12px; padding: 20px 18px; }.adat-dayak-root .gift-card-shell .tpl-gift__qris{ padding: 20px; border: 1px solid rgba(23, 22, 18, 0.12); border-radius: 20px; background: rgba(255, 252, 243, 0.72); }.adat-dayak-root .gift-card-shell .tpl-gift__qris-img{ max-width: 100%; border-radius: 12px; }.adat-dayak-root .tpl-gift__qris-img{ width: 200px; max-width: 72%; aspect-ratio: 1 / 1; height: auto; object-fit: contain; background: rgb(255, 255, 255); padding: 10px; border-radius: 8px; }.adat-dayak-root .tpl-gift__qris-name{ font-size: 0.9rem; text-align: center; opacity: 0.85; }.adat-dayak-root .tpl-gift__reveal{ display: flex; justify-content: center; margin-top: 8px; }.adat-dayak-root .tpl-gift__reveal-btn{ padding: 9px 22px; font-size: 12px; }.adat-dayak-root .tpl-gift__reveal-btn svg{ width: 15px; height: 15px; }.adat-dayak-root .tpl-footer{ padding: 40px 25px 30px; text-align: center; }.adat-dayak-root .tpl-footer__logo{ display: block; height: 32px; width: auto; margin: 0px auto 6px; }.adat-dayak-root .tpl-footer__text{ font-family: inherit; font-size: 11px; color: var(--tpl-footer-text,rgba(255,255,255,.5)); margin-bottom: 16px; }.adat-dayak-root .tpl-footer__socials{ display: flex; justify-content: center; gap: 16px; }.adat-dayak-root .tpl-footer__social{ width: 36px; height: 36px; border-radius: 50%; background: var(--tpl-footer-social-bg,rgba(255,255,255,.15)); display: flex; align-items: center; justify-content: center; color: var(--tpl-footer-social-color,rgba(255,255,255,.8)); transition: 0.3s; }.adat-dayak-root .tpl-footer__social:hover{ background: var(--tpl-footer-social-bg-hover,rgba(255,255,255,.3)); color: var(--tpl-footer-social-color-hover,#ffffff); }.adat-dayak-root .tpl-footer__social svg{ width: 16px; height: 16px; }.adat-dayak-root .tpl-rsvp{ padding: 60px 25px; text-align: center; background: var(--tpl-rsvp-bg,#f8f5f0); color: var(--tpl-rsvp-fg,#2a2a2a); }
+.adat-dayak-root .tpl-autoplay-btn, .adat-dayak-root .tpl-fullscreen-btn, .adat-dayak-root .tpl-music-btn{ position: fixed; right: 16px; z-index: 99; width: 44px; height: 44px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; border-radius: 50%; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); color: rgb(255, 255, 255); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: rgba(0, 0, 0, 0.3) 0px 4px 15px; transition: 0.3s; opacity: 0; pointer-events: none; }.adat-dayak-root .tpl-music-btn{ bottom: 24px; }.adat-dayak-root .tpl-vinyl{ position: relative; display: block; width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 72% 28%, rgba(255, 255, 255, 0.22) 0px, rgba(255, 255, 255, 0.05) 18%, transparent 40%), radial-gradient(circle at 25% 75%, rgba(255, 255, 255, 0.08) 0px, transparent 30%), radial-gradient(circle, rgb(26, 26, 26) 0px, rgb(10, 10, 10) 70%, rgb(0, 0, 0) 100%); box-shadow: rgba(255, 255, 255, 0.08) 0px 0px 0px 1px inset; animation: 2s linear 0s infinite normal none running tplVinylSpin; }.adat-dayak-root .tpl-music-btn.paused .tpl-vinyl{ animation-play-state: paused; }.adat-dayak-root .tpl-vinyl-groove{ position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.1); pointer-events: none; }.adat-dayak-root .tpl-vinyl-groove-1{ width: 80%; height: 80%; }.adat-dayak-root .tpl-vinyl-groove-2{ width: 55%; height: 55%; }.adat-dayak-root .tpl-vinyl-label{ width: 38%; height: 38%; background: radial-gradient(circle at 30% 35%, rgba(0, 0, 0, 0.35) 0px, rgba(0, 0, 0, 0.35) 18%, transparent 20%), rgb(255, 255, 255); opacity: 0.9; }.adat-dayak-root .tpl-vinyl-hole, .adat-dayak-root .tpl-vinyl-label{ position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 50%; }.adat-dayak-root .tpl-vinyl-hole{ width: 10%; height: 10%; background: rgb(0, 0, 0); }.adat-dayak-root .tpl-tonearm{ position: absolute; top: 5px; right: 5px; width: 3px; height: 19px; transform-origin: 50% 2px; transform: rotate(8deg); transition: transform 0.45s cubic-bezier(0.34, 1.3, 0.64, 1); pointer-events: none; z-index: 2; }.adat-dayak-root .tpl-music-btn:not(.paused) .tpl-tonearm{ transform: rotate(38deg); }.adat-dayak-root .tpl-tonearm-pivot{ position: absolute; top: -2px; left: 50%; transform: translateX(-50%); width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, rgb(224, 224, 224), rgb(128, 128, 128)); box-shadow: rgba(0, 0, 0, 0.45) 0px 0px 2px; }.adat-dayak-root .tpl-tonearm-arm{ top: 1px; width: 2px; height: 16px; background: linear-gradient(rgb(208, 208, 208), rgb(160, 160, 160) 60%, rgb(136, 136, 136)); }.adat-dayak-root .tpl-tonearm-arm, .adat-dayak-root .tpl-tonearm-head{ position: absolute; left: 50%; transform: translateX(-50%); border-radius: 1px; }.adat-dayak-root .tpl-tonearm-head{ bottom: -1px; width: 5px; height: 4px; background: rgb(58, 58, 58); box-shadow: rgba(0, 0, 0, 0.5) 0px 1px 1px; }@keyframes tplVinylSpin{ 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
+}
+.adat-dayak-root { --adat-primary: #1B1B1B; --adat-primary-deep: #6E6E72; --adat-primary-hover: color-mix(in srgb, var(--adat-primary) 84%, #000); --adat-primary-text: var(--adat-primary-deep); --tpl-rsvp-accent: var(--adat-primary); --tpl-rsvp-accent-fg: var(--warm-fg,#fff); --tpl-gift-accent: var(--adat-primary); --tpl-gift-accent-fg: var(--warm-fg,#fff); --paper: #E8E2D6; --ink: #0B0B0C; --muted: #9d9d98; --panel-width: 426px; --display: var(--adat-dayak-font-accent,var(--font-italianno,"Pinyon Script",cursive)); --serif: var(--adat-dayak-font-heading,var(--font-cormorant,"Cormorant Infant",Georgia,serif)); --sans: var(--adat-dayak-font-body,var(--font-poppins,"Poppins",Arial,sans-serif)); }
+.adat-dayak-root * { box-sizing: border-box; }
+.adat-dayak-root { scroll-behavior: smooth; margin: 0px; min-width: 320px; font-family: var(--sans); font-size: 12px; line-height: 1.5; overscroll-behavior-y: none; }
+:root:has(.adat-dayak-root), :root:has(.adat-dayak-root) body, body.adat-dayak-active, html.adat-dayak-active { overscroll-behavior-y: none; }
+.adat-dayak-root.is-locked { overflow: hidden; }
+.adat-dayak-root a, .adat-dayak-root button { font: inherit; }
+.adat-dayak-root button { cursor: pointer; }
+.adat-dayak-root a { color: inherit; }
+.adat-dayak-root img { display: block; max-width: 100%; }
+.adat-dayak-root blockquote, .adat-dayak-root p { white-space: pre-line; }
+.adat-dayak-root .skip-link { position: fixed; left: 12px; top: 12px; z-index: 100; padding: 8px 12px; border-radius: 20px; background: var(--adat-primary); color: var(--warm-fg,#fff); transform: translateY(-160%); }
+.adat-dayak-root .skip-link:focus { transform: translateY(0px); }
+.adat-dayak-root .script { font-family: var(--display); font-weight: 400; }
+.adat-dayak-root .page-shell { position: relative; display: grid; grid-template-columns: minmax(0,1fr) var(--panel-width); align-items: start; width: min(1420px, 100%); min-height: 0px; margin: 0px auto; overflow: visible; background: rgb(255, 255, 255); }
+.adat-dayak-root .desktop-blank { position: absolute; top: 849px; right: var(--panel-width); bottom: 0px; left: 0px; background: rgb(255, 255, 255); }
+.adat-dayak-root .cover, .adat-dayak-root .cover-gate { overflow: hidden; }
+.adat-dayak-root .cover { position: sticky; top: 0px; grid-area: 1 / 1; width: 100%; height: 100svh; min-height: 680px; }
+.adat-dayak-root .cover-left { width: 100%; height: 100%; }
+.adat-dayak-root .cover-left, .adat-dayak-root .cover-right, .adat-dayak-root .gate-left, .adat-dayak-root .gate-right { position: relative; min-width: 0px; overflow: hidden; }
+.adat-dayak-root .cover-left > img, .adat-dayak-root .cover-right > img, .adat-dayak-root .gate-left > img, .adat-dayak-root .gate-right > img { width: 100%; height: 100%; object-fit: cover; }
+.adat-dayak-root .cover-left > img, .adat-dayak-root .gate-left > img { object-position: center 50%; }
+.adat-dayak-root .cover-right > img, .adat-dayak-root .gate-right > img { object-position: center center; }
+.adat-dayak-root .cover-left-shade, .adat-dayak-root .cover-right-shade { position: absolute; inset: 0px; pointer-events: none; }
+.adat-dayak-root .cover-left-shade, .adat-dayak-root .gate-left .cover-left-shade { height: 100%; background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.84)); }
+.adat-dayak-root .cover-right-shade, .adat-dayak-root .gate-right .cover-right-shade { background: rgba(0, 0, 0, 0.28); }
+.adat-dayak-root .cover-left-copy, .adat-dayak-root .cover-right-copy { position: absolute; z-index: 1; text-align: center; }
+.adat-dayak-root .cover-left-copy { right: 40px; bottom: 150px; left: 40px; color: rgb(255, 255, 255); }
+.adat-dayak-root.no-photo .cover-left-copy { inset: 0px; display: flex; align-items: center; flex-direction: column; justify-content: center; padding: 40px; }
+.adat-dayak-root .cover-left-copy h1, .adat-dayak-root .cover-left-copy p, .adat-dayak-root .cover-right-copy h2, .adat-dayak-root .cover-right-copy p { margin: 0px; }
+.adat-dayak-root .cover-kicker { font-size: 28px; line-height: 34px; }
+.adat-dayak-root .cover-left-copy h1 { font-family: var(--serif); font-size: 36px; font-weight: 600; letter-spacing: 0.04em; line-height: 42px; }
+.adat-dayak-root .cover-date { font-size: 14px; font-weight: 600; line-height: 21px; margin-top: 4px !important; }
+.adat-dayak-root .cover-right-copy { top: 16px; right: 20px; left: 20px; color: rgb(255, 255, 255); }
+.adat-dayak-root .cover-right-copy > .script { font-size: 24px; line-height: 31px; }
+.adat-dayak-root .cover-right-copy h2 { font-family: var(--serif); font-size: 24px; font-weight: 600; letter-spacing: 0.03em; line-height: 31px; }
+.adat-dayak-root .cover-to { position: absolute; top: 595px; right: 0px; left: 0px; font-size: 12px; font-weight: 600; line-height: 16px; }
+.adat-dayak-root .cover-guest, .adat-dayak-root .gate-guest { position: absolute; top: 617px; right: 0px; left: 0px; font-size: 16px; line-height: 24px; }
+.adat-dayak-root .copy-button, .adat-dayak-root .pill-button, .adat-dayak-root .small-pill, .adat-dayak-root .stream-link { display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--warm-fg,#fff); border-radius: 999px; background: var(--adat-primary); color: var(--warm-fg,#fff); text-decoration: none; transition: transform 0.18s, background 0.18s; }
+.adat-dayak-root .copy-button svg, .adat-dayak-root .gift-card-icon, .adat-dayak-root .gift-icon, .adat-dayak-root .location-icon, .adat-dayak-root .pill-button svg, .adat-dayak-root .small-pill svg, .adat-dayak-root .stream-link svg { fill: none; stroke: currentcolor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
+.adat-dayak-root .pill-button svg, .adat-dayak-root .small-pill svg, .adat-dayak-root .stream-link svg { width: 12px; height: 12px; margin-right: 5px; }
+.adat-dayak-root .copy-button svg { flex: 0 0 auto; width: 10.5px; height: 12px; margin-left: 8px; }
+.adat-dayak-root .copy-button:hover, .adat-dayak-root .pill-button:hover, .adat-dayak-root .small-pill:hover, .adat-dayak-root .stream-link:hover { background: var(--adat-primary-hover); transform: translateY(-2px); }
+.adat-dayak-root .car-tile button:focus-visible, .adat-dayak-root .copy-button:focus-visible, .adat-dayak-root .lightbox-close:focus-visible, .adat-dayak-root .pill-button:focus-visible, .adat-dayak-root .small-pill:focus-visible, .adat-dayak-root .stream-link:focus-visible { outline: rgb(255, 255, 255) solid 2px; outline-offset: 3px; }
+.adat-dayak-root .cover-open, .adat-dayak-root .cover-right-copy .pill-button { position: absolute; top: 646px; left: 50%; width: 176px; min-height: 34px; padding: 6px 14px; transform: translateX(-50%); font-size: 12px; }
+.adat-dayak-root .cover-right-copy .pill-button:hover { transform: translateX(-50%) translateY(-2px); }
+.adat-dayak-root .button-mark { width: 11px; height: 8px; margin-right: 5px; border: 1px solid; border-radius: 1px; position: relative; }
+.adat-dayak-root .button-mark::after { content: ""; position: absolute; left: 2px; top: 1px; width: 5px; height: 5px; border-right: 1px solid; border-bottom: 1px solid; transform: rotate(45deg); }
+.adat-dayak-root .cover-gate, .adat-dayak-root .video-intro { position: relative; width: 100%; height: 100svh; min-height: 680px; background: rgb(0, 0, 0); opacity: 1; visibility: visible; z-index: 1; }
+.adat-dayak-root .video-intro { background: rgb(0, 0, 0); }
+.adat-dayak-root .gate-stage { position: absolute; inset: 0px; overflow: hidden; opacity: 0; visibility: hidden; transition: opacity 0.5s, visibility 0.5s; }
+.adat-dayak-root .gate-stage > img, .adat-dayak-root .gate-stage > video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.adat-dayak-root .gate-initial { opacity: 1; visibility: visible; }
+.adat-dayak-root .gate-shade { position: absolute; inset: 0px; pointer-events: none; background: rgba(0, 0, 0, 0.42); }
+.adat-dayak-root .gate-initial .gate-shade { height: 100%; background: linear-gradient(rgba(0, 0, 0, 0.34), rgba(0, 0, 0, 0.76)); }
+.adat-dayak-root .gate-copy { position: absolute; inset: 70px 20px 128px; z-index: 1; display: flex; flex-direction: column; justify-content: space-between; color: rgb(255, 255, 255); text-align: center; }
+.adat-dayak-root .gate-details { display: flex; flex-direction: column; align-items: center; }
+.adat-dayak-root .fallback-copy h2, .adat-dayak-root .fallback-copy p, .adat-dayak-root .gate-copy h2, .adat-dayak-root .gate-copy p { margin: 0px; }
+.adat-dayak-root .gate-copy .script { font-size: 24px; line-height: 31px; }
+.adat-dayak-root .gate-copy h2 { font-family: var(--serif); font-size: 24px; font-weight: 600; line-height: 31px; }
+.adat-dayak-root .gate-copy .gate-date { margin-top: 8px; font-family: var(--serif); font-size: 14px; font-weight: 600; line-height: 20px; opacity: 0.94; }
+.adat-dayak-root .gate-copy .cover-to, .adat-dayak-root .gate-copy .gate-guest { position: static; }
+.adat-dayak-root .gate-copy .cover-to { font-size: 12px; font-weight: 600; line-height: 16px; }
+.adat-dayak-root .gate-copy .gate-guest { margin-top: 2px; font-size: 16px; line-height: 24px; }
+.adat-dayak-root .gate-copy .guest-note { max-width: 240px; margin-top: 3px; font-size: 10px; line-height: 15px; opacity: 0.82; }
+.adat-dayak-root .gate-open { width: 176px; min-height: 34px; margin-top: 16px; padding: 8px 20px; font-size: 12px; }
+.adat-dayak-root .gate-video { background: rgb(20, 21, 18); }
+.adat-dayak-root .gate-video .gate-shade { background: transparent; }
+.adat-dayak-root .video-copy { position: absolute; top: 50%; left: 50%; z-index: 1; width: calc(100% - 40px); color: var(--adat-primary); margin: 0px; text-align: center; opacity: 0; pointer-events: none; transform: translate(-50%, -46%) scale(0.96); }
+.adat-dayak-root .video-copy.is-visible { animation: 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0s 1 normal forwards running adat-dayak-video-copy-reveal; }
+.adat-dayak-root .video-copy h2, .adat-dayak-root .video-copy p { margin: 0px; }
+.adat-dayak-root .video-copy > .script { color: var(--ink); font-size: 24px; line-height: 31px; }
+.adat-dayak-root .video-copy h2 { font-family: var(--serif); font-size: 38px; font-weight: 600; letter-spacing: 0.04em; line-height: 49px; }
+.adat-dayak-root .video-ampersand { display: block; color: var(--ink); font-family: var(--display); font-size: 28px; line-height: 34px; }
+.adat-dayak-root .video-copy > p:last-of-type { margin-top: 12px; color: var(--ink); font-family: var(--serif); font-size: 18px; font-weight: 700; letter-spacing: 0.25em; }
+@keyframes adat-dayak-video-copy-reveal { 
+  0% { opacity: 0; transform: translate(-50%, -40%) scale(0.96); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+.adat-dayak-root .fallback-copy { position: absolute; top: 50%; left: 50%; z-index: 1; width: calc(100% - 40px); color: var(--adat-primary); text-align: center; transform: translate(-50%, -50%); }
+.adat-dayak-root .fallback-copy > .script { color: var(--ink); font-size: 24px; line-height: 31px; }
+.adat-dayak-root .fallback-copy h2 { font-family: var(--serif); font-size: 38px; font-weight: 600; letter-spacing: 0.04em; line-height: 49px; }
+.adat-dayak-root .fallback-ampersand { display: block; color: var(--ink); font-family: var(--display); font-size: 28px; line-height: 34px; }
+.adat-dayak-root .fallback-copy > p:last-of-type { margin-top: 12px; color: var(--ink); font-family: var(--serif); font-size: 18px; font-weight: 700; letter-spacing: 0.25em; }
+.adat-dayak-root .video-intro.is-fallback .gate-initial, .adat-dayak-root .video-intro.is-fallback .gate-video, .adat-dayak-root .video-intro.is-video .gate-initial { opacity: 0; visibility: hidden; }
+.adat-dayak-root .video-intro.is-fallback .gate-fallback, .adat-dayak-root .video-intro.is-video .gate-video { opacity: 1; visibility: visible; }
+.adat-dayak-root .right-column { position: relative; z-index: 1; width: var(--panel-width); grid-area: 1 / 2; margin-left: 0px; background: rgb(255, 255, 255); }
+.adat-dayak-root .right-column::before { content: ""; position: fixed; top: 0px; right: max(0px, -710px + 50vw); z-index: 0; width: min(var(--panel-width),100vw); height: 100svh; background: linear-gradient(rgba(255, 252, 243, 0.46), rgba(255, 252, 243, 0.46)) 50% center / cover no-repeat, url("/templates/adat-dayak/parallax-overlay.webp"); pointer-events: none; }
+.adat-dayak-root .right-column > section { position: relative; width: 100%; overflow: hidden; z-index: 1; perspective: 1200px; transform-style: preserve-3d; }
+.adat-dayak-root.aos-ready [data-aos] { opacity: 0; visibility: hidden; --aos-motion-transform: translateZ(0); transform: var(--aos-base-transform,translate3d(0,0,0)) var(--aos-motion-transform); transform-origin: center center; filter: blur(5px); transition-behavior: normal, normal, normal, normal; transition-duration: 0.82s, 1.1s, 0.82s, 0s; transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1), cubic-bezier(0.22, 1.12, 0.36, 1), ease-out, linear; transition-property: opacity, transform, filter, visibility; transition-delay: var(--aos-delay,0s); backface-visibility: hidden; }
+.adat-dayak-root.aos-ready [data-aos="fade-up"] { --aos-motion-transform: translate3d(0,56px,0) rotateX(10deg) scale(0.95); }
+.adat-dayak-root.aos-ready [data-aos="fade-down"] { --aos-motion-transform: translate3d(0,-44px,0) rotateX(-10deg) scale(0.96); }
+.adat-dayak-root.aos-ready [data-aos="slide-left"] { --aos-motion-transform: translate3d(70px,12px,0) rotateY(-11deg) scale(0.95); }
+.adat-dayak-root.aos-ready [data-aos="slide-right"] { --aos-motion-transform: translate3d(-70px,12px,0) rotateY(11deg) scale(0.95); }
+.adat-dayak-root.aos-ready [data-aos="zoom-in"] { --aos-motion-transform: scale(0.76) rotate(-4deg); }
+.adat-dayak-root.aos-ready [data-aos="scale-in"] { --aos-motion-transform: scale(0.8) rotate(3deg); }
+.adat-dayak-root.aos-ready [data-aos="flip-in"] { --aos-motion-transform: translate3d(0,42px,0) rotateX(-24deg) scale(0.94); }
+.adat-dayak-root.aos-ready [data-aos="leaf-in"] { --aos-motion-transform: translate3d(0,50px,0) rotate(-14deg) scale(0.78); }
+.adat-dayak-root.aos-ready [data-aos].is-aos-visible { opacity: 1; visibility: visible; --aos-motion-transform: translateZ(0); filter: blur(0px); }
+.adat-dayak-root.aos-ready [data-aos]:not(.is-aos-visible) { transition-delay: 0s, 0s, 0s, 1.1s; }
+.adat-dayak-root.aos-ready [data-aos].garden-text-reveal { opacity: 0; visibility: hidden; transform: translate3d(0px, 38px, 0px) rotateX(9deg) scale(0.95); transform-origin: center bottom; filter: blur(4px); transition-behavior: normal, normal, normal, normal; transition-duration: 1s, 1.1s, 0.9s, 0s; transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1), cubic-bezier(0.22, 1.12, 0.36, 1), ease-out, linear; transition-property: opacity, transform, filter, visibility; transition-delay: var(--aos-delay,0s); backface-visibility: hidden; }
+.adat-dayak-root.aos-ready [data-aos].garden-text-reveal.is-aos-visible { opacity: 1; visibility: visible; transform: translateZ(0px) rotateX(0deg) scale(1); filter: blur(0px); }
+.adat-dayak-root.aos-ready [data-aos="fade-down"].garden-text-reveal { transform: translate3d(0px, -32px, 0px) rotateX(-8deg) scale(0.96); transform-origin: center top; }
+.adat-dayak-root.aos-ready [data-aos="slide-left"].garden-text-reveal { transform: translate3d(54px, 10px, 0px) rotateY(-8deg) scale(0.96); }
+.adat-dayak-root.aos-ready [data-aos="slide-right"].garden-text-reveal { transform: translate3d(-54px, 10px, 0px) rotateY(8deg) scale(0.96); }
+.adat-dayak-root.aos-ready [data-aos].garden-text-reveal:not(.is-aos-visible) { transition-delay: 0s, 0s, 0s, 1.1s; }
+.adat-dayak-root .verse-section { height: 849px; background: var(--paper); }
+.adat-dayak-root .verse-section::before { content: ""; position: absolute; inset: 0px; }
+.adat-dayak-root .quote-card { position: absolute; top: 43px; right: 30px; left: 30px; height: 763px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.85); border-radius: 20px; background: rgba(255, 252, 243, 0.77); box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 10px; }
+.adat-dayak-root .quote-card--no-photo { display: flex; align-items: stretch; }
+.adat-dayak-root .quote-card--no-photo .quote-copy { display: flex; width: 100%; height: 100%; flex-direction: column; justify-content: center; }
+.adat-dayak-root .quote-photo-wrap { height: 390px; overflow: hidden; border-radius: 20px 20px 0px 0px; box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 9px; }
+.adat-dayak-root .quote-photo-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: center 42%; }
+.adat-dayak-root .quote-copy { height: 372px; padding: 34px 24px 20px; text-align: center; background: rgba(255, 252, 243, 0.84); }
+.adat-dayak-root .verse-hashtag.name-fit { width: 100%; margin: 0px 0px 28px; color: var(--adat-primary-text); font-family: var(--serif); font-size: min(2.25rem,calc((min(100vw, var(--panel-width)) - 108px) / (var(--len, 16) * .56))); line-height: 1.15; white-space: nowrap; }
+.adat-dayak-root blockquote { margin: 0px; font-family: var(--serif); font-size: 14px; font-style: italic; line-height: 18px; }
+.adat-dayak-root .quote-source { margin: 14px 0px 0px; font-family: var(--serif); font-size: 16px; font-weight: 700; line-height: 21px; }
+.adat-dayak-root .groom-bride-section { height: auto; min-height: 1690px; overflow: visible; padding: 30px 20px; background: rgb(255, 255, 255); }
+.adat-dayak-root .profile-card { height: auto; min-height: 1630px; overflow: visible; border: 1px solid rgb(255, 255, 255); border-radius: 20px; background: rgba(255, 252, 243, 0.94); padding: 70px 20px; }
+.adat-dayak-root .groom-bride-section.no-photo, .adat-dayak-root .profile-card.no-photo { min-height: 0px; }
+.adat-dayak-root .profile-intro { min-height: 260px; text-align: center; }
+.adat-dayak-root .profile-heading { margin: 0px auto 16px; color: var(--ink); font-size: 36px; line-height: 47px; white-space: pre-line; }
+.adat-dayak-root .profile-intro p { max-width: 304px; margin: 0px auto; font-size: 12px; line-height: 18px; }
+.adat-dayak-root .person { text-align: center; }
+.adat-dayak-root .person-image { position: relative; height: 352px; }
+.adat-dayak-root .person-photo { position: absolute; top: 26px; left: 50%; width: 184px; height: 300px; border: 1px solid rgb(255, 255, 255); border-radius: 500px; box-shadow: rgba(0, 0, 0, 0.24) 0px 4px 8px; object-fit: cover; z-index: 1; --aos-base-transform: translateX(-50%); }
+.adat-dayak-root .person-floral { position: absolute; z-index: 2; width: 172px; height: 206px; object-fit: contain; }
+.adat-dayak-root .person-bride .floral-left { top: 82px; left: -6px; }
+.adat-dayak-root .person-bride .floral-right { right: 36px; bottom: -7px; }
+.adat-dayak-root .person-bride .floral-left { z-index: 0; }
+.adat-dayak-root .person-groom .floral-left { left: 36px; bottom: -7px; }
+.adat-dayak-root .person-groom .floral-right { top: 76px; right: -9px; z-index: 0; }
+.adat-dayak-root .person-groom .person-floral { --aos-base-transform: scaleX(-1); }
+.adat-dayak-root .person-bride .floral-right, .adat-dayak-root .person-groom .floral-left { width: 140px; height: 170px; }
+.adat-dayak-root .person h3 { position: relative; z-index: 2; margin: 0px; font-size: 48px; line-height: 63px; }
+.adat-dayak-root .person p { margin: 0px; font-size: 12px; line-height: 18px; }
+.adat-dayak-root .person-fullname { font-family: var(--serif); letter-spacing: 0.03em; font-size: 20px !important; line-height: 26px !important; }
+.adat-dayak-root .person-parents > .parents-prefix { display: block; }
+.adat-dayak-root .small-pill { min-height: 30px; margin-top: 10px; padding: 6px 14px; border: 0px; font-size: 12px; line-height: 18px; }
+.adat-dayak-root .profile-ampersand { height: 72px; margin: 0px; color: rgb(0, 0, 0); font-family: var(--serif); font-size: 64px; line-height: 72px; text-align: center; }
+.adat-dayak-root .groom-bride-section.no-photo .profile-ampersand { margin: 32px 0px; }
+.adat-dayak-root .groom-bride-section.no-photo .profile-intro { margin-bottom: 32px; }
+.adat-dayak-root .events-section { height: auto; padding: 100px 0px 64px; color: var(--warm-fg,#fff); background: var(--adat-primary); }
+.adat-dayak-root .bouquet { position: relative; z-index: 1; display: block; width: 150px; height: 150px; margin: 0px auto 28px; object-fit: contain; --aos-base-transform: translateZ(0); }
+.adat-dayak-root .section-title { margin: 0px; font-size: 38px; line-height: 49px; text-align: center; }
+.adat-dayak-root .events-section > .section-title { position: relative; z-index: 1; margin: 0px 0px 16px; }
+.adat-dayak-root .countdown { position: relative; z-index: 1; margin: 0px 40px 19px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.adat-dayak-root .countdown div { height: 65px; border-radius: 10px; background: var(--paper); color: var(--adat-primary-text); text-align: center; }
+.adat-dayak-root .countdown span, .adat-dayak-root .countdown strong { display: block; }
+.adat-dayak-root .countdown strong { margin-top: 2px; font-family: var(--serif); font-size: 28px; font-weight: 500; line-height: 36px; }
+.adat-dayak-root .countdown span { font-size: 12px; line-height: 16px; }
+.adat-dayak-root .events-intro { position: relative; z-index: 1; margin: 0px 50px; text-align: center; line-height: 18px; }
+.adat-dayak-root .events-intro p { margin: 0px 0px 24px; }
+.adat-dayak-root .calendar-button { display: flex; width: 190px; min-height: 30px; margin: 0px auto 18px; padding: 6px 14px; border: 1px solid var(--paper); background: var(--paper); color: var(--adat-primary-deep); font-size: 12px; line-height: 18px; }
+.adat-dayak-root .calendar-button:hover { background: rgb(255, 255, 255); color: var(--adat-primary-deep); transform: translateY(-2px); }
+.adat-dayak-root .event-card { position: relative; width: calc(100% - 60px); min-height: 580px; margin: 0px auto; padding: 20px; border-radius: 999px; background: url("/templates/adat-dayak/parallax-overlay.webp") 50% center / cover no-repeat; box-shadow: rgba(0, 0, 0, 0.16) 0px 5px 8px; }
+.adat-dayak-root .event-card ~ .event-card { margin: 30px auto 0px; }
+.adat-dayak-root .event-card-inner { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; height: auto; min-height: 540px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 999px; background: rgba(255, 252, 243, 0.87); color: var(--ink); text-align: center; }
+.adat-dayak-root .event-card h3 { margin: 0px; font-size: 38px; line-height: 38px; }
+.adat-dayak-root .event-card h3.name-fit { width: 100%; font-size: 2.25rem; line-height: 1.15; white-space: normal; overflow-wrap: anywhere; }
+.adat-dayak-root .event-address, .adat-dayak-root .event-date, .adat-dayak-root .event-day, .adat-dayak-root .event-time, .adat-dayak-root .event-venue { display: block; }
+.adat-dayak-root .event-date { margin-top: 12px; font-family: var(--serif); font-size: 18px; line-height: 24px; white-space: nowrap; }
+.adat-dayak-root .event-time { font-size: 14px; letter-spacing: 0.04em; line-height: 21px; }
+.adat-dayak-root .location-icon { width: 15px; height: 20px; margin: 14px auto 5px; }
+.adat-dayak-root .event-card .location-icon { width: 30px; height: 30px; color: var(--adat-primary-text); }
+.adat-dayak-root .event-venue { max-width: 100%; overflow-wrap: anywhere; font-family: var(--serif); font-size: 18px; line-height: 23px; }
+.adat-dayak-root .event-address { max-width: 100%; margin-top: 2px; overflow-wrap: anywhere; font-size: 12px; line-height: 18px; }
+.adat-dayak-root .event-card .small-pill { margin-top: 22px; }
+.adat-dayak-root .live-streams-section { height: 360px; background: rgb(255, 255, 255); }
+.adat-dayak-root .stream-card { position: absolute; top: 34px; right: 30px; left: 30px; height: 300px; padding: 49px 20px 24px; border: 4px solid var(--adat-primary); border-radius: 20px; box-shadow: rgba(0, 0, 0, 0.2) 0px 3px 7px; text-align: center; }
+.adat-dayak-root .stream-card h2 { margin: 0px; font-size: 38px; line-height: 38px; }
+.adat-dayak-root .stream-card p { max-width: 310px; margin: 18px auto; line-height: 18px; }
+.adat-dayak-root .stream-link { width: 294px; max-width: 100%; min-height: 29px; margin: 0px auto 10px; border: 0px; font-size: 12px; line-height: 12px; }
+.adat-dayak-root .our-gallery-section { height: auto; min-height: 989px; padding: 106px 21px 56px; color: var(--warm-fg,#fff); background: var(--adat-primary); }
+.adat-dayak-root .our-gallery-section > .section-title { position: static; margin-bottom: 28px; }
+.adat-dayak-root .our-gallery-section .car-row + .car-row { margin-top: 42px; }
+.adat-dayak-root .gallery-description { max-width: 310px; margin: -14px auto 24px; color: var(--warm-fg,#fff); text-align: center; line-height: 18px; }
+.adat-dayak-root .car-row { overflow: hidden; margin: 0px -21px; }
+.adat-dayak-root .car-track { display: flex; width: max-content; animation: adat-dayak-marquee var(--dur,48s) linear infinite; }
+.adat-dayak-root .car-row--rev .car-track { animation-direction: reverse; }
+.adat-dayak-root .car-tile { position: relative; flex: 0 0 auto; width: 128px; height: 170px; margin: 0px 5px; }
+.adat-dayak-root .car-tile button { display: block; width: 100%; height: 100%; padding: 0px; border: 0px; background: transparent; color: inherit; cursor: pointer; }
+.adat-dayak-root .car-tile img { display: block; width: 100%; height: 100%; border-radius: 10px; object-fit: cover; filter: saturate(1.02); transition: filter 0.22s, transform 0.22s; }
+.adat-dayak-root .car-tile:hover img { filter: saturate(1.08); transform: scale(1.04); }
+@keyframes adat-dayak-marquee { 
+  0% { transform: translateX(0px); }
+  100% { transform: translateX(-50%); }
+}
+.adat-dayak-root .gallery-quote { position: relative; max-width: 310px; margin: 42px auto 46px; padding: 0px 20px; color: var(--warm-fg,#fff); text-align: center; }
+.adat-dayak-root .gallery-quote p { max-width: 38ch; margin: 0px auto; font-family: var(--serif); font-size: 17px; font-style: italic; line-height: 1.85; }
+.adat-dayak-root .gallery-quote cite { display: block; margin-top: 14px; font-family: var(--serif); font-size: 13px; font-style: normal; line-height: 18px; }
+.adat-dayak-root .gallery-video-card { position: relative; width: 100%; aspect-ratio: 16 / 9; margin-top: 30px; overflow: hidden; border: 2px solid rgba(255, 252, 243, 0.72); border-radius: 14px; background: rgb(23, 22, 18); box-shadow: rgba(23, 22, 18, 0.2) 0px 4px 12px; }
+.adat-dayak-root .gallery-video-card iframe { position: absolute; inset: 0px; display: block; width: 100%; height: 100%; border: 0px; transform: scale(1.34); transform-origin: center center; }
+@media (prefers-reduced-motion: reduce) {
+  .adat-dayak-root .car-track { animation: auto ease 0s 1 normal none running none; }
+}
+.adat-dayak-root .love-story-section { height: 1056px; padding: 70px 30px 50px; background: rgb(255, 255, 255); }
+.adat-dayak-root .story-card { position: relative; height: 936px; overflow: hidden; border: 4px solid var(--adat-primary); border-radius: 20px; background: var(--paper); padding: 225px 24px 20px; }
+.adat-dayak-root .story-bouquet { position: absolute; top: 71px; left: 50%; width: 120px; height: 120px; object-fit: contain; --aos-base-transform: translateX(-50%); }
+.adat-dayak-root .story-card > h2 { margin: 0px 0px 39px; color: rgb(86, 84, 79); font-size: 38px; line-height: 49px; text-align: center; }
+.adat-dayak-root .story-description { max-width: 290px; margin: -24px auto 30px; color: rgb(92, 90, 85); text-align: center; line-height: 18px; }
+.adat-dayak-root .story-list { gap: 13px; }
+.adat-dayak-root .story-list article { min-height: 120px; padding: 13px 14px; border: 1px solid rgb(92, 90, 85); border-radius: 20px; }
+.adat-dayak-root .story-list h3 { margin: 0px 0px 4px; color: rgb(92, 90, 85); font-size: 24px; font-weight: 500; line-height: 31px; }
+.adat-dayak-root .story-list p { color: rgb(92, 90, 85); line-height: 15.6px; }
+.adat-dayak-root .gift-section { min-height: 844px; height: auto; padding-bottom: 64px; color: var(--warm-fg,#fff); background: var(--adat-primary); padding-top: 112px; text-align: center; }
+.adat-dayak-root .gift-section--covered { min-height: 0px; padding-bottom: 52px; }
+.adat-dayak-root .gift-icon { width: 50px; height: 50px; margin: 0px auto 15px; color: var(--warm-fg,#fff); filter: none; opacity: 0.66; }
+.adat-dayak-root .gift-section > .section-title { font-size: 38px; opacity: 0.66; }
+.adat-dayak-root .gift-intro { max-width: 342px; margin: 14px auto 18px; color: color-mix(in srgb,var(--warm-fg,#fff) 66%,transparent); line-height: 18px; }
+.adat-dayak-root .gift-card { position: relative; width: min(346px, 100% - 40px); height: 416px; margin: 0px auto; padding: 30px 20px 18px 30px; border-radius: 20px; background: rgba(255, 252, 243, 0.6); color: var(--ink); text-align: left; }
+.adat-dayak-root .bank-logo { width: 100px; height: auto; margin: 0px 0px 9px auto; }
+.adat-dayak-root .gift-card p { margin: 0px; letter-spacing: 0.5px; line-height: 18px; }
+.adat-dayak-root .copy-button { width: 100%; min-height: 31px; margin-top: 17px; padding: 6px 12px; border: 0px; font-size: 12px; }
+.adat-dayak-root .copy-button img { width: 11px; height: 12px; margin-left: 8px; filter: brightness(0) invert(1) opacity(0.8); }
+.adat-dayak-root .gift-card hr { height: 1px; margin: 18px 0px; border: 0px; background: var(--ink); }
+.adat-dayak-root .gift-card-icon { display: block; width: 50px; height: 50px; margin: 0px auto 11px; color: var(--adat-primary-text); opacity: 0.72; }
+.adat-dayak-root .gift-address { text-align: center; }
+.adat-dayak-root .gift-card .copy-button:last-child { margin-top: 17px; }
+.adat-dayak-root .rsvp-wishes-section { height: 849px; padding: 158px 47px 0px; background: var(--paper); }
+.adat-dayak-root .parallax-section { width: 100%; background: transparent; }
+.adat-dayak-root .profile-card, .adat-dayak-root .story-card, .adat-dayak-root .stream-card { z-index: 1; }
+.adat-dayak-root .profile-card { position: relative; }
+.adat-dayak-root .stream-card { background: rgba(255, 252, 243, 0.76); }
+.adat-dayak-root .rsvp-wishes-section h2 { margin: 0px; color: rgb(146, 145, 140); font-size: 48px; line-height: 62px; text-align: center; }
+.adat-dayak-root .wishes-subtitle { margin: 8px 0px 31px; color: rgb(152, 151, 145); text-align: center; letter-spacing: 0.04em; }
+.adat-dayak-root .comments-count { margin: 0px 0px 28px 14px; color: rgb(153, 152, 145); }
+.adat-dayak-root .comments-closed { margin: 0px 14px; color: rgb(170, 169, 163); line-height: 21px; }
+.adat-dayak-root .thank-you-section { height: 849px; color: rgb(255, 255, 255); text-align: center; }
+.adat-dayak-root .closing-photo, .adat-dayak-root .closing-shade { position: absolute; inset: 0px; width: 100%; height: 100%; }
+.adat-dayak-root .closing-photo { object-fit: cover; object-position: center center; }
+.adat-dayak-root .closing-shade { background: rgba(0, 0, 0, 0.48); }
+.adat-dayak-root .closing-copy { position: absolute; right: 20px; bottom: 51px; left: 20px; }
+.adat-dayak-root .closing-message > p:first-child { margin: 0px 0px 12px; line-height: 18px; }
+.adat-dayak-root .closing-message > strong { display: block; margin-bottom: 3px; line-height: 18px; }
+.adat-dayak-root .closing-names { margin: 0px 0px 12px; font-size: 36px; line-height: 47px; }
+.adat-dayak-root .adat-dayak-footer { padding: 0px; }
+.adat-dayak-root .adat-dayak-footer .tpl-footer__logo { height: 22px; margin-bottom: 8px; }
+.adat-dayak-root .adat-dayak-footer .tpl-footer__text { margin-bottom: 14px; }
+.adat-dayak-root .adat-dayak-footer .tpl-footer__socials { gap: 22px; }
+.adat-dayak-root .adat-dayak-footer .tpl-footer__social { background: rgba(255, 255, 255, 0.15); color: rgb(255, 255, 255); }
+@media (max-width: 900px) {
+  .adat-dayak-root { background: var(--adat-primary); }
+  .adat-dayak-root .right-column::before { right: 0px; width: 100%; }
+  .adat-dayak-root .page-shell { display: block; min-height: 0px; }
+  .adat-dayak-root .cover, .adat-dayak-root .desktop-blank { display: none; }
+  .adat-dayak-root .right-column { grid-area: auto; width: 100%; }
+  .adat-dayak-root .groom-bride-section { padding-right: 20px; padding-left: 20px; }
+}
+@media (max-width: 430px) {
+  .adat-dayak-root .cover { height: 100svh; min-height: 680px; }
+  .adat-dayak-root .gate-copy { inset: 70px 20px 128px; }
+  .adat-dayak-root .groom-bride-section { padding-right: 10px; padding-left: 10px; }
+  .adat-dayak-root .profile-card { padding-right: 20px; padding-left: 20px; }
+  .adat-dayak-root .person-floral { width: 150px; }
+  .adat-dayak-root .love-story-section, .adat-dayak-root .stream-card { right: 20px; left: 20px; }
+  .adat-dayak-root .dress-code-section, .adat-dayak-root .love-story-section { padding-right: 20px; padding-left: 20px; }
+  .adat-dayak-root .story-card { padding-right: 18px; padding-left: 18px; }
+  .adat-dayak-root .gift-card { width: calc(100% - 60px); padding-right: 24px; padding-left: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .adat-dayak-root *, .adat-dayak-root ::after, .adat-dayak-root ::before { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}
+.adat-dayak-root { position: relative; width: 100%; min-height: 100svh; background: rgb(255, 255, 255); color: var(--ink); isolation: isolate; }
+.adat-dayak-root .right-column::before { background: none; }
+.adat-dayak-root .tpl-fullscreen-btn, .adat-dayak-root .tpl-music-btn { border: 1px solid rgba(255, 252, 243, 0.68); background: var(--adat-primary); color: var(--warm-fg,#fff); box-shadow: rgba(23, 22, 18, 0.24) 0px 4px 15px; }
+.adat-dayak-root .tpl-fullscreen-btn:hover, .adat-dayak-root .tpl-music-btn:hover { background: var(--adat-primary-hover); }
+.adat-dayak-root .right-parallax-background { position: fixed; top: 0px; right: max(0px, -710px + 50vw); z-index: 0; width: min(var(--panel-width),100vw); height: 100svh; object-fit: cover; opacity: 0.56; pointer-events: none; }
+.adat-dayak-root .verse-section::before { background: url("/templates/adat-dayak/motif-atas.webp") 50% center / cover no-repeat; opacity: 0.95; }
+.adat-dayak-root .quote-card { z-index: 1; }
+.adat-dayak-root .dress-code-section, .adat-dayak-root .groom-bride-section, .adat-dayak-root .live-streams-section, .adat-dayak-root .love-story-section { background: transparent; }
+.adat-dayak-root .rsvp-wishes-section { height: auto; min-height: 849px; overflow: visible; background: rgba(255, 255, 255, 0.9); }
+.adat-dayak-root .gallery-video-hitarea { position: absolute; inset: 0px; z-index: 2; width: 100%; border: 0px; background: transparent; cursor: pointer; }
+.adat-dayak-root .right-column > section { padding-bottom: 64px; }
+.adat-dayak-root .love-story-section { height: auto; min-height: 1056px; overflow: visible; }
+.adat-dayak-root .story-card { height: auto; min-height: 936px; overflow: visible; border: 1px solid color-mix(in srgb,var(--adat-primary) 34%,transparent); border-radius: 24px; background: rgba(255, 252, 243, 0.9); box-shadow: rgba(23, 22, 18, 0.12) 0px 18px 42px; padding-bottom: 52px; }
+.adat-dayak-root .story-card > h2 { color: var(--adat-primary-deep); font-size: 42px; line-height: 1.1; }
+.adat-dayak-root .story-card > h2::after { display: block; width: 48px; height: 1px; margin: 14px auto 0px; background: var(--adat-primary-text); content: ""; }
+.adat-dayak-root.no-photo .verse-section { height: auto; min-height: 0px; padding: 32px 0px 64px; }
+.adat-dayak-root.no-photo .quote-card { position: relative; top: auto; right: auto; left: auto; width: auto; height: auto; min-height: 0px; margin: 0px 30px; }
+.adat-dayak-root.no-photo .quote-card--no-photo .quote-copy { height: auto; min-height: 360px; }
+.adat-dayak-root.no-photo .profile-intro { min-height: 0px; }
+.adat-dayak-root.no-photo .groom-bride-section { min-height: 100svh; }
+.adat-dayak-root.no-photo .events-section { height: auto; min-height: 0px; padding: 72px 30px 64px; }
+.adat-dayak-root.no-photo .events-section:has(.event-extra) { min-height: 0px; }
+.adat-dayak-root.no-photo .countdown, .adat-dayak-root.no-photo .events-intro, .adat-dayak-root.no-photo .events-section > .bouquet, .adat-dayak-root.no-photo .events-section > .section-title { position: static; }
+.adat-dayak-root.no-photo .bouquet { display: block; margin: 0px auto 24px; --aos-base-transform: translateZ(0); }
+.adat-dayak-root.no-photo .events-section > .section-title { margin-bottom: 24px; }
+.adat-dayak-root.no-photo .countdown, .adat-dayak-root.no-photo .events-intro { margin: 0px 0px 28px; }
+.adat-dayak-root.no-photo .event-card { position: relative; top: auto; right: auto; left: auto; width: 100%; height: auto; margin: 24px 0px 0px; }
+.adat-dayak-root.no-photo .event-card-inner { height: auto; min-height: 540px; }
+.adat-dayak-root.no-photo .live-streams-section { height: auto; min-height: 0px; padding: 64px 30px; }
+.adat-dayak-root.no-photo .stream-card { position: relative; top: auto; right: auto; left: auto; width: 100%; height: auto; min-height: 0px; padding: 42px 20px 32px; }
+.adat-dayak-root.no-photo .love-story-section { height: auto; min-height: 0px; padding: 48px 30px 64px; }
+.adat-dayak-root.no-photo .story-card { height: auto; min-height: 0px; padding-top: 225px; }
+.adat-dayak-root.no-photo .gift-section, .adat-dayak-root.no-photo .rsvp-wishes-section { height: auto; min-height: 0px; }
+.adat-dayak-root.no-photo .rsvp-wishes-section { padding-top: 80px; padding-bottom: 64px; }
+.adat-dayak-root.no-photo .thank-you-section { position: relative; height: 100svh; min-height: 100svh; padding: 0px; }
+.adat-dayak-root.no-photo .closing-copy { position: absolute; inset: 0px 20px; display: flex; flex-direction: column; justify-content: center; }
+.adat-dayak-root.no-photo .closing-message { width: 100%; max-width: 300px; margin-right: auto; margin-left: auto; }
+.adat-dayak-root.no-photo .adat-dayak-footer { position: absolute; right: 0px; bottom: 51px; left: 0px; }
+.adat-dayak-root .story-list { position: relative; display: grid; gap: 30px; padding-left: 42px; }
+.adat-dayak-root .story-list article { position: relative; z-index: 1; min-height: 0px; padding: 0px 0px 0px 2px; border: 0px; border-radius: 0px; background: transparent; opacity: 0; translate: 0px 12px; transition: opacity 0.52s ease-out, translate 0.52s cubic-bezier(0.16, 1, 0.3, 1); }
+.adat-dayak-root .story-list article:not(:last-child)::after, .adat-dayak-root .story-list article:not(:last-child)::before { position: absolute; top: 33px; bottom: -30px; left: -26px; width: 1px; content: ""; pointer-events: none; }
+.adat-dayak-root .story-list article:not(:last-child)::after { background: color-mix(in srgb,var(--adat-primary) 30%,transparent); }
+.adat-dayak-root .story-list article:not(:last-child)::before { z-index: 1; background: var(--adat-primary-text); transform: scaleY(0); transform-origin: center top; transition: transform 0.82s cubic-bezier(0.22, 1, 0.36, 1); }
+.adat-dayak-root .story-list article.is-story-reached:not(:last-child)::before { transform: scaleY(1); transition-delay: 0.72s; }
+.adat-dayak-root .story-list article.is-story-reached { opacity: 1; translate: 0px; }
+.adat-dayak-root .story-marker { position: absolute; top: -1px; left: -42px; z-index: 2; display: grid; width: 32px; height: 32px; place-items: center; border: 0px; border-radius: 50%; background: var(--paper); color: var(--adat-primary-deep); box-shadow: rgba(255, 252, 243, 0.92) 0px 0px 0px 4px; transition: background 0.28s, color 0.28s, box-shadow 0.28s; }
+.adat-dayak-root .story-list article.is-story-reached .story-marker { background: var(--adat-primary); color: var(--warm-fg,#fff); box-shadow: 0 0 0 4px rgb(255 252 243/.92),0 0 0 7px color-mix(in srgb,var(--adat-primary) 16%,transparent); transition-delay: 0.42s; }
+.adat-dayak-root .story-marker-ring { position: absolute; inset: -4px; width: 40px; height: 40px; overflow: visible; pointer-events: none; }
+.adat-dayak-root .story-marker-ring circle { fill: none; stroke: var(--adat-primary-text); stroke-width: 1.2; stroke-linecap: round; stroke-dasharray: 110; stroke-dashoffset: 110; transform: rotate(-90deg); transform-box: fill-box; transform-origin: center center; transition: stroke-dashoffset 0.72s cubic-bezier(0.33, 1, 0.68, 1); }
+.adat-dayak-root .story-list article.is-story-reached .story-marker-ring circle { stroke-dashoffset: 0; }
+.adat-dayak-root .story-marker > svg:not(.story-marker-ring) { width: 14px; height: 14px; opacity: 0.72; transform: scale(0.82); transition: opacity 0.32s, transform 0.52s cubic-bezier(0.16, 1, 0.3, 1); }
+.adat-dayak-root .story-list article.is-story-reached .story-marker > svg:not(.story-marker-ring) { opacity: 1; transform: scale(1); transition-delay: 0.34s; }
+.adat-dayak-root .story-list h3 { margin: 0px 0px 8px; color: var(--adat-primary-deep); font-family: var(--serif); font-size: 21px; font-weight: 600; letter-spacing: 0.02em; line-height: 28px; }
+.adat-dayak-root .story-list p { margin: 0px; color: rgb(75, 74, 69); font-size: 12px; line-height: 19px; }
+@media (prefers-reduced-motion: reduce) {
+  .adat-dayak-root .story-list article { opacity: 1; translate: 0px; transition: none; }
+  .adat-dayak-root .story-list article:not(:last-child)::before { transform: scaleY(1); transition: none; }
+  .adat-dayak-root .story-marker-ring circle { stroke-dashoffset: 0; transition: none; }
+  .adat-dayak-root .story-marker > svg:not(.story-marker-ring) { opacity: 1; transform: none; transition: none; }
+}
+.adat-dayak-root .gift-card-shell { position: relative; width: min(346px, 100% - 40px); min-height: 0px; height: auto; margin: 0px auto; padding: 0px; }
+.adat-dayak-root .gift-card-shell .tpl-gift { padding: 0px; background: transparent; color: var(--ink); text-align: left; }
+.adat-dayak-root .gift-card-shell .tpl-gift__label { display: none; }
+.adat-dayak-root .gift-card-shell .tpl-gift__tabs { display: flex; width: max-content; max-width: 100%; margin: 0px auto 22px; padding: 4px; border: 1px solid rgba(255, 255, 255, 0.42); border-radius: 999px; background: rgba(255, 252, 243, 0.18); box-shadow: rgba(23, 22, 18, 0.08) 0px 6px 18px; }
+.adat-dayak-root .gift-card-shell .tpl-gift__tab { padding: 8px 18px; border-radius: 999px; color: var(--ink); font-family: var(--sans); font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: none; }
+.adat-dayak-root .gift-card-shell .tpl-gift__tab.is-active { background: var(--adat-primary); color: var(--warm-fg,#fff); box-shadow: none; }
+.adat-dayak-root .gift-card-shell .tpl-gift__accounts { max-width: none; gap: 12px; }
+.adat-dayak-root .gift-card-shell .tpl-gift__account { display: flex; flex-direction: column; padding: 20px; border: 1px solid rgba(23, 22, 18, 0.12); border-radius: 20px; background: rgba(255, 252, 243, 0.72); text-align: left; }
+.adat-dayak-root .gift-card-shell .tpl-gift__account-logo { order: 0; width: 100px; height: auto; max-width: 100%; margin: 0px 0px 9px auto; }
+.adat-dayak-root .gift-card-shell .tpl-gift__account::before { display: none; }
+.adat-dayak-root .gift-card-shell .tpl-gift__account-name, .adat-dayak-root .gift-card-shell .tpl-gift__account-number { margin: 0px; color: var(--ink); }
+.adat-dayak-root .gift-card-shell .tpl-gift__account-number { order: 2; font-family: var(--sans); font-size: 18px; font-weight: 700; letter-spacing: 0.5px; line-height: 24px; }
+.adat-dayak-root .gift-card-shell .tpl-gift__account-number::before { content: none; }
+.adat-dayak-root .gift-card-shell .tpl-gift__account-name { order: 3; font-size: 12px; line-height: 18px; }
+.adat-dayak-root .gift-card-shell .tpl-gift__account-name::before { content: none; }
+.adat-dayak-root .gift-card-shell .tpl-gift__copy-btn { display: flex; align-items: center; justify-content: space-between; order: 4; width: 100%; min-height: 31px; margin-top: 17px; padding: 6px 12px; border: 0px; border-radius: 999px; background: var(--adat-primary); color: var(--warm-fg,#fff); font-size: 12px; text-align: left; }
+.adat-dayak-root .gift-card-shell .tpl-gift__reveal { justify-content: center; }
+.adat-dayak-root .gift-card-shell .tpl-gift__reveal-btn { display: inline-flex; align-items: center; justify-content: center; width: 176px; min-height: 34px; margin: 16px auto 0px; padding: 8px 20px; border: 1px solid var(--paper); border-radius: 999px; background: var(--paper); color: var(--adat-primary-text); text-align: center; transition: transform 0.18s, background 0.18s; }
+.adat-dayak-root .gift-card-shell .tpl-gift__reveal-btn svg { width: 12px; height: 12px; margin-right: 5px; }
+.adat-dayak-root .gift-card-shell .tpl-gift__reveal-btn:focus-visible, .adat-dayak-root .gift-card-shell .tpl-gift__reveal-btn:hover { background: color-mix(in srgb,var(--paper) 88%,var(--adat-primary)); transform: translateY(-2px); }
+.adat-dayak-root .gift-card-shell .tpl-gift__reveal-btn:focus-visible { outline: 2px solid var(--paper); outline-offset: 3px; }
+.adat-dayak-root .gift-card-shell .tpl-gift__reveal-btn:active { transform: translateY(1px); }
+.adat-dayak-root .gift-card-shell .tpl-gift__address { max-width: none; margin: 18px 0px 0px; padding: 20px; border: 1px solid rgba(23, 22, 18, 0.12); border-radius: 20px; background: rgba(255, 252, 243, 0.72); text-align: center; }
+.adat-dayak-root .gift-card-shell .tpl-gift__address-label { display: block; margin: 0px 0px 2px; color: var(--ink); font-size: 12px; font-weight: 700; letter-spacing: 0.5px; line-height: 18px; text-transform: none; }
+.adat-dayak-root .gift-card-shell .tpl-gift__address .gift-card-icon { display: block; width: 40px; height: 40px; margin: 0px auto 10px; color: var(--adat-primary-text); opacity: 0.8; }
+.adat-dayak-root .gift-card-shell .tpl-gift__address-text { margin: 0px; color: var(--ink); white-space: pre-line; }
+.adat-dayak-root .gift-card-shell .tpl-gift__address .tpl-gift__copy-btn { margin-top: 17px; }
+.adat-dayak-root .gift-card-shell .tpl-gift__registry { display: grid; max-width: none; gap: 10px; margin: 0px; }
+.adat-dayak-root .gift-card-shell .tpl-gift__pagination { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 16px; }
+.adat-dayak-root .gift-card-shell .tpl-gift__pagination .tpl-rsvp__wishes-pg-btn { width: 32px; height: 32px; border: 1px solid rgba(255, 252, 243, 0.68); background: rgba(255, 252, 243, 0.82); color: var(--adat-primary-deep); font-family: var(--serif); font-size: 26px; font-weight: 400; line-height: 1; }
+.adat-dayak-root .gift-card-shell .tpl-gift__pagination .tpl-rsvp__wishes-pg-info { min-width: 48px; color: var(--warm-fg,#fff); font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
+.adat-dayak-root .tpl-gift__dialog-backdrop { right: max(0px, -710px + 50vw); left: auto; width: min(var(--panel-width),100vw); background: color-mix(in srgb,var(--ink,#171612) 28%,transparent); }
+.adat-dayak-root .tpl-gift__dialog { max-width: 326px; padding: 28px 24px 24px; border: 1px solid color-mix(in srgb,var(--paper,#fffcf3) 90%,transparent); border-radius: 20px; background: color-mix(in srgb,var(--paper,#fffcf3) 98%,transparent); box-shadow: 0 12px 30px color-mix(in srgb,var(--ink,#171612) 22%,transparent); }
+.adat-dayak-root .tpl-gift__dialog-title { margin-bottom: 8px; color: var(--ink); font-family: var(--display); font-size: 30px; font-weight: 400; line-height: 1; text-align: center; }
+.adat-dayak-root .tpl-gift__dialog-subtitle { margin: 0px auto 18px; color: color-mix(in srgb,var(--ink,#171612) 58%,transparent); font-family: var(--sans); font-size: 11px; line-height: 17px; text-align: center; }
+.adat-dayak-root .tpl-gift__dialog-input { margin-bottom: 18px; border-color: color-mix(in srgb,var(--ink,#171612) 16%,transparent); border-radius: 12px; background: rgb(255, 255, 255); color: var(--ink); font-family: var(--sans); font-size: 12px; }
+.adat-dayak-root .tpl-gift__dialog-input:focus { border-color: var(--adat-primary-text); box-shadow: 0 0 0 3px color-mix(in srgb,var(--adat-primary-text) 16%,transparent); }
+.adat-dayak-root .tpl-gift__dialog-actions { gap: 10px; }
+.adat-dayak-root .tpl-gift__dialog-actions button { min-height: 34px; padding: 8px 12px; border-radius: 999px; font-family: var(--sans); font-size: 11px; letter-spacing: 0.3px; text-transform: none; }
+.adat-dayak-root .tpl-gift__dialog-cancel { border-color: color-mix(in srgb,var(--adat-primary-text,#0B0B0C) 48%,transparent); color: var(--adat-primary-text,#0B0B0C); }
+.adat-dayak-root .tpl-gift__dialog-confirm { background: var(--adat-primary); color: var(--warm-fg,#fff); }
+.adat-dayak-root .gift-card-shell .tpl-gift__item { gap: 10px; padding: 10px; border-color: rgba(23, 22, 18, 0.12); border-radius: 12px; background: rgba(255, 252, 243, 0.76); }
+.adat-dayak-root .gift-card-shell .tpl-gift__item-img { width: 64px; height: 64px; border-radius: 8px; }
+.adat-dayak-root .gift-card-shell .tpl-gift__item-title { margin-bottom: 2px; color: var(--ink); font-size: 12px; }
+.adat-dayak-root .gift-card-shell .tpl-gift__item-price { margin-bottom: 2px; color: var(--adat-primary-deep); font-size: 11px; }
+.adat-dayak-root .gift-card-shell .tpl-gift__item-claimers, .adat-dayak-root .gift-card-shell .tpl-gift__item-meta { margin-bottom: 6px; color: rgb(123, 121, 115); font-size: 10px; }
+.adat-dayak-root .gift-card-shell .tpl-gift__claim-btn, .adat-dayak-root .gift-card-shell .tpl-gift__store-btn { padding: 6px 8px; border-color: var(--adat-primary); border-radius: 999px; font-size: 10px; text-transform: none; }
+.adat-dayak-root .gift-card-shell .tpl-gift__claim-btn { background: var(--adat-primary); }
+.adat-dayak-root .gift-card-shell .tpl-gift__store-btn { border-color: var(--adat-primary-text); color: var(--adat-primary-text); }
+.adat-dayak-root .adat-rsvp { padding: 0px; background: transparent; color: var(--ink); }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__form { max-width: 100%; margin-top: 28px; }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__counter, .adat-dayak-root .adat-rsvp .tpl-rsvp__field label, .adat-dayak-root .adat-rsvp .tpl-rsvp__wishes-label { color: rgb(146, 145, 140); }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__choice-label, .adat-dayak-root .adat-rsvp .tpl-rsvp__input, .adat-dayak-root .adat-rsvp .tpl-rsvp__select, .adat-dayak-root .adat-rsvp .tpl-rsvp__textarea { border-color: rgba(23, 22, 18, 0.18); background: rgba(255, 252, 243, 0.76); color: var(--ink); }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__choice-input:checked + .tpl-rsvp__choice-label, .adat-dayak-root .adat-rsvp .tpl-rsvp__submit { border-color: var(--adat-primary); background: var(--adat-primary); color: var(--warm-fg,#fff); }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__submit { width: 100%; border-radius: 999px; }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__wishes { margin-top: 36px; }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__wishes-label { display: none; }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__wishes-list { gap: 0px; }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__wish { padding: 16px 0px; border: 0px; border-radius: 0px; background: transparent; box-shadow: none; }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__wish-message, .adat-dayak-root .adat-rsvp .tpl-rsvp__wish-name { color: var(--ink); }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__wish-name { font-size: 13px; font-weight: 600; }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__wish-message { color: rgb(95, 94, 88); font-size: 12px; line-height: 18px; max-width: 86%; text-align: left; }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__wish-header { justify-content: flex-start; }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__wish:nth-child(2n) { text-align: right; }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__wish:nth-child(2n) .tpl-rsvp__wish-header { justify-content: flex-end; }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__wish:nth-child(2n) .tpl-rsvp__wish-message { margin-left: auto; text-align: right; }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__wish-status--hadir { background: color-mix(in srgb,var(--adat-primary) 18%,transparent); color: var(--adat-primary-deep); }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__wish-status--tidak { background: rgba(23, 22, 18, 0.08); color: rgb(119, 118, 111); }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__wish-status--ragu { background: rgba(181, 145, 72, 0.15); color: rgb(141, 109, 53); }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__wishes-pagination { gap: 12px; margin: 28px 0px 8px; }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__wishes-pg-btn { width: 32px; height: 32px; border-color: rgba(23, 22, 18, 0.16); background: rgba(255, 252, 243, 0.86); color: var(--adat-primary-deep); font-family: var(--serif); font-size: 26px; font-weight: 400; }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__wishes-pg-info { min-width: 48px; color: rgb(119, 118, 111); font-family: var(--sans); font-size: 12px; font-weight: 600; }
+.adat-dayak-root .adat-rsvp .tpl-rsvp__wish-date { display: none; }
+.adat-dayak-root .adat-dayak-toast { position: fixed; left: calc(50% - 213px + min(710px, 50vw)); bottom: 16px; z-index: 70; max-width: min(340px, -32px + 100vw); padding: 10px 14px; border-radius: 999px; background: var(--adat-primary); color: var(--warm-fg,#fff); box-shadow: rgba(0, 0, 0, 0.18) 0px 8px 24px; transform: translateX(-50%); }
+.adat-dayak-root .name-fit { white-space: normal; overflow-wrap: break-word; word-break: normal; max-width: 100%; text-align: center; }
+.adat-dayak-root .cover-left-copy h1.name-fit { font-size: 2rem; }
+.adat-dayak-root.no-photo .cover-left-copy h1.name-fit { font-size: 3.5rem; }
+.adat-dayak-root .cover-couple-name { white-space: pre-line; }
+.adat-dayak-root .cover-left-copy h1.cover-couple-name { line-height: 1.1; }
+.adat-dayak-root .fallback-copy h2.name-fit, .adat-dayak-root .gate-copy h2.name-fit, .adat-dayak-root .video-copy h2.name-fit { font-size: 2rem; }
+.adat-dayak-root .gate-copy h2.name-fit { max-width: 100%; }
+.adat-dayak-root .gate-copy h2.cover-couple-name { line-height: 1.15; }
+.adat-dayak-root .gate-copy .gate-guest.name-fit { font-size: 1rem; }
+.adat-dayak-root .person h3.name-fit { font-size: 3rem; }
+.adat-dayak-root .person-fullname.name-fit { display: block; width: 100%; margin-right: auto; margin-left: auto; padding-right: 6px; padding-left: 6px; text-align: center; font-size: 1.25rem !important; }
+.adat-dayak-root .person-parents > .name-fit { display: block; width: 100%; margin-right: auto; margin-left: auto; padding-right: 4px; padding-left: 4px; font-size: 0.75rem; }
+.adat-dayak-root .closing-names.name-fit { font-size: 2rem; }
+@media (max-width: 900px) {
+  .adat-dayak-root { background: var(--adat-primary); min-width: 0px; overflow-x: clip; }
+  .adat-dayak-root .page-shell { width: min(var(--panel-width),100%); margin-right: auto; margin-left: auto; background: transparent; }
+  .adat-dayak-root .right-column { width: min(var(--panel-width),100%); margin: 0px auto; }
+  .adat-dayak-root .love-story-section { right: auto; left: auto; }
+  .adat-dayak-root .adat-dayak-toast { left: 50%; }
+  .adat-dayak-root .right-parallax-background { right: 0px; left: 0px; width: 100%; }
+  .adat-dayak-root .tpl-gift__dialog-backdrop { right: 0px; width: 100%; }
+}
+@media (max-width: 430px) {
+  .adat-dayak-root .page-shell, .adat-dayak-root .right-column { width: 100%; }
+  .adat-dayak-root .gift-card-shell { width: calc(100% - 60px); padding-right: 24px; padding-left: 24px; }
+}
+
+.adat-dayak-root.is-open .cover-gate{display:none}
+.adat-dayak-root.is-locked{overflow:hidden}
+html:has(.adat-dayak-root.is-locked),body:has(.adat-dayak-root.is-locked){overflow:hidden}
+.adat-dayak-root .adat-dayak-lightbox{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(23,22,18,.92);backdrop-filter:blur(6px)}
+.adat-dayak-root .adat-dayak-lightbox img{max-width:100%;max-height:86svh;border-radius:10px;box-shadow:0 18px 60px rgba(0,0,0,.45);object-fit:contain}
+.adat-dayak-root .adat-dayak-lightbox__close{position:absolute;top:18px;right:18px;width:40px;height:40px;border:1px solid rgba(255,252,243,.6);border-radius:50%;background:rgba(255,252,243,.16);color:#fffcf3;font-size:22px;line-height:1}
+.adat-dayak-root .adat-dayak-lightbox__close:hover{background:rgba(255,252,243,.3)}
+.adat-dayak-root .adat-dayak-lightbox__nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border:1px solid rgba(255,252,243,.6);border-radius:50%;background:rgba(255,252,243,.16);color:#fffcf3;font-size:22px;line-height:1}
+.adat-dayak-root .adat-dayak-lightbox__nav:hover{background:rgba(255,252,243,.3)}
+.adat-dayak-root .adat-dayak-lightbox__nav--prev{left:16px}
+.adat-dayak-root .adat-dayak-lightbox__nav--next{right:16px}
+.adat-dayak-root .rsvp-feedback{margin-top:12px;font-size:12px;line-height:1.6;color:var(--adat-primary-deep);text-align:center}
+.adat-dayak-root .rsvp-feedback.is-error{color:#a4432f}
+.adat-dayak-root .adat-rsvp__empty{margin:8px 0 0;color:rgb(95,94,88);font-size:12px;line-height:18px;text-align:center}
+.adat-dayak-root .gate-stage>video,.adat-dayak-root .video-intro video{width:100%;height:100%;object-fit:cover;pointer-events:none}
+.adat-dayak-root .gift-card-shell .tpl-gift__account-type{order:-1;margin:0 0 2px;color:rgb(119,118,111);font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase}
+.adat-dayak-root .gift-card-shell .tpl-gift__account-name{order:1}
+.adat-dayak-root .gift-card-shell .tpl-gift__account-number{order:2}
+.adat-dayak-root .gift-card-shell .tpl-gift__copy-btn{order:3;margin-top:12px;align-self:flex-start}
+
+/* Dress code (ported from reference, palette mapped to altar tokens) */
+.adat-dayak-root .dress-code-section{position:relative;min-height:0;padding:34px 30px;overflow:hidden;color:var(--adat-primary-deep);background:transparent;text-align:center}
+.adat-dayak-root .dress-code-card{min-height:0;position:relative;z-index:1;padding:49px 20px 36px;border:4px solid var(--adat-primary);border-radius:20px;background:rgba(255,252,243,.86);box-shadow:0 3px 7px rgba(0,0,0,.2)}
+.adat-dayak-root .dress-code-intro h2{margin:0;color:var(--adat-primary-deep);font-size:38px;line-height:38px}
+.adat-dayak-root .dress-code-intro p{max-width:300px;margin:18px auto 0;color:var(--ink);line-height:18px}
+.adat-dayak-root .dress-code-swatches{display:flex;flex-wrap:wrap;justify-content:center;gap:24px 16px;max-width:300px;margin:38px auto 0;padding:0;list-style:none}
+.adat-dayak-root .dress-code-swatch{display:flex;width:76px;flex-direction:column;align-items:center;gap:9px;color:var(--adat-primary-deep);font-family:var(--serif);font-size:12px;line-height:15px}
+.adat-dayak-root .dress-code-swatch-dot{display:block;width:48px;height:48px;border:2px solid var(--adat-primary-deep);border-radius:50%;box-shadow:inset 0 0 0 4px rgba(255,255,255,.42),0 4px 10px rgba(23,22,18,.1)}
+@media (max-width:430px){.adat-dayak-root .dress-code-section{padding-right:20px;padding-left:20px}}
+
+/* Footer brand badge (matches Sandhya) */
+.adat-dayak-root .adat-dayak-footer .tpl-footer__link{display:inline-flex;flex-direction:column;align-items:center;gap:12px;text-decoration:none}
+.adat-dayak-root .adat-dayak-footer .tpl-footer__badge{display:flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:999px;background:rgba(255,255,255,.95);padding:8px;box-shadow:0 8px 24px rgba(0,0,0,.45);transition:transform .3s ease}
+.adat-dayak-root .adat-dayak-footer .tpl-footer__link:hover .tpl-footer__badge{transform:scale(1.05)}
+.adat-dayak-root .adat-dayak-footer .tpl-footer__badge .tpl-footer__logo{width:100%;height:100%;margin:0;object-fit:contain;border-radius:999px}
+.adat-dayak-root .adat-dayak-footer .tpl-footer__cta{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:10px;font-weight:400;letter-spacing:.3em;text-indent:.3em;text-transform:uppercase;color:rgba(255,255,255,.6);transition:color .3s ease}
+.adat-dayak-root .adat-dayak-footer .tpl-footer__link:hover .tpl-footer__cta{color:rgba(255,255,255,.92)}
+
+/* Music button reveal (missing port from reference/Sandhya) */
+.adat-dayak-root .tpl-music-btn.visible{opacity:1;pointer-events:all}
+.adat-dayak-root .tpl-music-btn.visible:hover{transform:scale(1.1);background:var(--adat-primary-hover)}
+
+/* Locked cover: keep the video section off-flow behind the cover (not preloading) */
+.adat-dayak-root .video-intro.is-preloading{position:fixed;inset:0;width:100vw;height:100svh;min-height:0;opacity:0;pointer-events:none;z-index:0}
+.adat-dayak-root .gate-spinner{display:inline-block;width:15px;height:15px;flex:0 0 auto;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:adat-gate-spin .7s linear infinite}
+.adat-dayak-root .pill-button:disabled{opacity:.72;cursor:wait}
+.adat-dayak-root .pill-button:disabled:hover{transform:none;background:var(--adat-primary)}
+.adat-dayak-root .gate-open{gap:8px}
+.adat-dayak-root .video-buffering{position:absolute;right:16px;bottom:80px;z-index:2;display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:rgba(20,21,18,.5);backdrop-filter:blur(8px);color:#fff;pointer-events:none}
+@keyframes adat-gate-spin{to{transform:rotate(360deg)}}
+
+/* Adat Dayak theme overrides — dark charcoal + warm taupe on warm paper. */
+.adat-dayak-root {
+  --warm: #1B1B1B;
+  --dark: #0B0B0C;
+  --cream: #E8E2D6;
+  --cream-2: rgba(232, 226, 214, 0.10);
+  --brown: #6E6E72;
+  --sage: #1B1B1B;
+  --sage-deep: #6E6E72;
+  --sage-hover: color-mix(in srgb, var(--sage) 84%, #000);
+  --adat-primary: #1B1B1B;
+  --adat-primary-deep: #6E6E72;
+  --adat-primary-hover: color-mix(in srgb, var(--adat-primary) 84%, #000);
+  --adat-primary-text: #1B1B1B;
+  --paper: #E8E2D6;
+  --ink: #0B0B0C;
+  --display: var(--adat-dayak-font-accent, var(--font-pinyon, "Pinyon Script", cursive));
+  --serif: var(--adat-dayak-font-heading, var(--font-cormorant-ref, "Cormorant Infant", Georgia, serif));
+  --sans: var(--adat-dayak-font-body, var(--font-poppins, "Poppins", Arial, sans-serif));
+}
+
+.adat-dayak-root .verse-section { background-color: var(--sage); }
+.adat-dayak-root .verse-section::before,
+.adat-dayak-root .verse-section::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1000 / 652;
+  background-position: 50%;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  opacity: 1;
+}
+.adat-dayak-root .verse-section::before {
+  top: 0;
+  inset: auto auto auto 0;
+  background-image: url("/templates/adat-dayak/motif-atas.webp");
+}
+.adat-dayak-root .verse-section::after {
+  bottom: 0;
+  background-image: url("/templates/adat-dayak/motif-bawah.webp");
+}
+
+.adat-dayak-root .profile-card {
+  border: 3px solid var(--sage);
+}
+.adat-dayak-root .profile-card::before,
+.adat-dayak-root .profile-card::after {
+  position: absolute;
+  right: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  aspect-ratio: 1000 / 652;
+  border-radius: inherit;
+  background-position: 50%;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  content: "";
+  pointer-events: none;
+}
+.adat-dayak-root .profile-card::before {
+  top: 0;
+  background-image: url("/templates/adat-dayak/motif-atas.webp");
+}
+.adat-dayak-root .profile-card::after {
+  bottom: 0;
+  background-image: url("/templates/adat-dayak/motif-bawah.webp");
+}
+.adat-dayak-root .profile-card > * { position: relative; z-index: 1; }
+
+.adat-dayak-root .events-section::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  aspect-ratio: 1000 / 652;
+  background-image: url("/templates/adat-dayak/motif-bawah.webp");
+  background-position: bottom;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+.adat-dayak-root .events-section > .bouquet,
+.adat-dayak-root .events-section > .countdown,
+.adat-dayak-root .events-section > .event-card,
+.adat-dayak-root .events-section > .events-intro,
+.adat-dayak-root .events-section > .section-title { z-index: 1; }
+
+.adat-dayak-root .love-story-section { background: #fff; }
+
+/* Rundown Acara */
+.adat-dayak-root .tpl-rundown { position: relative; width: 100%; padding: 64px 30px 0; }
+.adat-dayak-root .tpl-rundown__card { position: relative; padding: 44px 24px 40px; border: 4px solid var(--warm); border-radius: 20px; background: rgb(255 252 243 / 0.76); box-shadow: 0 3px 7px rgb(0 0 0 / 0.2); }
+.adat-dayak-root .tpl-rundown__title { margin: 0 0 34px; color: var(--brown); font-family: var(--display); font-weight: 400; font-size: 42px; line-height: 1.1; text-align: center; }
+.adat-dayak-root .tpl-rundown__list { position: relative; display: grid; gap: 30px; padding-left: 42px; }
+.adat-dayak-root .tpl-rundown__item { position: relative; z-index: 1; min-height: 0; padding: 0 0 0 2px; opacity: 0; translate: 0 12px; transition: opacity 0.52s ease-out, translate 0.52s cubic-bezier(0.16, 1, 0.3, 1); }
+.adat-dayak-root .tpl-rundown__item:not(:last-child)::before,
+.adat-dayak-root .tpl-rundown__item:not(:last-child)::after { position: absolute; top: 28px; bottom: -30px; left: -27px; width: 2px; content: ""; pointer-events: none; }
+.adat-dayak-root .tpl-rundown__item:not(:last-child)::after { background: color-mix(in srgb, var(--warm) 40%, transparent); }
+.adat-dayak-root .tpl-rundown__item:not(:last-child)::before { z-index: 1; background: var(--warm); transform: scaleY(0); transform-origin: top; transition: transform 0.82s cubic-bezier(0.22, 1, 0.36, 1); }
+.adat-dayak-root .tpl-rundown__item.is-reached:not(:last-child)::before { transform: scaleY(1); transition-delay: 0.72s; }
+.adat-dayak-root .tpl-rundown__item.is-reached { opacity: 1; translate: 0 0; }
+.adat-dayak-root .tpl-rundown__marker { position: absolute; top: 2px; left: -36px; z-index: 2; display: grid; width: 20px; height: 20px; place-items: center; border-radius: 50%; background: var(--paper); box-shadow: 0 0 0 3px rgb(255 252 243 / 0.92); transition: background 0.28s ease, box-shadow 0.28s ease; }
+.adat-dayak-root .tpl-rundown__marker::after { width: 6px; height: 6px; border-radius: 50%; background: var(--warm); content: ""; transition: background 0.28s ease, transform 0.52s cubic-bezier(0.16, 1, 0.3, 1); }
+.adat-dayak-root .tpl-rundown__item.is-reached .tpl-rundown__marker { background: var(--warm); box-shadow: 0 0 0 3px rgb(255 252 243 / 0.92), 0 0 0 6px color-mix(in srgb, var(--warm) 16%, transparent); transition-delay: 0.42s; }
+.adat-dayak-root .tpl-rundown__item.is-reached .tpl-rundown__marker::after { background: var(--warm-fg, #fff); transform: scale(1.15); transition-delay: 0.42s; }
+.adat-dayak-root .tpl-rundown__time { display: block; margin: 0 0 4px; color: var(--brown); font-family: var(--sans); font-size: 16px; font-weight: 700; letter-spacing: 0.01em; line-height: 24px; }
+.adat-dayak-root .tpl-rundown__desc { margin: 0; color: color-mix(in srgb, var(--ink) 76%, transparent); font-family: var(--sans); font-size: 12px; line-height: 19px; }
+
+/* Hubungi Kami */
+.adat-dayak-root .tpl-contact { position: relative; width: 100%; padding: 64px 30px 0; }
+.adat-dayak-root .tpl-contact__card { position: relative; padding: 44px 24px 40px; border: 4px solid var(--warm); border-radius: 20px; background: rgb(255 252 243 / 0.76); box-shadow: 0 3px 7px rgb(0 0 0 / 0.2); }
+.adat-dayak-root .tpl-contact__title { margin: 0 0 30px; color: var(--brown); font-family: var(--display); font-weight: 400; font-size: 42px; line-height: 1.1; text-align: center; }
+.adat-dayak-root .tpl-contact__list { display: grid; gap: 14px; }
+.adat-dayak-root .tpl-contact__item { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 16px; border: 1px solid color-mix(in srgb, var(--warm) 30%, transparent); border-radius: 16px; background: rgb(255 255 255 / 0.72); opacity: 0; translate: 0 12px; transition: opacity 0.52s ease-out, translate 0.52s cubic-bezier(0.16, 1, 0.3, 1); }
+.adat-dayak-root .tpl-contact__item.is-reached { opacity: 1; translate: 0 0; }
+.adat-dayak-root .tpl-contact__info { min-width: 0; }
+.adat-dayak-root .tpl-contact__name { display: block; color: var(--brown); font-family: var(--sans); font-size: 16px; font-weight: 700; letter-spacing: 0.01em; line-height: 24px; }
+.adat-dayak-root .tpl-contact__desc { margin: 2px 0 0; color: color-mix(in srgb, var(--ink) 76%, transparent); font-family: var(--sans); font-size: 12px; line-height: 18px; }
+.adat-dayak-root .tpl-contact .tpl-contact__wa { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 6px; min-height: 34px; margin-left: auto; padding: 7px 15px; border: 1px solid var(--warm-fg, #fff); border-radius: 999px; background: var(--warm); color: var(--warm-fg, #fff); font-family: var(--sans); font-size: 12px; font-weight: 600; text-decoration: none; transition: transform 0.18s ease, background 0.18s ease; }
+.adat-dayak-root .tpl-contact .tpl-contact__wa svg { width: 14px; height: 14px; color: inherit; }
+.adat-dayak-root .tpl-contact .tpl-contact__wa:hover { background: color-mix(in srgb, var(--warm) 84%, #000); transform: translateY(-2px); }
+.adat-dayak-root .tpl-contact .tpl-contact__wa:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .adat-dayak-root .tpl-rundown__item { opacity: 1; translate: 0 0; transition: none; }
+  .adat-dayak-root .tpl-rundown__item:not(:last-child)::before { transform: scaleY(1); transition: none; }
+  .adat-dayak-root .tpl-contact__item { opacity: 1; translate: 0 0; transition: none; }
+}
+
+.adat-dayak-root .inviting-section { position: relative; padding: 96px 30px 80px; background: var(--paper); }
+.adat-dayak-root .inviting-card { position: relative; padding: 46px 24px; border: 4px solid var(--adat-primary); border-radius: 20px; background: rgb(255 252 243 / 0.8); box-shadow: 0 3px 7px rgb(0 0 0 / 0.2); text-align: center; }
+.adat-dayak-root .inviting-title { margin: 0 0 28px; color: var(--brown); font-family: var(--display); font-size: 42px; font-weight: 400; line-height: 1.1; }
+.adat-dayak-root .inviting-list { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.adat-dayak-root .inviting-list li { padding: 12px 0; color: var(--ink); font-family: var(--serif); font-size: 16px; line-height: 1.5; }
+.adat-dayak-root .inviting-list li + li { border-top: 1px solid color-mix(in srgb, var(--adat-primary) 22%, transparent); }
+
+
+.adat-dayak-root .tpl-music-btn {
+  border: 1px solid rgb(255 252 243 / 0.68);
+  background: var(--sage);
+  color: var(--warm-fg, #fff);
+  box-shadow: 0 4px 15px rgb(23 22 18 / 0.24);
+}
+.adat-dayak-root .tpl-music-btn:hover { background: var(--sage-hover); }
+
+/* Adat Dayak opening video: black typography over the charcoal illustration. */
+.adat-dayak-root .video-copy,
+.adat-dayak-root .video-copy > .script,
+.adat-dayak-root .video-copy h2,
+.adat-dayak-root .video-copy .video-ampersand,
+.adat-dayak-root .video-copy > p:last-of-type {
+  color: #000;
+}
+.adat-dayak-root .fallback-copy,
+.adat-dayak-root .fallback-copy > .script,
+.adat-dayak-root .fallback-copy h2,
+.adat-dayak-root .fallback-copy .fallback-ampersand,
+.adat-dayak-root .fallback-copy > p:last-of-type {
+  color: #000;
+}
+.adat-dayak-root .video-copy h2,
+.adat-dayak-root .video-copy > .script,
+.adat-dayak-root .fallback-copy h2,
+.adat-dayak-root .fallback-copy > .script {
+  text-shadow: 0 2px 14px rgb(0 0 0 / 0.32);
+}
+
+.adat-dayak-root .video-copy {
+  top: 46%;
+}
+.adat-dayak-root .fallback-copy { top: 46%; }
+
+/* Short-content layout: never keep a tall empty section when the couple has no
+   video or only a few stories. */
+.adat-dayak-root .our-gallery-section { min-height: 0; height: auto; }
+.adat-dayak-root .love-story-section { min-height: 0; height: auto; padding-bottom: 64px; }
+.adat-dayak-root .story-card { min-height: 0; height: auto; }
+.adat-dayak-root .story-list { padding-bottom: 4px; }
+
+/* Turut Mengundang ornament: same motif bands as the mempelai card. */
+.adat-dayak-root .inviting-card { overflow: hidden; padding: 92px 24px 84px; border-width: 3px; }
+.adat-dayak-root .inviting-card::before,
+.adat-dayak-root .inviting-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 0;
+  height: 72px;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  pointer-events: none;
+}
+.adat-dayak-root .inviting-card::before {
+  top: -2px;
+  background-image: url("/templates/adat-dayak/motif-atas.webp");
+  background-position: top center;
+}
+.adat-dayak-root .inviting-card::after {
+  bottom: -2px;
+  background-image: url("/templates/adat-dayak/motif-bawah.webp");
+  background-position: bottom center;
+}
+.adat-dayak-root .inviting-card > * { position: relative; z-index: 1; }
+
+/* Desktop full-bleed: fill ultrawide screens instead of a 1420px centered shell. */
+.adat-dayak-root .page-shell { width: 100%; max-width: none; }
+.adat-dayak-root .right-column::before { right: 0; }
+.adat-dayak-root .right-parallax-background { right: 0; }
