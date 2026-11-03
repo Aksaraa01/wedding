@@ -31,19 +31,18 @@ export type PhotoFilter = "semua" | "dengan" | "tanpa"
 
 // Public package filter. A template's package_eligibility lists the package
 // codes it ships in, so each bucket is a set of codes that group together in
-// the catalogue: the bonus print package reads as "Basic", the entry paid tier
-// as "Essensial", and everything above it (incl. the full-custom bonus) as
-// "Signature & Up". Empty/absent eligibility means "every package".
-export type PackageFilter = "semua" | "basic" | "essensial" | "signature-up"
+// the catalogue: the bonus print package reads as "Basic", while the paid
+// undangan tiers — Essential up to Elite, including the full-custom bonus —
+// read as "Premium". Empty/absent eligibility means "every package".
+export type PackageFilter = "semua" | "basic" | "premium"
 
 export const PACKAGE_FILTERS: { id: PackageFilter; label: string; codes: string[] }[] = [
   { id: "semua", label: "Semua", codes: [] },
   { id: "basic", label: "Basic", codes: ["cetak_undangan_bonus"] },
-  { id: "essensial", label: "Essensial", codes: ["essential"] },
   {
-    id: "signature-up",
-    label: "Signature & Up",
-    codes: ["signature", "prestige", "elite", "bonus_full_custom"],
+    id: "premium",
+    label: "Premium",
+    codes: ["essential", "signature", "prestige", "elite", "bonus_full_custom"],
   },
 ]
 

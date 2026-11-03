@@ -74,7 +74,7 @@ function SegmentedFilter<T extends string>({
             type="button"
             onClick={() => onChange(f.id)}
             aria-pressed={value === f.id}
-            className={`whitespace-nowrap rounded-full px-3.5 py-1.5 font-label-md text-[10px] uppercase tracking-widest transition-colors ${
+            className={`whitespace-nowrap rounded-full px-3 py-1.5 font-label-md text-[9px] uppercase tracking-[0.08em] transition-colors sm:px-3.5 sm:text-[10px] sm:tracking-widest ${
               value === f.id
                 ? "bg-white text-[#2C2A29] shadow-[0_1px_3px_rgba(44,42,41,0.12)]"
                 : "text-[#8A827B] hover:text-[#2C2A29]"
