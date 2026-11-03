@@ -14,6 +14,7 @@ import PianoGarden from "./piano-garden"
 import AltarGarden from "./altar-garden"
 import AdatMelayu from "./adat-melayu"
 import AdatBatak from "./adat-batak"
+import AdatBugis from "./adat-bugis"
 import AdatMinang from "./adat-minang"
 import AdatPalembang from "./adat-palembang"
 import AdatBetawi from "./adat-betawi"
@@ -49,6 +50,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "altar-garden": AltarGarden,
   "adat-melayu": AdatMelayu,
   "adat-batak": AdatBatak,
+  "adat-bugis": AdatBugis,
   "adat-minang": AdatMinang,
   "adat-palembang": AdatPalembang,
   "adat-betawi": AdatBetawi,
@@ -545,6 +547,46 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         accentMuted: "#7a6332",
         overlay: "#2e2818",
         dark: "#2e2818",
+      },
+      ornaments: { divider: "floral", border: "minimal", frame: "arch" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.2 },
+    },
+    content: {
+      cover_slots: 3,
+      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: false,
+      sections: {
+        opening_description: false,
+        quote: true,
+        countdown: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        inviting: true,
+        dresscode: true,
+        livestream: true,
+        rundown: true,
+        contacts: true,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "adat-bugis",
+    name: "Adat Bugis",
+    description: "Undangan adat Bugis bernuansa hijau tua dan emas — ilustrasi rumah panggung, video pembuka, ayat, mempelai, hitung mundur, acara, rundown, dress code, galeri, kisah cinta, hadiah, ucapan, dan kontak keluarga.",
+    theme: {
+      fonts: { display: "Pinyon Script", script: "Pinyon Script", body: "Poppins" },
+      colors: {
+        surface: "#f4f5ee",
+        text: "#2b332a",
+        accent: "#29421c",
+        accentMuted: "#3d4e3d",
+        overlay: "#2b332a",
+        dark: "#2b332a",
       },
       ornaments: { divider: "floral", border: "minimal", frame: "arch" },
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
