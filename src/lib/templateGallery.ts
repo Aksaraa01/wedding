@@ -30,21 +30,21 @@ export type GalleryTemplate = {
 export type PhotoFilter = "semua" | "dengan" | "tanpa"
 
 // Public package filter. A template's package_eligibility lists the package
-// codes it ships in, so each bucket is a set of codes that group together in
-// the catalogue: the bonus print package reads as "Basic", while the paid
-// undangan tiers — Essential up to Elite, including the full-custom bonus —
-// read as "Premium". Empty/absent eligibility means "every package".
+// codes it ships in, so the two buckets are mutually exclusive: a design the
+// bonus print package already carries is "Basic", and "Premium" lists only the
+// designs that need a paid undangan tier (Essential up to Elite, plus the
+// full-custom bonus) and are NOT part of the bonus. Empty/absent eligibility
+// means "every package", i.e. Basic.
 export type PackageFilter = "semua" | "basic" | "premium"
 
-export const PACKAGE_FILTERS: { id: PackageFilter; label: string; codes: string[] }[] = [
-  { id: "semua", label: "Semua", codes: [] },
-  { id: "basic", label: "Basic", codes: ["cetak_undangan_bonus"] },
-  {
-    id: "premium",
-    label: "Premium",
-    codes: ["essential", "signature", "prestige", "elite", "bonus_full_custom"],
-  },
+export const PACKAGE_FILTERS: { id: PackageFilter; label: string }[] = [
+  { id: "semua", label: "Semua" },
+  { id: "basic", label: "Basic" },
+  { id: "premium", label: "Premium" },
 ]
+
+const BASIC_PACKAGE_CODES = ["cetak_undangan_bonus"]
+const PREMIUM_PACKAGE_CODES = ["essential", "signature", "prestige", "elite", "bonus_full_custom"]
 
 export type GalleryRow = {
   id: string
@@ -72,11 +72,13 @@ export function matchesPhoto(t: GalleryTemplate, filter: PhotoFilter): boolean {
 
 export function matchesPackage(t: GalleryTemplate, filter: PackageFilter): boolean {
   if (filter === "semua") return true
-  const group = PACKAGE_FILTERS.find((g) => g.id === filter)
-  if (!group) return true
-  const elig = t.package_eligibility
-  if (!Array.isArray(elig) || elig.length === 0) return true
-  return elig.some((code) => group.codes.includes(code))
+  const elig = Array.isArray(t.package_eligibility) ? t.package_eligibility : []
+  // Empty/absent eligibility = available in every package, including the bonus.
+  const basic = elig.length === 0 || elig.some((code) => BASIC_PACKAGE_CODES.includes(code))
+  if (filter === "basic") return basic
+  // Premium excludes anything the basic (bonus) package already includes.
+  if (basic) return false
+  return elig.some((code) => PREMIUM_PACKAGE_CODES.includes(code))
 }
 
 export function matchesSearch(t: GalleryTemplate, query: string): boolean {
