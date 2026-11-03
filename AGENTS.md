@@ -463,10 +463,17 @@ from regressing — break one and the page gets measurably slower:
    (root layout) upgrades them to `preload="auto"` on the first
    pointerdown/touchstart/keydown. `preload="auto"` on `<audio>` was costing
    0.9–3.2 MB per visit (manjari: 3.1 MB, Lighthouse-verified).
-2. **Material Symbols is subset in `src/app/layout.tsx`** (`&icon_names=…`, 171
-   icons, 179 KB instead of 1.1 MB). `scripts/check-material-icons.mjs` runs in
-   the deploy guard; a new `material-symbols-outlined` name that is not in the
-   subset fails the guard — otherwise it silently renders a blank glyph.
+2. **Material Symbols is subset in `src/app/layout.tsx`** (`&icon_names=…`, 212
+   icons, 225 KB instead of 1.1 MB). `scripts/check-material-icons.mjs` runs in
+   the deploy guard. It resolves all four ways an icon name reaches the DOM —
+   a literal `>name<` child, a ternary branch inside a `.material-symbols-outlined`
+   span, an `icon=`/`icon:` prop or object key, and a positional icon argument of
+   a local helper (`renderSection(k, icon, …)`) — so an icon passed through a
+   variable (`{col.icon}`, `{s.icon}`) is also caught. Only the *definitions* need
+   to be literals; that is where the guard looks. A name that is missing renders
+   as a blank glyph; a name that is not a real Material Symbols icon (e.g. the old
+   `chat_bubble_outline`, `collections`, `unique_link_generator`) never renders at
+   all, so use `https://fonts.google.com/icons` spellings.
 3. **YouTube players mount late, not on load.** `AutoplayYouTube` creates the
    player when its host is within 200% of the viewport and shows the YouTube
    poster until then (`autoplay=1&mute=1` unchanged). Mounting on load pulled

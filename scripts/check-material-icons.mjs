@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // The Material Symbols stylesheet is subset to the icons the app actually uses
-// (`icon_names=` in src/app/layout.tsx): ~200 KB instead of the 1.1 MB variable
+// (`icon_names=` in src/app/layout.tsx): ~225 KB instead of the 1.1 MB variable
 // font. A new icon name that is not in that list renders as a blank glyph, which
 // is invisible in code review and only shows up in production.
 //
