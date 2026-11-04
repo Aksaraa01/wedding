@@ -560,6 +560,8 @@ export default function Teatro(profile: TemplateProps) {
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
   const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || "The Wedding"
+  const coupleInitials = (profile.couple_initials || "").trim() || [groomName.charAt(0), brideName.charAt(0)].filter(Boolean).join("")
+  const displayName = (profile.display_name || "").trim() || `#${groomName}${brideName}`.replace(/\s+/g, "") || "#OurWedding"
   const guestName = (profile.guest_name || "").trim() || WISH_ME
   const dateLong = longDateEn(profile.estimated_wedding_date)
   const dateFull = longDateEn(profile.estimated_wedding_date, true)
@@ -1076,16 +1078,7 @@ export default function Teatro(profile: TemplateProps) {
               <p>{profile.quote_text}</p>
               {profile.quote_source && <cite>{profile.quote_source}</cite>}
             </blockquote>
-          ) : (
-            <>
-              {profile.opening_title && (
-                <h2 className="te-script te-script--sm" {...IN("up", 0.04)}>{profile.opening_title}</h2>
-              )}
-              {profile.opening_description && (
-                <p className="te-body" {...IN("fade", 0.1)}>{profile.opening_description}</p>
-              )}
-            </>
-          )}
+          ) : null}
           <Flourish className="te-prologue__rule" />
         </section>
 
@@ -1427,6 +1420,8 @@ export default function Teatro(profile: TemplateProps) {
           {closingMessage && <p className="te-body" {...IN("fade", 0.08)}>{closingMessage}</p>}
           {closingSee && <p className="te-quoteScript" {...IN("fade", 0.12)}>{closingSee}</p>}
           <p className="te-closing__names" {...IN("up", 0.16)}>{coupleLabel}</p>
+          {displayName && <p className="te-closing__hashtag" {...IN("fade", 0.18)}>{displayName}</p>}
+          {coupleInitials && <p className="te-closing__initials" {...IN("fade", 0.2)}>{coupleInitials}</p>}
         </section>
 
         <footer className="te-footer">

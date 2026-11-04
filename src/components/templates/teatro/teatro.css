@@ -1456,6 +1456,23 @@ html:has(body.te-locked) {
   text-transform: uppercase;
   color: var(--te-burgundy);
 }
+.te-closing__hashtag {
+  margin-top: 8px;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  color: var(--te-gold-deep);
+}
+.te-closing__initials {
+  margin-top: 4px;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--te-muted);
+}
 
 /* ---------- footer ---------- */
 .te-footer {
