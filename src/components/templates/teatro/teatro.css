@@ -771,6 +771,12 @@ html:has(body.te-locked) {
 
 /* ---------- save the date / countdown ---------- */
 .te-save__rule { margin: 26px auto 22px; }
+.te-save__art {
+  display: block;
+  width: min(44%, 176px);
+  height: auto;
+  margin: 0 auto;
+}
 .te-scratchRow {
   display: flex;
   justify-content: center;

@@ -1016,6 +1016,14 @@ export default function Teatro(profile: TemplateProps) {
         {/* 5 — countdown, its own surface once the date has been revealed */}
         {dateObject && (
           <section className="te-section te-save" data-section="countdown" aria-label="Countdown to the wedding day">
+            <img
+              className="te-save__art"
+              src={TEATRO_ASSETS.rsvp}
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+              {...IN("fade", 0.12)}
+            />
             <h2 className="te-script te-script--sm" {...IN("up")}>{saveDateLabel}</h2>
             <Flourish className="te-save__rule" />
             {target && <div {...IN("up", 0.06)}><Clock target={target} /></div>}

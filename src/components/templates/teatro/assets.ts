@@ -13,6 +13,7 @@ export const TEATRO_ASSETS = {
   venue: `${BASE}/venue-illustration.png`,
   dressCode: `${BASE}/dresscode-illustration.png`,
   gift: `${BASE}/gift-icon.png`,
+  rsvp: `${BASE}/rsvp-icon.png`,
   menuFrame: `${BASE}/menu-frame.png`,
   divider: `${BASE}/flowers-divider.gif`,
 } as const

@@ -104,6 +104,7 @@ confirmation film are **not** shipped, and wishes takes that slot (§4).
 | `venue-illustration.png` | 277 K | venue line art |
 | `dresscode-illustration.png` | 303 K | suit + dress line art |
 | `gift-icon.png` | 1.1 M | gift line art |
+| `rsvp-icon.png` | 148 K | the reference's attendance-confirmation artwork (804x618, ticket-style line art) — worn by the save-the-date surface |
 | `menu-frame.png` | 357 K | the programme's drawn frame (`border-image`) |
 | `flowers-divider.gif` | 607 K | story divider (the reference's animated divider) |
 | `intro-music.mp3` | 2.7 M | the reference's own track, wired into `DEMO_PROPS_BY_CODE.teatro.track_url` (self-hosted, so the demo does not depend on a prod-storage URL) |
@@ -112,10 +113,9 @@ confirmation film are **not** shipped, and wishes takes that slot (§4).
 No `template-*.thedigitalyes.com` origin, Google Fonts, Unsplash or Drive URL
 survives in the bundle. The 6.1 MB film is the largest object and it is the
 whole point of the design; it is fetched with `preload="metadata"` and only
-starts downloading after the tap (§9). The reference's RSVP icon and its 9 MB
-confirmation film were downloaded during the teardown and then **dropped** —
-RSVP is the shared dock, so shipping 9 MB nobody can reach would be waste; they
-come back the moment the owner asks for a dedicated RSVP surface.
+starts downloading after the tap (deviation 9). The 9 MB RSVP confirmation film
+stayed dropped (RSVP is the shared dock); the RSVP icon was kept and is now worn
+by the save-the-date section, above its title, as the owner asked.
 
 ## 5. Fonts
 
