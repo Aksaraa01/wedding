@@ -17,7 +17,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     multiline: true,
     rows: 2,
     placeholders: {
-      teatro: "You are cordially invited to the wedding of",
+      teatro: "Together with our families, we invite you to this important moment",
       "ivory-lace": "Dear Family & Friends",
       "lunar-blossom": "Anda diundang untuk merayakan pernikahan",
       "embroidered-garden": "You are invited to the wedding of",
@@ -48,7 +48,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     rows: 2,
     placeholder: "Dua Insan Ini\\nAkan Menikah",
     placeholders: {
-      teatro: "You are cordially invited",
+      teatro: "The Wedding of",
       "cinnabar-seal": "The Wedding Of", "ivory-lace": "The Wedding Of", lace: "The Wedding Of", "n-film": "#AlbarnFayeForever" , "boarding-pass": "#AlbarnFayeForever" },
     templates: ["evermore", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro"],
   },
@@ -535,7 +535,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "parents_label",
     label: "Label Orang Tua",
-    placeholders: { teatro: "Son and daughter of" },
+    placeholders: { teatro: "Blessed By" },
     placeholder: "Anak dari",
     templates: ["cinnabar-seal", "iris", "teatro"],
   },

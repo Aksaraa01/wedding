@@ -571,7 +571,7 @@ export default function Teatro(profile: TemplateProps) {
   const groomIg = igHandle(profile.groom_instagram)
   const brideIg = igHandle(profile.bride_instagram)
 
-  const coverKicker = (tc.cover_kicker || "").trim() || "You are cordially invited"
+  const coverKicker = (tc.cover_kicker || "").trim() || "The Wedding of"
   const openLabel = (tc.open_button || "").trim() || "Tap to continue"
   const apology = (tc.cover_apology || "").trim()
   const welcomeInvite = (tc.welcome_invite || "").trim()
@@ -579,7 +579,7 @@ export default function Teatro(profile: TemplateProps) {
   const quoteTitle = (tc.quote_title || "").trim()
   const mempelaiKicker = (tc.mempelai_kicker || "").trim() || "The Cast"
   const mempelaiIntro = (tc.profiles_intro || "").trim()
-  const parentsLabel = (tc.parents_label || "").trim() || "Son and daughter of"
+  const parentsLabel = (tc.parents_label || "").trim() || "Blessed By"
   const storyTitle = (tc.love_story_title || "").trim() || "Our Story"
   const storyKicker = (tc.story_kicker || "").trim() || "In Three Acts"
   const storyIntro = (tc.story_intro || "").trim()
