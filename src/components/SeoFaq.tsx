@@ -49,24 +49,24 @@ export default function SeoFaq({ heading, items }: { heading: string; items: Faq
     })),
   }
   return (
-    <section className="px-margin-mobile md:px-margin-desktop max-w-3xl mx-auto py-16 md:py-24">
+    <section className="px-margin-mobile md:px-margin-desktop max-w-3xl mx-auto py-10 md:py-24">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <h2 className="font-headline-lg text-[24px] md:text-[32px] text-primary text-center mb-8">
+      <h2 className="font-headline-lg text-[19px] md:text-[32px] text-primary text-center mb-5 md:mb-8">
         {heading}
       </h2>
       <div className="space-y-3">
         {items.map((item) => (
           <details
             key={item.q}
-            className="group bg-white border border-[#E2D9CF] rounded-2xl px-6 py-4 open:shadow-md transition-shadow"
+            className="group bg-white border border-[#E2D9CF] rounded-xl md:rounded-2xl px-4 py-3 md:px-6 md:py-4 open:shadow-md transition-shadow"
           >
-            <summary className="cursor-pointer font-semibold text-[#2C2A29] list-none flex items-center justify-between gap-4">
+            <summary className="cursor-pointer font-semibold text-[13.5px] md:text-base text-[#2C2A29] list-none flex items-center justify-between gap-4">
               {item.q}
               <span className="material-symbols-outlined text-[#B34E3F] group-open:rotate-180 transition-transform shrink-0">
                 expand_more
               </span>
             </summary>
-            <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">{renderRichText(item.a)}</p>
+            <p className="mt-2 md:mt-3 text-[12.5px] md:text-sm leading-relaxed text-on-surface-variant">{renderRichText(item.a)}</p>
           </details>
         ))}
       </div>

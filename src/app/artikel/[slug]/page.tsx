@@ -5,6 +5,7 @@ import { ARTICLES, getArticle } from "@/data/artikel"
 import Navigation from "@/components/Navigation"
 import WetonChecker from "@/components/WetonChecker"
 import ReadingProgress from "@/components/ReadingProgress"
+import { categoryStyle } from "@/lib/articleCategory"
 import { formatIdDate } from "@/lib/formatDate"
 
 export function generateStaticParams() {
@@ -119,29 +120,29 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
 
       {/* Hero */}
-      <header className="pt-24 md:pt-32 pb-8 px-margin-mobile md:px-margin-desktop">
+      <header className="pt-[88px] md:pt-32 pb-5 md:pb-8 px-margin-mobile md:px-margin-desktop">
         <div className="max-w-3xl mx-auto">
-          <nav aria-label="Breadcrumb" className="text-[11px] uppercase tracking-widest text-on-surface-variant font-semibold mb-4">
+          <nav aria-label="Breadcrumb" className="mb-3 flex items-center gap-1.5 text-[9.5px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant md:mb-4 md:text-[11px]">
             <Link href="/hero" className="hover:text-[#B34E3F]">Beranda</Link>
-            <span className="mx-2">/</span>
+            <span className="text-on-surface-variant/40">/</span>
             <Link href="/artikel" className="hover:text-[#B34E3F]">Artikel</Link>
-            <span className="mx-2">/</span>
-            <span className="text-[#B34E3F]">{article.category}</span>
+            <span className="text-on-surface-variant/40">/</span>
+            <span className="truncate text-[#B34E3F]">{article.category}</span>
           </nav>
-          <h1 className="font-headline-lg text-[30px] md:text-[44px] leading-[1.15] text-primary mb-4">
+          <h1 className="font-headline-lg text-[24px] leading-[1.22] text-primary mb-2.5 md:text-[44px] md:leading-[1.15] md:mb-4">
             {article.title}
           </h1>
-          <p className="font-body-lg text-body-lg text-on-surface-variant leading-relaxed mb-6">
+          <p className="text-[13px] leading-relaxed text-on-surface-variant mb-4 md:font-body-lg md:text-body-lg md:mb-6">
             {article.description}
           </p>
-          <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-[#E2D9CF]">
-            <div className="flex items-center gap-3 min-w-0">
-              <span className="w-10 h-10 rounded-full bg-[#B34E3F] text-white flex items-center justify-center font-headline-md text-lg shrink-0">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E2D9CF] pb-4 md:gap-4 md:pb-6">
+            <div className="flex items-center gap-2.5 min-w-0 md:gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#B34E3F] font-headline-md text-[15px] text-white md:h-10 md:w-10 md:text-lg">
                 A
               </span>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-[#2C2A29]">Tim Aksaraa</p>
-                <p className="text-[12px] text-on-surface-variant whitespace-nowrap">
+                <p className="text-[12px] font-semibold text-[#2C2A29] md:text-sm">Tim Aksaraa</p>
+                <p className="whitespace-nowrap text-[10.5px] text-on-surface-variant md:text-[12px]">
                   {formatIdDate(article.date)} • {article.readMinutes} mnt baca
                 </p>
               </div>
@@ -153,7 +154,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 target="_blank"
                 rel="noopener"
                 aria-label="Bagikan ke WhatsApp"
-                className="w-9 h-9 rounded-full bg-white border border-[#E2D9CF] flex items-center justify-center text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors"
+                className="h-8 w-8 md:h-9 md:w-9 rounded-full bg-white border border-[#E2D9CF] flex items-center justify-center text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors"
               >
                 <span className="material-symbols-outlined text-[18px]">chat</span>
               </a>
@@ -162,7 +163,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 target="_blank"
                 rel="noopener"
                 aria-label="Bagikan ke Facebook"
-                className="w-9 h-9 rounded-full bg-white border border-[#E2D9CF] hidden sm:flex items-center justify-center text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors"
+                className="flex h-8 w-8 md:h-9 md:w-9 rounded-full bg-white border border-[#E2D9CF] items-center justify-center text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors"
               >
                 <span className="material-symbols-outlined text-[18px]">public</span>
               </a>
@@ -171,7 +172,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 target="_blank"
                 rel="noopener"
                 aria-label="Bagikan ke X"
-                className="w-9 h-9 rounded-full bg-white border border-[#E2D9CF] hidden sm:flex items-center justify-center text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors"
+                className="flex h-8 w-8 md:h-9 md:w-9 rounded-full bg-white border border-[#E2D9CF] items-center justify-center text-[#2C2A29] hover:border-[#B34E3F] hover:text-[#B34E3F] transition-colors"
               >
                 <span className="material-symbols-outlined text-[18px]">share</span>
               </a>
@@ -183,87 +184,135 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       <div className="px-margin-mobile md:px-margin-desktop">
         <article className="max-w-3xl mx-auto">
           {toc.length > 1 && (
-            <nav aria-label="Daftar isi" className="bg-white border border-[#E2D9CF] rounded-2xl p-5 md:p-6 mb-8">
-              <p className="text-[11px] uppercase tracking-widest text-[#B34E3F] font-semibold mb-3">
-                Daftar Isi
-              </p>
-              <ol className="space-y-2">
-                {toc.map((t, i) => (
-                  <li key={t.id}>
-                    <a href={`#${t.id}`} className="text-sm text-[#2C2A29] hover:text-[#B34E3F] transition-colors">
-                      <span className="text-on-surface-variant mr-2">{String(i + 1).padStart(2, "0")}</span>
-                      {t.text}
-                    </a>
-                  </li>
-                ))}
-              </ol>
-            </nav>
+            <>
+              <details className="group mb-5 rounded-2xl border border-[#E2D9CF] bg-white md:hidden">
+                <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 [&::-webkit-details-marker]:hidden">
+                  <span className="inline-flex items-center gap-2 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[#B34E3F]">
+                    <span className="material-symbols-outlined text-[16px]">menu_book</span>
+                    Daftar Isi · {toc.length} bagian
+                  </span>
+                  <span className="material-symbols-outlined text-[18px] text-on-surface-variant transition-transform duration-200 group-open:rotate-180">
+                    expand_more
+                  </span>
+                </summary>
+                <ol className="space-y-2 border-t border-[#E2D9CF]/70 px-4 py-3">
+                  {toc.map((t, i) => (
+                    <li key={t.id} className="flex gap-2">
+                      <span className="mt-px text-[10px] font-semibold text-[#B34E3F]/70">{String(i + 1).padStart(2, "0")}</span>
+                      <a href={`#${t.id}`} className="text-[12.5px] leading-snug text-[#2C2A29] active:text-[#B34E3F]">
+                        {t.text}
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </details>
+
+              <nav aria-label="Daftar isi" className="mb-8 hidden rounded-2xl border border-[#E2D9CF] bg-white p-5 md:block md:p-6">
+                <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-[#B34E3F]">Daftar Isi</p>
+                <ol className="space-y-2">
+                  {toc.map((t, i) => (
+                    <li key={t.id}>
+                      <a href={`#${t.id}`} className="text-sm text-[#2C2A29] transition-colors hover:text-[#B34E3F]">
+                        <span className="mr-2 text-on-surface-variant">{String(i + 1).padStart(2, "0")}</span>
+                        {t.text}
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
+            </>
           )}
 
           <div
-            className="artikel-body font-body-md text-[15px] md:text-base leading-[1.9] text-[#2C2A29] space-y-5 [&>h2]:font-headline-md [&>h2]:text-xl [&>h2]:md:text-2xl [&>h2]:text-primary [&>h2]:pt-4 [&>h2]:scroll-mt-24 [&>p:first-of-type]:first-letter:font-headline-lg [&>p:first-of-type]:first-letter:text-5xl [&>p:first-of-type]:first-letter:md:text-6xl [&>p:first-of-type]:first-letter:text-[#B34E3F] [&>p:first-of-type]:first-letter:float-left [&>p:first-of-type]:first-letter:mr-2 [&>p:first-of-type]:first-letter:leading-[0.9] [&>p>a]:font-semibold [&>p>a]:text-[#B34E3F] [&>p>a]:underline [&>p>a]:underline-offset-2 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>blockquote]:border-l-4 [&>blockquote]:border-[#B34E3F] [&>blockquote]:pl-4 [&>blockquote]:italic [&>blockquote]:text-on-surface-variant"
+            className="artikel-body font-body-md text-[14px] leading-[1.85] text-[#2C2A29] space-y-4 md:text-base md:leading-[1.9] md:space-y-5 [&>h2]:font-headline-md [&>h2]:text-[17px] [&>h2]:md:text-2xl [&>h2]:text-primary [&>h2]:pt-3 [&>h2]:md:pt-4 [&>h2]:scroll-mt-24 [&>p:first-of-type]:first-letter:font-headline-lg [&>p:first-of-type]:first-letter:text-4xl [&>p:first-of-type]:first-letter:md:text-6xl [&>p:first-of-type]:first-letter:text-[#B34E3F] [&>p:first-of-type]:first-letter:float-left [&>p:first-of-type]:first-letter:mr-2 [&>p:first-of-type]:first-letter:leading-[0.9] [&>p>a]:font-semibold [&>p>a]:text-[#B34E3F] [&>p>a]:underline [&>p>a]:underline-offset-2 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 [&>blockquote]:border-l-4 [&>blockquote]:border-[#B34E3F] [&>blockquote]:pl-4 [&>blockquote]:italic [&>blockquote]:text-on-surface-variant"
             dangerouslySetInnerHTML={{ __html: bodyHtml }}
           />
           {article.checker === "weton" && <WetonChecker />}
 
           {/* Prev / next */}
           {(prev || next) && (
-            <nav className="grid sm:grid-cols-2 gap-4 mt-12" aria-label="Navigasi artikel">
+            <nav className="mt-10 grid gap-2.5 sm:mt-12 sm:grid-cols-2 sm:gap-4" aria-label="Navigasi artikel">
               {prev ? (
-                <Link href={`/artikel/${prev.slug}`} className="group bg-white border border-[#E2D9CF] rounded-2xl p-5 hover:shadow-md transition-shadow">
-                  <p className="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">← Sebelumnya</p>
-                  <p className="font-semibold text-[#2C2A29] text-sm leading-snug group-hover:text-[#B34E3F]">{prev.title}</p>
+                <Link href={`/artikel/${prev.slug}`} className="group flex items-start gap-2.5 rounded-xl border border-[#E2D9CF] bg-white px-4 py-3 transition-shadow active:scale-[0.995] sm:block sm:rounded-2xl sm:p-5 sm:hover:shadow-md">
+                  <span className="material-symbols-outlined mt-0.5 text-[14px] text-on-surface-variant sm:hidden" aria-hidden>arrow_back</span>
+                  <span className="min-w-0">
+                    <span className="block text-[9px] uppercase tracking-[0.16em] text-on-surface-variant sm:hidden">Sebelumnya</span>
+                    <span className="hidden text-[10px] uppercase tracking-widest text-on-surface-variant sm:mb-1 sm:block">← Sebelumnya</span>
+                    <span className="mt-0.5 block text-[12.5px] font-semibold leading-snug text-[#2C2A29] group-hover:text-[#B34E3F] sm:text-sm">{prev.title}</span>
+                  </span>
                 </Link>
-              ) : <span />}
+              ) : <span className="hidden sm:block" />}
               {next ? (
-                <Link href={`/artikel/${next.slug}`} className="group bg-white border border-[#E2D9CF] rounded-2xl p-5 hover:shadow-md transition-shadow text-right">
-                  <p className="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Berikutnya →</p>
-                  <p className="font-semibold text-[#2C2A29] text-sm leading-snug group-hover:text-[#B34E3F]">{next.title}</p>
+                <Link href={`/artikel/${next.slug}`} className="group flex items-start gap-2.5 rounded-xl border border-[#E2D9CF] bg-white px-4 py-3 text-right transition-shadow active:scale-[0.995] sm:block sm:rounded-2xl sm:p-5 sm:hover:shadow-md">
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[9px] uppercase tracking-[0.16em] text-on-surface-variant sm:hidden">Berikutnya</span>
+                    <span className="hidden text-[10px] uppercase tracking-widest text-on-surface-variant sm:mb-1 sm:block">Berikutnya →</span>
+                    <span className="mt-0.5 block text-[12.5px] font-semibold leading-snug text-[#2C2A29] group-hover:text-[#B34E3F] sm:text-sm">{next.title}</span>
+                  </span>
+                  <span className="material-symbols-outlined mt-0.5 text-[14px] text-on-surface-variant sm:hidden" aria-hidden>arrow_forward</span>
                 </Link>
-              ) : <span />}
+              ) : <span className="hidden sm:block" />}
             </nav>
           )}
 
-          <div className="mt-10 rounded-2xl bg-white border border-[#E2D9CF] p-6 md:p-8 text-center">
-            <h2 className="font-headline-md text-lg md:text-xl text-[#2C2A29] mb-2">
-              Siap membuat undangan digital Anda?
-            </h2>
-            <p className="text-sm text-on-surface-variant mb-5">
-              Pilih template, isi data, bagikan link. Jadi dalam 15 menit.
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              <Link
-                href="/templates"
-                className="px-7 py-3 rounded-full border border-[#B34E3F] text-[#B34E3F] text-xs font-semibold tracking-widest uppercase hover:bg-[#B34E3F] hover:text-white transition-colors"
-              >
-                Lihat Template
-              </Link>
-              <Link
-                href="/customize"
-                className="px-7 py-3 rounded-full bg-[#B34E3F] text-white text-xs font-semibold tracking-widest uppercase hover:bg-[#9A3F32] transition-colors"
-              >
-                Lihat Harga
-              </Link>
+          <div className="relative mt-8 overflow-hidden rounded-2xl border border-[#E2D9CF] bg-white p-5 text-center md:mt-10 md:p-8">
+            <span
+              className="pointer-events-none absolute inset-x-0 top-0 h-20 opacity-[0.07]"
+              style={{ background: "radial-gradient(ellipse at 50% 0%, #B34E3F 0, transparent 70%)" }}
+              aria-hidden
+            />
+            <div className="relative">
+              <h2 className="font-headline-md mb-1.5 text-[17px] text-[#2C2A29] md:text-xl">
+                Siap membuat undangan digital Anda?
+              </h2>
+              <p className="mb-4 text-[12px] text-on-surface-variant md:text-sm">
+                Pilih template, isi data, bagikan link. Jadi dalam 15 menit.
+              </p>
+              <div className="flex justify-center gap-2 md:gap-3">
+                <Link
+                  href="/templates"
+                  className="rounded-full border border-[#B34E3F] px-5 py-2.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#B34E3F] transition-colors hover:bg-[#B34E3F] hover:text-white md:px-7 md:py-3 md:text-xs"
+                >
+                  Lihat Template
+                </Link>
+                <Link
+                  href="/customize"
+                  className="rounded-full bg-[#B34E3F] px-5 py-2.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white transition-colors hover:bg-[#9A3F32] md:px-7 md:py-3 md:text-xs"
+                >
+                  Lihat Harga
+                </Link>
+              </div>
             </div>
           </div>
 
           {related.length > 0 && (
-            <section className="mt-10">
-              <h2 className="font-headline-md text-lg md:text-xl text-[#2C2A29] mb-4">Artikel terkait</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {related.map((r) => (
-                  <Link
-                    key={r.slug}
-                    href={`/artikel/${r.slug}`}
-                    className="group bg-white border border-[#E2D9CF] rounded-2xl p-5 hover:shadow-md transition-shadow flex flex-col"
-                  >
-                    <p className="text-[10px] uppercase tracking-widest text-[#B34E3F] font-semibold mb-1">
-                      {r.category}
-                    </p>
-                    <p className="font-semibold text-[#2C2A29] text-sm leading-snug group-hover:text-[#B34E3F] flex-1">{r.title}</p>
-                    <p className="text-[11px] text-on-surface-variant mt-2">{r.readMinutes} mnt baca</p>
-                  </Link>
-                ))}
+            <section className="mt-9 md:mt-10">
+              <div className="mb-3 flex items-baseline justify-between md:mb-4">
+                <h2 className="font-headline-md text-[17px] text-[#2C2A29] md:text-xl">Artikel terkait</h2>
+                <Link href="/artikel" className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#B34E3F] md:text-[11px]">
+                  Semua
+                </Link>
+              </div>
+              <div className="-mx-margin-mobile flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-margin-mobile pb-2 no-scrollbar sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0">
+                {related.map((r) => {
+                  const style = categoryStyle(r.category)
+                  return (
+                    <Link
+                      key={r.slug}
+                      href={`/artikel/${r.slug}`}
+                      className="group flex w-[76%] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-[#E2D9CF] bg-white active:scale-[0.99] sm:w-auto"
+                    >
+                      <span className="flex items-center justify-between px-4 py-2.5" style={{ background: `linear-gradient(140deg, ${style.from}, ${style.to})` }} aria-hidden>
+                        <span className="material-symbols-outlined text-[18px] text-white/90">{style.icon}</span>
+                        <span className="text-[8.5px] font-semibold uppercase tracking-[0.14em] text-white/80">{r.readMinutes} mnt</span>
+                      </span>
+                      <span className="flex flex-1 flex-col p-3.5">
+                        <span className="mb-1 text-[8.5px] font-semibold uppercase tracking-[0.16em] text-[#B34E3F]">{r.category}</span>
+                        <span className="flex-1 text-[12.5px] font-semibold leading-snug text-[#2C2A29] group-hover:text-[#B34E3F]">{r.title}</span>
+                      </span>
+                    </Link>
+                  )
+                })}
               </div>
             </section>
           )}

@@ -128,13 +128,14 @@ export default function VirtualWishWallPage() {
           column-count: 1;
           column-gap: 2rem;
         }
+        @media (max-width: 767px) { .masonry { column-gap: 1rem; } .masonry-item { margin-bottom: 1rem; } }
         @media (min-width: 768px) { .masonry { column-count: 2; } }
         @media (min-width: 1024px) { .masonry { column-count: 3; } }
         .masonry-item {
           break-inside: avoid;
           margin-bottom: 2rem;
         }
-        .ticker-container { overflow: hidden; white-space: nowrap; }
+        .ticker-container { overflow: hidden; white-space: nowrap; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
         .ticker-scroll {
           display: inline-flex;
           animation: scroll 40s linear infinite;
@@ -159,12 +160,12 @@ export default function VirtualWishWallPage() {
       `}</style>
 
       {/* Fixed Top Navigation */}
-      <nav className="fixed top-0 left-0 w-full h-20 z-[100] bg-surface/85 backdrop-blur-md border-b border-outline-variant/30 px-margin-mobile md:px-margin-desktop flex items-center justify-between">
+      <nav className="fixed top-0 left-0 w-full h-16 md:h-20 z-[100] bg-surface/85 backdrop-blur-md border-b border-outline-variant/30 px-margin-mobile md:px-margin-desktop flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button onClick={() => router.push("/hero")}>
             <span className="material-symbols-outlined text-primary">arrow_back</span>
           </button>
-          <span className="font-headline-md text-[24px] md:text-headline-md tracking-tight text-primary">AKSARAA</span>
+          <span className="font-headline-md text-[17px] md:text-headline-md tracking-tight text-primary">AKSARAA</span>
           <div className="hidden sm:flex items-center gap-3 bg-white px-4 py-1.5 rounded-full border border-outline-variant/40 shadow-sm">
             <span className="flex h-2.5 w-2.5 rounded-full bg-[#10b981] animate-pulse shadow-[0_0_8px_#10b981]" />
             <span className="font-label-caps text-[10px] text-on-surface-variant tracking-wider">LIVE VENUE SYNC ACTIVE</span>
@@ -180,22 +181,22 @@ export default function VirtualWishWallPage() {
         </div>
       </nav>
 
-      <main className="pt-20 bg-[#FAF7F2]" ref={sectionRef}>
+      <main className="pt-16 md:pt-20 bg-[#FAF7F2]" ref={sectionRef}>
         {/* Hero */}
-        <section className="min-h-[90vh] flex flex-col lg:flex-row items-center max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 lg:py-24 gap-16 overflow-hidden">
-          <div className="flex-1 space-y-8 relative z-10">
+        <section className="min-h-0 md:min-h-[90vh] flex flex-col lg:flex-row items-center max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-7 md:py-12 lg:py-24 gap-7 md:gap-16 overflow-hidden">
+          <div className="flex-1 space-y-4 md:space-y-8 relative z-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#F5EFE6] border border-[#E2D9CF] text-[#C5A059] rounded-full font-label-caps text-[10px] tracking-widest">
               <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
               MODUL DINDING DOA &amp; UCAPAN DIGITAL
             </div>
-            <h1 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[44px] md:text-[72px] lg:text-[84px] leading-[1.05] text-[#2C2A29]">
+            <h1 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[28px] md:text-[72px] lg:text-[84px] leading-[1.12] md:leading-[1.05] text-[#2C2A29]">
               Wish Wall Digital: <br />Papan <span className="italic font-medium text-[#B34E3F]">Ucapan Pernikahan</span> di Layar.
             </h1>
-            <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl leading-relaxed">
+            <p className="text-[13px] md:font-body-lg md:text-body-lg text-on-surface-variant max-w-xl leading-relaxed">
               Doa dan ucapan tamu tampil live di layar LED venue, buku tamu ucapan digital dengan moderasi instan, langsung dari smartphone tamu.
             </p>
-            <div className="flex flex-wrap gap-5 pt-4">
-              <button onClick={() => router.push("/register")} className="bg-[#B34E3F] text-white px-10 py-5 rounded-full font-label-caps text-[14px] flex items-center gap-3 group transition-all hover:bg-[#9E3B2D] shadow-lg shadow-[#B34E3F]/20">
+            <div className="flex flex-wrap gap-5 pt-0 md:pt-4">
+              <button onClick={() => router.push("/register")} className="bg-[#B34E3F] text-white px-6 py-3.5 md:px-10 md:py-5 rounded-full font-label-caps text-[11px] md:text-[14px] flex items-center gap-3 group transition-all hover:bg-[#9E3B2D] shadow-lg shadow-[#B34E3F]/20">
                 AKTIFKAN WISH WALL
                 <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
               </button>
@@ -203,19 +204,19 @@ export default function VirtualWishWallPage() {
           </div>
           <div className="flex-1 relative w-full group">
             <div className="relative w-full aspect-[4/3] md:aspect-video bg-white border border-[#E2D9CF] rounded-2xl p-3 shadow-xl overflow-hidden">
-              <div className="absolute inset-0 flex flex-col justify-center gap-8 py-8 bg-[#1A1817] rounded-xl">
+              <div className="absolute inset-0 flex flex-col justify-center gap-3 py-4 md:gap-8 md:py-8 bg-[#1A1817] rounded-xl">
                 <div className="ticker-container">
                   <div className="ticker-scroll gap-6 px-4">
                     <div className="flex gap-6">
-                      <div className="bg-white/5 border border-white/10 p-6 rounded-xl min-w-[300px] backdrop-blur-sm">
-                        <p className="text-white font-display-lg text-[18px] italic mb-4">&ldquo;Bahagia selamanya Dimas &amp; Kirana!&rdquo;</p>
+                      <div className="bg-white/5 border border-white/10 p-4 md:p-6 rounded-xl min-w-[230px] md:min-w-[300px] backdrop-blur-sm">
+                        <p className="text-white font-display-lg text-[15px] italic mb-2 md:text-[18px] md:mb-4">&ldquo;Bahagia selamanya Dimas &amp; Kirana!&rdquo;</p>
                         <div className="flex justify-between items-center text-white/50 font-label-caps text-[10px]">
                           <span>- Sarah &amp; Kevin</span>
                           <span className="flex items-center gap-1 text-[#C5A059]">❤️ 42</span>
                         </div>
                       </div>
-                      <div className="bg-[#B34E3F]/10 border border-[#B34E3F]/30 p-6 rounded-xl min-w-[300px] backdrop-blur-sm">
-                        <p className="text-white font-display-lg text-[18px] italic mb-4">&ldquo;Semoga sakinah mawaddah warahmah.&rdquo;</p>
+                      <div className="bg-[#B34E3F]/10 border border-[#B34E3F]/30 p-4 md:p-6 rounded-xl min-w-[230px] md:min-w-[300px] backdrop-blur-sm">
+                        <p className="text-white font-display-lg text-[15px] italic mb-2 md:text-[18px] md:mb-4">&ldquo;Semoga sakinah mawaddah warahmah.&rdquo;</p>
                         <div className="flex justify-between items-center text-white/50 font-label-caps text-[10px]">
                           <span>- Keluarga Besar Wijaya</span>
                           <span className="flex items-center gap-1 text-[#C5A059]">❤️ 108</span>
@@ -223,15 +224,15 @@ export default function VirtualWishWallPage() {
                       </div>
                     </div>
                     <div className="flex gap-6">
-                      <div className="bg-white/5 border border-white/10 p-6 rounded-xl min-w-[300px] backdrop-blur-sm">
-                        <p className="text-white font-display-lg text-[18px] italic mb-4">&ldquo;Bahagia selamanya Dimas &amp; Kirana!&rdquo;</p>
+                      <div className="bg-white/5 border border-white/10 p-4 md:p-6 rounded-xl min-w-[230px] md:min-w-[300px] backdrop-blur-sm">
+                        <p className="text-white font-display-lg text-[15px] italic mb-2 md:text-[18px] md:mb-4">&ldquo;Bahagia selamanya Dimas &amp; Kirana!&rdquo;</p>
                         <div className="flex justify-between items-center text-white/50 font-label-caps text-[10px]">
                           <span>- Sarah &amp; Kevin</span>
                           <span className="flex items-center gap-1 text-[#C5A059]">❤️ 42</span>
                         </div>
                       </div>
-                      <div className="bg-[#B34E3F]/10 border border-[#B34E3F]/30 p-6 rounded-xl min-w-[300px] backdrop-blur-sm">
-                        <p className="text-white font-display-lg text-[18px] italic mb-4">&ldquo;Semoga sakinah mawaddah warahmah.&rdquo;</p>
+                      <div className="bg-[#B34E3F]/10 border border-[#B34E3F]/30 p-4 md:p-6 rounded-xl min-w-[230px] md:min-w-[300px] backdrop-blur-sm">
+                        <p className="text-white font-display-lg text-[15px] italic mb-2 md:text-[18px] md:mb-4">&ldquo;Semoga sakinah mawaddah warahmah.&rdquo;</p>
                         <div className="flex justify-between items-center text-white/50 font-label-caps text-[10px]">
                           <span>- Keluarga Besar Wijaya</span>
                           <span className="flex items-center gap-1 text-[#C5A059]">❤️ 108</span>
@@ -243,15 +244,15 @@ export default function VirtualWishWallPage() {
                 <div className="ticker-container scale-110">
                   <div className="ticker-scroll gap-6 px-4" style={{ animationDirection: "reverse" }}>
                     <div className="flex gap-6">
-                      <div className="bg-white/5 border border-white/10 p-6 rounded-xl min-w-[320px] backdrop-blur-sm">
-                        <p className="text-white font-display-lg text-[20px] italic mb-4">&ldquo;Happy Wedding my best friend!&rdquo;</p>
+                      <div className="bg-white/5 border border-white/10 p-4 md:p-6 rounded-xl min-w-[240px] md:min-w-[320px] backdrop-blur-sm">
+                        <p className="text-white font-display-lg text-[15px] italic mb-2 md:text-[20px] md:mb-4">&ldquo;Happy Wedding my best friend!&rdquo;</p>
                         <div className="flex justify-between items-center text-white/50 font-label-caps text-[10px]">
                           <span>- Rian Santoso</span>
                           <span className="flex items-center gap-1 text-[#C5A059]">❤️ 15</span>
                         </div>
                       </div>
-                      <div className="bg-white/5 border border-white/10 p-6 rounded-xl min-w-[320px] backdrop-blur-sm">
-                        <p className="text-white font-display-lg text-[20px] italic mb-4">&ldquo;Cheers to a new beginning! ✨&rdquo;</p>
+                      <div className="bg-white/5 border border-white/10 p-4 md:p-6 rounded-xl min-w-[240px] md:min-w-[320px] backdrop-blur-sm">
+                        <p className="text-white font-display-lg text-[15px] italic mb-2 md:text-[20px] md:mb-4">&ldquo;Cheers to a new beginning! ✨&rdquo;</p>
                         <div className="flex justify-between items-center text-white/50 font-label-caps text-[10px]">
                           <span>- Amanda Putri</span>
                           <span className="flex items-center gap-1 text-[#C5A059]">❤️ 28</span>
@@ -259,15 +260,15 @@ export default function VirtualWishWallPage() {
                       </div>
                     </div>
                     <div className="flex gap-6">
-                      <div className="bg-white/5 border border-white/10 p-6 rounded-xl min-w-[320px] backdrop-blur-sm">
-                        <p className="text-white font-display-lg text-[20px] italic mb-4">&ldquo;Happy Wedding my best friend!&rdquo;</p>
+                      <div className="bg-white/5 border border-white/10 p-4 md:p-6 rounded-xl min-w-[240px] md:min-w-[320px] backdrop-blur-sm">
+                        <p className="text-white font-display-lg text-[15px] italic mb-2 md:text-[20px] md:mb-4">&ldquo;Happy Wedding my best friend!&rdquo;</p>
                         <div className="flex justify-between items-center text-white/50 font-label-caps text-[10px]">
                           <span>- Rian Santoso</span>
                           <span className="flex items-center gap-1 text-[#C5A059]">❤️ 15</span>
                         </div>
                       </div>
-                      <div className="bg-white/5 border border-white/10 p-6 rounded-xl min-w-[320px] backdrop-blur-sm">
-                        <p className="text-white font-display-lg text-[20px] italic mb-4">&ldquo;Cheers to a new beginning! ✨&rdquo;</p>
+                      <div className="bg-white/5 border border-white/10 p-4 md:p-6 rounded-xl min-w-[240px] md:min-w-[320px] backdrop-blur-sm">
+                        <p className="text-white font-display-lg text-[15px] italic mb-2 md:text-[20px] md:mb-4">&ldquo;Cheers to a new beginning! ✨&rdquo;</p>
                         <div className="flex justify-between items-center text-white/50 font-label-caps text-[10px]">
                           <span>- Amanda Putri</span>
                           <span className="flex items-center gap-1 text-[#C5A059]">❤️ 28</span>
@@ -299,7 +300,7 @@ export default function VirtualWishWallPage() {
         </section>
 
         {/* Metrics Strip */}
-        <section className="bg-[#1A1817] py-16 border-y border-[#C5A059]/20">
+        <section className="bg-[#1A1817] py-7 md:py-16 border-y border-[#C5A059]/20">
           <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { icon: "cloud_sync", title: "0.5s Sync", desc: "REAL-TIME CLOUD SPEED" },
@@ -307,9 +308,9 @@ export default function VirtualWishWallPage() {
               { icon: "verified_user", title: "100% Control", desc: "SMART MODERATION PANEL" },
               { icon: "picture_as_pdf", title: "PDF Export", desc: "LIFETIME DIGITAL MEMORY" },
             ].map((m) => (
-              <div key={m.title} className="bg-[#1A1817] border border-[#C5A059]/20 p-8 rounded-xl hover:bg-white/5 hover:border-[#C5A059]/40 transition-all group">
-                <span className="material-symbols-outlined text-[#C5A059] text-[32px] mb-4">{m.icon}</span>
-                <h4 className="text-white font-[family-name:var(--font-cormorant)] font-semibold text-[26px] mb-1">{m.title}</h4>
+              <div key={m.title} className="bg-[#1A1817] border border-[#C5A059]/20 p-4 md:p-8 rounded-xl hover:bg-white/5 hover:border-[#C5A059]/40 transition-all group">
+                <span className="material-symbols-outlined text-[#C5A059] text-[22px] mb-2 md:text-[32px] md:mb-4">{m.icon}</span>
+                <h4 className="text-white font-[family-name:var(--font-cormorant)] font-semibold text-[20px] md:text-[26px] mb-1">{m.title}</h4>
                 <p className="text-white/50 font-label-caps text-[10px] tracking-widest">{m.desc}</p>
               </div>
             ))}
@@ -317,19 +318,19 @@ export default function VirtualWishWallPage() {
         </section>
 
         {/* Sandbox */}
-        <section className="py-24 bg-[#FAF7F2]" id="sandbox">
+        <section className="py-10 md:py-24 bg-[#FAF7F2]" id="sandbox">
           <div className="max-w-4xl mx-auto px-margin-mobile sandbox-card">
-            <div className="text-center mb-12 space-y-4">
-              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[36px] md:text-[48px] text-[#2C2A29] leading-tight">Coba <span className="italic text-[#B34E3F]">Simulasi Interaktif</span></h2>
-              <p className="text-on-surface-variant font-body-md max-w-lg mx-auto">Tulis pesan Anda di bawah ini dan lihat bagaimana pesan tersebut tampil secara instan di &quot;Wish Wall&quot; kami.</p>
+            <div className="text-center mb-6 md:mb-12 space-y-2 md:space-y-4">
+              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[25px] md:text-[48px] text-[#2C2A29] leading-tight">Coba <span className="italic text-[#B34E3F]">Simulasi Interaktif</span></h2>
+              <p className="text-[12.5px] md:text-base text-on-surface-variant max-w-lg mx-auto">Tulis pesan Anda di bawah ini dan lihat bagaimana pesan tersebut tampil secara instan di &quot;Wish Wall&quot; kami.</p>
             </div>
-            <div className="bg-white rounded-2xl p-8 border border-[#E2D9CF] shadow-lg">
-              <form className="space-y-6" onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-2xl p-4 md:p-8 border border-[#E2D9CF] shadow-lg">
+              <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div className="space-y-2">
                     <label className="font-label-caps text-[11px] text-on-surface-variant">NAMA TAMU</label>
                     <input
-                      className="w-full bg-white border border-[#E2D9CF] focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] rounded-lg py-4 px-5 outline-none transition-colors"
+                      className="w-full bg-white border border-[#E2D9CF] focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] rounded-lg py-3 px-4 md:py-4 md:px-5 outline-none transition-colors"
                       placeholder="Contoh: Bpk. Heru & Ibu"
                       type="text"
                       value={guestName}
@@ -360,7 +361,7 @@ export default function VirtualWishWallPage() {
                 <div className="space-y-2">
                   <label className="font-label-caps text-[11px] text-on-surface-variant">PESAN DOA &amp; UCAPAN</label>
                   <textarea
-                    className="w-full bg-white border border-[#E2D9CF] focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] rounded-xl py-4 px-5 outline-none transition-colors"
+                    className="w-full bg-white border border-[#E2D9CF] focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F] rounded-xl py-3 px-4 md:py-4 md:px-5 outline-none transition-colors"
                     placeholder="Tuliskan doa restu Anda di sini..."
                     rows={4}
                     value={guestMessage}
@@ -368,7 +369,7 @@ export default function VirtualWishWallPage() {
                   />
                 </div>
                 <button
-                  className="w-full bg-[#B34E3F] text-white py-5 rounded-full font-label-caps text-[14px] flex items-center justify-center gap-3 hover:bg-[#9E3B2D] transition-all shadow-lg shadow-[#B34E3F]/20"
+                  className="w-full bg-[#B34E3F] text-white py-3.5 md:py-5 rounded-full font-label-caps text-[11px] md:text-[14px] flex items-center justify-center gap-3 hover:bg-[#9E3B2D] transition-all shadow-lg shadow-[#B34E3F]/20"
                   type="submit"
                 >
                   <span className="material-symbols-outlined">send</span>
@@ -380,17 +381,17 @@ export default function VirtualWishWallPage() {
         </section>
 
         {/* Live Wish Feed */}
-        <section className="py-24 bg-[#FAF7F2] max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-8">
+        <section className="py-10 md:py-24 bg-[#FAF7F2] max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-5 md:mb-10 gap-4 md:gap-8">
             <div className="space-y-4">
-              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[38px] md:text-[48px] text-[#2C2A29]">Live <span className="italic text-[#B34E3F]">Wish Feed</span></h2>
-              <p className="text-on-surface-variant font-body-md max-w-md">Eksplorasi doa-doa yang telah masuk dan disetujui oleh moderator.</p>
+              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[26px] md:text-[48px] text-[#2C2A29]">Live <span className="italic text-[#B34E3F]">Wish Feed</span></h2>
+              <p className="text-[12.5px] md:text-base text-on-surface-variant max-w-md">Eksplorasi doa-doa yang telah masuk dan disetujui oleh moderator.</p>
             </div>
             <div className="flex flex-wrap gap-2 bg-white border border-[#E2D9CF] rounded-full p-1.5 shadow-sm">
               {filters.map((f) => (
                 <button
                   key={f.key}
-                  className={`px-5 py-2 rounded-full font-label-caps text-[11px] transition-all flex items-center gap-1 border ${
+                  className={`px-3.5 py-1.5 md:px-5 md:py-2 rounded-full font-label-caps text-[10px] md:text-[11px] transition-all flex items-center gap-1 border ${
                     filter === f.key
                       ? "bg-[#B34E3F] text-white border-[#B34E3F]"
                       : "bg-white text-[#2C2A29] border-transparent hover:border-[#E2D9CF]"
@@ -407,7 +408,7 @@ export default function VirtualWishWallPage() {
             {filteredCards.map((card) => (
               <div
                 key={card.id}
-                className={`masonry-item p-8 rounded-2xl border shadow-sm relative group bg-white hover:shadow-md transition-shadow ${
+                className={`masonry-item p-4 md:p-8 rounded-2xl border shadow-sm relative group bg-white hover:shadow-md transition-shadow ${
                   card.id === sparkleId ? "sparkle-animate" : ""
                 } ${
                   card.pinned
@@ -421,10 +422,10 @@ export default function VirtualWishWallPage() {
                     <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>push_pin</span>
                   </div>
                 )}
-                <p className="font-body-lg text-[18px] leading-relaxed mb-6 text-[#2C2A29] italic">
+                <p className="text-[14px] md:font-body-lg md:text-[18px] leading-relaxed mb-4 md:mb-6 text-[#2C2A29] italic">
                   &ldquo;{card.message}&rdquo;
                 </p>
-                <div className="flex justify-between items-center pt-6 border-t border-[#E2D9CF]">
+                <div className="flex justify-between items-center pt-4 md:pt-6 border-t border-[#E2D9CF]">
                   <div>
                     <span className="block font-label-caps text-[12px] font-semibold text-[#2C2A29] capitalize">
                       {card.name}
@@ -447,13 +448,13 @@ export default function VirtualWishWallPage() {
         </section>
 
         {/* Bento Grid */}
-        <section className="py-24 bg-[#FAF7F2]">
+        <section className="py-10 md:py-24 bg-[#FAF7F2]">
           <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-            <div className="text-center mb-20 space-y-6">
-              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[#2C2A29] text-[44px] md:text-[60px]">The Aksaraa <span className="italic text-[#B34E3F]">Experience</span></h2>
-              <p className="text-on-surface-variant max-w-lg mx-auto">Untuk momen yang hanya terjadi sekali seumur hidup.</p>
+            <div className="text-center mb-6 md:mb-20 space-y-2 md:space-y-6">
+              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[#2C2A29] text-[27px] md:text-[60px]">The Aksaraa <span className="italic text-[#B34E3F]">Experience</span></h2>
+              <p className="text-[12.5px] md:text-base text-on-surface-variant max-w-lg mx-auto">Untuk momen yang hanya terjadi sekali seumur hidup.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-12 md:grid-rows-2 gap-6 h-auto md:h-[700px]">
+            <div className="grid grid-cols-1 md:grid-cols-12 md:grid-rows-2 gap-3 md:gap-6 h-auto md:h-[700px]">
               <div className="md:col-span-8 relative overflow-hidden rounded-2xl border border-[#E2D9CF] shadow-sm group bento-item bg-white">
                 <img
                   className="absolute inset-0 w-full h-full object-cover grayscale-[0.2] transition-transform duration-1000 group-hover:scale-105"
@@ -461,17 +462,17 @@ export default function VirtualWishWallPage() {
                   src={ASSETS.wishWall.venueProjection}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 p-8 md:p-10">
+                <div className="absolute bottom-0 left-0 p-5 md:p-10">
                   <div className="flex items-center gap-4 mb-4">
                     <span className="w-12 h-[1px] bg-[#C5A059]" />
                     <span className="font-label-caps text-[#C5A059] text-[12px] tracking-[0.3em]">IMMERSIVE ART</span>
                   </div>
-                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-white text-[28px] md:text-[34px] mb-4">Venue Cinematic <span className="italic text-[#C5A059]">Projection</span></h3>
-                  <p className="text-white/70 max-w-md text-[14px]">Ubah dinding polos ballroom menjadi kanvas digital yang menceritakan cinta melalui ucapan-ucapan hangat dari tamu spesial Anda.</p>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-white text-[21px] md:text-[34px] mb-2 md:mb-4">Venue Cinematic <span className="italic text-[#C5A059]">Projection</span></h3>
+                  <p className="text-white/70 max-w-md text-[12.5px] md:text-[14px]">Ubah dinding polos ballroom menjadi kanvas digital yang menceritakan cinta melalui ucapan-ucapan hangat dari tamu spesial Anda.</p>
                 </div>
               </div>
-              <div className="md:col-span-4 md:row-span-2 bg-white border border-[#E2D9CF] rounded-2xl overflow-hidden flex flex-col p-8 group bento-item shadow-sm">
-                <div className="mb-8">
+              <div className="md:col-span-4 md:row-span-2 bg-white border border-[#E2D9CF] rounded-2xl overflow-hidden flex flex-col p-5 md:p-8 group bento-item shadow-sm">
+                <div className="mb-4 md:mb-8">
                   <div className="flex items-center justify-between mb-8">
                     <div className="w-10 h-10 rounded-lg bg-[#F5EFE6] border border-[#E2D9CF] flex items-center justify-center text-[#B34E3F]">
                       <span className="material-symbols-outlined">dashboard</span>
@@ -480,21 +481,21 @@ export default function VirtualWishWallPage() {
                       <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" /> MODERATOR ONLINE
                     </div>
                   </div>
-                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[#2C2A29] text-[26px] mb-4">Moderation <span className="italic text-[#B34E3F]">Mastery</span></h3>
-                  <p className="text-on-surface-variant text-[14px] mb-8 leading-relaxed">Kendali penuh di tangan Anda atau wedding organizer. Setujui pesan secara instan sebelum muncul di layar utama.</p>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[#2C2A29] text-[19px] md:text-[26px] mb-2 md:mb-4">Moderation <span className="italic text-[#B34E3F]">Mastery</span></h3>
+                  <p className="text-on-surface-variant text-[12.5px] md:text-[14px] mb-4 md:mb-8 leading-relaxed">Kendali penuh di tangan Anda atau wedding organizer. Setujui pesan secara instan sebelum muncul di layar utama.</p>
                 </div>
                 <div className="mt-auto relative rounded-xl border border-[#E2D9CF] bg-[#FAF7F2] p-4 transform transition-all group-hover:-translate-y-1 shadow-sm">
                   <img className="w-full rounded-lg" alt="Dashboard Interface" src={ASSETS.wishWall.dashboardInterface} />
                 </div>
               </div>
-              <div className="md:col-span-4 bg-white p-8 md:p-10 rounded-2xl border border-[#E2D9CF] shadow-sm flex flex-col justify-between group bento-item">
+              <div className="md:col-span-4 bg-white p-5 md:p-10 rounded-2xl border border-[#E2D9CF] shadow-sm flex flex-col justify-between group bento-item">
                 <span className="material-symbols-outlined text-[#B34E3F] text-[40px] group-hover:rotate-12 transition-transform">auto_stories</span>
                 <div>
-                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[#2C2A29] text-[26px] mb-2">Memory <span className="italic text-[#B34E3F]">Export</span></h3>
-                  <p className="text-on-surface-variant text-[14px]">Dapatkan bundel digital lengkap berupa PDF dari semua ucapan di akhir acara.</p>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[#2C2A29] text-[19px] md:text-[26px] mb-2">Memory <span className="italic text-[#B34E3F]">Export</span></h3>
+                  <p className="text-on-surface-variant text-[12.5px] md:text-[14px]">Dapatkan bundel digital lengkap berupa PDF dari semua ucapan di akhir acara.</p>
                 </div>
               </div>
-              <div className="md:col-span-4 bg-[#B34E3F] p-8 md:p-10 rounded-2xl border border-[#9E3B2D] flex flex-col justify-between group bento-item shadow-sm">
+              <div className="md:col-span-4 bg-[#B34E3F] p-5 md:p-10 rounded-2xl border border-[#9E3B2D] flex flex-col justify-between group bento-item shadow-sm">
                 <div className="flex -space-x-3">
                   {["❤️", "✨", "💎"].map((emoji, i) => (
                     <div key={i} className="w-12 h-12 rounded-full border-4 border-[#B34E3F] bg-white/20 flex items-center justify-center text-[20px]">
@@ -503,8 +504,8 @@ export default function VirtualWishWallPage() {
                   ))}
                 </div>
                 <div>
-                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-white text-[26px] mb-2">Live <span className="italic text-[#F5EFE6]">Reactions</span></h3>
-                  <p className="text-white/80 text-[14px]">Interaksi dua arah yang hidup dengan fitur &apos;Like&apos; yang membuat tamu merasa pesan mereka dihargai.</p>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-white text-[19px] md:text-[26px] mb-2">Live <span className="italic text-[#F5EFE6]">Reactions</span></h3>
+                  <p className="text-white/80 text-[12.5px] md:text-[14px]">Interaksi dua arah yang hidup dengan fitur &apos;Like&apos; yang membuat tamu merasa pesan mereka dihargai.</p>
                 </div>
               </div>
             </div>
@@ -534,15 +535,17 @@ export default function VirtualWishWallPage() {
           ]}
         />
 
+      <div className="h-20 md:h-0" aria-hidden />
+
       {/* Sticky Bottom Bar */}
-      <div className="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-outline-variant/30 py-4 px-margin-mobile md:px-margin-desktop z-[90] flex flex-col sm:flex-row items-center justify-between gap-4 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+      <div className="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-outline-variant/30 py-2.5 md:py-4 px-margin-mobile md:px-margin-desktop z-[90] flex flex-row items-center justify-between gap-3 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
         <div className="flex items-center gap-4">
           <div className="bg-secondary/10 p-2 rounded-full hidden sm:block">
             <span className="material-symbols-outlined text-secondary">celebration</span>
           </div>
-          <span className="font-body-md font-semibold text-[14px] md:text-[15px]">Hadirkan Virtual Wish Wall di Pernikahan Anda</span>
+          <span className="hidden sm:block font-body-md font-semibold text-[14px] md:text-[15px]">Hadirkan Virtual Wish Wall di Pernikahan Anda</span>
         </div>
-        <button onClick={() => router.push("/register")} className="w-full sm:w-auto bg-[#25D366] text-white px-8 py-3.5 rounded-sm font-label-caps text-[13px] flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-lg shadow-green-500/20">
+        <button onClick={() => router.push("/register")} className="w-full sm:w-auto bg-[#25D366] text-white px-5 py-3 md:px-8 md:py-3.5 rounded-full sm:rounded-sm font-label-caps text-[10px] md:text-[13px] flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-lg shadow-green-500/20">
           <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
             <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.284l-.582 2.166 2.207-.58c.958.544 1.912.931 3.127.931h.001c3.181 0 5.767-2.586 5.768-5.766 0-3.18-2.587-5.766-5.768-5.766m3.303 8.016c-.144.407-.84.771-1.2.822-.336.05-.77.087-1.248-.069-3.21-1.049-5.202-3.874-5.362-4.086-.16-.213-1.301-1.731-1.301-3.301 0-1.57.822-2.342 1.115-2.637.293-.294.636-.367.848-.367.213 0 .426.01.61.02.184.01.436-.07.683.528.252.61.859 2.097.934 2.246.075.149.124.322.025.52-.099.198-.148.322-.296.494-.149.172-.313.385-.445.516-.148.148-.303.31-.131.604.172.293.764 1.258 1.639 2.035.875.776 1.611 1.017 1.905 1.164.294.148.463.124.636-.075.173-.198.743-.865.941-1.163.198-.297.396-.248.669-.148.272.099 1.73.816 2.027.965.297.148.495.223.569.346.074.124.074.717-.223 1.124z" />
           </svg>

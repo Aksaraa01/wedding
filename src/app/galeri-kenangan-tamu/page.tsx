@@ -90,6 +90,7 @@ export default function GaleriKenanganTamuPage() {
           gap: 24px;
         }
         .masonry-item { grid-row-end: span 30; }
+        @media (max-width: 767px) { .masonry-grid { grid-template-columns: 1fr; gap: 16px; } }
         .masonry-item.tall { grid-row-end: span 45; }
         .masonry-item.short { grid-row-end: span 25; }
         ::-webkit-scrollbar { width: 4px; }
@@ -98,46 +99,46 @@ export default function GaleriKenanganTamuPage() {
       `}</style>
 
       {/* TopAppBar */}
-      <header className="fixed top-0 w-full h-[80px] z-50 bg-surface/85 backdrop-blur-xl border-b border-primary flex justify-between items-center px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto left-0 right-0">
+      <header className="fixed top-0 w-full h-16 md:h-[80px] z-50 bg-surface/85 backdrop-blur-xl border-b border-primary flex justify-between items-center px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto left-0 right-0">
         <div className="flex items-center gap-4">
           <button onClick={() => router.push("/hero")}>
             <span className="material-symbols-outlined text-primary">arrow_back</span>
           </button>
-          <div className="font-headline-md text-[24px] md:text-headline-md tracking-tight text-primary">AKSARAA</div>
+          <div className="font-headline-md text-[17px] md:text-headline-md tracking-tight text-primary">AKSARAA</div>
         </div>
       </header>
 
-      <main className="pt-[80px]" ref={mainRef}>
+      <main className="pt-16 md:pt-[80px]" ref={mainRef}>
         {/* Hero */}
-        <section className="min-h-[90vh] flex flex-col md:flex-row items-stretch border-b border-primary">
-          <div className="w-full md:w-1/2 p-margin-mobile md:p-margin-desktop flex flex-col justify-center items-start space-y-8 bg-surface">
+        <section className="min-h-0 md:min-h-[90vh] flex flex-col md:flex-row items-stretch border-b border-primary">
+          <div className="w-full md:w-1/2 px-margin-mobile py-7 md:p-margin-desktop flex flex-col justify-center items-start space-y-4 md:space-y-8 bg-surface">
             <span className="inline-block border border-primary px-4 py-1 font-label-sm text-label-sm uppercase tracking-[0.2em]">
               Modul Galeri &amp; Candid Photo
             </span>
-            <h1 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[44px] md:text-[72px] leading-[1.05] text-primary max-w-xl">
+            <h1 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[27px] md:text-[72px] leading-[1.12] md:leading-[1.05] text-primary max-w-xl">
               Galeri Foto Tamu <span className="italic text-secondary">Disposable Camera</span> Pernikahan Anda.
             </h1>
-            <p className="font-body-lg text-body-lg text-secondary max-w-lg">
+            <p className="text-[13px] md:font-body-lg md:text-body-lg text-secondary max-w-lg leading-relaxed">
               Tamu pindai QR dan langsung mengunggah foto yang tampil live, arsip kenangan candid ala disposable camera, tanpa aplikasi tambahan.
             </p>
             <button
               onClick={() => router.push("/customize?tab=galeri")}
-              className="bg-primary text-on-primary px-10 py-5 font-label-sm text-label-sm uppercase tracking-[0.3em] hover:scale-[0.98] transition-transform flex items-center gap-3"
+              className="bg-primary text-on-primary px-6 py-3.5 md:px-10 md:py-5 font-label-sm text-[10px] md:text-label-sm uppercase tracking-[0.22em] md:tracking-[0.3em] hover:scale-[0.98] transition-transform flex items-center gap-3"
             >
               Aktifkan Galeri Tamu
               <span className="material-symbols-outlined">arrow_forward</span>
             </button>
           </div>
-          <div className="w-full md:w-1/2 relative bg-primary-container overflow-hidden min-h-[500px]">
-            <div className="relative h-full flex items-center justify-center p-8">
-              <div className="w-64 h-[500px] bg-surface-container border-[12px] border-primary z-10 shadow-2xl flex flex-col overflow-hidden relative">
-                <div className="p-6 text-center space-y-4">
+          <div className="w-full md:w-1/2 relative bg-primary-container overflow-hidden min-h-[320px] md:min-h-[500px]">
+            <div className="relative h-full flex items-center justify-center p-4 md:p-8">
+              <div className="w-48 h-[340px] md:w-64 md:h-[500px] bg-surface-container border-8 md:border-[12px] border-primary z-10 shadow-2xl flex flex-col overflow-hidden relative">
+                <div className="p-4 md:p-6 text-center space-y-2 md:space-y-4">
                   <div className="w-16 h-16 border border-primary mx-auto flex items-center justify-center">
                     <span className="material-symbols-outlined text-4xl">qr_code_2</span>
                   </div>
-                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[28px] text-primary">Pindai QR Meja</h3>
+                  <h3 className="font-[family-name:var(--font-cormorant)] font-semibold text-[18px] md:text-[28px] text-primary">Pindai QR Meja</h3>
                   <p className="text-[10px] uppercase tracking-widest font-bold">Unggah Foto Momen Anda</p>
-                  <div className="pt-8 grid grid-cols-2 gap-2">
+                  <div className="pt-4 md:pt-8 grid grid-cols-2 gap-2">
                     <div className="aspect-square bg-outline-variant" />
                     <div className="aspect-square bg-outline-variant" />
                     <div className="aspect-square bg-outline-variant" />
@@ -164,34 +165,34 @@ export default function GaleriKenanganTamuPage() {
 
         {/* Metrics */}
         <section className="border-b border-primary grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-primary">
-          <div className="p-8 flex flex-col items-center text-center space-y-3 hover:bg-surface-container transition-colors group reveal-item">
-            <span className="material-symbols-outlined text-3xl group-hover:scale-110 transition-transform">qr_code_scanner</span>
+          <div className="p-4 md:p-8 flex flex-col items-center text-center space-y-2 md:space-y-3 hover:bg-surface-container transition-colors group reveal-item">
+            <span className="material-symbols-outlined text-[22px] md:text-3xl group-hover:scale-110 transition-transform">qr_code_scanner</span>
             <h4 className="font-label-sm text-label-sm uppercase tracking-widest font-bold">Scan QR Meja</h4>
-            <p className="text-secondary text-sm">Akses instan tanpa instalasi aplikasi (Zero App Strategy).</p>
+            <p className="text-secondary text-[12px] md:text-sm">Akses instan tanpa instalasi aplikasi (Zero App Strategy).</p>
           </div>
-          <div className="p-8 flex flex-col items-center text-center space-y-3 hover:bg-surface-container transition-colors group reveal-item">
-            <span className="material-symbols-outlined text-3xl group-hover:scale-110 transition-transform">high_quality</span>
+          <div className="p-4 md:p-8 flex flex-col items-center text-center space-y-2 md:space-y-3 hover:bg-surface-container transition-colors group reveal-item">
+            <span className="material-symbols-outlined text-[22px] md:text-3xl group-hover:scale-110 transition-transform">high_quality</span>
             <h4 className="font-label-sm text-label-sm uppercase tracking-widest font-bold">Original HD</h4>
-            <p className="text-secondary text-sm">Penyimpanan tanpa kompresi untuk kualitas cetak maksimal.</p>
+            <p className="text-secondary text-[12px] md:text-sm">Penyimpanan tanpa kompresi untuk kualitas cetak maksimal.</p>
           </div>
-          <div className="p-8 flex flex-col items-center text-center space-y-3 hover:bg-surface-container transition-colors group reveal-item">
-            <span className="material-symbols-outlined text-3xl group-hover:scale-110 transition-transform">folder_zip</span>
+          <div className="p-4 md:p-8 flex flex-col items-center text-center space-y-2 md:space-y-3 hover:bg-surface-container transition-colors group reveal-item">
+            <span className="material-symbols-outlined text-[22px] md:text-3xl group-hover:scale-110 transition-transform">folder_zip</span>
             <h4 className="font-label-sm text-label-sm uppercase tracking-widest font-bold">Akses Kenangan</h4>
-            <p className="text-secondary text-sm">Lihat ribuan kenangan hanya dengan satu klik</p>
+            <p className="text-secondary text-[12px] md:text-sm">Lihat ribuan kenangan hanya dengan satu klik</p>
           </div>
         </section>
 
         {/* Sandbox Upload */}
-        <section className="py-24 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-            <div className="lg:col-span-5 space-y-8 reveal-item">
-              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[36px] md:text-[48px] text-primary">
+        <section className="py-10 md:py-24 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-16 items-center">
+            <div className="lg:col-span-5 space-y-4 md:space-y-8 reveal-item">
+              <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[25px] md:text-[48px] text-primary">
                 Rasakan <span className="italic text-secondary">Kemudahannya</span> Sekarang.
               </h2>
-              <p className="font-body-lg text-body-lg text-secondary">
+              <p className="text-[13px] md:font-body-lg md:text-body-lg text-secondary leading-relaxed">
                 Sandbox interaktif kami memungkinkan Anda mencoba proses unggah foto seolah Anda adalah tamu di hari pernikahan Anda.
               </p>
-              <ul className="space-y-4">
+              <ul className="space-y-2.5 md:space-y-4">
                 {["Unggah instan ke Live Wall", "Tambahkan pesan pribadi", "Tanpa login, Tanpa hambatan"].map((item) => (
                   <li key={item} className="flex items-center gap-4 text-primary font-bold uppercase text-xs tracking-widest">
                     <span className="material-symbols-outlined text-lg">check_circle</span> {item}
@@ -200,7 +201,7 @@ export default function GaleriKenanganTamuPage() {
               </ul>
             </div>
             <div className="lg:col-span-7 bg-surface p-1 border border-primary reveal-item">
-              <div className="border border-primary p-12 space-y-10">
+              <div className="border border-primary p-5 md:p-12 space-y-5 md:space-y-10">
                 <div className="space-y-6">
                   <div className="relative group">
                     <label className="absolute -top-3 left-0 bg-surface px-2 font-label-sm text-label-sm text-primary uppercase tracking-widest">Nama Lengkap</label>
@@ -210,7 +211,7 @@ export default function GaleriKenanganTamuPage() {
                     <label className="absolute -top-3 left-0 bg-surface px-2 font-label-sm text-label-sm text-primary uppercase tracking-widest">Pesan untuk Pengantin</label>
                     <input className="w-full border-0 border-b border-outline bg-transparent py-4 focus:ring-0 focus:border-primary placeholder:text-outline-variant transition-colors" placeholder="Tuliskan ucapan Anda..." type="text" value={guestMessage} onChange={(e) => setGuestMessage(e.target.value)} />
                   </div>
-                  <div className="border-2 border-dashed border-outline-variant p-12 text-center group hover:border-primary transition-colors cursor-pointer relative overflow-hidden">
+                  <div className="border-2 border-dashed border-outline-variant p-8 md:p-12 text-center group hover:border-primary transition-colors cursor-pointer relative overflow-hidden">
                     <input className="absolute inset-0 opacity-0 cursor-pointer" type="file" accept="image/*" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} />
                     <div className="space-y-4">
                       <span className="material-symbols-outlined text-5xl text-outline-variant group-hover:text-primary transition-colors">add_photo_alternate</span>
@@ -230,7 +231,7 @@ export default function GaleriKenanganTamuPage() {
                     ])
                     setSelectedFile(null)
                   }}
-                  className={`w-full py-6 font-label-sm text-label-sm uppercase tracking-[0.4em] transition-all flex items-center justify-center gap-4 ${
+                  className={`w-full py-3.5 md:py-6 font-label-sm text-[10px] md:text-label-sm uppercase tracking-[0.25em] md:tracking-[0.4em] transition-all flex items-center justify-center gap-4 ${
                     selectedFile ? "bg-primary text-on-primary hover:bg-on-surface-variant" : "bg-surface-container text-on-surface-variant cursor-not-allowed"
                   }`}
                 >
@@ -242,19 +243,19 @@ export default function GaleriKenanganTamuPage() {
         </section>
 
         {/* Gallery */}
-        <section className="bg-surface-container py-24 px-margin-mobile md:px-margin-desktop border-y border-primary">
-          <div className="max-w-container-max mx-auto space-y-16">
+        <section className="bg-surface-container py-10 md:py-24 px-margin-mobile md:px-margin-desktop border-y border-primary">
+          <div className="max-w-container-max mx-auto space-y-6 md:space-y-16">
             <div className="flex flex-col md:flex-row justify-between items-end gap-8 reveal-item">
               <div className="space-y-4">
-                <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[36px] md:text-[48px] text-primary">
+                <h2 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.01em] text-[25px] md:text-[48px] text-primary">
                   Arsip <span className="italic text-secondary">Kenangan Live</span>
                 </h2>
                 <p className="text-secondary uppercase tracking-[0.2em] text-xs font-bold">Aksara Wedding: Rian &amp; Amira - 12.10.2024</p>
               </div>
-              <div className="flex flex-wrap gap-4">
-                <button className="border border-primary bg-primary text-on-primary px-6 py-2 font-label-sm text-[10px] uppercase tracking-widest">Semua Foto</button>
-                <button className="border border-primary text-primary px-6 py-2 font-label-sm text-[10px] uppercase tracking-widest hover:bg-primary hover:text-on-primary transition-colors">📌 Pilihan Pengantin</button>
-                <button className="border border-primary text-primary px-6 py-2 font-label-sm text-[10px] uppercase tracking-widest hover:bg-primary hover:text-on-primary transition-colors">Candid Resepsi</button>
+              <div className="flex flex-wrap gap-2 md:gap-4">
+                <button className="border border-primary bg-primary text-on-primary px-3.5 py-1.5 md:px-6 md:py-2 font-label-sm text-[9px] md:text-[10px] uppercase tracking-widest">Semua Foto</button>
+                <button className="border border-primary text-primary px-3.5 py-1.5 md:px-6 md:py-2 font-label-sm text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-primary hover:text-on-primary transition-colors">📌 Pilihan Pengantin</button>
+                <button className="border border-primary text-primary px-3.5 py-1.5 md:px-6 md:py-2 font-label-sm text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-primary hover:text-on-primary transition-colors">Candid Resepsi</button>
               </div>
             </div>
             <div className="masonry-grid">
@@ -274,7 +275,7 @@ export default function GaleriKenanganTamuPage() {
                       Live
                     </div>
                   </div>
-                  <div className="p-6 space-y-3 bg-surface">
+                  <div className="p-3.5 md:p-6 space-y-2 md:space-y-3 bg-surface">
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="font-label-sm text-[10px] text-primary uppercase font-bold tracking-widest">Unggahan: {photo.uploader}</p>
@@ -298,7 +299,7 @@ export default function GaleriKenanganTamuPage() {
                 >
                   <div className="flex-grow relative overflow-hidden">
                     <img
-                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+                      className="w-full h-full object-cover md:grayscale md:group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
                       alt={`Wedding gallery photo ${i + 1}`}
                       src={card.img}
                     />
@@ -308,7 +309,7 @@ export default function GaleriKenanganTamuPage() {
                       </button>
                     </div>
                   </div>
-                  <div className="p-6 space-y-3 bg-surface">
+                  <div className="p-3.5 md:p-6 space-y-2 md:space-y-3 bg-surface">
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="font-label-sm text-[10px] text-primary uppercase font-bold tracking-widest">Unggahan: {card.uploader}</p>
