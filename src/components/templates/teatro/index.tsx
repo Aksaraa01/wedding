@@ -1420,8 +1420,8 @@ export default function Teatro(profile: TemplateProps) {
           {closingMessage && <p className="te-body" {...IN("fade", 0.08)}>{closingMessage}</p>}
           {closingSee && <p className="te-quoteScript" {...IN("fade", 0.12)}>{closingSee}</p>}
           <p className="te-closing__names" {...IN("up", 0.16)}>{coupleLabel}</p>
-          {displayName && <p className="te-closing__hashtag" {...IN("fade", 0.18)}>{displayName}</p>}
-          {coupleInitials && <p className="te-closing__initials" {...IN("fade", 0.2)}>{coupleInitials}</p>}
+          {coupleInitials && <p className="te-closing__initials" {...IN("fade", 0.18)}>{coupleInitials}</p>}
+          {displayName && <p className="te-closing__hashtag" {...IN("fade", 0.2)}>{displayName}</p>}
         </section>
 
         <footer className="te-footer">

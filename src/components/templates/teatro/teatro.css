@@ -1456,15 +1456,15 @@ html:has(body.te-locked) {
   text-transform: uppercase;
   color: var(--te-burgundy);
 }
-.te-closing__hashtag {
+.te-closing__initials {
   margin-top: 8px;
-  font-family: "Cormorant Garamond", serif;
-  font-size: 15px;
+  font-family: "Teatro Script", cursive;
+  font-size: 34px;
   font-weight: 400;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
   color: var(--te-gold-deep);
 }
-.te-closing__initials {
+.te-closing__hashtag {
   margin-top: 4px;
   font-family: "Cormorant Garamond", serif;
   font-size: 13px;
