@@ -35,6 +35,14 @@ const nextConfig = {
               source: "/media/:path*",
               headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
             },
+            // Self-hosted faces. Without this Next answers `max-age=0`, so every
+            // page load revalidated 4-8 woff2 files against the origin, and a
+            // deploy's PM2 reload surfaced as a Cloudflare 522 on one of them.
+            // Rename a file (or add ?v=) when its binary actually changes.
+            {
+              source: "/fonts/:path*",
+              headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+            },
             {
               source: "/templates/:path*",
               headers: [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }],
