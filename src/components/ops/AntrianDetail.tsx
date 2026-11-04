@@ -41,7 +41,7 @@ import { OPENING_PRESETS, OPENING_CUSTOM, matchOpeningPreset } from "@/lib/openi
 import { normalizeVideoUrl } from "@/components/templates/shared/lib"
 import { getTemplateContentSpec } from "@/components/templates"
 import { hidesOpeningSection } from "@/lib/templateSections"
-import { getTemplateExtraFields, templateExtrasLabel } from "@/lib/templateExtras"
+import { getTemplateExtraFields, groupExtraFields, templateExtrasLabel } from "@/lib/templateExtras"
 import BankSelect from "@/components/dashboard/BankSelect"
 import { getBankBySlug, getBankByName, bankLogoUrl } from "@/lib/bankList"
 
@@ -597,6 +597,7 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [showInvCard, setShowInvCard] = useState(false)
   const [invitationData, setInvitationData] = useState<any>(null)
   const [invEditing, setInvEditing] = useState(false)
+  const [openInvExtraGroup, setOpenInvExtraGroup] = useState<string | null>(null)
   const [invForm, setInvForm] = useState<any>(null)
   const [invSaveError, setInvSaveError] = useState("")
   const [invConfirmOpen, setInvConfirmOpen] = useState(false)
@@ -4261,27 +4262,65 @@ export default function AntrianDetail({ id }: { id: string }) {
                         <p className="text-[11px] text-on-surface-variant italic">
                           Copy khusus template {invTpl?.name}. Kosongkan untuk memakai teks bawaan.
                         </p>
-                        {invExtraFields.map((field) => (
-                          <div key={field.key} className="space-y-2">
-                            <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">{field.label}</label>
-                            <AutoTextarea
-                              className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden"
-                              value={invForm.template_content?.[field.key] || ""}
-                              onChange={(v) => handleTemplateContentChange(field.key, v)}
-                              placeholder={field.placeholder}
-                              minRows={field.rows ?? 1}
-                            />
-                          </div>
-                        ))}
+                        {groupExtraFields(invExtraFields).map((group) => {
+                          const isOpen = openInvExtraGroup === group.section
+                          return (
+                            <div key={group.section} className="border border-outline-variant/40 rounded-lg overflow-hidden">
+                              <button
+                                type="button"
+                                onClick={() => setOpenInvExtraGroup((prev) => (prev === group.section ? null : group.section))}
+                                className="w-full flex items-center justify-between px-3 py-2 bg-surface-container-low hover:bg-surface-container transition-colors"
+                              >
+                                <span className="font-label-md text-[11px] uppercase tracking-widest text-secondary">{group.label}</span>
+                                <span className="material-symbols-outlined text-[16px] text-on-surface-variant">{isOpen ? "expand_less" : "expand_more"}</span>
+                              </button>
+                              {isOpen && (
+                                <div className="px-3 py-3 space-y-4 bg-white">
+                                  {group.fields.map((field) => (
+                                    <div key={field.key} className="space-y-2">
+                                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">{field.label}</label>
+                                      <AutoTextarea
+                                        className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden"
+                                        value={invForm.template_content?.[field.key] || ""}
+                                        onChange={(v) => handleTemplateContentChange(field.key, v)}
+                                        placeholder={field.placeholder}
+                                        minRows={field.rows ?? 1}
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
                       </div>
                     ) : (
                       <div className="space-y-2">
-                        {invExtraFields.map((field) => (
-                          <div key={field.key} className="flex flex-wrap justify-between gap-x-4 gap-y-1 border-b border-outline-variant/20 pb-2 text-sm">
-                            <span className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">{field.label}</span>
-                            <span className="font-body-md break-words whitespace-pre-line">{invitationData?.profile?.template_content?.[field.key] || "—"}</span>
-                          </div>
-                        ))}
+                        {groupExtraFields(invExtraFields).map((group) => {
+                          const isOpen = openInvExtraGroup === group.section
+                          return (
+                            <div key={group.section} className="border border-outline-variant/40 rounded-lg overflow-hidden">
+                              <button
+                                type="button"
+                                onClick={() => setOpenInvExtraGroup((prev) => (prev === group.section ? null : group.section))}
+                                className="w-full flex items-center justify-between px-3 py-2 bg-surface-container-low hover:bg-surface-container transition-colors"
+                              >
+                                <span className="font-label-md text-[11px] uppercase tracking-widest text-secondary">{group.label}</span>
+                                <span className="material-symbols-outlined text-[16px] text-on-surface-variant">{isOpen ? "expand_less" : "expand_more"}</span>
+                              </button>
+                              {isOpen && (
+                                <div className="px-3 py-3 space-y-2 bg-white">
+                                  {group.fields.map((field) => (
+                                    <div key={field.key} className="flex flex-wrap justify-between gap-x-4 gap-y-1 border-b border-outline-variant/20 pb-2 text-sm">
+                                      <span className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">{field.label}</span>
+                                      <span className="font-body-md break-words whitespace-pre-line">{invitationData?.profile?.template_content?.[field.key] || "—"}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
                       </div>
                     )}
                   </InvAccordion>

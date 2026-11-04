@@ -245,6 +245,9 @@ Hard rules:
    needs `templates: [..., "<code>"]` **and** a `placeholders["<code>"]` value;
    the component must actually read `profile.template_content?.<key>`. Fields
    that exist in the editor but are never read are dead controls.
+   When adding a brand-new field key, also set `section` (one of
+   `TEMPLATE_EXTRA_SECTIONS`) and `order` (top-to-bottom within that section)
+   so it groups and sorts correctly in the editor/ops "EKSTRA" accordion.
    **Keep `placeholders["<code>"]` in the same language and copy as the
    component defaults and `demoProps`.** When you switch a template's sample
    content (e.g. to Sandhya English), update the extras placeholders too — else

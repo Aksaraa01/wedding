@@ -4,7 +4,7 @@ import { useState, useEffect, use, useRef, useCallback, useMemo, ComponentType }
 import { useRouter, useSearchParams } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import { getTemplateComponent, getTemplateContentSpec, hidesOpeningSection } from "@/components/templates"
-import { getTemplateExtraFields, templateExtrasLabel } from "@/lib/templateExtras"
+import { getTemplateExtraFields, groupExtraFields, templateExtrasLabel } from "@/lib/templateExtras"
 import type { RowGates } from "@/lib/featureGates"
 import { getIncompleteInvitationSections, parseStringList } from "@/lib/invitationCompleteness"
 import { pollWpJob } from "@/lib/wpJobPoll"
@@ -259,6 +259,7 @@ function EditorInner({ id }: { id: string }) {
   const [syncError, setSyncError] = useState<string | null>(null)
   const [photoQuota, setPhotoQuota] = useState<number | null>(null)
   const [activeSection, setActiveSection] = useState<string>("sampul")
+  const [openExtraGroup, setOpenExtraGroup] = useState<string | null>(null)
   const [colorEdit, setColorEdit] = useState<{ index: number; hex: string } | null>(null)
   const [openingCustomMode, setOpeningCustomMode] = useState(false)
   const [showMobileBar, setShowMobileBar] = useState(false)
@@ -2832,19 +2833,38 @@ function EditorInner({ id }: { id: string }) {
                   <p className="text-[11px] text-on-surface-variant italic">
                     Copy khusus template {template?.name}. Kosongkan untuk memakai teks bawaan.
                   </p>
-                  {extraFields.map((field) => (
-                    <div key={field.key} className="space-y-2">
-                      <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">{field.label}</label>
-                      <AutoTextarea
-                        className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden"
-                        value={data.template_content?.[field.key] || ""}
-                        onChange={(v) => updateTemplateContent(field.key, v)}
-                        placeholder={field.placeholder}
-                        minRows={field.rows ?? 1}
-                        disabled={data.is_published === true}
-                      />
-                    </div>
-                  ))}
+                  {groupExtraFields(extraFields).map((group) => {
+                    const isOpen = openExtraGroup === group.section
+                    return (
+                      <div key={group.section} className="border border-outline-variant/40 rounded-lg overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => setOpenExtraGroup((prev) => (prev === group.section ? null : group.section))}
+                          className="w-full flex items-center justify-between px-3 py-2 bg-surface-container-low hover:bg-surface-container transition-colors"
+                        >
+                          <span className="font-label-md text-[11px] uppercase tracking-widest text-secondary">{group.label}</span>
+                          <span className="material-symbols-outlined text-[16px] text-on-surface-variant">{isOpen ? "expand_less" : "expand_more"}</span>
+                        </button>
+                        {isOpen && (
+                          <div className="px-3 py-3 space-y-4 bg-white">
+                            {group.fields.map((field) => (
+                              <div key={field.key} className="space-y-2">
+                                <label className="font-label-md text-[11px] text-on-surface-variant uppercase tracking-widest">{field.label}</label>
+                                <AutoTextarea
+                                  className="input-editorial w-full font-body-md text-[14px] resize-none overflow-hidden"
+                                  value={data.template_content?.[field.key] || ""}
+                                  onChange={(v) => updateTemplateContent(field.key, v)}
+                                  placeholder={field.placeholder}
+                                  minRows={field.rows ?? 1}
+                                  disabled={data.is_published === true}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               ))}
               {renderSection("feedback", "rate_review", "TAMBAH LAINNYA",

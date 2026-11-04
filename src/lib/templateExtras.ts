@@ -1,6 +1,12 @@
 export interface TemplateExtraField {
   key: string
   label: string
+  // Section of the invitation this copy belongs to, for grouped rendering in
+  // the editor/ops "EKSTRA" accordion. Resolved by getTemplateExtraFields.
+  section?: string
+  // Display order within its section (top to bottom). Resolved by
+  // getTemplateExtraFields. Lower numbers render first.
+  order?: number
   multiline?: boolean
   rows?: number
   placeholder?: string
@@ -8,6 +14,170 @@ export interface TemplateExtraField {
   // shared field (e.g. gallery_quote) hints the copy of the active template.
   placeholders?: Record<string, string>
   templates: string[]
+}
+
+// Section order for grouped rendering of extra fields, following the page flow
+// of an invitation (top to bottom).
+export const TEMPLATE_EXTRA_SECTIONS: { key: string; label: string }[] = [
+  { key: "sampul", label: "SAMPUL" },
+  { key: "pembuka", label: "PEMBUKA" },
+  { key: "mempelai", label: "MEMPELAI" },
+  { key: "cerita", label: "CERITA CINTA" },
+  { key: "acara", label: "ACARA" },
+  { key: "inviting", label: "TURUT MENGUNDANG" },
+  { key: "rundown", label: "RUNDOWN" },
+  { key: "galeri", label: "GALERI" },
+  { key: "kutipan", label: "KUTIPAN" },
+  { key: "video", label: "VIDEO" },
+  { key: "dresscode", label: "DRESS CODE" },
+  { key: "gift", label: "HADIAH" },
+  { key: "wishes", label: "UCAPAN & DOA" },
+  { key: "closing", label: "PENUTUP" },
+]
+
+// Maps each extra field key to its invitation section.
+export const TEMPLATE_EXTRA_SECTION_OF: Record<string, string> = {
+  welcome_invite: "sampul",
+  cover_kicker: "sampul",
+  cover_title: "sampul",
+  open_button: "sampul",
+  hero_badge: "sampul",
+  hero_meta: "sampul",
+  cover_apology: "sampul",
+  hero_tagline: "sampul",
+  board_footer: "sampul",
+  seat_class: "sampul",
+  save_date_label: "sampul",
+  countdown_intro: "sampul",
+  reveal_hint: "sampul",
+  reveal_title: "sampul",
+  reveal_scratch_hint: "sampul",
+  scroll_label: "sampul",
+  welcome_message: "pembuka",
+  opening_kicker: "pembuka",
+  profiles_intro: "mempelai",
+  couple_description: "mempelai",
+  mempelai_kicker: "mempelai",
+  parents_label: "mempelai",
+  story_intro: "cerita",
+  love_story_title: "cerita",
+  story_kicker: "cerita",
+  events_intro: "acara",
+  events_note: "acara",
+  events_kicker: "acara",
+  events_title: "acara",
+  maps_label: "acara",
+  inviting_intro: "inviting",
+  inviting_kicker: "inviting",
+  inviting_title: "inviting",
+  rundown_title: "rundown",
+  rundown_intro: "rundown",
+  rundown_kicker: "rundown",
+  gallery_intro: "galeri",
+  gallery_quote: "galeri",
+  gallery_title: "galeri",
+  gallery_kicker: "galeri",
+  quote_title: "kutipan",
+  video_title: "video",
+  video_intro: "video",
+  video_caption: "video",
+  video_kicker: "video",
+  dresscode_intro: "dresscode",
+  dresscode_kicker: "dresscode",
+  dresscode_note: "dresscode",
+  gift_intro_title: "gift",
+  gift_intro_description: "gift",
+  gift_kicker: "gift",
+  gift_button: "gift",
+  gift_signature: "gift",
+  copy_account_toast: "gift",
+  copy_address_toast: "gift",
+  copy_address_button: "gift",
+  wishes_intro: "wishes",
+  wishes_kicker: "wishes",
+  wishes_title: "wishes",
+  wishes_name_label: "wishes",
+  wishes_name_placeholder: "wishes",
+  wishes_message_label: "wishes",
+  wishes_message_placeholder: "wishes",
+  wishes_submit: "wishes",
+  wishes_empty: "wishes",
+  closing_message: "closing",
+  closing_kicker: "closing",
+  closing_see: "closing",
+}
+
+// Display order (top to bottom) of each extra field within its section.
+// Canonical flow based on the teatro template; shared across templates.
+export const TEMPLATE_EXTRA_ORDER_OF: Record<string, number> = {
+  cover_kicker: 1,
+  cover_title: 2,
+  hero_badge: 3,
+  hero_meta: 4,
+  hero_tagline: 5,
+  open_button: 6,
+  cover_apology: 7,
+  welcome_invite: 8,
+  welcome_message: 9,
+  board_footer: 10,
+  seat_class: 11,
+  countdown_intro: 12,
+  save_date_label: 13,
+  reveal_title: 14,
+  reveal_hint: 15,
+  reveal_scratch_hint: 16,
+  scroll_label: 17,
+  opening_kicker: 18,
+  quote_title: 19,
+  mempelai_kicker: 20,
+  profiles_intro: 21,
+  couple_description: 22,
+  parents_label: 23,
+  love_story_title: 24,
+  story_kicker: 25,
+  story_intro: 26,
+  events_kicker: 27,
+  events_title: 28,
+  events_intro: 29,
+  events_note: 30,
+  maps_label: 31,
+  inviting_kicker: 32,
+  inviting_title: 33,
+  inviting_intro: 34,
+  rundown_kicker: 35,
+  rundown_title: 36,
+  rundown_intro: 37,
+  gallery_kicker: 38,
+  gallery_title: 39,
+  gallery_intro: 40,
+  gallery_quote: 41,
+  video_kicker: 42,
+  video_title: 43,
+  video_intro: 44,
+  video_caption: 45,
+  gift_kicker: 46,
+  gift_intro_title: 47,
+  gift_intro_description: 48,
+  gift_signature: 49,
+  gift_button: 50,
+  dresscode_kicker: 51,
+  dresscode_intro: 52,
+  dresscode_note: 53,
+  wishes_kicker: 54,
+  wishes_title: 55,
+  wishes_intro: 56,
+  wishes_name_label: 57,
+  wishes_name_placeholder: 58,
+  wishes_message_label: 59,
+  wishes_message_placeholder: 60,
+  wishes_submit: 61,
+  wishes_empty: 62,
+  closing_kicker: 63,
+  closing_message: 64,
+  closing_see: 65,
+  copy_account_toast: 66,
+  copy_address_toast: 67,
+  copy_address_button: 68,
 }
 
 export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
@@ -776,9 +946,53 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
 export function getTemplateExtraFields(templateCode: string | null | undefined): TemplateExtraField[] {
   if (!templateCode) return []
   const code = templateCode.toLowerCase()
+  const sectionOrder = new Map(TEMPLATE_EXTRA_SECTIONS.map((s, i) => [s.key, i]))
   return TEMPLATE_EXTRA_FIELDS
     .filter((field) => field.templates.includes(code))
-    .map((field) => ({ ...field, placeholder: field.placeholders?.[code] ?? field.placeholder }))
+    .map((field) => ({
+      ...field,
+      section: TEMPLATE_EXTRA_SECTION_OF[field.key] ?? field.section,
+      order: TEMPLATE_EXTRA_ORDER_OF[field.key] ?? field.order,
+      placeholder: field.placeholders?.[code] ?? field.placeholder,
+    }))
+    .sort((a, b) => {
+      const ai = sectionOrder.get(a.section ?? "") ?? Number.MAX_SAFE_INTEGER
+      const bi = sectionOrder.get(b.section ?? "") ?? Number.MAX_SAFE_INTEGER
+      if (ai !== bi) return ai - bi
+      const ao = a.order ?? Number.MAX_SAFE_INTEGER
+      const bo = b.order ?? Number.MAX_SAFE_INTEGER
+      if (ao !== bo) return ao - bo
+      return a.key.localeCompare(b.key)
+    })
+}
+
+export interface TemplateExtraGroup {
+  section: string
+  label: string
+  fields: TemplateExtraField[]
+}
+
+export function groupExtraFields(fields: TemplateExtraField[]): TemplateExtraGroup[] {
+  const bySection = new Map<string, TemplateExtraField[]>()
+  for (const f of fields) {
+    const key = f.section ?? "lainnya"
+    if (!bySection.has(key)) bySection.set(key, [])
+    bySection.get(key)!.push(f)
+  }
+  const order = new Map(TEMPLATE_EXTRA_SECTIONS.map((s, i) => [s.key, i]))
+  const groups: TemplateExtraGroup[] = []
+  for (const [key, fs] of bySection) {
+    const sec = TEMPLATE_EXTRA_SECTIONS.find((s) => s.key === key)
+    const sorted = [...fs].sort((a, b) => {
+      const ao = a.order ?? Number.MAX_SAFE_INTEGER
+      const bo = b.order ?? Number.MAX_SAFE_INTEGER
+      if (ao !== bo) return ao - bo
+      return a.key.localeCompare(b.key)
+    })
+    groups.push({ section: key, label: sec?.label ?? key.toUpperCase(), fields: sorted })
+  }
+  groups.sort((a, b) => (order.get(a.section) ?? 999) - (order.get(b.section) ?? 999))
+  return groups
 }
 
 export function templateExtrasLabel(templateName: string | null | undefined): string {
