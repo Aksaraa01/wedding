@@ -1016,6 +1016,52 @@ html:has(body.te-locked) {
 .te-gallery__item:hover img { transform: scale(1.06); }
 .te-gallery > .te-quoteScript { margin-top: 26px; }
 
+/* ---------- gallery marquee (Sandhya in-house layout) ---------- */
+.te-gallery__marquee {
+  overflow: hidden;
+  margin: 18px -26px 0;
+}
+.te-gallery__marquee-track {
+  display: flex;
+  width: max-content;
+  animation: te-marquee var(--te-dur, 48s) linear infinite;
+}
+.te-gallery__marquee--rev .te-gallery__marquee-track {
+  animation-direction: reverse;
+}
+.te-gallery__marquee-tile {
+  flex: 0 0 auto;
+  width: 128px;
+  height: 170px;
+  margin: 0 5px;
+  list-style: none;
+}
+.te-gallery__marquee-btn {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+.te-gallery__marquee-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s var(--te-ease);
+}
+.te-gallery__marquee-tile:hover img { transform: scale(1.03); }
+@keyframes te-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .te-gallery__marquee-track { animation: none; }
+  .te-gallery__marquee-tile img { transition: none; }
+}
+
 /* ---------- film ---------- */
 .te-film__stage {
   position: relative;

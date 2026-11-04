@@ -1648,7 +1648,8 @@
         "Previous page": "WCAG name for the wishes previous-page control",
         "Next page": "WCAG name for the wishes next-page control",
         "Kepada Yth. Bapak/ Ibu/ Saudara/ i": "fixed letter salutation line on the cover gate",
-        "Reveal the wedding date": "WCAG name for the reveal gate section"
+        "Reveal the wedding date": "WCAG name for the reveal gate section",
+        "Add to calendar": "CTA in the save-the-date section opening the calendar event"
       }
     }
   }

@@ -115,7 +115,12 @@ survives in the bundle. The 6.1 MB film is the largest object and it is the
 whole point of the design; it is fetched with `preload="metadata"` and only
 starts downloading after the tap (deviation 9). The 9 MB RSVP confirmation film
 stayed dropped (RSVP is the shared dock); the RSVP icon was kept and is now worn
-by the save-the-date section, above its title, as the owner asked.
+by the save-the-date section, above its title, as the owner asked. The gallery
+scene was switched to the Sandhya in-house template layout — a slow marquee
+carousel (doubled for a seamless loop, reverse marquee when there are more than
+two photos) plus the closing quote; the framed feature plate was dropped ("use
+B"). The save-the-date section also gained the "Add to calendar" CTA under the
+countdown (allowlisted as a structural CTA).
 
 ## 5. Fonts
 
@@ -155,7 +160,7 @@ as `public/fonts/teatro-greatvibes.woff2` and declared with `@font-face` in
 | Events | `sessions[]` → `name`, `date`, `time`, `venue`, `address`, `maps_url` |
 | Inviting | `inviting_families[]` (TEXT column, `JSON.parse`, `[]` when empty) |
 | Rundown | `rundown[]` → `{time, description}`, drawn inside `menu-frame.png` |
-| Gallery | `gallery_photos[]` → feature plate + deckled grid + lightbox |
+| Gallery | `gallery_photos[]` → Sandhya in-house marquee carousel + quote + lightbox |
 | Film | `video_url` → `<video>` (mp4) or YouTube iframe; poster from cover slot 2 |
 | Gift | `gift_accounts[]` + `gift_address`, `feature_gates.gift_address` |
 | Dress code | `dresscode {title, description, colors[]}` + `template_content.dresscode_note` |
@@ -273,7 +278,7 @@ against the *width*, which dropped the copy to 93 % of the cover height.
 | 7 | Venue + events | `sessions[]`, `estimated_wedding_date` | always | 1 event ⇒ single column; 0 ⇒ venue art + no cards | `events_kicker`, `events_title`, `events_intro`, `events_note`, `maps_label` | art fade 0.05, title up 0.08, per-event steps |
 | 8 | Turut mengundang | `inviting_families[]` (JSON text) | `feature_gates.inviting_families` **and** `inviting_families_visible` | `[]` ⇒ section gone; long list wraps 2-up | `inviting_kicker`, `inviting_title`, `inviting_intro` | `fade` with `min(0.05·i, 0.24)` |
 | 9 | Rundown | `rundown[]` | `rundown_visible !== false` | 0 ⇒ section gone; frame stretches, rows stay 1fr | `rundown_kicker`, `rundown_title`, `rundown_intro` | `menu-frame.png` up, rows fade |
-| 10 | Gallery | `gallery_photos[]` | needs data | 1 photo ⇒ feature only, no grid/lightbox arrows; 0 ⇒ section gone | `gallery_kicker`, `gallery_title`, `gallery_intro`, `gallery_quote` | feature `zoom`, tiles fade `min(0.04·i, 0.2)` |
+| 10 | Gallery | `gallery_photos[]` | needs data | 1 photo ⇒ single marquee (no reverse marquee, no NaN); 0 ⇒ section gone | `gallery_kicker`, `gallery_title`, `gallery_intro`, `gallery_quote` | marquee tiles, reverse marquee when > 2, quote fade 0.1 |
 | 11 | Film | `video_url` | `feature_gates.video` **and** `video_section_visible` | mp4 ⇒ `<video>` mounted on click; YouTube ⇒ iframe on click; no poster ⇒ stage photo | `video_kicker`, `video_title`, `video_intro` | poster fade, player mounts on play |
 | 12 | Wedding gift | `gift_accounts[]`, `gift_address` | `gift_section_visible !== false`; address also needs `feature_gates.gift_address` | accounts only ⇒ no address tab; address only ⇒ no tabs; neither ⇒ section gone | `gift_kicker`, `gift_intro_title`, `gift_intro_description`, `gift_signature`, `gift_button`, `copy_account_toast`, `copy_address_toast`, `copy_address_button` | accordion up, accounts step 0.05 |
 | 13 | Dress code | `dresscode {title, description, colors[]}` | `dresscode_visible !== false` **and** data present | colors only ⇒ swatches, no note; title only ⇒ no swatches | `dresscode_kicker`, `dresscode_intro`, `dresscode_note` | art fade, swatches fade |
@@ -296,7 +301,7 @@ The footer (Aksaraa badge + WhatsApp link) is structure, not a section.
 | `stories = []` / `story_visible = false` | story section absent, no heading left behind |
 | `inviting_families` empty | inviting section absent |
 | `rundown = []` | programme section absent |
-| `gallery_photos.length === 1` | feature plate only, no grid gap, no lightbox arrows |
+| `gallery_photos.length === 1` | single marquee, no reverse marquee, no NaN transform |
 | gift: accounts only / address only / none | no tabs when only one source; section gone when neither |
 | every gate `false` | cover → reveal → countdown → prologue → mempelai → acara → wishes → closing only |
 | `prefers-reduced-motion` | all copy visible, curtain at open poster, confetti hidden |

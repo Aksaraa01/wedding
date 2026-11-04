@@ -514,9 +514,11 @@ export default function Teatro(profile: TemplateProps) {
 
   const slots = useMemo(() => flattenPhotos(profile.cover_photos), [profile.cover_photos])
   const gallery = useMemo(() => flattenPhotos(profile.gallery_photos), [profile.gallery_photos])
+  // The Sandhya in-house gallery layout runs photos as a slow, seamless marquee;
+  // doubling the list lets the track loop without a visible seam.
+  const galleryLoop = useMemo(() => (gallery.length > 1 ? [...gallery, ...gallery] : gallery), [gallery])
 
   const stagePhoto = slots[0] || coverPhoto(profile)
-  const framePhoto = slots[1] || gallery[0] || ""
   const closingPhoto = slots[2] || slots[0] || gallery[0] || stagePhoto
 
   const groomShot = groomPhotoOf(profile.groom_photo_url) || gallery[1] || stagePhoto
@@ -634,6 +636,19 @@ export default function Teatro(profile: TemplateProps) {
     () => countdownTarget(events, profile.estimated_wedding_date),
     [events, profile.estimated_wedding_date]
   )
+
+  const calendarHref = useMemo(() => {
+    const d = dateObject
+    if (!d) return ""
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, "0")
+    const day = String(d.getDate()).padStart(2, "0")
+    const stamp = `${y}${m}${day}T000000Z`
+    const end = `${y}${m}${day}T235959Z`
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+      `${coupleLabel} Wedding`
+    )}&dates=${stamp}/${end}&details=${encodeURIComponent("Wedding day invitation")}`
+  }, [dateObject, coupleLabel])
 
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.defaultMusic : "")
   const waHref = `https://wa.me/${AKSARAA_WA_NUMBER}?text=${encodeURIComponent(
@@ -1027,6 +1042,15 @@ export default function Teatro(profile: TemplateProps) {
             <h2 className="te-script te-script--sm" {...IN("up")}>{saveDateLabel}</h2>
             <Flourish className="te-save__rule" />
             {target && <div {...IN("up", 0.06)}><Clock target={target} /></div>}
+            <a
+              className="te-btn"
+              href={calendarHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              {...IN("up", 0.1)}
+            >
+              Add to calendar
+            </a>
             <p className="te-hint" {...IN("fade", 0.1)}>{countdownIntro}</p>
           </section>
         )}
@@ -1203,25 +1227,49 @@ export default function Teatro(profile: TemplateProps) {
             <p className="te-kicker" {...IN("up")}>{galleryKicker}</p>
             <h2 className="te-script te-script--md" {...IN("up", 0.04)}>{galleryTitle}</h2>
             {galleryIntro && <p className="te-body" {...IN("fade", 0.08)}>{galleryIntro}</p>}
-            {framePhoto && (
-              <div className="te-gallery__feature" {...IN("zoom", 0.1)}>
-                <DeckledFrame src={framePhoto} alt={coupleLabel} ratio="4 / 5" />
+            {/* Sandhya in-house gallery layout: a slow, seamless marquee of
+                moments, then the closing quote (reverse marquee when there are
+                enough photos). Pure Sandhya layout — no framed feature plate. */}
+            <div className="te-gallery__marquee" {...IN("fade", 0.12)}>
+              <div
+                className="te-gallery__marquee-track"
+                style={{ "--te-dur": `${Math.max(36, gallery.length * 8)}s` } as CSSProperties}
+              >
+                {galleryLoop.map((url, i) => (
+                  <figure key={`a-${i}`} className="te-gallery__marquee-tile">
+                    <button
+                      type="button"
+                      className="te-gallery__marquee-btn"
+                      onClick={() => setLightbox(i % gallery.length)}
+                      aria-label={`Photo ${(i % gallery.length) + 1}`}
+                    >
+                      <img src={url} alt="" loading="lazy" draggable={false} />
+                    </button>
+                  </figure>
+                ))}
+              </div>
+            </div>
+            {gallery.length > 2 && (
+              <div className="te-gallery__marquee te-gallery__marquee--rev" {...IN("fade", 0.14)}>
+                <div
+                  className="te-gallery__marquee-track"
+                  style={{ "--te-dur": `${Math.max(40, gallery.length * 9)}s` } as CSSProperties}
+                >
+                  {[...gallery].reverse().concat([...gallery].reverse()).map((url, i) => (
+                    <figure key={`b-${i}`} className="te-gallery__marquee-tile">
+                      <button
+                        type="button"
+                        className="te-gallery__marquee-btn"
+                        onClick={() => setLightbox((gallery.length - 1 - (i % gallery.length) + gallery.length) % gallery.length)}
+                        aria-label={`Photo ${gallery.length - (i % gallery.length)}`}
+                      >
+                        <img src={url} alt="" loading="lazy" draggable={false} />
+                      </button>
+                    </figure>
+                  ))}
+                </div>
               </div>
             )}
-            <div className={`te-gallery__grid${gallery.length === 1 ? " is-single" : ""}`}>
-              {gallery.map((photo, index) => (
-                <button
-                  type="button"
-                  className="te-gallery__item"
-                  key={`${photo}-${index}`}
-                  onClick={() => setLightbox(index)}
-                  aria-label={`Photo ${index + 1}`}
-                  {...IN("fade", Math.min(0.04 * index, 0.2))}
-                >
-                  <img src={photo} alt="" loading="lazy" draggable={false} />
-                </button>
-              ))}
-            </div>
             {galleryQuote && <p className="te-script te-quoteScript" {...IN("fade", 0.1)}>{galleryQuote}</p>}
           </section>
         )}
