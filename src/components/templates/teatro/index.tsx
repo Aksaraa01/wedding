@@ -540,7 +540,7 @@ export default function Teatro(profile: TemplateProps) {
       : []
 
   const dressColors = (profile.dresscode?.colors || []).filter((c) => c && (c.hex || c.name))
-  const dressIntro = (tc.dresscode_intro || profile.dresscode?.description || "").trim()
+  const dressIntro = (tc.dresscode_intro || profile.dresscode?.description || "").trim() || "We would be delighted if you joined us in the palette below."
   const dressTitle = (profile.dresscode?.title || "").trim()
   const dressNote = (tc.dresscode_note || "").trim()
   const hasDresscode = profile.dresscode_visible !== false && (dressColors.length > 0 || !!dressIntro || !!dressTitle)
