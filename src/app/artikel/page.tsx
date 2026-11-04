@@ -76,7 +76,7 @@ export default function ArtikelIndexPage() {
               />
               <div className="relative">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-[#ffdfae] backdrop-blur-sm md:text-[10px]">
-                  <span className="material-symbols-outlined text-[12px]">auto_awesome</span>
+                  <span className="material-symbols-outlined text-[12px]">local_offer</span>
                   Pilihan Editor
                 </span>
                 <p className="mt-2.5 font-headline-md text-[18px] leading-snug text-white md:mt-4 md:text-[28px] md:leading-tight">

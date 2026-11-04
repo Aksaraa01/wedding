@@ -186,7 +186,7 @@ export default function VirtualWishWallPage() {
         <section className="min-h-0 md:min-h-[90vh] flex flex-col lg:flex-row items-center max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-7 md:py-12 lg:py-24 gap-7 md:gap-16 overflow-hidden">
           <div className="flex-1 space-y-4 md:space-y-8 relative z-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#F5EFE6] border border-[#E2D9CF] text-[#C5A059] rounded-full font-label-caps text-[10px] tracking-widest">
-              <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
+              <span className="material-symbols-outlined text-[14px]">format_quote</span>
               MODUL DINDING DOA &amp; UCAPAN DIGITAL
             </div>
             <h1 className="font-[family-name:var(--font-cormorant)] font-semibold tracking-[-0.02em] text-[28px] md:text-[72px] lg:text-[84px] leading-[1.12] md:leading-[1.05] text-[#2C2A29]">

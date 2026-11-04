@@ -71,8 +71,6 @@ const SLIDES: Slide[] = [
   },
 ]
 
-const DOT_POSITIONS = [0, 800, 1600, 2400, 3200]
-
 export default function InvitationCarousel() {
   const sliderRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
@@ -92,7 +90,10 @@ export default function InvitationCarousel() {
 
   useEffect(() => {
     const el = sliderRef.current
-    if (el) el.scrollTo({ left: active * 800, behavior: "smooth" })
+    if (!el) return
+    const card = el.firstElementChild as HTMLElement | null
+    const step = (card?.offsetWidth || 800) + 24
+    el.scrollTo({ left: active * step, behavior: "smooth" })
   }, [active])
 
   const goTo = (i: number) => {
@@ -105,78 +106,81 @@ export default function InvitationCarousel() {
   }
 
   return (
-    <section className="relative z-10 w-full py-24 bg-[#02110C]/70 backdrop-blur-[2px] overflow-hidden scroll-mt-24" id="koleksi-acara">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1C2D27]/80 border border-[#9B8F81]/30 text-[#EAC082] font-label-md text-label-md uppercase tracking-widest mb-3">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#EAC082] animate-pulse" />
+    <section className="relative z-10 w-full overflow-hidden border-y border-[#F0EAE0] bg-[#FBF8F2] py-14 scroll-mt-24 md:py-24" id="koleksi-acara">
+      <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-12">
+        <div className="mb-8 flex flex-col justify-between gap-5 md:mb-12 md:flex-row md:items-end">
+          <div className="max-w-2xl">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#E7DECD] bg-white px-3 py-1 font-label-md text-label-md uppercase tracking-widest text-[#8D4D39]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#B08A4A]" />
               <span>Koleksi &amp; Kategori Acara</span>
             </div>
-            <h2 className="font-headline-lg text-headline-lg text-[#D2E7DD] tracking-tight font-serif">Dirancang Sempurna untuk Setiap Momen.</h2>
-            <p className="mt-2 font-body-lg text-body-lg text-[#D2C4B5] max-w-2xl">
-              Satu platform untuk berbagai format perayaan istimewa. Nikmati pengalaman undangan digital interaktif bernuansa sinematik yang dirancang khusus untuk menghidupkan kembali esensi dari setiap babak kebahagiaan Anda
+            <h2 className="font-headline-lg text-[26px] leading-[1.15] tracking-tight text-[#1A1817] sm:text-headline-lg">
+              Dirancang sempurna untuk setiap momen.
+            </h2>
+            <p className="mt-2 max-w-xl font-body-md text-[13px] leading-relaxed text-[#6E6A63] sm:text-body-lg">
+              Satu platform untuk berbagai format perayaan. Setiap tema dirancang sinematik,
+              siap dipakai, dan tetap personal untuk hari Anda.
             </p>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex shrink-0 items-center gap-2.5">
             <button
               aria-label="Slide Sebelumnya"
               onClick={() => scrollBy(-1)}
-              className="w-11 h-11 rounded-full bg-[#1C2D27]/80 hover:bg-[#263832] text-[#D2E7DD] flex items-center justify-center transition-colors border border-[#9B8F81]/30 shadow-sm"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-[#E4DCCD] bg-white text-[#1A1817] shadow-sm transition-colors hover:border-[#1A1817]"
               type="button"
             >
-              <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+              <span className="material-symbols-outlined text-[18px]">chevron_left</span>
             </button>
             <button
               aria-label="Slide Berikutnya"
               onClick={() => scrollBy(1)}
-              className="w-11 h-11 rounded-full bg-[#1C2D27]/80 hover:bg-[#263832] text-[#D2E7DD] flex items-center justify-center transition-colors border border-[#9B8F81]/30 shadow-sm"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-[#E4DCCD] bg-white text-[#1A1817] shadow-sm transition-colors hover:border-[#1A1817]"
               type="button"
             >
-              <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+              <span className="material-symbols-outlined text-[18px]">chevron_right</span>
             </button>
           </div>
         </div>
       </div>
 
-      <div className="w-full pl-6 lg:pl-[max(1.5rem,calc((100vw-80rem)/2+3rem))] pr-6 relative z-10">
+      <div className="relative z-10 w-full pl-6 pr-6 lg:pl-[max(1.5rem,calc((100vw-80rem)/2+3rem))]">
         <div
           ref={sliderRef}
-          className="flex gap-6 overflow-x-auto pb-8 pt-2 scroll-smooth no-scrollbar"
+          className="flex gap-4 overflow-x-auto pb-6 pt-1 no-scrollbar md:gap-6"
           style={{ scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}
           id="card-carousel-slider"
         >
           {SLIDES.map((s) => (
             <div
               key={s.title}
-              className="shrink-0 w-[88vw] sm:w-[720px] lg:w-[860px] h-[500px] rounded-3xl overflow-hidden relative shadow-2xl group flex flex-col justify-end p-5 sm:p-12 transition-transform duration-300"
+              className="group relative flex h-[420px] w-[86vw] shrink-0 flex-col justify-end overflow-hidden rounded-3xl border border-black/5 p-5 shadow-[0_30px_60px_-30px_rgba(26,24,23,0.45)] transition-transform duration-300 sm:h-[460px] sm:w-[640px] sm:p-9 lg:h-[500px] lg:w-[820px] lg:p-12"
               style={{ scrollSnapAlign: "center" }}
             >
               <img
                 alt={s.alt}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 src={s.img}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#02110C]/95 via-[#02110C]/50 to-black/20" />
-              <div className="absolute top-4 left-4 sm:top-8 sm:left-8 z-10 max-w-[58%]">
-                <span className="inline-block px-2 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-[#1C2D27]/80 backdrop-blur-md text-[#EAC082] text-[8px] sm:text-label-md font-semibold tracking-wide sm:tracking-wider uppercase border border-[#EAC082]/20 truncate">
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0B1512]/95 via-[#0B1512]/45 to-black/10" />
+              <div className="absolute left-4 top-4 z-10 max-w-[58%] sm:left-8 sm:top-8">
+                <span className="inline-block truncate rounded-full border border-white/25 bg-white/15 px-2 py-1 text-[8px] font-semibold uppercase tracking-wider text-white backdrop-blur-md sm:px-3.5 sm:py-1.5 sm:text-label-md">
                   {s.badge}
                 </span>
               </div>
-              <div className="absolute top-4 right-4 sm:top-8 sm:right-8 z-10">
-                <span className="inline-block px-2 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-[#02110C]/80 backdrop-blur-md text-[#D2E7DD] text-[8px] sm:text-label-sm font-mono border border-[#9B8F81]/40 whitespace-nowrap">
+              <div className="absolute right-4 top-4 z-10 sm:right-8 sm:top-8">
+                <span className="inline-block whitespace-nowrap rounded-full border border-white/25 bg-white/15 px-2 py-1 font-mono text-[8px] text-white backdrop-blur-md sm:px-3.5 sm:py-1.5 sm:text-label-sm">
                   {s.price}
                 </span>
               </div>
-              <div className="relative z-10 max-w-2xl space-y-3">
-                <h3 className="font-headline-md sm:font-headline-lg text-headline-md sm:text-headline-lg text-white font-serif tracking-tight">{s.title}</h3>
-                <p className="font-body-md sm:font-body-lg text-body-md sm:text-body-lg text-[#D2C4B5] leading-relaxed">{s.desc}</p>
-                <div className="pt-4 flex flex-nowrap items-center gap-2 sm:gap-4">
+              <div className="relative z-10 max-w-2xl space-y-2.5 sm:space-y-3">
+                <h3 className="font-headline-md text-[22px] tracking-tight text-white sm:text-headline-lg">{s.title}</h3>
+                <p className="line-clamp-3 text-[12px] leading-relaxed text-white/80 sm:text-body-lg">{s.desc}</p>
+                <div className="flex flex-nowrap items-center gap-2 pt-2 sm:gap-3 sm:pt-3">
                   <a
                     href={s.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3 py-2 sm:px-6 sm:py-2.5 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white text-[9px] sm:text-label-lg transition-all duration-300 shadow-lg hover:shadow-[#0071e3]/30 flex flex-1 sm:flex-none items-center justify-center gap-1 sm:gap-2 whitespace-nowrap"
+                    className="flex flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-full bg-white px-3 py-2 text-[9px] font-semibold text-[#1A1817] transition-colors hover:bg-[#F3E7D6] sm:flex-none sm:gap-2 sm:px-6 sm:py-2.5 sm:text-label-lg"
                   >
                     <span>{s.cta}</span>
                     <span className="material-symbols-outlined text-[12px] sm:text-[16px]">arrow_forward</span>
@@ -185,10 +189,10 @@ export default function InvitationCarousel() {
                     href={s.href === "https://wedding.aksaraa.com" ? s.href : "#"}
                     target={s.href === "https://wedding.aksaraa.com" ? "_blank" : undefined}
                     rel="noopener noreferrer"
-                    className="px-3 py-2 sm:px-6 sm:py-2.5 rounded-full bg-[#1C2D27]/70 hover:bg-[#263832] text-[#D2E7DD] text-[9px] sm:text-label-lg backdrop-blur-md transition-all duration-300 shadow-sm flex flex-1 sm:flex-none items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap"
+                    className="flex flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-full border border-white/30 bg-white/10 px-3 py-2 text-[9px] font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/20 sm:flex-none sm:gap-1.5 sm:px-6 sm:py-2.5 sm:text-label-lg"
                   >
-                    <span>Lihat Contoh Undangan</span>
-                    <span className="material-symbols-outlined text-[12px] sm:text-[16px] text-[#EAC082]">north_east</span>
+                    <span>Lihat Contoh</span>
+                    <span className="material-symbols-outlined text-[12px] text-[#EAC082] sm:text-[16px]">north_east</span>
                   </a>
                 </div>
               </div>
@@ -197,21 +201,21 @@ export default function InvitationCarousel() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 mt-6 flex items-center justify-center gap-2.5 relative z-10">
-        {DOT_POSITIONS.map((pos, i) => (
+      <div className="relative z-10 mx-auto mt-4 flex items-center justify-center gap-2">
+        {SLIDES.map((s, i) => (
           <button
-            key={pos}
+            key={s.title}
             aria-label={`Pindah ke Slide ${i + 1}`}
-            className="p-0 border-0 bg-transparent cursor-pointer"
+            className="cursor-pointer border-0 bg-transparent p-0"
             onClick={() => goTo(i)}
             type="button"
           >
             <span
               className="block rounded-full transition-all duration-300"
               style={{
-                width: i === 0 ? 32 : 10,
+                width: i === active ? 26 : 8,
                 height: 8,
-                backgroundColor: i === 0 ? "#EAC082" : "#1C2D27",
+                backgroundColor: i === active ? "#8D4D39" : "#DED6C8",
               }}
             />
           </button>

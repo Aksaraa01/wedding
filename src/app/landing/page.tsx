@@ -3,6 +3,7 @@ import LandingHeader from "@/components/LandingHeader"
 import LandingHero from "@/components/LandingHero"
 import InvitationCarousel from "@/components/InvitationCarousel"
 import FeatureBento from "@/components/FeatureBento"
+import LandingSteps from "@/components/LandingSteps"
 import ClosingCta from "@/components/ClosingCta"
 import LandingFooter from "@/components/LandingFooter"
 import SeoOrganization from "@/components/SeoOrganization"
@@ -11,13 +12,14 @@ export default function LandingPage() {
   return (
     <>
       <SeoOrganization />
-      <PageTheme mode="dark" />
-      <div className="landing-root">
+      <PageTheme mode="light" />
+      <div className="landing-root bg-white">
         <LandingHeader />
-        <main className="relative z-10 w-full pt-[88px] bg-[#051711] min-h-screen overflow-hidden">
+        <main className="relative z-10 min-h-screen w-full overflow-hidden bg-white pt-[88px]">
           <LandingHero />
           <InvitationCarousel />
           <FeatureBento />
+          <LandingSteps />
           <ClosingCta />
           <LandingFooter />
         </main>

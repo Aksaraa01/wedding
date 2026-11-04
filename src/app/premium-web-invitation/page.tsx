@@ -17,7 +17,7 @@ const FEATURES = [
   { icon: "favorite", title: "Love Story", text: "Kanvas digital untuk menarasikan perjalanan cinta Anda yang indah." },
   { icon: "photo_library", title: "Gallery", text: "Visual eksklusif dari momen-momen pra-pernikahan Anda." },
   { icon: "play_circle", title: "Video", text: "Video sinematik tentang perjalanan cinta Anda, dapat dilihat dan dipuji oleh para undangan." },
-  { icon: "auto_awesome", title: "++ Fitur menarik lainnya", text: "" },
+  { icon: "add_circle", title: "++ Fitur menarik lainnya", text: "" },
 ]
 
 type Template = GalleryTemplate
