@@ -98,7 +98,7 @@ export default async function TemplatePreviewPage({ params }: { params: Promise<
   if (!Component) notFound()
 
   const demoProps = DEMO_PROPS_BY_CODE[code] || DEMO_PROPS
-  const keepDemoIds = code === "evermore" || code === "piano-garden" || code === "altar-garden" || code === "adat-melayu" || code === "adat-batak" || code === "adat-bugis" || code === "adat-dayak" || code === "adat-banjar" || code === "adat-minang" || code === "lunar-blossom" || code === "adat-jawa" || code === "adat-jawa-2" || code === "adat-bali" || code === "adat-palembang" || code === "adat-betawi" || code === "manjari" || code === "minang-royal" || code === "imagine" || code === "still-ever" || code === "lace" || code === "n-film" || code === "boarding-pass" || code === "ivory-lace" || code === "cinnabar-seal" || code === "iris"
+  const keepDemoIds = code === "evermore" || code === "piano-garden" || code === "altar-garden" || code === "adat-melayu" || code === "adat-batak" || code === "adat-bugis" || code === "adat-dayak" || code === "adat-banjar" || code === "adat-minang" || code === "lunar-blossom" || code === "adat-jawa" || code === "adat-jawa-2" || code === "adat-bali" || code === "adat-palembang" || code === "adat-betawi" || code === "manjari" || code === "minang-royal" || code === "imagine" || code === "still-ever" || code === "lace" || code === "n-film" || code === "boarding-pass" || code === "ivory-lace" || code === "cinnabar-seal" || code === "iris" || code === "teatro"
   const previewProps: TemplateProps = {
     ...demoProps,
     preview_mode: true,
@@ -111,7 +111,7 @@ export default async function TemplatePreviewPage({ params }: { params: Promise<
   }
 
   return (
-    <div className={code === "cinnabar-seal" ? "bg-[#33080b]" : code === "iris" ? "bg-[#f3ecdf]" : "bg-[#05070c]"}>
+    <div className={code === "cinnabar-seal" ? "bg-[#33080b]" : code === "iris" ? "bg-[#f3ecdf]" : code === "teatro" ? "bg-[#efe7dd]" : "bg-[#05070c]"}>
       <Component {...previewProps} />
     </div>
   )

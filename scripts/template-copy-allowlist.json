@@ -1610,6 +1610,46 @@
         "Halaman sebelumnya": "WCAG name for the wishes previous-page control",
         "Halaman berikutnya": "WCAG name for the wishes next-page control"
       }
+    },
+    "teatro": {
+      "allow": {
+        "and": "typographic connector between the two names on the stage and in the closing",
+        "Kepada Yth.": "fixed letter salutation on the cover gate",
+        "Bapak/ Ibu/ Saudara/ i": "fixed letter salutation on the cover gate",
+        "Days": "countdown unit label",
+        "Hours": "countdown unit label",
+        "Min": "countdown unit label",
+        "Sec": "countdown unit label",
+        "Sending…": "transient send state in the wishes form",
+        "Loading wishes…": "transient loading state in the wishes feed",
+        "Countdown to the wedding day": "WCAG name for the countdown group and section",
+        "Open the invitation": "WCAG name for the cover gate",
+        "Play the wedding film": "WCAG name for the film play control",
+        "Word of welcome": "WCAG name for the prologue section",
+        "The couple": "WCAG name for the mempelai section",
+        "Our story": "WCAG name for the love-story section",
+        "Wedding events": "WCAG name for the venue section",
+        "With the blessing of": "WCAG name for the invited-families section",
+        "Order of the day": "WCAG name for the rundown section",
+        "Gallery": "WCAG name for the gallery section",
+        "The wedding film": "WCAG name for the film section",
+        "Wedding registry": "WCAG name for the gift section",
+        "Dress code": "WCAG name for the dress-code section",
+        "Wishes for the couple": "WCAG name for the wishes section",
+        "Closing": "WCAG name for the closing section",
+        "Contact Aksaraa Wedding on WhatsApp": "WCAG name for the Aksaraa footer link",
+        "Aksaraa Wedding": "alt text for the vendor logo",
+        "Wedding by Aksaraa": "fixed vendor credit in the footer",
+        ". All rights reserved.": "fixed legal suffix in the footer",
+        "Photo viewer": "WCAG name for the lightbox dialog",
+        "Close": "WCAG name for close buttons",
+        "Previous photo": "WCAG name for the lightbox previous control",
+        "Next photo": "WCAG name for the lightbox next control",
+        "Previous page": "WCAG name for the wishes previous-page control",
+        "Next page": "WCAG name for the wishes next-page control",
+        "Kepada Yth. Bapak/ Ibu/ Saudara/ i": "fixed letter salutation line on the cover gate",
+        "Reveal the wedding date": "WCAG name for the reveal gate section"
+      }
     }
   }
 }

@@ -35,6 +35,7 @@ import BoardingPass from "./boarding-pass"
 import IvoryLace from "./ivory-lace"
 import CinnabarSeal from "./cinnabar-seal"
 import Iris from "./iris"
+import Teatro from "./teatro"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -73,6 +74,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "ivory-lace": IvoryLace,
   "cinnabar-seal": CinnabarSeal,
   iris: Iris,
+  teatro: Teatro,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -1444,6 +1446,47 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     content: {
       cover_slots: 3,
       cover_slot_labels: ["Sampul", "Ayat", "Closing"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: true,
+      sections: {
+        opening_description: true,
+        quote: true,
+        countdown: true,
+        inviting: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        dresscode: true,
+        livestream: false,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "teatro",
+    name: "Teatro",
+    description:
+      "Undangan teater klasik dengan tirai beludru burgundy, tata panggung berbingkai emas, tanggal garuk-perak, dan tipografi Cormorant dengan aksen skrip.",
+    theme: {
+      fonts: { display: "Cormorant Garamond", script: "Teatro Script", body: "Lora" },
+      colors: {
+        surface: "#fffdfb",
+        text: "#3b2b27",
+        accent: "#c9a961",
+        accentMuted: "#faf8f5",
+        overlay: "#5c2018",
+        dark: "#3a120d",
+      },
+      ornaments: { divider: "line", border: "ornate", frame: "arch" },
+      motion: { enabled: true, duration: 0.95, stagger: 0.1 },
+    },
+    content: {
+      cover_slots: 3,
+      cover_slot_labels: ["Sampul", "Cerita", "Penutup"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: true,
