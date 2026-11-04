@@ -746,6 +746,21 @@ export default function Teatro(profile: TemplateProps) {
     return () => window.removeEventListener("resize", onResize)
   }, [phase, paintVeil])
 
+  const finishCurtain = useCallback(() => {
+    // Pin the video on its LAST frame (the open curtain) so it can never
+    // snap back to the first frame (the closed curtain) while fading out.
+    const video = curtainVideo.current
+    if (video) {
+      try {
+        video.pause()
+        if (Number.isFinite(video.duration)) video.currentTime = video.duration
+      } catch {
+        /* ignore */
+      }
+    }
+    setPhase("done")
+  }, [])
+
   // Pull the curtain: the reference plays the vendored video, then hands over to
   // the open poster. Reduced motion, a blocked or broken video, or a stall all
   // fall through to the open invitation instead of trapping the guest.
@@ -758,15 +773,13 @@ export default function Teatro(profile: TemplateProps) {
     }
     const played = video.play()
     if (played && typeof played.catch === "function") {
-      played.catch(() => setPhase("done"))
+      played.catch(() => finishCurtain())
     }
     const cap = window.setTimeout(() => {
-      if (!video.ended) setPhase("done")
+      if (!video.ended) finishCurtain()
     }, 20000)
     return () => window.clearTimeout(cap)
-  }, [phase])
-
-  const finishCurtain = useCallback(() => setPhase("done"), [])
+  }, [phase, finishCurtain])
 
   const toggleMusic = useCallback(() => {
     const audio = audioRef.current

@@ -398,8 +398,8 @@ html:has(body.te-locked) {
 }
 .te-curtain__video[data-live="true"] { opacity: 1; }
 .te-root[data-curtain="playing"] .te-curtain__lay--closed { opacity: 1; }
-.te-root[data-curtain="done"] .te-curtain__video { opacity: 0; }
-.te-root[data-curtain="done"] .te-curtain__lay--closed { opacity: 0; }
+.te-root[data-curtain="done"] .te-curtain__video { opacity: 1; transition: none; }
+.te-root[data-curtain="done"] .te-curtain__lay--closed { opacity: 0; transition: none; }
 .te-root[data-curtain="done"] .te-curtain__lay--open { opacity: 1; }
 
 /* the tap target sitting on the closed curtain */
