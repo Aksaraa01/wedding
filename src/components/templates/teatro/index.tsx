@@ -978,7 +978,7 @@ export default function Teatro(profile: TemplateProps) {
 
           {phase === "idle" && (
             <button type="button" className="te-gate" onClick={openInvitation} aria-label="Open the invitation">
-              <span className="te-gate__to">Kepada Yth. Bapak/ Ibu/ Saudara/ i</span>
+              <span className="te-gate__to">Dear,</span>
               <span className="te-gate__guest">{guestName}</span>
               <span className="te-gate__ring" aria-hidden="true">
                 <svg viewBox="0 0 24 24" focusable="false">
@@ -1417,7 +1417,13 @@ export default function Teatro(profile: TemplateProps) {
         {/* 17 — closing */}
         <section className="te-closing" data-section="closing" aria-label="Closing">
           <p className="te-script te-script--md" {...IN("up")}>{closingKicker}</p>
-          <DeckledFrame src={closingPhoto} alt="" className="te-closing__mat" ratio="3 / 4" />
+          <div className="te-closing__frame" {...IN("zoom", 0.1)}>
+            <div className="te-closing__frame-outer">
+              <div className="te-closing__frame-inner">
+                <img src={closingPhoto} alt="" className="te-closing__frame-photo" loading="lazy" draggable={false} />
+              </div>
+            </div>
+          </div>
           {closingMessage && <p className="te-body" {...IN("fade", 0.08)}>{closingMessage}</p>}
           {closingSee && <p className="te-quoteScript" {...IN("fade", 0.12)}>{closingSee}</p>}
           <p className="te-closing__names" {...IN("up", 0.16)}>{coupleLabel}</p>
