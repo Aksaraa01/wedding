@@ -1650,7 +1650,9 @@
         "Reveal the wedding date": "WCAG name for the reveal gate section",
         "Add to calendar": "CTA in the save-the-date section opening the calendar event",
         "Dear,": "cover salutation on the gate",
-        "The Wedding of": "cover kicker default (The Wedding of)"
+        "The Wedding of": "cover kicker default (The Wedding of)",
+        "We apologize for any misspelling of your name or title.": "cover apology default (stationery convention)",
+        "Together with our families, we invite you to this important moment.": "welcome invite default"
       }
     }
   }

@@ -573,8 +573,8 @@ export default function Teatro(profile: TemplateProps) {
 
   const coverKicker = (tc.cover_kicker || "").trim() || "The Wedding of"
   const openLabel = (tc.open_button || "").trim() || "Tap to continue"
-  const apology = (tc.cover_apology || "").trim()
-  const welcomeInvite = (tc.welcome_invite || "").trim()
+  const apology = (tc.cover_apology || "").trim() || "We apologize for any misspelling of your name or title."
+  const welcomeInvite = (tc.welcome_invite || "").trim() || "Together with our families, we invite you to this important moment."
   const openingKicker = (tc.opening_kicker || "").trim() || "Prologue"
   const quoteTitle = (tc.quote_title || "").trim()
   const mempelaiKicker = (tc.mempelai_kicker || "").trim() || "The Cast"
