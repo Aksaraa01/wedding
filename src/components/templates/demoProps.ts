@@ -2282,7 +2282,7 @@ DEMO_PROPS_BY_CODE.teatro = {
     ],
   },
   template_content: {
-    cover_kicker: "You are cordially invited to celebrate the wedding of",
+    cover_kicker: "You are cordially invited",
     open_button: "Tap to continue",
     welcome_invite: "Together with our families, we invite you to opening night.",
     cover_apology: "We apologize for any misspelling of your name or title.",

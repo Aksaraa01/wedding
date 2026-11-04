@@ -569,7 +569,7 @@ export default function Teatro(profile: TemplateProps) {
   const groomIg = igHandle(profile.groom_instagram)
   const brideIg = igHandle(profile.bride_instagram)
 
-  const coverKicker = (tc.cover_kicker || "").trim() || "You are cordially invited to celebrate the wedding of"
+  const coverKicker = (tc.cover_kicker || "").trim() || "You are cordially invited"
   const openLabel = (tc.open_button || "").trim() || "Tap to continue"
   const apology = (tc.cover_apology || "").trim()
   const welcomeInvite = (tc.welcome_invite || "").trim()
@@ -831,21 +831,28 @@ export default function Teatro(profile: TemplateProps) {
   const revealScratch = useCallback(() => setScratchDone((n) => (n >= 3 ? n : n + 1)), [])
 
   // The reference stops the page at the reveal: it only lets the guest scroll on
-  // once all three discs are open. Observe the gate itself (90% visible, as the
-  // reference does) rather than the whole page, so a guest who has already
-  // revealed the date can come back and leave freely.
+  // once all three discs are open. Observe the gate itself, at 90% coverage of
+  // the viewport, rather than the whole page, so a guest who has already
+  // revealed the date can come back and leave freely. The coverage check (not
+  // just the ratio) means a gate taller than a phone still "arrives" when it
+  // covers the screen — a short gate reaches 90% the same way.
   useEffect(() => {
     if (phase !== "done" || !dateObject) return
     const node = revealRef.current
     if (!node || typeof IntersectionObserver === "undefined") return
+    const coversThreshold = () => {
+      const box = node.getBoundingClientRect()
+      const covered = Math.min(box.bottom, window.innerHeight) - Math.max(box.top, 0)
+      return covered >= window.innerHeight * 0.9
+    }
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.intersectionRatio < 0.9) continue
+          if (!coversThreshold()) continue
           setGateLocked(scratchDone < 3)
         }
       },
-      { threshold: [0.9] }
+      { threshold: [0, 0.25, 0.5, 0.75, 0.9, 1] }
     )
     io.observe(node)
     return () => io.disconnect()
@@ -973,7 +980,10 @@ export default function Teatro(profile: TemplateProps) {
             data-section="reveal"
             aria-label="Reveal the wedding date"
           >
-            {!gateDone && (
+            {/* The hand only makes an entrance once the gate is on screen: the
+                guest is scrolling anyway, so a gate that is half past never
+                asks for a scratch before it has delivered the instruction. */}
+            {gateLocked && !gateDone && (
               <div className="te-reveal__guide" aria-hidden="true">
                 <span className="te-reveal__icon">
                   <span className="te-reveal__ping" />

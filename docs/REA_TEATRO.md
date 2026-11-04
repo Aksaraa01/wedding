@@ -241,12 +241,22 @@ against the *width*, which dropped the copy to 93 % of the cover height.
 6. **The early text fade is dropped.** The reference fades the whole copy block
    in at 1.1 s as well as clipping it; the two together made the first line
    double-animate. Only the clip remains.
-7. **“Scroll” cue added.** The reference shows it on the opened cover; without
+7. **The cover kicker is shortened** to *“You are cordially invited”*. The
+   reference's “You are cordially invited to celebrate the wedding of” wraps to
+   **three** rows in the 158 px copy column on a phone, which pushed the names
+   out of the widest part of the opening. Two rows, same register, and it is
+   still an editor field (`template_content.cover_kicker`).
+8. **“Scroll” cue added.** The reference shows it on the opened cover; without
    it the cover reads as a poster and guests sit on it. `template_content.scroll_label`.
-8. **Confetti is React, not canvas.** 60 burgundy pieces, auto-unmounted after
-   6.2 s, fired when the third disc opens. Same look, no rAF loop left running.
-9. **RSVP block dropped** (see §3) — RSVP is the shared dock.
-10. **`prefers-reduced-motion`**: the curtain jumps straight to the open poster,
+9. **The reveal hand only appears once the gate is on screen.** The guide
+   (`te-reveal__guide`) mounts only while the gate is the *current* destination
+   of the scroll lock — i.e. once the gate has reached the 90 % coverage that
+   triggers the lock — instead of mounting with the section. The hint lives
+   inside the same block, so the hand and the wording arrive together.
+10. **Confetti is React, not canvas.** 60 burgundy pieces, auto-unmounted after
+    6.2 s, fired when the third disc opens. Same look, no rAF loop left running.
+11. **RSVP block dropped** (see §3) — RSVP is the shared dock.
+12. **`prefers-reduced-motion`**: the curtain jumps straight to the open poster,
     the scratch discs lose their fade, the confetti is hidden, the ping/bob
     animations stop. Copy is never left at `opacity: 0`.
 

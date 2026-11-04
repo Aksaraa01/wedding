@@ -48,7 +48,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     rows: 2,
     placeholder: "Dua Insan Ini\\nAkan Menikah",
     placeholders: {
-      teatro: "You are cordially invited to celebrate the wedding of",
+      teatro: "You are cordially invited",
       "cinnabar-seal": "The Wedding Of", "ivory-lace": "The Wedding Of", lace: "The Wedding Of", "n-film": "#AlbarnFayeForever" , "boarding-pass": "#AlbarnFayeForever" },
     templates: ["evermore", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro"],
   },
