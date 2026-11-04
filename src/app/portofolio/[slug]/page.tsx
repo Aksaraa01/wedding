@@ -85,10 +85,10 @@ export default async function PortofolioDetailPage({ params }: { params: Promise
             <h1 className="mt-2 font-headline-lg text-[26px] leading-[1.15] text-white md:mt-3 md:text-[44px]">
               {names}
             </h1>
-            <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] uppercase tracking-[0.12em] text-white/75 md:text-[11px]">
-              {entry.date && <span>{formatIdDate(entry.date)}</span>}
-              {entry.date && entry.venue && <span className="h-1 w-1 rounded-full bg-white/40" />}
-              {entry.venue && <span>{entry.venue}</span>}
+            <p className="mt-1.5 text-[10px] uppercase leading-relaxed tracking-[0.12em] text-white/75 md:flex md:flex-wrap md:items-center md:gap-x-2 md:text-[11px]">
+              {entry.date && <span className="block md:inline">{formatIdDate(entry.date)}</span>}
+              {entry.date && entry.venue && <span className="hidden h-1 w-1 rounded-full bg-white/40 md:inline-block" />}
+              {entry.venue && <span className="block md:inline">{entry.venue}</span>}
             </p>
           </div>
         </div>
