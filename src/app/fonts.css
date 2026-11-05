@@ -29,6 +29,8 @@
   --font-archivo: 'Archivo', sans-serif;
   --font-dmmono: 'DM Mono', sans-serif;
   --font-jost: 'Jost', sans-serif;
+  --font-waterfall: 'Waterfall', serif;
+  --font-ysabeau: 'Ysabeau Infant', serif;
 }
 @font-face {
   font-family: 'Inter';
@@ -883,4 +885,46 @@
   font-weight: 600;
   font-display: swap;
   src: url('/fonts/jost-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Waterfall';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/waterfall-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Ysabeau Infant';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/fonts/ysabeauinfant-300.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Ysabeau Infant';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/ysabeauinfant-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Ysabeau Infant';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/ysabeauinfant-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Ysabeau Infant';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/ysabeauinfant-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Ysabeau Infant';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/ysabeauinfant-700.woff2') format('woff2');
 }

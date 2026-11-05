@@ -730,5 +730,41 @@
     "weight": "600",
     "style": "normal",
     "bytes": 26588
+  },
+  "waterfall-400.woff2": {
+    "family": "Waterfall",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 25200
+  },
+  "ysabeauinfant-300.woff2": {
+    "family": "Ysabeau Infant",
+    "weight": "300",
+    "style": "normal",
+    "bytes": 37772
+  },
+  "ysabeauinfant-400.woff2": {
+    "family": "Ysabeau Infant",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 37772
+  },
+  "ysabeauinfant-500.woff2": {
+    "family": "Ysabeau Infant",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 37772
+  },
+  "ysabeauinfant-600.woff2": {
+    "family": "Ysabeau Infant",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 37772
+  },
+  "ysabeauinfant-700.woff2": {
+    "family": "Ysabeau Infant",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 37772
   }
 }

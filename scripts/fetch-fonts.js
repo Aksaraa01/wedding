@@ -44,6 +44,9 @@ const FAMILIES = [
   // are already vendored and carry the display/script roles)
   { name: "DM Mono", weights: ["400"], styles: ["normal"] },
   { name: "Jost", weights: ["400", "500", "600"], styles: ["normal"] },
+  // Traditional Bugis Pinishi: script display + soft serif body
+  { name: "Waterfall", weights: ["400"], styles: ["normal"] },
+  { name: "Ysabeau Infant", weights: ["300", "400", "500", "600", "700"], styles: ["normal"] },
 ];
 
 function cssUrl(f) {

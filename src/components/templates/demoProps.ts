@@ -929,6 +929,39 @@ DEMO_PROPS_BY_CODE["adat-bugis"] = {
   },
 }
 
+DEMO_PROPS_BY_CODE["traditional-bugis-pinishi"] = {
+  ...DEMO_PROPS_BY_CODE["adat-bugis"],
+  slug: "demo",
+  groom_name: "Andi",
+  bride_name: "Nurul",
+  couple_initials: "AN",
+  display_name: "#AndiNurul2027",
+  groom_full_name: "Andi Muh. Fadhil Pratama",
+  bride_full_name: "Nurul Aisyah Ramadhani",
+  groom_parents: "Putra dari Bapak H. Andi Muhammad Idris & Ibu Hj. Andi Nurhayati",
+  bride_parents: "Putri dari Bapak H. Abdul Karim & Ibu Hj. Siti Rahmah",
+  groom_instagram: "@wedding.aksaraa",
+  bride_instagram: "@wedding.aksaraa",
+  quote_source: "Doa Pernikahan Adat Bugis",
+  cover_photos: [
+    "/templates/traditional-bugis-pinishi/pembuka.webp",
+    "/templates/traditional-bugis-pinishi/galeri-1.webp",
+    "/templates/traditional-bugis-pinishi/galeri-2.webp",
+  ],
+  gallery_photos: [
+    "/templates/traditional-bugis-pinishi/galeri-1.webp",
+    "/templates/traditional-bugis-pinishi/galeri-2.webp",
+    "/templates/traditional-bugis-pinishi/galeri-3.webp",
+    "/templates/traditional-bugis-pinishi/galeri-4.webp",
+  ],
+  groom_photo_url: "/templates/traditional-bugis-pinishi/pria.webp",
+  bride_photo_url: "/templates/traditional-bugis-pinishi/wanita.webp",
+  track_url: "/templates/traditional-bugis-pinishi/music.mp3",
+  wedding_profile_id: "demo-wedding-profile-id",
+  guest_id: "demo-guest-id",
+  preview_mode: true,
+}
+
 DEMO_PROPS_BY_CODE["adat-dayak"] = {
   ...DEMO_PROPS_BY_CODE["adat-melayu"],
   slug: "demo",
