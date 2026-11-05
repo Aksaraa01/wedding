@@ -163,8 +163,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
   const bridePhoto = bridePhotoOf(profile.bride_photo_url)
   const coverSlots = flattenPhotos(profile.cover_photos)
   const coverPhoto = coverPhotoOf(profile)
-  const quotePhoto = coverSlots[1] || photos[2] || photos[0] || coverPhoto
-  const closingPhoto = coverSlots[2] || photos[0] || coverPhoto
+  const closingPhoto = coverSlots[1] || photos[0] || coverPhoto
   const videoEmbed = normalizeVideoUrl(profile.video_url)
   const hasVideo = gates.video !== false && profile.video_section_visible !== false && !!videoEmbed
   const hasGallery = photos.length > 0 || hasVideo
@@ -513,27 +512,20 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
       {opened && (
         <main id="pinishi-invitation" className="pinishi-main">
           <section className="pinishi-verse" aria-label="Pembuka">
-            <img className="pinishi-deco pinishi-deco--branch" src={ASSET("branch.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--blossom" src={ASSET("decor-blossom.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--foliage" src={ASSET("decor-foliage.webp")} alt="" aria-hidden="true" />
             <img className="pinishi-deco pinishi-deco--foliage-band" src={ASSET("decor-foliage-band.webp")} alt="" aria-hidden="true" />
             <div className="pinishi-verse-inner" data-aos="fade-up">
-              <div className="pinishi-verse-photo">
-                <img src={quotePhoto} alt={coupleLabel} />
-              </div>
-              <div className="pinishi-verse-content">
-                <p className="pinishi-hashtag name-fit" style={fitStyle(profile.display_name || `#${groomShort}${brideShort}`)}>
-                  {profile.display_name || `#${`${groomShort}${brideShort}`.replace(/\s+/g, "")}`}
-                </p>
-                <blockquote>
-                  <p>{quoteText}</p>
-                </blockquote>
-                {quoteSource && <p className="pinishi-quote-source">- {quoteSource} -</p>}
-              </div>
+              <p className="pinishi-hashtag">
+                {profile.display_name || `#${`${groomShort}${brideShort}`.replace(/\s+/g, "")}`}
+              </p>
+              <blockquote>
+                <p>{quoteText}</p>
+              </blockquote>
+              {quoteSource && <p className="pinishi-quote-source">- {quoteSource} -</p>}
             </div>
           </section>
 
           <section className="pinishi-couple" aria-label="Mempelai">
+            <img className="pinishi-deco pinishi-deco--blossom" src={ASSET("decor-blossom.webp")} alt="" aria-hidden="true" />
             <div className="pinishi-couple-inner">
               <div className="pinishi-couple-intro" data-aos="fade-up">
                 <h2 className="pinishi-section-title">Mempelai</h2>
@@ -587,16 +579,63 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             </div>
           </section>
 
-          {honored.length > 0 && (
-            <section className="pinishi-inviting" aria-label="Turut Mengundang">
-              <div className="pinishi-inviting-inner" data-aos="fade-up">
-                <h2 className="pinishi-section-title">Turut Mengundang</h2>
-                <ul>
-                  {honored.map((name, index) => (
-                    <li key={`${name}-${index}`}>{name}</li>
+          {hasStory && (
+            <section className="pinishi-story" aria-label="Love Story">
+              <div className="pinishi-story-inner">
+                <h2 className="pinishi-section-title" data-aos="fade-up">Love Story</h2>
+                <div className="pinishi-story-list">
+                  {stories.map((story, index) => (
+                    <article key={`${story.title || "story"}-${index}`} data-aos="fade-up" data-aos-delay={80 + index * 60} style={delay(80 + index * 60)}>
+                      <HeartMarker />
+                      <h3>{story.title || `Bagian ${index + 1}`}</h3>
+                      {story.description && <p>{story.description}</p>}
+                    </article>
                   ))}
-                </ul>
+                </div>
               </div>
+            </section>
+          )}
+
+          {hasGallery && (
+            <section className="pinishi-gallery" aria-label="Galeri Foto">
+              <div className="pinishi-gallery-bg" aria-hidden="true">
+                <img src={coverPhoto} alt="" />
+              </div>
+              <div className="pinishi-gallery-inner">
+                <h2 className="pinishi-section-title" data-aos="fade-up">Galeri</h2>
+                {galleryIntro && <p className="pinishi-gallery-intro" data-aos="fade-up" data-aos-delay="60" style={delay(60)}>{galleryIntro}</p>}
+                <div className="pinishi-gallery-grid">
+                  {photos.map((src, index) => (
+                    <button
+                      key={`${src}-${index}`}
+                      type="button"
+                      className="pinishi-gallery-item"
+                      onClick={() => setLightbox(index)}
+                      aria-label={`Lihat foto ${index + 1}`}
+                      data-aos="fade-up"
+                      data-aos-delay={80 + index * 40}
+                      style={delay(80 + index * 40)}
+                    >
+                      <img src={src} alt="" loading="lazy" />
+                    </button>
+                  ))}
+                </div>
+                <blockquote className="pinishi-gallery-quote" data-aos="fade-up" data-aos-delay="120" style={delay(120)}>
+                  <p>{galleryQuote}</p>
+                  <cite>- {coupleLabel} -</cite>
+                </blockquote>
+                {hasVideo && (
+                  <div className="pinishi-gallery-video" data-aos="fade-up" data-aos-delay="140" style={delay(140)}>
+                    <iframe
+                      src={`${videoEmbed}${videoEmbed.includes("?") ? "&" : "?"}autoplay=1&mute=1&controls=1&modestbranding=1&iv_load_policy=3&rel=0&playsinline=1`}
+                      title={`Video pernikahan ${coupleLabel}`}
+                      allow="autoplay; encrypted-media; picture-in-picture"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                    />
+                  </div>
+                )}
+              </div>
+              <img className="pinishi-gallery-art" src={ASSET("cover-art.webp")} alt="" aria-hidden="true" />
             </section>
           )}
 
@@ -664,6 +703,20 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             </div>
           </section>
 
+          {honored.length > 0 && (
+            <section className="pinishi-inviting" aria-label="Turut Mengundang">
+              <img className="pinishi-deco pinishi-deco--foliage" src={ASSET("decor-foliage.webp")} alt="" aria-hidden="true" />
+              <div className="pinishi-inviting-inner" data-aos="fade-up">
+                <h2 className="pinishi-section-title">Turut Mengundang</h2>
+                <ul>
+                  {honored.map((name, index) => (
+                    <li key={`${name}-${index}`}>{name}</li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          )}
+
           {hasLivestream && (
             <section className="pinishi-livestream" aria-label="Live Streaming">
               <div className="pinishi-livestream-inner" data-aos="fade-up">
@@ -706,63 +759,6 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                     </li>
                   ))}
                 </ul>
-              </div>
-            </section>
-          )}
-
-          {hasGallery && (
-            <section className="pinishi-gallery" aria-label="Galeri Foto">
-              <div className="pinishi-gallery-inner">
-                <h2 className="pinishi-section-title" data-aos="fade-up">Galeri</h2>
-                {galleryIntro && <p className="pinishi-gallery-intro" data-aos="fade-up" data-aos-delay="60" style={delay(60)}>{galleryIntro}</p>}
-                <div className="pinishi-gallery-grid">
-                  {photos.map((src, index) => (
-                    <button
-                      key={`${src}-${index}`}
-                      type="button"
-                      className="pinishi-gallery-item"
-                      onClick={() => setLightbox(index)}
-                      aria-label={`Lihat foto ${index + 1}`}
-                      data-aos="fade-up"
-                      data-aos-delay={80 + index * 40}
-                      style={delay(80 + index * 40)}
-                    >
-                      <img src={src} alt="" loading="lazy" />
-                    </button>
-                  ))}
-                </div>
-                <blockquote className="pinishi-gallery-quote" data-aos="fade-up" data-aos-delay="120" style={delay(120)}>
-                  <p>{galleryQuote}</p>
-                  <cite>- {coupleLabel} -</cite>
-                </blockquote>
-                {hasVideo && (
-                  <div className="pinishi-gallery-video" data-aos="fade-up" data-aos-delay="140" style={delay(140)}>
-                    <iframe
-                      src={`${videoEmbed}${videoEmbed.includes("?") ? "&" : "?"}autoplay=1&mute=1&controls=1&modestbranding=1&iv_load_policy=3&rel=0&playsinline=1`}
-                      title={`Video pernikahan ${coupleLabel}`}
-                      allow="autoplay; encrypted-media; picture-in-picture"
-                      referrerPolicy="strict-origin-when-cross-origin"
-                    />
-                  </div>
-                )}
-              </div>
-              <img className="pinishi-gallery-art" src={ASSET("cover-art.webp")} alt="" aria-hidden="true" />
-            </section>
-          )}
-
-          {hasStory && (
-            <section className="pinishi-story" aria-label="Love Story">
-              <div className="pinishi-story-inner">
-                <h2 className="pinishi-section-title" data-aos="fade-up">Love Story</h2>
-                <div className="pinishi-story-list">
-                  {stories.map((story, index) => (
-                    <article key={`${story.title || "story"}-${index}`} data-aos="fade-up" data-aos-delay={80 + index * 60} style={delay(80 + index * 60)}>
-                      <HeartMarker />
-                      <h3>{story.title || `Bagian ${index + 1}`}</h3>
-                      {story.description && <p>{story.description}</p>}
-                    </article>
-                  ))}
-                </div>
               </div>
             </section>
           )}

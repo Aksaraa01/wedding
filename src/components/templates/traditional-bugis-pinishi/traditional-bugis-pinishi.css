@@ -3,7 +3,7 @@
   --pin-deep: #6b5b4f;
   --pin-cream: #f7f3ee;
   --pin-ink: #3e3426;
-  --pin-bg: #f9f6f1;
+  --pin-bg: #f7ecde;
   scroll-behavior: smooth;
   margin: 0;
   min-width: 320px;
@@ -63,10 +63,17 @@
 .traditional-bugis-pinishi-root .script,
 .traditional-bugis-pinishi-root .pinishi-kicker,
 .traditional-bugis-pinishi-root .pinishi-person-name,
-.traditional-bugis-pinishi-root .pinishi-section-title,
 .traditional-bugis-pinishi-root .pinishi-closing-names {
   font-family: var(--font-playfair, "Playfair Display", Georgia, serif);
   font-weight: 400;
+}
+
+.traditional-bugis-pinishi-root .pinishi-section-title {
+  font-family: var(--font-waterfall, "Waterfall", cursive);
+  font-size: 48px;
+  line-height: 1.15;
+  font-weight: 600;
+  color: #65485c;
 }
 
 /* Cover */
@@ -74,7 +81,7 @@
   position: relative;
   min-height: 100svh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   text-align: center;
   overflow: hidden;
@@ -165,23 +172,23 @@
 .pinishi-cover-panel {
   position: relative;
   z-index: 2;
-  width: min(75%, 400px);
+  width: 75%;
   margin: 3% auto 24px;
-  padding: 0 24px 30px;
+  padding: 0 16px 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  height: min(83svh, 780px);
+  height: 83svh;
   justify-content: flex-start;
   border-radius: 150px 150px 40px 40px;
   background: rgba(242, 196, 176, 0.4);
 }
 
 .pinishi-cover-photo {
-  width: clamp(112px, 32%, 152px);
+  width: 52%;
   aspect-ratio: 1;
-  margin-top: 58px;
+  margin-top: 5rem;
   flex: 0 0 auto;
   border-radius: 50%;
   overflow: hidden;
@@ -200,14 +207,14 @@
   font-family: var(--font-ysabeau, "Ysabeau Infant", Georgia, serif);
   text-transform: none;
   letter-spacing: 0.05em;
-  font-size: 17px;
-  color: #6d4a66;
+  font-size: 18px;
+  color: #65485c;
   margin-top: 6px;
 }
 
 .traditional-bugis-pinishi-root .pinishi-names {
   font-family: var(--font-waterfall, "Waterfall", cursive);
-  font-size: clamp(2.8rem, 12vw, 4.2rem);
+  font-size: clamp(2.2rem, 9vw + 1rem, 3.1rem);
   line-height: 1.05;
   font-weight: 400;
   color: #683875;
@@ -216,7 +223,7 @@
 
 .pinishi-date {
   font-family: var(--font-ysabeau, "Ysabeau Infant", Georgia, serif);
-  letter-spacing: 0.22em;
+  letter-spacing: 3px;
   font-size: 14px;
   color: #4f3a4a;
 }
@@ -299,13 +306,6 @@
   opacity: 0.85;
 }
 
-.pinishi-deco--branch {
-  top: -10px;
-  right: -12px;
-  width: 108px;
-  transform: rotate(8deg);
-}
-
 .pinishi-deco--floral {
   right: -26px;
   bottom: -30px;
@@ -357,66 +357,57 @@
 
 /* Verse */
 .pinishi-verse {
-  padding: 80px 20px;
-  background: var(--pin-bg);
+  padding: 56px 24px 140px;
+  background-color: var(--pin-bg);
+  background-image: url("/templates/traditional-bugis-pinishi/quote-bg.webp");
+  background-size: 100% auto;
+  background-position: top center;
+  background-repeat: no-repeat;
 }
 
 .pinishi-verse-inner {
-  max-width: 880px;
-  margin: 0 auto;
-  display: grid;
-  gap: 40px;
-  align-items: center;
-}
-
-@media (min-width: 860px) {
-  .pinishi-verse-inner {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-.pinishi-verse-photo {
   position: relative;
-  border-radius: 320px 320px 24px 24px;
-  overflow: hidden;
-  box-shadow: 0 60px 80px -60px rgba(62, 52, 38, 0.5);
-}
-
-.pinishi-verse-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  aspect-ratio: 4 / 5;
-}
-
-.pinishi-verse-content {
-  text-align: center;
+  z-index: 1;
+  max-width: 640px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
 }
 
 .pinishi-hashtag {
-  letter-spacing: 0.4em;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
   font-size: 12px;
+  color: #867d65;
 }
 
-.pinishi-verse-content blockquote {
-  font-size: clamp(1.1rem, 3vw, 1.6rem);
-  font-family: var(--font-playfair, "Playfair Display", Georgia, serif);
-  line-height: 1.8;
+.pinishi-verse-inner blockquote {
+  font-family: var(--font-ysabeau, "Ysabeau Infant", Georgia, serif);
+  font-size: 14px;
+  line-height: 1.55;
+  color: #867d65;
+}
+
+.pinishi-verse-inner blockquote p {
+  margin: 0;
 }
 
 .pinishi-quote-source {
+  font-size: 12px;
   font-style: italic;
+  color: #867d65;
   opacity: 0.8;
 }
 
 /* Couple */
 .pinishi-couple {
-  padding: 80px 20px;
-  background: linear-gradient(180deg, var(--pin-bg) 0%, #f0ebe3 100%);
+  padding: 64px 20px 80px;
+  background: var(--pin-bg);
+  position: relative;
+  overflow: hidden;
 }
 
 .pinishi-couple-inner {
@@ -424,19 +415,25 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 32px;
   text-align: center;
+  position: relative;
+  z-index: 1;
 }
 
 .pinishi-section-title {
-  font-size: clamp(2rem, 6vw, 3.2rem);
   margin-bottom: 12px;
 }
 
 .pinishi-couple-grid {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 32px;
   align-items: center;
+}
+
+.pinishi-couple-grid > * {
+  min-width: 0;
 }
 
 @media (min-width: 860px) {
@@ -453,16 +450,17 @@
 }
 
 .pinishi-person-photo {
-  width: min(290px, 72vw);
+  width: min(220px, 58vw);
 }
 
 .pinishi-frame {
   position: relative;
+  aspect-ratio: 900 / 1000;
 }
 
 .pinishi-frame-photo {
   position: absolute;
-  inset: 8.5% 13% 7% 13%;
+  inset: 16% 20% 18%;
   overflow: hidden;
   border-radius: 6px;
   background: #efe2d6;
@@ -479,10 +477,17 @@
   width: 100%;
   height: auto;
   pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
 }
 
-.pinishi-person-name {
-  font-size: clamp(1.8rem, 6vw, 2.6rem);
+.traditional-bugis-pinishi-root .pinishi-person-name {
+  font-family: var(--font-waterfall, "Waterfall", cursive);
+  font-size: 40px;
+  line-height: 1.1;
+  font-weight: 400;
+  color: #65485c;
 }
 
 .pinishi-person-full {
@@ -550,8 +555,12 @@
 
 /* Events */
 .pinishi-events {
-  padding: 80px 20px;
-  background: linear-gradient(180deg, var(--pin-bg) 0%, #f0ebe3 100%);
+  padding: 72px 20px 80px;
+  background-color: var(--pin-bg);
+  background-image: url("/templates/traditional-bugis-pinishi/watermark.webp");
+  background-size: 100% auto;
+  background-position: center top;
+  background-repeat: no-repeat;
 }
 
 .pinishi-events-inner {
@@ -689,7 +698,7 @@
 /* Rundown */
 .pinishi-rundown {
   padding: 60px 20px;
-  background: linear-gradient(180deg, var(--pin-bg) 0%, #f0ebe3 100%);
+  background: var(--pin-bg);
 }
 
 .pinishi-rundown-inner {
@@ -769,7 +778,21 @@
   position: relative;
   overflow: hidden;
   padding: 80px 20px;
-  background: linear-gradient(180deg, var(--pin-bg) 0%, #f0ebe3 100%);
+  background: var(--pin-bg);
+}
+
+.pinishi-gallery-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.pinishi-gallery-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.16;
 }
 
 .pinishi-gallery-art {
@@ -779,6 +802,7 @@
   width: 100%;
   opacity: 0.55;
   pointer-events: none;
+  z-index: 0;
 }
 
 .pinishi-gallery-inner {
@@ -915,7 +939,7 @@
 /* Gift */
 .pinishi-gift {
   padding: 80px 20px;
-  background: linear-gradient(180deg, var(--pin-bg) 0%, #f0ebe3 100%);
+  background: var(--pin-bg);
 }
 
 .pinishi-gift-inner {
@@ -1031,10 +1055,166 @@
   padding: 0;
 }
 
+.traditional-bugis-pinishi-root .tpl-rsvp {
+  color: var(--pin-ink);
+  text-align: left;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 8px auto 0;
+  text-align: left;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__field label {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8a7f73;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__input,
+.traditional-bugis-pinishi-root .tpl-rsvp__textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--pin-ink);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(101, 72, 92, 0.25);
+  border-radius: 12px;
+  outline: none;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__input:focus,
+.traditional-bugis-pinishi-root .tpl-rsvp__textarea:focus {
+  border-color: #65485c;
+  box-shadow: 0 0 0 3px rgba(101, 72, 92, 0.12);
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__counter {
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-align: right;
+  color: #8a7f73;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__submit {
+  align-self: center;
+  margin-top: 4px;
+  padding: 12px 28px;
+  border: 0;
+  border-radius: 999px;
+  background: #65485c;
+  color: #ebc6b4;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.traditional-bugis-pinishi-root .rsvp-feedback {
+  text-align: center;
+  font-size: 12px;
+  color: #65485c;
+}
+
+.traditional-bugis-pinishi-root .rsvp-feedback.is-error {
+  color: #a04b45;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__wishes {
+  margin-top: 28px;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__wishes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__wish {
+  padding: 14px 16px;
+  border: 1px solid rgba(101, 72, 92, 0.15);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.6);
+  text-align: left;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__wish-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__wish-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #65485c;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__wish-date {
+  font-size: 11px;
+  color: #8a7f73;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__wish-message {
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__wishes-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__wishes-pg-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(101, 72, 92, 0.3);
+  border-radius: 50%;
+  background: transparent;
+  color: #65485c;
+  font-size: 16px;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__wishes-pg-btn:disabled {
+  opacity: 0.4;
+}
+
+.traditional-bugis-pinishi-root .adat-rsvp__empty {
+  text-align: center;
+  font-size: 13px;
+  color: #8a7f73;
+}
+
 /* Contacts */
 .pinishi-contacts {
   padding: 60px 20px;
-  background: linear-gradient(180deg, var(--pin-bg) 0%, #f0ebe3 100%);
+  background: var(--pin-bg);
 }
 
 .pinishi-contacts-inner {
@@ -1091,7 +1271,7 @@
   position: relative;
   min-height: 100svh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   text-align: center;
   overflow: hidden;

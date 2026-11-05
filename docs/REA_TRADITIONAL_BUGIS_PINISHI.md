@@ -27,12 +27,13 @@ Intake 2026-11-05.
 
 | Section | Measure |
 |---|---|
-| Cover | 100 svh; full-bleed cream illustration `cover-bg.webp`; peach arch panel **75 % width × 83 % height**, radius 150 px top; six floral corner cut-outs; round photo 40 % of panel; "The Wedding Of" Ysabeau 17–18; names Waterfall ≈ 40–50 px `#683875`; date `31 . 12 . 2027` 14 px with wide tracking; pill button `#65485c` / `#ebc6b4` 16 px |
-| Verse | quote photo in a tall arch + hashtag / quote / source; branch, blossom and foliage band in the corners |
-| Couple | two portraits inside the gold oval frame `frame.webp`; names Playfair 32; parents 13 |
+| Cover | 100 svh; full-bleed cream illustration `cover-bg.webp`; peach arch panel **75 % width × 83 % height**, radius 150 px, anchored at 3 % from the top (no max-width cap — it scales with the viewport on desktop too); six floral corner cut-outs; round photo 52 % of the panel, 5 rem below its top; "The Wedding Of" Ysabeau 18; names Waterfall 3.1 rem `#683875`; date `31 . 12 . 2027` 14 px / 3 px tracking; pill button `#65485c` / `#ebc6b4` 16 px |
+| Verse | quote section on the vendored `quote-bg.webp` (ships/palms), hashtag + quote 14 px `#867d65`, foliage band at the bottom; no photo column (the reference has none) |
+| Couple | two portraits inside the ornate peach frame `frame.webp` (transparent window, `aspect-ratio: 900/1000`); names Waterfall 40 `#65485c`; parents 13 |
 | Events | crest above "Save The Date"; four countdown boxes; calendar pill; one card per session with a maps pill |
+| Story | Waterfall title, one card per chapter |
 | Rundown | floral cut-out bottom-right, time + description list |
-| Gallery | two-column mosaic; the purple mosque art `cover-art.webp` sits at the bottom edge (reference `#galleries::after`, 308 px) |
+| Gallery | two-column mosaic over the couple photo (16 % wash); the purple mosque art `cover-art.webp` sits at the bottom edge (reference `#galleries::after`, 308 px) |
 | Closing | closing message + names + Aksaraa footer on cream |
 
 ---
@@ -45,6 +46,7 @@ photos are copied; the demo uses our own `pembuka.webp` / `galeri-*.webp`.
 | File | Reference source | Use |
 |---|---|---|
 | `cover-bg.webp` | `546f5ce0-…jpg` (preset cover, 1080×2218) | full-bleed cover illustration |
+| `quote-bg.webp` | `contenful/bg.jpg` (550×1067) | verse / quote background |
 | `decor-tree-left.webp` | `IMG_0696.png` | cover, top-left tree |
 | `decor-tree-right.webp` | `phnnnn.png` | cover, top-right tree (rotated −30°) |
 | `decor-banana.webp` | `cScSc.png` | cover, left banana plant |
@@ -56,13 +58,16 @@ photos are copied; the demo uses our own `pembuka.webp` / `galeri-*.webp`.
 | `decor-foliage-band.webp` | `bgwishes.png` | verse, tropical foliage band |
 | `cover-art.webp` | `bugis_bg.png` | gallery footer mosque art |
 | `watermark.webp` | `bgrdwn.png` | page watermark behind the main column |
-| `branch.webp` | `fdsfsd.png` | verse corner branch |
 | `floral.webp` | `dcrbtmrundown.png` | rundown corner floral |
 | `frame-crest.webp` | `IMG_0632.PNG` | crest above Save The Date |
 | `frame.webp` | `IMG_0549.PNG` | gold oval frame around the portraits |
 
 Couple media: `pembuka.webp`, `galeri-1…4.webp`, `pria.webp`, `wanita.webp`,
 `music.mp3`, `thumbnail.webp` (real 9:19 cover capture, 720×1520).
+
+Removed during the reference pass (not used by the final composition):
+`arch-top`, `arch-bottom`, `section-frame`, `frame-lines`, `tree`, `blob-mask`,
+`birds.svg`, and the marketing collage `sampul.jpg` / `thumbnail.jpg`.
 
 Fonts: `public/fonts/waterfall-400.woff2`,
 `public/fonts/ysabeauinfant-{300,400,500,600,700}.woff2`, declared in
@@ -90,10 +95,11 @@ and two cover keyframes.
 
 ## 5. Responsive decision
 
-The reference is a 390 phone canvas; desktop keeps a max-width column. We ship a
-max-width **480 px** column with `clamp()` type, and the cover panel is
-`75 % × 83svh` capped at 400 × 780 px, so the arch stays an arch at every
-width.
+The reference is a 390 phone canvas but it does not cap the cover: the arch is
+`75 %` of the viewport at every width. We follow that — the cover panel has no
+`max-width`, and the photo is a percentage of the panel. Inner sections keep a
+readable max-width (`760–960 px`) because the reference's content column is
+phone-width; on desktop they centre on the same cream canvas.
 
 ---
 
@@ -102,20 +108,24 @@ width.
 | # | Section | Renders from | Gate + toggle | Count / variant branch | Copy source | Motion |
 |---|---|---|---|---|---|---|
 | 1 | Cover | `cover_photos[]`, names, `guest_name` | always | 0 photos ⇒ initials block; 1 name ⇒ no `&`; guest empty ⇒ "Tamu Undangan" | profile + `template_content.cover_apology` | load |
-| 2 | Verse | `cover_photos[1]` fallback, `quote_text/source`, `display_name` | always | no quote photo ⇒ first gallery photo; no quote ⇒ `DEFAULT_QUOTE` | profile + quote columns | up |
+| 2 | Verse | `quote_text/source`, `display_name` | always | no quote ⇒ `DEFAULT_QUOTE`; no hashtag ⇒ generated `#names` | profile + quote columns | up |
 | 3 | Mempelai | `groom_*`/`bride_*`, parents, IG, photos | always | missing parent/IG row omitted; one portrait ⇒ shared fallback | profile | up |
-| 4 | Turut Mengundang | `inviting_families[]` (TEXT, `JSON.parse`) | `feature_gates.inviting_families !== false` && `inviting_families_visible !== false` | 0 ⇒ omitted | profile | up |
-| 5 | Save The Date | `estimated_wedding_date`, `sessions[]` | always | no date ⇒ `00` boxes; 0 events ⇒ countdown only | profile | up |
-| 6 | Live Streaming | `livestream.url/title/description/buttonLabel` | `livestream_visible !== false` && url present | 0 ⇒ omitted | profile | up |
-| 7 | Rundown | `rundown[]` | `rundown_visible !== false` | 0 ⇒ omitted; no time ⇒ description only | profile | up |
-| 8 | Dress Code | `dresscode.colors[]` | `dresscode_visible !== false` | no colours ⇒ omitted; no description ⇒ generated palette line | profile | up |
-| 9 | Gallery + film | `gallery_photos[]`, `video_url` | always with data; video also `feature_gates.video` && `video_section_visible` | 1 photo ⇒ single column; 2 rows split at 8 | profile + `gallery_intro`, `gallery_quote` | up |
-| 10 | Love Story | `stories[]` | `feature_gates.story !== false` && `story_visible !== false` | 0 ⇒ omitted; 1 ⇒ one item | profile | up |
+| 4 | Love Story | `stories[]` | `feature_gates.story !== false` && `story_visible !== false` | 0 ⇒ omitted; 1 ⇒ one item | profile | up |
+| 5 | Gallery + film | `gallery_photos[]`, `video_url` | always with data; video also `feature_gates.video` && `video_section_visible` | 1 photo ⇒ single column; rows split at 8 | profile + `gallery_intro`, `gallery_quote` | up |
+| 6 | Save The Date | `estimated_wedding_date`, `sessions[]` | always | no date ⇒ `00` boxes; 0 events ⇒ countdown only | profile | up |
+| 7 | Turut Mengundang | `inviting_families[]` (TEXT, `JSON.parse`) | `feature_gates.inviting_families !== false` && `inviting_families_visible !== false` | 0 ⇒ omitted | profile | up |
+| 8 | Live Streaming | `livestream.url/title/description/buttonLabel` | `livestream_visible !== false` && url present | 0 ⇒ omitted | profile | up |
+| 9 | Rundown | `rundown[]` | `rundown_visible !== false` | 0 ⇒ omitted; no time ⇒ description only | profile | up |
+| 10 | Dress Code | `dresscode.colors[]` | `dresscode_visible !== false` | no colours ⇒ omitted; no description ⇒ generated palette line | profile | up |
 | 11 | Hadiah | `gift_accounts[]`, `gift_address` | `gift_section_visible !== false`; address also `feature_gates.gift_address !== false` | accounts only / address only / neither ⇒ omitted; envelope discloses | `gift_intro_title`, `gift_intro_description` | up |
 | 12 | Ucapan & Doa | `/api/wishes`, guest identity | always | demo feed; 0 approved ⇒ empty state | `wishes_intro` + `Wishes.tsx` form keys | up |
 | 13 | Hubungi Kami | `contacts[]` | `contacts_visible !== false` | 0 ⇒ omitted; no WA ⇒ no button | profile | up |
 | 14 | Penutup | closing photo, names | always | 0 photos ⇒ cover art fallback | `closing_message` | up |
 | 15 | Music dock | `track_url` | track present | no track ⇒ no vinyl button | — | vinyl spin |
+
+Section order follows the reference: cover → verse → couple → story → gallery →
+save-the-date/events → inviting → live → (our rundown/dresscode) → gift →
+wishes → contacts → closing.
 
 Copy audit: `npm run audit:copy -- traditional-bugis-pinishi` is clean; the 58
 structural literals (WCAG names, countdown units, fixed section labels, vendor

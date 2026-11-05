@@ -484,8 +484,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
-      cover_slots: 3,
-      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      cover_slots: 2,
+      cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,
@@ -522,8 +522,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
-      cover_slots: 3,
-      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      cover_slots: 2,
+      cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,
@@ -560,8 +560,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
-      cover_slots: 3,
-      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      cover_slots: 2,
+      cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,
@@ -600,8 +600,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
-      cover_slots: 3,
-      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      cover_slots: 2,
+      cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,
@@ -629,7 +629,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     theme: {
       fonts: { display: "Waterfall", script: "Waterfall", body: "Ysabeau Infant" },
       colors: {
-        surface: "#f9f6f1",
+        surface: "#f7ecde",
         text: "#3e3426",
         accent: "#65485c",
         accentMuted: "#ebc6b4",
@@ -640,8 +640,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
-      cover_slots: 3,
-      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      cover_slots: 2,
+      cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,
@@ -680,8 +680,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
-      cover_slots: 3,
-      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      cover_slots: 2,
+      cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,
@@ -720,8 +720,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
-      cover_slots: 3,
-      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      cover_slots: 2,
+      cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,
@@ -760,8 +760,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
-      cover_slots: 3,
-      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      cover_slots: 2,
+      cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,
@@ -800,8 +800,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
-      cover_slots: 3,
-      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      cover_slots: 2,
+      cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,
@@ -878,8 +878,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
-      cover_slots: 3,
-      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      cover_slots: 2,
+      cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,
@@ -949,8 +949,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
-      cover_slots: 3,
-      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      cover_slots: 2,
+      cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,
@@ -989,8 +989,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
-      cover_slots: 3,
-      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      cover_slots: 2,
+      cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,
@@ -1029,8 +1029,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
-      cover_slots: 3,
-      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      cover_slots: 2,
+      cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: false,
@@ -1309,8 +1309,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     content: {
       // Three semantic slots: the cover/film poster, the masthead still, and the
       // closing still. Portraits come from the mempelai photo fields.
-      cover_slots: 3,
-      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      cover_slots: 2,
+      cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: true,
@@ -1404,8 +1404,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     content: {
       // Three semantic slots: the cover photograph, the hero still, and the
       // closing panel. Portraits come from the mempelai photo fields.
-      cover_slots: 3,
-      cover_slot_labels: ["Sampul", "Kutipan", "Closing"],
+      cover_slots: 2,
+      cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: true,
