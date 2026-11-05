@@ -312,6 +312,42 @@
   width: 150px;
 }
 
+.pinishi-deco--gll {
+  position: absolute;
+  top: 6%;
+  right: 8%;
+  width: 15%;
+  z-index: 0;
+  opacity: 0.85;
+}
+
+.pinishi-deco--rundown-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.5;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.pinishi-deco--rundown-l {
+  position: absolute;
+  bottom: 4%;
+  left: 2%;
+  width: 28%;
+  z-index: 0;
+}
+
+.pinishi-deco--rundown-r {
+  position: absolute;
+  bottom: 6%;
+  right: 2%;
+  width: 14%;
+  z-index: 0;
+}
+
 .pinishi-deco--blossom {
   top: 6px;
   right: -28px;
@@ -332,6 +368,38 @@
   bottom: -30px;
   width: 100%;
   opacity: 0.32;
+}
+
+.pinishi-deco--verse-tree {
+  position: absolute;
+  top: 0;
+  left: -21.5%;
+  width: 21.5%;
+  z-index: 2;
+}
+
+.pinishi-deco--verse-flower-l {
+  position: absolute;
+  top: 43%;
+  left: -17.3%;
+  width: 17.4%;
+  z-index: 2;
+}
+
+.pinishi-deco--verse-flower-r {
+  position: absolute;
+  top: 20%;
+  right: -2.3%;
+  width: 17.9%;
+  z-index: 3;
+}
+
+.pinishi-deco--verse-tree-r {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 12.75%;
+  z-index: 3;
 }
 
 .pinishi-crest {
@@ -403,6 +471,30 @@
 }
 
 /* Couple */
+.pinishi-deco--couple-a {
+  position: absolute;
+  top: 60%;
+  left: 3%;
+  width: 17.4%;
+  z-index: 0;
+}
+
+.pinishi-deco--couple-b {
+  position: absolute;
+  top: 74.7%;
+  left: 14.5%;
+  width: 22.1%;
+  z-index: 0;
+}
+
+.pinishi-deco--couple-c {
+  position: absolute;
+  top: 85.7%;
+  left: 1.9%;
+  width: 22.1%;
+  z-index: 0;
+}
+
 .pinishi-couple {
   padding: 64px 20px 80px;
   background: var(--pin-bg);
@@ -792,7 +884,57 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.16;
+  opacity: 0.22;
+}
+
+.pinishi-gallery-decor {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.pinishi-gallery-decor .pinishi-gallery-orn {
+  position: absolute;
+  max-width: none;
+  opacity: 0.9;
+}
+
+.pinishi-gallery-decor .pinishi-gallery-orn:nth-child(1) {
+  top: 36%;
+  left: 53%;
+  width: 16%;
+}
+
+.pinishi-gallery-decor .pinishi-gallery-orn:nth-child(2) {
+  top: 24%;
+  right: 4%;
+  width: 21%;
+}
+
+.pinishi-gallery-decor .pinishi-gallery-orn:nth-child(3) {
+  top: 43%;
+  right: 8%;
+  width: 31%;
+}
+
+.pinishi-gallery-decor .pinishi-gallery-orn:nth-child(4) {
+  bottom: 6%;
+  right: 6%;
+  width: 26%;
+}
+
+.pinishi-gallery-decor .pinishi-gallery-orn:nth-child(5) {
+  bottom: 4%;
+  left: 8%;
+  width: 27%;
+}
+
+.pinishi-gallery-decor .pinishi-gallery-orn:nth-child(6) {
+  bottom: 2%;
+  left: 46%;
+  width: 17%;
 }
 
 .pinishi-gallery-art {
@@ -1037,8 +1179,14 @@
 
 /* Wishes */
 .pinishi-wishes {
-  padding: 80px 20px;
-  background: var(--pin-bg);
+  padding: 80px 20px 120px;
+  background-color: var(--pin-bg);
+  background-image: url("/templates/traditional-bugis-pinishi/quote-bg.webp");
+  background-size: 100% auto;
+  background-position: top center;
+  background-repeat: no-repeat;
+  position: relative;
+  overflow: hidden;
 }
 
 .pinishi-wishes-inner {
@@ -1212,6 +1360,66 @@
 }
 
 /* Contacts */
+.pinishi-deco--wishes-ship {
+  position: absolute;
+  bottom: 4%;
+  left: 4%;
+  width: 15%;
+  z-index: 0;
+}
+
+.pinishi-deco--wishes-merak {
+  position: absolute;
+  bottom: 6%;
+  left: 2%;
+  width: 16%;
+  z-index: 0;
+}
+
+.pinishi-deco--wishes-bngarsvp {
+  position: absolute;
+  bottom: 8%;
+  right: 2%;
+  width: 12.5%;
+  z-index: 0;
+}
+
+.pinishi-deco--wishes-bnggg {
+  position: absolute;
+  bottom: 2%;
+  right: 8%;
+  width: 11%;
+  z-index: 0;
+}
+
+.pinishi-deco--closing-a {
+  position: absolute;
+  top: -4%;
+  left: -4%;
+  width: 28%;
+  z-index: 0;
+  opacity: 0.85;
+}
+
+.pinishi-deco--closing-b {
+  position: absolute;
+  top: -6%;
+  right: -6%;
+  width: 28%;
+  z-index: 0;
+  opacity: 0.85;
+}
+
+.pinishi-deco--closing-c {
+  position: absolute;
+  bottom: -4%;
+  left: 40%;
+  width: 19%;
+  z-index: 0;
+  opacity: 0.85;
+}
+
+
 .pinishi-contacts {
   padding: 60px 20px;
   background: var(--pin-bg);

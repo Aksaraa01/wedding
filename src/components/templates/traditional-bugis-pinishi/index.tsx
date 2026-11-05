@@ -512,7 +512,10 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
       {opened && (
         <main id="pinishi-invitation" className="pinishi-main">
           <section className="pinishi-verse" aria-label="Pembuka">
-            <img className="pinishi-deco pinishi-deco--foliage-band" src={ASSET("decor-foliage-band.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--verse-tree" src={ASSET("decor-puunbugis.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--verse-flower-l" src={ASSET("decor-bngquote.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--verse-flower-r" src={ASSET("decor-bunga-quote-3.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--verse-tree-r" src={ASSET("decor-foliage.webp")} alt="" aria-hidden="true" />
             <div className="pinishi-verse-inner" data-aos="fade-up">
               <p className="pinishi-hashtag">
                 {profile.display_name || `#${`${groomShort}${brideShort}`.replace(/\s+/g, "")}`}
@@ -526,6 +529,9 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
 
           <section className="pinishi-couple" aria-label="Mempelai">
             <img className="pinishi-deco pinishi-deco--blossom" src={ASSET("decor-blossom.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--couple-a" src={ASSET("decor-img-0652.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--couple-b" src={ASSET("decor-img-0551.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--couple-c" src={ASSET("decor-img-0651.webp")} alt="" aria-hidden="true" />
             <div className="pinishi-couple-inner">
               <div className="pinishi-couple-intro" data-aos="fade-up">
                 <h2 className="pinishi-section-title">Mempelai</h2>
@@ -581,11 +587,20 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
 
           {hasStory && (
             <section className="pinishi-story" aria-label="Love Story">
+              <img className="pinishi-deco pinishi-deco--mitos-1" src={ASSET("decor-mitos-1.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-deco pinishi-deco--mitos-2" src={ASSET("decor-mitos-2.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-deco pinishi-deco--mitos-3" src={ASSET("decor-mitos-3.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-deco pinishi-deco--mitos-4" src={ASSET("decor-mitos-4.webp")} alt="" aria-hidden="true" />
               <div className="pinishi-story-inner">
                 <h2 className="pinishi-section-title" data-aos="fade-up">Love Story</h2>
                 <div className="pinishi-story-list">
                   {stories.map((story, index) => (
                     <article key={`${story.title || "story"}-${index}`} data-aos="fade-up" data-aos-delay={80 + index * 60} style={delay(80 + index * 60)}>
+                      {story.image_url && (
+                        <div className="pinishi-story-photo">
+                          <img src={story.image_url} alt="" loading="lazy" />
+                        </div>
+                      )}
                       <HeartMarker />
                       <h3>{story.title || `Bagian ${index + 1}`}</h3>
                       {story.description && <p>{story.description}</p>}
@@ -600,6 +615,14 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             <section className="pinishi-gallery" aria-label="Galeri Foto">
               <div className="pinishi-gallery-bg" aria-hidden="true">
                 <img src={coverPhoto} alt="" />
+              </div>
+              <div className="pinishi-gallery-decor" aria-hidden="true">
+                <img className="pinishi-gallery-orn" src={ASSET("decor-dup-1.webp")} alt="" />
+                <img className="pinishi-gallery-orn" src={ASSET("decor-dup-2.webp")} alt="" />
+                <img className="pinishi-gallery-orn" src={ASSET("decor-untitled-13-2.webp")} alt="" />
+                <img className="pinishi-gallery-orn" src={ASSET("decor-dfafda.webp")} alt="" />
+                <img className="pinishi-gallery-orn" src={ASSET("decor-dsdasfdas.webp")} alt="" />
+                <img className="pinishi-gallery-orn" src={ASSET("decor-img-0652.webp")} alt="" />
               </div>
               <div className="pinishi-gallery-inner">
                 <h2 className="pinishi-section-title" data-aos="fade-up">Galeri</h2>
@@ -641,7 +664,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
 
           <section className="pinishi-events" aria-label="Acara Pernikahan">
             <div className="pinishi-events-inner">
-              <img className="pinishi-crest" src={ASSET("frame-crest.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-deco pinishi-deco--gll" src={ASSET("decor-gll-2.webp")} alt="" aria-hidden="true" />
               <h2 className="pinishi-section-title" data-aos="fade-up">Save The Date</h2>
               <div className="pinishi-countdown" data-aos="fade-up" data-aos-delay="60" style={delay(60)}>
                 <div>
@@ -731,7 +754,10 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
 
           {hasRundown && (
             <section className="pinishi-rundown" aria-label="Rundown Acara">
-              <img className="pinishi-deco pinishi-deco--floral" src={ASSET("floral.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-deco pinishi-deco--rundown-frame" src={ASSET("decor-rundown-frame.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-crest" src={ASSET("frame-crest.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-deco pinishi-deco--rundown-l" src={ASSET("decor-rundown-3.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-deco pinishi-deco--rundown-r" src={ASSET("decor-rundown-4.webp")} alt="" aria-hidden="true" />
               <div className="pinishi-rundown-inner" data-aos="fade-up">
                 <h2 className="pinishi-section-title">Rundown Acara</h2>
                 <div className="pinishi-rundown-list">
@@ -810,6 +836,10 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
           )}
 
           <section className="pinishi-wishes" aria-label="Ucapan & Doa">
+            <img className="pinishi-deco pinishi-deco--wishes-ship" src={ASSET("decor-ship.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--wishes-merak" src={ASSET("decor-merak.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--wishes-bngarsvp" src={ASSET("decor-bngarsvp-3.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--wishes-bnggg" src={ASSET("decor-bnggg.webp")} alt="" aria-hidden="true" />
             <div className="pinishi-wishes-inner">
               <h2 className="pinishi-section-title" data-aos="fade-up">Ucapan &amp; Doa</h2>
               <p className="pinishi-wishes-subtitle" data-aos="fade-up" data-aos-delay="60" style={delay(60)}>
