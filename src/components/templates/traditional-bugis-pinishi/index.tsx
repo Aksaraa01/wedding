@@ -840,6 +840,8 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             <img className="pinishi-deco pinishi-deco--wishes-merak" src={ASSET("decor-merak.webp")} alt="" aria-hidden="true" />
             <img className="pinishi-deco pinishi-deco--wishes-bngarsvp" src={ASSET("decor-bngarsvp-3.webp")} alt="" aria-hidden="true" />
             <img className="pinishi-deco pinishi-deco--wishes-bnggg" src={ASSET("decor-bnggg.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--wishes-bngquote" src={ASSET("decor-bngquote.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--wishes-tree" src={ASSET("decor-tree-right.webp")} alt="" aria-hidden="true" />
             <div className="pinishi-wishes-inner">
               <h2 className="pinishi-section-title" data-aos="fade-up">Ucapan &amp; Doa</h2>
               <p className="pinishi-wishes-subtitle" data-aos="fade-up" data-aos-delay="60" style={delay(60)}>

@@ -1360,6 +1360,23 @@
 }
 
 /* Contacts */
+.pinishi-deco--wishes-bngquote {
+  position: absolute;
+  bottom: 0;
+  right: 6%;
+  width: 27%;
+  z-index: 0;
+}
+
+.pinishi-deco--wishes-tree {
+  position: absolute;
+  bottom: -2%;
+  right: -4%;
+  width: 47%;
+  z-index: 0;
+  opacity: 0.9;
+}
+
 .pinishi-deco--wishes-ship {
   position: absolute;
   bottom: 4%;
