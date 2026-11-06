@@ -16,6 +16,7 @@ import {
 import GaleriConfigurator, { type GaleriSelection } from "@/components/galeri/GaleriConfigurator"
 import ProfileMenu from "@/components/ProfileMenu"
 import { packageChangeWaLink } from "@/lib/contact"
+import { coupleSlugError } from "@/lib/slug"
 import {
   calcVoucherTotals,
   parseVoucherTerms,
@@ -668,6 +669,12 @@ function Inner() {
   const handleSubmit = async () => {
     if (!userName.trim() || !partnerName.trim()) {
       setSubmitError("Data pengantin tidak lengkap. Silakan ulangi dari halaman pendaftaran.")
+      return
+    }
+    // Names → invitation subdomain; a DNS label cannot exceed 63 characters.
+    const slugIssue = coupleSlugError(userName, partnerName)
+    if (slugIssue) {
+      setSubmitError(slugIssue)
       return
     }
     if (!book || !galeriReady) {

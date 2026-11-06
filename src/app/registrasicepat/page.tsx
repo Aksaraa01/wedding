@@ -3,6 +3,8 @@
 import { useState, Suspense } from "react"
 import { useRouter } from "next/navigation"
 import { normalizePhone } from "@/lib/packages"
+import { CoupleSlugHint } from "@/components/CoupleSlugHint"
+import { coupleSlugError } from "@/lib/slug"
 
 function RegistrasiCepatInner() {
   const router = useRouter()
@@ -79,6 +81,12 @@ function RegistrasiCepatInner() {
 
   const handleSubmit = async () => {
     if (!formValid || submitting) return
+    // The names become the invitation address; keep them inside a DNS label.
+    const slugIssue = coupleSlugError(firstName, secondName)
+    if (slugIssue) {
+      setSubmitError(slugIssue)
+      return
+    }
     setSubmitting(true)
     setSubmitError("")
 
@@ -184,6 +192,7 @@ function RegistrasiCepatInner() {
                 onChange={(e) => { setSecondName(e.target.value); setSubmitError("") }}
               />
             </div>
+            <CoupleSlugHint name1={firstName} name2={secondName} />
             <div>
               <label className="font-label-md text-[10px] uppercase text-on-surface-variant block mb-2 tracking-widest">Nomor WhatsApp Aktif</label>
               <div className="flex border border-outline-variant/30 focus-within:border-primary rounded-xl overflow-hidden transition-colors">

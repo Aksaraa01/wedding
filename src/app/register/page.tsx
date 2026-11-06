@@ -2,6 +2,8 @@
 
 import { useState, useRef, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { CoupleSlugHint } from "@/components/CoupleSlugHint"
+import { coupleSlugError } from "@/lib/slug"
 
 type Step = 1 | 2
 
@@ -44,6 +46,12 @@ function RegisterInner() {
 
   const handleNextStep1 = async () => {
     if (!step1Valid || nameChecking) return
+    // The names become the invitation address; keep them inside a DNS label.
+    const slugIssue = coupleSlugError(userName, partnerName)
+    if (slugIssue) {
+      setNameError(slugIssue)
+      return
+    }
     setNameChecking(true)
     setNameError("")
     try {
@@ -145,6 +153,7 @@ function RegisterInner() {
                 <div className="absolute bottom-0 left-0 h-[1px] w-full bg-outline-variant/30 group-focus-within:bg-primary transition-all duration-500" />
               </div>
             </div>
+            <CoupleSlugHint name1={userName} name2={partnerName} className="mt-6" />
             {nameError && (
               <p className={`font-body-md text-sm text-error mt-6 animate-fade-in ${nameChecking ? "" : ""}`}>{nameError}</p>
             )}

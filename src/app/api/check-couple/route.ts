@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
-import { slugifyCouple } from "@/lib/slug"
+import { slugifyCouple, MAX_COUPLE_SLUG_LENGTH } from "@/lib/slug"
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
@@ -19,7 +19,12 @@ export async function GET(req: Request) {
       .eq("slug", slug)
       .limit(1)
 
-    return NextResponse.json({ exists: !!(data && data.length > 0) })
+    return NextResponse.json({
+      exists: !!(data && data.length > 0),
+      slug,
+      // The slug becomes the invitation subdomain; >63 chars is not a DNS label.
+      tooLong: slug.length > MAX_COUPLE_SLUG_LENGTH,
+    })
   } catch {
     return NextResponse.json({ exists: false, error: "db_unavailable" })
   }

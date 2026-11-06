@@ -3,7 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase"
 import { normalizePhone, PACKAGE_CODES, PACKAGE_FEATURES, priceParts } from "@/lib/packages"
 import { getPriceBook } from "@/lib/priceBook"
 import { normalizeGaleriConfig } from "@/lib/gallery"
-import { slugifyCouple } from "@/lib/slug"
+import { slugifyCouple, MAX_COUPLE_SLUG_LENGTH } from "@/lib/slug"
 import { notifyNewAccountGroup } from "@/lib/notifyGroup"
 import { getSelections } from "@/lib/featureGates"
 import { checkRateLimit, getClientIp, rateLimited } from "@/lib/rateLimit"
@@ -87,6 +87,17 @@ export async function POST(req: Request) {
     const slug = slugifyCouple(groom_name, bride_name)
     if (!slug) {
       return NextResponse.json({ error: "Data pengantin tidak lengkap" }, { status: 400 })
+    }
+    // The slug is the couple's subdomain: a DNS label maxes out at 63 octets, so
+    // anything longer can never resolve. Ask for nicknames instead of creating a
+    // profile whose invitation link is dead on arrival.
+    if (slug.length > MAX_COUPLE_SLUG_LENGTH) {
+      return NextResponse.json(
+        {
+          error: `Nama terlalu panjang: alamat undangan menjadi ${slug.length} karakter (maks. ${MAX_COUPLE_SLUG_LENGTH}). Gunakan nama panggilan saja, misalnya “Rafi” & “Novi”. Nama lengkap bisa dilengkapi di editor.`,
+        },
+        { status: 400 },
+      )
     }
 
     const { data: dupCouple } = await supabaseAdmin

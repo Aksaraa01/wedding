@@ -8,11 +8,13 @@
 //
 // Pure and client-safe: no server-only imports.
 
+import { MAX_COUPLE_SLUG_LENGTH } from "@/lib/slug"
+
 export const MAIN_SITE = "https://wedding.aksaraa.com"
 export const COUPLE_DOMAIN = "wedding.aksaraa.com"
 
 /** RFC 1035: a label is 63 octets max. Longer slugs can only live on the path. */
-export const MAX_DNS_LABEL_LENGTH = 63
+export const MAX_DNS_LABEL_LENGTH = MAX_COUPLE_SLUG_LENGTH
 
 export function isSubdomainSlug(slug: string | null | undefined): boolean {
   const clean = (slug || "").trim()
