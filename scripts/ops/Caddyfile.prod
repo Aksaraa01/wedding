@@ -112,6 +112,11 @@ staging.aksaraa.com {
 # fonts and images is served from here through Cloudflare's edge cache.
 cdn.aksaraa.com {
 	root * /var/www/aksara-wedding/.next/standalone/public
+	# Atlas/Academy art lives in the R2 bucket behind art.aksaraa.com. Art URLs
+	# stored in that project's DB are absolute and still point at this host, so
+	# keep them working with a 302 (same pattern as /fonts; instant rollback).
+	@art path /atlas/* /academy/* /og/*
+	redir @art https://art.aksaraa.com{uri} 302
 	encode zstd gzip
 	header {
 		Access-Control-Allow-Origin "*"
