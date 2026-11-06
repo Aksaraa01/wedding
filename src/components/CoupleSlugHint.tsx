@@ -22,8 +22,7 @@ export function CoupleSlugHint({ name1, name2, className = "" }: CoupleSlugHintP
   return (
     <div className={`text-left ${className}`}>
       <p className="font-label-md text-[11px] leading-relaxed text-on-surface-variant">
-        Isi <strong className="font-semibold text-on-surface">nama panggilan</strong> saja — nama ini menjadi
-        alamat undangan Anda. Nama lengkap bisa dilengkapi nanti di editor.
+        Isi dengan nama panggilan saja. Nama ini menjadi alamat undangan digital Anda.
       </p>
       <div className="mt-1.5 flex items-baseline gap-2 font-mono text-[11px]">
         <span className={`min-w-0 break-all ${over ? "text-red-400" : "text-on-surface-variant/70"}`}>

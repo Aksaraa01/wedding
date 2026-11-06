@@ -26,5 +26,5 @@ export const MAX_COUPLE_SLUG_LENGTH = 63
 export function coupleSlugError(name1: string, name2: string): string | null {
   const slug = slugifyCouple(name1, name2)
   if (!slug || slug.length <= MAX_COUPLE_SLUG_LENGTH) return null
-  return `Nama terlalu panjang: alamat undangan menjadi ${slug.length} karakter (maks. ${MAX_COUPLE_SLUG_LENGTH}). Gunakan nama panggilan saja, misalnya “Rafi” & “Novi”.`
+  return `Nama terlalu panjang: alamat undangan menjadi ${slug.length} karakter (maks. ${MAX_COUPLE_SLUG_LENGTH}). Isi dengan nama panggilan saja, misalnya “Rafi” & “Novi”.`
 }

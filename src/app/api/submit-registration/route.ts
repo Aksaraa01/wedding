@@ -94,7 +94,7 @@ export async function POST(req: Request) {
     if (slug.length > MAX_COUPLE_SLUG_LENGTH) {
       return NextResponse.json(
         {
-          error: `Nama terlalu panjang: alamat undangan menjadi ${slug.length} karakter (maks. ${MAX_COUPLE_SLUG_LENGTH}). Gunakan nama panggilan saja, misalnya “Rafi” & “Novi”. Nama lengkap bisa dilengkapi di editor.`,
+          error: `Nama terlalu panjang: alamat undangan menjadi ${slug.length} karakter (maks. ${MAX_COUPLE_SLUG_LENGTH}). Isi dengan nama panggilan saja, misalnya “Rafi” & “Novi”.`,
         },
         { status: 400 },
       )
