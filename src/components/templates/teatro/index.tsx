@@ -561,7 +561,12 @@ export default function Teatro(profile: TemplateProps) {
   const brideName = (profile.bride_name || "").trim()
   const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || "The Wedding"
   const coupleInitials = (profile.couple_initials || "").trim() || [groomName.charAt(0), brideName.charAt(0)].filter(Boolean).join("")
-  const displayName = (profile.display_name || "").trim() || `#${groomName}${brideName}`.replace(/\s+/g, "") || "#OurWedding"
+  // display_name is the "Hashtag Instagram Post" field. Legacy rows stored the
+  // couple's names there; a name is not a hashtag, so print a derived hashtag
+  // instead of repeating the names under the initials.
+  const rawHashtag = (profile.display_name || "").trim()
+  const derivedHashtag = `#${`${groomName}${brideName}`.replace(/[^A-Za-z0-9]/g, "") || coupleInitials.replace(/[^A-Za-z0-9]/g, "") || "OurWedding"}`
+  const hashtag = rawHashtag.startsWith("#") ? rawHashtag : derivedHashtag
   const guestName = (profile.guest_name || "").trim() || WISH_ME
   const dateLong = longDateEn(profile.estimated_wedding_date)
   const dateFull = longDateEn(profile.estimated_wedding_date, true)
@@ -1421,7 +1426,7 @@ export default function Teatro(profile: TemplateProps) {
           {closingSee && <p className="te-quoteScript" {...IN("fade", 0.12)}>{closingSee}</p>}
           <p className="te-closing__names" {...IN("up", 0.16)}>{coupleLabel}</p>
           {coupleInitials && <p className="te-closing__initials" {...IN("fade", 0.18)}>{coupleInitials}</p>}
-          {displayName && <p className="te-closing__hashtag" {...IN("fade", 0.2)}>{displayName}</p>}
+          {hashtag && <p className="te-closing__hashtag" {...IN("fade", 0.2)}>{hashtag}</p>}
         </section>
 
         <footer className="te-footer">

@@ -2276,7 +2276,7 @@ DEMO_PROPS_BY_CODE.teatro = {
   ...DEMO_PROPS_BY_CODE["sandhya"],
   slug: "demo",
   track_url: "/templates/teatro/intro-music.mp3",
-  display_name: "Albarn & Faye",
+  display_name: "#AlbarnFaye2027",
   estimated_wedding_date: "2027-06-19",
   cover_photos: [`${DE}/cover.webp`, `${DE}/cover-1.webp`, `${DE}/cover-2.webp`],
   groom_photo_url: [`${DE}/groom.webp`],
