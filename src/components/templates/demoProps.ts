@@ -832,6 +832,10 @@ DEMO_PROPS_BY_CODE["adat-melayu"] = {
       "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
     closing_message:
       "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
+    profiles_intro:
+      "Dengan memohon rahmat dan ridho Allah SWT, kami dipertemukan untuk melangkah bersama dalam kasih dan keharmonisan.",
+    events_intro:
+      "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Melayu kami:",
   },
   rundown_visible: true,
   contacts_visible: true,
@@ -926,6 +930,10 @@ DEMO_PROPS_BY_CODE["adat-bugis"] = {
       "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
     closing_message:
       "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
+    profiles_intro:
+      "Dengan memohon rahmat dan ridho Allah SWT, kami dipertemukan untuk melangkah bersama dalam kasih dan keharmonisan.",
+    events_intro:
+      "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Bugis kami:",
   },
 }
 
@@ -1048,6 +1056,10 @@ DEMO_PROPS_BY_CODE["adat-dayak"] = {
       "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
     closing_message:
       "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
+    profiles_intro:
+      "Dengan memohon rahmat dan ridho Allah SWT, kami dipertemukan untuk melangkah bersama dalam kasih dan keharmonisan.",
+    events_intro:
+      "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Dayak kami:",
   },
 }
 
@@ -1129,6 +1141,10 @@ DEMO_PROPS_BY_CODE["adat-banjar"] = {
       "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
     closing_message:
       "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan.",
+    profiles_intro:
+      "Dengan memohon rahmat dan ridho Allah SWT, kami dipertemukan untuk melangkah bersama dalam kasih dan keharmonisan.",
+    events_intro:
+      "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Banjar kami:",
   },
 }
 
@@ -1213,6 +1229,10 @@ DEMO_PROPS_BY_CODE["adat-batak"] = {
       "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu.",
     closing_message:
       "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Tuhan senantiasa melimpahkan berkat-Nya.",
+    profiles_intro:
+      "Dengan memohon rahmat Tuhan Yang Maha Esa, kami dipertemukan untuk melangkah bersama dalam kasih dan keharmonisan.",
+    events_intro:
+      "Dengan memohon rahmat Tuhan Yang Maha Esa, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Batak kami:",
   },
 }
 
@@ -1225,7 +1245,11 @@ DEMO_PROPS_BY_CODE["adat-minang"] = {
   quote_source: "Doa Pernikahan Adat Minang",
   sessions: DEMO_PROPS_BY_CODE["adat-melayu"].sessions,
   stories: DEMO_PROPS_BY_CODE["adat-melayu"].stories,
-  template_content: DEMO_PROPS_BY_CODE["adat-melayu"].template_content,
+  template_content: {
+    ...DEMO_PROPS_BY_CODE["adat-melayu"].template_content,
+    events_intro:
+      "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Minang kami:",
+  },
   rundown: DEMO_PROPS_BY_CODE["adat-melayu"].rundown,
   contacts: DEMO_PROPS_BY_CODE["adat-melayu"].contacts,
   rundown_visible: true,
@@ -1328,7 +1352,11 @@ DEMO_PROPS_BY_CODE["adat-jawa"] = {
   quote_source: "Doa Pernikahan Adat Jawa",
   sessions: DEMO_PROPS_BY_CODE["adat-melayu"].sessions,
   stories: DEMO_PROPS_BY_CODE["adat-melayu"].stories,
-  template_content: DEMO_PROPS_BY_CODE["adat-melayu"].template_content,
+  template_content: {
+    ...DEMO_PROPS_BY_CODE["adat-melayu"].template_content,
+    events_intro:
+      "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Jawa kami:",
+  },
   rundown: DEMO_PROPS_BY_CODE["adat-melayu"].rundown,
   contacts: DEMO_PROPS_BY_CODE["adat-melayu"].contacts,
   rundown_visible: true,
@@ -1393,7 +1421,11 @@ DEMO_PROPS_BY_CODE["adat-palembang"] = {
   quote_source: "Doa Pernikahan Adat Palembang",
   sessions: DEMO_PROPS_BY_CODE["adat-melayu"].sessions,
   stories: DEMO_PROPS_BY_CODE["adat-melayu"].stories,
-  template_content: DEMO_PROPS_BY_CODE["adat-melayu"].template_content,
+  template_content: {
+    ...DEMO_PROPS_BY_CODE["adat-melayu"].template_content,
+    events_intro:
+      "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Palembang kami:",
+  },
   rundown: DEMO_PROPS_BY_CODE["adat-melayu"].rundown,
   contacts: DEMO_PROPS_BY_CODE["adat-melayu"].contacts,
   rundown_visible: true,
@@ -1410,7 +1442,11 @@ DEMO_PROPS_BY_CODE["adat-betawi"] = {
   quote_source: "Doa Pernikahan Adat Betawi",
   sessions: DEMO_PROPS_BY_CODE["adat-melayu"].sessions,
   stories: DEMO_PROPS_BY_CODE["adat-melayu"].stories,
-  template_content: DEMO_PROPS_BY_CODE["adat-melayu"].template_content,
+  template_content: {
+    ...DEMO_PROPS_BY_CODE["adat-melayu"].template_content,
+    events_intro:
+      "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Betawi kami:",
+  },
   rundown: DEMO_PROPS_BY_CODE["adat-melayu"].rundown,
   contacts: DEMO_PROPS_BY_CODE["adat-melayu"].contacts,
   rundown_visible: true,
@@ -1427,7 +1463,11 @@ DEMO_PROPS_BY_CODE["adat-bali"] = {
   quote_source: "Doa Pernikahan Adat Bali",
   sessions: DEMO_PROPS_BY_CODE["adat-melayu"].sessions,
   stories: DEMO_PROPS_BY_CODE["adat-melayu"].stories,
-  template_content: DEMO_PROPS_BY_CODE["adat-melayu"].template_content,
+  template_content: {
+    ...DEMO_PROPS_BY_CODE["adat-melayu"].template_content,
+    events_intro:
+      "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Bali kami:",
+  },
   rundown: DEMO_PROPS_BY_CODE["adat-melayu"].rundown,
   contacts: DEMO_PROPS_BY_CODE["adat-melayu"].contacts,
   rundown_visible: true,

@@ -31,6 +31,10 @@ const DEFAULT_CLOSING =
   "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan."
 const DEFAULT_WISHES_SUBTITLE =
   "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu."
+const DEFAULT_PROFILES_INTRO =
+  "Dengan memohon rahmat dan ridho Allah SWT, kami dipertemukan untuk melangkah bersama dalam kasih dan keharmonisan."
+const DEFAULT_EVENTS_INTRO =
+  "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Dayak kami:"
 
 function describePalette(colors?: { hex?: string; name?: string }[]): string {
   const names = (colors || []).map((c) => (c.name || "").trim()).filter(Boolean)
@@ -196,6 +200,8 @@ export default function AdatDayak(profile: TemplateProps) {
   const giftIntroDescription = tc.gift_intro_description || DEFAULT_GIFT_DESCRIPTION
   const wishesSubtitle = tc.wishes_intro || DEFAULT_WISHES_SUBTITLE
   const closingMessage = tc.closing_message || DEFAULT_CLOSING
+  const profilesIntro = tc.profiles_intro || DEFAULT_PROFILES_INTRO
+  const eventsIntro = tc.events_intro || DEFAULT_EVENTS_INTRO
   const dressDescription = profile.dresscode?.description || describePalette(profile.dresscode?.colors)
   const livestream = profile.livestream
 
@@ -612,7 +618,7 @@ export default function AdatDayak(profile: TemplateProps) {
                   Married!
                 </h2>
                 <p className="garden-text-reveal" data-aos="fade-up" data-aos-delay="120" style={delay(120)}>
-                  Dengan memohon rahmat dan ridho Allah SWT, kami dipertemukan untuk melangkah bersama dalam kasih dan keharmonisan.
+                  {profilesIntro}
                 </p>
               </div>
               <div>
@@ -758,7 +764,7 @@ export default function AdatDayak(profile: TemplateProps) {
                 </a>
               )}
               <p>
-                Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Dayak kami:
+                {eventsIntro}
               </p>
             </div>
             {events.map((event, index) => {
