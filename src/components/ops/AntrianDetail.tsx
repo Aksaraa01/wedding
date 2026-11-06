@@ -1550,17 +1550,32 @@ export default function AntrianDetail({ id }: { id: string }) {
     visField("Tampil Live Streaming", f.livestream_visible !== false, orig.livestream_visible !== false)
     visField("Tampil Rundown Acara", f.rundown_visible !== false, orig.rundown_visible !== false)
     visField("Tampil Kontak Keluarga", f.contacts_visible !== false, orig.contacts_visible !== false)
-    arrField("Rundown Acara", f.rundown, orig.rundown)
-    arrField("Kontak Keluarga", f.contacts, orig.contacts)
+    // The edit form normalizes rows (missing keys → "", fixed key order), so a
+    // raw JSON compare flags unchanged rundown/contacts as "changed". Compare
+    // only the editable columns, like sessions/stories above.
+    const normRundown = (list: any[]) => (list || []).map((r: any) => [r?.time || "", r?.description || ""].join("|"))
+    if (JSON.stringify(normRundown(f.rundown)) !== JSON.stringify(normRundown(orig.rundown))) {
+      changed.push(`Rundown Acara (${(orig.rundown || []).length}→${(f.rundown || []).length})`)
+    }
+    const normContacts = (list: any[]) => (list || []).map((c: any) => [c?.name || "", c?.description || "", c?.whatsapp || ""].join("|"))
+    if (JSON.stringify(normContacts(f.contacts)) !== JSON.stringify(normContacts(orig.contacts))) {
+      changed.push(`Kontak Keluarga (${(orig.contacts || []).length}→${(f.contacts || []).length})`)
+    }
     if (JSON.stringify(f.dresscode?.colors || []) !== JSON.stringify(orig.dresscode?.colors || [])) changed.push("Palet Dress Code")
     strField("Live Streaming", f.livestream?.url, orig.livestream?.url)
-    const tcLabels: [string, string][] = [
+    // Diff EVERY extra field the active template exposes (the old hardcoded
+    // list missed profiles_intro/events_intro/gallery_intro/wishes_intro, so an
+    // extras-only edit looked like "no changes" and never reached the log).
+    const tcLabels = new Map<string, string>([
       ["cover_apology", "Cover Apology"],
       ["gallery_quote", "Gallery Quote"],
       ["gift_intro_title", "Gift Intro Title"],
       ["gift_intro_description", "Gift Intro Description"],
       ["closing_message", "Closing Message"],
-    ]
+    ])
+    for (const field of getTemplateExtraFields(invTpl?.code)) {
+      tcLabels.set(field.key, field.label)
+    }
     for (const [key, label] of tcLabels) {
       strField(label, f.template_content?.[key], orig.template_content?.[key])
     }
