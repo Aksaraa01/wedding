@@ -12,6 +12,7 @@ import { FALLBACK_GUEST_SLUG, FALLBACK_GUEST_NAME, slugifyName } from "@/lib/gue
 import { paymentWaLink } from "@/lib/contact"
 import { resolveCoupleName } from "@/lib/coupleName"
 import { normalizePhone } from "@/lib/packages"
+import { coupleUrl } from "@/lib/coupleUrl"
 
 type Guest = {
   id: string
@@ -367,7 +368,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       setShowLimitModal(true)
       return
     }
-    const url = `https://${profile.slug}.wedding.aksaraa.com/qr/${encodeURIComponent(slug || token || "")}`
+    const url = coupleUrl(profile.slug, `/qr/${encodeURIComponent(slug || token || "")}`)
     try {
       await navigator.clipboard.writeText(url)
       setCopiedId(guests.find(g => g.qr_token === token)?.id || null)
@@ -384,8 +385,8 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
   const handleCopyUndangan = async (guest: Guest) => {
     if (!profile) return
     const url = guest.qr_token && !guest.slug
-      ? `https://${profile.slug}.wedding.aksaraa.com/w/${profile.slug}?to=${encodeURIComponent(guestLinkParam(guest))}&qr_token=${encodeURIComponent(guest.qr_token)}`
-      : `https://${profile.slug}.wedding.aksaraa.com/?to=${encodeURIComponent(guestLinkParam(guest))}`
+      ? coupleUrl(profile.slug, `/w/${encodeURIComponent(profile.slug)}?to=${encodeURIComponent(guestLinkParam(guest))}&qr_token=${encodeURIComponent(guest.qr_token)}`)
+      : coupleUrl(profile.slug, `/?to=${encodeURIComponent(guestLinkParam(guest))}`)
     try {
       await navigator.clipboard.writeText(url)
       setCopiedId(guest.id)
@@ -396,22 +397,22 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
 
   const guestQrUrl = (guest: Guest) =>
     guest.qr_token
-      ? `https://${profile?.slug}.wedding.aksaraa.com/qr/${encodeURIComponent(guest.slug || guest.qr_token)}`
+      ? coupleUrl(profile?.slug || "", `/qr/${encodeURIComponent(guest.slug || guest.qr_token)}`)
       : ""
 
   const guestUndanganUrl = (guest: Guest) => {
     if (!profile) return ""
     return guest.qr_token && !guest.slug
-      ? `https://${profile.slug}.wedding.aksaraa.com/w/${profile.slug}?to=${encodeURIComponent(guestLinkParam(guest))}&qr_token=${encodeURIComponent(guest.qr_token)}`
+      ? coupleUrl(profile.slug, `/w/${encodeURIComponent(profile.slug)}?to=${encodeURIComponent(guestLinkParam(guest))}&qr_token=${encodeURIComponent(guest.qr_token)}`)
       : guest.slug || guest.qr_token
-      ? `https://${profile.slug}.wedding.aksaraa.com/?to=${encodeURIComponent(guestLinkParam(guest))}`
+      ? coupleUrl(profile.slug, `/?to=${encodeURIComponent(guestLinkParam(guest))}`)
       : ""
   }
 
   const coupleName = profile ? resolveCoupleName(profile) : ""
 
   const genericUndanganUrl = profile
-    ? `https://${profile.slug}.wedding.aksaraa.com/?to=${encodeURIComponent(FALLBACK_GUEST_SLUG)}`
+    ? coupleUrl(profile.slug, `/?to=${encodeURIComponent(FALLBACK_GUEST_SLUG)}`)
     : ""
 
   const handleCopyGeneric = async (kind: "link" | "msg") => {

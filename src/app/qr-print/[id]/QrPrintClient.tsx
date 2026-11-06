@@ -5,6 +5,7 @@ import QRCode from "qrcode"
 import { resolveCoupleName } from "@/lib/coupleName"
 import { resolveEventPhoto } from "@/lib/event-photo"
 import { toTransformedUrl } from "@/lib/storageUrl"
+import { coupleUrl } from "@/lib/coupleUrl"
 
 type PrintGuest = {
   id: string
@@ -162,7 +163,7 @@ export default function QrPrintClient({ id, autoprint }: { id: string; autoprint
           const guest = printable[i]
           const token = guest.qr_token as string
           const content = profile.slug
-            ? `https://${profile.slug}.wedding.aksaraa.com/welcome/${encodeURIComponent(token)}`
+            ? coupleUrl(profile.slug, `/welcome/${encodeURIComponent(token)}`)
             : `https://wedding.aksaraa.com/welcome/${encodeURIComponent(token)}`
           next[guest.id] = await QRCode.toDataURL(content, {
             errorCorrectionLevel: "Q",

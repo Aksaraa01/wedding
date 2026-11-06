@@ -6,6 +6,7 @@ import { ensureOgImage, ogPublicUrlFor, resolveCoverImage } from "@/lib/ogImage"
 import { getPublishBlockers } from "@/lib/publishBlockers"
 import { requireProfileAccess } from "@/lib/requireProfileAccess"
 import { getTemplateContentSpec } from "@/components/templates"
+import { coupleUrl } from "@/lib/coupleUrl"
 
 export const dynamic = "force-dynamic"
 
@@ -85,7 +86,7 @@ export async function GET(
         quote_source: profile.quote_source,
         stories: profile.stories,
         gallery_photos: profile.gallery_photos,
-        invitation_url: `https://${profile.slug}.wedding.aksaraa.com`,
+        invitation_url: coupleUrl(profile.slug),
         inviting_families: profile.inviting_families ? (typeof profile.inviting_families === "string" ? JSON.parse(profile.inviting_families) : profile.inviting_families) : [],
         rsvp_max_pax: profile.rsvp_max_pax,
         gift_section_visible: profile.gift_section_visible !== false,

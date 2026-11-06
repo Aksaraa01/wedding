@@ -6,6 +6,7 @@ import { useVisiblePoll } from "@/lib/useVisiblePoll"
 import { resolveCoupleName } from "@/lib/coupleName"
 import { resolveEventPhoto } from "@/lib/event-photo"
 import StorageImage from "@/components/StorageImage"
+import { coupleUrl } from "@/lib/coupleUrl"
 
 function getSegment(segments: string[] | undefined): string | null {
   if (!segments || segments.length === 0) return null
@@ -144,7 +145,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
         setEstimatedDate(data.profile.estimated_wedding_date || "")
         setSessions(data.profile.sessions || [])
         const qrContent = data.profile.slug
-          ? `https://${data.profile.slug}.wedding.aksaraa.com/welcome/${data.guest.qr_token || segment}`
+          ? coupleUrl(data.profile.slug, `/welcome/${data.guest.qr_token || segment}`)
           : data.guest.qr_token || segment
         const url = await QRCode.toDataURL(qrContent, {
           width: 400,

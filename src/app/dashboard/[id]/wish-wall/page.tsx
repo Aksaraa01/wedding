@@ -7,6 +7,7 @@ import UpgradePackageModal from "@/components/UpgradePackageModal"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
 import { PACKAGE_CODES, PACKAGE_CATEGORY, PACKAGE_LABELS } from "@/lib/packages"
 import { generateWishWallPdf, type PdfProfile } from "@/lib/wishWallPdf"
+import { coupleUrl } from "@/lib/coupleUrl"
 
 const GREETING_DURATIONS = [15, 20, 30]
 
@@ -161,7 +162,7 @@ export default function WishWallPage({ params }: { params: Promise<{ id: string 
     }
   }
 
-  const ledUrl = coupleSlug ? `https://${coupleSlug}.wedding.aksaraa.com/led` : ""
+  const ledUrl = coupleSlug ? coupleUrl(coupleSlug, "/led") : ""
 
   const copyLedUrl = () => {
     if (!ledUrl) return

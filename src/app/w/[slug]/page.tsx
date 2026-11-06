@@ -15,6 +15,7 @@ import { toOgImageUrl } from "@/lib/storage"
 import { prettifyGuestSlug, FALLBACK_GUEST_NAME, findGuestForTo, guestToFromParams } from "@/lib/guest-link"
 import { resolveCoupleName } from "@/lib/coupleName"
 import InvitationExpired from "@/components/InvitationExpired"
+import { coupleUrl } from "@/lib/coupleUrl"
 
 export const revalidate = 60
 
@@ -116,7 +117,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // That means NO og:image at all (title + description only) — never the couple
   // portrait and not a stock placeholder either.
   const linkThumbDisabled = (profile as any).link_thumbnail_disabled === true && covers.length === 0
-  const defaultImage = profile.slug ? `https://${profile.slug}.wedding.aksaraa.com/defaults/couple.png` : undefined
+  const defaultImage = profile.slug ? coupleUrl(profile.slug, "/defaults/couple.png") : undefined
   const image = linkThumbDisabled
     ? undefined
     : noCoverSlots
@@ -149,9 +150,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     // canonicalize ?to=/qr_token variants to the clean subdomain root so
     // per-guest URLs consolidate instead of indexing as duplicates. Kept
     // indexable (follow) so the brand credit backlink passes equity.
-    alternates: profile.slug
-      ? { canonical: `https://${profile.slug}.wedding.aksaraa.com/` }
-      : undefined,
+    alternates: profile.slug ? { canonical: coupleUrl(profile.slug) } : undefined,
     openGraph: {
       title,
       description,

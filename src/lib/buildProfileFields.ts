@@ -3,6 +3,7 @@ import { formatDateUpper } from "@/lib/formatDate"
 import { resolveCoupleName } from "@/lib/coupleName"
 import { resolveBankLogo } from "@/lib/bankList"
 import { getRowGates } from "@/lib/featureGates"
+import { coupleUrl } from "@/lib/coupleUrl"
 
 const PROFILE_SELECT =
   "id, bride_name, groom_name, slug, package_type, selected_template_id, selected_track_id, active_wp_post_id, couple_illustration_url, cover_photos, couple_initials, display_name, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, opening_title, opening_description"
@@ -124,13 +125,13 @@ export async function buildProfileFields(profileId: string, templateId?: string 
   // mu-plugin sideloads the URL into WP media so the Elementor template renders it.
   // Skipped entirely for tanpa-photo templates (no fallback photo either).
   if (!noPhotoTemplate && coverPhotos.length === 0 && profile.slug) {
-    coverPhotos.push(`https://${profile.slug}.wedding.aksaraa.com/defaults/couple.png`)
+    coverPhotos.push(coupleUrl(profile.slug, "/defaults/couple.png"))
   }
   if (!noPhotoTemplate && groomPhoto.length === 0 && profile.slug) {
-    groomPhoto.push(`https://${profile.slug}.wedding.aksaraa.com/defaults/groom.png`)
+    groomPhoto.push(coupleUrl(profile.slug, "/defaults/groom.png"))
   }
   if (!noPhotoTemplate && bridePhoto.length === 0 && profile.slug) {
-    bridePhoto.push(`https://${profile.slug}.wedding.aksaraa.com/defaults/bride.png`)
+    bridePhoto.push(coupleUrl(profile.slug, "/defaults/bride.png"))
   }
   const fields: Record<string, any> = {
     couple_illustration_url: noPhotoTemplate ? "" : (profile.couple_illustration_url || ""),

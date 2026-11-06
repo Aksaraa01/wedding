@@ -10,6 +10,7 @@ import html2canvas from "html2canvas"
 import * as XLSX from "xlsx"
 import { renderReminderMessage, getCoupleDisplayName } from "@/lib/reminderTemplates"
 import { resolveCoupleName } from "@/lib/coupleName"
+import { coupleUrl } from "@/lib/coupleUrl"
 import { MSG_TEMPLATES, cleanMessageForCell, isValidMsgCategory, renderMessage } from "@/lib/messageTemplates"
 import {
   PACKAGE_LABELS,
@@ -1911,9 +1912,9 @@ export default function AntrianDetail({ id }: { id: string }) {
     ? `https://wa.me/${currentWp.whatsapp_number.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Halo ${currentWp.groom_name} & ${currentWp.bride_name}, saya dari Aksaraa CORE OPS terkait proyek undangan Anda`)}`
     : "#"
   const guestInvUrl = (g: { slug?: string | null; name?: string; qr_token?: string | null }) =>
-    g.slug ? `https://${profileSlug}.wedding.aksaraa.com/?to=${encodeURIComponent(g.slug)}` : ""
+    g.slug ? coupleUrl(profileSlug, `/?to=${encodeURIComponent(g.slug)}`) : ""
   const guestQrUrl = (g: { slug?: string | null; qr_token?: string | null }) =>
-    g.slug || g.qr_token ? `https://${profileSlug}.wedding.aksaraa.com/qr/${encodeURIComponent(g.slug || g.qr_token || "")}` : ""
+    g.slug || g.qr_token ? coupleUrl(profileSlug, `/qr/${encodeURIComponent(g.slug || g.qr_token || "")}`) : ""
 
   const openQrModal = async () => {
     if (!currentWp) return
@@ -1961,8 +1962,8 @@ export default function AntrianDetail({ id }: { id: string }) {
       scheduleText
         ? renderReminderMessage(scheduleText, {
             NamaTamu: g.name,
-            TautanUnik: g.slug ? `https://${profileSlug}.wedding.aksaraa.com/?to=${encodeURIComponent(g.slug)}` : "",
-            QRAkses: g.slug || g.qr_token ? `https://${profileSlug}.wedding.aksaraa.com/qr/${encodeURIComponent(g.slug || g.qr_token || "")}` : "",
+            TautanUnik: g.slug ? coupleUrl(profileSlug, `/?to=${encodeURIComponent(g.slug)}`) : "",
+            QRAkses: g.slug || g.qr_token ? coupleUrl(profileSlug, `/qr/${encodeURIComponent(g.slug || g.qr_token || "")}`) : "",
             NamaPengantin: coupleName,
             NomorMeja: g.table_number || "",
             Tanggal: weddingDate,

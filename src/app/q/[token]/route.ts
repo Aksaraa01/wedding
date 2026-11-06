@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { slugifyName } from "@/lib/guest-link"
+import { coupleUrl, isSubdomainSlug } from "@/lib/coupleUrl"
 
 export async function GET(
   _req: Request,
@@ -30,10 +31,15 @@ export async function GET(
 
   const guestSlug = guest.slug || slugifyName(guest.name)
   const encodedSlug = encodeURIComponent(guestSlug)
-  const host = _req.headers.get("host") || `${profile.slug}.wedding.aksaraa.com`
+  const host = _req.headers.get("host") || ""
   const proto = _req.headers.get("x-forwarded-proto") || "https"
-  return NextResponse.redirect(
-    `${proto}://${host}/?to=${encodedSlug}`,
-    302
-  )
+  // A QR opened on the main site (or a couple whose slug is longer than a DNS
+  // label allows) has no subdomain to redirect to — land on /w/{slug} instead
+  // of the marketing homepage.
+  const onMainSite = !host || host === "wedding.aksaraa.com" || host === "www.wedding.aksaraa.com"
+  const target =
+    onMainSite || !isSubdomainSlug(profile.slug)
+      ? coupleUrl(profile.slug, `/?to=${encodedSlug}`)
+      : `${proto}://${host}/?to=${encodedSlug}`
+  return NextResponse.redirect(target, 302)
 }
