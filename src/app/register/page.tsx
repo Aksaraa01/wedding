@@ -135,7 +135,7 @@ function RegisterInner() {
                   autoComplete="off"
                   value={userName}
                   onChange={(e) => { setUserName(e.target.value); setNameError("") }}
-                  className="w-full bg-transparent border-none border-b border-outline-variant py-4 px-0 font-display-lg-mobile text-headline-md focus:ring-0 focus:border-primary placeholder:text-outline-variant transition-all duration-300 outline-none"
+                  className="w-full bg-transparent border-none border-b border-outline-variant py-4 px-0 font-display-lg-mobile text-headline-md focus:ring-0 focus:border-primary placeholder:text-base md:placeholder:text-headline-md placeholder:text-outline-variant transition-all duration-300 outline-none"
                   placeholder="Nama Mempelai Pertama"
                   type="text"
                 />
@@ -146,7 +146,7 @@ function RegisterInner() {
                   autoComplete="off"
                   value={partnerName}
                   onChange={(e) => { setPartnerName(e.target.value); setNameError("") }}
-                  className="w-full bg-transparent border-none border-b border-outline-variant py-4 px-0 font-display-lg-mobile text-headline-md focus:ring-0 focus:border-primary placeholder:text-outline-variant transition-all duration-300 outline-none"
+                  className="w-full bg-transparent border-none border-b border-outline-variant py-4 px-0 font-display-lg-mobile text-headline-md focus:ring-0 focus:border-primary placeholder:text-base md:placeholder:text-headline-md placeholder:text-outline-variant transition-all duration-300 outline-none"
                   placeholder="Nama Mempelai Kedua"
                   type="text"
                 />
