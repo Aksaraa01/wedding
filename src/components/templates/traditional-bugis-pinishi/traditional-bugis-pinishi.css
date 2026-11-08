@@ -104,7 +104,7 @@
 .pinishi-cover-decor {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 2;
   pointer-events: none;
 }
 
@@ -136,6 +136,8 @@
   left: -13%;
   width: 40%;
   z-index: 2;
+  animation: pinishi-float 2s ease-in-out infinite;
+  transform-origin: center bottom;
 }
 
 .pinishi-cover-decor .pinishi-decor--flowers {
@@ -157,6 +159,8 @@
   bottom: 10%;
   width: 60%;
   z-index: 1;
+  animation: pinishi-float 2s ease-in-out infinite;
+  transform-origin: center bottom;
 }
 
 @keyframes pinishi-slide-in-left {
@@ -169,9 +173,14 @@
   to { opacity: 1; transform: rotate(-30deg) translateY(0); }
 }
 
+@keyframes pinishi-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6%); }
+}
+
 .pinishi-cover-panel {
   position: relative;
-  z-index: 2;
+  z-index: 9;
   width: 75%;
   margin: 3% auto 24px;
   padding: 0 16px 30px;
@@ -286,6 +295,43 @@
 .pinishi-open-btn svg {
   width: 18px;
   height: 18px;
+}
+
+/* Cover side image (desktop only) */
+.pinishi-cover-side {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .pinishi-cover {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 24px;
+    padding: 24px 40px;
+  }
+  .pinishi-cover-side {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pinishi-cover-side img {
+    width: 78%;
+    max-width: 420px;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: 28px;
+    box-shadow: 0 30px 60px -30px rgba(78, 52, 60, 0.55);
+  }
+  .pinishi-cover-panel {
+    width: 100%;
+    margin: 0 auto;
+    height: auto;
+    min-height: 70vh;
+  }
+  .pinishi-cover-bg img {
+    object-position: left center;
+  }
 }
 
 /* Main */
