@@ -484,9 +484,6 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
           <img className="pinishi-decor pinishi-decor--purple" src={ASSET("decor-purple.webp")} alt="" />
           <img className="pinishi-decor pinishi-decor--lily" src={ASSET("decor-lily.webp")} alt="" />
         </div>
-        <div className="pinishi-cover-side" aria-hidden="true">
-          <img src={coverPhoto} alt="" />
-        </div>
         <div className="pinishi-cover-panel" data-aos="fade-up">
           <div className="pinishi-cover-photo">
             <img src={coverPhoto} alt={coupleLabel} />

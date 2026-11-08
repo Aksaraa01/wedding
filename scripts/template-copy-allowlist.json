@@ -1648,7 +1648,7 @@
         "Doa  Ucapan": "wishes form field label (heading)",
         "Tulis doa dan ucapan": "wishes form message placeholder",
         "Mengirim...": "transient send state in the wishes form",
-        "Kirim Ucapan": "wishes form submit label",
+        "Kirim RSVP & Ucapan": "wishes form submit label",
         "Memuat ucapan…": "transient loading state in the wishes feed",
         "Belum ada ucapan. Jadilah yang pertama untuk": "empty-state lead-in for the wishes feed",
         "Halaman sebelumnya": "WCAG name for the wishes previous-page control",
