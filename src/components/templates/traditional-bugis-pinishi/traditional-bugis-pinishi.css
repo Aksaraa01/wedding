@@ -1277,7 +1277,8 @@
 }
 
 .traditional-bugis-pinishi-root .tpl-rsvp__submit:disabled {
-  opacity: 0.8;
+  opacity: 1;
+  color: #9a8f80;
   cursor: not-allowed;
 }
 
