@@ -811,7 +811,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             <section className="pinishi-inviting" aria-label="Turut Mengundang">
               <img className="pinishi-deco pinishi-deco--foliage" src={ASSET("decor-foliage.webp")} alt="" aria-hidden="true" />
               <div className="pinishi-inviting-inner" data-aos="fade-up">
-                <h2 className="pinishi-section-title">Turut Mengundang</h2>
+                <h2 className="sr-only">Turut Mengundang</h2>
                 <ul>
                   {honored.map((name, index) => (
                     <li key={`${name}-${index}`}>{name}</li>
