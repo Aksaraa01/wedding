@@ -200,7 +200,7 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
         </div>
 
         <button type="submit" className="tpl-rsvp__submit" disabled={status === "sending" || !message.trim()}>
-          {status === "sending" ? "Mengirim..." : "Kirim RSVP & Ucapan"}
+          {status === "sending" ? "Mengirim..." : "Kirim Ucapan"}
         </button>
 
         {feedback && (
@@ -223,11 +223,16 @@ export default function Wishes({ weddingProfileId, guestId, guestName, guestLink
             <div className="tpl-rsvp__wishes-list">
               {pagedWishes.map((wish) => (
                 <div className="tpl-rsvp__wish" key={wish.id}>
-                  <div className="tpl-rsvp__wish-header">
-                    <div className="tpl-rsvp__wish-name">{wish.name || "Tamu Undangan"}</div>
-                    <div className="tpl-rsvp__wish-date">{wishAgo(wish.created_at)}</div>
+                  <span className="tpl-rsvp__wish-avatar" aria-hidden="true">
+                    {(wish.name || "T").trim().charAt(0).toUpperCase()}
+                  </span>
+                  <div className="tpl-rsvp__wish-body">
+                    <div className="tpl-rsvp__wish-header">
+                      <div className="tpl-rsvp__wish-name">{wish.name || "Tamu Undangan"}</div>
+                      <div className="tpl-rsvp__wish-date">{wishAgo(wish.created_at)}</div>
+                    </div>
+                    <div className="tpl-rsvp__wish-message">{wish.message}</div>
                   </div>
-                  <div className="tpl-rsvp__wish-message">{wish.message}</div>
                 </div>
               ))}
             </div>

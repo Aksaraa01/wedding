@@ -542,7 +542,7 @@
 }
 
 .pinishi-person-photo {
-  width: min(220px, 58vw);
+  width: min(260px, 68vw);
 }
 
 .pinishi-frame {
@@ -1196,6 +1196,8 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+  position: relative;
+  z-index: 2;
 }
 
 .pinishi-wishes-inner .tpl-rsvp {
@@ -1275,7 +1277,7 @@
 }
 
 .traditional-bugis-pinishi-root .tpl-rsvp__submit:disabled {
-  opacity: 0.55;
+  opacity: 0.8;
   cursor: not-allowed;
 }
 
@@ -1772,4 +1774,504 @@
 
 .traditional-bugis-pinishi-root.is-locked {
   overflow: hidden;
+}
+
+/* ------------------------------------------------------------------ */
+/* Reference parity pass: section-by-section alignment with the preset */
+/* ------------------------------------------------------------------ */
+
+/* Verse — cream panel with the preset's "Allah's blessings message" label */
+.traditional-bugis-pinishi-root .pinishi-verse {
+  padding: 56px 24px 96px;
+  background-image: none;
+}
+
+.pinishi-verse-label {
+  font-family: var(--font-ysabeau, "Ysabeau Infant", Georgia, serif);
+  font-size: 16px;
+  color: #867d65;
+  letter-spacing: 0.02em;
+}
+
+.pinishi-verse-initials {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--font-waterfall, "Waterfall", cursive);
+  font-size: 56px;
+  line-height: 0.9;
+  color: #65485c;
+  margin-bottom: 4px;
+}
+
+.pinishi-verse-initials span + span {
+  transform: translateY(16px);
+}
+
+.pinishi-verse-photo {
+  width: min(300px, 80vw);
+  margin: 0 auto;
+  border-radius: 150px 150px 0 0;
+  overflow: hidden;
+  background: #efe2d6;
+}
+
+.pinishi-verse-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Story — white cards with a peach border inside a horizontal slider */
+.pinishi-story {
+  padding: 72px 0 80px;
+}
+
+.pinishi-story-inner {
+  max-width: 100%;
+  gap: 24px;
+  padding: 0 16px;
+}
+
+.pinishi-story-list {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 18px;
+  background: #ebc6b4;
+  border-radius: 25px;
+  text-align: left;
+  scrollbar-width: none;
+}
+
+.pinishi-story-list::-webkit-scrollbar {
+  display: none;
+}
+
+.pinishi-story-list article {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  padding: 0;
+  background: #fff;
+  border: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.pinishi-story-list article .story-marker {
+  display: none;
+}
+
+.pinishi-story-photo {
+  margin: 0;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.pinishi-story-photo img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+}
+
+.pinishi-story-list article h3 {
+  margin-top: 18px;
+}
+
+.pinishi-story-list article p {
+  padding: 0 20px 22px;
+}
+
+.traditional-bugis-pinishi-root .pinishi-story-list h3 {
+  font-family: var(--font-waterfall, "Waterfall", cursive);
+  font-size: 30px;
+  color: #65485c;
+}
+
+/* Gallery — full-width plates instead of the mosaic */
+.pinishi-gallery {
+  padding: 56px 0 72px;
+}
+
+.pinishi-gallery-bg {
+  display: none;
+}
+
+.pinishi-gallery-inner {
+  max-width: 100%;
+  padding: 0 16px;
+  gap: 18px;
+  text-align: left;
+}
+
+.pinishi-gallery-inner .pinishi-section-title,
+.pinishi-gallery-intro {
+  text-align: left;
+  padding: 0 8px;
+}
+
+.pinishi-gallery-grid {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 0 16px 12px;
+  grid-template-columns: none;
+  scrollbar-width: none;
+}
+
+.pinishi-gallery-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.pinishi-gallery-item {
+  flex: 0 0 88%;
+  scroll-snap-align: center;
+  aspect-ratio: 4 / 5;
+  border-radius: 8px;
+}
+
+.pinishi-gallery-quote {
+  padding: 0 12px;
+}
+
+/* Countdown — open columns with thin dividers, no white boxes */
+.pinishi-events {
+  padding: 64px 16px 72px;
+}
+
+.pinishi-countdown {
+  gap: 14px;
+}
+
+.pinishi-countdown div {
+  padding: 6px 4px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  border-top: 1px solid rgba(101, 72, 92, 0.55);
+  border-bottom: 1px solid rgba(101, 72, 92, 0.55);
+  gap: 2px;
+}
+
+.pinishi-countdown div + div {
+  border-left: 0;
+}
+
+.traditional-bugis-pinishi-root .pinishi-countdown strong {
+  font-family: var(--font-playfair, "Playfair Display", Georgia, serif);
+  font-size: 30px;
+  font-weight: 500;
+  color: #65485c;
+  line-height: 1.2;
+}
+
+.pinishi-countdown span {
+  color: #867d65;
+  font-family: var(--font-playfair, "Playfair Display", Georgia, serif);
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.pinishi-calendar a {
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 16px;
+  border-radius: 800px;
+  padding: 7px 18px;
+}
+
+/* Events — purple double rule frames like the preset's cards */
+.pinishi-event-date {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 15px;
+  color: #6b6555;
+}
+
+.pinishi-event-card {
+  background: transparent;
+  border: 1px solid #65485c;
+  outline: 1px solid #65485c;
+  outline-offset: 5px;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.traditional-bugis-pinishi-root .pinishi-event-card h3 {
+  font-family: var(--font-waterfall, "Waterfall", cursive);
+  font-size: 34px;
+  color: #65485c;
+}
+
+.pinishi-maps {
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 16px;
+  border-radius: 800px;
+  padding: 7px 18px;
+}
+
+/* Live + gift — olive rounded cards with purple pills */
+.pinishi-livestream,
+.pinishi-gift {
+  padding: 0 0 32px;
+  background: transparent;
+}
+
+.pinishi-livestream-inner {
+  max-width: 351px;
+  margin: 0 auto;
+  padding: 30px 20px 32px;
+  background: #867d65;
+  color: #f7ecde;
+  border-radius: 50px 0 50px 50px;
+  gap: 12px;
+}
+
+.traditional-bugis-pinishi-root .pinishi-livestream-inner .pinishi-section-title {
+  color: #f7ecde;
+  font-size: 38px;
+  font-weight: 400;
+}
+
+.pinishi-livestream-inner p {
+  color: #f7ecde;
+  font-size: 16px;
+}
+
+.pinishi-livestream-inner a {
+  background: #65485c;
+  color: #f7ecde;
+  border: 1px solid #65485c;
+  border-radius: 800px;
+  padding: 6px 12px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 16px;
+}
+
+.pinishi-gift-inner {
+  max-width: 351px;
+  margin: 0 auto;
+  padding: 24px 20px 28px;
+  background: #867d65;
+  color: #f7ecde;
+  border-radius: 0 50px 50px;
+  gap: 12px;
+}
+
+.traditional-bugis-pinishi-root .pinishi-gift-inner .pinishi-section-title {
+  color: #f7ecde;
+  font-size: 38px;
+  font-weight: 400;
+}
+
+.pinishi-gift-inner p {
+  color: #f7ecde;
+}
+
+.pinishi-gift-card {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+.pinishi-gift-reveal {
+  background: #65485c;
+  color: #f7ecde;
+  border-color: #65485c;
+  border-radius: 800px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 16px;
+  padding: 6px 12px;
+}
+
+/* Inviting — plain centred lines on the cream panel, no pills */
+.pinishi-inviting ul {
+  gap: 4px;
+}
+
+.pinishi-inviting li {
+  padding: 6px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 20px;
+  color: #6b6555;
+}
+
+/* Couple — instagram handle sits above the script name, as plain text */
+.pinishi-person-photo {
+  order: 0;
+}
+
+.pinishi-person .pinishi-ig {
+  order: 1;
+}
+
+.pinishi-person .pinishi-person-name {
+  order: 2;
+}
+
+.pinishi-person .pinishi-person-full {
+  order: 3;
+}
+
+.pinishi-person .pinishi-person-parents {
+  order: 4;
+}
+
+.pinishi-ig {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #65485c;
+}
+
+.pinishi-ig svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Wishes — list above the form, purple filled inputs, cream full-width submit */
+.pinishi-wishes-inner .tpl-rsvp {
+  display: flex;
+  flex-direction: column;
+}
+
+.pinishi-wishes-inner .tpl-rsvp__form {
+  order: 2;
+  margin: 8px 0 0;
+  width: 100%;
+}
+
+.pinishi-wishes-inner .tpl-rsvp__wishes {
+  order: 1;
+  margin-bottom: 40px;
+}
+
+.pinishi-wishes {
+  padding: 56px 16px 96px;
+  background-image: none;
+}
+
+.pinishi-wishes-inner {
+  max-width: 351px;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__input,
+.traditional-bugis-pinishi-root .tpl-rsvp__textarea {
+  background: #65485c;
+  color: #ebc6b4;
+  border: 0;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__input::placeholder,
+.traditional-bugis-pinishi-root .tpl-rsvp__textarea::placeholder {
+  color: rgba(235, 198, 180, 0.75);
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__submit {
+  background: #f7ecde;
+  color: #65485c;
+  border: 1px solid #65485c;
+  border-radius: 5px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 16px;
+  padding: 6px 12px;
+  width: 100%;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__wish {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.tpl-rsvp__wish-avatar {
+  flex: 0 0 auto;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: transparent;
+  color: #65485c;
+  display: block;
+  font-family: var(--font-waterfall, "Waterfall", cursive);
+  font-size: 34px;
+  line-height: 1;
+}
+
+.tpl-rsvp__wish-body {
+  flex: 1;
+  min-width: 0;
+  padding-left: 14px;
+  border-left: 1px solid rgba(101, 72, 92, 0.45);
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__wish-name {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #65485c;
+}
+
+.traditional-bugis-pinishi-root .tpl-rsvp__wish-message {
+  font-size: 13px;
+}
+
+/* Closing — cream botanical panel with the preset's Thank You */
+.traditional-bugis-pinishi-root .pinishi-closing {
+  min-height: auto;
+  padding: 72px 16px 48px;
+  background: #f7ecde;
+}
+
+.pinishi-closing-bg,
+.pinishi-closing-overlay {
+  display: none;
+}
+
+.traditional-bugis-pinishi-root .pinishi-closing-content {
+  color: #65485c;
+  gap: 24px;
+}
+
+.traditional-bugis-pinishi-root .pinishi-thankyou {
+  font-family: var(--font-waterfall, "Waterfall", cursive);
+  font-size: 56px;
+  font-weight: 400;
+  color: #65485c;
+}
+
+.traditional-bugis-pinishi-root .pinishi-closing-names {
+  color: #65485c;
+}
+
+.pinishi-footer a {
+  color: #65485c;
+}
+
+.pinishi-footer-badge {
+  background: #f7ecde;
+}
+
+.pinishi-footer p {
+  color: #65485c;
 }

@@ -28,13 +28,13 @@ Intake 2026-11-05.
 | Section | Measure |
 |---|---|
 | Cover | 100 svh; full-bleed cream illustration `cover-bg.webp`; peach arch panel **75 % width × 83 % height**, radius 150 px, anchored at 3 % from the top (no max-width cap — it scales with the viewport on desktop too); six floral corner cut-outs; round photo 52 % of the panel, 5 rem below its top; "The Wedding Of" Ysabeau 18; names Waterfall 3.1 rem `#683875`; date `31 . 12 . 2027` 14 px / 3 px tracking; pill button `#65485c` / `#ebc6b4` 16 px |
-| Verse | quote section on the vendored `quote-bg.webp` (ships/palms), hashtag + quote 14 px `#867d65`, foliage band at the bottom; no photo column (the reference has none) |
-| Couple | two portraits inside the ornate peach frame `frame.webp` (transparent window, `aspect-ratio: 900/1000`); names Waterfall 40 `#65485c`; parents 13 |
-| Events | crest above "Save The Date"; four countdown boxes; calendar pill; one card per session with a maps pill |
-| Story | Waterfall title, one card per chapter |
+| Verse | initials (Waterfall) above the arched `pembuka.webp` photo (radius `150px 150px 0 0`, 300 px wide) + label "Allah's blessings message" + quote 14 px `#867d65`; plus the vendored ships/palms art, 785 px tall like the reference `#separator` |
+| Couple | two portraits inside the ornate peach frame `frame.webp` (transparent window, `aspect-ratio: 900/1000`, 260 px wide); instagram handle above the script name, as plain text; names Waterfall 40 `#65485c`; parents 13 |
+| Events | crest above "Save the Date"; four open countdown columns (serif numerals, rules above and below, labels Days/Hours/Minutes/Seconds); calendar pill; one card per session with a maps pill |
+| Story | Waterfall title, peach slider panel (`#ebc6b4`, radius 25) holding one white card per chapter with a photo |
 | Rundown | floral cut-out bottom-right, time + description list |
-| Gallery | two-column mosaic over the couple photo (16 % wash); the purple mosque art `cover-art.webp` sits at the bottom edge (reference `#galleries::after`, 308 px) |
-| Closing | closing message + names + Aksaraa footer on cream |
+| Gallery | title + quote over the cream panel, then a one-up horizontal slider of 4:5 plates (the photo wash was dropped) |
+| Closing | "Thank You" + closing message + names + Aksaraa footer on cream |
 
 ---
 
@@ -108,17 +108,17 @@ phone-width; on desktop they centre on the same cream canvas.
 | # | Section | Renders from | Gate + toggle | Count / variant branch | Copy source | Motion |
 |---|---|---|---|---|---|---|
 | 1 | Cover | `cover_photos[]`, names, `guest_name` | always | 0 photos ⇒ initials block; 1 name ⇒ no `&`; guest empty ⇒ "Tamu Undangan" | profile + `template_content.cover_apology` | load |
-| 2 | Verse | `quote_text/source`, `display_name` | always | no quote ⇒ `DEFAULT_QUOTE`; no hashtag ⇒ generated `#names` | profile + quote columns | up |
+| 2 | Verse | `quote_text/source`, `pembuka.webp`, initials | always | no quote ⇒ `DEFAULT_QUOTE`; initials from the short names | profile + quote columns | up |
 | 3 | Mempelai | `groom_*`/`bride_*`, parents, IG, photos | always | missing parent/IG row omitted; one portrait ⇒ shared fallback | profile | up |
-| 4 | Love Story | `stories[]` | `feature_gates.story !== false` && `story_visible !== false` | 0 ⇒ omitted; 1 ⇒ one item | profile | up |
-| 5 | Gallery + film | `gallery_photos[]`, `video_url` | always with data; video also `feature_gates.video` && `video_section_visible` | 1 photo ⇒ single column; rows split at 8 | profile + `gallery_intro`, `gallery_quote` | up |
-| 6 | Save The Date | `estimated_wedding_date`, `sessions[]` | always | no date ⇒ `00` boxes; 0 events ⇒ countdown only | profile | up |
+| 4 | Our Love Story | `stories[]` | `feature_gates.story !== false` && `story_visible !== false` | 0 ⇒ omitted; 1 ⇒ one item; no chapter photo ⇒ gallery/cover fallback | profile | up |
+| 5 | Precious Moment + film | `gallery_photos[]`, `video_url` | always with data; video also `feature_gates.video` && `video_section_visible` | horizontal one-up slider; 1 photo ⇒ single plate | profile + `gallery_intro`, `gallery_quote` | up |
+| 6 | Save the Date | `estimated_wedding_date`, `sessions[]` | always | no date ⇒ `00` values; 0 events ⇒ countdown only | profile | up |
 | 7 | Turut Mengundang | `inviting_families[]` (TEXT, `JSON.parse`) | `feature_gates.inviting_families !== false` && `inviting_families_visible !== false` | 0 ⇒ omitted | profile | up |
 | 8 | Live Streaming | `livestream.url/title/description/buttonLabel` | `livestream_visible !== false` && url present | 0 ⇒ omitted | profile | up |
 | 9 | Rundown | `rundown[]` | `rundown_visible !== false` | 0 ⇒ omitted; no time ⇒ description only | profile | up |
 | 10 | Dress Code | `dresscode.colors[]` | `dresscode_visible !== false` | no colours ⇒ omitted; no description ⇒ generated palette line | profile | up |
 | 11 | Hadiah | `gift_accounts[]`, `gift_address` | `gift_section_visible !== false`; address also `feature_gates.gift_address !== false` | accounts only / address only / neither ⇒ omitted; envelope discloses | `gift_intro_title`, `gift_intro_description` | up |
-| 12 | Ucapan & Doa | `/api/wishes`, guest identity | always | demo feed; 0 approved ⇒ empty state | `wishes_intro` + `Wishes.tsx` form keys | up |
+| 12 | Wishes | `/api/wishes`, guest identity | always | demo feed; 0 approved ⇒ empty state; wish list above the form | `wishes_intro` + `Wishes.tsx` form keys | up |
 | 13 | Hubungi Kami | `contacts[]` | `contacts_visible !== false` | 0 ⇒ omitted; no WA ⇒ no button | profile | up |
 | 14 | Penutup | closing photo, names | always | 0 photos ⇒ cover art fallback | `closing_message` | up |
 | 15 | Music dock | `track_url` | track present | no track ⇒ no vinyl button | — | vinyl spin |
@@ -127,7 +127,7 @@ Section order follows the reference: cover → verse → couple → story → ga
 save-the-date/events → inviting → live → (our rundown/dresscode) → gift →
 wishes → contacts → closing.
 
-Copy audit: `npm run audit:copy -- traditional-bugis-pinishi` is clean; the 58
+Copy audit: `npm run audit:copy -- traditional-bugis-pinishi` is clean; the 60
 structural literals (WCAG names, countdown units, fixed section labels, vendor
 badge) live in the `allow` block with reasons.
 
