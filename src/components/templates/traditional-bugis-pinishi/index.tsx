@@ -258,6 +258,23 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
     }
   }, [hasTrack])
 
+  const requestReminder = useCallback(async () => {
+    if (typeof Notification === "undefined") {
+      showToast("Peramban ini tidak mendukung pengingat")
+      return
+    }
+    if (Notification.permission === "granted") {
+      showToast("Pengingat sudah aktif")
+      return
+    }
+    try {
+      const result = await Notification.requestPermission()
+      showToast(result === "granted" ? "Pengingat diaktifkan" : "Izin pengingat ditolak")
+    } catch {
+      showToast("Gagal mengaktifkan pengingat")
+    }
+  }, [showToast])
+
   useEffect(() => {
     const conn = (navigator as Navigator & {
       connection?: { saveData?: boolean; effectiveType?: string }
@@ -529,6 +546,11 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
               <div className="pinishi-verse-photo">
                 <img src={ASSET("pembuka.webp")} alt={coupleLabel} />
               </div>
+            </div>
+          </section>
+
+          <section className="pinishi-quote" aria-label="Kutipan">
+            <div className="pinishi-quote-inner" data-aos="fade-up">
               <p className="pinishi-verse-label">Allah&apos;s blessings message</p>
               <blockquote>
                 <p>{quoteText}</p>
@@ -615,6 +637,9 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                         )
                       })()}
                       <HeartMarker />
+                      <span className="pinishi-story-index" aria-hidden="true">
+                        {index + 1}/{stories.length}
+                      </span>
                       <h3>{story.title || `Bagian ${index + 1}`}</h3>
                       {story.description && <p>{story.description}</p>}
                     </article>
@@ -706,6 +731,13 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                     </svg>
                     Tambah ke Kalender
                   </a>
+                  <button type="button" className="pinishi-reminder" onClick={() => void requestReminder()}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" aria-hidden="true">
+                      <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+                      <path d="M13.7 21a2 2 0 0 1-3.4 0" />
+                    </svg>
+                    Aktifkan Pengingat
+                  </button>
                 </div>
               )}
               <p className="pinishi-events-intro" data-aos="fade-up" data-aos-delay="120" style={delay(120)}>

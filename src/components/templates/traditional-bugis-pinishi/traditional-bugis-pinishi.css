@@ -2443,3 +2443,91 @@
   gap: 10px;
   padding: 0 12px;
 }
+
+/* Quote — reference #quote band between the arch and the couple */
+.pinishi-quote {
+  padding: 8px 24px 64px;
+  text-align: center;
+  background: var(--pin-bg);
+}
+
+.pinishi-quote-inner {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.pinishi-quote-inner blockquote {
+  font-family: var(--font-ysabeau, "Ysabeau Infant", Georgia, serif);
+  font-size: 14px;
+  line-height: 1.6;
+  color: #867d65;
+}
+
+.pinishi-quote-inner blockquote p {
+  margin: 0;
+}
+
+/* Story — reference "1/3" counter inside the card */
+.pinishi-story-index {
+  position: absolute;
+  right: 18px;
+  bottom: 14px;
+  font-family: var(--font-ysabeau, "Ysabeau Infant", Georgia, serif);
+  font-size: 13px;
+  color: #c2aeb4;
+}
+
+/* Save the Date — reference pairs two filled pills */
+.traditional-bugis-pinishi-root .pinishi-calendar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.traditional-bugis-pinishi-root .pinishi-calendar a,
+.traditional-bugis-pinishi-root .pinishi-reminder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 220px;
+  padding: 9px 22px;
+  border: 1px solid #65485c;
+  border-radius: 800px;
+  background: #65485c;
+  color: #f7ecde;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.2;
+  text-decoration: none;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+
+.traditional-bugis-pinishi-root .pinishi-reminder svg,
+.traditional-bugis-pinishi-root .pinishi-calendar a svg {
+  width: 18px;
+  height: 18px;
+}
+
+.traditional-bugis-pinishi-root .pinishi-reminder:hover,
+.traditional-bugis-pinishi-root .pinishi-calendar a:hover {
+  background: #573e4e;
+}
+
+/* Keep section content above the botanical cut-outs */
+.pinishi-story-inner,
+.pinishi-gallery-inner,
+.pinishi-events-inner,
+.pinishi-inviting-inner,
+.pinishi-quote-inner,
+.pinishi-address-inner {
+  position: relative;
+  z-index: 2;
+}
