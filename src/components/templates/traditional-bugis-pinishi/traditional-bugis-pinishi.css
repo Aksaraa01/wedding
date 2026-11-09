@@ -2751,3 +2751,275 @@
     max-width: 100%;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Asset placement — copied from the live preset at 390px              */
+/* (x / width in cqw so the composition scales with the 540px column)  */
+/* ------------------------------------------------------------------ */
+
+.traditional-bugis-pinishi-root .pinishi-main {
+  container-type: inline-size;
+}
+
+.traditional-bugis-pinishi-root .pinishi-verse,
+.traditional-bugis-pinishi-root .pinishi-couple,
+.traditional-bugis-pinishi-root .pinishi-story,
+.traditional-bugis-pinishi-root .pinishi-gallery,
+.traditional-bugis-pinishi-root .pinishi-events,
+.traditional-bugis-pinishi-root .pinishi-wishes {
+  position: relative;
+  overflow: hidden;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco {
+  position: absolute;
+  opacity: 1;
+  z-index: 0;
+}
+
+/* Verse — #separator */
+.traditional-bugis-pinishi-root .pinishi-verse {
+  padding-bottom: 260px;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--verse-tree {
+  left: 0;
+  top: 0;
+  width: 44.1cqw;
+  z-index: 2;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--verse-tree-r {
+  left: 73.8cqw;
+  top: 0;
+  width: 26.2cqw;
+  z-index: 3;
+}
+
+.traditional-bugis-pinishi-root .pinishi-verse-photo {
+  width: 73.6cqw;
+  max-width: none;
+  margin: 22px auto 0;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--verse-flower-l {
+  left: -15.1cqw;
+  top: 125.9cqw;
+  width: 37.2cqw;
+  z-index: 2;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--verse-flower-2 {
+  left: -7.9cqw;
+  top: 168.7cqw;
+  width: 35.9cqw;
+  z-index: 3;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--verse-flower-r {
+  left: 67.2cqw;
+  top: 106.7cqw;
+  width: 42.1cqw;
+  z-index: 3;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--verse-flower-3 {
+  left: 71.5cqw;
+  top: 165.1cqw;
+  width: 22.1cqw;
+  z-index: 2;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--verse-ship {
+  left: 14.4cqw;
+  top: 130.8cqw;
+  width: 55.9cqw;
+  z-index: 1;
+}
+
+/* Couple — #coupleProfile */
+.traditional-bugis-pinishi-root .pinishi-deco--couple-a {
+  left: -9.5cqw;
+  top: 31cqw;
+  width: 35.9cqw;
+  z-index: 1;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--couple-b {
+  left: 3.1cqw;
+  top: 81cqw;
+  width: 47.7cqw;
+  z-index: 1;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--couple-c {
+  left: -17.2cqw;
+  top: 63.1cqw;
+  width: 47.7cqw;
+  z-index: 1;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--couple-d {
+  left: 82.3cqw;
+  top: 26.9cqw;
+  width: 43.1cqw;
+  z-index: 1;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--couple-e {
+  left: 80cqw;
+  top: 84.1cqw;
+  width: 45.4cqw;
+  z-index: 1;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--blossom {
+  display: none;
+}
+
+/* Story — #story */
+.traditional-bugis-pinishi-root .pinishi-deco--mitos-1 {
+  left: -17.9cqw;
+  top: 140cqw;
+  width: 41cqw;
+  z-index: 2;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--mitos-2 {
+  left: 0;
+  top: 170.3cqw;
+  width: 41cqw;
+  z-index: 1;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--mitos-3 {
+  left: 62.1cqw;
+  top: 4.1cqw;
+  width: 51cqw;
+  z-index: 2;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--mitos-4 {
+  display: none;
+}
+
+/* Gallery — #galleries */
+.traditional-bugis-pinishi-root .pinishi-gallery-orn {
+  position: absolute;
+  z-index: 3;
+}
+
+.traditional-bugis-pinishi-root .pinishi-gallery-orn:nth-child(1) {
+  left: -17.9cqw;
+  top: 85.6cqw;
+  width: 33.3cqw;
+}
+
+.traditional-bugis-pinishi-root .pinishi-gallery-orn:nth-child(2) {
+  left: 60.3cqw;
+  top: -12.3cqw;
+  width: 44.1cqw;
+  z-index: 1;
+}
+
+.traditional-bugis-pinishi-root .pinishi-gallery-orn:nth-child(3) {
+  left: 79cqw;
+  top: 44.9cqw;
+  width: 64.1cqw;
+  z-index: 2;
+}
+
+.traditional-bugis-pinishi-root .pinishi-gallery-orn:nth-child(4) {
+  left: 52.1cqw;
+  top: 225.4cqw;
+  width: 55.1cqw;
+}
+
+.traditional-bugis-pinishi-root .pinishi-gallery-orn:nth-child(5) {
+  left: 0;
+  top: 233.8cqw;
+  width: 56.9cqw;
+  z-index: 4;
+}
+
+.traditional-bugis-pinishi-root .pinishi-gallery-orn:nth-child(6) {
+  left: -9cqw;
+  top: 231.8cqw;
+  width: 36.9cqw;
+}
+
+/* Countdown — #countdown (gll trio on both sides) */
+.traditional-bugis-pinishi-root .pinishi-deco--gll-l1 {
+  left: -12.1cqw;
+  top: 66.4cqw;
+  width: 40cqw;
+  z-index: 5;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--gll-l2 {
+  left: -9cqw;
+  top: 41.3cqw;
+  width: 32.1cqw;
+  z-index: 2;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--gll-l3 {
+  left: 12.8cqw;
+  top: 84.4cqw;
+  width: 7.7cqw;
+  z-index: 1;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--gll-r1 {
+  left: 72.1cqw;
+  top: 66.4cqw;
+  width: 40cqw;
+  z-index: 5;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--gll-r2 {
+  left: 76.9cqw;
+  top: 41.3cqw;
+  width: 32.1cqw;
+  z-index: 2;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--gll-r3 {
+  left: 79.5cqw;
+  top: 84.4cqw;
+  width: 7.7cqw;
+  z-index: 1;
+}
+
+/* Wishes — the preset only draws the ship inside the section */
+.traditional-bugis-pinishi-root .pinishi-deco--wishes-bngquote,
+.traditional-bugis-pinishi-root .pinishi-deco--wishes-tree,
+.traditional-bugis-pinishi-root .pinishi-deco--wishes-merak,
+.traditional-bugis-pinishi-root .pinishi-deco--wishes-bngarsvp,
+.traditional-bugis-pinishi-root .pinishi-deco--wishes-bnggg {
+  display: none;
+}
+
+.traditional-bugis-pinishi-root .pinishi-deco--wishes-ship {
+  left: 0;
+  top: 210.5cqw;
+  width: 30.5cqw;
+}
+
+/* The countdown sits inside a 16px-padded section — compensate the origin */
+.traditional-bugis-pinishi-root .pinishi-deco--gll-l1 { left: -16.2cqw; }
+.traditional-bugis-pinishi-root .pinishi-deco--gll-l2 { left: -13.1cqw; }
+.traditional-bugis-pinishi-root .pinishi-deco--gll-l3 { left: 8.7cqw; }
+.traditional-bugis-pinishi-root .pinishi-deco--gll-r1 { left: 67.9cqw; }
+.traditional-bugis-pinishi-root .pinishi-deco--gll-r2 { left: 72.8cqw; }
+.traditional-bugis-pinishi-root .pinishi-deco--gll-r3 { left: 75.4cqw; }
+
+/* Portraits: the preset renders the photo at 237x298, frame drawn over it */
+.traditional-bugis-pinishi-root .pinishi-person-photo {
+  width: 270px;
+}
+
+.traditional-bugis-pinishi-root .pinishi-frame-photo {
+  inset: 4% 4% 6%;
+  border-radius: 4px;
+}

@@ -535,9 +535,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
         <main id="pinishi-invitation" className="pinishi-main">
           <section className="pinishi-verse" aria-label="Pembuka">
             <img className="pinishi-deco pinishi-deco--verse-tree" src={ASSET("decor-puunbugis.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--verse-flower-l" src={ASSET("decor-bngquote.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--verse-flower-r" src={ASSET("decor-bunga-quote-3.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--verse-tree-r" src={ASSET("decor-foliage.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--verse-tree-r" src={ASSET("decor-puun2bugis.webp")} alt="" aria-hidden="true" />
             <div className="pinishi-verse-inner" data-aos="fade-up">
               <p className="pinishi-verse-initials" aria-hidden="true">
                 <span>{(groomShort || "A").charAt(0)}</span>
@@ -547,6 +545,11 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                 <img src={ASSET("pembuka.webp")} alt={coupleLabel} />
               </div>
             </div>
+            <img className="pinishi-deco pinishi-deco--verse-flower-l" src={ASSET("decor-bngquote.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--verse-flower-2" src={ASSET("decor-bungaQuote2.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--verse-flower-r" src={ASSET("decor-bunga-quote-3.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--verse-flower-3" src={ASSET("decor-bungaBugis4.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--verse-ship" src={ASSET("decor-img-0543.webp")} alt="" aria-hidden="true" />
           </section>
 
           <section className="pinishi-quote" aria-label="Kutipan">
@@ -564,6 +567,8 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             <img className="pinishi-deco pinishi-deco--couple-a" src={ASSET("decor-img-0652.webp")} alt="" aria-hidden="true" />
             <img className="pinishi-deco pinishi-deco--couple-b" src={ASSET("decor-img-0551.webp")} alt="" aria-hidden="true" />
             <img className="pinishi-deco pinishi-deco--couple-c" src={ASSET("decor-img-0651.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--couple-d" src={ASSET("decor-fdsfsd.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--couple-e" src={ASSET("decor-dfafda.webp")} alt="" aria-hidden="true" />
             <div className="pinishi-couple-inner">
               <div className="pinishi-couple-intro" data-aos="fade-up">
                 <h2 className="pinishi-section-title">Mempelai</h2>
@@ -702,7 +707,12 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
 
           <section className="pinishi-events" aria-label="Acara Pernikahan">
             <div className="pinishi-events-inner">
-              <img className="pinishi-deco pinishi-deco--gll" src={ASSET("decor-gll-2.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-deco pinishi-deco--gll-l1" src={ASSET("decor-gll-1.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-deco pinishi-deco--gll-l2" src={ASSET("decor-gll-2.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-deco pinishi-deco--gll-l3" src={ASSET("decor-gll-3.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-deco pinishi-deco--gll-r1" src={ASSET("decor-gll-1.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-deco pinishi-deco--gll-r2" src={ASSET("decor-gll-2.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-deco pinishi-deco--gll-r3" src={ASSET("decor-gll-3.webp")} alt="" aria-hidden="true" />
               <h2 className="pinishi-section-title" data-aos="fade-up">Save the Date</h2>
               <div className="pinishi-countdown" data-aos="fade-up" data-aos-delay="60" style={delay(60)}>
                 <div>
