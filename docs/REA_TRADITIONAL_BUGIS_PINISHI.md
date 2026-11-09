@@ -27,10 +27,11 @@ Intake 2026-11-05.
 
 | Section | Measure |
 |---|---|
-| Cover | 100 svh; full-bleed cream illustration `cover-bg.webp`; peach arch panel **75 % width × 83 % height**, radius 150 px, anchored at 3 % from the top (no max-width cap — it scales with the viewport on desktop too); six floral corner cut-outs; round photo 52 % of the panel, 5 rem below its top; "The Wedding Of" Ysabeau 18; names Waterfall 3.1 rem `#683875`; date `31 . 12 . 2027` 14 px / 3 px tracking; pill button `#65485c` / `#ebc6b4` 16 px |
+| Cover | Mobile: 100 svh; full-bleed cream illustration `cover-bg.webp`; peach arch panel **75 % width × 83 % height**, radius 150 px; six floral corner cut-outs; round photo 52 % of the panel; "The Wedding Of" Ysabeau 18; names Waterfall; date `31 . 12 . 2027`; pill `#65485c` / `#ebc6b4`. Desktop ≥900 px: reference split hero — couple photo full-bleed on the left half, cream art panel on the right with the same copy and no round photo |
 | Verse | initials (Waterfall) above the arched `pembuka.webp` photo (radius `150px 150px 0 0`, 300 px wide) + label "Allah's blessings message" + quote 14 px `#867d65`; plus the vendored ships/palms art, 785 px tall like the reference `#separator` |
 | Couple | two portraits inside the ornate peach frame `frame.webp` (transparent window, `aspect-ratio: 900/1000`, 260 px wide); instagram handle above the script name, as plain text; names Waterfall 40 `#65485c`; parents 13 |
 | Events | crest above "Save the Date"; four open countdown columns (serif numerals, rules above and below, labels Days/Hours/Minutes/Seconds); calendar pill; one card per session with a maps pill |
+| Venue | reference `#adressWrapper`: rounded map card (`aspect-ratio: 4/5` mobile, `16/9` desktop), address line, outlined "Lihat Lokasi" pill |
 | Story | Waterfall title, peach slider panel (`#ebc6b4`, radius 25) holding one white card per chapter with a photo |
 | Rundown | floral cut-out bottom-right, time + description list |
 | Gallery | title + quote over the cream panel, then a one-up horizontal slider of 4:5 plates (the photo wash was dropped) |
@@ -127,7 +128,7 @@ Section order follows the reference: cover → verse → couple → story → ga
 save-the-date/events → inviting → live → (our rundown/dresscode) → gift →
 wishes → contacts → closing.
 
-Copy audit: `npm run audit:copy -- traditional-bugis-pinishi` is clean; the 60
+Copy audit: `npm run audit:copy -- traditional-bugis-pinishi` is clean; the 62
 structural literals (WCAG names, countdown units, fixed section labels, vendor
 badge) live in the `allow` block with reasons.
 

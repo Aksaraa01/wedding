@@ -89,6 +89,11 @@
   background: #f6ece1;
 }
 
+/* After "Buka Undangan" the gate leaves the flow (playbook §1: gate layering) */
+.traditional-bugis-pinishi-root.is-open .pinishi-cover {
+  display: none;
+}
+
 .pinishi-cover-bg {
   position: absolute;
   inset: 0;
@@ -2275,4 +2280,166 @@
 
 .pinishi-footer p {
   color: #65485c;
+}
+
+/* Cover — desktop split hero: couple photo left, cream art panel right */
+.pinishi-cover-hero {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .traditional-bugis-pinishi-root .pinishi-cover {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+    padding: 0;
+    min-height: 100svh;
+  }
+
+  .pinishi-cover-hero {
+    display: block;
+    position: relative;
+    grid-column: 1;
+    grid-row: 1;
+    overflow: hidden;
+  }
+
+  .pinishi-cover-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .pinishi-cover-bg,
+  .pinishi-cover-decor {
+    inset: 0 0 0 50%;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-cover-panel {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0 8%;
+    border-radius: 0;
+    background: transparent;
+    justify-content: center;
+    z-index: 3;
+  }
+
+  /* the panel's round photo duplicates the full-bleed hero on the left */
+  .traditional-bugis-pinishi-root .pinishi-cover-panel .pinishi-cover-photo {
+    display: none;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-cover-panel .pinishi-guest,
+  .traditional-bugis-pinishi-root .pinishi-cover-panel .pinishi-note {
+    max-width: 34ch;
+  }
+}
+
+/* Venue — reference #adressWrapper: rounded map, address, outlined pill */
+.pinishi-address {
+  position: relative;
+  padding: 24px 20px 56px;
+  text-align: center;
+}
+
+.pinishi-address-inner {
+  max-width: 351px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.pinishi-address-map {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: 23px;
+  overflow: hidden;
+  background: #f1ece2;
+  box-shadow: 0 18px 34px -26px rgba(78, 52, 60, 0.5);
+}
+
+.pinishi-address-map iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  filter: saturate(0.92);
+}
+
+.pinishi-address-text {
+  font-family: var(--font-ysabeau, "Ysabeau Infant", Georgia, serif);
+  font-size: 16px;
+  line-height: 1.5;
+  color: #8a8172;
+  max-width: 34ch;
+}
+
+.traditional-bugis-pinishi-root .pinishi-address .pinishi-maps {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border: 1px solid #65485c;
+  border-radius: 800px;
+  color: #65485c;
+  text-decoration: none;
+}
+
+.traditional-bugis-pinishi-root .pinishi-address .pinishi-maps svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (min-width: 900px) {
+  .pinishi-address-map {
+    aspect-ratio: 16 / 9;
+    max-width: 720px;
+  }
+}
+
+/* Event cards — reference #list-rundown: ornate purple crest over striped rails */
+.traditional-bugis-pinishi-root .pinishi-event-card {
+  position: relative;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 18px 40px 26px;
+  overflow: visible;
+}
+
+.pinishi-event-rails {
+  position: absolute;
+  inset: 96px 14px 10px;
+  width: calc(100% - 28px);
+  height: calc(100% - 106px);
+  object-fit: fill;
+  opacity: 0.55;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.pinishi-event-crest {
+  display: block;
+  width: min(300px, 94%);
+  height: auto;
+  margin: -12px auto 6px;
+  position: relative;
+  z-index: 1;
+}
+
+.pinishi-event-card-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
 }

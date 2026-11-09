@@ -158,6 +158,8 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
   const dateDots = dottedDate(profile.estimated_wedding_date)
   const countdown = useCountdown(profile.estimated_wedding_date, profile.sessions)
   const events = (profile.sessions || []).filter(Boolean)
+  const primaryVenue =
+    events.find((event) => event.venue || event.address || event.maps_url) || null
   const photos = flattenPhotos(profile.gallery_photos)
   const groomPhoto = groomPhotoOf(profile.groom_photo_url)
   const bridePhoto = bridePhotoOf(profile.bride_photo_url)
@@ -476,6 +478,9 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
         <div className="pinishi-cover-bg">
           <img src={ASSET("cover-bg.webp")} alt="" aria-hidden="true" />
         </div>
+        <div className="pinishi-cover-hero" aria-hidden="true">
+          <img src={coverPhoto} alt="" />
+        </div>
         <div className="pinishi-cover-decor" aria-hidden="true">
           <img className="pinishi-decor pinishi-decor--tree-left" src={ASSET("decor-tree-left.webp")} alt="" />
           <img className="pinishi-decor pinishi-decor--tree-right" src={ASSET("decor-tree-right.webp")} alt="" />
@@ -714,6 +719,9 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                     : "")
                 return (
                   <article className="pinishi-event-card" key={`${event.name || "event"}-${index}`} data-aos="fade-up" data-aos-delay={140 + index * 60} style={delay(140 + index * 60)}>
+                    <img className="pinishi-event-rails" src={ASSET("decor-rundown-frame.webp")} alt="" aria-hidden="true" />
+                    <img className="pinishi-event-crest" src={ASSET("frame-crest.webp")} alt="" aria-hidden="true" />
+                    <div className="pinishi-event-card-inner">
                     <h3>{event.name || "Acara Pernikahan"}</h3>
                     <p className="pinishi-event-date">{formatLongDate(event.date || profile.estimated_wedding_date)}</p>
                     {event.time && <p className="pinishi-event-time">{event.time}</p>}
@@ -728,11 +736,44 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                         Lihat Lokasi
                       </a>
                     )}
+                    </div>
                   </article>
                 )
               })}
             </div>
           </section>
+
+          {primaryVenue && (
+            <section className="pinishi-address" aria-label="Lokasi Acara">
+              <div className="pinishi-address-inner" data-aos="fade-up">
+                <div className="pinishi-address-map">
+                  <iframe
+                    title={`Peta ${primaryVenue.venue || primaryVenue.address || "lokasi acara"}`}
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent([primaryVenue.venue, primaryVenue.address].filter(Boolean).join(", "))}&z=16&output=embed`}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                </div>
+                {(primaryVenue.address || primaryVenue.venue) && (
+                  <p className="pinishi-address-text">
+                    {[primaryVenue.venue, primaryVenue.address].filter(Boolean).join(", ")}
+                  </p>
+                )}
+                <a
+                  className="pinishi-maps"
+                  href={primaryVenue.maps_url || `https://maps.google.com/?q=${encodeURIComponent([primaryVenue.venue, primaryVenue.address].filter(Boolean).join(", "))}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" aria-hidden="true">
+                    <path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z" />
+                    <circle cx="12" cy="10" r="2" />
+                  </svg>
+                  Lihat Lokasi
+                </a>
+              </div>
+            </section>
+          )}
 
           {honored.length > 0 && (
             <section className="pinishi-inviting" aria-label="Turut Mengundang">
