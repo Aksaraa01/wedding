@@ -571,7 +571,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             <img className="pinishi-deco pinishi-deco--couple-e" src={ASSET("decor-dfafda.webp")} alt="" aria-hidden="true" />
             <div className="pinishi-couple-inner">
               <div className="pinishi-couple-intro" data-aos="fade-up">
-                <h2 className="pinishi-section-title">Mempelai</h2>
+                <h2 className="pinishi-section-title sr-only">Mempelai</h2>
                 <p>Dengan memohon rahmat dan ridho Allah SWT, kami akan melangsungkan pernikahan</p>
               </div>
               <div className="pinishi-couple-grid">

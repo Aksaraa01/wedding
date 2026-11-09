@@ -3023,3 +3023,70 @@
   inset: 4% 4% 6%;
   border-radius: 4px;
 }
+
+/* Motion parity — the preset reveals with animate.css (1s, fadeInUp/slideIn) */
+.traditional-bugis-pinishi-root [data-aos] {
+  transition: opacity 1s ease, transform 1s ease;
+}
+
+.traditional-bugis-pinishi-root [data-aos="fade-up"] {
+  transform: translate3d(0, 100px, 0);
+}
+
+.traditional-bugis-pinishi-root [data-aos="fade-down"] {
+  transform: translate3d(0, -100px, 0);
+}
+
+.traditional-bugis-pinishi-root [data-aos="zoom-in"] {
+  transform: scale3d(0.3, 0.3, 0.3);
+}
+
+.traditional-bugis-pinishi-root [data-aos].is-aos-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .traditional-bugis-pinishi-root [data-aos] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Title metrics measured on the preset (Waterfall 48/38, lh 1.2, w500/600) */
+.traditional-bugis-pinishi-root .pinishi-section-title {
+  line-height: 1.2;
+}
+
+.traditional-bugis-pinishi-root .pinishi-wishes .pinishi-section-title {
+  font-weight: 500;
+}
+
+.traditional-bugis-pinishi-root .pinishi-livestream-inner .pinishi-section-title,
+.traditional-bugis-pinishi-root .pinishi-gift-inner .pinishi-section-title {
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* Portraits: plain 237x298 photo with the preset's frame drawn over it */
+.traditional-bugis-pinishi-root .pinishi-person-photo {
+  width: 237px;
+  max-width: 76vw;
+}
+
+.traditional-bugis-pinishi-root .pinishi-frame {
+  aspect-ratio: 237 / 298;
+}
+
+.traditional-bugis-pinishi-root .pinishi-frame-photo {
+  inset: 0;
+  border-radius: 4px;
+}
+
+.traditional-bugis-pinishi-root .pinishi-frame-art {
+  width: 150%;
+  height: auto;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+}
