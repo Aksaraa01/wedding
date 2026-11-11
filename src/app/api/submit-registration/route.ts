@@ -59,13 +59,21 @@ export async function POST(req: Request) {
       voucherCode = parsed.value
     }
 
+    // Bonus packages are ops-granted through the fixed /bonus-cetak-undangan
+    // link: the package IS the grant, so paid add-ons never ride along. Strip
+    // them before anything is priced, whatever the client sent.
+    const bonusLocked =
+      package_type === "cetak_undangan_bonus" || package_type === "bonus_full_custom"
+
     // Galeri Tamu slider config (standalone tab or Undangan add-on).
     // Tier + price recomputed server-side; standalone band follows photos.
     let galeri: Awaited<ReturnType<typeof normalizeGaleriConfig>> = null
-    try {
-      galeri = await normalizeGaleriConfig(body?.galeri)
-    } catch (err: unknown) {
-      return NextResponse.json({ error: err instanceof Error ? err.message : "Konfigurasi galeri tidak valid" }, { status: 400 })
+    if (!bonusLocked) {
+      try {
+        galeri = await normalizeGaleriConfig(body?.galeri)
+      } catch (err: unknown) {
+        return NextResponse.json({ error: err instanceof Error ? err.message : "Konfigurasi galeri tidak valid" }, { status: 400 })
+      }
     }
     let effectivePackage = package_type || "signature"
     // Standalone GT tab posts photos only (no package code).
@@ -78,7 +86,10 @@ export async function POST(req: Request) {
     if (galeri && effectivePackage.startsWith("dgb_")) {
       return NextResponse.json({ error: "Buku Tamu Digital sudah termasuk galeri — add-on Galeri Tamu hanya untuk Undangan Digital" }, { status: 400 })
     }
-    if ((wa_blast_tier || 0) > 0 && !(PACKAGE_FEATURES[effectivePackage] || []).includes("wa_blast")) {
+    const effectiveWaTier = bonusLocked ? 0 : Number(wa_blast_tier) || 0
+    const effectiveExpress = bonusLocked ? false : !!express_service
+    const effectiveFisik = bonusLocked ? false : !!undangan_fisik
+    if (effectiveWaTier > 0 && !(PACKAGE_FEATURES[effectivePackage] || []).includes("wa_blast")) {
       return NextResponse.json({ error: "Paket yang dipilih tidak mendukung WA Blast" }, { status: 400 })
     }
     const galeriPrice = galeri?.price || 0
@@ -153,7 +164,7 @@ export async function POST(req: Request) {
     if (book.base[effectivePackage] === undefined) {
       return NextResponse.json({ error: "Harga paket belum dikonfigurasi" }, { status: 500 })
     }
-    const parts = priceParts(book, effectivePackage, wa_blast_tier || 0, !!express_service, galeriPrice)
+    const parts = priceParts(book, effectivePackage, effectiveWaTier, effectiveExpress, galeriPrice)
     const totalBase = parts.base + parts.waBlast + parts.express + parts.galeri
 
     const { data: profile, error: profileError } = await supabaseAdmin
@@ -167,9 +178,9 @@ export async function POST(req: Request) {
         slug,
         whatsapp_number: normalizedPhone,
         package_type: effectivePackage,
-        wa_blast_tier: wa_blast_tier || 0,
-        express_service: !!express_service,
-        undangan_fisik: !!undangan_fisik,
+        wa_blast_tier: effectiveWaTier,
+        express_service: effectiveExpress,
+        undangan_fisik: effectiveFisik,
         total_project_cost: totalBase,
         payment_status: "UNPAID",
         // Galeri config (standalone tab or Undangan add-on). Couple name is
@@ -227,7 +238,7 @@ export async function POST(req: Request) {
         .eq("id", profile.id)
     }
 
-    const selections = await getSelections(effectivePackage, !!undangan_fisik, !!galeri)
+    const selections = await getSelections(effectivePackage, effectiveFisik, !!galeri)
     const enabledFeatures = Object.entries(selections)
       .filter(([, v]) => v)
       .map(([key]) => key)
@@ -275,7 +286,7 @@ export async function POST(req: Request) {
         groom_name,
         whatsapp_number: normalizedPhone,
         package_type: effectivePackage,
-        wa_blast_tier: wa_blast_tier || 0,
+        wa_blast_tier: effectiveWaTier,
         total: finalTotal,
         voucher_code: voucherCode,
         voucher_discount: voucherDiscount || null,
