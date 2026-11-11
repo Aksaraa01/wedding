@@ -274,3 +274,14 @@ invitation is fully readable without JS (playbook §4).
 - Section gates exercised with the demo props: story, video, countdown,
   inviting, rundown, gallery, gift, dress code, wishes all render from data;
   hiding `feature_gates.video` or `video_section_visible` removes the film band.
+- Staging build (`.env.local`, project `jclolnjkjhyjilvymagr`): standalone server on
+  port 3100, `/templates/silver-gelatin/preview`, `/templates`,
+  `/templates/kategori/elegansi`, `/api/web-templates`, the thumbnail and both
+  vendored `woff2` files all 200; the preview HTML carries the expected copy.
+- Production (BUILD_ID `RCRI6eampP4bjUKEiiIjE`, commit `ab779c9`): deploy guard
+  reported all 38 registered templates in the bundle, the post-deploy smoke
+  passed every template preview (doc + rsc 200) and the `cdn.aksaraa.com`
+  probes, and a direct curl of `/templates/silver-gelatin/preview`,
+  `/templates`, `/templates/kategori/elegansi`, `/api/web-templates?fresh=1`,
+  the thumbnail and the fonts all returned 200. The gallery lists Silver Gelatin
+  first in "Top 10 Terbaru" (sort 38) with the authored 9:19 tile.
