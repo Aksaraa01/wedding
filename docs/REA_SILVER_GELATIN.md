@@ -368,6 +368,15 @@ invitation is fully readable without JS (playbook §4).
     `getPlayerState() === 1`) and the poster is replaced. This was the rafi-novi
     report: the first release mounted the player on `opened` only, so scrolling
     past the (unlocked) cover left a frozen poster.
+- Third iteration in production (BUILD_ID `3lfDvZFpjl2U2x6R2TdoL`, commit
+  `25f6955`): guard + smoke green (all 38 previews doc + rsc 200). `/w/rafi-novi`
+  was checked in a real browser context: the rendered DOM has no
+  "Salam Sejahtera"/"Dengan penuh rasa syukur" (the welcome is the date line
+  only), the film mounts and plays (`getPlayerState() === 1`, `autoplay=1&mute=1`)
+  **without clicking Open**, and the couple renders in editor order — that
+  profile's Mempelai Pertama is `groom_name` = "Novi", so Novi prints first.
+  `/templates/silver-gelatin/preview`, `/templates`, `/api/web-templates?fresh=1`
+  and the wishes-band asset all 200.
 - First release (BUILD_ID `RCRI6eampP4bjUKEiiIjE`, commit `ab779c9`): deploy guard
   reported all 38 registered templates in the bundle, the post-deploy smoke
   passed every template preview (doc + rsc 200) and the `cdn.aksaraa.com`
