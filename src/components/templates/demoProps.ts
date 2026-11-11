@@ -2416,3 +2416,132 @@ DEMO_PROPS_BY_CODE.teatro = {
     closing_see: "See you on opening night.",
   },
 }
+
+DEMO_PROPS_BY_CODE["silver-gelatin"] = {
+  ...DEMO_PROPS_BY_CODE["sandhya"],
+  slug: "demo",
+  // Aksaraa's own sample couple (dark-elegance set), never the reference's.
+  display_name: "Albarn & Faye",
+  couple_initials: "AF",
+  estimated_wedding_date: "2027-06-26",
+  guest_name: "The Reed Family",
+  opening_title: "Dear family and friends,",
+  opening_description:
+    "With grateful hearts, we invite you to witness the beginning of our forever. Your presence and blessings would mean the world to us.",
+  cover_photos: [`${DE}/cover.webp`, `${DE}/cover-1.webp`, `${DE}/cover-2.webp`],
+  groom_photo_url: [`${DE}/groom.webp`],
+  bride_photo_url: [`${DE}/bride.webp`],
+  gallery_photos: [
+    `${DE}/cover-3.webp`, `${DE}/cover-4.webp`, `${DE}/cover-5.webp`, `${DE}/cover-6.webp`,
+    `${DE}/cover.webp`, `${DE}/cover-1.webp`, `${DE}/cover-2.webp`, `${DE}/bride.webp`,
+  ],
+  sessions: [
+    {
+      name: "The Ceremony",
+      date: "2027-06-26",
+      time: "09.00 – 11.00",
+      venue: "Kapel Santo Ignatius",
+      address: "Jl. Cipete Raya No. 12, Jakarta Selatan",
+      maps_url: "https://maps.app.goo.gl/9bRvrJZZ1xcZSoqa6",
+    },
+    {
+      name: "The Reception",
+      date: "2027-06-26",
+      time: "18.30 – 21.30",
+      venue: "Grand Ballroom Lotus",
+      address: "Jl. Gunung Sahari No. 7, Jakarta Utara",
+      maps_url: "https://maps.app.goo.gl/UPxWi9HU1w4A9R1j6",
+    },
+  ],
+  stories: [
+    {
+      title: "The First Frame",
+      description:
+        "We met over a borrowed camera and a roll of expired film. Neither of us could have known how much would develop from that afternoon.",
+      image_url: `${DE}/cover-3.webp`,
+    },
+    {
+      title: "The Long Exposure",
+      description:
+        "Five years of quiet mornings, long drives and the same two cups of coffee. Somewhere in between, we stopped imagining a life apart.",
+      image_url: `${DE}/cover-4.webp`,
+    },
+    {
+      title: "The Next Chapter",
+      description:
+        "On a grey afternoon in June, we chose each other for good. Now we are asking you to be in the frame with us.",
+      image_url: `${DE}/cover-5.webp`,
+    },
+  ],
+  rundown_visible: true,
+  rundown: [
+    { time: "08.30", description: "Guests arrive at the chapel" },
+    { time: "09.00", description: "The ceremony begins" },
+    { time: "10.30", description: "Family photographs in the garden" },
+    { time: "18.30", description: "The reception opens" },
+    { time: "21.00", description: "Farewell" },
+  ],
+  dresscode_visible: true,
+  dresscode: {
+    title: "Ivory & Ink",
+    description: "We would love to see you in tones of ivory, stone and soft black.",
+    colors: [
+      { hex: "#f4efe9", name: "Ivory" },
+      { hex: "#d9d2c7", name: "Stone" },
+      { hex: "#8c8578", name: "Ash" },
+      { hex: "#111111", name: "Ink" },
+    ],
+  },
+  template_content: {
+    cover_kicker: "Dear",
+    open_button: "Open Invitation",
+    cover_apology: "We apologize for any misspelling of your name or title.",
+    welcome_message: "Dear family and friends,",
+    welcome_invite:
+      "With grateful hearts, we invite you to witness the beginning of our forever.",
+    events_kicker: "The celebration will take place on",
+    story_kicker: "Love story",
+    gallery_kicker: "Wedding",
+    mempelai_kicker: "The Couple",
+    love_story_title: "Our Story",
+    story_intro: "Three chapters, one long exposure.",
+    events_title: "Venue",
+    events_intro: "We look forward to welcoming you at:",
+    events_note: "Please arrive fifteen minutes before the ceremony begins.",
+    maps_label: "View Location",
+    countdown_intro: "Counting down to our big day, only a little time left",
+    inviting_kicker: "With the blessing of",
+    inviting_title: "Our Families",
+    inviting_intro:
+      "With deep gratitude we also present the families who extend this invitation alongside us.",
+    rundown_kicker: "The Programme",
+    rundown_title: "Order of the Day",
+    rundown_intro: "How the day will unfold, from the first arrival to the last farewell.",
+    gallery_title: "Moments",
+    gallery_intro: "Little snippets of our journey",
+    video_title: "Our Film",
+    video_intro: "The day as it happened, kept in motion.",
+    gift_intro_title: "Wedding Gift",
+    gift_intro_description:
+      "Your blessings are the most beautiful gift to us. But should you wish to give a token of love, you may do so via:",
+    gift_button: "Direct Transfer",
+    gift_signature: "With love and gratitude",
+    copy_account_toast: "Account number copied",
+    copy_address_toast: "Address copied",
+    copy_address_button: "Copy address",
+    dresscode_kicker: "Dresscode",
+    dresscode_intro: "We would love to see you in ivory, stone and soft black.",
+    dresscode_note: "Please avoid white and bright patterns.",
+    wishes_title: "Wishes",
+    wishes_intro: "Write your best prayers and wishes for us.",
+    wishes_name_label: "Name",
+    wishes_name_placeholder: "Your full name",
+    wishes_message_label: "Message",
+    wishes_message_placeholder: "Leave a wish for the couple",
+    wishes_submit: "Send wishes",
+    wishes_empty: "No wishes yet. Be the first.",
+    closing_message:
+      "Thank you for your prayers and presence. It is an honour for us to celebrate this day with you.",
+    closing_see: "See you!",
+  },
+}

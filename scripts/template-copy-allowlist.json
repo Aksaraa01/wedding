@@ -1702,6 +1702,43 @@
         "WhatsApp": "contact channel label",
         "Wishes": "fixed section heading in this design"
       }
+    },
+    "silver-gelatin": {
+      "allow": {
+        "days": "countdown unit label",
+        "hours": "countdown unit label",
+        "minutes": "countdown unit label",
+        "seconds": "countdown unit label",
+        "Sending…": "transient send state in the wishes form",
+        "Loading wishes…": "transient loading state in the wishes feed",
+        "Countdown to the wedding day": "WCAG name for the countdown group and section",
+        "Open the invitation": "WCAG name for the cover",
+        "The wedding film": "WCAG name for the film section",
+        "Play the wedding film": "WCAG name for the film play control",
+        "Word of welcome": "WCAG name for the welcome section",
+        "The couple": "WCAG name for the mempelai section",
+        "Our story": "WCAG name for the love-story section",
+        "Wedding events": "WCAG name for the venue section",
+        "Add to calendar": "CTA in the countdown section opening the calendar event",
+        "With the blessing of": "WCAG name for the invited-families section",
+        "Order of the day": "WCAG name for the rundown section",
+        "Gallery": "WCAG name for the gallery section",
+        "Wedding registry": "WCAG name for the gift section",
+        "Copy account number": "WCAG name for the copy-account control",
+        "Dress code": "WCAG name for the dress-code section",
+        "Wishes for the couple": "WCAG name for the wishes section",
+        "Closing": "WCAG name for the closing section",
+        "Contact Aksaraa Wedding on WhatsApp": "WCAG name for the Aksaraa footer link",
+        "Aksaraa Wedding": "alt text for the vendor logo",
+        "Wedding by Aksaraa": "fixed vendor credit in the footer",
+        ". All rights reserved.": "fixed legal suffix in the footer",
+        "Photo viewer": "WCAG name for the lightbox dialog",
+        "Close": "WCAG name for close buttons",
+        "Previous photo": "WCAG name for the lightbox previous control",
+        "Next photo": "WCAG name for the lightbox next control",
+        "Previous page": "WCAG name for the wishes previous-page control",
+        "Next page": "WCAG name for the wishes next-page control"
+      }
     }
   }
 }

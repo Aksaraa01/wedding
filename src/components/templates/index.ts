@@ -37,6 +37,7 @@ import IvoryLace from "./ivory-lace"
 import CinnabarSeal from "./cinnabar-seal"
 import Iris from "./iris"
 import Teatro from "./teatro"
+import SilverGelatin from "./silver-gelatin"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -77,6 +78,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "cinnabar-seal": CinnabarSeal,
   iris: Iris,
   teatro: Teatro,
+  "silver-gelatin": SilverGelatin,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -1535,6 +1537,47 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       sections: {
         opening_description: true,
         quote: true,
+        countdown: true,
+        inviting: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        dresscode: true,
+        livestream: false,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "silver-gelatin",
+    name: "Silver Gelatin",
+    description:
+      "Undangan editorial monokrom ala fotografi film: kanvas putih di atas kertas ivory, tipografi Bodoni Moda dengan aksen skrip Monsieur La Doulaise, foto hitam-putih berbutir halus, dan tata letak asimetris yang lapang.",
+    theme: {
+      fonts: { display: "Bodoni Moda", script: "Monsieur La Doulaise", body: "Jost" },
+      colors: {
+        surface: "#f4efe9",
+        text: "#111111",
+        accent: "#2e2e2e",
+        accentMuted: "#f3f0eb",
+        overlay: "#111111",
+        dark: "#111111",
+      },
+      ornaments: { divider: "line", border: "none", frame: "square" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.06 },
+    },
+    content: {
+      cover_slots: 3,
+      cover_slot_labels: ["Sampul", "Acara", "Penutup"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: true,
+      sections: {
+        opening_description: true,
+        quote: false,
         countdown: true,
         inviting: true,
         video: true,

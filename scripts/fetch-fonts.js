@@ -47,6 +47,10 @@ const FAMILIES = [
   // Traditional Bugis Pinishi: script display + soft serif body
   { name: "Waterfall", weights: ["400"], styles: ["normal"] },
   { name: "Ysabeau Infant", weights: ["300", "400", "500", "600", "700"], styles: ["normal"] },
+  // Silver Gelatin: didone display (headings, names, countdown) + copperplate
+  // script (names, rotated labels, closing sign-off). Body/UI is Jost.
+  { name: "Bodoni Moda", weights: ["400", "500", "600"], styles: ["normal"] },
+  { name: "Monsieur La Doulaise", weights: ["400"], styles: ["normal"] },
 ];
 
 function cssUrl(f) {

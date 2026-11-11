@@ -766,5 +766,29 @@
     "weight": "700",
     "style": "normal",
     "bytes": 37772
+  },
+  "bodonimoda-400.woff2": {
+    "family": "Bodoni Moda",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 25804
+  },
+  "bodonimoda-500.woff2": {
+    "family": "Bodoni Moda",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 25804
+  },
+  "bodonimoda-600.woff2": {
+    "family": "Bodoni Moda",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 25804
+  },
+  "monsieurladoulaise-400.woff2": {
+    "family": "Monsieur La Doulaise",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 18816
   }
 }
