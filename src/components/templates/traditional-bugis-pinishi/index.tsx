@@ -603,12 +603,6 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
           </section>
 
           <section className="pinishi-couple" aria-label="Mempelai">
-            <img className="pinishi-deco pinishi-deco--couple-tree" src={ASSET("decor-tree-left.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--couple-tree-r" src={ASSET("decor-tree-right.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--couple-bloom" src={ASSET("decor-img-0651.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--couple-bloom-2" src={ASSET("decor-dfafda.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--couple-sprig" src={ASSET("decor-fdsfsd.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--couple-drop" src={ASSET("decor-img-0692.webp")} alt="" aria-hidden="true" />
             <div className="pinishi-couple-inner">
               {people.map((person, index) => (
                 <article
@@ -619,28 +613,37 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                   style={delay(index * 120)}
                 >
                   <figure className="pinishi-person-photo">
-                    <img src={person.photo} alt={person.full} />
+                    <img className="pinishi-person-img" src={person.photo} alt={person.full} />
+                    <span className="pinishi-person-decor" aria-hidden="true">
+                      <img className="pinishi-decor-fone" src={ASSET("decor-img-0652.webp")} alt="" />
+                      <img className="pinishi-decor-ftwo" src={ASSET("decor-img-0551.webp")} alt="" />
+                      <img className="pinishi-decor-ffour" src={ASSET("decor-img-0651.webp")} alt="" />
+                      <img className="pinishi-decor-ffive" src={ASSET("decor-img-0692.webp")} alt="" />
+                    </span>
+                    <span className="pinishi-person-decor-back" aria-hidden="true">
+                      <img className="pinishi-decor-fthree" src={ASSET("decor-lily.webp")} alt="" />
+                      <img className="pinishi-decor-fsix" src={ASSET("decor-fdsfsd.webp")} alt="" />
+                    </span>
                     <img className="pinishi-person-frame" src={ASSET("frame.webp")} alt="" aria-hidden="true" />
                   </figure>
-                  {person.instagram && (
-                    <a
-                      className="pinishi-person-ig"
-                      href={`https://instagram.com/${person.instagram.replace(/^@/, "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <InstagramIcon />@{person.instagram.replace(/^@/, "")}
-                    </a>
-                  )}
-                  <h3 className="pinishi-person-name name-fit" style={fitStyle(person.full)}>
-                    {person.full || person.short}
-                  </h3>
-                  {person.parents && <p className="pinishi-person-parents">{person.parents}</p>}
+                  <div className="pinishi-person-info">
+                    {person.instagram && (
+                      <a
+                        className="pinishi-person-ig"
+                        href={`https://instagram.com/${person.instagram.replace(/^@/, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <InstagramIcon />@{person.instagram.replace(/^@/, "")}
+                      </a>
+                    )}
+                    {person.parents && <p className="pinishi-person-parents">{person.parents}</p>}
+                    <h3 className="pinishi-person-name name-fit" style={fitStyle(person.full)}>
+                      {person.full || person.short}
+                    </h3>
+                  </div>
                 </article>
               ))}
-              <p className="pinishi-amp" aria-hidden="true">
-                &amp;
-              </p>
             </div>
           </section>
 
@@ -783,6 +786,8 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
               <img className="pinishi-countdown-orn-two" src={ASSET("decor-gll-2.webp")} alt="" />
               <img className="pinishi-countdown-orn-three" src={ASSET("decor-gll-3.webp")} alt="" />
             </div>
+            <img className="pinishi-savedate-lily pinishi-savedate-lily--l" src={ASSET("decor-bungaQuote2.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-savedate-lily pinishi-savedate-lily--r" src={ASSET("decor-bungaQuote2.webp")} alt="" aria-hidden="true" />
           </section>
 
           <section className="pinishi-events" aria-label="Acara Pernikahan">
@@ -885,6 +890,8 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
 
           {hasLivestream && (
             <section className="pinishi-livestream" aria-label="Live Streaming">
+              <img className="pinishi-livestream-decor pinishi-livestream-decor--l" src={ASSET("decor-bnggg.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-livestream-decor pinishi-livestream-decor--r" src={ASSET("decor-bngarsvp-3.webp")} alt="" aria-hidden="true" />
               <div className="pinishi-livestream-card" data-aos="fade-up">
                 <h2>{livestream?.title || "Live Streaming"}</h2>
                 <p>{livestream?.description || "Temui kami secara virtual untuk menyaksikan acara pernikahan kami."}</p>
@@ -898,6 +905,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
 
           {hasRundown && (
             <section className="pinishi-rundown" aria-label="Rundown Acara">
+              <img className="pinishi-rundown-decor pinishi-rundown-decor--l" src={ASSET("decor-rundown-2.webp")} alt="" aria-hidden="true" />
               <div className="pinishi-rundown-inner" data-aos="fade-up">
                 <h2 className="pinishi-title">Rundown Acara</h2>
                 <div className="pinishi-rundown-list">
@@ -915,6 +923,8 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
 
           {hasDresscode && (
             <section className="pinishi-dresscode" aria-label="Dress Code">
+              <img className="pinishi-dresscode-decor pinishi-dresscode-decor--r" src={ASSET("decor-bungaBugis4.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-dresscode-decor pinishi-dresscode-decor--l" src={ASSET("decor-rundown-3.webp")} alt="" aria-hidden="true" />
               <div className="pinishi-dresscode-inner" data-aos="fade-up">
                 <h2 className="pinishi-title">{profile.dresscode?.title || "Dress Code"}</h2>
                 {dressDescription && <p>{dressDescription}</p>}
@@ -932,6 +942,8 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
 
           {hasGift && (
             <section className="pinishi-gift" aria-label="Hadiah">
+              <img className="pinishi-gift-decor pinishi-gift-decor--l" src={ASSET("decor-img-0651.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-gift-decor pinishi-gift-decor--r" src={ASSET("decor-mitos-1.webp")} alt="" aria-hidden="true" />
               <div className="pinishi-gift-card" data-aos="fade-up">
                 <h2>{giftIntroTitle}</h2>
                 <p>{giftIntroDescription}</p>
