@@ -406,11 +406,14 @@ invitation is fully readable without JS (playbook §4).
   `3n+1` plate, and forcing `data-orientation="portrait"` on that plate shrinks
   it to 168×210 (4/5) while `landscape` keeps 346×238 (16/11) — a portrait can
   no longer be cropped into the wide frame.
-- Dresscode default: with the demonstration couple's description cleared, the
-  section would print “We would love to see you in the colour palette of our big
-  day.” while keeping its own palette name and note; a profile with no dresscode
-  data at all still hides the section (the default only applies once the block
-  qualifies to render).
+- Dresscode default (BUILD_ID `AvIONKBsncd8BHeybl2oK`, commits `e705393` +
+  `ed4c618`): the section prints “We would love to see you in the colour palette
+  of our big day.” when a couple has real dresscode data but no written
+  paragraph — confirmed live on `/w/rafi-novi` (palette "ivory", no description,
+  no note). A profile with no dresscode data at all still hides the section. The
+  same deploy verified the mempelai `&` gap (18 px) and that rafi-novi's
+  portrait gallery tiles all render 168×210 (4/5) instead of the first and
+  fourth being promoted to a cropped 16/11 plate.
 - First release (BUILD_ID `RCRI6eampP4bjUKEiiIjE`, commit `ab779c9`): deploy guard
   reported all 38 registered templates in the bundle, the post-deploy smoke
   passed every template preview (doc + rsc 200) and the `cdn.aksaraa.com`
