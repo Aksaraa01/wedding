@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { CoupleSlugHint } from "@/components/CoupleSlugHint"
 import { coupleSlugError } from "@/lib/slug"
@@ -15,10 +15,6 @@ const PROGRESS: Record<Step, string> = { 1: "w-1/2", 2: "w-full" }
 // page, never by a query parameter.
 const BONUS_PACKAGE = "cetak_undangan_bonus"
 const DEFAULT_GUEST_COUNT = 300
-
-function formatRp(n: number): string {
-  return "Rp" + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
-}
 
 export default function BonusCetakUndanganPage() {
   const router = useRouter()
@@ -39,25 +35,8 @@ export default function BonusCetakUndanganPage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState("")
 
-  const [price, setPrice] = useState<number | null>(null)
-
   const step1Valid = userName.trim().length > 0 && partnerName.trim().length > 0
   const step2Valid = weddingDate.length > 0 || isTentative
-
-  useEffect(() => {
-    let cancelled = false
-    fetch("/api/packages/prices")
-      .then((res) => res.json())
-      .then((data) => {
-        if (cancelled) return
-        const base = Number(data?.base?.[BONUS_PACKAGE])
-        if (Number.isFinite(base) && base >= 0) setPrice(base)
-      })
-      .catch(() => {})
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   const handleNextStep1 = async () => {
     if (!step1Valid || nameChecking) return
@@ -190,10 +169,9 @@ export default function BonusCetakUndanganPage() {
 
       <main className="relative z-10 flex-1 min-h-0 overflow-hidden flex flex-col items-center justify-center px-4 md:px-edge-margin-mobile pt-16 md:pt-24 pb-4 md:pb-40 text-center">
         <div className="mb-4 md:mb-6 inline-flex items-center gap-2 px-4 py-2 bg-surface/90 border border-secondary/40 shadow-sm">
-          <span className="material-symbols-outlined text-[16px] text-secondary">print</span>
+          <span className="material-symbols-outlined text-[16px] text-secondary">redeem</span>
           <span className="font-label-md text-[11px] uppercase tracking-[0.15em] text-on-surface-variant">
             Paket BONUS (Cetak Undangan)
-            {price != null ? ` • ${formatRp(price)}` : ""}
           </span>
         </div>
 
