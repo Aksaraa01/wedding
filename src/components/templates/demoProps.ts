@@ -2426,9 +2426,6 @@ DEMO_PROPS_BY_CODE["silver-gelatin"] = {
   couple_initials: "AF",
   estimated_wedding_date: "2027-06-26",
   guest_name: "The Reed Family",
-  opening_title: "Dear family and friends,",
-  opening_description:
-    "With grateful hearts, we invite you to witness the beginning of our forever. Your presence and blessings would mean the world to us.",
   // Slot order is the editor's: Venue, Sampul, Gift, Dresscode.
   cover_photos: [`${DE}/cover-1.webp`, `${DE}/cover.webp`, `${DE}/cover-2.webp`, `${DE}/cover-6.webp`],
   groom_photo_url: [`${DE}/groom.webp`],

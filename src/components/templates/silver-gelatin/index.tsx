@@ -137,6 +137,7 @@ function Clock({ target }: { target: Date | null }) {
 export default function SilverGelatin(profile: TemplateProps) {
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const filmRef = useRef<HTMLElement | null>(null)
   const toastTimer = useRef<number | null>(null)
 
   const [opened, setOpened] = useState(false)
@@ -196,8 +197,10 @@ export default function SilverGelatin(profile: TemplateProps) {
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
   const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || "The Wedding"
+  // Editor order ("Mempelai Pertama" = groom_*), so the first initial is the
+  // groom's everywhere the design pairs them.
   const coupleInitials =
-    [brideName.charAt(0), groomName.charAt(0)].filter(Boolean).join("") ||
+    [groomName.charAt(0), brideName.charAt(0)].filter(Boolean).join("") ||
     (profile.couple_initials || "").trim()
   const guestName = (profile.guest_name || "").trim() || WISH_ME
   const dateObject = parseDate(profile.estimated_wedding_date)
@@ -212,13 +215,6 @@ export default function SilverGelatin(profile: TemplateProps) {
   const openLabel = (tc.open_button || "").trim() || "Open Invitation"
   const apology = (tc.cover_apology || "").trim() || "We apologize for any misspelling of your name or title."
   const dearLabel = (tc.cover_kicker || "").trim() || "Dear"
-  // The whole welcome block is the editor's "Kalimat Pembuka" card: title +
-  // description, nothing else. No parallel template_content copy, so an edit
-  // there can never look ignored.
-  const welcomeGreeting = (profile.opening_title || "").trim() || "Dear family and friends!"
-  const welcomeBody =
-    (profile.opening_description || "").trim() ||
-    "With great joy, we invite you to share in the special day of our wedding."
   const quoteText = (profile.quote_text || "").trim()
   const quoteSource = (profile.quote_source || "").trim()
   const hashtag = (profile.display_name || "").trim()
@@ -302,23 +298,38 @@ export default function SilverGelatin(profile: TemplateProps) {
     )
   }, [])
 
-  // The film autoplays, but it waits a beat after "Open Invitation": the music
-  // (warmed on the first pointerdown) is already streaming, and letting it take
-  // the first slice of bandwidth is what keeps the video from stuttering
-  // (playbook §5, "preload the music, stream the video"). The poster holds the
-  // 16/9 stage until the player mounts, so nothing shifts.
+  // The film autoplays muted as soon as its band is near the viewport — not only
+  // when the guest taps "Open Invitation". The cover is deliberately not
+  // scroll-locked, so a guest who simply scrolls past it must still get the
+  // film instead of a frozen poster. A 400 ms beat lets the warmed music take
+  // the first slice of bandwidth (playbook §5, "preload the music, stream the
+  // video"); the poster holds the 16/9 stage until the player mounts.
   useEffect(() => {
-    if (!opened) {
-      setFilmLive(false)
-      return
-    }
-    if (!trackUrl) {
+    if (!hasVideo) return
+    const node = filmRef.current
+    if (!node || typeof IntersectionObserver === "undefined") {
       setFilmLive(true)
       return
     }
-    const timer = window.setTimeout(() => setFilmLive(true), 700)
-    return () => window.clearTimeout(timer)
-  }, [opened, trackUrl])
+    let timer: number | null = null
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return
+        io.disconnect()
+        if (!trackUrl) {
+          setFilmLive(true)
+          return
+        }
+        timer = window.setTimeout(() => setFilmLive(true), 400)
+      },
+      { rootMargin: "150% 0px" }
+    )
+    io.observe(node)
+    return () => {
+      io.disconnect()
+      if (timer) window.clearTimeout(timer)
+    }
+  }, [hasVideo, trackUrl])
 
   const openInvitation = useCallback(() => {
     setOpened(true)
@@ -433,22 +444,22 @@ export default function SilverGelatin(profile: TemplateProps) {
             <span className="sg-cover__notch" aria-hidden="true" />
             {initialA && (
               <p className="sg-cover__initial sg-cover__initial--a" {...ON_LOAD("up", 0.3)}>
-                {brideName || groomName}
+                {groomName || brideName}
               </p>
             )}
             {initialB && (
               <p className="sg-cover__initial sg-cover__initial--b" {...ON_LOAD("up", 0.42)}>
-                {groomName || brideName}
-              </p>
-            )}
-            {brideName && (
-              <p className="sg-cover__script sg-cover__script--a" {...ON_LOAD("right", 0.5)}>
-                {brideName}
+                {brideName || groomName}
               </p>
             )}
             {groomName && (
-              <p className="sg-cover__script sg-cover__script--b" {...ON_LOAD("left", 0.6)}>
+              <p className="sg-cover__script sg-cover__script--a" {...ON_LOAD("right", 0.5)}>
                 {groomName}
+              </p>
+            )}
+            {brideName && (
+              <p className="sg-cover__script sg-cover__script--b" {...ON_LOAD("left", 0.6)}>
+                {brideName}
               </p>
             )}
             <p className="sg-cover__dear" {...ON_LOAD("fade", 0.7)}>{dearLabel}</p>
@@ -466,7 +477,7 @@ export default function SilverGelatin(profile: TemplateProps) {
               once the guest has opened the invitation, so a visitor who never
               taps Open downloads no video at all. */}
           {hasVideo && film && (
-            <section className="sg-film" data-section="video" aria-label="The wedding film">
+            <section ref={filmRef} className="sg-film" data-section="video" aria-label="The wedding film">
               <div className="sg-film__stage">
                 {!filmLive ? (
                   <img className="sg-film__poster" src={filmPoster} alt="" aria-hidden="true" draggable={false} />
@@ -511,19 +522,18 @@ export default function SilverGelatin(profile: TemplateProps) {
             </figure>
           )}
 
-          {/* 3 + 4 — welcome and the couple's own words */}
+          {/* 3 — the welcome dates the celebration; the design carries no
+              opening paragraph (this template has no Kalimat Pembuka card). */}
           <section className="sg-section sg-welcome" data-section="pembuka" aria-label="Word of welcome">
-            <p className="sg-welcome__greeting" {...IN("up")}>{welcomeGreeting}</p>
-            {welcomeBody && <p className="sg-body-copy" {...IN("fade", 0.06)}>{welcomeBody}</p>}
             {dateDot && (
-              <p className="sg-body-copy" {...IN("fade", 0.08)}>
+              <p className="sg-body-copy" {...IN("up")}>
                 {welcomeDateLead} {dateDot}
               </p>
             )}
 
             <div className="sg-photoBand" {...IN("fade", 0.1)}>
               <figure className="sg-photoBand__shot sg-photoBand__shot--a">
-                <img src={brideShot} alt={brideName || coupleLabel} loading="lazy" draggable={false} />
+                <img src={groomShot} alt={groomName || coupleLabel} loading="lazy" draggable={false} />
               </figure>
               <p className="sg-photoBand__script sg-photoBand__script--a">
                 <span>{photoOneLabel}</span>
@@ -532,7 +542,7 @@ export default function SilverGelatin(profile: TemplateProps) {
 
             <div className="sg-photoBand sg-photoBand--b" {...IN("fade", 0.1)}>
               <figure className="sg-photoBand__shot sg-photoBand__shot--b">
-                <img src={groomShot} alt={groomName || coupleLabel} loading="lazy" draggable={false} />
+                <img src={brideShot} alt={brideName || coupleLabel} loading="lazy" draggable={false} />
               </figure>
               <p className="sg-photoBand__script sg-photoBand__script--b">
                 <span>{photoTwoLabel}</span>
@@ -546,18 +556,18 @@ export default function SilverGelatin(profile: TemplateProps) {
             <span className="sg-rule" aria-hidden="true" {...IN("fade", 0.04)} />
             {[
               {
-                key: "bride",
-                script: brideName,
-                full: profile.bride_full_name || brideName,
-                parents: profile.bride_parents,
-                ig: brideIg,
-              },
-              {
                 key: "groom",
                 script: groomName,
                 full: profile.groom_full_name || groomName,
                 parents: profile.groom_parents,
                 ig: groomIg,
+              },
+              {
+                key: "bride",
+                script: brideName,
+                full: profile.bride_full_name || brideName,
+                parents: profile.bride_parents,
+                ig: brideIg,
               },
             ]
               .filter((person) => !!person.script || !!person.full)

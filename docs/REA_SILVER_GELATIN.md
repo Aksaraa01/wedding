@@ -81,8 +81,8 @@ Mapping to the §0.5 contract:
 |---|---|---|
 | 1 | Cover | `sampul` — photo, notch, initials, scripts, guest, open button |
 | 2 | Opening video | `film` — one band directly under the cover (§9.1) |
-| 3 | Welcome | `pembuka` — greeting + `opening_description` + date + the two rotated portraits |
-| 4 | Kalimat pembuka | merged into #3 — the whole welcome block is `opening_title` + `opening_description` (§9.2) |
+| 3 | Welcome | `pembuka` — date line + the two rotated portraits (no copy block, §9.6) |
+| 4 | Kalimat pembuka | **not shipped** — the template is in `TEMPLATES_WITHOUT_OPENING`, so the editor and ops hide the card and the invitation prints no opening paragraph (§9.6) |
 | 5 | Mempelai | `mempelai` |
 | 6 | Love story | `story` |
 | — | Kutipan | `kutipan` — epigraph between the film and the welcome (`quote_text` / `quote_source`) |
@@ -162,17 +162,15 @@ Cover geometry at 390 (converted verbatim):
 | Surface | Source |
 |---|---|
 | Cover photo slots | 4 named slots, in this order: `cover_photos[0]` Venue, `cover_photos[1]` Sampul, `cover_photos[2]` Gift, `cover_photos[3]` Dresscode (each falls back to `gallery_photos[0]` → the cover) |
-| Cover initials | first letter of `bride_name`, then `groom_name` (bride first, matching the reference's N/R) |
-| Cover scripts | `bride_name` (upper right), `groom_name` (lower left) |
+| Cover initials | first letter of `groom_name`, then `bride_name` — the editor's Mempelai Pertama / Kedua order |
+| Cover scripts | `groom_name` (upper right), `bride_name` (lower left) — same order as the editor |
 | Cover salutation | `template_content.cover_kicker` (default “Dear”) + `guest_name` |
 | Open button | `template_content.open_button` |
 | Apology | `template_content.cover_apology` |
 | Film | `video_url` → autoplaying (muted) `<video>` / YouTube embed; poster = Venue slot |
-| Welcome greeting | `opening_title` (editor "Kalimat Pembuka") |
-| Welcome body | `opening_description` (same card — no parallel `template_content` copy exists) |
 | Welcome date lead | `template_content.events_kicker` + `estimated_wedding_date` (`26 . 06 . 2027`) |
-| Welcome portraits | `bride_photo_url`, `groom_photo_url`; captions from `story_kicker` / `gallery_kicker` |
-| Mempelai | `bride_full_name` / `groom_full_name`, `*_parents`, `*_instagram`, `template_content.mempelai_kicker` / `parents_label` (optional; hidden when empty) |
+| Welcome portraits | `groom_photo_url` on the first plate (“Love story”), `bride_photo_url` on the second (“Wedding”) — the editor's Mempelai Pertama / Kedua order; captions from `story_kicker` / `gallery_kicker` |
+| Mempelai | `groom_full_name` / `bride_full_name` in editor order (Mempelai Pertama first), `*_parents`, `*_instagram`, `template_content.mempelai_kicker` / `parents_label` (optional; hidden when empty) |
 | Kutipan | `quote_text` + `quote_source` (editor "KUTIPAN", ops "KUTIPAN") |
 | Story | `stories[]` → `title`, `description`, `image_url` |
 | Venue | `sessions[]` → `name`, `venue`, `address`, `date`, `time`, `maps_url` |
@@ -211,12 +209,14 @@ invitation is fully readable without JS (playbook §4).
    has no film block, and duplicating one `video_url` at the top and again at
    #12 would ship the same clip twice. One full-bleed 16/9 band sits directly
    under the cover, with `video_title` / `video_intro` copy below it.
-2. **The film plays by itself, muted, once the guest has opened the invitation.**
+2. **The film plays by itself, muted, as soon as its band nears the viewport.**
    Browsers only allow unmuted playback after a gesture, so `autoPlay muted` is
    the only autoplay that actually starts; a visible `controls` bar lets the
-   guest unmute. Before "Open Invitation" the band shows the poster only, so a
-   visitor who never opens the invitation downloads no video. The stage keeps a
-   fixed 16/9 box, so mounting the player never shifts the page.
+   guest unmute. Mounting is driven by an `IntersectionObserver` (150 % margin),
+   not by the "Open Invitation" button: the cover is not scroll-locked, so a
+   guest who scrolls past it still gets the film — the first release mounted it
+   on `opened` only, which left those guests with a frozen poster. The stage
+   keeps a fixed 16/9 box, so mounting the player never shifts the page.
 3. **The cover does not lock the page.** The reference scrolls freely too: the
    “Open Invitation” keyline is a real button that starts the music and scrolls
    to the welcome band. No `body` class, no gesture blockers.
@@ -226,13 +226,18 @@ invitation is fully readable without JS (playbook §4).
    CSS so it stays pixel-correct at every canvas width.
 5. **Mempelai carries no portraits.** As in the reference, the couple section is
    text only (script name, full name, parents, Instagram). The portraits appear
-   in the welcome bands instead, which is what satisfies `person_photos`.
-6. **The whole welcome block is the editor's "Kalimat Pembuka".** The reference
-   prints a greeting and one paragraph; that paragraph is exactly what the
-   editor's Kalimat Pembuka card stores (`opening_description`, with
-   `opening_title` as the greeting). The old `welcome_message` /
-   `welcome_invite` extras were removed from this template, so there is no
-   second place to edit and no field that looks ignored.
+   in the welcome bands instead, which is what satisfies `person_photos`. The
+   reference prints the bride first; this template follows **the editor's order**
+   (Mempelai Pertama = `groom_*`, then Mempelai Kedua = `bride_*`) for the
+   names, the cover scripts/initials, the welcome plates and the mempelai list,
+   so the page can never disagree with the form the couple filled in.
+6. **There is no Kalimat Pembuka.** The reference's opening block is a greeting
+   and one paragraph, and an earlier iteration wired it to `opening_title` /
+   `opening_description`. The couple asked for that section to be gone from this
+   design, so `silver-gelatin` is in `TEMPLATES_WITHOUT_OPENING`: the editor and
+   ops no longer show the card (nor the completeness blocker) **and** the
+   invitation prints no greeting or paragraph. The welcome block keeps the date
+   line and the two portrait plates.
 7. **"Daughter of" / "Son of" are not printed.** The reference hard-codes those
    two labels. They are English kinship words that do not fit every couple, so
    the parents block renders `*_parents` under the optional, editable
@@ -346,6 +351,23 @@ invitation is fully readable without JS (playbook §4).
   `/api/web-templates?fresh=1` and the rafi-novi invitation all 200. The live
   `BUILD_ID` on the VPS matches and the asset is present in
   `.next/standalone/public`.
+- Third iteration (no Kalimat Pembuka, editor-order couple, scroll-triggered
+  film), verified on the staging standalone build (port 3100) through CDP at
+  390×844:
+  - `hidesOpeningSection("silver-gelatin")` is true, so the editor card, the ops
+    accordion and the completeness/publish blocker are all gone; the rendered
+    welcome carries only "The celebration will take place on 26 . 06 . 2027" and
+    the keys are no longer read anywhere in the template (SSR HTML has no
+    "Dear family and friends"/"With grateful hearts").
+  - Editor order everywhere: mempelai list is `Albarn` → `Faye`
+    (groom_* → bride_*), cover scripts upper-right/lower-left follow the same
+    order, initials are `A` then `F`, and the "Love story" plate is the first
+    mempelai's photo (plate `alt` = both names, in that order).
+  - Film autoplays for a guest who only scrolls: with no "Open Invitation"
+    click, the YouTube player mounts (`autoplay=1&mute=1&controls=1`,
+    `getPlayerState() === 1`) and the poster is replaced. This was the rafi-novi
+    report: the first release mounted the player on `opened` only, so scrolling
+    past the (unlocked) cover left a frozen poster.
 - First release (BUILD_ID `RCRI6eampP4bjUKEiiIjE`, commit `ab779c9`): deploy guard
   reported all 38 registered templates in the bundle, the post-deploy smoke
   passed every template preview (doc + rsc 200) and the `cdn.aksaraa.com`
