@@ -44,24 +44,49 @@ Intake 2026-11-05.
 Vendored to `public/templates/traditional-bugis-pinishi/`. No reference couple
 photos are copied; the demo uses our own `pembuka.webp` / `galeri-*.webp`.
 
+The second pass re-derived every placement from the preset's own stylesheet
+(`/css-tema/custom-…`, 335 rules) instead of eyeballing screenshots, and
+vendored the four assets the first pass had skipped.
+
 | File | Reference source | Use |
 |---|---|---|
-| `cover-bg.webp` | `546f5ce0-…jpg` (preset cover, 1080×2218) | full-bleed cover illustration |
-| `quote-bg.webp` | `contenful/bg.jpg` (550×1067) | verse / quote background |
-| `decor-tree-left.webp` | `IMG_0696.png` | cover, top-left tree |
-| `decor-tree-right.webp` | `phnnnn.png` | cover, top-right tree (rotated −30°) |
-| `decor-banana.webp` | `cScSc.png` | cover, left banana plant |
-| `decor-flowers.webp` | `dfd.png` | cover, bottom-right bouquet |
-| `decor-purple.webp` | `tmnknan.png` | cover, bottom-left purple plants |
-| `decor-lily.webp` | `fada.png` | cover, right lily (behind the panel) |
-| `decor-blossom.webp` | `bungaBugis4.png` | verse, watercolour blossom |
-| `decor-foliage.webp` | `puun2bugis.png` | verse, faint green foliage |
-| `decor-foliage-band.webp` | `bgwishes.png` | verse, tropical foliage band |
-| `cover-art.webp` | `bugis_bg.png` | gallery footer mosque art |
-| `watermark.webp` | `bgrdwn.png` | page watermark behind the main column |
+| `cover-bg.webp` | `546f5ce0-…jpg` (preset cover, 1080×2218) | full-bleed gate illustration |
+| `quote-bg.webp` | `contenful/bg.jpg` (550×1067) | hero (`#separator`) background |
+| `decor-puunbugis.webp` | `puunbugis.png` | hero `.decorSeparator .tree` (top-left, 44 %) |
+| `decor-puun2bugis.webp` | `puun2bugis.png` | hero `.flowerfive` (top-right, 26 %) |
+| `decor-img-0543.webp` | `IMG_0543.png` | hero `.ship` (bottom, 78 %) |
+| `decor-bngquote.webp` | `bngquote.png` | hero `.flowerzero` (left, bottom 11 %) |
+| `decor-bungaQuote2.webp` | `bungaQuote2.png` | hero `.flowerone` (left, bottom −5 %) |
+| `decor-bungaBugis4.webp` | `bungaBugis4.png` | hero `.flowertwo` (right, bottom 50 px) |
+| `decor-bunga-quote-3.webp` | `bungaQuote3.png` | hero `.flowerfour` (right, bottom 23 px) |
+| `decor-mitos-1/2/3.webp` | `mitos_…_1/2/3_.png` | story `.flowerStory` (bottom-left ×2, top-right) |
+| `decor-dup-1.webp`, `decor-untitled-13-2.webp`, `decor-dup-2.webp` | `dup1.png`, `Untitled_13_2.png`, `dup2.png` | gallery `.ornGallery` (3 ornaments around the quote) |
+| `decor-dfafda.webp`, `decor-dsdasfdas.webp`, `decor-img-0652.webp` | `dfafda.png`, `dsdasfdas.png`, `IMG_0652.png` | gallery `.ornGalleryBottom` (bottom three) |
+| `decor-gll-1/2/3.webp` | `gll1/2/3.png` | countdown `.ornCountdown` (two mirrored groups + `fdsfsd` spray) |
+| `decor-fdsfsd.webp` | `fdsfsd.png` | countdown `.ornCountdown::before` |
+| `decor-rundown-5/4/2/3/1.webp` | `rundown5/4/2/3/1.png` | per-event `.decorRundown` left + right groups |
+| `decor-rundown-frame.webp` | `IMG_0631.PNG` | event card rails (repeat-y) |
+| `frame-crest.webp` | `IMG_0632.PNG` | event card crest above the rails |
+| `decor-merak.webp`, `decor-bngarsvp-3.webp`, `decor-bngarsvp-1.webp`, `decor-bnggg.webp` | `merak.png`, `bngarsvp3.png`, `bngarsvp1.png`, `bnggg.png` | Turut Mengundang `.decor-bottom` (peacock + lilies) |
+| `decor-tree-left.webp` | `IMG_0696.png` | closing `.decorThankYou .done` |
+| `decor-tree-right.webp` | `phnnnn.png` | closing `.dtwo` |
+| `decor-banana.webp` | `cScSc.png` | closing `.dthree` |
+| `decor-foliage-band.webp` | `bgwishes.png` | closing `.dfour` (full-width floral band) |
+| `decor-flowers.webp` | `dfd.png` | closing `.dfive` |
+| `decor-lily.webp` | `fada.png` | closing `.dseven` |
+| `decor-purple.webp` | `tmnknan.png` | closing `.dsix` |
+| `decor-ship.webp` | `IMG_0543.png` | closing `.ship-lax` |
 | `floral.webp` | `dcrbtmrundown.png` | rundown corner floral |
-| `frame-crest.webp` | `IMG_0632.PNG` | crest above Save The Date |
-| `frame.webp` | `IMG_0549.PNG` | gold oval frame around the portraits |
+| `cover-art.webp` | `bugis_bg.png` | gallery footer mosque band |
+| `watermark.webp` | `bgrdwn.png` | countdown background |
+| `wishes-bg.webp` | `c7d66f50-…jpg` | wishes section background (blended with cream) |
+| `story-panel.webp` | `mitos_…_47_.png` | story + Turut Mengundang panel texture |
+| `decor-countdown-band.webp` | `IMG_0541_copy.png` | countdown lace band (`#countdown::before`) |
+| `decor-frame-top.webp` / `decor-frame-bottom.webp` | `frametop.png` / `frmaebottom.png` | Turut Mengundang gold arch |
+| `frame.webp` | `IMG_0549.PNG` | peach arch drawn over each portrait |
+| `mask-frame.webp` | `mask-frame.png` | portrait silhouette mask |
+| `frame-backdrop.webp` | `framejv.png` | gold oval behind each portrait |
+| `decor-profile-band.webp` | `phonld.png` | tree branch above the bride's portrait |
 
 Couple media: `pembuka.webp`, `galeri-1…4.webp`, `pria.webp`, `wanita.webp`,
 `music.mp3`, `thumbnail.webp` (real 9:19 cover capture, 720×1520).
@@ -79,18 +104,41 @@ Fonts: `public/fonts/waterfall-400.woff2`,
 
 ## 4. Motion
 
-The template uses the shared AOS reveal (`data-aos="fade-up"` + `--aos-delay`)
-and two cover keyframes.
+Two layers, both ported from the preset (animate.css + WOW.js + the theme's
+`animation_upDown` / `animation_toLeft` loops).
 
-| Element | Animation | Delay |
+**Reveal** — one `IntersectionObserver` adds `.is-aos-visible` to every
+`[data-aos]` target once. Variants map to the preset's animate.css classes:
+
+| `data-aos` | Preset class | Used by |
 |---|---|---|
-| Cover trees | `pinishi-slide-in-left` / `pinishi-slide-in-right` on mount | 0 |
-| Cover panel | `fade-up` | 0 |
-| Section titles | `fade-up` | 0 |
-| Cards / list rows | `fade-up` | 60 ms step |
-| Gallery tiles | `fade-up` | 40 ms step |
+| `fade-in` | `animate__fadeIn` | gallery quote block, wishes, closing |
+| `fade-up` (default) | `animate__fadeInUp` | quote, story title, gallery track, save-the-date, events intro, inviting, livestream, rundown, dresscode, gift |
+| `slide-left` / `slide-right` | `animate__fadeInLeft` / `fadeInRight` | bride / groom portrait |
+| `zoom-in` | `animate__zoomIn` | story panel, event cards |
 
-`prefers-reduced-motion` is honoured globally by the AOS stylesheet.
+Duration 0.9 s, `--aos-delay` per element (60/80 ms steps), `prefers-reduced-motion`
+and `@media (scripting: none)` leave every target at `opacity: 1; translate: none;
+scale: 1`.
+
+**Ambient** — the preset keeps its florals breathing with
+`animation_upDown` (rotate −3°…3°) and `animation_toLeft` (5°…0°), 2 s
+alternate. Ported as `pinishi-sway` / `pinishi-to-left` driven through the
+individual `rotate` property (never `transform`) so it never overwrites a
+placement `transform`:
+
+| Element | Animation |
+|---|---|
+| Hero `.flowerzero` / `.flowerone` / `.flowerfour` / `.flowertwo` | `pinishi-sway` 2 s |
+| Story `.flowerstorytwo` | `pinishi-sway` 2 s |
+| Gallery `.orn3`, `.ornGalleryBottom .orn1` | `pinishi-sway` 2 s |
+| Countdown `.ornCountdown img:nth-child(2)` / `(3)` | `pinishi-sway` 2 s / `pinishi-to-left` 1.5 s |
+| Event `.decorRundown` second + left flowers | `pinishi-to-left` / `pinishi-sway` 2 s |
+| Turut Mengundang lily | `pinishi-sway` 2 s |
+| Music vinyl | `pinishi-vinyl-spin` 2 s |
+
+Reduced motion turns every one of them off.
+
 
 ---
 
@@ -128,7 +176,7 @@ Section order follows the reference: cover → verse → couple → story → ga
 save-the-date/events → inviting → live → (our rundown/dresscode) → gift →
 wishes → contacts → closing.
 
-Copy audit: `npm run audit:copy -- traditional-bugis-pinishi` is clean; the 62
+Copy audit: `npm run audit:copy -- traditional-bugis-pinishi` is clean; the 61
 structural literals (WCAG names, countdown units, fixed section labels, vendor
 badge) live in the `allow` block with reasons.
 
@@ -143,12 +191,31 @@ badge) live in the `allow` block with reasons.
 2. **Guest name and apology stay on the cover** (`Kepada Yth.`, guest name,
    `cover_apology`) — the reference hides them behind the `?to=` loop; ours are
    editable and always visible, as required by the shared invitation contract.
-3. **Portraits use the gold oval frame** (`IMG_0549.PNG`) instead of the
-   reference's decorative mask, because the frame art is the one the preset
-   actually ships.
-4. **Demo photos are ours** (`pembuka.webp` / `galeri-*.webp`); the reference's
-   `bugis-vintage-sampul.webp` is a photo of the vendor's demo couple.
-5. **Live streaming, rundown, dress code and contacts** are ADDED sections from
+3. **The couple block has no intro paragraph.** The preset goes straight from
+   the verse to the first portrait; the "Dengan memohon rahmat…" line only
+   appears above the event cards. `profiles_intro` is therefore not registered
+   for this template (no dead control).
+4. **The peach RSVP panel now carries Turut Mengundang.** The preset puts the
+   RSVP form, the also-invite list, the gold arch and the peacock/lily art in
+   one peach panel. RSVP is the shared `InvitationOverlay` dock here, so the
+   panel renders only the also-invite list — same arch, same peacock, same
+   lilies, same 160 px top radius.
+5. **Demo photos are ours** (`pembuka.webp` / `galeri-*.webp`); the reference's
+   `bugis-vintage-sampul.webp` is a photo of the vendor's demo couple. The demo
+   copy is the `adat-bugis` sample (Andi & Nurul, Makassar), not the vendor's
+   demo couple.
+6. **Live streaming, rundown, dress code and contacts** are ADDED sections from
    the 16-section contract; the reference shows only some of them per preset.
-6. **`hidesOpeningSection`** is on: this design has no separate "Kalimat
+   They reuse the preset's own language (olive cards, Waterfall headings,
+   plum pills) instead of inventing a new one.
+7. **`hidesOpeningSection`** is on: this design has no separate "Kalimat
    Pembuka" card — the verse carries the quote.
+8. **The gallery keeps both copy fields.** The preset shows the quote *and* the
+   editable note under it (`*title and words can be edited in the gallery
+   menu`), so `gallery_quote` and `gallery_intro` are both rendered — the
+   latter smaller, as in the preset.
+9. **Portraits keep the preset's real construction**: photo clipped by
+   `mask-frame.png`, the gold oval (`framejv.png`) behind it, the peach arch
+   (`IMG_0549`) drawn on top, and the `phonld.png` branch above the bride. The
+   branch is omitted on the groom because in our (single-column) layout it
+   would cover the bride's parent line.

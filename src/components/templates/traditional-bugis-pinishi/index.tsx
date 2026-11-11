@@ -24,13 +24,16 @@ const DEFAULT_QUOTE =
   "Bismillahirrahmanirrahim. Semoga Allah SWT senantiasa melimpahkan keberkahan, kasih, dan keharmonisan dalam perjalanan kami."
 const DEFAULT_QUOTE_SOURCE = "Doa Pernikahan Adat Bugis"
 const DEMO_TRACK = "/templates/traditional-bugis-pinishi/music.mp3"
-const DEFAULT_GALLERY_QUOTE = "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama."
+const DEFAULT_GALLERY_QUOTE =
+  "Cinta tumbuh dalam doa, restu keluarga, dan setiap langkah yang kami jalani bersama."
 const DEFAULT_GIFT_DESCRIPTION =
   "Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:"
 const DEFAULT_CLOSING =
   "Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami haturkan terima kasih. Semoga Allah SWT senantiasa melimpahkan keberkahan."
 const DEFAULT_WISHES_SUBTITLE =
   "Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menyampaikan doa restu."
+const EVENTS_INTRO =
+  "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri acara pernikahan kami:"
 
 function describePalette(colors?: { hex?: string; name?: string }[]): string {
   const names = (colors || []).map((c) => (c.name || "").trim()).filter(Boolean)
@@ -74,12 +77,6 @@ function delay(ms: number): CSSProperties {
   return { "--aos-delay": `${ms}ms` } as CSSProperties
 }
 
-function numericDate(iso?: string): string {
-  const m = (iso || "").slice(0, 10).match(/^(\d{4})-(\d{2})-(\d{2})$/)
-  if (!m) return ""
-  return `${m[3]} / ${m[2]} / ${m[1].slice(2)}`
-}
-
 function dottedDate(iso?: string): string {
   const m = (iso || "").slice(0, 10).match(/^(\d{4})-(\d{2})-(\d{2})$/)
   if (!m) return ""
@@ -106,25 +103,66 @@ function WhatsAppIcon() {
   )
 }
 
-function HeartMarker() {
-  return (
-    <span className="story-marker" aria-hidden="true">
-      <svg className="story-marker-ring" viewBox="0 0 40 40">
-        <circle cx="20" cy="20" r="17.5" />
-      </svg>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" aria-hidden="true">
-        <path d="M20.8 8.7c0 5.1-8.8 10.2-8.8 10.2S3.2 13.8 3.2 8.7A4.7 4.7 0 0 1 12 6.2a4.7 4.7 0 0 1 8.8 2.5Z" fill="currentColor" stroke="none" />
-      </svg>
-    </span>
-  )
-}
-
 function InstagramIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" aria-hidden="true">
       <rect x="4" y="4" width="16" height="16" rx="4" />
       <circle cx="12" cy="12" r="3.5" />
       <circle cx="17.2" cy="6.8" r="1" />
+    </svg>
+  )
+}
+
+function ClockIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.4" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5V12l3 1.8" />
+    </svg>
+  )
+}
+
+function PinIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.4" aria-hidden="true">
+      <path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z" />
+      <circle cx="12" cy="10" r="2" />
+    </svg>
+  )
+}
+
+function CalendarIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.4" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M16 3v4M8 3v4M3 10h18M12 14v4M10 16h4" />
+    </svg>
+  )
+}
+
+function BellIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.4" aria-hidden="true">
+      <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.7 21a2 2 0 0 1-3.4 0" />
+    </svg>
+  )
+}
+
+function CameraIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.4" aria-hidden="true">
+      <rect x="2.5" y="6" width="13" height="12" rx="2" />
+      <path d="M15.5 11.2 21 8v8l-5.5-3.2z" />
+    </svg>
+  )
+}
+
+function EnvelopeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.4" aria-hidden="true">
+      <rect x="3" y="5.5" width="18" height="13" rx="2" />
+      <path d="M3.5 7 12 13l8.5-6" />
     </svg>
   )
 }
@@ -165,7 +203,8 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
   const bridePhoto = bridePhotoOf(profile.bride_photo_url)
   const coverSlots = flattenPhotos(profile.cover_photos)
   const coverPhoto = coverPhotoOf(profile)
-  const closingPhoto = coverSlots[1] || photos[0] || coverPhoto
+  const versePhoto = coverSlots[1] || photos[0] || coverPhoto
+  const closingPhoto = coverSlots[2] || photos[0] || coverPhoto
   const videoEmbed = normalizeVideoUrl(profile.video_url)
   const hasVideo = gates.video !== false && profile.video_section_visible !== false && !!videoEmbed
   const hasGallery = photos.length > 0 || hasVideo
@@ -207,8 +246,6 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
   const dressDescription = profile.dresscode?.description || describePalette(profile.dresscode?.colors)
   const livestream = profile.livestream
 
-  const splitAt = photos.length > 8 ? Math.ceil(photos.length / 2) : photos.length
-  const galleryRows = [photos.slice(0, splitAt), photos.slice(splitAt)].filter((row) => row.length > 0)
   const showGuestDock =
     opened &&
     !profile.preview_mode &&
@@ -369,49 +406,6 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
   }, [opened])
 
   useEffect(() => {
-    if (!opened) return
-    const root = rootRef.current
-    if (!root || typeof IntersectionObserver === "undefined") return
-    const articles = Array.from(root.querySelectorAll<HTMLElement>(".story-list article"))
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-story-reached")
-            observer.unobserve(entry.target)
-          }
-        })
-      },
-      { rootMargin: "0px 0px -18% 0px", threshold: 0.4 }
-    )
-    articles.forEach((article) => observer.observe(article))
-    return () => observer.disconnect()
-  }, [opened])
-
-  useEffect(() => {
-    if (!opened) return
-    const root = rootRef.current
-    if (!root || typeof IntersectionObserver === "undefined") return
-    const items = Array.from(
-      root.querySelectorAll<HTMLElement>("[data-rundown-item], [data-contact-item]")
-    )
-    if (items.length === 0) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-reached")
-            observer.unobserve(entry.target)
-          }
-        })
-      },
-      { rootMargin: "0px 0px -18% 0px", threshold: 0.4 }
-    )
-    items.forEach((item) => observer.observe(item))
-    return () => observer.disconnect()
-  }, [opened, rundownItems.length, contactItems.length])
-
-  useEffect(() => {
     if (lightbox === null) return
     const handler = (event: KeyboardEvent) => {
       if (event.key === "Escape") setLightbox(null)
@@ -434,98 +428,79 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
     "Halo Aksaraa Wedding, saya tertarik membuat undangan digital"
   )}`
 
-  const rootStyle = {
-    "--warm": "#8b7355",
-    "--dark": "#3e3426",
-    "--cream": "#f7f3ee",
-    "--cream-2": "#ebe0d0",
-    "--brown": "#6b5b4f",
-    "--sage": "#8b7355",
-    "--sage-deep": "#6b5b4f",
-    "--adat-primary": "#8b7355",
-    "--adat-primary-deep": "#6b5b4f",
-    "--warm-fg": "#ffffff",
-    "--adat-primary-text": "#6b5b4f",
-    "--paper": "#f7f3ee",
-    "--ink": "#3e3426",
-  } as CSSProperties
+  const people = [
+    {
+      side: "bride",
+      full: brideFull,
+      short: brideShort,
+      photo: bridePhoto,
+      parents: profile.bride_parents,
+      instagram: profile.bride_instagram,
+    },
+    {
+      side: "groom",
+      full: groomFull,
+      short: groomShort,
+      photo: groomPhoto,
+      parents: profile.groom_parents,
+      instagram: profile.groom_instagram,
+    },
+  ]
+
+  const galleryShots = photos.length > 0 ? photos : [coverPhoto]
 
   return (
     <div
       ref={rootRef}
-      className={`traditional-bugis-pinishi-root aos-ready${opened ? " is-open" : " is-locked"}`}
-      style={rootStyle}
+      className={`traditional-bugis-pinishi-root${opened ? " is-open" : " is-locked"}`}
     >
       <a className="skip-link" href="#pinishi-invitation">
         Lewati ke undangan
       </a>
 
       {hasTrack && (
-        <audio
-          ref={audioRef}
-          loop
-          preload={connectionOk ? "auto" : "metadata"}
-        >
+        <audio ref={audioRef} loop preload={connectionOk ? "auto" : "metadata"}>
           <source src={trackUrl} type="audio/mpeg" />
         </audio>
       )}
 
       {hasTrack && (
         <button
-          className={`tpl-music-btn${opened ? " visible" : ""}${playing ? "" : " paused"}`}
+          className={`pinishi-music${opened ? " is-visible" : ""}${playing ? "" : " is-paused"}`}
           type="button"
           aria-label="Putar atau jeda musik"
           onClick={toggleMusic}
         >
-          <span className="tpl-vinyl">
-            <span className="tpl-vinyl-groove tpl-vinyl-groove-1" />
-            <span className="tpl-vinyl-groove tpl-vinyl-groove-2" />
-            <span className="tpl-vinyl-label" />
-            <span className="tpl-vinyl-hole" />
-          </span>
-          <span className="tpl-tonearm">
-            <span className="tpl-tonearm-pivot" />
-            <span className="tpl-tonearm-arm" />
-            <span className="tpl-tonearm-head" />
+          <span className="pinishi-vinyl">
+            <span className="pinishi-vinyl-groove" />
+            <span className="pinishi-vinyl-label" />
+            <span className="pinishi-vinyl-hole" />
           </span>
         </button>
       )}
 
-      <section className="pinishi-cover" aria-label="Sampul undangan">
-        <div className="pinishi-cover-bg">
-          <img src={ASSET("cover-bg.webp")} alt="" aria-hidden="true" />
+      <section className="pinishi-gate" aria-label="Sampul undangan">
+        <div className="pinishi-gate-bg" aria-hidden="true">
+          <img src={ASSET("cover-bg.webp")} alt="" />
         </div>
-        <div className="pinishi-cover-hero" aria-hidden="true">
-          <img src={coverPhoto} alt="" />
-        </div>
-        <div className="pinishi-cover-decor" aria-hidden="true">
-          <img className="pinishi-decor pinishi-decor--tree-left" src={ASSET("decor-tree-left.webp")} alt="" />
-          <img className="pinishi-decor pinishi-decor--tree-right" src={ASSET("decor-tree-right.webp")} alt="" />
-          <img className="pinishi-decor pinishi-decor--banana" src={ASSET("decor-banana.webp")} alt="" />
-          <img className="pinishi-decor pinishi-decor--flowers" src={ASSET("decor-flowers.webp")} alt="" />
-          <img className="pinishi-decor pinishi-decor--purple" src={ASSET("decor-purple.webp")} alt="" />
-          <img className="pinishi-decor pinishi-decor--lily" src={ASSET("decor-lily.webp")} alt="" />
-        </div>
-        <div className="pinishi-cover-panel" data-aos="fade-up">
-          <div className="pinishi-cover-photo">
+        <div className="pinishi-gate-panel">
+          <div className="pinishi-gate-photo">
             <img src={coverPhoto} alt={coupleLabel} />
           </div>
-          <p className="pinishi-kicker">The Wedding Of</p>
-          <h1 className="pinishi-names name-fit" style={fitStyle(coupleLabel)}>
+          <p className="pinishi-gate-kicker">The Wedding Of</p>
+          <h1 className="pinishi-gate-names name-fit" style={fitStyle(coupleLabel)}>
             {groomShort} &amp; {brideShort}
           </h1>
-          {dateDots && <p className="pinishi-date">{dateDots}</p>}
-          <div className="pinishi-to">
-            <p className="pinishi-to-label">Kepada Yth.</p>
-            <p className="pinishi-guest name-fit" style={fitStyle(guestName)}>
+          {dateDots && <p className="pinishi-gate-date">{dateDots}</p>}
+          <div className="pinishi-gate-guest">
+            <p className="pinishi-gate-guest-label">Kepada Yth.</p>
+            <p className="pinishi-gate-guest-name name-fit" style={fitStyle(guestName)}>
               {guestName}
             </p>
-            <p className="pinishi-note">{coverApology}</p>
+            <p className="pinishi-gate-note">{coverApology}</p>
           </div>
-          <button className="pinishi-open-btn" type="button" onClick={openInvitation}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" aria-hidden="true">
-              <path d="M4 6h16v12H4zM4 7l8 6 8-6" />
-            </svg>
+          <button className="pinishi-gate-btn" type="button" onClick={openInvitation}>
+            <EnvelopeIcon />
             Buka Undangan
           </button>
         </div>
@@ -533,28 +508,26 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
 
       {opened && (
         <main id="pinishi-invitation" className="pinishi-main">
-          <section className="pinishi-verse" aria-label="Pembuka">
-            <img className="pinishi-deco pinishi-deco--verse-tree" src={ASSET("decor-puunbugis.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--verse-tree-r" src={ASSET("decor-puun2bugis.webp")} alt="" aria-hidden="true" />
-            <div className="pinishi-verse-inner" data-aos="fade-up">
-              <p className="pinishi-verse-initials" aria-hidden="true">
-                <span>{(groomShort || "A").charAt(0)}</span>
-                <span>{(brideShort || "N").charAt(0)}</span>
-              </p>
-              <div className="pinishi-verse-photo">
-                <img src={ASSET("pembuka.webp")} alt={coupleLabel} />
-              </div>
-            </div>
-            <img className="pinishi-deco pinishi-deco--verse-flower-l" src={ASSET("decor-bngquote.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--verse-flower-2" src={ASSET("decor-bungaQuote2.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--verse-flower-r" src={ASSET("decor-bunga-quote-3.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--verse-flower-3" src={ASSET("decor-bungaBugis4.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--verse-ship" src={ASSET("decor-img-0543.webp")} alt="" aria-hidden="true" />
+          <section className="pinishi-hero" aria-label="Pembuka">
+            <img className="pinishi-deco pinishi-hero-ship" src={ASSET("decor-img-0543.webp")} alt="" aria-hidden="true" data-aos="zoom-in" />
+            <img className="pinishi-deco pinishi-hero-tree" src={ASSET("decor-puunbugis.webp")} alt="" aria-hidden="true" data-aos="slide-left" />
+            <img className="pinishi-deco pinishi-hero-flowerzero" src={ASSET("decor-bngquote.webp")} alt="" aria-hidden="true" data-aos="slide-left" data-aos-delay="120" />
+            <img className="pinishi-deco pinishi-hero-flowerone" src={ASSET("decor-bungaQuote2.webp")} alt="" aria-hidden="true" data-aos="zoom-in" data-aos-delay="180" />
+            <img className="pinishi-deco pinishi-hero-flowertwo" src={ASSET("decor-bungaBugis4.webp")} alt="" aria-hidden="true" data-aos="zoom-in" data-aos-delay="240" />
+            <img className="pinishi-deco pinishi-hero-flowerfour" src={ASSET("decor-bunga-quote-3.webp")} alt="" aria-hidden="true" data-aos="slide-right" data-aos-delay="180" />
+            <img className="pinishi-deco pinishi-hero-flowerfive" src={ASSET("decor-puun2bugis.webp")} alt="" aria-hidden="true" data-aos="slide-right" />
+            <p className="pinishi-initials" aria-hidden="true">
+              <span>{(groomShort || "A").charAt(0)}</span>
+              <span>{(brideShort || "N").charAt(0)}</span>
+            </p>
+            <figure className="pinishi-hero-photo">
+              <img src={versePhoto} alt={coupleLabel} />
+            </figure>
           </section>
 
           <section className="pinishi-quote" aria-label="Kutipan">
             <div className="pinishi-quote-inner" data-aos="fade-up">
-              <p className="pinishi-verse-label">Allah&apos;s blessings message</p>
+              <p className="pinishi-quote-label">Allah&apos;s blessings message</p>
               <blockquote>
                 <p>{quoteText}</p>
               </blockquote>
@@ -563,92 +536,74 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
           </section>
 
           <section className="pinishi-couple" aria-label="Mempelai">
-            <img className="pinishi-deco pinishi-deco--blossom" src={ASSET("decor-blossom.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--couple-a" src={ASSET("decor-img-0652.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--couple-b" src={ASSET("decor-img-0551.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--couple-c" src={ASSET("decor-img-0651.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--couple-d" src={ASSET("decor-fdsfsd.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--couple-e" src={ASSET("decor-dfafda.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--couple-tree" src={ASSET("decor-tree-left.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--couple-tree-r" src={ASSET("decor-tree-right.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--couple-bloom" src={ASSET("decor-img-0651.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--couple-bloom-2" src={ASSET("decor-dfafda.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--couple-sprig" src={ASSET("decor-fdsfsd.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--couple-drop" src={ASSET("decor-img-0692.webp")} alt="" aria-hidden="true" />
             <div className="pinishi-couple-inner">
-              <div className="pinishi-couple-intro" data-aos="fade-up">
-                <h2 className="pinishi-section-title sr-only">Mempelai</h2>
-                <p>Dengan memohon rahmat dan ridho Allah SWT, kami akan melangsungkan pernikahan</p>
-              </div>
-              <div className="pinishi-couple-grid">
-                <article className="pinishi-person" data-aos="fade-up">
-                  <div className="pinishi-person-photo pinishi-frame">
-                    <div className="pinishi-frame-photo">
-                      <img src={groomPhoto} alt={groomFull} />
-                    </div>
-                    <img className="pinishi-frame-art" src={ASSET("frame.webp")} alt="" aria-hidden="true" />
-                  </div>
-                  <h3 className="pinishi-person-name">{groomShort}</h3>
-                  <p className="pinishi-person-full">{groomFull}</p>
-                  {profile.groom_parents && <p className="pinishi-person-parents">{profile.groom_parents}</p>}
-                  {profile.groom_instagram && (
+              {people.map((person, index) => (
+                <article
+                  className={`pinishi-person pinishi-person--${person.side}`}
+                  key={person.side}
+                  data-aos={person.side === "bride" ? "slide-left" : "slide-right"}
+                  data-aos-delay={index * 120}
+                  style={delay(index * 120)}
+                >
+                  <figure className="pinishi-person-photo">
+                    <img src={person.photo} alt={person.full} />
+                    <img className="pinishi-person-frame" src={ASSET("frame.webp")} alt="" aria-hidden="true" />
+                  </figure>
+                  {person.instagram && (
                     <a
-                      className="pinishi-ig"
-                      href={`https://instagram.com/${profile.groom_instagram.replace(/^@/, "")}`}
+                      className="pinishi-person-ig"
+                      href={`https://instagram.com/${person.instagram.replace(/^@/, "")}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <InstagramIcon />@{profile.groom_instagram.replace(/^@/, "")}
+                      <InstagramIcon />@{person.instagram.replace(/^@/, "")}
                     </a>
                   )}
+                  <h3 className="pinishi-person-name name-fit" style={fitStyle(person.full)}>
+                    {person.full || person.short}
+                  </h3>
+                  {person.parents && <p className="pinishi-person-parents">{person.parents}</p>}
                 </article>
-                <div className="pinishi-amp">&amp;</div>
-                <article className="pinishi-person" data-aos="fade-up" data-aos-delay="100" style={delay(100)}>
-                  <div className="pinishi-person-photo pinishi-frame">
-                    <div className="pinishi-frame-photo">
-                      <img src={bridePhoto} alt={brideFull} />
-                    </div>
-                    <img className="pinishi-frame-art" src={ASSET("frame.webp")} alt="" aria-hidden="true" />
-                  </div>
-                  <h3 className="pinishi-person-name">{brideShort}</h3>
-                  <p className="pinishi-person-full">{brideFull}</p>
-                  {profile.bride_parents && <p className="pinishi-person-parents">{profile.bride_parents}</p>}
-                  {profile.bride_instagram && (
-                    <a
-                      className="pinishi-ig"
-                      href={`https://instagram.com/${profile.bride_instagram.replace(/^@/, "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <InstagramIcon />@{profile.bride_instagram.replace(/^@/, "")}
-                    </a>
-                  )}
-                </article>
-              </div>
+              ))}
+              <p className="pinishi-amp" aria-hidden="true">
+                &amp;
+              </p>
             </div>
           </section>
 
           {hasStory && (
             <section className="pinishi-story" aria-label="Our Love Story">
-              <img className="pinishi-deco pinishi-deco--mitos-1" src={ASSET("decor-mitos-1.webp")} alt="" aria-hidden="true" />
-              <img className="pinishi-deco pinishi-deco--mitos-2" src={ASSET("decor-mitos-2.webp")} alt="" aria-hidden="true" />
-              <img className="pinishi-deco pinishi-deco--mitos-3" src={ASSET("decor-mitos-3.webp")} alt="" aria-hidden="true" />
-              <img className="pinishi-deco pinishi-deco--mitos-4" src={ASSET("decor-mitos-4.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-deco pinishi-story-flower-one" src={ASSET("decor-mitos-1.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-deco pinishi-story-flower-two" src={ASSET("decor-mitos-2.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-deco pinishi-story-flower-three" src={ASSET("decor-mitos-3.webp")} alt="" aria-hidden="true" />
               <div className="pinishi-story-inner">
-                <h2 className="pinishi-section-title" data-aos="fade-up">Our Love Story</h2>
-                <div className="pinishi-story-list">
-                  {stories.map((story, index) => (
-                    <article key={`${story.title || "story"}-${index}`} data-aos="fade-up" data-aos-delay={80 + index * 60} style={delay(80 + index * 60)}>
-                      {(() => {
-                        const shot = story.image_url || photos[(index + 1) % Math.max(photos.length, 1)] || coverPhoto
-                        return (
-                          <div className="pinishi-story-photo">
-                            <img src={shot} alt="" loading="lazy" />
+                <h2 className="pinishi-title" data-aos="fade-up">
+                  Our Love Story
+                </h2>
+                <div className="pinishi-story-panel" data-aos="zoom-in" data-aos-delay="60" style={delay(60)}>
+                  <div className="pinishi-story-track">
+                    {stories.map((story, index) => {
+                      const shot = story.image_url || photos[index % Math.max(photos.length, 1)] || coverPhoto
+                      return (
+                        <article className="pinishi-story-card" key={`${story.title || "story"}-${index}`}>
+                          <img className="pinishi-story-photo" src={shot} alt="" loading="lazy" />
+                          <div className="pinishi-story-body">
+                            {story.title && <h3>{story.title}</h3>}
+                            {story.description && <p>{story.description}</p>}
+                            <span className="pinishi-story-count" aria-hidden="true">
+                              {index + 1}/{stories.length}
+                            </span>
                           </div>
-                        )
-                      })()}
-                      <HeartMarker />
-                      <span className="pinishi-story-index" aria-hidden="true">
-                        {index + 1}/{stories.length}
-                      </span>
-                      <h3>{story.title || `Bagian ${index + 1}`}</h3>
-                      {story.description && <p>{story.description}</p>}
-                    </article>
-                  ))}
+                        </article>
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
             </section>
@@ -656,133 +611,164 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
 
           {hasGallery && (
             <section className="pinishi-gallery" aria-label="Galeri Foto">
-              <div className="pinishi-gallery-bg" aria-hidden="true">
-                <img src={coverPhoto} alt="" />
-              </div>
-              <div className="pinishi-gallery-decor" aria-hidden="true">
-                <img className="pinishi-gallery-orn" src={ASSET("decor-dup-1.webp")} alt="" />
-                <img className="pinishi-gallery-orn" src={ASSET("decor-dup-2.webp")} alt="" />
-                <img className="pinishi-gallery-orn" src={ASSET("decor-untitled-13-2.webp")} alt="" />
-                <img className="pinishi-gallery-orn" src={ASSET("decor-dfafda.webp")} alt="" />
-                <img className="pinishi-gallery-orn" src={ASSET("decor-dsdasfdas.webp")} alt="" />
-                <img className="pinishi-gallery-orn" src={ASSET("decor-img-0652.webp")} alt="" />
-              </div>
               <div className="pinishi-gallery-inner">
-                <h2 className="pinishi-section-title" data-aos="fade-up">Precious Moment</h2>
-                {galleryIntro && <p className="pinishi-gallery-intro" data-aos="fade-up" data-aos-delay="60" style={delay(60)}>{galleryIntro}</p>}
-                <div className="pinishi-gallery-grid">
-                  {photos.map((src, index) => (
+                <div className="pinishi-gallery-quoteblock" data-aos="fade-in">
+                  <img className="pinishi-gallery-orn pinishi-gallery-orn--one" src={ASSET("decor-dup-1.webp")} alt="" aria-hidden="true" />
+                  <img className="pinishi-gallery-orn pinishi-gallery-orn--two" src={ASSET("decor-untitled-13-2.webp")} alt="" aria-hidden="true" />
+                  <img className="pinishi-gallery-orn pinishi-gallery-orn--three" src={ASSET("decor-dup-2.webp")} alt="" aria-hidden="true" />
+                  <h2 className="pinishi-title pinishi-title--left" data-aos="fade-up">
+                    Precious Moment
+                  </h2>
+                  {galleryQuote && (
+                    <p className="pinishi-gallery-quote" data-aos="fade-up" data-aos-delay="40" style={delay(40)}>
+                      {galleryQuote}
+                    </p>
+                  )}
+                  {galleryIntro && (
+                    <p className="pinishi-gallery-intro" data-aos="fade-up" data-aos-delay="60" style={delay(60)}>
+                      {galleryIntro}
+                    </p>
+                  )}
+                </div>
+                <div className="pinishi-gallery-track" data-aos="fade-up" data-aos-delay="80" style={delay(80)}>
+                  {galleryShots.map((src, index) => (
                     <button
                       key={`${src}-${index}`}
                       type="button"
-                      className="pinishi-gallery-item"
+                      className="pinishi-gallery-plate"
                       onClick={() => setLightbox(index)}
                       aria-label={`Lihat foto ${index + 1}`}
-                      data-aos="fade-up"
-                      data-aos-delay={80 + index * 40}
-                      style={delay(80 + index * 40)}
                     >
                       <img src={src} alt="" loading="lazy" />
                     </button>
                   ))}
                 </div>
-                <blockquote className="pinishi-gallery-quote" data-aos="fade-up" data-aos-delay="120" style={delay(120)}>
-                  <p>{galleryQuote}</p>
-                  <cite>- {coupleLabel} -</cite>
-                </blockquote>
-                {hasVideo && (
-                  <div className="pinishi-gallery-video" data-aos="fade-up" data-aos-delay="140" style={delay(140)}>
-                    <iframe
-                      src={`${videoEmbed}${videoEmbed.includes("?") ? "&" : "?"}autoplay=1&mute=1&controls=1&modestbranding=1&iv_load_policy=3&rel=0&playsinline=1`}
-                      title={`Video pernikahan ${coupleLabel}`}
-                      allow="autoplay; encrypted-media; picture-in-picture"
-                      referrerPolicy="strict-origin-when-cross-origin"
+                {hasVideo && !videoFailed && (
+                  <div className="pinishi-gallery-video" data-aos="fade-up" data-aos-delay="100" style={delay(100)}>
+                    <video
+                      ref={videoRef}
+                      src={videoEmbed}
+                      muted
+                      loop
+                      playsInline
+                      preload="metadata"
+                      onError={handleVideoError}
+                      onPlaying={handleVideoPlaying}
+                      onWaiting={handleVideoWaiting}
                     />
+                    {videoBuffering && <span className="pinishi-gallery-spinner" aria-hidden="true" />}
                   </div>
                 )}
               </div>
-              <img className="pinishi-gallery-art" src={ASSET("cover-art.webp")} alt="" aria-hidden="true" />
+              <div className="pinishi-gallery-bottom" aria-hidden="true">
+                <img className="pinishi-gallery-bottom-orn pinishi-gallery-bottom-orn--1" src={ASSET("decor-dfafda.webp")} alt="" />
+                <img className="pinishi-gallery-bottom-orn pinishi-gallery-bottom-orn--2" src={ASSET("decor-dsdasfdas.webp")} alt="" />
+                <img className="pinishi-gallery-bottom-orn pinishi-gallery-bottom-orn--3" src={ASSET("decor-img-0652.webp")} alt="" />
+              </div>
+              <div className="pinishi-gallery-art" aria-hidden="true" />
             </section>
           )}
 
-          <section className="pinishi-events" aria-label="Acara Pernikahan">
-            <div className="pinishi-events-inner">
-              <img className="pinishi-deco pinishi-deco--gll-l1" src={ASSET("decor-gll-1.webp")} alt="" aria-hidden="true" />
-              <img className="pinishi-deco pinishi-deco--gll-l2" src={ASSET("decor-gll-2.webp")} alt="" aria-hidden="true" />
-              <img className="pinishi-deco pinishi-deco--gll-l3" src={ASSET("decor-gll-3.webp")} alt="" aria-hidden="true" />
-              <img className="pinishi-deco pinishi-deco--gll-r1" src={ASSET("decor-gll-1.webp")} alt="" aria-hidden="true" />
-              <img className="pinishi-deco pinishi-deco--gll-r2" src={ASSET("decor-gll-2.webp")} alt="" aria-hidden="true" />
-              <img className="pinishi-deco pinishi-deco--gll-r3" src={ASSET("decor-gll-3.webp")} alt="" aria-hidden="true" />
-              <h2 className="pinishi-section-title" data-aos="fade-up">Save the Date</h2>
-              <div className="pinishi-countdown" data-aos="fade-up" data-aos-delay="60" style={delay(60)}>
-                <div>
-                  <strong>{countdown?.d ?? "00"}</strong>
-                  <span>Days</span>
-                </div>
-                <div>
-                  <strong>{countdown?.h ?? "00"}</strong>
-                  <span>Hours</span>
-                </div>
-                <div>
-                  <strong>{countdown?.m ?? "00"}</strong>
-                  <span>Minutes</span>
-                </div>
-                <div>
-                  <strong>{countdown?.s ?? "00"}</strong>
-                  <span>Seconds</span>
-                </div>
-              </div>
-              {calendarUrl && (
-                <div className="pinishi-calendar" data-aos="fade-up" data-aos-delay="100" style={delay(100)}>
+          <section className="pinishi-savedate" aria-label="Save the Date">
+            <div className="pinishi-savedate-inner">
+              <h2 className="pinishi-title" data-aos="fade-up">
+                Save the Date
+              </h2>
+              <ul className="pinishi-countdown" data-aos="fade-up" data-aos-delay="40" style={delay(40)}>
+                <li>
+                  <span>{countdown?.d ?? "00"}</span>
+                  <b>Days</b>
+                </li>
+                <li>
+                  <span>{countdown?.h ?? "00"}</span>
+                  <b>Hours</b>
+                </li>
+                <li>
+                  <span>{countdown?.m ?? "00"}</span>
+                  <b>Minutes</b>
+                </li>
+                <li>
+                  <span>{countdown?.s ?? "00"}</span>
+                  <b>Seconds</b>
+                </li>
+              </ul>
+              {dateLong && <p className="pinishi-savedate-date">{dateLong}</p>}
+              <div className="pinishi-savedate-actions" data-aos="fade-up" data-aos-delay="80" style={delay(80)}>
+                {calendarUrl && (
                   <a href={calendarUrl} target="_blank" rel="noopener noreferrer">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" aria-hidden="true">
-                      <rect x="3" y="5" width="18" height="16" rx="2" />
-                      <path d="M16 3v4M8 3v4M3 10h18" />
-                    </svg>
+                    <CalendarIcon />
                     Tambah ke Kalender
                   </a>
-                  <button type="button" className="pinishi-reminder" onClick={() => void requestReminder()}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" aria-hidden="true">
-                      <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
-                      <path d="M13.7 21a2 2 0 0 1-3.4 0" />
-                    </svg>
-                    Aktifkan Pengingat
-                  </button>
-                </div>
-              )}
-              <p className="pinishi-events-intro" data-aos="fade-up" data-aos-delay="120" style={delay(120)}>
-                Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri acara pernikahan kami:
-              </p>
-              {events.map((event, index) => {
-                const mapsUrl =
-                  event.maps_url ||
-                  (event.venue || event.address
-                    ? `https://maps.google.com/?q=${encodeURIComponent([event.venue, event.address].filter(Boolean).join(", "))}`
-                    : "")
-                return (
-                  <article className="pinishi-event-card" key={`${event.name || "event"}-${index}`} data-aos="fade-up" data-aos-delay={140 + index * 60} style={delay(140 + index * 60)}>
-                    <img className="pinishi-event-rails" src={ASSET("decor-rundown-frame.webp")} alt="" aria-hidden="true" />
-                    <img className="pinishi-event-crest" src={ASSET("frame-crest.webp")} alt="" aria-hidden="true" />
-                    <div className="pinishi-event-card-inner">
+                )}
+                <button type="button" onClick={() => void requestReminder()}>
+                  <BellIcon />
+                  Aktifkan Pengingat
+                </button>
+              </div>
+            </div>
+            <div className="pinishi-countdown-orn" aria-hidden="true">
+              <img className="pinishi-countdown-orn-one" src={ASSET("decor-gll-1.webp")} alt="" />
+              <img className="pinishi-countdown-orn-two" src={ASSET("decor-gll-2.webp")} alt="" />
+              <img className="pinishi-countdown-orn-three" src={ASSET("decor-gll-3.webp")} alt="" />
+            </div>
+            <div className="pinishi-countdown-orn pinishi-countdown-orn--flip" aria-hidden="true">
+              <img className="pinishi-countdown-orn-one" src={ASSET("decor-gll-1.webp")} alt="" />
+              <img className="pinishi-countdown-orn-two" src={ASSET("decor-gll-2.webp")} alt="" />
+              <img className="pinishi-countdown-orn-three" src={ASSET("decor-gll-3.webp")} alt="" />
+            </div>
+          </section>
+
+          <section className="pinishi-events" aria-label="Acara Pernikahan">
+            <p className="pinishi-events-intro" data-aos="fade-up">
+              {EVENTS_INTRO}
+            </p>
+            {events.map((event, index) => {
+              const mapsUrl =
+                event.maps_url ||
+                (event.venue || event.address
+                  ? `https://maps.google.com/?q=${encodeURIComponent([event.venue, event.address].filter(Boolean).join(", "))}`
+                  : "")
+              return (
+                <article
+                  className="pinishi-event"
+                  key={`${event.name || "event"}-${index}`}
+                  data-aos="zoom-in"
+                  data-aos-delay={index * 80}
+                  style={delay(index * 80)}
+                >
+                  <div className="pinishi-event-frame">
                     <h3>{event.name || "Acara Pernikahan"}</h3>
                     <p className="pinishi-event-date">{formatLongDate(event.date || profile.estimated_wedding_date)}</p>
-                    {event.time && <p className="pinishi-event-time">{event.time}</p>}
-                    {event.venue && <p className="pinishi-event-venue">{event.venue}</p>}
-                    {event.address && <p className="pinishi-event-address">{event.address}</p>}
+                    {event.time && (
+                      <p className="pinishi-event-line">
+                        <ClockIcon />
+                        <span>{event.time}</span>
+                      </p>
+                    )}
+                    {(event.venue || event.address) && (
+                      <p className="pinishi-event-line pinishi-event-line--address">
+                        <PinIcon />
+                        <span>{[event.venue, event.address].filter(Boolean).join(", ")}</span>
+                      </p>
+                    )}
                     {mapsUrl && (
                       <a className="pinishi-maps" href={mapsUrl} target="_blank" rel="noopener noreferrer">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" aria-hidden="true">
-                          <path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z" />
-                          <circle cx="12" cy="10" r="2" />
-                        </svg>
                         Lihat Lokasi
                       </a>
                     )}
-                    </div>
-                  </article>
-                )
-              })}
-            </div>
+                  </div>
+                  <div className="pinishi-event-decor pinishi-event-decor--right" aria-hidden="true">
+                    <img src={ASSET("decor-rundown-5.webp")} alt="" />
+                    <img src={ASSET("decor-rundown-4.webp")} alt="" />
+                    <img src={ASSET("decor-rundown-2.webp")} alt="" />
+                  </div>
+                  <div className="pinishi-event-decor pinishi-event-decor--left" aria-hidden="true">
+                    <img src={ASSET("decor-rundown-3.webp")} alt="" />
+                    <img src={ASSET("decor-rundown-1.webp")} alt="" />
+                  </div>
+                </article>
+              )
+            })}
           </section>
 
           {primaryVenue && (
@@ -807,10 +793,6 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" aria-hidden="true">
-                    <path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z" />
-                    <circle cx="12" cy="10" r="2" />
-                  </svg>
                   Lihat Lokasi
                 </a>
               </div>
@@ -819,9 +801,12 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
 
           {honored.length > 0 && (
             <section className="pinishi-inviting" aria-label="Turut Mengundang">
-              <img className="pinishi-deco pinishi-deco--foliage" src={ASSET("decor-foliage.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-inviting-decor pinishi-inviting-decor--peacock" src={ASSET("decor-merak.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-inviting-decor pinishi-inviting-decor--bngarsvp3" src={ASSET("decor-bngarsvp-3.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-inviting-decor pinishi-inviting-decor--bngarsvp1" src={ASSET("decor-bngarsvp-1.webp")} alt="" aria-hidden="true" />
+              <img className="pinishi-inviting-decor pinishi-inviting-decor--bnggg" src={ASSET("decor-bnggg.webp")} alt="" aria-hidden="true" />
               <div className="pinishi-inviting-inner" data-aos="fade-up">
-                <h2 className="sr-only">Turut Mengundang</h2>
+                <h2 className="pinishi-inviting-title">Turut Mengundang</h2>
                 <ul>
                   {honored.map((name, index) => (
                     <li key={`${name}-${index}`}>{name}</li>
@@ -833,10 +818,11 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
 
           {hasLivestream && (
             <section className="pinishi-livestream" aria-label="Live Streaming">
-              <div className="pinishi-livestream-inner" data-aos="fade-up">
-                <h2 className="pinishi-section-title">{livestream?.title || "Live Streaming"}</h2>
+              <div className="pinishi-livestream-card" data-aos="fade-up">
+                <h2>{livestream?.title || "Live Streaming"}</h2>
                 <p>{livestream?.description || "Temui kami secara virtual untuk menyaksikan acara pernikahan kami."}</p>
                 <a href={livestream!.url} target="_blank" rel="noopener noreferrer">
+                  <CameraIcon />
                   {livestream?.buttonLabel || "Tonton Live Streaming"}
                 </a>
               </div>
@@ -845,28 +831,25 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
 
           {hasRundown && (
             <section className="pinishi-rundown" aria-label="Rundown Acara">
-              <img className="pinishi-deco pinishi-deco--rundown-frame" src={ASSET("decor-rundown-frame.webp")} alt="" aria-hidden="true" />
-              <img className="pinishi-crest" src={ASSET("frame-crest.webp")} alt="" aria-hidden="true" />
-              <img className="pinishi-deco pinishi-deco--rundown-l" src={ASSET("decor-rundown-3.webp")} alt="" aria-hidden="true" />
-              <img className="pinishi-deco pinishi-deco--rundown-r" src={ASSET("decor-rundown-4.webp")} alt="" aria-hidden="true" />
               <div className="pinishi-rundown-inner" data-aos="fade-up">
-                <h2 className="pinishi-section-title">Rundown Acara</h2>
+                <h2 className="pinishi-title">Rundown Acara</h2>
                 <div className="pinishi-rundown-list">
                   {rundownItems.map((item, index) => (
-                    <article key={`${item.time || "rundown"}-${index}`} data-rundown-item="true">
+                    <article key={`${item.time || "rundown"}-${index}`}>
                       {item.time && <strong>{item.time}</strong>}
                       {item.description && <p>{item.description}</p>}
                     </article>
                   ))}
                 </div>
               </div>
+              <img className="pinishi-deco pinishi-deco--rundown-floral" src={ASSET("floral.webp")} alt="" aria-hidden="true" />
             </section>
           )}
 
           {hasDresscode && (
             <section className="pinishi-dresscode" aria-label="Dress Code">
               <div className="pinishi-dresscode-inner" data-aos="fade-up">
-                <h2 className="pinishi-section-title">{profile.dresscode?.title || "Dress Code"}</h2>
+                <h2 className="pinishi-title">{profile.dresscode?.title || "Dress Code"}</h2>
                 {dressDescription && <p>{dressDescription}</p>}
                 <ul>
                   {dressColors.map((color, index) => (
@@ -882,63 +865,54 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
 
           {hasGift && (
             <section className="pinishi-gift" aria-label="Hadiah">
-              <div className="pinishi-gift-inner" data-aos="fade-up">
-                <h2 className="pinishi-section-title">{giftIntroTitle}</h2>
-                <p className="pinishi-gift-intro">{giftIntroDescription}</p>
-                <div className="pinishi-gift-card">
-                  {!giftRevealed ? (
-                    <button type="button" className="pinishi-gift-reveal" onClick={() => setGiftRevealed(true)}>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </svg>
-                      Buka Amplop
-                    </button>
-                  ) : (
-                    <>
-                      {accounts.length > 0 && (
-                        <div className="pinishi-gift-accounts">
-                          {accounts.map((account, index) => (
-                            <div className="pinishi-gift-account" key={`${account.account_number || "account"}-${index}`}>
-                              {account.provider_name && <p className="pinishi-gift-account-type">{account.provider_name}</p>}
-                              <p className="pinishi-gift-account-name">{account.account_name}</p>
-                              <p className="pinishi-gift-account-number">{account.account_number}</p>
-                              <button type="button" onClick={() => copy(account.account_number || "")}>
-                                Salin Nomor Rekening
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      {giftAddress && (
-                        <div className="pinishi-gift-address">
-                          <p className="pinishi-gift-address-label">Kirim Hadiah</p>
-                          <p className="pinishi-gift-address-text">{giftAddress}</p>
-                          <button type="button" onClick={() => copy(giftAddress)}>
-                            Salin Alamat
-                          </button>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
+              <div className="pinishi-gift-card" data-aos="fade-up">
+                <h2>{giftIntroTitle}</h2>
+                <p>{giftIntroDescription}</p>
+                {!giftRevealed ? (
+                  <button type="button" className="pinishi-gift-btn" onClick={() => setGiftRevealed(true)}>
+                    Buka Amplop
+                  </button>
+                ) : (
+                  <div className="pinishi-gift-body">
+                    {accounts.length > 0 && (
+                      <div className="pinishi-gift-accounts">
+                        {accounts.map((account, index) => (
+                          <div className="pinishi-gift-account" key={`${account.account_number || "account"}-${index}`}>
+                            {account.provider_name && <p className="pinishi-gift-account-type">{account.provider_name}</p>}
+                            <p className="pinishi-gift-account-name">{account.account_name}</p>
+                            <p className="pinishi-gift-account-number">{account.account_number}</p>
+                            <button type="button" onClick={() => copy(account.account_number || "")}>
+                              Salin Nomor Rekening
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {giftAddress && (
+                      <div className="pinishi-gift-address">
+                        <p className="pinishi-gift-address-label">Kirim Hadiah</p>
+                        <p className="pinishi-gift-address-text">{giftAddress}</p>
+                        <button type="button" onClick={() => copy(giftAddress)}>
+                          Salin Alamat
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </section>
           )}
 
           <section className="pinishi-wishes" aria-label="Ucapan & Doa">
-            <img className="pinishi-deco pinishi-deco--wishes-ship" src={ASSET("decor-ship.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--wishes-merak" src={ASSET("decor-merak.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--wishes-bngarsvp" src={ASSET("decor-bngarsvp-3.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--wishes-bnggg" src={ASSET("decor-bnggg.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--wishes-bngquote" src={ASSET("decor-bngquote.webp")} alt="" aria-hidden="true" />
-            <img className="pinishi-deco pinishi-deco--wishes-tree" src={ASSET("decor-tree-right.webp")} alt="" aria-hidden="true" />
-            <div className="pinishi-wishes-inner">
-              <h2 className="pinishi-section-title" data-aos="fade-up">Wishes</h2>
-              <p className="pinishi-wishes-subtitle" data-aos="fade-up" data-aos-delay="60" style={delay(60)}>
+            <img className="pinishi-deco pinishi-deco--wishes-ship" src={ASSET("decor-img-0543.webp")} alt="" aria-hidden="true" />
+            <div className="pinishi-wishes-inner" data-aos="fade-in">
+              <h2 className="pinishi-title" data-aos="fade-up">
+                Wishes
+              </h2>
+              <p className="pinishi-wishes-subtitle" data-aos="fade-up" data-aos-delay="40" style={delay(40)}>
                 {wishesSubtitle}
               </p>
-              <div data-aos="fade-up" data-aos-delay="100" style={delay(100)}>
+              <div data-aos="fade-up" data-aos-delay="80" style={delay(80)}>
                 <Wishes
                   weddingProfileId={profile.wedding_profile_id}
                   guestId={profile.guest_id}
@@ -953,7 +927,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
           {hasContacts && (
             <section className="pinishi-contacts" aria-label="Hubungi Kami">
               <div className="pinishi-contacts-inner" data-aos="fade-up">
-                <h2 className="pinishi-section-title">Hubungi Kami</h2>
+                <h2 className="pinishi-title">Hubungi Kami</h2>
                 <div className="pinishi-contacts-list">
                   {contactItems.map((contact, index) => {
                     const href = whatsappHref(contact.whatsapp)
@@ -978,30 +952,34 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
           )}
 
           <section className="pinishi-closing" aria-label="Penutup">
-            <div className="pinishi-closing-bg">
-              <img src={closingPhoto} alt={coupleLabel} />
-            </div>
-            <div className="pinishi-closing-overlay" />
-            <div className="pinishi-closing-content" data-aos="fade-up">
-              <h2 className="pinishi-section-title pinishi-thankyou">Thank You</h2>
-              <div className="pinishi-closing-message">
-                <p>{closingMessage}</p>
-                <p>Dengan penuh hormat dan syukur,</p>
-                <p className="pinishi-closing-names name-fit" style={fitStyle(coupleLabel)}>
-                  {groomShort} &amp; {brideShort}
-                </p>
-              </div>
-              <footer className="pinishi-footer">
-                <a href={waHref} target="_blank" rel="noopener noreferrer">
-                  <span className="pinishi-footer-badge">
-                    <img src={ASSETS.galeriEnvelope.aksaraaLogo} alt="Aksaraa Wedding" draggable={false} />
-                  </span>
-                  <span>Undangan Pernikahan oleh Aksaraa</span>
-                </a>
-                <p>© {new Date().getFullYear()} {coupleLabel}. Digital Wedding Invitation.</p>
-              </footer>
+            <img className="pinishi-deco pinishi-deco--closing-tree" src={ASSET("decor-tree-left.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--closing-tree-r" src={ASSET("decor-tree-right.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--closing-banana" src={ASSET("decor-banana.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--closing-band" src={ASSET("decor-foliage-band.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--closing-bouquet" src={ASSET("decor-flowers.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--closing-lily" src={ASSET("decor-lily.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--closing-sprig" src={ASSET("decor-purple.webp")} alt="" aria-hidden="true" />
+            <img className="pinishi-deco pinishi-deco--closing-ship" src={ASSET("decor-ship.webp")} alt="" aria-hidden="true" />
+            <div className="pinishi-closing-content" data-aos="fade-in">
+              <p className="pinishi-closing-kicker">Thank You</p>
+              <h2 className="pinishi-closing-names name-fit" style={fitStyle(coupleLabel)}>
+                {coupleLabel}
+              </h2>
+              <p className="pinishi-closing-message">{closingMessage}</p>
             </div>
           </section>
+
+          <footer className="pinishi-footer">
+            <a href={waHref} target="_blank" rel="noopener noreferrer">
+              <span className="pinishi-footer-badge">
+                <img src={ASSETS.galeriEnvelope.aksaraaLogo} alt="Aksaraa Wedding" draggable={false} />
+              </span>
+              <span>Undangan Pernikahan oleh Aksaraa</span>
+            </a>
+            <p>
+              © {new Date().getFullYear()} {coupleLabel}. Digital Wedding Invitation.
+            </p>
+          </footer>
         </main>
       )}
 
