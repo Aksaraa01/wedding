@@ -179,7 +179,7 @@ Cover geometry at 390 (converted verbatim):
 | Rundown | `rundown[]` → `{time, description}` |
 | Gallery | `gallery_photos[]` (whole grid — no frame is removed any more), `template_content.gallery_title` / `gallery_intro`; each tile's orientation is measured from the image on load |
 | Gift | `gift_accounts[]` (transfer tab), `gift_address` + `gift_address_name` (send-gift tab), `feature_gates.gift_address`; tab copy from `template_content.gift_button` / `gift_send_label` / `gift_transfer_note` / `gift_address_note` |
-| Dress code | `dresscode {title, description, colors[]}`, `template_content.dresscode_kicker` / `dresscode_intro` / `dresscode_note`; plate = cover slot 3 → `gallery_photos[0]` → cover |
+| Dress code | `dresscode {title, description, colors[]}`, `template_content.dresscode_kicker` / `dresscode_intro` / `dresscode_note`; plate = the Dresscode slot → `gallery_photos[0]` → cover. With real dresscode data but no written paragraph the design's sentence fills in — “We would love to see you in the colour palette of our big day.”; the palette name and the note stay the couple's own |
 | Wishes | `Wishes` component + `template_content.wishes_*` labels |
 | Closing | `template_content.closing_message` / `closing_see` + dot date + initials + hashtag (`display_name`) |
 | Music | `track_url` (`preload="metadata"`, first pointerdown warms it) |
@@ -300,11 +300,20 @@ invitation is fully readable without JS (playbook §4).
 21. **Moments ends on the grid.** The reference has no closing line after the
     photo wall, so `gallery_quote` is not offered by this template's editor —
     dead copy fields are worse than a missing flourish.
-22. **Kutipan sits between the film and the welcome.** The reference has no quote
+22. **The dresscode paragraph has a design default.** Every in-house template
+    hides the paragraph until the couple writes one, which left a real couple
+    with a palette but no words looking unfinished ("Dresscode" + a swatch and
+    nothing else). Once the section has real data it now prints “We would love
+    to see you in the colour palette of our big day.” unless `dresscode_intro`
+    (or the profile description) says otherwise. It is deliberately palette-
+    agnostic — the demo's “ivory, stone and soft black” is that sample couple's
+    own palette — and it never conjures a section out of nothing: with no
+    colours, name or note the block still hides.
+23. **Kutipan sits between the film and the welcome.** The reference has no quote
     block, but §0.5 requires one and publish is blocked without `quote_text`. It
     renders as a centred Bodoni epigraph (`quote_text`, `quote_source`) right
     after the film, where the reference's own scroll begins.
-23. **The hashtag closes the invitation.** `display_name` is the editor/ops
+24. **The hashtag closes the invitation.** `display_name` is the editor/ops
     "Hashtag"; it prints in small tracked caps between “See you!” and the date so
     the couple's tag is on the page they share.
 
@@ -397,6 +406,11 @@ invitation is fully readable without JS (playbook §4).
   `3n+1` plate, and forcing `data-orientation="portrait"` on that plate shrinks
   it to 168×210 (4/5) while `landscape` keeps 346×238 (16/11) — a portrait can
   no longer be cropped into the wide frame.
+- Dresscode default: with the demonstration couple's description cleared, the
+  section would print “We would love to see you in the colour palette of our big
+  day.” while keeping its own palette name and note; a profile with no dresscode
+  data at all still hides the section (the default only applies once the block
+  qualifies to render).
 - First release (BUILD_ID `RCRI6eampP4bjUKEiiIjE`, commit `ab779c9`): deploy guard
   reported all 38 registered templates in the bundle, the post-deploy smoke
   passed every template preview (doc + rsc 200) and the `cdn.aksaraa.com`

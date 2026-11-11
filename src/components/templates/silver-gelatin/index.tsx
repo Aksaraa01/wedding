@@ -180,10 +180,15 @@ export default function SilverGelatin(profile: TemplateProps) {
       : []
 
   const dressColors = (profile.dresscode?.colors || []).filter((c) => c && (c.hex || c.name))
-  const dressIntro = (tc.dresscode_intro || profile.dresscode?.description || "").trim()
+  const dressIntroWritten = (tc.dresscode_intro || profile.dresscode?.description || "").trim()
   const dressTitle = (profile.dresscode?.title || "").trim()
   const dressNote = (tc.dresscode_note || "").trim()
-  const hasDresscode = profile.dresscode_visible !== false && (dressColors.length > 0 || !!dressIntro || !!dressTitle)
+  // The section still needs real data to exist (a palette, a name or a note);
+  // once it does, the design's own sentence fills in when the couple wrote none.
+  const hasDresscode =
+    profile.dresscode_visible !== false &&
+    (dressColors.length > 0 || !!dressIntroWritten || !!dressTitle || !!dressNote)
+  const dressIntro = dressIntroWritten || (hasDresscode ? "We would love to see you in the colour palette of our big day." : "")
 
   const accounts = profile.gift_section_visible !== false ? (profile.gift_accounts || []).filter(Boolean) : []
   const giftAddress =
