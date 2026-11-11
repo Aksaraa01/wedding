@@ -1698,7 +1698,8 @@
         "Ucapan & Doa": "WCAG name for the wishes section",
         "Undangan Pernikahan oleh Aksaraa": "fixed vendor credit in the footer",
         "WhatsApp": "contact channel label",
-        "Wishes": "fixed section heading in this design"
+        "Wishes": "fixed section heading in this design",
+        "scroll down": "fixed scroll affordance from the preset's desktop cover"
       }
     },
     "silver-gelatin": {

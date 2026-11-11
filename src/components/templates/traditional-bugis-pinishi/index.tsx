@@ -175,6 +175,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
   const bufferSpinnerTimer = useRef<number | null>(null)
 
   const [opened, setOpened] = useState(false)
+  const [isDesktop, setIsDesktop] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [toast, setToast] = useState("")
   const [giftRevealed, setGiftRevealed] = useState(false)
@@ -246,8 +247,12 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
   const dressDescription = profile.dresscode?.description || describePalette(profile.dresscode?.colors)
   const livestream = profile.livestream
 
+  const rootOpen = opened || isDesktop
+  const showGate = !isDesktop && !opened
+  const showContent = isDesktop || opened
+
   const showGuestDock =
-    opened &&
+    rootOpen &&
     !profile.preview_mode &&
     !profile.template_demo &&
     lightbox === null &&
@@ -313,6 +318,14 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
   }, [showToast])
 
   useEffect(() => {
+    const query = window.matchMedia("(min-width: 1024px)")
+    const apply = () => setIsDesktop(query.matches)
+    apply()
+    query.addEventListener("change", apply)
+    return () => query.removeEventListener("change", apply)
+  }, [])
+
+  useEffect(() => {
     const conn = (navigator as Navigator & {
       connection?: { saveData?: boolean; effectiveType?: string }
     }).connection
@@ -363,17 +376,17 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
   }, [])
 
   useEffect(() => {
-    const value = opened ? "" : "hidden"
+    const value = showGate ? "hidden" : ""
     document.body.style.overflow = value
     document.documentElement.style.overflow = value
     return () => {
       document.body.style.overflow = ""
       document.documentElement.style.overflow = ""
     }
-  }, [opened])
+  }, [showGate])
 
   useEffect(() => {
-    if (opened) return
+    if (!showGate) return
     const keepOnCover = () => {
       if (window.scrollY !== 0) window.scrollTo(0, 0)
     }
@@ -384,7 +397,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
       window.removeEventListener("scroll", keepOnCover)
       window.removeEventListener("touchmove", keepOnCover)
     }
-  }, [opened])
+  }, [showGate])
 
   useEffect(() => {
     const root = rootRef.current
@@ -403,7 +416,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
     )
     elements.forEach((element) => observer.observe(element))
     return () => observer.disconnect()
-  }, [opened])
+  }, [showContent])
 
   useEffect(() => {
     if (lightbox === null) return
@@ -452,7 +465,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
   return (
     <div
       ref={rootRef}
-      className={`traditional-bugis-pinishi-root${opened ? " is-open" : " is-locked"}`}
+      className={`traditional-bugis-pinishi-root${rootOpen ? " is-open" : " is-locked"}`}
     >
       <a className="skip-link" href="#pinishi-invitation">
         Lewati ke undangan
@@ -466,7 +479,7 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
 
       {hasTrack && (
         <button
-          className={`pinishi-music${opened ? " is-visible" : ""}${playing ? "" : " is-paused"}`}
+          className={`pinishi-music${rootOpen ? " is-visible" : ""}${playing ? "" : " is-paused"}`}
           type="button"
           aria-label="Putar atau jeda musik"
           onClick={toggleMusic}
@@ -479,35 +492,83 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
         </button>
       )}
 
-      <section className="pinishi-gate" aria-label="Sampul undangan">
-        <div className="pinishi-gate-bg" aria-hidden="true">
-          <img src={ASSET("cover-bg.webp")} alt="" />
-        </div>
-        <div className="pinishi-gate-panel">
-          <div className="pinishi-gate-photo">
-            <img src={coverPhoto} alt={coupleLabel} />
-          </div>
-          <p className="pinishi-gate-kicker">The Wedding Of</p>
-          <h1 className="pinishi-gate-names name-fit" style={fitStyle(coupleLabel)}>
-            {groomShort} &amp; {brideShort}
-          </h1>
-          {dateDots && <p className="pinishi-gate-date">{dateDots}</p>}
-          <div className="pinishi-gate-guest">
-            <p className="pinishi-gate-guest-label">Kepada Yth.</p>
-            <p className="pinishi-gate-guest-name name-fit" style={fitStyle(guestName)}>
-              {guestName}
-            </p>
-            <p className="pinishi-gate-note">{coverApology}</p>
-          </div>
-          <button className="pinishi-gate-btn" type="button" onClick={openInvitation}>
-            <EnvelopeIcon />
-            Buka Undangan
-          </button>
-        </div>
-      </section>
+      {isDesktop && (
+        <aside className="pinishi-stage" aria-hidden="true">
+          <img className="pinishi-stage-photo" src={coverPhoto} alt="" />
+          <span className="pinishi-stage-spark pinishi-stage-spark--1" />
+          <span className="pinishi-stage-spark pinishi-stage-spark--2" />
+          <span className="pinishi-stage-spark pinishi-stage-spark--3" />
+          <span className="pinishi-stage-spark pinishi-stage-spark--4" />
+          <p className="pinishi-stage-names name-fit" style={fitStyle(coupleLabel)}>
+            {coupleLabel}
+          </p>
+        </aside>
+      )}
 
-      {opened && (
+      {showGate && (
+        <section className="pinishi-gate" aria-label="Sampul undangan">
+          <div className="pinishi-gate-bg" aria-hidden="true">
+            <img src={ASSET("cover-bg.webp")} alt="" />
+          </div>
+          <div className="pinishi-gate-panel">
+            <div className="pinishi-gate-photo">
+              <img src={coverPhoto} alt={coupleLabel} />
+            </div>
+            <p className="pinishi-gate-kicker">The Wedding Of</p>
+            <h1 className="pinishi-gate-names name-fit" style={fitStyle(coupleLabel)}>
+              {groomShort} &amp; {brideShort}
+            </h1>
+            {dateDots && <p className="pinishi-gate-date">{dateDots}</p>}
+            <div className="pinishi-gate-guest">
+              <p className="pinishi-gate-guest-label">Kepada Yth.</p>
+              <p className="pinishi-gate-guest-name name-fit" style={fitStyle(guestName)}>
+                {guestName}
+              </p>
+              <p className="pinishi-gate-note">{coverApology}</p>
+            </div>
+            <button className="pinishi-gate-btn" type="button" onClick={openInvitation}>
+              <EnvelopeIcon />
+              Buka Undangan
+            </button>
+          </div>
+        </section>
+      )}
+
+      {showContent && (
         <main id="pinishi-invitation" className="pinishi-main">
+          {isDesktop && (
+            <section className="pinishi-cover-inline" aria-label="Sampul undangan">
+              <div className="pinishi-gate-bg" aria-hidden="true">
+                <img src={ASSET("cover-bg.webp")} alt="" />
+              </div>
+              <div className="pinishi-gate-panel">
+                <div className="pinishi-gate-photo">
+                  <img src={coverPhoto} alt={coupleLabel} />
+                </div>
+                <p className="pinishi-gate-kicker">The Wedding Of</p>
+                <h1 className="pinishi-gate-names name-fit" style={fitStyle(coupleLabel)}>
+                  {groomShort} &amp; {brideShort}
+                </h1>
+                {dateDots && <p className="pinishi-gate-date">{dateDots}</p>}
+                <div className="pinishi-gate-guest">
+                  <p className="pinishi-gate-guest-label">Kepada Yth.</p>
+                  <p className="pinishi-gate-guest-name name-fit" style={fitStyle(guestName)}>
+                    {guestName}
+                  </p>
+                  <p className="pinishi-gate-note">{coverApology}</p>
+                </div>
+                <p className="pinishi-scroll-hint" aria-hidden="true">
+                  <span className="pinishi-scroll-hint-dot">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6">
+                      <path d="M12 5v13M6 13l6 6 6-6" />
+                    </svg>
+                  </span>
+                  scroll down
+                </p>
+              </div>
+            </section>
+          )}
+
           <section className="pinishi-hero" aria-label="Pembuka">
             <img className="pinishi-deco pinishi-hero-ship" src={ASSET("decor-img-0543.webp")} alt="" aria-hidden="true" data-aos="zoom-in" />
             <img className="pinishi-deco pinishi-hero-tree" src={ASSET("decor-puunbugis.webp")} alt="" aria-hidden="true" data-aos="slide-left" />
@@ -523,6 +584,12 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             <figure className="pinishi-hero-photo">
               <img src={versePhoto} alt={coupleLabel} />
             </figure>
+            <div className="pinishi-birds" aria-hidden="true">
+              <span className="pinishi-bird pinishi-bird--1" />
+              <span className="pinishi-bird pinishi-bird--2" />
+              <span className="pinishi-bird pinishi-bird--3" />
+              <span className="pinishi-bird pinishi-bird--4" />
+            </div>
           </section>
 
           <section className="pinishi-quote" aria-label="Kutipan">

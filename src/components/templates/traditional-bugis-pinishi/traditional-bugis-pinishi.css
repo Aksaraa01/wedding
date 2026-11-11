@@ -364,15 +364,15 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 
 .traditional-bugis-pinishi-root .pinishi-hero-tree {
   top: 0;
-  left: 0;
-  width: 44%;
+  left: -4%;
+  width: 40%;
   z-index: 2;
 }
 
 .traditional-bugis-pinishi-root .pinishi-hero-flowerfive {
   top: 0;
-  right: 0;
-  width: 26%;
+  right: -3%;
+  width: 22%;
   z-index: 3;
 }
 
@@ -485,6 +485,7 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 
 .traditional-bugis-pinishi-root .pinishi-person-photo {
   position: relative;
+  align-self: center;
   width: 237px;
   max-width: 82%;
   aspect-ratio: 237 / 298;
@@ -734,10 +735,10 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 }
 
 .traditional-bugis-pinishi-root .pinishi-story-flower-three {
-  top: 0;
-  right: -13%;
-  width: 51%;
-  z-index: 2;
+  top: -34px;
+  right: -26%;
+  width: 46%;
+  z-index: 1;
 }
 
 /* ------------------------------------------------------------------ */
@@ -756,34 +757,36 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 
 .traditional-bugis-pinishi-root .pinishi-gallery-quoteblock {
   position: relative;
+  z-index: 2;
 }
 
 .traditional-bugis-pinishi-root .pinishi-gallery-orn {
   position: absolute;
   max-width: none;
   pointer-events: none;
-  z-index: 1;
+  z-index: 0;
 }
 
 .traditional-bugis-pinishi-root .pinishi-gallery-orn--one {
   left: -70px;
   top: 90%;
   width: 130px;
-  z-index: 3;
+  z-index: 0;
 }
 
 .traditional-bugis-pinishi-root .pinishi-gallery-orn--two {
-  right: -168px;
-  top: 45%;
-  width: 250px;
-  z-index: 2;
+  right: -205px;
+  top: 42%;
+  width: 240px;
+  z-index: 0;
+  opacity: 0.9;
 }
 
 .traditional-bugis-pinishi-root .pinishi-gallery-orn--three {
-  right: -17px;
+  right: -22px;
   top: -18%;
-  width: 44%;
-  z-index: 1;
+  width: 40%;
+  z-index: 0;
 }
 
 .traditional-bugis-pinishi-root .pinishi-gallery-bottom {
@@ -827,7 +830,7 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 .traditional-bugis-pinishi-root .pinishi-gallery-quote {
   padding: 0 2rem;
   margin-bottom: 0.9rem;
-  max-width: 88%;
+  max-width: 78%;
   font-size: 16px;
   line-height: 1.6;
   color: var(--pinishi-olive);
@@ -836,7 +839,7 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 .traditional-bugis-pinishi-root .pinishi-gallery-intro {
   padding: 0 2rem;
   margin-bottom: 1.4rem;
-  max-width: 88%;
+  max-width: 78%;
   font-size: 13px;
   line-height: 1.6;
   color: var(--pinishi-olive);
@@ -1051,6 +1054,7 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
   right: 0;
   bottom: 0;
   height: 100%;
+  z-index: 1;
   pointer-events: none;
 }
 
@@ -1077,17 +1081,17 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 }
 
 .traditional-bugis-pinishi-root .pinishi-countdown-orn-one {
-  width: 40%;
-  right: -12%;
-  bottom: -3%;
-  z-index: 5;
+  width: 36%;
+  right: -16%;
+  bottom: -4%;
+  z-index: 1;
 }
 
 .traditional-bugis-pinishi-root .pinishi-countdown-orn-two {
-  bottom: 18%;
-  right: -9%;
-  width: 32%;
-  z-index: 2;
+  bottom: 14%;
+  right: -13%;
+  width: 27%;
+  z-index: 1;
   animation: pinishi-sway 2s ease-in-out infinite alternate;
 }
 
@@ -1136,7 +1140,7 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 
 .traditional-bugis-pinishi-root .pinishi-event-frame {
   position: relative;
-  z-index: 2;
+  z-index: 4;
   min-height: 315px;
   padding: 1rem 0 2.5rem;
   background: url("/templates/traditional-bugis-pinishi/decor-rundown-frame.webp") center top / 100% auto repeat-y;
@@ -1220,12 +1224,12 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
   right: 0;
   bottom: 25%;
   height: 100%;
-  z-index: 5;
+  z-index: 3;
   pointer-events: none;
 }
 
 .traditional-bugis-pinishi-root .pinishi-event-decor--left {
-  z-index: 3;
+  z-index: 2;
 }
 
 .traditional-bugis-pinishi-root .pinishi-event-decor img {
@@ -1694,7 +1698,7 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
   margin: 0 0 1.8rem;
   padding: 1.2rem 1rem;
   border-radius: 8px;
-  background: rgba(247, 236, 222, 0.55);
+  background: rgba(247, 236, 222, 0.75);
 }
 
 .traditional-bugis-pinishi-root .pinishi-wishes .tpl-rsvp__form {
@@ -1748,6 +1752,7 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 .traditional-bugis-pinishi-root .pinishi-wishes .tpl-rsvp__submit {
   width: 100%;
   padding: 12px;
+  border: 1px solid var(--pinishi-plum);
   border-radius: 5px;
   background: var(--pinishi-cream);
   color: var(--pinishi-plum);
@@ -1973,16 +1978,16 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 }
 
 .traditional-bugis-pinishi-root .pinishi-deco--closing-tree {
-  top: -40px;
-  left: -30%;
-  width: 60%;
+  top: -70px;
+  left: -38%;
+  width: 52%;
   z-index: 2;
 }
 
 .traditional-bugis-pinishi-root .pinishi-deco--closing-tree-r {
-  top: -60px;
-  right: -20%;
-  width: 55%;
+  top: -80px;
+  right: -30%;
+  width: 50%;
   z-index: 2;
 }
 
@@ -2310,27 +2315,26 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 /* ------------------------------------------------------------------ */
 /* Desktop: the reference is a 390 phone canvas — centre the column    */
 /* ------------------------------------------------------------------ */
-@media (min-width: 900px) {
-  .traditional-bugis-pinishi-root {
-    background: var(--pinishi-cream);
-  }
+/* Desktop: the reference splits the screen — couple photo on the left,
+   the invitation itself scrolls in a 540px column on the right. */
+.traditional-bugis-pinishi-root .pinishi-stage {
+  display: none;
+}
 
-  .traditional-bugis-pinishi-root .pinishi-gate-bg {
-    left: 50%;
-    right: auto;
-    width: 560px;
-    transform: translateX(-50%);
+.traditional-bugis-pinishi-root .pinishi-scroll-hint {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .traditional-bugis-pinishi-root .pinishi-main {
+    max-width: 560px;
+    margin: 0 auto;
+    box-shadow: 0 0 60px rgba(101, 72, 92, 0.08);
   }
 
   .traditional-bugis-pinishi-root .pinishi-gate-panel {
     width: 75%;
     max-width: 460px;
-  }
-
-  .traditional-bugis-pinishi-root .pinishi-main {
-    max-width: 560px;
-    margin: 0 auto;
-    box-shadow: 0 0 60px rgba(101, 72, 92, 0.08);
   }
 
   .traditional-bugis-pinishi-root .pinishi-address-map {
@@ -2343,5 +2347,285 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 
   .traditional-bugis-pinishi-root .pinishi-title--left {
     font-size: 54px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .traditional-bugis-pinishi-root {
+    background: var(--pinishi-cream);
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-music {
+    top: 20px;
+    bottom: auto;
+    right: calc(540px + 20px);
+    background: rgba(101, 72, 92, 0.72);
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-stage {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: calc(100% - 540px);
+    overflow: hidden;
+    background: var(--pinishi-cream);
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-stage-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-stage-names {
+    position: absolute;
+    left: 2.5rem;
+    bottom: 2.5rem;
+    max-width: 70%;
+    font-family: var(--pinishi-script);
+    font-size: clamp(36px, calc(86px - var(--len, 12) * 2.2px), 52px);
+    line-height: 1.05;
+    color: #fff;
+    text-shadow: 0 3px 24px rgba(40, 20, 30, 0.35);
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-stage-spark {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.75);
+    animation: pinishi-spark 7s ease-in-out infinite;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-stage-spark--1 {
+    left: 22%;
+    top: 58%;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-stage-spark--2 {
+    left: 61%;
+    top: 34%;
+    animation-delay: 1.4s;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-stage-spark--3 {
+    left: 44%;
+    top: 76%;
+    animation-delay: 2.8s;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-stage-spark--4 {
+    left: 76%;
+    top: 63%;
+    animation-delay: 4.1s;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-main {
+    width: 540px;
+    max-width: none;
+    min-height: 100vh;
+    margin: 0 0 0 auto;
+    background: var(--pinishi-cream);
+    box-shadow: -20px 0 60px rgba(60, 40, 50, 0.12);
+    position: relative;
+    z-index: 2;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-cover-inline {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+    min-height: 720px;
+    padding: 12px 0;
+    overflow: hidden;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-cover-inline .pinishi-gate-bg {
+    position: absolute;
+    inset: 0;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-cover-inline .pinishi-gate-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-cover-inline .pinishi-gate-panel {
+    position: relative;
+    z-index: 2;
+    width: 78%;
+    max-width: 430px;
+    height: 92%;
+    max-height: none;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-cover-inline .pinishi-scroll-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    margin-top: auto;
+    padding-top: 1rem;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--pinishi-plum-deep);
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-scroll-hint-dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.55);
+    animation: pinishi-hint-bob 2.2s ease-in-out infinite;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-scroll-hint svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-event {
+    width: 100%;
+    left: 0;
+    max-width: 430px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-gate-panel {
+    width: 78%;
+    max-width: 430px;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-title {
+    font-size: 56px;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-title--left {
+    font-size: 56px;
+  }
+}
+
+@keyframes pinishi-spark {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  70% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+}
+
+@keyframes pinishi-hint-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+}
+
+
+/* ------------------------------------------------------------------ */
+/* Flying birds — preset .flyingBird (4 sprites crossing the hero)     */
+/* ------------------------------------------------------------------ */
+.traditional-bugis-pinishi-root .pinishi-birds {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.traditional-bugis-pinishi-root .pinishi-bird {
+  position: absolute;
+  top: 14px;
+  left: -3%;
+  width: 64px;
+  height: 90px;
+  background: url("/templates/traditional-bugis-pinishi/bird-sprite.webp") 0 0 / auto 100% no-repeat;
+  animation:
+    pinishi-fly-cycle 0.9s steps(4) infinite,
+    pinishi-fly-right 15s linear infinite;
+  will-change: transform, background-position;
+}
+
+.traditional-bugis-pinishi-root .pinishi-bird--1 {
+  animation-duration: 0.9s, 15s;
+  animation-delay: 0s, 0s;
+}
+
+.traditional-bugis-pinishi-root .pinishi-bird--2 {
+  top: 44px;
+  animation-duration: 1s, 16s;
+  animation-delay: 0s, 1s;
+}
+
+.traditional-bugis-pinishi-root .pinishi-bird--3 {
+  top: 4px;
+  animation-duration: 1.25s, 14.6s;
+  animation-delay: 0s, 9.5s;
+}
+
+.traditional-bugis-pinishi-root .pinishi-bird--4 {
+  top: 30px;
+  animation-duration: 1.1s, 16s;
+  animation-delay: 0s, 10.25s;
+}
+
+@keyframes pinishi-fly-cycle {
+  to {
+    background-position: -259px 0;
+  }
+}
+
+@keyframes pinishi-fly-right {
+  0% {
+    transform: scale(0.3) translateX(-10vw);
+  }
+  10% {
+    transform: translateY(2vh) translateX(10vw) scale(0.4);
+  }
+  20% {
+    transform: translateY(0vh) translateX(30vw) scale(0.5);
+  }
+  30% {
+    transform: translateY(4vh) translateX(50vw) scale(0.6);
+  }
+  40% {
+    transform: translateY(2vh) translateX(70vw) scale(0.6);
+  }
+  50% {
+    transform: translateY(0vh) translateX(90vw) scale(0.6);
+  }
+  60% {
+    transform: translateY(0vh) translateX(110vw) scale(0.6);
+  }
+  100% {
+    transform: translateY(0vh) translateX(110vw) scale(0.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .traditional-bugis-pinishi-root .pinishi-birds {
+    display: none;
   }
 }
