@@ -378,11 +378,13 @@ invitation is fully readable without JS (playbook §4).
   profile's Mempelai Pertama is `groom_name` = "Novi", so Novi prints first.
   `/templates/silver-gelatin/preview`, `/templates`, `/api/web-templates?fresh=1`
   and the wishes-band asset all 200.
-- Monogram fix: with `couple_initials` temporarily set to `Z & Q` on the demo,
-  the cover renders `Z` (back, 104 px) and `Q` (front) instead of the names'
-  initials, proving the field drives both the cover monogram and the closing
-  one; punctuation is stripped, and the name-derived letters are only the
-  fallback for an empty field.
+- Monogram fix (BUILD_ID `W3ktDmT6x3RG4PTh7KUlL`, commit `16d9eda`): with
+  `couple_initials` temporarily set to `Z & Q` on the demo, the cover renders
+  `Z` (back, 104 px) and `Q` (front) instead of the names' initials, proving the
+  field drives both the cover monogram and the closing one; punctuation is
+  stripped, and the name-derived letters are only the fallback for an empty
+  field. In production `/w/rafi-novi` (whose Singkatan Pasangan is `RN`) now
+  reads `R` behind and `N` in front — the names' letters would have been N / R.
 - First release (BUILD_ID `RCRI6eampP4bjUKEiiIjE`, commit `ab779c9`): deploy guard
   reported all 38 registered templates in the bundle, the post-deploy smoke
   passed every template preview (doc + rsc 200) and the `cdn.aksaraa.com`
