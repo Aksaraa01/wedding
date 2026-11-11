@@ -630,6 +630,7 @@
 }
 .sg-couple__amp {
   margin-top: 26px;
+  margin-bottom: 18px;
   font-family: var(--font-bodoni);
   font-size: 30px;
   line-height: 1.2;
@@ -868,15 +869,20 @@
   aspect-ratio: 4 / 5;
   cursor: pointer;
 }
-.sg-grid__cell:nth-child(3n + 1) {
+/* The gallery keeps its 2-up 4/5 rhythm, but a photo is only promoted to the
+   full-bleed 16/11 plate when it is actually landscape (measured on load). A
+   portrait photo therefore stays in its portrait frame instead of being
+   cropped into a wide one. */
+.sg-grid__cell[data-orientation="landscape"]:nth-child(3n + 1) {
   grid-column: 1 / -1;
   aspect-ratio: 16 / 11;
 }
-/* A lone last tile would otherwise leave an empty half-row; let it close the
-   gallery full-bleed instead. */
-.sg-grid__cell:last-child:nth-child(3n + 2) {
+/* A lone portrait tile at the start of a row is centred rather than left with
+   an empty half beside it. */
+.sg-grid__cell:last-child:nth-child(odd):not([data-orientation="landscape"]) {
   grid-column: 1 / -1;
-  aspect-ratio: 16 / 11;
+  justify-self: center;
+  width: calc(50% - 5px);
 }
 .sg-grid__cell img {
   width: 100%;

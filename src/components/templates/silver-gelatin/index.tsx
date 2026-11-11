@@ -146,6 +146,8 @@ export default function SilverGelatin(profile: TemplateProps) {
   const [toast, setToast] = useState("")
   const [giftTab, setGiftTab] = useState<"accounts" | "address">("accounts")
   const [filmLive, setFilmLive] = useState(false)
+  // Gallery tiles keep the photo's own orientation; measured once per image.
+  const [orientations, setOrientations] = useState<Record<number, "portrait" | "landscape">>({})
 
   const tc = profile.template_content || {}
   const gates = profile.feature_gates || {}
@@ -712,11 +714,25 @@ export default function SilverGelatin(profile: TemplateProps) {
                   <button
                     type="button"
                     className="sg-grid__cell"
+                    data-orientation={orientations[index]}
                     key={`${url}-${index}`}
                     onClick={() => setLightbox(index)}
                     aria-label={`Photo ${index + 1}`}
                   >
-                    <img src={url} alt="" loading="lazy" draggable={false} />
+                    <img
+                      src={url}
+                      alt=""
+                      loading="lazy"
+                      draggable={false}
+                      onLoad={(event) => {
+                        const img = event.currentTarget
+                        if (!img.naturalWidth || !img.naturalHeight) return
+                        const orientation = img.naturalWidth >= img.naturalHeight ? "landscape" : "portrait"
+                        setOrientations((prev) =>
+                          prev[index] === orientation ? prev : { ...prev, [index]: orientation }
+                        )
+                      }}
+                    />
                   </button>
                 ))}
               </div>

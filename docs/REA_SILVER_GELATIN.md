@@ -177,7 +177,7 @@ Cover geometry at 390 (converted verbatim):
 | Countdown | `countdownTarget(sessions, estimated_wedding_date)` + `gcalLink` |
 | Inviting | `inviting_families[]` (TEXT, `JSON.parse`, `[]` when empty) |
 | Rundown | `rundown[]` → `{time, description}` |
-| Gallery | `gallery_photos[]` (whole grid — no frame is removed any more), `template_content.gallery_title` / `gallery_intro` |
+| Gallery | `gallery_photos[]` (whole grid — no frame is removed any more), `template_content.gallery_title` / `gallery_intro`; each tile's orientation is measured from the image on load |
 | Gift | `gift_accounts[]` (transfer tab), `gift_address` + `gift_address_name` (send-gift tab), `feature_gates.gift_address`; tab copy from `template_content.gift_button` / `gift_send_label` / `gift_transfer_note` / `gift_address_note` |
 | Dress code | `dresscode {title, description, colors[]}`, `template_content.dresscode_kicker` / `dresscode_intro` / `dresscode_note`; plate = cover slot 3 → `gallery_photos[0]` → cover |
 | Wishes | `Wishes` component + `template_content.wishes_*` labels |
@@ -286,9 +286,15 @@ invitation is fully readable without JS (playbook §4).
 18. **The dot date keeps four digits.** The reference prints `22 . 05 . 27`; a
     paying couple's guests read a year, so it is `26 . 06 . 2027` in the welcome,
     closing and cover-free sections.
-19. **A trailing lone gallery tile closes full-bleed.** The reference's `3n+1`
-    rule can leave one 4/5 tile alone; `:last-child:nth-child(3n+2)` promotes it
-    to `16/11` so the grid never ends on a half-empty row.
+19. **A gallery tile follows its photo's orientation.** The reference promotes
+    every third tile to a full-bleed `16/11` plate, which cropped a portrait
+    upload into a landscape frame. The promotion is now conditional on the
+    image's own orientation (`data-orientation` set from `naturalWidth` /
+    `naturalHeight` on load): a portrait photo stays in its 4/5 tile, a
+    landscape photo still takes the full width. A lone portrait tile at the
+    start of a row is centred instead of leaving an empty half beside it. The
+    orientation arrives with the (lazy) image, so a below-the-fold tile can
+    reflow once — above the fold nothing moves.
 20. **No "Send a wish" address field.** The shared `Wishes` component collects
     name + message only; the reference's city field is not stored anywhere.
 21. **Moments ends on the grid.** The reference has no closing line after the
@@ -385,6 +391,12 @@ invitation is fully readable without JS (playbook §4).
   stripped, and the name-derived letters are only the fallback for an empty
   field. In production `/w/rafi-novi` (whose Singkatan Pasangan is `RN`) now
   reads `R` behind and `N` in front — the names' letters would have been N / R.
+- Fourth iteration (mempelai `&` spacing, orientation-aware gallery), verified
+  on the dev server through CDP at 390×844: the `&` → name gap measures 18 px
+  (was flush); the gallery keeps its 2-up rhythm with landscape photos in the
+  `3n+1` plate, and forcing `data-orientation="portrait"` on that plate shrinks
+  it to 168×210 (4/5) while `landscape` keeps 346×238 (16/11) — a portrait can
+  no longer be cropped into the wide frame.
 - First release (BUILD_ID `RCRI6eampP4bjUKEiiIjE`, commit `ab779c9`): deploy guard
   reported all 38 registered templates in the bundle, the post-deploy smoke
   passed every template preview (doc + rsc 200) and the `cdn.aksaraa.com`
