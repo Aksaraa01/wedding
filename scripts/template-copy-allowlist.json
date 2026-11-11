@@ -1737,7 +1737,9 @@
         "Previous photo": "WCAG name for the lightbox previous control",
         "Next photo": "WCAG name for the lightbox next control",
         "Previous page": "WCAG name for the wishes previous-page control",
-        "Next page": "WCAG name for the wishes next-page control"
+        "Next page": "WCAG name for the wishes next-page control",
+        "Quote": "WCAG name for the kutipan figure (editor \"Kutipan\")",
+        "Wedding gift": "WCAG name for the gift tablist (two tabs have their own editable labels)"
       }
     }
   }

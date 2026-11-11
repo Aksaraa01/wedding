@@ -1570,14 +1570,14 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.06 },
     },
     content: {
-      cover_slots: 3,
-      cover_slot_labels: ["Sampul", "Acara", "Penutup"],
+      cover_slots: 4,
+      cover_slot_labels: ["Venue", "Sampul", "Gift", "Dresscode"],
       groom_photo: "single",
       bride_photo: "single",
       story_photo: true,
       sections: {
         opening_description: true,
-        quote: false,
+        quote: true,
         countdown: true,
         inviting: true,
         video: true,

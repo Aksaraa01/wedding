@@ -5,6 +5,7 @@ import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { AKSARAA_WA_NUMBER } from "@/lib/contact"
 import InvitationOverlay from "@/components/InvitationOverlay"
+import AutoplayYouTube from "../shared/AutoplayYouTube"
 import {
   bridePhoto as bridePhotoOf,
   countdownTarget,
@@ -18,6 +19,11 @@ import Wishes from "./Wishes"
 import "./silver-gelatin.css"
 
 const WISH_ME = "Tamu Undangan"
+
+// The reference introduces its RSVP form with a full-bleed still life (linen,
+// envelopes, a tulip, two rings). It is the one photographic asset the design
+// owns; every other image is the couple's own. Shown above Wishes, uncropped.
+const WISHES_BAND = "/templates/silver-gelatin/rsvp-band.webp"
 
 const EN_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 const EN_MONTHS = [
@@ -137,8 +143,8 @@ export default function SilverGelatin(profile: TemplateProps) {
   const [playing, setPlaying] = useState(false)
   const [lightbox, setLightbox] = useState<number | null>(null)
   const [toast, setToast] = useState("")
-  const [giftOpen, setGiftOpen] = useState(false)
-  const [filmOn, setFilmOn] = useState(false)
+  const [giftTab, setGiftTab] = useState<"accounts" | "address">("accounts")
+  const [filmLive, setFilmLive] = useState(false)
 
   const tc = profile.template_content || {}
   const gates = profile.feature_gates || {}
@@ -146,13 +152,12 @@ export default function SilverGelatin(profile: TemplateProps) {
   const slots = useMemo(() => flattenPhotos(profile.cover_photos), [profile.cover_photos])
   const gallery = useMemo(() => flattenPhotos(profile.gallery_photos), [profile.gallery_photos])
 
-  const coverShot = slots[0] || coverPhoto(profile)
-  const eventShot = slots[1] || gallery[0] || coverShot
-  // The full-bleed band after the gallery takes the last gallery photo and
-  // removes it from the grid, so the same frame is never shown twice in a row.
-  const dividerShot = gallery.length >= 4 ? gallery[gallery.length - 1] : ""
-  const gridPhotos = dividerShot ? gallery.slice(0, -1) : gallery
-  const dressShot = slots[2] || gallery[0] || coverShot
+  // Cover slots are named photo positions (Venue, Sampul, Gift, Dresscode); the
+  // two portrait plates in the welcome keep using the couple's own portraits.
+  const coverShot = slots[1] || coverPhoto(profile)
+  const venueShot = slots[0] || gallery[0] || coverShot
+  const giftShot = slots[2] || gallery[0] || coverShot
+  const dressShot = slots[3] || gallery[0] || coverShot
   const groomShot = groomPhotoOf(profile.groom_photo_url)
   const brideShot = bridePhotoOf(profile.bride_photo_url)
 
@@ -181,6 +186,9 @@ export default function SilverGelatin(profile: TemplateProps) {
   const giftAddress =
     profile.gift_section_visible !== false && gates.gift_address !== false ? (profile.gift_address || "").trim() : ""
   const hasGift = accounts.length > 0 || !!giftAddress
+  // Two tabs only make sense when both channels exist; otherwise the single
+  // available one renders without a tab strip (never an empty panel).
+  const canSwitchGiftTab = accounts.length > 0 && !!giftAddress
 
   const film = videoSource(profile.video_url)
   const hasVideo = gates.video !== false && profile.video_section_visible !== false && !!film
@@ -204,11 +212,16 @@ export default function SilverGelatin(profile: TemplateProps) {
   const openLabel = (tc.open_button || "").trim() || "Open Invitation"
   const apology = (tc.cover_apology || "").trim() || "We apologize for any misspelling of your name or title."
   const dearLabel = (tc.cover_kicker || "").trim() || "Dear"
-  const welcomeGreeting = (profile.opening_title || tc.welcome_message || "").trim() || "Dear family and friends!"
+  // The whole welcome block is the editor's "Kalimat Pembuka" card: title +
+  // description, nothing else. No parallel template_content copy, so an edit
+  // there can never look ignored.
+  const welcomeGreeting = (profile.opening_title || "").trim() || "Dear family and friends!"
   const welcomeBody =
     (profile.opening_description || "").trim() ||
-    (tc.welcome_invite || "").trim() ||
     "With great joy, we invite you to share in the special day of our wedding."
+  const quoteText = (profile.quote_text || "").trim()
+  const quoteSource = (profile.quote_source || "").trim()
+  const hashtag = (profile.display_name || "").trim()
   const welcomeDateLead = (tc.events_kicker || "").trim() || "The celebration will take place on"
   const photoOneLabel = (tc.story_kicker || "").trim() || "Love story"
   const photoTwoLabel = (tc.gallery_kicker || "").trim() || "Wedding"
@@ -234,7 +247,10 @@ export default function SilverGelatin(profile: TemplateProps) {
   const giftTitle = (tc.gift_intro_title || "").trim() || "Wedding Gift"
   const giftIntro = (tc.gift_intro_description || "").trim() ||
     "Your blessings are the most beautiful gift to us. But should you wish to give a token of love, you may do so via:"
-  const giftButton = (tc.gift_button || "").trim() || "Direct Transfer"
+  const giftTransferLabel = (tc.gift_button || "").trim() || "Direct Transfer"
+  const giftSendLabel = (tc.gift_send_label || "").trim() || "Send Gift"
+  const giftTransferNote = (tc.gift_transfer_note || "").trim() || "Transfer directly to the account below:"
+  const giftAddressNote = (tc.gift_address_note || "").trim() || "Send your gift to the address below:"
   const giftSignature = (tc.gift_signature || "").trim()
   const dressHeading = (tc.dresscode_kicker || "").trim() || "Dresscode"
   const wishesTitle = (tc.wishes_title || "").trim() || "Wishes"
@@ -285,6 +301,24 @@ export default function SilverGelatin(profile: TemplateProps) {
       () => setPlaying(false)
     )
   }, [])
+
+  // The film autoplays, but it waits a beat after "Open Invitation": the music
+  // (warmed on the first pointerdown) is already streaming, and letting it take
+  // the first slice of bandwidth is what keeps the video from stuttering
+  // (playbook §5, "preload the music, stream the video"). The poster holds the
+  // 16/9 stage until the player mounts, so nothing shifts.
+  useEffect(() => {
+    if (!opened) {
+      setFilmLive(false)
+      return
+    }
+    if (!trackUrl) {
+      setFilmLive(true)
+      return
+    }
+    const timer = window.setTimeout(() => setFilmLive(true), 700)
+    return () => window.clearTimeout(timer)
+  }, [opened, trackUrl])
 
   const openInvitation = useCallback(() => {
     setOpened(true)
@@ -364,7 +398,7 @@ export default function SilverGelatin(profile: TemplateProps) {
     )
     targets.forEach((el) => io.observe(el))
     return () => io.disconnect()
-  }, [stories.length, rundown.length, honored.length, gallery.length, accounts.length, events.length, giftOpen, hasVideo])
+  }, [stories.length, rundown.length, honored.length, gallery.length, accounts.length, events.length, giftTab, hasVideo])
 
   useEffect(() => {
     if (lightbox === null) return
@@ -380,7 +414,8 @@ export default function SilverGelatin(profile: TemplateProps) {
   }, [lightbox, gallery.length, stepLightbox])
 
   const embedUrl = film && film.kind === "embed" ? film.src : ""
-  const filmPoster = eventShot
+  const youtubeId = embedUrl.match(/youtube\.com\/embed\/([A-Za-z0-9_-]{11})/)?.[1] || ""
+  const filmPoster = venueShot
   const initialA = coupleInitials.charAt(0)
   const initialB = coupleInitials.charAt(1)
 
@@ -426,38 +461,54 @@ export default function SilverGelatin(profile: TemplateProps) {
         </section>
 
         <div className="sg-body">
-          {/* 2 + 12 — the film, one band directly under the cover */}
+          {/* 2 + 12 — the film, one band directly under the cover. It plays by
+              itself (muted, which is the only autoplay browsers allow) but only
+              once the guest has opened the invitation, so a visitor who never
+              taps Open downloads no video at all. */}
           {hasVideo && film && (
             <section className="sg-film" data-section="video" aria-label="The wedding film">
               <div className="sg-film__stage">
-                {filmOn ? (
-                  film.kind === "file" ? (
-                    <video className="sg-film__media" src={film.src} autoPlay controls playsInline poster={filmPoster} />
-                  ) : (
-                    <iframe
-                      className="sg-film__media"
-                      src={embedUrl}
-                      title={videoTitle}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  )
+                {!filmLive ? (
+                  <img className="sg-film__poster" src={filmPoster} alt="" aria-hidden="true" draggable={false} />
+                ) : film.kind === "file" ? (
+                  <video
+                    className="sg-film__media"
+                    src={film.src}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    controls
+                    preload="metadata"
+                    poster={filmPoster}
+                  />
+                ) : youtubeId ? (
+                  <AutoplayYouTube videoId={youtubeId} title={videoTitle} controls autoplay />
                 ) : (
-                  <button type="button" className="sg-film__cover" onClick={() => setFilmOn(true)} aria-label="Play the wedding film">
-                    <img src={filmPoster} alt="" aria-hidden="true" draggable={false} />
-                    <span className="sg-film__play" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" focusable="false">
-                        <path d="M8 5.5v13l11-6.5z" />
-                      </svg>
-                    </span>
-                    <span className="sg-film__caption">
-                      <span className="sg-label">{videoTitle}</span>
-                      {videoIntro && <span className="sg-film__intro">{videoIntro}</span>}
-                    </span>
-                  </button>
+                  <iframe
+                    className="sg-film__media"
+                    src={embedUrl}
+                    title={videoTitle}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
                 )}
               </div>
+              {(videoTitle || videoIntro) && (
+                <div className="sg-film__caption">
+                  {videoTitle && <span className="sg-label">{videoTitle}</span>}
+                  {videoIntro && <span className="sg-film__intro">{videoIntro}</span>}
+                </div>
+              )}
             </section>
+          )}
+
+          {/* the couple's kutipan — editor "Kutipan", ops "KUTIPAN" */}
+          {quoteText && (
+            <figure className="sg-quote" data-section="kutipan" aria-label="Quote">
+              <blockquote className="sg-quote__text" {...IN("up")}>{quoteText}</blockquote>
+              {quoteSource && <figcaption className="sg-quote__source" {...IN("fade", 0.08)}>{quoteSource}</figcaption>}
+            </figure>
           )}
 
           {/* 3 + 4 — welcome and the couple's own words */}
@@ -500,7 +551,6 @@ export default function SilverGelatin(profile: TemplateProps) {
                 full: profile.bride_full_name || brideName,
                 parents: profile.bride_parents,
                 ig: brideIg,
-                role: "Daughter of",
               },
               {
                 key: "groom",
@@ -508,7 +558,6 @@ export default function SilverGelatin(profile: TemplateProps) {
                 full: profile.groom_full_name || groomName,
                 parents: profile.groom_parents,
                 ig: groomIg,
-                role: "Son of",
               },
             ]
               .filter((person) => !!person.script || !!person.full)
@@ -518,12 +567,10 @@ export default function SilverGelatin(profile: TemplateProps) {
                   <article className="sg-person">
                     {person.script && <h3 className="sg-person__script" {...IN("up", 0.06)}>{person.script}</h3>}
                     {person.full && <p className="sg-person__full" {...IN("fade", 0.08)}>{person.full}</p>}
-                    {person.parents && (
-                      <>
-                        <p className="sg-label sg-person__role" {...IN("fade", 0.1)}>{parentsLabel || person.role}</p>
-                        <p className="sg-body-copy" {...IN("fade", 0.12)}>{person.parents}</p>
-                      </>
+                    {person.parents && parentsLabel && (
+                      <p className="sg-label sg-person__role" {...IN("fade", 0.1)}>{parentsLabel}</p>
                     )}
+                    {person.parents && <p className="sg-body-copy" {...IN("fade", 0.12)}>{person.parents}</p>}
                     {person.ig && (
                       <a
                         className="sg-person__ig"
@@ -568,7 +615,7 @@ export default function SilverGelatin(profile: TemplateProps) {
             <h2 className="sg-heading" {...IN("up")}>{eventsTitle}</h2>
             <div className="sg-venue__hero">
               <figure className="sg-venue__plate">
-                <img src={eventShot} alt="" aria-hidden="true" loading="lazy" draggable={false} />
+                <img src={venueShot} alt="" aria-hidden="true" loading="lazy" draggable={false} />
               </figure>
               {eventsIntro && <p className="sg-venue__intro" {...IN("fade", 0.08)}>{eventsIntro}</p>}
             </div>
@@ -650,7 +697,7 @@ export default function SilverGelatin(profile: TemplateProps) {
               <h2 className="sg-heading" {...IN("up")}>{galleryTitle}</h2>
               {galleryIntro && <p className="sg-sub" {...IN("fade", 0.05)}>{galleryIntro}</p>}
               <div className="sg-grid" {...IN("fade", 0.08)}>
-                {gridPhotos.map((url, index) => (
+                {gallery.map((url, index) => (
                   <button
                     type="button"
                     className="sg-grid__cell"
@@ -665,29 +712,52 @@ export default function SilverGelatin(profile: TemplateProps) {
             </section>
           )}
 
-          {/* full-bleed photographic divider between the gallery and the registry */}
-          {dividerShot && (
-            <figure className="sg-divider" aria-hidden="true" {...IN("fade")}>
-              <img src={dividerShot} alt="" loading="lazy" draggable={false} />
-            </figure>
-          )}
-
-          {/* 13 — gift */}
+          {/* 13 — gift. Two tabs exactly like the reference: bank transfer and
+              a shipping address. The address tab only exists when the couple
+              filled one in, and a single-source gift renders without tabs. */}
           {hasGift && (
             <section className="sg-section sg-gift" data-section="gift" aria-label="Wedding registry">
+              <figure className="sg-gift__photo" {...IN("fade")}>
+                <img src={giftShot} alt="" aria-hidden="true" loading="lazy" draggable={false} />
+              </figure>
               <h2 className="sg-heading" {...IN("up")}>{giftTitle}</h2>
               {giftIntro && <p className="sg-body-copy" {...IN("fade", 0.05)}>{giftIntro}</p>}
-              <button
-                type="button"
-                className="sg-btn sg-btn--solid"
-                onClick={() => setGiftOpen((value) => !value)}
-                aria-expanded={giftOpen}
-                {...IN("up", 0.08)}
-              >
-                {giftButton}
-              </button>
-              {giftOpen && (
-                <div className="sg-gift__list">
+
+              {canSwitchGiftTab && (
+                <div className="sg-tabs" role="tablist" aria-label="Wedding gift">
+                  <button
+                    type="button"
+                    role="tab"
+                    id="sg-gift-tab-accounts"
+                    aria-selected={giftTab === "accounts"}
+                    aria-controls="sg-gift-panel-accounts"
+                    className={`sg-tab${giftTab === "accounts" ? " is-active" : ""}`}
+                    onClick={() => setGiftTab("accounts")}
+                  >
+                    {giftTransferLabel}
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    id="sg-gift-tab-address"
+                    aria-selected={giftTab === "address"}
+                    aria-controls="sg-gift-panel-address"
+                    className={`sg-tab${giftTab === "address" ? " is-active" : ""}`}
+                    onClick={() => setGiftTab("address")}
+                  >
+                    {giftSendLabel}
+                  </button>
+                </div>
+              )}
+
+              {accounts.length > 0 && (!canSwitchGiftTab || giftTab === "accounts") && (
+                <div
+                  className="sg-gift__panel"
+                  id="sg-gift-panel-accounts"
+                  role={canSwitchGiftTab ? "tabpanel" : undefined}
+                  aria-labelledby={canSwitchGiftTab ? "sg-gift-tab-accounts" : undefined}
+                >
+                  {canSwitchGiftTab && <p className="sg-gift__note">{giftTransferNote}</p>}
                   {accounts.map((account, index) => (
                     <div className="sg-account" key={`${account.account_number || "acc"}-${index}`} {...IN("up", Math.min(0.05 * index, 0.2))}>
                       {account.provider_name && <p className="sg-account__bank">{account.provider_name}</p>}
@@ -709,17 +779,27 @@ export default function SilverGelatin(profile: TemplateProps) {
                       {account.account_name && <p className="sg-account__name">{account.account_name}</p>}
                     </div>
                   ))}
-                  {giftAddress && (
-                    <div className="sg-account sg-account--address" {...IN("up", 0.08)}>
-                      {profile.gift_address_name && <p className="sg-account__bank">{profile.gift_address_name}</p>}
-                      <p className="sg-account__name">{giftAddress}</p>
-                      <button type="button" className="sg-link" onClick={() => copyText(giftAddress, addressToast)}>
-                        {addressButton}
-                      </button>
-                    </div>
-                  )}
                 </div>
               )}
+
+              {giftAddress && (accounts.length === 0 || giftTab === "address") && (
+                <div
+                  className="sg-gift__panel"
+                  id="sg-gift-panel-address"
+                  role={canSwitchGiftTab ? "tabpanel" : undefined}
+                  aria-labelledby={canSwitchGiftTab ? "sg-gift-tab-address" : undefined}
+                >
+                  {canSwitchGiftTab && <p className="sg-gift__note">{giftAddressNote}</p>}
+                  <div className="sg-account sg-account--address" {...IN("up", 0.08)}>
+                    {profile.gift_address_name && <p className="sg-account__bank">{profile.gift_address_name}</p>}
+                    <p className="sg-account__name">{giftAddress}</p>
+                    <button type="button" className="sg-link" onClick={() => copyText(giftAddress, addressToast)}>
+                      {addressButton}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {giftSignature && <p className="sg-script sg-gift__sign" {...IN("fade", 0.1)}>{giftSignature}</p>}
             </section>
           )}
@@ -749,7 +829,11 @@ export default function SilverGelatin(profile: TemplateProps) {
             </section>
           )}
 
-          {/* 15 — wishes */}
+          {/* 15 — wishes. The reference opens this block with a full-bleed
+              still life; it is shown at its natural aspect, never cropped. */}
+          <figure className="sg-wishes__band" aria-hidden="true" {...IN("fade")}>
+            <img src={WISHES_BAND} alt="" loading="lazy" draggable={false} />
+          </figure>
           <section className="sg-section sg-wishes" data-section="wishes" aria-label="Wishes for the couple">
             <h2 className="sg-heading" {...IN("up")}>{wishesTitle}</h2>
             {wishesIntro && <p className="sg-body-copy" {...IN("fade", 0.05)}>{wishesIntro}</p>}
@@ -769,6 +853,7 @@ export default function SilverGelatin(profile: TemplateProps) {
           <section className="sg-closing" data-section="closing" aria-label="Closing">
             {closingMessage && <p className="sg-body-copy" {...IN("up")}>{closingMessage}</p>}
             <p className="sg-script sg-closing__see" {...IN("fade", 0.08)}>{closingSee}</p>
+            {hashtag && <p className="sg-closing__hashtag" {...IN("fade", 0.1)}>{hashtag}</p>}
             {(initialA || initialB) && (
               <p className="sg-closing__initials" aria-label={coupleInitials} {...IN("fade", 0.12)}>
                 {initialA && <span className="sg-closing__initial sg-closing__initial--a">{initialA}</span>}

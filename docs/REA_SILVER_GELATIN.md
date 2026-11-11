@@ -55,8 +55,8 @@ Reference blocks, measured at 390×844 (heights are the block's own box):
 | Venue | 690 | 222×250 photo flush right (r30 top-left), intro bottom-left at width 124 |
 | Countdown | 360 | digits 44–46 px Bodoni, lowercase Jost labels |
 | Dresscode | 565 | 26 px heading, 194×368 photo flush left (`0 36px 36px 0`), four 126×34 swatches at x 216 (54 px pitch), 12.5 px paragraph |
-| Full-bleed band | 316 | 90 px top margin + a 226 px edge-to-edge photo |
-| Gifts | 330 + cards | two buttons (Direct Transfer / Send Gift), account cards |
+| Full-bleed band | 316 | 90 px top margin + a 226 px edge-to-edge photo (this is the wishes band) |
+| Gifts | 330 + cards | two tabs (160×46 each, 11 px Jost, `1.76px` tracking, square; active solid `#111`), account cards |
 | RSVP | form | part of the reference's single page |
 | Gallery (“Moments”) | open | 2-up `4/5` grid, every `3n+1` spans the canvas at `16/11` |
 | Closing | 465 | message, “See you!”, overlapping initials, dot date |
@@ -81,20 +81,21 @@ Mapping to the §0.5 contract:
 |---|---|---|
 | 1 | Cover | `sampul` — photo, notch, initials, scripts, guest, open button |
 | 2 | Opening video | `film` — one band directly under the cover (§9.1) |
-| 3 | Welcome | `pembuka` — greeting + date + the two rotated portraits |
-| 4 | Kalimat pembuka | `pembuka` (`opening_description` / `welcome_invite`) |
+| 3 | Welcome | `pembuka` — greeting + `opening_description` + date + the two rotated portraits |
+| 4 | Kalimat pembuka | merged into #3 — the whole welcome block is `opening_title` + `opening_description` (§9.2) |
 | 5 | Mempelai | `mempelai` |
 | 6 | Love story | `story` |
+| — | Kutipan | `kutipan` — epigraph between the film and the welcome (`quote_text` / `quote_source`) |
 | 7 | Event | `acara` |
 | 8 | Countdown | `countdown` |
 | 9 | Turut mengundang | `inviting` |
 | 10 | Rundown | `rundown` |
-| 11 | Gallery | `galeri` (+ full-bleed `divider` after it) |
+| 11 | Gallery | `galeri` |
 | 12 | Video | merged into #2 (§9.1) |
-| 13 | Wedding gift | `gift` |
+| 13 | Wedding gift | `gift` — two tabs (transfer / send gift) |
 | 14 | Dress code | `dresscode` |
-| 15 | Wishes | `wishes` |
-| 16 | Closing | `closing` |
+| 15 | Wishes | `wishes`, opened by the full-bleed reference still life |
+| 16 | Closing | `closing` + hashtag (`display_name`) |
 
 RSVP is the shared `InvitationOverlay` dock (`anchor="bottom"`, `bottom={80}`),
 not a section (§0.5 rule 4), so the reference's RSVP form is not ported.
@@ -107,6 +108,7 @@ not a section (§0.5 rule 4), so the reference's RSVP form is not ported.
 | Every ornament | CSS (rules, radii, the notch, the swatch chips) |
 | Fonts | vendored woff2 (see §5) |
 | Music | couple's `track_url`; demo falls back to `ASSETS.defaultMusic` |
+| Wishes band still life (linen, envelopes, tulip, two rings) | the reference's RSVP photo, downscaled to 800×464 webp (27.6 KB) at `public/templates/silver-gelatin/rsvp-band.webp` — shipped at the couple's request |
 | Thumbnail | authored from the live preview: cover at 390×844 @2x, resized to 720 wide, cropped to 720×1520 (the tile's exact 9/19) |
 
 `public/templates/silver-gelatin/thumbnail.webp` is the only file added for the
@@ -159,33 +161,33 @@ Cover geometry at 390 (converted verbatim):
 
 | Surface | Source |
 |---|---|
-| Cover shape | `cover_photos[0]` (Sampul), `cover_photos[1]` (Acara → film poster), `cover_photos[2]` (Penutup → dresscode plate) |
+| Cover photo slots | 4 named slots, in this order: `cover_photos[0]` Venue, `cover_photos[1]` Sampul, `cover_photos[2]` Gift, `cover_photos[3]` Dresscode (each falls back to `gallery_photos[0]` → the cover) |
 | Cover initials | first letter of `bride_name`, then `groom_name` (bride first, matching the reference's N/R) |
 | Cover scripts | `bride_name` (upper right), `groom_name` (lower left) |
 | Cover salutation | `template_content.cover_kicker` (default “Dear”) + `guest_name` |
 | Open button | `template_content.open_button` |
 | Apology | `template_content.cover_apology` |
-| Film | `video_url` → `<video>` / YouTube iframe; poster = cover slot 2 |
-| Welcome greeting | `opening_title` → `template_content.welcome_message` |
-| Welcome body | `opening_description` → `template_content.welcome_invite` |
+| Film | `video_url` → autoplaying (muted) `<video>` / YouTube embed; poster = Venue slot |
+| Welcome greeting | `opening_title` (editor "Kalimat Pembuka") |
+| Welcome body | `opening_description` (same card — no parallel `template_content` copy exists) |
 | Welcome date lead | `template_content.events_kicker` + `estimated_wedding_date` (`26 . 06 . 2027`) |
 | Welcome portraits | `bride_photo_url`, `groom_photo_url`; captions from `story_kicker` / `gallery_kicker` |
-| Mempelai | `bride_full_name` / `groom_full_name`, `*_parents`, `*_instagram`, `template_content.mempelai_kicker` / `parents_label` |
+| Mempelai | `bride_full_name` / `groom_full_name`, `*_parents`, `*_instagram`, `template_content.mempelai_kicker` / `parents_label` (optional; hidden when empty) |
+| Kutipan | `quote_text` + `quote_source` (editor "KUTIPAN", ops "KUTIPAN") |
 | Story | `stories[]` → `title`, `description`, `image_url` |
 | Venue | `sessions[]` → `name`, `venue`, `address`, `date`, `time`, `maps_url` |
 | Countdown | `countdownTarget(sessions, estimated_wedding_date)` + `gcalLink` |
 | Inviting | `inviting_families[]` (TEXT, `JSON.parse`, `[]` when empty) |
 | Rundown | `rundown[]` → `{time, description}` |
-| Gallery | `gallery_photos[]` minus the divider frame, `template_content.gallery_title` / `gallery_intro` |
-| Divider | last gallery photo (removed from the grid so no frame repeats), only when 4+ photos exist |
-| Gift | `gift_accounts[]`, `gift_address`, `feature_gates.gift_address` |
+| Gallery | `gallery_photos[]` (whole grid — no frame is removed any more), `template_content.gallery_title` / `gallery_intro` |
+| Gift | `gift_accounts[]` (transfer tab), `gift_address` + `gift_address_name` (send-gift tab), `feature_gates.gift_address`; tab copy from `template_content.gift_button` / `gift_send_label` / `gift_transfer_note` / `gift_address_note` |
 | Dress code | `dresscode {title, description, colors[]}`, `template_content.dresscode_kicker` / `dresscode_intro` / `dresscode_note`; plate = cover slot 3 → `gallery_photos[0]` → cover |
 | Wishes | `Wishes` component + `template_content.wishes_*` labels |
-| Closing | `template_content.closing_message` / `closing_see` + dot date + initials |
+| Closing | `template_content.closing_message` / `closing_see` + dot date + initials + hashtag (`display_name`) |
 | Music | `track_url` (`preload="metadata"`, first pointerdown warms it) |
 | Dock | `guest_id` / `guest_slug` + `feature_gates.qr_code_book` |
 
-Every string is `template_content.<key> || "<default>"`. The 34 literals that are
+Every string is `template_content.<key> || "<default>"`. The 35 literals that are
 not (countdown units, WCAG names, transient states, the vendor credit, the
 calendar CTA) are listed with reasons in
 `scripts/template-copy-allowlist.json` under `templates["silver-gelatin"].allow`.
@@ -208,60 +210,98 @@ invitation is fully readable without JS (playbook §4).
 1. **Opening video (§0.5 #2) and film (§0.5 #12) are one band.** The reference
    has no film block, and duplicating one `video_url` at the top and again at
    #12 would ship the same clip twice. One full-bleed 16/9 band sits directly
-   under the cover, with a poster, a play control and `video_title` /
-   `video_intro` copy; the gallery/closing keeps the editorial rhythm below it.
-2. **The cover does not lock the page.** The reference scrolls freely too: the
+   under the cover, with `video_title` / `video_intro` copy below it.
+2. **The film plays by itself, muted, once the guest has opened the invitation.**
+   Browsers only allow unmuted playback after a gesture, so `autoPlay muted` is
+   the only autoplay that actually starts; a visible `controls` bar lets the
+   guest unmute. Before "Open Invitation" the band shows the poster only, so a
+   visitor who never opens the invitation downloads no video. The stage keeps a
+   fixed 16/9 box, so mounting the player never shifts the page.
+3. **The cover does not lock the page.** The reference scrolls freely too: the
    “Open Invitation” keyline is a real button that starts the music and scrolls
    to the welcome band. No `body` class, no gesture blockers.
-3. **The cover letters are cropped by a white notch, not by a mask image.** The
+4. **The cover letters are cropped by a white notch, not by a mask image.** The
    reference paints a 198×82 white rectangle over the photo's bottom-left and
    sets two 104 px `::first-letter` glyphs on top of it. Rebuilt identically in
    CSS so it stays pixel-correct at every canvas width.
-4. **Mempelai carries no portraits.** As in the reference, the couple section is
-   text only (script name, full name, “Daughter of / Son of”, parents,
-   Instagram). The portraits appear in the welcome bands instead, which is what
-   satisfies `person_photos`.
-5. **The photo captions are real vertical type.** `writing-mode: vertical-rl` +
-   `rotate: 180deg` on a span inside a 124×218 anchor keeps them inside the
-   canvas (an element-level `rotate(-90deg)` used to push them out). They bleed
-   *past the plate* at 46 px exactly as the reference does — the script is longer
-   than the 218 px photo, and that overhang is the intended composition.
-6. **Gift has one button, not two.** The reference splits “Direct Transfer” and
-   “Send Gift”; Aksaraa has one gift surface, so `gift_button` toggles the
-   account cards (and the address card) in place. The QR block is not ported —
-   the guest QR lives in the shared dock.
-7. **“SHOW QR” is not shipped.** It belongs to the reference's own gift flow and
-   is redundant next to the dock's QR.
-8. **Card logos are not shipped.** The account card prints `provider_name` as
-   type — a logo wall would be unmaintainable and the reference's own are
-   third-party marks.
-9. **Swatch names are visual-only.** The chips render 126×34 blocks; the names
-   stay in `title`/`aria-label` so screen readers keep them, but the reference
-   hides them too (a colour that needs a caption is not doing its job).
-10. **The dot date keeps four digits.** The reference prints `22 . 05 . 27`; a
+5. **Mempelai carries no portraits.** As in the reference, the couple section is
+   text only (script name, full name, parents, Instagram). The portraits appear
+   in the welcome bands instead, which is what satisfies `person_photos`.
+6. **The whole welcome block is the editor's "Kalimat Pembuka".** The reference
+   prints a greeting and one paragraph; that paragraph is exactly what the
+   editor's Kalimat Pembuka card stores (`opening_description`, with
+   `opening_title` as the greeting). The old `welcome_message` /
+   `welcome_invite` extras were removed from this template, so there is no
+   second place to edit and no field that looks ignored.
+7. **"Daughter of" / "Son of" are not printed.** The reference hard-codes those
+   two labels. They are English kinship words that do not fit every couple, so
+   the parents block renders `*_parents` under the optional, editable
+   `template_content.parents_label`; leave it empty and the line is just a name.
+8. **The welcome plates are not cropped.** The reference frames its two portraits
+   at 237×218 (`object-fit: cover`). A couple who uploads a portrait photo would
+   have most of it cut away, so the plates keep their width and take the photo's
+   own aspect ratio (`height: auto`, `object-fit: contain`). Same width, same
+   radius, same caption — only the height follows the photo.
+9. **The photo captions are real vertical type.** `writing-mode: vertical-rl` +
+   `rotate: 180deg` on a span inside a 124-wide anchor keeps them inside the
+   canvas (an element-level `rotate(-90deg)` used to push them out). They still
+   bleed past the plate at 46 px exactly as the reference does.
+10. **The four "Foto Sampul" slots are named positions.** The reference uploads
+    each photo separately; Aksaraa's editor exposes them as
+    **Venue, Sampul, Gift, Dresscode**, each falling back to the first gallery
+    photo and then the cover. The two welcome portraits are *not* slots — they
+    stay the couple's `groom_photo_url` / `bride_photo_url`, which is also what
+    keeps the love-story and wedding plates personal.
+11. **Gift has the reference's two tabs.** `Direct Transfer` (`gift_button`) shows
+    the account cards and `Send Gift` (`gift_send_label`) shows
+    `gift_address_name` + `gift_address` with the Copy address control. The tab
+    strip only renders when **both** channels exist; with one channel the single
+    panel renders bare, so a couple never sees an empty tab.
+12. **The gift photo is uncropped.** The Gift slot renders full-bleed at its own
+    aspect ratio rather than as a fixed banner, so a puzzle-style gift still
+    reads (the couple asked for this explicitly).
+13. **The wishes band is the reference's own still life.** The reference opens
+    RSVP with a 390×226 edge-to-edge photograph (linen, envelopes, a tulip, two
+    rings). It is shipped once at `public/templates/silver-gelatin/rsvp-band.webp`
+    (800×464, 27.6 KB, downscaled from the live asset at the couple's request)
+    and rendered above the Wishes heading at its natural aspect — never cropped.
+14. **The gallery divider is gone.** It used to take the last gallery photo and
+    drop it from the grid so nothing repeated. The wishes band now does that job
+    with a design-owned asset, so the gallery is simply the whole grid and no
+    couple photo is spent twice.
+15. **“SHOW QR” is not shipped.** It belongs to the reference's own gift flow and
+    is redundant next to the dock's QR.
+16. **Card logos are not shipped.** The account card prints `provider_name` as
+    type — a logo wall would be unmaintainable and the reference's own are
+    third-party marks.
+17. **Swatch names are visual-only.** The chips render 126×34 blocks; the names
+    stay in `title`/`aria-label` so screen readers keep them, but the reference
+    hides them too (a colour that needs a caption is not doing its job).
+18. **The dot date keeps four digits.** The reference prints `22 . 05 . 27`; a
     paying couple's guests read a year, so it is `26 . 06 . 2027` in the welcome,
     closing and cover-free sections.
-11. **A trailing lone gallery tile closes full-bleed.** The reference's `3n+1`
+19. **A trailing lone gallery tile closes full-bleed.** The reference's `3n+1`
     rule can leave one 4/5 tile alone; `:last-child:nth-child(3n+2)` promotes it
     to `16/11` so the grid never ends on a half-empty row.
-12. **No "Send a wish" address field.** The shared `Wishes` component collects
+20. **No "Send a wish" address field.** The shared `Wishes` component collects
     name + message only; the reference's city field is not stored anywhere.
-13. **Moments ends on the grid.** The reference has no closing line after the
+21. **Moments ends on the grid.** The reference has no closing line after the
     photo wall, so `gallery_quote` is not offered by this template's editor —
     dead copy fields are worse than a missing flourish.
-14. **The gallery and the full-bleed band never share a frame.** The band takes
-    the last gallery photo and drops it from the grid (only when the couple has
-    four or more photos, so the grid never collapses). The reference uses two
-    separate photographs for exactly the same job.
-15. **The dresscode plate is cover slot 3.** On the reference it is its own
-    upload; ours is the "Penutup" slot, falling back to the first gallery photo
-    and then the cover. A couple who fills all three slots therefore gets three
-    distinct plates on the cover, the film and the dresscode.
+22. **Kutipan sits between the film and the welcome.** The reference has no quote
+    block, but §0.5 requires one and publish is blocked without `quote_text`. It
+    renders as a centred Bodoni epigraph (`quote_text`, `quote_source`) right
+    after the film, where the reference's own scroll begins.
+23. **The hashtag closes the invitation.** `display_name` is the editor/ops
+    "Hashtag"; it prints in small tracked caps between “See you!” and the date so
+    the couple's tag is on the page they share.
 
 ## 10. Verification
 
 - `npx tsc --noEmit` — clean.
-- `npm run audit:copy -- silver-gelatin` — clean (34 allowlisted literals).
+- `node scripts/template-copy-audit.mjs silver-gelatin` — clean (35 allowlisted
+  literals). `npm run audit:copy` (all templates) still reports a pre-existing
+  `lace` literal ("Memuat video"), untouched by this template.
 - Preview render at 390×844 checked section by section against the reference
   screenshots and its measured `sections.json`: cover geometry (photo, notch,
   initials, scripts, button), greeting 17 px, 237×218 welcome plates with 46 px
@@ -278,7 +318,25 @@ invitation is fully readable without JS (playbook §4).
   port 3100, `/templates/silver-gelatin/preview`, `/templates`,
   `/templates/kategori/elegansi`, `/api/web-templates`, the thumbnail and both
   vendored `woff2` files all 200; the preview HTML carries the expected copy.
-- Production (BUILD_ID `RCRI6eampP4bjUKEiiIjE`, commit `ab779c9`): deploy guard
+- Second iteration (4 named cover slots, autoplaying film, kutipan, hashtag,
+  two-tab gift, uncropped plates, wishes band), verified on the staging
+  standalone build (port 3100) through CDP at 390×844 and 430×900:
+  - `document.documentElement.scrollWidth === innerWidth` at both widths.
+  - Welcome plates 237×356 / 235×353 from `1024×1536` uploads, `object-fit:
+    contain` — no crop.
+  - Film stage 390×219 (16/9) with a YouTube player mounted 700 ms after Open,
+    `autoplay`/`mute`/`controls` set; the poster holds the frame before that.
+  - Kutipan figure present between the film and the welcome
+    (`quote_text` + `quote_source`), hashtag `#ALBARNFAYE2027` in the closing.
+  - Gift photo 390×260 from `1536×1024` (uncropped), two 165×46 tabs, and the
+    Send Gift panel shows `gift_address_name` + `gift_address` + Copy address.
+  - Wishes band 390×226 from the 800×464 asset, above the Wishes heading; no
+    `.sg-divider` anywhere.
+  - No "Daughter of" / "Son of" label rendered; parents print bare.
+  - Staging standalone 200s: `/templates/silver-gelatin/preview`, `/templates`,
+    `/templates/kategori/elegansi`, `/api/web-templates`, the wishes-band asset,
+    the thumbnail and the three vendored `woff2` files.
+- First release (BUILD_ID `RCRI6eampP4bjUKEiiIjE`, commit `ab779c9`): deploy guard
   reported all 38 registered templates in the bundle, the post-deploy smoke
   passed every template preview (doc + rsc 200) and the `cdn.aksaraa.com`
   probes, and a direct curl of `/templates/silver-gelatin/preview`,

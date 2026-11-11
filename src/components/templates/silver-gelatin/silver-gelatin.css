@@ -447,6 +447,8 @@
   position: relative;
   background: var(--sg-white);
 }
+/* A fixed stage keeps the video's box reserved, so mounting an autoplaying
+   player after "Open Invitation" never shifts the page. */
 .sg-film__stage {
   position: relative;
   width: 100%;
@@ -454,62 +456,29 @@
   overflow: hidden;
   background: #e7e2db;
 }
-.sg-film__cover {
-  position: relative;
+.sg-film__poster {
   display: block;
   width: 100%;
   height: 100%;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-}
-.sg-film__cover img {
-  width: 100%;
-  height: 100%;
   object-fit: cover;
-  filter: grayscale(100%) contrast(104%) brightness(0.82);
-}
-.sg-film__play {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  translate: -50% -50%;
-  display: grid;
-  place-items: center;
-  width: 58px;
-  height: 58px;
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.18);
-  backdrop-filter: blur(2px);
-}
-.sg-film__play svg {
-  width: 20px;
-  height: 20px;
-  fill: rgba(255, 255, 255, 0.95);
-  margin-left: 2px;
+  filter: grayscale(100%) contrast(104%) brightness(0.86);
 }
 .sg-film__caption {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 20px;
   display: flex;
   flex-direction: column;
   gap: 6px;
   align-items: center;
-  padding: 0 24px;
+  padding: 18px 24px 0;
 }
 .sg-film__caption .sg-label {
-  color: rgba(255, 255, 255, 0.92);
+  color: var(--sg-ink);
 }
 .sg-film__intro {
   font-family: var(--font-jost);
   font-size: 11px;
   line-height: 1.5;
   text-align: center;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--sg-body);
 }
 .sg-film__media {
   display: block;
@@ -518,6 +487,30 @@
   border: 0;
   object-fit: cover;
   background: #000;
+}
+
+/* ---------- kutipan (editor "Kutipan", ops "KUTIPAN") ---------- */
+.sg-quote {
+  margin: 0;
+  padding: 74px 34px 0;
+  text-align: center;
+}
+.sg-quote__text {
+  margin: 0;
+  font-family: var(--font-bodoni);
+  font-size: 19px;
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--sg-ink);
+  text-wrap: pretty;
+}
+.sg-quote__source {
+  margin-top: 18px;
+  font-family: var(--font-jost);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--sg-muted);
 }
 
 /* ---------- welcome ---------- */
@@ -539,24 +532,26 @@
 .sg-welcome .sg-body-copy + .sg-body-copy {
   margin-top: 10px;
 }
+/* The plates keep the couple's photo at its own aspect ratio — a portrait
+   upload must never be cropped to a fixed 218px band (#1). */
 .sg-photoBand {
   position: relative;
   margin-top: 88px;
-  height: 218px;
 }
 .sg-photoBand--b {
   margin-top: 50px;
 }
 .sg-photoBand__shot {
   width: 237px;
-  height: 218px;
+  max-width: 100%;
   border-radius: 26px;
   overflow: hidden;
 }
 .sg-photoBand__shot img {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
   filter: grayscale(100%) contrast(104%);
 }
 .sg-photoBand__shot--a {
@@ -570,10 +565,10 @@
 .sg-photoBand__script {
   position: absolute;
   top: 0;
+  bottom: 0;
   display: grid;
   place-items: center;
   width: 124px;
-  height: 218px;
   font-family: var(--font-monsieur);
   font-size: 46px;
   line-height: 1;
@@ -905,17 +900,17 @@
   transform: scale(1.02);
 }
 
-/* ---------- full-bleed divider ---------- */
-.sg-divider {
+/* ---------- wishes band (full-bleed, natural aspect) ---------- */
+.sg-wishes__band {
   margin-top: 90px;
   width: 100%;
-  height: 226px;
   overflow: hidden;
+  line-height: 0;
 }
-.sg-divider img {
+.sg-wishes__band img {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
   filter: grayscale(100%) contrast(104%);
 }
 
@@ -926,17 +921,65 @@
 .sg-gift .sg-body-copy {
   margin-top: 16px;
 }
-.sg-gift .sg-btn {
-  margin-top: 22px;
-  width: calc(100% - 60px);
-  max-width: 310px;
+/* Gift photo keeps the whole frame: the plate is as tall as the photo needs and
+   never crops it (#5). */
+.sg-gift__photo {
+  margin: 0 0 34px;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  background: var(--sg-soft);
 }
-.sg-gift__list {
+.sg-gift__photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: grayscale(100%) contrast(104%);
+}
+/* Two tabs, square, 11px Jost, wide tracking — measured off the reference
+   (160x46 each, solid ink for the active one). */
+.sg-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin-top: 26px;
+  padding: 0 30px;
+}
+.sg-tab {
+  min-height: 46px;
+  padding: 12px 6px;
+  border: 1px solid var(--sg-body);
+  background: transparent;
+  font-family: var(--font-jost);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--sg-body);
+  cursor: pointer;
+  transition: background 0.2s var(--sg-ease), color 0.2s var(--sg-ease);
+}
+.sg-tab + .sg-tab {
+  border-left: 0;
+}
+.sg-tab.is-active {
+  background: #111;
+  border-color: #111;
+  color: rgba(255, 255, 255, 0.96);
+}
+.sg-gift__panel {
   margin-top: 22px;
   padding: 0 30px;
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+.sg-gift__note {
+  font-family: var(--font-jost);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--sg-body);
 }
 .sg-account {
   padding: 18px 20px;
@@ -1230,6 +1273,14 @@
   left: calc(50% - 6px);
   top: 14px;
   z-index: 3;
+}
+.sg-closing__hashtag {
+  margin-top: 16px;
+  font-family: var(--font-jost);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--sg-body);
 }
 .sg-closing__date {
   margin-top: 18px;

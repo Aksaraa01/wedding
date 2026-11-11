@@ -1,11 +1,13 @@
 -- Register the in-house Silver Gelatin template (monochrome editorial
--- film-photography invitation). No reference asset is shipped: the design is
--- built entirely from the couple's own photographs, Bodoni Moda / Monsieur La
--- Doulaise / Jost (vendored under public/fonts/), and CSS.
+-- film-photography invitation). Every photograph is the couple's own except
+-- the wishes-band still life (public/templates/silver-gelatin/rsvp-band.webp,
+-- the reference's RSVP photo, shipped at the couple's request); the rest of the
+-- design is Bodoni Moda / Monsieur La Doulaise / Jost (vendored under
+-- public/fonts/) and CSS.
 --
--- Content spec lives in TEMPLATE_CONFIGS: 3 semantic cover slots (Sampul /
--- Acara / Penutup), portraits on (welcome band), love-story photos on, all
--- sixteen minimum sections enabled except livestream and contacts.
+-- Content spec lives in TEMPLATE_CONFIGS: 4 semantic cover slots (Venue /
+-- Sampul / Gift / Dresscode), portraits on (welcome band), love-story photos
+-- on, all sixteen minimum sections enabled except livestream and contacts.
 INSERT INTO web_templates
   (code, name, description, preview_image_url, demo_url, sort_order, category, source_type, package_eligibility, tier, is_active, no_photo)
 VALUES

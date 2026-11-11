@@ -187,14 +187,13 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     multiline: true,
     rows: 2,
     placeholders: {
-      "silver-gelatin": "With great joy, we invite you to share in the special day of our wedding.",
       teatro: "Together with our families, we invite you to this important moment",
       "ivory-lace": "Dear Family & Friends",
       "lunar-blossom": "Anda diundang untuk merayakan pernikahan",
       "embroidered-garden": "You are invited to the wedding of",
       lace: "Together with their families",
     },
-    templates: ["silver-gelatin", "lunar-blossom", "embroidered-garden", "lace", "ivory-lace", "teatro"],
+    templates: ["lunar-blossom", "embroidered-garden", "lace", "ivory-lace", "teatro"],
   },
   {
     key: "events_intro",
@@ -658,14 +657,13 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     multiline: true,
     rows: 3,
     placeholders: {
-      "silver-gelatin": "We are so happy to celebrate this day with you, surrounded by the people we love most.",
       "cinnabar-seal": "Kami mengundang Anda untuk menjadi bagian dari hari istimewa kami.",
       "ivory-lace": "We are so happy to share this day with you. Here you will find everything about the celebration.",
       "embroidered-garden":
         "We are so happy to celebrate this day with you, surrounded by the people we love most.",
       lace: "We are so happy to celebrate this day with you, surrounded by the people we love most.",
     },
-    templates: ["silver-gelatin", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal"],
+    templates: ["embroidered-garden", "lace", "ivory-lace", "cinnabar-seal"],
   },
   {
     key: "inviting_intro",
@@ -933,6 +931,30 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     placeholders: { teatro: "Open the registry" , "silver-gelatin": "Direct Transfer" },
     placeholder: "Make a Gift Now",
     templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro"],
+  },
+
+  {
+    key: "gift_send_label",
+    label: "Label Tab Kirim Hadiah",
+    placeholders: { "silver-gelatin": "Send Gift" },
+    placeholder: "Send Gift",
+    templates: ["silver-gelatin"],
+  },
+
+  {
+    key: "gift_transfer_note",
+    label: "Keterangan Tab Transfer",
+    placeholders: { "silver-gelatin": "Transfer directly to the account below:" },
+    placeholder: "Transfer langsung ke rekening di bawah ini:",
+    templates: ["silver-gelatin"],
+  },
+
+  {
+    key: "gift_address_note",
+    label: "Keterangan Tab Kirim Hadiah",
+    placeholders: { "silver-gelatin": "Send your gift to the address below:" },
+    placeholder: "Kirim hadiah Anda ke alamat di bawah ini:",
+    templates: ["silver-gelatin"],
   },
 
   {

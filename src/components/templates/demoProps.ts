@@ -2421,14 +2421,16 @@ DEMO_PROPS_BY_CODE["silver-gelatin"] = {
   ...DEMO_PROPS_BY_CODE["sandhya"],
   slug: "demo",
   // Aksaraa's own sample couple (dark-elegance set), never the reference's.
-  display_name: "Albarn & Faye",
+  // display_name is the editor/ops "Hashtag", rendered in the closing.
+  display_name: "#AlbarnFaye2027",
   couple_initials: "AF",
   estimated_wedding_date: "2027-06-26",
   guest_name: "The Reed Family",
   opening_title: "Dear family and friends,",
   opening_description:
     "With grateful hearts, we invite you to witness the beginning of our forever. Your presence and blessings would mean the world to us.",
-  cover_photos: [`${DE}/cover.webp`, `${DE}/cover-1.webp`, `${DE}/cover-2.webp`],
+  // Slot order is the editor's: Venue, Sampul, Gift, Dresscode.
+  cover_photos: [`${DE}/cover-1.webp`, `${DE}/cover.webp`, `${DE}/cover-2.webp`, `${DE}/cover-6.webp`],
   groom_photo_url: [`${DE}/groom.webp`],
   bride_photo_url: [`${DE}/bride.webp`],
   gallery_photos: [
@@ -2496,9 +2498,6 @@ DEMO_PROPS_BY_CODE["silver-gelatin"] = {
     cover_kicker: "Dear",
     open_button: "Open Invitation",
     cover_apology: "We apologize for any misspelling of your name or title.",
-    welcome_message: "Dear family and friends,",
-    welcome_invite:
-      "With grateful hearts, we invite you to witness the beginning of our forever.",
     events_kicker: "The celebration will take place on",
     story_kicker: "Love story",
     gallery_kicker: "Wedding",
@@ -2525,6 +2524,9 @@ DEMO_PROPS_BY_CODE["silver-gelatin"] = {
     gift_intro_description:
       "Your blessings are the most beautiful gift to us. But should you wish to give a token of love, you may do so via:",
     gift_button: "Direct Transfer",
+    gift_send_label: "Send Gift",
+    gift_transfer_note: "Transfer directly to the account below:",
+    gift_address_note: "Send your gift to the address below:",
     gift_signature: "With love and gratitude",
     copy_account_toast: "Account number copied",
     copy_address_toast: "Address copied",
