@@ -336,6 +336,16 @@ invitation is fully readable without JS (playbook §4).
   - Staging standalone 200s: `/templates/silver-gelatin/preview`, `/templates`,
     `/templates/kategori/elegansi`, `/api/web-templates`, the wishes-band asset,
     the thumbnail and the three vendored `woff2` files.
+- Second iteration in production (BUILD_ID `x7bBSOobLEI6-KPa1ZflU`, commit
+  `18dc0fa`): deployed from a detached worktree of `origin/main`; the guard found
+  all 38 templates in the bundle and the smoke test passed every preview (doc +
+  rsc 200) plus the CDN probes. Direct curls: `/templates/silver-gelatin/preview`
+  (200, carries both gift tabs, the wishes band, the kutipan and the welcome
+  copy, and no "Daughter of"/"Son of"), the wishes-band asset (200 `image/webp`),
+  the thumbnail, `/templates`, `/templates/kategori/elegansi`,
+  `/api/web-templates?fresh=1` and the rafi-novi invitation all 200. The live
+  `BUILD_ID` on the VPS matches and the asset is present in
+  `.next/standalone/public`.
 - First release (BUILD_ID `RCRI6eampP4bjUKEiiIjE`, commit `ab779c9`): deploy guard
   reported all 38 registered templates in the bundle, the post-deploy smoke
   passed every template preview (doc + rsc 200) and the `cdn.aksaraa.com`
