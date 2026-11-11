@@ -197,11 +197,12 @@ export default function SilverGelatin(profile: TemplateProps) {
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
   const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || "The Wedding"
-  // Editor order ("Mempelai Pertama" = groom_*), so the first initial is the
-  // groom's everywhere the design pairs them.
+  // The monogram is the editor's "Singkatan Pasangan" (`couple_initials`),
+  // letter by letter; only when that field is empty do we derive it from the
+  // names, in editor order ("Mempelai Pertama" = groom_*).
   const coupleInitials =
-    [groomName.charAt(0), brideName.charAt(0)].filter(Boolean).join("") ||
-    (profile.couple_initials || "").trim()
+    (profile.couple_initials || "").trim().replace(/[^A-Za-z0-9]/g, "") ||
+    [groomName.charAt(0), brideName.charAt(0)].filter(Boolean).join("")
   const guestName = (profile.guest_name || "").trim() || WISH_ME
   const dateObject = parseDate(profile.estimated_wedding_date)
   const dateDot = dotDate(profile.estimated_wedding_date)
@@ -443,13 +444,13 @@ export default function SilverGelatin(profile: TemplateProps) {
             </figure>
             <span className="sg-cover__notch" aria-hidden="true" />
             {initialA && (
-              <p className="sg-cover__initial sg-cover__initial--a" {...ON_LOAD("up", 0.3)}>
-                {groomName || brideName}
+              <p className="sg-cover__initial sg-cover__initial--a" aria-hidden="true" {...ON_LOAD("up", 0.3)}>
+                {initialA}
               </p>
             )}
             {initialB && (
-              <p className="sg-cover__initial sg-cover__initial--b" {...ON_LOAD("up", 0.42)}>
-                {brideName || groomName}
+              <p className="sg-cover__initial sg-cover__initial--b" aria-hidden="true" {...ON_LOAD("up", 0.42)}>
+                {initialB}
               </p>
             )}
             {groomName && (

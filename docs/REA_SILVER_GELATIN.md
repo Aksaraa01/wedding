@@ -162,7 +162,7 @@ Cover geometry at 390 (converted verbatim):
 | Surface | Source |
 |---|---|
 | Cover photo slots | 4 named slots, in this order: `cover_photos[0]` Venue, `cover_photos[1]` Sampul, `cover_photos[2]` Gift, `cover_photos[3]` Dresscode (each falls back to `gallery_photos[0]` → the cover) |
-| Cover initials | first letter of `groom_name`, then `bride_name` — the editor's Mempelai Pertama / Kedua order |
+| Cover + closing monogram | `couple_initials` (editor "Singkatan Pasangan"), punctuation stripped, letter 1 on the big back glyph and letter 2 on the front one (`U&R` → U, R); falls back to the first letters of `groom_name` / `bride_name` only when the field is empty |
 | Cover scripts | `groom_name` (upper right), `bride_name` (lower left) — same order as the editor |
 | Cover salutation | `template_content.cover_kicker` (default “Dear”) + `guest_name` |
 | Open button | `template_content.open_button` |
@@ -229,8 +229,9 @@ invitation is fully readable without JS (playbook §4).
    in the welcome bands instead, which is what satisfies `person_photos`. The
    reference prints the bride first; this template follows **the editor's order**
    (Mempelai Pertama = `groom_*`, then Mempelai Kedua = `bride_*`) for the
-   names, the cover scripts/initials, the welcome plates and the mempelai list,
-   so the page can never disagree with the form the couple filled in.
+   names, the cover scripts, the welcome plates and the mempelai list, so the
+   page can never disagree with the form the couple filled in. The monogram is
+   the exception, because it has its own field: see §7, `couple_initials`.
 6. **There is no Kalimat Pembuka.** The reference's opening block is a greeting
    and one paragraph, and an earlier iteration wired it to `opening_title` /
    `opening_description`. The couple asked for that section to be gone from this
@@ -377,6 +378,11 @@ invitation is fully readable without JS (playbook §4).
   profile's Mempelai Pertama is `groom_name` = "Novi", so Novi prints first.
   `/templates/silver-gelatin/preview`, `/templates`, `/api/web-templates?fresh=1`
   and the wishes-band asset all 200.
+- Monogram fix: with `couple_initials` temporarily set to `Z & Q` on the demo,
+  the cover renders `Z` (back, 104 px) and `Q` (front) instead of the names'
+  initials, proving the field drives both the cover monogram and the closing
+  one; punctuation is stripped, and the name-derived letters are only the
+  fallback for an empty field.
 - First release (BUILD_ID `RCRI6eampP4bjUKEiiIjE`, commit `ab779c9`): deploy guard
   reported all 38 registered templates in the bundle, the post-deploy smoke
   passed every template preview (doc + rsc 200) and the `cdn.aksaraa.com`
