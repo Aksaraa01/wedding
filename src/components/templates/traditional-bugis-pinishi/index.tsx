@@ -637,10 +637,10 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
                         <InstagramIcon />@{person.instagram.replace(/^@/, "")}
                       </a>
                     )}
-                    {person.parents && <p className="pinishi-person-parents">{person.parents}</p>}
                     <h3 className="pinishi-person-name name-fit" style={fitStyle(person.full)}>
                       {person.full || person.short}
                     </h3>
+                    {person.parents && <p className="pinishi-person-parents">{person.parents}</p>}
                   </div>
                 </article>
               ))}

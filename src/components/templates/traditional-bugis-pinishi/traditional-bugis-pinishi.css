@@ -297,7 +297,7 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 /* ------------------------------------------------------------------ */
 .traditional-bugis-pinishi-root .pinishi-hero {
   position: relative;
-  padding: 0 0 56%;
+  padding: 0 0 313px;
   background: var(--pinishi-cream) url("/templates/traditional-bugis-pinishi/quote-bg.webp") center bottom / cover no-repeat;
 }
 
@@ -320,7 +320,7 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
   padding-top: 6px;
   text-align: center;
   font-family: var(--pinishi-body);
-  font-size: 48px;
+  font-size: 56px;
   line-height: 1;
   color: var(--pinishi-plum);
 }
@@ -331,8 +331,8 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 
 .traditional-bugis-pinishi-root .pinishi-initials span + span {
   position: relative;
-  top: 30px;
-  left: -15px;
+  top: 4px;
+  margin-left: -10px;
 }
 
 .traditional-bugis-pinishi-root .pinishi-hero-photo {
@@ -364,29 +364,29 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 
 .traditional-bugis-pinishi-root .pinishi-hero-tree {
   top: 0;
-  left: -4%;
-  width: 40%;
+  left: 0;
+  width: 44%;
   z-index: 2;
 }
 
 .traditional-bugis-pinishi-root .pinishi-hero-flowerfive {
   top: 0;
   right: -3%;
-  width: 22%;
+  width: 26%;
   z-index: 3;
 }
 
 .traditional-bugis-pinishi-root .pinishi-hero-flowertwo {
-  bottom: 50px;
-  right: 7%;
-  width: 21%;
+  bottom: 65px;
+  right: 4%;
+  width: 14.5%;
   z-index: 2;
   animation: pinishi-sway 2s ease-in-out 0.5s infinite alternate;
 }
 
 .traditional-bugis-pinishi-root .pinishi-hero-flowerfour {
-  bottom: 23px;
-  right: -5%;
+  bottom: 24px;
+  right: -22%;
   width: 38%;
   z-index: 3;
   transform-origin: 100% 105%;
@@ -402,7 +402,7 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 }
 
 .traditional-bugis-pinishi-root .pinishi-hero-flowerzero {
-  left: -15%;
+  left: -20%;
   bottom: 11%;
   width: 37%;
   z-index: 2;
@@ -459,7 +459,7 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
    decorProfileBack (2 flowers), mirrored for the groom. */
 .traditional-bugis-pinishi-root .pinishi-couple {
   position: relative;
-  padding: 2rem 0;
+  padding: 2rem 0 10rem;
 }
 
 .traditional-bugis-pinishi-root .pinishi-couple-inner {
@@ -473,6 +473,10 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
   flex-direction: column;
   margin: 48px 0;
   padding: 0 40px;
+}
+
+.traditional-bugis-pinishi-root .pinishi-person + .pinishi-person {
+  margin-top: 120px;
 }
 
 .traditional-bugis-pinishi-root .pinishi-person-photo {
@@ -671,10 +675,11 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 
 .traditional-bugis-pinishi-root .pinishi-story-track {
   display: flex;
-  gap: 12px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  padding: 0 41px;
+  width: 286px;
+  max-width: none;
+  margin: 0 auto;
   scrollbar-width: none;
 }
 
@@ -684,8 +689,8 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 
 .traditional-bugis-pinishi-root .pinishi-story-card {
   position: relative;
-  flex: 0 0 276px;
-  height: 400px;
+  flex: 0 0 100%;
+  height: 410px;
   border-radius: 10px;
   overflow: hidden;
   scroll-snap-align: center;
@@ -754,9 +759,9 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 }
 
 .traditional-bugis-pinishi-root .pinishi-story-flower-three {
-  top: -34px;
-  right: -26%;
-  width: 46%;
+  top: 104px;
+  right: -13%;
+  width: 51%;
   z-index: 4;
 }
 
@@ -2374,6 +2379,19 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 
   .traditional-bugis-pinishi-root .pinishi-title--left {
     font-size: 54px;
+  }
+
+  /* preset desktop: portrait 352x440, story card 350x550 */
+  .traditional-bugis-pinishi-root .pinishi-person-photo {
+    max-width: 352px;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-story-track {
+    width: 350px;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-story-card {
+    height: 550px;
   }
 }
 
