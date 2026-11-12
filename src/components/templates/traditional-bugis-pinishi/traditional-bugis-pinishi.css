@@ -459,7 +459,7 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
    decorProfileBack (2 flowers), mirrored for the groom. */
 .traditional-bugis-pinishi-root .pinishi-couple {
   position: relative;
-  padding: 2rem 0 10rem;
+  padding: 58px 0 10rem;
 }
 
 .traditional-bugis-pinishi-root .pinishi-couple-inner {
@@ -654,8 +654,11 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 /* ------------------------------------------------------------------ */
 /* Love story (preset #story)                                          */
 /* ------------------------------------------------------------------ */
+/* the preset lets the story heading ride up into the couple section's tail
+   (#story starts 129px before #coupleProfile ends there) */
 .traditional-bugis-pinishi-root .pinishi-story {
   position: relative;
+  margin-top: -100px;
   padding: 1rem 0 8rem;
 }
 
