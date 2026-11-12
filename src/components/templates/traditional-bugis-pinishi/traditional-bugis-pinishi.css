@@ -1313,20 +1313,6 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
   text-align: center;
 }
 
-.traditional-bugis-pinishi-root .pinishi-address-map {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  border-radius: 25px;
-  overflow: hidden;
-  background: var(--pinishi-peach) url("/templates/traditional-bugis-pinishi/story-panel.webp") center / cover no-repeat;
-}
-
-.traditional-bugis-pinishi-root .pinishi-address-map iframe {
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
 .traditional-bugis-pinishi-root .pinishi-address-text {
   margin: 1rem auto 0;
   max-width: 300px;
@@ -2365,15 +2351,13 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
     max-width: 560px;
     margin: 0 auto;
     box-shadow: 0 0 60px rgba(101, 72, 92, 0.08);
+    /* decor never spills past the invitation column onto the stage photo */
+    overflow-x: clip;
   }
 
   .traditional-bugis-pinishi-root .pinishi-gate-panel {
     width: 75%;
     max-width: 460px;
-  }
-
-  .traditional-bugis-pinishi-root .pinishi-address-map {
-    aspect-ratio: 16 / 9;
   }
 
   .traditional-bugis-pinishi-root .pinishi-title {
@@ -2848,5 +2832,107 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
 @media (prefers-reduced-motion: reduce) {
   .traditional-bugis-pinishi-root .pinishi-savedate-lily {
     animation: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Desktop decor cleanup (≥1024) — florals stay inside the 540px column */
+/* Kept at the end of the file so it wins over the base decor rules.    */
+/* ------------------------------------------------------------------ */
+@media (min-width: 1024px) {
+  /* hero corner flowers no longer amputated at the column edge */
+  .traditional-bugis-pinishi-root .pinishi-hero-flowerzero {
+    left: 2%;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-hero-flowerone {
+    left: 1%;
+  }
+
+  /* portrait decors hug the photo instead of spilling onto the stage */
+  .traditional-bugis-pinishi-root .pinishi-person-decor::before {
+    top: -3rem;
+    left: -8%;
+    width: 92%;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-decor-fone {
+    left: -8%;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-decor-ffour {
+    left: -12%;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-decor-ffive {
+    left: -10%;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-person--groom .pinishi-person-decor-back {
+    left: 1.5rem;
+  }
+
+  /* edge florals tuned for the 390px canvas read as clutter on desktop */
+  .traditional-bugis-pinishi-root .pinishi-livestream-decor,
+  .traditional-bugis-pinishi-root .pinishi-rundown-decor,
+  .traditional-bugis-pinishi-root .pinishi-dresscode-decor,
+  .traditional-bugis-pinishi-root .pinishi-gift-decor {
+    display: none;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-story-flower-one {
+    left: 2%;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-gallery-orn--one {
+    left: 4px;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-gallery-bottom-orn--3 {
+    left: 0;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-countdown-orn--flip .pinishi-countdown-orn-one {
+    right: 2%;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-countdown-orn--flip .pinishi-countdown-orn-two {
+    right: 1%;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-savedate-lily--l {
+    left: 2%;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-savedate-lily--r {
+    right: 2%;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-deco--closing-tree {
+    left: -3%;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-deco--closing-banana {
+    left: 0;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-deco--closing-sprig {
+    left: 0;
+  }
+
+  /* peacock was half-cut at the column edge */
+  .traditional-bugis-pinishi-root .pinishi-inviting-decor--peacock {
+    left: 1%;
+    bottom: -4%;
+    width: 29%;
+  }
+
+  /* frame bands sized 110–112% bleed past the column — pull them in */
+  .traditional-bugis-pinishi-root .pinishi-inviting::before {
+    background-size: 100% auto;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-savedate::before {
+    background-size: 100% auto;
   }
 }

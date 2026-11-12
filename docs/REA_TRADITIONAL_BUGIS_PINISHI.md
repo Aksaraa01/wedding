@@ -219,3 +219,13 @@ badge) live in the `allow` block with reasons.
    (`IMG_0549`) drawn on top, and the `phonld.png` branch above the bride. The
    branch is omitted on the groom because in our (single-column) layout it
    would cover the bride's parent line.
+10. **No Google Maps embed in the venue block.** The address section renders
+    the address text and the `Lihat Lokasi` button only (user decision); each
+    event card still carries its own `Lihat Lokasi` pill.
+11. **Desktop decor containment (≥1024).** The invitation renders in a 540 px
+    column beside the stage photo; `.pinishi-main` gets `overflow-x: clip` and
+    a cleanup block at the end of the stylesheet tucks every floral inside the
+    column (hero corners, portrait decors, story/gallery/countdown/savedate/
+    closing pieces, peacock) and hides the edge florals that were tuned for the
+    390 px canvas (live/rundown/dresscode/gift). Verified by measuring every
+    decor's bounding box against the column edges at 1440.

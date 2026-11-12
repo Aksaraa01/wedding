@@ -846,14 +846,6 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
           {primaryVenue && (
             <section className="pinishi-address" aria-label="Lokasi Acara">
               <div className="pinishi-address-inner" data-aos="fade-up">
-                <div className="pinishi-address-map">
-                  <iframe
-                    title={`Peta ${primaryVenue.venue || primaryVenue.address || "lokasi acara"}`}
-                    src={`https://maps.google.com/maps?q=${encodeURIComponent([primaryVenue.venue, primaryVenue.address].filter(Boolean).join(", "))}&z=16&output=embed`}
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                  />
-                </div>
                 {(primaryVenue.address || primaryVenue.venue) && (
                   <p className="pinishi-address-text">
                     {[primaryVenue.venue, primaryVenue.address].filter(Boolean).join(", ")}
