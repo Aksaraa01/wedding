@@ -229,3 +229,15 @@ badge) live in the `allow` block with reasons.
     closing pieces, peacock) and hides the edge florals that were tuned for the
     390 px canvas (live/rundown/dresscode/gift). Verified by measuring every
     decor's bounding box against the column edges at 1440.
+12. **Desktop groom florals sit above his text.** The reference hangs the
+    groom's flowers low because its text column is short; our groom
+    (name + parents + IG) runs longer, so at ≥1024 his `ftwo/ffour/ffive/
+    fthree` decors are lifted (`bottom: -8%…-12%`) to clear the text zone.
+    The bride keeps the reference's long hangs — her text is right-aligned
+    and the hangs fall on the empty left side.
+13. **Desktop quote collage.** At ≥1024 the preset merges ship + verse into
+    one 740 px band and drops the mobile initials/arch hero: the hero is
+    re-backed with `cover-bg.webp` at `height: 740`, the initials/photo are
+    hidden, and the quote overlays it (`margin-top: -740`, transparent
+    background). Verified pixel-equal against the reference (quote band
+    900→1640 in-column, couple starts at 1640 vs ref 1639).

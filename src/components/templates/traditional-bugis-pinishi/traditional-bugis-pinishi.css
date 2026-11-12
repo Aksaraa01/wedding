@@ -2872,6 +2872,25 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
     left: 1.5rem;
   }
 
+  /* the groom's info text runs long on desktop — keep his hanging florals
+     above the text zone (the bride's hang left, clear of her right-aligned
+     text, so she keeps the reference's long hangs) */
+  .traditional-bugis-pinishi-root .pinishi-person--groom .pinishi-decor-ftwo {
+    bottom: -10%;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-person--groom .pinishi-decor-ffour {
+    bottom: -8%;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-person--groom .pinishi-decor-ffive {
+    bottom: -12%;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-person--groom .pinishi-decor-fthree {
+    bottom: -10%;
+  }
+
   /* edge florals tuned for the 390px canvas read as clutter on desktop */
   .traditional-bugis-pinishi-root .pinishi-livestream-decor,
   .traditional-bugis-pinishi-root .pinishi-rundown-decor,
@@ -2925,6 +2944,57 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
     left: 1%;
     bottom: -4%;
     width: 29%;
+  }
+
+  /* Desktop quote collage — the preset merges ship + verse into one 740px
+     band and drops the mobile initials/arch hero (measured: ref quote
+     900→1640 in-column, couple starts right after). */
+  .traditional-bugis-pinishi-root .pinishi-hero {
+    height: 740px;
+    padding: 0;
+    background: var(--pinishi-cream) url("/templates/traditional-bugis-pinishi/cover-bg.webp") center / cover no-repeat;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-hero::after {
+    display: none;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-initials,
+  .traditional-bugis-pinishi-root .pinishi-hero-photo {
+    display: none;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-quote {
+    height: 740px;
+    margin-top: -740px;
+    padding: 180px 0 0;
+    background: transparent;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-quote-inner {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* the preset does not ride the story into the couple tail on desktop */
+  .traditional-bugis-pinishi-root .pinishi-story {
+    margin-top: 0;
+  }
+
+  /* gallery plates stack full width, as in the preset */
+  .traditional-bugis-pinishi-root .pinishi-gallery-track {
+    flex-direction: column;
+    overflow: visible;
+    gap: 2rem;
+    padding: 0 1.75rem;
+  }
+
+  .traditional-bugis-pinishi-root .pinishi-gallery-plate {
+    flex: none;
+    width: 100%;
+    max-width: none;
+    height: 480px;
   }
 
   /* frame bands sized 110–112% bleed past the column — pull them in */
