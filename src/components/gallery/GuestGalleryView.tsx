@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { ASSETS } from "@/lib/assets"
 import { downloadUrl, sharePhoto, displayCategory } from "@/lib/gallery-client"
+import { copyPlainText } from "@/lib/clipboard"
 import StorageImage from "@/components/StorageImage"
 
 export type GalleryViewPhoto = {
@@ -95,12 +96,7 @@ export default function GuestGalleryView(props: GalleryViewProps) {
   }
 
   const copyText = async (text: string, done: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setNotice(done)
-    } catch {
-      setNotice("Gagal menyalin.")
-    }
+    setNotice((await copyPlainText(text)) ? done : "Gagal menyalin.")
   }
 
   const dateStamp = dateParts ? `${dateParts.d} • ${dateParts.m} • ${dateParts.y}` : dateLabel

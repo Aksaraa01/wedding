@@ -16,6 +16,7 @@ import {
 } from "../shared/lib"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import PianoWishes from "./PianoWishes"
+import { copyPlainText } from "@/lib/clipboard"
 import "./piano-garden.css"
 
 const ASSET = (name: string) => `/templates/piano-garden/${name}`
@@ -185,24 +186,8 @@ export default function PianoGarden(profile: TemplateProps) {
 
   const copy = useCallback(
     async (text: string) => {
-      try {
-        await navigator.clipboard.writeText(text)
-        showToast("Copied to clipboard")
-      } catch {
-        try {
-          const field = document.createElement("textarea")
-          field.value = text
-          field.style.position = "fixed"
-          field.style.opacity = "0"
-          document.body.appendChild(field)
-          field.select()
-          const copied = document.execCommand("copy")
-          document.body.removeChild(field)
-          showToast(copied ? "Copied to clipboard" : "Could not copy")
-        } catch {
-          showToast("Could not copy")
-        }
-      }
+      const ok = await copyPlainText(text)
+      showToast(ok ? "Copied to clipboard" : "Could not copy")
     },
     [showToast]
   )

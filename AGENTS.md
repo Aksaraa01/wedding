@@ -119,6 +119,33 @@ When duplicating Elementor posts/popups, the following will silently corrupt dat
 13. **Template-change chain order is duplicate → patch → cleanup (never delete-then-patch).** `runDuplicate` creates the post but does NOT switch `active_wp_post_id`; the worker auto-chains a finalize patch (`payload.finalize`) that switches the profile and only then enqueues cleanup of the old post. On finalize failure the profile stays on the old (complete) post and the orphaned duplicate is cleaned instead. A second template pick while any chain job is queued/processing gets HTTP 409 (`hasOpenWpChain`) — template-select and `/api/wp/duplicate` enforce this; manual Perbarui patches stay usable. `wp_sync_jobs.source` records the caller (`dashboard`|`ops`) for forensics.
 14. **PATCH must prove gallery writes (read-after-write).** `verify_gallery_counts()` in `patch_elements` fails the job loudly when a mapped gallery slot's item count ≠ submitted photo count or any item has `id: 0` (unsideloaded). Slots absent from the tree are skipped (manifest is shared with popups). Render-HTML caches (`_elementor_element_cache`, `_elementor_page_assets`) are deleted on EVERY patch, even when nothing changed — a lazy rebuild beats stale tiles.
 
+### Clipboard: never copy markup (HARD RULE)
+A copy action must serialise **plain text**, never DOM markup. iOS/iPadOS Safari's
+telephone detector rewrites phone-shaped text nodes into `<a href="tel:…">`; the
+WeddingPress copy widget copied `div.copy-content`'s `innerHTML`, so the BSI
+account `7297648165` reached guests as
+`<a href="tel:7297648165">7297648165</a>` (the digits twice: `href` + link text).
+Android/desktop never linkify, so it only reproduced on iPhones.
+
+- **App:** every copy goes through `copyPlainText()` in `src/lib/clipboard.ts`
+  (strips tags/entities, `<br>` → newline, async Clipboard API then a
+  non-readonly textarea fallback — a readonly textarea cannot be selected on
+  iOS). `scripts/predeploy-guard.mjs` fails the deploy if `execCommand` appears
+  anywhere else. The root layout sets
+  `<meta name="format-detection" content="telephone=no, email=no, address=no, date=no">`
+  so account/table numbers are not dial links.
+- **WP:** the mu-plugin emits the same meta on every Elementor singular post,
+  overrides `window.copyText` with a text-only version (keeps the
+  "berhasil disalin" flash), and installs a `document` `copy` listener that
+  sanitises any markup a handler put on the clipboard — that listener is the
+  plugin-agnostic net, so a future copy widget is covered too. Guarded by a
+  `postdeploy-smoke.mjs` probe and `cdn-health-check.timer` (every 15 min), which
+  alert when a WP/WeddingPress update drops the markers.
+- Gift account/address writes are sanitised at the API boundary
+  (`src/lib/plainText.ts`) so markup can never enter the DB from a future UI.
+- Do NOT add `readonly` to a copy fallback textarea, and do NOT reintroduce
+  `.innerHTML`/`.html()` as a copy source.
+
 ### Template gallery (public site + couple dashboard)
 `src/components/template-gallery/` renders every user-facing template list:
 `/templates`, `/templates/kategori/*`, `/premium-web-invitation` and

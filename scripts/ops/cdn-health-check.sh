@@ -100,6 +100,21 @@ else
   summary+=("art-host ${st}")
 fi
 
+# 5. Invitation copy safety. iOS/iPadOS Safari rewrites phone-shaped text into
+#    <a href="tel:…">, and WeddingPress's copy widget serialised innerHTML — so a
+#    bank account number reached guests as markup. The mu-plugin turns detection
+#    off and replaces the widget handler with a text-only one. A WordPress or
+#    WeddingPress update, or a mu-plugin revert, silently reopens it.
+WP_PROBE="${WP_PROBE:-https://wp.aksaraa.com/template-10/}"
+wp_html="$(curl -sS --max-time 25 "${WP_PROBE}" 2>/dev/null || true)"
+if printf '%s' "${wp_html}" | grep -qiE 'name="format-detection"[^>]*telephone=no' \
+  && printf '%s' "${wp_html}" | grep -q 'window.copyText='; then
+  summary+=("wp-copy ok")
+else
+  problems+=("${WP_PROBE} is missing the copy-safety markers (meta format-detection telephone=no + text-only window.copyText). Either the Aksaraa mu-plugin was reverted or a WP/WeddingPress update dropped the hooks — iPhone guests then paste '<a href=\"tel:…\">' markup instead of the gift account number.")
+  summary+=("wp-copy BROKEN")
+fi
+
 echo "[cdn-health] $(date -u +%Y-%m-%dT%H:%M:%SZ) ${summary[*]}"
 
 if [ ${#problems[@]} -eq 0 ]; then

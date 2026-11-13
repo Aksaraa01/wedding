@@ -51,6 +51,11 @@ export default function RootLayout({
   return (
     <html lang="id" className="light" suppressHydrationWarning>
       <head>
+        {/* iOS/iPadOS Safari rewrites phone-shaped text — a bank account number
+            like 7297648165 — into <a href="tel:…">. Invitation values are data,
+            not phone numbers, so turn the detector off app-wide; explicit
+            wa.me/mailto links are unaffected. See src/lib/clipboard.ts. */}
+        <meta name="format-detection" content="telephone=no, email=no, address=no, date=no" />
         {/* Material Symbols is subset to the icons this app actually uses
             (212 of them, 225 KB instead of the full variable font's 1.1 MB).
             `scripts/check-material-icons.mjs` fails the deploy guard when a new

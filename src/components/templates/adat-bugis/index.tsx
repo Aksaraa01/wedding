@@ -16,6 +16,7 @@ import {
 } from "../shared/lib"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import Wishes from "./Wishes"
+import { copyPlainText } from "@/lib/clipboard"
 import "./adat-bugis.css"
 
 const ASSET = (name: string) => `/templates/adat-bugis/${name}`
@@ -222,24 +223,8 @@ export default function AdatBugis(profile: TemplateProps) {
 
   const copy = useCallback(
     async (text: string) => {
-      try {
-        await navigator.clipboard.writeText(text)
-        showToast("Disalin ke clipboard")
-      } catch {
-        try {
-          const field = document.createElement("textarea")
-          field.value = text
-          field.style.position = "fixed"
-          field.style.opacity = "0"
-          document.body.appendChild(field)
-          field.select()
-          const copied = document.execCommand("copy")
-          document.body.removeChild(field)
-          showToast(copied ? "Disalin ke clipboard" : "Gagal menyalin")
-        } catch {
-          showToast("Gagal menyalin")
-        }
-      }
+      const ok = await copyPlainText(text)
+      showToast(ok ? "Disalin ke clipboard" : "Gagal menyalin")
     },
     [showToast]
   )

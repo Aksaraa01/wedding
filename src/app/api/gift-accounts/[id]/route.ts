@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { cleanLine } from "@/lib/plainText"
 
 export async function PUT(
   req: NextRequest,
@@ -12,10 +13,10 @@ export async function PUT(
     const { type } = body
 
     const updateData: Record<string, unknown> = {}
-    if (provider_name !== undefined) updateData.provider_name = provider_name
+    if (provider_name !== undefined) updateData.provider_name = cleanLine(provider_name, 120)
     if (provider_logo_url !== undefined) updateData.provider_logo_url = provider_logo_url
-    if (account_number !== undefined) updateData.account_number = account_number
-    if (account_name !== undefined) updateData.account_name = account_name
+    if (account_number !== undefined) updateData.account_number = cleanLine(account_number, 40)
+    if (account_name !== undefined) updateData.account_name = cleanLine(account_name, 120)
     if (qris_image_url !== undefined) updateData.qris_image_url = qris_image_url
     if (type !== undefined) updateData.type = type
     if (sort_order !== undefined) updateData.sort_order = sort_order

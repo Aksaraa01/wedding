@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { cleanBlock, cleanLine } from "@/lib/plainText"
 
 export async function GET(req: NextRequest) {
   try {
@@ -37,7 +38,14 @@ export async function POST(req: NextRequest) {
 
     const { data, error } = await supabaseAdmin
       .from("gift_addresses")
-      .insert({ wedding_profile_id, recipient_name, phone, full_address, city, postal_code })
+      .insert({
+        wedding_profile_id,
+        recipient_name: cleanLine(recipient_name, 120),
+        phone: cleanLine(phone, 40),
+        full_address: cleanBlock(full_address, 600),
+        city: cleanLine(city, 80),
+        postal_code: cleanLine(postal_code, 20),
+      })
       .select()
       .single()
 

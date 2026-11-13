@@ -17,6 +17,7 @@ import {
   videoSource,
 } from "../shared/lib"
 import Wishes from "./Wishes"
+import { copyPlainText } from "@/lib/clipboard"
 import "./cinnabar-seal.css"
 
 const ART = (name: string) => `/templates/cinnabar-seal/${name}.webp`
@@ -336,23 +337,9 @@ export default function CinnabarSeal(profile: TemplateProps) {
   )
 
   const copyText = useCallback(
-    (value: string, message: string) => {
-      const done = () => showToast(message)
-      if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(value).then(done, done)
-        return
-      }
-      const area = document.createElement("textarea")
-      area.value = value
-      document.body.appendChild(area)
-      area.select()
-      try {
-        document.execCommand("copy")
-      } catch {
-        /* ignore */
-      }
-      document.body.removeChild(area)
-      done()
+    async (value: string, message: string) => {
+      await copyPlainText(value)
+      showToast(message)
     },
     [showToast]
   )

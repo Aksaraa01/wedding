@@ -4,42 +4,16 @@ import { useState } from "react"
 import type { TemplateProps } from "@/types/template"
 import ModalShell from "./ModalShell"
 import type { GiftAccountData } from "../lib"
+import { copyPlainText } from "@/lib/clipboard"
 
 const BODY = { fontFamily: "var(--font-body, 'Plus Jakarta Sans'), sans-serif" } as const
 const DISPLAY = { fontFamily: "var(--font-display, 'Playfair Display'), serif" } as const
 const MONO = { fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" } as const
 
-function copyText(text: string): Promise<boolean> {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    return navigator.clipboard.writeText(text).then(
-      () => true,
-      () => fallbackCopy(text)
-    )
-  }
-  return Promise.resolve(fallbackCopy(text))
-}
-
-function fallbackCopy(text: string): boolean {
-  try {
-    const ta = document.createElement("textarea")
-    ta.value = text
-    ta.style.position = "fixed"
-    ta.style.opacity = "0"
-    document.body.appendChild(ta)
-    ta.focus()
-    ta.select()
-    document.execCommand("copy")
-    document.body.removeChild(ta)
-    return true
-  } catch {
-    return false
-  }
-}
-
 function CopyButton({ value, display }: { value: string; display: string }) {
   const [state, setState] = useState<"idle" | "copied" | "failed">("idle")
   const onClick = async () => {
-    const ok = await copyText(value)
+    const ok = await copyPlainText(value)
     setState(ok ? "copied" : "failed")
     setTimeout(() => setState("idle"), 2000)
   }

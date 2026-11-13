@@ -76,6 +76,35 @@ if (!editorOk) failed++
 console.log(`  ${editorOk ? "·" : "✗"} web-invitation (no session) -> ${editorApi} ${editorOk ? "= gate holds" : "= EXPECTED 401 (route is unauthenticated!)"}`)
 
 // ---------------------------------------------------------------------------
+// Invitation copy safety (the iOS "Salin" bug).
+// iOS/iPadOS Safari rewrites phone-shaped text into <a href="tel:…">, so any
+// copy handler that serialised innerHTML handed guests markup instead of a bank
+// account number (7297648165 → "<a href=\"tel:7297648165\">7297648165</a>").
+// Fixed in the WP mu-plugin (format-detection meta + text-only copyText) and in
+// the app (root layout meta + src/lib/clipboard.ts). A WordPress/WeddingPress
+// update or a mu-plugin revert reopens it silently, so assert the markers.
+console.log("\nInvitation copy safety")
+const fetchText = (url) => {
+  try {
+    return execSync(`curl -sL --max-time 30 "${url}"`, { encoding: "utf8", maxBuffer: 16 * 1024 * 1024 })
+  } catch {
+    return ""
+  }
+}
+// A master template page, not a couple: masters are the most stable WP URL and
+// every master carries the same WeddingPress copy widgets.
+const wpPage = fetchText("https://wp.aksaraa.com/template-10/")
+const copyChecks = [
+  { label: "wp format-detection meta", ok: /name="format-detection"[^>]*telephone=no/i.test(wpPage) },
+  { label: "wp text-only copyText", ok: wpPage.includes("window.copyText=") },
+  { label: "app format-detection meta", ok: /name="format-detection"[^>]*telephone=no/i.test(fetchText(`${base}/`)) },
+]
+for (const c of copyChecks) {
+  if (!c.ok) failed++
+  console.log(`  ${c.ok ? "·" : "✗"} ${c.label}`)
+}
+
+// ---------------------------------------------------------------------------
 // Guest asset host. Couple hosts are DNS-only and 302 /fonts /templates /images
 // to cdn.aksaraa.com, which is a Caddy file_server over .next/standalone/public.
 // If that hostname is repointed (it was bound to an R2 bucket on 2026-11-03,

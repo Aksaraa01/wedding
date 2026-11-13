@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { cleanBlock, cleanLine } from "@/lib/plainText"
 
 export async function PUT(
   req: NextRequest,
@@ -11,11 +12,11 @@ export async function PUT(
     const { recipient_name, phone, full_address, city, postal_code } = body
 
     const updateData: Record<string, unknown> = {}
-    if (recipient_name !== undefined) updateData.recipient_name = recipient_name
-    if (phone !== undefined) updateData.phone = phone
-    if (full_address !== undefined) updateData.full_address = full_address
-    if (city !== undefined) updateData.city = city
-    if (postal_code !== undefined) updateData.postal_code = postal_code
+    if (recipient_name !== undefined) updateData.recipient_name = cleanLine(recipient_name, 120)
+    if (phone !== undefined) updateData.phone = cleanLine(phone, 40)
+    if (full_address !== undefined) updateData.full_address = cleanBlock(full_address, 600)
+    if (city !== undefined) updateData.city = cleanLine(city, 80)
+    if (postal_code !== undefined) updateData.postal_code = cleanLine(postal_code, 20)
 
     const { data, error } = await supabaseAdmin
       .from("gift_addresses")

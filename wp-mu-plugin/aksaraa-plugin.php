@@ -2806,6 +2806,85 @@ add_action('wp_footer', function () {
     }
 });
 
+// ---------------------------------------------------------------------------
+// Copy safety for every WP invitation (masters, demos, every couple duplicate,
+// current and future — this mu-plugin is loaded on all of them, so nothing has
+// to be re-duplicated or republished when it changes).
+//
+// Bug class this closes: a copy action must never put markup on the clipboard.
+// iOS/iPadOS Safari's telephone detector rewrites phone-shaped text nodes into
+// <a href="tel:…">, so WeddingPress's copy widget (which copies
+// .copy-content's innerHTML) handed guests
+// "<a href=\"tel:7297648165\">7297648165</a>" instead of a bank account number —
+// the digits appearing twice (href + link text). Android/desktop never
+// linkifies, which is why it only reproduced on iPhones.
+//
+// 1. telephone/email/address/date auto-detection is off on invitations: the
+//    values shown there (account numbers, table numbers) are data, not links.
+//    Explicit wa.me / mailto anchors are unaffected.
+add_action('wp_head', function () {
+    if (!is_singular()) return;
+    $raw = get_post_meta(get_the_ID(), '_elementor_data', true);
+    if (!is_string($raw) || $raw === '') return;
+    echo '<meta name="format-detection" content="telephone=no, email=no, address=no, date=no">' . "\n";
+}, 1);
+
+// 2. The copy path itself: a document-level `copy` listener rewrites any
+//    markup that a handler (WeddingPress now, another plugin later) put in the
+//    payload, and window.copyText is replaced with a text-only implementation
+//    so the common case never reaches the DOM-serialising code at all.
+add_action('wp_footer', function () {
+    if (!is_singular()) return;
+    $raw = get_post_meta(get_the_ID(), '_elementor_data', true);
+    if (!is_string($raw) || $raw === '') return;
+    if (strpos($raw, 'copy-content') === false && strpos($raw, 'weddingpress-copy') === false) return;
+
+    echo '<script>(function(){'
+        // <br> → newline, anchors unwrapped, remaining tags dropped, entities
+        // decoded, whitespace collapsed (newlines kept). Same rules as
+        // src/lib/clipboard.ts so WP and in-house invitations behave alike.
+        . 'function sanitize(v){var t=String(v||"");'
+        . 't=t.replace(/<br\s*\/?>/gi,"\n");'
+        . 't=t.replace(/<a\b[^>]*>([\s\S]*?)<\/a>/gi,"$1");'
+        . 't=t.replace(/<\/?[a-z][^>]*>/gi,"");'
+        . 't=t.replace(/&nbsp;/gi," ").replace(/&lt;/gi,"<").replace(/&gt;/gi,">")'
+        . '.replace(/&quot;/gi,String.fromCharCode(34))'
+        . '.replace(/&#0*39;|&apos;/gi,String.fromCharCode(39))'
+        . '.replace(/&#(\d+);/g,function(_,d){return String.fromCharCode(Number(d));})'
+        . '.replace(/&amp;/gi,"&");'
+        . 'return t.replace(/[^\S\n]+/g," ").replace(/\n{3,}/g,"\n\n").trim();}'
+        . 'function hasMarkup(v){return /<\/?[a-z][^>]*>/i.test(String(v||""));}'
+        . 'document.addEventListener("copy",function(e){'
+        . 'try{var cd=e.clipboardData||window.clipboardData;if(!cd)return;'
+        . 'var text=cd.getData("text/plain")||"";if(!hasMarkup(text))return;'
+        . 'var clean=sanitize(text);e.preventDefault();cd.setData("text/plain",clean);}catch(err){}},true);'
+        // The widget's own handler reads .html(); ours reads textContent.
+        . 'function textOf(el){'
+        . 'var w=el.closest?el.closest(".elementor-button-wrapper"):null;if(!w)w=el.parentNode;if(!w)return"";'
+        . 'var src=w.querySelector(".copy-content");if(!src)return"";'
+        . 'var c=src.cloneNode(true);var br=c.querySelectorAll("br");'
+        . 'for(var i=0;i<br.length;i++){br[i].parentNode.replaceChild(document.createTextNode("\n"),br[i]);}'
+        . 'return sanitize(c.textContent||"");}'
+        . 'function flash(el){var old=el.innerHTML;'
+        . 'el.innerHTML=el.getAttribute("data-message")||"berhasil disalin";'
+        . 'setTimeout(function(){el.innerHTML=old;},700);}'
+        . 'function legacyCopy(text){try{var f=document.createElement("textarea");'
+        . 'f.value=text;f.style.position="fixed";f.style.top="0";f.style.left="0";f.style.opacity="0";'
+        . 'document.body.appendChild(f);f.focus();f.select();'
+        . 'if(f.setSelectionRange){try{f.setSelectionRange(0,text.length);}catch(e){}}'
+        . 'var ok=document.execCommand("copy");document.body.removeChild(f);return ok;}catch(e){return false;}}'
+        . 'window.copyText=function(el){if(!el)return false;var text=textOf(el);if(!text)return false;'
+        . 'if(navigator.clipboard&&navigator.clipboard.writeText){'
+        . 'navigator.clipboard.writeText(text).then(function(){flash(el);},function(){if(legacyCopy(text))flash(el);});}'
+        . 'else if(legacyCopy(text)){flash(el);}return false;};'
+        // Defensive: unwrap a detector-injected tel:/mailto: anchor inside
+        // .copy-content so anything else reading .html() sees plain text too.
+        . 'function unwrap(){var a=document.querySelectorAll(".copy-content a");'
+        . 'for(var i=0;i<a.length;i++){var n=a[i];n.parentNode.replaceChild(document.createTextNode(n.textContent),n);}}'
+        . 'unwrap();document.addEventListener("DOMContentLoaded",unwrap);'
+        . '})();</script>';
+});
+
 // Lightweight interactive preview: when a template-master demo is opened with ?aksaraa_preview=1
 // (used by the in-app "Lihat Template" iframe), skip the interactive-only JS that a design preview
 // does not need (guestbook/comment, XLSX export, QR styling, add-to-calendar, guest form). CSS is

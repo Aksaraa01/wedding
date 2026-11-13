@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { cleanLine } from "@/lib/plainText"
 
 export async function GET(req: NextRequest) {
   try {
@@ -40,9 +41,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Tipe rekening tidak valid" }, { status: 400 })
     }
 
+    // Account numbers/names are plain values, never rich text: strip markup at
+    // the write boundary so the WordPress manifest and the clipboard can never
+    // receive HTML (see src/lib/clipboard.ts for the bug class).
     const { data, error } = await supabaseAdmin
       .from("gift_accounts")
-      .insert({ wedding_profile_id, type, provider_name, provider_logo_url, account_number, account_name, qris_image_url })
+      .insert({
+        wedding_profile_id,
+        type,
+        provider_name: cleanLine(provider_name, 120),
+        provider_logo_url,
+        account_number: cleanLine(account_number, 40),
+        account_name: cleanLine(account_name, 120),
+        qris_image_url,
+      })
       .select()
       .single()
 

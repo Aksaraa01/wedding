@@ -1,33 +1,7 @@
 "use client"
 
 import { useState } from "react"
-
-function copyText(text: string): Promise<boolean> {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    return navigator.clipboard.writeText(text).then(
-      () => true,
-      () => fallbackCopy(text)
-    )
-  }
-  return Promise.resolve(fallbackCopy(text))
-}
-
-function fallbackCopy(text: string): boolean {
-  try {
-    const ta = document.createElement("textarea")
-    ta.value = text
-    ta.style.position = "fixed"
-    ta.style.opacity = "0"
-    document.body.appendChild(ta)
-    ta.focus()
-    ta.select()
-    document.execCommand("copy")
-    document.body.removeChild(ta)
-    return true
-  } catch {
-    return false
-  }
-}
+import { copyPlainText } from "@/lib/clipboard"
 
 export function useCopy(): {
   copiedKey: string | null
@@ -35,7 +9,7 @@ export function useCopy(): {
 } {
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
   const copy = async (key: string, value: string) => {
-    const ok = await copyText(value)
+    const ok = await copyPlainText(value)
     if (ok) {
       setCopiedKey(key)
       setTimeout(() => setCopiedKey((k) => (k === key ? null : k)), 2000)

@@ -16,6 +16,7 @@ import {
 } from "../shared/lib"
 import Wishes from "./Wishes"
 import { TEATRO_ASSETS } from "./assets"
+import { copyPlainText } from "@/lib/clipboard"
 import "./teatro.css"
 
 const WISH_ME = "Tamu Undangan"
@@ -806,23 +807,9 @@ export default function Teatro(profile: TemplateProps) {
   )
 
   const copyText = useCallback(
-    (value: string, message: string) => {
-      const done = () => showToast(message)
-      if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(value).then(done, done)
-        return
-      }
-      const area = document.createElement("textarea")
-      area.value = value
-      document.body.appendChild(area)
-      area.select()
-      try {
-        document.execCommand("copy")
-      } catch {
-        /* ignore */
-      }
-      document.body.removeChild(area)
-      done()
+    async (value: string, message: string) => {
+      await copyPlainText(value)
+      showToast(message)
     },
     [showToast]
   )

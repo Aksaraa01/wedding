@@ -174,6 +174,28 @@ try {
   console.warn("! could not check the Material Symbols subset")
 }
 
+// ---------- 3c. one copy path ----------
+// A copy action must never serialise markup out of the DOM: iOS/iPadOS Safari
+// rewrites phone-shaped text into <a href="tel:…">, which is how a bank account
+// number reached guests as "<a href=\"tel:7297648165\">7297648165</a>". Every
+// copy goes through src/lib/clipboard.ts; a hand-rolled execCommand fallback
+// inside a component is that bug waiting to come back.
+if (!existsSync("src/lib/clipboard.ts")) {
+  fail("src/lib/clipboard.ts is missing — every copy path must go through it.")
+}
+const helper = readFileSync("src/lib/clipboard.ts", "utf8")
+if (!helper.includes("export async function copyPlainText")) {
+  fail("src/lib/clipboard.ts no longer exports copyPlainText.")
+}
+const copyOffenders = execSync(
+  `grep -rn "execCommand" src --include=*.ts --include=*.tsx | grep -v "^src/lib/clipboard.ts:" || true`,
+  { encoding: "utf8" },
+).trim()
+if (copyOffenders) {
+  fail(`hand-rolled clipboard fallback outside src/lib/clipboard.ts:\n${copyOffenders}`)
+}
+ok("single copy path (src/lib/clipboard.ts)")
+
 // ---------- 4. media budget (report only) ----------
 // Every template's art is served straight from the box, whose measured egress is
 // ~4 Mbps in total. This prints the offenders on every deploy so the growth is

@@ -7,6 +7,7 @@ import { AKSARAA_WA_NUMBER } from "@/lib/contact"
 import { coverPhoto, photoList } from "../shared/lib"
 import AutoplayYouTube from "../shared/AutoplayYouTube"
 import InvitationOverlay from "@/components/InvitationOverlay"
+import { copyPlainText } from "@/lib/clipboard"
 import Wishes from "./Wishes"
 import "./nihara-mist.css"
 
@@ -442,8 +443,7 @@ export default function NiharaMist(profile: TemplateProps) {
   }, [])
 
   const copy = useCallback(async (text: string) => {
-    try { await navigator.clipboard.writeText(text); showToast("Nomor berhasil disalin") }
-    catch { showToast("Gagal menyalin nomor") }
+    showToast((await copyPlainText(text)) ? "Nomor berhasil disalin" : "Gagal menyalin nomor")
   }, [showToast])
 
   const isActive = (name: SceneName) => scene === name
