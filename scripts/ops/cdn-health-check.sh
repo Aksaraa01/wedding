@@ -43,6 +43,10 @@ done
 probe="$(date +%s)-$$"
 problems=()
 summary=()
+# Which family of probe failed — drives the advice block at the end so a
+# copy-safety alert never tells ops to go look at DNS, and vice versa.
+font_problem=0
+wp_problem=0
 
 # header_probe <url> -> prints "<status> <content-type> <acao> <location>"
 header_probe() {
@@ -67,6 +71,7 @@ if [ "${st}" = "200" ] && [[ "${type}" == font/* ]] && [ "${acao}" = "*" ]; then
 else
   problems+=("${CDN}${FONT_PATH} -> ${st}, type=${type}, ACAO=${acao} (want 200 + font/* + '*'). cdn.aksaraa.com must be a proxied A record to 103.93.135.176 (Caddy file_server), NOT an R2 custom domain.")
   summary+=("font BROKEN")
+  font_problem=1
 fi
 
 # 2. Couple subdomains are DNS-only and must 302 /fonts to the CDN. If this
@@ -77,6 +82,7 @@ if [ "${st}" = "302" ] && [ "${loc}" = "${CDN}${FONT_PATH}" ]; then
 else
   problems+=("https://${COUPLE_HOST}${FONT_PATH} -> ${st} Location=${loc} (want 302 -> ${CDN}${FONT_PATH})")
   summary+=("couple-redirect BROKEN")
+  font_problem=1
 fi
 
 # 3. Atlas/Academy art is stored as absolute cdn.aksaraa.com/atlas|academy|og
@@ -88,6 +94,7 @@ if [ "${st}" = "302" ] && [[ "${loc}" == "${ART}/atlas/"* ]]; then
 else
   problems+=("${CDN}/atlas/... -> ${st} Location=${loc} (want 302 -> ${ART}/atlas/...)")
   summary+=("art-redirect BROKEN")
+  font_problem=1
 fi
 
 # 4. The art host itself must terminate at Cloudflare/R2 (any HTTP answer that is
@@ -96,6 +103,7 @@ read -r st type _ _ <<<"$(header_probe "${ART}/health-probe-${probe}.png")"
 if [ "${st}" = "ERR" ]; then
   problems+=("${ART} unreachable (DNS/TLS). The aksaraa-art R2 custom domain may have been detached.")
   summary+=("art-host BROKEN")
+  font_problem=1
 else
   summary+=("art-host ${st}")
 fi
@@ -115,6 +123,7 @@ if grep -qiE 'name="format-detection"[^>]*telephone=no' <<<"${wp_html}" \
 else
   problems+=("${WP_PROBE} is missing the copy-safety markers (meta format-detection telephone=no + text-only window.copyText). Either the Aksaraa mu-plugin was reverted or a WP/WeddingPress update dropped the hooks — iPhone guests then paste '<a href=\"tel:…\">' markup instead of the gift account number.")
   summary+=("wp-copy BROKEN")
+  wp_problem=1
 fi
 
 echo "[cdn-health] $(date -u +%Y-%m-%dT%H:%M:%SZ) ${summary[*]}"
@@ -131,7 +140,15 @@ fi
 
 message=$'🚨 Asset CDN problem (cdn.aksaraa.com)\n\n'
 message+="$(printf '%s\n' "${problems[@]}")"
-message+=$'\n\nFont undangan yang gagal = semua template in-house kehilangan font (CORS/404). Cek DNS: cdn.aksaraa.com harus A 103.93.135.176 (Caddy), bukan R2 custom domain. Setelah diperbaiki, purge cache Cloudflare.'
+message+=$'\n\n'
+# Advice per failing probe: a fonts-only failure has nothing to do with the WP
+# copy hooks, and a copy-only failure has nothing to do with DNS.
+if [ "${font_problem}" -eq 1 ]; then
+  message+=$'Font undangan yang gagal = semua template in-house kehilangan font (CORS/404). Cek DNS: cdn.aksaraa.com harus A 103.93.135.176 (Caddy), bukan R2 custom domain. Setelah diperbaiki, purge cache Cloudflare.\n'
+fi
+if [ "${wp_problem}" -eq 1 ]; then
+  message+=$'Copy-safety WP: cek /var/www/wp/wp-content/mu-plugins/aksaraa-plugin.php — harus ada hook wp_head (meta format-detection) dan wp_footer (window.copyText). Bila hilang, pulihkan dari aksaraa-plugin.php.bak-copyfix-* di folder yang sama, lalu verifikasi https://wp.aksaraa.com/template-10/ memuat kedua marker.\n'
+fi
 
 echo "[cdn-health] ALERT: ${#problems[@]} problem(s)"
 printf '%s\n' "${problems[@]}"
