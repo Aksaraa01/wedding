@@ -32,7 +32,8 @@ export function cleanLine(value: unknown, maxLength = 200): string | null | unde
   if (value === null) return null
   if (value === undefined) return undefined
   const raw = String(value)
-  const flat = decodeEntities(raw.replace(TAG, "").replace(TAG, ""))
+  const flat = decodeEntities(decodeEntities(raw.replace(TAG, "")))
+    .replace(TAG, "")
     .replace(/[\r\n\t]+/g, " ")
     .replace(/\s{2,}/g, " ")
     .trim()
@@ -48,12 +49,14 @@ export function cleanBlock(value: unknown, maxLength = 600): string | null | und
   if (value === undefined) return undefined
   const raw = String(value)
   const text = decodeEntities(
-    raw
-      .replace(/<br\s*\/?>/gi, "\n")
-      .replace(TAG, "")
-      .replace(TAG, ""),
+    decodeEntities(
+      raw
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(TAG, ""),
+    ),
   )
   return text
+    .replace(TAG, "")
     .replace(/\r\n?/g, "\n")
     .replace(/[^\S\n]+/g, " ")
     .replace(/\n{3,}/g, "\n\n")

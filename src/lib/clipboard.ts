@@ -32,7 +32,10 @@ export function plainText(value: string): string {
   const stripped = String(value ?? "")
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(TAG, "")
-  return decodeEntities(stripped.replace(TAG, ""))
+  // decode twice: an escaped-and-escaped payload ("&amp;lt;a …") must not leak
+  // markup, and a double-encoded ampersand must not stay as "&amp;".
+  return decodeEntities(decodeEntities(stripped))
+    .replace(TAG, "")
     .replace(/[^\S\n]+/g, " ")
     .replace(/\n{3,}/g, "\n\n")
     .trim()
