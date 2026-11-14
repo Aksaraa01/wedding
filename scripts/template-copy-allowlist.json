@@ -1740,6 +1740,36 @@
         "Quote": "WCAG name for the kutipan figure (editor \"Kutipan\")",
         "Wedding gift": "WCAG name for the gift tablist (two tabs have their own editable labels)"
       }
+    },
+    "film-roll": {
+      "allow": {
+        "Days": "countdown unit label",
+        "Hours": "countdown unit label",
+        "Minutes": "countdown unit label",
+        "Seconds": "countdown unit label",
+        "Countdown to the wedding day": "WCAG name for the countdown group",
+        "No.": "stub and ticket numbering prefix",
+        "Date": "structural field label in the event stub",
+        "Time": "structural field label in the event stub",
+        "Venue": "structural field label in the event stub (fallback when the event has no name)",
+        "Previous event": "WCAG name for the event-slider previous control",
+        "Next event": "WCAG name for the event-slider next control",
+        "Play": "trailer play control label",
+        "a/n": "bank account holder prefix",
+        "Copy": "account/address copy control",
+        "Share": "share ticket in the credits",
+        "Aksaraa Wedding": "alt text for the vendor logo",
+        "Wedding by Aksaraa": "fixed vendor credit in the footer",
+        ". All rights reserved.": "fixed legal suffix in the footer",
+        "Back to the cover": "WCAG name for the initials logo button",
+        "Scene list": "WCAG name for the scene-list ticket",
+        "Open the menu": "WCAG name for the menu button",
+        "Share the invitation": "WCAG name for the share button",
+        "Photo viewer": "WCAG name for the lightbox dialog",
+        "Close": "WCAG name for close buttons",
+        "Previous photo": "WCAG name for the lightbox previous control",
+        "Next photo": "WCAG name for the lightbox next control"
+      }
     }
   }
 }

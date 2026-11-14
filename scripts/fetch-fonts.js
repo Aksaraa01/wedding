@@ -51,6 +51,11 @@ const FAMILIES = [
   // script (names, rotated labels, closing sign-off). Body/UI is Jost.
   { name: "Bodoni Moda", weights: ["400", "500", "600"], styles: ["normal"] },
   { name: "Monsieur La Doulaise", weights: ["400"], styles: ["normal"] },
+  // Film Roll: condensed display wordmark (Smythe), serif body (Marcellus)
+  // and functional sans (Urbanist).
+  { name: "Smythe", weights: ["400"], styles: ["normal"] },
+  { name: "Marcellus", weights: ["400"], styles: ["normal"] },
+  { name: "Urbanist", weights: ["500", "600", "700"], styles: ["normal"] },
 ];
 
 function cssUrl(f) {

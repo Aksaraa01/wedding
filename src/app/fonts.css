@@ -33,6 +33,9 @@
   --font-ysabeau: 'Ysabeau Infant', serif;
   --font-bodoni: 'Bodoni Moda', serif;
   --font-monsieur: 'Monsieur La Doulaise', serif;
+  --font-smythe: 'Smythe', serif;
+  --font-marcellus: 'Marcellus', serif;
+  --font-urbanist: 'Urbanist', sans-serif;
 }
 @font-face {
   font-family: 'Inter';
@@ -957,4 +960,39 @@
   font-weight: 400;
   font-display: swap;
   src: url('/fonts/monsieurladoulaise-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Smythe';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/smythe-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Marcellus';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/marcellus-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Urbanist';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/urbanist-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Urbanist';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/urbanist-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Urbanist';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/urbanist-700.woff2') format('woff2');
 }

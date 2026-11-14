@@ -790,5 +790,35 @@
     "weight": "400",
     "style": "normal",
     "bytes": 18816
+  },
+  "smythe-400.woff2": {
+    "family": "Smythe",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 18912
+  },
+  "marcellus-400.woff2": {
+    "family": "Marcellus",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 14272
+  },
+  "urbanist-500.woff2": {
+    "family": "Urbanist",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 27812
+  },
+  "urbanist-600.woff2": {
+    "family": "Urbanist",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 27812
+  },
+  "urbanist-700.woff2": {
+    "family": "Urbanist",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 27812
   }
 }

@@ -38,6 +38,7 @@ import CinnabarSeal from "./cinnabar-seal"
 import Iris from "./iris"
 import Teatro from "./teatro"
 import SilverGelatin from "./silver-gelatin"
+import FilmRoll from "./film-roll"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -79,6 +80,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   iris: Iris,
   teatro: Teatro,
   "silver-gelatin": SilverGelatin,
+  "film-roll": FilmRoll,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -1572,6 +1574,46 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     content: {
       cover_slots: 4,
       cover_slot_labels: ["Venue", "Sampul", "Gift", "Dresscode"],
+      groom_photo: "single",
+      bride_photo: "single",
+      story_photo: true,
+      sections: {
+        opening_description: true,
+        quote: true,
+        countdown: true,
+        inviting: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        dresscode: true,
+        livestream: false,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "film-roll",
+    name: "Film Roll",
+    description:
+      "Undangan bergaya rol film: satu layar penuh yang bergulir adegan demi adegan seperti gulungan sinema, judul film besar dengan huruf yang berputar masuk, tiket acara, program kertas, dan galeri yang bergerak sendiri.",
+    theme: {
+      fonts: { display: "Urbanist", script: "Smythe", body: "Marcellus" },
+      colors: {
+        surface: "#000000",
+        text: "#faf7ef",
+        accent: "#faf7ef",
+        accentMuted: "#d6d3cc",
+        overlay: "#000000",
+        dark: "#000000",
+      },
+      ornaments: { divider: "line", border: "none", frame: "square" },
+      motion: { enabled: true, duration: 0.9, stagger: 0.06 },
+    },
+    content: {
+      cover_slots: 1,
       groom_photo: "single",
       bride_photo: "single",
       story_photo: true,
