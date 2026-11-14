@@ -71,15 +71,15 @@ Mapping to the playbook §0.5 contract:
 
 | §0.5 # | Contract section | In `film-roll` |
 |---|---|---|
-| 1 | Cover | gate (wordmark + guest + Enter) → poster card |
-| 2 | Opening video | `video_url` file becomes the gate background; embeds stay in the trailer (§9.1) |
+| 1 | Cover | gate (wordmark + guest + Enter) → poster card; **one cover slot** (`cover_slots: 1`) feeds both the gate and the poster |
+| 2 | Opening video | `video_url` fills the gate: a file plays in `<video>`; a YouTube/Vimeo link becomes a silent, chrome-less, cover-cropped iframe (§9.1). The trailer is a separate scene |
 | 3 | Welcome | **folded into the poster** — the countdown, guest and venue live on the cover card so the reel opens on the hero, not on a second screen |
-| 4 | Kalimat pembuka | `prologue` scene (`opening_title`, `opening_description`) |
+| 4 | Kalimat pembuka | **not shipped** — `film-roll` is in `TEMPLATES_WITHOUT_OPENING`, so the editor/ops hide the card. The prologue's paragraph is the template extra `welcome_message` (`Pesan Sambutan`), not the profile field |
 | 5 | Mempelai | `groom` / `bride` cast scenes |
 | 6 | Love story | `chapter` |
 | — | Kutipan | quote on the prologue card (`quote_text`, `quote_source`) |
 | 7 | Event | `event` |
-| 8 | Countdown | on the poster card (`Clock`) |
+| 8 | Countdown | on the poster card (`Clock`) + the `Save to calendar` CTA under it, always visible |
 | 9 | Turut mengundang | inside `credits` — pairing the families with the closing copy keeps the reel at thirteen scenes and puts the "also inviting" line where a film would put its cast list |
 | 10 | Rundown | `rundown` |
 | 11 | Gallery | `strip` |
@@ -159,9 +159,9 @@ image fade, and forces every glyph back to `translate(0)`.
 | Poster title | `groom_name` / `& bride_name` |
 | Poster meta | `Date`, `Day`, and `story_kicker` + scene number |
 | Poster facts | `save_date_label` + date, `cover_apology` + guest, event name/venue |
-| Countdown | `countdownTarget(sessions, estimated_wedding_date)` |
-| Prologue | `opening_title` / `opening_description`, `quote_text`, `quote_source` |
-| Cast | `*_full_name`, `*_parents`, `*_instagram`, `mempelai_kicker`, `parents_label` |
+| Countdown | `countdownTarget(sessions, estimated_wedding_date)` + `gcalLink` on the poster and in the event stub |
+| Prologue | `template_content.opening_kicker`, `template_content.welcome_message`, `quote_text`, `quote_source` |
+| Cast | `*_full_name`, `*_parents`, `*_instagram`, `mempelai_kicker`, `parents_label` (default “With the blessing of”, the same text as the editor placeholder, so an untouched field never switches to “Son of”) |
 | Chapter | `stories[]` (`title`, `description`, `image_url`) + `story_kicker` |
 | Event | `sessions[]` (`name`, `date`, `time`, `venue`, `address`, `maps_url`) + `gcalLink` |
 | Rundown | `rundown[]` + `rundown_*` |
@@ -185,7 +185,7 @@ credit, the legal suffix) are listed with reasons in
 | Gate | Effect |
 |---|---|
 | `feature_gates.story` / `story_visible` | chapter scene appears/disappears |
-| `feature_gates.video` / `video_section_visible` | trailer scene + gate video |
+| `feature_gates.video` / `video_section_visible` | trailer scene; the cover film follows `feature_gates.video` only, so hiding the trailer keeps the opening film |
 | `rundown_visible` | rundown scene |
 | `dresscode_visible` | dress scene |
 | `gift_section_visible` / `feature_gates.gift_address` | gift scene / address card |
@@ -210,7 +210,7 @@ credit, the legal suffix) are listed with reasons in
 ## 11. Verification
 
 - `npx tsc --noEmit` clean.
-- `npm run audit:copy -- film-roll` clean (27 allowlisted literals).
+- `npm run audit:copy -- film-roll` clean (28 allowlisted literals).
 - Preview captured at 390×844 @2x and 1440×900 @2x: gate, poster, prologue, cast,
   bride (flip), chapter, event, rundown, strip, trailer, gift, dress, wishes,
   credits, plus menu and scene-list states.

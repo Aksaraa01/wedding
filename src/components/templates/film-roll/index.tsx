@@ -325,6 +325,20 @@ export default function FilmRoll(profile: TemplateProps) {
 
   const film: VideoSource | null = videoSource(profile.video_url)
   const hasVideo = gates.video !== false && profile.video_section_visible !== false && !!film
+  // The cover film is independent of the trailer section (§9.1): a couple can
+  // hide the trailer and still open on their video. File videos play in a
+  // <video>; provider links become a silent, chrome-less background embed.
+  const gateFilm = gates.video !== false && film ? film : null
+  const gateEmbed =
+    gateFilm && gateFilm.kind === "embed"
+      ? gateFilm.src
+          .replace(/([?&])controls=1/, "$1controls=0")
+          .concat(
+            /player\.vimeo\.com/.test(gateFilm.src)
+              ? "&background=1"
+              : "&disablekb=1&fs=0&iv_load_policy=3&showinfo=0"
+          )
+      : ""
 
   const groomName = (profile.groom_name || "").trim()
   const brideName = (profile.bride_name || "").trim()
@@ -345,7 +359,13 @@ export default function FilmRoll(profile: TemplateProps) {
   const dateTight = tightDate(profile.estimated_wedding_date)
   const dateLongText = longDate(profile.estimated_wedding_date)
   const mainEvent = events[0]
-  const calendarUrl = gcalLink(mainEvent || (dateObject ? { date: profile.estimated_wedding_date } : undefined), groomName, brideName)
+  const calendarSession =
+    mainEvent && (mainEvent.date || "").trim()
+      ? mainEvent
+      : dateObject
+        ? { date: profile.estimated_wedding_date }
+        : undefined
+  const calendarUrl = gcalLink(calendarSession, groomName, brideName)
 
   const groomIg = igHandle(profile.groom_instagram)
   const brideIg = igHandle(profile.bride_instagram)
@@ -355,10 +375,10 @@ export default function FilmRoll(profile: TemplateProps) {
   const saveDateLabel = (tc.save_date_label || "").trim() || "Save the Date"
   const openLabel = (tc.open_button || "").trim() || "Enter"
   const dearLabel = (tc.cover_apology || "").trim() || "Dear"
-  const openingKicker = (profile.opening_title || "").trim() || (tc.opening_kicker || "").trim() || "Prologue"
-  const openingBody = (profile.opening_description || "").trim() || (profile.quote_text || "").trim()
+  const openingKicker = (tc.opening_kicker || "").trim() || "Prologue"
+  const openingBody = (tc.welcome_message || "").trim()
   const castKicker = (tc.mempelai_kicker || "").trim() || "Starring"
-  const parentsLabel = (tc.parents_label || "").trim()
+  const parentsLabel = (tc.parents_label || "").trim() || "With the blessing of"
   const storyKicker = (tc.story_kicker || "").trim() || "Scene"
   const storyTitle = splitTitle((tc.love_story_title || "").trim() || "Our Story")
   const storyLead = (tc.story_intro || "").trim()
@@ -1409,6 +1429,16 @@ export default function FilmRoll(profile: TemplateProps) {
                     ))}
                   </div>
                   <Clock target={target} />
+                  {calendarUrl && (
+                    <a
+                      className="fr-link fr-eyeb fr-cd__cal"
+                      href={calendarUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {calendarLabel}
+                    </a>
+                  )}
                 </>
               )}
 
@@ -1438,7 +1468,7 @@ export default function FilmRoll(profile: TemplateProps) {
                     {(scene.person === "groom" ? profile.groom_parents : profile.bride_parents) && (
                       <li>
                         <span className="fr-eyeb">
-                          {parentsLabel || (scene.person === "groom" ? "Son of" : "Daughter of")}
+                          {parentsLabel}
                         </span>
                         <b>{scene.person === "groom" ? profile.groom_parents || "" : profile.bride_parents || ""}</b>
                       </li>
@@ -2006,8 +2036,15 @@ export default function FilmRoll(profile: TemplateProps) {
 
       <div className={`fr-gate${opened ? " is-leaving" : ""}`}>
         <div className="fr-gate__bg" aria-hidden="true">
-          {hasVideo && film && film.kind === "file" ? (
-            <video src={film.src} poster={coverShot} autoPlay muted loop playsInline preload="metadata" />
+          {gateFilm && gateFilm.kind === "file" ? (
+            <video src={gateFilm.src} poster={coverShot} autoPlay muted loop playsInline preload="metadata" />
+          ) : gateEmbed ? (
+            <iframe
+              src={gateEmbed}
+              title={videoTitle.join(" ")}
+              allow="autoplay; encrypted-media; picture-in-picture"
+              tabIndex={-1}
+            />
           ) : (
             <img src={coverShot} alt="" draggable={false} />
           )}

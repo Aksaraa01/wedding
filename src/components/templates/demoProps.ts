@@ -2634,6 +2634,8 @@ DEMO_PROPS_BY_CODE["film-roll"] = {
     open_button: "Enter",
     cover_apology: "Dear",
     opening_kicker: "Prologue",
+    welcome_message:
+      "Before the credits roll and the lights come up, there was a first look, a first laugh, and a promise we kept rehearsing until it became a life.",
     mempelai_kicker: "Starring",
     parents_label: "With the blessing of",
     story_kicker: "Scene",

@@ -672,13 +672,14 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     multiline: true,
     rows: 3,
     placeholders: {
+      "film-roll": "Before the credits roll and the lights come up, there was a first look, a first laugh, and a promise we kept rehearsing until it became a life.",
       "cinnabar-seal": "Kami mengundang Anda untuk menjadi bagian dari hari istimewa kami.",
       "ivory-lace": "We are so happy to share this day with you. Here you will find everything about the celebration.",
       "embroidered-garden":
         "We are so happy to celebrate this day with you, surrounded by the people we love most.",
       lace: "We are so happy to celebrate this day with you, surrounded by the people we love most.",
     },
-    templates: ["embroidered-garden", "lace", "ivory-lace", "cinnabar-seal"],
+    templates: ["embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "film-roll"],
   },
   {
     key: "inviting_intro",
