@@ -16,6 +16,9 @@ const DEFAULT_OPENING =
   "By the grace of God, we are getting married. Your presence and prayers will make the day so much happier."
 const DEFAULT_CLOSING =
   "Thank you for being part of our story. See you on the big day!"
+const DEFAULT_APOLOGY = "We apologize for any misspelling of your name or title."
+const DEFAULT_GIFT_INTRO =
+  "Your blessings are more than enough. If you'd like to give more, we'll receive it with deep gratitude."
 
 const pad2 = (n: number) => String(n).padStart(2, "0")
 
@@ -118,7 +121,9 @@ export default function LoveLine(profile: TemplateProps) {
       : []
 
   const dressColors = (profile.dresscode?.colors || []).filter((c) => c && (c.hex || c.name))
-  const dressIntro = (tc.dresscode_intro || profile.dresscode?.description || "").trim()
+  const dressIntro =
+    (tc.dresscode_intro || profile.dresscode?.description || "").trim() ||
+    "Your presence is the greatest gift, but we'd love it if you dressed in our colour palette."
   const hasDresscode = profile.dresscode_visible !== false && (dressColors.length > 0 || !!dressIntro)
 
   const accounts = profile.gift_section_visible !== false ? (profile.gift_accounts || []).filter(Boolean) : []
@@ -148,7 +153,7 @@ export default function LoveLine(profile: TemplateProps) {
   const coverKicker = (tc.cover_kicker || "").trim() || "you're invited to our wedding"
   const coverGuestLabel = (tc.cover_guest_label || "").trim() || "Dear honoured guest"
   const openLabel = (tc.open_button || "").trim() || "Open Invitation"
-  const apology = (tc.cover_apology || "").trim()
+  const apology = (tc.cover_apology || "").trim() || DEFAULT_APOLOGY
   const openingKicker = (tc.opening_kicker || "").trim() || "with grateful hearts"
   const mempelaiKicker = (tc.mempelai_kicker || "").trim() || "two people, one story"
   const mempelaiTitle = (tc.mempelai_title || "").trim() || "The Couple"
@@ -158,30 +163,30 @@ export default function LoveLine(profile: TemplateProps) {
   const parentsLabelFemale = (tc.parents_label_female || "").trim() || "daughter of"
   const storyKicker = (tc.story_kicker || "").trim() || "our journey"
   const storyTitle = (tc.love_story_title || "").trim() || "Story"
-  const storyIntro = (tc.story_intro || "").trim()
+  const storyIntro = (tc.story_intro || "").trim() || "The small chapters that brought us here."
   const eventsKicker = (tc.events_kicker || "").trim() || "details of our big day"
   const eventsTitle = (tc.events_title || "").trim() || "Date & Venue"
-  const eventsIntro = (tc.events_intro || "").trim()
+  const eventsIntro = (tc.events_intro || "").trim() || "We would be honoured to have you with us."
   const mapsLabel = (tc.maps_label || "").trim() || "Open Map"
   const calendarLabel = (tc.events_note || "").trim() || "Add to Calendar"
   const countdownIntro = (tc.countdown_intro || "").trim() || "counting down"
   const invitingKicker = (tc.inviting_kicker || "").trim() || "with honour"
   const invitingTitle = (tc.inviting_title || "").trim() || "Turut Mengundang"
-  const invitingIntro = (tc.inviting_intro || "").trim()
+  const invitingIntro = (tc.inviting_intro || "").trim() || "With gratitude, we also invite our families and friends."
   const rundownKicker = (tc.rundown_kicker || "").trim() || "programme"
   const rundownTitle = (tc.rundown_title || "").trim() || "Schedule"
-  const rundownIntro = (tc.rundown_intro || "").trim()
+  const rundownIntro = (tc.rundown_intro || "").trim() || "How the day will unfold."
   const galleryKicker = (tc.gallery_kicker || "").trim() || "our moments"
   const galleryTitle = (tc.gallery_title || "").trim() || "Gallery"
   const giftTitle = (tc.gift_intro_title || "").trim() || "Wedding Gift"
-  const giftIntro = (tc.gift_intro_description || "").trim()
+  const giftIntro = (tc.gift_intro_description || "").trim() || DEFAULT_GIFT_INTRO
   const giftTransferLabel = (tc.gift_button || "").trim() || "Direct Transfer"
   const giftAddressLabel = (tc.gift_send_label || "").trim() || "Send Gift"
   const transferNote = (tc.gift_transfer_note || "").trim() || "Transfer directly to the account below:"
   const addressNote = (tc.gift_address_note || "").trim() || "Send your gift to the address below:"
   const dressKicker = (tc.dresscode_kicker || "").trim() || "Dress Code"
   const wishesTitle = (tc.wishes_title || "").trim() || "Prayers & Wishes"
-  const wishesIntro = (tc.wishes_intro || "").trim()
+  const wishesIntro = (tc.wishes_intro || "").trim() || "Leave your best prayers and wishes for us."
   const accountToast = (tc.copy_account_toast || "").trim() || "Account number copied"
   const addressToast = (tc.copy_address_toast || "").trim() || "Address copied"
 

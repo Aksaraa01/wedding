@@ -96,6 +96,11 @@ filled. There is no derived fallback and no rewriting: an empty field hides it.
 This template does **not** print a couple-initials monogram (`initials: false`);
 the editor and ops hide the "Singkatan Pasangan" field.
 
+Every copy extra falls back to the template's own default when the couple has
+not filled it (welcome, story, event, inviting, rundown, gift, dress code and
+wishes intros, plus the cover apology). A real invitation therefore looks like
+the template even before the couple edits the EKSTRA fields.
+
 ---
 
 ## 6. Section contract table
