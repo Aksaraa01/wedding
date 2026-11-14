@@ -78,7 +78,7 @@ Mapping to the playbook §0.5 contract:
 | 5 | Mempelai | `groom` / `bride` cast scenes |
 | 6 | Love story | `chapter` |
 | — | Kutipan | quote on the prologue card (`quote_text`, `quote_source`) |
-| 7 | Event | `event` |
+| 7 | Event | `event` — ticket stubs with Open Map; the calendar CTA lives on the poster |
 | 8 | Countdown | on the poster card (`Clock`) + the `Save to calendar` CTA under it, always visible |
 | 9 | Turut mengundang | inside `credits` — pairing the families with the closing copy keeps the reel at thirteen scenes and puts the "also inviting" line where a film would put its cast list |
 | 10 | Rundown | `rundown` |
@@ -157,9 +157,9 @@ image fade, and forces every glyph back to `translate(0)`.
 | Gate guest | `guest_name`; "Dear" from `cover_apology` |
 | Gate button | `open_button` |
 | Poster title | `groom_name` / `& bride_name` |
-| Poster meta | `Date`, `Day`, and `story_kicker` + scene number |
+| Poster meta | `Date` and `Day` (no scene number) |
 | Poster facts | `save_date_label` + date, `cover_apology` + guest, event name/venue |
-| Countdown | `countdownTarget(sessions, estimated_wedding_date)` + `gcalLink` on the poster and in the event stub |
+| Countdown | `countdownTarget(sessions, estimated_wedding_date)` + `gcalLink` (`Save to calendar`) on the poster |
 | Prologue | `template_content.opening_kicker`, `template_content.welcome_message`, `quote_text`, `quote_source` |
 | Cast | `*_full_name`, `*_parents`, `*_instagram`, `mempelai_kicker`, `parents_label` (default “With the blessing of”, the same text as the editor placeholder, so an untouched field never switches to “Son of”) |
 | Chapter | `stories[]` (`title`, `description`, `image_url`) + `story_kicker` |
@@ -174,7 +174,7 @@ image fade, and forces every glyph back to `translate(0)`.
 | Music | `track_url` (`preload="metadata"` + `data-warm-audio`) |
 | Dock | `guest_id` / `guest_slug` + `qr_code_book`, `anchor="bottom" bottom={80}` |
 
-Every string is `template_content.<key> || "<default>"`. The 27 literals that are
+Every string is `template_content.<key> || "<default>"` — an empty extra renders the template copy shown in the editor placeholder, so a fresh invitation never opens with blank section intros. The 28 literals that are
 not (countdown units, WCAG names, stub field labels, transient states, the vendor
 credit, the legal suffix) are listed with reasons in
 `scripts/template-copy-allowlist.json` under `templates["film-roll"].allow`.
@@ -185,7 +185,7 @@ credit, the legal suffix) are listed with reasons in
 | Gate | Effect |
 |---|---|
 | `feature_gates.story` / `story_visible` | chapter scene appears/disappears |
-| `feature_gates.video` / `video_section_visible` | trailer scene; the cover film follows `feature_gates.video` only, so hiding the trailer keeps the opening film |
+| `feature_gates.video` / `video_section_visible` | trailer scene and cover film; hiding the video in the editor falls back to the cover photo |
 | `rundown_visible` | rundown scene |
 | `dresscode_visible` | dress scene |
 | `gift_section_visible` / `feature_gates.gift_address` | gift scene / address card |

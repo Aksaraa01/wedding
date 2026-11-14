@@ -121,6 +121,15 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 // Balances two lines by the smallest |left − right| (reference `splitTitle`).
+// "Sand, Terracotta and Cocoa" — the palette sentence for an empty intro.
+function nameList(values: string[]): string {
+  const list = values.filter(Boolean)
+  if (list.length === 0) return ""
+  if (list.length === 1) return list[0]
+  if (list.length === 2) return `${list[0]} and ${list[1]}`
+  return `${list.slice(0, -1).join(", ")} and ${list[list.length - 1]}`
+}
+
 function splitTitle(value: string): string[] {
   const words = String(value || "").replace(/\s+/g, " ").trim().split(" ")
   if (words.length < 2) return [words[0] || ""]
@@ -313,10 +322,11 @@ export default function FilmRoll(profile: TemplateProps) {
   const dressColors = (profile.dresscode?.colors || []).filter((c) => c && (c.hex || c.name))
   const dressIntroWritten = (tc.dresscode_intro || profile.dresscode?.description || "").trim()
   const dressTitleWritten = (profile.dresscode?.title || "").trim()
-  const dressNote = (tc.dresscode_note || "").trim()
+  const dressNoteWritten = (tc.dresscode_note || "").trim()
   const hasDresscode =
     profile.dresscode_visible !== false &&
-    (dressColors.length > 0 || !!dressIntroWritten || !!dressTitleWritten || !!dressNote)
+    (dressColors.length > 0 || !!dressIntroWritten || !!dressTitleWritten || !!dressNoteWritten)
+  const dressNote = dressNoteWritten
 
   const accounts = profile.gift_section_visible !== false ? (profile.gift_accounts || []).filter(Boolean) : []
   const giftAddress =
@@ -325,10 +335,10 @@ export default function FilmRoll(profile: TemplateProps) {
 
   const film: VideoSource | null = videoSource(profile.video_url)
   const hasVideo = gates.video !== false && profile.video_section_visible !== false && !!film
-  // The cover film is independent of the trailer section (§9.1): a couple can
-  // hide the trailer and still open on their video. File videos play in a
-  // <video>; provider links become a silent, chrome-less background embed.
-  const gateFilm = gates.video !== false && film ? film : null
+  // The cover film follows the couple's video toggle: hiding the video section
+  // falls back to the cover photo. File videos play in a <video>; provider
+  // links become a silent, chrome-less background embed.
+  const gateFilm = gates.video !== false && profile.video_section_visible !== false && film ? film : null
   const gateEmbed =
     gateFilm && gateFilm.kind === "embed"
       ? gateFilm.src
@@ -376,42 +386,49 @@ export default function FilmRoll(profile: TemplateProps) {
   const openLabel = (tc.open_button || "").trim() || "Enter"
   const dearLabel = (tc.cover_apology || "").trim() || "Dear"
   const openingKicker = (tc.opening_kicker || "").trim() || "Prologue"
-  const openingBody = (tc.welcome_message || "").trim()
+  const openingBody =
+    (tc.welcome_message || "").trim() ||
+    "Before the credits roll and the lights come up, there was a first look, a first laugh, and a promise we kept rehearsing until it became a life."
   const castKicker = (tc.mempelai_kicker || "").trim() || "Starring"
   const parentsLabel = (tc.parents_label || "").trim() || "With the blessing of"
   const storyKicker = (tc.story_kicker || "").trim() || "Scene"
   const storyTitle = splitTitle((tc.love_story_title || "").trim() || "Our Story")
-  const storyLead = (tc.story_intro || "").trim()
+  const storyLead = (tc.story_intro || "").trim() || "Three scenes that brought us to the same frame."
   const eventsKicker = (tc.events_kicker || "").trim() || "Save the Date"
   const eventsTitle = splitTitle(
     (tc.events_title || "").trim() || (events.length > 1 ? "The Celebration" : (events[0]?.name || "").trim() || "The Celebration")
   )
-  const eventsIntro = (tc.events_intro || "").trim()
+  const eventsIntro = (tc.events_intro || "").trim() || "We would be honoured to have you with us as we say our vows."
   const mapsLabel = (tc.maps_label || "").trim() || "Open Map"
   const calendarLabel = (tc.events_note || "").trim() || "Save to calendar"
   const rundownKicker = (tc.rundown_kicker || "").trim() || "The Programme"
   const rundownTitle = splitTitle((tc.rundown_title || "").trim() || "Order of the Day")
-  const rundownIntro = (tc.rundown_intro || "").trim()
+  const rundownIntro = (tc.rundown_intro || "").trim() || "How the day will unfold, from the first arrival to the last farewell."
   const galleryKicker = (tc.gallery_kicker || "").trim() || "Stills"
   const galleryTitle = splitTitle((tc.gallery_title || "").trim() || "Precious Moments")
-  const galleryLead = (tc.gallery_quote || "").trim() || (tc.gallery_intro || "").trim()
+  const galleryLead = (tc.gallery_quote || "").trim() || (tc.gallery_intro || "").trim() || "Every love story is beautiful, but ours is our favourite."
   const videoKicker = (tc.video_kicker || "").trim() || "Action!"
   const videoTitle = splitTitle((tc.video_title || "").trim() || "Trailer")
-  const videoIntro = (tc.video_intro || "").trim()
+  const videoIntro = (tc.video_intro || "").trim() || "The day as it happened, kept in motion."
   const giftKicker = (tc.gift_kicker || "").trim() || "With Love"
   const giftTitle = splitTitle((tc.gift_intro_title || "").trim() || "Wedding Gift")
   const giftLead =
     (tc.gift_intro_description || "").trim() ||
     "Your blessings are the most beautiful gift to us. Should you wish to give a token of love, you may do so here."
-  const giftSignature = (tc.gift_signature || "").trim()
+  const giftSignature = (tc.gift_signature || "").trim() || "With love and gratitude"
   const dressKicker = (tc.dresscode_kicker || "").trim() || "Dresscode"
   const dressHeading = dressTitleWritten || "What to Wear"
-  const dressIntro = dressIntroWritten
+  const dressColorNames = dressColors.map((color) => (color.name || "").trim()).filter(Boolean)
+  const dressIntro =
+    dressIntroWritten ||
+    (dressColorNames.length
+      ? `We would love to see you in ${nameList(dressColorNames)}.`
+      : "We would love to see you in the palette below.")
   const wishesKicker = (tc.wishes_kicker || "").trim() || "Prayers & Wishes"
   const wishesTitle = splitTitle((tc.wishes_title || "").trim() || "Wishes")
-  const wishesIntro = (tc.wishes_intro || "").trim()
+  const wishesIntro = (tc.wishes_intro || "").trim() || "Write your best prayers and wishes for us."
   const creditsKicker = (tc.closing_kicker || "").trim() || coverTitle
-  const closingSee = (tc.closing_see || "").trim()
+  const closingSee = (tc.closing_see || "").trim() || "See you at the pictures."
   const accountToast = (tc.copy_account_toast || "").trim() || "Account number copied"
   const addressToast = (tc.copy_address_toast || "").trim() || "Address copied"
   const addressButton = (tc.copy_address_button || "").trim() || "Copy address"
@@ -481,8 +498,7 @@ export default function FilmRoll(profile: TemplateProps) {
       meta: [
         ["Date", dateTight],
         ["Day", dayName(profile.estimated_wedding_date)],
-        [storyKicker, ""],
-      ].filter((row) => row[0] === storyKicker || !!row[1]) as [string, string][],
+      ].filter((row) => !!row[1]) as [string, string][],
     })
 
     list.push({
@@ -646,13 +662,7 @@ export default function FilmRoll(profile: TemplateProps) {
       dim: 0.46,
     })
 
-    // Scene numbering ("01 / 13") is only known once the list is complete.
-    return list.map((scene, index) => ({
-      ...scene,
-      meta: scene.meta?.map(([label, value]) =>
-        label === storyKicker ? ([label, `${pad2(index + 1)} / ${pad2(list.length)}`] as [string, string]) : [label, value]
-      ),
-    }))
+    return list
   }, [
     brideFull,
     brideName,
@@ -1387,9 +1397,6 @@ export default function FilmRoll(profile: TemplateProps) {
               {scene.kind === "poster" && (
                 <div className="fr-award" data-p="12">
                   <span className="fr-award__y">{dateObject ? dateObject.getFullYear() : ""}</span>
-                  <span className="fr-award__h">
-                    {storyKicker} {sceneNo(index)}
-                  </span>
                   <span className="fr-award__l">
                     <svg viewBox="0 0 99 66" aria-hidden="true" focusable="false">
                       <path d="M30 60C14 52 6 38 9 20M30 60c2-8-1-15-8-19M24 50c-8 1-13-3-15-9M19 40c-7-1-10-6-10-12M17 30c-5-3-7-8-5-13M18 21c-3-4-3-8 0-12M69 60c16-8 24-22 21-40M69 60c-2-8 1-15 8-19M75 50c8 1 13-3 15-9M80 40c7-1 10-6 10-12M82 30c5-3 7-8 5-13M81 21c3-4 3-8 0-12" />
@@ -1584,16 +1591,6 @@ export default function FilmRoll(profile: TemplateProps) {
                                   <span className="fr-tix__r">
                                     <ArrowSvg />
                                   </span>
-                                </a>
-                              )}
-                              {(eventIdx === 0 ? calendarUrl : "") && (
-                                <a
-                                  href={calendarUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="fr-link fr-eyeb"
-                                >
-                                  {calendarLabel}
                                 </a>
                               )}
                             </div>
