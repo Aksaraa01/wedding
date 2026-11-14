@@ -4,6 +4,7 @@ import { useState, useEffect, use, useRef, useCallback, useMemo, ComponentType }
 import { useRouter, useSearchParams } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import { getTemplateComponent, getTemplateContentSpec, hidesOpeningSection } from "@/components/templates"
+import { visibleCoverSlotIndexes } from "@/lib/coverSlots"
 import { getTemplateExtraFields, groupExtraFields, templateExtrasLabel } from "@/lib/templateExtras"
 import type { RowGates } from "@/lib/featureGates"
 import { getIncompleteInvitationSections, parseStringList } from "@/lib/invitationCompleteness"
@@ -868,7 +869,8 @@ function EditorInner({ id }: { id: string }) {
   const canAddGallery = galleryMax == null || galleryPhotos.length < galleryMax
 
   const coverSlotLabel = (i: number) => contentSpec?.cover_slot_labels?.[i] || `Slot ${i + 1}`
-  const coverSlots = Array.from({ length: coverSlotCount })
+  // Slots tied to a hidden section (video off, no rundown, …) are not offered.
+  const coverSlotIndexes = visibleCoverSlotIndexes(contentSpec, data)
 
   // Whether a field maps to a background slideshow (which needs 2 photos/slides).
   const isSlideshowField = (field: string): boolean => {
@@ -1803,10 +1805,10 @@ function EditorInner({ id }: { id: string }) {
                   <div className="space-y-3">
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Foto Sampul</label>
                     <p className="text-[11px] text-on-surface-variant italic">
-                      {`${coverSlotCount} slot foto tersedia pada template${contentSpec?.cover_slot_labels ? ` (${contentSpec.cover_slot_labels.join(" · ")})` : ""}. Isi setiap slot untuk mengganti foto.`}
+                      {`${coverSlotIndexes.length} slot foto tersedia pada template${coverSlotIndexes.length ? ` (${coverSlotIndexes.map(coverSlotLabel).join(" · ")})` : ""}. Isi setiap slot untuk mengganti foto.`}
                     </p>
                     <div className="grid grid-cols-2 gap-3">
-                      {coverSlots.map((_, i) => {
+                      {coverSlotIndexes.map((i) => {
                         const slotValue = (Array.isArray(data.cover_photos) ? data.cover_photos : [])[i]
                         if (isCoverSlideshowSlot(i)) {
                           const slides = Array.isArray(slotValue) ? slotValue : (typeof slotValue === "string" && slotValue !== "" ? [slotValue] : [])
@@ -1890,7 +1892,7 @@ function EditorInner({ id }: { id: string }) {
                         )
                       })}
                     </div>
-                    <input ref={coverReplaceRef} type="file" accept="image/*" multiple className="hidden" onChange={async e => { const files = e.target.files ? Array.from(e.target.files).filter(f => f.type.startsWith("image/")) : []; const pairs: { index: number; file: File }[] = []; if (files.length && coverReplaceIndex !== null) { for (let k = 0; k < files.length; k++) { const idx = coverReplaceIndex + k; if (idx >= coverSlotCount) break; if (isCoverSlideshowSlot(idx)) continue; pairs.push({ index: idx, file: files[k] }) } setCoverReplaceIndex(null) } else if (files.length) { for (let k = 0; k < files.length; k++) { if (k >= coverSlotCount) break; if (isCoverSlideshowSlot(k)) continue; pairs.push({ index: k, file: files[k] }) } } e.target.value = ""; if (pairs.length) await runCoverUploads(pairs) }} />
+                    <input ref={coverReplaceRef} type="file" accept="image/*" multiple className="hidden" onChange={async e => { const files = e.target.files ? Array.from(e.target.files).filter(f => f.type.startsWith("image/")) : []; const pairs: { index: number; file: File }[] = []; const start = coverReplaceIndex !== null ? Math.max(0, coverSlotIndexes.indexOf(coverReplaceIndex)) : 0; if (files.length) { for (let k = 0; k < files.length; k++) { const idx = coverSlotIndexes[start + k]; if (idx === undefined) break; if (isCoverSlideshowSlot(idx)) continue; pairs.push({ index: idx, file: files[k] }) } if (coverReplaceIndex !== null) setCoverReplaceIndex(null) } e.target.value = ""; if (pairs.length) { setCoverReplaceIndex(null); await runCoverUploads(pairs) } }} />
                     <input ref={coverSlideRef} type="file" accept="image/*" multiple className="hidden" onChange={async e => { const files = e.target.files ? Array.from(e.target.files).filter(f => f.type.startsWith("image/")) : []; const pairs: { slot: number; slide: number; file: File }[] = []; if (files.length && coverSlideTarget !== null) { let si = coverSlideTarget.slot, sl = coverSlideTarget.slide; for (const f of files) { pairs.push({ slot: si, slide: sl, file: f }); sl++; if (sl > 1) { sl = 0; si++; while (si < coverSlotCount && !isCoverSlideshowSlot(si)) si++; if (si >= coverSlotCount) break } } setCoverSlideTarget(null) } e.target.value = ""; if (pairs.length) await runCoverSlideUploads(pairs) }} />
                   </div>
                   )}

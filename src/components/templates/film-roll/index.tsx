@@ -320,7 +320,7 @@ export default function FilmRoll(profile: TemplateProps) {
       : []
 
   const dressColors = (profile.dresscode?.colors || []).filter((c) => c && (c.hex || c.name))
-  const dressIntroWritten = (tc.dresscode_intro || profile.dresscode?.description || "").trim()
+  const dressIntroWritten = (profile.dresscode?.description || "").trim()
   const dressTitleWritten = (profile.dresscode?.title || "").trim()
   const dressNoteWritten = (tc.dresscode_note || "").trim()
   const hasDresscode =
@@ -355,12 +355,10 @@ export default function FilmRoll(profile: TemplateProps) {
   const groomFull = (profile.groom_full_name || "").trim() || groomName
   const brideFull = (profile.bride_full_name || "").trim() || brideName
   const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || "The Wedding"
-  const initials = [
-    (groomName || groomFull).charAt(0),
-    (brideName || brideFull).charAt(0),
-  ]
-    .filter(Boolean)
-    .join("")
+  const editorInitials = (profile.couple_initials || "").replace(/[^A-Za-z0-9]/g, "").slice(0, 2)
+  const initials =
+    editorInitials ||
+    [(groomName || groomFull).charAt(0), (brideName || brideFull).charAt(0)].filter(Boolean).join("")
   const guestName = (profile.guest_name || "").trim()
   const hasGuest = !!guestName
 
@@ -447,31 +445,10 @@ export default function FilmRoll(profile: TemplateProps) {
     [events, profile.estimated_wedding_date]
   )
 
-  // Every scene draws from one pool, so no photo repeats before it has to.
+  // Each scene takes its own cover slot (the editor's Foto Sampul list); an
+  // empty slot falls back to the cover so no scene renders blank.
   const scenes = useMemo<Scene[]>(() => {
-    const pool: string[] = []
-    const push = (url?: string) => {
-      const value = (url || "").trim()
-      if (value && !pool.includes(value)) pool.push(value)
-    }
-    gallery.forEach(push)
-    push(coverShot)
-    push(groomShot)
-    push(brideShot)
-    stories.forEach((story) => push(story.image_url))
-
-    const used = new Set<string>()
-    const pick = (preferred?: string) => {
-      const value = (preferred || "").trim()
-      if (value) {
-        used.add(value)
-        return value
-      }
-      const next = pool.find((url) => !used.has(url)) || pool[used.size % Math.max(pool.length, 1)] || ""
-      if (next) used.add(next)
-      return next
-    }
-
+    const slotPhoto = (index: number) => (slots[index] || "").trim() || coverShot
     const list: Scene[] = []
 
     list.push({
@@ -480,7 +457,7 @@ export default function FilmRoll(profile: TemplateProps) {
       kicker: coverTitle,
       title: [groomName || coupleLabel, brideName ? `& ${brideName}` : ""].filter(Boolean),
       cap: CAPS.poster,
-      img: pick(coverShot),
+      img: coverShot,
       pos: "50% 30%",
       dim: 1,
       facts: [
@@ -507,7 +484,7 @@ export default function FilmRoll(profile: TemplateProps) {
       kicker: openingKicker,
       title: [],
       cap: CAPS.title,
-      img: pick(),
+      img: slotPhoto(1),
       pos: "50% 35%",
       dim: 0.3,
       lead: openingBody,
@@ -520,7 +497,7 @@ export default function FilmRoll(profile: TemplateProps) {
         kicker: castKicker,
         title: splitTitle(groomFull || groomName),
         cap: CAPS.cast,
-        img: pick(groomShot),
+        img: groomShot,
         pos: "50% 22%",
         dim: 1,
         person: "groom",
@@ -533,7 +510,7 @@ export default function FilmRoll(profile: TemplateProps) {
         kicker: castKicker,
         title: splitTitle(brideFull || brideName),
         cap: CAPS.cast,
-        img: pick(brideShot),
+        img: brideShot,
         pos: "50% 22%",
         dim: 1,
         person: "bride",
@@ -548,7 +525,7 @@ export default function FilmRoll(profile: TemplateProps) {
         kicker: storyKicker,
         title: storyTitle,
         cap: CAPS.chapter,
-        img: pick(stories[0]?.image_url),
+        img: (stories[0]?.image_url || "").trim() || slotPhoto(1),
         pos: "50% 35%",
         dim: 0.6,
         lead: storyLead,
@@ -562,7 +539,7 @@ export default function FilmRoll(profile: TemplateProps) {
         kicker: eventsKicker,
         title: eventsTitle,
         cap: CAPS.event,
-        img: pick(),
+        img: slotPhoto(2),
         pos: "50% 40%",
         dim: 0.62,
         lead: eventsIntro,
@@ -576,7 +553,7 @@ export default function FilmRoll(profile: TemplateProps) {
         kicker: rundownKicker,
         title: rundownTitle,
         cap: CAPS.rundown,
-        img: pick(),
+        img: slotPhoto(3),
         pos: "50% 40%",
         dim: 0.5,
         lead: rundownIntro,
@@ -590,7 +567,7 @@ export default function FilmRoll(profile: TemplateProps) {
         kicker: galleryKicker,
         title: galleryTitle,
         cap: CAPS.strip,
-        img: pick(),
+        img: coverShot,
         pos: "50% 35%",
         dim: 0.28,
         lead: galleryLead,
@@ -604,7 +581,7 @@ export default function FilmRoll(profile: TemplateProps) {
         kicker: videoKicker,
         title: videoTitle,
         cap: CAPS.trailer,
-        img: pick(),
+        img: slotPhoto(4),
         pos: "50% 35%",
         dim: 0.3,
         lead: videoIntro,
@@ -618,7 +595,7 @@ export default function FilmRoll(profile: TemplateProps) {
         kicker: giftKicker,
         title: giftTitle,
         cap: CAPS.gift,
-        img: pick(),
+        img: slotPhoto(5),
         pos: "50% 35%",
         dim: 0.4,
         lead: giftLead,
@@ -632,7 +609,7 @@ export default function FilmRoll(profile: TemplateProps) {
         kicker: dressKicker,
         title: splitTitle(dressHeading),
         cap: CAPS.dress,
-        img: pick(),
+        img: slotPhoto(6),
         pos: "50% 35%",
         dim: 0.42,
         lead: dressIntro,
@@ -645,7 +622,7 @@ export default function FilmRoll(profile: TemplateProps) {
       kicker: wishesKicker,
       title: wishesTitle,
       cap: CAPS.wishes,
-      img: pick(),
+      img: slotPhoto(7),
       pos: "50% 35%",
       dim: 0.36,
       lead: wishesIntro,
@@ -657,7 +634,7 @@ export default function FilmRoll(profile: TemplateProps) {
       kicker: creditsKicker,
       title: [],
       cap: CAPS.credits,
-      img: pick(),
+      img: slotPhoto(8),
       pos: "50% 35%",
       dim: 0.46,
     })
@@ -706,6 +683,7 @@ export default function FilmRoll(profile: TemplateProps) {
     rundownKicker,
     rundownTitle,
     saveDateLabel,
+    slots,
     stories,
     storyKicker,
     storyLead,
@@ -824,6 +802,7 @@ export default function FilmRoll(profile: TemplateProps) {
     wordDone: false,
   })
   const blockRef = useRef({ menu: false, lightbox: false, video: false })
+  const engineApiRef = useRef<{ measure: () => void; recache: () => void; place: () => void } | null>(null)
   const activeRef = useRef(0)
   const scenesRef = useRef<Scene[]>(scenes)
   scenesRef.current = scenes
@@ -952,6 +931,7 @@ export default function FilmRoll(profile: TemplateProps) {
     }
 
     const place = () => {
+      if (!boxRef.current.H) measure()
       const box = boxRef.current
       const n = cache.length
       if (!box.H || !n) return
@@ -983,6 +963,8 @@ export default function FilmRoll(profile: TemplateProps) {
         }
       }
     }
+
+    engineApiRef.current = { measure, recache: cacheItems, place }
 
     const rollChars = (now: number) => {
       const roll = rollRef.current
@@ -1253,6 +1235,7 @@ export default function FilmRoll(profile: TemplateProps) {
     // viewport is the only reliable signal, and a stale --fr-item-h makes every
     // card overflow the screen.
     window.visualViewport?.addEventListener("resize", onResize)
+    window.visualViewport?.addEventListener("scroll", onResize)
 
     measure()
     cacheItems()
@@ -1266,6 +1249,7 @@ export default function FilmRoll(profile: TemplateProps) {
       window.removeEventListener("keydown", onKey)
       window.removeEventListener("resize", onResize)
       window.visualViewport?.removeEventListener("resize", onResize)
+      window.visualViewport?.removeEventListener("scroll", onResize)
       home.removeEventListener("wheel", onWheel)
       home.removeEventListener("touchstart", onTouchStart)
       home.removeEventListener("touchmove", onTouchMove)
@@ -1273,17 +1257,17 @@ export default function FilmRoll(profile: TemplateProps) {
       home.removeEventListener("touchcancel", onTouchEnd)
       home.removeEventListener("mousedown", onMouseDown)
       if (wheelTimer) window.clearTimeout(wheelTimer)
+      engineApiRef.current = null
     }
   }, [events.length, playSceneTitle])
 
-  // Re-measure the deck when the scene list changes (a photo/wish edit).
+  // Re-measure and re-cache when the scene list changes (a photo/wish edit), so
+  // a new or removed card never keeps a stale transform from the old deck.
   useEffect(() => {
-    const home = homeRef.current
-    const root = rootRef.current
-    if (!home || !root) return
     const frame = window.requestAnimationFrame(() => {
-      const item = home.querySelector<HTMLElement>(".fr-item")
-      if (item) item.style.willChange = "transform"
+      engineApiRef.current?.measure()
+      engineApiRef.current?.recache()
+      engineApiRef.current?.place()
     })
     return () => window.cancelAnimationFrame(frame)
   }, [sceneCount])
@@ -1330,6 +1314,15 @@ export default function FilmRoll(profile: TemplateProps) {
     activeRef.current = 0
     setActive(0)
     setOpened(true)
+    // The gate hides at the same moment iOS resolves its toolbars; measure once
+    // the layout has settled so the deck cannot start with a stale item height.
+    const remeasure = () => {
+      engineApiRef.current?.measure()
+      engineApiRef.current?.place()
+    }
+    window.requestAnimationFrame(remeasure)
+    window.setTimeout(remeasure, 260)
+    window.setTimeout(remeasure, 900)
     playMusic()
   }, [playMusic])
 

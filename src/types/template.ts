@@ -138,6 +138,9 @@ export type ContentSpec = {
   cover_slots?: number
   // Optional human labels for each cover slot (e.g. per-scene backgrounds).
   cover_slot_labels?: string[]
+  // Optional section gate per slot, aligned by index. A slot whose section is
+  // hidden is not offered in the editor/ops (the stored photo is kept).
+  cover_slot_sections?: (string | null)[]
   // Indices (0-based) of cover slots that render as 2-photo slideshows.
   cover_slideshows?: number[]
   groom_photo?: PhotoStyle

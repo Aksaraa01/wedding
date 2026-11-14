@@ -532,14 +532,13 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     multiline: true,
     rows: 3,
     placeholders: { "love-line": "Your presence is the greatest gift, but we'd love it if you dressed in our colour palette.",
-      "film-roll": "We would love to see you in ivory, stone and soft black.",
       "silver-gelatin": "We would love to see you in ivory, stone and soft black.",
       teatro: "We would be delighted if you joined us in the palette below.",
       "cinnabar-seal": "Kami akan senang bila Anda hadir dengan nuansa warna berikut, agar setiap bingkai dari hari itu terasa satu cerita.",
       "boarding-pass":
         "Kami akan senang bila Anda hadir dengan nuansa warna berikut, agar setiap bingkai dari hari itu terasa satu cerita.",
     },
-    templates: ["silver-gelatin", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
+    templates: ["silver-gelatin", "boarding-pass", "cinnabar-seal", "iris", "teatro", "love-line"],
   },
   {
     key: "gift_intro_description",

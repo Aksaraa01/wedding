@@ -71,7 +71,7 @@ Mapping to the playbook §0.5 contract:
 
 | §0.5 # | Contract section | In `film-roll` |
 |---|---|---|
-| 1 | Cover | gate (wordmark + guest + Enter) → poster card; **one cover slot** (`cover_slots: 1`) feeds both the gate and the poster |
+| 1 | Cover | gate (wordmark + guest + Enter) → poster card; **9 cover slots** (`Sampul, Prolog, Acara, Rundown, Video, Hadiah, Dresscode, Ucapan, Penutup`) feed the gate/poster card and each scene background |
 | 2 | Opening video | `video_url` fills the gate: a file plays in `<video>`; a YouTube/Vimeo link becomes a silent, chrome-less, cover-cropped iframe (§9.1). The trailer is a separate scene |
 | 3 | Welcome | **folded into the poster** — the countdown, guest and venue live on the cover card so the reel opens on the hero, not on a second screen |
 | 4 | Kalimat pembuka | **not shipped** — `film-roll` is in `TEMPLATES_WITHOUT_OPENING`, so the editor/ops hide the card. The prologue's paragraph is the template extra `welcome_message` (`Pesan Sambutan`), not the profile field |
@@ -156,6 +156,7 @@ image fade, and forces every glyph back to `translate(0)`.
 | Gate wordmark | `groom_name` + `bride_name`; kicker `cover_title` → `cover_kicker`; date `estimated_wedding_date` |
 | Gate guest | `guest_name`; "Dear" from `cover_apology` |
 | Gate button | `open_button` |
+| Couple initials | `couple_initials` (editor “Singkatan Pasangan”), punctuation stripped, first two characters; only when empty fall back to the first letter of each name |
 | Poster title | `groom_name` / `& bride_name` |
 | Poster meta | `Date` and `Day` (no scene number) |
 | Poster facts | `save_date_label` + date, `cover_apology` + guest, event name/venue |
@@ -168,7 +169,7 @@ image fade, and forces every glyph back to `translate(0)`.
 | Strip | `gallery_photos[]` + `gallery_*` |
 | Trailer | `video_url` → `videoSource()` (file, YouTube or Vimeo) |
 | Gift | `gift_accounts[]`, `gift_address`, `gift_address_name`, `gift_signature` |
-| Dress | `dresscode {title, description, colors[]}` + `dresscode_*` |
+| Dress | `dresscode {title, description, colors[]}` + `dresscode_kicker` / `dresscode_note`; with no description the intro is generated from the selected palette names (“…Sand, Terracotta and Cocoa.”). The “Pengantar Dress Code” extra is not used |
 | Wishes | `Wishes` + `template_content.wishes_*` |
 | Credits | `closing_message`, `closing_see`, `inviting_families[]`, `inviting_kicker` |
 | Music | `track_url` (`preload="metadata"` + `data-warm-audio`) |

@@ -41,6 +41,7 @@ import { pollWpJob, fetchWpJob } from "@/lib/wpJobPoll"
 import { OPENING_PRESETS, OPENING_CUSTOM, matchOpeningPreset } from "@/lib/openingPresets"
 import { normalizeVideoUrl } from "@/components/templates/shared/lib"
 import { getTemplateContentSpec } from "@/components/templates"
+import { visibleCoverSlotIndexes, type CoverSlotGateData } from "@/lib/coverSlots"
 import { hidesOpeningSection } from "@/lib/templateSections"
 import { getTemplateExtraFields, groupExtraFields, templateExtrasLabel } from "@/lib/templateExtras"
 import BankSelect from "@/components/dashboard/BankSelect"
@@ -1264,6 +1265,8 @@ export default function AntrianDetail({ id }: { id: string }) {
   // a dedicated thumbnail (or opt out) in the SAMPUL accordion.
   const invHasCoverPhotos = !invNoPhoto && invCoverSlotCount > 0
   const invCoverSlotLabel = (i: number) => invContentSpec?.cover_slot_labels?.[i] || `Slot ${i + 1}`
+  // Slots whose section is hidden are not offered (stored photos are kept).
+  const invCoverSlotIndexes = visibleCoverSlotIndexes(invContentSpec, (invForm || invitationData.profile || {}) as unknown as CoverSlotGateData)
   const invIsCoverSlideshowSlot = (i: number) => {
     if (invContentSpec) return !!invContentSpec.cover_slideshows?.includes(i)
     const mapping = invTpl?.wp_manifest?.cover_photos?.[i]
@@ -3018,10 +3021,10 @@ export default function AntrianDetail({ id }: { id: string }) {
                     <div className="space-y-3">
                       <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Foto Sampul</label>
                       <p className="text-[11px] text-on-surface-variant italic">
-                        {`${invCoverSlotCount} slot foto sampul tersedia pada template. Isi setiap slot untuk mengganti foto.`}
+                        {`${invCoverSlotIndexes.length} slot foto sampul tersedia pada template. Isi setiap slot untuk mengganti foto.`}
                       </p>
                       <div className="grid grid-cols-2 gap-3">
-                        {Array.from({ length: invCoverSlotCount }).map((_, i) => {
+                        {invCoverSlotIndexes.map((i) => {
                           const slotValue = (Array.isArray(invForm.cover_photos) ? invForm.cover_photos : [])[i]
                           if (invIsCoverSlideshowSlot(i)) {
                             const slides = Array.isArray(slotValue) ? slotValue : (typeof slotValue === "string" && slotValue !== "" ? [slotValue] : [])
