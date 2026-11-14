@@ -1081,6 +1081,7 @@ export default function FilmRoll(profile: TemplateProps) {
     let touchX = 0
     let touchMode = ""
     let touchTarget: EventTarget | null = null
+    let touchClaim: HTMLElement | null = null
     let sideDelta = 0
 
     const onTouchStart = (event: TouchEvent) => {
@@ -1092,6 +1093,7 @@ export default function FilmRoll(profile: TemplateProps) {
       touchX = event.touches[0].pageX
       touchMode = ""
       touchTarget = event.target
+      touchClaim = null
       sideDelta = 0
     }
 
@@ -1105,7 +1107,8 @@ export default function FilmRoll(profile: TemplateProps) {
         if (Math.abs(dx) > Math.abs(dy) && touchTarget instanceof Element && touchTarget.closest(".fr-slide")) {
           touchMode = "side"
         } else {
-          touchMode = scrollable(touchTarget, dy > 0 ? -1 : 1) ? "scroll" : "roll"
+          touchClaim = scrollable(touchTarget, dy > 0 ? -1 : 1) as HTMLElement | null
+          touchMode = touchClaim ? "scroll" : "roll"
         }
       }
       if (touchMode === "side") {
@@ -1113,7 +1116,14 @@ export default function FilmRoll(profile: TemplateProps) {
         sideDelta = dx
         return
       }
-      if (touchMode === "scroll") return
+      if (touchMode === "scroll") {
+        // Drive the scroller ourselves: the finger can land on the card's
+        // padding or the fixed head, where native panning has nothing to grab.
+        if (event.cancelable) event.preventDefault()
+        if (touchClaim) touchClaim.scrollTop -= dy
+        touchY = touch.pageY
+        return
+      }
       if (event.cancelable) event.preventDefault()
       touchY = touch.pageY
       push(dy * 5, "touch")
