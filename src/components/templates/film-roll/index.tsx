@@ -934,10 +934,16 @@ export default function FilmRoll(profile: TemplateProps) {
         const item = cache[i]
         const w = wrap(state.current + i, n / 2)
         if (Math.abs(w) > 1.6) {
-          if (item.el.style.visibility !== "hidden") item.el.style.visibility = "hidden"
+          if (item.el.style.visibility !== "hidden") {
+            item.el.style.visibility = "hidden"
+            item.el.style.pointerEvents = "none"
+          }
           continue
         }
-        if (item.el.style.visibility !== "visible") item.el.style.visibility = "visible"
+        if (item.el.style.visibility !== "visible") {
+          item.el.style.visibility = "visible"
+          item.el.style.pointerEvents = ""
+        }
         item.el.style.transform = `translate3d(0,${(w * box.H + box.margin).toFixed(2)}px,0)`
         if (item.el.style.filter !== blur) item.el.style.filter = blur
         if (!mobile) {
@@ -991,7 +997,7 @@ export default function FilmRoll(profile: TemplateProps) {
       }
     }
 
-    const blocked = () => !state.entered || blockRef.current.menu || blockRef.current.lightbox
+    const blocked = () => !state.entered || blockRef.current.menu || blockRef.current.lightbox || blockRef.current.video
 
     const gestStart = () => {
       if (state.gest) return
@@ -1016,11 +1022,29 @@ export default function FilmRoll(profile: TemplateProps) {
       state.scrolling = false
     }
 
-    const scrollable = (target: EventTarget | null, delta: number) => {
-      const node = target instanceof Element ? target.closest(".fr-scroll") : null
-      if (!node) return null
-      if (node.scrollHeight <= node.clientHeight + 1) return null
-      if (delta > 0 ? node.scrollTop > 0 : node.scrollTop + node.clientHeight < node.scrollHeight - 1) return node
+    // dir: +1 = the guest is reaching for later content, -1 = earlier content.
+    const canScroll = (node: Element, dir: number) => {
+      if (node.scrollHeight <= node.clientHeight + 1) return false
+      return dir > 0
+        ? node.scrollTop + node.clientHeight < node.scrollHeight - 1
+        : node.scrollTop > 0
+    }
+
+    // A gesture that starts inside a scrollable card (mobile) or a nested
+    // `.fr-scroll` (chapter copy, gift, wishes) belongs to that element until it
+    // reaches its edge; only then does the deck take over.
+    const scrollable = (target: EventTarget | null, dir: number) => {
+      if (!(target instanceof Element)) return null
+      // Only the card on screen may claim the gesture: the peeking neighbours
+      // are also scroll containers, and letting them capture a swipe made the
+      // deck feel stuck.
+      const item = target.closest(".fr-item")
+      if (!item || !item.classList.contains("is-current")) return null
+      const inner = target.closest(".fr-scroll")
+      if (inner && canScroll(inner, dir)) return inner
+      // The scene body scrolls even when the finger lands on the fixed head.
+      const body = item.querySelector(".fr-scrollable")
+      if (body && canScroll(body, dir)) return body
       return null
     }
 
@@ -1043,7 +1067,7 @@ export default function FilmRoll(profile: TemplateProps) {
       }
       let delta = event.deltaY
       if (event.deltaMode === 1) delta *= 30
-      if (scrollable(event.target, delta)) return
+      if (scrollable(event.target, delta > 0 ? 1 : -1)) return
       event.preventDefault()
       push(-delta * 0.5, "wheel")
       if (wheelTimer) window.clearTimeout(wheelTimer)
@@ -1081,7 +1105,7 @@ export default function FilmRoll(profile: TemplateProps) {
         if (Math.abs(dx) > Math.abs(dy) && touchTarget instanceof Element && touchTarget.closest(".fr-slide")) {
           touchMode = "side"
         } else {
-          touchMode = scrollable(touchTarget, dy) ? "scroll" : "roll"
+          touchMode = scrollable(touchTarget, dy > 0 ? -1 : 1) ? "scroll" : "roll"
         }
       }
       if (touchMode === "side") {
@@ -1142,6 +1166,7 @@ export default function FilmRoll(profile: TemplateProps) {
         setLightbox(null)
         setMenuOpen(false)
         setSmallOpen(false)
+        setVideoLive(false)
         return
       }
       if (blockRef.current.lightbox) return
@@ -1184,6 +1209,10 @@ export default function FilmRoll(profile: TemplateProps) {
     window.addEventListener("mouseup", onMouseUp)
     window.addEventListener("keydown", onKey)
     window.addEventListener("resize", onResize)
+    // iOS collapses its toolbars without firing a window resize; the visual
+    // viewport is the only reliable signal, and a stale --fr-item-h makes every
+    // card overflow the screen.
+    window.visualViewport?.addEventListener("resize", onResize)
 
     measure()
     cacheItems()
@@ -1196,6 +1225,7 @@ export default function FilmRoll(profile: TemplateProps) {
       window.removeEventListener("mouseup", onMouseUp)
       window.removeEventListener("keydown", onKey)
       window.removeEventListener("resize", onResize)
+      window.visualViewport?.removeEventListener("resize", onResize)
       home.removeEventListener("wheel", onWheel)
       home.removeEventListener("touchstart", onTouchStart)
       home.removeEventListener("touchmove", onTouchMove)
@@ -1306,24 +1336,24 @@ export default function FilmRoll(profile: TemplateProps) {
               )}
             </div>
 
-            <div className="fr-item__c" data-p="2">
-              {scene.kind === "chapter" && stories.length > 1 && (
-                <div className="fr-chapter__bg" aria-hidden="true">
-                  {stories.map((story, storyIdx) =>
-                    storyIdx > 0 && story.image_url ? (
-                      <img
-                        key={`bg-${storyIdx}`}
-                        src={story.image_url}
-                        alt=""
-                        loading="lazy"
-                        draggable={false}
-                        className={storyIdx === storyIndex ? "is-on" : ""}
-                      />
-                    ) : null
-                  )}
-                </div>
-              )}
+            {scene.kind === "chapter" && stories.length > 1 && (
+              <div className="fr-chapter__bg" aria-hidden="true">
+                {stories.map((story, storyIdx) =>
+                  storyIdx > 0 && story.image_url ? (
+                    <img
+                      key={`bg-${storyIdx}`}
+                      src={story.image_url}
+                      alt=""
+                      loading="lazy"
+                      draggable={false}
+                      className={storyIdx === storyIndex ? "is-on" : ""}
+                    />
+                  ) : null
+                )}
+              </div>
+            )}
 
+            <div className="fr-item__c" data-p="2">
               {scene.kind === "poster" && (
                 <div className="fr-award" data-p="12">
                   <span className="fr-award__y">{dateObject ? dateObject.getFullYear() : ""}</span>
@@ -1466,7 +1496,7 @@ export default function FilmRoll(profile: TemplateProps) {
               )}
 
               {scene.kind === "event" && (
-                <div className="fr-in fr-slide" data-p="18">
+                <div className="fr-in fr-slide fr-scrollable" data-p="18">
                   <div className="fr-slide__view">
                     <div
                       className="fr-slide__track"
@@ -1590,7 +1620,7 @@ export default function FilmRoll(profile: TemplateProps) {
               )}
 
               {scene.kind === "strip" && (
-                <div className="fr-in fr-strip" data-p="10">
+                <div className="fr-in fr-strip fr-scrollable" data-p="10">
                   {[1, 2].map((direction) => (
                     <div className="fr-strip__row" key={`row-${direction}`}>
                       <div className="fr-strip__track" style={{ animationDuration: stripDuration }}>
@@ -1613,30 +1643,15 @@ export default function FilmRoll(profile: TemplateProps) {
 
               {scene.kind === "trailer" && film && (
                 <div className="fr-in fr-video" data-p="10">
-                  {!videoLive ? (
-                    <>
-                      {scene.img && <img className="fr-video__poster" src={scene.img} alt="" aria-hidden="true" draggable={false} />}
-                      <button type="button" className="fr-video__play" onClick={() => setVideoLive(true)}>
-                        <i>
-                          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="M8 5v14l11-7z" />
-                          </svg>
-                        </i>
-                        <span className="fr-eyeb">Play</span>
-                      </button>
-                    </>
-                  ) : youtubeId ? (
-                    <AutoplayYouTube videoId={youtubeId} title={videoTitle.join(" ")} controls autoplay />
-                  ) : film.kind === "file" ? (
-                    <video src={film.src} controls autoPlay playsInline preload="metadata" poster={scene.img} />
-                  ) : (
-                    <iframe
-                      src={film.src}
-                      title={videoTitle.join(" ")}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  )}
+                  {scene.img && <img className="fr-video__poster" src={scene.img} alt="" aria-hidden="true" draggable={false} />}
+                  <button type="button" className="fr-video__play" onClick={() => setVideoLive(true)}>
+                    <i>
+                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </i>
+                    <span className="fr-eyeb">Play</span>
+                  </button>
                 </div>
               )}
 
@@ -1698,7 +1713,7 @@ export default function FilmRoll(profile: TemplateProps) {
               )}
 
               {scene.kind === "wishes" && (
-                <div className="fr-in fr-wish" data-p="10">
+                <div className="fr-in fr-wish fr-scrollable" data-p="10">
                   <Wishes
                     weddingProfileId={profile.wedding_profile_id}
                     guestId={profile.guest_id}
@@ -1949,6 +1964,33 @@ export default function FilmRoll(profile: TemplateProps) {
               ›
             </button>
           )}
+        </div>
+      )}
+
+      {videoLive && film && (
+        <div className="fr-player" role="dialog" aria-modal="true" aria-label={videoTitle.join(" ")}>
+          <div className="fr-player__box">
+            {youtubeId ? (
+              <AutoplayYouTube videoId={youtubeId} title={videoTitle.join(" ")} controls autoplay />
+            ) : film.kind === "file" ? (
+              <video src={film.src} controls autoPlay playsInline preload="metadata" poster={coverShot} />
+            ) : (
+              <iframe
+                src={film.src}
+                title={videoTitle.join(" ")}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            )}
+          </div>
+          <button
+            type="button"
+            className="fr-arrow fr-arrow--light fr-player__x"
+            aria-label="Close"
+            onClick={() => setVideoLive(false)}
+          >
+            ✕
+          </button>
         </div>
       )}
 
