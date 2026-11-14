@@ -1741,6 +1741,36 @@
         "Wedding gift": "WCAG name for the gift tablist (two tabs have their own editable labels)"
       }
     },
+    "love-line": {
+      "allow": {
+        "Days": "countdown unit label",
+        "Hours": "countdown unit label",
+        "Minutes": "countdown unit label",
+        "Seconds": "countdown unit label",
+        "Countdown to the wedding day": "WCAG name for the countdown group",
+        "Open the invitation": "WCAG name for the cover gate",
+        "Welcome": "WCAG name for the opening section",
+        "The couple": "WCAG name for the mempelai section",
+        "Date and venue": "WCAG name for the event section",
+        "With honour": "WCAG name for the inviting-families section",
+        "Schedule": "WCAG name for the rundown section",
+        "Our story": "WCAG name for the love-story section",
+        "Our moments": "WCAG name for the decorative gallery band",
+        "Wedding film": "WCAG name for the video section",
+        "Wedding gift": "WCAG name for the gift section",
+        "Dress code": "WCAG name for the dress-code section",
+        "Prayers and wishes": "WCAG name for the wishes section",
+        "Thank you": "WCAG name for the closing section",
+        "Contact Aksaraa Wedding on WhatsApp": "WCAG name for the footer brand link",
+        "Aksaraa Wedding": "brand badge alt text",
+        "Wedding by Aksaraa": "brand badge CTA",
+        "better together": "handwritten annotation baked into the cover illustration composition",
+        "Sending…": "transient send state in the wishes form",
+        "Loading wishes…": "transient loading state in the wishes feed",
+        "Previous page": "WCAG name for the wishes pager control",
+        "Next page": "WCAG name for the wishes pager control"
+      }
+    },
     "film-roll": {
       "allow": {
         "Days": "countdown unit label",

@@ -149,6 +149,9 @@ export type ContentSpec = {
   // Whether love-story milestones render/accept a photo. Absent ⇒ true.
   // Set false for text-only story layouts (e.g. piano-garden).
   story_photo?: boolean
+  // Whether the couple-initials monogram is offered/rendered. Absent ⇒ true.
+  // Set false for templates that never print the initials field.
+  initials?: boolean
   // Sections the template renders. Absent/false ⇒ the section's content either
   // never appears or, where the toggle exists, hides its entry point entirely.
   sections?: {

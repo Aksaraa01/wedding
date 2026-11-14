@@ -36,6 +36,7 @@
   --font-smythe: 'Smythe', serif;
   --font-marcellus: 'Marcellus', serif;
   --font-urbanist: 'Urbanist', sans-serif;
+  --font-dafoe: 'Mr Dafoe', cursive;
 }
 @font-face {
   font-family: 'Inter';
@@ -995,4 +996,11 @@
   font-weight: 700;
   font-display: swap;
   src: url('/fonts/urbanist-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Mr Dafoe';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/mrdafoe-400.woff2') format('woff2');
 }

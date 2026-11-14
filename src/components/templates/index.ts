@@ -38,6 +38,7 @@ import CinnabarSeal from "./cinnabar-seal"
 import Iris from "./iris"
 import Teatro from "./teatro"
 import SilverGelatin from "./silver-gelatin"
+import LoveLine from "./love-line"
 import FilmRoll from "./film-roll"
 export type { TemplateProps } from "@/types/template"
 
@@ -81,6 +82,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   teatro: Teatro,
   "silver-gelatin": SilverGelatin,
   "film-roll": FilmRoll,
+  "love-line": LoveLine,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -1625,6 +1627,48 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         video: true,
         story: true,
         gallery: true,
+        gift: true,
+        dresscode: true,
+        livestream: false,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "love-line",
+    name: "Love Line",
+    description:
+      "Undangan tanpa foto bergaya ilustrasi tinta: kertas krem, gambar garis hitam-putih, aksen merah, tipografi Mr Dafoe dan catatan tangan Caveat. Semua bagian digambar, bukan difoto.",
+    theme: {
+      fonts: { display: "Mr Dafoe", script: "Mr Dafoe", body: "Montserrat" },
+      colors: {
+        surface: "#f5f2ec",
+        text: "#1b1b1b",
+        accent: "#c8242c",
+        accentMuted: "#ebe5db",
+        overlay: "#1b1b1b",
+        dark: "#1b1b1b",
+      },
+      ornaments: { divider: "line", border: "none", frame: "square" },
+      motion: { enabled: true, duration: 0.75, stagger: 0.06 },
+    },
+    content: {
+      cover_slots: 0,
+      person_photos: false,
+      story_photo: false,
+      initials: false,
+      sections: {
+        opening_description: true,
+        quote: true,
+        countdown: true,
+        inviting: true,
+        video: false,
+        story: true,
+        // No-photo template: the couple's gallery is never shown. The
+        // "our moments" band is fixed illustration art, not user photos.
+        gallery: false,
         gift: true,
         dresscode: true,
         livestream: false,

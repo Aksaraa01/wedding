@@ -3220,11 +3220,13 @@ export default function AntrianDetail({ id }: { id: string }) {
                       <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={invForm.display_name || ""} onChange={(e) => setInvForm({ ...invForm, display_name: e.target.value })} placeholder="#RiaYusufBersatu" />
                       <p className="text-[11px] text-on-surface-variant mt-1 italic">Tampil pada undangan sebagai hashtag. Contoh: #RiaYusufWedding. Kosongkan untuk menyembunyikan.</p>
                     </div>
+                    {invContentSpec?.initials !== false && (
                     <div className="space-y-2">
                       <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Singkatan Pasangan</label>
                       <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={invForm.couple_initials || ""} onChange={(e) => setInvForm({ ...invForm, couple_initials: e.target.value })} placeholder="WD" />
                       <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: WD, AC — inisial singkat pasangan pada sampul.</p>
                     </div>
+                    )}
                     <div className="space-y-2">
                       <InvCheck label="Foto hitam putih (grayscale)" checked={!!invForm.grayscale} onChange={(v) => setInvForm({ ...invForm, grayscale: v })} />
                     </div>

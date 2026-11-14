@@ -200,7 +200,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Pengantar Acara",
     multiline: true,
     rows: 3,
-    placeholders: {
+    placeholders: { "love-line": "We would be honoured to have you with us.",
       "film-roll": "We would be honoured to have you with us as we say our vows.",
       "silver-gelatin": "We look forward to welcoming you at:",
       teatro: "We would be honoured to have you with us as we say our vows.",
@@ -221,7 +221,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "adat-jawa": "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Jawa kami:",
       "adat-bali": "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri rangkaian pernikahan adat Bali kami:",
     },
-    templates: ["silver-gelatin", "lunar-blossom", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "adat-melayu", "adat-batak", "adat-bugis", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "film-roll"],
+    templates: ["silver-gelatin", "lunar-blossom", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "adat-melayu", "adat-batak", "adat-bugis", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa", "adat-bali", "film-roll", "love-line"],
   },
   {
     key: "cover_kicker",
@@ -229,12 +229,12 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     multiline: true,
     rows: 2,
     placeholder: "Dua Insan Ini\\nAkan Menikah",
-    placeholders: {
+    placeholders: { "love-line": "you're invited to our wedding",
       "film-roll": "The Wedding of",
       "silver-gelatin": "Dear",
       teatro: "The Wedding of",
       "cinnabar-seal": "The Wedding Of", "ivory-lace": "The Wedding Of", lace: "The Wedding Of", "n-film": "#AlbarnFayeForever" , "boarding-pass": "#AlbarnFayeForever" },
-    templates: ["silver-gelatin", "evermore", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "evermore", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "cover_title",
@@ -245,12 +245,12 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "open_button",
     label: "Teks Tombol Buka",
-    placeholders: {
+    placeholders: { "love-line": "Open Invitation",
       "film-roll": "Enter",
       "silver-gelatin": "Open Invitation",
       teatro: "Tap to continue",
       "cinnabar-seal": "Open Invitation", "n-film": "Start the Film" },
-    templates: ["silver-gelatin", "n-film", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "n-film", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "hero_badge",
@@ -267,7 +267,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "cover_apology",
     label: "Permohonan Maaf Sampul",
-    placeholders: {
+    placeholders: { "love-line": "We apologize for any misspelling of your name or title.",
       "film-roll": "Dear",
       "silver-gelatin": "We apologize for any misspelling of your name or title.",
       teatro: "We apologize for any misspelling of your name or title.",
@@ -297,7 +297,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     
       "boarding-pass": "Tunjukkan tiket ini dengan senyuman.",
     },
-    templates: ["silver-gelatin", "sandhya", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "sandhya", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "quote_title",
@@ -337,7 +337,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     multiline: true,
     rows: 2,
     placeholder: "Dari pertemuan tak sengaja hingga seumur hidup saling memilih.",
-    placeholders: {
+    placeholders: { "love-line": "The small chapters that brought us here.",
       "film-roll": "Three scenes that brought us to the same frame.",
       "silver-gelatin": "The chapters that brought us here.",
       teatro: "The acts that brought us to opening night.",
@@ -346,7 +346,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       lace: "Every chapter of our story has been leading to this day.",
       "embroidered-garden": "Every chapter of our story has been leading to this day.",
     },
-    templates: ["silver-gelatin", "evermore", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "evermore", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "gallery_intro",
@@ -457,7 +457,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "gift_intro_title",
     label: "Judul Bagian Hadiah",
-    placeholders: {
+    placeholders: { "love-line": "Wedding Gift",
       "film-roll": "Wedding Gift",
       "silver-gelatin": "Wedding Gift",
       teatro: "Gifts",
@@ -490,7 +490,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     
       "boarding-pass": "Tanda Kasih",
     },
-    templates: ["silver-gelatin", "sandhya", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "sandhya", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "hero_tagline",
@@ -525,7 +525,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Pengantar Dress Code",
     multiline: true,
     rows: 3,
-    placeholders: {
+    placeholders: { "love-line": "Your presence is the greatest gift, but we'd love it if you dressed in our colour palette.",
       "film-roll": "We would love to see you in ivory, stone and soft black.",
       "silver-gelatin": "We would love to see you in ivory, stone and soft black.",
       teatro: "We would be delighted if you joined us in the palette below.",
@@ -533,14 +533,14 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "boarding-pass":
         "Kami akan senang bila Anda hadir dengan nuansa warna berikut, agar setiap bingkai dari hari itu terasa satu cerita.",
     },
-    templates: ["silver-gelatin", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "gift_intro_description",
     label: "Deskripsi Bagian Hadiah",
     multiline: true,
     rows: 3,
-    placeholders: {
+    placeholders: { "love-line": "Your blessings are more than enough. If you'd like to give more, we'll receive it with deep gratitude.",
       "film-roll": "Your blessings are the most beautiful gift to us. Should you wish to give a token of love, you may do so here.",
       "silver-gelatin": "Your blessings are the most beautiful gift to us. But should you wish to give a token of love, you may do so via:",
       teatro: "Your presence is the greatest gift. Should you wish to send a token of love, the details are below.",
@@ -575,14 +575,14 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     
       "boarding-pass": "Doa restu Anda adalah bekal terbaik untuk perjalanan kami. Bila ingin memberi lebih, kami menerimanya dengan penuh syukur.",
     },
-    templates: ["silver-gelatin", "sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "wishes_intro",
     label: "Pengantar Ucapan & Doa",
     multiline: true,
     rows: 2,
-    placeholders: {
+    placeholders: { "love-line": "Leave your best prayers and wishes for us.",
       "film-roll": "Write your best prayers and wishes for us.",
       "silver-gelatin": "Write your best prayers and wishes for us.",
       teatro: "Leave a wish, a prayer, or a memory for us to keep.",
@@ -613,14 +613,14 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     
       "boarding-pass": "Titipkan pesan dan doa terbaik untuk perjalanan baru kami.",
     },
-    templates: ["silver-gelatin", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "evermore", "piano-garden", "altar-garden", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-jawa-2", "adat-jawa", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "closing_message",
     label: "Pesan Penutup",
     multiline: true,
     rows: 3,
-    placeholders: {
+    placeholders: { "love-line": "Thank you for being part of our story. See you on the big day!",
       "film-roll": "It is an honour and a happiness for us to have you with us on our wedding day.",
       "silver-gelatin": "Thank you for your prayers and presence. It is an honour for us to celebrate this day with you.",
       teatro: "Thank you for being part of our story. Your presence, your prayers, and every warm wish you leave here mean more to us than we can say.",
@@ -654,7 +654,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     
       "boarding-pass": "Merupakan suatu kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu. Terima kasih telah menjadi bagian dari perjalanan kami.",
     },
-    templates: ["silver-gelatin", "sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "sandhya", "evermore", "piano-garden", "altar-garden", "lunar-blossom", "adat-jawa-2", "adat-jawa", "adat-melayu", "adat-batak", "adat-bugis", "traditional-bugis-pinishi", "adat-dayak", "adat-banjar", "adat-minang", "adat-palembang", "adat-betawi", "adat-bali", "manjari", "imagine", "still-ever", "embroidered-garden", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "couple_description",
@@ -685,7 +685,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Pengantar Turut Mengundang",
     multiline: true,
     rows: 2,
-    placeholders: {
+    placeholders: { "love-line": "With gratitude, we also invite our families and friends.",
       "silver-gelatin": "With deep gratitude we also present the families who extend this invitation alongside us.",
       teatro: "With deep gratitude we also present the families who extend this invitation alongside us.",
       "cinnabar-seal": "Dengan penuh rasa syukur, kami mengundang Anda untuk ikut dalam perayaan ini bersama keluarga kami.",
@@ -698,24 +698,24 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     
       "boarding-pass": "Dengan penuh rasa syukur, kami mengundang Anda untuk ikut dalam perjalanan ini bersama keluarga kami.",
     },
-    templates: ["silver-gelatin", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro"],
+    templates: ["silver-gelatin", "embroidered-garden", "lace", "n-film", "ivory-lace", "boarding-pass", "cinnabar-seal", "iris", "teatro", "love-line"],
   },
   {
     key: "rundown_title",
     label: "Judul Susunan Acara",
-    placeholders: {
+    placeholders: { "love-line": "Schedule",
       "film-roll": "Order of the Day",
       "silver-gelatin": "Order of the Day",
       teatro: "Order of the Day",
       "cinnabar-seal": "Rangkaian Acara", "ivory-lace": "Wedding Time Line", "embroidered-garden": "Order of the Day", lace: "The Day" },
-    templates: ["silver-gelatin", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "rundown_intro",
     label: "Pengantar Susunan Acara",
     multiline: true,
     rows: 2,
-    placeholders: {
+    placeholders: { "love-line": "How the day will unfold.",
       "film-roll": "How the day will unfold, from the first arrival to the last farewell.",
       "silver-gelatin": "How we will spend our day together.",
       teatro: "How the day will unfold, from the first arrival to the last farewell.",
@@ -724,22 +724,22 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "embroidered-garden": "Our ceremony will be followed by an apéritif, dinner and dancing.",
       lace: "Our ceremony will be followed by an apéritif, dinner and dancing.",
     },
-    templates: ["silver-gelatin", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "love_story_title",
     label: "Judul Love Story",
-    placeholders: {
+    placeholders: { "love-line": "Story",
       "film-roll": "Our Story",
       "silver-gelatin": "Our Story",
       teatro: "Our Story",
       "cinnabar-seal": "Love Story", "ivory-lace": "Our Love Story", lace: "How Our Story Began", manjari: "A Love Written in Time", "still-ever": "How Our Story Began", imagine: "Our Love Story", "embroidered-garden": "Our Story" },
-    templates: ["silver-gelatin", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "gallery_title",
     label: "Judul Galeri",
-    placeholders: {
+    placeholders: { "love-line": "Gallery",
       "film-roll": "Precious Moments",
       "silver-gelatin": "Moments",
       teatro: "Scenes",
@@ -751,21 +751,21 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "embroidered-garden": "Our Moments",
       lace: "Our Moments",
     },
-    templates: ["silver-gelatin", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "manjari", "imagine", "still-ever", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "opening_kicker",
     label: "Label Bagian Pembuka",
-    placeholders: { "film-roll": "Prologue", teatro: "Prologue" },
+    placeholders: { "love-line": "with grateful hearts", "film-roll": "Prologue", teatro: "Prologue" },
     placeholder: "With Blessings",
-    templates: ["cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "mempelai_kicker",
     label: "Label Mempelai",
-    placeholders: { "film-roll": "Starring", teatro: "The Cast" , "silver-gelatin": "The Couple" },
+    placeholders: { "love-line": "two people, one story", "film-roll": "Starring", teatro: "The Cast" , "silver-gelatin": "The Couple" },
     placeholder: "Mempelai",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "parents_label",
@@ -777,58 +777,58 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "story_kicker",
     label: "Label Kecil Kisah Cinta",
-    placeholders: { "film-roll": "Scene", teatro: "In Three Acts" , "silver-gelatin": "Love story" },
+    placeholders: { "love-line": "our journey", "film-roll": "Scene", teatro: "In Three Acts" , "silver-gelatin": "Love story" },
     placeholder: "Our",
-    templates: ["silver-gelatin", "cinnabar-seal", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "cinnabar-seal", "teatro", "film-roll", "love-line"],
   },
   {
     key: "events_kicker",
     label: "Label Kecil Acara",
-    placeholders: { "film-roll": "Save the Date", teatro: "The celebration will take place at" , "silver-gelatin": "The celebration will take place on" },
+    placeholders: { "love-line": "details of our big day", "film-roll": "Save the Date", teatro: "The celebration will take place at" , "silver-gelatin": "The celebration will take place on" },
     placeholder: "Save the Date",
-    templates: ["silver-gelatin", "cinnabar-seal", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "cinnabar-seal", "teatro", "film-roll", "love-line"],
   },
   {
     key: "events_title",
     label: "Judul Acara",
-    placeholders: { "film-roll": "The Celebration", teatro: "The Venue" , "silver-gelatin": "Venue" },
+    placeholders: { "love-line": "Date & Venue", "film-roll": "The Celebration", teatro: "The Venue" , "silver-gelatin": "Venue" },
     placeholder: "The Celebration",
-    templates: ["silver-gelatin", "cinnabar-seal", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "cinnabar-seal", "teatro", "film-roll", "love-line"],
   },
   {
     key: "maps_label",
     label: "Teks Tombol Lokasi",
-    placeholders: { "film-roll": "Open Map", teatro: "View location" , "silver-gelatin": "View Location" },
+    placeholders: { "love-line": "Open Map", "film-roll": "Open Map", teatro: "View location" , "silver-gelatin": "View Location" },
     placeholder: "Lihat Lokasi",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "inviting_kicker",
     label: "Label Turut Mengundang",
-    placeholders: { "film-roll": "Also inviting", teatro: "With the blessing of" , "silver-gelatin": "With the blessing of" },
+    placeholders: { "love-line": "with honour", "film-roll": "Also inviting", teatro: "With the blessing of" , "silver-gelatin": "With the blessing of" },
     placeholder: "Turut Mengundang",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "inviting_title",
     label: "Judul Turut Mengundang",
-    placeholders: { teatro: "Our Families" , "silver-gelatin": "Our Families" },
+    placeholders: { "love-line": "Turut Mengundang", teatro: "Our Families" , "silver-gelatin": "Our Families" },
     placeholder: "Keluarga & Sahabat",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "love-line"],
   },
   {
     key: "rundown_kicker",
     label: "Label Kecil Susunan Acara",
-    placeholders: { "film-roll": "The Programme", teatro: "The Programme" , "silver-gelatin": "The Programme" },
+    placeholders: { "love-line": "programme", "film-roll": "The Programme", teatro: "The Programme" , "silver-gelatin": "The Programme" },
     placeholder: "Rundown",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "gallery_kicker",
     label: "Label Kecil Galeri",
-    placeholders: { "film-roll": "Stills", teatro: "Gallery" , "silver-gelatin": "Wedding" },
+    placeholders: { "love-line": "our moments", "film-roll": "Stills", teatro: "Gallery" , "silver-gelatin": "Wedding" },
     placeholder: "Precious",
-    templates: ["silver-gelatin", "cinnabar-seal", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "cinnabar-seal", "teatro", "film-roll", "love-line"],
   },
   {
     key: "video_kicker",
@@ -847,9 +847,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "dresscode_kicker",
     label: "Label Kecil Dress Code",
-    placeholders: { "film-roll": "Dresscode", teatro: "Dress Code" , "silver-gelatin": "Dresscode" },
+    placeholders: { "love-line": "Dress Code", "film-roll": "Dresscode", teatro: "Dress Code" , "silver-gelatin": "Dresscode" },
     placeholder: "Dress Code",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "wishes_kicker",
@@ -861,9 +861,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "wishes_title",
     label: "Judul Ucapan",
-    placeholders: { "film-roll": "Wishes", teatro: "Curtain Call" , "silver-gelatin": "Wishes" },
+    placeholders: { "love-line": "Prayers & Wishes", "film-roll": "Wishes", teatro: "Curtain Call" , "silver-gelatin": "Wishes" },
     placeholder: "Wishes",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "closing_kicker",
@@ -875,58 +875,58 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "wishes_name_label",
     label: "Label Kolom Nama",
-    placeholders: { "film-roll": "Name", teatro: "Name" , "silver-gelatin": "Name" },
+    placeholders: { "love-line": "Your name", "film-roll": "Name", teatro: "Name" , "silver-gelatin": "Name" },
     placeholder: "Nama",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "wishes_name_placeholder",
     label: "Placeholder Nama",
-    placeholders: { "film-roll": "Your full name", teatro: "Your full name" , "silver-gelatin": "Your full name" },
+    placeholders: { "love-line": "Your full name", "film-roll": "Your full name", teatro: "Your full name" , "silver-gelatin": "Your full name" },
     placeholder: "Nama lengkap",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "wishes_message_label",
     label: "Label Kolom Ucapan",
-    placeholders: { "film-roll": "Message", teatro: "Message" , "silver-gelatin": "Message" },
+    placeholders: { "love-line": "Your wish", "film-roll": "Message", teatro: "Message" , "silver-gelatin": "Message" },
     placeholder: "Ucapan & Doa",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "wishes_message_placeholder",
     label: "Placeholder Ucapan",
-    placeholders: { "film-roll": "Leave a wish for the couple", teatro: "Leave a wish for the couple" , "silver-gelatin": "Leave a wish for the couple" },
+    placeholders: { "love-line": "ex. congrats for this event", "film-roll": "Leave a wish for the couple", teatro: "Leave a wish for the couple" , "silver-gelatin": "Leave a wish for the couple" },
     placeholder: "Titipkan pesan dan doa terbaik",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "wishes_submit",
     label: "Teks Tombol Kirim Ucapan",
-    placeholders: { "film-roll": "Send wishes", teatro: "Send wishes" , "silver-gelatin": "Submit now" },
+    placeholders: { "love-line": "Submit now", "film-roll": "Send wishes", teatro: "Send wishes" , "silver-gelatin": "Submit now" },
     placeholder: "Kirim Ucapan",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "wishes_empty",
     label: "Teks Saat Belum Ada Ucapan",
-    placeholders: { "film-roll": "No wishes yet. Be the first.", teatro: "No wishes yet. Be the first." , "silver-gelatin": "No wishes yet. Be the first." },
+    placeholders: { "love-line": "No wishes yet. Be the first.", "film-roll": "No wishes yet. Be the first.", teatro: "No wishes yet. Be the first." , "silver-gelatin": "No wishes yet. Be the first." },
     placeholder: "Belum ada ucapan. Jadilah yang pertama.",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "copy_account_toast",
     label: "Notifikasi Salin Rekening",
-    placeholders: { "film-roll": "Account number copied", teatro: "Account number copied" , "silver-gelatin": "Account number copied" },
+    placeholders: { "love-line": "Account number copied", "film-roll": "Account number copied", teatro: "Account number copied" , "silver-gelatin": "Account number copied" },
     placeholder: "Nomor rekening disalin",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
   {
     key: "copy_address_toast",
     label: "Notifikasi Salin Alamat",
-    placeholders: { "film-roll": "Address copied", teatro: "Address copied" , "silver-gelatin": "Address copied" },
+    placeholders: { "love-line": "Address copied", "film-roll": "Address copied", teatro: "Address copied" , "silver-gelatin": "Address copied" },
     placeholder: "Alamat disalin",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
   },
 
   {
@@ -947,33 +947,33 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "gift_button",
     label: "Teks Tombol Hadiah",
-    placeholders: { teatro: "Open the registry" , "silver-gelatin": "Direct Transfer" },
+    placeholders: { "love-line": "Direct Transfer", teatro: "Open the registry" , "silver-gelatin": "Direct Transfer" },
     placeholder: "Make a Gift Now",
-    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro"],
+    templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "love-line"],
   },
 
   {
     key: "gift_send_label",
     label: "Label Tab Kirim Hadiah",
-    placeholders: { "silver-gelatin": "Send Gift" },
+    placeholders: { "love-line": "Send Gift", "silver-gelatin": "Send Gift" },
     placeholder: "Send Gift",
-    templates: ["silver-gelatin"],
+    templates: ["silver-gelatin", "love-line"],
   },
 
   {
     key: "gift_transfer_note",
     label: "Keterangan Tab Transfer",
-    placeholders: { "silver-gelatin": "Transfer directly to the account below:" },
+    placeholders: { "love-line": "Transfer directly to the account below:", "silver-gelatin": "Transfer directly to the account below:" },
     placeholder: "Transfer langsung ke rekening di bawah ini:",
-    templates: ["silver-gelatin"],
+    templates: ["silver-gelatin", "love-line"],
   },
 
   {
     key: "gift_address_note",
     label: "Keterangan Tab Kirim Hadiah",
-    placeholders: { "silver-gelatin": "Send your gift to the address below:" },
+    placeholders: { "love-line": "Send your gift to the address below:", "silver-gelatin": "Send your gift to the address below:" },
     placeholder: "Kirim hadiah Anda ke alamat di bawah ini:",
-    templates: ["silver-gelatin"],
+    templates: ["silver-gelatin", "love-line"],
   },
 
   {
@@ -987,8 +987,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "countdown_intro",
     label: "Keterangan Hitung Mundur",
-    placeholders: { "film-roll": "until the big day", teatro: "until the big day" , "silver-gelatin": "Counting down to our big day, only a little time left" },
-    templates: ["silver-gelatin", "teatro", "film-roll"],
+    placeholders: { "love-line": "counting down", teatro: "until the big day" , "silver-gelatin": "Counting down to our big day, only a little time left" },
+    templates: ["silver-gelatin", "teatro", "love-line"],
   },
   {
     key: "reveal_hint",
@@ -1029,6 +1029,54 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Tanda Tangan Bagian Hadiah",
     placeholders: { "film-roll": "With love and gratitude", teatro: "With love and gratitude" , "silver-gelatin": "With love and gratitude" },
     templates: ["silver-gelatin", "teatro", "film-roll"],
+  },
+  {
+    key: "cover_guest_label",
+    label: "Sapaan Tamu di Sampul",
+    section: "sampul",
+    order: 2,
+    placeholder: "Dear honoured guest",
+    templates: ["love-line"],
+  },
+  {
+    key: "mempelai_title",
+    label: "Judul Bagian Mempelai",
+    section: "mempelai",
+    order: 2,
+    placeholder: "The Couple",
+    templates: ["love-line"],
+  },
+  {
+    key: "person_one_label",
+    label: "Label Mempelai Pertama",
+    section: "mempelai",
+    order: 6,
+    placeholder: "the one",
+    templates: ["love-line"],
+  },
+  {
+    key: "person_two_label",
+    label: "Label Mempelai Kedua",
+    section: "mempelai",
+    order: 7,
+    placeholder: "the beauty",
+    templates: ["love-line"],
+  },
+  {
+    key: "parents_label_male",
+    label: "Label Orang Tua Mempelai Pertama",
+    section: "mempelai",
+    order: 8,
+    placeholder: "son of",
+    templates: ["love-line"],
+  },
+  {
+    key: "parents_label_female",
+    label: "Label Orang Tua Mempelai Kedua",
+    section: "mempelai",
+    order: 9,
+    placeholder: "daughter of",
+    templates: ["love-line"],
   },
 ]
 
