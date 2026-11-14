@@ -175,7 +175,7 @@
 .film-roll-root .fr-video{width:100%;max-width:560px;align-self:center}
 .film-roll-root .fr-nav{position:absolute;left:0;right:0;top:0;z-index:30;display:flex;justify-content:space-between;align-items:flex-start;padding:22px 21px 0 22px;pointer-events:none}
 .film-roll-root .fr-nav>*{pointer-events:auto}
-.film-roll-root .fr-logo{display:flex;align-items:baseline;grid-gap:3px;gap:3px;height:36px;color:#fff;mix-blend-mode:difference}
+.film-roll-root .fr-logo{display:flex;align-items:center;grid-gap:3px;gap:3px;height:36px;color:#fff;mix-blend-mode:difference}
 .film-roll-root .fr-logo span{font:400 38px/36px "Smythe","League Gothic","Arial Narrow",sans-serif;-webkit-text-stroke:.6px currentColor;text-transform:uppercase}
 .film-roll-root .fr-logo i{font:400 14px/1 "Marcellus","Cormorant Garamond",Georgia,serif;font-style:normal;transform:translateY(-9px)}
 .film-roll-root .fr-menu{position:relative;display:flex;flex-direction:column;align-items:flex-end;width:347px;max-width:calc(100vw - 43px);color:#000}

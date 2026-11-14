@@ -380,7 +380,8 @@ export default function FilmRoll(profile: TemplateProps) {
   const groomFull = (profile.groom_full_name || "").trim() || groomName
   const brideFull = (profile.bride_full_name || "").trim() || brideName
   const coupleLabel = [groomName, brideName].filter(Boolean).join(" & ") || "The Wedding"
-  const editorInitials = (profile.couple_initials || "").replace(/[^A-Za-z0-9]/g, "").slice(0, 2)
+  // Purely the editor's "Singkatan Pasangan": no inserted "&", no forced split.
+  const editorInitials = (profile.couple_initials || "").trim().replace(/\s*&\s*/g, "")
   const initials =
     editorInitials ||
     [(groomName || groomFull).charAt(0), (brideName || brideFull).charAt(0)].filter(Boolean).join("")
@@ -1470,9 +1471,7 @@ export default function FilmRoll(profile: TemplateProps) {
               {scene.kind === "title" && (
                 <div className="fr-in fr-inter" data-p="10">
                   <span className="fr-stamp">
-                    <span>{(initials || "A").charAt(0)}</span>
-                    <i>&amp;</i>
-                    <span>{(initials || "B").charAt(1) || (initials || "B").charAt(0)}</span>
+                    <span>{initials || "A"}</span>
                   </span>
                   <span className="fr-eyeb">{scene.kicker}</span>
                   {openingBody && (
@@ -1834,9 +1833,7 @@ export default function FilmRoll(profile: TemplateProps) {
       {opened && (
         <div className={`fr-nav${menuOpen ? " is-open" : ""}${smallOpen ? " is-small" : ""}`}>
           <button type="button" className="fr-logo" onClick={goHome} aria-label="Back to the cover">
-            <span>{initials.charAt(0) || "A"}</span>
-            <i>&amp;</i>
-            <span>{initials.charAt(1) || "B"}</span>
+            <span>{initials || "A"}</span>
           </button>
 
           <div className="fr-menu">

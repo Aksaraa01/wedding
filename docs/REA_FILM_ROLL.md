@@ -156,7 +156,7 @@ image fade, and forces every glyph back to `translate(0)`.
 | Gate wordmark | `groom_name` + `bride_name`; kicker `cover_title` → `cover_kicker`; date `estimated_wedding_date` |
 | Gate guest | `guest_name`; "Dear" from `cover_apology` |
 | Gate button | `open_button` |
-| Couple initials | `couple_initials` (editor “Singkatan Pasangan”), punctuation stripped, first two characters; only when empty fall back to the first letter of each name |
+| Couple initials | `couple_initials` (“Singkatan Pasangan”) used as typed, with the `&` removed — the template never inserts an ampersand or splits it. Only when empty fall back to the first letter of each name |
 | Poster title | `groom_name` / `& bride_name` |
 | Poster meta | `Date` and `Day` (no scene number) |
 | Poster facts | `save_date_label` + date, `cover_apology` + guest, event name/venue |
