@@ -121,6 +121,31 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 // Balances two lines by the smallest |left − right| (reference `splitTitle`).
+// Cover slots must keep their positions: an empty slot is a gap, not a reason
+// to shift every slot after it (the cover_photos array is index-addressed).
+function coverSlotsOf(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.map((entry) => {
+      if (typeof entry === "string") return entry.trim()
+      if (Array.isArray(entry)) return (entry.find((item) => typeof item === "string" && item.trim()) || "").trim()
+      return ""
+    })
+  }
+  if (typeof value === "string") {
+    const text = value.trim()
+    if (!text) return []
+    if (text.startsWith("[")) {
+      try {
+        return coverSlotsOf(JSON.parse(text))
+      } catch {
+        return [text]
+      }
+    }
+    return [text]
+  }
+  return []
+}
+
 // "Sand, Terracotta and Cocoa" — the palette sentence for an empty intro.
 function nameList(values: string[]): string {
   const list = values.filter(Boolean)
@@ -297,7 +322,7 @@ export default function FilmRoll(profile: TemplateProps) {
   const tc = profile.template_content || {}
   const gates = profile.feature_gates || {}
 
-  const slots = useMemo(() => flattenPhotos(profile.cover_photos), [profile.cover_photos])
+  const slots = useMemo(() => coverSlotsOf(profile.cover_photos), [profile.cover_photos])
   const gallery = useMemo(() => flattenPhotos(profile.gallery_photos), [profile.gallery_photos])
 
   const coverShot = slots[0] || coverPhoto(profile)
