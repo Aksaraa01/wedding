@@ -507,12 +507,12 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "events_note",
     label: "Catatan Bagian Acara",
-    placeholders: {
+    placeholders: { "love-line": "Add to Calendar",
       "film-roll": "Save to calendar",
       "silver-gelatin": "Please arrive thirty minutes before the ceremony begins.",
       teatro: "Please arrive thirty minutes before the ceremony begins.",
       "boarding-pass": "Mohon hadir 30 menit sebelum boarding." },
-    templates: ["silver-gelatin", "boarding-pass", "teatro", "film-roll"],
+    templates: ["silver-gelatin", "boarding-pass", "teatro", "film-roll", "love-line"],
   },
   {
     key: "seat_class",

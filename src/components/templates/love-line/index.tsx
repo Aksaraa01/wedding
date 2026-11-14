@@ -5,7 +5,7 @@ import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { AKSARAA_WA_NUMBER } from "@/lib/contact"
 import InvitationOverlay from "@/components/InvitationOverlay"
-import { countdownTarget, formatDotDate } from "../shared/lib"
+import { countdownTarget, formatDotDate, gcalLink } from "../shared/lib"
 import Wishes from "./Wishes"
 import { copyPlainText } from "@/lib/clipboard"
 import "./love-line.css"
@@ -21,6 +21,16 @@ const pad2 = (n: number) => String(n).padStart(2, "0")
 
 const STORY_ART = ["story-1", "story-2", "story-3", "story-4"]
 const GALLERY_ART = ["gallery-1", "gallery-2", "gallery-3", "gallery-4"]
+
+// The reference only draws four story scenes. A fifth chapter borrows the four
+// gallery illustrations (eight unique images total); beyond that the row is
+// text-only instead of repeating art that belongs to another scene.
+function storyArtAt(index: number): string {
+  if (index < STORY_ART.length) return STORY_ART[index]
+  const g = index - STORY_ART.length
+  if (g < GALLERY_ART.length) return GALLERY_ART[g]
+  return ""
+}
 
 function igHandle(raw?: string): string {
   const t = (raw || "").trim()
@@ -153,6 +163,7 @@ export default function LoveLine(profile: TemplateProps) {
   const eventsTitle = (tc.events_title || "").trim() || "Date & Venue"
   const eventsIntro = (tc.events_intro || "").trim()
   const mapsLabel = (tc.maps_label || "").trim() || "Open Map"
+  const calendarLabel = (tc.events_note || "").trim() || "Add to Calendar"
   const countdownIntro = (tc.countdown_intro || "").trim() || "counting down"
   const invitingKicker = (tc.inviting_kicker || "").trim() || "with honour"
   const invitingTitle = (tc.inviting_title || "").trim() || "Turut Mengundang"
@@ -186,6 +197,10 @@ export default function LoveLine(profile: TemplateProps) {
   const target = useMemo(
     () => countdownTarget(events, profile.estimated_wedding_date),
     [events, profile.estimated_wedding_date]
+  )
+  const calendarUrl = useMemo(
+    () => gcalLink(events[0], groomName, brideName),
+    [events, groomName, brideName]
   )
 
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.defaultMusic : "")
@@ -452,6 +467,16 @@ export default function LoveLine(profile: TemplateProps) {
                 <Clock target={target} />
               </div>
             )}
+
+            {calendarUrl && (
+              <a className="ll-calendar" href={calendarUrl} target="_blank" rel="noopener noreferrer" {...IN("up", 0.12)}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 2v3M17 2v3M3.5 9.5h17M5 4.5h14A1.5 1.5 0 0 1 20.5 6v13A1.5 1.5 0 0 1 19 20.5H5A1.5 1.5 0 0 1 3.5 19V6A1.5 1.5 0 0 1 5 4.5Z" />
+                  <path d="M8 13h2M14 13h2M8 17h2M14 17h2" />
+                </svg>
+                {calendarLabel}
+              </a>
+            )}
           </section>
 
           {/* 9 — turut mengundang (ADDED in the reference's own language) */}
@@ -493,18 +518,23 @@ export default function LoveLine(profile: TemplateProps) {
               <h2 className="ll-script ll-script--lg" {...IN("up", 0.04)}>{storyTitle}</h2>
               {storyIntro && <p className="ll-body" {...IN("fade", 0.08)}>{storyIntro}</p>}
               <div className="ll-story__list">
-                {stories.map((story, index) => (
-                  <article className={`ll-story__item${index % 2 ? " is-right" : ""}`} key={`${story.title || "s"}-${index}`}>
-                    <div className="ll-story__art" {...IN("fade")}>
-                      <img className="ll-art ll-art--blend" src={ART(STORY_ART[index % STORY_ART.length])} alt="" aria-hidden="true" draggable={false} />
-                    </div>
+                {stories.map((story, index) => {
+                  const art = storyArtAt(index)
+                  return (
+                  <article className={`ll-story__item${index % 2 ? " is-right" : ""}${art ? "" : " is-text"}`} key={`${story.title || "s"}-${index}`}>
+                    {art && (
+                      <div className="ll-story__art" {...IN("fade")}>
+                        <img className="ll-art ll-art--blend" src={ART(art)} alt="" aria-hidden="true" draggable={false} />
+                      </div>
+                    )}
                     <div className="ll-story__copy">
                       {story.title && <h3 className="ll-story__title" {...IN("up", 0.06)}>{story.title}</h3>}
                       {story.description && <p className="ll-story__body" {...IN("fade", 0.1)}>{story.description}</p>}
                     </div>
                     <span className="ll-story__dot" aria-hidden="true" />
                   </article>
-                ))}
+                  )
+                })}
               </div>
             </section>
           )}

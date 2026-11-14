@@ -107,9 +107,9 @@ the editor and ops hide the "Singkatan Pasangan" field.
 | 3 | Welcome | fixed bench art, `opening_description` | always | one surface, no second greeting block | `opening_kicker` | up/fade |
 | 4 | Kalimat pembuka | `opening_title`, `opening_description`, `quote_text/source` | always | no quote ⇒ opening copy only; no title ⇒ kicker + copy | profile + `opening_kicker` | up/fade |
 | 5 | Mempelai | `groom_full_name`/`bride_full_name`, `*_parents`, `*_instagram` | `person_photos !== false` (illustrations, not uploads) | one name ⇒ that person + no `&`; missing parents/IG row omitted | `mempelai_kicker`, `mempelai_title`, `person_one_label`, `person_two_label`, `parents_label_male`, `parents_label_female` | fade/up |
-| 6 | Love story | `stories[]` | `feature_gates.story` && `story_visible !== false` | 0 ⇒ omitted; 1 ⇒ one row; fixed art cycles 1–4 | `story_kicker`, `love_story_title`, `story_intro` | fade/up |
+| 6 | Love story | `stories[]` | `feature_gates.story` && `story_visible !== false` | 0 ⇒ omitted; 1 ⇒ one row; chapters 1–4 use `story-1…4`, chapters 5–8 use `gallery-1…4`, chapter 9+ is text-only (no repeated art) | `story_kicker`, `love_story_title`, `story_intro` | fade/up |
 | 7 | Event | `sessions[]` | always | 1 event ⇒ one block; 0 ⇒ section omitted | `events_kicker`, `events_title`, `events_intro`, `maps_label` | up |
-| 8 | Countdown | `estimated_wedding_date` / first session date | always when a date exists | 4 units; no date ⇒ no countdown | `countdown_intro` | up |
+| 8 | Countdown + calendar | `estimated_wedding_date` / first session date; `gcalLink(events[0])` | always when a date exists | 4 units; no date ⇒ no countdown/calendar; calendar omitted when the first event has no date | `countdown_intro`, `events_note` | up |
 | 9 | Turut mengundang | `inviting_families[]` | `feature_gates.inviting_families` && `inviting_families_visible !== false` | 0 ⇒ omitted; N rows with rules | `inviting_kicker`, `inviting_title`, `inviting_intro` | up/fade |
 | 10 | Rundown | `rundown[]` | `rundown_visible !== false` | 0 ⇒ omitted; no time ⇒ description only | `rundown_kicker`, `rundown_title`, `rundown_intro` | up |
 | 11 | Gallery | fixed illustration set | decorative band (no user photos) | always four plates, 2×2 | `gallery_kicker`, `gallery_title` | fade |
@@ -119,9 +119,9 @@ the editor and ops hide the "Singkatan Pasangan" field.
 | 15 | Wishes | `/api/wishes` + guest identity | always | demo feed; 0 approved ⇒ empty state; 4 per page | `wishes_title`, `wishes_intro` + form keys | up |
 | 16 | Closing | `closing_message`, names, `display_name`, fixed closing art | always | no bride ⇒ one name; empty hashtag ⇒ hidden | `closing_message` | fade/up |
 
-Order shipped: cover → welcome/opening → mempelai → events + countdown →
-inviting → rundown → story → gallery (static illustrations) → gift → dress
-code → wishes → closing.
+Order shipped: cover → welcome/opening → mempelai → events + countdown +
+add-to-calendar → inviting → rundown → story → gallery (static illustrations) →
+gift → dress code → wishes → closing.
 
 Reference order was cover → welcome → couple → date & venue → schedule → story
 → gallery → RSVP → wishes → gift → closing. The contract moves inviting before
