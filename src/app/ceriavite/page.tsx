@@ -2,13 +2,14 @@ import type { Metadata, Viewport } from "next"
 import Link from "next/link"
 import { supabaseAdmin } from "@/lib/supabase"
 import { KIDS_SITE } from "@/lib/eventType"
-import TemplateGallery from "@/components/template-gallery/TemplateGallery"
+import { waLink } from "@/lib/contact"
+import TemplateCarousel from "@/components/ceriavite/TemplateCarousel"
 
 export const metadata: Metadata = {
   // Absolute: the root layout would otherwise append "| Aksaraa Wedding".
   title: { absolute: "Ceriavite | Undangan Digital Khitanan, Aqiqah, dan Ulang Tahun" },
   description:
-    "Undangan website untuk khitanan, aqiqah, dan ulang tahun ananda. Satu paket Rp 199.000 dengan RSVP, doa & ucapan, tautan tamu, dan tanda kasih.",
+    "Undangan website untuk khitanan, aqiqah, dan ulang tahun ananda. Satu paket Rp 199.000 dengan RSVP, doa dan ucapan, tautan tamu, serta tanda kasih.",
   alternates: { canonical: KIDS_SITE },
   manifest: "/manifest-ceriavite.webmanifest",
   openGraph: {
@@ -26,9 +27,8 @@ export const metadata: Metadata = {
   },
 }
 
-// Own theme colour so the mobile browser chrome matches the app shell.
 export const viewport: Viewport = {
-  themeColor: "#3a0f18",
+  themeColor: "#FAF7F2",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -55,12 +55,6 @@ async function getTemplates(): Promise<KidsTemplate[]> {
   return (data as KidsTemplate[] | null) || []
 }
 
-// Ceriavite's display voice, the same pair the Songket Marun template uses:
-// Marcellus for headings, Cormorant Garamond for prose. Inline because these are
-// per-brand and must not leak into the wedding surfaces.
-const DISPLAY_FONT = { fontFamily: "'Marcellus', Georgia, serif" } as const
-const PROSE_FONT = { fontFamily: "'Cormorant Garamond', Georgia, serif" } as const
-
 const FEATURES = [
   {
     icon: "how_to_reg",
@@ -69,7 +63,7 @@ const FEATURES = [
   },
   {
     icon: "favorite",
-    title: "Doa & Ucapan",
+    title: "Doa dan Ucapan",
     body: "Doa restu tamu terkumpul di satu halaman. Anda memilih ucapan mana yang tampil.",
   },
   {
@@ -79,20 +73,20 @@ const FEATURES = [
   },
 ]
 
-const INCLUDED = [
-  "Undangan website dengan tautan tamu",
-  "Konfirmasi kehadiran (RSVP)",
-  "Doa & ucapan dengan moderasi",
-  "Galeri foto ananda",
-  "Tanda kasih: rekening, e-wallet, alamat",
-  "Musik latar dan hitung mundur",
-  "Revisi data kapan saja",
+const PACKAGE_DETAIL = [
+  { label: "Undangan website", value: "1 tautan, tanpa batas tamu" },
+  { label: "Konfirmasi kehadiran", value: "Hadir, tidak hadir, jumlah orang" },
+  { label: "Doa dan ucapan", value: "Dengan moderasi" },
+  { label: "Galeri foto", value: "Momen ananda" },
+  { label: "Tanda kasih", value: "Rekening, e-wallet, alamat kirim" },
+  { label: "Musik dan hitung mundur", value: "Termasuk" },
+  { label: "Revisi data", value: "Kapan saja" },
 ]
 
 const STEPS = [
-  { n: "1", title: "Daftar", body: "Nama ananda, orang tua, jenis acara, tanggal. Satu menit." },
-  { n: "2", title: "Pilih desain & isi", body: "Pilih template, unggah foto, lengkapi waktu dan tempat." },
-  { n: "3", title: "Bagikan", body: "Kirim satu tautan. Tiap tamu membuka undangan dengan namanya." },
+  { n: "01", title: "Daftar", body: "Isi nama ananda, orang tua, jenis acara, dan tanggal. Sekali isi, satu menit." },
+  { n: "02", title: "Pilih desain dan isi data", body: "Pilih template, unggah foto, lengkapi waktu dan tempat acara." },
+  { n: "03", title: "Bagikan", body: "Kirim satu tautan ke WhatsApp. Setiap tamu membuka undangan dengan namanya." },
 ]
 
 export default async function CeriaviteLandingPage() {
@@ -100,198 +94,182 @@ export default async function CeriaviteLandingPage() {
   const shelf = templates.length > 0 ? templates : PLACEHOLDER_TEMPLATES
 
   return (
-    <div className="min-h-[100dvh] bg-[#3a0f18] text-[#EFDFBB] antialiased [-webkit-tap-highlight-color:transparent]">
-      {/* App bar */}
-      <header className="sticky top-0 z-30 border-b border-[#C9A45C]/15 bg-[#3a0f18]/92 backdrop-blur-md [padding-top:env(safe-area-inset-top)]">
-        <div className="mx-auto flex h-14 w-full max-w-[520px] items-center justify-between px-4">
-          <span className="text-[17px] tracking-tight">Ceriavite</span>
-          <Link
-            href="/login"
-            className="rounded-full border border-[#C9A45C]/40 px-3.5 py-1.5 text-[10px] uppercase tracking-[0.16em] text-[#C9A45C] active:scale-95"
-          >
-            Masuk
+    <div className="min-h-[100dvh] bg-[#FAF7F2] text-[#1A1817] antialiased">
+      {/* Header, same pattern as the wedding landing */}
+      <header className="sticky top-0 z-50 border-b border-[#EFE9DD] bg-[#FAF7F2]/90 backdrop-blur-xl">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-12">
+          <Link href="/ceriavite" className="group flex items-center gap-1.5">
+            <span className="font-headline-sm text-headline-sm tracking-tight text-[#1A1817] transition-colors group-hover:text-[#8D4D39]">
+              Ceriavite
+            </span>
+            <span className="mb-1 inline-block h-1.5 w-1.5 rounded-full bg-[#B08A4A]" />
           </Link>
-        </div>
-      </header>
-
-      <main className="mx-auto w-full max-w-[520px] px-4 pb-28">
-        {/* Hero */}
-        <section className="relative overflow-hidden pt-7">
-          <img
-            src="/templates/songket-marun/melur.webp"
-            alt=""
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-6 -top-4 w-28 opacity-35"
-          />
-          <div className="flex items-center gap-3">
-            <span className="h-px w-7 bg-[#C9A45C]/60" />
-            <p className="text-[9.5px] uppercase tracking-[0.34em] text-[#C9A45C]">
-              Khitanan · Aqiqah · Ulang Tahun
-            </p>
-          </div>
-          <h1
-            className="mt-4 text-[34px] leading-[1.1] tracking-[0.01em] text-[#EFDFBB]"
-            style={DISPLAY_FONT}
-          >
-            Undangan digital
-            <br />
-            <span className="text-[#C9A45C]">untuk acara ananda</span>
-          </h1>
-          <p className="mt-4 text-[16px] leading-relaxed text-[#E0CDB6]/75" style={PROSE_FONT}>
-            Satu tautan untuk seluruh keluarga. Berisi jadwal acara, konfirmasi kehadiran,
-            doa restu, dan tanda kasih. Semua data diisi sendiri lewat dashboard.
-          </p>
-
-          <div className="mt-6 flex items-center gap-3 rounded-2xl border border-[#C9A45C]/25 bg-[#471722] p-3.5">
-            <div className="min-w-0">
-              <p className="text-[11px] leading-none text-[#E0CDB6]/40 line-through">Rp 299.000</p>
-              <p className="mt-1 text-[23px] leading-none text-[#EFDFBB]" style={DISPLAY_FONT}>
-                Rp 199.000
-              </p>
-              <p className="mt-1 text-[9.5px] uppercase tracking-[0.18em] text-[#E0CDB6]/50">
-                sekali bayar
-              </p>
-            </div>
+          <nav className="flex items-center gap-4 sm:gap-6">
+            <a href="#paket" className="font-label-lg text-label-lg text-[#6E6A63] hover:text-[#1A1817]">
+              Harga
+            </a>
+            <Link href="/login" className="font-label-lg text-label-lg text-[#6E6A63] hover:text-[#1A1817]">
+              Masuk
+            </Link>
             <Link
               href="/daftar"
-              className="ml-auto shrink-0 rounded-full bg-[#C9A45C] px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#3a0f18] active:scale-[0.97]"
+              className="rounded-full bg-[#8D4D39] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white transition-colors hover:bg-[#7A4130]"
             >
               Buat undangan
             </Link>
-          </div>
+          </nav>
+        </div>
+      </header>
+
+      <main>
+        {/* 1. Template list, auto slide */}
+        <section className="pt-6 sm:pt-10">
+          <TemplateCarousel items={shelf} />
         </section>
 
-        {/* Design catalogue: the same tiles/shelves as the wedding gallery, on a
-            light band so the tile styling reads correctly. */}
-        <section id="desain" className="pt-9">
-          <div className="flex items-end justify-between">
-            <h2 className="text-[19px] text-[#EFDFBB]" style={DISPLAY_FONT}>Desain</h2>
-            <span className="text-[10px] uppercase tracking-[0.16em] text-[#E0CDB6]/45">
-              {shelf.length} pilihan
-            </span>
-          </div>
-          <p className="mt-1.5 text-[14.5px] leading-relaxed text-[#E0CDB6]/60" style={PROSE_FONT}>
-            Semua desain sudah berisi RSVP, doa dan ucapan, galeri, serta tanda kasih.
+        {/* 2. Title + subtext */}
+        <section className="px-5 pt-8 text-center sm:px-6 sm:pt-12 lg:px-12">
+          <p className="font-label-md text-[10px] uppercase tracking-[0.32em] text-[#B08A4A]">
+            Khitanan · Aqiqah · Ulang Tahun
           </p>
-          <div className="mt-4 rounded-3xl bg-[#faf5ec] p-3 sm:p-4">
-            <TemplateGallery
-              templates={shelf}
-              previewInModal
-              showShelves={false}
-              showFilterBar={false}
-              showSearch={false}
-              selectHrefBase="/daftar"
-            />
-          </div>
+          <h1 className="mx-auto mt-4 max-w-3xl font-headline-lg text-[26px] leading-[1.2] text-[#1A1817] sm:text-[40px]">
+            Undangan digital untuk acara ananda
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-[14px] leading-relaxed text-[#6E6A63] sm:text-[15.5px]">
+            Satu tautan untuk seluruh keluarga. Berisi jadwal acara, konfirmasi kehadiran, doa restu,
+            galeri, dan tanda kasih. Semua data diisi sendiri lewat dashboard.
+          </p>
         </section>
 
-        {/* Features, app list rows */}
-        <section className="pt-8">
-          <h2 className="text-[19px] text-[#EFDFBB]" style={DISPLAY_FONT}>Yang Anda dapat</h2>
-          <div className="mt-3 overflow-hidden rounded-2xl border border-[#C9A45C]/22 bg-[#471722]">
-            {FEATURES.map((f, i) => (
-              <div
-                key={f.title}
-                className={`flex items-start gap-3 p-4 ${i > 0 ? "border-t border-[#C9A45C]/12" : ""}`}
-              >
-                <span className="material-symbols-outlined mt-0.5 text-[20px] text-[#C9A45C]">
-                  {f.icon}
-                </span>
-                <div className="min-w-0">
-                  <p className="text-[13.5px] text-[#EFDFBB]">{f.title}</p>
-                  <p className="mt-1 text-[12px] leading-relaxed text-[#E0CDB6]/60">{f.body}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Price */}
-        <section id="harga" className="pt-8">
-          <div className="rounded-2xl border border-[#C9A45C]/30 bg-[#471722] p-5">
-            <div className="flex items-baseline justify-between">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.28em] text-[#C9A45C]">Harga</p>
-                <p className="mt-3 text-[12px] leading-none text-[#E0CDB6]/40 line-through">Rp 299.000</p>
-                <p className="mt-1 text-[30px] leading-none text-[#EFDFBB]" style={DISPLAY_FONT}>
-                  Rp 199.000
-                </p>
-              </div>
-              <span className="rounded-full bg-[#C9A45C]/15 px-2.5 py-1 text-[9px] uppercase tracking-[0.16em] text-[#C9A45C]">
-                sekali bayar
-              </span>
+        {/* 3. Harga + buat undangan / konsultasi gratis */}
+        <section className="px-5 pt-8 sm:px-6 sm:pt-10 lg:px-12">
+          <div className="mx-auto flex max-w-3xl flex-col items-center gap-5 rounded-2xl border border-[#EFE9DD] bg-white px-5 py-6 text-center sm:flex-row sm:justify-between sm:text-left">
+            <div>
+              <p className="font-label-md text-[9.5px] uppercase tracking-[0.24em] text-[#B08A4A]">Harga paket</p>
+              <p className="mt-2 text-[12px] text-[#A39B8E] line-through">Rp 299.000</p>
+              <p className="font-headline-md text-[30px] leading-none text-[#1A1817]">Rp 199.000</p>
+              <p className="mt-1.5 text-[11px] uppercase tracking-[0.16em] text-[#8B857C]">sekali bayar</p>
             </div>
-            <ul className="mt-4 space-y-2">
-              {INCLUDED.map((item) => (
-                <li key={item} className="flex gap-2 text-[12.5px] leading-relaxed text-[#E0CDB6]/80">
-                  <span className="text-[#C9A45C]">✓</span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/daftar"
-              className="mt-5 flex h-12 items-center justify-center rounded-xl bg-[#C9A45C] text-[11px] font-semibold uppercase tracking-[0.18em] text-[#3a0f18] active:scale-[0.98]"
-            >
-              Buat undangan sekarang
-            </Link>
-            <p className="mt-3 text-center text-[10.5px] text-[#E0CDB6]/40">
-              Tanpa biaya bulanan. Revisi data kapan saja.
-            </p>
-          </div>
-        </section>
-
-        {/* Steps */}
-        <section className="pt-8">
-          <h2 className="text-[19px] text-[#EFDFBB]" style={DISPLAY_FONT}>Tiga langkah</h2>
-          <ol className="mt-3 space-y-2.5">
-            {STEPS.map((s) => (
-              <li
-                key={s.n}
-                className="flex items-start gap-3 rounded-2xl border border-[#C9A45C]/18 bg-[#471722]/60 p-4"
+            <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:min-w-[220px]">
+              <Link
+                href="/daftar"
+                className="flex h-11 items-center justify-center rounded-full bg-[#8D4D39] px-6 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-[#7A4130]"
               >
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#C9A45C]/15 text-[12px] text-[#C9A45C]">
-                  {s.n}
-                </span>
-                <div className="min-w-0">
-                  <p className="text-[13.5px] text-[#EFDFBB]">{s.title}</p>
-                  <p className="mt-1 text-[12px] leading-relaxed text-[#E0CDB6]/60">{s.body}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
+                Buat undangan
+              </Link>
+              <a
+                href={waLink(
+                  "Halo Aksaraa, saya ingin konsultasi undangan digital khitanan/aqiqah/ulang tahun untuk ananda. Mohon informasi paketnya.",
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-11 items-center justify-center gap-2 rounded-full border border-[#8D4D39]/40 px-6 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[#8D4D39] transition-colors hover:border-[#8D4D39]"
+              >
+                <span className="material-symbols-outlined text-[16px]">chat</span>
+                Konsultasi gratis
+              </a>
+            </div>
+          </div>
         </section>
 
-        <footer className="pt-10 pb-2 text-center">
-          <p className="text-[11px] text-[#E0CDB6]/40">
-            Ceriavite, undangan digital acara anak dari Aksaraa.
-          </p>
-          <div className="mt-3 flex items-center justify-center gap-4 text-[10px] uppercase tracking-[0.16em] text-[#E0CDB6]/50">
-            <Link href="/daftar">Daftar</Link>
-            <Link href="/login">Masuk</Link>
-            <a href="https://wedding.aksaraa.com">Aksaraa Wedding</a>
+        {/* 4. Yang Anda dapat */}
+        <section className="px-5 pt-12 sm:px-6 sm:pt-16 lg:px-12">
+          <div className="mx-auto max-w-5xl">
+            <h2 className="text-center font-headline-md text-[21px] text-[#1A1817] sm:text-[26px]">
+              Yang Anda dapat
+            </h2>
+            <div className="mt-7 grid gap-4 sm:grid-cols-3">
+              {FEATURES.map((f) => (
+                <div key={f.title} className="rounded-2xl border border-[#EFE9DD] bg-white p-5">
+                  <span className="material-symbols-outlined text-[22px] text-[#B08A4A]">{f.icon}</span>
+                  <h3 className="mt-3 font-headline-sm text-[15px] text-[#1A1817]">{f.title}</h3>
+                  <p className="mt-2 text-[12.5px] leading-relaxed text-[#6E6A63]">{f.body}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </footer>
+        </section>
+
+        {/* 5. Detail paket */}
+        <section id="paket" className="px-5 pt-12 sm:px-6 sm:pt-16 lg:px-12">
+          <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-[#EFE9DD] bg-white">
+            <div className="border-b border-[#EFE9DD] px-5 py-4">
+              <h2 className="font-headline-md text-[19px] text-[#1A1817]">Detail paket</h2>
+              <p className="mt-1 text-[12px] text-[#6E6A63]">Satu paket Rp 199.000, tanpa biaya bulanan.</p>
+            </div>
+            <dl>
+              {PACKAGE_DETAIL.map((row, i) => (
+                <div
+                  key={row.label}
+                  className={`flex items-start justify-between gap-4 px-5 py-3.5 ${i > 0 ? "border-t border-[#F3EEE4]" : ""}`}
+                >
+                  <dt className="text-[12.5px] text-[#3B3833]">{row.label}</dt>
+                  <dd className="text-right text-[12.5px] font-medium text-[#1A1817]">{row.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
+
+        {/* 6. Tiga langkah */}
+        <section className="px-5 pt-12 sm:px-6 sm:pt-16 lg:px-12">
+          <div className="mx-auto max-w-5xl">
+            <h2 className="text-center font-headline-md text-[21px] text-[#1A1817] sm:text-[26px]">
+              Tiga langkah
+            </h2>
+            <div className="mt-7 grid gap-4 sm:grid-cols-3">
+              {STEPS.map((s) => (
+                <div key={s.n} className="rounded-2xl border border-[#EFE9DD] bg-white p-5">
+                  <span className="font-headline-sm text-[11px] tracking-[0.3em] text-[#B08A4A]">{s.n}</span>
+                  <h3 className="mt-2 font-headline-sm text-[15px] text-[#1A1817]">{s.title}</h3>
+                  <p className="mt-2 text-[12.5px] leading-relaxed text-[#6E6A63]">{s.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
 
-      {/* Sticky primary action (mobile app pattern) */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#C9A45C]/20 bg-[#3a0f18]/95 backdrop-blur-md [padding-bottom:env(safe-area-inset-bottom)]">
-        <div className="mx-auto flex w-full max-w-[520px] items-center gap-3 px-4 py-2.5">
-          <div className="min-w-0 leading-tight">
-            <p className="text-[10px] leading-none text-[#E0CDB6]/40 line-through">Rp 299.000</p>
-            <p className="text-[15px] leading-tight text-[#EFDFBB]" style={DISPLAY_FONT}>
-              Rp 199.000
-            </p>
-            <p className="text-[9px] uppercase tracking-[0.14em] text-[#E0CDB6]/45">sekali bayar</p>
+      {/* Footer, with the Aksaraa contact number like the wedding site */}
+      <footer className="mt-14 border-t border-[#EFE9DD] bg-[#F8F3E9] px-5 py-10 sm:px-6 lg:px-12">
+        <div className="mx-auto max-w-5xl">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="font-headline-sm text-[16px] text-[#1A1817]">Ceriavite</p>
+              <p className="mt-1.5 max-w-xs text-[12px] leading-relaxed text-[#6E6A63]">
+                Undangan digital khitanan, aqiqah, dan ulang tahun oleh Aksaraa.
+              </p>
+            </div>
+            <div className="text-[12.5px] text-[#3B3833]">
+              <p className="font-label-md text-[9.5px] uppercase tracking-[0.24em] text-[#8B857C]">Hubungi kami</p>
+              <a
+                href="https://wa.me/6281161613071"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 flex items-center gap-2 hover:text-[#8D4D39]"
+              >
+                <span className="material-symbols-outlined text-[16px] text-[#8D4D39]">call</span>
+                +62 811 6161 3071
+              </a>
+              <a
+                href="https://wa.me/6281161613071"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1.5 flex items-center gap-2 hover:text-[#8D4D39]"
+              >
+                <span className="material-symbols-outlined text-[16px] text-[#8D4D39]">chat</span>
+                WhatsApp konsultasi
+              </a>
+            </div>
           </div>
-          <Link
-            href="/daftar"
-            className="ml-auto flex h-11 min-w-[168px] items-center justify-center rounded-xl bg-[#C9A45C] px-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#3a0f18] active:scale-[0.98]"
-          >
-            Buat undangan
-          </Link>
+          <div className="mt-8 flex flex-wrap items-center gap-4 border-t border-[#EFE9DD] pt-5 text-[11px] text-[#8B857C]">
+            <Link href="/daftar" className="hover:text-[#1A1817]">Daftar</Link>
+            <Link href="/login" className="hover:text-[#1A1817]">Masuk</Link>
+            <a href="https://wedding.aksaraa.com" className="hover:text-[#1A1817]">Aksaraa Wedding</a>
+            <span className="ml-auto">© {new Date().getFullYear()} Aksaraa</span>
+          </div>
         </div>
-      </div>
+      </footer>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { eventFamily, isKidsEvent } from "@/lib/eventType"
+import { eventFamily, eventLabels, isKidsEvent } from "@/lib/eventType"
 import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import type { ReactNode } from "react"
 import { useRouter } from "next/navigation"
@@ -2123,7 +2123,20 @@ export default function AntrianDetail({ id }: { id: string }) {
               <span className="font-label-md text-xs uppercase tracking-[0.2em] text-secondary mb-2 block">
                 Ruang Kerja Klien
               </span>
-              <h2 className="font-display-lg text-3xl md:text-5xl leading-tight break-words">{resolveCoupleName(currentWp || {})}</h2>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="font-display-lg text-3xl md:text-5xl leading-tight break-words">{resolveCoupleName(currentWp || {})}</h2>
+                <span
+                  className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                    isKidsEvent((currentWp as any)?.event_type)
+                      ? "border-[#c9a45c]/60 bg-[#f7f0e2] text-[#8a6d2f]"
+                      : "border-[#cfc6b6] bg-[#f4f1ea] text-[#6e6a63]"
+                  }`}
+                >
+                  {isKidsEvent((currentWp as any)?.event_type)
+                    ? eventLabels((currentWp as any)?.event_type).eventNoun
+                    : "Wedding"}
+                </span>
+              </div>
               <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 font-body-md text-sm text-on-surface-variant">
                 <div className="flex items-center gap-2">
                   <span className="font-label-md uppercase tracking-widest text-[10px] opacity-60">Tanggal:</span>

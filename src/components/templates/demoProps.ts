@@ -2841,6 +2841,15 @@ DEMO_PROPS_BY_CODE["love-line"] = {
   },
 }
 
+// Reference demo photos, vendored for the design preview only. Real couples
+// always use their own uploads; nothing here is ever shown on a live invitation.
+const DEMO_SKM = {
+  cover: "/templates/songket-marun/demo/cover.jpg",
+  putra: "/templates/songket-marun/demo/putra.jpg",
+  venue: "/templates/songket-marun/demo/venue.jpg",
+  closing: "/templates/songket-marun/demo/closing.jpg",
+}
+
 // Ceriavite (kids) demo. One name, one parent line, "Walimatul Khitan" copy —
 // the same props the `?event=` registration flow writes for a khitanan profile.
 // Sample names/photos are Aksaraa's own; never the reference couple's.
@@ -2850,9 +2859,9 @@ DEMO_PROPS_BY_CODE["songket-marun"] = {
   groom_full_name: "Raka Pratama",
   estimated_wedding_date: "2026-12-20",
   guest_name: "Tamu Undangan",
-  cover_photos: [ASSETS.defaults.couple, ASSETS.defaults.couple, ASSETS.defaults.couple],
-  couple_illustration_url: ASSETS.defaults.couple,
-  groom_photo_url: [ASSETS.defaults.groom],
+  cover_photos: [DEMO_SKM.cover, DEMO_SKM.venue, DEMO_SKM.closing],
+  couple_illustration_url: DEMO_SKM.cover,
+  groom_photo_url: [DEMO_SKM.putra],
   groom_parents: "Bapak Hendra Pratama & Ibu Sari Dewi",
   opening_title: "Bismillahirrahmanirrahim",
   opening_description:
@@ -2870,7 +2879,7 @@ DEMO_PROPS_BY_CODE["songket-marun"] = {
       maps_url: "https://maps.google.com/?q=Medan",
     },
   ],
-  gallery_photos: ASSETS.defaultGallery.slice(0, 6),
+  gallery_photos: [DEMO_SKM.putra, DEMO_SKM.cover, DEMO_SKM.venue, DEMO_SKM.closing],
   gift_accounts: [
     { provider_name: "Bank Mandiri", account_number: "1234567890", account_name: "Hendra Pratama", type: "bank" },
   ],

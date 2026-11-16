@@ -29,12 +29,19 @@ type QueueItem = {
   }
 }
 
-// Rite badge shared by every list variant (board, table, cards).
+// Rite badge shared by every list variant (board, table, cards). Always shown:
+// ops must be able to tell a wedding project from a Ceriavite one at a glance.
 function EventBadge({ event }: { event?: string | null }) {
-  if (!isKidsEvent(event)) return null
+  const kids = isKidsEvent(event)
   return (
-    <span className="ml-1.5 inline-flex items-center rounded-full border border-[#c9a45c]/50 bg-[#f7f0e2] px-1.5 py-0.5 align-middle text-[9px] font-bold uppercase tracking-wider text-[#8a6d2f]">
-      {eventLabels(event).eventNoun}
+    <span
+      className={`ml-1.5 inline-flex items-center rounded-full border px-1.5 py-0.5 align-middle text-[9px] font-bold uppercase tracking-wider ${
+        kids
+          ? "border-[#c9a45c]/50 bg-[#f7f0e2] text-[#8a6d2f]"
+          : "border-[#cfc6b6] bg-[#f4f1ea] text-[#6e6a63]"
+      }`}
+    >
+      {kids ? eventLabels(event).eventNoun : "Wedding"}
     </span>
   )
 }
