@@ -122,7 +122,7 @@ export default async function CeriaviteLandingPage() {
             <span className="mb-1 inline-block h-1.5 w-1.5 rounded-full bg-[#B08A4A]" />
           </Link>
           <nav className="flex items-center gap-4 sm:gap-6">
-            <a href="#paket" className="font-label-lg text-label-lg text-[#6E6A63] hover:text-[#1A1817]">
+            <a href="#paket" className="hidden font-label-lg text-label-lg text-[#6E6A63] hover:text-[#1A1817] sm:inline">
               Harga
             </a>
             <Link href="/login" className="font-label-lg text-label-lg text-[#6E6A63] hover:text-[#1A1817]">
@@ -130,7 +130,7 @@ export default async function CeriaviteLandingPage() {
             </Link>
             <Link
               href="/daftar"
-              className="rounded-full bg-[#8D4D39] px-4 py-2 font-label-lg text-label-lg text-white transition-colors hover:bg-[#7A4130] sm:px-5"
+              className="inline-flex items-center whitespace-nowrap rounded-full bg-[#8D4D39] px-4 py-2 font-label-lg text-[11px] text-white transition-colors hover:bg-[#7A4130] sm:px-5 sm:text-label-lg"
             >
               Buat undangan
             </Link>
@@ -165,12 +165,20 @@ export default async function CeriaviteLandingPage() {
         {/* 2. Title + subtext */}
         <section className="bg-[#FAF7F2] py-12 md:py-16">
           <div className="mx-auto max-w-3xl px-6 text-center lg:px-12">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#B08A4A] md:text-[11px]">
-              Khitanan · Aqiqah · Ulang Tahun
-            </p>
-            <h1 className="mt-3 font-headline-lg text-[28px] leading-[1.18] tracking-tight text-[#1A1817] md:text-[46px]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#E8DFCE] bg-white/80 px-3.5 py-1.5 shadow-sm backdrop-blur-sm">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#B08A4A]" />
+              <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8D4D39]">
+                Khitanan · Aqiqah · Ulang Tahun
+              </span>
+            </div>
+            <h1 className="mt-4 font-display-hero text-display-hero-mobile tracking-tight text-[#1A1817] md:text-display-hero">
               Undangan digital
-              <br className="hidden md:block" /> untuk acara ananda
+              <span
+                className="mt-1 block text-[#8D4D39]"
+                style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: "italic", fontWeight: 600, letterSpacing: "-0.01em" }}
+              >
+                untuk acara ananda.
+              </span>
             </h1>
             <p className="mx-auto mt-4 max-w-xl text-[13px] leading-[1.65] text-[#6E6A63] md:text-[15.5px]">
               Satu tautan untuk seluruh keluarga. Berisi jadwal acara, konfirmasi kehadiran, doa restu,
@@ -191,12 +199,10 @@ export default async function CeriaviteLandingPage() {
                 <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#B08A4A]">
                   Satu paket, sekali bayar
                 </p>
-                <h2 className="mt-3 font-headline-lg text-[26px] leading-[1.2] tracking-tight text-[#1A1817] md:text-[36px]">
-                  Rp 199.000 untuk satu undangan
+                <p className="mt-3 text-[13px] text-[#A39B8E] line-through md:text-[15px]">Rp 299.000</p>
+                <h2 className="mt-1 font-headline-lg text-[30px] leading-[1.15] tracking-tight text-[#1A1817] md:text-[44px]">
+                  Rp 199.000
                 </h2>
-                <p className="mt-1 text-[13px] text-[#8B857C] md:text-[14px]">
-                  <span className="line-through">Rp 299.000</span> · tanpa biaya bulanan
-                </p>
                 <p className="mx-auto mt-3 max-w-xl text-[12.5px] leading-relaxed text-[#6E6A63] md:text-[14.5px]">
                   Termasuk undangan website, konfirmasi kehadiran, doa dan ucapan, galeri, tanda kasih,
                   musik, dan hitung mundur.
