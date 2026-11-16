@@ -273,7 +273,6 @@ export default function SongketMarun(profile: TemplateProps) {
 
           {/* Doa untuk Ananda */}
           <section className="skm-section skm-section--cream skm-doa" data-skm-reveal>
-            <div className="skm-star" aria-hidden="true" />
             <img className="skm-doa__flower" src={ART("melur")} alt="" aria-hidden="true" />
             <h2 className="skm-doa__title">Doa untuk Ananda</h2>
             <div className="skm-doa__card">
