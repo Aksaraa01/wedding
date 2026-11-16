@@ -2967,8 +2967,9 @@ DEMO_PROPS_BY_CODE["ubin-ottoman"] = {
     },
   ],
   gallery_photos: DEMO_UBIN.gallery,
-  // Demo-only khitanan track. A real couple always hears profile.track_url.
-  track_url: "/templates/ubin-ottoman/demo/khitanan.mp3",
+  // Demo-only khitanan track (shared with Songket Marun). A real couple always
+  // hears profile.track_url.
+  track_url: ASSETS.kidsMusic,
   auto_play: true,
   gift_accounts: [
     { provider_name: "Bank Mandiri", account_number: "1234567890", account_name: "Hendra Pratama", type: "bank" },

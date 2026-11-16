@@ -888,7 +888,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "wishes_name_placeholder",
     label: "Placeholder Nama",
-    placeholders: { "ubin-ottoman": "Nama Anda", "love-line": "Your full name", "film-roll": "Your full name", teatro: "Your full name" , "silver-gelatin": "Your full name" },
+    placeholders: { "ubin-ottoman": "Tulis nama Anda", "love-line": "Your full name", "film-roll": "Your full name", teatro: "Your full name" , "silver-gelatin": "Your full name" },
     placeholder: "Nama lengkap",
     templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman"],
   },

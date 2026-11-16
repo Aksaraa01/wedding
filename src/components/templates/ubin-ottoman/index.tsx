@@ -164,7 +164,7 @@ export default function UbinOttoman(profile: TemplateProps) {
   const wishTitle = (tc.wishes_title || "").trim() || "Titip doa untuk ananda"
   const wishIntro = (tc.wishes_intro || "").trim()
   const wishNameLabel = (tc.wishes_name_label || "").trim() || "Nama Anda"
-  const wishNamePlaceholder = (tc.wishes_name_placeholder || "").trim() || "Nama Anda"
+  const wishNamePlaceholder = (tc.wishes_name_placeholder || "").trim() || "Tulis nama Anda"
   const wishMessageLabel = (tc.wishes_message_label || "").trim() || "Doa dan ucapan"
   const wishMessagePlaceholder = (tc.wishes_message_placeholder || "").trim() || "Tulis doa dan ucapan"
   const wishSubmit = (tc.wishes_submit || "").trim() || "Kirim Ucapan"

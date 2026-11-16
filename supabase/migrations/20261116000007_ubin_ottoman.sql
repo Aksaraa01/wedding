@@ -19,7 +19,7 @@ VALUES
   ('ubin-ottoman', 'Ubin Ottoman',
    'Undangan biru Ottoman dan krem: ubin biru, lentera tembaga, ornamen bunga di empat sudut, dan tipografi serif klasik untuk khitanan, aqiqah, atau ulang tahun ananda.',
    '/templates/ubin-ottoman/thumbnail.webp',
-   'https://ceriavite.aksaraa.com/templates/ubin-ottoman/preview', 11, 'Ceriavite', 'inhouse',
+   'https://ceriavite.aksaraa.com/templates/ubin-ottoman/preview', 12, 'Ceriavite', 'inhouse',
    '["ceriavite"]',
    'Baru', true, false, 'kids')
 ON CONFLICT (code) DO UPDATE SET
