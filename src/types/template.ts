@@ -124,6 +124,29 @@ export type TemplateProps = {
     video?: boolean
     qr_code_book?: boolean
   }
+  // Event family. Kept optional so every existing template compiles unchanged;
+  // absent means "wedding". Kids templates read the labels instead of
+  // hard-coding "Mempelai" / "The Wedding of".
+  event_type?: string
+  subject_gender?: "putra" | "putri"
+  event_labels?: {
+    brand: string
+    site: string
+    eventNoun: string
+    eventKicker: string
+    coverKicker: string
+    subjectLabel: string
+    subjectPossessive: string
+    subjectOf: string
+    mainEventName: string
+    secondaryEventName: string
+    countdownLabel: string
+    giftTitle: string
+    wishesTitle: string
+    closingHeadline: string
+    guestFallback: string
+    coupleSeparator: string
+  }
 }
 
 export type PhotoStyle = "single" | "slideshow"

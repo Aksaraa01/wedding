@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { slugifyCouple, MAX_COUPLE_SLUG_LENGTH } from "@/lib/slug"
+import { isReservedSlug } from "@/lib/reservedSlugs"
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
@@ -10,6 +11,17 @@ export async function GET(req: Request) {
   const slug = slugifyCouple(name1, name2)
   if (!slug) {
     return NextResponse.json({ exists: false })
+  }
+
+  // Reserved = the address collides with a platform host, so it is never
+  // available even though no profile owns it.
+  if (isReservedSlug(slug)) {
+    return NextResponse.json({
+      exists: true,
+      reserved: true,
+      slug,
+      tooLong: false,
+    })
   }
 
   try {

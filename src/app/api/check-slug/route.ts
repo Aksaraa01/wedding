@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
+import { isReservedSlug, reservedSlugMessage } from "@/lib/reservedSlugs"
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
@@ -15,6 +16,16 @@ export async function GET(req: Request) {
 
   if (!slug) {
     return NextResponse.json({ available: false, slug: "" })
+  }
+
+  // The slug is also a hostname on the brand apex: platform hosts are off limits.
+  if (isReservedSlug(slug)) {
+    return NextResponse.json({
+      available: false,
+      slug,
+      reason: "reserved",
+      message: reservedSlugMessage(slug),
+    })
   }
 
   try {

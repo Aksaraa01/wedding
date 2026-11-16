@@ -40,6 +40,7 @@ import Teatro from "./teatro"
 import SilverGelatin from "./silver-gelatin"
 import LoveLine from "./love-line"
 import FilmRoll from "./film-roll"
+import SongketMarun from "./songket-marun"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -83,6 +84,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "silver-gelatin": SilverGelatin,
   "film-roll": FilmRoll,
   "love-line": LoveLine,
+  "songket-marun": SongketMarun,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -1675,6 +1677,50 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         dresscode: true,
         livestream: false,
         rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "songket-marun",
+    name: "Songket Marun",
+    description:
+      "Undangan marun dan emas bergaya songket Melayu: bingkai lengkung masjid, ornamen tenun, dan tipografi serif klasik untuk khitanan, aqiqah, atau ulang tahun ananda.",
+    theme: {
+      fonts: { display: "Marcellus", script: "Parisienne", body: "Cormorant Garamond" },
+      colors: {
+        surface: "#E0CDB6",
+        text: "#EFDFBB",
+        accent: "#C9A45C",
+        accentMuted: "#E0CDB6",
+        overlay: "#4A1620",
+        dark: "#4A1620",
+      },
+      ornaments: { divider: "line", border: "ornate", frame: "arch" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.06 },
+    },
+    content: {
+      // Cover only for now. The faithful port adds the venue + closing photo
+      // slots (cover_slots: 3 with labels); declaring slots the component does
+      // not read would give the editor dead controls.
+      cover_slots: 1,
+      groom_photo: "single",
+      person_photos: true,
+      story_photo: false,
+      initials: false,
+      sections: {
+        opening_description: true,
+        quote: true,
+        countdown: true,
+        inviting: false,
+        video: false,
+        story: false,
+        gallery: true,
+        gift: true,
+        dresscode: false,
+        livestream: false,
+        rundown: false,
         contacts: false,
       },
       extras: true,

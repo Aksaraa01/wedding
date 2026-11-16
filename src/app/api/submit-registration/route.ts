@@ -4,6 +4,8 @@ import { normalizePhone, PACKAGE_CODES, PACKAGE_FEATURES, priceParts } from "@/l
 import { getPriceBook } from "@/lib/priceBook"
 import { normalizeGaleriConfig } from "@/lib/gallery"
 import { slugifyCouple, MAX_COUPLE_SLUG_LENGTH } from "@/lib/slug"
+import { isReservedSlug, reservedSlugMessage } from "@/lib/reservedSlugs"
+import { isKidsEvent, normalizeEventType, normalizeSubjectGender } from "@/lib/eventType"
 import { notifyNewAccountGroup } from "@/lib/notifyGroup"
 import { getSelections } from "@/lib/featureGates"
 import { checkRateLimit, getClientIp, rateLimited } from "@/lib/rateLimit"
@@ -34,15 +36,29 @@ export async function POST(req: Request) {
       undangan_fisik,
     } = body
 
-    if (!bride_name || !groom_name) {
-      return NextResponse.json({ error: "Data pengantin tidak lengkap" }, { status: 400 })
+    // Ceriavite (kids) registrations carry one name — the child. The second
+    // person slot stays empty and `resolveCoupleName()` collapses to one name.
+    const kids = isKidsEvent(body?.event_type)
+    const eventType = normalizeEventType(body?.event_type)
+    const subjectGender = kids ? normalizeSubjectGender(body?.subject_gender) : null
+
+    if (!groom_name || (!kids && !bride_name)) {
+      return NextResponse.json(
+        { error: kids ? "Nama ananda belum diisi" : "Data pengantin tidak lengkap" },
+        { status: 400 },
+      )
     }
 
     if (!validPin(pin)) {
       return NextResponse.json({ error: "PIN harus terdiri dari 6 digit angka" }, { status: 400 })
     }
 
-    if (package_type && !PACKAGE_CODES.includes(package_type)) {
+    // Kids events are one flat product (Rp 199.000): the Essential package
+    // already carries exactly invitation + RSVP + wish wall + guest links +
+    // amplop digital, so no add-on, tier or add-on pricing can ride along.
+    const requestedPackage = kids ? "essential" : package_type
+
+    if (requestedPackage && !PACKAGE_CODES.includes(requestedPackage)) {
       return NextResponse.json({ error: "Paket tidak valid" }, { status: 400 })
     }
 
@@ -63,21 +79,22 @@ export async function POST(req: Request) {
     // link: the package IS the grant, so paid add-ons never ride along. Strip
     // them before anything is priced, whatever the client sent.
     const bonusLocked =
-      package_type === "cetak_undangan_bonus" || package_type === "bonus_full_custom"
+      requestedPackage === "cetak_undangan_bonus" || requestedPackage === "bonus_full_custom"
 
     // Galeri Tamu slider config (standalone tab or Undangan add-on).
     // Tier + price recomputed server-side; standalone band follows photos.
+    // Kids events never carry the guest gallery.
     let galeri: Awaited<ReturnType<typeof normalizeGaleriConfig>> = null
-    if (!bonusLocked) {
+    if (!bonusLocked && !kids) {
       try {
         galeri = await normalizeGaleriConfig(body?.galeri)
       } catch (err: unknown) {
         return NextResponse.json({ error: err instanceof Error ? err.message : "Konfigurasi galeri tidak valid" }, { status: 400 })
       }
     }
-    let effectivePackage = package_type || "signature"
+    let effectivePackage = requestedPackage || "signature"
     // Standalone GT tab posts photos only (no package code).
-    if (galeri && !package_type) effectivePackage = "gt"
+    if (galeri && !requestedPackage) effectivePackage = "gt"
     if (effectivePackage === "gt" && !galeri) {
       return NextResponse.json({ error: "Paket Galeri Tamu membutuhkan konfigurasi foto & tamu" }, { status: 400 })
     }
@@ -86,18 +103,27 @@ export async function POST(req: Request) {
     if (galeri && effectivePackage.startsWith("dgb_")) {
       return NextResponse.json({ error: "Buku Tamu Digital sudah termasuk galeri — add-on Galeri Tamu hanya untuk Undangan Digital" }, { status: 400 })
     }
-    const effectiveWaTier = bonusLocked ? 0 : Number(wa_blast_tier) || 0
-    const effectiveExpress = bonusLocked ? false : !!express_service
-    const effectiveFisik = bonusLocked ? false : !!undangan_fisik
+    const addonsLocked = bonusLocked || kids
+    const effectiveWaTier = addonsLocked ? 0 : Number(wa_blast_tier) || 0
+    const effectiveExpress = addonsLocked ? false : !!express_service
+    const effectiveFisik = addonsLocked ? false : !!undangan_fisik
     if (effectiveWaTier > 0 && !(PACKAGE_FEATURES[effectivePackage] || []).includes("wa_blast")) {
       return NextResponse.json({ error: "Paket yang dipilih tidak mendukung WA Blast" }, { status: 400 })
     }
     const galeriPrice = galeri?.price || 0
 
-    // Canonical slug built from FULL names (Mempelai Pertama then Kedua).
-    const slug = slugifyCouple(groom_name, bride_name)
+    // Canonical slug built from the child's nickname (kids) or the couple's
+    // first name then second (wedding).
+    const slug = slugifyCouple(groom_name, kids ? "" : bride_name)
     if (!slug) {
-      return NextResponse.json({ error: "Data pengantin tidak lengkap" }, { status: 400 })
+      return NextResponse.json(
+        { error: kids ? "Nama ananda belum diisi" : "Data pengantin tidak lengkap" },
+        { status: 400 },
+      )
+    }
+    // The slug is also a hostname on the brand apex: platform hosts are off limits.
+    if (isReservedSlug(slug)) {
+      return NextResponse.json({ error: reservedSlugMessage(slug) }, { status: 400 })
     }
     // The slug is the couple's subdomain: a DNS label maxes out at 63 octets, so
     // anything longer can never resolve. Ask for nicknames instead of creating a
@@ -118,7 +144,10 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     if (dupCouple) {
-      return NextResponse.json({ error: "Nama pasangan sudah digunakan" }, { status: 409 })
+      return NextResponse.json(
+        { error: kids ? "Nama ananda sudah digunakan" : "Nama pasangan sudah digunakan" },
+        { status: 409 },
+      )
     }
 
     const userEmail = `${slug}@aksaraa.com`
@@ -171,10 +200,18 @@ export async function POST(req: Request) {
       .from("wedding_profiles")
       .insert({
         user_id: userId,
-        bride_name,
+        event_type: eventType,
+        ...(subjectGender ? { subject_gender: subjectGender } : {}),
+        bride_name: kids ? "" : bride_name,
         groom_name,
+        ...(kids
+          ? {
+              groom_full_name: String(body?.child_full_name || groom_name || "").trim() || groom_name,
+              ...(body?.parents_names ? { groom_parents: String(body.parents_names).trim() } : {}),
+            }
+          : {}),
         estimated_wedding_date,
-        estimated_guest_count,
+        estimated_guest_count: Number(estimated_guest_count) > 0 ? estimated_guest_count : 300,
         slug,
         whatsapp_number: normalizedPhone,
         package_type: effectivePackage,
@@ -190,7 +227,7 @@ export async function POST(req: Request) {
         galeri_guest_count: galeri?.guest_count || null,
         galeri_tier: galeri?.tier || null,
         galeri_price: galeriPrice,
-        ...(galeri
+        ...(galeri && !kids
           ? { gallery_couple_name: `${groom_name.trim()} & ${bride_name.trim()}` }
           : {}),
       })
@@ -199,7 +236,10 @@ export async function POST(req: Request) {
 
     if (profileError) {
       if (profileError.code === "23505") {
-        return NextResponse.json({ error: "Nama pasangan sudah digunakan" }, { status: 409 })
+        return NextResponse.json(
+          { error: kids ? "Nama ananda sudah digunakan" : "Nama pasangan sudah digunakan" },
+          { status: 409 },
+        )
       }
       return NextResponse.json({ error: "Terjadi kesalahan. Silakan coba lagi." }, { status: 500 })
     }
@@ -282,7 +322,7 @@ export async function POST(req: Request) {
       await notifyNewAccountGroup({
         wedding_profile_id: profile.id,
         slug,
-        bride_name,
+        bride_name: kids ? "" : bride_name,
         groom_name,
         whatsapp_number: normalizedPhone,
         package_type: effectivePackage,
@@ -290,6 +330,7 @@ export async function POST(req: Request) {
         total: finalTotal,
         voucher_code: voucherCode,
         voucher_discount: voucherDiscount || null,
+        event_type: eventType,
       })
     } catch (e) {
       console.error("[notifyGroup] failed", e)

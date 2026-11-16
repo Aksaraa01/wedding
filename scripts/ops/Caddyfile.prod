@@ -41,6 +41,19 @@ wp.aksaraa.com {
 	try_files {path} {path}/ /index.php?{query}
 }
 
+# Ceriavite (kids: khitanan / aqiqah / ulang tahun). Marketing host only —
+# couple invitations stay on the apex wildcard below, so no wildcard cert and no
+# couple rewrite here. Without this explicit block the `*.aksaraa.com` catch-all
+# would treat "ceriavite" as a couple slug and 404 the landing page.
+ceriavite.aksaraa.com {
+	@root path /
+	rewrite @root /ceriavite
+
+	reverse_proxy 127.0.0.1:3002
+
+	encode gzip
+}
+
 *.aksaraa.com {
 	tls {
 		dns cloudflare {env.CLOUDFLARE_API_TOKEN}

@@ -26,6 +26,8 @@ HOSTS=(
   education.aksaraa.com
   staging.aksaraa.com
   stg.education.aksaraa.com
+  ceriavite.aksaraa.com                    # Ceriavite marketing host (kids)
+  rafi-novi.aksaraa.com                    # canonical invitation host, one level
   rafi-novi.wedding.aksaraa.com            # one couple, two levels deep
 )
 

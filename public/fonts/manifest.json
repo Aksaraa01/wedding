@@ -820,5 +820,11 @@
     "weight": "700",
     "style": "normal",
     "bytes": 27812
+  },
+  "mrdafoe-400.woff2": {
+    "family": "Mr Dafoe",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 17316
   }
 }

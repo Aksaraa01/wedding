@@ -1,10 +1,11 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { PACKAGE_LABELS } from "@/lib/packages"
+import { eventLabels, isKidsEvent } from "@/lib/eventType"
 
 type NotifyPayload = {
   wedding_profile_id: string
   slug: string
-  bride_name: string
+  bride_name?: string | null
   groom_name: string
   whatsapp_number: string
   package_type: string
@@ -12,6 +13,7 @@ type NotifyPayload = {
   total: number
   voucher_code?: string | null
   voucher_discount?: number | null
+  event_type?: string | null
 }
 
 function formatIDR(n: number): string {
@@ -43,11 +45,16 @@ export async function notifyNewAccountGroup(payload: NotifyPayload): Promise<voi
   const label = PACKAGE_LABELS[payload.package_type] || payload.package_type
   const tierSuffix = payload.wa_blast_tier ? ` (+${payload.wa_blast_tier} VIP)` : ""
   const paketLine = `Paket: ${label}${tierSuffix} — Rp ${formatIDR(payload.total)}`
-  const couple = `${payload.groom_name} & ${payload.bride_name}`
+  // One name for a kids event, two for a wedding.
+  const couple = [payload.groom_name, payload.bride_name].filter(Boolean).join(" & ")
+  const kids = isKidsEvent(payload.event_type)
+  const nameLine = kids
+    ? `Nama Ananda (${eventLabels(payload.event_type).eventNoun}): ${couple}`
+    : `Nama Couple: ${couple}`
   const now = formatDateWIB(new Date())
 
   const text = [
-    `Nama Couple: ${couple}`,
+    nameLine,
     `Nomor Handphone: ${payload.whatsapp_number}`,
     paketLine,
     ...(payload.voucher_code

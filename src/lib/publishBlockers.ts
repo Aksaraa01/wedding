@@ -11,7 +11,7 @@ import { getTemplateContentSpec } from "@/components/templates"
 export async function getPublishBlockers(id: string): Promise<{ key: string; label: string }[]> {
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("package_type, selected_template_id, couple_illustration_url, link_thumbnail_url, link_thumbnail_disabled, cover_photos, opening_title, opening_description, display_name, groom_full_name, bride_full_name, sessions, gallery_photos, inviting_families, inviting_families_visible, quote_text, video_url, video_section_visible, stories, story_visible, gift_section_visible, dresscode, livestream")
+    .select("package_type, selected_template_id, couple_illustration_url, link_thumbnail_url, link_thumbnail_disabled, cover_photos, opening_title, opening_description, display_name, groom_full_name, bride_full_name, sessions, gallery_photos, inviting_families, inviting_families_visible, quote_text, video_url, video_section_visible, stories, story_visible, gift_section_visible, dresscode, livestream, event_type")
     .eq("id", id)
     .maybeSingle()
 
@@ -29,7 +29,8 @@ export async function getPublishBlockers(id: string): Promise<{ key: string; lab
   // Cover-slot count decides whether a dedicated link thumbnail is required:
   // in-house designs declare it in the content spec, WP designs in the manifest.
   const tplCode = (tpl as any)?.code as string | undefined
-  const specSlots = getTemplateContentSpec(tplCode || null)?.cover_slots
+  const spec = getTemplateContentSpec(tplCode || null)
+  const specSlots = spec?.cover_slots
   const manifestSlots = Array.isArray((tpl as any)?.wp_manifest?.cover_photos)
     ? (tpl as any).wp_manifest.cover_photos.length
     : undefined
@@ -61,6 +62,9 @@ export async function getPublishBlockers(id: string): Promise<{ key: string; lab
     gift_account_count: giftAccts.length,
     no_photo_template: (tpl as any)?.no_photo === true,
     no_opening_section: hidesOpeningSection((tpl as any)?.code),
+    no_story_section: spec?.sections?.story === false,
+    no_inviting_section: spec?.sections?.inviting === false,
+    event_type: (profile as any).event_type || "wedding",
     gates: {
       inviting_families: gates.inviting_families.included,
       cinematic_video: gates.cinematic_video.included,

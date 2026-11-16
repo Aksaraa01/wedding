@@ -10,6 +10,7 @@ import { getTemplateComponent } from "@/components/templates"
 import TemplateGallery from "@/components/template-gallery/TemplateGallery"
 import { packageDisplayName, lowestEligiblePackage } from "@/lib/packages"
 import { templateUpgradeWaLink } from "@/lib/contact"
+import { eventFamily } from "@/lib/eventType"
 
 type Template = {
   id: string
@@ -27,6 +28,9 @@ type Template = {
   // Package gate: empty/absent ⇒ available to everyone. Otherwise the couple's
   // package_type must be in the list, or Pilih opens the upgrade popup.
   package_eligibility?: string[] | null
+  // Event family ('wedding' | 'kids'). A Ceriavite profile must never be offered
+  // a wedding design (and vice versa): the copy differs too much to relabel.
+  event_type?: string | null
 }
 
 type Profile = {
@@ -34,6 +38,7 @@ type Profile = {
   groom_name?: string | null
   bride_name?: string | null
   estimated_wedding_date?: string | null
+  event_type?: string | null
 }
 
 function TemplatesInner({ id }: { id: string }) {
@@ -51,8 +56,15 @@ function TemplatesInner({ id }: { id: string }) {
       // Fetch unfiltered: ineligible templates stay visible and upsell on Pilih.
       // fresh=1 + no-store so ops package_eligibility edits reflect immediately.
       const tplData = await fetch(`/api/web-templates?fresh=1`, { cache: "no-store" }).then((r) => r.json())
-      setTemplates(tplData.templates || [])
-      setProfile(invData.profile || null)
+      const invProfile = invData.profile || null
+      // Event family gate: a Ceriavite (kids) profile only sees kids designs, a
+      // wedding profile only sees wedding designs.
+      const family = eventFamily(invProfile?.event_type)
+      const list = (tplData.templates || []).filter(
+        (t: Template) => eventFamily(t.event_type) === family
+      )
+      setTemplates(list)
+      setProfile(invProfile)
       if (invData.template) setSelectedId(invData.template.id)
     })()
   }, [id])

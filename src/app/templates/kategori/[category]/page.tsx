@@ -31,6 +31,7 @@ async function getTemplates(): Promise<GalleryTemplate[]> {
     .from("web_templates")
     .select("id,code,name,preview_image_url,demo_url,category,tier,no_photo,popular_rank,sort_order,created_at")
     .eq("is_active", true)
+    .eq("event_type", "wedding")
     .order("sort_order", { ascending: true })
     .order("name", { ascending: true })
   return (data as GalleryTemplate[] | null) || []

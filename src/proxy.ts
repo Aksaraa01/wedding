@@ -16,6 +16,15 @@ export function proxy(req: NextRequest) {
     return withSecurityHeaders(NextResponse.next())
   }
 
+  // Ceriavite (kids) marketing host. Production Caddy rewrites `/` to /ceriavite
+  // before Next sees the request; this branch keeps `next dev` behaving the same
+  // and stops the apex wildcard below from treating "ceriavite" as a couple slug.
+  if (hostname === "ceriavite.aksaraa.com" || hostname.startsWith("ceriavite.")) {
+    const url = new URL(req.url)
+    if (url.pathname === "/") url.pathname = "/ceriavite"
+    return withSecurityHeaders(NextResponse.rewrite(url))
+  }
+
   const weddingMatch = hostname.match(/^(.+?)\.wedding\.aksaraa\.com$/)
   if (weddingMatch) {
     const slug = weddingMatch[1]

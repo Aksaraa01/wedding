@@ -29,7 +29,7 @@ export default function PremiumWebInvitationPage() {
   const [previewTpl, setPreviewTpl] = useState<Template | null>(null)
 
   useEffect(() => {
-    fetch("/api/web-templates")
+    fetch("/api/web-templates?event=wedding")
       .then((r) => r.json())
       .then((d) => {
         const list = d.templates || []

@@ -1,3 +1,5 @@
+import { isKidsEvent } from "@/lib/eventType"
+
 export const INVITATION_SECTION_LABELS: Record<string, string> = {
   tema: "Tema",
   sampul: "Sampul",
@@ -69,6 +71,13 @@ export type InvitationCompletenessInput = {
   // Templates that don't use the Kalimat Pembuka block at all (fixed opening
   // card): never block publishing on it.
   no_opening_section?: boolean
+  // Kids templates ship no love story and no "turut mengundang": there is no
+  // section to fill, so an empty column must not block publishing.
+  no_story_section?: boolean
+  no_inviting_section?: boolean
+  // 'wedding' | 'khitanan' | 'aqiqah' | 'birthday'. Kids events have one person,
+  // so the profile section requires only the child's full name.
+  event_type?: string
 }
 
 function hasArr(v: unknown): boolean {
@@ -115,8 +124,10 @@ function isSectionIncomplete(key: string, d: InvitationCompletenessInput): boole
       if (d.no_opening_section) return false
       return !hasStr(d.opening_title) && !hasStr(d.opening_description)
     case "profile":
+      if (isKidsEvent(d.event_type)) return !hasStr(d.groom_full_name)
       return !hasStr(d.groom_full_name) || !hasStr(d.bride_full_name)
     case "inviting":
+      if (d.no_inviting_section) return false
       if (!d.gates.inviting_families) return false
       if (d.inviting_families_visible === false) return false
       return !hasArr(d.inviting_families)
@@ -134,6 +145,7 @@ function isSectionIncomplete(key: string, d: InvitationCompletenessInput): boole
       if (d.no_photo_template) return false
       return !hasStr(d.video_url)
     case "story":
+      if (d.no_story_section) return false
       if (!d.gates.story) return false
       if (d.story_visible === false) return false
       return !hasArr(d.stories)
@@ -156,14 +168,20 @@ export type IncompleteInvitationSection = {
   action: "templates" | "section"
 }
 
+export function invitationSectionLabels(eventType?: string): Record<string, string> {
+  if (!isKidsEvent(eventType)) return INVITATION_SECTION_LABELS
+  return { ...INVITATION_SECTION_LABELS, profile: "Profile Ananda" }
+}
+
 export function getIncompleteInvitationSections(
   d: InvitationCompletenessInput
 ): IncompleteInvitationSection[] {
+  const labels = invitationSectionLabels(d.event_type)
   return INVITATION_SECTION_ORDER.filter(key =>
     isSectionIncomplete(key, d)
   ).map(key => ({
     key,
-    label: INVITATION_SECTION_LABELS[key],
+    label: labels[key] || INVITATION_SECTION_LABELS[key] || key,
     action: key === "tema" ? "templates" : "section",
   }))
 }

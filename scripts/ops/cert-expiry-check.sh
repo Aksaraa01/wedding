@@ -37,9 +37,10 @@ while [ $# -gt 0 ]; do
 done
 
 if [ ${#HOSTS[@]} -eq 0 ]; then
-  # The last entry is a live couple subdomain: it proves the *.wedding.aksaraa.com
-  # wildcard (not just the apex cert) is valid, which is what most guests use.
-  HOSTS=(aksaraa.com www.aksaraa.com wedding.aksaraa.com wp.aksaraa.com rafi-novi.wedding.aksaraa.com)
+  # The couple entries prove the wildcard certificates, not just the apex ones:
+  # rafi-novi.wedding.aksaraa.com for *.wedding.aksaraa.com and
+  # rafi-novi.aksaraa.com for the canonical *.aksaraa.com invitation host.
+  HOSTS=(aksaraa.com www.aksaraa.com wedding.aksaraa.com wp.aksaraa.com ceriavite.aksaraa.com rafi-novi.wedding.aksaraa.com rafi-novi.aksaraa.com)
 fi
 
 now="$(date +%s)"

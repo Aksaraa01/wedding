@@ -81,7 +81,7 @@ export default function HeroSection() {
 
   useEffect(() => {
     let cancelled = false
-    fetch("/api/web-templates")
+    fetch("/api/web-templates?event=wedding")
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (cancelled) return

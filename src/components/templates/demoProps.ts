@@ -1,5 +1,6 @@
 import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
+import { eventLabels } from "@/lib/eventType"
 
 const TM = "https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/template-media"
 
@@ -2837,5 +2838,57 @@ DEMO_PROPS_BY_CODE["love-line"] = {
     copy_address_toast: "Address copied",
     closing_message:
       "Thank you for being part of our story. See you on the big day!",
+  },
+}
+
+// Ceriavite (kids) demo. One name, one parent line, "Walimatul Khitan" copy —
+// the same props the `?event=` registration flow writes for a khitanan profile.
+// Sample names/photos are Aksaraa's own; never the reference couple's.
+DEMO_PROPS_BY_CODE["songket-marun"] = {
+  slug: "demo",
+  groom_name: "Raka",
+  groom_full_name: "Raka Pratama",
+  estimated_wedding_date: "2026-12-20",
+  guest_name: "Tamu Undangan",
+  cover_photos: [ASSETS.defaults.couple, ASSETS.defaults.couple, ASSETS.defaults.couple],
+  couple_illustration_url: ASSETS.defaults.couple,
+  groom_photo_url: [ASSETS.defaults.groom],
+  groom_parents: "Bapak Hendra Pratama & Ibu Sari Dewi",
+  opening_title: "Bismillahirrahmanirrahim",
+  opening_description:
+    "Dengan memohon rahmat dan rida Allah SWT, kami bermaksud menyelenggarakan walimatul khitan putra kami tercinta. Merupakan suatu kehormatan apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu.",
+  quote_text:
+    "Ya Tuhanku, anugerahkanlah kepadaku (seorang anak) yang termasuk orang-orang yang saleh.",
+  quote_source: "QS. Ash-Shaffat: 100",
+  sessions: [
+    {
+      name: "Walimatul Khitan",
+      date: "2026-12-20",
+      time: "10:00 – 14:00 WIB",
+      venue: "Kediaman Bapak Hendra Pratama",
+      address: "Jl. Melati No. 12, Medan Kota, Sumatera Utara",
+      maps_url: "https://maps.google.com/?q=Medan",
+    },
+  ],
+  gallery_photos: ASSETS.defaultGallery.slice(0, 6),
+  gift_accounts: [
+    { provider_name: "Bank Mandiri", account_number: "1234567890", account_name: "Hendra Pratama", type: "bank" },
+  ],
+  gift_address: "Jl. Melati No. 12, Medan Kota, Sumatera Utara",
+  gift_address_name: "Hendra Pratama",
+  gift_section_visible: true,
+  event_type: "khitanan",
+  subject_gender: "putra",
+  event_labels: eventLabels("khitanan", "putra"),
+  feature_gates: {
+    story: false,
+    gift_address: true,
+    inviting_families: false,
+    video: false,
+    qr_code_book: false,
+  },
+  template_content: {
+    closing_message:
+      "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu. Atas kehadiran dan doanya kami ucapkan terima kasih.",
   },
 }
