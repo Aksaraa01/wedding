@@ -283,11 +283,18 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       } else {
         setLinkStrict(true)
       }
+      // Resolve the category from the profile we just loaded (not from state,
+      // which is still empty here). A Ceriavite profile always gets the kids
+      // template, whatever wedding category was saved before.
+      const kidsHere = isKidsEvent(profileData.profile?.event_type)
       const savedCat = profileData.profile?.message_category
-      if (savedCat && MSG_CATEGORIES.some((c) => c.id === savedCat) && !(isKidsEvent(profile?.event_type) && savedCat !== "khitanan")) {
-        setMsgCategory(savedCat as MsgCategory)
-        setMsgText(MSG_TEMPLATES[savedCat as MsgCategory])
-      }
+      const resolvedCat: MsgCategory = kidsHere
+        ? "khitanan"
+        : savedCat && MSG_CATEGORIES.some((c) => c.id === savedCat)
+          ? (savedCat as MsgCategory)
+          : "nasional"
+      setMsgCategory(resolvedCat)
+      setMsgText(MSG_TEMPLATES[resolvedCat])
       if (profileData.feature_set && Array.isArray(profileData.feature_set)) {
         setQrCodeBook(profileData.feature_set.includes("qr_code_book"))
       }
