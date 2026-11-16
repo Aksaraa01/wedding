@@ -133,8 +133,8 @@ body.skm-locked { overflow: hidden; }
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(50, 10, 17, 0.18) 0%, rgba(50, 10, 17, 0) 22%),
-    linear-gradient(180deg, rgba(74, 22, 32, 0) 42%, rgba(74, 22, 32, 0.72) 62%, var(--skm-bg) 82%, var(--skm-bg) 100%);
+    linear-gradient(180deg, rgba(50, 10, 17, 0.1) 0%, rgba(50, 10, 17, 0) 18%),
+    linear-gradient(180deg, rgba(74, 22, 32, 0) 48%, rgba(74, 22, 32, 0.55) 66%, var(--skm-bg) 84%, var(--skm-bg) 100%);
 }
 
 .skm-cover__inner {
@@ -217,11 +217,11 @@ body.skm-locked { overflow: hidden; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 220px;
-  padding: 15px 46px;
+  min-width: 258px;
+  padding: 16px 52px;
   border: 0;
   border-radius: 999px;
-  background: linear-gradient(180deg, #d3af6b 0%, #c39d55 100%);
+  background: linear-gradient(180deg, #dcb87c 0%, #c9a45c 100%);
   color: #46151d;
   font-family: var(--skm-ui);
   font-size: 11px;
@@ -988,12 +988,13 @@ body.skm-locked { overflow: hidden; }
   inset: 0;
   z-index: 3;
   pointer-events: none;
-  opacity: 0.5;
+  opacity: 0.4;
   background-image:
-    repeating-linear-gradient(45deg, rgba(201, 164, 92, 0.28) 0 1.5px, transparent 1.5px 8px),
-    repeating-linear-gradient(-45deg, rgba(201, 164, 92, 0.18) 0 1.5px, transparent 1.5px 10px);
-  mask-image: radial-gradient(120% 90% at 50% 30%, #000 30%, transparent 82%);
-  -webkit-mask-image: radial-gradient(120% 90% at 50% 30%, #000 30%, transparent 82%);
+    repeating-linear-gradient(45deg, rgba(201, 164, 92, 0.26) 0 1.2px, transparent 1.2px 9px),
+    repeating-linear-gradient(-45deg, rgba(201, 164, 92, 0.16) 0 1.2px, transparent 1.2px 9px);
+  /* only the paper below the photo carries the weave */
+  mask-image: linear-gradient(180deg, transparent 58%, #000 78%, #000 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 58%, #000 78%, #000 100%);
 }
 
 /* Arabic basmalah line at the top of the opening section. */
