@@ -518,7 +518,7 @@ export default function SongketMarun(profile: TemplateProps) {
                 loading="lazy"
               />
             </span>
-            <span className="skm-footer__cta">Wedding by Aksaraa</span>
+            <span className="skm-footer__cta">{labels.brand} by Aksaraa</span>
           </a>
         </main>
       )}
