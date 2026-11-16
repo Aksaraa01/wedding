@@ -289,6 +289,13 @@ export default function SongketMarun(profile: TemplateProps) {
           <section className="skm-section skm-section--dark skm-date" data-skm-reveal>
             <span className="skm-edge skm-edge--top" aria-hidden="true" />
             <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
+            <p className="skm-kicker skm-section__kicker">Save the Date</p>
+            <h2 className="skm-section__title">Hari Bahagia</h2>
+            <p className="skm-date__weekday">{weekday}</p>
+            <p className="skm-date__day">{dayNum}</p>
+            <p className="skm-date__rest">
+              {monthName} {yearNum}
+            </p>
             {target && (() => {
               const ms = now ? Math.max(0, target.getTime() - now) : 0
               const cells = [
@@ -308,13 +315,6 @@ export default function SongketMarun(profile: TemplateProps) {
                 </div>
               )
             })()}
-            <p className="skm-kicker skm-section__kicker">Save the Date</p>
-            <h2 className="skm-section__title">Hari Bahagia</h2>
-            <p className="skm-date__weekday">{weekday}</p>
-            <p className="skm-date__day">{dayNum}</p>
-            <p className="skm-date__rest">
-              {monthName} {yearNum}
-            </p>
             {calendarUrl && (
               <a className="skm-date__cta" href={calendarUrl} target="_blank" rel="noreferrer noopener">
                 <span className="material-symbols-outlined" style={{ fontSize: 15 }}>
