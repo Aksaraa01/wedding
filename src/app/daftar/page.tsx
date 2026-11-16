@@ -15,7 +15,6 @@ import { KIDS_EVENT_OPTIONS, normalizeEventType, type EventType } from "@/lib/ev
 export default function DaftarCeriavitePage() {
   const router = useRouter()
   const [nickname, setNickname] = useState("")
-  const [fullName, setFullName] = useState("")
   const [gender, setGender] = useState<"putra" | "putri">("putra")
   const [parents, setParents] = useState("")
   const [eventType, setEventType] = useState<EventType>("khitanan")
@@ -29,9 +28,10 @@ export default function DaftarCeriavitePage() {
     coupleSlugError(nickname, "") ||
     (isReservedSlug(nickname.replace(/[^a-zA-Z0-9]/g, "")) ? reservedSlugMessage(nickname) : null)
 
+  // Only the child's name is required. The date defaults to a month out and is
+  // editable later in the editor, so a parent can finish signing up in seconds.
   const formValid =
     nickname.trim().length > 0 &&
-    date.trim().length > 0 &&
     wa.replace(/\D/g, "").length > 0 &&
     pin.length === 6 &&
     !slugIssue
@@ -69,11 +69,12 @@ export default function DaftarCeriavitePage() {
         body: JSON.stringify({
           bride_name: "",
           groom_name: nickname.trim(),
-          child_full_name: fullName.trim() || nickname.trim(),
+          child_full_name: nickname.trim(),
           parents_names: parents.trim(),
           subject_gender: gender,
           event_type: normalizeEventType(eventType),
-          estimated_wedding_date: date,
+          estimated_wedding_date:
+            date || new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
           estimated_guest_count: 300,
           whatsapp_number: phone,
           pin,
@@ -143,20 +144,9 @@ export default function DaftarCeriavitePage() {
           <CoupleSlugHint
             name1={nickname}
             name2=""
-            variant="dark"
+            variant="default"
             className="mt-2"
             helpText="Nama panggilan ini menjadi alamat undangan digital ananda."
-          />
-
-          <label className="mb-2 mt-5 block text-[10px] uppercase tracking-[0.18em] text-[#8D4D39]">
-            Nama lengkap <span className="normal-case tracking-normal text-[#8B857C]">(opsional)</span>
-          </label>
-          <input
-            className="h-12 w-full rounded-xl border border-[#E7DECF] bg-[#FCFAF6] px-3.5 text-[15px] text-[#1A1817] placeholder:text-[#A39B8E] focus:border-[#8D4D39] focus:outline-none"
-            placeholder="Contoh: Raka Pratama"
-            autoComplete="off"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
           />
 
           <p className="mb-2 mt-5 block text-[10px] uppercase tracking-[0.18em] text-[#8D4D39]">Putra / Putri</p>

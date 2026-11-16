@@ -32,6 +32,9 @@ export function isKidsEvent(value: unknown): boolean {
 export type EventFamily = "wedding" | "kids"
 
 export function eventFamily(value: unknown): EventFamily {
+  // Accepts both a rite (khitanan/aqiqah/birthday) and the stored family value
+  // ("kids"), which is what web_templates.event_type holds.
+  if (value === "kids") return "kids"
   return isKidsEvent(value) ? "kids" : "wedding"
 }
 

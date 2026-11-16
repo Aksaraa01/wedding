@@ -60,9 +60,11 @@ function TemplatesInner({ id }: { id: string }) {
       // Event family gate: a Ceriavite (kids) profile only sees kids designs, a
       // wedding profile only sees wedding designs.
       const family = eventFamily(invProfile?.event_type)
-      const list = (tplData.templates || []).filter(
-        (t: Template) => eventFamily(t.event_type) === family
-      )
+      const all = tplData.templates || []
+      const familyList = all.filter((t: Template) => eventFamily(t.event_type) === family)
+      // Never leave the picker empty: if the family filter has no match (legacy
+      // profile, mis-tagged template), fall back to the full catalogue.
+      const list = familyList.length > 0 ? familyList : all
       setTemplates(list)
       setProfile(invProfile)
       if (invData.template) setSelectedId(invData.template.id)
