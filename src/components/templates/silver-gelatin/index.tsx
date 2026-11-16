@@ -218,6 +218,7 @@ export default function SilverGelatin(profile: TemplateProps) {
   // prints as one line so the third character is never dropped.
   const longInitials = initialsList.length > 2
   const longInitialsSize = monogramFontSize(coupleInitials, 64)
+  const multiInitialsLoad = ON_LOAD("up", 0.3)
   const guestName = (profile.guest_name || "").trim() || WISH_ME
   const dateObject = parseDate(profile.estimated_wedding_date)
   const dateDot = dotDate(profile.estimated_wedding_date)
@@ -448,8 +449,8 @@ export default function SilverGelatin(profile: TemplateProps) {
               <p
                 className="sg-cover__initial sg-cover__initial--multi"
                 aria-hidden="true"
-                style={{ fontSize: `calc(${longInitialsSize} * var(--sg-u))` }}
-                {...ON_LOAD("up", 0.3)}
+                {...multiInitialsLoad}
+                style={{ ...multiInitialsLoad.style, fontSize: `calc(${longInitialsSize} * var(--sg-u))` }}
               >
                 {coupleInitials}
               </p>
