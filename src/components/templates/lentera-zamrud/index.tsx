@@ -81,8 +81,15 @@ function useFitOneLine<T extends HTMLElement>(text: string, maxScale = 0.5) {
 function timeLine(raw?: string): string {
   const value = (raw || "").trim()
   if (!value) return ""
-  const withPrefix = /^pukul/i.test(value) ? value : `Pukul ${value}`
+  const normalized = value.replace(/\s+-\s+/g, " – ")
+  const withPrefix = /^pukul/i.test(normalized) ? normalized : `Pukul ${normalized}`
   return /wib/i.test(withPrefix) ? withPrefix : `${withPrefix} WIB`
+}
+
+function accountName(raw?: string): string {
+  const name = (raw || "").trim()
+  if (!name) return ""
+  return /^(a\/n|atas nama)\b/i.test(name) ? name : `a/n ${name}`
 }
 
 export default function LenteraZamrud(profile: TemplateProps) {
@@ -638,7 +645,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
                           <span className="material-symbols-outlined" aria-hidden="true">content_copy</span>
                         </button>
                       </p>
-                      <p className="lz-gift-card__owner">{account.account_name}</p>
+                      <p className="lz-gift-card__owner">{accountName(account.account_name)}</p>
                     </div>
                   ))}
 
@@ -724,7 +731,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
           onClick={toggleMusic}
           aria-label={playing ? "Jeda musik" : "Putar musik"}
         >
-          <span className="material-symbols-outlined" aria-hidden="true">{playing ? "music_note" : "music_off"}</span>
+          <span className="material-symbols-outlined" aria-hidden="true">music_note</span>
         </button>
       )}
 

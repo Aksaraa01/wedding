@@ -70,7 +70,8 @@
   margin: 0 auto;
   min-height: 100dvh;
   background: var(--lz-cream);
-  overflow: clip;
+  overflow-x: clip;
+  overflow-y: visible;
 }
 @media (max-width: 430px) {
   .lz-frame { max-width: none; }
@@ -136,7 +137,7 @@ body:has(.lz-root.is-locked) { overflow: hidden; }
 
 .lz-section {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   padding: 0 24px;
 }
 .lz-section > * { position: relative; z-index: 2; }
@@ -211,7 +212,7 @@ body:has(.lz-root.is-locked) { overflow: hidden; }
   flex-direction: column;
   align-items: center;
   min-height: 100svh;
-  padding: clamp(64px, 14.1vh, 130px) 20.4px 0;
+  padding: clamp(64px, 14.8vh, 130px) 20.4px 0;
   overflow: hidden;
   background: var(--lz-cream);
   text-align: center;
@@ -244,6 +245,7 @@ body:has(.lz-root.is-locked) { overflow: hidden; }
   bottom: 0;
   z-index: 2;
   width: 101.3%;
+  max-width: none;
   height: auto;
   pointer-events: none;
 }
@@ -260,7 +262,7 @@ body:has(.lz-root.is-locked) { overflow: hidden; }
 .lz-cover__photo {
   position: relative;
   z-index: 5;
-  width: 46.92%;
+  width: 52.4%;
   aspect-ratio: 183 / 301;
   margin-top: 2.3px;
 }
@@ -432,9 +434,10 @@ body:has(.lz-root.is-locked) { overflow: hidden; }
 .lz-putra__stage .lz-arch__frame {
   left: 50%;
   top: 6px;
+  right: auto;
+  bottom: auto;
   width: 226px;
   height: 373px;
-  inset: auto;
   transform: translateX(-50%);
 }
 .lz-putra__stage .lz-sprig--l { left: 3.4%; top: 61.9%; width: 26.6%; }
@@ -548,9 +551,10 @@ body:has(.lz-root.is-locked) { overflow: hidden; }
 }
 .lz-skyline {
   display: block;
-  width: 100%;
+  width: calc(100% + 48px);
+  max-width: none;
   height: auto;
-  margin-top: 0;
+  margin: 0 -24px;
   pointer-events: none;
 }
 
@@ -900,9 +904,9 @@ body:has(.lz-root.is-locked) { overflow: hidden; }
   padding-bottom: 56px;
   text-align: center;
 }
-.lz-inviting .lz-script-title { margin-top: 4px; }
+.lz-inviting .lz-script-title { margin-top: 10px; }
 .lz-inviting__list {
-  margin: 22px 0 0;
+  margin: 26px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -1029,7 +1033,10 @@ body:has(.lz-root.is-locked) { overflow: hidden; }
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   cursor: pointer;
+  opacity: 0.78;
+  transition: opacity 0.25s ease;
 }
+.lz-music.is-playing { opacity: 1; }
 .lz-music .material-symbols-outlined { font-size: 22px; }
 .lz-music.is-playing .material-symbols-outlined { animation: lz-pulse 2.4s ease-in-out infinite; }
 
