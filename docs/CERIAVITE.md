@@ -123,3 +123,21 @@ type scale and ornament vocabulary.
 6. `ubin-ottoman`, `lentera-zamrud`
 7. Editor + ops parity, template gallery filtering
 8. Docs, deploy guard, smoke
+
+## Status
+
+Live in production (2026-11-16): landing on ceriavite.aksaraa.com, `/daftar`
+registration, event-aware dashboard/editor/ops wording, per-host robots and
+sitemap, per-invitation share metadata, and the first kids template row.
+
+Deliberately **not** done yet:
+
+- The three reference designs are not ported. `songket-marun` is a first pass in
+  the reference's palette and section order; the faithful port (Marcellus +
+  Parisienne, `bingkai-ukir-lak` frame, venue and closing photo slots, "Doa untuk
+  Ananda", "Amplop Digital") is the next task. Ornaments are already vendored.
+- `messageTemplates` / `reminderTemplates` still carry wedding wording. They are
+  reachable only from the QR guestbook (not in the kids package) and the ops WA
+  composer, where staff edit before sending. Revisit when kids get a share modal.
+- The login page resolves its brand on hydration, so the SSR HTML still contains
+  "Aksaraa". Making it SSR-correct requires making that route dynamic.
