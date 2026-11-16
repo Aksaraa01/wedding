@@ -3,7 +3,6 @@ import Link from "next/link"
 import { supabaseAdmin } from "@/lib/supabase"
 import { KIDS_SITE } from "@/lib/eventType"
 import { waLink } from "@/lib/contact"
-import TemplateCarousel from "@/components/ceriavite/TemplateCarousel"
 
 export const metadata: Metadata = {
   title: { absolute: "Ceriavite | Undangan Digital Khitanan, Aqiqah, dan Ulang Tahun" },
@@ -38,6 +37,7 @@ export const revalidate = 3600
 type KidsTemplate = {
   id: string
   code: string
+  category?: string | null
   name: string
   description: string | null
   preview_image_url: string | null
@@ -47,7 +47,7 @@ type KidsTemplate = {
 async function getTemplates(): Promise<KidsTemplate[]> {
   const { data } = await supabaseAdmin
     .from("web_templates")
-    .select("id,code,name,description,preview_image_url,demo_url")
+    .select("id,code,name,description,preview_image_url,demo_url,category")
     .eq("is_active", true)
     .eq("event_type", "kids")
     .order("sort_order", { ascending: true })
@@ -89,6 +89,7 @@ const STEPS = [
 export default async function CeriaviteLandingPage() {
   const templates = await getTemplates()
   const shelf = templates.length > 0 ? templates : PLACEHOLDER_TEMPLATES
+  const categories = Array.from(new Set(shelf.map((t) => (t as { category?: string | null }).category || ""))).filter(Boolean) as string[]
 
   return (
     <div className="min-h-[100dvh] bg-[#FAF7F2] text-[#1A1817] antialiased">
@@ -118,26 +119,69 @@ export default async function CeriaviteLandingPage() {
       </header>
 
       <main>
-        {/* 1. Template list, auto slide */}
-        <section className="bg-white py-10 md:py-14">
+        {/* 1. Design catalogue: heading + chips + 2-up portrait grid on phones */}
+        <section className="bg-white py-8 md:py-12">
           <div className="mx-auto max-w-7xl px-6 lg:px-12">
-            <div className="mb-6 flex flex-col gap-2 md:mb-9 md:flex-row md:items-end md:justify-between">
-              <div className="max-w-xl">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#8D4D39] md:text-[11px]">
-                  Galeri desain
-                </p>
-                <h2 className="mt-2 font-headline-lg text-[24px] leading-[1.2] tracking-tight text-[#1A1817] md:text-headline-lg">
-                  Desain undangan acara ananda.
-                </h2>
-              </div>
-              <p className="max-w-sm text-[12.5px] leading-relaxed text-[#6E6A63] md:text-right md:text-[14px]">
+            <div className="mb-5 md:mb-7">
+              <h2 className="font-headline-lg text-[24px] leading-tight tracking-tight text-[#1A1817] md:text-[32px]">
+                Desain undangan
+              </h2>
+              <p className="mt-2 max-w-xl text-[12.5px] leading-relaxed text-[#6E6A63] md:text-[14px]">
                 {shelf.length} desain untuk khitanan, aqiqah, dan ulang tahun. Pratinjau langsung
                 dari layar HP.
               </p>
             </div>
-          </div>
-          <div className="mx-auto max-w-7xl">
-            <TemplateCarousel items={shelf} />
+
+            {categories.length > 1 && (
+              <div className="no-scrollbar mb-4 flex gap-2 overflow-x-auto md:mb-6">
+                {categories.map((cat) => (
+                  <span
+                    key={cat}
+                    className="shrink-0 rounded-full border border-[#E7DECF] bg-[#FCFAF6] px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6E6A63]"
+                  >
+                    {cat}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 md:gap-x-5 lg:grid-cols-4">
+              {shelf.map((t) => (
+                <article key={t.code} className="group">
+                  <div className="relative overflow-hidden rounded-2xl border border-[#EFE9DD] bg-[#F5F0E7]">
+                    <div className="aspect-[9/19]">
+                      {t.preview_image_url && (
+                        <img
+                          src={t.preview_image_url}
+                          alt={t.name}
+                          loading="lazy"
+                          className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+                        />
+                      )}
+                    </div>
+                  </div>
+                  <h3 className="mt-2.5 font-headline-sm text-[13px] leading-tight text-[#1A1817] md:text-[15px]">
+                    {t.name}
+                  </h3>
+                  <div className="mt-2 flex items-center gap-2">
+                    {t.demo_url && (
+                      <a
+                        href={t.demo_url}
+                        className="inline-flex flex-1 items-center justify-center rounded-full border border-[#DCD2C2] bg-white px-2 py-1.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-[#1A1817] transition-colors hover:border-[#1A1817]"
+                      >
+                        Lihat
+                      </a>
+                    )}
+                    <Link
+                      href={`/daftar?template=${encodeURIComponent(t.code)}`}
+                      className="inline-flex flex-1 items-center justify-center rounded-full bg-[#8D4D39] px-2 py-1.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-[#7A4130]"
+                    >
+                      Pilih
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
         </section>
 
