@@ -369,19 +369,19 @@ body:has(.lz-root.is-locked) { overflow: hidden; }
   color: var(--lz-text);
 }
 .lz-cover__guest {
+  /* text always paints above the skyline ornament and is never clipped: the
+     script face paints outside its line box, and an overflow clip cut the lower
+     half of the name on a phone */
+  position: relative;
+  z-index: 6;
   width: 100%;
-  margin: 16.3px 0 0;
-  padding: 3px 0 2px;
+  margin: 19.3px 0 0;
   font-family: var(--lz-script);
   font-size: 26px;
   line-height: 1.15;
   color: var(--lz-emerald);
   white-space: nowrap;
-  /* the script face paints ~2 px above its line box: the padding keeps the
-     ascenders inside the clip, and a name beyond the shrink floor is
-     ellipsised instead of spilling past the plate */
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 .lz-cover__cta {
   position: relative;

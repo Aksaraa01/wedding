@@ -123,8 +123,15 @@ the ones with count branches; all were exercised at 1 and many.
     stayed at 26 px and spanned 657 px across a 390 px plate. It now reads
     `scrollWidth` on the element itself, subtracts the fixed part
     (`letter-spacing` × chars, `text-indent`) before scaling, keeps the shrink
-    floor for the guest at 0.42, ellipsises beyond it, and lets the Putra name
-    wrap (its block is in flow) instead of spilling.
+    floor for the guest at 0.42, and past that floor the name wraps instead of
+    spilling (`white-space` is switched to `normal` only then).
+12. **The guest name is never clipped and never sits under the skyline.** An
+    earlier revision clipped it with `overflow: hidden` (for an ellipsis) and
+    left it at the skyline's z-index; on a short phone the 182 px skyline is
+    pinned to the bottom, so its ornament painted over the lower half of the
+    name. The name is now `overflow: visible` and `z-index: 6`, the same layer
+    as the cover name, so it always paints above the ornament and keeps every
+    glyph.
 
 ## Verification
 

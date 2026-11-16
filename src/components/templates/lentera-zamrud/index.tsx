@@ -209,7 +209,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
   const [wishNameLocked] = useState(nameState.locked)
 
   const coverNameRef = useFitOneLine<HTMLHeadingElement>(childName, 0.5, true)
-  const guestRef = useFitOneLine<HTMLParagraphElement>(guestName, 0.42)
+  const guestRef = useFitOneLine<HTMLParagraphElement>(guestName, 0.42, true)
   const putraNameRef = useFitOneLine<HTMLParagraphElement>(childFull, 0.5, true)
 
   const wishPages = Math.max(1, Math.ceil(wishes.wishes.length / WISH_PAGE))
