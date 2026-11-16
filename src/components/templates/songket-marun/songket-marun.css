@@ -141,7 +141,7 @@ body.skm-locked { overflow: hidden; }
 .skm-cover__melur {
   position: absolute;
   left: -5.6%;
-  top: 87.4%;
+  bottom: 1.2%;
   width: 27.2%;
   z-index: 6;
   transform: rotate(18deg);
@@ -239,26 +239,27 @@ body.skm-locked { overflow: hidden; }
 
 .skm-putra {
   text-align: center;
-  background: linear-gradient(180deg, var(--skm-bg) 0%, var(--skm-bg-deep) 100%);
-  overflow: hidden;
+  background: var(--skm-bg);
+  overflow: visible;
 }
 
 /* Reference group is 390x488; the frame is 250x400 at (70,62) and the photo
    148x243 at (123,158). Percentages below are relative to the 250x400 frame. */
+/* Group box = the reference's 390x488, so the ornaments can use its coords. */
 .skm-putra__stage {
   position: relative;
-  width: 64.1%;
-  max-width: 250px;
+  width: 100%;
+  max-width: 390px;
   margin: 0 auto;
-  aspect-ratio: 250 / 400;
+  aspect-ratio: 390 / 488;
 }
 
 .skm-putra__photo {
   position: absolute;
-  left: 21.2%;
-  top: 24%;
-  width: 59.2%;
-  height: 60.75%;
+  left: 31.5%;
+  top: 32.4%;
+  width: 37.9%;
+  height: 49.8%;
   overflow: hidden;
   background: #3f121b;
 }
@@ -270,30 +271,33 @@ body.skm-locked { overflow: hidden; }
 
 .skm-putra__frame {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  left: 17.9%;
+  top: 12.7%;
+  width: 64.1%;
+  height: 82%;
   pointer-events: none;
 }
 
 /* tanjak sits top-RIGHT of the frame (x=210 of 390), rotated 7deg */
 .skm-putra__tanjak {
   position: absolute;
-  top: -15%;
-  left: 56%;
-  width: 60.8%;
+  left: 53.8%;
+  top: 0.4%;
+  width: 39%;
   transform: rotate(7deg);
   pointer-events: none;
+  z-index: 5;
 }
 
 /* melur bottom-left of the group (x=26, y=370 of a 488 group) */
 .skm-putra__melur {
   position: absolute;
-  left: -17.6%;
-  bottom: 3%;
-  width: 44.8%;
+  left: 6.7%;
+  top: 75.8%;
+  width: 28.7%;
   transform: rotate(-14deg);
   pointer-events: none;
+  z-index: 5;
 }
 
 .skm-putra__name {
@@ -725,10 +729,12 @@ body.skm-locked { overflow: hidden; }
 }
 .skm-penutup__melur {
   position: absolute;
-  right: -26%;
-  bottom: -14%;
+  left: 73%;
+  top: 78%;
   width: 47.5%;
   transform: rotate(18deg);
+  pointer-events: none;
+  z-index: 3;
 }
 
 .skm-penutup__thanks {
@@ -842,9 +848,10 @@ body.skm-locked { overflow: hidden; }
 }
 
 
-/* "Tepi pucuk rebung": the 40px woven edge the reference puts on the top and
-   bottom of its canvases. Drawn as a gradient band (the source is styled text,
-   not an image asset). */
+/* "Tepi pucuk rebung": the woven bamboo-shoot border the reference puts on the
+   top and bottom edge of most canvases (40px tall). Drawn as a repeating
+   triangle motif with a gold rule, so it reads as an ornament rather than a
+   band of noise. */
 .skm-edge {
   position: absolute;
   left: 0;
@@ -852,13 +859,23 @@ body.skm-locked { overflow: hidden; }
   height: 40px;
   pointer-events: none;
   z-index: 4;
-  background-image:
-    repeating-linear-gradient(135deg, rgba(201, 164, 92, 0.5) 0 1.5px, transparent 1.5px 7px),
-    repeating-linear-gradient(45deg, rgba(201, 164, 92, 0.28) 0 1.5px, transparent 1.5px 9px);
-  opacity: 0.55;
+  background-repeat: repeat-x;
+  background-size: 40px 40px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><rect width='40' height='4' fill='%23C9A45C' fill-opacity='0.55'/><path d='M0 4 L20 34 L40 4' fill='none' stroke='%23C9A45C' stroke-opacity='0.9' stroke-width='1.1'/><path d='M8 4 L20 24 L32 4' fill='none' stroke='%23C9A45C' stroke-opacity='0.55' stroke-width='0.9'/><path d='M16 4 L20 10 L24 4' fill='%23C9A45C' fill-opacity='0.35'/></svg>");
 }
-.skm-edge--top { top: 0; mask-image: linear-gradient(180deg, #000 10%, transparent 92%); -webkit-mask-image: linear-gradient(180deg, #000 10%, transparent 92%); }
-.skm-edge--bottom { bottom: 0; mask-image: linear-gradient(0deg, #000 10%, transparent 92%); -webkit-mask-image: linear-gradient(0deg, #000 10%, transparent 92%); }
+.skm-edge--top { top: 0; }
+
+/* Bottom edge is the same motif mirrored, so the triangles point up. */
+.skm-edge--bottom {
+  bottom: 0;
+  transform: scaleY(-1);
+}
+
+/* Cream sections: the same motif in maroon so it stays visible on light paper. */
+.skm-section--cream .skm-edge {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><rect width='40' height='4' fill='%234A1620' fill-opacity='0.45'/><path d='M0 4 L20 34 L40 4' fill='none' stroke='%234A1620' stroke-opacity='0.8' stroke-width='1.1'/><path d='M8 4 L20 24 L32 4' fill='none' stroke='%234A1620' stroke-opacity='0.45' stroke-width='0.9'/><path d='M16 4 L20 10 L24 4' fill='%234A1620' fill-opacity='0.28'/></svg>");
+}
+
 
 
 /* ---------- section surfaces ----------
@@ -929,4 +946,52 @@ body.skm-locked { overflow: hidden; }
 .skm-section--dark {
   background: var(--skm-bg);
   color: var(--skm-text);
+}
+
+
+/* "Tenun alas": full-bleed woven texture over the cover photo (z=3 in the
+   reference, above the photo and its fades). */
+.skm-cover__tenun {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(201, 164, 92, 0.28) 0 1.5px, transparent 1.5px 8px),
+    repeating-linear-gradient(-45deg, rgba(201, 164, 92, 0.18) 0 1.5px, transparent 1.5px 10px);
+  mask-image: radial-gradient(120% 90% at 50% 30%, #000 30%, transparent 82%);
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 30%, #000 30%, transparent 82%);
+}
+
+/* Arabic basmalah line at the top of the opening section. */
+.skm-basmalah {
+  margin: 0 auto 6px;
+  font-family: "Amiri", "Scheherazade New", "Geeza Pro", serif;
+  font-size: 20px;
+  line-height: 1.9;
+  direction: rtl;
+  color: #8a6a24;
+}
+.skm-section--dark .skm-basmalah { color: var(--skm-gold-soft); }
+
+/* Section glyph (location / mail / wishes) the reference puts above the kicker. */
+.skm-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: 0 auto 10px;
+  color: #a9822f;
+}
+.skm-section--dark .skm-glyph { color: var(--skm-accent, var(--skm-gold)); }
+.skm-glyph svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.1; }
+
+/* Closing photo: a ribboned frame ("Garis bingkai" + "Pita tenun bingkai"). */
+.skm-penutup__photo::before {
+  border: 1px solid rgba(201, 164, 92, 0.45);
+}
+.skm-penutup__photo {
+  padding: 0;
 }

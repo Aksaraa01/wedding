@@ -192,6 +192,7 @@ export default function SongketMarun(profile: TemplateProps) {
         <section className="skm-cover" aria-label={coverKicker}>
           <img className="skm-cover__photo" src={cover} alt="" aria-hidden="true" draggable={false} />
           <div className="skm-cover__veil" />
+          <div className="skm-cover__tenun" aria-hidden="true" />
           <span className="skm-edge skm-edge--top" aria-hidden="true" />
           <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
           <img className="skm-cover__melur" src={ART("melur")} alt="" aria-hidden="true" />
@@ -217,6 +218,7 @@ export default function SongketMarun(profile: TemplateProps) {
           {/* Pembuka */}
           <section className="skm-section skm-section--cream skm-pembuka" data-skm-reveal>
             <div className="skm-star" aria-hidden="true" />
+            <p className="skm-basmalah" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
             <p className="skm-pembuka__salam">{salam}</p>
             <div className="skm-pita" aria-hidden="true" />
             <p className="skm-pembuka__text">{openingText}</p>
@@ -248,6 +250,7 @@ export default function SongketMarun(profile: TemplateProps) {
 
           {/* Doa untuk Ananda */}
           <section className="skm-section skm-section--cream skm-doa" data-skm-reveal>
+            <div className="skm-star" aria-hidden="true" />
             <div className="skm-star" aria-hidden="true" />
             <h2 className="skm-section__title">Doa untuk Ananda</h2>
             <div className="skm-doa__card">
@@ -284,6 +287,9 @@ export default function SongketMarun(profile: TemplateProps) {
 
           {/* Acara */}
           <section className="skm-section skm-section--cream skm-acara" data-skm-reveal>
+            <span className="skm-glyph" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z" /><circle cx="12" cy="10" r="2.6" /></svg>
+            </span>
             <p className="skm-kicker skm-section__kicker">Rangkaian Acara</p>
             <h2 className="skm-section__title">{eventsTitle}</h2>
             <p className="skm-section__lead">{eventsLead}</p>
@@ -376,6 +382,9 @@ export default function SongketMarun(profile: TemplateProps) {
 
           {/* Doa & Ucapan */}
           <section className="skm-section skm-section--cream skm-ucapan" data-skm-reveal>
+            <span className="skm-glyph" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 5.5h16v11H9l-5 3.6V5.5Z" /><path d="M8 10h8M8 13h5" /></svg>
+            </span>
             <p className="skm-kicker skm-section__kicker">Doa &amp; Ucapan</p>
             <h2 className="skm-section__title">{wishesTitle}</h2>
             <p className="skm-section__lead">{wishesLead}</p>
