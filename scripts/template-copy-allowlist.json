@@ -2,6 +2,14 @@
   "$comment": "Literal-copy ledger for scripts/template-copy-audit.mjs. `legacy` entries are debt from templates built before the audit existed — they are frozen, not precedent. New templates start with no legacy entry and no named exception unless the playbook §0.6 reason applies. Adding a string here is a review decision, never a shortcut.",
   "shared": {},
   "templates": {
+    "ubin-ottoman": {
+      "allow": {
+        "Ucapan sebelumnya": "WCAG name for the icon-only previous-page button; must not depend on couple copy",
+        "Ucapan berikutnya": "WCAG name for the icon-only next-page button; must not depend on couple copy",
+        "Aksaraa": "brand badge logo alt text, fixed by the platform",
+        "by Aksaraa": "brand attribution in the Aksaraa footer badge required by every in-house template"
+      }
+    },
     "adat-bali": {
       "legacy": [
         ". Digital Wedding Invitation.",

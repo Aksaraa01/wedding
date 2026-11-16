@@ -41,6 +41,7 @@ import SilverGelatin from "./silver-gelatin"
 import LoveLine from "./love-line"
 import FilmRoll from "./film-roll"
 import SongketMarun from "./songket-marun"
+import UbinOttoman from "./ubin-ottoman"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -85,6 +86,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "film-roll": FilmRoll,
   "love-line": LoveLine,
   "songket-marun": SongketMarun,
+  "ubin-ottoman": UbinOttoman,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -1718,6 +1720,51 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     content: {
       // Three photo slots, matching the reference: cover, venue (gated on the
       // event section) and the closing portrait.
+      cover_slots: 3,
+      cover_slot_labels: ["Foto Sampul", "Foto Tempat Acara", "Foto Penutup"],
+      cover_slot_sections: [null, "events", null],
+      groom_photo: "single",
+      person_photos: true,
+      story_photo: false,
+      initials: false,
+      sections: {
+        opening_description: true,
+        quote: true,
+        countdown: true,
+        inviting: true,
+        video: false,
+        story: false,
+        gallery: true,
+        gift: true,
+        dresscode: false,
+        livestream: false,
+        rundown: false,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "ubin-ottoman",
+    name: "Ubin Ottoman",
+    description:
+      "Undangan biru Ottoman dan krem: ubin biru, lentera tembaga, ornamen bunga di empat sudut, dan tipografi serif klasik untuk khitanan, aqiqah, atau ulang tahun ananda.",
+    theme: {
+      fonts: { display: "Marcellus", script: "Cinzel Decorative", body: "Lora" },
+      colors: {
+        surface: "#F6EEDC",
+        text: "#3A4A6B",
+        accent: "#E8922B",
+        accentMuted: "#F6EEDC",
+        overlay: "#1E3A7B",
+        dark: "#1E3A7B",
+      },
+      ornaments: { divider: "line", border: "minimal", frame: "arch" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.02 },
+    },
+    content: {
+      // Same three photo slots as the reference: cover portrait, venue (arch in
+      // the "Lokasi Acara" block, gated on the event section) and closing.
       cover_slots: 3,
       cover_slot_labels: ["Foto Sampul", "Foto Tempat Acara", "Foto Penutup"],
       cover_slot_sections: [null, "events", null],

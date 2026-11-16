@@ -113,7 +113,7 @@ export default function SongketMarun(profile: TemplateProps) {
   const yearNum = validDate ? String(validDate.getFullYear()) : ""
   const weekday = validDate ? validDate.toLocaleDateString("id-ID", { weekday: "long" }) : ""
 
-  const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.defaultMusic : "")
+  const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.kidsMusic : "")
   const wishes = useWishes(profile.wedding_profile_id, profile.guest_id)
 
   const showDock =

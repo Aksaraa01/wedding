@@ -11,6 +11,7 @@
   --font-alexbrush: 'Alex Brush', serif;
   --font-montserrat: 'Montserrat', sans-serif;
   --font-cinzel: 'Cinzel', serif;
+  --font-cinzeldecorative: 'Cinzel Decorative', serif;
   --font-pinyon: 'Pinyon Script', serif;
   --font-publicsans: 'Public Sans', sans-serif;
   --font-baskervville: 'Baskervville', serif;
@@ -1003,4 +1004,11 @@
   font-weight: 400;
   font-display: swap;
   src: url('/fonts/mrdafoe-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cinzel Decorative';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/cinzeldecorative-400.woff2') format('woff2');
 }

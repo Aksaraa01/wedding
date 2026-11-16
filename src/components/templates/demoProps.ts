@@ -2915,3 +2915,83 @@ DEMO_PROPS_BY_CODE["songket-marun"] = {
       "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu. Atas kehadiran dan doanya kami ucapkan terima kasih.",
   },
 }
+
+// Ubin Ottoman demo: the same Ceriavite kids shape, different palette and
+// section rhythm. Reference demo photos, vendored under /templates/ubin-ottoman/
+// for the design preview only — a real couple always sees their own uploads.
+const DEMO_UBIN = {
+  cover: "/templates/ubin-ottoman/demo/cover.webp",
+  putra: "/templates/ubin-ottoman/demo/putra.webp",
+  venue: "/templates/ubin-ottoman/demo/venue.webp",
+  gallery: [
+    "/templates/ubin-ottoman/demo/gallery-1.webp",
+    "/templates/ubin-ottoman/demo/gallery-2.webp",
+    "/templates/ubin-ottoman/demo/gallery-3.webp",
+    "/templates/ubin-ottoman/demo/gallery-4.webp",
+  ],
+}
+
+DEMO_PROPS_BY_CODE["ubin-ottoman"] = {
+  slug: "demo",
+  groom_name: "Alfatih",
+  groom_full_name: "Raka Alfatih Pratama",
+  estimated_wedding_date: "2027-03-14",
+  guest_name: "Tamu Undangan",
+  cover_photos: [DEMO_UBIN.putra, DEMO_UBIN.venue, DEMO_UBIN.cover],
+  couple_illustration_url: DEMO_UBIN.putra,
+  groom_photo_url: [DEMO_UBIN.putra],
+  groom_parents: "Bapak Hendra Pratama & Ibu Sari Dewi",
+  groom_instagram: "rakaalfatih",
+  opening_title: "Bismillahirrahmanirrahim",
+  opening_description:
+    "Dengan memohon rahmat dan rido Allah SWT, kami mengundang Bapak/Ibu/Saudara pada tasyakuran khitanan putra kami:",
+  quote_text:
+    "Ya Tuhanku, jadikanlah aku dan anak cucuku orang yang tetap melaksanakan salat, ya Tuhan kami, perkenankanlah doaku.",
+  quote_source: "QS. Ibrahim: 40",
+  sessions: [
+    {
+      name: "Tasyakuran Khitan",
+      date: "2027-03-14",
+      time: "10:00",
+      venue: "Kediaman Bapak Hendra Pratama",
+      address: "Jl. Melati No. 12, Medan Kota, Sumatera Utara",
+      maps_url: "https://maps.google.com/?q=Medan",
+    },
+    {
+      name: "Syukuran Keluarga",
+      date: "2027-03-14",
+      time: "19:00",
+      venue: "Aula Serbaguna Melati",
+      address: "Jl. Melati Raya No. 40, Medan Baru, Sumatera Utara",
+      maps_url: "https://maps.google.com/?q=Medan+Baru",
+    },
+  ],
+  gallery_photos: DEMO_UBIN.gallery,
+  gift_accounts: [
+    { provider_name: "Bank Mandiri", account_number: "1234567890", account_name: "Hendra Pratama", type: "bank" },
+  ],
+  gift_address: "Jl. Melati No. 12, Medan Kota, Sumatera Utara",
+  gift_address_name: "Hendra Pratama",
+  gift_section_visible: true,
+  inviting_families: [
+    "Keluarga Bapak Hendra Pratama",
+    "Keluarga Ibu Sari Dewi",
+    "Kerabat dan Sahabat",
+  ],
+  inviting_families_visible: true,
+  event_type: "khitanan",
+  subject_gender: "putra",
+  event_labels: eventLabels("khitanan", "putra"),
+  feature_gates: {
+    story: false,
+    gift_address: true,
+    inviting_families: true,
+    video: false,
+    qr_code_book: false,
+  },
+  template_content: {
+    cover_kicker: "Tasyakuran Khitan",
+    closing_message:
+      "Merupakan kehormatan dan kebahagiaan bagi kami atas kehadiran serta doa restu Bapak/Ibu/Saudara.",
+  },
+}

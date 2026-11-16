@@ -372,4 +372,12 @@ const PLACEHOLDER_TEMPLATES: KidsTemplate[] = [
     preview_image_url: "/templates/songket-marun/thumbnail.webp",
     demo_url: `${KIDS_SITE}/templates/songket-marun/preview`,
   },
+  {
+    id: "ubin-ottoman",
+    code: "ubin-ottoman",
+    name: "Ubin Ottoman",
+    description: "Biru Ottoman dan krem, ubin biru dan lentera tembaga.",
+    preview_image_url: "/templates/ubin-ottoman/thumbnail.webp",
+    demo_url: `${KIDS_SITE}/templates/ubin-ottoman/preview`,
+  },
 ]

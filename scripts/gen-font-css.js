@@ -7,7 +7,7 @@ const path = require("path");
 const ROOT = path.join(__dirname, "..");
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "public", "fonts", "manifest.json"), "utf8"));
 
-const SERIF = ["DM Serif Display", "Playfair Display", "Cormorant Garamond", "EB Garamond", "Cinzel", "Pinyon Script", "Italianno", "Dancing Script", "Alex Brush", "Lora", "Baskervville", "Cormorant", "Bitter", "Allura", "Parisienne", "Waterfall", "Ysabeau Infant", "Bodoni Moda", "Monsieur La Doulaise", "Smythe", "Marcellus"];
+const SERIF = ["DM Serif Display", "Playfair Display", "Cormorant Garamond", "EB Garamond", "Cinzel", "Cinzel Decorative", "Pinyon Script", "Italianno", "Dancing Script", "Alex Brush", "Lora", "Baskervville", "Cormorant", "Bitter", "Allura", "Parisienne", "Waterfall", "Ysabeau Infant", "Bodoni Moda", "Monsieur La Doulaise", "Smythe", "Marcellus"];
 const CURSIVE = ["Caveat", "Knewave", "Mr Dafoe"];
 const VAR = {
   Inter: "--font-inter",
@@ -21,6 +21,7 @@ const VAR = {
   "Alex Brush": "--font-alexbrush",
   Montserrat: "--font-montserrat",
   Cinzel: "--font-cinzel",
+  "Cinzel Decorative": "--font-cinzeldecorative",
   "Pinyon Script": "--font-pinyon",
   "Public Sans": "--font-publicsans",
   Baskervville: "--font-baskervville",

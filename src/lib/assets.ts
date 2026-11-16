@@ -20,6 +20,9 @@ export const ASSETS = {
   // tracked in web_tracks; the audio file lives in the media bucket and is
   // public, so a single fallback literal is safe across environments).
   defaultMusic: trackUrl("An_Everlasting_Love.mp3"),
+  // Ceriavite: qasidah khitanan used as the demo/latency fallback for kids
+  // templates. Served from /defaults so the cdn host caches it.
+  kidsMusic: "/defaults/khitanan.mp3",
   hero: {
     mockup: s("hero/hero-portrait.jpg"),
   },
