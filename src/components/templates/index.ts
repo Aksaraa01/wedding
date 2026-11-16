@@ -1721,8 +1721,8 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     },
     content: {
       cover_slots: 3,
-      cover_slot_labels: ["Foto Sampul", "Foto Tempat Acara", "Foto Penutup"],
-      cover_slot_sections: [null, "events", null],
+      cover_slot_labels: ["Foto Sampul", "Foto Ananda", "Foto Penutup"],
+      cover_slot_sections: [null, null, null],
       groom_photo: "single",
       person_photos: true,
       story_photo: false,

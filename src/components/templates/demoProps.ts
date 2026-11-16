@@ -3008,7 +3008,7 @@ DEMO_PROPS_BY_CODE["lentera-zamrud"] = {
   event_labels: eventLabels("khitanan", "putra"),
   cover_photos: [
     "/templates/lentera-zamrud/demo/cover.webp",
-    "/templates/songket-marun/demo/venue.jpg",
+    "/templates/lentera-zamrud/demo/putra.webp",
     "/templates/lentera-zamrud/demo/penutup.webp",
   ],
   couple_illustration_url: "/templates/lentera-zamrud/demo/cover.webp",

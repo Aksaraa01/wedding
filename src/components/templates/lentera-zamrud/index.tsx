@@ -7,7 +7,7 @@ import { ASSETS } from "@/lib/assets"
 import { eventLabels } from "@/lib/eventType"
 import { copyPlainText } from "@/lib/clipboard"
 import InvitationOverlay from "@/components/InvitationOverlay"
-import { countdownTarget, formatDotDate, formatLongDate, groomPhoto, photoList } from "../shared/lib"
+import { countdownTarget, formatDotDate, formatLongDate, gcalLink, groomPhoto, photoList } from "../shared/lib"
 import { useWishes } from "../shared/kids/useWishes"
 import { LOCKED_FIELD_STYLE, wishNameState } from "../shared/wishName"
 import "./lentera-zamrud.css"
@@ -81,7 +81,7 @@ function useFitOneLine<T extends HTMLElement>(text: string, maxScale = 0.5) {
 function timeLine(raw?: string): string {
   const value = (raw || "").trim()
   if (!value) return ""
-  const normalized = value.replace(/\s+-\s+/g, " – ")
+  const normalized = value.replace(/(\d)\s*-\s*(\d)/g, "$1 – $2")
   const withPrefix = /^pukul/i.test(normalized) ? normalized : `Pukul ${normalized}`
   return /wib/i.test(withPrefix) ? withPrefix : `${withPrefix} WIB`
 }
@@ -119,7 +119,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
   const labels = profile.event_labels || eventLabels(profile.event_type, profile.subject_gender)
 
   const covers = useMemo(() => photoList(profile.cover_photos as string | string[] | undefined), [profile.cover_photos])
-  const portrait = groomPhoto(profile.groom_photo_url)
+  const portrait = groomPhoto(profile.groom_photo_url) || covers[1] || ""
   const cover = covers[0] || portrait || ASSETS.defaults.couple
   const closingPhoto = covers[2] || cover
 
@@ -135,6 +135,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
   )
   const eventDate = (profile.estimated_wedding_date || "").trim()
   const target = useMemo(() => countdownTarget(events, eventDate), [events, eventDate])
+  const calendarUrl = useMemo(() => (events.length ? gcalLink(events[0], childFull) : ""), [events, childFull])
 
   const gallery = useMemo(
     () => (Array.isArray(profile.gallery_photos) ? profile.gallery_photos.filter(Boolean).slice(0, 8) : []),
@@ -161,6 +162,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
   const salam = (tc.opening_salam || "").trim() || DEFAULT_SALAM
   const openingText = (profile.opening_description || "").trim() || DEFAULT_OPENING
   const countdownTitle = (tc.countdown_intro || "").trim() || labels.countdownLabel
+  const saveDateLabel = (tc.save_date_label || "").trim() || "Simpan Tanggal"
   const eventsTitle = (tc.events_title || "").trim() || "Waktu & Tempat"
   const eventsIntro = (tc.events_intro || "").trim() || "Insya Allah acara akan diselenggarakan pada:"
   const mapsLabel = (tc.maps_label || "").trim() || "Lihat Lokasi"
@@ -476,6 +478,15 @@ export default function LenteraZamrud(profile: TemplateProps) {
                   ))}
                 </div>
 
+                {calendarUrl && (
+                  <div className="lz-countdown__cta">
+                    <a className="lz-pill lz-pill--calendar" href={calendarUrl} target="_blank" rel="noreferrer noopener">
+                      <span className="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+                      {saveDateLabel}
+                    </a>
+                  </div>
+                )}
+
                 <img className="lz-skyline lz-skyline--md" src={ART("kubah-masjid")} alt="" aria-hidden="true" loading="lazy" draggable={false} />
               </section>
             )}
@@ -500,9 +511,9 @@ export default function LenteraZamrud(profile: TemplateProps) {
                       {session.time && <p className="lz-event__time">{timeLine(session.time)}</p>}
                       {(session.venue || session.address) && (
                         <p className="lz-event__place">
-                          {session.venue && <strong>{session.venue}</strong>}
-                          {session.venue && session.address ? " · " : ""}
-                          {session.address}
+                          {session.venue && session.address
+                            ? `${session.venue} · ${session.address}`
+                            : session.venue || session.address}
                         </p>
                       )}
                       {session.maps_url && (

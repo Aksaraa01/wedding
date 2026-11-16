@@ -1542,3 +1542,14 @@ TEMPLATE_EXTRA_FIELDS.push(
     placeholders: { "lentera-zamrud": "Wassalamu'alaikum Warahmatullahi Wabarakatuh" },
   },
 )
+
+// Lentera Zamrud countdown CTA (added after review: the reference has no
+// calendar link, the couple needs one).
+TEMPLATE_EXTRA_FIELDS.push({
+  key: "save_date_label",
+  label: "Teks Tombol Simpan Tanggal",
+  section: "acara",
+  order: 14,
+  templates: ["lentera-zamrud"],
+  placeholders: { "lentera-zamrud": "Simpan Tanggal" },
+})
