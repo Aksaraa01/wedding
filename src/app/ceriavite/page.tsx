@@ -55,6 +55,12 @@ async function getTemplates(): Promise<KidsTemplate[]> {
   return (data as KidsTemplate[] | null) || []
 }
 
+// Ceriavite's display voice, the same pair the Songket Marun template uses:
+// Marcellus for headings, Cormorant Garamond for prose. Inline because these are
+// per-brand and must not leak into the wedding surfaces.
+const DISPLAY_FONT = { fontFamily: "'Marcellus', Georgia, serif" } as const
+const PROSE_FONT = { fontFamily: "'Cormorant Garamond', Georgia, serif" } as const
+
 const FEATURES = [
   {
     icon: "how_to_reg",
@@ -110,24 +116,39 @@ export default async function CeriaviteLandingPage() {
 
       <main className="mx-auto w-full max-w-[520px] px-4 pb-28">
         {/* Hero */}
-        <section className="pt-7">
-          <p className="text-[10px] uppercase tracking-[0.34em] text-[#C9A45C]">
-            Khitanan · Aqiqah · Ulang Tahun
-          </p>
-          <h1 className="mt-4 text-[30px] leading-[1.14] text-[#EFDFBB]">
+        <section className="relative overflow-hidden pt-7">
+          <img
+            src="/templates/songket-marun/melur.webp"
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-6 -top-4 w-28 opacity-35"
+          />
+          <div className="flex items-center gap-3">
+            <span className="h-px w-7 bg-[#C9A45C]/60" />
+            <p className="text-[9.5px] uppercase tracking-[0.34em] text-[#C9A45C]">
+              Khitanan · Aqiqah · Ulang Tahun
+            </p>
+          </div>
+          <h1
+            className="mt-4 text-[34px] leading-[1.1] tracking-[0.01em] text-[#EFDFBB]"
+            style={DISPLAY_FONT}
+          >
             Undangan digital
             <br />
-            untuk acara ananda
+            <span className="text-[#C9A45C]">untuk acara ananda</span>
           </h1>
-          <p className="mt-4 text-[13.5px] leading-relaxed text-[#E0CDB6]/75">
+          <p className="mt-4 text-[16px] leading-relaxed text-[#E0CDB6]/75" style={PROSE_FONT}>
             Satu tautan untuk seluruh keluarga. Berisi jadwal acara, konfirmasi kehadiran,
             doa restu, dan tanda kasih. Semua data diisi sendiri lewat dashboard.
           </p>
 
           <div className="mt-6 flex items-center gap-3 rounded-2xl border border-[#C9A45C]/25 bg-[#471722] p-3.5">
             <div className="min-w-0">
-              <p className="text-[20px] leading-none text-[#EFDFBB]">Rp 199.000</p>
-              <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[#E0CDB6]/50">
+              <p className="text-[11px] leading-none text-[#E0CDB6]/40 line-through">Rp 299.000</p>
+              <p className="mt-1 text-[23px] leading-none text-[#EFDFBB]" style={DISPLAY_FONT}>
+                Rp 199.000
+              </p>
+              <p className="mt-1 text-[9.5px] uppercase tracking-[0.18em] text-[#E0CDB6]/50">
                 sekali bayar
               </p>
             </div>
@@ -144,12 +165,12 @@ export default async function CeriaviteLandingPage() {
             light band so the tile styling reads correctly. */}
         <section id="desain" className="pt-9">
           <div className="flex items-end justify-between">
-            <h2 className="text-[17px] text-[#EFDFBB]">Desain</h2>
+            <h2 className="text-[19px] text-[#EFDFBB]" style={DISPLAY_FONT}>Desain</h2>
             <span className="text-[10px] uppercase tracking-[0.16em] text-[#E0CDB6]/45">
               {shelf.length} pilihan
             </span>
           </div>
-          <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#E0CDB6]/60">
+          <p className="mt-1.5 text-[14.5px] leading-relaxed text-[#E0CDB6]/60" style={PROSE_FONT}>
             Semua desain sudah berisi RSVP, doa dan ucapan, galeri, serta tanda kasih.
           </p>
           <div className="mt-4 rounded-3xl bg-[#faf5ec] p-3 sm:p-4">
@@ -166,7 +187,7 @@ export default async function CeriaviteLandingPage() {
 
         {/* Features, app list rows */}
         <section className="pt-8">
-          <h2 className="text-[17px] text-[#EFDFBB]">Yang Anda dapat</h2>
+          <h2 className="text-[19px] text-[#EFDFBB]" style={DISPLAY_FONT}>Yang Anda dapat</h2>
           <div className="mt-3 overflow-hidden rounded-2xl border border-[#C9A45C]/22 bg-[#471722]">
             {FEATURES.map((f, i) => (
               <div
@@ -191,7 +212,10 @@ export default async function CeriaviteLandingPage() {
             <div className="flex items-baseline justify-between">
               <div>
                 <p className="text-[10px] uppercase tracking-[0.28em] text-[#C9A45C]">Harga</p>
-                <p className="mt-2 text-[28px] leading-none text-[#EFDFBB]">Rp 199.000</p>
+                <p className="mt-3 text-[12px] leading-none text-[#E0CDB6]/40 line-through">Rp 299.000</p>
+                <p className="mt-1 text-[30px] leading-none text-[#EFDFBB]" style={DISPLAY_FONT}>
+                  Rp 199.000
+                </p>
               </div>
               <span className="rounded-full bg-[#C9A45C]/15 px-2.5 py-1 text-[9px] uppercase tracking-[0.16em] text-[#C9A45C]">
                 sekali bayar
@@ -219,7 +243,7 @@ export default async function CeriaviteLandingPage() {
 
         {/* Steps */}
         <section className="pt-8">
-          <h2 className="text-[17px] text-[#EFDFBB]">Tiga langkah</h2>
+          <h2 className="text-[19px] text-[#EFDFBB]" style={DISPLAY_FONT}>Tiga langkah</h2>
           <ol className="mt-3 space-y-2.5">
             {STEPS.map((s) => (
               <li
@@ -254,10 +278,11 @@ export default async function CeriaviteLandingPage() {
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#C9A45C]/20 bg-[#3a0f18]/95 backdrop-blur-md [padding-bottom:env(safe-area-inset-bottom)]">
         <div className="mx-auto flex w-full max-w-[520px] items-center gap-3 px-4 py-2.5">
           <div className="min-w-0 leading-tight">
-            <p className="text-[13px] text-[#EFDFBB]">Rp 199.000</p>
-            <p className="text-[9.5px] uppercase tracking-[0.14em] text-[#E0CDB6]/45">
-              sekali bayar
+            <p className="text-[10px] leading-none text-[#E0CDB6]/40 line-through">Rp 299.000</p>
+            <p className="text-[15px] leading-tight text-[#EFDFBB]" style={DISPLAY_FONT}>
+              Rp 199.000
             </p>
+            <p className="text-[9px] uppercase tracking-[0.14em] text-[#E0CDB6]/45">sekali bayar</p>
           </div>
           <Link
             href="/daftar"

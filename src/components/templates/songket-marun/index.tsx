@@ -6,47 +6,24 @@ import { ASSETS } from "@/lib/assets"
 import { eventLabels } from "@/lib/eventType"
 import { copyPlainText } from "@/lib/clipboard"
 import InvitationOverlay from "@/components/InvitationOverlay"
-import {
-  countdownTarget,
-  coverPhoto,
-  formatDotDate,
-  formatLongDate,
-  gcalLink,
-  groomPhoto,
-} from "../shared/lib"
+import { countdownTarget, formatDotDate, formatLongDate, gcalLink, groomPhoto, photoList } from "../shared/lib"
 import { useWishes } from "../shared/kids/useWishes"
 import "./songket-marun.css"
 
-const pad2 = (n: number) => String(n).padStart(2, "0")
+const ART = (name: string) => `/templates/songket-marun/${name}.webp`
 
-function Clock({ target }: { target: Date | null }) {
-  const [now, setNow] = useState<number | null>(null)
-  useEffect(() => {
-    if (!target) return
-    setNow(Date.now())
-    const id = window.setInterval(() => setNow(Date.now()), 1000)
-    return () => window.clearInterval(id)
-  }, [target])
-
-  const diff = target && now !== null ? Math.max(0, target.getTime() - now) : 0
-  const units = [
-    { value: Math.floor(diff / 86400000), label: "Hari" },
-    { value: Math.floor((diff % 86400000) / 3600000), label: "Jam" },
-    { value: Math.floor((diff % 3600000) / 60000), label: "Menit" },
-    { value: Math.floor((diff % 60000) / 1000), label: "Detik" },
-  ]
-
-  return (
-    <div className="skm-clock" aria-label="Hitung mundur hari bahagia">
-      {units.map((u) => (
-        <div className="skm-clock__cell" key={u.label}>
-          <span className="skm-clock__value">{target ? pad2(u.value) : "--"}</span>
-          <small className="skm-clock__label">{u.label}</small>
-        </div>
-      ))}
-    </div>
-  )
-}
+const DEFAULT_ARABIC = "رَبِّ هَبْ لِي مِنَ الصَّالِحِينَ"
+const DEFAULT_DOA =
+  "Ya Tuhanku, anugerahkanlah kepadaku (seorang anak) yang termasuk orang-orang yang saleh."
+const DEFAULT_DOA_SOURCE = "QS. Ash-Shaffat: 100"
+const DEFAULT_BLESSING =
+  "Semoga ananda tumbuh menjadi anak yang saleh, berbakti kepada orang tua, dan menjadi kebanggaan keluarga."
+const DEFAULT_OPENING =
+  "Dengan memohon rahmat dan rida Allah SWT, kami bermaksud menyelenggarakan acara ananda tercinta. Merupakan suatu kehormatan apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu."
+const DEFAULT_CLOSING =
+  "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu. Atas kehadiran dan doanya kami ucapkan terima kasih."
+const DEFAULT_GIFT =
+  "Doa restu Bapak/Ibu/Saudara/i adalah hadiah terindah. Bila ingin memberi lebih, kami menerimanya dengan penuh rasa syukur."
 
 export default function SongketMarun(profile: TemplateProps) {
   const rootRef = useRef<HTMLDivElement | null>(null)
@@ -63,20 +40,24 @@ export default function SongketMarun(profile: TemplateProps) {
   const gates = profile.feature_gates || {}
   const labels = profile.event_labels || eventLabels(profile.event_type, profile.subject_gender)
 
+  const covers = useMemo(() => photoList(profile.cover_photos as string | string[] | undefined), [profile.cover_photos])
+  const cover = covers[0] || profile.couple_illustration_url || ASSETS.defaults.couple
+  const venuePhoto = covers[1] || ""
+  const closingPhoto = covers[2] || cover
+  const portrait = groomPhoto(profile.groom_photo_url)
+
   const childName = (profile.groom_name || "").trim() || "Ananda"
   const childFull = (profile.groom_full_name || childName).trim()
   const parents = (profile.groom_parents || "").trim()
   const guestName = (profile.guest_name || "").trim() || labels.guestFallback
-  const cover = coverPhoto(profile)
-  const portrait = groomPhoto(profile.groom_photo_url)
 
-  const eventDate = (profile.estimated_wedding_date || "").trim()
   const events = useMemo(
     () => (profile.sessions || []).filter((s) => s && (s.name || s.date || s.venue || s.address)),
     [profile.sessions]
   )
+  const eventDate = (profile.estimated_wedding_date || "").trim()
   const target = useMemo(() => countdownTarget(events, eventDate), [events, eventDate])
-  const calendarUrl = useMemo(() => gcalLink(events[0], childName), [events, childName])
+  const calendarUrl = useMemo(() => gcalLink(events[0], childFull), [events, childFull])
 
   const gallery = useMemo(
     () => (Array.isArray(profile.gallery_photos) ? profile.gallery_photos.filter(Boolean).slice(0, 9) : []),
@@ -88,35 +69,37 @@ export default function SongketMarun(profile: TemplateProps) {
     profile.gift_section_visible !== false && gates.gift_address !== false ? (profile.gift_address || "").trim() : ""
   const hasGift = accounts.length > 0 || !!giftAddress
 
-  const quoteText = (profile.quote_text || "").trim()
-  const quoteSource = (profile.quote_source || "").trim()
-
   const coverKicker = (tc.cover_kicker || "").trim() || labels.coverKicker
   const coverGuestLabel = (tc.cover_guest_label || "").trim() || "Kepada Yth. Bapak/Ibu/Saudara/i"
   const openLabel = (tc.open_button || "").trim() || "Buka Undangan"
-  const salam =
-    (tc.opening_salam || "").trim() ||
-    "Assalamu'alaikum Warahmatullahi Wabarakatuh"
-  const openingTitle = (profile.opening_title || "").trim()
-  const openingDescription =
-    (profile.opening_description || "").trim() ||
-    `Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan ${labels.eventNoun.toLowerCase()} ${labels.subjectPossessive.toLowerCase()} tercinta. Merupakan suatu kehormatan apabila Bapak/Ibu/Saudara/i berkenan hadir.`
+  const salam = (tc.opening_salam || "").trim() || "Assalamu'alaikum Warahmatullahi Wabarakatuh"
+  const openingText = (profile.opening_description || "").trim() || DEFAULT_OPENING
+  const doaArabic = (tc.doa_arabic || "").trim() || DEFAULT_ARABIC
+  const doaText = (profile.quote_text || "").trim() || DEFAULT_DOA
+  const doaSource = (profile.quote_source || "").trim() || DEFAULT_DOA_SOURCE
+  const doaBlessing = (tc.doa_blessing || "").trim() || DEFAULT_BLESSING
   const eventsTitle = (tc.events_title || "").trim() || "Waktu & Tempat"
-  const eventsIntro = (tc.events_intro || "").trim() || "Kami menantikan kehadiran dan doa restu Anda."
+  const eventsLead = (tc.events_intro || "").trim() || "Insya Allah acara akan diselenggarakan pada:"
   const mapsLabel = (tc.maps_label || "").trim() || "Lihat Lokasi"
   const galleryTitle = (tc.gallery_title || "").trim() || "Momen Bahagia"
-  const galleryIntro = (tc.gallery_intro || "").trim() || "Kepingan kecil yang ingin kami bagikan."
-  const wishesIntro = (tc.wishes_intro || "").trim() || "Tuliskan doa dan ucapan terbaik Anda untuk ananda."
-  const giftIntro =
-    (tc.gift_intro_description || "").trim() ||
-    "Doa restu Anda adalah hadiah terindah. Bila ingin memberi lebih, kami menerimanya dengan penuh rasa syukur."
-  const closingText =
-    (tc.closing_message || "").trim() ||
-    "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu. Atas kehadiran dan doanya kami ucapkan terima kasih."
-  const apology =
-    (tc.cover_apology || "").trim() ||
-    "Mohon maaf apabila ada kesalahan penulisan nama atau gelar."
+  const galleryLead = (tc.gallery_intro || "").trim() || "Sepenggal cerita ananda menjelang hari istimewanya."
+  const giftTitle = (tc.gift_intro_title || "").trim() || "Amplop Digital"
+  const giftLead = (tc.gift_intro_description || "").trim() || DEFAULT_GIFT
+  const wishesTitle = (tc.wishes_title || "").trim() || "Titip Doa"
+  const wishesLead =
+    (tc.wishes_intro || "").trim() || "Tuliskan doa dan harapan terbaik untuk ananda di hari bahagianya."
+  const closingText = (tc.closing_message || "").trim() || DEFAULT_CLOSING
+  const closingSalam = (tc.closing_salam || "").trim() || "Wassalamu'alaikum Warahmatullahi Wabarakatuh"
   const familyLabel = (tc.closing_family_label || "").trim() || "Kami yang berbahagia"
+  const apology =
+    (tc.cover_apology || "").trim() || "Mohon maaf apabila ada kesalahan penulisan nama atau gelar."
+
+  const parsedDate = eventDate ? new Date(eventDate) : null
+  const validDate = parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : null
+  const dayNum = validDate ? String(validDate.getDate()).padStart(2, "0") : "--"
+  const monthName = validDate ? validDate.toLocaleDateString("id-ID", { month: "long" }) : ""
+  const yearNum = validDate ? String(validDate.getFullYear()) : ""
+  const weekday = validDate ? validDate.toLocaleDateString("id-ID", { weekday: "long" }) : ""
 
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.defaultMusic : "")
   const wishes = useWishes(profile.wedding_profile_id, profile.guest_id)
@@ -209,9 +192,12 @@ export default function SongketMarun(profile: TemplateProps) {
         <section className="skm-cover" aria-label={coverKicker}>
           <img className="skm-cover__photo" src={cover} alt="" aria-hidden="true" draggable={false} />
           <div className="skm-cover__veil" />
+          <img className="skm-cover__melur skm-cover__melur--l" src={ART("melur")} alt="" aria-hidden="true" />
+          <img className="skm-cover__melur skm-cover__melur--r" src={ART("melur")} alt="" aria-hidden="true" />
+
           <div className="skm-cover__inner">
-            <p className="skm-kicker">{coverKicker}</p>
-            <div className="skm-rule" aria-hidden="true"><span /></div>
+            <p className="skm-kicker skm-cover__kicker">{coverKicker}</p>
+            <div className="skm-pita" aria-hidden="true" />
             <h1 className="skm-cover__name">{childName}</h1>
             <p className="skm-cover__date">{formatLongDate(eventDate)}</p>
             <p className="skm-cover__guest">
@@ -227,56 +213,91 @@ export default function SongketMarun(profile: TemplateProps) {
 
       {opened && (
         <main>
-          <section className="skm-section skm-opening skm-center" data-skm-reveal>
-            <div className="skm-weave" aria-hidden="true" />
-            <p className="skm-kicker" style={{ color: "#8a6d2f" }}>{salam}</p>
-            <div className="skm-opening__photo">
-              <img src={portrait} alt={childFull} draggable={false} />
-            </div>
-            {openingTitle && <h2 className="skm-opening__title">{openingTitle}</h2>}
-            <p className="skm-salam">{openingDescription}</p>
-            <div className="skm-rule" aria-hidden="true"><span /></div>
-            <p className="skm-ananda__of">{apology}</p>
+          {/* Pembuka */}
+          <section className="skm-section skm-pembuka" data-skm-reveal>
+            <div className="skm-star" aria-hidden="true" />
+            <p className="skm-pembuka__salam">{salam}</p>
+            <div className="skm-pita" aria-hidden="true" />
+            <p className="skm-pembuka__text">{openingText}</p>
+            <p className="skm-putra__of">{apology}</p>
           </section>
 
-          {quoteText && (
-            <section className="skm-quote" data-skm-reveal>
-              <div className="skm-weave" aria-hidden="true" />
-              <p className="skm-quote__text">&ldquo;{quoteText}&rdquo;</p>
-              {quoteSource && <p className="skm-quote__source">{quoteSource}</p>}
-            </section>
-          )}
-
-          <section className="skm-section skm-ananda skm-center" data-skm-reveal>
-            <p className="skm-kicker" style={{ color: "#8a6d2f" }}>{labels.subjectPossessive}</p>
-            <h2 className="skm-section__title" style={{ color: "var(--skm-maroon)" }}>{labels.subjectLabel}</h2>
-            <div className="skm-portrait">
-              <div className="skm-portrait__img">
+          {/* Putra Kami */}
+          <section className="skm-section skm-putra" data-skm-reveal>
+            <p className="skm-kicker skm-section__kicker">{labels.subjectPossessive}</p>
+            <h2 className="skm-section__title">{labels.subjectLabel}</h2>
+            <div className="skm-putra__stage">
+              <div className="skm-putra__photo">
                 <img src={portrait} alt={childFull} draggable={false} />
               </div>
+              <img className="skm-putra__frame" src={ART("bingkai-ukir-lak")} alt="" aria-hidden="true" />
+              <img className="skm-putra__tanjak" src={ART("tanjak-songket")} alt="" aria-hidden="true" />
+              <img className="skm-putra__melur" src={ART("melur")} alt="" aria-hidden="true" />
             </div>
-            <p className="skm-ananda__name">{childFull}</p>
+            <p className="skm-putra__name">{childFull}</p>
             {parents && (
               <>
-                <p className="skm-ananda__of">{labels.subjectOf}</p>
-                <p className="skm-ananda__parents">{parents}</p>
+                <p className="skm-putra__of">{labels.subjectOf}</p>
+                <p className="skm-putra__parents">{parents}</p>
               </>
             )}
           </section>
 
-          <section className="skm-section skm-events skm-center" data-skm-reveal>
-            <p className="skm-kicker">Rangkaian Acara</p>
+          {/* Doa untuk Ananda */}
+          <section className="skm-section skm-doa" data-skm-reveal>
+            <div className="skm-star" aria-hidden="true" />
+            <h2 className="skm-section__title">Doa untuk Ananda</h2>
+            <div className="skm-doa__card">
+              <p className="skm-doa__arabic" lang="ar" dir="rtl">
+                {doaArabic}
+              </p>
+              <p className="skm-doa__text">&ldquo;{doaText}&rdquo;</p>
+              <p className="skm-doa__source">{doaSource}</p>
+              <div className="skm-pita" aria-hidden="true" />
+              <p className="skm-doa__blessing">{doaBlessing}</p>
+            </div>
+          </section>
+
+          {/* Save the Date */}
+          <section className="skm-section skm-date" data-skm-reveal>
+            <p className="skm-kicker skm-section__kicker">Save the Date</p>
+            <h2 className="skm-section__title">Hari Bahagia</h2>
+            <p className="skm-date__day">{dayNum}</p>
+            <p className="skm-date__rest">
+              {weekday} · {monthName} {yearNum}
+            </p>
+            {calendarUrl && (
+              <a className="skm-date__cta" href={calendarUrl} target="_blank" rel="noreferrer noopener">
+                <span className="material-symbols-outlined" style={{ fontSize: 15 }}>
+                  calendar_month
+                </span>
+                Simpan Tanggal
+              </a>
+            )}
+            {target && <p className="skm-section__lead">{labels.countdownLabel}</p>}
+          </section>
+
+          {/* Acara */}
+          <section className="skm-section skm-acara" data-skm-reveal>
+            <p className="skm-kicker skm-section__kicker">Rangkaian Acara</p>
             <h2 className="skm-section__title">{eventsTitle}</h2>
-            <p className="skm-section__intro">{eventsIntro}</p>
+            <p className="skm-section__lead">{eventsLead}</p>
+
+            {venuePhoto && (
+              <div className="skm-acara__venue">
+                <img src={venuePhoto} alt="" loading="lazy" draggable={false} />
+                <img className="skm-acara__tepak" src={ART("tepak-sirih")} alt="" aria-hidden="true" loading="lazy" />
+              </div>
+            )}
+
             {events.map((session, i) => (
               <article className="skm-event" key={`${session.name || "acara"}-${i}`}>
                 <h3 className="skm-event__name">{session.name || labels.mainEventName}</h3>
                 {session.date && <p className="skm-event__date">{formatLongDate(session.date)}</p>}
-                {session.time && <p className="skm-event__time">{session.time}</p>}
+                {session.time && <p className="skm-event__time">Pukul {session.time}</p>}
                 {(session.venue || session.address) && (
-                  <p className="skm-event__where">
+                  <p className="skm-event__place">
                     {session.venue && <strong>{session.venue}</strong>}
-                    {session.venue && session.address ? <br /> : null}
                     {session.address}
                   </p>
                 )}
@@ -287,27 +308,15 @@ export default function SongketMarun(profile: TemplateProps) {
                 )}
               </article>
             ))}
-            {calendarUrl && (
-              <a className="skm-event__maps" href={calendarUrl} target="_blank" rel="noreferrer noopener">
-                Simpan Tanggal
-              </a>
-            )}
           </section>
 
-          {target && (
-            <section className="skm-section skm-countdown skm-center" data-skm-reveal>
-              <p className="skm-kicker">{labels.countdownLabel}</p>
-              <div className="skm-rule" aria-hidden="true"><span /></div>
-              <Clock target={target} />
-            </section>
-          )}
-
+          {/* Galeri */}
           {gallery.length > 0 && (
-            <section className="skm-section skm-gallery skm-center" data-skm-reveal>
-              <p className="skm-kicker" style={{ color: "#8a6d2f" }}>Galeri</p>
-              <h2 className="skm-section__title" style={{ color: "var(--skm-maroon)" }}>{galleryTitle}</h2>
-              <p className="skm-section__intro">{galleryIntro}</p>
-              <div className="skm-grid">
+            <section className="skm-section skm-galeri" data-skm-reveal>
+              <p className="skm-kicker skm-section__kicker">Galeri</p>
+              <h2 className="skm-section__title">{galleryTitle}</h2>
+              <p className="skm-section__lead">{galleryLead}</p>
+              <div className="skm-galeri__grid">
                 {gallery.map((src, i) => (
                   <figure key={`${src}-${i}`}>
                     <img src={src} alt="" loading="lazy" draggable={false} />
@@ -317,55 +326,14 @@ export default function SongketMarun(profile: TemplateProps) {
             </section>
           )}
 
-          <section className="skm-section skm-wishes skm-center" data-skm-reveal>
-            <p className="skm-kicker" style={{ color: "#8a6d2f" }}>Doa & Ucapan</p>
-            <h2 className="skm-section__title" style={{ color: "var(--skm-maroon)" }}>{labels.wishesTitle}</h2>
-            <p className="skm-section__intro">{wishesIntro}</p>
-            <div className="skm-wish-form">
-              <input
-                value={wishName}
-                onChange={(e) => setWishName(e.target.value)}
-                placeholder="Nama Anda"
-                aria-label="Nama Anda"
-              />
-              <textarea
-                value={wishMessage}
-                onChange={(e) => setWishMessage(e.target.value)}
-                placeholder="Tulis doa & ucapan…"
-                aria-label="Doa dan ucapan"
-              />
-              <button
-                type="button"
-                className="skm-wish-submit"
-                onClick={submitWish}
-                disabled={wishes.state === "sending" || !wishMessage.trim()}
-              >
-                {wishes.state === "sending" ? "Mengirim…" : "Kirim Ucapan"}
-              </button>
-              {wishes.feedback && <p className="skm-wish-note">{wishes.feedback}</p>}
-            </div>
-            <div className="skm-wish-list">
-              {!wishes.loaded ? (
-                <p className="skm-wish-empty">Memuat ucapan…</p>
-              ) : wishes.wishes.length === 0 ? (
-                <p className="skm-wish-empty">Belum ada ucapan. Jadilah yang pertama.</p>
-              ) : (
-                wishes.wishes.map((w) => (
-                  <div className="skm-wish" key={w.id}>
-                    <span className="skm-wish__time">{formatDotDate(w.created_at)}</span>
-                    <div className="skm-wish__name">{w.name || labels.guestFallback}</div>
-                    <p className="skm-wish__text">{w.message}</p>
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
-
+          {/* Tanda Kasih */}
           {hasGift && (
-            <section className="skm-section skm-gift skm-center" data-skm-reveal>
-              <p className="skm-kicker">{labels.giftTitle}</p>
-              <h2 className="skm-section__title">{labels.giftTitle}</h2>
-              <p className="skm-section__intro">{giftIntro}</p>
+            <section className="skm-section skm-gift" data-skm-reveal>
+              <img className="skm-gift__orn" src={ART("songket-terlipat")} alt="" aria-hidden="true" loading="lazy" />
+              <p className="skm-kicker skm-section__kicker">{giftTitle}</p>
+              <h2 className="skm-section__title">Tanda Kasih</h2>
+              <p className="skm-section__lead">{giftLead}</p>
+
               {accounts.map((acc, i) => (
                 <div className="skm-gift__card" key={`${acc.account_number || acc.provider_name || "acc"}-${i}`}>
                   <p className="skm-gift__bank">{acc.provider_name}</p>
@@ -380,6 +348,7 @@ export default function SongketMarun(profile: TemplateProps) {
                   </button>
                 </div>
               ))}
+
               {giftAddress && (
                 <div className="skm-gift__card">
                   <p className="skm-gift__bank">Kirim Hadiah</p>
@@ -396,11 +365,64 @@ export default function SongketMarun(profile: TemplateProps) {
             </section>
           )}
 
-          <section className="skm-section skm-closing skm-center" data-skm-reveal>
-            <div className="skm-rule" aria-hidden="true"><span /></div>
-            <p className="skm-closing__text">{closingText}</p>
-            <p className="skm-closing__family">{familyLabel}</p>
-            <p className="skm-closing__names">{parents || childFull}</p>
+          {/* Doa & Ucapan */}
+          <section className="skm-section skm-ucapan" data-skm-reveal>
+            <p className="skm-kicker skm-section__kicker">Doa &amp; Ucapan</p>
+            <h2 className="skm-section__title">{wishesTitle}</h2>
+            <p className="skm-section__lead">{wishesLead}</p>
+            <div className="skm-wish-form">
+              <input
+                value={wishName}
+                onChange={(e) => setWishName(e.target.value)}
+                placeholder="Nama Anda"
+                aria-label="Nama Anda"
+              />
+              <textarea
+                value={wishMessage}
+                onChange={(e) => setWishMessage(e.target.value)}
+                placeholder="Tulis doa dan ucapan"
+                aria-label="Doa dan ucapan"
+              />
+              <button
+                type="button"
+                className="skm-wish-send"
+                onClick={submitWish}
+                disabled={wishes.state === "sending" || !wishMessage.trim()}
+              >
+                {wishes.state === "sending" ? "Mengirim" : "Kirim Ucapan"}
+              </button>
+              {wishes.feedback && <p className="skm-wish-note">{wishes.feedback}</p>}
+            </div>
+            <div className="skm-wish-list">
+              {!wishes.loaded ? (
+                <p className="skm-wish-empty">Memuat ucapan</p>
+              ) : wishes.wishes.length === 0 ? (
+                <p className="skm-wish-empty">Belum ada ucapan. Jadilah yang pertama.</p>
+              ) : (
+                wishes.wishes.map((w) => (
+                  <div className="skm-wish" key={w.id}>
+                    <span className="skm-wish__time">{formatDotDate(w.created_at)}</span>
+                    <div className="skm-wish__name">{w.name || labels.guestFallback}</div>
+                    <p className="skm-wish__text">{w.message}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
+
+          {/* Penutup */}
+          <section className="skm-section skm-penutup" data-skm-reveal>
+            <div className="skm-penutup__photo">
+              <img src={closingPhoto} alt="" loading="lazy" draggable={false} />
+              <img className="skm-penutup__melur" src={ART("melur")} alt="" aria-hidden="true" loading="lazy" />
+            </div>
+            <h2 className="skm-penutup__thanks">Terima Kasih</h2>
+            <p className="skm-penutup__text">{closingText}</p>
+            <p className="skm-penutup__salam">{closingSalam}</p>
+            <div className="skm-pita" aria-hidden="true" />
+            <p className="skm-penutup__family">{familyLabel}</p>
+            <p className="skm-penutup__names">Keluarga Besar</p>
+            {parents && <p className="skm-penutup__names" style={{ fontSize: 15 }}>{parents}</p>}
           </section>
 
           <p className="skm-footer">
@@ -422,27 +444,7 @@ export default function SongketMarun(profile: TemplateProps) {
         </button>
       )}
 
-      {toast && (
-        <div
-          role="status"
-          style={{
-            position: "fixed",
-            left: "50%",
-            bottom: 78,
-            transform: "translateX(-50%)",
-            zIndex: 60,
-            padding: "10px 18px",
-            background: "rgba(50,10,17,0.92)",
-            color: "#f8f0e2",
-            fontSize: 11,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-            border: "1px solid rgba(230,205,139,0.6)",
-          }}
-        >
-          {toast}
-        </div>
-      )}
+      {toast && <div className="skm-toast" role="status">{toast}</div>}
 
       {showDock && (
         <InvitationOverlay
@@ -450,7 +452,7 @@ export default function SongketMarun(profile: TemplateProps) {
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
           guestName={guestName}
-          coupleName={childName}
+          coupleName={childFull}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}
           guestTableNumber={profile.guest_table_number}

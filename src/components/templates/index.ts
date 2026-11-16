@@ -1701,10 +1701,11 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.06 },
     },
     content: {
-      // Cover only for now. The faithful port adds the venue + closing photo
-      // slots (cover_slots: 3 with labels); declaring slots the component does
-      // not read would give the editor dead controls.
-      cover_slots: 1,
+      // Three photo slots, matching the reference: cover, venue (gated on the
+      // event section) and the closing portrait.
+      cover_slots: 3,
+      cover_slot_labels: ["Foto Sampul", "Foto Tempat Acara", "Foto Penutup"],
+      cover_slot_sections: [null, "events", null],
       groom_photo: "single",
       person_photos: true,
       story_photo: false,

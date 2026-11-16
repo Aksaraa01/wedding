@@ -1142,3 +1142,31 @@ export function templateExtrasLabel(templateName: string | null | undefined): st
   const name = templateName?.trim()
   return name ? `EKSTRA ${name.toUpperCase()}` : "EKSTRA TEMPLATE"
 }
+
+// Ceriavite kids templates: the "Doa untuk Ananda" card carries an Arabic ayah
+// above the existing quote fields, plus a closing blessing line.
+TEMPLATE_EXTRA_FIELDS.push(
+  {
+    key: "doa_arabic",
+    label: "Doa (teks Arab)",
+    multiline: true,
+    rows: 2,
+    section: "kutipan",
+    order: 20,
+    templates: ["songket-marun"],
+    placeholders: { "songket-marun": "رَبِّ هَبْ لِي مِنَ الصَّالِحِينَ" },
+  },
+  {
+    key: "doa_blessing",
+    label: "Kalimat Penutup Doa",
+    multiline: true,
+    rows: 2,
+    section: "kutipan",
+    order: 21,
+    templates: ["songket-marun"],
+    placeholders: {
+      "songket-marun":
+        "Semoga ananda tumbuh menjadi anak yang saleh, berbakti kepada orang tua, dan menjadi kebanggaan keluarga.",
+    },
+  },
+)
