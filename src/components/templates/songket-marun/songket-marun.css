@@ -361,21 +361,17 @@ body.skm-locked { overflow: hidden; }
   overflow: hidden;
 }
 
+/* Reference "Kartu doa": no background, no border — just a 322px column with
+   40/22/36px padding, so the text sits directly on the cream canvas. */
 .skm-doa__card {
   position: relative;
-  margin: 22px auto 0;
-  max-width: 380px;
-  padding: 28px 22px;
-  border: 1px solid rgba(201, 164, 92, 0.4);
-  background: rgba(50, 10, 17, 0.35);
+  margin: 20px auto 0;
+  max-width: 322px;
+  padding: 40px 22px 36px;
+  border: 0;
+  background: transparent;
 }
-.skm-doa__card::before {
-  content: "";
-  position: absolute;
-  inset: 6px;
-  border: 1px solid rgba(201, 164, 92, 0.16);
-  pointer-events: none;
-}
+.skm-doa__card::before { content: none; }
 
 .skm-doa__arabic {
   font-family: "Amiri", "Scheherazade New", "Geeza Pro", serif;
@@ -960,12 +956,10 @@ body.skm-locked { overflow: hidden; }
 .skm-section--cream .skm-event__time,
 .skm-section--cream .skm-wish__time { color: #a9822f; }
 
-.skm-section--cream .skm-doa__card,
 .skm-section--cream .skm-event {
-  border-color: rgba(74, 22, 32, 0.22);
-  background: rgba(255, 255, 255, 0.42);
+  border-color: rgba(74, 22, 32, 0.16);
+  background: transparent;
 }
-.skm-section--cream .skm-doa__card::before { border-color: rgba(74, 22, 32, 0.1); }
 
 .skm-section--cream .skm-wish-form input,
 .skm-section--cream .skm-wish-form textarea {

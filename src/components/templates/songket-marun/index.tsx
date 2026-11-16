@@ -473,7 +473,6 @@ export default function SongketMarun(profile: TemplateProps) {
           {honored.length > 0 && (
             <section className="skm-section skm-section--dark skm-inviting" data-skm-reveal>
               <span className="skm-edge skm-edge--top" aria-hidden="true" />
-              <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
               <p className="skm-kicker skm-section__kicker">Turut Mengundang</p>
               <h2 className="skm-section__title">Keluarga &amp; Kerabat</h2>
               <div className="skm-pita" aria-hidden="true" />
@@ -487,7 +486,6 @@ export default function SongketMarun(profile: TemplateProps) {
 
           {/* Penutup */}
           <section className="skm-section skm-section--dark skm-penutup" data-skm-reveal>
-            <span className="skm-edge skm-edge--top" aria-hidden="true" />
             <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
             <div className="skm-penutup__photo">
               <img src={closingPhoto} alt="" loading="lazy" draggable={false} />
