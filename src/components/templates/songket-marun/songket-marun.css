@@ -327,10 +327,11 @@ body.skm-locked { overflow: hidden; }
 }
 
 .skm-putra__name {
-  margin: 22px 0 0;
+  margin: 20px 0 0;
   font-family: var(--skm-title);
-  font-size: clamp(24px, 7vw, 32px);
-  letter-spacing: 0.04em;
+  font-size: 17px;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
   color: var(--skm-cream);
 }
 
@@ -970,7 +971,10 @@ body.skm-locked { overflow: hidden; }
 }
 
 .skm-section--dark {
-  background: var(--skm-bg);
+  background-color: var(--skm-bg);
+  background-image:
+    repeating-linear-gradient(45deg, rgba(201, 164, 92, 0.1) 0 1px, transparent 1px 13px),
+    repeating-linear-gradient(-45deg, rgba(201, 164, 92, 0.07) 0 1px, transparent 1px 13px);
   color: var(--skm-text);
 }
 

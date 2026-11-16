@@ -241,7 +241,6 @@ export default function SongketMarun(profile: TemplateProps) {
             <span className="skm-edge skm-edge--top" aria-hidden="true" />
             <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
             <p className="skm-kicker skm-section__kicker">{labels.subjectPossessive}</p>
-            <h2 className="skm-section__title">{labels.subjectLabel}</h2>
             <div className="skm-putra__stage">
               <div className="skm-putra__photo">
                 <img src={portrait} alt={childFull} draggable={false} />
