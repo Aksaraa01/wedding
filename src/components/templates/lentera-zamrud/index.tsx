@@ -219,14 +219,15 @@ export default function LenteraZamrud(profile: TemplateProps) {
           </div>
 
           <div className="lz-cover__inner">
-            <p className="lz-kicker">{coverKicker}</p>
+            <p className="lz-cover__kicker-script">{labels.eventKicker}</p>
             <h1 className="lz-cover__name">{childName}</h1>
             <img className="lz-divider" src={ART("pemisah-emas")} alt="" aria-hidden="true" style={{ margin: "12px auto" }} />
             <p className="lz-cover__guest">
-              {formatLongDate(eventDate)}
-              <strong>{guestName}</strong>
+              Kepada Yth. Bapak/Ibu/Saudara/i
+              {guestName && guestName !== labels.guestFallback ? <strong>{guestName}</strong> : null}
             </p>
             <button type="button" className="lz-open" onClick={openInvitation}>
+              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>mail</span>
               {openLabel}
             </button>
           </div>

@@ -125,7 +125,7 @@ body.lz-locked { overflow: hidden; }
 /* mosque skyline band across the top (101.3% × 182 in the reference) */
 .lz-cover__dome {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: -1%;
   width: 101.3%;
   height: 182px;
@@ -149,7 +149,7 @@ body.lz-locked { overflow: hidden; }
   position: relative;
   width: 71.43%;
   max-width: 300px;
-  aspect-ratio: 390 / 540;
+  aspect-ratio: 390 / 560;
   margin: 0 auto;
 }
 .lz-arch__photo {
@@ -171,15 +171,25 @@ body.lz-locked { overflow: hidden; }
   pointer-events: none;
   z-index: 5;
 }
-.lz-arch__sprig--l { top: 0.6%; left: -2%; width: 36%; transform: rotate(-14deg); }
-.lz-arch__sprig--r { top: 44%; right: -3%; width: 31%; transform: rotate(16deg); }
+.lz-arch__sprig--l { bottom: 6%; left: -14%; width: 40%; transform: rotate(-10deg); }
+.lz-arch__sprig--r { bottom: 12%; right: -13%; width: 34%; transform: rotate(14deg); }
 
 .lz-cover__inner { position: relative; z-index: 6; width: 100%; text-align: center; margin-top: 22px; }
-.lz-cover__name {
-  margin: 12px 0 0;
+.lz-cover__kicker-script {
+  margin: 0;
   font-family: var(--lz-script);
-  font-size: clamp(46px, 15vw, 68px);
-  line-height: 1;
+  font-size: clamp(30px, 9vw, 40px);
+  line-height: 1.2;
+  color: var(--lz-emerald);
+}
+/* the child's name is Cinzel, uppercase, letterspaced */
+.lz-cover__name {
+  margin: 16px 0 0;
+  font-family: var(--lz-title);
+  font-size: clamp(24px, 7vw, 32px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.2;
   color: var(--lz-emerald);
 }
 .lz-cover__guest {
@@ -198,6 +208,7 @@ body.lz-locked { overflow: hidden; }
 }
 .lz-open {
   margin-top: 20px;
+  gap: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;

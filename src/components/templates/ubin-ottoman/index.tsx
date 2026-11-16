@@ -42,13 +42,29 @@ function useFitOneLine<T extends HTMLElement>(text: string, maxScale = 0.5) {
       if (!el) return
       const fit = () => {
         el.style.removeProperty("font-size")
-        const box = el.clientWidth
-        if (!box) return
         const cs = window.getComputedStyle(el)
-        const ctx = document.createElement("canvas").getContext("2d")
-        if (!ctx) return
-        ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`
-        const width = ctx.measureText(text).width
+        const box = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
+        if (!box) return
+        // Measure with a real DOM probe: canvas measureText does not reliably use
+        // the just-loaded webfont, which under-measures by ~8% and skips the fit.
+        const probe = document.createElement("span")
+        probe.textContent = el.textContent || text
+        probe.style.cssText = [
+          "position:absolute",
+          "left:-9999px",
+          "top:0",
+          "visibility:hidden",
+          "white-space:nowrap",
+          `font-family:${cs.fontFamily}`,
+          `font-size:${cs.fontSize}`,
+          `font-weight:${cs.fontWeight}`,
+          `font-style:${cs.fontStyle}`,
+          `letter-spacing:${cs.letterSpacing}`,
+          `text-transform:${cs.textTransform}`,
+        ].join(";")
+        document.body.appendChild(probe)
+        const width = probe.getBoundingClientRect().width
+        probe.remove()
         if (width <= box) return
         const base = parseFloat(cs.fontSize)
         const next = Math.max(base * maxScale, (base * box) / width)
