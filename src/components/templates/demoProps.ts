@@ -2878,6 +2878,14 @@ DEMO_PROPS_BY_CODE["songket-marun"] = {
       address: "Jl. Melati No. 12, Medan Kota, Sumatera Utara",
       maps_url: "https://maps.google.com/?q=Medan",
     },
+    {
+      name: "Syukuran",
+      date: "2026-12-20",
+      time: "19:00-21:00 WIB",
+      venue: "Aula Serbaguna Melati",
+      address: "Jl. Melati Raya No. 40, Medan Baru, Sumatera Utara",
+      maps_url: "https://maps.google.com/?q=Medan+Baru",
+    },
   ],
   gallery_photos: [DEMO_SKM.putra, DEMO_SKM.cover, DEMO_SKM.venue, DEMO_SKM.closing],
   gift_accounts: [

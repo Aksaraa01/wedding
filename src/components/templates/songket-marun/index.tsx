@@ -319,6 +319,7 @@ export default function SongketMarun(profile: TemplateProps) {
                 {(session.venue || session.address) && (
                   <p className="skm-event__place">
                     {session.venue && <strong>{session.venue}</strong>}
+                    {session.venue && session.address ? <br /> : null}
                     {session.address}
                   </p>
                 )}
