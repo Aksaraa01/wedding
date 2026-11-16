@@ -1,26 +1,89 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import type { CSSProperties } from "react"
 import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { eventLabels } from "@/lib/eventType"
 import { copyPlainText } from "@/lib/clipboard"
 import InvitationOverlay from "@/components/InvitationOverlay"
-import { countdownTarget, formatDotDate, formatLongDate, gcalLink, groomPhoto, photoList } from "../shared/lib"
+import { countdownTarget, formatDotDate, formatLongDate, groomPhoto, photoList } from "../shared/lib"
 import { useWishes } from "../shared/kids/useWishes"
+import { LOCKED_FIELD_STYLE, wishNameState } from "../shared/wishName"
 import "./lentera-zamrud.css"
 
 const ART = (name: string) => `/templates/lentera-zamrud/${name}.webp`
 
-const DEFAULT_ARABIC = "رَبِّ هَبْ لِي مِنَ الصَّالِحِينَ"
-const DEFAULT_BLESSING =
-  "Semoga ananda tumbuh menjadi anak yang saleh, berbakti kepada orang tua, dan menjadi kebanggaan keluarga."
+const DEFAULT_BASMALAH = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
+const DEFAULT_SALAM = "Assalamu'alaikum Warahmatullahi Wabarakatuh"
 const DEFAULT_OPENING =
-  "Dengan memohon rahmat dan rida Allah SWT, kami bermaksud menyelenggarakan acara ananda tercinta. Merupakan suatu kehormatan apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu."
+  "Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan tasyakuran khitanan putra kami. Merupakan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu."
 const DEFAULT_CLOSING =
-  "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu. Atas kehadiran dan doanya kami ucapkan terima kasih."
+  "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu untuk putra kami."
 const DEFAULT_GIFT =
-  "Doa restu Bapak/Ibu/Saudara/i adalah hadiah terindah. Bila ingin memberi lebih, kami menerimanya dengan penuh rasa syukur."
+  "Doa restu Bapak/Ibu/Saudara/i sudah lebih dari cukup bagi kami. Namun bila ingin memberikan tanda kasih, dapat melalui:"
+
+const WISH_PAGE = 10
+
+/** Reveal spec, mirroring the reference's animate.css delays (1s, fill both). */
+function reveal(delay = 0): CSSProperties {
+  return { animationDelay: `${delay}s` }
+}
+
+/**
+ * The reference renderer shrinks a one-line name until it fits its plate
+ * (24px payload renders at 17.28px for a 25-character name). Reproduce that
+ * instead of letting a long name spill over the arch or the screen edge.
+ */
+function useFitOneLine<T extends HTMLElement>(text: string, maxScale = 0.5) {
+  const cleanup = useRef<(() => void) | null>(null)
+  return useCallback(
+    (el: T | null) => {
+      cleanup.current?.()
+      cleanup.current = null
+      if (!el) return
+      const fit = () => {
+        el.style.removeProperty("font-size")
+        const cs = window.getComputedStyle(el)
+        const box = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
+        if (!box) return
+        const probe = document.createElement("span")
+        probe.textContent = el.textContent || text
+        probe.style.cssText = [
+          "position:absolute",
+          "left:-9999px",
+          "top:0",
+          "visibility:hidden",
+          "white-space:nowrap",
+          `font-family:${cs.fontFamily}`,
+          `font-size:${cs.fontSize}`,
+          `font-weight:${cs.fontWeight}`,
+          `font-style:${cs.fontStyle}`,
+          `letter-spacing:${cs.letterSpacing}`,
+          `text-transform:${cs.textTransform}`,
+        ].join(";")
+        document.body.appendChild(probe)
+        const width = probe.getBoundingClientRect().width
+        probe.remove()
+        if (width <= box) return
+        const base = parseFloat(cs.fontSize)
+        el.style.fontSize = `${Math.max(base * maxScale, (base * box) / width).toFixed(2)}px`
+      }
+      fit()
+      if (document.fonts) void document.fonts.ready.then(fit).catch(() => {})
+      window.addEventListener("resize", fit)
+      cleanup.current = () => window.removeEventListener("resize", fit)
+    },
+    [text, maxScale]
+  )
+}
+
+function timeLine(raw?: string): string {
+  const value = (raw || "").trim()
+  if (!value) return ""
+  const withPrefix = /^pukul/i.test(value) ? value : `Pukul ${value}`
+  return /wib/i.test(withPrefix) ? withPrefix : `${withPrefix} WIB`
+}
 
 export default function LenteraZamrud(profile: TemplateProps) {
   const rootRef = useRef<HTMLDivElement | null>(null)
@@ -30,11 +93,13 @@ export default function LenteraZamrud(profile: TemplateProps) {
   const [opened, setOpened] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [toast, setToast] = useState("")
-  const [wishName, setWishName] = useState("")
-  const [wishMessage, setWishMessage] = useState("")
   const [now, setNow] = useState<number | null>(null)
+  const [wishMessage, setWishMessage] = useState("")
+  const [wishPage, setWishPage] = useState(0)
+  const [lightbox, setLightbox] = useState<number | null>(null)
 
-  // Design QA hook: ?opened=1 starts the invitation open for screenshot review.
+  // Design QA hook: ?opened=1 starts the invitation open so review tools can
+  // screenshot every section without tapping.
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("opened") === "1") {
       setOpened(true)
@@ -47,14 +112,15 @@ export default function LenteraZamrud(profile: TemplateProps) {
   const labels = profile.event_labels || eventLabels(profile.event_type, profile.subject_gender)
 
   const covers = useMemo(() => photoList(profile.cover_photos as string | string[] | undefined), [profile.cover_photos])
-  const cover = covers[0] || profile.couple_illustration_url || ASSETS.defaults.couple
-  const closingPhoto = covers[2] || cover
   const portrait = groomPhoto(profile.groom_photo_url)
+  const cover = covers[0] || portrait || ASSETS.defaults.couple
+  const closingPhoto = covers[2] || cover
 
   const childName = (profile.groom_name || "").trim() || "Ananda"
   const childFull = (profile.groom_full_name || childName).trim()
   const parents = (profile.groom_parents || "").trim()
   const guestName = (profile.guest_name || "").trim() || labels.guestFallback
+  const hasGuestName = guestName !== labels.guestFallback
 
   const events = useMemo(
     () => (profile.sessions || []).filter((s) => s && (s.name || s.date || s.venue || s.address)),
@@ -62,29 +128,11 @@ export default function LenteraZamrud(profile: TemplateProps) {
   )
   const eventDate = (profile.estimated_wedding_date || "").trim()
   const target = useMemo(() => countdownTarget(events, eventDate), [events, eventDate])
-  const calendarUrl = useMemo(() => gcalLink(events[0], childFull), [events, childFull])
 
   const gallery = useMemo(
-    () => (Array.isArray(profile.gallery_photos) ? profile.gallery_photos.filter(Boolean).slice(0, 9) : []),
+    () => (Array.isArray(profile.gallery_photos) ? profile.gallery_photos.filter(Boolean).slice(0, 8) : []),
     [profile.gallery_photos]
   )
-
-  const accounts = profile.gift_section_visible !== false ? (profile.gift_accounts || []).filter(Boolean) : []
-  const giftAddress =
-    profile.gift_section_visible !== false && gates.gift_address !== false ? (profile.gift_address || "").trim() : ""
-  const hasGift = accounts.length > 0 || !!giftAddress
-
-  const quoteText = (profile.quote_text || "").trim()
-  const quoteSource = (profile.quote_source || "").trim()
-  const doaArabic = (tc.doa_arabic || "").trim() || DEFAULT_ARABIC
-  const doaBlessing = (tc.doa_blessing || "").trim() || DEFAULT_BLESSING
-  const openingText = (profile.opening_description || "").trim() || DEFAULT_OPENING
-  const closingText = (tc.closing_message || "").trim() || DEFAULT_CLOSING
-  const giftLead = (tc.gift_intro_description || "").trim() || DEFAULT_GIFT
-  const salam = (tc.opening_salam || "").trim() || "Assalamu'alaikum Warahmatullahi Wabarakatuh"
-  const closingSalam = (tc.closing_salam || "").trim() || "Wassalamu'alaikum Warahmatullahi Wabarakatuh"
-  const openLabel = (tc.open_button || "").trim() || "Buka Undangan"
-  const coverKicker = (tc.cover_kicker || "").trim() || labels.eventKicker
 
   const honored = useMemo(
     () =>
@@ -94,20 +142,79 @@ export default function LenteraZamrud(profile: TemplateProps) {
     [profile.inviting_families, profile.inviting_families_visible, gates.inviting_families]
   )
 
-  const parsed = eventDate ? new Date(eventDate) : null
-  const valid = parsed && !isNaN(parsed.getTime()) ? parsed : null
-  const dayNum = valid ? String(valid.getDate()).padStart(2, "0") : "--"
-  const monthName = valid ? valid.toLocaleDateString("id-ID", { month: "long" }) : ""
-  const yearNum = valid ? String(valid.getFullYear()) : ""
-  const weekday = valid ? valid.toLocaleDateString("id-ID", { weekday: "long" }) : ""
+  const accounts = profile.gift_section_visible !== false ? (profile.gift_accounts || []).filter(Boolean) : []
+  const giftAddress =
+    profile.gift_section_visible !== false && gates.gift_address !== false ? (profile.gift_address || "").trim() : ""
+  const hasGift = accounts.length > 0 || !!giftAddress
+
+  const coverKicker = (tc.cover_kicker || "").trim() || labels.eventKicker
+  const openLabel = (tc.open_button || "").trim() || "Buka Undangan"
+  const guestLabel = (tc.cover_guest_label || "").trim() || "Kepada Yth. Bapak/Ibu/Saudara/i"
+  const basmalah = (tc.basmalah || "").trim() || DEFAULT_BASMALAH
+  const salam = (tc.opening_salam || "").trim() || DEFAULT_SALAM
+  const openingText = (profile.opening_description || "").trim() || DEFAULT_OPENING
+  const countdownTitle = (tc.countdown_intro || "").trim() || labels.countdownLabel
+  const eventsTitle = (tc.events_title || "").trim() || "Waktu & Tempat"
+  const eventsIntro = (tc.events_intro || "").trim() || "Insya Allah acara akan diselenggarakan pada:"
+  const mapsLabel = (tc.maps_label || "").trim() || "Lihat Lokasi"
+  const galleryTitle = (tc.gallery_title || "").trim() || "Galeri"
+  const galleryIntro = (tc.gallery_intro || "").trim() || "Momen kecil yang ingin kami bagikan."
+  const wishesTitle = (tc.wishes_title || "").trim() || labels.wishesTitle
+  const wishesIntro = (tc.wishes_intro || "").trim() || "Kirimkan doa dan harapan terbaik untuk putra kami."
+  const wishNameLabel = (tc.wishes_name_label || "").trim() || "Nama Anda"
+  const wishNamePlaceholder = (tc.wishes_name_placeholder || "").trim() || "Tulis nama Anda"
+  const wishMessageLabel = (tc.wishes_message_label || "").trim() || "Doa dan ucapan"
+  const wishMessagePlaceholder = (tc.wishes_message_placeholder || "").trim() || "Tulis doa dan ucapan"
+  const wishSubmit = (tc.wishes_submit || "").trim() || "Kirim Ucapan"
+  const wishEmpty = (tc.wishes_empty || "").trim() || "Belum ada ucapan. Jadilah yang pertama."
+  const wishLoading = (tc.wishes_loading || "").trim() || "Memuat ucapan"
+  const giftTitle = (tc.gift_intro_title || "").trim() || labels.giftTitle
+  const giftLead = (tc.gift_intro_description || "").trim() || DEFAULT_GIFT
+  const giftNote = (tc.gift_transfer_note || "").trim() || "transfer ke rekening di bawah ini:"
+  const copyAccountButton = (tc.copy_account_button || "").trim() || "Salin Nomor"
+  const copyAddressButton = (tc.copy_address_button || "").trim() || "Salin Alamat"
+  const sendGiftLabel = (tc.gift_send_label || "").trim() || "Kirim Hadiah"
+  const invitingKicker = (tc.inviting_kicker || "").trim() || "Turut Mengundang"
+  const invitingTitle = (tc.inviting_title || "").trim() || "Keluarga & Kerabat"
+  const closingKicker = (tc.closing_kicker || "").trim() || labels.closingHeadline
+  const closingFamily = (tc.closing_family || "").trim() || "Keluarga Besar"
+  const closingText = (tc.closing_message || "").trim() || DEFAULT_CLOSING
+  const closingSalam = (tc.closing_salam || "").trim() || "Wassalamu'alaikum Warahmatullahi Wabarakatuh"
+
+  const quoteText = (profile.quote_text || "").trim()
+  const quoteSource = (profile.quote_source || "").trim()
+
+  const parsedDate = eventDate ? new Date(eventDate) : null
+  const validDate = parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : null
+  const dateLine = validDate ? formatLongDate(eventDate) : ""
 
   const trackUrl = profile.track_url || (profile.template_demo ? ASSETS.kidsMusic : "")
   const wishes = useWishes(profile.wedding_profile_id, profile.guest_id)
+  const nameState = useMemo(
+    () => wishNameState(profile.guest_name, profile.guest_id, profile.guest_link_strict),
+    [profile.guest_name, profile.guest_id, profile.guest_link_strict]
+  )
+  const [wishName, setWishName] = useState(nameState.value)
+  const [wishNameLocked] = useState(nameState.locked)
+
+  const coverNameRef = useFitOneLine<HTMLHeadingElement>(childName)
+  const guestRef = useFitOneLine<HTMLParagraphElement>(guestName)
+  const putraNameRef = useFitOneLine<HTMLParagraphElement>(childFull)
+
+  const wishPages = Math.max(1, Math.ceil(wishes.wishes.length / WISH_PAGE))
+  const visibleWishes = wishes.wishes.slice(wishPage * WISH_PAGE, wishPage * WISH_PAGE + WISH_PAGE)
+  // Structural a11y labels (WCAG), not couple copy.
+  const pagerPrevLabel = `${wishesTitle} sebelumnya`
+  const pagerNextLabel = `${wishesTitle} berikutnya`
+  const lightboxCloseLabel = `Tutup ${galleryTitle}`
+  const lightboxPrevLabel = `${galleryTitle} sebelumnya`
+  const lightboxNextLabel = `${galleryTitle} berikutnya`
 
   const showDock =
     !profile.preview_mode &&
     !profile.template_demo &&
     opened &&
+    lightbox === null &&
     (!!profile.guest_id || (profile.guest_link_strict === false && !!profile.guest_slug)) &&
     !!profile.wedding_profile_id
 
@@ -120,7 +227,10 @@ export default function LenteraZamrud(profile: TemplateProps) {
   const playMusic = useCallback(() => {
     const audio = audioRef.current
     if (!audio) return
-    void audio.play().then(() => setPlaying(true), () => setPlaying(false))
+    void audio.play().then(
+      () => setPlaying(true),
+      () => setPlaying(false)
+    )
   }, [])
 
   const openInvitation = useCallback(() => {
@@ -150,7 +260,10 @@ export default function LenteraZamrud(profile: TemplateProps) {
 
   const submitWish = useCallback(async () => {
     const ok = await wishes.send(wishName || guestName, wishMessage)
-    if (ok) setWishMessage("")
+    if (ok) {
+      setWishMessage("")
+      setWishPage(0)
+    }
   }, [wishes, wishName, guestName, wishMessage])
 
   useEffect(() => {
@@ -179,20 +292,39 @@ export default function LenteraZamrud(profile: TemplateProps) {
           entry.target.classList.add("is-in")
           io.unobserve(entry.target)
         }
+        // A fast swipe can jump an element clean over the viewport between two
+        // observer ticks; it must never stay invisible once it is above us.
+        for (const el of targets) {
+          if (el.getBoundingClientRect().bottom < 0) {
+            el.classList.add("is-in")
+            io.unobserve(el)
+          }
+        }
       },
-      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+      { threshold: 0, rootMargin: "0px 0px -8% 0px" }
     )
     targets.forEach((el) => io.observe(el))
     return () => io.disconnect()
-  }, [opened, gallery.length, accounts.length, wishes.wishes.length])
+  }, [opened, gallery.length, accounts.length, wishes.wishes.length, honored.length, events.length])
+
+  useEffect(() => {
+    if (lightbox === null) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setLightbox(null)
+      if (event.key === "ArrowRight") setLightbox((i) => (i === null ? null : (i + 1) % gallery.length))
+      if (event.key === "ArrowLeft") setLightbox((i) => (i === null ? null : (i - 1 + gallery.length) % gallery.length))
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [lightbox, gallery.length])
 
   const countdownCells = (() => {
     const ms = target && now ? Math.max(0, target.getTime() - now) : 0
     return [
-      { v: Math.floor(ms / 86400000), l: "Hari" },
-      { v: Math.floor((ms % 86400000) / 3600000), l: "Jam" },
-      { v: Math.floor((ms % 3600000) / 60000), l: "Menit" },
-      { v: Math.floor((ms % 60000) / 1000), l: "Detik" },
+      { value: Math.floor(ms / 86400000), label: "Hari" },
+      { value: Math.floor((ms % 86400000) / 3600000), label: "Jam" },
+      { value: Math.floor((ms % 3600000) / 60000), label: "Menit" },
+      { value: Math.floor((ms % 60000) / 1000), label: "Detik" },
     ]
   })()
 
@@ -200,270 +332,433 @@ export default function LenteraZamrud(profile: TemplateProps) {
     <div ref={rootRef} className={`lz-root${opened ? " is-open" : " is-locked"}`}>
       {trackUrl && <audio ref={audioRef} src={trackUrl} loop preload="metadata" data-warm-audio="" />}
 
-      {!opened && (
-        <section className="lz-cover" aria-label={coverKicker}>
-          <div className="lz-paper" aria-hidden="true" />
-          <div className="lz-stars" aria-hidden="true" />
-          <img className="lz-cover__dome" src={ART("kubah-masjid")} alt="" aria-hidden="true" />
-          <img className="lz-lantern lz-lantern--1" src={ART("lentera-1")} alt="" aria-hidden="true" />
-          <img className="lz-lantern lz-lantern--2" src={ART("lentera-2")} alt="" aria-hidden="true" />
-          <img className="lz-lantern lz-lantern--3" src={ART("lentera-3")} alt="" aria-hidden="true" />
+      <div className="lz-frame">
+        {!opened && (
+          <section className="lz-cover" aria-label={coverKicker}>
+            <div className="lz-cover__paper" aria-hidden="true" />
+            <div className="lz-cover__pattern" aria-hidden="true" />
 
-          <p className="lz-cover__kicker-script" style={{ marginTop: 26 }}>{labels.eventKicker}</p>
-
-          <div className="lz-arch">
-            <div className="lz-arch__photo">
-              <img src={cover} alt={childFull} draggable={false} />
+            <div className="lz-lantern lz-lantern--a lz-anim-fade">
+              <img src={ART("lentera-1")} alt="" aria-hidden="true" draggable={false} />
             </div>
-            <img className="lz-arch__frame" src={ART("bingkai-lengkung")} alt="" aria-hidden="true" />
-            <img className="lz-arch__sprig lz-arch__sprig--l" src={ART("ranting-daun")} alt="" aria-hidden="true" />
-            <img className="lz-arch__sprig lz-arch__sprig--r" src={ART("ranting-zaitun")} alt="" aria-hidden="true" />
-          </div>
+            <div className="lz-lantern lz-lantern--b lz-anim-fade">
+              <img src={ART("lentera-2")} alt="" aria-hidden="true" draggable={false} />
+            </div>
+            <div className="lz-lantern lz-lantern--c lz-anim-fade">
+              <img src={ART("lentera-3")} alt="" aria-hidden="true" draggable={false} />
+            </div>
 
-          <div className="lz-cover__inner">
-            <h1 className="lz-cover__name">{childName}</h1>
-            <img className="lz-divider" src={ART("pemisah-emas")} alt="" aria-hidden="true" style={{ margin: "12px auto" }} />
-            <p className="lz-cover__guest">
-              Kepada Yth. Bapak/Ibu/Saudara/i
-              {guestName && guestName !== labels.guestFallback ? <strong>{guestName}</strong> : null}
-            </p>
-            <button type="button" className="lz-open" onClick={openInvitation}>
-              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>mail</span>
+            <img className="lz-cover__skyline lz-anim-fade" src={ART("kubah-masjid")} alt="" aria-hidden="true" draggable={false} />
+
+            <p className="lz-cover__kicker lz-anim-down" style={reveal(0.15)}>{coverKicker}</p>
+
+            <div className="lz-cover__photo lz-anim-zoom" style={reveal(0.3)}>
+              <div className="lz-arch">
+                <img src={cover} alt={childFull} draggable={false} />
+              </div>
+              <img className="lz-arch__frame" src={ART("bingkai-lengkung")} alt="" aria-hidden="true" draggable={false} />
+              <div className="lz-sprig lz-sprig--l lz-anim-fade">
+                <img src={ART("melati-kiri")} alt="" aria-hidden="true" draggable={false} />
+              </div>
+              <div className="lz-sprig lz-sprig--r lz-anim-fade">
+                <img src={ART("melati-kanan")} alt="" aria-hidden="true" draggable={false} />
+              </div>
+            </div>
+
+            <h1 ref={coverNameRef} className="lz-cover__name lz-anim-up" style={reveal(0.4)}>{childName}</h1>
+
+            <img className="lz-divider lz-anim-fade" src={ART("pemisah-emas")} alt="" aria-hidden="true" style={reveal(0.45)} />
+            <p className="lz-cover__guest-label lz-anim-fade" style={reveal(0.5)}>{guestLabel}</p>
+            {hasGuestName && (
+              <p ref={guestRef} className="lz-cover__guest lz-anim-fade" style={reveal(0.55)}>{guestName}</p>
+            )}
+
+            <button type="button" className="lz-open lz-anim-up" style={reveal(0.65)} onClick={openInvitation}>
+              <span className="material-symbols-outlined" aria-hidden="true">mail</span>
               {openLabel}
             </button>
-          </div>
-        </section>
-      )}
-
-      {opened && (
-        <main>
-          {/* Pembuka (emerald) */}
-          <section className="lz-section lz-dark lz-pembuka" data-lz-reveal>
-            <img className="lz-lantern lz-lantern--1" src={ART("lentera-2")} alt="" aria-hidden="true" />
-            <img className="lz-lantern lz-lantern--3" src={ART("lentera-3")} alt="" aria-hidden="true" />
-            <p className="lz-pembuka__salam">{salam}</p>
-            <img className="lz-divider" src={ART("pemisah-emas-2")} alt="" aria-hidden="true" />
-            <p className="lz-pembuka__text">{openingText}</p>
           </section>
+        )}
 
-          {/* Putra Kami (cream) */}
-          <section className="lz-section lz-putra" data-lz-reveal>
-            <div className="lz-paper" aria-hidden="true" />
-            <p className="lz-kicker">{labels.subjectPossessive}</p>
-            <div className="lz-putra__stage">
-              <div className="lz-putra__photo">
-                <img src={portrait} alt={childFull} draggable={false} />
-              </div>
-              <img className="lz-putra__frame" src={ART("bingkai-lengkung")} alt="" aria-hidden="true" />
-              <img className="lz-putra__branch lz-putra__branch--l" src={ART("ranting-daun")} alt="" aria-hidden="true" />
-              <img className="lz-putra__branch lz-putra__branch--r" src={ART("ranting-zaitun")} alt="" aria-hidden="true" />
-            </div>
-            <p className="lz-name">{childFull}</p>
-            {parents && (
-              <>
-                <p className="lz-of">{labels.subjectOf}</p>
-                <p className="lz-parents">{parents}</p>
-              </>
-            )}
-            {profile.groom_instagram && (
-              <p className="lz-ig">@{profile.groom_instagram.replace(/^@/, "")}</p>
-            )}
-          </section>
+        {opened && (
+          <main>
+            {/* Pembuka */}
+            <section className="lz-section lz-section--dark lz-pembuka">
+              <div className="lz-pattern" aria-hidden="true" />
+              <img className="lz-crescent lz-reveal lz-reveal--zoom" src={ART("bulan-sabit")} alt="" aria-hidden="true" draggable={false} data-lz-reveal style={reveal(0)} />
+              <p className="lz-arabic lz-reveal lz-reveal--up" lang="ar" dir="rtl" data-lz-reveal style={reveal(0.06)}>{basmalah}</p>
+              <p className="lz-pembuka__salam lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.09)}>{salam}</p>
+              <p className="lz-pembuka__text lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.12)}>{openingText}</p>
+              <img className="lz-divider lz-divider--lg lz-reveal lz-reveal--in" src={ART("pemisah-emas-2")} alt="" aria-hidden="true" data-lz-reveal style={reveal(0.06)} />
+            </section>
 
-          {/* Hitung Mundur (emerald) */}
-          <section className="lz-section lz-dark" data-lz-reveal>
-            <img className="lz-lantern lz-lantern--1" src={ART("lentera-1")} alt="" aria-hidden="true" />
-            <img className="lz-lantern lz-lantern--2" src={ART("lentera-2")} alt="" aria-hidden="true" />
-            <p className="lz-kicker">Hitung Mundur</p>
-            <h2 className="lz-title">Menuju Hari Bahagia</h2>
-            <div className="lz-divider" aria-hidden="true" />
-            <div className="lz-clock">
-              {countdownCells.map((c) => (
-                <div key={c.l}>
-                  <span>{now ? String(c.v).padStart(2, "0") : "--"}</span>
-                  <small>{c.l}</small>
+            {/* Putra / Putri Kami */}
+            <section className="lz-section lz-section--cream lz-putra">
+              <div className="lz-paper" aria-hidden="true" />
+              <p className="lz-kicker lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0)}>{labels.subjectPossessive}</p>
+
+              <div className="lz-putra__stage lz-reveal lz-reveal--in" data-lz-reveal style={reveal(0.04)}>
+                <div className="lz-putra__arch">
+                  <img src={portrait} alt={childFull} loading="lazy" draggable={false} />
                 </div>
-              ))}
-            </div>
-            <p className="lz-lead">
-              {weekday}, {dayNum} {monthName} {yearNum}
-            </p>
-            {calendarUrl && (
-              <p style={{ textAlign: "center", marginTop: 16 }}>
-                <a className="lz-event__maps" href={calendarUrl} target="_blank" rel="noreferrer noopener">
-                  Simpan Tanggal
+                <img className="lz-arch__frame" src={ART("bingkai-lengkung")} alt="" aria-hidden="true" draggable={false} />
+                <div className="lz-sprig lz-sprig--l">
+                  <img src={ART("ranting-daun")} alt="" aria-hidden="true" draggable={false} />
+                </div>
+                <div className="lz-sprig lz-sprig--r">
+                  <img src={ART("ranting-zaitun")} alt="" aria-hidden="true" draggable={false} />
+                </div>
+              </div>
+
+              <p ref={putraNameRef} className="lz-putra__name lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.06)}>{childFull}</p>
+              {parents && (
+                <>
+                  <p className="lz-kicker lz-kicker--sm lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.08)}>{labels.subjectOf}</p>
+                  <p className="lz-putra__parents lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.09)}>{parents}</p>
+                </>
+              )}
+              {profile.groom_instagram && (
+                <a
+                  className="lz-putra__ig lz-reveal lz-reveal--up"
+                  data-lz-reveal
+                  style={reveal(0.1)}
+                  href={`https://instagram.com/${profile.groom_instagram.replace(/^@/, "")}`}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  @{profile.groom_instagram.replace(/^@/, "")}
                 </a>
-              </p>
+              )}
+
+              {quoteText && (
+                <>
+                  <img className="lz-divider lz-reveal lz-reveal--in" src={ART("pemisah-emas")} alt="" aria-hidden="true" data-lz-reveal style={reveal(0.06)} />
+                  <p className="lz-putra__quote lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.1)}>&ldquo;{quoteText}&rdquo;</p>
+                  {quoteSource && (
+                    <p className="lz-putra__source lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.11)}>{quoteSource}</p>
+                  )}
+                </>
+              )}
+            </section>
+
+            {/* Menuju Hari Bahagia */}
+            {target && (
+              <section className="lz-section lz-section--dark lz-countdown">
+                <div className="lz-pattern" aria-hidden="true" />
+                <div className="lz-lantern lz-lantern--d">
+                  <img src={ART("lentera-1")} alt="" aria-hidden="true" draggable={false} />
+                </div>
+                <div className="lz-lantern lz-lantern--e">
+                  <img src={ART("lentera-2")} alt="" aria-hidden="true" draggable={false} />
+                </div>
+
+                <p className="lz-script-title lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0)}>{countdownTitle}</p>
+                {dateLine && (
+                  <p className="lz-countdown__date lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.04)}>{dateLine}</p>
+                )}
+
+                <div className="lz-count lz-reveal lz-reveal--zoom" data-lz-reveal style={reveal(0.08)}>
+                  {countdownCells.map((cell, index) => (
+                    <span className="lz-count__group" key={cell.label}>
+                      {index > 0 && <span className="lz-count__sep" aria-hidden="true">:</span>}
+                      <span className="lz-count__cell">
+                        <span className="lz-count__num">{now ? String(cell.value).padStart(2, "0") : "--"}</span>
+                        <small>{cell.label}</small>
+                      </span>
+                    </span>
+                  ))}
+                </div>
+
+                <img className="lz-skyline lz-skyline--md" src={ART("kubah-masjid")} alt="" aria-hidden="true" loading="lazy" draggable={false} />
+              </section>
             )}
-          </section>
 
-          {/* Waktu & Tempat (cream) */}
-          <section className="lz-section" data-lz-reveal>
-            <div className="lz-paper" aria-hidden="true" />
-            <img
-              src={ART("sudut-emas-1")}
-              alt=""
-              aria-hidden="true"
-              style={{ position: "absolute", top: -6, left: -6, width: 96, opacity: 0.8 }}
-            />
-            <p className="lz-kicker">Rangkaian Acara</p>
-            <h2 className="lz-title">Waktu &amp; Tempat</h2>
-            <div className="lz-divider" aria-hidden="true" />
-            {events.map((s, i) => (
-              <article className="lz-event" key={`${s.name || "acara"}-${i}`}>
-                <h3 className="lz-event__name">{s.name || labels.mainEventName}</h3>
-                {s.date && <p className="lz-event__date">{formatLongDate(s.date)}</p>}
-                {s.time && <p className="lz-event__time">Pukul {s.time}</p>}
-                {(s.venue || s.address) && (
-                  <p className="lz-event__place">
-                    {s.venue && <strong>{s.venue}</strong>}
-                    {s.address}
-                  </p>
-                )}
-                {s.maps_url && (
-                  <a className="lz-event__maps" href={s.maps_url} target="_blank" rel="noreferrer noopener">
-                    Lihat Lokasi
-                  </a>
-                )}
-              </article>
-            ))}
-          </section>
+            {/* Waktu & Tempat */}
+            {events.length > 0 && (
+              <section className="lz-section lz-section--cream lz-events">
+                <div className="lz-paper" aria-hidden="true" />
+                <img className="lz-corner lz-corner--l" src={ART("sudut-emas-1")} alt="" aria-hidden="true" draggable={false} />
+                <img className="lz-corner lz-corner--r" src={ART("sudut-emas-2")} alt="" aria-hidden="true" draggable={false} />
 
-          {/* Galeri (cream) */}
-          {gallery.length > 0 && (
-            <section className="lz-section" data-lz-reveal>
+                <h2 className="lz-script-title lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0)}>{eventsTitle}</h2>
+                <p className="lz-lead lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.04)}>{eventsIntro}</p>
+
+                <div className="lz-events__list lz-reveal lz-reveal--in" data-lz-reveal style={reveal(0.06)}>
+                  {events.map((session, index) => (
+                    <article className="lz-event" key={`${session.name || "acara"}-${index}`}>
+                      <h3 className="lz-event__name">{session.name || labels.mainEventName}</h3>
+                      {(session.date || dateLine) && (
+                        <p className="lz-event__date">{formatLongDate(session.date || eventDate)}</p>
+                      )}
+                      {session.time && <p className="lz-event__time">{timeLine(session.time)}</p>}
+                      {(session.venue || session.address) && (
+                        <p className="lz-event__place">
+                          {session.venue && <strong>{session.venue}</strong>}
+                          {session.venue && session.address ? " · " : ""}
+                          {session.address}
+                        </p>
+                      )}
+                      {session.maps_url && (
+                        <a className="lz-pill" href={session.maps_url} target="_blank" rel="noreferrer noopener">
+                          <span className="material-symbols-outlined" aria-hidden="true">location_on</span>
+                          {mapsLabel}
+                        </a>
+                      )}
+                      {index < events.length - 1 && (
+                        <img className="lz-divider lz-divider--sm" src={ART("pemisah-emas-3")} alt="" aria-hidden="true" />
+                      )}
+                    </article>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Galeri */}
+            {gallery.length > 0 && (
+              <section className="lz-section lz-section--cream lz-gallery">
+                <div className="lz-paper" aria-hidden="true" />
+                <h2 className="lz-script-title lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0)}>{galleryTitle}</h2>
+                <p className="lz-lead lz-lead--sm lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.04)}>{galleryIntro}</p>
+
+                <div className={`lz-gallery__grid${gallery.length === 1 ? " is-single" : ""} lz-reveal lz-reveal--up`} data-lz-reveal style={reveal(0.08)}>
+                  {gallery.map((src, index) => (
+                    <button
+                      type="button"
+                      className="lz-gallery__item"
+                      key={`${src}-${index}`}
+                      onClick={() => setLightbox(index)}
+                      aria-label={`${galleryTitle} ${index + 1}`}
+                    >
+                      <img src={src} alt="" loading="lazy" draggable={false} />
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Doa & Ucapan */}
+            <section className="lz-section lz-section--cream lz-wishes">
               <div className="lz-paper" aria-hidden="true" />
-              <p className="lz-kicker">Galeri</p>
-              <h2 className="lz-title">Momen Bahagia</h2>
-              <div className="lz-divider" aria-hidden="true" />
-              <p className="lz-lead">Sepenggal cerita ananda menjelang hari istimewanya.</p>
-              <div className="lz-galeri__grid">
-                {gallery.map((src, i) => (
-                  <figure key={`${src}-${i}`}>
-                    <img src={src} alt="" loading="lazy" draggable={false} />
-                  </figure>
-                ))}
+              <img className="lz-crescent lz-crescent--sm lz-reveal lz-reveal--zoom" src={ART("bulan-sabit")} alt="" aria-hidden="true" draggable={false} data-lz-reveal style={reveal(0)} />
+              <h2 className="lz-script-title lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0)}>{wishesTitle}</h2>
+              <p className="lz-lead lz-lead--sm lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.04)}>{wishesIntro}</p>
+
+              <div className="lz-wish-form lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.08)}>
+                <label className="lz-field">
+                  <span className="lz-field__label">{wishNameLabel}</span>
+                  <input
+                    value={wishName}
+                    onChange={(event) => setWishName(event.target.value)}
+                    placeholder={wishNamePlaceholder}
+                    readOnly={wishNameLocked}
+                    aria-label={wishNameLabel}
+                    style={wishNameLocked ? LOCKED_FIELD_STYLE : undefined}
+                  />
+                </label>
+                <label className="lz-field">
+                  <span className="lz-field__label">{wishMessageLabel}</span>
+                  <textarea
+                    value={wishMessage}
+                    onChange={(event) => setWishMessage(event.target.value)}
+                    placeholder={wishMessagePlaceholder}
+                    maxLength={500}
+                    rows={4}
+                    aria-label={wishMessageLabel}
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="lz-wish-send"
+                  onClick={submitWish}
+                  disabled={wishes.state === "sending" || !wishMessage.trim()}
+                >
+                  {wishSubmit}
+                </button>
+                <p className="lz-note" role="status">{wishes.feedback}</p>
+              </div>
+
+              <div className="lz-wish-list">
+                {!wishes.loaded ? (
+                  <p className="lz-wish-empty">{wishLoading}</p>
+                ) : wishes.wishes.length === 0 ? (
+                  <p className="lz-wish-empty">{wishEmpty}</p>
+                ) : (
+                  visibleWishes.map((wish) => (
+                    <article className="lz-wish" key={wish.id}>
+                      <p className="lz-wish__name">{wish.name || labels.guestFallback}</p>
+                      <p className="lz-wish__text">{wish.message}</p>
+                      <span className="lz-wish__time">{formatDotDate(wish.created_at)}</span>
+                    </article>
+                  ))
+                )}
+                {wishes.loaded && wishPages > 1 && (
+                  <div className="lz-wish-pager">
+                    <button
+                      type="button"
+                      onClick={() => setWishPage((page) => Math.max(0, page - 1))}
+                      disabled={wishPage === 0}
+                      aria-label={pagerPrevLabel}
+                    >
+                      <span className="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+                    </button>
+                    <span>{`${wishPage + 1} / ${wishPages}`}</span>
+                    <button
+                      type="button"
+                      onClick={() => setWishPage((page) => Math.min(wishPages - 1, page + 1))}
+                      disabled={wishPage >= wishPages - 1}
+                      aria-label={pagerNextLabel}
+                    >
+                      <span className="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </section>
-          )}
 
-          {/* Tanda Kasih (cream) */}
-          {hasGift && (
-            <section className="lz-section" data-lz-reveal>
-              <div className="lz-paper" aria-hidden="true" />
-              <p className="lz-kicker">Tanda Kasih</p>
-              <h2 className="lz-title">Amplop Digital</h2>
-              <p className="lz-lead">{giftLead}</p>
-              {accounts.map((acc, i) => (
-                <div className="lz-gift" key={`${acc.account_number || acc.provider_name || "acc"}-${i}`}>
-                  <p className="lz-gift__bank">{acc.provider_name}</p>
-                  <p className="lz-gift__number">{acc.account_number}</p>
-                  <p className="lz-gift__owner">{acc.account_name}</p>
-                  <button type="button" className="lz-gift__copy" onClick={() => copyText(acc.account_number || "", "Nomor rekening disalin")}>
-                    Salin Nomor
-                  </button>
+            {/* Tanda Kasih */}
+            {hasGift && (
+              <section className="lz-section lz-section--cream lz-gift">
+                <div className="lz-paper" aria-hidden="true" />
+                <h2 className="lz-script-title lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0)}>{giftTitle}</h2>
+                <p className="lz-lead lz-lead--sm lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.04)}>{giftLead}</p>
+
+                <div className="lz-gift__wrap lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.08)}>
+                  {accounts.length > 0 && <p className="lz-gift__lead">{giftNote}</p>}
+                  {accounts.map((account, index) => (
+                    <div className="lz-gift-card" key={`${account.account_number || account.provider_name || "acc"}-${index}`}>
+                      <p className="lz-gift-card__bank">{account.provider_name}</p>
+                      <p className="lz-gift-card__row">
+                        <span className="lz-gift-card__number">{account.account_number}</span>
+                        <button
+                          type="button"
+                          className="lz-gift-card__copy"
+                          onClick={() => copyText(account.account_number || "", "Nomor rekening disalin")}
+                          aria-label={copyAccountButton}
+                        >
+                          <span className="material-symbols-outlined" aria-hidden="true">content_copy</span>
+                        </button>
+                      </p>
+                      <p className="lz-gift-card__owner">{account.account_name}</p>
+                    </div>
+                  ))}
+
+                  {giftAddress && (
+                    <div className="lz-gift-card">
+                      <p className="lz-gift-card__bank">{sendGiftLabel}</p>
+                      {profile.gift_address_name && <p className="lz-gift-card__name">{profile.gift_address_name}</p>}
+                      <p className="lz-gift-card__address">{giftAddress}</p>
+                      <button
+                        type="button"
+                        className="lz-gift-card__copy lz-gift-card__copy--wide"
+                        onClick={() => copyText(giftAddress, "Alamat disalin")}
+                        aria-label={copyAddressButton}
+                      >
+                        <span className="material-symbols-outlined" aria-hidden="true">content_copy</span>
+                        {copyAddressButton}
+                      </button>
+                    </div>
+                  )}
                 </div>
-              ))}
-              {giftAddress && (
-                <div className="lz-gift">
-                  <p className="lz-gift__bank">Kirim Hadiah</p>
-                  <p className="lz-gift__address">{giftAddress}</p>
-                  <button type="button" className="lz-gift__copy" onClick={() => copyText(giftAddress, "Alamat disalin")}>
-                    Salin Alamat
-                  </button>
+              </section>
+            )}
+
+            {/* Turut Mengundang */}
+            {honored.length > 0 && (
+              <section className="lz-section lz-section--cream lz-inviting">
+                <div className="lz-paper" aria-hidden="true" />
+                <p className="lz-kicker lz-kicker--sm lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0)}>{invitingKicker}</p>
+                <h2 className="lz-script-title lz-script-title--md lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.04)}>{invitingTitle}</h2>
+                <ul className="lz-inviting__list lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.08)}>
+                  {honored.map((family, index) => (
+                    <li key={`${family}-${index}`}>{family}</li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {/* Penutup */}
+            <section className="lz-section lz-section--dark lz-closing">
+              <div className="lz-pattern" aria-hidden="true" />
+              <div className="lz-lantern lz-lantern--f">
+                <img src={ART("lentera-3")} alt="" aria-hidden="true" draggable={false} />
+              </div>
+              <div className="lz-lantern lz-lantern--g">
+                <img src={ART("lentera-1")} alt="" aria-hidden="true" draggable={false} />
+              </div>
+
+              <div className="lz-closing__photo lz-reveal lz-reveal--in" data-lz-reveal style={reveal(0)}>
+                <div className="lz-closing__arch">
+                  <img src={closingPhoto} alt="" loading="lazy" draggable={false} />
                 </div>
+                <img className="lz-arch__frame" src={ART("bingkai-lengkung")} alt="" aria-hidden="true" loading="lazy" draggable={false} />
+              </div>
+
+              <p className="lz-closing__text lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.04)}>{closingText}</p>
+              <p className="lz-closing__salam lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.06)}>{closingSalam}</p>
+              <img className="lz-divider lz-divider--lg lz-reveal lz-reveal--in" src={ART("pemisah-emas-2")} alt="" aria-hidden="true" data-lz-reveal style={reveal(0.06)} />
+              <p className="lz-kicker lz-kicker--sm lz-closing__kicker lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.08)}>{closingKicker}</p>
+              <p className="lz-closing__family lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.09)}>{closingFamily}</p>
+              {parents && (
+                <p className="lz-closing__parents lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.1)}>{parents}</p>
               )}
+
+              <img className="lz-skyline lz-skyline--lg" src={ART("kubah-masjid")} alt="" aria-hidden="true" loading="lazy" draggable={false} />
             </section>
-          )}
 
-          {/* Doa & Ucapan (cream) */}
-          <section className="lz-section" data-lz-reveal>
-            <div className="lz-paper" aria-hidden="true" />
-            <p className="lz-kicker">Doa &amp; Ucapan</p>
-            <h2 className="lz-title">Titip Doa</h2>
-            <div className="lz-divider" aria-hidden="true" />
-            <div className="lz-form">
-              <input value={wishName} onChange={(e) => setWishName(e.target.value)} placeholder="Nama Anda" aria-label="Nama Anda" />
-              <textarea value={wishMessage} onChange={(e) => setWishMessage(e.target.value)} placeholder="Tulis doa dan ucapan" aria-label="Doa dan ucapan" />
-              <button type="button" className="lz-send" onClick={submitWish} disabled={wishes.state === "sending" || !wishMessage.trim()}>
-                {wishes.state === "sending" ? "Mengirim" : "Kirim Ucapan"}
-              </button>
-              {wishes.feedback && <p className="lz-note">{wishes.feedback}</p>}
+            <div className="lz-footer">
+              <a className="lz-footer__link" href="https://wa.me/6281161613071" target="_blank" rel="noopener noreferrer">
+                <span className="lz-footer__badge">
+                  <img className="lz-footer__logo" src={ASSETS.galeriEnvelope.aksaraaLogo} alt="Aksaraa" loading="lazy" />
+                </span>
+                <span className="lz-footer__cta">{labels.brand} by Aksaraa</span>
+              </a>
             </div>
-            <div className="lz-wishes">
-              {!wishes.loaded ? (
-                <p className="lz-empty">Memuat ucapan</p>
-              ) : wishes.wishes.length === 0 ? (
-                <p className="lz-empty">Belum ada ucapan. Jadilah yang pertama.</p>
-              ) : (
-                wishes.wishes.map((w) => (
-                  <div className="lz-wish" key={w.id}>
-                    <span className="lz-wish__time">{formatDotDate(w.created_at)}</span>
-                    <div className="lz-wish__name">{w.name || labels.guestFallback}</div>
-                    <p className="lz-wish__text">{w.message}</p>
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
+          </main>
+        )}
+      </div>
 
-          {/* Turut Mengundang */}
-          {honored.length > 0 && (
-            <section className="lz-section" data-lz-reveal>
-              <div className="lz-paper" aria-hidden="true" />
-              <p className="lz-kicker">Turut Mengundang</p>
-              <h2 className="lz-title">Keluarga &amp; Kerabat</h2>
-              <div className="lz-divider" aria-hidden="true" />
-              <ul style={{ listStyle: "none", margin: 0, padding: 0, textAlign: "center" }}>
-                {honored.map((f, i) => (
-                  <li key={`${f}-${i}`} style={{ padding: "7px 0", fontSize: 15, lineHeight: 1.5 }}>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {/* Penutup (emerald) */}
-          <section className="lz-section lz-dark lz-penutup" data-lz-reveal>
-            <img className="lz-lantern lz-lantern--1" src={ART("lentera-3")} alt="" aria-hidden="true" />
-            <img className="lz-lantern lz-lantern--3" src={ART("lentera-1")} alt="" aria-hidden="true" />
-            <div className="lz-penutup__photo">
-              <img src={closingPhoto} alt="" loading="lazy" draggable={false} />
-              <img className="lz-arch__frame" src={ART("bingkai-lengkung")} alt="" aria-hidden="true" />
-            </div>
-            <h2 className="lz-thanks">Terima Kasih</h2>
-            <p className="lz-penutup__text">{closingText}</p>
-            <p className="lz-penutup__salam">{closingSalam}</p>
-            <img className="lz-divider" src={ART("pemisah-emas-3")} alt="" aria-hidden="true" />
-            <p className="lz-family">Kami yang berbahagia</p>
-            <p className="lz-family-name">Keluarga Besar</p>
-            {parents && <p className="lz-family-name" style={{ fontSize: 15 }}>{parents}</p>}
-          </section>
-
-          <a
-            className="lz-footer"
-            href="https://wa.me/6281161613071"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span className="lz-footer__badge">
-              <img src={ASSETS.galeriEnvelope.aksaraaLogo} alt="Aksaraa" loading="lazy" />
-            </span>
-            <span className="lz-footer__cta">{labels.brand} by Aksaraa</span>
-          </a>
-        </main>
-      )}
-
-      {opened && trackUrl && (
-        <button type="button" className="lz-music" onClick={toggleMusic} aria-label={playing ? "Jeda musik" : "Putar musik"}>
-          <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
-            {playing ? "music_note" : "music_off"}
-          </span>
+      {trackUrl && (
+        <button
+          type="button"
+          className={`lz-music${playing ? " is-playing" : ""}`}
+          onClick={toggleMusic}
+          aria-label={playing ? "Jeda musik" : "Putar musik"}
+        >
+          <span className="material-symbols-outlined" aria-hidden="true">{playing ? "music_note" : "music_off"}</span>
         </button>
       )}
 
       {toast && <div className="lz-toast" role="status">{toast}</div>}
+
+      {lightbox !== null && gallery[lightbox] && (
+        <div className="lz-lightbox" role="dialog" aria-modal="true">
+          <button type="button" className="lz-lightbox__backdrop" onClick={() => setLightbox(null)} aria-label={lightboxCloseLabel} />
+          <img className="lz-lightbox__img" src={gallery[lightbox]} alt="" />
+          <button type="button" className="lz-lightbox__close" onClick={() => setLightbox(null)} aria-label={lightboxCloseLabel}>
+            <span className="material-symbols-outlined" aria-hidden="true">close</span>
+          </button>
+          {gallery.length > 1 && (
+            <>
+              <button
+                type="button"
+                className="lz-lightbox__nav lz-lightbox__nav--prev"
+                onClick={() => setLightbox((index) => (index === null ? null : (index - 1 + gallery.length) % gallery.length))}
+                aria-label={lightboxPrevLabel}
+              >
+                <span className="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+              </button>
+              <button
+                type="button"
+                className="lz-lightbox__nav lz-lightbox__nav--next"
+                onClick={() => setLightbox((index) => (index === null ? null : (index + 1) % gallery.length))}
+                aria-label={lightboxNextLabel}
+              >
+                <span className="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+              </button>
+            </>
+          )}
+        </div>
+      )}
 
       {showDock && (
         <InvitationOverlay

@@ -3007,16 +3007,21 @@ DEMO_PROPS_BY_CODE["lentera-zamrud"] = {
   subject_gender: "putra",
   event_labels: eventLabels("khitanan", "putra"),
   cover_photos: [
-    "/templates/lentera-zamrud/demo/putra.jpg",
+    "/templates/lentera-zamrud/demo/cover.webp",
     "/templates/songket-marun/demo/venue.jpg",
-    "/templates/lentera-zamrud/demo/penutup.jpg",
+    "/templates/lentera-zamrud/demo/penutup.webp",
   ],
-  couple_illustration_url: "/templates/lentera-zamrud/demo/putra.jpg",
-  groom_photo_url: ["/templates/lentera-zamrud/demo/putra.jpg"],
+  couple_illustration_url: "/templates/lentera-zamrud/demo/cover.webp",
+  groom_photo_url: ["/templates/lentera-zamrud/demo/putra.webp"],
   gallery_photos: [
-    "/templates/lentera-zamrud/demo/putra.jpg",
-    "/templates/lentera-zamrud/demo/penutup.jpg",
-    "/templates/songket-marun/demo/venue.jpg",
-    "/templates/songket-marun/demo/closing.jpg",
+    "/templates/lentera-zamrud/demo/gallery-1.webp",
+    "/templates/lentera-zamrud/demo/gallery-2.webp",
+    "/templates/lentera-zamrud/demo/gallery-3.webp",
+    "/templates/lentera-zamrud/demo/gallery-4.webp",
   ],
+  template_content: {
+    cover_kicker: "Walimatul Khitan",
+    closing_message:
+      "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu untuk putra kami.",
+  },
 }

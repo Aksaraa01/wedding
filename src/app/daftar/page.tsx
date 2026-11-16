@@ -23,6 +23,7 @@ export default function DaftarCeriavitePage() {
   const [pin, setPin] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
+  const [soon, setSoon] = useState<string | null>(null)
 
   const slugIssue =
     coupleSlugError(nickname, "") ||
