@@ -2966,11 +2966,6 @@ DEMO_PROPS_BY_CODE["ubin-ottoman"] = {
       maps_url: "https://maps.google.com/?q=Medan+Baru",
     },
   ],
-  // The reference's "Susunan Acara" is a rundown: time + programme line.
-  rundown: [
-    { time: "08:00", description: "Pengajian & doa bersama" },
-    { time: "10:00", description: "Tasyakuran khitan" },
-  ],
   gallery_photos: DEMO_UBIN.gallery,
   // Demo-only khitanan track (shared with Songket Marun). A real couple always
   // hears profile.track_url.

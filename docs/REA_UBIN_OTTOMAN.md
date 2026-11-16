@@ -35,14 +35,13 @@ button and the RSVP dock.
 | 1 | Cover | `cover` | corner flowers, two lanterns, arch portrait, crescent, date line, guest, "Buka Undangan" |
 | 2 | Pembuka | `Pembuka` (navy) | star tile, basmalah, salam, opening text |
 | 3 | Putra/Putri Kami | `Putra Kami` (cream) | pillar-framed arch, name, "putra dari", diamond divider, Instagram, quote |
-| 4 | Hari Acara (countdown) | `Hari Acara` (navy) | hanging lanterns, kicker, title, `14 / MARET / 2027`, weekday, 4 countdown boxes |
-| 5 | Susunan Acara | `Susunan Acara` (cream) | one ruled card per `rundown[]` item, `sessions[]` fallback |
-| 6 | Lokasi Acara | `Tempat` (cream) | arch venue photo, place, address, "Lihat Lokasi" pill |
-| 7 | Galeri | `Galeri` (cream) | 2-column arch grid, even tiles offset |
-| 8 | Doa & Ucapan | `Ucapan` (cream) | form + approved feed, 10 per page |
-| 9 | Tanda Kasih | `Tanda Kasih` (cream) | account cards + address card |
-| 10 | Turut Mengundang | **added** | hairline-separated names |
-| 11 | Penutup | `Penutup` (navy) | lanterns, name, closing words, salam, parents, floral band |
+| 4 | Hari Acara (countdown) | `Hari Acara` (navy) | hanging lanterns, kicker, title, `14 / MARET / 2027`, weekday, 4 countdown boxes, "Simpan Tanggal" pill |
+| 5 | Rangkaian Acara | `Susunan Acara` + `Tempat` (cream, **merged**) | venue arch photo, then one block per acara: name → date/time → venue → address → "Lihat Lokasi" |
+| 6 | Galeri | `Galeri` (cream) | 2-column arch grid, even tiles offset |
+| 7 | Doa & Ucapan | `Ucapan` (cream) | form + approved feed, 10 per page |
+| 8 | Tanda Kasih | `Tanda Kasih` (cream) | account cards + address card |
+| 9 | Turut Mengundang | **added** | hairline-separated names |
+| 10 | Penutup | `Penutup` (navy) | lanterns, framed closing photo, name, closing words, salam, parents, floral band |
 
 Reference `RSVP` canvas is **dropped on purpose**: RSVP is the shared
 `InvitationOverlay` dock (§0.5 rule 4), never a section.
@@ -54,14 +53,13 @@ Reference `RSVP` canvas is **dropped on purpose**: RSVP is the shared
 | 1 | Cover | `cover_photos[0]` → `groom_photo_url` → `ASSETS.defaults.couple`; `groom_name`, `guest_name`, `estimated_wedding_date` | always | 0 photos ⇒ default art; long names shrink to one line (see below) | `cover_kicker`/`labels.eventKicker`, `cover_syukur`, `cover_guest_label`, `open_button` | corner flowers 6 s / 6.6 s, lanterns 5 s, crescent 4.8 s |
 | 2 | Pembuka | `opening_description` (+ `quote_text` not used here) | `sections.opening_description` | empty ⇒ default paragraph | `opening_salam`, `opening_description` | fadeUp 0 / 0.04 / 0.06 / 0.08 |
 | 3 | Putra | `groom_full_name`, `groom_photo_url`, `groom_parents`, `groom_instagram`, `quote_text`/`quote_source` | `person_photos !== false` (photo); parents/IG/quote render only when present | 0 photo ⇒ empty arch frame; 1 parent line; quote optional | `mempelai_title`, `labels.subjectPossessive`, `parents_label` | fadeUp 0 / 0.06 / 0.04 / 0.06 / 0.07 / 0.08 |
-| 4 | Countdown | `estimated_wedding_date` | `sections.countdown` + date present | 1 event or 0 events ⇒ still one date block; no date ⇒ whole section hidden | `events_kicker`, `events_title` | fadeUp, ticks every second |
-| 5 | Susunan Acara | `rundown[]` (`time`, `description`) — else `sessions[]` (`time`, `name`, `address`/`venue`) | `agenda.length > 0`; `rundown_visible !== false` for the rundown source | 1 row ⇒ one card, no stretch; many ⇒ stack | `agenda_kicker`, `agenda_title`, `labels.mainEventName` | fadeUp 0.06 + 0.02 per card |
-| 6 | Lokasi | `sessions[0].venue/address`, first `maps_url`, `cover_photos[1]` | `sessions.length > 0` | no venue photo ⇒ text-only block; no maps ⇒ no pill | `venue_kicker`, `venue_title`, `maps_label` | fadeUp 0.04 / 0.06 / 0.08 / 0.1 |
-| 7 | Galeri | `gallery_photos[]` (max 8) | `sections.gallery` + data | 1 photo ⇒ single centred arch (`is-single`); even tiles `translateY(18px)` | `gallery_kicker`, `gallery_title` | fadeUp 0.06 |
-| 8 | Doa & Ucapan | `/api/wishes` (approved) + `useWishes` | always | 0 wishes ⇒ empty state; pagination only when > 10 | `wishes_*` fields | fadeUp 0.1 |
-| 9 | Tanda Kasih | `gift_accounts[]`, `gift_address`, `gift_address_name` | `gift_section_visible !== false`; address also `feature_gates.gift_address` | accounts only / address only / none ⇒ section hides | `gift_kicker`, `gift_intro_title`, `gift_intro_description`, `copy_account_button`, `copy_address_button`, `gift_send_label` | fadeUp 0.1 / 0.12 |
-| 10 | Turut Mengundang | `inviting_families[]` | `feature_gates.inviting_families !== false` **and** `inviting_families_visible !== false` | 1 name or 10, hairlines only between | `inviting_kicker`, `inviting_title` | fadeUp 0.06 + 0.02 per name |
-| 11 | Penutup | `closing_message`, `groom_name`, `groom_parents` | always | no parents ⇒ signature block hides | `closing_kicker`, `closing_message`, `closing_salam`, `labels.closingHeadline` | fadeUp 0 / 0.04 / 0.06 / 0.08 / 0.1 |
+| 4 | Countdown | `estimated_wedding_date`, `sessions[0]` | `sections.countdown` + date present | 1 event or 0 events ⇒ still one date block; no date ⇒ whole section hidden | `events_kicker`, `events_title`, `calendar_button` | fadeUp, ticks every second |
+| 5 | Rangkaian Acara | `sessions[]` (`name`, `date`, `time`, `venue`, `address`, `maps_url`) + `cover_photos[1]` | `agenda.length > 0` | same venue+name+address twice ⇒ collapsed; 1 acara ⇒ one block, no separator; N ⇒ hairline-separated blocks; no venue photo ⇒ text-only | `agenda_kicker`, `agenda_title`, `maps_label`, `labels.mainEventName` | fadeUp 0.06 / 0.04 / 0.06 + 0.05 per block |
+| 6 | Galeri | `gallery_photos[]` (max 8) | `sections.gallery` + data | 1 photo ⇒ single centred arch (`is-single`); even tiles `translateY(18px)` | `gallery_kicker`, `gallery_title` | fadeUp 0.06 |
+| 7 | Doa & Ucapan | `/api/wishes` (approved) + `useWishes` | always | 0 wishes ⇒ empty state; pagination only when > 10 | `wishes_*` fields | fadeUp 0.1 |
+| 8 | Tanda Kasih | `gift_accounts[]`, `gift_address`, `gift_address_name` | `gift_section_visible !== false`; address also `feature_gates.gift_address` | accounts only / address only / none ⇒ section hides | `gift_kicker`, `gift_intro_title`, `gift_intro_description`, `copy_account_button`, `copy_address_button`, `gift_send_label` | fadeUp 0.1 / 0.12 |
+| 9 | Turut Mengundang | `inviting_families[]` | `feature_gates.inviting_families !== false` **and** `inviting_families_visible !== false` | 1 name or 10, hairlines only between | `inviting_kicker`, `inviting_title` | fadeUp 0.06 + 0.02 per name |
+| 10 | Penutup | `cover_photos[2]`, `closing_message`, `groom_name`, `groom_parents` | always | no parents ⇒ signature block hides | `closing_kicker`, `closing_message`, `closing_salam`, `labels.closingHeadline` | fadeUp 0 / 0.04 / 0.06 / 0.08 / 0.1 |
 
 ## Deviations (deliberate, with reasons)
 
@@ -81,12 +79,14 @@ Reference `RSVP` canvas is **dropped on purpose**: RSVP is the shared
    separators.
 4. **Tanda Kasih gains an address card.** The reference demo ships accounts only;
    the contract requires `gift_address` when the package allows it.
-5. **Susunan Acara is wired to the editor's Rundown block.** The reference's
-   schedule is a programme (`time` + line), which is `wedding_profiles.rundown`,
-   so `sections.rundown` is **true** for this template and the block is editable
-   from both the editor and ops. A couple who only fills "Acara" still gets one
-   card per session (name/time/venue), so the section is never empty for lack of
-   a second data entry; `rundown_visible === false` hides it.
+5. **"Rangkaian Acara" merges the reference's two canvases** (`Susunan Acara` +
+   `Tempat`) into one section, because the reference split one event across two
+   headers while a couple usually has two events (tasyakuran and syukuran, often
+   in different halls). Order inside the section: venue photo → per acara name →
+   date/time → venue → address → map link, hairline between acaras. The editor's
+   **Rundown block is off** for this template (`rundown: false`): the schedule is
+   the Acara list itself, so a programme-only list would be a second, competing
+   source of truth. `venue_kicker`/`venue_title` were dropped with the merge.
 6. **Wishes gains a form.** The reference demo only renders the platform wish
    widget (empty in the capture). The form uses the same section header, a
    white `border-radius 20` card and the navy pill button, so it reads as the
@@ -109,8 +109,7 @@ Every visible string is a profile column, an `eventLabels` value, or a
 `template_content` field registered in `src/lib/templateExtras.ts`
 (`cover_kicker`, `cover_syukur`, `cover_guest_label`, `open_button`,
 `opening_salam`, `mempelai_title`, `parents_label`, `events_kicker`,
-`events_title`, `agenda_kicker`, `agenda_title`, `venue_kicker`, `venue_title`,
-`maps_label`, `gallery_kicker`, `gallery_title`, `wishes_kicker`,
+`events_title`, `agenda_kicker`, `agenda_title`, `maps_label`, `gallery_kicker`, `gallery_title`, `calendar_button`, `wishes_kicker`,
 `wishes_title`, `wishes_intro`, `wishes_name_*`, `wishes_message_*`,
 `wishes_submit`, `wishes_empty`, `wishes_loading`, `gift_kicker`,
 `gift_intro_title`, `gift_intro_description`, `copy_account_button`,

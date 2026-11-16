@@ -1828,10 +1828,10 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         gift: true,
         dresscode: false,
         livestream: false,
-        // The reference's "Susunan Acara" IS a rundown: the block prefers
-        // profile.rundown (time + description) and falls back to one card per
-        // Acara session, so the editor/ops Rundown block is offered here.
-        rundown: true,
+        // No separate Rundown: "Rangkaian Acara" walks the Acara list instead
+        // (one block per event, with its own venue, address and map link), so
+        // the editor/ops Rundown block is omitted for this template.
+        rundown: false,
         contacts: false,
       },
       extras: true,

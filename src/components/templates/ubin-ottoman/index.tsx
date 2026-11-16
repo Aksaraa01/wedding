@@ -121,7 +121,6 @@ export default function UbinOttoman(profile: TemplateProps) {
   const eventDate = (profile.estimated_wedding_date || "").trim()
   const target = useMemo(() => countdownTarget(events, eventDate), [events, eventDate])
   const calendarUrl = useMemo(() => gcalLink(events[0], childFull), [events, childFull])
-  const mapsUrl = useMemo(() => events.find((s) => s.maps_url)?.maps_url || "", [events])
 
   const honored = useMemo(
     () =>
@@ -136,27 +135,35 @@ export default function UbinOttoman(profile: TemplateProps) {
     [profile.gallery_photos]
   )
 
-  // "Susunan Acara" is the reference's rundown. A couple who fills the editor's
-  // Rundown block gets those rows; everybody else sees one card per Acara
-  // session (name/time/venue), so the section is never empty for lack of a
-  // second data entry. rundown_visible === false hides the block outright.
-  const rundown = useMemo(
-    () => (Array.isArray(profile.rundown) ? profile.rundown.filter((r) => r && (r.time || r.description)) : []),
-    [profile.rundown]
-  )
+  // "Rangkaian Acara" is one section that walks the Acara list: the venue photo,
+  // then per event its name, date/time, venue, address and map link. A couple
+  // with two acara on the same day (or in two halls) gets two blocks; the same
+  // venue repeated across acara is collapsed into the first block's.
   const agenda = useMemo(() => {
-    if (rundown.length > 0) {
-      if (profile.rundown_visible === false) return []
-      return rundown.map((r) => ({ time: r.time || "", name: r.description || "", meta: "" }))
+    const seen = new Set<string>()
+    const out: { key: string; name: string; when: string; place: string; address: string; maps: string }[] = []
+    for (const session of events) {
+      const venue = (session.venue || "").trim()
+      const address = (session.address || "").trim()
+      const key = `${(session.name || "").trim().toLowerCase()}|${venue.toLowerCase()}|${address.toLowerCase()}`
+      if (seen.has(key)) continue
+      seen.add(key)
+      out.push({
+        key,
+        name: (session.name || "").trim() || labels.mainEventName,
+        when: [
+          session.date && session.date !== eventDate ? formatLongDate(session.date) : "",
+          (session.time || "").trim(),
+        ]
+          .filter(Boolean)
+          .join(" · "),
+        place: venue,
+        address: venue ? address : "",
+        maps: (session.maps_url || "").trim(),
+      })
     }
-    return events.map((session) => ({
-      time: session.time || "",
-      name: session.name || labels.mainEventName,
-      meta: [session.date && session.date !== eventDate ? formatLongDate(session.date) : "", session.address || session.venue || ""]
-        .filter(Boolean)
-        .join(" · "),
-    }))
-  }, [rundown, events, eventDate, labels.mainEventName, profile.rundown_visible])
+    return out
+  }, [events, eventDate, labels.mainEventName])
 
   const accounts = profile.gift_section_visible !== false ? (profile.gift_accounts || []).filter(Boolean) : []
   const giftAddress =
@@ -177,9 +184,8 @@ export default function UbinOttoman(profile: TemplateProps) {
   const dateTitle = (tc.events_title || "").trim() || "Hari Bahagia"
   const agendaKicker = (tc.agenda_kicker || "").trim() || "Susunan Acara"
   const agendaTitle = (tc.agenda_title || "").trim() || "Rangkaian Acara"
-  const venueKicker = (tc.venue_kicker || "").trim() || "Bertempat di"
-  const venueTitle = (tc.venue_title || "").trim() || "Lokasi Acara"
   const mapsLabel = (tc.maps_label || "").trim() || "Lihat Lokasi"
+  const calendarLabel = (tc.calendar_button || "").trim() || "Simpan Tanggal"
   const galleryKicker = (tc.gallery_kicker || "").trim() || "Galeri"
   const galleryTitle = (tc.gallery_title || "").trim() || "Momen Bahagia"
   const wishKicker = (tc.wishes_kicker || "").trim() || labels.wishesTitle
@@ -454,10 +460,17 @@ export default function UbinOttoman(profile: TemplateProps) {
                   </div>
                 )
               })()}
+
+              {calendarUrl && (
+                <a className="uo-calendar" href={calendarUrl} target="_blank" rel="noreferrer noopener" data-uo-reveal style={delay(0.12)}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 15 }}>calendar_month</span>
+                  {calendarLabel}
+                </a>
+              )}
             </section>
           )}
 
-          {/* Susunan Acara */}
+          {/* Rangkaian Acara — venue photo, then one block per acara */}
           {agenda.length > 0 && (
             <section className="uo-section uo-section--cream uo-agenda">
               <p className="uo-kicker uo-kicker--center" data-uo-reveal>{agendaKicker}</p>
@@ -467,41 +480,26 @@ export default function UbinOttoman(profile: TemplateProps) {
                 <i aria-hidden="true" />
               </div>
 
-              <div className="uo-agenda__list">
-                {agenda.map((row, i) => (
-                  <article className="uo-agenda__card" key={`${row.name || "acara"}-${i}`} data-uo-reveal style={delay(0.06 + i * 0.02)}>
-                    {row.time && <p className="uo-agenda__time">{row.time}</p>}
-                    <h3 className="uo-agenda__name">{row.name}</h3>
-                    {row.meta && <p className="uo-agenda__meta">{row.meta}</p>}
-                  </article>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Lokasi Acara */}
-          {events.length > 0 && (
-            <section className="uo-section uo-section--cream uo-venue">
-              <p className="uo-kicker uo-kicker--center" data-uo-reveal>{venueKicker}</p>
-              <div className="uo-title-row" data-uo-reveal style={delay(0.06)}>
-                <i aria-hidden="true" />
-                <h2 className="uo-title">{venueTitle}</h2>
-                <i aria-hidden="true" />
-              </div>
-
               {venuePhoto && (
-                <div className="uo-venue__arch" data-uo-reveal style={delay(0.04)}>
+                <div className="uo-agenda__arch" data-uo-reveal style={delay(0.04)}>
                   <img src={venuePhoto} alt="" loading="lazy" draggable={false} />
                 </div>
               )}
-              {events[0].venue && <p className="uo-venue__place" data-uo-reveal style={delay(0.06)}>{events[0].venue}</p>}
-              {events[0].address && <p className="uo-venue__address" data-uo-reveal style={delay(0.08)}>{events[0].address}</p>}
-              {mapsUrl && (
-                <a className="uo-pill" href={mapsUrl} target="_blank" rel="noreferrer noopener" data-uo-reveal style={delay(0.1)}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 15 }}>location_on</span>
-                  {mapsLabel}
-                </a>
-              )}
+
+              {agenda.map((row, i) => (
+                <article className={`uo-event${i > 0 ? " uo-event--next" : ""}`} key={row.key} data-uo-reveal style={delay(0.06 + i * 0.05)}>
+                  <h3 className="uo-event__name">{row.name}</h3>
+                  {row.when && <p className="uo-event__when">{row.when}</p>}
+                  {row.place && <p className="uo-event__place">{row.place}</p>}
+                  {row.address && <p className="uo-event__address">{row.address}</p>}
+                  {row.maps && (
+                    <a className="uo-pill" href={row.maps} target="_blank" rel="noreferrer noopener">
+                      <span className="material-symbols-outlined" style={{ fontSize: 15 }}>location_on</span>
+                      {mapsLabel}
+                    </a>
+                  )}
+                </article>
+              ))}
             </section>
           )}
 
@@ -675,6 +673,9 @@ export default function UbinOttoman(profile: TemplateProps) {
             <img className="uo-closing__lantern uo-closing__lantern--b" src={ART("lantern")} alt="" aria-hidden="true" />
 
             <p className="uo-kicker uo-kicker--center uo-kicker--cream uo-closing__kicker" data-uo-reveal>{closingKicker}</p>
+            <div className="uo-closing__photo" data-uo-reveal style={delay(0.02)}>
+              <img src={closingPhoto} alt={childFull} loading="lazy" draggable={false} />
+            </div>
             <p ref={closingNameRef} className="uo-closing__name" data-uo-reveal style={delay(0.04)}>{childName}</p>
             <p className="uo-closing__text" data-uo-reveal style={delay(0.06)}>{closingText}</p>
             <p className="uo-closing__salam" data-uo-reveal style={delay(0.08)}>{closingSalam}</p>
