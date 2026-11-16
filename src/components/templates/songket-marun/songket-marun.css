@@ -434,7 +434,7 @@ body.skm-locked { overflow: hidden; }
   gap: 8px;
   margin-top: 22px;
   padding: 11px 22px;
-  border-radius: 0;
+  border-radius: 999px;
   border: 1px solid rgba(201, 164, 92, 0.55);
   color: var(--skm-gold-soft);
   font-family: var(--skm-ui);
@@ -543,22 +543,24 @@ body.skm-locked { overflow: hidden; }
   gap: 8px;
   margin-top: 24px;
 }
+.skm-galeri__grid {
+  align-items: start;
+}
 .skm-galeri__grid figure {
   margin: 0;
   overflow: hidden;
-  aspect-ratio: 4 / 5;
   background: #3f121b;
 }
 .skm-galeri__grid figure:first-child {
-  grid-column: span 2;
-  aspect-ratio: 4 / 3;
   border: 1px solid rgba(201, 164, 92, 0.5);
   padding: 5px;
 }
+/* Natural ratio: an uncropped photo is never "truncated". */
 .skm-galeri__grid img {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
   transition: transform 0.7s ease;
 }
 .skm-galeri__grid figure:hover img { transform: scale(1.04); }
