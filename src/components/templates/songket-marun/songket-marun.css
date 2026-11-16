@@ -15,7 +15,7 @@
   --skm-title: "Marcellus", Georgia, serif;
   --skm-body: "Cormorant Garamond", Georgia, serif;
   --skm-script: "Parisienne", "Cormorant Garamond", cursive;
-  --skm-ui: "Inter", system-ui, sans-serif;
+  --skm-ui: "Marcellus", Georgia, serif;
 
   position: relative;
   min-height: 100dvh;
@@ -61,8 +61,8 @@ body.skm-locked { overflow: hidden; }
 
 /* woven ribbon ("pita tenun") */
 .skm-pita {
-  height: 10px;
-  width: 148px;
+  height: 15px;
+  width: 150px;
   margin: 18px auto;
   position: relative;
   background-image:
@@ -116,30 +116,37 @@ body.skm-locked { overflow: hidden; }
   background: var(--skm-bg-deep);
 }
 
+/* Reference: photo is 390x700 of an 844 canvas (not full-bleed), with a fade
+   from y=300 and a top shadow band of 190. */
 .skm-cover__photo {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 100%;
+  height: 84%;
   object-fit: cover;
-  object-position: center 20%;
+  object-position: center 18%;
 }
 
+/* top shadow band (0-190) + photo fade (300-844) */
 .skm-cover__veil {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(50, 10, 17, 0.86) 0%, rgba(50, 10, 17, 0.28) 32%, rgba(50, 10, 17, 0.9) 80%, var(--skm-bg-deep) 100%);
+    linear-gradient(180deg, rgba(50, 10, 17, 0.88) 0%, rgba(50, 10, 17, 0.55) 12%, rgba(50, 10, 17, 0) 22%),
+    linear-gradient(180deg, rgba(50, 10, 17, 0) 36%, rgba(74, 22, 32, 0.82) 62%, var(--skm-bg) 86%, var(--skm-bg) 100%);
 }
 
+/* Reference places a single melur at the bottom-left: 106x96 at (x=-22, y=738). */
 .skm-cover__melur {
   position: absolute;
-  width: 92px;
-  opacity: 0.95;
-  z-index: 2;
+  left: -5.6%;
+  top: 87.4%;
+  width: 27.2%;
+  z-index: 6;
+  transform: rotate(18deg);
+  pointer-events: none;
 }
-.skm-cover__melur--l { top: 16px; left: 10px; transform: rotate(-12deg); }
-.skm-cover__melur--r { top: 16px; right: 10px; transform: scaleX(-1) rotate(-12deg); }
 
 .skm-cover__inner {
   position: relative;
@@ -236,16 +243,22 @@ body.skm-locked { overflow: hidden; }
   overflow: hidden;
 }
 
+/* Reference group is 390x488; the frame is 250x400 at (70,62) and the photo
+   148x243 at (123,158). Percentages below are relative to the 250x400 frame. */
 .skm-putra__stage {
   position: relative;
-  width: min(320px, 82vw);
-  margin: 24px auto 0;
-  aspect-ratio: 512 / 820;
+  width: 64.1%;
+  max-width: 250px;
+  margin: 0 auto;
+  aspect-ratio: 250 / 400;
 }
 
 .skm-putra__photo {
   position: absolute;
-  inset: 8% 12% 10% 12%;
+  left: 21.2%;
+  top: 24%;
+  width: 59.2%;
+  height: 60.75%;
   overflow: hidden;
   background: #3f121b;
 }
@@ -263,21 +276,23 @@ body.skm-locked { overflow: hidden; }
   pointer-events: none;
 }
 
+/* tanjak sits top-RIGHT of the frame (x=210 of 390), rotated 7deg */
 .skm-putra__tanjak {
   position: absolute;
-  top: -6%;
-  left: 50%;
-  width: 30%;
-  transform: translateX(-50%);
+  top: -15%;
+  left: 56%;
+  width: 60.8%;
+  transform: rotate(7deg);
   pointer-events: none;
 }
 
+/* melur bottom-left of the group (x=26, y=370 of a 488 group) */
 .skm-putra__melur {
   position: absolute;
-  left: -10%;
-  bottom: 4%;
-  width: 26%;
-  transform: rotate(-8deg);
+  left: -17.6%;
+  bottom: 3%;
+  width: 44.8%;
+  transform: rotate(-14deg);
   pointer-events: none;
 }
 
@@ -405,23 +420,34 @@ body.skm-locked { overflow: hidden; }
 
 .skm-acara { background: var(--skm-bg); }
 
+/* Reference: a tall arch (228x296 at 81,18) inside an outlined arc (246x314). */
 .skm-acara__venue {
   position: relative;
-  width: min(300px, 78vw);
-  margin: 24px auto 0;
-  aspect-ratio: 4 / 3;
+  width: 58.5%;
+  max-width: 228px;
+  margin: 26px auto 0;
+  aspect-ratio: 228 / 296;
 }
-.skm-acara__venue img {
+.skm-acara__venue::before {
+  content: "";
+  position: absolute;
+  inset: -3.5% -7.9%;
+  border: 1px solid rgba(201, 164, 92, 0.42);
+  border-radius: 50% 50% 4px 4px / 38% 38% 4px 4px;
+  pointer-events: none;
+}
+.skm-acara__venue img:first-child {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border: 1px solid rgba(201, 164, 92, 0.4);
+  border-radius: 50% 50% 4px 4px / 38% 38% 4px 4px;
 }
 .skm-acara__tepak {
   position: absolute;
-  right: -14%;
-  bottom: -12%;
-  width: 42%;
+  right: -52%;
+  bottom: -4%;
+  width: 59.6%;
+  transform: rotate(-4deg);
   pointer-events: none;
 }
 
@@ -518,9 +544,11 @@ body.skm-locked { overflow: hidden; }
 
 .skm-gift__orn {
   display: block;
-  width: min(230px, 60vw);
-  margin: 6px auto 0;
-  opacity: 0.9;
+  width: 54.9%;
+  max-width: 214px;
+  margin: 8px auto 0;
+  transform: rotate(-6deg);
+  opacity: 0.95;
 }
 
 .skm-gift__card {
@@ -668,13 +696,27 @@ body.skm-locked { overflow: hidden; }
   padding-bottom: 72px;
 }
 
+/* Reference: photo 244x318 inside an outlined frame (276x350) with a melur. */
 .skm-penutup__photo {
   position: relative;
-  width: min(260px, 70vw);
-  margin: 6px auto 0;
-  aspect-ratio: 4 / 5;
-  padding: 6px;
-  border: 1px solid rgba(201, 164, 92, 0.5);
+  width: 62.6%;
+  max-width: 244px;
+  margin: 8px auto 0;
+  aspect-ratio: 244 / 318;
+}
+.skm-penutup__photo::before {
+  content: "";
+  position: absolute;
+  inset: -5.5% -7.6%;
+  border: 1px solid rgba(201, 164, 92, 0.45);
+  pointer-events: none;
+}
+.skm-penutup__photo::after {
+  content: "";
+  position: absolute;
+  inset: -3.3% -4.9%;
+  border: 1px solid rgba(201, 164, 92, 0.22);
+  pointer-events: none;
 }
 .skm-penutup__photo img {
   width: 100%;
@@ -683,10 +725,10 @@ body.skm-locked { overflow: hidden; }
 }
 .skm-penutup__melur {
   position: absolute;
-  right: -8%;
-  top: -8%;
-  width: 34%;
-  transform: rotate(14deg);
+  right: -26%;
+  bottom: -14%;
+  width: 47.5%;
+  transform: rotate(18deg);
 }
 
 .skm-penutup__thanks {
@@ -798,3 +840,22 @@ body.skm-locked { overflow: hidden; }
   .skm-galeri__grid { grid-template-columns: repeat(3, 1fr); }
   .skm-galeri__grid figure:first-child { grid-column: span 1; aspect-ratio: 4 / 5; }
 }
+
+
+/* "Tepi pucuk rebung": the 40px woven edge the reference puts on the top and
+   bottom of its canvases. Drawn as a gradient band (the source is styled text,
+   not an image asset). */
+.skm-edge {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  pointer-events: none;
+  z-index: 4;
+  background-image:
+    repeating-linear-gradient(135deg, rgba(201, 164, 92, 0.5) 0 1.5px, transparent 1.5px 7px),
+    repeating-linear-gradient(45deg, rgba(201, 164, 92, 0.28) 0 1.5px, transparent 1.5px 9px);
+  opacity: 0.55;
+}
+.skm-edge--top { top: 0; mask-image: linear-gradient(180deg, #000 10%, transparent 92%); -webkit-mask-image: linear-gradient(180deg, #000 10%, transparent 92%); }
+.skm-edge--bottom { bottom: 0; mask-image: linear-gradient(0deg, #000 10%, transparent 92%); -webkit-mask-image: linear-gradient(0deg, #000 10%, transparent 92%); }

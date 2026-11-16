@@ -58,7 +58,7 @@ export default function TemplateCarousel({ items }: { items: CarouselTemplate[] 
         {items.map((t, i) => (
           <article
             key={t.code}
-            className={`w-[74%] shrink-0 snap-center overflow-hidden rounded-2xl border bg-white transition-all duration-500 sm:w-[46%] lg:w-[30%] ${
+            className={`w-[43%] shrink-0 snap-center overflow-hidden rounded-2xl border bg-white transition-all duration-500 sm:w-[30%] md:w-[24%] lg:w-[18.5%] ${
               i === active ? "border-[#B08A4A]/60 shadow-[0_18px_50px_-24px_rgba(44,42,41,0.45)]" : "border-[#EFE9DD]"
             }`}
           >
@@ -72,22 +72,22 @@ export default function TemplateCarousel({ items }: { items: CarouselTemplate[] 
                 />
               )}
             </div>
-            <div className="p-4">
-              <h3 className="font-headline-sm text-[15px] leading-tight text-[#1A1817]">{t.name}</h3>
+            <div className="p-3 sm:p-4">
+              <h3 className="font-headline-sm text-[13px] leading-tight text-[#1A1817] sm:text-[15px]">{t.name}</h3>
               {t.description && (
-                <p className="mt-1.5 line-clamp-2 text-[11.5px] leading-relaxed text-[#6E6A63]">{t.description}</p>
+                <p className="mt-1 hidden line-clamp-2 text-[11.5px] leading-relaxed text-[#6E6A63] sm:mt-1.5 sm:block">{t.description}</p>
               )}
-              <div className="mt-3 flex items-center gap-3">
+              <div className="mt-2.5 flex flex-wrap items-center gap-2 sm:mt-3 sm:gap-3">
                 <Link
                   href={`/daftar?template=${encodeURIComponent(t.code)}`}
-                  className="rounded-full bg-[#8D4D39] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white transition-colors hover:bg-[#7A4130]"
+                  className="rounded-full bg-[#8D4D39] px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#7A4130] sm:px-4 sm:py-2 sm:text-[10px] sm:tracking-[0.16em]"
                 >
                   Pakai desain
                 </Link>
                 {t.demo_url && (
                   <a
                     href={t.demo_url}
-                    className="text-[10px] uppercase tracking-[0.16em] text-[#8D4D39] underline-offset-4 hover:underline"
+                    className="text-[9px] uppercase tracking-[0.14em] text-[#8D4D39] underline-offset-4 hover:underline sm:text-[10px] sm:tracking-[0.16em]"
                   >
                     Pratinjau
                   </a>

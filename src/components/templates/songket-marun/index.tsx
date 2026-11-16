@@ -192,8 +192,9 @@ export default function SongketMarun(profile: TemplateProps) {
         <section className="skm-cover" aria-label={coverKicker}>
           <img className="skm-cover__photo" src={cover} alt="" aria-hidden="true" draggable={false} />
           <div className="skm-cover__veil" />
-          <img className="skm-cover__melur skm-cover__melur--l" src={ART("melur")} alt="" aria-hidden="true" />
-          <img className="skm-cover__melur skm-cover__melur--r" src={ART("melur")} alt="" aria-hidden="true" />
+          <span className="skm-edge skm-edge--top" aria-hidden="true" />
+          <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
+          <img className="skm-cover__melur" src={ART("melur")} alt="" aria-hidden="true" />
 
           <div className="skm-cover__inner">
             <p className="skm-kicker skm-cover__kicker">{coverKicker}</p>
@@ -224,6 +225,8 @@ export default function SongketMarun(profile: TemplateProps) {
 
           {/* Putra Kami */}
           <section className="skm-section skm-putra" data-skm-reveal>
+            <span className="skm-edge skm-edge--top" aria-hidden="true" />
+            <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
             <p className="skm-kicker skm-section__kicker">{labels.subjectPossessive}</p>
             <h2 className="skm-section__title">{labels.subjectLabel}</h2>
             <div className="skm-putra__stage">
@@ -260,6 +263,8 @@ export default function SongketMarun(profile: TemplateProps) {
 
           {/* Save the Date */}
           <section className="skm-section skm-date" data-skm-reveal>
+            <span className="skm-edge skm-edge--top" aria-hidden="true" />
+            <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
             <p className="skm-kicker skm-section__kicker">Save the Date</p>
             <h2 className="skm-section__title">Hari Bahagia</h2>
             <p className="skm-date__day">{dayNum}</p>
@@ -313,6 +318,8 @@ export default function SongketMarun(profile: TemplateProps) {
           {/* Galeri */}
           {gallery.length > 0 && (
             <section className="skm-section skm-galeri" data-skm-reveal>
+            <span className="skm-edge skm-edge--top" aria-hidden="true" />
+            <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
               <p className="skm-kicker skm-section__kicker">Galeri</p>
               <h2 className="skm-section__title">{galleryTitle}</h2>
               <p className="skm-section__lead">{galleryLead}</p>
@@ -329,6 +336,8 @@ export default function SongketMarun(profile: TemplateProps) {
           {/* Tanda Kasih */}
           {hasGift && (
             <section className="skm-section skm-gift" data-skm-reveal>
+            <span className="skm-edge skm-edge--top" aria-hidden="true" />
+            <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
               <img className="skm-gift__orn" src={ART("songket-terlipat")} alt="" aria-hidden="true" loading="lazy" />
               <p className="skm-kicker skm-section__kicker">{giftTitle}</p>
               <h2 className="skm-section__title">Tanda Kasih</h2>
@@ -412,6 +421,8 @@ export default function SongketMarun(profile: TemplateProps) {
 
           {/* Penutup */}
           <section className="skm-section skm-penutup" data-skm-reveal>
+            <span className="skm-edge skm-edge--top" aria-hidden="true" />
+            <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
             <div className="skm-penutup__photo">
               <img src={closingPhoto} alt="" loading="lazy" draggable={false} />
               <img className="skm-penutup__melur" src={ART("melur")} alt="" aria-hidden="true" loading="lazy" />
