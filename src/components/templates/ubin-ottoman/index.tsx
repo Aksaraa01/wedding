@@ -27,6 +27,42 @@ function delay(seconds: number): CSSProperties {
   return { animationDelay: `${seconds}s` }
 }
 
+/**
+ * The reference renderer fits a person's name (cover, "Sang Buah Hati", guest,
+ * closing) onto one line by shrinking the font size — its payload ships 28px but
+ * the rendered node is 19.04px for a 25-character name. Reproduce that instead
+ * of letting a long name spill over the arch or the music button.
+ */
+function useFitOneLine<T extends HTMLElement>(text: string, maxScale = 0.5) {
+  const cleanup = useRef<(() => void) | null>(null)
+  return useCallback(
+    (el: T | null) => {
+      cleanup.current?.()
+      cleanup.current = null
+      if (!el) return
+      const fit = () => {
+        el.style.removeProperty("font-size")
+        const box = el.clientWidth
+        if (!box) return
+        const cs = window.getComputedStyle(el)
+        const ctx = document.createElement("canvas").getContext("2d")
+        if (!ctx) return
+        ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`
+        const width = ctx.measureText(text).width
+        if (width <= box) return
+        const base = parseFloat(cs.fontSize)
+        const next = Math.max(base * maxScale, (base * box) / width)
+        el.style.fontSize = `${next.toFixed(2)}px`
+      }
+      fit()
+      if (document.fonts) void document.fonts.ready.then(fit).catch(() => {})
+      window.addEventListener("resize", fit)
+      cleanup.current = () => window.removeEventListener("resize", fit)
+    },
+    [text, maxScale]
+  )
+}
+
 export default function UbinOttoman(profile: TemplateProps) {
   const rootRef = useRef<HTMLDivElement | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -146,6 +182,11 @@ export default function UbinOttoman(profile: TemplateProps) {
   const [wishName, setWishName] = useState(nameState.value)
   const [wishNameLocked] = useState(nameState.locked)
 
+  const coverNameRef = useFitOneLine<HTMLHeadingElement>(childName)
+  const guestRef = useFitOneLine<HTMLParagraphElement>(guestName)
+  const putraNameRef = useFitOneLine<HTMLParagraphElement>(childFull)
+  const closingNameRef = useFitOneLine<HTMLParagraphElement>(childName)
+
   const wishPages = Math.max(1, Math.ceil(wishes.wishes.length / WISH_PAGE))
   const visibleWishes = wishes.wishes.slice(wishPage * WISH_PAGE, wishPage * WISH_PAGE + WISH_PAGE)
 
@@ -249,7 +290,7 @@ export default function UbinOttoman(profile: TemplateProps) {
           <img className="uo-cover__lantern uo-cover__lantern--right" src={ART("lantern")} alt="" aria-hidden="true" draggable={false} />
 
           <p className="uo-cover__kicker">{coverKicker}</p>
-          <h1 className="uo-cover__name">{childName}</h1>
+          <h1 ref={coverNameRef} className="uo-cover__name">{childName}</h1>
 
           <div className="uo-cover__arch">
             <img src={cover} alt={childFull} draggable={false} />
@@ -260,7 +301,7 @@ export default function UbinOttoman(profile: TemplateProps) {
           {validDate && <p className="uo-cover__date">{formatLongDate(eventDate)}</p>}
           <p className="uo-cover__guest-label">{coverGuestLabel}</p>
           <div className="uo-cover__foot">
-            <p className="uo-cover__guest">{guestName}</p>
+            <p ref={guestRef} className="uo-cover__guest">{guestName}</p>
             <button type="button" className="uo-open" onClick={openInvitation}>
               <span className="material-symbols-outlined" style={{ fontSize: 17 }}>mail</span>
               {openLabel}
@@ -300,7 +341,7 @@ export default function UbinOttoman(profile: TemplateProps) {
               </div>
             </div>
 
-            <p className="uo-putra__name" data-uo-reveal style={delay(0.04)}>{childFull}</p>
+            <p ref={putraNameRef} className="uo-putra__name" data-uo-reveal style={delay(0.04)}>{childFull}</p>
             {parents && (
               <p className="uo-putra__parents" data-uo-reveal style={delay(0.06)}>
                 <span className="uo-putra__of">{parentsLabel}</span> {parents}
@@ -596,7 +637,7 @@ export default function UbinOttoman(profile: TemplateProps) {
             <img className="uo-closing__lantern uo-closing__lantern--b" src={ART("lantern")} alt="" aria-hidden="true" />
 
             <p className="uo-kicker uo-kicker--center uo-kicker--cream uo-closing__kicker" data-uo-reveal>{closingKicker}</p>
-            <p className="uo-closing__name" data-uo-reveal style={delay(0.04)}>{childName}</p>
+            <p ref={closingNameRef} className="uo-closing__name" data-uo-reveal style={delay(0.04)}>{childName}</p>
             <p className="uo-closing__text" data-uo-reveal style={delay(0.06)}>{closingText}</p>
             <p className="uo-closing__salam" data-uo-reveal style={delay(0.08)}>{closingSalam}</p>
             {parents && (

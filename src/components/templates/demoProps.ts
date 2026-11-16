@@ -2850,24 +2850,6 @@ const DEMO_SKM = {
   closing: "/templates/songket-marun/demo/closing.jpg",
 }
 
-// Lentera Zamrud demo: same kids content, its own reference photos.
-DEMO_PROPS_BY_CODE["lentera-zamrud"] = {
-  ...DEMO_PROPS_BY_CODE["songket-marun"],
-  cover_photos: [
-    "/templates/lentera-zamrud/demo/putra.jpg",
-    "/templates/songket-marun/demo/venue.jpg",
-    "/templates/lentera-zamrud/demo/penutup.jpg",
-  ],
-  couple_illustration_url: "/templates/lentera-zamrud/demo/putra.jpg",
-  groom_photo_url: ["/templates/lentera-zamrud/demo/putra.jpg"],
-  gallery_photos: [
-    "/templates/lentera-zamrud/demo/putra.jpg",
-    "/templates/lentera-zamrud/demo/penutup.jpg",
-    "/templates/songket-marun/demo/venue.jpg",
-    "/templates/songket-marun/demo/closing.jpg",
-  ],
-}
-
 // Ceriavite (kids) demo. One name, one parent line, "Walimatul Khitan" copy —
 // the same props the `?event=` registration flow writes for a khitanan profile.
 // Sample names/photos are Aksaraa's own; never the reference couple's.
@@ -3015,4 +2997,25 @@ DEMO_PROPS_BY_CODE["ubin-ottoman"] = {
     closing_message:
       "Merupakan kehormatan dan kebahagiaan bagi kami atas kehadiran serta doa restu Bapak/Ibu/Saudara.",
   },
+}
+
+// Lentera Zamrud demo: same kids content, its own reference photos.
+DEMO_PROPS_BY_CODE["lentera-zamrud"] = {
+  ...DEMO_PROPS_BY_CODE["songket-marun"],
+  event_type: "khitanan",
+  subject_gender: "putra",
+  event_labels: eventLabels("khitanan", "putra"),
+  cover_photos: [
+    "/templates/lentera-zamrud/demo/putra.jpg",
+    "/templates/songket-marun/demo/venue.jpg",
+    "/templates/lentera-zamrud/demo/penutup.jpg",
+  ],
+  couple_illustration_url: "/templates/lentera-zamrud/demo/putra.jpg",
+  groom_photo_url: ["/templates/lentera-zamrud/demo/putra.jpg"],
+  gallery_photos: [
+    "/templates/lentera-zamrud/demo/putra.jpg",
+    "/templates/lentera-zamrud/demo/penutup.jpg",
+    "/templates/songket-marun/demo/venue.jpg",
+    "/templates/songket-marun/demo/closing.jpg",
+  ],
 }
