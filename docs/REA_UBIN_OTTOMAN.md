@@ -36,7 +36,7 @@ button and the RSVP dock.
 | 2 | Pembuka | `Pembuka` (navy) | star tile, basmalah, salam, opening text |
 | 3 | Putra/Putri Kami | `Putra Kami` (cream) | pillar-framed arch, name, "putra dari", diamond divider, Instagram, quote |
 | 4 | Hari Acara (countdown) | `Hari Acara` (navy) | hanging lanterns, kicker, title, `14 / MARET / 2027`, weekday, 4 countdown boxes |
-| 5 | Susunan Acara | `Susunan Acara` (cream) | one ruled card per `sessions[]` item |
+| 5 | Susunan Acara | `Susunan Acara` (cream) | one ruled card per `rundown[]` item, `sessions[]` fallback |
 | 6 | Lokasi Acara | `Tempat` (cream) | arch venue photo, place, address, "Lihat Lokasi" pill |
 | 7 | Galeri | `Galeri` (cream) | 2-column arch grid, even tiles offset |
 | 8 | Doa & Ucapan | `Ucapan` (cream) | form + approved feed, 10 per page |
@@ -55,7 +55,7 @@ Reference `RSVP` canvas is **dropped on purpose**: RSVP is the shared
 | 2 | Pembuka | `opening_description` (+ `quote_text` not used here) | `sections.opening_description` | empty ⇒ default paragraph | `opening_salam`, `opening_description` | fadeUp 0 / 0.04 / 0.06 / 0.08 |
 | 3 | Putra | `groom_full_name`, `groom_photo_url`, `groom_parents`, `groom_instagram`, `quote_text`/`quote_source` | `person_photos !== false` (photo); parents/IG/quote render only when present | 0 photo ⇒ empty arch frame; 1 parent line; quote optional | `mempelai_title`, `labels.subjectPossessive`, `parents_label` | fadeUp 0 / 0.06 / 0.04 / 0.06 / 0.07 / 0.08 |
 | 4 | Countdown | `estimated_wedding_date` | `sections.countdown` + date present | 1 event or 0 events ⇒ still one date block; no date ⇒ whole section hidden | `events_kicker`, `events_title` | fadeUp, ticks every second |
-| 5 | Susunan Acara | `sessions[]` (`time`, `name`, `address`/`venue`) | `sessions.length > 0` | 1 event ⇒ one card, no stretch; many ⇒ cards stack | `agenda_kicker`, `agenda_title`, `labels.mainEventName` | fadeUp 0.06 + 0.02 per card |
+| 5 | Susunan Acara | `rundown[]` (`time`, `description`) — else `sessions[]` (`time`, `name`, `address`/`venue`) | `agenda.length > 0`; `rundown_visible !== false` for the rundown source | 1 row ⇒ one card, no stretch; many ⇒ stack | `agenda_kicker`, `agenda_title`, `labels.mainEventName` | fadeUp 0.06 + 0.02 per card |
 | 6 | Lokasi | `sessions[0].venue/address`, first `maps_url`, `cover_photos[1]` | `sessions.length > 0` | no venue photo ⇒ text-only block; no maps ⇒ no pill | `venue_kicker`, `venue_title`, `maps_label` | fadeUp 0.04 / 0.06 / 0.08 / 0.1 |
 | 7 | Galeri | `gallery_photos[]` (max 8) | `sections.gallery` + data | 1 photo ⇒ single centred arch (`is-single`); even tiles `translateY(18px)` | `gallery_kicker`, `gallery_title` | fadeUp 0.06 |
 | 8 | Doa & Ucapan | `/api/wishes` (approved) + `useWishes` | always | 0 wishes ⇒ empty state; pagination only when > 10 | `wishes_*` fields | fadeUp 0.1 |
@@ -81,18 +81,24 @@ Reference `RSVP` canvas is **dropped on purpose**: RSVP is the shared
    separators.
 4. **Tanda Kasih gains an address card.** The reference demo ships accounts only;
    the contract requires `gift_address` when the package allows it.
-5. **Wishes gains a form.** The reference demo only renders the platform wish
+5. **Susunan Acara is wired to the editor's Rundown block.** The reference's
+   schedule is a programme (`time` + line), which is `wedding_profiles.rundown`,
+   so `sections.rundown` is **true** for this template and the block is editable
+   from both the editor and ops. A couple who only fills "Acara" still gets one
+   card per session (name/time/venue), so the section is never empty for lack of
+   a second data entry; `rundown_visible === false` hides it.
+6. **Wishes gains a form.** The reference demo only renders the platform wish
    widget (empty in the capture). The form uses the same section header, a
    white `border-radius 20` card and the navy pill button, so it reads as the
    designer's own block.
-6. **Gallery keeps the reference's `3 / 4` arch crop.** The playbook's "never
+7. **Gallery keeps the reference's `3 / 4` arch crop.** The playbook's "never
    crop" rule is about templates whose gallery is unframed (Songket). Here the
    arch frame *is* the design; there is no lightbox in the reference either.
-7. **Desktop column is capped at 430 px** (the reference fixes its canvas at
+8. **Desktop column is capped at 430 px** (the reference fixes its canvas at
    390 px). Below 430 px everything scales proportionally with `--u`, so phone
    rendering is exact; the 430 cap only affects tablets/desktop, where the
    reference shows a cream-surrounded column as well.
-8. **Names shrink to one line** like the reference renderer does: its payload
+9. **Names shrink to one line** like the reference renderer does: its payload
    ships 28 px but renders `19.04px` for a 25-character name. `useFitOneLine`
    (DOM probe measurement, re-run after `document.fonts.ready`) reproduces it,
    so a long `groom_full_name` can never spill over the arch or the music button.
