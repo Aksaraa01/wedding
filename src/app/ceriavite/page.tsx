@@ -32,7 +32,9 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 }
 
-export const revalidate = 3600
+// Short window while the catalogue is being filled; the page only renders
+// template rows, so a slow revalidate buys nothing and makes edits look stale.
+export const revalidate = 60
 
 type KidsTemplate = {
   id: string
