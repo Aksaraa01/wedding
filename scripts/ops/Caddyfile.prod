@@ -1,3 +1,15 @@
+# Cloudflare terminates TLS for the proxied hosts, so Caddy must trust only
+# Cloudflare's ranges when it derives the client IP. `trusted_proxies_strict`
+# walks X-Forwarded-For from the right and stops at the first untrusted hop, so a
+# spoofed header from a direct request (couple subdomains are DNS-only) is
+# ignored and X-Real-IP below is always the real client.
+{
+	servers {
+		trusted_proxies static 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22 2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32
+		trusted_proxies_strict
+	}
+}
+
 # NOTE: /usr/bin/caddy is a custom xcaddy build
 # (official deb ships no dns.providers modules). It carries a patch so the
 # Hostinger DNS provider sends a TTL >= 60s for ACME challenge records, and the
@@ -8,7 +20,9 @@ aksaraa.com, www.aksaraa.com {
 	@root path /
 	rewrite @root /landing
 
-	reverse_proxy 127.0.0.1:3002
+	reverse_proxy 127.0.0.1:3002 {
+		header_up X-Real-IP {client_ip}
+	}
 
 	header / {
 		X-Content-Type-Options "nosniff"
@@ -19,7 +33,9 @@ aksaraa.com, www.aksaraa.com {
 }
 
 education.aksaraa.com {
-	reverse_proxy localhost:3000
+	reverse_proxy localhost:3000 {
+		header_up X-Real-IP {client_ip}
+	}
 
 	header / {
 		X-Content-Type-Options "nosniff"
@@ -41,15 +57,18 @@ wp.aksaraa.com {
 	try_files {path} {path}/ /index.php?{query}
 }
 
-# Ceriavite (kids: khitanan / aqiqah / ulang tahun). Marketing host only —
-# couple invitations stay on the apex wildcard below, so no wildcard cert and no
-# couple rewrite here. Without this explicit block the `*.aksaraa.com` catch-all
-# would treat "ceriavite" as a couple slug and 404 the landing page.
+# Ceriavite (kids: khitanan / aqiqah / ulang tahun). Marketing host only — the
+# guest invitations stay on the couple wildcard below (`{slug}.aksaraa.com`), so
+# there is no wildcard certificate and no couple rewrite here. Without this
+# explicit block the `*.aksaraa.com` catch-all would treat "ceriavite" as a
+# couple slug and 404 the landing page.
 ceriavite.aksaraa.com {
 	@root path /
 	rewrite @root /ceriavite
 
-	reverse_proxy 127.0.0.1:3002
+	reverse_proxy 127.0.0.1:3002 {
+		header_up X-Real-IP {client_ip}
+	}
 
 	encode gzip
 }
@@ -79,7 +98,9 @@ ceriavite.aksaraa.com {
 		redir /images/* https://cdn.aksaraa.com{uri} 302
 	}
 
-	reverse_proxy 127.0.0.1:3002
+	reverse_proxy 127.0.0.1:3002 {
+		header_up X-Real-IP {client_ip}
+	}
 }
 wedding.aksaraa.com, *.wedding.aksaraa.com {
 	tls {
@@ -105,14 +126,18 @@ wedding.aksaraa.com, *.wedding.aksaraa.com {
 		redir /images/* https://cdn.aksaraa.com{uri} 302
 	}
 
-	reverse_proxy 127.0.0.1:3002
+	reverse_proxy 127.0.0.1:3002 {
+		header_up X-Real-IP {client_ip}
+	}
 }
 
 stg.education.aksaraa.com {
 	basic_auth {
 		aksaraa $2a$14$Pn3LOv9m1brHUI6t1DhP1ODuC1fgH8fXqOs3l26aQ/AONBqEV5tY.
 	}
-	reverse_proxy 127.0.0.1:3100
+	reverse_proxy 127.0.0.1:3100 {
+		header_up X-Real-IP {client_ip}
+	}
 }
 
 # Old staging hostname: permanent redirect to the canonical one.
