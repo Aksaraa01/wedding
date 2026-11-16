@@ -1828,7 +1828,10 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         gift: true,
         dresscode: false,
         livestream: false,
-        rundown: false,
+        // The reference's "Susunan Acara" IS a rundown: the block prefers
+        // profile.rundown (time + description) and falls back to one card per
+        // Acara session, so the editor/ops Rundown block is offered here.
+        rundown: true,
         contacts: false,
       },
       extras: true,

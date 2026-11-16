@@ -321,11 +321,14 @@ body:has(.uo-root.is-locked) { overflow: hidden; }
 .uo-open:active { transform: scale(0.98); }
 .uo-open .material-symbols-outlined { font-size: calc(17 * var(--u)); line-height: 1; }
 
-.uo-cover__band {
+.uo-root .uo-cover__band {
   position: absolute;
   left: calc(-40 * var(--u));
   bottom: calc(-76 * var(--u));
   width: calc(470 * var(--u));
+  /* the global `.uo-root img { max-width: 100% }` would clamp this to the
+     column and leave a hard vertical cut on the right edge */
+  max-width: none;
   height: auto;
   z-index: 4;
   pointer-events: none;
@@ -1078,7 +1081,7 @@ body:has(.uo-root.is-locked) { overflow: hidden; }
   opacity: 0.78;
 }
 
-.uo-closing__band {
+.uo-root .uo-closing__band {
   width: calc(470 * var(--u));
   max-width: none;
   margin: calc(30 * var(--u)) auto calc(-40 * var(--u));

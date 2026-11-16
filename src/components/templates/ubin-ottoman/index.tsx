@@ -136,6 +136,28 @@ export default function UbinOttoman(profile: TemplateProps) {
     [profile.gallery_photos]
   )
 
+  // "Susunan Acara" is the reference's rundown. A couple who fills the editor's
+  // Rundown block gets those rows; everybody else sees one card per Acara
+  // session (name/time/venue), so the section is never empty for lack of a
+  // second data entry. rundown_visible === false hides the block outright.
+  const rundown = useMemo(
+    () => (Array.isArray(profile.rundown) ? profile.rundown.filter((r) => r && (r.time || r.description)) : []),
+    [profile.rundown]
+  )
+  const agenda = useMemo(() => {
+    if (rundown.length > 0) {
+      if (profile.rundown_visible === false) return []
+      return rundown.map((r) => ({ time: r.time || "", name: r.description || "", meta: "" }))
+    }
+    return events.map((session) => ({
+      time: session.time || "",
+      name: session.name || labels.mainEventName,
+      meta: [session.date && session.date !== eventDate ? formatLongDate(session.date) : "", session.address || session.venue || ""]
+        .filter(Boolean)
+        .join(" · "),
+    }))
+  }, [rundown, events, eventDate, labels.mainEventName, profile.rundown_visible])
+
   const accounts = profile.gift_section_visible !== false ? (profile.gift_accounts || []).filter(Boolean) : []
   const giftAddress =
     profile.gift_section_visible !== false && gates.gift_address !== false ? (profile.gift_address || "").trim() : ""
@@ -300,7 +322,7 @@ export default function UbinOttoman(profile: TemplateProps) {
     )
     targets.forEach((el) => io.observe(el))
     return () => io.disconnect()
-  }, [opened, gallery.length, accounts.length, wishes.wishes.length, honored.length, events.length])
+  }, [opened, gallery.length, accounts.length, wishes.wishes.length, honored.length, agenda.length])
 
   return (
     <div ref={rootRef} className={`uo-root${opened ? " is-open" : " is-locked"}`}>
@@ -436,7 +458,7 @@ export default function UbinOttoman(profile: TemplateProps) {
           )}
 
           {/* Susunan Acara */}
-          {events.length > 0 && (
+          {agenda.length > 0 && (
             <section className="uo-section uo-section--cream uo-agenda">
               <p className="uo-kicker uo-kicker--center" data-uo-reveal>{agendaKicker}</p>
               <div className="uo-title-row" data-uo-reveal style={delay(0.06)}>
@@ -446,21 +468,13 @@ export default function UbinOttoman(profile: TemplateProps) {
               </div>
 
               <div className="uo-agenda__list">
-                {events.map((session, i) => {
-                  const meta = [
-                    session.date && session.date !== eventDate ? formatLongDate(session.date) : "",
-                    session.address || session.venue || "",
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")
-                  return (
-                    <article className="uo-agenda__card" key={`${session.name || "acara"}-${i}`} data-uo-reveal style={delay(0.06 + i * 0.02)}>
-                      {session.time && <p className="uo-agenda__time">{session.time}</p>}
-                      <h3 className="uo-agenda__name">{session.name || labels.mainEventName}</h3>
-                      {meta && <p className="uo-agenda__meta">{meta}</p>}
-                    </article>
-                  )
-                })}
+                {agenda.map((row, i) => (
+                  <article className="uo-agenda__card" key={`${row.name || "acara"}-${i}`} data-uo-reveal style={delay(0.06 + i * 0.02)}>
+                    {row.time && <p className="uo-agenda__time">{row.time}</p>}
+                    <h3 className="uo-agenda__name">{row.name}</h3>
+                    {row.meta && <p className="uo-agenda__meta">{row.meta}</p>}
+                  </article>
+                ))}
               </div>
             </section>
           )}
