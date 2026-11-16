@@ -36,7 +36,6 @@ Kami yang berbahagia,
 
 export const MSG_VARS: { tag: string; label: string }[] = [
   { tag: "{Nama Tamu}", label: "Nama Tamu" },
-  { tag: "{Nama Pasangan}", label: "Nama Pasangan" },
   { tag: "{Tautan Undangan}", label: "Tautan Undangan" },
 ]
 

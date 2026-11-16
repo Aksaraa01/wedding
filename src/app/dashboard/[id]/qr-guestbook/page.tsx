@@ -33,6 +33,7 @@ type Guest = {
 
 type Profile = {
   event_type?: string | null
+  groom_parents?: string | null
   payment_status: "UNPAID" | "PARTIAL_DP" | "FULLY_PAID"
   is_published: boolean
   package_type?: string | null
@@ -418,7 +419,11 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       : ""
   }
 
-  const coupleName = profile ? resolveCoupleName(profile) : ""
+  const coupleName = profile
+    ? isKidsEvent(profile.event_type)
+      ? ((profile.groom_parents || "").trim() || (profile.groom_full_name || "").trim() || resolveCoupleName(profile))
+      : resolveCoupleName(profile)
+    : ""
 
   const genericUndanganUrl = profile
     ? coupleUrl(profile.slug, `/?to=${encodeURIComponent(FALLBACK_GUEST_SLUG)}`)
