@@ -867,7 +867,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
                 </div>
 
                 <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
-                  {MSG_VARS.map((v) => (
+                  {MSG_VARS.filter((v) => !(isKidsEvent(profile?.event_type) && v.tag === "{Nama Pasangan}")).map((v) => (
                     <button
                       key={v.tag}
                       type="button"
