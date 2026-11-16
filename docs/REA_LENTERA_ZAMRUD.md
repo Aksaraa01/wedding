@@ -115,8 +115,9 @@ the ones with count branches; all were exercised at 1 and many.
     `width: min(52.4%, max(72px, calc((68.6svh - 255px) * 183 / 301)))`, where
     255 px is every fixed block below the photo plus the CTA and a 14 px air
     gap (206 px when the guest name is absent). Long guest names still shrink to
-    one line. At 390 × 667 the photo is 153 px wide and the guest name ends
-    20 px above the CTA; at 390 × 844 nothing moves.
+    one line. At 390 × 667 the photo is 123 px wide (153 px with no guest
+    block) and the guest name ends 20 px above the CTA; at 390 × 844 nothing
+    moves.
 
 ## Verification
 
