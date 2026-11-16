@@ -1150,18 +1150,41 @@ body.skm-locked { overflow: hidden; }
   bottom: -6%;
 }
 
-/* 7) Footer as a brand link. */
-.skm-footer {
+/* Footer: the Aksaraa brand badge, identical to the Sandhya in-house footer. */
+.skm-footer__link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 26px 20px 34px;
+  text-decoration: none;
+}
+.skm-footer__badge {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 22px 20px 28px;
-  text-decoration: none;
-  font-family: var(--skm-ui);
-  font-size: 9px;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: rgba(224, 205, 182, 0.55);
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  transition: transform 0.3s ease;
 }
-.skm-footer__logo { width: 16px; height: 16px; opacity: 0.8; }
+.skm-footer__link:hover .skm-footer__badge { transform: scale(1.05); }
+.skm-footer__badge .skm-footer__logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 999px;
+}
+.skm-footer__cta {
+  font-family: var(--skm-ui);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  text-transform: uppercase;
+  color: rgba(224, 205, 182, 0.6);
+  transition: color 0.3s ease;
+}
+.skm-footer__link:hover .skm-footer__cta { color: rgba(239, 223, 187, 0.95); }

@@ -503,14 +503,22 @@ export default function SongketMarun(profile: TemplateProps) {
             {parents && <p className="skm-penutup__names" style={{ fontSize: 15 }}>{parents}</p>}
           </section>
 
+          {/* Brand badge, same component as the Sandhya in-house template. */}
           <a
-            className="skm-footer"
+            className="skm-footer__link"
             href="https://wa.me/6281161613071"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <img className="skm-footer__logo" src="/icon.svg" alt="" aria-hidden="true" />
-            <span>Aksaraa Wedding</span>
+            <span className="skm-footer__badge">
+              <img
+                className="skm-footer__logo"
+                src={ASSETS.galeriEnvelope.aksaraaLogo}
+                alt="Aksaraa"
+                loading="lazy"
+              />
+            </span>
+            <span className="skm-footer__cta">Wedding by Aksaraa</span>
           </a>
         </main>
       )}
