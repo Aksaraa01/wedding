@@ -275,7 +275,7 @@ export default function SongketMarun(profile: TemplateProps) {
           <section className="skm-section skm-section--cream skm-doa" data-skm-reveal>
             <div className="skm-star" aria-hidden="true" />
             <img className="skm-doa__flower" src={ART("melur")} alt="" aria-hidden="true" />
-            <h2 className="skm-section__title">Doa untuk Ananda</h2>
+            <h2 className="skm-doa__title">Doa untuk Ananda</h2>
             <div className="skm-doa__card">
               <p className="skm-doa__arabic" lang="ar" dir="rtl">
                 {doaArabic}
@@ -289,21 +289,6 @@ export default function SongketMarun(profile: TemplateProps) {
           <section className="skm-section skm-section--dark skm-date" data-skm-reveal>
             <span className="skm-edge skm-edge--top" aria-hidden="true" />
             <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
-            <p className="skm-kicker skm-section__kicker">Save the Date</p>
-            <h2 className="skm-section__title">Hari Bahagia</h2>
-            <p className="skm-date__weekday">{weekday}</p>
-            <p className="skm-date__day">{dayNum}</p>
-            <p className="skm-date__rest">
-              {monthName} {yearNum}
-            </p>
-            {calendarUrl && (
-              <a className="skm-date__cta" href={calendarUrl} target="_blank" rel="noreferrer noopener">
-                <span className="material-symbols-outlined" style={{ fontSize: 15 }}>
-                  calendar_month
-                </span>
-                Simpan Tanggal
-              </a>
-            )}
             {target && (() => {
               const ms = now ? Math.max(0, target.getTime() - now) : 0
               const cells = [
@@ -323,6 +308,21 @@ export default function SongketMarun(profile: TemplateProps) {
                 </div>
               )
             })()}
+            <p className="skm-kicker skm-section__kicker">Save the Date</p>
+            <h2 className="skm-section__title">Hari Bahagia</h2>
+            <p className="skm-date__weekday">{weekday}</p>
+            <p className="skm-date__day">{dayNum}</p>
+            <p className="skm-date__rest">
+              {monthName} {yearNum}
+            </p>
+            {calendarUrl && (
+              <a className="skm-date__cta" href={calendarUrl} target="_blank" rel="noreferrer noopener">
+                <span className="material-symbols-outlined" style={{ fontSize: 15 }}>
+                  calendar_month
+                </span>
+                Simpan Tanggal
+              </a>
+            )}
           </section>
 
           {/* Acara */}
@@ -492,7 +492,7 @@ export default function SongketMarun(profile: TemplateProps) {
             <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
             <div className="skm-penutup__photo">
               <img src={closingPhoto} alt="" loading="lazy" draggable={false} />
-              <img className="skm-penutup__melur" src={ART("melur")} alt="" aria-hidden="true" loading="lazy" />
+
             </div>
             <h2 className="skm-penutup__thanks">Terima Kasih</h2>
             <p className="skm-penutup__text">{closingText}</p>
@@ -503,9 +503,15 @@ export default function SongketMarun(profile: TemplateProps) {
             {parents && <p className="skm-penutup__names" style={{ fontSize: 15 }}>{parents}</p>}
           </section>
 
-          <p className="skm-footer">
-            {labels.brand} · {labels.site.replace("https://", "")}
-          </p>
+          <a
+            className="skm-footer"
+            href="https://wa.me/6281161613071"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img className="skm-footer__logo" src="/icon.svg" alt="" aria-hidden="true" />
+            <span>Aksaraa Wedding</span>
+          </a>
         </main>
       )}
 

@@ -973,10 +973,7 @@ body.skm-locked { overflow: hidden; }
 }
 
 .skm-section--dark {
-  background-color: var(--skm-bg);
-  background-image:
-    repeating-linear-gradient(45deg, rgba(201, 164, 92, 0.1) 0 1px, transparent 1px 13px),
-    repeating-linear-gradient(-45deg, rgba(201, 164, 92, 0.07) 0 1px, transparent 1px 13px);
+  background: var(--skm-bg);
   color: var(--skm-text);
 }
 
@@ -1132,8 +1129,39 @@ body.skm-locked { overflow: hidden; }
 }
 
 /* Tanda Kasih: denser lattice than the other maroon sections. */
-.skm-gift {
-  background-image:
-    repeating-linear-gradient(45deg, rgba(201, 164, 92, 0.16) 0 1px, transparent 1px 9px),
-    repeating-linear-gradient(-45deg, rgba(201, 164, 92, 0.1) 0 1px, transparent 1px 9px);
+.skm-gift { background: var(--skm-bg); }
+
+
+/* Doa label exactly as the reference styles it: maroon on cream, letter-spaced. */
+.skm-doa__title {
+  margin: 6px 0 0;
+  text-align: center;
+  font-family: var(--skm-title);
+  font-size: 19px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--skm-bg);
 }
+
+/* 3) Tepak sirih: a small corner sprig beside the venue photo, not a hero prop. */
+.skm-acara__tepak {
+  width: 34%;
+  right: -26%;
+  bottom: -6%;
+}
+
+/* 7) Footer as a brand link. */
+.skm-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 22px 20px 28px;
+  text-decoration: none;
+  font-family: var(--skm-ui);
+  font-size: 9px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(224, 205, 182, 0.55);
+}
+.skm-footer__logo { width: 16px; height: 16px; opacity: 0.8; }

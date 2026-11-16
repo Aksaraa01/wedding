@@ -2906,7 +2906,7 @@ DEMO_PROPS_BY_CODE["songket-marun"] = {
   feature_gates: {
     story: false,
     gift_address: true,
-    inviting_families: false,
+    inviting_families: true,
     video: false,
     qr_code_book: false,
   },
