@@ -35,7 +35,7 @@ function reveal(delay = 0): CSSProperties {
  * (24px payload renders at 17.28px for a 25-character name). Reproduce that
  * instead of letting a long name spill over the arch or the screen edge.
  */
-function useFitOneLine<T extends HTMLElement>(text: string, maxScale = 0.5) {
+function useFitOneLine<T extends HTMLElement>(text: string, maxScale = 0.5, wrapAtFloor = false) {
   const cleanup = useRef<(() => void) | null>(null)
   return useCallback(
     (el: T | null) => {
@@ -44,37 +44,39 @@ function useFitOneLine<T extends HTMLElement>(text: string, maxScale = 0.5) {
       if (!el) return
       const fit = () => {
         el.style.removeProperty("font-size")
+        el.style.removeProperty("white-space")
         const cs = window.getComputedStyle(el)
-        const box = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
+        const padL = parseFloat(cs.paddingLeft) || 0
+        const padR = parseFloat(cs.paddingRight) || 0
+        const box = el.clientWidth - padL - padR
         if (!box) return
-        const probe = document.createElement("span")
-        probe.textContent = el.textContent || text
-        probe.style.cssText = [
-          "position:absolute",
-          "left:-9999px",
-          "top:0",
-          "visibility:hidden",
-          "white-space:nowrap",
-          `font-family:${cs.fontFamily}`,
-          `font-size:${cs.fontSize}`,
-          `font-weight:${cs.fontWeight}`,
-          `font-style:${cs.fontStyle}`,
-          `letter-spacing:${cs.letterSpacing}`,
-          `text-transform:${cs.textTransform}`,
-        ].join(";")
-        document.body.appendChild(probe)
-        const width = probe.getBoundingClientRect().width
-        probe.remove()
+        // Measure the element itself instead of a detached probe: a probe that
+        // renders with the fallback face underestimates the webfont width (it
+        // once came in 15% short) and the name then spilled past the plate.
+        const width = el.scrollWidth - padL - padR
         if (width <= box) return
         const base = parseFloat(cs.fontSize)
-        el.style.fontSize = `${Math.max(base * maxScale, (base * box) / width).toFixed(2)}px`
+        // letter-spacing (and text-indent) are fixed px, not em: they do not
+        // shrink with the font, so subtract them before scaling.
+        const fixed =
+          (parseFloat(cs.letterSpacing) || 0) * Math.max(0, (el.textContent || "").length - 1) +
+          (parseFloat(cs.textIndent) || 0)
+        const target = (base * Math.max(1, box - fixed)) / Math.max(1, width - fixed)
+        if (target < base * maxScale) {
+          // floor reached: keep the floor size and, where the block is in flow
+          // (the Putra name), let it wrap instead of spilling past the plate
+          el.style.fontSize = `${(base * maxScale).toFixed(2)}px`
+          if (wrapAtFloor) el.style.whiteSpace = "normal"
+        } else {
+          el.style.fontSize = `${target.toFixed(2)}px`
+        }
       }
       fit()
       if (document.fonts) void document.fonts.ready.then(fit).catch(() => {})
       window.addEventListener("resize", fit)
       cleanup.current = () => window.removeEventListener("resize", fit)
     },
-    [text, maxScale]
+    [text, maxScale, wrapAtFloor]
   )
 }
 
@@ -206,9 +208,9 @@ export default function LenteraZamrud(profile: TemplateProps) {
   const [wishName, setWishName] = useState(nameState.value)
   const [wishNameLocked] = useState(nameState.locked)
 
-  const coverNameRef = useFitOneLine<HTMLHeadingElement>(childName)
-  const guestRef = useFitOneLine<HTMLParagraphElement>(guestName)
-  const putraNameRef = useFitOneLine<HTMLParagraphElement>(childFull)
+  const coverNameRef = useFitOneLine<HTMLHeadingElement>(childName, 0.5, true)
+  const guestRef = useFitOneLine<HTMLParagraphElement>(guestName, 0.42)
+  const putraNameRef = useFitOneLine<HTMLParagraphElement>(childFull, 0.5, true)
 
   const wishPages = Math.max(1, Math.ceil(wishes.wishes.length / WISH_PAGE))
   const visibleWishes = wishes.wishes.slice(wishPage * WISH_PAGE, wishPage * WISH_PAGE + WISH_PAGE)

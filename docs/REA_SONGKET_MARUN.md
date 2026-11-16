@@ -94,6 +94,12 @@ RSVP is the shared `InvitationOverlay` dock (both `preview_mode` and
    button geometry.
 8. **Section reveals**: 56 targets, one observer; `prefers-reduced-motion` and
    `@media (scripting: none)` leave every target at `opacity: 1`.
+9. **A guest name longer than the one-line fit wraps to a second line** instead
+   of spilling past the plate (the earlier `nowrap` let a 40+ character name
+   reach the screen edge). The two-line block is capped at
+   `calc(78.67svh - 72.51svh)`, the exact gap between the name's top and the
+   CTA's top, so "Buka Undangan" can never be covered. The guest name is fitted
+   at a 0.5 floor (the helper default stays 0.55) so two lines clear the pill.
 
 ## Verification
 

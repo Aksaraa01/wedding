@@ -360,7 +360,16 @@ body:has(.skm-root.is-locked) { overflow: hidden; }
   font-size: 25px;
   line-height: 1.2;
   color: var(--skm-cream);
-  white-space: nowrap;
+  /* A name that cannot fit one line at the shrink floor wraps onto a second
+     line instead of spilling past the plate, and the two-line block is capped
+     at the CTA's top edge (78.67svh) so the button can never be overlapped. */
+  white-space: normal;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  max-height: calc(78.67svh - 72.51svh);
+  overflow: hidden;
 }
 .skm-open {
   position: absolute;

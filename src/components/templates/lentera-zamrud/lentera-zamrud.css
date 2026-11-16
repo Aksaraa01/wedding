@@ -356,6 +356,7 @@ body:has(.lz-root.is-locked) { overflow: hidden; }
   text-transform: uppercase;
   color: var(--lz-emerald);
   white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 .lz-cover__guest-label {
   margin: 4px 0 0;
@@ -368,12 +369,19 @@ body:has(.lz-root.is-locked) { overflow: hidden; }
   color: var(--lz-text);
 }
 .lz-cover__guest {
-  margin: 19.3px 0 0;
+  width: 100%;
+  margin: 16.3px 0 0;
+  padding: 3px 0 2px;
   font-family: var(--lz-script);
   font-size: 26px;
   line-height: 1.15;
   color: var(--lz-emerald);
   white-space: nowrap;
+  /* the script face paints ~2 px above its line box: the padding keeps the
+     ascenders inside the clip, and a name beyond the shrink floor is
+     ellipsised instead of spilling past the plate */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .lz-cover__cta {
   position: relative;
@@ -498,6 +506,7 @@ body:has(.lz-root.is-locked) { overflow: hidden; }
 .lz-putra__stage .lz-sprig img { height: 100%; object-fit: contain; }
 
 .lz-putra__name {
+  width: 100%;
   margin: 34px 0 0;
   font-family: var(--lz-title);
   font-size: 24px;
@@ -508,6 +517,7 @@ body:has(.lz-root.is-locked) { overflow: hidden; }
   text-transform: uppercase;
   color: var(--lz-emerald);
   white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 .lz-putra .lz-kicker--sm { margin-top: 12px; }
 .lz-putra__parents {

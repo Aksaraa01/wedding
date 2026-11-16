@@ -233,7 +233,7 @@ export default function SongketMarun(profile: TemplateProps) {
   const [wishNameLocked] = useState(nameState.locked)
 
   const coverNameRef = useFitOneLine<HTMLParagraphElement>(childName)
-  const guestRef = useFitOneLine<HTMLParagraphElement>(guestName)
+  const guestRef = useFitOneLine<HTMLParagraphElement>(guestName, 0.5)
   const putraNameRef = useFitOneLine<HTMLParagraphElement>(childFull)
 
   const wishPages = Math.max(1, Math.ceil(wishes.wishes.length / WISH_PAGE))

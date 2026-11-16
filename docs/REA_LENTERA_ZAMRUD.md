@@ -114,10 +114,17 @@ the ones with count branches; all were exercised at 1 and many.
     against the reference) and the arch photo is the flexible element:
     `width: min(52.4%, max(72px, calc((68.6svh - 255px) * 183 / 301)))`, where
     255 px is every fixed block below the photo plus the CTA and a 14 px air
-    gap (206 px when the guest name is absent). Long guest names still shrink to
-    one line. At 390 × 667 the photo is 123 px wide (153 px with no guest
-    block) and the guest name ends 20 px above the CTA; at 390 × 844 nothing
-    moves.
+    gap (206 px when the guest name is absent). At 390 × 667 the photo is 123 px
+    wide (153 px with no guest block) and the guest name ends 20 px above the
+    CTA; at 390 × 844 nothing moves. Item 11 covers names too long for one line.
+11. **Names are measured on the element, not on a probe.** The one-line fitter
+    used a detached `<span>`; when that span rendered with the fallback face it
+    underestimated the webfont width by ~15 %, so a 50-character guest name
+    stayed at 26 px and spanned 657 px across a 390 px plate. It now reads
+    `scrollWidth` on the element itself, subtracts the fixed part
+    (`letter-spacing` × chars, `text-indent`) before scaling, keeps the shrink
+    floor for the guest at 0.42, ellipsises beyond it, and lets the Putra name
+    wrap (its block is in flow) instead of spilling.
 
 ## Verification
 
