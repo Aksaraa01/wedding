@@ -156,7 +156,7 @@ export function eventLabels(event: unknown, gender?: unknown): EventLabels {
   return merged
 }
 
-/** "Ananda Raka" / "Rafi & Novi" — a single display name for lists and copy. */
+/** "Ananda Raka" / "Rafi & Novi", a single display name for lists and copy. */
 export function subjectDisplayName(
   event: unknown,
   names: { groom?: string | null; bride?: string | null; groomFull?: string | null; brideFull?: string | null },

@@ -37,6 +37,12 @@ export interface TemplateGalleryProps {
   isLocked?: (template: GalleryTemplate) => boolean
   onPreview?: (template: GalleryTemplate) => void
   onSelect?: (template: GalleryTemplate) => void
+  /**
+   * Base path for the "Pilih" CTA on each tile and in the preview modal.
+   * Defaults to /register (wedding); Ceriavite passes /daftar. A string rather
+   * than a callback so server components can pass it across the boundary.
+   */
+  selectHrefBase?: string
   saving?: boolean
   emptyMessage?: string
 }
@@ -100,6 +106,7 @@ export default function TemplateGallery({
   isLocked,
   onPreview,
   onSelect,
+  selectHrefBase = "/register",
   saving = false,
   emptyMessage,
 }: TemplateGalleryProps) {
@@ -153,7 +160,9 @@ export default function TemplateGallery({
       fluid={opts.fluid}
       eager={opts.eager}
       href={openPreview ? null : `/premium-web-invitation?template=${encodeURIComponent(t.code)}`}
-      selectHref={onSelect ? null : `/register?template=${encodeURIComponent(t.code)}`}
+      selectHref={
+        onSelect ? null : `${selectHrefBase}?template=${encodeURIComponent(t.code)}`
+      }
       onOpen={openPreview ? () => openPreview(t) : undefined}
       onSelect={onSelect ? () => onSelect(t) : undefined}
       selectLabel={selectLabel(t)}
@@ -314,7 +323,7 @@ export default function TemplateGallery({
         <TemplatePreviewModal
           name={modalTemplate.name}
           demoUrl={modalTemplate.demo_url || ""}
-          selectHref={`/register?template=${encodeURIComponent(modalTemplate.code)}`}
+          selectHref={`${selectHrefBase}?template=${encodeURIComponent(modalTemplate.code)}`}
           onClose={() => setModalTemplate(null)}
         />
       )}

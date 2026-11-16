@@ -8,6 +8,7 @@ import ProfileMenu from "@/components/ProfileMenu"
 import { PACKAGE_LABELS as PACKAGE_LABEL, getPackageCategory, hasVipQuotaBase } from "@/lib/packages"
 import UpgradePackageModal, { type UpgradeModalContent } from "@/components/UpgradePackageModal"
 import { startTour } from "@/components/onboarding/ProductJourney"
+import { brandHomeHref } from "@/lib/eventHost"
 
 type Selections = {
   premium_web: boolean
@@ -232,7 +233,7 @@ function DashboardInner({ id }: { id: string }) {
           <h1 className="font-headline-md text-headline-md text-primary mb-4">Dashboard Tidak Ditemukan</h1>
           <p className="font-body-md text-on-surface-variant mb-8">{error || "Data tidak tersedia"}</p>
           <button
-            onClick={() => router.push("/hero")}
+            onClick={() => router.push(brandHomeHref())}
             className="bg-primary text-on-primary font-label-md uppercase tracking-widest py-4 px-12 hover:bg-secondary transition-colors"
           >
             Kembali ke Beranda

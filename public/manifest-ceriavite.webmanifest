@@ -1,0 +1,14 @@
+{
+  "name": "Ceriavite — Undangan Acara Anak",
+  "short_name": "Ceriavite",
+  "description": "Undangan digital khitanan, aqiqah, dan ulang tahun.",
+  "start_url": "/ceriavite",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#3a0f18",
+  "theme_color": "#3a0f18",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

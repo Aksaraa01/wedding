@@ -2864,7 +2864,7 @@ DEMO_PROPS_BY_CODE["songket-marun"] = {
     {
       name: "Walimatul Khitan",
       date: "2026-12-20",
-      time: "10:00 – 14:00 WIB",
+      time: "10:00-14:00 WIB",
       venue: "Kediaman Bapak Hendra Pratama",
       address: "Jl. Melati No. 12, Medan Kota, Sumatera Utara",
       maps_url: "https://maps.google.com/?q=Medan",

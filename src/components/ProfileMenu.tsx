@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { brandHomeHref } from "@/lib/eventHost"
 
 export default function ProfileMenu() {
   const router = useRouter()
@@ -29,7 +30,7 @@ export default function ProfileMenu() {
           <button
             onClick={() => {
               setOpen(false)
-              router.push("/hero")
+              router.push(brandHomeHref())
             }}
             className="w-full flex items-center gap-3 px-4 py-3 text-left font-label-md text-label-md text-on-surface hover:bg-surface-container-low transition-colors"
           >

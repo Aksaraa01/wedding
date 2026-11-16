@@ -2,15 +2,16 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { normalizePhone } from "@/lib/packages"
 import { CoupleSlugHint } from "@/components/CoupleSlugHint"
 import { coupleSlugError } from "@/lib/slug"
 import { isReservedSlug, reservedSlugMessage } from "@/lib/reservedSlugs"
-import { KIDS_EVENT_OPTIONS, eventLabels, normalizeEventType, type EventType } from "@/lib/eventType"
+import { KIDS_EVENT_OPTIONS, normalizeEventType, type EventType } from "@/lib/eventType"
 
-// Ceriavite registration: one name (the child), the parents' line, the rite and
-// the date. Everything else the editor asks for later. The package is fixed —
-// Rp 199.000 flat — so there is no package, add-on or WA-tier picker here.
+// Ceriavite registration, built as a mobile app form: one column, sectioned
+// cards, 48px targets, sticky primary action. One name (the child), the parents'
+// line, the rite and the date; the package is fixed at Rp 199.000.
 export default function DaftarCeriavitePage() {
   const router = useRouter()
   const [nickname, setNickname] = useState("")
@@ -24,8 +25,8 @@ export default function DaftarCeriavitePage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
 
-  const labels = eventLabels(eventType, gender)
-  const slugIssue = coupleSlugError(nickname, "") ||
+  const slugIssue =
+    coupleSlugError(nickname, "") ||
     (isReservedSlug(nickname.replace(/[^a-zA-Z0-9]/g, "")) ? reservedSlugMessage(nickname) : null)
 
   const formValid =
@@ -97,78 +98,78 @@ export default function DaftarCeriavitePage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[#320a11] text-[#f8f0e2] flex flex-col">
-      <header className="w-full border-b border-[#c9a227]/25">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-          <a href="/ceriavite" className="font-headline-md text-lg tracking-tight text-[#f8f0e2]">
-            Ceriavite
-          </a>
-          <a href="/login" className="font-label-md text-[10px] uppercase tracking-[0.2em] text-[#e6cd8b]">
-            Masuk
-          </a>
+    <div className="min-h-[100dvh] bg-[#3a0f18] text-[#EFDFBB] antialiased [-webkit-tap-highlight-color:transparent]">
+      {/* App bar */}
+      <header className="sticky top-0 z-30 border-b border-[#C9A45C]/15 bg-[#3a0f18]/92 backdrop-blur-md [padding-top:env(safe-area-inset-top)]">
+        <div className="mx-auto flex h-14 w-full max-w-[520px] items-center gap-2 px-3">
+          <Link
+            href="/ceriavite"
+            aria-label="Kembali"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-[#C9A45C] active:bg-white/5"
+          >
+            <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+          </Link>
+          <span className="text-[15px] text-[#EFDFBB]">Buat Undangan</span>
+          <span className="ml-auto rounded-full bg-[#C9A45C]/15 px-2.5 py-1 text-[9.5px] uppercase tracking-[0.14em] text-[#C9A45C]">
+            Rp 199.000
+          </span>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-lg flex-1 px-6 py-10">
-        <div className="text-center">
-          <p className="font-label-md text-[10px] uppercase tracking-[0.32em] text-[#e6cd8b]">
-            {labels.coverKicker}
-          </p>
-          <h1 className="mt-3 font-headline-md text-3xl leading-tight text-[#f8f0e2]">
-            Mulai undangan ananda
-          </h1>
-          <p className="mt-3 text-sm leading-relaxed text-[#f8f0e2]/65">
-            Satu paket Rp 199.000 — undangan website, konfirmasi kehadiran (RSVP),
-            doa &amp; ucapan, tautan tamu, dan tanda kasih.
-          </p>
-        </div>
+      <main className="mx-auto w-full max-w-[520px] px-4 pb-32">
+        <p className="pt-5 text-[10px] uppercase tracking-[0.3em] text-[#C9A45C]">
+          Satu paket, sekali bayar
+        </p>
+        <h1 className="mt-2 text-[22px] leading-tight text-[#EFDFBB]">Data ananda</h1>
+        <p className="mt-2 text-[12.5px] leading-relaxed text-[#E0CDB6]/60">
+          Isi seperlunya sekarang. Foto, acara, dan galeri dilengkapi di editor setelah akun dibuat.
+        </p>
 
-        <div className="mt-8 space-y-5">
-          <div>
-            <label className="mb-2 block font-label-md text-[10px] uppercase tracking-widest text-[#e6cd8b]">
-              Nama panggilan ananda
-            </label>
-            <input
-              className="w-full rounded-xl border border-[#c9a227]/30 bg-[#3d0d16] px-4 py-3.5 font-headline-md text-lg text-[#f8f0e2] placeholder:text-[#f8f0e2]/30 focus:border-[#c9a227] focus:outline-none"
-              placeholder="Contoh: Arkan"
-              autoComplete="off"
-              value={nickname}
-              onChange={(e) => {
-                setNickname(e.target.value)
-                setError("")
-              }}
-            />
-            <CoupleSlugHint
-              name1={nickname}
-              name2=""
-              className="mt-2"
-              helpText="Isi dengan nama panggilan saja. Nama ini menjadi alamat undangan digital ananda."
-            />
-          </div>
+        {/* Data ananda */}
+        <section className="mt-5 rounded-2xl border border-[#C9A45C]/22 bg-[#471722] p-4">
+          <label className="mb-2 block text-[10px] uppercase tracking-[0.18em] text-[#C9A45C]">
+            Nama panggilan ananda
+          </label>
+          <input
+            className="h-12 w-full rounded-xl border border-[#C9A45C]/25 bg-[#3a0f18] px-3.5 text-[15px] text-[#EFDFBB] placeholder:text-[#E0CDB6]/30 focus:border-[#C9A45C] focus:outline-none"
+            placeholder="Contoh: Raka"
+            autoComplete="off"
+            value={nickname}
+            onChange={(e) => {
+              setNickname(e.target.value)
+              setError("")
+            }}
+          />
+          <CoupleSlugHint
+            name1={nickname}
+            name2=""
+            variant="dark"
+            className="mt-2"
+            helpText="Nama panggilan ini menjadi alamat undangan digital ananda."
+          />
 
-          <div>
-            <label className="mb-2 block font-label-md text-[10px] uppercase tracking-widest text-[#e6cd8b]">
-              Nama lengkap ananda (opsional)
-            </label>
-            <input
-              className="w-full rounded-xl border border-[#c9a227]/30 bg-[#3d0d16] px-4 py-3.5 text-base text-[#f8f0e2] placeholder:text-[#f8f0e2]/30 focus:border-[#c9a227] focus:outline-none"
-              placeholder="Contoh: Muhammad Arkan Al Fatih"
-              autoComplete="off"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-            />
-          </div>
+          <label className="mb-2 mt-5 block text-[10px] uppercase tracking-[0.18em] text-[#C9A45C]">
+            Nama lengkap <span className="normal-case tracking-normal text-[#E0CDB6]/40">(opsional)</span>
+          </label>
+          <input
+            className="h-12 w-full rounded-xl border border-[#C9A45C]/25 bg-[#3a0f18] px-3.5 text-[15px] text-[#EFDFBB] placeholder:text-[#E0CDB6]/30 focus:border-[#C9A45C] focus:outline-none"
+            placeholder="Contoh: Raka Pratama"
+            autoComplete="off"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+          />
 
-          <div className="grid grid-cols-2 gap-3">
+          <p className="mb-2 mt-5 block text-[10px] uppercase tracking-[0.18em] text-[#C9A45C]">Putra / Putri</p>
+          <div className="grid grid-cols-2 gap-2">
             {(["putra", "putri"] as const).map((g) => (
               <button
                 key={g}
                 type="button"
                 onClick={() => setGender(g)}
-                className={`rounded-xl border px-4 py-3 text-sm capitalize transition-colors ${
+                className={`h-11 rounded-xl border text-[13px] capitalize transition-colors ${
                   gender === g
-                    ? "border-[#c9a227] bg-[#c9a227] text-[#320a11]"
-                    : "border-[#c9a227]/30 bg-transparent text-[#f8f0e2]/75"
+                    ? "border-[#C9A45C] bg-[#C9A45C] text-[#3a0f18]"
+                    : "border-[#C9A45C]/25 text-[#E0CDB6]/80"
                 }`}
               >
                 {g}
@@ -176,99 +177,108 @@ export default function DaftarCeriavitePage() {
             ))}
           </div>
 
-          <div>
-            <label className="mb-2 block font-label-md text-[10px] uppercase tracking-widest text-[#e6cd8b]">
-              Nama orang tua
-            </label>
-            <input
-              className="w-full rounded-xl border border-[#c9a227]/30 bg-[#3d0d16] px-4 py-3.5 text-base text-[#f8f0e2] placeholder:text-[#f8f0e2]/30 focus:border-[#c9a227] focus:outline-none"
-              placeholder="Contoh: Bapak Ahmad Fauzi & Ibu Sri Rahmawati"
-              autoComplete="off"
-              value={parents}
-              onChange={(e) => setParents(e.target.value)}
-            />
-          </div>
+          <label className="mb-2 mt-5 block text-[10px] uppercase tracking-[0.18em] text-[#C9A45C]">
+            Nama orang tua
+          </label>
+          <input
+            className="h-12 w-full rounded-xl border border-[#C9A45C]/25 bg-[#3a0f18] px-3.5 text-[15px] text-[#EFDFBB] placeholder:text-[#E0CDB6]/30 focus:border-[#C9A45C] focus:outline-none"
+            placeholder="Bapak Ahmad Fauzi & Ibu Sri Rahmawati"
+            autoComplete="off"
+            value={parents}
+            onChange={(e) => setParents(e.target.value)}
+          />
+        </section>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label className="mb-2 block font-label-md text-[10px] uppercase tracking-widest text-[#e6cd8b]">
-                Jenis acara
-              </label>
-              <select
-                className="w-full rounded-xl border border-[#c9a227]/30 bg-[#3d0d16] px-4 py-3.5 text-base text-[#f8f0e2] focus:border-[#c9a227] focus:outline-none"
-                value={eventType}
-                onChange={(e) => setEventType(normalizeEventType(e.target.value))}
+        {/* Acara */}
+        <h2 className="mt-6 text-[15px] text-[#EFDFBB]">Acara</h2>
+        <section className="mt-2.5 rounded-2xl border border-[#C9A45C]/22 bg-[#471722] p-4">
+          <p className="mb-2 text-[10px] uppercase tracking-[0.18em] text-[#C9A45C]">Jenis acara</p>
+          <div className="grid grid-cols-3 gap-2">
+            {KIDS_EVENT_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setEventType(opt.value)}
+                className={`h-11 rounded-xl border px-1 text-[12px] leading-tight transition-colors ${
+                  eventType === opt.value
+                    ? "border-[#C9A45C] bg-[#C9A45C] text-[#3a0f18]"
+                    : "border-[#C9A45C]/25 text-[#E0CDB6]/80"
+                }`}
               >
-                {KIDS_EVENT_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value} className="bg-[#3d0d16]">
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="mb-2 block font-label-md text-[10px] uppercase tracking-widest text-[#e6cd8b]">
-                Tanggal acara
-              </label>
-              <input
-                type="date"
-                className="w-full rounded-xl border border-[#c9a227]/30 bg-[#3d0d16] px-4 py-3.5 text-base text-[#f8f0e2] focus:border-[#c9a227] focus:outline-none"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
-            </div>
+                {opt.label}
+              </button>
+            ))}
           </div>
 
-          <div>
-            <label className="mb-2 block font-label-md text-[10px] uppercase tracking-widest text-[#e6cd8b]">
-              Nomor WhatsApp aktif
-            </label>
-            <div className="flex overflow-hidden rounded-xl border border-[#c9a227]/30 focus-within:border-[#c9a227]">
-              <span className="border-r border-[#c9a227]/30 bg-[#3d0d16] px-4 py-3.5 text-base text-[#f8f0e2]/70">
-                +62
-              </span>
-              <input
-                className="w-full bg-[#3d0d16] px-4 py-3.5 text-base text-[#f8f0e2] placeholder:text-[#f8f0e2]/30 focus:outline-none"
-                placeholder="81234567890"
-                inputMode="numeric"
-                autoComplete="tel"
-                value={wa}
-                onChange={(e) => setWa(e.target.value)}
-              />
-            </div>
-          </div>
+          <label className="mb-2 mt-4 block text-[10px] uppercase tracking-[0.18em] text-[#C9A45C]">
+            Tanggal acara
+          </label>
+          <input
+            type="date"
+            className="h-12 w-full min-w-0 appearance-none rounded-xl border border-[#C9A45C]/25 bg-[#3a0f18] px-3.5 text-[15px] text-[#EFDFBB] focus:border-[#C9A45C] focus:outline-none"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+          />
+        </section>
 
-          <div>
-            <label className="mb-2 block font-label-md text-[10px] uppercase tracking-widest text-[#e6cd8b]">
-              PIN 6 digit (untuk masuk ke dashboard)
-            </label>
+        {/* Kontak & PIN */}
+        <h2 className="mt-6 text-[15px] text-[#EFDFBB]">Kontak &amp; akses</h2>
+        <section className="mt-2.5 rounded-2xl border border-[#C9A45C]/22 bg-[#471722] p-4">
+          <label className="mb-2 block text-[10px] uppercase tracking-[0.18em] text-[#C9A45C]">
+            Nomor WhatsApp aktif
+          </label>
+          <div className="flex h-12 overflow-hidden rounded-xl border border-[#C9A45C]/25 bg-[#3a0f18] focus-within:border-[#C9A45C]">
+            <span className="flex items-center border-r border-[#C9A45C]/20 px-3 text-[14px] text-[#E0CDB6]/60">
+              +62
+            </span>
             <input
-              className="w-full rounded-xl border border-[#c9a227]/30 bg-[#3d0d16] px-4 py-3.5 text-base tracking-[0.4em] text-[#f8f0e2] placeholder:text-[#f8f0e2]/30 focus:border-[#c9a227] focus:outline-none"
-              placeholder="••••••"
+              className="h-full w-full bg-transparent px-3 text-[15px] text-[#EFDFBB] placeholder:text-[#E0CDB6]/30 focus:outline-none"
+              placeholder="81234567890"
               inputMode="numeric"
-              maxLength={6}
-              value={pin}
-              onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              autoComplete="tel"
+              value={wa}
+              onChange={(e) => setWa(e.target.value)}
             />
           </div>
 
-          {error && <p className="text-sm text-red-300">{error}</p>}
+          <label className="mb-2 mt-4 block text-[10px] uppercase tracking-[0.18em] text-[#C9A45C]">
+            PIN 6 digit <span className="normal-case tracking-normal text-[#E0CDB6]/40">untuk masuk dashboard</span>
+          </label>
+          <input
+            className="h-12 w-full rounded-xl border border-[#C9A45C]/25 bg-[#3a0f18] px-3.5 text-[17px] tracking-[0.5em] text-[#EFDFBB] placeholder:text-[#E0CDB6]/30 focus:border-[#C9A45C] focus:outline-none"
+            placeholder="••••••"
+            inputMode="numeric"
+            maxLength={6}
+            value={pin}
+            onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+          />
+        </section>
 
+        {error && (
+          <p className="mt-4 rounded-xl border border-red-400/30 bg-red-500/10 px-3.5 py-2.5 text-[12.5px] leading-relaxed text-red-200">
+            {error}
+          </p>
+        )}
+
+        <p className="mt-5 text-[11px] leading-relaxed text-[#E0CDB6]/40">
+          Dengan mendaftar Anda menyetujui syarat layanan Ceriavite. Undangan aktif setelah
+          pembayaran dikonfirmasi tim kami.
+        </p>
+      </main>
+
+      {/* Sticky primary action */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#C9A45C]/20 bg-[#3a0f18]/95 backdrop-blur-md [padding-bottom:env(safe-area-inset-bottom)]">
+        <div className="mx-auto w-full max-w-[520px] px-4 py-2.5">
           <button
             type="button"
             onClick={submit}
             disabled={!formValid || submitting}
-            className="w-full rounded-xl bg-[#c9a227] px-6 py-4 font-label-md text-[11px] uppercase tracking-[0.2em] text-[#320a11] transition-opacity disabled:opacity-50"
+            className="flex h-12 w-full items-center justify-center rounded-xl bg-[#C9A45C] text-[11px] font-semibold uppercase tracking-[0.18em] text-[#3a0f18] transition-opacity active:scale-[0.98] disabled:opacity-40"
           >
-            {submitting ? "Menyiapkan undangan…" : "Buat undangan — Rp 199.000"}
+            {submitting ? "Menyiapkan undangan…" : "Buat undangan Rp 199.000"}
           </button>
-
-          <p className="text-center text-[11px] leading-relaxed text-[#f8f0e2]/45">
-            Dengan mendaftar Anda menyetujui syarat layanan Ceriavite.
-            Undangan aktif setelah pembayaran dikonfirmasi tim kami.
-          </p>
         </div>
-      </main>
+      </div>
     </div>
   )
 }

@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useCallback, useRef } from "react"
+import { useState, useCallback, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
 import { waLink } from "@/lib/contact"
+import { brandHomeHref, brandRegisterHref, isKidsHost } from "@/lib/eventHost"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -11,6 +12,10 @@ export default function LoginPage() {
   const [pin, setPin] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  // Same deployment serves Ceriavite on its own host: the back link, the brand
+  // name and the sign-up target must follow the brand the visitor opened.
+  const [kids, setKids] = useState(false)
+  useEffect(() => setKids(isKidsHost()), [])
   const btnRef = useRef<HTMLButtonElement>(null)
   const pinRefs = useRef<(HTMLInputElement | null)[]>([])
 
@@ -89,13 +94,13 @@ export default function LoginPage() {
       <div className="h-screen flex flex-col overflow-hidden bg-background text-on-surface antialiased font-body-md text-body-md">
         <header className="fixed top-0 w-full z-50 bg-surface border-b border-outline-variant/20 h-20 flex justify-between items-center px-edge-margin-mobile md:px-edge-margin-desktop">
           <div
-            onClick={() => router.push("/hero")}
+            onClick={() => router.push(brandHomeHref())}
             className="flex items-center cursor-pointer active:scale-95 transition-all w-10"
           >
             <span className="material-symbols-outlined text-primary">arrow_back</span>
           </div>
           <div className="font-headline-md text-headline-md text-primary tracking-[0.2em] uppercase">
-            Aksaraa
+            {kids ? "Ceriavite" : "Aksaraa"}
           </div>
           <div className="w-10" />
         </header>
@@ -103,11 +108,15 @@ export default function LoginPage() {
         <main className="flex-1 relative flex items-center justify-center pt-20">
           <div className="absolute inset-0 z-0">
             <div className="absolute inset-0 bg-surface/60 z-10" />
-            <img
-              alt="Aksaraa Editorial Background"
-              className="w-full h-full object-cover object-center grayscale-[10%]"
-              src="/images/login.png"
-            />
+            {kids ? (
+              <div className="w-full h-full bg-[#3a0f18]" />
+            ) : (
+              <img
+                alt="Aksaraa Editorial Background"
+                className="w-full h-full object-cover object-center grayscale-[10%]"
+                src="/images/login.png"
+              />
+            )}
           </div>
 
           <div className="relative z-20 w-full max-w-md px-4 md:px-edge-margin-mobile">
@@ -193,7 +202,7 @@ export default function LoginPage() {
                     Belum punya akun?
                   </span>
                   <button
-                    onClick={() => router.push("/register")}
+                    onClick={() => router.push(brandRegisterHref())}
                     className="text-primary font-label-md text-label-md uppercase tracking-widest underline underline-offset-4 hover:opacity-80 transition-opacity"
                   >
                     Daftar Sekarang
@@ -201,7 +210,7 @@ export default function LoginPage() {
                 </div>
                 <a
                   className="block text-on-surface-variant font-label-md text-label-md uppercase tracking-widest border-b border-transparent hover:border-primary transition-all duration-300"
-                  href={waLink("Halo Aksaraa Wedding Saya perlu konsultasi mengenai..")}
+                  href={waLink(kids ? "Halo Ceriavite, saya perlu bantuan soal undangan ananda.." : "Halo Aksaraa Wedding Saya perlu konsultasi mengenai..")}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -214,7 +223,7 @@ export default function LoginPage() {
 
         <div className="fixed bottom-6 left-0 w-full z-50 flex justify-center pointer-events-none">
           <div className="text-on-surface-variant font-label-md text-[10px] uppercase tracking-widest opacity-40">
-            Aksaraa Client Portal
+            {kids ? "Ceriavite Client Portal" : "Aksaraa Client Portal"}
           </div>
         </div>
       </div>
