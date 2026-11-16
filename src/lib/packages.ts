@@ -102,6 +102,7 @@ export const PACKAGE_CATEGORY: Record<string, "undangan" | "dgbook" | "galeri"> 
   dgb_premium: "dgbook",
   dgb_prestige: "dgbook",
   gt: "galeri",
+  ceriavite: "undangan",
 }
 
 export function getPackageCategory(packageType: string): "Undangan Digital" | "Buku Tamu Digital" | "Galeri Tamu" {
