@@ -31,6 +31,14 @@ export default function SongketMarun(profile: TemplateProps) {
   const toastTimer = useRef<number | null>(null)
 
   const [opened, setOpened] = useState(false)
+  // Design QA hook: ?opened=1 starts the invitation open so review tools can
+  // screenshot every section without tapping. Harmless for real guests.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("opened") === "1") {
+      setOpened(true)
+      document.body.classList.remove("skm-locked")
+    }
+  }, [])
   const [playing, setPlaying] = useState(false)
   const [toast, setToast] = useState("")
   const [wishName, setWishName] = useState("")
