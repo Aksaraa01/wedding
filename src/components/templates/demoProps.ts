@@ -2894,6 +2894,12 @@ DEMO_PROPS_BY_CODE["songket-marun"] = {
   gift_address: "Jl. Melati No. 12, Medan Kota, Sumatera Utara",
   gift_address_name: "Hendra Pratama",
   gift_section_visible: true,
+  inviting_families: [
+    "Keluarga Bapak Hendra Pratama",
+    "Keluarga Ibu Sari Dewi",
+    "Kerabat dan Sahabat",
+  ],
+  inviting_families_visible: true,
   event_type: "khitanan",
   subject_gender: "putra",
   event_labels: eventLabels("khitanan", "putra"),
