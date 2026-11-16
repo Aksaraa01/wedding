@@ -21,6 +21,10 @@
   --uo-name-font: "Cinzel Decorative", "Cinzel", Georgia, serif;
   --uo-arabic-font: "Amiri", "Scheherazade New", "Noto Naskh Arabic", "Geeza Pro", "Times New Roman", serif;
   --u: min(calc(100vw / 390), 1.103px);
+  /* Cover-only unit: the cover is one 390 × 844 poster, so it must also fit the
+     viewport height (a short phone would otherwise push "Buka Undangan" past
+     the fold, since the body is locked while the cover is up). */
+  --uc: min(calc(100vw / 390), calc(100svh / 844), 1.103px);
 
   position: relative;
   width: 100%;
@@ -117,9 +121,14 @@ body:has(.uo-root.is-locked) { overflow: hidden; }
 /* ---------- cover ---------- */
 
 .uo-cover {
+  /* every offset below is authored against the 390 × 844 cover canvas, so the
+     whole poster scales by --uc and always fits the viewport height */
+  --u: var(--uc);
   position: relative;
+  width: calc(390 * var(--uc));
   height: 100svh;
-  min-height: calc(844 * var(--u));
+  min-height: calc(844 * var(--uc));
+  margin: 0 auto;
   overflow: hidden;
   background: var(--uo-cream);
   color: var(--uo-text);

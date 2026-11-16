@@ -102,6 +102,15 @@ Reference `RSVP` canvas is **dropped on purpose**: RSVP is the shared
    ships 28 px but renders `19.04px` for a 25-character name. `useFitOneLine`
    (DOM probe measurement, re-run after `document.fonts.ready`) reproduces it,
    so a long `groom_full_name` can never spill over the arch or the music button.
+10. **Cover fits the viewport height.** The cover is one 390 × 844 poster, and
+    the body is locked until it is tapped, so a phone shorter than 844 (a 667–740
+    small viewport is normal once the browser chrome is visible) used to push
+    "Buka Undangan" past the fold, where it could not be reached. The poster now
+    scales by `--uc: min(100vw / 390, 100svh / 844, 1.103px)` (the cover's own
+    `--u`, width `calc(390 * var(--uc))`, centred), so every offset keeps its
+    reference proportion and the CTA always ends above the viewport bottom. At
+    390 × 844 nothing changes; at 390 × 667 the poster is 308 px wide with a
+    41 px cream margin each side.
 
 ## Copy ledger
 

@@ -242,6 +242,16 @@ Definition of done:
 12. **`tsc` before build.** Twice a patch type-checked only after the build had
     already failed (`Property 'groom_parents' does not exist`, duplicate keys).
     Run `npx tsc --noEmit` first; it is seconds.
+13. **The cover is a FIXED 844 px canvas, and the body is locked.** A cover laid
+    out against the design canvas (absolute CTA, 844 px poster) silently breaks
+    on a real phone: the small viewport height (browser chrome visible) is
+    640–740, so an absolutely positioned `Buka Undangan` renders *on top of* the
+    guest name, and a fixed-height poster pushes it below the fold where it can
+    never be tapped. Both styles shipped. Verify every cover at 390 × 844 **and**
+    390 × 667 / 360 × 640 **with a `?to=` guest name**, and make the cover fit:
+    either keep the CTA in flow (`margin-top: auto`) and shrink the photo/scale
+    the poster, or scale the poster with the viewport (`--uc: min(100vw / 390,
+    100svh / 844, 1.103px)`). Never leave the CTA in `position: absolute`.
 
 ---
 

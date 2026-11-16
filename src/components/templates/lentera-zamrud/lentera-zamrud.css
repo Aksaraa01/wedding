@@ -216,18 +216,34 @@ body:has(.lz-root.is-locked) { overflow: hidden; }
 .lz-divider--sm { width: 160px; margin: 28px auto; }
 .lz-divider--lg { width: 190px; margin-top: 22px; }
 
-/* ---------- cover ---------- */
+/* ---------- cover ----------
+   The cover is one screen. The CTA sits in the flow (never absolutely on top
+   of the guest block) and the arch photo is the flexible element: its width is
+   capped so the whole stack still fits the small viewport height, with the
+   reference geometry untouched at 390 × 844. */
 .lz-cover {
+  --lz-cover-gap: clamp(40px, 16.6vh, 140px);
+  /* Everything below the photo (kicker, name, divider, guest label + name),
+     plus the CTA (40 px) and a 14 px air gap. The photo takes whatever is left
+     of the small viewport height, so the stack can never reach the CTA. */
+  --lz-cover-chrome: 255px;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
+  height: 100svh;
   min-height: 100svh;
-  padding: clamp(64px, 14.8vh, 130px) 20.4px 0;
-  overflow: hidden;
+  padding: clamp(64px, 14.8vh, 130px) 20.4px var(--lz-cover-gap);
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
   background: var(--lz-cream);
   text-align: center;
 }
+.lz-cover::-webkit-scrollbar { display: none; }
+/* the guest block only renders for a real ?to= name; with it gone the photo may
+   keep 49 px more of its reference width */
+.lz-cover:not(.has-guest) { --lz-cover-chrome: 206px; }
 .lz-cover > * { position: relative; z-index: 2; }
 .lz-cover > .lz-cover__paper,
 .lz-cover > .lz-cover__pattern {
@@ -277,7 +293,7 @@ body:has(.lz-root.is-locked) { overflow: hidden; }
 .lz-cover__photo {
   position: relative;
   z-index: 5;
-  width: 52.4%;
+  width: min(52.4%, max(72px, calc((68.6svh - var(--lz-cover-chrome)) * 183 / 301)));
   aspect-ratio: 183 / 301;
   margin-top: 2.3px;
 }
@@ -359,11 +375,17 @@ body:has(.lz-root.is-locked) { overflow: hidden; }
   color: var(--lz-emerald);
   white-space: nowrap;
 }
+.lz-cover__cta {
+  position: relative;
+  z-index: 7;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: auto;
+  padding-top: 14px;
+}
 .lz-open {
-  position: absolute;
-  left: 50%;
-  bottom: clamp(40px, 16.6vh, 140px);
-  transform: translateX(-50%);
+  position: relative;
   z-index: 7;
   display: inline-flex;
   align-items: center;
@@ -389,7 +411,7 @@ body:has(.lz-root.is-locked) { overflow: hidden; }
   line-height: 1;
   text-indent: 0;
 }
-.lz-open:active { transform: translateX(-50%) scale(0.98); }
+.lz-open:active { transform: scale(0.98); }
 
 /* ---------- pembuka ---------- */
 .lz-pembuka {

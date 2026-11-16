@@ -106,6 +106,17 @@ the ones with count branches; all were exercised at 1 and many.
    revision) flipped the scroll into the wrong orientation.
 9. **Section reveal**: 39 targets, one observer. `prefers-reduced-motion` and
    `@media (scripting: none)` leave every target at `opacity: 1`.
+10. **Cover fits the viewport height.** The reference renders the CTA absolutely
+    at `bottom: 16.6vh`, which lands on top of the guest block as soon as the
+    small viewport height drops below ~800 px (a phone with the browser chrome
+    visible is 667–740 px, not 844). The CTA is now the last flex item
+    (`margin-top: auto`, so 390 × 844 is unchanged, CTA 664–704 as verified
+    against the reference) and the arch photo is the flexible element:
+    `width: min(52.4%, max(72px, calc((68.6svh - 255px) * 183 / 301)))`, where
+    255 px is every fixed block below the photo plus the CTA and a 14 px air
+    gap (206 px when the guest name is absent). Long guest names still shrink to
+    one line. At 390 × 667 the photo is 153 px wide and the guest name ends
+    20 px above the CTA; at 390 × 844 nothing moves.
 
 ## Verification
 

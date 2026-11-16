@@ -343,7 +343,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
 
       <div className="lz-frame">
         {!opened && (
-          <section className="lz-cover" aria-label={coverKicker}>
+          <section className={`lz-cover${hasGuestName ? " has-guest" : ""}`} aria-label={coverKicker}>
             <div className="lz-cover__paper" aria-hidden="true" />
             <div className="lz-cover__pattern" aria-hidden="true" />
 
@@ -382,10 +382,12 @@ export default function LenteraZamrud(profile: TemplateProps) {
               <p ref={guestRef} className="lz-cover__guest lz-anim-fade" style={reveal(0.55)}>{guestName}</p>
             )}
 
-            <button type="button" className="lz-open lz-anim-up" style={reveal(0.65)} onClick={openInvitation}>
-              <span className="material-symbols-outlined" aria-hidden="true">mail</span>
-              {openLabel}
-            </button>
+            <div className="lz-cover__cta lz-anim-up" style={reveal(0.65)}>
+              <button type="button" className="lz-open" onClick={openInvitation}>
+                <span className="material-symbols-outlined" aria-hidden="true">mail</span>
+                {openLabel}
+              </button>
+            </div>
           </section>
         )}
 
