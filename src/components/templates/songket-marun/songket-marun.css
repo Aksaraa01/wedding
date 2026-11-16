@@ -1152,11 +1152,14 @@ body.skm-locked { overflow: hidden; }
 
 /* Footer: the Aksaraa brand badge, identical to the Sandhya in-house footer. */
 .skm-footer__link {
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  width: 100%;
   gap: 12px;
   padding: 26px 20px 34px;
+  text-align: center;
   text-decoration: none;
 }
 .skm-footer__badge {
