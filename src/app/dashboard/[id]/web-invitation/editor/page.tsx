@@ -1373,8 +1373,9 @@ function EditorInner({ id }: { id: string }) {
   const isSectionHidden = (key: string) => {
     switch (key) {
       case "inviting": return data.inviting_families_visible === false
-      case "video": return data.video_section_visible === false
-      case "story": return data.story_visible === false
+      // Ceriavite (kids) invitations ship no cinematic video and no love story.
+      case "video": return data.video_section_visible === false || kids
+      case "story": return data.story_visible === false || kids
       case "gift": return data.gift_section_visible === false
       case "dresscode": return data.dresscode_visible === false
       case "livestream": return data.livestream_visible === false
@@ -1984,9 +1985,13 @@ function EditorInner({ id }: { id: string }) {
                     <p className="text-[11px] text-on-surface-variant mt-1 italic">Tanggal utama yang tampil pada sampul undangan.</p>
                   </div>
                   <div className="space-y-2">
-                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Hashtag Instagram Post</label>
-                    <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.display_name || ""} onChange={e => updateField("display_name", e.target.value)} placeholder="#RiaYusufBersatu" />
-                    <p className="text-[11px] text-on-surface-variant mt-1 italic">Tampil pada undangan sebagai hashtag. Contoh: #RiaYusufWedding. Kosongkan untuk menyembunyikan.</p>
+                    {!kids && (
+                      <>
+                        <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Hashtag Instagram Post</label>
+                        <input className="input-editorial w-full font-headline-md text-[18px]" type="text" value={data.display_name || ""} onChange={e => updateField("display_name", e.target.value)} placeholder="#RiaYusufBersatu" />
+                        <p className="text-[11px] text-on-surface-variant mt-1 italic">Tampil pada undangan sebagai hashtag. Contoh: #RiaYusufWedding. Kosongkan untuk menyembunyikan.</p>
+                      </>
+                    )}
                   </div>
                   {contentSpec?.initials !== false && (
                   <div className="space-y-2">
@@ -2229,7 +2234,7 @@ function EditorInner({ id }: { id: string }) {
                           <AutoTextarea
                             className="input-editorial font-label-md text-[14px] font-bold w-full resize-none overflow-hidden"
                             style={session.name ? { color: "#8D4D39" } : undefined}
-                            placeholder={i === 0 ? "Contoh: Akad Nikah / Pemberkatan" : "Contoh: Resepsi"}
+                            placeholder={kids ? "Contoh: Walimatul Khitan" : i === 0 ? "Contoh: Akad Nikah / Pemberkatan" : "Contoh: Resepsi"}
                             value={session.name}
                             onChange={v => updateSession(i, "name", v)}
                           />

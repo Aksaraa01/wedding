@@ -91,7 +91,7 @@ export default function DaftarCeriavitePage() {
         return
       }
       const pid = data.wedding_profile_id || ""
-      router.push(pid ? `/dashboard/${pid}/web-invitation/templates` : "/login")
+      router.push(pid ? `/dashboard/${pid}` : "/login")
     } catch {
       setError("Gagal terhubung ke server.")
       setSubmitting(false)
