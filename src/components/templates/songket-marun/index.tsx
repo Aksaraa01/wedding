@@ -410,6 +410,9 @@ export default function SongketMarun(profile: TemplateProps) {
               {giftAddress && (
                 <div className="skm-gift__card">
                   <p className="skm-gift__bank">Kirim Hadiah</p>
+                  {(profile.gift_address_name || "").trim() && (
+                    <p className="skm-gift__owner">a.n. {(profile.gift_address_name || "").trim()}</p>
+                  )}
                   <p className="skm-gift__address">{giftAddress}</p>
                   <button
                     type="button"
