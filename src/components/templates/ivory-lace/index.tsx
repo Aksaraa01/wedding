@@ -13,6 +13,8 @@ import {
   groomPhoto,
   bridePhoto,
   initialsOf,
+  initialsGlyphs,
+  monogramFontSize,
   videoSource,
 } from "../shared/lib"
 import Wishes from "./Wishes"
@@ -124,10 +126,11 @@ function useCountdown(iso?: string, sessions?: TemplateProps["sessions"]) {
 // ── Ornaments (reference artwork) ──────────────────────────────────────────
 
 function Monogram({ text, className }: { text: string; className?: string }) {
+  const monogramCount = initialsGlyphs(text).length
   return (
     <span className={`il-monogram${className ? ` ${className}` : ""}`}>
       <img src={ART_WREATH} alt="" aria-hidden="true" />
-      <b>{text}</b>
+      <b style={monogramCount > 2 ? { fontSize: `${monogramFontSize(text, 43)}px` } : undefined}>{text}</b>
     </span>
   )
 }

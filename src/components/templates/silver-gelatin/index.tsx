@@ -13,6 +13,8 @@ import {
   flattenPhotos,
   gcalLink,
   groomPhoto as groomPhotoOf,
+  initialsGlyphs,
+  monogramFontSize,
   videoSource,
 } from "../shared/lib"
 import Wishes from "./Wishes"
@@ -211,6 +213,11 @@ export default function SilverGelatin(profile: TemplateProps) {
   const coupleInitials =
     (profile.couple_initials || "").trim().replace(/[^A-Za-z0-9]/g, "") ||
     [groomName.charAt(0), brideName.charAt(0)].filter(Boolean).join("")
+  const initialsList = initialsGlyphs(coupleInitials)
+  // The reference cover overlaps exactly two glyphs; a longer abbreviation
+  // prints as one line so the third character is never dropped.
+  const longInitials = initialsList.length > 2
+  const longInitialsSize = monogramFontSize(coupleInitials, 64)
   const guestName = (profile.guest_name || "").trim() || WISH_ME
   const dateObject = parseDate(profile.estimated_wedding_date)
   const dateDot = dotDate(profile.estimated_wedding_date)
@@ -437,15 +444,28 @@ export default function SilverGelatin(profile: TemplateProps) {
               <img src={coverShot} alt={coupleLabel} draggable={false} />
             </figure>
             <span className="sg-cover__notch" aria-hidden="true" />
-            {initialA && (
-              <p className="sg-cover__initial sg-cover__initial--a" aria-hidden="true" {...ON_LOAD("up", 0.3)}>
-                {initialA}
+            {longInitials ? (
+              <p
+                className="sg-cover__initial sg-cover__initial--multi"
+                aria-hidden="true"
+                style={{ fontSize: `calc(${longInitialsSize} * var(--sg-u))` }}
+                {...ON_LOAD("up", 0.3)}
+              >
+                {coupleInitials}
               </p>
-            )}
-            {initialB && (
-              <p className="sg-cover__initial sg-cover__initial--b" aria-hidden="true" {...ON_LOAD("up", 0.42)}>
-                {initialB}
-              </p>
+            ) : (
+              <>
+                {initialA && (
+                  <p className="sg-cover__initial sg-cover__initial--a" aria-hidden="true" {...ON_LOAD("up", 0.3)}>
+                    {initialA}
+                  </p>
+                )}
+                {initialB && (
+                  <p className="sg-cover__initial sg-cover__initial--b" aria-hidden="true" {...ON_LOAD("up", 0.42)}>
+                    {initialB}
+                  </p>
+                )}
+              </>
             )}
             {groomName && (
               <p className="sg-cover__script sg-cover__script--a" {...ON_LOAD("right", 0.5)}>
@@ -875,8 +895,19 @@ export default function SilverGelatin(profile: TemplateProps) {
             {hashtag && <p className="sg-closing__hashtag" {...IN("fade", 0.1)}>{hashtag}</p>}
             {(initialA || initialB) && (
               <p className="sg-closing__initials" aria-label={coupleInitials} {...IN("fade", 0.12)}>
-                {initialA && <span className="sg-closing__initial sg-closing__initial--a">{initialA}</span>}
-                {initialB && <span className="sg-closing__initial sg-closing__initial--b">{initialB}</span>}
+                {longInitials ? (
+                  <span
+                    className="sg-closing__initial sg-closing__initial--multi"
+                    style={{ fontSize: `${Math.round(longInitialsSize * 0.7)}px` }}
+                  >
+                    {coupleInitials}
+                  </span>
+                ) : (
+                  <>
+                    {initialA && <span className="sg-closing__initial sg-closing__initial--a">{initialA}</span>}
+                    {initialB && <span className="sg-closing__initial sg-closing__initial--b">{initialB}</span>}
+                  </>
+                )}
               </p>
             )}
             {dateDot && <p className="sg-closing__date" {...IN("fade", 0.16)}>{dateDot}</p>}

@@ -206,7 +206,7 @@ export default function Iris(profile: TemplateProps) {
   const mirrorTop = dateParts.slice(0, -1).join(" ")
   const mirrorYear = dateParts[dateParts.length - 1] || ""
   const editorInitials = (profile.couple_initials || "").replace(/[^A-Za-z]/g, "").toUpperCase()
-  const initials = editorInitials.slice(0, 2) || initialsOf(groomName, brideName) || "IR"
+  const initials = editorInitials || initialsOf(groomName, brideName) || "IR"
 
   const groomIg = igHandle(profile.groom_instagram)
   const brideIg = igHandle(profile.bride_instagram)

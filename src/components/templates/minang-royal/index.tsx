@@ -9,6 +9,8 @@ import {
   coverPhoto as coverPhotoOf,
   flattenPhotos,
   gcalLink,
+  initialsGlyphs,
+  monogramFontSize,
   normalizeVideoUrl,
 } from "../shared/lib"
 import Wishes from "./Wishes"
@@ -155,9 +157,10 @@ export default function MinangRoyal(profile: TemplateProps) {
   const closingMessage = tc.closing_message || DEFAULT_CLOSING
   const quoteText = profile.quote_text || ""
   const quoteSource = profile.quote_source || ""
-  const monogram = (profile.couple_initials || [profile.groom_name, profile.bride_name]
+  const monogram = ((profile.couple_initials || "").trim() || [profile.groom_name, profile.bride_name]
     .map((name) => (name || "").trim()[0] || "")
-    .join("")).slice(0, 3).toUpperCase()
+    .join("")).toUpperCase()
+  const monogramCount = initialsGlyphs(monogram).length
   const dressTitle = profile.dresscode?.title || "Dresscode"
   const dressDesc = profile.dresscode?.description || "Formal Attire"
 
@@ -257,7 +260,12 @@ export default function MinangRoyal(profile: TemplateProps) {
               {monogram && (
                 <div className="head">
                   <div className="logo-wrap">
-                    <span className="mr-monogram">{monogram}</span>
+                    <span
+                      className="mr-monogram"
+                      style={monogramCount > 2 ? { fontSize: monogramFontSize(monogram, 34), letterSpacing: monogramCount > 3 ? 0 : 1 } : undefined}
+                    >
+                      {monogram}
+                    </span>
                   </div>
                 </div>
               )}

@@ -12,6 +12,8 @@ import {
   gcalLink,
   groomPhoto as groomPhotoOf,
   bridePhoto as bridePhotoOf,
+  initialsGlyphs,
+  monogramFontSize,
   normalizeVideoUrl,
 } from "../shared/lib"
 import InvitationOverlay from "@/components/InvitationOverlay"
@@ -192,6 +194,9 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
   const brideShort = (profile.bride_name || "").trim()
   const groomFull = (profile.groom_full_name || groomShort).trim()
   const brideFull = (profile.bride_full_name || brideShort).trim()
+  // The editor's "Singkatan Pasangan" wins over the derived first letters.
+  const editorInitials = (profile.couple_initials || "").trim()
+  const initialsList = initialsGlyphs(editorInitials)
   const coupleLabel = [groomShort, brideShort].filter(Boolean).join(" & ") || "Pernikahan"
   const guestName = profile.guest_name || "Tamu Undangan"
   const dateLong = formatLongDate(profile.estimated_wedding_date)
@@ -562,9 +567,19 @@ export default function TraditionalBugisPinishi(profile: TemplateProps) {
             <img className="pinishi-deco pinishi-hero-flowertwo" src={ASSET("decor-bungaBugis4.webp")} alt="" aria-hidden="true" data-aos="zoom-in" data-aos-delay="240" />
             <img className="pinishi-deco pinishi-hero-flowerfour" src={ASSET("decor-bunga-quote-3.webp")} alt="" aria-hidden="true" data-aos="slide-right" data-aos-delay="180" />
             <img className="pinishi-deco pinishi-hero-flowerfive" src={ASSET("decor-puun2bugis.webp")} alt="" aria-hidden="true" data-aos="slide-right" />
-            <p className="pinishi-initials" aria-hidden="true">
-              <span>{(groomShort || "A").charAt(0)}</span>
-              <span>{(brideShort || "N").charAt(0)}</span>
+            <p
+              className={`pinishi-initials${initialsList.length > 2 ? " is-long" : ""}`}
+              aria-hidden="true"
+              style={initialsList.length > 2 ? { fontSize: monogramFontSize(editorInitials, 56) } : undefined}
+            >
+              {initialsList.length > 0 ? (
+                initialsList.map((char, index) => <span key={index}>{char}</span>)
+              ) : (
+                <>
+                  <span>{(groomShort || "A").charAt(0)}</span>
+                  <span>{(brideShort || "N").charAt(0)}</span>
+                </>
+              )}
             </p>
             <figure className="pinishi-hero-photo">
               <img src={versePhoto} alt={coupleLabel} />

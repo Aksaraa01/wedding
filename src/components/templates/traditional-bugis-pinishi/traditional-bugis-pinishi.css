@@ -334,6 +334,11 @@ body:has(.traditional-bugis-pinishi-root.is-locked) {
   top: 4px;
   margin-left: -10px;
 }
+/* Longer abbreviation: every glyph printed, tracking reset so they don't pile up. */
+.traditional-bugis-pinishi-root .pinishi-initials.is-long span + span {
+  top: 0;
+  margin-left: 2px;
+}
 
 .traditional-bugis-pinishi-root .pinishi-hero-photo {
   position: relative;

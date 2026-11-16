@@ -4,10 +4,12 @@ import { useEffect, useRef, useState } from "react"
 import { ASSETS } from "@/lib/assets"
 import { toTransformedUrl } from "@/lib/storageUrl"
 import { FONT_PIXEL } from "../shared/Skin"
+import { initialsGlyphs, monogramFontSize } from "../shared/lib"
 
 const PIXEL = FONT_PIXEL
 
 function CoinSeal({ initials }: { initials: string }) {
+  const glyphCount = initialsGlyphs(initials).length
   return (
     <div className="relative mb-5 sm:mb-6 group">
       <div className="absolute inset-0 -m-3 rounded-2xl bg-[#38bdf8]/40 blur-xl opacity-75 transition-opacity duration-500" />
@@ -15,7 +17,7 @@ function CoinSeal({ initials }: { initials: string }) {
         <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl border border-[#ffc640]/60 flex items-center justify-center bg-[#161b2a]/80 shadow-[inset_0_0_8px_rgba(255,198,64,0.4)]">
           <span
             className="text-[18px] sm:text-[22px] tracking-wider text-[#ffc640]"
-            style={{ ...PIXEL, textShadow: "0 0 10px rgba(255,198,64,0.9)" }}
+            style={{ ...PIXEL, textShadow: "0 0 10px rgba(255,198,64,0.9)", ...(glyphCount > 2 ? { fontSize: monogramFontSize(initials, 22) } : {}) }}
           >
             {initials || "FS"}
           </span>

@@ -229,6 +229,8 @@ export async function GET(
         id: wp.id,
         bride_name: wp.bride_name,
         groom_name: wp.groom_name,
+        event_type: (wp as any).event_type || "wedding",
+        subject_gender: (wp as any).subject_gender || null,
         bride_full_name: (wp as any).bride_full_name || null,
         groom_full_name: (wp as any).groom_full_name || null,
         display_name: wp.display_name,

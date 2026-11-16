@@ -50,6 +50,25 @@ export function initialsOf(...names: Array<string | undefined>): string {
   return letters.slice(0, 2).join("").toUpperCase()
 }
 
+// The editor's "Singkatan Pasangan" as monogram glyphs: every character the
+// couple typed, minus whitespace (the plate's own gap/tracking does the
+// spacing). Array.from keeps surrogate pairs (emoji) whole. Never sliced —
+// templates that used to print only the first two letters silently dropped the
+// rest of values like "A & A", "R&B" or "F&M".
+export function initialsGlyphs(value?: string | null): string[] {
+  return Array.from((value || "").trim()).filter((ch) => !/\s/.test(ch))
+}
+
+// Shrink a monogram whose type sits in a fixed plate (seal, wreath, circle) as
+// the couple's abbreviation grows, so the whole string still fits instead of
+// being clipped. Two glyphs or fewer keep the plate's design size.
+export function monogramFontSize(text: string, base: number): number {
+  const count = initialsGlyphs(text).length
+  if (count <= 2) return base
+  const min = Math.max(9, Math.round(base * 0.36))
+  return Math.max(min, Math.round(base * Math.pow(2 / count, 0.6)))
+}
+
 // First image URL from a value that may be a URL string, an array, or a nested
 // slideshow array — used so cover/story photos always render.
 export function firstImage(v: unknown): string {

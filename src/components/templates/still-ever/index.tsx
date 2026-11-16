@@ -10,7 +10,9 @@ import {
   coverPhoto as coverPhotoOf,
   flattenPhotos,
   gcalLink,
+  initialsGlyphs,
   initialsOf,
+  monogramFontSize,
   normalizeVideoUrl,
 } from "../shared/lib"
 import Wishes from "./Wishes"
@@ -162,7 +164,8 @@ export default function StillEver(profile: TemplateProps) {
   const musicEnd = tc.music_end_seconds == null || tc.music_end_seconds === "" ? null : Number(tc.music_end_seconds)
 
   const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || "The Wedding"
-  const monogram = initialsOf(profile.groom_name, profile.bride_name) || "S&E"
+  const monogram = (profile.couple_initials || "").trim() || initialsOf(profile.groom_name, profile.bride_name) || "S&E"
+  const monogramCount = initialsGlyphs(monogram).length
   const guestName = profile.guest_name || "Beloved Guest"
   const closingMessage = tc.closing_message || DEFAULT_CLOSING
   const waHref = `https://wa.me/${AKSARAA_WA_NUMBER}?text=${encodeURIComponent("Halo Aksaraa Wedding, saya tertarik membuat undangan digital")}`
@@ -890,7 +893,7 @@ export default function StillEver(profile: TemplateProps) {
           </div>
 
           <button type="button" className="se-gate__seal" onClick={openEnvelope} aria-label="Open the invitation">
-            <span>{monogram}</span>
+            <span style={monogramCount > 2 ? { fontSize: `${monogramFontSize(monogram, 19)}px` } : undefined}>{monogram}</span>
           </button>
 
           <div className="se-gate__action">

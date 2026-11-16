@@ -55,6 +55,10 @@ export async function GET(
         id: profile.id,
         bride_name: profile.bride_name,
         groom_name: profile.groom_name,
+        // Event family drives the dashboard tiles and the editor labels; the
+        // payload is an explicit whitelist, so it must be named here.
+        event_type: profile.event_type || "wedding",
+        subject_gender: profile.subject_gender || null,
         slug: profile.slug,
         package_type: packageType,
         payment_status: profile.payment_status || null,

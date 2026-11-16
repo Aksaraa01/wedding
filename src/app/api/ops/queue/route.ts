@@ -73,6 +73,8 @@ export async function GET(req: Request) {
           id: wp.id,
           bride_name: wp.bride_name,
           groom_name: wp.groom_name,
+          event_type: wp.event_type || "wedding",
+          subject_gender: wp.subject_gender || null,
           slug: wp.slug,
           whatsapp_number: wp.whatsapp_number,
           estimated_wedding_date: wp.estimated_wedding_date,

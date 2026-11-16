@@ -29,6 +29,16 @@ type QueueItem = {
   }
 }
 
+// Rite badge shared by every list variant (board, table, cards).
+function EventBadge({ event }: { event?: string | null }) {
+  if (!isKidsEvent(event)) return null
+  return (
+    <span className="ml-1.5 inline-flex items-center rounded-full border border-[#c9a45c]/50 bg-[#f7f0e2] px-1.5 py-0.5 align-middle text-[9px] font-bold uppercase tracking-wider text-[#8a6d2f]">
+      {eventLabels(event).eventNoun}
+    </span>
+  )
+}
+
 type Employee = { id: string; name: string }
 type OpsEmployee = { id: string; name: string; role: string; phone_number?: string }
 
@@ -261,6 +271,7 @@ export default function OpsBoardPage() {
                             <div className="flex items-start justify-between gap-2 mb-2">
                               <p className="font-display-lg text-base leading-tight">
                                 {resolveCoupleName(wp)}
+                                <EventBadge event={wp.event_type} />
                               </p>
                               {wp.express_service && (
                                 <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider bg-amber-50 border border-amber-300 text-amber-800 px-1.5 py-0.5 rounded-full shrink-0" title="Layanan Kilat 24 Jam">Kilat</span>
@@ -342,11 +353,7 @@ export default function OpsBoardPage() {
                             <p className="font-display-lg text-[15px] leading-tight">
                               {wp.groom_name}
                               {wp.bride_name ? <> &amp; {wp.bride_name}</> : null}
-                              {isKidsEvent(wp.event_type) && (
-                                <span className="ml-1.5 inline-flex items-center rounded-full border border-[#c9a45c]/50 bg-[#f7f0e2] px-1.5 py-0.5 align-middle text-[9px] font-bold uppercase tracking-wider text-[#8a6d2f]">
-                                  {eventLabels(wp.event_type).eventNoun}
-                                </span>
-                              )}
+                              <EventBadge event={wp.event_type} />
                             </p>
                               {wp.express_service && (
                                 <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider bg-amber-50 border border-amber-300 text-amber-800 px-1.5 py-0.5 rounded-full shrink-0">Kilat</span>

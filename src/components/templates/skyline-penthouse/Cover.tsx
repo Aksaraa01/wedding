@@ -3,11 +3,13 @@
 import { useEffect, useRef, useState } from "react"
 import { ASSETS } from "@/lib/assets"
 import type { TemplateProps } from "@/types/template"
+import { initialsGlyphs, monogramFontSize } from "../shared/lib"
 
 const DISPLAY = { fontFamily: "var(--font-display, 'Playfair Display'), serif" } as const
 const BODY = { fontFamily: "var(--font-body, 'Plus Jakarta Sans'), sans-serif" } as const
 
 function CoverSeal({ initials }: { initials: string }) {
+  const glyphCount = initialsGlyphs(initials).length
   return (
     <div className="relative mb-6 sm:mb-8 group">
       <div className="absolute inset-0 -m-3 rounded-full bg-[#ffc640]/20 blur-xl opacity-60" />
@@ -15,7 +17,7 @@ function CoverSeal({ initials }: { initials: string }) {
         <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-[#ffc640]/30 flex items-center justify-center">
           <span
             className="text-2xl sm:text-3xl tracking-wider text-transparent bg-clip-text bg-gradient-to-br from-[#dee2f6] via-[#c4e7ff] to-[#ffc640] drop-shadow-[0_2px_8px_rgba(251,191,36,0.3)]"
-            style={DISPLAY}
+            style={{ ...DISPLAY, ...(glyphCount > 2 ? { fontSize: monogramFontSize(initials, 30) } : {}) }}
           >
             {initials || "FS"}
           </span>

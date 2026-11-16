@@ -19,7 +19,9 @@ import {
   flattenPhotos,
   groomPhoto,
   bridePhoto,
+  initialsGlyphs,
   initialsOf,
+  monogramFontSize,
   normalizeVideoUrl,
 } from "../shared/lib"
 import Wishes from "./Wishes"
@@ -364,6 +366,10 @@ export default function LunarBlossom(profile: TemplateProps) {
     profile.display_name?.trim() || [groomShort, brideShort].filter(Boolean).join(" & ") || "The Wedding"
   const guestName = profile.guest_name || (lang === "ID" ? "Tamu Undangan" : "Our Beloved Guest")
   const initials = (profile.couple_initials || "").trim() || initialsOf(brideShort, groomShort)
+  const initialsList = initialsGlyphs(initials)
+  // The reference stacks two glyphs; a longer abbreviation prints as one line
+  // (second slot hidden) so no character is dropped.
+  const longInitials = initialsList.length > 2
   const cover = coverPhoto(profile)
   const groomImage = groomPhoto(profile.groom_photo_url)
   const brideImage = bridePhoto(profile.bride_photo_url)
@@ -543,9 +549,9 @@ export default function LunarBlossom(profile: TemplateProps) {
           </>
         )
       case "initial-1":
-        return initials.slice(0, 1)
+        return longInitials ? initialsList.join("") : (initialsList[0] || "")
       case "initial-2":
-        return initials.slice(1, 2) || initials.slice(0, 1)
+        return longInitials ? null : (initialsList[1] || initialsList[0] || "")
       case "couple-title":
         return c.coupleTitle
       case "bride-name":
@@ -821,9 +827,13 @@ export default function LunarBlossom(profile: TemplateProps) {
       )
     }
 
+    if (e.role === "initial-2" && longInitials) return null
+
     if (e.role) {
+      const longInitialStyle =
+        longInitials && e.role === "initial-1" ? { fontSize: monogramFontSize(initials, 64) } : undefined
       return (
-        <div key={key} className={`lb-el lb-t lb-r-${e.role}`} style={roleStyle(e)}>
+        <div key={key} className={`lb-el lb-t lb-r-${e.role}`} style={roleStyle(e, longInitialStyle)}>
           {roleNode(e.role)}
         </div>
       )

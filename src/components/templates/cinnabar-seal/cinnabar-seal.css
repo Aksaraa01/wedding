@@ -230,6 +230,15 @@ html:has(body.cn-locked) {
 .cn-seal--lg .cn-seal__char {
   font-size: 24px;
 }
+/* Three or more glyphs: print them in one row inside the seal, shrinking so
+   every character the couple typed still fits the rim. */
+.cn-seal__chars--stacked {
+  flex-direction: row;
+  gap: 1px;
+}
+.cn-seal__chars--stacked .cn-seal__char {
+  font-size: max(7px, calc(19px - (var(--cn-count) - 2) * 2px));
+}
 .cn-seal__slash {
   width: 14px;
   height: 1px;

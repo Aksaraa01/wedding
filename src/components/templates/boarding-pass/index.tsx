@@ -185,7 +185,7 @@ export default function BoardingPass(profile: TemplateProps) {
   const dateShort = shortDate(profile.estimated_wedding_date)
   const dateLong = longDate(profile.estimated_wedding_date)
   const firstSession = events[0]
-  const initials = initialsOf(groomName, brideName) || "OWL"
+  const initials = (profile.couple_initials || "").trim() || initialsOf(groomName, brideName) || "OWL"
   const yearShort = String(parseDate(profile.estimated_wedding_date)?.getFullYear() || "").slice(-2)
   const ticketCode = (tc.cover_kicker || "").trim() || `${initials} ${yearShort} · 01A`.trim()
 

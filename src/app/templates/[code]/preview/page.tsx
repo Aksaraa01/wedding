@@ -19,7 +19,7 @@ const DEMO_PROPS: TemplateProps = {
   bride_name: "Annisa",
   groom_name: "Farhan",
   display_name: "Farhan & Annisa",
-  couple_initials: "FA",
+  couple_initials: "A&A",
   estimated_wedding_date: "2030-07-20",
   slug: "demo",
   guest_name: "Tamu Undangan",

@@ -330,6 +330,21 @@
   left: calc(80 * var(--sg-u));
   z-index: 6;
 }
+/* More than two glyphs: one line, auto-shrunk to the plate width. */
+.sg-cover__initial--multi {
+  top: calc(392 * var(--sg-u));
+  left: calc(38 * var(--sg-u));
+  width: auto;
+  max-width: calc(310 * var(--sg-u));
+  line-height: 1.05;
+  letter-spacing: calc(3 * var(--sg-u));
+  text-align: left;
+  white-space: nowrap;
+  z-index: 6;
+}
+.sg-cover__initial--multi::first-letter {
+  font-size: 1em;
+}
 .sg-cover__script {
   position: absolute;
   font-family: var(--font-monsieur);
@@ -1268,6 +1283,16 @@
   left: calc(50% - 6px);
   top: 14px;
   z-index: 3;
+}
+/* More than two glyphs: one centred line, auto-shrunk below. */
+.sg-closing__initial--multi {
+  top: 8px;
+  left: 50%;
+  width: auto;
+  transform: translateX(-50%);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  text-align: center;
 }
 .sg-closing__hashtag {
   margin-top: 16px;

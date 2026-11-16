@@ -492,6 +492,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
+      initials: false,
       cover_slots: 2,
       cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
@@ -530,6 +531,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
+      initials: false,
       cover_slots: 2,
       cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
@@ -568,6 +570,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
+      initials: false,
       cover_slots: 2,
       cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
@@ -608,6 +611,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
+      initials: false,
       cover_slots: 2,
       cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
@@ -688,6 +692,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
+      initials: false,
       cover_slots: 2,
       cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
@@ -728,6 +733,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
+      initials: false,
       cover_slots: 2,
       cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
@@ -768,6 +774,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
+      initials: false,
       cover_slots: 2,
       cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
@@ -808,6 +815,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
+      initials: false,
       cover_slots: 2,
       cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
@@ -886,6 +894,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
+      initials: false,
       cover_slots: 2,
       cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
@@ -957,6 +966,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
+      initials: false,
       cover_slots: 2,
       cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
@@ -997,6 +1007,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
+      initials: false,
       cover_slots: 2,
       cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
@@ -1037,6 +1048,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
+      initials: false,
       cover_slots: 2,
       cover_slot_labels: ["Sampul", "Closing"],
       groom_photo: "single",
@@ -1077,6 +1089,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.8, stagger: 0.2 },
     },
     content: {
+      initials: false,
       cover_slots: 5,
       cover_slot_labels: ["Sampul", "Love Story 1", "Love Story 2", "Love Story 3", "Closing"],
       groom_photo: "single",
@@ -1315,6 +1328,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.62, stagger: 0.12 },
     },
     content: {
+      initials: false,
       // Three semantic slots: the cover/film poster, the masthead still, and the
       // closing still. Portraits come from the mempelai photo fields.
       cover_slots: 2,
@@ -1494,6 +1508,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.9, stagger: 0.1 },
     },
     content: {
+      initials: false,
       cover_slots: 3,
       cover_slot_labels: ["Sampul", "Ayat", "Closing"],
       groom_photo: "single",

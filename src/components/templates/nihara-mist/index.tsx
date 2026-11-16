@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { AKSARAA_WA_NUMBER } from "@/lib/contact"
-import { coverPhoto, photoList } from "../shared/lib"
+import { coverPhoto, photoList, initialsGlyphs } from "../shared/lib"
 import AutoplayYouTube from "../shared/AutoplayYouTube"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import { copyPlainText } from "@/lib/clipboard"
@@ -175,6 +175,8 @@ export default function NiharaMist(profile: TemplateProps) {
   const groomFull = profile.groom_full_name || ""
   const brideFull = profile.bride_full_name || ""
   const initials = (profile.couple_initials || "").trim() || initialsOf(groomShort, brideShort)
+  const initialsList = initialsGlyphs(initials)
+  const monogramClass = initialsList.length > 4 ? " is-longer" : initialsList.length > 2 ? " is-long" : ""
   const cover = coverPhoto(profile)
   const gallery = flattenPhotos(profile.gallery_photos)
   const coverList = flattenPhotos(profile.cover_photos)
@@ -492,9 +494,10 @@ export default function NiharaMist(profile: TemplateProps) {
               <em>{brideShort}</em>
             </p>
             <div className="tpl-preload-monogram-mask" aria-hidden="true">
-              <span className="tpl-preload-monogram">
-                <em className="tpl-preload-monogram__letter">{initials.charAt(0)}</em>
-                <em className="tpl-preload-monogram__letter">{initials.charAt(1)}</em>
+              <span className={`tpl-preload-monogram${monogramClass}`}>
+                {initialsList.map((char, index) => (
+                  <em key={index} className="tpl-preload-monogram__letter">{char}</em>
+                ))}
               </span>
             </div>
           </div>

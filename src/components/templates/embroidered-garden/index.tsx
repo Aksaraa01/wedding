@@ -5,7 +5,7 @@ import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { AKSARAA_WA_NUMBER } from "@/lib/contact"
 import InvitationOverlay from "@/components/InvitationOverlay"
-import { countdownTarget, coverPhoto as coverSlotPhoto, flattenPhotos, gcalLink, initialsOf, videoSource } from "../shared/lib"
+import { countdownTarget, coverPhoto as coverSlotPhoto, flattenPhotos, gcalLink, initialsOf, monogramFontSize, videoSource } from "../shared/lib"
 import Wishes from "./Wishes"
 import "./embroidered-garden.css"
 
@@ -276,9 +276,9 @@ function DoorCartouche({ initials }: { initials: string }) {
         y="153"
         textAnchor="middle"
         fontFamily="'Cormorant Garamond', 'Playfair Display', serif"
-        fontSize={initials.length > 2 ? 40 : 50}
+        fontSize={monogramFontSize(initials, 50)}
         fontWeight={500}
-        letterSpacing="5"
+        letterSpacing={initials.length > 2 ? 2 : 5}
         fill="#b3893f"
       >
         {initials}
@@ -350,7 +350,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
   const giftTabs = accounts.length > 0 && !!giftAddress
 
   const coupleLabel = [profile.groom_name, profile.bride_name].filter(Boolean).join(" & ") || "The Wedding"
-  const monogram = initialsOf(profile.groom_name, profile.bride_name) || "A&E"
+  const monogram = (profile.couple_initials || "").trim() || initialsOf(profile.groom_name, profile.bride_name) || "A&E"
   const guestName = profile.guest_name || "Tamu Undangan"
   const dateLong = longDate(profile.estimated_wedding_date)
   // The couple's "kalimat pembuka" — the greeting / doa they write once for

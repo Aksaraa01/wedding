@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { AKSARAA_WA_NUMBER } from "@/lib/contact"
@@ -71,18 +71,23 @@ const ON_LOAD = (kind: Reveal, delay = 0): RevealProps => ({
 })
 
 function Seal({ initials, size = "sm" }: { initials: string; size?: "sm" | "md" | "lg" }) {
-  const chars = initials.split("")
+  const chars = Array.from(initials)
+  // Two glyphs keep the reference's stacked slash mark; a longer abbreviation
+  // prints every letter in the seal (auto-shrunk) instead of losing the third.
+  const stacked = chars.length > 2
   return (
     <span className={`cn-seal cn-seal--${size}`} aria-hidden="true">
       <span className="cn-seal__mark" />
-      <span className="cn-seal__chars">
-        <span className="cn-seal__char">{chars[0] || ""}</span>
-        {chars[1] && (
-          <>
-            <i className="cn-seal__slash" />
-            <span className="cn-seal__char">{chars[1]}</span>
-          </>
-        )}
+      <span
+        className={`cn-seal__chars${stacked ? " cn-seal__chars--stacked" : ""}`}
+        style={stacked ? ({ "--cn-count": chars.length } as CSSProperties) : undefined}
+      >
+        {chars.map((char, index) => (
+          <Fragment key={index}>
+            {index > 0 && !stacked && <i className="cn-seal__slash" />}
+            <span className="cn-seal__char">{char}</span>
+          </Fragment>
+        ))}
       </span>
     </span>
   )
@@ -219,7 +224,7 @@ export default function CinnabarSeal(profile: TemplateProps) {
   // The editor owns the cover monogram ("Singkatan Pasangan"); only fall back
   // to the names when the couple has not filled it.
   const editorInitials = (profile.couple_initials || "").replace(/[^A-Za-z]/g, "").toUpperCase()
-  const initials = editorInitials.slice(0, 2) || initialsOf(groomName, brideName) || "CS"
+  const initials = editorInitials || initialsOf(groomName, brideName) || "CS"
   const year = String(parseDate(profile.estimated_wedding_date)?.getFullYear() || new Date().getFullYear())
 
   const groomIg = igHandle(profile.groom_instagram)
