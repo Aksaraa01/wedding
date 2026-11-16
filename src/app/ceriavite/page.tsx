@@ -58,27 +58,6 @@ const WA_CHAT = waLink(
   "Halo Aksaraa, saya ingin konsultasi undangan digital khitanan/aqiqah/ulang tahun untuk ananda. Mohon informasi paketnya.",
 )
 
-const FEATURES = [
-  {
-    icon: "how_to_reg",
-    label: "Reservasi tamu",
-    title: "Konfirmasi Kehadiran",
-    text: "Tamu memilih hadir atau tidak, lengkap dengan jumlah orang. Rekapnya langsung terlihat di dashboard.",
-  },
-  {
-    icon: "favorite",
-    label: "Doa restu",
-    title: "Doa dan Ucapan",
-    text: "Doa restu tamu terkumpul di satu halaman. Anda memilih ucapan mana yang tampil di undangan.",
-  },
-  {
-    icon: "redeem",
-    label: "Tanda kasih",
-    title: "Amplop Digital",
-    text: "Rekening atau e-wallet tampil rapi. Tamu cukup menekan satu tombol untuk menyalin nomornya.",
-  },
-] as const
-
 const PACKAGE_INCLUDES = [
   "Undangan website dengan tautan tamu tanpa batas",
   "Konfirmasi kehadiran (hadir, tidak hadir, jumlah orang)",
@@ -152,8 +131,8 @@ export default async function CeriaviteLandingPage() {
                 </h2>
               </div>
               <p className="max-w-sm text-[12.5px] leading-relaxed text-[#6E6A63] md:text-right md:text-[14px]">
-                {shelf.length} desain siap pakai, masing-masing sudah berisi RSVP, doa dan ucapan, galeri,
-                serta tanda kasih.
+                {shelf.length} desain untuk khitanan, aqiqah, dan ulang tahun. Pratinjau langsung
+                dari layar HP.
               </p>
             </div>
           </div>
@@ -187,128 +166,70 @@ export default async function CeriaviteLandingPage() {
           </div>
         </section>
 
-        {/* 3. Harga + buat undangan / konsultasi gratis */}
-        <section className="bg-white pb-4 pt-2 md:pb-8">
+        {/* 3. Harga & paket: price, what is included and the two actions in one card */}
+        <section id="paket" className="bg-white pb-6 pt-2 md:pb-12">
           <div className="mx-auto max-w-7xl px-6 lg:px-12">
-            <div className="relative overflow-hidden rounded-3xl border border-[#EDE4D5] bg-[#FBF6EC] px-6 py-8 text-center md:px-12 md:py-12">
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#EFE1C9] opacity-60 blur-3xl"
-              />
-              <div className="relative mx-auto max-w-2xl">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#B08A4A]">
-                  Satu paket, sekali bayar
-                </p>
-                <p className="mt-3 text-[13px] text-[#A39B8E] line-through md:text-[15px]">Rp 299.000</p>
-                <h2 className="mt-1 font-headline-lg text-[30px] leading-[1.15] tracking-tight text-[#1A1817] md:text-[44px]">
-                  Rp 199.000
-                </h2>
-                <p className="mx-auto mt-3 max-w-xl text-[12.5px] leading-relaxed text-[#6E6A63] md:text-[14.5px]">
-                  Termasuk undangan website, konfirmasi kehadiran, doa dan ucapan, galeri, tanda kasih,
-                  musik, dan hitung mundur.
-                </p>
-                <div className="mt-6 flex flex-col items-stretch justify-center gap-2.5 sm:flex-row sm:items-center">
-                  <Link
-                    href="/daftar"
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[#8D4D39] px-7 py-3 font-label-lg text-label-lg text-white transition-colors hover:bg-[#7A4130]"
-                  >
-                    Buat undangan
-                    <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-                  </Link>
-                  <a
-                    href={WA_CHAT}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-[#DCD2C2] bg-white px-7 py-3 font-label-lg text-label-lg text-[#1A1817] transition-colors hover:border-[#1A1817]"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">chat</span>
-                    Konsultasi gratis
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+            <div className="overflow-hidden rounded-3xl border border-[#EDE4D5] bg-white shadow-[0_30px_60px_-46px_rgba(26,24,23,0.45)]">
+              <div className="grid grid-cols-1 md:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)]">
+                <div className="relative overflow-hidden bg-[#FBF6EC] p-6 text-center md:p-10 md:text-left">
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#EFE1C9] opacity-60 blur-3xl"
+                  />
+                  <div className="relative">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#B08A4A]">
+                      Satu paket
+                    </p>
+                    <p className="mt-4 text-[13px] text-[#A39B8E] line-through md:text-[15px]">Rp 299.000</p>
+                    <p className="mt-1 font-headline-lg text-[34px] leading-none tracking-tight text-[#1A1817] md:text-[46px]">
+                      Rp 199.000
+                    </p>
+                    <p className="mt-2 text-[11px] uppercase tracking-[0.16em] text-[#8B857C]">sekali bayar</p>
 
-        {/* 4. Yang Anda dapat */}
-        <section className="bg-white py-12 md:py-16">
-          <div className="mx-auto max-w-7xl px-6 lg:px-12">
-            <div className="mb-7 flex flex-col gap-2 md:mb-10 md:flex-row md:items-end md:justify-between">
-              <div className="max-w-xl">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#8D4D39] md:text-[11px]">
-                  Fitur
-                </p>
-                <h2 className="mt-2 font-headline-lg text-[24px] leading-[1.2] tracking-tight text-[#1A1817] md:text-headline-lg">
-                  Yang Anda dapat
-                </h2>
-              </div>
-              <p className="max-w-sm text-[12.5px] leading-relaxed text-[#6E6A63] md:text-right md:text-[14px]">
-                Tiga hal yang paling sering dipakai tamu, semuanya sudah termasuk.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-6">
-              {FEATURES.map((f) => (
-                <div key={f.title} className="rounded-2xl border border-[#F0EAE0] bg-[#FCFAF6] p-5 md:p-7">
-                  <div className="flex items-center justify-between">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#8D4D39] shadow-sm md:h-11 md:w-11">
-                      <span className="material-symbols-outlined text-[20px] md:text-[22px]">{f.icon}</span>
-                    </span>
-                    <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#B08A4A]">
-                      {f.label}
-                    </span>
+                    <div className="mt-6 flex flex-col gap-2.5">
+                      <Link
+                        href="/daftar"
+                        className="inline-flex items-center justify-center gap-2 rounded-full bg-[#8D4D39] px-6 py-3 font-label-lg text-label-lg text-white transition-colors hover:bg-[#7A4130]"
+                      >
+                        Buat undangan
+                        <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                      </Link>
+                      <a
+                        href={WA_CHAT}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-2 rounded-full border border-[#DCD2C2] bg-white px-6 py-3 font-label-lg text-label-lg text-[#1A1817] transition-colors hover:border-[#1A1817]"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">chat</span>
+                        Konsultasi gratis
+                      </a>
+                    </div>
+                    <p className="mt-3 text-center text-[11px] text-[#8B857C] md:text-left">
+                      Undangan aktif setelah pembayaran dikonfirmasi tim kami.
+                    </p>
                   </div>
-                  <h3 className="mt-4 font-headline-sm text-[16px] text-[#1A1817] md:text-[17px]">{f.title}</h3>
-                  <p className="mt-2 text-[12.5px] leading-relaxed text-[#6E6A63] md:text-[13px]">{f.text}</p>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
-        {/* 5. Detail paket */}
-        <section id="paket" className="bg-[#FAF7F2] py-12 md:py-16">
-          <div className="mx-auto max-w-7xl px-6 lg:px-12">
-            <div className="mx-auto max-w-2xl overflow-hidden rounded-3xl border border-[#EDE4D5] bg-white">
-              <div className="flex items-end justify-between gap-4 border-b border-[#F3EEE4] px-6 py-5 md:px-8">
-                <div>
+                <div className="p-6 md:p-10">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#8D4D39]">
-                    Paket undangan
+                    Termasuk
                   </p>
-                  <h2 className="mt-1.5 font-headline-lg text-[22px] tracking-tight text-[#1A1817] md:text-[26px]">
-                    Detail paket
+                  <h2 className="mt-2 font-headline-lg text-[22px] tracking-tight text-[#1A1817] md:text-[26px]">
+                    Apa saja di dalam paket
                   </h2>
+                  <ul className="mt-4 grid grid-cols-1 gap-x-6 sm:grid-cols-2">
+                    {PACKAGE_INCLUDES.map((item) => (
+                      <li key={item} className="flex items-start gap-2.5 py-2.5">
+                        <span className="material-symbols-outlined mt-0.5 text-[17px] text-[#8D4D39]">
+                          check_circle
+                        </span>
+                        <span className="text-[12.5px] leading-relaxed text-[#3B3833] md:text-[13px]">
+                          {item}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <div className="text-right">
-                  <p className="text-[11px] text-[#A39B8E] line-through">Rp 299.000</p>
-                  <p className="font-headline-md text-[22px] leading-none text-[#1A1817] md:text-[26px]">
-                    Rp 199.000
-                  </p>
-                </div>
-              </div>
-              <ul className="px-6 py-4 md:px-8">
-                {PACKAGE_INCLUDES.map((item, i) => (
-                  <li
-                    key={item}
-                    className={`flex items-start gap-3 py-3 ${i > 0 ? "border-t border-[#F5F0E7]" : ""}`}
-                  >
-                    <span className="material-symbols-outlined mt-0.5 text-[17px] text-[#8D4D39]">
-                      check_circle
-                    </span>
-                    <span className="text-[12.5px] leading-relaxed text-[#3B3833] md:text-[13.5px]">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="border-t border-[#F3EEE4] px-6 py-5 md:px-8">
-                <Link
-                  href="/daftar"
-                  className="flex items-center justify-center gap-2 rounded-full bg-[#8D4D39] px-6 py-3 font-label-lg text-label-lg text-white transition-colors hover:bg-[#7A4130]"
-                >
-                  Buat undangan sekarang
-                  <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-                </Link>
-                <p className="mt-2.5 text-center text-[11px] text-[#8B857C]">
-                  Undangan aktif setelah pembayaran dikonfirmasi tim kami.
-                </p>
               </div>
             </div>
           </div>
