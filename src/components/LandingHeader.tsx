@@ -69,7 +69,7 @@ export default function LandingHeader() {
               <span className="material-symbols-outlined text-[20px]">search</span>
             </button>
             <a
-              className="rounded-full bg-[#1A1817] px-3.5 py-1.5 font-label-md text-label-md uppercase tracking-wider text-white transition-colors duration-200 hover:bg-[#8D4D39]"
+              className="rounded-full bg-[#8D4D39] px-3.5 py-1.5 font-label-md text-label-md uppercase tracking-wider text-white transition-colors duration-200 hover:bg-[#8D4D39]"
               href={WA_MULAI}
             >
               Mulai

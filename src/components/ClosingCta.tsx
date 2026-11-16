@@ -28,7 +28,7 @@ export default function ClosingCta() {
                 href={WA_LINK}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#1A1817] px-7 py-3 font-label-lg text-label-lg text-white transition-colors hover:bg-[#8D4D39]"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#8D4D39] px-7 py-3 font-label-lg text-label-lg text-white transition-colors hover:bg-[#8D4D39]"
               >
                 Mulai Sekarang
                 <span className="material-symbols-outlined text-[16px]">arrow_forward</span>

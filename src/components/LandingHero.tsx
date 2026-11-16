@@ -48,7 +48,7 @@ export default function LandingHero() {
               href={WA_MULAI_LINK}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[#1A1817] px-4 py-2.5 font-label-lg text-[11.5px] text-white shadow-[0_10px_24px_-12px_rgba(26,24,23,0.5)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#8D4D39] sm:flex-none sm:gap-2 sm:px-6 sm:py-3 sm:text-label-lg"
+              className="inline-flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[#8D4D39] px-4 py-2.5 font-label-lg text-[11.5px] text-white shadow-[0_10px_24px_-12px_rgba(26,24,23,0.5)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#8D4D39] sm:flex-none sm:gap-2 sm:px-6 sm:py-3 sm:text-label-lg"
             >
               Mulai Sekarang
               <span className="material-symbols-outlined text-[14px] sm:text-[16px]">arrow_forward</span>

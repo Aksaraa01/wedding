@@ -493,7 +493,7 @@ export default function DigitalPassPage({ params }: { params: Promise<{ segments
 
         {!isPreview && (
           <div className="w-full mt-6 space-y-3">
-          <button onClick={downloadPass} disabled={downloading} className="w-full h-12 bg-[#1A1817] text-white rounded-xl text-xs uppercase tracking-[0.15em] font-semibold hover:bg-[#8D4D39] transition-all duration-300 active:scale-[0.98] shadow-md flex items-center justify-center gap-2">
+          <button onClick={downloadPass} disabled={downloading} className="w-full h-12 bg-[#8D4D39] text-white rounded-xl text-xs uppercase tracking-[0.15em] font-semibold hover:bg-[#8D4D39] transition-all duration-300 active:scale-[0.98] shadow-md flex items-center justify-center gap-2">
             <span className="material-symbols-outlined text-base">download</span>
             <span>{downloading ? "MEMPROSES GAMBAR..." : "Simpan ke Galeri (PNG)"}</span>
           </button>

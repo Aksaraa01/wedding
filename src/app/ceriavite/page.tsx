@@ -130,7 +130,7 @@ export default async function CeriaviteLandingPage() {
             </Link>
             <Link
               href="/daftar"
-              className="rounded-full bg-[#1A1817] px-4 py-2 font-label-lg text-label-lg text-white transition-colors hover:bg-[#8D4D39] sm:px-5"
+              className="rounded-full bg-[#8D4D39] px-4 py-2 font-label-lg text-label-lg text-white transition-colors hover:bg-[#7A4130] sm:px-5"
             >
               Buat undangan
             </Link>
@@ -204,7 +204,7 @@ export default async function CeriaviteLandingPage() {
                 <div className="mt-6 flex flex-col items-stretch justify-center gap-2.5 sm:flex-row sm:items-center">
                   <Link
                     href="/daftar"
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[#1A1817] px-7 py-3 font-label-lg text-label-lg text-white transition-colors hover:bg-[#8D4D39]"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[#8D4D39] px-7 py-3 font-label-lg text-label-lg text-white transition-colors hover:bg-[#7A4130]"
                   >
                     Buat undangan
                     <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
@@ -295,7 +295,7 @@ export default async function CeriaviteLandingPage() {
               <div className="border-t border-[#F3EEE4] px-6 py-5 md:px-8">
                 <Link
                   href="/daftar"
-                  className="flex items-center justify-center gap-2 rounded-full bg-[#1A1817] px-6 py-3 font-label-lg text-label-lg text-white transition-colors hover:bg-[#8D4D39]"
+                  className="flex items-center justify-center gap-2 rounded-full bg-[#8D4D39] px-6 py-3 font-label-lg text-label-lg text-white transition-colors hover:bg-[#7A4130]"
                 >
                   Buat undangan sekarang
                   <span className="material-symbols-outlined text-[16px]">arrow_forward</span>

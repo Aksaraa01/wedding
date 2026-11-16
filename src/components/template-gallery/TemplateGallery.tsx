@@ -256,7 +256,7 @@ export default function TemplateGallery({
                     aria-pressed={categoryFilter === c.id}
                     className={`shrink-0 snap-start whitespace-nowrap rounded-full border px-4 py-2 font-label-md text-[10px] uppercase tracking-widest transition-colors lg:px-5 lg:text-[11px] ${
                       categoryFilter === c.id
-                        ? "border-[#1A1817] bg-[#1A1817] text-white"
+                        ? "border-[#8D4D39] bg-[#8D4D39] text-white"
                         : "border-[#E2D9CF] bg-white text-[#2C2A29] hover:border-[#1A1817]"
                     }`}
                   >
