@@ -7,7 +7,7 @@ import { ASSETS } from "@/lib/assets"
 import ProfileMenu from "@/components/ProfileMenu"
 import UpgradePackageModal from "@/components/UpgradePackageModal"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
-import { isKidsEvent } from "@/lib/eventType"
+import { profileView } from "@/lib/profileView"
 import { MSG_CATEGORIES, MSG_TEMPLATES, MSG_VARS, MsgCategory, cleanMessageForCell, isValidMsgCategory, renderMessage } from "@/lib/messageTemplates"
 import { FALLBACK_GUEST_SLUG, FALLBACK_GUEST_NAME, slugifyName } from "@/lib/guest-slug"
 import { paymentWaLink } from "@/lib/contact"
@@ -287,7 +287,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       // Resolve the category from the profile we just loaded (not from state,
       // which is still empty here). A Ceriavite profile always gets the kids
       // template, whatever wedding category was saved before.
-      const kidsHere = isKidsEvent(profileData.profile?.event_type)
+      const kidsHere = profileView(profileData.profile).kids
       const savedCat = profileData.profile?.message_category
       const resolvedCat: MsgCategory = kidsHere
         ? "khitanan"
@@ -419,8 +419,9 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
       : ""
   }
 
+  const view = profileView(profile)
   const coupleName = profile
-    ? isKidsEvent(profile.event_type)
+    ? view.kids
       ? ((profile.groom_parents || "").trim() || (profile.groom_full_name || "").trim() || resolveCoupleName(profile))
       : resolveCoupleName(profile)
     : ""
@@ -848,7 +849,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
             {templateOpen && (
               <div className="p-5 border-t border-[#E2D9CF] space-y-4">
                 <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
-                  {(isKidsEvent(profile?.event_type)
+                  {(view.chrome.messageCategory === "khitanan"
                     ? MSG_CATEGORIES.filter((c) => c.id === "khitanan")
                     : MSG_CATEGORIES.filter((c) => c.id !== "khitanan")
                   ).map((c) => (
@@ -867,7 +868,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
                 </div>
 
                 <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
-                  {MSG_VARS.filter((v) => !(isKidsEvent(profile?.event_type) && v.tag === "{Nama Pasangan}")).map((v) => (
+                  {MSG_VARS.filter((v) => !(view.kids && v.tag === "{Nama Pasangan}")).map((v) => (
                     <button
                       key={v.tag}
                       type="button"

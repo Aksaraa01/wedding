@@ -9,7 +9,7 @@ import { PACKAGE_LABELS as PACKAGE_LABEL, getPackageCategory, hasVipQuotaBase } 
 import UpgradePackageModal, { type UpgradeModalContent } from "@/components/UpgradePackageModal"
 import { startTour } from "@/components/onboarding/ProductJourney"
 import { brandHomeHref } from "@/lib/eventHost"
-import { isKidsEvent } from "@/lib/eventType"
+import { profileView } from "@/lib/profileView"
 
 type Selections = {
   premium_web: boolean
@@ -160,6 +160,8 @@ function DashboardInner({ id }: { id: string }) {
   // Upsell popup hook lives with the rest: anything after the `if (loading)`
   // early return below would trip React #310 (hook count changed).
   const [upsell, setUpsell] = useState<null | "galeri" | "undangan" | "wishwall" | "dgbook">(null)
+  // Single source for every family-dependent decision on this page.
+  const view = profileView(profile)
 
   useEffect(() => {
     Promise.all([
@@ -411,7 +413,7 @@ function DashboardInner({ id }: { id: string }) {
           ) : (
             <button
               onClick={() => router.push(`/customize?${settingsParams}`)}
-              style={{ display: isKidsEvent(profile.event_type) ? "none" : undefined }}
+              style={{ display: view.chrome.packageButton ? undefined : "none" }}
               className="relative group w-9 h-9 rounded-lg bg-[#ece2d4]/80 hover:bg-[#dfd3c3] flex items-center justify-center text-slate-700 transition shadow-sm"
               title="Ganti Paket"
               aria-label="Ganti Paket"
@@ -506,17 +508,17 @@ function DashboardInner({ id }: { id: string }) {
                       <span className="material-symbols-outlined text-[16px] shrink-0">mail</span>
                       <span className="whitespace-nowrap">Lihat Undangan</span>
                     </button>
-                    <button onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)} data-tour="undangan-tamu" title="Undangan Tamu" className={showGaleriBtn || isKidsEvent(profile.event_type)
+                    <button onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)} data-tour="undangan-tamu" title="Undangan Tamu" className={showGaleriBtn || !view.chrome.guestGallery
                       ? "flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink"
                       : "flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden text-ellipsis shrink"}>
                       <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">qr_code_2</span>
-                      <span className={showGaleriBtn || isKidsEvent(profile.event_type) ? "whitespace-nowrap hidden md:inline" : "whitespace-nowrap"}>Undangan Tamu</span>
+                      <span className={showGaleriBtn || !view.chrome.guestGallery ? "whitespace-nowrap hidden md:inline" : "whitespace-nowrap"}>Undangan Tamu</span>
                     </button>
                     <button onClick={() => (wishEligible ? router.push(`/dashboard/${id}/wish-wall`) : isGt ? setUpsell("undangan") : setUpsell("wishwall"))} data-tour="wish-wall" title="Wish Wall" className="flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink">
                       <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">favorite</span>
                       <span className="whitespace-nowrap hidden md:inline">Wish Wall</span>
                     </button>
-                    {showGaleriBtn && !isKidsEvent(profile.event_type) && (
+                    {showGaleriBtn && view.chrome.guestGallery && (
                       <button onClick={() => (galeriEligible ? router.push(`/dashboard/${id}/galeri-kenangan`) : setUpsell("galeri"))} data-tour="galeri-tamu" title="Galeri Tamu" className="flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink">
                         <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">photo_library</span>
                         <span className="whitespace-nowrap hidden md:inline">Galeri Tamu</span>
@@ -593,7 +595,7 @@ function DashboardInner({ id }: { id: string }) {
               ) : (
               <button
                 onClick={() => setUpsell("dgbook")}
-                style={{ display: isKidsEvent(profile.event_type) ? "none" : undefined }}
+                style={{ display: view.chrome.checkInTile ? undefined : "none" }}
                 className="bg-white p-3 md:p-5 text-left transition-all cursor-pointer hover:bg-[#faf6ee] active:scale-[0.99] group/box"
               >
                 <p className="text-[11px] uppercase tracking-wider text-on-surface-variant mb-1 flex items-center justify-between">
@@ -611,7 +613,7 @@ function DashboardInner({ id }: { id: string }) {
               onClick={() => (isGt ? setUpsell("undangan") : router.push(`/dashboard/${id}/guests`))}
               className={`w-full py-3.5 md:py-5 bg-[#b85d3f] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-[#9d4c32] active:scale-[0.98] transition-colors ${isGt ? "opacity-80" : ""}`}
             >
-              {isKidsEvent(profile.event_type) ? "Kelola Tamu" : "Kelola Tamu & Meja"}
+              {view.chrome.tableLabel ? "Kelola Tamu & Meja" : "Kelola Tamu"}
               <span className="material-symbols-outlined text-[18px]">{isGt ? "lock" : "chevron_right"}</span>
             </button>
           </div>
