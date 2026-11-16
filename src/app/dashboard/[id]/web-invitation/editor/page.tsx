@@ -3,7 +3,7 @@
 import { useState, useEffect, use, useRef, useCallback, useMemo, ComponentType } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
-import { isKidsEvent } from "@/lib/eventType"
+import { profileView } from "@/lib/profileView"
 import { getTemplateComponent, getTemplateContentSpec, hidesOpeningSection } from "@/components/templates"
 import { visibleCoverSlotIndexes } from "@/lib/coverSlots"
 import { getTemplateExtraFields, groupExtraFields, templateExtrasLabel } from "@/lib/templateExtras"
@@ -490,7 +490,7 @@ function EditorInner({ id }: { id: string }) {
   // Stored photos are kept so switching back to a with-photo template restores
   // them — hide must never equal delete.
   const isNoPhoto = template?.no_photo === true
-  const kids = isKidsEvent(data.event_type)
+  const kids = profileView(data).kids
   // Cover slots and portraits are separate questions: a design can have none of
   // either but still take a gallery + film (lace). An upload field the template
   // never renders is worse than no field at all. The slot count is the single

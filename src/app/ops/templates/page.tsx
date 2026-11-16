@@ -963,7 +963,7 @@ export default function OpsTemplatesPage() {
                     {typeof t.popular_rank === "number" && (
                       <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-amber-100 text-amber-800 shrink-0">#{t.popular_rank} Populer</span>
                     )}
-                    {(t as any).event_type === "kids" && (
+                    {eventFamily((t as any).event_type) === "kids" && (
                       <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-[#f7f0e2] text-[#8a6d2f] border border-[#c9a45c]/50 shrink-0">Ceriavite</span>
                     )}
                     {t.source_type === "inhouse" && (

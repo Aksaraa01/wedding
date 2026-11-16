@@ -11,6 +11,7 @@ import TemplateGallery from "@/components/template-gallery/TemplateGallery"
 import { packageDisplayName, lowestEligiblePackage } from "@/lib/packages"
 import { templateUpgradeWaLink } from "@/lib/contact"
 import { eventFamily } from "@/lib/eventType"
+import { profileView } from "@/lib/profileView"
 
 type Template = {
   id: string
@@ -59,7 +60,7 @@ function TemplatesInner({ id }: { id: string }) {
       const invProfile = invData.profile || null
       // Event family gate: a Ceriavite (kids) profile only sees kids designs, a
       // wedding profile only sees wedding designs.
-      const family = eventFamily(invProfile?.event_type)
+      const family = profileView(invProfile).family
       const all = tplData.templates || []
       const familyList = all.filter((t: Template) => eventFamily(t.event_type) === family)
       // Never leave the picker empty: if the family filter has no match (legacy

@@ -14,7 +14,7 @@ import { thumbUrl, thumbStoryImages } from "@/lib/storageUrl"
 import { toOgImageUrl } from "@/lib/storage"
 import { prettifyGuestSlug, FALLBACK_GUEST_NAME, findGuestForTo, guestToFromParams } from "@/lib/guest-link"
 import { resolveCoupleName } from "@/lib/coupleName"
-import { eventLabels, isKidsEvent } from "@/lib/eventType"
+import { profileView } from "@/lib/profileView"
 import InvitationExpired from "@/components/InvitationExpired"
 import { coupleUrl } from "@/lib/coupleUrl"
 
@@ -73,8 +73,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   // Ceriavite (kids) shares carry the rite and the child's name, not a wedding
   // title. Absolute title so the root layout does not append "| Aksaraa Wedding".
-  const kids = isKidsEvent((profile as any).event_type)
-  const labels = eventLabels((profile as any).event_type, (profile as any).subject_gender)
+  const view = profileView(profile)
+  const kids = view.kids
+  const labels = view.labels
   const title: Metadata["title"] = kids
     ? { absolute: `${labels.eventKicker} ${name1} | ${labels.brand}` }
     : `The Wedding of ${name1}-${name2}`
@@ -504,7 +505,7 @@ export default async function WeddingInvitation({
         wedding_profile_id={profile.id}
         event_type={profile.event_type || "wedding"}
         subject_gender={profile.subject_gender || undefined}
-        event_labels={eventLabels(profile.event_type, profile.subject_gender)}
+        event_labels={profileView(profile).labels}
         guest_id={guestContext?.id}
         guest_link_strict={linkStrict}
         guest_slug={to || undefined}

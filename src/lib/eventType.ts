@@ -23,7 +23,13 @@ export function normalizeEventType(value: unknown): EventType {
   return isEventType(value) ? value : "wedding"
 }
 
+/**
+ * True for a rite ("khitanan") AND for the stored family value ("kids").
+ * Both shapes reach this helper: profiles carry the rite, web_templates carry
+ * the family. Accepting only the rite is what emptied the template picker.
+ */
 export function isKidsEvent(value: unknown): boolean {
+  if (value === "kids") return true
   return KIDS_EVENT_TYPES.includes(normalizeEventType(value))
 }
 
@@ -32,9 +38,6 @@ export function isKidsEvent(value: unknown): boolean {
 export type EventFamily = "wedding" | "kids"
 
 export function eventFamily(value: unknown): EventFamily {
-  // Accepts both a rite (khitanan/aqiqah/birthday) and the stored family value
-  // ("kids"), which is what web_templates.event_type holds.
-  if (value === "kids") return "kids"
   return isKidsEvent(value) ? "kids" : "wedding"
 }
 
