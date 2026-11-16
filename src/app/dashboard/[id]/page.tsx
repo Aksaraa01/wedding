@@ -411,6 +411,7 @@ function DashboardInner({ id }: { id: string }) {
           ) : (
             <button
               onClick={() => router.push(`/customize?${settingsParams}`)}
+              style={{ display: isKidsEvent(profile.event_type) ? "none" : undefined }}
               className="relative group w-9 h-9 rounded-lg bg-[#ece2d4]/80 hover:bg-[#dfd3c3] flex items-center justify-center text-slate-700 transition shadow-sm"
               title="Ganti Paket"
               aria-label="Ganti Paket"
@@ -433,10 +434,7 @@ function DashboardInner({ id }: { id: string }) {
             <div className="relative bg-gradient-to-b md:bg-gradient-to-r from-[#b7583d] via-[#b35237] to-[#9b432a] rounded-[24px] overflow-hidden flex flex-col">
               <div className="relative px-5 md:px-9 pt-5 md:pt-6 pb-7 md:pb-9 rounded-b-[28px] md:rounded-b-[32px] overflow-hidden shadow-md z-10" style={{ backgroundColor: "rgb(236,224,206)", backgroundImage: "url(\"https://lh3.googleusercontent.com/aida-public/AB6AXuBLv_ul4rYeXAog4-6887ND4kkTGR7BHY0cAmpLcSXy7CXuvIfwYHkx5Rrw-ggdKRpC8eDcVNBUx8xhbqotcSH-s3gLaUzYrI3uy5uFy_SiJkuHlugeqjch7Zbf3dBfQPeqSjFuODdjWLGNo796PQXGvUErZ5lUzRmycI26A38177tF2LdP7rfeMoizZilih3cIqLu4q9qyDvvNbV3lutUsV9vG4elmzEi_LkgBX60SiJevBYe-t9TAKv4DJayS_DTavIYqiei_Wtn9QQ\")", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}>
                 <div className="flex flex-wrap md:flex-nowrap items-center gap-1.5 md:gap-2 mb-4 max-w-full overflow-hidden">
-                  <div
-                    style={{ display: isKidsEvent(profile.event_type) ? "none" : undefined }}
-                    className="inline-flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-white/85 border border-[#e5ded4] shadow-sm backdrop-blur-sm text-[10px] md:text-[11px] whitespace-nowrap shrink-0"
-                  >
+                  <div className="inline-flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-white/85 border border-[#e5ded4] shadow-sm backdrop-blur-sm text-[10px] md:text-[11px] whitespace-nowrap shrink-0">
                     <span className="flex items-center text-stone-900 font-bold tracking-tight"><span className="w-2 h-2 rounded-full bg-[#b8382c] mr-1.5 inline-block"></span>PAKET {(PACKAGE_LABEL[profile.package_type || ""] || "Essential").toUpperCase()}</span>
                     <span className="text-stone-400">•</span>
                     <span className="text-stone-700 font-medium tracking-tight">{getPackageCategory(profile.package_type || "") || "UNDANGAN DIGITAL"}</span>
