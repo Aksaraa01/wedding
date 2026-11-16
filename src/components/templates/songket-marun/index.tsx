@@ -238,13 +238,6 @@ export default function SongketMarun(profile: TemplateProps) {
           {/* Pembuka */}
           <section className="skm-section skm-section--cream skm-pembuka" data-skm-reveal>
             <p className="skm-basmalah" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
-            {quoteText && (
-              <>
-                <p className="skm-pembuka__quote">&ldquo;{quoteText}&rdquo;</p>
-                {quoteSource && <p className="skm-pembuka__quote-source">{quoteSource}</p>}
-                <div className="skm-pita" aria-hidden="true" />
-              </>
-            )}
             <p className="skm-pembuka__salam">{salam}</p>
             <p className="skm-pembuka__text">{openingText}</p>
           </section>
@@ -280,6 +273,8 @@ export default function SongketMarun(profile: TemplateProps) {
                 {doaArabic}
               </p>
               <p className="skm-doa__text">{doaBlessing}</p>
+              {quoteText && <p className="skm-doa__translate">&ldquo;{quoteText}&rdquo;</p>}
+              {quoteSource && <p className="skm-doa__source">{quoteSource}</p>}
 
             </div>
           </section>
@@ -291,7 +286,11 @@ export default function SongketMarun(profile: TemplateProps) {
             <p className="skm-kicker skm-section__kicker">Save the Date</p>
             <h2 className="skm-section__title">Hari Bahagia</h2>
             <p className="skm-date__weekday">{weekday}</p>
-            <p className="skm-date__day">{dayNum}</p>
+            <div className="skm-date__big">
+              <span className="skm-date__rule" aria-hidden="true" />
+              <p className="skm-date__day">{dayNum}</p>
+              <span className="skm-date__rule" aria-hidden="true" />
+            </div>
             <p className="skm-date__rest">
               {monthName} {yearNum}
             </p>
@@ -368,8 +367,8 @@ export default function SongketMarun(profile: TemplateProps) {
             <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
               <p className="skm-kicker skm-section__kicker">Galeri</p>
               <h2 className="skm-section__title">{galleryTitle}</h2>
-              <p className="skm-section__lead">{galleryLead}</p>
               <div className="skm-pita" aria-hidden="true" />
+              <p className="skm-section__lead">{galleryLead}</p>
               <div className="skm-galeri__grid">
                 {gallery.map((src, i) => (
                   <figure key={`${src}-${i}`}>
@@ -383,7 +382,6 @@ export default function SongketMarun(profile: TemplateProps) {
           {/* Tanda Kasih */}
           {hasGift && (
             <section className="skm-section skm-section--dark skm-gift" data-skm-reveal>
-            <span className="skm-edge skm-edge--top" aria-hidden="true" />
             <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
               <img className="skm-gift__orn" src={ART("songket-terlipat")} alt="" aria-hidden="true" loading="lazy" />
               <p className="skm-kicker skm-section__kicker">{giftTitle}</p>
@@ -486,6 +484,7 @@ export default function SongketMarun(profile: TemplateProps) {
 
           {/* Penutup */}
           <section className="skm-section skm-section--dark skm-penutup" data-skm-reveal>
+            <span className="skm-edge skm-edge--top" aria-hidden="true" />
             <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
             <div className="skm-penutup__photo">
               <img src={closingPhoto} alt="" loading="lazy" draggable={false} />

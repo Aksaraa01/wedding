@@ -1198,3 +1198,41 @@ body.skm-locked { overflow: hidden; }
   transition: color 0.3s ease;
 }
 .skm-footer__link:hover .skm-footer__cta { color: rgba(239, 223, 187, 0.95); }
+
+
+/* Doa label: Cormorant, letter-spaced 4.4px, maroon — the reference's title style. */
+.skm-doa__title {
+  font-family: var(--skm-body);
+  font-size: 21px;
+  letter-spacing: 4.4px;
+  text-transform: none;
+  font-weight: 500;
+  color: var(--skm-bg);
+}
+
+/* Translation under the ayah. */
+.skm-doa__translate {
+  margin: 14px auto 0;
+  max-width: 30ch;
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.7;
+  color: rgba(74, 22, 32, 0.85);
+}
+.skm-section--cream .skm-doa__source { color: #a9822f; }
+
+/* Save the Date: rules flanking the big day number. */
+.skm-date__big {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 4px;
+}
+.skm-date__rule {
+  flex: 0 0 auto;
+  width: 54px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--skm-gold), transparent);
+  opacity: 0.8;
+}
