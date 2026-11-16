@@ -262,6 +262,9 @@ export default function SongketMarun(profile: TemplateProps) {
                 <p className="skm-putra__parents">{parents}</p>
               </>
             )}
+            {profile.groom_instagram && (
+              <p className="skm-putra__ig">@{profile.groom_instagram.replace(/^@/, "")}</p>
+            )}
           </section>
 
           {/* Doa untuk Ananda */}

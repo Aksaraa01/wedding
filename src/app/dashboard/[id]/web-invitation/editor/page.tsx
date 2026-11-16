@@ -1267,6 +1267,9 @@ function EditorInner({ id }: { id: string }) {
     opening_title: data.opening_title,
     opening_description: data.opening_description,
     display_name: data.display_name,
+    // Kids profiles carry one person: without this the editor demanded a second
+    // full name and the section could never be completed.
+    event_type: data.event_type,
     groom_full_name: data.groom_full_name,
     bride_full_name: data.bride_full_name,
     sessions: data.sessions,

@@ -1239,3 +1239,13 @@ body.skm-locked { overflow: hidden; }
   background: linear-gradient(90deg, transparent, var(--skm-gold), transparent);
   opacity: 0.8;
 }
+
+
+/* Instagram line under the parents' names. */
+.skm-putra__ig {
+  margin: 10px 0 0;
+  font-family: var(--skm-ui);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--skm-gold-soft);
+}
