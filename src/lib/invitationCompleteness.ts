@@ -1,4 +1,4 @@
-import { isKidsEvent } from "@/lib/eventType"
+import { profileView } from "@/lib/profileView"
 
 export const INVITATION_SECTION_LABELS: Record<string, string> = {
   tema: "Tema",
@@ -124,7 +124,7 @@ function isSectionIncomplete(key: string, d: InvitationCompletenessInput): boole
       if (d.no_opening_section) return false
       return !hasStr(d.opening_title) && !hasStr(d.opening_description)
     case "profile":
-      if (isKidsEvent(d.event_type)) return !hasStr(d.groom_full_name)
+      if (profileView({ event_type: d.event_type }).kids) return !hasStr(d.groom_full_name)
       return !hasStr(d.groom_full_name) || !hasStr(d.bride_full_name)
     case "inviting":
       if (d.no_inviting_section) return false
@@ -169,7 +169,7 @@ export type IncompleteInvitationSection = {
 }
 
 export function invitationSectionLabels(eventType?: string): Record<string, string> {
-  if (!isKidsEvent(eventType)) return INVITATION_SECTION_LABELS
+  if (!profileView({ event_type: eventType }).kids) return INVITATION_SECTION_LABELS
   return { ...INVITATION_SECTION_LABELS, profile: "Profile Ananda" }
 }
 

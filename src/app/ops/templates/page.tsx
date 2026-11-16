@@ -1,5 +1,6 @@
 "use client"
 
+import { eventFamily } from "@/lib/eventType"
 import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
@@ -183,7 +184,7 @@ export default function OpsTemplatesPage() {
     const byFamily =
       eventFilter === "all"
         ? templates
-        : templates.filter((t) => ((t as any).event_type === "kids" ? "kids" : "wedding") === eventFilter)
+        : templates.filter((t) => eventFamily((t as any).event_type) === eventFilter)
     if (!searchQuery.trim()) return byFamily
     const q = searchQuery.trim().toLowerCase()
     return byFamily.filter((t) => t.name.toLowerCase().includes(q) || t.code.toLowerCase().includes(q) || (t.category || "").toLowerCase().includes(q))
@@ -276,7 +277,7 @@ export default function OpsTemplatesPage() {
       source_type: t.source_type === "inhouse" ? "inhouse" : "wp",
       wp_master_slug: t.wp_master_slug || "",
       no_photo: (t as any).no_photo === true,
-      event_type: (t as any).event_type === "kids" ? "kids" : "wedding",
+      event_type: eventFamily((t as any).event_type),
     })
   }
 

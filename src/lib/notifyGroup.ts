@@ -1,6 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { PACKAGE_LABELS } from "@/lib/packages"
-import { eventLabels, isKidsEvent } from "@/lib/eventType"
+import { profileView } from "@/lib/profileView"
 
 type NotifyPayload = {
   wedding_profile_id: string
@@ -46,10 +46,14 @@ export async function notifyNewAccountGroup(payload: NotifyPayload): Promise<voi
   const tierSuffix = payload.wa_blast_tier ? ` (+${payload.wa_blast_tier} VIP)` : ""
   const paketLine = `Paket: ${label}${tierSuffix} — Rp ${formatIDR(payload.total)}`
   // One name for a kids event, two for a wedding.
+  const view = profileView({
+    event_type: payload.event_type,
+    groom_name: payload.groom_name,
+    bride_name: payload.bride_name,
+  })
   const couple = [payload.groom_name, payload.bride_name].filter(Boolean).join(" & ")
-  const kids = isKidsEvent(payload.event_type)
-  const nameLine = kids
-    ? `Nama Ananda (${eventLabels(payload.event_type).eventNoun}): ${couple}`
+  const nameLine = view.kids
+    ? `Nama Ananda (${view.labels.eventNoun}): ${couple}`
     : `Nama Couple: ${couple}`
   const now = formatDateWIB(new Date())
 

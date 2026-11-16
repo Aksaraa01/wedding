@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { eventLabels, isKidsEvent } from "@/lib/eventType"
+import { profileView } from "@/lib/profileView"
 import PageTheme from "@/components/PageTheme"
 import OpsHeader from "@/components/ops/OpsHeader"
 import { PACKAGE_LABELS, formatDate, getPackageCategory } from "@/lib/opsConstants"
@@ -32,7 +32,8 @@ type QueueItem = {
 // Rite badge shared by every list variant (board, table, cards). Always shown:
 // ops must be able to tell a wedding project from a Ceriavite one at a glance.
 function EventBadge({ event }: { event?: string | null }) {
-  const kids = isKidsEvent(event)
+  const view = profileView({ event_type: event })
+  const kids = view.kids
   return (
     <span
       className={`ml-1.5 inline-flex items-center rounded-full border px-1.5 py-0.5 align-middle text-[9px] font-bold uppercase tracking-wider ${
@@ -41,7 +42,7 @@ function EventBadge({ event }: { event?: string | null }) {
           : "border-[#cfc6b6] bg-[#f4f1ea] text-[#6e6a63]"
       }`}
     >
-      {kids ? eventLabels(event).eventNoun : "Wedding"}
+      {view.kids ? view.labels.eventNoun : "Wedding"}
     </span>
   )
 }

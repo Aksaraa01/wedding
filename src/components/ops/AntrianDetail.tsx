@@ -1,6 +1,6 @@
 "use client"
 
-import { eventFamily, eventLabels, isKidsEvent } from "@/lib/eventType"
+import { profileView } from "@/lib/profileView"
 import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import type { ReactNode } from "react"
 import { useRouter } from "next/navigation"
@@ -614,6 +614,8 @@ export default function AntrianDetail({ id }: { id: string }) {
   const [invSyncMsg, setInvSyncMsg] = useState("")
   const [invSyncError, setInvSyncError] = useState<string | null>(null)
   const [invTplOpen, setInvTplOpen] = useState(false)
+  // One view for every family-dependent decision on this screen.
+  const opsView = profileView(invitationData?.profile || detail?.wedding_profile)
   const [invTplList, setInvTplList] = useState<any[]>([])
   const [invTplLoading, setInvTplLoading] = useState(false)
   const [invTplWorking, setInvTplWorking] = useState<string | null>(null)
@@ -1834,9 +1836,9 @@ export default function AntrianDetail({ id }: { id: string }) {
       if (res.ok) {
         // Only the profile's own family: a Ceriavite profile must never be
         // offered a wedding design (and vice versa), the copy cannot be relabelled.
-        const family = eventFamily(detail?.wedding_profile?.event_type)
+        const family = profileView(detail?.wedding_profile).family
         setInvTplList(
-          (data.templates || []).filter((t: any) => eventFamily(t.event_type) === family)
+          (data.templates || []).filter((t: any) => profileView({ event_type: t.event_type }).family === family)
         )
       }
     } catch {}
@@ -2130,14 +2132,12 @@ export default function AntrianDetail({ id }: { id: string }) {
                 <h2 className="font-display-lg text-3xl md:text-5xl leading-tight break-words">{resolveCoupleName(currentWp || {})}</h2>
                 <span
                   className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                    isKidsEvent((currentWp as any)?.event_type)
+                    opsView.kids
                       ? "border-[#c9a45c]/60 bg-[#f7f0e2] text-[#8a6d2f]"
                       : "border-[#cfc6b6] bg-[#f4f1ea] text-[#6e6a63]"
                   }`}
                 >
-                  {isKidsEvent((currentWp as any)?.event_type)
-                    ? eventLabels((currentWp as any)?.event_type).eventNoun
-                    : "Wedding"}
+                  {opsView.kids ? opsView.labels.eventNoun : "Wedding"}
                 </span>
               </div>
               <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 font-body-md text-sm text-on-surface-variant">
@@ -3382,7 +3382,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                             next[i] = url
                             setUrls(next.filter(Boolean))
                           }
-                          const k = isKidsEvent(detail?.wedding_profile?.event_type)
+                          const k = profileView(detail?.wedding_profile).kids
                           const label = k ? "Ananda" : isGroom ? "Mempelai Pertama" : "Mempelai Kedua"
                           const slideshow = invIsSlideshowField(isGroom ? "groom_photo_url" : "bride_photo_url")
                           const nameHint = k ? "Nama panggilan ananda" : isGroom ? "Nama Mempelai Pertama" : "Nama Mempelai Kedua"
@@ -3790,7 +3790,7 @@ export default function AntrianDetail({ id }: { id: string }) {
 
                   {/* Tanpa-photo: whole video section removed (mirrors editor) */}
                   {!invNoPhoto && (
-                  <InvAccordion secKey="video" icon="movie" label="VIDEO" {...invAccProps("video")} omit={invitationData?.profile?.package_type === "ceriavite"}>
+                  <InvAccordion secKey="video" icon="movie" label="VIDEO" {...invAccProps("video")} omit={opsView.kids}>
                     {invEditing && invForm ? (
                       invSectionState(invitationData.profile, "video") === "locked" ? (
                         <div className="mt-6"><InvLockedNotice availableIn={invAvailableIn(invitationData.profile, "cinematic_video")} /></div>
