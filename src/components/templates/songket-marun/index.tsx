@@ -193,19 +193,22 @@ export default function SongketMarun(profile: TemplateProps) {
           <img className="skm-cover__photo" src={cover} alt="" aria-hidden="true" draggable={false} />
           <div className="skm-cover__veil" />
           <div className="skm-cover__tenun" aria-hidden="true" />
-          <span className="skm-edge skm-edge--top" aria-hidden="true" />
-          <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
           <img className="skm-cover__melur" src={ART("melur")} alt="" aria-hidden="true" />
 
           <div className="skm-cover__inner">
-            <p className="skm-kicker skm-cover__kicker">{coverKicker}</p>
-            <div className="skm-pita" aria-hidden="true" />
+            <p className="skm-cover__kicker">{labels.eventKicker}</p>
             <h1 className="skm-cover__name">{childName}</h1>
+            <div className="skm-flower-line" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18">
+                <path d="M12 3c1.6 2.1 2.6 4 2.6 5.9 0 1.4-.9 2.6-2.6 3.6-1.7-1-2.6-2.2-2.6-3.6C9.4 7 10.4 5.1 12 3Z" fill="currentColor" />
+                <path d="M21 12c-2.1 1.6-4 2.6-5.9 2.6-1.4 0-2.6-.9-3.6-2.6 1-1.7 2.2-2.6 3.6-2.6 1.9 0 3.8 1 5.9 2.6Z" fill="currentColor" />
+                <path d="M12 21c-1.6-2.1-2.6-4-2.6-5.9 0-1.4.9-2.6 2.6-3.6 1.7 1 2.6 2.2 2.6 3.6 0 1.9-1 3.8-2.6 5.9Z" fill="currentColor" />
+                <path d="M3 12c2.1-1.6 4-2.6 5.9-2.6 1.4 0 2.6.9 3.6 2.6-1 1.7-2.2 2.6-3.6 2.6-1.9 0-3.8-1-5.9-2.6Z" fill="currentColor" />
+              </svg>
+            </div>
             <p className="skm-cover__date">{formatLongDate(eventDate)}</p>
-            <p className="skm-cover__guest">
-              {coverGuestLabel}
-              <strong>{guestName}</strong>
-            </p>
+            <p className="skm-cover__guest">{coverGuestLabel}</p>
+            <p className="skm-cover__guestname">{guestName}</p>
             <button type="button" className="skm-open" onClick={openInvitation}>
               {openLabel}
             </button>

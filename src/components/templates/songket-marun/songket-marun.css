@@ -102,7 +102,10 @@ body.skm-locked { overflow: hidden; }
 
 .skm-center { text-align: center; }
 
-/* ---------- cover ---------- */
+/* ---------- cover ----------
+   Reference: bright photo for the top ~78%, fading into maroon, kicker above a
+   large script name, a thin divider with a four-petal flower, uppercase date,
+   normal-case guest line, and a SOLID GOLD pill for "Buka Undangan". */
 
 .skm-cover {
   position: relative;
@@ -111,108 +114,137 @@ body.skm-locked { overflow: hidden; }
   justify-content: flex-end;
   align-items: center;
   min-height: 100dvh;
-  padding: 26px 18px 30px;
+  padding: 0 20px 34px;
   overflow: hidden;
-  background: var(--skm-bg-deep);
+  background: var(--skm-bg);
 }
 
-/* Reference: photo is 390x700 of an 844 canvas (not full-bleed), with a fade
-   from y=300 and a top shadow band of 190. */
 .skm-cover__photo {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 84%;
+  height: 82%;
   object-fit: cover;
-  object-position: center 18%;
+  object-position: center 16%;
 }
 
-/* top shadow band (0-190) + photo fade (300-844) */
 .skm-cover__veil {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(50, 10, 17, 0.88) 0%, rgba(50, 10, 17, 0.55) 12%, rgba(50, 10, 17, 0) 22%),
-    linear-gradient(180deg, rgba(50, 10, 17, 0) 36%, rgba(74, 22, 32, 0.82) 62%, var(--skm-bg) 86%, var(--skm-bg) 100%);
-}
-
-/* Reference places a single melur at the bottom-left: 106x96 at (x=-22, y=738). */
-.skm-cover__melur {
-  position: absolute;
-  left: -5.6%;
-  bottom: 1.2%;
-  width: 27.2%;
-  z-index: 6;
-  transform: rotate(18deg);
-  pointer-events: none;
+    linear-gradient(180deg, rgba(50, 10, 17, 0.18) 0%, rgba(50, 10, 17, 0) 22%),
+    linear-gradient(180deg, rgba(74, 22, 32, 0) 42%, rgba(74, 22, 32, 0.72) 62%, var(--skm-bg) 82%, var(--skm-bg) 100%);
 }
 
 .skm-cover__inner {
   position: relative;
-  z-index: 3;
-  width: min(420px, 100%);
+  z-index: 4;
+  width: 100%;
+  max-width: 380px;
+  padding-bottom: 4%;
   text-align: center;
 }
 
-.skm-cover__kicker { color: var(--skm-gold-soft); }
+.skm-cover__kicker {
+  margin: 0;
+  font-family: var(--skm-ui);
+  font-size: 12px;
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  color: var(--skm-gold);
+}
 
 .skm-cover__name {
-  margin: 14px 0 0;
+  margin: 10px 0 0;
   font-family: var(--skm-script);
-  font-size: clamp(46px, 16vw, 72px);
-  line-height: 1.02;
-  color: #fff6e6;
-  text-shadow: 0 3px 26px rgba(0, 0, 0, 0.45);
+  font-size: clamp(66px, 21vw, 104px);
+  line-height: 0.98;
+  color: #f7e9cf;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.35);
+}
+
+/* Thin gold rule with a four-petal flower in the middle (reference divider). */
+.skm-flower-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: min(250px, 66%);
+  margin: 16px auto 0;
+  color: var(--skm-gold);
+}
+.skm-flower-line::before,
+.skm-flower-line::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg, transparent, currentColor 55%, currentColor);
+  opacity: 0.85;
+}
+.skm-flower-line::after {
+  background: linear-gradient(90deg, currentColor, currentColor 45%, transparent);
 }
 
 .skm-cover__date {
-  margin-top: 10px;
+  margin: 14px 0 0;
   font-family: var(--skm-title);
-  font-size: 13px;
+  font-size: 14.5px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--skm-gold-soft);
+  color: #eddfc2;
 }
 
 .skm-cover__guest {
-  margin: 22px 0 0;
-  font-family: var(--skm-ui);
-  font-size: 9.5px;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: rgba(224, 205, 182, 0.62);
-}
-.skm-cover__guest strong {
-  display: block;
-  margin-top: 7px;
-  font-family: var(--skm-title);
-  font-size: 17px;
-  letter-spacing: 0.05em;
-  text-transform: none;
-  color: #fff6e6;
+  margin: 16px 0 0;
+  font-family: var(--skm-body);
+  font-size: 16px;
+  letter-spacing: 0.01em;
+  color: #e2d1b4;
 }
 
+.skm-cover__guestname {
+  margin: 5px 0 0;
+  font-family: var(--skm-title);
+  font-size: 17px;
+  letter-spacing: 0.02em;
+  color: #fdf6e7;
+}
+
+/* Solid gold pill, dark maroon label. */
 .skm-open {
   margin-top: 24px;
   display: inline-flex;
   align-items: center;
-  gap: 9px;
-  height: 46px;
-  padding: 0 26px;
-  border: 1px solid rgba(227, 200, 143, 0.7);
-  background: transparent;
-  color: var(--skm-gold-soft);
+  justify-content: center;
+  min-width: 220px;
+  padding: 15px 46px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #d3af6b 0%, #c39d55 100%);
+  color: #46151d;
   font-family: var(--skm-ui);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.24em;
+  font-size: 11px;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.25s ease, transform 0.2s ease;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
-.skm-open:hover { background: rgba(201, 164, 92, 0.14); }
+.skm-open:hover { filter: brightness(1.04); }
 .skm-open:active { transform: scale(0.98); }
+
+/* the cover melur sits at the very bottom-left, partly off-canvas */
+.skm-cover__melur {
+  position: absolute;
+  left: -5.6%;
+  bottom: 0.5%;
+  width: 26%;
+  z-index: 3;
+  transform: rotate(18deg);
+  pointer-events: none;
+  opacity: 0.9;
+}
 
 /* ---------- pembuka ---------- */
 
