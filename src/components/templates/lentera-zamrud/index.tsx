@@ -209,6 +209,8 @@ export default function LenteraZamrud(profile: TemplateProps) {
           <img className="lz-lantern lz-lantern--2" src={ART("lentera-2")} alt="" aria-hidden="true" />
           <img className="lz-lantern lz-lantern--3" src={ART("lentera-3")} alt="" aria-hidden="true" />
 
+          <p className="lz-cover__kicker-script" style={{ marginTop: 26 }}>{labels.eventKicker}</p>
+
           <div className="lz-arch">
             <div className="lz-arch__photo">
               <img src={cover} alt={childFull} draggable={false} />
@@ -219,7 +221,6 @@ export default function LenteraZamrud(profile: TemplateProps) {
           </div>
 
           <div className="lz-cover__inner">
-            <p className="lz-cover__kicker-script">{labels.eventKicker}</p>
             <h1 className="lz-cover__name">{childName}</h1>
             <img className="lz-divider" src={ART("pemisah-emas")} alt="" aria-hidden="true" style={{ margin: "12px auto" }} />
             <p className="lz-cover__guest">

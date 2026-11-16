@@ -117,7 +117,7 @@ body.lz-locked { overflow: hidden; }
   justify-content: flex-end;
   align-items: center;
   min-height: 100dvh;
-  padding: 0 16px 34px;
+  padding: 0 16px 168px;
   overflow: hidden;
   background: var(--lz-cream);
 }
@@ -128,7 +128,7 @@ body.lz-locked { overflow: hidden; }
   bottom: 0;
   left: -1%;
   width: 101.3%;
-  height: 182px;
+  height: 150px;
   object-fit: contain;
   z-index: 2;
   pointer-events: none;

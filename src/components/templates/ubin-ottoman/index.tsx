@@ -287,8 +287,16 @@ export default function UbinOttoman(profile: TemplateProps) {
           entry.target.classList.add("is-in")
           io.unobserve(entry.target)
         }
+        // A fast swipe can jump an element clean over the viewport between two
+        // observer ticks; it must never stay invisible once it is above us.
+        for (const el of targets) {
+          if (el.getBoundingClientRect().bottom < 0) {
+            el.classList.add("is-in")
+            io.unobserve(el)
+          }
+        }
       },
-      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+      { threshold: 0, rootMargin: "0px 0px -8% 0px" }
     )
     targets.forEach((el) => io.observe(el))
     return () => io.disconnect()
