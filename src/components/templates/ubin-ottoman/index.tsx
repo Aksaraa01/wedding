@@ -259,11 +259,13 @@ export default function UbinOttoman(profile: TemplateProps) {
           <p className="uo-cover__thanks">{coverThanks}</p>
           {validDate && <p className="uo-cover__date">{formatLongDate(eventDate)}</p>}
           <p className="uo-cover__guest-label">{coverGuestLabel}</p>
-          <p className="uo-cover__guest">{guestName}</p>
-          <button type="button" className="uo-open" onClick={openInvitation}>
-            <span className="material-symbols-outlined" style={{ fontSize: 17 }}>mail</span>
-            {openLabel}
-          </button>
+          <div className="uo-cover__foot">
+            <p className="uo-cover__guest">{guestName}</p>
+            <button type="button" className="uo-open" onClick={openInvitation}>
+              <span className="material-symbols-outlined" style={{ fontSize: 17 }}>mail</span>
+              {openLabel}
+            </button>
+          </div>
 
           <img className="uo-cover__band" src={ART("flower-band")} alt="" aria-hidden="true" draggable={false} />
         </section>

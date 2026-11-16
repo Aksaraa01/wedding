@@ -2850,6 +2850,24 @@ const DEMO_SKM = {
   closing: "/templates/songket-marun/demo/closing.jpg",
 }
 
+// Lentera Zamrud demo: same kids content, its own reference photos.
+DEMO_PROPS_BY_CODE["lentera-zamrud"] = {
+  ...DEMO_PROPS_BY_CODE["songket-marun"],
+  cover_photos: [
+    "/templates/lentera-zamrud/demo/putra.jpg",
+    "/templates/songket-marun/demo/venue.jpg",
+    "/templates/lentera-zamrud/demo/penutup.jpg",
+  ],
+  couple_illustration_url: "/templates/lentera-zamrud/demo/putra.jpg",
+  groom_photo_url: ["/templates/lentera-zamrud/demo/putra.jpg"],
+  gallery_photos: [
+    "/templates/lentera-zamrud/demo/putra.jpg",
+    "/templates/lentera-zamrud/demo/penutup.jpg",
+    "/templates/songket-marun/demo/venue.jpg",
+    "/templates/songket-marun/demo/closing.jpg",
+  ],
+}
+
 // Ceriavite (kids) demo. One name, one parent line, "Walimatul Khitan" copy —
 // the same props the `?event=` registration flow writes for a khitanan profile.
 // Sample names/photos are Aksaraa's own; never the reference couple's.
@@ -2967,6 +2985,9 @@ DEMO_PROPS_BY_CODE["ubin-ottoman"] = {
     },
   ],
   gallery_photos: DEMO_UBIN.gallery,
+  // Demo-only khitanan track. A real couple always hears profile.track_url.
+  track_url: "/templates/ubin-ottoman/demo/khitanan.mp3",
+  auto_play: true,
   gift_accounts: [
     { provider_name: "Bank Mandiri", account_number: "1234567890", account_name: "Hendra Pratama", type: "bank" },
   ],

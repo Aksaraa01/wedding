@@ -41,6 +41,7 @@ import SilverGelatin from "./silver-gelatin"
 import LoveLine from "./love-line"
 import FilmRoll from "./film-roll"
 import SongketMarun from "./songket-marun"
+import LenteraZamrud from "./lentera-zamrud"
 import UbinOttoman from "./ubin-ottoman"
 export type { TemplateProps } from "@/types/template"
 
@@ -86,6 +87,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "film-roll": FilmRoll,
   "love-line": LoveLine,
   "songket-marun": SongketMarun,
+  "lentera-zamrud": LenteraZamrud,
   "ubin-ottoman": UbinOttoman,
 }
 
@@ -1694,6 +1696,49 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         dresscode: true,
         livestream: false,
         rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "lentera-zamrud",
+    name: "Lentera Zamrud",
+    description:
+      "Undangan zamrud dan emas: lengkung masjid, lentera gantung, ornamen ranting zaitun, dan tipografi Cinzel untuk khitanan, aqiqah, atau ulang tahun ananda.",
+    theme: {
+      fonts: { display: "Cinzel", script: "Great Vibes", body: "Lato" },
+      colors: {
+        surface: "#f8f4ea",
+        text: "#34413b",
+        accent: "#b08a4a",
+        accentMuted: "#e2e9dc",
+        overlay: "#1f5c4b",
+        dark: "#1f5c4b",
+      },
+      ornaments: { divider: "line", border: "ornate", frame: "arch" },
+      motion: { enabled: true, duration: 0.7, stagger: 0.04 },
+    },
+    content: {
+      cover_slots: 3,
+      cover_slot_labels: ["Foto Sampul", "Foto Tempat Acara", "Foto Penutup"],
+      cover_slot_sections: [null, "events", null],
+      groom_photo: "single",
+      person_photos: true,
+      story_photo: false,
+      initials: false,
+      sections: {
+        opening_description: true,
+        quote: true,
+        countdown: true,
+        inviting: true,
+        video: false,
+        story: false,
+        gallery: true,
+        gift: true,
+        dresscode: false,
+        livestream: false,
+        rundown: false,
         contacts: false,
       },
       extras: true,
