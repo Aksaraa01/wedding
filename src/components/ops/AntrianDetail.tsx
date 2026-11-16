@@ -1,5 +1,6 @@
 "use client"
 
+import { isKidsEvent } from "@/lib/eventType"
 import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import type { ReactNode } from "react"
 import { useRouter } from "next/navigation"
@@ -80,6 +81,8 @@ type QueueItem = {
     galeri_tier?: string | null
     galeri_price?: number | null
     message_category?: string | null
+    event_type?: string | null
+    subject_gender?: string | null
   }
 }
 
@@ -3354,10 +3357,11 @@ export default function AntrianDetail({ id }: { id: string }) {
                             next[i] = url
                             setUrls(next.filter(Boolean))
                           }
-                          const label = isGroom ? "Mempelai Pertama" : "Mempelai Kedua"
+                          const k = isKidsEvent(detail?.wedding_profile?.event_type)
+                          const label = k ? "Ananda" : isGroom ? "Mempelai Pertama" : "Mempelai Kedua"
                           const slideshow = invIsSlideshowField(isGroom ? "groom_photo_url" : "bride_photo_url")
-                          const nameHint = isGroom ? "Nama Mempelai Pertama" : "Nama Mempelai Kedua"
-                          const fullHint = isGroom ? "Nama Lengkap Mempelai Pertama" : "Nama Lengkap Mempelai Kedua"
+                          const nameHint = k ? "Nama panggilan ananda" : isGroom ? "Nama Mempelai Pertama" : "Nama Mempelai Kedua"
+                          const fullHint = k ? "Nama lengkap ananda" : isGroom ? "Nama Lengkap Mempelai Pertama" : "Nama Lengkap Mempelai Kedua"
                           const parHint = isGroom ? "Contoh: Putra dari Bapak Hendra & Ibu Sari" : "Contoh: Putri dari Bapak Wijaya & Ibu Dewi"
                           const igHint = isGroom ? "Contoh: @amospurba" : "Contoh: @claudiamnrg"
                           return (
@@ -3407,11 +3411,11 @@ export default function AntrianDetail({ id }: { id: string }) {
                                 </>
                               )}
                               <div className="mt-3">
-                                <AutoTextarea className="input-editorial w-full font-headline-md text-[16px] resize-none overflow-hidden" value={isGroom ? invForm.groom_parents || "" : invForm.bride_parents || ""} onChange={(v) => setInvForm({ ...invForm, [isGroom ? "groom_parents" : "bride_parents"]: v })} placeholder={isGroom ? "Nama Orang Tua Mempelai Pertama" : "Nama Orang Tua Mempelai Kedua"} />
+                                <AutoTextarea className="input-editorial w-full font-headline-md text-[16px] resize-none overflow-hidden" value={isGroom ? invForm.groom_parents || "" : invForm.bride_parents || ""} onChange={(v) => setInvForm({ ...invForm, [isGroom ? "groom_parents" : "bride_parents"]: v })} placeholder={k ? "Bapak ... & Ibu ..." : isGroom ? "Nama Orang Tua Mempelai Pertama" : "Nama Orang Tua Mempelai Kedua"} />
                                 <p className="text-[11px] text-on-surface-variant mt-1 italic">{parHint}</p>
                               </div>
                               <div className="mt-3">
-                                <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={isGroom ? invForm.groom_instagram || "" : invForm.bride_instagram || ""} onChange={(e) => setInvForm({ ...invForm, [isGroom ? "groom_instagram" : "bride_instagram"]: e.target.value })} placeholder={isGroom ? "Instagram Mempelai Pertama" : "Instagram Mempelai Kedua"} />
+                                <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={isGroom ? invForm.groom_instagram || "" : invForm.bride_instagram || ""} onChange={(e) => setInvForm({ ...invForm, [isGroom ? "groom_instagram" : "bride_instagram"]: e.target.value })} placeholder={k ? "Instagram (opsional)" : isGroom ? "Instagram Mempelai Pertama" : "Instagram Mempelai Kedua"} />
                                 <p className="text-[11px] text-on-surface-variant mt-1 italic">{igHint}</p>
                               </div>
                             </div>

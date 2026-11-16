@@ -14,7 +14,7 @@ import { thumbUrl, thumbStoryImages } from "@/lib/storageUrl"
 import { toOgImageUrl } from "@/lib/storage"
 import { prettifyGuestSlug, FALLBACK_GUEST_NAME, findGuestForTo, guestToFromParams } from "@/lib/guest-link"
 import { resolveCoupleName } from "@/lib/coupleName"
-import { eventLabels } from "@/lib/eventType"
+import { eventLabels, isKidsEvent } from "@/lib/eventType"
 import InvitationExpired from "@/components/InvitationExpired"
 import { coupleUrl } from "@/lib/coupleUrl"
 
@@ -62,7 +62,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("slug, display_name, bride_name, groom_name, bride_full_name, groom_full_name, estimated_wedding_date, selected_template_id, couple_illustration_url, link_thumbnail_url, link_thumbnail_disabled, cover_photos, og_image_url, og_image_width, og_image_height")
+    .select("slug, display_name, bride_name, groom_name, bride_full_name, groom_full_name, estimated_wedding_date, selected_template_id, couple_illustration_url, link_thumbnail_url, link_thumbnail_disabled, cover_photos, og_image_url, og_image_width, og_image_height, event_type, subject_gender")
     .ilike("slug", slug)
     .single()
 
@@ -70,13 +70,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const name1 = (profile.groom_full_name || profile.groom_name || "").trim()
   const name2 = (profile.bride_full_name || profile.bride_name || "").trim()
-  const title = `The Wedding of ${name1}-${name2}`
 
-  const tagline = `${(profile.groom_name || "").trim()} & ${(profile.bride_name || "").trim()}`.replace(/^ & | & $/g, "")
+  // Ceriavite (kids) shares carry the rite and the child's name, not a wedding
+  // title. Absolute title so the root layout does not append "| Aksaraa Wedding".
+  const kids = isKidsEvent((profile as any).event_type)
+  const labels = eventLabels((profile as any).event_type, (profile as any).subject_gender)
+  const title: Metadata["title"] = kids
+    ? { absolute: `${labels.eventKicker} ${name1} | ${labels.brand}` }
+    : `The Wedding of ${name1}-${name2}`
+
+  const tagline = kids
+    ? name1
+    : `${(profile.groom_name || "").trim()} & ${(profile.bride_name || "").trim()}`.replace(/^ & | & $/g, "")
   const date = profile.estimated_wedding_date
     ? new Date(profile.estimated_wedding_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
     : ""
-  const description = [tagline, date, "Mohon doa restu atas pernikahan kami; detail acara dan konfirmasi kehadiran tersedia di tautan undangan."].filter(Boolean).join(" • ")
+  const description = kids
+    ? [tagline, date, `Undangan ${labels.eventNoun.toLowerCase()}. Detail acara dan konfirmasi kehadiran tersedia di tautan ini.`].filter(Boolean).join(" • ")
+    : [tagline, date, "Mohon doa restu atas pernikahan kami; detail acara dan konfirmasi kehadiran tersedia di tautan undangan."].filter(Boolean).join(" • ")
 
   let covers: string[] = []
   if (Array.isArray(profile.cover_photos)) covers = profile.cover_photos.filter((c: unknown) => typeof c === "string" && c.trim())
@@ -142,7 +153,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     && ogVariant && ogImage === ogVariant.split("?")[0]
     ? { width: ogW, height: ogH } as const
     : undefined
-  const ogAlt = tagline ? `Undangan pernikahan ${tagline}` : title
+  const ogAlt = tagline
+    ? kids
+      ? `Undangan ${labels.eventNoun.toLowerCase()} ${tagline}`
+      : `Undangan pernikahan ${tagline}`
+    : undefined
 
   const meta: Metadata = {
     title,

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
+import { eventLabels, isKidsEvent } from "@/lib/eventType"
 import PageTheme from "@/components/PageTheme"
 import OpsHeader from "@/components/ops/OpsHeader"
 import { PACKAGE_LABELS, formatDate, getPackageCategory } from "@/lib/opsConstants"
@@ -19,6 +20,7 @@ type QueueItem = {
     id: string
     bride_name: string
     groom_name: string
+    event_type?: string | null
     bride_full_name?: string | null
     groom_full_name?: string | null
     whatsapp_number: string
@@ -338,7 +340,13 @@ export default function OpsBoardPage() {
                         >
                           <div className="flex items-start justify-between gap-2 mb-2">
                             <p className="font-display-lg text-[15px] leading-tight">
-                              {wp.groom_name} &amp; {wp.bride_name}
+                              {wp.groom_name}
+                              {wp.bride_name ? <> &amp; {wp.bride_name}</> : null}
+                              {isKidsEvent(wp.event_type) && (
+                                <span className="ml-1.5 inline-flex items-center rounded-full border border-[#c9a45c]/50 bg-[#f7f0e2] px-1.5 py-0.5 align-middle text-[9px] font-bold uppercase tracking-wider text-[#8a6d2f]">
+                                  {eventLabels(wp.event_type).eventNoun}
+                                </span>
+                              )}
                             </p>
                               {wp.express_service && (
                                 <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider bg-amber-50 border border-amber-300 text-amber-800 px-1.5 py-0.5 rounded-full shrink-0">Kilat</span>

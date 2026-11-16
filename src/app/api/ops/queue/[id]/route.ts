@@ -26,6 +26,7 @@ export async function GET(
         wedding_profiles!inner (
           id,
           bride_name,
+          event_type,
           groom_name,
           bride_full_name,
           groom_full_name,

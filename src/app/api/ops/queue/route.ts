@@ -20,6 +20,7 @@ export async function GET(req: Request) {
           id,
           bride_name,
           groom_name,
+          event_type,
           bride_full_name,
           groom_full_name,
           slug,

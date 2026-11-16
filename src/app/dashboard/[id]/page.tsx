@@ -9,6 +9,7 @@ import { PACKAGE_LABELS as PACKAGE_LABEL, getPackageCategory, hasVipQuotaBase } 
 import UpgradePackageModal, { type UpgradeModalContent } from "@/components/UpgradePackageModal"
 import { startTour } from "@/components/onboarding/ProductJourney"
 import { brandHomeHref } from "@/lib/eventHost"
+import { isKidsEvent } from "@/lib/eventType"
 
 type Selections = {
   premium_web: boolean
@@ -26,6 +27,8 @@ type Profile = {
   id: string
   bride_name: string
   groom_name: string
+  event_type?: string | null
+  subject_gender?: string | null
   slug: string
   estimated_wedding_date: string
   estimated_guest_count: number
@@ -451,7 +454,15 @@ function DashboardInner({ id }: { id: string }) {
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0 pr-1">
-                    <h1 className={`font-serif leading-tight text-stone-900 font-normal tracking-tight break-words ${((profile.bride_name.trim().split(/\s+/).filter(Boolean).length + profile.groom_name.trim().split(/\s+/).filter(Boolean).length) > 4) ? "text-[22px] md:text-[42px] whitespace-normal line-clamp-2" : "text-[28px] md:text-[42px] whitespace-nowrap overflow-hidden text-ellipsis"}`}>{profile.groom_name} <br className="md:hidden"/><span className="font-serif italic font-normal text-[#c5a059] leading-none inline-block align-baseline tracking-wide select-none text-[22px] md:text-[42px]" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>&amp;</span> {profile.bride_name}</h1>
+                    <h1 className={`font-serif leading-tight text-stone-900 font-normal tracking-tight break-words ${((profile.bride_name.trim().split(/\s+/).filter(Boolean).length + profile.groom_name.trim().split(/\s+/).filter(Boolean).length) > 4) ? "text-[22px] md:text-[42px] whitespace-normal line-clamp-2" : "text-[28px] md:text-[42px] whitespace-nowrap overflow-hidden text-ellipsis"}`}>{profile.groom_name}
+                      {profile.bride_name ? (
+                        <>
+                          <br className="md:hidden"/>
+                          <span className="font-serif italic font-normal text-[#c5a059] leading-none inline-block align-baseline tracking-wide select-none text-[22px] md:text-[42px]" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>&amp;</span>{" "}
+                          {profile.bride_name}
+                        </>
+                      ) : null}
+                    </h1>
                     <p className="text-stone-600 font-serif text-[14px] md:text-[17px] mt-1.5 tracking-wide flex items-center truncate">
                       <span className="material-symbols-outlined text-[14px] mr-1.5 text-[#a8824b] shrink-0 hidden md:inline">calendar_today</span>
                       {formattedDate}
@@ -504,7 +515,7 @@ function DashboardInner({ id }: { id: string }) {
                       <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">favorite</span>
                       <span className="whitespace-nowrap hidden md:inline">Wish Wall</span>
                     </button>
-                    {showGaleriBtn && (
+                    {showGaleriBtn && !isKidsEvent(profile.event_type) && (
                       <button onClick={() => (galeriEligible ? router.push(`/dashboard/${id}/galeri-kenangan`) : setUpsell("galeri"))} data-tour="galeri-tamu" title="Galeri Tamu" className="flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink">
                         <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">photo_library</span>
                         <span className="whitespace-nowrap hidden md:inline">Galeri Tamu</span>
@@ -581,6 +592,7 @@ function DashboardInner({ id }: { id: string }) {
               ) : (
               <button
                 onClick={() => setUpsell("dgbook")}
+                style={{ display: isKidsEvent(profile.event_type) ? "none" : undefined }}
                 className="bg-white p-3 md:p-5 text-left transition-all cursor-pointer hover:bg-[#faf6ee] active:scale-[0.99] group/box"
               >
                 <p className="text-[11px] uppercase tracking-wider text-on-surface-variant mb-1 flex items-center justify-between">
@@ -598,7 +610,7 @@ function DashboardInner({ id }: { id: string }) {
               onClick={() => (isGt ? setUpsell("undangan") : router.push(`/dashboard/${id}/guests`))}
               className={`w-full py-3.5 md:py-5 bg-[#b85d3f] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-[#9d4c32] active:scale-[0.98] transition-colors ${isGt ? "opacity-80" : ""}`}
             >
-              Kelola Tamu &amp; Meja
+              {isKidsEvent(profile.event_type) ? "Kelola Tamu" : "Kelola Tamu & Meja"}
               <span className="material-symbols-outlined text-[18px]">{isGt ? "lock" : "chevron_right"}</span>
             </button>
           </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect, use, useRef, useCallback, useMemo, ComponentType } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
+import { isKidsEvent } from "@/lib/eventType"
 import { getTemplateComponent, getTemplateContentSpec, hidesOpeningSection } from "@/components/templates"
 import { visibleCoverSlotIndexes } from "@/lib/coverSlots"
 import { getTemplateExtraFields, groupExtraFields, templateExtrasLabel } from "@/lib/templateExtras"
@@ -35,6 +36,10 @@ type Profile = {
   payment_status?: string | null
   groom_full_name: string | null
   bride_full_name: string | null
+  // Event family. Kids profiles keep the child in the first person slot and
+  // leave the second empty, so the editor hides the second person block.
+  event_type?: string | null
+  subject_gender?: string | null
   groom_photo_url: string | null
   bride_photo_url: string | null
   groom_parents: string | null
@@ -485,6 +490,7 @@ function EditorInner({ id }: { id: string }) {
   // Stored photos are kept so switching back to a with-photo template restores
   // them — hide must never equal delete.
   const isNoPhoto = template?.no_photo === true
+  const kids = isKidsEvent(data.event_type)
   // Cover slots and portraits are separate questions: a design can have none of
   // either but still take a gallery + film (lace). An upload field the template
   // never renders is worse than no field at all. The slot count is the single
@@ -2035,10 +2041,10 @@ function EditorInner({ id }: { id: string }) {
                 </div>
               )}
 
-              {renderSection("profile", "group", "PROFILE MEMPELAI",
+              {renderSection("profile", "group", kids ? "PROFILE ANANDA" : "PROFILE MEMPELAI",
                 <div className="mt-6 space-y-8">
                   <div className="space-y-4">
-                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Mempelai Pertama</label>
+                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">{kids ? "Ananda" : "Mempelai Pertama"}</label>
                     {isSlideshowField("groom_photo_url") ? (
                       <div className="space-y-3">
                         {/* Tanpa-photo: slideshow grid hidden, names stay */}
@@ -2078,12 +2084,12 @@ function EditorInner({ id }: { id: string }) {
                         </div>
                         )}
                         <div className="space-y-2">
-                          <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={data.groom_name || ""} onChange={v => updateField("groom_name", v)} placeholder="Nama Mempelai Pertama" />
-                          <p className="text-[11px] text-on-surface-variant italic">Nama Mempelai Pertama</p>
+                          <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={data.groom_name || ""} onChange={v => updateField("groom_name", v)} placeholder={kids ? "Nama panggilan ananda" : "Nama Mempelai Pertama"} />
+                          <p className="text-[11px] text-on-surface-variant italic">{kids ? "Nama panggilan ananda" : "Nama Mempelai Pertama"}</p>
                         </div>
                         <div className="space-y-2">
-                          <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={data.groom_full_name || ""} onChange={v => updateField("groom_full_name", v)} placeholder="Nama Lengkap Mempelai Pertama" />
-                          <p className="text-[11px] text-on-surface-variant italic">Nama Lengkap Mempelai Pertama</p>
+                          <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={data.groom_full_name || ""} onChange={v => updateField("groom_full_name", v)} placeholder={kids ? "Nama lengkap ananda" : "Nama Lengkap Mempelai Pertama"} />
+                          <p className="text-[11px] text-on-surface-variant italic">{kids ? "Nama lengkap ananda" : "Nama Lengkap Mempelai Pertama"}</p>
                         </div>
                       </div>
                     ) : (
@@ -2107,23 +2113,23 @@ function EditorInner({ id }: { id: string }) {
                         </>
                         )}
                         <div className="flex-1">
-                          <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={data.groom_name || ""} onChange={v => updateField("groom_name", v)} placeholder="Nama Mempelai Pertama" />
-                          <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Mempelai Pertama</p>
-                          <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] mt-3 resize-none overflow-hidden" value={data.groom_full_name || ""} onChange={v => updateField("groom_full_name", v)} placeholder="Nama Lengkap Mempelai Pertama" />
-                          <p className="text-[11px] text-on-surface-variant mt-1 italic">Nama Lengkap Mempelai Pertama</p>
+                          <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={data.groom_name || ""} onChange={v => updateField("groom_name", v)} placeholder={kids ? "Nama panggilan ananda" : "Nama Mempelai Pertama"} />
+                          <p className="text-[11px] text-on-surface-variant mt-1 italic">{kids ? "Nama panggilan ananda" : "Nama Mempelai Pertama"}</p>
+                          <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] mt-3 resize-none overflow-hidden" value={data.groom_full_name || ""} onChange={v => updateField("groom_full_name", v)} placeholder={kids ? "Nama lengkap ananda" : "Nama Lengkap Mempelai Pertama"} />
+                          <p className="text-[11px] text-on-surface-variant mt-1 italic">{kids ? "Nama lengkap ananda" : "Nama Lengkap Mempelai Pertama"}</p>
                         </div>
                       </div>
                     )}
                     <div className="mt-3">
-                      <AutoTextarea className="input-editorial w-full font-headline-md text-[16px] resize-none overflow-hidden" value={data.groom_parents || ""} onChange={v => updateField("groom_parents", v)} placeholder="Nama Orang Tua Mempelai Pertama" />
+                      <AutoTextarea className="input-editorial w-full font-headline-md text-[16px] resize-none overflow-hidden" value={data.groom_parents || ""} onChange={v => updateField("groom_parents", v)} placeholder={kids ? "Bapak ... & Ibu ..." : "Nama Orang Tua Mempelai Pertama"} />
                       <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: Putra dari Bapak Hendra & Ibu Sari</p>
                     </div>
                     <div className="mt-3">
-                      <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.groom_instagram || ""} onChange={e => updateField("groom_instagram", e.target.value)} placeholder="Instagram Mempelai Pertama" />
+                      <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={data.groom_instagram || ""} onChange={e => updateField("groom_instagram", e.target.value)} placeholder={kids ? "Instagram (opsional)" : "Instagram Mempelai Pertama"} />
                       <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: @amospurba</p>
                     </div>
                   </div>
-                  <div className="space-y-4">
+                  <div className={kids ? "hidden" : "space-y-4"}>
                     <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Mempelai Kedua</label>
                     {isSlideshowField("bride_photo_url") ? (
                       <div className="space-y-3">
@@ -2358,7 +2364,13 @@ function EditorInner({ id }: { id: string }) {
                       onChange={e => {
                         const source = e.target.value
                         updateField("quote_source", source)
-                        if (source === "Ar-Rum: 21") {
+                        if (kids && source === "Ash-Shaffat: 100") {
+                          updateField("quote_text", "Ya Tuhanku, anugerahkanlah kepadaku (seorang anak) yang termasuk orang-orang yang saleh.")
+                          updateField("quote_source", "QS. Ash-Shaffat: 100")
+                        } else if (kids && source === "Custom") {
+                          updateField("quote_text", "")
+                          updateField("quote_source", "")
+                        } else if (source === "Ar-Rum: 21") {
                           updateField("quote_text", "Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu isteri-isteri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya; dan dijadikan-Nya diantaramu rasa kasih dan sayang.")
                           updateField("quote_source", "QS. Ar-Rum: 21")
                         } else if (source === "Matius 19:6") {
@@ -2371,9 +2383,18 @@ function EditorInner({ id }: { id: string }) {
                       }}
                     >
                       <option value="">-- Pilih Kutipan --</option>
-                      <option value="Ar-Rum: 21">Ar-Rum: 21</option>
-                      <option value="Matius 19:6">Matius 19:6</option>
-                      <option value="Custom">Custom</option>
+                      {kids ? (
+                        <>
+                          <option value="Ash-Shaffat: 100">Ash-Shaffat: 100</option>
+                          <option value="Custom">Custom</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="Ar-Rum: 21">Ar-Rum: 21</option>
+                          <option value="Matius 19:6">Matius 19:6</option>
+                          <option value="Custom">Custom</option>
+                        </>
+                      )}
                     </select>
                   </div>
                   <div className="space-y-2">

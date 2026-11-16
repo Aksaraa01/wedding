@@ -5,7 +5,8 @@ import { KIDS_SITE } from "@/lib/eventType"
 import TemplateGallery from "@/components/template-gallery/TemplateGallery"
 
 export const metadata: Metadata = {
-  title: "Ceriavite | Undangan Digital Khitanan, Aqiqah, dan Ulang Tahun",
+  // Absolute: the root layout would otherwise append "| Aksaraa Wedding".
+  title: { absolute: "Ceriavite | Undangan Digital Khitanan, Aqiqah, dan Ulang Tahun" },
   description:
     "Undangan website untuk khitanan, aqiqah, dan ulang tahun ananda. Satu paket Rp 199.000 dengan RSVP, doa & ucapan, tautan tamu, dan tanda kasih.",
   alternates: { canonical: KIDS_SITE },
@@ -13,8 +14,15 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Ceriavite | Undangan Digital Acara Anak",
     description:
-      "Undangan digital khitanan, aqiqah, dan ulang tahun. RSVP online, doa & ucapan, dan tanda kasih dalam satu tautan.",
+      "Undangan digital khitanan, aqiqah, dan ulang tahun. RSVP online, doa dan ucapan, serta tanda kasih dalam satu tautan.",
     url: KIDS_SITE,
+    images: [{ url: `${KIDS_SITE}/og/ceriavite.png`, width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Ceriavite | Undangan Digital Acara Anak",
+    description: "Undangan digital khitanan, aqiqah, dan ulang tahun dalam satu tautan.",
+    images: [`${KIDS_SITE}/og/ceriavite.png`],
   },
 }
 
@@ -269,7 +277,7 @@ const PLACEHOLDER_TEMPLATES: KidsTemplate[] = [
     code: "songket-marun",
     name: "Songket Marun",
     description: "Marun dan emas bergaya songket Melayu, bingkai lengkung masjid.",
-    preview_image_url: "/templates/songket-marun/thumbnail.svg",
+    preview_image_url: "/templates/songket-marun/thumbnail.webp",
     demo_url: "/templates/songket-marun/preview",
   },
 ]
