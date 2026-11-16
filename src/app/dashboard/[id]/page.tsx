@@ -506,11 +506,11 @@ function DashboardInner({ id }: { id: string }) {
                       <span className="material-symbols-outlined text-[16px] shrink-0">mail</span>
                       <span className="whitespace-nowrap">Lihat Undangan</span>
                     </button>
-                    <button onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)} data-tour="undangan-tamu" title={showGaleriBtn ? "Undangan Tamu" : undefined} className={showGaleriBtn
+                    <button onClick={() => router.push(`/dashboard/${id}/qr-guestbook`)} data-tour="undangan-tamu" title="Undangan Tamu" className={showGaleriBtn || isKidsEvent(profile.event_type)
                       ? "flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink"
                       : "flex-1 md:flex-none md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-4 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden text-ellipsis shrink"}>
                       <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">qr_code_2</span>
-                      <span className={showGaleriBtn ? "whitespace-nowrap hidden md:inline" : "whitespace-nowrap"}>Undangan Tamu</span>
+                      <span className={showGaleriBtn || isKidsEvent(profile.event_type) ? "whitespace-nowrap hidden md:inline" : "whitespace-nowrap"}>Undangan Tamu</span>
                     </button>
                     <button onClick={() => (wishEligible ? router.push(`/dashboard/${id}/wish-wall`) : isGt ? setUpsell("undangan") : setUpsell("wishwall"))} data-tour="wish-wall" title="Wish Wall" className="flex-none w-12 md:w-auto h-12 md:h-auto inline-flex items-center justify-center gap-2 px-0 md:px-5 py-3 md:py-2.5 rounded-xl md:rounded-full bg-[#faf5ec] text-[#2c241e] hover:bg-white active:bg-[#f7f2ea] transition shadow-md text-[13px] font-semibold whitespace-nowrap overflow-hidden shrink">
                       <span className="material-symbols-outlined text-[16px] text-[#a8824b] shrink-0">favorite</span>
