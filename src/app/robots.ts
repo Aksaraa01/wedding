@@ -1,4 +1,6 @@
 import type { MetadataRoute } from "next"
+import { headers } from "next/headers"
+import { KIDS_SITE, WEDDING_SITE } from "@/lib/eventType"
 
 // Explicit crawler policy (previously no robots.txt was served at all).
 // Marketing pages stay allowed — including facebookexternalhit, which the
@@ -6,13 +8,18 @@ import type { MetadataRoute } from "next"
 // (/w/, /g/, /welcome/, /led/, /qr/, /q/) canonicalize to the couple
 // subdomain and are meta-noindex, so thin per-couple duplicates stay out of
 // the index. Private surfaces are disallowed (direct access unaffected).
-export default function robots(): MetadataRoute.Robots {
+//
+// Per-host sitemap: the Ceriavite host must point crawlers at its own URLs.
+export const dynamic = "force-dynamic"
+
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  const host = (await headers()).get("host") || ""
   const disallow = ["/dashboard/", "/ops/", "/api/", "/preview/", "/scanner/"]
   return {
     rules: [
       { userAgent: "*", allow: "/", disallow },
       { userAgent: "facebookexternalhit", allow: "/", disallow },
     ],
-    sitemap: "https://wedding.aksaraa.com/sitemap.xml",
+    sitemap: `${host.startsWith("ceriavite.") ? KIDS_SITE : WEDDING_SITE}/sitemap.xml`,
   }
 }
