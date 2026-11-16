@@ -677,7 +677,14 @@ body.skm-locked { overflow: hidden; }
 }
 .skm-wish-send:disabled { opacity: 0.5; cursor: default; }
 
-.skm-wish-note { margin: 8px 0 0; font-size: 12.5px; color: var(--skm-gold-soft); }
+.skm-wish-note {
+  margin: 10px 0 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #3f1119;
+}
+.skm-section--dark .skm-wish-note { color: #f3e6cc; }
 
 .skm-wish-list {
   display: grid;

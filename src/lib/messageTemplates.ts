@@ -1,4 +1,4 @@
-export type MsgCategory = "nasional" | "international" | "muslim" | "kristen" | "budha" | "hindu"
+export type MsgCategory = "nasional" | "international" | "muslim" | "kristen" | "budha" | "hindu" | "khitanan"
 
 export const MSG_CATEGORIES: { id: MsgCategory; label: string }[] = [
   { id: "nasional", label: "Nasional" },
@@ -7,6 +7,7 @@ export const MSG_CATEGORIES: { id: MsgCategory; label: string }[] = [
   { id: "kristen", label: "Kristen" },
   { id: "budha", label: "Budha" },
   { id: "hindu", label: "Hindu" },
+  { id: "khitanan", label: "Ceriavite" },
 ]
 
 export const MSG_TEMPLATES: Record<MsgCategory, string> = {
@@ -15,6 +16,21 @@ export const MSG_TEMPLATES: Record<MsgCategory, string> = {
   muslim: `Assalamu’alaikum Warahmatullahi Wabarakatuh\n\nYth. Bapak/Ibu/Saudara/i {Nama Tamu},\n\nDengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan syukuran pernikahan kami.\nKehadiran serta doa tulus dari Anda akan menambah kebahagiaan di hari istimewa ini.\n\nRincian Acara & Konfirmasi Kehadiran:\n{Tautan Undangan}\n\nTerima kasih atas segala doa baik yang dipanjatkan.\nWassalamu’alaikum Warahmatullahi Wabarakatuh.\n\nKami yang berbahagia,\n{Nama Pasangan}`,
   kristen: `Salam Sejahtera Bapak/Ibu/Saudara/i {Nama Tamu},\n\n"Demikianlah mereka bukan lagi dua, melainkan satu."\nAtas kasih dan kebaikan Tuhan, kami mengundang Anda untuk hadir dan menjadi saksi dalam janji suci pernikahan kami.\n\nInformasi Tata Ibadah & Resepsi:\n{Tautan Undangan}\n\nKehadiran dan persekutuan Anda merupakan berkah yang luar biasa bagi kami.\nTuhan Yesus memberkati.\n\nSalam kasih,\n{Nama Pasangan}`,
   budha: `Namo Buddhaya\nYth. Bapak/Ibu/Saudara/i {Nama Tamu},\n\nAtas berkah dan cinta kasih yang meliputi hidup kami, kami dengan penuh rasa hormat mengundang Anda untuk menghadiri perayaan pernikahan kami.\n\nPanduan Acara & RSVP:\n{Tautan Undangan}\n\nSemoga kebaikan dan kebahagiaan senantiasa menyertai kita semua.\n\nSalam bahagia,\n{Nama Pasangan}`,
+  khitanan: `Assalamu’alaikum Warahmatullahi Wabarakatuh
+
+Yth. Bapak/Ibu/Saudara/i {Nama Tamu},
+
+Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan walimatul khitan putra kami tercinta.
+Kehadiran serta doa restu dari Anda akan menambah kebahagiaan di hari bahagianya.
+
+Rincian Acara & Konfirmasi Kehadiran:
+{Tautan Undangan}
+
+Terima kasih atas doa baik yang dipanjatkan.
+Wassalamu’alaikum Warahmatullahi Wabarakatuh.
+
+Kami yang berbahagia,
+{Nama Pasangan}`,
   hindu: `Om Swastyastu\nYth. Bapak/Ibu/Saudara/i {Nama Tamu},\n\nAtas asung kertha wara nugraha Ida Sang Hyang Widhi Wasa, kami menyatukan dua hati dalam pawiwahan suci pernikahan kami.\n\nRincian Prosesi & Lokasi:\n{Tautan Undangan}\n\nMatur Suksma atas perhatian, doa, dan kehadiran Anda yang penuh makna.\nOm Shanti, Shanti, Shanti Om.\n\nKami yang mengundang,\n{Nama Pasangan}`,
 }
 

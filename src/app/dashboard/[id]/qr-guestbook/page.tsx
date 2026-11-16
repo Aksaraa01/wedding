@@ -7,6 +7,7 @@ import { ASSETS } from "@/lib/assets"
 import ProfileMenu from "@/components/ProfileMenu"
 import UpgradePackageModal from "@/components/UpgradePackageModal"
 import { DASH_HERO_BG, DASH_SATIN_BG } from "@/lib/dashboardTheme"
+import { isKidsEvent } from "@/lib/eventType"
 import { MSG_CATEGORIES, MSG_TEMPLATES, MSG_VARS, MsgCategory, cleanMessageForCell, isValidMsgCategory, renderMessage } from "@/lib/messageTemplates"
 import { FALLBACK_GUEST_SLUG, FALLBACK_GUEST_NAME, slugifyName } from "@/lib/guest-slug"
 import { paymentWaLink } from "@/lib/contact"
@@ -282,7 +283,7 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
         setLinkStrict(true)
       }
       const savedCat = profileData.profile?.message_category
-      if (savedCat && MSG_CATEGORIES.some((c) => c.id === savedCat)) {
+      if (savedCat && MSG_CATEGORIES.some((c) => c.id === savedCat) && !(isKidsEvent(profile?.event_type) && savedCat !== "khitanan")) {
         setMsgCategory(savedCat as MsgCategory)
         setMsgText(MSG_TEMPLATES[savedCat as MsgCategory])
       }
@@ -834,7 +835,10 @@ export default function QrGuestbookPage({ params }: { params: Promise<{ id: stri
             {templateOpen && (
               <div className="p-5 border-t border-[#E2D9CF] space-y-4">
                 <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
-                  {MSG_CATEGORIES.map((c) => (
+                  {(isKidsEvent(profile?.event_type)
+                    ? MSG_CATEGORIES.filter((c) => c.id === "khitanan")
+                    : MSG_CATEGORIES.filter((c) => c.id !== "khitanan")
+                  ).map((c) => (
                     <button
                       key={c.id}
                       onClick={() => selectMsgCategory(c.id)}
