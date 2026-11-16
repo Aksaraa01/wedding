@@ -34,58 +34,46 @@ function rowIncluded(value: string | null, emphasis: string | null): boolean {
 }
 
 export async function getRowGates(packageType: string): Promise<RowGates> {
-  // Ceriavite is a deliberately smaller product: the matrix has no column for it,
-  // and falling back to `signature` would wrongly grant the story and the video.
-  if (packageType === "ceriavite") {
-    return {
-      gift_address: { included: true, availableIn: ["ceriavite"] },
-      inviting_families: { included: true, availableIn: ["ceriavite"] },
-      story: { included: false, availableIn: [] },
-      cinematic_video: { included: false, availableIn: [] },
-    }
-  }
-
-  // Static reference data — identical across all couples, cached per package.
+  // Gates live in package_features (see 20261116000004): one row per package and
+  // gate, so a new package is data, not a new column in package_matrix_rows.
+  // ``availableIn`` drives the upsell copy, so it is derived from the same read.
   return cachedRead(`row-gates:${packageType}`, 10 * 60_000, async () => {
     const { data, error } = await supabaseAdmin
-      .from("package_matrix_rows")
-      .select("*")
-      .in("code", GATE_CODES as unknown as string[])
+      .from("package_features")
+      .select("package_code, feature_code")
+      .in("feature_code", GATE_CODES as unknown as string[])
+      .eq("is_included", true)
 
-    const fallback: RowGates = {
-      gift_address: { included: true, availableIn: [...PACKAGES] },
-      inviting_families: { included: true, availableIn: [...PACKAGES] },
-      story: { included: true, availableIn: [...PACKAGES] },
-      cinematic_video: { included: true, availableIn: [...PACKAGES] },
+    if (error || !data || data.length === 0) return fallbackGates(packageType)
+
+    const byFeature: Record<string, string[]> = {}
+    for (const row of data as { package_code: string; feature_code: string }[]) {
+      ;(byFeature[row.feature_code] ||= []).push(row.package_code)
     }
 
-    if (error) return fallback
-
-    const col = (row: Record<string, string | null>, pkg: string, suffix: string) => {
-      const v = row[`${pkg}_${suffix}`]
-      if (v !== undefined && v !== null) return v
-      if (pkg === "bonus_full_custom" || pkg === "elite") return row[`prestige_${suffix}`] ?? row[`signature_${suffix}`]
-      return row[`signature_${suffix}`]
+    const gate = (code: (typeof GATE_CODES)[number]) => {
+      const availableIn = byFeature[code] || []
+      return { included: availableIn.includes(packageType), availableIn }
     }
 
-    const gates: RowGates = { ...fallback }
-    for (const row of (data || []) as Record<string, string | null>[]) {
-      const code = row.code
-      if (!code || !GATE_CODES.includes(code as typeof GATE_CODES[number])) continue
-
-      const availableIn: string[] = []
-      for (const pkg of PACKAGES) {
-        const value = col(row, pkg, "value")
-        const emphasis = col(row, pkg, "emphasis")
-        if (rowIncluded(value, emphasis)) availableIn.push(pkg)
-      }
-      const included = availableIn.includes(packageType)
-
-      gates[code as keyof RowGates] = { included, availableIn }
+    return {
+      gift_address: gate("gift_address"),
+      inviting_families: gate("inviting_families"),
+      story: gate("story"),
+      cinematic_video: gate("cinematic_video"),
     }
-
-    return gates
   })
+}
+
+/** Only used when package_features has no gate rows at all (fresh database). */
+function fallbackGates(_packageType: string): RowGates {
+  const all = [...PACKAGES]
+  return {
+    gift_address: { included: true, availableIn: all },
+    inviting_families: { included: true, availableIn: all },
+    story: { included: true, availableIn: all },
+    cinematic_video: { included: true, availableIn: all },
+  }
 }
 
 export async function getFeatureIncluded(packageType: string): Promise<Set<string>> {
