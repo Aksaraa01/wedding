@@ -75,12 +75,13 @@ body.skm-locked { overflow: hidden; }
 .skm-section__kicker { text-align: center; }
 
 .skm-section__title {
-  margin: 12px 0 0;
+  margin: 10px 0 0;
   text-align: center;
-  font-family: var(--skm-title);
-  font-size: clamp(22px, 6.4vw, 28px);
+  font-family: var(--skm-script);
+  font-size: clamp(38px, 11vw, 52px);
   font-weight: 400;
-  letter-spacing: 0.06em;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
   color: var(--skm-cream);
 }
 
@@ -327,11 +328,11 @@ body.skm-locked { overflow: hidden; }
 }
 
 .skm-putra__name {
-  margin: 20px 0 0;
-  font-family: var(--skm-title);
-  font-size: 17px;
-  letter-spacing: 0.1em;
-  line-height: 1.5;
+  margin: 14px 0 0;
+  font-family: var(--skm-script);
+  font-size: clamp(32px, 9vw, 42px);
+  line-height: 1.15;
+  letter-spacing: 0.01em;
   color: var(--skm-cream);
 }
 
@@ -1026,4 +1027,35 @@ body.skm-locked { overflow: hidden; }
 }
 .skm-penutup__photo {
   padding: 0;
+}
+
+
+/* Countdown under the date, as in the reference's save-the-date block. */
+.skm-count {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  width: min(300px, 84%);
+  margin: 20px auto 0;
+}
+.skm-count > div {
+  padding: 9px 2px;
+  border: 1px solid rgba(201, 164, 92, 0.4);
+  background: rgba(50, 10, 17, 0.3);
+}
+.skm-count span {
+  display: block;
+  font-family: var(--skm-title);
+  font-size: 21px;
+  line-height: 1;
+  color: var(--skm-cream);
+}
+.skm-count small {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--skm-ui);
+  font-size: 7.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--skm-gold);
 }

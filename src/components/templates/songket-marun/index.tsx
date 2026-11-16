@@ -43,6 +43,7 @@ export default function SongketMarun(profile: TemplateProps) {
   const [toast, setToast] = useState("")
   const [wishName, setWishName] = useState("")
   const [wishMessage, setWishMessage] = useState("")
+  const [now, setNow] = useState<number | null>(null)
 
   const tc = profile.template_content || {}
   const gates = profile.feature_gates || {}
@@ -163,6 +164,11 @@ export default function SongketMarun(profile: TemplateProps) {
     const ok = await wishes.send(wishName || guestName, wishMessage)
     if (ok) setWishMessage("")
   }, [wishes, wishName, guestName, wishMessage])
+
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => window.clearInterval(id)
+  }, [])
 
   useEffect(() => {
     document.body.classList.toggle("skm-locked", !opened)
@@ -292,7 +298,25 @@ export default function SongketMarun(profile: TemplateProps) {
                 Simpan Tanggal
               </a>
             )}
-            {target && <p className="skm-section__lead">{labels.countdownLabel}</p>}
+            {target && (() => {
+              const ms = now ? Math.max(0, target.getTime() - now) : 0
+              const cells = [
+                { v: Math.floor(ms / 86400000), l: "Hari" },
+                { v: Math.floor((ms % 86400000) / 3600000), l: "Jam" },
+                { v: Math.floor((ms % 3600000) / 60000), l: "Menit" },
+                { v: Math.floor((ms % 60000) / 1000), l: "Detik" },
+              ]
+              return (
+                <div className="skm-count">
+                  {cells.map((c) => (
+                    <div key={c.l}>
+                      <span>{now ? String(c.v).padStart(2, "0") : "--"}</span>
+                      <small>{c.l}</small>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
           </section>
 
           {/* Acara */}
