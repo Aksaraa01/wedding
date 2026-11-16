@@ -2419,7 +2419,7 @@ function EditorInner({ id }: { id: string }) {
                   </div>
                 </div>
               )}
-              {!isNoPhoto && renderSection("video", "movie", "VIDEO",
+              {!isNoPhoto && gates.cinematic_video.included && renderSection("video", "movie", "VIDEO",
                 gates.cinematic_video.included ? (
                   <div className="mt-6 space-y-4">
                     <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
@@ -2647,7 +2647,7 @@ function EditorInner({ id }: { id: string }) {
                   </button>
                 </div>
               ))}
-              {renderSection("story", "auto_stories", "STORY",
+              {gates.story.included && renderSection("story", "auto_stories", "STORY",
                 gates.story.included ? (
                   <div className="mt-6 space-y-6">
                     <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">

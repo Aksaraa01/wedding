@@ -341,7 +341,7 @@ function InvSectionToggle({ label, checked, onChange }: { label: string; checked
   )
 }
 
-function InvAccordion({ secKey, icon, label, lockedInfo, hidden, incomplete, defaultOpen, children }: {
+function InvAccordion({ secKey, icon, label, lockedInfo, hidden, incomplete, defaultOpen, omit, children }: {
   secKey: string
   icon: string
   label: string
@@ -349,9 +349,12 @@ function InvAccordion({ secKey, icon, label, lockedInfo, hidden, incomplete, def
   hidden: boolean
   incomplete: boolean
   defaultOpen?: boolean
+  /** Package excludes this section entirely (e.g. Ceriavite has no story/video). */
+  omit?: boolean
   children: ReactNode
 }) {
   const isLocked = lockedInfo !== null
+  if (omit) return null
   return (
     <details
       data-section={secKey}
@@ -3785,7 +3788,7 @@ export default function AntrianDetail({ id }: { id: string }) {
 
                   {/* Tanpa-photo: whole video section removed (mirrors editor) */}
                   {!invNoPhoto && (
-                  <InvAccordion secKey="video" icon="movie" label="VIDEO" {...invAccProps("video")}>
+                  <InvAccordion secKey="video" icon="movie" label="VIDEO" {...invAccProps("video")} omit={invitationData?.profile?.package_type === "ceriavite"}>
                     {invEditing && invForm ? (
                       invSectionState(invitationData.profile, "video") === "locked" ? (
                         <div className="mt-6"><InvLockedNotice availableIn={invAvailableIn(invitationData.profile, "cinematic_video")} /></div>
@@ -4069,7 +4072,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                   )}
 
 
-                  <InvAccordion secKey="story" icon="auto_stories" label="STORY" {...invAccProps("story")}>
+                  <InvAccordion secKey="story" icon="auto_stories" label="STORY" {...invAccProps("story")} omit={invitationData?.profile?.package_type === "ceriavite"}>
                     {invEditing && invForm && invSectionState(invitationData.profile, "story") !== "locked" ? (
                       <div className="mt-6 space-y-6">
                         <div className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
