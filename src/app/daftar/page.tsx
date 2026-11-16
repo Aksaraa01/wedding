@@ -189,14 +189,28 @@ export default function DaftarCeriavitePage() {
               <button
                 key={opt.value}
                 type="button"
-                onClick={() => setEventType(opt.value)}
+                aria-disabled={opt.value !== "khitanan"}
+                onClick={() => {
+                  if (opt.value !== "khitanan") {
+                    setSoon(opt.label)
+                    return
+                  }
+                  setEventType(opt.value)
+                }}
                 className={`h-11 rounded-xl border px-1 text-[12px] leading-tight transition-colors ${
-                  eventType === opt.value
-                    ? "border-[#8D4D39] bg-[#8D4D39] text-white"
-                    : "border-[#E7DECF] text-[#6E6A63]"
+                  opt.value !== "khitanan"
+                    ? "border-[#E7DECF] text-[#A39B8E]"
+                    : eventType === opt.value
+                      ? "border-[#8D4D39] bg-[#8D4D39] text-white"
+                      : "border-[#E7DECF] text-[#3B3833]"
                 }`}
               >
                 {opt.label}
+                {opt.value !== "khitanan" && (
+                  <span className="mt-0.5 block text-[8.5px] uppercase tracking-[0.12em] text-[#B08A4A]">
+                    Segera
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -256,6 +270,30 @@ export default function DaftarCeriavitePage() {
           pembayaran dikonfirmasi tim kami.
         </p>
       </main>
+
+      {soon && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6"
+          onClick={() => setSoon(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <span className="material-symbols-outlined text-[28px] text-[#8D4D39]">schedule</span>
+            <h3 className="mt-3 font-headline-md text-lg text-[#1A1817]">Segera Hadir</h3>
+            <p className="mt-2 text-[13px] leading-relaxed text-[#6E6A63]">
+              Undangan {soon} sedang kami siapkan. Untuk saat ini pendaftaran baru tersedia untuk acara khitanan.
+            </p>
+            <button
+              type="button"
+              onClick={() => setSoon(null)}
+              className="mt-5 w-full rounded-xl bg-[#8D4D39] py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-white active:scale-[0.99]"
+            >
+              Mengerti
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Sticky primary action */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#EFE9DD] bg-[#FAF7F2]/95 backdrop-blur-md [padding-bottom:env(safe-area-inset-bottom)]">
