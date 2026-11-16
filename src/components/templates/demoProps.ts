@@ -2844,10 +2844,12 @@ DEMO_PROPS_BY_CODE["love-line"] = {
 // Reference demo photos, vendored for the design preview only. Real couples
 // always use their own uploads; nothing here is ever shown on a live invitation.
 const DEMO_SKM = {
-  cover: "/templates/songket-marun/demo/cover.jpg",
-  putra: "/templates/songket-marun/demo/putra.jpg",
-  venue: "/templates/songket-marun/demo/venue.jpg",
-  closing: "/templates/songket-marun/demo/closing.jpg",
+  cover: "/templates/songket-marun/demo/cover.webp",
+  putra: "/templates/songket-marun/demo/putra.webp",
+  venue: "/templates/songket-marun/demo/venue.webp",
+  closing: "/templates/songket-marun/demo/closing.webp",
+  g1: "/templates/songket-marun/demo/gallery-1.webp",
+  g2: "/templates/songket-marun/demo/gallery-2.webp",
 }
 
 // Ceriavite (kids) demo. One name, one parent line, "Walimatul Khitan" copy —
@@ -2887,7 +2889,7 @@ DEMO_PROPS_BY_CODE["songket-marun"] = {
       maps_url: "https://maps.google.com/?q=Medan+Baru",
     },
   ],
-  gallery_photos: [DEMO_SKM.putra, DEMO_SKM.cover, DEMO_SKM.venue, DEMO_SKM.closing],
+  gallery_photos: [DEMO_SKM.g1, DEMO_SKM.g2, DEMO_SKM.putra, DEMO_SKM.venue, DEMO_SKM.cover, DEMO_SKM.closing],
   gift_accounts: [
     { provider_name: "Bank Mandiri", account_number: "1234567890", account_name: "Hendra Pratama", type: "bank" },
   ],
