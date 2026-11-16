@@ -272,9 +272,10 @@ export default function SongketMarun(profile: TemplateProps) {
               <p className="skm-doa__arabic" lang="ar" dir="rtl">
                 {doaArabic}
               </p>
-              <p className="skm-doa__text">{doaBlessing}</p>
               {quoteText && <p className="skm-doa__translate">&ldquo;{quoteText}&rdquo;</p>}
               {quoteSource && <p className="skm-doa__source">{quoteSource}</p>}
+              <div className="skm-pita" aria-hidden="true" />
+              <p className="skm-doa__text">{doaBlessing}</p>
 
             </div>
           </section>
