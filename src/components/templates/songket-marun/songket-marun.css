@@ -12,10 +12,10 @@
   --skm-gold-soft: #e3c88f;
   --skm-cream: #efdfbb;
   --skm-text: #e0cdb6;
-  --skm-title: "Marcellus", Georgia, serif;
+  --skm-title: "Bodoni Moda", "DM Serif Display", Georgia, serif;
   --skm-body: "Cormorant Garamond", Georgia, serif;
-  --skm-script: "Parisienne", "Cormorant Garamond", cursive;
-  --skm-ui: "Marcellus", Georgia, serif;
+  --skm-script: "Alex Brush", "Monsieur La Doulaise", cursive;
+  --skm-ui: "Cinzel", "Marcellus", Georgia, serif;
 
   position: relative;
   min-height: 100dvh;
@@ -152,7 +152,7 @@ body.skm-locked { overflow: hidden; }
 .skm-cover__name {
   margin: 10px 0 0;
   font-family: var(--skm-script);
-  font-size: clamp(66px, 21vw, 104px);
+  font-size: clamp(78px, 25vw, 118px);
   line-height: 0.98;
   color: #f7e9cf;
   text-shadow: 0 4px 30px rgba(0, 0, 0, 0.35);
@@ -756,12 +756,13 @@ body.skm-locked { overflow: hidden; }
 }
 .skm-penutup__melur {
   position: absolute;
-  right: -14%;
-  bottom: 4%;
-  width: 46%;
+  right: -6%;
+  bottom: 2%;
+  width: 20%;
   transform: rotate(18deg);
   pointer-events: none;
   z-index: 3;
+  opacity: 0.95;
 }
 
 .skm-penutup__thanks {
