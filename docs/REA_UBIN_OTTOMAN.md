@@ -160,6 +160,13 @@ with Songket Marun; `profile.track_url` always wins for a real couple).
 - one-photo gallery branch, empty wish feed, gift account-only branch
 - `?opened=1` QA hook (same as Songket Marun) for screenshot tooling
 
+## Live
+
+- Template: <https://ceriavite.aksaraa.com/templates/ubin-ottoman/preview>
+- Row applied to staging **and** production (`20261116000007`), `sort_order = 12`
+  so it sits after Lentera Zamrud (11) and Songket Marun (10).
+- Deploy smoke: `doc=200 rsc=200`, live cover re-checked at 390 × 844.
+
 ## Registration
 
 `supabase/migrations/20261116000007_ubin_ottoman.sql` — `event_type = 'kids'`,
