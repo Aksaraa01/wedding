@@ -86,6 +86,7 @@ export async function POST(req: Request) {
       tier,
       popular_rank: parsedRank.value,
       source_type: sourceType,
+      event_type: body.event_type === "kids" ? "kids" : "wedding",
       wp_master_slug: isInhouse ? null : (body.wp_master_slug || null),
       wp_manifest: isInhouse ? null : (body.wp_manifest && typeof body.wp_manifest === "object" ? body.wp_manifest : null),
     })

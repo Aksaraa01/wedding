@@ -86,6 +86,9 @@ export async function PUT(req: Request, ctx: { params: Promise<{ id: string }> }
   if ("tier" in body) patch.tier = normalizeTemplateTier(body.tier)
   if ("no_photo" in body) patch.no_photo = body.no_photo === true
   if (nextRank !== undefined) patch.popular_rank = nextRank
+  if ("event_type" in body) {
+    patch.event_type = body.event_type === "kids" ? "kids" : "wedding"
+  }
   // source_type switches effective; switching to in-house clears the WP contract.
   if ("source_type" in body) {
     const isInhouse = body.source_type === "inhouse"

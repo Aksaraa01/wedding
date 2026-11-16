@@ -14,6 +14,7 @@ import { hasTemplate } from "@/components/templates"
 import { compressImage } from "@/lib/imageCompress"
 
 type Template = {
+  event_type?: string | null
   id: string
   code: string
   name: string
@@ -136,12 +137,15 @@ export default function OpsTemplatesPage() {
     source_type: "wp" as "wp" | "inhouse",
     wp_master_slug: "",
     no_photo: false,
+    event_type: "wedding" as "wedding" | "kids",
   })
 
   const [uploading, setUploading] = useState(false)
   const previewFileRef = useRef<HTMLInputElement>(null)
   const [wpCheck, setWpCheck] = useState<{ checking: boolean; ok?: boolean; title?: string; msg?: string }>({ checking: false })
   const [searchQuery, setSearchQuery] = useState("")
+  // Template family: Ceriavite designs must never be picked for a wedding profile.
+  const [eventFilter, setEventFilter] = useState<"all" | "wedding" | "kids">("all")
 
   // "Atur Top 10 Populer": a dedicated lineup panel (drag to reorder), not a
   // field inside the edit modal. Slots are positional — index 0 is rank 1.
@@ -176,10 +180,14 @@ export default function OpsTemplatesPage() {
 
   const distinctCategories = useMemo(() => [...new Set(templates.map((t) => (t.category || "").trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "id")), [templates])
   const filteredTemplates = useMemo(() => {
-    if (!searchQuery.trim()) return templates
+    const byFamily =
+      eventFilter === "all"
+        ? templates
+        : templates.filter((t) => ((t as any).event_type === "kids" ? "kids" : "wedding") === eventFilter)
+    if (!searchQuery.trim()) return byFamily
     const q = searchQuery.trim().toLowerCase()
-    return templates.filter((t) => t.name.toLowerCase().includes(q) || t.code.toLowerCase().includes(q) || (t.category || "").toLowerCase().includes(q))
-  }, [templates, searchQuery])
+    return byFamily.filter((t) => t.name.toLowerCase().includes(q) || t.code.toLowerCase().includes(q) || (t.category || "").toLowerCase().includes(q))
+  }, [templates, searchQuery, eventFilter])
 
   useEffect(() => {
     if (employee) fetchTemplates()
@@ -243,7 +251,7 @@ export default function OpsTemplatesPage() {
     setManifest({})
     setElements([])
     setPopups([])
-    setForm({ code: "", name: "", description: "", preview_image_url: "", demo_url: "", is_active: true, sort_order: templates.length, package_eligibility: [...PACKAGE_CODES], category: "", tier: "", source_type: "wp", wp_master_slug: "", no_photo: false })
+    setForm({ code: "", name: "", description: "", preview_image_url: "", demo_url: "", is_active: true, sort_order: templates.length, package_eligibility: [...PACKAGE_CODES], category: "", tier: "", source_type: "wp", wp_master_slug: "", no_photo: false, event_type: "wedding" })
   }
 
   const startEdit = (t: Template, openMapping = false) => {
@@ -268,6 +276,7 @@ export default function OpsTemplatesPage() {
       source_type: t.source_type === "inhouse" ? "inhouse" : "wp",
       wp_master_slug: t.wp_master_slug || "",
       no_photo: (t as any).no_photo === true,
+      event_type: (t as any).event_type === "kids" ? "kids" : "wedding",
     })
   }
 
@@ -892,6 +901,22 @@ export default function OpsTemplatesPage() {
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
               <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Cari template (nama/kode/kategori)…" className="w-full pl-10 pr-4 py-2.5 rounded-full border border-outline-variant bg-white text-sm placeholder:text-on-surface-variant/60 focus:outline-none focus:border-[#B34E3F] focus:ring-1 focus:ring-[#B34E3F]" />
             </div>
+            <div className="flex flex-wrap items-center gap-2">
+              {([["all", "Semua"], ["wedding", "Wedding"], ["kids", "Ceriavite"]] as const).map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setEventFilter(id)}
+                  className={`px-3 py-1.5 rounded-full border text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                    eventFilter === id
+                      ? "bg-[#B34E3F] border-[#B34E3F] text-white"
+                      : "bg-white border-[#E2D9CF] text-[#2C2A29] hover:border-[#B34E3F]"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
             {distinctCategories.length > 0 && (
               <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
                 {distinctCategories.map((cat) => (
@@ -936,6 +961,9 @@ export default function OpsTemplatesPage() {
                     )}
                     {typeof t.popular_rank === "number" && (
                       <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-amber-100 text-amber-800 shrink-0">#{t.popular_rank} Populer</span>
+                    )}
+                    {(t as any).event_type === "kids" && (
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-[#f7f0e2] text-[#8a6d2f] border border-[#c9a45c]/50 shrink-0">Ceriavite</span>
                     )}
                     {t.source_type === "inhouse" && (
                       <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-cyan-50 text-cyan-700 border border-cyan-200 shrink-0">In-House</span>
@@ -1179,6 +1207,26 @@ export default function OpsTemplatesPage() {
                   <div>
                     <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">Nama Template</label>
                     <input className="input-editorial w-full font-label-md text-[14px]" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Marry With You" />
+                    <div className="mt-3">
+                      <label className="mb-1.5 block font-label-md text-[10px] uppercase tracking-widest text-on-surface-variant">Event family</label>
+                      <div className="flex gap-2">
+                        {([["wedding", "Wedding"], ["kids", "Ceriavite"]] as const).map(([id, label]) => (
+                          <button
+                            key={id}
+                            type="button"
+                            onClick={() => setForm({ ...form, event_type: id })}
+                            className={`px-3 py-1.5 rounded-full border text-[10px] font-bold uppercase tracking-wider ${
+                              form.event_type === id
+                                ? "bg-[#B34E3F] border-[#B34E3F] text-white"
+                                : "bg-white border-[#E2D9CF] text-[#2C2A29]"
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="mt-1 text-[10px] italic text-on-surface-variant">Ceriavite hanya muncul untuk profil khitanan, aqiqah, ulang tahun.</p>
+                    </div>
                   </div>
                   <div>
                     <label className="text-[10px] text-on-surface-variant font-label-md uppercase block mb-1">

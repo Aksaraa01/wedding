@@ -1,6 +1,6 @@
 "use client"
 
-import { isKidsEvent } from "@/lib/eventType"
+import { eventFamily, isKidsEvent } from "@/lib/eventType"
 import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import type { ReactNode } from "react"
 import { useRouter } from "next/navigation"
@@ -1828,7 +1828,14 @@ export default function AntrianDetail({ id }: { id: string }) {
       // template assignment and a stale list causes ops human error.
       const res = await fetch(`/api/web-templates?fresh=1`, { cache: "no-store" })
       const data = await res.json().catch(() => ({}))
-      if (res.ok) setInvTplList(data.templates || [])
+      if (res.ok) {
+        // Only the profile's own family: a Ceriavite profile must never be
+        // offered a wedding design (and vice versa), the copy cannot be relabelled.
+        const family = eventFamily(detail?.wedding_profile?.event_type)
+        setInvTplList(
+          (data.templates || []).filter((t: any) => eventFamily(t.event_type) === family)
+        )
+      }
     } catch {}
     setInvTplLoading(false)
   }
