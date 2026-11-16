@@ -434,6 +434,7 @@ body.skm-locked { overflow: hidden; }
   gap: 8px;
   margin-top: 22px;
   padding: 11px 22px;
+  border-radius: 0;
   border: 1px solid rgba(201, 164, 92, 0.55);
   color: var(--skm-gold-soft);
   font-family: var(--skm-ui);

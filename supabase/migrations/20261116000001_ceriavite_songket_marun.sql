@@ -14,7 +14,7 @@ VALUES
   ('songket-marun', 'Songket Marun',
    'Undangan marun dan emas bergaya songket Melayu: bingkai lengkung masjid, ornamen tenun, dan tipografi serif klasik untuk khitanan, aqiqah, atau ulang tahun ananda.',
    '/templates/songket-marun/thumbnail.webp',
-   '/templates/songket-marun/preview', 10, 'Ceriavite', 'inhouse',
+   'https://ceriavite.aksaraa.com/templates/songket-marun/preview', 10, 'Ceriavite', 'inhouse',
    '["essential"]',
    'Baru', true, false, 'kids')
 ON CONFLICT (code) DO UPDATE SET

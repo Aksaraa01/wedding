@@ -370,6 +370,6 @@ const PLACEHOLDER_TEMPLATES: KidsTemplate[] = [
     name: "Songket Marun",
     description: "Marun dan emas bergaya songket Melayu, bingkai lengkung masjid.",
     preview_image_url: "/templates/songket-marun/thumbnail.webp",
-    demo_url: "/templates/songket-marun/preview",
+    demo_url: `${KIDS_SITE}/templates/songket-marun/preview`,
   },
 ]
