@@ -124,16 +124,6 @@ export default async function CeriaviteLandingPage() {
         {/* 1. Design catalogue: heading + chips + 2-up portrait grid on phones */}
         <section className="bg-white py-8 md:py-12">
           <div className="mx-auto max-w-7xl px-6 lg:px-12">
-            <div className="mb-5 md:mb-7">
-              <h2 className="font-headline-lg text-[24px] leading-tight tracking-tight text-[#1A1817] md:text-[32px]">
-                Desain undangan
-              </h2>
-              <p className="mt-2 max-w-xl text-[12.5px] leading-relaxed text-[#6E6A63] md:text-[14px]">
-                {shelf.length} desain untuk khitanan, aqiqah, dan ulang tahun. Pratinjau langsung
-                dari layar HP.
-              </p>
-            </div>
-
             {categories.length > 1 && (
               <div className="no-scrollbar mb-4 flex gap-2 overflow-x-auto md:mb-6">
                 {categories.map((cat) => (

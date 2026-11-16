@@ -215,7 +215,7 @@ export default function SongketMarun(profile: TemplateProps) {
       {opened && (
         <main>
           {/* Pembuka */}
-          <section className="skm-section skm-pembuka" data-skm-reveal>
+          <section className="skm-section skm-section--cream skm-pembuka" data-skm-reveal>
             <div className="skm-star" aria-hidden="true" />
             <p className="skm-pembuka__salam">{salam}</p>
             <div className="skm-pita" aria-hidden="true" />
@@ -224,7 +224,7 @@ export default function SongketMarun(profile: TemplateProps) {
           </section>
 
           {/* Putra Kami */}
-          <section className="skm-section skm-putra" data-skm-reveal>
+          <section className="skm-section skm-section--dark skm-putra" data-skm-reveal>
             <span className="skm-edge skm-edge--top" aria-hidden="true" />
             <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
             <p className="skm-kicker skm-section__kicker">{labels.subjectPossessive}</p>
@@ -247,7 +247,7 @@ export default function SongketMarun(profile: TemplateProps) {
           </section>
 
           {/* Doa untuk Ananda */}
-          <section className="skm-section skm-doa" data-skm-reveal>
+          <section className="skm-section skm-section--cream skm-doa" data-skm-reveal>
             <div className="skm-star" aria-hidden="true" />
             <h2 className="skm-section__title">Doa untuk Ananda</h2>
             <div className="skm-doa__card">
@@ -262,7 +262,7 @@ export default function SongketMarun(profile: TemplateProps) {
           </section>
 
           {/* Save the Date */}
-          <section className="skm-section skm-date" data-skm-reveal>
+          <section className="skm-section skm-section--dark skm-date" data-skm-reveal>
             <span className="skm-edge skm-edge--top" aria-hidden="true" />
             <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
             <p className="skm-kicker skm-section__kicker">Save the Date</p>
@@ -283,7 +283,7 @@ export default function SongketMarun(profile: TemplateProps) {
           </section>
 
           {/* Acara */}
-          <section className="skm-section skm-acara" data-skm-reveal>
+          <section className="skm-section skm-section--cream skm-acara" data-skm-reveal>
             <p className="skm-kicker skm-section__kicker">Rangkaian Acara</p>
             <h2 className="skm-section__title">{eventsTitle}</h2>
             <p className="skm-section__lead">{eventsLead}</p>
@@ -317,7 +317,7 @@ export default function SongketMarun(profile: TemplateProps) {
 
           {/* Galeri */}
           {gallery.length > 0 && (
-            <section className="skm-section skm-galeri" data-skm-reveal>
+            <section className="skm-section skm-section--dark skm-galeri" data-skm-reveal>
             <span className="skm-edge skm-edge--top" aria-hidden="true" />
             <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
               <p className="skm-kicker skm-section__kicker">Galeri</p>
@@ -335,7 +335,7 @@ export default function SongketMarun(profile: TemplateProps) {
 
           {/* Tanda Kasih */}
           {hasGift && (
-            <section className="skm-section skm-gift" data-skm-reveal>
+            <section className="skm-section skm-section--dark skm-gift" data-skm-reveal>
             <span className="skm-edge skm-edge--top" aria-hidden="true" />
             <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
               <img className="skm-gift__orn" src={ART("songket-terlipat")} alt="" aria-hidden="true" loading="lazy" />
@@ -375,7 +375,7 @@ export default function SongketMarun(profile: TemplateProps) {
           )}
 
           {/* Doa & Ucapan */}
-          <section className="skm-section skm-ucapan" data-skm-reveal>
+          <section className="skm-section skm-section--cream skm-ucapan" data-skm-reveal>
             <p className="skm-kicker skm-section__kicker">Doa &amp; Ucapan</p>
             <h2 className="skm-section__title">{wishesTitle}</h2>
             <p className="skm-section__lead">{wishesLead}</p>
@@ -420,7 +420,7 @@ export default function SongketMarun(profile: TemplateProps) {
           </section>
 
           {/* Penutup */}
-          <section className="skm-section skm-penutup" data-skm-reveal>
+          <section className="skm-section skm-section--dark skm-penutup" data-skm-reveal>
             <span className="skm-edge skm-edge--top" aria-hidden="true" />
             <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
             <div className="skm-penutup__photo">

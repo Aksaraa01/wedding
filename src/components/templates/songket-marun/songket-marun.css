@@ -859,3 +859,74 @@ body.skm-locked { overflow: hidden; }
 }
 .skm-edge--top { top: 0; mask-image: linear-gradient(180deg, #000 10%, transparent 92%); -webkit-mask-image: linear-gradient(180deg, #000 10%, transparent 92%); }
 .skm-edge--bottom { bottom: 0; mask-image: linear-gradient(0deg, #000 10%, transparent 92%); -webkit-mask-image: linear-gradient(0deg, #000 10%, transparent 92%); }
+
+
+/* ---------- section surfaces ----------
+   The reference alternates canvases: Pembuka / Doa / Acara / RSVP / Ucapan sit on
+   theme:title_color (cream, #EFDFBB) with maroon ink, while Putra Kami / Save the
+   Date / Galeri / Tanda Kasih / Penutup sit on theme:background_color (maroon).
+   These overrides are appended so they win over the per-section rules above. */
+
+.skm-section--cream {
+  background: var(--skm-cream);
+  color: var(--skm-bg);
+}
+
+.skm-section--cream .skm-section__title,
+.skm-section--cream .skm-pembuka__salam,
+.skm-section--cream .skm-putra__name,
+.skm-section--cream .skm-doa__arabic,
+.skm-section--cream .skm-doa__text,
+.skm-section--cream .skm-event__name,
+.skm-section--cream .skm-event__place strong,
+.skm-section--cream .skm-wish__name { color: var(--skm-bg); }
+
+.skm-section--cream .skm-section__lead,
+.skm-section--cream .skm-pembuka__text,
+.skm-section--cream .skm-doa__blessing,
+.skm-section--cream .skm-event__place,
+.skm-section--cream .skm-event__date,
+.skm-section--cream .skm-wish__text { color: rgba(74, 22, 32, 0.78); }
+
+.skm-section--cream .skm-kicker,
+.skm-section--cream .skm-doa__source,
+.skm-section--cream .skm-event__time,
+.skm-section--cream .skm-wish__time { color: #a9822f; }
+
+.skm-section--cream .skm-doa__card,
+.skm-section--cream .skm-event {
+  border-color: rgba(74, 22, 32, 0.22);
+  background: rgba(255, 255, 255, 0.42);
+}
+.skm-section--cream .skm-doa__card::before { border-color: rgba(74, 22, 32, 0.1); }
+
+.skm-section--cream .skm-wish-form input,
+.skm-section--cream .skm-wish-form textarea {
+  background: #fffdf7;
+  border-color: rgba(74, 22, 32, 0.22);
+  color: var(--skm-bg);
+}
+.skm-section--cream .skm-wish-form input::placeholder,
+.skm-section--cream .skm-wish-form textarea::placeholder { color: rgba(74, 22, 32, 0.38); }
+.skm-section--cream .skm-wish {
+  border-left-color: #b8903f;
+  background: rgba(255, 255, 255, 0.5);
+}
+.skm-section--cream .skm-event__maps,
+.skm-section--cream .skm-date__cta {
+  border-color: rgba(74, 22, 32, 0.32);
+  color: #8a6a24;
+}
+.skm-section--cream .skm-event__maps:hover { background: rgba(74, 22, 32, 0.06); }
+
+/* cream sections: keep the woven edge visible but dark-on-light */
+.skm-section--cream .skm-edge {
+  background-image:
+    repeating-linear-gradient(135deg, rgba(74, 22, 32, 0.28) 0 1.5px, transparent 1.5px 7px),
+    repeating-linear-gradient(45deg, rgba(74, 22, 32, 0.16) 0 1.5px, transparent 1.5px 9px);
+}
+
+.skm-section--dark {
+  background: var(--skm-bg);
+  color: var(--skm-text);
+}
