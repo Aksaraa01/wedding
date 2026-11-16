@@ -32,6 +32,7 @@ type Guest = {
 }
 
 type Profile = {
+  event_type?: string | null
   payment_status: "UNPAID" | "PARTIAL_DP" | "FULLY_PAID"
   is_published: boolean
   package_type?: string | null
