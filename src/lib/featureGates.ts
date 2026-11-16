@@ -26,6 +26,7 @@ const PACKAGES = [
   "dgb_pro",
   "dgb_premium",
   "dgb_prestige",
+  "ceriavite",
 ] as const
 
 function rowIncluded(value: string | null, emphasis: string | null): boolean {
@@ -33,6 +34,17 @@ function rowIncluded(value: string | null, emphasis: string | null): boolean {
 }
 
 export async function getRowGates(packageType: string): Promise<RowGates> {
+  // Ceriavite is a deliberately smaller product: the matrix has no column for it,
+  // and falling back to `signature` would wrongly grant the story and the video.
+  if (packageType === "ceriavite") {
+    return {
+      gift_address: { included: true, availableIn: ["ceriavite"] },
+      inviting_families: { included: true, availableIn: ["ceriavite"] },
+      story: { included: false, availableIn: [] },
+      cinematic_video: { included: false, availableIn: [] },
+    }
+  }
+
   // Static reference data — identical across all couples, cached per package.
   return cachedRead(`row-gates:${packageType}`, 10 * 60_000, async () => {
     const { data, error } = await supabaseAdmin

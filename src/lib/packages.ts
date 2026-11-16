@@ -65,6 +65,7 @@ export const PACKAGE_LABELS: Record<string, string> = {
   dgb_premium: "Premium",
   dgb_prestige: "Prestige",
   gt: "Galeri Tamu",
+  ceriavite: "Ceriavite",
 }
 
 export const PACKAGE_CODES = [
@@ -79,6 +80,7 @@ export const PACKAGE_CODES = [
   "dgb_premium",
   "dgb_prestige",
   "gt",
+  "ceriavite",
 ] as const
 
 export const DGB_BASE_QUOTA: Record<string, { photos: number; guests: number }> = {
@@ -138,6 +140,7 @@ export const PACKAGE_RANK: string[] = [
   "dgb_premium",
   "dgb_prestige",
   "gt",
+  "ceriavite",
 ]
 
 // Lowest-ranked code in an eligibility list (the cheapest package a template
@@ -220,6 +223,8 @@ export function isGalleryPackage(packageType: string): boolean {
 }
 
 export const PACKAGE_FEATURES: Record<string, string[]> = {
+  // Ceriavite (kids): invitation + RSVP + wish wall + guest links + gift only.
+  ceriavite: ["premium_web", "wish_wall", "reservation_automation", "unique_link_generator", "kolom_direct_transfer"],
   essential: ["premium_web", "wish_wall", "reservation_automation", "unique_link_generator", "kolom_direct_transfer"],
   signature: ["premium_web", "wish_wall", "reservation_automation", "unique_link_generator", "kolom_direct_transfer"],
   prestige: [

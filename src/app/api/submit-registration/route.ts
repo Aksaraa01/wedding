@@ -56,7 +56,7 @@ export async function POST(req: Request) {
     // Kids events are one flat product (Rp 199.000): the Essential package
     // already carries exactly invitation + RSVP + wish wall + guest links +
     // amplop digital, so no add-on, tier or add-on pricing can ride along.
-    const requestedPackage = kids ? "essential" : package_type
+    const requestedPackage = kids ? "ceriavite" : package_type
 
     if (requestedPackage && !PACKAGE_CODES.includes(requestedPackage)) {
       return NextResponse.json({ error: "Paket tidak valid" }, { status: 400 })
