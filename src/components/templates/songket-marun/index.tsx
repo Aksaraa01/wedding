@@ -13,9 +13,6 @@ import "./songket-marun.css"
 const ART = (name: string) => `/templates/songket-marun/${name}.webp`
 
 const DEFAULT_ARABIC = "رَبِّ هَبْ لِي مِنَ الصَّالِحِينَ"
-const DEFAULT_DOA =
-  "Ya Tuhanku, anugerahkanlah kepadaku (seorang anak) yang termasuk orang-orang yang saleh."
-const DEFAULT_DOA_SOURCE = "QS. Ash-Shaffat: 100"
 const DEFAULT_BLESSING =
   "Semoga ananda tumbuh menjadi anak yang saleh, berbakti kepada orang tua, dan menjadi kebanggaan keluarga."
 const DEFAULT_OPENING =
@@ -68,6 +65,14 @@ export default function SongketMarun(profile: TemplateProps) {
   const target = useMemo(() => countdownTarget(events, eventDate), [events, eventDate])
   const calendarUrl = useMemo(() => gcalLink(events[0], childFull), [events, childFull])
 
+  const honored = useMemo(
+    () =>
+      gates.inviting_families !== false && profile.inviting_families_visible !== false
+        ? (profile.inviting_families || []).filter((f) => !!f && !!f.trim())
+        : [],
+    [profile.inviting_families, profile.inviting_families_visible, gates.inviting_families]
+  )
+
   const gallery = useMemo(
     () => (Array.isArray(profile.gallery_photos) ? profile.gallery_photos.filter(Boolean).slice(0, 9) : []),
     [profile.gallery_photos]
@@ -83,9 +88,9 @@ export default function SongketMarun(profile: TemplateProps) {
   const openLabel = (tc.open_button || "").trim() || "Buka Undangan"
   const salam = (tc.opening_salam || "").trim() || "Assalamu'alaikum Warahmatullahi Wabarakatuh"
   const openingText = (profile.opening_description || "").trim() || DEFAULT_OPENING
+  const quoteText = (profile.quote_text || "").trim()
+  const quoteSource = (profile.quote_source || "").trim()
   const doaArabic = (tc.doa_arabic || "").trim() || DEFAULT_ARABIC
-  const doaText = (profile.quote_text || "").trim() || DEFAULT_DOA
-  const doaSource = (profile.quote_source || "").trim() || DEFAULT_DOA_SOURCE
   const doaBlessing = (tc.doa_blessing || "").trim() || DEFAULT_BLESSING
   const eventsTitle = (tc.events_title || "").trim() || "Waktu & Tempat"
   const eventsLead = (tc.events_intro || "").trim() || "Insya Allah acara akan diselenggarakan pada:"
@@ -100,8 +105,6 @@ export default function SongketMarun(profile: TemplateProps) {
   const closingText = (tc.closing_message || "").trim() || DEFAULT_CLOSING
   const closingSalam = (tc.closing_salam || "").trim() || "Wassalamu'alaikum Warahmatullahi Wabarakatuh"
   const familyLabel = (tc.closing_family_label || "").trim() || "Kami yang berbahagia"
-  const apology =
-    (tc.cover_apology || "").trim() || "Mohon maaf apabila ada kesalahan penulisan nama atau gelar."
 
   const parsedDate = eventDate ? new Date(eventDate) : null
   const validDate = parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : null
@@ -234,12 +237,16 @@ export default function SongketMarun(profile: TemplateProps) {
         <main>
           {/* Pembuka */}
           <section className="skm-section skm-section--cream skm-pembuka" data-skm-reveal>
-            <div className="skm-star" aria-hidden="true" />
             <p className="skm-basmalah" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+            {quoteText && (
+              <>
+                <p className="skm-pembuka__quote">&ldquo;{quoteText}&rdquo;</p>
+                {quoteSource && <p className="skm-pembuka__quote-source">{quoteSource}</p>}
+                <div className="skm-pita" aria-hidden="true" />
+              </>
+            )}
             <p className="skm-pembuka__salam">{salam}</p>
-            <div className="skm-pita" aria-hidden="true" />
             <p className="skm-pembuka__text">{openingText}</p>
-            <p className="skm-putra__of">{apology}</p>
           </section>
 
           {/* Putra Kami */}
@@ -267,16 +274,14 @@ export default function SongketMarun(profile: TemplateProps) {
           {/* Doa untuk Ananda */}
           <section className="skm-section skm-section--cream skm-doa" data-skm-reveal>
             <div className="skm-star" aria-hidden="true" />
-            <div className="skm-star" aria-hidden="true" />
+            <img className="skm-doa__flower" src={ART("melur")} alt="" aria-hidden="true" />
             <h2 className="skm-section__title">Doa untuk Ananda</h2>
             <div className="skm-doa__card">
               <p className="skm-doa__arabic" lang="ar" dir="rtl">
                 {doaArabic}
               </p>
-              <p className="skm-doa__text">&ldquo;{doaText}&rdquo;</p>
-              <p className="skm-doa__source">{doaSource}</p>
-              <div className="skm-pita" aria-hidden="true" />
-              <p className="skm-doa__blessing">{doaBlessing}</p>
+              <p className="skm-doa__text">{doaBlessing}</p>
+
             </div>
           </section>
 
@@ -286,9 +291,10 @@ export default function SongketMarun(profile: TemplateProps) {
             <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
             <p className="skm-kicker skm-section__kicker">Save the Date</p>
             <h2 className="skm-section__title">Hari Bahagia</h2>
+            <p className="skm-date__weekday">{weekday}</p>
             <p className="skm-date__day">{dayNum}</p>
             <p className="skm-date__rest">
-              {weekday} · {monthName} {yearNum}
+              {monthName} {yearNum}
             </p>
             {calendarUrl && (
               <a className="skm-date__cta" href={calendarUrl} target="_blank" rel="noreferrer noopener">
@@ -364,6 +370,7 @@ export default function SongketMarun(profile: TemplateProps) {
               <p className="skm-kicker skm-section__kicker">Galeri</p>
               <h2 className="skm-section__title">{galleryTitle}</h2>
               <p className="skm-section__lead">{galleryLead}</p>
+              <div className="skm-pita" aria-hidden="true" />
               <div className="skm-galeri__grid">
                 {gallery.map((src, i) => (
                   <figure key={`${src}-${i}`}>
@@ -463,6 +470,22 @@ export default function SongketMarun(profile: TemplateProps) {
             </div>
           </section>
 
+          {/* Turut Mengundang */}
+          {honored.length > 0 && (
+            <section className="skm-section skm-section--dark skm-inviting" data-skm-reveal>
+              <span className="skm-edge skm-edge--top" aria-hidden="true" />
+              <span className="skm-edge skm-edge--bottom" aria-hidden="true" />
+              <p className="skm-kicker skm-section__kicker">Turut Mengundang</p>
+              <h2 className="skm-section__title">Keluarga &amp; Kerabat</h2>
+              <div className="skm-pita" aria-hidden="true" />
+              <ul className="skm-inviting__list">
+                {honored.map((f, i) => (
+                  <li key={`${f}-${i}`}>{f}</li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           {/* Penutup */}
           <section className="skm-section skm-section--dark skm-penutup" data-skm-reveal>
             <span className="skm-edge skm-edge--top" aria-hidden="true" />
@@ -476,7 +499,7 @@ export default function SongketMarun(profile: TemplateProps) {
             <p className="skm-penutup__salam">{closingSalam}</p>
             <div className="skm-pita" aria-hidden="true" />
             <p className="skm-penutup__family">{familyLabel}</p>
-            <p className="skm-penutup__names">Keluarga Besar</p>
+            <p className="skm-penutup__names skm-penutup__names--family">Keluarga Besar</p>
             {parents && <p className="skm-penutup__names" style={{ fontSize: 15 }}>{parents}</p>}
           </section>
 

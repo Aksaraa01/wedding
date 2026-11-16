@@ -1729,7 +1729,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         opening_description: true,
         quote: true,
         countdown: true,
-        inviting: false,
+        inviting: true,
         video: false,
         story: false,
         gallery: true,
