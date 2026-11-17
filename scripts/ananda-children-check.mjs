@@ -44,6 +44,13 @@ const typed = added.map((c, i) => (i === 1 ? { ...c, name: "Rizky", full_name: "
 assert.equal(parseChildren(typed).length, 2)
 assert.deepEqual(parseChildren(typed)[1], { name: "Rizky", full_name: "Rizky Pratama", photo_url: "", instagram: "" })
 
+// 3b. The API stores the submitted list verbatim (blank rows included) and the
+//     GET returns it the same way, so the editor's focus refetch cannot delete
+//     an ananda that was added but not filled yet.
+const stored = readChildren(typed)
+assert.equal(stored.length, 2)
+assert.equal(readChildren(JSON.parse(JSON.stringify(stored))).length, 2, "round-trips through the API")
+
 // 4. A blank list never renders an empty frame — it falls back to groom_*.
 assert.equal(resolveChildren({ children: [blank], ...legacy }).length, 1)
 assert.equal(resolveChildren({ children: [blank], ...legacy })[0].name, "Raka")

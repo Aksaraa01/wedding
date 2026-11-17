@@ -8,7 +8,7 @@ import { requireProfileAccess } from "@/lib/requireProfileAccess"
 import { getTemplateContentSpec } from "@/components/templates"
 import { coupleUrl } from "@/lib/coupleUrl"
 import { isKidsEvent } from "@/lib/eventType"
-import { parseChildren } from "@/lib/children"
+import { parseChildren, readChildren } from "@/lib/children"
 
 export const dynamic = "force-dynamic"
 
@@ -85,8 +85,10 @@ export async function GET(
         groom_instagram: profile.groom_instagram,
         bride_instagram: profile.bride_instagram,
         // Ceriavite: ordered ananda list (photo, nickname, full name, IG). The
-        // parent line stays single and shared in `groom_parents`.
-        children: parseChildren((profile as any).children),
+        // parent line stays single and shared in `groom_parents`. Read with
+        // `readChildren` (blank rows kept) so an ananda added but not yet filled
+        // survives a refetch instead of vanishing.
+        children: readChildren((profile as any).children),
         video_url: profile.video_url,
         estimated_wedding_date: profile.estimated_wedding_date,
         sessions: profile.sessions,
@@ -174,26 +176,32 @@ export async function PUT(  req: NextRequest,
     }
 
     // Ceriavite: the ananda list is the source of truth for the profile block.
-    // The FIRST child is mirrored into the legacy first person slot so slug
-    // generation, couple-name resolution, OG copy and the ops queue keep reading
-    // the same columns they always did. Wedding profiles are never mirrored.
+    // Rows are stored EXACTLY as submitted (blank ones included): the couple adds
+    // a row before typing into it, and the editor refetches on focus — dropping
+    // the blank row here made a newly added ananda vanish the moment the photo
+    // picker stole focus. Rendering still filters blanks (`parseChildren`).
+    // The FIRST filled child is mirrored into the legacy first person slot so
+    // slug generation, couple-name resolution, OG copy and the ops queue keep
+    // reading the same columns they always did. Weddings are never mirrored.
     if (body.children !== undefined) {
-      const list = parseChildren(body.children)
-      updates.children = list
+      const stored = readChildren(body.children)
+      updates.children = stored
       const { data: row } = await supabaseAdmin
         .from("wedding_profiles")
         .select("event_type")
         .eq("id", id)
         .maybeSingle()
       if (isKidsEvent((row as { event_type?: string | null } | null)?.event_type)) {
-        const first = list[0]
+        const first = parseChildren(stored)[0]
         // A child may be entered with only one of the two names; the legacy slot
         // needs a usable value in both, and `resolveCoupleName()` prefers
         // `groom_name` for the dashboard/queue label.
-        updates.groom_name = first ? first.name || first.full_name : ""
-        updates.groom_full_name = first ? first.full_name || first.name : ""
-        updates.groom_photo_url = first?.photo_url ? JSON.stringify([first.photo_url]) : "[]"
-        updates.groom_instagram = first?.instagram || null
+        if (first) {
+          updates.groom_name = first.name || first.full_name
+          updates.groom_full_name = first.full_name || first.name
+          updates.groom_photo_url = first.photo_url ? JSON.stringify([first.photo_url]) : "[]"
+          updates.groom_instagram = first.instagram || null
+        }
       }
     }
 

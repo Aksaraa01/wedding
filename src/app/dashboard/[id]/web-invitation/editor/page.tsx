@@ -336,6 +336,11 @@ function EditorInner({ id }: { id: string }) {
   const hasCheckedH3 = useRef(false)
 
   const pendingUpdates = useRef<Record<string, any>>({})
+  // True while a photo is uploading to storage. The window refetch below must
+  // not run then: opening the file picker blurs the tab, and a refetch that
+  // lands mid-upload replaces the row the couple is still filling in (that is
+  // how a freshly added ananda used to disappear).
+  const uploadBusyRef = useRef(false)
   const lastSentRef = useRef<string>("")
   const wpAbortRef = useRef<AbortController | null>(null)
   function canonicalize(obj: Record<string, any>): string {
@@ -414,8 +419,19 @@ function EditorInner({ id }: { id: string }) {
   }, [fetchProfile])
 
   useEffect(() => {
-    const onFocus = () => { if (document.visibilityState === "visible") fetchProfile() }
-    const onPageShow = () => fetchProfile()
+    // Pick up changes made elsewhere — but never while this tab has unsaved
+    // edits or an upload in flight. Opening the photo picker blurs the window,
+    // and a refetch there would overwrite the ananda the couple just added
+    // (still blank, therefore not yet meaningful to the server) with the last
+    // saved list.
+    const refreshIfIdle = () => {
+      if (uploadBusyRef.current) return
+      if (saveStatus === "saving") return
+      if (Object.keys(pendingUpdates.current).length > 0) return
+      fetchProfile()
+    }
+    const onFocus = () => { if (document.visibilityState === "visible") refreshIfIdle() }
+    const onPageShow = () => refreshIfIdle()
     window.addEventListener("focus", onFocus)
     window.addEventListener("pageshow", onPageShow)
     document.addEventListener("visibilitychange", onFocus)
@@ -424,7 +440,7 @@ function EditorInner({ id }: { id: string }) {
       window.removeEventListener("pageshow", onPageShow)
       document.removeEventListener("visibilitychange", onFocus)
     }
-  }, [fetchProfile])
+  }, [fetchProfile, saveStatus])
 
   useEffect(() => {
     if (previewVersion > 0) fetchProfile()
@@ -987,6 +1003,7 @@ function EditorInner({ id }: { id: string }) {
   // Shared upload helper: compress large phone photos client-side, then POST.
   // Returns the public URL, or null after surfacing the server's message.
   const uploadImageFile = useCallback(async (file: File): Promise<string | null> => {
+    uploadBusyRef.current = true
     try {
       const compressed = await compressImage(file)
       const formData = new FormData()
@@ -1002,6 +1019,8 @@ function EditorInner({ id }: { id: string }) {
     } catch {
       setUploadError("Gagal mengunggah gambar. Periksa koneksi lalu coba lagi.")
       return null
+    } finally {
+      uploadBusyRef.current = false
     }
   }, [])
 
