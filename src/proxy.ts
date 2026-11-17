@@ -25,15 +25,10 @@ export function proxy(req: NextRequest) {
     return withSecurityHeaders(NextResponse.rewrite(url))
   }
 
-  // Apex homepage is the design catalogue (both products in one list). Caddy
-  // used to rewrite `/` to /landing; it no longer does, so the rewrite lives
-  // here where `next dev` and production agree. /landing stays reachable.
-  const apexHosts = new Set(["aksaraa.com", "www.aksaraa.com", "aksaraa.app", "www.aksaraa.app", "localhost", "127.0.0.1"])
-  if (apexHosts.has(hostname) && req.nextUrl.pathname === "/") {
-    const url = new URL(req.url)
-    url.pathname = "/design"
-    return withSecurityHeaders(NextResponse.rewrite(url))
-  }
+  // Apex homepage is the design catalogue (both products in one list). The
+  // rewrite lives in the Caddy apex block: `req.nextUrl.hostname` is the
+  // server's bind host in the standalone runtime, not the request `Host`
+  // header, so a host branch here would fire on every host and 500 `/`.
 
   const weddingMatch = hostname.match(/^(.+?)\.wedding\.aksaraa\.com$/)
   if (weddingMatch) {

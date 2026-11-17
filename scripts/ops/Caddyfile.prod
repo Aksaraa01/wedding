@@ -18,9 +18,13 @@
 
 aksaraa.com, www.aksaraa.com {
 	# The apex homepage is the Aksaraa design catalogue (wedding + Ceriavite in
-	# one list). Caddy no longer rewrites `/`; Next's proxy rewrites it to
-	# /design, so `next dev` and production share one rule. /landing still
-	# serves the old marketing page.
+	# one list). The rewrite must live here, not in Next's proxy: in the
+	# standalone runtime `req.nextUrl.hostname` is the server's bind host
+	# (localhost:3002), so a proxy host branch fires on every host and rewrites
+	# `/` to an https:// upstream that Caddy serves as plain HTTP (EPROTO/500).
+	# /landing still serves the old marketing page.
+	@root path /
+	rewrite @root /design
 
 	reverse_proxy 127.0.0.1:3002 {
 		header_up X-Real-IP {client_ip}
