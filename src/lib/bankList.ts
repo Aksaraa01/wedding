@@ -32,6 +32,7 @@ export const BANKS: BankInfo[] = [
   { slug: "muamalat", name: "Bank Muamalat", type: "bank" },
   { slug: "jago", name: "Bank Jago", type: "bank" },
   { slug: "seabank", name: "SeaBank Indonesia", type: "bank" },
+  { slug: "bank-sumut", name: "Bank Sumut", type: "bank" },
   // E-wallets
   { slug: "gopay", name: "GoPay", type: "ewallet" },
   { slug: "ovo", name: "OVO", type: "ewallet" },

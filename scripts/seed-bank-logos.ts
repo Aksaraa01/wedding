@@ -22,12 +22,13 @@ const SRC_DIR = "/tmp/banklogos/package/dist/png"
 // is named differently from the slug we store (shopeepay vs shopee-pay).
 const SOURCE_FILE: Record<string, string> = {
   shopeepay: "shopee-pay",
+  "bank-sumut": "bank-bpd-sumut",
 }
 
 const SLUGS = [
   "bca", "mandiri", "bni", "bri", "bsi", "btn", "cimb-niaga", "permata",
   "danamon", "ocbc-nisp", "uob", "maybank", "hsbc", "standard-chartered",
-  "paninbank", "mega", "muamalat", "jago", "seabank",
+  "paninbank", "mega", "muamalat", "jago", "seabank", "bank-sumut",
   "gopay", "ovo", "dana", "shopeepay", "linkaja",
 ]
 
