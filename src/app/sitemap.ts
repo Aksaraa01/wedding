@@ -20,6 +20,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]
   }
 
+  // The apex homepage is the shared design catalogue; it advertises the apex,
+  // not the wedding host (which the rest of this sitemap still covers).
+  if (host === "aksaraa.com" || host === "www.aksaraa.com") {
+    const apex = "https://aksaraa.com"
+    const pages = ["/", "/landing", "/customize", "/portofolio", "/artikel"]
+    return pages.map((path) => ({
+      url: `${apex}${path}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: path === "/" ? 1 : 0.8,
+    }))
+  }
+
   const base = WEDDING_SITE
   const pages = [
     "/hero",

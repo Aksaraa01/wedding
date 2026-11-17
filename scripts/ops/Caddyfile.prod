@@ -17,8 +17,10 @@
 # deploy: scripts/ops/deploy-caddy.md. Do not `apt install --reinstall caddy`.
 
 aksaraa.com, www.aksaraa.com {
-	@root path /
-	rewrite @root /landing
+	# The apex homepage is the Aksaraa design catalogue (wedding + Ceriavite in
+	# one list). Caddy no longer rewrites `/`; Next's proxy rewrites it to
+	# /design, so `next dev` and production share one rule. /landing still
+	# serves the old marketing page.
 
 	reverse_proxy 127.0.0.1:3002 {
 		header_up X-Real-IP {client_ip}

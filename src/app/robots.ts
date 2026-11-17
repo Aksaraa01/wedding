@@ -15,11 +15,12 @@ export const dynamic = "force-dynamic"
 export default async function robots(): Promise<MetadataRoute.Robots> {
   const host = (await headers()).get("host") || ""
   const disallow = ["/dashboard/", "/ops/", "/api/", "/preview/", "/scanner/"]
+  const apex = host === "aksaraa.com" || host === "www.aksaraa.com"
   return {
     rules: [
       { userAgent: "*", allow: "/", disallow },
       { userAgent: "facebookexternalhit", allow: "/", disallow },
     ],
-    sitemap: `${host.startsWith("ceriavite.") ? KIDS_SITE : WEDDING_SITE}/sitemap.xml`,
+    sitemap: `${apex ? "https://aksaraa.com" : host.startsWith("ceriavite.") ? KIDS_SITE : WEDDING_SITE}/sitemap.xml`,
   }
 }

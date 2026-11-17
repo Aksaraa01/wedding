@@ -222,3 +222,31 @@
     animation: none !important;
   }
 }
+
+/* Apex design catalogue (aksaraa.com): hero crossfade and slide progress.
+   Scoped names so they can never collide with invitation keyframes. */
+@keyframes design-fade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes design-progress {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .design-no-motion {
+    animation: none !important;
+  }
+}
