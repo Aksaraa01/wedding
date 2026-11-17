@@ -228,7 +228,10 @@ kids rite). Code: `src/app/design/page.tsx` (metadata, `revalidate = 300`) +
 - Hero trio: one screenshot per template, so the three phone plates show three
   **different bands** of it (footer/RSVP at 1.9×, cover at 1×, title at 1.8×).
   Without the zoom the plates are identical — the image ratio already matches
-  the plate ratio, so `object-position` alone moves nothing.
+  the plate ratio, so `object-position` alone moves nothing. The stage is one
+  width-driven composition (`aspect-[560/540]` + percentage-width plates), so
+  mobile is the desktop layout scaled down; sizing the plates by height made
+  them drift apart on narrow screens.
 - Social: `src/app/design/page.tsx` points at `/og/aksaraa-design.jpg`
   (1200×630, "Pilih desain undanganmu." with real wedding + kids screenshots).
   Regenerate it by rendering an HTML mock at 1200×630 and screenshotting via

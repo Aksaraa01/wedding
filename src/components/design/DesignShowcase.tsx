@@ -136,21 +136,24 @@ export default function DesignShowcase({ items }: { items: DesignTemplate[] }) {
           )}
         </div>
 
-        <div className="order-1 flex h-[260px] items-end justify-center sm:h-[330px] md:order-2 md:h-[470px] lg:h-[540px]">
-          <div key={active.id} className="relative h-full w-full max-w-[560px]" style={{ animation: "design-fade .8s ease both" }}>
+        <div className="order-1 flex items-end justify-center md:order-2">
+          <div key={active.id} className="relative aspect-[560/540] w-full max-w-[560px]" style={{ animation: "design-fade .8s ease both" }}>
             {[
               // One screenshot only per template, so each plate shows a different
               // band of it at its own zoom: the invitation footer (RSVP), the
               // details mid-section and the full cover. Without the zoom the three
               // plates are identical, because the image ratio already matches the
               // plate ratio and object-position has nothing to move.
-              { cls: "left-[4%] bottom-[9%] z-10 h-[74%] -rotate-6", scale: 1.9, origin: "50% 100%", tag: "detail" },
-              { cls: "right-[4%] bottom-[9%] z-10 h-[74%] rotate-6", scale: 1.8, origin: "50% 12%", tag: "story" },
-              { cls: "left-1/2 bottom-0 z-20 h-[94%] -translate-x-1/2", scale: 1, origin: "50% 0%", tag: "cover" },
-            ].map(({ cls, scale, origin, tag }, i) => (
+              { cls: "left-[4%] bottom-[9%] z-10 w-[33%] -rotate-6", scale: 1.9, origin: "50% 100%", tag: "detail" },
+              { cls: "right-[4%] bottom-[9%] z-10 w-[33%] rotate-6", scale: 1.8, origin: "50% 12%", tag: "story" },
+              { cls: "left-1/2 bottom-0 z-20 w-[41.9%] -translate-x-1/2", scale: 1, origin: "50% 0%", tag: "cover" },
+            ].map(({ cls, scale, origin, tag }) => (
               <span
                 key={`${active.id}-${tag}`}
-                className={`absolute overflow-hidden rounded-[22px] border-[5px] border-white bg-[#EFE9DD] shadow-[0_34px_60px_-26px_rgba(110,24,44,0.42),0_0_0_1px_rgba(27,20,22,0.06)] ${cls}`}
+                // Width-driven with a fixed aspect: the trio is one composition
+                // that scales with the column, so mobile and desktop show the
+                // same overlap instead of drifting apart at small heights.
+                className={`absolute overflow-hidden rounded-[14px] border-[3px] border-white bg-[#EFE9DD] shadow-[0_34px_60px_-26px_rgba(110,24,44,0.42),0_0_0_1px_rgba(27,20,22,0.06)] sm:rounded-[22px] sm:border-[5px] ${cls}`}
                 style={{ aspectRatio: "480 / 1039" }}
               >
                 {active.preview_image_url && (
