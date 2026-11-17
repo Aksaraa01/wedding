@@ -19,7 +19,6 @@ const HELP = [
 ]
 
 const MORE = [
-  { label: "Masuk", href: "/login" },
   { label: "Aksaraa Wedding", href: "https://wedding.aksaraa.com", external: true },
   { label: "Ceriavite", href: "https://ceriavite.aksaraa.com", external: true },
   { label: "Beranda", href: "/landing" },

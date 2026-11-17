@@ -238,9 +238,9 @@ kids rite). Code: `src/app/design/page.tsx` (metadata, `revalidate = 300`) +
 - No black fills anywhere in the catalogue UI: primary actions ("Coba
   langsung", "Pilih Template", "Konsultasi desain custom", the active filter
   chip) use the brand terracotta `#B34E3F` / hover `#9E3B2D`.
-- The header has no "Masuk" link on purpose: the apex sells two products
-  (Aksaraa Wedding and Ceriavite), so a single login entry point would be
-  ambiguous. Each product host keeps its own login.
+- The header and footer have no "Masuk" link on purpose: the apex sells two
+  products (Aksaraa Wedding and Ceriavite), so a single login entry point would
+  be ambiguous. Each product host keeps its own login.
 - Shelf ordering/padding reuses `src/lib/templateGallery.ts`
   (`galleryRows`, `popularTemplates`, `newestTemplates`); do not fork that math.
 - SEO: `/design` declares `canonical: https://aksaraa.com/`; `src/app/sitemap.ts`
