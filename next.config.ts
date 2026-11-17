@@ -9,6 +9,7 @@ const nextConfig = {
   },
   experimental: {
     optimizePackageImports: ["html2canvas", "xlsx", "qrcode"],
+    agentUpgrade: "security",
   },
   async redirects() {
     return [
