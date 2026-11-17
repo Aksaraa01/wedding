@@ -3346,7 +3346,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                                     Belum diisi
                                   </span>
                                 )}
-                                <span className="absolute bottom-0 inset-x-0 bg-white/85 px-1 py-0.5 text-[8px] font-bold uppercase tracking-wider text-on-surface-variant truncate">
+                                <span className="absolute bottom-0 inset-x-0 bg-white/85 px-1 py-0.5 text-[8px] font-bold uppercase tracking-tight leading-[1.2] text-on-surface-variant">
                                   {invCoverSlotLabel(i)}
                                 </span>
                               </div>
