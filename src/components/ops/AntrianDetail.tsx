@@ -1279,7 +1279,7 @@ export default function AntrianDetail({ id }: { id: string }) {
   // optional-chained: this one line, evaluated during the first render (which
   // includes SSR), used to throw "Cannot read properties of null (reading
   // 'profile')" and turn every /ops/antrian/[id] into a 500.
-  const invCoverSlotIndexes = visibleCoverSlotIndexes(invContentSpec, (invForm || invitationData?.profile || {}) as unknown as CoverSlotGateData)
+  const invCoverSlotIndexes = visibleCoverSlotIndexes(invContentSpec, (invForm || invitationData?.profile || {}) as unknown as CoverSlotGateData, invCoverSlotCount)
   const invIsCoverSlideshowSlot = (i: number) => {
     if (invContentSpec) return !!invContentSpec.cover_slideshows?.includes(i)
     const mapping = invTpl?.wp_manifest?.cover_photos?.[i]

@@ -956,7 +956,7 @@ function EditorInner({ id }: { id: string }) {
 
   const coverSlotLabel = (i: number) => contentSpec?.cover_slot_labels?.[i] || `Slot ${i + 1}`
   // Slots tied to a hidden section (video off, no rundown, …) are not offered.
-  const coverSlotIndexes = visibleCoverSlotIndexes(contentSpec, data)
+  const coverSlotIndexes = visibleCoverSlotIndexes(contentSpec, data, coverSlotCount)
 
   // Whether a field maps to a background slideshow (which needs 2 photos/slides).
   const isSlideshowField = (field: string): boolean => {

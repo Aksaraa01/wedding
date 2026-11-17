@@ -48,8 +48,15 @@ export function coverSlotVisible(gate: string | null | undefined, data: CoverSlo
 
 // Slot indexes to render, in template order. Indexes are stable: a hidden slot
 // leaves a gap instead of shifting the photos that follow it.
-export function visibleCoverSlotIndexes(spec: ContentSpec | undefined, data: CoverSlotGateData): number[] {
-  const count = spec?.cover_slots ?? 0
+// `slotCount` is the count resolved by the caller for templates without a
+// content spec (WP templates read it from `wp_manifest.cover_photos`); without
+// it every WP template reports zero slots.
+export function visibleCoverSlotIndexes(
+  spec: ContentSpec | undefined,
+  data: CoverSlotGateData,
+  slotCount?: number,
+): number[] {
+  const count = spec?.cover_slots ?? slotCount ?? 0
   if (count <= 0) return []
   const gates = spec?.cover_slot_sections
   const indexes: number[] = []
