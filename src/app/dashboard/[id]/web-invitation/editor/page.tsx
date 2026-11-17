@@ -18,7 +18,7 @@ import { OPENING_PRESETS, OPENING_CUSTOM, matchOpeningPreset } from "@/lib/openi
 import { compressImage } from "@/lib/imageCompress"
 import { waLink } from "@/lib/contact"
 import { resolveCoupleName } from "@/lib/coupleName"
-import { MAX_CHILDREN, parseChildren, resolveChildren, type InvitationChild } from "@/lib/children"
+import { MAX_CHILDREN, parseChildren, readChildren, resolveChildren, type InvitationChild } from "@/lib/children"
 
 type Profile = {
   id: string
@@ -828,37 +828,45 @@ function EditorInner({ id }: { id: string }) {
   // the source of truth; the first child is mirrored into the legacy
   // first-person slot so the dashboard, OG copy and the ops queue keep reading
   // groom_* exactly as before. The parent line stays single and shared.
+  //
+  // `readChildren` (not `parseChildren`): a row the couple just added is still
+  // blank, and dropping it would make "Tambah Ananda" look like a no-op.
   const childrenList: InvitationChild[] = useMemo(() => {
-    const stored = parseChildren(data.children)
+    const stored = readChildren(data.children)
     return stored.length > 0 ? stored : resolveChildren(data)
   }, [data.children, data.groom_name, data.groom_full_name, data.groom_photo_url, data.groom_instagram])
 
-  const applyChildren = (next: InvitationChild[]) => {
+  // Builds from the LATEST state inside the functional updater, so a second
+  // click can never append to a stale list.
+  const applyChildren = (build: (list: InvitationChild[]) => InvitationChild[]) => {
     if (data.is_published === true || reviewMode) return
-    const first = next[0]
-    applyFields(() => ({
-      children: next,
-      // A child may be entered with only one of the two names; the legacy slot
-      // needs a usable value in both (dashboard label, OG copy, ops queue).
-      groom_name: first ? first.name || first.full_name : "",
-      groom_full_name: first ? first.full_name || first.name : "",
-      groom_photo_url: first?.photo_url ? [first.photo_url] : [],
-      groom_instagram: first?.instagram || null,
-    }))
+    applyFields((prev) => {
+      const stored = readChildren(prev.children)
+      const base = stored.length > 0 ? stored : resolveChildren(prev)
+      const next = build(base).slice(0, MAX_CHILDREN)
+      const first = next[0]
+      return {
+        children: next,
+        // A child may be entered with only one of the two names; the legacy slot
+        // needs a usable value in both (dashboard label, OG copy, ops queue).
+        groom_name: first ? first.name || first.full_name : "",
+        groom_full_name: first ? first.full_name || first.name : "",
+        groom_photo_url: first?.photo_url ? [first.photo_url] : [],
+        groom_instagram: first?.instagram || null,
+      }
+    })
   }
 
   const updateChild = (index: number, patch: Partial<InvitationChild>) => {
-    applyChildren(childrenList.map((child, i) => (i === index ? { ...child, ...patch } : child)))
+    applyChildren((list) => list.map((child, i) => (i === index ? { ...child, ...patch } : child)))
   }
 
   const addChild = () => {
-    if (childrenList.length >= MAX_CHILDREN) return
-    applyChildren([...childrenList, { name: "", full_name: "", photo_url: "", instagram: "" }])
+    applyChildren((list) => [...list, { name: "", full_name: "", photo_url: "", instagram: "" }])
   }
 
   const removeChild = (index: number) => {
-    if (childrenList.length <= 1) return
-    applyChildren(childrenList.filter((_, i) => i !== index))
+    applyChildren((list) => (list.length <= 1 ? list : list.filter((_, i) => i !== index)))
   }
 
   const uploadChildPhoto = async (file: File, index: number) => {

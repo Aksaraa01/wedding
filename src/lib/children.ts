@@ -56,20 +56,28 @@ export function instagramUrl(value: unknown): string {
   return handle ? `https://instagram.com/${handle}` : ""
 }
 
-/** Stored `children` column → normalized list (invalid entries dropped). */
+function normalizeChild(entry: unknown): InvitationChild {
+  const row = entry && typeof entry === "object" ? (entry as Record<string, unknown>) : {}
+  return {
+    name: str(row.name),
+    full_name: str(row.full_name),
+    photo_url: str(row.photo_url),
+    instagram: cleanInstagram(row.instagram),
+  }
+}
+
+/**
+ * Every row an EDITOR must keep on screen, blank ones included. A newly added
+ * ananda is an empty object until the couple types — filtering it out would make
+ * "Tambah Ananda" look like it did nothing.
+ */
+export function readChildren(raw: unknown): InvitationChild[] {
+  return asList(raw).map(normalizeChild).slice(0, MAX_CHILDREN)
+}
+
+/** Stored `children` column → normalized list (blank entries dropped). */
 export function parseChildren(raw: unknown): InvitationChild[] {
-  return asList(raw)
-    .map((entry) => {
-      const row = entry && typeof entry === "object" ? (entry as Record<string, unknown>) : {}
-      return {
-        name: str(row.name),
-        full_name: str(row.full_name),
-        photo_url: str(row.photo_url),
-        instagram: cleanInstagram(row.instagram),
-      }
-    })
-    .filter((child) => !!child.name || !!child.full_name || !!child.photo_url)
-    .slice(0, MAX_CHILDREN)
+  return readChildren(raw).filter((child) => !!child.name || !!child.full_name || !!child.photo_url)
 }
 
 /**

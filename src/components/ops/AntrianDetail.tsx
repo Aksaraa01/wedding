@@ -11,7 +11,7 @@ import html2canvas from "html2canvas"
 import * as XLSX from "xlsx"
 import { renderReminderMessage, getCoupleDisplayName } from "@/lib/reminderTemplates"
 import { resolveCoupleName } from "@/lib/coupleName"
-import { MAX_CHILDREN, parseChildren, resolveChildren, type InvitationChild } from "@/lib/children"
+import { MAX_CHILDREN, parseChildren, readChildren, resolveChildren, type InvitationChild } from "@/lib/children"
 import { coupleUrl } from "@/lib/coupleUrl"
 import { MSG_TEMPLATES, cleanMessageForCell, isValidMsgCategory, renderMessage } from "@/lib/messageTemplates"
 import {
@@ -1367,9 +1367,11 @@ export default function AntrianDetail({ id }: { id: string }) {
       // Ceriavite: ordered ananda list. Falls back to the legacy single slot so
       // profiles created before the column existed open with their child intact.
       // Wedding profiles never carry the list (their second slot holds the bride).
+      // `readChildren` keeps blank rows: an ananda the ops adds is empty until
+      // they type, and dropping it would make "Tambah Ananda" look like a no-op.
       children: profileView(p).kids
         ? (() => {
-            const stored = parseChildren(p.children)
+            const stored = readChildren(p.children)
             return stored.length > 0 ? stored : resolveChildren(p)
           })()
         : [],
