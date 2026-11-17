@@ -285,7 +285,7 @@ export default function DesignCatalogue({ wedding, kids }: DesignCatalogueProps)
                       chip.soon
                         ? "border-[#EFE4D2] bg-[#FCF8F1] text-[#A39B8E]"
                         : active
-                          ? "border-[#1A1817] bg-[#1A1817] text-white"
+                          ? "border-[#B34E3F] bg-[#B34E3F] text-white"
                           : "border-[#E5DCD0] bg-white text-[#3B3833] hover:border-[#1A1817]"
                     }`}
                   >
@@ -350,7 +350,7 @@ export default function DesignCatalogue({ wedding, kids }: DesignCatalogueProps)
                     <button
                       type="button"
                       onClick={reset}
-                      className="rounded-full bg-[#1A1817] px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white"
+                      className="rounded-full bg-[#B34E3F] px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#9E3B2D]"
                     >
                       Tampilkan semua
                     </button>
@@ -407,7 +407,7 @@ export default function DesignCatalogue({ wedding, kids }: DesignCatalogueProps)
                 <button
                   type="button"
                   onClick={() => setSearch("")}
-                  className="mt-4 rounded-full bg-[#1A1817] px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white"
+                  className="mt-4 rounded-full bg-[#B34E3F] px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#9E3B2D]"
                 >
                   Tampilkan semua
                 </button>
@@ -429,7 +429,7 @@ export default function DesignCatalogue({ wedding, kids }: DesignCatalogueProps)
               <button
                 type="button"
                 onClick={() => setSoon("Aqiqah & Ulang Tahun")}
-                className="shrink-0 rounded-full bg-[#1A1817] px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#8D4D39]"
+                className="shrink-0 rounded-full bg-[#B34E3F] px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#9E3B2D]"
               >
                 Beri tahu saya
               </button>

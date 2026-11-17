@@ -28,11 +28,11 @@ export default function DesignCard({ template, rank = null, onOpen }: DesignCard
 
   return (
     <article className="group relative min-w-0">
-      <div className="flex items-center">
+      <div className="flex items-start">
         {ranked && (
           <span
             aria-hidden="true"
-            className="pointer-events-none w-[24%] shrink-0 select-none text-right font-[family-name:var(--font-playfair)] text-[2.5rem] font-semibold leading-[0.7] tracking-[-0.06em] text-[#F1DFE3] [-webkit-text-stroke:1.5px_rgba(26,24,23,0.28)] lg:text-[4rem]"
+            className="pointer-events-none w-[24%] shrink-0 select-none pt-1 text-right font-[family-name:var(--font-playfair)] text-[3rem] font-semibold leading-[0.7] tracking-[-0.06em] text-[#F1DFE3] [-webkit-text-stroke:1.5px_rgba(26,24,23,0.28)] lg:pt-2 lg:text-[4.75rem]"
           >
             {rank}
           </span>
@@ -45,7 +45,7 @@ export default function DesignCard({ template, rank = null, onOpen }: DesignCard
             aria-label={`Lihat pratinjau ${template.name}`}
             className="block w-full rounded-[15px] bg-[#EFE9E1] p-1.5 text-left ring-1 ring-black/[0.05] transition-shadow duration-300 hover:shadow-[0_18px_34px_-24px_rgba(44,42,41,0.6)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B34E3F]"
           >
-            <span className="block aspect-[10/16] overflow-hidden rounded-[10px] bg-[#EBE6E3] ring-1 ring-black/[0.06]">
+            <span className="block aspect-[9/19] overflow-hidden rounded-[10px] bg-[#EBE6E3] ring-1 ring-black/[0.06]">
               {showImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img

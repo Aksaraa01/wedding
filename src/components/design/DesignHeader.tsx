@@ -44,12 +44,6 @@ export default function DesignHeader() {
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <Link
-            href="/login"
-            className="hidden font-label-lg text-[12.5px] text-[#6E6A63] transition-colors duration-200 hover:text-[#1A1817] sm:inline"
-          >
-            Masuk
-          </Link>
-          <Link
             href="/register"
             className="rounded-full bg-[#8D4D39] px-3.5 py-1.5 font-label-md text-[10px] uppercase tracking-wider text-white transition-colors duration-200 hover:bg-[#7A4130] sm:px-4 sm:text-[11px]"
           >
@@ -87,14 +81,6 @@ export default function DesignHeader() {
               <span className="material-symbols-outlined text-[16px] text-[#A39B8E]">chevron_right</span>
             </Link>
           ))}
-          <Link
-            href="/login"
-            onClick={() => setOpen(false)}
-            className="flex items-center justify-between py-3 text-[14px] text-[#1A1817]"
-          >
-            Masuk
-            <span className="material-symbols-outlined text-[16px] text-[#A39B8E]">chevron_right</span>
-          </Link>
         </nav>
       </div>
     </header>

@@ -225,11 +225,22 @@ kids rite). Code: `src/app/design/page.tsx` (metadata, `revalidate = 300`) +
   `phone` frames the iframe at 9:19.5 (height-driven, so it fits desktop and
   handset) and keeps the CTA in the brand terracotta (`#B34E3F`), not black.
   The gallery/dashboard callers keep the default `wide`.
-- Cards are 10:16 plates over the portrait `preview_image_url`; a broken or
-  missing image falls back to the template name (do not ship a broken-image
-  icon). "Top 10 Populer" renders `popular_rank` as an outlined numeral in the
-  left gutter — the shelf track needs matching `scroll-pl-*` so
-  `snap-mandatory` cannot scroll the first numeral out of the page margin.
+- Cards are 9:19 plates showing the whole `preview_image_url` (the same
+  proportion as `TemplateTile` on `/templates` — do not crop it back to 10:16);
+  a broken or missing image falls back to the template name (do not ship a
+  broken-image icon). "Top 10 Populer" renders `popular_rank` as an outlined
+  numeral in the left gutter, top-aligned with the plate — the shelf track needs
+  matching `scroll-pl-*` so `snap-mandatory` cannot scroll the first numeral out
+  of the page margin.
+- On a handset the preview takes the whole screen from the top (like opening the
+  invitation itself): the frame is full-bleed, and "Pilih Template" + close float
+  over it in the corners. `sm:` and up keeps the centred 9:19 frame.
+- No black fills anywhere in the catalogue UI: primary actions ("Coba
+  langsung", "Pilih Template", "Konsultasi desain custom", the active filter
+  chip) use the brand terracotta `#B34E3F` / hover `#9E3B2D`.
+- The header has no "Masuk" link on purpose: the apex sells two products
+  (Aksaraa Wedding and Ceriavite), so a single login entry point would be
+  ambiguous. Each product host keeps its own login.
 - Shelf ordering/padding reuses `src/lib/templateGallery.ts`
   (`galleryRows`, `popularTemplates`, `newestTemplates`); do not fork that math.
 - SEO: `/design` declares `canonical: https://aksaraa.com/`; `src/app/sitemap.ts`

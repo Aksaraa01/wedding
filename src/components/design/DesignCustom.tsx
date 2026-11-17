@@ -42,7 +42,7 @@ export default function DesignCustom({ sampleImage }: { sampleImage: string | nu
                 href={WA_CUSTOM}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#1A1817] px-5 text-[12.5px] font-bold text-white transition-colors hover:bg-[#8D4D39]"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#B34E3F] px-5 text-[12.5px] font-bold text-white transition-colors hover:bg-[#9E3B2D]"
               >
                 <span className="material-symbols-outlined text-[17px]">chat</span>
                 Konsultasi desain custom

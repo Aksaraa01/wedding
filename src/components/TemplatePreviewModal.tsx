@@ -236,7 +236,7 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
         onClick={onClose}
       >
         <div className="absolute inset-0 flex flex-col" onClick={(e) => e.stopPropagation()}>
-          <div className="mx-auto flex w-[min(92vw,340px)] shrink-0 items-center gap-2 px-0 pb-2 pt-3 sm:pt-5">
+          <div className="mx-auto hidden w-[min(92vw,340px)] shrink-0 items-center gap-2 px-0 pb-2 pt-3 sm:flex sm:pt-5">
             <h2 className="min-w-0 flex-1 truncate font-headline-md text-[14px] text-white">{name}</h2>
             {selectHref && (
               <a
@@ -255,9 +255,32 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
             </button>
           </div>
 
-          <div className="flex min-h-0 flex-1 justify-center px-2 pb-4">
-            <div className="relative aspect-[9/19] h-[min(718px,calc(100dvh-7rem))] max-h-full max-w-[92vw] overflow-hidden rounded-[20px] bg-white shadow-[0_30px_80px_-30px_rgba(0,0,0,0.85)] ring-1 ring-white/15">
+          <div className="flex min-h-0 flex-1 justify-center px-0 pb-0 sm:px-2 sm:pb-4">
+            <div className="relative h-full w-full overflow-hidden bg-white sm:aspect-[9/19] sm:h-[min(718px,calc(100dvh-7rem))] sm:w-auto sm:max-w-[92vw] sm:rounded-[20px] sm:shadow-[0_30px_80px_-30px_rgba(0,0,0,0.85)] sm:ring-1 sm:ring-white/15">
               {frame}
+
+              {/* Handset: the preview is the screen, so the actions float over it
+                  instead of stealing height from the invitation. */}
+              <div className="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-start justify-between gap-2 p-3 sm:hidden">
+                {selectHref ? (
+                  <a
+                    href={selectHref}
+                    className="pointer-events-auto rounded-full bg-[#B34E3F]/95 px-3.5 py-2 font-label-md text-[10px] uppercase tracking-widest text-white shadow-lg backdrop-blur"
+                  >
+                    Pilih Template
+                  </a>
+                ) : (
+                  <span />
+                )}
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Tutup pratinjau"
+                  className="pointer-events-auto flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-[#1A1817] shadow-lg backdrop-blur"
+                >
+                  <span className="material-symbols-outlined text-[20px]">close</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

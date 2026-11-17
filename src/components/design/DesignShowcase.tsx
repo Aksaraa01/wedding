@@ -92,7 +92,7 @@ export default function DesignShowcase({ items }: { items: DesignTemplate[] }) {
             <button
               type="button"
               onClick={() => setPreview(active)}
-              className="inline-flex h-11 items-center gap-2 rounded-full bg-[#1A1817] pl-5 pr-2 text-[12.5px] font-bold text-white transition-colors hover:bg-[#8D4D39] md:h-12 md:pl-6 md:text-[13.5px]"
+              className="inline-flex h-11 items-center gap-2 rounded-full bg-[#B34E3F] pl-5 pr-2 text-[12.5px] font-bold text-white transition-colors hover:bg-[#9E3B2D] md:h-12 md:pl-6 md:text-[13.5px]"
             >
               Coba langsung
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15">
@@ -118,7 +118,7 @@ export default function DesignShowcase({ items }: { items: DesignTemplate[] }) {
                   aria-pressed={i === index}
                   className="group flex h-8 items-center"
                 >
-                  <span className="relative block h-[3px] w-9 overflow-hidden rounded-full bg-[#1A1817]/15 transition-colors group-hover:bg-[#1A1817]/30 md:w-11">
+                  <span className="relative block h-[3px] w-9 overflow-hidden rounded-full bg-[#B34E3F]/15 transition-colors group-hover:bg-[#B34E3F]/30 md:w-11">
                     {i === index && (
                       <span
                         key={`${slide.id}-${index}`}
