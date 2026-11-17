@@ -503,6 +503,51 @@ body:has(.skm-root.is-locked) { overflow: hidden; }
   text-decoration: none;
 }
 
+/* ---------- more than one ananda ----------
+   Siblings share one ceremony, so each child keeps the FULL portrait stage — the
+   same bingkai-ukir-lak frame, tanjak and melur at reference size — stacked one
+   below the other instead of being shrunk into a grid. The parent line stays one
+   shared block below the stack. */
+.skm-ananda {
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+  margin-top: 26px;
+}
+.skm-ananda__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.skm-ananda__monogram {
+  position: absolute;
+  left: 31.54%;
+  top: 158px;
+  width: 148px;
+  height: 243px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #3f121b;
+  font-family: var(--skm-title);
+  font-size: 32px;
+  letter-spacing: 2px;
+  text-indent: 2px;
+  color: var(--skm-gold);
+}
+.skm-ananda__name {
+  margin: 22px 0 0;
+  padding: 0 24px;
+  font-family: var(--skm-script);
+  font-size: 38px;
+  line-height: 1.15;
+  text-align: center;
+  color: var(--skm-cream);
+  overflow-wrap: anywhere;
+}
+.skm-ananda__ig { margin-top: 4px; }
+
 /* ---------- doa untuk ananda ---------- */
 .skm-doa {
   padding: 0 0 100px;

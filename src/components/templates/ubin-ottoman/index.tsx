@@ -5,6 +5,7 @@ import type { CSSProperties } from "react"
 import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { eventLabels } from "@/lib/eventType"
+import { childFullName, childInitials, resolveChildren } from "@/lib/children"
 import { copyPlainText } from "@/lib/clipboard"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import { countdownTarget, formatDotDate, formatLongDate, gcalLink, groomPhoto, photoList } from "../shared/lib"
@@ -104,13 +105,20 @@ export default function UbinOttoman(profile: TemplateProps) {
   const labels = profile.event_labels || eventLabels(profile.event_type, profile.subject_gender)
 
   const covers = useMemo(() => photoList(profile.cover_photos as string | string[] | undefined), [profile.cover_photos])
-  const portrait = groomPhoto(profile.groom_photo_url)
+  // One ceremony can introduce several ananda; the legacy single slot remains
+  // the fallback so invitations made before the column existed never change.
+  const ananda = useMemo(() => resolveChildren(profile), [profile])
+  const primary = ananda[0]
+  const portrait = primary?.photo_url || groomPhoto(profile.groom_photo_url)
   const cover = covers[0] || portrait || ASSETS.defaults.couple
   const venuePhoto = covers[1] || ""
   const closingPhoto = covers[2] || cover
 
-  const childName = (profile.groom_name || "").trim() || "Ananda"
-  const childFull = (profile.groom_full_name || childName).trim()
+  const childName = primary ? (primary.name || primary.full_name) : "Ananda"
+  const childFull = primary ? childFullName(primary) : childName
+  // The closing card signs off with every ananda when a family has siblings.
+  const closingName =
+    ananda.length > 1 ? ananda.map((child) => child.name || child.full_name).filter(Boolean).join(" & ") : childName
   const parents = (profile.groom_parents || "").trim()
   const guestName = (profile.guest_name || "").trim() || labels.guestFallback
 
@@ -229,7 +237,7 @@ export default function UbinOttoman(profile: TemplateProps) {
   const coverNameRef = useFitOneLine<HTMLHeadingElement>(childName)
   const guestRef = useFitOneLine<HTMLParagraphElement>(guestName)
   const putraNameRef = useFitOneLine<HTMLParagraphElement>(childFull)
-  const closingNameRef = useFitOneLine<HTMLParagraphElement>(childName)
+  const closingNameRef = useFitOneLine<HTMLParagraphElement>(closingName)
 
   const wishPages = Math.max(1, Math.ceil(wishes.wishes.length / WISH_PAGE))
   const visibleWishes = wishes.wishes.slice(wishPage * WISH_PAGE, wishPage * WISH_PAGE + WISH_PAGE)
@@ -385,15 +393,41 @@ export default function UbinOttoman(profile: TemplateProps) {
               <i aria-hidden="true" />
             </div>
 
-            <div className="uo-stage" data-uo-reveal>
-              <img className="uo-stage__pillar uo-stage__pillar--left" src={ART("pillar-left")} alt="" aria-hidden="true" draggable={false} />
-              <img className="uo-stage__pillar uo-stage__pillar--right" src={ART("pillar-right")} alt="" aria-hidden="true" draggable={false} />
-              <div className="uo-stage__arch">
-                <img src={portrait} alt={childFull} loading="lazy" draggable={false} />
+            {ananda.length > 1 ? (
+              <div className="uo-ananda" data-uo-reveal>
+                {ananda.map((child, index) => (
+                  <article className="uo-ananda__item" key={`${child.full_name || child.name}-${index}`}>
+                    <div className="uo-stage">
+                      <img className="uo-stage__pillar uo-stage__pillar--left" src={ART("pillar-left")} alt="" aria-hidden="true" loading="lazy" draggable={false} />
+                      <img className="uo-stage__pillar uo-stage__pillar--right" src={ART("pillar-right")} alt="" aria-hidden="true" loading="lazy" draggable={false} />
+                      <div className="uo-stage__arch">
+                        {child.photo_url ? (
+                          <img src={child.photo_url} alt={childFullName(child)} loading="lazy" draggable={false} />
+                        ) : (
+                          <span className="uo-ananda__monogram" aria-hidden="true">{childInitials(child)}</span>
+                        )}
+                      </div>
+                    </div>
+                    <p className="uo-ananda__name">{childFullName(child)}</p>
+                    {child.instagram && (
+                      <p className="uo-putra__ig uo-ananda__ig">@{child.instagram}</p>
+                    )}
+                  </article>
+                ))}
               </div>
-            </div>
+            ) : (
+              <>
+                <div className="uo-stage" data-uo-reveal>
+                  <img className="uo-stage__pillar uo-stage__pillar--left" src={ART("pillar-left")} alt="" aria-hidden="true" draggable={false} />
+                  <img className="uo-stage__pillar uo-stage__pillar--right" src={ART("pillar-right")} alt="" aria-hidden="true" draggable={false} />
+                  <div className="uo-stage__arch">
+                    <img src={portrait} alt={childFull} loading="lazy" draggable={false} />
+                  </div>
+                </div>
 
-            <p ref={putraNameRef} className="uo-putra__name" data-uo-reveal style={delay(0.04)}>{childFull}</p>
+                <p ref={putraNameRef} className="uo-putra__name" data-uo-reveal style={delay(0.04)}>{childFull}</p>
+              </>
+            )}
             {parents && (
               <p className="uo-putra__parents" data-uo-reveal style={delay(0.06)}>
                 <span className="uo-putra__of">{parentsLabel}</span> {parents}
@@ -404,9 +438,9 @@ export default function UbinOttoman(profile: TemplateProps) {
               <span />
               <i />
             </div>
-            {profile.groom_instagram && (
+            {ananda.length <= 1 && primary?.instagram && (
               <p className="uo-putra__ig" data-uo-reveal style={delay(0.08)}>
-                @{profile.groom_instagram.replace(/^@/, "")}
+                @{primary.instagram}
               </p>
             )}
             {quoteText && (
@@ -676,7 +710,7 @@ export default function UbinOttoman(profile: TemplateProps) {
             <div className="uo-closing__photo" data-uo-reveal style={delay(0.02)}>
               <img src={closingPhoto} alt={childFull} loading="lazy" draggable={false} />
             </div>
-            <p ref={closingNameRef} className="uo-closing__name" data-uo-reveal style={delay(0.04)}>{childName}</p>
+            <p ref={closingNameRef} className="uo-closing__name" data-uo-reveal style={delay(0.04)}>{closingName}</p>
             <p className="uo-closing__text" data-uo-reveal style={delay(0.06)}>{closingText}</p>
             <p className="uo-closing__salam" data-uo-reveal style={delay(0.08)}>{closingSalam}</p>
             {parents && (

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { getTemplateComponent } from "@/components/templates"
 import { thumbUrl, thumbStoryImages } from "@/lib/storageUrl"
+import { resolveChildren, thumbChildren } from "@/lib/children"
 import { getRowGates, getFeatureIncluded } from "@/lib/featureGates"
 import { cachedRead } from "@/lib/refCache"
 import { ASSETS } from "@/lib/assets"
@@ -22,7 +23,7 @@ export default async function CouplePreview({ params }: { params: Promise<{ id: 
 
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id, slug, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, cover_photos, couple_initials, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, opening_title, opening_description, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, dresscode, livestream, dresscode_visible, livestream_visible, rundown, contacts, rundown_visible, contacts_visible, template_content, event_type, subject_gender")
+    .select("id, slug, bride_name, groom_name, estimated_wedding_date, selected_template_id, selected_track_id, display_name, couple_illustration_url, cover_photos, couple_initials, grayscale, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, sessions, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, package_type, opening_title, opening_description, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, dresscode, livestream, dresscode_visible, livestream_visible, rundown, contacts, rundown_visible, contacts_visible, template_content, event_type, subject_gender, children")
     .eq("id", id)
     .single()
 
@@ -87,6 +88,7 @@ export default async function CouplePreview({ params }: { params: Promise<{ id: 
       bride_parents={profile.bride_parents || undefined}
       groom_instagram={profile.groom_instagram || undefined}
       bride_instagram={profile.bride_instagram || undefined}
+      children={thumbChildren(resolveChildren(profile), (url) => String(thumbUrl(url, 800)))}
       video_url={profile.video_url || undefined}
       opening_title={profile.opening_title || undefined}
       opening_description={profile.opening_description || undefined}

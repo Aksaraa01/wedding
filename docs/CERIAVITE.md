@@ -41,14 +41,24 @@ conditional on gender:
 
 | Field | Column |
 |---|---|
-| Nama panggilan (cover + slug) | `groom_name` |
-| Nama lengkap ("Putra/Putri Kami") | `groom_full_name` |
-| Foto | `groom_photo_url`, `cover_photos` |
-| Orang tua ("Bapak X & Ibu Y") | `groom_parents` |
+| Ananda (foto · nama · Instagram, boleh lebih dari satu) | `children[]` |
+| Nama panggilan ananda pertama (cover + slug) | `groom_name` |
+| Nama lengkap ananda pertama ("Putra/Putri Kami") | `groom_full_name` |
+| Foto ananda pertama | `groom_photo_url`, `cover_photos` |
+| Orang tua ("Bapak X & Ibu Y"), SATU untuk semua ananda | `groom_parents` |
 | Doa / hadith | `quote_text` + `quote_source` |
-| Acara (2 baris) | `sessions[]` |
+| Acara (boleh lebih dari 2) | `sessions[]` |
 | Tanggal | `estimated_wedding_date` |
 | Second person slot | left empty (`bride_*`) |
+
+`children` is the source of truth for the "Putra/Putri Kami" block:
+`[{ name, full_name, photo_url, instagram }]`. Ops and the couple editor edit
+that list; the API mirrors **child #1** into `groom_*` on every save, so the
+slug, `resolveCoupleName()`, OG copy, ops queue rows and every older reader keep
+working untouched. `resolveChildren()` (`src/lib/children.ts`) falls back to the
+`groom_*` slot when `children` is empty, so invitations created before the
+column existed render exactly as before. The parent line is never repeated per
+child — it is the same Bapak/Ibu for every ananda.
 
 `resolveCoupleName()` already collapses to a single name when one slot is
 empty, so nothing in the display path needs a gender branch.
@@ -57,6 +67,7 @@ New columns only:
 
 - `wedding_profiles.event_type` — `wedding | khitanan | aqiqah | birthday`
 - `wedding_profiles.subject_gender` — `putra | putri` (copy only)
+- `wedding_profiles.children` — jsonb list of ananda (default `[]`)
 - `web_templates.event_type` — same enum, drives gallery filtering
 
 `bride_name` stays `NOT NULL`; kids profiles store `''`.
@@ -77,8 +88,11 @@ there is no second person, no love story, no dress code and no rundown:
 1. Cover — nama panggilan, foto, guest line, date, "Buka Undangan"
 2. Opening — salam + kalimat pembuka (`opening_title`/`opening_description`)
 3. Doa / kutipan — `quote_text` + `quote_source`
-4. Ananda + Orang Tua — nama lengkap, foto, "Putra/Putri dari …"
-5. Waktu & Tempat — `sessions[]` (acara + lokasi/alamat, maps button)
+4. Ananda + Orang Tua — satu frame ukuran penuh per ananda (foto berbingkai
+   lengkung + ornamen yang sama dengan desainnya), disusul nama dan Instagram
+   masing-masing, lalu satu baris "Putra/Putri dari …" untuk semuanya
+5. Waktu & Tempat — `sessions[]` (acara + lokasi/alamat, maps button); jumlah
+   sesi tidak dibatasi untuk kids (wedding tetap maksimal dua)
 6. Countdown — `estimated_wedding_date`
 7. Galeri — `gallery_photos[]`
 8. Konfirmasi Kehadiran — the shared floating RSVP dock (never a section)

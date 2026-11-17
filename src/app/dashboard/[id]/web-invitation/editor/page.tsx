@@ -18,6 +18,7 @@ import { OPENING_PRESETS, OPENING_CUSTOM, matchOpeningPreset } from "@/lib/openi
 import { compressImage } from "@/lib/imageCompress"
 import { waLink } from "@/lib/contact"
 import { resolveCoupleName } from "@/lib/coupleName"
+import { MAX_CHILDREN, parseChildren, resolveChildren, type InvitationChild } from "@/lib/children"
 
 type Profile = {
   id: string
@@ -46,6 +47,9 @@ type Profile = {
   bride_parents: string | null
   groom_instagram: string | null
   bride_instagram: string | null
+  // Ceriavite: one ceremony may introduce more than one ananda. The parent line
+  // stays shared in `groom_parents`.
+  children?: InvitationChild[] | null
   video_url: string | null
   estimated_wedding_date: string | null
   sessions: Session[] | null
@@ -803,7 +807,9 @@ function EditorInner({ id }: { id: string }) {
 
   const addSession = () => {
     if (data.is_published === true || reviewMode) return
-    if (sessions.length >= 2) return
+    // Weddings keep the classic two-session shape (akad + resepsi). A Ceriavite
+    // ceremony often adds a third row (misal: syukuran + walimah + doa bersama).
+    if (!kids && sessions.length >= 2) return
     updateField("sessions", [...sessions, {
       name: "", // required (Nama Acara): must be filled before the invitation can be confirmed
       date: "",
@@ -817,6 +823,56 @@ function EditorInner({ id }: { id: string }) {
   const removeSession = (index: number) => {
     updateField("sessions", sessions.filter((_, i) => i !== index))
   }
+
+  // Ceriavite: one ceremony may introduce several ananda (siblings). This list is
+  // the source of truth; the first child is mirrored into the legacy
+  // first-person slot so the dashboard, OG copy and the ops queue keep reading
+  // groom_* exactly as before. The parent line stays single and shared.
+  const childrenList: InvitationChild[] = useMemo(() => {
+    const stored = parseChildren(data.children)
+    return stored.length > 0 ? stored : resolveChildren(data)
+  }, [data.children, data.groom_name, data.groom_full_name, data.groom_photo_url, data.groom_instagram])
+
+  const applyChildren = (next: InvitationChild[]) => {
+    if (data.is_published === true || reviewMode) return
+    const first = next[0]
+    applyFields(() => ({
+      children: next,
+      // A child may be entered with only one of the two names; the legacy slot
+      // needs a usable value in both (dashboard label, OG copy, ops queue).
+      groom_name: first ? first.name || first.full_name : "",
+      groom_full_name: first ? first.full_name || first.name : "",
+      groom_photo_url: first?.photo_url ? [first.photo_url] : [],
+      groom_instagram: first?.instagram || null,
+    }))
+  }
+
+  const updateChild = (index: number, patch: Partial<InvitationChild>) => {
+    applyChildren(childrenList.map((child, i) => (i === index ? { ...child, ...patch } : child)))
+  }
+
+  const addChild = () => {
+    if (childrenList.length >= MAX_CHILDREN) return
+    applyChildren([...childrenList, { name: "", full_name: "", photo_url: "", instagram: "" }])
+  }
+
+  const removeChild = (index: number) => {
+    if (childrenList.length <= 1) return
+    applyChildren(childrenList.filter((_, i) => i !== index))
+  }
+
+  const uploadChildPhoto = async (file: File, index: number) => {
+    if (data.is_published === true || reviewMode) return
+    setPhotoUploading(`child-${index}`)
+    try {
+      const url = await uploadImageFile(file)
+      if (url) updateChild(index, { photo_url: url })
+    } finally {
+      setPhotoUploading(null)
+    }
+  }
+
+  const childPhotoRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const rundown: RundownItem[] = Array.isArray(data.rundown) ? data.rundown : []
   const updateRundown = (index: number, field: keyof RundownItem, value: string) => {
@@ -1563,6 +1619,7 @@ function EditorInner({ id }: { id: string }) {
         bride_full_name={data.bride_full_name || undefined}
         groom_photo_url={data.groom_photo_url || undefined}
         bride_photo_url={data.bride_photo_url || undefined}
+        children={childrenList}
         groom_parents={data.groom_parents || undefined}
         bride_parents={data.bride_parents || undefined}
         inviting_families={gates.inviting_families.included && Array.isArray(data.inviting_families) ? data.inviting_families.filter(Boolean) : undefined}
@@ -2050,9 +2107,104 @@ function EditorInner({ id }: { id: string }) {
               )}
 
               {renderSection("profile", "group", kids ? "PROFILE ANANDA" : "PROFILE MEMPELAI",
+                kids ? (
+                  <div className="mt-6 space-y-6">
+                    <p className="text-[11px] text-on-surface-variant italic">
+                      Satu undangan boleh memuat lebih dari satu ananda (saudara). Nama orang tua ditulis sekali untuk semuanya.
+                    </p>
+
+                    {childrenList.map((child, index) => {
+                      const uploading = photoUploading === `child-${index}`
+                      return (
+                        <div key={`ananda-${index}`} className="bg-surface-container-low border border-outline-variant p-4 space-y-4">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">
+                              Ananda {index + 1}
+                            </span>
+                            {childrenList.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => removeChild(index)}
+                                className="text-red-500 hover:text-red-700 transition-colors"
+                                aria-label={`Hapus ananda ${index + 1}`}
+                              >
+                                <span className="material-symbols-outlined text-[18px]">delete</span>
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="flex gap-4 items-start">
+                            {hasPersonPhotos && (
+                              <>
+                                <div
+                                  onClick={() => { if (!uploading) childPhotoRefs.current[index]?.click() }}
+                                  className={`w-20 h-20 bg-surface-dim border border-outline-variant flex items-center justify-center relative overflow-hidden shrink-0 ${uploading ? "cursor-wait" : "cursor-pointer hover:bg-surface-container-highest"} transition-colors`}
+                                >
+                                  {uploading ? (
+                                    <span className="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
+                                  ) : child.photo_url ? (
+                                    <>
+                                      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${child.photo_url})` }} />
+                                      <span className="material-symbols-outlined text-white relative z-10 drop-shadow-md">edit</span>
+                                    </>
+                                  ) : (
+                                    <span className="material-symbols-outlined text-on-surface-variant">add_a_photo</span>
+                                  )}
+                                </div>
+                                <input
+                                  ref={el => { childPhotoRefs.current[index] = el }}
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={e => { const f = e.target.files?.[0]; if (f) uploadChildPhoto(f, index); e.target.value = "" }}
+                                />
+                              </>
+                            )}
+                            <div className="flex-1 space-y-2">
+                              <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={child.name} onChange={v => updateChild(index, { name: v })} placeholder="Nama panggilan ananda" />
+                              <p className="text-[11px] text-on-surface-variant italic">Nama panggilan ananda</p>
+                              <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={child.full_name} onChange={v => updateChild(index, { full_name: v })} placeholder="Nama lengkap ananda" />
+                              <p className="text-[11px] text-on-surface-variant italic">Nama lengkap ananda</p>
+                            </div>
+                          </div>
+
+                          <div>
+                            <input
+                              className="input-editorial w-full font-headline-md text-[16px]"
+                              type="text"
+                              value={child.instagram}
+                              onChange={e => updateChild(index, { instagram: e.target.value })}
+                              placeholder="Instagram (opsional)"
+                            />
+                            <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: @raka</p>
+                          </div>
+                        </div>
+                      )
+                    })}
+
+                    {childrenList.length < MAX_CHILDREN && (
+                      <button
+                        type="button"
+                        onClick={addChild}
+                        className="w-full py-3.5 bg-secondary text-white rounded-full font-label-md text-[11px] uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">add</span>
+                        TAMBAH ANANDA
+                      </button>
+                    )}
+
+                    <div className="border-t border-outline-variant pt-6">
+                      <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Nama Orang Tua</label>
+                      <div className="mt-3">
+                        <AutoTextarea className="input-editorial w-full font-headline-md text-[16px] resize-none overflow-hidden" value={data.groom_parents || ""} onChange={v => updateField("groom_parents", v)} placeholder="Bapak ... & Ibu ..." />
+                        <p className="text-[11px] text-on-surface-variant mt-1 italic">Ditampilkan satu kali untuk semua ananda. Contoh: Bapak Hendra &amp; Ibu Sari</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
                 <div className="mt-6 space-y-8">
                   <div className="space-y-4">
-                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">{kids ? "Ananda" : "Mempelai Pertama"}</label>
+                    <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Mempelai Pertama</label>
                     {isSlideshowField("groom_photo_url") ? (
                       <div className="space-y-3">
                         {/* Tanpa-photo: slideshow grid hidden, names stay */}
@@ -2225,6 +2377,7 @@ function EditorInner({ id }: { id: string }) {
                   </div>
                   
                 </div>
+                )
               )}
 
               {renderSection("acara", "calendar_today", "ACARA",
@@ -2275,7 +2428,7 @@ function EditorInner({ id }: { id: string }) {
                       </div>
                     </div>
                   ))}
-                  {sessions.length < 2 && (
+                  {(kids || sessions.length < 2) && (
                     <button onClick={addSession} className="w-full py-3.5 bg-secondary text-white rounded-full font-label-md text-[11px] uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
                       <span className="material-symbols-outlined text-[16px]">add</span>
                       TAMBAH SESI ACARA LAIN

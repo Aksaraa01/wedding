@@ -11,6 +11,7 @@ import html2canvas from "html2canvas"
 import * as XLSX from "xlsx"
 import { renderReminderMessage, getCoupleDisplayName } from "@/lib/reminderTemplates"
 import { resolveCoupleName } from "@/lib/coupleName"
+import { MAX_CHILDREN, parseChildren, resolveChildren, type InvitationChild } from "@/lib/children"
 import { coupleUrl } from "@/lib/coupleUrl"
 import { MSG_TEMPLATES, cleanMessageForCell, isValidMsgCategory, renderMessage } from "@/lib/messageTemplates"
 import {
@@ -1363,6 +1364,15 @@ export default function AntrianDetail({ id }: { id: string }) {
       groom_full_name: p.groom_full_name || "",
       groom_parents: p.groom_parents || "",
       groom_instagram: p.groom_instagram || "",
+      // Ceriavite: ordered ananda list. Falls back to the legacy single slot so
+      // profiles created before the column existed open with their child intact.
+      // Wedding profiles never carry the list (their second slot holds the bride).
+      children: profileView(p).kids
+        ? (() => {
+            const stored = parseChildren(p.children)
+            return stored.length > 0 ? stored : resolveChildren(p)
+          })()
+        : [],
       bride_name: p.bride_name || "",
       bride_full_name: p.bride_full_name || "",
       bride_parents: p.bride_parents || "",
@@ -1527,6 +1537,13 @@ export default function AntrianDetail({ id }: { id: string }) {
     strField("Nama Lengkap (2)", f.bride_full_name, orig.bride_full_name)
     strField("Orang Tua (2)", f.bride_parents, orig.bride_parents)
     strField("Instagram (2)", f.bride_instagram, orig.bride_instagram)
+    if (Array.isArray(f.children)) {
+      const normAnanda = (list: any[]) =>
+        (list || []).map((c: any) => [c?.name || "", c?.full_name || "", c?.photo_url || "", c?.instagram || ""].join("|"))
+      if (JSON.stringify(normAnanda(f.children)) !== JSON.stringify(normAnanda(parseChildren(orig.children)))) {
+        changed.push(`Ananda (${parseChildren(orig.children).length}→${f.children.length})`)
+      }
+    }
     strField("Foto Sampul Utama", f.couple_illustration_url, orig.couple_illustration_url)
     strField("Kutipan", f.quote_text, orig.quote_text)
     strField("Sumber Kutipan", f.quote_source, orig.quote_source)
@@ -1628,6 +1645,8 @@ export default function AntrianDetail({ id }: { id: string }) {
           groom_full_name: f.groom_full_name,
           groom_parents: f.groom_parents || null,
           groom_instagram: f.groom_instagram || null,
+          // Ceriavite only; the API mirrors the first ananda into groom_* itself.
+          ...(profileView(invitationData.profile).kids && Array.isArray(f.children) ? { children: f.children } : {}),
           bride_name: f.bride_name,
           bride_full_name: f.bride_full_name,
           bride_parents: f.bride_parents || null,
@@ -3369,6 +3388,79 @@ export default function AntrianDetail({ id }: { id: string }) {
 
                   <InvAccordion secKey="profile" icon="group" label="PROFILE MEMPELAI" {...invAccProps("profile")}>
                     {invEditing && invForm ? (
+                      profileView(invitationData?.profile).kids && Array.isArray(invForm.children) ? (
+                      <div className="mt-6 space-y-6">
+                        <p className="text-[11px] text-on-surface-variant italic">
+                          Satu undangan boleh memuat lebih dari satu ananda (saudara). Nama orang tua ditulis sekali untuk semuanya.
+                        </p>
+
+                        {(invForm.children as InvitationChild[]).map((child, index) => {
+                          const upKey = `profil-ananda-${index}`
+                          return (
+                            <div key={`ananda-${index}`} className="bg-surface-container-low border border-outline-variant p-4 space-y-4">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Ananda {index + 1}</span>
+                                {invForm.children.length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setInvForm({ ...invForm, children: invForm.children.filter((_: any, j: number) => j !== index) })}
+                                    className="text-red-500 hover:text-red-700 transition-colors"
+                                    aria-label={`Hapus ananda ${index + 1}`}
+                                  >
+                                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                                  </button>
+                                )}
+                              </div>
+                              <div className="flex gap-4 items-start">
+                                {invHasPersonPhotos && (
+                                  <InvPhotoBox
+                                    url={child.photo_url || ""}
+                                    uploading={invUploading === upKey}
+                                    onFile={async (file: File) => {
+                                      const url = await invUploadPhoto(upKey, file)
+                                      if (!url) return
+                                      setInvForm((prev: any) => ({
+                                        ...prev,
+                                        children: prev.children.map((c: any, j: number) => (j === index ? { ...c, photo_url: url } : c)),
+                                      }))
+                                    }}
+                                  />
+                                )}
+                                <div className="flex-1 space-y-2">
+                                  <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={child.name} onChange={(v) => setInvForm({ ...invForm, children: invForm.children.map((c: any, j: number) => (j === index ? { ...c, name: v } : c)) })} placeholder="Nama panggilan ananda" />
+                                  <p className="text-[11px] text-on-surface-variant italic">Nama panggilan ananda</p>
+                                  <AutoTextarea className="input-editorial w-full font-headline-md text-[18px] resize-none overflow-hidden" value={child.full_name} onChange={(v) => setInvForm({ ...invForm, children: invForm.children.map((c: any, j: number) => (j === index ? { ...c, full_name: v } : c)) })} placeholder="Nama lengkap ananda" />
+                                  <p className="text-[11px] text-on-surface-variant italic">Nama lengkap ananda</p>
+                                </div>
+                              </div>
+                              <div>
+                                <input className="input-editorial w-full font-headline-md text-[16px]" type="text" value={child.instagram} onChange={(e) => setInvForm({ ...invForm, children: invForm.children.map((c: any, j: number) => (j === index ? { ...c, instagram: e.target.value } : c)) })} placeholder="Instagram (opsional)" />
+                                <p className="text-[11px] text-on-surface-variant mt-1 italic">Contoh: @raka</p>
+                              </div>
+                            </div>
+                          )
+                        })}
+
+                        {invForm.children.length < MAX_CHILDREN && (
+                          <button
+                            type="button"
+                            onClick={() => setInvForm({ ...invForm, children: [...invForm.children, { name: "", full_name: "", photo_url: "", instagram: "" }] })}
+                            className="w-full py-3.5 bg-secondary text-white rounded-full font-label-md text-[11px] uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">add</span>
+                            TAMBAH ANANDA
+                          </button>
+                        )}
+
+                        <div className="border-t border-outline-variant pt-6">
+                          <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Nama Orang Tua</label>
+                          <div className="mt-3">
+                            <AutoTextarea className="input-editorial w-full font-headline-md text-[16px] resize-none overflow-hidden" value={invForm.groom_parents || ""} onChange={(v) => setInvForm({ ...invForm, groom_parents: v })} placeholder="Bapak ... & Ibu ..." />
+                            <p className="text-[11px] text-on-surface-variant mt-1 italic">Ditampilkan satu kali untuk semua ananda.</p>
+                          </div>
+                        </div>
+                      </div>
+                      ) : (
                       <div className="mt-6 space-y-8">
                         {(["groom", "bride"] as const).map((side) => {
                           const isGroom = side === "groom"
@@ -3447,12 +3539,30 @@ export default function AntrianDetail({ id }: { id: string }) {
                           )
                         })}
                       </div>
+                      )
                     ) : (
                     <div>
                       <p className="font-display-lg text-2xl text-center text-primary">{resolveCoupleName(invitationData.profile)}</p>
                       {invitationData.profile.couple_initials && (
                         <p className="font-display-lg text-sm text-center text-secondary mt-1">{invitationData.profile.couple_initials}</p>
                       )}
+                      {(() => {
+                        const ananda = parseChildren(invitationData.profile.children)
+                        if (ananda.length < 2) return null
+                        return (
+                          <div className="mt-4">
+                            <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant mb-2 text-center">Daftar Ananda</p>
+                            <ul className="space-y-1 text-center">
+                              {ananda.map((child, i) => (
+                                <li key={`${child.name || child.full_name}-${i}`} className="font-body-md text-sm">
+                                  {child.full_name || child.name}
+                                  {child.instagram && <span className="text-on-surface-variant"> · @{child.instagram}</span>}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )
+                      })()}
 
                     {(() => {
                       const groomPhotos = photoList(invitationData.profile.groom_photo_url)
@@ -3595,7 +3705,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                             </div>
                           )
                         })}
-                        {(invForm.sessions || []).length < 2 && (
+                        {(profileView(invitationData?.profile).kids || (invForm.sessions || []).length < 2) && (
                           <button type="button" onClick={() => setInvForm({ ...invForm, sessions: [...(invForm.sessions || []), { name: "", date: "", time: "", timezone: "WIB", venue: "", address: "", maps_url: "" }] })} className="w-full py-3.5 bg-secondary text-white rounded-full font-label-md text-[11px] uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
                             <span className="material-symbols-outlined text-[16px]">add</span>
                             TAMBAH SESI ACARA LAIN

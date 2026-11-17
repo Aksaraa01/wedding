@@ -5,6 +5,7 @@ import type { CSSProperties } from "react"
 import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { eventLabels } from "@/lib/eventType"
+import { childFullName, childInitials, resolveChildren } from "@/lib/children"
 import { copyPlainText } from "@/lib/clipboard"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import { countdownTarget, formatDotDate, formatLongDate, gcalLink, groomPhoto, photoList } from "../shared/lib"
@@ -121,12 +122,16 @@ export default function LenteraZamrud(profile: TemplateProps) {
   const labels = profile.event_labels || eventLabels(profile.event_type, profile.subject_gender)
 
   const covers = useMemo(() => photoList(profile.cover_photos as string | string[] | undefined), [profile.cover_photos])
-  const portrait = groomPhoto(profile.groom_photo_url) || covers[1] || ""
+  // One ceremony can introduce several ananda; the legacy single slot remains
+  // the fallback so invitations made before the column existed never change.
+  const ananda = useMemo(() => resolveChildren(profile), [profile])
+  const primary = ananda[0]
+  const portrait = primary?.photo_url || groomPhoto(profile.groom_photo_url) || covers[1] || ""
   const cover = covers[0] || portrait || ASSETS.defaults.couple
   const closingPhoto = covers[2] || cover
 
-  const childName = (profile.groom_name || "").trim() || "Ananda"
-  const childFull = (profile.groom_full_name || childName).trim()
+  const childName = primary ? (primary.name || primary.full_name) : "Ananda"
+  const childFull = primary ? childFullName(primary) : childName
   const parents = (profile.groom_parents || "").trim()
   const guestName = (profile.guest_name || "").trim() || labels.guestFallback
   const hasGuestName = guestName !== labels.guestFallback
@@ -410,36 +415,74 @@ export default function LenteraZamrud(profile: TemplateProps) {
               <div className="lz-paper" aria-hidden="true" />
               <p className="lz-kicker lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0)}>{labels.subjectPossessive}</p>
 
-              <div className="lz-putra__stage lz-reveal lz-reveal--in" data-lz-reveal style={reveal(0.04)}>
-                <div className="lz-putra__arch">
-                  <img src={portrait} alt={childFull} loading="lazy" draggable={false} />
+              {ananda.length > 1 ? (
+                <div className="lz-ananda lz-reveal lz-reveal--in" data-lz-reveal style={reveal(0.04)}>
+                  {ananda.map((child, index) => (
+                    <article className="lz-ananda__item" key={`${child.full_name || child.name}-${index}`}>
+                      <div className="lz-putra__stage">
+                        <div className="lz-putra__arch">
+                          {child.photo_url ? (
+                            <img src={child.photo_url} alt={childFullName(child)} loading="lazy" draggable={false} />
+                          ) : (
+                            <span className="lz-ananda__monogram" aria-hidden="true">{childInitials(child)}</span>
+                          )}
+                        </div>
+                        <img className="lz-arch__frame" src={ART("bingkai-lengkung")} alt="" aria-hidden="true" loading="lazy" draggable={false} />
+                        <div className="lz-sprig lz-sprig--l">
+                          <img src={ART("ranting-daun")} alt="" aria-hidden="true" loading="lazy" draggable={false} />
+                        </div>
+                        <div className="lz-sprig lz-sprig--r">
+                          <img src={ART("ranting-zaitun")} alt="" aria-hidden="true" loading="lazy" draggable={false} />
+                        </div>
+                      </div>
+                      <p className="lz-ananda__name">{childFullName(child)}</p>
+                      {child.instagram && (
+                        <a
+                          className="lz-putra__ig lz-ananda__ig"
+                          href={`https://instagram.com/${child.instagram}`}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                        >
+                          @{child.instagram}
+                        </a>
+                      )}
+                    </article>
+                  ))}
                 </div>
-                <img className="lz-arch__frame" src={ART("bingkai-lengkung")} alt="" aria-hidden="true" draggable={false} />
-                <div className="lz-sprig lz-sprig--l">
-                  <img src={ART("ranting-daun")} alt="" aria-hidden="true" draggable={false} />
-                </div>
-                <div className="lz-sprig lz-sprig--r">
-                  <img src={ART("ranting-zaitun")} alt="" aria-hidden="true" draggable={false} />
-                </div>
-              </div>
+              ) : (
+                <>
+                  <div className="lz-putra__stage lz-reveal lz-reveal--in" data-lz-reveal style={reveal(0.04)}>
+                    <div className="lz-putra__arch">
+                      <img src={portrait} alt={childFull} loading="lazy" draggable={false} />
+                    </div>
+                    <img className="lz-arch__frame" src={ART("bingkai-lengkung")} alt="" aria-hidden="true" draggable={false} />
+                    <div className="lz-sprig lz-sprig--l">
+                      <img src={ART("ranting-daun")} alt="" aria-hidden="true" draggable={false} />
+                    </div>
+                    <div className="lz-sprig lz-sprig--r">
+                      <img src={ART("ranting-zaitun")} alt="" aria-hidden="true" draggable={false} />
+                    </div>
+                  </div>
 
-              <p ref={putraNameRef} className="lz-putra__name lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.06)}>{childFull}</p>
+                  <p ref={putraNameRef} className="lz-putra__name lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.06)}>{childFull}</p>
+                </>
+              )}
               {parents && (
                 <>
                   <p className="lz-kicker lz-kicker--sm lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.08)}>{labels.subjectOf}</p>
                   <p className="lz-putra__parents lz-reveal lz-reveal--up" data-lz-reveal style={reveal(0.09)}>{parents}</p>
                 </>
               )}
-              {profile.groom_instagram && (
+              {ananda.length <= 1 && primary?.instagram && (
                 <a
                   className="lz-putra__ig lz-reveal lz-reveal--up"
                   data-lz-reveal
                   style={reveal(0.1)}
-                  href={`https://instagram.com/${profile.groom_instagram.replace(/^@/, "")}`}
+                  href={`https://instagram.com/${primary.instagram}`}
                   target="_blank"
                   rel="noreferrer noopener"
                 >
-                  @{profile.groom_instagram.replace(/^@/, "")}
+                  @{primary.instagram}
                 </a>
               )}
 

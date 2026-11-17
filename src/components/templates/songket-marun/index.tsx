@@ -5,6 +5,7 @@ import type { CSSProperties } from "react"
 import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { eventLabels } from "@/lib/eventType"
+import { childFullName, childInitials, resolveChildren } from "@/lib/children"
 import { copyPlainText } from "@/lib/clipboard"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import { countdownTarget, formatDotDate, formatLongDate, gcalLink, groomPhoto, photoList } from "../shared/lib"
@@ -131,13 +132,17 @@ export default function SongketMarun(profile: TemplateProps) {
   const labels = profile.event_labels || eventLabels(profile.event_type, profile.subject_gender)
 
   const covers = useMemo(() => photoList(profile.cover_photos as string | string[] | undefined), [profile.cover_photos])
-  const portrait = groomPhoto(profile.groom_photo_url) || covers[1] || ""
+  // One ceremony can introduce several ananda. `resolveChildren` falls back to
+  // the legacy single slot, so old invitations render exactly as before.
+  const ananda = useMemo(() => resolveChildren(profile), [profile])
+  const primary = ananda[0]
+  const portrait = primary?.photo_url || groomPhoto(profile.groom_photo_url) || covers[1] || ""
   const cover = covers[0] || portrait || ASSETS.defaults.couple
   const venuePhoto = covers[1] || ""
   const closingPhoto = covers[2] || cover
 
-  const childName = (profile.groom_name || "").trim() || "Ananda"
-  const childFull = (profile.groom_full_name || childName).trim()
+  const childName = primary ? (primary.name || primary.full_name) : "Ananda"
+  const childFull = primary ? childFullName(primary) : childName
   const parents = (profile.groom_parents || "").trim()
   // The reference prints "Bapak X" / "& Ibu Y" on two deliberate lines.
   const parentLines = parents.replace(/\s*&\s*/, "\n& ")
@@ -404,30 +409,62 @@ export default function SongketMarun(profile: TemplateProps) {
 
               <p className="skm-kicker skm-reveal skm-reveal--up" data-skm-reveal style={reveal(0)}>{labels.subjectPossessive}</p>
 
-              <div className="skm-putra__stage skm-reveal skm-reveal--in" data-skm-reveal style={reveal(0.04)}>
-                <img className="skm-putra__photo" src={portrait} alt={childFull} draggable={false} />
-                <img className="skm-putra__frame" src={ART("bingkai-ukir-lak")} alt="" aria-hidden="true" draggable={false} />
-                <img className="skm-putra__tanjak" src={ART("tanjak-songket")} alt="" aria-hidden="true" draggable={false} />
-                <img className="skm-putra__melur" src={ART("melur")} alt="" aria-hidden="true" draggable={false} />
-              </div>
+              {ananda.length > 1 ? (
+                <div className="skm-ananda skm-reveal skm-reveal--in" data-skm-reveal style={reveal(0.04)}>
+                  {ananda.map((child, index) => (
+                    <article className="skm-ananda__item" key={`${child.full_name || child.name}-${index}`}>
+                      <div className="skm-putra__stage">
+                        {child.photo_url ? (
+                          <img className="skm-putra__photo" src={child.photo_url} alt={childFullName(child)} loading="lazy" draggable={false} />
+                        ) : (
+                          <span className="skm-ananda__monogram" aria-hidden="true">{childInitials(child)}</span>
+                        )}
+                        <img className="skm-putra__frame" src={ART("bingkai-ukir-lak")} alt="" aria-hidden="true" loading="lazy" draggable={false} />
+                        <img className="skm-putra__tanjak" src={ART("tanjak-songket")} alt="" aria-hidden="true" loading="lazy" draggable={false} />
+                        <img className="skm-putra__melur" src={ART("melur")} alt="" aria-hidden="true" loading="lazy" draggable={false} />
+                      </div>
+                      <p className="skm-ananda__name">{childFullName(child)}</p>
+                      {child.instagram && (
+                        <a
+                          className="skm-putra__ig skm-ananda__ig"
+                          href={`https://instagram.com/${child.instagram}`}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                        >
+                          @{child.instagram}
+                        </a>
+                      )}
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  <div className="skm-putra__stage skm-reveal skm-reveal--in" data-skm-reveal style={reveal(0.04)}>
+                    <img className="skm-putra__photo" src={portrait} alt={childFull} draggable={false} />
+                    <img className="skm-putra__frame" src={ART("bingkai-ukir-lak")} alt="" aria-hidden="true" draggable={false} />
+                    <img className="skm-putra__tanjak" src={ART("tanjak-songket")} alt="" aria-hidden="true" draggable={false} />
+                    <img className="skm-putra__melur" src={ART("melur")} alt="" aria-hidden="true" draggable={false} />
+                  </div>
 
-              <p ref={putraNameRef} className="skm-putra__name skm-reveal skm-reveal--up" data-skm-reveal style={reveal(0.06)}>{childFull}</p>
+                  <p ref={putraNameRef} className="skm-putra__name skm-reveal skm-reveal--up" data-skm-reveal style={reveal(0.06)}>{childFull}</p>
+                </>
+              )}
               {parents && (
                 <>
                   <p className="skm-kicker skm-kicker--mt skm-reveal skm-reveal--up" data-skm-reveal style={reveal(0.09)}>{labels.subjectOf}</p>
                   <p className="skm-putra__parents skm-reveal skm-reveal--up" data-skm-reveal style={reveal(0.11)}>{parentLines}</p>
                 </>
               )}
-              {profile.groom_instagram && (
+              {ananda.length <= 1 && primary?.instagram && (
                 <a
                   className="skm-putra__ig skm-reveal skm-reveal--up"
                   data-skm-reveal
                   style={reveal(0.12)}
-                  href={`https://instagram.com/${profile.groom_instagram.replace(/^@/, "")}`}
+                  href={`https://instagram.com/${primary.instagram}`}
                   target="_blank"
                   rel="noreferrer noopener"
                 >
-                  @{profile.groom_instagram.replace(/^@/, "")}
+                  @{primary.instagram}
                 </a>
               )}
             </section>

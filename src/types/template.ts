@@ -124,6 +124,16 @@ export type TemplateProps = {
     video?: boolean
     qr_code_book?: boolean
   }
+  // Ceriavite only: the ananda introduced on this invitation. More than one
+  // child (siblings sharing the ceremony) is normal; the parent line stays
+  // single and shared via `groom_parents`. `resolveChildren()` in
+  // `@/lib/children` falls back to the legacy `groom_*` slot when empty.
+  children?: {
+    name?: string
+    full_name?: string
+    photo_url?: string
+    instagram?: string
+  }[]
   // Event family. Kept optional so every existing template compiles unchanged;
   // absent means "wedding". Kids templates read the labels instead of
   // hard-coding "Mempelai" / "The Wedding of".

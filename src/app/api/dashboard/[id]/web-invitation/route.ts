@@ -7,6 +7,8 @@ import { getPublishBlockers } from "@/lib/publishBlockers"
 import { requireProfileAccess } from "@/lib/requireProfileAccess"
 import { getTemplateContentSpec } from "@/components/templates"
 import { coupleUrl } from "@/lib/coupleUrl"
+import { isKidsEvent } from "@/lib/eventType"
+import { parseChildren } from "@/lib/children"
 
 export const dynamic = "force-dynamic"
 
@@ -21,7 +23,7 @@ export async function GET(
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("id, bride_name, groom_name, slug, package_type, payment_status, selected_template_id, selected_track_id, couple_illustration_url, link_thumbnail_url, link_thumbnail_disabled, cover_photos, couple_initials, grayscale, is_published, published_at, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, display_name, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, opening_title, opening_description, active_wp_post_id, active_wp_post_url, portfolio_visible, portfolio_featured, dresscode, livestream, dresscode_visible, livestream_visible, rundown, contacts, rundown_visible, contacts_visible, template_content, gallery_photo_url, event_type, subject_gender")
+      .select("id, bride_name, groom_name, slug, package_type, payment_status, selected_template_id, selected_track_id, couple_illustration_url, link_thumbnail_url, link_thumbnail_disabled, cover_photos, couple_initials, grayscale, is_published, published_at, groom_full_name, bride_full_name, groom_photo_url, bride_photo_url, groom_parents, bride_parents, groom_instagram, bride_instagram, video_url, estimated_wedding_date, sessions, display_name, quote_text, quote_source, stories, gallery_photos, inviting_families, rsvp_max_pax, gift_section_visible, video_section_visible, inviting_families_visible, story_visible, opening_title, opening_description, active_wp_post_id, active_wp_post_url, portfolio_visible, portfolio_featured, dresscode, livestream, dresscode_visible, livestream_visible, rundown, contacts, rundown_visible, contacts_visible, template_content, gallery_photo_url, event_type, subject_gender, children")
       .eq("id", id)
       .single()
 
@@ -82,6 +84,9 @@ export async function GET(
         bride_parents: profile.bride_parents,
         groom_instagram: profile.groom_instagram,
         bride_instagram: profile.bride_instagram,
+        // Ceriavite: ordered ananda list (photo, nickname, full name, IG). The
+        // parent line stays single and shared in `groom_parents`.
+        children: parseChildren((profile as any).children),
         video_url: profile.video_url,
         estimated_wedding_date: profile.estimated_wedding_date,
         sessions: profile.sessions,
@@ -143,6 +148,7 @@ export async function PUT(  req: NextRequest,
       "groom_full_name", "bride_full_name", "groom_name", "bride_name",
       "groom_photo_url", "bride_photo_url",
       "groom_parents", "bride_parents", "groom_instagram", "bride_instagram", "video_url",
+      "children",
       "display_name", "sessions", "quote_text", "quote_source", "stories",
       "gallery_photos", "inviting_families", "rsvp_max_pax",
       "estimated_wedding_date", "gift_section_visible", "video_section_visible", "inviting_families_visible", "story_visible",
@@ -164,6 +170,30 @@ export async function PUT(  req: NextRequest,
         } else {
           updates[key] = body[key]
         }
+      }
+    }
+
+    // Ceriavite: the ananda list is the source of truth for the profile block.
+    // The FIRST child is mirrored into the legacy first person slot so slug
+    // generation, couple-name resolution, OG copy and the ops queue keep reading
+    // the same columns they always did. Wedding profiles are never mirrored.
+    if (body.children !== undefined) {
+      const list = parseChildren(body.children)
+      updates.children = list
+      const { data: row } = await supabaseAdmin
+        .from("wedding_profiles")
+        .select("event_type")
+        .eq("id", id)
+        .maybeSingle()
+      if (isKidsEvent((row as { event_type?: string | null } | null)?.event_type)) {
+        const first = list[0]
+        // A child may be entered with only one of the two names; the legacy slot
+        // needs a usable value in both, and `resolveCoupleName()` prefers
+        // `groom_name` for the dashboard/queue label.
+        updates.groom_name = first ? first.name || first.full_name : ""
+        updates.groom_full_name = first ? first.full_name || first.name : ""
+        updates.groom_photo_url = first?.photo_url ? JSON.stringify([first.photo_url]) : "[]"
+        updates.groom_instagram = first?.instagram || null
       }
     }
 

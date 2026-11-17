@@ -479,6 +479,46 @@ body:has(.uo-root.is-locked) { overflow: hidden; }
   color: color-mix(in srgb, var(--uo-navy) 78%, transparent);
 }
 
+/* ---------- more than one ananda ----------
+   Siblings share one ceremony, so each child keeps the FULL portrait stage — the
+   two pillars plus the arched white frame at reference size — stacked one below
+   the other instead of being shrunk into a grid. The parent line stays one
+   shared block below the stack. */
+.uo-ananda {
+  display: flex;
+  flex-direction: column;
+  gap: calc(18 * var(--u));
+  margin-top: calc(18 * var(--u));
+}
+.uo-ananda__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.uo-ananda__monogram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-family: var(--uo-name-font);
+  font-size: calc(30 * var(--u));
+  color: var(--uo-navy);
+}
+.uo-ananda__name {
+  width: 100%;
+  margin: calc(10 * var(--u)) 0 0;
+  padding: 0 calc(24 * var(--u));
+  font-family: var(--uo-name-font);
+  font-size: calc(22 * var(--u));
+  line-height: 1.2;
+  text-align: center;
+  color: var(--uo-navy);
+  overflow-wrap: anywhere;
+}
+.uo-ananda__ig { margin-top: calc(2 * var(--u)); }
+
 .uo-putra__quote {
   margin: calc(14 * var(--u)) 0 0;
   padding: 0 calc(44 * var(--u));
