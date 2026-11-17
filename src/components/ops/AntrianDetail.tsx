@@ -1182,7 +1182,7 @@ export default function AntrianDetail({ id }: { id: string }) {
         ["tema", "TEMA"],
         ["sampul", "SAMPUL"],
         ["pembuka", "KALIMAT PEMBUKA"],
-        ["profil", "PROFILE MEMPELAI"],
+        ["profil", profileView(p).kids ? "PROFILE ANANDA" : "PROFILE MEMPELAI"],
         ["acara", "ACARA"],
         ["galeri", "GALERI"],
         ["inviting", "TURUT MENGUNDANG"],
@@ -1274,6 +1274,17 @@ export default function AntrianDetail({ id }: { id: string }) {
   // a dedicated thumbnail (or opt out) in the SAMPUL accordion.
   const invHasCoverPhotos = !invNoPhoto && invCoverSlotCount > 0
   const invCoverSlotLabel = (i: number) => invContentSpec?.cover_slot_labels?.[i] || `Slot ${i + 1}`
+  // Stored photo for one template slot (the column holds string | string[]
+  // entries, sometimes JSON-encoded). Read-only views use it so ops can see an
+  // EMPTY slot too, instead of the cover list silently collapsing to nothing.
+  const invStoredCoverAt = (i: number): string => {
+    const raw = (invitationData as any)?.profile?.cover_photos
+    const list = Array.isArray(raw) ? raw : []
+    const v = list[i]
+    if (typeof v === "string") return v
+    if (Array.isArray(v)) return (v.find((x) => typeof x === "string" && x) as string) || ""
+    return ""
+  }
   // Slots whose section is hidden are not offered (stored photos are kept).
   // invitationData starts as null and every neighbouring read above is
   // optional-chained: this one line, evaluated during the first render (which
@@ -3309,11 +3320,41 @@ export default function AntrianDetail({ id }: { id: string }) {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
                         <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                           <h3 className="font-display-lg text-3xl sm:text-4xl">{resolveCoupleName(invitationData.profile)}</h3>
-                          <p className="font-body-md text-sm opacity-80 mt-1">We Are Getting Married</p>
+                          <p className="font-body-md text-sm opacity-80 mt-1">{profileView(invitationData.profile).kids ? profileView(invitationData.profile).labels.eventKicker : "We Are Getting Married"}</p>
                         </div>
                       </div>
                     )}
-                    {coverPhotos(invitationData.profile.cover_photos).length > 0 && (
+                    {invHasCoverPhotos ? (
+                      <div className="px-6 pt-4 pb-2">
+                        <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant mb-2">
+                          {`Foto Sampul (${invCoverSlotIndexes.length} slot)`}
+                        </p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {invCoverSlotIndexes.map((i) => {
+                            const url = invStoredCoverAt(i)
+                            return (
+                              <div key={i} className="relative group aspect-video bg-surface-dim border border-outline-variant overflow-hidden">
+                                {url ? (
+                                  <>
+                                    <img src={url} alt={invCoverSlotLabel(i)} className="w-full h-full object-cover" crossOrigin="anonymous" />
+                                    <button onClick={() => downloadImage(url, `cover-${invitationData.profile.slug || "photo"}-${i + 1}.jpg`)} className="absolute top-0.5 right-0.5 w-5 h-5 bg-white/80 border border-outline-variant flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" title="Download">
+                                      <span className="material-symbols-outlined text-[11px]">download</span>
+                                    </button>
+                                  </>
+                                ) : (
+                                  <span className="absolute inset-0 flex items-center justify-center text-[9px] uppercase tracking-widest text-on-surface-variant">
+                                    Belum diisi
+                                  </span>
+                                )}
+                                <span className="absolute bottom-0 inset-x-0 bg-white/85 px-1 py-0.5 text-[8px] font-bold uppercase tracking-wider text-on-surface-variant truncate">
+                                  {invCoverSlotLabel(i)}
+                                </span>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ) : coverPhotos(invitationData.profile.cover_photos).length > 0 && (
                       <div className="px-6 pt-4 pb-2">
                         <div className="grid grid-cols-3 gap-2">
                           {coverPhotos(invitationData.profile.cover_photos).map((url: string, i: number) => (
@@ -3388,7 +3429,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                   </InvAccordion>
                   )}
 
-                  <InvAccordion secKey="profile" icon="group" label="PROFILE MEMPELAI" {...invAccProps("profile")}>
+                  <InvAccordion secKey="profile" icon="group" label={profileView(invitationData?.profile).kids ? "PROFILE ANANDA" : "PROFILE MEMPELAI"} {...invAccProps("profile")}>
                     {invEditing && invForm ? (
                       profileView(invitationData?.profile).kids && Array.isArray(invForm.children) ? (
                       <div className="mt-6 space-y-6">
@@ -3575,7 +3616,7 @@ export default function AntrianDetail({ id }: { id: string }) {
                         <div className="mt-4 space-y-3">
                           {groomPhotos.length > 0 && (
                             <div className="text-center">
-                              <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant mb-2">Foto Mempelai Pertama{groomPhotos.length > 1 ? " (Slideshow)" : ""}</p>
+                              <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant mb-2">{profileView(invitationData.profile).kids ? "Foto Ananda" : "Foto Mempelai Pertama"}{groomPhotos.length > 1 ? " (Slideshow)" : ""}</p>
                               <div className="flex justify-center gap-3">
                                 {groomPhotos.map((url, i) => (
                                   <div key={i} className="relative group">
@@ -3621,7 +3662,7 @@ export default function AntrianDetail({ id }: { id: string }) {
 
                       <div className="grid grid-cols-2 gap-4 mt-4 text-center">
                         <div>
-                          <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">Mempelai Pertama</p>
+                          <p className="font-label-md text-[9px] uppercase tracking-widest text-on-surface-variant">{profileView(invitationData.profile).kids ? "Ananda" : "Mempelai Pertama"}</p>
                           {invitationData.profile.groom_name && (
                             <p className="font-body-md text-sm font-semibold mt-0.5">{invitationData.profile.groom_name}</p>
                           )}
