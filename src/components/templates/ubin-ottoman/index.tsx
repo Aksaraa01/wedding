@@ -116,9 +116,18 @@ export default function UbinOttoman(profile: TemplateProps) {
 
   const childName = primary ? (primary.name || primary.full_name) : "Ananda"
   const childFull = primary ? childFullName(primary) : childName
-  // The closing card signs off with every ananda when a family has siblings.
-  const closingName =
-    ananda.length > 1 ? ananda.map((child) => child.name || child.full_name).filter(Boolean).join(" & ") : childName
+  // Several ananda share one ceremony: the cover, the closing card and the RSVP
+  // dock name them all, comma separated ("Raka, Rizky"), instead of showing only
+  // the first child.
+  const childNames =
+    ananda.length > 1
+      ? ananda.map((child) => child.name || child.full_name).filter(Boolean).join(", ")
+      : childName
+  const groupFullName =
+    ananda.length > 1
+      ? ananda.map((child) => childFullName(child)).filter(Boolean).join(", ")
+      : childFull
+  const closingName = childNames
   const parents = (profile.groom_parents || "").trim()
   const guestName = (profile.guest_name || "").trim() || labels.guestFallback
 
@@ -128,7 +137,7 @@ export default function UbinOttoman(profile: TemplateProps) {
   )
   const eventDate = (profile.estimated_wedding_date || "").trim()
   const target = useMemo(() => countdownTarget(events, eventDate), [events, eventDate])
-  const calendarUrl = useMemo(() => gcalLink(events[0], childFull), [events, childFull])
+  const calendarUrl = useMemo(() => gcalLink(events[0], groupFullName), [events, groupFullName])
 
   const honored = useMemo(
     () =>
@@ -234,7 +243,7 @@ export default function UbinOttoman(profile: TemplateProps) {
   const [wishName, setWishName] = useState(nameState.value)
   const [wishNameLocked] = useState(nameState.locked)
 
-  const coverNameRef = useFitOneLine<HTMLHeadingElement>(childName)
+  const coverNameRef = useFitOneLine<HTMLHeadingElement>(childNames)
   const guestRef = useFitOneLine<HTMLParagraphElement>(guestName)
   const putraNameRef = useFitOneLine<HTMLParagraphElement>(childFull)
   const closingNameRef = useFitOneLine<HTMLParagraphElement>(closingName)
@@ -350,7 +359,7 @@ export default function UbinOttoman(profile: TemplateProps) {
           <img className="uo-cover__lantern uo-cover__lantern--right" src={ART("lantern")} alt="" aria-hidden="true" draggable={false} />
 
           <p className="uo-cover__kicker">{coverKicker}</p>
-          <h1 ref={coverNameRef} className="uo-cover__name">{childName}</h1>
+          <h1 ref={coverNameRef} className="uo-cover__name">{childNames}</h1>
 
           <div className="uo-cover__arch">
             <img src={cover} alt={childFull} draggable={false} />
@@ -754,7 +763,7 @@ export default function UbinOttoman(profile: TemplateProps) {
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
           guestName={guestName}
-          coupleName={childFull}
+          coupleName={groupFullName}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}
           guestTableNumber={profile.guest_table_number}

@@ -132,6 +132,16 @@ export default function LenteraZamrud(profile: TemplateProps) {
 
   const childName = primary ? (primary.name || primary.full_name) : "Ananda"
   const childFull = primary ? childFullName(primary) : childName
+  // Several ananda share one ceremony: the cover and the RSVP dock name them all,
+  // comma separated ("Raka, Rizky"), instead of silently showing only the first.
+  const childNames =
+    ananda.length > 1
+      ? ananda.map((child) => child.name || child.full_name).filter(Boolean).join(", ")
+      : childName
+  const groupFullName =
+    ananda.length > 1
+      ? ananda.map((child) => childFullName(child)).filter(Boolean).join(", ")
+      : childFull
   const parents = (profile.groom_parents || "").trim()
   const guestName = (profile.guest_name || "").trim() || labels.guestFallback
   const hasGuestName = guestName !== labels.guestFallback
@@ -142,7 +152,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
   )
   const eventDate = (profile.estimated_wedding_date || "").trim()
   const target = useMemo(() => countdownTarget(events, eventDate), [events, eventDate])
-  const calendarUrl = useMemo(() => (events.length ? gcalLink(events[0], childFull) : ""), [events, childFull])
+  const calendarUrl = useMemo(() => (events.length ? gcalLink(events[0], groupFullName) : ""), [events, groupFullName])
 
   const gallery = useMemo(
     () => (Array.isArray(profile.gallery_photos) ? profile.gallery_photos.filter(Boolean).slice(0, 8) : []),
@@ -213,7 +223,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
   const [wishName, setWishName] = useState(nameState.value)
   const [wishNameLocked] = useState(nameState.locked)
 
-  const coverNameRef = useFitOneLine<HTMLHeadingElement>(childName, 0.5, true)
+  const coverNameRef = useFitOneLine<HTMLHeadingElement>(childNames, 0.5, true)
   const guestRef = useFitOneLine<HTMLParagraphElement>(guestName, 0.42, true)
   const putraNameRef = useFitOneLine<HTMLParagraphElement>(childFull, 0.5, true)
 
@@ -381,7 +391,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
               </div>
             </div>
 
-            <h1 ref={coverNameRef} className="lz-cover__name lz-anim-up" style={reveal(0.4)}>{childName}</h1>
+            <h1 ref={coverNameRef} className="lz-cover__name lz-anim-up" style={reveal(0.4)}>{childNames}</h1>
 
             <img className="lz-divider lz-anim-fade" src={ART("pemisah-emas")} alt="" aria-hidden="true" style={reveal(0.45)} />
             <p className="lz-cover__guest-label lz-anim-fade" style={reveal(0.5)}>{guestLabel}</p>
@@ -831,7 +841,7 @@ export default function LenteraZamrud(profile: TemplateProps) {
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
           guestName={guestName}
-          coupleName={childFull}
+          coupleName={groupFullName}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}
           guestTableNumber={profile.guest_table_number}

@@ -143,6 +143,16 @@ export default function SongketMarun(profile: TemplateProps) {
 
   const childName = primary ? (primary.name || primary.full_name) : "Ananda"
   const childFull = primary ? childFullName(primary) : childName
+  // Several ananda share one ceremony: the cover and the RSVP dock name them all,
+  // comma separated ("Raka, Rizky"), instead of silently showing only the first.
+  const childNames =
+    ananda.length > 1
+      ? ananda.map((child) => child.name || child.full_name).filter(Boolean).join(", ")
+      : childName
+  const groupFullName =
+    ananda.length > 1
+      ? ananda.map((child) => childFullName(child)).filter(Boolean).join(", ")
+      : childFull
   const parents = (profile.groom_parents || "").trim()
   // The reference prints "Bapak X" / "& Ibu Y" on two deliberate lines.
   const parentLines = parents.replace(/\s*&\s*/, "\n& ")
@@ -155,7 +165,7 @@ export default function SongketMarun(profile: TemplateProps) {
   )
   const eventDate = (profile.estimated_wedding_date || "").trim()
   const target = useMemo(() => countdownTarget(events, eventDate), [events, eventDate])
-  const calendarUrl = useMemo(() => (events.length ? gcalLink(events[0], childFull) : ""), [events, childFull])
+  const calendarUrl = useMemo(() => (events.length ? gcalLink(events[0], groupFullName) : ""), [events, groupFullName])
 
   const gallery = useMemo(
     () => (Array.isArray(profile.gallery_photos) ? profile.gallery_photos.filter(Boolean).slice(0, 9) : []),
@@ -237,7 +247,7 @@ export default function SongketMarun(profile: TemplateProps) {
   const [wishName, setWishName] = useState(nameState.value)
   const [wishNameLocked] = useState(nameState.locked)
 
-  const coverNameRef = useFitOneLine<HTMLParagraphElement>(childName)
+  const coverNameRef = useFitOneLine<HTMLParagraphElement>(childNames)
   const guestRef = useFitOneLine<HTMLParagraphElement>(guestName, 0.5)
   const putraNameRef = useFitOneLine<HTMLParagraphElement>(childFull)
 
@@ -369,7 +379,7 @@ export default function SongketMarun(profile: TemplateProps) {
 
             <div className="skm-cover__names skm-anim-up" style={reveal(0.2)}>
               <p className="skm-cover__kicker">{coverKicker}</p>
-              <p ref={coverNameRef} className="skm-cover__name">{childName}</p>
+              <p ref={coverNameRef} className="skm-cover__name">{childNames}</p>
             </div>
 
             <span className="skm-pita skm-cover__pita skm-anim-fade" style={reveal(0.3)} aria-hidden="true" />
@@ -795,7 +805,7 @@ export default function SongketMarun(profile: TemplateProps) {
           guestSlug={profile.guest_slug}
           allowFlexibleRsvp={profile.guest_link_strict === false}
           guestName={guestName}
-          coupleName={childFull}
+          coupleName={groupFullName}
           weddingProfileId={profile.wedding_profile_id!}
           guestQrUrl={profile.guest_qr_url}
           guestTableNumber={profile.guest_table_number}
