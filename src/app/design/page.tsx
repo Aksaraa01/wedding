@@ -8,29 +8,31 @@ export const metadata: Metadata = {
     absolute: "Desain Undangan Pernikahan & Acara Lain | Aksaraa",
   },
   description:
-    "Jelajahi koleksi desain undangan digital Aksaraa: pernikahan, khitanan, aqiqah, dan ulang tahun. Saring berdasarkan gaya, lihat pratinjau langsung, lalu pilih desain favorit.",
+    "Koleksi desain undangan digital Aksaraa untuk pernikahan, khitanan, aqiqah, dan ulang tahun. Saring berdasarkan gaya, buka pratinjau langsung, lalu pilih desain — sekali bayar, tanpa langganan.",
   alternates: { canonical: `${APEX}/` },
   openGraph: {
     type: "website",
     url: `${APEX}/`,
     siteName: "Aksaraa",
+    locale: "id_ID",
     title: "Desain Undangan Pernikahan & Acara Lain | Aksaraa",
     description:
-      "Ratusan desain undangan digital untuk pernikahan dan acara keluarga. Pratinjau langsung, filter gaya, dan tautan tamu dalam satu paket.",
+      "Desain undangan digital untuk pernikahan dan acara keluarga: saring gaya, buka pratinjau langsung, pilih desain favorit.",
     images: [
       {
-        url: `${APEX}/og/aksaraa-wedding.jpg`,
+        url: `${APEX}/og/aksaraa-design.jpg`,
         width: 1200,
         height: 630,
-        alt: "Desain undangan digital Aksaraa",
+        alt: "Katalog desain undangan digital Aksaraa",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Desain Undangan Pernikahan & Acara Lain | Aksaraa",
-    description: "Koleksi desain undangan digital Aksaraa dengan pratinjau langsung.",
-    images: [`${APEX}/og/aksaraa-wedding.jpg`],
+    description:
+      "Desain undangan digital untuk pernikahan dan acara keluarga, lengkap dengan pratinjau langsung.",
+    images: [`${APEX}/og/aksaraa-design.jpg`],
   },
 }
 

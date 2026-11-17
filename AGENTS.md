@@ -225,6 +225,15 @@ kids rite). Code: `src/app/design/page.tsx` (metadata, `revalidate = 300`) +
   `phone` frames the iframe at 9:19.5 (height-driven, so it fits desktop and
   handset) and keeps the CTA in the brand terracotta (`#B34E3F`), not black.
   The gallery/dashboard callers keep the default `wide`.
+- Hero trio: one screenshot per template, so the three phone plates show three
+  **different bands** of it (footer/RSVP at 1.9×, cover at 1×, title at 1.8×).
+  Without the zoom the plates are identical — the image ratio already matches
+  the plate ratio, so `object-position` alone moves nothing.
+- Social: `src/app/design/page.tsx` points at `/og/aksaraa-design.jpg`
+  (1200×630, "Pilih desain undanganmu." with real wedding + kids screenshots).
+  Regenerate it by rendering an HTML mock at 1200×630 and screenshotting via
+  headless Chrome, then downscale to 1200 and save as JPEG (~200 KB). The
+  wedding host keeps its own `/og/aksaraa-wedding.jpg`.
 - Cards are 9:19 plates showing the whole `preview_image_url` (the same
   proportion as `TemplateTile` on `/templates` — do not crop it back to 10:16);
   a broken or missing image falls back to the template name (do not ship a

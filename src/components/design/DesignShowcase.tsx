@@ -139,12 +139,17 @@ export default function DesignShowcase({ items }: { items: DesignTemplate[] }) {
         <div className="order-1 flex h-[260px] items-end justify-center sm:h-[330px] md:order-2 md:h-[470px] lg:h-[540px]">
           <div key={active.id} className="relative h-full w-full max-w-[560px]" style={{ animation: "design-fade .8s ease both" }}>
             {[
-              { cls: "left-[4%] bottom-[9%] z-10 h-[74%] -rotate-6", position: "50% 18%" },
-              { cls: "right-[4%] bottom-[9%] z-10 h-[74%] rotate-6", position: "50% 45%" },
-              { cls: "left-1/2 bottom-0 z-20 h-[94%] -translate-x-1/2", position: "50% 0%" },
-            ].map(({ cls, position }, i) => (
+              // One screenshot only per template, so each plate shows a different
+              // band of it at its own zoom: the invitation footer (RSVP), the
+              // details mid-section and the full cover. Without the zoom the three
+              // plates are identical, because the image ratio already matches the
+              // plate ratio and object-position has nothing to move.
+              { cls: "left-[4%] bottom-[9%] z-10 h-[74%] -rotate-6", scale: 1.9, origin: "50% 100%", tag: "detail" },
+              { cls: "right-[4%] bottom-[9%] z-10 h-[74%] rotate-6", scale: 1.8, origin: "50% 12%", tag: "story" },
+              { cls: "left-1/2 bottom-0 z-20 h-[94%] -translate-x-1/2", scale: 1, origin: "50% 0%", tag: "cover" },
+            ].map(({ cls, scale, origin, tag }, i) => (
               <span
-                key={`${active.id}-${i}`}
+                key={`${active.id}-${tag}`}
                 className={`absolute overflow-hidden rounded-[22px] border-[5px] border-white bg-[#EFE9DD] shadow-[0_34px_60px_-26px_rgba(110,24,44,0.42),0_0_0_1px_rgba(27,20,22,0.06)] ${cls}`}
                 style={{ aspectRatio: "480 / 1039" }}
               >
@@ -152,11 +157,11 @@ export default function DesignShowcase({ items }: { items: DesignTemplate[] }) {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={active.preview_image_url}
-                    alt={i === 2 ? designAlt(active) : ""}
-                    aria-hidden={i === 2 ? undefined : "true"}
+                    alt={tag === "cover" ? designAlt(active) : ""}
+                    aria-hidden={tag === "cover" ? undefined : "true"}
                     loading="eager"
                     decoding="async"
-                    style={{ objectPosition: position }}
+                    style={{ transform: `scale(${scale})`, transformOrigin: origin }}
                     className="h-full w-full object-cover"
                   />
                 )}
