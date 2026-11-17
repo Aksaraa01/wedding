@@ -171,6 +171,7 @@ export default function DesignShowcase({ items }: { items: DesignTemplate[] }) {
           name={preview.name}
           demoUrl={preview.preview_url}
           selectHref={preview.select_href}
+          layout="phone"
           onClose={() => setPreview(null)}
         />
       )}

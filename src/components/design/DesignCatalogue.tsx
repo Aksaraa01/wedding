@@ -443,6 +443,7 @@ export default function DesignCatalogue({ wedding, kids }: DesignCatalogueProps)
           name={preview.name}
           demoUrl={preview.preview_url}
           selectHref={preview.select_href}
+          layout="phone"
           onClose={() => setPreview(null)}
         />
       )}

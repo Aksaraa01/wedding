@@ -1,13 +1,22 @@
 # Aksaraa Wedding — Agent Guide
 
 ## Stack
-- **Framework:** Next.js 16.2.11 (Turbopack, standalone output)
+- **Framework:** Next.js 16.4.6 (Turbopack, standalone output), pinned exact in `package.json` for the security advisory fix — do not widen it back to a caret range
 - **Language:** TypeScript, React 19
 - **Styling:** Tailwind CSS (custom design tokens)
 - **Database:** PostgreSQL (Supabase)
 - **Auth:** Supabase (anon key + service role key)
 - **Fonts:** Playfair Display (headlines), Inter (body), Cormorant Garamond (accent)
 - **Supabase CLI:** v2.110.0 (local dev, migrations)
+
+Two install/upgrade traps on this repo:
+- `npm install` on macOS needs `--force`: `@img/sharp-linux-x64` and
+  `@img/sharp-libvips-linux-x64` are hard `dependencies` (the VPS bundle needs
+  them traced into `standalone`), so npm refuses with `EBADPLATFORM` on darwin.
+- `next build` stops once with `SecurityFatalError` after a tree change; re-run
+  the same command and it completes. `next.config.ts` sets
+  `experimental.agentUpgrade: "security"` as the upgrader requires.
+
 
 ## Supabase Environments
 
@@ -182,6 +191,50 @@ its own management grid on purpose. Never re-add a fifth copy of the old grid.
 - Cache: `/templates` is ISR (1 h) and `/api/web-templates` is cached for 1 h
   unless `fresh=1`. A re-ranked template therefore shows up within the hour on
   the public site and immediately in the dashboard picker.
+
+### Apex design catalogue (`aksaraa.com/`)
+`aksaraa.com/` (and `www`) is the umbrella catalogue for both products: wedding
+designs plus the Ceriavite (kids) designs, on one page with a hero showcase,
+`Pernikahan` / `Acara lain` tabs, category chips, search, ranked/newest shelves
+and a "Segera Hadir" dialog for aqiqah + ulang tahun (khitanan is the only live
+kids rite). Code: `src/app/design/page.tsx` (metadata, `revalidate = 300`) +
+`src/components/design/*`, sharing pure helpers in `src/lib/designCatalogue.ts`.
+`/design` is the real route; the apex `/` is a **Caddy rewrite** (see below), so
+`/design` stays directly reachable and `/landing` still serves the old page.
+
+- **The apex rewrite must stay in Caddy, never in `src/proxy.ts`.** In the
+  standalone runtime `req.nextUrl.hostname` is the server's *bind* host
+  (`localhost:3002`), not the request `Host` header. A host branch in the proxy
+  therefore fires for every host, and the rewrite target comes out as
+  `https://localhost:3002/design` — an https connection to a plain-HTTP upstream
+  → `EPROTO` → `/` answers **500**. That is exactly how the first deploy of this
+  page broke `wedding.aksaraa.com/`. Caddy is the only layer that knows the real
+  host, so `scripts/ops/Caddyfile.prod` carries `rewrite @root /design` in the
+  `aksaraa.com, www.aksaraa.com` block. Couple invitations were unaffected
+  because Caddy already rewrites their `/` to `/w/{slug}`.
+- **"Pilih" is per family.** `select_href` is built in `DesignPage.toDesign()`:
+  wedding → `/register?template=CODE` (same origin), kids → `${KIDS_SITE}/daftar?template=CODE`
+  (`https://ceriavite.aksaraa.com/...`, because `/daftar` does not exist on
+  `aksaraa.com`). The same value feeds the card hover pills, the hero
+  "Pilih desain" and `TemplatePreviewModal`'s CTA — build it once, never inline
+  a second copy.
+- **Catalogue previews open with `layout="phone"`.** Our in-house templates are
+  phone designs: given a ~1300px-wide modal they switch to a desktop composition
+  that has nothing to do with the card the visitor tapped (it reads as a
+  truncated preview). `TemplatePreviewModal` therefore takes `layout` —
+  `phone` frames the iframe at 9:19.5 (height-driven, so it fits desktop and
+  handset) and keeps the CTA in the brand terracotta (`#B34E3F`), not black.
+  The gallery/dashboard callers keep the default `wide`.
+- Cards are 10:16 plates over the portrait `preview_image_url`; a broken or
+  missing image falls back to the template name (do not ship a broken-image
+  icon). "Top 10 Populer" renders `popular_rank` as an outlined numeral in the
+  left gutter — the shelf track needs matching `scroll-pl-*` so
+  `snap-mandatory` cannot scroll the first numeral out of the page margin.
+- Shelf ordering/padding reuses `src/lib/templateGallery.ts`
+  (`galleryRows`, `popularTemplates`, `newestTemplates`); do not fork that math.
+- SEO: `/design` declares `canonical: https://aksaraa.com/`; `src/app/sitemap.ts`
+  and `src/app/robots.ts` branch on the `Host` header (`headers().get("host")`,
+  which is reliable) so each marketing host advertises its own URLs.
 
 ## Common Tasks
 

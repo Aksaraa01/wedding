@@ -8,6 +8,14 @@ type Props = {
   onClose: () => void
   /** Public gallery: choose this design without leaving the preview. */
   selectHref?: string
+  /**
+   * `phone` frames the preview at a handset viewport (9:19.5) instead of
+   * filling the window. Our in-house templates are phone designs: given a
+   * ~1300px-wide frame they switch to a desktop composition that has nothing to
+   * do with the card the visitor clicked (and reads as a cropped preview). The
+   * apex catalogue passes `phone` so what opens matches the plate.
+   */
+  layout?: "wide" | "phone"
 }
 
 // A template preview is a full page in an iframe: the document itself arrives in
@@ -20,7 +28,7 @@ const REVEAL_FALLBACK_MS = 2500
 const SLOW_ASSETS_MS = 8000
 const HARD_TIMEOUT_MS = 45000
 
-export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHref }: Props) {
+export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHref, layout = "wide" }: Props) {
   const hasPreview = Boolean(demoUrl)
   const [status, setStatus] = useState<"loading" | "loaded" | "errored">(hasPreview ? "loading" : "errored")
   const [revealed, setRevealed] = useState(false)
@@ -121,6 +129,142 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
 
   const showNotice = status === "loading" && !noticeDismissed && (offline || slow)
 
+  const stackActions = layout === "phone"
+
+  const frame = (
+    <>
+      {showNotice && (
+        <div
+          role="status"
+          className="absolute top-0 inset-x-0 z-20 flex items-start gap-3 border-b border-amber-200 bg-amber-50 px-4 py-3 text-amber-900"
+        >
+          <span className="material-symbols-outlined text-[20px] leading-5 shrink-0">wifi_off</span>
+          <p className="font-body-md text-[13px] leading-5 flex-1">
+            {offline
+              ? "Anda sedang offline. Pratinjau akan dimuat ulang saat koneksi kembali."
+              : "Pratinjau masih memuat aset."}
+          </p>
+          <button
+            onClick={() => setNoticeDismissed(true)}
+            className="shrink-0 rounded-full p-0.5 hover:bg-amber-100"
+            aria-label="Tutup info pratinjau"
+          >
+            <span className="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
+      )}
+
+      {status === "loading" && !revealed && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 bg-white px-6">
+          <span className="material-symbols-outlined text-4xl text-secondary animate-pulse">hourglass_top</span>
+          <p className="font-body-md text-body-md text-on-surface-variant text-center">
+            {offline ? "Menunggu koneksi…" : "Memuat pratinjau…"}
+          </p>
+        </div>
+      )}
+
+      {/* The frame is revealed early so the page can paint progressively, but
+          the browser is still fetching assets behind it. This is not a failure,
+          so it only reports progress: the retry / open-in-new-tab actions stay
+          in the errored state where they are actually needed. */}
+      {status === "loading" && revealed && !offline && (
+        <div className="pointer-events-none absolute bottom-4 right-4 z-20 flex items-center gap-2 rounded-full bg-black/60 px-3 py-1.5 text-white backdrop-blur">
+          <span
+            className="h-3 w-3 animate-spin rounded-full border-2 border-white/30 border-t-white"
+            aria-hidden="true"
+          />
+          <span className="font-body-md text-[11px] leading-none">Memuat aset…</span>
+        </div>
+      )}
+
+      {status === "errored" && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 z-10 bg-white px-5">
+          <span className="material-symbols-outlined text-5xl text-outline/50">play_disabled</span>
+          <p className="font-body-md text-body-md text-on-surface-variant text-center max-w-xs">
+            {hasPreview
+              ? "Pratinjau tidak dapat dimuat secara otomatis"
+              : "Pratinjau belum tersedia untuk template ini"}
+          </p>
+          {hasPreview && (
+            <div className={`flex items-center gap-3 ${stackActions ? "flex-col" : "flex-col sm:flex-row"}`}>
+              <button
+                onClick={retry}
+                className="bg-primary text-on-primary px-6 py-3 font-label-md text-label-md uppercase tracking-widest hover:bg-secondary transition-colors flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-[18px]">refresh</span>
+                Coba Lagi
+              </button>
+              <button
+                onClick={openTab}
+                className="bg-white border border-secondary text-secondary px-6 py-3 font-label-md text-label-md uppercase tracking-widest hover:bg-secondary hover:text-white transition-colors flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-[18px]">open_in_new</span>
+                Buka di Tab Baru
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {hasPreview && (
+        <iframe
+          key={attempt}
+          ref={iframeRef}
+          src={src}
+          className={`w-full h-full border-0 ${revealed ? "block" : "invisible"}`}
+          title={`Pratinjau ${name}`}
+          allow="autoplay; encrypted-media"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+          scrolling="yes"
+          style={{ touchAction: "pan-y" }}
+          onLoad={handleLoad}
+          onError={handleError}
+        />
+      )}
+    </>
+  )
+
+  // Handset frame: the iframe viewport is phone-sized, so an in-house template
+  // renders the layout its catalogue plate shows instead of its desktop
+  // composition. Height drives the width through the aspect ratio, which keeps
+  // the whole invitation visible on both desktop and mobile.
+  if (layout === "phone") {
+    return (
+      <div
+        className="absolute top-0 left-0 z-[200] w-full bg-black/85 backdrop-blur-sm"
+        style={{ height: "100dvh" }}
+        onClick={onClose}
+      >
+        <div className="absolute inset-0 flex flex-col" onClick={(e) => e.stopPropagation()}>
+          <div className="mx-auto flex w-[min(92vw,340px)] shrink-0 items-center gap-2 px-0 pb-2 pt-3 sm:pt-5">
+            <h2 className="min-w-0 flex-1 truncate font-headline-md text-[14px] text-white">{name}</h2>
+            {selectHref && (
+              <a
+                href={selectHref}
+                className="shrink-0 rounded-full bg-[#B34E3F] px-3.5 py-2 font-label-md text-[10px] uppercase tracking-widest text-white shadow-[0_8px_18px_-10px_rgba(179,78,63,0.9)] transition-colors hover:bg-[#9E3B2D]"
+              >
+                Pilih Template
+              </a>
+            )}
+            <button
+              onClick={onClose}
+              aria-label="Tutup pratinjau"
+              className="shrink-0 text-white/70 transition-colors hover:text-white"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <div className="flex min-h-0 flex-1 justify-center px-2 pb-4">
+            <div className="relative aspect-[9/19] h-[min(718px,calc(100dvh-7rem))] max-h-full max-w-[92vw] overflow-hidden rounded-[20px] bg-white shadow-[0_30px_80px_-30px_rgba(0,0,0,0.85)] ring-1 ring-white/15">
+              {frame}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="absolute top-0 left-0 w-full z-[200] bg-black/80" style={{ height: "100dvh" }} onClick={onClose}>
       <div className="absolute inset-0 sm:inset-4 lg:inset-8 flex flex-col" onClick={e => e.stopPropagation()}>
@@ -142,94 +286,7 @@ export default function TemplatePreviewModal({ name, demoUrl, onClose, selectHre
         </div>
 
         <div className="flex-1 relative min-h-0 bg-white overflow-y-auto overflow-x-hidden rounded-b-lg shadow-2xl">
-          {showNotice && (
-            <div
-              role="status"
-              className="absolute top-0 inset-x-0 z-20 flex items-start gap-3 border-b border-amber-200 bg-amber-50 px-4 py-3 text-amber-900"
-            >
-              <span className="material-symbols-outlined text-[20px] leading-5 shrink-0">wifi_off</span>
-              <p className="font-body-md text-[13px] leading-5 flex-1">
-                {offline
-                  ? "Anda sedang offline. Pratinjau akan dimuat ulang saat koneksi kembali."
-                  : "Pratinjau masih memuat aset."}
-              </p>
-              <button
-                onClick={() => setNoticeDismissed(true)}
-                className="shrink-0 rounded-full p-0.5 hover:bg-amber-100"
-                aria-label="Tutup info pratinjau"
-              >
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
-            </div>
-          )}
-
-          {status === "loading" && !revealed && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 bg-white px-6">
-              <span className="material-symbols-outlined text-4xl text-secondary animate-pulse">hourglass_top</span>
-              <p className="font-body-md text-body-md text-on-surface-variant text-center">
-                {offline ? "Menunggu koneksi…" : "Memuat pratinjau…"}
-              </p>
-            </div>
-          )}
-
-          {/* The frame is revealed early so the page can paint progressively, but
-              the browser is still fetching assets behind it. This is not a failure,
-              so it only reports progress: the retry / open-in-new-tab actions stay
-              in the errored state where they are actually needed. */}
-          {status === "loading" && revealed && !offline && (
-            <div className="pointer-events-none absolute bottom-4 right-4 z-20 flex items-center gap-2 rounded-full bg-black/60 px-3 py-1.5 text-white backdrop-blur">
-              <span
-                className="h-3 w-3 animate-spin rounded-full border-2 border-white/30 border-t-white"
-                aria-hidden="true"
-              />
-              <span className="font-body-md text-[11px] leading-none">Memuat aset…</span>
-            </div>
-          )}
-
-          {status === "errored" && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 z-10 bg-white px-6">
-              <span className="material-symbols-outlined text-5xl text-outline/50">play_disabled</span>
-              <p className="font-body-md text-body-md text-on-surface-variant text-center max-w-xs">
-                {hasPreview
-                  ? "Pratinjau tidak dapat dimuat secara otomatis"
-                  : "Pratinjau belum tersedia untuk template ini"}
-              </p>
-              {hasPreview && (
-                <div className="flex flex-col sm:flex-row items-center gap-3">
-                  <button
-                    onClick={retry}
-                    className="bg-primary text-on-primary px-8 py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-secondary transition-colors flex items-center gap-2"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">refresh</span>
-                    Coba Lagi
-                  </button>
-                  <button
-                    onClick={openTab}
-                    className="bg-white border border-secondary text-secondary px-8 py-4 font-label-md text-label-md uppercase tracking-widest hover:bg-secondary hover:text-white transition-colors flex items-center gap-2"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">open_in_new</span>
-                    Buka di Tab Baru
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
-          {hasPreview && (
-            <iframe
-              key={attempt}
-              ref={iframeRef}
-              src={src}
-              className={`w-full h-full border-0 ${revealed ? "block" : "invisible"}`}
-              title={`Pratinjau ${name}`}
-              allow="autoplay; encrypted-media"
-              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-              scrolling="yes"
-              style={{ touchAction: "pan-y" }}
-              onLoad={handleLoad}
-              onError={handleError}
-            />
-          )}
+          {frame}
         </div>
       </div>
     </div>
