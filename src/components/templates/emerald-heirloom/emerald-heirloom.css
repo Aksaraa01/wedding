@@ -86,6 +86,7 @@ body.eh-locked {
   position: fixed;
   inset: 0;
   z-index: 60;
+  cursor: pointer;
   overflow: hidden;
   background: #2b362b;
   container-type: inline-size;
@@ -264,6 +265,7 @@ body.eh-locked {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+  cursor: auto;
 }
 
 .eh-flow {

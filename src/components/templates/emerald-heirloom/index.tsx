@@ -595,7 +595,22 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
           The stage keeps the cover art's 1500×938 geometry, so the couple's
           photograph can be seated inside the carved frame's opening and stay
           aligned at every viewport width. */}
-      <div className="eh-gate">
+      <div
+        className={`eh-gate${opened ? " is-open" : ""}`}
+        onClick={opened ? undefined : openInvitation}
+        role={opened ? undefined : "button"}
+        tabIndex={opened ? undefined : 0}
+        onKeyDown={
+          opened
+            ? undefined
+            : (event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault()
+                  openInvitation()
+                }
+              }
+        }
+      >
         <div className="eh-gate__stage">
           <div className="eh-gate__plate">
             <img className="eh-gate__art" src={EH_ASSETS.cover} alt="" draggable={false} />
