@@ -986,7 +986,12 @@ export default function Olan(profile: TemplateProps) {
                             key={`story-${index}`}
                             style={
                               {
-                                "--story-background": story.image_url ? `url("${story.image_url}")` : "none",
+                                // a story without its own photo keeps the card
+                                // legible over the design's painting — never the
+                                // couple's cover slot
+                                "--story-background": story.image_url
+                                  ? `url("${story.image_url}")`
+                                  : `url("${OLAN.painting}")`,
                               } as CSSProperties
                             }
                           >
