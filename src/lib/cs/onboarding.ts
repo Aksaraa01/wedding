@@ -28,6 +28,7 @@ export interface OnboardingState {
   asked?: string[]
   sessionStep?: number
   sessionDraft?: Record<string, unknown> | null
+  sessionEditIndex?: number | null
   storyStep?: number
   storyDraft?: Record<string, unknown> | null
   pendingUpload?: string | null
@@ -265,16 +266,37 @@ async function sectionPrompt(
   const spec = SECTION_SPECS[sectionKey]
   if (!spec) return null
 
-  // Sesi acara: tanya sub-field satu per satu.
+  // Sesi acara: lengkapi sesi yang belum lengkap dulu, baru tambah sesi baru.
   if (spec.repeat === "sessions") {
+    const sessions = Array.isArray(profile.sessions)
+      ? (profile.sessions as Record<string, unknown>[])
+      : []
+    const required = ["name", "date", "venue", "address", "maps_url"]
+    const incompleteIndex = sessions.findIndex((session) =>
+      required.some((key) => !String(session?.[key] ?? "").trim())
+    )
+
+    if (incompleteIndex >= 0) {
+      const missingKey = required.find((key) => !String(sessions[incompleteIndex]?.[key] ?? "").trim()) || "name"
+      const step = SESSION_QUESTIONS.findIndex((question) => question.key === missingKey)
+      state.section = sectionKey
+      state.sessionEditIndex = incompleteIndex
+      state.sessionStep = step >= 0 ? step : 0
+      state.pendingUpload = null
+      await saveState(profileId, contactId, draft, state)
+      const label = sessions[incompleteIndex]?.name || `sesi ${incompleteIndex + 1}`
+      return `Bagian Acara (melengkapi "${label}"): ${SESSION_QUESTIONS[state.sessionStep].question}`
+    }
+
     const step = state.sessionStep ?? 0
     const question = SESSION_QUESTIONS[step]
     if (question) {
       state.section = sectionKey
+      state.sessionEditIndex = null
       state.sessionStep = step
       state.pendingUpload = null
       await saveState(profileId, contactId, draft, state)
-      return `Bagian Acara (sesi ${((profile.sessions as unknown[]) || []).length + 1}): ${question.question}`
+      return `Bagian Acara (sesi ${sessions.length + 1}): ${question.question}`
     }
     return null
   }
@@ -380,21 +402,32 @@ async function answerSession(
   }
 
   const existing = Array.isArray(profile.sessions) ? (profile.sessions as unknown[]) : []
-  const next = [...existing, sessionDraft]
+  const editIndex = state.sessionEditIndex
+  const next =
+    typeof editIndex === "number" && editIndex >= 0
+      ? existing.map((session, index) =>
+          index === editIndex ? { ...(session as Record<string, unknown>), ...sessionDraft } : session
+        )
+      : [...existing, sessionDraft]
   const valid = validateField("sessions", next)
   if (!valid.ok) {
     state.sessionStep = 0
     state.sessionDraft = {}
+    state.sessionEditIndex = null
     await saveState(profileId, contactId, draft, state)
-    return `${valid.message}\n\nAyo ulangi sesi ini ya Kak: ${SESSION_QUESTIONS[0].question}`
+    return `${valid.message}\n\nAyo ulangi ${typeof editIndex === "number" ? "sesi itu" : "sesi ini"} ya Kak: ${SESSION_QUESTIONS[0].question}`
   }
 
   await applyField(profileId, "sessions", next)
   state.sessionStep = 0
   state.sessionDraft = {}
+  state.sessionEditIndex = null
   await saveState(profileId, contactId, draft, state)
 
-  return `Sesi "${sessionDraft.name}" tersimpan. Ada acara lain? Sebut nama acaranya, atau balas "selesai".`
+  const label = String(sessionDraft.name || "Acara")
+  return typeof editIndex === "number"
+    ? `Sesi "${label}" sudah lengkap. Ada acara lain? Sebut nama acaranya, atau balas "selesai".`
+    : `Sesi "${label}" tersimpan. Ada acara lain? Sebut nama acaranya, atau balas "selesai".`
 }
 
 async function answerStory(
