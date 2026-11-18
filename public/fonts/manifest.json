@@ -833,6 +833,18 @@
     "style": "normal",
     "bytes": 14420
   },
+  "cinzeldecorative-700.woff2": {
+    "family": "Cinzel Decorative",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 8548
+  },
+  "cinzeldecorative-900.woff2": {
+    "family": "Cinzel Decorative",
+    "weight": "900",
+    "style": "normal",
+    "bytes": 8048
+  },
   "abhayalibre-400.woff2": {
     "family": "Abhaya Libre",
     "weight": "400",

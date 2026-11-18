@@ -1014,6 +1014,20 @@
   src: url('/fonts/cinzeldecorative-400.woff2') format('woff2');
 }
 @font-face {
+  font-family: 'Cinzel Decorative';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/cinzeldecorative-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cinzel Decorative';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('/fonts/cinzeldecorative-900.woff2') format('woff2');
+}
+@font-face {
   font-family: 'Abhaya Libre';
   font-style: normal;
   font-weight: 400;

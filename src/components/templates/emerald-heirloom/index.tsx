@@ -54,6 +54,17 @@ function longDate(value?: string | null, withWeekday = false): string {
   return withWeekday ? `${EN_DAYS[date.getDay()]}, ${core}` : core
 }
 
+function weekdayName(value?: string | null): string {
+  const date = parseDate(value)
+  return date ? EN_DAYS[date.getDay()] : ""
+}
+
+function slashDate(value?: string | null): string {
+  const date = parseDate(value)
+  if (!date) return ""
+  return `${pad2(date.getDate())}/${pad2(date.getMonth() + 1)}/${date.getFullYear()}`
+}
+
 function igHandle(raw?: string): string {
   const text = (raw || "").trim()
   if (!text) return ""
@@ -245,14 +256,14 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
   )
   const calendarHref = useMemo(() => gcalLink(events[0], groomName, brideName), [events, groomName, brideName])
 
+  const openingBody = (profile.opening_description || "").trim()
+  const quoteText = (profile.quote_text || "").trim()
   const coverKicker = (tc.cover_kicker || "").trim() || "We invite you to\nthe wedding of"
   const openLabel = (tc.open_button || "").trim() || "Open Invitation"
   const apology = (tc.cover_apology || "").trim()
   const guestLabel = (tc.cover_guest_label || "").trim() || "Dear,"
   const welcomeLine = (tc.welcome_invite || "").trim() || "We're getting married."
   const openingKicker = (tc.opening_kicker || "").trim()
-  const countdownTitle = (tc.countdown_title || "").trim() || "Save The Date"
-  const countdownIntro = (tc.countdown_intro || "").trim()
   const saveDateLabel = (tc.save_date_label || "").trim() || "Save The Date"
   const mempelaiKicker = (tc.mempelai_kicker || "").trim() || "Bride & Groom"
   const mempelaiTitle = (tc.mempelai_title || "").trim() || mempelaiKicker
@@ -444,13 +455,13 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
 
   // Loose ornaments, positioned as the reference places them: big clusters
   // bleeding off both edges, a fan or a swan behind nearly every plate.
+  // Welcome: hanging trumpets at both top corners, white lilies at both bottom
+  // corners — exactly the reference's four clusters (no swan on this band).
   const welcomeDecos: DecoSpec[] = [
-    { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: -38, top: -13, width: 88, rotate: -6, behind: false },
-    { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: 50, top: -12, width: 85, rotate: 9, flip: true, delay: -2.4 },
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: -30, top: 52, width: 88, delay: -3, behind: true, opacity: 0.95 },
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: 44, top: 55, width: 88, delay: -5.2, behind: true, opacity: 0.9 },
-    { src: EH_ASSETS.lilies, still: EH_ASSETS.liliesStill, shadow: EH_ASSETS.shadowLilies, left: 58, top: 80, width: 60, delay: -1.5 },
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: -14, top: 84, width: 44, delay: -3.8 },
+    { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: -30, top: -13, width: 78, rotate: -7, delay: -0.8 },
+    { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: 33, top: -13, width: 78, rotate: 7, flip: true, delay: -2.6 },
+    { src: EH_ASSETS.lilies, still: EH_ASSETS.liliesStill, shadow: EH_ASSETS.shadowLilies, left: -10, top: 60, width: 52, delay: -1.6 },
+    { src: EH_ASSETS.lilies, still: EH_ASSETS.liliesStill, shadow: EH_ASSETS.shadowLilies, left: 54, top: 58, width: 50, flip: true, delay: -3.8 },
   ]
 
   const openingDecos: DecoSpec[] = [
@@ -459,20 +470,19 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
     { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: -20, top: 62, width: 40, delay: -4.4, opacity: 0.9 },
   ]
 
-  const coupleDecos: DecoSpec[] = [
-    { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: 70, top: -2, width: 58, rotate: 10, delay: -1, behind: true },
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: -36, top: 12, width: 72, delay: -2.6, behind: true, opacity: 0.9 },
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: -22, top: 40, width: 46, delay: -3.6 },
-    { src: EH_ASSETS.lilySprayB, still: EH_ASSETS.lilySprayBStill, shadow: EH_ASSETS.shadowLilies, left: 74, top: 48, width: 50, delay: -1.8 },
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: 62, top: 68, width: 66, delay: -4.2, behind: true, opacity: 0.85 },
-    { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: -60, top: 60, width: 88, rotate: -10, delay: -2, flip: true, behind: true, opacity: 0.85 },
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: -16, top: 78, width: 42, delay: -5 },
-    { src: EH_ASSETS.lilies, still: EH_ASSETS.liliesStill, shadow: EH_ASSETS.shadowLilies, left: 18, top: 92, width: 62, delay: -4.4 },
+  // The reference dresses each portrait differently: the groom's frame has a
+  // trumpet cluster top-right, lilies on the left, a swan at the caption; the
+  // bride's has a swan top-right, the trumpet top-left and lilies bottom-right.
+  const personOneDecos: DecoSpec[] = [
+    { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: 58, top: -3, width: 66, rotate: 6, delay: -1 },
+    { src: EH_ASSETS.lilies, still: EH_ASSETS.liliesStill, shadow: EH_ASSETS.shadowLilies, left: -14, top: 42, width: 46, delay: -2.4 },
+    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: 74, top: 74, width: 34, delay: -3.6 },
   ]
 
-  const storyDecos: DecoSpec[] = [
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: 58, top: -8, width: 72, delay: -2.2, behind: true, opacity: 0.8 },
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: -24, top: 52, width: 44, delay: -3.4 },
+  const personTwoDecos: DecoSpec[] = [
+    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: 70, top: -4, width: 38, delay: -1.4 },
+    { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: -34, top: -5, width: 62, rotate: -6, flip: true, delay: -2.6 },
+    { src: EH_ASSETS.lilies, still: EH_ASSETS.liliesStill, shadow: EH_ASSETS.shadowLilies, left: 56, top: 48, width: 46, delay: -3.8 },
   ]
 
   const eventDecos: DecoSpec[] = [
@@ -545,10 +555,20 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
     { src: EH_ASSETS.lilies, still: EH_ASSETS.liliesStill, shadow: EH_ASSETS.shadowLilies, left: 70, top: 54, width: 50, delay: -3.4, behind: true },
   ]
 
-  // A milestone without its own photograph renders as a text-only card — never
-  // borrow an unrelated gallery frame for it.
-  const storyPhotos = stories.map((story) => story.image_url || "")
-  const activeStory = stories[Math.min(storyIndex, Math.max(0, stories.length - 1))]
+  // The carousel runs on the milestone photographs; a couple who has not added
+  // them yet sees the gallery frames instead (never an empty frame).
+  const storyCarousel = useMemo(() => {
+    const fromStories = stories.map((story) => story.image_url).filter(Boolean) as string[]
+    if (fromStories.length === 0) return gallery.slice(0, 6)
+    // The reference's carousel always shows a full thumb row; the gallery tops
+    // it up with the couple's other frames.
+    const merged = [...fromStories]
+    for (const url of gallery) {
+      if (merged.length >= 4) break
+      if (!merged.includes(url)) merged.push(url)
+    }
+    return merged
+  }, [stories, gallery])
 
   const goStory = useCallback(
     (direction: number) => {
@@ -627,7 +647,6 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
                 <span>{brideName || brideFull}</span>
               </h2>
               <p className="eh-welcome__line">{welcomeLine}</p>
-              {coverDate && <p className="eh-welcome__date">{coverDate}</p>}
             </div>
           </div>
           {welcomeDecos.map((spec, index) => (
@@ -639,7 +658,105 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
           <img src={EH_ASSETS.laceBand} alt="" loading="lazy" draggable={false} />
         </div>
 
-        {/* 2 — kalimat pembuka + kutipan */}
+        {/* 2 — countdown: the reference's 2×2 dial, no heading, the fan closing
+            the section from lace to lace */}
+        {target && (
+          <section className="eh-count" ref={countdownRef} data-section="countdown" aria-label="Countdown to the wedding day">
+            <div className="eh-count__scene">
+              <img src={EH_ASSETS.countdownScene} alt="" aria-hidden="true" loading="lazy" draggable={false} />
+            </div>
+            <div className="eh-count__dial" data-eh-reveal="fade">
+              <Countdown target={target} />
+            </div>
+            {calendarHref && (
+              <a
+                className="eh-button eh-count__cta"
+                href={calendarHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-eh-reveal="up"
+                style={{ "--eh-delay": "0.08s" } as CSSProperties}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <rect x="3" y="5" width="18" height="16" rx="2" />
+                  <path d="M8 3v4M16 3v4M3 10h18" />
+                </svg>
+                {saveDateLabel}
+              </a>
+            )}
+            <div className="eh-count__fan" aria-hidden="true">
+              <img className="eh-count__shadow" src={EH_ASSETS.shadowSoft} alt="" loading="lazy" draggable={false} />
+              <img className="eh-count__fanArt" src={EH_ASSETS.fan} alt="" loading="lazy" draggable={false} />
+            </div>
+            {countDecos.map((spec, index) => (
+              <Deco key={`count-deco-${index}`} spec={spec} />
+            ))}
+          </section>
+        )}
+
+        {/* 2 — mempelai: the frame, the name under it, and the reference's own
+            ornament set per person (groom: trumpet right + lilies left + swan
+            right; bride: swan right + trumpet left + lilies right). */}
+        {(groomFull || brideFull) && (
+          <section className="eh-couple" data-section="mempelai" aria-label="Bride and groom">
+            <header className="eh-couple__head" data-eh-reveal="up">
+              <h2 className="eh-title">{mempelaiTitle}</h2>
+              {mempelaiIntro && <p className="eh-intro">{mempelaiIntro}</p>}
+            </header>
+
+            <div className="eh-couple__row">
+              {[
+                { key: "groom", name: groomFull, photo: groomShot, parents: profile.groom_parents, ig: groomIg },
+                { key: "bride", name: brideFull, photo: brideShot, parents: profile.bride_parents, ig: brideIg },
+              ]
+                .filter((person) => !!person.name)
+                .map((person, index) => (
+                  <article
+                    className="eh-person"
+                    key={person.key}
+                    data-eh-reveal="up"
+                    style={{ "--eh-delay": `${index * 0.1}s` } as CSSProperties}
+                  >
+                    {index > 0 && (
+                      <p className="eh-couple__amp" aria-hidden="true">
+                        &amp;
+                      </p>
+                    )}
+                    <div className="eh-person__plate">
+                      <div className="eh-person__photo" style={PORTRAIT_WINDOW}>
+                        {person.photo ? (
+                          <img src={person.photo} alt={person.name} loading="lazy" draggable={false} />
+                        ) : (
+                          <span className="eh-person__empty" aria-hidden="true" />
+                        )}
+                      </div>
+                      <img className="eh-person__frame" src={EH_ASSETS.portraitFrame} alt="" loading="lazy" draggable={false} />
+                    </div>
+                    {(index === 0 ? personOneDecos : personTwoDecos).map((spec, decoIndex) => (
+                      <Deco key={`${person.key}-deco-${decoIndex}`} spec={spec} />
+                    ))}
+                    <div className="eh-person__caption">
+                      <h3 className="eh-person__name">{person.name}</h3>
+                      {person.parents && <p className="eh-person__parents">{person.parents}</p>}
+                      {person.ig && (
+                        <a
+                          className="eh-person__ig"
+                          href={`https://instagram.com/${person.ig}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <InstagramMark className="eh-person__igIcon" />@{person.ig}
+                        </a>
+                      )}
+                    </div>
+                  </article>
+                ))}
+            </div>
+          </section>
+        )}
+
+        {/* 2 — kalimat pembuka + kutipan (only when the couple fills it) */}
+        {(openingBody || quoteText) && (
         <section className="eh-opening" data-section="pembuka" aria-label="Word of welcome">
           <div className="eh-opening__backdrop" aria-hidden="true">
             <img src={EH_ASSETS.welcomeSceneAlt} alt="" loading="lazy" draggable={false} />
@@ -662,120 +779,73 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
             <Deco key={`opening-deco-${index}`} spec={spec} />
           ))}
         </section>
-
-        {/* 3 — mempelai */}
-        {(groomFull || brideFull) && (
-          <section className="eh-couple" data-section="mempelai" aria-label="Bride and groom">
-            <header className="eh-couple__head" data-eh-reveal="up">
-              <h2 className="eh-title">{mempelaiTitle}</h2>
-              {mempelaiIntro && <p className="eh-intro">{mempelaiIntro}</p>}
-            </header>
-
-            <div className="eh-couple__row">
-              {[
-                { key: "groom", name: groomFull, photo: groomShot, parents: profile.groom_parents, ig: groomIg },
-                { key: "bride", name: brideFull, photo: brideShot, parents: profile.bride_parents, ig: brideIg },
-              ]
-                .filter((person) => !!person.name)
-                .map((person, index) => (
-                  <article
-                    className="eh-person"
-                    key={person.key}
-                    data-eh-reveal="up"
-                    style={{ "--eh-delay": `${index * 0.1}s` } as CSSProperties}
-                  >
-                    <div className="eh-person__plate">
-                      <div className="eh-person__photo" style={PORTRAIT_WINDOW}>
-                        {person.photo ? (
-                          <img src={person.photo} alt={person.name} loading="lazy" draggable={false} />
-                        ) : (
-                          <span className="eh-person__empty" aria-hidden="true" />
-                        )}
-                      </div>
-                      <img className="eh-person__frame" src={EH_ASSETS.portraitFrame} alt="" loading="lazy" draggable={false} />
-                      <div className="eh-person__caption">
-                        <h3 className="eh-person__name">{person.name}</h3>
-                        {person.parents && (
-                          <>
-                            <p className="eh-person__parentsLabel">{parentsLabel}</p>
-                            <p className="eh-person__parents">{person.parents}</p>
-                          </>
-                        )}
-                        {person.ig && (
-                          <a
-                            className="eh-person__ig"
-                            href={`https://instagram.com/${person.ig}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <InstagramMark className="eh-person__igIcon" />@{person.ig}
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </article>
-                ))}
-            </div>
-            {coupleDecos.map((spec, index) => (
-              <Deco key={`couple-deco-${index}`} spec={spec} />
-            ))}
-          </section>
         )}
 
-        {/* 4 — our story */}
+        {/* 3 — our story: the translucent card, the white lace, then the
+            full-bleed photo carousel with its burgundy arrows and thumb row */}
         {stories.length > 0 && (
           <section className="eh-story" data-section="story" aria-label="Our story">
-            <div className="eh-story__backdrop" aria-hidden="true">
-              <img src={EH_ASSETS.gardenScene} alt="" loading="lazy" draggable={false} />
-            </div>
-            <header className="eh-story__head" data-eh-reveal="up">
-              {storyKicker && <p className="eh-kicker">{storyKicker}</p>}
-              <h2 className="eh-title">{storyTitle}</h2>
-              {storyIntro && <p className="eh-story__intro">{storyIntro}</p>}
-            </header>
-
-            <div className="eh-story__card" data-eh-reveal="fade">
+            <div className="eh-card eh-card--sage eh-story__card" data-eh-reveal="fade">
               <img className="eh-card__plate" src={EH_ASSETS.cardSage} alt="" aria-hidden="true" loading="lazy" draggable={false} />
-              <div className="eh-card__body">
-              <div className="eh-story__slide" ref={slideTrackRef}>
-                {activeStory && (
-                  <>
-                    {activeStory.title && <p className="eh-story__chapter">{activeStory.title}</p>}
-                    <p className="eh-story__text">{activeStory.description}</p>
-                  </>
-                )}
+              <div className="eh-card__body eh-story__copy">
+                {storyKicker && <p className="eh-story__kicker">{storyKicker}</p>}
+                <h2 className="eh-story__title">{storyTitle}</h2>
+                {storyIntro && <p className="eh-story__intro">{storyIntro}</p>}
+                {stories.map((story, index) => (
+                  <div className="eh-story__block" key={`${story.title || "story"}-${index}`}>
+                    {story.title && <p className="eh-story__chapter">{story.title}</p>}
+                    {story.description && <p className="eh-story__text">{story.description}</p>}
+                  </div>
+                ))}
               </div>
+            </div>
 
-              {storyPhotos[storyIndex] && (
-                <figure className="eh-story__photo">
-                  <img src={storyPhotos[storyIndex]} alt="" loading="lazy" draggable={false} />
+            <div className="eh-lace eh-lace--band" aria-hidden="true">
+              <img src={EH_ASSETS.laceBand} alt="" loading="lazy" draggable={false} />
+            </div>
+
+            {storyCarousel.length > 0 && (
+              <div className="eh-story__gallery" data-eh-reveal="fade">
+                <figure className="eh-story__frame">
+                  <img src={storyCarousel[storyIndex]} alt="" loading="lazy" draggable={false} />
+                  {storyCarousel.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        className="eh-story__nav eh-story__nav--prev"
+                        aria-label="Previous story"
+                        onClick={() => goStory(-1)}
+                      >
+                        ‹
+                      </button>
+                      <button
+                        type="button"
+                        className="eh-story__nav eh-story__nav--next"
+                        aria-label="Next story"
+                        onClick={() => goStory(1)}
+                      >
+                        ›
+                      </button>
+                    </>
+                  )}
                 </figure>
-              )}
-
-              {stories.length > 1 && (
-                <div className="eh-story__nav">
-                  <button type="button" onClick={() => goStory(-1)} aria-label="Previous story">
-                    ‹
-                  </button>
-                  <div className="eh-story__dots" aria-hidden="true">
-                    {stories.map((story, index) => (
-                      <i key={`${story.title || "dot"}-${index}`} className={index === storyIndex ? "is-active" : undefined} />
+                {storyCarousel.length > 1 && (
+                  <div className="eh-story__thumbs">
+                    {storyCarousel.map((url, index) => (
+                      <button
+                        type="button"
+                        key={`${url}-${index}`}
+                        className={index === storyIndex ? "is-active" : undefined}
+                        aria-label={`Photo ${index + 1}`}
+                        onClick={() => setStoryIndex(index)}
+                      >
+                        <img src={url} alt="" loading="lazy" draggable={false} />
+                      </button>
                     ))}
                   </div>
-                  <button type="button" onClick={() => goStory(1)} aria-label="Next story">
-                    ›
-                  </button>
-                </div>
-              )}
+                )}
               </div>
-            </div>
-
-            <div className="eh-lace eh-lace--thin" aria-hidden="true">
-              <img src={EH_ASSETS.laceThin} alt="" loading="lazy" draggable={false} />
-            </div>
-            {storyDecos.map((spec, index) => (
-              <Deco key={`story-deco-${index}`} spec={spec} />
-            ))}
+            )}
           </section>
         )}
 
@@ -806,7 +876,8 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
                   />
                   <div className="eh-event__body">
                     {event.name && <h3 className="eh-event__name">{event.name}</h3>}
-                    {event.date && <p className="eh-event__date">{longDate(event.date, true)}</p>}
+                    {event.date && <p className="eh-event__weekday">{weekdayName(event.date)}</p>}
+                    {event.date && <p className="eh-event__date">{slashDate(event.date)}</p>}
                     {event.time && <p className="eh-event__time">{event.time}</p>}
                     {event.venue && <p className="eh-event__venue">{event.venue}</p>}
                     {event.address && <p className="eh-event__address">{event.address}</p>}
@@ -831,41 +902,6 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
           </section>
         )}
 
-        {/* 6 — countdown + the fan */}
-        {target && (
-          <section className="eh-count" ref={countdownRef} data-section="countdown" aria-label="Countdown to the wedding day">
-            <div className="eh-count__scene">
-              <img src={EH_ASSETS.countdownScene} alt="" aria-hidden="true" loading="lazy" draggable={false} />
-            </div>
-            <div className="eh-count__copy" data-eh-reveal="up">
-              <h2 className="eh-count__title">{countdownTitle}</h2>
-              {countdownIntro && <p className="eh-count__intro">{countdownIntro}</p>}
-              <p className="eh-count__date">{dateLong}</p>
-            </div>
-            <div data-eh-reveal="fade" style={{ "--eh-delay": "0.08s" } as CSSProperties}>
-              <Countdown target={target} />
-            </div>
-            {calendarHref && (
-              <a
-                className="eh-button eh-count__cta"
-                href={calendarHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-eh-reveal="up"
-                style={{ "--eh-delay": "0.12s" } as CSSProperties}
-              >
-                {saveDateLabel}
-              </a>
-            )}
-            <div className="eh-count__fan" aria-hidden="true">
-              <img className="eh-count__shadow" src={EH_ASSETS.shadowSoft} alt="" loading="lazy" draggable={false} />
-              <img className="eh-count__fanArt" src={EH_ASSETS.fan} alt="" loading="lazy" draggable={false} />
-            </div>
-            {countDecos.map((spec, index) => (
-              <Deco key={`count-deco-${index}`} spec={spec} />
-            ))}
-          </section>
-        )}
 
         {/* 7 — turut mengundang on the pale sage card */}
         {honored.length > 0 && (

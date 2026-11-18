@@ -3386,11 +3386,13 @@ DEMO_PROPS_BY_CODE["emerald-heirloom"] = {
     "Keluarga Bapak & Ibu Reed",
     "Keluarga Besar Kedua Mempelai",
   ],
-  opening_title: "A Word of Welcome",
-  opening_description:
-    "With hearts full of gratitude, we invite you to share in the joy of our wedding day. Your presence and blessings would mean the world to us.",
-  quote_text: "And over all these virtues put on love, which binds them all together in perfect unity.",
-  quote_source: "Colossians 3 : 14",
+  // The reference has no "Kalimat Pembuka" band: the cover, the countdown and
+  // the mempelai follow each other directly. The surface still exists for a
+  // couple who fills these fields (see docs §5), so the demo leaves them empty.
+  opening_title: "",
+  opening_description: "",
+  quote_text: "",
+  quote_source: "",
   video_url: "https://youtu.be/-ARVwU58l7A",
   livestream_visible: true,
   livestream: {

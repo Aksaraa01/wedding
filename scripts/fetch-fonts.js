@@ -22,7 +22,7 @@ const FAMILIES = [
   { name: "Montserrat", weights: ["300", "400", "500", "600", "700", "800"], styles: ["normal"] },
   { name: "Cinzel", weights: ["400", "600"], styles: ["normal"] },
   // Ubin Ottoman (Ceriavite): the reference's ornate display face for names.
-  { name: "Cinzel Decorative", weights: ["400"], styles: ["normal"] },
+  { name: "Cinzel Decorative", weights: ["400", "700", "900"], styles: ["normal"] },
   { name: "Pinyon Script", weights: ["400"], styles: ["normal"] },
   { name: "Public Sans", weights: ["300", "400", "500", "600", "700"], styles: ["normal"] },
   { name: "Baskervville", weights: ["400"], styles: ["normal"] },

@@ -193,7 +193,7 @@ body.eh-locked {
   margin: 0.28em 0 0.1em;
   font-family: var(--eh-display);
   font-weight: 400;
-  font-size: min(10.4cqw, 72px);
+  font-size: min(11.8cqw, 78px);
   line-height: 1.06;
   letter-spacing: 0.05em;
   color: var(--eh-ivory);
@@ -280,7 +280,7 @@ body.eh-locked {
 .eh-title {
   margin: 0;
   font-family: var(--eh-display);
-  font-weight: 400;
+  font-weight: 700;
   font-size: 7.4cqw;
   line-height: 1.22;
   letter-spacing: 0.07em;
@@ -541,17 +541,18 @@ body.eh-locked {
   gap: 0.02em;
   margin: 0;
   font-family: var(--eh-display);
-  font-weight: 400;
-  font-size: 7.6cqw;
-  line-height: 1.08;
-  letter-spacing: 0.06em;
+  font-weight: 700;
+  font-size: 11.8cqw;
+  line-height: 1.05;
+  letter-spacing: 0.03em;
 }
 
 .eh-welcome__line {
-  margin: 0.95em 0 0;
+  margin: 1.15em 0 0;
   font-family: var(--eh-display);
-  font-size: 3.1cqw;
-  letter-spacing: 0.2em;
+  font-weight: 700;
+  font-size: 3.6cqw;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(255, 250, 243, 0.95);
 }
@@ -705,10 +706,10 @@ body.eh-locked {
 
 .eh-person__caption {
   position: absolute;
-  left: 9%;
-  right: 9%;
-  top: 80.5%;
-  max-height: 18%;
+  left: 8%;
+  right: 8%;
+  top: 78.5%;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -718,33 +719,24 @@ body.eh-locked {
 
 .eh-person__name {
   margin: 0;
-  font-family: var(--eh-display);
+  font-family: var(--eh-body);
   font-weight: 400;
-  font-size: 4.7cqw;
-  line-height: 1.25;
-  letter-spacing: 0.04em;
+  font-size: 8.2cqw;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
   color: var(--eh-cream);
-  text-shadow: 0 1px 0 rgba(20, 30, 20, 0.35);
-}
-
-.eh-person__parentsLabel {
-  margin: 3px 0 0;
-  font-family: var(--eh-sans);
-  font-size: 2.3cqw;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: rgba(218, 241, 216, 0.62);
 }
 
 .eh-person__parents {
-  margin: 0;
-  font-size: 3.15cqw;
+  margin: 6px 0 0;
+  font-size: 3.7cqw;
   line-height: 1.55;
-  color: rgba(232, 244, 228, 0.88);
+  color: rgba(232, 244, 228, 0.92);
 }
 
 .eh-person__ig {
   display: inline-flex;
+  opacity: 0.85;
   align-items: center;
   gap: 5px;
   margin-top: 4px;
@@ -764,119 +756,142 @@ body.eh-locked {
 }
 
 /* --------------------------------------------------------------------------
-   4 — our story
+   4 — our story (translucent card → white lace → full-bleed carousel)
    ----------------------------------------------------------------------- */
 
 .eh-story {
   position: relative;
-  padding: 10px 0 30px;
-}
-
-.eh-story__backdrop {
-  position: absolute;
-  inset: -6% -8%;
-  z-index: 0;
-  opacity: 0.3;
-  pointer-events: none;
-  mask-image: linear-gradient(180deg, transparent, #000 26%, #000 74%, transparent);
-  -webkit-mask-image: linear-gradient(180deg, transparent, #000 26%, #000 74%, transparent);
-}
-
-.eh-story__backdrop img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.eh-story__head {
-  position: relative;
-  z-index: 1;
-  padding: 0 24px;
-}
-
-.eh-story__intro {
-  margin: 10px auto 0;
-  max-width: 86%;
-  text-align: center;
-  font-size: 3.7cqw;
-  color: rgba(232, 244, 228, 0.86);
+  padding: 26px 0 0;
 }
 
 .eh-story__card {
-  position: relative;
-  z-index: 1;
-  width: 86%;
-  margin: 20px auto 0;
-  padding: 0;
-  text-align: center;
+  width: 82%;
+  margin: 0 auto;
+}
+
+.eh-story__copy {
+  text-align: left;
+  padding: 36px 30px 34px;
+}
+
+.eh-story__kicker {
+  margin: 0 0 10px;
+  font-family: var(--eh-sans);
+  font-size: 2.6cqw;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(47, 62, 45, 0.55);
+}
+
+.eh-story__title {
+  margin: 0 0 18px;
+  font-family: var(--eh-display);
+  font-weight: 400;
+  font-size: 8.4cqw;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
   color: var(--eh-ink);
 }
 
-.eh-story__slide {
-  min-height: 5.2em;
+.eh-story__intro {
+  margin: 0 0 14px;
+  font-size: 3.7cqw;
+  line-height: 1.75;
+  color: rgba(47, 62, 45, 0.8);
+}
+
+.eh-story__block + .eh-story__block {
+  margin-top: 14px;
 }
 
 .eh-story__chapter {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   font-family: var(--eh-display);
-  font-size: 4.4cqw;
-  letter-spacing: 0.08em;
+  font-weight: 400;
+  font-size: 5.4cqw;
+  letter-spacing: 0.04em;
   color: var(--eh-ink);
 }
 
 .eh-story__text {
   margin: 0;
-  font-size: 3.9cqw;
-  line-height: 1.8;
-  color: rgba(47, 62, 45, 0.86);
+  font-size: 3.85cqw;
+  line-height: 1.85;
+  color: rgba(47, 62, 45, 0.9);
 }
 
-.eh-story__photo {
-  margin: 18px -8px 0;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 10px 24px rgba(16, 24, 16, 0.28);
+.eh-lace--band {
+  height: 19cqw;
+  margin: 8px 0 0;
 }
 
-.eh-story__photo img {
+.eh-lace--band img {
+  width: 120%;
+}
+
+.eh-story__gallery {
+  position: relative;
+  margin-top: 10px;
+}
+
+.eh-story__frame {
+  position: relative;
+  margin: 0;
+}
+
+.eh-story__frame > img {
   width: 100%;
   aspect-ratio: 374 / 296;
   object-fit: cover;
 }
 
 .eh-story__nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 16px;
-}
-
-.eh-story__nav button {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  display: grid;
+  place-items: center;
+  width: 6.2cqw;
+  height: 15cqw;
+  min-width: 22px;
   background: var(--eh-burgundy);
   color: var(--eh-ivory);
-  font-size: 20px;
+  font-size: 5.4cqw;
   line-height: 1;
-  box-shadow: 0 6px 14px rgba(16, 24, 16, 0.28);
 }
 
-.eh-story__dots {
+.eh-story__nav--prev {
+  left: 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.eh-story__nav--next {
+  right: 0;
+  border-radius: 4px 0 0 4px;
+}
+
+.eh-story__thumbs {
   display: flex;
-  gap: 6px;
+  gap: 2.6cqw;
+  padding: 2.6cqw 2.6cqw 0;
 }
 
-.eh-story__dots i {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(47, 62, 45, 0.28);
+.eh-story__thumbs button {
+  flex: 1 1 0;
+  padding: 0;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
 }
 
-.eh-story__dots i.is-active {
-  background: var(--eh-burgundy);
+.eh-story__thumbs button.is-active {
+  opacity: 1;
+}
+
+.eh-story__thumbs img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
 }
 
 /* --------------------------------------------------------------------------
@@ -900,9 +915,9 @@ body.eh-locked {
   position: relative;
   isolation: isolate;
   width: 100%;
-  aspect-ratio: 760 / 962;
+  aspect-ratio: 390 / 700;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
   overflow: hidden;
 }
@@ -932,7 +947,7 @@ body.eh-locked {
   position: relative;
   z-index: 2;
   width: 100%;
-  padding: 0 28px 46px;
+  padding: 120px 28px 40px;
   text-align: center;
   text-shadow: 0 1px 12px rgba(12, 20, 12, 0.55);
 }
@@ -941,17 +956,24 @@ body.eh-locked {
   margin: 0;
   font-family: var(--eh-display);
   font-weight: 400;
-  font-size: 5.4cqw;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--eh-ivory);
+  font-size: 7.2cqw;
+  letter-spacing: 0.02em;
+  color: var(--eh-cream);
+}
+
+.eh-event__weekday {
+  margin: 14px 0 0;
+  font-size: 5.5cqw;
+  letter-spacing: 0.01em;
+  color: var(--eh-cream);
 }
 
 .eh-event__date {
-  margin: 10px 0 0;
-  font-family: var(--eh-display);
-  font-size: 5.6cqw;
-  letter-spacing: 0.04em;
+  margin: 2px 0 0;
+  font-family: var(--eh-body);
+  font-size: 11.5cqw;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
   color: var(--eh-cream);
 }
 
@@ -1036,41 +1058,17 @@ body.eh-locked {
   background: linear-gradient(180deg, rgba(16, 24, 16, 0.34), rgba(16, 24, 16, 0.1) 30%, rgba(16, 24, 16, 0.28));
 }
 
-.eh-count__copy {
+.eh-count__dial {
+  position: relative;
+  z-index: 2;
   padding: 54px 24px 0;
-  text-align: center;
-}
-
-.eh-count__title {
-  margin: 0;
-  font-family: var(--eh-display);
-  font-weight: 400;
-  font-size: 7cqw;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--eh-cream);
-  text-shadow: 0 2px 14px rgba(14, 22, 14, 0.6);
-}
-
-.eh-count__intro,
-.eh-count__date {
-  margin: 8px 0 0;
-  font-size: 3.6cqw;
-  letter-spacing: 0.12em;
-  color: rgba(255, 250, 243, 0.86);
-}
-
-.eh-count__date {
-  font-family: var(--eh-display);
-  font-size: 4.2cqw;
 }
 
 .eh-count__grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 4px;
-  margin: 26px auto 0;
-  padding: 0 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 34px 8px;
+  margin: 0 auto;
   max-width: 100%;
 }
 
@@ -1078,42 +1076,50 @@ body.eh-locked {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 10px 2px 8px;
-  border-radius: 10px;
-  background: rgba(20, 30, 20, 0.26);
-  border: 1px solid rgba(255, 250, 243, 0.16);
-  backdrop-filter: blur(1.5px);
+  gap: 4px;
 }
 
 .eh-count__unit b {
   font-family: var(--eh-display);
   font-weight: 400;
-  font-size: 8.6cqw;
+  font-size: 8.4cqw;
   line-height: 1;
-  color: var(--eh-ivory);
+  color: var(--eh-cream);
 }
 
 .eh-count__unit span {
   font-family: var(--eh-sans);
-  font-size: 2.3cqw;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(255, 250, 243, 0.72);
+  font-weight: 300;
+  font-size: 4cqw;
+  letter-spacing: 0.01em;
+  color: var(--eh-cream);
 }
 
 .eh-count__cta {
-  margin: 24px auto 0;
+  position: relative;
+  z-index: 2;
+  margin: 30px auto 0;
   display: flex;
   width: fit-content;
+  gap: 8px;
+}
+
+.eh-count__cta svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .eh-count__fan {
   position: relative;
   display: flex;
   justify-content: center;
-  margin-top: 6px;
-  padding-bottom: 12px;
+  margin-top: 18px;
+  margin-bottom: -2px;
 }
 
 .eh-count__shadow {
@@ -1128,7 +1134,7 @@ body.eh-locked {
 
 .eh-count__fanArt {
   position: relative;
-  width: 92%;
+  width: 100%;
 }
 
 /* --------------------------------------------------------------------------
@@ -1618,13 +1624,13 @@ body.eh-locked {
 .eh-wishes__title {
   margin: 10px 0 0;
   font-family: var(--eh-display);
-  font-weight: 400;
-  font-size: 7cqw;
+  font-weight: 700;
+  font-size: 9.2cqw;
   line-height: 1.15;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--eh-cream);
-  text-shadow: 0 2px 14px rgba(12, 20, 12, 0.6);
+  text-shadow: 3px 3px 0 var(--eh-ink), 0 6px 18px rgba(12, 20, 12, 0.45);
 }
 
 .eh-wishes__envelope {
@@ -1922,7 +1928,8 @@ body.eh-locked {
 .eh-closing__kicker {
   margin: 0 0 12px;
   font-family: var(--eh-display);
-  font-size: 7.2cqw;
+  font-weight: 700;
+  font-size: 9.2cqw;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--eh-cream);

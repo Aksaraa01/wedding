@@ -16,21 +16,24 @@ composition as one responsive component.
 
 ## 1. Section order shipped
 
-The reference order is *cover → welcome → countdown → mempelai → story →
-gallery/event → RSVP → wishes → gift → livestream → thank you*. The minimum
-contract fixes the order, so countdown and gallery moved; adjacent pairs from
-the reference (welcome/painting, event/venue, gift/mural, wishes/envelope) stay
-together.
+Shipped order follows the reference: *cover → welcome → countdown → mempelai →
+story + photo carousel → event → turut mengundang → rundown → gallery → video →
+live → gift → dress code → wishes → closing*. The owner chose the reference flow
+over the contract's countdown-after-event slot; the countdown therefore sits
+directly after the welcome band, separated by the white lace, exactly as the
+reference has it. "Kalimat pembuka" is kept as a surface **only when the couple
+fills `opening_title` / `opening_description` / `quote_text`** — the demo leaves
+them empty so the demo flow matches the reference.
 
 | # | Section | Renders from | Gate + toggle | Count / variant branch | Copy source | Motion |
 |---|---|---|---|---|---|---|
 | 1 | Cover (gate) | painted cover plate, `cover_photos[0]` seated in its carved frame, `groom_name`, `bride_name`, `estimated_wedding_date`, `guest_name` | always | 1 or 2 names; empty name falls back to the full name; no photo ⇒ the painted garden stays in the frame | `cover_kicker`, `open_button`, `cover_apology`, `cover_guest_label` | gate slides/fades on open; no reveal on the gate |
-| 2 | Welcome | `groom_name`/`bride_name`, date, welcome frame + garden scene | always | same 1/2-name branch | `welcome_invite` | 2 trumpets + 2 fans + lilies + swan (animated WebP), reveal `up` |
+| 2 | Welcome | `groom_name`/`bride_name`, welcome frame + garden scene | always | same 1/2-name branch | `welcome_invite` | 2 hanging trumpets at the top corners + 2 white lily clusters at the bottom corners (animated WebP) |
 | 3 | Kalimat pembuka + kutipan | `opening_title`, `opening_description`, `quote_text`, `quote_source` | always (template has an opening block) | quote hidden when empty; card grows with copy | profile columns + `opening_kicker` | fan + lily spray + swan, reveal `up` |
-| 4 | Mempelai | `groom_full_name`, `bride_full_name`, portraits, `groom_parents`, `bride_parents`, Instagram | `person_photos !== false` | 2 portraits; 1 photo ⇒ that person's card only; name wraps | `mempelai_title`, `mempelai_kicker`, `profiles_intro`, `parents_label` | 3 swans, 2 fans, 2 trumpets, 2 lilies, reveal `up` 0.1s step |
-| 5 | Love story | `stories[]` | `feature_gates.story` **and** `story_visible !== false` | 0 ⇒ section gone; 1 ⇒ no arrows/dots; n ⇒ arrows + dots; story without a photo renders text only | `love_story_title`, `story_kicker`, `story_intro` | card + garden backdrop, reveal `fade` |
+| 4 | Mempelai | `groom_full_name`, `bride_full_name`, portraits, `groom_parents`, `bride_parents`, Instagram | `person_photos !== false` | 2 portraits; 1 photo ⇒ that person's card only; name wraps under the frame | `mempelai_title`, `mempelai_kicker`, `profiles_intro`, `parents_label` | groom: trumpet top-right, lilies left, swan at the caption; bride: swan top-right, trumpet top-left, lilies bottom-right; `&` between |
+| 5 | Love story | `stories[]` + `gallery_photos[]` | `feature_gates.story` **and** `story_visible !== false` | 0 ⇒ section gone; 1 photo ⇒ no arrows/thumbs; text-only story still renders | `love_story_title`, `story_kicker`, `story_intro` | translucent card (left-aligned, Cinzel 400) → white lace → full-bleed carousel with burgundy arrows and a square thumb row (gallery tops it up to 4) |
 | 6 | Event | `sessions[]` | always | 1 event = one wave plate; n = alternating wave plates; long address pushes the plate taller | `events_title`, `events_kicker`, `events_intro`, `events_note`, `maps_label` | wave plates + swan/trumpet/fan, reveal `up` 0.06s step |
-| 7 | Countdown | `estimated_wedding_date` / first session | always when a target exists | 4 units; no date ⇒ section gone | `countdown_title`, `countdown_intro`, `save_date_label` | pond plate + fan (animated), reveal `up`/`fade` |
+| 3 | Countdown | `estimated_wedding_date` / first session | always when a target exists | 2×2 dial (Days/Hours · Minutes/Seconds); no date ⇒ section gone; no heading | `save_date_label` | pond plate + full-width fan (animated) at the section foot |
 | 8 | Turut mengundang | `inviting_families[]` | `feature_gates.inviting_families` **and** `inviting_families_visible !== false` | 0 ⇒ section gone; n rows with hairlines | `inviting_kicker`, `inviting_title`, `inviting_intro` | sage card, fan + swan, reveal `fade` |
 | 9 | Rundown | `rundown[]` | `rundown_visible !== false` | 0 ⇒ section gone; n rows | `rundown_title`, `rundown_kicker`, `rundown_intro` | lilies + swan, reveal `up` 0.05s step |
 | 10 | Gallery | `gallery_photos[]` | needs data | 1 photo ⇒ no arrows/thumbs; n ⇒ carousel + thumbs + lightbox | `gallery_title`, `gallery_intro`, `gallery_quote` | fan + trumpet, reveal `fade`, lightbox Esc/←/→ |
@@ -119,9 +122,15 @@ fixed art panel at `965/1440` (67%) plus a 480px column; text is
 
 **Fonts**
 
+The reference uses **Cinzel Decorative 700** for every section heading and the
+names, **Abhaya Libre 32px** for the mempelai names, **Akkurat** for the
+countdown units and **FogtwoNo5** for the "E-gift" flourish. Weights 700/900 of
+Cinzel Decorative were added to the vendored set (the repo only had 400), so the
+headings are no longer synthesised bold.
+
 | Reference | Ours | Why |
 |---|---|---|
-| Cinzel Decorative | Cinzel Decorative (`--font-cinzeldecorative`, already vendored) | exact match, OFL |
+| Cinzel Decorative 400/700 | Cinzel Decorative 400/700/900 (`--font-cinzeldecorative`) | exact match, OFL |
 | Abhaya Libre regular/bold | Abhaya Libre (`--font-abhaya`, added to `scripts/fetch-fonts.js`) | exact match, OFL |
 | Akkurat (countdown units, form labels) | Inter | Akkurat is a commercial Lineto face; Inter matches the optical size |
 | FogtwoNo5 ("E-gift") | not used — the label is set in Cinzel Decorative | licence unclear; the label is decorative only |

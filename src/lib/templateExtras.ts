@@ -1513,9 +1513,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "countdown_title",
     label: "Judul Hitung Mundur",
-    templates: ["fresco", "majestic", "emerald-heirloom"],
+    templates: ["fresco", "majestic"],
     placeholders: {
-      majestic: "Save the Date", fresco: "Countdown", "emerald-heirloom": "Save The Date" },
+      majestic: "Save the Date", fresco: "Countdown" },
   },
 
   {
@@ -2083,9 +2083,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Pengantar Hitung Mundur",
     section: "acara",
     order: 10,
-    templates: ["lentera-zamrud", "majestic", "emerald-heirloom"],
+    templates: ["lentera-zamrud", "majestic"],
     placeholders: {
-      majestic: "Menuju hari bahagia kami", "lentera-zamrud": "Menuju Hari Bahagia", "emerald-heirloom": "Counting the days until" },
+      majestic: "Menuju hari bahagia kami", "lentera-zamrud": "Menuju Hari Bahagia" },
   },
   {
     key: "events_title",
