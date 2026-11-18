@@ -30,6 +30,7 @@ Boundary yang di-hardcode di kode:
 | Ubah tanggal | eskalasi | `reschedule` · high |
 | Komplain | eskalasi | `complaint` · high |
 | Bukti bayar / invoice / DP / cicilan | eskalasi | `payment` · normal |
+| "Cara bayar?" (belum klaim) | jawab nomor tim + link WhatsApp | `contact` (tanpa tiket) |
 | Politik, saham, judi, pinjol, medis | tolak sopan | — |
 | Tidak jelas + marah atau 2× gagal | eskalasi | `low_confidence` · normal |
 | Guard menolak output model | fallback "aku cek dulu ke tim" + eskalasi | `low_confidence` · normal |
@@ -90,6 +91,26 @@ knowledge base di `cs_documents` / `cs_chunks`:
   `Sumber: <judul> (<url>)` dari potongan teratas.
 - Kalau tidak ada potongan yang cocok, agent menjawab dari kebijakan seperti
   biasa (tanpa baris sumber).
+
+## Pengisian data lewat CS
+
+- Agent mengumpulkan field konten satu per satu (`save_draft_field`) ke
+  `cs_profile_drafts`, lalu membacakan ringkasan.
+- Setelah klien setuju, agent memanggil `apply_profile_draft` (confirm=true):
+  field ditulis ke `wedding_profiles`, draft jadi `submitted`, perubahan dicatat
+  di `cs_audit`. Kalau profil punya `active_wp_post_id`, patch WordPress
+  diantrikan (`wp_sync_jobs`).
+- Field uang/paket/tanggal/template tidak pernah ditulis lewat CS
+  (`FORBIDDEN_FIELDS`); permintaan seperti itu tetap jadi tiket tim.
+- `/ops/cs` menampilkan draft yang sedang dikumpulkan + tautan "Buka editor
+  pasangan", jadi draft setengah jalan tetap bisa dilihat manusia.
+
+## Pembayaran
+
+- "Cara bayar" dijawab deterministik: nomor tim `6281161613071` + tautan
+  `wa.me` (tidak membuat tiket).
+- Klaim sudah bayar / minta invoice / tagihan tetap jadi tiket `payment`.
+- Widget punya tombol WhatsApp di header chat menuju nomor tim.
 
 ## Permukaan widget
 

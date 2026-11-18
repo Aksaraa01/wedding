@@ -40,7 +40,7 @@ export async function GET(req: Request) {
 
     const contact = first((conversation as Record<string, unknown>).cs_contacts as ContactRow | ContactRow[])
 
-    const [{ data: lead }, { data: messages }, { data: escalations }] = await Promise.all([
+    const [{ data: lead }, { data: messages }, { data: escalations }, { data: draftRow }] = await Promise.all([
       supabaseAdmin.from("cs_leads").select("*").eq("contact_id", conversation.contact_id).maybeSingle(),
       supabaseAdmin
         .from("cs_messages")
@@ -54,6 +54,13 @@ export async function GET(req: Request) {
         .eq("conversation_id", id)
         .order("created_at", { ascending: false })
         .limit(5),
+      contact?.wedding_profile_id
+        ? supabaseAdmin
+            .from("cs_profile_drafts")
+            .select("draft,status,updated_at")
+            .eq("wedding_profile_id", contact.wedding_profile_id)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
     ])
 
     return NextResponse.json({
@@ -62,6 +69,10 @@ export async function GET(req: Request) {
       lead: lead || null,
       messages: messages || [],
       escalations: escalations || [],
+      draft: draftRow || null,
+      editorUrl: contact?.wedding_profile_id
+        ? `/dashboard/${contact.wedding_profile_id}/web-invitation/editor`
+        : null,
     })
   }
 

@@ -34,6 +34,8 @@ const LINK_ALLOWLIST = [
   "aksaraa.com",
   "cdn.aksaraa.com",
   "wp.aksaraa.com",
+  "wa.me",
+  "api.whatsapp.com",
   "maps.google.com",
   "maps.app.goo.gl",
   "goo.gl",
@@ -166,6 +168,15 @@ function evidenceText(evidence: unknown): string {
   }
 }
 
+import { csWhatsAppUrl, CS_WHATSAPP } from "./contact"
+
+// Nomor tim CS boleh disebut (tombol/link WhatsApp), selain nomor milik
+// penerima sendiri. Guard tetap memblokir nomor lain.
+function allowedPhone(normalized: string, verifiedPhone?: string | null): boolean {
+  if (normalized === CS_WHATSAPP || normalized === `+${CS_WHATSAPP}`) return true
+  return !!verifiedPhone && normalized === verifiedPhone
+}
+
 export function validateReply(input: GuardInput): GuardResult {
   const reply = (input.reply || "").trim()
   const violations: Violation[] = []
@@ -233,7 +244,7 @@ export function validateReply(input: GuardInput): GuardResult {
   let phoneMatch: RegExpExecArray | null
   while ((phoneMatch = PHONE_RE.exec(reply)) !== null) {
     const normalized = `+62${phoneMatch[0].replace(/\D/g, "").replace(/^0+/, "").replace(/^62/, "")}`
-    const allowed = input.verifiedPhone ? normalized === input.verifiedPhone : false
+    const allowed = allowedPhone(normalized, input.verifiedPhone)
     if (!allowed) {
       violations.push({
         code: "pii_phone",

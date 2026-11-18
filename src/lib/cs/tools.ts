@@ -16,6 +16,7 @@ import { ensureLead, saveLeadFact } from "@/lib/cs/leads"
 import { missingCoreFacts, nextQualifyingQuestion, recommendPackage } from "@/lib/cs/playbook"
 import { isPlaceholderTemplate, matchesTemplateCategory } from "@/lib/cs/templateFilter"
 import { isCustomerFeature, isSellablePackage } from "@/lib/cs/catalog"
+import { enqueuePatch } from "@/lib/wpSyncWorker"
 
 export interface CsToolContext {
   contactId: string
@@ -464,6 +465,97 @@ async function toolSaveDraftField(ctx: CsToolContext, args: Record<string, unkno
   }
 }
 
+async function toolApplyDraft(ctx: CsToolContext, args: Record<string, unknown>): Promise<ToolResult> {
+  if (!ctx.verified || !ctx.weddingProfileId) {
+    return { data: { applied: false, error: "butuh verifikasi nomor terdaftar" }, evidence: null }
+  }
+  if (args.confirm !== true) {
+    return {
+      data: {
+        applied: false,
+        needs_confirmation: true,
+        question: "Aku terapkan data ini ke undangan sekarang, ya? Balas \"ya, terapkan\".",
+      },
+      evidence: null,
+    }
+  }
+
+  const { data: row } = await supabaseAdmin
+    .from("cs_profile_drafts")
+    .select("id,draft,status")
+    .eq("wedding_profile_id", ctx.weddingProfileId)
+    .maybeSingle()
+
+  const draft = asRecord((row as { draft?: unknown } | null)?.draft)
+  const { patch, rejected } = buildPatch(draft)
+
+  // Ganti template punya rantai sendiri (duplicate → patch → cleanup); jangan
+  // pernah diterapkan lewat CS.
+  if ("selected_template_id" in patch) delete patch.selected_template_id
+
+  const fields = Object.keys(patch)
+  if (!fields.length) {
+    return {
+      data: {
+        applied: false,
+        error: "belum ada data tersimpan untuk diterapkan",
+        rejected,
+      },
+      evidence: { rejected },
+    }
+  }
+
+  const { data: profile, error: profileError } = await supabaseAdmin
+    .from("wedding_profiles")
+    .update(patch)
+    .eq("id", ctx.weddingProfileId)
+    .select("id,active_wp_post_id")
+    .maybeSingle()
+
+  if (profileError) {
+    return { data: { applied: false, error: profileError.message }, evidence: null }
+  }
+
+  let patchJob: { id: string; status: string } | null = null
+  const postId = (profile as { active_wp_post_id?: number | null } | null)?.active_wp_post_id
+  if (postId) {
+    try {
+      const job = await enqueuePatch(ctx.weddingProfileId, postId, { source: "cs" })
+      patchJob = { id: String(job.job_id), status: String(job.status) }
+    } catch {
+      // Data sudah tersimpan; patch WP akan menyusul lewat antrian berikutnya.
+    }
+  }
+
+  if (row?.id) {
+    await supabaseAdmin
+      .from("cs_profile_drafts")
+      .update({ status: "submitted", updated_at: new Date().toISOString() })
+      .eq("id", row.id)
+  }
+
+  await supabaseAdmin.from("cs_audit").insert({
+    actor: `wa:${ctx.contactId}`,
+    action: "profile_applied",
+    subject: ctx.weddingProfileId,
+    detail: { fields, rejected, wp_patch: patchJob },
+  })
+
+  return {
+    data: {
+      applied: true,
+      profile_updated: true,
+      fields,
+      rejected,
+      wp_patch: patchJob,
+      note: patchJob
+        ? "Data undangan diperbarui; halaman WordPress dipatch lewat antrian."
+        : "Data undangan diperbarui.",
+    },
+    evidence: { profile_updated: true, applied: true, fields, wp_patch: patchJob },
+  }
+}
+
 async function toolGetLeadState(ctx: CsToolContext): Promise<ToolResult> {
   const lead = await ensureLead(ctx.contactId, ctx.weddingProfileId)
   const missing = missingCoreFacts(lead.facts)
@@ -537,6 +629,8 @@ export async function runTool(name: string, args: Record<string, unknown>, ctx: 
       return toolDraftState(ctx)
     case "save_draft_field":
       return toolSaveDraftField(ctx, args)
+    case "apply_profile_draft":
+      return toolApplyDraft(ctx, args)
     case "get_lead_state":
       return toolGetLeadState(ctx)
     case "save_lead_fact":
@@ -649,6 +743,19 @@ export const TOOL_SCHEMAS = [
           confirmed: { type: "boolean" },
         },
         required: ["key", "value"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "apply_profile_draft",
+      description:
+        "Terapkan data pengantin yang sudah tersimpan di draft ke undangan. Panggil HANYA setelah klien menyetujui ringkasan (confirm=true). Field uang/paket/tanggal/template tidak pernah diterapkan lewat tool ini.",
+      parameters: {
+        type: "object",
+        properties: { confirm: { type: "boolean" } },
+        required: ["confirm"],
       },
     },
   },

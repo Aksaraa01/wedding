@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { usePathname } from "next/navigation"
 
 import { csWidgetEnabledOn } from "@/lib/cs/widgetRoutes"
+import { csWhatsAppUrl } from "@/lib/cs/contact"
 
 type ChatMessage = {
   id: string
@@ -242,6 +243,19 @@ function CsWidgetInner() {
                 Online · balas dalam beberapa detik
               </p>
             </div>
+            <a
+              href={csWhatsAppUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Chat WhatsApp CS Aksaraa"
+              className="h-8 rounded-full bg-white/15 text-white flex items-center gap-1.5 px-2.5 hover:bg-white/25"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+                <path d="M17.47 14.38c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.21-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.49 0 1.47 1.07 2.89 1.22 3.09.15.2 2.1 3.2 5.08 4.48.71.31 1.26.49 1.69.63.71.22 1.36.19 1.87.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.29.17-1.42-.07-.12-.27-.2-.57-.35z" />
+                <path d="M12.04 2C6.6 2 2.2 6.4 2.2 11.84c0 1.74.46 3.44 1.32 4.93L2 22l5.35-1.4a9.84 9.84 0 0 0 4.69 1.2h.01c5.43 0 9.84-4.4 9.84-9.84 0-2.63-1.02-5.1-2.88-6.96A9.78 9.78 0 0 0 12.04 2zm0 18.02h-.01a8.2 8.2 0 0 1-4.17-1.14l-.3-.18-3.1.81.83-3.02-.19-.31a8.17 8.17 0 0 1-1.25-4.34c0-4.52 3.68-8.2 8.2-8.2 2.19 0 4.25.86 5.8 2.41a8.15 8.15 0 0 1 2.4 5.8c0 4.52-3.68 8.17-8.21 8.17z" />
+              </svg>
+              <span className="text-[11px] font-semibold hidden sm:inline">WhatsApp</span>
+            </a>
             <button
               type="button"
               onClick={() => setOpen(false)}

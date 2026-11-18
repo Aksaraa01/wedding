@@ -1,7 +1,8 @@
 import test from "node:test"
 import assert from "node:assert/strict"
 
-import { BOUNDARIES, classify, countUnknownStrikes, decide, detectSentiment } from "../src/lib/cs/policy.ts"
+import { BOUNDARIES, classify, countUnknownStrikes, decide, detectPaymentClaim, detectSentiment } from "../src/lib/cs/policy.ts"
+import { CS_WHATSAPP, csWhatsAppUrl, paymentContactReply } from "../src/lib/cs/contact.ts"
 import {
   CODE_TTL_MS,
   MAX_CODE_ATTEMPTS,
@@ -222,6 +223,41 @@ test("decide: permintaan data dari WhatsApp minta PIN dulu", () => {
     const d = decide(intent, { ...ctx, channel: "wa" })
     assert.equal(d.action, "verify", intent)
   }
+})
+
+// ---------- pembayaran ----------
+
+test("payment: cara bayar dijawab nomor tim + link WhatsApp", () => {
+  const d = decide("payment", ctx)
+  assert.equal(d.action, "contact")
+  assert.match(d.message, new RegExp(CS_WHATSAPP))
+  assert.match(d.message, /wa\.me/)
+})
+
+test("payment: klaim sudah bayar tetap jadi tiket", () => {
+  const d = decide("payment", { ...ctx, paidClaim: true })
+  assert.equal(d.action, "escalate")
+  assert.equal(d.reason, "payment")
+})
+
+test("payment: deteksi klaim bayar", () => {
+  assert.equal(detectPaymentClaim("cara bayar gimana kak?"), false)
+  assert.equal(detectPaymentClaim("sudah transfer kak"), true)
+  assert.equal(detectPaymentClaim("ini bukti transfernya"), true)
+  assert.equal(detectPaymentClaim("minta invoice dong"), true)
+})
+
+test("guard: nomor dan link tim CS diizinkan", () => {
+  const r = validateReply({ reply: paymentContactReply() })
+  assert.equal(r.ok, true, JSON.stringify(r.violations))
+  const link = validateReply({ reply: `Chat ke ${csWhatsAppUrl("halo")}` })
+  assert.equal(link.ok, true, JSON.stringify(link.violations))
+})
+
+test("guard: nomor asing tetap ditolak", () => {
+  const r = validateReply({ reply: "Hubungi 081234567890 ya Kak." })
+  assert.equal(r.ok, false)
+  assert.ok(r.violations.some((v) => v.code === "pii_phone"))
 })
 
 test("classify: estimasi waktu pengerjaan", () => {

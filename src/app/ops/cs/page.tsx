@@ -55,6 +55,8 @@ type Detail = {
   lead: Lead | null
   messages: Message[]
   escalations: { id: string; reason: string; priority: string; status: string; summary: string | null }[]
+  draft: { draft: Record<string, unknown>; status: string; updated_at: string } | null
+  editorUrl: string | null
 }
 
 const POLL_MS = 5000
@@ -367,6 +369,36 @@ export default function OpsCsPage() {
                       {detail.escalations[0].summary}
                     </pre>
                   )}
+                </div>
+              )}
+
+              {detail.draft && Object.keys(detail.draft.draft || {}).length > 0 && (
+                <div className="px-4 py-3 border-b border-outline-variant bg-surface-container-low">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs font-semibold">
+                      Data dikumpulkan CS ({detail.draft.status}) · {fmt(detail.draft.updated_at)}
+                    </p>
+                    {detail.editorUrl && (
+                      <a
+                        href={detail.editorUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[11px] underline whitespace-nowrap"
+                      >
+                        Buka editor pasangan
+                      </a>
+                    )}
+                  </div>
+                  <ul className="mt-1.5 text-[11px] space-y-0.5">
+                    {Object.entries(detail.draft.draft).map(([key, value]) => (
+                      <li key={key}>
+                        <span className="font-semibold">{key}</span>:{" "}
+                        <span className="whitespace-pre-wrap break-words">
+                          {typeof value === "string" ? value : JSON.stringify(value)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
 

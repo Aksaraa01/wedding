@@ -1,4 +1,5 @@
 import { detectPackageInterest } from "./playbook"
+import { paymentContactReply } from "./contact"
 
 // Batas kewenangan agent + keputusan eskalasi.
 //
@@ -66,6 +67,9 @@ export interface DecisionContext {
   missingFacts?: number
   leadStage?: string
   voucherCode?: string | null
+  // Klien menyatakan sudah membayar / mengirim bukti. Pertanyaan "cara bayar"
+  // dijawab nomor tim; klaim pembayaran tetap jadi tiket.
+  paidClaim?: boolean
   // Web anonim tidak punya jalur verifikasi (PIN/OTP dikirim ke WhatsApp),
   // jadi permintaan data langsung dieskalasi, bukan disuruh kirim PIN.
   channel?: "web" | "wa"
@@ -79,6 +83,7 @@ export type Decision =
   | { action: "verify"; intent: Intent; reason: "register_and_verify" }
   | { action: "escalate"; intent: Intent; reason: EscalationReason; priority: Priority }
   | { action: "refuse"; intent: Intent; message: string }
+  | { action: "contact"; intent: Intent; message: string }
 
 // Aturan yang masuk ke system prompt. Dijaga juga oleh guard di sisi output.
 export const BOUNDARIES: string[] = [
@@ -483,6 +488,18 @@ export function countUnknownStrikes(
   return strikes
 }
 
+export function detectPaymentClaim(text: string): boolean {
+  const t = norm(text)
+  if (!t.trim()) return false
+  return (
+    /\b(sudah|udah|baru|telah)\s+(transfer|tf|bayar)\b/.test(t) ||
+    /\bbukti\s+(transfer|bayar|pembayaran)\b/.test(t) ||
+    /\bini\s+bukti(nya)?\b/.test(t) ||
+    /\b(minta|kirim|terima)\s+invoice\b/.test(t) ||
+    /\b(tagihan|invoice)\b/.test(t)
+  )
+}
+
 export function decide(intent: Intent, ctx: DecisionContext): Decision {
   switch (intent) {
     case "human_request":
@@ -525,7 +542,10 @@ export function decide(intent: Intent, ctx: DecisionContext): Decision {
       return { action: "playbook", intent, step: "cta" }
 
     case "payment":
-      return { action: "escalate", intent, reason: "payment", priority: "normal" }
+      // "Cara bayar" → arahkan ke nomor tim. Klaim sudah bayar / minta invoice
+      // tetap jadi tiket supaya dicek.
+      if (ctx.paidClaim) return { action: "escalate", intent, reason: "payment", priority: "normal" }
+      return { action: "contact", intent, message: paymentContactReply() }
 
     case "complaint":
       return { action: "escalate", intent, reason: "complaint", priority: "high" }

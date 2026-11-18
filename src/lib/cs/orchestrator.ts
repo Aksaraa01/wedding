@@ -2,6 +2,7 @@ import { supabaseAdmin } from "@/lib/supabase"
 import {
   classify,
   decide,
+  detectPaymentClaim,
   type Decision,
   type DecisionContext,
   type EscalationReason,
@@ -32,6 +33,7 @@ import {
 import { formatPolicies, POLICIES, type CsPolicies } from "@/lib/cs/policies"
 import { findSources } from "@/lib/cs/retrieval"
 import { citationLine } from "@/lib/cs/knowledge"
+import { CS_WHATSAPP } from "@/lib/cs/contact"
 
 export interface AgentDeps {
   chat: typeof chatCompletion
@@ -85,7 +87,7 @@ const REASON_LABEL: Record<EscalationReason, string> = {
 async function notifyEscalation(reason: EscalationReason, summary: string): Promise<void> {
   const url = process.env.WA_SCHOOL_API_URL || "http://127.0.0.1:3001/send"
   // Tujuan notifikasi CS (bukan grup sales umum): nomor koordinator CS.
-  const target = process.env.CS_ESCALATION_TARGET || "6281161613071"
+  const target = process.env.CS_ESCALATION_TARGET || CS_WHATSAPP
   if (!target) return
   const text = [
     "🔔 CS perlu tindakan",
@@ -194,7 +196,7 @@ function directiveFor(decision: Decision): string {
       const name = TOOL_NAMES[decision.tool] || decision.tool
       const extra =
         decision.tool === "profile_draft"
-          ? ' Mulai dengan "get_draft_state", lalu simpan jawaban klien dengan "save_draft_field". Untuk sesi, cerita, jumlah tamu, atau template: panggil dulu dengan confirmed=false, bacakan ringkasannya, lalu ulangi dengan confirmed=true setelah klien setuju.'
+          ? ' Mulai dengan "get_draft_state", lalu simpan jawaban klien dengan "save_draft_field". Untuk sesi, cerita, jumlah tamu, atau template: panggil dulu dengan confirmed=false, bacakan ringkasannya, lalu ulangi dengan confirmed=true setelah klien setuju. Setelah semua data inti terkumpul, bacakan ringkasan dan panggil "apply_profile_draft" dengan confirm=true HANYA setelah klien membalas setuju. Jangan pernah bilang data sudah diterapkan sebelum tool itu mengembalikan applied=true.'
           : ""
       const priceHint =
         decision.tool === "quote"
@@ -247,6 +249,7 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     missingFacts: leadMissing(lead),
     leadStage: lead.stage,
     voucherCode,
+    paidClaim: detectPaymentClaim(input.text),
     channel: input.channel,
   }
 
@@ -303,6 +306,11 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     const text = refuseReply()
     await persistOutbound(input.conversationId, text, { intent, model: null })
     return { replies: [{ text }], guarded: true, toolNames: [] }
+  }
+
+  if (decision.action === "contact") {
+    await persistOutbound(input.conversationId, decision.message, { intent, model: null })
+    return { replies: [{ text: decision.message }], guarded: true, toolNames: [] }
   }
 
   if (decision.action === "verify") {
