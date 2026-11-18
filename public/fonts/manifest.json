@@ -832,5 +832,53 @@
     "weight": "400",
     "style": "normal",
     "bytes": 14420
+  },
+  "cormorantinfant-300-italic.woff2": {
+    "family": "Cormorant Infant",
+    "weight": "300",
+    "style": "italic",
+    "bytes": 36796
+  },
+  "cormorantinfant-400-italic.woff2": {
+    "family": "Cormorant Infant",
+    "weight": "400",
+    "style": "italic",
+    "bytes": 36796
+  },
+  "cormorantinfant-500-italic.woff2": {
+    "family": "Cormorant Infant",
+    "weight": "500",
+    "style": "italic",
+    "bytes": 36796
+  },
+  "cormorantinfant-600-italic.woff2": {
+    "family": "Cormorant Infant",
+    "weight": "600",
+    "style": "italic",
+    "bytes": 36796
+  },
+  "cormorantinfant-300.woff2": {
+    "family": "Cormorant Infant",
+    "weight": "300",
+    "style": "normal",
+    "bytes": 35708
+  },
+  "cormorantinfant-400.woff2": {
+    "family": "Cormorant Infant",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 35708
+  },
+  "cormorantinfant-500.woff2": {
+    "family": "Cormorant Infant",
+    "weight": "500",
+    "style": "normal",
+    "bytes": 35708
+  },
+  "cormorantinfant-600.woff2": {
+    "family": "Cormorant Infant",
+    "weight": "600",
+    "style": "normal",
+    "bytes": 35708
   }
 }

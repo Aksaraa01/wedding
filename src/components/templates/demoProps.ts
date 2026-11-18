@@ -3307,3 +3307,160 @@ DEMO_PROPS_BY_CODE.fresco = {
 // Majestic — beaded ivory invitation. Sample copy is Indonesian (the template's
 // own defaults) and the photographs are Aksaraa's demo set, never the
 // reference couple's.
+
+// Olan — classical oil-painting split screen. English sample copy (the
+// template's own defaults are English) and Aksaraa's demo couple/photos,
+// never the reference's.
+DEMO_PROPS_BY_CODE.olan = {
+  ...DEMO_PROPS_BY_CODE["sandhya"],
+  slug: "demo",
+  groom_name: "Albarn",
+  bride_name: "Faye",
+  groom_full_name: "David Albarn",
+  bride_full_name: "Faye Reed",
+  display_name: "#TheAlbarns",
+  estimated_wedding_date: "2027-01-04",
+  guest_name: "Tamu Undangan",
+  cover_photos: [`${DE}/cover-2.webp`],
+  groom_photo_url: [`${DE}/groom.webp`],
+  bride_photo_url: [`${DE}/bride.webp`],
+  gallery_photos: [...DE_GALLERY],
+  groom_parents: "The son of Mr. Albarn & Mrs. Reed",
+  bride_parents: "The daughter of Mr. Reed & Mrs. Reed",
+  groom_instagram: "@wedding.aksaraa",
+  bride_instagram: "@wedding.aksaraa",
+  opening_title: "The Wedding Of",
+  opening_description:
+    "Assalamualaikum Warahmatullahi Wabarakatuh. With the blessing and mercy of Allah SWT, we cordially invite you to the wedding of",
+  quote_text:
+    "And among His signs is this, that He created for you mates from among yourselves, that you may dwell in tranquillity with them, and He has put love and mercy between your hearts.",
+  quote_source: "QS. Ar-Rum: 21",
+  sessions: [
+    {
+      name: "Religious Ceremony",
+      date: "2027-01-04",
+      time: "09:00 - 10:00",
+      venue: "The Gherkin Hall",
+      address: "Jl. Gatot Subroto No. 59A, Kuningan Timur, Setiabudi, Jakarta Selatan 12950",
+      maps_url: "https://maps.app.goo.gl/9bRvrJZZ1xcZSoqa6",
+    },
+    {
+      name: "Wedding Celebration",
+      date: "2027-01-04",
+      time: "11:00 - 14:00",
+      venue: "The Gherkin Hall",
+      address: "Jl. Gatot Subroto No. 59A, Kuningan Timur, Setiabudi, Jakarta Selatan 12950",
+      maps_url: "https://maps.app.goo.gl/UPxWi9HU1w4A9R1j6",
+    },
+  ],
+  stories: [
+    {
+      title: "Our First Sight",
+      description:
+        "It started with a first glance — not the dramatic kind from the films, but enough to make the heart skip. We did not fall in love at once; from that day on, everything simply clicked.",
+      image_url: `${DE}/cover-3.webp`,
+    },
+    {
+      title: "The Little Things",
+      description:
+        "Coffee that grew cold while we talked, long walks home that took twice as long, and the quiet certainty that we had found our favourite person.",
+      image_url: `${DE}/cover-4.webp`,
+    },
+    {
+      title: "Forever Starts Here",
+      description:
+        "Somewhere between an ordinary hello and this extraordinary day, we decided to spend the rest of our lives together.",
+      image_url: `${DE}/cover-5.webp`,
+    },
+  ],
+  rundown_visible: true,
+  rundown: [
+    { time: "11:00 AM", description: "Grand Entrance" },
+    { time: "11:15 AM", description: "Cut the cake & Speeches" },
+    { time: "11:30 AM", description: "Photo Session" },
+    { time: "12:30 PM", description: "First Dance Bride & Groom" },
+    { time: "01:00 PM", description: "Games" },
+    { time: "01:30 PM", description: "Grand Exit" },
+  ],
+  dresscode: {
+    title: "Dress Code",
+    description: "Elegant attire in warm earth tones — please reserve white for the couple.",
+    colors: [
+      { hex: "#7e3942", name: "Maroon" },
+      { hex: "#e4d5c0", name: "Sand" },
+      { hex: "#1e3f43", name: "Forest" },
+      { hex: "#c8a24a", name: "Gold" },
+    ],
+  },
+  livestream: {
+    title: "Live Streaming",
+    description: "Join our celebration from wherever you are.",
+    buttonLabel: "Watch Here",
+    url: "https://youtu.be/-ARVwU58l7A",
+  },
+  livestream_visible: true,
+  video_url: "https://youtu.be/-ARVwU58l7A",
+  track_url:
+    "https://ylmfgorryxzpdckkebnr.supabase.co/storage/v1/object/public/media/user-tracks/t-1790768253171-AUD-20260930-WA0016.mp3",
+  auto_play: false,
+  gift_accounts: [
+    { provider_name: "Bank Central Asia (BCA)", account_number: "7297648165", account_name: "Faye Reed", type: "bank" },
+    { provider_name: "Bank Mandiri", account_number: "1370012345678", account_name: "David Albarn", type: "bank" },
+  ],
+  gift_address: "Jl. Gatot Subroto No. 59A, Kuningan Timur, Setiabudi, Jakarta Selatan 12950",
+  gift_address_name: "David Albarn & Faye Reed",
+  inviting_families: [
+    "The Family of Mr. Albarn & Mrs. Reed",
+    "The Family of Mr. Reed & Mrs. Reed",
+    "The Extended Families of the Bride and Groom",
+  ],
+  feature_gates: { story: true, gift_address: true, inviting_families: true, video: true, qr_code_book: true },
+  template_content: {
+    cover_kicker: "Wedding Invitation",
+    cover_guest_label: "Dear",
+    open_button: "Open Invitation",
+    rsvp_button: "RSVP",
+    gallery_title: "Portraits of Us",
+    gallery_intro: "",
+    video_title: "Our Footage",
+    video_caption: "Our Romantic Engaged",
+    countdown_title: "Countdown",
+    countdown_days: "Days",
+    countdown_hours: "Hours",
+    countdown_minutes: "Minutes",
+    countdown_seconds: "Seconds",
+    calendar_button: "Add to Calendar",
+    agenda_title: "Wedding Day",
+    events_intro:
+      "To fulfil the requirements of our faith and follow the sunnah of the Prophet in building a family that is sakinah, mawaddah, warahmah, which, God willing, will be held on:",
+    maps_label: "View Maps",
+    inviting_title: "With Honor",
+    inviting_intro: "We also present the families who extend this invitation alongside us.",
+    rundown_title: "Rundown",
+    love_story_title: "Our Story",
+    gift_intro_title: "Wedding Gift",
+    gift_intro_description:
+      "Your blessing and your presence at our wedding are enough for us. However, if you wish to give a gift, we provide a digital envelope to make it easier for you. Thank you.",
+    gift_account_label: "Account Number",
+    gift_name_label: "Account Name",
+    gift_address_title: "Send a Gift",
+    copy_account_toast: "Account number copied",
+    copy_address_button: "Copy Address",
+    copy_address_toast: "Address copied",
+    film_kicker: "Save the date",
+    film_title: "Our Invitation",
+    wishes_title: "Wedding Wish",
+    wishes_intro: "",
+    wishes_name_label: "Name",
+    wishes_name_placeholder: "Your name",
+    wishes_message_label: "Message",
+    wishes_message_placeholder: "Give your wish...",
+    wishes_submit: "Send",
+    wishes_empty: "Be the first to leave a wish.",
+    wishes_more: "Show more comments",
+    wishes_loading: "Loading",
+    closing_title: "Thank You",
+    closing_message:
+      "Family & Friends. From the bottom of our hearts we want to thank you for being part of our big day. We are extremely lucky to have each of you in our lives and honoured that you could be here with us.",
+  },
+}

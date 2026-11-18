@@ -44,6 +44,7 @@ import SongketMarun from "./songket-marun"
 import LenteraZamrud from "./lentera-zamrud"
 import UbinOttoman from "./ubin-ottoman"
 import Fresco from "./fresco"
+import Olan from "./olan"
 import Majestic from "./majestic"
 export type { TemplateProps } from "@/types/template"
 
@@ -92,6 +93,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "lentera-zamrud": LenteraZamrud,
   "ubin-ottoman": UbinOttoman,
   fresco: Fresco,
+  olan: Olan,
   majestic: Majestic,
 }
 
@@ -1927,6 +1929,49 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         gift: true,
         dresscode: true,
         livestream: false,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "olan",
+    name: "Olan",
+    description:
+      "Undangan lukis klasik: panel kiri berupa lukisan alam, kertas krem bertekstur, tipografi Cormorant Infant, dan ornamen cat air — bingkai lengkung, pilar, jembatan, dan burung merak untuk hari acara.",
+    theme: {
+      fonts: { display: "Cormorant Infant", script: "Cormorant", body: "Cormorant" },
+      colors: {
+        surface: "#eee8e5",
+        text: "#1e3f43",
+        accent: "#7e3942",
+        accentMuted: "#e4d5c0",
+        overlay: "#eee8e5",
+        dark: "#1e3f43",
+      },
+      ornaments: { divider: "floral", border: "ornate", frame: "arch" },
+      motion: { enabled: true, duration: 1, stagger: 0.08 },
+    },
+    content: {
+      cover_slots: 1,
+      cover_slot_labels: ["Sampul"],
+      groom_photo: "single",
+      bride_photo: "single",
+      person_photos: true,
+      story_photo: true,
+      initials: false,
+      sections: {
+        opening_description: true,
+        quote: true,
+        countdown: true,
+        inviting: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        dresscode: true,
+        livestream: true,
         rundown: true,
         contacts: false,
       },

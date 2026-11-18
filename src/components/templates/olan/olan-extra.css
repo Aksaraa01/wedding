@@ -1,0 +1,490 @@
+/* Olan — authored layer on top of the ported reference stylesheet.
+   Everything stays scoped under .olan-root. olan.css carries the reference
+   layout/palette; this file holds the shell, the palette variables that the
+   reference injected inline, and the pieces the contract adds (opening film,
+   turut mengundang, dress code, wishes, lightbox, music, brand footer). */
+
+.olan-root {
+  /* palette from the reference's inline <style> (body {...}) */
+  --background-primary: #eee8e5;
+  --background-primary-rgb: 238, 232, 229;
+  --background-secondary: #e4d5c0;
+  --background-secondary-rgb: 228, 213, 192;
+  --background-tertiary: #7e3942;
+  --background-tertiary-rgb: 126, 57, 66;
+  --text-primary: #7e3942;
+  --text-primary-rgb: 126, 57, 66;
+  --text-secondary: #1e3f43;
+  --text-secondary-rgb: 30, 63, 67;
+  --text-tertiary: #eee8e5;
+  --text-tertiary-rgb: 238, 232, 229;
+  --button-text-primary: #7e3942;
+  --button-text-primary-rgb: 126, 57, 66;
+  --button-background-primary: #eee8e5;
+  --button-background-primary-rgb: 238, 232, 229;
+  --button-text-secondary: #eee8e5;
+  --button-text-secondary-rgb: 238, 232, 229;
+  --button-background-secondary: #7e3942;
+  --button-background-secondary-rgb: 126, 57, 66;
+  /* shared platform tokens the reference rules use */
+  --primary-clr: #452812;
+  --wood-clr: #d9b680;
+  --light-clr: #fafafa;
+  --light-rgb: 250, 250, 250;
+  --dark-clr: #000;
+  --dark-rgb: 0, 0, 0;
+  --white-clr: #fff;
+  --success-clr: #5cb85c;
+  --error-clr: #d9534f;
+  --font-clr: #7e3942;
+  --roboto: "Inter", sans-serif;
+  --shadow-01: 0 18px 40px rgba(84, 55, 36, 0.14);
+
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  font-family: var(--body-text-family);
+  color: var(--text-secondary);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html:has(.olan-root.is-locked),
+body:has(.olan-root.is-locked) {
+  overflow: hidden;
+}
+
+.olan-root .kat-page__side-to-side {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.olan-root .secondary-pane {
+  background-color: var(--background-primary);
+  background-image: var(--overlay);
+  background-repeat: repeat-y;
+  background-size: 100% auto;
+}
+
+/* the reference animates a slick slide; we render one frame */
+.olan-root .picture {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  border-radius: inherit;
+}
+
+/* The wreath mask is a head-and-shoulders shape; a full-body portrait cropped
+   dead-centre would show a torso, so bias the crop upward. */
+.olan-root .couple-picture .img {
+  object-position: 50% 18%;
+}
+
+.olan-root .streaming-link {
+  display: inline-block;
+  text-decoration: none;
+}
+
+/* ───────────── opening film ───────────── */
+.olan-root .olan-film {
+  position: relative;
+  padding: 56px 24px 64px;
+  text-align: center;
+  background-color: var(--background-primary);
+  background-image: var(--overlay);
+  background-repeat: repeat-y;
+  background-size: 100% auto;
+}
+.olan-root .olan-film__head {
+  margin: 0 auto 26px;
+  max-width: 520px;
+}
+.olan-root .olan-film__kicker {
+  color: var(--text-secondary);
+  font-size: calc(var(--body-text-size) - var(--fs-extra-4));
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.olan-root .olan-film__title {
+  color: var(--text-primary);
+  font-size: var(--heading-size);
+  line-height: 1.05;
+  margin-top: 0.2em;
+}
+.olan-root .olan-film__frame {
+  border: 2.5px solid #1e3f43;
+  border-radius: 500px 500px 0 0;
+  margin: 0 auto;
+  max-width: 340px;
+  overflow: hidden;
+  padding: 8px;
+  position: relative;
+  width: 100%;
+}
+.olan-root .olan-film__frame > video,
+.olan-root .olan-film__frame > iframe,
+.olan-root .olan-film__frame > div {
+  border: none;
+  border-radius: 500px 500px 0 0;
+  display: block;
+  height: 470px;
+  overflow: hidden;
+  object-fit: cover;
+  width: 100%;
+}
+@media (min-width: 768px) and (max-width: 960px) {
+  .olan-root .olan-film__frame {
+    max-width: 450px;
+  }
+  .olan-root .olan-film__frame > video,
+  .olan-root .olan-film__frame > iframe,
+  .olan-root .olan-film__frame > div {
+    height: 620px;
+  }
+}
+@media (min-width: 1600px) {
+  .olan-root .olan-film__frame {
+    max-width: 450px;
+  }
+  .olan-root .olan-film__frame > video,
+  .olan-root .olan-film__frame > iframe,
+  .olan-root .olan-film__frame > div {
+    height: 620px;
+  }
+}
+
+/* ───────────── turut mengundang ───────────── */
+.olan-root .olan-inviting {
+  position: relative;
+  overflow: hidden;
+  padding: 104px 32px 72px;
+  text-align: center;
+  background-color: var(--background-secondary);
+  background-image: var(--overlay);
+  background-repeat: repeat-y;
+  background-size: 100% auto;
+}
+.olan-root .olan-inviting__orn {
+  opacity: 0.95;
+  pointer-events: none;
+  position: absolute;
+  top: -34px;
+  width: 30%;
+  max-width: 180px;
+  z-index: 0;
+}
+.olan-root .olan-inviting__orn--left {
+  left: -26px;
+  transform: scaleX(-1);
+}
+.olan-root .olan-inviting__orn--right {
+  right: -26px;
+}
+.olan-root .olan-inviting__title {
+  color: var(--text-primary);
+  font-size: var(--heading-size);
+  line-height: 1.1;
+  position: relative;
+  z-index: 1;
+}
+.olan-root .olan-inviting__intro {
+  color: var(--text-secondary);
+  font-size: var(--body-text-size);
+  margin: 0.75em auto 1.4em;
+  max-width: 30em;
+  position: relative;
+  z-index: 1;
+}
+.olan-root .olan-inviting__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55em;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  z-index: 1;
+}
+.olan-root .olan-inviting__list li {
+  color: var(--text-secondary);
+  font-family: var(--body-text-family);
+  font-size: calc(var(--body-text-size) + var(--fs-extra-2));
+  line-height: 1.35;
+}
+
+/* ───────────── dress code ───────────── */
+.olan-root .olan-dresscode {
+  position: relative;
+  padding: 56px 28px 64px;
+  text-align: center;
+  background-color: var(--background-primary);
+  background-image: var(--overlay);
+  background-repeat: repeat-y;
+  background-size: 100% auto;
+}
+.olan-root .olan-dresscode__title {
+  color: var(--text-primary);
+  font-size: var(--heading-size);
+  line-height: 1.1;
+}
+.olan-root .olan-dresscode__desc {
+  color: var(--text-secondary);
+  font-size: var(--body-text-size);
+  margin: 0.7em auto 1.6em;
+  max-width: 28em;
+}
+.olan-root .olan-dresscode__swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 22px;
+  justify-content: center;
+}
+.olan-root .olan-dresscode__swatch {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 74px;
+}
+.olan-root .olan-dresscode__dot {
+  border: 1px solid rgba(126, 57, 66, 0.25);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.45);
+  display: block;
+  height: 46px;
+  width: 46px;
+}
+.olan-root .olan-dresscode__name {
+  color: var(--text-secondary);
+  font-family: var(--body-text-family);
+  font-size: calc(var(--body-text-size) - var(--fs-extra-4));
+  line-height: 1.2;
+}
+
+.olan-root .wedding-gift-bank-wrap .bank-account-number {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+}
+
+/* ───────────── gift: address card ───────────── */
+.olan-root .olan-gift-address {
+  border: 1px solid rgba(126, 57, 66, 0.22);
+  border-radius: 12px;
+  margin-top: 22px;
+  padding: 20px 18px;
+  text-align: center;
+}
+.olan-root .olan-gift-address__title {
+  color: var(--text-primary);
+  font-family: var(--body-text-family);
+  font-size: var(--body-text-size);
+  margin-bottom: 0.5em;
+}
+.olan-root .olan-gift-address__name {
+  color: var(--text-secondary);
+  font-family: var(--body-text-family);
+  font-size: calc(var(--body-text-size) + var(--fs-extra-2));
+  font-weight: 600;
+  margin-bottom: 0.35em;
+}
+.olan-root .olan-gift-address__lines {
+  color: var(--text-secondary);
+  font-family: var(--body-text-family);
+  font-size: var(--body-text-size);
+  line-height: 1.45;
+  white-space: pre-line;
+}
+.olan-root .olan-gift-address__copy {
+  background-color: var(--button-background-secondary);
+  border: none;
+  border-radius: 50px;
+  color: var(--button-text-secondary);
+  cursor: pointer;
+  font-family: var(--body-text-family);
+  font-size: var(--body-text-size);
+  margin-top: 1.1em;
+  padding: 8px 22px;
+  transition: opacity 0.2s ease;
+}
+.olan-root .olan-gift-address__copy:hover {
+  opacity: 0.88;
+}
+
+/* ───────────── wishes list ───────────── */
+.olan-root .olan-wish-intro {
+  color: var(--text-secondary);
+  font-size: var(--body-text-size);
+  margin: 0.5em auto 0;
+  max-width: 28em;
+  text-align: center;
+}
+.olan-root .olan-wish-feedback {
+  color: var(--text-secondary);
+  font-size: calc(var(--body-text-size) - var(--fs-extra-4));
+  margin-top: 0.75em;
+  text-align: center;
+}
+.olan-root .olan-wish-feedback.is-error {
+  color: #a4442f;
+}
+.olan-root .olan-wish-empty {
+  color: var(--text-secondary);
+  font-size: var(--body-text-size);
+  opacity: 0.8;
+  text-align: center;
+}
+.olan-root .olan-wish {
+  border-bottom: 1px solid rgba(126, 57, 66, 0.16);
+  padding: 16px 0;
+  text-align: left;
+}
+.olan-root .olan-wish.is-alt {
+  text-align: right;
+}
+.olan-root .olan-wish__name {
+  align-items: center;
+  color: var(--text-primary);
+  display: flex;
+  font-family: var(--body-text-family);
+  font-size: calc(var(--body-text-size) - var(--fs-extra-2));
+  font-weight: 600;
+  gap: 6px;
+}
+.olan-root .olan-wish.is-alt .olan-wish__name {
+  justify-content: flex-end;
+}
+.olan-root .olan-wish__time {
+  color: rgba(30, 63, 67, 0.72);
+  font-family: var(--body-text-family);
+  font-size: calc(var(--body-text-size) - var(--fs-extra-6));
+  margin: 0.15em 0 0.5em;
+}
+.olan-root .olan-wish__text {
+  color: var(--text-secondary);
+  font-family: var(--body-text-family);
+  font-size: calc(var(--body-text-size) - var(--fs-extra-2));
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.olan-root .olan-wish-more {
+  background: transparent;
+  border: 1px solid var(--button-background-secondary);
+  border-radius: 7px;
+  color: var(--button-background-secondary);
+  cursor: pointer;
+  font-family: var(--body-text-family);
+  font-size: var(--body-text-size);
+  margin-top: 18px;
+  padding: 6px 20px;
+  transition: all 0.25s ease;
+}
+.olan-root .olan-wish-more:hover {
+  background: var(--button-background-secondary);
+  color: var(--button-text-secondary);
+}
+
+/* ───────────── brand footer ───────────── */
+.olan-root .footer .olan-brand {
+  align-items: center;
+  display: inline-flex;
+  gap: 10px;
+  margin-top: 6px;
+  text-decoration: none;
+}
+.olan-root .footer .olan-brand img {
+  border-radius: 50%;
+  display: block;
+  height: 34px;
+  object-fit: contain;
+  width: 34px;
+}
+.olan-root .footer .olan-brand span {
+  color: var(--text-primary);
+  font-family: var(--heading-family);
+  font-size: 24px;
+  letter-spacing: 0.04em;
+}
+
+/* ───────────── lightbox / film modal / toast ───────────── */
+.olan-root .olan-lightbox,
+.olan-root .olan-video-modal {
+  align-items: center;
+  background: rgba(18, 14, 10, 0.92);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  position: fixed;
+  z-index: 1000;
+}
+.olan-root .olan-lightbox img {
+  border-radius: 10px;
+  max-height: 86vh;
+  max-width: 92vw;
+  object-fit: contain;
+}
+.olan-root .olan-lightbox__close {
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 34px;
+  line-height: 1;
+  padding: 6px 14px;
+  position: absolute;
+  right: 6px;
+  top: 8px;
+  z-index: 2;
+}
+.olan-root .olan-lightbox__nav {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  font-size: 34px;
+  height: 46px;
+  line-height: 1;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+}
+.olan-root .olan-lightbox__nav.prev {
+  left: 10px;
+}
+.olan-root .olan-lightbox__nav.next {
+  right: 10px;
+}
+.olan-root .olan-video-modal__frame {
+  aspect-ratio: 16 / 9;
+  background: #000;
+  max-width: min(920px, 92vw);
+  width: 100%;
+}
+.olan-root .olan-video-modal__frame iframe,
+.olan-root .olan-video-modal__frame video {
+  border: 0;
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+.olan-root .olan-toast {
+  background: var(--button-background-secondary);
+  border-radius: 50px;
+  bottom: 92px;
+  color: var(--button-text-secondary);
+  font-family: var(--body-text-family);
+  font-size: 15px;
+  left: 50%;
+  padding: 9px 22px;
+  position: fixed;
+  transform: translateX(-50%);
+  z-index: 1010;
+}
