@@ -9,6 +9,7 @@ export interface PromptInput {
   persona?: string | null
   leadFacts?: string
   policyText?: string
+  sources?: { title: string; url: string | null; heading: string | null; content: string }[]
 }
 
 export function buildSystemPrompt(input: PromptInput): string {
@@ -62,6 +63,14 @@ export function buildSystemPrompt(input: PromptInput): string {
     input.leadFacts ? `FAKTA LEAD: ${input.leadFacts}` : "",
     `WAKTU SEKARANG (WIB): ${input.nowIso}.`,
     input.policyText ? `KEBIJAKAN LAYANAN (jawab langsung, jangan bilang cek tim):\n${input.policyText}` : "",
+    input.sources?.length
+      ? `SUMBER PENGETAHUAN (jawab pertanyaan ini HANYA dari sumber di bawah; jangan menambah fakta lain. Jangan menulis baris "Sumber", sistem yang menambahkannya. Kalau jawabannya tidak ada di sumber, bilang akan cek ke tim):\n${input.sources
+          .map(
+            (source, index) =>
+              `[${index + 1}] ${source.title}${source.heading ? ` — ${source.heading}` : ""}\n${source.content}`
+          )
+          .join("\n\n")}`
+      : "",
     "",
     `ARAHAN SISTEM: ${input.directive}`,
     "",

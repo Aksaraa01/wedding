@@ -17,6 +17,15 @@ import {
 import { validateReply } from "../src/lib/cs/guard.ts"
 import { escalationReply } from "../src/lib/cs/replies.ts"
 import { csWidgetEnabledOn } from "../src/lib/cs/widgetRoutes.ts"
+import {
+  citationLine,
+  htmlToChunks,
+  retrieveKnowledge,
+  stripHtml,
+  stripMoney,
+  tokenize,
+} from "../src/lib/cs/knowledge.ts"
+import { CS_KNOWLEDGE } from "../src/data/csKnowledge.ts"
 import { isPlaceholderTemplate, matchesTemplateCategory } from "../src/lib/cs/templateFilter.ts"
 import { sanitizeReply } from "../src/lib/cs/text.ts"
 import { isCustomerFeature, isSellablePackage } from "../src/lib/cs/catalog.ts"
@@ -935,4 +944,79 @@ test("decide: unknown saat klien marah dieskalasi", () => {
   const d = decide("unknown", { ...ctx, sentiment: "angry" })
   assert.equal(d.action, "escalate")
   assert.equal(d.reason, "low_confidence")
+})
+
+// ---------- knowledge base + sitasi ----------
+
+test("knowledge: HTML dipecah per heading", () => {
+  const chunks = htmlToChunks(
+    "<p>Pembuka yang cukup panjang untuk lolos penyaring potongan pertama ini.</p><h2>Bagian A</h2><p>Isi bagian A juga cukup panjang supaya tidak dibuang oleh penyaring.</p>"
+  )
+  assert.equal(chunks.length, 2)
+  assert.equal(chunks[0].heading, null)
+  assert.equal(chunks[1].heading, "Bagian A")
+  assert.ok(!chunks[1].content.includes("<p>"))
+})
+
+test("knowledge: stripHtml membuang tag dan entity", () => {
+  assert.equal(stripHtml("<p>Halo&nbsp;<strong>Kak</strong></p>").trim(), "Halo Kak")
+})
+
+test("knowledge: nominal dibuang dari korpus", () => {
+  const cleaned = stripMoney("Harga Rp 299.000 dan 1,5 juta rupiah, DP 500rb.")
+  assert.ok(!/\d/.test(cleaned), cleaned)
+  assert.match(cleaned, /nominal sesuai paket/)
+})
+
+test("knowledge: tokenize memetakan sinonim", () => {
+  const tokens = tokenize("biaya undangan buat tamu")
+  assert.ok(tokens.includes("harga"), tokens.join(","))
+  assert.ok(tokens.includes("tamu"))
+})
+
+test("knowledge: retrieval memilih dokumen yang tepat", () => {
+  const chunks = [
+    {
+      title: "Musik latar",
+      url: null,
+      heading: "Lagu",
+      content: "Undangan bisa memutar musik latar yang dipilih dari daftar lagu.",
+    },
+    {
+      title: "Pembayaran",
+      url: null,
+      heading: "Transfer",
+      content: "Pembayaran dilakukan dengan transfer bank, lalu bukti bayar dikirim ke tim.",
+    },
+  ]
+  const top = retrieveKnowledge(chunks, "cara bayar gimana kak")
+  assert.equal(top[0].title, "Pembayaran")
+  assert.equal(retrieveKnowledge(chunks, "zzz qqq").length, 0)
+})
+
+test("knowledge: satu potongan per dokumen", () => {
+  const chunks = [
+    { title: "Sama", url: null, heading: "A", content: "musik latar lagu undangan audio pilihan" },
+    { title: "Sama", url: null, heading: "B", content: "musik latar lagu undangan audio pilihan" },
+    { title: "Lain", url: null, heading: "C", content: "musik latar lagu undangan audio pilihan" },
+  ]
+  const top = retrieveKnowledge(chunks, "musik", { limit: 3 })
+  assert.equal(top.length, 2)
+})
+
+test("knowledge: sitasi memuat judul dan url", () => {
+  assert.equal(
+    citationLine({ title: "Cara daftar", url: "https://wedding.aksaraa.com/register" }),
+    "\n\nSumber: Cara daftar (https://wedding.aksaraa.com/register)"
+  )
+  assert.equal(citationLine({ title: "Tanpa URL", url: null }), "\n\nSumber: Tanpa URL")
+})
+
+test("knowledge: kurasi FAQ bebas nominal", () => {
+  for (const entry of CS_KNOWLEDGE) {
+    for (const chunk of entry.chunks) {
+      assert.ok(!/rp\.?\s*\d/i.test(chunk.content), `${entry.key}: ${chunk.content}`)
+      assert.ok(!/\b0\d{8,}\b/.test(chunk.content), `${entry.key}: nomor telepon`)
+    }
+  }
 })

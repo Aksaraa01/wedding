@@ -10,6 +10,7 @@
     "check:egress": "./scripts/check-storage-egress.sh",
     "audit:copy": "node scripts/template-copy-audit.mjs",
     "test:cs": "node --import ./scripts/register-ts-resolve.mjs --test --experimental-strip-types scripts/cs-safety-test.mjs scripts/cs-agent-test.mjs scripts/cs-playbook-test.mjs",
+    "cs:ingest": "node --import ./scripts/register-ts-resolve.mjs --experimental-strip-types scripts/cs-ingest.mjs",
     "bench:cs": "node scripts/cs-vibe-bench.mjs",
     "deploy:guard": "node scripts/predeploy-guard.mjs",
     "deploy:smoke": "node scripts/postdeploy-smoke.mjs",

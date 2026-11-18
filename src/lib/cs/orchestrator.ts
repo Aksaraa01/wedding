@@ -30,6 +30,8 @@ import {
   type ObjectionKind,
 } from "@/lib/cs/playbook"
 import { formatPolicies, POLICIES, type CsPolicies } from "@/lib/cs/policies"
+import { findSources } from "@/lib/cs/retrieval"
+import { citationLine } from "@/lib/cs/knowledge"
 
 export interface AgentDeps {
   chat: typeof chatCompletion
@@ -292,6 +294,11 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
 
   let directive = directiveFor(decision)
 
+  // Jawaban berbasis pengetahuan hanya untuk intent "answer" (teknis, kebijakan,
+  // pertanyaan produk). Harga/paket/template tetap lewat tool.
+  const sources =
+    decision.action === "answer" ? await findSources(input.text, 2) : []
+
   if (decision.action === "playbook") {
     if (decision.intent === "select_package") {
       const code = detectPackageInterest(input.text)
@@ -352,6 +359,7 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     persona: input.persona,
     leadFacts: leadPromptLine(lead),
     policyText: formatPolicies(input.policies || POLICIES),
+    sources,
   })
 
   const prefetched: { name: string; data: unknown }[] = []
@@ -453,7 +461,12 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     await updateLead(refreshed.id, { stage })
   }
 
-  await persistOutbound(input.conversationId, result.text, {
+  // Sitasi ditambahkan deterministik dari sumber teratas, bukan oleh model:
+  // selalu menunjuk dokumen yang benar-benar dikirim sebagai konteks.
+  const finalText =
+    result.guarded && sources.length ? result.text + citationLine(sources[0]) : result.text
+
+  await persistOutbound(input.conversationId, finalText, {
     intent,
     model: result.model,
     toolNames: result.toolNames,
@@ -465,7 +478,7 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
   })
 
   return {
-    replies: [{ text: result.text, typing: true }],
+    replies: [{ text: finalText, typing: true }],
     guarded: result.guarded,
     toolNames: result.toolNames,
     ...(result.guarded

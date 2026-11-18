@@ -55,6 +55,24 @@ Tiket `voucher` yang masih `open` tidak dibuat ulang pada pesan berikutnya
   per profil, tidak bisa digabung.
 - Agent tidak meminta kode voucher ke klien.
 
+## Knowledge base & sitasi
+
+Jawaban untuk pertanyaan non-harga (teknis, produk, kebijakan) diambil dari
+knowledge base di `cs_documents` / `cs_chunks`:
+
+- Sumber: artikel `/artikel` (`src/data/artikel.ts`) + FAQ kurasi
+  (`src/data/csKnowledge.ts`).
+- Ingest ulang setelah teks berubah: `npm run cs:ingest` (dengan env Supabase
+  yang dituju).
+- Nominal rupiah dibuang saat ingest (diganti `[nominal sesuai paket]`) supaya
+  harga hanya pernah datang dari tool.
+- Retrieval bersifat leksikal + sinonim (`src/lib/cs/knowledge.ts`), korpus
+  di-cache 5 menit (`src/lib/cs/retrieval.ts`).
+- Sitasi ditambahkan sistem, bukan model: balasan yang memakai sumber diakhiri
+  `Sumber: <judul> (<url>)` dari potongan teratas.
+- Kalau tidak ada potongan yang cocok, agent menjawab dari kebijakan seperti
+  biasa (tanpa baris sumber).
+
 ## Permukaan widget
 
 Widget hanya muncul di halaman marketing (allowlist di

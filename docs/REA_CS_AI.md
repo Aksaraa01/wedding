@@ -26,6 +26,7 @@ voice, marketplace, IG DM, CRM pipeline, multi-tenant.
 | Inbox ops `/ops/cs` (list, transkrip, lead, ambil alih, balas, tutup) | selesai |
 | Widget web + `POST /api/cs/chat` | marketing-only (`src/lib/cs/widgetRoutes.ts`) + `/design`; prod masih `NEXT_PUBLIC_CS_WIDGET=0` |
 | Batas voucher | semua pertanyaan voucher → tiket `voucher` + "cek dulu ke tim", AI tidak dijeda |
+| Knowledge base + sitasi | `cs_documents`/`cs_chunks` (artikel + FAQ kurasi), `npm run cs:ingest`, sitasi deterministik |
 | SOP & matriks eskalasi | `docs/CS_SOP.md` |
 | Patch gateway nomor pilot | lihat `docs/CS_PILOT.md` |
 
