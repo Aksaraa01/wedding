@@ -6,6 +6,7 @@ import { AKSARAA_WA_NUMBER } from "@/lib/contact"
 import { copyPlainText } from "@/lib/clipboard"
 import { resolveCoupleName } from "@/lib/coupleName"
 import InvitationOverlay from "@/components/InvitationOverlay"
+import AutoplayYouTube from "../shared/AutoplayYouTube"
 import {
   bridePhoto as bridePhotoOf,
   countdownTarget,
@@ -108,7 +109,10 @@ export default function Olan(profile: TemplateProps) {
   const [videoLive, setVideoLive] = useState<VideoSource | null>(null)
   const [toast, setToast] = useState("")
   const [now, setNow] = useState<number | null>(null)
-  const [wishAnchor, setWishAnchor] = useState<HTMLElement | null>(null)
+  const [giftIndex, setGiftIndex] = useState(0)
+  const [giftOpen, setGiftOpen] = useState(false)
+  const [gatePlaying, setGatePlaying] = useState(false)
+  const [gateMounted, setGateMounted] = useState(true)
   const toastTimer = useRef<number | null>(null)
 
   const cover = coverPhoto(profile)
@@ -123,6 +127,7 @@ export default function Olan(profile: TemplateProps) {
       ? (profile.inviting_families || []).map((s) => String(s)).filter(Boolean)
       : []
   const accounts = profile.gift_section_visible !== false ? (profile.gift_accounts || []).filter((a) => a && (a.provider_name || a.account_number)) : []
+  const selectedAccount = accounts[Math.min(giftIndex, Math.max(0, accounts.length - 1))]
   const giftAddressName = (profile.gift_address_name || "").trim()
   const giftAddress = gates.gift_address !== false ? (profile.gift_address || "").trim() : ""
   const dresscode = profile.dresscode_visible !== false ? profile.dresscode : undefined
@@ -132,13 +137,10 @@ export default function Olan(profile: TemplateProps) {
 
   const video = videoSource(profile.video_url)
   const hasVideo = !!video && gates.video !== false && profile.video_section_visible !== false
-  // The reference has no opening-film band, so the arch only carries a film the
-  // couple actually uploaded (a short clip crops cleanly into it). A YouTube
-  // link is a hosted film and stays in "Our Footage" — mounting the same embed
-  // twice would cost ~1.5 MB and letterbox inside the arch.
-  const openingVideo = videoSource(profile.video_url)
-  const showOpeningFilm =
-    !!openingVideo && openingVideo.kind === "file" && gates.video !== false && profile.video_section_visible !== false
+  // The gate (the "Open Invitation" page) plays the couple's film behind the
+  // names; with no film it stays the painted cover. "Our Footage" keeps the
+  // watch-with-sound copy of the same clip.
+  const gateFilm = gates.video !== false && profile.video_section_visible !== false ? videoSource(profile.video_url) : null
 
   const date = longDate(profile.estimated_wedding_date || sessions[0]?.date)
   const target = useMemo(() => countdownTarget(sessions, profile.estimated_wedding_date), [sessions, profile.estimated_wedding_date])
@@ -221,6 +223,17 @@ export default function Olan(profile: TemplateProps) {
     }
   }, [opened, playMusic])
 
+  useEffect(() => {
+    setGatePlaying(false)
+    if (!opened) {
+      setGateMounted(true)
+      return
+    }
+    // the gate slides up over 1.8s; drop the film (and its player) afterwards
+    const timer = window.setTimeout(() => setGateMounted(false), 1900)
+    return () => window.clearTimeout(timer)
+  }, [opened])
+
   // ── countdown ───────────────────────────────────────────────────────────
   useEffect(() => {
     if (!target) return
@@ -269,7 +282,14 @@ export default function Olan(profile: TemplateProps) {
           io.unobserve(entry.target)
         }
       },
-      { rootMargin: "0px 0px -8% 0px", threshold: 0.02 }
+      {
+        // AOS (the reference) triggers on the vertical band only, so an ornament
+        // whose reveal transform parks it outside the left/right edge still
+        // animates. A plain 2D IntersectionObserver would leave it at opacity 0
+        // (that is exactly what hid the event card's left branch).
+        rootMargin: "0px 100% 160px 100%",
+        threshold: 0.01,
+      }
     )
     for (const el of observe) io.observe(el)
     return () => io.disconnect()
@@ -302,20 +322,6 @@ export default function Olan(profile: TemplateProps) {
   const closeVideo = useCallback(() => setVideoLive(null), [])
   const closeLightbox = useCallback(() => setLightbox(null), [])
 
-  const eventsByDate = useMemo(() => {
-    const groups: { key: string; date?: string; items: SessionEntry[] }[] = []
-    for (const s of sessions) {
-      const key = (s.date || "").trim()
-      const found = groups.find((g) => g.key === key)
-      if (found) found.items.push(s)
-      else groups.push({ key, date: s.date, items: [s] })
-    }
-    return groups
-  }, [sessions])
-
-  const activeStory = stories[storyIndex] || null
-  const storyBg = activeStory?.image_url ? `url("${activeStory.image_url}")` : `url("${cover}")`
-  const wishRef = useCallback((node: HTMLDivElement | null) => setWishAnchor(node), [])
 
   return (
     <div
@@ -357,18 +363,6 @@ export default function Olan(profile: TemplateProps) {
                       <sup>{date.ord}</sup>, {date.year}
                     </p>
                   ) : null}
-                  <div className="torsvp__btn-wrap" data-aos="zoom-in" data-aos-duration="3000" data-aos-delay="1000">
-                    <a
-                      href="#toWish"
-                      className="torsvp__btn"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        wishAnchor?.scrollIntoView({ behavior: "smooth", block: "start" })
-                      }}
-                    >
-                      {content.rsvp_button || "RSVP"}
-                    </a>
-                  </div>
                 </div>
 
                 <div className="ornaments-wrapper">
@@ -413,19 +407,6 @@ export default function Olan(profile: TemplateProps) {
               </div>
             </section>
           </section>
-
-          {/* ───── opening film (only when the couple has one) ───── */}
-          {showOpeningFilm && openingVideo ? (
-            <section className="olan-film">
-              <div className="olan-film__head" data-aos="fade-up" data-aos-duration="1000">
-                <p className="olan-film__kicker">{content.film_kicker || "Save the date"}</p>
-                <h2 className="olan-film__title">{content.film_title || "Our Invitation"}</h2>
-              </div>
-              <div className="olan-film__frame" data-aos="zoom-out" data-aos-duration="1200">
-                <video src={openingVideo.src} poster={cover} autoPlay muted loop playsInline preload="metadata" />
-              </div>
-            </section>
-          ) : null}
 
           {/* ───── welcome + couple ───── */}
           <section className="couple-wrap">
@@ -789,83 +770,83 @@ export default function Olan(profile: TemplateProps) {
                   ) : null}
                 </div>
                 <div className="agenda-body">
-                  {eventsByDate.map((group) => {
-                    const sd = shortDate(group.date)
+                  {sessions.map((session, index) => {
+                    const sd = shortDate(session.date)
                     return (
-                      <div className="event-item" key={group.key || group.items[0]?.name || "event"}>
-                        <div className="event-head">
-                          {sd ? (
-                            <>
-                              <h3 className="event-day" data-aos="fade-up" data-aos-duration="1000">
-                                {sd.weekday}
-                              </h3>
-                              <h2 className="event-date" data-aos="fade-up" data-aos-duration="1000">
-                                {sd.month} {sd.day}
-                                <sup>{sd.ord}</sup>, {sd.year}
-                              </h2>
-                            </>
-                          ) : null}
-                        </div>
+                      <div className="event-item" key={`${session.name || "event"}-${index}`}>
+                        {sd ? (
+                          <div className="event-head">
+                            <h3 className="event-day" data-aos="fade-up" data-aos-duration="1000">
+                              {sd.weekday}
+                            </h3>
+                            <h2 className="event-date" data-aos="fade-up" data-aos-duration="1000">
+                              {sd.month} {sd.day}
+                              <sup>{sd.ord}</sup>, {sd.year}
+                            </h2>
+                          </div>
+                        ) : null}
                         <div className="activity-wrap">
-                          {group.items.map((session, idx) => (
-                            <div className="activity-item" key={`${session.name || "event"}-${idx}`}>
-                              <div className="activity-frame">
-                                <div className="frame-wrap" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="500">
-                                  <img src={OLAN.eventFrame} alt="" />
-                                </div>
-                              </div>
-                              <div className="activity-content">
-                                <div className="activity-content-inner">
-                                  <div className="activity-head">
-                                    <div data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="800">
-                                      {isCeremony(session.name) ? <RingsIcon /> : <WineIcon />}
-                                    </div>
-                                    <h3 className="activity-title" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="800">
-                                      {session.name || content.agenda_title || "Wedding Day"}
-                                    </h3>
-                                    {timeLabel(session.time) ? (
-                                      <p className="activity-time" data-aos="fade-up" data-aos-duration="1000">
-                                        {timeLabel(session.time)}
-                                      </p>
-                                    ) : null}
-                                  </div>
-                                  <div className="activity-details">
-                                    {session.venue ? (
-                                      <p className="activity-hall" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="800">
-                                        {session.venue}
-                                      </p>
-                                    ) : null}
-                                    {session.address ? (
-                                      <p className="activity-address" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="800">
-                                        {session.address}
-                                      </p>
-                                    ) : null}
-                                    {session.maps_url ? (
-                                      <div className="activity-link-wrap" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="800">
-                                        <a className="activity-link" href={session.maps_url} target="_blank" rel="nofollow noreferrer noopener">
-                                          {content.maps_label || "View Maps"}
-                                        </a>
-                                      </div>
-                                    ) : null}
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="ornaments-wrapper">
-                                {OLAN.eventOrnaments.map((src, i) => (
-                                  <div className={`orn-event-frame-${i + 1}`} key={src}>
-                                    <div
-                                      className="image-wrap"
-                                      data-aos={i % 2 === 0 ? "fade-right" : "fade-left"}
-                                      data-aos-duration="1000"
-                                      data-aos-delay={500 + i * 50}
-                                    >
-                                      <img src={src} alt="" />
-                                    </div>
-                                  </div>
-                                ))}
+                          <div className="activity-item">
+                            <div className="activity-frame">
+                              <div className="frame-wrap" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="500">
+                                <img src={OLAN.eventFrame} alt="" />
                               </div>
                             </div>
-                          ))}
+                            <div className="activity-content">
+                              <div className="activity-content-inner">
+                                <div className="activity-head">
+                                  <div data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="800">
+                                    {isCeremony(session.name) ? <RingsIcon /> : <WineIcon />}
+                                  </div>
+                                  <h3 className="activity-title" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="800">
+                                    {session.name || content.agenda_title || "Wedding Day"}
+                                  </h3>
+                                  {timeLabel(session.time) ? (
+                                    <p className="activity-time" data-aos="fade-up" data-aos-duration="1000">
+                                      {timeLabel(session.time)}
+                                    </p>
+                                  ) : null}
+                                </div>
+                                <div className="activity-details">
+                                  {session.venue ? (
+                                    <p className="activity-hall" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="800">
+                                      {session.venue}
+                                    </p>
+                                  ) : null}
+                                  {session.address ? (
+                                    <p className="activity-address" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="800">
+                                      {session.address}
+                                    </p>
+                                  ) : null}
+                                  {session.maps_url ? (
+                                    <div className="activity-link-wrap" data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="800">
+                                      <a className="activity-link" href={session.maps_url} target="_blank" rel="nofollow noreferrer noopener">
+                                        {content.maps_label || "View Maps"}
+                                      </a>
+                                    </div>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="ornaments-wrapper">
+                              {OLAN.eventOrnaments.map((src, i) => (
+                                <div className={`orn-event-frame-${i + 1}`} key={src}>
+                                  {/* fade-up, not fade-right: the reveal
+                                      transform of a sideways fade parks this
+                                      edge ornament outside the scroll clip, so
+                                      the observer can never see it. */}
+                                  <div
+                                    className="image-wrap"
+                                    data-aos="fade-up"
+                                    data-aos-duration="1000"
+                                    data-aos-delay={500 + i * 50}
+                                  >
+                                    <img src={src} alt="" />
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )
@@ -889,16 +870,6 @@ export default function Olan(profile: TemplateProps) {
           {/* ───── turut mengundang ───── */}
           {honored.length > 0 ? (
             <section className="olan-inviting">
-              <div className="olan-inviting__orn olan-inviting__orn--left">
-                <div className="image-wrap" data-aos="fade-right" data-aos-duration="1200">
-                  <img src={OLAN.countdown.urnFlowers} alt="" />
-                </div>
-              </div>
-              <div className="olan-inviting__orn olan-inviting__orn--right">
-                <div className="image-wrap" data-aos="fade-left" data-aos-duration="1200">
-                  <img src={OLAN.countdown.urnFlowers} alt="" />
-                </div>
-              </div>
               <h2 className="olan-inviting__title" data-aos="zoom-in" data-aos-duration="1200">
                 {content.inviting_title || "Turut Mengundang"}
               </h2>
@@ -914,6 +885,17 @@ export default function Olan(profile: TemplateProps) {
                   </li>
                 ))}
               </ul>
+              <div className="ornaments-wrapper">
+                <div className="orn-bottom-wrap">
+                  {OLAN.flowers.map((src, i) => (
+                    <div className={`orn-bottom-event-${i + 1}`} key={`inviting-${src}`}>
+                      <div className="image-wrap" data-aos="fade-up" data-aos-duration="1200" data-aos-delay={i * 60}>
+                        <img src={src} alt="" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </section>
           ) : null}
 
@@ -995,17 +977,25 @@ export default function Olan(profile: TemplateProps) {
                   <div className="story-chitra__slider-wrap">
                     <div className="story-chitra__slider-for">
                       <div
-                        className="story-chitra__slider-for__item"
-                        style={{ "--story-background": storyBg } as CSSProperties}
+                        className="olan-story-track"
+                        style={{ transform: `translate3d(-${storyIndex * 100}%, 0, 0)` }}
                       >
-                        <div className="story-chitra__content">
-                          <h2 className="story-chitra__title" key={`title-${storyIndex}`} data-aos="fade-up" data-aos-duration="1000">
-                            {activeStory?.title || ""}
-                          </h2>
-                          <p className="story-chitra__caption" key={`cap-${storyIndex}`} data-aos="fade-up" data-aos-duration="1000">
-                            {activeStory?.description || ""}
-                          </p>
-                        </div>
+                        {stories.map((story, index) => (
+                          <div
+                            className="story-chitra__slider-for__item"
+                            key={`story-${index}`}
+                            style={
+                              {
+                                "--story-background": story.image_url ? `url("${story.image_url}")` : "none",
+                              } as CSSProperties
+                            }
+                          >
+                            <div className="story-chitra__content">
+                              <h2 className="story-chitra__title">{story.title || ""}</h2>
+                              <p className="story-chitra__caption">{story.description || ""}</p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                     {stories.length > 1 ? (
@@ -1082,25 +1072,63 @@ export default function Olan(profile: TemplateProps) {
                   </div>
                   <div className="wedding-gift-body">
                     <div className="wedding-gift-form">
-                      {accounts.length > 0 ? (
-                        <div className="wedding-gift-bank-wrap">
-                          {accounts.map((account, i) => (
-                            <div className="bank-item show" key={`${account.account_number || "acc"}-${i}`}>
+                      {selectedAccount ? (
+                        <div className="olan-bank">
+                          {accounts.length > 1 ? (
+                            <div className={`olan-bank__picker${giftOpen ? " is-open" : ""}`}>
+                              <button
+                                type="button"
+                                className="olan-bank__select"
+                                aria-expanded={giftOpen}
+                                onClick={() => setGiftOpen((open) => !open)}
+                              >
+                                <span>{selectedAccount.provider_name || ""}</span>
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden>
+                                  <path d="M6 9l6 6 6-6" />
+                                </svg>
+                              </button>
+                              {giftOpen ? (
+                                <ul className="olan-bank__list">
+                                  {accounts.map((account, index) => (
+                                    <li key={`${account.account_number || "acc"}-${index}`}>
+                                      <button
+                                        type="button"
+                                        className={index === giftIndex ? "is-active" : ""}
+                                        onClick={() => {
+                                          setGiftIndex(index)
+                                          setGiftOpen(false)
+                                        }}
+                                      >
+                                        {account.provider_name || ""}
+                                      </button>
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : null}
+                            </div>
+                          ) : null}
+                          <div className="wedding-gift-bank-wrap">
+                            <div className="bank-item show">
                               <div className="bank-detail">
-                                <h3 className="bank-name">{account.provider_name || ""}</h3>
+                                <h3 className="bank-name">{selectedAccount.provider_name || ""}</h3>
                                 <div>
                                   <small className="bank-account-number-label">{content.gift_account_label || "Account Number"}</small>
                                   <h4
                                     className="bank-account-number"
                                     role="button"
                                     tabIndex={0}
-                                    onClick={() => copyValue(account.account_number || "", content.copy_account_toast || "Account number copied")}
+                                    onClick={() =>
+                                      copyValue(selectedAccount.account_number || "", content.copy_account_toast || "Account number copied")
+                                    }
                                     onKeyDown={(e) => {
                                       if (e.key === "Enter" || e.key === " ")
-                                        copyValue(account.account_number || "", content.copy_account_toast || "Account number copied")
+                                        copyValue(
+                                          selectedAccount.account_number || "",
+                                          content.copy_account_toast || "Account number copied"
+                                        )
                                     }}
                                   >
-                                    {account.account_number || ""}
+                                    {selectedAccount.account_number || ""}
                                     <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
                                       <rect x="9" y="9" width="11" height="11" rx="2" />
                                       <path d="M5 15V6a2 2 0 0 1 2-2h9" />
@@ -1109,11 +1137,11 @@ export default function Olan(profile: TemplateProps) {
                                 </div>
                                 <div>
                                   <small className="bank-account-name-label">{content.gift_name_label || "Account Name"}</small>
-                                  <h4 className="bank-account-name">{account.account_name || ""}</h4>
+                                  <h4 className="bank-account-name">{selectedAccount.account_name || ""}</h4>
                                 </div>
                               </div>
                             </div>
-                          ))}
+                          </div>
                         </div>
                       ) : null}
 
@@ -1163,7 +1191,7 @@ export default function Olan(profile: TemplateProps) {
           ) : null}
 
           {/* ───── wishes ───── */}
-          <div ref={wishRef} id="toWish">
+          <div id="toWish">
             <section className="wedding-wish-wrap">
               <div className="wedding-wish-inner">
                 <div className="wedding-wish-head">
@@ -1291,7 +1319,32 @@ export default function Olan(profile: TemplateProps) {
 
       {/* ───────── splash gate (mobile only, reference `top-cover`) ───────── */}
       <section className={`top-cover${opened ? " hide" : ""}`}>
-        <div className="bg-tc" data-aos="zoom-out" data-aos-duration="2500" data-aos-delay="500" />
+        <div className="bg-tc" />
+        {gateFilm && gateMounted ? (
+          <div className={`top-cover__video${gatePlaying ? " is-playing" : ""}`}>
+            {gateFilm.kind === "file" ? (
+              <video
+                src={gateFilm.src}
+                poster={OLAN.painting}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                onPlaying={() => setGatePlaying(true)}
+              />
+            ) : youtubeId(gateFilm.src) ? (
+              <AutoplayYouTube videoId={youtubeId(gateFilm.src)} title={coupleShort} onPlay={() => setGatePlaying(true)} />
+            ) : (
+              <iframe
+                src={gateFilm.src}
+                title={coupleShort}
+                allow="autoplay; encrypted-media"
+                onLoad={() => setGatePlaying(true)}
+              />
+            )}
+          </div>
+        ) : null}
         <div className="inner">
           <div className="details">
             <div className="body-detail">

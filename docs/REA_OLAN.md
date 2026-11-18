@@ -71,8 +71,8 @@ are kept and only contract-required sections are inserted, as §0.5 allows.
 
 | # | Section | Renders from | Gate + toggle | Count / variant branch | Copy source | Motion |
 |---|---|---|---|---|---|---|
-| 1 | Cover | `cover_photos[0]`, names, `estimated_wedding_date`, `guest_name` | always | 0 photos ⇒ `/defaults/couple.png` | `template_content.cover_kicker`, `cover_guest_label`, `rsvp_button` | AOS `zoom-out`/`fade-down`/`zoom-in`, 1 s–3.5 s, 0.7–2 s delays |
-| 2 | Opening film | `video_url` | `feature_gates.video` **and** `video_section_visible` **and** a direct upload | files only (see §4.6); poster = cover | `film_kicker`, `film_title` | `fade-up` head + `zoom-out` frame |
+| 1 | Cover | `cover_photos[0]`, names, `estimated_wedding_date`, `guest_name` | always | 0 photos ⇒ `/defaults/couple.png` | `template_content.cover_kicker`, `cover_guest_label` | AOS `zoom-out`/`fade-down`/`zoom-in`, 1 s–3.5 s, 0.7–2 s delays |
+| 2 | Opening film (gate) | `video_url` | `feature_gates.video` **and** `video_section_visible` | file ⇒ `<video autoplay muted loop>`; YouTube ⇒ lazy player; neither ⇒ the painting (§4.7) | — | fades in on `playing`, unmounted 1.9 s after open |
 | 4 | Kalimat pembuka | `opening_title`, `opening_description` | always; hidden when both empty | — | profile columns | `zoom-in` / `fade-up` |
 | 5 | Mempelai | `groom_full_name`, `bride_full_name`, portraits, parents, Instagram | `person_photos !== false` | 1 photo ⇒ defaults.groom/bride; Instagram hidden when empty | profile columns | 4 wreath layers per portrait, 0.3–0.8 s |
 | 6 | Gallery | `gallery_photos[]` | needs data | 1 photo ⇒ single full-width plate (CSS first-child rule); ≥9 ⇒ ninth full width | `gallery_title`, `gallery_intro` | `fade-up` heading |
@@ -115,6 +115,21 @@ are kept and only contract-required sections are inserted, as §0.5 allows.
    film is never lost; a short clip they upload crops into the arch instead.
 8. **Only one cover slot.** The closing uses the painting, not a photo (that is
    how the reference is built), so no second slot is offered.
+9. **The cover has no RSVP button** (owner request): the reference's pill was the
+   only entry point to its own RSVP form, and RSVP here is the dock.
+10. **The gate is the opening-video surface.** The separate `.olan-film` band
+   from the first pass is gone: the film now plays behind "Open Invitation",
+   with the painting as the fallback while it loads. It is unmounted 1.9 s after
+   the gate slides away so a YouTube player cannot keep streaming in the
+   background.
+11. **Event cards carry their own date.** The reference prints one date per
+   *group* of activities; the editor lets each event have a different date, so
+   the section renders date → card → date → card.
+12. **"With Honor" reuses the event section's bottom flower band** (owner
+   request). The reference scopes those seven slots to `.agenda-inner`, so the
+   band is re-declared for `.olan-inviting` in `olan-extra.css`.
+13. **Story is a slide track with one photo per story.** No cover-photo
+   fallback: the editor's story photo (`story_photo: true`) is the slide image.
 
 ## 5. Assets
 
@@ -170,7 +185,7 @@ palette variables the reference injected inline, and the pieces the contract
 adds (opening film, turut mengundang, dress code, wish list, gift address card,
 lightbox, film modal, toast, vinyl music button, Aksaraa badge).
 
-## 7.3 Migration status (2026-11-18)
+## 7.4 Migration status (2026-11-18)
 
 `20261118000000_olan.sql` was applied to **staging** (`supabase db push
 --include-all`) and to **production** (single-statement apply + a recorded row in
