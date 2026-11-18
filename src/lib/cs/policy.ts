@@ -66,6 +66,9 @@ export interface DecisionContext {
   missingFacts?: number
   leadStage?: string
   voucherCode?: string | null
+  // Web anonim tidak punya jalur verifikasi (PIN/OTP dikirim ke WhatsApp),
+  // jadi permintaan data langsung dieskalasi, bukan disuruh kirim PIN.
+  channel?: "web" | "wa"
 }
 
 export type Decision =
@@ -492,7 +495,11 @@ export function decide(intent: Intent, ctx: DecisionContext): Decision {
       return { action: "escalate", intent, reason: "reschedule", priority: "high" }
 
     case "data_change":
-      if (!ctx.verified) return { action: "verify", intent, reason: "register_and_verify" }
+      if (!ctx.verified) {
+        return ctx.channel === "web"
+          ? { action: "escalate", intent, reason: "no_profile", priority: "normal" }
+          : { action: "verify", intent, reason: "register_and_verify" }
+      }
       if (!ctx.hasProfile) return { action: "escalate", intent, reason: "no_profile", priority: "normal" }
       // Agent tidak punya tool ubah data: selalu jadi tiket tim.
       return { action: "escalate", intent, reason: "data_change", priority: "normal" }
@@ -530,12 +537,20 @@ export function decide(intent: Intent, ctx: DecisionContext): Decision {
       return { action: "answer", intent }
 
     case "data_collection":
-      if (!ctx.verified) return { action: "verify", intent, reason: "register_and_verify" }
+      if (!ctx.verified) {
+        return ctx.channel === "web"
+          ? { action: "escalate", intent, reason: "no_profile", priority: "normal" }
+          : { action: "verify", intent, reason: "register_and_verify" }
+      }
       if (!ctx.hasProfile) return { action: "escalate", intent, reason: "no_profile", priority: "normal" }
       return { action: "tool", intent, tool: "profile_draft" }
 
     case "status":
-      if (!ctx.verified) return { action: "verify", intent, reason: "register_and_verify" }
+      if (!ctx.verified) {
+        return ctx.channel === "web"
+          ? { action: "escalate", intent, reason: "no_profile", priority: "normal" }
+          : { action: "verify", intent, reason: "register_and_verify" }
+      }
       if (!ctx.hasProfile) return { action: "escalate", intent, reason: "no_profile", priority: "normal" }
       return { action: "tool", intent, tool: "profile_status" }
 

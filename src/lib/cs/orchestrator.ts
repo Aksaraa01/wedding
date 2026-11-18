@@ -49,6 +49,7 @@ export interface InboundInput {
   published: boolean
   strikeCount: number
   sentiment: "neutral" | "frustrated" | "angry"
+  channel?: "web" | "wa"
   text: string
   history: { role: "user" | "assistant"; content: string }[]
   model: string
@@ -246,6 +247,7 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     missingFacts: leadMissing(lead),
     leadStage: lead.stage,
     voucherCode,
+    channel: input.channel,
   }
 
   const intent = classify(input.text)

@@ -209,6 +209,21 @@ test("decide: ubah data setelah terverifikasi jadi tiket tim", () => {
   assert.equal(d.reason, "data_change")
 })
 
+test("decide: permintaan data dari web anonim langsung ke tim", () => {
+  for (const intent of ["data_change", "status", "data_collection"]) {
+    const d = decide(intent, { ...ctx, channel: "web" })
+    assert.equal(d.action, "escalate", intent)
+    assert.equal(d.reason, "no_profile", intent)
+  }
+})
+
+test("decide: permintaan data dari WhatsApp minta PIN dulu", () => {
+  for (const intent of ["data_change", "status", "data_collection"]) {
+    const d = decide(intent, { ...ctx, channel: "wa" })
+    assert.equal(d.action, "verify", intent)
+  }
+})
+
 test("classify: estimasi waktu pengerjaan", () => {
   assert.equal(classify("berapa lama pengerjaannya?"), "timeline")
 })

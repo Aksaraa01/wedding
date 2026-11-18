@@ -187,6 +187,7 @@ export async function POST(request: Request) {
     published: profile?.is_published === true,
     strikeCount: countUnknownStrikes(rows),
     sentiment: detectSentiment(text),
+    channel: "web",
     text,
     history,
     model: settings.model,

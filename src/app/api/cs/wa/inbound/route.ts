@@ -458,6 +458,7 @@ export async function POST(request: Request) {
     published,
     strikeCount: Number(existingConversation?.strike_count || 0),
     sentiment: "neutral",
+    channel: "wa",
     text,
     history,
     model: settings.model,
