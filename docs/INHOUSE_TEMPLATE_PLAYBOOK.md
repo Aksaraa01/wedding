@@ -925,11 +925,116 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 | Editor/ops still show old code after deploy | another build is running / stale client chunks | compare `BUILD_ID`, grep remote chunks, re-sync all three trees, restart PM2, hard refresh |
 | New template missing from the live gallery after deploy | the persistent route cache (`server/route-cache/APP_PAGE/...`) served a `/templates` page rendered before the row existed — additive deploys never delete it | `npm run deploy` now drops `route-cache` before the PM2 reload; by hand, `rm -rf .next/standalone/.next/server/route-cache` then restart |
 | Invitation shows test copy like “helllloooo” | saved `template_content` value | expose the extras field; do not clear user data silently |
+| Editor/ops accordion (EKSTRA, DRESS CODE, STORY…) missing for a new template | its `TEMPLATE_CONFIGS` entry was clobbered by a concurrent edit to `index.ts`; the `TEMPLATE_MAP` entry alone still renders | re-add the config, then grep the built chunk for `name:"<Code>"` before deploying |
+| Local review page "messy", buttons dead, video stuck | served by `next start` (unsupported with `output: standalone`) or a half-synced standalone tree | run `node .next/standalone/server.js` with env; `rm -rf` + re-copy `static`/`public`, verify chunk count |
+| Gate film freezes on an early tap | a warm-up effect called `video.load()`, resetting the element mid-playback | only raise `preload`; add a 6 s no-progress watchdog + hard cap |
+| Photo inside a decorative frame is off-centre / cut on one side | `<img>` absolutely positioned with `inset` and `auto` width — `right` is ignored for replaced elements | wrapper element with the insets, image fills it (`width/height:100%`, `object-fit`) |
+| Frame edge looks chewed / ornament cut | the "window" was traced from the lace, or ornament pixels were re-opaqued inside it | cut one smooth supersampled shape inside the vine; put the photo behind the plate |
+| Owner still sees an old ornament/photo after a fix | asset replaced at the same URL and the browser served the cached bitmap | version the filename (`-v2`, `-v3`), delete the old file, verify the served `shasum` |
 
 | Envelope opening looks empty in screenshots | animations start 2.6–3.35s after `preloader-done` | wait 4s; don’t remove the animation |
 | Love-story cover image invisible | extracted CSS keeps `clip-path`/`opacity:0` | add `clip-path:inset(0); opacity:1; transform:none` override |
 | Gift logo broken locally | storage-relative `ASSETS…aksaraaLogo` | vendor `aksaraa-logo.jpg` locally |
 | User video missing / reference video plays | local parallax video left in place | render `video_url` only; remove reference video |
+
+---
+
+## 8.8 Build, review and shared-tree landmines (Fresco lessons, 2026-11)
+
+The Fresco port shipped, but it took far longer than it should have. Most of the
+delay was **not** design work — it was a handful of traps that are invisible in
+the earlier phases. Every one of them cost at least one review round.
+
+### Shared tree (several agents, one checkout)
+
+- **A shared registry file can be overwritten under you.** The `fresco` entry in
+  `TEMPLATE_CONFIGS` disappeared **twice** because another agent saved the same
+  file from an older snapshot. The template still rendered (the `TEMPLATE_MAP`
+  entry survived), so the only symptom was "why is there no EKSTRA / DRESS CODE
+  / STORY block in the editor?".
+  → After touching `src/components/templates/index.ts`, `demoProps.ts`,
+  `templateExtras.ts`, the preview page or the allowlist, **grep for your
+  template code again immediately before building**, and once more in the built
+  bundle (`grep -c 'name:"<Code>"' .next/static/chunks/*`).
+- **Check `git fetch` + `git status` before the first edit, not before the
+  deploy.** A tree five commits behind `origin/main` builds a bundle *without*
+  the other agents' fixes; uncommitted files are their unfinished work.
+- **Deploy from a throwaway worktree at `origin/main`**, never from the shared
+  checkout (§8). Bring your new files wholesale, but **hand-merge the shared
+  registry files** (they import every template: copying one that imports
+  `./other-new-template` breaks the build). Extract your own blocks with a
+  brace-matching script and assert the anchors exist.
+- A push can be rejected between build and deploy; `git rebase origin/main`,
+  re-run `tsc` + `audit:copy`, then push again — never `--force`.
+
+### Local runtime (the "messy page" trap)
+
+- **`next start` does not work with `output: standalone`.** It answers, but
+  serves an inconsistent page (missing CSS/JS, dead buttons) — that is the
+  "messy / no button / video stuck" report. The only supported local runtime is
+  `node .next/standalone/server.js` with the env sourced.
+- **`cp -R .next/static .next/standalone/.next/static` nests when the
+  destination exists** (`static/static`) and the page 500s on chunks. Always
+  `rm -rf` the destination first, then copy, then assert the file count
+  (`ls .next/standalone/.next/static/chunks | wc -l`).
+- **`next build` can still be writing `standalone/` when the shell returns.**
+  Copying then produces an incomplete tree (`prerender-manifest.json` missing →
+  every route 500). Wait for the artifact to exist before syncing.
+- **A stale process keeps the port.** A new server that hits `EADDRINUSE` dies
+  silently and the old (stale or half-synced) one keeps answering. Kill by port,
+  confirm the new PID, and check the log line for `Ready`.
+
+### Media elements
+
+- **Never call `video.load()` after mount.** The gate used to raise
+  `preload="auto"` **and** `load()` 1.2 s after paint; a guest who tapped before
+  that reset the element mid-playback and the envelope froze (no `ended`, gate
+  stuck). Only set `preload`; add a **no-progress watchdog** (~6 s without
+  `timeupdate`) and a hard cap so a film can never trap the guest.
+- **Play opening films to `ended`.** Fading the gate early reads as "the video
+  was cut". Cross-fade at `ended` (1.6 s gate / 1.8 s copy) — the reference's
+  own hand-off.
+- A complex mask (clipping cover copy to an opening flap) is a research project,
+  not a port detail. If it is attempted at all, prototype it in isolation and
+  get owner sign-off **before** wiring it into the gate.
+
+### Photos in a "frame" asset
+
+- **An `<img>` with `position:absolute` + `inset` + `width:auto` ignores
+  `right`/`bottom`.** For replaced elements, auto width = intrinsic width, so the
+  photo overflows and is clipped by the plate — the "photo is off-centre /
+  truncated on the right" bug. Put the photo in a **positioned wrapper** and let
+  the image fill it (`width/height:100%`).
+- **A painted arch is not a frame.** `arch-frame.webp` is a flat olive panel with
+  a vine painted on it: no transparent window, no separate ornament layer.
+  Tracing the vine row by row produced scalloped edges ("digigit tikus"), and
+  restoring ornament pixels added specks. Do it once, offline:
+  1. crop the plate to the ornament (no dead olive margin),
+  2. cut **one smooth shape** (supersampled ellipse + rectangle) inside the vine,
+  3. place the photo **behind** the plate so the plate alone draws the silhouette,
+  4. size the photo box from the photograph's own aspect ratio when the owner
+     wants "the frame follows the photo".
+- **Never overwrite a template asset at the same URL while iterating.** Browsers
+  keep the old bitmap and the owner keeps reporting the bug you already fixed.
+  Version the filename (`...-v2.webp`, `...-v3.webp`) and `rm` the old one.
+- **Decide the crop policy per section and write it down** before building:
+  *fill the opening* (`cover`, edges hidden, subject cropped) vs *whole photo*
+  (`contain`, mats visible). They are mutually exclusive; flip-flopping between
+  them wastes review rounds. If the brief is ambiguous, ask once.
+
+### Review the paths the owner actually uses
+
+- `/templates/<code>/preview` is **not** the editor. The editor iframe loads
+  `/preview/<id>`, which passes different props (`preview_mode`, thumbnail URLs)
+  and a different container width. Check **both**, plus one real couple profile
+  (§7).
+- When a visual fix "does not take", prove what is being served before touching
+  code again: `shasum` the local file vs the fetched URL, and confirm the new
+  rule/asset name is in the served CSS chunk.
+- Register the `web_templates` row **before** the build, then `rm -rf .next`
+  (a stale `fetch-cache` re-renders the old gallery), and assert
+  `grep -c '<code>' .next/server/app/templates.html` — otherwise the template is
+  live but invisible in the gallery until the ISR window passes.
 
 ---
 
