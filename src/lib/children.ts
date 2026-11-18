@@ -113,6 +113,28 @@ export function childFullName(child: InvitationChild): string {
   return (child.full_name || child.name || "Ananda").trim()
 }
 
+/**
+ * Names as a sentence list: "Raka", "Raka & Rizky", "Raka, Rizky & Rafa".
+ * Two ananda read as a pair, three or more keep the commas and put `&` only
+ * before the last name — the same shape the wedding templates use for a couple.
+ */
+export function joinChildNames(names: unknown[]): string {
+  const list = names.map((name) => str(name)).filter(Boolean)
+  if (list.length <= 1) return list[0] ?? ""
+  if (list.length === 2) return `${list[0]} & ${list[1]}`
+  return `${list.slice(0, -1).join(", ")} & ${list[list.length - 1]}`
+}
+
+/** Nicknames as one line — cover headline, closing name, RSVP dock. */
+export function childNamesLine(children: InvitationChild[]): string {
+  return joinChildNames(children.map(childDisplayName))
+}
+
+/** Formal names as one line — calendar title, share copy, OG. */
+export function childFullNamesLine(children: InvitationChild[]): string {
+  return joinChildNames(children.map(childFullName))
+}
+
 /** Same shape, but with every photo swapped for its pre-generated thumbnail. */
 export function thumbChildren(children: InvitationChild[], thumb: (url: string) => string): InvitationChild[] {
   return children.map((child) => ({

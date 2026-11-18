@@ -11,7 +11,7 @@ import { getWpPostAlive } from "@/lib/wpPostCache"
 import { cachedRead } from "@/lib/refCache"
 import { ASSETS } from "@/lib/assets"
 import { thumbUrl, thumbStoryImages } from "@/lib/storageUrl"
-import { resolveChildren, thumbChildren } from "@/lib/children"
+import { childFullNamesLine, resolveChildren, thumbChildren } from "@/lib/children"
 import { toOgImageUrl } from "@/lib/storage"
 import { prettifyGuestSlug, FALLBACK_GUEST_NAME, findGuestForTo, guestToFromParams } from "@/lib/guest-link"
 import { resolveCoupleName } from "@/lib/coupleName"
@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const { data: profile } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("slug, display_name, bride_name, groom_name, bride_full_name, groom_full_name, estimated_wedding_date, selected_template_id, couple_illustration_url, link_thumbnail_url, link_thumbnail_disabled, cover_photos, og_image_url, og_image_width, og_image_height, event_type, subject_gender")
+    .select("slug, display_name, bride_name, groom_name, bride_full_name, groom_full_name, estimated_wedding_date, selected_template_id, couple_illustration_url, link_thumbnail_url, link_thumbnail_disabled, cover_photos, og_image_url, og_image_width, og_image_height, event_type, subject_gender, children")
     .ilike("slug", slug)
     .single()
 
@@ -77,12 +77,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const view = profileView(profile)
   const kids = view.kids
   const labels = view.labels
+  // One ceremony can introduce several ananda (siblings). The share card names
+  // every one of them — "Qari & Rifki", "Qari, Rifki & Rafa" — never only the
+  // first child, whose full name is mirrored into `groom_*`.
+  const kidsNames = kids ? childFullNamesLine(resolveChildren(profile)) || name1 : ""
   const title: Metadata["title"] = kids
-    ? { absolute: `${labels.eventKicker} ${name1} | ${labels.brand}` }
+    ? { absolute: `${labels.eventKicker} ${kidsNames} | ${labels.brand}` }
     : `The Wedding of ${name1}-${name2}`
 
   const tagline = kids
-    ? name1
+    ? kidsNames
     : `${(profile.groom_name || "").trim()} & ${(profile.bride_name || "").trim()}`.replace(/^ & | & $/g, "")
   const date = profile.estimated_wedding_date
     ? new Date(profile.estimated_wedding_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
@@ -207,7 +211,7 @@ export default async function WeddingInvitation({
   if (isBotUserAgent(ua)) {
     const { data: lite } = await supabaseAdmin
       .from("wedding_profiles")
-      .select("id, slug, bride_name, groom_name, bride_full_name, groom_full_name, guest_link_strict")
+      .select("id, slug, bride_name, groom_name, bride_full_name, groom_full_name, guest_link_strict, children, event_type")
       .ilike("slug", slug)
       .maybeSingle()
     if (!lite) notFound()
@@ -235,11 +239,17 @@ export default async function WeddingInvitation({
       }
       if (to && !guestFound && !qr_token && linkStrict) notFound()
     }
-    const names = resolveCoupleName(lite) || "Undangan Pernikahan"
+    const liteView = profileView(lite)
+    const names =
+      (liteView.kids ? childFullNamesLine(resolveChildren(lite)) : "") ||
+      resolveCoupleName(lite) ||
+      "Undangan Pernikahan"
     return (
       <div style={{ padding: 32, fontFamily: "Georgia, serif", textAlign: "center" }}>
         <p style={{ fontSize: 20 }}>{names}</p>
-        <p style={{ fontSize: 14, opacity: 0.7 }}>Mohon doa restu atas pernikahan kami.</p>
+        <p style={{ fontSize: 14, opacity: 0.7 }}>
+          {liteView.kids ? "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu berkenan hadir." : "Mohon doa restu atas pernikahan kami."}
+        </p>
       </div>
     )
   }

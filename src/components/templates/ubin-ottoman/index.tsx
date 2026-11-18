@@ -5,7 +5,7 @@ import type { CSSProperties } from "react"
 import type { TemplateProps } from "@/types/template"
 import { ASSETS } from "@/lib/assets"
 import { eventLabels } from "@/lib/eventType"
-import { childFullName, childInitials, resolveChildren } from "@/lib/children"
+import { childFullName, childFullNamesLine, childInitials, childNamesLine, resolveChildren } from "@/lib/children"
 import { copyPlainText } from "@/lib/clipboard"
 import InvitationOverlay from "@/components/InvitationOverlay"
 import { countdownTarget, formatDotDate, formatLongDate, gcalLink, groomPhoto, photoList } from "../shared/lib"
@@ -117,16 +117,10 @@ export default function UbinOttoman(profile: TemplateProps) {
   const childName = primary ? (primary.name || primary.full_name) : "Ananda"
   const childFull = primary ? childFullName(primary) : childName
   // Several ananda share one ceremony: the cover, the closing card and the RSVP
-  // dock name them all, comma separated ("Raka, Rizky"), instead of showing only
-  // the first child.
-  const childNames =
-    ananda.length > 1
-      ? ananda.map((child) => child.name || child.full_name).filter(Boolean).join(", ")
-      : childName
-  const groupFullName =
-    ananda.length > 1
-      ? ananda.map((child) => childFullName(child)).filter(Boolean).join(", ")
-      : childFull
+  // dock name them all as a sentence list ("Raka & Rizky", "Raka, Rizky & Rafa"),
+  // never only the first child.
+  const childNames = childNamesLine(ananda) || childName
+  const groupFullName = childFullNamesLine(ananda) || childFull
   const closingName = childNames
   const parents = (profile.groom_parents || "").trim()
   const guestName = (profile.guest_name || "").trim() || labels.guestFallback
