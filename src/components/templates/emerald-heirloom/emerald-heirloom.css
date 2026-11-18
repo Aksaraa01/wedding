@@ -117,21 +117,40 @@ body.eh-locked {
   object-fit: fill;
 }
 
-/* Window measured inside the carved frame, above the lilies and clear of the
-   fans: the painted meadow below stays as the mat. */
-.eh-gate__photo {
+/* The photograph sits behind the cut-out plate, so it fills the carved opening
+   exactly like the mempelai portraits (no card edge). The two lily clusters of
+   the plate are re-drawn on top because the cut passes through their petals. */
+.eh-gate__shot {
   position: absolute;
-  left: 34%;
-  top: 17.4%;
-  width: 29%;
-  height: 50.8%;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  object-position: center 30%;
-  border-radius: 2% / 2.4%;
-  box-shadow:
-    0 0 0 1px rgba(255, 250, 243, 0.32),
-    0 18px 44px rgba(10, 16, 10, 0.5),
-    inset 0 0 60px rgba(10, 16, 10, 0.35);
+  object-position: center 20%;
+}
+
+.eh-gate__art {
+  position: relative;
+  z-index: 2;
+}
+
+.eh-gate__lily {
+  position: absolute;
+  z-index: 3;
+  width: 16%;
+  pointer-events: none;
+}
+
+.eh-gate__lily--left {
+  left: 30.5%;
+  bottom: 6%;
+  rotate: -6deg;
+}
+
+.eh-gate__lily--right {
+  left: 55.5%;
+  bottom: 4.5%;
+  scale: -1 1;
 }
 
 .eh-gate__veil {
@@ -145,6 +164,7 @@ body.eh-locked {
 .eh-gate__copy {
   position: absolute;
   inset: 0;
+  z-index: 5;
   display: flex;
   flex-direction: column;
   align-items: center;

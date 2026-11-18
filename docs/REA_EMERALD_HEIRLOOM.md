@@ -82,7 +82,8 @@ fixed art panel at `965/1440` (67%) plus a 480px column; text is
 
 | File | Source | Role |
 |---|---|---|
-| `cover.webp` | `92853/group-123436-(5)` | gate + desktop art panel |
+| `cover.webp` | `92853/group-123436-(5)` | gate + desktop art panel (no photo) |
+| `cover-frame.webp` | cut from `cover.webp` | the same plate with the carved opening cut out (alpha), so the sampul photo fills the frame exactly like the mempelai portraits |
 | `welcome-scene.webp` | `92409/gemini…-5` | painting inside the welcome window |
 | `welcome-frame.webp` | `92412/2-902713-(1)` | carved frame (window above) |
 | `welcome-scene-alt.webp` | `92822/1-9970608` | dimmed opening backdrop |

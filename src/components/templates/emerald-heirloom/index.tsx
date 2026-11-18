@@ -613,8 +613,16 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
       >
         <div className="eh-gate__stage">
           <div className="eh-gate__plate">
-            <img className="eh-gate__art" src={EH_ASSETS.cover} alt="" draggable={false} />
-            {stagePhoto && <img className="eh-gate__photo" src={stagePhoto} alt="" draggable={false} />}
+            {stagePhoto ? (
+              <>
+                <img className="eh-gate__shot" src={stagePhoto} alt="" draggable={false} />
+                <img className="eh-gate__art" src={EH_ASSETS.coverFrame} alt="" draggable={false} />
+                <img className="eh-gate__lily eh-gate__lily--left" src={EH_ASSETS.lilies} alt="" aria-hidden="true" draggable={false} />
+                <img className="eh-gate__lily eh-gate__lily--right" src={EH_ASSETS.lilies} alt="" aria-hidden="true" draggable={false} />
+              </>
+            ) : (
+              <img className="eh-gate__art" src={EH_ASSETS.cover} alt="" draggable={false} />
+            )}
           </div>
         </div>
         <div className="eh-gate__veil" aria-hidden="true" />
