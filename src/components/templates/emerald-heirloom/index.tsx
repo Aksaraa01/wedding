@@ -571,9 +571,17 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
       {trackUrl && <audio ref={audioRef} src={trackUrl} loop preload="metadata" data-warm-audio="" />}
 
       {/* Cover gate. On desktop it stays as the fixed art panel after opening —
-          the reference's split layout — and the invitation scrolls beside it. */}
+          the reference's split layout — and the invitation scrolls beside it.
+          The stage keeps the cover art's 1500×938 geometry, so the couple's
+          photograph can be seated inside the carved frame's opening and stay
+          aligned at every viewport width. */}
       <div className="eh-gate">
-        <img className="eh-gate__art" src={EH_ASSETS.cover} alt="" draggable={false} />
+        <div className="eh-gate__stage">
+          <div className="eh-gate__plate">
+            <img className="eh-gate__art" src={EH_ASSETS.cover} alt="" draggable={false} />
+            {stagePhoto && <img className="eh-gate__photo" src={stagePhoto} alt="" draggable={false} />}
+          </div>
+        </div>
         <div className="eh-gate__veil" aria-hidden="true" />
         <div className="eh-gate__copy">
           <p className="eh-gate__kicker">

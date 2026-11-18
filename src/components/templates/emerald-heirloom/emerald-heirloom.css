@@ -92,13 +92,45 @@ body.eh-locked {
   transition: opacity 0.9s ease, visibility 0.9s ease;
 }
 
-.eh-gate__art {
+/* The 1500×938 stage is scaled to cover the gate (and, on desktop, the left
+   panel). Everything inside it is expressed in the artwork's own percentages,
+   so the photo window cannot drift from the carved opening. */
+.eh-gate__stage {
   position: absolute;
   inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.eh-gate__plate {
+  position: relative;
+  width: max(100%, calc(100svh * 1.5991));
+  aspect-ratio: 1500 / 938;
+  flex: none;
+}
+
+.eh-gate__art {
   width: 100%;
   height: 100%;
+  object-fit: fill;
+}
+
+/* Window measured inside the carved frame, above the lilies and clear of the
+   fans: the painted meadow below stays as the mat. */
+.eh-gate__photo {
+  position: absolute;
+  left: 34%;
+  top: 17.4%;
+  width: 29%;
+  height: 50.8%;
   object-fit: cover;
-  object-position: 54% center;
+  object-position: center 30%;
+  border-radius: 2% / 2.4%;
+  box-shadow:
+    0 0 0 1px rgba(255, 250, 243, 0.32),
+    0 18px 44px rgba(10, 16, 10, 0.5),
+    inset 0 0 60px rgba(10, 16, 10, 0.35);
 }
 
 .eh-gate__veil {
@@ -2157,11 +2189,6 @@ body.eh-locked {
     opacity: 1;
     visibility: visible;
     pointer-events: none;
-  }
-
-  .eh-root.is-open .eh-gate__art {
-    object-position: 34% center;
-    scale: 1.04;
   }
 
   .eh-root.is-open .eh-gate__veil {
