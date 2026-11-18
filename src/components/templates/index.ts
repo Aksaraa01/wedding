@@ -43,6 +43,7 @@ import FilmRoll from "./film-roll"
 import SongketMarun from "./songket-marun"
 import LenteraZamrud from "./lentera-zamrud"
 import UbinOttoman from "./ubin-ottoman"
+import Majestic from "./majestic"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -89,6 +90,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "songket-marun": SongketMarun,
   "lentera-zamrud": LenteraZamrud,
   "ubin-ottoman": UbinOttoman,
+  majestic: Majestic,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -1394,7 +1396,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       story_photo: false,
       sections: {
         opening_description: true,
-        quote: false,
+        quote: true,
         countdown: true,
         inviting: true,
         video: true,
@@ -1837,7 +1839,53 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       extras: true,
     },
   },
-
+  {
+    code: "majestic",
+    name: "Majestic",
+    description:
+      "Undangan ivory bersulam manik: film lampu gantung dan pohon palem, kertas bertekstur dengan ornamen bordir, tipografi skrip klasik, hitung mundur besar, kartu lokasi berbingkai ukir, dan penutup berupa lengkung bordir.",
+    theme: {
+      fonts: { display: "Cormorant Garamond", script: "Parisienne", body: "Cormorant Garamond" },
+      colors: {
+        surface: "#f0e8e0",
+        text: "#5c6342",
+        accent: "#c3a06a",
+        accentMuted: "#8f916f",
+        overlay: "#fbf7f1",
+        dark: "#5c6342",
+      },
+      ornaments: { divider: "floral", border: "minimal", frame: "arch" },
+      motion: { enabled: true, duration: 0.8, stagger: 0.08 },
+    },
+    content: {
+      // The cover is the reference's beaded chandelier film, so there is no
+      // cover-photo slot: the two slots are semantic (venue plate, closing
+      // portrait). Portraits come from the mempelai photo fields.
+      cover_slots: 2,
+      cover_slot_labels: ["Foto Tempat Acara", "Foto Penutup"],
+      cover_slot_sections: ["events", null],
+      groom_photo: "single",
+      bride_photo: "single",
+      person_photos: true,
+      story_photo: true,
+      initials: false,
+      sections: {
+        opening_description: true,
+        quote: false,
+        countdown: true,
+        inviting: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        dresscode: true,
+        livestream: false,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
 ]
 export function getTemplateConfig(code: string): TemplateConfig | undefined {
   return TEMPLATE_CONFIGS.find((t) => t.code === code)

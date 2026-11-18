@@ -48,6 +48,7 @@ export const TEMPLATE_EXTRA_SECTION_OF: Record<string, string> = {
   board_footer: "sampul",
   seat_class: "sampul",
   save_date_label: "sampul",
+  countdown_title: "acara",
   countdown_intro: "sampul",
   reveal_hint: "sampul",
   reveal_title: "sampul",
@@ -82,6 +83,7 @@ export const TEMPLATE_EXTRA_SECTION_OF: Record<string, string> = {
   video_intro: "video",
   video_caption: "video",
   video_kicker: "video",
+  dresscode_title: "dresscode",
   dresscode_intro: "dresscode",
   dresscode_kicker: "dresscode",
   dresscode_note: "dresscode",
@@ -89,9 +91,11 @@ export const TEMPLATE_EXTRA_SECTION_OF: Record<string, string> = {
   gift_intro_description: "gift",
   gift_kicker: "gift",
   gift_button: "gift",
+  gift_wish: "gift",
   gift_signature: "gift",
   copy_account_toast: "gift",
   copy_address_toast: "gift",
+  copy_account_button: "gift",
   copy_address_button: "gift",
   gift_send_label: "gift",
   gift_transfer_note: "gift",
@@ -161,12 +165,14 @@ export const TEMPLATE_EXTRA_ORDER_OF: Record<string, number> = {
   gift_kicker: 46,
   gift_intro_title: 47,
   gift_intro_description: 48,
+  gift_wish: 48.5,
   gift_signature: 49,
   gift_button: 50,
   gift_transfer_note: 51,
   gift_address_note: 52,
   gift_send_label: 53,
   dresscode_kicker: 51,
+  dresscode_title: 51.5,
   dresscode_intro: 52,
   dresscode_note: 53,
   wishes_kicker: 54,
@@ -183,10 +189,76 @@ export const TEMPLATE_EXTRA_ORDER_OF: Record<string, number> = {
   closing_see: 65,
   copy_account_toast: 66,
   copy_address_toast: 67,
+  copy_account_button: 67.5,
   copy_address_button: 68,
+  welcome_arc: 69,
+  countdown_title: 26,
+  countdown_day: 71,
+  countdown_hour: 72,
+  countdown_minute: 73,
+  countdown_second: 74,
+  menu_kicker: 75,
+  menu_title: 76,
+  menu_items: 77,
+  travel_kicker: 78,
+  travel_title: 79,
+  travel_description: 80,
+  travel_note: 81,
+  stay_kicker: 82,
+  stay_title: 83,
+  stay_description: 84,
+  gift_bank_label: 85,
 }
 
 export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
+  {
+    key: "gate_hint",
+    label: "Petunjuk Buka Undangan",
+    section: "sampul",
+    order: 6,
+    placeholder: "Ketuk untuk Membuka",
+    templates: ["majestic"],
+  },
+  {
+    key: "closing_title",
+    label: "Judul Penutup",
+    section: "closing",
+    order: 63,
+    placeholder: "Terima Kasih",
+    templates: ["majestic"],
+  },
+  {
+    key: "countdown_days",
+    label: "Label Hitung Mundur — Hari",
+    section: "acara",
+    order: 71,
+    placeholder: "Hari",
+    templates: ["majestic"],
+  },
+  {
+    key: "countdown_hours",
+    label: "Label Hitung Mundur — Jam",
+    section: "acara",
+    order: 72,
+    placeholder: "Jam",
+    templates: ["majestic"],
+  },
+  {
+    key: "countdown_minutes",
+    label: "Label Hitung Mundur — Menit",
+    section: "acara",
+    order: 73,
+    placeholder: "Menit",
+    templates: ["majestic"],
+  },
+  {
+    key: "countdown_seconds",
+    label: "Label Hitung Mundur — Detik",
+    section: "acara",
+    order: 74,
+    placeholder: "Detik",
+    templates: ["majestic"],
+  },
   {
     key: "welcome_invite",
     label: "Teks Ajakan Sampul",
@@ -352,7 +424,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       lace: "Every chapter of our story has been leading to this day.",
       "embroidered-garden": "Every chapter of our story has been leading to this day.",
     },
-    templates: ["silver-gelatin", "evermore", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
+    templates: ["silver-gelatin", "evermore", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "majestic"],
   },
   {
     key: "gallery_intro",
@@ -810,7 +882,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   },
   {
     key: "inviting_kicker",
-    label: "Label Turut Mengundang",
+    label: "Label Turut Mengundang (opsional)",
     placeholders: { "ubin-ottoman": "Turut Mengundang", "love-line": "with honour", "film-roll": "Also inviting", teatro: "With the blessing of" , "silver-gelatin": "With the blessing of" },
     placeholder: "Turut Mengundang",
     templates: ["silver-gelatin", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "ubin-ottoman"],
@@ -936,6 +1008,12 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   },
 
   {
+    key: "copy_account_button",
+    label: "Teks Tombol Salin Rekening",
+    templates: [],
+    placeholders: {},
+  },
+  {
     key: "save_date_label",
     label: "Teks Save the Date",
     placeholders: { "film-roll": "Save the Date", teatro: "Save the Date" },
@@ -1058,7 +1136,10 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     section: "mempelai",
     order: 6,
     placeholder: "the one",
-    templates: ["love-line"],
+    placeholders: {
+      majestic: "Mempelai Pertama",
+    },
+    templates: ["love-line", "majestic"],
   },
   {
     key: "person_two_label",
@@ -1066,7 +1147,10 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     section: "mempelai",
     order: 7,
     placeholder: "the beauty",
-    templates: ["love-line"],
+    placeholders: {
+      majestic: "Mempelai Kedua",
+    },
+    templates: ["love-line", "majestic"],
   },
   {
     key: "parents_label_male",
@@ -1083,6 +1167,328 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     order: 9,
     placeholder: "daughter of",
     templates: ["love-line"],
+  },
+  {
+    key: "cover_kicker",
+    label: "Teks Pembuka Sampul",
+    multiline: true,
+    rows: 2,
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "open_button",
+    label: "Teks Tombol Buka",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "cover_apology",
+    label: "Permohonan Maaf Sampul",
+    multiline: true,
+    rows: 2,
+    templates: ["majestic"],
+    placeholders: {
+      majestic: "Mohon maaf apabila ada kekurangan dalam penyambutan kami." },
+  },
+  {
+    key: "save_date_label",
+    label: "Teks Tombol Save the Date",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "countdown_title",
+    label: "Judul Hitung Mundur",
+    templates: ["majestic"],
+    placeholders: {
+      majestic: "Menghitung Hari" },
+  },
+  {
+    key: "countdown_intro",
+    label: "Keterangan Hitung Mundur",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "mempelai_kicker",
+    label: "Label Mempelai",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "profiles_intro",
+    label: "Pengantar Mempelai",
+    multiline: true,
+    rows: 2,
+    templates: ["majestic"],
+    placeholders: {
+      majestic: "Dua keluarga, satu meja panjang, dan hari yang akan kami kenang selamanya." },
+  },
+  {
+    key: "parents_label",
+    label: "Label Orang Tua",
+    templates: ["majestic"],
+    placeholders: {
+      majestic: "Putra/Putri dari" },
+  },
+  {
+    key: "love_story_title",
+    label: "Judul Cerita Cinta",
+    templates: ["majestic"],
+    placeholders: {
+      majestic: "Kisah Cinta" },
+  },
+  {
+    key: "events_title",
+    label: "Judul Acara",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "events_kicker",
+    label: "Label Acara",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "events_note",
+    label: "Catatan Acara",
+    multiline: true,
+    rows: 2,
+    templates: ["majestic"],
+    placeholders: {
+      majestic: "Kami menantikan kehadiran Anda di hari istimewa kami." },
+  },
+  {
+    key: "maps_label",
+    label: "Teks Tombol Peta",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "inviting_kicker",
+    label: "Label Turut Mengundang (opsional)",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "inviting_title",
+    label: "Judul Turut Mengundang",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "inviting_intro",
+    label: "Pengantar Turut Mengundang",
+    multiline: true,
+    rows: 2,
+    templates: ["majestic"],
+    placeholders: {
+      majestic: "Dengan penuh rasa syukur, kami juga menghadirkan keluarga yang turut mengundang." },
+  },
+  {
+    key: "rundown_title",
+    label: "Judul Rundown",
+    templates: ["majestic"],
+    placeholders: {
+      majestic: "Rangkaian Hari" },
+  },
+  {
+    key: "rundown_kicker",
+    label: "Label Rundown",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "rundown_intro",
+    label: "Pengantar Rundown",
+    multiline: true,
+    rows: 2,
+    templates: ["majestic"],
+    placeholders: {
+      majestic: "Kami menyiapkan rangkaian acara berikut agar Anda tidak melewatkan momen apa pun." },
+  },
+  {
+    key: "gallery_title",
+    label: "Judul Galeri",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "gallery_intro",
+    label: "Pengantar Galeri",
+    multiline: true,
+    rows: 2,
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "gallery_quote",
+    label: "Kutipan Galeri",
+    multiline: true,
+    rows: 2,
+    templates: ["majestic"],
+    placeholders: {
+      majestic: "Setiap kisah cinta indah, tetapi kisah kami adalah favorit kami." },
+  },
+  {
+    key: "video_kicker",
+    label: "Label Video",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "video_title",
+    label: "Judul Video",
+    templates: ["majestic"],
+    placeholders: {
+      majestic: "Film Kami" },
+  },
+  {
+    key: "video_intro",
+    label: "Pengantar Video",
+    multiline: true,
+    rows: 2,
+    templates: ["majestic"],
+    placeholders: {
+      majestic: "Hari kami, dalam gerak dan gambar." },
+  },
+  {
+    key: "gift_intro_title",
+    label: "Judul Hadiah",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "gift_intro_description",
+    label: "Pengantar Hadiah",
+    multiline: true,
+    rows: 2,
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "gift_wish",
+    label: "Kalimat Dalam Karangan Bunga Hadiah",
+    multiline: true,
+    rows: 3,
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "gift_button",
+    label: "Teks Tombol Hadiah",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "dresscode_kicker",
+    label: "Judul Dress Code",
+    templates: ["majestic"],
+    placeholders: {
+      majestic: "Dress Code" },
+  },
+  {
+    key: "dresscode_title",
+    label: "Label Dress Code",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "dresscode_intro",
+    label: "Pengantar Dress Code",
+    multiline: true,
+    rows: 3,
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "dresscode_note",
+    label: "Catatan Dress Code",
+    multiline: true,
+    rows: 2,
+    templates: ["majestic"],
+    placeholders: {
+      majestic: "Mohon hindari warna putih — warna tersebut kami sediakan untuk mempelai." },
+  },
+  {
+    key: "wishes_title",
+    label: "Judul Ucapan",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "wishes_intro",
+    label: "Pengantar Ucapan",
+    multiline: true,
+    rows: 2,
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "wishes_name_label",
+    label: "Label Nama Ucapan",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "wishes_name_placeholder",
+    label: "Placeholder Nama Ucapan",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "wishes_message_label",
+    label: "Label Pesan Ucapan",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "wishes_message_placeholder",
+    label: "Placeholder Pesan Ucapan",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "wishes_submit",
+    label: "Teks Tombol Ucapan",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "wishes_empty",
+    label: "Teks Ucapan Kosong",
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "closing_message",
+    label: "Pesan Penutup",
+    multiline: true,
+    rows: 3,
+    templates: [],
+    placeholders: {},
+  },
+  {
+    key: "copy_account_toast",
+    label: "Toast Salin Rekening",
+    templates: ["majestic"],
+    placeholders: {
+      majestic: "Nomor rekening disalin" },
+  },
+  {
+    key: "copy_address_toast",
+    label: "Toast Salin Alamat",
+    templates: ["majestic"],
+    placeholders: {
+      majestic: "Alamat disalin" },
+  },
+  {
+    key: "copy_address_button",
+    label: "Teks Tombol Salin Alamat",
+    templates: [],
+    placeholders: {},
   },
 ]
 
@@ -1206,8 +1612,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Judul Bagian Ananda",
     section: "mempelai",
     order: 20,
-    templates: ["ubin-ottoman"],
-    placeholders: { "ubin-ottoman": "Sang Buah Hati" },
+    templates: ["ubin-ottoman", "majestic"],
+    placeholders: {
+      majestic: "Mempelai", "ubin-ottoman": "Sang Buah Hati" },
   },
   {
     key: "agenda_kicker",
@@ -1230,8 +1637,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Teks Tombol Simpan Tanggal",
     section: "acara",
     order: 24,
-    templates: ["ubin-ottoman"],
-    placeholders: { "ubin-ottoman": "Simpan Tanggal" },
+    templates: ["ubin-ottoman", "majestic"],
+    placeholders: {
+      majestic: "Simpan Tanggal", "ubin-ottoman": "Simpan Tanggal" },
   },
   {
     key: "wishes_loading",
@@ -1314,8 +1722,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Judul Hitung Mundur",
     section: "acara",
     order: 10,
-    templates: ["lentera-zamrud"],
-    placeholders: { "lentera-zamrud": "Menuju Hari Bahagia" },
+    templates: ["lentera-zamrud", "majestic"],
+    placeholders: {
+      majestic: "Menuju hari bahagia kami", "lentera-zamrud": "Menuju Hari Bahagia" },
   },
   {
     key: "events_title",
@@ -1562,16 +1971,18 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Teks Kecil di Sampul",
     section: "sampul",
     order: 20,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Walimatul Khitan" },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Kami Akan Menikah", "songket-marun": "Walimatul Khitan" },
   },
   {
     key: "open_button",
     label: "Teks Tombol Buka",
     section: "sampul",
     order: 21,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Buka Undangan" },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Buka Undangan", "songket-marun": "Buka Undangan" },
   },
   {
     key: "cover_guest_label",
@@ -1580,8 +1991,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     order: 22,
     multiline: true,
     rows: 2,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Kepada Yth. Bapak/Ibu/Saudara/i" },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Kepada Yth. Bapak/Ibu/Saudara/i", "songket-marun": "Kepada Yth. Bapak/Ibu/Saudara/i" },
   },
   {
     key: "basmalah",
@@ -1646,8 +2058,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Judul Acara",
     section: "acara",
     order: 24,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Waktu & Tempat" },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Waktu & Tempat", "songket-marun": "Waktu & Tempat" },
   },
   {
     key: "events_intro",
@@ -1664,8 +2077,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Teks Tombol Lokasi",
     section: "acara",
     order: 26,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Lihat Lokasi" },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Lihat Lokasi", "songket-marun": "Lihat Lokasi" },
   },
   {
     key: "gallery_kicker",
@@ -1680,8 +2094,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Judul Galeri",
     section: "galeri",
     order: 11,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Momen Bahagia" },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Galeri", "songket-marun": "Momen Bahagia" },
   },
   {
     key: "gallery_intro",
@@ -1690,8 +2105,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     order: 12,
     multiline: true,
     rows: 2,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Sepenggal cerita ananda menjelang hari istimewanya." },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Sepenggal kenangan sebelum hari istimewa ini.", "songket-marun": "Sepenggal cerita ananda menjelang hari istimewanya." },
   },
   {
     key: "gift_kicker",
@@ -1706,8 +2122,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Judul Tanda Kasih",
     section: "gift",
     order: 11,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Tanda Kasih" },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Hadiah Pernikahan", "songket-marun": "Tanda Kasih" },
   },
   {
     key: "gift_intro_description",
@@ -1716,8 +2133,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     order: 12,
     multiline: true,
     rows: 3,
-    templates: ["songket-marun"],
+    templates: ["songket-marun", "majestic"],
     placeholders: {
+      majestic: "Doa restu Bapak/Ibu/Saudara/i adalah hadiah terindah bagi kami. Bila berkenan memberikan tanda kasih, dapat melalui kanal berikut.",
       "songket-marun":
         "Doa restu Bapak/Ibu/Saudara/i adalah hadiah terindah bagi kami. Bila berkenan memberikan tanda kasih, dapat melalui tombol berikut.",
     },
@@ -1727,24 +2145,27 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Judul Kartu Kirim Hadiah",
     section: "gift",
     order: 13,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Kirim Hadiah" },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Kirim Hadiah", "songket-marun": "Kirim Hadiah" },
   },
   {
     key: "copy_account_button",
     label: "Teks Tombol Salin Nomor",
     section: "gift",
     order: 14,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Salin Nomor" },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Salin Nomor", "songket-marun": "Salin Nomor" },
   },
   {
     key: "copy_address_button",
     label: "Teks Tombol Salin Alamat",
     section: "gift",
     order: 15,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Salin Alamat" },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Salin Alamat", "songket-marun": "Salin Alamat" },
   },
   {
     key: "wishes_kicker",
@@ -1759,8 +2180,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Judul Ucapan",
     section: "wishes",
     order: 11,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Titip Doa" },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Titip Pesan", "songket-marun": "Titip Doa" },
   },
   {
     key: "wishes_intro",
@@ -1769,64 +2191,72 @@ TEMPLATE_EXTRA_FIELDS.push(
     order: 12,
     multiline: true,
     rows: 2,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Tuliskan doa dan harapan terbaik untuk ananda di hari istimewanya." },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Sampaikan doa dan harapan terbaik untuk kami di hari istimewa ini.", "songket-marun": "Tuliskan doa dan harapan terbaik untuk ananda di hari istimewanya." },
   },
   {
     key: "wishes_name_label",
     label: "Label Kolom Nama",
     section: "wishes",
     order: 13,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Nama Anda" },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Nama Anda", "songket-marun": "Nama Anda" },
   },
   {
     key: "wishes_name_placeholder",
     label: "Placeholder Nama",
     section: "wishes",
     order: 14,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Tulis nama Anda" },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Nama lengkap", "songket-marun": "Tulis nama Anda" },
   },
   {
     key: "wishes_message_label",
     label: "Label Kolom Ucapan",
     section: "wishes",
     order: 15,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Doa dan ucapan" },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Ucapan & doa", "songket-marun": "Doa dan ucapan" },
   },
   {
     key: "wishes_message_placeholder",
     label: "Placeholder Ucapan",
     section: "wishes",
     order: 16,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Tulis doa dan ucapan" },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Tuliskan pesan Anda", "songket-marun": "Tulis doa dan ucapan" },
   },
   {
     key: "wishes_submit",
     label: "Teks Tombol Kirim Ucapan",
     section: "wishes",
     order: 17,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Kirim Ucapan" },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Kirim Ucapan", "songket-marun": "Kirim Ucapan" },
   },
   {
     key: "wishes_empty",
     label: "Teks Saat Belum Ada Ucapan",
     section: "wishes",
     order: 18,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Belum ada ucapan. Jadilah yang pertama." },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Belum ada ucapan. Jadilah yang pertama.", "songket-marun": "Belum ada ucapan. Jadilah yang pertama." },
   },
   {
     key: "wishes_loading",
     label: "Teks Saat Memuat Ucapan",
     section: "wishes",
     order: 19,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Memuat ucapan" },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Memuat ucapan", "songket-marun": "Memuat ucapan" },
   },
   {
     key: "inviting_kicker",
@@ -1841,8 +2271,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Judul Turut Mengundang",
     section: "inviting",
     order: 11,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Keluarga & Kerabat" },
+    templates: ["songket-marun", "majestic"],
+    placeholders: {
+      majestic: "Keluarga & Kerabat", "songket-marun": "Keluarga & Kerabat" },
   },
   {
     key: "closing_thanks",
@@ -1859,8 +2290,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     order: 11,
     multiline: true,
     rows: 3,
-    templates: ["songket-marun"],
+    templates: ["songket-marun", "majestic"],
     placeholders: {
+      majestic: "Merupakan suatu kebahagiaan dan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.",
       "songket-marun":
         "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu untuk putra kami.",
     },
@@ -1889,4 +2321,5 @@ TEMPLATE_EXTRA_FIELDS.push(
     templates: ["songket-marun"],
     placeholders: { "songket-marun": "Keluarga Besar" },
   },
+
 )

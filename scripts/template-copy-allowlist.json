@@ -1828,6 +1828,14 @@
         "Menit": "countdown unit — a time unit, never couple copy",
         "Detik": "countdown unit — a time unit, never couple copy"
       }
+    },
+    "majestic": {
+      "allow": {
+        "Aksaraa Wedding": "brand badge logo alt text, fixed by the platform",
+        "Wedding by Aksaraa": "brand attribution in the Aksaraa footer badge required by every in-house template",
+        "Hubungi Aksaraa Wedding via WhatsApp": "WCAG name for the brand badge link; the platform decides the destination",
+        "Tutup": "WCAG name for the icon-only lightbox close button; must not depend on couple copy"
+      }
     }
   }
 }
