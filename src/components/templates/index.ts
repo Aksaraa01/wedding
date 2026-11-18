@@ -45,6 +45,7 @@ import LenteraZamrud from "./lentera-zamrud"
 import UbinOttoman from "./ubin-ottoman"
 import Fresco from "./fresco"
 import Majestic from "./majestic"
+import EmeraldHeirloom from "./emerald-heirloom"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -93,6 +94,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "ubin-ottoman": UbinOttoman,
   fresco: Fresco,
   majestic: Majestic,
+  "emerald-heirloom": EmeraldHeirloom,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -1927,6 +1929,53 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         gift: true,
         dresscode: true,
         livestream: false,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "emerald-heirloom",
+    name: "Emerald Heirloom",
+    description:
+      "Undangan hijau zamrud bergaya kartu pos viktoria: taman cat-air di balik lengkung ukir, renda krem, kipas sutra, angsa dan bunga lili, bingkai berjendela untuk kedua mempelai, serta tipografi Cinzel Decorative.",
+    theme: {
+      fonts: { display: "Cinzel Decorative", script: "Abhaya Libre", body: "Abhaya Libre" },
+      colors: {
+        surface: "#566a58",
+        text: "#daf1d8",
+        accent: "#6e2237",
+        accentMuted: "#e9f6e4",
+        overlay: "#fffaf3",
+        dark: "#2f3e2d",
+      },
+      ornaments: { divider: "floral", border: "ornate", frame: "arch" },
+      motion: { enabled: true, duration: 0.9, stagger: 0.06 },
+    },
+    content: {
+      // The cover is the design's own painted garden — a cover-photo slot here
+      // would be an upload the template never renders. Portraits come from the
+      // mempelai fields; the gallery and the milestones carry their own photos.
+      cover_slots: 0,
+      groom_photo: "single",
+      bride_photo: "single",
+      person_photos: true,
+      story_photo: true,
+      initials: false,
+      sections: {
+        opening_description: true,
+        quote: true,
+        countdown: true,
+        inviting: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        dresscode: true,
+        // Reference block kept on purpose: "Join Live" is the reference's own
+        // section and it is backed by `wedding_profiles.livestream`.
+        livestream: true,
         rundown: true,
         contacts: false,
       },

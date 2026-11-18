@@ -832,5 +832,17 @@
     "weight": "400",
     "style": "normal",
     "bytes": 14420
+  },
+  "abhayalibre-400.woff2": {
+    "family": "Abhaya Libre",
+    "weight": "400",
+    "style": "normal",
+    "bytes": 12384
+  },
+  "abhayalibre-700.woff2": {
+    "family": "Abhaya Libre",
+    "weight": "700",
+    "style": "normal",
+    "bytes": 12856
   }
 }

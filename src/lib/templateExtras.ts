@@ -83,6 +83,7 @@ export const TEMPLATE_EXTRA_SECTION_OF: Record<string, string> = {
   video_intro: "video",
   video_caption: "video",
   video_kicker: "video",
+  livestream_cta: "video",
   dresscode_title: "dresscode",
   dresscode_intro: "dresscode",
   dresscode_kicker: "dresscode",
@@ -190,6 +191,7 @@ export const TEMPLATE_EXTRA_ORDER_OF: Record<string, number> = {
   copy_account_toast: 66,
   copy_address_toast: 67,
   copy_account_button: 67.5,
+  livestream_cta: 80,
   copy_address_button: 68,
   welcome_arc: 69,
   countdown_title: 26,
@@ -270,9 +272,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "ivory-lace": "Dear Family & Friends",
       "lunar-blossom": "Anda diundang untuk merayakan pernikahan",
       "embroidered-garden": "You are invited to the wedding of",
-      lace: "Together with their families",
-    },
-    templates: ["lunar-blossom", "embroidered-garden", "lace", "ivory-lace", "teatro"],
+      lace: "Together with their families", "emerald-heirloom": "We're getting married." },
+    templates: ["lunar-blossom", "embroidered-garden", "lace", "ivory-lace", "teatro", "emerald-heirloom"],
   },
   {
     key: "events_intro",
@@ -422,9 +423,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
       "cinnabar-seal": "Bab-bab kecil yang membawa kami sampai ke hari ini.",
       "ivory-lace": "The chapters that brought us here.",
       lace: "Every chapter of our story has been leading to this day.",
-      "embroidered-garden": "Every chapter of our story has been leading to this day.",
-    },
-    templates: ["silver-gelatin", "evermore", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "majestic"],
+      "embroidered-garden": "Every chapter of our story has been leading to this day.", "emerald-heirloom": "A few of the moments that led us here." },
+    templates: ["silver-gelatin", "evermore", "embroidered-garden", "lace", "ivory-lace", "cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "majestic", "emerald-heirloom"],
   },
   {
     key: "gallery_intro",
@@ -830,9 +830,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "opening_kicker",
     label: "Label Bagian Pembuka",
-    placeholders: { "love-line": "with grateful hearts", "film-roll": "Prologue", teatro: "Prologue" },
+    placeholders: { "love-line": "with grateful hearts", "film-roll": "Prologue", teatro: "Prologue", "emerald-heirloom": "A Word of Welcome" },
     placeholder: "With Blessings",
-    templates: ["cinnabar-seal", "iris", "teatro", "film-roll", "love-line"],
+    templates: ["cinnabar-seal", "iris", "teatro", "film-roll", "love-line", "emerald-heirloom"],
   },
   {
     key: "mempelai_kicker",
@@ -851,9 +851,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "story_kicker",
     label: "Label Kecil Kisah Cinta",
-    placeholders: { "love-line": "our journey", "film-roll": "Scene", teatro: "In Three Acts" , "silver-gelatin": "Love story" },
+    placeholders: { "love-line": "our journey", "film-roll": "Scene", teatro: "In Three Acts" , "silver-gelatin": "Love story", "emerald-heirloom": "Chapters" },
     placeholder: "Our",
-    templates: ["silver-gelatin", "cinnabar-seal", "teatro", "film-roll", "love-line"],
+    templates: ["silver-gelatin", "cinnabar-seal", "teatro", "film-roll", "love-line", "emerald-heirloom"],
   },
   {
     key: "events_kicker",
@@ -1124,7 +1124,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     section: "mempelai",
     order: 2,
     placeholder: "The Couple",
-    templates: ["love-line"],
+    placeholders: { "emerald-heirloom": "Bride & Groom" },
+    templates: ["love-line", "emerald-heirloom"],
   },
   {
     key: "person_one_label",
@@ -1497,9 +1498,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Permohonan Maaf Sampul",
     multiline: true,
     rows: 2,
-    templates: ["fresco", "majestic"],
+    templates: ["fresco", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Mohon maaf apabila ada kekurangan dalam penyambutan kami.", fresco: "We apologize for any misspelling of your name or title." },
+      majestic: "Mohon maaf apabila ada kekurangan dalam penyambutan kami.", fresco: "We apologize for any misspelling of your name or title.", "emerald-heirloom": "We apologize for any misspelling of your name or title." },
   },
 
   {
@@ -1512,9 +1513,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "countdown_title",
     label: "Judul Hitung Mundur",
-    templates: ["fresco", "majestic"],
+    templates: ["fresco", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Save the Date", fresco: "Countdown" },
+      majestic: "Save the Date", fresco: "Countdown", "emerald-heirloom": "Save The Date" },
   },
 
   {
@@ -1527,8 +1528,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "mempelai_kicker",
     label: "Label Mempelai",
-    templates: ["fresco"],
-    placeholders: { fresco: "The Couple" },
+    templates: ["fresco", "emerald-heirloom"],
+    placeholders: { fresco: "The Couple", "emerald-heirloom": "Bride & Groom" },
   },
 
   {
@@ -1536,25 +1537,25 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Pengantar Mempelai",
     multiline: true,
     rows: 2,
-    templates: ["fresco", "majestic"],
+    templates: ["fresco", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Dua keluarga, satu meja panjang, dan hari yang akan kami kenang selamanya.", fresco: "Two families, one long table, and the sea as our witness." },
+      majestic: "Dua keluarga, satu meja panjang, dan hari yang akan kami kenang selamanya.", fresco: "Two families, one long table, and the sea as our witness.", "emerald-heirloom": "With great joy and respect, we cordially invite you to attend the wedding celebration of our beloved son and daughter." },
   },
 
   {
     key: "parents_label",
     label: "Label Orang Tua",
-    templates: ["fresco", "majestic"],
+    templates: ["fresco", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Putra/Putri dari", fresco: "Blessed by" },
+      majestic: "Putra/Putri dari", fresco: "Blessed by", "emerald-heirloom": "Child of" },
   },
 
   {
     key: "love_story_title",
     label: "Judul Cerita Cinta",
-    templates: ["fresco", "majestic"],
+    templates: ["fresco", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Kisah Cinta", fresco: "Our Story" },
+      majestic: "Kisah Cinta", fresco: "Our Story", "emerald-heirloom": "Our Story" },
   },
 
   {
@@ -1576,9 +1577,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Catatan Acara",
     multiline: true,
     rows: 2,
-    templates: ["fresco", "majestic"],
+    templates: ["fresco", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Kami menantikan kehadiran Anda di hari istimewa kami.", fresco: "Doors open thirty minutes before the ceremony." },
+      majestic: "Kami menantikan kehadiran Anda di hari istimewa kami.", fresco: "Doors open thirty minutes before the ceremony.", "emerald-heirloom": "Doors open thirty minutes before the ceremony." },
   },
 
   {
@@ -1607,24 +1608,24 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Pengantar Turut Mengundang",
     multiline: true,
     rows: 2,
-    templates: ["fresco", "majestic"],
+    templates: ["fresco", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Dengan penuh rasa syukur, kami juga menghadirkan keluarga yang turut mengundang.", fresco: "We also present the families who extend this invitation alongside us." },
+      majestic: "Dengan penuh rasa syukur, kami juga menghadirkan keluarga yang turut mengundang.", fresco: "We also present the families who extend this invitation alongside us.", "emerald-heirloom": "Together with the families who extend this invitation alongside us." },
   },
 
   {
     key: "rundown_title",
     label: "Judul Rundown",
-    templates: ["fresco", "majestic"],
+    templates: ["fresco", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Rangkaian Hari", fresco: "The Day" },
+      majestic: "Rangkaian Hari", fresco: "The Day", "emerald-heirloom": "Rundown" },
   },
 
   {
     key: "rundown_kicker",
     label: "Label Rundown",
-    templates: ["fresco"],
-    placeholders: { fresco: "Program" },
+    templates: ["fresco", "emerald-heirloom"],
+    placeholders: { fresco: "Program", "emerald-heirloom": "Program" },
   },
 
   {
@@ -1632,9 +1633,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Pengantar Rundown",
     multiline: true,
     rows: 2,
-    templates: ["fresco", "majestic"],
+    templates: ["fresco", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Kami menyiapkan rangkaian acara berikut agar Anda tidak melewatkan momen apa pun.", fresco: "Our wedding day, from sunset drinks to the last dance." },
+      majestic: "Kami menyiapkan rangkaian acara berikut agar Anda tidak melewatkan momen apa pun.", fresco: "Our wedding day, from sunset drinks to the last dance.", "emerald-heirloom": "The order of our celebration, from the first arrival to the last dance." },
   },
 
   {
@@ -1658,24 +1659,24 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Kutipan Galeri",
     multiline: true,
     rows: 2,
-    templates: ["fresco", "majestic"],
+    templates: ["fresco", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Setiap kisah cinta indah, tetapi kisah kami adalah favorit kami.", fresco: "Every love story is beautiful, but ours is my favourite." },
+      majestic: "Setiap kisah cinta indah, tetapi kisah kami adalah favorit kami.", fresco: "Every love story is beautiful, but ours is my favourite.", "emerald-heirloom": "Every love story is beautiful, but ours is my favourite." },
   },
 
   {
     key: "video_kicker",
     label: "Label Video",
-    templates: ["fresco"],
-    placeholders: { fresco: "The Film" },
+    templates: ["fresco", "emerald-heirloom"],
+    placeholders: { fresco: "The Film", "emerald-heirloom": "Our Film" },
   },
 
   {
     key: "video_title",
     label: "Judul Video",
-    templates: ["fresco", "majestic"],
+    templates: ["fresco", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "The Film", fresco: "Our Film" },
+      majestic: "The Film", fresco: "Our Film", "emerald-heirloom": "Our Film" },
   },
 
   {
@@ -1683,9 +1684,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Pengantar Video",
     multiline: true,
     rows: 2,
-    templates: ["fresco", "majestic"],
+    templates: ["fresco", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Hari kami, dalam gerak dan gambar.", fresco: "The day as it happened, kept in motion." },
+      majestic: "Hari kami, dalam gerak dan gambar.", fresco: "The day as it happened, kept in motion.", "emerald-heirloom": "The day as it happened, kept in motion." },
   },
 
   {
@@ -1709,30 +1710,30 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Kalimat Dalam Karangan Bunga Hadiah",
     multiline: true,
     rows: 3,
-    templates: ["fresco"],
-    placeholders: { fresco: "If you wish to honour us with a gift, we kindly prefer monetary contributions." },
+    templates: ["fresco", "emerald-heirloom"],
+    placeholders: { fresco: "If you wish to honour us with a gift, we kindly prefer monetary contributions.", "emerald-heirloom": "Your presence is the greatest gift, but if you wish to honour us with a gift, we would be grateful." },
   },
 
   {
     key: "gift_button",
     label: "Teks Tombol Hadiah",
-    templates: ["fresco"],
-    placeholders: { fresco: "View bank details" },
+    templates: ["fresco", "emerald-heirloom"],
+    placeholders: { fresco: "View bank details", "emerald-heirloom": "Wedding Gift" },
   },
 
   {
     key: "dresscode_kicker",
     label: "Judul Dress Code",
-    templates: ["fresco", "majestic"],
+    templates: ["fresco", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Dress Code", fresco: "Dress Code" },
+      majestic: "Dress Code", fresco: "Dress Code", "emerald-heirloom": "Dress Code" },
   },
 
   {
     key: "dresscode_title",
     label: "Label Dress Code",
-    templates: ["fresco"],
-    placeholders: { fresco: "Black Tie" },
+    templates: ["fresco", "emerald-heirloom"],
+    placeholders: { fresco: "Black Tie", "emerald-heirloom": "Garden Formal" },
   },
 
   {
@@ -1740,8 +1741,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Pengantar Dress Code",
     multiline: true,
     rows: 3,
-    templates: ["fresco"],
-    placeholders: { fresco: "Under a Mediterranean sky, with the sea as our witness — wear the dress you have dreamed of." },
+    templates: ["fresco", "emerald-heirloom"],
+    placeholders: { fresco: "Under a Mediterranean sky, with the sea as our witness — wear the dress you have dreamed of.", "emerald-heirloom": "In the green of the garden and the cream of the lace, we would love to see you in the palette below." },
   },
 
   {
@@ -1749,9 +1750,9 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Catatan Dress Code",
     multiline: true,
     rows: 2,
-    templates: ["fresco", "majestic"],
+    templates: ["fresco", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Mohon hindari warna putih — warna tersebut kami sediakan untuk mempelai.", fresco: "Please reserve white for the couple." },
+      majestic: "Mohon hindari warna putih — warna tersebut kami sediakan untuk mempelai.", fresco: "Please reserve white for the couple.", "emerald-heirloom": "Please reserve white for the couple." },
   },
 
   {
@@ -1824,17 +1825,17 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "copy_account_toast",
     label: "Toast Salin Rekening",
-    templates: ["fresco", "majestic"],
+    templates: ["fresco", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Nomor rekening disalin", fresco: "Account number copied" },
+      majestic: "Nomor rekening disalin", fresco: "Account number copied", "emerald-heirloom": "Account number copied" },
   },
 
   {
     key: "copy_address_toast",
     label: "Toast Salin Alamat",
-    templates: ["fresco", "majestic"],
+    templates: ["fresco", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Alamat disalin", fresco: "Address copied" },
+      majestic: "Alamat disalin", fresco: "Address copied", "emerald-heirloom": "Address copied" },
   },
 
   {
@@ -1842,6 +1843,13 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Teks Tombol Salin Alamat",
     templates: ["fresco"],
     placeholders: { fresco: "Copy address" },
+  },
+
+  {
+    key: "livestream_cta",
+    label: "Teks Tombol Live Streaming",
+    templates: ["emerald-heirloom"],
+    placeholders: { "emerald-heirloom": "Join Live" },
   },
 ]
 
@@ -2075,9 +2083,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Pengantar Hitung Mundur",
     section: "acara",
     order: 10,
-    templates: ["lentera-zamrud", "majestic"],
+    templates: ["lentera-zamrud", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Menuju hari bahagia kami", "lentera-zamrud": "Menuju Hari Bahagia" },
+      majestic: "Menuju hari bahagia kami", "lentera-zamrud": "Menuju Hari Bahagia", "emerald-heirloom": "Counting the days until" },
   },
   {
     key: "events_title",
@@ -2324,18 +2332,18 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Teks Kecil di Sampul",
     section: "sampul",
     order: 20,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Kami Akan Menikah", "songket-marun": "Walimatul Khitan" },
+      majestic: "Kami Akan Menikah", "songket-marun": "Walimatul Khitan", "emerald-heirloom": "We Invite You to\\nThe Wedding of" },
   },
   {
     key: "open_button",
     label: "Teks Tombol Buka",
     section: "sampul",
     order: 21,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Buka Undangan", "songket-marun": "Buka Undangan" },
+      majestic: "Buka Undangan", "songket-marun": "Buka Undangan", "emerald-heirloom": "Open Invitation" },
   },
   {
     key: "cover_guest_label",
@@ -2344,9 +2352,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     order: 22,
     multiline: true,
     rows: 2,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Kepada Yth. Bapak/Ibu/Saudara/i", "songket-marun": "Kepada Yth. Bapak/Ibu/Saudara/i" },
+      majestic: "Kepada Yth. Bapak/Ibu/Saudara/i", "songket-marun": "Kepada Yth. Bapak/Ibu/Saudara/i", "emerald-heirloom": "Dear," },
   },
   {
     key: "basmalah",
@@ -2395,25 +2403,25 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Teks Tombol Simpan Tanggal",
     section: "acara",
     order: 22,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Simpan Tanggal" },
+    templates: ["songket-marun", "emerald-heirloom"],
+    placeholders: { "songket-marun": "Simpan Tanggal", "emerald-heirloom": "Save The Date" },
   },
   {
     key: "events_kicker",
     label: "Label Kecil Acara",
     section: "acara",
     order: 23,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Rangkaian Acara" },
+    templates: ["songket-marun", "emerald-heirloom"],
+    placeholders: { "songket-marun": "Rangkaian Acara", "emerald-heirloom": "The Celebration" },
   },
   {
     key: "events_title",
     label: "Judul Acara",
     section: "acara",
     order: 24,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "The Wedding Day", "songket-marun": "Waktu & Tempat" },
+      majestic: "The Wedding Day", "songket-marun": "Waktu & Tempat", "emerald-heirloom": "Event & Venue" },
   },
   {
     key: "events_intro",
@@ -2422,17 +2430,17 @@ TEMPLATE_EXTRA_FIELDS.push(
     order: 25,
     multiline: true,
     rows: 2,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Insya Allah acara akan diselenggarakan pada:" },
+    templates: ["songket-marun", "emerald-heirloom"],
+    placeholders: { "songket-marun": "Insya Allah acara akan diselenggarakan pada:", "emerald-heirloom": "With due respect, we would like to inform you that for those who wish to attend, below are the details of the time and venue of the event." },
   },
   {
     key: "maps_label",
     label: "Teks Tombol Lokasi",
     section: "acara",
     order: 26,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Lihat Lokasi", "songket-marun": "Lihat Lokasi" },
+      majestic: "Lihat Lokasi", "songket-marun": "Lihat Lokasi", "emerald-heirloom": "See Location" },
   },
   {
     key: "gallery_kicker",
@@ -2447,9 +2455,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Judul Galeri",
     section: "galeri",
     order: 11,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Gallery of Us", "songket-marun": "Momen Bahagia" },
+      majestic: "Gallery of Us", "songket-marun": "Momen Bahagia", "emerald-heirloom": "Our Gallery" },
   },
   {
     key: "gallery_intro",
@@ -2458,9 +2466,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     order: 12,
     multiline: true,
     rows: 2,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Sepenggal kenangan sebelum hari istimewa ini.", "songket-marun": "Sepenggal cerita ananda menjelang hari istimewanya." },
+      majestic: "Sepenggal kenangan sebelum hari istimewa ini.", "songket-marun": "Sepenggal cerita ananda menjelang hari istimewanya.", "emerald-heirloom": "A few frames from the days that led us here." },
   },
   {
     key: "gift_kicker",
@@ -2475,9 +2483,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Judul Tanda Kasih",
     section: "gift",
     order: 11,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "The Wedding Gift", "songket-marun": "Tanda Kasih" },
+      majestic: "The Wedding Gift", "songket-marun": "Tanda Kasih", "emerald-heirloom": "E - Gift" },
   },
   {
     key: "gift_intro_description",
@@ -2486,12 +2494,11 @@ TEMPLATE_EXTRA_FIELDS.push(
     order: 12,
     multiline: true,
     rows: 3,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
       majestic: "Doa restu Bapak/Ibu/Saudara/i adalah hadiah terindah bagi kami. Bila berkenan memberikan tanda kasih, dapat melalui kanal berikut.",
       "songket-marun":
-        "Doa restu Bapak/Ibu/Saudara/i adalah hadiah terindah bagi kami. Bila berkenan memberikan tanda kasih, dapat melalui tombol berikut.",
-    },
+        "Doa restu Bapak/Ibu/Saudara/i adalah hadiah terindah bagi kami. Bila berkenan memberikan tanda kasih, dapat melalui tombol berikut.", "emerald-heirloom": "Ladies and gentlemen, you can give digital gifts to us via the form below." },
   },
   {
     key: "gift_send_label",
@@ -2507,18 +2514,18 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Teks Tombol Salin Nomor",
     section: "gift",
     order: 14,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Salin Nomor", "songket-marun": "Salin Nomor" },
+      majestic: "Salin Nomor", "songket-marun": "Salin Nomor", "emerald-heirloom": "Copy account number" },
   },
   {
     key: "copy_address_button",
     label: "Teks Tombol Salin Alamat",
     section: "gift",
     order: 15,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Salin Alamat", "songket-marun": "Salin Alamat" },
+      majestic: "Salin Alamat", "songket-marun": "Salin Alamat", "emerald-heirloom": "Copy address" },
   },
   {
     key: "wishes_kicker",
@@ -2533,9 +2540,9 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Judul Ucapan",
     section: "wishes",
     order: 11,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Wishes", "songket-marun": "Titip Doa" },
+      majestic: "Wishes", "songket-marun": "Titip Doa", "emerald-heirloom": "Wedding Wishes" },
   },
   {
     key: "wishes_intro",
@@ -2544,63 +2551,63 @@ TEMPLATE_EXTRA_FIELDS.push(
     order: 12,
     multiline: true,
     rows: 2,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Sampaikan doa dan harapan terbaik untuk kami di hari istimewa ini.", "songket-marun": "Tuliskan doa dan harapan terbaik untuk ananda di hari istimewanya." },
+      majestic: "Sampaikan doa dan harapan terbaik untuk kami di hari istimewa ini.", "songket-marun": "Tuliskan doa dan harapan terbaik untuk ananda di hari istimewanya.", "emerald-heirloom": "Leave a wish, a prayer, or a memory for us to keep." },
   },
   {
     key: "wishes_name_label",
     label: "Label Kolom Nama",
     section: "wishes",
     order: 13,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Nama Anda", "songket-marun": "Nama Anda" },
+      majestic: "Nama Anda", "songket-marun": "Nama Anda", "emerald-heirloom": "Name" },
   },
   {
     key: "wishes_name_placeholder",
     label: "Placeholder Nama",
     section: "wishes",
     order: 14,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Nama lengkap", "songket-marun": "Tulis nama Anda" },
+      majestic: "Nama lengkap", "songket-marun": "Tulis nama Anda", "emerald-heirloom": "Your full name" },
   },
   {
     key: "wishes_message_label",
     label: "Label Kolom Ucapan",
     section: "wishes",
     order: 15,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Ucapan & doa", "songket-marun": "Doa dan ucapan" },
+      majestic: "Ucapan & doa", "songket-marun": "Doa dan ucapan", "emerald-heirloom": "Message" },
   },
   {
     key: "wishes_message_placeholder",
     label: "Placeholder Ucapan",
     section: "wishes",
     order: 16,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Tuliskan pesan Anda", "songket-marun": "Tulis doa dan ucapan" },
+      majestic: "Tuliskan pesan Anda", "songket-marun": "Tulis doa dan ucapan", "emerald-heirloom": "Leave a wish for the couple" },
   },
   {
     key: "wishes_submit",
     label: "Teks Tombol Kirim Ucapan",
     section: "wishes",
     order: 17,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Kirim Ucapan", "songket-marun": "Kirim Ucapan" },
+      majestic: "Kirim Ucapan", "songket-marun": "Kirim Ucapan", "emerald-heirloom": "Send Greeting" },
   },
   {
     key: "wishes_empty",
     label: "Teks Saat Belum Ada Ucapan",
     section: "wishes",
     order: 18,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Belum ada ucapan. Jadilah yang pertama.", "songket-marun": "Belum ada ucapan. Jadilah yang pertama." },
+      majestic: "Belum ada ucapan. Jadilah yang pertama.", "songket-marun": "Belum ada ucapan. Jadilah yang pertama.", "emerald-heirloom": "No wishes yet. Be the first." },
   },
   {
     key: "wishes_loading",
@@ -2616,17 +2623,17 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Label Kecil Turut Mengundang",
     section: "inviting",
     order: 10,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Turut Mengundang" },
+    templates: ["songket-marun", "emerald-heirloom"],
+    placeholders: { "songket-marun": "Turut Mengundang", "emerald-heirloom": "With Honor" },
   },
   {
     key: "inviting_title",
     label: "Judul Turut Mengundang",
     section: "inviting",
     order: 11,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
-      majestic: "Keluarga & Kerabat", "songket-marun": "Keluarga & Kerabat" },
+      majestic: "Keluarga & Kerabat", "songket-marun": "Keluarga & Kerabat", "emerald-heirloom": "Turut Mengundang" },
   },
   {
     key: "closing_thanks",
@@ -2643,12 +2650,11 @@ TEMPLATE_EXTRA_FIELDS.push(
     order: 11,
     multiline: true,
     rows: 3,
-    templates: ["songket-marun", "majestic"],
+    templates: ["songket-marun", "majestic", "emerald-heirloom"],
     placeholders: {
       majestic: "Merupakan suatu kebahagiaan dan kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.",
       "songket-marun":
-        "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu untuk putra kami.",
-    },
+        "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu untuk putra kami.", "emerald-heirloom": "Thank you for being part of our story." },
   },
   {
     key: "closing_salam",
@@ -2663,8 +2669,8 @@ TEMPLATE_EXTRA_FIELDS.push(
     label: "Label Kecil Penutup",
     section: "closing",
     order: 13,
-    templates: ["songket-marun"],
-    placeholders: { "songket-marun": "Kami yang berbahagia" },
+    templates: ["songket-marun", "emerald-heirloom"],
+    placeholders: { "songket-marun": "Kami yang berbahagia", "emerald-heirloom": "Thank You" },
   },
   {
     key: "closing_family",

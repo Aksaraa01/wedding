@@ -1,0 +1,2209 @@
+/* ============================================================================
+   Emerald Heirloom — in-house port of the Viding "Vidi & Hening" reference
+   (theme 175 / 13735). Scoped under `.eh-root`; every asset lives in
+   public/templates/emerald-heirloom/ and is read through EH_ASSETS.
+
+   Reference geometry that matters (measured from the rendered DOM at 390px):
+   · welcome frame  132.3% wide, left -16.2%, top -7.4% of the 691px band
+   · portrait frame window 12.4% / 12.9% / 73% x 61%
+   · countdown plate 390x878 with the fan hanging over its lower edge
+   · desktop is a split: fixed art panel 67% + a 33% scrolling column
+   ========================================================================= */
+
+.eh-root {
+  --eh-paper: #566a58;
+  --eh-paper-deep: #465849;
+  --eh-paper-light: #6a7f68;
+  --eh-cream: #daf1d8;
+  --eh-ivory: #fffaf3;
+  --eh-ink: #2f3e2d;
+  --eh-burgundy: #6e2237;
+  --eh-burgundy-deep: #53172a;
+  --eh-sage: #e9f6e4;
+  --eh-beige: #e9d2bc;
+  --eh-gold: #c9a24b;
+  --eh-display: var(--font-cinzeldecorative), "Cinzel Decorative", serif;
+  --eh-body: var(--font-abhaya), "Abhaya Libre", Georgia, serif;
+  --eh-sans: var(--font-inter), "Inter", system-ui, sans-serif;
+  --eh-col: 100%;
+
+  position: relative;
+  isolation: isolate;
+  overflow-x: hidden;
+  /* The paper texture is the reference's own sheet, tiled at its native tone.
+     Blending it with a darker fill produced a seam against the opaque frame
+     plates (their tails are the same paper), so the texture is used as-is. */
+  background-color: #5f725f;
+  background-image: url("/templates/emerald-heirloom/paper.webp");
+  background-size: 320px auto;
+  color: var(--eh-cream);
+  font-family: var(--eh-body);
+  font-size: 15px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+.eh-root *,
+.eh-root *::before,
+.eh-root *::after {
+  box-sizing: border-box;
+}
+
+.eh-root img {
+  display: block;
+  max-width: 100%;
+}
+
+/* `:where()` keeps the reset at element specificity so a component class can
+   set a background without being out-ranked. */
+:where(.eh-root) button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.eh-root :focus-visible {
+  outline: 2px solid var(--eh-cream);
+  outline-offset: 3px;
+}
+
+/* Body scroll is locked while the gate is up. The `:has` rule is the
+   fallback the playbook asks for — a route-change effect can reset the
+   inline style that the effect sets. */
+html:has(.eh-root.is-locked),
+body:has(.eh-root.is-locked),
+body.eh-locked {
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   Gate / desktop art panel
+   ----------------------------------------------------------------------- */
+
+.eh-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+  background: #2b362b;
+  container-type: inline-size;
+  transition: opacity 0.9s ease, visibility 0.9s ease;
+}
+
+.eh-gate__art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 54% center;
+}
+
+.eh-gate__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 80% at 50% 42%, rgba(18, 26, 18, 0.05), rgba(18, 26, 18, 0.42) 78%),
+    linear-gradient(180deg, rgba(16, 24, 16, 0.42), rgba(16, 24, 16, 0.08) 34%, rgba(16, 24, 16, 0.5));
+}
+
+.eh-gate__copy {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+  padding: 9vh 22px 12vh;
+  text-align: center;
+  text-shadow: 0 2px 18px rgba(14, 22, 14, 0.65), 0 1px 3px rgba(14, 22, 14, 0.55);
+}
+
+.eh-gate__guest {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 0 1.1em;
+  font-size: min(3.1cqw, 14px);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 250, 243, 0.82);
+}
+
+.eh-gate__guest b {
+  font-family: var(--eh-sans);
+  font-weight: 500;
+  font-size: min(3.5cqw, 15px);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--eh-ivory);
+}
+
+.eh-gate__kicker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15em;
+  margin: 0;
+  font-family: var(--eh-display);
+  font-size: min(3.5cqw, 17px);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--eh-cream);
+}
+
+.eh-gate__names {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.02em;
+  margin: 0.28em 0 0.1em;
+  font-family: var(--eh-display);
+  font-weight: 400;
+  font-size: min(10.4cqw, 72px);
+  line-height: 1.06;
+  letter-spacing: 0.05em;
+  color: var(--eh-ivory);
+}
+
+.eh-gate__names i,
+.eh-welcome__names i,
+.eh-closing__names i {
+  font-style: normal;
+  font-size: 0.42em;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  opacity: 0.9;
+}
+
+.eh-gate__date {
+  margin: 0.7em 0 0;
+  font-family: var(--eh-body);
+  font-size: min(4.2cqw, 20px);
+  letter-spacing: 0.1em;
+  color: rgba(255, 250, 243, 0.92);
+}
+
+.eh-gate__open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 48px;
+  margin-top: 1.9em;
+  padding: 0 26px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 250, 243, 0.5);
+  background: linear-gradient(180deg, #7d2a42, var(--eh-burgundy));
+  box-shadow: 0 12px 28px rgba(12, 18, 12, 0.5), inset 0 1px 0 rgba(255, 250, 243, 0.28);
+  color: var(--eh-ivory);
+  font-family: var(--eh-body);
+  font-weight: 700;
+  font-size: min(4cqw, 15px);
+  letter-spacing: 0.04em;
+  text-shadow: none;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.eh-gate__open svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.eh-gate__open:active {
+  transform: scale(0.98);
+}
+
+.eh-gate__apology {
+  max-width: 78%;
+  margin: 1.4em 0 0;
+  font-size: min(3.1cqw, 14px);
+  line-height: 1.6;
+  color: rgba(255, 250, 243, 0.7);
+}
+
+.eh-root.is-open .eh-gate {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.eh-flow {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  container-type: inline-size;
+}
+
+/* --------------------------------------------------------------------------
+   Type + shared atoms
+   ----------------------------------------------------------------------- */
+
+.eh-title {
+  margin: 0;
+  font-family: var(--eh-display);
+  font-weight: 400;
+  font-size: 7.4cqw;
+  line-height: 1.22;
+  letter-spacing: 0.07em;
+  text-align: center;
+  color: var(--eh-cream);
+  text-shadow: 0 2px 0 rgba(20, 30, 20, 0.28);
+}
+
+.eh-title--dark {
+  color: var(--eh-ink);
+  text-shadow: none;
+}
+
+.eh-kicker {
+  margin: 0 0 8px;
+  font-family: var(--eh-sans);
+  font-size: 2.55cqw;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  text-align: center;
+  color: rgba(218, 241, 216, 0.78);
+}
+
+.eh-kicker--dark {
+  color: rgba(47, 62, 45, 0.62);
+}
+
+.eh-intro {
+  max-width: 86%;
+  margin: 12px auto 0;
+  font-size: 3.75cqw;
+  line-height: 1.7;
+  text-align: center;
+  color: rgba(232, 244, 228, 0.9);
+}
+
+.eh-intro--dark {
+  color: rgba(47, 62, 45, 0.82);
+}
+
+.eh-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 250, 243, 0.42);
+  background: linear-gradient(180deg, #7d2a42, var(--eh-burgundy));
+  box-shadow: 0 10px 24px rgba(16, 24, 16, 0.35), inset 0 1px 0 rgba(255, 250, 243, 0.26);
+  color: var(--eh-ivory);
+  font-family: var(--eh-body);
+  font-weight: 700;
+  font-size: 3.8cqw;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.eh-button:active {
+  transform: scale(0.985);
+}
+
+.eh-button--ghost {
+  background: rgba(255, 250, 243, 0.08);
+  border-color: rgba(255, 250, 243, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.eh-card {
+  position: relative;
+  width: 86%;
+  margin: 0 auto;
+  padding: 0;
+  text-align: center;
+  color: var(--eh-ink);
+}
+
+/* The reference draws its cards as one painted plate; stretching that plate is
+   what keeps the soft edge and paper grain at any content height. */
+.eh-card__plate {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  filter: drop-shadow(0 16px 26px rgba(16, 24, 16, 0.32));
+  pointer-events: none;
+}
+
+.eh-card__body {
+  position: relative;
+  z-index: 1;
+  padding: 30px 24px 28px;
+}
+
+.eh-card--sage {
+  color: var(--eh-ink);
+  background-color: var(--eh-sage);
+  border-radius: 18px;
+}
+
+.eh-opening,
+.eh-couple,
+.eh-story,
+.eh-events,
+.eh-count,
+.eh-inviting,
+.eh-rundown,
+.eh-gallery,
+.eh-film,
+.eh-live,
+.eh-gift,
+.eh-dress,
+.eh-wishes,
+.eh-closing {
+  isolation: isolate;
+}
+
+/* Lace bands ----------------------------------------------------------------- */
+
+.eh-lace {
+  position: relative;
+  overflow: hidden;
+  height: 15.5cqw;
+  margin: 6px 0;
+  pointer-events: none;
+}
+
+.eh-lace img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 118%;
+  max-width: none;
+  height: auto;
+  translate: -50% -50%;
+  opacity: 0.94;
+}
+
+.eh-lace--thin {
+  height: 8.5cqw;
+}
+
+.eh-lace--thin img {
+  width: 108%;
+  opacity: 0.8;
+}
+
+/* Loose decorations ---------------------------------------------------------- */
+
+/* Each ornament ships as an animated WebP (the reference's GIF, decimated);
+   the still swap for `prefers-reduced-motion` is handled by <picture> in the
+   component. Only a light compositor shadow is used — a per-frame
+   `drop-shadow` filter on a 288px animated image janks low-end phones. */
+.eh-deco {
+  position: absolute;
+  z-index: 3;
+  display: block;
+  pointer-events: none;
+}
+
+.eh-deco img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* The reference's shadow silhouette, a few pixels down-right of the art. */
+.eh-deco__shadow {
+  position: absolute;
+  left: 3.5%;
+  top: 3.2%;
+  z-index: -1;
+  opacity: 0.5;
+  filter: blur(1.5px);
+}
+
+/* Behind-plate ornaments peek out around the carved frames. */
+.eh-deco--behind {
+  z-index: 0;
+}
+
+.eh-welcome__plate,
+.eh-person__plate,
+.eh-opening__card,
+.eh-story__card,
+.eh-card {
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------------------
+   1 — welcome arch
+   ----------------------------------------------------------------------- */
+
+.eh-welcome {
+  position: relative;
+  isolation: isolate;
+  aspect-ratio: 390 / 691;
+  overflow: hidden;
+}
+
+.eh-welcome__plate {
+  position: absolute;
+  left: -16.2%;
+  top: -7.4%;
+  width: 132.3%;
+  aspect-ratio: 1119 / 2093;
+}
+
+.eh-welcome__window {
+  position: absolute;
+  left: 12.4%;
+  top: 11.6%;
+  width: 73%;
+  height: 54.9%;
+  overflow: hidden;
+  background: var(--eh-paper-deep);
+}
+
+.eh-welcome__scene {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+}
+
+.eh-welcome__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.eh-welcome__copy {
+  position: absolute;
+  left: 15%;
+  width: 70%;
+  top: 21%;
+  text-align: center;
+  color: var(--eh-ivory);
+  text-shadow: 0 2px 16px rgba(16, 24, 16, 0.7), 0 1px 2px rgba(16, 24, 16, 0.5);
+}
+
+.eh-welcome__names {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.02em;
+  margin: 0;
+  font-family: var(--eh-display);
+  font-weight: 400;
+  font-size: 7.6cqw;
+  line-height: 1.08;
+  letter-spacing: 0.06em;
+}
+
+.eh-welcome__line {
+  margin: 0.95em 0 0;
+  font-family: var(--eh-display);
+  font-size: 3.1cqw;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 250, 243, 0.95);
+}
+
+.eh-welcome__date {
+  margin: 0.75em 0 0;
+  font-size: 3.6cqw;
+  letter-spacing: 0.12em;
+  color: rgba(255, 250, 243, 0.88);
+}
+
+/* --------------------------------------------------------------------------
+   2 — kalimat pembuka + kutipan
+   ----------------------------------------------------------------------- */
+
+.eh-opening {
+  position: relative;
+  padding: 12px 0 34px;
+  overflow: hidden;
+}
+
+.eh-opening__backdrop {
+  position: absolute;
+  inset: -8% -10%;
+  z-index: 0;
+  opacity: 0.32;
+  filter: blur(1px);
+  pointer-events: none;
+  mask-image: linear-gradient(180deg, transparent, #000 22%, #000 76%, transparent);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 22%, #000 76%, transparent);
+}
+
+.eh-opening__backdrop img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.eh-opening__card {
+  width: 86%;
+  margin: 0 auto;
+}
+
+.eh-opening__card .eh-card__body {
+  padding-top: 34px;
+  padding-bottom: 32px;
+}
+
+.eh-opening__title {
+  margin: 0;
+  font-family: var(--eh-display);
+  font-weight: 400;
+  font-size: 6.2cqw;
+  line-height: 1.3;
+  letter-spacing: 0.05em;
+  color: var(--eh-ink);
+}
+
+.eh-opening__body {
+  margin: 14px auto 0;
+  font-size: 3.9cqw;
+  line-height: 1.78;
+  color: rgba(47, 62, 45, 0.88);
+}
+
+.eh-quote {
+  margin: 20px auto 0;
+  padding-top: 18px;
+  border-top: 1px solid rgba(47, 62, 45, 0.18);
+  font-size: 3.7cqw;
+  line-height: 1.7;
+  font-style: italic;
+  color: rgba(47, 62, 45, 0.78);
+}
+
+.eh-quote p {
+  margin: 0;
+}
+
+.eh-quote cite {
+  display: block;
+  margin-top: 10px;
+  font-family: var(--eh-sans);
+  font-style: normal;
+  font-size: 2.7cqw;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(47, 62, 45, 0.55);
+}
+
+/* --------------------------------------------------------------------------
+   3 — mempelai
+   ----------------------------------------------------------------------- */
+
+.eh-couple {
+  position: relative;
+  padding: 26px 0 26px;
+  overflow: hidden;
+}
+
+.eh-couple__head {
+  padding: 0 24px;
+}
+
+.eh-couple__row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 20px;
+}
+
+.eh-person__plate {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1119 / 1883;
+  container-type: inline-size;
+}
+
+.eh-person__photo {
+  position: absolute;
+  left: 12.4%;
+  top: 12.9%;
+  width: 73%;
+  height: 61%;
+  overflow: hidden;
+  background: var(--eh-paper-deep);
+}
+
+.eh-person__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 32%;
+}
+
+.eh-person__empty {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, #6b7f69, #4a5b4c);
+}
+
+.eh-person__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.eh-person__caption {
+  position: absolute;
+  left: 9%;
+  right: 9%;
+  top: 80.5%;
+  max-height: 18%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.eh-person__name {
+  margin: 0;
+  font-family: var(--eh-display);
+  font-weight: 400;
+  font-size: 4.7cqw;
+  line-height: 1.25;
+  letter-spacing: 0.04em;
+  color: var(--eh-cream);
+  text-shadow: 0 1px 0 rgba(20, 30, 20, 0.35);
+}
+
+.eh-person__parentsLabel {
+  margin: 3px 0 0;
+  font-family: var(--eh-sans);
+  font-size: 2.3cqw;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(218, 241, 216, 0.62);
+}
+
+.eh-person__parents {
+  margin: 0;
+  font-size: 3.15cqw;
+  line-height: 1.55;
+  color: rgba(232, 244, 228, 0.88);
+}
+
+.eh-person__ig {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  font-family: var(--eh-sans);
+  font-size: 2.6cqw;
+  letter-spacing: 0.04em;
+  color: rgba(218, 241, 216, 0.82);
+  text-decoration: none;
+}
+
+.eh-person__igIcon {
+  width: 11px;
+  height: 11px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+}
+
+/* --------------------------------------------------------------------------
+   4 — our story
+   ----------------------------------------------------------------------- */
+
+.eh-story {
+  position: relative;
+  padding: 10px 0 30px;
+}
+
+.eh-story__backdrop {
+  position: absolute;
+  inset: -6% -8%;
+  z-index: 0;
+  opacity: 0.3;
+  pointer-events: none;
+  mask-image: linear-gradient(180deg, transparent, #000 26%, #000 74%, transparent);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 26%, #000 74%, transparent);
+}
+
+.eh-story__backdrop img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.eh-story__head {
+  position: relative;
+  z-index: 1;
+  padding: 0 24px;
+}
+
+.eh-story__intro {
+  margin: 10px auto 0;
+  max-width: 86%;
+  text-align: center;
+  font-size: 3.7cqw;
+  color: rgba(232, 244, 228, 0.86);
+}
+
+.eh-story__card {
+  position: relative;
+  z-index: 1;
+  width: 86%;
+  margin: 20px auto 0;
+  padding: 0;
+  text-align: center;
+  color: var(--eh-ink);
+}
+
+.eh-story__slide {
+  min-height: 5.2em;
+}
+
+.eh-story__chapter {
+  margin: 0 0 8px;
+  font-family: var(--eh-display);
+  font-size: 4.4cqw;
+  letter-spacing: 0.08em;
+  color: var(--eh-ink);
+}
+
+.eh-story__text {
+  margin: 0;
+  font-size: 3.9cqw;
+  line-height: 1.8;
+  color: rgba(47, 62, 45, 0.86);
+}
+
+.eh-story__photo {
+  margin: 18px -8px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(16, 24, 16, 0.28);
+}
+
+.eh-story__photo img {
+  width: 100%;
+  aspect-ratio: 374 / 296;
+  object-fit: cover;
+}
+
+.eh-story__nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.eh-story__nav button {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--eh-burgundy);
+  color: var(--eh-ivory);
+  font-size: 20px;
+  line-height: 1;
+  box-shadow: 0 6px 14px rgba(16, 24, 16, 0.28);
+}
+
+.eh-story__dots {
+  display: flex;
+  gap: 6px;
+}
+
+.eh-story__dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(47, 62, 45, 0.28);
+}
+
+.eh-story__dots i.is-active {
+  background: var(--eh-burgundy);
+}
+
+/* --------------------------------------------------------------------------
+   5 — event & venue
+   ----------------------------------------------------------------------- */
+
+.eh-events {
+  position: relative;
+  padding: 26px 0 10px;
+}
+
+.eh-events__head {
+  padding: 0 24px;
+}
+
+.eh-events__list {
+  margin-top: 22px;
+}
+
+.eh-event {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  aspect-ratio: 760 / 962;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.eh-event__wave {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.eh-event::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(16, 24, 16, 0.05) 12%, rgba(16, 24, 16, 0.42) 58%, rgba(14, 22, 14, 0.66));
+}
+
+.eh-event--alt::after {
+  background: linear-gradient(180deg, rgba(16, 24, 16, 0.2) 10%, rgba(16, 24, 16, 0.5) 55%, rgba(14, 22, 14, 0.7));
+}
+
+.eh-event__body {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 0 28px 46px;
+  text-align: center;
+  text-shadow: 0 1px 12px rgba(12, 20, 12, 0.55);
+}
+
+.eh-event__name {
+  margin: 0;
+  font-family: var(--eh-display);
+  font-weight: 400;
+  font-size: 5.4cqw;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--eh-ivory);
+}
+
+.eh-event__date {
+  margin: 10px 0 0;
+  font-family: var(--eh-display);
+  font-size: 5.6cqw;
+  letter-spacing: 0.04em;
+  color: var(--eh-cream);
+}
+
+.eh-event__time {
+  margin: 4px 0 0;
+  font-family: var(--eh-sans);
+  font-size: 3.1cqw;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 250, 243, 0.86);
+}
+
+.eh-event__venue {
+  margin: 14px 0 0;
+  font-family: var(--eh-body);
+  font-weight: 700;
+  font-size: 4.1cqw;
+  color: var(--eh-ivory);
+}
+
+.eh-event__address {
+  margin: 4px 0 0;
+  font-size: 3.4cqw;
+  line-height: 1.6;
+  color: rgba(255, 250, 243, 0.82);
+}
+
+.eh-event__body .eh-button {
+  margin-top: 16px;
+  min-height: 40px;
+  padding: 0 20px;
+  font-size: 3.3cqw;
+}
+
+.eh-event__swan {
+  position: absolute;
+  right: -6%;
+  top: 8%;
+  width: 30%;
+  opacity: 0.92;
+}
+
+.eh-events__note {
+  margin: 18px auto 0;
+  max-width: 80%;
+  text-align: center;
+  font-size: 3.4cqw;
+  color: rgba(218, 241, 216, 0.72);
+}
+
+/* --------------------------------------------------------------------------
+   6 — countdown + fan
+   ----------------------------------------------------------------------- */
+
+.eh-count {
+  position: relative;
+  padding: 0 0 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.eh-count__scene {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+.eh-count__scene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  mask-image: linear-gradient(180deg, #000 82%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, #000 82%, transparent 100%);
+}
+
+.eh-count::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(16, 24, 16, 0.34), rgba(16, 24, 16, 0.1) 30%, rgba(16, 24, 16, 0.28));
+}
+
+.eh-count__copy {
+  padding: 54px 24px 0;
+  text-align: center;
+}
+
+.eh-count__title {
+  margin: 0;
+  font-family: var(--eh-display);
+  font-weight: 400;
+  font-size: 7cqw;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--eh-cream);
+  text-shadow: 0 2px 14px rgba(14, 22, 14, 0.6);
+}
+
+.eh-count__intro,
+.eh-count__date {
+  margin: 8px 0 0;
+  font-size: 3.6cqw;
+  letter-spacing: 0.12em;
+  color: rgba(255, 250, 243, 0.86);
+}
+
+.eh-count__date {
+  font-family: var(--eh-display);
+  font-size: 4.2cqw;
+}
+
+.eh-count__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  margin: 26px auto 0;
+  padding: 0 18px;
+  max-width: 100%;
+}
+
+.eh-count__unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 2px 8px;
+  border-radius: 10px;
+  background: rgba(20, 30, 20, 0.26);
+  border: 1px solid rgba(255, 250, 243, 0.16);
+  backdrop-filter: blur(1.5px);
+}
+
+.eh-count__unit b {
+  font-family: var(--eh-display);
+  font-weight: 400;
+  font-size: 8.6cqw;
+  line-height: 1;
+  color: var(--eh-ivory);
+}
+
+.eh-count__unit span {
+  font-family: var(--eh-sans);
+  font-size: 2.3cqw;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 250, 243, 0.72);
+}
+
+.eh-count__cta {
+  margin: 24px auto 0;
+  display: flex;
+  width: fit-content;
+}
+
+.eh-count__fan {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin-top: 6px;
+  padding-bottom: 12px;
+}
+
+.eh-count__shadow {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 74%;
+  translate: -50% 0;
+  opacity: 0.75;
+  filter: blur(4px);
+}
+
+.eh-count__fanArt {
+  position: relative;
+  width: 92%;
+}
+
+/* --------------------------------------------------------------------------
+   7 — turut mengundang
+   ----------------------------------------------------------------------- */
+
+.eh-inviting {
+  position: relative;
+  padding: 30px 0 34px;
+  overflow: hidden;
+}
+
+.eh-inviting .eh-card {
+  width: 84%;
+  padding: 32px 24px 30px;
+}
+
+.eh-inviting__intro {
+  margin: 10px auto 0;
+  font-size: 3.6cqw;
+  line-height: 1.7;
+  color: rgba(47, 62, 45, 0.76);
+}
+
+.eh-inviting__families {
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.eh-inviting__families li {
+  font-family: var(--eh-body);
+  font-size: 3.9cqw;
+  line-height: 1.5;
+  color: rgba(47, 62, 45, 0.92);
+}
+
+.eh-inviting__families li + li {
+  padding-top: 8px;
+  border-top: 1px solid rgba(47, 62, 45, 0.14);
+}
+
+/* --------------------------------------------------------------------------
+   8 — rundown
+   ----------------------------------------------------------------------- */
+
+.eh-rundown {
+  position: relative;
+  padding: 26px 0 20px;
+}
+
+.eh-rundown__head {
+  padding: 0 24px;
+}
+
+.eh-rundown__rows {
+  width: 84%;
+  margin: 20px auto 0;
+  padding: 0;
+  list-style: none;
+}
+
+.eh-rundown__row {
+  display: grid;
+  grid-template-columns: 74px 1fr;
+  gap: 14px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(218, 241, 216, 0.18);
+}
+
+.eh-rundown__row:first-child {
+  border-top: 1px solid rgba(218, 241, 216, 0.18);
+}
+
+.eh-rundown__time {
+  font-family: var(--eh-display);
+  font-size: 4.2cqw;
+  letter-spacing: 0.04em;
+  color: var(--eh-cream);
+}
+
+.eh-rundown__desc {
+  font-size: 3.7cqw;
+  line-height: 1.55;
+  color: rgba(232, 244, 228, 0.88);
+}
+
+/* --------------------------------------------------------------------------
+   9 — gallery
+   ----------------------------------------------------------------------- */
+
+.eh-gallery {
+  position: relative;
+  padding: 24px 0 20px;
+}
+
+.eh-gallery__head {
+  padding: 0 24px;
+}
+
+.eh-gallery__stage {
+  position: relative;
+  width: 88%;
+  margin: 20px auto 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 16px 34px rgba(12, 20, 12, 0.42);
+  border: 1px solid rgba(255, 250, 243, 0.22);
+}
+
+.eh-gallery__photo {
+  display: block;
+  width: 100%;
+  padding: 0;
+}
+
+.eh-gallery__photo img {
+  width: 100%;
+  aspect-ratio: 374 / 296;
+  object-fit: cover;
+}
+
+.eh-gallery__nav {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 56px;
+  background: var(--eh-burgundy);
+  color: var(--eh-ivory);
+  font-size: 22px;
+  line-height: 1;
+  box-shadow: 0 8px 18px rgba(12, 20, 12, 0.4);
+}
+
+.eh-gallery__nav--prev {
+  left: 0;
+  border-radius: 0 6px 6px 0;
+}
+
+.eh-gallery__nav--next {
+  right: 0;
+  border-radius: 6px 0 0 6px;
+}
+
+.eh-gallery__thumbs {
+  display: flex;
+  gap: 8px;
+  width: 88%;
+  margin: 12px auto 0;
+}
+
+.eh-gallery__thumbs button {
+  flex: 1 1 0;
+  padding: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  opacity: 0.62;
+  border: 1px solid transparent;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+.eh-gallery__thumbs button.is-active {
+  opacity: 1;
+  border-color: rgba(255, 250, 243, 0.7);
+}
+
+.eh-gallery__thumbs img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.eh-gallery__quote {
+  width: 84%;
+  margin: 20px auto 0;
+  text-align: center;
+  font-size: 3.6cqw;
+  line-height: 1.7;
+  font-style: italic;
+  color: rgba(218, 241, 216, 0.82);
+}
+
+/* --------------------------------------------------------------------------
+   10/11 — film + live stream
+   ----------------------------------------------------------------------- */
+
+.eh-film,
+.eh-live {
+  position: relative;
+  padding: 24px 0 26px;
+  text-align: center;
+}
+
+.eh-film__head {
+  padding: 0 24px;
+}
+
+.eh-film__stage,
+.eh-live__stage {
+  position: relative;
+  width: 88%;
+  margin: 18px auto 0;
+  aspect-ratio: 760 / 681;
+  container-type: inline-size;
+}
+
+.eh-film__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.eh-film__window {
+  position: absolute;
+  left: 11%;
+  top: 12%;
+  width: 78%;
+  height: 70%;
+  overflow: hidden;
+  background: #16201a;
+  border-radius: 4px;
+}
+
+.eh-film__window iframe,
+.eh-film__window video {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.eh-film__poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.72;
+}
+
+.eh-film__play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.eh-film__play svg {
+  width: 52px;
+  height: 52px;
+  fill: var(--eh-ivory);
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+}
+
+.eh-live__copy {
+  padding: 0 24px;
+  margin-top: 16px;
+}
+
+.eh-live .eh-button {
+  margin-top: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   12 — wedding gift
+   ----------------------------------------------------------------------- */
+
+.eh-gift {
+  position: relative;
+  padding: 30px 0 26px;
+  background-image: url("/templates/emerald-heirloom/edge-florals.webp");
+  background-size: 100% auto;
+  background-position: center top;
+  background-repeat: no-repeat;
+}
+
+.eh-gift::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(20, 30, 20, 0.62), rgba(20, 30, 20, 0.42) 45%, rgba(20, 30, 20, 0.72));
+}
+
+.eh-gift__head {
+  padding: 0 24px;
+}
+
+.eh-gift__wish {
+  width: 80%;
+  margin: 14px auto 0;
+  text-align: center;
+  font-size: 3.6cqw;
+  line-height: 1.7;
+  color: rgba(232, 244, 228, 0.88);
+}
+
+.eh-gift__card {
+  position: relative;
+  width: 86%;
+  height: auto;
+  margin: 18px auto 0;
+  padding: 0;
+  color: var(--eh-ink);
+  background-color: var(--eh-beige);
+  border-radius: 18px;
+}
+
+.eh-gift__plate {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  filter: drop-shadow(0 16px 26px rgba(16, 24, 16, 0.3));
+  pointer-events: none;
+}
+
+.eh-gift__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 26px 20px 24px;
+}
+
+.eh-account {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(255, 250, 243, 0.6);
+  border: 1px solid rgba(47, 62, 45, 0.16);
+  text-align: left;
+  color: var(--eh-ink);
+}
+
+.eh-account--address {
+  cursor: default;
+}
+
+.eh-account__bank {
+  font-family: var(--eh-sans);
+  font-size: 2.4cqw;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(47, 62, 45, 0.6);
+}
+
+.eh-account__number {
+  font-family: var(--eh-sans);
+  font-size: 4.6cqw;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--eh-burgundy);
+}
+
+.eh-account__name,
+.eh-account__address {
+  font-size: 3.5cqw;
+  line-height: 1.55;
+  color: rgba(47, 62, 45, 0.85);
+}
+
+.eh-account__copy {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 0;
+  font-family: var(--eh-sans);
+  font-size: 2.5cqw;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--eh-burgundy);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   13 — dress code
+   ----------------------------------------------------------------------- */
+
+.eh-dress {
+  position: relative;
+  padding: 24px 0 26px;
+  text-align: center;
+}
+
+.eh-dress__head {
+  padding: 0 24px;
+}
+
+.eh-dress__body {
+  width: 80%;
+  margin: 12px auto 0;
+  font-size: 3.7cqw;
+  line-height: 1.7;
+  color: rgba(232, 244, 228, 0.88);
+}
+
+.eh-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px auto 0;
+  padding: 0;
+  list-style: none;
+}
+
+.eh-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 60px;
+  font-family: var(--eh-sans);
+  font-size: 2.4cqw;
+  letter-spacing: 0.06em;
+  color: rgba(232, 244, 228, 0.8);
+}
+
+.eh-swatch i {
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 250, 243, 0.5);
+  box-shadow: 0 6px 14px rgba(12, 20, 12, 0.35);
+}
+
+.eh-dress__note {
+  width: 78%;
+  margin: 16px auto 0;
+  font-size: 3.2cqw;
+  font-style: italic;
+  color: rgba(218, 241, 216, 0.7);
+}
+
+/* --------------------------------------------------------------------------
+   14 — wishes
+   ----------------------------------------------------------------------- */
+
+.eh-wishes {
+  position: relative;
+  padding: 10px 0 24px;
+  text-align: center;
+  background-image: url("/templates/emerald-heirloom/edge-florals.webp");
+  background-size: 100% auto;
+  background-position: center 42%;
+  background-repeat: no-repeat;
+}
+
+.eh-wishes::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(20, 30, 20, 0.7), rgba(20, 30, 20, 0.5) 50%, rgba(20, 30, 20, 0.78));
+}
+
+.eh-wishes__head {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 4px;
+}
+
+.eh-wishes__heart {
+  width: 46%;
+  filter: drop-shadow(0 16px 26px rgba(12, 20, 12, 0.4));
+}
+
+.eh-wishes__title {
+  margin: 10px 0 0;
+  font-family: var(--eh-display);
+  font-weight: 400;
+  font-size: 7cqw;
+  line-height: 1.15;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--eh-cream);
+  text-shadow: 0 2px 14px rgba(12, 20, 12, 0.6);
+}
+
+.eh-wishes__envelope {
+  width: 74%;
+  margin: 14px auto -16%;
+  pointer-events: none;
+}
+
+.eh-wishes__envelope img {
+  width: 100%;
+  filter: drop-shadow(0 18px 30px rgba(12, 20, 12, 0.36));
+}
+
+.eh-wishes__intro {
+  width: 80%;
+  margin: 0 auto 16px;
+  font-size: 3.6cqw;
+  line-height: 1.7;
+  color: rgba(232, 244, 228, 0.86);
+}
+
+.eh-wishes__panel {
+  width: 88%;
+  text-align: left;
+  padding: 26px 20px 22px;
+}
+
+.eh-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.eh-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.eh-field label {
+  font-family: var(--eh-sans);
+  font-size: 2.5cqw;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(47, 62, 45, 0.62);
+}
+
+.eh-field input,
+.eh-field textarea {
+  width: 100%;
+  padding: 11px 13px;
+  border-radius: 10px;
+  border: 1px solid rgba(47, 62, 45, 0.24);
+  background: rgba(255, 250, 243, 0.72);
+  color: var(--eh-ink);
+  font-family: var(--eh-body);
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.eh-field input::placeholder,
+.eh-field textarea::placeholder {
+  color: rgba(47, 62, 45, 0.42);
+}
+
+.eh-field__counter {
+  margin: 0;
+  align-self: flex-end;
+  font-family: var(--eh-sans);
+  font-size: 10px;
+  color: rgba(47, 62, 45, 0.45);
+}
+
+.eh-submit {
+  width: 100%;
+  margin-top: 2px;
+  gap: 8px;
+}
+
+.eh-submit svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.eh-submit:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.eh-field__feedback {
+  margin: 4px 0 0;
+  font-size: 3.2cqw;
+  line-height: 1.55;
+  color: rgba(47, 62, 45, 0.7);
+}
+
+.eh-field__feedback.is-error {
+  color: #8d2231;
+}
+
+.eh-wishlist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.eh-wish {
+  position: relative;
+  isolation: isolate;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 250, 243, 0.62);
+  border: 1px solid rgba(47, 62, 45, 0.12);
+}
+
+.eh-wish__text {
+  margin: 0;
+  font-size: 3.6cqw;
+  line-height: 1.65;
+  color: rgba(47, 62, 45, 0.88);
+}
+
+.eh-wish__meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 8px 0 0;
+  font-family: var(--eh-sans);
+  font-size: 2.3cqw;
+  letter-spacing: 0.08em;
+  color: rgba(47, 62, 45, 0.5);
+}
+
+.eh-wish__name {
+  color: var(--eh-burgundy);
+}
+
+.eh-wish::before,
+.eh-wish::after,
+.eh-account::before,
+.eh-account::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 58%;
+  aspect-ratio: 1;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.eh-wish:nth-child(odd)::before {
+  left: -44%;
+  top: -26%;
+  background-image: url("/templates/emerald-heirloom/fan.webp");
+  rotate: -6deg;
+}
+
+.eh-wish:nth-child(even)::after {
+  right: -44%;
+  bottom: -26%;
+  background-image: url("/templates/emerald-heirloom/lilies.webp");
+  rotate: 6deg;
+}
+
+.eh-account {
+  position: relative;
+  isolation: isolate;
+}
+
+.eh-account:nth-child(odd)::before {
+  left: -38%;
+  bottom: -30%;
+  background-image: url("/templates/emerald-heirloom/swan.webp");
+  rotate: -4deg;
+  opacity: 0.42;
+}
+
+.eh-account:nth-child(even)::after {
+  right: -38%;
+  top: -30%;
+  background-image: url("/templates/emerald-heirloom/flower-trumpet.webp");
+  rotate: 5deg;
+  opacity: 0.42;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eh-wish:nth-child(odd)::before {
+    background-image: url("/templates/emerald-heirloom/fan-still.webp");
+  }
+  .eh-wish:nth-child(even)::after,
+  .eh-account:nth-child(even)::after {
+    background-image: url("/templates/emerald-heirloom/lilies-still.webp");
+  }
+  .eh-account:nth-child(odd)::before {
+    background-image: url("/templates/emerald-heirloom/swan-still.webp");
+  }
+}
+
+.eh-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 6px;
+  font-family: var(--eh-sans);
+  font-size: 2.6cqw;
+  color: rgba(47, 62, 45, 0.6);
+}
+
+.eh-pager button {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(47, 62, 45, 0.1);
+  color: var(--eh-ink);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.eh-pager button:disabled {
+  opacity: 0.35;
+}
+
+/* --------------------------------------------------------------------------
+   15 — closing
+   ----------------------------------------------------------------------- */
+
+.eh-closing {
+  position: relative;
+  padding: 26px 0 0;
+  overflow: hidden;
+  text-align: center;
+}
+
+.eh-closing__scene {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+.eh-closing__scene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.55;
+  mask-image: linear-gradient(180deg, transparent, #000 18%);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 18%);
+}
+
+.eh-closing::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(20, 30, 20, 0.55), rgba(20, 30, 20, 0.28) 40%, rgba(18, 26, 18, 0.72));
+}
+
+.eh-closing__plate {
+  position: relative;
+  width: 118%;
+  margin-left: -9%;
+  aspect-ratio: 1119 / 2093;
+  overflow: hidden;
+}
+
+.eh-closing__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  opacity: 0.9;
+}
+
+.eh-closing__copy {
+  position: absolute;
+  left: 16%;
+  width: 68%;
+  top: 20%;
+  color: var(--eh-ivory);
+  text-shadow: 0 2px 14px rgba(12, 20, 12, 0.7);
+}
+
+.eh-closing__kicker {
+  margin: 0 0 12px;
+  font-family: var(--eh-display);
+  font-size: 7.2cqw;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--eh-cream);
+}
+
+.eh-closing__names {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.02em;
+  margin: 0;
+  font-family: var(--eh-display);
+  font-size: 6.6cqw;
+  line-height: 1.1;
+  letter-spacing: 0.05em;
+}
+
+.eh-closing__date {
+  margin: 10px 0 0;
+  font-size: 3.4cqw;
+  letter-spacing: 0.16em;
+  color: rgba(255, 250, 243, 0.85);
+}
+
+.eh-closing__message {
+  margin: 14px auto 0;
+  width: 86%;
+  font-size: 3.5cqw;
+  line-height: 1.65;
+  color: rgba(255, 250, 243, 0.9);
+}
+
+.eh-closing__hashtag {
+  margin: 14px 0 0;
+  font-family: var(--eh-sans);
+  font-size: 2.9cqw;
+  letter-spacing: 0.14em;
+  color: rgba(218, 241, 216, 0.72);
+}
+
+.eh-footer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 26px 20px 34px;
+}
+
+.eh-footer__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--eh-cream);
+}
+
+.eh-footer__badge {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--eh-ivory);
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(12, 20, 12, 0.35);
+}
+
+.eh-footer__badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.eh-footer__cta {
+  font-family: var(--eh-sans);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.eh-footer__legal {
+  margin: 0;
+  font-family: var(--eh-sans);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: rgba(218, 241, 216, 0.55);
+}
+
+/* --------------------------------------------------------------------------
+   Music, lightbox, toast
+   ----------------------------------------------------------------------- */
+
+.eh-music {
+  position: fixed;
+  right: 16px;
+  bottom: 22px;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 250, 243, 0.4);
+  background: rgba(38, 52, 40, 0.86);
+  color: var(--eh-cream);
+  box-shadow: 0 10px 24px rgba(12, 20, 12, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+.eh-music svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.eh-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(10, 16, 11, 0.92);
+}
+
+.eh-lightbox img {
+  max-width: 100%;
+  max-height: 82vh;
+  border-radius: 4px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.eh-lightbox__close,
+.eh-lightbox__nav {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 250, 243, 0.12);
+  color: var(--eh-ivory);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.eh-lightbox__close {
+  top: 18px;
+  right: 16px;
+}
+
+.eh-lightbox__nav {
+  top: 50%;
+  translate: 0 -50%;
+  font-size: 26px;
+}
+
+.eh-lightbox__nav--prev {
+  left: 10px;
+}
+
+.eh-lightbox__nav--next {
+  right: 10px;
+}
+
+.eh-lightbox__count {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  translate: -50% 0;
+  font-family: var(--eh-sans);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: rgba(255, 250, 243, 0.7);
+}
+
+.eh-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 88px;
+  translate: -50% 0;
+  z-index: 95;
+  max-width: 82%;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgba(38, 52, 40, 0.94);
+  border: 1px solid rgba(255, 250, 243, 0.28);
+  color: var(--eh-ivory);
+  font-family: var(--eh-sans);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-align: center;
+  box-shadow: 0 12px 26px rgba(10, 16, 11, 0.4);
+}
+
+/* --------------------------------------------------------------------------
+   Reveal
+   ----------------------------------------------------------------------- */
+
+.eh-root [data-eh-reveal] {
+  opacity: 0;
+  translate: 0 22px;
+  transition: opacity 0.9s cubic-bezier(0.22, 0.61, 0.36, 1), translate 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition-delay: var(--eh-delay, 0s);
+  will-change: opacity, translate;
+}
+
+.eh-root [data-eh-reveal="fade"] {
+  translate: 0 0;
+  transition: opacity 1.1s ease;
+}
+
+.eh-root [data-eh-reveal].is-in {
+  opacity: 1;
+  translate: 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eh-root [data-eh-reveal] {
+    opacity: 1;
+    translate: 0 0;
+    transition: none;
+  }
+
+}
+
+@media (scripting: none) {
+  .eh-root [data-eh-reveal] {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  .eh-gate {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Desktop — the reference's split composition: a fixed art panel on the left
+   and the invitation scrolling in a narrow column on the right.
+   ----------------------------------------------------------------------- */
+
+@media (min-width: 1000px) {
+  .eh-root {
+    --eh-col: clamp(430px, 33.4vw, 560px);
+  }
+
+  .eh-flow {
+    width: var(--eh-col);
+    margin-left: auto;
+    border-left: 1px solid rgba(255, 250, 243, 0.14);
+    box-shadow: -24px 0 60px rgba(10, 16, 11, 0.35);
+  }
+
+  .eh-root.is-open .eh-gate {
+    --eh-gate-panel: calc(100% - var(--eh-col));
+    right: auto;
+    width: calc(100% - var(--eh-col));
+    opacity: 1;
+    visibility: visible;
+    pointer-events: none;
+  }
+
+  .eh-root.is-open .eh-gate__art {
+    object-position: 34% center;
+    scale: 1.04;
+  }
+
+  .eh-root.is-open .eh-gate__veil {
+    background:
+      linear-gradient(90deg, rgba(14, 22, 14, 0.35), rgba(14, 22, 14, 0) 30%),
+      radial-gradient(90% 70% at 46% 50%, rgba(14, 22, 14, 0), rgba(14, 22, 14, 0.35) 85%);
+  }
+
+  .eh-root.is-open .eh-gate__copy {
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0 0 0 7%;
+    text-align: left;
+    text-shadow: 0 2px 22px rgba(10, 16, 11, 0.7);
+  }
+
+  .eh-root.is-open .eh-gate__guest,
+  .eh-root.is-open .eh-gate__kicker,
+  .eh-root.is-open .eh-gate__date,
+  .eh-root.is-open .eh-gate__open,
+  .eh-root.is-open .eh-gate__apology {
+    display: none;
+  }
+
+  .eh-root.is-open .eh-gate__names {
+    align-items: flex-start;
+    font-size: min(4.6vw, 74px);
+    letter-spacing: 0.04em;
+  }
+
+  /* The column is wider than a phone, so every container-relative size grows
+     with it instead of staying phone-sized. */
+  .eh-title {
+    font-size: 6.6cqw;
+  }
+
+  .eh-kicker {
+    font-size: 2.2cqw;
+  }
+
+  .eh-intro,
+  .eh-opening__body,
+  .eh-story__text,
+  .eh-dress__body {
+    font-size: 3.5cqw;
+  }
+
+    }

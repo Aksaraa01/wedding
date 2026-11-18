@@ -61,6 +61,8 @@ const FAMILIES = [
   // Love Line: retro sign-painter script for names/section titles (Caveat for
   // handwritten annotations, Montserrat for body).
   { name: "Mr Dafoe", weights: ["400"], styles: ["normal"] },
+  // Emerald Heirloom: the reference's body serif (OFL, no substitution needed).
+  { name: "Abhaya Libre", weights: ["400", "700"], styles: ["normal"] },
 ];
 
 function cssUrl(f) {

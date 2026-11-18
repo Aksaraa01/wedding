@@ -38,6 +38,7 @@
   --font-marcellus: 'Marcellus', serif;
   --font-urbanist: 'Urbanist', sans-serif;
   --font-dafoe: 'Mr Dafoe', cursive;
+  --font-abhaya: 'Abhaya Libre', serif;
 }
 @font-face {
   font-family: 'Inter';
@@ -1011,4 +1012,18 @@
   font-weight: 400;
   font-display: swap;
   src: url('/fonts/cinzeldecorative-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Abhaya Libre';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/abhayalibre-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Abhaya Libre';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/abhayalibre-700.woff2') format('woff2');
 }

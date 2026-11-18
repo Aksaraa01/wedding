@@ -3307,3 +3307,158 @@ DEMO_PROPS_BY_CODE.fresco = {
 // Majestic — beaded ivory invitation. Sample copy is Indonesian (the template's
 // own defaults) and the photographs are Aksaraa's demo set, never the
 // reference couple's.
+
+// Emerald Heirloom — Victorian emerald-and-lace invitation. Sample copy is the
+// reference's English voice; couple, dates, venues, photographs and wishes are
+// Aksaraa's own demo set (never the reference couple's).
+DEMO_PROPS_BY_CODE["emerald-heirloom"] = {
+  ...DEMO_PROPS_BY_CODE["sandhya"],
+  slug: "demo",
+  estimated_wedding_date: "2027-05-30",
+  guest_name: "Tamu Undangan",
+  groom_parents: "First son of Mr. & Mrs. Albarn",
+  bride_parents: "Daughter of Mr. & Mrs. Reed",
+  sessions: [
+    {
+      name: "Holy Matrimony",
+      date: "2027-05-30",
+      time: "09.00 - 11.00 AM",
+      venue: "Bride House",
+      address: "Jl. Jend. Sudirman Kav. 1, Karet Tengsin, Tanah Abang, Jakarta Pusat 10220",
+      maps_url: "https://maps.app.goo.gl/9bRvrJZZ1xcZSoqa6",
+    },
+    {
+      name: "Wedding Reception",
+      date: "2027-05-30",
+      time: "03.00 - 09.00 PM",
+      venue: "The Garden Pavilion",
+      address: "Jl. Jend. Sudirman Kav. 1, Karet Tengsin, Tanah Abang, Jakarta Pusat 10220",
+      maps_url: "https://maps.app.goo.gl/UPxWi9HU1w4A9R1j6",
+    },
+  ],
+  stories: [
+    {
+      title: "The First Chapter",
+      description:
+        "We have shared countless adventures that brought us closer together. With each laugh, shared secret and late-night conversation, our bond deepened.",
+      image_url: `${DE}/cover-1.webp`,
+    },
+    {
+      title: "The Promise",
+      description:
+        "Somewhere between the long walks and the quiet mornings, love stopped being a possibility and became a home we both recognised.",
+      image_url: `${DE}/cover-2.webp`,
+    },
+    {
+      title: "The Garden",
+      description:
+        "Now, surrounded by cherished friends and family, we are excited to embark on this beautiful journey of marriage.",
+    },
+  ],
+  rundown_visible: true,
+  rundown: [
+    { time: "09.00", description: "Guests Arrival" },
+    { time: "09.30", description: "Holy Matrimony" },
+    { time: "11.00", description: "Family Portraits" },
+    { time: "15.00", description: "Reception Opens" },
+    { time: "17.30", description: "Cake & Toasts" },
+    { time: "19.00", description: "First Dance" },
+  ],
+  dresscode: {
+    title: "Garden Formal",
+    description:
+      "In the green of the garden and the cream of the lace, we would love to see you in the palette below.",
+    colors: [
+      { hex: "#566a58", name: "Sage" },
+      { hex: "#e9f6e4", name: "Ivory" },
+      { hex: "#6e2237", name: "Burgundy" },
+      { hex: "#c9a24b", name: "Gold" },
+    ],
+  },
+  gift_accounts: [
+    { provider_name: "Bank Mandiri", account_number: "1370012345678", account_name: "David Albarn", type: "bank" },
+    { provider_name: "Bank Central Asia (BCA)", account_number: "8200891083", account_name: "Faye Reed", type: "bank" },
+  ],
+  gift_address: "Jl. Jend. Sudirman Kav. 1, Karet Tengsin, Jakarta Pusat 10220",
+  gift_address_name: "David Albarn & Faye Reed",
+  inviting_families: [
+    "Keluarga Bapak & Ibu Albarn",
+    "Keluarga Bapak & Ibu Reed",
+    "Keluarga Besar Kedua Mempelai",
+  ],
+  opening_title: "A Word of Welcome",
+  opening_description:
+    "With hearts full of gratitude, we invite you to share in the joy of our wedding day. Your presence and blessings would mean the world to us.",
+  quote_text: "And over all these virtues put on love, which binds them all together in perfect unity.",
+  quote_source: "Colossians 3 : 14",
+  video_url: "https://youtu.be/-ARVwU58l7A",
+  livestream_visible: true,
+  livestream: {
+    title: "Live Streaming",
+    description: "Join us from wherever you are, as we say our vows.",
+    buttonLabel: "Join Live",
+    url: "https://youtu.be/-ARVwU58l7A",
+  },
+  feature_gates: { story: true, gift_address: true, inviting_families: true, video: true, qr_code_book: true },
+  template_content: {
+    cover_kicker: "We Invite You to\nThe Wedding of",
+    open_button: "Open Invitation",
+    cover_guest_label: "Dear,",
+    cover_apology: "We apologize for any misspelling of your name or title.",
+    welcome_invite: "We're getting married.",
+    opening_kicker: "A Word of Welcome",
+    countdown_title: "Save The Date",
+    countdown_intro: "Counting the days until",
+    save_date_label: "Save The Date",
+    mempelai_title: "Bride & Groom",
+    mempelai_kicker: "Bride & Groom",
+    profiles_intro:
+      "With great joy and respect, we cordially invite you to attend the wedding celebration of our beloved son and daughter.",
+    parents_label: "Child of",
+    love_story_title: "Our Story",
+    story_kicker: "Chapters",
+    story_intro: "A few of the moments that led us here.",
+    events_title: "Event & Venue",
+    events_kicker: "The Celebration",
+    events_intro:
+      "With due respect, we would like to inform you that for those who wish to attend, below are the details of the time and venue of the event.",
+    events_note: "Doors open thirty minutes before the ceremony.",
+    maps_label: "See Location",
+    inviting_kicker: "With Honor",
+    inviting_title: "Turut Mengundang",
+    inviting_intro: "Together with the families who extend this invitation alongside us.",
+    rundown_title: "Rundown",
+    rundown_kicker: "Program",
+    rundown_intro: "The order of our celebration, from the first arrival to the last dance.",
+    gallery_title: "Our Gallery",
+    gallery_intro: "A few frames from the days that led us here.",
+    gallery_quote: "Every love story is beautiful, but ours is my favourite.",
+    video_kicker: "Our Film",
+    video_title: "Our Film",
+    video_intro: "The day as it happened, kept in motion.",
+    livestream_cta: "Join Live",
+    gift_intro_title: "E - Gift",
+    gift_intro_description: "Ladies and gentlemen, you can give digital gifts to us via the form below.",
+    gift_wish: "Your presence is the greatest gift, but if you wish to honour us with a gift, we would be grateful.",
+    gift_button: "Wedding Gift",
+    dresscode_kicker: "Dress Code",
+    dresscode_title: "Garden Formal",
+    dresscode_intro:
+      "In the green of the garden and the cream of the lace, we would love to see you in the palette below.",
+    dresscode_note: "Please reserve white for the couple.",
+    wishes_title: "Wedding Wishes",
+    wishes_intro: "Leave a wish, a prayer, or a memory for us to keep.",
+    wishes_name_label: "Name",
+    wishes_name_placeholder: "Your full name",
+    wishes_message_label: "Message",
+    wishes_message_placeholder: "Leave a wish for the couple",
+    wishes_submit: "Send Greeting",
+    wishes_empty: "No wishes yet. Be the first.",
+    closing_kicker: "Thank You",
+    closing_message: "Thank you for being part of our story.",
+    copy_account_toast: "Account number copied",
+    copy_address_toast: "Address copied",
+    copy_address_button: "Copy address",
+    copy_account_button: "Copy account number",
+  },
+}
