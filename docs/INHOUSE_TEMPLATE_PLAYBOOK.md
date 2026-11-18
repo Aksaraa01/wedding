@@ -931,6 +931,15 @@ Leave `tsconfig.tsbuildinfo` uncommitted.
 | Photo inside a decorative frame is off-centre / cut on one side | `<img>` absolutely positioned with `inset` and `auto` width — `right` is ignored for replaced elements | wrapper element with the insets, image fills it (`width/height:100%`, `object-fit`) |
 | Frame edge looks chewed / ornament cut | the "window" was traced from the lace, or ornament pixels were re-opaqued inside it | cut one smooth supersampled shape inside the vine; put the photo behind the plate |
 | Owner still sees an old ornament/photo after a fix | asset replaced at the same URL and the browser served the cached bitmap | version the filename (`-v2`, `-v3`), delete the old file, verify the served `shasum` |
+| Two identical fields in the EKSTRA accordion | the same field key is registered twice for one template (usually from regex-patching `templateExtras.ts`) | de-duplicate the entries; `npm run audit:extras -- <code>` must pass |
+| Two EKSTRA fields with different keys but the same label | one key borrowed another's label (e.g. `countdown_intro` labelled "Judul Hitung Mundur" like `countdown_title`) | give the intro/field its own label — "Pengantar …", not the title's |
+| An editor field does nothing, or copy in the invitation cannot be edited | registered key never read, or read key never registered | `npm run audit:extras -- <code>` fails on both directions |
+| Preview still shows old copy after a rebase | the rebase left two `DEMO_PROPS_BY_CODE.<code> = {…}` assignments and the stale one wins | after every rebase `grep -c "DEMO_PROPS_BY_CODE.<code> ="` must be `1`; rebuild |
+| Deployed page still shows old copy although the build is new | stale prerender (`route-cache`, `.next/server/app/...`) or a bundle built before the rebase | delete `.next/cache` + `.next/server/app/templates*` + `standalone/.../route-cache`, rebuild, assert the served bytes |
+| "The font size is the same but it looks 30% bigger" | typeface metrics: matching `font-size` is not matching optical size | measure ink height (canvas `actualBoundingBox`) on the reference and match that, per section |
+| Wax seal / overlay drifts off the filmed object | overlay pinned at a fixed % while the clip pans or zooms | drive the overlay from `video.currentTime` with a measured track |
+| Closing / footer content unreachable at the bottom | lazy ornament image with no intrinsic size loaded at 0px and pushed the tail past the document end | give every lazy ornament `aspect-ratio`; test the very bottom of the page |
+| Push rejected again and again, build fails in someone else's CSS | shared checkout is dirty with another session's work | build/deploy from a release worktree (§11.9), never from the shared tree |
 
 | Envelope opening looks empty in screenshots | animations start 2.6–3.35s after `preloader-done` | wait 4s; don’t remove the animation |
 | Love-story cover image invisible | extracted CSS keeps `clip-path`/`opacity:0` | add `clip-path:inset(0); opacity:1; transform:none` override |
@@ -1071,3 +1080,147 @@ the earlier phases. Every one of them cost at least one review round.
 - [ ] `tsc`, visual QA at 390×844 + 1440×900, staging build, preview curl,
       affected APIs, prod smoke
 - [ ] Committed and pushed to `origin main`
+
+---
+
+## 11. Hard lessons — the Majestic port (2026-11)
+
+These are mistakes that were made **during** the port and that the earlier
+sections did not prevent. Each one is a rule now; the failure catalogue above
+carries the matching symptom rows.
+
+### 11.1 "Remove section X" never means "remove what lives inside X"
+
+The brief said *remove Kalimat Pembuka*; the quote (kutipan) rendered inside
+that section and was silently deleted with it. Before deleting any block, list
+every `profile.*` / `template_content.*` field it renders and decide where each
+one goes. Deleting a surface is a **copy migration**, not a layout tweak.
+
+When a section is dropped for real:
+
+1. remove its JSX and its dead CSS,
+2. set the content spec flag (`opening_description: false`, `quote: false`, …),
+3. register the template in `src/lib/templateSections.ts` when it is the opening
+   block, so the editor/ops accordion and the publish blocker go too,
+4. unregister every now-dead extra (see 11.3), and
+5. record the deviation in `docs/REA_<CODE>.md`.
+
+### 11.2 Verify the rendered DOM, not the server HTML
+
+`{opened && <main>}` means the invitation body does not exist in the
+prerendered HTML. Grepping `preview.html` for copy proved nothing and produced
+two false "verified" claims in this port. Use a headless browser at 390×844
+(`?opened=1`), assert `document.querySelector(...)` / `innerText`, and check
+console exceptions. curl is only for status codes, assets and `<head>`.
+
+### 11.3 Never patch `templateExtras.ts` structurally
+
+Regex insertion produced duplicate entries, empty shells (`templates: []`) and
+an entry that kept its `placeholders` but lost its `templates`. Result: two
+identical fields in EKSTRA, and one field that edited nothing. Rules:
+
+- add or edit entries **by hand** (or with a script that parses the array and
+  re-serialises it, then proves `tsc` passes),
+- a removed UI element must have its field unregistered in the same commit,
+- run the guard after any touch:
+
+```bash
+npm run audit:extras -- <code>   # duplicate keys, duplicate labels, dead/unreachable copy
+```
+
+The guard checks three things per template: no key registered twice, no two
+keys sharing a label, and the component↔catalogue match in both directions.
+
+### 11.4 Rebase hygiene: one demo block per code
+
+A rebase onto a moving `origin/main` duplicated the whole
+`DEMO_PROPS_BY_CODE.majestic = {…}` assignment; the later block won and the
+deploy shipped the *old* titles while the source looked correct. After **every**
+rebase:
+
+```bash
+grep -c "DEMO_PROPS_BY_CODE.<code> =" src/components/templates/demoProps.ts   # must be 1
+grep -c 'code: "<code>"' src/components/templates/index.ts                    # must be 1
+```
+
+Then rebuild — a bundle built before the rebase is not the bundle you push.
+
+### 11.5 Prerender freshness is part of the deploy
+
+`next build` reuses `.next/server/app/...` and the runtime keeps
+`standalone/.next/server/route-cache`; either can serve copy that the new build
+already replaced. Before the final build:
+
+```bash
+rm -rf .next/cache .next/server/app/templates .next/server/app/templates.html
+rm -rf .next/standalone/.next/server/route-cache
+```
+
+and after the deploy assert the *served* string
+(`curl -s ... | grep "<new copy>"`), not the file on disk.
+
+### 11.6 Type fidelity means ink, not `font-size`
+
+Same 36px in two different serifs reads ~30% apart. Measure the reference's
+rendered ink with a Range or a canvas
+(`measureText().actualBoundingBoxAscent + Descent`) and match that, per
+section: the reference is not uniform (its countdown heading is 36px, every
+other section heading 48px, cover names 60px). Choose the substitute face by
+optical class too — Parisienne read far heavier than Adobe's classic script;
+Pinyon Script matched.
+
+### 11.7 Never ship a font you cannot license
+
+Adobe Fonts (`span`, `classic-script-mn`) are licensed per subscriber and
+served from Adobe's CDN. Self-hosting the woff2, or pointing our pages at the
+reference's kit id, is a licence violation and adds a third-party request to
+every invitation. Substitute from `public/fonts` and match optics (11.6);
+document the substitution in `docs/REA_<CODE>.md`. If the client supplies their
+own kit, load it for that template only.
+
+### 11.8 Overlays over video must run on the video clock
+
+A wax seal drawn at a fixed percentage slid off the filmed stamp as the camera
+panned. Sample the clip (frame grabs + a circular Hough, or template matching),
+store a `[time, centre, scale]` track and drive the overlay from
+`video.currentTime` on a rAF loop. A static overlay is only acceptable when the
+film is a locked-off shot.
+
+### 11.9 Release from a worktree, never from a dirty shared checkout
+
+During this port another session held uncommitted Fresco work in the same tree;
+`next build` failed on their CSS and every push raced their commits. The
+protocol that worked:
+
+```bash
+git worktree add --detach /tmp/release origin/main
+cp -Rc node_modules /tmp/release/node_modules
+# copy ONLY this task's new files, then re-apply this task's hunks to the
+# shared files inside the worktree (index.ts, demoProps.ts, templateExtras.ts,
+# src/app/templates/[code]/preview/page.tsx, allowlist) — do not copy those
+# files wholesale from the shared tree, they carry the other session's edits
+set -a; source .env.local.prod; set +a
+npm run build          # assert the prod project ref is the only one baked
+git add -A && git commit && git push origin HEAD:main
+npm run deploy
+```
+
+Expect `push` to be rejected; then `git fetch`, `git rebase origin/main`,
+re-check 11.4, **rebuild**, push again. Never deploy a bundle that predates the
+rebase.
+
+### 11.10 Lazy ornaments need a box
+
+An ornament image with `loading="lazy"` and no intrinsic size lays out at 0px;
+when it finally loads the section grows and anything below it (the closing copy,
+the hashtag, the footer) can end up past the document height — invisible and
+unscrollable. Give every lazy ornament `aspect-ratio`, and make "scroll to the
+very bottom and read the last line" part of visual QA.
+
+### 11.11 Register the DB row before the final build — in every environment
+
+The public gallery is prerendered from `web_templates`. Inserting the row after
+`npm run deploy` leaves the tile (and the editor's template choice) out until
+the ISR window turns over. Order is: migration → row → clear prerender → build →
+deploy, on staging *and* production, and verify `/templates` shows the tile in a
+browser, not just that `/api/web-templates` contains it.
