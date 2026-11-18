@@ -2,7 +2,6 @@ import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import DashboardShell from "@/components/dashboard/DashboardShell"
 import { canAccessProfile } from "@/lib/requireProfileAccess"
-import CsWidget from "@/components/cs/CsWidget"
 
 export default async function DashboardLayout({
   children,
@@ -29,7 +28,6 @@ export default async function DashboardLayout({
   return (
     <>
       <DashboardShell id={id}>{children}</DashboardShell>
-      <CsWidget />
     </>
   )
 }

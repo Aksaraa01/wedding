@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Uji cakupan widget: halaman publik harus punya tombol "Tanya CS", undangan
-// tamu tidak boleh, dashboard harus punya dan chat-nya terhubung ke profil.
+// Uji cakupan widget: halaman marketing harus punya tombol "Tanya CS", undangan
+// tamu + dashboard + halaman auth tidak boleh punya.
 //
 //   CS_E2E_URL=http://127.0.0.1:3100 node scripts/cs-widget-coverage.mjs
 
@@ -22,6 +22,7 @@ const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 const PUBLIC_PAGES = [
   "/hero",
   "/templates",
+  "/design",
   "/premium-web-invitation",
   "/fitur/undangan-digital",
   "/artikel",
@@ -31,6 +32,9 @@ const PUBLIC_PAGES = [
   "/galeri-kenangan-tamu",
   "/reminder-tamu-vip",
 ]
+
+// Rute non-marketing: widget tidak boleh muncul walau komponen Navigation dipakai.
+const PRIVATE_PAGES = ["/register", "/login", "/customize", "/daftar"]
 
 const results = []
 function record(name, ok, detail) {
@@ -64,6 +68,16 @@ async function main() {
     )
   }
 
+  for (const page of PRIVATE_PAGES) {
+    const res = await fetch(`${BASE}${page}`, { redirect: "manual" })
+    const html = await res.text()
+    record(
+      `privat ${page} TIDAK ada widget`,
+      !html.includes("Buka chat CS"),
+      `status ${res.status}`
+    )
+  }
+
   const invitation = await fetch(`${BASE}/w/${profile.slug}`, { redirect: "manual" })
   const invitationHtml = await invitation.text()
   record(
@@ -78,8 +92,8 @@ async function main() {
   })
   const dashboardHtml = await dashboard.text()
   record(
-    "dashboard ada widget",
-    dashboard.status === 200 && dashboardHtml.includes("Buka chat CS"),
+    "dashboard TIDAK ada widget",
+    dashboard.status === 200 && !dashboardHtml.includes("Buka chat CS"),
     `status ${dashboard.status}`
   )
 

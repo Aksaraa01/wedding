@@ -15,6 +15,8 @@ import {
   toJid,
 } from "../src/lib/cs/identity.ts"
 import { validateReply } from "../src/lib/cs/guard.ts"
+import { escalationReply } from "../src/lib/cs/replies.ts"
+import { csWidgetEnabledOn } from "../src/lib/cs/widgetRoutes.ts"
 import { isPlaceholderTemplate, matchesTemplateCategory } from "../src/lib/cs/templateFilter.ts"
 import { sanitizeReply } from "../src/lib/cs/text.ts"
 import { isCustomerFeature, isSellablePackage } from "../src/lib/cs/catalog.ts"
@@ -115,10 +117,11 @@ test("voucher: kode diekstrak dari pesan", () => {
   assert.equal(extractVoucherCode("harganya Rp299.000 ya"), null)
 })
 
-test("decide: klien kirim kode → check_voucher", () => {
+test("decide: klien kirim kode → eskalasi voucher", () => {
   const d = decide("voucher", { ...ctx, voucherCode: "CTK01" })
-  assert.equal(d.action, "tool")
-  assert.equal(d.tool, "check_voucher")
+  assert.equal(d.action, "escalate")
+  assert.equal(d.reason, "voucher")
+  assert.equal(d.priority, "normal")
 })
 
 test("guard: kode yang dikirim klien wajib disebut", () => {
@@ -147,10 +150,19 @@ test("classify: minta diskon tetap discount", () => {
   assert.equal(classify("bisa diskon ga kak?"), "discount")
 })
 
-test("decide: voucher pakai tool list_vouchers", () => {
+test("decide: pertanyaan voucher tanpa kode juga dieskalasi", () => {
   const d = decide("voucher", ctx)
-  assert.equal(d.action, "tool")
-  assert.equal(d.tool, "list_vouchers")
+  assert.equal(d.action, "escalate")
+  assert.equal(d.reason, "voucher")
+})
+
+test("guard: balasan voucher lolos guard", () => {
+  const r = validateReply({ reply: escalationReply("voucher") })
+  assert.equal(r.ok, true, JSON.stringify(r.violations))
+})
+
+test("batas: voucher tidak diputuskan agent", () => {
+  assert.ok(BOUNDARIES.some((rule) => /voucher/i.test(rule)))
 })
 
 test("classify: estimasi waktu pengerjaan", () => {
@@ -820,4 +832,65 @@ test("policies: bisa dioverride dari guardrails", () => {
 
 test("policies: teks menyebut hitungan menit", () => {
   assert.match(formatPolicies(POLICIES), /hitungan menit/)
+})
+
+// ---------- widget CS hanya di halaman marketing ----------
+
+test("widget: halaman marketing menampilkan", () => {
+  for (const path of [
+    "/",
+    "/hero",
+    "/templates",
+    "/templates/kategori/adat",
+    "/design",
+    "/premium-web-invitation",
+    "/qr-digital-buku-tamu",
+    "/virtual-wish-wall",
+    "/reminder-tamu-vip",
+    "/galeri-kenangan-tamu",
+    "/fitur",
+    "/fitur/wish-wall",
+    "/artikel",
+    "/artikel/harga-undangan-digital-2026",
+    "/portofolio",
+    "/portofolio/contoh-undangan",
+    "/checklist-nikah",
+    "/kalkulator-budget",
+  ]) {
+    assert.equal(csWidgetEnabledOn(path), true, path)
+  }
+})
+
+test("widget: halaman app/auth/undangan tidak menampilkan", () => {
+  for (const path of [
+    "/dashboard",
+    "/dashboard/abc",
+    "/ops/cs",
+    "/login",
+    "/register",
+    "/daftar",
+    "/customize",
+    "/preview/abc",
+    "/scanner/rafi-novi",
+    "/w/rafi-novi",
+    "/led/rafi-novi",
+    "/qr/rafi-novi",
+    "/qr-print/abc",
+    "/welcome/abc",
+    "/g/abc",
+    "/q/abc",
+    "/api/cs/chat",
+    "/templatesX",
+    "/artikelX",
+  ]) {
+    assert.equal(csWidgetEnabledOn(path), false, path)
+  }
+})
+
+test("widget: trailing slash tidak mengubah keputusan", () => {
+  assert.equal(csWidgetEnabledOn("/templates/"), true)
+  assert.equal(csWidgetEnabledOn("/fitur/wish-wall/"), true)
+  assert.equal(csWidgetEnabledOn("/dashboard/"), false)
+  assert.equal(csWidgetEnabledOn("/register/"), false)
+  assert.equal(csWidgetEnabledOn(""), true)
 })

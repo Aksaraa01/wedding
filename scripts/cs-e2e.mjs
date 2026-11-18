@@ -80,16 +80,16 @@ const CASES = [
     id: "voucher-umum",
     text: "ada voucher ga kak?",
     check: (r) => ({
-      ok: /paket/i.test(r) && !codeLeak(r) && !/kirim.*kode|kode.*kirim/i.test(r),
-      why: "voucher umum: jelaskan paket, tanpa kode dan tanpa minta kode",
+      ok: /cek dulu|teruskan ke tim|sambungkan ke tim/i.test(r) && !codeLeak(r) && !/kirim.*kode|kode.*kirim/i.test(r),
+      why: "voucher umum: diteruskan ke tim, tanpa kode dan tanpa minta kode",
     }),
   },
   {
     id: "voucher-kode",
     text: "voucher CTK01 masih berlaku?",
     check: (r) => ({
-      ok: /CTK01/i.test(r) && /rp\s?[\d.,]+/i.test(r),
-      why: "kalau klien kirim kode, kode itu boleh disebut dan dicek",
+      ok: /cek dulu|teruskan ke tim|sambungkan ke tim/i.test(r) && !/berlaku|potongan|diskon/i.test(r),
+      why: "klien kirim kode: agent tidak mengadili validitas, diteruskan ke tim",
     }),
   },
   {

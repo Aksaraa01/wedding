@@ -87,7 +87,26 @@ async function createEscalation(input: {
   reason: EscalationReason
   priority: Priority
   summary: string
+  // Voucher (dan tiket informatif lain) tetap membuat tiket + ping ops tanpa
+  // mematikan AI 4 jam, supaya satu pertanyaan promo tidak mengakhiri percakapan.
+  pauseAi?: boolean
 }): Promise<void> {
+  const pauseAi = input.pauseAi !== false
+
+  if (!pauseAi) {
+    // Tanpa jeda AI, klien bisa bertanya voucher berkali-kali. Satu tiket
+    // terbuka per alasan sudah cukup; jangan spam grup ops.
+    const { data: open } = await supabaseAdmin
+      .from("cs_escalations")
+      .select("id")
+      .eq("conversation_id", input.conversationId)
+      .eq("reason", input.reason)
+      .eq("status", "open")
+      .limit(1)
+      .maybeSingle()
+    if (open) return
+  }
+
   await supabaseAdmin.from("cs_escalations").insert({
     conversation_id: input.conversationId,
     reason: input.reason,
@@ -97,11 +116,15 @@ async function createEscalation(input: {
 
   await supabaseAdmin
     .from("cs_conversations")
-    .update({
-      status: "human",
-      escalated_at: new Date().toISOString(),
-      ai_paused_until: new Date(Date.now() + 4 * 60 * 60_000).toISOString(),
-    })
+    .update(
+      pauseAi
+        ? {
+            status: "human",
+            escalated_at: new Date().toISOString(),
+            ai_paused_until: new Date(Date.now() + 4 * 60 * 60_000).toISOString(),
+          }
+        : { escalated_at: new Date().toISOString() }
+    )
     .eq("id", input.conversationId)
 
   await supabaseAdmin.from("cs_audit").insert({
@@ -225,6 +248,7 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
       reason: decision.reason,
       priority: decision.priority,
       summary: summary(decision.reason),
+      pauseAi: decision.reason !== "voucher",
     })
     await updateLead(lead.id, { stage: "handoff" })
     const text = escalationReply(decision.reason, intent)

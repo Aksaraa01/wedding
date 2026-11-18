@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import DesignPage from "@/components/design/DesignPage"
+import CsWidget from "@/components/cs/CsWidget"
 
 const APEX = "https://aksaraa.com"
 
@@ -41,5 +42,10 @@ export const metadata: Metadata = {
 export const revalidate = 300
 
 export default function DesignRoute() {
-  return <DesignPage />
+  return (
+    <>
+      <DesignPage />
+      <CsWidget />
+    </>
+  )
 }

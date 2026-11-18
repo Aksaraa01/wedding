@@ -1,6 +1,9 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
+import { usePathname } from "next/navigation"
+
+import { csWidgetEnabledOn } from "@/lib/cs/widgetRoutes"
 
 type ChatMessage = {
   id: string
@@ -86,7 +89,11 @@ function CsAvatar({ className = "h-7 w-7" }: { className?: string }) {
 const CS_WIDGET_ENABLED = process.env.NEXT_PUBLIC_CS_WIDGET === "1"
 
 export default function CsWidget() {
+  const pathname = usePathname()
   if (!CS_WIDGET_ENABLED) return null
+  // Marketing only: Navigation dipakai lintas rute, jadi rute yang tidak ada di
+  // allowlist (dashboard, auth, undangan tamu) tidak boleh ikut menampilkan widget.
+  if (!csWidgetEnabledOn(pathname || "/")) return null
   return <CsWidgetInner />
 }
 

@@ -37,6 +37,7 @@ export type EscalationReason =
   | "refund"
   | "reschedule"
   | "discount"
+  | "voucher"
   | "payment"
   | "complaint"
   | "sensitive_data"
@@ -82,6 +83,8 @@ export const BOUNDARIES: string[] = [
   "Jangan membuka data tamu, nomor HP, alamat, atau data hadiah sebelum verifikasi.",
   "Jangan mengarang fitur (mis. satu link untuk dua nama) tanpa hasil tool.",
   "Komplain, refund, ubah tanggal, nego, dan bukti bayar selalu dieskalasi ke tim.",
+  "Voucher dan potongan khusus tidak diputuskan agent; selalu diperiksa tim dulu.",
+  "Jangan menjamin kuota voucher atau bahwa kode akan berhasil saat registrasi.",
   "Tangani keberatan harga pertama dengan nilai dan paket alternatif; eskalasi hanya kalau klien menekan lagi.",
   "Jangan menanyakan lebih dari satu fakta per balasan.",
   "Kalau klien minta berhenti dihubungi, hormati dan jangan kirim pesan lagi.",
@@ -454,7 +457,9 @@ export function decide(intent: Intent, ctx: DecisionContext): Decision {
       return { action: "answer", intent }
 
     case "voucher":
-      return { action: "tool", intent, tool: ctx.voucherCode ? "check_voucher" : "list_vouchers" }
+      // Semua pertanyaan voucher diteruskan ke tim. Agent tidak pernah memutuskan
+      // validitas/kuota sendiri, walau kode bisa dibaca dari DB.
+      return { action: "escalate", intent, reason: "voucher", priority: "normal" }
 
     case "recommendation":
       return { action: "playbook", intent, step: "qualify" }

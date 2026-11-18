@@ -18,13 +18,15 @@ voice, marketplace, IG DM, CRM pipeline, multi-tenant.
 | Verifikasi nomor terdaftar + OTP | `src/lib/cs/identity.ts` — selesai |
 | Guard output (harga, klaim, PII, link) | `src/lib/cs/guard.ts` — selesai |
 | Field pengisian data + validasi | `src/lib/cs/profileFields.ts` — selesai |
-| Test deterministik + loop agent + SOP (115 kasus) | `npm run test:cs` — 115/115 lulus |
-| Skema DB | `20261054000000_cs_agent` + `20261055000000_cs_leads` — **sudah di staging & lokal**, belum prod |
+| Test deterministik + loop agent + SOP (166 kasus) | `npm run test:cs` — 166/166 lulus |
+| Skema DB | `20261054000000_cs_agent` + `20261055000000_cs_leads` — sudah di lokal, staging, dan prod |
 | Orchestrator LLM + tool | `src/lib/cs/orchestrator.ts`, `agentLoop.ts`, `tools.ts` — selesai |
 | Route inbound `POST /api/cs/wa/inbound` | selesai |
 | SOP sales: playbook, lead, rekomendasi paket | `src/lib/cs/playbook.ts`, `leads.ts`, migration `20261055000000` — selesai |
 | Inbox ops `/ops/cs` (list, transkrip, lead, ambil alih, balas, tutup) | selesai |
-| Widget web + `POST /api/cs/chat` | selesai (dipasang di `/hero` dan `/templates` saja) |
+| Widget web + `POST /api/cs/chat` | marketing-only (`src/lib/cs/widgetRoutes.ts`) + `/design`; prod masih `NEXT_PUBLIC_CS_WIDGET=0` |
+| Batas voucher | semua pertanyaan voucher → tiket `voucher` + "cek dulu ke tim", AI tidak dijeda |
+| SOP & matriks eskalasi | `docs/CS_SOP.md` |
 | Patch gateway nomor pilot | lihat `docs/CS_PILOT.md` |
 
 ---

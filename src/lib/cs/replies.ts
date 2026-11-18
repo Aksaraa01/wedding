@@ -9,6 +9,8 @@ const BY_REASON: Record<EscalationReason, string> = {
     "Oke Kak, buat pembatalan aku sambungkan ke tim ya. Boleh info nama pemesan dan nomor pesanannya?",
   reschedule:
     "Oke, buat ubah tanggal aku sambungkan ke tim dulu ya Kak. Tanggal barunya kira-kira kapan?",
+  voucher:
+    "Boleh aku cek dulu ya Kak, biar voucher-nya pasti kepakai. Ini aku teruskan ke tim dulu.",
   discount:
     "Buat penyesuaian harga, aku sambungkan ke tim ya Kak. Lagi lihat paket yang mana?",
   payment:
