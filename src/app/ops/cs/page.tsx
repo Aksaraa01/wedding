@@ -104,6 +104,17 @@ export default function OpsCsPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(true)
   const messagesRef = useRef<HTMLDivElement>(null)
+  const [wa, setWa] = useState<{
+    connected?: boolean
+    me?: string | null
+    pairing?: boolean
+    pairingCode?: string
+    qr?: string
+    offline?: boolean
+    error?: string
+  } | null>(null)
+  const [waPhone, setWaPhone] = useState("")
+  const [waBusy, setWaBusy] = useState(false)
 
   useEffect(() => {
     const raw = sessionStorage.getItem("ops_employee")
@@ -121,6 +132,44 @@ export default function OpsCsPage() {
       "x-ops-role": employee?.role || "",
     }),
     [employee]
+  )
+
+  const loadWa = useCallback(async () => {
+    if (!employee) return
+    try {
+      const res = await fetch("/api/ops/cs/wa", { headers, cache: "no-store" })
+      if (res.ok) setWa(await res.json())
+    } catch {
+      // diamkan, polling berikutnya mencoba lagi
+    }
+  }, [employee, headers])
+
+  useEffect(() => {
+    void loadWa()
+    const timer = window.setInterval(loadWa, 15000)
+    return () => window.clearInterval(timer)
+  }, [loadWa])
+
+  const waAction = useCallback(
+    async (action: "pair" | "logout") => {
+      setWaBusy(true)
+      setError("")
+      try {
+        const res = await fetch("/api/ops/cs/wa", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ action, phone: waPhone }),
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) setError(data.error || "Gagal memproses WhatsApp")
+        await loadWa()
+      } catch {
+        setError("Gateway WhatsApp tidak dapat dihubungi")
+      } finally {
+        setWaBusy(false)
+      }
+    },
+    [headers, loadWa, waPhone]
   )
 
   const fetchList = useCallback(async () => {
@@ -237,6 +286,64 @@ export default function OpsCsPage() {
           className={`${selectedId ? "hidden md:flex" : "flex"} w-full md:w-[360px] shrink-0 border-r border-outline-variant flex-col`}
         >
           <div className="p-4 border-b border-outline-variant space-y-3">
+            <div className="border border-outline-variant bg-white p-3 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[10px] font-label-md uppercase tracking-widest text-on-surface-variant">
+                  WhatsApp CS
+                </p>
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded ${
+                    wa?.connected ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                  }`}
+                >
+                  {wa?.connected ? "Terhubung" : wa?.offline ? "Gateway mati" : "Terputus"}
+                </span>
+              </div>
+
+              {wa?.connected ? (
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold truncate">{wa.me || "-"}</p>
+                  <button
+                    onClick={() => waAction("logout")}
+                    disabled={waBusy}
+                    className="px-2 py-1 text-[10px] border border-outline-variant uppercase tracking-widest disabled:opacity-50"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex gap-2">
+                    <input
+                      value={waPhone}
+                      onChange={(event) => setWaPhone(event.target.value)}
+                      placeholder="08xxxxxxxxxx"
+                      className="flex-1 min-w-0 border border-outline-variant px-2 py-1.5 text-xs bg-white"
+                    />
+                    <button
+                      onClick={() => waAction("pair")}
+                      disabled={waBusy || wa?.pairing}
+                      className="px-2.5 py-1.5 text-[10px] font-label-md uppercase tracking-widest bg-primary text-white disabled:opacity-50"
+                    >
+                      {wa?.pairing ? "Menunggu…" : "Pair"}
+                    </button>
+                  </div>
+                  {wa?.pairingCode && (
+                    <p className="text-xs">
+                      Kode: <span className="font-mono font-bold tracking-widest">{wa.pairingCode}</span>
+                      <span className="block text-[10px] text-on-surface-variant mt-1">
+                        WhatsApp → Linked devices → Link with phone number.
+                      </span>
+                    </p>
+                  )}
+                  {wa?.qr && !wa?.pairingCode && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={wa.qr} alt="QR pairing WhatsApp" className="w-40 h-40 mx-auto" />
+                  )}
+                </>
+              )}
+            </div>
+
             <div className="flex gap-2">
               {(["all", "needs", "human", "closed"] as const).map((key) => (
                 <button

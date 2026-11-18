@@ -7,7 +7,7 @@ import { checkRateLimit, rateLimited } from "@/lib/rateLimit"
 import { getCsSettings } from "@/lib/cs/settings"
 import { handleInbound } from "@/lib/cs/orchestrator"
 import { handleOnboardingUpload } from "@/lib/cs/onboarding"
-import { uploadFromUrl } from "@/lib/storage"
+import { uploadFile, uploadFromUrl } from "@/lib/storage"
 import {
   notRegisteredReply,
   offlineReply,
@@ -25,6 +25,7 @@ interface InboundBody {
   push_name?: string
   text?: string
   media_url?: string
+  media_base64?: string
   mime_type?: string
   timestamp?: number
   from_me?: boolean
@@ -159,7 +160,8 @@ export async function POST(request: Request) {
   const jid = String(body.from || "").trim()
   const text = String(body.text || "").trim()
   const mediaUrl = String(body.media_url || "").trim()
-  if (!jid || (!text && !mediaUrl)) {
+  const mediaBase64 = String(body.media_base64 || "").trim()
+  if (!jid || (!text && !mediaUrl && !mediaBase64)) {
     return NextResponse.json({ replies: [] })
   }
 
@@ -448,13 +450,27 @@ export async function POST(request: Request) {
   }
 
   // --- Foto dari WhatsApp (media passthrough gateway) ----------------------
-  if (mediaUrl && verified && profileId) {
+  if ((mediaUrl || mediaBase64) && verified && profileId) {
     try {
-      const stored = await uploadFromUrl(
-        mediaUrl,
-        "cs-uploads",
-        `${profileId}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}`
-      )
+      let stored = ""
+      if (mediaBase64) {
+        const bytes = Buffer.from(mediaBase64, "base64")
+        const mime = String(body.mime_type || "image/jpeg")
+        if (!mime.startsWith("image/")) throw new Error("bukan gambar")
+        if (bytes.length > 8 * 1024 * 1024) throw new Error("terlalu besar")
+        const file = new File([new Uint8Array(bytes)], "wa-photo.jpg", { type: mime })
+        stored = await uploadFile(
+          file,
+          "cs-uploads",
+          `${profileId}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}`
+        )
+      } else {
+        stored = await uploadFromUrl(
+          mediaUrl,
+          "cs-uploads",
+          `${profileId}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}`
+        )
+      }
       const text = await handleOnboardingUpload(profileId, contact.id as string, stored)
       await reply(conversationId, text)
     } catch {
