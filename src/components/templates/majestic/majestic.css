@@ -314,12 +314,13 @@ body:has(.mj-root.is-locked) {
 .mj-gate__seal span {
   position: relative;
   z-index: 1;
-  font-family: var(--mj-script);
-  font-size: 25cqw;
+  font-family: var(--mj-serif);
+  font-weight: 600;
+  font-size: 20cqw;
   line-height: 1;
-  color: rgba(146, 122, 88, 0.72);
-  letter-spacing: 0.02em;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+  color: rgba(138, 114, 80, 0.8);
+  letter-spacing: 0.06em;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
   white-space: nowrap;
 }
 

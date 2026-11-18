@@ -244,15 +244,13 @@ export default function Majestic(profile: TemplateProps) {
   const parentsLabel = (tc.parents_label || "").trim() || "Putra/Putri dari"
   const quoteText = (profile.quote_text || "").trim()
   const quoteSource = (profile.quote_source || "").trim()
-  const personOneLabel = (tc.person_one_label || "").trim()
-  const personTwoLabel = (tc.person_two_label || "").trim()
   const storyTitle = (tc.love_story_title || "").trim() || "Kisah Cinta"
   const storyIntro = (tc.story_intro || "").trim() || DEFAULT_STORY_INTRO
   const eventsTitle = (tc.events_title || "").trim() || "The Wedding Day"
   const eventsNote = (tc.events_note || "").trim()
   const mapsLabel = (tc.maps_label || "").trim() || "Lihat Lokasi"
   const calendarLabel = (tc.calendar_button || "").trim() || "Simpan Tanggal"
-  const countdownTitle = (tc.countdown_title || "").trim() || "Menghitung Hari"
+  const countdownTitle = (tc.countdown_title || "").trim() || "Save the Date"
   const countdownIntro = (tc.countdown_intro || "").trim()
   const countdownLabels = [
     (tc.countdown_days || "").trim() || "Hari",
@@ -267,7 +265,7 @@ export default function Majestic(profile: TemplateProps) {
   const galleryTitle = (tc.gallery_title || "").trim() || "Gallery of Us"
   const galleryIntro = (tc.gallery_intro || "").trim()
   const galleryQuote = (tc.gallery_quote || "").trim()
-  const videoTitle = (tc.video_title || "").trim() || "Film Kami"
+  const videoTitle = (tc.video_title || "").trim() || "The Film"
   const videoIntro = (tc.video_intro || "").trim()
   const giftTitle = (tc.gift_intro_title || "").trim() || "The Wedding Gift"
   const giftIntro = (tc.gift_intro_description || "").trim() || DEFAULT_GIFT
@@ -746,7 +744,6 @@ export default function Majestic(profile: TemplateProps) {
                 <figure className="mj-person__frame">
                   <img className="mj-person__photo" src={groomPhoto(profile.groom_photo_url)} alt={groomFull} loading="lazy" />
                 </figure>
-                {personOneLabel && <p className="mj-person__label">{personOneLabel}</p>}
                 <h3 className="mj-script mj-person__name">{groomFull}</h3>
                 {profile.groom_parents && (
                   <p className="mj-person__parents">
@@ -774,7 +771,6 @@ export default function Majestic(profile: TemplateProps) {
                 <figure className="mj-person__frame">
                   <img className="mj-person__photo" src={bridePhoto(profile.bride_photo_url)} alt={brideFull} loading="lazy" />
                 </figure>
-                {personTwoLabel && <p className="mj-person__label">{personTwoLabel}</p>}
                 <h3 className="mj-script mj-person__name">{brideFull}</h3>
                 {profile.bride_parents && (
                   <p className="mj-person__parents">

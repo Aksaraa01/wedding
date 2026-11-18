@@ -211,6 +211,7 @@ export const TEMPLATE_EXTRA_ORDER_OF: Record<string, number> = {
 }
 
 export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
+
   {
     key: "gate_hint",
     label: "Petunjuk Buka Undangan",
@@ -1137,9 +1138,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     order: 6,
     placeholder: "the one",
     placeholders: {
-      majestic: "Mempelai Pertama",
     },
-    templates: ["love-line", "majestic"],
+    templates: ["love-line"],
   },
   {
     key: "person_two_label",
@@ -1148,9 +1148,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     order: 7,
     placeholder: "the beauty",
     placeholders: {
-      majestic: "Mempelai Kedua",
     },
-    templates: ["love-line", "majestic"],
+    templates: ["love-line"],
   },
   {
     key: "parents_label_male",
@@ -1187,9 +1186,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Permohonan Maaf Sampul",
     multiline: true,
     rows: 2,
-    templates: ["majestic"],
-    placeholders: {
-      majestic: "Mohon maaf apabila ada kekurangan dalam penyambutan kami." },
+    templates: [],
+    placeholders: { },
   },
   {
     key: "save_date_label",
@@ -1200,9 +1198,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "countdown_title",
     label: "Judul Hitung Mundur",
-    templates: ["majestic"],
-    placeholders: {
-      majestic: "Menghitung Hari" },
+    templates: [],
+    placeholders: { },
   },
   {
     key: "countdown_intro",
@@ -1221,23 +1218,20 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Pengantar Mempelai",
     multiline: true,
     rows: 2,
-    templates: ["majestic"],
-    placeholders: {
-      majestic: "Dua keluarga, satu meja panjang, dan hari yang akan kami kenang selamanya." },
+    templates: [],
+    placeholders: { },
   },
   {
     key: "parents_label",
     label: "Label Orang Tua",
-    templates: ["majestic"],
-    placeholders: {
-      majestic: "Putra/Putri dari" },
+    templates: [],
+    placeholders: { },
   },
   {
     key: "love_story_title",
     label: "Judul Cerita Cinta",
-    templates: ["majestic"],
-    placeholders: {
-      majestic: "Kisah Cinta" },
+    templates: [],
+    placeholders: { },
   },
   {
     key: "events_title",
@@ -1256,9 +1250,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Catatan Acara",
     multiline: true,
     rows: 2,
-    templates: ["majestic"],
-    placeholders: {
-      majestic: "Kami menantikan kehadiran Anda di hari istimewa kami." },
+    templates: [],
+    placeholders: { },
   },
   {
     key: "maps_label",
@@ -1283,16 +1276,14 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Pengantar Turut Mengundang",
     multiline: true,
     rows: 2,
-    templates: ["majestic"],
-    placeholders: {
-      majestic: "Dengan penuh rasa syukur, kami juga menghadirkan keluarga yang turut mengundang." },
+    templates: [],
+    placeholders: { },
   },
   {
     key: "rundown_title",
     label: "Judul Rundown",
-    templates: ["majestic"],
-    placeholders: {
-      majestic: "Rangkaian Hari" },
+    templates: [],
+    placeholders: { },
   },
   {
     key: "rundown_kicker",
@@ -1305,9 +1296,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Pengantar Rundown",
     multiline: true,
     rows: 2,
-    templates: ["majestic"],
-    placeholders: {
-      majestic: "Kami menyiapkan rangkaian acara berikut agar Anda tidak melewatkan momen apa pun." },
+    templates: [],
+    placeholders: { },
   },
   {
     key: "gallery_title",
@@ -1328,9 +1318,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Kutipan Galeri",
     multiline: true,
     rows: 2,
-    templates: ["majestic"],
-    placeholders: {
-      majestic: "Setiap kisah cinta indah, tetapi kisah kami adalah favorit kami." },
+    templates: [],
+    placeholders: { },
   },
   {
     key: "video_kicker",
@@ -1341,18 +1330,16 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "video_title",
     label: "Judul Video",
-    templates: ["majestic"],
-    placeholders: {
-      majestic: "Film Kami" },
+    templates: [],
+    placeholders: { },
   },
   {
     key: "video_intro",
     label: "Pengantar Video",
     multiline: true,
     rows: 2,
-    templates: ["majestic"],
-    placeholders: {
-      majestic: "Hari kami, dalam gerak dan gambar." },
+    templates: [],
+    placeholders: { },
   },
   {
     key: "gift_intro_title",
@@ -1385,9 +1372,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "dresscode_kicker",
     label: "Judul Dress Code",
-    templates: ["majestic"],
-    placeholders: {
-      majestic: "Dress Code" },
+    templates: [],
+    placeholders: { },
   },
   {
     key: "dresscode_title",
@@ -1408,9 +1394,8 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Catatan Dress Code",
     multiline: true,
     rows: 2,
-    templates: ["majestic"],
-    placeholders: {
-      majestic: "Mohon hindari warna putih — warna tersebut kami sediakan untuk mempelai." },
+    templates: [],
+    placeholders: { },
   },
   {
     key: "wishes_title",
@@ -1473,16 +1458,14 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
   {
     key: "copy_account_toast",
     label: "Toast Salin Rekening",
-    templates: ["majestic"],
-    placeholders: {
-      majestic: "Nomor rekening disalin" },
+    templates: [],
+    placeholders: { },
   },
   {
     key: "copy_address_toast",
     label: "Toast Salin Alamat",
-    templates: ["majestic"],
-    placeholders: {
-      majestic: "Alamat disalin" },
+    templates: [],
+    placeholders: { },
   },
   {
     key: "copy_address_button",
@@ -1536,7 +1519,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Judul Hitung Mundur",
     templates: ["fresco", "majestic"],
     placeholders: {
-      majestic: "Menghitung Hari", fresco: "Countdown" },
+      majestic: "Save the Date", fresco: "Countdown" },
   },
 
   {
@@ -1697,7 +1680,7 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     label: "Judul Video",
     templates: ["fresco", "majestic"],
     placeholders: {
-      majestic: "Film Kami", fresco: "Our Film" },
+      majestic: "The Film", fresco: "Our Film" },
   },
 
   {
@@ -2094,7 +2077,7 @@ TEMPLATE_EXTRA_FIELDS.push(
   },
   {
     key: "countdown_intro",
-    label: "Judul Hitung Mundur",
+    label: "Pengantar Hitung Mundur",
     section: "acara",
     order: 10,
     templates: ["lentera-zamrud", "majestic"],
