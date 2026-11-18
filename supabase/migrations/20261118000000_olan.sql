@@ -9,6 +9,11 @@
 -- portraits on, story photos on (the Our Story slider is a photo), initials off
 -- (the design prints no monogram), livestream on (it ships as its own section),
 -- contacts off. See docs/REA_OLAN.md for the section contract and deviations.
+--
+-- `is_active` is FALSE on purpose: the design is ported and deployed, but the
+-- owner has not opened it for sale yet. Flip the column (not this file) when it
+-- ships to the gallery; keeping the file false means a replay or a fresh
+-- `db reset` cannot silently publish it.
 INSERT INTO web_templates
   (code, name, description, preview_image_url, demo_url, sort_order, category, source_type, package_eligibility, tier, is_active, no_photo)
 VALUES
@@ -17,7 +22,7 @@ VALUES
    '/templates/olan/thumbnail.webp',
    '/templates/olan/preview', 44, 'Floral', 'inhouse',
    '["essential","signature","prestige","elite","cetak_undangan_bonus","bonus_full_custom","dgb_sistem","dgb_pro","dgb_premium","dgb_prestige","gt"]',
-   'Baru', true, false)
+   'Baru', false, false)
 ON CONFLICT (code) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
