@@ -245,12 +245,13 @@ Reported per playbook §0.5 rule 2 before shipping:
   Decorative title case). Cinzel has no lowercase — every string renders as
   small caps — which read as shouted over a photograph; the body serif keeps
   the invitation voice and the reference's size.
-- **The cover photo sits inside the painted frame.** The reference's cover is
-  one flattened artwork with a garden in the carved opening. The gate keeps a
-  1500×938 stage (scaled to cover the screen or the desktop panel) and seats
-  `cover_photos[0]` at `34% / 17.4% / 29% × 50.8%` of that stage, above the
-  lilies and clear of the fans, so the painting's paper and ornament stay as
-  the frame at every width. No photo ⇒ the garden remains in the frame.
+- **The cover photo fills the carved frame, like the mempelai portraits.**
+  `cover-frame.webp` is the cover plate with the opening cut out (x 35.5%…62%,
+  y 12.5%…83.5%, arched bottom). The gate keeps a 1500×938 stage (scaled to
+  cover the screen or the desktop panel); `cover_photos[0]` sits behind the
+  plate at that stage and shows through the window, edge to edge. The two lily
+  clusters the cut crosses are re-drawn on top. No photo ⇒ the uncut plate is
+  rendered and the painted garden stays.
 - The guest greeting sits directly above the Open Invitation button.
 - **No opening film.** This reference has no opening video; music starts on the
   gate's open gesture (`preload="metadata"` + `data-warm-audio`, per the
