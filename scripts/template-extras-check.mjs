@@ -50,10 +50,14 @@ function usedKeys(code) {
   const keys = new Set()
   for (const file of componentFiles(code)) {
     const src = fs.readFileSync(file, "utf8")
-    for (const m of src.matchAll(/\btc\.([A-Za-z0-9_]+)/g)) keys.add(m[1])
+    for (const m of src.matchAll(/(?<![A-Za-z0-9_-])tc\.([A-Za-z0-9_]+)/g)) keys.add(m[1])
   }
   return keys
 }
+
+// Keys read by a component that are deliberately NOT couple-facing copy:
+// audio trim offsets are set by ops/dev, never edited from the invitation UI.
+const TECHNICAL_KEYS = new Set(["music_start_seconds", "music_end_seconds"])
 
 const args = process.argv.slice(2).filter((a) => !a.startsWith("-"))
 const codes = args.length ? args : templateCodes()
@@ -89,6 +93,7 @@ for (const code of codes) {
       if (!used.has(f.key)) problems.push(`dead control "${f.key}" is registered but never read by the component`)
     }
     for (const key of used) {
+      if (TECHNICAL_KEYS.has(key)) continue
       if (!byKey.has(key)) problems.push(`unreachable copy "template_content.${key}" is read but not registered (couple cannot edit it)`)
     }
   }

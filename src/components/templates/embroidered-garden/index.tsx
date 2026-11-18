@@ -849,6 +849,7 @@ export default function EmbroideredGarden(profile: TemplateProps) {
             <div className="eg-garland" style={{ backgroundImage: `url(${ART_GARLAND})` }} aria-hidden="true" />
             <div className="eg-wrap eg-honored__body" data-eg-reveal>
               <h2 className="eg-display eg-heading">With Honour</h2>
+              {tc.inviting_intro && <p className="eg-body eg-honored__intro">{tc.inviting_intro}</p>}
               <ul className="eg-honored__list">
                 {honored.map((family, index) => (
                   <li key={`${family}-${index}`}>{family}</li>
