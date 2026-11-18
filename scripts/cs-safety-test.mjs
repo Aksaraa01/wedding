@@ -1,7 +1,7 @@
 import test from "node:test"
 import assert from "node:assert/strict"
 
-import { BOUNDARIES, classify, decide } from "../src/lib/cs/policy.ts"
+import { BOUNDARIES, classify, countUnknownStrikes, decide, detectSentiment } from "../src/lib/cs/policy.ts"
 import {
   CODE_TTL_MS,
   MAX_CODE_ATTEMPTS,
@@ -893,4 +893,46 @@ test("widget: trailing slash tidak mengubah keputusan", () => {
   assert.equal(csWidgetEnabledOn("/dashboard/"), false)
   assert.equal(csWidgetEnabledOn("/register/"), false)
   assert.equal(csWidgetEnabledOn(""), true)
+})
+
+// ---------- percakapan web: strike + nada ----------
+
+test("sentiment: nada klien terdeteksi", () => {
+  assert.equal(detectSentiment("halo kak, mau tanya paket"), "neutral")
+  assert.equal(detectSentiment("kok gini sih kak, lama banget"), "frustrated")
+  assert.equal(detectSentiment("ini tipu ya"), "angry")
+  assert.equal(detectSentiment(""), "neutral")
+})
+
+test("strike: hitung balasan unknown berturut-turut", () => {
+  assert.equal(
+    countUnknownStrikes([
+      { direction: "in", intent: null },
+      { direction: "out", intent: "unknown" },
+      { direction: "in", intent: null },
+      { direction: "out", intent: "unknown" },
+    ]),
+    2
+  )
+  assert.equal(
+    countUnknownStrikes([
+      { direction: "out", intent: "unknown" },
+      { direction: "in", intent: null },
+      { direction: "out", intent: "price" },
+    ]),
+    0
+  )
+  assert.equal(countUnknownStrikes([]), 0)
+})
+
+test("decide: unknown berulang dieskalasi", () => {
+  const d = decide("unknown", { ...ctx, strikeCount: 2 })
+  assert.equal(d.action, "escalate")
+  assert.equal(d.reason, "low_confidence")
+})
+
+test("decide: unknown saat klien marah dieskalasi", () => {
+  const d = decide("unknown", { ...ctx, sentiment: "angry" })
+  assert.equal(d.action, "escalate")
+  assert.equal(d.reason, "low_confidence")
 })

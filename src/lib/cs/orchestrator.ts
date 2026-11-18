@@ -81,6 +81,20 @@ async function notifyOpsGroup(text: string): Promise<void> {
   }
 }
 
+async function recordUnanswered(
+  conversationId: string,
+  question: string,
+  reason: string
+): Promise<void> {
+  const text = (question || "").trim()
+  if (!text) return
+  await supabaseAdmin.from("cs_unanswered").insert({
+    conversation_id: conversationId,
+    question: text.slice(0, 1000),
+    reason,
+  })
+}
+
 async function createEscalation(input: {
   conversationId: string
   contactId: string
@@ -250,6 +264,9 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
       summary: summary(decision.reason),
       pauseAi: decision.reason !== "voucher",
     })
+    if (decision.reason === "low_confidence") {
+      await recordUnanswered(input.conversationId, input.text, "low_confidence")
+    }
     await updateLead(lead.id, { stage: "handoff" })
     const text = escalationReply(decision.reason, intent)
     await persistOutbound(input.conversationId, text, { intent, model: null })
@@ -396,6 +413,7 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
       },
     })
   } catch (error) {
+    await recordUnanswered(input.conversationId, input.text, "llm_error")
     await createEscalation({
       conversationId: input.conversationId,
       contactId: input.contactId,
@@ -414,6 +432,7 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
   }
 
   if (!result.guarded) {
+    await recordUnanswered(input.conversationId, input.text, "guard_rejected")
     await createEscalation({
       conversationId: input.conversationId,
       contactId: input.contactId,

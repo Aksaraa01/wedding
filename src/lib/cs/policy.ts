@@ -397,6 +397,59 @@ export function classify(text: string): Intent {
   return "unknown"
 }
 
+const ANGRY_MARKERS = [
+  "marah",
+  "tipu",
+  "bodoh",
+  "sampah",
+  "gak jelas",
+  "tidak jelas",
+  "ngawur",
+  "parah banget",
+  "bikin kesel",
+]
+
+const FRUSTRATED_MARKERS = [
+  "kesal",
+  "kecewa",
+  "parah",
+  "lama banget",
+  "gimana sih",
+  "kok gini",
+  "kesel",
+  "dibales",
+  "nggak dibales",
+  "tidak dibales",
+]
+
+// Deteksi kasar nada klien. Tanpa ini, eskalasi "low_confidence" tidak pernah
+// menyala di web karena route dulu selalu mengirim sentiment "neutral".
+export function detectSentiment(text: string): "neutral" | "frustrated" | "angry" {
+  const t = norm(text)
+  if (!t.trim()) return "neutral"
+  if (hasAny(t, ANGRY_MARKERS)) return "angry"
+  if (hasAny(t, FRUSTRATED_MARKERS)) return "frustrated"
+  return "neutral"
+}
+
+// Berapa balasan agent berturut-turut yang intent-nya "unknown". Dipakai untuk
+// mengeskalasi percakapan web yang berulang kali tidak dipahami.
+export function countUnknownStrikes(
+  rows: { direction: string; intent?: string | null }[]
+): number {
+  let strikes = 0
+  for (let i = rows.length - 1; i >= 0; i -= 1) {
+    const row = rows[i]
+    if (row.direction !== "out") continue
+    if (row.intent === "unknown") {
+      strikes += 1
+      continue
+    }
+    break
+  }
+  return strikes
+}
+
 export function decide(intent: Intent, ctx: DecisionContext): Decision {
   switch (intent) {
     case "human_request":

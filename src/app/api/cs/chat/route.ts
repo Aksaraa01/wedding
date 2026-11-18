@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto"
 import { supabaseAdmin } from "@/lib/supabase"
 import { checkRateLimit, getClientIp, rateLimited } from "@/lib/rateLimit"
 import { getCsSettings } from "@/lib/cs/settings"
+import { countUnknownStrikes, detectSentiment } from "@/lib/cs/policy"
 import { handleInbound } from "@/lib/cs/orchestrator"
 import { COUPLE_COOKIE, getSessionToken, verifySession } from "@/lib/sessionToken"
 
@@ -156,13 +157,20 @@ export async function POST(request: Request) {
 
   const { data: historyRows } = await supabaseAdmin
     .from("cs_messages")
-    .select("direction,body,created_at")
+    .select("direction,body,created_at,intent")
     .eq("conversation_id", conversationId)
     .lt("created_at", inbound.created_at)
     .order("created_at", { ascending: false })
     .limit(10)
 
-  const history = ((historyRows || []) as { direction: string; body: string }[])
+  const rows = (historyRows || []) as {
+    direction: string
+    body: string
+    intent: string | null
+  }[]
+
+  const history = rows
+    .slice()
     .reverse()
     .filter((row) => row.body)
     .map((row) => ({
@@ -177,8 +185,8 @@ export async function POST(request: Request) {
     verified: !!profile,
     hasProfile: !!profile,
     published: profile?.is_published === true,
-    strikeCount: 0,
-    sentiment: "neutral",
+    strikeCount: countUnknownStrikes(rows),
+    sentiment: detectSentiment(text),
     text,
     history,
     model: settings.model,
