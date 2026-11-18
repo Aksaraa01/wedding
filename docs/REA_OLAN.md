@@ -185,6 +185,75 @@ palette variables the reference injected inline, and the pieces the contract
 adds (opening film, turut mengundang, dress code, wish list, gift address card,
 lightbox, film modal, toast, vinyl music button, Aksaraa badge).
 
+## 7.1 Ornament slots are numbered out of order
+
+The reference's `.orn-cover-bottom-event-N` and `.orn-event-frame-N` classes are
+positioned per number, but the assets are listed in a different DOM order. The
+vendored arrays in `assets.ts` are therefore keyed by the **class number**, not
+by the order they appear in the reference markup:
+
+| slot | cover flower | event card |
+|---|---|---|
+| 1 | `bunga-cover-1` | `orn-acara-01` |
+| 2 | `bunga-cover-kiri` | `orn-acara-02` |
+| 3 | `bunga-cover-2` | `orn-acara-03` |
+| 4 | `bunga-cover-tengah` | `bunga-orange-agenda` |
+| 5 | `bunga-cover-3` | `orn-acara-04` |
+| 6 | `bunga-cover-kanan` | `merak` |
+| 7 | `bunga-cover-4` | — |
+
+Swapping two slots silently moves a flower across the card.
+
+## 7.2 Ornament reveal: why the flowers "went missing"
+
+Symptom (reported twice): the cover's bottom band showed only four of its seven
+pieces and the event card's left branch was absent — while every file was
+vendored and returned `200`.
+
+Cause, in three layers:
+
+1. **AOS triggers on the vertical band only.** The reference's AOS compares an
+   element's `top` with `windowHeight - offset` and ignores horizontal overflow,
+   so an ornament whose reveal transform parks it outside the left/right edge
+   still animates. A 2D `IntersectionObserver` does not.
+2. **`rootMargin` cannot defeat an ancestor clip.** `.olan-root`, `section.cover`
+   and `.agenda-wrap` set `overflow: hidden` (they must — the art bleeds on
+   purpose). Intersection is computed against those clips, so pieces that bleed
+   past a section's *bottom* edge never intersect, whatever the root margin.
+   Measured live: pieces 1/3/5/7 were inside the clip and animated; 2/4/6 sat
+   6–27 px below it and stayed at `opacity: 0` forever.
+3. **A reveal that waits for a scroll can wait forever** — at the bottom of a
+   section, or on the gate, there is no scroll left to make.
+
+Final rule (do not regress it):
+
+- **Decorative bands never depend on an observer.** The cover band, the closing
+  band, the event section's bottom band, the "With Honor" band and the event
+  card ornaments use `.olan-orn-in`, a self-starting CSS animation with a
+  per-piece `animation-delay`; `prefers-reduced-motion` and `scripting: none`
+  turn it off.
+- **`[data-aos]` is kept for copy and cards**, which sit inside their section's
+  clip. The observer keeps `rootMargin: 0px 100% 160px 100%` for the horizontal
+  case that is not ancestor-clipped.
+- Verify with `getComputedStyle(el).opacity` on every piece of the band — one
+  hidden piece reads as "fewer flowers", not as a bug.
+
+## 7.3 Other visual fixes that are not in the reference sheet
+
+- **Portrait crop.** `.couple-picture .img` uses `object-position: 50% 18%`: the
+  wreath mask is a head-and-shoulders shape, so a full-body portrait cropped
+  dead-centre shows a torso.
+- **Copy glyph.** `.bank-account-number` is `inline-flex` with an 8 px gap so the
+  icon sits beside the number instead of wrapping under it.
+- **Gift bank picker.** The reference's maroon `<select>` is reproduced as a pill
+  + dropdown (`.olan-bank__*`); with one account the pill is omitted.
+- **Story card height.** `aspect-ratio: 9 / 10` (380 px minimum) keeps every
+  caption readable; without it the card collapsed to the first slide's text.
+- **Brand badge.** `aksaraa-logo.jpg` is a local file; the asset optimiser
+  rebuilds `public/templates/olan/` from scratch, so it must be restored after
+  re-running that script. Cloudflare also cached the 404 for that path — the
+  edge purges are part of shipping a late-added asset.
+
 ## 7.4 Migration status (2026-11-18)
 
 `20261118000000_olan.sql` was applied to **staging** (`supabase db push
