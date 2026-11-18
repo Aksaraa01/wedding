@@ -1836,6 +1836,45 @@
         "Hubungi Aksaraa Wedding via WhatsApp": "WCAG name for the brand badge link; the platform decides the destination",
         "Tutup": "WCAG name for the icon-only lightbox close button; must not depend on couple copy"
       }
+    },
+    "fresco": {
+      "allow": {
+        "To be held at": "fixed stationery label above the venue on the cover",
+        "and": "typographic connector between the two names in Our Story",
+        "Days": "countdown unit label",
+        "Hours": "countdown unit label",
+        "Minutes": "countdown unit label",
+        "Seconds": "countdown unit label",
+        "Scroll down": "WCAG name for the cover scroll cue",
+        "Open the invitation": "WCAG name for the envelope gate control",
+        "The wedding of": "WCAG name for the cover section",
+        "Countdown to the wedding day": "WCAG name for the countdown group and section",
+        "Word of welcome": "WCAG name for the prologue section",
+        "The couple": "WCAG name for the mempelai section",
+        "Our story": "WCAG name for the love-story section",
+        "Wedding events": "WCAG name for the events section",
+        "Order of the day": "WCAG name for the rundown section",
+        "Dress code": "WCAG name for the dress-code section",
+        "With honor": "WCAG name for the invited-families section",
+        "Gallery": "WCAG name for the gallery section",
+        "The wedding film": "WCAG name for the film section",
+        "Play the wedding film": "WCAG name for the film play control",
+        "Wedding gift": "WCAG name for the gift section",
+        "Wishes for the couple": "WCAG name for the wishes section",
+        "Closing": "WCAG name for the closing section",
+        "Contact Aksaraa Wedding on WhatsApp": "WCAG name for the Aksaraa footer link",
+        "Aksaraa Wedding": "alt text for the vendor logo",
+        "Wedding by Aksaraa": "fixed vendor credit in the footer",
+        ". All rights reserved.": "fixed legal suffix in the footer",
+        "Photo viewer": "WCAG name for the lightbox dialog",
+        "Close": "WCAG name for close buttons",
+        "Previous photo": "WCAG name for the lightbox previous control",
+        "Next photo": "WCAG name for the lightbox next control",
+        "Previous page": "WCAG name for the wishes previous-page control",
+        "Next page": "WCAG name for the wishes next-page control",
+        "Loading wishes…": "transient loading state in the wishes feed",
+        "Dear,": "fixed letter salutation on the envelope gate"
+      }
     }
   }
 }

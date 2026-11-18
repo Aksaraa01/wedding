@@ -1490,6 +1490,381 @@ export const TEMPLATE_EXTRA_FIELDS: TemplateExtraField[] = [
     templates: [],
     placeholders: {},
   },
+
+  {
+    key: "copy_account_button",
+    label: "Teks Tombol Salin Rekening",
+    templates: ["fresco"],
+    placeholders: { fresco: "Copy account number" },
+  },
+
+  {
+    key: "cover_kicker",
+    label: "Teks Pembuka Sampul",
+    multiline: true,
+    rows: 2,
+    templates: ["fresco"],
+    placeholders: { fresco: "We invite you to\ncelebrate our wedding" },
+  },
+
+  {
+    key: "open_button",
+    label: "Teks Tombol Buka",
+    templates: ["fresco"],
+    placeholders: { fresco: "Tap to open" },
+  },
+
+  {
+    key: "cover_apology",
+    label: "Permohonan Maaf Sampul",
+    multiline: true,
+    rows: 2,
+    templates: ["fresco", "majestic"],
+    placeholders: {
+      majestic: "Mohon maaf apabila ada kekurangan dalam penyambutan kami.", fresco: "We apologize for any misspelling of your name or title." },
+  },
+
+  {
+    key: "save_date_label",
+    label: "Teks Tombol Save the Date",
+    templates: ["fresco"],
+    placeholders: { fresco: "Save the Date" },
+  },
+
+  {
+    key: "countdown_title",
+    label: "Judul Hitung Mundur",
+    templates: ["fresco", "majestic"],
+    placeholders: {
+      majestic: "Menghitung Hari", fresco: "Countdown" },
+  },
+
+  {
+    key: "countdown_intro",
+    label: "Keterangan Hitung Mundur",
+    templates: ["fresco"],
+    placeholders: { fresco: "Until" },
+  },
+
+  {
+    key: "mempelai_kicker",
+    label: "Label Mempelai",
+    templates: ["fresco"],
+    placeholders: { fresco: "The Couple" },
+  },
+
+  {
+    key: "profiles_intro",
+    label: "Pengantar Mempelai",
+    multiline: true,
+    rows: 2,
+    templates: ["fresco", "majestic"],
+    placeholders: {
+      majestic: "Dua keluarga, satu meja panjang, dan hari yang akan kami kenang selamanya.", fresco: "Two families, one long table, and the sea as our witness." },
+  },
+
+  {
+    key: "parents_label",
+    label: "Label Orang Tua",
+    templates: ["fresco", "majestic"],
+    placeholders: {
+      majestic: "Putra/Putri dari", fresco: "Blessed by" },
+  },
+
+  {
+    key: "love_story_title",
+    label: "Judul Cerita Cinta",
+    templates: ["fresco", "majestic"],
+    placeholders: {
+      majestic: "Kisah Cinta", fresco: "Our Story" },
+  },
+
+  {
+    key: "events_title",
+    label: "Judul Acara",
+    templates: ["fresco"],
+    placeholders: { fresco: "The Celebration" },
+  },
+
+  {
+    key: "events_kicker",
+    label: "Label Acara",
+    templates: ["fresco"],
+    placeholders: { fresco: "Ceremony & Dinner" },
+  },
+
+  {
+    key: "events_note",
+    label: "Catatan Acara",
+    multiline: true,
+    rows: 2,
+    templates: ["fresco", "majestic"],
+    placeholders: {
+      majestic: "Kami menantikan kehadiran Anda di hari istimewa kami.", fresco: "Doors open thirty minutes before the ceremony." },
+  },
+
+  {
+    key: "maps_label",
+    label: "Teks Tombol Peta",
+    templates: ["fresco"],
+    placeholders: { fresco: "View on Map" },
+  },
+
+  {
+    key: "inviting_kicker",
+    label: "Label Turut Mengundang (opsional)",
+    templates: ["fresco"],
+    placeholders: { fresco: "Optional — e.g. With the blessing of" },
+  },
+
+  {
+    key: "inviting_title",
+    label: "Judul Turut Mengundang",
+    templates: ["fresco"],
+    placeholders: { fresco: "With Honor" },
+  },
+
+  {
+    key: "inviting_intro",
+    label: "Pengantar Turut Mengundang",
+    multiline: true,
+    rows: 2,
+    templates: ["fresco", "majestic"],
+    placeholders: {
+      majestic: "Dengan penuh rasa syukur, kami juga menghadirkan keluarga yang turut mengundang.", fresco: "We also present the families who extend this invitation alongside us." },
+  },
+
+  {
+    key: "rundown_title",
+    label: "Judul Rundown",
+    templates: ["fresco", "majestic"],
+    placeholders: {
+      majestic: "Rangkaian Hari", fresco: "The Day" },
+  },
+
+  {
+    key: "rundown_kicker",
+    label: "Label Rundown",
+    templates: ["fresco"],
+    placeholders: { fresco: "Program" },
+  },
+
+  {
+    key: "rundown_intro",
+    label: "Pengantar Rundown",
+    multiline: true,
+    rows: 2,
+    templates: ["fresco", "majestic"],
+    placeholders: {
+      majestic: "Kami menyiapkan rangkaian acara berikut agar Anda tidak melewatkan momen apa pun.", fresco: "Our wedding day, from sunset drinks to the last dance." },
+  },
+
+  {
+    key: "gallery_title",
+    label: "Judul Galeri",
+    templates: ["fresco"],
+    placeholders: { fresco: "Gallery" },
+  },
+
+  {
+    key: "gallery_intro",
+    label: "Pengantar Galeri",
+    multiline: true,
+    rows: 2,
+    templates: ["fresco"],
+    placeholders: { fresco: "A few frames from the days that led us here." },
+  },
+
+  {
+    key: "gallery_quote",
+    label: "Kutipan Galeri",
+    multiline: true,
+    rows: 2,
+    templates: ["fresco", "majestic"],
+    placeholders: {
+      majestic: "Setiap kisah cinta indah, tetapi kisah kami adalah favorit kami.", fresco: "Every love story is beautiful, but ours is my favourite." },
+  },
+
+  {
+    key: "video_kicker",
+    label: "Label Video",
+    templates: ["fresco"],
+    placeholders: { fresco: "The Film" },
+  },
+
+  {
+    key: "video_title",
+    label: "Judul Video",
+    templates: ["fresco", "majestic"],
+    placeholders: {
+      majestic: "Film Kami", fresco: "Our Film" },
+  },
+
+  {
+    key: "video_intro",
+    label: "Pengantar Video",
+    multiline: true,
+    rows: 2,
+    templates: ["fresco", "majestic"],
+    placeholders: {
+      majestic: "Hari kami, dalam gerak dan gambar.", fresco: "The day as it happened, kept in motion." },
+  },
+
+  {
+    key: "gift_intro_title",
+    label: "Judul Hadiah",
+    templates: ["fresco"],
+    placeholders: { fresco: "Wedding Gift" },
+  },
+
+  {
+    key: "gift_intro_description",
+    label: "Pengantar Hadiah",
+    multiline: true,
+    rows: 2,
+    templates: ["fresco"],
+    placeholders: { fresco: "Your presence is our greatest gift." },
+  },
+
+  {
+    key: "gift_wish",
+    label: "Kalimat Dalam Karangan Bunga Hadiah",
+    multiline: true,
+    rows: 3,
+    templates: ["fresco"],
+    placeholders: { fresco: "If you wish to honour us with a gift, we kindly prefer monetary contributions." },
+  },
+
+  {
+    key: "gift_button",
+    label: "Teks Tombol Hadiah",
+    templates: ["fresco"],
+    placeholders: { fresco: "View bank details" },
+  },
+
+  {
+    key: "dresscode_kicker",
+    label: "Judul Dress Code",
+    templates: ["fresco", "majestic"],
+    placeholders: {
+      majestic: "Dress Code", fresco: "Dress Code" },
+  },
+
+  {
+    key: "dresscode_title",
+    label: "Label Dress Code",
+    templates: ["fresco"],
+    placeholders: { fresco: "Black Tie" },
+  },
+
+  {
+    key: "dresscode_intro",
+    label: "Pengantar Dress Code",
+    multiline: true,
+    rows: 3,
+    templates: ["fresco"],
+    placeholders: { fresco: "Under a Mediterranean sky, with the sea as our witness — wear the dress you have dreamed of." },
+  },
+
+  {
+    key: "dresscode_note",
+    label: "Catatan Dress Code",
+    multiline: true,
+    rows: 2,
+    templates: ["fresco", "majestic"],
+    placeholders: {
+      majestic: "Mohon hindari warna putih — warna tersebut kami sediakan untuk mempelai.", fresco: "Please reserve white for the couple." },
+  },
+
+  {
+    key: "wishes_title",
+    label: "Judul Ucapan",
+    templates: ["fresco"],
+    placeholders: { fresco: "Best Wishes" },
+  },
+
+  {
+    key: "wishes_intro",
+    label: "Pengantar Ucapan",
+    multiline: true,
+    rows: 2,
+    templates: ["fresco"],
+    placeholders: { fresco: "Leave a wish, a prayer, or a memory for us to keep." },
+  },
+
+  {
+    key: "wishes_name_label",
+    label: "Label Nama Ucapan",
+    templates: ["fresco"],
+    placeholders: { fresco: "Your name" },
+  },
+
+  {
+    key: "wishes_name_placeholder",
+    label: "Placeholder Nama Ucapan",
+    templates: ["fresco"],
+    placeholders: { fresco: "Full name" },
+  },
+
+  {
+    key: "wishes_message_label",
+    label: "Label Pesan Ucapan",
+    templates: ["fresco"],
+    placeholders: { fresco: "A message for the couple" },
+  },
+
+  {
+    key: "wishes_message_placeholder",
+    label: "Placeholder Pesan Ucapan",
+    templates: ["fresco"],
+    placeholders: { fresco: "We would be delighted to hear from you." },
+  },
+
+  {
+    key: "wishes_submit",
+    label: "Teks Tombol Ucapan",
+    templates: ["fresco"],
+    placeholders: { fresco: "Send wishes" },
+  },
+
+  {
+    key: "wishes_empty",
+    label: "Teks Ucapan Kosong",
+    templates: ["fresco"],
+    placeholders: { fresco: "No wishes yet. Be the first." },
+  },
+
+  {
+    key: "closing_message",
+    label: "Pesan Penutup",
+    multiline: true,
+    rows: 3,
+    templates: ["fresco"],
+    placeholders: { fresco: "Thank you for being part of our story." },
+  },
+
+  {
+    key: "copy_account_toast",
+    label: "Toast Salin Rekening",
+    templates: ["fresco", "majestic"],
+    placeholders: {
+      majestic: "Nomor rekening disalin", fresco: "Account number copied" },
+  },
+
+  {
+    key: "copy_address_toast",
+    label: "Toast Salin Alamat",
+    templates: ["fresco", "majestic"],
+    placeholders: {
+      majestic: "Alamat disalin", fresco: "Address copied" },
+  },
+
+  {
+    key: "copy_address_button",
+    label: "Teks Tombol Salin Alamat",
+    templates: ["fresco"],
+    placeholders: { fresco: "Copy address" },
+  },
 ]
 
 export function getTemplateExtraFields(templateCode: string | null | undefined): TemplateExtraField[] {

@@ -43,6 +43,7 @@ import FilmRoll from "./film-roll"
 import SongketMarun from "./songket-marun"
 import LenteraZamrud from "./lentera-zamrud"
 import UbinOttoman from "./ubin-ottoman"
+import Fresco from "./fresco"
 import Majestic from "./majestic"
 export type { TemplateProps } from "@/types/template"
 
@@ -90,6 +91,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   "songket-marun": SongketMarun,
   "lentera-zamrud": LenteraZamrud,
   "ubin-ottoman": UbinOttoman,
+  fresco: Fresco,
   majestic: Majestic,
 }
 
@@ -1873,6 +1875,49 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
         // No "Kalimat Pembuka" in this design: the envelope gate, cover and
         // closing carry the greeting and the couple's words.
         opening_description: false,
+        quote: true,
+        countdown: true,
+        inviting: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        dresscode: true,
+        livestream: false,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+  {
+    code: "fresco",
+    name: "Fresco",
+    description:
+      "Undangan cat-air Mediterania: amplop linen dengan pita yang terbuka lewat film, tebing dan laut di balik nama, hitung mundur berbingkai biru, lengkung zaitun, dan tipografi Antic Didone dengan aksen skrip.",
+    theme: {
+      fonts: { display: "Antic Didone", script: "Fresco Script", body: "Antic Didone" },
+      colors: {
+        surface: "#fbf7ef",
+        text: "#585b2f",
+        accent: "#585b2f",
+        accentMuted: "#f0e7d6",
+        overlay: "#585b2f",
+        dark: "#3f4220",
+      },
+      ornaments: { divider: "floral", border: "ornate", frame: "arch" },
+      motion: { enabled: true, duration: 0.9, stagger: 0.06 },
+    },
+    content: {
+      cover_slots: 1,
+      cover_slot_labels: ["Foto Cerita Cinta"],
+      groom_photo: "single",
+      bride_photo: "single",
+      person_photos: true,
+      story_photo: false,
+      initials: false,
+      sections: {
+        opening_description: true,
         quote: true,
         countdown: true,
         inviting: true,
