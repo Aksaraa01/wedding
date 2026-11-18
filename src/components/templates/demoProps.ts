@@ -3037,9 +3037,6 @@ DEMO_PROPS_BY_CODE["lentera-zamrud"] = {
 // reference couple's.
 DEMO_PROPS_BY_CODE.majestic = {
   ...DEMO_PROPS_BY_CODE["sandhya"],
-  quote_text:
-    "Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu pasangan hidup dari jenismu sendiri, supaya kamu dapat ketenangan hati dan menjadikan kasih sayang di antara kamu.",
-  quote_source: "QS. Ar-Rum: 21",
   slug: "demo",
   display_name: "#AlbarnFaye2027",
   estimated_wedding_date: "2027-09-18",
@@ -3050,9 +3047,6 @@ DEMO_PROPS_BY_CODE.majestic = {
   bride_photo_url: [`${DE}/bride.webp`],
   groom_parents: "Bapak David Albarn & Ibu Maria Albarn",
   bride_parents: "Bapak Robert Reed & Ibu Anne Reed",
-  opening_title: "Dengan Penuh Syukur",
-  opening_description:
-    "Dengan memohon rahmat dan rida Allah SWT, kami bermaksud menyelenggarakan resepsi pernikahan putra-putri kami. Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu.",
   sessions: [
     {
       name: "Akad Nikah",
@@ -3101,9 +3095,6 @@ DEMO_PROPS_BY_CODE.majestic = {
     { time: "17.00", description: "Kedatangan Tamu & Welcome Drink" },
     { time: "17.30", description: "Upacara Pernikahan" },
     { time: "19.00", description: "Jamuan Malam" },
-    { time: "20.30", description: "Pidato & Potong Kue" },
-    { time: "21.30", description: "Danses Bersama" },
-    { time: "23.00", description: "Penutupan" },
   ],
   dresscode: {
     title: "Formal",
@@ -3139,7 +3130,7 @@ DEMO_PROPS_BY_CODE.majestic = {
     love_story_title: "Kisah Cinta",
     story_intro: "Bab-bab kecil yang membawa kami sampai ke hari ini.",
     events_kicker: "Rangkaian Acara",
-    events_title: "Waktu & Tempat",
+    events_title: "The Wedding Day",
     events_note: "Kami menantikan kehadiran Anda di hari istimewa kami.",
     maps_label: "Lihat Lokasi",
     calendar_button: "Simpan Tanggal",
@@ -3148,7 +3139,6 @@ DEMO_PROPS_BY_CODE.majestic = {
     inviting_kicker: "Turut Mengundang",
     inviting_title: "Keluarga & Kerabat",
     inviting_intro: "Dengan penuh rasa syukur, kami juga menghadirkan keluarga yang turut mengundang.",
-    rundown_kicker: "Susunan Acara",
     rundown_title: "Rangkaian Hari",
     rundown_intro: "Kami menyiapkan rangkaian acara berikut agar Anda tidak melewatkan momen apa pun.",
     gallery_kicker: "Momen Kami",

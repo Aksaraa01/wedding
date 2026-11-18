@@ -53,8 +53,6 @@ const ID_MONTHS = [
 const WISH_PAGE = 5
 const WISH_MAX = 500
 
-const DEFAULT_OPENING =
-  "Dengan memohon rahmat dan rida Allah SWT, kami bermaksud menyelenggarakan resepsi pernikahan putra-putri kami. Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu."
 const DEFAULT_STORY_INTRO = "Bab-bab kecil yang membawa kami sampai ke hari ini."
 const DEFAULT_GIFT =
   "Doa restu Bapak/Ibu/Saudara/i adalah hadiah terindah bagi kami. Bila berkenan memberikan tanda kasih, dapat melalui kanal berikut."
@@ -242,17 +240,13 @@ export default function Majestic(profile: TemplateProps) {
   const guestLabel = (tc.cover_guest_label || "").trim() || "Kepada Yth. Bapak/Ibu/Saudara/i"
   const openLabel = (tc.open_button || "").trim() || "Buka Undangan"
   const gateHint = (tc.gate_hint || "").trim() || "Ketuk untuk Membuka"
-  const openingTitle = (profile.opening_title || "").trim() || "Dengan Penuh Syukur"
-  const openingBody = (profile.opening_description || "").trim() || DEFAULT_OPENING
-  const quoteText = (profile.quote_text || "").trim()
-  const quoteSource = (profile.quote_source || "").trim()
   const mempelaiTitle = (tc.mempelai_title || "").trim() || "Mempelai"
   const parentsLabel = (tc.parents_label || "").trim() || "Putra/Putri dari"
   const personOneLabel = (tc.person_one_label || "").trim()
   const personTwoLabel = (tc.person_two_label || "").trim()
   const storyTitle = (tc.love_story_title || "").trim() || "Kisah Cinta"
   const storyIntro = (tc.story_intro || "").trim() || DEFAULT_STORY_INTRO
-  const eventsTitle = (tc.events_title || "").trim() || "Waktu & Tempat"
+  const eventsTitle = (tc.events_title || "").trim() || "The Wedding Day"
   const eventsNote = (tc.events_note || "").trim()
   const mapsLabel = (tc.maps_label || "").trim() || "Lihat Lokasi"
   const calendarLabel = (tc.calendar_button || "").trim() || "Simpan Tanggal"
@@ -720,27 +714,6 @@ export default function Majestic(profile: TemplateProps) {
             </section>
           )}
 
-          {/* ── Pembuka ────────────────────────────────────────── */}
-          <section className="mj-section mj-opening" data-section="opening">
-            <h2 className="mj-script mj-heading mj-reveal" data-mj-reveal style={revealStyle(0.08)}>
-              {openingTitle}
-            </h2>
-            <span className="mj-rule mj-reveal mj-reveal--grow" data-mj-reveal style={revealStyle(0.12)} aria-hidden="true" />
-            <p className="mj-lead mj-reveal" data-mj-reveal style={revealStyle(0.16)}>
-              {openingBody}
-            </p>
-
-            {quoteText && (
-              <blockquote className="mj-quote mj-reveal" data-mj-reveal style={revealStyle(0.22)}>
-                <span className="mj-quote__mark" aria-hidden="true">
-                  &ldquo;
-                </span>
-                <p className="mj-quote__text">{quoteText}</p>
-                {quoteSource && <cite className="mj-quote__source">{quoteSource}</cite>}
-              </blockquote>
-            )}
-          </section>
-
           {/* ── Mempelai ───────────────────────────────────────── */}
           <section className="mj-section mj-couple" data-section="couple">
             <h2 className="mj-script mj-heading mj-reveal" data-mj-reveal style={revealStyle(0.08)}>
@@ -912,7 +885,6 @@ export default function Majestic(profile: TemplateProps) {
           {/* ── Susunan acara ──────────────────────────────────── */}
           {rundown.length > 0 && (
             <section className="mj-section mj-rundown" data-section="rundown">
-              <img className="mj-rundown__art mj-reveal mj-reveal--zoom" data-mj-reveal src={GRAMOPHONE} alt="" aria-hidden="true" loading="lazy" draggable={false} />
               <h2 className="mj-script mj-heading mj-reveal" data-mj-reveal style={revealStyle(0.08)}>
                 {rundownTitle}
               </h2>
@@ -1056,6 +1028,7 @@ export default function Majestic(profile: TemplateProps) {
 
           {/* ── Ucapan ─────────────────────────────────────────── */}
           <section className="mj-section mj-wishes" data-section="wishes">
+            <img className="mj-wishes__art mj-reveal mj-reveal--zoom" data-mj-reveal src={GRAMOPHONE} alt="" aria-hidden="true" loading="lazy" draggable={false} />
             <h2 className="mj-script mj-heading mj-reveal" data-mj-reveal style={revealStyle(0.08)}>
               {wishesTitle}
             </h2>

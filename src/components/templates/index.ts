@@ -1870,7 +1870,9 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       story_photo: true,
       initials: false,
       sections: {
-        opening_description: true,
+        // No "Kalimat Pembuka" in this design: the envelope gate, cover and
+        // closing carry the greeting and the couple's words.
+        opening_description: false,
         quote: false,
         countdown: true,
         inviting: true,

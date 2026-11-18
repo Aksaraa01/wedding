@@ -2060,7 +2060,7 @@ TEMPLATE_EXTRA_FIELDS.push(
     order: 24,
     templates: ["songket-marun", "majestic"],
     placeholders: {
-      majestic: "Waktu & Tempat", "songket-marun": "Waktu & Tempat" },
+      majestic: "The Wedding Day", "songket-marun": "Waktu & Tempat" },
   },
   {
     key: "events_intro",
