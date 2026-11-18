@@ -568,6 +568,60 @@ body:has(.mj-root.is-locked) {
   background: #ded3c4;
 }
 
+/* ── Kutipan (standalone — the "Kalimat Pembuka" copy is not used) ───────── */
+
+.mj-verse {
+  padding-top: 30px;
+}
+
+.mj-quote {
+  position: relative;
+  max-width: 30rem;
+  margin: 0 auto;
+  padding-top: 26px;
+  text-align: center;
+}
+
+.mj-quote::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 52px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(195, 160, 106, 0), var(--mj-gold), rgba(195, 160, 106, 0));
+  transform: translateX(-50%);
+}
+
+.mj-quote__mark {
+  display: block;
+  font-family: var(--mj-script);
+  font-size: 46px;
+  line-height: 0.4;
+  color: var(--mj-gold);
+  opacity: 0.85;
+}
+
+.mj-quote__text {
+  margin: 10px 0 0;
+  font-size: 18px;
+  font-style: italic;
+  line-height: 1.62;
+  color: var(--mj-ink-soft);
+}
+
+.mj-quote__source {
+  display: block;
+  margin-top: 12px;
+  font-family: var(--mj-serif);
+  font-size: 9.5px;
+  font-style: normal;
+  letter-spacing: 0.26em;
+  text-indent: 0.26em;
+  text-transform: uppercase;
+  color: var(--mj-ink-faint);
+}
+
 /* ── Mempelai ────────────────────────────────────────────────────────────── */
 
 .mj-couple {

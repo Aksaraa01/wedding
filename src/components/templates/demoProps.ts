@@ -3037,6 +3037,9 @@ DEMO_PROPS_BY_CODE["lentera-zamrud"] = {
 // reference couple's.
 DEMO_PROPS_BY_CODE.majestic = {
   ...DEMO_PROPS_BY_CODE["sandhya"],
+  quote_text:
+    "Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu pasangan hidup dari jenismu sendiri, supaya kamu dapat ketenangan hati dan menjadikan kasih sayang di antara kamu.",
+  quote_source: "QS. Ar-Rum: 21",
   slug: "demo",
   display_name: "#AlbarnFaye2027",
   estimated_wedding_date: "2027-09-18",
@@ -3142,14 +3145,14 @@ DEMO_PROPS_BY_CODE.majestic = {
     rundown_title: "Rangkaian Hari",
     rundown_intro: "Kami menyiapkan rangkaian acara berikut agar Anda tidak melewatkan momen apa pun.",
     gallery_kicker: "Momen Kami",
-    gallery_title: "Galeri",
+    gallery_title: "Gallery of Us",
     gallery_intro: "Sepenggal kenangan sebelum hari istimewa ini.",
     gallery_quote: "Setiap kisah cinta indah, tetapi kisah kami adalah favorit kami.",
     video_kicker: "Film",
     video_title: "Film Kami",
     video_intro: "Hari kami, dalam gerak dan gambar.",
     gift_kicker: "Tanda Kasih",
-    gift_intro_title: "Hadiah Pernikahan",
+    gift_intro_title: "The Wedding Gift",
     gift_intro_description:
       "Doa restu Bapak/Ibu/Saudara/i adalah hadiah terindah bagi kami. Bila berkenan memberikan tanda kasih, dapat melalui kanal berikut.",
     gift_send_label: "Kirim Hadiah",
@@ -3161,7 +3164,7 @@ DEMO_PROPS_BY_CODE.majestic = {
     dresscode_intro: "Beberapa catatan kecil",
     dresscode_note: "Mohon hindari warna putih — warna tersebut kami sediakan untuk mempelai.",
     wishes_kicker: "Doa & Ucapan",
-    wishes_title: "Titip Pesan",
+    wishes_title: "Wishes",
     wishes_intro: "Sampaikan doa dan harapan terbaik untuk kami di hari istimewa ini.",
     wishes_name_label: "Nama Anda",
     wishes_name_placeholder: "Nama lengkap",

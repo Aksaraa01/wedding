@@ -2096,7 +2096,7 @@ TEMPLATE_EXTRA_FIELDS.push(
     order: 11,
     templates: ["songket-marun", "majestic"],
     placeholders: {
-      majestic: "Galeri", "songket-marun": "Momen Bahagia" },
+      majestic: "Gallery of Us", "songket-marun": "Momen Bahagia" },
   },
   {
     key: "gallery_intro",
@@ -2124,7 +2124,7 @@ TEMPLATE_EXTRA_FIELDS.push(
     order: 11,
     templates: ["songket-marun", "majestic"],
     placeholders: {
-      majestic: "Hadiah Pernikahan", "songket-marun": "Tanda Kasih" },
+      majestic: "The Wedding Gift", "songket-marun": "Tanda Kasih" },
   },
   {
     key: "gift_intro_description",
@@ -2182,7 +2182,7 @@ TEMPLATE_EXTRA_FIELDS.push(
     order: 11,
     templates: ["songket-marun", "majestic"],
     placeholders: {
-      majestic: "Titip Pesan", "songket-marun": "Titip Doa" },
+      majestic: "Wishes", "songket-marun": "Titip Doa" },
   },
   {
     key: "wishes_intro",

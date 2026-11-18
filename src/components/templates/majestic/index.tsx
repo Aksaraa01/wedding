@@ -242,6 +242,8 @@ export default function Majestic(profile: TemplateProps) {
   const gateHint = (tc.gate_hint || "").trim() || "Ketuk untuk Membuka"
   const mempelaiTitle = (tc.mempelai_title || "").trim() || "Mempelai"
   const parentsLabel = (tc.parents_label || "").trim() || "Putra/Putri dari"
+  const quoteText = (profile.quote_text || "").trim()
+  const quoteSource = (profile.quote_source || "").trim()
   const personOneLabel = (tc.person_one_label || "").trim()
   const personTwoLabel = (tc.person_two_label || "").trim()
   const storyTitle = (tc.love_story_title || "").trim() || "Kisah Cinta"
@@ -262,12 +264,12 @@ export default function Majestic(profile: TemplateProps) {
   const invitingIntro = (tc.inviting_intro || "").trim()
   const rundownTitle = (tc.rundown_title || "").trim() || "Rangkaian Hari"
   const rundownIntro = (tc.rundown_intro || "").trim()
-  const galleryTitle = (tc.gallery_title || "").trim() || "Galeri"
+  const galleryTitle = (tc.gallery_title || "").trim() || "Gallery of Us"
   const galleryIntro = (tc.gallery_intro || "").trim()
   const galleryQuote = (tc.gallery_quote || "").trim()
   const videoTitle = (tc.video_title || "").trim() || "Film Kami"
   const videoIntro = (tc.video_intro || "").trim()
-  const giftTitle = (tc.gift_intro_title || "").trim() || "Hadiah Pernikahan"
+  const giftTitle = (tc.gift_intro_title || "").trim() || "The Wedding Gift"
   const giftIntro = (tc.gift_intro_description || "").trim() || DEFAULT_GIFT
   const giftSendLabel = (tc.gift_send_label || "").trim() || "Kirim Hadiah"
   const copyAccount = (tc.copy_account_button || "").trim() || "Salin Nomor"
@@ -277,7 +279,7 @@ export default function Majestic(profile: TemplateProps) {
   const dressKicker = (tc.dresscode_kicker || "").trim() || "Dress Code"
   const dressTitle = (profile.dresscode?.title || "").trim() || "Formal"
   const dressNote = (tc.dresscode_note || "").trim() || "Mohon hindari warna putih — warna tersebut kami sediakan untuk mempelai."
-  const wishesTitle = (tc.wishes_title || "").trim() || "Titip Pesan"
+  const wishesTitle = (tc.wishes_title || "").trim() || "Wishes"
   const wishesIntro = (tc.wishes_intro || "").trim() || "Sampaikan doa dan harapan terbaik untuk kami di hari istimewa ini."
   const wishNameLabel = (tc.wishes_name_label || "").trim() || "Nama Anda"
   const wishNamePlaceholder = (tc.wishes_name_placeholder || "").trim() || "Nama lengkap"
@@ -711,6 +713,19 @@ export default function Majestic(profile: TemplateProps) {
                   />
                 )}
               </div>
+            </section>
+          )}
+
+          {/* ── Kutipan ────────────────────────────────────────── */}
+          {quoteText && (
+            <section className="mj-section mj-verse" data-section="quote">
+              <blockquote className="mj-quote mj-reveal" data-mj-reveal style={revealStyle(0)}>
+                <span className="mj-quote__mark" aria-hidden="true">
+                  &ldquo;
+                </span>
+                <p className="mj-quote__text">{quoteText}</p>
+                {quoteSource && <cite className="mj-quote__source">{quoteSource}</cite>}
+              </blockquote>
             </section>
           )}
 
