@@ -624,7 +624,6 @@ export default function Majestic(profile: TemplateProps) {
               preload="metadata"
               aria-hidden="true"
             />
-            <span className="mj-cover__veil" aria-hidden="true" />
 
             <div className="mj-cover__body">
               <p className="mj-kicker mj-reveal mj-reveal--fade" data-mj-reveal style={revealStyle(0.1)}>
@@ -644,6 +643,52 @@ export default function Majestic(profile: TemplateProps) {
 
             <span className="mj-cover__scroll" aria-hidden="true" />
           </section>
+
+          {/* ── Hitung mundur ──────────────────────────────────── */}
+          {target && (
+            <section className="mj-section mj-countdown" data-section="countdown">
+              <h2 className="mj-script mj-heading mj-reveal" data-mj-reveal style={revealStyle(0)}>
+                {countdownTitle}
+              </h2>
+              {countdownIntro && (
+                <p className="mj-lead mj-reveal" data-mj-reveal style={revealStyle(0.06)}>
+                  {countdownIntro}
+                </p>
+              )}
+              <div className="mj-clock mj-reveal mj-reveal--zoom" data-mj-reveal style={revealStyle(0.1)}>
+                {countdownCells.map((value, index) => (
+                  <span className="mj-clock__cell" key={countdownLabels[index]}>
+                    <b>{now ? String(value).padStart(2, "0") : "--"}</b>
+                    <small>{countdownLabels[index]}</small>
+                  </span>
+                ))}
+              </div>
+              {eventDateLabel && (
+                <p className="mj-countdown__date mj-reveal mj-reveal--fade" data-mj-reveal style={revealStyle(0.16)}>
+                  {eventDateLabel}
+                </p>
+              )}
+              {calendarUrl && (
+                <a
+                  className="mj-btn mj-btn--ghost mj-countdown__cal mj-reveal"
+                  data-mj-reveal
+                  style={revealStyle(0.2)}
+                  href={calendarUrl}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  {calendarLabel}
+                </a>
+              )}
+            </section>
+          )}
+
+          {/* ── Lamp divider ───────────────────────────────────── */}
+          {target && (
+            <span className="mj-divider" aria-hidden="true">
+              <img src={STRING_LIGHTS} alt="" loading="lazy" draggable={false} />
+            </span>
+          )}
 
           {/* ── Film pembuka ───────────────────────────────────── */}
           {hasVideo && (
@@ -851,52 +896,6 @@ export default function Majestic(profile: TemplateProps) {
             </section>
           )}
 
-          {/* ── Hitung mundur ──────────────────────────────────── */}
-          {target && (
-            <section className="mj-section mj-countdown" data-section="countdown">
-              <h2 className="mj-script mj-heading mj-reveal" data-mj-reveal style={revealStyle(0)}>
-                {countdownTitle}
-              </h2>
-              {countdownIntro && (
-                <p className="mj-lead mj-reveal" data-mj-reveal style={revealStyle(0.06)}>
-                  {countdownIntro}
-                </p>
-              )}
-              <div className="mj-clock mj-reveal mj-reveal--zoom" data-mj-reveal style={revealStyle(0.1)}>
-                {countdownCells.map((value, index) => (
-                  <span className="mj-clock__cell" key={countdownLabels[index]}>
-                    <b>{now ? String(value).padStart(2, "0") : "--"}</b>
-                    <small>{countdownLabels[index]}</small>
-                  </span>
-                ))}
-              </div>
-              {eventDateLabel && (
-                <p className="mj-countdown__date mj-reveal mj-reveal--fade" data-mj-reveal style={revealStyle(0.16)}>
-                  {eventDateLabel}
-                </p>
-              )}
-              {calendarUrl && (
-                <a
-                  className="mj-btn mj-btn--ghost mj-countdown__cal mj-reveal"
-                  data-mj-reveal
-                  style={revealStyle(0.2)}
-                  href={calendarUrl}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                >
-                  {calendarLabel}
-                </a>
-              )}
-            </section>
-          )}
-
-          {/* ── Lamp divider ───────────────────────────────────── */}
-          {honored.length > 0 && (
-            <span className="mj-divider" aria-hidden="true">
-              <img src={STRING_LIGHTS} alt="" loading="lazy" draggable={false} />
-            </span>
-          )}
-
           {/* ── Turut mengundang ───────────────────────────────── */}
           {honored.length > 0 && (
             <section className="mj-section mj-inviting" data-section="inviting">
@@ -968,7 +967,7 @@ export default function Majestic(profile: TemplateProps) {
                 ))}
               </div>
               {galleryQuote && (
-                <p className="mj-script mj-gallery__quote mj-reveal" data-mj-reveal style={revealStyle(0.1)}>
+                <p className="mj-gallery__quote mj-reveal" data-mj-reveal style={revealStyle(0.1)}>
                   {galleryQuote}
                 </p>
               )}
