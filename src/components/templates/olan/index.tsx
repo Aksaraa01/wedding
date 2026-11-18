@@ -397,7 +397,10 @@ export default function Olan(profile: TemplateProps) {
                   <div className="orn-cover-bottom-wrap">
                     {OLAN.flowers.map((src, i) => (
                       <div className={`orn-cover-bottom-event-${i + 1}`} key={src}>
-                        <div className="image-wrap" data-aos="fade-up" data-aos-duration="3000" data-aos-delay={1500 + (i % 3) * 400}>
+                        {/* scroll-reveal can never fire here: the section clips
+                            its own overflow, and three of these seven pieces
+                            bleed past that edge. A CSS entrance runs on its own. */}
+                        <div className="image-wrap olan-orn-in" style={{ animationDelay: `${i * 90}ms` }}>
                           <img src={src} alt="" />
                         </div>
                       </div>
@@ -831,16 +834,10 @@ export default function Olan(profile: TemplateProps) {
                             <div className="ornaments-wrapper">
                               {OLAN.eventOrnaments.map((src, i) => (
                                 <div className={`orn-event-frame-${i + 1}`} key={src}>
-                                  {/* fade-up, not fade-right: the reveal
-                                      transform of a sideways fade parks this
-                                      edge ornament outside the scroll clip, so
-                                      the observer can never see it. */}
-                                  <div
-                                    className="image-wrap"
-                                    data-aos="fade-up"
-                                    data-aos-duration="1000"
-                                    data-aos-delay={500 + i * 50}
-                                  >
+                                  {/* same reason as the bands: an ornament on
+                                      the card edge can sit outside the section
+                                      clip, where no observer will ever see it */}
+                                  <div className="image-wrap olan-orn-in" style={{ animationDelay: `${300 + i * 90}ms` }}>
                                     <img src={src} alt="" />
                                   </div>
                                 </div>
@@ -856,7 +853,7 @@ export default function Olan(profile: TemplateProps) {
                   <div className="orn-bottom-wrap">
                     {OLAN.flowers.map((src, i) => (
                       <div className={`orn-bottom-event-${i + 1}`} key={`bottom-${src}`}>
-                        <div className="image-wrap" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="1200">
+                        <div className="image-wrap olan-orn-in" style={{ animationDelay: `${i * 90}ms` }}>
                           <img src={src} alt="" />
                         </div>
                       </div>
@@ -889,7 +886,7 @@ export default function Olan(profile: TemplateProps) {
                 <div className="orn-bottom-wrap">
                   {OLAN.flowers.map((src, i) => (
                     <div className={`orn-bottom-event-${i + 1}`} key={`inviting-${src}`}>
-                      <div className="image-wrap" data-aos="fade-up" data-aos-duration="1200" data-aos-delay={i * 60}>
+                      <div className="image-wrap olan-orn-in" style={{ animationDelay: `${i * 90}ms` }}>
                         <img src={src} alt="" />
                       </div>
                     </div>
@@ -1299,7 +1296,7 @@ export default function Olan(profile: TemplateProps) {
                 <div className="orn-cover-bottom-wrap">
                   {OLAN.flowers.map((src, i) => (
                     <div className={`orn-cover-bottom-event-${i + 1}`} key={`fn-${src}`}>
-                      <div className="image-wrap" data-aos="fade-up" data-aos-duration="1200" data-aos-delay="500">
+                      <div className="image-wrap olan-orn-in" style={{ animationDelay: `${i * 90}ms` }}>
                         <img src={src} alt="" />
                       </div>
                     </div>
