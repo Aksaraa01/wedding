@@ -11,11 +11,8 @@
 const BASE = "/templates/emerald-heirloom"
 
 export const EH_ASSETS = {
-  // Cover gate + the fixed desktop art panel. `coverFrame` is the same plate
-  // with the carved opening cut out (alpha), so the couple's photo can sit
-  // inside the frame exactly like the mempelai portraits do.
+  // Cover gate + the fixed desktop art panel
   cover: `${BASE}/cover.webp`,
-  coverFrame: `${BASE}/cover-frame.webp`,
 
   // Welcome arch: painting behind, carved frame with a 73% x 54.9% window on top
   welcomeScene: `${BASE}/welcome-scene.webp`,

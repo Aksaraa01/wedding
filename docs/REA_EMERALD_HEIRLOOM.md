@@ -82,8 +82,7 @@ fixed art panel at `965/1440` (67%) plus a 480px column; text is
 
 | File | Source | Role |
 |---|---|---|
-| `cover.webp` | `92853/group-123436-(5)` | gate + desktop art panel (no photo) |
-| `cover-frame.webp` | cut from `cover.webp` | the same plate with the carved opening cut out (alpha), so the sampul photo fills the frame exactly like the mempelai portraits |
+| `cover.webp` | `92853/group-123436-(5)` | gate + desktop art panel |
 | `welcome-scene.webp` | `92409/gemini…-5` | painting inside the welcome window |
 | `welcome-frame.webp` | `92412/2-902713-(1)` | carved frame (window above) |
 | `welcome-scene-alt.webp` | `92822/1-9970608` | dimmed opening backdrop |
@@ -198,8 +197,8 @@ Reported per playbook §0.5 rule 2 before shipping:
 
 ## 6. Editor / ops wiring
 
-- Content spec: `cover_slots: 1` ("Foto Sampul" — seated inside the carved
-  frame; the desktop panel shows the same composition), `person_photos: true`,
+- Content spec: `cover_slots: 0` (the cover and the desktop panel are the
+  design's painted plate — no cover-photo field), `person_photos: true`,
   `story_photo: true`,
   `initials: false`, sections opening/quote/countdown/inviting/video/story/
   gallery/gift/dresscode/livestream/rundown on, contacts off.
@@ -245,13 +244,10 @@ Reported per playbook §0.5 rule 2 before shipping:
   Decorative title case). Cinzel has no lowercase — every string renders as
   small caps — which read as shouted over a photograph; the body serif keeps
   the invitation voice and the reference's size.
-- **The cover photo fills the carved frame, like the mempelai portraits.**
-  `cover-frame.webp` is the cover plate with the opening cut out (x 35.5%…62%,
-  y 12.5%…83.5%, arched bottom). The gate keeps a 1500×938 stage (scaled to
-  cover the screen or the desktop panel); `cover_photos[0]` sits behind the
-  plate at that stage and shows through the window, edge to edge. The two lily
-  clusters the cut crosses are re-drawn on top. No photo ⇒ the uncut plate is
-  rendered and the painted garden stays.
+- **The cover is the reference's painted plate, with no photo slot.** Cutting
+  the plate and seating a photo inside the carved opening read as a pasted
+  card; the owner rejected it. `cover_slots: 0`, and the desktop panel uses the
+  same plate.
 - The guest greeting sits directly above the Open Invitation button.
 - **No opening film.** This reference has no opening video; music starts on the
   gate's open gesture (`preload="metadata"` + `data-warm-audio`, per the

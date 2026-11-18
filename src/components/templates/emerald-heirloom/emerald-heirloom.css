@@ -117,42 +117,6 @@ body.eh-locked {
   object-fit: fill;
 }
 
-/* The photograph sits behind the cut-out plate, so it fills the carved opening
-   exactly like the mempelai portraits (no card edge). The two lily clusters of
-   the plate are re-drawn on top because the cut passes through their petals. */
-.eh-gate__shot {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 20%;
-}
-
-.eh-gate__art {
-  position: relative;
-  z-index: 2;
-}
-
-.eh-gate__lily {
-  position: absolute;
-  z-index: 3;
-  width: 16%;
-  pointer-events: none;
-}
-
-.eh-gate__lily--left {
-  left: 30.5%;
-  bottom: 6%;
-  rotate: -6deg;
-}
-
-.eh-gate__lily--right {
-  left: 55.5%;
-  bottom: 4.5%;
-  scale: -1 1;
-}
-
 .eh-gate__veil {
   position: absolute;
   inset: 0;
