@@ -170,6 +170,17 @@ palette variables the reference injected inline, and the pieces the contract
 adds (opening film, turut mengundang, dress code, wish list, gift address card,
 lightbox, film modal, toast, vinyl music button, Aksaraa badge).
 
+## 7.3 Migration status (2026-11-18)
+
+`20261118000000_olan.sql` was applied to **staging** (`supabase db push
+--include-all`) and to **production** (single-statement apply + a recorded row in
+`supabase_migrations.schema_migrations`). Production still lists
+`20261117000002_fresco` and `20261118000001_emerald_heirloom` as pending — they
+belong to those ports and were deliberately left alone: the `fresco` row already
+exists on prod, so replaying that file would overwrite ops-edited columns.
+Local (`supabase db reset`) was skipped because Docker was not running; the file
+is a single idempotent `INSERT … ON CONFLICT (code) DO UPDATE`.
+
 ## 8. Known review notes
 
 - The reference's own cover date format is `January 04th, 2025`; we print the
