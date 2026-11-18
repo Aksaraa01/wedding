@@ -135,7 +135,7 @@ function CoverCopy({
 // ratio makes the frame follow the photo — the portrait fills the window with
 // no crop, and a taller photo simply gives a taller frame.
 const WINDOW_W = 0.735
-const WINDOW_H = 0.606
+const WINDOW_H = 0.754
 
 function Portrait({ src, alt }: { src?: string; alt: string }) {
   const [cardAR, setCardAR] = useState<number | null>(null)

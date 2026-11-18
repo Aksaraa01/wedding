@@ -491,14 +491,14 @@ html:has(.fr-root.is-locked) {
   width: 100%;
   /* Card ratio comes from the photograph (`Portrait`), so the frame's height
      follows the portrait; the plate's own ratio is the fallback. */
-  aspect-ratio: var(--fr-card-ar, 582 / 1020);
+  aspect-ratio: var(--fr-card-ar, 582 / 820);
   overflow: hidden;
 }
 .fr-person__photo::after {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url("/templates/fresco/portrait-frame-v2.webp");
+  background-image: url("/templates/fresco/portrait-frame-v3.webp");
   background-position: center;
   background-repeat: no-repeat;
   background-size: 100% 100%;
@@ -508,13 +508,13 @@ html:has(.fr-root.is-locked) {
    opening and the plate clips it, so no paper can show through and no edge of
    the photo can cross the vine. Like a photograph mounted in a real frame. */
 .fr-person__window {
-  /* The photo box follows the frame's opening exactly (12.7–87.3 % across,
-     14.7–76 % down), so the photograph's height always matches the frame's
-     window and its edges are hidden under the ornament. */
+  /* The photo box follows the frame's opening exactly (13.2–86.8 % across,
+     18.8–94.1 % down on the trimmed plate), so the photograph's height always
+     matches the frame's window and its edges sit under the ornament. */
   position: absolute;
-  top: 14%;
+  top: 18%;
   right: 12%;
-  bottom: 23%;
+  bottom: 4.5%;
   left: 12%;
   overflow: hidden;
 }
