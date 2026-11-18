@@ -488,12 +488,12 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
 
   const invitingDecos: DecoSpec[] = [
     { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: -28, top: -6, width: 62, delay: -2.4, behind: true, opacity: 0.85 },
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: 72, top: 56, width: 40, delay: -3.6 },
+    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: 80, top: 74, width: 34, delay: -3.6, behind: true, opacity: 0.9 },
   ]
 
   const rundownDecos: DecoSpec[] = [
-    { src: EH_ASSETS.lilies, still: EH_ASSETS.liliesStill, shadow: EH_ASSETS.shadowLilies, left: 70, top: 4, width: 48, delay: -2.8 },
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: -24, top: 62, width: 40, delay: -4 },
+    { src: EH_ASSETS.lilies, still: EH_ASSETS.liliesStill, shadow: EH_ASSETS.shadowLilies, left: 72, top: 2, width: 46, delay: -2.8, behind: true },
+    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: -30, top: 82, width: 36, delay: -4, behind: true },
   ]
 
   const galleryDecos: DecoSpec[] = [
@@ -517,14 +517,14 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
 
   const giftDecos: DecoSpec[] = [
     { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: -40, top: -10, width: 90, delay: -2.6, behind: true, opacity: 0.75 },
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: 14, top: -3, width: 96, delay: -1.4, behind: true, opacity: 0.55 },
+    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: -22, top: -4, width: 82, delay: -1.4, behind: true, opacity: 0.4 },
     { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: 80, top: 62, width: 38, delay: -4.2, behind: true },
     { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: -30, top: 74, width: 52, rotate: -8, delay: -1.6, behind: true },
   ]
 
   const dressDecos: DecoSpec[] = [
     { src: EH_ASSETS.lilySpray, still: EH_ASSETS.lilySprayStill, shadow: EH_ASSETS.shadowLilies, left: 78, top: 4, width: 40, delay: -3, behind: true },
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: -22, top: 62, width: 38, delay: -4.6, behind: true },
+    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: 86, top: 78, width: 32, delay: -4.6, behind: true, opacity: 0.9 },
   ]
 
   const wishesDecos: DecoSpec[] = [

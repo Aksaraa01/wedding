@@ -434,7 +434,7 @@ body.eh-locked {
 
 /* Behind-plate ornaments peek out around the carved frames. */
 .eh-deco--behind {
-  z-index: 0;
+  z-index: -1;
 }
 
 .eh-welcome__plate,
@@ -444,6 +444,10 @@ body.eh-locked {
 .eh-card {
   z-index: 1;
 }
+
+/* A behind-plate ornament paints under every in-flow child of its section
+   (the section is already an isolation context), so copy stays legible no
+   matter where the decoration sits in the DOM order. */
 
 /* --------------------------------------------------------------------------
    1 — welcome arch
