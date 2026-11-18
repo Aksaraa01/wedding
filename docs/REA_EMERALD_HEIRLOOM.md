@@ -9,7 +9,7 @@ composition as one responsive component.
 
 - Component: `src/components/templates/emerald-heirloom/`
 - Assets: `public/templates/emerald-heirloom/`
-- Registry: `TEMPLATE_MAP` + `TEMPLATE_CONFIGS` (`cover_slots: 1`)
+- Registry: `TEMPLATE_MAP` + `TEMPLATE_CONFIGS` (`cover_slots: 0`)
 - Migration: `supabase/migrations/20261118000001_emerald_heirloom.sql`
 
 ---
@@ -24,7 +24,7 @@ together.
 
 | # | Section | Renders from | Gate + toggle | Count / variant branch | Copy source | Motion |
 |---|---|---|---|---|---|---|
-| 1 | Cover (gate) | `cover_photos[0]` (fallback: painted cover plate), `groom_name`, `bride_name`, `estimated_wedding_date`, `guest_name` | always | 1 or 2 names; empty name falls back to the full name; no photo ⇒ painted plate | `cover_kicker`, `open_button`, `cover_apology`, `cover_guest_label` | gate slides/fades on open; no reveal on the gate |
+| 1 | Cover (gate) | painted cover plate, `groom_name`, `bride_name`, `estimated_wedding_date`, `guest_name` | always | 1 or 2 names; empty name falls back to the full name | `cover_kicker`, `open_button`, `cover_apology`, `cover_guest_label` | gate slides/fades on open; no reveal on the gate |
 | 2 | Welcome | `groom_name`/`bride_name`, date, welcome frame + garden scene | always | same 1/2-name branch | `welcome_invite` | 2 trumpets + 2 fans + lilies + swan (animated WebP), reveal `up` |
 | 3 | Kalimat pembuka + kutipan | `opening_title`, `opening_description`, `quote_text`, `quote_source` | always (template has an opening block) | quote hidden when empty; card grows with copy | profile columns + `opening_kicker` | fan + lily spray + swan, reveal `up` |
 | 4 | Mempelai | `groom_full_name`, `bride_full_name`, portraits, `groom_parents`, `bride_parents`, Instagram | `person_photos !== false` | 2 portraits; 1 photo ⇒ that person's card only; name wraps | `mempelai_title`, `mempelai_kicker`, `profiles_intro`, `parents_label` | 3 swans, 2 fans, 2 trumpets, 2 lilies, reveal `up` 0.1s step |
@@ -188,9 +188,9 @@ Reported per playbook §0.5 rule 2 before shipping:
 
 ## 6. Editor / ops wiring
 
-- Content spec: `cover_slots: 1` ("Foto Sampul" — it fills the cover gate and
-  the desktop art panel; the reference's painted garden is only the fallback
-  when the slot is empty), `person_photos: true`, `story_photo: true`,
+- Content spec: `cover_slots: 0` (the cover and the desktop panel are the
+  design's painted plate — no cover-photo field), `person_photos: true`,
+  `story_photo: true`,
   `initials: false`, sections opening/quote/countdown/inviting/video/story/
   gallery/gift/dresscode/livestream/rundown on, contacts off.
 - Extras: 54 keys registered for `emerald-heirloom` with English placeholders;
@@ -235,9 +235,9 @@ Reported per playbook §0.5 rule 2 before shipping:
   Decorative title case). Cinzel has no lowercase — every string renders as
   small caps — which read as shouted over a photograph; the body serif keeps
   the invitation voice and the reference's size.
-- **The cover is the couple's photograph**, not the reference painting: the
-  reference has no photo slot at all (its cover is one flattened artwork). The
-  painted plate remains as the empty-slot fallback and as the welcome scene.
+- **The cover is the reference's painted plate** (no cover-photo slot): the
+  reference's cover is one flattened artwork, and a photo would break its lace
+  frame. The guest greeting sits directly above the play button, not at the top.
 - **No opening film.** This reference has no opening video; music starts on the
   gate's open gesture (`preload="metadata"` + `data-warm-audio`, per the
   invitation performance invariant).
