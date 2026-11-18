@@ -6,6 +6,8 @@ import { fromJid, generateCode, maskPhone, normalizeWhatsApp } from "@/lib/cs/id
 import { checkRateLimit, rateLimited } from "@/lib/rateLimit"
 import { getCsSettings } from "@/lib/cs/settings"
 import { handleInbound } from "@/lib/cs/orchestrator"
+import { handleOnboardingUpload } from "@/lib/cs/onboarding"
+import { uploadFromUrl } from "@/lib/storage"
 import {
   notRegisteredReply,
   offlineReply,
@@ -22,6 +24,8 @@ interface InboundBody {
   from?: string
   push_name?: string
   text?: string
+  media_url?: string
+  mime_type?: string
   timestamp?: number
   from_me?: boolean
 }
@@ -38,7 +42,7 @@ function hashCode(code: string, salt: string): string {
 }
 
 async function sendWhatsApp(phone: string, message: string): Promise<boolean> {
-  const url = process.env.WA_SCHOOL_API_URL || "http://127.0.0.1:3001/send"
+  const url = process.env.CS_WA_SEND_URL || process.env.WA_SCHOOL_API_URL || "http://127.0.0.1:3001/send"
   try {
     const res = await fetch(url, {
       method: "POST",
@@ -67,15 +71,20 @@ async function reply(conversationId: string, text: string): Promise<void> {
 
 async function findProfileForPhone(
   normalized: string
-): Promise<{ id: string; is_published: boolean; scanner_pin: string | null } | null> {
+): Promise<{ id: string; is_published: boolean; scanner_pin: string | null; user_id: string | null } | null> {
   const { data: profileByPhone } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id,is_published,scanner_pin")
+    .select("id,is_published,scanner_pin,user_id")
     .eq("whatsapp_number", normalized)
     .maybeSingle()
 
   if (profileByPhone) {
-    return profileByPhone as { id: string; is_published: boolean; scanner_pin: string | null }
+    return profileByPhone as {
+      id: string
+      is_published: boolean
+      scanner_pin: string | null
+      user_id: string | null
+    }
   }
 
   const { data: user } = await supabaseAdmin
@@ -88,12 +97,17 @@ async function findProfileForPhone(
 
   const { data: profileByUser } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id,is_published,scanner_pin")
+    .select("id,is_published,scanner_pin,user_id")
     .eq("user_id", user.id)
     .limit(1)
     .maybeSingle()
 
-  return (profileByUser as { id: string; is_published: boolean; scanner_pin: string | null } | null) || null
+  return (profileByUser as {
+    id: string
+    is_published: boolean
+    scanner_pin: string | null
+    user_id: string | null
+  } | null) || null
 }
 
 // PIN undangan (dipilih pasangan untuk scanner) dipakai juga untuk verifikasi CS.
@@ -144,7 +158,8 @@ export async function POST(request: Request) {
 
   const jid = String(body.from || "").trim()
   const text = String(body.text || "").trim()
-  if (!jid || !text) {
+  const mediaUrl = String(body.media_url || "").trim()
+  if (!jid || (!text && !mediaUrl)) {
     return NextResponse.json({ replies: [] })
   }
 
@@ -317,7 +332,19 @@ export async function POST(request: Request) {
     if (!pinRate.ok) return rateLimited(pinRate.retryAfterMs!)
 
     const profile = await findProfileForPhone(normalizeWhatsApp(phone))
-    const storedPin = profile?.scanner_pin ? String(profile.scanner_pin) : ""
+
+    // PIN dari pendaftaran (users.pin, 6 digit) — semua pasangan punya.
+    // scanner_pin lama tetap diterima kalau sudah diisi.
+    let registrationPin = ""
+    if (profile?.user_id) {
+      const { data: user } = await supabaseAdmin
+        .from("users")
+        .select("pin")
+        .eq("id", profile.user_id)
+        .maybeSingle()
+      registrationPin = String(user?.pin || "")
+    }
+    const storedPin = registrationPin || (profile?.scanner_pin ? String(profile.scanner_pin) : "")
 
     if (profile && storedPin.replace(/\D/g, "").length >= 4) {
       const failures = await recentPinFailures(contact.id as string)
@@ -418,6 +445,22 @@ export async function POST(request: Request) {
       .eq("id", profileId)
       .maybeSingle()
     published = profile?.is_published === true
+  }
+
+  // --- Foto dari WhatsApp (media passthrough gateway) ----------------------
+  if (mediaUrl && verified && profileId) {
+    try {
+      const stored = await uploadFromUrl(
+        mediaUrl,
+        "cs-uploads",
+        `${profileId}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}`
+      )
+      const text = await handleOnboardingUpload(profileId, contact.id as string, stored)
+      await reply(conversationId, text)
+    } catch {
+      await reply(conversationId, "Fotonya gagal diunduh. Coba kirim ulang ya Kak.")
+    }
+    return NextResponse.json({ replies: [] })
   }
 
   // --- Debounce: 3 pesan beruntun = 1 balasan ------------------------------

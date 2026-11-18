@@ -106,8 +106,79 @@ function CsWidgetInner() {
   const [text, setText] = useState("")
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState("")
+  const [conversationId, setConversationId] = useState("")
+  const [uploading, setUploading] = useState(false)
   const listRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
+  const polledAt = useRef(new Date().toISOString())
+
+  // Balasan manusia dari /ops/cs (dan balasan bot yang telat) masuk lewat polling.
+  useEffect(() => {
+    if (!open || !conversationId) return
+    let cancelled = false
+
+    const tick = async () => {
+      try {
+        const res = await fetch(
+          `/api/cs/chat?conversationId=${encodeURIComponent(conversationId)}&since=${encodeURIComponent(polledAt.current)}`,
+          { cache: "no-store" }
+        )
+        if (!res.ok) return
+        const data = (await res.json()) as {
+          messages?: { id: string; body: string; created_at: string }[]
+        }
+        if (cancelled || !data.messages?.length) return
+        setMessages((current) => {
+          const next = [...current]
+          for (const item of data.messages || []) {
+            if (!item.body) continue
+            const last = next[next.length - 1]
+            if (last && last.role === "assistant" && last.text === item.body) continue
+            if (next.some((message) => message.id === item.id)) continue
+            next.push({ id: item.id, role: "assistant", text: item.body })
+          }
+          return next
+        })
+        const last = data.messages[data.messages.length - 1]
+        if (last?.created_at) polledAt.current = last.created_at
+      } catch {
+        // polling gagal tidak boleh mengganggu chat
+      }
+    }
+
+    const timer = window.setInterval(tick, 5000)
+    void tick()
+    return () => {
+      cancelled = true
+      window.clearInterval(timer)
+    }
+  }, [open, conversationId])
+
+  const upload = useCallback(async (file: File) => {
+    if (uploading) return
+    setUploading(true)
+    setError("")
+    setMessages((current) => [...current, { id: newId(), role: "user", text: "📷 Foto terkirim" }])
+    try {
+      const form = new FormData()
+      form.append("file", file)
+      const res = await fetch("/api/cs/upload", { method: "POST", body: form })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setError(data.error || "Foto gagal diunggah.")
+        return
+      }
+      if (data.reply) {
+        setMessages((current) => [...current, { id: newId(), role: "assistant", text: String(data.reply) }])
+      }
+    } catch {
+      setError("Foto gagal diunggah. Coba lagi ya.")
+    } finally {
+      setUploading(false)
+      if (fileRef.current) fileRef.current.value = ""
+    }
+  }, [uploading])
 
   useEffect(() => {
     if (!open) return
@@ -147,6 +218,7 @@ function CsWidgetInner() {
           return
         }
         const reply = String(data.reply || "").trim()
+        if (data.conversationId) setConversationId(String(data.conversationId))
         if (reply) {
           setMessages((current) => [...current, { id: newId(), role: "assistant", text: reply }])
         } else {
@@ -331,6 +403,25 @@ function CsWidgetInner() {
           >
             <div className="flex items-center gap-2">
               <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(event) => {
+                  const file = event.target.files?.[0]
+                  if (file) void upload(file)
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading}
+                aria-label="Kirim foto"
+                className="h-10 w-10 shrink-0 rounded-full border border-[#EAD9C7] bg-[#FFFBF6] text-[#8D4D39] flex items-center justify-center disabled:opacity-40"
+              >
+                <span className="material-symbols-outlined text-[18px]">add_photo_alternate</span>
+              </button>
+              <input
                 ref={inputRef}
                 value={text}
                 onChange={(event) => setText(event.target.value)}
@@ -341,7 +432,7 @@ function CsWidgetInner() {
               />
               <button
                 type="submit"
-                disabled={busy || !text.trim()}
+                disabled={busy || uploading || !text.trim()}
                 aria-label="Kirim pesan"
                 className="h-10 w-10 shrink-0 rounded-full text-white flex items-center justify-center disabled:opacity-40 transition-transform active:scale-95"
                 style={{ background: "linear-gradient(135deg, #C25A46 0%, #8D4D39 100%)" }}

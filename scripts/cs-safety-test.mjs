@@ -4,6 +4,13 @@ import assert from "node:assert/strict"
 import { BOUNDARIES, classify, countUnknownStrikes, decide, detectPaymentClaim, detectSentiment } from "../src/lib/cs/policy.ts"
 import { CS_WHATSAPP, csWhatsAppUrl, paymentContactReply } from "../src/lib/cs/contact.ts"
 import {
+  SECTION_SPECS,
+  isSkip,
+  mapSectionFromText,
+  matchTemplateByName,
+  validateFlowAnswer,
+} from "../src/lib/cs/onboardingSpec.ts"
+import {
   CODE_TTL_MS,
   MAX_CODE_ATTEMPTS,
   canAccessProfile,
@@ -1121,6 +1128,65 @@ test("knowledge: kurasi FAQ bebas nominal", () => {
     for (const chunk of entry.chunks) {
       assert.ok(!/rp\.?\s*\d/i.test(chunk.content), `${entry.key}: ${chunk.content}`)
       assert.ok(!/\b0\d{8,}\b/.test(chunk.content), `${entry.key}: nomor telepon`)
+    }
+  }
+})
+
+// ---------- alur bantu isi undangan ----------
+
+test("onboarding: nama template cocok exact dan partial", () => {
+  const templates = [
+    { id: "1", name: "Taj Romance", code: "template-32" },
+    { id: "2", name: "Adat Bugis", code: "adat-bugis" },
+    { id: "3", name: "Adat Bali", code: "adat-bali" },
+  ]
+  assert.equal(matchTemplateByName("taj romance", templates).match?.id, "1")
+  assert.equal(matchTemplateByName("bugis", templates).match?.id, "2")
+  const ambiguous = matchTemplateByName("adat", templates)
+  assert.equal(ambiguous.match, null)
+  assert.equal(ambiguous.candidates.length, 2)
+  assert.equal(matchTemplateByName("zzz", templates).match, null)
+})
+
+test("onboarding: jawaban divalidasi sesuai tipe", () => {
+  assert.equal(validateFlowAnswer({ key: "x", label: "", question: "", kind: "date" }, "2026-12-12").ok, true)
+  assert.equal(validateFlowAnswer({ key: "x", label: "", question: "", kind: "date" }, "12/12/2026").ok, false)
+  assert.equal(validateFlowAnswer({ key: "x", label: "", question: "", kind: "time" }, "08:00").ok, true)
+  assert.equal(validateFlowAnswer({ key: "x", label: "", question: "", kind: "time" }, "8 pagi").ok, false)
+  assert.equal(validateFlowAnswer({ key: "x", label: "", question: "", kind: "url" }, "youtube.com/x").ok, false)
+  assert.equal(validateFlowAnswer({ key: "x", label: "", question: "", kind: "url" }, "https://youtube.com/x").ok, true)
+})
+
+test("onboarding: field opsional bisa dilewati", () => {
+  const optional = { key: "x", label: "", question: "", kind: "text", optional: true }
+  assert.equal(isSkip("lewati"), true)
+  assert.equal(validateFlowAnswer(optional, "lewati").ok, true)
+  assert.equal(validateFlowAnswer(optional, "lewati").value, undefined)
+})
+
+test("onboarding: daftar dipisah koma/tanpa kata sambung", () => {
+  const field = { key: "x", label: "", question: "", kind: "list" }
+  assert.deepEqual(validateFlowAnswer(field, "Keluarga A, Keluarga B dan Keluarga C").value, [
+    "Keluarga A",
+    "Keluarga B",
+    "Keluarga C",
+  ])
+})
+
+test("onboarding: keluhan dipetakan ke bagian", () => {
+  assert.equal(mapSectionFromText("fotonya ganti"), "galeri")
+  assert.equal(mapSectionFromText("nama mempelai salah"), "profile")
+  assert.equal(mapSectionFromText("tanggal acara keliru"), "acara")
+  assert.equal(mapSectionFromText("foto sampul"), "sampul")
+  assert.equal(mapSectionFromText("apa aja"), null)
+})
+
+test("onboarding: setiap bagian punya field atau manual", () => {
+  for (const [key, spec] of Object.entries(SECTION_SPECS)) {
+    assert.ok(spec.fields.length > 0 || !!spec.manual, key)
+    for (const field of spec.fields) {
+      assert.ok(field.question.length > 5, `${key}.${field.key}`)
+      assert.ok(field.label.length > 0, `${key}.${field.key}`)
     }
   }
 })

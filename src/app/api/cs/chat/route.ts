@@ -213,3 +213,43 @@ export async function POST(request: Request) {
 
   return response
 }
+
+// GET /api/cs/chat?conversationId=...&since=ISO
+// Dipakai widget untuk menerima balasan manusia dari /ops/cs (dan balasan bot
+// yang telat) tanpa mengirim pesan baru.
+export async function GET(request: Request) {
+  const url = new URL(request.url)
+  const conversationId = url.searchParams.get("conversationId") || ""
+  const since = url.searchParams.get("since") || "1970-01-01T00:00:00.000Z"
+  if (!conversationId) return NextResponse.json({ error: "conversationId wajib" }, { status: 400 })
+
+  const cookieStore = await cookies()
+  const sessionId = cookieStore.get(COOKIE)?.value || ""
+  if (!SESSION_RE.test(sessionId)) return NextResponse.json({ messages: [] })
+
+  const { data: contact } = await supabaseAdmin
+    .from("cs_contacts")
+    .select("id")
+    .eq("wa_jid", `web:${sessionId}`)
+    .maybeSingle()
+  if (!contact) return NextResponse.json({ messages: [] })
+
+  const { data: conversation } = await supabaseAdmin
+    .from("cs_conversations")
+    .select("id,contact_id")
+    .eq("id", conversationId)
+    .eq("contact_id", contact.id)
+    .maybeSingle()
+  if (!conversation) return NextResponse.json({ error: "forbidden" }, { status: 403 })
+
+  const { data } = await supabaseAdmin
+    .from("cs_messages")
+    .select("id,direction,role,body,model,created_at")
+    .eq("conversation_id", conversationId)
+    .eq("direction", "out")
+    .gt("created_at", since)
+    .order("created_at", { ascending: true })
+    .limit(50)
+
+  return NextResponse.json({ messages: data || [] })
+}

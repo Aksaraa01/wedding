@@ -112,6 +112,48 @@ knowledge base di `cs_documents` / `cs_chunks`:
 - Klaim sudah bayar / minta invoice / tagihan tetap jadi tiket `payment`.
 - Widget punya tombol WhatsApp di header chat menuju nomor tim.
 
+## Alur "Bantu Isi Undangan"
+
+Dipicu oleh intent isi/ubah data (`data_collection`/`data_change`).
+
+1. **Web**: wajib login (cookie couple). Tamu anonim diarahkan ke `/login`.
+   **WhatsApp**: nomor terdaftar → **PIN dari pendaftaran** (`users.pin`, 6 digit;
+   `scanner_pin` lama tetap diterima). Salah 3×/10 menit → sambungkan tim.
+2. **Template**: kalau belum ada, agent mengirim daftar template yang eligible
+   (aktif, event_type cocok, package_eligibility sesuai paket) dan meminta nama
+   template. Nama dicocokkan exact → partial; ambigu → sebutkan kandidat.
+   In-house dipasang langsung; WP memakai rantai duplicate (409 kalau rantai
+   lain masih jalan) dan agent menunggu job selesai.
+3. **Data**: agent berjalan per bagian mengikuti `getPublishBlockers`
+   (`profil → acara → galeri → kutipan → kisah cinta → video → turut mengundang`
+   dst), satu pertanyaan per pesan. Validasi memakai validator editor
+   (`profileFields`), jadi format tanggal/jam/link sama.
+   - Sesi acara & kisah cinta ditanya sub-field satu per satu, lalu disimpan
+     sebagai array setelah lolos `validateField`.
+   - Foto lewat tombol upload di widget (`POST /api/cs/upload`, hanya saat
+     `pendingUpload`), atau media WhatsApp (gateway harus meneruskan
+     `media_url`; file diunduh ke storage kita, bukan URL WA).
+   - Setiap jawaban langsung ditulis ke `wedding_profiles` + patch WP bila ada
+     `active_wp_post_id`, dan dicatat di `cs_audit`.
+4. **Pratinjau**: `https://wedding.aksaraa.com/preview/{id}` (belum tayang).
+5. **Konfirmasi**: "sudah oke?" → belum: sebutkan bagian, agent mengulang bagian
+   itu; sudah: agent mengirim instruksi login → Web Invitation → Publikasi.
+   **Agent tidak pernah mempublikasikan sendiri.**
+6. **Hadiah** (rekening/alamat) sengaja tidak diisi lewat chat: agent
+   mengarahkan ke dashboard karena menyangkut uang.
+
+State flow disimpan di `cs_profile_drafts.draft.__onboarding` (tanpa migration)
+dan bisa dilanjutkan kapan saja dengan "bantu isi undangan".
+
+## Ops membalas percakapan web
+
+- `POST /api/ops/cs` `action: "reply"` sekarang menerima percakapan `web`
+  (tanpa nomor): balasan disimpan dan diambil widget lewat
+  `GET /api/cs/chat?conversationId=…&since=…` (polling 5 detik).
+- WhatsApp tetap memakai gateway (`CS_WA_SEND_URL` → default gateway lama).
+- Re-engagement anonim hanya mungkin kalau nomor WA diminta dengan consent;
+  tanpa nomor, tiket ditutup setelah sehari.
+
 ## Permukaan widget
 
 Widget hanya muncul di halaman marketing (allowlist di

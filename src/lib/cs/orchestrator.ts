@@ -34,6 +34,7 @@ import { formatPolicies, POLICIES, type CsPolicies } from "@/lib/cs/policies"
 import { findSources } from "@/lib/cs/retrieval"
 import { citationLine } from "@/lib/cs/knowledge"
 import { CS_WHATSAPP } from "@/lib/cs/contact"
+import { getOnboardingState, handleOnboarding } from "@/lib/cs/onboarding"
 
 export interface AgentDeps {
   chat: typeof chatCompletion
@@ -85,7 +86,7 @@ const REASON_LABEL: Record<EscalationReason, string> = {
 }
 
 async function notifyEscalation(reason: EscalationReason, summary: string): Promise<void> {
-  const url = process.env.WA_SCHOOL_API_URL || "http://127.0.0.1:3001/send"
+  const url = process.env.CS_WA_SEND_URL || process.env.WA_SCHOOL_API_URL || "http://127.0.0.1:3001/send"
   // Tujuan notifikasi CS (bukan grup sales umum): nomor koordinator CS.
   const target = process.env.CS_ESCALATION_TARGET || CS_WHATSAPP
   if (!target) return
@@ -255,6 +256,34 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
 
   const intent = classify(input.text)
   const decision = decide(intent, decisionContext)
+
+  // --- Alur "Bantu Isi Undangan" -------------------------------------------
+  // Kalau onboarding sedang berjalan untuk profil ini, SEMUA pesan masuk ke
+  // alur itu dulu supaya jawaban tidak dianggap pertanyaan baru.
+  if (input.weddingProfileId) {
+    const { state: onboarding } = await getOnboardingState(input.weddingProfileId)
+    if (onboarding && onboarding.stage !== "done") {
+      const text = await handleOnboarding(input.weddingProfileId, input.contactId, input.text)
+      await persistOutbound(input.conversationId, text, { intent, model: null })
+      return { replies: [{ text }], guarded: true, toolNames: [] }
+    }
+  }
+
+  const wantsDataHelp = intent === "data_collection" || intent === "data_change"
+  if (wantsDataHelp) {
+    if (!input.verified && input.channel === "web") {
+      const text =
+        "Biar aku bisa bantu isi undangan, Kakak perlu masuk dulu ya. Buka https://wedding.aksaraa.com/login lalu balik ke chat ini."
+      await persistOutbound(input.conversationId, text, { intent, model: null })
+      return { replies: [{ text }], guarded: true, toolNames: [] }
+    }
+    if (input.verified && input.weddingProfileId) {
+      const text = await handleOnboarding(input.weddingProfileId, input.contactId, input.text)
+      await persistOutbound(input.conversationId, text, { intent, model: null })
+      return { replies: [{ text }], guarded: true, toolNames: [] }
+    }
+  }
+  // -------------------------------------------------------------------------
 
   const summary = (reason: string) =>
     handoffSummary({

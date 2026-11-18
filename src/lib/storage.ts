@@ -177,7 +177,7 @@ export const UPLOAD_LIMITS = {
   audio: 8 * 1024 * 1024,
 } as const
 
-const IMAGE_PREFIXES = ["general", "template-media", "templates", "guest-photos", "seeded", "bank-logos"]
+const IMAGE_PREFIXES = ["general", "template-media", "templates", "guest-photos", "seeded", "bank-logos", "cs-uploads"]
 
 function limitForFolder(folder: string, mime: string) {
   if (mime.startsWith("audio/")) return UPLOAD_LIMITS.audio

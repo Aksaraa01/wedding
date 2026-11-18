@@ -158,7 +158,7 @@ export async function GET(req: Request) {
 }
 
 async function sendWhatsApp(phone: string, message: string): Promise<boolean> {
-  const url = process.env.WA_SCHOOL_API_URL || "http://127.0.0.1:3001/send"
+  const url = process.env.CS_WA_SEND_URL || process.env.WA_SCHOOL_API_URL || "http://127.0.0.1:3001/send"
   try {
     const res = await fetch(url, {
       method: "POST",
@@ -189,7 +189,7 @@ export async function POST(req: Request) {
 
   const { data: conversation } = await supabaseAdmin
     .from("cs_conversations")
-    .select("id,contact_id,status,cs_contacts!inner(id,phone,name)")
+    .select("id,contact_id,status,channel,cs_contacts!inner(id,phone,name)")
     .eq("id", conversationId)
     .maybeSingle()
 
@@ -235,9 +235,17 @@ export async function POST(req: Request) {
     const text = String(body.text || "").trim()
     if (!text) return NextResponse.json({ error: "pesan kosong" }, { status: 400 })
     if (text.length > 4000) return NextResponse.json({ error: "pesan terlalu panjang" }, { status: 400 })
-    if (!contact?.phone) return NextResponse.json({ error: "nomor kontak tidak ada" }, { status: 400 })
 
-    const sent = await sendWhatsApp(contact.phone, text)
+    const channel = String((conversation as Record<string, unknown>).channel || "")
+    const isWeb = channel === "web"
+
+    // Web: balasan tidak dikirim ke WhatsApp (tidak ada nomor); widget mengambil
+    // pesan ini lewat polling /api/cs/chat. WhatsApp tetap wajib punya nomor.
+    if (!isWeb && !contact?.phone) {
+      return NextResponse.json({ error: "nomor kontak tidak ada" }, { status: 400 })
+    }
+
+    const sent = isWeb ? true : await sendWhatsApp(contact!.phone as string, text)
 
     await supabaseAdmin.from("cs_messages").insert({
       conversation_id: conversationId,
