@@ -207,6 +207,26 @@ test("handoff summary memuat fakta lead", () => {
   assert.match(text, /3_6m/)
   assert.match(text, /signature/)
   assert.match(text, /2x/)
+  assert.ok(!/Alasan:/.test(text), "alasan dicetak sekali oleh notifikasi, bukan di ringkasan")
+})
+
+test("handoff summary memuat beberapa giliran percakapan", () => {
+  const text = handoffSummary({
+    facts: {},
+    reason: "data_change",
+    name: "Novi & Rafi",
+    recent: [
+      { role: "assistant", content: "Boleh sebutkan PIN undangan Kakak?" },
+      { role: "user", content: "mau ganti nama mempelai" },
+      { role: "assistant", content: "Data apa yang mau diganti?" },
+      { role: "user", content: "yakin sudah diganti?" },
+    ],
+  })
+
+  assert.match(text, /Percakapan terakhir:/)
+  assert.match(text, /Klien: mau ganti nama mempelai/)
+  assert.match(text, /CS: Data apa yang mau diganti\?/)
+  assert.match(text, /Klien: yakin sudah diganti\?/)
 })
 
 test("validasi fakta: kota dan tanggal", () => {

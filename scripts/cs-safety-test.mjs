@@ -174,6 +174,41 @@ test("batas: voucher tidak diputuskan agent", () => {
   assert.ok(BOUNDARIES.some((rule) => /voucher/i.test(rule)))
 })
 
+test("guard: klaim data sudah diganti ditolak", () => {
+  for (const reply of [
+    "Oke Kak, nama mempelainya sudah aku ganti ya.",
+    "Sudah diganti Kak, cek undangannya.",
+    "Data undangan telah diperbarui.",
+  ]) {
+    const r = validateReply({ reply })
+    assert.equal(r.ok, false, reply)
+    assert.ok(r.violations.some((v) => v.code === "action_claim"), reply)
+  }
+})
+
+test("guard: pertanyaan tentang perubahan tidak ikut ditolak", () => {
+  const r = validateReply({ reply: "Tanggalnya mau diubah jadi kapan, Kak?" })
+  assert.equal(r.ok, true, JSON.stringify(r.violations))
+})
+
+test("classify: permintaan ubah data masuk data_change", () => {
+  assert.equal(classify("mau ganti nama mempelai"), "data_change")
+  assert.equal(classify("koreksi nama saya salah"), "data_change")
+  assert.equal(classify("ganti tanggal akad"), "reschedule")
+  assert.equal(classify("ganti template dong"), "template")
+})
+
+test("decide: ubah data butuh verifikasi dulu", () => {
+  const d = decide("data_change", ctx)
+  assert.equal(d.action, "verify")
+})
+
+test("decide: ubah data setelah terverifikasi jadi tiket tim", () => {
+  const d = decide("data_change", { ...ctx, verified: true, hasProfile: true })
+  assert.equal(d.action, "escalate")
+  assert.equal(d.reason, "data_change")
+})
+
 test("classify: estimasi waktu pengerjaan", () => {
   assert.equal(classify("berapa lama pengerjaannya?"), "timeline")
 })

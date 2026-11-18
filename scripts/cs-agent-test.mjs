@@ -198,8 +198,9 @@ test("replies: setiap alasan eskalasi punya balasan", () => {
   }
 })
 
-test("replies: verifikasi meminta nomor terdaftar", () => {
-  assert.match(verifyRequiredReply(), /nomor WhatsApp yang Kakak pakai saat (daftar|registrasi)/i)
+test("replies: verifikasi meminta PIN atau nomor terdaftar", () => {
+  assert.match(verifyRequiredReply(), /PIN/i)
+  assert.match(verifyRequiredReply(), /nomor WhatsApp yang dipakai saat daftar/i)
 })
 
 test("replies: penolakan topik di luar", () => {

@@ -26,6 +26,7 @@ Boundary yang di-hardcode di kode:
 | Status undangan / isi data, nomor terverifikasi tapi profil tidak ada | eskalasi | `no_profile` · normal |
 | Minta manusia / telepon | eskalasi | `human_requested` · high |
 | Refund / pembatalan | eskalasi | `refund` · high |
+| Ubah data undangan (nama, foto, rekening, nomor) | verifikasi PIN dulu → eskalasi | `data_change` · normal |
 | Ubah tanggal | eskalasi | `reschedule` · high |
 | Komplain | eskalasi | `complaint` · high |
 | Bukti bayar / invoice / DP / cicilan | eskalasi | `payment` · normal |
@@ -41,10 +42,27 @@ Boundary yang di-hardcode di kode:
    Voucher sengaja hanya membuat tiket supaya klien tetap bisa dibantu soal
    paket/template di percakapan yang sama.
 4. Baris `cs_audit`.
-5. Ping grup ops via WhatsApp (`WA_TARGET_GROUP_JID`).
+5. Notifikasi WhatsApp ke **koordinator CS** (`CS_ESCALATION_TARGET`, default
+   `6281161613071`), berisi alasan dalam bahasa manusia + ringkasan 4 giliran
+   percakapan terakhir (Klien/CS), bukan hanya satu pesan terakhir.
 
 Tiket `voucher` yang masih `open` tidak dibuat ulang pada pesan berikutnya
 (satu tiket per percakapan), supaya grup ops tidak dibanjiri pesan.
+
+## Verifikasi PIN untuk permintaan data
+
+Agent tidak punya tool yang mengubah data. Permintaan ubah data diverifikasi
+dengan **PIN undangan** (`wedding_profiles.scanner_pin`, 4–6 angka):
+
+- Belum terverifikasi → agent meminta PIN (fallback: nomor WhatsApp terdaftar
+  untuk alur OTP lama).
+- PIN benar → kontak ditandai terverifikasi, permintaan lanjut jadi tiket
+  `data_change`.
+- PIN salah → dihitung (audit `pin_failed`), maksimal 3 kali dalam 10 menit;
+  setelah itu agent berhenti mencoba dan menyambungkan ke tim.
+- Agent **tidak pernah** menyatakan data sudah diganti/diubah/dihapus. Guard
+  menolak klaim seperti itu (`action_claim`), karena hanya tim/dashboard yang
+  bisa melakukannya.
 
 ## Aturan voucher
 

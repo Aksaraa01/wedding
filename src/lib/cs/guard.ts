@@ -64,6 +64,18 @@ const CLAIM_RULES: { code: string; re: RegExp; evidenceNeedle: string }[] = [
     re: /\b(bisa|dapat)\s+(dipakai|digunakan)\s+(2|dua|berdua)\b/i,
     evidenceNeedle: "multi_guest_link",
   },
+  // Agent tidak punya tool yang mengubah data. Klaim "sudah diganti/diubah"
+  // berarti halusinasi (pernah terjadi: klien tanya "yakin sudah diganti?").
+  {
+    code: "action_claim",
+    re: /\b(sudah|telah)\s+(aku\s+|kami\s+|admin\s+)?(ganti|mengganti|ubah|mengubah|perbarui|memperbarui|update|hapus|menghapus|pindahkan)\b(?!\s*\?)/i,
+    evidenceNeedle: "profile_updated",
+  },
+  {
+    code: "action_claim",
+    re: /\b(sudah|telah)\s+(di)?(ganti|ubah|perbarui|update|hapus|pindahkan)\b(?!\s*\?)/i,
+    evidenceNeedle: "profile_updated",
+  },
 ]
 
 const BUREAUCRATIC_PATTERNS: { re: RegExp; label: string }[] = [

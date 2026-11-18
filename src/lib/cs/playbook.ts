@@ -453,11 +453,11 @@ export function handoffSummary(input: {
   name?: string | null
   phone?: string | null
   lastMessage?: string
+  recent?: { role: "user" | "assistant"; content: string }[]
   objectionCount?: number
   stage?: LeadStage
 }): string {
   const lines = [
-    `Alasan: ${input.reason}`,
     `Nama: ${input.name || "-"}`,
     `Nomor: ${input.phone || "-"}`,
     `Tahap: ${input.stage || "new"}`,
@@ -469,7 +469,22 @@ export function handoffSummary(input: {
     `Paket diminati: ${input.facts.package_interest || "-"}`,
     `Template diminati: ${input.facts.template_interest || "-"}`,
     `Keberatan: ${input.objectionCount ?? 0}x`,
-    `Pesan terakhir: ${(input.lastMessage || "").slice(0, 300)}`,
   ]
+
+  // Ringkasan percakapan: satu pesan terakhir tidak cukup untuk memahami
+  // kasus, jadi kirim beberapa giliran terakhir apa adanya.
+  const recent = (input.recent || [])
+    .filter((item) => item.content && item.content.trim())
+    .slice(-4)
+  if (recent.length) {
+    lines.push("Percakapan terakhir:")
+    for (const item of recent) {
+      const who = item.role === "user" ? "Klien" : "CS"
+      lines.push(`  ${who}: ${item.content.replace(/\s+/g, " ").trim().slice(0, 220)}`)
+    }
+  } else if (input.lastMessage) {
+    lines.push(`Pesan terakhir: ${input.lastMessage.replace(/\s+/g, " ").trim().slice(0, 300)}`)
+  }
+
   return lines.join("\n")
 }

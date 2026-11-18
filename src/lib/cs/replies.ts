@@ -9,6 +9,8 @@ const BY_REASON: Record<EscalationReason, string> = {
     "Oke Kak, buat pembatalan aku sambungkan ke tim ya. Boleh info nama pemesan dan nomor pesanannya?",
   reschedule:
     "Oke, buat ubah tanggal aku sambungkan ke tim dulu ya Kak. Tanggal barunya kira-kira kapan?",
+  data_change:
+    "Buat ubah data undangan, aku sambungkan ke tim ya Kak. Data apa yang mau diganti?",
   voucher:
     "Boleh aku cek dulu ya Kak, biar voucher-nya pasti kepakai. Ini aku teruskan ke tim dulu.",
   discount:
@@ -25,7 +27,7 @@ export function escalationReply(reason: EscalationReason, _intent?: Intent): str
 }
 
 export function verifyRequiredReply(): string {
-  return "Boleh info nomor WhatsApp yang Kakak pakai saat daftar? Aku cek dulu ya, biar data undangannya aman."
+  return "Boleh sebutkan PIN undangan Kakak (4–6 angka) biar aku pastikan ini benar pemiliknya? Kalau belum punya PIN, balas nomor WhatsApp yang dipakai saat daftar ya."
 }
 
 export function verifyCodeSentReply(maskedPhone: string): string {

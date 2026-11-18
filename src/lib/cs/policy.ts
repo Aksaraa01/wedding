@@ -10,6 +10,7 @@ export type Intent =
   | "opt_out"
   | "refund"
   | "reschedule"
+  | "data_change"
   | "voucher"
   | "discount"
   | "timing"
@@ -36,6 +37,7 @@ export type EscalationReason =
   | "human_requested"
   | "refund"
   | "reschedule"
+  | "data_change"
   | "discount"
   | "voucher"
   | "payment"
@@ -85,6 +87,7 @@ export const BOUNDARIES: string[] = [
   "Komplain, refund, ubah tanggal, nego, dan bukti bayar selalu dieskalasi ke tim.",
   "Voucher dan potongan khusus tidak diputuskan agent; selalu diperiksa tim dulu.",
   "Jangan menjamin kuota voucher atau bahwa kode akan berhasil saat registrasi.",
+  "Jangan pernah bilang data undangan sudah diubah, diganti, atau dihapus. Agent tidak punya akses ubah; perubahan data dilakukan tim atau dashboard pasangan.",
   "Tangani keberatan harga pertama dengan nilai dan paket alternatif; eskalasi hanya kalau klien menekan lagi.",
   "Jangan menanyakan lebih dari satu fakta per balasan.",
   "Kalau klien minta berhenti dihubungi, hormati dan jangan kirim pesan lagi.",
@@ -179,6 +182,33 @@ export function classify(text: string): Intent {
     ])
   ) {
     return "reschedule"
+  }
+
+  if (
+    hasAny(t, [
+      "ganti nama",
+      "ubah nama",
+      "salah nama",
+      "nama salah",
+      "koreksi nama",
+      "ganti data",
+      "ubah data",
+      "perbarui data",
+      "update data",
+      "ganti foto",
+      "ubah foto",
+      "ganti rekening",
+      "ubah rekening",
+      "ganti nomor",
+      "ubah nomor",
+      "ganti alamat",
+      "ubah alamat",
+      "hapus data",
+    ]) ||
+    (/\b(ganti|ubah|perbarui|update|koreksi)\b/.test(t) &&
+      /\b(data|nama|foto|rekening|alamat|nomor hp|nomor wa)\b/.test(t))
+  ) {
+    return "data_change"
   }
 
   if (
@@ -460,6 +490,12 @@ export function decide(intent: Intent, ctx: DecisionContext): Decision {
 
     case "reschedule":
       return { action: "escalate", intent, reason: "reschedule", priority: "high" }
+
+    case "data_change":
+      if (!ctx.verified) return { action: "verify", intent, reason: "register_and_verify" }
+      if (!ctx.hasProfile) return { action: "escalate", intent, reason: "no_profile", priority: "normal" }
+      // Agent tidak punya tool ubah data: selalu jadi tiket tim.
+      return { action: "escalate", intent, reason: "data_change", priority: "normal" }
 
     case "opt_out":
       return { action: "opt_out", intent }

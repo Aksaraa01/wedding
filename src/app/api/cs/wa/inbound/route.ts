@@ -65,14 +65,18 @@ async function reply(conversationId: string, text: string): Promise<void> {
     .eq("id", conversationId)
 }
 
-async function findProfileForPhone(normalized: string): Promise<{ id: string; is_published: boolean } | null> {
+async function findProfileForPhone(
+  normalized: string
+): Promise<{ id: string; is_published: boolean; scanner_pin: string | null } | null> {
   const { data: profileByPhone } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id,is_published")
+    .select("id,is_published,scanner_pin")
     .eq("whatsapp_number", normalized)
     .maybeSingle()
 
-  if (profileByPhone) return profileByPhone as { id: string; is_published: boolean }
+  if (profileByPhone) {
+    return profileByPhone as { id: string; is_published: boolean; scanner_pin: string | null }
+  }
 
   const { data: user } = await supabaseAdmin
     .from("users")
@@ -84,12 +88,45 @@ async function findProfileForPhone(normalized: string): Promise<{ id: string; is
 
   const { data: profileByUser } = await supabaseAdmin
     .from("wedding_profiles")
-    .select("id,is_published")
+    .select("id,is_published,scanner_pin")
     .eq("user_id", user.id)
     .limit(1)
     .maybeSingle()
 
-  return (profileByUser as { id: string; is_published: boolean } | null) || null
+  return (profileByUser as { id: string; is_published: boolean; scanner_pin: string | null } | null) || null
+}
+
+// PIN undangan (dipilih pasangan untuk scanner) dipakai juga untuk verifikasi CS.
+// Dicocokkan digit-per-digit, constant-time kalau panjangnya sama.
+function pinMatches(input: string, stored: string): boolean {
+  const a = Buffer.from(input.replace(/\D/g, ""))
+  const b = Buffer.from(stored.replace(/\D/g, ""))
+  if (!a.length || !b.length) return false
+  if (a.length !== b.length) return false
+  return timingSafeEqual(a, b)
+}
+
+async function lastBotAskedPin(conversationId: string): Promise<boolean> {
+  const { data } = await supabaseAdmin
+    .from("cs_messages")
+    .select("body")
+    .eq("conversation_id", conversationId)
+    .eq("direction", "out")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  return /pin|verifikasi|nomor whatsapp/i.test(String(data?.body || ""))
+}
+
+async function recentPinFailures(contactId: string): Promise<number> {
+  const since = new Date(Date.now() - 10 * 60_000).toISOString()
+  const { count } = await supabaseAdmin
+    .from("cs_audit")
+    .select("id", { count: "exact", head: true })
+    .eq("action", "pin_failed")
+    .eq("subject", contactId)
+    .gte("created_at", since)
+  return count || 0
 }
 
 export async function POST(request: Request) {
@@ -269,6 +306,60 @@ export async function POST(request: Request) {
       })
 
       await reply(conversationId, verificationSuccessReply())
+      return NextResponse.json({ replies: [] })
+    }
+  }
+
+  // PIN undangan: dipakai saat agent meminta verifikasi untuk permintaan data.
+  const looksLikePin = /^\d{4,6}$/.test(text)
+  if (!verified && looksLikePin && (await lastBotAskedPin(conversationId))) {
+    const pinRate = checkRateLimit(`cs-pin:${contact.id}`, 10, 10 * 60_000)
+    if (!pinRate.ok) return rateLimited(pinRate.retryAfterMs!)
+
+    const profile = await findProfileForPhone(normalizeWhatsApp(phone))
+    const storedPin = profile?.scanner_pin ? String(profile.scanner_pin) : ""
+
+    if (profile && storedPin.replace(/\D/g, "").length >= 4) {
+      const failures = await recentPinFailures(contact.id as string)
+
+      if (failures >= 3) {
+        await reply(
+          conversationId,
+          "PIN-nya sudah salah 3 kali, jadi aku sambungkan ke tim dulu ya Kak biar aman."
+        )
+        return NextResponse.json({ replies: [] })
+      }
+
+      if (pinMatches(text, storedPin)) {
+        await supabaseAdmin
+          .from("cs_contacts")
+          .update({
+            verified_at: new Date().toISOString(),
+            wedding_profile_id: profile.id,
+            phone: normalizeWhatsApp(phone),
+          })
+          .eq("id", contact.id)
+
+        await supabaseAdmin.from("cs_audit").insert({
+          actor: `wa:${contact.id}`,
+          action: "pin_success",
+          subject: profile.id,
+        })
+
+        await reply(conversationId, verificationSuccessReply())
+        return NextResponse.json({ replies: [] })
+      }
+
+      await supabaseAdmin.from("cs_audit").insert({
+        actor: `wa:${contact.id}`,
+        action: "pin_failed",
+        subject: contact.id,
+      })
+
+      await reply(
+        conversationId,
+        `PIN belum cocok (${failures + 1}/3). Coba sebutkan lagi ya Kak.`
+      )
       return NextResponse.json({ replies: [] })
     }
   }

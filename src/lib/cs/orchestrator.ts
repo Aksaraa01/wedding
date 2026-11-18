@@ -67,10 +67,33 @@ export interface InboundResult {
   toolNames: string[]
 }
 
-async function notifyOpsGroup(text: string): Promise<void> {
+const REASON_LABEL: Record<EscalationReason, string> = {
+  human_requested: "klien minta dihubungkan ke manusia",
+  refund: "refund / pembatalan",
+  reschedule: "ubah tanggal acara",
+  data_change: "permintaan ubah data undangan",
+  discount: "nego harga",
+  voucher: "voucher / kode promo",
+  payment: "pembayaran / bukti bayar",
+  complaint: "komplain",
+  sensitive_data: "permintaan data sensitif",
+  low_confidence: "agent tidak yakin — perlu dicek manusia",
+  no_profile: "profil tidak ditemukan untuk nomor ini",
+}
+
+async function notifyEscalation(reason: EscalationReason, summary: string): Promise<void> {
   const url = process.env.WA_SCHOOL_API_URL || "http://127.0.0.1:3001/send"
-  const target = process.env.WA_TARGET_GROUP_JID || ""
+  // Tujuan notifikasi CS (bukan grup sales umum): nomor koordinator CS.
+  const target = process.env.CS_ESCALATION_TARGET || "6281161613071"
   if (!target) return
+  const text = [
+    "🔔 CS perlu tindakan",
+    `Alasan: ${REASON_LABEL[reason] || reason}`,
+    "",
+    summary,
+    "",
+    "Buka: https://wedding.aksaraa.com/ops/cs",
+  ].join("\n")
   try {
     await fetch(url, {
       method: "POST",
@@ -150,14 +173,7 @@ async function createEscalation(input: {
     detail: { reason: input.reason, priority: input.priority },
   })
 
-  await notifyOpsGroup(
-    [
-      `🔔 CS perlu tindakan (${input.priority})`,
-      `Alasan: ${input.reason}`,
-      input.summary.slice(0, 700),
-      `Buka: https://wedding.aksaraa.com/ops/cs`,
-    ].join("\n")
-  )
+  await notifyEscalation(input.reason, input.summary.slice(0, 1200))
 }
 
 const TOOL_NAMES: Record<string, string> = {
@@ -242,6 +258,7 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
       name: input.contactName,
       phone: input.phone,
       lastMessage: input.text,
+      recent: [...input.history, { role: "user", content: input.text }],
       objectionCount: lead.objectionCount,
       stage: lead.stage,
     })
