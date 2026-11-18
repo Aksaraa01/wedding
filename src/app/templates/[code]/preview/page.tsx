@@ -111,7 +111,7 @@ export default async function TemplatePreviewPage({ params }: { params: Promise<
   }
 
   return (
-    <div className={code === "cinnabar-seal" ? "bg-[#33080b]" : code === "iris" ? "bg-[#f3ecdf]" : code === "teatro" ? "bg-[#efe7dd]" : code === "fresco" ? "bg-[#fbf7ef]" : code === "emerald-heirloom" ? "bg-[#566a58]" : code === "majestic" ? "bg-[#f0e8e0]" : code === "silver-gelatin" ? "bg-[#f4efe9]" : code === "ubin-ottoman" ? "bg-[#f6eedc]" : "bg-[#05070c]"}>
+    <div className={code === "cinnabar-seal" ? "bg-[#33080b]" : code === "iris" ? "bg-[#f3ecdf]" : code === "teatro" ? "bg-[#efe7dd]" : code === "fresco" ? "bg-[#fbf7ef]" : code === "olan" ? "bg-[#eee8e5]" : code === "emerald-heirloom" ? "bg-[#566a58]" : code === "majestic" ? "bg-[#f0e8e0]" : code === "silver-gelatin" ? "bg-[#f4efe9]" : code === "ubin-ottoman" ? "bg-[#f6eedc]" : "bg-[#05070c]"}>
       <Component {...previewProps} />
     </div>
   )
