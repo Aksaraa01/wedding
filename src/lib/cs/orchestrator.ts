@@ -34,6 +34,7 @@ import { formatPolicies, POLICIES, type CsPolicies } from "@/lib/cs/policies"
 import { findSources } from "@/lib/cs/retrieval"
 import { citationLine } from "@/lib/cs/knowledge"
 import { CS_WHATSAPP } from "@/lib/cs/contact"
+import { sendCsWhatsApp } from "@/lib/cs/waSend"
 import { getOnboardingState, handleOnboarding } from "@/lib/cs/onboarding"
 
 export interface AgentDeps {
@@ -86,7 +87,6 @@ const REASON_LABEL: Record<EscalationReason, string> = {
 }
 
 async function notifyEscalation(reason: EscalationReason, summary: string): Promise<void> {
-  const url = process.env.CS_WA_SEND_URL || process.env.WA_SCHOOL_API_URL || "http://127.0.0.1:3001/send"
   // Tujuan notifikasi CS (bukan grup sales umum): nomor koordinator CS.
   const target = process.env.CS_ESCALATION_TARGET || CS_WHATSAPP
   if (!target) return
@@ -99,12 +99,7 @@ async function notifyEscalation(reason: EscalationReason, summary: string): Prom
     "Buka: https://wedding.aksaraa.com/ops/cs",
   ].join("\n")
   try {
-    await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone: target, message: text }),
-      signal: AbortSignal.timeout(4000),
-    })
+    await sendCsWhatsApp(target, text, 5000)
   } catch {
     // Notifikasi gagal tidak boleh menggagalkan balasan ke klien.
   }

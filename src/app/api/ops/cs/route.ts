@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { requireOpsEmployee } from "@/lib/ops-auth"
+import { sendCsWhatsApp } from "@/lib/cs/waSend"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -158,18 +159,7 @@ export async function GET(req: Request) {
 }
 
 async function sendWhatsApp(phone: string, message: string): Promise<boolean> {
-  const url = process.env.CS_WA_SEND_URL || process.env.WA_SCHOOL_API_URL || "http://127.0.0.1:3001/send"
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, message }),
-      signal: AbortSignal.timeout(8000),
-    })
-    return res.ok
-  } catch {
-    return false
-  }
+  return sendCsWhatsApp(phone, message, 8000)
 }
 
 export async function POST(req: Request) {

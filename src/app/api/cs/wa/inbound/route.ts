@@ -7,6 +7,7 @@ import { checkRateLimit, rateLimited } from "@/lib/rateLimit"
 import { getCsSettings } from "@/lib/cs/settings"
 import { handleInbound } from "@/lib/cs/orchestrator"
 import { handleOnboardingUpload } from "@/lib/cs/onboarding"
+import { sendCsWhatsApp } from "@/lib/cs/waSend"
 import { uploadFile, uploadFromUrl } from "@/lib/storage"
 import {
   notRegisteredReply,
@@ -43,18 +44,7 @@ function hashCode(code: string, salt: string): string {
 }
 
 async function sendWhatsApp(phone: string, message: string): Promise<boolean> {
-  const url = process.env.CS_WA_SEND_URL || process.env.WA_SCHOOL_API_URL || "http://127.0.0.1:3001/send"
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, message }),
-      signal: AbortSignal.timeout(5000),
-    })
-    return res.ok
-  } catch {
-    return false
-  }
+  return sendCsWhatsApp(phone, message, 5000)
 }
 
 async function reply(conversationId: string, text: string): Promise<void> {
