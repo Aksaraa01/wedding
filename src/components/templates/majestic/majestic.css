@@ -622,11 +622,6 @@ body:has(.mj-root.is-locked) {
   color: var(--mj-ink-faint);
 }
 
-.mj-opening .mj-lights {
-  margin-top: 0;
-  margin-bottom: 18px;
-}
-
 /* ── Mempelai ────────────────────────────────────────────────────────────── */
 
 .mj-couple {
@@ -976,13 +971,6 @@ body:has(.mj-root.is-locked) {
   margin-top: 22px;
 }
 
-.mj-countdown__date {
-  margin: 22px 0 0;
-  font-size: 10.5px;
-  letter-spacing: 0.3em;
-  text-indent: 0.3em;
-  color: var(--mj-ink-soft);
-}
 
 /* ── Turut mengundang ────────────────────────────────────────────────────── */
 
@@ -1006,7 +994,7 @@ body:has(.mj-root.is-locked) {
 .mj-inviting__bouquet {
   aspect-ratio: 800 / 437;
   width: min(84%, 400px);
-  margin: 24px auto -10px;
+  margin: -14px auto 14px;
   filter: drop-shadow(0 14px 20px rgba(58, 69, 52, 0.12));
 }
 

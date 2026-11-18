@@ -594,7 +594,6 @@ export default function Majestic(profile: TemplateProps) {
   const visibleWishes = wishList.slice(wishPageSafe * WISH_PAGE, wishPageSafe * WISH_PAGE + WISH_PAGE)
   const pagerPrev = `${wishesTitle} sebelumnya`
   const pagerNext = `${wishesTitle} berikutnya`
-  const eventDateLabel = formatLongDate(eventDate)
   const coverDate = shortUpperDate(eventDate)
 
   const venueMaps = (session: SessionData): string =>
@@ -663,11 +662,6 @@ export default function Majestic(profile: TemplateProps) {
                   </span>
                 ))}
               </div>
-              {eventDateLabel && (
-                <p className="mj-countdown__date mj-reveal mj-reveal--fade" data-mj-reveal style={revealStyle(0.16)}>
-                  {eventDateLabel}
-                </p>
-              )}
               {calendarUrl && (
                 <a
                   className="mj-btn mj-btn--ghost mj-countdown__cal mj-reveal"
@@ -728,7 +722,6 @@ export default function Majestic(profile: TemplateProps) {
 
           {/* ── Pembuka ────────────────────────────────────────── */}
           <section className="mj-section mj-opening" data-section="opening">
-            <img className="mj-lights mj-lights--top" src={STRING_LIGHTS} alt="" aria-hidden="true" loading="lazy" draggable={false} />
             <h2 className="mj-script mj-heading mj-reveal" data-mj-reveal style={revealStyle(0.08)}>
               {openingTitle}
             </h2>
@@ -899,6 +892,7 @@ export default function Majestic(profile: TemplateProps) {
           {/* ── Turut mengundang ───────────────────────────────── */}
           {honored.length > 0 && (
             <section className="mj-section mj-inviting" data-section="inviting">
+              <img className="mj-inviting__bouquet mj-reveal mj-reveal--zoom" data-mj-reveal src={BOUQUET} alt="" aria-hidden="true" loading="lazy" draggable={false} />
               <h2 className="mj-script mj-heading mj-reveal" data-mj-reveal style={revealStyle(0.08)}>
                 {invitingTitle}
               </h2>
@@ -912,7 +906,6 @@ export default function Majestic(profile: TemplateProps) {
                   <li key={`${family}-${index}`}>{family}</li>
                 ))}
               </ul>
-              <img className="mj-inviting__bouquet" src={BOUQUET} alt="" aria-hidden="true" loading="lazy" draggable={false} />
             </section>
           )}
 
