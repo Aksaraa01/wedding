@@ -253,6 +253,124 @@ function Title({ lines, size }: { lines: string[]; size: number }) {
   )
 }
 
+// The prologue copy is free text from the editor, so it is never clipped and
+// never asks the guest to scroll: both the opening prose and the kutipan take
+// the largest size that still fits the frame. They only start scaling once
+// they pass their own length threshold, so ordinary copy keeps the reference
+// sizing and a long verse/paragraph shrinks instead of spilling.
+const PROSE_THRESHOLD = 240
+const QUOTE_THRESHOLD = 120
+
+type FitBlock = { el: HTMLElement; base: number; floor: number; threshold: number }
+
+function PrologueCopy({ body, quote, desktop }: { body: string; quote: string; desktop: boolean }) {
+  const bodyRef = useRef<HTMLDivElement | null>(null)
+  const quoteRef = useRef<HTMLDivElement | null>(null)
+
+  const fit = useCallback(() => {
+    const bodyWrap = bodyRef.current
+    const quoteWrap = quoteRef.current
+    const card = (bodyWrap || quoteWrap)?.parentElement
+    if (!card) return
+
+    const blocks: FitBlock[] = []
+    const bodyText = bodyWrap?.querySelector<HTMLElement>(".fr-serif")
+    if (bodyText) {
+      blocks.push({ el: bodyText, base: desktop ? 19 : 17, floor: 11, threshold: PROSE_THRESHOLD })
+    }
+    const quoteText = quoteWrap?.querySelector<HTMLElement>(".fr-quote")
+    if (quoteText) {
+      blocks.push({ el: quoteText, base: 19.2, floor: 9, threshold: QUOTE_THRESHOLD })
+    }
+    if (!blocks.length) return
+
+    // Everything the copy cannot use: the card's padding/border, gaps, stamp,
+    // kicker, date and the quote's top margin. The card itself may grow up to
+    // its parent's content box, and only past that is the copy too long.
+    const cardStyle = window.getComputedStyle(card)
+    const parent = card.parentElement
+    if (!parent) return
+    const parentStyle = window.getComputedStyle(parent)
+    const gap = parseFloat(cardStyle.rowGap) || 0
+    let fixed =
+      (parseFloat(cardStyle.paddingTop) || 0) +
+      (parseFloat(cardStyle.paddingBottom) || 0) +
+      (parseFloat(cardStyle.borderTopWidth) || 0) +
+      (parseFloat(cardStyle.borderBottomWidth) || 0) +
+      gap * (card.children.length - 1)
+    for (const node of Array.from(card.children)) {
+      if (node === bodyWrap || node === quoteWrap) continue
+      fixed += (node as HTMLElement).offsetHeight
+    }
+    if (quoteWrap) fixed += parseFloat(window.getComputedStyle(quoteWrap).marginTop) || 0
+    const limit =
+      parent.clientHeight -
+      (parseFloat(parentStyle.paddingTop) || 0) -
+      (parseFloat(parentStyle.paddingBottom) || 0)
+    if (limit <= fixed) return
+
+    // Past its threshold a block scales by the square root of its overflow:
+    // wrapped text height grows with the square of the size at a fixed width.
+    const desired = blocks.map((block) => {
+      const length = (block.el.textContent || "").trim().length
+      if (length <= block.threshold) return block.base
+      return Math.max(block.floor, block.base * Math.sqrt(block.threshold / length))
+    })
+    const apply = (scale: number) => {
+      let total = fixed
+      blocks.forEach((block, index) => {
+        const size = Math.max(block.floor, desired[index] * scale)
+        block.el.style.fontSize = `${size.toFixed(1)}px`
+        total += block.el.getBoundingClientRect().height
+      })
+      return total
+    }
+
+    if (apply(1) <= limit + 1) return
+    let lo = 0
+    let hi = 1
+    for (let step = 0; step < 7; step++) {
+      const mid = (lo + hi) / 2
+      if (apply(mid) <= limit + 1) lo = mid
+      else hi = mid
+    }
+    apply(lo)
+  }, [desktop])
+
+  useEffect(() => {
+    let frame = 0
+    const schedule = () => {
+      window.cancelAnimationFrame(frame)
+      frame = window.requestAnimationFrame(fit)
+    }
+    fit()
+    schedule()
+    window.addEventListener("resize", schedule)
+    window.visualViewport?.addEventListener("resize", schedule)
+    document.fonts?.ready.then(schedule).catch(() => {})
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.removeEventListener("resize", schedule)
+      window.visualViewport?.removeEventListener("resize", schedule)
+    }
+  }, [fit, body, quote])
+
+  return (
+    <>
+      {body && (
+        <div className="fr-inter__t" ref={bodyRef}>
+          <span className="fr-serif fr-pre">{body}</span>
+        </div>
+      )}
+      {quote && (
+        <div className="fr-inter__q" ref={quoteRef}>
+          <span className="fr-quote">{quote}</span>
+        </div>
+      )}
+    </>
+  )
+}
+
 function ArrowSvg() {
   return (
     <svg viewBox="0 0 14 13" aria-hidden="true" focusable="false">
@@ -413,6 +531,10 @@ export default function FilmRoll(profile: TemplateProps) {
   const openingBody =
     (tc.welcome_message || "").trim() ||
     "Before the credits roll and the lights come up, there was a first look, a first laugh, and a promise we kept rehearsing until it became a life."
+  // The kutipan renders under the opening prose; it is skipped when it is just
+  // a copy of it.
+  const quoteCopy = (profile.quote_text || "").trim()
+  const prologueQuote = quoteCopy && quoteCopy !== openingBody ? quoteCopy : ""
   const castKicker = (tc.mempelai_kicker || "").trim() || "Starring"
   const parentsLabel = (tc.parents_label || "").trim() || "With the blessing of"
   const storyKicker = (tc.story_kicker || "").trim() || "Scene"
@@ -1474,14 +1596,7 @@ export default function FilmRoll(profile: TemplateProps) {
                     <span>{initials || "A"}</span>
                   </span>
                   <span className="fr-eyeb">{scene.kicker}</span>
-                  {openingBody && (
-                    <div className="fr-scroll fr-inter__t">
-                      <span className="fr-serif fr-pre">{openingBody}</span>
-                    </div>
-                  )}
-                  {profile.quote_text && profile.quote_text.trim() !== openingBody && (
-                    <span className="fr-quote">{profile.quote_text}</span>
-                  )}
+                  <PrologueCopy body={openingBody} quote={prologueQuote} desktop={viewport.desktop} />
                   {dateDots && <span className="fr-eyeb">{dateDots}</span>}
                 </div>
               )}

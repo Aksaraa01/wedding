@@ -369,6 +369,18 @@ body:has(.film-roll-root){overflow:hidden;background:#000}
 .film-roll-root .fr-dress{max-width:440px}
 }
 
+/* Prologue copy (opening prose + kutipan): free text from the editor, never
+   clipped and never scrolled. Both blocks keep their reference size until they
+   pass their length threshold, then PrologueCopy shrinks whichever is too long
+   to fit the room the stamp, kicker and date leave inside the card. */
+.film-roll-root .fr-inter{overflow:hidden}
+.film-roll-root .fr-inter__t{flex:0 0 auto;max-height:none}
+.film-roll-root .fr-inter__q{display:flex;align-items:center;justify-content:center;width:100%;flex:0 0 auto;margin-top:18px;overflow:hidden}
+.film-roll-root .fr-inter .fr-quote{display:block;width:100%;margin-top:0;-webkit-line-clamp:none;overflow:visible;font-size:19.2px;line-height:1.25;text-align:center}
+@media(min-width:992px){
+.film-roll-root .fr-inter__q{margin-top:17px}
+}
+
 @media (prefers-reduced-motion: reduce){
 .film-roll-root .fr-gate__bg img,
 .film-roll-root .fr-gate__bg video,
