@@ -570,16 +570,17 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
     >
       {trackUrl && <audio ref={audioRef} src={trackUrl} loop preload="metadata" data-warm-audio="" />}
 
-      {/* Cover gate. On desktop it stays as the fixed art panel after opening —
-          the reference's split layout — and the invitation scrolls beside it. */}
+      {/* Cover gate. On desktop it stays as the fixed panel after opening — the
+          reference's split layout — and the invitation scrolls beside it. The
+          couple's cover photograph fills it; the painted garden is only the
+          fallback when no photo is uploaded. */}
       <div className="eh-gate">
-        <img className="eh-gate__art" src={EH_ASSETS.cover} alt="" draggable={false} />
+        <img className="eh-gate__art" src={stagePhoto || EH_ASSETS.cover} alt="" draggable={false} />
         <div className="eh-gate__veil" aria-hidden="true" />
+        <div className="eh-gate__lace" aria-hidden="true">
+          <img src={EH_ASSETS.laceBand} alt="" draggable={false} />
+        </div>
         <div className="eh-gate__copy">
-          <p className="eh-gate__guest">
-            <span>{guestLabel}</span>
-            <b>{guestName}</b>
-          </p>
           <p className="eh-gate__kicker">
             {coverKicker.split("\n").map((line, index) => (
               <span key={`${line}-${index}`}>{line}</span>
@@ -591,6 +592,10 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
             <span>{brideName || brideFull}</span>
           </h1>
           {coverDate && <p className="eh-gate__date">{coverDate}</p>}
+          <p className="eh-gate__guest">
+            <span>{guestLabel}</span>
+            <b>{guestName}</b>
+          </p>
           {!opened && (
             <button type="button" className="eh-gate__open" onClick={openInvitation}>
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">

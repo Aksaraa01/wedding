@@ -1956,10 +1956,10 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       motion: { enabled: true, duration: 0.9, stagger: 0.06 },
     },
     content: {
-      // The cover is the design's own painted garden — a cover-photo slot here
-      // would be an upload the template never renders. Portraits come from the
-      // mempelai fields; the gallery and the milestones carry their own photos.
-      cover_slots: 0,
+      // The cover (and the desktop art panel) is the couple's cover photograph;
+      // the painted garden is only the fallback when the slot is empty.
+      cover_slots: 1,
+      cover_slot_labels: ["Foto Sampul"],
       groom_photo: "single",
       bride_photo: "single",
       person_photos: true,
