@@ -1014,7 +1014,6 @@
   src: url('/fonts/cinzeldecorative-400.woff2') format('woff2');
 }
 @font-face {
-<<<<<<< HEAD
   font-family: 'Abhaya Libre';
   font-style: normal;
   font-weight: 400;
@@ -1027,7 +1026,8 @@
   font-weight: 700;
   font-display: swap;
   src: url('/fonts/abhayalibre-700.woff2') format('woff2');
-=======
+}
+@font-face {
   font-family: 'Cormorant Infant';
   font-style: italic;
   font-weight: 300;
@@ -1082,5 +1082,4 @@
   font-weight: 600;
   font-display: swap;
   src: url('/fonts/cormorantinfant-600.woff2') format('woff2');
->>>>>>> 619d20b (feat(olan): classical split-screen invitation)
 }
