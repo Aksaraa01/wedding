@@ -260,6 +260,24 @@ test("guard: nomor asing tetap ditolak", () => {
   assert.ok(r.violations.some((v) => v.code === "pii_phone"))
 })
 
+// ---------- penerapan draft ke DB ----------
+
+test("patch draft: field terlarang ditolak, inviting_families di-stringify", () => {
+  const result = buildPatch({
+    groom_full_name: "Rafi Pratama",
+    inviting_families: ["Keluarga A", "Keluarga B"],
+    payment_status: "paid",
+    estimated_wedding_date: "2026-12-12",
+    random_key: "x",
+  })
+
+  assert.equal(result.ok, false)
+  assert.deepEqual(result.rejected.sort(), ["estimated_wedding_date", "payment_status", "random_key"])
+  assert.equal(result.patch.groom_full_name, "Rafi Pratama")
+  assert.equal(typeof result.patch.inviting_families, "string")
+  assert.equal(JSON.parse(result.patch.inviting_families).length, 2)
+})
+
 test("classify: estimasi waktu pengerjaan", () => {
   assert.equal(classify("berapa lama pengerjaannya?"), "timeline")
 })
