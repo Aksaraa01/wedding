@@ -129,7 +129,7 @@ CSS display size and re-encoded to WebP (quality 86–92, alpha preserved).
 | `almond-flower.webp`, `white-flower.webp` | 41 K, 80 K | portrait ornaments |
 | `gift-wreath.webp` | 93 K | gift wreath |
 | `wishes-window.webp` | 129 K | wishes header |
-| `portrait-frame-v2.webp` | 84 K | the welcome-arch plate turned into a **frame**: a single smooth elliptical transparent interior (13.2–86.8 % × 15.1–75.7 %), no traced lace edge and no restored ornament pixels, so the boundary is one clean curve; the vine and leaves around it stay opaque |
+| `portrait-frame-v3.webp` | 61 K | the welcome-arch plate turned into a **frame**: cropped just under the ornament (582×820, so no dead olive band below the photo), with a single smooth elliptical transparent interior (13.2–86.8 % × 18.8–94.1 %); the vine and leaves around it stay opaque |
 | `closing-arch.webp` | 505 K | closing arch |
 | `music.mp3` | 2.4 M | the reference's own score (demo default, 128 kbps) |
 | `thumbnail.webp` | 88 K | 720×1280 gallery plate |
@@ -289,7 +289,7 @@ states).
 | 1 | Cover | names, date, `sessions[0].venue`, gate envelope | always; gate until `ended` | 0 date ⇒ no date block; 0 venue ⇒ no venue line | `cover_kicker`, `open_button`, `cover_apology` | gate film 8 s played in full; 1.6 s gate fade + 1.8 s copy fade at the end; chevron bob 2.4 s |
 | 2 | Countdown | `countdownTarget`, `sessions[0]` (calendar) | `dateObject` present | order is title → date → Save the Date → frame; date passed ⇒ `00` cells, never negative | `countdown_title`, `countdown_intro`, `save_date_label`, units (allowlisted) | reveal up 0.9 s, 0.06 s step; CTA opens a Google Calendar event |
 | 3 | Pembuka | `quote_text`/`quote_source`, `opening_title`/`opening_description` | renders when either has content | quote only ⇒ no heading; body only ⇒ no quote; both ⇒ both | `quote_*`, `opening_title`, `opening_description` | cenefa fade, quote fade, body fade 0.06 |
-| 4 | Mempelai | `*_full_name`, parents, IG, portraits | portraits when a photo exists | groom (**Mempelai Pertama**) first, then bride, one portrait per row; the portrait sits **behind a picture frame**: `portrait-frame-v2.webp` has a smooth elliptical transparent interior (no traced lace edge, no ornament pixels restored, so the boundary is one clean curve), and the card's aspect ratio is computed from the photograph on load (`Portrait`, `photoAR × 0.606/0.735`, clamped 0.5–0.8) so **the frame's height follows the photo** — the image fills the window uncropped, and a taller photo simply makes a taller frame; no photo ⇒ cream window | `mempelai_kicker`, `profiles_intro`, `parents_label` | up 0.9 s, 0.08 s step |
+| 4 | Mempelai | `*_full_name`, parents, IG, portraits | portraits when a photo exists | groom (**Mempelai Pertama**) first, then bride, one portrait per row; the portrait sits **behind a picture frame**: `portrait-frame-v3.webp` has a smooth elliptical transparent interior (no traced lace edge, no ornament pixels restored, so the boundary is one clean curve), and the card's aspect ratio is computed from the photograph on load (`Portrait`, `photoAR × 0.606/0.735`, clamped 0.5–0.8) so **the frame's height follows the photo** — the image fills the window uncropped, and a taller photo simply makes a taller frame; no photo ⇒ cream window | `mempelai_kicker`, `profiles_intro`, `parents_label` | up 0.9 s, 0.08 s step |
 | 5 | Story | `stories[]`, `cover_photos[0]` | `feature_gates.story` **and** `story_visible !== false` | 0 ⇒ section gone; no photo ⇒ prose only; title empty ⇒ prose only; the plate follows the photograph's own aspect ratio | `love_story_title` | clouds parallax ±9 px, photo fade, paragraphs fade 0.06 steps |
 | 6 | Events | `sessions[]` | always (completeness blocks without it) | 1 ⇒ one framed card; 3 ⇒ three frames; no map ⇒ no button | `events_title`, `events_kicker`, `events_note`, `maps_label` | head up, cards up 0.06 steps |
 | 7 | Rundown | `rundown[]` | `rundown_visible !== false` | 0 ⇒ section + villa gone; icons cycle 8 | `rundown_title`, `rundown_kicker`, `rundown_intro` | rows up 0.05 steps, hearts beat 2.6 s |
@@ -359,6 +359,17 @@ next push, or the (idempotent) file will replay and reset `sort_order` /
 ```bash
 export SUPABASE_ACCESS_TOKEN=...
 npx supabase link --project-ref jclolnjkjhyjilvymagr
+npx supabase migration repair --status applied 20261117000002 --linked
+```
+
+**Production status:** the row is also registered
+(`ylmfgorryxzpdckkebnr`, id `76bef99f-0580-480d-9b20-cbd885808c54`, same
+`sort_order` / `tier` / `category`) through the service-role REST API, and the
+template is deployed (BUILD_ID `mn8N3Gw0xTn2PU6lC6pXV`). The same repair step
+applies there before the next `db push`:
+
+```bash
+npx supabase link --project-ref ylmfgorryxzpdckkebnr
 npx supabase migration repair --status applied 20261117000002 --linked
 ```
 
