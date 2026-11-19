@@ -62,6 +62,31 @@ async function reply(conversationId: string, text: string): Promise<void> {
     .from("cs_conversations")
     .update({ last_outbound_at: new Date().toISOString() })
     .eq("id", conversationId)
+
+  // Balasan yang dibuat di route ini (PIN/OTP/foto) tidak lewat `replies`,
+  // jadi harus dikirim sendiri. Kirim ke JID chat (lid), bukan nomor telepon:
+  // nomor telepon belum tentu bisa di-resolve oleh sesi CS.
+  try {
+    const { data } = await supabaseAdmin
+      .from("cs_conversations")
+      .select("cs_contacts!inner(wa_jid)")
+      .eq("id", conversationId)
+      .maybeSingle()
+    const contact = (data as { cs_contacts?: { wa_jid?: string } } | null)?.cs_contacts
+    const jid = contact?.wa_jid || ""
+    if (!jid) return
+
+    const url = (process.env.CS_WA_SEND_URL || process.env.WA_SCHOOL_API_URL || "").replace(/\/$/, "")
+    if (!url) return
+    await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jid, message: text }),
+      signal: AbortSignal.timeout(20_000),
+    })
+  } catch {
+    // gagal kirim tidak boleh menggagalkan proses
+  }
 }
 
 async function findProfileForPhone(

@@ -276,8 +276,21 @@ async function logout() {
   return { ok: true }
 }
 
-async function send(phone, message) {
+async function send(phone, message, jid) {
   if (!connected || !sock) return { error: "Gateway belum terhubung ke WhatsApp." }
+
+  // App bisa mengirim langsung ke JID chat (lid) untuk balasan yang tidak
+  // lewat antrean `replies`.
+  if (jid && (jid.endsWith("@lid") || jid.endsWith("@s.whatsapp.net"))) {
+    try {
+      await safeSend(jid, message)
+      log("jid send ok", jid.endsWith("@lid") ? "lid" : "pn")
+      return { ok: true, jid }
+    } catch (error) {
+      log("jid send failed", String(error?.message || error))
+      return { error: String(error?.message || error) }
+    }
+  }
 
   // Nomor mentah belum tentu JID yang bisa dikirimi; tanya WhatsApp dulu.
   let target = jidFor(phone)
@@ -321,7 +334,7 @@ const server = http.createServer(async (req, res) => {
     } catch {}
     if (url.pathname === "/pair") return json(res, 200, await startPairing(String(body.phone || "")))
     if (url.pathname === "/logout") return json(res, 200, await logout())
-    return json(res, 200, await send(String(body.phone || ""), String(body.message || "")))
+    return json(res, 200, await send(String(body.phone || ""), String(body.message || ""), String(body.jid || "")))
   }
 
   return json(res, 404, { error: "not found" })
