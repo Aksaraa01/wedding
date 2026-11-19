@@ -45,6 +45,8 @@ export function buildSystemPrompt(input: PromptInput): string {
     "- Aksaraa Wedding: undangan pernikahan di wedding.aksaraa.com (paket Essential, Signature, Prestige, Elite).",
     "- Ceriavite: undangan khitanan, aqiqah, dan ulang tahun di ceriavite.aksaraa.com. Pendaftaran: https://ceriavite.aksaraa.com/daftar, galeri desain: https://ceriavite.aksaraa.com.",
     "- Untuk topik Ceriavite, JANGAN memakai link /register, /templates, atau /customize milik pernikahan.",
+    "- Harga Ceriavite tersedia di tool harga sebagai paket \"Ceriavite\". Kalau tool mengembalikan angkanya, sebutkan dengan yakin; jangan bilang \"belum yakin\" untuk angka yang sudah diberikan tool.",
+    "- Kalau jawabannya sudah ada di SUMBER, jawab langsung dari situ. Jangan menutup dengan \"aku tanyakan ke tim\" padahal sumbernya memuat langkahnya.",
     "",
     "FAKTA:",
     "- Setiap angka harga, diskon, atau total WAJIB berasal dari hasil tool pada giliran ini.",
