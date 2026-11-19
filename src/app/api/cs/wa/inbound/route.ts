@@ -51,6 +51,19 @@ async function sendWhatsApp(phone: string, message: string): Promise<boolean> {
   return sendCsWhatsApp(phone, message, 5000)
 }
 
+async function persistOutbound(conversationId: string, text: string): Promise<void> {
+  await supabaseAdmin.from("cs_messages").insert({
+    conversation_id: conversationId,
+    direction: "out",
+    role: "assistant",
+    body: text,
+  })
+  await supabaseAdmin
+    .from("cs_conversations")
+    .update({ last_outbound_at: new Date().toISOString() })
+    .eq("id", conversationId)
+}
+
 async function reply(conversationId: string, text: string): Promise<void> {
   await supabaseAdmin.from("cs_messages").insert({
     conversation_id: conversationId,
@@ -80,7 +93,10 @@ async function reply(conversationId: string, text: string): Promise<void> {
     if (!url) return
     await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-cs-secret": process.env.CS_GATEWAY_SECRET || "",
+      },
       body: JSON.stringify({ jid, message: text }),
       signal: AbortSignal.timeout(20_000),
     })
@@ -553,11 +569,13 @@ export async function POST(request: Request) {
         )
       }
       const text = await handleOnboardingUpload(profileId, contact.id as string, stored)
-      await reply(conversationId, text)
+      await persistOutbound(conversationId, text)
+      return NextResponse.json({ replies: [{ text }] })
     } catch {
-      await reply(conversationId, "Fotonya gagal diunduh. Coba kirim ulang ya Kak.")
+      const text = "Fotonya gagal diunduh. Coba kirim ulang ya Kak."
+      await persistOutbound(conversationId, text)
+      return NextResponse.json({ replies: [{ text }] })
     }
-    return NextResponse.json({ replies: [] })
   }
 
   // --- Debounce: 3 pesan beruntun = 1 balasan ------------------------------

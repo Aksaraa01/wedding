@@ -71,6 +71,15 @@ async function safeSend(jid, text) {
   }
 }
 
+let inboundChain = Promise.resolve()
+
+function enqueueInbound(message) {
+  inboundChain = inboundChain
+    .then(() => forwardInbound(message))
+    .catch((error) => log("inbound failed", String(error?.message || error)))
+  return inboundChain
+}
+
 async function forwardInbound(message) {
   const key = message.key || {}
   if (key.fromMe && sentIds.has(key.id)) return
@@ -202,7 +211,7 @@ async function connect() {
         if (seenInbound.has(id)) continue
         seenInbound.add(id)
         if (seenInbound.size > 500) seenInbound.delete(seenInbound.values().next().value)
-        await forwardInbound(message)
+        await enqueueInbound(message)
       }
     })
 
