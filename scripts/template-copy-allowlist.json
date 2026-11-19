@@ -1923,7 +1923,8 @@
         "Next photo": "WCAG name for the icon-only lightbox next control; must not depend on couple copy",
         "Close": "WCAG name for the icon-only close controls (lightbox and film modal); must not depend on couple copy",
         "Wedding by": "fixed brand attribution above the Aksaraa badge required by every in-house template",
-        "Aksaraa": "brand name in the Aksaraa footer badge (wordmark text and logo alt), fixed by the platform"
+        "Aksaraa": "brand name in the Aksaraa footer badge (wordmark text and logo alt), fixed by the platform",
+        "Elegant attire in warm earth tones — please reserve white for the couple.": "Olan's default dress-code line, shown when the couple picked colours but wrote no intro; the EKSTRA field replaces it"
       }
     }
   }

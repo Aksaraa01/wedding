@@ -23,6 +23,7 @@ import "./olan.css"
 import "./olan-extra.css"
 
 const GUEST_FALLBACK = "Tamu Undangan"
+const DRESSCODE_DEFAULT_INTRO = "Elegant attire in warm earth tones — please reserve white for the couple."
 
 const EN_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 const EN_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
@@ -140,7 +141,10 @@ export default function Olan(profile: TemplateProps) {
   const dresscode = dresscodeOn ? profile.dresscode : undefined
   const dresscodeColors = (dresscode?.colors || []).filter((c) => c && (c.hex || c.name))
   const dresscodeTitle = content.dresscode_title || dresscode?.title || "Dress Code"
-  const dresscodeIntro = content.dresscode_intro || dresscode?.description || ""
+  // Couples who only pick colours get the template's house line instead of a
+  // bare swatch row; EKSTRA's "Pengantar Dress Code" replaces it.
+  const dresscodeIntro =
+    content.dresscode_intro || dresscode?.description || (dresscodeColors.length > 0 ? DRESSCODE_DEFAULT_INTRO : "")
   const hasDresscode = dresscodeOn && (dresscodeColors.length > 0 || !!dresscodeIntro)
   const livestream = profile.livestream_visible !== false ? profile.livestream : undefined
   const livestreamUrl = (livestream?.url || "").trim()
