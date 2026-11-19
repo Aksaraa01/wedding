@@ -1379,19 +1379,26 @@ export default function Olan(profile: TemplateProps) {
       {trackUrl ? (
         <section className="music-outer">
           <audio ref={audioRef} src={trackUrl} loop preload="metadata" data-warm-audio />
-          <div
-            className={`music-box${playing ? " playing" : ""}`}
-            role="button"
-            tabIndex={0}
+          {/* Sandhya's control: a drawn vinyl + tonearm instead of the
+              reference's flat disc image (see olan-extra.css). */}
+          <button
+            type="button"
+            className={`olan-music${playing ? "" : " paused"}`}
             aria-label={playing ? "Pause music" : "Play music"}
             onClick={toggleMusic}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault()
-                toggleMusic()
-              }
-            }}
-          />
+          >
+            <span className="tpl-vinyl">
+              <span className="tpl-vinyl-groove tpl-vinyl-groove-1" />
+              <span className="tpl-vinyl-groove tpl-vinyl-groove-2" />
+              <span className="tpl-vinyl-label" />
+              <span className="tpl-vinyl-hole" />
+            </span>
+            <span className="tpl-tonearm">
+              <span className="tpl-tonearm-pivot" />
+              <span className="tpl-tonearm-arm" />
+              <span className="tpl-tonearm-head" />
+            </span>
+          </button>
         </section>
       ) : null}
 
