@@ -181,6 +181,41 @@ async function coverSlotCount(profile: Record<string, unknown>): Promise<number>
   return Math.max(1, spec?.cover_slots ?? manifestSlots ?? 3)
 }
 
+function profileValue(profile: Record<string, unknown>, key: string): unknown {
+  if (key === "dresscode_title" || key === "dresscode_description") {
+    const dress = (profile.dresscode as Record<string, unknown>) || {}
+    return key === "dresscode_title" ? dress.title : dress.description
+  }
+  if (key === "livestream_url" || key === "livestream_title") {
+    const live = (profile.livestream as Record<string, unknown>) || {}
+    return key === "livestream_url" ? live.url : live.title
+  }
+  return profile[key]
+}
+
+async function sectionHasContent(
+  spec: { fields: { key: string }[]; repeat?: string },
+  profile: Record<string, unknown>,
+  profileId: string
+): Promise<boolean> {
+  if (spec.repeat === "stories") {
+    const stories = Array.isArray(profile.stories) ? (profile.stories as unknown[]) : []
+    return stories.length > 0
+  }
+  if (spec.repeat === "gifts") {
+    const { count } = await supabaseAdmin
+      .from("gift_accounts")
+      .select("id", { count: "exact", head: true })
+      .eq("wedding_profile_id", profileId)
+    const { count: addressCount } = await supabaseAdmin
+      .from("gift_addresses")
+      .select("id", { count: "exact", head: true })
+      .eq("wedding_profile_id", profileId)
+    return (count || 0) > 0 || (addressCount || 0) > 0
+  }
+  return spec.fields.some((field) => isFilled(profileValue(profile, field.key)))
+}
+
 function describeStories(profile: Record<string, unknown>): string {
   const stories = Array.isArray(profile.stories) ? (profile.stories as Record<string, unknown>[]) : []
   if (!stories.length) return "Belum ada kisah cinta yang tersimpan."
@@ -549,7 +584,13 @@ async function sectionPrompt(
   // Section dengan toggle: tanya tampil/tidak dulu. Tanpa jawaban ini, jangan
   // minta datanya (dan jangan biarkan section kosong tampil di undangan).
   if (spec.visibleKey) {
-    const gate = state.gates?.[sectionKey]
+    let gate = state.gates?.[sectionKey]
+    if (!gate && (await sectionHasContent(spec, profile, profileId))) {
+      // Sudah ada isinya (mis. video/story dari sesi sebelumnya): jangan tanya
+      // "mau ditampilkan?" lagi, anggap aktif.
+      state.gates = { ...(state.gates || {}), [sectionKey]: "on" }
+      gate = "on"
+    }
     if (!gate) {
       state.section = sectionKey
       state.gatePending = sectionKey
@@ -652,7 +693,8 @@ async function sectionPrompt(
   for (const field of spec.fields) {
     const asked = new Set(state.asked || [])
     const key = field.key
-    const current = profile[key] !== undefined && profile[key] !== null ? profile[key] : draft[key]
+    const stored = profileValue(profile, key)
+    const current = stored !== undefined && stored !== null ? stored : draft[key]
 
     if (key === "gallery_photos" || key === "cover_photos") {
       if (isFilled(current)) continue
@@ -781,7 +823,7 @@ async function answerSession(
 
   // Acara tidak punya toggle: tanpa nama/tanggal/lokasi tamu tidak tahu ke mana
   // harus datang. Jelaskan sekali, jangan simpan "lewati" sebagai nama acara.
-  if (step === 0 && isSkip(text)) {
+  if (isSkip(text)) {
     const attempts = { ...(state.skipAttempts || {}) }
     attempts.acara = (attempts.acara || 0) + 1
     state.skipAttempts = attempts
@@ -865,15 +907,11 @@ async function answerGift(
     const step = state.giftStep ?? 0
     const question = GIFT_ACCOUNT_QUESTIONS[step]
     if (isSkip(text)) {
-      // Tidak ada rekening = bagian hadiah tidak ditampilkan sama sekali.
-      await applyField(profileId, "gift_section_visible", false)
-      state.gates = { ...(state.gates || {}), gift: "off" }
-      state.asked = Array.from(new Set([...(state.asked || []), "gift"]))
-      state.giftPhase = null
-      state.giftStep = undefined
-      state.giftDraft = {}
+      // Konfirmasi dulu: klien mungkin hanya ingin melewati satu pertanyaan,
+      // bukan menghilangkan seluruh bagian hadiah.
+      state.skipPending = "gift"
       await saveState(profileId, contactId, draft, state)
-      return `Baik, bagian hadiah tidak ditampilkan ya Kak.\n\n${await nextPrompt(profileId, contactId, state, draft)}`
+      return `Berarti bagian hadiah tidak ditampilkan ya Kak? Data yang sudah masuk tetap tersimpan. Balas "ya" untuk melewati, atau "tidak" untuk lanjut mengisi.`
     }
     const value = text.trim()
     if (!value) return "Jawabannya masih kosong."
@@ -992,7 +1030,12 @@ async function answerStory(
   const question = STORY_QUESTIONS[step]
   const profile = await profileRow(profileId)
   if (!profile) return "Profil tidak ditemukan."
-  if (step === 0 && isSkip(text)) return skipStorySection(profileId, contactId, state, draft)
+  if (isSkip(text)) {
+    if (step === 0) return skipStorySection(profileId, contactId, state, draft)
+    state.skipPending = "story"
+    await saveState(profileId, contactId, draft, state)
+    return `Berarti bagian kisah cinta tidak ditampilkan ya Kak? Data yang sudah masuk tetap tersimpan. Balas "ya" untuk melewati, atau "tidak" untuk lanjut mengisi.`
+  }
 
   const storyDraft = (state.storyDraft as Record<string, unknown>) || {}
   const optional = "optional" in question && question.optional === true
