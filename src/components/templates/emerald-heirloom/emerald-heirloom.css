@@ -1016,24 +1016,50 @@ body.eh-locked {
 
 .eh-count {
   position: relative;
-  padding: 0 0 0;
+  padding: 0;
   overflow: hidden;
   isolation: isolate;
+}
+
+/* The 100px lace band sits across the welcome/countdown junction (half over the
+   last 50px of the welcome), so the pond begins behind it instead of after it. */
+.eh-count__lace {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -52px;
+  z-index: 4;
+  height: 104px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.eh-count__lace img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 120%;
+  max-width: none;
+  translate: -50% -50%;
 }
 
 .eh-count__scene {
   position: absolute;
   inset: 0;
   z-index: -2;
+  overflow: hidden;
 }
 
+/* The plate opens with a green paper band that the reference keeps hidden
+   behind the welcome; cropping it here makes the pond start at the lace. */
 .eh-count__scene img {
+  position: absolute;
+  left: 0;
+  top: -96px;
   width: 100%;
-  height: 100%;
+  height: calc(100% + 96px);
   object-fit: cover;
-  object-position: center top;
-  mask-image: linear-gradient(180deg, #000 82%, transparent 100%);
-  -webkit-mask-image: linear-gradient(180deg, #000 82%, transparent 100%);
+  object-position: center bottom;
 }
 
 .eh-count::after {
@@ -1047,7 +1073,7 @@ body.eh-locked {
 .eh-count__dial {
   position: relative;
   z-index: 2;
-  padding: 150px 24px 0;
+  padding: 200px 24px 0;
 }
 
 .eh-count__grid {

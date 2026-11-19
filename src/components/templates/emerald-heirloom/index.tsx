@@ -684,14 +684,14 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
           ))}
         </section>
 
-        <div className="eh-lace" aria-hidden="true">
-          <img src={EH_ASSETS.laceBand} alt="" loading="lazy" draggable={false} />
-        </div>
-
         {/* 2 — countdown: the reference's 2×2 dial, no heading, the fan closing
-            the section from lace to lace */}
+            the section from lace to lace. Its white lace is pinned over the
+            junction so the pond starts behind it, like the reference. */}
         {target && (
           <section className="eh-count" ref={countdownRef} data-section="countdown" aria-label="Countdown to the wedding day">
+            <div className="eh-count__lace" aria-hidden="true">
+              <img src={EH_ASSETS.laceBand} alt="" loading="lazy" draggable={false} />
+            </div>
             <div className="eh-count__scene">
               <img src={EH_ASSETS.countdownScene} alt="" aria-hidden="true" loading="lazy" draggable={false} />
             </div>
