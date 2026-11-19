@@ -116,6 +116,9 @@ export default function Olan(profile: TemplateProps) {
   const toastTimer = useRef<number | null>(null)
 
   const cover = coverPhoto(profile)
+  const coverSlots = flattenPhotos(profile.cover_photos)
+  // Second cover slot ("Penutup"): the framed portrait the closing shows.
+  const closingPhoto = coverSlots[1] || ""
   const groomPhoto = groomPhotoOf(profile.groom_photo_url)
   const bridePhoto = bridePhotoOf(profile.bride_photo_url)
   const gallery = flattenPhotos(profile.gallery_photos)
@@ -1278,6 +1281,31 @@ export default function Olan(profile: TemplateProps) {
               <div className="footnote-body">
                 <div className="preview-container" />
               </div>
+              {closingPhoto ? (
+                <div className="olan-closing-photo" data-aos="zoom-out" data-aos-duration="1200" data-aos-delay="400">
+                  <div className="couple-frame">
+                    <div className="couple-picture-wrap">
+                      <div className="couple-picture">
+                        <div className="img-wrap">
+                          <img className="img" src={closingPhoto} alt={coupleShort} loading="lazy" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="decor-frame">
+                      <div className="image-wrap">
+                        <img src={OLAN.portraitFrame} alt="" />
+                      </div>
+                    </div>
+                    {OLAN.wreaths.map((src, i) => (
+                      <div className={`orn-couple-${i + 1}`} key={`closing-orn-${src}`}>
+                        <div className="image-wrap olan-orn-in" style={{ animationDelay: `${i * 120}ms` }}>
+                          <img src={src} alt="" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
               <div className="ornaments-wrapper">
                 <div className="orn-cover-top-wrap">
                   <div className="orn-cover-top-2">

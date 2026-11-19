@@ -3478,7 +3478,7 @@ DEMO_PROPS_BY_CODE.olan = {
   display_name: "#TheAlbarns",
   estimated_wedding_date: "2027-01-04",
   guest_name: "Tamu Undangan",
-  cover_photos: [`${DE}/cover-2.webp`],
+  cover_photos: [`${DE}/cover-2.webp`, `${DE}/cover-3.webp`],
   groom_photo_url: [`${DE}/groom.webp`],
   bride_photo_url: [`${DE}/bride.webp`],
   gallery_photos: [...DE_GALLERY],
