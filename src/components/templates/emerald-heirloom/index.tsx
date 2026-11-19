@@ -667,7 +667,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
         <section className="eh-welcome" data-section="sampul" aria-label="The wedding of">
           <div className="eh-welcome__plate">
             <div className="eh-welcome__window">
-              <img className="eh-welcome__scene" src={EH_ASSETS.welcomeScene} alt="" loading="lazy" draggable={false} />
+              <img className="eh-welcome__scene" src={EH_ASSETS.welcomeSceneAlt} alt="" loading="lazy" draggable={false} />
             </div>
             <img className="eh-welcome__frame" src={EH_ASSETS.welcomeFrame} alt="" loading="lazy" draggable={false} />
             <div className="eh-welcome__copy">
@@ -789,7 +789,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
         {(openingBody || quoteText) && (
         <section className="eh-opening" data-section="pembuka" aria-label="Word of welcome">
           <div className="eh-opening__backdrop" aria-hidden="true">
-            <img src={EH_ASSETS.welcomeSceneAlt} alt="" loading="lazy" draggable={false} />
+            <img src={EH_ASSETS.welcomeScene} alt="" loading="lazy" draggable={false} />
           </div>
           <div className="eh-card eh-card--sage eh-opening__card" data-eh-reveal="up">
             <img className="eh-card__plate" src={EH_ASSETS.cardSage} alt="" aria-hidden="true" loading="lazy" draggable={false} />

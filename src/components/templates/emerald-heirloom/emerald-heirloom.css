@@ -473,7 +473,7 @@ body.eh-locked {
 .eh-welcome {
   position: relative;
   isolation: isolate;
-  aspect-ratio: 390 / 691;
+  aspect-ratio: 390 / 640;
   overflow: hidden;
 }
 
@@ -514,7 +514,7 @@ body.eh-locked {
   position: absolute;
   left: 15%;
   width: 70%;
-  top: 21%;
+  top: 30%;
   text-align: center;
   color: var(--eh-ivory);
   text-shadow: 0 2px 16px rgba(16, 24, 16, 0.7), 0 1px 2px rgba(16, 24, 16, 0.5);
@@ -527,17 +527,17 @@ body.eh-locked {
   gap: 0.02em;
   margin: 0;
   font-family: var(--eh-display);
-  font-weight: 700;
+  font-weight: 400;
   font-size: 11.8cqw;
   line-height: 1.05;
   letter-spacing: 0.03em;
 }
 
 .eh-welcome__line {
-  margin: 1.15em 0 0;
+  margin: 2.9em 0 0;
   font-family: var(--eh-display);
-  font-weight: 700;
-  font-size: 3.6cqw;
+  font-weight: 400;
+  font-size: 3.4cqw;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(255, 250, 243, 0.95);
@@ -635,12 +635,25 @@ body.eh-locked {
 
 .eh-couple {
   position: relative;
-  padding: 26px 0 26px;
+  /* clears the fan that hangs out of the countdown above */
+  padding: 150px 0 26px;
   overflow: hidden;
 }
 
 .eh-couple__head {
-  padding: 0 24px;
+  padding: 0 24px 0 20cqw;
+  text-align: left;
+}
+
+.eh-couple__head .eh-title {
+  text-align: left;
+  font-size: 9.6cqw;
+}
+
+.eh-couple__head .eh-intro {
+  text-align: center;
+  max-width: 84%;
+  margin: 14px auto 0;
 }
 
 .eh-couple__row {
@@ -1014,10 +1027,12 @@ body.eh-locked {
    6 — countdown + fan
    ----------------------------------------------------------------------- */
 
+/* The reference's countdown is a fixed 390x600 canvas: the dial in its upper
+   two thirds, the fan starting at ~449 and clipped by the section's foot. */
 .eh-count {
   position: relative;
+  aspect-ratio: 390 / 600;
   padding: 0;
-  overflow: hidden;
   isolation: isolate;
 }
 
@@ -1027,7 +1042,7 @@ body.eh-locked {
   position: absolute;
   left: 0;
   right: 0;
-  top: -52px;
+  top: -96px;
   z-index: 4;
   height: 104px;
   overflow: hidden;
@@ -1073,13 +1088,13 @@ body.eh-locked {
 .eh-count__dial {
   position: relative;
   z-index: 2;
-  padding: 200px 24px 0;
+  padding: 116px 24px 0;
 }
 
 .eh-count__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 40px 8px;
+  gap: 26px 8px;
   margin: 0 auto;
   max-width: 100%;
 }
@@ -1094,7 +1109,7 @@ body.eh-locked {
 .eh-count__unit b {
   font-family: var(--eh-display);
   font-weight: 400;
-  font-size: 9.4cqw;
+  font-size: 8.4cqw;
   line-height: 1;
   color: var(--eh-cream);
 }
@@ -1102,7 +1117,7 @@ body.eh-locked {
 .eh-count__unit span {
   font-family: var(--eh-sans);
   font-weight: 300;
-  font-size: 4cqw;
+  font-size: 5.6cqw;
   letter-spacing: 0.01em;
   color: var(--eh-cream);
 }
@@ -1110,7 +1125,7 @@ body.eh-locked {
 .eh-count__cta {
   position: relative;
   z-index: 2;
-  margin: 30px auto 0;
+  margin: 24px auto 0;
   display: flex;
   width: fit-content;
   gap: 8px;
@@ -1127,19 +1142,21 @@ body.eh-locked {
 }
 
 .eh-count__fan {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  bottom: -46%;
+  translate: -50% 0;
   z-index: 1;
   display: flex;
   justify-content: center;
-  margin-top: 24px;
-  margin-bottom: -9%;
+  width: 100%;
 }
 
 .eh-count__shadow {
   position: absolute;
   left: 50%;
   bottom: 6px;
-  width: 102%;
+  width: 100%;
   translate: -50% 0;
   opacity: 0.7;
   filter: blur(5px);
@@ -1149,7 +1166,7 @@ body.eh-locked {
    columns and the tassel hangs onto the next section. */
 .eh-count__fanArt {
   position: relative;
-  width: 150%;
+  width: 100%;
   max-width: none;
 }
 
