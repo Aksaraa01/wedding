@@ -525,6 +525,8 @@ async function applyTemplate(
   return `Template "${template.name}" dipakai. ${await nextPrompt(profileId, contactId, state, draft)}`
 }
 
+const CONFIRM = /^(selesai|cukup|sudah|udah|tidak|gak|nggak|engga|no|nope|ya sudah|oke sudah|belum perlu)/
+
 const ESCAPE_INTENTS = new Set([
   "voucher",
   "refund",
@@ -647,7 +649,6 @@ export async function handleOnboarding(
   }
 
   // stage === "data"
-  const CONFIRM = /^(selesai|cukup|sudah|udah|tidak|gak|nggak|engga|no|nope|ya sudah|oke sudah|belum perlu)/
 
   if (state.sessionAwaitingMore) {
     state.sessionAwaitingMore = false
@@ -695,6 +696,14 @@ export async function handleOnboarding(
   }
 
   if (state.pendingUpload) {
+    // "selesai" saat foto galeri/sampul = cukup, lanjut bagian berikutnya.
+    const isPhotoList = state.pendingUpload === "gallery_photos" || state.pendingUpload === "cover_photos"
+    if (isPhotoList && CONFIRM.test(lower)) {
+      state.field = undefined
+      state.pendingUpload = null
+      await saveState(profileId, contactId, draft, state)
+      return nextPrompt(profileId, contactId, state, draft)
+    }
     return "Aku tunggu fotonya ya Kak. Kirim lewat tombol foto di chat."
   }
 
