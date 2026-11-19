@@ -51,8 +51,8 @@ export const SECTION_LABELS: Record<string, string> = {
 }
 
 export const SECTION_SPECS: Record<string, SectionSpec> = {
-  sample: {
-    key: "sample",
+  sampul: {
+    key: "sampul",
     label: SECTION_LABELS.sampul,
     fields: [
       {
