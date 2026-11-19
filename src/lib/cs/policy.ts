@@ -1,5 +1,5 @@
 import { detectPackageInterest } from "./playbook"
-import { paymentContactReply } from "./contact"
+import { paymentContactReply, templateGalleryReply } from "./contact"
 
 // Batas kewenangan agent + keputusan eskalasi.
 //
@@ -70,6 +70,9 @@ export interface DecisionContext {
   // Klien menyatakan sudah membayar / mengirim bukti. Pertanyaan "cara bayar"
   // dijawab nomor tim; klaim pembayaran tetap jadi tiket.
   paidClaim?: boolean
+  // Klien minta SELURUH daftar template ("semua template dilihat di mana").
+  wantsAllTemplates?: boolean
+  kidsTopic?: boolean
   // Web anonim tidak punya jalur verifikasi (PIN/OTP dikirim ke WhatsApp),
   // jadi permintaan data langsung dieskalasi, bukan disuruh kirim PIN.
   channel?: "web" | "wa"
@@ -136,6 +139,21 @@ const norm = (text: string): string => {
 }
 
 const hasAny = (text: string, words: string[]): boolean => words.some((w) => text.includes(w))
+
+// "Semua template nya bisa dilihat dimana?", "ada template apa saja?",
+// "minta daftar desain" → klien minta GALERI, bukan 2-3 link contoh.
+const ALL_TEMPLATE_TRIGGERS = [
+  /\b(semua|seluruh|daftar|list|macam|jenis|pilihan|contoh|katalog|catalog)\b[^.!?]{0,25}\b(template|desain|tema)\b/,
+  /\b(template|desain|tema)\b[^.!?]{0,25}\b(semua|daftar|list|apa saja|apa aja|macam|jenis|pilihan)\b/,
+  /\b(lihat|liat|cek)\s+(semua|seluruh)?\s*(template|desain|galeri)\b/,
+  /\bgaleri\s+(template|desain)\b/,
+]
+
+export function wantsAllTemplates(text: string): boolean {
+  const value = (text || "").toLowerCase()
+  if (!value.trim()) return false
+  return ALL_TEMPLATE_TRIGGERS.some((re) => re.test(value))
+}
 
 export function classify(text: string): Intent {
   const t = norm(text)
@@ -592,6 +610,13 @@ export function decide(intent: Intent, ctx: DecisionContext): Decision {
       return { action: "tool", intent, tool: "list_packages" }
 
     case "template":
+      if (ctx.wantsAllTemplates) {
+        return {
+          action: "contact",
+          intent,
+          message: ctx.kidsTopic ? templateGalleryReply(true) : templateGalleryReply(false),
+        }
+      }
       return { action: "tool", intent, tool: "list_templates" }
 
     case "technical":

@@ -3,6 +3,7 @@ import {
   classify,
   decide,
   detectPaymentClaim,
+  wantsAllTemplates,
   type Decision,
   type DecisionContext,
   type EscalationReason,
@@ -247,6 +248,8 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     leadStage: lead.stage,
     voucherCode,
     paidClaim: detectPaymentClaim(input.text),
+    wantsAllTemplates: wantsAllTemplates(input.text),
+    kidsTopic: /ceriavite|khitanan|aqiqah|ulang tahun/i.test(input.text),
     channel: input.channel,
   }
 

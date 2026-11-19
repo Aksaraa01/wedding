@@ -13,3 +13,22 @@ export function csWhatsAppUrl(context?: string): string {
 export function paymentContactReply(): string {
   return `Buat pembayaran, langsung chat tim kami di WhatsApp ${CS_WHATSAPP} ya Kak: ${csWhatsAppUrl()}\nTim bantu sampai pembayarannya tercatat.`
 }
+
+// Pertanyaan "semua template" dijawab dengan galeri, bukan 8 link acak.
+export function templateGalleryReply(kids: boolean): string {
+  if (kids) {
+    return [
+      "Semua desain Ceriavite (khitanan, aqiqah, ulang tahun) bisa dilihat di:",
+      "https://ceriavite.aksaraa.com",
+      "",
+      'Kalau mau, sebutkan acaranya (khitanan/aqiqah/ulang tahun) biar aku bantu pilihkan.',
+    ].join("\n")
+  }
+  return [
+    "Semua template undangan pernikahan bisa dilihat di galeri ini:",
+    "https://wedding.aksaraa.com/templates",
+    "",
+    "Di sana bisa disaring per kategori (adat, modern, elegan, floral) dan ada filter dengan/tanpa foto.",
+    'Kalau mau, sebutkan tema atau acaranya biar aku bantu pilihkan.',
+  ].join("\n")
+}

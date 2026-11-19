@@ -1,8 +1,8 @@
 import test from "node:test"
 import assert from "node:assert/strict"
 
-import { BOUNDARIES, classify, countUnknownStrikes, decide, detectPaymentClaim, detectSentiment } from "../src/lib/cs/policy.ts"
-import { CS_WHATSAPP, csWhatsAppUrl, paymentContactReply } from "../src/lib/cs/contact.ts"
+import { BOUNDARIES, classify, countUnknownStrikes, decide, detectPaymentClaim, detectSentiment, wantsAllTemplates } from "../src/lib/cs/policy.ts"
+import { CS_WHATSAPP, csWhatsAppUrl, paymentContactReply, templateGalleryReply } from "../src/lib/cs/contact.ts"
 import {
   SECTION_SPECS,
   mapSectionFromText,
@@ -257,6 +257,52 @@ test("payment: deteksi klaim bayar", () => {
   assert.equal(detectPaymentClaim("sudah transfer kak"), true)
   assert.equal(detectPaymentClaim("ini bukti transfernya"), true)
   assert.equal(detectPaymentClaim("minta invoice dong"), true)
+})
+
+test("template: 'semua template' dijawab galeri, bukan link acak", () => {
+  const d = decide("template", { ...ctx, wantsAllTemplates: true })
+  assert.equal(d.action, "contact")
+  assert.match(d.message, /wedding\.aksaraa\.com\/templates/)
+  assert.doesNotMatch(d.message, /\/preview\//)
+
+  const kids = decide("template", { ...ctx, wantsAllTemplates: true, kidsTopic: true })
+  assert.equal(kids.action, "contact")
+  assert.match(kids.message, /ceriavite\.aksaraa\.com/)
+})
+
+test("template: frasa 'semua/daftar/apa saja' terdeteksi", () => {
+  for (const text of [
+    "Semua template nya bisa dilihat dimana?",
+    "semua template",
+    "minta daftar template dong",
+    "ada template apa saja?",
+    "template apa aja yang ada",
+    "lihat semua desain",
+  ]) {
+    assert.equal(wantsAllTemplates(text), true, text)
+    assert.equal(classify(text), "template", text)
+  }
+  for (const text of [
+    "template Sandhya masih ada?",
+    "ganti template saya",
+    "desain ini bagus",
+    "berapa harga template premium",
+  ]) {
+    assert.equal(wantsAllTemplates(text), false, text)
+  }
+})
+
+test("template: permintaan spesifik tetap lewat tool", () => {
+  const d = decide("template", { ...ctx, wantsAllTemplates: false })
+  assert.equal(d.action, "tool")
+  assert.equal(d.tool, "list_templates")
+})
+
+test("guard: jawaban galeri lolos guard", () => {
+  for (const reply of [templateGalleryReply(false), templateGalleryReply(true)]) {
+    const r = validateReply({ reply })
+    assert.equal(r.ok, true, JSON.stringify(r.violations))
+  }
 })
 
 test("guard: nomor dan link tim CS diizinkan", () => {
