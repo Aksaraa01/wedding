@@ -10,10 +10,9 @@ type Props = {
   coupleLabel: string
   kicker: string
   hashtag: string
-  rsvpLabel: string
 }
 
-export default function Cover({ profile, coupleLabel, kicker, hashtag, rsvpLabel }: Props) {
+export default function Cover({ profile, coupleLabel, kicker, hashtag }: Props) {
   const desktop = profile.cover_photos?.[0] || ""
   const mobile = profile.cover_photos?.[1] || desktop
 
@@ -43,14 +42,7 @@ export default function Cover({ profile, coupleLabel, kicker, hashtag, rsvpLabel
           </div>
           <Backdrop items={cover3} />
         </div>
-        <div className="foot">
-          {hashtag ? <p className="fade-up">{hashtag}</p> : null}
-          <div className="torsvp__btn-wrap">
-            <a href="#toRsvp" className="torsvp__btn">
-              {rsvpLabel}
-            </a>
-          </div>
-        </div>
+        <div className="foot">{hashtag ? <p className="fade-up">{hashtag}</p> : null}</div>
       </div>
     </section>
   )

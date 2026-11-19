@@ -272,7 +272,6 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
             coupleLabel={coupleLabel}
             kicker={copy("cover_kicker")}
             hashtag={hashtag}
-            rsvpLabel="RSVP"
           />
           <Quote
             text={profile.quote_text || ""}

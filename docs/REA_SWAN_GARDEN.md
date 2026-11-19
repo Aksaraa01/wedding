@@ -49,7 +49,7 @@ Reference order, heights at 390×844 (measured in a settled viewport):
 | Reference block | Height | Shipped as |
 |---|---|---|
 | `top-cover` (gate) | 844 fixed | `TopCover` — arch, VIP plate, names, guest, Open |
-| `cover` | 699 | `Cover` — kicker, names, oval frame, hashtag, RSVP |
+| `cover` | 699 | `Cover` — kicker, names, oval frame, hashtag |
 | `quote-wrap` | 473 | `Quote` — wreath frame, quote + attribution (or couple's words) |
 | `couple-wrap` | 1573 | `Couple` — two portraits, parents, Instagram |
 | `save-date-wrap` | 729 | `SaveDate` — countdown cards + Add to Calendar |
@@ -188,9 +188,12 @@ WCAG names, the wish pager back label, the `Hai` salutation).
    payment source of truth. *What is lost:* couples cannot collect transfer
    proofs from the invitation. The bank cards, copy buttons and gift address
    are kept.
-3. **The reference's own RSVP block is not a section.** It is a heading with an
-   empty body in the source; attendance/pax/QR belong to the shared
-   `InvitationOverlay` dock, rendered inside the template with the
+3. **The reference's own RSVP block is not a section, and its cover button is
+   gone.** In the source the RSVP block is a heading with an empty body; the
+   cover's plum `RSVP` pill only scrolled to it. Attendance/pax/QR belong to the
+   shared `InvitationOverlay` dock, so the cover pill was **removed at the
+   owner's request** (the floating dock is the only RSVP entry point in a real
+   invitation). The dock is rendered inside the template with the
    `preview_mode` / `template_demo` guards.
 4. **Story slider renders one slide at a time.** The reference's slick clones
    both slides into the DOM (2×13 ornaments); ours renders the active slide's

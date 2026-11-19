@@ -131,7 +131,7 @@ export default function Wishes({
   const paged = useMemo(() => wishes.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE), [wishes, page])
 
   return (
-    <section className="wedding-wish-wrap" id="toRsvp" data-section-order="wedding_wish">
+    <section className="wedding-wish-wrap" data-section-order="wedding_wish">
       <div className="wedding-wish-inner">
         <div className="wedding-wish-head">
           <h1 className="wedding-wish-title">{title}</h1>
