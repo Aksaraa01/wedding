@@ -86,7 +86,7 @@ are kept and only contract-required sections are inserted, as §0.5 allows.
 | 14 | Gift | `gift_accounts[]`, `gift_address`, `gift_address_name` | `gift_section_visible !== false`; address also `feature_gates.gift_address` | accounts only / address only / both; copy button per account | `gift_*`, `copy_*` | `zoom-in` title, ornament `fade-*` |
 | 15 | Dress code | `dresscode.{title,description,colors[]}` | `dresscode_visible !== false` | no colours ⇒ text only; empty ⇒ hidden | profile `dresscode` | swatches `zoom-in`, 0.09 s step |
 | 16 | Wishes | `/api/wishes`, guest name | always | 0 wishes ⇒ empty line; 10/page + "Show more" | `wishes_*` | `fade-up` |
-| 17 | Closing | `closing_message`, `quote_text`, `quote_source`, `display_name` | always | no quote ⇒ no quote band | `closing_title`, `closing_message` | `fade-up` 0.1–0.5 s |
+| 17 | Closing | `closing_message`, `quote_text`, `quote_source`, `display_name`, **`cover_photos[1]`** | always | no second slot ⇒ painting only | `closing_title`, `closing_message` | `fade-up` 0.1–0.5 s; portrait `zoom-out` |
 
 ## 4. Deviations (and why)
 
@@ -113,8 +113,11 @@ are kept and only contract-required sections are inserted, as §0.5 allows.
    inside an arch and mounting the same embed twice costs ~1.5 MB on a phone.
    A hosted link (YouTube/Vimeo) still plays in "Our Footage", so the couple's
    film is never lost; a short clip they upload crops into the arch instead.
-8. **Only one cover slot.** The closing uses the painting, not a photo (that is
-   how the reference is built), so no second slot is offered.
+8. **Two cover slots: "Sampul" and "Penutup".** The reference's closing is a
+   painting with the names; the owner wanted the couple's photo there, so slot 2
+   feeds a framed portrait above the flowers — same plate as Mempelai (mask,
+   wooden hoop, watercolour wreath). With slot 2 empty the closing is the
+   reference's painting-only composition.
 9. **The cover has no RSVP button** (owner request): the reference's pill was the
    only entry point to its own RSVP form, and RSVP here is the dock.
 10. **The gate is the opening-video surface.** The separate `.olan-film` band
