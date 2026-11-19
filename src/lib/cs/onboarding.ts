@@ -1064,9 +1064,15 @@ export async function handleOnboardingUpload(
   if (field === "gallery_photos" || field === "cover_photos") {
     const profile = await profileRow(profileId)
     const current = Array.isArray(profile?.[field]) ? (profile?.[field] as unknown[]) : []
+
+    // Sampul maksimal 3 foto. Jangan bilang "tersimpan" untuk foto yang dibuang.
+    if (field === "cover_photos" && current.length >= 3) {
+      return 'Foto sampul sudah cukup 3 ya Kak. Balas "selesai" untuk lanjut, atau isi bagian lain dulu.'
+    }
+
     await applyField(profileId, field, [...current, url])
-    const spec = SECTION_SPECS[state.section || ""]?.fields.find((item) => item.key === field)
-    return `Foto tersimpan (${current.length + 1}). Kirim foto lain atau balas "selesai" ya Kak.${spec ? "" : ""}`
+    const total = field === "cover_photos" ? current.length + 1 : current.length + 1
+    return `Foto tersimpan (${total}). Kirim foto lain atau balas "selesai" ya Kak.`
   }
 
   await applyField(profileId, field, url)
