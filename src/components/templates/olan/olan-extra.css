@@ -309,6 +309,15 @@ body:has(.olan-root.is-locked) {
   opacity: 0.88;
 }
 
+/* The closing reuses the cover's drifting clouds, but its heading sits at the
+   very top: the wide cloud's track (translateY(50%)) runs straight through
+   "Wedding Invitation" on first paint. Raising the track keeps the drift and
+   leaves the kicker readable, which is how the reference reads once its clouds
+   have moved on. */
+.olan-root .footnote-wrap .orn-cover-top-2 {
+  transform: translateY(-72%);
+}
+
 /* ───────────── story slider ───────────── */
 .olan-root .olan-story-track {
   display: flex;
