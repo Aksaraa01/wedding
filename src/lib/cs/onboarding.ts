@@ -31,6 +31,8 @@ export interface OnboardingState {
   sessionStep?: number
   sessionDraft?: Record<string, unknown> | null
   sessionEditIndex?: number | null
+  sessionAwaitingMore?: boolean
+  storyAwaitingMore?: boolean
   storyStep?: number
   storyDraft?: Record<string, unknown> | null
   pendingUpload?: string | null
@@ -408,15 +410,19 @@ async function answerSession(
       : [...existing, sessionDraft]
 
   await applyField(profileId, "sessions", next)
-  state.sessionStep = 0
-  state.sessionDraft = {}
+  const editedLabel =
+    typeof editIndex === "number"
+      ? String((existing[editIndex] as Record<string, unknown>)?.name || sessionDraft.name || "Acara")
+      : String(sessionDraft.name || "Acara")
+  state.sessionStep = undefined
+  state.sessionDraft = null
   state.sessionEditIndex = null
+  state.sessionAwaitingMore = true
   await saveState(profileId, contactId, draft, state)
 
-  const label = String(sessionDraft.name || "Acara")
   return typeof editIndex === "number"
-    ? `Sesi "${label}" sudah lengkap. Ada acara lain? Sebut nama acaranya, atau balas "selesai".`
-    : `Sesi "${label}" tersimpan. Ada acara lain? Sebut nama acaranya, atau balas "selesai".`
+    ? `Sesi "${editedLabel}" sudah lengkap. Ada acara lain? Sebut nama acaranya, atau balas "selesai".`
+    : `Sesi "${editedLabel}" tersimpan. Ada acara lain? Sebut nama acaranya, atau balas "selesai".`
 }
 
 async function answerStory(
@@ -457,8 +463,9 @@ async function answerStory(
   }
 
   await applyField(profileId, "stories", next)
-  state.storyStep = 0
-  state.storyDraft = {}
+  state.storyStep = undefined
+  state.storyDraft = null
+  state.storyAwaitingMore = true
   await saveState(profileId, contactId, draft, state)
 
   return `Cerita "${storyDraft.title}" tersimpan. Ada momen lain? Sebut judulnya, atau balas "selesai".`
@@ -585,6 +592,33 @@ export async function handleOnboarding(
   }
 
   // stage === "data"
+  const CONFIRM = /^(selesai|cukup|sudah|udah|tidak|gak|nggak|engga|no|nope|ya sudah|oke sudah|belum perlu)/
+
+  if (state.sessionAwaitingMore) {
+    state.sessionAwaitingMore = false
+    if (CONFIRM.test(lower)) {
+      await saveState(profileId, contactId, draft, state)
+      return nextPrompt(profileId, contactId, state, draft)
+    }
+    // Bukan konfirmasi: anggap nama acara baru.
+    state.sessionDraft = { name: message }
+    state.sessionStep = 1
+    await saveState(profileId, contactId, draft, state)
+    return SESSION_QUESTIONS[1].question
+  }
+
+  if (state.storyAwaitingMore) {
+    state.storyAwaitingMore = false
+    if (CONFIRM.test(lower)) {
+      await saveState(profileId, contactId, draft, state)
+      return nextPrompt(profileId, contactId, state, draft)
+    }
+    state.storyDraft = { title: message }
+    state.storyStep = 1
+    await saveState(profileId, contactId, draft, state)
+    return STORY_QUESTIONS[1].question
+  }
+
   if (state.section === "acara" && state.sessionStep !== undefined) {
     if (lower === "selesai") {
       state.sessionStep = undefined

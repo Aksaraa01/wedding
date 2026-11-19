@@ -38,6 +38,9 @@ let pairingPhone = ""
 let pairingCode = ""
 let qrDataUrl = ""
 let starting = false
+// ID pesan yang kita kirim sendiri: echo fromMe-nya tidak boleh diteruskan
+// kembali ke app (kalau tidak, balasan bot tercatat sebagai pesan masuk).
+const sentIds = new Set()
 
 const log = (...args) => console.log(new Date().toISOString(), ...args)
 
@@ -53,8 +56,16 @@ function jidFor(phone) {
 
 async function forwardInbound(message) {
   const key = message.key || {}
+  if (key.fromMe && sentIds.has(key.id)) return
   const remote = key.remoteJid || ""
-  if (!remote.endsWith("@s.whatsapp.net")) return
+  // Sejak 2025 banyak chat langsung memakai @lid, bukan @s.whatsapp.net.
+  // Terima keduanya; nomor telepon diambil dari remoteJidAlt/senderPn bila ada.
+  const isDirect = remote.endsWith("@s.whatsapp.net") || remote.endsWith("@lid")
+  if (!isDirect) return
+
+  const alt = key.remoteJidAlt || key.senderPn || ""
+  const fromJid = alt.endsWith("@s.whatsapp.net") ? alt : remote
+  log("inbound", key.fromMe ? "me" : "them", remote.endsWith("@lid") ? "lid" : "pn", (key.id || "").slice(0, 12))
 
   const content = message.message || {}
   const text =
@@ -84,7 +95,7 @@ async function forwardInbound(message) {
       method: "POST",
       headers: { "content-type": "application/json", "x-cs-secret": APP_SECRET },
       body: JSON.stringify({
-        from: remote,
+        from: fromJid,
         push_name: message.pushName || "",
         text,
         wa_message_id: key.id || "",
@@ -98,7 +109,12 @@ async function forwardInbound(message) {
     for (const reply of data.replies || []) {
       if (!reply?.text) continue
       if (key.fromMe) continue
-      await sock.sendMessage(remote, { text: reply.text })
+      const sent = await sock.sendMessage(remote, { text: reply.text })
+      const id = sent?.key?.id
+      if (id) {
+        sentIds.add(id)
+        if (sentIds.size > 300) sentIds.delete(sentIds.values().next().value)
+      }
     }
   } catch (error) {
     log("forward failed", String(error?.message || error))
