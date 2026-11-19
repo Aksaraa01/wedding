@@ -181,6 +181,17 @@ async function coverSlotCount(profile: Record<string, unknown>): Promise<number>
   return Math.max(1, spec?.cover_slots ?? manifestSlots ?? 3)
 }
 
+function jsonish(value: unknown): unknown {
+  if (typeof value !== "string") return value
+  const text = value.trim()
+  if (!(text.startsWith("[") || text.startsWith("{"))) return value
+  try {
+    return JSON.parse(text)
+  } catch {
+    return value
+  }
+}
+
 function profileValue(profile: Record<string, unknown>, key: string): unknown {
   if (key === "dresscode_title" || key === "dresscode_description") {
     const dress = (profile.dresscode as Record<string, unknown>) || {}
@@ -190,7 +201,7 @@ function profileValue(profile: Record<string, unknown>, key: string): unknown {
     const live = (profile.livestream as Record<string, unknown>) || {}
     return key === "livestream_url" ? live.url : live.title
   }
-  return profile[key]
+  return jsonish(profile[key])
 }
 
 async function sectionHasContent(
@@ -585,6 +596,11 @@ async function sectionPrompt(
   // minta datanya (dan jangan biarkan section kosong tampil di undangan).
   if (spec.visibleKey) {
     let gate = state.gates?.[sectionKey]
+    if (!gate && profile[spec.visibleKey] === false) {
+      // Klien sudah mematikan bagian ini dari editor: jangan tanya lagi.
+      state.gates = { ...(state.gates || {}), [sectionKey]: "off" }
+      gate = "off"
+    }
     if (!gate && (await sectionHasContent(spec, profile, profileId))) {
       // Sudah ada isinya (mis. video/story dari sesi sebelumnya): jangan tanya
       // "mau ditampilkan?" lagi, anggap aktif.
