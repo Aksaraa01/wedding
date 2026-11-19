@@ -364,11 +364,19 @@ async function describeData(profileId: string, profile: Record<string, unknown>,
   }
   if (show("dresscode")) {
     const dress = (profile.dresscode as Record<string, unknown>) || {}
-    lines.push(`• Dress code: ${dress.title || dress.description || "belum ada"}`)
+    lines.push(
+      profile.dresscode_visible === false
+        ? "• Dress code: tidak ditampilkan"
+        : `• Dress code: ${dress.title || dress.description || "belum ada"}`
+    )
   }
   if (show("livestream")) {
     const live = (profile.livestream as Record<string, unknown>) || {}
-    lines.push(`• Live streaming: ${live.url || "belum ada"}`)
+    lines.push(
+      profile.livestream_visible === false
+        ? "• Live streaming: tidak ditampilkan"
+        : `• Live streaming: ${live.url || "belum ada"}`
+    )
   }
 
   return lines.join("\n")
