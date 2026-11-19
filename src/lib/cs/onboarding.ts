@@ -135,6 +135,20 @@ function isFilled(value: unknown): boolean {
   return typeof value === "string" ? value.trim() !== "" : value !== null && value !== undefined
 }
 
+async function coverSlotCount(profile: Record<string, unknown>): Promise<number> {
+  if (!profile.selected_template_id) return 3
+  const { data: template } = await supabaseAdmin
+    .from("web_templates")
+    .select("code,wp_manifest")
+    .eq("id", profile.selected_template_id)
+    .maybeSingle()
+  const spec = getTemplateContentSpec((template?.code as string) || null)
+  const manifestSlots = Array.isArray(template?.wp_manifest?.cover_photos)
+    ? (template?.wp_manifest?.cover_photos as unknown[]).length
+    : 0
+  return Math.max(1, spec?.cover_slots ?? manifestSlots ?? 3)
+}
+
 async function applyField(profileId: string, key: string, value: unknown): Promise<void> {
   const profile = await profileRow(profileId)
   if (!profile) return
@@ -1020,6 +1034,15 @@ export async function handleOnboarding(
   }
 
   if (state.pendingUpload) {
+    if (state.pendingUpload === "cover_photos" && /^(ya|iya|setuju|ok|oke)\b/.test(lower)) {
+      state.field = undefined
+      state.pendingUpload = null
+      const asked = new Set(state.asked || [])
+      asked.add("sampul")
+      state.asked = Array.from(asked)
+      await saveState(profileId, contactId, draft, state)
+      return nextPrompt(profileId, contactId, state, draft)
+    }
     if (/^\d+$/.test(lower)) {
       return "Kalau mau kirim foto, pakai tombol foto ya Kak. Balas \"selesai\" kalau sudah cukup."
     }
@@ -1063,16 +1086,28 @@ export async function handleOnboardingUpload(
   const field = state.pendingUpload
   if (field === "gallery_photos" || field === "cover_photos") {
     const profile = await profileRow(profileId)
-    const current = Array.isArray(profile?.[field]) ? (profile?.[field] as unknown[]) : []
+    if (!profile) return "Profil undangannya belum ketemu."
+    const current = Array.isArray(profile[field]) ? (profile[field] as unknown[]) : []
 
-    // Sampul maksimal 3 foto. Jangan bilang "tersimpan" untuk foto yang dibuang.
-    if (field === "cover_photos" && current.length >= 3) {
-      return 'Foto sampul sudah cukup 3 ya Kak. Balas "selesai" untuk lanjut, atau isi bagian lain dulu.'
+    if (field === "cover_photos") {
+      const slots = await coverSlotCount(profile)
+
+      // Slot penuh: jangan simpan diam-diam. Konfirmasi foto mana yang dipakai.
+      if (current.length >= slots) {
+        return `Slot foto sampul cuma ${slots}. Aku pakai ${slots} foto pertama ya Kak. Balas "ya" kalau setuju, atau kirim ulang foto pengganti (foto baru akan menggantikan yang terakhir).`
+      }
+
+      await applyField(profileId, "cover_photos", [...current, url])
+      const total = current.length + 1
+
+      if (total >= slots) {
+        return `Foto tersimpan (${total}/${slots}). Aku pakai ${slots} foto ini sebagai sampul ya Kak. Balas "ya" kalau setuju, atau kirim foto pengganti untuk slot terakhir.`
+      }
+      return `Foto tersimpan (${total}/${slots}). Kirim foto lain atau balas "selesai" ya Kak.`
     }
 
-    await applyField(profileId, field, [...current, url])
-    const total = field === "cover_photos" ? current.length + 1 : current.length + 1
-    return `Foto tersimpan (${total}). Kirim foto lain atau balas "selesai" ya Kak.`
+    await applyField(profileId, "gallery_photos", [...current, url])
+    return `Foto tersimpan (${current.length + 1}). Kirim foto lain atau balas "selesai" ya Kak.`
   }
 
   await applyField(profileId, field, url)
