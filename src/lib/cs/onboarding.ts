@@ -155,7 +155,7 @@ async function profileRow(profileId: string) {
   const { data } = await supabaseAdmin
     .from("wedding_profiles")
     .select(
-      "id,slug,package_type,event_type,selected_template_id,active_wp_post_id,groom_full_name,bride_full_name,groom_parents,bride_parents,groom_instagram,bride_instagram,opening_title,opening_description,quote_text,quote_source,video_url,groom_photo_url,bride_photo_url,sessions,stories,gallery_photos,cover_photos,inviting_families,link_thumbnail_url,link_thumbnail_disabled,is_published,groom_name,bride_name,couple_initials,display_name,dresscode,livestream,rundown,contacts"
+      "id,slug,package_type,event_type,selected_template_id,active_wp_post_id,groom_full_name,bride_full_name,groom_parents,bride_parents,groom_instagram,bride_instagram,opening_title,opening_description,quote_text,quote_source,video_url,groom_photo_url,bride_photo_url,sessions,stories,gallery_photos,cover_photos,inviting_families,link_thumbnail_url,link_thumbnail_disabled,is_published,groom_name,bride_name,couple_initials,display_name,dresscode,livestream,rundown,contacts,gift_section_visible,video_section_visible,inviting_families_visible,story_visible,dresscode_visible,livestream_visible,rundown_visible,contacts_visible"
     )
     .eq("id", profileId)
     .maybeSingle()
