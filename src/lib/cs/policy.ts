@@ -1,5 +1,5 @@
 import { detectPackageInterest } from "./playbook"
-import { paymentContactReply, templateGalleryReply } from "./contact"
+import { paymentContactReply, premiumTemplateReply, templateGalleryReply } from "./contact"
 
 // Batas kewenangan agent + keputusan eskalasi.
 //
@@ -73,6 +73,8 @@ export interface DecisionContext {
   // Klien minta SELURUH daftar template ("semua template dilihat di mana").
   wantsAllTemplates?: boolean
   kidsTopic?: boolean
+  // "template premium itu apa?" → soal filter Basic/Premium di galeri.
+  asksPremiumTemplate?: boolean
   // Web anonim tidak punya jalur verifikasi (PIN/OTP dikirim ke WhatsApp),
   // jadi permintaan data langsung dieskalasi, bukan disuruh kirim PIN.
   channel?: "web" | "wa"
@@ -631,6 +633,9 @@ export function decide(intent: Intent, ctx: DecisionContext): Decision {
       return { action: "tool", intent, tool: "list_packages" }
 
     case "template":
+      if (ctx.asksPremiumTemplate) {
+        return { action: "contact", intent, message: premiumTemplateReply() }
+      }
       if (ctx.wantsAllTemplates) {
         return {
           action: "contact",

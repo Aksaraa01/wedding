@@ -13,6 +13,23 @@ Boundary yang di-hardcode di kode:
 | Guard output | `guard.ts` → `validateReply()` | angka tanpa bukti, klaim (nett/gratis/garansi/diskon/ETA/unlimited), PII, link di luar allowlist, kebocoran kode voucher, >1 pertanyaan, >90 kata → fallback |
 | Kebijakan layanan | `cs_settings.guardrails` | jawaban estimasi waktu (bisa diubah tanpa deploy) |
 
+## Toggle AI per percakapan (ambil alih manual)
+
+Setiap percakapan punya satu pemilik: `bot` atau `human` (`cs_conversations.status`).
+Tombol **AI aktif / AI dijeda** di `/ops/cs` adalah satu-satunya kontrol.
+
+- **AI dijeda** = `status = human`. AI tidak membalas pesan baru maupun pesan
+  yang sedang diproses; pesan klien tetap tersimpan supaya tim melihatnya.
+- **Membalas dari WhatsApp** (HP atau WhatsApp Web, termasuk lampiran) otomatis
+  mematikan AI untuk percakapan itu, dan pesannya disimpan sebagai pesan keluar
+  (`model = human:wa`) — bukan sebagai ucapan klien.
+- **AI aktif** = `status = bot`. Balasan otomatis jalan lagi; tidak ada balasan
+  susulan untuk pesan lama.
+- Balasan tim dari `/ops/cs` ditandai `model = human:ops`, dan otomatis menjeda AI.
+- Perubahan toggle dicatat di `cs_audit` (`ai_off` / `ai_on`) beserta sumbernya.
+- Gateway punya blok 120 detik terakhir: kalau manusia membalas saat bot sedang
+  menyusun jawaban, balasan bot dibatalkan sebelum dikirim.
+
 ## Matriks topik
 
 | Topik | Perilaku | Alasan / prioritas |

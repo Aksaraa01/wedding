@@ -2,7 +2,7 @@ import test from "node:test"
 import assert from "node:assert/strict"
 
 import { BOUNDARIES, classify, countUnknownStrikes, decide, detectPaymentClaim, detectSentiment, wantsAllTemplates } from "../src/lib/cs/policy.ts"
-import { CS_WHATSAPP, csWhatsAppUrl, paymentContactReply, templateGalleryReply } from "../src/lib/cs/contact.ts"
+import { CS_WHATSAPP, csWhatsAppUrl, paymentContactReply, premiumTemplateReply, templateGalleryReply } from "../src/lib/cs/contact.ts"
 import {
   SECTION_SPECS,
   mapSectionFromText,
@@ -302,6 +302,22 @@ test("template: permintaan spesifik tetap lewat tool", () => {
   const d = decide("template", { ...ctx, wantsAllTemplates: false })
   assert.equal(d.action, "tool")
   assert.equal(d.tool, "list_templates")
+})
+
+test("template: filter Basic/Premium dijelaskan, bukan paket buku tamu", () => {
+  const reply = premiumTemplateReply()
+  assert.match(reply, /Basic/)
+  assert.match(reply, /Premium/)
+  assert.match(reply, /filter/i)
+  assert.match(reply, /wedding\.aksaraa\.com\/templates/)
+  assert.doesNotMatch(reply, /Rp/i)
+  assert.equal(validateReply({ reply }).ok, true)
+})
+
+test("template: 'template premium' dijawab tetap, bukan lewat tool", () => {
+  const d = decide("template", { ...ctx, asksPremiumTemplate: true })
+  assert.equal(d.action, "contact")
+  assert.match(d.message, /filter paket: Semua, Basic, dan Premium/)
 })
 
 test("guard: jawaban galeri lolos guard", () => {

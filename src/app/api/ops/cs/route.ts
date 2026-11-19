@@ -188,6 +188,25 @@ export async function POST(req: Request) {
 
   const now = new Date().toISOString()
 
+  if (action === "ai_off" || action === "ai_on") {
+    const off = action === "ai_off"
+    await supabaseAdmin
+      .from("cs_conversations")
+      .update({
+        status: off ? "human" : "bot",
+        assigned_to: off ? auth.employee.id : null,
+        ai_paused_until: null,
+      })
+      .eq("id", conversationId)
+    await supabaseAdmin.from("cs_audit").insert({
+      actor: `ops:${auth.employee.id}`,
+      action: off ? "ai_off" : "ai_on",
+      subject: conversationId,
+      detail: { source: "ops_toggle" },
+    })
+    return NextResponse.json({ ok: true, ai_enabled: !off })
+  }
+
   if (action === "claim") {
     await supabaseAdmin
       .from("cs_conversations")
@@ -242,7 +261,9 @@ export async function POST(req: Request) {
       direction: "out",
       role: "assistant",
       body: text,
-      model: null,
+      // Penanda asal pesan: balasan tim, bukan model. Tanpa ini transkrip
+      // tidak bisa membedakan jawaban AI dan jawaban manusia.
+      model: "human:ops",
       error: sent ? null : "gateway_send_failed",
     })
 

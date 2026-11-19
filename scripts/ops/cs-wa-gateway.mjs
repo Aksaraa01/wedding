@@ -44,6 +44,20 @@ let starting = false
 // kembali ke app (kalau tidak, balasan bot tercatat sebagai pesan masuk).
 const sentIds = new Set()
 const seenInbound = new Set()
+// Chat yang baru saja dibalas MANUSIA dari HP/WhatsApp Web. Balasan bot yang
+// sedang diproses (2-15 detik) harus dibatalkan di titik terakhir ini, karena
+// app bisa saja belum sempat melihat pesan manusia tersebut.
+const humanBlock = new Map()
+const HUMAN_BLOCK_MS = 120_000
+
+function humanOwns(jid) {
+  const at = humanBlock.get(jid) || 0
+  return Date.now() - at < HUMAN_BLOCK_MS
+}
+
+function markHuman(remote) {
+  if (remote) humanBlock.set(remote, Date.now())
+}
 
 const log = (...args) => console.log(new Date().toISOString(), ...args)
 
@@ -91,6 +105,9 @@ async function forwardInbound(message) {
 
   const alt = key.remoteJidAlt || key.senderPn || ""
   const fromJid = alt.endsWith("@s.whatsapp.net") ? alt : remote
+  // fromMe yang BUKAN kiriman bot = manusia ikut membalas. Tandai segera
+  // (sebelum antrean diproses) supaya balasan bot yang sedang jalan dibatalkan.
+  if (key.fromMe) markHuman(remote)
   log("inbound", key.fromMe ? "me" : "them", remote.endsWith("@lid") ? "lid" : "pn", (key.id || "").slice(0, 12))
 
   // Pesan dari perangkat tertaut (WhatsApp Web/Desktop) dibungkus
@@ -165,6 +182,11 @@ async function forwardInbound(message) {
       if (key.fromMe) continue
 
       // Kirim ke chat asal (lid) dulu; kalau gagal/timeout, coba JID telepon.
+      if (humanOwns(remote) || humanOwns(fromJid)) {
+        log("reply skipped", "human replied in this chat")
+        continue
+      }
+
       const candidates = [remote, fromJid].filter(
         (jid, index, list) => !!jid && jid !== list[index - 1]
       )

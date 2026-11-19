@@ -50,23 +50,23 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
   },
   {
     key: "istilah-premium",
-    title: "Istilah produk: 'premium', paket, dan template",
-    url: "https://wedding.aksaraa.com/premium-web-invitation",
+    title: "Arti filter Premium pada template",
+    url: "https://wedding.aksaraa.com/templates",
     chunks: [
       {
-        heading: "\"Premium\" adalah nama paket, bukan tingkatan template",
+        heading: "Filter paket di galeri template: Basic dan Premium",
         content:
-          "Di Aksaraa, kata premium melekat pada PAKET, bukan pada template. Paket Premium termasuk keluarga Buku Tamu Digital (bersama Sistem, Pro, dan Prestige), dipakai untuk buku tamu QR di hari acara. Jadi tidak ada kategori 'template premium': semua desain undangan ada di satu galeri yang dikelompokkan per gaya (Elegant, Floral, Modern, Adat/Tradisional) dengan filter dengan atau tanpa foto.",
+          "Di galeri template ada filter paket Semua, Basic, dan Premium. Basic adalah desain yang sudah termasuk paket bonus cetak undangan. Premium adalah desain yang baru bisa dipakai lewat paket berbayar (Essential, Signature, Prestige, Elite). Kedua kelompok ini saling lepas, jadi satu desain hanya masuk salah satunya.",
       },
       {
-        heading: "Kalau klien menyebut 'template premium'",
+        heading: "Label Premium di kartu template",
         content:
-          "Tanyakan maksudnya: (a) desain tertentu di galeri, atau (b) paket Premium untuk buku tamu QR. Kalau soal paket, jelaskan bahwa Premium adalah paket Buku Tamu Digital dan rincian harganya bisa dicek lewat daftar paket. Kalau soal desain, arahkan ke galeri template karena desain tidak dibagi menjadi premium dan biasa.",
+          "Label Premium pada sudut kartu template berarti desain itu belum termasuk paket yang sedang dipakai klien, sehingga perlu naik paket dulu. Ini penanda paket, bukan penanda kualitas desain: semua desain memakai mesin undangan yang sama, yang berbeda hanya fitur paketnya.",
       },
       {
-        heading: "Template dan paket tidak selalu satu paket harga",
+        heading: "Jangan tertukar dengan paket Buku Tamu Digital Premium",
         content:
-          "Hampir semua desain bisa dipakai di paket undangan mana pun. Beberapa desain baru aktif mulai paket Signature, dan dashboard menandai desain yang terkunci untuk paket klien. Paket Buku Tamu Digital memakai template undangan yang sama, ditambah modul buku tamu QR.",
+          "Kata premium juga dipakai sebagai nama paket Buku Tamu Digital (bersama Sistem, Pro, Prestige). Kalau klien menyebut premium tanpa konteks template, tanyakan dulu apakah maksudnya filter galeri atau paket buku tamu QR.",
       },
     ],
   },

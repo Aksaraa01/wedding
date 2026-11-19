@@ -32,3 +32,20 @@ export function templateGalleryReply(kids: boolean): string {
     'Kalau mau, sebutkan tema atau acaranya biar aku bantu pilihkan.',
   ].join("\n")
 }
+
+// "Template premium itu maksudnya apa?" → ini soal FILTER paket di galeri,
+// bukan tingkatan kualitas desain. Dijawab tetap supaya tidak salah tebak.
+export function premiumTemplateReply(): string {
+  return [
+    'Di galeri template ada filter paket: Semua, Basic, dan Premium.',
+    '',
+    '• Basic: desain yang sudah termasuk paket bonus cetak undangan.',
+    '• Premium: desain yang perlu paket berbayar (Essential, Signature, Prestige, Elite).',
+    '',
+    'Jadi "template premium" bukan tingkatan kualitas desain, tapi penanda bahwa desainnya tidak termasuk paket bonus.',
+    'Kalau di dashboard ada label Premium di sudut desain, artinya desain itu belum termasuk paket Kakak.',
+    '',
+    'Buka galeri lalu pilih filter Premium:',
+    'https://wedding.aksaraa.com/templates',
+  ].join("\n")
+}

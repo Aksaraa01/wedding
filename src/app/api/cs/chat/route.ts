@@ -106,7 +106,7 @@ export async function POST(request: Request) {
 
   const { data: existing } = await supabaseAdmin
     .from("cs_conversations")
-    .select("id")
+    .select("id,status")
     .eq("contact_id", contact.id)
     .eq("channel", "web")
     .neq("status", "closed")
@@ -155,6 +155,12 @@ export async function POST(request: Request) {
     .update({ last_inbound_at: now })
     .eq("id", conversationId)
 
+  // Toggle AI per percakapan (dashboard /ops): saat tim mengambil alih,
+  // widget tidak boleh dibalas otomatis. Pesan tetap tersimpan untuk tim.
+  if (existing?.status === "human") {
+    return NextResponse.json({ reply: "", paused: true })
+  }
+
   const { data: historyRows } = await supabaseAdmin
     .from("cs_messages")
     .select("direction,body,created_at,intent")
@@ -197,6 +203,14 @@ export async function POST(request: Request) {
     contactName,
     phone: null,
   })
+
+  // Balapan dengan toggle tim: cek ulang tepat sebelum balasan dikirim.
+  const { data: owner } = await supabaseAdmin
+    .from("cs_conversations")
+    .select("status")
+    .eq("id", conversationId)
+    .maybeSingle()
+  if (owner?.status !== "bot") return NextResponse.json({ reply: "", paused: true, conversationId })
 
   const reply = result.replies[0]?.text || ""
   const response = NextResponse.json({ reply, conversationId })

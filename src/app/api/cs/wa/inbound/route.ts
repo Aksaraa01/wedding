@@ -251,7 +251,7 @@ export async function POST(request: Request) {
 
   const { data: existingConversation } = await supabaseAdmin
     .from("cs_conversations")
-    .select("id,strike_count")
+    .select("id,strike_count,status")
     .eq("contact_id", contact.id)
     .neq("status", "closed")
     .order("created_at", { ascending: false })
@@ -273,6 +273,34 @@ export async function POST(request: Request) {
   }
 
   const waMessageId = String(body.wa_message_id || "") || `local-${crypto.randomUUID()}`
+
+  // --- Manusia membalas dari HP / WhatsApp Web -----------------------------
+  // Terjadi SEBELUM insert pesan masuk: pesan ini milik kita (out), bukan
+  // pesan klien. Dulu tersimpan sebagai `in/user`, sehingga transkrip dan
+  // konteks AI menganggap kata-kata tim sebagai ucapan klien.
+  if (body.from_me) {
+    if (text || unsupported) {
+      await supabaseAdmin.from("cs_messages").insert({
+        conversation_id: conversationId,
+        direction: "out",
+        role: "assistant",
+        wa_message_id: waMessageId,
+        body: text || `[${unsupported}]`,
+        model: "human:wa",
+      })
+    }
+    await supabaseAdmin
+      .from("cs_conversations")
+      .update({ status: "human", last_outbound_at: now })
+      .eq("id", conversationId)
+    await supabaseAdmin.from("cs_audit").insert({
+      actor: "human:wa",
+      action: "ai_off",
+      subject: conversationId,
+      detail: { source: "wa_device" },
+    })
+    return NextResponse.json({ replies: [] })
+  }
 
   const { data: inbound, error: inboundError } = await supabaseAdmin
     .from("cs_messages")
@@ -297,12 +325,9 @@ export async function POST(request: Request) {
     .update({ last_inbound_at: now })
     .eq("id", conversationId)
 
-  // Ops membalas manual dari HP: AI berhenti untuk kontak ini.
-  if (body.from_me) {
-    await supabaseAdmin
-      .from("cs_conversations")
-      .update({ ai_paused_until: new Date(Date.now() + 4 * 60 * 60_000).toISOString() })
-      .eq("id", conversationId)
+  // Toggle AI per percakapan: kalau tim sudah mengambil alih, AI diam.
+  // Pesannya tetap disimpan supaya tim melihatnya (sudah di-insert di atas).
+  if (existingConversation?.status === "human") {
     return NextResponse.json({ replies: [] })
   }
 
@@ -626,6 +651,15 @@ export async function POST(request: Request) {
     contactName: (contact.name as string | null) || null,
     phone,
   })
+
+  // Balapan: tim bisa menekan toggle (atau membalas dari HP) selama model
+  // menyusun jawaban. Cek sekali lagi tepat sebelum balasan dikirim.
+  const { data: owner } = await supabaseAdmin
+    .from("cs_conversations")
+    .select("status")
+    .eq("id", conversationId)
+    .maybeSingle()
+  if (owner?.status !== "bot") return NextResponse.json({ replies: [] })
 
   return NextResponse.json({ replies: result.replies })
 }

@@ -435,25 +435,30 @@ export default function OpsCsPage() {
                     {statusLabel(detail.conversation.status)}
                   </p>
                 </div>
-                <div className="ml-auto flex gap-2">
-                  {detail.conversation.status !== "human" && (
-                    <button
-                      onClick={() => act("claim")}
-                      disabled={busy}
-                      className="px-3 py-2 text-[10px] font-label-md uppercase tracking-widest bg-primary text-white disabled:opacity-50"
-                    >
-                      Ambil alih
-                    </button>
-                  )}
-                  {detail.conversation.status === "human" && (
-                    <button
-                      onClick={() => act("release")}
-                      disabled={busy}
-                      className="px-3 py-2 text-[10px] font-label-md uppercase tracking-widest border border-outline-variant bg-white disabled:opacity-50"
-                    >
-                      Lepas ke bot
-                    </button>
-                  )}
+                <div className="ml-auto flex items-center gap-2">
+                  {/* Toggle AI per percakapan: satu kontrol, statusnya jelas. */}
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={detail.conversation.status === "bot"}
+                    onClick={() => act(detail.conversation.status === "bot" ? "ai_off" : "ai_on")}
+                    disabled={busy}
+                    title={
+                      detail.conversation.status === "bot"
+                        ? "AI membalas otomatis. Klik untuk menghentikan AI dan menangani sendiri."
+                        : "AI dijeda. Klik untuk mengaktifkan balasan otomatis lagi."
+                    }
+                    className={`inline-flex items-center gap-2 px-3 py-2 text-[10px] font-label-md uppercase tracking-widest disabled:opacity-50 ${
+                      detail.conversation.status === "bot"
+                        ? "bg-emerald-600 text-white"
+                        : "border border-amber-300 bg-amber-100 text-amber-900"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[14px]">
+                      {detail.conversation.status === "bot" ? "smart_toy" : "pause_circle"}
+                    </span>
+                    {detail.conversation.status === "bot" ? "AI aktif" : "AI dijeda"}
+                  </button>
                   {detail.conversation.status !== "closed" && (
                     <button
                       onClick={() => act("close")}

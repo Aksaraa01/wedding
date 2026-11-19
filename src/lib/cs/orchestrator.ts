@@ -250,6 +250,9 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     paidClaim: detectPaymentClaim(input.text),
     wantsAllTemplates: wantsAllTemplates(input.text),
     kidsTopic: /ceriavite|khitanan|aqiqah|ulang tahun/i.test(input.text),
+    asksPremiumTemplate:
+      /premium/i.test(input.text) &&
+      /template|desain|filter|badge|label|tanda/i.test(input.text),
     channel: input.channel,
   }
 
