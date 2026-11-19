@@ -2714,6 +2714,8 @@ TEMPLATE_EXTRA_FIELDS.push(
   { key: "copy_address_button", label: "Teks Tombol Salin Alamat", section: "gift", order: 60, templates: ["olan"], placeholders: { olan: "Copy Address" } },
   { key: "copy_account_toast", label: "Notifikasi Salin Rekening", section: "gift", order: 70, templates: ["olan"], placeholders: { olan: "Account number copied" } },
   { key: "copy_address_toast", label: "Notifikasi Salin Alamat", section: "gift", order: 80, templates: ["olan"], placeholders: { olan: "Address copied" } },
+  { key: "dresscode_title", label: "Judul Dress Code", section: "dresscode", order: 10, templates: ["olan"], placeholders: { olan: "Dress Code" } },
+  { key: "dresscode_intro", label: "Pengantar Dress Code", section: "dresscode", order: 20, multiline: true, rows: 2, templates: ["olan"], placeholders: { olan: "Elegant attire in warm earth tones — please reserve white for the couple." } },
   { key: "wishes_title", label: "Judul Ucapan", section: "wishes", order: 10, templates: ["olan"], placeholders: { olan: "Wedding Wish" } },
   { key: "wishes_intro", label: "Pengantar Ucapan", section: "wishes", order: 20, multiline: true, rows: 2, templates: ["olan"], placeholders: { olan: "" } },
   { key: "wishes_name_label", label: "Label Nama Pengirim", section: "wishes", order: 30, templates: ["olan"], placeholders: { olan: "Name" } },
