@@ -1,9 +1,9 @@
 "use client"
 
+import { useState } from "react"
 import { Backdrop } from "../Ornaments"
 import { video0, video1, video2 } from "../ornamentData"
 import { videoSource } from "../../shared/lib"
-import AutoplayYouTube from "../../shared/AutoplayYouTube"
 
 type Props = {
   videoUrl: string
@@ -13,10 +13,18 @@ type Props = {
   poster: string
 }
 
+// The reference shows a YouTube poster with a play disc; tapping it starts the
+// film. We keep that surface and mount the iframe straight away (no YouTube JS
+// API), with the poster painted underneath so the frame is never an empty box.
 export default function Film({ videoUrl, title, intro, caption, poster }: Props) {
   if (!videoUrl) return null
   const source = videoSource(videoUrl)
-  const youtubeId = videoUrl.match(/([A-Za-z0-9_-]{11})(?:[?&#/]|$)/)?.[1] || ""
+  const youtubeId = videoUrl.match(/youtu\.be\/([A-Za-z0-9_-]{11})|youtube\.com\/(?:watch\?[^#]*v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/)?.[1]
+    || videoUrl.match(/[?&]v=([A-Za-z0-9_-]{11})/)?.[1]
+    || ""
+  const [started, setStarted] = useState(false)
+  const ytPoster = youtubeId ? `https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg` : ""
+  const thumb = ytPoster || poster
 
   return (
     <section className="video-gallery autoplay-video-section" data-section-order="gallery_video">
@@ -29,15 +37,30 @@ export default function Film({ videoUrl, title, intro, caption, poster }: Props)
           <div className="video">
             <div className="p-relative">
               <Backdrop items={video0} />
-              <div className="preview autoplay-video-box">
+              <div className={`preview autoplay-video-box${started ? " is-playing" : ""}`}>
                 {source?.kind === "file" ? (
                   <video className="autoplay-video" autoPlay muted loop playsInline poster={poster || undefined} controls>
                     <source src={source.src} />
                   </video>
                 ) : youtubeId ? (
-                  <div className="autoplay-video">
-                    <AutoplayYouTube videoId={youtubeId} title={caption || title} />
-                  </div>
+                  <>
+                    {thumb ? <img className="sw-film__poster" src={thumb} alt="" loading="lazy" /> : null}
+                    {started ? (
+                      <iframe
+                        className="autoplay-video"
+                        src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=1&rel=0&modestbranding=1&playsinline=1`}
+                        title={caption || title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <button type="button" className="play-btn" onClick={() => setStarted(true)} aria-label={caption || title}>
+                        <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true">
+                          <path d="M8 5.14v13.72a1 1 0 0 0 1.52.85l11-6.86a1 1 0 0 0 0-1.7l-11-6.86A1 1 0 0 0 8 5.14Z" />
+                        </svg>
+                      </button>
+                    )}
+                  </>
                 ) : null}
               </div>
               <Backdrop items={video1} />

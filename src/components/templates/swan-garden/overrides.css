@@ -551,3 +551,71 @@ body:has(.swan-garden.is-locked) {
   background-color: var(--background-secondary) !important;
   opacity: 1 !important;
 }
+
+/* "View Maps" must sit above the garden ornaments that bleed into the card's
+   bottom edge. */
+.swan-garden .event-link-wrap {
+  position: relative;
+  z-index: 6;
+  margin-top: 6px;
+}
+
+/* Film: poster + play disc first (like the reference), iframe after the tap. */
+.swan-garden .video-gallery .preview .sw-film__poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.swan-garden .video-gallery .preview .play-btn {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  box-shadow: 0 10px 26px rgba(60, 40, 30, 0.22);
+  cursor: pointer;
+  z-index: 2;
+}
+.swan-garden .video-gallery .preview .play-btn:hover {
+  background-color: var(--background-secondary);
+  transform: translate(-50%, -50%) scale(1.04);
+}
+.swan-garden .video-gallery .preview .autoplay-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Gift: the bank pill is a real button now. */
+.swan-garden .accor-bank-wrap .bank-btn-accordion {
+  width: 100%;
+  cursor: pointer;
+  font-family: var(--body-text-family);
+}
+.swan-garden .accor-bank-wrap .bank-btn-accordion .bank-btop-txt {
+  margin: 0;
+}
+
+/* Same override, at the vendored selector's specificity. */
+.swan-garden .video-gallery .inner .video-outer .video .preview .play-btn {
+  background-color: var(--background-secondary) !important;
+  color: var(--text-primary) !important;
+  opacity: 1 !important;
+  z-index: 3;
+}
+.swan-garden .video-gallery .inner .video-outer .video .preview .play-btn:hover {
+  background-color: var(--background-secondary) !important;
+  opacity: 1 !important;
+}

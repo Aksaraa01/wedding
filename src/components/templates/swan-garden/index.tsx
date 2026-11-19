@@ -99,7 +99,7 @@ export default function SwanGardenTemplate(profile: TemplateProps) {
   const bride = profile.bride_name || profile.bride_full_name || ""
   const coupleLabel = [groom, bride].filter(Boolean).join(" & ") || "The Couple"
   const guestName = (profile.guest_name || "").trim()
-  const guestLabel = guestName && guestName !== GUEST_FALLBACK ? `Hai ${guestName}` : ""
+  const guestLabel = `Dear, ${guestName || GUEST_FALLBACK}`
   const hashtag = prettyHashtag(profile.display_name)
 
   const gates = profile.feature_gates || {}

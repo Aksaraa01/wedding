@@ -34,6 +34,8 @@ export default function Gift({
   const list = accounts.filter((a) => a.account_number || a.provider_name)
   const showAddressBlock = showAddress && Boolean(address || addressName)
   const [copied, setCopied] = useState<string | null>(null)
+  // Collapsed by default: the first tap opens one bank, a second tap closes it.
+  const [openAccount, setOpenAccount] = useState<number | null>(null)
 
   const copy = useCallback(async (value: string, key: string) => {
     const ok = await copyPlainText(value)
@@ -66,13 +68,18 @@ export default function Gift({
                   {list.map((account, i) => {
                     const number = account.account_number || ""
                     return (
-                      <div className="accor-bank-wrap accor-active" key={i}>
-                        <div className="bank-btn-accordion bankBtnAccordion">
+                      <div className={`accor-bank-wrap${openAccount === i ? " accor-active" : ""}`} key={i}>
+                        <button
+                          type="button"
+                          className="bank-btn-accordion"
+                          aria-expanded={openAccount === i}
+                          onClick={() => setOpenAccount((current) => (current === i ? null : i))}
+                        >
                           <p className="bank-btop-txt">{account.provider_name || ""}</p>
                           <span className="bank-caret" aria-hidden="true" />
-                        </div>
-                        <div className="wedding-gift-bank-wrap bankItemAccordion">
-                          <div className="bank-item">
+                        </button>
+                        <div className="wedding-gift-bank-wrap">
+                          <div className={`bank-item${openAccount === i ? " show" : ""}`}>
                             <h3 className="bank-name">{account.provider_name || ""}</h3>
                             <div className="bank-detail">
                               <p className="bank-account-number-label">
