@@ -38,6 +38,7 @@ export interface OnboardingState {
   pendingUpload?: string | null
   previewSent?: boolean
   publishSent?: boolean
+  templateChoices?: { id: string; name: string; code: string }[]
 }
 
 interface DraftRow {
@@ -202,6 +203,12 @@ export async function startOnboarding(profileId: string, contactId: string): Pro
 
   if (state.stage === "template") {
     const templates = await eligibleTemplates(profile)
+    state.templateChoices = templates.slice(0, 8).map((row) => ({
+      id: String(row.id),
+      name: String(row.name),
+      code: String(row.code),
+    }))
+    await saveState(profileId, contactId, draft, state)
     return `Oke, aku bantu isi undangannya dari awal ya Kak.\n\n${templateListReply(templates)}`
   }
   return nextPrompt(profileId, contactId, state, draft)
@@ -219,6 +226,11 @@ async function nextPrompt(
   if (!profile.selected_template_id) {
     const templates = await eligibleTemplates(profile)
     state.stage = "template"
+    state.templateChoices = templates.slice(0, 8).map((row) => ({
+      id: String(row.id),
+      name: String(row.name),
+      code: String(row.code),
+    }))
     await saveState(profileId, contactId, draft, state)
     return templateListReply(templates)
   }
@@ -471,6 +483,48 @@ async function answerStory(
   return `Cerita "${storyDraft.title}" tersimpan. Ada momen lain? Sebut judulnya, atau balas "selesai".`
 }
 
+async function applyTemplate(
+  profileId: string,
+  contactId: string,
+  state: OnboardingState,
+  draft: Record<string, unknown>,
+  _profile: Record<string, unknown>,
+  template: { id: string; name: string; source_type: string }
+): Promise<string> {
+  state.templateChoices = undefined
+
+  if (template.source_type === "wp") {
+    if (await hasOpenWpChain(profileId)) {
+      return "Template sebelumnya masih diproses. Tunggu sebentar ya Kak."
+    }
+    const job = await enqueueDuplicate(profileId, template.id, "cs")
+    state.templateJob = { id: String(job.job_id), status: String(job.status) }
+    await saveState(profileId, contactId, draft, state)
+    await supabaseAdmin.from("cs_audit").insert({
+      actor: "cs:onboarding",
+      action: "onboarding_template",
+      subject: profileId,
+      detail: { template: template.name, mode: "wp" },
+    })
+    return `Siap, template "${template.name}" sedang disiapkan. Tunggu 1–2 menit ya Kak.`
+  }
+
+  await supabaseAdmin
+    .from("wedding_profiles")
+    .update({ selected_template_id: template.id, active_wp_post_id: null, active_wp_post_url: null })
+    .eq("id", profileId)
+  await supabaseAdmin.from("cs_audit").insert({
+    actor: "cs:onboarding",
+    action: "onboarding_template",
+    subject: profileId,
+    detail: { template: template.name, mode: "inhouse" },
+  })
+
+  state.stage = "data"
+  await saveState(profileId, contactId, draft, state)
+  return `Template "${template.name}" dipakai. ${await nextPrompt(profileId, contactId, state, draft)}`
+}
+
 const ESCAPE_INTENTS = new Set([
   "voucher",
   "refund",
@@ -537,6 +591,26 @@ export async function handleOnboarding(
 
   if (state.stage === "template" || !profile.selected_template_id) {
     const templates = await eligibleTemplates(profile)
+
+    // Daftar dikirim bernomor; klien wajar membalas "1". Tanpa ini, jawaban
+    // angka dianggap nama template dan alur buntu.
+    if (/^\d{1,2}$/.test(message)) {
+      const choice = state.templateChoices?.[Number(message) - 1]
+      if (choice) {
+        return applyTemplate(profileId, contactId, state, draft, profile, {
+          id: choice.id,
+          name: choice.name,
+          source_type: (templates.find((row) => String(row.id) === choice.id)?.source_type as string) || "",
+        })
+      }
+    }
+
+    if (lower === "batal" || lower === "stop") {
+      state.stage = "done"
+      await saveState(profileId, contactId, draft, state)
+      return "Oke, aku hentikan dulu. Kalau mau lanjut, bilang \"bantu isi undangan\" lagi ya Kak."
+    }
+
     const { match, candidates } = matchTemplateByName(message, templates as never)
     if (!match) {
       if (candidates.length > 1) {
@@ -545,30 +619,11 @@ export async function handleOnboarding(
       return `Belum ketemu template "${message}". ${templateListReply(templates)}`
     }
 
-    if (match.code && (match as { source_type?: string }).source_type === "wp") {
-      if (await hasOpenWpChain(profileId)) {
-        return "Template sebelumnya masih diproses. Tunggu sebentar ya Kak."
-      }
-      const job = await enqueueDuplicate(profileId, match.id, "cs")
-      state.templateJob = { id: String(job.job_id), status: String(job.status) }
-      await saveState(profileId, contactId, draft, state)
-      await supabaseAdmin
-        .from("cs_audit")
-        .insert({ actor: "cs:onboarding", action: "onboarding_template", subject: profileId, detail: { template: match.name, mode: "wp" } })
-      return `Siap, template "${match.name}" sedang disiapkan. Tunggu 1–2 menit ya Kak.`
-    }
-
-    await supabaseAdmin
-      .from("wedding_profiles")
-      .update({ selected_template_id: match.id, active_wp_post_id: null, active_wp_post_url: null })
-      .eq("id", profileId)
-    await supabaseAdmin
-      .from("cs_audit")
-      .insert({ actor: "cs:onboarding", action: "onboarding_template", subject: profileId, detail: { template: match.name, mode: "inhouse" } })
-
-    state.stage = "data"
-    await saveState(profileId, contactId, draft, state)
-    return `Template "${match.name}" dipakai. ${await nextPrompt(profileId, contactId, state, draft)}`
+    return applyTemplate(profileId, contactId, state, draft, profile, {
+      id: match.id,
+      name: match.name,
+      source_type: (match as { source_type?: string }).source_type || "",
+    })
   }
 
   if (state.stage === "preview") {
