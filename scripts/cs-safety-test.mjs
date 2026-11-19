@@ -8,6 +8,8 @@ import {
   isSkip,
   mapSectionFromText,
   matchTemplateByName,
+  POPULAR_QUOTES,
+  isUncertainAnswer,
   looksLikeQuestion,
   validateFlowAnswer,
   validateSessionField,
@@ -1250,4 +1252,19 @@ test("onboarding: pertanyaan dikenali, jawaban biasa tidak", () => {
   assert.equal(looksLikeQuestion("maksudnya apa"), true)
   assert.equal(looksLikeQuestion("Akad Nikah"), false)
   assert.equal(looksLikeQuestion("2027-06-12"), false)
+})
+
+test("kutipan: pilihan populer + jawaban ragu", () => {
+  assert.equal(POPULAR_QUOTES.length >= 2, true)
+  assert.match(POPULAR_QUOTES[0].source, /Ar-Rum/)
+  assert.equal(isUncertainAnswer("terserah"), true)
+  assert.equal(isUncertainAnswer("tidak ada"), true)
+  assert.equal(isUncertainAnswer("gak tau"), true)
+  assert.equal(isUncertainAnswer("QS. Ar-Rum: 21"), false)
+})
+
+test("kutipan: pertanyaan menawarkan opsi populer", () => {
+  const question = SECTION_SPECS.kutipan.fields[0].question
+  assert.match(question, /1/)
+  assert.match(question, /terserah/i)
 })

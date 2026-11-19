@@ -9,10 +9,12 @@ import { getTemplateContentSpec } from "@/components/templates"
 import { hidesOpeningSection } from "@/lib/templateSections"
 import { enqueueDuplicate, enqueuePatch, hasOpenWpChain } from "@/lib/wpSyncWorker"
 import {
+  POPULAR_QUOTES,
   SECTION_SPECS,
   SESSION_QUESTIONS,
   STORY_QUESTIONS,
   isSkip,
+  isUncertainAnswer,
   looksLikeQuestion,
   mapSectionFromText,
   matchTemplateByName,
@@ -463,6 +465,34 @@ async function answerField(
   if (field.kind === "text" && text.length > 80) {
     return `Aku catat satu per satu ya Kak. ${field.question}`
   }
+  // Kutipan: klien sering tidak punya kutipan sendiri. Tawarkan pilihan
+  // populer (sama seperti editor) alih-alih memaksa atau menolak.
+  if (field.key === "quote_text") {
+    const value = text.trim()
+    const picked =
+      value === "1" ? POPULAR_QUOTES[0] : value === "2" ? POPULAR_QUOTES[1] : null
+    const fallback = picked || (isUncertainAnswer(value) ? POPULAR_QUOTES[0] : null)
+
+    if (fallback) {
+      draft.quote_text = fallback.text
+      draft.quote_source = fallback.source
+      await applyField(profileId, "quote_text", fallback.text)
+      await applyField(profileId, "quote_source", fallback.source)
+      const asked = new Set(state.asked || [])
+      asked.add("quote_text")
+      asked.add("quote_source")
+      state.asked = Array.from(asked)
+      state.field = undefined
+      await saveState(profileId, contactId, draft, state)
+      return `Aku pakai kutipan ${fallback.label} ya Kak (bisa diganti dari dashboard nanti).\n\n${await nextPrompt(
+        profileId,
+        contactId,
+        state,
+        draft
+      )}`
+    }
+  }
+
   const outcome = validateFlowAnswer(field, text)
   if (!outcome.ok) {
     const attempts = { ...(state.attempts || {}) }

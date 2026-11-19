@@ -215,7 +215,8 @@ export const SECTION_SPECS: Record<string, SectionSpec> = {
       {
         key: "quote_text",
         label: "Kutipan",
-        question: "Tulis kutipan atau ayat yang mau ditampilkan di undangan.",
+        question:
+          "Tulis kutipan atau ayat yang mau ditampilkan. Belum ada? Balas 1 (QS. Ar-Rum: 21) atau 2 (Matius 19:6) untuk kutipan populer, atau \"terserah\" biar aku pilihkan.",
         kind: "longtext",
       },
       {
@@ -554,4 +555,43 @@ export function looksLikeQuestion(text: string): boolean {
   return /^(apa|apakah|berapa|gimana|bagaimana|kenapa|kok|maksud|maksudnya|bisa|bisakah|kapan|dimana|di mana|siapa|yang benar|contohnya)\b/i.test(
     value
   )
+}
+
+// Kutipan populer yang juga dipakai editor ("Pilih Kutipan Populer").
+export const POPULAR_QUOTES = [
+  {
+    label: "QS. Ar-Rum: 21",
+    text: "Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu isteri-isteri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya; dan dijadikan-Nya diantaramu rasa kasih dan sayang.",
+    source: "QS. Ar-Rum: 21",
+  },
+  {
+    label: "Matius 19:6",
+    text: "Demikianlah mereka bukan lagi dua, melainkan satu. Karena itu, apa yang telah dipersatukan Allah, tidak boleh diceraikan manusia.",
+    source: "Matius 19:6",
+  },
+] as const
+
+const UNCERTAIN = [
+  "terserah",
+  "bebas",
+  "apa aja",
+  "apa saja",
+  "gak tau",
+  "ga tau",
+  "nggak tau",
+  "tidak tahu",
+  "belum tau",
+  "pilihkan",
+  "pilihin",
+  "pilih aja",
+  "tidak ada",
+  "gak ada",
+  "ga ada",
+  "nggak ada",
+  "biasa aja",
+]
+
+export function isUncertainAnswer(text: string): boolean {
+  const value = (text || "").trim().toLowerCase()
+  return UNCERTAIN.includes(value) || isSkip(value)
 }
