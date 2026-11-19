@@ -332,6 +332,139 @@ body:has(.olan-root.is-locked) {
   min-width: 100%;
 }
 
+/* ───────────── music (Sandhya's vinyl + tonearm) ─────────────
+   Same control the Sandhya template ships, re-scoped and re-coloured for this
+   cream paper page: the disc keeps its dark grooves and gets the invitation's
+   maroon label, and the tonearm lifts while the track plays. */
+.olan-root .olan-music {
+  align-items: center;
+  background: transparent;
+  border: none;
+  bottom: 22px;
+  cursor: pointer;
+  display: flex;
+  filter: drop-shadow(0 6px 14px rgba(24, 16, 8, 0.32));
+  height: 46px;
+  justify-content: center;
+  left: 22px;
+  padding: 0;
+  position: fixed;
+  transition: transform 0.25s ease;
+  width: 46px;
+  z-index: 60;
+}
+.olan-root .olan-music:hover {
+  transform: scale(1.06);
+}
+.olan-root .olan-music .tpl-vinyl {
+  animation: olan-vinyl-spin 2s linear infinite;
+  background:
+    radial-gradient(circle at center, #1a1a1a 0, #0a0a0a 70%, #000 100%);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  display: block;
+  height: 40px;
+  position: relative;
+  width: 40px;
+}
+.olan-root .olan-music.paused .tpl-vinyl {
+  animation-play-state: paused;
+}
+.olan-root .olan-music .tpl-vinyl-groove {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  left: 50%;
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.olan-root .olan-music .tpl-vinyl-groove-1 {
+  height: 80%;
+  width: 80%;
+}
+.olan-root .olan-music .tpl-vinyl-groove-2 {
+  height: 55%;
+  width: 55%;
+}
+.olan-root .olan-music .tpl-vinyl-label {
+  background: radial-gradient(circle at 30% 35%, rgba(0, 0, 0, 0.3) 0, rgba(0, 0, 0, 0.3) 18%, transparent 20%), var(--text-primary);
+  border-radius: 50%;
+  height: 42%;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 42%;
+}
+.olan-root .olan-music .tpl-vinyl-hole {
+  background: var(--background-primary);
+  border-radius: 50%;
+  height: 10%;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 10%;
+}
+.olan-root .olan-music .tpl-tonearm {
+  height: 22px;
+  pointer-events: none;
+  position: absolute;
+  right: 2px;
+  top: 0;
+  transform: rotate(8deg);
+  transform-origin: 50% 2px;
+  transition: transform 0.45s cubic-bezier(0.34, 1.3, 0.64, 1);
+  width: 3px;
+  z-index: 2;
+}
+.olan-root .olan-music:not(.paused) .tpl-tonearm {
+  transform: rotate(38deg);
+}
+.olan-root .olan-music .tpl-tonearm-pivot {
+  background: radial-gradient(circle at 30% 30%, #f2efe9, #9a938a);
+  border-radius: 50%;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.45);
+  height: 8px;
+  left: 50%;
+  position: absolute;
+  top: -2px;
+  transform: translateX(-50%);
+  width: 8px;
+}
+.olan-root .olan-music .tpl-tonearm-arm {
+  background: linear-gradient(180deg, #e6e0d8, #b3aaa0 60%, #8f877e);
+  border-radius: 1px;
+  height: 18px;
+  left: 50%;
+  position: absolute;
+  top: 2px;
+  transform: translateX(-50%);
+  width: 2px;
+}
+.olan-root .olan-music .tpl-tonearm-head {
+  background: var(--text-primary);
+  border-radius: 1px;
+  bottom: -2px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+  height: 5px;
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%);
+  width: 6px;
+}
+@keyframes olan-vinyl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .olan-root .olan-music .tpl-vinyl {
+    animation: none;
+  }
+}
+
 /* ───────────── gift: collapsible bank picker ───────────── */
 .olan-root .olan-bank {
   position: relative;
