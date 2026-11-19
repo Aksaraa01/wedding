@@ -395,8 +395,8 @@ body.eh-locked {
 .eh-lace {
   position: relative;
   overflow: hidden;
-  height: 15.5cqw;
-  margin: 6px 0;
+  height: 26cqw;
+  margin: 4px 0;
   pointer-events: none;
 }
 
@@ -442,11 +442,11 @@ body.eh-locked {
 /* The reference's shadow silhouette, a few pixels down-right of the art. */
 .eh-deco__shadow {
   position: absolute;
-  left: 3.5%;
-  top: 3.2%;
+  left: 2.5%;
+  top: 2.4%;
   z-index: -1;
-  opacity: 0.5;
-  filter: blur(1.5px);
+  opacity: 0.32;
+  filter: blur(3px);
 }
 
 /* Behind-plate ornaments peek out around the carved frames. */
@@ -1047,13 +1047,13 @@ body.eh-locked {
 .eh-count__dial {
   position: relative;
   z-index: 2;
-  padding: 54px 24px 0;
+  padding: 150px 24px 0;
 }
 
 .eh-count__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 34px 8px;
+  gap: 40px 8px;
   margin: 0 auto;
   max-width: 100%;
 }
@@ -1068,7 +1068,7 @@ body.eh-locked {
 .eh-count__unit b {
   font-family: var(--eh-display);
   font-weight: 400;
-  font-size: 8.4cqw;
+  font-size: 9.4cqw;
   line-height: 1;
   color: var(--eh-cream);
 }
@@ -1102,25 +1102,29 @@ body.eh-locked {
 
 .eh-count__fan {
   position: relative;
+  z-index: 1;
   display: flex;
   justify-content: center;
-  margin-top: 18px;
-  margin-bottom: -2px;
+  margin-top: 24px;
+  margin-bottom: -9%;
 }
 
 .eh-count__shadow {
   position: absolute;
   left: 50%;
   bottom: 6px;
-  width: 74%;
+  width: 102%;
   translate: -50% 0;
-  opacity: 0.75;
-  filter: blur(4px);
+  opacity: 0.7;
+  filter: blur(5px);
 }
 
+/* 137.7% of the canvas in the reference: the fan bleeds past both lace
+   columns and the tassel hangs onto the next section. */
 .eh-count__fanArt {
   position: relative;
-  width: 100%;
+  width: 150%;
+  max-width: none;
 }
 
 /* --------------------------------------------------------------------------

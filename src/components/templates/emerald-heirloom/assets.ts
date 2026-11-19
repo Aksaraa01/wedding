@@ -51,16 +51,10 @@ export const EH_ASSETS = {
   // 50-frame GIF, decimated) plus a still used when the visitor asks for
   // reduced motion — `<picture media>` swaps it without any JS.
   flowerTrumpet: `${BASE}/flower-trumpet.webp`,
-  flowerTrumpetStill: `${BASE}/flower-trumpet-still.webp`,
   lilies: `${BASE}/lilies.webp`,
-  liliesStill: `${BASE}/lilies-still.webp`,
   swan: `${BASE}/swan.webp`,
-  swanStill: `${BASE}/swan-still.webp`,
   lilySpray: `${BASE}/lily-spray.webp`,
-  lilySprayStill: `${BASE}/lily-spray-still.webp`,
   lilySprayB: `${BASE}/lily-spray-b.webp`,
-  lilySprayBStill: `${BASE}/lily-spray-b-still.webp`,
-  fanStill: `${BASE}/fan-still.webp`,
 
   // The reference pairs every ornament with a darkened silhouette GIF to fake a
   // drop shadow. We keep them as a single static frame under the animated art.

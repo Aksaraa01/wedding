@@ -160,8 +160,9 @@ same animation as **17-frame animated WebP** (every 3rd frame, 288px, 120 ms):
 fan 142 KB, swan 187 KB, lily spray 187 KB, trumpet 357 KB, lilies 400 KB,
 lily-spray-b 402 KB — ~1.7 MB total, all `loading="lazy"` below the fold.
 
-- `prefers-reduced-motion`: each `<picture>` swaps to `*-still.webp` (a single
-  frame) via `<source media>`; no JS, no layout shift.
+- The ornament loops **always play** (the owner asked for the reference's
+  motion; the still swap that used to hide it under Reduce Motion was removed).
+  The reveal transitions still short-circuit under `prefers-reduced-motion`.
 - The reference's paired `_shdw` GIFs are shipped as one static frame under each
   ornament (`opacity .5`, 1.5px blur) instead of a per-frame `drop-shadow`
   filter (which repaints a 288px animated layer on every frame).

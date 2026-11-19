@@ -69,7 +69,8 @@ function igHandle(raw?: string): string {
   const text = (raw || "").trim()
   if (!text) return ""
   if (/^https?:\/\//i.test(text)) {
-    return (text.replace(/\/+$/, "").split("/").pop() || "").replace(/^@/, "")
+  
+  return (text.replace(/\/+$/, "").split("/").pop() || "").replace(/^@/, "")
   }
   return text.replace(/^@/, "")
 }
@@ -123,7 +124,6 @@ const PORTRAIT_WINDOW = { left: "12.4%", top: "12.9%", width: "73%", height: "61
 // at any column width.
 type DecoSpec = {
   src: string
-  still: string
   /* darkened silhouette drawn behind the ornament, like the reference's pair */
   shadow?: string
   left: number
@@ -153,11 +153,17 @@ function Deco({ spec }: { spec: DecoSpec }) {
         } as CSSProperties
       }
     >
-      {spec.shadow && <img className="eh-deco__shadow" src={spec.shadow} alt="" loading="lazy" draggable={false} />}
-      <picture>
-        <source media="(prefers-reduced-motion: reduce)" srcSet={spec.still} />
-        <img src={spec.src} alt="" loading="lazy" draggable={false} />
-      </picture>
+      {spec.shadow && (
+        <img
+          className="eh-deco__shadow"
+          src={spec.shadow}
+          alt=""
+          loading="lazy"
+          draggable={false}
+          style={spec.flip ? { scale: "-1 1" } : undefined}
+        />
+      )}
+      <img src={spec.src} alt="" loading="lazy" draggable={false} />
     </span>
   )
 }
@@ -458,110 +464,121 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
   // Welcome: hanging trumpets at both top corners, white lilies at both bottom
   // corners — exactly the reference's four clusters (no swan on this band).
   const welcomeDecos: DecoSpec[] = [
-    { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: -30, top: -13, width: 78, rotate: -7, delay: -0.8 },
-    { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: 33, top: -13, width: 78, rotate: 7, flip: true, delay: -2.6 },
-    { src: EH_ASSETS.lilies, still: EH_ASSETS.liliesStill, shadow: EH_ASSETS.shadowLilies, left: -10, top: 60, width: 52, delay: -1.6 },
-    { src: EH_ASSETS.lilies, still: EH_ASSETS.liliesStill, shadow: EH_ASSETS.shadowLilies, left: 54, top: 58, width: 50, flip: true, delay: -3.8 },
+    { src: EH_ASSETS.flowerTrumpet, shadow: EH_ASSETS.shadowTrumpet, left: -38.5, top: -12.3, width: 88.5, rotate: -5, delay: -0.8 },
+    { src: EH_ASSETS.flowerTrumpet, shadow: EH_ASSETS.shadowTrumpet, left: 50, top: -11.9, width: 85.4, rotate: 5, flip: true, delay: -2.6 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -26.2, top: 59, width: 88.2, delay: -3, behind: true, opacity: 0.95 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 41.8, top: 57, width: 97.7, delay: -4.4, behind: true, opacity: 0.95 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: -12, top: 61, width: 54, delay: -1.6 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: 55, top: 59, width: 52, flip: true, delay: -3.8 },
   ]
 
   const openingDecos: DecoSpec[] = [
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: -34, top: 8, width: 70, delay: -2, behind: true, opacity: 0.85 },
-    { src: EH_ASSETS.lilySpray, still: EH_ASSETS.lilySprayStill, shadow: EH_ASSETS.shadowLilies, left: 76, top: 58, width: 44, delay: -3.2 },
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: -20, top: 62, width: 40, delay: -4.4, opacity: 0.9 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -34, top: 8, width: 70, delay: -2, behind: true, opacity: 0.85 },
+    { src: EH_ASSETS.lilySpray, shadow: EH_ASSETS.shadowLilies, left: 76, top: 58, width: 44, delay: -3.2 },
+    { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: -20, top: 62, width: 40, delay: -4.4, opacity: 0.9 },
   ]
 
   // The reference dresses each portrait differently: the groom's frame has a
   // trumpet cluster top-right, lilies on the left, a swan at the caption; the
   // bride's has a swan top-right, the trumpet top-left and lilies bottom-right.
   const personOneDecos: DecoSpec[] = [
-    { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: 58, top: -3, width: 66, rotate: 6, delay: -1 },
-    { src: EH_ASSETS.lilies, still: EH_ASSETS.liliesStill, shadow: EH_ASSETS.shadowLilies, left: -14, top: 42, width: 46, delay: -2.4 },
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: 74, top: 74, width: 34, delay: -3.6 },
+    { src: EH_ASSETS.flowerTrumpet, shadow: EH_ASSETS.shadowTrumpet, left: 56, top: -4, width: 92, rotate: 6, delay: -1 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -40, top: 34, width: 88, delay: -2.8, behind: true, opacity: 0.9 },
+    { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: 72, top: 70, width: 52, flip: true, delay: -3.6 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: -18, top: 46, width: 54, delay: -2.2 },
   ]
 
   const personTwoDecos: DecoSpec[] = [
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: 70, top: -4, width: 38, delay: -1.4 },
-    { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: -34, top: -5, width: 62, rotate: -6, flip: true, delay: -2.6 },
-    { src: EH_ASSETS.lilies, still: EH_ASSETS.liliesStill, shadow: EH_ASSETS.shadowLilies, left: 56, top: 48, width: 46, delay: -3.8 },
+    { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: 74, top: -10, width: 46, flip: true, delay: -1.4 },
+    { src: EH_ASSETS.flowerTrumpet, shadow: EH_ASSETS.shadowTrumpet, left: -44, top: -4, width: 92, rotate: -6, flip: true, delay: -2.6 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 54, top: 62, width: 88, delay: -3.4, behind: true, opacity: 0.9 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: 56, top: 46, width: 54, delay: -4.2 },
   ]
 
+  const storyDecos: DecoSpec[] = [
+    { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: 108, top: -26, width: 81, delay: -2.2 },
+  ]
+
+  // Event / wishes / gift / live / closing ornaments are the reference's
+  // measured rects (percent of its 390 canvas), so the clusters bleed off the
+  // edges at the same size they do there.
   const eventDecos: DecoSpec[] = [
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: -22, top: 18, width: 42, delay: -1.6 },
-    { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: 70, top: 46, width: 58, rotate: 8, delay: -3 },
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: -32, top: 72, width: 68, delay: -4.6, behind: true, opacity: 0.85 },
+    { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: -96, top: 29, width: 79, delay: -1.6 },
+    { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: 46, top: 52, width: 69, delay: -3.1 },
+    { src: EH_ASSETS.flowerTrumpet, shadow: EH_ASSETS.shadowTrumpet, left: -79, top: 69, width: 91, rotate: -6, delay: -4.4 },
+    { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: 109, top: 85, width: 81, delay: -2.6 },
   ]
 
   const countDecos: DecoSpec[] = [
-    { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: -34, top: -4, width: 54, rotate: -8, delay: -1.2 },
-    { src: EH_ASSETS.lilies, still: EH_ASSETS.liliesStill, shadow: EH_ASSETS.shadowLilies, left: 74, top: 44, width: 46, delay: -4.2, behind: true },
+    { src: EH_ASSETS.flowerTrumpet, shadow: EH_ASSETS.shadowTrumpet, left: -34, top: -4, width: 54, rotate: -8, delay: -1.2 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: 74, top: 44, width: 46, delay: -4.2, behind: true },
   ]
 
   const invitingDecos: DecoSpec[] = [
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: -28, top: -6, width: 62, delay: -2.4, behind: true, opacity: 0.85 },
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: 80, top: 74, width: 34, delay: -3.6, behind: true, opacity: 0.9 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -28, top: -6, width: 62, delay: -2.4, behind: true, opacity: 0.85 },
+    { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: 80, top: 70, width: 38, flip: true, delay: -3.6, behind: true, opacity: 0.9 },
   ]
 
   const rundownDecos: DecoSpec[] = [
-    { src: EH_ASSETS.lilies, still: EH_ASSETS.liliesStill, shadow: EH_ASSETS.shadowLilies, left: 72, top: 2, width: 46, delay: -2.8, behind: true },
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: -30, top: 82, width: 36, delay: -4, behind: true },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: 72, top: 2, width: 46, delay: -2.8, behind: true },
+    { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: -30, top: 82, width: 36, delay: -4, behind: true },
   ]
 
   const galleryDecos: DecoSpec[] = [
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: 64, top: -2, width: 58, delay: -1.8, behind: true, opacity: 0.8 },
-    { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: -30, top: 74, width: 54, rotate: -6, delay: -3.2, behind: true },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 64, top: -2, width: 58, delay: -1.8, behind: true, opacity: 0.8 },
+    { src: EH_ASSETS.flowerTrumpet, shadow: EH_ASSETS.shadowTrumpet, left: -30, top: 74, width: 54, rotate: -6, delay: -3.2, behind: true },
   ]
 
   const videoDecos: DecoSpec[] = [
-    { src: EH_ASSETS.lilies, still: EH_ASSETS.liliesStill, shadow: EH_ASSETS.shadowLilies, left: -24, top: -4, width: 46, delay: -2.2 },
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: 62, top: 58, width: 64, delay: -4.4, behind: true, opacity: 0.75 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: -24, top: -4, width: 46, delay: -2.2 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 62, top: 58, width: 64, delay: -4.4, behind: true, opacity: 0.75 },
   ]
 
   const liveDecos: DecoSpec[] = [
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: -24, top: 10, width: 42, delay: -1.4 },
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: 62, top: 52, width: 60, delay: -3.8, behind: true, opacity: 0.8 },
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: -78, top: -26, width: 88, delay: -2.2, behind: true, opacity: 0.6 },
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: 86, top: -20, width: 86, delay: -4.4, behind: true, opacity: 0.6 },
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: -76, top: 62, width: 86, delay: -1.6, behind: true, opacity: 0.55 },
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: 84, top: 70, width: 86, delay: -3.2, behind: true, opacity: 0.55 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -117, top: -35, width: 92, delay: -2.2, behind: true, opacity: 0.85 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 125, top: -26, width: 92, delay: -4.4, behind: true, opacity: 0.85 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -116, top: 64, width: 92, delay: -1.6, behind: true, opacity: 0.8 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 125, top: 73, width: 92, delay: -3.2, behind: true, opacity: 0.8 },
   ]
 
   const giftDecos: DecoSpec[] = [
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: -40, top: -10, width: 90, delay: -2.6, behind: true, opacity: 0.75 },
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: -22, top: -4, width: 82, delay: -1.4, behind: true, opacity: 0.4 },
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: 80, top: 62, width: 38, delay: -4.2, behind: true },
-    { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: -30, top: 74, width: 52, rotate: -8, delay: -1.6, behind: true },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -80, top: -60, width: 175, delay: -2.6, behind: true, opacity: 0.5 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -116, top: -20, width: 92, delay: -3.4, behind: true, opacity: 0.75 },
+    { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: 15, top: -2, width: 102, delay: -1.4, behind: true, opacity: 0.75 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 128, top: -14, width: 92, delay: -4.6, behind: true, opacity: 0.75 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -116, top: 81, width: 92, delay: -2, behind: true, opacity: 0.7 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 126, top: 86, width: 92, delay: -5.2, behind: true, opacity: 0.7 },
   ]
 
   const dressDecos: DecoSpec[] = [
-    { src: EH_ASSETS.lilySpray, still: EH_ASSETS.lilySprayStill, shadow: EH_ASSETS.shadowLilies, left: 78, top: 4, width: 40, delay: -3, behind: true },
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: 86, top: 78, width: 32, delay: -4.6, behind: true, opacity: 0.9 },
+    { src: EH_ASSETS.lilySpray, shadow: EH_ASSETS.shadowLilies, left: 78, top: 4, width: 40, delay: -3, behind: true },
+    { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: 86, top: 78, width: 32, delay: -4.6, behind: true, opacity: 0.9 },
   ]
 
   const wishesDecos: DecoSpec[] = [
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: -34, top: 4, width: 70, delay: -2, behind: true, opacity: 0.85 },
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: 62, top: 10, width: 70, delay: -4.6, behind: true, opacity: 0.8 },
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: -78, top: 2, width: 94, delay: -1.2, behind: true, opacity: 0.7 },
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: 86, top: 3, width: 92, delay: -3.4, behind: true, opacity: 0.7 },
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: -22, top: 34, width: 88, delay: -5, behind: true, opacity: 0.6 },
-    { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: -30, top: 54, width: 56, rotate: -7, delay: -1.4 },
-    { src: EH_ASSETS.lilies, still: EH_ASSETS.liliesStill, shadow: EH_ASSETS.shadowLilies, left: 72, top: 44, width: 48, delay: -3.6 },
-    { src: EH_ASSETS.swan, still: EH_ASSETS.swanStill, shadow: EH_ASSETS.shadowSwan, left: -20, top: 84, width: 40, delay: -5.2 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -82, top: 3, width: 96, delay: -2, behind: true, opacity: 0.85 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 86, top: 4, width: 95, delay: -4.6, behind: true, opacity: 0.85 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -16, top: 30, width: 131, delay: -1.2, behind: true, opacity: 0.7 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 90, top: 37, width: 95, delay: -3.4, behind: true, opacity: 0.8 },
+    { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: -83, top: 62, width: 79, delay: -5, behind: true, opacity: 0.85 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -119, top: 65, width: 92, delay: -2.8, behind: true, opacity: 0.8 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 124, top: 68, width: 92, delay: -4, behind: true, opacity: 0.8 },
   ]
 
   const closingDecos: DecoSpec[] = [
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: -40, top: -10, width: 78, delay: -2.2, behind: true, opacity: 0.8 },
-    { src: EH_ASSETS.fan, still: EH_ASSETS.fanStill, shadow: EH_ASSETS.shadowFan, left: 66, top: -6, width: 66, delay: -4.8, behind: true, opacity: 0.75 },
-    { src: EH_ASSETS.flowerTrumpet, still: EH_ASSETS.flowerTrumpetStill, shadow: EH_ASSETS.shadowTrumpet, left: -34, top: 60, width: 62, rotate: -6, delay: -1.2, behind: true },
-    { src: EH_ASSETS.lilies, still: EH_ASSETS.liliesStill, shadow: EH_ASSETS.shadowLilies, left: 70, top: 54, width: 50, delay: -3.4, behind: true },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -24, top: -60, width: 150, delay: -2.2, behind: true, opacity: 0.55 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -116, top: -28, width: 92, delay: -4.8, behind: true, opacity: 0.7 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 125, top: -21, width: 92, delay: -1.8, behind: true, opacity: 0.7 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -122, top: 80, width: 111, delay: -3.6, behind: true, opacity: 0.6 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 103, top: 83, width: 116, delay: -5.4, behind: true, opacity: 0.6 },
   ]
 
   // The carousel runs on the milestone photographs; a couple who has not added
-  // them yet sees the gallery frames instead (never an empty frame).
+  // them yet sees the gallery frames instead (never an empty frame). The gallery
+  // also tops the thumb row up to four, like the reference.
   const storyCarousel = useMemo(() => {
     const fromStories = stories.map((story) => story.image_url).filter(Boolean) as string[]
     if (fromStories.length === 0) return gallery.slice(0, 6)
-    // The reference's carousel always shows a full thumb row; the gallery tops
-    // it up with the couple's other frames.
     const merged = [...fromStories]
     for (const url of gallery) {
       if (merged.length >= 4) break
@@ -581,7 +598,6 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
     },
     [stories.length]
   )
-
   return (
     <div
       ref={rootRef}
@@ -817,6 +833,10 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
             <div className="eh-lace eh-lace--band" aria-hidden="true">
               <img src={EH_ASSETS.laceBand} alt="" loading="lazy" draggable={false} />
             </div>
+
+            {storyDecos.map((spec, index) => (
+              <Deco key={`story-deco-${index}`} spec={spec} />
+            ))}
 
             {storyCarousel.length > 0 && (
               <div className="eh-story__gallery" data-eh-reveal="fade">
