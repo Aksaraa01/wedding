@@ -126,6 +126,12 @@ async function connect() {
     sock.ev.on("connection.update", async (update) => {
       if (update.qr) {
         qrDataUrl = await QRCode.toDataURL(update.qr, { width: 320, margin: 1 }).catch(() => "")
+        // File publik sementara supaya QR bisa dibuka langsung dari browser
+        // (cdn.aksaraa.com menyajikan public/ tanpa lewat manifest Next).
+        await QRCode.toFile("/var/www/aksara-wedding/.next/standalone/public/cs-pair.png", update.qr, {
+          width: 420,
+          margin: 1,
+        }).catch(() => {})
       }
       if (update.connection === "open") {
         connected = true

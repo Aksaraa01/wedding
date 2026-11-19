@@ -246,6 +246,51 @@ export const STORY_QUESTIONS = [
   { key: "year", question: "Tahunnya? (4 digit, boleh di-skip)", optional: true },
 ] as const
 
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d(\s*-\s*([01]\d|2[0-3]):[0-5]\d)?$/
+const MAPS_RE = /^https?:\/\/([a-z0-9-]+\.)*(google\.[a-z.]+|goo\.gl|maps\.app\.goo\.gl)\//i
+
+// Validasi per sub-field sesi. Sengaja tidak memvalidasi seluruh array: data
+// lama boleh punya tanggal lampau atau jam berbentuk rentang ("08:00-10:00"),
+// dan itu tidak boleh menghalangi klien melengkapi field lain.
+export function validateSessionField(
+  key: string,
+  raw: string,
+  now: Date = new Date()
+): { ok: boolean; value?: string; error?: string } {
+  const text = (raw || "").trim()
+  if (!text) return { ok: false, error: "Jawabannya masih kosong." }
+
+  switch (key) {
+    case "name":
+      return text.length <= 80 ? { ok: true, value: text } : { ok: false, error: "Nama acara terlalu panjang." }
+    case "date": {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+        return { ok: false, error: "Format tanggal: 2026-12-12" }
+      }
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      if (new Date(`${text}T00:00:00`) < today) {
+        return { ok: false, error: "Tanggal acara tidak boleh di masa lalu." }
+      }
+      return { ok: true, value: text }
+    }
+    case "time":
+      return TIME_RE.test(text)
+        ? { ok: true, value: text }
+        : { ok: false, error: "Format jam: 08:00 atau 08:00-10:00" }
+    case "venue":
+      return text.length <= 120 ? { ok: true, value: text } : { ok: false, error: "Nama tempat terlalu panjang." }
+    case "address":
+      return text.length <= 300 ? { ok: true, value: text } : { ok: false, error: "Alamat terlalu panjang." }
+    case "maps_url":
+      return MAPS_RE.test(text)
+        ? { ok: true, value: text }
+        : { ok: false, error: "Tempel link Google Maps (https://maps…)." }
+    default:
+      return { ok: true, value: text }
+  }
+}
+
+
 const SKIP_WORDS = ["lewati", "skip", "kosong", "tidak ada", "-", "gak ada", "nggak ada"]
 
 export function isSkip(text: string): boolean {

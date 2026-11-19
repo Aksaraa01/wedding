@@ -16,6 +16,8 @@ import {
   type FlowField,
 } from "@/lib/cs/onboardingSpec"
 import { validateField } from "@/lib/cs/profileFields"
+import { validateSessionField } from "@/lib/cs/onboardingSpec"
+import { classify } from "@/lib/cs/policy"
 
 const STATE_KEY = "__onboarding"
 
@@ -382,17 +384,12 @@ async function answerSession(
 
   const sessionDraft = (state.sessionDraft as Record<string, unknown>) || {}
 
-  if (question.key === "date") {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return "Format tanggal: 2026-12-12. Coba lagi ya Kak."
-  }
-  if (question.key === "time") {
-    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(text)) return "Format jam: 08:00. Coba lagi ya Kak."
-  }
-  if (question.key === "maps_url" && !/^https?:\/\/\S+/i.test(text)) {
-    return "Link Maps harus diawali https://. Tempel linknya ya Kak."
-  }
+  // Validasi hanya sub-field yang sedang dijawab. Sesi lain (termasuk data lama
+  // dengan tanggal lampau / jam rentang) tidak boleh memblokir.
+  const checked = validateSessionField(question.key, text)
+  if (!checked.ok) return `${checked.error} Coba lagi ya Kak.`
 
-  sessionDraft[question.key] = text
+  sessionDraft[question.key] = checked.value ?? text
   state.sessionDraft = sessionDraft
   state.sessionStep = step + 1
 
@@ -409,14 +406,6 @@ async function answerSession(
           index === editIndex ? { ...(session as Record<string, unknown>), ...sessionDraft } : session
         )
       : [...existing, sessionDraft]
-  const valid = validateField("sessions", next)
-  if (!valid.ok) {
-    state.sessionStep = 0
-    state.sessionDraft = {}
-    state.sessionEditIndex = null
-    await saveState(profileId, contactId, draft, state)
-    return `${valid.message}\n\nAyo ulangi ${typeof editIndex === "number" ? "sesi itu" : "sesi ini"} ya Kak: ${SESSION_QUESTIONS[0].question}`
-  }
 
   await applyField(profileId, "sessions", next)
   state.sessionStep = 0
@@ -475,11 +464,21 @@ async function answerStory(
   return `Cerita "${storyDraft.title}" tersimpan. Ada momen lain? Sebut judulnya, atau balas "selesai".`
 }
 
+const ESCAPE_INTENTS = new Set([
+  "voucher",
+  "refund",
+  "payment",
+  "human_request",
+  "discount",
+  "complaint",
+  "out_of_scope",
+])
+
 export async function handleOnboarding(
   profileId: string,
   contactId: string,
   text: string
-): Promise<string> {
+): Promise<string | null> {
   const { state, draft } = await getOnboardingState(profileId)
   if (!state) return startOnboarding(profileId, contactId)
 
@@ -488,6 +487,19 @@ export async function handleOnboarding(
 
   const message = text.trim()
   const lower = message.toLowerCase()
+
+  // Pertanyaan di tengah pengisian (voucher, refund, cara bayar, minta tim)
+  // tidak boleh "ditelan" sebagai jawaban field. Lepaskan ke router normal;
+  // state alur tetap tersimpan untuk dilanjutkan.
+  const askingQuestion =
+    state.stage === "data" &&
+    (!!state.field || state.sessionStep !== undefined || state.storyStep !== undefined)
+  if (askingQuestion && ESCAPE_INTENTS.has(classify(message))) return null
+
+  if (state.stage === "preview") {
+    const confirming = /^(ya|iya|ok|oke|sudah|udah|betul|benar|setuju|belum|tidak|bukan)/.test(lower)
+    if (!confirming && !mapSectionFromText(lower) && classify(message) !== "unknown") return null
+  }
 
   // Job template WP yang masih berjalan.
   if (state.templateJob?.id) {

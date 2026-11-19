@@ -9,6 +9,7 @@ import {
   mapSectionFromText,
   matchTemplateByName,
   validateFlowAnswer,
+  validateSessionField,
 } from "../src/lib/cs/onboardingSpec.ts"
 import {
   CODE_TTL_MS,
@@ -1189,4 +1190,24 @@ test("onboarding: setiap bagian punya field atau manual", () => {
       assert.ok(field.label.length > 0, `${key}.${field.key}`)
     }
   }
+})
+
+// ---------- sesi acara: validasi per sub-field ----------
+
+test("sesi: jam rentang diterima, tanggal lampau ditolak", () => {
+  const now = new Date("2026-11-19T00:00:00")
+  assert.equal(validateSessionField("time", "08:00", now).ok, true)
+  assert.equal(validateSessionField("time", "10:00-11:00", now).ok, true)
+  assert.equal(validateSessionField("time", "8 pagi", now).ok, false)
+  assert.equal(validateSessionField("date", "2026-12-03", now).ok, true)
+  assert.equal(validateSessionField("date", "2026-09-24", now).ok, false)
+  assert.equal(validateSessionField("date", "03/12/2026", now).ok, false)
+  assert.equal(validateSessionField("date", "2026-12-03").ok, true)
+})
+
+test("sesi: link maps harus Google Maps", () => {
+  assert.equal(validateSessionField("maps_url", "https://maps.app.goo.gl/abc").ok, true)
+  assert.equal(validateSessionField("maps_url", "https://www.google.com/maps?q=medan").ok, true)
+  assert.equal(validateSessionField("maps_url", "gagsgaga").ok, false)
+  assert.equal(validateSessionField("maps_url", "https://example.com/maps").ok, false)
 })

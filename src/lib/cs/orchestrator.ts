@@ -259,8 +259,11 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
     const { state: onboarding } = await getOnboardingState(input.weddingProfileId)
     if (onboarding && onboarding.stage !== "done") {
       const text = await handleOnboarding(input.weddingProfileId, input.contactId, input.text)
-      await persistOutbound(input.conversationId, text, { intent, model: null })
-      return { replies: [{ text }], guarded: true, toolNames: [] }
+      // null = pertanyaan di luar alur (voucher/refund/bayar): lanjut ke router.
+      if (text !== null) {
+        await persistOutbound(input.conversationId, text, { intent, model: null })
+        return { replies: [{ text }], guarded: true, toolNames: [] }
+      }
     }
   }
 
@@ -273,7 +276,9 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
       return { replies: [{ text }], guarded: true, toolNames: [] }
     }
     if (input.verified && input.weddingProfileId) {
-      const text = await handleOnboarding(input.weddingProfileId, input.contactId, input.text)
+      const text =
+        (await handleOnboarding(input.weddingProfileId, input.contactId, input.text)) ||
+        "Oke, lanjut isi undangannya kapan-kapan ya Kak."
       await persistOutbound(input.conversationId, text, { intent, model: null })
       return { replies: [{ text }], guarded: true, toolNames: [] }
     }
