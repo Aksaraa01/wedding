@@ -149,6 +149,33 @@ async function coverSlotCount(profile: Record<string, unknown>): Promise<number>
   return Math.max(1, spec?.cover_slots ?? manifestSlots ?? 3)
 }
 
+function describeStories(profile: Record<string, unknown>): string {
+  const stories = Array.isArray(profile.stories) ? (profile.stories as Record<string, unknown>[]) : []
+  if (!stories.length) return "Belum ada kisah cinta yang tersimpan."
+  const lines = stories.slice(0, 6).map((story, index) => {
+    const title = String(story.title || "Tanpa judul")
+    const year = story.year ? ` (${story.year})` : ""
+    const description = story.description ? ` — ${String(story.description)}` : ""
+    return `${index + 1}. ${title}${year}${description}`
+  })
+  return `Kisah cinta yang sudah tersimpan:\n${lines.join("\n")}`
+}
+
+function describeSessions(profile: Record<string, unknown>): string {
+  const sessions = Array.isArray(profile.sessions) ? (profile.sessions as Record<string, unknown>[]) : []
+  if (!sessions.length) return "Belum ada sesi acara yang tersimpan."
+  const lines = sessions.slice(0, 6).map((session, index) => {
+    const name = String(session.name || "Acara")
+    const date = session.date ? ` ${String(session.date)}` : ""
+    const time = session.time ? ` ${String(session.time)}` : ""
+    const venue = session.venue ? ` di ${String(session.venue)}` : ""
+    return `${index + 1}. ${name}${date}${time}${venue}`
+  })
+  return `Sesi acara yang sudah tersimpan:\n${lines.join("\n")}`
+}
+
+const ASK_ABOUT_DATA = /apa saja|apa aja|sudah terisi|terisi apa|isi apa|lihat data|cek data|data apa|detail|rincian/i
+
 async function applyField(profileId: string, key: string, value: unknown): Promise<void> {
   const profile = await profileRow(profileId)
   if (!profile) return
@@ -979,6 +1006,11 @@ export async function handleOnboarding(
   }
 
   if (state.sessionAwaitingMore) {
+    if (looksLikeQuestion(message) || ASK_ABOUT_DATA.test(lower)) {
+      const profileNow = await profileRow(profileId)
+      await saveState(profileId, contactId, draft, state)
+      return `${describeSessions(profileNow || {})}\n\nAda acara lain? Sebut nama acaranya, atau balas "selesai".`
+    }
     if (CONFIRM.test(lower)) {
       state.sessionAwaitingMore = false
       state.asked = Array.from(new Set([...(state.asked || []), "acara"]))
@@ -998,6 +1030,11 @@ export async function handleOnboarding(
   }
 
   if (state.storyAwaitingMore) {
+    if (looksLikeQuestion(message) || ASK_ABOUT_DATA.test(lower)) {
+      const profileNow = await profileRow(profileId)
+      await saveState(profileId, contactId, draft, state)
+      return `${describeStories(profileNow || {})}\n\nAda momen lain? Sebut judulnya, atau balas "selesai".`
+    }
     if (CONFIRM.test(lower)) {
       state.storyAwaitingMore = false
       state.asked = Array.from(new Set([...(state.asked || []), "story"]))
