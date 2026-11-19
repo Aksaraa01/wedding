@@ -137,7 +137,10 @@ Dipicu oleh intent isi/ubah data (`data_collection`/`data_change`).
      `active_wp_post_id`, dan dicatat di `cs_audit`.
 4. **Pratinjau**: `https://wedding.aksaraa.com/preview/{id}` (belum tayang).
 5. **Konfirmasi**: "sudah oke?" → belum: sebutkan bagian, agent mengulang bagian
-   itu; sudah: agent mengirim instruksi login → Web Invitation → Publikasi.
+   itu; sudah: agent mengirim tautan **editor** (`/dashboard/{id}/web-invitation/editor`)
+   dengan instruksi login → pratinjau → tombol **Konfirmasi**.
+   Jangan memakai `/dashboard/{id}/web-invitation` (itu hanya halaman hub berisi
+   kartu feedback/templates/editor, tanpa tombol publikasi).
    **Agent tidak pernah mempublikasikan sendiri.**
 6. **Hadiah** (rekening/alamat) sengaja tidak diisi lewat chat: agent
    mengarahkan ke dashboard karena menyangkut uang.
