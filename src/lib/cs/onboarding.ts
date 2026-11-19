@@ -348,8 +348,12 @@ async function sectionPrompt(
   const spec = SECTION_SPECS[sectionKey]
   if (!spec) return null
 
-  // Sesi acara: lengkapi sesi yang belum lengkap dulu, baru tambah sesi baru.
+  // Sesi acara: lengkapi sesi yang belum lengkap; kalau sudah lengkap,
+  // tawarkan "ada acara lain?" SEKALI, lalu tutup bagian ini.
   if (spec.repeat === "sessions") {
+    if (state.sessionAwaitingMore) return null
+    if ((state.asked || []).includes("acara")) return null
+
     const sessions = Array.isArray(profile.sessions)
       ? (profile.sessions as Record<string, unknown>[])
       : []
@@ -360,14 +364,22 @@ async function sectionPrompt(
 
     if (incompleteIndex >= 0) {
       const missingKey = required.find((key) => !String(sessions[incompleteIndex]?.[key] ?? "").trim()) || "name"
-      const step = SESSION_QUESTIONS.findIndex((question) => question.key === missingKey)
+      const missingStep = SESSION_QUESTIONS.findIndex((question) => question.key === missingKey)
       state.section = sectionKey
       state.sessionEditIndex = incompleteIndex
-      state.sessionStep = step >= 0 ? step : 0
+      state.sessionStep = missingStep >= 0 ? missingStep : 0
       state.pendingUpload = null
       await saveState(profileId, contactId, draft, state)
       const label = sessions[incompleteIndex]?.name || `sesi ${incompleteIndex + 1}`
       return `Bagian Acara (melengkapi "${label}"): ${SESSION_QUESTIONS[state.sessionStep].question}`
+    }
+
+    if (sessions.length > 0) {
+      state.section = sectionKey
+      state.sessionAwaitingMore = true
+      state.pendingUpload = null
+      await saveState(profileId, contactId, draft, state)
+      return 'Semua sesi acara sudah lengkap. Ada acara lain? Sebut nama acaranya, atau balas "selesai".'
     }
 
     const step = state.sessionStep ?? 0
@@ -398,6 +410,7 @@ async function sectionPrompt(
   }
 
   if (spec.repeat === "stories") {
+    if ((state.asked || []).includes("story")) return null
     const step = state.storyStep ?? 0
     const question = STORY_QUESTIONS[step]
     if (question) {
@@ -733,7 +746,12 @@ async function applyTemplate(
   return `Template "${template.name}" dipakai. ${await nextPrompt(profileId, contactId, state, draft)}`
 }
 
-const CONFIRM = /^(selesai|cukup|sudah|udah|tidak|gak|nggak|engga|no|nope|ya sudah|oke sudah|belum perlu)/
+const CONFIRM =
+  /^(selesai|cukup|sudah|udah|tidak|gak|nggak|engga|no|nope|ya sudah|oke sudah|belum perlu|beres|done|itu aja|segitu|tidak usah|gak usah|nggak usah|ga usah|cuma itu|hanya itu|sudah aja|udah aja)/
+
+// "ya" sendirian pada pertanyaan "ada acara lain?" berarti mereka PUNYA acara
+// lain, bukan "selesai".
+const YES_ONLY = /^(ya|iya|ada|mau|perlu|masih ada)\s*$/i
 
 const GIFT_ACCOUNT_QUESTIONS = [
   { key: "provider_name", question: "Rekening hadiah: bank atau e-wallet apa? (contoh: BCA / GoPay)" },
@@ -898,12 +916,18 @@ export async function handleOnboarding(
   }
 
   if (state.sessionAwaitingMore) {
-    state.sessionAwaitingMore = false
     if (CONFIRM.test(lower)) {
+      state.sessionAwaitingMore = false
+      state.asked = Array.from(new Set([...(state.asked || []), "acara"]))
       await saveState(profileId, contactId, draft, state)
       return nextPrompt(profileId, contactId, state, draft)
     }
-    // Bukan konfirmasi: anggap nama acara baru.
+    if (YES_ONLY.test(lower)) {
+      await saveState(profileId, contactId, draft, state)
+      return "Siap, sebut nama acara barunya ya Kak."
+    }
+    // Nama acara baru.
+    state.sessionAwaitingMore = false
     state.sessionDraft = { name: message }
     state.sessionStep = 1
     await saveState(profileId, contactId, draft, state)
@@ -911,11 +935,17 @@ export async function handleOnboarding(
   }
 
   if (state.storyAwaitingMore) {
-    state.storyAwaitingMore = false
     if (CONFIRM.test(lower)) {
+      state.storyAwaitingMore = false
+      state.asked = Array.from(new Set([...(state.asked || []), "story"]))
       await saveState(profileId, contactId, draft, state)
       return nextPrompt(profileId, contactId, state, draft)
     }
+    if (YES_ONLY.test(lower)) {
+      await saveState(profileId, contactId, draft, state)
+      return "Siap, sebut judul momen barunya ya Kak."
+    }
+    state.storyAwaitingMore = false
     state.storyDraft = { title: message }
     state.storyStep = 1
     await saveState(profileId, contactId, draft, state)
