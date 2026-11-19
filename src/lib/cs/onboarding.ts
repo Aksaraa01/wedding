@@ -4,6 +4,9 @@
 
 import { supabaseAdmin } from "@/lib/supabase"
 import { getPublishBlockers } from "@/lib/publishBlockers"
+import { getRowGates } from "@/lib/featureGates"
+import { getTemplateContentSpec } from "@/components/templates"
+import { hidesOpeningSection } from "@/lib/templateSections"
 import { enqueueDuplicate, enqueuePatch, hasOpenWpChain } from "@/lib/wpSyncWorker"
 import {
   SECTION_SPECS,
@@ -34,6 +37,9 @@ export interface OnboardingState {
   sessionEditIndex?: number | null
   sessionAwaitingMore?: boolean
   storyAwaitingMore?: boolean
+  giftPhase?: "account" | "address" | null
+  giftStep?: number
+  giftDraft?: Record<string, unknown>
   storyStep?: number
   storyDraft?: Record<string, unknown> | null
   pendingUpload?: string | null
@@ -48,6 +54,10 @@ interface DraftRow {
 }
 
 const DIRECT_COLUMNS = new Set([
+  "groom_name",
+  "bride_name",
+  "couple_initials",
+  "display_name",
   "opening_title",
   "opening_description",
   "groom_full_name",
@@ -110,7 +120,7 @@ async function profileRow(profileId: string) {
   const { data } = await supabaseAdmin
     .from("wedding_profiles")
     .select(
-      "id,slug,package_type,event_type,selected_template_id,active_wp_post_id,groom_full_name,bride_full_name,groom_parents,bride_parents,groom_instagram,bride_instagram,opening_title,opening_description,quote_text,quote_source,video_url,groom_photo_url,bride_photo_url,sessions,stories,gallery_photos,cover_photos,inviting_families,link_thumbnail_url,link_thumbnail_disabled,is_published"
+      "id,slug,package_type,event_type,selected_template_id,active_wp_post_id,groom_full_name,bride_full_name,groom_parents,bride_parents,groom_instagram,bride_instagram,opening_title,opening_description,quote_text,quote_source,video_url,groom_photo_url,bride_photo_url,sessions,stories,gallery_photos,cover_photos,inviting_families,link_thumbnail_url,link_thumbnail_disabled,is_published,groom_name,bride_name,couple_initials,display_name,dresscode,livestream,rundown,contacts"
     )
     .eq("id", profileId)
     .maybeSingle()
@@ -130,7 +140,30 @@ async function applyField(profileId: string, key: string, value: unknown): Promi
   if (DIRECT_COLUMNS.has(key)) patch[key] = value
   else if (JSONB_COLUMNS.has(key)) patch[key] = value
   else if (key === "inviting_families") patch[key] = JSON.stringify(value)
-  else if (key === "gallery_photos" || key === "cover_photos") {
+  else if (key === "dresscode_title" || key === "dresscode_description") {
+    const current = (profile.dresscode as Record<string, unknown>) || {}
+    patch.dresscode = {
+      ...current,
+      ...(key === "dresscode_title" ? { title: value } : { description: value }),
+    }
+  } else if (key === "livestream_url" || key === "livestream_title") {
+    const current = (profile.livestream as Record<string, unknown>) || {}
+    patch.livestream = {
+      ...current,
+      ...(key === "livestream_url" ? { url: value } : { title: value }),
+    }
+  } else if (key === "rundown") {
+    patch.rundown = (Array.isArray(value) ? value : []).map((line) => {
+      const text = String(line)
+      const match = text.match(/^\s*(\d{1,2}[:.]\d{2})\s*(.*)$/)
+      return match ? { time: match[1].replace(".", ":"), description: match[2] } : { time: "", description: text }
+    })
+  } else if (key === "contacts") {
+    patch.contacts = (Array.isArray(value) ? value : []).map((line) => {
+      const parts = String(line).split(/\s+-\s+|\s*\|\s*/).map((part) => part.trim())
+      return { name: parts[0] || "", whatsapp: parts[1] || "", description: parts[2] || "" }
+    })
+  } else if (key === "gallery_photos" || key === "cover_photos") {
     const current = Array.isArray(profile[key]) ? (profile[key] as unknown[]) : []
     const next = Array.isArray(value) ? value : [...current, value]
     patch[key] = key === "cover_photos" ? next.slice(0, 3) : next
@@ -215,6 +248,44 @@ export async function startOnboarding(profileId: string, contactId: string): Pro
   return nextPrompt(profileId, contactId, state, draft)
 }
 
+async function applicableSections(profile: Record<string, unknown>): Promise<string[]> {
+  const noPhoto = false
+  let spec: ReturnType<typeof getTemplateContentSpec> = undefined
+  let templateNoPhoto = false
+  let templateCode: string | null = null
+
+  if (profile.selected_template_id) {
+    const { data: template } = await supabaseAdmin
+      .from("web_templates")
+      .select("code,no_photo")
+      .eq("id", profile.selected_template_id)
+      .maybeSingle()
+    templateCode = (template?.code as string) || null
+    templateNoPhoto = template?.no_photo === true
+    spec = getTemplateContentSpec(templateCode)
+  }
+
+  const gates = await getRowGates((profile.package_type as string) || "signature")
+  const sections: string[] = []
+
+  if (!templateNoPhoto) sections.push("sampul")
+  if (!hidesOpeningSection(templateCode)) sections.push("pembuka")
+  sections.push("profile", "acara")
+  if (!templateNoPhoto) sections.push("galeri")
+  if (gates.inviting_families.included && spec?.sections?.inviting !== false) sections.push("inviting")
+  if (spec?.sections?.quote !== false) sections.push("kutipan")
+  if (gates.cinematic_video.included && !templateNoPhoto && spec?.sections?.video !== false) sections.push("video")
+  if (gates.story.included && spec?.sections?.story !== false) sections.push("story")
+  sections.push("gift")
+  if (spec?.sections?.dresscode) sections.push("dresscode")
+  if (spec?.sections?.livestream) sections.push("livestream")
+  if (spec?.sections?.rundown) sections.push("rundown")
+  if (spec?.sections?.contacts) sections.push("contacts")
+
+  void noPhoto
+  return sections
+}
+
 async function nextPrompt(
   profileId: string,
   contactId: string,
@@ -236,25 +307,18 @@ async function nextPrompt(
     return templateListReply(templates)
   }
 
-  const blockers = (await getPublishBlockers(profileId)).filter((blocker) => blocker.key !== "tema")
+  // Alur mengikuti SEMUA bagian yang tampil di editor (template + paket),
+  // bukan hanya yang menghalangi publikasi.
+  const sections = await applicableSections(profile)
 
-  if (!blockers.length) {
-    state.stage = "preview"
-    state.section = undefined
-    state.field = undefined
-    state.previewSent = true
-    await saveState(profileId, contactId, draft, state)
-    return `Semua data inti sudah lengkap 🎉\nCek hasilnya dulu ya Kak: ${previewLink(profile)}\n\nSudah oke? Balas "ya" kalau sudah, atau sebutkan bagian yang mau diubah.`
-  }
-
-  for (const blocker of blockers) {
-    const spec = SECTION_SPECS[blocker.key]
+  for (const key of sections) {
+    const spec = SECTION_SPECS[key]
     if (!spec) continue
 
     if (spec.manual) {
       const asked = new Set(state.asked || [])
-      if (!asked.has(blocker.key)) {
-        asked.add(blocker.key)
+      if (!asked.has(key)) {
+        asked.add(key)
         state.asked = Array.from(asked)
         await saveState(profileId, contactId, draft, state)
         return `${spec.manual}`
@@ -262,7 +326,7 @@ async function nextPrompt(
       continue
     }
 
-    const prompt = await sectionPrompt(profileId, contactId, state, draft, blocker.key, profile)
+    const prompt = await sectionPrompt(profileId, contactId, state, draft, key, profile)
     if (prompt) return prompt
   }
 
@@ -318,6 +382,20 @@ async function sectionPrompt(
     return null
   }
 
+  if (spec.repeat === "gifts") {
+    const asked = new Set(state.asked || [])
+    if (asked.has("gift")) return null
+    state.section = "gift"
+    state.giftPhase = state.giftPhase || "account"
+    state.giftStep = state.giftStep ?? 0
+    state.pendingUpload = null
+    await saveState(profileId, contactId, draft, state)
+    if (state.giftPhase === "account") {
+      return `Bagian hadiah (rekening): ${GIFT_ACCOUNT_QUESTIONS[state.giftStep]?.question} Balas "lewati" kalau tidak mau mengisi.`
+    }
+    return `Bagian hadiah (alamat pengiriman): ${GIFT_ADDRESS_QUESTIONS[state.giftStep]?.question}`
+  }
+
   if (spec.repeat === "stories") {
     const step = state.storyStep ?? 0
     const question = STORY_QUESTIONS[step]
@@ -334,7 +412,7 @@ async function sectionPrompt(
   for (const field of spec.fields) {
     const asked = new Set(state.asked || [])
     const key = field.key
-    const current = profile[key]
+    const current = profile[key] !== undefined && profile[key] !== null ? profile[key] : draft[key]
 
     if (key === "gallery_photos" || key === "cover_photos") {
       if (isFilled(current)) continue
@@ -377,6 +455,7 @@ async function answerField(
   }
 
   if (outcome.value !== undefined) {
+    draft[field.key] = outcome.value
     await applyField(profileId, field.key, outcome.value)
   }
 
@@ -441,6 +520,98 @@ async function answerSession(
   return typeof editIndex === "number"
     ? `Sesi "${editedLabel}" sudah lengkap. Ada acara lain? Sebut nama acaranya, atau balas "selesai".`
     : `Sesi "${editedLabel}" tersimpan. Ada acara lain? Sebut nama acaranya, atau balas "selesai".`
+}
+
+async function answerGift(
+  profileId: string,
+  contactId: string,
+  state: OnboardingState,
+  draft: Record<string, unknown>,
+  text: string
+): Promise<string | null> {
+  const lower = text.trim().toLowerCase()
+  if (lower === "batal") return null
+
+  if (state.giftPhase === "account") {
+    const step = state.giftStep ?? 0
+    const question = GIFT_ACCOUNT_QUESTIONS[step]
+    if (step === 0 && isSkip(text)) {
+      state.asked = Array.from(new Set([...(state.asked || []), "gift"]))
+      state.giftPhase = null
+      state.giftStep = undefined
+      await saveState(profileId, contactId, draft, state)
+      return nextPrompt(profileId, contactId, state, draft)
+    }
+    const value = text.trim()
+    if (!value) return "Jawabannya masih kosong."
+    if (question.key === "account_number" && !/^[0-9\s.-]{4,30}$/.test(value)) {
+      return "Nomor rekening itu angkanya saja ya Kak, coba lagi."
+    }
+    const giftDraft = { ...(state.giftDraft || {}), [question.key]: value }
+    state.giftDraft = giftDraft
+    if (step + 1 < GIFT_ACCOUNT_QUESTIONS.length) {
+      state.giftStep = step + 1
+      await saveState(profileId, contactId, draft, state)
+      return GIFT_ACCOUNT_QUESTIONS[state.giftStep].question
+    }
+
+    const { error } = await supabaseAdmin.from("gift_accounts").insert({
+      wedding_profile_id: profileId,
+      type: /gopay|ovo|dana|shopeepay|linkaja|ewallet/i.test(String(giftDraft.provider_name || "")) ? "ewallet" : "bank",
+      provider_name: String(giftDraft.provider_name || ""),
+      account_number: String(giftDraft.account_number || ""),
+      account_name: String(giftDraft.account_name || ""),
+      sort_order: 0,
+    })
+    if (error) return "Rekening gagal disimpan. Coba lagi ya Kak."
+
+    state.giftPhase = "address"
+    state.giftStep = 0
+    state.giftDraft = {}
+    await saveState(profileId, contactId, draft, state)
+    if (lower === "selesai") {
+      state.giftPhase = null
+      state.asked = Array.from(new Set([...(state.asked || []), "gift"]))
+      await saveState(profileId, contactId, draft, state)
+      return nextPrompt(profileId, contactId, state, draft)
+    }
+    return `Rekening tersimpan. Lanjut alamat pengiriman hadiah ya Kak. ${GIFT_ADDRESS_QUESTIONS[0].question}`
+  }
+
+  // address phase
+  const step = state.giftStep ?? 0
+  const question = GIFT_ADDRESS_QUESTIONS[step]
+  const isOptional = "optional" in question && question.optional === true
+  if (isOptional && isSkip(text)) {
+    // lewati field opsional
+  } else {
+    state.giftDraft = { ...(state.giftDraft || {}), [question.key]: text.trim() }
+  }
+  if (step + 1 < GIFT_ADDRESS_QUESTIONS.length) {
+    state.giftStep = step + 1
+    await saveState(profileId, contactId, draft, state)
+    return GIFT_ADDRESS_QUESTIONS[state.giftStep].question
+  }
+
+  const address = (state.giftDraft || {}) as Record<string, unknown>
+  await supabaseAdmin.from("gift_addresses").upsert(
+    {
+      wedding_profile_id: profileId,
+      recipient_name: String(address.recipient_name || ""),
+      full_address: String(address.full_address || ""),
+      city: String(address.city || ""),
+      postal_code: String(address.postal_code || ""),
+      phone: String(address.phone || ""),
+    },
+    { onConflict: "wedding_profile_id" }
+  )
+
+  state.giftPhase = null
+  state.giftStep = undefined
+  state.giftDraft = {}
+  state.asked = Array.from(new Set([...(state.asked || []), "gift"]))
+  await saveState(profileId, contactId, draft, state)
+  return nextPrompt(profileId, contactId, state, draft)
 }
 
 async function answerStory(
@@ -532,6 +703,20 @@ async function applyTemplate(
 }
 
 const CONFIRM = /^(selesai|cukup|sudah|udah|tidak|gak|nggak|engga|no|nope|ya sudah|oke sudah|belum perlu)/
+
+const GIFT_ACCOUNT_QUESTIONS = [
+  { key: "provider_name", question: "Rekening hadiah: bank atau e-wallet apa? (contoh: BCA / GoPay)" },
+  { key: "account_number", question: "Nomor rekening atau nomor e-wallet-nya?" },
+  { key: "account_name", question: "Atas nama siapa?" },
+] as const
+
+const GIFT_ADDRESS_QUESTIONS = [
+  { key: "recipient_name", question: "Alamat hadiah: nama penerima paket?" },
+  { key: "full_address", question: "Alamat lengkap pengiriman hadiah?" },
+  { key: "city", question: "Kota/kecamatan penerima?" },
+  { key: "postal_code", question: "Kode pos? (boleh di-skip)", optional: true },
+  { key: "phone", question: "Nomor HP penerima? (boleh di-skip)", optional: true },
+] as const
 
 const ESCAPE_INTENTS = new Set([
   "voucher",
@@ -668,6 +853,10 @@ export async function handleOnboarding(
   }
 
   // stage === "data"
+
+  if (state.section === "gift" && state.giftPhase) {
+    return answerGift(profileId, contactId, state, draft, message)
+  }
 
   if (state.sessionAwaitingMore) {
     state.sessionAwaitingMore = false

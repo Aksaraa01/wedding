@@ -15,6 +15,8 @@ export type FlowFieldKind =
   | "image"
   | "number"
   | "list"
+  | "lines"
+  | "lines"
 
 export interface FlowField {
   key: string
@@ -31,7 +33,7 @@ export interface SectionSpec {
   // Bagian yang tidak bisa diisi lewat chat (uang/transaksi) tetap di dashboard.
   manual?: string
   // Bagian yang datanya berbentuk daftar objek (sesi/cerita) ditangani loop.
-  repeat?: "sessions" | "stories"
+  repeat?: "sessions" | "stories" | "gifts" | "rundown" | "contacts"
 }
 
 export const SECTION_LABELS: Record<string, string> = {
@@ -56,7 +58,7 @@ export const SECTION_SPECS: Record<string, SectionSpec> = {
       {
         key: "cover_photos",
         label: "Foto Sampul",
-        question: "Kirim 1–3 foto untuk sampul undangan ya Kak (lewat tombol foto).",
+        question: "Kirim 1–3 foto untuk sampul undangan ya Kak (lewat tombol foto). Balas \"selesai\" kalau cukup.",
         kind: "image",
       },
     ],
@@ -98,6 +100,20 @@ export const SECTION_SPECS: Record<string, SectionSpec> = {
         kind: "text",
       },
       {
+        key: "groom_name",
+        label: "Nama Panggilan Mempelai 1",
+        question: "Nama panggilan mempelai pertama (yang tampil di undangan)?",
+        kind: "text",
+        optional: true,
+      },
+      {
+        key: "bride_name",
+        label: "Nama Panggilan Mempelai 2",
+        question: "Nama panggilan mempelai kedua?",
+        kind: "text",
+        optional: true,
+      },
+      {
         key: "groom_parents",
         label: "Orang Tua Mempelai 1",
         question: "Nama orang tua mempelai pertama, format: Bapak X & Ibu Y.",
@@ -126,9 +142,23 @@ export const SECTION_SPECS: Record<string, SectionSpec> = {
         optional: true,
       },
       {
+        key: "couple_initials",
+        label: "Inisial Pasangan",
+        question: "Inisial pasangan untuk monogram? Contoh: R & N (boleh di-skip).",
+        kind: "text",
+        optional: true,
+      },
+      {
+        key: "display_name",
+        label: "Nama Tampilan / Hashtag",
+        question: "Nama tampilan atau hashtag undangan? Contoh: Rafi & Novi (boleh di-skip).",
+        kind: "text",
+        optional: true,
+      },
+      {
         key: "groom_photo_url",
         label: "Foto Mempelai 1",
-        question: "Kirim foto mempelai pertama lewat tombol foto ya Kak.",
+        question: "Kirim foto mempelai pertama lewat tombol foto ya Kak (boleh di-skip).",
         kind: "image",
         optional: true,
       },
@@ -225,9 +255,81 @@ export const SECTION_SPECS: Record<string, SectionSpec> = {
   gift: {
     key: "gift",
     label: SECTION_LABELS.gift,
-    manual:
-      "Bagian hadiah berisi rekening/alamat, jadi harus diisi sendiri di dashboard (menu Hadiah). Aku lanjut ke bagian berikutnya ya Kak.",
-    fields: [],
+    repeat: "gifts",
+    fields: [
+      {
+        key: "gift_accounts",
+        label: "Rekening Hadiah",
+        question: "Mau isi rekening/e-wallet untuk hadiah? Sebutkan bank/e-wallet-nya, nomor rekening, dan atas nama. Balas \"lewati\" kalau belum mau.",
+        kind: "text",
+      },
+    ],
+  },
+  dresscode: {
+    key: "dresscode",
+    label: "Dress Code",
+    fields: [
+      {
+        key: "dresscode_title",
+        label: "Judul Dress Code",
+        question: "Bagian dress code mau diberi judul apa? Contoh: Dress Code (boleh di-skip).",
+        kind: "text",
+        optional: true,
+      },
+      {
+        key: "dresscode_description",
+        label: "Deskripsi Dress Code",
+        question: "Tulis arahan dress code-nya (boleh di-skip).",
+        kind: "longtext",
+        optional: true,
+      },
+    ],
+  },
+  livestream: {
+    key: "livestream",
+    label: "Live Streaming",
+    fields: [
+      {
+        key: "livestream_url",
+        label: "Link Live Streaming",
+        question: "Kirim link live streaming acara (boleh di-skip).",
+        kind: "url",
+        optional: true,
+      },
+      {
+        key: "livestream_title",
+        label: "Judul Live Streaming",
+        question: "Judul untuk bagian live streaming? (boleh di-skip)",
+        kind: "text",
+        optional: true,
+      },
+    ],
+  },
+  rundown: {
+    key: "rundown",
+    label: "Rundown",
+    fields: [
+      {
+        key: "rundown",
+        label: "Rundown Acara",
+        question: "Kirim rundown acara, satu baris satu kegiatan: 08:00 Akad Nikah (boleh di-skip dengan \"lewati\").",
+        kind: "lines",
+        optional: true,
+      },
+    ],
+  },
+  contacts: {
+    key: "contacts",
+    label: "Kontak Keluarga",
+    fields: [
+      {
+        key: "contacts",
+        label: "Kontak Keluarga",
+        question: "Kirim kontak yang bisa dihubungi tamu, satu baris satu kontak: Nama - 08xx - keterangan (boleh di-skip).",
+        kind: "lines",
+        optional: true,
+      },
+    ],
   },
 }
 
@@ -342,6 +444,14 @@ export function validateFlowAnswer(field: FlowField, answer: string): Validation
         : { ok: false, error: "Format jam: 08:00" }
     case "number":
       return /^\d+$/.test(text) ? { ok: true, value: Number(text) } : { ok: false, error: "Isi angka saja." }
+    case "lines":
+      return {
+        ok: true,
+        value: text
+          .split(/\n|;/)
+          .map((item) => item.trim())
+          .filter(Boolean),
+      }
     case "list":
       return {
         ok: true,

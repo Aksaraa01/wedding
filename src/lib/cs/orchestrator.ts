@@ -17,6 +17,7 @@ import {
   optOutReply,
   refuseReply,
   safeFallbackReply,
+  verifyPromptReply,
   verifyRequiredReply,
 } from "@/lib/cs/replies"
 import { ensureLead, leadMissing, leadPromptLine, recordObjection, saveLeadFact, updateLead } from "@/lib/cs/leads"
@@ -343,7 +344,7 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
   }
 
   if (decision.action === "verify") {
-    const text = verifyRequiredReply()
+    const text = verifyPromptReply(input.hasProfile)
     await persistOutbound(input.conversationId, text, { intent, model: null })
     return { replies: [{ text }], guarded: true, toolNames: [] }
   }

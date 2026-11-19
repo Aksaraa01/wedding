@@ -5,11 +5,14 @@ import { supabaseAdmin } from "@/lib/supabase"
 import { fromJid, generateCode, maskPhone, normalizeWhatsApp } from "@/lib/cs/identity"
 import { checkRateLimit, rateLimited } from "@/lib/rateLimit"
 import { getCsSettings } from "@/lib/cs/settings"
+import { classify } from "@/lib/cs/policy"
 import { handleInbound } from "@/lib/cs/orchestrator"
 import { handleOnboardingUpload } from "@/lib/cs/onboarding"
 import { sendCsWhatsApp } from "@/lib/cs/waSend"
 import { uploadFile, uploadFromUrl } from "@/lib/storage"
 import {
+  identityConfirmReply,
+  identityNotMineReply,
   notRegisteredReply,
   offlineReply,
   verificationSuccessReply,
@@ -110,6 +113,18 @@ function pinMatches(input: string, stored: string): boolean {
   if (!a.length || !b.length) return false
   if (a.length !== b.length) return false
   return timingSafeEqual(a, b)
+}
+
+async function lastOutboundBody(conversationId: string): Promise<string> {
+  const { data } = await supabaseAdmin
+    .from("cs_messages")
+    .select("body")
+    .eq("conversation_id", conversationId)
+    .eq("direction", "out")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  return String(data?.body || "")
 }
 
 async function lastBotAskedPin(conversationId: string): Promise<boolean> {
@@ -325,6 +340,46 @@ export async function POST(request: Request) {
 
       await reply(conversationId, verificationSuccessReply())
       return NextResponse.json({ replies: [] })
+    }
+  }
+
+  // --- Konfirmasi identitas (nomor bukan bukti) ----------------------------
+  // Hanya untuk permintaan yang menyentuh akun; pertanyaan produk biasa
+  // (harga/template) tidak perlu konfirmasi identitas.
+  const accountIntent = ["data_collection", "data_change", "status"].includes(classify(text))
+  if (!verified && (accountIntent || /nomor ini terdaftar sebagai|pin undangan/i.test(await lastOutboundBody(conversationId)))) {
+    const lastBot = await lastOutboundBody(conversationId)
+    const askedConfirm = /nomor ini terdaftar sebagai/i.test(lastBot)
+
+    if (askedConfirm) {
+      if (/^(ya|iya|betul|benar|yes)\b/i.test(text)) {
+        await reply(
+          conversationId,
+          "Boleh sebutkan PIN undangan Kakak (6 angka) biar aku pastikan ini benar pemiliknya."
+        )
+        return NextResponse.json({ replies: [] })
+      }
+      if (/^(bukan|tidak|no|salah)\b/i.test(text)) {
+        await reply(conversationId, identityNotMineReply())
+        return NextResponse.json({ replies: [] })
+      }
+    }
+
+    if (!askedConfirm) {
+      const candidate = await findProfileForPhone(normalizeWhatsApp(phone))
+      if (candidate) {
+        const { data: couple } = await supabaseAdmin
+          .from("wedding_profiles")
+          .select("groom_name,bride_name,display_name")
+          .eq("id", candidate.id)
+          .maybeSingle()
+        const name =
+          (couple?.display_name as string) ||
+          [couple?.groom_name, couple?.bride_name].filter(Boolean).join(" & ") ||
+          "pasangan ini"
+        await reply(conversationId, identityConfirmReply(String(name)))
+        return NextResponse.json({ replies: [] })
+      }
     }
   }
 

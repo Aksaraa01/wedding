@@ -61,3 +61,21 @@ export function optOutReply(): string {
 export function offlineReply(): string {
   return "CS Aksaraa lagi nggak aktif. Pesan Kakak sudah masuk, nanti dibalas tim ya."
 }
+
+// Verifikasi dibedakan: PIN hanya masuk akal kalau nomor pengirim sudah
+// terdaftar. Kalau belum, tanya nomor yang dipakai saat daftar (lalu OTP).
+export function verifyPromptReply(hasProfile: boolean): string {
+  return hasProfile
+    ? verifyRequiredReply()
+    : "Nomor WhatsApp ini belum terdaftar di data kami. Boleh kirim nomor WhatsApp yang dipakai saat daftar? Nanti aku kirim kode verifikasi ke nomor itu."
+}
+
+// Konfirmasi identitas: nomor pengirim hanya petunjuk, bukan bukti. Jangan
+// pernah menganggap pengirim adalah pemilik akun sebelum dia mengonfirmasi.
+export function identityConfirmReply(coupleName: string): string {
+  return `Nomor ini terdaftar sebagai *${coupleName}*. Betul ini akun Kakak? Balas "ya" untuk lanjut verifikasi, atau "bukan" kalau ini bukan akun Kakak.`
+}
+
+export function identityNotMineReply(): string {
+  return "Baik, aku tidak akan menganggap nomor ini sebagai pemilik akun. Kirim nomor WhatsApp yang dipakai saat daftar ya Kak, nanti aku verifikasi ke nomor itu."
+}
