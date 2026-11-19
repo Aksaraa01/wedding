@@ -168,6 +168,26 @@ body:has(.olan-root.is-locked) {
   }
 }
 
+/* ───────────── footage: pre-rolling inline player ─────────────
+   The reference autoplays its footage muted behind a play button. Keeping the
+   player mounted and running means the film is already in motion when the
+   section scrolls in: no start flash, no controls, no buffering pause. */
+.olan-root .video .preview > .olan-footage__media {
+  border-radius: 16px;
+  inset: 0;
+  overflow: hidden;
+  position: absolute;
+}
+.olan-root .video .preview > .olan-footage__media video,
+.olan-root .video .preview > .olan-footage__media iframe,
+.olan-root .video .preview > .olan-footage__media > div {
+  border: 0;
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
 /* ───────────── closing portrait (second cover slot) ─────────────
    Reuses the Mempelai plate — the mask, the wooden hoop and the watercolour
    wreath — so the couple's closing photo is framed exactly like their portrait
