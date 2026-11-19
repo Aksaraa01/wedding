@@ -258,6 +258,21 @@ async function connect() {
     })
 
     sock.ev.on("creds.update", saveCreds)
+
+    // Kontak dari WhatsApp sering membawa pasangan nomor <-> @lid. Ini mengisi
+    // peta pengiriman tanpa menunggu pesan masuk, sehingga balasan tim bisa
+    // langsung mendarat di chat yang benar.
+    const rememberContacts = (list) => {
+      for (const contact of list || []) {
+        const id = String(contact?.id || "")
+        const lid = String(contact?.lid || "")
+        if (id.endsWith("@s.whatsapp.net") && lid.endsWith("@lid")) {
+          rememberChat(id.split("@")[0], lid)
+        }
+      }
+    }
+    sock.ev.on("contacts.upsert", rememberContacts)
+    sock.ev.on("contacts.update", rememberContacts)
     sock.ev.on("messages.upsert", async (event) => {
       if (event.type && event.type !== "notify") return
       for (const message of event.messages || []) {
