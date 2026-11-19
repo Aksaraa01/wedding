@@ -147,11 +147,17 @@ const ALL_TEMPLATE_TRIGGERS = [
   /\b(template|desain|tema)\b[^.!?]{0,25}\b(semua|daftar|list|apa saja|apa aja|macam|jenis|pilihan)\b/,
   /\b(lihat|liat|cek)\s+(semua|seluruh)?\s*(template|desain|galeri)\b/,
   /\bgaleri\s+(template|desain)\b/,
+  // "template nya bisa dilihat dimana?", "desainnya lihat di mana ya"
+  /\b(template|desain)\w*\b[^.!?]{0,30}\b(dilihat|diliat|lihat|liat|dimana|di\s*mana|kemana|ke\s*mana)\b/,
 ]
+
+// Jangan salah tangkap: "template saya/undangan saya" itu soal undangan sendiri.
+const OWN_INVITATION = /\b(template|desain|undangan)\s+(saya|aku|ku|kami)\b/
 
 export function wantsAllTemplates(text: string): boolean {
   const value = (text || "").toLowerCase()
   if (!value.trim()) return false
+  if (OWN_INVITATION.test(value)) return false
   return ALL_TEMPLATE_TRIGGERS.some((re) => re.test(value))
 }
 

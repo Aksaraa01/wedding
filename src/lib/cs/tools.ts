@@ -211,10 +211,22 @@ async function toolListTemplates(args: Record<string, unknown>): Promise<ToolRes
   const inactiveRows = rows.filter((row) => row.is_active === false)
   const selected = activeRows.slice(0, limit)
 
+  // Jumlah sebenarnya di katalog (bisa > 60 baris yang diambil di atas).
+  const { count: catalogCount } = await supabaseAdmin
+    .from("web_templates")
+    .select("id", { count: "exact", head: true })
+    .eq("is_active", true)
+
   return {
     data: {
       category_filter: term || "(semua)",
       total_matches: activeRows.length,
+      total_active_in_catalog: catalogCount ?? activeRows.length,
+      gallery_url: term ? "https://wedding.aksaraa.com/templates" : "https://wedding.aksaraa.com/templates",
+      note:
+        "templates[] hanya cuplikan, bukan seluruh katalog. Kalau klien minta SEMUA template, " +
+        "kirim gallery_url saja dan jangan menyebut jumlah dari daftar ini. " +
+        "Sebut angka hanya dari total_active_in_catalog.",
       templates: selected.map((row) => ({
         id: row.id,
         code: row.code,
@@ -673,7 +685,10 @@ export const TOOL_SCHEMAS = [
     type: "function",
     function: {
       name: "list_templates",
-      description: "Daftar template undangan aktif untuk direkomendasikan.",
+      description:
+        "Cari template untuk rekomendasi SPESIFIK (kategori, dengan/tanpa foto). " +
+        "Untuk permintaan 'semua template / daftar template / lihat di mana', jangan pakai tool ini: " +
+        "kirim gallery_url https://wedding.aksaraa.com/templates.",
       parameters: {
         type: "object",
         properties: {

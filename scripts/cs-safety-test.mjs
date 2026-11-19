@@ -278,6 +278,8 @@ test("template: frasa 'semua/daftar/apa saja' terdeteksi", () => {
     "ada template apa saja?",
     "template apa aja yang ada",
     "lihat semua desain",
+    "Template nya bisa lihat dimana?",
+    "desainnya bisa dilihat di mana ya",
   ]) {
     assert.equal(wantsAllTemplates(text), true, text)
     assert.equal(classify(text), "template", text)
@@ -287,6 +289,8 @@ test("template: frasa 'semua/daftar/apa saja' terdeteksi", () => {
     "ganti template saya",
     "desain ini bagus",
     "berapa harga template premium",
+    "template saya bisa dilihat dimana?",
+    "undangan saya sudah jadi?",
   ]) {
     assert.equal(wantsAllTemplates(text), false, text)
   }
