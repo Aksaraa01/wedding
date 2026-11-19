@@ -218,3 +218,21 @@ export function citationLine(source: { title: string; url: string | null }): str
     ? `\n\nSumber: ${source.title} (${source.url})`
     : `\n\nSumber: ${source.title}`
 }
+
+// Sitasi hanya berguna kalau balasan memang memakai sumber itu. Tanpa
+// pemeriksaan ini, agent bisa menempel "Sumber: ..." yang tidak nyambung
+// (mis. pertanyaan khitanan disitasi artikel undangan cetak).
+export function isCitationRelevant(
+  reply: string,
+  source: { heading: string | null; content: string }
+): boolean {
+  const replyTokens = new Set(tokenize(reply))
+  if (!replyTokens.size) return false
+  const sourceTokens = new Set(tokenize(`${source.heading || ""} ${source.content}`))
+  let hits = 0
+  for (const token of sourceTokens) {
+    if (replyTokens.has(token)) hits += 1
+    if (hits >= 3) return true
+  }
+  return false
+}

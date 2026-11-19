@@ -227,6 +227,28 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
     ],
   },
   {
+    key: "ceriavite",
+    title: "Ceriavite — undangan acara anak",
+    url: "https://ceriavite.aksaraa.com",
+    chunks: [
+      {
+        heading: "Apa itu Ceriavite",
+        content:
+          "Ceriavite adalah produk undangan digital Aksaraa untuk khitanan, aqiqah, dan ulang tahun. Pendaftaran dan galeri desainnya ada di ceriavite.aksaraa.com, bukan di halaman pernikahan.",
+      },
+      {
+        heading: "Fitur Ceriavite",
+        content:
+          "Ceriavite mencakup website undangan premium, RSVP, kolom ucapan dan doa, tautan unik per tamu, serta kolom transfer dan alamat hadiah. Ceriavite tidak memiliki kisah cinta dan video sinematik seperti paket pernikahan.",
+      },
+      {
+        heading: "Alamat undangan Ceriavite",
+        content:
+          "Undangan Ceriavite tetap memakai alamat {nama}.wedding.aksaraa.com, dan datanya diisi dari dashboard yang sama setelah pendaftaran di ceriavite.aksaraa.com/daftar.",
+      },
+    ],
+  },
+  {
     key: "voucher",
     title: "Voucher dan kode promo",
     url: "https://wedding.aksaraa.com/premium-web-invitation",

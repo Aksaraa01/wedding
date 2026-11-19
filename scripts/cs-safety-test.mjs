@@ -29,6 +29,7 @@ import { csWidgetEnabledOn } from "../src/lib/cs/widgetRoutes.ts"
 import {
   citationLine,
   htmlToChunks,
+  isCitationRelevant,
   retrieveKnowledge,
   stripHtml,
   stripMoney,
@@ -1210,4 +1211,29 @@ test("sesi: link maps harus Google Maps", () => {
   assert.equal(validateSessionField("maps_url", "https://www.google.com/maps?q=medan").ok, true)
   assert.equal(validateSessionField("maps_url", "gagsgaga").ok, false)
   assert.equal(validateSessionField("maps_url", "https://example.com/maps").ok, false)
+})
+
+// ---------- sitasi relevan ----------
+
+test("sitasi: hanya ditempel kalau sumbernya nyambung", () => {
+  const templateSource = {
+    heading: "Ganti template",
+    content: "Template bisa diganti dari dashboard tanpa mengulang data yang sudah diisi.",
+  }
+  assert.equal(
+    isCitationRelevant("Untuk ganti template, buka dashboard lalu pilih template baru.", templateSource),
+    true
+  )
+  assert.equal(
+    isCitationRelevant("Ceriavite dibuat untuk khitanan, aqiqah, dan ulang tahun.", templateSource),
+    false
+  )
+})
+
+test("knowledge: Ceriavite ada dan tanpa nominal", () => {
+  const entry = CS_KNOWLEDGE.find((item) => item.key === "ceriavite")
+  assert.ok(entry, "entry ceriavite wajib ada")
+  assert.match(entry.url, /ceriavite\.aksaraa\.com/)
+  const text = entry.chunks.map((c) => c.content).join(" ")
+  assert.ok(!/\brp/i.test(text))
 })

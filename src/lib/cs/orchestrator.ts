@@ -32,7 +32,7 @@ import {
 } from "@/lib/cs/playbook"
 import { formatPolicies, POLICIES, type CsPolicies } from "@/lib/cs/policies"
 import { findSources } from "@/lib/cs/retrieval"
-import { citationLine } from "@/lib/cs/knowledge"
+import { citationLine, isCitationRelevant } from "@/lib/cs/knowledge"
 import { CS_WHATSAPP } from "@/lib/cs/contact"
 import { sendCsWhatsApp } from "@/lib/cs/waSend"
 import { getOnboardingState, handleOnboarding } from "@/lib/cs/onboarding"
@@ -519,8 +519,11 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
 
   // Sitasi ditambahkan deterministik dari sumber teratas, bukan oleh model:
   // selalu menunjuk dokumen yang benar-benar dikirim sebagai konteks.
+  const topSource = sources[0]
   const finalText =
-    result.guarded && sources.length ? result.text + citationLine(sources[0]) : result.text
+    result.guarded && topSource && isCitationRelevant(result.text, topSource)
+      ? result.text + citationLine(topSource)
+      : result.text
 
   await persistOutbound(input.conversationId, finalText, {
     intent,
