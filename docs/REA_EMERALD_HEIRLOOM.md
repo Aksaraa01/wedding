@@ -107,8 +107,7 @@ fixed art panel at `965/1440` (67%) plus a 480px column; text is
 | `swan.webp` | `106501/4.gif` | swan boat |
 | `lily-spray.webp` | `92426/5.gif` | lily spray |
 | `lily-spray-b.webp` | `92420/7.gif` | lily spray (alt) |
-| `shadow-{lilies,trumpet,swan,fan}.webp` | `106498/106500/106502/92416 _shdw.gif` | the reference's paired silhouettes, one static frame |
-| `*-still.webp` | first frame of each GIF | `prefers-reduced-motion` variant (see §4) |
+| `shadow-{lilies,trumpet,swan,fan}.webp` | `106498/106500/106502/92416 _shdw.gif` | the reference's paired silhouettes, one static frame. Rendered up-left of the art at 0.32 opacity + 4px blur; at 0.5/1.5px the pairs read as twin ornaments |
 
 **Deliberately NOT vendored**
 
@@ -163,6 +162,15 @@ lily-spray-b 402 KB — ~1.7 MB total, all `loading="lazy"` below the fold.
 - The ornament loops **always play** (the owner asked for the reference's
   motion; the still swap that used to hide it under Reduce Motion was removed).
   The reveal transitions still short-circuit under `prefers-reduced-motion`.
+- Ornament boxes are the reference's measured rects (percent of its 390 canvas,
+  identified by builder asset id — basenames repeat across sections, so `2.gif`
+  alone never identifies an ornament). No mirrors, no tilts: the reference hangs
+  identical art on both sides. Per-section map: welcome = trumpets ±38/85% top +
+  lilies -26/42% mid; mempelai = trumpet 79/-74% + lilies -63/72% with one swan
+  between the portraits; countdown dial bare (pond + lace columns + full-width
+  fan); event boxes as measured; wishes = lilies on the sides + 131%/188% fans;
+  gift = 175% fan + centre swan + lily pairs; live = lilies; closing = fan +
+  lilies. The extra `*-still.webp` files were deleted with the picture swap.
 - The reference's paired `_shdw` GIFs are shipped as one static frame under each
   ornament (`opacity .5`, 1.5px blur) instead of a per-frame `drop-shadow`
   filter (which repaints a 288px animated layer on every frame).

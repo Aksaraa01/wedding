@@ -463,13 +463,14 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
   // bleeding off both edges, a fan or a swan behind nearly every plate.
   // Welcome: hanging trumpets at both top corners, white lilies at both bottom
   // corners — exactly the reference's four clusters (no swan on this band).
+  // Welcome: hanging trumpet clusters top-left/top-right, white lily clusters
+  // mid-left/mid-right — the reference's four clusters at its measured boxes.
+  // No mirror, no tilt: the reference hangs identical art on both sides.
   const welcomeDecos: DecoSpec[] = [
-    { src: EH_ASSETS.flowerTrumpet, shadow: EH_ASSETS.shadowTrumpet, left: -38.5, top: -12.3, width: 88.5, rotate: -5, delay: -0.8 },
-    { src: EH_ASSETS.flowerTrumpet, shadow: EH_ASSETS.shadowTrumpet, left: 50, top: -11.9, width: 85.4, rotate: 5, flip: true, delay: -2.6 },
-    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -26.2, top: 59, width: 88.2, delay: -3, behind: true, opacity: 0.95 },
-    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 41.8, top: 57, width: 97.7, delay: -4.4, behind: true, opacity: 0.95 },
-    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: -12, top: 61, width: 54, delay: -1.6 },
-    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: 55, top: 59, width: 52, flip: true, delay: -3.8 },
+    { src: EH_ASSETS.flowerTrumpet, shadow: EH_ASSETS.shadowTrumpet, left: -38.5, top: -12.3, width: 88.5, delay: -0.8 },
+    { src: EH_ASSETS.flowerTrumpet, shadow: EH_ASSETS.shadowTrumpet, left: 50, top: -11.9, width: 85.4, delay: -2.6 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: -26.2, top: 59, width: 88.2, delay: -3 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: 41.8, top: 57, width: 97.7, delay: -4.4 },
   ]
 
   const openingDecos: DecoSpec[] = [
@@ -481,18 +482,23 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
   // The reference dresses each portrait differently: the groom's frame has a
   // trumpet cluster top-right, lilies on the left, a swan at the caption; the
   // bride's has a swan top-right, the trumpet top-left and lilies bottom-right.
+  // Per-person sets: trumpet cluster on one top corner, full-size lilies on the
+  // opposite side — the reference's measured boxes (trumpets ~92%, lilies ~88%).
   const personOneDecos: DecoSpec[] = [
-    { src: EH_ASSETS.flowerTrumpet, shadow: EH_ASSETS.shadowTrumpet, left: 56, top: -4, width: 92, rotate: 6, delay: -1 },
-    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -40, top: 34, width: 88, delay: -2.8, behind: true, opacity: 0.9 },
-    { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: 72, top: 70, width: 52, flip: true, delay: -3.6 },
-    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: -18, top: 46, width: 54, delay: -2.2 },
+    { src: EH_ASSETS.flowerTrumpet, shadow: EH_ASSETS.shadowTrumpet, left: 56, top: -4, width: 92, delay: -1 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: -63, top: 34, width: 88, delay: -2.2 },
   ]
 
   const personTwoDecos: DecoSpec[] = [
-    { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: 74, top: -10, width: 46, flip: true, delay: -1.4 },
-    { src: EH_ASSETS.flowerTrumpet, shadow: EH_ASSETS.shadowTrumpet, left: -44, top: -4, width: 92, rotate: -6, flip: true, delay: -2.6 },
-    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 54, top: 62, width: 88, delay: -3.4, behind: true, opacity: 0.9 },
-    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: 56, top: 46, width: 54, delay: -4.2 },
+    { src: EH_ASSETS.flowerTrumpet, shadow: EH_ASSETS.shadowTrumpet, left: -44, top: -4, width: 92, delay: -2.6 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: 72, top: 74, width: 98, delay: -4.2 },
+  ]
+
+  // The swan sits between the two portraits, not on a name. It hangs off the
+  // end of the groom's card (article-relative: our portraits are far taller
+  // than the reference's, so a section-% top would land on the bride's frame).
+  const coupleDecos: DecoSpec[] = [
+    { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: 46, top: 90, width: 79, delay: -3.6 },
   ]
 
   const storyDecos: DecoSpec[] = [
@@ -509,14 +515,13 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
     { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: 109, top: 85, width: 81, delay: -2.6 },
   ]
 
-  const countDecos: DecoSpec[] = [
-    { src: EH_ASSETS.flowerTrumpet, shadow: EH_ASSETS.shadowTrumpet, left: -34, top: -4, width: 54, rotate: -8, delay: -1.2 },
-    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: 74, top: 44, width: 46, delay: -4.2, behind: true },
-  ]
+  // The dial carries no loose ornaments in the reference — the pond, the lace
+  // columns and the full-width fan are the decoration.
+  const countDecos: DecoSpec[] = []
 
   const invitingDecos: DecoSpec[] = [
     { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -28, top: -6, width: 62, delay: -2.4, behind: true, opacity: 0.85 },
-    { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: 80, top: 70, width: 38, flip: true, delay: -3.6, behind: true, opacity: 0.9 },
+    { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: 80, top: 70, width: 38, delay: -3.6, behind: true, opacity: 0.9 },
   ]
 
   const rundownDecos: DecoSpec[] = [
@@ -526,7 +531,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
 
   const galleryDecos: DecoSpec[] = [
     { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 64, top: -2, width: 58, delay: -1.8, behind: true, opacity: 0.8 },
-    { src: EH_ASSETS.flowerTrumpet, shadow: EH_ASSETS.shadowTrumpet, left: -30, top: 74, width: 54, rotate: -6, delay: -3.2, behind: true },
+    { src: EH_ASSETS.flowerTrumpet, shadow: EH_ASSETS.shadowTrumpet, left: -30, top: 74, width: 54, delay: -3.2, behind: true },
   ]
 
   const videoDecos: DecoSpec[] = [
@@ -534,11 +539,12 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
     { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 62, top: 58, width: 64, delay: -4.4, behind: true, opacity: 0.75 },
   ]
 
+  // Live is flanked by lily clusters in the reference (±115% / 92%).
   const liveDecos: DecoSpec[] = [
-    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -117, top: -35, width: 92, delay: -2.2, behind: true, opacity: 0.85 },
-    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 125, top: -26, width: 92, delay: -4.4, behind: true, opacity: 0.85 },
-    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -116, top: 64, width: 92, delay: -1.6, behind: true, opacity: 0.8 },
-    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 125, top: 73, width: 92, delay: -3.2, behind: true, opacity: 0.8 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: -117, top: -35, width: 92, delay: -2.2, behind: true, opacity: 0.85 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: 125, top: -26, width: 92, delay: -4.4, behind: true, opacity: 0.85 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: -116, top: 64, width: 92, delay: -1.6, behind: true, opacity: 0.8 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: 125, top: 73, width: 92, delay: -3.2, behind: true, opacity: 0.8 },
   ]
 
   const giftDecos: DecoSpec[] = [
@@ -548,6 +554,10 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
     { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 128, top: -14, width: 92, delay: -4.6, behind: true, opacity: 0.75 },
     { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -116, top: 81, width: 92, delay: -2, behind: true, opacity: 0.7 },
     { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 126, top: 86, width: 92, delay: -5.2, behind: true, opacity: 0.7 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: -115, top: -20, width: 92, delay: -1.8, behind: true, opacity: 0.8 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: 128, top: -14, width: 92, delay: -3.8, behind: true, opacity: 0.8 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: -116, top: 81, width: 92, delay: -4.8, behind: true, opacity: 0.7 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: 126, top: 86, width: 92, delay: -2.4, behind: true, opacity: 0.7 },
   ]
 
   const dressDecos: DecoSpec[] = [
@@ -555,22 +565,26 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
     { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: 86, top: 78, width: 32, delay: -4.6, behind: true, opacity: 0.9 },
   ]
 
+  // Sides are lily clusters in the reference; the two big fans (131% centre,
+  // 188% left edge) stay.
   const wishesDecos: DecoSpec[] = [
-    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -82, top: 3, width: 96, delay: -2, behind: true, opacity: 0.85 },
-    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 86, top: 4, width: 95, delay: -4.6, behind: true, opacity: 0.85 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: -82, top: 3, width: 96, delay: -2, behind: true, opacity: 0.85 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: 86, top: 4, width: 95, delay: -4.6, behind: true, opacity: 0.85 },
     { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -16, top: 30, width: 131, delay: -1.2, behind: true, opacity: 0.7 },
-    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 90, top: 37, width: 95, delay: -3.4, behind: true, opacity: 0.8 },
+    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -91, top: 32, width: 188, delay: -3, behind: true, opacity: 0.65 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: 90, top: 37, width: 95, delay: -3.4, behind: true, opacity: 0.8 },
     { src: EH_ASSETS.swan, shadow: EH_ASSETS.shadowSwan, left: -83, top: 62, width: 79, delay: -5, behind: true, opacity: 0.85 },
-    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -119, top: 65, width: 92, delay: -2.8, behind: true, opacity: 0.8 },
-    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 124, top: 68, width: 92, delay: -4, behind: true, opacity: 0.8 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: -119, top: 65, width: 92, delay: -2.8, behind: true, opacity: 0.8 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: 124, top: 68, width: 92, delay: -4, behind: true, opacity: 0.8 },
   ]
 
+  // One fan over the top; lily clusters at the section edges like the reference.
   const closingDecos: DecoSpec[] = [
     { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -24, top: -60, width: 150, delay: -2.2, behind: true, opacity: 0.55 },
-    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -116, top: -28, width: 92, delay: -4.8, behind: true, opacity: 0.7 },
-    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 125, top: -21, width: 92, delay: -1.8, behind: true, opacity: 0.7 },
-    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: -122, top: 80, width: 111, delay: -3.6, behind: true, opacity: 0.6 },
-    { src: EH_ASSETS.fan, shadow: EH_ASSETS.shadowFan, left: 103, top: 83, width: 116, delay: -5.4, behind: true, opacity: 0.6 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: -116, top: -28, width: 92, delay: -4.8, behind: true, opacity: 0.7 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: 125, top: -21, width: 92, delay: -1.8, behind: true, opacity: 0.7 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: -122, top: 80, width: 111, delay: -3.6, behind: true, opacity: 0.6 },
+    { src: EH_ASSETS.lilies, shadow: EH_ASSETS.shadowLilies, left: 103, top: 83, width: 116, delay: -5.4, behind: true, opacity: 0.6 },
   ]
 
   // The carousel runs on the milestone photographs; a couple who has not added
@@ -695,6 +709,12 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
             <div className="eh-count__scene">
               <img src={EH_ASSETS.countdownScene} alt="" aria-hidden="true" loading="lazy" draggable={false} />
             </div>
+            <div className="eh-count__side eh-count__side--left" aria-hidden="true">
+              <img src={EH_ASSETS.laceThin} alt="" loading="lazy" draggable={false} />
+            </div>
+            <div className="eh-count__side eh-count__side--right" aria-hidden="true">
+              <img src={EH_ASSETS.laceThin} alt="" loading="lazy" draggable={false} />
+            </div>
             <div className="eh-count__dial" data-eh-reveal="fade">
               <Countdown target={target} />
             </div>
@@ -747,6 +767,10 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
                     data-eh-reveal="up"
                     style={{ "--eh-delay": `${index * 0.1}s` } as CSSProperties}
                   >
+                    {index === 0 &&
+                      coupleDecos.map((spec, decoIndex) => (
+                        <Deco key={`couple-deco-${decoIndex}`} spec={spec} />
+                      ))}
                     {index > 0 && (
                       <p className="eh-couple__amp" aria-hidden="true">
                         &amp;
@@ -789,7 +813,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
         {(openingBody || quoteText) && (
         <section className="eh-opening" data-section="pembuka" aria-label="Word of welcome">
           <div className="eh-opening__backdrop" aria-hidden="true">
-            <img src={EH_ASSETS.welcomeScene} alt="" loading="lazy" draggable={false} />
+            <img src={EH_ASSETS.gardenScene} alt="" loading="lazy" draggable={false} />
           </div>
           <div className="eh-card eh-card--sage eh-opening__card" data-eh-reveal="up">
             <img className="eh-card__plate" src={EH_ASSETS.cardSage} alt="" aria-hidden="true" loading="lazy" draggable={false} />
@@ -798,7 +822,8 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
               {profile.opening_title && <h2 className="eh-opening__title">{profile.opening_title}</h2>}
               {profile.opening_description && <p className="eh-opening__body">{profile.opening_description}</p>}
               {profile.quote_text && (
-                <blockquote className="eh-quote">
+                <blockquote className={`eh-quote${!profile.opening_title && !profile.opening_description ? " eh-quote--bare" : ""}`}>
+                  <img className="eh-quote__sprig" src={EH_ASSETS.lilySpray} alt="" aria-hidden="true" loading="lazy" draggable={false} />
                   <p>{profile.quote_text}</p>
                   {profile.quote_source && <cite>{profile.quote_source}</cite>}
                 </blockquote>
@@ -940,11 +965,14 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
         {/* 7 — turut mengundang on the pale sage card */}
         {honored.length > 0 && (
           <section className="eh-inviting" data-section="inviting" aria-label="With honor">
+            <header className="eh-inviting__head" data-eh-reveal="up">
+              {invitingKicker && <p className="eh-kicker">{invitingKicker}</p>}
+              <h2 className="eh-title">{invitingTitle}</h2>
+            </header>
             <div className="eh-card eh-card--sage" data-eh-reveal="fade">
               <img className="eh-card__plate" src={EH_ASSETS.cardSage} alt="" aria-hidden="true" loading="lazy" draggable={false} />
               <div className="eh-card__body">
-              {invitingKicker && <p className="eh-kicker eh-kicker--dark">{invitingKicker}</p>}
-              <h2 className="eh-title eh-title--dark">{invitingTitle}</h2>
+              <img className="eh-inviting__seal" src={EH_ASSETS.envelope} alt="" aria-hidden="true" loading="lazy" draggable={false} />
               {invitingIntro && <p className="eh-inviting__intro">{invitingIntro}</p>}
               <ul className="eh-inviting__families">
                 {honored.map((family, index) => (
@@ -993,6 +1021,10 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
               <h2 className="eh-title">{galleryTitle}</h2>
               {galleryIntro && <p className="eh-intro">{galleryIntro}</p>}
             </header>
+
+            <div className="eh-lace eh-lace--band" aria-hidden="true">
+              <img src={EH_ASSETS.laceBand} alt="" loading="lazy" draggable={false} />
+            </div>
 
             <figure className="eh-gallery__stage" data-eh-reveal="fade">
               <button
@@ -1060,6 +1092,9 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
               {(videoTitle || videoKicker) && <h2 className="eh-title">{videoTitle || videoKicker}</h2>}
               {videoIntro && <p className="eh-intro">{videoIntro}</p>}
             </header>
+            <div className="eh-lace eh-lace--thin" aria-hidden="true">
+              <img src={EH_ASSETS.laceThin} alt="" loading="lazy" draggable={false} />
+            </div>
             <div className="eh-film__stage" ref={filmRef} data-eh-reveal="fade">
               <img className="eh-film__frame" src={EH_ASSETS.videoFrame} alt="" aria-hidden="true" loading="lazy" draggable={false} />
               <div className="eh-film__window">
@@ -1093,6 +1128,11 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
         {/* 11 — live streaming (reference block, column-backed) */}
         {hasLive && (
           <section className="eh-live" data-section="livestream" aria-label="Live streaming">
+            {livestream.title && (
+              <p className="eh-live__pill" data-eh-reveal="fade">
+                {livestream.title}
+              </p>
+            )}
             <div className="eh-live__stage" ref={hasVideo ? undefined : filmRef} data-eh-reveal="fade">
               <img className="eh-film__frame" src={EH_ASSETS.videoFrame} alt="" aria-hidden="true" loading="lazy" draggable={false} />
               <div className="eh-film__window">
@@ -1112,10 +1152,9 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
                 )}
               </div>
             </div>
-            {(livestream.title || livestream.description) && (
+            {livestream.description && (
               <div className="eh-live__copy">
-                {livestream.title && <h2 className="eh-title">{livestream.title}</h2>}
-                {livestream.description && <p className="eh-intro">{livestream.description}</p>}
+                <p className="eh-intro">{livestream.description}</p>
               </div>
             )}
             <a className="eh-button" href={liveUrl} target="_blank" rel="noopener noreferrer">
@@ -1175,12 +1214,16 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
         {/* 13 — dress code */}
         {hasDresscode && (
           <section className="eh-dress" data-section="dresscode" aria-label="Dress code">
-            <header className="eh-dress__head" data-eh-reveal="up">
-              <p className="eh-kicker">{dressKicker}</p>
-              {dressTitle && <h2 className="eh-title">{dressTitle}</h2>}
-            </header>
+            <div className="eh-lace eh-lace--thin" aria-hidden="true">
+              <img src={EH_ASSETS.laceThin} alt="" loading="lazy" draggable={false} />
+            </div>
+            <div className="eh-card eh-card--beige" data-eh-reveal="up">
+              <img className="eh-card__plate" src={EH_ASSETS.cardBeige} alt="" aria-hidden="true" loading="lazy" draggable={false} />
+              <div className="eh-card__body">
+              <p className="eh-kicker eh-kicker--dark">{dressKicker}</p>
+              {dressTitle && <h2 className="eh-title eh-title--dark">{dressTitle}</h2>}
             {dressBody && (
-              <p className="eh-dress__body" data-eh-reveal="fade">
+              <p className="eh-dress__body eh-dress__body--dark" data-eh-reveal="fade">
                 {dressBody}
               </p>
             )}
@@ -1188,7 +1231,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
               <ul className="eh-swatches">
                 {dressColors.map((color, index) => (
                   <li
-                    className="eh-swatch"
+                    className="eh-swatch eh-swatch--dark"
                     key={`${color.hex || color.name}-${index}`}
                     data-eh-reveal="up"
                     style={{ "--eh-delay": `${Math.min(index * 0.05, 0.2)}s` } as CSSProperties}
@@ -1199,7 +1242,9 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
                 ))}
               </ul>
             )}
-            {dressNote && <p className="eh-dress__note">{dressNote}</p>}
+            {dressNote && <p className="eh-dress__note eh-dress__note--dark">{dressNote}</p>}
+              </div>
+            </div>
             {dressDecos.map((spec, index) => (
               <Deco key={`dress-deco-${index}`} spec={spec} />
             ))}

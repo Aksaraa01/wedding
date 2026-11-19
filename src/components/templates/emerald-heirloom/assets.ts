@@ -5,9 +5,9 @@
 // countdown, the fan, the swans and the flower sprays. Nothing is hotlinked;
 // nothing is redrawn in CSS.
 //
-// The reference's decorations are 50-frame GIFs (~2 MB each). We ship their
-// first frame as WebP (~15 KB) and reproduce the sway with one CSS keyframe on
-// `rotate` — the motion is the same, the payload is not.
+// The reference's decorations are 50-frame GIFs (~2 MB each). We ship the same
+// animation as 17-frame animated WebP (every 3rd frame, 288px) — the motion is
+// in the art itself, so no CSS keyframes are needed.
 const BASE = "/templates/emerald-heirloom"
 
 export const EH_ASSETS = {
@@ -47,9 +47,7 @@ export const EH_ASSETS = {
   cardBeige: `${BASE}/card-beige.webp`,
   videoFrame: `${BASE}/video-frame.webp`,
 
-  // Loose ornaments. Each ships as a 17-frame animated WebP (the reference's
-  // 50-frame GIF, decimated) plus a still used when the visitor asks for
-  // reduced motion — `<picture media>` swaps it without any JS.
+  // Loose ornaments, always animated like the reference.
   flowerTrumpet: `${BASE}/flower-trumpet.webp`,
   lilies: `${BASE}/lilies.webp`,
   swan: `${BASE}/swan.webp`,

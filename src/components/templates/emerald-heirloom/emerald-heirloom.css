@@ -373,6 +373,12 @@ body.eh-locked {
   border-radius: 18px;
 }
 
+.eh-card--beige {
+  color: var(--eh-ink);
+  background-color: var(--eh-beige);
+  border-radius: 18px;
+}
+
 .eh-opening,
 .eh-couple,
 .eh-story,
@@ -422,10 +428,10 @@ body.eh-locked {
 
 /* Loose decorations ---------------------------------------------------------- */
 
-/* Each ornament ships as an animated WebP (the reference's GIF, decimated);
-   the still swap for `prefers-reduced-motion` is handled by <picture> in the
-   component. Only a light compositor shadow is used — a per-frame
-   `drop-shadow` filter on a 288px animated image janks low-end phones. */
+/* Each ornament ships as an animated WebP (the reference's 50-frame GIF,
+   decimated to 17 frames at 288px) so the motion is in the art itself — no CSS
+   keyframes needed. The silhouette underneath is one static frame; a per-frame
+   `drop-shadow` filter on animated art janks low-end phones. */
 .eh-deco {
   position: absolute;
   z-index: 3;
@@ -439,14 +445,16 @@ body.eh-locked {
   height: auto;
 }
 
-/* The reference's shadow silhouette, a few pixels down-right of the art. */
+/* The reference's shadow silhouette, a few pixels up-left of the art. Soft
+   enough to read as a shadow: at 0.5/1.5px the art+shadow pairs rendered as
+   twin ornaments, most visibly on the white swans. */
 .eh-deco__shadow {
   position: absolute;
-  left: 2.5%;
-  top: 2.4%;
+  left: -2.5%;
+  top: -3%;
   z-index: -1;
   opacity: 0.32;
-  filter: blur(3px);
+  filter: blur(4px);
 }
 
 /* Behind-plate ornaments peek out around the carved frames. */
@@ -607,7 +615,7 @@ body.eh-locked {
 .eh-quote {
   margin: 20px auto 0;
   padding-top: 18px;
-  border-top: 1px solid rgba(47, 62, 45, 0.18);
+  border-top: 1px solid rgba(201, 162, 75, 0.5);
   font-size: 3.7cqw;
   line-height: 1.7;
   font-style: italic;
@@ -627,6 +635,18 @@ body.eh-locked {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(47, 62, 45, 0.55);
+}
+
+.eh-quote__sprig {
+  display: block;
+  width: 32px;
+  height: auto;
+  margin: 0 auto 10px;
+}
+
+.eh-quote--bare {
+  border-top: 0;
+  padding-top: 0;
 }
 
 /* --------------------------------------------------------------------------
@@ -656,11 +676,17 @@ body.eh-locked {
   margin: 14px auto 0;
 }
 
+/* Space between the portrait cards for the swan that hangs off the groom's
+   card into the gap — the reference keeps open paper between the portraits. */
 .eh-couple__row {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 260px;
   margin-top: 20px;
+}
+
+.eh-person {
+  position: relative;
 }
 
 .eh-person__plate {
@@ -1036,15 +1062,46 @@ body.eh-locked {
   isolation: isolate;
 }
 
+/* The reference runs white lace columns down both sides of the pond. */
+.eh-count__side {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 56px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.eh-count__side img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 640px;
+  max-width: none;
+  height: auto;
+  translate: -50% -50%;
+  rotate: 90deg;
+  opacity: 0.96;
+}
+
+.eh-count__side--left {
+  left: 0;
+}
+
+.eh-count__side--right {
+  right: 0;
+}
+
 /* The 100px lace band sits across the welcome/countdown junction (half over the
    last 50px of the welcome), so the pond begins behind it instead of after it. */
 .eh-count__lace {
   position: absolute;
   left: 0;
   right: 0;
-  top: -96px;
+  top: -60px;
   z-index: 4;
-  height: 104px;
+  height: 160px;
   overflow: hidden;
   pointer-events: none;
 }
@@ -1052,10 +1109,10 @@ body.eh-locked {
 .eh-count__lace img {
   position: absolute;
   left: 50%;
-  top: 50%;
+  bottom: 0;
   width: 120%;
   max-width: none;
-  translate: -50% -50%;
+  translate: -50% 0;
 }
 
 .eh-count__scene {
@@ -1088,13 +1145,13 @@ body.eh-locked {
 .eh-count__dial {
   position: relative;
   z-index: 2;
-  padding: 220px 24px 0;
+  padding: 190px 24px 0;
 }
 
 .eh-count__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 8px;
+  gap: 4px 8px;
   margin: 0 auto;
   max-width: 62%;
 }
@@ -1103,13 +1160,13 @@ body.eh-locked {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
 .eh-count__unit b {
   font-family: var(--eh-display);
   font-weight: 400;
-  font-size: 7cqw;
+  font-size: 8.2cqw;
   line-height: 1;
   color: var(--eh-cream);
 }
@@ -1117,7 +1174,8 @@ body.eh-locked {
 .eh-count__unit span {
   font-family: var(--eh-sans);
   font-weight: 300;
-  font-size: 4.6cqw;
+  font-size: 5.2cqw;
+  line-height: 1.3;
   letter-spacing: 0.01em;
   color: var(--eh-cream);
 }
@@ -1125,13 +1183,13 @@ body.eh-locked {
 .eh-count__cta {
   position: relative;
   z-index: 2;
-  margin: 18px auto 0;
+  margin: 16px auto 0;
   display: flex;
   width: fit-content;
-  gap: 8px;
-  min-height: 42px;
-  padding: 0 22px;
-  font-size: 4cqw;
+  gap: 7px;
+  min-height: 38px;
+  padding: 0 10px;
+  font-size: 3.4cqw;
 }
 
 .eh-count__cta svg {
@@ -1147,8 +1205,8 @@ body.eh-locked {
 .eh-count__fan {
   position: absolute;
   left: 50%;
-  bottom: -386px;
-  width: 137.7%;
+  bottom: -126px;
+  width: 100%;
   translate: -50% 0;
   z-index: 1;
   display: flex;
@@ -1161,12 +1219,12 @@ body.eh-locked {
   bottom: 6px;
   width: 100%;
   translate: -50% 0;
-  opacity: 0.7;
+  opacity: 0.6;
   filter: blur(5px);
 }
 
-/* 137.7% of the canvas in the reference: the fan bleeds past both lace
-   columns and the tassel hangs onto the next section. */
+/* Edge-to-edge like the reference, with the tassel hanging past the section
+   foot into the mempelai. */
 .eh-count__fanArt {
   position: relative;
   width: 100%;
@@ -1181,6 +1239,11 @@ body.eh-locked {
   position: relative;
   padding: 30px 0 34px;
   overflow: hidden;
+}
+
+.eh-inviting__head {
+  padding: 0 24px;
+  margin-bottom: 18px;
 }
 
 .eh-inviting .eh-card {
@@ -1205,15 +1268,25 @@ body.eh-locked {
 }
 
 .eh-inviting__families li {
-  font-family: var(--eh-body);
-  font-size: 3.9cqw;
-  line-height: 1.5;
-  color: rgba(47, 62, 45, 0.92);
+  font-family: var(--eh-display);
+  font-weight: 400;
+  font-size: 5cqw;
+  line-height: 1.45;
+  letter-spacing: 0.03em;
+  color: rgba(47, 62, 45, 0.94);
 }
 
 .eh-inviting__families li + li {
-  padding-top: 8px;
-  border-top: 1px solid rgba(47, 62, 45, 0.14);
+  padding-top: 10px;
+  border-top: 1px solid rgba(201, 162, 75, 0.4);
+}
+
+.eh-inviting__seal {
+  display: block;
+  width: 48px;
+  height: auto;
+  margin: 0 auto 14px;
+  filter: drop-shadow(0 6px 12px rgba(16, 24, 16, 0.3));
 }
 
 /* --------------------------------------------------------------------------
@@ -1231,18 +1304,32 @@ body.eh-locked {
 
 .eh-rundown__rows {
   width: 84%;
-  margin: 20px auto 0;
-  padding: 0;
+  margin: 22px auto 0;
+  padding: 0 0 0 26px;
   list-style: none;
+  border-left: 1px solid rgba(201, 162, 75, 0.55);
 }
 
 .eh-rundown__row {
+  position: relative;
   display: grid;
   grid-template-columns: 74px 1fr;
   gap: 14px;
   align-items: baseline;
   padding: 12px 0;
   border-bottom: 1px solid rgba(218, 241, 216, 0.18);
+}
+
+.eh-rundown__row::before {
+  content: "";
+  position: absolute;
+  left: -30.5px;
+  top: 20px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--eh-gold);
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.18);
 }
 
 .eh-rundown__row:first-child {
@@ -1278,11 +1365,10 @@ body.eh-locked {
 .eh-gallery__stage {
   position: relative;
   width: 88%;
-  margin: 20px auto 0;
-  border-radius: 8px;
+  margin: 18px auto 0;
+  border-radius: 4px;
   overflow: hidden;
   box-shadow: 0 16px 34px rgba(12, 20, 12, 0.42);
-  border: 1px solid rgba(255, 250, 243, 0.22);
 }
 
 .eh-gallery__photo {
@@ -1341,12 +1427,13 @@ body.eh-locked {
 
 .eh-gallery__thumbs button.is-active {
   opacity: 1;
-  border-color: rgba(255, 250, 243, 0.7);
+  border-color: var(--eh-gold);
+  outline: 1px solid var(--eh-gold);
 }
 
 .eh-gallery__thumbs img {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1;
   object-fit: cover;
 }
 
@@ -1428,10 +1515,45 @@ body.eh-locked {
 }
 
 .eh-film__play svg {
-  width: 52px;
-  height: 52px;
+  width: 26px;
+  height: 26px;
   fill: var(--eh-ivory);
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+  translate: 2px 0;
+}
+
+.eh-film__play {
+  width: 64px;
+  height: 64px;
+  margin: auto;
+  border-radius: 50%;
+  background: var(--eh-burgundy);
+  box-shadow: 0 10px 26px rgba(12, 20, 12, 0.5), inset 0 1px 0 rgba(255, 250, 243, 0.3);
+}
+
+.eh-live__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: var(--eh-burgundy);
+  color: var(--eh-ivory);
+  font-family: var(--eh-sans);
+  font-size: 2.8cqw;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  box-shadow: 0 10px 24px rgba(12, 20, 12, 0.4), inset 0 1px 0 rgba(255, 250, 243, 0.28);
+}
+
+.eh-live__pill::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--eh-gold);
+  box-shadow: 0 0 8px var(--eh-gold);
 }
 
 .eh-live__copy {
@@ -1607,11 +1729,11 @@ body.eh-locked {
 
 .eh-swatch i {
   display: block;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 250, 243, 0.5);
-  box-shadow: 0 6px 14px rgba(12, 20, 12, 0.35);
+  border: 1.5px solid var(--eh-gold);
+  box-shadow: 0 6px 14px rgba(12, 20, 12, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.4);
 }
 
 .eh-dress__note {
@@ -1620,6 +1742,23 @@ body.eh-locked {
   font-size: 3.2cqw;
   font-style: italic;
   color: rgba(218, 241, 216, 0.7);
+}
+
+.eh-dress .eh-card {
+  width: 86%;
+  margin: 0 auto;
+}
+
+.eh-dress__body--dark {
+  color: rgba(47, 62, 45, 0.88);
+}
+
+.eh-swatch--dark {
+  color: rgba(47, 62, 45, 0.8);
+}
+
+.eh-dress__note--dark {
+  color: rgba(47, 62, 45, 0.7);
 }
 
 /* --------------------------------------------------------------------------
