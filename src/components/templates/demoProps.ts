@@ -3603,6 +3603,8 @@ DEMO_PROPS_BY_CODE.olan = {
     copy_account_toast: "Account number copied",
     copy_address_button: "Copy Address",
     copy_address_toast: "Address copied",
+    dresscode_title: "Dress Code",
+    dresscode_intro: "Elegant attire in warm earth tones — please reserve white for the couple.",
     wishes_title: "Wedding Wish",
     wishes_intro: "",
     wishes_name_label: "Name",

@@ -133,8 +133,15 @@ export default function Olan(profile: TemplateProps) {
   const selectedAccount = accounts[Math.min(giftIndex, Math.max(0, accounts.length - 1))]
   const giftAddressName = (profile.gift_address_name || "").trim()
   const giftAddress = gates.gift_address !== false ? (profile.gift_address || "").trim() : ""
-  const dresscode = profile.dresscode_visible !== false ? profile.dresscode : undefined
+  // The editor's DRESS CODE card only writes `colors`; the heading and intro are
+  // EKSTRA fields (dresscode_title / dresscode_intro), so a couple without a
+  // legacy `dresscode.title` still gets editable copy.
+  const dresscodeOn = profile.dresscode_visible !== false
+  const dresscode = dresscodeOn ? profile.dresscode : undefined
   const dresscodeColors = (dresscode?.colors || []).filter((c) => c && (c.hex || c.name))
+  const dresscodeTitle = content.dresscode_title || dresscode?.title || "Dress Code"
+  const dresscodeIntro = content.dresscode_intro || dresscode?.description || ""
+  const hasDresscode = dresscodeOn && (dresscodeColors.length > 0 || !!dresscodeIntro)
   const livestream = profile.livestream_visible !== false ? profile.livestream : undefined
   const livestreamUrl = (livestream?.url || "").trim()
 
@@ -1172,14 +1179,14 @@ export default function Olan(profile: TemplateProps) {
           ) : null}
 
           {/* ───── dress code ───── */}
-          {dresscode && (dresscode.title || dresscode.description || dresscodeColors.length > 0) ? (
+          {hasDresscode ? (
             <section className="olan-dresscode">
               <h2 className="olan-dresscode__title" data-aos="zoom-in" data-aos-duration="1200">
-                {dresscode.title || "Dress Code"}
+                {dresscodeTitle}
               </h2>
-              {dresscode.description ? (
+              {dresscodeIntro ? (
                 <p className="olan-dresscode__desc" data-aos="fade-up" data-aos-duration="1000">
-                  {dresscode.description}
+                  {dresscodeIntro}
                 </p>
               ) : null}
               {dresscodeColors.length > 0 ? (
