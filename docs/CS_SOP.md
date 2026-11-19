@@ -17,7 +17,9 @@ Boundary yang di-hardcode di kode:
 
 | Topik | Perilaku | Alasan / prioritas |
 |---|---|---|
-| Harga, paket, template, bandingkan vendor | jawab lewat tool (`quote`, `list_packages`, `list_templates`) | — |
+| Harga, paket, bandingkan vendor | jawab lewat tool (`quote`, `list_packages`) | — |
+| Template spesifik ("ada yang adat batak?", "rekomendasi elegan") | tool `list_templates` — sebut maksimal beberapa contoh | — |
+| **Minta SEMUA template / "lihat di mana" / daftar / galeri** | **balasan tetap dari kode: `https://wedding.aksaraa.com/templates`** (Ceriavite: `https://ceriavite.aksaraa.com`) | jangan kirim 3–8 link preview dan jangan sebut "ada N template" dari cuplikan tool |
 | Estimasi waktu, pertanyaan teknis, undangan cetak | jawab dari kebijakan | — |
 | Rekomendasi paket, nego pertama, pilih paket, cara daftar | playbook (qualify / objection / cta) | — |
 | Nego berulang | eskalasi | `discount` · normal |
