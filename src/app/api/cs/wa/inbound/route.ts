@@ -83,24 +83,15 @@ async function reply(conversationId: string, text: string): Promise<void> {
   try {
     const { data } = await supabaseAdmin
       .from("cs_conversations")
-      .select("cs_contacts!inner(wa_jid)")
+      .select("cs_contacts!inner(wa_jid,phone)")
       .eq("id", conversationId)
       .maybeSingle()
-    const contact = (data as { cs_contacts?: { wa_jid?: string } } | null)?.cs_contacts
-    const jid = contact?.wa_jid || ""
-    if (!jid) return
+    const contact = (data as { cs_contacts?: { wa_jid?: string; phone?: string } } | null)?.cs_contacts
+    if (!contact?.wa_jid && !contact?.phone) return
 
-    const url = (process.env.CS_WA_SEND_URL || process.env.WA_SCHOOL_API_URL || "").replace(/\/$/, "")
-    if (!url) return
-    await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-cs-secret": process.env.CS_GATEWAY_SECRET || "",
-      },
-      body: JSON.stringify({ jid, message: text }),
-      signal: AbortSignal.timeout(20_000),
-    })
+    // Hanya lewat gateway CS: pesan OTP/konfirmasi tidak boleh terkirim dari
+    // nomor bot lama.
+    await sendCsWhatsApp({ jid: contact.wa_jid, phone: contact.phone }, text, 20_000)
   } catch {
     // gagal kirim tidak boleh menggagalkan proses
   }

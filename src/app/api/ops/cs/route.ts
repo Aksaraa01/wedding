@@ -307,8 +307,8 @@ export async function GET(req: Request) {
   return NextResponse.json({ items, query: q || null })
 }
 
-async function sendWhatsApp(phone: string, message: string): Promise<boolean> {
-  return sendCsWhatsApp(phone, message, 8000)
+async function sendWhatsApp(target: { phone?: string | null; jid?: string | null }, message: string): Promise<boolean> {
+  return sendCsWhatsApp(target, message, 8000)
 }
 
 export async function POST(req: Request) {
@@ -328,7 +328,7 @@ export async function POST(req: Request) {
 
   const { data: conversation } = await supabaseAdmin
     .from("cs_conversations")
-    .select("id,contact_id,status,channel,cs_contacts!inner(id,phone,name)")
+    .select("id,contact_id,status,channel,cs_contacts!inner(id,phone,name,wa_jid)")
     .eq("id", conversationId)
     .maybeSingle()
 
@@ -399,7 +399,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "nomor kontak tidak ada" }, { status: 400 })
     }
 
-    const sent = isWeb ? true : await sendWhatsApp(contact!.phone as string, text)
+    // Kirim ke JID chat (lid) supaya keluar dari nomor CS yang di-pair;
+    // nomor telepon hanya cadangan.
+    const sent = isWeb
+      ? true
+      : await sendWhatsApp(
+          { phone: contact!.phone as string, jid: (contact as { wa_jid?: string | null }).wa_jid || null },
+          text
+        )
 
     await supabaseAdmin.from("cs_messages").insert({
       conversation_id: conversationId,

@@ -3,6 +3,7 @@ import assert from "node:assert/strict"
 
 import { BOUNDARIES, classify, countUnknownStrikes, decide, detectPaymentClaim, detectSentiment, wantsAllTemplates } from "../src/lib/cs/policy.ts"
 import { CS_WHATSAPP, csWhatsAppUrl, paymentContactReply, premiumTemplateReply, templateGalleryReply } from "../src/lib/cs/contact.ts"
+import { csSendUrls } from "../src/lib/cs/waSend.ts"
 import {
   SECTION_SPECS,
   mapSectionFromText,
@@ -303,6 +304,23 @@ test("template: permintaan spesifik tetap lewat tool", () => {
   const d = decide("template", { ...ctx, wantsAllTemplates: false })
   assert.equal(d.action, "tool")
   assert.equal(d.tool, "list_templates")
+})
+
+test("wa send: hanya gateway CS, tidak pernah nomor bot lama", () => {
+  const saved = { cs: process.env.CS_WA_SEND_URL, legacy: process.env.WA_SCHOOL_API_URL }
+  try {
+    process.env.CS_WA_SEND_URL = "http://127.0.0.1:3101/send"
+    process.env.WA_SCHOOL_API_URL = "http://127.0.0.1:3001/send"
+    assert.deepEqual(csSendUrls(), ["http://127.0.0.1:3101/send"])
+
+    delete process.env.CS_WA_SEND_URL
+    assert.deepEqual(csSendUrls(), ["http://127.0.0.1:3001/send"])
+  } finally {
+    if (saved.cs === undefined) delete process.env.CS_WA_SEND_URL
+    else process.env.CS_WA_SEND_URL = saved.cs
+    if (saved.legacy === undefined) delete process.env.WA_SCHOOL_API_URL
+    else process.env.WA_SCHOOL_API_URL = saved.legacy
+  }
 })
 
 test("handoff: status pemilik percakapan menentukan AI diam", () => {
