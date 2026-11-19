@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto"
 import { supabaseAdmin } from "@/lib/supabase"
 import { checkRateLimit, getClientIp, rateLimited } from "@/lib/rateLimit"
 import { getCsSettings } from "@/lib/cs/settings"
+import { aiPaused } from "@/lib/cs/handoff"
 import { countUnknownStrikes, detectSentiment } from "@/lib/cs/policy"
 import { handleInbound } from "@/lib/cs/orchestrator"
 import { COUPLE_COOKIE, getSessionToken, verifySession } from "@/lib/sessionToken"
@@ -106,7 +107,7 @@ export async function POST(request: Request) {
 
   const { data: existing } = await supabaseAdmin
     .from("cs_conversations")
-    .select("id,status")
+    .select("id,status,ai_paused_until")
     .eq("contact_id", contact.id)
     .eq("channel", "web")
     .neq("status", "closed")
@@ -157,7 +158,7 @@ export async function POST(request: Request) {
 
   // Toggle AI per percakapan (dashboard /ops): saat tim mengambil alih,
   // widget tidak boleh dibalas otomatis. Pesan tetap tersimpan untuk tim.
-  if (existing?.status === "human") {
+  if (aiPaused(existing)) {
     return NextResponse.json({ reply: "", paused: true })
   }
 
@@ -207,10 +208,10 @@ export async function POST(request: Request) {
   // Balapan dengan toggle tim: cek ulang tepat sebelum balasan dikirim.
   const { data: owner } = await supabaseAdmin
     .from("cs_conversations")
-    .select("status")
+    .select("status,ai_paused_until")
     .eq("id", conversationId)
     .maybeSingle()
-  if (owner?.status !== "bot") return NextResponse.json({ reply: "", paused: true, conversationId })
+  if (aiPaused(owner)) return NextResponse.json({ reply: "", paused: true, conversationId })
 
   const reply = result.replies[0]?.text || ""
   const response = NextResponse.json({ reply, conversationId })

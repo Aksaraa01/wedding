@@ -210,11 +210,7 @@ export async function POST(req: Request) {
   if (action === "claim") {
     await supabaseAdmin
       .from("cs_conversations")
-      .update({
-        status: "human",
-        assigned_to: auth.employee.id,
-        ai_paused_until: new Date(Date.now() + 4 * 60 * 60_000).toISOString(),
-      })
+      .update({ status: "human", assigned_to: auth.employee.id, ai_paused_until: null })
       .eq("id", conversationId)
     return NextResponse.json({ ok: true })
   }
@@ -273,7 +269,7 @@ export async function POST(req: Request) {
         status: "human",
         assigned_to: auth.employee.id,
         last_outbound_at: now,
-        ai_paused_until: new Date(Date.now() + 4 * 60 * 60_000).toISOString(),
+        ai_paused_until: null,
       })
       .eq("id", conversationId)
 

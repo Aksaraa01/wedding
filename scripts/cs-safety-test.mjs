@@ -27,6 +27,7 @@ import {
   toJid,
 } from "../src/lib/cs/identity.ts"
 import { validateReply } from "../src/lib/cs/guard.ts"
+import { aiPaused, shouldAutoResume } from "../src/lib/cs/handoff.ts"
 import { escalationReply } from "../src/lib/cs/replies.ts"
 import { csWidgetEnabledOn } from "../src/lib/cs/widgetRoutes.ts"
 import {
@@ -302,6 +303,19 @@ test("template: permintaan spesifik tetap lewat tool", () => {
   const d = decide("template", { ...ctx, wantsAllTemplates: false })
   assert.equal(d.action, "tool")
   assert.equal(d.tool, "list_templates")
+})
+
+test("handoff: status pemilik percakapan menentukan AI diam", () => {
+  const now = Date.parse("2026-11-19T10:00:00Z")
+  assert.equal(aiPaused({ status: "bot" }, now), false)
+  assert.equal(aiPaused({ status: "closed" }, now), false)
+  // Toggle tim / balasan dari WhatsApp: sticky walau lama.
+  assert.equal(aiPaused({ status: "human", ai_paused_until: null }, now), true)
+  // Eskalasi: berhenti sampai jam jeda habis, lalu jalan lagi.
+  assert.equal(aiPaused({ status: "human", ai_paused_until: "2026-11-19T11:00:00Z" }, now), true)
+  assert.equal(aiPaused({ status: "human", ai_paused_until: "2026-11-19T09:00:00Z" }, now), false)
+  assert.equal(shouldAutoResume({ status: "human", ai_paused_until: "2026-11-19T09:00:00Z" }, now), true)
+  assert.equal(shouldAutoResume({ status: "human", ai_paused_until: null }, now), false)
 })
 
 test("template: filter Basic/Premium dijelaskan, bukan paket buku tamu", () => {

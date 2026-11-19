@@ -4,6 +4,7 @@ import { createHash, timingSafeEqual } from "node:crypto"
 import { supabaseAdmin } from "@/lib/supabase"
 import { fromJid, generateCode, maskPhone, normalizeWhatsApp } from "@/lib/cs/identity"
 import { checkRateLimit, rateLimited } from "@/lib/rateLimit"
+import { aiPaused, shouldAutoResume } from "@/lib/cs/handoff"
 import { getCsSettings } from "@/lib/cs/settings"
 import { classify } from "@/lib/cs/policy"
 import { handleInbound } from "@/lib/cs/orchestrator"
@@ -251,7 +252,7 @@ export async function POST(request: Request) {
 
   const { data: existingConversation } = await supabaseAdmin
     .from("cs_conversations")
-    .select("id,strike_count,status")
+    .select("id,strike_count,status,ai_paused_until")
     .eq("contact_id", contact.id)
     .neq("status", "closed")
     .order("created_at", { ascending: false })
@@ -291,7 +292,7 @@ export async function POST(request: Request) {
     }
     await supabaseAdmin
       .from("cs_conversations")
-      .update({ status: "human", last_outbound_at: now })
+      .update({ status: "human", ai_paused_until: null, last_outbound_at: now })
       .eq("id", conversationId)
     await supabaseAdmin.from("cs_audit").insert({
       actor: "human:wa",
@@ -327,7 +328,12 @@ export async function POST(request: Request) {
 
   // Toggle AI per percakapan: kalau tim sudah mengambil alih, AI diam.
   // Pesannya tetap disimpan supaya tim melihatnya (sudah di-insert di atas).
-  if (existingConversation?.status === "human") {
+  if (shouldAutoResume(existingConversation)) {
+    await supabaseAdmin
+      .from("cs_conversations")
+      .update({ status: "bot", ai_paused_until: null })
+      .eq("id", conversationId)
+  } else if (aiPaused(existingConversation)) {
     return NextResponse.json({ replies: [] })
   }
 
@@ -656,10 +662,10 @@ export async function POST(request: Request) {
   // menyusun jawaban. Cek sekali lagi tepat sebelum balasan dikirim.
   const { data: owner } = await supabaseAdmin
     .from("cs_conversations")
-    .select("status")
+    .select("status,ai_paused_until")
     .eq("id", conversationId)
     .maybeSingle()
-  if (owner?.status !== "bot") return NextResponse.json({ replies: [] })
+  if (aiPaused(owner)) return NextResponse.json({ replies: [] })
 
   return NextResponse.json({ replies: result.replies })
 }
