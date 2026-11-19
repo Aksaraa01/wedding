@@ -1206,13 +1206,14 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
           </section>
         )}
 
-        {/* 14 — wishes */}
+        {/* 14 — wishes: the title on the heart, the form on the opened envelope,
+            the feed flowing below onto the paper — the reference's layout */}
         <section className="eh-wishes" data-section="wishes" aria-label="Wedding wishes">
           <div className="eh-wishes__head" data-eh-reveal="fade">
             <img className="eh-wishes__heart" src={EH_ASSETS.heart} alt="" aria-hidden="true" loading="lazy" draggable={false} />
             <h2 className="eh-wishes__title">{wishesTitle}</h2>
           </div>
-          <div className="eh-wishes__envelope" aria-hidden="true">
+          <div className="eh-wishes__backdrop" aria-hidden="true">
             <img src={EH_ASSETS.envelope} alt="" loading="lazy" draggable={false} />
           </div>
           {wishesIntro && (
@@ -1220,9 +1221,7 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
               {wishesIntro}
             </p>
           )}
-          <div className="eh-card eh-card--sage eh-wishes__panel" data-eh-reveal="up">
-            <img className="eh-card__plate" src={EH_ASSETS.cardSage} alt="" aria-hidden="true" loading="lazy" draggable={false} />
-            <div className="eh-card__body">
+          <div className="eh-wishes__body" data-eh-reveal="up">
             <Wishes
               weddingProfileId={profile.wedding_profile_id}
               guestId={profile.guest_id}
@@ -1231,7 +1230,6 @@ export default function EmeraldHeirloom(profile: TemplateProps) {
               coupleName={coupleLabel}
               copy={wishCopy}
             />
-            </div>
           </div>
           {wishesDecos.map((spec, index) => (
             <Deco key={`wishes-deco-${index}`} spec={spec} />

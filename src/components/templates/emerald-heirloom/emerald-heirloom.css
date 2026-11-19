@@ -770,7 +770,7 @@ body.eh-locked {
 
 .eh-story__copy {
   text-align: left;
-  padding: 36px 30px 34px;
+  padding: 30px 26px 28px;
 }
 
 .eh-story__kicker {
@@ -787,8 +787,8 @@ body.eh-locked {
   margin: 0 0 18px;
   font-family: var(--eh-display);
   font-weight: 400;
-  font-size: 8.4cqw;
-  line-height: 1.2;
+  font-size: 6.8cqw;
+  line-height: 1.25;
   letter-spacing: 0.02em;
   color: var(--eh-ink);
 }
@@ -815,7 +815,7 @@ body.eh-locked {
 
 .eh-story__text {
   margin: 0;
-  font-size: 3.85cqw;
+  font-size: 3.5cqw;
   line-height: 1.85;
   color: rgba(47, 62, 45, 0.9);
 }
@@ -1620,75 +1620,78 @@ body.eh-locked {
 }
 
 /* --------------------------------------------------------------------------
-   14 — wishes
+   14 — wishes (title on the heart, form on the envelope)
    ----------------------------------------------------------------------- */
 
 .eh-wishes {
   position: relative;
-  padding: 10px 0 24px;
+  padding: 4px 0 30px;
   text-align: center;
-  background-image: url("/templates/emerald-heirloom/edge-florals.webp");
-  background-size: 100% auto;
-  background-position: center 42%;
-  background-repeat: no-repeat;
-}
-
-.eh-wishes::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(180deg, rgba(20, 30, 20, 0.7), rgba(20, 30, 20, 0.5) 50%, rgba(20, 30, 20, 0.78));
 }
 
 .eh-wishes__head {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 4px;
+  width: 58%;
+  margin: 0 auto;
+  padding-top: 10px;
 }
 
 .eh-wishes__heart {
-  width: 46%;
+  width: 100%;
   filter: drop-shadow(0 16px 26px rgba(12, 20, 12, 0.4));
 }
 
 .eh-wishes__title {
-  margin: 10px 0 0;
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  translate: -50% 0;
+  width: 100%;
+  margin: 0;
   font-family: var(--eh-display);
   font-weight: 700;
-  font-size: 9.2cqw;
-  line-height: 1.15;
-  letter-spacing: 0.04em;
+  font-size: 8cqw;
+  line-height: 1.12;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--eh-cream);
-  text-shadow: 3px 3px 0 var(--eh-ink), 0 6px 18px rgba(12, 20, 12, 0.45);
+  text-shadow: 3px 3px 0 rgba(47, 62, 45, 0.92), 0 6px 18px rgba(12, 20, 12, 0.45);
 }
 
-.eh-wishes__envelope {
-  width: 74%;
-  margin: 14px auto -16%;
+/* The opened envelope sits behind the first part of the body: the fields rest
+   on its flap, the feed flows off it onto the paper. */
+.eh-wishes__backdrop {
+  position: absolute;
+  left: 50%;
+  top: 31%;
+  translate: -50% 0;
+  width: 76%;
   pointer-events: none;
 }
 
-.eh-wishes__envelope img {
+.eh-wishes__backdrop img {
   width: 100%;
   filter: drop-shadow(0 18px 30px rgba(12, 20, 12, 0.36));
 }
 
 .eh-wishes__intro {
-  width: 80%;
-  margin: 0 auto 16px;
+  position: relative;
+  z-index: 2;
+  width: 78%;
+  margin: 0 auto 10px;
   font-size: 3.6cqw;
   line-height: 1.7;
-  color: rgba(232, 244, 228, 0.86);
+  color: rgba(255, 250, 243, 0.92);
+  text-shadow: 0 1px 10px rgba(12, 20, 12, 0.5);
 }
 
-.eh-wishes__panel {
-  width: 88%;
+.eh-wishes__body {
+  position: relative;
+  z-index: 2;
+  width: 78%;
+  margin: 10px auto 0;
+  padding: 120px 10px 16px;
   text-align: left;
-  padding: 26px 20px 22px;
 }
 
 .eh-form {
@@ -1708,26 +1711,27 @@ body.eh-locked {
   font-size: 2.5cqw;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(47, 62, 45, 0.62);
+  color: rgba(255, 250, 243, 0.78);
 }
 
 .eh-field input,
 .eh-field textarea {
   width: 100%;
-  padding: 11px 13px;
+  padding: 12px 14px;
   border-radius: 10px;
-  border: 1px solid rgba(47, 62, 45, 0.24);
-  background: rgba(255, 250, 243, 0.72);
+  border: 1px solid rgba(255, 250, 243, 0.5);
+  background: rgba(255, 250, 243, 0.82);
   color: var(--eh-ink);
   font-family: var(--eh-body);
   font-size: 14px;
   line-height: 1.5;
   resize: vertical;
+  box-shadow: 0 10px 24px rgba(12, 20, 12, 0.35);
 }
 
 .eh-field input::placeholder,
 .eh-field textarea::placeholder {
-  color: rgba(47, 62, 45, 0.42);
+  color: rgba(47, 62, 45, 0.45);
 }
 
 .eh-field__counter {
@@ -1735,7 +1739,7 @@ body.eh-locked {
   align-self: flex-end;
   font-family: var(--eh-sans);
   font-size: 10px;
-  color: rgba(47, 62, 45, 0.45);
+  color: rgba(255, 250, 243, 0.7);
 }
 
 .eh-submit {
@@ -1763,34 +1767,35 @@ body.eh-locked {
   margin: 4px 0 0;
   font-size: 3.2cqw;
   line-height: 1.55;
-  color: rgba(47, 62, 45, 0.7);
+  color: rgba(255, 250, 243, 0.9);
 }
 
 .eh-field__feedback.is-error {
-  color: #8d2231;
+  color: #ffb4c0;
 }
 
 .eh-wishlist {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: 18px;
+  margin-top: 20px;
 }
 
 .eh-wish {
   position: relative;
   isolation: isolate;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(255, 250, 243, 0.62);
-  border: 1px solid rgba(47, 62, 45, 0.12);
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(233, 246, 228, 0.9);
+  color: var(--eh-ink);
+  box-shadow: 0 12px 26px rgba(12, 20, 12, 0.3);
 }
 
 .eh-wish__text {
   margin: 0;
   font-size: 3.6cqw;
   line-height: 1.65;
-  color: rgba(47, 62, 45, 0.88);
+  color: rgba(47, 62, 45, 0.9);
 }
 
 .eh-wish__meta {
@@ -1802,75 +1807,11 @@ body.eh-locked {
   font-family: var(--eh-sans);
   font-size: 2.3cqw;
   letter-spacing: 0.08em;
-  color: rgba(47, 62, 45, 0.5);
+  color: rgba(47, 62, 45, 0.55);
 }
 
 .eh-wish__name {
   color: var(--eh-burgundy);
-}
-
-.eh-wish::before,
-.eh-wish::after,
-.eh-account::before,
-.eh-account::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  width: 58%;
-  aspect-ratio: 1;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.eh-wish:nth-child(odd)::before {
-  left: -44%;
-  top: -26%;
-  background-image: url("/templates/emerald-heirloom/fan.webp");
-  rotate: -6deg;
-}
-
-.eh-wish:nth-child(even)::after {
-  right: -44%;
-  bottom: -26%;
-  background-image: url("/templates/emerald-heirloom/lilies.webp");
-  rotate: 6deg;
-}
-
-.eh-account {
-  position: relative;
-  isolation: isolate;
-}
-
-.eh-account:nth-child(odd)::before {
-  left: -38%;
-  bottom: -30%;
-  background-image: url("/templates/emerald-heirloom/swan.webp");
-  rotate: -4deg;
-  opacity: 0.42;
-}
-
-.eh-account:nth-child(even)::after {
-  right: -38%;
-  top: -30%;
-  background-image: url("/templates/emerald-heirloom/flower-trumpet.webp");
-  rotate: 5deg;
-  opacity: 0.42;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .eh-wish:nth-child(odd)::before {
-    background-image: url("/templates/emerald-heirloom/fan-still.webp");
-  }
-  .eh-wish:nth-child(even)::after,
-  .eh-account:nth-child(even)::after {
-    background-image: url("/templates/emerald-heirloom/lilies-still.webp");
-  }
-  .eh-account:nth-child(odd)::before {
-    background-image: url("/templates/emerald-heirloom/swan-still.webp");
-  }
 }
 
 .eh-pager {
@@ -1881,15 +1822,15 @@ body.eh-locked {
   margin-top: 6px;
   font-family: var(--eh-sans);
   font-size: 2.6cqw;
-  color: rgba(47, 62, 45, 0.6);
+  color: rgba(255, 250, 243, 0.75);
 }
 
 .eh-pager button {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: rgba(47, 62, 45, 0.1);
-  color: var(--eh-ink);
+  background: var(--eh-burgundy);
+  color: var(--eh-ivory);
   font-size: 18px;
   line-height: 1;
 }
