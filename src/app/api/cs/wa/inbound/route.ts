@@ -28,6 +28,7 @@ interface InboundBody {
   media_url?: string
   media_base64?: string
   mime_type?: string
+  unsupported?: string
   timestamp?: number
   from_me?: boolean
 }
@@ -151,7 +152,8 @@ export async function POST(request: Request) {
   const text = String(body.text || "").trim()
   const mediaUrl = String(body.media_url || "").trim()
   const mediaBase64 = String(body.media_base64 || "").trim()
-  if (!jid || (!text && !mediaUrl && !mediaBase64)) {
+  const unsupported = String(body.unsupported || "").trim()
+  if (!jid || (!text && !mediaUrl && !mediaBase64 && !unsupported)) {
     return NextResponse.json({ replies: [] })
   }
 
@@ -223,7 +225,7 @@ export async function POST(request: Request) {
       direction: "in",
       role: "user",
       wa_message_id: waMessageId,
-      body: text,
+      body: text || (unsupported ? `[${unsupported}]` : ""),
     })
     .select("id,created_at")
     .single()
@@ -245,6 +247,15 @@ export async function POST(request: Request) {
       .from("cs_conversations")
       .update({ ai_paused_until: new Date(Date.now() + 4 * 60 * 60_000).toISOString() })
       .eq("id", conversationId)
+    return NextResponse.json({ replies: [] })
+  }
+
+  // Jenis pesan yang belum didukung (voice note, stiker, dokumen, lokasi).
+  if (unsupported) {
+    await reply(
+      conversationId,
+      `Aku belum bisa buka ${unsupported} ya Kak. Tulis pesan teks saja biar aku bisa bantu, atau kirim foto lewat tombol foto.`
+    )
     return NextResponse.json({ replies: [] })
   }
 

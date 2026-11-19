@@ -412,3 +412,15 @@ export function mapSectionFromText(text: string): string | null {
 export function questionForField(field: FlowField): string {
   return field.question
 }
+
+// Klien sering membalas pertanyaan dengan pertanyaan lain ("maksudnya apa?",
+// "berapa harganya?"). Deteksi ini dipakai agar jawaban seperti itu tidak
+// tersimpan sebagai nilai field.
+export function looksLikeQuestion(text: string): boolean {
+  const value = (text || "").trim()
+  if (!value) return false
+  if (value.includes("?")) return true
+  return /^(apa|apakah|berapa|gimana|bagaimana|kenapa|kok|maksud|maksudnya|bisa|bisakah|kapan|dimana|di mana|siapa|yang benar|contohnya)\b/i.test(
+    value
+  )
+}

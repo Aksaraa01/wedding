@@ -10,6 +10,7 @@ import {
   SESSION_QUESTIONS,
   STORY_QUESTIONS,
   isSkip,
+  looksLikeQuestion,
   mapSectionFromText,
   matchTemplateByName,
   validateFlowAnswer,
@@ -365,6 +366,11 @@ async function answerField(
   field: FlowField,
   text: string
 ): Promise<string> {
+  // Nama/teks pendek: kalau klien menempel banyak sekaligus, jangan simpan
+  // seluruh paragraf sebagai satu nama.
+  if (field.kind === "text" && text.length > 80) {
+    return `Aku catat satu per satu ya Kak. ${field.question}`
+  }
   const outcome = validateFlowAnswer(field, text)
   if (!outcome.ok) {
     return `${outcome.error}\n\n${field.question}`
@@ -535,6 +541,15 @@ const ESCAPE_INTENTS = new Set([
   "discount",
   "complaint",
   "out_of_scope",
+  "price",
+  "package_info",
+  "template",
+  "timeline",
+  "technical",
+  "status",
+  "comparison",
+  "recommendation",
+  "timing",
 ])
 
 export async function handleOnboarding(
@@ -557,7 +572,11 @@ export async function handleOnboarding(
   const askingQuestion =
     state.stage === "data" &&
     (!!state.field || state.sessionStep !== undefined || state.storyStep !== undefined)
-  if (askingQuestion && ESCAPE_INTENTS.has(classify(message))) return null
+  if (askingQuestion) {
+    // Pertanyaan di tengah pengisian dijawab router (state tidak hilang).
+    if (ESCAPE_INTENTS.has(classify(message))) return null
+    if (looksLikeQuestion(message)) return null
+  }
 
   if (state.stage === "preview") {
     const confirming = /^(ya|iya|ok|oke|sudah|udah|betul|benar|setuju|belum|tidak|bukan)/.test(lower)
@@ -696,6 +715,9 @@ export async function handleOnboarding(
   }
 
   if (state.pendingUpload) {
+    if (/^\d+$/.test(lower)) {
+      return "Kalau mau kirim foto, pakai tombol foto ya Kak. Balas \"selesai\" kalau sudah cukup."
+    }
     // "selesai" saat foto galeri/sampul = cukup, lanjut bagian berikutnya.
     const isPhotoList = state.pendingUpload === "gallery_photos" || state.pendingUpload === "cover_photos"
     if (isPhotoList && CONFIRM.test(lower)) {
@@ -704,7 +726,7 @@ export async function handleOnboarding(
       await saveState(profileId, contactId, draft, state)
       return nextPrompt(profileId, contactId, state, draft)
     }
-    return "Aku tunggu fotonya ya Kak. Kirim lewat tombol foto di chat."
+    return "Belum ada foto yang aku terima. Kirim lewat tombol foto di chat, atau balas \"selesai\" kalau cukup."
   }
 
   const field = state.field

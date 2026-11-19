@@ -75,6 +75,16 @@ async function forwardInbound(message) {
     content.videoMessage?.caption ||
     ""
 
+  let unsupported = ""
+  if (!text && !content.imageMessage) {
+    if (content.audioMessage) unsupported = "voice note"
+    else if (content.stickerMessage) unsupported = "stiker"
+    else if (content.documentMessage) unsupported = "dokumen"
+    else if (content.locationMessage) unsupported = "lokasi"
+    else if (content.contactMessage) unsupported = "kontak"
+    else return
+  }
+
   let mediaBase64 = ""
   let mimeType = ""
   const image = content.imageMessage
@@ -88,7 +98,7 @@ async function forwardInbound(message) {
     }
   }
 
-  if (!text && !mediaBase64) return
+  if (!text && !mediaBase64 && !unsupported) return
 
   try {
     const res = await fetch(APP_INBOUND, {
@@ -102,6 +112,7 @@ async function forwardInbound(message) {
         from_me: !!key.fromMe,
         media_base64: mediaBase64 || undefined,
         mime_type: mimeType || undefined,
+        unsupported: unsupported || undefined,
       }),
       signal: AbortSignal.timeout(60_000),
     })

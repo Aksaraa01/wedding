@@ -8,6 +8,7 @@ import {
   isSkip,
   mapSectionFromText,
   matchTemplateByName,
+  looksLikeQuestion,
   validateFlowAnswer,
   validateSessionField,
 } from "../src/lib/cs/onboardingSpec.ts"
@@ -1242,4 +1243,11 @@ test("onboarding: field wajib menolak 'lewati'", () => {
   const required = { key: "groom_full_name", label: "Nama", question: "", kind: "text" }
   const result = validateFlowAnswer(required, "lewati")
   assert.equal(result.ok, false)
+})
+
+test("onboarding: pertanyaan dikenali, jawaban biasa tidak", () => {
+  assert.equal(looksLikeQuestion("berapa harganya?"), true)
+  assert.equal(looksLikeQuestion("maksudnya apa"), true)
+  assert.equal(looksLikeQuestion("Akad Nikah"), false)
+  assert.equal(looksLikeQuestion("2027-06-12"), false)
 })
