@@ -1,0 +1,553 @@
+/* Swan Garden — app-layer overrides.
+   The vendored reference CSS is untouched; everything here adapts the design to
+   our page (scroll model, reveal observer, lightbox, wishes, footer badge). */
+
+.swan-garden {
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  background: var(--background-primary);
+  color: var(--text-primary);
+  overflow-x: clip;
+  --body-height: 100svh;
+}
+
+/* The reference scrolls its own 100dvh container; our invitation is the page,
+   so the side-to-side wrapper grows and the primary pane stays pinned. */
+.swan-garden .kat-page__side-to-side {
+  height: auto;
+  min-height: 100svh;
+  overflow: visible;
+}
+
+.swan-garden .secondary-pane {
+  position: relative;
+  width: 100%;
+  margin: 0;
+}
+
+@media (min-width: 961px) {
+  .swan-garden .secondary-pane {
+    width: 39%;
+    margin-left: auto;
+  }
+  .swan-garden .kat-page__side-to-side .primary-pane {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 61%;
+  }
+}
+
+/* Fonts (Imperial Script + Halant, both OFL) are vendored in public/fonts. */
+@font-face {
+  font-family: "Imperial Script";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/imperialscript-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Halant";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/fonts/halant-300.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Halant";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/halant-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Halant";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/halant-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Halant";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/halant-700.woff2") format("woff2");
+}
+
+/* ---- Reveal (AOS semantics, individual properties only) ---- */
+.swan-garden [data-aos] {
+  opacity: 0;
+  transition-property: opacity, translate, scale;
+  transition-duration: var(--aos-duration, 900ms);
+  transition-delay: var(--aos-delay, 0ms);
+  transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: opacity, translate, scale;
+}
+.swan-garden [data-aos="fade-up"] { translate: 0 26px; }
+.swan-garden [data-aos="fade-down"] { translate: 0 -26px; }
+.swan-garden [data-aos="fade-left"] { translate: 26px 0; }
+.swan-garden [data-aos="fade-right"] { translate: -26px 0; }
+.swan-garden [data-aos="fade-down-right"] { translate: -20px -20px; }
+.swan-garden [data-aos="fade-down-left"] { translate: 20px -20px; }
+.swan-garden [data-aos="fade-up-right"] { translate: -20px 20px; }
+.swan-garden [data-aos="fade-up-left"] { translate: 20px 20px; }
+.swan-garden [data-aos^="zoom"] { scale: 0.94; }
+.swan-garden [data-aos^="zoom-in-up"] { translate: 0 20px; }
+.swan-garden [data-aos^="zoom-in-down"] { translate: 0 -20px; }
+.swan-garden [data-aos^="zoom-in-left"] { translate: 20px 0; }
+.swan-garden [data-aos^="zoom-in-right"] { translate: -20px 0; }
+.swan-garden [data-aos^="fly"] { scale: 0.9; translate: 0 30px; }
+.swan-garden [data-aos].aos-animate {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swan-garden [data-aos] {
+    opacity: 1 !important;
+    translate: 0 0 !important;
+    scale: 1 !important;
+    transition: none !important;
+  }
+  .swan-garden .top-cover {
+    transition: none !important;
+  }
+  .swan-garden .music-box.playing {
+    animation: none !important;
+  }
+}
+@media (scripting: none) {
+  .swan-garden [data-aos] {
+    opacity: 1 !important;
+    translate: 0 0 !important;
+    scale: 1 !important;
+  }
+  .swan-garden .top-cover {
+    display: none !important;
+  }
+}
+
+/* ---- Gate ---- */
+.swan-garden .top-cover {
+  z-index: 60;
+}
+.swan-garden .top-cover .link-wrap .link {
+  display: inline-block;
+  border: 0;
+  cursor: pointer;
+  background-color: var(--button-background-primary);
+  border-radius: 99px;
+  color: var(--button-text-primary);
+  font-family: var(--body-text-family);
+  font-size: var(--body-text-size);
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0 auto;
+  outline: none;
+  padding: 12px 16px 10px;
+  text-align: center;
+  text-transform: var(--body-text-lettercase);
+}
+.swan-garden .top-cover .link-wrap .link:hover {
+  background-color: rgba(var(--button-background-primary-rgb), 0.8);
+}
+.swan-garden .sw-gate__guest {
+  color: var(--text-primary);
+  font-family: var(--body-text-family);
+  font-size: var(--body-text-size);
+  text-align: center;
+  padding-bottom: 4px;
+}
+.swan-garden.is-locked,
+.swan-garden.is-locked .kat-page__side-to-side {
+  height: 100svh;
+  overflow: hidden;
+}
+html:has(.swan-garden.is-locked),
+body:has(.swan-garden.is-locked) {
+  overflow: hidden;
+}
+
+/* ---- Quote ---- */
+.swan-garden .quote-caption { white-space: pre-line; }
+.swan-garden .sw-quote__source {
+  display: block;
+  font-family: var(--heading-family);
+  font-size: calc(var(--heading-size) * 0.62);
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+.swan-garden .sw-quote__body { margin-top: 10px; }
+.swan-garden .sw-quote__title {
+  color: var(--text-primary);
+  font-family: var(--heading-family);
+  font-size: calc(var(--heading-size) * 0.8);
+  line-height: 1.1;
+}
+.swan-garden .sw-quote__text { color: var(--text-secondary); }
+
+/* ---- Couple ---- */
+.swan-garden .couple-body.hide-picture .couple-preview { display: none; }
+.swan-garden .couple-picture .img-wrap {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+.swan-garden .sw-frame__empty {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1.18;
+  background: var(--background-secondary);
+}
+
+/* ---- Gallery ---- */
+.swan-garden .photo-box a { cursor: zoom-in; display: block; }
+.swan-garden .photo-box a img { display: block; }
+
+/* ---- Film ---- */
+.swan-garden .video-gallery .autoplay-video,
+.swan-garden .video-gallery .autoplay-video iframe,
+.swan-garden .video-gallery .preview video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+}
+.swan-garden .video-gallery .preview {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--background-secondary);
+}
+.swan-garden .video-gallery .preview .autoplay-video {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---- Story ---- */
+.swan-garden .story-picture button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+.swan-garden .story__slider-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 14px;
+}
+.swan-garden .sw-dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border-radius: 99px;
+  border: 1px solid var(--background-tertiary);
+  background: transparent;
+  cursor: pointer;
+}
+.swan-garden .sw-dot.active { background: var(--background-tertiary); }
+
+/* ---- Gift ---- */
+.swan-garden .bank-caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid currentColor;
+  transition: transform 0.25s ease;
+}
+.swan-garden .accor-bank-wrap:not(.accor-active) .bank-caret { transform: rotate(-90deg); }
+.swan-garden .bank-button-wrap button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+.swan-garden .sw-gift__address {
+  margin: 18px auto 4px;
+  padding: 18px 20px;
+  border: 1px solid var(--background-tertiary);
+  border-radius: 24px;
+  background: var(--background-secondary);
+  box-shadow: 0 10px 30px rgba(60, 40, 30, 0.12);
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+.swan-garden .sw-gift__address-name {
+  font-family: var(--heading-family);
+  font-size: calc(var(--heading-size) * 0.66);
+  color: var(--text-primary);
+  line-height: 1.2;
+  margin-top: 2px;
+}
+.swan-garden .sw-gift__address-body {
+  color: var(--text-secondary);
+  white-space: pre-line;
+  margin-top: 6px;
+}
+
+/* ---- Turut Mengundang (new block, built from the rundown card) ---- */
+.swan-garden .sw-families__intro {
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 4px 8px 12px;
+}
+.swan-garden .sw-families__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  text-align: center;
+  padding: 0 12px;
+}
+.swan-garden .sw-families__name {
+  color: var(--text-secondary);
+  font-family: var(--body-text-family);
+  font-size: var(--body-text-size);
+  line-height: 1.6;
+}
+
+/* ---- Live ---- */
+.swan-garden .sw-live__desc {
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 46ch;
+  margin: 0 auto;
+}
+.swan-garden .live-streaming .preview .play-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+/* ---- Wishes ---- */
+.swan-garden .wedding-wish-form .submit-comment:disabled { opacity: 0.55; cursor: not-allowed; }
+.swan-garden .sw-wishes__feedback {
+  text-align: center;
+  font-family: var(--body-text-family);
+  font-size: calc(var(--body-text-size) - 2px);
+  color: var(--text-secondary);
+  padding-top: 6px;
+}
+.swan-garden .sw-wishes__feedback.is-error { color: #9a3b2f; }
+.swan-garden .sw-wishes__empty {
+  color: var(--text-secondary);
+  text-align: center;
+  font-family: var(--body-text-family);
+}
+.swan-garden .more-comment-wrap button {
+  background: var(--button-background-primary);
+  color: var(--button-text-primary);
+  border: 0;
+  border-radius: 99px;
+  padding: 10px 22px;
+  font-family: var(--body-text-family);
+  font-size: calc(var(--body-text-size) - 2px);
+  cursor: pointer;
+}
+.swan-garden .sw-wishes__less {
+  margin-left: 10px;
+  background: transparent !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--background-tertiary) !important;
+}
+
+/* ---- Footer badge ---- */
+.swan-garden .footnote-wrap .sw-footer {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 42px;
+  position: relative;
+  z-index: 2;
+}
+.swan-garden .sw-footer .tpl-footer__link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+.swan-garden .sw-footer .tpl-footer__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  transition: transform 0.3s ease;
+}
+.swan-garden .sw-footer .tpl-footer__badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 999px;
+}
+.swan-garden .sw-footer .tpl-footer__link:hover .tpl-footer__badge { transform: scale(1.05); }
+.swan-garden .sw-footer .tpl-footer__cta {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* ---- Music (vinyl) ---- */
+.swan-garden .music-outer.hide { display: none; }
+.swan-garden .music-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  background: radial-gradient(circle at 50% 50%, #2b2b2b 0 34%, #111 35% 100%);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+.swan-garden .music-box .sw-vinyl {
+  width: 44%;
+  height: 44%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, #f7d7a8 0 18%, #e8a94b 19% 46%, rgba(0, 0, 0, 0) 47%),
+    conic-gradient(from 0deg, #b26b2c, #e3a35a, #b26b2c, #e3a35a, #b26b2c);
+}
+.swan-garden .music-box.playing .sw-vinyl { animation: sg-play-music 20s linear infinite; }
+
+/* ---- Lightbox ---- */
+.sw-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(24, 20, 18, 0.9);
+  padding: 24px;
+}
+.sw-lightbox img {
+  max-width: min(94vw, 980px);
+  max-height: 86svh;
+  object-fit: contain;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+.sw-lightbox__close {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.25);
+  color: #fff;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+.sw-lightbox__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.25);
+  color: #fff;
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+}
+.sw-lightbox__nav.prev { left: 16px; }
+.sw-lightbox__nav.next { right: 16px; }
+
+/* The reference locks html/body to 100dvh on phones because it owns a scroll
+   container. We scroll the page instead, so the root must grow. */
+@media (max-width: 960px) {
+  .swan-garden,
+  .swan-garden .kat-page__side-to-side {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .swan-garden.is-locked,
+  .swan-garden.is-locked .kat-page__side-to-side {
+    height: 100svh !important;
+    overflow: hidden !important;
+  }
+}
+
+/* A single long scroll with a pinned art pane: content-visibility's placeholder
+   heights made jumps land on the wrong section and let the closing copy spill
+   past its band. Keep the whole sheet laid out. */
+.swan-garden .agenda-wrap,
+.swan-garden .couple-wrap,
+.swan-garden .footnote-wrap,
+.swan-garden .ig-filter-wrap,
+.swan-garden .live-streaming,
+.swan-garden .love-story,
+.swan-garden .notes-container,
+.swan-garden .photo-wrap,
+.swan-garden .quote,
+.swan-garden .video-gallery,
+.swan-garden .wedding-gift-wrap,
+.swan-garden .wedding-wish-wrap,
+.swan-garden .rundown-container,
+.swan-garden .save-date-wrap {
+  content-visibility: visible !important;
+  contain-intrinsic-size: auto !important;
+}
+
+/* Loop animations from the reference (flap/fly/float/goyang) are decoration;
+   they stop for guests who ask for reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .swan-garden .aos-animate img,
+  .swan-garden [class*="orn-"] img,
+  .swan-garden .sw-vinyl {
+    animation: none !important;
+  }
+}
+
+/* The reference paints a radial paper glow with `.details:before`; as an
+   absolutely positioned pseudo-element it sits above the static copy, so the
+   guest line and the Open button need their own layer. */
+.swan-garden .top-cover .inner .details > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* The reference's play disc uses `--light-clr`, a variable the theme never
+   defines; give it the paper colour so the control is visible on the poster. */
+.swan-garden .live-streaming .inner .body > .streaming-info > div > .preview > .play-btn {
+  background-color: var(--background-secondary) !important;
+  box-shadow: 0 10px 26px rgba(60, 40, 30, 0.18);
+  opacity: 0.92 !important;
+}
+.swan-garden .live-streaming .inner .body > .streaming-info > div > .preview > .play-btn:hover {
+  background-color: var(--background-secondary) !important;
+  opacity: 1 !important;
+}

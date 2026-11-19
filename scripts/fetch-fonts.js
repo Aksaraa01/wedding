@@ -58,6 +58,9 @@ const FAMILIES = [
   { name: "Smythe", weights: ["400"], styles: ["normal"] },
   { name: "Marcellus", weights: ["400"], styles: ["normal"] },
   { name: "Urbanist", weights: ["500", "600", "700"], styles: ["normal"] },
+  // Swan Garden: reference display script + Halant text serif (both OFL)
+  { name: "Imperial Script", weights: ["400"], styles: ["normal"] },
+  { name: "Halant", weights: ["300", "400", "600", "700"], styles: ["normal"] },
   // Love Line: retro sign-painter script for names/section titles (Caveat for
   // handwritten annotations, Montserrat for body).
   { name: "Mr Dafoe", weights: ["400"], styles: ["normal"] },

@@ -38,7 +38,7 @@
         "Close": "WCAG name for close buttons",
         "Previous page": "WCAG name for the wishes previous-page control",
         "Next page": "WCAG name for the wishes next-page control",
-        "Loading wishes\u2026": "transient loading state in the wishes feed"
+        "Loading wishes…": "transient loading state in the wishes feed"
       }
     },
     "ubin-ottoman": {
@@ -1925,6 +1925,29 @@
         "Wedding by": "fixed brand attribution above the Aksaraa badge required by every in-house template",
         "Aksaraa": "brand name in the Aksaraa footer badge (wordmark text and logo alt), fixed by the platform",
         "Elegant attire in warm earth tones — please reserve white for the couple.": "Olan's default dress-code line, shown when the couple picked colours but wrote no intro; the EKSTRA field replaces it"
+      }
+    },
+    "swan-garden": {
+      "allow": {
+        "VIP": "package badge copied from the reference's category plate; it is not couple copy",
+        "Days": "countdown unit label (reference design)",
+        "Hours": "countdown unit label (reference design)",
+        "Minutes": "countdown unit label (reference design)",
+        "Seconds": "countdown unit label (reference design)",
+        "Men": "dress-code column label (reference splits the palette into Men/Women)",
+        "Women": "dress-code column label (reference splits the palette into Men/Women)",
+        "Elegant": "fallback dress-code caption when the couple leaves the description empty",
+        "Account Number:": "banking field label; the number itself is data-driven",
+        "Account Name:": "banking field label; the name itself is data-driven",
+        "Wedding by Aksaraa": "brand badge CTA required on every in-house footer",
+        "Aksaraa": "alt text for the Aksaraa badge logo",
+        "Close": "WCAG name for the lightbox close control",
+        "Previous": "WCAG name for the lightbox previous control",
+        "Next": "WCAG name for the lightbox next control",
+        "Tutup": "label for the control that steps the wish feed back one page",
+        "Play music": "WCAG name for the music toggle",
+        "Pause music": "WCAG name for the music toggle",
+        "Hai": "guest salutation used by the reference on the gate"
       }
     }
   }

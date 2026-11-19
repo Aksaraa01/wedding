@@ -47,6 +47,7 @@ import Fresco from "./fresco"
 import Olan from "./olan"
 import Majestic from "./majestic"
 import EmeraldHeirloom from "./emerald-heirloom"
+import SwanGarden from "./swan-garden"
 export type { TemplateProps } from "@/types/template"
 
 const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
@@ -97,6 +98,7 @@ const TEMPLATE_MAP: Record<string, ComponentType<TemplateProps>> = {
   olan: Olan,
   majestic: Majestic,
   "emerald-heirloom": EmeraldHeirloom,
+  "swan-garden": SwanGarden,
 }
 
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
@@ -2028,6 +2030,50 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
       extras: true,
     },
   },
+  {
+    code: "swan-garden",
+    name: "Swan Garden",
+    description:
+      "Undangan cat-air taman: lengkung batu berlumut di tepi danau, angsa dan kupu-kupu, bunga liar di setiap sudut, bingkai oval berukir untuk kedua mempelai, serta tipografi Imperial Script di atas kertas krem-hijau.",
+    theme: {
+      fonts: { display: "Imperial Script", script: "Imperial Script", body: "Halant" },
+      colors: {
+        surface: "#f4edde",
+        text: "#723d4c",
+        accent: "#3b5d3b",
+        accentMuted: "#eaf1e6",
+        overlay: "#ded19d",
+        dark: "#526f5c",
+      },
+      ornaments: { divider: "floral", border: "ornate", frame: "arch" },
+      motion: { enabled: true, duration: 0.9, stagger: 0.06 },
+    },
+    content: {
+      cover_slots: 1,
+      cover_slot_labels: ["Foto Sampul"],
+      groom_photo: "single",
+      bride_photo: "single",
+      person_photos: true,
+      story_photo: true,
+      initials: false,
+      sections: {
+        opening_description: true,
+        quote: true,
+        countdown: true,
+        inviting: true,
+        video: true,
+        story: true,
+        gallery: true,
+        gift: true,
+        dresscode: true,
+        livestream: true,
+        rundown: true,
+        contacts: false,
+      },
+      extras: true,
+    },
+  },
+
 ]
 export function getTemplateConfig(code: string): TemplateConfig | undefined {
   return TEMPLATE_CONFIGS.find((t) => t.code === code)

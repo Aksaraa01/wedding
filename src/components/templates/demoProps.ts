@@ -3620,3 +3620,113 @@ DEMO_PROPS_BY_CODE.olan = {
       "Family & Friends. From the bottom of our hearts we want to thank you for being part of our big day. We are extremely lucky to have each of you in our lives and honoured that you could be here with us.",
   },
 }
+
+// Swan Garden — the painted-garden demo. Couple, venues, stories and photos are
+// Aksaraa's own sample content (the Sandhya couple); nothing comes from the
+// reference invitation.
+DEMO_PROPS_BY_CODE["swan-garden"] = {
+  ...DEMO_PROPS_BY_CODE["sandhya"],
+  slug: "demo",
+  estimated_wedding_date: "2027-04-10",
+  guest_name: "Tamu Undangan",
+  groom_parents: "The Son of Mr. & Mrs. Albarn",
+  bride_parents: "The Daughter of Mr. & Mrs. Reed",
+  sessions: [
+    {
+      name: "Holy Matrimony",
+      date: "2027-04-10",
+      time: "09:00 - 10:00",
+      venue: "The Royal Garden Chapel",
+      address: "Jl. Raya Ubud No. 88, Gianyar, Bali 80571",
+      maps_url: "https://maps.app.goo.gl/9bRvrJZZ1xcZSoqa6",
+    },
+    {
+      name: "Reception",
+      date: "2027-04-10",
+      time: "11:00 - 14:00",
+      venue: "The Royal Garden Chapel",
+      address: "Jl. Raya Ubud No. 88, Gianyar, Bali 80571",
+      maps_url: "https://maps.app.goo.gl/UPxWi9HU1w4A9R1j6",
+    },
+  ],
+  quote_text: "A successful marriage requires falling in love many times, always with the same person.",
+  quote_source: "Mignon McLaughlin",
+  opening_title: "Warmest Greetings",
+  opening_description:
+    "With grateful hearts we invite you to share the day our two families become one, in a garden by the water.",
+  stories: [
+    {
+      title: "First Meet",
+      description:
+        "It all started with a smile — two souls crossing paths at the right time, in the right place.",
+      image_url: `${DE}/cover-1.webp`,
+    },
+    {
+      title: "Together",
+      description:
+        "Through every laugh, every challenge, and every quiet moment, we have grown side by side.",
+      image_url: `${DE}/cover-2.webp`,
+    },
+  ],
+  rundown_visible: true,
+  rundown: [
+    { time: "09:00", description: "Holy Matrimony" },
+    { time: "10:00", description: "Family Photographs" },
+    { time: "11:00", description: "Reception Opens" },
+    { time: "11:30", description: "Speeches & Cake" },
+    { time: "12:30", description: "First Dance" },
+    { time: "14:00", description: "Farewell" },
+  ],
+  dresscode: {
+    title: "Garden Formal — earthy tones, dusty rose and sage",
+    description: "Elegant",
+    colors: [
+      { hex: "#723d4c", name: "Plum" },
+      { hex: "#c9a24b", name: "Gold" },
+      { hex: "#3b5d3b", name: "Leaf" },
+      { hex: "#e8c7d0", name: "Blush" },
+    ],
+  },
+  livestream: {
+    title: "Live Streaming",
+    description: "Join our ceremony from wherever you are.",
+    buttonLabel: "Open Link",
+    url: "https://youtu.be/-ARVwU58l7A",
+  },
+  video_url: "https://youtu.be/-ARVwU58l7A",
+  inviting_families: ["Keluarga Bapak David Albarn", "Keluarga Bapak Faye Reed"],
+  template_content: {
+    cover_kicker: "Wedding Invitation",
+    open_button: "Open Invitation",
+    mempelai_title: "The Wedding Of",
+    mempelai_intro: "We cordially invite you to celebrate our wedding",
+    countdown_title: "Save the Date",
+    save_date_label: "Add to Calendar",
+    events_title: "The Wedding Day",
+    maps_label: "View Maps",
+    dresscode_title: "Dresscode",
+    dresscode_note: "We kindly ask that guests please attend wearing our wedding colors.",
+    rundown_title: "Rundown",
+    inviting_title: "With Honor",
+    inviting_intro: "",
+    gallery_title: "Portraits of Us",
+    video_title: "Our Footage",
+    video_intro: "A short film from the days before the wedding.",
+    video_caption: "The Pre-Wedding",
+    story_title: "Our Story",
+    gift_title: "Wedding Gift",
+    gift_intro:
+      "Your blessing and coming to our wedding are enough for us. However, if you want to give a gift we provide a Digital Envelope to make it easier for you. Thank you.",
+    gift_address_title: "Send a Gift",
+    wishes_title: "Wedding Wish",
+    wishes_intro: "Leave a wish or a prayer for us to keep.",
+    wishes_name_placeholder: "Name",
+    wishes_message_placeholder: "Give your wish",
+    wishes_submit: "Send",
+    wishes_more: "Show more comments",
+    wishes_empty: "Be the first to send a wish.",
+    closing_title: "Thank You",
+    closing_message:
+      "From the bottom of our hearts we just want to thank you for being part of our big day. We are extremely lucky to have each of you in our lives and honored you could be here with us.",
+  },
+}
