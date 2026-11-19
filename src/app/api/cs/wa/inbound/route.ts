@@ -344,12 +344,12 @@ export async function POST(request: Request) {
   }
 
   // --- Konfirmasi identitas (nomor bukan bukti) ----------------------------
-  // Hanya untuk permintaan yang menyentuh akun; pertanyaan produk biasa
-  // (harga/template) tidak perlu konfirmasi identitas.
-  const accountIntent = ["data_collection", "data_change", "status"].includes(classify(text))
-  if (!verified && (accountIntent || /nomor ini terdaftar sebagai|pin undangan/i.test(await lastOutboundBody(conversationId)))) {
+  // Hanya untuk permintaan akun; pertanyaan produk biasa tidak perlu.
+  if (!verified) {
     const lastBot = await lastOutboundBody(conversationId)
+    const askedPin = /pin undangan/i.test(lastBot)
     const askedConfirm = /nomor ini terdaftar sebagai/i.test(lastBot)
+    const accountIntent = ["data_collection", "data_change", "status"].includes(classify(text))
 
     if (askedConfirm) {
       if (/^(ya|iya|betul|benar|yes)\b/i.test(text)) {
@@ -365,7 +365,7 @@ export async function POST(request: Request) {
       }
     }
 
-    if (!askedConfirm) {
+    if (!askedConfirm && !askedPin && accountIntent) {
       const candidate = await findProfileForPhone(normalizeWhatsApp(phone))
       if (candidate) {
         const { data: couple } = await supabaseAdmin
