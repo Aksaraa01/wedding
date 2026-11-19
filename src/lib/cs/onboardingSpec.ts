@@ -58,7 +58,7 @@ export const SECTION_SPECS: Record<string, SectionSpec> = {
       {
         key: "cover_photos",
         label: "Foto Sampul",
-        question: "Kirim 1–3 foto untuk sampul undangan ya Kak (lewat tombol foto). Balas \"selesai\" kalau cukup.",
+        question: "Kirim foto sampul ya Kak — boleh sekaligus beberapa foto (atau satu per satu). Balas \"selesai\" kalau cukup.",
         kind: "image",
       },
     ],
@@ -191,7 +191,7 @@ export const SECTION_SPECS: Record<string, SectionSpec> = {
       {
         key: "gallery_photos",
         label: "Galeri Foto",
-        question: "Kirim foto galeri satu per satu (minimal 1). Balas \"selesai\" kalau cukup.",
+        question: "Kirim foto galeri ya Kak — boleh sekaligus banyak (atau satu per satu). Balas \"selesai\" kalau cukup.",
         kind: "image",
       },
     ],

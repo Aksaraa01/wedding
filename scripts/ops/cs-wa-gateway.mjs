@@ -147,7 +147,11 @@ async function forwardInbound(message) {
     })
     const data = await res.json().catch(() => ({}))
     log("forward ok", "replies", (data.replies || []).length)
-    for (const reply of data.replies || []) {
+    const replies = (data.replies || []).filter((r) => r?.text)
+    // Album / beberapa foto sekaligus: app membalas per foto. Kirim hanya
+    // balasan terakhir agar klien tidak menerima 4 pesan "tersimpan (1/5)…".
+    const toSend = image ? replies.slice(-1) : replies
+    for (const reply of toSend) {
       if (!reply?.text) continue
       if (key.fromMe) continue
 
