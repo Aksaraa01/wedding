@@ -125,6 +125,21 @@ const ABBREV: Record<string, string> = {
   tgl: "tanggal",
 }
 
+// Klien mengetik cepat: "tenplate", "templat", "tempelate". Tanpa ini
+// "Daftar tenplate nya dong" jatuh ke model padahal itu permintaan galeri.
+const TYPO: Record<string, string> = {
+  tenplate: "template",
+  templat: "template",
+  tempelate: "template",
+  tamplete: "template",
+  templete: "template",
+  desian: "desain",
+}
+
+export function fixTypos(text: string): string {
+  return (text || "").replace(/\b(tenplate|templat|tempelate|tamplete|templete|desian)\b/g, (m) => TYPO[m] || m)
+}
+
 const norm = (text: string): string => {
   const cleaned = (text || "")
     .toLowerCase()
@@ -133,7 +148,7 @@ const norm = (text: string): string => {
     .trim()
   const expanded = cleaned
     .split(" ")
-    .map((word) => ABBREV[word] ?? word)
+    .map((word) => ABBREV[word] ?? TYPO[word] ?? word)
     .join(" ")
   return ` ${expanded} `
 }
@@ -155,7 +170,7 @@ const ALL_TEMPLATE_TRIGGERS = [
 const OWN_INVITATION = /\b(template|desain|undangan)\s+(saya|aku|ku|kami)\b/
 
 export function wantsAllTemplates(text: string): boolean {
-  const value = (text || "").toLowerCase()
+  const value = fixTypos((text || "").toLowerCase())
   if (!value.trim()) return false
   if (OWN_INVITATION.test(value)) return false
   return ALL_TEMPLATE_TRIGGERS.some((re) => re.test(value))

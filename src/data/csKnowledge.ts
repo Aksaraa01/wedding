@@ -49,6 +49,28 @@ export const CS_KNOWLEDGE: CsKnowledgeEntry[] = [
     ],
   },
   {
+    key: "istilah-premium",
+    title: "Istilah produk: 'premium', paket, dan template",
+    url: "https://wedding.aksaraa.com/premium-web-invitation",
+    chunks: [
+      {
+        heading: "\"Premium\" adalah nama paket, bukan tingkatan template",
+        content:
+          "Di Aksaraa, kata premium melekat pada PAKET, bukan pada template. Paket Premium termasuk keluarga Buku Tamu Digital (bersama Sistem, Pro, dan Prestige), dipakai untuk buku tamu QR di hari acara. Jadi tidak ada kategori 'template premium': semua desain undangan ada di satu galeri yang dikelompokkan per gaya (Elegant, Floral, Modern, Adat/Tradisional) dengan filter dengan atau tanpa foto.",
+      },
+      {
+        heading: "Kalau klien menyebut 'template premium'",
+        content:
+          "Tanyakan maksudnya: (a) desain tertentu di galeri, atau (b) paket Premium untuk buku tamu QR. Kalau soal paket, jelaskan bahwa Premium adalah paket Buku Tamu Digital dan rincian harganya bisa dicek lewat daftar paket. Kalau soal desain, arahkan ke galeri template karena desain tidak dibagi menjadi premium dan biasa.",
+      },
+      {
+        heading: "Template dan paket tidak selalu satu paket harga",
+        content:
+          "Hampir semua desain bisa dipakai di paket undangan mana pun. Beberapa desain baru aktif mulai paket Signature, dan dashboard menandai desain yang terkunci untuk paket klien. Paket Buku Tamu Digital memakai template undangan yang sama, ditambah modul buku tamu QR.",
+      },
+    ],
+  },
+  {
     key: "isi-data",
     title: "Mengisi data undangan",
     url: "https://wedding.aksaraa.com/fitur/undangan-digital",
