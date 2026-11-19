@@ -4,5 +4,7 @@ export async function register() {
     startWpSyncWorker()
     const { startProjectCompletionScheduler } = await import("@/lib/projectCompletion")
     startProjectCompletionScheduler()
+    const { startReengageWorker } = await import("@/lib/cs/reengage")
+    startReengageWorker()
   }
 }

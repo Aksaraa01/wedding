@@ -34,6 +34,9 @@ export interface SectionSpec {
   manual?: string
   // Bagian yang datanya berbentuk daftar objek (sesi/cerita) ditangani loop.
   repeat?: "sessions" | "stories" | "gifts" | "rundown" | "contacts"
+  // Kolom wedding_profiles yang mengatur section ini tampil atau tidak.
+  // Ada nilainya = tanya "mau ditampilkan?" dulu, dan skip = matikan kolom ini.
+  visibleKey?: string
 }
 
 export const SECTION_LABELS: Record<string, string> = {
@@ -198,6 +201,7 @@ export const SECTION_SPECS: Record<string, SectionSpec> = {
   },
   inviting: {
     key: "inviting",
+    visibleKey: "inviting_families_visible",
     label: SECTION_LABELS.inviting,
     fields: [
       {
@@ -230,6 +234,7 @@ export const SECTION_SPECS: Record<string, SectionSpec> = {
   },
   video: {
     key: "video",
+    visibleKey: "video_section_visible",
     label: SECTION_LABELS.video,
     fields: [
       {
@@ -242,6 +247,7 @@ export const SECTION_SPECS: Record<string, SectionSpec> = {
   },
   story: {
     key: "story",
+    visibleKey: "story_visible",
     label: SECTION_LABELS.story,
     repeat: "stories",
     fields: [
@@ -255,6 +261,7 @@ export const SECTION_SPECS: Record<string, SectionSpec> = {
   },
   gift: {
     key: "gift",
+    visibleKey: "gift_section_visible",
     label: SECTION_LABELS.gift,
     repeat: "gifts",
     fields: [
@@ -268,6 +275,7 @@ export const SECTION_SPECS: Record<string, SectionSpec> = {
   },
   dresscode: {
     key: "dresscode",
+    visibleKey: "dresscode_visible",
     label: "Dress Code",
     fields: [
       {
@@ -288,6 +296,7 @@ export const SECTION_SPECS: Record<string, SectionSpec> = {
   },
   livestream: {
     key: "livestream",
+    visibleKey: "livestream_visible",
     label: "Live Streaming",
     fields: [
       {
@@ -308,6 +317,7 @@ export const SECTION_SPECS: Record<string, SectionSpec> = {
   },
   rundown: {
     key: "rundown",
+    visibleKey: "rundown_visible",
     label: "Rundown",
     fields: [
       {
@@ -321,6 +331,7 @@ export const SECTION_SPECS: Record<string, SectionSpec> = {
   },
   contacts: {
     key: "contacts",
+    visibleKey: "contacts_visible",
     label: "Kontak Keluarga",
     fields: [
       {

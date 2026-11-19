@@ -4,6 +4,7 @@ import assert from "node:assert/strict"
 import { BOUNDARIES, classify, countUnknownStrikes, decide, detectPaymentClaim, detectSentiment, wantsAllTemplates } from "../src/lib/cs/policy.ts"
 import { CS_WHATSAPP, csWhatsAppUrl, paymentContactReply, premiumTemplateReply, templateGalleryReply } from "../src/lib/cs/contact.ts"
 import { csSendUrls } from "../src/lib/cs/waSend.ts"
+import { reengageMessage, reengageSettings, withinQuietWindow, wibHour } from "../src/lib/cs/reengagePolicy.ts"
 import {
   SECTION_SPECS,
   mapSectionFromText,
@@ -304,6 +305,40 @@ test("template: permintaan spesifik tetap lewat tool", () => {
   const d = decide("template", { ...ctx, wantsAllTemplates: false })
   assert.equal(d.action, "tool")
   assert.equal(d.tool, "list_templates")
+})
+
+test("re-engage: flag off secara default dan hanya jam wajar", () => {
+  const off = reengageSettings({})
+  assert.equal(off.enabled, false)
+  assert.equal(off.dryRun, true)
+  assert.equal(off.days, 3)
+
+  const on = reengageSettings({ CS_REENGAGE_ENABLED: "1", CS_REENGAGE_DRY_RUN: "0", CS_REENGAGE_DAYS: "3" })
+  assert.equal(on.enabled, true)
+  assert.equal(on.dryRun, false)
+
+  // 02:00 UTC = 09:00 WIB (boleh), 13:00 UTC = 20:00 WIB (berhenti)
+  const at = (iso) => Date.parse(iso)
+  assert.equal(wibHour(at("2026-11-19T02:00:00Z")), 9)
+  assert.equal(withinQuietWindow(on, at("2026-11-19T02:00:00Z")), true)
+  assert.equal(withinQuietWindow(on, at("2026-11-19T12:59:00Z")), true)
+  assert.equal(withinQuietWindow(on, at("2026-11-19T13:00:00Z")), false)
+  assert.equal(withinQuietWindow(on, at("2026-11-19T01:59:00Z")), false)
+})
+
+test("re-engage: pesan singkat, tanpa harga dan tanpa link", () => {
+  const text = reengageMessage({
+    contactId: "c",
+    conversationId: "v",
+    name: "Rafi",
+    phone: "+6281",
+    waJid: "6281@s.whatsapp.net",
+    couple: "Rafi & Novi",
+    daysSilent: 3,
+  })
+  assert.match(text, /Rafi & Novi/)
+  assert.doesNotMatch(text, /Rp|http|diskon|promo/i)
+  assert.equal(validateReply({ reply: text }).ok, true)
 })
 
 test("wa send: hanya gateway CS, tidak pernah nomor bot lama", () => {

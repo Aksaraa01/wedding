@@ -27,6 +27,23 @@ import { classify } from "@/lib/cs/policy"
 
 const STATE_KEY = "__onboarding"
 
+// Bagian yang tidak punya toggle: kalau klien minta dilewati, jelaskan kenapa.
+const MANDATORY_WHY: Record<string, string> = {
+  sampul: "Sampul adalah gambar yang muncul saat link undangan dibagikan.",
+  pembuka: "Kalimat pembuka adalah kartu pertama yang dilihat tamu.",
+  profile: "Nama lengkap dipakai di sampul, judul, dan link tamu.",
+  acara: "Tamu butuh tanggal dan lokasi untuk datang ke acara.",
+  galeri: "Template ini menampilkan galeri foto.",
+  kutipan: "Bagian kutipan ikut diperiksa sebelum undangan bisa dikonfirmasi.",
+}
+
+const NO_WORDS = /^(tidak|tdk|gak|ga|nggak|ngga|engga|no|jangan|belum|gausah|ga usah|tidak usah|nggak usah|batal)\b/
+const YES_WORDS = /^(ya|iya|yes|yup|betul|benar|setuju|ok|oke|boleh|mau|tampil)\b/
+
+function gateQuestion(label: string): string {
+  return `Bagian ${label} mau ditampilkan di undangan Kakak? Balas "ya" atau "tidak".`
+}
+
 export interface OnboardingState {
   stage: "template" | "data" | "preview" | "done"
   startedAt?: string
@@ -49,6 +66,13 @@ export interface OnboardingState {
   previewSent?: boolean
   publishSent?: boolean
   templateChoices?: { id: string; name: string; code: string }[]
+  // Section yang punya toggle tampil/tidak: "on" = isi datanya, "off" = dilewati.
+  gates?: Record<string, "on" | "off">
+  gatePending?: string | null
+  // Klien minta lewati saat section sudah mulai diisi: tunggu konfirmasi.
+  skipPending?: string | null
+  skipAttempts?: Record<string, number>
+  parked?: string[]
 }
 
 interface DraftRow {
@@ -71,6 +95,14 @@ const DIRECT_COLUMNS = new Set([
   "bride_instagram",
   "quote_text",
   "quote_source",
+  "gift_section_visible",
+  "video_section_visible",
+  "inviting_families_visible",
+  "story_visible",
+  "dresscode_visible",
+  "livestream_visible",
+  "rundown_visible",
+  "contacts_visible",
   "video_url",
   "groom_photo_url",
   "bride_photo_url",
@@ -239,18 +271,34 @@ async function describeData(profileId: string, profile: Record<string, unknown>,
     lines.push(`• Foto: sampul ${cover}, galeri ${gallery}`)
   }
   if (show("story")) {
+    if (profile.story_visible === false) lines.push("• Kisah cinta: tidak ditampilkan")
     const stories = Array.isArray(profile.stories) ? (profile.stories as Record<string, unknown>[]) : []
-    lines.push(stories.length ? `• Kisah cinta: ${stories.map((x) => `${x.title || "-"}${x.year ? ` (${x.year})` : ""}`).join(", ")}` : "• Kisah cinta: belum ada")
+    if (profile.story_visible !== false) {
+      lines.push(stories.length ? `• Kisah cinta: ${stories.map((x) => `${x.title || "-"}${x.year ? ` (${x.year})` : ""}`).join(", ")}` : "• Kisah cinta: belum ada")
+    }
   }
   if (show("kutipan")) {
     lines.push(profile.quote_text ? `• Kutipan: ${String(profile.quote_text).slice(0, 80)}…${profile.quote_source ? ` (${profile.quote_source})` : ""}` : "• Kutipan: belum ada")
   }
-  if (show("video")) lines.push(`• Video: ${profile.video_url ? "ada" : "belum ada"}`)
+  if (show("video")) {
+    lines.push(
+      profile.video_section_visible === false
+        ? "• Video: tidak ditampilkan"
+        : `• Video: ${profile.video_url ? "ada" : "belum ada"}`
+    )
+  }
   if (show("inviting")) {
-    const families = Array.isArray(profile.inviting_families) ? (profile.inviting_families as unknown[]).length : 0
-    lines.push(`• Turut mengundang: ${families} entri`)
+    if (profile.inviting_families_visible === false) {
+      lines.push("• Turut mengundang: tidak ditampilkan")
+    } else {
+      const families = Array.isArray(profile.inviting_families) ? (profile.inviting_families as unknown[]).length : 0
+      lines.push(`• Turut mengundang: ${families} entri`)
+    }
   }
   if (show("gift")) {
+    if (profile.gift_section_visible === false) {
+      lines.push("• Hadiah: tidak ditampilkan")
+    } else {
     const { data: accounts } = await supabaseAdmin
       .from("gift_accounts")
       .select("provider_name,account_number")
@@ -265,7 +313,8 @@ async function describeData(profileId: string, profile: Record<string, unknown>,
     } else {
       lines.push("• Rekening hadiah: belum ada")
     }
-    lines.push(`• Alamat hadiah: ${address?.full_address ? `${address.full_address}${address.city ? `, ${address.city}` : ""}` : "belum ada"}`)
+    lines.push(`• Alamat hadiah: ${address?.full_address ? `${address.full_address}${address.city ? `, ${address.city}` : ""}` : "belum diisi"}`)
+    }
   }
   if (show("dresscode")) {
     const dress = (profile.dresscode as Record<string, unknown>) || {}
@@ -497,6 +546,21 @@ async function sectionPrompt(
   const spec = SECTION_SPECS[sectionKey]
   if (!spec) return null
 
+  // Section dengan toggle: tanya tampil/tidak dulu. Tanpa jawaban ini, jangan
+  // minta datanya (dan jangan biarkan section kosong tampil di undangan).
+  if (spec.visibleKey) {
+    const gate = state.gates?.[sectionKey]
+    if (!gate) {
+      state.section = sectionKey
+      state.gatePending = sectionKey
+      state.field = undefined
+      state.pendingUpload = null
+      await saveState(profileId, contactId, draft, state)
+      return `Bagian ${spec.label} mau ditampilkan di undangan Kakak? Balas "ya" atau "tidak".`
+    }
+    if (gate === "off") return null
+  }
+
   // Sesi acara: lengkapi sesi yang belum lengkap; kalau sudah lengkap,
   // tawarkan "ada acara lain?" SEKALI, lalu tutup bagian ini.
   if (spec.repeat === "sessions") {
@@ -715,6 +779,23 @@ async function answerSession(
   const profile = await profileRow(profileId)
   if (!profile) return "Profil tidak ditemukan."
 
+  // Acara tidak punya toggle: tanpa nama/tanggal/lokasi tamu tidak tahu ke mana
+  // harus datang. Jelaskan sekali, jangan simpan "lewati" sebagai nama acara.
+  if (step === 0 && isSkip(text)) {
+    const attempts = { ...(state.skipAttempts || {}) }
+    attempts.acara = (attempts.acara || 0) + 1
+    state.skipAttempts = attempts
+    if (attempts.acara >= 2) {
+      state.asked = Array.from(new Set([...(state.asked || []), "acara"]))
+      state.sessionStep = undefined
+      state.sessionDraft = null
+      await saveState(profileId, contactId, draft, state)
+      return `Baik, bagian acara aku kosongkan dulu. Catatan: tanpa acara undangan belum bisa dikonfirmasi.\n\n${await nextPrompt(profileId, contactId, state, draft)}`
+    }
+    await saveState(profileId, contactId, draft, state)
+    return `Bagian acara wajib ada untuk template Kakak. ${MANDATORY_WHY.acara} Boleh isi nama acara dan tanggalnya dulu? Kalau memang belum bisa, balas "lewati" sekali lagi dan aku lanjut ke bagian lain.`
+  }
+
   const sessionDraft = (state.sessionDraft as Record<string, unknown>) || {}
 
   // Validasi hanya sub-field yang sedang dijawab. Sesi lain (termasuk data lama
@@ -783,12 +864,16 @@ async function answerGift(
   if (state.giftPhase === "account") {
     const step = state.giftStep ?? 0
     const question = GIFT_ACCOUNT_QUESTIONS[step]
-    if (step === 0 && isSkip(text)) {
+    if (isSkip(text)) {
+      // Tidak ada rekening = bagian hadiah tidak ditampilkan sama sekali.
+      await applyField(profileId, "gift_section_visible", false)
+      state.gates = { ...(state.gates || {}), gift: "off" }
       state.asked = Array.from(new Set([...(state.asked || []), "gift"]))
       state.giftPhase = null
       state.giftStep = undefined
+      state.giftDraft = {}
       await saveState(profileId, contactId, draft, state)
-      return nextPrompt(profileId, contactId, state, draft)
+      return `Baik, bagian hadiah tidak ditampilkan ya Kak.\n\n${await nextPrompt(profileId, contactId, state, draft)}`
     }
     const value = text.trim()
     if (!value) return "Jawabannya masih kosong."
@@ -830,6 +915,20 @@ async function answerGift(
   const step = state.giftStep ?? 0
   const question = GIFT_ADDRESS_QUESTIONS[step]
   const isOptional = "optional" in question && question.optional === true
+
+  // Alamat pengiriman opsional di editor. Sekali bilang lewati = seluruh blok
+  // alamat dilewati; tidak ada baris kosong dan tidak ada teks "lewati" yang
+  // tersimpan sebagai alamat.
+  if (!isOptional && (isSkip(text) || /^lewat$/.test(text.trim().toLowerCase()))) {
+    await supabaseAdmin.from("gift_addresses").delete().eq("wedding_profile_id", profileId)
+    state.giftPhase = null
+    state.giftStep = undefined
+    state.giftDraft = {}
+    state.asked = Array.from(new Set([...(state.asked || []), "gift"]))
+    await saveState(profileId, contactId, draft, state)
+    return `Baik, alamat pengiriman tidak diisi. Rekening hadiah tetap tampil ya Kak.\n\n${await nextPrompt(profileId, contactId, state, draft)}`
+  }
+
   if (isOptional && isSkip(text)) {
     // lewati field opsional
   } else {
@@ -866,6 +965,22 @@ async function answerGift(
   return nextPrompt(profileId, contactId, state, draft)
 }
 
+async function skipStorySection(
+  profileId: string,
+  contactId: string,
+  state: OnboardingState,
+  draft: Record<string, unknown>
+): Promise<string> {
+  await applyField(profileId, "story_visible", false)
+  state.gates = { ...(state.gates || {}), story: "off" }
+  state.asked = Array.from(new Set([...(state.asked || []), "story"]))
+  state.storyStep = undefined
+  state.storyDraft = null
+  state.storyAwaitingMore = false
+  await saveState(profileId, contactId, draft, state)
+  return `Baik, bagian kisah cinta tidak ditampilkan ya Kak.\n\n${await nextPrompt(profileId, contactId, state, draft)}`
+}
+
 async function answerStory(
   profileId: string,
   contactId: string,
@@ -877,6 +992,7 @@ async function answerStory(
   const question = STORY_QUESTIONS[step]
   const profile = await profileRow(profileId)
   if (!profile) return "Profil tidak ditemukan."
+  if (step === 0 && isSkip(text)) return skipStorySection(profileId, contactId, state, draft)
 
   const storyDraft = (state.storyDraft as Record<string, unknown>) || {}
   const optional = "optional" in question && question.optional === true
@@ -1029,6 +1145,90 @@ export async function handleOnboarding(
     // Pertanyaan di tengah pengisian dijawab router (state tidak hilang).
     if (ESCAPE_INTENTS.has(classify(message))) return null
     if (looksLikeQuestion(message)) return null
+  }
+
+  // --- Gate: bagian ini ditampilkan atau tidak -------------------------------
+  if (state.gatePending) {
+    const key = state.gatePending
+    const spec = SECTION_SPECS[key]
+    const label = spec?.label || key
+    if (isSkip(message) || NO_WORDS.test(lower)) {
+      if (spec?.visibleKey) await applyField(profileId, spec.visibleKey, false)
+      state.gates = { ...(state.gates || {}), [key]: "off" }
+      state.asked = Array.from(new Set([...(state.asked || []), key]))
+      state.gatePending = null
+      state.section = undefined
+      state.field = undefined
+      await saveState(profileId, contactId, draft, state)
+      return `Baik, bagian ${label} tidak ditampilkan ya Kak.\n\n${await nextPrompt(profileId, contactId, state, draft)}`
+    }
+    if (YES_WORDS.test(lower)) {
+      if (spec?.visibleKey) await applyField(profileId, spec.visibleKey, true)
+      state.gates = { ...(state.gates || {}), [key]: "on" }
+      state.gatePending = null
+      await saveState(profileId, contactId, draft, state)
+      return nextPrompt(profileId, contactId, state, draft)
+    }
+    await saveState(profileId, contactId, draft, state)
+    return gateQuestion(label)
+  }
+
+  // --- Konfirmasi: klien minta lewati saat bagian sudah mulai diisi ----------
+  if (state.skipPending) {
+    const key = state.skipPending
+    const spec = SECTION_SPECS[key]
+    const label = spec?.label || key
+    if (YES_WORDS.test(lower)) {
+      if (spec?.visibleKey) await applyField(profileId, spec.visibleKey, false)
+      state.gates = { ...(state.gates || {}), [key]: "off" }
+      state.asked = Array.from(new Set([...(state.asked || []), key]))
+      state.skipPending = null
+      state.section = undefined
+      state.field = undefined
+      state.sessionStep = undefined
+      state.sessionDraft = null
+      state.storyStep = undefined
+      state.storyDraft = null
+      state.giftPhase = null
+      state.giftStep = undefined
+      state.giftDraft = {}
+      await saveState(profileId, contactId, draft, state)
+      return `Oke, bagian ${label} dilewati. Data yang sudah masuk tetap tersimpan dan bisa diaktifkan lagi dari dashboard.\n\n${await nextPrompt(profileId, contactId, state, draft)}`
+    }
+    if (NO_WORDS.test(lower)) {
+      state.skipPending = null
+      await saveState(profileId, contactId, draft, state)
+      return nextPrompt(profileId, contactId, state, draft)
+    }
+    return `Bagian ${label} mau dilewati? Balas "ya" untuk melewati, atau "tidak" untuk lanjut mengisi.`
+  }
+
+  // --- "lewati" di tengah pengisian ------------------------------------------
+  if (state.stage === "data" && !state.pendingUpload && isSkip(message)) {
+    const key = state.section || ""
+    const spec = SECTION_SPECS[key]
+    const fieldSpec = state.field ? spec?.fields.find((item) => item.key === state.field) : undefined
+    const isOptionalField = fieldSpec?.optional === true
+    if (spec?.visibleKey && !spec.repeat && !isOptionalField) {
+      state.skipPending = key
+      await saveState(profileId, contactId, draft, state)
+      return `Berarti bagian ${spec.label} tidak ditampilkan ya Kak? Data yang sudah masuk tetap tersimpan dan bisa diaktifkan lagi dari dashboard. Balas "ya" untuk melewati, atau "tidak" untuk lanjut mengisi.`
+    }
+    if (spec && !spec.visibleKey && !spec.repeat && !isOptionalField) {
+      const attempts = { ...(state.skipAttempts || {}) }
+      attempts[key] = (attempts[key] || 0) + 1
+      state.skipAttempts = attempts
+      const label = spec.label || key
+      if (attempts[key] >= 2) {
+        state.parked = Array.from(new Set([...(state.parked || []), key]))
+        state.asked = Array.from(new Set([...(state.asked || []), key]))
+        state.field = undefined
+        await saveState(profileId, contactId, draft, state)
+        return `Baik, bagian ${label} aku kosongkan dulu. Catatan: tanpa bagian ini undangan belum bisa dikonfirmasi, jadi nanti perlu dilengkapi dari dashboard.\n\n${await nextPrompt(profileId, contactId, state, draft)}`
+      }
+      await saveState(profileId, contactId, draft, state)
+      return `Bagian ${label} wajib ada untuk template Kakak. ${MANDATORY_WHY[key] || "Tanpa bagian ini undangan belum bisa dikonfirmasi."} Boleh isi versi singkatnya dulu? Kalau memang belum bisa, balas "lewati" sekali lagi dan aku lanjut ke bagian lain.`
+    }
   }
 
   if (state.stage === "preview") {

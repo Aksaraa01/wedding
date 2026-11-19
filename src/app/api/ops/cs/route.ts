@@ -104,6 +104,14 @@ export async function GET(req: Request) {
     })
   }
 
+  // Daftar calon follow-up (dry-run): dipakai /ops/cs untuk melihat siapa yang
+  // akan dihubungi sebelum flag re-engage dinyalakan.
+  if (url.searchParams.get("reengage") === "1") {
+    const { findReengageCandidates } = await import("@/lib/cs/reengage")
+    const run = await findReengageCandidates()
+    return NextResponse.json({ candidates: run.candidates, skipped: run.skipped })
+  }
+
   const q = (url.searchParams.get("q") || "").trim()
 
   // Pencarian: nama/nomor kontak, nama pasangan (profil undangan), atau isi
