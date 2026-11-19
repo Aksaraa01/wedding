@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import PageTheme from "@/components/PageTheme"
+import CsConversationContext from "@/components/ops/CsConversationContext"
 import OpsHeader from "@/components/ops/OpsHeader"
 import { useVisiblePoll } from "@/lib/useVisiblePoll"
 
@@ -51,8 +52,17 @@ type Message = {
 }
 
 type Detail = {
-  conversation: { id: string; status: string; intent: string | null; ai_paused_until: string | null }
+  conversation: {
+    id: string
+    status: string
+    intent: string | null
+    ai_paused_until: string | null
+    last_inbound_at: string | null
+    last_outbound_at: string | null
+  }
   contact: { id: string; name: string | null; phone: string | null; verified_at: string | null } | null
+  couple: { id: string; groom_name: string | null; bride_name: string | null; slug: string | null } | null
+  template: { id: string; name: string | null } | null
   lead: Lead | null
   messages: Message[]
   escalations: { id: string; reason: string; priority: string; status: string; summary: string | null }[]
@@ -298,7 +308,7 @@ export default function OpsCsPage() {
     <>
       <PageTheme mode="light" />
       <OpsHeader employee={employee} activeKey="cs" />
-      <main className="pt-20 h-screen flex bg-background overflow-hidden">
+      <main className="pt-20 h-screen supports-[height:100dvh]:h-[100dvh] flex bg-background overflow-hidden">
         <aside
           className={`${selectedId ? "hidden md:flex" : "flex"} w-full md:w-[360px] shrink-0 border-r border-outline-variant flex-col`}
         >
@@ -385,7 +395,7 @@ export default function OpsCsPage() {
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Cari nama, nomor, pasangan, atau isi pesan"
                 aria-label="Cari percakapan"
-                className="w-full border border-outline-variant pl-9 pr-9 py-2 text-sm bg-white"
+                className="w-full border border-outline-variant pl-9 pr-9 py-2.5 text-base md:text-sm bg-white"
               />
               {search && (
                 <button
@@ -413,7 +423,7 @@ export default function OpsCsPage() {
               <button
                 key={item.id}
                 onClick={() => setSelectedId(item.id)}
-                className={`w-full text-left px-4 py-3 border-b border-outline-variant/60 hover:bg-surface-container-low ${
+                className={`w-full text-left px-4 py-3.5 md:py-3 border-b border-outline-variant/60 hover:bg-surface-container-low ${
                   selectedId === item.id ? "bg-surface-container-low" : ""
                 }`}
               >
@@ -460,7 +470,7 @@ export default function OpsCsPage() {
             </div>
           ) : (
             <>
-              <header className="p-4 border-b border-outline-variant flex flex-wrap items-center gap-3">
+              <header className="shrink-0 px-3 md:px-4 py-2.5 border-b border-outline-variant flex flex-wrap items-center gap-2 md:gap-3 bg-background">
                 <button
                   onClick={() => setSelectedId(null)}
                   className="md:hidden w-9 h-9 border border-outline-variant flex items-center justify-center"
@@ -468,7 +478,7 @@ export default function OpsCsPage() {
                 >
                   <span className="material-symbols-outlined text-[18px]">arrow_back</span>
                 </button>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="font-semibold truncate">
                     {detail.contact?.name || detail.contact?.phone || "Tanpa nama"}
                   </p>
@@ -478,7 +488,7 @@ export default function OpsCsPage() {
                     {statusLabel(detail.conversation.status)}
                   </p>
                 </div>
-                <div className="ml-auto flex items-center gap-2">
+                <div className="basis-full md:basis-auto md:ml-auto flex items-center gap-2">
                   {/* Toggle AI per percakapan: satu kontrol, statusnya jelas. */}
                   <button
                     type="button"
@@ -527,82 +537,22 @@ export default function OpsCsPage() {
                 </div>
               )}
 
-              {detail.draft && Object.keys(detail.draft.draft || {}).length > 0 && (
-                <div className="px-4 py-3 border-b border-outline-variant bg-surface-container-low">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-xs font-semibold">
-                      Data dikumpulkan CS ({detail.draft.status}) · {fmt(detail.draft.updated_at)}
-                    </p>
-                    {detail.editorUrl && (
-                      <a
-                        href={detail.editorUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[11px] underline whitespace-nowrap"
-                      >
-                        Buka editor pasangan
-                      </a>
-                    )}
-                  </div>
-                  <ul className="mt-1.5 text-[11px] space-y-0.5">
-                    {Object.entries(detail.draft.draft).map(([key, value]) => (
-                      <li key={key}>
-                        <span className="font-semibold">{key}</span>:{" "}
-                        <span className="whitespace-pre-wrap break-words">
-                          {typeof value === "string" ? value : JSON.stringify(value)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              <CsConversationContext
+                status={detail.conversation.status}
+                lastInboundAt={detail.conversation.last_inbound_at}
+                lastOutboundAt={detail.conversation.last_outbound_at}
+                couple={detail.couple}
+                templateName={detail.template?.name || null}
+                draft={detail.draft}
+                lead={detail.lead}
+                budgetLabels={BUDGET_LABELS}
+                editorUrl={detail.editorUrl}
+              />
 
-              {detail.lead && (
-                <div className="px-4 py-3 border-b border-outline-variant bg-surface-container-low">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                    <div>
-                      <p className="uppercase tracking-widest text-[9px] text-on-surface-variant">Tahap</p>
-                      <p className="font-semibold">{detail.lead.stage}</p>
-                    </div>
-                    <div>
-                      <p className="uppercase tracking-widest text-[9px] text-on-surface-variant">Tanggal</p>
-                      <p className="font-semibold">{detail.lead.wedding_date || "-"}</p>
-                    </div>
-                    <div>
-                      <p className="uppercase tracking-widest text-[9px] text-on-surface-variant">Kota</p>
-                      <p className="font-semibold">{detail.lead.city || "-"}</p>
-                    </div>
-                    <div>
-                      <p className="uppercase tracking-widest text-[9px] text-on-surface-variant">Tamu</p>
-                      <p className="font-semibold">{detail.lead.guest_count ?? "-"}</p>
-                    </div>
-                    <div>
-                      <p className="uppercase tracking-widest text-[9px] text-on-surface-variant">Budget</p>
-                      <p className="font-semibold">
-                        {detail.lead.budget_band ? BUDGET_LABELS[detail.lead.budget_band] || detail.lead.budget_band : "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="uppercase tracking-widest text-[9px] text-on-surface-variant">Kebutuhan</p>
-                      <p className="font-semibold">{detail.lead.need || "-"}</p>
-                    </div>
-                    <div>
-                      <p className="uppercase tracking-widest text-[9px] text-on-surface-variant">Paket</p>
-                      <p className="font-semibold">{detail.lead.package_interest || "-"}</p>
-                    </div>
-                    <div>
-                      <p className="uppercase tracking-widest text-[9px] text-on-surface-variant">Keberatan</p>
-                      <p className="font-semibold">{detail.lead.objection_count}x</p>
-                    </div>
-                  </div>
-                  <p className="text-[10px] text-on-surface-variant mt-2">
-                    Follow-up: {detail.lead.next_action_at ? fmt(detail.lead.next_action_at) : "-"}
-                    {detail.lead.opt_out ? " · OPT-OUT" : ""}
-                  </p>
-                </div>
-              )}
-
-              <div ref={messagesRef} className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#f7f4ee]">
+              <div
+                ref={messagesRef}
+                className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 md:p-4 space-y-3 bg-[#f7f4ee]"
+              >
                 {detail.messages.map((message) => (
                   <div
                     key={message.id}
@@ -617,12 +567,15 @@ export default function OpsCsPage() {
                     >
                       {message.body}
                       <div
+                        title={message.model || undefined}
                         className={`text-[9px] mt-1 ${
                           message.direction === "in" ? "text-on-surface-variant" : "text-white/70"
                         }`}
                       >
                         {fmt(message.created_at)}
-                        {message.model ? ` · ${message.model}` : ""}
+                        {/* Balasan tim ditandai; balasan AI tidak perlu nama model
+                            di layar operasional (tetap ada di tooltip). */}
+                        {message.model?.startsWith("human") ? " · Tim" : ""}
                         {message.guard && message.guard.ok === false ? " · guard" : ""}
                         {message.error ? ` · ${message.error}` : ""}
                       </div>
@@ -631,7 +584,7 @@ export default function OpsCsPage() {
                 ))}
               </div>
 
-              <footer className="p-3 border-t border-outline-variant bg-white">
+              <footer className="shrink-0 px-3 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] border-t border-outline-variant bg-white">
                 {error && <p className="text-xs text-red-700 mb-2">{error}</p>}
                 <div className="flex gap-2 items-end">
                   <textarea
@@ -645,14 +598,14 @@ export default function OpsCsPage() {
                     }}
                     rows={2}
                     placeholder="Balas sebagai tim… (⌘/Ctrl + Enter untuk kirim)"
-                    className="flex-1 border border-outline-variant px-3 py-2 text-sm resize-none"
+                    className="flex-1 border border-outline-variant px-3 py-2 text-base md:text-sm resize-none"
                   />
                   <button
                     onClick={() => {
                       if (text.trim() && !busy) act("reply", text.trim())
                     }}
                     disabled={busy || !text.trim()}
-                    className="px-4 py-2 text-[10px] font-label-md uppercase tracking-widest bg-primary text-white disabled:opacity-50 h-[52px]"
+                    className="px-4 py-2 text-[10px] font-label-md uppercase tracking-widest bg-primary text-white disabled:opacity-50 h-[52px] min-w-[64px]"
                   >
                     Kirim
                   </button>

@@ -41,6 +41,24 @@ export async function GET(req: Request) {
 
     const contact = first((conversation as Record<string, unknown>).cs_contacts as ContactRow | ContactRow[])
 
+    // Ringkasan atas butuh konteks undangan: pasangan + template. Tanpa ini
+    // staf hanya melihat nomor dan nama push WhatsApp yang sering "-".
+    const { data: couple } = contact?.wedding_profile_id
+      ? await supabaseAdmin
+          .from("wedding_profiles")
+          .select("id,groom_name,bride_name,slug,selected_template_id")
+          .eq("id", contact.wedding_profile_id)
+          .maybeSingle()
+      : { data: null }
+
+    const { data: template } = couple?.selected_template_id
+      ? await supabaseAdmin
+          .from("web_templates")
+          .select("id,name")
+          .eq("id", couple.selected_template_id)
+          .maybeSingle()
+      : { data: null }
+
     const [{ data: lead }, { data: messages }, { data: escalations }, { data: draftRow }] = await Promise.all([
       supabaseAdmin.from("cs_leads").select("*").eq("contact_id", conversation.contact_id).maybeSingle(),
       supabaseAdmin
@@ -67,6 +85,15 @@ export async function GET(req: Request) {
     return NextResponse.json({
       conversation: { ...conversation, cs_contacts: undefined },
       contact,
+      couple: couple
+        ? {
+            id: couple.id,
+            groom_name: couple.groom_name,
+            bride_name: couple.bride_name,
+            slug: couple.slug,
+          }
+        : null,
+      template: template || null,
       lead: lead || null,
       messages: messages || [],
       escalations: escalations || [],
