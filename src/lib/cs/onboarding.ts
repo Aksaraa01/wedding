@@ -40,6 +40,7 @@ export interface OnboardingState {
   giftPhase?: "account" | "address" | null
   giftStep?: number
   giftDraft?: Record<string, unknown>
+  attempts?: Record<string, number>
   storyStep?: number
   storyDraft?: Record<string, unknown> | null
   pendingUpload?: string | null
@@ -451,7 +452,34 @@ async function answerField(
   }
   const outcome = validateFlowAnswer(field, text)
   if (!outcome.ok) {
+    const attempts = { ...(state.attempts || {}) }
+    attempts[field.key] = (attempts[field.key] || 0) + 1
+    state.attempts = attempts
+
+    // Field opsional tidak boleh membuat klien terjebak: setelah 3 kali gagal,
+    // lewati dan lanjut (mis. klien mengetik nama pada pertanyaan Instagram).
+    if (field.optional && attempts[field.key] >= 3) {
+      const asked = new Set(state.asked || [])
+      asked.add(field.key)
+      state.asked = Array.from(asked)
+      state.field = undefined
+      state.pendingUpload = null
+      await saveState(profileId, contactId, draft, state)
+      return `Oke, bagian ini aku lewati dulu ya Kak (bisa diisi dari dashboard nanti).\n\n${await nextPrompt(
+        profileId,
+        contactId,
+        state,
+        draft
+      )}`
+    }
+
     return `${outcome.error}\n\n${field.question}`
+  }
+
+  if (state.attempts?.[field.key]) {
+    const attempts = { ...state.attempts }
+    delete attempts[field.key]
+    state.attempts = attempts
   }
 
   if (outcome.value !== undefined) {

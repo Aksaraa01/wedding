@@ -393,7 +393,28 @@ export function validateSessionField(
 }
 
 
-const SKIP_WORDS = ["lewati", "skip", "kosong", "tidak ada", "-", "gak ada", "nggak ada"]
+const SKIP_WORDS = [
+  "lewati",
+  "skip",
+  "kosong",
+  "tidak ada",
+  "-",
+  "gak ada",
+  "nggak ada",
+  "ngga ada",
+  "ga ada",
+  "gak punya",
+  "nggak punya",
+  "ngga punya",
+  "ga punya",
+  "tidak punya",
+  "belum ada",
+  "belum punya",
+  "gak punya ig",
+  "ga punya ig",
+  "tidak punya ig",
+  "no",
+]
 
 export function isSkip(text: string): boolean {
   return SKIP_WORDS.includes((text || "").trim().toLowerCase())

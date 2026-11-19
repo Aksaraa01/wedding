@@ -217,7 +217,15 @@ export function validateField(key: string, raw: unknown, now: Date = new Date())
 
     case "instagram": {
       if (typeof raw !== "string") return fail("invalid_instagram", "Instagram tidak valid")
-      const value = raw.replace(/^@/, "").trim()
+      // Terima bentuk yang wajar ditulis klien: "@novi", "ig: novi",
+      // "instagram.com/novi", dengan spasi/trailing slash.
+      const value = raw
+        .trim()
+        .replace(/^(ig|instagram)\s*[:=]\s*/i, "")
+        .replace(/^https?:\/\/(www\.)?instagram\.com\//i, "")
+        .replace(/^@+/, "")
+        .replace(/\/.*$/, "")
+        .trim()
       if (!/^[A-Za-z0-9._]{1,30}$/.test(value)) {
         return fail("invalid_instagram", "Username Instagram tidak valid")
       }
