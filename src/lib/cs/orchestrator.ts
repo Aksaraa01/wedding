@@ -521,8 +521,12 @@ export async function handleInbound(input: InboundInput): Promise<InboundResult>
   // Sitasi ditambahkan deterministik dari sumber teratas, bukan oleh model:
   // selalu menunjuk dokumen yang benar-benar dikirim sebagai konteks.
   const topSource = sources[0]
+  // Jawaban yang menyerahkan ke tim tidak boleh menempel sumber acak.
+  const hedged = /(cek (dulu )?ke tim|tanyakan ke tim|tanya ke tim|belum (ada|punya) info|aku teruskan ke tim|sambungkan ke tim)/i.test(
+    result.text
+  )
   const finalText =
-    result.guarded && topSource && isCitationRelevant(result.text, topSource)
+    result.guarded && topSource && !hedged && isCitationRelevant(result.text, topSource)
       ? result.text + citationLine(topSource)
       : result.text
 
