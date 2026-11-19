@@ -668,17 +668,21 @@ async function answerGift(
   }
 
   const address = (state.giftDraft || {}) as Record<string, unknown>
-  await supabaseAdmin.from("gift_addresses").upsert(
-    {
-      wedding_profile_id: profileId,
-      recipient_name: String(address.recipient_name || ""),
-      full_address: String(address.full_address || ""),
-      city: String(address.city || ""),
-      postal_code: String(address.postal_code || ""),
-      phone: String(address.phone || ""),
-    },
-    { onConflict: "wedding_profile_id" }
-  )
+  // Tabel ini TIDAK punya unique constraint pada wedding_profile_id, jadi
+  // upsert(onConflict) selalu 400. Ganti baris lama lalu insert.
+  await supabaseAdmin.from("gift_addresses").delete().eq("wedding_profile_id", profileId)
+  const { error: addressError } = await supabaseAdmin.from("gift_addresses").insert({
+    wedding_profile_id: profileId,
+    recipient_name: String(address.recipient_name || ""),
+    full_address: String(address.full_address || ""),
+    city: String(address.city || ""),
+    postal_code: String(address.postal_code || ""),
+    phone: String(address.phone || ""),
+  })
+  if (addressError) {
+    await saveState(profileId, contactId, draft, state)
+    return "Alamat hadiah gagal disimpan. Coba lagi ya Kak, atau isi dari dashboard."
+  }
 
   state.giftPhase = null
   state.giftStep = undefined
