@@ -32,6 +32,7 @@ type Item = {
   last_outbound_at: string | null
   needs_reply: boolean
   contact: { id: string; name: string | null; phone: string | null; verified_at: string | null } | null
+  couple: { id: string; groom_name: string | null; bride_name: string | null; slug: string | null } | null
   lead: Lead | null
   escalation: { id: string; reason: string; priority: string; status: string } | null
   last_message: { direction: string; body: string; created_at: string } | null
@@ -99,6 +100,9 @@ export default function OpsCsPage() {
   const [detail, setDetail] = useState<Detail | null>(null)
   const [filter, setFilter] = useState<"all" | "needs" | "human" | "closed">("all")
   const [search, setSearch] = useState("")
+  // Polling & refresh setelah aksi harus tetap memakai kata kunci yang aktif,
+  // kalau tidak hasil pencarian tertimpa daftar 80 terbaru.
+  const searchRef = useRef("")
   const [text, setText] = useState("")
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState("")
@@ -172,9 +176,11 @@ export default function OpsCsPage() {
     [headers, loadWa, waPhone]
   )
 
-  const fetchList = useCallback(async () => {
+  const fetchList = useCallback(async (query?: string) => {
+    const term = query === undefined ? searchRef.current : query
     try {
-      const res = await fetch("/api/ops/cs", { headers })
+      const suffix = term && term.trim() ? `?q=${encodeURIComponent(term.trim())}` : ""
+      const res = await fetch(`/api/ops/cs${suffix}`, { headers })
       if (res.status === 401) {
         router.replace("/ops/login")
         return
@@ -203,8 +209,21 @@ export default function OpsCsPage() {
   )
 
   useEffect(() => {
-    if (employee) fetchList()
-  }, [employee, fetchList])
+    searchRef.current = search
+  }, [search])
+
+  useEffect(() => {
+    if (!employee) return
+    const term = search.trim()
+    // 1 karakter: saring daftar yang sudah dimuat. 2+ karakter: tanya server,
+    // supaya percakapan lama (bukan 80 terbaru) ikut ketemu.
+    if (term.length < 2) {
+      void fetchList()
+      return
+    }
+    const timer = setTimeout(() => void fetchList(term), 300)
+    return () => clearTimeout(timer)
+  }, [employee, fetchList, search])
 
   useVisiblePoll(fetchList, POLL_MS, !!employee)
 
@@ -229,12 +248,10 @@ export default function OpsCsPage() {
     if (filter === "needs" && !(item.needs_reply || item.escalation)) return false
     if (filter === "human" && item.status !== "human") return false
     if (filter === "closed" && item.status !== "closed") return false
-    if (search.trim()) {
-      const haystack = `${item.contact?.name || ""} ${item.contact?.phone || ""} ${item.last_message?.body || ""}`.toLowerCase()
-      if (!haystack.includes(search.trim().toLowerCase())) return false
-    }
     return true
   })
+
+  const searching = search.trim().length >= 2
 
   const act = useCallback(
     async (action: string, message?: string) => {
@@ -359,12 +376,33 @@ export default function OpsCsPage() {
                 </button>
               ))}
             </div>
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Cari nama, nomor, atau pesan"
-              className="w-full border border-outline-variant px-3 py-2 text-sm bg-white"
-            />
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant">
+                search
+              </span>
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Cari nama, nomor, pasangan, atau isi pesan"
+                aria-label="Cari percakapan"
+                className="w-full border border-outline-variant pl-9 pr-9 py-2 text-sm bg-white"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch("")}
+                  aria-label="Hapus pencarian"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
+                >
+                  <span className="material-symbols-outlined text-[18px]">close</span>
+                </button>
+              )}
+            </div>
+            {searching && (
+              <p className="text-[10px] text-on-surface-variant">
+                {filtered.length} hasil untuk “{search.trim()}” · nama, nomor, nama pasangan, isi pesan
+              </p>
+            )}
           </div>
 
           <div className="flex-1 overflow-y-auto">
@@ -382,6 +420,11 @@ export default function OpsCsPage() {
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-semibold text-sm truncate">
                     {item.contact?.name || item.contact?.phone || "Tanpa nama"}
+                    {item.couple?.groom_name && (
+                      <span className="ml-1.5 text-[10px] font-normal text-on-surface-variant">
+                        {item.couple.groom_name} &amp; {item.couple.bride_name}
+                      </span>
+                    )}
                   </p>
                   <span className={`text-[10px] px-2 py-0.5 rounded ${statusBadge(item.status)}`}>
                     {statusLabel(item.status)}

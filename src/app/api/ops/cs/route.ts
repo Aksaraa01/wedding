@@ -77,13 +77,122 @@ export async function GET(req: Request) {
     })
   }
 
-  const { data: conversations, error: listError } = await supabaseAdmin
+  const q = (url.searchParams.get("q") || "").trim()
+
+  // Pencarian: nama/nomor kontak, nama pasangan (profil undangan), atau isi
+  // pesan. Nomor dinormalisasi ke bentuk 62… supaya "0812…", "+62812…" dan
+  // "62812…" menemukan kontak yang sama.
+  let searchIds: string[] | null = null
+  if (q) {
+    const term = q.replace(/[%_]/g, "").trim().slice(0, 60)
+    const digits = q.replace(/\D/g, "")
+
+    const contactFilters = [`name.ilike.%${term}%`]
+    const phoneVariants = new Set<string>()
+    if (digits.length >= 4) {
+      phoneVariants.add(digits)
+      if (digits.startsWith("0")) phoneVariants.add(`62${digits.slice(1)}`)
+      else if (digits.startsWith("8")) phoneVariants.add(`62${digits}`)
+      else if (digits.startsWith("62")) phoneVariants.add(`0${digits.slice(2)}`)
+    }
+    for (const variant of phoneVariants) {
+      contactFilters.push(`phone.ilike.%${variant}%`, `wa_jid.ilike.%${variant}%`)
+    }
+
+    const { data: contactHits } = await supabaseAdmin
+      .from("cs_contacts")
+      .select("id,wedding_profile_id")
+      .or(contactFilters.join(","))
+      .limit(200)
+
+    const contactIds = new Set<string>()
+    const profileIds = new Set<string>()
+    for (const hit of (contactHits || []) as { id: string; wedding_profile_id: string | null }[]) {
+      contactIds.add(hit.id)
+      if (hit.wedding_profile_id) profileIds.add(hit.wedding_profile_id)
+    }
+
+    // Nama pasangan: staf biasanya ingat "Rafi Novi", bukan nomor WhatsApp.
+    // Semua kata harus muncul di salah satu nama/slug (bukan salah satu saja).
+    const words = term
+      .split(/\s+/)
+      .map((word) => word.trim())
+      .filter((word) => word.length >= 3)
+      .slice(0, 3)
+    if (words.length) {
+      const or = words
+        .flatMap((word) => [
+          `groom_name.ilike.%${word}%`,
+          `bride_name.ilike.%${word}%`,
+          `slug.ilike.%${word}%`,
+        ])
+        .join(",")
+      const { data: profileHits } = await supabaseAdmin
+        .from("wedding_profiles")
+        .select("id,groom_name,bride_name,slug")
+        .or(or)
+        .limit(200)
+      for (const row of (profileHits || []) as {
+        id: string
+        groom_name: string | null
+        bride_name: string | null
+        slug: string | null
+      }[]) {
+        const haystack = [row.groom_name, row.bride_name, row.slug]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+        if (words.every((word) => haystack.includes(word.toLowerCase()))) profileIds.add(row.id)
+      }
+    }
+
+    if (profileIds.size) {
+      const { data: byProfile } = await supabaseAdmin
+        .from("cs_contacts")
+        .select("id")
+        .in("wedding_profile_id", [...profileIds])
+        .limit(200)
+      for (const row of (byProfile || []) as { id: string }[]) contactIds.add(row.id)
+    }
+
+    const conversationIds = new Set<string>()
+    if (contactIds.size) {
+      const { data: convByContact } = await supabaseAdmin
+        .from("cs_conversations")
+        .select("id")
+        .in("contact_id", [...contactIds])
+        .limit(200)
+      for (const row of (convByContact || []) as { id: string }[]) conversationIds.add(row.id)
+    }
+
+    // Isi pesan: cari potongan percakapan yang menyebut kata itu.
+    if (term.length >= 3) {
+      const { data: messageHits } = await supabaseAdmin
+        .from("cs_messages")
+        .select("conversation_id")
+        .ilike("body", `%${term}%`)
+        .order("created_at", { ascending: false })
+        .limit(300)
+      for (const row of (messageHits || []) as { conversation_id: string }[]) {
+        conversationIds.add(row.conversation_id)
+      }
+    }
+
+    if (!conversationIds.size) return NextResponse.json({ items: [], query: q })
+    searchIds = [...conversationIds]
+  }
+
+  let listQuery = supabaseAdmin
     .from("cs_conversations")
     .select(
       "id,status,intent,ai_paused_until,assigned_to,last_inbound_at,last_outbound_at,escalated_at,created_at,contact_id,cs_contacts!inner(id,name,phone,verified_at,wedding_profile_id)"
     )
     .order("last_inbound_at", { ascending: false, nullsFirst: false })
-    .limit(80)
+    .limit(q ? 50 : 80)
+
+  if (searchIds) listQuery = listQuery.in("id", searchIds)
+
+  const { data: conversations, error: listError } = await listQuery
 
   if (listError) {
     return NextResponse.json({ error: listError.message }, { status: 500 })
@@ -131,6 +240,18 @@ export async function GET(req: Request) {
     if (!lastMessageByConversation.has(key)) lastMessageByConversation.set(key, message)
   }
 
+  const profileIds = rows
+    .map((row) => first(row.cs_contacts as ContactRow | ContactRow[])?.wedding_profile_id)
+    .filter((id): id is string => !!id)
+  const { data: profileRows } = profileIds.length
+    ? await supabaseAdmin
+        .from("wedding_profiles")
+        .select("id,groom_name,bride_name,slug")
+        .in("id", [...new Set(profileIds)])
+    : { data: [] as Record<string, unknown>[] }
+  const profileById = new Map<string, Record<string, unknown>>()
+  for (const row of (profileRows || []) as Record<string, unknown>[]) profileById.set(String(row.id), row)
+
   const items = rows.map((row) => {
     const contact = first(row.cs_contacts as ContactRow | ContactRow[])
     const lastMessage = lastMessageByConversation.get(String(row.id)) || null
@@ -148,6 +269,7 @@ export async function GET(req: Request) {
       last_inbound_at: row.last_inbound_at,
       last_outbound_at: row.last_outbound_at,
       contact,
+      couple: contact?.wedding_profile_id ? profileById.get(contact.wedding_profile_id) || null : null,
       lead: leadByContact.get(String(row.contact_id)) || null,
       escalation: escalationByConversation.get(String(row.id)) || null,
       last_message: lastMessage,
@@ -155,7 +277,7 @@ export async function GET(req: Request) {
     }
   })
 
-  return NextResponse.json({ items })
+  return NextResponse.json({ items, query: q || null })
 }
 
 async function sendWhatsApp(phone: string, message: string): Promise<boolean> {
