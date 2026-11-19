@@ -176,6 +176,110 @@ function describeSessions(profile: Record<string, unknown>): string {
 
 const ASK_ABOUT_DATA = /apa saja|apa aja|sudah terisi|terisi apa|isi apa|lihat data|cek data|data apa|detail|rincian/i
 
+// ==== Read-back (hanya untuk profil pemilik percakapan) =====================
+// Fungsi ini TIDAK pernah menerima id/nomor dari pesan klien: profileId selalu
+// berasal dari sesi terverifikasi (PIN/OTP di WhatsApp, cookie pasangan di web).
+// Jangan menambahkan lookup berdasarkan teks, atau data pasangan lain bisa bocor.
+
+function maskAccount(value: string): string {
+  const digits = (value || "").replace(/\s+/g, "")
+  if (digits.length <= 4) return "••••"
+  return `${digits.slice(0, 2)}••••${digits.slice(-2)}`
+}
+
+function pickSections(lower: string): Set<string> | null {
+  const map: [RegExp, string][] = [
+    [/kisah|cerita|story|momen/, "story"],
+    [/acara|sesi|tanggal|venue|tempat/, "acara"],
+    [/galeri|foto/, "foto"],
+    [/hadiah|rekening|alamat|kado/, "gift"],
+    [/kutipan|ayat|quote/, "kutipan"],
+    [/video|sinematik/, "video"],
+    [/template|desain|tema/, "tema"],
+    [/turut|mengundang/, "inviting"],
+    [/dress ?code/, "dresscode"],
+    [/live|streaming/, "livestream"],
+    [/profil|mempelai|nama|orang tua|instagram/, "profile"],
+  ]
+  const picked = new Set<string>()
+  for (const [re, key] of map) if (re.test(lower)) picked.add(key)
+  return picked.size ? picked : null
+}
+
+async function describeData(profileId: string, profile: Record<string, unknown>, lower: string): Promise<string> {
+  const picked = pickSections(lower)
+  const show = (key: string) => !picked || picked.has(key)
+
+  const { data: template } = profile.selected_template_id
+    ? await supabaseAdmin
+        .from("web_templates")
+        .select("name")
+        .eq("id", profile.selected_template_id)
+        .maybeSingle()
+    : { data: null }
+
+  const lines: string[] = []
+  lines.push("Data undangan Kakak (hanya untuk akun ini):")
+
+  if (show("tema")) lines.push(`• Template: ${template?.name || "belum dipilih"}`)
+  if (show("profile")) {
+    lines.push(`• Pasangan: ${[profile.groom_full_name || profile.groom_name, profile.bride_full_name || profile.bride_name].filter(Boolean).join(" & ") || "belum diisi"}`)
+    if (profile.groom_parents || profile.bride_parents) {
+      lines.push(`• Orang tua: ${profile.groom_parents || "-"} / ${profile.bride_parents || "-"}`)
+    }
+    lines.push(`• Foto mempelai: ${profile.groom_photo_url ? "ada" : "belum"} / ${profile.bride_photo_url ? "ada" : "belum"}`)
+  }
+  if (show("acara")) {
+    const sessions = Array.isArray(profile.sessions) ? (profile.sessions as Record<string, unknown>[]) : []
+    lines.push(sessions.length ? `• Acara: ${sessions.map((x) => `${x.name || "Acara"}${x.date ? ` (${x.date}${x.time ? ` ${x.time}` : ""})` : ""}`).join(", ")}` : "• Acara: belum ada")
+  }
+  if (show("foto")) {
+    const gallery = Array.isArray(profile.gallery_photos) ? (profile.gallery_photos as unknown[]).length : 0
+    const cover = Array.isArray(profile.cover_photos) ? (profile.cover_photos as unknown[]).length : 0
+    lines.push(`• Foto: sampul ${cover}, galeri ${gallery}`)
+  }
+  if (show("story")) {
+    const stories = Array.isArray(profile.stories) ? (profile.stories as Record<string, unknown>[]) : []
+    lines.push(stories.length ? `• Kisah cinta: ${stories.map((x) => `${x.title || "-"}${x.year ? ` (${x.year})` : ""}`).join(", ")}` : "• Kisah cinta: belum ada")
+  }
+  if (show("kutipan")) {
+    lines.push(profile.quote_text ? `• Kutipan: ${String(profile.quote_text).slice(0, 80)}…${profile.quote_source ? ` (${profile.quote_source})` : ""}` : "• Kutipan: belum ada")
+  }
+  if (show("video")) lines.push(`• Video: ${profile.video_url ? "ada" : "belum ada"}`)
+  if (show("inviting")) {
+    const families = Array.isArray(profile.inviting_families) ? (profile.inviting_families as unknown[]).length : 0
+    lines.push(`• Turut mengundang: ${families} entri`)
+  }
+  if (show("gift")) {
+    const { data: accounts } = await supabaseAdmin
+      .from("gift_accounts")
+      .select("provider_name,account_number")
+      .eq("wedding_profile_id", profileId)
+    const { data: address } = await supabaseAdmin
+      .from("gift_addresses")
+      .select("full_address,city")
+      .eq("wedding_profile_id", profileId)
+      .maybeSingle()
+    if (accounts?.length) {
+      lines.push(`• Rekening hadiah: ${accounts.map((a) => `${a.provider_name} ${maskAccount(String(a.account_number || ""))}`).join(", ")}`)
+    } else {
+      lines.push("• Rekening hadiah: belum ada")
+    }
+    lines.push(`• Alamat hadiah: ${address?.full_address ? `${address.full_address}${address.city ? `, ${address.city}` : ""}` : "belum ada"}`)
+  }
+  if (show("dresscode")) {
+    const dress = (profile.dresscode as Record<string, unknown>) || {}
+    lines.push(`• Dress code: ${dress.title || dress.description || "belum ada"}`)
+  }
+  if (show("livestream")) {
+    const live = (profile.livestream as Record<string, unknown>) || {}
+    lines.push(`• Live streaming: ${live.url || "belum ada"}`)
+  }
+
+  return lines.join("\n")
+}
+// ==== akhir read-back =======================================================
+
 async function applyField(profileId: string, key: string, value: unknown): Promise<void> {
   const profile = await profileRow(profileId)
   if (!profile) return
@@ -889,6 +993,17 @@ export async function handleOnboarding(
 
   const message = text.trim()
   const lower = message.toLowerCase()
+
+  // Read-back: "apa saja yang sudah terisi / kisah cinta / galeri / hadiah…".
+  if (ASK_ABOUT_DATA.test(lower) || (looksLikeQuestion(message) && pickSections(lower) !== null)) {
+    const summary = await describeData(profileId, profile, lower)
+    const pending = state.field || state.pendingUpload
+    const pendingQuestion = pending
+      ? SECTION_SPECS[state.section || ""]?.fields.find((f) => f.key === pending)?.question
+      : undefined
+    await saveState(profileId, contactId, draft, state)
+    return pendingQuestion ? `${summary}\n\n${pendingQuestion}` : `${summary}\n\nLanjut isi undangan? Balas "ya".`
+  }
 
   // Pertanyaan di tengah pengisian (voucher, refund, cara bayar, minta tim)
   // tidak boleh "ditelan" sebagai jawaban field. Lepaskan ke router normal;
