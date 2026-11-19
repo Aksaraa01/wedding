@@ -5,11 +5,11 @@ import { BOUNDARIES, classify, countUnknownStrikes, decide, detectPaymentClaim, 
 import { CS_WHATSAPP, csWhatsAppUrl, paymentContactReply } from "../src/lib/cs/contact.ts"
 import {
   SECTION_SPECS,
-  isSkip,
   mapSectionFromText,
   matchTemplateByName,
   POPULAR_QUOTES,
   isUncertainAnswer,
+  isSkip,
   looksLikeQuestion,
   validateFlowAnswer,
   validateSessionField,
@@ -1267,4 +1267,23 @@ test("kutipan: pertanyaan menawarkan opsi populer", () => {
   const question = SECTION_SPECS.kutipan.fields[0].question
   assert.match(question, /1/)
   assert.match(question, /terserah/i)
+})
+
+test("skip: variasi bahasa klien dikenali", () => {
+  for (const text of [
+    "lewati",
+    "lewati juga",
+    "skip aja",
+    "tidak pakai",
+    "ga pakai",
+    "gak pake",
+    "nggak punya",
+    "belum ada",
+    "tidak punya ig",
+    "no",
+  ]) {
+    assert.equal(isSkip(text), true, text)
+  }
+  assert.equal(isSkip("novi_salsabila"), false)
+  assert.equal(isSkip("@novi"), false)
 })

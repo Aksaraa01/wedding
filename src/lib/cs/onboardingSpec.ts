@@ -394,31 +394,43 @@ export function validateSessionField(
 }
 
 
-const SKIP_WORDS = [
+// Klien menulis "lewati", "tidak pakai", "ga punya IG", "lewati juga", dll.
+// Pencocokan harus pola, bukan daftar kata persis.
+const SKIP_EXACT = new Set([
   "lewati",
   "skip",
   "kosong",
-  "tidak ada",
+  "no",
+  "n/a",
   "-",
+  "tidak ada",
   "gak ada",
+  "ga ada",
   "nggak ada",
   "ngga ada",
-  "ga ada",
+  "belum ada",
+  "tidak punya",
   "gak punya",
+  "ga punya",
   "nggak punya",
   "ngga punya",
-  "ga punya",
-  "tidak punya",
-  "belum ada",
   "belum punya",
-  "gak punya ig",
-  "ga punya ig",
-  "tidak punya ig",
-  "no",
-]
+])
 
 export function isSkip(text: string): boolean {
-  return SKIP_WORDS.includes((text || "").trim().toLowerCase())
+  const value = (text || "")
+    .toLowerCase()
+    .replace(/[.!?]+$/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+  if (!value) return false
+  if (SKIP_EXACT.has(value)) return true
+  if (/^(lewati|skip)\b/.test(value)) return true
+  if (/^(tidak|tak|ga|gak|nggak|ngga|engga|belum)\s+(pakai|pake|punya|ada|menggunakan)\b/.test(value)) {
+    return true
+  }
+  if (/^(tidak|tak|ga|gak|nggak|ngga|engga)\s+ada\s+(ig|instagram)\b/.test(value)) return true
+  return false
 }
 
 export function fieldSpec(key: string): FlowField | null {
