@@ -1237,3 +1237,9 @@ test("knowledge: Ceriavite ada dan tanpa nominal", () => {
   const text = entry.chunks.map((c) => c.content).join(" ")
   assert.ok(!/\brp/i.test(text))
 })
+
+test("onboarding: field wajib menolak 'lewati'", () => {
+  const required = { key: "groom_full_name", label: "Nama", question: "", kind: "text" }
+  const result = validateFlowAnswer(required, "lewati")
+  assert.equal(result.ok, false)
+})

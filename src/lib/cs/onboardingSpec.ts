@@ -317,6 +317,10 @@ export function validateFlowAnswer(field: FlowField, answer: string): Validation
   const text = (answer || "").trim()
   if (!text) return { ok: false, error: "Jawabannya masih kosong." }
   if (field.optional && isSkip(text)) return { ok: true, value: undefined }
+  // Field wajib tidak boleh diisi kata "lewati" — itu tersimpan sebagai nama.
+  if (!field.optional && isSkip(text)) {
+    return { ok: false, error: "Bagian ini wajib diisi, tidak bisa dilewati." }
+  }
 
   const known = FIELD_BY_KEY[field.key]
   if (known) {
