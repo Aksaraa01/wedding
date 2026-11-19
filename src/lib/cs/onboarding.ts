@@ -764,6 +764,14 @@ export async function handleOnboarding(
   }
 
   if (state.stage === "preview") {
+    // Klien minta lanjut mengisi lagi setelah pratinjau: buka alur, jangan
+    // dilempar ke router sebagai pertanyaan.
+    if (/isi undangan|lanjut isi|bantu isi|lanjutkan|tambah data/.test(lower)) {
+      state.stage = "data"
+      state.asked = []
+      await saveState(profileId, contactId, draft, state)
+      return nextPrompt(profileId, contactId, state, draft)
+    }
     const confirming = /^(ya|iya|ok|oke|sudah|udah|betul|benar|setuju|belum|tidak|bukan)/.test(lower)
     if (!confirming && !mapSectionFromText(lower) && classify(message) !== "unknown") return null
   }
