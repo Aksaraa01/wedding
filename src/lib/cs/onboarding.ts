@@ -412,7 +412,20 @@ async function sectionPrompt(
   }
 
   if (spec.repeat === "stories") {
+    if (state.storyAwaitingMore) return null
     if ((state.asked || []).includes("story")) return null
+
+    // Sudah ada cerita tersimpan: tanya "ada momen lain?" dulu, jangan
+    // langsung memaksa menambah cerita baru.
+    const existingStories = Array.isArray(profile.stories) ? (profile.stories as unknown[]) : []
+    if (existingStories.length > 0 && state.storyStep === undefined) {
+      state.section = sectionKey
+      state.storyAwaitingMore = true
+      state.pendingUpload = null
+      await saveState(profileId, contactId, draft, state)
+      return 'Kisah cinta sudah terisi. Ada momen lain? Sebut judulnya, atau balas "selesai".'
+    }
+
     const step = state.storyStep ?? 0
     const question = STORY_QUESTIONS[step]
     if (question) {
